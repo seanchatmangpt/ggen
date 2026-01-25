@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Security Architecture (v6.0.0)](#security-architecture-v600)
+  - [Overview](#overview)
+  - [Table of Contents](#table-of-contents)
+  - [Defense in Depth Layers](#defense-in-depth-layers)
+    - [Layer 1: Input Validation](#layer-1-input-validation)
+    - [Layer 2: Schema Validation](#layer-2-schema-validation)
+    - [Layer 3: Rate Limiting](#layer-3-rate-limiting)
+    - [Layer 4: Business Logic](#layer-4-business-logic)
+    - [Layer 5: Error Sanitization](#layer-5-error-sanitization)
+    - [Layer 6: Audit Logging](#layer-6-audit-logging)
+    - [Layer 7: Cryptographic Receipts](#layer-7-cryptographic-receipts)
+    - [Layer 8: Monitoring & Alerting](#layer-8-monitoring--alerting)
+  - [Trust Boundaries](#trust-boundaries)
+    - [Boundary Enforcement](#boundary-enforcement)
+  - [Authentication & Authorization](#authentication--authorization)
+  - [Input Validation Strategy](#input-validation-strategy)
+    - [Validation Principles](#validation-principles)
+    - [Validation Components](#validation-components)
+  - [Rate Limiting Design](#rate-limiting-design)
+    - [Rate Limiting Architecture](#rate-limiting-architecture)
+    - [Rate Limiting Algorithms](#rate-limiting-algorithms)
+    - [Configuration](#configuration)
+  - [Audit Logging](#audit-logging)
+    - [Logged Events](#logged-events)
+    - [Log Enrichment](#log-enrichment)
+    - [Log Security](#log-security)
+  - [Threat Model](#threat-model)
+    - [Threat Actors](#threat-actors)
+    - [Attack Vectors](#attack-vectors)
+    - [Security Assumptions](#security-assumptions)
+  - [Security Controls](#security-controls)
+    - [Preventive Controls](#preventive-controls)
+    - [Detective Controls](#detective-controls)
+    - [Corrective Controls](#corrective-controls)
+  - [Security Roadmap](#security-roadmap)
+    - [v6.1.0 (Q1 2026)](#v610-q1-2026)
+    - [v6.2.0 (Q2 2026)](#v620-q2-2026)
+    - [v7.0.0 (Q3 2026)](#v700-q3-2026)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Security Architecture (v6.0.0)
 
 ## Overview

@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [LLM-Construct CLI Implementation Receipt](#llm-construct-cli-implementation-receipt)
+  - [Deliverables](#deliverables)
+    - [1. CLI Command Module ✅](#1-cli-command-module-)
+    - [2. Integration Tests ✅](#2-integration-tests-)
+    - [3. Documentation ✅](#3-documentation-)
+    - [4. Module Integration ✅](#4-module-integration-)
+  - [Quality Gates](#quality-gates)
+    - [Compilation ✅](#compilation-)
+    - [Error Handling ✅](#error-handling-)
+    - [Type Safety ✅](#type-safety-)
+    - [Code Organization ✅](#code-organization-)
+    - [Documentation ✅](#documentation-)
+  - [Implementation Pattern](#implementation-pattern)
+    - [Type-First Design ✅](#type-first-design-)
+    - [Error Handling ✅](#error-handling--1)
+    - [Extensibility ✅](#extensibility-)
+  - [Files Created/Modified](#files-createdmodified)
+    - [Created (3 files, 901 lines)](#created-3-files-901-lines)
+    - [Modified (1 file)](#modified-1-file)
+  - [Command-Line Interface](#command-line-interface)
+    - [Help Output](#help-output)
+    - [Create Command](#create-command)
+    - [Validate Command](#validate-command)
+  - [Testing Strategy](#testing-strategy)
+    - [Unit Tests ✅](#unit-tests-)
+    - [Integration Tests ✅](#integration-tests-)
+  - [Next Steps (Implementation Roadmap)](#next-steps-implementation-roadmap)
+    - [Phase 1: Core Types (Week 1)](#phase-1-core-types-week-1)
+    - [Phase 2: OWL Extraction (Week 2-3)](#phase-2-owl-extraction-week-2-3)
+    - [Phase 3: SHACL Generation (Week 4-5)](#phase-3-shacl-generation-week-4-5)
+    - [Phase 4: Code Generation (Week 6-7)](#phase-4-code-generation-week-6-7)
+    - [Phase 5: CLI Integration (Week 8)](#phase-5-cli-integration-week-8)
+    - [Phase 6: Documentation & Examples (Week 9)](#phase-6-documentation--examples-week-9)
+  - [References](#references)
+  - [Receipts](#receipts)
+    - [Compilation Receipt ✅](#compilation-receipt-)
+    - [Code Quality Receipt ✅](#code-quality-receipt-)
+    - [Test Coverage Receipt ✅](#test-coverage-receipt-)
+  - [Success Criteria](#success-criteria)
+  - [Signature](#signature)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # LLM-Construct CLI Implementation Receipt
 
 **Date**: 2026-01-11

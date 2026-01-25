@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Thesis Validation Benchmark Suite - Summary](#thesis-validation-benchmark-suite---summary)
+  - [Overview](#overview)
+  - [What Was Created](#what-was-created)
+    - [1. **thesis_validation_benchmarks.rs** (550+ lines)](#1-thesis_validation_benchmarksrs-550-lines)
+      - [Benchmark Groups](#benchmark-groups)
+    - [2. **THESIS_BENCHMARKS.md** (300+ lines)](#2-thesis_benchmarksmd-300-lines)
+    - [3. **BENCHMARK_INTEGRATION_GUIDE.md** (400+ lines)](#3-benchmark_integration_guidemd-400-lines)
+    - [4. **Cargo.toml Update**](#4-cargotoml-update)
+  - [Benchmark Metrics](#benchmark-metrics)
+    - [Performance Thresholds](#performance-thresholds)
+    - [Hypotheses Validated](#hypotheses-validated)
+  - [Running the Benchmarks](#running-the-benchmarks)
+    - [Command Line](#command-line)
+    - [Expected Output](#expected-output)
+  - [Key Features](#key-features)
+  - [Integration Paths](#integration-paths)
+    - [1. Immediate (Development)](#1-immediate-development)
+    - [2. Pre-Commit Hook](#2-pre-commit-hook)
+    - [3. CI/CD Pipeline](#3-cicd-pipeline)
+    - [4. Continuous Monitoring](#4-continuous-monitoring)
+  - [File Structure](#file-structure)
+  - [Next Steps](#next-steps)
+    - [1. Verify Compilation](#1-verify-compilation)
+    - [2. Run Full Suite](#2-run-full-suite)
+    - [3. Save Baseline](#3-save-baseline)
+    - [4. Integrate into CI/CD](#4-integrate-into-cicd)
+    - [5. Monitor Ongoing](#5-monitor-ongoing)
+  - [Validation Checklist](#validation-checklist)
+  - [Success Criteria](#success-criteria)
+  - [References](#references)
+  - [Statistics](#statistics)
+  - [Status](#status)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Thesis Validation Benchmark Suite - Summary
 
 ## Overview

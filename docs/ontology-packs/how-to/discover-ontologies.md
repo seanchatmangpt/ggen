@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How-To: Discover and Search Ontology Packs](#how-to-discover-and-search-ontology-packs)
+  - [Searching the Marketplace](#searching-the-marketplace)
+  - [Popular Ontologies](#popular-ontologies)
+    - [Schema.org](#schemaorg)
+    - [Dublin Core](#dublin-core)
+    - [FOAF (Friend of a Friend)](#foaf-friend-of-a-friend)
+  - [Installing Packs](#installing-packs)
+  - [Listing Installed Packs](#listing-installed-packs)
+  - [Checking Pack Details](#checking-pack-details)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How-To: Discover and Search Ontology Packs
 
 ## Searching the Marketplace

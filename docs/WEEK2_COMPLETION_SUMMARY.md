@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 2 Completion Summary: Reduce Waste Implementation Phase](#week-2-completion-summary-reduce-waste-implementation-phase)
+  - [🎯 Mission Accomplished](#-mission-accomplished)
+  - [📊 Deliverables Completed](#-deliverables-completed)
+    - [1. Auto-Discovery Build Script ✅](#1-auto-discovery-build-script-)
+    - [2. API Versioning System ✅](#2-api-versioning-system-)
+    - [3. Chicago TDD Test Refactoring ✅](#3-chicago-tdd-test-refactoring-)
+    - [4. CI/CD Integration Gates ✅](#4-cicd-integration-gates-)
+      - [`pre-commit-hook` Task:](#pre-commit-hook-task)
+      - [`ci-gate` Task:](#ci-gate-task)
+    - [5. Metrics Dashboard ✅](#5-metrics-dashboard-)
+      - [Metrics Collection: `/Users/sac/ggen/scripts/collect-metrics.sh`](#metrics-collection-userssacggenscriptscollect-metricssh)
+      - [Dashboard Generation: `/Users/sac/ggen/scripts/generate-dashboard.sh`](#dashboard-generation-userssacggenscriptsgenerate-dashboardsh)
+  - [🚨 Andon Signals Cleared](#-andon-signals-cleared)
+    - [✅ Compilation Check](#-compilation-check)
+    - [✅ Format Check](#-format-check)
+    - [✅ Lint Check](#-lint-check)
+    - [✅ Build Script Validation](#-build-script-validation)
+    - [✅ Integration Test](#-integration-test)
+  - [📈 Efficiency Improvements Measured](#-efficiency-improvements-measured)
+    - [Build Time Baseline](#build-time-baseline)
+    - [Developer Productivity](#developer-productivity)
+    - [Code Quality](#code-quality)
+  - [🔧 Technical Debt Addressed](#-technical-debt-addressed)
+    - [Fixed During Implementation:](#fixed-during-implementation)
+    - [Deferred (out of scope for Week 2):](#deferred-out-of-scope-for-week-2)
+  - [🎓 Lessons Learned](#-lessons-learned)
+    - [What Worked Well:](#what-worked-well)
+    - [Process Improvements:](#process-improvements)
+  - [📝 Files Created/Modified](#-files-createdmodified)
+    - [New Files:](#new-files)
+    - [Modified Files:](#modified-files)
+    - [Existing Files Enhanced:](#existing-files-enhanced)
+  - [🚀 Next Steps (Week 3: Prevention)](#-next-steps-week-3-prevention)
+  - [✅ Sign-Off](#-sign-off)
+  - [📚 References](#-references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 2 Completion Summary: Reduce Waste Implementation Phase
 
 **Date**: 2025-11-20

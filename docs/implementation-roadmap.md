@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AGENT 1: Implementation Roadmap for ggen-disney Market Launch](#agent-1-implementation-roadmap-for-ggen-disney-market-launch)
+  - [Executive Summary](#executive-summary)
+  - [PHASE 1: FOUNDATION (Weeks 1-8 | $2M Investment)](#phase-1-foundation-weeks-1-8--2m-investment)
+    - [Objective](#objective)
+    - [Parallel Workstreams](#parallel-workstreams)
+      - [1A: Authority Model (Gap 2) - CISO + Legal + Compliance](#1a-authority-model-gap-2---ciso--legal--compliance)
+      - [1B: Killer Workflow (Gap 1) - COO + Ops Lead + CTO](#1b-killer-workflow-gap-1---coo--ops-lead--cto)
+      - [1C: Ops Engineer 2.0 Role Redesign (Gap 7) - Chief Talent + CEO](#1c-ops-engineer-20-role-redesign-gap-7---chief-talent--ceo)
+      - [1D: Minimal Schema / Work Object Model (Gap 5, Phase 1)](#1d-minimal-schema--work-object-model-gap-5-phase-1)
+    - [Phase 1 Timeline](#phase-1-timeline)
+  - [PHASE 2: VALIDATION (Weeks 9-20 | $3M Investment)](#phase-2-validation-weeks-9-20--3m-investment)
+    - [Objective](#objective-1)
+    - [Parallel Workstreams](#parallel-workstreams-1)
+      - [2A: Scale Gap 1 (+ 3 more processes)](#2a-scale-gap-1--3-more-processes)
+      - [2B: Integration Adapters (Gap 3)](#2b-integration-adapters-gap-3)
+      - [2C: Staged Authority + Rollback (Gap 6)](#2c-staged-authority--rollback-gap-6)
+      - [2D: Ops Team Training (Gap 7)](#2d-ops-team-training-gap-7)
+      - [2E: Compliance & Audit Trail (Gap 8, Prep)](#2e-compliance--audit-trail-gap-8-prep)
+    - [Phase 2 Timeline](#phase-2-timeline)
+  - [PHASE 3: PRODUCTION SCALE (Weeks 21-52 | $5M Investment)](#phase-3-production-scale-weeks-21-52--5m-investment)
+    - [Objective](#objective-2)
+    - [Parallel Workstreams](#parallel-workstreams-2)
+      - [3A: Scale to 8 Critical Processes](#3a-scale-to-8-critical-processes)
+      - [3B: Expand Integrations (Gap 3, Full)](#3b-expand-integrations-gap-3-full)
+      - [3C: SOC 2 Compliance (Gap 8, Full)](#3c-soc-2-compliance-gap-8-full)
+      - [3D: Org Redesign Complete (Gap 7, Scale)](#3d-org-redesign-complete-gap-7-scale)
+      - [3E: Cross-Domain Schema (Gap 5, Phase 2)](#3e-cross-domain-schema-gap-5-phase-2)
+    - [Phase 3 Timeline](#phase-3-timeline)
+  - [Critical Path Dependencies](#critical-path-dependencies)
+  - [Resource Allocation](#resource-allocation)
+  - [Technical Stack (Already Vetted)](#technical-stack-already-vetted)
+  - [Risk Mitigation](#risk-mitigation)
+    - [High Risk: Ops Manager Sabotage (Gap 7)](#high-risk-ops-manager-sabotage-gap-7)
+    - [High Risk: Authority Model Approval Delay (Gap 2)](#high-risk-authority-model-approval-delay-gap-2)
+    - [Medium Risk: Integration Adapter Delays (Gap 3)](#medium-risk-integration-adapter-delays-gap-3)
+    - [Medium Risk: SOC 2 Audit Failure (Gap 8)](#medium-risk-soc-2-audit-failure-gap-8)
+  - [Success Metrics](#success-metrics)
+    - [Phase 1](#phase-1)
+    - [Phase 2](#phase-2)
+    - [Phase 3](#phase-3)
+  - [Key Success Factors (Non-Negotiable)](#key-success-factors-non-negotiable)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AGENT 1: Implementation Roadmap for ggen-disney Market Launch
 
 **Status**: COMPLETE

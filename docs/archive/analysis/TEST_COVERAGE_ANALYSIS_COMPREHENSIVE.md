@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Comprehensive Test Coverage Analysis - ggen Project](#comprehensive-test-coverage-analysis---ggen-project)
+  - [Executive Summary](#executive-summary)
+    - [Overall Metrics](#overall-metrics)
+  - [1. Test Types Found](#1-test-types-found)
+    - [A. Unit Tests (986 annotations)](#a-unit-tests-986-annotations)
+    - [B. Async Tests (591 annotations)](#b-async-tests-591-annotations)
+    - [C. Integration Tests](#c-integration-tests)
+    - [D. Performance/Benchmark Tests (8 files)](#d-performancebenchmark-tests-8-files)
+  - [2. Test Coverage Patterns](#2-test-coverage-patterns)
+    - [Well-Tested Areas (>80% coverage)](#well-tested-areas-80-coverage)
+    - [Moderately Tested Areas (40-80% coverage)](#moderately-tested-areas-40-80-coverage)
+    - [Poorly Tested Areas (<40% coverage)](#poorly-tested-areas-40-coverage)
+  - [3. Critical Gaps in Test Coverage](#3-critical-gaps-in-test-coverage)
+    - [A. Untested Error Paths (High Priority)](#a-untested-error-paths-high-priority)
+    - [B. Race Conditions and Concurrency Issues](#b-race-conditions-and-concurrency-issues)
+    - [C. Panics Without Test Coverage (CRITICAL)](#c-panics-without-test-coverage-critical)
+    - [D. Untested Critical Paths](#d-untested-critical-paths)
+  - [4. Edge Cases Not Tested](#4-edge-cases-not-tested)
+    - [A. Boundary Conditions](#a-boundary-conditions)
+    - [B. Timing-Related Issues](#b-timing-related-issues)
+    - [C. Resource Exhaustion](#c-resource-exhaustion)
+  - [5. Error Handling Analysis](#5-error-handling-analysis)
+    - [A. Unwrap/Expect Usage (761 instances found)](#a-unwrapexpect-usage-761-instances-found)
+    - [B. Result Type Usage (2,176 instances)](#b-result-type-usage-2176-instances)
+  - [6. Concurrency Issues Detected](#6-concurrency-issues-detected)
+    - [A. Task Spawning Analysis (38 tokio::spawn calls)](#a-task-spawning-analysis-38-tokiospawn-calls)
+    - [B. Thread-Safe Patterns Used](#b-thread-safe-patterns-used)
+  - [7. Test Organization Assessment](#7-test-organization-assessment)
+    - [Strengths](#strengths)
+    - [Weaknesses](#weaknesses)
+  - [8. Critical Recommendations](#8-critical-recommendations)
+    - [Immediate Priority (P0)](#immediate-priority-p0)
+    - [High Priority (P1)](#high-priority-p1)
+    - [Medium Priority (P2)](#medium-priority-p2)
+    - [Low Priority (P3)](#low-priority-p3)
+  - [Summary Table](#summary-table)
+  - [Files Mentioned for Reference](#files-mentioned-for-reference)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Comprehensive Test Coverage Analysis - ggen Project
 
 ## Executive Summary

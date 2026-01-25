@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Industrial-Strength Deployment Diagrams](#industrial-strength-deployment-diagrams)
+  - [1. Multi-Tenant Mega-Fleet Architecture](#1-multi-tenant-mega-fleet-architecture)
+    - [Operational Context](#operational-context)
+    - [When This Matters](#when-this-matters)
+    - [Tera Template Wrapper](#tera-template-wrapper)
+  - [2. Regional Sovereignty & Data Residency](#2-regional-sovereignty--data-residency)
+    - [Operational Context](#operational-context-1)
+    - [When This Matters](#when-this-matters-1)
+    - [Tera Template Wrapper](#tera-template-wrapper-1)
+  - [3. Rate & Quota Governance (Multi-Level)](#3-rate--quota-governance-multi-level)
+    - [Operational Context](#operational-context-2)
+    - [When This Matters](#when-this-matters-2)
+    - [Tera Template Wrapper](#tera-template-wrapper-2)
+  - [4. Supply Chain & Build Attestation](#4-supply-chain--build-attestation)
+    - [Operational Context](#operational-context-3)
+    - [When This Matters](#when-this-matters-3)
+    - [Tera Template Wrapper](#tera-template-wrapper-3)
+  - [5. Disaster Recovery & Restore Chain](#5-disaster-recovery--restore-chain)
+    - [Operational Context](#operational-context-4)
+    - [When This Matters](#when-this-matters-4)
+    - [Tera Template Wrapper](#tera-template-wrapper-4)
+  - [Integration: End-to-End Deployment Flow](#integration-end-to-end-deployment-flow)
+  - [Reference: Production Operations Checklist](#reference-production-operations-checklist)
+    - [Daily Operations](#daily-operations)
+    - [Weekly](#weekly)
+    - [Monthly](#monthly)
+    - [Quarterly](#quarterly)
+  - [Glossary](#glossary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Industrial-Strength Deployment Diagrams
 
 Production Mermaid C4 diagrams for large-scale ggen deployments handling 10,000+ tenants, multi-region sovereignty, advanced governance, and enterprise resilience.

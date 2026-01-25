@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ANDON CORD VALIDATION ANALYSIS - CORRECTED ASSESSMENT](#andon-cord-validation-analysis---corrected-assessment)
+  - [🔴 CRITICAL FINDING: PRODUCTION CODE IS CLEAN](#-critical-finding-production-code-is-clean)
+    - [Actual Status from Andon Signals:](#actual-status-from-andon-signals)
+  - [CORRECTED ANDON CORD VISUALIZATION](#corrected-andon-cord-visualization)
+    - [What Actually Failed:](#what-actually-failed)
+  - [ROOT CAUSE ANALYSIS - CORRECTED 5 WHYS](#root-cause-analysis---corrected-5-whys)
+  - [CORRECTED PARETO PRINCIPLE (80/20)](#corrected-pareto-principle-8020)
+  - [ANDON CORD SIGNAL SEVERITY - CORRECTED](#andon-cord-signal-severity---corrected)
+  - [VISUALIZATION OF ACTUAL PROBLEM CONCENTRATION](#visualization-of-actual-problem-concentration)
+  - [CORRECTED ANDON CORD RECOMMENDATIONS](#corrected-andon-cord-recommendations)
+    - [Immediate Actions (Within 1 hour):](#immediate-actions-within-1-hour)
+    - [Short-term Actions (Within 24 hours):](#short-term-actions-within-24-hours)
+    - [Long-term Actions (Ongoing):](#long-term-actions-ongoing)
+  - [KEY INSIGHT - ANDON PRINCIPLE VALIDATION](#key-insight---andon-principle-validation)
+  - [CORRECTED OUTPUT](#corrected-output)
+    - [1. ANDON Cord Status Dashboard](#1-andon-cord-status-dashboard)
+    - [2. Severity × Impact Matrix](#2-severity-%C3%97-impact-matrix)
+    - [3. Root Cause Tracing (5 Whys)](#3-root-cause-tracing-5-whys)
+    - [4. Recommended Escalation and Action Plan](#4-recommended-escalation-and-action-plan)
+  - [APPENDIX: Detailed Error Breakdown by Crate](#appendix-detailed-error-breakdown-by-crate)
+    - [ggen-node (116 errors)](#ggen-node-116-errors)
+    - [ggen-marketplace-v2 (97 errors)](#ggen-marketplace-v2-97-errors)
+    - [ggen-dod (55 errors)](#ggen-dod-55-errors)
+    - [ggen-marketplace (9 errors)](#ggen-marketplace-9-errors)
+  - [LESSONS LEARNED](#lessons-learned)
+  - [NEXT STEPS](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ANDON CORD VALIDATION ANALYSIS - CORRECTED ASSESSMENT
 
 ## 🔴 CRITICAL FINDING: PRODUCTION CODE IS CLEAN

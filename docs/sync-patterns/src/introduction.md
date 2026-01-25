@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Introduction: The Quality Without a Name](#introduction-the-quality-without-a-name)
+  - [The Quality Without a Name](#the-quality-without-a-name)
+  - [What Makes a Code Generation System Alive?](#what-makes-a-code-generation-system-alive)
+    - [It Is Whole](#it-is-whole)
+    - [It Is Comfortable](#it-is-comfortable)
+    - [It Is Free](#it-is-free)
+    - [It Is Exact](#it-is-exact)
+    - [It Is Egoless](#it-is-egoless)
+    - [It Is Eternal](#it-is-eternal)
+  - [The Central Insight: Synchronization as Truth](#the-central-insight-synchronization-as-truth)
+    - [The Tension of Source and Generated](#the-tension-of-source-and-generated)
+    - [The Tension of Automation and Control](#the-tension-of-automation-and-control)
+    - [The Tension of Flexibility and Determinism](#the-tension-of-flexibility-and-determinism)
+  - [The Pipeline as Synchronization](#the-pipeline-as-synchronization)
+  - [Why a Pattern Language?](#why-a-pattern-language)
+    - [Patterns Explain Why](#patterns-explain-why)
+    - [Patterns Guide Decisions](#patterns-guide-decisions)
+    - [Patterns Enable Extension](#patterns-enable-extension)
+    - [Patterns Build Understanding](#patterns-build-understanding)
+  - [The Patterns Ahead](#the-patterns-ahead)
+    - [Foundation Patterns (1-3)](#foundation-patterns-1-3)
+    - [Knowledge Patterns (4-7)](#knowledge-patterns-4-7)
+    - [Safety Patterns (8-12)](#safety-patterns-8-12)
+    - [Integrity Patterns (13-15)](#integrity-patterns-13-15)
+    - [Selective Patterns (16)](#selective-patterns-16)
+  - [How to Proceed](#how-to-proceed)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Introduction: The Quality Without a Name
 
 > *"There is a central quality which is the root criterion of life and spirit in a man, a town, a building, or a wilderness. This quality is objective and precise, but it cannot be named."*

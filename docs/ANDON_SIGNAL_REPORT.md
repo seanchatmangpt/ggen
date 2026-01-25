@@ -1,3 +1,57 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ANDON SIGNAL REPORT - ggen Project](#andon-signal-report---ggen-project)
+  - [EXECUTIVE SUMMARY](#executive-summary)
+  - [🚨 ANDON SIGNAL MATRIX](#-andon-signal-matrix)
+    - [Current Signal Classification](#current-signal-classification)
+    - [Overall Project Signal: 🔴 **RED**](#overall-project-signal--red)
+  - [🔍 DETAILED SIGNAL ANALYSIS](#-detailed-signal-analysis)
+    - [1. 🔴 RED SIGNAL: Test Compilation Failures](#1--red-signal-test-compilation-failures)
+      - [Detected Errors:](#detected-errors)
+      - [Root Cause Analysis (5 Whys):](#root-cause-analysis-5-whys)
+    - [2. 🔴 RED SIGNAL: Security Vulnerabilities](#2--red-signal-security-vulnerabilities)
+      - [Detected Vulnerabilities:](#detected-vulnerabilities)
+      - [Root Cause Analysis (5 Whys):](#root-cause-analysis-5-whys-1)
+    - [3. 🟡 YELLOW SIGNAL: Unmaintained Dependencies](#3--yellow-signal-unmaintained-dependencies)
+      - [Critical Unmaintained Dependencies:](#critical-unmaintained-dependencies)
+      - [Root Cause:](#root-cause)
+    - [4. 🟠 ORANGE SIGNAL: Missing SLO Validation](#4--orange-signal-missing-slo-validation)
+      - [Missing Performance Metrics:](#missing-performance-metrics)
+      - [Root Cause:](#root-cause-1)
+  - [📊 SIGNAL TIMELINE & HISTORY](#-signal-timeline--history)
+    - [Recent Commits Analysis](#recent-commits-analysis)
+    - [Signal Introduction Points:](#signal-introduction-points)
+    - [Signal Correlation:](#signal-correlation)
+  - [🛑 STOP-THE-LINE DECISION TREE](#-stop-the-line-decision-tree)
+  - [🎯 ALERT THRESHOLDS & ESCALATION](#-alert-thresholds--escalation)
+    - [Signal Severity Levels](#signal-severity-levels)
+    - [Escalation Matrix](#escalation-matrix)
+  - [📈 VISUAL ANDON DASHBOARD](#-visual-andon-dashboard)
+  - [🔧 REMEDIATION PLAN](#-remediation-plan)
+    - [Phase 1: Clear RED Signals (IMMEDIATE - STOP THE LINE)](#phase-1-clear-red-signals-immediate---stop-the-line)
+      - [1.1 Fix Test Compilation Errors (Priority: P0)](#11-fix-test-compilation-errors-priority-p0)
+      - [1.2 Resolve Security Vulnerabilities (Priority: P0)](#12-resolve-security-vulnerabilities-priority-p0)
+    - [Phase 2: Address YELLOW Signals (24 HOURS)](#phase-2-address-yellow-signals-24-hours)
+      - [2.1 Replace Unmaintained Dependencies (Priority: P1)](#21-replace-unmaintained-dependencies-priority-p1)
+    - [Phase 3: Fix ORANGE Signals (7 DAYS)](#phase-3-fix-orange-signals-7-days)
+      - [3.1 Implement Workspace-level SLO Checks (Priority: P2)](#31-implement-workspace-level-slo-checks-priority-p2)
+  - [📋 VERIFICATION CHECKLIST](#-verification-checklist)
+  - [📖 LESSONS LEARNED & CONTINUOUS IMPROVEMENT](#-lessons-learned--continuous-improvement)
+    - [Key Takeaways:](#key-takeaways)
+    - [Kaizen Opportunities (Blue Signals):](#kaizen-opportunities-blue-signals)
+  - [🔗 REFERENCES & RESOURCES](#-references--resources)
+    - [Detection Commands:](#detection-commands)
+    - [Related Documentation:](#related-documentation)
+    - [Project Files:](#project-files)
+  - [APPENDIX: 5 WHYS ROOT CAUSE ANALYSIS](#appendix-5-whys-root-cause-analysis)
+    - [Issue 1: Test Compilation Failures](#issue-1-test-compilation-failures)
+    - [Issue 2: Security Vulnerabilities](#issue-2-security-vulnerabilities)
+    - [Issue 3: Unmaintained Dependencies](#issue-3-unmaintained-dependencies)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ANDON SIGNAL REPORT - ggen Project
 **Generated**: 2025-11-20
 **Report Status**: 🔴 **RED - STOP THE LINE**

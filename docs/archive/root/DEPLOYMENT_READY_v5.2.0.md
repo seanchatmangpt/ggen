@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v5.2.0 - Deployment Readiness Confirmation](#ggen-v520---deployment-readiness-confirmation)
+  - [Deployment Approval](#deployment-approval)
+    - [Quality Gates: ✅ ALL PASSED](#quality-gates--all-passed)
+  - [Git Repository State](#git-repository-state)
+    - [Working Tree: ✅ CLEAN](#working-tree--clean)
+    - [Recent Commits](#recent-commits)
+    - [Version Update: ✅ COMPLETE](#version-update--complete)
+  - [Release Artifacts Prepared](#release-artifacts-prepared)
+    - [Documentation](#documentation)
+    - [Test Evidence](#test-evidence)
+    - [Code Changes](#code-changes)
+  - [Deployment Instructions](#deployment-instructions)
+    - [Step 1: Create Release Tag](#step-1-create-release-tag)
+    - [Step 2: Push to Remote](#step-2-push-to-remote)
+    - [Step 3: Publish to crates.io (Optional)](#step-3-publish-to-cratesio-optional)
+    - [Step 4: Create GitHub Release](#step-4-create-github-release)
+    - [Step 5: Announce Release](#step-5-announce-release)
+  - [Post-Deployment Monitoring](#post-deployment-monitoring)
+    - [Day 1: Critical Monitoring](#day-1-critical-monitoring)
+    - [Week 1: Active Monitoring](#week-1-active-monitoring)
+    - [Month 1: Long-term Monitoring](#month-1-long-term-monitoring)
+  - [Rollback Plan (If Needed)](#rollback-plan-if-needed)
+    - [Quick Rollback to v5.1.0](#quick-rollback-to-v510)
+    - [Known Safe State](#known-safe-state)
+  - [Success Criteria](#success-criteria)
+    - [Immediate Success (24 hours)](#immediate-success-24-hours)
+    - [Short-term Success (1 week)](#short-term-success-1-week)
+    - [Long-term Success (1 month)](#long-term-success-1-month)
+  - [Risk Assessment](#risk-assessment)
+    - [Pre-Deployment Risks: ✅ ALL MITIGATED](#pre-deployment-risks--all-mitigated)
+  - [Final Checklist](#final-checklist)
+    - [Code Quality](#code-quality)
+    - [Documentation](#documentation-1)
+    - [Version Control](#version-control)
+    - [Agent Coordination](#agent-coordination)
+  - [Approval Signatures](#approval-signatures)
+    - [Development Team](#development-team)
+    - [Quality Assurance](#quality-assurance)
+    - [Release Management](#release-management)
+  - [Final Recommendation](#final-recommendation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v5.2.0 - Deployment Readiness Confirmation
 
 **Date**: 2025-12-21

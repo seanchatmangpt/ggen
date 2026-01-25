@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 2 Architecture Design 5: Lean Metrics Dashboard](#week-2-architecture-design-5-lean-metrics-dashboard)
+  - [Executive Summary](#executive-summary)
+  - [Current State Analysis](#current-state-analysis)
+    - [No Metrics Tracking](#no-metrics-tracking)
+  - [Proposed Architecture](#proposed-architecture)
+    - [1. Metrics Collection System](#1-metrics-collection-system)
+    - [2. Collection Script](#2-collection-script)
+    - [3. Visual Dashboard (HTML)](#3-visual-dashboard-html)
+    - [4. CI Integration](#4-ci-integration)
+  - [Target SLOs (Week 2 Goals)](#target-slos-week-2-goals)
+  - [Success Criteria](#success-criteria)
+    - [Functional Requirements](#functional-requirements)
+    - [Non-Functional Requirements](#non-functional-requirements)
+  - [Benefits Analysis](#benefits-analysis)
+    - [Visibility Improvements](#visibility-improvements)
+    - [Time Savings](#time-savings)
+  - [Effort Estimates](#effort-estimates)
+  - [ADR: Lean Metrics Dashboard](#adr-lean-metrics-dashboard)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 2 Architecture Design 5: Lean Metrics Dashboard
 
 **Design Phase:** Reduce Waste - Continuous Tracking & Visibility

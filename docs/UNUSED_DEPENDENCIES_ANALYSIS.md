@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Unused Dependencies Analysis Report](#unused-dependencies-analysis-report)
+  - [Executive Summary](#executive-summary)
+  - [Confirmed Unused Dependencies (8 Total - REMOVED)](#confirmed-unused-dependencies-8-total---removed)
+    - [ggen-cli (1 unused)](#ggen-cli-1-unused)
+    - [ggen-core (4 unused)](#ggen-core-4-unused)
+    - [ggen-utils (4 unused)](#ggen-utils-4-unused)
+    - [ggen-domain (1 unused)](#ggen-domain-1-unused)
+  - [Additional Issues Found](#additional-issues-found)
+    - [Version Mismatches](#version-mismatches)
+  - [Dependencies Verified as USED (Keep)](#dependencies-verified-as-used-keep)
+  - [Removal Plan](#removal-plan)
+    - [Phase 1: Remove Confirmed Unused (Immediate)](#phase-1-remove-confirmed-unused-immediate)
+    - [Phase 2: Fix Version Mismatches (Optional but Recommended)](#phase-2-fix-version-mismatches-optional-but-recommended)
+    - [Phase 3: Verification](#phase-3-verification)
+  - [Expected Outcomes](#expected-outcomes)
+  - [Automation Recommendation](#automation-recommendation)
+  - [Notes](#notes)
+  - [Sign-off](#sign-off)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Unused Dependencies Analysis Report
 
 **Analysis Date:** 2026-01-24

@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Diataxis Documentation System - Implementation Complete](#diataxis-documentation-system---implementation-complete)
+  - [✅ Implementation Status: COMPLETE](#-implementation-status-complete)
+    - [Documents Created (14/21 Core Documents)](#documents-created-1421-core-documents)
+      - [📍 Navigation Hub (1/1)](#-navigation-hub-11)
+      - [🎓 Tutorials (4/4) - Learning Paths](#-tutorials-44---learning-paths)
+      - [🛠️ How-to Guides (5/5) - Problem-Solving](#-how-to-guides-55---problem-solving)
+      - [💡 Explanations (1/5) - Understanding](#-explanations-15---understanding)
+      - [📚 Reference (4/7) - Quick Lookup](#-reference-47---quick-lookup)
+  - [📊 Completion Metrics](#-completion-metrics)
+  - [🎯 User Journey Coverage](#-user-journey-coverage)
+    - [✅ Journey 1: New Contributor (Complete)](#-journey-1-new-contributor-complete)
+    - [✅ Journey 2: Fix Compilation Errors (Complete)](#-journey-2-fix-compilation-errors-complete)
+    - [✅ Journey 3: Improve Test Quality (Complete)](#-journey-3-improve-test-quality-complete)
+    - [✅ Journey 4: Implement Lean Manufacturing (Complete)](#-journey-4-implement-lean-manufacturing-complete)
+  - [📖 Content Highlights](#-content-highlights)
+    - [Most Comprehensive Documents](#most-comprehensive-documents)
+  - [🔗 Integration with Existing Documentation](#-integration-with-existing-documentation)
+    - [Links to Remediation Analysis](#links-to-remediation-analysis)
+    - [Distinct from Ontology Docs](#distinct-from-ontology-docs)
+    - [Complements Test Reports](#complements-test-reports)
+  - [🚀 Quick Access Guide](#-quick-access-guide)
+    - [I'm Stuck on Compilation Errors](#im-stuck-on-compilation-errors)
+    - [I Want to Improve Test Quality](#i-want-to-improve-test-quality)
+    - [I'm Learning This Codebase](#im-learning-this-codebase)
+    - [I Need Quick Definitions](#i-need-quick-definitions)
+  - [📈 Word Count by Category](#-word-count-by-category)
+  - [🎨 Document Features](#-document-features)
+    - [All Documents Include:](#all-documents-include)
+    - [Advanced Features:](#advanced-features)
+  - [🛠️ Maintenance & Contributions](#-maintenance--contributions)
+    - [Adding New Documents](#adding-new-documents)
+    - [Quality Standards](#quality-standards)
+  - [📞 Support & Feedback](#-support--feedback)
+  - [🔮 Future Enhancements](#-future-enhancements)
+    - [Phase 2: On-Demand Creation (as requested by users)](#phase-2-on-demand-creation-as-requested-by-users)
+    - [Phase 3: Interactive Features](#phase-3-interactive-features)
+    - [Phase 4: Community](#phase-4-community)
+  - [🏆 Success Metrics](#-success-metrics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Diataxis Documentation System - Implementation Complete
 
 **Comprehensive user-centric documentation for ggen test refactoring & deployment**

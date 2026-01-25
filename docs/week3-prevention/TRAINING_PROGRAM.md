@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DfLSS Prevention Systems - Training Program](#dflss-prevention-systems---training-program)
+  - [Program Overview](#program-overview)
+  - [Week 1: Compile-Time Guarantees](#week-1-compile-time-guarantees)
+    - [Day 1: Theory (Self-Paced, 2 hours)](#day-1-theory-self-paced-2-hours)
+    - [Day 2-3: Practice (Pair Programming, 4 hours)](#day-2-3-practice-pair-programming-4-hours)
+    - [Day 4: Team Review (1 hour)](#day-4-team-review-1-hour)
+    - [Assessment](#assessment)
+  - [Week 2: Architectural Integration Contracts](#week-2-architectural-integration-contracts)
+    - [Day 1: Theory (Self-Paced, 2 hours)](#day-1-theory-self-paced-2-hours-1)
+    - [Day 2-3: Practice (Pair Programming, 4 hours)](#day-2-3-practice-pair-programming-4-hours-1)
+    - [Day 4: Team Review (1 hour)](#day-4-team-review-1-hour-1)
+    - [Assessment](#assessment-1)
+  - [Week 3: Error Propagation Strategy](#week-3-error-propagation-strategy)
+    - [Day 1: Theory (Self-Paced, 2 hours)](#day-1-theory-self-paced-2-hours-2)
+    - [Day 2-3: Practice (Pair Programming, 4 hours)](#day-2-3-practice-pair-programming-4-hours-2)
+    - [Day 4: Team Review (1 hour)](#day-4-team-review-1-hour-2)
+    - [Assessment](#assessment-2)
+  - [Week 4: DfLSS Design Review + Kaizen](#week-4-dflss-design-review--kaizen)
+    - [Day 1: Theory (Self-Paced, 2 hours)](#day-1-theory-self-paced-2-hours-3)
+    - [Day 2: Design Review Practice (2 hours)](#day-2-design-review-practice-2-hours)
+    - [Day 3: Kaizen Retrospective (2 hours)](#day-3-kaizen-retrospective-2-hours)
+    - [Day 4: 5 Whys Analysis (2 hours)](#day-4-5-whys-analysis-2-hours)
+    - [Assessment](#assessment-3)
+  - [Ongoing Learning](#ongoing-learning)
+    - [Monthly Activities](#monthly-activities)
+    - [Quarterly Activities](#quarterly-activities)
+    - [Continuous Learning](#continuous-learning)
+  - [Certification Levels](#certification-levels)
+    - [Level 1: Practitioner](#level-1-practitioner)
+    - [Level 2: Expert](#level-2-expert)
+    - [Level 3: Champion](#level-3-champion)
+  - [Success Metrics](#success-metrics)
+    - [Individual Success](#individual-success)
+    - [Team Success](#team-success)
+  - [Training Resources](#training-resources)
+    - [Documentation](#documentation)
+    - [Code Examples](#code-examples)
+    - [External Resources](#external-resources)
+    - [Internal Support](#internal-support)
+  - [Feedback and Improvement](#feedback-and-improvement)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DfLSS Prevention Systems - Training Program
 
 **Version**: 1.0.0

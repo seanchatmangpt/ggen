@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Security Documentation Index (v6.0.0)](#security-documentation-index-v600)
+  - [Overview](#overview)
+  - [Quick Links](#quick-links)
+  - [Documentation Structure](#documentation-structure)
+  - [For New Developers](#for-new-developers)
+  - [For Experienced Developers](#for-experienced-developers)
+    - [SafePath Usage](#safepath-usage)
+    - [QueryBuilder Usage](#querybuilder-usage)
+    - [ErrorSanitizer Usage](#errorsanitizer-usage)
+  - [For Security Researchers](#for-security-researchers)
+  - [For Security Team](#for-security-team)
+  - [Documentation by Topic](#documentation-by-topic)
+    - [Path Security](#path-security)
+    - [Query Security](#query-security)
+    - [Template Security](#template-security)
+    - [Error Handling](#error-handling)
+    - [Rate Limiting](#rate-limiting)
+    - [Testing](#testing)
+    - [Incident Response](#incident-response)
+  - [Security Training](#security-training)
+    - [Required Training](#required-training)
+    - [Training Materials](#training-materials)
+  - [Security Metrics](#security-metrics)
+    - [Current Status (v6.0.0)](#current-status-v600)
+    - [Historical Improvements](#historical-improvements)
+  - [Roadmap](#roadmap)
+    - [v6.1.0 (Q1 2026)](#v610-q1-2026)
+    - [v6.2.0 (Q2 2026)](#v620-q2-2026)
+    - [v7.0.0 (Q3 2026)](#v700-q3-2026)
+  - [External Resources](#external-resources)
+    - [Standards](#standards)
+    - [Rust Security](#rust-security)
+    - [Tools](#tools)
+  - [Contributing](#contributing)
+  - [Contact](#contact)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Security Documentation Index (v6.0.0)
 
 ## Overview

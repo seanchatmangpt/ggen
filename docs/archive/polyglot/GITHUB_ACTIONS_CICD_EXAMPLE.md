@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GitHub Actions CI/CD Integration Example](#github-actions-cicd-integration-example)
+  - [Overview](#overview)
+  - [Prerequisites](#prerequisites)
+  - [Workflow 1: Auto-Regenerate and Test](#workflow-1-auto-regenerate-and-test)
+  - [Workflow 2: Deploy Generated API](#workflow-2-deploy-generated-api)
+  - [Workflow 3: Validate Ontology Changes](#workflow-3-validate-ontology-changes)
+  - [Configuration Files](#configuration-files)
+    - [Dockerfile](#dockerfile)
+    - [docker-compose.yml](#docker-composeyml)
+  - [Best Practices](#best-practices)
+    - [1. Protect Main Branch](#1-protect-main-branch)
+    - [2. Cache Generated Artifacts](#2-cache-generated-artifacts)
+    - [3. Run Parallel Jobs](#3-run-parallel-jobs)
+    - [4. Monitor Generation Time](#4-monitor-generation-time)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GitHub Actions CI/CD Integration Example
 
 > Automate code generation, testing, and deployment with GitHub Actions

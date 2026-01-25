@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [OWL → SHACL Transformation Rules](#owl-%E2%86%92-shacl-transformation-rules)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+    - [Transformation Pipeline](#transformation-pipeline)
+    - [Design Principles](#design-principles)
+    - [Notation](#notation)
+  - [Cardinality Constraints](#cardinality-constraints)
+    - [Rule 1: `owl:cardinality` → `sh:minCount` + `sh:maxCount`](#rule-1-owlcardinality-%E2%86%92-shmincount--shmaxcount)
+    - [Rule 2: `owl:minCardinality` → `sh:minCount`](#rule-2-owlmincardinality-%E2%86%92-shmincount)
+    - [Rule 3: `owl:maxCardinality` → `sh:maxCount`](#rule-3-owlmaxcardinality-%E2%86%92-shmaxcount)
+    - [Rule 4: Combined Cardinality (Min + Max)](#rule-4-combined-cardinality-min--max)
+  - [Datatype Restrictions](#datatype-restrictions)
+    - [Rule 5: `owl:onDatatype` → `sh:datatype`](#rule-5-owlondatatype-%E2%86%92-shdatatype)
+  - [String Constraints](#string-constraints)
+    - [Rule 6: `xsd:minLength` → `sh:minLength`](#rule-6-xsdminlength-%E2%86%92-shminlength)
+    - [Rule 7: `xsd:maxLength` → `sh:maxLength`](#rule-7-xsdmaxlength-%E2%86%92-shmaxlength)
+    - [Rule 8: `xsd:length` → `sh:minLength` + `sh:maxLength`](#rule-8-xsdlength-%E2%86%92-shminlength--shmaxlength)
+    - [Rule 9: `xsd:pattern` → `sh:pattern`](#rule-9-xsdpattern-%E2%86%92-shpattern)
+  - [Numeric Constraints](#numeric-constraints)
+    - [Rule 10: `xsd:minInclusive` → `sh:minInclusive`](#rule-10-xsdmininclusive-%E2%86%92-shmininclusive)
+    - [Rule 11: `xsd:maxInclusive` → `sh:maxInclusive`](#rule-11-xsdmaxinclusive-%E2%86%92-shmaxinclusive)
+    - [Rule 12: `xsd:minExclusive` → `sh:minExclusive`](#rule-12-xsdminexclusive-%E2%86%92-shminexclusive)
+    - [Rule 13: `xsd:maxExclusive` → `sh:maxExclusive`](#rule-13-xsdmaxexclusive-%E2%86%92-shmaxexclusive)
+  - [Enumeration Constraints](#enumeration-constraints)
+    - [Rule 14: `owl:oneOf` → `sh:in`](#rule-14-owloneof-%E2%86%92-shin)
+  - [Class Constraints](#class-constraints)
+    - [Rule 15: `owl:allValuesFrom` (Class) → `sh:class`](#rule-15-owlallvaluesfrom-class-%E2%86%92-shclass)
+    - [Rule 16: `owl:someValuesFrom` → `sh:qualifiedValueShape`](#rule-16-owlsomevaluesfrom-%E2%86%92-shqualifiedvalueshape)
+  - [Property Path Constraints](#property-path-constraints)
+    - [Rule 17: Property Chains (Transitive Properties)](#rule-17-property-chains-transitive-properties)
+  - [Composite Constraints](#composite-constraints)
+    - [Example: ISIN with Multiple Facets](#example-isin-with-multiple-facets)
+  - [Implementation Notes](#implementation-notes)
+    - [Unsupported OWL Constructs](#unsupported-owl-constructs)
+    - [Constraint Composition Rules](#constraint-composition-rules)
+    - [SHACL Severity Levels](#shacl-severity-levels)
+  - [Examples](#examples)
+    - [Example 1: Email Address Validation](#example-1-email-address-validation)
+    - [Example 2: Product Price (Positive Decimal)](#example-2-product-price-positive-decimal)
+    - [Example 3: Multi-Value Tags with Limits](#example-3-multi-value-tags-with-limits)
+    - [Example 4: Enumeration with Default](#example-4-enumeration-with-default)
+  - [Summary Table](#summary-table)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # OWL → SHACL Transformation Rules
 
 **Complete Reference for LLM-Construct Pattern**

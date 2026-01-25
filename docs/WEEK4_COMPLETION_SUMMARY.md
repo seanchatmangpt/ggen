@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 4 Completion Summary - 16-Week Remediation Plan](#week-4-completion-summary---16-week-remediation-plan)
+  - [Executive Summary](#executive-summary)
+  - [Week 4 Deliverables Completed](#week-4-deliverables-completed)
+    - [1. Compilation & Error Resolution ✅](#1-compilation--error-resolution-)
+    - [2. Test Infrastructure Fixes ✅](#2-test-infrastructure-fixes-)
+    - [3. Security Hardening ✅](#3-security-hardening-)
+    - [4. Performance Optimization ✅](#4-performance-optimization-)
+    - [5. Metrics & Monitoring ✅](#5-metrics--monitoring-)
+  - [Health Score Calculation - Week 4](#health-score-calculation---week-4)
+    - [Dimension Breakdown](#dimension-breakdown)
+    - [Score Calculation](#score-calculation)
+    - [Progress Trajectory](#progress-trajectory)
+  - [Issues Encountered & Resolutions](#issues-encountered--resolutions)
+    - [Issue 1: Custom Test Macros ❌ → ✅](#issue-1-custom-test-macros--%E2%86%92-)
+    - [Issue 2: API Signature Mismatches ⏳](#issue-2-api-signature-mismatches-)
+    - [Issue 3: Unused Imports](#issue-3-unused-imports)
+  - [Test Results Summary](#test-results-summary)
+    - [Compilation Status](#compilation-status)
+    - [Test Execution Status](#test-execution-status)
+  - [Blockers Resolved This Week](#blockers-resolved-this-week)
+  - [Code Quality Metrics](#code-quality-metrics)
+    - [File Changes This Week](#file-changes-this-week)
+    - [Compilation Warnings](#compilation-warnings)
+  - [Performance Impact Analysis](#performance-impact-analysis)
+    - [Quick Wins Sustained](#quick-wins-sustained)
+    - [Benchmark Results](#benchmark-results)
+  - [Security Audit Results](#security-audit-results)
+    - [New Security Infrastructure](#new-security-infrastructure)
+    - [Risk Assessment](#risk-assessment)
+  - [Lean Manufacturing Principles Applied](#lean-manufacturing-principles-applied)
+    - [Poka-Yoke (Mistake-Proofing)](#poka-yoke-mistake-proofing)
+    - [Mura (Process Standardization)](#mura-process-standardization)
+    - [Muda (Waste Elimination)](#muda-waste-elimination)
+    - [Andon (Visual Problem Signals)](#andon-visual-problem-signals)
+  - [Week 5 Planning](#week-5-planning)
+    - [Upcoming Work](#upcoming-work)
+    - [Health Score Target](#health-score-target)
+  - [Conclusion](#conclusion)
+    - [Achievements:](#achievements)
+    - [Velocity:](#velocity)
+    - [Next Steps:](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 4 Completion Summary - 16-Week Remediation Plan
 
 **Completion Date:** November 19, 2025

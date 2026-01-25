@@ -1,3 +1,54 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen.toml Complete Reference](#ggentoml-complete-reference)
+  - [Overview](#overview)
+  - [Table of Contents](#table-of-contents)
+  - [Project Metadata](#project-metadata)
+    - [Section: `[project]`](#section-project)
+    - [Example](#example)
+  - [Templates](#templates)
+    - [Section: `[templates]`](#section-templates)
+    - [Example](#example-1)
+    - [Tech Stack-Specific Templates](#tech-stack-specific-templates)
+      - [Rust Templates: `[templates.rust]`](#rust-templates-templatesrust)
+      - [Web Framework Templates: `[templates.web]`](#web-framework-templates-templatesweb)
+      - [Database Templates: `[templates.database]`](#database-templates-templatesdatabase)
+      - [API Templates: `[templates.api]`](#api-templates-templatesapi)
+  - [AI Configuration](#ai-configuration)
+    - [Section: `[ai]`](#section-ai)
+    - [Provider-Specific Configuration](#provider-specific-configuration)
+      - [OpenAI: `[ai.providers.openai]`](#openai-aiprovidersopenai)
+      - [Anthropic: `[ai.providers.anthropic]`](#anthropic-aiprovidersanthropic)
+      - [Ollama: `[ai.providers.ollama]`](#ollama-aiprovidersollama)
+    - [AI Cache: `[ai.cache]`](#ai-cache-aicache)
+    - [AI Prompts: `[ai.prompts]`](#ai-prompts-aiprompts)
+    - [AI Validation: `[ai.validation]`](#ai-validation-aivalidation)
+    - [AI Generation: `[ai.generation]`](#ai-generation-aigeneration)
+  - [RDF and SPARQL](#rdf-and-sparql)
+    - [Section: `[rdf]`](#section-rdf)
+    - [Section: `[graph]`](#section-graph)
+    - [Section: `[sparql]`](#section-sparql)
+  - [Marketplace](#marketplace)
+    - [Section: `[marketplace]`](#section-marketplace)
+  - [Lifecycle](#lifecycle)
+    - [Section: `[lifecycle]`](#section-lifecycle)
+    - [Lifecycle Phases: `[lifecycle.phases]`](#lifecycle-phases-lifecyclephases)
+  - [Security](#security)
+    - [Section: `[security]`](#section-security)
+  - [Performance](#performance)
+    - [Section: `[performance]`](#section-performance)
+  - [Logging](#logging)
+    - [Section: `[logging]`](#section-logging)
+  - [Features](#features)
+    - [Section: `[features]`](#section-features)
+  - [Complete Example](#complete-example)
+  - [Validation](#validation)
+  - [Schema Definition](#schema-definition)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen.toml Complete Reference
 
 ## Overview

@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN Codebase - Expert Testing Analysis - Final Summary](#ggen-codebase---expert-testing-analysis---final-summary)
+  - [Exploration Complete](#exploration-complete)
+    - [Analysis Artifacts Created](#analysis-artifacts-created)
+  - [Project Overview](#project-overview)
+  - [The 23+ Test Opportunities](#the-23-test-opportunities)
+    - [By Category (All Organized with Files & Line Numbers)](#by-category-all-organized-with-files--line-numbers)
+      - [ERROR PATH TESTING (6 tests)](#error-path-testing-6-tests)
+      - [BOUNDARY CONDITION TESTING (7 tests)](#boundary-condition-testing-7-tests)
+      - [RESOURCE MANAGEMENT TESTING (5 tests)](#resource-management-testing-5-tests)
+      - [CONCURRENCY & ASYNC TESTING (5 tests)](#concurrency--async-testing-5-tests)
+  - [Critical Modules Needing Tests](#critical-modules-needing-tests)
+    - [HIGH PRIORITY (40-60% coverage, needs significant work)](#high-priority-40-60-coverage-needs-significant-work)
+    - [MEDIUM PRIORITY (70-75% coverage, edge cases needed)](#medium-priority-70-75-coverage-edge-cases-needed)
+    - [LOW PRIORITY (80%+ coverage, well tested)](#low-priority-80-coverage-well-tested)
+  - [Recommended Implementation Strategy](#recommended-implementation-strategy)
+    - [Phase 1: Critical Error Paths & Boundaries (20-30 hours)](#phase-1-critical-error-paths--boundaries-20-30-hours)
+    - [Phase 2: Resource Management (25-35 hours)](#phase-2-resource-management-25-35-hours)
+    - [Phase 3: Concurrency (30-40 hours)](#phase-3-concurrency-30-40-hours)
+  - [Key Findings](#key-findings)
+    - [Strengths (What's Already Good)](#strengths-whats-already-good)
+    - [Weaknesses (What Needs Testing)](#weaknesses-what-needs-testing)
+    - [Top Risks (Highest Impact)](#top-risks-highest-impact)
+  - [Testing Tools & Patterns Available](#testing-tools--patterns-available)
+    - [Already in Dependencies](#already-in-dependencies)
+    - [Recommended Additions](#recommended-additions)
+  - [Quick Start](#quick-start)
+  - [Test Location Recommendations](#test-location-recommendations)
+  - [Success Metrics](#success-metrics)
+  - [Contact Points for Each Test Category](#contact-points-for-each-test-category)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN Codebase - Expert Testing Analysis - Final Summary
 
 ## Exploration Complete

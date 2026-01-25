@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Create the Bulletproof CI/CD Pull Request](#how-to-create-the-bulletproof-cicd-pull-request)
+  - [Quick Method (GitHub Web Interface)](#quick-method-github-web-interface)
+    - [Step 1: Navigate to GitHub](#step-1-navigate-to-github)
+    - [Step 2: Create Pull Request](#step-2-create-pull-request)
+    - [Step 3: Fill PR Details](#step-3-fill-pr-details)
+    - [Step 4: Create PR](#step-4-create-pr)
+  - [Alternative: Command Line (if gh CLI is available elsewhere)](#alternative-command-line-if-gh-cli-is-available-elsewhere)
+  - [What's Included in This PR](#whats-included-in-this-pr)
+    - [Commits (4 total):](#commits-4-total)
+    - [Files Changed (10 files):](#files-changed-10-files)
+  - [Verification Before Creating PR](#verification-before-creating-pr)
+    - [1. Check Branch is Up to Date](#1-check-branch-is-up-to-date)
+    - [2. Verify Compilation Works](#2-verify-compilation-works)
+    - [3. Review Changes](#3-review-changes)
+  - [After Creating PR](#after-creating-pr)
+    - [Enable Quality Gates (Optional - can do after merge)](#enable-quality-gates-optional---can-do-after-merge)
+    - [Configure Branch Protection (Recommended)](#configure-branch-protection-recommended)
+  - [PR Review Checklist](#pr-review-checklist)
+    - [Critical Fix](#critical-fix)
+    - [Quality Gates Workflow](#quality-gates-workflow)
+    - [Documentation](#documentation)
+    - [Next Steps are Clear](#next-steps-are-clear)
+  - [Expected Timeline](#expected-timeline)
+    - [PR Review & Merge](#pr-review--merge)
+    - [Implementation (Post-Merge)](#implementation-post-merge)
+  - [Questions or Issues?](#questions-or-issues)
+  - [Success Indicators](#success-indicators)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Create the Bulletproof CI/CD Pull Request
 
 ## Quick Method (GitHub Web Interface)

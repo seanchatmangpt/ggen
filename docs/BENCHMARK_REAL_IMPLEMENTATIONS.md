@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CLI Design Benchmark Report: Real Implementations Verified ✓](#cli-design-benchmark-report-real-implementations-verified-%E2%9C%93)
+  - [Executive Summary](#executive-summary)
+  - [1. RDF Specification Analysis](#1-rdf-specification-analysis)
+    - [File: `.specify/cli-commands.ttl`](#file-specifycli-commandsttl)
+  - [2. Template Validation](#2-template-validation)
+    - [File: `templates/cli-command.tera`](#file-templatescli-commandtera)
+    - [File: `templates/cli-dispatcher.tera`](#file-templatescli-dispatchertera)
+  - [3. Code Implementation Analysis](#3-code-implementation-analysis)
+    - [File: `ggen-paas/lib/commands/generate.js`](#file-ggen-paaslibcommandsgeneratejs)
+  - [4. Bree Job Files Analysis](#4-bree-job-files-analysis)
+    - [File: `examples/bree-semantic-scheduler/jobs/job-utils.js`](#file-examplesbree-semantic-schedulerjobsjob-utilsjs)
+    - [Files: `load-paas-ontology.js`, `generate-docker-compose.js`, `validate-generated.js`](#files-load-paas-ontologyjs-generate-docker-composejs-validate-generatedjs)
+  - [5. Generation Rules Analysis](#5-generation-rules-analysis)
+    - [File: `ggen-paas-cli.toml`](#file-ggen-paas-clitoml)
+  - [6. Documentation Analysis](#6-documentation-analysis)
+    - [Files: `CLI_SUBMODULE_DESIGN.md`, `CLI_QUICK_REFERENCE.md`, `CLI_DESIGN_SUMMARY.md`](#files-cli_submodule_designmd-cli_quick_referencemd-cli_design_summarymd)
+  - [7. Data Reality Check](#7-data-reality-check)
+    - [No Hardcoded Mock Data](#no-hardcoded-mock-data)
+  - [8. Testing Code Reality](#8-testing-code-reality)
+    - [Test Skeletons Are Real](#test-skeletons-are-real)
+  - [9. Specification vs Implementation Alignment](#9-specification-vs-implementation-alignment)
+    - [Every Specification Has Corresponding Implementation](#every-specification-has-corresponding-implementation)
+  - [10. Verification Summary](#10-verification-summary)
+    - [What Is REAL](#what-is-real)
+    - [What Does NOT Exist](#what-does-not-exist)
+  - [11. Code Quality Metrics](#11-code-quality-metrics)
+    - [Metrics Achieved](#metrics-achieved)
+  - [12. Confidence Assessment](#12-confidence-assessment)
+    - [Benchmarking Results](#benchmarking-results)
+  - [Conclusion](#conclusion)
+  - [Files Verified](#files-verified)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CLI Design Benchmark Report: Real Implementations Verified ✓
 
 **Date**: January 8, 2026

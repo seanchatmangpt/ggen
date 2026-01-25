@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen Quality Metrics Summary](#ggen-quality-metrics-summary)
+  - [🎯 Quick Stats](#-quick-stats)
+  - [📊 Test Infrastructure](#-test-infrastructure)
+    - [Created Test Suites](#created-test-suites)
+    - [Coverage by Module](#coverage-by-module)
+  - [🚨 Critical Issues](#-critical-issues)
+    - [1. API Contract Mismatches (118 errors)](#1-api-contract-mismatches-118-errors)
+    - [2. CLI Argument Parsing (6 tests failing)](#2-cli-argument-parsing-6-tests-failing)
+    - [3. Type Annotation Issues (12 errors)](#3-type-annotation-issues-12-errors)
+  - [✅ What's Working](#-whats-working)
+    - [Passing Test Suites (11 files, 5,268 LOC)](#passing-test-suites-11-files-5268-loc)
+  - [📈 Next Steps (Phase 7)](#-next-steps-phase-7)
+    - [Immediate (8-11 hours)](#immediate-8-11-hours)
+    - [Short-term (9-12 hours)](#short-term-9-12-hours)
+    - [Long-term (11 hours)](#long-term-11-hours)
+  - [🎯 Success Criteria](#-success-criteria)
+    - [Ready for Production](#ready-for-production)
+  - [💡 Key Insights](#-key-insights)
+    - [Strengths](#strengths)
+    - [Weaknesses](#weaknesses)
+    - [Risks](#risks)
+  - [📊 Detailed Metrics](#-detailed-metrics)
+    - [Code Distribution](#code-distribution)
+    - [Test Quality](#test-quality)
+    - [Build Performance](#build-performance)
+  - [🔧 Fix Priority Matrix](#-fix-priority-matrix)
+  - [📚 Documentation](#-documentation)
+    - [Created](#created)
+    - [Needed](#needed)
+  - [🎯 Recommendations](#-recommendations)
+    - [For Immediate Action](#for-immediate-action)
+    - [For This Week](#for-this-week)
+    - [For Next Sprint](#for-next-sprint)
+  - [📞 Quick Reference](#-quick-reference)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen Quality Metrics Summary
 **Generated:** 2025-11-16 | **Status:** Phase 6 Complete
 

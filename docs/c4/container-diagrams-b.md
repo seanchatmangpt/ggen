@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GCP Marketplace Autonomics - High-Compliance Container Diagram](#gcp-marketplace-autonomics---high-compliance-container-diagram)
+  - [Overview](#overview)
+  - [High-Compliance Container Diagram](#high-compliance-container-diagram)
+  - [Context Variables Required (from `.specify/*.ttl`)](#context-variables-required-from-specifyttl)
+    - [SKU-Level Variables](#sku-level-variables)
+    - [Security & Compliance Variables](#security--compliance-variables)
+    - [Infrastructure Variables](#infrastructure-variables)
+    - [Service Configuration Variables](#service-configuration-variables)
+  - [Container to Ontology Mapping](#container-to-ontology-mapping)
+  - [Deployment Modes](#deployment-modes)
+    - [1. Public Variant (Non-Compliant SaaS)](#1-public-variant-non-compliant-saas)
+    - [2. Private Variant (Enterprise)](#2-private-variant-enterprise)
+    - [3. Compliance Variant (This Document)](#3-compliance-variant-this-document)
+  - [Tera Template Wrapper](#tera-template-wrapper)
+    - [Template File: `container-diagram.mmd.tera`](#template-file-container-diagrammmdtera)
+    - [2. Render Template with Context](#2-render-template-with-context)
+    - [3. Validate Mermaid Syntax](#3-validate-mermaid-syntax)
+  - [Key Design Principles](#key-design-principles)
+    - [1. High-Compliance Posture](#1-high-compliance-posture)
+    - [2. Separation of Concerns](#2-separation-of-concerns)
+    - [3. Deterministic Outputs](#3-deterministic-outputs)
+    - [4. Defense in Depth](#4-defense-in-depth)
+  - [Compliance Mappings](#compliance-mappings)
+  - [Future Enhancements](#future-enhancements)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GCP Marketplace Autonomics - High-Compliance Container Diagram
 
 **Version**: 1.0

@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How-To: Build Your First MCP Tool with ggen](#how-to-build-your-first-mcp-tool-with-ggen)
+  - [What You'll Build](#what-youll-build)
+  - [Step 1: Set Up Your Project](#step-1-set-up-your-project)
+    - [Create the Project Structure](#create-the-project-structure)
+    - [Update `Cargo.toml`](#update-cargotoml)
+    - [Create the Tool Structure](#create-the-tool-structure)
+  - [Step 2: Define Your Tool's Interface](#step-2-define-your-tools-interface)
+    - [Create `src/models.rs`](#create-srcmodelsrs)
+  - [Step 3: Implement the Core Generation Logic](#step-3-implement-the-core-generation-logic)
+    - [Create `src/generator.rs`](#create-srcgeneratorrs)
+  - [Step 4: Create the MCP Tool Interface](#step-4-create-the-mcp-tool-interface)
+    - [Create `src/tools/api_generator_tool.rs`](#create-srctoolsapi_generator_toolrs)
+  - [Step 5: Create the Main Library](#step-5-create-the-main-library)
+    - [Create `src/lib.rs`](#create-srclibrs)
+  - [Step 6: Test Your Tool](#step-6-test-your-tool)
+    - [Run Tests](#run-tests)
+    - [Manual Testing](#manual-testing)
+  - [Step 7: Integrate with ggen](#step-7-integrate-with-ggen)
+    - [Connect the Full ggen Pipeline](#connect-the-full-ggen-pipeline)
+  - [Step 8: Prepare for Deployment](#step-8-prepare-for-deployment)
+    - [Create `src/mcp_server.rs` for MCP Integration](#create-srcmcp_serverrs-for-mcp-integration)
+  - [Summary: What You've Built](#summary-what-youve-built)
+    - [Next Steps](#next-steps)
+    - [Common Enhancements](#common-enhancements)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How-To: Build Your First MCP Tool with ggen
 
 **Step-by-step instructions for creating a production-ready MCP tool that generates code using ggen**

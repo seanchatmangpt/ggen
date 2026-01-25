@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ChatmanGPT: The Integrator-Killer](#chatmangpt-the-integrator-killer)
+  - [Executive Summary](#executive-summary)
+  - [The Problem We Solve](#the-problem-we-solve)
+    - [Current Integration Reality](#current-integration-reality)
+    - [The $50B+ Market](#the-50b-market)
+  - [Our Solution: ChatmanGPT](#our-solution-chatmangpt)
+    - [The Core Thesis](#the-core-thesis)
+    - [The Safety Model: "Propose-Not-Execute"](#the-safety-model-propose-not-execute)
+    - [The Competitive Moats (10-year defensible advantages)](#the-competitive-moats-10-year-defensible-advantages)
+  - [The Business Model](#the-business-model)
+    - [Unit Economics](#unit-economics)
+    - [Revenue Model](#revenue-model)
+    - [Path to Profitability](#path-to-profitability)
+  - [Technical Architecture](#technical-architecture)
+    - [How It Works: 5 Steps](#how-it-works-5-steps)
+    - [The Three Ontologies (Stable Interface)](#the-three-ontologies-stable-interface)
+    - [The 6 Extraction Queries (Minimum Viable Set)](#the-6-extraction-queries-minimum-viable-set)
+    - [The Receipt Chain (The Competitive Moat)](#the-receipt-chain-the-competitive-moat)
+  - [Go-to-Market Strategy](#go-to-market-strategy)
+    - [Positioning](#positioning)
+    - [Sales Model](#sales-model)
+    - [Year 1 Execution](#year-1-execution)
+  - [Competitive Advantages](#competitive-advantages)
+    - [vs Traditional Integrators](#vs-traditional-integrators)
+    - [vs iPaaS Platforms (Workato, MuleSoft)](#vs-ipaas-platforms-workato-mulesoft)
+    - [vs Terraform / CloudFormation](#vs-terraform--cloudformation)
+  - [The Roadmap](#the-roadmap)
+    - [Next 12 Months](#next-12-months)
+  - [Investment Thesis](#investment-thesis)
+    - [For VCs](#for-vcs)
+    - [For Integrators (Acquirers)](#for-integrators-acquirers)
+    - [For Enterprises](#for-enterprises)
+  - [Success Metrics](#success-metrics)
+    - [Year 1 Targets](#year-1-targets)
+    - [Year 3 Targets](#year-3-targets)
+  - [The Conclusion](#the-conclusion)
+  - [What's Next](#whats-next)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ChatmanGPT: The Integrator-Killer
 ## Executive Summary
 

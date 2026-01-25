@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [v6.0 Migration FAQ](#v60-migration-faq)
+  - [Quick Reference](#quick-reference)
+  - [For CLI Users](#for-cli-users)
+    - [Q: I only use `ggen` CLI commands. Do I need to do anything?](#q-i-only-use-ggen-cli-commands-do-i-need-to-do-anything)
+    - [Q: Will my `ggen.toml` configuration file still work?](#q-will-my-ggentoml-configuration-file-still-work)
+    - [Q: Will my Tera templates still work?](#q-will-my-tera-templates-still-work)
+    - [Q: Will my SPARQL queries still work?](#q-will-my-sparql-queries-still-work)
+    - [Q: What are the new features I can try?](#q-what-are-the-new-features-i-can-try)
+  - [For Library Users](#for-library-users)
+    - [Q: I use `ggen-core` as a library. What do I need to change?](#q-i-use-ggen-core-as-a-library-what-do-i-need-to-change)
+    - [Q: Is there an automated migration tool?](#q-is-there-an-automated-migration-tool)
+    - [Q: Can I still use root re-exports like `use ggen_core::ProtectedPath;`?](#q-can-i-still-use-root-re-exports-like-use-ggen_coreprotectedpath)
+    - [Q: Will I get deprecation warnings?](#q-will-i-get-deprecation-warnings)
+    - [Q: Did any function signatures change?](#q-did-any-function-signatures-change)
+    - [Q: Did any traits change?](#q-did-any-traits-change)
+  - [For CI/CD Pipelines](#for-cicd-pipelines)
+    - [Q: Will my GitHub Actions / GitLab CI break?](#q-will-my-github-actions--gitlab-ci-break)
+    - [Q: How do I update my CI pipeline?](#q-how-do-i-update-my-ci-pipeline)
+  - [Build and Performance](#build-and-performance)
+    - [Q: Why did my build time increase?](#q-why-did-my-build-time-increase)
+    - [Q: Can I disable new features to reduce build time?](#q-can-i-disable-new-features-to-reduce-build-time)
+    - [Q: Will runtime performance change?](#q-will-runtime-performance-change)
+  - [Common Errors](#common-errors)
+    - [Error: "cannot find type `ProtectedPath` in crate `ggen_core::types`"](#error-cannot-find-type-protectedpath-in-crate-ggen_coretypes)
+    - [Error: "unresolved import `ggen_core::types::PathProtectionError`"](#error-unresolved-import-ggen_coretypespathprotectionerror)
+    - [Error: "cannot find `AndonSignal` in crate `ggen_core`"](#error-cannot-find-andonsignal-in-crate-ggen_core)
+    - [Error: Build takes much longer than before](#error-build-takes-much-longer-than-before)
+  - [Rollback and Support](#rollback-and-support)
+    - [Q: Can I roll back to v5.1.0 if something goes wrong?](#q-can-i-roll-back-to-v510-if-something-goes-wrong)
+    - [Q: How long will v5.1.0 be supported?](#q-how-long-will-v510-be-supported)
+    - [Q: What if I find a bug in v6.0.0?](#q-what-if-i-find-a-bug-in-v600)
+  - [Advanced Topics](#advanced-topics)
+    - [Q: I use wildcard imports like `use ggen_core::types::*;`. What happens?](#q-i-use-wildcard-imports-like-use-ggen_coretypes-what-happens)
+    - [Q: I maintain a library that depends on `ggen-core`. How do I handle the transition?](#q-i-maintain-a-library-that-depends-on-ggen-core-how-do-i-handle-the-transition)
+    - [Q: What if I'm using a custom type that wraps `ProtectedPath`?](#q-what-if-im-using-a-custom-type-that-wraps-protectedpath)
+  - [Testing Your Migration](#testing-your-migration)
+    - [Q: How do I verify my migration before deploying?](#q-how-do-i-verify-my-migration-before-deploying)
+    - [Q: Can I test v6.0.0 in a separate branch?](#q-can-i-test-v600-in-a-separate-branch)
+  - [Getting Help](#getting-help)
+    - [Q: Where can I ask questions about migration?](#q-where-can-i-ask-questions-about-migration)
+    - [Q: I'm stuck. Can I get 1-on-1 help?](#q-im-stuck-can-i-get-1-on-1-help)
+  - [Summary Checklist](#summary-checklist)
+    - [CLI Users](#cli-users)
+    - [Library Users](#library-users)
+    - [CI/CD](#cicd)
+    - [All Users](#all-users)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # v6.0 Migration FAQ
 
 ## Quick Reference

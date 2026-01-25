@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v0.2.0 Release Notes](#ggen-v020-release-notes)
+  - [Executive Summary](#executive-summary)
+  - [Major Features](#major-features)
+    - [1. Unified Ontology Layer (Core)](#1-unified-ontology-layer-core)
+      - [Components](#components)
+    - [2. Domain Ontologies (Phase 1)](#2-domain-ontologies-phase-1)
+    - [3. Cloud Platform Bindings](#3-cloud-platform-bindings)
+    - [4. Chicago TDD Implementation](#4-chicago-tdd-implementation)
+  - [Breaking Changes](#breaking-changes)
+  - [Bug Fixes](#bug-fixes)
+    - [Fixed in v0.2.0](#fixed-in-v020)
+  - [Performance Improvements](#performance-improvements)
+    - [Load Time: <1 Second](#load-time-1-second)
+    - [Query Execution: <100ms](#query-execution-100ms)
+    - [Memory Efficiency](#memory-efficiency)
+  - [API Documentation](#api-documentation)
+    - [Core Types](#core-types)
+    - [Entry Points](#entry-points)
+  - [Migration Guide](#migration-guide)
+    - [For New Projects](#for-new-projects)
+    - [For Existing ggen Users](#for-existing-ggen-users)
+  - [Quality Metrics](#quality-metrics)
+    - [Code Quality](#code-quality)
+    - [Performance SLOs](#performance-slos)
+    - [Production Readiness](#production-readiness)
+  - [Deployment Checklist](#deployment-checklist)
+  - [Known Limitations](#known-limitations)
+  - [Roadmap](#roadmap)
+    - [v0.3.0 (Q2 2026)](#v030-q2-2026)
+    - [v0.4.0 (Q3 2026)](#v040-q3-2026)
+    - [v0.5.0 (Q4 2026)](#v050-q4-2026)
+  - [Contributors](#contributors)
+  - [Support & Documentation](#support--documentation)
+  - [License](#license)
+  - [Installation](#installation)
+    - [From crates.io](#from-cratesio)
+    - [From GitHub](#from-github)
+    - [Building from Source](#building-from-source)
+  - [Acknowledgments](#acknowledgments)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v0.2.0 Release Notes
 
 **Release Date**: January 19, 2026

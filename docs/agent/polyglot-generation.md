@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Polyglot Code Generation Guide](#polyglot-code-generation-guide)
+  - [Language Support](#language-support)
+  - [Framework Support](#framework-support)
+    - [Rust Frameworks](#rust-frameworks)
+    - [TypeScript Frameworks](#typescript-frameworks)
+    - [Python Frameworks](#python-frameworks)
+  - [Type Mapping (xsd:* → Language Types)](#type-mapping-xsd-%E2%86%92-language-types)
+    - [Type Mapping Implementation](#type-mapping-implementation)
+  - [Zero-Drift Architecture](#zero-drift-architecture)
+    - [Zero-Drift Validation](#zero-drift-validation)
+  - [Rust Code Generation Example](#rust-code-generation-example)
+  - [TypeScript Code Generation Example](#typescript-code-generation-example)
+  - [Python Code Generation Example](#python-code-generation-example)
+  - [Generating All Languages](#generating-all-languages)
+  - [Validation Testing](#validation-testing)
+  - [Critical Rules](#critical-rules)
+  - [Example: End-to-End Generation](#example-end-to-end-generation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Polyglot Code Generation Guide
 
 ## Language Support

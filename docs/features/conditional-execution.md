@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Conditional Execution Feature](#conditional-execution-feature)
+  - [Overview](#overview)
+  - [Purpose](#purpose)
+  - [Usage](#usage)
+    - [Basic Conditional Rule](#basic-conditional-rule)
+    - [How It Works](#how-it-works)
+  - [Condition Query Syntax](#condition-query-syntax)
+  - [Examples](#examples)
+    - [Example 1: Optional Features](#example-1-optional-features)
+    - [Example 2: Environment-Based Generation](#example-2-environment-based-generation)
+    - [Example 3: Incremental Migration](#example-3-incremental-migration)
+    - [Example 4: Dependency-Aware Generation](#example-4-dependency-aware-generation)
+    - [Example 5: Cardinality Checks](#example-5-cardinality-checks)
+  - [Combining Conditions with Filters](#combining-conditions-with-filters)
+    - [Template-Level Filtering (Anti-Pattern)](#template-level-filtering-anti-pattern)
+    - [Condition-Level Filtering (Correct Pattern)](#condition-level-filtering-correct-pattern)
+  - [Debugging Conditions](#debugging-conditions)
+    - [Verbose Output](#verbose-output)
+    - [Dry-Run with Conditions](#dry-run-with-conditions)
+    - [Manual Testing](#manual-testing)
+  - [Performance Impact](#performance-impact)
+    - [Condition Evaluation Cost](#condition-evaluation-cost)
+    - [Optimization](#optimization)
+  - [Best Practices](#best-practices)
+  - [Advanced Patterns](#advanced-patterns)
+    - [Mutually Exclusive Rules](#mutually-exclusive-rules)
+    - [Cascading Conditions](#cascading-conditions)
+    - [Version-Based Generation](#version-based-generation)
+  - [Troubleshooting](#troubleshooting)
+    - [Issue: Condition always false](#issue-condition-always-false)
+    - [Issue: Rule skipped unexpectedly](#issue-rule-skipped-unexpectedly)
+    - [Issue: Condition too expensive](#issue-condition-too-expensive)
+  - [Security Considerations](#security-considerations)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Conditional Execution Feature
 
 ## Overview

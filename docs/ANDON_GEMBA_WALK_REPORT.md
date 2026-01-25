@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Andon Gemba Walk Report - ggen packs System](#andon-gemba-walk-report---ggen-packs-system)
+  - [Production Validation Assessment](#production-validation-assessment)
+  - [🚨 Executive Summary](#-executive-summary)
+    - [Overall Assessment: **❌ BLOCKED - CRITICAL FIXES REQUIRED**](#overall-assessment--blocked---critical-fixes-required)
+  - [📊 Critical Gaps Summary](#-critical-gaps-summary)
+    - [🔴 RED FLAGS (5 Critical Blockers)](#-red-flags-5-critical-blockers)
+    - [🟡 YELLOW FLAGS (8 Friction Points)](#-yellow-flags-8-friction-points)
+  - [🎯 Scenario-by-Scenario Results](#-scenario-by-scenario-results)
+    - [SCENARIO 1: Startup Building First MVP ⚠️ PARTIAL](#scenario-1-startup-building-first-mvp--partial)
+    - [SCENARIO 2: ML Engineer Data Science Workflow ⚠️ PARTIAL](#scenario-2-ml-engineer-data-science-workflow--partial)
+    - [SCENARIO 3: DevOps Multi-Pack CI/CD Setup ⚠️ PARTIAL](#scenario-3-devops-multi-pack-cicd-setup--partial)
+    - [SCENARIO 4: Full-Stack Web Developer ⚠️ PARTIAL](#scenario-4-full-stack-web-developer--partial)
+    - [SCENARIO 5: Enterprise Team Custom Pack Publishing ❌ BLOCKED](#scenario-5-enterprise-team-custom-pack-publishing--blocked)
+    - [SCENARIO 6: Large Multi-Pack Project (5+ packs) ❌ BLOCKED](#scenario-6-large-multi-pack-project-5-packs--blocked)
+    - [SCENARIO 7: Cache Management & Performance ❌ BLOCKED](#scenario-7-cache-management--performance--blocked)
+    - [SCENARIO 8: Error Recovery & Rollback ❌ BLOCKED](#scenario-8-error-recovery--rollback--blocked)
+    - [SCENARIO 9: Complete Lifecycle (Zero to Production) ⚠️ PARTIAL](#scenario-9-complete-lifecycle-zero-to-production--partial)
+  - [🔧 Root Cause Analysis](#-root-cause-analysis)
+    - [1. Tokio Runtime Architecture Issue (Affects 5+ commands)](#1-tokio-runtime-architecture-issue-affects-5-commands)
+    - [2. Type ID Mismatch (Affects install --target_dir)](#2-type-id-mismatch-affects-install---target_dir)
+    - [3. Installation Does Nothing (Affects all install commands)](#3-installation-does-nothing-affects-all-install-commands)
+    - [4. SPARQL Parser Not Initialized](#4-sparql-parser-not-initialized)
+  - [📋 Recommendations](#-recommendations)
+    - [Immediate Fixes Required (Before Any Release)](#immediate-fixes-required-before-any-release)
+    - [Post-Release Improvements (Can defer)](#post-release-improvements-can-defer)
+  - [🎯 Production Readiness Assessment](#-production-readiness-assessment)
+    - [Can users switch to `ggen packs` completely?](#can-users-switch-to-ggen-packs-completely)
+    - [Conditions for Production Use:](#conditions-for-production-use)
+    - [Blockers Summary](#blockers-summary)
+    - [Estimated Timeline](#estimated-timeline)
+  - [🟢 What's Working Well](#-whats-working-well)
+  - [📝 Monitoring Requirements](#-monitoring-requirements)
+  - [📊 Test Coverage Analysis](#-test-coverage-analysis)
+  - [🎬 Conclusion](#-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Andon Gemba Walk Report - ggen packs System
 ## Production Validation Assessment
 

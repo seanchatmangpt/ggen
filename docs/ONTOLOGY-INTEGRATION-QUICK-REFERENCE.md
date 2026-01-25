@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ChatmanGPT Ontology Integration Quick Reference](#chatmangpt-ontology-integration-quick-reference)
+  - [Practical Developer Guide](#practical-developer-guide)
+  - [1. Quick Namespace Reference](#1-quick-namespace-reference)
+  - [2. Core Equivalences (Alignment)](#2-core-equivalences-alignment)
+  - [3. Jurisdiction Quick Lookup](#3-jurisdiction-quick-lookup)
+    - [Data Classification Levels](#data-classification-levels)
+  - [4. Security Severity Levels](#4-security-severity-levels)
+    - [CVSS Score Ranges (CVSS 3.1)](#cvss-score-ranges-cvss-31)
+    - [Severity Levels (Generic)](#severity-levels-generic)
+  - [5. SLA Metrics with QUDT Units](#5-sla-metrics-with-qudt-units)
+    - [Example: Define SLA](#example-define-sla)
+  - [6. Cloud Compute Types](#6-cloud-compute-types)
+    - [Example: Compute Service Definition](#example-compute-service-definition)
+  - [7. Cloud Storage Types](#7-cloud-storage-types)
+  - [8. Cloud Network Components](#8-cloud-network-components)
+  - [9. Authentication Methods](#9-authentication-methods)
+  - [10. Encryption Algorithms](#10-encryption-algorithms)
+  - [11. Cloud Providers](#11-cloud-providers)
+    - [Example: AWS Binding](#example-aws-binding)
+  - [12. Common SPARQL Patterns](#12-common-sparql-patterns)
+    - [Find all HIPAA obligations](#find-all-hipaa-obligations)
+    - [Find high-severity vulnerabilities](#find-high-severity-vulnerabilities)
+    - [Get all compute services with CPU/memory](#get-all-compute-services-with-cpumemory)
+    - [Find topologies for HIPAA with encryption](#find-topologies-for-hipaa-with-encryption)
+    - [Map compliance to technical controls](#map-compliance-to-technical-controls)
+  - [13. Rust Integration Examples](#13-rust-integration-examples)
+    - [Load ontology in Rust](#load-ontology-in-rust)
+    - [Query for compliance requirements](#query-for-compliance-requirements)
+    - [Create security finding](#create-security-finding)
+  - [14. Validation Commands](#14-validation-commands)
+  - [15. File Locations](#15-file-locations)
+  - [16. Quick Troubleshooting](#16-quick-troubleshooting)
+  - [17. Integration Checklist (Per Feature)](#17-integration-checklist-per-feature)
+  - [18. Performance Notes](#18-performance-notes)
+  - [19. Version Compatibility](#19-version-compatibility)
+  - [20. Key Contacts & Resources](#20-key-contacts--resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ChatmanGPT Ontology Integration Quick Reference
 ## Practical Developer Guide
 

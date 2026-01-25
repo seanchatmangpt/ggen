@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v0.2.0 Installation Guide](#ggen-v020-installation-guide)
+  - [Table of Contents](#table-of-contents)
+  - [System Requirements](#system-requirements)
+    - [Minimum Requirements](#minimum-requirements)
+    - [Recommended Requirements](#recommended-requirements)
+    - [Development Requirements (for contributing)](#development-requirements-for-contributing)
+  - [Installation Methods](#installation-methods)
+    - [Method 1: From Crates.io (Recommended)](#method-1-from-cratesio-recommended)
+    - [Method 2: From Source](#method-2-from-source)
+    - [Method 3: Docker](#method-3-docker)
+  - [Verification](#verification)
+    - [1. Check Version](#1-check-version)
+    - [2. Verify Installation](#2-verify-installation)
+    - [3. Test Basic Functionality](#3-test-basic-functionality)
+    - [4. Verify Optional Features](#4-verify-optional-features)
+  - [Configuration](#configuration)
+    - [Environment Variables](#environment-variables)
+    - [Configuration File](#configuration-file)
+    - [Platform-Specific Paths](#platform-specific-paths)
+  - [First Use](#first-use)
+    - [1. Initialize Project](#1-initialize-project)
+    - [2. Configure Project](#2-configure-project)
+    - [3. Generate Code](#3-generate-code)
+    - [4. Verify Generated Code](#4-verify-generated-code)
+    - [5. Build Generated Code](#5-build-generated-code)
+  - [Feature Setup](#feature-setup)
+    - [AI Integration](#ai-integration)
+      - [With Ollama (Recommended for Local Development)](#with-ollama-recommended-for-local-development)
+      - [With OpenAI](#with-openai)
+      - [With Anthropic](#with-anthropic)
+    - [Marketplace Integration](#marketplace-integration)
+    - [Ontology Support](#ontology-support)
+  - [Updating](#updating)
+    - [From v0.1.0 to v0.2.0](#from-v010-to-v020)
+    - [Uninstall](#uninstall)
+  - [Troubleshooting](#troubleshooting)
+    - [Installation Issues](#installation-issues)
+    - [Runtime Issues](#runtime-issues)
+    - [Feature Issues](#feature-issues)
+  - [Getting Help](#getting-help)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v0.2.0 Installation Guide
 
 Complete installation and setup instructions for ggen v0.2.0.

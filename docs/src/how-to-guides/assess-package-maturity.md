@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Assess Package Maturity](#how-to-assess-package-maturity)
+  - [Quick Assessment](#quick-assessment)
+    - [Check a single package](#check-a-single-package)
+  - [Understanding the Scores](#understanding-the-scores)
+    - [Example breakdown](#example-breakdown)
+  - [Assessment for Different Scenarios](#assessment-for-different-scenarios)
+    - [For Production Deployments](#for-production-deployments)
+    - [For Research Projects](#for-research-projects)
+    - [For Internal/Private Use](#for-internalprivate-use)
+  - [Comparing Multiple Packages](#comparing-multiple-packages)
+    - [Get all packages sorted by score](#get-all-packages-sorted-by-score)
+    - [Create a comparison report](#create-a-comparison-report)
+    - [Find packages meeting specific criteria](#find-packages-meeting-specific-criteria)
+  - [Acting on Assessment Results](#acting-on-assessment-results)
+    - [If you see poor documentation (< 10 points)](#if-you-see-poor-documentation--10-points)
+    - [If you see poor testing (< 10 points)](#if-you-see-poor-testing--10-points)
+    - [If you see security issues (< 10 points)](#if-you-see-security-issues--10-points)
+    - [If you see poor maintenance (< 3 points)](#if-you-see-poor-maintenance--3-points)
+  - [Integration with Your Workflow](#integration-with-your-workflow)
+    - [Automated maturity checks](#automated-maturity-checks)
+    - [Documentation](#documentation)
+  - [Troubleshooting](#troubleshooting)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Assess Package Maturity
 
 This guide shows how to evaluate whether a package is ready for your specific use case.

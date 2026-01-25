@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Error Catalog (100% Compressed)](#error-catalog-100-compressed)
+  - [EXIT CODES](#exit-codes)
+  - [CONFIG ERRORS](#config-errors)
+  - [SPARQL ERRORS](#sparql-errors)
+  - [TEMPLATE ERRORS](#template-errors)
+  - [RUNTIME ERRORS](#runtime-errors)
+  - [POKA-YOKE ERRORS](#poka-yoke-errors)
+  - [INFERENCE RULE ERRORS](#inference-rule-errors)
+  - [VALIDATION (SHACL) ERRORS](#validation-shacl-errors)
+  - [MARKETPLACE ERRORS](#marketplace-errors)
+  - [COMMON COMBOS](#common-combos)
+  - [DEBUG WORKFLOW](#debug-workflow)
+  - [ONE-LINE FIXES](#one-line-fixes)
+  - [ERROR PRIORITY](#error-priority)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Error Catalog (100% Compressed)
 
 ## EXIT CODES

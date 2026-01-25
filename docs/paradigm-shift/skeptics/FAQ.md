@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Crossing the Event Horizon: Frequently Asked Questions (FAQ)](#crossing-the-event-horizon-frequently-asked-questions-faq)
+  - [🚀 Quick Decision Tree: Should I Use ggen?](#-quick-decision-tree-should-i-use-ggen)
+  - [Table of Contents](#table-of-contents)
+  - [Conceptual Concerns](#conceptual-concerns)
+    - ["RDF is too complex - why not just use JSON Schema?"](#rdf-is-too-complex---why-not-just-use-json-schema)
+    - ["What if ggen becomes abandonware? I don't want vendor lock-in."](#what-if-ggen-becomes-abandonware-i-dont-want-vendor-lock-in)
+    - ["RDF is a failed academic project. Why resurrect it?"](#rdf-is-a-failed-academic-project-why-resurrect-it)
+  - [Practical Concerns](#practical-concerns)
+    - ["My team won't adopt this - the learning curve is too steep."](#my-team-wont-adopt-this---the-learning-curve-is-too-steep)
+    - ["I can't debug generated code - how do I troubleshoot?"](#i-cant-debug-generated-code---how-do-i-troubleshoot)
+  - [Technical Concerns](#technical-concerns)
+    - ["What about performance? Doesn't RDF processing add overhead?"](#what-about-performance-doesnt-rdf-processing-add-overhead)
+    - ["How do I integrate with my existing CI/CD pipeline?"](#how-do-i-integrate-with-my-existing-cicd-pipeline)
+  - [Business Concerns](#business-concerns)
+    - ["What's the ROI? How do I justify the upfront investment?"](#whats-the-roi-how-do-i-justify-the-upfront-investment)
+    - ["What if my requirements change constantly? Won't I spend all my time updating ontologies?"](#what-if-my-requirements-change-constantly-wont-i-spend-all-my-time-updating-ontologies)
+  - [Comparison Questions](#comparison-questions)
+    - ["How does ggen compare to Protobuf, GraphQL, and OpenAPI?"](#how-does-ggen-compare-to-protobuf-graphql-and-openapi)
+    - [vs Protobuf](#vs-protobuf)
+    - [vs GraphQL](#vs-graphql)
+    - [vs OpenAPI](#vs-openapi)
+  - [Still Have Questions?](#still-have-questions)
+    - [Where to Get Help](#where-to-get-help)
+  - [Quick Next Steps by Concern](#quick-next-steps-by-concern)
+  - [Document Status](#document-status)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Crossing the Event Horizon: Frequently Asked Questions (FAQ)
 
 > **For Skeptics**: This FAQ addresses common objections and concerns about RDF-first development with ggen.

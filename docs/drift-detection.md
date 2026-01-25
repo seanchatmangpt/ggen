@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Drift Detection](#drift-detection)
+  - [Overview](#overview)
+  - [State File Format](#state-file-format)
+  - [Usage](#usage)
+    - [Automatic (Default Behavior)](#automatic-default-behavior)
+    - [Checking Drift Programmatically](#checking-drift-programmatically)
+    - [Saving State After Sync](#saving-state-after-sync)
+  - [Warning Messages](#warning-messages)
+    - [Ontology Changed](#ontology-changed)
+    - [Manifest Changed](#manifest-changed)
+    - [Import Changed](#import-changed)
+    - [No Previous State](#no-previous-state)
+    - [Missing File](#missing-file)
+  - [Performance](#performance)
+  - [Integration with SyncExecutor](#integration-with-syncexecutor)
+  - [Configuration](#configuration)
+  - [Error Handling](#error-handling)
+  - [Testing](#testing)
+  - [Files](#files)
+  - [Constitutional Requirements](#constitutional-requirements)
+  - [Future Enhancements](#future-enhancements)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Drift Detection
 
 Drift detection warns users when ontology changes make generated code stale.

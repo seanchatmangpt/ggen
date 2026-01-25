@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v0.2.0 Release Notes](#ggen-v020-release-notes)
+  - [🎯 Release Highlights](#-release-highlights)
+  - [Key Features](#key-features)
+    - [1. Unified Ontology Framework](#1-unified-ontology-framework)
+    - [2. Enhanced Code Generation Engine](#2-enhanced-code-generation-engine)
+    - [3. Advanced Testing Infrastructure](#3-advanced-testing-infrastructure)
+    - [4. Enterprise Features](#4-enterprise-features)
+    - [5. AI Integration](#5-ai-integration)
+    - [6. Knowledge Graph Computing](#6-knowledge-graph-computing)
+  - [Package Structure](#package-structure)
+    - [Core Packages (v0.2.0)](#core-packages-v020)
+    - [Extension Packages (v0.2.0)](#extension-packages-v020)
+    - [Infrastructure Packages (v0.1.0+)](#infrastructure-packages-v010)
+  - [Architecture Improvements](#architecture-improvements)
+    - [Type-First Thinking](#type-first-thinking)
+    - [Performance Optimization](#performance-optimization)
+    - [Quality Assurance](#quality-assurance)
+  - [Breaking Changes](#breaking-changes)
+    - [From Previous Releases](#from-previous-releases)
+    - [Migration Required](#migration-required)
+  - [Bug Fixes](#bug-fixes)
+    - [Core Generation](#core-generation)
+    - [Testing Infrastructure](#testing-infrastructure)
+    - [Performance](#performance)
+  - [Dependencies](#dependencies)
+    - [Updated](#updated)
+    - [Added](#added)
+    - [Maintained Compatibility](#maintained-compatibility)
+  - [Known Issues](#known-issues)
+  - [Installation](#installation)
+  - [Documentation](#documentation)
+  - [Contributors](#contributors)
+  - [Support](#support)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v0.2.0 Release Notes
 
 **Release Date:** January 19, 2026

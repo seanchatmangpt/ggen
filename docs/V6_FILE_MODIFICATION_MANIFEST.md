@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [v6.0.0 File Modification Manifest](#v600-file-modification-manifest)
+  - [CRITICAL: SPARQL Injection Prevention](#critical-sparql-injection-prevention)
+    - [File: `crates/ggen-core/src/rdf/query.rs`](#file-cratesggen-coresrcrdfqueryrs)
+    - [File: `crates/ggen-core/src/graph/update.rs`](#file-cratesggen-coresrcgraphupdaters)
+    - [File: `crates/ggen-ontology-core/src/triple_store.rs`](#file-cratesggen-ontology-coresrctriple_storers)
+  - [CRITICAL: Path Traversal Prevention](#critical-path-traversal-prevention)
+    - [File: `crates/ggen-core/src/graph/core.rs`](#file-cratesggen-coresrcgraphcorers)
+    - [File: `crates/ggen-core/src/templates/generator.rs`](#file-cratesggen-coresrctemplatesgeneratorrs)
+    - [File: `crates/ggen-core/src/v6/pipeline.rs`](#file-cratesggen-coresrcv6pipeliners)
+    - [File: `crates/ggen-cli/src/cmds/sync.rs`](#file-cratesggen-clisrccmdssyncrs)
+  - [HIGH: Rate Limiting](#high-rate-limiting)
+    - [File: `crates/ggen-api/src/middleware/rate_limit.rs`](#file-cratesggen-apisrcmiddlewarerate_limitrs)
+  - [HIGH: Resource Limits](#high-resource-limits)
+    - [File: `crates/ggen-core/src/graph/core.rs`](#file-cratesggen-coresrcgraphcorers-1)
+    - [File: `crates/ggen-ontology-core/src/triple_store.rs`](#file-cratesggen-ontology-coresrctriple_storers-1)
+  - [HIGH: Timeout Enforcement](#high-timeout-enforcement)
+    - [File: `crates/ggen-core/src/v6/pipeline.rs`](#file-cratesggen-coresrcv6pipeliners-1)
+  - [MEDIUM: Observability](#medium-observability)
+    - [Files to Instrument: All v6 passes](#files-to-instrument-all-v6-passes)
+  - [Summary Statistics](#summary-statistics)
+  - [Quick Find Commands](#quick-find-commands)
+    - [Find all SPARQL format! usage:](#find-all-sparql-format-usage)
+    - [Find all Path operations:](#find-all-path-operations)
+    - [Find all Vec::new without capacity:](#find-all-vecnew-without-capacity)
+    - [Find all panic/unwrap in production:](#find-all-panicunwrap-in-production)
+  - [Priority Order for Implementation](#priority-order-for-implementation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # v6.0.0 File Modification Manifest
 
 **Generated**: 2026-01-24

@@ -1,3 +1,57 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [V6 Testing Pattern Analysis & Breaking Changes](#v6-testing-pattern-analysis--breaking-changes)
+  - [Executive Summary](#executive-summary)
+    - [Test Coverage Statistics](#test-coverage-statistics)
+    - [Chicago TDD Compliance Score: **58/100** (NEEDS IMPROVEMENT)](#chicago-tdd-compliance-score-58100-needs-improvement)
+  - [Critical Findings](#critical-findings)
+    - [1. Mock-Heavy Tests (VIOLATES CHICAGO TDD)](#1-mock-heavy-tests-violates-chicago-tdd)
+      - [Examples of Violations:](#examples-of-violations)
+      - [Impact:](#impact)
+      - [Recommendation:](#recommendation)
+    - [2. Property-Based Testing Gaps](#2-property-based-testing-gaps)
+      - [Missing Property Tests:](#missing-property-tests)
+      - [Good Example (to replicate):](#good-example-to-replicate)
+      - [Recommendation:](#recommendation-1)
+    - [3. Meaningless Tests (NO BEHAVIOR VERIFICATION)](#3-meaningless-tests-no-behavior-verification)
+      - [Examples:](#examples)
+      - [Better Example (verifies behavior):](#better-example-verifies-behavior)
+      - [Recommendation:](#recommendation-2)
+    - [4. Test Organization Inconsistencies](#4-test-organization-inconsistencies)
+      - [Patterns Found:](#patterns-found)
+      - [Recommendation (Standard Pattern):](#recommendation-standard-pattern)
+    - [5. Ignored/Disabled Tests (TECHNICAL DEBT)](#5-ignoreddisabled-tests-technical-debt)
+      - [Examples:](#examples-1)
+      - [Impact:](#impact-1)
+      - [Recommendation:](#recommendation-3)
+  - [V6 Breaking Changes to Test Infrastructure](#v6-breaking-changes-to-test-infrastructure)
+    - [1. Chicago TDD Enforcement (BREAKING)](#1-chicago-tdd-enforcement-breaking)
+    - [2. Property-Based Testing Requirements (NEW)](#2-property-based-testing-requirements-new)
+    - [3. Test Organization Standard (BREAKING)](#3-test-organization-standard-breaking)
+    - [4. Fixture Management (NEW)](#4-fixture-management-new)
+    - [5. Andon Signal Testing (NEW)](#5-andon-signal-testing-new)
+  - [Test Coverage Gaps (CRITICAL)](#test-coverage-gaps-critical)
+    - [1. Error Path Testing: 40% Coverage](#1-error-path-testing-40-coverage)
+    - [2. Concurrency Testing: 15% Coverage](#2-concurrency-testing-15-coverage)
+    - [3. Boundary Condition Testing: 30% Coverage](#3-boundary-condition-testing-30-coverage)
+  - [Performance & Slow Tests](#performance--slow-tests)
+    - [Current SLOs:](#current-slos)
+    - [Violations Found:](#violations-found)
+    - [Recommendations:](#recommendations)
+  - [Migration Checklist](#migration-checklist)
+    - [High Priority (Must-Do for v6)](#high-priority-must-do-for-v6)
+    - [Medium Priority (Should-Do for v6)](#medium-priority-should-do-for-v6)
+    - [Low Priority (Nice-to-Have)](#low-priority-nice-to-have)
+  - [Example: Ideal Chicago TDD Test](#example-ideal-chicago-tdd-test)
+  - [Conclusion](#conclusion)
+    - [Summary of Breaking Changes:](#summary-of-breaking-changes)
+    - [Impact:](#impact-2)
+    - [Next Steps:](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # V6 Testing Pattern Analysis & Breaking Changes
 
 **Analysis Date**: 2026-01-24

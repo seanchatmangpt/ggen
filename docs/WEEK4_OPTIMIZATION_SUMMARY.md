@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 4 Performance Optimization Refinement - Summary](#week-4-performance-optimization-refinement---summary)
+  - [Executive Summary](#executive-summary)
+  - [Baseline Performance Metrics (Established)](#baseline-performance-metrics-established)
+    - [Build Performance](#build-performance)
+    - [Lockfile Operations (Current)](#lockfile-operations-current)
+    - [RDF Query Performance (Current)](#rdf-query-performance-current)
+    - [Template Processing (Current)](#template-processing-current)
+  - [Deliverables Created](#deliverables-created)
+    - [1. Week 4 Benchmark Suite ✅](#1-week-4-benchmark-suite-)
+    - [2. Performance Profiler Script ✅](#2-performance-profiler-script-)
+    - [3. Comprehensive Implementation Plan ✅](#3-comprehensive-implementation-plan-)
+  - [Key Insights from Profiling](#key-insights-from-profiling)
+    - [🎯 Optimization Priority Adjustment](#-optimization-priority-adjustment)
+      - [❌ LOW PRIORITY: Lockfile Operations](#-low-priority-lockfile-operations)
+      - [⚠️ MEDIUM PRIORITY: RDF Query Caching](#-medium-priority-rdf-query-caching)
+      - [✅ HIGH PRIORITY: Template Processing](#-high-priority-template-processing)
+  - [Refined Optimization Plan](#refined-optimization-plan)
+    - [Phase 1: Template Processing (Highest Impact) 🎯](#phase-1-template-processing-highest-impact-)
+    - [Phase 2: RDF Query Tuning (Targeted Improvement) 🔧](#phase-2-rdf-query-tuning-targeted-improvement-)
+    - [Phase 3: Lockfile Operations (Maintenance Only) ✅](#phase-3-lockfile-operations-maintenance-only-)
+  - [Performance Grade Projection](#performance-grade-projection)
+    - [Current Grade: A- (88/100)](#current-grade-a--88100)
+    - [Projected Grade After Week 4: A+ (91.1/100)](#projected-grade-after-week-4-a-911100)
+  - [Implementation Timeline](#implementation-timeline)
+    - [Day 1-2: Profiling & Benchmarking ✅ COMPLETE](#day-1-2-profiling--benchmarking--complete)
+    - [Day 3: Template Processing Optimizations 🔨](#day-3-template-processing-optimizations-)
+    - [Day 4: RDF Query Tuning 🔧](#day-4-rdf-query-tuning-)
+    - [Day 5: Final Validation & Report 📊](#day-5-final-validation--report-)
+  - [Files Modified](#files-modified)
+    - [Benchmarks (Created)](#benchmarks-created)
+    - [Scripts (Created)](#scripts-created)
+    - [Documentation (Created)](#documentation-created)
+    - [Core Implementation (To Be Modified - Day 3-4)](#core-implementation-to-be-modified---day-3-4)
+    - [Compilation Fixes (Required Before Benchmarks Run)](#compilation-fixes-required-before-benchmarks-run)
+  - [Success Metrics](#success-metrics)
+    - [Performance Targets](#performance-targets)
+    - [Grade Targets](#grade-targets)
+  - [Risk Analysis](#risk-analysis)
+    - [Low Risk ✅](#low-risk-)
+    - [Medium Risk ⚠️](#medium-risk-)
+    - [Mitigation Strategies](#mitigation-strategies)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 4 Performance Optimization Refinement - Summary
 
 ## Executive Summary

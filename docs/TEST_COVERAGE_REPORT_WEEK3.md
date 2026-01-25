@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 3 Core System Testing - Comprehensive Coverage Report](#week-3-core-system-testing---comprehensive-coverage-report)
+  - [Executive Summary](#executive-summary)
+  - [Test File Breakdown](#test-file-breakdown)
+  - [Test Categories and Coverage](#test-categories-and-coverage)
+    - [1. Graph Core Systems (113 tests - 1,486 lines)](#1-graph-core-systems-113-tests---1486-lines)
+    - [2. Generator Core Systems (63 tests - 1,590 lines)](#2-generator-core-systems-63-tests---1590-lines)
+    - [3. Ontology Systems (70 tests - 1,013 lines)](#3-ontology-systems-70-tests---1013-lines)
+    - [4. Template Systems (50 tests - 780 lines)](#4-template-systems-50-tests---780-lines)
+  - [Test Patterns and Best Practices Applied](#test-patterns-and-best-practices-applied)
+    - [Arrange-Act-Assert (AAA) Pattern](#arrange-act-assert-aaa-pattern)
+    - [Error Path Testing](#error-path-testing)
+    - [Performance Boundary Testing](#performance-boundary-testing)
+    - [Security Testing](#security-testing)
+  - [Test Quality Metrics](#test-quality-metrics)
+    - [Coverage Improvement](#coverage-improvement)
+    - [Test Characteristics](#test-characteristics)
+    - [Code Quality](#code-quality)
+  - [Compilation Status and Next Steps](#compilation-status-and-next-steps)
+    - [Current Blockers](#current-blockers)
+    - [Recommended Actions](#recommended-actions)
+  - [Test File Organization](#test-file-organization)
+  - [Success Criteria - Met](#success-criteria---met)
+  - [Impact on Health Score](#impact-on-health-score)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 3 Core System Testing - Comprehensive Coverage Report
 
 ## Executive Summary

@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MCP Interface Specification](#mcp-interface-specification)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+    - [MCP Value Proposition](#mcp-value-proposition)
+    - [ggen + MCP Integration Points](#ggen--mcp-integration-points)
+  - [MCP Protocol Overview](#mcp-protocol-overview)
+    - [Request/Response Model](#requestresponse-model)
+    - [Core Methods](#core-methods)
+  - [Tool Definition Structure](#tool-definition-structure)
+    - [MCP Tool Definition](#mcp-tool-definition)
+    - [Mapping Signature → MCP Tool Definition](#mapping-signature-%E2%86%92-mcp-tool-definition)
+    - [InputField → JSON Schema Property](#inputfield-%E2%86%92-json-schema-property)
+    - [Example: Converting Signature to JSON Schema](#example-converting-signature-to-json-schema)
+  - [JSON Schema Export](#json-schema-export)
+    - [Full JSON Schema Generation](#full-json-schema-generation)
+    - [OpenAPI Compatibility](#openapi-compatibility)
+  - [Error Response Format](#error-response-format)
+    - [MCP Standard Error Response](#mcp-standard-error-response)
+    - [Error Code Mapping](#error-code-mapping)
+    - [Detailed Error Response](#detailed-error-response)
+  - [Timeout Handling](#timeout-handling)
+    - [Timeout Configuration](#timeout-configuration)
+    - [Timeout Enforcement](#timeout-enforcement)
+    - [Timeout Response](#timeout-response)
+  - [Authentication & Authorization](#authentication--authorization)
+    - [API Key Authentication](#api-key-authentication)
+    - [Bearer Token in MCP Request](#bearer-token-in-mcp-request)
+  - [Phase 4 Implementation Plan](#phase-4-implementation-plan)
+    - [Current Status: Phase 3](#current-status-phase-3)
+    - [Phase 4 Deliverables](#phase-4-deliverables)
+    - [Why Phase 4 Deferral](#why-phase-4-deferral)
+  - [Integration Examples](#integration-examples)
+    - [Example 1: MCP Server Discovery Request](#example-1-mcp-server-discovery-request)
+    - [Example 2: MCP Tool Invocation](#example-2-mcp-tool-invocation)
+  - [Rationale for Phase Deferral](#rationale-for-phase-deferral)
+    - [Technical Justification](#technical-justification)
+    - [Business Impact](#business-impact)
+    - [Implementation Continuity](#implementation-continuity)
+  - [Reference](#reference)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MCP Interface Specification
 
 **Model Context Protocol Integration for ggen Agent Tooling**

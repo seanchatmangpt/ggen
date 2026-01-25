@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [RDF/SPARQL Integration Breaking Changes for v6.0.0](#rdfsparql-integration-breaking-changes-for-v600)
+  - [Executive Summary](#executive-summary)
+  - [1. Type-Safe SPARQL Query Construction](#1-type-safe-sparql-query-construction)
+    - [Current Pattern (Anti-Pattern)](#current-pattern-anti-pattern)
+    - [Proposed Pattern (Type-Safe Builder)](#proposed-pattern-type-safe-builder)
+  - [2. Zero-Copy RDF Triple Handling](#2-zero-copy-rdf-triple-handling)
+    - [Current Pattern (Clone-Heavy)](#current-pattern-clone-heavy)
+    - [Proposed Pattern (Zero-Copy with Lifetimes)](#proposed-pattern-zero-copy-with-lifetimes)
+  - [3. Compile-Time Namespace Management](#3-compile-time-namespace-management)
+    - [Current Pattern (Runtime Strings)](#current-pattern-runtime-strings)
+    - [Proposed Pattern (Const Generics + Phantom Types)](#proposed-pattern-const-generics--phantom-types)
+  - [4. Ergonomic Query Result Iteration](#4-ergonomic-query-result-iteration)
+    - [Current Pattern (Boilerplate-Heavy)](#current-pattern-boilerplate-heavy)
+    - [Proposed Pattern (Iterator Adapters)](#proposed-pattern-iterator-adapters)
+  - [5. Memory-Efficient Graph Traversal](#5-memory-efficient-graph-traversal)
+    - [Current Pattern (Clone-Heavy Traversal)](#current-pattern-clone-heavy-traversal)
+    - [Proposed Pattern (Streaming with References)](#proposed-pattern-streaming-with-references)
+  - [6. Compile-Time SPARQL Validation](#6-compile-time-sparql-validation)
+    - [Current Pattern (Runtime Errors)](#current-pattern-runtime-errors)
+    - [Proposed Pattern (Macro-Based Validation)](#proposed-pattern-macro-based-validation)
+  - [Migration Strategy](#migration-strategy)
+    - [Phase 1: Foundation (Week 1-2)](#phase-1-foundation-week-1-2)
+    - [Phase 2: Namespace & Results (Week 3-4)](#phase-2-namespace--results-week-3-4)
+    - [Phase 3: Optimization & Validation (Week 5-6)](#phase-3-optimization--validation-week-5-6)
+    - [Phase 4: Migration & Documentation (Week 7-8)](#phase-4-migration--documentation-week-7-8)
+  - [Performance Targets (SLOs)](#performance-targets-slos)
+  - [Breaking Changes Summary](#breaking-changes-summary)
+  - [Andon Signals & Quality Gates](#andon-signals--quality-gates)
+    - [Pre-Migration Validation](#pre-migration-validation)
+    - [Post-Migration Validation](#post-migration-validation)
+  - [References](#references)
+    - [Analyzed Files](#analyzed-files)
+    - [Constitutional Rules Alignment](#constitutional-rules-alignment)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # RDF/SPARQL Integration Breaking Changes for v6.0.0
 
 **Analysis Date**: 2026-01-24

@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v5.0.2 - DEB + gVisor Pipeline Report](#ggen-v502---deb--gvisor-pipeline-report)
+  - [Pipeline Results](#pipeline-results)
+  - [Artifacts Published](#artifacts-published)
+  - [5-Layer Fail-Fast Poka-Yoke Enforcement](#5-layer-fail-fast-poka-yoke-enforcement)
+  - [Installation Instructions](#installation-instructions)
+    - [Method 1: Direct DEB Installation](#method-1-direct-deb-installation)
+    - [Method 2: Docker + gVisor](#method-2-docker--gvisor)
+    - [Method 3: Kubernetes + gVisor Runtime Class](#method-3-kubernetes--gvisor-runtime-class)
+  - [Verification Steps](#verification-steps)
+  - [Performance Metrics](#performance-metrics)
+  - [Security & Compliance](#security--compliance)
+  - [Deployment Readiness](#deployment-readiness)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v5.0.2 - DEB + gVisor Pipeline Report
 
 **Generated**: 2026-01-05 00:48:33 UTC

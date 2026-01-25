@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DSPy BootstrapFewShot Optimizer](#dspy-bootstrapfewshot-optimizer)
+  - [Overview](#overview)
+  - [Algorithm](#algorithm)
+  - [Core Components](#core-components)
+    - [1. Example](#1-example)
+    - [2. Demonstration](#2-demonstration)
+    - [3. MetricFn](#3-metricfn)
+    - [4. BootstrapFewShot](#4-bootstrapfewshot)
+    - [5. OptimizedPredictor](#5-optimizedpredictor)
+  - [Usage Example](#usage-example)
+  - [Type Safety](#type-safety)
+  - [Error Handling](#error-handling)
+  - [Testing](#testing)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+    - [Example](#example)
+  - [Performance](#performance)
+  - [Integration with DSPy Ecosystem](#integration-with-dspy-ecosystem)
+  - [Advanced Usage](#advanced-usage)
+    - [Custom Teacher Model](#custom-teacher-model)
+    - [Fuzzy Metric](#fuzzy-metric)
+    - [Iterative Optimization](#iterative-optimization)
+  - [Metrics](#metrics)
+  - [Design Principles](#design-principles)
+  - [References](#references)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DSPy BootstrapFewShot Optimizer
 
 ## Overview

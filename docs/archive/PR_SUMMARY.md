@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [PR Summary: DEB + gVisor E2E Testing Pipeline](#pr-summary-deb--gvisor-e2e-testing-pipeline)
+  - [Documents Created](#documents-created)
+    - [1. PR_DEB_GVISOR_E2E.md (COMPREHENSIVE)](#1-pr_deb_gvisor_e2emd-comprehensive)
+    - [2. GITHUB_PR_BODY.md (CONCISE)](#2-github_pr_bodymd-concise)
+    - [3. RELEASE_NOTES_v5.0.2.md (USER-FACING)](#3-release_notes_v502md-user-facing)
+    - [4. DEPLOYMENT_GUIDE_v5.0.2.md (OPERATIONS)](#4-deployment_guide_v502md-operations)
+  - [Quick Reference](#quick-reference)
+    - [For GitHub PR Creation](#for-github-pr-creation)
+    - [For Release Publication](#for-release-publication)
+    - [For Documentation Distribution](#for-documentation-distribution)
+  - [Key Messages by Audience](#key-messages-by-audience)
+    - [For Management](#for-management)
+    - [For Developers](#for-developers)
+    - [For DevOps/SRE](#for-devopssre)
+    - [For Security Teams](#for-security-teams)
+  - [Metrics Summary](#metrics-summary)
+  - [Validation Checklist](#validation-checklist)
+    - [Before Merging PR](#before-merging-pr)
+    - [After Merging PR](#after-merging-pr)
+  - [Files Modified/Created](#files-modifiedcreated)
+    - [New Files (Documentation)](#new-files-documentation)
+    - [New Files (Artifacts)](#new-files-artifacts)
+    - [New Files (Scripts)](#new-files-scripts)
+    - [New Files (PR Documentation - Created by Agent 2)](#new-files-pr-documentation---created-by-agent-2)
+    - [Removed Files (Cleanup)](#removed-files-cleanup)
+  - [Breaking Changes Summary](#breaking-changes-summary)
+  - [Next Steps (After PR Merge)](#next-steps-after-pr-merge)
+    - [Immediate (Day 1)](#immediate-day-1)
+    - [Short-term (Week 1)](#short-term-week-1)
+    - [Medium-term (Month 1)](#medium-term-month-1)
+    - [Long-term (Quarter 1)](#long-term-quarter-1)
+  - [Communication Template](#communication-template)
+    - [Email to DevOps/SRE Teams](#email-to-devopssre-teams)
+    - [Slack Announcement](#slack-announcement)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # PR Summary: DEB + gVisor E2E Testing Pipeline
 
 **Agent**: Agent 2 (EPIC 9 Parallel Cycle)

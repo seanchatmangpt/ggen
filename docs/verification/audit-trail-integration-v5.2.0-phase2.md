@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Audit Trail Integration Verification - ggen v5.2.0 Phase 2](#audit-trail-integration-verification---ggen-v520-phase-2)
+  - [Executive Summary](#executive-summary)
+  - [Verification Scope](#verification-scope)
+    - [1. Code Analysis](#1-code-analysis)
+    - [2. AuditTrail Data Structure](#2-audittrail-data-structure)
+    - [3. AuditTrailWriter Integration](#3-audittrailwriter-integration)
+  - [Test Results](#test-results)
+    - [Unit Tests (7 passing)](#unit-tests-7-passing)
+    - [Integration Tests (7 passing)](#integration-tests-7-passing)
+    - [End-to-End Tests (3 passing)](#end-to-end-tests-3-passing)
+  - [Test Execution Evidence](#test-execution-evidence)
+  - [Integration Architecture](#integration-architecture)
+  - [Example audit.json Output](#example-auditjson-output)
+  - [Verification Checklist](#verification-checklist)
+  - [Success Criteria Met](#success-criteria-met)
+  - [Additional Findings](#additional-findings)
+  - [Files Modified](#files-modified)
+  - [Files Created](#files-created)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Audit Trail Integration Verification - ggen v5.2.0 Phase 2
 
 **Date:** 2025-12-21

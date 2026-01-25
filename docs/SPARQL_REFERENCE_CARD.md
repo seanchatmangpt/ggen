@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [SPARQL Pattern Reference (Compressed)](#sparql-pattern-reference-compressed)
+  - [SELECT Patterns](#select-patterns)
+  - [CONSTRUCT Patterns (Materialization)](#construct-patterns-materialization)
+  - [ASK Pattern](#ask-pattern)
+  - [Common Patterns (Copy-Paste Ready)](#common-patterns-copy-paste-ready)
+    - [Inheritance Closure](#inheritance-closure)
+    - [Property Domain Expansion](#property-domain-expansion)
+    - [Capability Aggregation](#capability-aggregation)
+    - [Validation Rule Extraction](#validation-rule-extraction)
+    - [Find Unused Classes](#find-unused-classes)
+    - [Circular Dependencies](#circular-dependencies)
+    - [Cross-Class Property Reuse](#cross-class-property-reuse)
+  - [Performance Tips](#performance-tips)
+  - [Template Integration Quick Map](#template-integration-quick-map)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # SPARQL Pattern Reference (Compressed)
 
 > All SPARQL patterns on 2 pages. No fluff.

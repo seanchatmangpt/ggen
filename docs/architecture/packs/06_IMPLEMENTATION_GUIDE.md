@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Packs Implementation Guide](#packs-implementation-guide)
+  - [Implementation Strategy](#implementation-strategy)
+    - [Phase-Based Approach](#phase-based-approach)
+    - [80/20 Rule Application](#8020-rule-application)
+  - [Phase 1: Foundation (Week 1-2)](#phase-1-foundation-week-1-2)
+    - [Goal](#goal)
+    - [Deliverables](#deliverables)
+    - [Implementation Steps](#implementation-steps)
+      - [Step 1.1: Update Data Model](#step-11-update-data-model)
+      - [Step 1.2: Create Marketplace Adapter](#step-12-create-marketplace-adapter)
+      - [Step 1.3: Implement Pack Installation](#step-13-implement-pack-installation)
+  - [Phase 2: Generation (Week 3)](#phase-2-generation-week-3)
+    - [Goal](#goal-1)
+    - [Deliverables](#deliverables-1)
+    - [Implementation Steps](#implementation-steps-1)
+      - [Step 2.1: Create Template Engine Adapter](#step-21-create-template-engine-adapter)
+      - [Step 2.2: Implement Generation Service](#step-22-implement-generation-service)
+  - [Phase 3: Dependencies (Week 4)](#phase-3-dependencies-week-4)
+    - [Goal](#goal-2)
+    - [Deliverables](#deliverables-2)
+    - [Implementation Steps](#implementation-steps-2)
+      - [Step 3.1: Dependency Resolver](#step-31-dependency-resolver)
+  - [Phase 4: Polish (Week 5)](#phase-4-polish-week-5)
+    - [Goal](#goal-3)
+    - [Deliverables](#deliverables-3)
+    - [Implementation Steps](#implementation-steps-3)
+      - [Step 4.1: Error Handling](#step-41-error-handling)
+      - [Step 4.2: Performance Optimization](#step-42-performance-optimization)
+      - [Step 4.3: Telemetry](#step-43-telemetry)
+  - [Testing Strategy](#testing-strategy)
+    - [Unit Tests (per module)](#unit-tests-per-module)
+    - [Integration Tests](#integration-tests)
+    - [E2E Tests](#e2e-tests)
+    - [Performance Tests](#performance-tests)
+  - [Deployment Checklist](#deployment-checklist)
+    - [Before Release](#before-release)
+    - [Health Score Validation](#health-score-validation)
+    - [Release Notes Template](#release-notes-template)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Packs Implementation Guide
 
 **Version:** 3.2.0

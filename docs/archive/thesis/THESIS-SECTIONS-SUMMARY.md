@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Expanded Limitations and Future Work Sections](#expanded-limitations-and-future-work-sections)
+  - [Summary](#summary)
+  - [Section Structure](#section-structure)
+    - [Part 1: Limitations (~2,200 words)](#part-1-limitations-2200-words)
+      - [1. Scope Limitations (~400 words)](#1-scope-limitations-400-words)
+      - [2. RDF Ontology Requirements (~380 words)](#2-rdf-ontology-requirements-380-words)
+      - [3. Temporal & Evolution Limitations (~320 words)](#3-temporal--evolution-limitations-320-words)
+      - [4. Performance & Scalability (~340 words)](#4-performance--scalability-340-words)
+      - [5. Semantic Limitations (~300 words)](#5-semantic-limitations-300-words)
+      - [6. Practical Deployment Limitations (~460 words)](#6-practical-deployment-limitations-460-words)
+    - [Part 2: Future Work (~1,600 words)](#part-2-future-work-1600-words)
+      - [1. Immediate Opportunities (~520 words)](#1-immediate-opportunities-520-words)
+      - [2. Semantic Extensions (~480 words)](#2-semantic-extensions-480-words)
+      - [3. Code Generation Enhancements (~400 words)](#3-code-generation-enhancements-400-words)
+      - [4. Evaluation & Empirical Studies (~380 words)](#4-evaluation--empirical-studies-380-words)
+      - [5. Integration & Ecosystem (~320 words)](#5-integration--ecosystem-320-words)
+      - [6. Advanced Research Directions (~500 words)](#6-advanced-research-directions-500-words)
+  - [Key Features](#key-features)
+    - [Academic Rigor](#academic-rigor)
+    - [Structure](#structure)
+    - [Content Quality](#content-quality)
+  - [Integration Instructions](#integration-instructions)
+    - [Option 1: Replace Existing Sections (Recommended)](#option-1-replace-existing-sections-recommended)
+    - [Option 2: Adjust Hierarchy](#option-2-adjust-hierarchy)
+    - [Option 3: Separate Chapter](#option-3-separate-chapter)
+  - [Citations to Add](#citations-to-add)
+  - [Metrics](#metrics)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Expanded Limitations and Future Work Sections
 
 ## Summary

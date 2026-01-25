@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Agent 4 Research Artifact: FIBO-to-Rust Code Generation Patterns](#agent-4-research-artifact-fibo-to-rust-code-generation-patterns)
+  - [Executive Summary](#executive-summary)
+  - [1. CONSTRUCT Patterns for Rust Code Enrichment](#1-construct-patterns-for-rust-code-enrichment)
+    - [Pattern 1: Struct Field Derivation from FIBO Properties](#pattern-1-struct-field-derivation-from-fibo-properties)
+    - [Pattern 2: Trait Implementation from FIBO Class Hierarchy](#pattern-2-trait-implementation-from-fibo-class-hierarchy)
+    - [Pattern 3: Validation Code from FIBO Constraints](#pattern-3-validation-code-from-fibo-constraints)
+    - [Pattern 4: Enum Generation from FIBO Enumerations](#pattern-4-enum-generation-from-fibo-enumerations)
+    - [Pattern 5: Relationship Mapping to Rust Associations](#pattern-5-relationship-mapping-to-rust-associations)
+  - [2. Type Mapping Table: FIBO → Rust](#2-type-mapping-table-fibo-%E2%86%92-rust)
+    - [Special Types](#special-types)
+  - [3. Trait Derivation from FIBO Class Hierarchies](#3-trait-derivation-from-fibo-class-hierarchies)
+    - [Pattern: Generate Rust Trait from Abstract FIBO Class](#pattern-generate-rust-trait-from-abstract-fibo-class)
+  - [4. Validation Code Generation from FIBO Constraints](#4-validation-code-generation-from-fibo-constraints)
+    - [CONSTRUCT Query for Validation Logic](#construct-query-for-validation-logic)
+    - [Generated Validation Code](#generated-validation-code)
+    - [Business Rule Validation (from FIBO Ontology Comments)](#business-rule-validation-from-fibo-ontology-comments)
+  - [5. Sample Tera Template: Consuming FIBO CONSTRUCT Results](#5-sample-tera-template-consuming-fibo-construct-results)
+    - [Template: `fibo-instrument-struct.tera`](#template-fibo-instrument-structtera)
+    - [Template Output Example](#template-output-example)
+  - [6. PhD Innovation: Formal Verification of Generated Financial Code](#6-phd-innovation-formal-verification-of-generated-financial-code)
+    - [Thesis Contribution Statement](#thesis-contribution-statement)
+    - [Novel Contributions](#novel-contributions)
+      - [Contribution 1: Ontology-to-Type-System Isomorphism](#contribution-1-ontology-to-type-system-isomorphism)
+      - [Contribution 2: RDF-Based Regulatory Compliance Proofs](#contribution-2-rdf-based-regulatory-compliance-proofs)
+      - [Contribution 3: Mutation-Free Financial Invariants via Rust Ownership](#contribution-3-mutation-free-financial-invariants-via-rust-ownership)
+      - [Contribution 4: SPARQL-as-Proof for Financial Regulations](#contribution-4-sparql-as-proof-for-financial-regulations)
+    - [Performance Implications for Financial Systems](#performance-implications-for-financial-systems)
+    - [Comparison to Existing Approaches](#comparison-to-existing-approaches)
+  - [7. Implementation Roadmap](#7-implementation-roadmap)
+    - [Phase 1: FIBO Ontology Integration (Weeks 1-2)](#phase-1-fibo-ontology-integration-weeks-1-2)
+    - [Phase 2: Rust Code Generation (Weeks 3-4)](#phase-2-rust-code-generation-weeks-3-4)
+    - [Phase 3: Formal Verification Framework (Weeks 5-6)](#phase-3-formal-verification-framework-weeks-5-6)
+    - [Phase 4: Case Study - Equity Trading System (Weeks 7-8)](#phase-4-case-study---equity-trading-system-weeks-7-8)
+  - [8. References](#8-references)
+  - [Appendix A: Complete ggen.toml for FIBO-to-Rust](#appendix-a-complete-ggentoml-for-fibo-to-rust)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Agent 4 Research Artifact: FIBO-to-Rust Code Generation Patterns
 
 **Agent**: Agent 4 (EPIC 9 Parallel Exploration)

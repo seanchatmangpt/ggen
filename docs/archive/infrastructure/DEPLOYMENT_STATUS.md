@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v5.0.2 Deployment Status](#ggen-v502-deployment-status)
+  - [✅ Completed Deployments](#-completed-deployments)
+    - [1. crates.io Publication ✅](#1-cratesio-publication-)
+    - [2. Homebrew Tap ✅](#2-homebrew-tap-)
+    - [3. GitHub Release ✅](#3-github-release-)
+  - [⏳ Pending Deployment](#-pending-deployment)
+    - [4. Docker Hub 🔄](#4-docker-hub-)
+      - [Option 1: Using Automated Script (Recommended)](#option-1-using-automated-script-recommended)
+      - [Option 2: Manual Commands](#option-2-manual-commands)
+      - [Option 3: Multi-Platform Build (amd64 + arm64)](#option-3-multi-platform-build-amd64--arm64)
+  - [📊 Deployment Summary](#-deployment-summary)
+  - [📁 Files Committed](#-files-committed)
+  - [🚀 Next Action](#-next-action)
+  - [📝 Documentation](#-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v5.0.2 Deployment Status
 
 ## ✅ Completed Deployments

@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Reference: Swarm Agent Types](#reference-swarm-agent-types)
+  - [The Hive Mind Hierarchy](#the-hive-mind-hierarchy)
+  - [Agent Type: Queen](#agent-type-queen)
+    - [Role](#role)
+    - [Responsibilities](#responsibilities)
+    - [Characteristics](#characteristics)
+    - [Responsibilities in Detail](#responsibilities-in-detail)
+    - [Failure Modes](#failure-modes)
+    - [Success Criteria](#success-criteria)
+  - [Agent Type: Colony Leader](#agent-type-colony-leader)
+    - [Role](#role-1)
+    - [Responsibilities](#responsibilities-1)
+    - [Characteristics](#characteristics-1)
+    - [Typical Domains (in EPIC 9)](#typical-domains-in-epic-9)
+    - [Colony Leader Lifecycle](#colony-leader-lifecycle)
+    - [Responsibilities in Detail](#responsibilities-in-detail-1)
+    - [Failure Modes](#failure-modes-1)
+    - [Success Criteria](#success-criteria-1)
+  - [Agent Type: Worker](#agent-type-worker)
+    - [Role](#role-2)
+    - [Responsibilities](#responsibilities-2)
+    - [Characteristics](#characteristics-2)
+    - [Worker Types (Examples)](#worker-types-examples)
+    - [Worker Lifecycle](#worker-lifecycle)
+    - [Worker Independence Requirements](#worker-independence-requirements)
+    - [Failure Modes](#failure-modes-2)
+    - [Success Criteria](#success-criteria-2)
+  - [Agent Responsibilities Matrix](#agent-responsibilities-matrix)
+  - [Communication Patterns](#communication-patterns)
+    - [Queen ↔ Colony Leader](#queen--colony-leader)
+    - [Colony Leader ↔ Worker](#colony-leader--worker)
+    - [Across Colonies (Rare)](#across-colonies-rare)
+  - [Scaling Considerations](#scaling-considerations)
+    - [Small Tasks (1-2 hours)](#small-tasks-1-2-hours)
+    - [Medium Tasks (4-8 hours)](#medium-tasks-4-8-hours)
+    - [Large Tasks (Full feature implementation)](#large-tasks-full-feature-implementation)
+  - [Performance Characteristics](#performance-characteristics)
+    - [Ideal Performance (No Failures)](#ideal-performance-no-failures)
+    - [With Failures](#with-failures)
+  - [Comparison to Other Models](#comparison-to-other-models)
+  - [Example: Feature Implementation with Hive Mind](#example-feature-implementation-with-hive-mind)
+  - [Key Takeaways](#key-takeaways)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Reference: Swarm Agent Types
 
 **Queen, Colony Leader, and Worker roles in multi-agent orchestration**

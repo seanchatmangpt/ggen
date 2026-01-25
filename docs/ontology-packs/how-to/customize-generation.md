@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to: Customize Code Generation](#how-to-customize-code-generation)
+  - [Method 1: Override Template Variables](#method-1-override-template-variables)
+  - [Method 2: Use Template Override File](#method-2-use-template-override-file)
+  - [Method 3: Create Custom Template Variant](#method-3-create-custom-template-variant)
+    - [Step 1: Copy Existing Template](#step-1-copy-existing-template)
+    - [Step 2: Modify Template](#step-2-modify-template)
+    - [Step 3: Add Custom Helpers](#step-3-add-custom-helpers)
+    - [Step 4: Use Custom Template](#step-4-use-custom-template)
+  - [Method 4: Filter Generated Types](#method-4-filter-generated-types)
+  - [Method 5: Custom SPARQL Queries](#method-5-custom-sparql-queries)
+  - [Method 6: Post-Processing Hook](#method-6-post-processing-hook)
+  - [Method 7: Incremental Generation](#method-7-incremental-generation)
+  - [Method 8: Multi-Language Generation](#method-8-multi-language-generation)
+  - [Method 9: Template Composition](#method-9-template-composition)
+  - [Tips for Customization](#tips-for-customization)
+  - [Related Guides](#related-guides)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to: Customize Code Generation
 
 **Problem:** Default templates don't match your project's needs.

@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Marketplace Production Architecture](#ggen-marketplace-production-architecture)
+  - [Executive Summary](#executive-summary)
+  - [Table of Contents](#table-of-contents)
+  - [System Overview](#system-overview)
+    - [Core Responsibilities](#core-responsibilities)
+    - [Key Architectural Decisions](#key-architectural-decisions)
+  - [Architecture Layers](#architecture-layers)
+    - [Layer 1: CLI Interface (`ggen-cli`)](#layer-1-cli-interface-ggen-cli)
+    - [Layer 2: Domain Logic (`ggen-domain/marketplace`)](#layer-2-domain-logic-ggen-domainmarketplace)
+    - [Layer 3: Infrastructure (`ggen-marketplace`)](#layer-3-infrastructure-ggen-marketplace)
+  - [Data Models](#data-models)
+    - [1. Package Metadata (`PackageMetadata`)](#1-package-metadata-packagemetadata)
+    - [2. Maturity Scoring (`MaturityAssessment`)](#2-maturity-scoring-maturityassessment)
+    - [3. Search & Filter Types](#3-search--filter-types)
+    - [4. Recommendation System](#4-recommendation-system)
+    - [5. Validation & Quality Gates](#5-validation--quality-gates)
+  - [Integration Patterns](#integration-patterns)
+    - [Pattern 1: CLI → Domain → Infrastructure](#pattern-1-cli-%E2%86%92-domain-%E2%86%92-infrastructure)
+    - [Pattern 2: Maturity Assessment Pipeline](#pattern-2-maturity-assessment-pipeline)
+    - [Pattern 3: Registry Synchronization](#pattern-3-registry-synchronization)
+  - [Test Data Fixtures](#test-data-fixtures)
+    - [Mock Registry Structure](#mock-registry-structure)
+    - [Sample Packages (5 Fixtures)](#sample-packages-5-fixtures)
+      - [1. `agent-editor` (Enterprise - Score: 92)](#1-agent-editor-enterprise---score-92)
+      - [2. `microservice-template` (Production - Score: 72)](#2-microservice-template-production---score-72)
+      - [3. `cli-starter` (Beta - Score: 55)](#3-cli-starter-beta---score-55)
+      - [4. `experimental-gql` (Experimental - Score: 35)](#4-experimental-gql-experimental---score-35)
+      - [5. `healthcare-fhir` (Production - Score: 78)](#5-healthcare-fhir-production---score-78)
+    - [Mock `index.json`](#mock-indexjson)
+  - [Command Flows](#command-flows)
+    - [1. `marketplace search`](#1-marketplace-search)
+    - [2. `marketplace install`](#2-marketplace-install)
+    - [3. `marketplace maturity`](#3-marketplace-maturity)
+    - [4. `marketplace validate`](#4-marketplace-validate)
+    - [5. `marketplace recommend`](#5-marketplace-recommend)
+  - [Quality Attributes](#quality-attributes)
+    - [1. Performance](#1-performance)
+    - [2. Reliability](#2-reliability)
+    - [3. Security](#3-security)
+    - [4. Maintainability](#4-maintainability)
+  - [Future Extensions](#future-extensions)
+    - [Phase 2: Remote Registry Support](#phase-2-remote-registry-support)
+    - [Phase 3: GraphQL API](#phase-3-graphql-api)
+    - [Phase 4: Machine Learning Recommendations](#phase-4-machine-learning-recommendations)
+  - [Appendix A: File Structure](#appendix-a-file-structure)
+  - [Appendix B: Key Metrics Dashboard](#appendix-b-key-metrics-dashboard)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Marketplace Production Architecture
 
 **Version**: 1.0

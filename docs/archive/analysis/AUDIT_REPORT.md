@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Code Audit Report - Core Team Best Practices](#code-audit-report---core-team-best-practices)
+  - [Executive Summary](#executive-summary)
+    - [Critical Issues Fixed ✅](#critical-issues-fixed-)
+    - [Issues Identified ⚠️](#issues-identified-)
+  - [Detailed Findings](#detailed-findings)
+    - [1. Recommendations Module - FIXED ✅](#1-recommendations-module---fixed-)
+    - [2. Compilation Error - NEEDS INVESTIGATION ⚠️](#2-compilation-error---needs-investigation-)
+    - [3. Unwrap/Expect Usage Audit - IN PROGRESS 📊](#3-unwrapexpect-usage-audit---in-progress-)
+    - [4. Unsafe Code Audit - PENDING 🔒](#4-unsafe-code-audit---pending-)
+    - [5. Allow Attributes Audit - PENDING 📝](#5-allow-attributes-audit---pending-)
+  - [Best Practices Compliance](#best-practices-compliance)
+    - [✅ Good Practices Found](#-good-practices-found)
+    - [⚠️ Areas for Improvement](#-areas-for-improvement)
+  - [Recommendations](#recommendations)
+    - [Immediate Actions (High Priority)](#immediate-actions-high-priority)
+    - [Short-term Actions (Medium Priority)](#short-term-actions-medium-priority)
+    - [Long-term Actions (Low Priority)](#long-term-actions-low-priority)
+  - [Testing Recommendations](#testing-recommendations)
+    - [New Tests Needed](#new-tests-needed)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Code Audit Report - Core Team Best Practices
 
 **Date**: 2025-01-27  

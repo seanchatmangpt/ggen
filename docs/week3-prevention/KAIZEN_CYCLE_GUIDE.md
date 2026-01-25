@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Kaizen Continuous Improvement Cycle Guide](#kaizen-continuous-improvement-cycle-guide)
+  - [Philosophy](#philosophy)
+  - [Monthly Kaizen Cycle (4-Week Cadence)](#monthly-kaizen-cycle-4-week-cadence)
+  - [Week 1: Identify Problems (Andon Signals)](#week-1-identify-problems-andon-signals)
+    - [Activities](#activities)
+      - [1. Collect Andon Signal Data](#1-collect-andon-signal-data)
+      - [2. Team Retrospective](#2-team-retrospective)
+      - [3. Prioritize (Pareto 80/20)](#3-prioritize-pareto-8020)
+  - [Week 2: Analyze Root Causes (5 Whys)](#week-2-analyze-root-causes-5-whys)
+    - [The 5 Whys Technique](#the-5-whys-technique)
+    - [5 Whys Template](#5-whys-template)
+    - [Activities](#activities-1)
+  - [Week 3: Implement Countermeasures (Fixes)](#week-3-implement-countermeasures-fixes)
+    - [Countermeasure Types](#countermeasure-types)
+    - [Implementation Checklist](#implementation-checklist)
+    - [Example Countermeasures](#example-countermeasures)
+  - [Week 4: Verify Improvements (Metrics)](#week-4-verify-improvements-metrics)
+    - [Metrics to Track](#metrics-to-track)
+    - [Metrics Dashboard](#metrics-dashboard)
+    - [Improvement Calculation](#improvement-calculation)
+    - [Verification Activities](#verification-activities)
+  - [Quarterly Strategic Review](#quarterly-strategic-review)
+    - [Agenda](#agenda)
+      - [1. Metrics Trend Analysis (1 hour)](#1-metrics-trend-analysis-1-hour)
+      - [2. Systemic Pattern Identification (1 hour)](#2-systemic-pattern-identification-1-hour)
+      - [3. DfLSS Process Update (1 hour)](#3-dflss-process-update-1-hour)
+      - [4. Team Training (1 hour)](#4-team-training-1-hour)
+      - [5. Strategic Goals (30 minutes)](#5-strategic-goals-30-minutes)
+  - [Tools & Templates](#tools--templates)
+    - [1. Monthly Retrospective Template](#1-monthly-retrospective-template)
+    - [2. 5 Whys Analysis Template](#2-5-whys-analysis-template)
+    - [3. Countermeasure Planning Template](#3-countermeasure-planning-template)
+    - [4. Metrics Dashboard](#4-metrics-dashboard)
+    - [5. Quarterly Review Template](#5-quarterly-review-template)
+  - [Success Criteria](#success-criteria)
+  - [Common Pitfalls](#common-pitfalls)
+    - [Pitfall 1: Skipping Root Cause Analysis](#pitfall-1-skipping-root-cause-analysis)
+    - [Pitfall 2: Focusing Only on Immediate Fixes](#pitfall-2-focusing-only-on-immediate-fixes)
+    - [Pitfall 3: Not Measuring Impact](#pitfall-3-not-measuring-impact)
+    - [Pitfall 4: Irregular Cadence](#pitfall-4-irregular-cadence)
+    - [Pitfall 5: Top-Down Improvements](#pitfall-5-top-down-improvements)
+  - [Integration with DfLSS](#integration-with-dflss)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Kaizen Continuous Improvement Cycle Guide
 
 **Version**: 1.0.0

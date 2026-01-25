@@ -1,3 +1,54 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Creating ggen Examples: Dos and Don'ts](#creating-ggen-examples-dos-and-donts)
+  - [Overview](#overview)
+  - [Directory Structure](#directory-structure)
+    - [DO: Use a consistent, predictable layout](#do-use-a-consistent-predictable-layout)
+    - [DON'T: Mix source and generated files](#dont-mix-source-and-generated-files)
+  - [Ontology Design](#ontology-design)
+    - [DO: Separate vocabulary from instance data](#do-separate-vocabulary-from-instance-data)
+    - [DON'T: Hard-code domain data in templates](#dont-hard-code-domain-data-in-templates)
+  - [Manifest Configuration (ggen.toml)](#manifest-configuration-ggentoml)
+    - [DO: Document each rule with comment blocks](#do-document-each-rule-with-comment-blocks)
+    - [DON'T: Leave rules undocumented](#dont-leave-rules-undocumented)
+  - [SPARQL Queries](#sparql-queries)
+    - [DO: Use ORDER BY for template grouping](#do-use-order-by-for-template-grouping)
+    - [DO: Use OPTIONAL for nullable fields](#do-use-optional-for-nullable-fields)
+    - [DON'T: Assume all fields exist](#dont-assume-all-fields-exist)
+  - [Template Patterns](#template-patterns)
+    - [DO: Include YAML frontmatter with documentation](#do-include-yaml-frontmatter-with-documentation)
+    - [DO: Use `?`-prefixed variable access with defaults](#do-use--prefixed-variable-access-with-defaults)
+    - [DON'T: Access variables without defaults](#dont-access-variables-without-defaults)
+    - [DO: Use state variables for grouping](#do-use-state-variables-for-grouping)
+    - [DON'T: Forget to close grouped structures](#dont-forget-to-close-grouped-structures)
+  - [Generated File Headers](#generated-file-headers)
+    - [DO: Mark files as auto-generated](#do-mark-files-as-auto-generated)
+    - [DON'T: Leave generated files unmarked](#dont-leave-generated-files-unmarked)
+  - [Validation and Testing](#validation-and-testing)
+    - [DO: Provide golden files for comparison](#do-provide-golden-files-for-comparison)
+    - [DO: Include verification scripts](#do-include-verification-scripts)
+    - [DON'T: Ship examples without validation](#dont-ship-examples-without-validation)
+  - [Documentation Tiers](#documentation-tiers)
+    - [DO: Provide three levels of documentation](#do-provide-three-levels-of-documentation)
+    - [DO: Include prerequisites clearly](#do-include-prerequisites-clearly)
+    - [DON'T: Assume knowledge without stating it](#dont-assume-knowledge-without-stating-it)
+  - [Naming Conventions](#naming-conventions)
+    - [DO: Use consistent naming across layers](#do-use-consistent-naming-across-layers)
+    - [DON'T: Mix naming conventions](#dont-mix-naming-conventions)
+  - [Multi-Output Generation](#multi-output-generation)
+    - [DO: Generate multiple synchronized outputs from one source](#do-generate-multiple-synchronized-outputs-from-one-source)
+    - [DON'T: Create disconnected generation rules](#dont-create-disconnected-generation-rules)
+  - [Git Hygiene](#git-hygiene)
+    - [DO: Gitignore generated output](#do-gitignore-generated-output)
+    - [DON'T: Commit generated files to version control](#dont-commit-generated-files-to-version-control)
+  - [Example Checklist](#example-checklist)
+  - [Quick Reference](#quick-reference)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Creating ggen Examples: Dos and Don'ts
 
 A practical guide to creating high-quality ggen examples that demonstrate the RDF-first specification approach.

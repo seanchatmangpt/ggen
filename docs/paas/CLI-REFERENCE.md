@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen PaaS CLI Reference](#ggen-paas-cli-reference)
+  - [Overview](#overview)
+  - [Global Options](#global-options)
+  - [Commands](#commands)
+    - [init - Initialize Submodule](#init---initialize-submodule)
+    - [update - Update Submodule](#update---update-submodule)
+    - [validate - Validate Specifications](#validate---validate-specifications)
+    - [sync - Synchronize Specifications](#sync---synchronize-specifications)
+    - [deploy - Deploy Artifacts](#deploy---deploy-artifacts)
+    - [status - Show Status](#status---show-status)
+    - [logs - Stream Logs](#logs---stream-logs)
+    - [describe - Describe Resource](#describe---describe-resource)
+    - [explain - Explain Artifact Origin](#explain---explain-artifact-origin)
+  - [Error Codes](#error-codes)
+  - [Environment Variables](#environment-variables)
+  - [Configuration File](#configuration-file)
+  - [Examples](#examples)
+    - [Complete Workflow](#complete-workflow)
+    - [Troubleshooting](#troubleshooting)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen PaaS CLI Reference
 
 Auto-generated from `.specify/cli-commands.ttl`

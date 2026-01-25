@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Post-Cycle Insights & Best Practices](#post-cycle-insights--best-practices)
+  - [Retrospective: What We Learned](#retrospective-what-we-learned)
+    - [1. **Adversarial Validation = Gold Standard**](#1-adversarial-validation--gold-standard)
+    - [2. **Evidence-Based > Opinion-Based**](#2-evidence-based--opinion-based)
+    - [3. **Parallel-First = 2.8-4.4x Faster**](#3-parallel-first--28-44x-faster)
+    - [4. **Specification-First Prevents Iteration**](#4-specification-first-prevents-iteration)
+    - [5. **Shell Compatibility Breaks Silently**](#5-shell-compatibility-breaks-silently)
+    - [6. **Hardcoded Success Messages = Security Theater**](#6-hardcoded-success-messages--security-theater)
+    - [7. **Poka-Yoke Layers = Defense in Depth**](#7-poka-yoke-layers--defense-in-depth)
+    - [8. **Documentation Should Be Generated, Not Manually Written**](#8-documentation-should-be-generated-not-manually-written)
+    - [9. **Mutation Testing = Empirical Test Quality**](#9-mutation-testing--empirical-test-quality)
+    - [10. **Lessons from Lock Contention**](#10-lessons-from-lock-contention)
+  - [Actionable Recommendations](#actionable-recommendations)
+    - [Immediate (Next Sprint)](#immediate-next-sprint)
+    - [Short-Term (2 Weeks)](#short-term-2-weeks)
+    - [Medium-Term (1 Month)](#medium-term-1-month)
+    - [Long-Term (Architectural)](#long-term-architectural)
+  - [Key Metrics (Before vs After)](#key-metrics-before-vs-after)
+  - [Philosophy Shifts](#philosophy-shifts)
+    - [Shift 1: From Trust to Verification](#shift-1-from-trust-to-verification)
+    - [Shift 2: From Sequential to Parallel](#shift-2-from-sequential-to-parallel)
+    - [Shift 3: From Narrative to Evidence](#shift-3-from-narrative-to-evidence)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Post-Cycle Insights & Best Practices
 
 ## Retrospective: What We Learned

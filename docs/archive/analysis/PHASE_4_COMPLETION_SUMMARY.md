@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Phase 4: Procedural Macros Integration - COMPLETE ✅](#ggen-phase-4-procedural-macros-integration---complete-)
+  - [Phase 4: What Was Accomplished](#phase-4-what-was-accomplished)
+    - [1. Procedural Macro Crate Created ✅](#1-procedural-macro-crate-created-)
+      - [&#035;&#91;derive(Guard)&#93; Macro](#deriveguard-macro)
+      - [&#035;&#91;derive(Bundle)&#93; Macro](#derivebundle-macro)
+      - [Helper Macros](#helper-macros)
+    - [2. Type System Integration ✅](#2-type-system-integration-)
+    - [3. Comprehensive Test Suite ✅](#3-comprehensive-test-suite-)
+    - [4. Development Dependency Integration ✅](#4-development-dependency-integration-)
+    - [5. Project Build Status ✅](#5-project-build-status-)
+  - [Code Quality Metrics](#code-quality-metrics)
+  - [Technical Achievements](#technical-achievements)
+    - [1. Advanced Rust Patterns Used](#1-advanced-rust-patterns-used)
+    - [2. Architecture Improvements](#2-architecture-improvements)
+    - [3. Integration Points](#3-integration-points)
+  - [Phase 4 Deliverables Checklist](#phase-4-deliverables-checklist)
+  - [Integration with Phases 1-3](#integration-with-phases-1-3)
+  - [Performance Projections](#performance-projections)
+    - [Macro Impact](#macro-impact)
+    - [Code Generation Impact](#code-generation-impact)
+  - [Next Steps: Phase 5-6 Implementation](#next-steps-phase-5-6-implementation)
+    - [Phase 5: Concurrent ML-Based Validation](#phase-5-concurrent-ml-based-validation)
+    - [Phase 6: Self-Healing Neural Ontology System](#phase-6-self-healing-neural-ontology-system)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Phase 4: Procedural Macros Integration - COMPLETE ✅
 
 **Status**: Phase 4 Code Implementation COMPLETE

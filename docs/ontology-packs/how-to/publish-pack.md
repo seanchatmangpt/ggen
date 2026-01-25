@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How-To: Publish Custom Ontology Packs](#how-to-publish-custom-ontology-packs)
+  - [Creating a Pack](#creating-a-pack)
+  - [Organizing Files](#organizing-files)
+  - [Publishing](#publishing)
+  - [Publishing Updates](#publishing-updates)
+  - [Testing Before Publishing](#testing-before-publishing)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How-To: Publish Custom Ontology Packs
 
 ## Creating a Pack

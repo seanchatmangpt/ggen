@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GCP Marketplace Autonomics — C4 Container Diagrams (Level 2)](#gcp-marketplace-autonomics--c4-container-diagrams-level-2)
+  - [📋 Context Variables (from `.specify/*.ttl`)](#-context-variables-from-specifyttl)
+  - [1️⃣ Single SKU Container Diagram](#-single-sku-container-diagram)
+  - [2️⃣ Multi-SKU Tenant Container Diagram](#-multi-sku-tenant-container-diagram)
+  - [3️⃣ Category Hub Container Diagram](#-category-hub-container-diagram)
+  - [4️⃣ Fleet Control Plane Container Diagram](#-fleet-control-plane-container-diagram)
+  - [5️⃣ Data Plane vs Control Plane Split](#-data-plane-vs-control-plane-split)
+  - [6️⃣ Regional Deployment Container Diagram](#-regional-deployment-container-diagram)
+  - [7️⃣ Private/Restricted Deployment Variant](#-privaterestricted-deployment-variant)
+  - [🎯 Diagram Selection Guide](#-diagram-selection-guide)
+  - [🔗 Integration with Tera Templates](#-integration-with-tera-templates)
+  - [🧪 Testing Diagrams](#-testing-diagrams)
+  - [📝 Document History](#-document-history)
+  - [🚀 Next Steps](#-next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GCP Marketplace Autonomics — C4 Container Diagrams (Level 2)
 
 **Version**: 6.0.0 | **Date**: 2026-01-25 | **Status**: Production-Ready

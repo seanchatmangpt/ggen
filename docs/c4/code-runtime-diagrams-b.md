@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [C4 Code/Runtime Behavior Diagrams - GCP Marketplace Autonomics (Level 4)](#c4-coderuntime-behavior-diagrams---gcp-marketplace-autonomics-level-4)
+  - [Overview](#overview)
+  - [Diagram 1: Sequence Diagram - Missing Payload Keys Validation](#diagram-1-sequence-diagram---missing-payload-keys-validation)
+  - [Diagram 2: Sequence Diagram - Storm Handling with Governor](#diagram-2-sequence-diagram---storm-handling-with-governor)
+  - [Diagram 3: Receipt Hash Chain - Cryptographic Proof](#diagram-3-receipt-hash-chain---cryptographic-proof)
+  - [Diagram 4: Failure Mode Diagram - Jidoka (Stop-the-Line)](#diagram-4-failure-mode-diagram---jidoka-stop-the-line)
+  - [Integration: Runtime Diagrams with Tera Template Framework](#integration-runtime-diagrams-with-tera-template-framework)
+  - [Summary Table: All Level 4 Diagrams](#summary-table-all-level-4-diagrams)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # C4 Code/Runtime Behavior Diagrams - GCP Marketplace Autonomics (Level 4)
 
 **Version**: 1.0.0 | **Date**: January 2026 | **Status**: Production-Ready

@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DSPy Assertion System - Quick Reference](#dspy-assertion-system---quick-reference)
+  - [Core Concepts (60 Second Overview)](#core-concepts-60-second-overview)
+  - [Two Types of Assertions](#two-types-of-assertions)
+  - [Basic Usage Pattern](#basic-usage-pattern)
+  - [Backtracking Flow](#backtracking-flow)
+  - [Signature Modification Example](#signature-modification-example)
+    - [Before Failure](#before-failure)
+    - [After Failure (Automatic)](#after-failure-automatic)
+  - [Common Validation Patterns](#common-validation-patterns)
+  - [Integration with Optimization](#integration-with-optimization)
+    - [Three Optimization Mechanisms](#three-optimization-mechanisms)
+    - [Usage with BootstrapFewShot](#usage-with-bootstrapfewshot)
+  - [Transform Module Pattern](#transform-module-pattern)
+  - [Modern Replacement (DSPy 2.6+)](#modern-replacement-dspy-26)
+    - [BestOfN](#bestofn)
+    - [Refine](#refine)
+  - [Configuration Parameters](#configuration-parameters)
+  - [Error Types](#error-types)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Best Practices](#best-practices)
+    - [Development Phase](#development-phase)
+    - [Production Phase](#production-phase)
+    - [Optimization Phase](#optimization-phase)
+  - [Common Pitfalls](#common-pitfalls)
+  - [Rust Implementation Checklist](#rust-implementation-checklist)
+  - [Quick Decision Tree](#quick-decision-tree)
+  - [Code Template](#code-template)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DSPy Assertion System - Quick Reference
 
 ## Core Concepts (60 Second Overview)

@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ChatmanGPT Financial Model](#chatmangpt-financial-model)
+  - [Integrator-Killer Economics](#integrator-killer-economics)
+  - [Unit Economics](#unit-economics)
+    - [Cost per Integration Comparison](#cost-per-integration-comparison)
+    - [Revenue Model Comparison](#revenue-model-comparison)
+  - [Customer Acquisition Cost (CAC) Model](#customer-acquisition-cost-cac-model)
+    - [Direct Sales (40% of new business)](#direct-sales-40-of-new-business)
+    - [Partner/Integrator Channel (30% of new business)](#partnerintegrator-channel-30-of-new-business)
+    - [Freemium/PLG (20% of new business)](#freemiumplg-20-of-new-business)
+    - [Blended CAC](#blended-cac)
+  - [Revenue Expansion Per Customer](#revenue-expansion-per-customer)
+    - [Year 1 (Ontology License + Light Execution)](#year-1-ontology-license--light-execution)
+    - [Year 2 (Expansion + New Ontologies)](#year-2-expansion--new-ontologies)
+    - [Year 3 (Platform Stickiness)](#year-3-platform-stickiness)
+    - [Customer Lifetime Value (LTV)](#customer-lifetime-value-ltv)
+  - [5-Year Financial Projection](#5-year-financial-projection)
+    - [Assumptions](#assumptions)
+    - [Revenue Projection](#revenue-projection)
+    - [Operating Expense Projection](#operating-expense-projection)
+    - [Profitability Projection](#profitability-projection)
+    - [Cash Flow & Runway](#cash-flow--runway)
+  - [Fundraising & Dilution](#fundraising--dilution)
+    - [Series A Investment Round](#series-a-investment-round)
+    - [Exit Scenarios](#exit-scenarios)
+  - [Comparison: ChatmanGPT vs Competitor Economics](#comparison-chatmangpt-vs-competitor-economics)
+    - [vs Big Integrators (Accenture, Deloitte)](#vs-big-integrators-accenture-deloitte)
+    - [vs iPaaS (Workato, MuleSoft)](#vs-ipaas-workato-mulesoft)
+  - [Break-Even & Profitability Timeline](#break-even--profitability-timeline)
+  - [Key Financial Drivers](#key-financial-drivers)
+    - [1. Customer Acquisition Efficiency](#1-customer-acquisition-efficiency)
+    - [2. Net Revenue Retention (NRR)](#2-net-revenue-retention-nrr)
+    - [3. Rule of 40 (Growth + Margin)](#3-rule-of-40-growth--margin)
+    - [4. Cash Conversion](#4-cash-conversion)
+  - [Risk Scenarios](#risk-scenarios)
+    - [Downside Case (50% achievement)](#downside-case-50-achievement)
+    - [Upside Case (150% achievement)](#upside-case-150-achievement)
+  - [The Financial Thesis](#the-financial-thesis)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ChatmanGPT Financial Model
 ## Integrator-Killer Economics
 

@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Academic Paper System: Complete Implementation Index](#academic-paper-system-complete-implementation-index)
+  - [Overview](#overview)
+  - [What Was Built](#what-was-built)
+    - [1. Core Infrastructure](#1-core-infrastructure)
+      - [RDF Ontology](#rdf-ontology)
+      - [LaTeX Templates (6 formats)](#latex-templates-6-formats)
+      - [CLI Module](#cli-module)
+      - [Marketplace Packages (7 packages)](#marketplace-packages-7-packages)
+    - [2. The Chatman Equation Demonstration: Semantic Generation in Action](#2-the-chatman-equation-demonstration-semantic-generation-in-action)
+      - [Version 1: Foundation (8 equations)](#version-1-foundation-8-equations)
+      - [Version 2: Extended Formal Properties (12 equations)](#version-2-extended-formal-properties-12-equations)
+      - [Version 3: Dark Matter Insights (15 equations) — THE CRUCIAL ADDITION](#version-3-dark-matter-insights-15-equations--the-crucial-addition)
+    - [3. Documentation (6000+ lines)](#3-documentation-6000-lines)
+      - [Quick Start](#quick-start)
+      - [Academic Paper Lifecycle (Complete Guide)](#academic-paper-lifecycle-complete-guide)
+      - [Semantic Equation Generation Demo](#semantic-equation-generation-demo)
+      - [Dark Matter Insights (The Core Value Proposition)](#dark-matter-insights-the-core-value-proposition)
+      - [File-by-File Guide](#file-by-file-guide)
+      - [Evolution and Versions](#evolution-and-versions)
+      - [System Documentation](#system-documentation)
+  - [Key Technical Innovations](#key-technical-innovations)
+    - [1. RDF as Single Source of Truth](#1-rdf-as-single-source-of-truth)
+    - [2. Automatic Equation Numbering and Cross-References](#2-automatic-equation-numbering-and-cross-references)
+    - [3. Version Tracking in RDF](#3-version-tracking-in-rdf)
+    - [4. Deterministic Multi-Format Generation](#4-deterministic-multi-format-generation)
+    - [5. Dark Matter as Quantifiable Equations](#5-dark-matter-as-quantifiable-equations)
+  - [File Organization](#file-organization)
+  - [Getting Started](#getting-started)
+    - [1. Understand the Concept (5 minutes)](#1-understand-the-concept-5-minutes)
+    - [2. See Semantic Generation in Action (10 minutes)](#2-see-semantic-generation-in-action-10-minutes)
+    - [3. Understand Dark Matter Insights (30 minutes)](#3-understand-dark-matter-insights-30-minutes)
+    - [4. Learn the Full Lifecycle (1-2 hours)](#4-learn-the-full-lifecycle-1-2-hours)
+    - [5. Create Your Own Paper](#5-create-your-own-paper)
+  - [The Three Layers of Value](#the-three-layers-of-value)
+    - [Layer 1: Foundation (v1)](#layer-1-foundation-v1)
+    - [Layer 2: Rigor (v2)](#layer-2-rigor-v2)
+    - [3: Impact (v3)](#3-impact-v3)
+  - [Semantic Equation Generation: Why This Matters](#semantic-equation-generation-why-this-matters)
+    - [Traditional Academic Publishing](#traditional-academic-publishing)
+    - [Semantic Paper Development (ggen)](#semantic-paper-development-ggen)
+    - [The Power](#the-power)
+  - [Production Evidence](#production-evidence)
+  - [Git Commits](#git-commits)
+  - [What This Demonstrates](#what-this-demonstrates)
+  - [The Real Innovation](#the-real-innovation)
+  - [Status](#status)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Academic Paper System: Complete Implementation Index
 
 ## Overview

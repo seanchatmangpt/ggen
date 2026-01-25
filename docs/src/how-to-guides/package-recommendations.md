@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Get Package Recommendations](#how-to-get-package-recommendations)
+  - [Overview](#overview)
+  - [Basic Recommendations](#basic-recommendations)
+    - [Get recommendations for your use case](#get-recommendations-for-your-use-case)
+    - [Customize recommendations](#customize-recommendations)
+  - [Understanding Recommendations](#understanding-recommendations)
+    - [What "use case" does](#what-use-case-does)
+    - [What "priority" does](#what-priority-does)
+    - [Example output](#example-output)
+  - [Advanced Recommendation Workflows](#advanced-recommendation-workflows)
+    - [Scenario: Finding packages for a research paper](#scenario-finding-packages-for-a-research-paper)
+    - [Scenario: Choosing for mission-critical system](#scenario-choosing-for-mission-critical-system)
+    - [Scenario: MVP with budget constraints](#scenario-mvp-with-budget-constraints)
+  - [Combining with Other Commands](#combining-with-other-commands)
+    - [Recommendation → Validation → Adoption](#recommendation-%E2%86%92-validation-%E2%86%92-adoption)
+    - [Recommendation → Comparison → Selection](#recommendation-%E2%86%92-comparison-%E2%86%92-selection)
+  - [Tips & Best Practices](#tips--best-practices)
+    - [1. Start with recommendations, then dig deeper](#1-start-with-recommendations-then-dig-deeper)
+    - [2. Compare finalists side-by-side](#2-compare-finalists-side-by-side)
+    - [3. Match priorities to your needs](#3-match-priorities-to-your-needs)
+    - [4. Document your selection](#4-document-your-selection)
+    - [5. Re-evaluate periodically](#5-re-evaluate-periodically)
+  - [Troubleshooting](#troubleshooting)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Get Package Recommendations
 
 This guide shows how to use ggen's recommendation system to discover the best packages for your specific use case.

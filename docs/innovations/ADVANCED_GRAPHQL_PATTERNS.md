@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Advanced GraphQL Code Generation Patterns](#advanced-graphql-code-generation-patterns)
+  - [Overview](#overview)
+  - [Pattern 1: Apollo Federation with Entity References](#pattern-1-apollo-federation-with-entity-references)
+    - [Description](#description)
+    - [External Packages](#external-packages)
+    - [RDF Ontology for Federation](#rdf-ontology-for-federation)
+    - [Generated Users Subgraph](#generated-users-subgraph)
+    - [Generated Products Subgraph with Entity Extensions](#generated-products-subgraph-with-entity-extensions)
+    - [Generated Federation Gateway](#generated-federation-gateway)
+    - [Implementation Complexity](#implementation-complexity)
+  - [Pattern 2: Real-Time Subscriptions with WebSocket & PubSub](#pattern-2-real-time-subscriptions-with-websocket--pubsub)
+    - [Description](#description-1)
+    - [External Packages](#external-packages-1)
+    - [RDF Ontology for Subscriptions](#rdf-ontology-for-subscriptions)
+    - [Generated Subscriptions Code](#generated-subscriptions-code)
+    - [Publishing Events](#publishing-events)
+  - [Pattern 3: Custom Directives & Schema Transforms](#pattern-3-custom-directives--schema-transforms)
+    - [Description](#description-2)
+    - [External Packages](#external-packages-2)
+    - [RDF Ontology for Directives](#rdf-ontology-for-directives)
+    - [Generated Directive Implementations](#generated-directive-implementations)
+    - [Usage in Schema](#usage-in-schema)
+  - [Pattern 4: DataLoader for N+1 Query Prevention](#pattern-4-dataloader-for-n1-query-prevention)
+    - [Description](#description-3)
+    - [External Packages](#external-packages-3)
+    - [RDF Ontology for DataLoading](#rdf-ontology-for-dataloading)
+    - [Generated Code](#generated-code)
+  - [Pattern 5: Schema Composition & Merging](#pattern-5-schema-composition--merging)
+    - [Description](#description-4)
+  - [Tera Template Examples](#tera-template-examples)
+    - [Subgraph Schema Template](#subgraph-schema-template)
+  - [Best Practices](#best-practices)
+  - [References](#references)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Advanced GraphQL Code Generation Patterns
 
 > Hyper-advanced GraphQL patterns for federation, subscriptions, and schema composition driven by RDF ontology

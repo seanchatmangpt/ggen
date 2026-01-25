@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [8020 Sector Bundles Integration Guide](#8020-sector-bundles-integration-guide)
+  - [What Are Sector Bundles?](#what-are-sector-bundles)
+  - [Scenario 1: Building a Modern Microservice (Rust)](#scenario-1-building-a-modern-microservice-rust)
+    - [Step 1: Install Base Bundle](#step-1-install-base-bundle)
+    - [Step 2: Link to Observability Bundle](#step-2-link-to-observability-bundle)
+    - [Step 3: Define Your Domain Ontology](#step-3-define-your-domain-ontology)
+    - [Step 4: Generate Code from Ontology](#step-4-generate-code-from-ontology)
+    - [Step 5: Test & Validate](#step-5-test--validate)
+    - [Step 6: Deploy](#step-6-deploy)
+  - [Scenario 2: Publishing a Research Paper](#scenario-2-publishing-a-research-paper)
+    - [Step 1: Install Paper Bundle](#step-1-install-paper-bundle)
+    - [Step 2: Choose Your Venue](#step-2-choose-your-venue)
+    - [Step 3: Add Your Content](#step-3-add-your-content)
+    - [Step 4: Build PDF](#step-4-build-pdf)
+    - [Step 5: Validate Submission](#step-5-validate-submission)
+    - [Step 6: Generate Submission Pack](#step-6-generate-submission-pack)
+    - [Step 7: Submit](#step-7-submit)
+  - [Scenario 3: Building a Support Routing System](#scenario-3-building-a-support-routing-system)
+    - [Step 1: Install Support Bundle](#step-1-install-support-bundle)
+    - [Step 2: Configure Case Categories](#step-2-configure-case-categories)
+    - [Step 3: Setup Routing Rules](#step-3-setup-routing-rules)
+    - [Step 4: Connect to Your Support System](#step-4-connect-to-your-support-system)
+    - [Step 5: Deploy Hooks](#step-5-deploy-hooks)
+    - [Step 6: Monitor Effectiveness](#step-6-monitor-effectiveness)
+  - [Scenario 4: Deploying an API Gateway](#scenario-4-deploying-an-api-gateway)
+    - [Step 1: Install API Gateway Bundle](#step-1-install-api-gateway-bundle)
+    - [Step 2: Define Your Gateway](#step-2-define-your-gateway)
+    - [Step 3: Add Authentication](#step-3-add-authentication)
+    - [Step 4: Add Rate Limiting](#step-4-add-rate-limiting)
+    - [Step 5: Add Observability](#step-5-add-observability)
+    - [Step 6: Deploy](#step-6-deploy-1)
+  - [Scenario 5: Complete Stack Example](#scenario-5-complete-stack-example)
+  - [Integration Points](#integration-points)
+    - [Between Microservice & Observability](#between-microservice--observability)
+    - [Between API Gateway & Observability](#between-api-gateway--observability)
+    - [Between Support Hooks & Observability](#between-support-hooks--observability)
+  - [Validation Receipts](#validation-receipts)
+  - [Troubleshooting](#troubleshooting)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 8020 Sector Bundles Integration Guide
 
 **Objective**: Show how ggen's 5 sector bundles compose into complete vertical stacks, with real-world examples

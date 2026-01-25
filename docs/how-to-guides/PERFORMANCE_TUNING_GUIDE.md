@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Performance Tuning for Large Ontologies](#performance-tuning-for-large-ontologies)
+  - [Quick Wins](#quick-wins)
+    - [1. Enable Query Caching](#1-enable-query-caching)
+    - [2. Use SPARQL Query Optimization](#2-use-sparql-query-optimization)
+    - [3. Selective Loading](#3-selective-loading)
+  - [Profiling](#profiling)
+    - [Measure Query Performance](#measure-query-performance)
+    - [Identify Slow Queries](#identify-slow-queries)
+  - [Optimization Techniques](#optimization-techniques)
+    - [Technique 1: Partition Ontology](#technique-1-partition-ontology)
+    - [Technique 2: Lazy Property Loading](#technique-2-lazy-property-loading)
+    - [Technique 3: Stratified Queries](#technique-3-stratified-queries)
+  - [Caching Strategy](#caching-strategy)
+    - [Query Result Caching](#query-result-caching)
+    - [Materialized Views](#materialized-views)
+  - [Index Strategy](#index-strategy)
+    - [Critical Indexes](#critical-indexes)
+  - [Benchmarking](#benchmarking)
+    - [Benchmark Template](#benchmark-template)
+  - [Memory Optimization](#memory-optimization)
+    - [Streaming Processing](#streaming-processing)
+    - [Graph Compression](#graph-compression)
+  - [Monitoring](#monitoring)
+    - [Performance Metrics](#performance-metrics)
+    - [Alert Thresholds](#alert-thresholds)
+  - [Comparative Performance](#comparative-performance)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Performance Tuning for Large Ontologies
 
 > Optimize ggen for 100k+ triples and complex queries

@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Packs Command Specification](#packs-command-specification)
+  - [Command Priority Levels](#command-priority-levels)
+    - [CRITICAL (Must Have) - 80% Value](#critical-must-have---80-value)
+    - [HIGH (Essential) - 15% Value](#high-essential---15-value)
+    - [MEDIUM (Nice to Have) - 4% Value](#medium-nice-to-have---4-value)
+    - [LOW (Future) - 1% Value](#low-future---1-value)
+  - [CRITICAL Commands (Must Have)](#critical-commands-must-have)
+    - [1. `ggen packs list`](#1-ggen-packs-list)
+    - [2. `ggen packs show <pack-id>`](#2-ggen-packs-show-pack-id)
+    - [3. `ggen packs install <pack-id>`](#3-ggen-packs-install-pack-id)
+    - [4. `ggen packs generate <pack-id> <project-name>`](#4-ggen-packs-generate-pack-id-project-name)
+    - [5. `ggen packs validate <pack-id>`](#5-ggen-packs-validate-pack-id)
+  - [HIGH Commands (Essential)](#high-commands-essential)
+    - [6. `ggen packs compose <pack-ids...>`](#6-ggen-packs-compose-pack-ids)
+    - [7. `ggen packs dependencies <pack-id>`](#7-ggen-packs-dependencies-pack-id)
+    - [8. `ggen packs info <pack-id>`](#8-ggen-packs-info-pack-id)
+    - [9. `ggen packs search <query>`](#9-ggen-packs-search-query)
+  - [Implementation Roadmap](#implementation-roadmap)
+    - [Phase 1: CRITICAL Commands (Week 1-2)](#phase-1-critical-commands-week-1-2)
+    - [Phase 2: HIGH Commands (Week 3)](#phase-2-high-commands-week-3)
+    - [Phase 3: MEDIUM Commands (Week 4)](#phase-3-medium-commands-week-4)
+    - [Phase 4: LOW Commands (Future)](#phase-4-low-commands-future)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Packs Command Specification
 
 **Version:** 3.2.0

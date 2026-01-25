@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AGENT 8: Risk Assessment & Mitigation for ggen-disney](#agent-8-risk-assessment--mitigation-for-ggen-disney)
+  - [Executive Summary](#executive-summary)
+  - [Risk Matrix (Severity vs Probability)](#risk-matrix-severity-vs-probability)
+  - [Top 10 Risks (Ranked by Impact × Probability)](#top-10-risks-ranked-by-impact-%C3%97-probability)
+    - [RISK 1: Sales Cycle Longer Than 6 Months](#risk-1-sales-cycle-longer-than-6-months)
+    - [RISK 2: Terraform / Pulumi Launch Competing Product](#risk-2-terraform--pulumi-launch-competing-product)
+    - [RISK 3: Key Person Dependency (Founder/CEO)](#risk-3-key-person-dependency-founderceo)
+    - [RISK 4: Failed Disney Deployment](#risk-4-failed-disney-deployment)
+    - [RISK 5: Specification Drift (Scope Creep)](#risk-5-specification-drift-scope-creep)
+    - [RISK 6: Compliance / Legal Blocker](#risk-6-compliance--legal-blocker)
+    - [RISK 7: Churn in Early Customers](#risk-7-churn-in-early-customers)
+    - [RISK 8: Ops Team Sabotage (Disney)](#risk-8-ops-team-sabotage-disney)
+    - [RISK 9: Technology Architecture Failure](#risk-9-technology-architecture-failure)
+    - [RISK 10: Market Doesn't Want This Product](#risk-10-market-doesnt-want-this-product)
+  - [Risk Mitigation Dashboard (Weekly Review)](#risk-mitigation-dashboard-weekly-review)
+  - [Risk Governance](#risk-governance)
+    - [Weekly Risk Review](#weekly-risk-review)
+    - [Monthly Risk Deep-Dive](#monthly-risk-deep-dive)
+    - [Quarterly Risk Assessment](#quarterly-risk-assessment)
+  - [Risk Appetite & Decision Framework](#risk-appetite--decision-framework)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AGENT 8: Risk Assessment & Mitigation for ggen-disney
 
 **Status**: COMPLETE

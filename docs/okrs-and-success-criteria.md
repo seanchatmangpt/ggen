@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AGENT 10: OKRs & Success Criteria for ggen-disney](#agent-10-okrs--success-criteria-for-ggen-disney)
+  - [Executive Summary](#executive-summary)
+  - [Year 1 OKRs (2026)](#year-1-okrs-2026)
+    - [Q1 2026: Foundation](#q1-2026-foundation)
+    - [Q2 2026: Proof](#q2-2026-proof)
+    - [Q3 2026: Growth](#q3-2026-growth)
+    - [Q4 2026: Scale](#q4-2026-scale)
+  - [Year 2 OKRs (2027)](#year-2-okrs-2027)
+    - [Annual OKR: $20-30M ARR, 50+ Customers, Market Leadership](#annual-okr-20-30m-arr-50-customers-market-leadership)
+  - [Year 3 OKRs (2028)](#year-3-okrs-2028)
+    - [Annual OKR: $50-100M ARR, 100+ Customers, IPO Trajectory](#annual-okr-50-100m-arr-100-customers-ipo-trajectory)
+  - [Key Performance Indicators (KPIs) - Tracking](#key-performance-indicators-kpis---tracking)
+    - [Product Metrics (Weekly)](#product-metrics-weekly)
+    - [Sales Metrics (Weekly)](#sales-metrics-weekly)
+    - [Customer Success Metrics (Monthly)](#customer-success-metrics-monthly)
+    - [Financial Metrics (Quarterly)](#financial-metrics-quarterly)
+    - [Organizational Metrics (Monthly)](#organizational-metrics-monthly)
+  - [Success Metrics by Outcome](#success-metrics-by-outcome)
+    - [Outcome 1: Disney Pilot Success (Week 8)](#outcome-1-disney-pilot-success-week-8)
+    - [Outcome 2: Early Adopter Success (Month 6)](#outcome-2-early-adopter-success-month-6)
+    - [Outcome 3: Market Traction (Month 12)](#outcome-3-market-traction-month-12)
+  - [Quarterly OKR Review Process](#quarterly-okr-review-process)
+    - [OKR Cadence](#okr-cadence)
+    - [OKR Scoring](#okr-scoring)
+    - [Transparency & Communication](#transparency--communication)
+  - [Success Scenarios (Confidence Intervals)](#success-scenarios-confidence-intervals)
+    - [Scenario A: Conservative (33rd Percentile)](#scenario-a-conservative-33rd-percentile)
+    - [Scenario B: Base Case (50th Percentile) - Used Above](#scenario-b-base-case-50th-percentile---used-above)
+    - [Scenario C: Upside (67th Percentile)](#scenario-c-upside-67th-percentile)
+  - [Exit Criteria (When to Pivot or Stop)](#exit-criteria-when-to-pivot-or-stop)
+    - [RED FLAGS (Immediate Action Required)](#red-flags-immediate-action-required)
+    - [YELLOW FLAGS (Strategic Review Required)](#yellow-flags-strategic-review-required)
+    - [GREEN LIGHTS (Continue Aggressive Growth)](#green-lights-continue-aggressive-growth)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AGENT 10: OKRs & Success Criteria for ggen-disney
 
 **Status**: COMPLETE

@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pack System: FMEA Analysis and User Workflows](#pack-system-fmea-analysis-and-user-workflows)
+  - [Overview](#overview)
+  - [User Workflow Categories](#user-workflow-categories)
+  - [FMEA Table](#fmea-table)
+    - [1. Discovery Workflows](#1-discovery-workflows)
+    - [2. Installation Workflows](#2-installation-workflows)
+    - [3. Generation Workflows](#3-generation-workflows)
+    - [4. Composition Workflows](#4-composition-workflows)
+    - [5. Validation Workflows](#5-validation-workflows)
+    - [6. Publishing Workflows](#6-publishing-workflows)
+  - [Risk Priority Numbers (RPN)](#risk-priority-numbers-rpn)
+    - [Critical Risks (RPN > 100)](#critical-risks-rpn--100)
+  - [User Journey Maps](#user-journey-maps)
+    - [Happy Path: First-Time User Generates Project](#happy-path-first-time-user-generates-project)
+    - [Power User: Compose Multi-Pack Project](#power-user-compose-multi-pack-project)
+    - [Pack Author: Publish Custom Pack](#pack-author-publish-custom-pack)
+  - [Mitigation Strategies](#mitigation-strategies)
+    - [High-Priority Mitigations (P0)](#high-priority-mitigations-p0)
+    - [Medium-Priority Mitigations (P1)](#medium-priority-mitigations-p1)
+    - [Low-Priority Mitigations (P2)](#low-priority-mitigations-p2)
+  - [Success Metrics](#success-metrics)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pack System: FMEA Analysis and User Workflows
 
 ## Overview

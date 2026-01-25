@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Examples](#examples)
+  - [Quick Navigation by Learning Path](#quick-navigation-by-learning-path)
+  - [Wave 1: Foundation (Beginner)](#wave-1-foundation-beginner)
+  - [Wave 2: Scaffolds (Intermediate)](#wave-2-scaffolds-intermediate)
+    - [Production Scheduler](#production-scheduler)
+    - [CLI Development](#cli-development)
+    - [REST API](#rest-api)
+    - [SPARQL Patterns](#sparql-patterns)
+    - [Multi-Crate Orchestration](#multi-crate-orchestration)
+    - [AI Integration](#ai-integration)
+  - [Wave 3: Real-World (Advanced)](#wave-3-real-world-advanced)
+  - [Wave 4: Specialized (Expert)](#wave-4-specialized-expert)
+  - [Additional Examples (Specialized)](#additional-examples-specialized)
+  - [Quality Metrics (All Examples)](#quality-metrics-all-examples)
+  - [Getting Started with Examples](#getting-started-with-examples)
+    - [Run Any Example](#run-any-example)
+    - [Explore by Category](#explore-by-category)
+  - [Common Patterns Demonstrated](#common-patterns-demonstrated)
+    - [1. RDF → Code Generation](#1-rdf-%E2%86%92-code-generation)
+    - [2. Multi-Language Support](#2-multi-language-support)
+    - [3. Production Patterns](#3-production-patterns)
+  - [Complete Example Index](#complete-example-index)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Examples
 
 Explore **20+ production-ready examples** organized by complexity. All examples include comprehensive tests, zero warnings, and complete documentation.

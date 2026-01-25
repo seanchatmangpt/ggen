@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Production Validation Report - ggen Project](#production-validation-report---ggen-project)
+  - [Executive Summary](#executive-summary)
+    - [Key Findings](#key-findings)
+  - [Critical Issue: Oxigraph API Breaking Change](#critical-issue-oxigraph-api-breaking-change)
+    - [Root Cause Analysis (5 Whys)](#root-cause-analysis-5-whys)
+  - [Detailed Analysis](#detailed-analysis)
+    - [1. Oxigraph API Changes](#1-oxigraph-api-changes)
+      - [OLD API (0.4.x - REMOVED):](#old-api-04x---removed)
+      - [NEW API (0.5.x - CURRENT):](#new-api-05x---current)
+      - [Migration Pattern:](#migration-pattern)
+    - [2. Affected Test Files](#2-affected-test-files)
+    - [3. Missing Type Issues (FALSE POSITIVE)](#3-missing-type-issues-false-positive)
+    - [4. Private Field Access Issues](#4-private-field-access-issues)
+    - [5. clap-noun-verb Version Conflict](#5-clap-noun-verb-version-conflict)
+  - [Fix Strategy](#fix-strategy)
+    - [Phase 1: API Migration (CRITICAL - 2-4 hours)](#phase-1-api-migration-critical---2-4-hours)
+    - [Phase 2: Fix Test Architecture (HIGH - 4-8 hours)](#phase-2-fix-test-architecture-high---4-8-hours)
+    - [Phase 3: Version Consistency (LOW - 30 minutes)](#phase-3-version-consistency-low---30-minutes)
+  - [Production Readiness Assessment](#production-readiness-assessment)
+    - [Scoring Breakdown](#scoring-breakdown)
+    - [Risk Assessment (FMEA)](#risk-assessment-fmea)
+  - [Recommendations](#recommendations)
+    - [Immediate Actions (Next 24 Hours)](#immediate-actions-next-24-hours)
+    - [Medium-Term Actions (1 Week)](#medium-term-actions-1-week)
+  - [Andon Signal Status](#andon-signal-status)
+    - [Current Signals](#current-signals)
+    - [Signal Resolution Criteria](#signal-resolution-criteria)
+  - [Validation Artifacts](#validation-artifacts)
+    - [Commands Run](#commands-run)
+    - [Swarm Coordination](#swarm-coordination)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Production Validation Report - ggen Project
 **Date**: 2025-11-20
 **Agent**: Production Validator (Hive Mind Swarm)

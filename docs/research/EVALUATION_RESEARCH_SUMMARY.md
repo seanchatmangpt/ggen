@@ -1,3 +1,58 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DSPy Evaluation System Research - Executive Summary](#dspy-evaluation-system-research---executive-summary)
+  - [Research Deliverables](#research-deliverables)
+  - [Key Findings](#key-findings)
+    - [1. DSPy Evaluate Class Architecture](#1-dspy-evaluate-class-architecture)
+    - [2. Metrics Framework](#2-metrics-framework)
+    - [3. Parallel Processing](#3-parallel-processing)
+    - [4. Optimizer Integration](#4-optimizer-integration)
+    - [5. Best Practices](#5-best-practices)
+  - [Current Rust Implementation Status](#current-rust-implementation-status)
+    - [What We Have ✅](#what-we-have-)
+    - [What We're Missing ❌](#what-were-missing-)
+  - [Recommended Rust Architecture](#recommended-rust-architecture)
+    - [Core Types](#core-types)
+    - [Evaluate Struct](#evaluate-struct)
+    - [Built-in Metrics](#built-in-metrics)
+    - [Usage Example](#usage-example)
+  - [Implementation Roadmap](#implementation-roadmap)
+    - [Phase 1: Core Evaluation (Week 1)](#phase-1-core-evaluation-week-1)
+    - [Phase 2: Parallel Processing (Week 2)](#phase-2-parallel-processing-week-2)
+    - [Phase 3: Enhanced Metrics (Week 3)](#phase-3-enhanced-metrics-week-3)
+    - [Phase 4: Display and Export (Week 4)](#phase-4-display-and-export-week-4)
+    - [Phase 5: LLM-Based Metrics (Week 5)](#phase-5-llm-based-metrics-week-5)
+    - [Phase 6: Optimizer Integration (Week 6)](#phase-6-optimizer-integration-week-6)
+  - [Dependencies](#dependencies)
+    - [Required Crates](#required-crates)
+  - [Success Metrics](#success-metrics)
+    - [Functional Requirements](#functional-requirements)
+    - [Performance Requirements (SLOs)](#performance-requirements-slos)
+    - [Quality Requirements](#quality-requirements)
+  - [Testing Strategy](#testing-strategy)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+    - [Benchmarks](#benchmarks)
+  - [Migration Path](#migration-path)
+    - [Phase 1: Non-Breaking Addition](#phase-1-non-breaking-addition)
+    - [Phase 2: Deprecation](#phase-2-deprecation)
+    - [Phase 3: Migration](#phase-3-migration)
+    - [Phase 4: Removal](#phase-4-removal)
+  - [Related Work](#related-work)
+    - [Existing Rust Implementations](#existing-rust-implementations)
+    - [Python DSPy Versions](#python-dspy-versions)
+    - [Design Influences](#design-influences)
+  - [Risks and Mitigations](#risks-and-mitigations)
+  - [Next Steps](#next-steps)
+  - [References](#references)
+    - [Documentation](#documentation)
+    - [Source Code](#source-code)
+    - [Research Documents](#research-documents)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DSPy Evaluation System Research - Executive Summary
 
 **Date**: 2026-01-11

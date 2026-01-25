@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Use Advanced Marketplace Search](#how-to-use-advanced-marketplace-search)
+  - [Basic Search](#basic-search)
+    - [Find packages by maturity level](#find-packages-by-maturity-level)
+  - [Filtering by Dimension Scores](#filtering-by-dimension-scores)
+    - [Find packages with specific qualities](#find-packages-with-specific-qualities)
+  - [Complex Search Queries](#complex-search-queries)
+    - [Combine multiple filters](#combine-multiple-filters)
+    - [Exclude problematic packages](#exclude-problematic-packages)
+  - [Real-World Search Scenarios](#real-world-search-scenarios)
+    - [Scenario 1: Finding packages for production research](#scenario-1-finding-packages-for-production-research)
+    - [Scenario 2: Finding high-security packages](#scenario-2-finding-high-security-packages)
+    - [Scenario 3: Finding high-performance packages](#scenario-3-finding-high-performance-packages)
+    - [Scenario 4: Finding widely-adopted packages](#scenario-4-finding-widely-adopted-packages)
+  - [Search Result Analysis](#search-result-analysis)
+    - [Understanding search results](#understanding-search-results)
+    - [Key fields:](#key-fields)
+  - [Advanced Search Techniques](#advanced-search-techniques)
+    - [1. Start broad, narrow down](#1-start-broad-narrow-down)
+    - [2. Tier-based approach](#2-tier-based-approach)
+    - [3. Dimension-first approach](#3-dimension-first-approach)
+  - [Search + Other Commands](#search--other-commands)
+    - [Search → Compare → Decide](#search-%E2%86%92-compare-%E2%86%92-decide)
+    - [Search → Assess → Track](#search-%E2%86%92-assess-%E2%86%92-track)
+  - [Performance Tips](#performance-tips)
+    - [1. Use specific filters first](#1-use-specific-filters-first)
+    - [2. Combine related dimensions](#2-combine-related-dimensions)
+    - [3. Exclude first, then require](#3-exclude-first-then-require)
+  - [Search Examples by Industry](#search-examples-by-industry)
+    - [SaaS / Web Services](#saas--web-services)
+    - [Academic Research](#academic-research)
+    - [Fintech / Regulated Systems](#fintech--regulated-systems)
+    - [Startups / MVPs](#startups--mvps)
+  - [Troubleshooting](#troubleshooting)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Use Advanced Marketplace Search
 
 This guide shows how to find the perfect packages using advanced filtering and search capabilities.

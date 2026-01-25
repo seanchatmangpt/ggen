@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Runtime Template Framework - GCP Marketplace Autonomics](#runtime-template-framework---gcp-marketplace-autonomics)
+  - [Overview](#overview)
+  - [Part 1: Temporal Behavior Representation](#part-1-temporal-behavior-representation)
+    - [What Runtime Diagrams Show](#what-runtime-diagrams-show)
+    - [Timing Annotations](#timing-annotations)
+    - [Color Coding](#color-coding)
+  - [Part 2: Asynchronous vs Synchronous Boundaries](#part-2-asynchronous-vs-synchronous-boundaries)
+    - [Synchronous Boundaries (Blocking)](#synchronous-boundaries-blocking)
+    - [Asynchronous Boundaries (Non-blocking)](#asynchronous-boundaries-non-blocking)
+    - [Mixed: Async with Awaits](#mixed-async-with-awaits)
+  - [Part 3: Error Paths and Recovery](#part-3-error-paths-and-recovery)
+    - [Error Path Representation](#error-path-representation)
+      - [Layer 1: Detection](#layer-1-detection)
+      - [Layer 2: Propagation](#layer-2-propagation)
+      - [Layer 3: Handling](#layer-3-handling)
+    - [Recovery Patterns](#recovery-patterns)
+      - [Pattern 1: Retry with Exponential Backoff](#pattern-1-retry-with-exponential-backoff)
+      - [Pattern 2: Circuit Breaker](#pattern-2-circuit-breaker)
+      - [Pattern 3: Fallback/Graceful Degradation](#pattern-3-fallbackgraceful-degradation)
+  - [Part 4: Diagram Generation from Templates](#part-4-diagram-generation-from-templates)
+    - [Template Structure](#template-structure)
+    - [Template Variables](#template-variables)
+    - [Example: Storm Handling Template](#example-storm-handling-template)
+    - [Verification Checklist](#verification-checklist)
+  - [Part 5: File Organization](#part-5-file-organization)
+    - [Directory Structure](#directory-structure)
+    - [Filename Convention](#filename-convention)
+  - [Part 6: Template-to-Diagram Mapping](#part-6-template-to-diagram-mapping)
+    - [Step 1: Write RDF Specification](#step-1-write-rdf-specification)
+    - [Step 2: Define Tera Template](#step-2-define-tera-template)
+  - [Part 7: Validation and Verification](#part-7-validation-and-verification)
+    - [Pre-Generation Validation](#pre-generation-validation)
+    - [Post-Generation Validation](#post-generation-validation)
+  - [Part 8: SLO Targets for Runtime Diagrams](#part-8-slo-targets-for-runtime-diagrams)
+  - [Part 9: Common Patterns and Anti-Patterns](#part-9-common-patterns-and-anti-patterns)
+    - [✅ Good Patterns](#-good-patterns)
+    - [❌ Anti-Patterns](#-anti-patterns)
+  - [Part 10: Integration with CI/CD](#part-10-integration-with-cicd)
+    - [GitHub Actions Workflow](#github-actions-workflow)
+  - [Summary: Complete Workflow](#summary-complete-workflow)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Runtime Template Framework - GCP Marketplace Autonomics
 
 **Version**: 1.0.0 | **Date**: January 2026 | **Purpose**: Explain how runtime diagrams map to code behavior and Tera templates

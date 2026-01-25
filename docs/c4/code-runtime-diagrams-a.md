@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GCP Marketplace Autonomics - Level 4 Code/Runtime Diagrams](#gcp-marketplace-autonomics---level-4-coderuntime-diagrams)
+  - [Overview](#overview)
+  - [1. Gen_Statem State Transition Diagram](#1-gen_statem-state-transition-diagram)
+    - [Diagram](#diagram)
+    - [Description](#description)
+  - [2. Pub/Sub Signal Ingest Sequence Diagram](#2-pubsub-signal-ingest-sequence-diagram)
+    - [Diagram](#diagram-1)
+    - [Description](#description-1)
+  - [3. Marketplace Entitlement Event Sequence Diagram](#3-marketplace-entitlement-event-sequence-diagram)
+    - [Diagram](#diagram-2)
+    - [Description](#description-2)
+  - [4. Intervention Sequence Diagram](#4-intervention-sequence-diagram)
+    - [Diagram](#diagram-3)
+    - [Description](#description-3)
+  - [Context Variables (Tera Template)](#context-variables-tera-template)
+  - [Tera Template Wrapper](#tera-template-wrapper)
+    - [Sequence Diagram](#sequence-diagram)
+    - [Receipt Schema](#receipt-schema)
+    - [SLOs](#slos)
+    - [Error Handling](#error-handling)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GCP Marketplace Autonomics - Level 4 Code/Runtime Diagrams
 
 **Version**: 1.0.0

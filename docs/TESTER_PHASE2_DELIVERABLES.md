@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TESTER Phase 2 Deliverables - Clap Validation Test Suite](#tester-phase-2-deliverables---clap-validation-test-suite)
+  - [Executive Summary](#executive-summary)
+  - [Deliverables](#deliverables)
+    - [1. Integration Test Modules (5 files)](#1-integration-test-modules-5-files)
+    - [2. Test Fixtures (4 files)](#2-test-fixtures-4-files)
+    - [3. Documentation (1 file)](#3-documentation-1-file)
+  - [Test Coverage Breakdown](#test-coverage-breakdown)
+    - [IO Validation Tests (10 tests)](#io-validation-tests-10-tests)
+    - [Noun-Verb Validation Tests (12 tests)](#noun-verb-validation-tests-12-tests)
+    - [Config Integration Tests (10 tests)](#config-integration-tests-10-tests)
+    - [Security Tests (12 tests)](#security-tests-12-tests)
+  - [Performance Targets](#performance-targets)
+  - [Test Quality Standards](#test-quality-standards)
+  - [Coordination with CODER](#coordination-with-coder)
+    - [Tests Block On (CODER Required)](#tests-block-on-coder-required)
+    - [Implementation Guidance for CODER](#implementation-guidance-for-coder)
+  - [Test Execution Plan](#test-execution-plan)
+    - [Step 1: Fix Compilation (CODER)](#step-1-fix-compilation-coder)
+    - [Step 2: Run Test Suite](#step-2-run-test-suite)
+    - [Step 3: Verify Results](#step-3-verify-results)
+  - [Success Criteria](#success-criteria)
+  - [Statistics](#statistics)
+  - [Repository Structure](#repository-structure)
+  - [Next Steps for CODER](#next-steps-for-coder)
+  - [Hive Mind Coordination](#hive-mind-coordination)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TESTER Phase 2 Deliverables - Clap Validation Test Suite
 
 ## Executive Summary

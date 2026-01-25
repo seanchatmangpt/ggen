@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Cross-Cutting Market Takeover Visualizations](#cross-cutting-market-takeover-visualizations)
+  - [Diagram 1: Marketplace Coverage Map](#diagram-1-marketplace-coverage-map)
+    - [Description](#description)
+  - [Diagram 2: Ontology-to-SKU Compilation Pipeline](#diagram-2-ontology-to-sku-compilation-pipeline)
+    - [Description](#description-1)
+  - [Diagram 3: Long Tail SKU Assembly Line](#diagram-3-long-tail-sku-assembly-line)
+    - [Description](#description-2)
+  - [Diagram 4: Autonomic Revenue Loop (RevOps-as-a-Graph)](#diagram-4-autonomic-revenue-loop-revops-as-a-graph)
+    - [Description](#description-3)
+  - [Diagram 5: Trojan Gift Adoption Funnel](#diagram-5-trojan-gift-adoption-funnel)
+    - [Description](#description-4)
+  - [Diagram 6: Kudzu Graph Expansion (Network Effects)](#diagram-6-kudzu-graph-expansion-network-effects)
+    - [Description](#description-5)
+  - [Diagram 7: Defense-in-Depth Evidence Stack](#diagram-7-defense-in-depth-evidence-stack)
+    - [Description](#description-6)
+  - [Diagram 8: GCP Data Surface Coverage](#diagram-8-gcp-data-surface-coverage)
+    - [Description](#description-7)
+  - [Tera Template Wrapper](#tera-template-wrapper)
+  - [Network Effects Summary](#network-effects-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Cross-Cutting Market Takeover Visualizations
 
 > **Strategic Intent**: Visualize the Trojan gift colonization model - how a compliance automation tool becomes the foundational network effect driving marketplace expansion, revenue autonomics, and comprehensive cloud infrastructure observability.

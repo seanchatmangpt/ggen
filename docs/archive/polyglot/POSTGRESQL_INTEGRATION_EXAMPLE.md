@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [PostgreSQL Integration Example](#postgresql-integration-example)
+  - [Overview](#overview)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Design Data Ontology](#step-1-design-data-ontology)
+  - [Step 2: Configure ggen.toml](#step-2-configure-ggentoml)
+  - [Step 3: Create Tera Templates](#step-3-create-tera-templates)
+  - [Step 4: Run Generation](#step-4-run-generation)
+  - [Step 5: Apply to Database](#step-5-apply-to-database)
+    - [Using SQL directly:](#using-sql-directly)
+    - [Using Drizzle Migration:](#using-drizzle-migration)
+  - [Step 6: Implement Database Access Layer](#step-6-implement-database-access-layer)
+  - [Advanced Patterns](#advanced-patterns)
+    - [Pattern 1: Soft Deletes](#pattern-1-soft-deletes)
+    - [Pattern 2: Audit Trail](#pattern-2-audit-trail)
+    - [Pattern 3: Full-Text Search](#pattern-3-full-text-search)
+  - [Performance Considerations](#performance-considerations)
+    - [1. Index Strategy](#1-index-strategy)
+    - [2. Connection Pooling](#2-connection-pooling)
+    - [3. Query Optimization](#3-query-optimization)
+  - [Testing](#testing)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # PostgreSQL Integration Example
 
 > Generate database schemas and ORM models from RDF ontologies

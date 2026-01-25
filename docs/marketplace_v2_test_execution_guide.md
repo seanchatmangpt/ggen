@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace V2 Test Execution Guide](#marketplace-v2-test-execution-guide)
+  - [Overview](#overview)
+  - [Test Suite Organization](#test-suite-organization)
+    - [Directory Structure](#directory-structure)
+  - [Running Tests](#running-tests)
+    - [Quick Commands](#quick-commands)
+    - [Feature Flag Matrix](#feature-flag-matrix)
+    - [Run Examples](#run-examples)
+      - [Development (Fast Feedback)](#development-fast-feedback)
+      - [Pre-Commit (Comprehensive)](#pre-commit-comprehensive)
+      - [CI/CD (Full Suite)](#cicd-full-suite)
+  - [Test Categories Explained](#test-categories-explained)
+    - [1. Unit Tests (40+ tests)](#1-unit-tests-40-tests)
+    - [2. Integration Tests (50+ tests)](#2-integration-tests-50-tests)
+    - [3. Performance Tests (15+ tests)](#3-performance-tests-15-tests)
+    - [4. Security Tests (20+ tests)](#4-security-tests-20-tests)
+  - [Test Fixtures](#test-fixtures)
+    - [Package Fixtures](#package-fixtures)
+  - [Interpreting Test Results](#interpreting-test-results)
+    - [Success Criteria](#success-criteria)
+    - [Common Failure Patterns](#common-failure-patterns)
+      - [1. Feature Flag Missing](#1-feature-flag-missing)
+      - [2. Compilation Error](#2-compilation-error)
+      - [3. Performance SLO Violation](#3-performance-slo-violation)
+      - [4. Signature Verification Failure](#4-signature-verification-failure)
+  - [Coverage Analysis](#coverage-analysis)
+    - [Generate Coverage Report](#generate-coverage-report)
+    - [Coverage Targets](#coverage-targets)
+  - [Continuous Integration](#continuous-integration)
+    - [GitHub Actions Workflow](#github-actions-workflow)
+  - [Troubleshooting](#troubleshooting)
+    - [Tests Won't Compile](#tests-wont-compile)
+    - [Tests Timeout](#tests-timeout)
+    - [Tests Fail Intermittently](#tests-fail-intermittently)
+  - [Success Metrics](#success-metrics)
+    - [Test Execution Summary](#test-execution-summary)
+    - [Quality Gates](#quality-gates)
+  - [Next Steps](#next-steps)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace V2 Test Execution Guide
 
 ## Overview

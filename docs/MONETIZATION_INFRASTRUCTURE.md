@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Monetization Infrastructure: What's Working & What's Missing](#monetization-infrastructure-whats-working--whats-missing)
+  - [Executive Summary](#executive-summary)
+  - [What's PRODUCTION-READY (Ready to Deploy)](#whats-production-ready-ready-to-deploy)
+    - [✅ Marketplace Registry (95% Ready)](#-marketplace-registry-95-ready)
+    - [✅ Usage Metrics & Metering (95% Ready)](#-usage-metrics--metering-95-ready)
+    - [✅ Audit Trails & Compliance (90% Ready)](#-audit-trails--compliance-90-ready)
+    - [✅ Cryptographic Signing & Verification (90% Ready)](#-cryptographic-signing--verification-90-ready)
+    - [✅ Multi-Tenancy & Tier System (85% Ready)](#-multi-tenancy--tier-system-85-ready)
+    - [✅ Observability & Telemetry (95% Ready)](#-observability--telemetry-95-ready)
+    - [✅ Cloud Distribution & CDN (80% Ready)](#-cloud-distribution--cdn-80-ready)
+  - [What's PARTIAL (Needs Integration)](#whats-partial-needs-integration)
+    - [🟡 HTTP API Framework (60% Ready)](#-http-api-framework-60-ready)
+    - [🟡 Transaction System (70% Ready)](#-transaction-system-70-ready)
+    - [🟡 User Authentication (40% Ready)](#-user-authentication-40-ready)
+  - [What's MISSING (Needs Implementation)](#whats-missing-needs-implementation)
+    - [❌ Payment Processing](#-payment-processing)
+    - [❌ API Dashboard & Visualization](#-api-dashboard--visualization)
+    - [❌ User Management UI](#-user-management-ui)
+    - [❌ SaaS Quota Enforcement](#-saas-quota-enforcement)
+  - [Priority Implementation Roadmap](#priority-implementation-roadmap)
+    - [Phase 1: Minimum Viable Monetization (6 weeks)](#phase-1-minimum-viable-monetization-6-weeks)
+    - [Phase 2: Full Monetization (8 weeks)](#phase-2-full-monetization-8-weeks)
+  - [File Structure for Monetization Crates](#file-structure-for-monetization-crates)
+  - [Integration Examples](#integration-examples)
+    - [Example 1: Record a Marketplace Purchase](#example-1-record-a-marketplace-purchase)
+    - [Example 2: Enforce SaaS Quota](#example-2-enforce-saas-quota)
+    - [Example 3: Tier-Based Feature Access](#example-3-tier-based-feature-access)
+  - [Technology Stack (Ready to Use)](#technology-stack-ready-to-use)
+    - [Already in Cargo.toml](#already-in-cargotoml)
+    - [To Add](#to-add)
+  - [Success Criteria for Monetization](#success-criteria-for-monetization)
+    - [Phase 1 (6 weeks)](#phase-1-6-weeks)
+    - [Phase 2 (8 weeks)](#phase-2-8-weeks)
+  - [Risk Mitigation](#risk-mitigation)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Monetization Infrastructure: What's Working & What's Missing
 
 **Last Updated**: January 2026

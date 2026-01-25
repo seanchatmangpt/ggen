@@ -1,3 +1,54 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Phase 2 Implementation Plan: Complete Documentation Index](#ggen-phase-2-implementation-plan-complete-documentation-index)
+  - [Document Overview](#document-overview)
+    - [1. ONTOLOGY-PHASE2-SUMMARY.md (12 KB)](#1-ontology-phase2-summarymd-12-kb)
+    - [2. ONTOLOGY-PHASE2-IMPLEMENTATION.md (44 KB)](#2-ontology-phase2-implementationmd-44-kb)
+    - [3. ONTOLOGY-PHASE2-WEEK-BY-WEEK.md (15 KB)](#3-ontology-phase2-week-by-weekmd-15-kb)
+    - [4. ONTOLOGY-PHASE2-INTEGRATION-DIAGRAM.md (34 KB)](#4-ontology-phase2-integration-diagrammd-34-kb)
+    - [5. ONTOLOGY-PHASE2-CODE-EXAMPLES.md (28 KB)](#5-ontology-phase2-code-examplesmd-28-kb)
+    - [6. ONTOLOGY-PHASE2-GETTING-STARTED.md (14 KB)](#6-ontology-phase2-getting-startedmd-14-kb)
+    - [7. ONTOLOGY-PHASE2-SUMMARY.md (12 KB)](#7-ontology-phase2-summarymd-12-kb)
+  - [Supporting Files](#supporting-files)
+    - [docs/examples/domain-hipaa.yaml (15 KB)](#docsexamplesdomain-hipaayaml-15-kb)
+  - [Reading Paths](#reading-paths)
+    - [Path 1: 30-Minute Overview](#path-1-30-minute-overview)
+    - [Path 2: Implementation Ready (60 minutes)](#path-2-implementation-ready-60-minutes)
+    - [Path 3: Deep Dive (2-3 hours)](#path-3-deep-dive-2-3-hours)
+    - [Path 4: Troubleshooting](#path-4-troubleshooting)
+  - [Key Concepts](#key-concepts)
+    - [Determinism](#determinism)
+    - [Entity Mapping Confidence](#entity-mapping-confidence)
+    - [SPARQL Query Generation](#sparql-query-generation)
+    - [Provider Mapping (Phase 3 Prep)](#provider-mapping-phase-3-prep)
+    - [Chicago TDD](#chicago-tdd)
+  - [File Organization](#file-organization)
+  - [Quick Reference](#quick-reference)
+    - [Success Metrics](#success-metrics)
+    - [Key Files to Create](#key-files-to-create)
+    - [Andon Signals (Quality Gates)](#andon-signals-quality-gates)
+  - [Documentation Statistics](#documentation-statistics)
+  - [How to Use This Documentation](#how-to-use-this-documentation)
+    - [For Project Managers](#for-project-managers)
+    - [For Lead Developer](#for-lead-developer)
+    - [For Individual Contributors](#for-individual-contributors)
+    - [For Code Reviewers](#for-code-reviewers)
+    - [For Phase 3 Transition Team](#for-phase-3-transition-team)
+  - [Next Steps](#next-steps)
+    - [Immediate (Day 1)](#immediate-day-1)
+    - [This Week (Days 1-5)](#this-week-days-1-5)
+    - [Next Week (Days 6-10)](#next-week-days-6-10)
+    - [After Phase 2](#after-phase-2)
+  - [Support Resources](#support-resources)
+    - [Within This Documentation](#within-this-documentation)
+    - [Outside This Documentation](#outside-this-documentation)
+  - [Version History](#version-history)
+  - [Sign-Off](#sign-off)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Phase 2 Implementation Plan: Complete Documentation Index
 
 **Created**: 2024-01-19

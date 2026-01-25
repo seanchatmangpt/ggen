@@ -1,3 +1,57 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GCP Marketplace Autonomics - C4 System Context Diagrams](#gcp-marketplace-autonomics---c4-system-context-diagrams)
+  - [Diagram 1: Global Marketplace Context](#diagram-1-global-marketplace-context)
+    - [Purpose](#purpose)
+    - [Diagram](#diagram)
+    - [Context Variables (from `.specify/*.ttl`)](#context-variables-from-specifyttl)
+    - [Key Flows](#key-flows)
+  - [Diagram 2: Category Fleet Context](#diagram-2-category-fleet-context)
+    - [Purpose](#purpose-1)
+    - [Diagram](#diagram-1)
+    - [Category SKU Configurations](#category-sku-configurations)
+    - [Context Variables](#context-variables)
+  - [Diagram 3: Competitor Replacement Context](#diagram-3-competitor-replacement-context)
+    - [Purpose](#purpose-2)
+    - [Diagram](#diagram-2)
+    - [Cost-Benefit Analysis](#cost-benefit-analysis)
+    - [Context Variables](#context-variables-1)
+  - [Diagram 4: Customer Org Context](#diagram-4-customer-org-context)
+    - [Purpose](#purpose-3)
+    - [Diagram](#diagram-3)
+    - [Integration Touchpoints](#integration-touchpoints)
+    - [Context Variables](#context-variables-2)
+  - [Diagram 5: Kudzu Expansion Context](#diagram-5-kudzu-expansion-context)
+    - [Purpose](#purpose-4)
+    - [Diagram](#diagram-4)
+    - [Phase Progression Details](#phase-progression-details)
+      - [**Phase 0: Detection & Visibility** (Low Risk, Quick Win)](#phase-0-detection--visibility-low-risk-quick-win)
+      - [**Phase 1: Compliance Guard** (Medium Risk, Policy Enforcement)](#phase-1-compliance-guard-medium-risk-policy-enforcement)
+      - [**Phase 2: Auto-Remediation** (High Value, Production-Grade)](#phase-2-auto-remediation-high-value-production-grade)
+      - [**Phase 3: Cross-System Autonomics** (Strategic Scaling)](#phase-3-cross-system-autonomics-strategic-scaling)
+    - [Context Variables](#context-variables-3)
+  - [Diagram 6: Trust & Evidence Context](#diagram-6-trust--evidence-context)
+    - [Purpose](#purpose-5)
+    - [Diagram](#diagram-5)
+    - [Proof Chain (Chain-of-Custody)](#proof-chain-chain-of-custody)
+    - [Audit Trail Query Examples](#audit-trail-query-examples)
+    - [Evidence for SOC2 Compliance](#evidence-for-soc2-compliance)
+    - [Context Variables](#context-variables-4)
+  - [Tera Template Wrapper (Parameterization)](#tera-template-wrapper-parameterization)
+    - [Template Structure for Dynamic Diagram Generation](#template-structure-for-dynamic-diagram-generation)
+    - [Usage Examples](#usage-examples)
+  - [Context Specification (.specify/*.ttl Format)](#context-specification-specifyttl-format)
+    - [RDF Ontology for C4 Diagram Generation](#rdf-ontology-for-c4-diagram-generation)
+  - [Integration Checklist](#integration-checklist)
+    - [Before Marketplace Launch](#before-marketplace-launch)
+    - [Monthly Review](#monthly-review)
+  - [Document Metadata](#document-metadata)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GCP Marketplace Autonomics - C4 System Context Diagrams
 
 **Level 1: System Context** - "What is this thing in the world?"

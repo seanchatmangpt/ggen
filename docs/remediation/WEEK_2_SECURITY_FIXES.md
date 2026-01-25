@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [WEEK 2: Critical Security Fixes](#week-2-critical-security-fixes)
+  - [Overview](#overview)
+  - [High-Priority Fixes (Week 2)](#high-priority-fixes-week-2)
+    - [1. Graph Module (Critical Path)](#1-graph-module-critical-path)
+    - [2. Ontology Module (Critical Path)](#2-ontology-module-critical-path)
+    - [3. Lifecycle State Machine](#3-lifecycle-state-machine)
+    - [4. Generator Pipeline](#4-generator-pipeline)
+  - [Medium-Priority Fixes (Week 3)](#medium-priority-fixes-week-3)
+    - [5. Input Validation](#5-input-validation)
+    - [6. Command Injection Prevention](#6-command-injection-prevention)
+    - [7. CORS Configuration](#7-cors-configuration)
+    - [8. Unsafe Block Review](#8-unsafe-block-review)
+  - [Implementation Strategy](#implementation-strategy)
+    - [Pattern 1: Replace unwrap() with ?](#pattern-1-replace-unwrap-with-)
+    - [Pattern 2: Replace expect() with context](#pattern-2-replace-expect-with-context)
+    - [Pattern 3: Replace panic! with Result](#pattern-3-replace-panic-with-result)
+  - [Tracking](#tracking)
+  - [Agent Assignment](#agent-assignment)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # WEEK 2: Critical Security Fixes
 
 ## Overview

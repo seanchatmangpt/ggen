@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [10. FORCE OVERWRITE *](#10-force-overwrite-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [Invocation](#invocation)
+    - [Behavior](#behavior)
+    - [Output](#output)
+    - [Audit Trail](#audit-trail)
+  - [Use Cases](#use-cases)
+    - [Clean Slate](#clean-slate)
+    - [Development Iteration](#development-iteration)
+    - [Recovery](#recovery)
+  - [Force and Dry Run](#force-and-dry-run)
+  - [The Danger Zone](#the-danger-zone)
+    - [Version Control Integration](#version-control-integration)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [Safety Spectrum](#safety-spectrum)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 10. FORCE OVERWRITE *
 
 *Sometimes you must break the rules you set for yourself.*

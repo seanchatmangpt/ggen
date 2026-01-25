@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Test Coverage Analysis - Complete Index](#test-coverage-analysis---complete-index)
+  - [Documents Included](#documents-included)
+    - [1. **TEST_COVERAGE_ANALYSIS_COMPREHENSIVE.md** (Main Document)](#1-test_coverage_analysis_comprehensivemd-main-document)
+    - [2. **CRITICAL_UNTESTED_PATHS.md** (Quick Reference)](#2-critical_untested_pathsmd-quick-reference)
+    - [3. **TEST_FRAMEWORK_SUMMARY.md** (Infrastructure Overview)](#3-test_framework_summarymd-infrastructure-overview)
+    - [4. **ANALYSIS_INDEX.md** (This File)](#4-analysis_indexmd-this-file)
+  - [Critical Findings Summary](#critical-findings-summary)
+    - [Test Coverage Metrics](#test-coverage-metrics)
+    - [Critical Issues (Must Fix)](#critical-issues-must-fix)
+    - [High Priority Issues (Race Conditions)](#high-priority-issues-race-conditions)
+    - [Test Infrastructure Strengths](#test-infrastructure-strengths)
+    - [Test Infrastructure Gaps](#test-infrastructure-gaps)
+  - [File References](#file-references)
+    - [Critical Untested Code](#critical-untested-code)
+    - [Well-Tested Code](#well-tested-code)
+    - [Orphaned/Empty Test Files](#orphanedempty-test-files)
+  - [How to Use This Analysis](#how-to-use-this-analysis)
+    - [For Development Teams](#for-development-teams)
+    - [For QA/Testing](#for-qatesting)
+    - [For Security Review](#for-security-review)
+    - [For Architecture Review](#for-architecture-review)
+  - [Quick Statistics](#quick-statistics)
+    - [By Priority Level](#by-priority-level)
+    - [By Test Type](#by-test-type)
+    - [By Crate](#by-crate)
+  - [Recommendations by Timeframe](#recommendations-by-timeframe)
+    - [Immediate (This Week)](#immediate-this-week)
+    - [Short-term (This Sprint)](#short-term-this-sprint)
+    - [Medium-term (This Quarter)](#medium-term-this-quarter)
+    - [Long-term (This Year)](#long-term-this-year)
+  - [File Structure](#file-structure)
+  - [Contact & Questions](#contact--questions)
+  - [Last Updated](#last-updated)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Test Coverage Analysis - Complete Index
 
 This directory contains a comprehensive analysis of test coverage, gaps, and recommendations for the ggen project.

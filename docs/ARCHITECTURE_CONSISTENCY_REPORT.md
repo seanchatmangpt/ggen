@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Architecture Consistency Report - Marketplace & Commands](#architecture-consistency-report---marketplace--commands)
+  - [✅ EXECUTIVE SUMMARY](#-executive-summary)
+  - [📊 DETAILED FINDINGS](#-detailed-findings)
+    - [1. Marketplace Pattern Analysis ✅](#1-marketplace-pattern-analysis-)
+    - [2. Packs Integration Analysis ❌](#2-packs-integration-analysis-)
+    - [3. CLI Routing Verification ✅](#3-cli-routing-verification-)
+    - [4. Domain Layer Integration ✅](#4-domain-layer-integration-)
+    - [5. Architecture Debt Assessment ✅](#5-architecture-debt-assessment-)
+  - [🎯 CRITICAL 20% CHECKLIST](#-critical-20-checklist)
+  - [🚀 DEPLOYMENT READINESS](#-deployment-readiness)
+    - [Risk Assessment](#risk-assessment)
+    - [Go/No-Go Decision](#gono-go-decision)
+    - [Blockers Identified](#blockers-identified)
+    - [Post-Release Backlog](#post-release-backlog)
+  - [📝 NOTES](#-notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Architecture Consistency Report - Marketplace & Commands
 
 **Generated**: 2025-11-17

@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern Map](#pattern-map)
+  - [Visual Map](#visual-map)
+  - [Pattern Relationships](#pattern-relationships)
+    - [Foundation → Everything](#foundation-%E2%86%92-everything)
+    - [Knowledge Flow](#knowledge-flow)
+    - [Safety Controls](#safety-controls)
+    - [Integrity Support](#integrity-support)
+  - [Navigation by Intent](#navigation-by-intent)
+    - ["I want to understand the system"](#i-want-to-understand-the-system)
+    - ["I want to generate code"](#i-want-to-generate-code)
+    - ["I want to ensure quality"](#i-want-to-ensure-quality)
+    - ["I want to debug a problem"](#i-want-to-debug-a-problem)
+    - ["I want to optimize performance"](#i-want-to-optimize-performance)
+  - [Pattern Dependencies](#pattern-dependencies)
+  - [Pattern Conflicts and Resolutions](#pattern-conflicts-and-resolutions)
+  - [Adding New Patterns](#adding-new-patterns)
+  - [The Complete List](#the-complete-list)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern Map
 
 > *"Each pattern sits in a web of connections, where the whole is more than the sum of its parts."*

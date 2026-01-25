@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Phase 6: Technical Analysis & Quality Metrics](#phase-6-technical-analysis--quality-metrics)
+  - [Executive Summary](#executive-summary)
+    - [Key Findings](#key-findings)
+  - [Detailed Test Infrastructure Analysis](#detailed-test-infrastructure-analysis)
+    - [Test File Organization](#test-file-organization)
+    - [Coverage Distribution](#coverage-distribution)
+  - [API Mismatch Error Analysis](#api-mismatch-error-analysis)
+    - [LifecycleState API Issues (27 errors)](#lifecyclestate-api-issues-27-errors)
+    - [Cache API Issues (31 errors)](#cache-api-issues-31-errors)
+    - [Type Annotation Issues (12 errors)](#type-annotation-issues-12-errors)
+  - [CLI Argument Parsing Failures (16 tests)](#cli-argument-parsing-failures-16-tests)
+    - [Root Cause Analysis](#root-cause-analysis)
+  - [Performance Analysis](#performance-analysis)
+    - [Build Performance](#build-performance)
+    - [Test Execution Performance](#test-execution-performance)
+    - [Critical Path Latency](#critical-path-latency)
+  - [Code Quality Metrics](#code-quality-metrics)
+    - [Source Code Distribution](#source-code-distribution)
+    - [Critical 20% Modules](#critical-20-modules)
+    - [Test Code Quality](#test-code-quality)
+  - [Coverage Gap Analysis](#coverage-gap-analysis)
+    - [Target vs Actual](#target-vs-actual)
+    - [Uncovered Critical Paths](#uncovered-critical-paths)
+    - [Recommended Additional Tests](#recommended-additional-tests)
+  - [Invariant Coverage Analysis](#invariant-coverage-analysis)
+    - [47 Invariants Identified](#47-invariants-identified)
+    - [Critical Uncovered Invariants](#critical-uncovered-invariants)
+  - [Technical Debt Summary](#technical-debt-summary)
+    - [High Priority Debt (Blocks Production)](#high-priority-debt-blocks-production)
+    - [Medium Priority Debt (Degrades Quality)](#medium-priority-debt-degrades-quality)
+    - [Low Priority Debt (Quality of Life)](#low-priority-debt-quality-of-life)
+  - [Recommendation Matrix](#recommendation-matrix)
+    - [Immediate Actions (Today)](#immediate-actions-today)
+    - [Short-term Actions (This Week)](#short-term-actions-this-week)
+    - [Long-term Actions (Next Sprint)](#long-term-actions-next-sprint)
+  - [Risk Assessment](#risk-assessment)
+    - [High Risks](#high-risks)
+    - [Medium Risks](#medium-risks)
+    - [Low Risks](#low-risks)
+  - [Success Criteria (Phase 7)](#success-criteria-phase-7)
+    - [Definition of Done](#definition-of-done)
+  - [Appendix: Error Catalog](#appendix-error-catalog)
+    - [Compilation Errors by Type](#compilation-errors-by-type)
+  - [Appendix: Test Inventory](#appendix-test-inventory)
+    - [All Integration Test Files](#all-integration-test-files)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Phase 6: Technical Analysis & Quality Metrics
 **Date:** 2025-11-16
 **Author:** Production Validation Agent
