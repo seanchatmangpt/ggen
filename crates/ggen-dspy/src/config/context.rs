@@ -162,7 +162,8 @@ impl ContextBuilder {
                             RefCell::new(self.cache_enabled.or(prev_cache)),
                             TRACK_USAGE.scope(
                                 RefCell::new(self.track_usage.or(prev_tracking)),
-                                STREAMING.scope(RefCell::new(self.streaming.or(prev_streaming)), future),
+                                STREAMING
+                                    .scope(RefCell::new(self.streaming.or(prev_streaming)), future),
                             ),
                         ),
                     ),

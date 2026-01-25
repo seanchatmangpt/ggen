@@ -126,9 +126,7 @@ impl DspySettings {
         }
 
         if self.default_max_tokens == 0 {
-            return Err(DspyError::config_error(
-                "Max tokens must be greater than 0",
-            ));
+            return Err(DspyError::config_error("Max tokens must be greater than 0"));
         }
 
         if self.timeout_seconds == 0 {

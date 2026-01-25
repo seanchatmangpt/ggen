@@ -3,8 +3,8 @@
 //! Demonstrates reasoning before answering.
 //! Run with: cargo run --example chain_of_thought
 
-use ggen_dspy::{ChainOfThought, Result};
 use ggen_ai::dspy::{InputField, OutputField, Signature};
+use ggen_dspy::{ChainOfThought, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -18,11 +18,7 @@ async fn main() -> Result<()> {
             "The math problem to solve",
             "String",
         ))
-        .with_output(OutputField::new(
-            "answer",
-            "The final answer",
-            "String",
-        ));
+        .with_output(OutputField::new("answer", "The final answer", "String"));
 
     // Create Chain of Thought module
     let cot = ChainOfThought::new(signature)

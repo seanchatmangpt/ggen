@@ -547,7 +547,9 @@ mod tests {
             .log(SecurityEvent::authentication_failed("user1", ip))
             .unwrap();
         logger
-            .log(SecurityEvent::authorization_failed("user2", "/admin", "read"))
+            .log(SecurityEvent::authorization_failed(
+                "user2", "/admin", "read",
+            ))
             .unwrap();
         logger
             .log(SecurityEvent::input_validation_failed(

@@ -7,9 +7,9 @@
 extern crate alloc;
 
 use alloc::boxed::Box;
-use alloc::vec::Vec;
-use alloc::string::String;
 use alloc::collections::BTreeMap;
+use alloc::string::String;
+use alloc::vec::Vec;
 
 /// Receipt hash (SHA-256 after URDNA2015 canonicalization)
 pub type ReceiptHash = [u8; 32];
@@ -50,7 +50,7 @@ impl Lockchain {
             git_repo_path: None,
         }
     }
-    
+
     #[cfg(feature = "std")]
     pub fn with_git_repo(repo_path: String) -> Self {
         Self {
@@ -84,30 +84,35 @@ impl Lockchain {
 
         Ok(hash)
     }
-    
+
     #[cfg(feature = "std")]
-    fn commit_to_git(&self, entry: &LockchainEntry, hash: ReceiptHash) -> Result<(), LockchainError> {
+    fn commit_to_git(
+        &self, entry: &LockchainEntry, hash: ReceiptHash,
+    ) -> Result<(), LockchainError> {
         use std::fs;
         use std::io::Write;
         use std::path::Path;
-        
+
         let repo_path = Path::new(self.git_repo_path.as_ref().unwrap());
         let receipts_dir = repo_path.join("receipts");
-        
+
         // Create receipts directory if it doesn't exist
         fs::create_dir_all(&receipts_dir).map_err(|_| LockchainError::ChainBroken)?;
-        
+
         // Write receipt file
         let receipt_file = receipts_dir.join(format!("{}.json", entry.receipt_id));
         let mut file = fs::File::create(&receipt_file).map_err(|_| LockchainError::ChainBroken)?;
-        
+
         // Write receipt as JSON
         let receipt_json = match serde_json::to_string(&entry.metadata) {
             Ok(meta_json) => format!(
                 r#"{{"id":"{}","hash":"{}","parent_hash":{},"timestamp_ms":{},"metadata":{}}}"#,
                 entry.receipt_id,
                 hex::encode(&hash),
-                entry.parent_hash.map(|h| format!("\"{}\"", hex::encode(&h))).unwrap_or("null".to_string()),
+                entry
+                    .parent_hash
+                    .map(|h| format!("\"{}\"", hex::encode(&h)))
+                    .unwrap_or("null".to_string()),
                 entry.timestamp_ms,
                 meta_json
             ),
@@ -115,13 +120,17 @@ impl Lockchain {
                 r#"{{"id":"{}","hash":"{}","parent_hash":{},"timestamp_ms":{},"metadata":{}}}"#,
                 entry.receipt_id,
                 hex::encode(&hash),
-                entry.parent_hash.map(|h| format!("\"{}\"", hex::encode(&h))).unwrap_or("null".to_string()),
+                entry
+                    .parent_hash
+                    .map(|h| format!("\"{}\"", hex::encode(&h)))
+                    .unwrap_or("null".to_string()),
                 entry.timestamp_ms,
                 "{}"
             ),
         };
-        file.write_all(receipt_json.as_bytes()).map_err(|_| LockchainError::ChainBroken)?;
-        
+        file.write_all(receipt_json.as_bytes())
+            .map_err(|_| LockchainError::ChainBroken)?;
+
         // Note: Actual Git commit would require git2 crate
         // For now, we write files that can be committed manually or via external tool
         Ok(())
@@ -129,38 +138,38 @@ impl Lockchain {
 
     /// Compute hash for entry using URDNA2015 canonicalization + SHA-256
     fn compute_hash(entry: &LockchainEntry) -> ReceiptHash {
-        use sha2::{Sha256, Digest};
-        
+        use sha2::{Digest, Sha256};
+
         // Build canonical representation using URDNA2015-like ordering
         let canonical = Self::canonicalize_entry(entry);
-        
+
         // Hash with SHA-256
         let mut hasher = Sha256::new();
         hasher.update(&canonical);
         let output = hasher.finalize();
-        
+
         let mut hash = [0u8; 32];
         hash.copy_from_slice(&output);
         hash
     }
-    
+
     /// Canonicalize entry using URDNA2015-like ordering
     fn canonicalize_entry(entry: &LockchainEntry) -> Vec<u8> {
         let mut canonical = Vec::new();
-        
+
         // Order: receipt_id, receipt_hash, parent_hash (if present), timestamp, metadata (sorted)
         canonical.extend_from_slice(entry.receipt_id.as_bytes());
         canonical.extend_from_slice(&entry.receipt_hash);
-        
+
         if let Some(parent) = entry.parent_hash {
             canonical.push(1); // Marker for parent hash present
             canonical.extend_from_slice(&parent);
         } else {
             canonical.push(0); // Marker for no parent hash
         }
-        
+
         canonical.extend_from_slice(&entry.timestamp_ms.to_le_bytes());
-        
+
         // Metadata sorted by key
         let mut meta_keys: Vec<_> = entry.metadata.keys().collect();
         meta_keys.sort();
@@ -170,7 +179,7 @@ impl Lockchain {
                 canonical.extend_from_slice(value.as_bytes());
             }
         }
-        
+
         canonical
     }
 
@@ -181,7 +190,8 @@ impl Lockchain {
 
     /// Verify receipt integrity
     pub fn verify(&self, receipt_id: &str) -> Result<bool, LockchainError> {
-        let entry = self.get_receipt(receipt_id)
+        let entry = self
+            .get_receipt(receipt_id)
             .ok_or(LockchainError::NotFound)?;
 
         // Verify hash
@@ -213,23 +223,22 @@ impl Lockchain {
 
     /// Merge receipts (for batch operations) - builds Merkle tree
     pub fn merge_receipts(&self, receipt_ids: &[String]) -> Result<ReceiptHash, LockchainError> {
-        use sha2::{Sha256, Digest};
-        
+        use sha2::{Digest, Sha256};
+
         if receipt_ids.is_empty() {
             return Err(LockchainError::InvalidHash);
         }
-        
+
         // Build Merkle tree bottom-up
-        let mut hashes: Vec<ReceiptHash> = receipt_ids.iter()
-            .filter_map(|id| {
-                self.get_receipt(id).map(|entry| entry.receipt_hash)
-            })
+        let mut hashes: Vec<ReceiptHash> = receipt_ids
+            .iter()
+            .filter_map(|id| self.get_receipt(id).map(|entry| entry.receipt_hash))
             .collect();
-        
+
         if hashes.is_empty() {
             return Err(LockchainError::NotFound);
         }
-        
+
         // Combine hashes pairwise until we have one root
         while hashes.len() > 1 {
             let mut next_level = Vec::new();
@@ -249,7 +258,7 @@ impl Lockchain {
             }
             hashes = next_level;
         }
-        
+
         Ok(hashes[0])
     }
 }
@@ -303,4 +312,3 @@ mod tests {
         assert!(chain.verify("receipt1").unwrap());
     }
 }
-

@@ -181,64 +181,72 @@ impl IstioTrafficManager {
     ///
     /// Returns error if unable to generate YAML
     pub fn generate_virtual_service(&self, config: &VirtualServiceConfig) -> Result<String> {
-        let http_routes: Vec<_> = config.http_routes.iter().map(|route| {
-            let route_destinations: Vec<_> = route.route.iter().map(|dest| {
-                json!({
-                    "destination": {
-                        "host": dest.destination.host,
-                        "port": dest.destination.port.as_ref().map(|p| {
-                            json!({ "number": p.number })
-                        }),
-                        "subset": dest.destination.subset,
-                    },
-                    "weight": dest.weight,
-                })
-            }).collect();
-
-            json!({
-                "match": route.matches.as_ref().map(|matches| {
-                    matches.iter().map(|m| {
+        let http_routes: Vec<_> = config
+            .http_routes
+            .iter()
+            .map(|route| {
+                let route_destinations: Vec<_> = route
+                    .route
+                    .iter()
+                    .map(|dest| {
                         json!({
-                            "uri": m.uri.as_ref().map(|u| {
-                                if let Some(exact) = &u.exact {
-                                    json!({ "exact": exact })
-                                } else if let Some(prefix) = &u.prefix {
-                                    json!({ "prefix": prefix })
-                                } else if let Some(regex) = &u.regex {
-                                    json!({ "regex": regex })
-                                } else {
-                                    json!({})
-                                }
-                            }),
-                            "method": m.method.as_ref().map(|method| {
-                                if let Some(exact) = &method.exact {
-                                    json!({ "exact": exact })
-                                } else {
-                                    json!({})
-                                }
-                            }),
-                            "headers": m.headers.as_ref().map(|headers| {
-                                headers.iter().map(|(key, value)| {
-                                    (key.clone(), if let Some(exact) = &value.exact {
+                            "destination": {
+                                "host": dest.destination.host,
+                                "port": dest.destination.port.as_ref().map(|p| {
+                                    json!({ "number": p.number })
+                                }),
+                                "subset": dest.destination.subset,
+                            },
+                            "weight": dest.weight,
+                        })
+                    })
+                    .collect();
+
+                json!({
+                    "match": route.matches.as_ref().map(|matches| {
+                        matches.iter().map(|m| {
+                            json!({
+                                "uri": m.uri.as_ref().map(|u| {
+                                    if let Some(exact) = &u.exact {
+                                        json!({ "exact": exact })
+                                    } else if let Some(prefix) = &u.prefix {
+                                        json!({ "prefix": prefix })
+                                    } else if let Some(regex) = &u.regex {
+                                        json!({ "regex": regex })
+                                    } else {
+                                        json!({})
+                                    }
+                                }),
+                                "method": m.method.as_ref().map(|method| {
+                                    if let Some(exact) = &method.exact {
                                         json!({ "exact": exact })
                                     } else {
                                         json!({})
-                                    })
-                                }).collect::<BTreeMap<_, _>>()
-                            }),
+                                    }
+                                }),
+                                "headers": m.headers.as_ref().map(|headers| {
+                                    headers.iter().map(|(key, value)| {
+                                        (key.clone(), if let Some(exact) = &value.exact {
+                                            json!({ "exact": exact })
+                                        } else {
+                                            json!({})
+                                        })
+                                    }).collect::<BTreeMap<_, _>>()
+                                }),
+                            })
+                        }).collect::<Vec<_>>()
+                    }),
+                    "route": route_destinations,
+                    "timeout": route.timeout,
+                    "retries": route.retries.as_ref().map(|r| {
+                        json!({
+                            "attempts": r.attempts,
+                            "perTryTimeout": r.per_try_timeout,
                         })
-                    }).collect::<Vec<_>>()
-                }),
-                "route": route_destinations,
-                "timeout": route.timeout,
-                "retries": route.retries.as_ref().map(|r| {
-                    json!({
-                        "attempts": r.attempts,
-                        "perTryTimeout": r.per_try_timeout,
-                    })
-                }),
+                    }),
+                })
             })
-        }).collect();
+            .collect();
 
         let virtual_service = json!({
             "apiVersion": "networking.istio.io/v1beta1",
@@ -268,12 +276,16 @@ impl IstioTrafficManager {
     ///
     /// Returns error if unable to generate YAML
     pub fn generate_destination_rule(&self, config: &DestinationRuleConfig) -> Result<String> {
-        let subsets: Vec<_> = config.subsets.iter().map(|subset| {
-            json!({
-                "name": subset.name,
-                "labels": subset.labels,
+        let subsets: Vec<_> = config
+            .subsets
+            .iter()
+            .map(|subset| {
+                json!({
+                    "name": subset.name,
+                    "labels": subset.labels,
+                })
             })
-        }).collect();
+            .collect();
 
         let lb_algo = match config.load_balancing {
             LoadBalancingAlgorithm::RoundRobin => "ROUND_ROBIN",
@@ -325,22 +337,22 @@ impl IstioTrafficManager {
     ///
     /// Returns error if unable to generate YAML
     pub fn generate_gateway(
-        &self,
-        name: &str,
-        namespace: &str,
-        selector: BTreeMap<String, String>,
+        &self, name: &str, namespace: &str, selector: BTreeMap<String, String>,
         servers: Vec<(u32, &str)>,
     ) -> Result<String> {
-        let gateway_servers: Vec<_> = servers.iter().map(|(port, protocol)| {
-            json!({
-                "port": {
-                    "number": port,
-                    "name": "http",
-                    "protocol": protocol,
-                },
-                "hosts": ["*"],
+        let gateway_servers: Vec<_> = servers
+            .iter()
+            .map(|(port, protocol)| {
+                json!({
+                    "port": {
+                        "number": port,
+                        "name": "http",
+                        "protocol": protocol,
+                    },
+                    "hosts": ["*"],
+                })
             })
-        }).collect();
+            .collect();
 
         let gateway = json!({
             "apiVersion": "networking.istio.io/v1beta1",
@@ -368,10 +380,7 @@ impl IstioTrafficManager {
     ///
     /// Returns error if unable to generate YAML
     pub fn generate_peer_authentication(
-        &self,
-        name: &str,
-        namespace: &str,
-        mode: &str,
+        &self, name: &str, namespace: &str, mode: &str,
     ) -> Result<String> {
         let peer_auth = json!({
             "apiVersion": "security.istio.io/v1beta1",
@@ -387,8 +396,9 @@ impl IstioTrafficManager {
             }
         });
 
-        let yaml = serde_yaml::to_string(&peer_auth)
-            .map_err(|e| Error::IstioConfig(format!("Failed to serialize PeerAuthentication: {e}")))?;
+        let yaml = serde_yaml::to_string(&peer_auth).map_err(|e| {
+            Error::IstioConfig(format!("Failed to serialize PeerAuthentication: {e}"))
+        })?;
 
         info!("Generated PeerAuthentication YAML for {}", name);
         Ok(yaml)
@@ -400,23 +410,23 @@ impl IstioTrafficManager {
     ///
     /// Returns error if unable to generate YAML
     pub fn generate_authorization_policy(
-        &self,
-        name: &str,
-        namespace: &str,
-        rules: Vec<(Vec<String>, Vec<String>)>,
+        &self, name: &str, namespace: &str, rules: Vec<(Vec<String>, Vec<String>)>,
     ) -> Result<String> {
-        let auth_rules: Vec<_> = rules.iter().map(|(from, to)| {
-            json!({
-                "from": [{
-                    "source": {
-                        "principals": from,
-                    }
-                }],
-                "to": to.iter().map(|resource| {
-                    json!({ "operation": { "methods": [resource] } })
-                }).collect::<Vec<_>>(),
+        let auth_rules: Vec<_> = rules
+            .iter()
+            .map(|(from, to)| {
+                json!({
+                    "from": [{
+                        "source": {
+                            "principals": from,
+                        }
+                    }],
+                    "to": to.iter().map(|resource| {
+                        json!({ "operation": { "methods": [resource] } })
+                    }).collect::<Vec<_>>(),
+                })
             })
-        }).collect();
+            .collect();
 
         let auth_policy = json!({
             "apiVersion": "security.istio.io/v1beta1",
@@ -430,8 +440,9 @@ impl IstioTrafficManager {
             }
         });
 
-        let yaml = serde_yaml::to_string(&auth_policy)
-            .map_err(|e| Error::IstioConfig(format!("Failed to serialize AuthorizationPolicy: {e}")))?;
+        let yaml = serde_yaml::to_string(&auth_policy).map_err(|e| {
+            Error::IstioConfig(format!("Failed to serialize AuthorizationPolicy: {e}"))
+        })?;
 
         info!("Generated AuthorizationPolicy YAML for {}", name);
         Ok(yaml)
@@ -453,7 +464,10 @@ impl IstioTrafficManager {
     ///
     /// Returns error if unable to remove resources
     pub async fn remove_istio_resources(&self, namespace: &str, name: &str) -> Result<()> {
-        info!("Istio resources {}/{} removed from cluster", namespace, name);
+        info!(
+            "Istio resources {}/{} removed from cluster",
+            namespace, name
+        );
         Ok(())
     }
 }
@@ -510,6 +524,8 @@ mod tests {
     #[test]
     fn test_peer_authentication() {
         let manager = IstioTrafficManager::new();
-        assert!(manager.generate_peer_authentication("test", "default", "STRICT").is_ok());
+        assert!(manager
+            .generate_peer_authentication("test", "default", "STRICT")
+            .is_ok());
     }
 }

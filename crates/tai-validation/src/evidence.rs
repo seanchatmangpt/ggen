@@ -197,7 +197,11 @@ mod tests {
     #[test]
     fn test_evidence_collector() {
         let mut collector = EvidenceCollector::new();
-        collector.collect("log".to_string(), "Test log".to_string(), "test data".to_string());
+        collector.collect(
+            "log".to_string(),
+            "Test log".to_string(),
+            "test data".to_string(),
+        );
         assert_eq!(collector.count(), 1);
     }
 

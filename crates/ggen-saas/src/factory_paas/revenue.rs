@@ -30,10 +30,7 @@ pub struct RevenueEvent {
 impl RevenueEvent {
     /// Create a new revenue event with commission calculation
     pub fn new(
-        affiliate_id: Uuid,
-        route_slug: RouteSlug,
-        click_id: Uuid,
-        amount_cents: u64,
+        affiliate_id: Uuid, route_slug: RouteSlug, click_id: Uuid, amount_cents: u64,
         tier: SubscriptionTier,
     ) -> Self {
         let commission_rate = tier.commission_rate();
@@ -68,20 +65,10 @@ impl RevenueAttribution {
 
     /// Record a revenue event
     pub fn record_revenue(
-        &mut self,
-        affiliate_id: Uuid,
-        route_slug: RouteSlug,
-        click_id: Uuid,
-        amount_cents: u64,
+        &mut self, affiliate_id: Uuid, route_slug: RouteSlug, click_id: Uuid, amount_cents: u64,
         tier: SubscriptionTier,
     ) -> RevenueEvent {
-        let event = RevenueEvent::new(
-            affiliate_id,
-            route_slug,
-            click_id,
-            amount_cents,
-            tier,
-        );
+        let event = RevenueEvent::new(affiliate_id, route_slug, click_id, amount_cents, tier);
         self.events.insert(event.id, event.clone());
         event
     }
@@ -124,7 +111,8 @@ impl RevenueAttribution {
 
     /// Calculate average commission rate for affiliate
     pub fn avg_commission_rate(&self, affiliate_id: &Uuid) -> f64 {
-        let events: Vec<_> = self.events
+        let events: Vec<_> = self
+            .events
             .values()
             .filter(|event| &event.affiliate_id == affiliate_id)
             .collect();
@@ -153,9 +141,13 @@ impl RevenueAttribution {
 
     /// Verify commission calculation accuracy
     pub fn verify_commission(&self, event_id: &Uuid) -> Result<bool, AttributionError> {
-        let event = self.events.get(event_id).ok_or(AttributionError::EventNotFound)?;
+        let event = self
+            .events
+            .get(event_id)
+            .ok_or(AttributionError::EventNotFound)?;
 
-        let expected_commission = ((event.amount_cents as f64) * event.tier.commission_rate()) as u64;
+        let expected_commission =
+            ((event.amount_cents as f64) * event.tier.commission_rate()) as u64;
         Ok(event.commission_cents == expected_commission)
     }
 }

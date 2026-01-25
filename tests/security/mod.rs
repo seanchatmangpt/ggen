@@ -17,10 +17,10 @@
 //! - State-based verification (observable outputs)
 //! - No mocks for core functionality
 
-mod path_traversal_tests;
-mod sparql_injection_tests;
-mod rate_limit_integration_tests;
-mod input_validation_tests;
-mod secrets_protection_tests;
-mod supply_chain_tests;
 mod e2e_vulnerability_tests;
+mod input_validation_tests;
+mod path_traversal_tests;
+mod rate_limit_integration_tests;
+mod secrets_protection_tests;
+mod sparql_injection_tests;
+mod supply_chain_tests;

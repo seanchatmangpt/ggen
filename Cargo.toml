@@ -15,40 +15,59 @@ ggen is a deterministic, language-agnostic code generation framework that treats
 
 [workspace]
 members = [
+  # Core system (always compiled)
   "crates/ggen-utils",
   "crates/ggen-cli",
   "crates/ggen-domain",
   "crates/ggen-core",
-  "crates/ggen-ai",
-  "crates/ggen-dspy",
   "crates/ggen-config",
+  "crates/ggen-macros",
+  "crates/ggen-dod",           # Domain-driven design patterns (from origin/main)
+  "crates/ggen-ontology-core", # Ontology handling layer: RDF/TTL, SPARQL, entity mapping
+
+  # CLI & Validation (always compiled)
   "crates/ggen-cli-validation",
   "crates/ggen-config-clap",
+
+  # Optional: AI orchestration (feature-gated)
+  "crates/ggen-ai",            # AI orchestration and multi-provider LLM integration (v5.1.0)
+  "crates/ggen-dspy",
+
+  # Optional: Marketplace (feature-gated)
   "crates/ggen-marketplace",
+
+  # Optional: Testing & Quality (feature-gated)
   "crates/ggen-test-audit",    # Feature 004: Test quality audit tooling
   "crates/ggen-test-opt",      # Feature 004: Test optimization tooling
   "crates/ggen-e2e",           # Feature 011: End-to-end testing with testcontainers
-  "crates/ggen-node", "crates/ggen-macros",
+
+  # Optional: Node.js bindings (feature-gated)
+  "crates/ggen-node",
+
+  # Optional: RevOps/Monetization (feature-gated)
   "crates/ggen-api",           # RevOps: REST API layer for monetization
   "crates/ggen-auth",          # RevOps: Authentication (OAuth2, JWT, API keys)
   "crates/ggen-payments",      # RevOps: Payment processing (Stripe integration)
   "crates/ggen-saas",          # RevOps: SaaS tier management and quota enforcement
-  "crates/ggen-ai",            # AI orchestration and multi-provider LLM integration (v5.1.0)
+
+  # Optional: Folk strategy (feature-gated)
   "crates/ggen-folk-strategy", # Folk strategy quantification from opportunity field dynamics
-  "crates/ggen-dod",           # Domain-driven design patterns (from origin/main)
-  "crates/ggen-ontology-core", # Ontology handling layer: RDF/TTL, SPARQL, entity mapping
-  # KNHK Systems Integration: ETL + KGC-4D + Workflow Engine
+
+  # Optional: KNHK Systems Integration (feature-gated)
   "crates/knhk-etl",           # Extract-Transform-Load pipeline
   "crates/knhk-hot",           # C FFI hot-path optimization
   "crates/knhk-connectors",    # Connector registry (Kafka, HTTP, etc.)
   "crates/knhk-lockchain",     # Merkle-linked receipt storage
   "crates/knhk-otel",          # OpenTelemetry integration
   "crates/knhk-orchestrator",  # Integration bridge (ETL → KGC-4D → Workflow)
+
+  # Optional: TPS/TAI Systems (feature-gated)
   "crates/tps-reference",      # Toyota Production System reference implementation
   "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
   "crates/tai-testing",        # Production hardening & resilience testing framework
   "crates/tai-k8s",            # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
   "crates/tai-validation",     # SLO/SLA validation, compliance framework, security scanning
+
   "playground",
 ]
 exclude = [
@@ -68,7 +87,9 @@ resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
 [workspace.dependencies]
-tokio = { version = "1.47", features = ["full"] }
+# Minimal tokio features for CLI/code-generation (80/20 optimization)
+# Removed: fs, net, process, sync-mutex, test-util, parking_lot, stats
+tokio = { version = "1.47", features = ["macros", "rt-multi-thread", "io-util", "io-std", "sync", "signal", "time"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 anyhow = "1.0"
@@ -112,29 +133,44 @@ predicates = "3.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
 # NOTE: v0.2.0 unified release
+
+# Core crates (always available)
 ggen-utils = { path = "crates/ggen-utils", version = "0.2.0" }
 ggen-core = { path = "crates/ggen-core", version = "0.2.0" }
 ggen-config = { path = "crates/ggen-config", version = "0.2.0" }
 ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "0.2.0" }
 ggen-config-clap = { path = "crates/ggen-config-clap", version = "0.2.0" }
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "0.2.0" }
 ggen-domain = { path = "crates/ggen-domain", version = "0.2.0" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "0.2.0" }
-ggen-node = { path = "crates/ggen-node", version = "0.2.0" }
 ggen-macros = { path = "crates/ggen-macros", version = "0.2.0" }
+ggen-dod = { path = "crates/ggen-dod", version = "0.2.0" }
+ggen-ontology-core = { path = "crates/ggen-ontology-core", version = "0.2.0" }
+
+# Optional: AI integration
+ggen-ai = { path = "crates/ggen-ai", version = "0.2.0" }
+ggen-dspy = { path = "crates/ggen-dspy", version = "0.2.0" }
+
+# Optional: Marketplace
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "0.2.0" }
+
+# Optional: Testing & Quality
 ggen-test-audit = { path = "crates/ggen-test-audit", version = "0.2.0" }
 ggen-test-opt = { path = "crates/ggen-test-opt", version = "0.2.0" }
 ggen-e2e = { path = "crates/ggen-e2e", version = "0.2.0" }
+
+# Optional: Node.js bindings
+ggen-node = { path = "crates/ggen-node", version = "0.2.0" }
+
+# Optional: RevOps/Monetization
 ggen-api = { path = "crates/ggen-api", version = "0.2.0" }
 ggen-auth = { path = "crates/ggen-auth", version = "0.2.0" }
 ggen-payments = { path = "crates/ggen-payments", version = "0.2.0" }
 ggen-saas = { path = "crates/ggen-saas", version = "0.2.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "0.2.0" }
-ggen-folk-strategy = { path = "crates/ggen-folk-strategy", version = "0.2.0" }
-ggen-dod = { path = "crates/ggen-dod", version = "0.2.0" }
-ggen-ontology-core = { path = "crates/ggen-ontology-core", version = "0.2.0" }
 
-# KNHK Systems (ETL + KGC-4D + Workflow Engine Integration)
+# Optional: Folk strategy
+ggen-folk-strategy = { path = "crates/ggen-folk-strategy", version = "0.2.0" }
+
+# Optional: KNHK Systems (ETL + KGC-4D + Workflow Engine Integration)
 knhk-etl = { path = "crates/knhk-etl", version = "0.1.0" }
 knhk-hot = { path = "crates/knhk-hot", version = "1.0.0" }
 knhk-connectors = { path = "crates/knhk-connectors", version = "0.1.0" }
@@ -142,29 +178,12 @@ knhk-lockchain = { path = "crates/knhk-lockchain", version = "0.1.0" }
 knhk-otel = { path = "crates/knhk-otel", version = "0.1.0" }
 knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "0.1.0" }
 
-# TPS (Toyota Production System) Andon implementation
+# Optional: TPS/TAI Systems
+tps-reference = { path = "crates/tps-reference", version = "0.1.0" }
 ggen-tps-andon = { path = "crates/ggen-tps-andon", version = "0.1.0" }
-
-# TAI Testing: Production hardening & resilience testing framework
 tai-testing = { path = "crates/tai-testing", version = "0.1.0" }
-
-# TPS (Toyota Production System) Kaizen implementation (continuous improvement)
-tps-kaizen = { path = "crates/tps-kaizen", version = "0.1.0" }
-
-# TAI Cache: Advanced caching with multi-tier strategies
-tai-cache = { path = "crates/tai-cache", version = "0.1.0" }
-
-# TAI gRPC: Service-to-service communication with advanced resilience patterns
-tai-grpc = { path = "crates/tai-grpc", version = "0.1.0" }
-
-# TAI Security: Vault, KMS, mTLS, secret rotation, encryption
-tai-security = { path = "crates/tai-security", version = "0.1.0" }
-
-# TAI Observability: Cloud Profiler, Trace, Monitoring
-tai-observability = { path = "crates/tai-observability", version = "0.1.0" }
-
-# TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
 tai-k8s = { path = "crates/tai-k8s", version = "0.1.0" }
+tai-validation = { path = "crates/tai-validation", version = "0.1.0" }
 
 # OpenTelemetry dependencies (make optional at crate level, not workspace level)
 opentelemetry = { version = "0.21" }
@@ -274,44 +293,78 @@ multiple_crate_versions = "allow"
 # ===================================================================
 
 [features]
-default = []
+# Core feature flags for faster builds (80/20 optimization)
+# Root package only controls its own dependencies (ggen-ai, genai)
+# Member crates remain optional in Cargo.toml; use with workspace.members
+
+default = ["core"]
+
+# Feature groups (root package dependencies only)
+core = []                    # Minimal: RDF/code-gen only (FAST - 2-3 minutes)
+
+# Optional: AI orchestration (enables ggen-ai and genai dependencies)
+ai = ["ggen-ai", "genai"]
+
+# Optional: OpenTelemetry instrumentation (adds ~200 dependencies to ggen-core)
+otel = ["ggen-core/otel"]
+
+# Convenience bundles
+# Production: Minimal dependencies (fastest builds/smallest binary)
+prod = ["core"]
+
+# Development: Essential + AI for local development
+dev = ["core", "ai"]
+
+# Full: Everything (maximum functionality, includes otel)
+full = ["core", "ai", "otel"]
+
+# Backward compatibility (for environment-specific logging)
 nightly = ["ggen-utils/nightly"]
 termlog = ["ggen-utils/termlog"]
 journald = ["ggen-utils/journald"]
 syslog = ["ggen-utils/syslog"]
 london_tdd = []
-# OpenTelemetry instrumentation (optional - adds ~200 dependencies)
-# Enable with: cargo build --features otel
-# Only forward to ggen-core, which handles its own otel dependencies
-otel = [
-  "ggen-core/otel",
-]
 
 [dependencies]
+# Core dependencies (always compiled)
 ggen-utils = { path = "crates/ggen-utils", version = "0.2.0" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "0.2.0" }
 ggen-core = { path = "crates/ggen-core", version = "0.2.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "0.2.0" }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
 log = "0.4.28"
 env_logger = "0.11"
-tokio = { version = "1.47", features = ["full"] }
 anyhow = "1.0"
-chrono = { version = "0.4", features = ["serde"] }
-serde_json = "1.0"
-serde_yaml = "0.9"
-clap = { version = "4.5", features = ["derive"] }
-tempfile = "3.23"
-tera = "1.20"
-async-trait = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 uuid = { version = "1.18", features = ["v4"] }
-genai = { workspace = true }
 tracing-subscriber = "0.3"
 
+# Minimal async runtime (reduced from "full" features)
+tokio = { version = "1.47", features = ["macros", "rt-multi-thread", "io-util", "io-std", "sync", "signal", "time"] }
+
+# CLI/JSON configuration
+clap = { version = "4.5", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+
+# Templating
+tera = "1.20"
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# Async support
+async-trait = "0.1"
+
+# Optional: AI integration (feature-gated, reduces default dependencies)
+ggen-ai = { path = "crates/ggen-ai", version = "0.2.0", optional = true }
+ggen-dspy = { path = "crates/ggen-dspy", version = "0.2.0", optional = true }
+genai = { workspace = true, optional = true }
+
+# Temp file support (small, used by core)
+tempfile = "3.23"
+
 # Note: OpenTelemetry dependencies are optional at the crate level (ggen-core, etc.)
-# The root package doesn't directly use OTEL, so these are not included here.
 # Enable OTEL via: cargo build --features otel (which forwards to ggen-core/otel)
 
 # Example definitions removed - examples now discovered automatically by Cargo

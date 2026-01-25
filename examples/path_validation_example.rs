@@ -3,9 +3,9 @@
 //! This example demonstrates how to use PathValidator to prevent
 //! path traversal, symlink attacks, and other security vulnerabilities.
 
-use std::path::Path;
-use ggen_utils::path_validator::{PathValidator, SafePath};
 use ggen_utils::error::Result;
+use ggen_utils::path_validator::{PathValidator, SafePath};
+use std::path::Path;
 
 fn main() -> Result<()> {
     println!("Path Validation Security Examples\n");
@@ -136,7 +136,10 @@ fn batch_validation_example() -> Result<()> {
 
     match validator.validate_batch(&template_paths) {
         Ok(safe_paths) => {
-            println!("✓ All {} templates validated successfully:", safe_paths.len());
+            println!(
+                "✓ All {} templates validated successfully:",
+                safe_paths.len()
+            );
             for (i, safe_path) in safe_paths.iter().enumerate() {
                 println!("  {}. {}", i + 1, safe_path);
             }
@@ -174,10 +177,7 @@ fn attack_prevention_examples() -> Result<()> {
 
     // Attack 2: Null Byte Injection
     println!("Attack 2: Null Byte Injection");
-    let null_byte_attacks = vec![
-        "safe.txt\0../../etc/passwd",
-        "file\0.evil",
-    ];
+    let null_byte_attacks = vec!["safe.txt\0../../etc/passwd", "file\0.evil"];
 
     for attack in null_byte_attacks {
         match validator.validate(attack) {
@@ -190,10 +190,7 @@ fn attack_prevention_examples() -> Result<()> {
 
     // Attack 3: Absolute Path Escape
     println!("Attack 3: Absolute Path Escape");
-    let absolute_attacks = vec![
-        "/etc/passwd",
-        "/var/log/secrets.txt",
-    ];
+    let absolute_attacks = vec!["/etc/passwd", "/var/log/secrets.txt"];
 
     for attack in absolute_attacks {
         match validator.validate(attack) {
@@ -206,14 +203,10 @@ fn attack_prevention_examples() -> Result<()> {
 
     // Attack 4: Extension Bypass
     println!("Attack 4: Extension Bypass");
-    let extension_validator = PathValidator::new(workspace)
-        .with_allowed_extensions(vec!["tera", "tmpl"]);
+    let extension_validator =
+        PathValidator::new(workspace).with_allowed_extensions(vec!["tera", "tmpl"]);
 
-    let extension_attacks = vec![
-        "malware.exe",
-        "script.sh",
-        "backdoor.so",
-    ];
+    let extension_attacks = vec!["malware.exe", "script.sh", "backdoor.so"];
 
     for attack in extension_attacks {
         match extension_validator.validate(attack) {
@@ -226,8 +219,7 @@ fn attack_prevention_examples() -> Result<()> {
 
     // Attack 5: Depth Limit Bypass
     println!("Attack 5: Depth Limit Bypass");
-    let depth_validator = PathValidator::new(workspace)
-        .with_max_depth(5);
+    let depth_validator = PathValidator::new(workspace).with_max_depth(5);
 
     let depth_attack = "a/b/c/d/e/f/g/h/i/j/file.txt"; // Depth > 5
 
@@ -272,7 +264,10 @@ impl TemplateEngine {
         let template_content = self.load_template(template_name)?;
 
         // Render logic here
-        Ok(format!("Rendered: {} with context: {}", template_content, context))
+        Ok(format!(
+            "Rendered: {} with context: {}",
+            template_content, context
+        ))
     }
 }
 

@@ -299,10 +299,10 @@ impl TemplateValidator {
     pub fn validate_variable_name(name: &str) -> Result<()> {
         // Check empty
         if name.is_empty() {
-            return Err(
-                TemplateSecurityError::InvalidVariableName("Variable name is empty".to_string())
-                    .into(),
-            );
+            return Err(TemplateSecurityError::InvalidVariableName(
+                "Variable name is empty".to_string(),
+            )
+            .into());
         }
 
         // Check length
@@ -349,8 +349,7 @@ impl TemplateValidator {
         tera.render_str(source, &Context::new())
             .map(|_| ())
             .map_err(|e| {
-                TemplateSecurityError::InvalidSyntax(format!("Template syntax error: {}", e))
-                    .into()
+                TemplateSecurityError::InvalidSyntax(format!("Template syntax error: {}", e)).into()
             })
     }
 }
@@ -421,8 +420,8 @@ impl ContextEscaper {
         for c in input.chars() {
             match c {
                 // Shell metacharacters that need escaping
-                '$' | '`' | '"' | '\\' | '!' | '\n' | '&' | ';' | '|' | '(' | ')' | '<'
-                | '>' | ' ' | '\t' | '*' | '?' | '[' | ']' | '{' | '}' | '~' | '#' => {
+                '$' | '`' | '"' | '\\' | '!' | '\n' | '&' | ';' | '|' | '(' | ')' | '<' | '>'
+                | ' ' | '\t' | '*' | '?' | '[' | ']' | '{' | '}' | '~' | '#' => {
                     result.push('\\');
                     result.push(c);
                 }
@@ -568,10 +567,14 @@ mod tests {
             .is_err());
 
         // Shell execution attempts
-        assert!(sandbox.check_forbidden_patterns("{{ exec('rm -rf /') }}").is_err());
+        assert!(sandbox
+            .check_forbidden_patterns("{{ exec('rm -rf /') }}")
+            .is_err());
 
         // Path traversal
-        assert!(sandbox.check_forbidden_patterns("../../../etc/passwd").is_err());
+        assert!(sandbox
+            .check_forbidden_patterns("../../../etc/passwd")
+            .is_err());
     }
 
     #[test]
@@ -599,7 +602,9 @@ mod tests {
             .is_err());
 
         // Safe include
-        assert!(sandbox.validate_includes("{% include 'header.html' %}").is_ok());
+        assert!(sandbox
+            .validate_includes("{% include 'header.html' %}")
+            .is_ok());
     }
 
     // === Function Whitelist Tests ===

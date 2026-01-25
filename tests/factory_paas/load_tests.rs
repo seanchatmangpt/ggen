@@ -250,7 +250,10 @@ async fn load_test_batch_content_publishing() {
     let elapsed = start.elapsed();
 
     // ASSERT: All content published successfully
-    assert_eq!(success_count, 1_000, "All content should publish successfully");
+    assert_eq!(
+        success_count, 1_000,
+        "All content should publish successfully"
+    );
 
     let pipeline = pipeline.read().await;
     let published = pipeline.list_by_status(PublicationStatus::Published);
@@ -344,7 +347,10 @@ async fn load_test_revenue_attribution_throughput() {
     let attribution = attribution.read().await;
     let total_revenue = attribution.total_revenue_by_affiliate(&affiliate_id);
     let expected_revenue: u64 = (1..=10_000).map(|i| i * 100).sum();
-    assert_eq!(total_revenue, expected_revenue, "Total revenue should be accurate");
+    assert_eq!(
+        total_revenue, expected_revenue,
+        "Total revenue should be accurate"
+    );
 
     println!(
         "✓ Load Test: 10,000 revenue events recorded in {:?} ({:.0} events/sec)",
@@ -390,7 +396,11 @@ async fn load_test_subscription_operations() {
     let elapsed = start.elapsed();
 
     // ASSERT: All subscriptions created
-    assert_eq!(subscription_ids.len(), 1_000, "Should have 1,000 subscriptions");
+    assert_eq!(
+        subscription_ids.len(),
+        1_000,
+        "Should have 1,000 subscriptions"
+    );
 
     println!(
         "✓ Load Test: 1,000 subscriptions created in {:?} ({:.0} subs/sec)",
@@ -401,7 +411,10 @@ async fn load_test_subscription_operations() {
     // Verify subscriptions exist
     let manager = manager.read().await;
     for id in subscription_ids.iter().take(10) {
-        assert!(manager.get_subscription(id).is_some(), "Subscription should exist");
+        assert!(
+            manager.get_subscription(id).is_some(),
+            "Subscription should exist"
+        );
     }
 }
 
@@ -453,7 +466,10 @@ async fn load_test_webhook_processing() {
     let elapsed = start.elapsed();
 
     // ASSERT: All webhooks processed
-    assert_eq!(success_count, 1_000, "All webhooks should process successfully");
+    assert_eq!(
+        success_count, 1_000,
+        "All webhooks should process successfully"
+    );
 
     println!(
         "✓ Load Test: 1,000 webhooks processed in {:?} ({:.0} webhooks/sec)",
@@ -531,7 +547,10 @@ async fn load_test_end_to_end_workflow() {
     let elapsed = start.elapsed();
 
     // ASSERT: All workflows completed successfully
-    assert_eq!(success_count, 100, "All workflows should complete successfully");
+    assert_eq!(
+        success_count, 100,
+        "All workflows should complete successfully"
+    );
 
     println!(
         "✓ Load Test: 100 end-to-end workflows completed in {:?} ({:.0} workflows/sec)",

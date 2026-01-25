@@ -154,19 +154,15 @@ fn test_command_injection_newline() {
 fn test_whitelist_dangerous_commands() {
     // Arrange
     let dangerous = vec![
-        "rm", "rmdir", "dd", "mkfs", "kill", "killall", "pkill", "sudo", "su",
-        "chmod", "chown", "curl", "wget", "nc", "netcat", "telnet", "ssh",
-        "scp", "rsync", "tar", "zip", "unzip", "7z",
+        "rm", "rmdir", "dd", "mkfs", "kill", "killall", "pkill", "sudo", "su", "chmod", "chown",
+        "curl", "wget", "nc", "netcat", "telnet", "ssh", "scp", "rsync", "tar", "zip", "unzip",
+        "7z",
     ];
 
     // Act & Assert
     for cmd in dangerous {
         let result = SafeCommand::new(cmd);
-        assert!(
-            result.is_err(),
-            "Should block dangerous command: {}",
-            cmd
-        );
+        assert!(result.is_err(), "Should block dangerous command: {}", cmd);
         assert!(
             result.unwrap_err().to_string().contains("not in whitelist"),
             "Error should mention whitelist for: {}",
@@ -183,11 +179,7 @@ fn test_whitelist_case_sensitivity() {
     // Act & Assert
     for cmd in uppercase_attempts {
         let result = SafeCommand::new(cmd);
-        assert!(
-            result.is_err(),
-            "Should be case-sensitive, block: {}",
-            cmd
-        );
+        assert!(result.is_err(), "Should be case-sensitive, block: {}", cmd);
     }
 }
 
@@ -217,12 +209,7 @@ fn test_whitelist_with_path() {
 fn test_whitelist_with_whitespace() {
     // Arrange
     let whitespace_attempts = vec![
-        "cargo ",
-        " cargo",
-        " cargo ",
-        "car go",
-        "cargo\t",
-        "\tcargo",
+        "cargo ", " cargo", " cargo ", "car go", "cargo\t", "\tcargo",
     ];
 
     // Act & Assert
@@ -317,10 +304,7 @@ fn test_max_length_single_arg() {
     // Assert
     assert!(result.is_err(), "Should block command exceeding max length");
     assert!(
-        result
-            .unwrap_err()
-            .to_string()
-            .contains("exceeds maximum"),
+        result.unwrap_err().to_string().contains("exceeds maximum"),
         "Error should mention max length"
     );
 }
@@ -362,7 +346,10 @@ fn test_max_length_boundary() {
         .validate();
 
     // Assert - should succeed at exact boundary
-    assert!(result.is_ok(), "Should allow command at max length boundary");
+    assert!(
+        result.is_ok(),
+        "Should allow command at max length boundary"
+    );
 }
 
 #[test]
@@ -380,10 +367,7 @@ fn test_max_length_just_over_boundary() {
         .validate();
 
     // Assert
-    assert!(
-        result.is_err(),
-        "Should block command just over max length"
-    );
+    assert!(result.is_err(), "Should block command just over max length");
 }
 
 // ============================================================================
@@ -402,11 +386,7 @@ fn test_combined_attack_injection_and_path() {
     // Act & Assert
     for attack in combined_attacks {
         let result = SafeCommand::new("cargo").unwrap().arg(attack);
-        assert!(
-            result.is_err(),
-            "Should block combined attack: {}",
-            attack
-        );
+        assert!(result.is_err(), "Should block combined attack: {}", attack);
     }
 }
 
@@ -435,9 +415,9 @@ fn test_unicode_shell_metacharacters() {
     // Note: Rust char matching is exact, so these won't match ASCII metacharacters
     // But we test to ensure no unexpected behavior
     let unicode_attacks = vec![
-        "build｜cat /etc/passwd",  // Full-width pipe
-        "build；rm -rf /",         // Full-width semicolon
-        "build＆rm -rf /",         // Full-width ampersand
+        "build｜cat /etc/passwd", // Full-width pipe
+        "build；rm -rf /",        // Full-width semicolon
+        "build＆rm -rf /",        // Full-width ampersand
     ];
 
     // Act & Assert

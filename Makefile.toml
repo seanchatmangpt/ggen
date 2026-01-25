@@ -41,6 +41,52 @@ workspace = false
 command = "timeout"
 args = ["30s", "cargo", "check"]
 
+# ============================================================================
+# Fast/Lean Build Targets (80/20 Optimization)
+# ============================================================================
+
+[tasks.quick-check]
+description = "Quick check without optional features (2-3 minutes for fast feedback)"
+workspace = false
+command = "timeout"
+args = ["120s", "cargo", "check", "--workspace", "--no-default-features", "--features", "core"]
+
+[tasks.fast-test]
+description = "Fast unit tests only (no integration tests, no optional features - 30-60 seconds)"
+workspace = false
+command = "timeout"
+args = ["120s", "cargo", "test", "--workspace", "--lib", "--no-default-features", "--features", "core"]
+
+[tasks.build-quick]
+description = "Quick debug build without optional features (minimal dependencies)"
+workspace = false
+command = "timeout"
+args = ["120s", "cargo", "build", "-p", "ggen-cli-lib", "--bin", "ggen", "--no-default-features", "--features", "core"]
+
+[tasks.build-quick-release]
+description = "Quick release build without optional features (optimized, minimal binary)"
+workspace = false
+command = "timeout"
+args = ["180s", "cargo", "build", "--release", "-p", "ggen-cli-lib", "--bin", "ggen", "--no-default-features", "--features", "core"]
+
+[tasks.check-all-features]
+description = "Check with all features enabled (maximum validation, slower)"
+workspace = false
+command = "timeout"
+args = ["180s", "cargo", "check", "--workspace", "--all-features"]
+
+[tasks.check-dev-features]
+description = "Check with development features (AI, marketplace, testing, OTel)"
+workspace = false
+command = "timeout"
+args = ["180s", "cargo", "check", "--workspace", "--features", "dev"]
+
+[tasks.check-prod-features]
+description = "Check with production features only (minimal, fastest)"
+workspace = false
+command = "timeout"
+args = ["120s", "cargo", "check", "--workspace", "--no-default-features", "--features", "prod"]
+
 [tasks.build]
 description = "Build in debug mode"
 command = "timeout"

@@ -19,9 +19,7 @@ pub use mipro::MiproOptimizer;
 pub trait Optimizer: Send + Sync {
     /// Compile/optimize a module with training data
     async fn compile(
-        &self,
-        module: Box<dyn Module>,
-        trainset: &[TrainExample],
+        &self, module: Box<dyn Module>, trainset: &[TrainExample],
     ) -> Result<Box<dyn Module>>;
 
     /// Get optimizer name
@@ -108,18 +106,12 @@ pub struct TrainExample {
 
 impl TrainExample {
     /// Create a new training example
-    pub fn new(
-        inputs: HashMap<String, String>,
-        outputs: HashMap<String, String>,
-    ) -> Self {
+    pub fn new(inputs: HashMap<String, String>, outputs: HashMap<String, String>) -> Self {
         Self { inputs, outputs }
     }
 
     /// Create from key-value pairs
-    pub fn from_pairs(
-        inputs: &[(&str, &str)],
-        outputs: &[(&str, &str)],
-    ) -> Self {
+    pub fn from_pairs(inputs: &[(&str, &str)], outputs: &[(&str, &str)]) -> Self {
         let inputs = inputs
             .iter()
             .map(|(k, v)| (k.to_string(), v.to_string()))
@@ -155,7 +147,13 @@ mod tests {
             &[("answer", "A systems programming language")],
         );
 
-        assert_eq!(example.inputs.get("question").map(|s| s.as_str()), Some("What is Rust?"));
-        assert_eq!(example.outputs.get("answer").map(|s| s.as_str()), Some("A systems programming language"));
+        assert_eq!(
+            example.inputs.get("question").map(|s| s.as_str()),
+            Some("What is Rust?")
+        );
+        assert_eq!(
+            example.outputs.get("answer").map(|s| s.as_str()),
+            Some("A systems programming language")
+        );
     }
 }

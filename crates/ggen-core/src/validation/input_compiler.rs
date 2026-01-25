@@ -29,10 +29,8 @@
 //! # }
 //! ```
 
-use super::input::{
-    CharsetRule, FormatRule, InputValidationError, StringValidator,
-};
 use super::error::{Result, ValidationError};
+use super::input::{CharsetRule, FormatRule, InputValidationError, StringValidator};
 use std::collections::HashMap;
 
 /// Rule definition for declarative validation
@@ -55,10 +53,7 @@ pub enum RuleDefinition {
     Format { field: String, format: String },
 
     /// Whitelist constraint (field, allowed values)
-    Whitelist {
-        field: String,
-        allowed: Vec<String>,
-    },
+    Whitelist { field: String, allowed: Vec<String> },
 
     /// Blacklist constraint (field, forbidden values)
     Blacklist {
@@ -183,24 +178,20 @@ impl CompiledValidator {
     }
 
     /// Validate a field value
-    pub fn validate_field(
-        &self,
-        field: &str,
-        value: &str,
-    ) -> Result<String> {
+    pub fn validate_field(&self, field: &str, value: &str) -> Result<String> {
         if let Some(validator) = self.validators.get(field) {
             validator.validate(value)
         } else {
             Err(InputValidationError::EmptyInput {
                 field: format!("No validator defined for field: {}", field),
-            }.into())
+            }
+            .into())
         }
     }
 
     /// Validate multiple fields
     pub fn validate_fields(
-        &self,
-        fields: &HashMap<String, String>,
+        &self, fields: &HashMap<String, String>,
     ) -> Result<HashMap<String, String>, InputValidationError> {
         let mut validated = HashMap::new();
 
@@ -224,10 +215,7 @@ impl RuleCompiler {
     }
 
     /// Compile rule definitions into efficient validator
-    pub fn compile(
-        &self,
-        rules: &[RuleDefinition],
-    ) -> Result<CompiledValidator> {
+    pub fn compile(&self, rules: &[RuleDefinition]) -> Result<CompiledValidator> {
         let mut validators: HashMap<String, StringValidator> = HashMap::new();
 
         // Group rules by field
@@ -256,9 +244,7 @@ impl RuleCompiler {
     }
 
     fn apply_rule(
-        &self,
-        mut validator: StringValidator,
-        rule: &RuleDefinition,
+        &self, mut validator: StringValidator, rule: &RuleDefinition,
     ) -> Result<StringValidator> {
         match rule {
             RuleDefinition::Length { min, max, .. } => {
@@ -276,7 +262,8 @@ impl RuleCompiler {
                         return Err(InputValidationError::FormatViolation {
                             field: "charset".to_string(),
                             reason: format!("Unknown charset type: {}", charset),
-                        }.into())
+                        }
+                        .into())
                     }
                 };
                 validator = validator.with_charset(charset_rule);
@@ -292,7 +279,8 @@ impl RuleCompiler {
                         return Err(InputValidationError::FormatViolation {
                             field: "format".to_string(),
                             reason: format!("Unknown format type: {}", format),
-                        }.into())
+                        }
+                        .into())
                     }
                 };
                 validator = validator.with_format(format_rule);
@@ -307,8 +295,10 @@ impl RuleCompiler {
                 // Composite rules are not yet supported in builder API
                 // This is a limitation of the current implementation
                 return Err(InputValidationError::CompositeViolation {
-                    reason: "Composite rules (AND/OR/NOT) not yet supported in compiler".to_string(),
-                }.into());
+                    reason: "Composite rules (AND/OR/NOT) not yet supported in compiler"
+                        .to_string(),
+                }
+                .into());
             }
         }
 
@@ -377,9 +367,7 @@ mod tests {
         assert!(validator.validate_field("username", "ab").is_err());
 
         // Assert - invalid (wrong charset)
-        assert!(validator
-            .validate_field("username", "alice@123")
-            .is_err());
+        assert!(validator.validate_field("username", "alice@123").is_err());
     }
 
     #[test]
@@ -415,9 +403,7 @@ mod tests {
         assert!(validator
             .validate_field("email", "alice@example.com")
             .is_ok());
-        assert!(validator
-            .validate_field("email", "not-an-email")
-            .is_err());
+        assert!(validator.validate_field("email", "not-an-email").is_err());
     }
 
     #[test]
@@ -452,9 +438,7 @@ mod tests {
 
         // Assert
         assert!(validator.validate_field("username", "alice").is_ok());
-        assert!(validator
-            .validate_field("username", "admin")
-            .is_err());
+        assert!(validator.validate_field("username", "admin").is_err());
         assert!(validator.validate_field("username", "root").is_err());
     }
 
@@ -514,8 +498,8 @@ mod tests {
     #[test]
     fn test_rule_definition_or() {
         // Arrange & Act
-        let rule = RuleDefinition::length("field", 5, 10)
-            .or(RuleDefinition::length("field", 20, 30));
+        let rule =
+            RuleDefinition::length("field", 5, 10).or(RuleDefinition::length("field", 20, 30));
 
         // Assert
         assert_eq!(rule.field_name(), Some("field"));

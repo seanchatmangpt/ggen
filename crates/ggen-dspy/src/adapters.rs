@@ -30,18 +30,13 @@ use tracing::{debug, info, warn};
 pub trait LlmAdapter: Send + Sync {
     /// Format prompt with inputs, outputs, and optional demonstrations
     fn format_prompt(
-        &self,
-        inputs: &HashMap<String, Value>,
-        output_fields: &[String],
-        schema: Option<&Value>,
+        &self, inputs: &HashMap<String, Value>, output_fields: &[String], schema: Option<&Value>,
         demonstrations: Option<&[Demonstration]>,
     ) -> Result<String>;
 
     /// Parse LLM response into structured output
     fn parse_response(
-        &self,
-        response: &str,
-        output_fields: &[String],
+        &self, response: &str, output_fields: &[String],
     ) -> Result<HashMap<String, Value>>;
 
     /// Get adapter name
@@ -104,7 +99,11 @@ impl ChatAdapter {
 
         // Add outputs
         for (key, value) in &demo.outputs {
-            result.push_str(&format!("\n[[ ## {} ## ]]\n{}", key, self.value_to_string(value)));
+            result.push_str(&format!(
+                "\n[[ ## {} ## ]]\n{}",
+                key,
+                self.value_to_string(value)
+            ));
         }
 
         result
@@ -127,10 +126,7 @@ impl Default for ChatAdapter {
 
 impl LlmAdapter for ChatAdapter {
     fn format_prompt(
-        &self,
-        inputs: &HashMap<String, Value>,
-        output_fields: &[String],
-        _schema: Option<&Value>,
+        &self, inputs: &HashMap<String, Value>, output_fields: &[String], _schema: Option<&Value>,
         demonstrations: Option<&[Demonstration]>,
     ) -> Result<String> {
         let mut prompt = String::new();
@@ -160,26 +156,22 @@ impl LlmAdapter for ChatAdapter {
     }
 
     fn parse_response(
-        &self,
-        response: &str,
-        output_fields: &[String],
+        &self, response: &str, output_fields: &[String],
     ) -> Result<HashMap<String, Value>> {
         let mut results = HashMap::new();
 
         for field in output_fields {
             // Find field marker
             let pattern = format!(r"\[\[\s*##\s*{}\s*##\s*\]\]\s*\n(.*?)(?:\n\[\[|$)", field);
-            let field_regex = Regex::new(&pattern).map_err(|e| {
-                DspyError::ParsingError(format!("Invalid regex pattern: {}", e))
-            })?;
+            let field_regex = Regex::new(&pattern)
+                .map_err(|e| DspyError::ParsingError(format!("Invalid regex pattern: {}", e)))?;
 
             if let Some(captures) = field_regex.captures(response) {
-                let content = captures
-                    .get(1)
-                    .map(|m| m.as_str().trim())
-                    .ok_or_else(|| DspyError::FieldError {
+                let content = captures.get(1).map(|m| m.as_str().trim()).ok_or_else(|| {
+                    DspyError::FieldError {
                         field: field.clone(),
-                    })?;
+                    }
+                })?;
 
                 if content.is_empty() {
                     return Err(DspyError::FieldError {
@@ -262,7 +254,11 @@ impl JSONAdapter {
         if let Some(captures) = json_block_regex.captures(response) {
             let content = captures
                 .get(1)
-                .ok_or_else(|| DspyError::ParsingError("Failed to extract JSON content from code block".to_string()))?
+                .ok_or_else(|| {
+                    DspyError::ParsingError(
+                        "Failed to extract JSON content from code block".to_string(),
+                    )
+                })?
                 .as_str()
                 .to_string();
             return Ok(content);
@@ -275,7 +271,9 @@ impl JSONAdapter {
         if let Some(captures) = code_block_regex.captures(response) {
             let content = captures
                 .get(1)
-                .ok_or_else(|| DspyError::ParsingError("Failed to extract content from code block".to_string()))?
+                .ok_or_else(|| {
+                    DspyError::ParsingError("Failed to extract content from code block".to_string())
+                })?
                 .as_str();
             // Verify it's valid JSON
             if content.trim().starts_with('{') {
@@ -296,10 +294,7 @@ impl Default for JSONAdapter {
 
 impl LlmAdapter for JSONAdapter {
     fn format_prompt(
-        &self,
-        inputs: &HashMap<String, Value>,
-        output_fields: &[String],
-        schema: Option<&Value>,
+        &self, inputs: &HashMap<String, Value>, output_fields: &[String], schema: Option<&Value>,
         demonstrations: Option<&[Demonstration]>,
     ) -> Result<String> {
         let mut prompt = String::new();
@@ -310,8 +305,14 @@ impl LlmAdapter for JSONAdapter {
                 prompt.push_str("Here are some examples:\n\n");
                 for (idx, demo) in demos.iter().enumerate() {
                     prompt.push_str(&format!("Example {}:\n", idx + 1));
-                    prompt.push_str(&format!("Input: {}\n", serde_json::to_string_pretty(&demo.inputs)?));
-                    prompt.push_str(&format!("Output: {}\n\n", serde_json::to_string_pretty(&demo.outputs)?));
+                    prompt.push_str(&format!(
+                        "Input: {}\n",
+                        serde_json::to_string_pretty(&demo.inputs)?
+                    ));
+                    prompt.push_str(&format!(
+                        "Output: {}\n\n",
+                        serde_json::to_string_pretty(&demo.outputs)?
+                    ));
                 }
             }
         }
@@ -332,18 +333,16 @@ impl LlmAdapter for JSONAdapter {
     }
 
     fn parse_response(
-        &self,
-        response: &str,
-        output_fields: &[String],
+        &self, response: &str, output_fields: &[String],
     ) -> Result<HashMap<String, Value>> {
         let json_str = self.extract_json(response)?;
 
         let parsed: Value = serde_json::from_str(&json_str)
             .map_err(|e| DspyError::ParsingError(format!("Invalid JSON: {}", e)))?;
 
-        let obj = parsed.as_object().ok_or_else(|| {
-            DspyError::ParsingError("Response is not a JSON object".to_string())
-        })?;
+        let obj = parsed
+            .as_object()
+            .ok_or_else(|| DspyError::ParsingError("Response is not a JSON object".to_string()))?;
 
         let mut results = HashMap::new();
         for field in output_fields {
@@ -393,10 +392,7 @@ impl Default for CompletionAdapter {
 
 impl LlmAdapter for CompletionAdapter {
     fn format_prompt(
-        &self,
-        inputs: &HashMap<String, Value>,
-        _output_fields: &[String],
-        _schema: Option<&Value>,
+        &self, inputs: &HashMap<String, Value>, _output_fields: &[String], _schema: Option<&Value>,
         _demonstrations: Option<&[Demonstration]>,
     ) -> Result<String> {
         // Simple concatenation of inputs
@@ -411,9 +407,7 @@ impl LlmAdapter for CompletionAdapter {
     }
 
     fn parse_response(
-        &self,
-        response: &str,
-        output_fields: &[String],
+        &self, response: &str, output_fields: &[String],
     ) -> Result<HashMap<String, Value>> {
         let mut results = HashMap::new();
 
@@ -480,10 +474,7 @@ impl AdapterWithFallback {
 
 impl LlmAdapter for AdapterWithFallback {
     fn format_prompt(
-        &self,
-        inputs: &HashMap<String, Value>,
-        output_fields: &[String],
-        schema: Option<&Value>,
+        &self, inputs: &HashMap<String, Value>, output_fields: &[String], schema: Option<&Value>,
         demonstrations: Option<&[Demonstration]>,
     ) -> Result<String> {
         self.get_adapter()
@@ -491,9 +482,7 @@ impl LlmAdapter for AdapterWithFallback {
     }
 
     fn parse_response(
-        &self,
-        response: &str,
-        output_fields: &[String],
+        &self, response: &str, output_fields: &[String],
     ) -> Result<HashMap<String, Value>> {
         self.get_adapter().parse_response(response, output_fields)
     }
@@ -527,10 +516,7 @@ pub struct IntegratedAdapter {
 
 impl IntegratedAdapter {
     /// Create a new integrated adapter
-    pub fn new(
-        client: Arc<dyn LlmClient>,
-        adapter: Box<dyn LlmAdapter>,
-    ) -> Self {
+    pub fn new(client: Arc<dyn LlmClient>, adapter: Box<dyn LlmAdapter>) -> Self {
         Self {
             client,
             adapter,
@@ -559,10 +545,7 @@ impl IntegratedAdapter {
 
     /// Generate completion with retry logic
     pub async fn complete_with_retry(
-        &self,
-        inputs: &HashMap<String, Value>,
-        output_fields: &[String],
-        schema: Option<&Value>,
+        &self, inputs: &HashMap<String, Value>, output_fields: &[String], schema: Option<&Value>,
         demonstrations: Option<&[Demonstration]>,
     ) -> Result<HashMap<String, Value>> {
         let prompt = self
@@ -774,10 +757,7 @@ impl GgenAiAdapter {
         let adapter = AdapterWithFallback::new(model);
 
         Self {
-            integrated: IntegratedAdapter::new(
-                Arc::new(client),
-                Box::new(adapter),
-            ),
+            integrated: IntegratedAdapter::new(Arc::new(client), Box::new(adapter)),
         }
     }
 
@@ -802,9 +782,7 @@ impl GgenAiAdapter {
 
     /// Generate completion
     pub async fn complete(
-        &self,
-        inputs: &HashMap<String, Value>,
-        output_fields: &[String],
+        &self, inputs: &HashMap<String, Value>, output_fields: &[String],
     ) -> Result<HashMap<String, Value>> {
         self.integrated
             .complete_with_retry(inputs, output_fields, None, None)
@@ -813,9 +791,7 @@ impl GgenAiAdapter {
 
     /// Generate completion with demonstrations
     pub async fn complete_with_demos(
-        &self,
-        inputs: &HashMap<String, Value>,
-        output_fields: &[String],
+        &self, inputs: &HashMap<String, Value>, output_fields: &[String],
         demonstrations: &[Demonstration],
     ) -> Result<HashMap<String, Value>> {
         self.integrated
@@ -1044,7 +1020,11 @@ mod tests {
     fn test_completion_adapter_multiple_outputs() {
         let adapter = CompletionAdapter::new();
         let response = "Line 1\nLine 2\nLine 3";
-        let output_fields = vec!["first".to_string(), "second".to_string(), "third".to_string()];
+        let output_fields = vec![
+            "first".to_string(),
+            "second".to_string(),
+            "third".to_string(),
+        ];
 
         let result = adapter.parse_response(response, &output_fields).unwrap();
 

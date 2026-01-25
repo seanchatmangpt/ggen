@@ -30,9 +30,6 @@ chrono = { workspace = true }
 # UUID generation
 uuid = { workspace = true }
 
-# Note: SQLite database access moved to optional feature due to conflicts with sqlx v0.7
-# ggen-ai focuses on LLM integration; database operations belong in domain/api layers
-
 # Configuration and environment
 dotenvy = "0.15"
 
@@ -52,13 +49,13 @@ tera = { workspace = true }
 # Regular expressions for validation
 regex = { workspace = true }
 
-# Multi-provider AI client
+# Multi-provider AI client (core LLM integration)
 genai = { workspace = true }
 
-# LLM Response Caching
+# LLM Response Caching (optimization for cost reduction)
 moka = { version = "0.12", features = ["future"] }
 
-# SPARQL support
+# SPARQL support (for ontology-aware AI)
 oxigraph = "0.5"
 
 # Crypto for caching

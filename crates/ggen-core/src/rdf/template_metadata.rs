@@ -592,11 +592,15 @@ impl Default for TemplateMetadataStore {
         match Self::new() {
             Ok(store) => store,
             Err(e) => {
-                log::warn!("Failed to create metadata store with in-memory backend: {}", e);
+                log::warn!(
+                    "Failed to create metadata store with in-memory backend: {}",
+                    e
+                );
                 // Create empty store with Arc-wrapped Mutex
                 Self {
-                    store: Arc::new(Mutex::new(Store::new()
-                        .unwrap_or_else(|_| Store::default()))),
+                    store: Arc::new(Mutex::new(
+                        Store::new().unwrap_or_else(|_| Store::default()),
+                    )),
                 }
             }
         }

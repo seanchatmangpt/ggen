@@ -172,17 +172,13 @@ impl MetricsCollector {
         // Count failed authentication
         metrics.failed_auth_count = events
             .iter()
-            .filter(|e| {
-                matches!(e.category, EventCategory::Authentication) && !e.success
-            })
+            .filter(|e| matches!(e.category, EventCategory::Authentication) && !e.success)
             .count();
 
         // Count failed authorization
         metrics.failed_authz_count = events
             .iter()
-            .filter(|e| {
-                matches!(e.category, EventCategory::Authorization) && !e.success
-            })
+            .filter(|e| matches!(e.category, EventCategory::Authorization) && !e.success)
             .count();
 
         // Count unique sources
@@ -206,9 +202,7 @@ impl MetricsCollector {
 
     /// Get events by severity
     pub fn get_events_by_severity(
-        &self,
-        severity: SecuritySeverity,
-        window: TimeWindow,
+        &self, severity: SecuritySeverity, window: TimeWindow,
     ) -> Vec<&SecurityEvent> {
         let now = Utc::now();
         self.events
@@ -219,9 +213,7 @@ impl MetricsCollector {
 
     /// Get events by category
     pub fn get_events_by_category(
-        &self,
-        category: EventCategory,
-        window: TimeWindow,
+        &self, category: EventCategory, window: TimeWindow,
     ) -> Vec<&SecurityEvent> {
         let now = Utc::now();
         self.events
@@ -454,8 +446,12 @@ mod tests {
         // Arrange
         let mut collector = MetricsCollector::new();
 
-        collector.record(SecurityEvent::authorization_failed("user1", "/admin", "read"));
-        collector.record(SecurityEvent::authorization_failed("user2", "/admin", "write"));
+        collector.record(SecurityEvent::authorization_failed(
+            "user1", "/admin", "read",
+        ));
+        collector.record(SecurityEvent::authorization_failed(
+            "user2", "/admin", "write",
+        ));
 
         // Act
         let metrics = collector.get_metrics(TimeWindow::AllTime);

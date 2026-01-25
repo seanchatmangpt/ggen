@@ -7,12 +7,12 @@
 //! - Escalation (if alert not acknowledged in N minutes, escalate)
 //! - When critical, collect extra diagnostics
 
-use crate::error::Result;
 use crate::andon_metrics::AndonMetrics;
+use crate::error::Result;
 use chrono::{DateTime, Duration, Utc};
+use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use dashmap::DashMap;
 
 /// Alert severity level
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -310,8 +310,7 @@ impl AlertManager {
         }
 
         // Update dedup tracker
-        self.dedup_tracker
-            .insert(alert_key.clone(), Utc::now());
+        self.dedup_tracker.insert(alert_key.clone(), Utc::now());
 
         // Send to channels
         for rule in &self.config.rules {
@@ -326,9 +325,8 @@ impl AlertManager {
         self.active_alerts.insert(alert.id.clone(), alert.clone());
 
         // Record in metrics
-        self.metrics.record_alert(
-            &format!("{:?}", alert.severity)
-        )?;
+        self.metrics
+            .record_alert(&format!("{:?}", alert.severity))?;
 
         tracing::warn!(
             "Alert fired: {} (severity: {:?})",
@@ -342,13 +340,24 @@ impl AlertManager {
     /// Send alert to a channel
     async fn send_alert(&self, channel: &AlertChannel, alert: &Alert) -> Result<()> {
         match channel {
-            AlertChannel::Slack { webhook_url, channel } => {
+            AlertChannel::Slack {
+                webhook_url,
+                channel,
+            } => {
                 self.send_slack_alert(webhook_url, channel, alert).await?;
             }
-            AlertChannel::PagerDuty { api_key, service_id } => {
-                self.send_pagerduty_alert(api_key, service_id, alert).await?;
+            AlertChannel::PagerDuty {
+                api_key,
+                service_id,
+            } => {
+                self.send_pagerduty_alert(api_key, service_id, alert)
+                    .await?;
             }
-            AlertChannel::Email { smtp_server, from, to } => {
+            AlertChannel::Email {
+                smtp_server,
+                from,
+                to,
+            } => {
                 self.send_email_alert(smtp_server, from, to, alert).await?;
             }
             AlertChannel::File { path } => {
@@ -363,26 +372,16 @@ impl AlertManager {
 
     /// Send Slack alert
     async fn send_slack_alert(
-        &self,
-        _webhook_url: &str,
-        _channel: &str,
-        alert: &Alert,
+        &self, _webhook_url: &str, _channel: &str, alert: &Alert,
     ) -> Result<()> {
         // In production, would use reqwest to POST to Slack webhook
-        tracing::info!(
-            "Slack alert sent: {} -> {}",
-            alert.rule_name,
-            _channel
-        );
+        tracing::info!("Slack alert sent: {} -> {}", alert.rule_name, _channel);
         Ok(())
     }
 
     /// Send PagerDuty alert
     async fn send_pagerduty_alert(
-        &self,
-        _api_key: &str,
-        _service_id: &str,
-        alert: &Alert,
+        &self, _api_key: &str, _service_id: &str, alert: &Alert,
     ) -> Result<()> {
         // In production, would use reqwest to POST to PagerDuty API
         tracing::info!(
@@ -395,27 +394,15 @@ impl AlertManager {
 
     /// Send email alert
     async fn send_email_alert(
-        &self,
-        _smtp_server: &str,
-        _from: &str,
-        _to: &[String],
-        alert: &Alert,
+        &self, _smtp_server: &str, _from: &str, _to: &[String], alert: &Alert,
     ) -> Result<()> {
         // In production, would use lettre or similar to send email
-        tracing::info!(
-            "Email alert sent: {} -> {:?}",
-            alert.rule_name,
-            _to
-        );
+        tracing::info!("Email alert sent: {} -> {:?}", alert.rule_name, _to);
         Ok(())
     }
 
     /// Send file alert
-    async fn send_file_alert(
-        &self,
-        _path: &std::path::Path,
-        alert: &Alert,
-    ) -> Result<()> {
+    async fn send_file_alert(&self, _path: &std::path::Path, alert: &Alert) -> Result<()> {
         let json = serde_json::to_string(alert)
             .map_err(|e| crate::error::AndonError::alert(format!("Serialization failed: {}", e)))?;
         tracing::info!("File alert written: {}", json);

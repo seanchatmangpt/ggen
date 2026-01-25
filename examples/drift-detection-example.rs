@@ -13,7 +13,10 @@ fn main() -> ggen_utils::error::Result<()> {
     let state_dir = Path::new(".ggen");
     let detector = DriftDetector::new(state_dir)?;
 
-    println!("1. Created drift detector for state directory: {}", state_dir.display());
+    println!(
+        "1. Created drift detector for state directory: {}",
+        state_dir.display()
+    );
 
     // Step 2: Check if we have previous state
     if detector.has_state() {
@@ -30,8 +33,14 @@ fn main() -> ggen_utils::error::Result<()> {
             DriftStatus::Clean => {
                 println!("   ✓ No drift detected - code is up to date!\n");
             }
-            DriftStatus::Drifted { changes, days_since_sync } => {
-                println!("   ⚠ Drift detected! ({} days since last sync)\n", days_since_sync);
+            DriftStatus::Drifted {
+                changes,
+                days_since_sync,
+            } => {
+                println!(
+                    "   ⚠ Drift detected! ({} days since last sync)\n",
+                    days_since_sync
+                );
 
                 println!("   Changes:");
                 for change in &changes {
@@ -70,7 +79,10 @@ fn main() -> ggen_utils::error::Result<()> {
             1234, // duration in ms
         )?;
 
-        println!("   ✓ Drift state saved to: {}", detector.state_file_path().display());
+        println!(
+            "   ✓ Drift state saved to: {}",
+            detector.state_file_path().display()
+        );
     } else {
         println!("   ⚠ Skipping (ontology or manifest not found)");
     }

@@ -129,18 +129,19 @@ pub fn validate_ontology<P: AsRef<Path>>(path: P, file_type: &str) -> Result<Val
     match file_type.to_lowercase().as_str() {
         "ttl" | "turtle" => validate_turtle(path),
         "rdf" | "xml" => validate_rdf_xml(path),
-        _ => Err(crate::errors::OntologyError::config(
-            format!("Unknown file type: {}", file_type),
-        )),
+        _ => Err(crate::errors::OntologyError::config(format!(
+            "Unknown file type: {}",
+            file_type
+        ))),
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::errors::OntologyError;
     use std::io::Write;
     use tempfile::NamedTempFile;
-    use crate::errors::OntologyError;
 
     #[test]
     fn test_validate_valid_turtle() -> Result<()> {

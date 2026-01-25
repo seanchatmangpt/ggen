@@ -1,8 +1,6 @@
 //! Tests for SimplifiedBaleen pattern
 
-use ggen_dspy::{
-    Module, SimplifiedBaleen, BaleenConfig, InMemoryRetriever, BaleenBuilder,
-};
+use ggen_dspy::{BaleenBuilder, BaleenConfig, InMemoryRetriever, Module, SimplifiedBaleen};
 use std::sync::Arc;
 
 #[tokio::test]

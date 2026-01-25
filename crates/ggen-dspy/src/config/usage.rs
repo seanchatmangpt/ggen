@@ -72,13 +72,7 @@ impl UsageTracker {
     }
 
     /// Track a model call
-    pub fn track(
-        &self,
-        model: &str,
-        prompt_tokens: u64,
-        completion_tokens: u64,
-        cached: bool,
-    ) {
+    pub fn track(&self, model: &str, prompt_tokens: u64, completion_tokens: u64, cached: bool) {
         if !self.enabled {
             return;
         }

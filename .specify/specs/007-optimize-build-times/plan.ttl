@@ -1,0 +1,760 @@
+@prefix : <https://ggen.io/spec/007/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Build Optimization Implementation Plan (Detailed Task Breakdown)
+
+:OptimizationMasterPlan a owl:Class ;
+    rdfs:label "Build Optimization Master Plan" ;
+    rdfs:comment "Complete 3-phase plan to optimize ggen v6.0 build system" ;
+    :phases (:Phase1Plan :Phase2Plan :Phase3Plan) ;
+    :totalDuration "6-7 calendar days" ;
+    :parallelFactor "10 agents across 3 phases" ;
+    :expectedOutcome "120s → ≤15s build time (8x improvement)" .
+
+# Phase 1: Foundation & Specification (Days 1-2)
+
+:Phase1Plan a owl:Class ;
+    rdfs:label "Phase 1 Plan: Foundation & Analysis" ;
+    :duration "2 days" ;
+    :agent1 (:SpecValidator1_SpecClosure :SpecValidator2_GateCreation :SpecValidator3_RiskAssess) ;
+    :agent2 (:Benchmarker1_Clean :Benchmarker2_Incremental :Benchmarker3_RDF :Benchmarker4_Report) ;
+    :agent3 (:Architect1_Design :Architect2_Isolation :Architect3_Features :Architect4_Crates) ;
+    :agent4 (:Analyzer1_Deps :Analyzer2_Hot :Analyzer3_Conflicts :Analyzer4_Report) .
+
+# Specification Validator Tasks
+:SpecValidator1_SpecClosure a owl:Class ;
+    :taskName "Create RDF specification closure" ;
+    :owner "SpecificationValidator" ;
+    :duration "1-2 hours" ;
+    :deliverable ".specify/specs/007-optimize-build-times/feature.ttl" ;
+    :successCriteria (
+        "All 3 bottlenecks documented in RDF"
+        "All 6 success metrics defined with targets"
+        "All 10 agents assigned to phases"
+        "RDF validates against SHACL schema"
+    ) ;
+    :depends [] ;
+    :blocks (:Phase1Gate1) .
+
+:SpecValidator2_GateCreation a owl:Class ;
+    :taskName "Define acceptance gates and success criteria" ;
+    :owner "SpecificationValidator" ;
+    :duration "1 hour" ;
+    :deliverable ".specify/specs/007-optimize-build-times/plan.ttl" ;
+    :successCriteria (
+        "5 gates defined (Spec, Baseline, Architecture, Phase2, Phase3)"
+        "Each gate has measurable condition"
+        "Blocking dependencies documented"
+    ) ;
+    :depends (:SpecValidator1_SpecClosure) .
+
+:SpecValidator3_RiskAssess a owl:Class ;
+    :taskName "Risk assessment and rollback planning" ;
+    :owner "SpecificationValidator" ;
+    :duration "1 hour" ;
+    :deliverable ".ggen/risk-log.md" ;
+    :successCriteria (
+        "5+ identified risks with severity/probability"
+        "Mitigation strategies for each risk"
+        "Rollback plan documented"
+    ) ;
+    :depends (:SpecValidator1_SpecClosure) .
+
+# Performance Benchmarker Tasks
+:Benchmarker1_Clean a owl:Class ;
+    :taskName "Measure baseline: clean build" ;
+    :owner "PerformanceBenchmarker" ;
+    :duration "30-45 minutes" ;
+    :command "cargo clean && cargo check --workspace" ;
+    :measurement ("compilation_time" "memory_peak" "lock_events" "cpu_utilization") ;
+    :expectedResult "Confirm 120s+ compilation time, 1.5-2 GB memory, 42 lock events" ;
+    :depends [] ;
+    :produces :Benchmark_Clean_Result .
+
+:Benchmarker2_Incremental a owl:Class ;
+    :taskName "Measure baseline: incremental build" ;
+    :owner "PerformanceBenchmarker" ;
+    :duration "10-15 minutes" ;
+    :command "Single-file change (ggen-core), rebuild time" ;
+    :measurement ("rebuild_time" "memory_peak" "lock_events") ;
+    :expectedResult "Confirm 120s+ incremental rebuild time" ;
+    :depends (:Benchmarker1_Clean) .
+
+:Benchmarker3_RDF a owl:Class ;
+    :taskName "Run RDF performance benchmarks" ;
+    :owner "PerformanceBenchmarker" ;
+    :duration "15-20 minutes" ;
+    :command "cargo bench --bench comprehensive_slo_benchmarks" ;
+    :measurement ("rdf_load_time" "sparql_query_time" "cache_hit_time") ;
+    :successCriteria (
+        "Baseline for RDF load (<1s target)"
+        "Baseline for SPARQL queries (<100ms target)"
+        "Baseline for cache hits (<5ms target)"
+    ) ;
+    :depends [] .
+
+:Benchmarker4_Report a owl:Class ;
+    :taskName "Generate baseline report" ;
+    :owner "PerformanceBenchmarker" ;
+    :duration "30 minutes" ;
+    :deliverable ".ggen/benchmarks/baseline-2026-01-25.json" ;
+    :includes ("Criterion HTML report" "JSON metrics" "Analysis summary") ;
+    :successCriteria ("Baseline saved" "5 top crates by compile time identified") ;
+    :depends (:Benchmarker1_Clean :Benchmarker2_Incremental :Benchmarker3_RDF) ;
+    :blocks (:Phase1Gate2) .
+
+# System Architect Tasks
+:Architect1_Design a owl:Class ;
+    :taskName "Design CARGO_TARGET_DIR isolation strategy" ;
+    :owner "SystemArchitect" ;
+    :duration "1-2 hours" ;
+    :deliverable ".ggen/designs/cargo-target-isolation.md" ;
+    :design (
+        "CARGO_TARGET_DIR=/tmp/cargo-target-${RANDOM} pattern"
+        "Per-task directory naming convention"
+        "Cleanup/GC strategy"
+        "Mutex/coordination for shared state"
+    ) ;
+    :successCriteria (
+        "Design addresses all 42 lock contention events"
+        "No race conditions in cleanup"
+        "Portable across Linux/macOS/Windows"
+    ) ;
+    :depends [] .
+
+:Architect2_Isolation a owl:Class ;
+    :taskName "Design crate isolation boundaries" ;
+    :owner "SystemArchitect" ;
+    :duration "1-2 hours" ;
+    :deliverable ".ggen/designs/crate-isolation-plan.md" ;
+    :design (
+        "Bridge crate analysis (ggen-utils, ggen-config)"
+        "Dependency graph visualization"
+        "Crate isolation boundaries"
+        "Impact on 30-crate workspace"
+    ) ;
+    :successCriteria (
+        "Feasible without breaking changes"
+        "30-40% incremental improvement estimated"
+    ) ;
+    :depends [] .
+
+:Architect3_Features a owl:Class ;
+    :taskName "Design feature-gating strategy" ;
+    :owner "SystemArchitect" ;
+    :duration "1-2 hours" ;
+    :deliverable ".ggen/designs/feature-gating-strategy.md" ;
+    :heavyDeps ("ring" "tera" "rustls" "config") ;
+    :strategy (
+        "Optional crypto for non-crypto paths"
+        "Optional templating for minimal builds"
+        "Optional TLS for CLI-only"
+        "Optional config for minimal setup"
+    ) ;
+    :successCriteria (
+        "Feature combinations tested"
+        "30-50% memory reduction target"
+        "No functionality loss in minimal build"
+    ) ;
+    :depends [] .
+
+:Architect4_Crates a owl:Class ;
+    :taskName "Assign crates to optimization agents" ;
+    :owner "SystemArchitect" ;
+    :duration "1 hour" ;
+    :deliverable ".ggen/designs/crate-assignment.json" ;
+    :assignment (
+        "ggen-core → Code Optimizer (highest impact)"
+        "ggen-cli, ggen-domain → Incremental Optimizer"
+        "ggen-utils, ggen-config → Dependency Optimizer"
+        "test crates → Test Optimizer"
+    ) ;
+    :successCriteria ("All 30 crates assigned" "High-impact crates prioritized") ;
+    :depends (:Architect1_Design :Architect2_Isolation :Architect3_Features) ;
+    :blocks (:Phase1Gate3) .
+
+# Code Analyzer Tasks
+:Analyzer1_Deps a owl:Class ;
+    :taskName "Analyze Cargo.toml dependency graph" ;
+    :owner "CodeAnalyzer" ;
+    :duration "45 minutes" ;
+    :deliverable ".ggen/analysis/dependency-graph.json" ;
+    :analysis (
+        "Transitive dependency count per crate"
+        "Bridge crate identification"
+        "Heavy compile-time dependencies"
+    ) ;
+    :depends [] .
+
+:Analyzer2_Hot a owl:Class ;
+    :taskName "Profile hot-path crates" ;
+    :owner "CodeAnalyzer" ;
+    :duration "1 hour" ;
+    :deliverable ".ggen/analysis/compilation-hotspots.md" ;
+    :identifies (
+        "Top 5 crates by compilation time"
+        "Monomorphization sources"
+        "Template metaprogramming overhead"
+    ) ;
+    :depends [] .
+
+:Analyzer3_Conflicts a owl:Class ;
+    :taskName "Identify optimization conflicts" ;
+    :owner "CodeAnalyzer" ;
+    :duration "1 hour" ;
+    :deliverable ".ggen/analysis/conflict-analysis.md" ;
+    :detects (
+        "Overlapping optimization targets"
+        "Feature flag combination issues"
+        "Breaking change risks"
+    ) ;
+    :depends (:Analyzer1_Deps :Analyzer2_Hot) .
+
+:Analyzer4_Report a owl:Class ;
+    :taskName "Produce codebase analysis report" ;
+    :owner "CodeAnalyzer" ;
+    :duration "30 minutes" ;
+    :deliverable ".ggen/analysis/codebase-analysis-report.md" ;
+    :includes (
+        "Dependency graph visualization (top 20 edges)"
+        "Compilation time contributions (estimated)"
+        "Feature-gating opportunities ranked by effort/impact"
+    ) ;
+    :successCriteria ("Actionable insights for Phase 2 agents") ;
+    :depends (:Analyzer1_Deps :Analyzer2_Hot :Analyzer3_Conflicts) ;
+    :blocks (:Phase1Gate4) .
+
+# Phase 1 Gates
+:Phase1Gate1 a owl:Class ;
+    :gateName "Specification Closure Gate" ;
+    :owner "SpecificationValidator" ;
+    :condition "100% spec coverage for all 3 bottlenecks" ;
+    :blockedTasks [] ;
+    :unblocksTasks (:Phase1Gate2 :Phase1Gate3 :Phase1Gate4) .
+
+:Phase1Gate2 a owl:Class ;
+    :gateName "Baseline Metrics Gate" ;
+    :owner "PerformanceBenchmarker" ;
+    :condition "Baseline measurements complete and saved" ;
+    :requires (:Benchmarker4_Report) ;
+    :unblocksTasks (:Phase2StartGate) .
+
+:Phase1Gate3 a owl:Class ;
+    :gateName "Architecture Design Gate" ;
+    :owner "SystemArchitect" ;
+    :condition "Design documents complete, no blockers" ;
+    :requires (:Architect4_Crates) ;
+    :unblocksTasks (:Phase2StartGate) .
+
+:Phase1Gate4 a owl:Class ;
+    :gateName "Code Analysis Gate" ;
+    :owner "CodeAnalyzer" ;
+    :condition "Analysis complete, insights shared" ;
+    :requires (:Analyzer4_Report) ;
+    :unblocksTasks (:Phase2StartGate) .
+
+:Phase1CompletionGate a owl:Class ;
+    :gateName "Phase 1 Completion Gate" ;
+    :condition "All 4 Phase 1 gates passed" ;
+    :requires (:Phase1Gate1 :Phase1Gate2 :Phase1Gate3 :Phase1Gate4) ;
+    :unblocksTasks (:Phase2StartGate) .
+
+# Phase 2: Parallel Implementation (Days 3-5)
+
+:Phase2Plan a owl:Class ;
+    rdfs:label "Phase 2 Plan: Parallel Implementation" ;
+    :duration "3 days" ;
+    :parallelAgents 5 ;
+    :agents (
+        :BuildConfigOpt_Tasks
+        :IncrementalOpt_Tasks
+        :DepOpt_Tasks
+        :CodeOpt_Tasks
+        :TestOpt_Tasks
+    ) ;
+    :conflicts (
+        :ConflictMakefile
+        :ConflictFeatures
+        :ConflictCrateReorg
+    ) ;
+    :conflictDetectionFrequency "30 minutes" .
+
+# Build Configuration Optimizer (Phase 2)
+:BuildConfigOpt_Tasks a owl:Class ;
+    :agent "BuildConfigOptimizer" ;
+    :task1 (:BCO_Isolation :BCO_Flags :BCO_Features :BCO_Targets :BCO_Verify) ;
+    :expectedDeliverable ("Modified Makefile.toml" "Modified Cargo.toml" "Feature flags") .
+
+:BCO_Isolation a owl:Class ;
+    :taskName "Implement CARGO_TARGET_DIR isolation" ;
+    :duration "3-4 hours" ;
+    :changes (
+        "Add CARGO_TARGET_DIR env var to build tasks"
+        "Create /tmp/cargo-target cleanup in post-tasks"
+        "Test parallel execution"
+    ) ;
+    :verification (
+        "cargo make check with isolation"
+        "Verify no file locks during parallel builds"
+        "Measure improvement vs baseline"
+    ) .
+
+:BCO_Flags a owl:Class ;
+    :taskName "Optimize compiler flags" ;
+    :duration "2-3 hours" ;
+    :changes (
+        "Evaluate split-debuginfo=packed"
+        "Test thin LTO impact"
+        "Adjust codegen-units if needed"
+    ) ;
+    :verification (
+        "Build time impact measurement"
+        "Binary size check"
+        "Runtime performance check"
+    ) .
+
+:BCO_Features a owl:Class ;
+    :taskName "Add feature-gated targets" ;
+    :duration "2-3 hours" ;
+    :changes (
+        "Create [features] in Cargo.toml"
+        "Add test feature combinations"
+        "Document feature compatibility"
+    ) ;
+    :verification (
+        "cargo build --features minimal"
+        "cargo build --features full"
+        "Test all combinations"
+    ) .
+
+:BCO_Targets a owl:Class ;
+    :taskName "Create new Makefile targets" ;
+    :duration "1-2 hours" ;
+    :changes (
+        "Add cargo make build-fast"
+        "Add cargo make build-debug-thin"
+        "Add cargo make check-isolated"
+    ) ;
+    :verification (
+        "All new targets work"
+        "Backward compatibility verified"
+    ) .
+
+:BCO_Verify a owl:Class ;
+    :taskName "Verify Makefile changes" ;
+    :duration "1 hour" ;
+    :verification (
+        "git diff Makefile.toml reviewed"
+        "No conflicts with other agents"
+        "Timeout values still conservative"
+    ) ;
+    :produces "BuildConfigOptimizer.evidence.json" .
+
+# Incremental Build Optimizer (Phase 2)
+:IncrementalOpt_Tasks a owl:Class ;
+    :agent "IncrementalBuildOptimizer" ;
+    :task1 (:IBO_Coupling :IBO_Isolation :IBO_Cache :IBO_Workflow :IBO_Verify) ;
+    :expectedDeliverable ("Crate isolation strategy" "Cache improvements" "Documentation") .
+
+:IBO_Coupling a owl:Class ;
+    :taskName "Analyze and reduce workspace coupling" ;
+    :duration "3-4 hours" ;
+    :analysis (
+        "Profile ggen-utils change impact"
+        "Identify independent build groups"
+        "Propose decoupling strategy"
+    ) ;
+    :verification (
+        "Measure rebuild time for isolated changes"
+        "Quantify improvement potential"
+    ) .
+
+:IBO_Isolation a owl:Class ;
+    :taskName "Implement crate isolation boundaries" ;
+    :duration "3-4 hours" ;
+    :changes (
+        "Define clear dependency boundaries"
+        "Remove unnecessary transitive deps"
+        "Create feature-gated optional deps"
+    ) ;
+    :verification (
+        "No circular dependencies"
+        "Functionality preserved"
+        "Incremental build speedup measured"
+    ) .
+
+:IBO_Cache a owl:Class ;
+    :taskName "Optimize cache strategy" ;
+    :duration "2-3 hours" ;
+    :improvements (
+        "Implement artifact caching"
+        "Create incremental baselines"
+        "Optimize metadata caching"
+    ) ;
+    :verification (
+        "Cache hit rate improvement"
+        "No stale artifacts"
+    ) .
+
+:IBO_Workflow a owl:Class ;
+    :taskName "Document incremental workflow" ;
+    :duration "1 hour" ;
+    :deliverable ".ggen/docs/incremental-workflow.md" ;
+    :content (
+        "Fastest development workflow"
+        "Minimal recompilation triggers"
+        "Feature flag recommendations"
+    ) .
+
+:IBO_Verify a owl:Class ;
+    :taskName "Verify no Makefile conflicts" ;
+    :duration "1 hour" ;
+    :verification (
+        "Check for overlapping changes"
+        "Ensure workspace member list unchanged"
+        "Validate dependency graph"
+    ) ;
+    :produces "IncrementalBuildOptimizer.evidence.json" .
+
+# Dependency Optimizer (Phase 2)
+:DepOpt_Tasks a owl:Class ;
+    :agent "DependencyOptimizer" ;
+    :task1 (:DO_Gating :DO_Removal :DO_Compilation :DO_Combinations :DO_Verify) ;
+    :expectedDeliverable ("Feature-gated dependencies" "Cargo.toml changes" "Documentation") .
+
+:DO_Gating a owl:Class ;
+    :taskName "Feature-gate heavy dependencies" ;
+    :duration "4-5 hours" ;
+    :dependencies ("ring" "tera" "rustls" "config") ;
+    :changes (
+        "Add feature flags for optional deps"
+        "Implement conditional compilation"
+        "Create feature presets (full, minimal, headless)"
+    ) ;
+    :verification (
+        "cargo build --features minimal succeeds"
+        "Core functionality in minimal build"
+        "Memory usage improvements measured"
+    ) .
+
+:DO_Removal a owl:Class ;
+    :taskName "Identify and remove unnecessary dependencies" ;
+    :duration "2-3 hours" ;
+    :analysis (
+        "Find duplicate functionality"
+        "Identify unused transitive deps"
+        "Evaluate lower-cost alternatives"
+    ) ;
+    :verification (
+        "Tests pass with removed deps"
+        "No functionality loss"
+    ) .
+
+:DO_Compilation a owl:Class ;
+    :taskName "Optimize dependency compilation" ;
+    :duration "2-3 hours" ;
+    :improvements (
+        "Profile high-cost crates"
+        "Evaluate compile-time vs runtime tradeoffs"
+        "Adjust feature flags"
+    ) ;
+    :verification (
+        "Compilation time improvement"
+        "No runtime performance regression"
+    ) .
+
+:DO_Combinations a owl:Class ;
+    :taskName "Document feature flag combinations" ;
+    :duration "1-2 hours" ;
+    :deliverable ".ggen/docs/feature-combinations.md" ;
+    :content (
+        "Valid feature combinations"
+        "Build time per combination"
+        "Recommended combinations"
+    ) .
+
+:DO_Verify a owl:Class ;
+    :taskName "Verify feature flag consistency" ;
+    :duration "1 hour" ;
+    :verification (
+        "No conflicting features"
+        "All combinations tested"
+        "No conflicts with BuildConfigOptimizer"
+    ) ;
+    :produces "DependencyOptimizer.evidence.json" .
+
+# Code Optimizer (Phase 2)
+:CodeOpt_Tasks a owl:Class ;
+    :agent "CodeOptimizer" ;
+    :task1 (:CO_Profile :CO_Monomorph :CO_Generics :CO_Macros :CO_Measure :CO_Verify) ;
+    :expectedDeliverable ("Code optimizations" "Compilation improvements" "Evidence") .
+
+:CO_Profile a owl:Class ;
+    :taskName "Profile hot crates for compilation cost" ;
+    :duration "2-3 hours" ;
+    :targets ("ggen-core" "ggen-cli" "ggen-domain") ;
+    :analysis (
+        "Monomorphization cost quantification"
+        "Template metaprogramming overhead"
+        "Generic instantiation count"
+    ) .
+
+:CO_Monomorph a owl:Class ;
+    :taskName "Reduce monomorphization" ;
+    :duration "3-4 hours" ;
+    :techniques (
+        "Use trait objects at boundaries"
+        "Create type aliases"
+        "Consolidate shared implementations"
+    ) ;
+    :verification (
+        "Build time improvement"
+        "No runtime performance regression"
+        "Binary size impact"
+    ) .
+
+:CO_Generics a owl:Class ;
+    :taskName "Optimize const generics" ;
+    :duration "2-3 hours" ;
+    :improvements (
+        "Simplify const trait bounds"
+        "Profile instantiation patterns"
+        "Specialize hot paths"
+    ) .
+
+:CO_Macros a owl:Class ;
+    :taskName "Simplify macro-heavy code" ;
+    :duration "2-3 hours" ;
+    :analysis (
+        "Procedural macro compilation cost"
+        "Macro expansion overhead"
+        "Simplification opportunities"
+    ) ;
+    :verification (
+        "Compilation time improvement"
+        "Macro output correctness"
+    ) .
+
+:CO_Measure a owl:Class ;
+    :taskName "Measure compilation improvements" ;
+    :duration "1 hour" ;
+    :metrics ("build time before/after" "runtime perf" "binary size") ;
+    :produces ("CodeOptimizer.benchmarks.json" "CodeOptimizer.analysis.md") .
+
+:CO_Verify a owl:Class ;
+    :taskName "Verify no performance regressions" ;
+    :duration "1 hour" ;
+    :verification (
+        "Runtime benchmarks unchanged"
+        "Binary size acceptable"
+        "Tests pass"
+    ) ;
+    :produces "CodeOptimizer.evidence.json" .
+
+# Test Optimizer (Phase 2)
+:TestOpt_Tasks a owl:Class ;
+    :agent "TestOptimizer" ;
+    :task1 (:TO_Analysis :TO_Features :TO_Isolation :TO_Caching :TO_Targets :TO_Verify) ;
+    :expectedDeliverable ("Test optimization" "Parallel execution config" "Documentation") .
+
+:TO_Analysis a owl:Class ;
+    :taskName "Analyze test execution bottlenecks" ;
+    :duration "2-3 hours" ;
+    :analysis (
+        "Test compilation dependencies"
+        "Heavy test crates identification"
+        "Sequential vs parallel profiling"
+    ) .
+
+:TO_Features a owl:Class ;
+    :taskName "Optimize test features" ;
+    :duration "2-3 hours" ;
+    :improvements (
+        "Create test-only features"
+        "Feature-gate test dependencies"
+        "Reduce test compile time"
+    ) ;
+    :verification (
+        "Test suite still comprehensive"
+        "Compilation time reduced"
+    ) .
+
+:TO_Isolation a owl:Class ;
+    :taskName "Enable parallel test isolation" ;
+    :duration "2-3 hours" ;
+    :implementation (
+        "CARGO_TARGET_DIR isolation for tests"
+        "Concurrent test execution config"
+        "Determinism verification (--test-threads=1)"
+    ) ;
+    :verification (
+        "Tests pass in parallel"
+        "Results deterministic"
+    ) .
+
+:TO_Caching a owl:Class ;
+    :taskName "Implement test artifact caching" ;
+    :duration "2-3 hours" ;
+    :strategy (
+        "CI artifact caching setup"
+        "Incremental test rebuild strategy"
+        "Cache invalidation rules"
+    ) .
+
+:TO_Targets a owl:Class ;
+    :taskName "Create test speed targets" ;
+    :duration "1 hour" ;
+    :targets (
+        "Unit tests: <150s"
+        "Integration tests: <30s"
+        "Full test suite: <120s"
+    ) ;
+    :deliverable ".ggen/test-speed-targets.md" .
+
+:TO_Verify a owl:Class ;
+    :taskName "Verify test infrastructure changes" ;
+    :duration "1 hour" ;
+    :verification (
+        "All test combinations work"
+        "No conflicts with other agents"
+        "Speed targets achievable"
+    ) ;
+    :produces "TestOptimizer.evidence.json" .
+
+# Phase 2 Conflict Detection
+:ConflictMakefile a owl:Class ;
+    :conflictType "Makefile.toml overlapping modifications" ;
+    :agents ("BuildConfigOptimizer" "IncrementalBuildOptimizer" "TestOptimizer") ;
+    :resolution "First agent wins, second merges" ;
+    :escalation "CRITICAL if >1 breaking change" .
+
+:ConflictFeatures a owl:Class ;
+    :conflictType "Cargo.toml feature flag incompatibility" ;
+    :agents ("DependencyOptimizer" "BuildConfigOptimizer" "CodeOptimizer") ;
+    :resolution "System Architect provides merged feature set" ;
+    :escalation "CRITICAL if incompatible combinations created" .
+
+:ConflictCrateReorg a owl:Class ;
+    :conflictType "Workspace structure changes" ;
+    :agents ("IncrementalBuildOptimizer" "CodeAnalyzer") ;
+    :resolution "Pause affected agent, escalate to System Architect" ;
+    :escalation "CRITICAL if breaking change to core crates" .
+
+:Phase2StartGate a owl:Class ;
+    :gateName "Phase 2 Start Gate" ;
+    :requires (:Phase1CompletionGate) ;
+    :condition "All Phase 1 gates passed" ;
+    :action "Spawn 5 Phase 2 agents in parallel" .
+
+:Phase2CompletionGate a owl:Class ;
+    :gateName "Phase 2 Completion Gate" ;
+    :condition "All 5 agents complete, git conflicts resolved" ;
+    :verification (
+        "cargo make check passes"
+        "No outstanding merge conflicts"
+        "Conflict detection clean"
+    ) ;
+    :unblocksTasks (:Phase3StartGate) .
+
+# Phase 3: Validation & Release (Day 6)
+
+:Phase3Plan a owl:Class ;
+    rdfs:label "Phase 3 Plan: Validation & Release" ;
+    :duration "1 day" ;
+    :agent (:ProductionValidator) ;
+    :tasks (
+        :PV_Integration
+        :PV_Testing
+        :PV_SLO
+        :PV_Regressions
+        :PV_Report
+        :PV_Signoff
+    ) .
+
+:PV_Integration a owl:Class ;
+    :taskName "Integrate and validate all optimizations" ;
+    :duration "1-2 hours" ;
+    :verification (
+        "No conflicting changes"
+        "Feature flags consistent"
+        "Crate structure valid"
+    ) ;
+    :produces "Integration_validation.json" .
+
+:PV_Testing a owl:Class ;
+    :taskName "Run full test suite" ;
+    :duration "2-3 hours" ;
+    :command "cargo make test" ;
+    :criteria "100% test pass rate" ;
+    :produces "Test_results.json" .
+
+:PV_SLO a owl:Class ;
+    :taskName "Verify SLO compliance" ;
+    :duration "1-2 hours" ;
+    :command "cargo make slo-check" ;
+    :validates (
+        "First build ≤15s (was 120s)"
+        "Incremental ≤2s (was 120s)"
+        "Memory ≤100MB (was 1.5-2GB)"
+        "RDF ≤5s/1k triples"
+    ) ;
+    :produces "SLO_validation.json" .
+
+:PV_Regressions a owl:Class ;
+    :taskName "Verify no performance regressions" ;
+    :duration "1 hour" ;
+    :benchmarks (
+        "Runtime performance"
+        "Binary size"
+        "Memory usage"
+    ) ;
+    :tolerance "±5% variance acceptable" ;
+    :produces "Regression_analysis.json" .
+
+:PV_Report a owl:Class ;
+    :taskName "Generate final validation report" ;
+    :duration "1 hour" ;
+    :deliverable ".ggen/reports/final-validation-2026-01-31.md" ;
+    :includes (
+        "Before/after metrics"
+        "SLO compliance matrix"
+        "Risk assessment"
+        "Rollback readiness"
+    ) .
+
+:PV_Signoff a owl:Class ;
+    :taskName "Production readiness sign-off" ;
+    :duration "30 minutes" ;
+    :criteria (
+        "All SLOs met"
+        "100% test pass rate"
+        "No regressions"
+        "Risk assessment acceptable"
+    ) ;
+    :produces "ProductionValidator.signoff.json" ;
+    :unblocksTasks (:ReleaseGate) .
+
+:Phase3StartGate a owl:Class ;
+    :gateName "Phase 3 Start Gate" ;
+    :requires (:Phase2CompletionGate) ;
+    :condition "Phase 2 integration complete" ;
+    :action "Spawn Production Validator" .
+
+:ReleaseGate a owl:Class ;
+    :gateName "Release Gate" ;
+    :requires (:PV_Signoff) ;
+    :condition "Production Validator sign-off received" ;
+    :action "Merge to main, deploy to CI/CD" .
+
+# Overall Timeline Summary
+:TimelineSummary a owl:Class ;
+    :phase1Days 2 ;
+    :phase2Days 3 ;
+    :phase3Days 1 ;
+    :totalDays 6 ;
+    :parallelFactor "Multiple agents per phase" ;
+    :criticalPath "Phase 1 → Phase 2 → Phase 3 (sequential phases)" ;
+    :phase2Parallelism "5 agents (can execute simultaneously)" ;
+    :expectedCompletion "2026-01-31" .

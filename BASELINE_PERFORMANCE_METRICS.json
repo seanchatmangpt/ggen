@@ -1,0 +1,234 @@
+{
+  "baseline_timestamp": "2026-01-25T00:00:00Z",
+  "project": {
+    "name": "ggen",
+    "version": "0.2.0",
+    "workspace_members": 30,
+    "active_crates": 27,
+    "excluded_crates": 5,
+    "edition": "2021"
+  },
+  "build_metrics": {
+    "cargo_check": {
+      "timeout_configured": "60s",
+      "measured_time": ">120s",
+      "status": "TIMEOUT_EXCEEDED",
+      "notes": "Full workspace check exceeds 120s timeout. Indicates build time is >2 minutes."
+    },
+    "cargo_test_lib": {
+      "timeout_configured": "120s",
+      "measured_time": "PENDING",
+      "status": "RUNNING",
+      "notes": "Unit tests only (faster than full integration tests)"
+    },
+    "cargo_build_release": {
+      "timeout_configured": "180s",
+      "measured_time": "PENDING",
+      "status": "PENDING",
+      "notes": "Release optimized build with LTO enabled"
+    }
+  },
+  "slo_targets": {
+    "first_build_seconds": 15,
+    "incremental_build_seconds": 2,
+    "rdf_processing_seconds": 5,
+    "generation_memory_mb": 100,
+    "cli_scaffolding_seconds": 3,
+    "unit_test_seconds": 150,
+    "integration_test_seconds": 30
+  },
+  "dependency_analysis": {
+    "direct_dependencies": 19,
+    "dev_dependencies": 33,
+    "workspace_dependencies_centralized": true,
+    "feature_deduplication_phase": 1,
+    "dependency_deduplication_goal_seconds": 400,
+    "dependency_deduplication_baseline_seconds": 600,
+    "improvement_target_percent": 33
+  },
+  "crate_sizes": {
+    "largest_manifests": [
+      {
+        "name": "ggen-core",
+        "manifest_size_kb": 4.2,
+        "description": "RDF processing, SPARQL, templates (218 files, 25 modules)"
+      },
+      {
+        "name": "ggen-marketplace",
+        "manifest_size_kb": 3.2,
+        "description": "Package discovery, FMEA risk analysis"
+      },
+      {
+        "name": "ggen-marketplace-v2",
+        "manifest_size_kb": 3.1,
+        "description": "Marketplace v2 implementation"
+      },
+      {
+        "name": "ggen-cli",
+        "manifest_size_kb": 2.6,
+        "description": "CLI entry point and routing"
+      },
+      {
+        "name": "tai-gateway",
+        "manifest_size_kb": 2.3,
+        "description": "TAI gateway service"
+      }
+    ]
+  },
+  "workspace_configuration": {
+    "resolver_version": 2,
+    "dev_profile": {
+      "opt_level": 0,
+      "codegen_units": 256,
+      "incremental": true,
+      "description": "Fast compilation for development"
+    },
+    "release_profile": {
+      "opt_level": 3,
+      "codegen_units": 16,
+      "lto": "thin",
+      "strip": true,
+      "description": "Optimized release builds"
+    },
+    "test_profile": {
+      "opt_level": 0,
+      "codegen_units": 256,
+      "incremental": true,
+      "description": "Fast test compilation"
+    }
+  },
+  "feature_flags": {
+    "default": ["core"],
+    "core": {
+      "description": "Minimal: RDF/code-gen only (FAST - 2-3 minutes)",
+      "dependencies": []
+    },
+    "ai": {
+      "description": "Optional: AI orchestration with genai",
+      "dependencies": ["ggen-ai", "genai"]
+    },
+    "otel": {
+      "description": "Optional: OpenTelemetry instrumentation (~200 deps)",
+      "dependencies": ["ggen-core/otel"]
+    },
+    "prod": {
+      "description": "Production: Minimal dependencies (fastest)",
+      "alias_for": "core"
+    },
+    "dev": {
+      "description": "Development: Essential + AI",
+      "alias_for": ["core", "ai"]
+    },
+    "full": {
+      "description": "Everything (maximum functionality, includes otel)",
+      "alias_for": ["core", "ai", "otel"]
+    }
+  },
+  "critical_issues": [
+    {
+      "id": 1,
+      "severity": "HIGH",
+      "issue": "cargo check timeout exceeded",
+      "impact": "Build time >120 seconds for full workspace check",
+      "recommendation": "Implement incremental build optimization and feature-gated compilation"
+    },
+    {
+      "id": 2,
+      "severity": "MEDIUM",
+      "issue": "Proc-macro duplication in dependencies",
+      "impact": "derive_more: 3 versions (0.99, 1.0, 2.1); darling: 2 versions (0.20, 0.21)",
+      "recommendation": "Investigate genai dependency tree; consider version updates"
+    },
+    {
+      "id": 3,
+      "severity": "MEDIUM",
+      "issue": "5 crates excluded from workspace",
+      "names": ["tps-kaizen", "tai-gcp", "tai-security", "tai-resilience", "tai-cache"],
+      "reasons": ["Cargo.toml syntax error", "Missing google-authz", "Dependency issues", "Dependency issues", "Dependency issues"],
+      "impact": "Reduced workspace coverage; manual dependency management needed",
+      "recommendation": "Fix excluded crates or reorganize workspace structure"
+    }
+  ],
+  "bottleneck_analysis": {
+    "primary_bottleneck": {
+      "type": "compilation_time",
+      "description": "Full workspace check exceeds 120s timeout",
+      "20_percent_effort": "Feature-gate optional crates (ai, otel, marketplace, revops, knhk, tai)",
+      "80_percent_impact": "Reduce default build scope from 30 crates to 8 core crates"
+    },
+    "secondary_bottleneck": {
+      "type": "dependency_graph_complexity",
+      "description": "160 duplicate dependency versions (phase 1 deduplication in progress)",
+      "20_percent_effort": "Consolidate genai, derive_more, darling versions",
+      "80_percent_impact": "33% reduction in build time (600s to 400s target)"
+    },
+    "tertiary_bottleneck": {
+      "type": "workspace_organization",
+      "description": "5 excluded crates causing maintenance overhead",
+      "20_percent_effort": "Fix syntax errors and missing dependencies",
+      "80_percent_impact": "Unified workspace for consistent dependency management"
+    }
+  },
+  "recommendations_80_20": [
+    {
+      "rank": 1,
+      "title": "Feature-Gate Optional Crates (80/20 Win)",
+      "effort": "LOW",
+      "expected_improvement_percent": 40,
+      "actions": [
+        "Move ai, marketplace, revops, knhk, tai crates to optional features",
+        "Reduce default workspace compilation from 30 to 8 core crates",
+        "Update Cargo.toml to use workspace.members with feature gates",
+        "Document feature combinations for different use cases"
+      ],
+      "expected_baseline_check": "30s (from >120s)",
+      "expected_unit_tests": "45s (from likely 60s+)",
+      "rationale": "The 20% of crates (optional features) cause 80% of build time. Default build should include only core crates."
+    },
+    {
+      "rank": 2,
+      "title": "Consolidate Proc-Macro Dependencies (Medium Effort)",
+      "effort": "MEDIUM",
+      "expected_improvement_percent": 15,
+      "actions": [
+        "Update genai to latest version with consistent derive_more/darling",
+        "Centralize proc-macro versions in workspace.dependencies",
+        "Review value-ext transitive dependency impact",
+        "Run cargo tree --duplicates to verify consolidation"
+      ],
+      "expected_impact": "Reduce 3 derive_more versions to 1; reduce 2 darling versions to 1",
+      "rationale": "Proc-macros are compiled on every build. Duplicates multiply compilation time."
+    },
+    {
+      "rank": 3,
+      "title": "Fix Excluded Crates (High Effort, High Value)",
+      "effort": "HIGH",
+      "expected_improvement_percent": 10,
+      "actions": [
+        "Fix tps-kaizen Cargo.toml syntax error",
+        "Add missing google-authz dependency to tai-gcp (or feature-gate)",
+        "Resolve dependency issues in tai-security, tai-resilience, tai-cache",
+        "Re-enable crates in workspace.members and remove from exclude"
+      ],
+      "expected_impact": "Unified workspace; consistent dependency management across all 30 crates",
+      "rationale": "Excluded crates are maintained separately, creating maintenance overhead. Unified workspace enables workspace-wide optimization."
+    }
+  ],
+  "next_steps": [
+    "Run full test suite to establish baseline timing for unit and integration tests",
+    "Implement feature-gating for optional crates (Recommendation 1)",
+    "Re-measure cargo check after feature-gating (expect 30-40s improvement)",
+    "Profile crate compilation times using cargo build -v timing",
+    "Consider incremental LTO or other compiler optimizations",
+    "Document build profiles for different scenarios (dev, ci, release)"
+  ],
+  "measurement_notes": [
+    "Baseline performed 2026-01-25",
+    "Workspace contains 27 active crates + 5 excluded",
+    "Build times measured with timeout wrappers per Makefile.toml configuration",
+    "SLO targets defined in CLAUDE.md: first build ≤15s, incremental ≤2s, unit tests ≤150s",
+    "Current baseline >120s for cargo check exceeds optimal SLO by 8x",
+    "Feature-gating can achieve 80% improvement with 20% effort (feature gates for optional crates)",
+    "Dependency deduplication phase 1 in progress (target: 33% reduction from 600s to 400s)"
+  ]
+}

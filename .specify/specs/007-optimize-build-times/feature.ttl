@@ -1,0 +1,212 @@
+@prefix : <https://ggen.io/spec/007/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Build Optimization Feature Specification (v1.0)
+# Target: 3-5x improvement in compilation performance
+# Critical bottlenecks: Artifact lock contention, memory-intensive dependencies, workspace coupling
+
+:BuildOptimization a owl:Class ;
+    rdfs:label "Build Performance Optimization" ;
+    rdfs:comment "Specification for optimizing ggen v6.0 build system from 120s to ≤15s" .
+
+:OptimizationPhase1 a owl:Class ;
+    rdfs:label "Phase 1: Foundation & Analysis" ;
+    rdfs:comment "Specification closure, baseline measurement, architecture design" .
+
+:OptimizationPhase2 a owl:Class ;
+    rdfs:label "Phase 2: Parallel Implementation" ;
+    rdfs:comment "Execute 5 parallel optimizations with conflict detection" .
+
+:OptimizationPhase3 a owl:Class ;
+    rdfs:label "Phase 3: Validation & Release" ;
+    rdfs:comment "Integration testing, SLO verification, production deployment" .
+
+# Bottleneck Identification
+:Bottleneck1_ArtifactLockContention a owl:Class ;
+    rdfs:label "Artifact Lock Contention" ;
+    rdfs:comment "File lock on target/ directory blocking parallel cargo operations" ;
+    :currentImpact "40-60% of build time variance" ;
+    :improvementPotential "40-60% speedup" ;
+    :rootCause "Multiple cargo processes competing for artifact directory locks" ;
+    :solution "CARGO_TARGET_DIR=/tmp/cargo-target-${RANDOM} isolation per task" .
+
+:Bottleneck2_MemoryIntensiveDeps a owl:Class ;
+    rdfs:label "Memory-Intensive Dependencies" ;
+    rdfs:comment "ring, tera, rustls, config crates consuming 1.5-2 GB peak memory" ;
+    :currentImpact "OOM on resource-constrained systems, slower incremental builds" ;
+    :improvementPotential "30-50% memory reduction, 20-30% compile time reduction" ;
+    :rootCause "Large FFI bindings, macro expansion, generic trait impl explosion" ;
+    :solution "Feature-gating optional dependencies, split-debuginfo=packed, thin LTO" .
+
+:Bottleneck3_WorkspaceCoupling a owl:Class ;
+    rdfs:label "Workspace Coupling" ;
+    rdfs:comment "30-crate workspace with deep transitive dependencies" ;
+    :currentImpact "Changes to shared crates trigger workspace-wide rebuild" ;
+    :improvementPotential "30-40% incremental build improvement" ;
+    :rootCause "Deep dependency graph with bridge crates (ggen-utils, ggen-config)" ;
+    :solution "Crate isolation boundaries, workspace exclude patterns, dependency reduction" .
+
+# Success Criteria (RDF-encoded)
+:SuccessCriteria1_CompilationTime a owl:Class ;
+    :metricName "First build time" ;
+    :baseline "120s" ;
+    :target "≤15s" ;
+    :improvementFactor "8x" ;
+    :priority "P1" ;
+    :measurementMethod "cargo make check" .
+
+:SuccessCriteria2_IncrementalBuild a owl:Class ;
+    :metricName "Incremental build time" ;
+    :baseline "120s" ;
+    :target "≤2s" ;
+    :improvementFactor "60x" ;
+    :priority "P1" ;
+    :measurementMethod "Single file change rebuild" .
+
+:SuccessCriteria3_MemoryUsage a owl:Class ;
+    :metricName "Memory peak usage" ;
+    :baseline "1.5-2 GB" ;
+    :target "≤100 MB" ;
+    :improvementFactor "15-20x" ;
+    :priority "P1" ;
+    :measurementMethod "peak memory during compilation" .
+
+:SuccessCriteria4_FileLocks a owl:Class ;
+    :metricName "File lock contention events" ;
+    :baseline "42 events" ;
+    :target "0 events" ;
+    :improvementFactor "100% reduction" ;
+    :priority "P1" ;
+    :measurementMethod "Count blocking artifact directory locks" .
+
+:SuccessCriteria5_TestExecution a owl:Class ;
+    :metricName "Full test suite time" ;
+    :baseline "Blocked (unmeasurable)" ;
+    :target "≤150s" ;
+    :priority "P2" ;
+    :measurementMethod "cargo make test" .
+
+:SuccessCriteria6_RDFProcessing a owl:Class ;
+    :metricName "RDF processing performance" ;
+    :baseline "Not measured" ;
+    :target "≤5s/1k triples" ;
+    :priority "P2" ;
+    :measurementMethod "benches/comprehensive_slo_benchmarks.rs" .
+
+# Agent Assignments
+:SpecificationValidator a owl:Class ;
+    :responsibility "Specification closure & success criteria definition" ;
+    :phase :OptimizationPhase1 ;
+    :sequence 1 ;
+    :gateName "Specification Closure Gate" .
+
+:PerformanceBenchmarker a owl:Class ;
+    :responsibility "Baseline measurement & SLO validation" ;
+    :phase :OptimizationPhase1 ;
+    :sequence 2 ;
+    :gateName "Baseline Metrics Gate" .
+
+:SystemArchitect a owl:Class ;
+    :responsibility "Optimization strategy design & architecture blueprint" ;
+    :phase :OptimizationPhase1 ;
+    :sequence 2 ;
+    :gateName "Architecture Design Gate" .
+
+:CodeAnalyzer a owl:Class ;
+    :responsibility "Codebase analysis & optimization opportunity identification" ;
+    :phase :OptimizationPhase1 ;
+    :sequence 2 ;
+    :gateName "Code Analysis Gate" .
+
+# Phase 2 Agents
+:BuildConfigOptimizer a owl:Class ;
+    :responsibility "Makefile.toml & Cargo.toml optimization" ;
+    :phase :OptimizationPhase2 ;
+    :targetOptimization :Bottleneck1_ArtifactLockContention ;
+    :expectedImprovement "40-60% speedup" .
+
+:IncrementalBuildOptimizer a owl:Class ;
+    :responsibility "Crate isolation & cache optimization" ;
+    :phase :OptimizationPhase2 ;
+    :targetOptimization :Bottleneck3_WorkspaceCoupling ;
+    :expectedImprovement "30-40% incremental improvement" .
+
+:DependencyOptimizer a owl:Class ;
+    :responsibility "Feature-gating & dependency removal" ;
+    :phase :OptimizationPhase2 ;
+    :targetOptimization :Bottleneck2_MemoryIntensiveDeps ;
+    :expectedImprovement "30-50% memory reduction" .
+
+:CodeOptimizer a owl:Class ;
+    :responsibility "Monomorphization & const generic optimization" ;
+    :phase :OptimizationPhase2 ;
+    :targetOptimization :Bottleneck2_MemoryIntensiveDeps ;
+    :expectedImprovement "20-30% compile time reduction" .
+
+:TestOptimizer a owl:Class ;
+    :responsibility "Parallel test execution & caching" ;
+    :phase :OptimizationPhase2 ;
+    :expectedImprovement "Test suite <150s" .
+
+:ProductionValidator a owl:Class ;
+    :responsibility "Integration validation & production sign-off" ;
+    :phase :OptimizationPhase3 ;
+    :gateName "Production Readiness Gate" .
+
+# Risk Assessment
+:RiskArtifactLockFix a owl:Class ;
+    :riskName "CARGO_TARGET_DIR isolation incomplete" ;
+    :severity "HIGH" ;
+    :probability "15%" ;
+    :mitigation "Comprehensive testing of isolated target dirs before rollout" ;
+    :owner "BuildConfigOptimizer" .
+
+:RiskMakfileConflict a owl:Class ;
+    :riskName "Conflicting Makefile changes from multiple agents" ;
+    :severity "MEDIUM" ;
+    :probability "30%" ;
+    :mitigation "Conflict detection polling every 30 minutes" ;
+    :owner "TaskOrchestrator" .
+
+:RiskFeatureFlagIncompat a owl:Class ;
+    :riskName "Feature flag combination incompatibility" ;
+    :severity "HIGH" ;
+    :probability "20%" ;
+    :mitigation "Comprehensive feature combination testing" ;
+    :owner "DependencyOptimizer" .
+
+# Timeline
+:Phase1Timeline a owl:Class ;
+    :duration "2 days" ;
+    :parallelAgents 4 ;
+    :startCondition "Approved by orchestrator" ;
+    :endCondition "All Phase 1 gates passed" .
+
+:Phase2Timeline a owl:Class ;
+    :duration "3 days" ;
+    :parallelAgents 5 ;
+    :startCondition "Phase 1 gates passed" ;
+    :conflictDetectionFrequency "30 minutes" ;
+    :endCondition "All agents complete, no conflicts" .
+
+:Phase3Timeline a owl:Class ;
+    :duration "1 day" ;
+    :parallelAgents 1 ;
+    :startCondition "Phase 2 integration complete" ;
+    :endCondition "Production Validator sign-off" .
+
+# Rollback Strategy
+:RollbackPlan a owl:Class ;
+    :trigger "Breaking change detected OR SLO target not met" ;
+    :action1 "git bisect to identify problematic commit" ;
+    :action2 "git revert <commit-hash>" ;
+    :action3 "cargo make test to verify working state" ;
+    :action4 "Document what broke and why" ;
+    :action5 "System Architect redesigns optimization" ;
+    :estimatedTime "2-3 hours" .
+
+# Success Statement
+:OptimizationGoal a owl:Class ;
+    rdfs:comment "Successfully reduce ggen v6.0 build time from 120s to ≤15s (8x improvement) through targeted optimization of artifact lock contention, memory usage, and workspace coupling, while maintaining 100% test pass rate and zero performance regressions." .

@@ -2,7 +2,7 @@
 
 #[cfg(test)]
 mod tests {
-    use tai_validation::compliance::{ComplianceFramework, FrameworkType, ControlStatus, Control};
+    use tai_validation::compliance::{ComplianceFramework, Control, ControlStatus, FrameworkType};
 
     #[test]
     fn test_fisma_framework_creation() {

@@ -3,9 +3,8 @@
 //! Shows how to use the TPS Andon system for visibility, alerting, and diagnostics
 
 use ggen_tps_andon::{
-    AndonConfig, AndonSignal, AndonSystem, AlertConfig, AlertRule, AlertSeverity,
-    AlertChannel, AlertCondition, LogConfig, LogLevel, LogSink, MetricConfig,
-    ObserverConfig, TracerConfig,
+    AlertChannel, AlertCondition, AlertConfig, AlertRule, AlertSeverity, AndonConfig, AndonSignal,
+    AndonSystem, LogConfig, LogLevel, LogSink, MetricConfig, ObserverConfig, TracerConfig,
 };
 
 #[tokio::main]
@@ -55,18 +54,16 @@ async fn main() -> anyhow::Result<()> {
     // 5. Configure alerts
     let alert_config = AlertConfig {
         enabled: true,
-        rules: vec![
-            AlertRule {
-                name: "high-memory".to_string(),
-                description: "Memory usage exceeds 80%".to_string(),
-                condition: AlertCondition::MemoryUsage { percent: 80 },
-                severity: AlertSeverity::Warning,
-                channels: vec![AlertChannel::Stdout],
-                dedup_window_minutes: 5,
-                escalation: None,
-                enabled: true,
-            },
-        ],
+        rules: vec![AlertRule {
+            name: "high-memory".to_string(),
+            description: "Memory usage exceeds 80%".to_string(),
+            condition: AlertCondition::MemoryUsage { percent: 80 },
+            severity: AlertSeverity::Warning,
+            channels: vec![AlertChannel::Stdout],
+            dedup_window_minutes: 5,
+            escalation: None,
+            enabled: true,
+        }],
         global_dedup_minutes: 5,
     };
 
@@ -118,7 +115,9 @@ async fn main() -> anyhow::Result<()> {
     // 9. Metrics demo
     println!("\n--- Metrics Demo ---");
     system.metrics().update_queue_depth("default", 150)?;
-    system.metrics().update_pool_utilization("worker-pool", 0.95)?;
+    system
+        .metrics()
+        .update_pool_utilization("worker-pool", 0.95)?;
     system.metrics().update_memory_usage(512)?;
     system.metrics().update_cpu_usage(75)?;
 
@@ -130,30 +129,31 @@ async fn main() -> anyhow::Result<()> {
     let span_id = system.tracer().start_span("request-processing")?;
     println!("Started span: {}", span_id);
 
-    system.tracer().add_span_attribute(
-        &span_id,
-        "user_id",
-        serde_json::json!("user-123"),
-    )?;
+    system
+        .tracer()
+        .add_span_attribute(&span_id, "user_id", serde_json::json!("user-123"))?;
 
-    system.tracer().add_span_attribute(
-        &span_id,
-        "endpoint",
-        serde_json::json!("/api/queue"),
-    )?;
+    system
+        .tracer()
+        .add_span_attribute(&span_id, "endpoint", serde_json::json!("/api/queue"))?;
 
-    system.tracer().span_event(&span_id, "processing_started", None)?;
+    system
+        .tracer()
+        .span_event(&span_id, "processing_started", None)?;
 
     tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
 
-    system.tracer().end_span(&span_id, ggen_tps_andon::andon_tracer::SpanStatus::Ok)?;
+    system
+        .tracer()
+        .end_span(&span_id, ggen_tps_andon::andon_tracer::SpanStatus::Ok)?;
     println!("✓ Span completed");
 
     // 11. Observer demo (diagnostics)
     println!("\n--- Runtime Diagnostics ---");
     let metrics = system.observer().run_diagnostics().await?;
 
-    println!("Memory: {} MB / {} MB ({:.1}%)",
+    println!(
+        "Memory: {} MB / {} MB ({:.1}%)",
         metrics.used_memory / 1024 / 1024,
         metrics.total_memory / 1024 / 1024,
         metrics.memory_percent

@@ -199,7 +199,9 @@ impl Predictor {
         // Determine model to use
         let ggen_model = std::env::var("GGEN_LLM_MODEL").ok();
         let default_model = std::env::var("DEFAULT_MODEL").ok();
-        let model = self.model.as_deref()
+        let model = self
+            .model
+            .as_deref()
             .or_else(|| ggen_model.as_deref())
             .or_else(|| default_model.as_deref())
             .unwrap_or("");
@@ -210,7 +212,10 @@ impl Predictor {
             ));
         }
 
-        debug!("Calling LLM model: {} with temperature: {}", model, self.temperature);
+        debug!(
+            "Calling LLM model: {} with temperature: {}",
+            model, self.temperature
+        );
 
         // Build chat request
         let chat_req = ChatRequest::new(vec![
@@ -244,7 +249,11 @@ impl Module for Predictor {
         // Build prompt from signature
         let prompt = self.build_prompt(inputs)?;
 
-        debug!("Built prompt for module '{}': {} chars", self.name, prompt.len());
+        debug!(
+            "Built prompt for module '{}': {} chars",
+            self.name,
+            prompt.len()
+        );
 
         // Call LLM
         let response = self.call_llm(&prompt).await?;
@@ -333,7 +342,11 @@ mod tests {
     fn test_build_prompt() {
         // Arrange
         let signature = Signature::new("QA", "Answer questions accurately")
-            .with_input(InputField::new("question", "The question to answer", "String"))
+            .with_input(InputField::new(
+                "question",
+                "The question to answer",
+                "String",
+            ))
             .with_output(OutputField::new("answer", "The answer", "String"));
 
         let predictor = Predictor::new(signature);

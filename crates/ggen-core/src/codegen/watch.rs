@@ -125,9 +125,7 @@ impl FileWatcher {
 
     /// Internal watch loop that runs in background thread
     fn watch_loop(
-        watch_paths: Vec<PathBuf>,
-        debounce_duration: Duration,
-        tx: Sender<WatchEvent>,
+        watch_paths: Vec<PathBuf>, debounce_duration: Duration, tx: Sender<WatchEvent>,
     ) -> Result<()> {
         let tx_clone = tx.clone();
 
@@ -207,8 +205,7 @@ impl FileWatcher {
     /// - `Ok(None)` if timeout reached
     /// - `Err` if channel closed
     pub fn wait_for_change(
-        rx: &Receiver<WatchEvent>,
-        timeout: Duration,
+        rx: &Receiver<WatchEvent>, timeout: Duration,
     ) -> Result<Option<WatchEvent>> {
         match rx.recv_timeout(timeout) {
             Ok(event) => Ok(Some(event)),
@@ -229,9 +226,7 @@ impl FileWatcher {
 /// - generation.rules[].query files
 /// - generation.rules[].template files
 pub fn collect_watch_paths(
-    manifest_path: &Path,
-    manifest: &crate::manifest::GgenManifest,
-    base_path: &Path,
+    manifest_path: &Path, manifest: &crate::manifest::GgenManifest, base_path: &Path,
 ) -> Vec<PathBuf> {
     use crate::manifest::{QuerySource, TemplateSource};
 

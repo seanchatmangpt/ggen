@@ -169,9 +169,7 @@ pub struct TraceabilityMatrix {
 impl TraceabilityMatrix {
     /// Create new matrix
     pub fn new() -> Self {
-        Self {
-            rows: Vec::new(),
-        }
+        Self { rows: Vec::new() }
     }
 
     /// Get coverage

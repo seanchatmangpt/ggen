@@ -191,7 +191,7 @@ pub fn poc_hygen(
     tera.add_raw_template("__fm__", &yaml_src)
         .map_err(|e| Error::new(&format!("tera add header: {e}")))?;
     let rendered_yaml = tera
-        .render("__fm__", &tera_context(cli_vars))
+        .render("__fm__", &tera_context(cli_vars)?)
         .map_err(|e| Error::new(&format!("tera header: {e}")))?;
 
     // Deserialize → use CLI vars only
@@ -224,7 +224,7 @@ pub fn poc_hygen(
     tera.add_raw_template("__to__", &fm.to)
         .map_err(|e| Error::new(&format!("tera add to: {e}")))?;
     let rel_out = tera
-        .render("__to__", &tera_context(&vars))
+        .render("__to__", &tera_context(&vars)?)
         .map_err(|e| Error::new(&format!("tera to: {e}")))?;
     let out_path = out_root.join(rel_out);
 
@@ -233,7 +233,7 @@ pub fn poc_hygen(
     tera.add_raw_template(&virtual_name, &content)
         .map_err(|e| Error::new(&format!("tera add body: {e}")))?;
     let rendered = tera
-        .render(&virtual_name, &tera_context(&vars))
+        .render(&virtual_name, &tera_context(&vars)?)
         .map_err(|e| Error::new(&format!("tera body: {e}")))?;
 
     if !dry_run {
@@ -309,7 +309,7 @@ fn merged_ctx(
     out
 }
 
-fn tera_context(vars: &BTreeMap<String, String>) -> TeraContext {
+fn tera_context(vars: &BTreeMap<String, String>) -> Result<TeraContext> {
     let mut ctx = TeraContext::new();
     for (k, v) in vars {
         ctx.insert(k, v);
@@ -318,11 +318,10 @@ fn tera_context(vars: &BTreeMap<String, String>) -> TeraContext {
         "env",
         &std::env::vars().collect::<BTreeMap<String, String>>(),
     );
-    ctx.insert(
-        "cwd",
-        &std::env::current_dir().unwrap().display().to_string(),
-    );
-    ctx
+    let cwd = std::env::current_dir()
+        .map_err(|e| Error::new(&format!("Cannot access current directory: {}", e)))?;
+    ctx.insert("cwd", &cwd.display().to_string());
+    Ok(ctx)
 }
 
 fn ensure_parent_dirs(p: &Path) -> Result<()> {

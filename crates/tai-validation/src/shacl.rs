@@ -62,9 +62,7 @@ pub struct ShaclValidator {
 impl ShaclValidator {
     /// Create new SHACL validator
     pub fn new() -> Self {
-        Self {
-            shapes_path: None,
-        }
+        Self { shapes_path: None }
     }
 
     /// Set shapes file path
@@ -108,7 +106,9 @@ impl ShaclValidator {
     }
 
     /// Validate all .specify/*.ttl files
-    pub async fn validate_specs_directory(&self, _specs_dir: &str) -> Result<ShaclValidationResult> {
+    pub async fn validate_specs_directory(
+        &self, _specs_dir: &str,
+    ) -> Result<ShaclValidationResult> {
         // In production, this would:
         // 1. Find all .ttl files in .specify/ directory
         // 2. Validate each against SHACL shapes

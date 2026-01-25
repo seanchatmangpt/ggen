@@ -57,7 +57,9 @@ pub struct DriftChange {
 
 impl DriftChange {
     /// Create new drift change
-    pub fn new(change_type: ChangeType, old_hash: Option<String>, new_hash: Option<String>) -> Self {
+    pub fn new(
+        change_type: ChangeType, old_hash: Option<String>, new_hash: Option<String>,
+    ) -> Self {
         let message = match &change_type {
             ChangeType::NoState => {
                 "No previous sync state found. Run 'ggen sync' to create baseline.".to_string()
@@ -147,17 +149,11 @@ impl DriftDetector {
     pub fn new(state_dir: &Path) -> Result<Self> {
         let state_file = state_dir.join(Self::STATE_FILE);
 
-        Ok(Self {
-            state_file,
-        })
+        Ok(Self { state_file })
     }
 
     /// Check for drift between current files and last sync
-    pub fn check_drift(
-        &self,
-        ontology_path: &Path,
-        manifest_path: &Path,
-    ) -> Result<DriftStatus> {
+    pub fn check_drift(&self, ontology_path: &Path, manifest_path: &Path) -> Result<DriftStatus> {
         // Load previous state
         let previous_state = match SyncState::load(&self.state_file) {
             Ok(state) => state,
@@ -193,11 +189,9 @@ impl DriftDetector {
         // Check imports
         for (import_path, import_state) in &previous_state.imports {
             let path = PathBuf::from(import_path);
-            if let Some(change) = self.check_file_drift(
-                &path,
-                import_state,
-                ChangeType::Import(import_path.clone()),
-            )? {
+            if let Some(change) =
+                self.check_file_drift(&path, import_state, ChangeType::Import(import_path.clone()))?
+            {
                 changes.push(change);
             }
         }
@@ -220,10 +214,7 @@ impl DriftDetector {
 
     /// Check drift for a single file
     fn check_file_drift(
-        &self,
-        file_path: &Path,
-        previous_state: &FileHashState,
-        change_type: ChangeType,
+        &self, file_path: &Path, previous_state: &FileHashState, change_type: ChangeType,
     ) -> Result<Option<DriftChange>> {
         // Check if file exists
         if !file_path.exists() {
@@ -251,23 +242,15 @@ impl DriftDetector {
 
     /// Save current state after sync
     pub fn save_state(
-        &self,
-        ontology_path: &Path,
-        manifest_path: &Path,
-        files_synced: usize,
-        duration_ms: u64,
+        &self, ontology_path: &Path, manifest_path: &Path, files_synced: usize, duration_ms: u64,
     ) -> Result<()> {
         // Calculate hashes
         let ontology_hash = calculate_sha256_file(ontology_path)?;
         let manifest_hash = calculate_sha256_file(manifest_path)?;
 
         // Get file sizes
-        let ontology_size = fs::metadata(ontology_path)
-            .map(|m| m.len())
-            .unwrap_or(0);
-        let manifest_size = fs::metadata(manifest_path)
-            .map(|m| m.len())
-            .unwrap_or(0);
+        let ontology_size = fs::metadata(ontology_path).map(|m| m.len()).unwrap_or(0);
+        let manifest_size = fs::metadata(manifest_path).map(|m| m.len()).unwrap_or(0);
 
         // Create state
         let now = Utc::now();
@@ -283,25 +266,16 @@ impl DriftDetector {
 
     /// Save state with additional imports and rules
     pub fn save_state_with_details(
-        &self,
-        ontology_path: &Path,
-        manifest_path: &Path,
-        imports: Vec<PathBuf>,
-        inference_rules: Vec<(String, String)>,
-        files_synced: usize,
-        duration_ms: u64,
+        &self, ontology_path: &Path, manifest_path: &Path, imports: Vec<PathBuf>,
+        inference_rules: Vec<(String, String)>, files_synced: usize, duration_ms: u64,
     ) -> Result<()> {
         // Calculate hashes
         let ontology_hash = calculate_sha256_file(ontology_path)?;
         let manifest_hash = calculate_sha256_file(manifest_path)?;
 
         // Get file sizes
-        let ontology_size = fs::metadata(ontology_path)
-            .map(|m| m.len())
-            .unwrap_or(0);
-        let manifest_size = fs::metadata(manifest_path)
-            .map(|m| m.len())
-            .unwrap_or(0);
+        let ontology_size = fs::metadata(ontology_path).map(|m| m.len()).unwrap_or(0);
+        let manifest_size = fs::metadata(manifest_path).map(|m| m.len()).unwrap_or(0);
 
         // Create state
         let now = Utc::now();
@@ -314,9 +288,7 @@ impl DriftDetector {
         for import_path in imports {
             if import_path.exists() {
                 let import_hash = calculate_sha256_file(&import_path)?;
-                let import_size = fs::metadata(&import_path)
-                    .map(|m| m.len())
-                    .unwrap_or(0);
+                let import_size = fs::metadata(&import_path).map(|m| m.len()).unwrap_or(0);
                 let import_state = FileHashState::new(import_hash, now, import_size);
                 state.add_import(import_path.display().to_string(), import_state);
             }
@@ -361,8 +333,8 @@ mod tests {
 
     #[test]
     fn test_no_drift_when_clean() -> Result<()> {
-        let temp_dir = TempDir::new()
-            .map_err(|e| Error::new(&format!("Failed to create temp dir: {}", e)))?;
+        let temp_dir =
+            TempDir::new().map_err(|e| Error::new(&format!("Failed to create temp dir: {}", e)))?;
 
         let ontology_path = create_test_file(temp_dir.path(), "ontology.ttl", "content1")?;
         let manifest_path = create_test_file(temp_dir.path(), "ggen.toml", "content2")?;
@@ -384,8 +356,8 @@ mod tests {
 
     #[test]
     fn test_drift_when_ontology_changed() -> Result<()> {
-        let temp_dir = TempDir::new()
-            .map_err(|e| Error::new(&format!("Failed to create temp dir: {}", e)))?;
+        let temp_dir =
+            TempDir::new().map_err(|e| Error::new(&format!("Failed to create temp dir: {}", e)))?;
 
         let ontology_path = create_test_file(temp_dir.path(), "ontology.ttl", "content1")?;
         let manifest_path = create_test_file(temp_dir.path(), "ggen.toml", "content2")?;
@@ -416,8 +388,8 @@ mod tests {
 
     #[test]
     fn test_drift_when_no_state() -> Result<()> {
-        let temp_dir = TempDir::new()
-            .map_err(|e| Error::new(&format!("Failed to create temp dir: {}", e)))?;
+        let temp_dir =
+            TempDir::new().map_err(|e| Error::new(&format!("Failed to create temp dir: {}", e)))?;
 
         let ontology_path = create_test_file(temp_dir.path(), "ontology.ttl", "content1")?;
         let manifest_path = create_test_file(temp_dir.path(), "ggen.toml", "content2")?;
@@ -441,8 +413,8 @@ mod tests {
 
     #[test]
     fn test_save_state_with_details() -> Result<()> {
-        let temp_dir = TempDir::new()
-            .map_err(|e| Error::new(&format!("Failed to create temp dir: {}", e)))?;
+        let temp_dir =
+            TempDir::new().map_err(|e| Error::new(&format!("Failed to create temp dir: {}", e)))?;
 
         let ontology_path = create_test_file(temp_dir.path(), "ontology.ttl", "content1")?;
         let manifest_path = create_test_file(temp_dir.path(), "ggen.toml", "content2")?;

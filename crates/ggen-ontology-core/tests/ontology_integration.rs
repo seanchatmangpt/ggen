@@ -4,8 +4,8 @@
 //! and mapping entities to standard ontology classes.
 
 use ggen_ontology_core::{
-    entity_mapper::EntityMapper, sparql_generator::SparqlGenerator,
-    triple_store::TripleStore, validators::validate_turtle,
+    entity_mapper::EntityMapper, sparql_generator::SparqlGenerator, triple_store::TripleStore,
+    validators::validate_turtle,
 };
 use std::io::Write;
 use tempfile::NamedTempFile;
@@ -77,7 +77,9 @@ fn test_load_and_query_ontology() {
 
     // Load ontology
     let store = TripleStore::new().expect("Failed to create triple store");
-    store.load_turtle(ontology.path()).expect("Failed to load turtle");
+    store
+        .load_turtle(ontology.path())
+        .expect("Failed to load turtle");
 
     // Verify store has triples
     let count = store.triple_count().expect("Failed to get triple count");
@@ -89,7 +91,10 @@ fn test_sparql_query_determinism() {
     let query1 = SparqlGenerator::find_policies_by_jurisdiction("US");
     let query2 = SparqlGenerator::find_policies_by_jurisdiction("US");
 
-    assert_eq!(query1, query2, "Same parameters should produce identical queries");
+    assert_eq!(
+        query1, query2,
+        "Same parameters should produce identical queries"
+    );
 }
 
 #[test]
@@ -97,19 +102,23 @@ fn test_sparql_queries_different_for_different_input() {
     let query_us = SparqlGenerator::find_policies_by_jurisdiction("US");
     let query_eu = SparqlGenerator::find_policies_by_jurisdiction("EU");
 
-    assert_ne!(query_us, query_eu, "Different parameters should produce different queries");
+    assert_ne!(
+        query_us, query_eu,
+        "Different parameters should produce different queries"
+    );
     assert!(query_us.contains("US"), "US query should contain US");
     assert!(query_eu.contains("EU"), "EU query should contain EU");
 }
 
 #[test]
 fn test_entity_mapper_policy_determinism() {
-    let result1 = EntityMapper::match_policy("Privacy Policy")
-        .expect("Failed to match policy");
-    let result2 = EntityMapper::match_policy("Privacy Policy")
-        .expect("Failed to match policy");
+    let result1 = EntityMapper::match_policy("Privacy Policy").expect("Failed to match policy");
+    let result2 = EntityMapper::match_policy("Privacy Policy").expect("Failed to match policy");
 
-    assert_eq!(result1, result2, "Same policy should produce identical matches");
+    assert_eq!(
+        result1, result2,
+        "Same policy should produce identical matches"
+    );
 }
 
 #[test]
@@ -118,58 +127,66 @@ fn test_entity_mapper_data_classification() {
         .expect("Failed to match public classification");
 
     assert!(!public_matches.is_empty(), "Should have matches for Public");
-    assert_eq!(public_matches[0].score, 1.0, "Exact match should have score 1.0");
+    assert_eq!(
+        public_matches[0].score, 1.0,
+        "Exact match should have score 1.0"
+    );
 
     let confidential_matches = EntityMapper::match_data_classification("Confidential")
         .expect("Failed to match confidential");
 
-    assert!(!confidential_matches.is_empty(), "Should have matches for Confidential");
-    assert!(confidential_matches[0].score >= 0.9, "Confident match expected");
+    assert!(
+        !confidential_matches.is_empty(),
+        "Should have matches for Confidential"
+    );
+    assert!(
+        confidential_matches[0].score >= 0.9,
+        "Confident match expected"
+    );
 }
 
 #[test]
 fn test_entity_mapper_service_levels() {
     // Critical SLA
-    let critical = EntityMapper::match_service_level(99.99)
-        .expect("Failed to match critical SLA");
+    let critical = EntityMapper::match_service_level(99.99).expect("Failed to match critical SLA");
     assert_eq!(critical[0].class, ":CriticalService");
 
     // High availability
-    let high = EntityMapper::match_service_level(99.9)
-        .expect("Failed to match high availability");
+    let high = EntityMapper::match_service_level(99.9).expect("Failed to match high availability");
     assert_eq!(high[0].class, ":HighAvailabilityService");
 
     // Standard
-    let standard = EntityMapper::match_service_level(99.0)
-        .expect("Failed to match standard");
+    let standard = EntityMapper::match_service_level(99.0).expect("Failed to match standard");
     assert_eq!(standard[0].class, ":StandardService");
 }
 
 #[test]
 fn test_entity_mapper_security_controls() {
-    let mfa_matches = EntityMapper::match_security_control("MFA")
-        .expect("Failed to match MFA");
+    let mfa_matches = EntityMapper::match_security_control("MFA").expect("Failed to match MFA");
 
     assert!(!mfa_matches.is_empty(), "Should have matches for MFA");
     assert_eq!(mfa_matches[0].class, ":MultiFactorAuthentication");
-    assert_eq!(mfa_matches[0].score, 0.98, "MFA should have high confidence");
+    assert_eq!(
+        mfa_matches[0].score, 0.98,
+        "MFA should have high confidence"
+    );
 }
 
 #[test]
 fn test_entity_mapper_compute_services() {
     // VM
-    let vm_matches = EntityMapper::match_compute_service("Virtual Machine")
-        .expect("Failed to match VM");
+    let vm_matches =
+        EntityMapper::match_compute_service("Virtual Machine").expect("Failed to match VM");
     assert_eq!(vm_matches[0].class, ":VirtualMachine");
 
     // Container
-    let container_matches = EntityMapper::match_compute_service("Docker")
-        .expect("Failed to match container");
+    let container_matches =
+        EntityMapper::match_compute_service("Docker").expect("Failed to match container");
     assert!(!container_matches.is_empty());
 
     // Kubernetes
-    let k8s_matches = EntityMapper::match_compute_service("Kubernetes")
-        .expect("Failed to match K8s");
+    let k8s_matches =
+        EntityMapper::match_compute_service("Kubernetes").expect("Failed to match K8s");
     assert_eq!(k8s_matches[0].class, ":KubernetesCluster");
 }
 
@@ -179,7 +196,10 @@ fn test_validate_turtle_file() {
 
     let report = validate_turtle(ontology.path()).expect("Failed to validate");
     assert!(report.is_valid, "Sample ontology should be valid");
-    assert!(report.errors.is_empty(), "Valid ontology should have no errors");
+    assert!(
+        report.errors.is_empty(),
+        "Valid ontology should have no errors"
+    );
 }
 
 #[test]
@@ -236,8 +256,7 @@ fn test_triple_store_state_verification() {
 
 #[test]
 fn test_entity_mapper_scores_sorted() {
-    let matches = EntityMapper::match_policy("Privacy GDPR Encryption")
-        .expect("Failed to match");
+    let matches = EntityMapper::match_policy("Privacy GDPR Encryption").expect("Failed to match");
 
     // Verify sorted by score descending
     for i in 0..matches.len() - 1 {
@@ -251,8 +270,7 @@ fn test_entity_mapper_scores_sorted() {
 #[test]
 fn test_entity_mapper_multiple_keywords() {
     let policy = "Privacy Policy with Encryption and Security Controls";
-    let matches = EntityMapper::match_policy(policy)
-        .expect("Failed to match");
+    let matches = EntityMapper::match_policy(policy).expect("Failed to match");
 
     // Should have multiple matches for a comprehensive policy description
     assert!(matches.len() > 0, "Should match privacy keywords");

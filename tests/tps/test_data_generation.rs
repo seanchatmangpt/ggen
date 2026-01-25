@@ -96,7 +96,10 @@ impl Default for DeploymentTestDataBuilder {
     fn default() -> Self {
         Self {
             services: vec![
-                "payment-api", "order-processor", "inventory-service", "shipping-service"
+                "payment-api",
+                "order-processor",
+                "inventory-service",
+                "shipping-service",
             ]
             .iter()
             .map(|s| s.to_string())
@@ -212,12 +215,10 @@ pub struct FailureScenarioBuilder {
 impl Default for FailureScenarioBuilder {
     fn default() -> Self {
         Self {
-            failure_types: vec![
-                "QUALITY_CHECK", "TIMEOUT", "NETWORK", "RESOURCE_EXHAUSTION"
-            ]
-            .iter()
-            .map(|s| s.to_string())
-            .collect(),
+            failure_types: vec!["QUALITY_CHECK", "TIMEOUT", "NETWORK", "RESOURCE_EXHAUSTION"]
+                .iter()
+                .map(|s| s.to_string())
+                .collect(),
             components: vec!["payment", "deployment", "monitoring"]
                 .iter()
                 .map(|s| s.to_string())
@@ -250,9 +251,9 @@ impl FailureScenarioBuilder {
 
     fn estimate_recovery_time(&self, failure_type: &str) -> u64 {
         match failure_type {
-            "QUALITY_CHECK" => 0,      // Manual review needed
-            "TIMEOUT" => 5000,         // Retry logic
-            "NETWORK" => 1000,         // Circuit breaker reset
+            "QUALITY_CHECK" => 0,           // Manual review needed
+            "TIMEOUT" => 5000,              // Retry logic
+            "NETWORK" => 1000,              // Circuit breaker reset
             "RESOURCE_EXHAUSTION" => 30000, // Cleanup and restart
             _ => 10000,
         }
@@ -283,11 +284,11 @@ impl LoadProfileBuilder {
         // Simulate 24-hour period
         for hour in 0..24 {
             let base_rps = match hour {
-                0..=5 => 10,      // Night: low traffic
-                6..=9 => 200,     // Morning: ramp up
-                10..=16 => 500,   // Business hours: peak
-                17..=19 => 300,   // Evening: decline
-                _ => 50,          // Late night: low
+                0..=5 => 10,    // Night: low traffic
+                6..=9 => 200,   // Morning: ramp up
+                10..=16 => 500, // Business hours: peak
+                17..=19 => 300, // Evening: decline
+                _ => 50,        // Late night: low
             };
 
             // Add some variability
@@ -497,20 +498,18 @@ fn test_failure_scenario_generation() {
     assert!(!scenarios.is_empty(), "Should generate failure scenarios");
 
     // Check that all failure types are represented
-    let types: std::collections::HashSet<_> = scenarios
-        .iter()
-        .map(|s| s.failure_type.clone())
-        .collect();
-    assert!(
-        types.len() > 1,
-        "Should have multiple failure types"
-    );
+    let types: std::collections::HashSet<_> =
+        scenarios.iter().map(|s| s.failure_type.clone()).collect();
+    assert!(types.len() > 1, "Should have multiple failure types");
 }
 
 #[test]
 fn test_load_profile_generation() {
     let realistic = LoadProfileBuilder::new().build_realistic_load();
-    assert!(!realistic.is_empty(), "Should generate realistic load profile");
+    assert!(
+        !realistic.is_empty(),
+        "Should generate realistic load profile"
+    );
 
     // Verify traffic increases during business hours
     let business_hours: Vec<_> = realistic
@@ -526,7 +525,10 @@ fn test_load_profile_generation() {
 #[test]
 fn test_cross_principle_scenario_generation() {
     let scenarios = CrossPrincipleScenarioBuilder::new().build();
-    assert!(!scenarios.is_empty(), "Should generate cross-principle scenarios");
+    assert!(
+        !scenarios.is_empty(),
+        "Should generate cross-principle scenarios"
+    );
 
     // Verify all three principles are mentioned
     let descriptions = scenarios
@@ -545,9 +547,15 @@ fn test_all_test_data_provider() {
     let report = AllTestDataProvider::generate_report();
 
     assert!(report.payment_cases > 0, "Should have payment test cases");
-    assert!(report.deployment_cases > 0, "Should have deployment test cases");
+    assert!(
+        report.deployment_cases > 0,
+        "Should have deployment test cases"
+    );
     assert!(report.queue_items > 0, "Should have queue items");
-    assert!(report.failure_scenarios > 0, "Should have failure scenarios");
+    assert!(
+        report.failure_scenarios > 0,
+        "Should have failure scenarios"
+    );
     assert!(
         report.cross_principle_scenarios > 0,
         "Should have cross-principle scenarios"

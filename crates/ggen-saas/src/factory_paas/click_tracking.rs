@@ -84,11 +84,7 @@ impl ClickTracker {
         self.clicks.insert(click_id, event);
 
         // Generate receipt with blockchain-like chaining
-        let receipt = ClickReceipt::new(
-            click_id,
-            route_slug,
-            self.last_receipt_hash.clone(),
-        );
+        let receipt = ClickReceipt::new(click_id, route_slug, self.last_receipt_hash.clone());
 
         // Verify receipt integrity
         if !receipt.verify() {

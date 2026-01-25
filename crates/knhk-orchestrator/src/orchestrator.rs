@@ -3,9 +3,9 @@
 //! Implements the five-stage transformation pipeline (Chatman Equation: A = μ(O))
 //! transforming ETL output into workflow triggers.
 
+use crate::bus::EventBus;
 use crate::events::{EtlTripleEvent, WorkflowTriggerEvent};
 use crate::kgc::TemporalContext;
-use crate::bus::EventBus;
 use crate::tracing::SpanCorrelation;
 use crate::Result;
 use std::collections::{BTreeMap, HashMap};
@@ -135,10 +135,7 @@ impl Orchestrator {
         );
 
         // Create observable snapshot data (simple serialization of triple)
-        let observable_data = format!(
-            "{}\t{}\t{}",
-            event.subject, event.predicate, event.object
-        );
+        let observable_data = format!("{}\t{}\t{}", event.subject, event.predicate, event.object);
 
         // Create temporal context
         let context = TemporalContext::new(
@@ -169,8 +166,7 @@ impl Orchestrator {
     /// Groups related triples into coherent workflow input maps.
     /// Implements zero-copy via Arc<T> and lazy evaluation.
     async fn stage_3_variable_aggregation(
-        &self,
-        events: &[EtlTripleEvent],
+        &self, events: &[EtlTripleEvent],
     ) -> Result<BTreeMap<String, serde_json::Value>> {
         debug!(
             event_count = %events.len(),
@@ -206,9 +202,7 @@ impl Orchestrator {
     /// Creates WorkflowTriggerEvent with correlationId + variables.
     /// Produces cryptographic receipt.
     async fn stage_4_trigger_generation(
-        &self,
-        variables: BTreeMap<String, serde_json::Value>,
-        correlation_id: String,
+        &self, variables: BTreeMap<String, serde_json::Value>, correlation_id: String,
         event_count: usize,
     ) -> Result<WorkflowTriggerEvent> {
         debug!(
@@ -217,12 +211,9 @@ impl Orchestrator {
             "Stage 4: Workflow Trigger Generation"
         );
 
-        let trigger = WorkflowTriggerEvent::new(
-            self.config.workflow_id.clone(),
-            correlation_id,
-        )
-        .with_variables(variables)
-        .with_event_count(event_count);
+        let trigger = WorkflowTriggerEvent::new(self.config.workflow_id.clone(), correlation_id)
+            .with_variables(variables)
+            .with_event_count(event_count);
 
         // In production, would generate receipt here
         // receipt = Merkle::hash(&trigger)
@@ -234,8 +225,7 @@ impl Orchestrator {
     ///
     /// Submits to workflow-engine, captures instance ID, generates receipt.
     async fn stage_5_execution_receipt(
-        &self,
-        trigger: WorkflowTriggerEvent,
+        &self, trigger: WorkflowTriggerEvent,
     ) -> Result<WorkflowTriggerEvent> {
         debug!(
             workflow_id = %trigger.workflow_id,
@@ -266,11 +256,7 @@ impl Orchestrator {
 
         // Stage 4: Trigger Generation
         let trigger = self
-            .stage_4_trigger_generation(
-                variables,
-                event.transaction_id.clone(),
-                1,
-            )
+            .stage_4_trigger_generation(variables, event.transaction_id.clone(), 1)
             .await?;
 
         // Stage 5: Execution & Receipt
@@ -325,11 +311,7 @@ impl Orchestrator {
         // Stage 4: Generate single trigger for batch
         let correlation_id = processed_events[0].transaction_id.clone();
         let trigger = self
-            .stage_4_trigger_generation(
-                variables,
-                correlation_id,
-                processed_events.len(),
-            )
+            .stage_4_trigger_generation(variables, correlation_id, processed_events.len())
             .await?;
 
         // Stage 5: Execution & Receipt

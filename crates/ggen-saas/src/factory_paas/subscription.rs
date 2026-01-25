@@ -133,9 +133,7 @@ pub struct WebhookEvent {
 impl WebhookEvent {
     /// Create a new webhook event
     pub fn new(
-        event_type: WebhookEventType,
-        subscription_id: Uuid,
-        payload: serde_json::Value,
+        event_type: WebhookEventType, subscription_id: Uuid, payload: serde_json::Value,
     ) -> Self {
         Self {
             id: Uuid::new_v4(),

@@ -4,8 +4,8 @@
 // Chicago TDD: State-based testing with real collaborators and behavior verification
 
 use ggen_utils::supply_chain::{
-    check_license_compliance, detect_typosquatting, levenshtein_distance,
-    verify_checksum, Dependency, SupplyChainConfig,
+    check_license_compliance, detect_typosquatting, levenshtein_distance, verify_checksum,
+    Dependency, SupplyChainConfig,
 };
 
 #[test]
@@ -25,20 +25,23 @@ fn test_levenshtein_distance_zero_for_identical_strings() {
 fn test_levenshtein_distance_one_for_single_char_difference() {
     // Arrange
     let s1 = "tokio";
-    let s2 = "toklo";  // Changed 'i' to 'l'
+    let s2 = "toklo"; // Changed 'i' to 'l'
 
     // Act
     let distance = levenshtein_distance(s1, s2);
 
     // Assert
-    assert_eq!(distance, 1, "Single character difference should have distance 1");
+    assert_eq!(
+        distance, 1,
+        "Single character difference should have distance 1"
+    );
 }
 
 #[test]
 fn test_levenshtein_distance_handles_insertion() {
     // Arrange
     let s1 = "serde";
-    let s2 = "serdes";  // Added 's' at end
+    let s2 = "serdes"; // Added 's' at end
 
     // Act
     let distance = levenshtein_distance(s1, s2);
@@ -51,7 +54,7 @@ fn test_levenshtein_distance_handles_insertion() {
 fn test_levenshtein_distance_handles_deletion() {
     // Arrange
     let s1 = "clapper";
-    let s2 = "clap";  // Deleted "per"
+    let s2 = "clap"; // Deleted "per"
 
     // Act
     let distance = levenshtein_distance(s1, s2);
@@ -63,14 +66,12 @@ fn test_levenshtein_distance_handles_deletion() {
 #[test]
 fn test_typosquatting_detection_finds_suffix_pattern() {
     // Arrange
-    let dependencies = vec![
-        Dependency {
-            name: "tokio_rs".to_string(),
-            version: "1.0.0".to_string(),
-            license: Some("MIT".to_string()),
-            checksum: Some("abc123".to_string()),
-        },
-    ];
+    let dependencies = vec![Dependency {
+        name: "tokio_rs".to_string(),
+        version: "1.0.0".to_string(),
+        license: Some("MIT".to_string()),
+        checksum: Some("abc123".to_string()),
+    }];
     let config = SupplyChainConfig::default();
 
     // Act
@@ -83,10 +84,7 @@ fn test_typosquatting_detection_finds_suffix_pattern() {
         1,
         "Should detect one suspicious dependency"
     );
-    assert_eq!(
-        result.suspicious_dependencies[0].name,
-        "tokio_rs"
-    );
+    assert_eq!(result.suspicious_dependencies[0].name, "tokio_rs");
     assert!(
         result.suspicious_dependencies[0].reason.contains("suffix"),
         "Should identify suffix pattern"
@@ -96,14 +94,12 @@ fn test_typosquatting_detection_finds_suffix_pattern() {
 #[test]
 fn test_typosquatting_detection_finds_prefix_pattern() {
     // Arrange
-    let dependencies = vec![
-        Dependency {
-            name: "rust_serde".to_string(),
-            version: "1.0.0".to_string(),
-            license: Some("MIT".to_string()),
-            checksum: Some("def456".to_string()),
-        },
-    ];
+    let dependencies = vec![Dependency {
+        name: "rust_serde".to_string(),
+        version: "1.0.0".to_string(),
+        license: Some("MIT".to_string()),
+        checksum: Some("def456".to_string()),
+    }];
     let config = SupplyChainConfig::default();
 
     // Act
@@ -125,14 +121,12 @@ fn test_typosquatting_detection_finds_prefix_pattern() {
 #[test]
 fn test_typosquatting_detection_finds_similar_names() {
     // Arrange
-    let dependencies = vec![
-        Dependency {
-            name: "serda".to_string(),  // Typo of "serde"
-            version: "1.0.0".to_string(),
-            license: Some("MIT".to_string()),
-            checksum: Some("ghi789".to_string()),
-        },
-    ];
+    let dependencies = vec![Dependency {
+        name: "serda".to_string(), // Typo of "serde"
+        version: "1.0.0".to_string(),
+        license: Some("MIT".to_string()),
+        checksum: Some("ghi789".to_string()),
+    }];
     let config = SupplyChainConfig::default();
 
     // Act
@@ -190,14 +184,12 @@ fn test_typosquatting_detection_ignores_popular_crates() {
 #[test]
 fn test_license_compliance_allows_mit() {
     // Arrange
-    let dependencies = vec![
-        Dependency {
-            name: "good-crate".to_string(),
-            version: "1.0.0".to_string(),
-            license: Some("MIT".to_string()),
-            checksum: Some("pqr678".to_string()),
-        },
-    ];
+    let dependencies = vec![Dependency {
+        name: "good-crate".to_string(),
+        version: "1.0.0".to_string(),
+        license: Some("MIT".to_string()),
+        checksum: Some("pqr678".to_string()),
+    }];
     let config = SupplyChainConfig::default();
 
     // Act
@@ -213,14 +205,12 @@ fn test_license_compliance_allows_mit() {
 #[test]
 fn test_license_compliance_denies_gpl3() {
     // Arrange
-    let dependencies = vec![
-        Dependency {
-            name: "bad-crate".to_string(),
-            version: "1.0.0".to_string(),
-            license: Some("GPL-3.0".to_string()),
-            checksum: Some("stu901".to_string()),
-        },
-    ];
+    let dependencies = vec![Dependency {
+        name: "bad-crate".to_string(),
+        version: "1.0.0".to_string(),
+        license: Some("GPL-3.0".to_string()),
+        checksum: Some("stu901".to_string()),
+    }];
     let config = SupplyChainConfig::default();
 
     // Act
@@ -280,8 +270,8 @@ fn test_checksum_verification_succeeds_on_match() {
     let expected = "abc123def456";
 
     // Act
-    let result = verify_checksum(&dependency, expected)
-        .expect("Checksum verification should succeed");
+    let result =
+        verify_checksum(&dependency, expected).expect("Checksum verification should succeed");
 
     // Assert
     assert!(result, "Matching checksums should verify successfully");
@@ -299,8 +289,8 @@ fn test_checksum_verification_fails_on_mismatch() {
     let expected = "xyz789uvw012";
 
     // Act
-    let result = verify_checksum(&dependency, expected)
-        .expect("Checksum verification should succeed");
+    let result =
+        verify_checksum(&dependency, expected).expect("Checksum verification should succeed");
 
     // Assert
     assert!(!result, "Mismatched checksums should fail verification");
@@ -323,5 +313,8 @@ fn test_checksum_verification_errors_on_missing_checksum() {
     // Assert
     assert!(result.is_err(), "Missing checksum should return error");
     let err_msg = result.unwrap_err().to_string();
-    assert!(err_msg.contains("no checksum"), "Error should mention missing checksum");
+    assert!(
+        err_msg.contains("no checksum"),
+        "Error should mention missing checksum"
+    );
 }

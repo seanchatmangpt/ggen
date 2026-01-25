@@ -140,8 +140,8 @@ pub mod ontology;
 pub mod ontology_pack;
 pub mod packs; // Pack installation system - Phase 1
 pub mod pipeline;
-pub mod poka_yoke;
 pub mod poc;
+pub mod poka_yoke;
 pub mod pqc;
 pub mod preprocessor;
 pub mod project_generator;
@@ -177,7 +177,7 @@ pub use lifecycle::{
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
-pub use drift::{DriftDetector, DriftStatus, DriftChange, ChangeType, SyncState, FileHashState};
+pub use drift::{ChangeType, DriftChange, DriftDetector, DriftStatus, FileHashState, SyncState};
 pub use generator::{GenContext, Generator};
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
 pub use gpack::GpackManifest;
@@ -192,8 +192,8 @@ pub use pipeline::{Pipeline, PipelineBuilder};
 pub use pqc::{calculate_sha256, calculate_sha256_file, PqcSigner, PqcVerifier};
 pub use rdf::{
     GgenOntology, Iri, Literal, SparqlQueryBuilder, TemplateMetadata, TemplateMetadataStore,
-    TemplateRelationship, TemplateVariable, ValidationReport, ValidationResult, Validator, Variable,
-    GGEN_NAMESPACE,
+    TemplateRelationship, TemplateVariable, ValidationReport, ValidationResult, Validator,
+    Variable, GGEN_NAMESPACE,
 };
 pub use registry::{RegistryClient, RegistryIndex, ResolvedPack, SearchResult};
 pub use resolver::{TemplateResolver, TemplateSearchResult, TemplateSource};

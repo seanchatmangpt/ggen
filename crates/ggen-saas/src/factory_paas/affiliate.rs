@@ -1,6 +1,6 @@
 //! Affiliate link routing and resolution
 
-use super::{RouteSlug, InvalidRouteSlug};
+use super::{InvalidRouteSlug, RouteSlug};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
@@ -22,11 +22,7 @@ pub struct AffiliateRoute {
 
 impl AffiliateRoute {
     /// Create a new affiliate route
-    pub fn new(
-        slug: RouteSlug,
-        target_url: String,
-        affiliate_id: Uuid,
-    ) -> Self {
+    pub fn new(slug: RouteSlug, target_url: String, affiliate_id: Uuid) -> Self {
         Self {
             id: Uuid::new_v4(),
             slug,
@@ -81,10 +77,7 @@ impl RouteResolver {
 
     /// List all active routes
     pub fn list_active_routes(&self) -> Vec<&AffiliateRoute> {
-        self.routes
-            .values()
-            .filter(|route| route.active)
-            .collect()
+        self.routes.values().filter(|route| route.active).collect()
     }
 }
 

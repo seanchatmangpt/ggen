@@ -16,8 +16,7 @@
 //! - State verification (security violations detected)
 
 use ggen_core::security::{
-    ContextEscaper, SecureTeraEnvironment, TemplateSandbox, TemplateValidator,
-    MAX_TEMPLATE_SIZE,
+    ContextEscaper, SecureTeraEnvironment, TemplateSandbox, TemplateValidator, MAX_TEMPLATE_SIZE,
 };
 use tera::Context;
 

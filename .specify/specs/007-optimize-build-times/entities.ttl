@@ -1,0 +1,245 @@
+@prefix : <https://ggen.io/spec/007/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Domain Entities for Build Optimization
+
+:Bottleneck a owl:Class ;
+    rdfs:label "Performance Bottleneck" ;
+    rdfs:comment "Identified performance issue in build system" ;
+    owl:property (:bottleneckName :currentImpact :improvementPotential :rootCause :solution) .
+
+:Optimization a owl:Class ;
+    rdfs:label "Optimization Task" ;
+    rdfs:comment "Specific optimization implementation task" ;
+    owl:property (:optimizationName :targetBottleneck :expectedImprovement :agent :phase) .
+
+:Agent a owl:Class ;
+    rdfs:label "Optimization Agent" ;
+    rdfs:comment "Agent responsible for one or more optimizations" ;
+    owl:property (:agentName :responsibility :phase :dependencies :expectedOutput) .
+
+:SuccessMetric a owl:Class ;
+    rdfs:label "Success Metric / KPI" ;
+    rdfs:comment "Measurable objective for optimization success" ;
+    owl:property (:metricName :baseline :target :measurementMethod :priority) .
+
+:OptimizationStrategy a owl:Class ;
+    rdfs:label "Overall Optimization Strategy" ;
+    rdfs:comment "High-level approach to achieving 3-5x build time improvement" ;
+    owl:property (:strategyName :phases :bottlenecks :expectedImprovement) .
+
+:Phase a owl:Class ;
+    rdfs:label "Optimization Phase" ;
+    rdfs:comment "Sequential or parallel phase of optimization work" ;
+    owl:property (:phaseName :parallelAgents :startCondition :endCondition :duration) .
+
+:ConflictDetection a owl:Class ;
+    rdfs:label "Conflict Detection Protocol" ;
+    rdfs:comment "Mechanism for detecting conflicts between parallel agents" ;
+    owl:property (:conflictType :detectionMethod :frequency :resolution) .
+
+:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Measurement" ;
+    rdfs:comment "Quantitative measurement of build system performance" ;
+    owl:property (:metricName :value :timestamp :unit) .
+
+:RiskItem a owl:Class ;
+    rdfs:label "Risk" ;
+    rdfs:comment "Potential issue that could prevent optimization success" ;
+    owl:property (:riskName :severity :probability :mitigation :owner) .
+
+:Artifact a owl:Class ;
+    rdfs:label "Work Artifact" ;
+    rdfs:comment "Output produced by an agent" ;
+    owl:property (:artifactName :agent :phase :fileLocation :format) .
+
+:Gate a owl:Class ;
+    rdfs:label "Quality Gate" ;
+    rdfs:comment "Checkpoint that must be passed before proceeding" ;
+    owl:property (:gateName :condition :owner :consequence) .
+
+# Concrete instances
+
+:ArtifactLockContention a :Bottleneck ;
+    :bottleneckName "Artifact Lock Contention" ;
+    :currentImpact "40-60% build time variance, blocking parallel execution" ;
+    :improvementPotential "40-60% speedup" ;
+    :rootCause "Multiple cargo processes competing for target/ directory locks" ;
+    :solution "CARGO_TARGET_DIR=/tmp/cargo-target-${RANDOM} isolation" ;
+    :severity "CRITICAL" ;
+    :baselineEvent "42 lock contention events during compilation" .
+
+:MemoryIntensiveDeps a :Bottleneck ;
+    :bottleneckName "Memory-Intensive Dependencies" ;
+    :currentImpact "1.5-2 GB peak memory usage (15-20x over target)" ;
+    :improvementPotential "30-50% memory reduction" ;
+    :rootCause "ring, tera, rustls, config crates with large FFI & macro expansion" ;
+    :solution "Feature-gating, split-debuginfo=packed, thin LTO" ;
+    :severity "HIGH" ;
+    :baselinePeakMemory "1.5-2 GB" ;
+    :targetMemory "100 MB" .
+
+:WorkspaceCoupling a :Bottleneck ;
+    :bottleneckName "Workspace Coupling" ;
+    :currentImpact "Changes to ggen-utils trigger 25+ crate rebuild" ;
+    :improvementPotential "30-40% incremental build improvement" ;
+    :rootCause "Deep dependency graph with bridge crates" ;
+    :solution "Crate isolation boundaries, workspace patterns" ;
+    :severity "HIGH" ;
+    :affectedCrates 30 ;
+    :impactedByChange "ggen-utils, ggen-config" .
+
+:CompileTimeOptimization a :Optimization ;
+    :optimizationName "Build Configuration Optimization" ;
+    :targetBottleneck :ArtifactLockContention ;
+    :expectedImprovement "40-60% speedup" ;
+    :agent "BuildConfigOptimizer" ;
+    :phase "Phase2" ;
+    :changes ("Makefile.toml" "Cargo.toml") ;
+    :affectedTargets ("cargo make check" "cargo make test") .
+
+:MemoryOptimization a :Optimization ;
+    :optimizationName "Memory Usage Reduction" ;
+    :targetBottleneck :MemoryIntensiveDeps ;
+    :expectedImprovement "30-50% memory reduction" ;
+    :agent ("DependencyOptimizer" "CodeOptimizer") ;
+    :phase "Phase2" ;
+    :techniques ("feature-gating" "split-debuginfo" "thin-lto") .
+
+:CacheOptimization a :Optimization ;
+    :optimizationName "Workspace Decoupling & Caching" ;
+    :targetBottleneck :WorkspaceCoupling ;
+    :expectedImprovement "30-40% incremental improvement" ;
+    :agent "IncrementalBuildOptimizer" ;
+    :phase "Phase2" ;
+    :techniques ("crate-isolation" "cache-invalidation" "dependency-reduction") .
+
+:CompileTimeMetric a :SuccessMetric ;
+    :metricName "First Build Compilation Time" ;
+    :baseline "120s" ;
+    :target "15s" ;
+    :improvementFactor "8x" ;
+    :measurementMethod "cargo make check" ;
+    :priority "P1" ;
+    :deadline "2026-01-31" .
+
+:MemoryMetric a :SuccessMetric ;
+    :metricName "Peak Memory Usage" ;
+    :baseline "1.5-2 GB" ;
+    :target "100 MB" ;
+    :improvementFactor "15-20x" ;
+    :measurementMethod "system profiler during compilation" ;
+    :priority "P1" ;
+    :deadline "2026-01-31" .
+
+:LockContentionMetric a :SuccessMetric ;
+    :metricName "File Lock Contention Events" ;
+    :baseline "42 events" ;
+    :target "0 events" ;
+    :improvementFactor "100% reduction" ;
+    :measurementMethod "count blocking on artifact directory" ;
+    :priority "P1" ;
+    :deadline "2026-01-31" .
+
+:IncrementalMetric a :SuccessMetric ;
+    :metricName "Incremental Build Time" ;
+    :baseline "120s" ;
+    :target "2s" ;
+    :improvementFactor "60x" ;
+    :measurementMethod "single file change rebuild" ;
+    :priority "P1" ;
+    :deadline "2026-01-31" .
+
+:TestSuiteMetric a :SuccessMetric ;
+    :metricName "Full Test Suite Execution" ;
+    :baseline "Blocked (unmeasurable)" ;
+    :target "150s" ;
+    :measurementMethod "cargo make test" ;
+    :priority "P2" ;
+    :deadline "2026-02-07" .
+
+:PhaseOne a :Phase ;
+    :phaseName "Phase 1: Foundation & Analysis" ;
+    :parallelAgents 4 ;
+    :agents ("SpecificationValidator" "PerformanceBenchmarker" "SystemArchitect" "CodeAnalyzer") ;
+    :startCondition "Orchestrator approves plan" ;
+    :endCondition "All 4 Phase 1 gates passed" ;
+    :duration "2 days" ;
+    :gateOutput ("SpecificationClosure" "BaselineMetrics" "ArchitectureDesign" "CodeAnalysis") .
+
+:PhaseTwo a :Phase ;
+    :phaseName "Phase 2: Parallel Implementation" ;
+    :parallelAgents 5 ;
+    :agents ("BuildConfigOptimizer" "IncrementalBuildOptimizer" "DependencyOptimizer" "CodeOptimizer" "TestOptimizer") ;
+    :startCondition "Phase 1 gates passed" ;
+    :endCondition "All 5 agents complete, no conflicts" ;
+    :duration "3 days" ;
+    :conflictDetectionFrequency "30 minutes" ;
+    :changes ("Makefile.toml" "Cargo.toml" "crate structure" "feature flags") .
+
+:PhaseThree a :Phase ;
+    :phaseName "Phase 3: Validation & Release" ;
+    :parallelAgents 1 ;
+    :agents ("ProductionValidator") ;
+    :startCondition "Phase 2 integration complete" ;
+    :endCondition "Production sign-off received" ;
+    :duration "1 day" ;
+    :validation ("cargo make check" "cargo make test" "cargo make slo-check" "regression tests") .
+
+:MakefileConflictDetection a :ConflictDetection ;
+    :conflictType "Overlapping task modifications in Makefile.toml" ;
+    :detectionMethod "git diff analysis, task block collision detection" ;
+    :frequency "30 minutes" ;
+    :resolution "First agent wins, second agent merges" ;
+    :escalation "CRITICAL if >1 breaking change" .
+
+:FeatureFlagConflictDetection a :ConflictDetection ;
+    :conflictType "Incompatible feature flag definitions" ;
+    :detectionMethod "Cargo.toml feature parsing, cross-checking" ;
+    :frequency "30 minutes" ;
+    :resolution "System Architect provides merged feature set" ;
+    :escalation "CRITICAL if incompatible combinations created" .
+
+:CrateReorgConflictDetection a :ConflictDetection ;
+    :conflictType "Breaking changes to workspace member list" ;
+    :detectionMethod "Workspace member list comparison, dependency validation" ;
+    :frequency "30 minutes" ;
+    :resolution "Pause affected agent, escalate to System Architect" ;
+    :escalation "CRITICAL if breaking change to core crates" .
+
+:SpecClosure a :Gate ;
+    :gateName "Specification Closure Gate" ;
+    :condition "All success metrics defined, 100% coverage of 3 bottlenecks" ;
+    :owner "SpecificationValidator" ;
+    :consequence "Phase 2 agents can proceed" ;
+    :verificationFiles (".specify/specs/007-optimize-build-times/feature.ttl" ".specify/specs/007-optimize-build-times/plan.ttl") .
+
+:BaselineGate a :Gate ;
+    :gateName "Baseline Metrics Gate" ;
+    :condition "Baseline measurements complete, saved to .ggen/benchmarks/baseline-*.json" ;
+    :owner "PerformanceBenchmarker" ;
+    :consequence "Post-optimization metrics can be compared" ;
+    :measurements ("compilation time" "memory peak" "lock contention" "RDF performance") .
+
+:ArchitectureGate a :Gate ;
+    :gateName "Architecture Design Gate" ;
+    :condition "Design document complete, no technical blockers identified" ;
+    :owner "SystemArchitect" ;
+    :consequence "Phase 2 agents have clear specification" ;
+    :outputFile ".ggen/designs/build-optimization-architecture.md" .
+
+:Phase2CompletionGate a :Gate ;
+    :gateName "Phase 2 Completion Gate" ;
+    :condition "All 5 agents complete, git conflicts resolved, cargo make check passes" ;
+    :owner "TaskOrchestrator" ;
+    :consequence "Production Validator can begin integration testing" ;
+    :verificationSteps ("git status" "cargo make check" "conflict check") .
+
+:ProductionReadinessGate a :Gate ;
+    :gateName "Production Readiness Gate" ;
+    :condition "All SLO targets met, 100% test pass rate, no regressions" ;
+    :owner "ProductionValidator" ;
+    :consequence "Changes can be merged to main and deployed" ;
+    :verificationSteps ("cargo make test" "cargo make slo-check" "cargo make lint" "integration tests") .

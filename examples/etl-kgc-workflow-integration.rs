@@ -9,8 +9,8 @@
 //! Run with: cargo run --example etl-kgc-workflow-integration
 
 use knhk_orchestrator::{
-    EtlTripleEvent, Orchestrator, OrchestratorConfig, ProcessInstanceEvent,
-    ProcessInstanceState, WorkflowTriggerEvent,
+    EtlTripleEvent, Orchestrator, OrchestratorConfig, ProcessInstanceEvent, ProcessInstanceState,
+    WorkflowTriggerEvent,
 };
 
 #[tokio::main]
@@ -78,10 +78,7 @@ async fn main() -> anyhow::Result<()> {
         println!(
             "  Event {}: {} → {}",
             i + 1,
-            event.subject
-                .split('/')
-                .last()
-                .unwrap_or("?"),
+            event.subject.split('/').last().unwrap_or("?"),
             event.object
         );
     }
@@ -92,10 +89,7 @@ async fn main() -> anyhow::Result<()> {
     // Process batch through orchestrator pipeline
     let trigger = orchestrator.process_batch(etl_events.clone()).await?;
 
-    println!(
-        "  ✓ Trigger generated: {}\n",
-        trigger.process_instance_id
-    );
+    println!("  ✓ Trigger generated: {}\n", trigger.process_instance_id);
     println!("  Workflow: {}", trigger.workflow_id);
     println!("  Events aggregated: {}", trigger.event_count);
     println!("  Variables extracted: {}", trigger.process_variables.len());
@@ -125,26 +119,14 @@ async fn main() -> anyhow::Result<()> {
         trigger.workflow_id.clone(),
         ProcessInstanceState::Running,
     )
-    .with_state_var(
-        "orderId".to_string(),
-        serde_json::json!("123"),
-    )
-    .with_state_var(
-        "customerId".to_string(),
-        serde_json::json!("456"),
-    )
-    .with_state_var(
-        "status".to_string(),
-        serde_json::json!("PROCESSING"),
-    );
+    .with_state_var("orderId".to_string(), serde_json::json!("123"))
+    .with_state_var("customerId".to_string(), serde_json::json!("456"))
+    .with_state_var("status".to_string(), serde_json::json!("PROCESSING"));
 
     println!("STAGE 5: Workflow Execution & Feedback");
     println!("─────────────────────────────────────────────────────────────");
 
-    println!(
-        "  Process Instance: {}",
-        process_event.process_instance_id
-    );
+    println!("  Process Instance: {}", process_event.process_instance_id);
     println!("  State: {:?}", process_event.workflow_state);
     println!("  Timestamp: {}", process_event.state_timestamp);
 
@@ -155,7 +137,10 @@ async fn main() -> anyhow::Result<()> {
     let metrics = orchestrator.metrics().await;
     let andon = orchestrator.check_andon_signal().await;
 
-    println!("  Total Events Processed: {}", metrics.total_events_processed);
+    println!(
+        "  Total Events Processed: {}",
+        metrics.total_events_processed
+    );
     println!("  Aggregation Ratio: {:.2}", metrics.aggregation_ratio);
     println!("  Pending ETL Events: {}", metrics.pending_etl_events);
 
@@ -175,9 +160,15 @@ async fn main() -> anyhow::Result<()> {
     println!("Integration Summary");
     println!("═══════════════════════════════════════════════════════════════");
 
-    println!("\n✓ ETL → Orchestrator: {} events processed", etl_events.len());
+    println!(
+        "\n✓ ETL → Orchestrator: {} events processed",
+        etl_events.len()
+    );
     println!("✓ KGC-4D Context: Temporal coordinates injected");
-    println!("✓ Variable Aggregation: {} variables extracted", trigger.process_variables.len());
+    println!(
+        "✓ Variable Aggregation: {} variables extracted",
+        trigger.process_variables.len()
+    );
     println!(
         "✓ Workflow Trigger: {} submitted",
         trigger.process_instance_id
@@ -185,9 +176,7 @@ async fn main() -> anyhow::Result<()> {
     println!("✓ Workflow Execution: Process instance created");
     println!("✓ Span Correlation: End-to-end tracing enabled");
 
-    println!(
-        "\nThe holographic projection (A = μ(O)) succeeded!"
-    );
+    println!("\nThe holographic projection (A = μ(O)) succeeded!");
     println!("Integration closure achieved. ✓");
 
     Ok(())

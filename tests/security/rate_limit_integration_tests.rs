@@ -9,13 +9,13 @@
 //!
 //! Uses Chicago TDD: AAA pattern, real Redis via testcontainers, observable outputs
 
+use reqwest::blocking::Client;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::Arc;
+use std::thread;
+use std::time::Duration;
 use testcontainers::{clients::Cli, RunnableImage};
 use testcontainers_modules::redis::Redis;
-use reqwest::blocking::Client;
-use std::time::Duration;
-use std::thread;
-use std::sync::Arc;
-use std::sync::atomic::{AtomicUsize, Ordering};
 
 /// Test fixture providing Redis container and API client
 struct RateLimitFixture {
@@ -37,9 +37,7 @@ impl RateLimitFixture {
         // For now, using placeholder
         let api_base_url = "http://localhost:8080".to_string();
 
-        let client = Client::builder()
-            .timeout(Duration::from_secs(5))
-            .build()?;
+        let client = Client::builder().timeout(Duration::from_secs(5)).build()?;
 
         Ok(Self {
             _container: container,
@@ -50,17 +48,23 @@ impl RateLimitFixture {
     }
 
     fn make_request(&self, path: &str) -> Result<reqwest::blocking::Response, reqwest::Error> {
-        self.client.get(&format!("{}{}", self.api_base_url, path)).send()
+        self.client
+            .get(&format!("{}{}", self.api_base_url, path))
+            .send()
     }
 
-    fn make_request_with_ip(&self, path: &str, ip: &str) -> Result<reqwest::blocking::Response, reqwest::Error> {
+    fn make_request_with_ip(
+        &self, path: &str, ip: &str,
+    ) -> Result<reqwest::blocking::Response, reqwest::Error> {
         self.client
             .get(&format!("{}{}", self.api_base_url, path))
             .header("X-Forwarded-For", ip)
             .send()
     }
 
-    fn make_request_with_api_key(&self, path: &str, api_key: &str) -> Result<reqwest::blocking::Response, reqwest::Error> {
+    fn make_request_with_api_key(
+        &self, path: &str, api_key: &str,
+    ) -> Result<reqwest::blocking::Response, reqwest::Error> {
         self.client
             .get(&format!("{}{}", self.api_base_url, path))
             .header("Authorization", format!("Bearer {}", api_key))
@@ -124,9 +128,18 @@ fn test_concurrent_requests_hit_rate_limit() -> Result<(), Box<dyn std::error::E
     let success = success_count.load(Ordering::SeqCst);
     let limited = rate_limited_count.load(Ordering::SeqCst);
 
-    assert!(success <= max_requests, "Should allow at most {} requests, got {}", max_requests, success);
+    assert!(
+        success <= max_requests,
+        "Should allow at most {} requests, got {}",
+        max_requests,
+        success
+    );
     assert!(limited > 0, "Should have rate-limited some requests, got 0");
-    assert_eq!(success + limited, concurrent_requests, "All requests should be accounted for");
+    assert_eq!(
+        success + limited,
+        concurrent_requests,
+        "All requests should be accounted for"
+    );
 
     Ok(())
 }
@@ -199,7 +212,10 @@ fn test_api_key_rate_limiting() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Assert: Should allow higher limit for API key users
-    assert!(success_count <= max_requests, "Should respect API key rate limit");
+    assert!(
+        success_count <= max_requests,
+        "Should respect API key rate limit"
+    );
     assert!(rate_limited_count > 0, "Should eventually hit rate limit");
 
     Ok(())
@@ -226,11 +242,20 @@ fn test_burst_requests_handled() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Assert: Should allow small burst
-    let success_count = burst_results.iter()
-        .filter(|r| r.as_ref().map(|resp| resp.status().is_success()).unwrap_or(false))
+    let success_count = burst_results
+        .iter()
+        .filter(|r| {
+            r.as_ref()
+                .map(|resp| resp.status().is_success())
+                .unwrap_or(false)
+        })
         .count();
 
-    assert!(success_count >= burst_size - 1, "Should allow small burst, got {} successes", success_count);
+    assert!(
+        success_count >= burst_size - 1,
+        "Should allow small burst, got {} successes",
+        success_count
+    );
 
     Ok(())
 }
@@ -253,7 +278,11 @@ fn test_rate_limit_recovery_after_window() -> Result<(), Box<dyn std::error::Err
 
     // Verify rate limited
     let limited_response = fixture.make_request_with_ip("/api/generate", "192.168.1.200")?;
-    assert_eq!(limited_response.status().as_u16(), 429, "Should be rate limited");
+    assert_eq!(
+        limited_response.status().as_u16(),
+        429,
+        "Should be rate limited"
+    );
 
     // Wait for rate limit window to expire (60 seconds)
     println!("Waiting for rate limit window to expire...");
@@ -301,7 +330,11 @@ fn test_distributed_rate_limiting_shared_redis() -> Result<(), Box<dyn std::erro
     }
 
     // Assert: Combined requests across instances should be rate limited
-    assert!(total_success <= 10, "Should enforce rate limit across instances, got {}", total_success);
+    assert!(
+        total_success <= 10,
+        "Should enforce rate limit across instances, got {}",
+        total_success
+    );
 
     Ok(())
 }

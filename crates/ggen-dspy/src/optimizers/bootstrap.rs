@@ -1,6 +1,6 @@
 //! BootstrapFewShot optimizer
 
-use crate::{Module, Optimizer, OptimizerConfig, Result, optimizers::TrainExample};
+use crate::{optimizers::TrainExample, Module, Optimizer, OptimizerConfig, Result};
 
 /// Bootstrap few-shot optimizer
 pub struct BootstrapFewShot {
@@ -22,7 +22,9 @@ impl BootstrapFewShot {
 
 #[async_trait::async_trait]
 impl Optimizer for BootstrapFewShot {
-    async fn compile(&self, module: Box<dyn Module>, _trainset: &[TrainExample]) -> Result<Box<dyn Module>> {
+    async fn compile(
+        &self, module: Box<dyn Module>, _trainset: &[TrainExample],
+    ) -> Result<Box<dyn Module>> {
         // TODO: Implement bootstrap optimization
         Ok(module)
     }

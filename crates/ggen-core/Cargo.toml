@@ -37,7 +37,9 @@ toml = "0.9"
 lru = "0.16"
 ahash = "0.8"
 glob = "0.3"
-tokio = { version = "1.47", features = ["full"] }
+# Minimal tokio features for code generation (80/20 optimization)
+# Removed: fs, net, process, sync-mutex, test-util (unused features)
+tokio = { version = "1.47", features = ["macros", "rt-multi-thread", "io-util", "io-std", "sync", "signal", "time"] }
 reqwest = { workspace = true, features = ["rustls-tls", "stream"] }
 url = "2.5"
 chrono = { version = "0.4", features = ["serde"] }

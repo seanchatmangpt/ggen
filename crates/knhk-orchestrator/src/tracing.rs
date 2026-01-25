@@ -163,11 +163,7 @@ impl SpanCorrelation {
     pub fn get_all_spans(&self, transaction_id: &str) -> Vec<SpanContext> {
         if let Some(root_span_id) = self.traces.get(transaction_id) {
             let root = self.spans.get(root_span_id).cloned();
-            let mut spans = if let Some(r) = root {
-                vec![r]
-            } else {
-                vec![]
-            };
+            let mut spans = if let Some(r) = root { vec![r] } else { vec![] };
 
             // Find all children (simple depth-first)
             self.spans

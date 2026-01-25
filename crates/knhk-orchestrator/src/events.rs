@@ -64,12 +64,7 @@ pub struct EtlReceipt {
 impl EtlTripleEvent {
     /// Create a new ETL triple event.
     #[must_use]
-    pub fn new(
-        subject: String,
-        predicate: String,
-        object: String,
-        etl_timestamp: i64,
-    ) -> Self {
+    pub fn new(subject: String, predicate: String, object: String, etl_timestamp: i64) -> Self {
         Self {
             transaction_id: Uuid::new_v4().to_string(),
             subject,
@@ -208,9 +203,7 @@ impl ProcessInstanceEvent {
     /// Create a new process instance event.
     #[must_use]
     pub fn new(
-        process_instance_id: String,
-        workflow_id: String,
-        workflow_state: ProcessInstanceState,
+        process_instance_id: String, workflow_id: String, workflow_state: ProcessInstanceState,
     ) -> Self {
         Self {
             process_instance_id,
@@ -259,10 +252,7 @@ mod tests {
 
     #[test]
     fn test_workflow_trigger_event_creation() {
-        let trigger = WorkflowTriggerEvent::new(
-            "workflow-123".to_string(),
-            "txn-456".to_string(),
-        );
+        let trigger = WorkflowTriggerEvent::new("workflow-123".to_string(), "txn-456".to_string());
 
         assert_eq!(trigger.workflow_id, "workflow-123");
         assert_eq!(trigger.correlation_id, "txn-456");
@@ -278,12 +268,9 @@ mod tests {
         variables.insert("key1".to_string(), serde_json::json!("value1"));
         variables.insert("key2".to_string(), serde_json::json!(42));
 
-        let trigger = WorkflowTriggerEvent::new(
-            "workflow-123".to_string(),
-            "txn-456".to_string(),
-        )
-        .with_variables(variables.clone())
-        .with_event_count(2);
+        let trigger = WorkflowTriggerEvent::new("workflow-123".to_string(), "txn-456".to_string())
+            .with_variables(variables.clone())
+            .with_event_count(2);
 
         assert_eq!(trigger.process_variables, variables);
         assert_eq!(trigger.event_count, 2);

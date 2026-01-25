@@ -20,5 +20,9 @@ fn benchmark_mipro_optimizer(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, benchmark_bootstrap_fewshot, benchmark_mipro_optimizer);
+criterion_group!(
+    benches,
+    benchmark_bootstrap_fewshot,
+    benchmark_mipro_optimizer
+);
 criterion_main!(benches);

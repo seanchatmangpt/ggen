@@ -8,7 +8,7 @@
 //! - Access control
 
 use ggen_utils::error::Result;
-use ggen_utils::secrets::{EncryptionProvider, SecretsManager, SecretType};
+use ggen_utils::secrets::{EncryptionProvider, SecretType, SecretsManager};
 use std::time::Instant;
 
 // ============================================================================
@@ -166,7 +166,11 @@ fn test_decryption_timing_constant() {
 
     // Assert - timing difference should be minimal (< 20% variance)
     let ratio = duration_valid.as_nanos() as f64 / duration_invalid.as_nanos() as f64;
-    assert!(ratio > 0.8 && ratio < 1.2, "Timing variance too high: {}", ratio);
+    assert!(
+        ratio > 0.8 && ratio < 1.2,
+        "Timing variance too high: {}",
+        ratio
+    );
 }
 
 #[test]
@@ -184,10 +188,15 @@ fn test_key_derivation_timing_consistent() {
     }
 
     // Assert - timing should be consistent (< 10% variance)
-    let avg: std::time::Duration = durations.iter().sum::<std::time::Duration>() / durations.len() as u32;
+    let avg: std::time::Duration =
+        durations.iter().sum::<std::time::Duration>() / durations.len() as u32;
     for duration in &durations {
         let ratio = duration.as_nanos() as f64 / avg.as_nanos() as f64;
-        assert!(ratio > 0.9 && ratio < 1.1, "Timing variance too high: {}", ratio);
+        assert!(
+            ratio > 0.9 && ratio < 1.1,
+            "Timing variance too high: {}",
+            ratio
+        );
     }
 }
 
@@ -285,13 +294,13 @@ async fn test_secrets_manager_audit_trail() {
         .await
         .expect("Store failed");
 
-    manager
-        .get_secret("audit_key")
-        .await
-        .expect("Get failed");
+    manager.get_secret("audit_key").await.expect("Get failed");
 
     // Assert - audit log should contain entries
-    let audit_log = manager.get_audit_log(10).await.expect("Get audit log failed");
+    let audit_log = manager
+        .get_audit_log(10)
+        .await
+        .expect("Get audit log failed");
     assert!(audit_log.len() >= 2);
 }
 

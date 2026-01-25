@@ -117,7 +117,10 @@ async fn test_mock_client_token_counting() {
     let usage = response.usage.unwrap();
     assert_eq!(usage.prompt_tokens, 10);
     assert!(usage.completion_tokens > 0);
-    assert_eq!(usage.total_tokens, usage.prompt_tokens + usage.completion_tokens);
+    assert_eq!(
+        usage.total_tokens,
+        usage.prompt_tokens + usage.completion_tokens
+    );
 }
 
 #[test]
@@ -239,11 +242,14 @@ async fn test_integrated_adapter_with_cache() {
     let mock = MockClient::with_response("[[ ## answer ## ]]\nCached response");
     let client: Arc<dyn LlmClient> = Arc::new(mock);
     let adapter: Box<dyn LlmAdapter> = Box::new(ChatAdapter::new());
-    let integrated = IntegratedAdapter::new(client, adapter)
-        .with_cache(Duration::from_secs(60), 100);
+    let integrated =
+        IntegratedAdapter::new(client, adapter).with_cache(Duration::from_secs(60), 100);
 
     let mut inputs = HashMap::new();
-    inputs.insert("question".to_string(), Value::String("Same question".to_string()));
+    inputs.insert(
+        "question".to_string(),
+        Value::String("Same question".to_string()),
+    );
     let output_fields = vec!["answer".to_string()];
 
     // Act: First call (cache miss)
@@ -701,10 +707,7 @@ fn test_error_types_display() {
     let parsing_err = DspyError::ParsingError("Invalid JSON".to_string());
 
     // Assert
-    assert_eq!(
-        field_err.to_string(),
-        "Failed to extract field: test_field"
-    );
+    assert_eq!(field_err.to_string(), "Failed to extract field: test_field");
     assert_eq!(parsing_err.to_string(), "Parsing error: Invalid JSON");
 }
 
@@ -1157,11 +1160,12 @@ proptest! {
 #[tokio::test]
 async fn test_e2e_question_answering_workflow() {
     // Arrange: Complete QA workflow with mock
-    let mock = MockClient::with_response("[[ ## answer ## ]]\nRust is a systems programming language");
+    let mock =
+        MockClient::with_response("[[ ## answer ## ]]\nRust is a systems programming language");
     let client: Arc<dyn LlmClient> = Arc::new(mock);
     let adapter: Box<dyn LlmAdapter> = Box::new(ChatAdapter::new());
-    let integrated = IntegratedAdapter::new(client, adapter)
-        .with_cache(Duration::from_secs(60), 100);
+    let integrated =
+        IntegratedAdapter::new(client, adapter).with_cache(Duration::from_secs(60), 100);
 
     let mut inputs = HashMap::new();
     inputs.insert(
@@ -1200,7 +1204,10 @@ async fn test_e2e_json_extraction_workflow() {
     let integrated = IntegratedAdapter::new(client, adapter);
 
     let mut inputs = HashMap::new();
-    inputs.insert("text".to_string(), Value::String("Article text".to_string()));
+    inputs.insert(
+        "text".to_string(),
+        Value::String("Article text".to_string()),
+    );
     let output_fields = vec![
         "title".to_string(),
         "summary".to_string(),
@@ -1312,8 +1319,8 @@ async fn test_e2e_cached_workflow() {
     let mock = MockClient::with_response("[[ ## result ## ]]\nCached value");
     let client: Arc<dyn LlmClient> = Arc::new(mock);
     let adapter: Box<dyn LlmAdapter> = Box::new(ChatAdapter::new());
-    let integrated = IntegratedAdapter::new(client, adapter)
-        .with_cache(Duration::from_secs(10), 10);
+    let integrated =
+        IntegratedAdapter::new(client, adapter).with_cache(Duration::from_secs(10), 10);
 
     let mut inputs = HashMap::new();
     inputs.insert("key".to_string(), Value::String("same".to_string()));

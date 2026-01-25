@@ -123,9 +123,8 @@ impl SyncState {
             })?;
         }
 
-        let content = serde_json::to_string_pretty(self).map_err(|e| {
-            Error::new(&format!("Failed to serialize sync state: {}", e))
-        })?;
+        let content = serde_json::to_string_pretty(self)
+            .map_err(|e| Error::new(&format!("Failed to serialize sync state: {}", e)))?;
 
         fs::write(path, content).map_err(|e| {
             Error::new(&format!(
@@ -193,8 +192,8 @@ mod tests {
 
     #[test]
     fn test_sync_state_save_load() -> Result<()> {
-        let temp_dir = TempDir::new()
-            .map_err(|e| Error::new(&format!("Failed to create temp dir: {}", e)))?;
+        let temp_dir =
+            TempDir::new().map_err(|e| Error::new(&format!("Failed to create temp dir: {}", e)))?;
         let state_path = temp_dir.path().join("sync-state.json");
 
         let ontology = FileHashState::new("hash1".to_string(), Utc::now(), 100);
@@ -230,7 +229,10 @@ mod tests {
         state.add_inference_rule("rule2".to_string(), "hash2".to_string());
 
         assert_eq!(state.inference_rules.len(), 2);
-        assert_eq!(state.inference_rules.get("rule1"), Some(&"hash1".to_string()));
+        assert_eq!(
+            state.inference_rules.get("rule1"),
+            Some(&"hash1".to_string())
+        );
     }
 
     #[test]

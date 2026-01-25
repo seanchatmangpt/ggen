@@ -25,7 +25,10 @@ impl RouteSlug {
         if slug.is_empty() {
             return Err(InvalidRouteSlug::Empty);
         }
-        if !slug.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_') {
+        if !slug
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
+        {
             return Err(InvalidRouteSlug::InvalidCharacters);
         }
         Ok(Self(slug))
@@ -48,7 +51,9 @@ impl fmt::Display for RouteSlug {
 pub enum InvalidRouteSlug {
     #[error("Route slug cannot be empty")]
     Empty,
-    #[error("Route slug contains invalid characters (only alphanumeric, dash, underscore allowed)")]
+    #[error(
+        "Route slug contains invalid characters (only alphanumeric, dash, underscore allowed)"
+    )]
     InvalidCharacters,
 }
 
@@ -91,11 +96,7 @@ impl ClickReceipt {
     }
 
     /// Create a new click receipt
-    pub fn new(
-        click_id: Uuid,
-        route_slug: RouteSlug,
-        prev_hash: Option<String>,
-    ) -> Self {
+    pub fn new(click_id: Uuid, route_slug: RouteSlug, prev_hash: Option<String>) -> Self {
         let id = Uuid::new_v4();
         let timestamp = Utc::now();
         let mut receipt = Self {
