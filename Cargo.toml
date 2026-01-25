@@ -49,6 +49,7 @@ members = [
 exclude = [
   "examples/rust-cli-lifecycle",
   "examples/marketplace-demo/generated",
+  "examples/gcp-erlang-autonomics",
   "marketplace/packages/workflow-engine-cli",
 ]
 resolver = "2" # Use new resolver for better dependency resolution

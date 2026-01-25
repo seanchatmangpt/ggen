@@ -1,0 +1,147 @@
+{% comment %}
+C4 Level 4: Infrastructure Deployment Diagram
+Renders GCP Cloud Run services, Kubernetes clusters, message queues, databases, and networking.
+Input: SPARQL query results from infrastructure query with GCP resources
+Output: Mermaid flowchart showing cloud infrastructure topology
+
+GCP Services:
+  - Cloud Run: Serverless container execution (Governor)
+  - GKE: Kubernetes clusters for multi-region HA
+  - Pub/Sub: Asynchronous messaging and event streaming
+  - Cloud SQL: Managed PostgreSQL databases
+  - Firestore: NoSQL document database
+  - Cloud Storage: Object storage for logs and artifacts
+  - Cloud Monitoring: Observability and alerting
+  - Cloud Load Balancing: Global HTTP/TCP load balancing
+
+Variables:
+  - infrastructure: List of GCP resources with regions, services, and scaling
+  - gcp_project_id: Google Cloud Project ID
+  - regions: Deployment regions (multi-region HA)
+{% endcomment %}
+
+graph {{ mermaid_direction | default(value="TB") }}
+    classDef compute fill:#4285f4,stroke:#1967d2,color:#fff,font-size:12px
+    classDef storage fill:#34a853,stroke:#0d652d,color:#fff,font-size:12px
+    classDef messaging fill:#ea4335,stroke:#a50e0e,color:#fff,font-size:12px
+    classDef database fill:#fbbc04,stroke:#e37400,color:#000,font-size:12px
+    classDef network fill:#9c27b0,stroke:#6a1b9a,color:#fff,font-size:12px
+    classDef monitoring fill:#00bcd4,stroke:#00838f,color:#fff,font-size:12px
+    classDef region fill:#f5f5f5,stroke:#999,stroke-width:2px,color:#000,font-size:13px,font-weight:bold
+
+    %% Title
+    TITLE["<b>Infrastructure Deployment</b><br/>{{ gcp_project_id | default(value='ggen-autonomics') }} on GCP"]
+    style TITLE fill:#f0f0f0,stroke:#000,stroke-width:2px,font-size:14px,color:#000
+
+    %% Users and Entry Points
+    USERS["👥 Users / API Clients"]
+    LOAD_BALANCER["⚖️ Cloud Load Balancer<br/>Global HTTP Load Balancing"]:::network
+
+    %% Primary Region (us-central1)
+    subgraph region_primary["🌍 Primary Region: us-central1"]
+        subgraph compute_primary["Compute"]
+            CR_PRIMARY["☁️ Cloud Run: Governor<br/>us-central1<br/>Replicas: 2-10<br/>CPU: 1, Memory: 512Mi"]:::compute
+            GKE_PRIMARY["☸️ GKE Cluster<br/>us-central1<br/>Nodes: 3-8<br/>Node pool: n1-standard-2"]:::compute
+        end
+
+        subgraph storage_primary["Storage"]
+            CS_PRIMARY["💾 Cloud Storage<br/>Logs & Artifacts<br/>Regional: us-central1"]:::storage
+        end
+
+        subgraph data_primary["Data Layer"]
+            PSQL_PRIMARY["🗄️ Cloud SQL PostgreSQL<br/>us-central1<br/>db-custom-4-16GB<br/>HA: Regional"]:::database
+            FS_PRIMARY["📄 Firestore<br/>us-central1<br/>Multi-document transactions<br/>Autoindex: enabled"]:::database
+            REDIS_PRIMARY["⚡ Memorystore Redis<br/>us-central1<br/>6GB standard tier"]:::database
+        end
+
+        CR_PRIMARY --> PSQL_PRIMARY
+        CR_PRIMARY --> FS_PRIMARY
+        CR_PRIMARY --> REDIS_PRIMARY
+        GKE_PRIMARY --> PSQL_PRIMARY
+        GKE_PRIMARY --> CS_PRIMARY
+    end
+
+    %% Secondary Region (us-east1)
+    subgraph region_secondary["🌍 Secondary Region: us-east1"]
+        subgraph compute_secondary["Compute"]
+            CR_SECONDARY["☁️ Cloud Run: Governor<br/>us-east1<br/>Replicas: 2-5<br/>CPU: 1, Memory: 512Mi"]:::compute
+            GKE_SECONDARY["☸️ GKE Cluster<br/>us-east1<br/>Nodes: 2-4<br/>Standby mode"]:::compute
+        end
+
+        subgraph data_secondary["Data Layer - Read Replica"]
+            PSQL_REPLICA["🗄️ Cloud SQL Replica<br/>us-east1<br/>Read-only<br/>Promotion capable"]:::database
+            FS_REPLICA["📄 Firestore Replica<br/>us-east1<br/>Strong consistency"]:::database
+        end
+
+        CR_SECONDARY --> PSQL_REPLICA
+        CR_SECONDARY --> FS_REPLICA
+    end
+
+    %% Global Messaging & Observability
+    subgraph messaging["📬 Global Messaging"]
+        PUBSUB["Pub/Sub Topics<br/>governor-signals<br/>governor-actions<br/>governor-feedback<br/>Retention: 7 days"]:::messaging
+    end
+
+    subgraph monitoring_infra["📊 Observability"]
+        CLOUD_MON["☁️ Cloud Monitoring<br/>Metrics, Logs, Traces"]:::monitoring
+        ALERT_POLICY["🔔 Alert Policies<br/>SLO tracking<br/>Auto-escalation"]:::monitoring
+        LOGGING["📋 Cloud Logging<br/>Governor logs<br/>Audit trail"]:::monitoring
+    end
+
+    %% Networking
+    subgraph networking["🌐 Networking"]
+        VPC_PRIMARY["VPC: ggen-autonomics-primary<br/>10.0.0.0/8"]:::network
+        VPC_SECONDARY["VPC: ggen-autonomics-secondary<br/>10.1.0.0/8"]:::network
+        VPC_PEERING["VPC Peering<br/>bidirectional"]:::network
+    end
+
+    %% Data Flows
+    USERS --> LOAD_BALANCER
+    LOAD_BALANCER --> CR_PRIMARY
+    LOAD_BALANCER --> CR_SECONDARY
+
+    CR_PRIMARY --> PUBSUB
+    CR_SECONDARY --> PUBSUB
+    GKE_PRIMARY --> PUBSUB
+
+    CR_PRIMARY --> CLOUD_MON
+    GKE_PRIMARY --> CLOUD_MON
+    CR_SECONDARY --> CLOUD_MON
+
+    CLOUD_MON --> ALERT_POLICY
+    CLOUD_MON --> LOGGING
+
+    region_primary --> VPC_PRIMARY
+    region_secondary --> VPC_SECONDARY
+    VPC_PRIMARY -.->|peering| VPC_PEERING
+    VPC_SECONDARY -.->|peering| VPC_PEERING
+
+    %% Cross-region Data Sync
+    PSQL_PRIMARY -.->|replication| PSQL_REPLICA
+    FS_PRIMARY -.->|eventual consistency| FS_REPLICA
+
+    %% Configuration & Security
+    subgraph security["🔒 Security & Config"]
+        SECRETS["Secret Manager<br/>API Keys, Credentials<br/>Auto-rotation"]
+        IAM["Identity & Access<br/>Service accounts<br/>Workload Identity"]
+        CONFIG["Cloud Config<br/>governor-policy.yaml<br/>scaling-rules.yaml"]
+    end
+
+    CR_PRIMARY --> SECRETS
+    GKE_PRIMARY --> IAM
+    CR_PRIMARY --> CONFIG
+    CR_SECONDARY --> CONFIG
+
+    %% SLO & Capacity Planning
+    NOTE_SLO["<b>SLOs (Service Level Objectives):</b><br/>• P99 Latency: ≤ 500ms<br/>• Availability: ≥ 99.9%<br/>• Error Rate: ≤ 0.1%<br/>• Recovery Time: ≤ 5 min<br/><br/><b>Auto-Scaling Policies:</b><br/>• Target CPU Utilization: 70%<br/>• Target Memory Utilization: 75%<br/>• Min Replicas: 2, Max: 10<br/>• Scale-up: 30s, Scale-down: 5m"]
+    style NOTE_SLO fill:#fff3cd,stroke:#ffc107,color:#000,font-size:10px
+
+    %% Legend
+    subgraph legend["Legend"]
+        L_COMPUTE["Compute (Cloud Run, GKE)"]:::compute
+        L_DATA["Data Layer (SQL, Firestore, Redis)"]:::database
+        L_MESSAGING["Messaging (Pub/Sub)"]:::messaging
+        L_MONITOR["Observability (Cloud Monitoring)"]:::monitoring
+        L_NETWORK["Networking (VPC, Peering)"]:::network
+    end
+    style legend fill:#f9f9f9,stroke:#999,stroke-width:1px

@@ -1,0 +1,565 @@
+# SHACL Validation Shapes for Erlang Autonomic C4 Architecture
+# Ensures data quality, completeness, and consistency
+#
+# Version: 1.0
+# Created: 2026-01-25
+# Updated: 2026-01-25
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix c4: <http://ggen.org/c4#> .
+@prefix ea: <http://ggen.org/erlang-autonomic#> .
+@prefix sku: <http://ggen.org/sku#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==============================================================================
+# SHAPE 1: System Context Completeness
+# ==============================================================================
+
+ea:SystemContextShape a sh:NodeShape ;
+    sh:targetClass c4:SoftwareSystem ;
+    sh:name "System Context Shape" ;
+    sh:description "Software system must declare scope, boundary, and interfaces" ;
+
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "System must have exactly 1 label" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:systemScope ;
+        sh:minCount 1 ;
+        sh:message "System must declare systemScope" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:systemBoundary ;
+        sh:minCount 1 ;
+        sh:message "System must declare systemBoundary" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 2: Actor Completeness
+# ==============================================================================
+
+ea:ActorShape a sh:NodeShape ;
+    sh:targetClass c4:Actor ;
+    sh:name "Actor Shape" ;
+    sh:description "Actor must declare role and interactions" ;
+
+    sh:property [
+        sh:path c4:actorRole ;
+        sh:minCount 1 ;
+        sh:message "Actor must declare actorRole" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:interactsWith ;
+        sh:minCount 1 ;
+        sh:message "Actor must interact with at least one system" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 3: Relationship Completeness
+# ==============================================================================
+
+ea:RelationshipShape a sh:NodeShape ;
+    sh:targetClass c4:Relationship ;
+    sh:name "Relationship Shape" ;
+    sh:description "Relationship must declare source, target, and protocol" ;
+
+    sh:property [
+        sh:path c4:sourceActor, c4:sourceSystem ;
+        sh:minCount 1 ;
+        sh:message "Relationship must have either sourceActor or sourceSystem" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:targetSystem, c4:targetActor ;
+        sh:minCount 1 ;
+        sh:message "Relationship must have either targetSystem or targetActor" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:relationshipType ;
+        sh:minCount 1 ;
+        sh:message "Relationship must declare relationshipType" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:protocol ;
+        sh:minCount 1 ;
+        sh:message "Relationship must declare protocol" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 4: Container Architecture Completeness
+# ==============================================================================
+
+ea:ContainerArchitectureShape a sh:NodeShape ;
+    sh:targetClass c4:ContainerArchitecture ;
+    sh:name "Container Architecture Shape" ;
+    sh:description "Container architecture must declare services and data sources" ;
+
+    sh:property [
+        sh:path c4:contains ;
+        sh:minCount 3 ;
+        sh:message "Container architecture must contain at least 3 services" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:dataSources ;
+        sh:minCount 1 ;
+        sh:message "Container architecture must declare data sources" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 5: Container Service Completeness
+# ==============================================================================
+
+ea:ContainerServiceShape a sh:NodeShape ;
+    sh:targetClass c4:Container ;
+    sh:name "Container Service Shape" ;
+    sh:description "Container must declare technology, responsibility, and interactions" ;
+
+    sh:property [
+        sh:path c4:technology ;
+        sh:minCount 1 ;
+        sh:message "Container must declare technology stack" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:responsibility ;
+        sh:minCount 1 ;
+        sh:message "Container must declare responsibility" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:replicas ;
+        sh:minCount 1 ;
+        sh:message "Container must declare replica configuration" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 6: Data Source Metadata
+# ==============================================================================
+
+ea:DataSourceShape a sh:NodeShape ;
+    sh:targetClass c4:DataSource ;
+    sh:name "Data Source Shape" ;
+    sh:description "Data source must declare technology and access mode" ;
+
+    sh:property [
+        sh:path c4:technology ;
+        sh:minCount 1 ;
+        sh:message "Data source must declare technology" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:accessMode ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("Read-only" "Read/Write" "Write-append only" "Read (stream)") ;
+        sh:message "Access mode must be one of: Read-only, Read/Write, Write-append only, Read (stream)" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 7: Component Completeness
+# ==============================================================================
+
+ea:ComponentShape a sh:NodeShape ;
+    sh:targetClass c4:Component ;
+    sh:name "Component Shape" ;
+    sh:description "Component must declare responsibility and interactions" ;
+
+    sh:property [
+        sh:path c4:responsibility ;
+        sh:minCount 1 ;
+        sh:message "Component must declare responsibility" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:technology ;
+        sh:minCount 1 ;
+        sh:message "Component must declare technology" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 8: FSM State Completeness
+# ==============================================================================
+
+ea:FSMStateShape a sh:NodeShape ;
+    sh:targetClass c4:State ;
+    sh:name "FSM State Shape" ;
+    sh:description "FSM state must declare entry actions, exit actions, and transitions" ;
+
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:message "State must have a label" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:entryActions ;
+        sh:minCount 1 ;
+        sh:message "State must declare entry actions" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 9: SKU Catalog Completeness
+# ==============================================================================
+
+ea:SkuCatalogShape a sh:NodeShape ;
+    sh:targetClass c4:SkuCatalog ;
+    sh:name "SKU Catalog Shape" ;
+    sh:description "SKU catalog must declare available SKUs" ;
+
+    sh:property [
+        sh:path c4:skus ;
+        sh:minCount 1 ;
+        sh:message "SKU catalog must declare at least 1 SKU" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 10: SKU Definition Completeness
+# ==============================================================================
+
+ea:SkuShape a sh:NodeShape ;
+    sh:targetClass sku:Sku ;
+    sh:name "SKU Definition Shape" ;
+    sh:description "SKU must declare code, version, governor type, signals, and actions" ;
+
+    sh:property [
+        sh:path sku:code ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[A-Z]{2,4}-\\d{3}$" ;
+        sh:message "SKU code must match format (e.g., CCB-001)" ;
+    ] ;
+
+    sh:property [
+        sh:path sku:version ;
+        sh:minCount 1 ;
+        sh:message "SKU must declare version" ;
+    ] ;
+
+    sh:property [
+        sh:path sku:governorType ;
+        sh:minCount 1 ;
+        sh:message "SKU must declare governorType" ;
+    ] ;
+
+    sh:property [
+        sh:path sku:signals ;
+        sh:minCount 1 ;
+        sh:message "SKU must declare signals" ;
+    ] ;
+
+    sh:property [
+        sh:path sku:actions ;
+        sh:minCount 1 ;
+        sh:message "SKU must declare actions" ;
+    ] ;
+
+    sh:property [
+        sh:path sku:pricingModel ;
+        sh:minCount 1 ;
+        sh:message "SKU must declare pricingModel" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 11: Policy Pack Completeness
+# ==============================================================================
+
+ea:PolicyPackShape a sh:NodeShape ;
+    sh:targetClass sku:PolicyPack ;
+    sh:name "Policy Pack Shape" ;
+    sh:description "Policy pack must declare format and at least 1 policy" ;
+
+    sh:property [
+        sh:path sku:skuCode ;
+        sh:minCount 1 ;
+        sh:message "Policy pack must reference a SKU code" ;
+    ] ;
+
+    sh:property [
+        sh:path sku:format ;
+        sh:minCount 1 ;
+        sh:message "Policy pack must declare format" ;
+    ] ;
+
+    sh:property [
+        sh:path sku:policies ;
+        sh:minCount 1 ;
+        sh:message "Policy pack must declare at least 1 policy" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 12: Policy Definition Completeness
+# ==============================================================================
+
+ea:PolicyShape a sh:NodeShape ;
+    sh:targetClass sku:Policy ;
+    sh:name "Policy Definition Shape" ;
+    sh:description "Policy must declare trigger, condition, and action" ;
+
+    sh:property [
+        sh:path sku:trigger ;
+        sh:minCount 1 ;
+        sh:message "Policy must declare trigger" ;
+    ] ;
+
+    sh:property [
+        sh:path sku:condition ;
+        sh:minCount 1 ;
+        sh:message "Policy must declare condition" ;
+    ] ;
+
+    sh:property [
+        sh:path sku:action ;
+        sh:minCount 1 ;
+        sh:message "Policy must declare action" ;
+    ] ;
+
+    sh:property [
+        sh:path sku:rationale ;
+        sh:minCount 1 ;
+        sh:message "Policy must declare rationale" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 13: Deployment Service Completeness
+# ==============================================================================
+
+ea:DeploymentServiceShape a sh:NodeShape ;
+    sh:targetClass c4:ComputeService ;
+    sh:name "Deployment Service Shape" ;
+    sh:description "Deployment service must declare platform, container, and resources" ;
+
+    sh:property [
+        sh:path c4:platform ;
+        sh:minCount 1 ;
+        sh:message "Service must declare platform" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:containerImage ;
+        sh:minCount 1 ;
+        sh:message "Service must declare containerImage" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:memorySize ;
+        sh:minCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 256 ;
+        sh:maxInclusive 8192 ;
+        sh:message "Memory size must be between 256 and 8192 MB" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:autoScaling ;
+        sh:minCount 1 ;
+        sh:message "Service must declare auto-scaling configuration" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 14: Database Configuration
+# ==============================================================================
+
+ea:DatabaseShape a sh:NodeShape ;
+    sh:targetClass c4:Database ;
+    sh:name "Database Configuration Shape" ;
+    sh:description "Database must declare type, purpose, and consistency model" ;
+
+    sh:property [
+        sh:path c4:type ;
+        sh:minCount 1 ;
+        sh:message "Database must declare type" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:purpose ;
+        sh:minCount 1 ;
+        sh:message "Database must declare purpose" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:consistency ;
+        sh:minCount 1 ;
+        sh:message "Database must declare consistency model" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 15: Regional Deployment
+# ==============================================================================
+
+ea:RegionalDeploymentShape a sh:NodeShape ;
+    sh:targetClass c4:Region ;
+    sh:name "Regional Deployment Shape" ;
+    sh:description "Region must declare location and services" ;
+
+    sh:property [
+        sh:path c4:location ;
+        sh:minCount 1 ;
+        sh:message "Region must declare location" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:services ;
+        sh:minCount 1 ;
+        sh:message "Region must declare services" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 16: Compliance Control
+# ==============================================================================
+
+ea:ComplianceControlShape a sh:NodeShape ;
+    sh:targetClass c4:ComplianceControl ;
+    sh:name "Compliance Control Shape" ;
+    sh:description "Compliance control must declare requirement and evidence" ;
+
+    sh:property [
+        sh:path c4:requirement ;
+        sh:minCount 1 ;
+        sh:message "Control must declare requirement" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:evidence ;
+        sh:minCount 1 ;
+        sh:message "Control must declare evidence" ;
+    ] ;
+
+    sh:property [
+        sh:path c4:frequency ;
+        sh:minCount 1 ;
+        sh:message "Control must declare verification frequency" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 17: Deterministic Triples (Anti-pattern: No Random UUIDs)
+# ==============================================================================
+
+ea:DeterministicTriplesShape a sh:NodeShape ;
+    sh:targetClass ea:AutonomicGovernorSystem ;
+    sh:name "Deterministic Triples Shape" ;
+    sh:description "All identifiers must be deterministic (no random UUIDs in specs)" ;
+    sh:message "Specification triples must be deterministic for reproducibility. Use semantic URLs, not UUIDs." ;
+    .
+
+# ==============================================================================
+# SHAPE 18: Validation Consistency
+# ==============================================================================
+
+ea:ValidationConsistencyShape a sh:NodeShape ;
+    sh:targetClass c4:Container ;
+    sh:name "Validation Consistency Shape" ;
+    sh:description "Container must have matching inbound and outbound interactions" ;
+
+    # A container's sends must match another container's receives pattern
+    sh:message "Container interactions must be consistently declared in both directions" ;
+    .
+
+# ==============================================================================
+# CONSTRAINT: SKU Signal-Action Mapping
+# ==============================================================================
+
+ea:SkuSignalActionConsistencyShape a sh:NodeShape ;
+    sh:targetClass sku:Sku ;
+    sh:name "SKU Signal-Action Consistency" ;
+    sh:description "Every action declared must be triggerable by at least one signal" ;
+
+    sh:message "SKU actions must be justified by available signals; no orphaned actions" ;
+    .
+
+# ==============================================================================
+# CONSTRAINT: FSM State Reachability
+# ==============================================================================
+
+ea:FSMReachabilityShape a sh:NodeShape ;
+    sh:targetClass ea:StateMachineComponent ;
+    sh:name "FSM State Reachability" ;
+    sh:description "All 5 FSM states must be reachable from stable state" ;
+
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:pattern "(stable|warn|intervene|degrade|refuse)" ;
+        sh:message "FSM must include all 5 states: stable, warn, intervene, degrade, refuse" ;
+    ] ;
+    .
+
+# ==============================================================================
+# CONSTRAINT: Data Lineage
+# ==============================================================================
+
+ea:DataLineageShape a sh:NodeShape ;
+    sh:targetClass c4:DataSource ;
+    sh:name "Data Lineage" ;
+    sh:description "Every data source must be consumed by at least one service" ;
+
+    sh:message "Data sources should not exist without consumers (avoid orphaned data)" ;
+    .
+
+# ==============================================================================
+# SHAPE 19: Pricing Configuration
+# ==============================================================================
+
+ea:PricingShape a sh:NodeShape ;
+    sh:targetClass sku:Sku ;
+    sh:name "Pricing Configuration Shape" ;
+    sh:description "SKU pricing must be complete and non-negative" ;
+
+    sh:property [
+        sh:path sku:basePrice ;
+        sh:minCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:message "Base price must be non-negative" ;
+    ] ;
+
+    sh:property [
+        sh:path sku:pricingModel ;
+        sh:minCount 1 ;
+        sh:pattern "^Per tenant:" ;
+        sh:message "Pricing model must follow 'Per tenant:' format" ;
+    ] ;
+    .
+
+# ==============================================================================
+# SHAPE 20: SLO Definitions
+# ==============================================================================
+
+ea:SLOShape a sh:NodeShape ;
+    sh:targetClass sku:Sku ;
+    sh:name "SLO Definitions Shape" ;
+    sh:description "SKU must declare SLOs (uptime, latency, guarantees)" ;
+
+    sh:property [
+        sh:path sku:availabilitySlo ;
+        sh:minCount 1 ;
+        sh:pattern "^99\\.[0-9]+" ;
+        sh:message "Availability SLO must be formatted as 99.X%" ;
+    ] ;
+    .
+

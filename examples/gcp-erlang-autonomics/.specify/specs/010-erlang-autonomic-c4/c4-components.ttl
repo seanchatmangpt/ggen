@@ -1,0 +1,313 @@
+# Erlang Autonomic C4 Level 3: Components
+# Detailed decomposition of Governor Engine (core business logic)
+#
+# Version: 1.0
+# Created: 2026-01-25
+# Updated: 2026-01-25
+
+@prefix c4: <http://ggen.org/c4#> .
+@prefix ea: <http://ggen.org/erlang-autonomic#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ==============================================================================
+# COMPONENT ARCHITECTURE (C4 Level 3) - Governor Engine Internals
+# ==============================================================================
+
+ea:GovernorEngineComponents a c4:ComponentArchitecture ;
+    rdfs:label "Governor Engine Components" ;
+    rdfs:comment "Internal decomposition of the core autonomic decision engine" ;
+    c4:container ea:GovernorEngineContainer ;
+    c4:components ea:EventRouterComponent, ea:TenantRegistryComponent, ea:StateMachineComponent,
+                  ea:InvariantCheckerComponent, ea:PlannerComponent, ea:ReceiptEmitterComponent ;
+    .
+
+# ==============================================================================
+# COMPONENTS
+# ==============================================================================
+
+ea:EventRouterComponent a c4:Component ;
+    rdfs:label "Event Router" ;
+    rdfs:comment "Routes incoming signals to appropriate tenant state machines and policy evaluators" ;
+    c4:technology "Erlang gen_event behavior" ;
+    c4:responsibility "Signal routing, tenant demultiplexing, priority queuing" ;
+
+    c4:receives "Signals from SignalIngestContainer" ;
+    c4:sends "Events to TenantRegistryComponent, StateMachineComponent" ;
+
+    ea:pattern "Event bus with fan-out to tenant-specific processors" ;
+    ea:throughput "10,000+ signals/sec" ;
+    ea:latency "<50ms signal reception to routing decision" ;
+    .
+
+ea:TenantRegistryComponent a c4:Component ;
+    rdfs:label "Tenant Registry" ;
+    rdfs:comment "Maintains per-tenant state, policies, and configuration" ;
+    c4:technology "Erlang ETS (Erlang Term Storage) tables + durable storage" ;
+    c4:responsibility "Tenant metadata, active policies, SKU entitlements, quotas" ;
+
+    c4:reads "Policy definitions, tenant configuration" ;
+    c4:writes "Current tenant state, quota consumption" ;
+
+    ea:dataStructure "In-memory tenant records with eventual consistency backup" ;
+    ea:lookupLatency "<1ms" ;
+    ea:consistency "Strong eventual consistency (replicated)" ;
+    .
+
+ea:StateMachineComponent a c4:Component ;
+    rdfs:label "gen_statem FSM (Finite State Machine)" ;
+    rdfs:comment "Manages 5-state autonomic governor lifecycle for each tenant" ;
+    c4:technology "Erlang gen_statem (OTP state machine library)" ;
+    c4:responsibility "State transitions, event processing, state persistence" ;
+
+    c4:receives "Events from EventRouterComponent" ;
+    c4:sends "State change events to PlannerComponent, InvariantCheckerComponent" ;
+
+    ea:states "stable, warn, intervene, degrade, refuse" ;
+    ea:transitions (
+        [ ea:from "stable" ; ea:to "warn" ; ea:trigger "threshold_exceeded" ; ea:action "alert_admin" ]
+        [ ea:from "warn" ; ea:to "intervene" ; ea:trigger "threshold_breached" ; ea:action "execute_mitigation" ]
+        [ ea:from "intervene" ; ea:to "degrade" ; ea:trigger "intervention_failed" ; ea:action "reduce_load" ]
+        [ ea:from "degrade" ; ea:to "refuse" ; ea:trigger "system_critical" ; ea:action "deny_new_requests" ]
+        [ ea:from "refuse" ; ea:to "degrade" ; ea:trigger "admin_recovery_initiated" ; ea:action "gradual_recovery" ]
+        [ ea:from "degrade" ; ea:to "intervene" ; ea:trigger "load_normalized" ; ea:action "restore_services" ]
+        [ ea:from "intervene" ; ea:to "warn" ; ea:trigger "metrics_improving" ; ea:action "increase_monitoring" ]
+        [ ea:from "warn" ; ea:to "stable" ; ea:trigger "all_healthy" ; ea:action "resume_normal" ]
+    ) ;
+    ea:persistence "Durable state journal (append-only log)" ;
+    .
+
+ea:InvariantCheckerComponent a c4:Component ;
+    rdfs:label "Invariant Checker" ;
+    rdfs:comment "Validates system invariants before and after state transitions and actions" ;
+    c4:technology "Erlang pattern matching + validation library" ;
+    c4:responsibility "Pre-action validation, post-action verification, invariant enforcement" ;
+
+    c4:receives "State change requests from StateMachineComponent" ;
+    c4:sends "Validation result (pass/fail) to PlannerComponent" ;
+
+    ea:invariants (
+        [ ea:name "Resource Limits" ; ea:description "No single tenant exceeds quota" ]
+        [ ea:name "State Consistency" ; ea:description "System state transitions are monotonic (no cycles)" ]
+        [ ea:name "Action Atomicity" ; ea:description "Each action either fully succeeds or fully reverts" ]
+        [ ea:name "Receipt Integrity" ; ea:description "All decisions backed by cryptographic receipts" ]
+        [ ea:name "Idempotency" ; ea:description "Repeated actions produce same result" ]
+    ) ;
+    ea:checkLatency "<10ms per check" ;
+    .
+
+ea:PlannerComponent a c4:Component ;
+    rdfs:label "Planner" ;
+    rdfs:comment "Generates action plans based on state transitions and invariant checks" ;
+    c4:technology "Erlang RETE algorithm implementation + policy DSL interpreter" ;
+    c4:responsibility "Policy evaluation, action plan generation, decision documentation" ;
+
+    c4:receives "State transitions from StateMachineComponent, invariant validation from InvariantCheckerComponent" ;
+    c4:sends "Action plans to ReceiptEmitterComponent, ActuatorContainer" ;
+
+    ea:policyEngine "RETE-based forward chaining" ;
+    ea:decisionRules "Policy pack (governance rules in Erlang or RDF Turtle)" ;
+    ea:outputFormat (
+        [ ea:field "action_type" ; ea:values "scale_up, scale_down, rollback_deployment, rollback_config, degrade_feature, refuse_requests" ]
+        [ ea:field "target_resource" ; ea:values "Cloud Run service, Compute Engine instance, Load Balancer policy" ]
+        [ ea:field "parameters" ; ea:values "JSON with action-specific parameters" ]
+        [ ea:field "rationale" ; ea:values "Human-readable reason for the decision" ]
+    ) ;
+    ea:planLatency "<100ms decision latency" ;
+    .
+
+ea:ReceiptEmitterComponent a c4:Component ;
+    rdfs:label "Receipt Emitter" ;
+    rdfs:comment "Generates cryptographic receipts for all decisions and emits to ledger" ;
+    c4:technology "Erlang crypto library, SHA-256 hashing" ;
+    c4:responsibility "Receipt generation, cryptographic signing, ledger emission" ;
+
+    c4:receives "Action decisions from PlannerComponent" ;
+    c4:sends "Receipts to ReceiptLedgerContainer" ;
+
+    ea:receiptContent (
+        [ ea:field "decision_id" ; ea:type "UUID" ; ea:immutable true ]
+        [ ea:field "tenant_id" ; ea:type "string" ; ea:immutable true ]
+        [ ea:field "timestamp" ; ea:type "ISO8601" ; ea:immutable true ]
+        [ ea:field "state_from" ; ea:type "enum(stable|warn|intervene|degrade|refuse)" ; ea:immutable true ]
+        [ ea:field "state_to" ; ea:type "enum(stable|warn|intervene|degrade|refuse)" ; ea:immutable true ]
+        [ ea:field "signal_hash" ; ea:type "SHA-256" ; ea:immutable true ]
+        [ ea:field "action" ; ea:type "JSON" ; ea:immutable true ]
+        [ ea:field "receipt_hash" ; ea:type "SHA-256" ; ea:immutable true ]
+    ) ;
+    ea:hashAlgorithm "SHA-256 (deterministic, reproducible)" ;
+    ea:immutability "Once emitted, receipts cannot be modified" ;
+    .
+
+# ==============================================================================
+# COMPONENT INTERACTIONS
+# ==============================================================================
+
+ea:EventRouterToTenantRegistry a c4:Interaction ;
+    rdfs:label "Lookup Tenant" ;
+    c4:from ea:EventRouterComponent ;
+    c4:to ea:TenantRegistryComponent ;
+    c4:callType "Synchronous (latency-critical)" ;
+    c4:data "TenantId -> TenantMetadata (policies, quotas, state)" ;
+    .
+
+ea:EventRouterToStateMachine a c4:Interaction ;
+    rdfs:label "Route Signal to FSM" ;
+    c4:from ea:EventRouterComponent ;
+    c4:to ea:StateMachineComponent ;
+    c4:callType "Asynchronous (queued)" ;
+    c4:data "Signal event (tenant_id, signal_type, value, timestamp)" ;
+    .
+
+ea:StateMachineToInvariantChecker a c4:Interaction ;
+    rdfs:label "Validate State Transition" ;
+    c4:from ea:StateMachineComponent ;
+    c4:to ea:InvariantCheckerComponent ;
+    c4:callType "Synchronous (blocking)" ;
+    c4:data "Request: (current_state, next_state, signal) -> Response: (valid, reasons)" ;
+    .
+
+ea:StateMachineToPlanner a c4:Interaction ;
+    rdfs:label "Request Action Plan" ;
+    c4:from ea:StateMachineComponent ;
+    c4:to ea:PlannerComponent ;
+    c4:callType "Synchronous" ;
+    c4:data "Request: (tenant_id, current_state, next_state) -> Response: (action_plan)" ;
+    .
+
+ea:PlannerToReceiptEmitter a c4:Interaction ;
+    rdfs:label "Emit Receipt" ;
+    c4:from ea:PlannerComponent ;
+    c4:to ea:ReceiptEmitterComponent ;
+    c4:callType "Synchronous" ;
+    c4:data "Decision details (all fields for receipt) -> Receipt (signed, hashed)" ;
+    .
+
+# ==============================================================================
+# FINITE STATE MACHINE DETAILS
+# ==============================================================================
+
+ea:StableState a c4:State ;
+    rdfs:label "Stable" ;
+    rdfs:comment "System is operating within normal parameters, all metrics healthy" ;
+    c4:entryActions "Reset alert counters, resume normal processing" ;
+    c4:exitActions "Document stabilization time" ;
+    ea:metrics "CPU < 70%, Memory < 80%, Error rate < 0.1%" ;
+    .
+
+ea:WarnState a c4:State ;
+    rdfs:label "Warn" ;
+    rdfs:comment "Some metrics approaching limits, increase monitoring and alerting" ;
+    c4:entryActions "Trigger alerts, increase logging verbosity" ;
+    c4:exitActions "Document warning duration" ;
+    ea:metrics "CPU 70-85%, Memory 80-90%, Error rate 0.1-1%" ;
+    ea:alerting "Send notifications to CTO" ;
+    .
+
+ea:IntervenState a c4:State ;
+    rdfs:label "Intervene" ;
+    rdfs:comment "Execute remediation actions (scale up, rollback, etc.)" ;
+    c4:entryActions "Trigger automatic scaling, execute mitigation policies" ;
+    c4:exitActions "Document all executed actions" ;
+    ea:metrics "CPU > 85%, Memory > 90%, Error rate > 1%" ;
+    ea:actions "Scale up resources, rollback recent deployments, enable caching" ;
+    .
+
+ea:DegradeState a c4:State ;
+    rdfs:label "Degrade" ;
+    rdfs:comment "System under severe stress, reduce functionality to preserve stability" ;
+    c4:entryActions "Reduce feature set, prioritize critical workloads, throttle non-essential traffic" ;
+    c4:exitActions "Document degradation reason and severity" ;
+    ea:metrics "Critical resource exhaustion or unrecoverable failures" ;
+    ea:actions "Disable non-critical features, shed load, prioritize core workloads" ;
+    .
+
+ea:RefuseState a c4:State ;
+    rdfs:label "Refuse" ;
+    rdfs:comment "System at breaking point, refuse new requests until recovery" ;
+    c4:entryActions "Reject all non-priority requests, notify all stakeholders" ;
+    c4:exitActions "Manual intervention required from CTO" ;
+    ea:metrics "Catastrophic failure or cascading issues" ;
+    ea:recovery "Requires explicit admin action to begin recovery" ;
+    .
+
+# ==============================================================================
+# POLICY EVALUATION ENGINE
+# ==============================================================================
+
+ea:PolicyEvaluationEngine a c4:Component ;
+    rdfs:label "Policy Evaluation Engine" ;
+    rdfs:comment "Executes RETE-based rule matching to determine actions from state" ;
+    c4:part ea:PlannerComponent ;
+
+    ea:algorithm "RETE (Rete algorithm for efficient rule matching)" ;
+    ea:ruleFormat "Erlang tuples or RDF Turtle policy packs" ;
+
+    ea:exampleRules (
+        "If (state=warn AND cpu_trend=increasing) then scale_up_by_20_percent" ;
+        "If (state=intervene AND deployment_age<1h) then rollback_deployment" ;
+        "If (state=degrade AND memory_pressure=high) then enable_memory_limits" ;
+        "If (state=refuse AND time_in_refuse>30min) then gradual_recovery_start"
+    ) ;
+    .
+
+# ==============================================================================
+# RECEIPT STRUCTURE DETAIL
+# ==============================================================================
+
+ea:ReceiptStructure a c4:DataStructure ;
+    rdfs:label "Cryptographic Receipt Structure" ;
+    rdfs:comment "Deterministic, immutable record of every decision" ;
+
+    ea:receiptFormat """
+    {
+      "decision_id": "550e8400-e29b-41d4-a716-446655440000",
+      "tenant_id": "customer-42",
+      "timestamp": "2026-01-25T14:30:45Z",
+      "state_transition": {
+        "from": "stable",
+        "to": "warn",
+        "trigger_signal": {
+          "type": "metric",
+          "name": "cpu_utilization",
+          "value": 0.78,
+          "threshold": 0.70
+        }
+      },
+      "action": {
+        "type": "scale_up",
+        "target": "cloud-run-service",
+        "parameters": {
+          "min_instances": 5,
+          "max_instances": 20,
+          "memory_mib": 2048
+        }
+      },
+      "invariants_checked": [
+        "resource_limits_enforced",
+        "quota_not_exceeded",
+        "action_idempotent"
+      ],
+      "rationale": "CPU exceeded 70% threshold; scaling up to handle increased load",
+      "receipt_hash": "f7b3f5c9e2a1d4e8b6c3f0e5a7d2c9f1"
+    }
+    """ ;
+
+    ea:hashMethod "SHA-256(JSON.stringify(receipt, sorted_keys))" ;
+    ea:determinism "Same input always produces same receipt_hash" ;
+    .
+
+# ==============================================================================
+# COMPONENT QUALITIES
+# ==============================================================================
+
+ea:ComponentQualities a rdf:Bag ;
+    rdf:li "Latency: Complete decision cycle <5 seconds (signal to receipt)" ;
+    rdf:li "Throughput: Process 10k+ signals/sec per tenant" ;
+    rdf:li "Determinism: Identical receipts for identical signal histories" ;
+    rdf:li "Fault tolerance: Survive component restarts without state loss" ;
+    rdf:li "Scalability: Linear scale with number of tenants" ;
+    .
+

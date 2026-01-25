@@ -1,0 +1,198 @@
+# Erlang Autonomic C4 Level 1: System Context
+# Defines the high-level system boundary, external actors, and system relationships
+#
+# Version: 1.0
+# Created: 2026-01-25
+# Updated: 2026-01-25
+
+@prefix c4: <http://ggen.org/c4#> .
+@prefix ea: <http://ggen.org/erlang-autonomic#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ==============================================================================
+# SYSTEM CONTEXT (C4 Level 1)
+# ==============================================================================
+
+ea:AutonomicGovernorSystem a c4:SoftwareSystem ;
+    rdfs:label "Autonomic Governor System" ;
+    rdfs:comment "Erlang-based autonomic system for self-optimizing infrastructure governance on GCP" ;
+    c4:systemScope "Manages self-healing, self-scaling, and self-optimizing behaviors for cloud infrastructure" ;
+    c4:systemBoundary ea:AWSSystemBoundary ;
+    .
+
+# ==============================================================================
+# EXTERNAL ACTORS (Users/Personas)
+# ==============================================================================
+
+ea:CTO a c4:Actor ;
+    rdfs:label "CTO" ;
+    rdfs:comment "Chief Technology Officer who configures governance policies and monitors system health" ;
+    c4:actorRole "Enterprise governance and policy management" ;
+    c4:interactsWith ea:AutonomicGovernorSystem ;
+    ea:governanceInterest "Policy definition, compliance monitoring, cost control" ;
+    .
+
+ea:MarketplaceOperator a c4:Actor ;
+    rdfs:label "Marketplace" ;
+    rdfs:comment "Hosted marketplace where governance policies and SKUs are published and consumed" ;
+    c4:actorRole "Policy and SKU distribution" ;
+    c4:interactsWith ea:AutonomicGovernorSystem ;
+    ea:marketplaceInterest "Publish SKUs, distribute governance templates, receive usage telemetry" ;
+    .
+
+ea:GCPPlatform a c4:ExternalSystem ;
+    rdfs:label "Google Cloud Platform" ;
+    rdfs:comment "Cloud infrastructure provider hosting the autonomic system" ;
+    c4:systemType "Cloud Provider" ;
+    c4:interactsWith ea:AutonomicGovernorSystem ;
+    ea:gcpServices ea:CloudRun, ea:PubSub, ea:CloudStorage, ea:BigQuery, ea:SecretManager ;
+    .
+
+# ==============================================================================
+# SYSTEM INTERFACES / HIGH-LEVEL RELATIONSHIPS
+# ==============================================================================
+
+ea:CTOInstallsPolicy a c4:Relationship ;
+    rdfs:label "install" ;
+    rdfs:comment "CTO installs governance policies and SKU packs into the system" ;
+    c4:sourceActor ea:CTO ;
+    c4:targetSystem ea:AutonomicGovernorSystem ;
+    c4:relationshipType "Installs policies, configures governors" ;
+    c4:protocol "Management API, REST" ;
+    .
+
+ea:CTOPaysForUsage a c4:Relationship ;
+    rdfs:label "pay" ;
+    rdfs:comment "CTO receives billing and pays for resource governance services" ;
+    c4:sourceActor ea:CTO ;
+    c4:targetSystem ea:AutonomicGovernorSystem ;
+    c4:relationshipType "Billing and payments" ;
+    c4:protocol "Marketplace integration, invoicing" ;
+    .
+
+ea:MarketplaceDistributesSkus a c4:Relationship ;
+    rdfs:label "distribute" ;
+    rdfs:comment "Marketplace distributes SKU packs and governance templates" ;
+    c4:sourceActor ea:MarketplaceOperator ;
+    c4:targetSystem ea:AutonomicGovernorSystem ;
+    c4:relationshipType "SKU package distribution" ;
+    c4:protocol "REST API, Package registry" ;
+    .
+
+ea:SystemObservesGCP a c4:Relationship ;
+    rdfs:label "observe" ;
+    rdfs:comment "Autonomic system observes cloud infrastructure (monitoring, signals, metrics)" ;
+    c4:sourceSystem ea:AutonomicGovernorSystem ;
+    c4:targetSystem ea:GCPPlatform ;
+    c4:relationshipType "Ingests signals, reads metrics, monitors resources" ;
+    c4:protocol "Pub/Sub, Monitoring API, Cloud Logging" ;
+    .
+
+ea:SystemActuatesGCP a c4:Relationship ;
+    rdfs:label "actuate" ;
+    rdfs:comment "Autonomic system executes actions on cloud infrastructure (scaling, degradation, policies)" ;
+    c4:sourceSystem ea:AutonomicGovernorSystem ;
+    c4:targetSystem ea:GCPPlatform ;
+    c4:relationshipType "Scales, updates policies, triggers mitigation actions" ;
+    c4:protocol "Cloud Resource Manager API, Compute Engine API, gRPC" ;
+    .
+
+ea:SystemEmitsReceipts a c4:Relationship ;
+    rdfs:label "emit" ;
+    rdfs:comment "Autonomic system emits cryptographic receipts for audit trail and billing evidence" ;
+    c4:sourceSystem ea:AutonomicGovernorSystem ;
+    c4:targetActor ea:CTO ;
+    c4:relationshipType "Provides audit trail and billing receipts" ;
+    c4:protocol "REST API, Event Ledger, Cloud Storage" ;
+    .
+
+# ==============================================================================
+# SYSTEM BOUNDARIES & SCOPE
+# ==============================================================================
+
+ea:AWSSystemBoundary a c4:SystemBoundary ;
+    rdfs:label "Autonomic Governor System Boundary" ;
+    rdfs:comment "Encapsulates all governance logic, decision-making, and coordination" ;
+    c4:containsServices ea:SignalIngestionService, ea:GovernanceEngineService,
+                        ea:ActuatorService, ea:EntitlementService, ea:ReceiptLedgerService ;
+    .
+
+# ==============================================================================
+# SYSTEM-LEVEL SERVICES (PREVIEW - Details in Level 2)
+# ==============================================================================
+
+ea:SignalIngestionService a c4:Service ;
+    rdfs:label "Signal Ingestion" ;
+    rdfs:comment "Receives and processes signals from cloud infrastructure and customers" ;
+    c4:serviceType "Event ingestion" ;
+    .
+
+ea:GovernanceEngineService a c4:Service ;
+    rdfs:label "Governor Engine" ;
+    rdfs:comment "Core decision engine that runs governance logic and determines system actions" ;
+    c4:serviceType "Core business logic" ;
+    .
+
+ea:ActuatorService a c4:Service ;
+    rdfs:label "Actuator" ;
+    rdfs:comment "Executes governance decisions (scaling, rollback, degradation, policy updates)" ;
+    c4:serviceType "Action executor" ;
+    .
+
+ea:EntitlementService a c4:Service ;
+    rdfs:label "Entitlement Manager" ;
+    rdfs:comment "Manages tenant entitlements, quota enforcement, and access control" ;
+    c4:serviceType "Authorization and quota" ;
+    .
+
+ea:ReceiptLedgerService a c4:Service ;
+    rdfs:label "Receipt Ledger" ;
+    rdfs:comment "Cryptographic receipt generation and audit trail management" ;
+    c4:serviceType "Audit and compliance" ;
+    .
+
+# ==============================================================================
+# DATA FLOW SUMMARY (Level 1)
+# ==============================================================================
+
+ea:Level1DataFlow a c4:DataFlow ;
+    rdfs:label "System-Level Data Flow" ;
+    rdfs:comment "High-level data flow from signals to actions to receipts" ;
+    c4:flowSteps (
+        [ c4:step 1 ; c4:description "Cloud infrastructure emits signals (metrics, events, logs)" ]
+        [ c4:step 2 ; c4:description "Autonomic system ingests signals and analyzes state" ]
+        [ c4:step 3 ; c4:description "Governor engine decides actions based on policies" ]
+        [ c4:step 4 ; c4:description "Actuators execute actions on cloud infrastructure" ]
+        [ c4:step 5 ; c4:description "Receipt ledger records all decisions and actions" ]
+        [ c4:step 6 ; c4:description "CTO receives audit trail and billing information" ]
+    ) ;
+    .
+
+# ==============================================================================
+# KEY ATTRIBUTES (System-Level)
+# ==============================================================================
+
+ea:SystemAttributes a rdf:Bag ;
+    rdf:li "Language: Erlang (hot-reload, fault-tolerance, distribution)" ;
+    rdf:li "Deployment: Google Cloud Platform (Cloud Run, managed services)" ;
+    rdf:li "Governance Model: Multi-tenant, SKU-based billing, policy packs" ;
+    rdf:li "Autonomic Strategy: Self-healing, self-scaling, self-optimizing" ;
+    rdf:li "Audit: Deterministic receipts, cryptographic hashing, immutable ledger" ;
+    .
+
+# ==============================================================================
+# SYSTEM QUALITIES (Non-Functional Requirements)
+# ==============================================================================
+
+ea:SystemQualities a rdf:Bag ;
+    rdf:li "Fault tolerance: System survives signal loss, GCP outages, partial failures" ;
+    rdf:li "Latency: Decision latency < 5 seconds (signal ingestion to action)" ;
+    rdf:li "Throughput: Process 10k+ signals per second per tenant" ;
+    rdf:li "Determinism: Same signal history produces identical decisions (audit-safe)" ;
+    rdf:li "Auditability: All decisions backed by cryptographic receipts" ;
+    rdf:li "Compliance: Multi-tenant isolation, quota enforcement, policy adherence" ;
+    .
+

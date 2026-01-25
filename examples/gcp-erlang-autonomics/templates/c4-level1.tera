@@ -1,0 +1,75 @@
+{% comment %}
+C4 Level 1: System Context Diagram
+Renders actors, primary system, and external systems with relationships.
+Input: SPARQL query results from systems query
+Output: Mermaid flowchart format
+
+Template Variables:
+  - systems: List of systems with actors and relationships
+  - system_name: Name of primary system (from ggen.toml)
+  - title: Diagram title
+
+Example query result structure:
+  actor_label: "Customer"
+  system_label: "gGen CLI"
+  rel_type: "uses"
+  target_system: "gGen Core"
+{% endcomment %}
+
+graph {{ mermaid_direction | default(value="TB") }}
+    classDef actor fill:#08427b,stroke:#3c7fc0,color:#fff,font-size:14px
+    classDef system fill:#438dd5,stroke:#3c7fc0,color:#fff,font-size:14px
+    classDef external fill:#999,stroke:#666,color:#fff,font-size:12px
+
+    %% Title and System Context
+    A["<b>System Context</b><br/>{{ system_name | default(value='GCP Erlang Autonomics') }}"]
+    style A fill:#f0f0f0,stroke:#000,stroke-width:3px,font-size:16px,color:#000
+
+    {% comment %}Group actors by category for better layout{% endcomment %}
+    subgraph actors["👥 Actors"]
+        {% set seen_actors = [] %}
+        {% for row in systems %}
+            {% if row.actor_label and row.actor_label not in seen_actors %}
+                {% set _ = seen_actors | push(value=row.actor_label) %}
+        ACT_{{ loop.index }}["{{ row.actor_label | upper }}"]:::actor
+            {% endif %}
+        {% endfor %}
+    end
+
+    {% comment %}Primary system node{% endcomment %}
+    subgraph primary["🔧 System"]
+        SYS["<b>{{ system_name | default(value='Autonomous Governor') }}</b><br/><i>Erlang + GCP Cloud Run</i>"]:::system
+    end
+
+    {% comment %}External systems and services{% endcomment %}
+    subgraph external["🌐 External Systems"]
+        {% set seen_external = [] %}
+        {% for row in systems %}
+            {% if row.target_system and row.target_system not in seen_external and row.target_system != system_name %}
+                {% set _ = seen_external | push(value=row.target_system) %}
+        EXT_{{ loop.index }}["{{ row.target_system }}"]:::external
+            {% endif %}
+        {% endfor %}
+    end
+
+    {% comment %}Relationships: Actors to System{% endcomment %}
+    {% for row in systems %}
+        {% if row.actor_label and row.rel_type %}
+    ACT_{{ loop.index }} -->|{{ row.rel_type }}| SYS
+        {% else %}
+    ACT_{{ loop.index }} --> SYS
+        {% endif %}
+    {% endfor %}
+
+    {% comment %}Relationships: System to External{% endcomment %}
+    {% set sys_rel_index = 0 %}
+    {% for row in systems %}
+        {% if row.target_system and row.target_system != system_name %}
+            {% set sys_rel_index = sys_rel_index + 1 %}
+    SYS -->|{{ row.rel_type | default(value='calls') }}| EXT_{{ sys_rel_index }}
+        {% endif %}
+    {% endfor %}
+
+    {% comment %}Add legend{% endcomment %}
+    L["<b>Legend</b><br/>🔵 Actor: Human or external system<br/>🔧 System: Primary system (responsibility)<br/>🌐 External: Dependencies and integrations"]
+    style L fill:#e8f4f8,stroke:#999,stroke-width:1px,color:#000,font-size:11px,text-align:left
