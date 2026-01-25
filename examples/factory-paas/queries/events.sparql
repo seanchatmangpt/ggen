@@ -1,0 +1,23 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd:  <https://ggen.io/ontology/ddd#>
+
+SELECT ?eventName ?eventComment ?fieldName ?fieldType ?fieldRequired ?fieldDefault ?fieldComment
+WHERE {
+  # Find all events
+  ?event a ddd:Event ;
+         ddd:name ?eventName .
+
+  OPTIONAL { ?event rdfs:comment ?eventComment }
+
+  # Find fields of this event
+  ?event ddd:hasField ?field .
+
+  ?field ddd:name ?fieldName ;
+         ddd:type ?fieldType .
+
+  OPTIONAL { ?field ddd:required ?fieldRequired }
+  OPTIONAL { ?field ddd:default ?fieldDefault }
+  OPTIONAL { ?field rdfs:comment ?fieldComment }
+}
+ORDER BY ?eventName ?fieldName

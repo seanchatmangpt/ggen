@@ -1,0 +1,15 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd:  <https://ggen.io/ontology/ddd#>
+
+SELECT ?commandName ?httpMethod ?httpPath
+WHERE {
+  # Find all commands (each becomes a route)
+  ?command a ddd:Command ;
+           ddd:name ?commandName .
+
+  # Default to POST for commands
+  OPTIONAL { ?command ddd:httpMethod ?httpMethod }
+  OPTIONAL { ?command ddd:httpPath ?httpPath }
+}
+ORDER BY ?commandName

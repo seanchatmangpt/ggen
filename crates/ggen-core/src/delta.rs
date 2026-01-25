@@ -698,7 +698,12 @@ impl ImpactAnalyzer {
         }
 
         // Sort by confidence (highest first)
-        impacts.sort_by(|a, b| b.confidence.partial_cmp(&a.confidence).unwrap());
+        // Note: NaN values are treated as less than all other values
+        impacts.sort_by(|a, b| {
+            b.confidence
+                .partial_cmp(&a.confidence)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
 
         Ok(impacts)
     }

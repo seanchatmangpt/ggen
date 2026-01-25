@@ -145,7 +145,12 @@ impl LockfileManager {
     pub fn new(project_dir: &Path) -> Self {
         let lockfile_path = project_dir.join("ggen.lock");
         // OPTIMIZATION 1: Initialize dependency cache with capacity of 1000 entries
-        let dep_cache = Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(1000).unwrap())));
+        // SAFETY: 1000 is a non-zero value, so NonZeroUsize::new(1000) will never fail
+        const CACHE_CAPACITY: NonZeroUsize = match NonZeroUsize::new(1000) {
+            Some(n) => n,
+            None => unreachable!(),
+        };
+        let dep_cache = Arc::new(Mutex::new(LruCache::new(CACHE_CAPACITY)));
         Self {
             lockfile_path,
             dep_cache,
@@ -154,7 +159,12 @@ impl LockfileManager {
 
     /// Create a lockfile manager with custom path
     pub fn with_path(lockfile_path: PathBuf) -> Self {
-        let dep_cache = Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(1000).unwrap())));
+        // SAFETY: 1000 is a non-zero value, so NonZeroUsize::new(1000) will never fail
+        const CACHE_CAPACITY: NonZeroUsize = match NonZeroUsize::new(1000) {
+            Some(n) => n,
+            None => unreachable!(),
+        };
+        let dep_cache = Arc::new(Mutex::new(LruCache::new(CACHE_CAPACITY)));
         Self {
             lockfile_path,
             dep_cache,
@@ -266,7 +276,10 @@ impl LockfileManager {
 
         // OPTIMIZATION 1.2: Check cache first for memoization (30-50% speedup)
         {
-            let mut cache = self.dep_cache.lock().unwrap();
+            let mut cache = self
+                .dep_cache
+                .lock()
+                .map_err(|e| Error::new(&format!("Dependency cache lock poisoned: {}", e)))?;
             if let Some(cached_deps) = cache.get(&cache_key) {
                 return Ok(cached_deps.clone());
             }
@@ -297,7 +310,10 @@ impl LockfileManager {
 
         // OPTIMIZATION 1.2: Store in cache for future lookups
         {
-            let mut cache = self.dep_cache.lock().unwrap();
+            let mut cache = self
+                .dep_cache
+                .lock()
+                .map_err(|e| Error::new(&format!("Dependency cache lock poisoned: {}", e)))?;
             cache.put(cache_key, result.clone());
         }
 
@@ -465,15 +481,22 @@ impl LockfileManager {
     }
 
     /// Clear dependency cache (useful for testing or when cache becomes stale)
-    pub fn clear_cache(&self) {
-        let mut cache = self.dep_cache.lock().unwrap();
+    pub fn clear_cache(&self) -> Result<()> {
+        let mut cache = self
+            .dep_cache
+            .lock()
+            .map_err(|e| Error::new(&format!("Dependency cache lock poisoned: {}", e)))?;
         cache.clear();
+        Ok(())
     }
 
     /// Get cache statistics
-    pub fn cache_stats(&self) -> (usize, usize) {
-        let cache = self.dep_cache.lock().unwrap();
-        (cache.len(), cache.cap().get())
+    pub fn cache_stats(&self) -> Result<(usize, usize)> {
+        let cache = self
+            .dep_cache
+            .lock()
+            .map_err(|e| Error::new(&format!("Dependency cache lock poisoned: {}", e)))?;
+        Ok((cache.len(), cache.cap().get()))
     }
 }
 

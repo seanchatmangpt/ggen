@@ -46,7 +46,7 @@ zeroize = "1.7"
 
 # Performance
 rayon = "1.10"
-dashmap = "6.0"
+dashmap = "6.1"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

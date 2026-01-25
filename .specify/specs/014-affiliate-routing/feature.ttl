@@ -1,0 +1,125 @@
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix : <http://github.com/github/spec-kit/examples/affiliate-routing#> .
+
+# ============================================================================
+# FEATURE: Affiliate Link Routing & Click Tracking
+# ============================================================================
+
+:affiliate-routing a sk:Feature ;
+    sk:name "Affiliate Link Routing & Click Tracking" ;
+    sk:version "1.0.0" ;
+    sk:description "Zero-allocation affiliate link resolver with cryptographic click receipts" ;
+    sk:priority "P1" ;
+    sk:hasUserStory :us-001, :us-002, :us-003, :us-004 .
+
+# ============================================================================
+# USER STORY 1: Route Resolution with Caching
+# ============================================================================
+
+:us-001 a sk:UserStory ;
+    sk:storyIndex 1 ;
+    sk:title "Route resolution with zero-alloc caching" ;
+    sk:priority "P1" ;
+    sk:description "As a FactoryPaaS operator, I want affiliate links resolved in <5ms with zero allocations on hot path, so that redirect latency is imperceptible to users" ;
+    sk:priorityRationale "P1: Core value proposition - fast redirects with tracking are the primary revenue driver" ;
+    sk:independentTest "Benchmark route resolution: 1M lookups <5ms total, zero heap allocations after warmup" ;
+    sk:hasAcceptanceScenario :us-001-as-001, :us-001-as-002, :us-001-as-003 .
+
+:us-001-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "A route /r/promo-123 exists mapping to https://example.com/offer?aff=ABC" ;
+    sk:when "GET /r/promo-123 is requested" ;
+    sk:then "Respond with 302 redirect to destination URL with tracking params appended" .
+
+:us-001-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Route cache is warm with 10k routes" ;
+    sk:when "1M sequential lookups are performed" ;
+    sk:then "Total time <5ms, zero heap allocations measured via criterion + valgrind" .
+
+:us-001-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "A non-existent route /r/invalid is requested" ;
+    sk:when "GET /r/invalid is requested" ;
+    sk:then "Respond with 404 Not Found with error receipt" .
+
+# ============================================================================
+# USER STORY 2: Click Tracking with Cryptographic Receipts
+# ============================================================================
+
+:us-002 a sk:UserStory ;
+    sk:storyIndex 2 ;
+    sk:title "Click tracking with cryptographic receipts" ;
+    sk:priority "P1" ;
+    sk:description "As a FactoryPaaS auditor, I need cryptographic proof of every click with timestamp, IP hash, and attribution data, so that revenue attribution is verifiable and dispute-free" ;
+    sk:priorityRationale "P1: Trust and compliance - advertisers require tamper-proof click verification" ;
+    sk:independentTest "Verify receipt includes SHA-256 hash, timestamp (ISO 8601), IP hash (SHA-256), user agent, and chained previous receipt hash" ;
+    sk:hasAcceptanceScenario :us-002-as-001, :us-002-as-002, :us-002-as-003 .
+
+:us-002-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "User clicks /r/promo-123 from IP 192.168.1.100" ;
+    sk:when "Redirect is processed" ;
+    sk:then "Generate receipt with click_id (UUID v7), timestamp (ISO 8601), ip_hash (SHA-256), route_id, destination_url" .
+
+:us-002-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Receipt was generated with click_id abc-123" ;
+    sk:when "GET /receipts/abc-123 is requested" ;
+    sk:then "Return JSON receipt with signature verification proof" .
+
+:us-002-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "1000 clicks have been tracked sequentially" ;
+    sk:when "Receipts are verified" ;
+    sk:then "Each receipt.prev_hash matches previous receipt.hash, forming Merkle-linked chain" .
+
+# ============================================================================
+# USER STORY 3: HTTP Redirect Handler with Tracking
+# ============================================================================
+
+:us-003 a sk:UserStory ;
+    sk:storyIndex 3 ;
+    sk:title "HTTP redirect handler with tracking pixel" ;
+    sk:priority "P2" ;
+    sk:description "As a FactoryPaaS publisher, I want transparent click tracking via 302 redirects and optional tracking pixels, so that users experience no friction while clicks are attributed" ;
+    sk:priorityRationale "P2: User experience optimization - transparent tracking improves conversion rates" ;
+    sk:independentTest "Redirect latency <10ms p99, tracking pixel <1KB, no cookies required" ;
+    sk:hasAcceptanceScenario :us-003-as-001, :us-003-as-002 .
+
+:us-003-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Route /r/sale-50 configured with tracking pixel enabled" ;
+    sk:when "User clicks link" ;
+    sk:then "302 redirect to destination with X-Click-ID header, optionally inject 1x1 tracking pixel in response" .
+
+:us-003-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Tracking pixel POST /track/click with click_id in body" ;
+    sk:when "Pixel fires from user browser" ;
+    sk:then "Record click event, return 204 No Content, <5ms latency" .
+
+# ============================================================================
+# USER STORY 4: Property-Based Testing for Routing Logic
+# ============================================================================
+
+:us-004 a sk:UserStory ;
+    sk:storyIndex 4 ;
+    sk:title "Property-based testing for routing invariants" ;
+    sk:priority "P2" ;
+    sk:description "As a ggen maintainer, I need property tests verifying route resolution invariants, so that edge cases are caught before production" ;
+    sk:priorityRationale "P2: Quality assurance - property tests catch 80% of bugs with 20% effort" ;
+    sk:independentTest "Run 10k property test cases: route resolution is deterministic, URL encoding is safe, receipt hashes are unique" ;
+    sk:hasAcceptanceScenario :us-004-as-001, :us-004-as-002 .
+
+:us-004-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Arbitrary route slug (alphanumeric + hyphens, 1-64 chars)" ;
+    sk:when "Route is resolved 1000 times" ;
+    sk:then "Same destination URL returned every time (deterministic)" .
+
+:us-004-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Arbitrary destination URL with special characters" ;
+    sk:when "URL is encoded for redirect" ;
+    sk:then "Output is valid percent-encoded URL, no XSS vectors, idempotent encoding" .

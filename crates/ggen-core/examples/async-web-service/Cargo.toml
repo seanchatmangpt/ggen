@@ -51,7 +51,7 @@ utoipa-swagger-ui = { version = "6.0", features = ["actix-web"] }
 prometheus = "0.13"
 
 # Configuration
-config = "0.14"
+config = "0.15"
 
 # Error handling
 anyhow = "1.0"

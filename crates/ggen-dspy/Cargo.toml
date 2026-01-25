@@ -15,7 +15,7 @@ categories = ["development-tools", "command-line-utilities"]
 ggen-ai = { workspace = true }
 
 # LLM client
-genai = "0.4"
+genai = { workspace = true }
 
 # Async runtime and traits
 tokio = { workspace = true }

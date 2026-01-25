@@ -40,7 +40,6 @@ once_cell = { workspace = true }
 walkdir = "2.5"
 glob = "0.3"
 sha2 = "0.10"
-md5 = "0.8"
 tempfile = { workspace = true }
 tar = "0.4"
 flate2 = "1.0"

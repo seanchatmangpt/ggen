@@ -1,0 +1,36 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd: <https://ggen.io/ontology/ddd#>
+PREFIX attr: <https://ggen.io/examples/attribution#>
+
+SELECT DISTINCT
+  ?command
+  ?commandName
+  ?commandComment
+  ?aggregate
+  ?event
+  ?fieldName
+  ?fieldType
+  ?fieldRequired
+WHERE {
+  VALUES ?command {
+    attr:TrackSubscription
+    attr:RecordRecurringCommission
+    attr:CancelSubscription
+  }
+
+  ?command a ddd:Command ;
+    ddd:name ?commandName .
+
+  OPTIONAL { ?command rdfs:comment ?commandComment }
+  OPTIONAL { ?command ddd:aggregate ?aggregate }
+  OPTIONAL { ?command ddd:emitsEvent ?event }
+
+  ?command ddd:hasField ?field .
+
+  ?field ddd:name ?fieldName ;
+    ddd:type ?fieldType .
+
+  OPTIONAL { ?field ddd:required ?fieldRequired }
+}
+ORDER BY ?commandName ?fieldName

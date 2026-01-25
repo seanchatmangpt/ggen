@@ -1,0 +1,240 @@
+// GENERATED CODE - DO NOT EDIT
+// Source: auth.ttl via ggen sync
+// Template: tests.rs.tera
+
+#[cfg(test)]
+mod tests {
+    use super::super::{AuthService, AuthError};
+
+    // Happy path tests
+    #[test]
+    fn test_register_success() {
+        let mut service = AuthService::new();
+        let result = service.register(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        );
+
+        assert!(result.is_ok());
+        let user = result.unwrap();
+        assert_eq!(user.email, "test@example.com");
+        assert_ne!(user.password_hash, "password123");
+    }
+
+    #[test]
+    fn test_login_success() {
+        let mut service = AuthService::new();
+        service.register(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        ).unwrap();
+
+        let result = service.login(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        );
+
+        assert!(result.is_ok());
+        let session = result.unwrap();
+        assert!(session.is_valid());
+    }
+
+    #[test]
+    fn test_validate_session_success() {
+        let mut service = AuthService::new();
+        service.register(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        ).unwrap();
+
+        let session = service.login(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        ).unwrap();
+
+        let result = service.validate_session(&session.token);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().email, "test@example.com");
+    }
+
+    #[test]
+    fn test_logout_success() {
+        let mut service = AuthService::new();
+        service.register(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        ).unwrap();
+
+        let session = service.login(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        ).unwrap();
+
+        let result = service.logout(&session.token);
+        assert!(result.is_ok());
+
+        let validate_result = service.validate_session(&session.token);
+        assert!(validate_result.is_err());
+    }
+
+    // Validation error tests
+    #[test]
+    fn test_register_invalid_email() {
+        let mut service = AuthService::new();
+        let result = service.register(
+            "invalid-email".to_string(),
+            "password123".to_string()
+        );
+
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), AuthError::InvalidEmail(_)));
+    }
+
+    #[test]
+    fn test_register_weak_password_too_short() {
+        let mut service = AuthService::new();
+        let result = service.register(
+            "test@example.com".to_string(),
+            "weak".to_string()
+        );
+
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), AuthError::WeakPassword(_)));
+    }
+
+    #[test]
+    fn test_register_weak_password_no_number() {
+        let mut service = AuthService::new();
+        let result = service.register(
+            "test@example.com".to_string(),
+            "weakpassword".to_string()
+        );
+
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), AuthError::WeakPassword(_)));
+    }
+
+    // Business logic error tests
+    #[test]
+    fn test_register_duplicate_user() {
+        let mut service = AuthService::new();
+        service.register(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        ).unwrap();
+
+        let result = service.register(
+            "test@example.com".to_string(),
+            "password456".to_string()
+        );
+
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), AuthError::UserExists(_)));
+    }
+
+    #[test]
+    fn test_login_wrong_password() {
+        let mut service = AuthService::new();
+        service.register(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        ).unwrap();
+
+        let result = service.login(
+            "test@example.com".to_string(),
+            "wrong_password".to_string()
+        );
+
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), AuthError::InvalidCredentials));
+    }
+
+    #[test]
+    fn test_login_user_not_found() {
+        let mut service = AuthService::new();
+        let result = service.login(
+            "nonexistent@example.com".to_string(),
+            "password123".to_string()
+        );
+
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), AuthError::UserNotFound(_)));
+    }
+
+    #[test]
+    fn test_validate_session_invalid_token() {
+        let service = AuthService::new();
+        let result = service.validate_session("invalid_token");
+
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), AuthError::InvalidSession(_)));
+    }
+
+    #[test]
+    fn test_active_sessions_count() {
+        let mut service = AuthService::new();
+        service.register(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        ).unwrap();
+
+        assert_eq!(service.active_sessions(), 0);
+
+        service.login(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        ).unwrap();
+
+        assert_eq!(service.active_sessions(), 1);
+    }
+
+    // Additional edge case tests (auto-generated from ontology)
+    #[test]
+    fn test_user_display_trait() {
+        let mut service = AuthService::new();
+        let user = service.register(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        ).unwrap();
+
+        let display_string = format!("{}", user);
+        assert!(display_string.contains("test@example.com"));
+    }
+
+    #[test]
+    fn test_session_display_trait() {
+        let mut service = AuthService::new();
+        service.register(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        ).unwrap();
+
+        let session = service.login(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        ).unwrap();
+
+        let display_string = format!("{}", session);
+        assert!(display_string.contains("valid=true"));
+    }
+
+    #[test]
+    fn test_get_user_exists() {
+        let mut service = AuthService::new();
+        service.register(
+            "test@example.com".to_string(),
+            "password123".to_string()
+        ).unwrap();
+
+        let user = service.get_user("test@example.com");
+        assert!(user.is_some());
+        assert_eq!(user.unwrap().email, "test@example.com");
+    }
+
+    #[test]
+    fn test_get_user_not_exists() {
+        let service = AuthService::new();
+        let user = service.get_user("nonexistent@example.com");
+        assert!(user.is_none());
+    }
+}

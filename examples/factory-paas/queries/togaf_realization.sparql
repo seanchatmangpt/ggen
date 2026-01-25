@@ -1,0 +1,19 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd:  <https://ggen.io/ontology/ddd#>
+PREFIX cloud: <https://ggen.io/ontology/cloud#>
+
+SELECT ?contextName ?resourceName ?provider ?shape
+WHERE {
+  # Find the bounded context
+  ?context a ddd:BoundedContext ;
+           ddd:name ?contextName .
+
+  # Find infrastructure realization
+  OPTIONAL {
+    ?resource a cloud:ComputeInstance ;
+              cloud:name ?resourceName ;
+              cloud:provider ?provider ;
+              cloud:shape ?shape .
+  }
+}

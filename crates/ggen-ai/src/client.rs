@@ -221,6 +221,7 @@ impl LlmClient for GenAiClient {
             })?;
 
         let model = self.config.model.clone();
+        // Note: model is used in the closure below
         let stream = stream.stream.map(move |chunk_result| {
             match chunk_result {
                 Ok(event) => {
@@ -266,6 +267,16 @@ impl LlmClient for GenAiClient {
                             finish_reason: None,
                             usage: None,
                             extra: HashMap::new(),
+                        },
+                        genai::chat::ChatStreamEvent::ThoughtSignatureChunk(_) => {
+                            // Thought signature chunks not yet supported in streaming
+                            LlmChunk {
+                                content: String::new(),
+                                model: model.clone(),
+                                finish_reason: None,
+                                usage: None,
+                                extra: HashMap::new(),
+                            }
                         },
                     }
                 }

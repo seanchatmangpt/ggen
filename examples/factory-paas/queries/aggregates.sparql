@@ -1,0 +1,25 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd:  <https://ggen.io/ontology/ddd#>
+
+SELECT ?aggregateName ?aggregateComment ?identityField ?fieldName ?fieldType ?fieldRequired
+WHERE {
+  # Find all aggregates
+  ?aggregate a ddd:Aggregate ;
+             ddd:name ?aggregateName .
+
+  OPTIONAL { ?aggregate rdfs:comment ?aggregateComment }
+  OPTIONAL {
+    ?aggregate ddd:identityField ?identity .
+    ?identity ddd:name ?identityField
+  }
+
+  # Find fields of this aggregate
+  OPTIONAL {
+    ?aggregate ddd:hasField ?field .
+    ?field ddd:name ?fieldName ;
+           ddd:type ?fieldType .
+    OPTIONAL { ?field ddd:required ?fieldRequired }
+  }
+}
+ORDER BY ?aggregateName ?fieldName

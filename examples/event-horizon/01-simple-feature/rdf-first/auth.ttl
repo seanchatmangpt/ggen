@@ -1,0 +1,202 @@
+# RDF-First Approach: Authentication Ontology
+# This is the SINGLE SOURCE OF TRUTH
+# All code, tests, and docs generated from this specification
+
+@prefix : <http://example.org/auth#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# ============================================================================
+# DOMAIN CLASSES
+# ============================================================================
+
+:User a rdfs:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "Represents a user in the authentication system" ;
+    :rustType "User" ;
+    :derive "Debug, Clone, Serialize, Deserialize, PartialEq" .
+
+:Session a rdfs:Class ;
+    rdfs:label "Session" ;
+    rdfs:comment "Represents an active user session" ;
+    :rustType "Session" ;
+    :derive "Debug, Clone, Serialize, Deserialize" .
+
+:AuthService a rdfs:Class ;
+    rdfs:label "AuthService" ;
+    rdfs:comment "Authentication service managing users and sessions" ;
+    :rustType "AuthService" ;
+    :derive "Default" .
+
+# ============================================================================
+# PROPERTIES
+# ============================================================================
+
+:hasId a rdf:Property ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string ;
+    rdfs:label "id" ;
+    :rustType "String" ;
+    :required true .
+
+:hasEmail a rdf:Property ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string ;
+    rdfs:label "email" ;
+    :rustType "String" ;
+    :required true ;
+    :validation :EmailValidation .
+
+:hasPasswordHash a rdf:Property ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string ;
+    rdfs:label "password_hash" ;
+    :rustType "String" ;
+    :required true .
+
+:hasCreatedAt a rdf:Property ;
+    rdfs:domain :User, :Session ;
+    rdfs:range xsd:integer ;
+    rdfs:label "created_at" ;
+    :rustType "i64" ;
+    :required true .
+
+:hasUpdatedAt a rdf:Property ;
+    rdfs:domain :User ;
+    rdfs:range xsd:integer ;
+    rdfs:label "updated_at" ;
+    :rustType "i64" ;
+    :required true .
+
+:hasToken a rdf:Property ;
+    rdfs:domain :Session ;
+    rdfs:range xsd:string ;
+    rdfs:label "token" ;
+    :rustType "String" ;
+    :required true .
+
+:hasUserId a rdf:Property ;
+    rdfs:domain :Session ;
+    rdfs:range xsd:string ;
+    rdfs:label "user_id" ;
+    :rustType "String" ;
+    :required true .
+
+:hasExpiresAt a rdf:Property ;
+    rdfs:domain :Session ;
+    rdfs:range xsd:integer ;
+    rdfs:label "expires_at" ;
+    :rustType "i64" ;
+    :required true ;
+    :default "created_at + 86400" .
+
+# ============================================================================
+# VALIDATION RULES (SHACL)
+# ============================================================================
+
+:EmailValidation a sh:PropertyShape ;
+    sh:path :hasEmail ;
+    sh:pattern "^[^@]+@[^@]+\\.[^@]+$" ;
+    sh:message "Email must be in valid format (user@domain.com)" .
+
+:PasswordValidation a sh:PropertyShape ;
+    sh:path :hasPassword ;
+    sh:minLength 8 ;
+    sh:pattern ".*[0-9].*" ;
+    sh:message "Password must be at least 8 characters and contain a number" .
+
+# ============================================================================
+# OPERATIONS (Business Logic)
+# ============================================================================
+
+:RegisterOperation a :Operation ;
+    rdfs:label "register" ;
+    rdfs:comment "Register a new user with email and password" ;
+    :input ( :email :password ) ;
+    :output :User ;
+    :errorType "AuthError" ;
+    :validates ( :EmailValidation :PasswordValidation ) ;
+    :checks [
+        :condition "user already exists" ;
+        :error "UserExists"
+    ] ;
+    :hashesPassword true .
+
+:LoginOperation a :Operation ;
+    rdfs:label "login" ;
+    rdfs:comment "Login with email and password" ;
+    :input ( :email :password ) ;
+    :output :Session ;
+    :errorType "AuthError" ;
+    :checks [
+        :condition "user not found" ;
+        :error "UserNotFound"
+    ] ;
+    :verifies :password .
+
+:ValidateSessionOperation a :Operation ;
+    rdfs:label "validate_session" ;
+    rdfs:comment "Validate a session token and return user" ;
+    :input :token ;
+    :output :User ;
+    :errorType "AuthError" ;
+    :checks [
+        :condition "session invalid or expired" ;
+        :error "InvalidSession"
+    ] .
+
+:LogoutOperation a :Operation ;
+    rdfs:label "logout" ;
+    rdfs:comment "Invalidate a session token" ;
+    :input :token ;
+    :output "()" ;
+    :errorType "AuthError" ;
+    :mutates :sessions .
+
+# ============================================================================
+# ERROR DEFINITIONS
+# ============================================================================
+
+:AuthError a :ErrorEnum ;
+    rdfs:label "AuthError" ;
+    rdfs:comment "Authentication-related errors" ;
+    :variants [
+        :InvalidEmail "Invalid email format: {email}" ;
+        :WeakPassword "Password too weak: {reason}" ;
+        :UserExists "User already exists: {email}" ;
+        :UserNotFound "User not found: {email}" ;
+        :InvalidCredentials "Invalid email or password" ;
+        :InvalidSession "Invalid or expired session: {token}" ;
+        :HashingError "Password hashing failed: {msg}"
+    ] ;
+    :implements "std::fmt::Display, std::error::Error" .
+
+# ============================================================================
+# CONSTANTS
+# ============================================================================
+
+:SessionDuration a :Constant ;
+    :value 86400 ;
+    :unit "seconds" ;
+    :rustName "SESSION_DURATION" .
+
+:MinPasswordLength a :Constant ;
+    :value 8 ;
+    :rustName "MIN_PASSWORD_LENGTH" .
+
+:BcryptCost a :Constant ;
+    :value "DEFAULT_COST" ;
+    :rustName "BCRYPT_COST" .
+
+# ============================================================================
+# DEPENDENCIES
+# ============================================================================
+
+:Dependencies a :CrateDependencies ;
+    :requires [
+        :serde "1.0" ;
+        :bcrypt "0.15" ;
+        :chrono "0.4"
+    ] .

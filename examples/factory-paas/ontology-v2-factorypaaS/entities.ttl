@@ -1,0 +1,580 @@
+# FactoryPaaS Entities - Domain Model
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix fpaa:  <https://factorypaaS.io/ontology#> .
+
+# ============================================================================
+# SITE AGGREGATE ROOT
+# ============================================================================
+
+fpaa:Site a ddd:Entity ;
+  ddd:name "Site" ;
+  rdfs:comment "Affiliate marketing website" ;
+  ddd:identityField fpaa:Site_id ;
+  ddd:hasField fpaa:Site_id ;
+  ddd:hasField fpaa:Site_name ;
+  ddd:hasField fpaa:Site_domain ;
+  ddd:hasField fpaa:Site_niche ;
+  ddd:hasField fpaa:Site_status ;
+  ddd:hasField fpaa:Site_gcp_project_id ;
+  ddd:hasField fpaa:Site_cloud_run_service ;
+  ddd:hasField fpaa:Site_storage_bucket ;
+  ddd:hasField fpaa:Site_cdn_url ;
+  ddd:hasField fpaa:Site_total_revenue ;
+  ddd:hasField fpaa:Site_total_clicks ;
+  ddd:hasField fpaa:Site_total_pages ;
+  ddd:hasField fpaa:Site_created_at ;
+  ddd:hasField fpaa:Site_last_deployed_at .
+
+fpaa:Site_id a ddd:Field ;
+  ddd:name "id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  rdfs:comment "Unique site identifier" .
+
+fpaa:Site_name a ddd:Field ;
+  ddd:name "name" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Human-readable site name" .
+
+fpaa:Site_domain a ddd:Field ;
+  ddd:name "domain" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:format "domain" ;
+  rdfs:comment "Fully qualified domain name (e.g., example.com)" .
+
+fpaa:Site_niche a ddd:Field ;
+  ddd:name "niche" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Market niche (e.g., 'saas-tools', 'dev-productivity')" .
+
+fpaa:Site_status a ddd:Field ;
+  ddd:name "status" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:enum "active,paused,archived" ;
+  ddd:default "active" ;
+  rdfs:comment "Site operational status" .
+
+fpaa:Site_gcp_project_id a ddd:Field ;
+  ddd:name "gcp_project_id" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "GCP project ID for deployment" .
+
+fpaa:Site_cloud_run_service a ddd:Field ;
+  ddd:name "cloud_run_service" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  rdfs:comment "Cloud Run service name" .
+
+fpaa:Site_storage_bucket a ddd:Field ;
+  ddd:name "storage_bucket" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  rdfs:comment "GCS bucket name for static assets" .
+
+fpaa:Site_cdn_url a ddd:Field ;
+  ddd:name "cdn_url" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  ddd:format "url" ;
+  rdfs:comment "Cloud CDN endpoint URL" .
+
+fpaa:Site_total_revenue a ddd:Field ;
+  ddd:name "total_revenue" ;
+  ddd:type "Decimal" ;
+  ddd:required false ;
+  ddd:default "0.0" ;
+  rdfs:comment "Lifetime revenue (USD)" .
+
+fpaa:Site_total_clicks a ddd:Field ;
+  ddd:name "total_clicks" ;
+  ddd:type "i64" ;
+  ddd:required false ;
+  ddd:default "0" ;
+  rdfs:comment "Total outbound affiliate clicks" .
+
+fpaa:Site_total_pages a ddd:Field ;
+  ddd:name "total_pages" ;
+  ddd:type "i32" ;
+  ddd:required false ;
+  ddd:default "0" ;
+  rdfs:comment "Number of published pages" .
+
+fpaa:Site_created_at a ddd:Field ;
+  ddd:name "created_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true ;
+  rdfs:comment "Site creation timestamp" .
+
+fpaa:Site_last_deployed_at a ddd:Field ;
+  ddd:name "last_deployed_at" ;
+  ddd:type "DateTime" ;
+  ddd:required false ;
+  rdfs:comment "Most recent deployment timestamp" .
+
+# ============================================================================
+# NICHE PAGE ENTITY
+# ============================================================================
+
+fpaa:NichePage a ddd:Entity ;
+  ddd:name "NichePage" ;
+  rdfs:comment "SEO-optimized content page" ;
+  ddd:identityField fpaa:NichePage_id ;
+  ddd:hasField fpaa:NichePage_id ;
+  ddd:hasField fpaa:NichePage_site_id ;
+  ddd:hasField fpaa:NichePage_slug ;
+  ddd:hasField fpaa:NichePage_title ;
+  ddd:hasField fpaa:NichePage_primary_keyword ;
+  ddd:hasField fpaa:NichePage_secondary_keywords ;
+  ddd:hasField fpaa:NichePage_content_markdown ;
+  ddd:hasField fpaa:NichePage_content_html ;
+  ddd:hasField fpaa:NichePage_word_count ;
+  ddd:hasField fpaa:NichePage_meta_description ;
+  ddd:hasField fpaa:NichePage_meta_keywords ;
+  ddd:hasField fpaa:NichePage_canonical_url ;
+  ddd:hasField fpaa:NichePage_status ;
+  ddd:hasField fpaa:NichePage_affiliate_links ;
+  ddd:hasField fpaa:NichePage_internal_links ;
+  ddd:hasField fpaa:NichePage_published_at ;
+  ddd:hasField fpaa:NichePage_last_updated_at ;
+  ddd:hasField fpaa:NichePage_click_count ;
+  ddd:hasField fpaa:NichePage_conversion_count ;
+  ddd:hasField fpaa:NichePage_revenue .
+
+fpaa:NichePage_id a ddd:Field ;
+  ddd:name "id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:NichePage_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  ddd:references fpaa:Site .
+
+fpaa:NichePage_slug a ddd:Field ;
+  ddd:name "slug" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:format "slug" ;
+  rdfs:comment "URL-safe page identifier (e.g., 'best-crm-software-2026')" .
+
+fpaa:NichePage_title a ddd:Field ;
+  ddd:name "title" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "SEO-optimized page title (H1)" .
+
+fpaa:NichePage_primary_keyword a ddd:Field ;
+  ddd:name "primary_keyword" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Main target keyword for SEO" .
+
+fpaa:NichePage_secondary_keywords a ddd:Field ;
+  ddd:name "secondary_keywords" ;
+  ddd:type "Vec<String>" ;
+  ddd:required false ;
+  rdfs:comment "Related keywords for content optimization" .
+
+fpaa:NichePage_content_markdown a ddd:Field ;
+  ddd:name "content_markdown" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Page content in Markdown format" .
+
+fpaa:NichePage_content_html a ddd:Field ;
+  ddd:name "content_html" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  rdfs:comment "Rendered HTML content" .
+
+fpaa:NichePage_word_count a ddd:Field ;
+  ddd:name "word_count" ;
+  ddd:type "i32" ;
+  ddd:required true ;
+  rdfs:comment "Total word count for SEO metrics" .
+
+fpaa:NichePage_meta_description a ddd:Field ;
+  ddd:name "meta_description" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "SEO meta description (150-160 chars)" .
+
+fpaa:NichePage_meta_keywords a ddd:Field ;
+  ddd:name "meta_keywords" ;
+  ddd:type "Vec<String>" ;
+  ddd:required false ;
+  rdfs:comment "Meta keywords (legacy SEO)" .
+
+fpaa:NichePage_canonical_url a ddd:Field ;
+  ddd:name "canonical_url" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:format "url" ;
+  rdfs:comment "Canonical URL to prevent duplicate content" .
+
+fpaa:NichePage_status a ddd:Field ;
+  ddd:name "status" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:enum "draft,published,archived" ;
+  ddd:default "draft" .
+
+fpaa:NichePage_affiliate_links a ddd:Field ;
+  ddd:name "affiliate_links" ;
+  ddd:type "Vec<AffiliateLinkRoute>" ;
+  ddd:required false ;
+  rdfs:comment "Tracked affiliate links in content" .
+
+fpaa:NichePage_internal_links a ddd:Field ;
+  ddd:name "internal_links" ;
+  ddd:type "Vec<InternalLink>" ;
+  ddd:required false ;
+  rdfs:comment "Internal links to other pages" .
+
+fpaa:NichePage_published_at a ddd:Field ;
+  ddd:name "published_at" ;
+  ddd:type "DateTime" ;
+  ddd:required false .
+
+fpaa:NichePage_last_updated_at a ddd:Field ;
+  ddd:name "last_updated_at" ;
+  ddd:type "DateTime" ;
+  ddd:required false .
+
+fpaa:NichePage_click_count a ddd:Field ;
+  ddd:name "click_count" ;
+  ddd:type "i64" ;
+  ddd:required false ;
+  ddd:default "0" .
+
+fpaa:NichePage_conversion_count a ddd:Field ;
+  ddd:name "conversion_count" ;
+  ddd:type "i64" ;
+  ddd:required false ;
+  ddd:default "0" .
+
+fpaa:NichePage_revenue a ddd:Field ;
+  ddd:name "revenue" ;
+  ddd:type "Decimal" ;
+  ddd:required false ;
+  ddd:default "0.0" .
+
+# ============================================================================
+# SIDEWAYS KEYWORD VALUE OBJECT
+# ============================================================================
+
+fpaa:SideWaysKeyword a ddd:ValueObject ;
+  ddd:name "SideWaysKeyword" ;
+  rdfs:comment "Low-competition SEO keyword" ;
+  ddd:hasField fpaa:SideWaysKeyword_text ;
+  ddd:hasField fpaa:SideWaysKeyword_difficulty ;
+  ddd:hasField fpaa:SideWaysKeyword_monthly_searches ;
+  ddd:hasField fpaa:SideWaysKeyword_cpc ;
+  ddd:hasField fpaa:SideWaysKeyword_search_intent ;
+  ddd:hasField fpaa:SideWaysKeyword_competition ;
+  ddd:hasField fpaa:SideWaysKeyword_serp_features .
+
+fpaa:SideWaysKeyword_text a ddd:Field ;
+  ddd:name "text" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Keyword phrase" .
+
+fpaa:SideWaysKeyword_difficulty a ddd:Field ;
+  ddd:name "difficulty" ;
+  ddd:type "i32" ;
+  ddd:required true ;
+  rdfs:comment "SEO difficulty score (0-100)" .
+
+fpaa:SideWaysKeyword_monthly_searches a ddd:Field ;
+  ddd:name "monthly_searches" ;
+  ddd:type "i32" ;
+  ddd:required true ;
+  rdfs:comment "Average monthly search volume" .
+
+fpaa:SideWaysKeyword_cpc a ddd:Field ;
+  ddd:name "cpc" ;
+  ddd:type "Decimal" ;
+  ddd:required false ;
+  rdfs:comment "Cost per click (AdWords)" .
+
+fpaa:SideWaysKeyword_search_intent a ddd:Field ;
+  ddd:name "search_intent" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:enum "informational,navigational,transactional,commercial" ;
+  rdfs:comment "User search intent classification" .
+
+fpaa:SideWaysKeyword_competition a ddd:Field ;
+  ddd:name "competition" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:enum "low,medium,high" .
+
+fpaa:SideWaysKeyword_serp_features a ddd:Field ;
+  ddd:name "serp_features" ;
+  ddd:type "Vec<String>" ;
+  ddd:required false ;
+  rdfs:comment "SERP features (e.g., 'featured_snippet', 'people_also_ask')" .
+
+# ============================================================================
+# AFFILIATE LINK ROUTE VALUE OBJECT
+# ============================================================================
+
+fpaa:AffiliateLinkRoute a ddd:ValueObject ;
+  ddd:name "AffiliateLinkRoute" ;
+  rdfs:comment "Tracked affiliate link with attribution" ;
+  ddd:hasField fpaa:AffiliateLinkRoute_id ;
+  ddd:hasField fpaa:AffiliateLinkRoute_page_id ;
+  ddd:hasField fpaa:AffiliateLinkRoute_destination_url ;
+  ddd:hasField fpaa:AffiliateLinkRoute_anchor_text ;
+  ddd:hasField fpaa:AffiliateLinkRoute_position_in_content ;
+  ddd:hasField fpaa:AffiliateLinkRoute_tracking_slug ;
+  ddd:hasField fpaa:AffiliateLinkRoute_affiliate_network ;
+  ddd:hasField fpaa:AffiliateLinkRoute_commission_rate ;
+  ddd:hasField fpaa:AffiliateLinkRoute_commission_type ;
+  ddd:hasField fpaa:AffiliateLinkRoute_click_count ;
+  ddd:hasField fpaa:AffiliateLinkRoute_created_at .
+
+fpaa:AffiliateLinkRoute_id a ddd:Field ;
+  ddd:name "id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:AffiliateLinkRoute_page_id a ddd:Field ;
+  ddd:name "page_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  ddd:references fpaa:NichePage .
+
+fpaa:AffiliateLinkRoute_destination_url a ddd:Field ;
+  ddd:name "destination_url" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:format "url" ;
+  rdfs:comment "Target affiliate URL with tracking parameters" .
+
+fpaa:AffiliateLinkRoute_anchor_text a ddd:Field ;
+  ddd:name "anchor_text" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Link text visible to users" .
+
+fpaa:AffiliateLinkRoute_position_in_content a ddd:Field ;
+  ddd:name "position_in_content" ;
+  ddd:type "i32" ;
+  ddd:required false ;
+  rdfs:comment "Character offset in content (for heatmap analysis)" .
+
+fpaa:AffiliateLinkRoute_tracking_slug a ddd:Field ;
+  ddd:name "tracking_slug" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Internal redirect path (e.g., '/go/tool-name')" .
+
+fpaa:AffiliateLinkRoute_affiliate_network a ddd:Field ;
+  ddd:name "affiliate_network" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Network provider (e.g., 'impact', 'shareasale', 'cj')" .
+
+fpaa:AffiliateLinkRoute_commission_rate a ddd:Field ;
+  ddd:name "commission_rate" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  rdfs:comment "Commission percentage or fixed amount" .
+
+fpaa:AffiliateLinkRoute_commission_type a ddd:Field ;
+  ddd:name "commission_type" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:enum "percentage,fixed,hybrid" .
+
+fpaa:AffiliateLinkRoute_click_count a ddd:Field ;
+  ddd:name "click_count" ;
+  ddd:type "i64" ;
+  ddd:required false ;
+  ddd:default "0" .
+
+fpaa:AffiliateLinkRoute_created_at a ddd:Field ;
+  ddd:name "created_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# INTERNAL LINK VALUE OBJECT
+# ============================================================================
+
+fpaa:InternalLink a ddd:ValueObject ;
+  ddd:name "InternalLink" ;
+  rdfs:comment "Contextual internal link for SEO" ;
+  ddd:hasField fpaa:InternalLink_source_page_id ;
+  ddd:hasField fpaa:InternalLink_target_page_id ;
+  ddd:hasField fpaa:InternalLink_anchor_text ;
+  ddd:hasField fpaa:InternalLink_context ;
+  ddd:hasField fpaa:InternalLink_relevance_score .
+
+fpaa:InternalLink_source_page_id a ddd:Field ;
+  ddd:name "source_page_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:InternalLink_target_page_id a ddd:Field ;
+  ddd:name "target_page_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:InternalLink_anchor_text a ddd:Field ;
+  ddd:name "anchor_text" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "SEO-optimized anchor text" .
+
+fpaa:InternalLink_context a ddd:Field ;
+  ddd:name "context" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  rdfs:comment "Surrounding paragraph text" .
+
+fpaa:InternalLink_relevance_score a ddd:Field ;
+  ddd:name "relevance_score" ;
+  ddd:type "f64" ;
+  ddd:required false ;
+  rdfs:comment "Semantic relevance (0.0-1.0)" .
+
+# ============================================================================
+# CONTENT CLUSTER ENTITY
+# ============================================================================
+
+fpaa:ContentCluster a ddd:Entity ;
+  ddd:name "ContentCluster" ;
+  rdfs:comment "Topical authority cluster of related pages" ;
+  ddd:identityField fpaa:ContentCluster_id ;
+  ddd:hasField fpaa:ContentCluster_id ;
+  ddd:hasField fpaa:ContentCluster_site_id ;
+  ddd:hasField fpaa:ContentCluster_pillar_page_id ;
+  ddd:hasField fpaa:ContentCluster_cluster_pages ;
+  ddd:hasField fpaa:ContentCluster_topic ;
+  ddd:hasField fpaa:ContentCluster_authority_score .
+
+fpaa:ContentCluster_id a ddd:Field ;
+  ddd:name "id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:ContentCluster_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:ContentCluster_pillar_page_id a ddd:Field ;
+  ddd:name "pillar_page_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  ddd:references fpaa:NichePage .
+
+fpaa:ContentCluster_cluster_pages a ddd:Field ;
+  ddd:name "cluster_pages" ;
+  ddd:type "Vec<Uuid>" ;
+  ddd:required false ;
+  rdfs:comment "Supporting pages linking to pillar" .
+
+fpaa:ContentCluster_topic a ddd:Field ;
+  ddd:name "topic" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Cluster topic theme" .
+
+fpaa:ContentCluster_authority_score a ddd:Field ;
+  ddd:name "authority_score" ;
+  ddd:type "f64" ;
+  ddd:required false ;
+  rdfs:comment "Topical authority metric (0.0-100.0)" .
+
+# ============================================================================
+# COMMISSION RECORD ENTITY
+# ============================================================================
+
+fpaa:CommissionRecord a ddd:Entity ;
+  ddd:name "CommissionRecord" ;
+  rdfs:comment "Affiliate commission transaction" ;
+  ddd:identityField fpaa:CommissionRecord_id ;
+  ddd:hasField fpaa:CommissionRecord_id ;
+  ddd:hasField fpaa:CommissionRecord_site_id ;
+  ddd:hasField fpaa:CommissionRecord_page_id ;
+  ddd:hasField fpaa:CommissionRecord_link_id ;
+  ddd:hasField fpaa:CommissionRecord_click_id ;
+  ddd:hasField fpaa:CommissionRecord_amount ;
+  ddd:hasField fpaa:CommissionRecord_currency ;
+  ddd:hasField fpaa:CommissionRecord_status ;
+  ddd:hasField fpaa:CommissionRecord_affiliate_network ;
+  ddd:hasField fpaa:CommissionRecord_transaction_id ;
+  ddd:hasField fpaa:CommissionRecord_recorded_at .
+
+fpaa:CommissionRecord_id a ddd:Field ;
+  ddd:name "id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:CommissionRecord_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:CommissionRecord_page_id a ddd:Field ;
+  ddd:name "page_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:CommissionRecord_link_id a ddd:Field ;
+  ddd:name "link_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:CommissionRecord_click_id a ddd:Field ;
+  ddd:name "click_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:CommissionRecord_amount a ddd:Field ;
+  ddd:name "amount" ;
+  ddd:type "Decimal" ;
+  ddd:required true .
+
+fpaa:CommissionRecord_currency a ddd:Field ;
+  ddd:name "currency" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:default "USD" .
+
+fpaa:CommissionRecord_status a ddd:Field ;
+  ddd:name "status" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:enum "pending,approved,paid,reversed" .
+
+fpaa:CommissionRecord_affiliate_network a ddd:Field ;
+  ddd:name "affiliate_network" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:CommissionRecord_transaction_id a ddd:Field ;
+  ddd:name "transaction_id" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  rdfs:comment "External network transaction ID" .
+
+fpaa:CommissionRecord_recorded_at a ddd:Field ;
+  ddd:name "recorded_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .

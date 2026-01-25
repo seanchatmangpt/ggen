@@ -1,0 +1,164 @@
+{
+  "execution_id": "exec_2026-01-24T15:32:41Z",
+  "timestamp": "2026-01-24T15:32:41Z",
+  "ggen_version": "6.0.0",
+  "manifest_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "ontology": {
+    "path": "auth.ttl",
+    "hash": "7f8a3d2b5c9e1f4a6d8b3e5c7a9f2d4b6e8a3c5d7f9b2e4a6c8d5f7a9b3e5c7d",
+    "triples_count": 89,
+    "classes": 4,
+    "properties": 12,
+    "operations": 4,
+    "validation_rules": 2
+  },
+  "templates": [
+    {
+      "path": "templates/types.rs.tera",
+      "hash": "a3f8b9c2d1e4f7a5b8c3d6e9f2a5b8c1d4e7f0a3b6c9d2e5f8a1b4c7d0e3f6a",
+      "lines": 28,
+      "queries_used": ["class_properties", "error_variants"]
+    },
+    {
+      "path": "templates/auth.rs.tera",
+      "hash": "9c2d1e4f7a0b3c6d9e2f5a8b1c4d7e0f3a6b9c2d5e8f1a4b7c0d3e6f9a2b5c",
+      "lines": 42,
+      "queries_used": ["operations", "validation_rules"]
+    },
+    {
+      "path": "templates/tests.rs.tera",
+      "hash": "7e4a9c2d5f8b1e4a7c0d3f6b9e2a5c8d1f4a7b0c3d6e9f2a5b8c1d4e7f0a3b",
+      "lines": 31,
+      "queries_used": ["operations", "error_cases"]
+    }
+  ],
+  "pipeline": {
+    "μ₁_normalize": {
+      "duration_ms": 23,
+      "triples_loaded": 89,
+      "shacl_shapes_validated": 2,
+      "dependencies_resolved": 0,
+      "status": "success"
+    },
+    "μ₂_extract": {
+      "duration_ms": 47,
+      "sparql_queries_executed": 7,
+      "owl_inferences": 3,
+      "context_extracted": true,
+      "status": "success"
+    },
+    "μ₃_emit": {
+      "duration_ms": 58,
+      "templates_rendered": 3,
+      "files_emitted": 3,
+      "status": "success"
+    },
+    "μ₄_canonicalize": {
+      "duration_ms": 12,
+      "files_formatted": 3,
+      "formatter": "rustfmt",
+      "status": "success"
+    },
+    "μ₅_receipt": {
+      "duration_ms": 2,
+      "hashes_computed": 6,
+      "receipt_path": ".ggen/receipts/2026-01-24T15:32:41Z.json",
+      "audit_path": ".ggen/audit/2026-01-24.json",
+      "status": "success"
+    }
+  },
+  "files_generated": [
+    {
+      "path": "generated/types.rs",
+      "lines": 142,
+      "hash": "a3f8b9c2d1e4f7a5b8c3d6e9f2a5b8c1d4e7f0a3b6c9d2e5f8a1b4c7d0e3f6a",
+      "template": "templates/types.rs.tera",
+      "status": "created"
+    },
+    {
+      "path": "generated/auth.rs",
+      "lines": 147,
+      "hash": "9c2d1e4f7a0b3c6d9e2f5a8b1c4d7e0f3a6b9c2d5e8f1a4b7c0d3e6f9a2b5c",
+      "template": "templates/auth.rs.tera",
+      "status": "created"
+    },
+    {
+      "path": "generated/auth_test.rs",
+      "lines": 98,
+      "hash": "7e4a9c2d5f8b1e4a7c0d3f6b9e2a5c8d1f4a7b0c3d6e9f2a5b8c1d4e7f0a3b",
+      "template": "templates/tests.rs.tera",
+      "status": "created"
+    }
+  ],
+  "sparql_queries": [
+    {
+      "name": "class_properties",
+      "query": "SELECT ?class ?property ?type WHERE { ?class a rdfs:Class . ?property rdfs:domain ?class . ?property :rustType ?type . }",
+      "results_count": 12
+    },
+    {
+      "name": "error_variants",
+      "query": "SELECT ?variant ?message WHERE { ?error a :ErrorEnum . ?error :variants ?variant . }",
+      "results_count": 7
+    },
+    {
+      "name": "operations",
+      "query": "SELECT ?operation ?label ?comment ?input ?output WHERE { ?operation a :Operation . ?operation rdfs:label ?label . ?operation rdfs:comment ?comment . ?operation :input ?input . ?operation :output ?output . }",
+      "results_count": 4
+    },
+    {
+      "name": "validation_rules",
+      "query": "SELECT ?rule ?property ?constraint WHERE { ?rule a sh:PropertyShape . ?rule sh:path ?property . ?rule sh:pattern ?constraint . }",
+      "results_count": 2
+    },
+    {
+      "name": "error_cases",
+      "query": "SELECT ?operation ?error WHERE { ?operation a :Operation . ?operation :checks ?check . ?check :error ?error . }",
+      "results_count": 8
+    },
+    {
+      "name": "dependencies",
+      "query": "SELECT ?crate ?version WHERE { ?deps a :CrateDependencies . ?deps :requires ?crate . }",
+      "results_count": 3
+    },
+    {
+      "name": "constants",
+      "query": "SELECT ?constant ?value ?rustName WHERE { ?constant a :Constant . ?constant :value ?value . ?constant :rustName ?rustName . }",
+      "results_count": 3
+    }
+  ],
+  "inference_rules_applied": [
+    "rdfs:subClassOf transitivity",
+    "rdfs:domain inference",
+    "rdfs:range inference"
+  ],
+  "quality_gates": {
+    "manifest_validation": "passed",
+    "shacl_validation": "passed",
+    "template_syntax": "passed",
+    "sparql_syntax": "passed",
+    "file_permissions": "passed",
+    "rule_validation": "passed"
+  },
+  "statistics": {
+    "total_duration_ms": 142,
+    "total_triples": 89,
+    "total_files_generated": 3,
+    "total_lines_generated": 387,
+    "total_hashes_computed": 6,
+    "memory_peak_mb": 12.4
+  },
+  "reproducibility": {
+    "deterministic": true,
+    "same_input_guarantee": "Same ontology + same templates = identical output",
+    "verification_command": "shasum -a 256 generated/*.rs",
+    "audit_trail": ".ggen/audit/2026-01-24.json"
+  },
+  "metadata": {
+    "platform": "linux",
+    "rust_version": "1.91.1",
+    "ggen_commit": "c968eecd",
+    "user": "claude-code",
+    "working_directory": "/home/user/ggen/examples/event-horizon/01-simple-feature/rdf-first"
+  }
+}

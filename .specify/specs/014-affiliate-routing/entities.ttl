@@ -1,0 +1,149 @@
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix : <http://github.com/github/spec-kit/examples/affiliate-routing#> .
+
+# ============================================================================
+# ENTITY: AffiliateLinkRoute
+# ============================================================================
+
+:AffiliateLinkRoute a sk:Entity ;
+    sk:name "AffiliateLinkRoute" ;
+    sk:description "Route mapping from short slug to destination URL with tracking" ;
+    sk:hasField :route_id, :source_path, :destination_url, :affiliate_id, :tracking_params, :created_at, :active .
+
+:route_id a sk:Field ;
+    sk:name "route_id" ;
+    sk:type "Uuid" ;
+    sk:required true ;
+    sk:description "Unique route identifier (UUID v7 for time-ordered)" .
+
+:source_path a sk:Field ;
+    sk:name "source_path" ;
+    sk:type "String" ;
+    sk:required true ;
+    sk:pattern "^[a-z0-9-]{1,64}$" ;
+    sk:description "Short slug for route (e.g., 'promo-123')" .
+
+:destination_url a sk:Field ;
+    sk:name "destination_url" ;
+    sk:type "String" ;
+    sk:required true ;
+    sk:format "uri" ;
+    sk:description "Target URL for redirect" .
+
+:affiliate_id a sk:Field ;
+    sk:name "affiliate_id" ;
+    sk:type "Uuid" ;
+    sk:required true ;
+    sk:description "Publisher/affiliate identifier for attribution" .
+
+:tracking_params a sk:Field ;
+    sk:name "tracking_params" ;
+    sk:type "HashMap<String, String>" ;
+    sk:required false ;
+    sk:description "Additional query params to append (e.g., utm_source)" .
+
+:created_at a sk:Field ;
+    sk:name "created_at" ;
+    sk:type "DateTime" ;
+    sk:required true ;
+    sk:description "Route creation timestamp (ISO 8601)" .
+
+:active a sk:Field ;
+    sk:name "active" ;
+    sk:type "bool" ;
+    sk:required true ;
+    sk:default "true" ;
+    sk:description "Route enabled flag" .
+
+# ============================================================================
+# VALUE OBJECT: ClickReceipt
+# ============================================================================
+
+:ClickReceipt a sk:ValueObject ;
+    sk:name "ClickReceipt" ;
+    sk:description "Cryptographic proof of click event" ;
+    sk:hasField :click_id, :route_id, :timestamp, :ip_hash, :user_agent, :referrer, :hash, :prev_hash .
+
+:click_id a sk:Field ;
+    sk:name "click_id" ;
+    sk:type "Uuid" ;
+    sk:required true ;
+    sk:description "Unique click identifier (UUID v7)" .
+
+:timestamp a sk:Field ;
+    sk:name "timestamp" ;
+    sk:type "DateTime" ;
+    sk:required true ;
+    sk:description "Click timestamp (ISO 8601, UTC)" .
+
+:ip_hash a sk:Field ;
+    sk:name "ip_hash" ;
+    sk:type "String" ;
+    sk:required true ;
+    sk:description "Privacy-safe IP hash (SHA-256 hex)" .
+
+:user_agent a sk:Field ;
+    sk:name "user_agent" ;
+    sk:type "String" ;
+    sk:required false ;
+    sk:description "User-Agent header for device fingerprinting" .
+
+:referrer a sk:Field ;
+    sk:name "referrer" ;
+    sk:type "String" ;
+    sk:required false ;
+    sk:description "HTTP Referer header" .
+
+:hash a sk:Field ;
+    sk:name "hash" ;
+    sk:type "String" ;
+    sk:required true ;
+    sk:description "SHA-256 hash of receipt content" .
+
+:prev_hash a sk:Field ;
+    sk:name "prev_hash" ;
+    sk:type "String" ;
+    sk:required false ;
+    sk:description "Hash of previous receipt (Merkle chain)" .
+
+# ============================================================================
+# COMMAND: RouteClick
+# ============================================================================
+
+:RouteClick a sk:Command ;
+    sk:name "RouteClick" ;
+    sk:description "Record click event and generate receipt" ;
+    sk:hasField :route_slug, :visitor_ip, :user_agent, :referrer .
+
+:route_slug a sk:Field ;
+    sk:name "route_slug" ;
+    sk:type "String" ;
+    sk:required true ;
+    sk:description "Route slug from URL path" .
+
+:visitor_ip a sk:Field ;
+    sk:name "visitor_ip" ;
+    sk:type "String" ;
+    sk:required true ;
+    sk:description "Visitor IP address (hashed before storage)" .
+
+# ============================================================================
+# EVENT: ClickTracked
+# ============================================================================
+
+:ClickTracked a sk:Event ;
+    sk:name "ClickTracked" ;
+    sk:description "Click successfully tracked with receipt generated" ;
+    sk:hasField :click_receipt, :attribution_data .
+
+:click_receipt a sk:Field ;
+    sk:name "click_receipt" ;
+    sk:type "ClickReceipt" ;
+    sk:required true ;
+    sk:description "Generated cryptographic receipt" .
+
+:attribution_data a sk:Field ;
+    sk:name "attribution_data" ;
+    sk:type "HashMap<String, String>" ;
+    sk:required false ;
+    sk:description "Additional attribution metadata" .

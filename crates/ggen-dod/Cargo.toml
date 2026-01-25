@@ -23,7 +23,7 @@ regex = { workspace = true }
 rayon = { workspace = true }
 
 # DoD-specific dependencies
-dashmap = "5.5"  # Concurrent hash map for thread-safe observation store
+dashmap = { workspace = true }  # Concurrent hash map for thread-safe observation store (v6.1)
 parking_lot = "0.12"  # Efficient synchronization primitives
 nom = "7.1"  # Parser combinator library for schema parsing
 sha2 = "0.10"  # SHA-256 hashing for receipt signatures
@@ -31,10 +31,6 @@ hmac = "0.12"  # HMAC for cryptographic signatures
 hex = "0.4"  # Hex encoding for digests
 pqcrypto-mldsa = "0.1"  # Post-quantum cryptography
 indexmap = "2.2"  # Ordered hash map for deterministic iteration
-
-# OpenTelemetry for instrumentation
-opentelemetry = { workspace = true }
-tracing-opentelemetry = { workspace = true }
 
 # Testing
 proptest = { workspace = true }

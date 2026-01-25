@@ -1,0 +1,23 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd:  <https://ggen.io/ontology/ddd#>
+
+SELECT ?entityName ?entityComment ?fieldName ?fieldType ?fieldRequired ?fieldDefault ?fieldComment
+WHERE {
+  # Find all entities
+  ?entity a ddd:Entity ;
+          ddd:name ?entityName .
+
+  OPTIONAL { ?entity rdfs:comment ?entityComment }
+
+  # Find fields of this entity
+  ?entity ddd:hasField ?field .
+
+  ?field ddd:name ?fieldName ;
+         ddd:type ?fieldType .
+
+  OPTIONAL { ?field ddd:required ?fieldRequired }
+  OPTIONAL { ?field ddd:default ?fieldDefault }
+  OPTIONAL { ?field rdfs:comment ?fieldComment }
+}
+ORDER BY ?entityName ?fieldName

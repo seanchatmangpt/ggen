@@ -19,7 +19,7 @@ ggen-ai = { path = "../../ggen-ai" }
 tokio = { version = "1.0", features = ["full"] }
 
 # Web framework
-axum = "0.7"
+axum = "0.8"
 tower = "0.5"
 tower-http = { version = "0.5", features = ["cors", "trace"] }
 

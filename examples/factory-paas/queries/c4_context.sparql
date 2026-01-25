@@ -1,0 +1,30 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd:  <https://ggen.io/ontology/ddd#>
+
+SELECT ?contextName ?contextDescription ?aggregateName ?commandName ?eventName
+WHERE {
+  # Find the bounded context
+  ?context a ddd:BoundedContext ;
+           ddd:name ?contextName .
+
+  OPTIONAL { ?context rdfs:comment ?contextDescription }
+
+  # Find aggregates in this context
+  OPTIONAL {
+    ?context ddd:hasAggregate ?aggregate .
+    ?aggregate ddd:name ?aggregateName .
+  }
+
+  # Find commands
+  OPTIONAL {
+    ?context ddd:hasCommand ?command .
+    ?command ddd:name ?commandName .
+  }
+
+  # Find events
+  OPTIONAL {
+    ?context ddd:hasEvent ?event .
+    ?event ddd:name ?eventName .
+  }
+}

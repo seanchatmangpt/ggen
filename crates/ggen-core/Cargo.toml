@@ -23,12 +23,9 @@ serde_yaml = "0.9"
 serde_json = "1.0"
 sha2 = "0.10"
 rayon = "1.11"
-num_cpus = "1.17"
 thiserror = "2.0"
 log = "0.4.28"
 rand = "0.9"
-shacl_validation = "0.1"
-srdf = "0.1"
 tempfile = "3"
 gray_matter = { version = "0.3.2", features = ["yaml"] }
 Inflector = "0.11"
@@ -49,15 +46,15 @@ tar = "0.4"
 flate2 = "1.1"
 dirs = "6.0"
 semver = "1.0"
+num_cpus = "1.16"
 walkdir = "2.5"
-diff = "0.1"
 tracing = "0.1"
 tracing-subscriber = { workspace = true }
-# OpenTelemetry instrumentation
-opentelemetry = { workspace = true }
-opentelemetry-otlp = { workspace = true }
-opentelemetry_sdk = { workspace = true }
-tracing-opentelemetry = { workspace = true }
+# OpenTelemetry instrumentation (optional - enable with "otel" feature)
+opentelemetry = { workspace = true, optional = true }
+opentelemetry-otlp = { workspace = true, optional = true }
+opentelemetry_sdk = { workspace = true, optional = true }
+tracing-opentelemetry = { workspace = true, optional = true }
 # Post-Quantum Cryptography (PQC) - NIST-approved algorithms
 pqcrypto-mldsa = "0.1"  # ML-DSA (maintained replacement for Dilithium)
 pqcrypto-traits = "0.3"
@@ -90,6 +87,8 @@ live-llm-tests = [] # Opt-in for OpenAI/Anthropic integration tests
 proptest = []       # Property-based testing with proptest
 docker = []         # Docker testcontainers support
 testcontainers = [] # Testcontainers feature for production validation tests
+# OpenTelemetry instrumentation (optional - adds ~200 dependencies)
+otel = ["opentelemetry", "opentelemetry-otlp", "opentelemetry_sdk", "tracing-opentelemetry"]
 
 [dev-dependencies]
 tempfile = "3"

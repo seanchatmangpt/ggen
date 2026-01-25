@@ -13,11 +13,13 @@ sha3 = { version = "0.10", default-features = false }
 # SHA-256 for receipts
 sha2 = { workspace = true }
 # JSON serialization for Git receipts
-serde_json = { workspace = true, optional = true }
+# Optional dependencies cannot use workspace = true (Cargo limitation)
+# Using explicit versions from workspace
+serde_json = { version = "1.0", optional = true }
 # Hex encoding for Git receipts
-hex = { workspace = true, optional = true }
+hex = { version = "0.4", optional = true }
 # Tokio for async operations
-tokio = { workspace = true, optional = true }
+tokio = { version = "1.47", features = ["full"], optional = true }
 
 [features]
 default = []
