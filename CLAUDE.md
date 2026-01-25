@@ -16,24 +16,21 @@
 - **Methodology**: SPARC + Chicago TDD + DfLSS (Design for Lean Six Sigma)
 - **Core Principles**: Type-first thinking, zero-cost abstractions, memory safety, deterministic outputs
 
-## 🔗 Ontology Layer (v0.2.0 - Phase 1 Complete)
----
-
-## Constitutional Rules (Poka-Yoke)
+## 🔗 Ontology Layer (v0.2.0 - Production-Ready)
 
 **ggen-ontology-core** provides enterprise-grade RDF/SPARQL processing:
 
 - **TripleStore**: In-memory RDF storage with SPARQL 1.1 execution (<1s load, <100ms queries)
 - **Entity Mapper**: Bidirectional RDF ↔ Rust type conversion with zero-copy references
 - **SPARQL Generator**: Type-safe query construction with compile-time validation
-- **Validators**: RDF schema validation, entity relationships, type safety
+- **Validators**: RDF schema validation, entity relationships, type safety, SHACL shape validation
 - **Domain Ontologies**: Legal (contracts, compliance), IT Infrastructure (systems, services), Cloud Security (access control, encryption)
 - **Cloud Bindings**: AWS CloudFormation, GCP Terraform, Azure ARM templates
 - **Test Coverage**: 64 Chicago TDD tests (100% passing, 87% coverage)
 - **Documentation**: Complete integration guide with 5+ patterns and 4 working examples
+- **Release Status**: v0.2.0 production-ready (Jan 19, 2026)
 
-**Release Status**: v0.2.0 production-ready (Jan 19, 2026)
-**Documentation**: See `/docs/releases/v0.2.0/INDEX.md` for comprehensive guide
+**See Also**: `/docs/releases/v0.2.0/INDEX.md` for comprehensive guide
 
 ## 🚨 CRITICAL: CONCURRENT EXECUTION & FILE MANAGEMENT
 
@@ -87,20 +84,53 @@
 **Workspace Structure:**
 ```
 ggen/
-├── crates/
-│   ├── ggen-core/         # Core domain logic
-│   ├── ggen-cli/          # CLI arg parsing and commands
-│   ├── ggen-domain/       # Domain models and MAPE-K loop
-│   ├── ggen-utils/        # Shared utilities (config, logging, errors)
-│   ├── ggen-ai/           # AI integration
-│   ├── ggen-config/       # Configuration management
-│   ├── ggen-marketplace/  # Package marketplace
-│   └── ggen-node/         # Node.js bindings
-├── tests/                 # Integration tests
-├── examples/              # Example projects
-├── docs/                  # Documentation
-├── scripts/               # Build and utility scripts
-└── Cargo.toml            # Workspace manifest
+├── crates/                     # 30 total crates
+│   ├── Core System (8)
+│   │   ├── ggen-core/          # RDF processing, SPARQL, templates (4.2M)
+│   │   ├── ggen-cli/           # CLI entry point and routing (1.8M)
+│   │   ├── ggen-domain/        # Business logic, MAPE-K loop (1.6M)
+│   │   ├── ggen-utils/         # Shared utilities (431K)
+│   │   ├── ggen-config/        # Configuration management
+│   │   ├── ggen-macros/        # Procedural macros
+│   │   ├── ggen-node/          # Node.js bindings (NAPI-RS)
+│   │   └── ggen-dod/           # Data-oriented design patterns
+│   ├── CLI & Validation (3)
+│   │   ├── ggen-cli-validation/
+│   │   ├── ggen-config-clap/
+│   │   └── ggen-spec-validator/
+│   ├── Testing & Quality (3)
+│   │   ├── ggen-test-audit/
+│   │   ├── ggen-test-opt/
+│   │   └── ggen-e2e/
+│   ├── Marketplace (1)
+│   │   └── ggen-marketplace-v2/ (596K)
+│   ├── RevOps/Monetization (4)
+│   │   ├── ggen-api/
+│   │   ├── ggen-auth/
+│   │   ├── ggen-payments/
+│   │   └── ggen-saas/
+│   ├── AI Orchestration (2)
+│   │   ├── ggen-ai/ (2.6M)
+│   │   └── ggen-dspy/ (439K)
+│   ├── Ontology (1)
+│   │   └── ggen-ontology-core/
+│   └── KNHK Systems (6)
+│       ├── knhk-etl/
+│       ├── knhk-hot/
+│       ├── knhk-connectors/
+│       ├── knhk-lockchain/
+│       ├── knhk-otel/ (704K)
+│       └── knhk-orchestrator/
+├── .specify/              # RDF specification system (source of truth)
+├── tests/                 # Workspace-level integration & BDD tests
+├── benches/              # Performance benchmarks (15+ suites)
+├── examples/             # 40+ production-grade examples
+├── docs/                 # 50+ documentation subdirectories
+├── scripts/              # Build and utility scripts
+├── templates/            # Tera code generation templates
+├── Cargo.toml           # Workspace manifest (30 members)
+├── Makefile.toml        # Build automation (70+ targets)
+└── .claude/             # Claude Code configuration
 ```
 
 ## 🚨 CRITICAL: Andon Signals (Stop the Line)
@@ -165,14 +195,25 @@ ggen/
 - `cargo make debug` - Debugging mode
 - `cargo make timeout-check` - Verify timeout command exists
 
-### Timeout SLAs (CRITICAL):
+### Timeout SLAs (CRITICAL - Poka-Yoke Enforced):
 Every CLI command MUST have timeout wrapper to prevent freezing:
 - Quick checks: `timeout 5s` (cargo check, cargo fmt, cargo clippy)
-- Compilation: `timeout 10s` (cargo build debug)
-- Release builds: `timeout 30s` (cargo build --release)
-- Unit tests: `timeout 10s` (cargo test --lib)
+- Compilation (debug): `timeout 10s` (cargo build)
+- Compilation (release): `timeout 30s` (cargo build --release)
+- Unit tests: `timeout 150s` (cargo test --lib - allows rebuild time)
 - Integration tests: `timeout 30s` (cargo test --test)
+- Full test suite: `timeout 30s-120s escalation` (cargo make test)
 - Pre-push hooks: `timeout 30s` (cargo make check-pre-push)
+- RDF processing: `timeout 5s` (1k+ triples, critical SLO)
+- CLI scaffolding: `timeout 3s end-to-end` (project generation)
+
+**SLO Targets:**
+- First build: ≤15s
+- Incremental: ≤2s
+- RDF processing: ≤5s/1k+ triples
+- Generation memory: ≤100MB
+- CLI scaffolding: ≤3s end-to-end
+- 100% reproducible outputs (deterministic)
 
 ## 🧪 Testing Strategy (Chicago TDD - MANDATORY)
 
@@ -185,27 +226,45 @@ Every CLI command MUST have timeout wrapper to prevent freezing:
 4. **AAA pattern required** - Arrange-Act-Assert
 5. **Tests verify**: Return values, state changes, side effects, execution order, actual effects on system
 
-### Test Categories:
-- **Unit tests**: Colocated with source (`crates/*/src/*_test.rs` or `#[cfg(test)] mod tests`)
-- **Integration tests**: In `/tests` and `crates/*/tests`
-- **Property tests**: Using `proptest` for parsers, RDF, templating
-- **Snapshot tests**: Using `insta` for deterministic outputs
-- **Performance tests**: Benchmarks in `/benches`
+### Test Categories (Comprehensive):
+- **Unit tests**: Colocated with source (`crates/*/src/*_test.rs` or `#[cfg(test)] mod tests`) - <150s timeout
+- **Integration tests**: In `/tests` and `crates/*/tests` - <30s timeout
+- **BDD/Feature tests**: Cucumber `.feature` files with 13+ step modules in `/tests/bdd/`
+- **Property tests**: Using `proptest` for parsers, RDF, templating edge cases
+- **Snapshot tests**: Using `insta` for deterministic code generation outputs
+- **Security tests**: Input validation, SPARQL injection prevention (`tests/security/`)
+- **Determinism tests**: Fixed seeds (RNG_SEED=42), reproducible outputs verification
+- **Testcontainer tests**: Production-readiness validation with Docker containers
+- **Performance tests**: Benchmarks in `/benches` (15+ suites with Criterion HTML reports)
+- **Consolidated quality tests**: Generic trait-based testing patterns
+
+### Test Infrastructure:
+```bash
+cargo make test            # Full suite (30s timeout with escalation)
+cargo make test-unit       # Fast feedback (<150s)
+cargo make test-integration # Integration only
+cargo make test-doc        # Doc tests
+cargo make test-single-threaded # Deterministic async (RNG_SEED=42)
+cargo make test-bdd        # Cucumber BDD features
+cargo make validate-rdf    # RDF/SPARQL validation tests
+```
 
 ### Test Requirements:
 - ✅ All public APIs must be tested
-- ✅ Test error paths, edge cases, critical paths (80%+ coverage)
+- ✅ Test error paths, edge cases, critical paths (80%+ coverage target)
 - ✅ **No meaningless tests** - Tests must verify observable outputs/state changes, not just `assert_ok!()`
 - ✅ **Behavior verification** - Tests verify what code does, not just that functions exist
 - ✅ **Never claim completion without running tests** - Tests must pass before work is done
-- ✅ Run with: `--test-threads=1` for deterministic async tests
+- ✅ Run deterministic tests with `--test-threads=1` for concurrent safety
+- ✅ Use `serial_test` for deterministic async validation
 
 ### Expert Testing (80/20):
 Focus on the 20% that catches 80% of bugs:
-- Error paths and boundary conditions
-- Resource cleanup and lifecycle
-- Concurrency and race conditions
-- Real dependencies (not mocks)
+- Error paths and boundary conditions (SPARQL injection, invalid RDF)
+- Resource cleanup and lifecycle (tempfiles, allocations)
+- Concurrency and race conditions (async/await patterns)
+- Real dependencies (testcontainers, actual RDF stores)
+- Determinism verification (same seed = identical results)
 
 ## 🦀 Elite Rust Mindset & 80/20 Thinking
 
@@ -480,12 +539,90 @@ cargo make speckit-full      # Full workflow: validate + render
 
 ---
 
-## File Organization
+## File Organization (Complete Workspace Structure)
 
-# Coordination completion
-npx claude-flow@alpha hooks post-task --task-id "[task]"
-npx claude-flow@alpha hooks session-end --export-metrics true
+**Current Project Structure (January 2026):**
+
 ```
+ggen/
+├── .specify/                       # RDF SPECIFICATIONS (SOURCE OF TRUTH)
+│   ├── specs/                      # Feature specifications (6+ active specs)
+│   │   ├── 001-poka-yoke-patterns/
+│   │   ├── 004-optimize-test-concurrency/
+│   │   ├── 013-ga-production-release/
+│   │   ├── 014-affiliate-routing/
+│   │   ├── 999-docs-as-code/
+│   │   └── NNN-feature/
+│   │       ├── feature.ttl         # User stories, requirements (EDIT THIS)
+│   │       ├── entities.ttl        # Domain entities (EDIT THIS)
+│   │       ├── plan.ttl            # Architecture plan (EDIT THIS)
+│   │       ├── tasks.ttl           # Task breakdown (EDIT THIS)
+│   │       ├── spec.md             # Generated from TTL (DO NOT EDIT)
+│   │       └── evidence/           # Test artifacts, receipts
+│   ├── templates/                  # Tera templates (SPARQL-aware)
+│   ├── memory/                     # Project memory & decisions
+│   ├── scripts/                    # RDF processing utilities
+│   └── examples/                   # Example ontologies
+│
+├── crates/                         # 30 RUST CRATES (4.2M ggen-core alone)
+│   ├── ggen-core/                  # RDF, SPARQL, templates (218 files, 25 modules)
+│   ├── ggen-cli/                   # CLI entry point (1.8M)
+│   ├── ggen-domain/                # Business logic (1.6M)
+│   ├── ggen-utils/                 # Utilities (431K)
+│   ├── ggen-config/, ggen-macros/, ggen-node/, ggen-dod/
+│   ├── ggen-cli-validation/, ggen-config-clap/, ggen-spec-validator/
+│   ├── ggen-test-audit/, ggen-test-opt/, ggen-e2e/
+│   ├── ggen-marketplace-v2/        # (596K)
+│   ├── ggen-api/, ggen-auth/, ggen-payments/, ggen-saas/
+│   ├── ggen-ai/ (2.6M), ggen-dspy/ (439K)
+│   ├── ggen-ontology-core/         # v0.2.0 production-ready
+│   ├── knhk-etl/, knhk-hot/, knhk-connectors/
+│   ├── knhk-lockchain/, knhk-otel/, knhk-orchestrator/
+│   └── ggen-folk-strategy/         # Folk calculus quantification
+│
+├── tests/                          # WORKSPACE-LEVEL TESTS
+│   ├── integration/                # 20+ integration test suites
+│   ├── bdd/                        # Cucumber with 13 step modules
+│   └── security/                   # Input validation tests
+│
+├── benches/                        # PERFORMANCE BENCHMARKS (15+ suites)
+│   ├── marketplace/, cli_performance/, pipeline/, async_runtime/
+│   └── [performance measurement with Criterion + HTML reports]
+│
+├── .claude/                        # CLAUDE CODE CONFIGURATION
+│   ├── settings.json               # Agent definitions
+│   ├── agents/                     # 22+ specialized agents
+│   ├── hooks/                      # 9 pre/post tool hooks
+│   └── skills/                     # 37+ domain skills (on-demand)
+│
+├── .github/workflows/              # CI/CD PIPELINES (18 total)
+│   ├── ci.yml, andon-validation.yml, performance.yml
+│   ├── security-audit.yml, marketplace-*.yml
+│   └── [18 workflow files]
+│
+├── Makefile.toml                   # 70+ build targets (timeouts enforced)
+├── Cargo.toml                      # Workspace manifest (30 members, workspace lints)
+├── Cargo.lock                      # Dependency lock file
+├── docs/                           # 50+ documentation subdirectories
+├── examples/                       # 40+ production-grade examples
+├── templates/                      # Tera code generation templates
+├── scripts/                        # Build and utility scripts
+├── marketplace/                    # Package marketplace registry
+├── README.md                       # Main project README
+├── CLAUDE.md                       # Claude Code project instructions (THIS FILE)
+├── V6_RELEASE_NOTES.md            # v6.0.0 changelog
+├── SECURITY.md, TESTING.md, CONTRIBUTING.md
+└── [100+ markdown documentation files]
+```
+
+**Key File Locations:**
+- **RDF Specifications**: `.specify/specs/NNN-*/` (edit `.ttl` files, never `.md`)
+- **Source Code**: `crates/*/src/` (production code only)
+- **Tests**: `crates/*/tests/`, `/tests/`, `#[cfg(test)]` modules
+- **Benchmarks**: `/benches/` with Criterion HTML reports
+- **CLI Configuration**: `.claude/settings.json`, `.claude/agents/`
+- **CI/CD**: `.github/workflows/` with 18 workflow files
+- **Build Automation**: `Makefile.toml` (ONLY use `cargo make`, never direct cargo)
 
 ## 🚨 Definition of Done (Andon Signals Enforced)
 
@@ -531,42 +668,6 @@ cargo make lint
 ### 6. Verify Performance SLOs
 ```bash
 cargo make slo-check
-ggen/
-├── .specify/                  # RDF SPECIFICATIONS (SOURCE OF TRUTH)
-│   ├── specs/                 # Feature specs (.ttl = source, .md = generated)
-│   │   └── NNN-feature/
-│   │       ├── feature.ttl    # User stories, requirements (EDIT THIS)
-│   │       ├── entities.ttl   # Domain entities (EDIT THIS)
-│   │       ├── plan.ttl       # Architecture plan (EDIT THIS)
-│   │       ├── tasks.ttl      # Task breakdown (EDIT THIS)
-│   │       ├── spec.md        # Generated (DO NOT EDIT)
-│   │       └── evidence/      # Test artifacts, receipts
-│   ├── templates/             # Tera templates for spec → markdown
-│   │   ├── spec.tera          # SPARQL → Markdown transformation
-│   │   └── rdf-helpers/       # TTL templates for creating instances
-│   ├── memory/                # Project memory (constitution, decisions)
-│   └── *.ttl                  # Ontology files (CLI, naming, constraints)
-│
-├── crates/*/                  # RUST SOURCE (27 CRATES)
-│   ├── src/                   # Production code (NO unwrap/expect)
-│   └── tests/                 # Chicago TDD tests (AAA pattern, real objects)
-│
-├── .claude/                   # CLAUDE CODE CONFIGURATION
-│   ├── settings.json          # Permissions, environment settings
-│   ├── agents/                # Specialized agent definitions (8 agents)
-│   ├── hooks/                 # Pre/post hooks for tool safety, validation
-│   └── skills/                # Domain skills (11 skills)
-│       ├── bb80-*/            # Big Bang 80/20 workflow agents
-│       ├── cargo-make-protocol/
-│       ├── chicago-tdd-pattern/
-│       ├── poka-yoke-patterns/
-│       └── rdf-ontologies/
-│
-├── Makefile.toml              # Cargo Make targets (Poka-Yoke enforced)
-├── Cargo.toml                 # Workspace configuration (27 members)
-├── docs/, templates/, benches/
-└── examples/                  # 40+ production-grade examples
-
 ```
 - **IF SLOs NOT MET**: Investigate performance regressions
 - **VERIFY**: All SLOs met:
@@ -678,16 +779,22 @@ ggen project performance targets:
 |-----------|---------|---------|
 | Rust | 1.91.1 | Core language (type-safe, zero-cost abstractions) |
 | Tokio | 1.47 | Async runtime (full feature set) |
-| Oxigraph | 0.5.1 | RDF store (Turtle, SPARQL, inference) |
-| Tera | 1.20 | Template engine (SPARQL-aware code generation) |
+| Oxigraph | 0.5.1 | RDF store (Turtle, SPARQL 1.1, inference) |
+| Tera | 1.20 | Template engine (SPARQL-aware multi-pass rendering) |
 | Serde | 1.0 | Serialization (JSON, YAML, TOML) |
 | Clap | 4.5 | CLI framework (derive API) |
-| genai | 0.4 | Multi-provider LLM client (GPT-4, Claude, local models) |
+| Clap Noun-Verb | 5.0.0 | Advanced CLI patterns |
+| genai | 0.5 | Multi-provider LLM client (GPT-4, Claude, local models) |
 | chicago-tdd-tools | 1.4.0 | AAA testing (Arrange/Act/Assert, real objects, no mocks) |
 | proptest | 1.8 | Property-based testing |
-| criterion | 0.7 | Performance benchmarking |
+| criterion | 0.7 | Performance benchmarking (HTML reports) |
 | testcontainers | 0.25 | Integration testing with Docker |
 | OpenTelemetry | 0.21 | Observability (optional - enable with `--features otel`) |
+| insta | Latest | Snapshot testing for deterministic outputs |
+| serial_test | Latest | Deterministic async test execution |
+| pqcrypto-mldsa | 0.1 | NIST ML-DSA post-quantum cryptography |
+| Axum | 0.8 | Web framework for ggen-api |
+| Tonic | 0.14 | gRPC framework for distributed systems |
 
 ### Optional Features
 
@@ -709,47 +816,54 @@ See `/docs/features/otel-optional-feature.md` for complete documentation.
 
 ---
 
-## Crates (27 Total)
+## Crates (30 Total)
 
 ### Core System (8)
-- **ggen-core**: RDF processing, SPARQL engine, template rendering
-- **ggen-cli**: CLI entry point, command routing, user interface
-- **ggen-domain**: Domain models, business logic, validation
-- **ggen-utils**: Logging, error handling, shared utilities
-- **ggen-config**: Configuration management (TOML, env vars)
+- **ggen-core** (4.2M): RDF processing, SPARQL 1.1 engine, template rendering (218 files, 25 modules)
+- **ggen-cli** (1.8M): CLI entry point, command routing, user interface
+- **ggen-domain** (1.6M): Domain models, business logic, validation, MAPE-K autonomic loop
+- **ggen-utils** (431K): Logging, error handling, shared utilities, safe path validation
+- **ggen-config**: Configuration management (TOML, env vars, AppConfig)
 - **ggen-macros**: Procedural macros for code generation
 - **ggen-node**: Node.js bindings (NAPI-RS)
 - **ggen-dod**: Data-oriented design patterns
 
 ### CLI & Validation (3)
-- **ggen-cli-validation**: Pre/post-flight validation, quality gates
-- **ggen-config-clap**: Clap integration for configuration
-- **ggen-spec-validator**: SHACL validation for specifications
+- **ggen-cli-validation**: Pre/post-flight validation gates, quality assurance
+- **ggen-config-clap**: Clap integration for CLI configuration
+- **ggen-spec-validator**: SHACL validation for RDF specifications
 
 ### Testing & Quality (3)
 - **ggen-test-audit**: Test quality metrics, mutation testing analysis
-- **ggen-test-opt**: Test optimization, deduplication, performance
-- **ggen-e2e**: End-to-end testing with testcontainers
+- **ggen-test-opt**: Test optimization, deduplication, performance analysis
+- **ggen-e2e**: End-to-end integration testing with testcontainers
 
 ### Marketplace (1)
-- **ggen-marketplace**: Package discovery, FMEA risk analysis, template registry
+- **ggen-marketplace-v2** (596K): Package discovery, FMEA risk analysis, template registry
 
 ### RevOps / Monetization (4)
-- **ggen-api**: REST API layer for SaaS platform
-- **ggen-auth**: Authentication (OAuth2, JWT, API keys)
-- **ggen-payments**: Payment processing (Stripe integration)
-- **ggen-saas**: Multi-tenant management, quota enforcement
+- **ggen-api** (311K): REST API layer for SaaS platform
+- **ggen-auth**: Authentication (OAuth2, JWT, API keys, session management)
+- **ggen-payments**: Payment processing (Stripe integration, billing)
+- **ggen-saas**: Multi-tenant management, quota enforcement, licensing
 
-### AI Orchestration (1)
-- **ggen-ai**: Multi-provider LLM integration (GPT-4, Claude, local models), DSPy predictor, constraint calculus
+### AI Orchestration (2)
+- **ggen-ai** (2.6M): Multi-provider LLM integration (GPT-4, Claude, local models), genai client
+- **ggen-dspy** (439K): DSPy predictor patterns, constraint calculus integration
+
+### Ontology & RDF (1)
+- **ggen-ontology-core**: RDF/Turtle processing, SPARQL 1.1, entity mapping, validators (v0.2.0)
 
 ### KNHK Systems (ETL + KGC-4D + Workflow) (6)
 - **knhk-etl**: Extract-Transform-Load pipeline for knowledge graph construction
 - **knhk-hot**: C FFI hot-path optimization (performance-critical operations)
 - **knhk-connectors**: Connector registry (Kafka, HTTP, databases)
 - **knhk-lockchain**: Merkle-linked receipt storage (cryptographic provenance)
-- **knhk-otel**: OpenTelemetry integration (tracing, metrics)
+- **knhk-otel** (704K): OpenTelemetry integration (optional feature, tracing, metrics)
 - **knhk-orchestrator**: Integration bridge (ETL → KGC-4D → Workflow Engine)
+
+### Specialized Systems (1)
+- **ggen-folk-strategy**: Folk calculus quantification and analysis
 
 ---
 
@@ -1156,4 +1270,56 @@ ggen sync --audit true
 
 ---
 
-**Last Updated**: 2026-01-18 (v6.0.0 production-ready core release)
+## 📊 Repository Status (as of January 2026)
+
+### Project Metrics
+- **Crates**: 30 total (27 core + 3 supporting)
+- **Source Files**: 218 files in ggen-core alone, across all crates: ~1000+ files
+- **Tests**:
+  - Unit tests: Chicago TDD pattern throughout
+  - Integration tests: 20+ suites
+  - BDD tests: 13 Cucumber step modules
+  - Security tests: Input validation, injection prevention
+  - Performance benchmarks: 15+ Criterion suites
+- **Documentation**:
+  - Markdown files: 156+ in root directory
+  - Documentation directories: 50+ subdirectories
+  - API documentation: Comprehensive with examples
+- **CI/CD**: 18 GitHub Actions workflows
+- **Build Targets**: 70+ Makefile targets with timeout enforcement
+
+### Code Quality (Enforced at Compile Time)
+- **Warnings**: Treated as errors (clippy `-D warnings`)
+- **Unwrap/Expect**: Zero in production code (clippy enforced)
+- **Result<T,E>**: Required for all fallible operations
+- **Test Coverage**: 87% in ggen-ontology-core (100% passing)
+- **Performance**: All SLOs met (first build ≤15s, RDF processing ≤5s/1k+ triples)
+
+### Recent Progress
+- v6.0.0 released January 2026 (production-ready core)
+- v0.2.0 ontology layer production-ready (Jan 19, 2026)
+- 64 Chicago TDD tests in ggen-ontology-core (100% passing, 87% coverage)
+- Five-stage deterministic pipeline (μ₁-μ₅) fully implemented
+- Poka-Yoke error-proofing integrated throughout
+
+### Critical Files for Claude Code
+1. **CLAUDE.md** (THIS FILE) - Project instructions for AI assistants
+2. **.claude/settings.json** - Agent configuration
+3. **.claude/agents/** - 22+ specialized agents
+4. **.claude/hooks/** - 9 pre/post tool hooks for safety
+5. **Makefile.toml** - Build automation (MUST use `cargo make`)
+6. **.specify/** - RDF specifications (source of truth)
+7. **V6_RELEASE_NOTES.md** - Latest release information
+
+### Development Workflow (v6)
+1. **Edit RDF**: Create/edit `.specify/specs/NNN-*/feature.ttl` (source)
+2. **Generate Markdown**: `cargo make speckit-render` (generated artifacts)
+3. **Write Tests First**: Chicago TDD pattern (Arrange/Act/Assert)
+4. **Implement**: Type-first design, zero-unwrap enforcement
+5. **Validate**: `cargo make pre-commit` → check → lint → test-unit
+6. **Verify**: `cargo make test` (full suite), `cargo make slo-check`
+7. **Commit**: Evidence-based commits with audit trail references
+
+---
+
+**Last Updated**: 2026-01-25 (v6.0.0 production-ready core with 30 crates, comprehensive analysis)
