@@ -1,0 +1,52 @@
+{application, observability,
+ [
+  {description, "BEAM Cluster Observability - Comprehensive monitoring for Erlang nodes"},
+  {vsn, "1.0.0"},
+  {registered, [
+    metrics_collector,
+    trace_handler,
+    profiler,
+    alert_manager,
+    observer_ui,
+    observability_sup
+  ]},
+  {applications, [
+    kernel,
+    stdlib,
+    lager
+  ]},
+  {env, [
+    %% Metrics Collection
+    {metrics_scrape_interval, 10000},
+    {metrics_max_history, 1000},
+
+    %% GCP Integration
+    {gcp_project_id, "your-project"},
+    {gcp_bucket, "beam-profiles"},
+
+    %% Tracing
+    {trace_buffer_size, 104857600},
+    {trace_storage_backend, cloud_logging},
+
+    %% Profiling
+    {profile_dir, "./profiles"},
+    {enable_cpu_profiling, true},
+    {enable_memory_profiling, true},
+
+    %% Alerts
+    {alert_check_interval, 10000},
+
+    %% Logging
+    {log_level, info}
+  ]},
+  {modules, [
+    observability_app,
+    observability_sup,
+    metrics_collector,
+    trace_handler,
+    profiler,
+    alert_manager,
+    observer_ui
+  ]},
+  {mod, {observability_app, []}}
+ ]}.
