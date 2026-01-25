@@ -1,0 +1,17 @@
+substitutions:
+  _REGION: "us-central1"
+  _REPO: "autonomics-skus"
+  _IMAGE: "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/catalog-controller:$COMMIT_SHA"
+
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "${_IMAGE}", "-f", "controller/Containerfile", "."]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "${_IMAGE}"]
+
+images:
+  - "${_IMAGE}"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
