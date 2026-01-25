@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Cross-Reference Mapping and Update Strategy for ggen PhD Thesis](#cross-reference-mapping-and-update-strategy-for-ggen-phd-thesis)
+  - [Document Status](#document-status)
+  - [Executive Summary](#executive-summary)
+  - [Current Chapter Structure (After Phase 1 Integration)](#current-chapter-structure-after-phase-1-integration)
+  - [Section 1: LaTeX Comments That Need Updating](#section-1-latex-comments-that-need-updating)
+    - [Updates Required:](#updates-required)
+  - [Section 2: Inline Text References (ALREADY CORRECT!)](#section-2-inline-text-references-already-correct)
+  - [Section 3: Chapter Labels (Semantic, Not Numerical)](#section-3-chapter-labels-semantic-not-numerical)
+  - [Section 4: Cross-Reference Analysis](#section-4-cross-reference-analysis)
+    - [Finding 1: No \ref{} Commands in Main Thesis](#finding-1-no-%5Cref-commands-in-main-thesis)
+    - [Finding 2: Separate Chapter File Has Invalid References](#finding-2-separate-chapter-file-has-invalid-references)
+  - [Section 5: Missing Chapter Cross-Reference Labels](#section-5-missing-chapter-cross-reference-labels)
+  - [Section 6: Table of Contents](#section-6-table-of-contents)
+  - [Section 7: Bibliography References](#section-7-bibliography-references)
+  - [Section 8: Specific Text Replacements Needed](#section-8-specific-text-replacements-needed)
+    - [Edit Operations for thesis.tex:](#edit-operations-for-thesistex)
+  - [Section 9: Validation Checklist](#section-9-validation-checklist)
+  - [Section 10: Special Cases and Considerations](#section-10-special-cases-and-considerations)
+    - [Appendices](#appendices)
+    - [Section and Subsection Labels](#section-and-subsection-labels)
+  - [Section 11: Phase 2 Integration Preparation](#section-11-phase-2-integration-preparation)
+  - [Section 12: Automated Update Script (Optional)](#section-12-automated-update-script-optional)
+  - [Section 13: Summary Statistics](#section-13-summary-statistics)
+  - [Section 14: Old vs. New Numbering Quick Reference](#section-14-old-vs-new-numbering-quick-reference)
+  - [Recommendations](#recommendations)
+    - [Immediate Actions (This Phase):](#immediate-actions-this-phase)
+    - [Phase 2 Actions (Later):](#phase-2-actions-later)
+    - [Best Practices:](#best-practices)
+  - [Contact Information](#contact-information)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Cross-Reference Mapping and Update Strategy for ggen PhD Thesis
 
 ## Document Status

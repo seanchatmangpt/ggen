@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [OTEL Optional Feature - Validation Checklist](#otel-optional-feature---validation-checklist)
+  - [Implementation Complete](#implementation-complete)
+  - [Validation Tasks](#validation-tasks)
+    - [Compilation Validation](#compilation-validation)
+    - [Test Validation](#test-validation)
+    - [Linting Validation](#linting-validation)
+    - [Dependency Validation](#dependency-validation)
+    - [Performance Validation](#performance-validation)
+    - [Documentation Validation](#documentation-validation)
+    - [Regression Testing](#regression-testing)
+    - [CI/CD Integration](#cicd-integration)
+  - [Automated Validation Script](#automated-validation-script)
+  - [Success Criteria](#success-criteria)
+  - [Validation Evidence](#validation-evidence)
+    - [Compilation Results](#compilation-results)
+    - [Test Results](#test-results)
+    - [Performance Results](#performance-results)
+    - [Dependency Results](#dependency-results)
+  - [Sign-Off](#sign-off)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # OTEL Optional Feature - Validation Checklist
 
 ## Implementation Complete

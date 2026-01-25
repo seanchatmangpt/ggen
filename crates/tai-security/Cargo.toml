@@ -1,0 +1,71 @@
+[package]
+name = "tai-security"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+description = "Production-grade security for ggen: Vault, Cloud KMS, mTLS, secret rotation, encryption"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+reqwest = { workspace = true }
+
+# Cryptography & Security
+sha2 = { workspace = true }
+hex = { workspace = true }
+base64 = { workspace = true }
+rand = "0.8"
+argon2 = "0.5"
+rsa = "0.9"
+zeroize = "1.7"
+aes-gcm = "0.10"
+chacha20poly1305 = "0.10"
+pbkdf2 = "0.12"
+hmac = "0.12"
+sha-1 = "0.10"
+
+# TLS & Certificates
+rustls = { version = "0.23", features = ["std", "ring"] }
+# rustls-pemfile = "2.2"  # Use manual PEM parsing
+# x509-parser = "0.16"  # Simplified cert parsing
+# x509 = "0.3"
+
+# Vault client (using generic HTTP client + manual JSON parsing)
+# vaultrs = "0.7"  # Commented - using generic reqwest instead
+
+# Google Cloud KMS (commented - requires proper credentials setup)
+# google-cloudkms1 = "5.0"
+# google-authz = "0.5"
+tokio-util = "0.7"
+
+# Local crates
+ggen-utils = { workspace = true }
+
+# HTTP utilities
+http = "1.0"
+hyper = { version = "1.0", features = ["full"] }
+
+# Logging & Observability
+log = "0.4"
+
+[dev-dependencies]
+proptest = { workspace = true }
+insta = "1.43"
+mockall = "0.13"
+testcontainers = { workspace = true }
+testcontainers-modules = { workspace = true }
+tempfile = "3.23"
+serial_test = "3.2"
+
+[[test]]
+name = "security_integration_tests"
+path = "tests/security_integration_tests.rs"

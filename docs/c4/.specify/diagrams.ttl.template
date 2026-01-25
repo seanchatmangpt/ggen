@@ -1,0 +1,1203 @@
+# C4 Diagram Universe: RDF Ontology Template
+# Version: 6.0.0 | Release: January 2026
+# Purpose: Define all facts needed for auto-generating 46 C4 diagrams via SPARQL queries + Tera templates
+#
+# Usage:
+#   1. Copy this template to .specify/diagrams.ttl
+#   2. Edit facts for your project (project_id, regions, compliance tiers, SKUs)
+#   3. Run: cargo make speckit-validate (validates SHACL shapes)
+#   4. Run: ggen sync --diagram-category c4 (generates all 46 diagrams)
+#   5. Check output: docs/c4/*.md (46 markdown files with Mermaid diagrams)
+#
+# RDF Prefixes
+@prefix c4: <http://ontology.autonomic-gcp.io/c4/> .
+@prefix sku: <http://ontology.autonomic-gcp.io/sku/> .
+@prefix component: <http://ontology.autonomic-gcp.io/component/> .
+@prefix action: <http://ontology.autonomic-gcp.io/action/> .
+@prefix signal: <http://ontology.autonomic-gcp.io/signal/> .
+@prefix project: <http://ontology.autonomic-gcp.io/project/> .
+@prefix gcp: <http://ontology.autonomic-gcp.io/gcp/> .
+@prefix policy: <http://ontology.autonomic-gcp.io/policy/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# ============================================================================
+# SECTION 1: PROJECT METADATA (Level 0)
+# ============================================================================
+# Facts that apply to entire project and all 46 diagrams
+
+project:autonomic_platform_prod
+  a c4:Project ;
+  c4:project_id "autonomic-platform-prod" ;
+  c4:project_name "Autonomic GCP Platform" ;
+  c4:version "6.0.0"^^xsd:string ;
+  c4:release_date "2026-01-25"^^xsd:date ;
+  c4:organization "google-cloud-solutions" ;
+  rdfs:comment "Root project node - inherited by all diagrams" ;
+  c4:has_regions project:region_us_central1, project:region_eu_west1, project:region_asia_southeast1, project:region_us_east4 ;
+  c4:has_compliance_tiers project:tier_none, project:tier_hipaa, project:tier_soc2, project:tier_fedramp ;
+  c4:has_deployment_modes project:mode_production, project:mode_staging, project:mode_development ;
+  c4:has_skus sku:cost_guard, sku:performance_pulse, sku:security_sentinel, sku:compliance_compass,
+              sku:scaling_serenity, sku:availability_armor, sku:data_defender, sku:network_ninja ;
+  c4:has_documentation_root "docs/c4/" ;
+  c4:total_diagrams "46"^^xsd:integer ;
+  c4:diagram_generation_template "docs/c4/templates/" ;
+  c4:marketplace_integration_enabled true .
+
+# ============================================================================
+# SECTION 2: DEPLOYMENT CONFIGURATIONS (Level 1)
+# ============================================================================
+# Facts about regions, compliance tiers, and deployment modes
+
+# REGIONS (4 total)
+project:region_us_central1
+  a c4:Region ;
+  c4:region_id "us-central1" ;
+  c4:region_name "US Central (Iowa)" ;
+  c4:latitude 42.0
+}
+  c4:longitude -93.0 ;
+  c4:gcp_region_code "us-central1" ;
+  c4:primary_datacenter true ;
+  c4:has_availability_zones 3 ;
+  c4:network_latency_baseline_ms 10 .
+
+project:region_eu_west1
+  a c4:Region ;
+  c4:region_id "eu-west1" ;
+  c4:region_name "Europe (Ireland)" ;
+  c4:latitude 53.4 ;
+  c4:longitude -8.2 ;
+  c4:gcp_region_code "eu-west1" ;
+  c4:primary_datacenter false ;
+  c4:has_availability_zones 3 ;
+  c4:network_latency_baseline_ms 95 .
+
+project:region_asia_southeast1
+  a c4:Region ;
+  c4:region_id "asia-southeast1" ;
+  c4:region_name "Asia Southeast (Singapore)" ;
+  c4:latitude 1.3 ;
+  c4:longitude 103.8 ;
+  c4:gcp_region_code "asia-southeast1" ;
+  c4:primary_datacenter false ;
+  c4:has_availability_zones 3 ;
+  c4:network_latency_baseline_ms 45 .
+
+project:region_us_east4
+  a c4:Region ;
+  c4:region_id "us-east4" ;
+  c4:region_name "US East (Northern Virginia)" ;
+  c4:latitude 38.9 ;
+  c4:longitude -77.4 ;
+  c4:gcp_region_code "us-east4" ;
+  c4:primary_datacenter false ;
+  c4:has_availability_zones 3 ;
+  c4:network_latency_baseline_ms 5 .
+
+# COMPLIANCE TIERS (4 total)
+project:tier_none
+  a c4:ComplianceTier ;
+  c4:tier_id "none" ;
+  c4:tier_name "No Compliance Requirements" ;
+  c4:encryption_required false ;
+  c4:audit_trail_required false ;
+  c4:data_residency_required false ;
+  c4:credential_rotation_days 999999 ;
+  c4:backup_frequency_hours 168 ;
+  c4:diagram_suffix "" .
+
+project:tier_hipaa
+  a c4:ComplianceTier ;
+  c4:tier_id "hipaa" ;
+  c4:tier_name "HIPAA (Healthcare)" ;
+  c4:encryption_required true ;
+  c4:encryption_algorithm "AES-256" ;
+  c4:audit_trail_required true ;
+  c4:audit_trail_retention_days 2555 ;
+  c4:data_residency_required true ;
+  c4:data_residency_regions ( "us-central1" "us-east4" ) ;
+  c4:credential_rotation_days 90 ;
+  c4:backup_frequency_hours 1 ;
+  c4:diagram_suffix "-hipaa" .
+
+project:tier_soc2
+  a c4:ComplianceTier ;
+  c4:tier_id "soc2" ;
+  c4:tier_name "SOC2 (Service Organizations)" ;
+  c4:encryption_required true ;
+  c4:encryption_algorithm "AES-128+" ;
+  c4:audit_trail_required true ;
+  c4:audit_trail_retention_days 30 ;
+  c4:data_residency_required false ;
+  c4:credential_rotation_days 180 ;
+  c4:backup_frequency_hours 24 ;
+  c4:diagram_suffix "-soc2" .
+
+project:tier_fedramp
+  a c4:ComplianceTier ;
+  c4:tier_id "fedramp" ;
+  c4:tier_name "FedRAMP (US Federal)" ;
+  c4:encryption_required true ;
+  c4:encryption_algorithm "FIPS 140-2" ;
+  c4:encryption_level "Level 2" ;
+  c4:audit_trail_required true ;
+  c4:audit_trail_retention_days 365 ;
+  c4:data_residency_required true ;
+  c4:data_residency_regions ( "us-central1" ) ;
+  c4:credential_rotation_days 30 ;
+  c4:backup_frequency_hours 1 ;
+  c4:backup_offsite_required true ;
+  c4:diagram_suffix "-fedramp" .
+
+# DEPLOYMENT MODES (3 total)
+project:mode_production
+  a c4:DeploymentMode ;
+  c4:mode_id "production" ;
+  c4:mode_name "Production" ;
+  c4:slo_latency_ms 100 ;
+  c4:slo_availability 0.9999 ;
+  c4:feature_completeness 1.0 ;
+  c4:cost_optimization_enabled true ;
+  c4:security_hardening "maximum" ;
+  c4:monitoring_enabled true ;
+  c4:auto_recovery_enabled true .
+
+project:mode_staging
+  a c4:DeploymentMode ;
+  c4:mode_id "staging" ;
+  c4:mode_name "Staging" ;
+  c4:slo_latency_ms 500 ;
+  c4:slo_availability 0.99 ;
+  c4:feature_completeness 0.95 ;
+  c4:cost_optimization_enabled true ;
+  c4:security_hardening "standard" ;
+  c4:monitoring_enabled true ;
+  c4:auto_recovery_enabled true .
+
+project:mode_development
+  a c4:DeploymentMode ;
+  c4:mode_id "development" ;
+  c4:mode_name "Development" ;
+  c4:slo_latency_ms 5000 ;
+  c4:slo_availability 0.95 ;
+  c4:feature_completeness 0.80 ;
+  c4:cost_optimization_enabled false ;
+  c4:security_hardening "minimal" ;
+  c4:monitoring_enabled false ;
+  c4:auto_recovery_enabled false .
+
+# ============================================================================
+# SECTION 3: SKU DEFINITIONS (8 SKUs)
+# ============================================================================
+# Facts defining each Autonomous SKU product
+
+sku:cost_guard
+  a c4:SKU ;
+  c4:sku_id "cost_guard" ;
+  c4:sku_name "Cost Guard" ;
+  c4:sku_category "optimization" ;
+  c4:description "Cost optimization via spend forecasting and anomaly detection" ;
+  c4:primary_metric "cost_rate_usd_per_day" ;
+  c4:baseline_value 1000.0 ;
+  c4:threshold_zscore 2.0 ;
+  c4:rolling_window_days 30 ;
+  c4:has_signal signal:spend_rate, signal:quota_usage, signal:budget_alerts ;
+  c4:can_execute action:scale_down, action:pause_instances, action:archive_data ;
+  c4:model_type "ARIMA" ;
+  c4:model_accuracy 0.94 ;
+  c4:inference_latency_ms 50 ;
+  c4:training_data_weeks 8 ;
+  c4:operates_in_regions project:region_us_central1, project:region_eu_west1, project:region_asia_southeast1, project:region_us_east4 ;
+  c4:diagram_ids ( 25 26 27 ) .
+
+sku:performance_pulse
+  a c4:SKU ;
+  c4:sku_id "performance_pulse" ;
+  c4:sku_name "Performance Pulse" ;
+  c4:sku_category "monitoring" ;
+  c4:description "Real-time performance monitoring and latency prediction" ;
+  c4:primary_metric "latency_p99_ms" ;
+  c4:baseline_value 100.0 ;
+  c4:threshold_zscore 2.5 ;
+  c4:rolling_window_days 7 ;
+  c4:has_signal signal:cpu_utilization, signal:memory_utilization, signal:latency_p99, signal:throughput ;
+  c4:can_execute action:update_config, action:trigger_profiling ;
+  c4:model_type "Isolation Forest" ;
+  c4:model_accuracy 0.92 ;
+  c4:inference_latency_ms 100 ;
+  c4:training_data_weeks 4 ;
+  c4:operates_in_regions project:region_us_central1, project:region_eu_west1, project:region_asia_southeast1, project:region_us_east4 ;
+  c4:diagram_ids ( 28 29 30 ) .
+
+sku:security_sentinel
+  a c4:SKU ;
+  c4:sku_id "security_sentinel" ;
+  c4:sku_name "Security Sentinel" ;
+  c4:sku_category "security" ;
+  c4:description "Threat detection and automated credential rotation" ;
+  c4:primary_metric "breach_attempts_per_hour" ;
+  c4:baseline_value 0.0 ;
+  c4:threshold_zscore 1.5 ;
+  c4:rolling_window_days 14 ;
+  c4:has_signal signal:breach_attempts, signal:auth_failures, signal:vault_status ;
+  c4:can_execute action:rotate_credentials, action:update_policy, action:trigger_incident ;
+  c4:model_type "LightGBM" ;
+  c4:model_accuracy 0.98 ;
+  c4:inference_latency_ms 75 ;
+  c4:training_data_weeks 12 ;
+  c4:operates_in_regions project:region_us_central1, project:region_eu_west1, project:region_asia_southeast1, project:region_us_east4 ;
+  c4:diagram_ids ( 31 32 33 ) .
+
+sku:compliance_compass
+  a c4:SKU ;
+  c4:sku_id "compliance_compass" ;
+  c4:sku_name "Compliance Compass" ;
+  c4:sku_category "compliance" ;
+  c4:description "Policy drift detection and compliance scoring" ;
+  c4:primary_metric "compliance_score_percent" ;
+  c4:baseline_value 100.0 ;
+  c4:threshold_zscore 2.0 ;
+  c4:rolling_window_days 1 ;
+  c4:has_signal signal:policy_violations, signal:cert_expiry, signal:audit_log_status ;
+  c4:can_execute action:export_audit_logs, action:trigger_compliance_scan, action:send_alert ;
+  c4:model_type "Constraint Solver" ;
+  c4:model_accuracy 1.0 ;
+  c4:inference_latency_ms 200 ;
+  c4:training_data_weeks 52 ;
+  c4:operates_in_regions project:region_us_central1, project:region_eu_west1, project:region_asia_southeast1, project:region_us_east4 ;
+  c4:diagram_ids ( 34 35 36 ) .
+
+sku:scaling_serenity
+  a c4:SKU ;
+  c4:sku_id "scaling_serenity" ;
+  c4:sku_name "Scaling Serenity" ;
+  c4:sku_category "autoscaling" ;
+  c4:description "ML-driven autoscaling with traffic forecasting" ;
+  c4:primary_metric "instance_count" ;
+  c4:baseline_value 10.0 ;
+  c4:threshold_zscore 2.0 ;
+  c4:rolling_window_days 7 ;
+  c4:has_signal signal:traffic_rate, signal:queue_depth, signal:pod_pending ;
+  c4:can_execute action:scale_up, action:scale_down, action:update_placement ;
+  c4:model_type "LSTM" ;
+  c4:model_accuracy 0.89 ;
+  c4:inference_latency_ms 150 ;
+  c4:training_data_weeks 8 ;
+  c4:forecast_horizon_minutes 15 ;
+  c4:operates_in_regions project:region_us_central1, project:region_eu_west1, project:region_asia_southeast1, project:region_us_east4 ;
+  c4:diagram_ids ( 37 38 ) .
+
+sku:availability_armor
+  a c4:SKU ;
+  c4:sku_id "availability_armor" ;
+  c4:sku_name "Availability Armor" ;
+  c4:sku_category "availability" ;
+  c4:description "High availability with automated failover" ;
+  c4:primary_metric "uptime_percent" ;
+  c4:baseline_value 99.99 ;
+  c4:threshold_zscore 3.0 ;
+  c4:rolling_window_days 30 ;
+  c4:has_signal signal:uptime_percent, signal:error_rate, signal:region_status ;
+  c4:can_execute action:failover_instance, action:update_health_checks, action:send_alert ;
+  c4:model_type "Health Check Poller" ;
+  c4:model_accuracy 1.0 ;
+  c4:inference_latency_ms 1000 ;
+  c4:polling_interval_seconds 30 ;
+  c4:operates_in_regions project:region_us_central1, project:region_eu_west1, project:region_asia_southeast1, project:region_us_east4 ;
+  c4:diagram_ids ( 39 ) .
+
+sku:data_defender
+  a c4:SKU ;
+  c4:sku_id "data_defender" ;
+  c4:sku_name "Data Defender" ;
+  c4:sku_category "data_protection" ;
+  c4:description "Automated backup and encryption management" ;
+  c4:primary_metric "backup_recency_hours" ;
+  c4:baseline_value 0.0 ;
+  c4:threshold_zscore 2.0 ;
+  c4:rolling_window_days 7 ;
+  c4:has_signal signal:storage_bytes, signal:io_latency, signal:replication_lag ;
+  c4:can_execute action:trigger_backup, action:encrypt_at_rest, action:enable_replication ;
+  c4:model_type "Schedule Optimizer" ;
+  c4:model_accuracy 0.96 ;
+  c4:inference_latency_ms 100 ;
+  c4:backup_frequency_hours_default 24 ;
+  c4:operates_in_regions project:region_us_central1, project:region_eu_west1, project:region_asia_southeast1, project:region_us_east4 ;
+  c4:diagram_ids ( 40 ) .
+
+sku:network_ninja
+  a c4:SKU ;
+  c4:sku_id "network_ninja" ;
+  c4:sku_name "Network Ninja" ;
+  c4:sku_category "network_optimization" ;
+  c4:description "Network traffic optimization and congestion management" ;
+  c4:primary_metric "average_latency_ms" ;
+  c4:baseline_value 50.0 ;
+  c4:threshold_zscore 2.0 ;
+  c4:rolling_window_days 7 ;
+  c4:has_signal signal:bandwidth, signal:latency_zone, signal:dns_queries ;
+  c4:can_execute action:update_routes, action:configure_firewall, action:manage_dns ;
+  c4:model_type "Traffic Engineering" ;
+  c4:model_accuracy 0.91 ;
+  c4:inference_latency_ms 50 ;
+  c4:operates_in_regions project:region_us_central1, project:region_eu_west1, project:region_asia_southeast1, project:region_us_east4 ;
+  c4:diagram_ids ( 41 ) .
+
+# ============================================================================
+# SECTION 4: SIGNAL DEFINITIONS
+# ============================================================================
+# Facts defining each signal type (24+ total)
+
+signal:spend_rate
+  a c4:Signal ;
+  c4:signal_id "spend_rate" ;
+  c4:signal_name "Spend Rate" ;
+  c4:signal_domain "cost" ;
+  c4:signal_source "Google Cloud Billing API" ;
+  c4:collection_cadence_seconds 60 ;
+  c4:unit "USD/day" ;
+  c4:precision_decimal_places 2 .
+
+signal:quota_usage
+  a c4:Signal ;
+  c4:signal_id "quota_usage" ;
+  c4:signal_name "Quota Usage" ;
+  c4:signal_domain "cost" ;
+  c4:signal_source "Google Cloud Quotas API" ;
+  c4:collection_cadence_seconds 300 ;
+  c4:unit "percent" ;
+  c4:precision_decimal_places 1 .
+
+signal:budget_alerts
+  a c4:Signal ;
+  c4:signal_id "budget_alerts" ;
+  c4:signal_name "Budget Alerts" ;
+  c4:signal_domain "cost" ;
+  c4:signal_source "Google Cloud Billing Alerts" ;
+  c4:collection_cadence_seconds 60 ;
+  c4:unit "count" ;
+  c4:precision_decimal_places 0 .
+
+signal:cpu_utilization
+  a c4:Signal ;
+  c4:signal_id "cpu_utilization" ;
+  c4:signal_name "CPU Utilization" ;
+  c4:signal_domain "performance" ;
+  c4:signal_source "Google Cloud Monitoring" ;
+  c4:collection_cadence_seconds 10 ;
+  c4:unit "percent" ;
+  c4:precision_decimal_places 2 .
+
+signal:memory_utilization
+  a c4:Signal ;
+  c4:signal_id "memory_utilization" ;
+  c4:signal_name "Memory Utilization" ;
+  c4:signal_domain "performance" ;
+  c4:signal_source "Google Cloud Monitoring" ;
+  c4:collection_cadence_seconds 10 ;
+  c4:unit "percent" ;
+  c4:precision_decimal_places 2 .
+
+signal:latency_p99
+  a c4:Signal ;
+  c4:signal_id "latency_p99" ;
+  c4:signal_name "Latency P99" ;
+  c4:signal_domain "performance" ;
+  c4:signal_source "Google Cloud Monitoring" ;
+  c4:collection_cadence_seconds 10 ;
+  c4:unit "milliseconds" ;
+  c4:precision_decimal_places 1 .
+
+signal:throughput
+  a c4:Signal ;
+  c4:signal_id "throughput" ;
+  c4:signal_name "Request Throughput" ;
+  c4:signal_domain "performance" ;
+  c4:signal_source "Google Cloud Monitoring" ;
+  c4:collection_cadence_seconds 10 ;
+  c4:unit "requests/second" ;
+  c4:precision_decimal_places 1 .
+
+signal:breach_attempts
+  a c4:Signal ;
+  c4:signal_id "breach_attempts" ;
+  c4:signal_name "Breach Attempts" ;
+  c4:signal_domain "security" ;
+  c4:signal_source "Cloud Security Command Center" ;
+  c4:collection_cadence_seconds 0 ;
+  c4:collection_type "event_driven" ;
+  c4:unit "count" ;
+  c4:precision_decimal_places 0 .
+
+signal:auth_failures
+  a c4:Signal ;
+  c4:signal_id "auth_failures" ;
+  c4:signal_name "Authentication Failures" ;
+  c4:signal_domain "security" ;
+  c4:signal_source "Cloud Logging" ;
+  c4:collection_cadence_seconds 60 ;
+  c4:unit "count" ;
+  c4:precision_decimal_places 0 .
+
+signal:vault_status
+  a c4:Signal ;
+  c4:signal_id "vault_status" ;
+  c4:signal_name "Vault Status" ;
+  c4:signal_domain "security" ;
+  c4:signal_source "HashiCorp Vault" ;
+  c4:collection_cadence_seconds 300 ;
+  c4:unit "health_status" ;
+  c4:unit_values ( "healthy" "degraded" "offline" ) .
+
+signal:uptime_percent
+  a c4:Signal ;
+  c4:signal_id "uptime_percent" ;
+  c4:signal_name "Uptime Percent" ;
+  c4:signal_domain "availability" ;
+  c4:signal_source "Google Cloud Monitoring" ;
+  c4:collection_cadence_seconds 30 ;
+  c4:unit "percent" ;
+  c4:precision_decimal_places 4 .
+
+signal:error_rate
+  a c4:Signal ;
+  c4:signal_id "error_rate" ;
+  c4:signal_name "Error Rate" ;
+  c4:signal_domain "availability" ;
+  c4:signal_source "Google Cloud Monitoring" ;
+  c4:collection_cadence_seconds 10 ;
+  c4:unit "percent" ;
+  c4:precision_decimal_places 2 .
+
+signal:region_status
+  a c4:Signal ;
+  c4:signal_id "region_status" ;
+  c4:signal_name "Region Status" ;
+  c4:signal_domain "availability" ;
+  c4:signal_source "Google Cloud Status Dashboard" ;
+  c4:collection_cadence_seconds 60 ;
+  c4:unit "status" ;
+  c4:unit_values ( "operational" "degraded" "outage" ) .
+
+signal:storage_bytes
+  a c4:Signal ;
+  c4:signal_id "storage_bytes" ;
+  c4:signal_name "Storage Size" ;
+  c4:signal_domain "data" ;
+  c4:signal_source "Google Cloud Storage" ;
+  c4:collection_cadence_seconds 3600 ;
+  c4:unit "bytes" ;
+  c4:precision_decimal_places 0 .
+
+signal:io_latency
+  a c4:Signal ;
+  c4:signal_id "io_latency" ;
+  c4:signal_name "I/O Latency" ;
+  c4:signal_domain "data" ;
+  c4:signal_source "Google Cloud Monitoring" ;
+  c4:collection_cadence_seconds 60 ;
+  c4:unit "milliseconds" ;
+  c4:precision_decimal_places 1 .
+
+signal:replication_lag
+  a c4:Signal ;
+  c4:signal_id "replication_lag" ;
+  c4:signal_name "Replication Lag" ;
+  c4:signal_domain "data" ;
+  c4:signal_source "Google Cloud Datastore" ;
+  c4:collection_cadence_seconds 300 ;
+  c4:unit "seconds" ;
+  c4:precision_decimal_places 1 .
+
+signal:policy_violations
+  a c4:Signal ;
+  c4:signal_id "policy_violations" ;
+  c4:signal_name "Policy Violations" ;
+  c4:signal_domain "compliance" ;
+  c4:signal_source "Cloud Asset Inventory" ;
+  c4:collection_cadence_seconds 86400 ;
+  c4:unit "count" ;
+  c4:precision_decimal_places 0 .
+
+signal:cert_expiry
+  a c4:Signal ;
+  c4:signal_id "cert_expiry" ;
+  c4:signal_name "Certificate Expiry" ;
+  c4:signal_domain "compliance" ;
+  c4:signal_source "Google Managed Certificates" ;
+  c4:collection_cadence_seconds 86400 ;
+  c4:unit "days_until_expiry" ;
+  c4:precision_decimal_places 0 .
+
+signal:audit_log_status
+  a c4:Signal ;
+  c4:signal_id "audit_log_status" ;
+  c4:signal_name "Audit Log Status" ;
+  c4:signal_domain "compliance" ;
+  c4:signal_source "Cloud Logging" ;
+  c4:collection_cadence_seconds 3600 ;
+  c4:unit "status" ;
+  c4:unit_values ( "healthy" "behind" "offline" ) .
+
+signal:traffic_rate
+  a c4:Signal ;
+  c4:signal_id "traffic_rate" ;
+  c4:signal_name "Traffic Rate" ;
+  c4:signal_domain "scaling" ;
+  c4:signal_source "Google Cloud Monitoring" ;
+  c4:collection_cadence_seconds 10 ;
+  c4:unit "requests/second" ;
+  c4:precision_decimal_places 1 .
+
+signal:queue_depth
+  a c4:Signal ;
+  c4:signal_id "queue_depth" ;
+  c4:signal_name "Queue Depth" ;
+  c4:signal_domain "scaling" ;
+  c4:signal_source "Google Cloud Pub/Sub" ;
+  c4:collection_cadence_seconds 5 ;
+  c4:unit "messages" ;
+  c4:precision_decimal_places 0 .
+
+signal:pod_pending
+  a c4:Signal ;
+  c4:signal_id "pod_pending" ;
+  c4:signal_name "Pods Pending" ;
+  c4:signal_domain "scaling" ;
+  c4:signal_source "Google Kubernetes Engine" ;
+  c4:collection_cadence_seconds 15 ;
+  c4:unit "count" ;
+  c4:precision_decimal_places 0 .
+
+signal:bandwidth
+  a c4:Signal ;
+  c4:signal_id "bandwidth" ;
+  c4:signal_name "Network Bandwidth" ;
+  c4:signal_domain "network" ;
+  c4:signal_source "Google Cloud VPC Flow Logs" ;
+  c4:collection_cadence_seconds 5 ;
+  c4:unit "megabits/second" ;
+  c4:precision_decimal_places 1 .
+
+signal:latency_zone
+  a c4:Signal ;
+  c4:signal_id "latency_zone" ;
+  c4:signal_name "Zone Latency" ;
+  c4:signal_domain "network" ;
+  c4:signal_source "Google Cloud Monitoring" ;
+  c4:collection_cadence_seconds 10 ;
+  c4:unit "milliseconds" ;
+  c4:precision_decimal_places 1 .
+
+signal:dns_queries
+  a c4:Signal ;
+  c4:signal_id "dns_queries" ;
+  c4:signal_name "DNS Queries" ;
+  c4:signal_domain "network" ;
+  c4:signal_source "Google Cloud DNS" ;
+  c4:collection_cadence_seconds 60 ;
+  c4:unit "queries/second" ;
+  c4:precision_decimal_places 1 .
+
+# ============================================================================
+# SECTION 5: ACTION DEFINITIONS
+# ============================================================================
+# Facts defining all action types that SKUs can execute (16 total)
+
+action:scale_up
+  a c4:Action ;
+  c4:action_id "scale_up" ;
+  c4:action_name "Scale Up" ;
+  c4:action_category "scaling" ;
+  c4:api_endpoint "compute.instances.start" ;
+  c4:api_parameters ( "instance_id" "count" ) ;
+  c4:requires_approval false ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 5000 ;
+  c4:danger_level "low" .
+
+action:scale_down
+  a c4:Action ;
+  c4:action_id "scale_down" ;
+  c4:action_name "Scale Down" ;
+  c4:action_category "scaling" ;
+  c4:api_endpoint "compute.instances.stop" ;
+  c4:api_parameters ( "instance_id" "count" "grace_period_seconds" ) ;
+  c4:requires_approval false ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 10000 ;
+  c4:danger_level "low" .
+
+action:pause_instances
+  a c4:Action ;
+  c4:action_id "pause_instances" ;
+  c4:action_name "Pause Instances" ;
+  c4:action_category "scaling" ;
+  c4:api_endpoint "compute.instances.suspend" ;
+  c4:api_parameters ( "instance_id" ) ;
+  c4:requires_approval false ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 3000 ;
+  c4:danger_level "low" .
+
+action:archive_data
+  a c4:Action ;
+  c4:action_id "archive_data" ;
+  c4:action_name "Archive Data" ;
+  c4:action_category "cost_optimization" ;
+  c4:api_endpoint "storage.buckets.setStorageClass" ;
+  c4:api_parameters ( "bucket_id" "storage_class" ) ;
+  c4:requires_approval false ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 30000 ;
+  c4:danger_level "medium" .
+
+action:update_config
+  a c4:Action ;
+  c4:action_id "update_config" ;
+  c4:action_name "Update Configuration" ;
+  c4:action_category "configuration" ;
+  c4:api_endpoint "compute.instances.updateConfig" ;
+  c4:api_parameters ( "instance_id" "config_changes" ) ;
+  c4:requires_approval true ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 5000 ;
+  c4:danger_level "medium" .
+
+action:trigger_profiling
+  a c4:Action ;
+  c4:action_id "trigger_profiling" ;
+  c4:action_name "Trigger Profiling" ;
+  c4:action_category "monitoring" ;
+  c4:api_endpoint "cloudprofiler.profileService.create" ;
+  c4:api_parameters ( "deployment_target" "duration_seconds" ) ;
+  c4:requires_approval false ;
+  c4:rollback_available false ;
+  c4:slo_completion_ms 1000 ;
+  c4:danger_level "low" .
+
+action:rotate_credentials
+  a c4:Action ;
+  c4:action_id "rotate_credentials" ;
+  c4:action_name "Rotate Credentials" ;
+  c4:action_category "security" ;
+  c4:api_endpoint "vault.secrets.rotate" ;
+  c4:api_parameters ( "secret_id" "rotation_strategy" ) ;
+  c4:requires_approval true ;
+  c4:rollback_available false ;
+  c4:slo_completion_ms 10000 ;
+  c4:danger_level "high" .
+
+action:update_policy
+  a c4:Action ;
+  c4:action_id "update_policy" ;
+  c4:action_name "Update Policy" ;
+  c4:action_category "security" ;
+  c4:api_endpoint "iam.policies.setIamPolicy" ;
+  c4:api_parameters ( "resource_id" "policy_document" ) ;
+  c4:requires_approval true ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 5000 ;
+  c4:danger_level "high" .
+
+action:trigger_incident
+  a c4:Action ;
+  c4:action_id "trigger_incident" ;
+  c4:action_name "Trigger Incident" ;
+  c4:action_category "alerting" ;
+  c4:api_endpoint "pagerduty.incidents.create" ;
+  c4:api_parameters ( "title" "severity" "assigned_to" ) ;
+  c4:requires_approval false ;
+  c4:rollback_available false ;
+  c4:slo_completion_ms 1000 ;
+  c4:danger_level "low" .
+
+action:export_audit_logs
+  a c4:Action ;
+  c4:action_id "export_audit_logs" ;
+  c4:action_name "Export Audit Logs" ;
+  c4:action_category "compliance" ;
+  c4:api_endpoint "logging.v2.projects.exports.create" ;
+  c4:api_parameters ( "project_id" "destination_bucket" "filter" ) ;
+  c4:requires_approval false ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 5000 ;
+  c4:danger_level "low" .
+
+action:trigger_compliance_scan
+  a c4:Action ;
+  c4:action_id "trigger_compliance_scan" ;
+  c4:action_name "Trigger Compliance Scan" ;
+  c4:action_category "compliance" ;
+  c4:api_endpoint "cloudasset.assets.search" ;
+  c4:api_parameters ( "resource_scope" "query" ) ;
+  c4:requires_approval false ;
+  c4:rollback_available false ;
+  c4:slo_completion_ms 60000 ;
+  c4:danger_level "low" .
+
+action:send_alert
+  a c4:Action ;
+  c4:action_id "send_alert" ;
+  c4:action_name "Send Alert" ;
+  c4:action_category "alerting" ;
+  c4:api_endpoint "monitoring.alertPolicies.create" ;
+  c4:api_parameters ( "notification_channels" "alert_message" ) ;
+  c4:requires_approval false ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 1000 ;
+  c4:danger_level "low" .
+
+action:failover_instance
+  a c4:Action ;
+  c4:action_id "failover_instance" ;
+  c4:action_name "Failover Instance" ;
+  c4:action_category "availability" ;
+  c4:api_endpoint "compute.instances.start" ;
+  c4:api_parameters ( "standby_instance_id" "switch_dns" ) ;
+  c4:requires_approval false ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 3000 ;
+  c4:danger_level "medium" .
+
+action:update_health_checks
+  a c4:Action ;
+  c4:action_id "update_health_checks" ;
+  c4:action_name "Update Health Checks" ;
+  c4:action_category "monitoring" ;
+  c4:api_endpoint "compute.healthChecks.update" ;
+  c4:api_parameters ( "health_check_id" "new_config" ) ;
+  c4:requires_approval false ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 5000 ;
+  c4:danger_level "low" .
+
+action:trigger_backup
+  a c4:Action ;
+  c4:action_id "trigger_backup" ;
+  c4:action_name "Trigger Backup" ;
+  c4:action_category "data_protection" ;
+  c4:api_endpoint "backup-dr.managedBackupOperations.create" ;
+  c4:api_parameters ( "backup_plan_id" "backup_location" ) ;
+  c4:requires_approval false ;
+  c4:rollback_available false ;
+  c4:slo_completion_ms 5000 ;
+  c4:danger_level "low" .
+
+action:encrypt_at_rest
+  a c4:Action ;
+  c4:action_id "encrypt_at_rest" ;
+  c4:action_name "Encrypt At Rest" ;
+  c4:action_category "security" ;
+  c4:api_endpoint "storage.buckets.patch" ;
+  c4:api_parameters ( "bucket_id" "encryption_key" ) ;
+  c4:requires_approval true ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 10000 ;
+  c4:danger_level "high" .
+
+action:enable_replication
+  a c4:Action ;
+  c4:action_id "enable_replication" ;
+  c4:action_name "Enable Replication" ;
+  c4:action_category "data_protection" ;
+  c4:api_endpoint "datastore.backups.create" ;
+  c4:api_parameters ( "database_id" "replication_location" ) ;
+  c4:requires_approval false ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 5000 ;
+  c4:danger_level "medium" .
+
+action:update_routes
+  a c4:Action ;
+  c4:action_id "update_routes" ;
+  c4:action_name "Update Routes" ;
+  c4:action_category "network" ;
+  c4:api_endpoint "compute.routes.update" ;
+  c4:api_parameters ( "route_id" "next_hop" ) ;
+  c4:requires_approval true ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 5000 ;
+  c4:danger_level "high" .
+
+action:configure_firewall
+  a c4:Action ;
+  c4:action_id "configure_firewall" ;
+  c4:action_name "Configure Firewall" ;
+  c4:action_category "network" ;
+  c4:api_endpoint "compute.firewalls.update" ;
+  c4:api_parameters ( "firewall_rule_id" "rules" ) ;
+  c4:requires_approval true ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 5000 ;
+  c4:danger_level "high" .
+
+action:manage_dns
+  a c4:Action ;
+  c4:action_id "manage_dns" ;
+  c4:action_name "Manage DNS" ;
+  c4:action_category "network" ;
+  c4:api_endpoint "dns.resourceRecordSets.patch" ;
+  c4:api_parameters ( "record_id" "target_ip" "ttl" ) ;
+  c4:requires_approval false ;
+  c4:rollback_available true ;
+  c4:slo_completion_ms 3000 ;
+  c4:danger_level "medium" .
+
+# ============================================================================
+# SECTION 6: COMPONENT DEFINITIONS
+# ============================================================================
+# Facts defining major components (20 components across all containers)
+
+component:cost_trajectory_model
+  a c4:Component ;
+  c4:component_id "cost_trajectory_model" ;
+  c4:component_name "Cost Trajectory Model" ;
+  c4:container "analytics" ;
+  c4:component_type "ml_model" ;
+  c4:technology "scikit-learn" ;
+  c4:algorithm "ARIMA" ;
+  c4:input_signals ( signal:spend_rate signal:quota_usage signal:budget_alerts ) ;
+  c4:model_accuracy 0.94 ;
+  c4:inference_latency_ms 50 ;
+  c4:training_cadence "daily" ;
+  c4:output_format "cost_forecast_30_60_90_days" ;
+  c4:belongs_to_sku sku:cost_guard .
+
+component:perf_anomaly_detector
+  a c4:Component ;
+  c4:component_id "perf_anomaly_detector" ;
+  c4:component_name "Performance Anomaly Detector" ;
+  c4:container "analytics" ;
+  c4:component_type "ml_model" ;
+  c4:technology "scikit-learn" ;
+  c4:algorithm "Isolation Forest" ;
+  c4:input_signals ( signal:cpu_utilization signal:memory_utilization signal:latency_p99 signal:throughput ) ;
+  c4:model_accuracy 0.92 ;
+  c4:inference_latency_ms 100 ;
+  c4:training_cadence "weekly" ;
+  c4:output_format "anomaly_flags_per_metric" ;
+  c4:belongs_to_sku sku:performance_pulse .
+
+component:security_threat_classifier
+  a c4:Component ;
+  c4:component_id "security_threat_classifier" ;
+  c4:component_name "Security Threat Classifier" ;
+  c4:container "analytics" ;
+  c4:component_type "ml_model" ;
+  c4:technology "LightGBM" ;
+  c4:algorithm "Gradient Boosting" ;
+  c4:input_signals ( signal:breach_attempts signal:auth_failures signal:vault_status ) ;
+  c4:model_accuracy 0.98 ;
+  c4:inference_latency_ms 75 ;
+  c4:training_cadence "daily" ;
+  c4:output_format "threat_classification_breach_vs_normal" ;
+  c4:belongs_to_sku sku:security_sentinel .
+
+component:compliance_drift_detector
+  a c4:Component ;
+  c4:component_id "compliance_drift_detector" ;
+  c4:component_name "Compliance Drift Detector" ;
+  c4:container "analytics" ;
+  c4:component_type "constraint_solver" ;
+  c4:technology "clingo" ;
+  c4:algorithm "Answer Set Programming" ;
+  c4:input_signals ( signal:policy_violations signal:cert_expiry signal:audit_log_status ) ;
+  c4:model_accuracy 1.0 ;
+  c4:inference_latency_ms 200 ;
+  c4:training_cadence "hourly" ;
+  c4:output_format "policy_violations_and_remediation_steps" ;
+  c4:belongs_to_sku sku:compliance_compass .
+
+component:traffic_forecaster
+  a c4:Component ;
+  c4:component_id "traffic_forecaster" ;
+  c4:component_name "Traffic Forecaster" ;
+  c4:container "analytics" ;
+  c4:component_type "ml_model" ;
+  c4:technology "TensorFlow" ;
+  c4:algorithm "LSTM" ;
+  c4:input_signals ( signal:traffic_rate signal:queue_depth signal:pod_pending ) ;
+  c4:model_accuracy 0.89 ;
+  c4:inference_latency_ms 150 ;
+  c4:training_cadence "daily" ;
+  c4:forecast_horizon_minutes 15 ;
+  c4:output_format "traffic_forecast_15min_ahead" ;
+  c4:belongs_to_sku sku:scaling_serenity .
+
+component:signal_ingestion_kafka
+  a c4:Component ;
+  c4:component_id "signal_ingestion_kafka" ;
+  c4:component_name "Signal Ingestion (Kafka)" ;
+  c4:container "signal_ingestion" ;
+  c4:component_type "message_broker" ;
+  c4:technology "Apache Kafka" ;
+  c4:throughput_msgs_per_sec 100000 ;
+  c4:latency_p99_ms 10 ;
+  c4:input_sources ( "GCP APIs" "Cloud Pub/Sub" "Custom collectors" ) ;
+  c4:output_format "Avro with schema registry" .
+
+component:rdf_triple_store
+  a c4:Component ;
+  c4:component_id "rdf_triple_store" ;
+  c4:component_name "RDF Triple Store" ;
+  c4:container "knowledge_graph" ;
+  c4:component_type "graph_database" ;
+  c4:technology "Oxigraph" ;
+  c4:storage_backend "RocksDB" ;
+  c4:sparql_version "1.1" ;
+  c4:materialization_enabled true ;
+  c4:inference_rules "RDFS,OWL2-RL" .
+
+component:entitlement_enforcer
+  a c4:Component ;
+  c4:component_id "entitlement_enforcer" ;
+  c4:component_name "Entitlement Enforcer" ;
+  c4:container "action_executor" ;
+  c4:component_type "authorization_engine" ;
+  c4:technology "SPARQL" ;
+  c4:query_latency_ms 50 ;
+  c4:cache_enabled true ;
+  c4:cache_ttl_seconds 300 ;
+  c4:deny_decision_behavior "fail_closed" .
+
+component:gcp_api_caller
+  a c4:Component ;
+  c4:component_id "gcp_api_caller" ;
+  c4:component_name "GCP API Caller" ;
+  c4:container "action_executor" ;
+  c4:component_type "api_integration" ;
+  c4:technology "Google Cloud Client Libraries" ;
+  c4:apis_supported ( "compute" "storage" "network" "iam" "logging" ) ;
+  c4:retry_strategy "exponential_backoff" ;
+  c4:max_retries 5 ;
+  c4:circuit_breaker_enabled true .
+
+component:receipt_generator
+  a c4:Component ;
+  c4:component_id "receipt_generator" ;
+  c4:component_name "Receipt Generator" ;
+  c4:container "action_executor" ;
+  c4:component_type "audit_trail" ;
+  c4:technology "Ed25519 + SHA256" ;
+  c4:cryptography_algorithm "Ed25519" ;
+  c4:hash_algorithm "SHA256" ;
+  c4:immutable_storage "Cloud Logging" ;
+  c4:audit_export_format "JSON" .
+
+# ============================================================================
+# SECTION 7: POLICY & ENTITLEMENT FACTS
+# ============================================================================
+# Facts defining which SKUs can execute which actions
+
+policy:cost_guard_permissions
+  a policy:PolicySet ;
+  policy:applies_to sku:cost_guard ;
+  policy:allows_action action:scale_down ;
+  policy:allows_action action:pause_instances ;
+  policy:allows_action action:archive_data ;
+  policy:allows_action action:send_alert .
+
+policy:performance_pulse_permissions
+  a policy:PolicySet ;
+  policy:applies_to sku:performance_pulse ;
+  policy:allows_action action:update_config ;
+  policy:allows_action action:trigger_profiling ;
+  policy:allows_action action:send_alert .
+
+policy:security_sentinel_permissions
+  a policy:PolicySet ;
+  policy:applies_to sku:security_sentinel ;
+  policy:allows_action action:rotate_credentials ;
+  policy:allows_action action:update_policy ;
+  policy:allows_action action:trigger_incident ;
+  policy:allows_action action:send_alert .
+
+policy:compliance_compass_permissions
+  a policy:PolicySet ;
+  policy:applies_to sku:compliance_compass ;
+  policy:allows_action action:export_audit_logs ;
+  policy:allows_action action:trigger_compliance_scan ;
+  policy:allows_action action:send_alert .
+
+policy:scaling_serenity_permissions
+  a policy:PolicySet ;
+  policy:applies_to sku:scaling_serenity ;
+  policy:allows_action action:scale_up ;
+  policy:allows_action action:scale_down ;
+  policy:allows_action action:send_alert .
+
+policy:availability_armor_permissions
+  a policy:PolicySet ;
+  policy:applies_to sku:availability_armor ;
+  policy:allows_action action:failover_instance ;
+  policy:allows_action action:update_health_checks ;
+  policy:allows_action action:send_alert .
+
+policy:data_defender_permissions
+  a policy:PolicySet ;
+  policy:applies_to sku:data_defender ;
+  policy:allows_action action:trigger_backup ;
+  policy:allows_action action:encrypt_at_rest ;
+  policy:allows_action action:enable_replication ;
+  policy:allows_action action:send_alert .
+
+policy:network_ninja_permissions
+  a policy:PolicySet ;
+  policy:applies_to sku:network_ninja ;
+  policy:allows_action action:update_routes ;
+  policy:allows_action action:configure_firewall ;
+  policy:allows_action action:manage_dns ;
+  policy:allows_action action:send_alert .
+
+# ============================================================================
+# SECTION 8: DIAGRAM METADATA
+# ============================================================================
+# Facts defining each of the 46 diagrams
+
+c4:diagram_1
+  a c4:Diagram ;
+  c4:diagram_id "1" ;
+  c4:diagram_name "System Context" ;
+  c4:diagram_level c4:Level0System ;
+  c4:file_name "01-system-context-autonomic-platform.md" ;
+  c4:template_name "system-context.tera" ;
+  c4:purpose "Show platform as black box, external actors, scope" ;
+  c4:intended_audience ( "C-suite" "Product Managers" "Architects" ) ;
+  c4:filter_by_sku false ;
+  c4:filter_by_region false ;
+  c4:filter_by_compliance_tier false .
+
+c4:diagram_2
+  a c4:Diagram ;
+  c4:diagram_id "2" ;
+  c4:diagram_name "Signal Ingestion Container" ;
+  c4:diagram_level c4:Level1Container ;
+  c4:file_pattern "02-container-signal-ingestion-{region}.md" ;
+  c4:template_name "container-signal-ingestion.tera" ;
+  c4:purpose "Kafka, Pub/Sub, signal validation, 24+ signal types" ;
+  c4:intended_audience ( "Platform Engineers" "DevOps" "Architects" ) ;
+  c4:filter_by_sku false ;
+  c4:filter_by_region true ;
+  c4:filter_by_compliance_tier false .
+
+c4:diagram_25
+  a c4:Diagram ;
+  c4:diagram_id "25" ;
+  c4:diagram_name "cost_guard Decision Logic" ;
+  c4:diagram_level c4:Level3Code ;
+  c4:file_pattern "25-code-cost-guard-decision-threshold-{compliance_tier}.md" ;
+  c4:template_name "code-sku-decision-logic.tera" ;
+  c4:purpose "Decision thresholding, baseline, rolling window, Z-score" ;
+  c4:intended_audience ( "All Engineers" "ML Engineers" "Architects" ) ;
+  c4:requires_sku sku:cost_guard ;
+  c4:filter_by_sku true ;
+  c4:filter_by_region false ;
+  c4:filter_by_compliance_tier true .
+
+c4:diagram_46
+  a c4:Diagram ;
+  c4:diagram_id "46" ;
+  c4:diagram_name "Autonomic GCP Graph (FINAL BOSS)" ;
+  c4:diagram_level c4:Level4Ultimate ;
+  c4:file_name "final-boss-diagram.md" ;
+  c4:template_name "final-boss-graph.tera" ;
+  c4:purpose "Complete knowledge graph - all SKUs, signals, actions, proof trails" ;
+  c4:intended_audience ( "Architects" "Auditors" "Executive Stakeholders" ) ;
+  c4:filter_by_sku false ;
+  c4:filter_by_region false ;
+  c4:filter_by_compliance_tier false ;
+  c4:requires_receipt_verification true .
+
+# ============================================================================
+# SECTION 9: SPARQL QUERY TEMPLATES
+# ============================================================================
+# Example SPARQL queries for extracting diagram context from RDF
+
+# Query 1: Get all signals for a specific SKU
+# PREFIX sku: <http://ontology.autonomic-gcp.io/sku/>
+# PREFIX c4: <http://ontology.autonomic-gcp.io/c4/>
+#
+# SELECT ?signal_id ?signal_name ?collection_cadence
+# WHERE {
+#   sku:cost_guard c4:has_signal ?signal .
+#   ?signal c4:signal_id ?signal_id ;
+#           c4:signal_name ?signal_name ;
+#           c4:collection_cadence_seconds ?collection_cadence .
+# }
+# ORDER BY ASC(?collection_cadence)
+
+# Query 2: Get all actions a SKU can execute
+# PREFIX sku: <http://ontology.autonomic-gcp.io/sku/>
+# PREFIX c4: <http://ontology.autonomic-gcp.io/c4/>
+# PREFIX policy: <http://ontology.autonomic-gcp.io/policy/>
+#
+# SELECT ?action_id ?action_name ?danger_level
+# WHERE {
+#   sku:cost_guard c4:can_execute ?action .
+#   ?action c4:action_id ?action_id ;
+#           c4:action_name ?action_name ;
+#           c4:danger_level ?danger_level .
+# }
+
+# Query 3: Get all diagrams for a specific region
+# PREFIX c4: <http://ontology.autonomic-gcp.io/c4/>
+#
+# SELECT ?diagram_id ?diagram_name ?template_name
+# WHERE {
+#   ?diagram a c4:Diagram ;
+#            c4:diagram_id ?diagram_id ;
+#            c4:diagram_name ?diagram_name ;
+#            c4:filter_by_region true ;
+#            c4:template_name ?template_name .
+# }
+# ORDER BY ASC(?diagram_id)
+
+# Query 4: Get all components in analytics container
+# PREFIX c4: <http://ontology.autonomic-gcp.io/c4/>
+#
+# SELECT ?component_id ?component_name ?algorithm ?accuracy
+# WHERE {
+#   ?component c4:container "analytics" ;
+#              c4:component_id ?component_id ;
+#              c4:component_name ?component_name ;
+#              c4:algorithm ?algorithm ;
+#              c4:model_accuracy ?accuracy .
+# }
+
+# Query 5: Verify entitlements (which SKUs can execute which actions)
+# PREFIX c4: <http://ontology.autonomic-gcp.io/c4/>
+# PREFIX policy: <http://ontology.autonomic-gcp.io/policy/>
+#
+# SELECT ?sku_id ?action_id ?danger_level
+# WHERE {
+#   ?sku c4:sku_id ?sku_id ;
+#        c4:can_execute ?action .
+#   ?action c4:action_id ?action_id ;
+#           c4:danger_level ?danger_level .
+#   FILTER (?danger_level = "high")
+# }
+# ORDER BY ASC(?sku_id)
+
+# ============================================================================
+# END OF RDF TEMPLATE
+# ============================================================================
+#
+# USAGE INSTRUCTIONS:
+#
+# 1. Copy this template to .specify/diagrams.ttl
+# 2. Customize facts for your project:
+#    - Update project_id, organization, version
+#    - Add/remove regions and compliance tiers
+#    - Update SKU definitions with actual capabilities
+#    - Verify all signal types match your telemetry infrastructure
+# 3. Validate with: cargo make speckit-validate
+# 4. Generate diagrams: ggen sync --diagram-category c4 --audit true
+# 5. View generated diagrams in: docs/c4/*.md
+# 6. Query ontology:
+#    ggen query --sparql "SELECT ?sku_id WHERE { ?sku c4:sku_id ?sku_id }"
+#
+# ============================================================================

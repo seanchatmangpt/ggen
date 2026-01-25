@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [PHASE 4D COMPILATION REPORT](#phase-4d-compilation-report)
+  - [Summary](#summary)
+  - [Error Categories](#error-categories)
+    - [1. Missing Macro Imports (9 occurrences)](#1-missing-macro-imports-9-occurrences)
+    - [2. Package Struct Field Mismatches (12 errors)](#2-package-struct-field-mismatches-12-errors)
+    - [3. PackageId Constructor Mismatch (1 error)](#3-packageid-constructor-mismatch-1-error)
+    - [4. Unused Imports (5 warnings)](#4-unused-imports-5-warnings)
+  - [Files Requiring Fixes](#files-requiring-fixes)
+    - [Critical (Blocking Compilation):](#critical-blocking-compilation)
+    - [Minor (Warnings):](#minor-warnings)
+  - [Required Imports for Fixtures.rs](#required-imports-for-fixturesrs)
+  - [Compilation Metrics](#compilation-metrics)
+  - [Estimated Fix Time](#estimated-fix-time)
+  - [Next Steps](#next-steps)
+    - [Phase 4E: Fix Compilation Errors](#phase-4e-fix-compilation-errors)
+  - [Success Criteria for Phase 4E](#success-criteria-for-phase-4e)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # PHASE 4D COMPILATION REPORT
 ===========================
 

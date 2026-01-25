@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen 3-Week Kaizen Journey - From 158 Errors to Zero](#ggen-3-week-kaizen-journey---from-158-errors-to-zero)
+  - [Executive Summary](#executive-summary)
+  - [Timeline: What Happened When](#timeline-what-happened-when)
+    - [Week 0: The Crisis (2025-10-30)](#week-0-the-crisis-2025-10-30)
+    - [Week 1: Stop the Bleeding (2025-11-06)](#week-1-stop-the-bleeding-2025-11-06)
+    - [Week 2: Build Quality In (2025-11-13)](#week-2-build-quality-in-2025-11-13)
+    - [Week 3: Prevent Waste (2025-11-20)](#week-3-prevent-waste-2025-11-20)
+  - [Root Causes: Why Did We Have 158 Errors?](#root-causes-why-did-we-have-158-errors)
+    - [Primary Root Causes (5 Whys Analysis)](#primary-root-causes-5-whys-analysis)
+  - [Fixes Applied: What We Changed](#fixes-applied-what-we-changed)
+    - [Code Changes](#code-changes)
+    - [Process Changes](#process-changes)
+    - [Cultural Changes](#cultural-changes)
+  - [Results: Metrics Prove It Works](#results-metrics-prove-it-works)
+    - [Quality Metrics](#quality-metrics)
+    - [Velocity Metrics](#velocity-metrics)
+    - [Waste Metrics](#waste-metrics)
+    - [DfLSS Metrics (Prevention vs Detection)](#dflss-metrics-prevention-vs-detection)
+  - [Prevention Measures: How We Keep It This Way](#prevention-measures-how-we-keep-it-this-way)
+    - [1. Automated Quality Gates](#1-automated-quality-gates)
+    - [2. Team Processes](#2-team-processes)
+    - [3. Continuous Learning](#3-continuous-learning)
+  - [Recommendations: How to Replicate This Success](#recommendations-how-to-replicate-this-success)
+    - [For Other Teams](#for-other-teams)
+    - [For ggen Team (Next Steps)](#for-ggen-team-next-steps)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen 3-Week Kaizen Journey - From 158 Errors to Zero
 
 **Project**: ggen (language-agnostic code generation CLI)

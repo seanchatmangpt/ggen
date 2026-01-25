@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace V2 Migration - Executive Summary](#marketplace-v2-migration---executive-summary)
+  - [TL;DR](#tldr)
+  - [Key Metrics](#key-metrics)
+  - [What's Ready](#whats-ready)
+    - [✅ Core Capabilities (100%)](#-core-capabilities-100)
+    - [⚠️ Needs Minor Fixes (15 min)](#-needs-minor-fixes-15-min)
+    - [📋 Needs Configuration (2 days)](#-needs-configuration-2-days)
+  - [Deployment Timeline](#deployment-timeline)
+    - [Phase 1: Pre-Deployment (Week 1)](#phase-1-pre-deployment-week-1)
+    - [Phase 2: Opt-In Beta (Week 2-3)](#phase-2-opt-in-beta-week-2-3)
+    - [Phase 3: A/B Testing (Week 4-5)](#phase-3-ab-testing-week-4-5)
+    - [Phase 4: Full Migration (Week 6)](#phase-4-full-migration-week-6)
+    - [Phase 5: Deprecation (Week 8+)](#phase-5-deprecation-week-8)
+  - [Risk Assessment](#risk-assessment)
+    - [Overall Risk: **LOW** ✅](#overall-risk-low-)
+    - [Critical Success Factors](#critical-success-factors)
+  - [Cost-Benefit Analysis](#cost-benefit-analysis)
+    - [Benefits](#benefits)
+    - [Costs](#costs)
+    - [ROI](#roi)
+  - [Rollback Strategy](#rollback-strategy)
+    - [Instant Rollback (<5 Minutes)](#instant-rollback-5-minutes)
+  - [Monitoring & SLOs](#monitoring--slos)
+    - [Service Level Objectives](#service-level-objectives)
+    - [Monitoring Stack](#monitoring-stack)
+  - [Team Readiness](#team-readiness)
+    - [Documentation Delivered](#documentation-delivered)
+    - [Support Infrastructure](#support-infrastructure)
+    - [Training Required](#training-required)
+  - [Recommendations](#recommendations)
+    - [Pre-Deployment (This Week)](#pre-deployment-this-week)
+    - [Week 1: Go/No-Go Decision](#week-1-gono-go-decision)
+    - [Post-Deployment (Continuous)](#post-deployment-continuous)
+  - [Decision: APPROVED ✅](#decision-approved-)
+    - [Recommendation](#recommendation)
+    - [Conditions](#conditions)
+    - [Next Steps](#next-steps)
+  - [Stakeholder Sign-Off](#stakeholder-sign-off)
+  - [Questions?](#questions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace V2 Migration - Executive Summary
 
 **Date:** 2025-11-18

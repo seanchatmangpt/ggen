@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Wave 3, Task 7: 11-System Adapter Integration Suite - Complete Index](#wave-3-task-7-11-system-adapter-integration-suite---complete-index)
+  - [Specification Closure](#specification-closure)
+    - [Three Specification Artifacts](#three-specification-artifacts)
+      - [1. Main Adapter Suite Specification](#1-main-adapter-suite-specification)
+      - [2. Integration Test Specification](#2-integration-test-specification)
+      - [3. Implementation & Operational Guide](#3-implementation--operational-guide)
+  - [The 11 Systems - Quick Reference](#the-11-systems---quick-reference)
+  - [Key Design Decisions](#key-design-decisions)
+    - [1. Watermark-Based Checkpointing](#1-watermark-based-checkpointing)
+    - [2. Circuit Breaker with Graceful Degradation](#2-circuit-breaker-with-graceful-degradation)
+    - [3. Event Sourcing for Financial Transactions](#3-event-sourcing-for-financial-transactions)
+    - [4. No Cross-Adapter Dependencies](#4-no-cross-adapter-dependencies)
+    - [5. Read-Only Integration](#5-read-only-integration)
+  - [Implementation Roadmap](#implementation-roadmap)
+    - [Week 1: Foundation & First 3 Adapters](#week-1-foundation--first-3-adapters)
+    - [Week 2: Remaining 8 Adapters](#week-2-remaining-8-adapters)
+    - [Week 3: Validation & Production Hardening](#week-3-validation--production-hardening)
+  - [Success Criteria](#success-criteria)
+    - [Functional Completeness](#functional-completeness)
+    - [Resilience & Reliability](#resilience--reliability)
+    - [Testing & Validation](#testing--validation)
+    - [Operational Readiness](#operational-readiness)
+    - [Compliance & Security](#compliance--security)
+  - [How to Use This Specification](#how-to-use-this-specification)
+    - [For Developers](#for-developers)
+    - [For Architects](#for-architects)
+    - [For Operations](#for-operations)
+    - [For Compliance](#for-compliance)
+  - [Files in This Delivery](#files-in-this-delivery)
+    - [Specification Files (RDF/Turtle)](#specification-files-rdfturtle)
+    - [Documentation Files](#documentation-files)
+    - [Evidence Directory (Empty, to be populated)](#evidence-directory-empty-to-be-populated)
+  - [Next Steps](#next-steps)
+    - [Before Implementation Starts](#before-implementation-starts)
+    - [During Implementation (Weeks 1-3)](#during-implementation-weeks-1-3)
+    - [After Implementation (Week 4+)](#after-implementation-week-4)
+  - [Contact & Support](#contact--support)
+  - [Document History](#document-history)
+  - [Appendix: Quick Command Reference](#appendix-quick-command-reference)
+    - [View Specification](#view-specification)
+    - [Validate RDF/Turtle Syntax](#validate-rdfturtle-syntax)
+    - [Run Tests (When Implemented)](#run-tests-when-implemented)
+    - [Operational Commands (When Deployed)](#operational-commands-when-deployed)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Wave 3, Task 7: 11-System Adapter Integration Suite - Complete Index
 
 **Project**: ggen-disney Park Operations Automation

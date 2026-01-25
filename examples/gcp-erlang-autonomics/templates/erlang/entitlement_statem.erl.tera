@@ -1,0 +1,161 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_entitlement_statem).
+-behaviour(gen_statem).
+
+-export([start_link/1, call/2, cast/2]).
+-export([callback_mode/0, init/1, terminate/3, code_change/4]).
+-export([installed/3, billing_pending/3, active/3, suspended/3, cancelled/3, expired/3]).
+-export([translate_marketplace_event/1]).
+
+-include("{{ module_prefix }}_types.hrl").
+
+-record(ent_data, {
+  tenant_id :: tenant_id(),
+  entitlement_id :: binary(),
+  sku :: binary(),
+  status :: atom() = installed
+}).
+
+start_link(Args) ->
+  gen_statem:start_link({local, ?MODULE}, ?MODULE, Args, []).
+
+call(PidOrName, Msg) ->
+  gen_statem:call(PidOrName, Msg).
+
+cast(PidOrName, Msg) ->
+  gen_statem:cast(PidOrName, Msg).
+
+callback_mode() -> state_functions.
+
+init(Args) ->
+  TenantId = maps:get({{ tenant_key }}, Args),
+  EntId = maps:get(entitlement_id, Args, <<"ent_unknown">>),
+
+  Data = #ent_data{
+    tenant_id = TenantId,
+    entitlement_id = EntId,
+    sku = <<"{{ sku }}">>,
+    status = installed
+  },
+
+  %% Start at installed
+  {ok, installed, Data}.
+
+terminate(_Reason, _State, _Data) -> ok.
+code_change(_Vsn, State, Data, _Extra) -> {ok, State, Data}.
+
+emit_revops_receipt(Data, FromState, ToState, Event, Decision) ->
+  {{ module_prefix }}_receipt_ledger:append(Data#ent_data.tenant_id, #{
+    kind => revops_transition,
+    tenant_id => Data#ent_data.tenant_id,
+    sku => Data#ent_data.sku,
+    entitlement_id => Data#ent_data.entitlement_id,
+    state_from => FromState,
+    state_to => ToState,
+    event => Event,
+    decision => Decision
+  }),
+  ok.
+
+%% Marketplace event translation: map GCP Marketplace events to internal FSM events
+%% Real GCP event names:
+%%   entitlement_created → install_confirmed (user initiated purchase)
+%%   entitlement_pending_cancellation → cancel (user requested cancellation)
+%%   entitlement_pending → install_confirmed (pending activation)
+%%   entitlement_active → payment_confirmed (activation complete)
+%%   entitlement_cancelled → cancel (cancellation processed)
+%%   entitlement_pending_plan_change → (no action, entitlement stays active)
+%%   entitlement_plan_changed → (update internal state)
+translate_marketplace_event(<<"entitlement_created">>) ->
+  {marketplace, install_confirmed};
+translate_marketplace_event(<<"entitlement_pending">>) ->
+  {marketplace, install_confirmed};
+translate_marketplace_event(<<"entitlement_active">>) ->
+  {marketplace, payment_confirmed};
+translate_marketplace_event(<<"entitlement_cancelled">>) ->
+  {marketplace, cancel};
+translate_marketplace_event(<<"entitlement_pending_cancellation">>) ->
+  {marketplace, cancel};
+translate_marketplace_event(<<"entitlement_plan_changed">>) ->
+  {marketplace, payment_confirmed};
+translate_marketplace_event(_UnknownEvent) ->
+  undefined.
+
+%% ---------------------------
+%% States
+%% ---------------------------
+
+installed({call, From}, {marketplace, install_confirmed}, Data) ->
+  ok = emit_revops_receipt(Data, installed, billing_pending, install_confirmed, accept),
+  {next_state, billing_pending, Data#ent_data{status = billing_pending}, [{reply, From, ok}]};
+
+installed(_Type, _Event, Data) ->
+  {keep_state, Data}.
+
+billing_pending({call, From}, {marketplace, payment_confirmed}, Data) ->
+  ok = emit_revops_receipt(Data, billing_pending, active, payment_confirmed, accept),
+
+  %% Activate tenant governor entitlement
+  {{ module_prefix }}_tenant_registry:ensure_tenant(Data#ent_data.tenant_id, #{
+    {{ tenant_key }} => Data#ent_data.tenant_id,
+    profile => standard,
+    entitlement => active
+  }),
+  {{ module_prefix }}_tenant_registry:route_cast(
+    Data#ent_data.tenant_id,
+    {{ module_prefix }}_governor_statem,
+    {entitlement, active}
+  ),
+
+  {next_state, active, Data#ent_data{status = active}, [{reply, From, ok}]};
+
+billing_pending({call, From}, {marketplace, cancel}, Data) ->
+  ok = emit_revops_receipt(Data, billing_pending, cancelled, cancel, accept),
+  {next_state, cancelled, Data#ent_data{status = cancelled}, [{reply, From, ok}]};
+
+billing_pending(_Type, _Event, Data) ->
+  {keep_state, Data}.
+
+active({call, From}, {marketplace, suspend}, Data) ->
+  ok = emit_revops_receipt(Data, active, suspended, suspend, accept),
+  {{ module_prefix }}_tenant_registry:route_cast(
+    Data#ent_data.tenant_id,
+    {{ module_prefix }}_governor_statem,
+    {entitlement, suspended}
+  ),
+  {next_state, suspended, Data#ent_data{status = suspended}, [{reply, From, ok}]};
+
+active({call, From}, {marketplace, cancel}, Data) ->
+  ok = emit_revops_receipt(Data, active, cancelled, cancel, accept),
+  {{ module_prefix }}_tenant_registry:route_cast(
+    Data#ent_data.tenant_id,
+    {{ module_prefix }}_governor_statem,
+    {entitlement, expired}
+  ),
+  {next_state, cancelled, Data#ent_data{status = cancelled}, [{reply, From, ok}]};
+
+active(_Type, _Event, Data) ->
+  {keep_state, Data}.
+
+suspended({call, From}, {marketplace, payment_confirmed}, Data) ->
+  ok = emit_revops_receipt(Data, suspended, active, payment_confirmed, accept),
+  {{ module_prefix }}_tenant_registry:route_cast(
+    Data#ent_data.tenant_id,
+    {{ module_prefix }}_governor_statem,
+    {entitlement, active}
+  ),
+  {next_state, active, Data#ent_data{status = active}, [{reply, From, ok}]};
+
+suspended({call, From}, {marketplace, cancel}, Data) ->
+  ok = emit_revops_receipt(Data, suspended, cancelled, cancel, accept),
+  {next_state, cancelled, Data#ent_data{status = cancelled}, [{reply, From, ok}]};
+
+suspended(_Type, _Event, Data) ->
+  {keep_state, Data}.
+
+cancelled(_Type, _Event, Data) ->
+  {keep_state, Data}.
+
+expired(_Type, _Event, Data) ->
+  {keep_state, Data}.

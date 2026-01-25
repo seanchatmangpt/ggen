@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Test Refactoring & Deployment Documentation](#ggen-test-refactoring--deployment-documentation)
+  - [Quick Start by Role](#quick-start-by-role)
+    - [🆕 New to This Project?](#-new-to-this-project)
+    - [👨‍💻 Developer Fixing Compilation Errors?](#-developer-fixing-compilation-errors)
+    - [🧪 QA Engineer Improving Tests?](#-qa-engineer-improving-tests)
+    - [🏗️ Architect Designing Systems?](#-architect-designing-systems)
+  - [🎓 Learn (Tutorials)](#-learn-tutorials)
+  - [🛠️ Do (How-to Guides)](#-do-how-to-guides)
+    - [Compilation & Build](#compilation--build)
+    - [Test Quality](#test-quality)
+    - [System Design](#system-design)
+  - [💡 Understand (Explanations)](#-understand-explanations)
+    - [Design Philosophy](#design-philosophy)
+    - [Architectural Patterns](#architectural-patterns)
+  - [📚 Reference](#-reference)
+    - [Error & Alert Reference](#error--alert-reference)
+    - [Quality & Risk Reference](#quality--risk-reference)
+    - [Terminology & Architecture](#terminology--architecture)
+  - [📊 Documentation Metrics](#-documentation-metrics)
+  - [🗺️ User Journeys](#-user-journeys)
+    - [Journey 1: "I'm a new contributor"](#journey-1-im-a-new-contributor)
+    - [Journey 2: "Compilation is broken, I need to fix it NOW"](#journey-2-compilation-is-broken-i-need-to-fix-it-now)
+    - [Journey 3: "Tests are slow and flaky"](#journey-3-tests-are-slow-and-flaky)
+    - [Journey 4: "I want to implement Lean Manufacturing principles"](#journey-4-i-want-to-implement-lean-manufacturing-principles)
+  - [🔗 Cross-References](#-cross-references)
+  - [📝 Contributing to Documentation](#-contributing-to-documentation)
+  - [🎯 Document Status](#-document-status)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Test Refactoring & Deployment Documentation
 
 **Navigation Hub for Test Quality, Compilation Fixes, and Lean Manufacturing Principles**

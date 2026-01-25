@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen Dependency Version Compatibility Matrix](#ggen-dependency-version-compatibility-matrix)
+  - [Workspace Version Matrix](#workspace-version-matrix)
+    - [Core Foundation (v3.3.0 - Stable/Origin-Main)](#core-foundation-v330---stableorigin-main)
+    - [Extended Features (v0.2.0 - Disney/Extended)](#extended-features-v020---disneyextended)
+    - [RevOps/SaaS (v5.1.0 - Monetization)](#revopssaas-v510---monetization)
+    - [KNHK Systems (v0.1.0-v1.0.0 - ETL/KGC-4D)](#knhk-systems-v010-v100---etlkgc-4d)
+  - [External Dependency Version Matrix](#external-dependency-version-matrix)
+    - [Core Runtime](#core-runtime)
+    - [Error Handling & Logging](#error-handling--logging)
+    - [Data Processing & RDF](#data-processing--rdf)
+    - [Configuration & CLI](#configuration--cli)
+    - [Testing & Quality](#testing--quality)
+    - [OpenTelemetry Stack](#opentelemetry-stack)
+  - [Oxigraph Ecosystem Compatibility](#oxigraph-ecosystem-compatibility)
+    - [RDF Processing Stack](#rdf-processing-stack)
+    - [Version Compatibility Notes](#version-compatibility-notes)
+  - [Transitive Dependency Tree Summary](#transitive-dependency-tree-summary)
+    - [Total Dependencies: 150+](#total-dependencies-150)
+    - [Heavy Dependencies (Memory Impact)](#heavy-dependencies-memory-impact)
+    - [Memory Footprint (Debug Build)](#memory-footprint-debug-build)
+  - [Conflict Resolution History](#conflict-resolution-history)
+    - [Resolved: Base64 Version Conflict](#resolved-base64-version-conflict)
+    - [Resolved: SQLite Integration](#resolved-sqlite-integration)
+    - [Allowed: Multiple Crate Versions](#allowed-multiple-crate-versions)
+  - [Dependency Health Monitoring](#dependency-health-monitoring)
+    - [Active Maintenance Status](#active-maintenance-status)
+    - [Security Updates](#security-updates)
+  - [Update Schedule](#update-schedule)
+    - [Q1 2026 (Jan-Mar)](#q1-2026-jan-mar)
+    - [Q2 2026 (Apr-Jun)](#q2-2026-apr-jun)
+    - [Q3 2026 (Jul-Sep)](#q3-2026-jul-sep)
+    - [Q4 2026 (Oct-Dec)](#q4-2026-oct-dec)
+  - [Dependency Audit Trail](#dependency-audit-trail)
+    - [Verified On](#verified-on)
+    - [Validation Commands Used](#validation-commands-used)
+    - [Verification Results](#verification-results)
+  - [MSRV (Minimum Supported Rust Version) Policy](#msrv-minimum-supported-rust-version-policy)
+    - [Current Status](#current-status)
+    - [Policy](#policy)
+    - [Testing Strategy](#testing-strategy)
+  - [CONCLUSION](#conclusion)
+    - [Dependency Health: ✓ EXCELLENT](#dependency-health-%E2%9C%93-excellent)
+    - [Next Review Date](#next-review-date)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen Dependency Version Compatibility Matrix
 
 **Last Updated**: January 19, 2026

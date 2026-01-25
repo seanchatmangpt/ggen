@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Security Migration Guide: v5.x → v6.0.0](#security-migration-guide-v5x-%E2%86%92-v600)
+  - [Overview](#overview)
+  - [Table of Contents](#table-of-contents)
+  - [Breaking Changes Summary](#breaking-changes-summary)
+  - [SafePath Migration](#safepath-migration)
+    - [Overview](#overview-1)
+    - [Breaking Change](#breaking-change)
+    - [Migration Steps](#migration-steps)
+    - [Common Patterns](#common-patterns)
+  - [SPARQL Builder Migration](#sparql-builder-migration)
+    - [Overview](#overview-2)
+    - [Breaking Change](#breaking-change-1)
+    - [Migration Steps](#migration-steps-1)
+    - [Escaping Functions](#escaping-functions)
+  - [Rate Limiting Configuration](#rate-limiting-configuration)
+    - [Overview](#overview-3)
+    - [New Configuration](#new-configuration)
+    - [Migration Steps](#migration-steps-2)
+  - [Error Handling Changes](#error-handling-changes)
+    - [Overview](#overview-4)
+    - [Breaking Change](#breaking-change-2)
+    - [Migration Steps](#migration-steps-3)
+  - [Template Security Changes](#template-security-changes)
+    - [Overview](#overview-5)
+    - [Breaking Change](#breaking-change-3)
+    - [Migration Steps](#migration-steps-4)
+  - [Configuration Changes](#configuration-changes)
+    - [Removed: `output_directory`](#removed-output_directory)
+    - [New: Security Configuration](#new-security-configuration)
+  - [Timeline and Deprecation Schedule](#timeline-and-deprecation-schedule)
+    - [v6.0.0 (January 2026) - Current](#v600-january-2026---current)
+    - [v6.1.0 (Q1 2026) - Planned](#v610-q1-2026---planned)
+    - [v7.0.0 (Q3 2026) - Future](#v700-q3-2026---future)
+  - [Migration Checklist](#migration-checklist)
+    - [Pre-Migration](#pre-migration)
+    - [SafePath Migration](#safepath-migration-1)
+    - [SPARQL Migration](#sparql-migration)
+    - [Configuration Updates](#configuration-updates)
+    - [Error Handling](#error-handling)
+    - [Testing](#testing)
+    - [Deployment](#deployment)
+  - [Migration Support](#migration-support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Security Migration Guide: v5.x → v6.0.0
 
 ## Overview

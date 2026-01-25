@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Debian Package Distribution Guide](#ggen-debian-package-distribution-guide)
+  - [What We Have](#what-we-have)
+  - [How to Build the .deb Package](#how-to-build-the-deb-package)
+    - [Option 1: Using debuild (Full packaging)](#option-1-using-debuild-full-packaging)
+    - [Option 2: Using dpkg-buildpackage](#option-2-using-dpkg-buildpackage)
+  - [How to Install Locally (for testing)](#how-to-install-locally-for-testing)
+  - [How to Distribute via PPA (Ubuntu PPA)](#how-to-distribute-via-ppa-ubuntu-ppa)
+  - [How to Distribute via GitHub Releases](#how-to-distribute-via-github-releases)
+  - [How to Set Up Automated APT Repository](#how-to-set-up-automated-apt-repository)
+  - [What's in the Debian Package](#whats-in-the-debian-package)
+  - [Current Status](#current-status)
+  - [Next Steps](#next-steps)
+  - [Troubleshooting](#troubleshooting)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Debian Package Distribution Guide
 
 This document explains how to distribute ggen as a Debian/Ubuntu package via `apt-get`.

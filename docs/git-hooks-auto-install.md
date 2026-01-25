@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Git Hooks Auto-Installation in `ggen init`](#git-hooks-auto-installation-in-ggen-init)
+  - [Overview](#overview)
+  - [Features](#features)
+    - [1. Automatic Installation](#1-automatic-installation)
+    - [2. Smart Detection](#2-smart-detection)
+    - [3. Quality Gates](#3-quality-gates)
+      - [Pre-Commit Hook (Fast Tier - < 10 seconds)](#pre-commit-hook-fast-tier----10-seconds)
+      - [Pre-Push Hook (Full Tier - < 90 seconds)](#pre-push-hook-full-tier----90-seconds)
+  - [Usage](#usage)
+    - [Basic Usage](#basic-usage)
+    - [Output Example](#output-example)
+  - [Implementation Details](#implementation-details)
+    - [Module Structure](#module-structure)
+    - [Key Functions](#key-functions)
+      - [`install_git_hooks(project_path, skip_hooks) -> Result<HooksInstallOutput>`](#install_git_hooksproject_path-skip_hooks---resulthooksinstalloutput)
+      - [`install_hook(hooks_dir, hook_name, hook_content) -> Result<HookInstallation>`](#install_hookhooks_dir-hook_name-hook_content---resulthookinstallation)
+    - [Hook Content](#hook-content)
+      - [Pre-Commit Hook](#pre-commit-hook)
+      - [Pre-Push Hook](#pre-push-hook)
+  - [Error Handling](#error-handling)
+  - [Testing](#testing)
+    - [Unit Tests (in `git_hooks.rs`)](#unit-tests-in-git_hooksrs)
+    - [Integration Tests (in `tests/init_git_hooks_test.rs`)](#integration-tests-in-testsinit_git_hooks_testrs)
+    - [Running Tests](#running-tests)
+  - [Bypassing Hooks (Not Recommended)](#bypassing-hooks-not-recommended)
+  - [Constitutional Compliance](#constitutional-compliance)
+    - [No Unwrap/Expect](#no-unwrapexpect)
+    - [Result<T,E> Throughout](#resultte-throughout)
+    - [Cross-Platform](#cross-platform)
+    - [Clear Error Messages](#clear-error-messages)
+    - [Type-First Design](#type-first-design)
+  - [Integration with Init Command](#integration-with-init-command)
+  - [Future Enhancements](#future-enhancements)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Git Hooks Auto-Installation in `ggen init`
 
 ## Overview

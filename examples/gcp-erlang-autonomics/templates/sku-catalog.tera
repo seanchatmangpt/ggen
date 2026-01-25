@@ -1,0 +1,297 @@
+{% comment %}
+SKU Catalog Template
+Renders product catalog with signals, actions, pricing tiers, and scaling policies.
+Input: SPARQL query results from skus query
+Output: Markdown document with SKU cards and pricing table
+
+SKU Structure:
+  - Tier: Basic (development), Standard (production), Premium (high-scale)
+  - Signal Types: CPU, Memory, Latency, Error Rate, Custom
+  - Action Types: Scale Up, Scale Down, Rebalance, Restart, Failover
+  - Cost Model: Per-hour, Per-request, Per-GB-month
+
+Variables:
+  - skus: List of SKUs with tiers, signals, actions, and costs
+  - currency: Cost currency (USD, EUR, GBP)
+  - region: Primary region for costs
+{% endcomment %}
+
+# Governor SKU Catalog
+
+**Generated:** {{ now() | date(format="%Y-%m-%d %H:%M:%S UTC") }}
+**Product:** GCP Erlang Autonomics Governor
+**Version:** 1.0.0
+
+---
+
+## Overview
+
+The Governor is available in three deployment tiers, each optimized for different workload sizes and reliability requirements. Each tier includes autonomic scaling policies, health monitoring, and policy-driven decision-making.
+
+## SKU Tiers
+
+{% set tier_order = ["Basic", "Standard", "Premium"] %}
+
+{% for tier in tier_order %}
+    {% set tier_skus = skus | filter(attribute="sku_tier", value=tier) %}
+    {% if tier_skus | length > 0 %}
+
+### {{ tier }} Tier
+
+{% set first_sku = tier_skus[0] %}
+
+| Attribute | Value |
+|-----------|-------|
+| **Min Replicas** | {{ first_sku.min_instances | default(value="1") }} |
+| **Max Replicas** | {{ first_sku.max_instances }} |
+| **CPU per Replica** | {{ first_sku.cpu_request | default(value="0.25") }}-{{ first_sku.cpu_limit | default(value="1.0") }} |
+| **Memory per Replica** | {{ first_sku.memory_request | default(value="256Mi") }}-{{ first_sku.memory_limit | default(value="512Mi") }} |
+| **Monthly Cost (Base)** | ${{ first_sku.cost_per_hour | default(value=0) | round(precision=2) }} × 730 hours = **${{ (first_sku.cost_per_hour | default(value=0)) * 730 | round(precision=2) }}** |
+| **Scaling Policy** | {{ first_sku.scaling_policy | default(value="Target CPU 70%") }} |
+| **Availability SLA** | {{ tier == "Basic" ? "99.0%" : (tier == "Standard" ? "99.9%" : "99.99%") }} |
+
+#### Signals & Actions
+
+The {{ tier }} tier responds to the following signals with configured actions:
+
+{% set tier_signals = [] %}
+{% for sku in tier_skus %}
+    {% if sku.signal_type %}
+        {% set _ = tier_signals | push(value={signal: sku.signal_type, action: sku.action_type}) %}
+    {% endif %}
+{% endfor %}
+
+{% for signal_action in tier_signals %}
+| Signal | Type | Action | Threshold |
+|--------|------|--------|-----------|
+| {{ signal_action.signal | truncate(length=30) }} | Metric | {{ signal_action.action | truncate(length=20) }} | {{ tier == "Basic" ? "80%" : (tier == "Standard" ? "75%" : "70%") }} |
+{% endfor %}
+
+#### Use Cases
+
+{% if tier == "Basic" %}
+- **Development & Testing**: Non-production workloads with forgiving SLAs
+- **Staging**: Pre-production validation with limited scale
+- **Low-Traffic Services**: <1,000 requests/hour
+- **Cost-Optimized Batch Jobs**: Fault-tolerant workloads
+- **Learning & Evaluation**: Trial deployments
+{% elif tier == "Standard" %}
+- **Production Services**: Standard availability requirements (99.9% SLA)
+- **Business-Critical Apps**: Medium traffic (1,000-10,000 RPS)
+- **Regulated Workloads**: HIPAA, GDPR compliance
+- **Multi-Zone HA**: Active-active across zones
+- **Policy-Driven Auto-Scaling**: Response time ≤ 500ms P99
+{% else %}
+- **High-Scale Services**: 10,000+ RPS with ultra-low latency
+- **Financial/Trading Systems**: 99.99% SLA (4.4 nines)
+- **Real-Time Analytics**: Sub-100ms decision latency
+- **Global Distribution**: Multi-region active-active
+- **Extreme Reliability**: Auto-failover ≤ 30s
+{% endif %}
+
+#### Pricing
+
+{% set base_cost = first_sku.cost_per_hour | default(value=0) %}
+{% set request_cost = 0.0000001 %}
+
+```
+Monthly Bill = (Base Hours × ${{ base_cost | round(precision=5) }})
+             + (Requests × ${{ request_cost | round(precision=8) }})
+             + (Data Transfer × $0.12/GB)
+             + (Storage × $0.020/GB-month)
+
+Example: 730 hours, 1M requests/day, 10GB transfer, 50GB storage
+= (${{ (base_cost * 730) | round(precision=2) }})
++ (${{ ((1000000 * 30 * request_cost) | round(precision=2)) }})
++ (${{ (10 * 0.12) | round(precision=2) }})
++ (${{ (50 * 0.020) | round(precision=2) }})
+= **${{ ((base_cost * 730) + (1000000 * 30 * request_cost) + (10 * 0.12) + (50 * 0.020)) | round(precision=2) }}**
+```
+
+---
+    {% endif %}
+{% endfor %}
+
+## Signal Types Reference
+
+| Signal Type | Description | Unit | Range | Typical Threshold |
+|------------|-------------|------|-------|-------------------|
+| **CPU Utilization** | Container CPU usage percentage | % | 0-100 | 70% |
+| **Memory Utilization** | Container memory usage percentage | % | 0-100 | 75% |
+| **Request Latency (P99)** | 99th percentile request latency | ms | 0-∞ | 500ms |
+| **Error Rate** | Percentage of failed requests | % | 0-100 | 1% |
+| **Request Rate** | Requests per second | RPS | 0-∞ | 1000 RPS |
+| **Queue Depth** | Messages pending in Pub/Sub | count | 0-∞ | 1000 msgs |
+| **Database Connection Pool** | Active DB connections | count | 0-max | 50% of pool |
+| **Disk I/O Wait** | Time spent waiting for disk | ms | 0-∞ | 50ms |
+| **Network Bandwidth** | Egress data transfer rate | Mbps | 0-∞ | 500 Mbps |
+| **Custom Metric** | Application-defined signal | varies | varies | Configurable |
+
+## Action Types Reference
+
+| Action Type | Description | Execution Time | Typical Trigger |
+|------------|-------------|-----------------|-----------------|
+| **Scale Up** | Add replicas or increase resources | 30-60s | CPU > 75% for 2 min |
+| **Scale Down** | Remove replicas or decrease resources | 5-10 min | CPU < 30% for 10 min |
+| **Rebalance** | Redistribute load across replicas | 20-30s | Pod CPU variance > 40% |
+| **Restart** | Gracefully restart problematic pod | 10-30s | Error rate spike or memory leak |
+| **Failover** | Switch to standby replica | <30s | Primary replica failures > 3 |
+| **Circuit Break** | Temporarily reject requests | Immediate | Error rate > 5% |
+| **Cache Invalidation** | Clear cached data | 1-2s | On data update |
+| **Policy Update** | Apply new decision rules | 10-20s | Policy manifest change |
+| **Emergency Shutdown** | Stop accepting requests | Immediate | System overload or security event |
+| **Drain & Terminate** | Graceful pod termination | 30-60s | Pre-scheduled or manual |
+
+## Multi-Tier Comparison
+
+| Feature | Basic | Standard | Premium |
+|---------|-------|----------|---------|
+| **Min Replicas** | 1 | 2 | 3 |
+| **Max Replicas** | 3 | 10 | 50 |
+| **CPU per Pod** | 0.25 - 0.5 | 0.5 - 1.0 | 1.0 - 2.0 |
+| **Memory per Pod** | 256Mi - 512Mi | 512Mi - 1Gi | 1Gi - 4Gi |
+| **Availability SLA** | 99.0% | 99.9% | 99.99% |
+| **Response Time P99** | 1000ms | 500ms | 100ms |
+| **Failover Time** | 5 min | 2 min | 30s |
+| **Signal Evaluation Frequency** | 60s | 30s | 10s |
+| **Policy Update Delay** | 5 min | 2 min | 30s |
+| **Cost (Monthly Base)** | ~$30 | ~$100 | ~$500 |
+
+## Policy Pack Examples
+
+### Basic Tier: Development Policy
+
+```yaml
+name: "development-autoscale"
+tier: "Basic"
+signals:
+  - type: "CPU"
+    threshold: 80
+    duration: 3m
+  - type: "RequestLatency"
+    threshold: 2000ms
+    duration: 2m
+actions:
+  - signal: "CPU > 80%"
+    action: "ScaleUp"
+    increment: 1
+    cooldown: 5m
+  - signal: "Latency P99 > 2000ms"
+    action: "ScaleUp"
+    increment: 2
+    cooldown: 3m
+```
+
+### Standard Tier: Production Policy
+
+```yaml
+name: "production-autoscale"
+tier: "Standard"
+signals:
+  - type: "CPU"
+    threshold: 75
+    duration: 2m
+  - type: "RequestLatency"
+    threshold: 500ms
+    duration: 1m
+  - type: "ErrorRate"
+    threshold: 1%
+    duration: 1m
+actions:
+  - signal: "CPU > 75%"
+    action: "ScaleUp"
+    increment: 1
+    cooldown: 2m
+  - signal: "Latency P99 > 500ms"
+    action: "ScaleUp"
+    increment: 2
+    cooldown: 2m
+  - signal: "ErrorRate > 1%"
+    action: "CircuitBreak"
+    duration: 1m
+    cooldown: 5m
+```
+
+### Premium Tier: Ultra-Responsive Policy
+
+```yaml
+name: "premium-autoscale"
+tier: "Premium"
+signals:
+  - type: "CPU"
+    threshold: 70
+    duration: 1m
+  - type: "RequestLatency"
+    threshold: 100ms
+    duration: 30s
+  - type: "ErrorRate"
+    threshold: 0.1%
+    duration: 30s
+  - type: "QueueDepth"
+    threshold: 500
+    duration: 30s
+actions:
+  - signal: "CPU > 70%"
+    action: "ScaleUp"
+    increment: 2
+    cooldown: 1m
+  - signal: "Latency P99 > 100ms"
+    action: "ScaleUp"
+    increment: 3
+    cooldown: 1m
+  - signal: "ErrorRate > 0.1%"
+    action: "Failover"
+    cooldown: 30s
+  - signal: "QueueDepth > 500"
+    action: "ScaleUp"
+    increment: 1
+    cooldown: 30s
+```
+
+## Getting Started
+
+### 1. Select Your Tier
+
+Choose the tier that matches your workload profile:
+- **Development & Testing** → Basic Tier
+- **Production Services** → Standard Tier
+- **High-Scale, Mission-Critical** → Premium Tier
+
+### 2. Deploy Governor
+
+```bash
+# Deploy to GKE with selected tier
+kubectl apply -f deployment-gke.yaml --namespace autonomic-system
+
+# Verify deployment
+kubectl rollout status deployment/governor --namespace autonomic-system
+```
+
+### 3. Configure Signals & Actions
+
+Edit your policy pack (YAML) and apply:
+
+```bash
+kubectl create configmap governor-policy --from-file=policy.yaml \
+  --namespace autonomic-system
+```
+
+### 4. Monitor & Observe
+
+View Governor metrics and decisions in Cloud Monitoring:
+
+```bash
+gcloud monitoring dashboards create --config-from-file=dashboard.json
+```
+
+## Support & SLOs
+
+- **Support Response Time**: Basic 24h, Standard 4h, Premium 1h
+- **Incident Response**: Basic business hours, Standard 24/7, Premium 24/7 critical
+- **Health Check Interval**: Basic 60s, Standard 30s, Premium 10s
+- **Maximum Deployment Time**: Basic 10 min, Standard 5 min, Premium 2 min
+
+---
+
+**Last Updated:** {{ now() | date(format="%Y-%m-%d") }}
+**Documentation Version:** 1.0.0

@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [6. GENERATION RULES **](#6-generation-rules-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [Manifest Configuration](#manifest-configuration)
+    - [Rule Anatomy](#rule-anatomy)
+    - [Execution Flow](#execution-flow)
+    - [Query Results to Template Context](#query-results-to-template-context)
+    - [Output File Patterns](#output-file-patterns)
+    - [Generation Modes](#generation-modes)
+  - [Multiple Files Per Rule](#multiple-files-per-rule)
+  - [The All-Results Variable](#the-all-results-variable)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [Ordering and Determinism](#ordering-and-determinism)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 6. GENERATION RULES **
 
 *From knowledge, code. From queries, templates. From rules, files.*

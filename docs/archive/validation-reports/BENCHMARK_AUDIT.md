@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Benchmark Audit: Identifying Fictional vs Real Data](#benchmark-audit-identifying-fictional-vs-real-data)
+  - [Critical Issues Identified](#critical-issues-identified)
+    - [1. Error Handling Benchmarks - FABRICATED DATA](#1-error-handling-benchmarks---fabricated-data)
+    - [2. Disk I/O Benchmarks - NEVER RUN](#2-disk-io-benchmarks---never-run)
+    - [3. Configuration Loading - ESTIMATED, NOT MEASURED](#3-configuration-loading---estimated-not-measured)
+    - [4. Sync Operation Benchmarks - SIMULATED, NOT REAL](#4-sync-operation-benchmarks---simulated-not-real)
+    - [5. Concurrent Operations - SIMULATED, NOT REAL](#5-concurrent-operations---simulated-not-real)
+    - [6. Memory Stability - NEVER VERIFIED](#6-memory-stability---never-verified)
+  - [Honest Assessment](#honest-assessment)
+  - [The Core Problem](#the-core-problem)
+  - [What Should Happen](#what-should-happen)
+    - [Option 1: Run Real Benchmarks (HONEST)](#option-1-run-real-benchmarks-honest)
+    - [Option 2: Refactor Benchmarks to Be Honest (PARTIAL)](#option-2-refactor-benchmarks-to-be-honest-partial)
+    - [Option 3: Remove Dissertation (MOST HONEST)](#option-3-remove-dissertation-most-honest)
+  - [Recommendation](#recommendation)
+  - [Summary of Lies](#summary-of-lies)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Benchmark Audit: Identifying Fictional vs Real Data
 
 ## Critical Issues Identified

@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Terminology Standardization Deliverables Summary](#terminology-standardization-deliverables-summary)
+  - [Overview](#overview)
+  - [Deliverable 1: Terminology Standardization Guide](#deliverable-1-terminology-standardization-guide)
+    - [Contents](#contents)
+    - [Key Standardizations](#key-standardizations)
+    - [How to Use](#how-to-use)
+  - [Deliverable 2: Glossary LaTeX Section](#deliverable-2-glossary-latex-section)
+    - [Contents](#contents-1)
+    - [Format](#format)
+    - [How to Use](#how-to-use-1)
+  - [Integration Workflow](#integration-workflow)
+    - [Step 1: Review and Approve](#step-1-review-and-approve)
+    - [Step 2: Apply Standardizations](#step-2-apply-standardizations)
+    - [Step 3: Include Glossary](#step-3-include-glossary)
+    - [Step 4: Ongoing Compliance](#step-4-ongoing-compliance)
+  - [Quick Reference: Top 10 Most Important Standardizations](#quick-reference-top-10-most-important-standardizations)
+  - [Files Delivered](#files-delivered)
+    - [Primary Deliverables](#primary-deliverables)
+    - [Supporting Files](#supporting-files)
+  - [Next Steps](#next-steps)
+  - [Contact and Questions](#contact-and-questions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Terminology Standardization Deliverables Summary
 
 ## Overview

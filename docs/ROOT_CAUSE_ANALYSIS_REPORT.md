@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Root Cause Analysis Report - clap-noun-verb Test Failures](#root-cause-analysis-report---clap-noun-verb-test-failures)
+  - [Executive Summary](#executive-summary)
+  - [FAILURE &#035;1: Template Command Unavailability (15 Test Failures)](#failure-1-template-command-unavailability-15-test-failures)
+    - [5-Why Analysis (9 Levels Deep)](#5-why-analysis-9-levels-deep)
+    - [Evidence Chain](#evidence-chain)
+    - [Fishbone Diagram (6M Framework)](#fishbone-diagram-6m-framework)
+    - [Primary, Secondary, Tertiary Root Causes](#primary-secondary-tertiary-root-causes)
+  - [FAILURE &#035;2: Test Compilation Errors (30+ Errors)](#failure-2-test-compilation-errors-30-errors)
+    - [5-Why Analysis (8 Levels Deep)](#5-why-analysis-8-levels-deep)
+    - [Evidence Chain](#evidence-chain-1)
+    - [Fishbone Diagram](#fishbone-diagram)
+    - [Primary, Secondary, Tertiary Root Causes](#primary-secondary-tertiary-root-causes-1)
+  - [FAILURE &#035;3: Template Discoverability (335 Templates Unreachable)](#failure-3-template-discoverability-335-templates-unreachable)
+    - [5-Why Analysis (10 Levels Deep - DEEPEST)](#5-why-analysis-10-levels-deep---deepest)
+    - [Evidence Chain](#evidence-chain-2)
+    - [Fishbone Diagram](#fishbone-diagram-1)
+    - [Primary, Secondary, Tertiary Root Causes](#primary-secondary-tertiary-root-causes-2)
+  - [Cross-Cutting Systemic Patterns](#cross-cutting-systemic-patterns)
+    - [Pattern #1: **Integration Validation Gap**](#pattern-1-integration-validation-gap)
+    - [Pattern #2: **Opaque Failure Modes**](#pattern-2-opaque-failure-modes)
+    - [Pattern #3: **Architectural Disconnection**](#pattern-3-architectural-disconnection)
+    - [Pattern #4: **Missing Contract Validation**](#pattern-4-missing-contract-validation)
+  - [Preventive Control Recommendations](#preventive-control-recommendations)
+    - [CRITICAL (Implement Immediately)](#critical-implement-immediately)
+      - [1. **Integration Test Gate (Addresses Pattern #1)**](#1-integration-test-gate-addresses-pattern-1)
+      - [2. **API Compatibility Validation (Addresses Pattern #4)**](#2-api-compatibility-validation-addresses-pattern-4)
+      - [3. **Template Discovery Validation (Addresses Pattern #3)**](#3-template-discovery-validation-addresses-pattern-3)
+    - [HIGH PRIORITY (Implement This Sprint)](#high-priority-implement-this-sprint)
+      - [4. **Auto-Discovery Debug Mode (Addresses Pattern #2)**](#4-auto-discovery-debug-mode-addresses-pattern-2)
+      - [5. **Template Registry System (Addresses Pattern #3)**](#5-template-registry-system-addresses-pattern-3)
+      - [6. **Cross-System Validation Tests (Addresses Pattern #1, #3)**](#6-cross-system-validation-tests-addresses-pattern-1-3)
+    - [MEDIUM PRIORITY (Implement Next Sprint)](#medium-priority-implement-next-sprint)
+      - [7. **Ownership Model for Cross-Component Features**](#7-ownership-model-for-cross-component-features)
+      - [8. **Deprecation Policy for API Changes**](#8-deprecation-policy-for-api-changes)
+  - [System Improvements to Prevent Recurrence](#system-improvements-to-prevent-recurrence)
+    - [Immediate Actions (This Week)](#immediate-actions-this-week)
+    - [Short-Term Actions (This Sprint)](#short-term-actions-this-sprint)
+    - [Long-Term Actions (Next Quarter)](#long-term-actions-next-quarter)
+  - [Conclusion](#conclusion)
+    - [Root Cause Hierarchy](#root-cause-hierarchy)
+    - [Key Learnings](#key-learnings)
+    - [Success Metrics](#success-metrics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Root Cause Analysis Report - clap-noun-verb Test Failures
 **Analysis Date**: 2025-11-20
 **Methodology**: 5 Whys + Fishbone Diagrams + Systemic Pattern Analysis

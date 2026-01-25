@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AI Generators Granite4 Test Report](#ai-generators-granite4-test-report)
+  - [Test Results](#test-results)
+    - [✅ TemplateGenerator - SUCCESS](#-templategenerator---success)
+    - [✅ OntologyGenerator - SUCCESS (FIXED)](#-ontologygenerator---success-fixed)
+    - [✅ SparqlGenerator - SUCCESS](#-sparqlgenerator---success)
+    - [✅ RefactorAssistant - SUCCESS](#-refactorassistant---success)
+    - [✅ NaturalSearchGenerator - SUCCESS](#-naturalsearchgenerator---success)
+  - [Summary](#summary)
+  - [Findings](#findings)
+  - [Recommendations](#recommendations)
+  - [Test Command](#test-command)
+  - [Implementation Improvements](#implementation-improvements)
+    - [OntologyGenerator Fixes](#ontologygenerator-fixes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AI Generators Granite4 Test Report
 
 **Date:** $(date)

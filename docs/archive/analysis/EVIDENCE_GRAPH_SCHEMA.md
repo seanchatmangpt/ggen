@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Evidence Graph Mining: JSON Schemas](#evidence-graph-mining-json-schemas)
+  - [1. RepoDescriptor](#1-repodescriptor)
+  - [2. FileDescriptor](#2-filedescriptor)
+  - [3. Excerpt](#3-excerpt)
+  - [4. EvidenceNode](#4-evidencenode)
+  - [5. ConceptNode](#5-conceptnode)
+  - [6. SystemNode](#6-systemnode)
+  - [7. Evidence Graph (Main Output)](#7-evidence-graph-main-output)
+  - [8. Concept Coverage Report](#8-concept-coverage-report)
+  - [9. Concept Gaps Report](#9-concept-gaps-report)
+  - [10. Concept Matcher Configuration](#10-concept-matcher-configuration)
+  - [Usage](#usage)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Evidence Graph Mining: JSON Schemas
 
 This document defines the machine-readable schemas for the Evidence Graph output artifacts.

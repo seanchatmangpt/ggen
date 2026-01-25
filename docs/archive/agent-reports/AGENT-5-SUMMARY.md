@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Agent 5 Task Completion Summary](#agent-5-task-completion-summary)
+  - [Deliverables](#deliverables)
+    - [1. **agent-5-rewrite-methodology.json** (32 KB)](#1-agent-5-rewrite-methodologyjson-32-kb)
+    - [2. **agent-5-methodology-guide.md** (14 KB)](#2-agent-5-methodology-guidemd-14-kb)
+    - [3. **agent-5-decision-trees.md** (15 KB)](#3-agent-5-decision-treesmd-15-kb)
+  - [Key Definitions](#key-definitions)
+    - [From Scratch](#from-scratch)
+    - [No Refactor](#no-refactor)
+  - [5 Example Types at a Glance](#5-example-types-at-a-glance)
+  - [Quality Gates (Critical Path)](#quality-gates-critical-path)
+    - [Pre-Rewrite (6 gates, fail-fast)](#pre-rewrite-6-gates-fail-fast)
+    - [Post-Rewrite (8 gates, quality)](#post-rewrite-8-gates-quality)
+  - [Standard Directory Template](#standard-directory-template)
+  - [Evidence Checklist (8 Receipts Required)](#evidence-checklist-8-receipts-required)
+  - [Execution Workflow (5 Phases)](#execution-workflow-5-phases)
+    - [Phase 1: Analysis (30 min)](#phase-1-analysis-30-min)
+    - [Phase 2: Blank Slate (15 min)](#phase-2-blank-slate-15-min)
+    - [Phase 3: Specification (30 min)](#phase-3-specification-30-min)
+    - [Phase 4: Rebuild (varies by type)](#phase-4-rebuild-varies-by-type)
+    - [Phase 5: Validation (60 min)](#phase-5-validation-60-min)
+  - [Validation Commands (Bash)](#validation-commands-bash)
+  - [Quick Decision Guide](#quick-decision-guide)
+    - [When to Classify as Tutorial](#when-to-classify-as-tutorial)
+    - [When to Classify as ProjectGen](#when-to-classify-as-projectgen)
+    - [When to Classify as Ontology](#when-to-classify-as-ontology)
+    - [When to Classify as AI-Powered](#when-to-classify-as-ai-powered)
+    - [When to Classify as Utility](#when-to-classify-as-utility)
+  - [Escalation Guide](#escalation-guide)
+    - [Fix It Yourself](#fix-it-yourself)
+    - [Escalate to User](#escalate-to-user)
+    - [Rollback (Start Over)](#rollback-start-over)
+  - [Key Principles](#key-principles)
+    - [The Rewrite IS:](#the-rewrite-is)
+    - [The Rewrite IS NOT:](#the-rewrite-is-not)
+    - [The Golden Rule:](#the-golden-rule)
+  - [Files Delivered](#files-delivered)
+  - [Usage Instructions for Future Agents](#usage-instructions-for-future-agents)
+    - [To Use This Methodology:](#to-use-this-methodology)
+    - [For a Specific Rewrite:](#for-a-specific-rewrite)
+  - [Support Resources](#support-resources)
+    - [For Questions About:](#for-questions-about)
+  - [Success Criteria](#success-criteria)
+  - [Summary Statistics](#summary-statistics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Agent 5 Task Completion Summary
 
 **Task**: DESIGN REWRITE METHODOLOGY

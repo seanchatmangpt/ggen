@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [FMEA + Poka-Yoke Test Architecture Analysis](#fmea--poka-yoke-test-architecture-analysis)
+  - [Failure Mode Effects Analysis with Mistake-Proofing Patterns](#failure-mode-effects-analysis-with-mistake-proofing-patterns)
+  - [EXECUTIVE SUMMARY](#executive-summary)
+  - [PHASE 1: FMEA MATRIX](#phase-1-fmea-matrix)
+    - [Critical Failure Modes (Stop Production)](#critical-failure-modes-stop-production)
+    - [High-Priority Failure Modes (Investigate Immediately)](#high-priority-failure-modes-investigate-immediately)
+    - [Medium-Priority Failure Modes (Schedule Fix)](#medium-priority-failure-modes-schedule-fix)
+    - [Low-Priority Failure Modes (Monitor)](#low-priority-failure-modes-monitor)
+  - [PHASE 2: POKA-YOKE MISTAKE-PROOFING PATTERNS](#phase-2-poka-yoke-mistake-proofing-patterns)
+    - [Pattern 1: Type-Safe Test Builders (Prevent E0599, E0433)](#pattern-1-type-safe-test-builders-prevent-e0599-e0433)
+    - [Pattern 2: Compile-Time Contract Assertions (Prevent E0616, API breakage)](#pattern-2-compile-time-contract-assertions-prevent-e0616-api-breakage)
+    - [Pattern 3: Fixture Invariant Guards (Prevent race conditions)](#pattern-3-fixture-invariant-guards-prevent-race-conditions)
+    - [Pattern 4: Import Stability Through Preludes (Prevent E0425, E0433)](#pattern-4-import-stability-through-preludes-prevent-e0425-e0433)
+    - [Pattern 5: Newtype Wrappers for Type Safety (Prevent type confusion)](#pattern-5-newtype-wrappers-for-type-safety-prevent-type-confusion)
+  - [PHASE 3: SEVERITY RANKING & FIX SEQUENCE](#phase-3-severity-ranking--fix-sequence)
+    - [Risk Priority Order (RPN-Based)](#risk-priority-order-rpn-based)
+    - [Fix Sequence (Critical Path)](#fix-sequence-critical-path)
+  - [PHASE 4: PREVENTION & DETECTION CONTROLS](#phase-4-prevention--detection-controls)
+    - [Prevention Controls (Proactive)](#prevention-controls-proactive)
+    - [Detection Controls (Reactive)](#detection-controls-reactive)
+  - [PHASE 5: RECOMMENDED ACTIONS](#phase-5-recommended-actions)
+    - [Immediate (Week 1)](#immediate-week-1)
+    - [Short-Term (Week 2)](#short-term-week-2)
+    - [Long-Term (Month 1)](#long-term-month-1)
+  - [APPENDIX A: ACTUAL ERROR SAMPLES](#appendix-a-actual-error-samples)
+    - [Sample 1: Type Mismatch (RPN=729)](#sample-1-type-mismatch-rpn729)
+    - [Sample 2: Import Resolution (RPN=504)](#sample-2-import-resolution-rpn504)
+    - [Sample 3: Private Access (RPN=360)](#sample-3-private-access-rpn360)
+  - [APPENDIX B: POKA-YOKE CHECKLIST](#appendix-b-poka-yoke-checklist)
+  - [METRICS SUMMARY](#metrics-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # FMEA + Poka-Yoke Test Architecture Analysis
 ## Failure Mode Effects Analysis with Mistake-Proofing Patterns
 

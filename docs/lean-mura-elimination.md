@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MURA - Eliminate Variability](#mura---eliminate-variability)
+  - [Phase 2: ggen.toml + clap-noun-verb Integration](#phase-2-ggentoml--clap-noun-verb-integration)
+  - [What is MURA?](#what-is-mura)
+  - [🔍 MURA Category 1: Code Variability](#-mura-category-1-code-variability)
+    - [MU-001: Inconsistent Error Handling Patterns](#mu-001-inconsistent-error-handling-patterns)
+    - [MU-002: Varying Validation Approaches](#mu-002-varying-validation-approaches)
+    - [MU-003: Non-Uniform Naming Conventions](#mu-003-non-uniform-naming-conventions)
+    - [MU-004: Inconsistent Test Structure](#mu-004-inconsistent-test-structure)
+  - [🔄 MURA Category 2: Process Variability](#-mura-category-2-process-variability)
+    - [MU-005: Inconsistent Documentation](#mu-005-inconsistent-documentation)
+    - [MU-006: Build Variability](#mu-006-build-variability)
+  - [🎯 MURA Category 3: Output Variability](#-mura-category-3-output-variability)
+    - [MU-007: Inconsistent Error Messages](#mu-007-inconsistent-error-messages)
+    - [MU-008: Non-Deterministic Output](#mu-008-non-deterministic-output)
+  - [Summary Table: MURA Elimination](#summary-table-mura-elimination)
+  - [Implementation Roadmap](#implementation-roadmap)
+    - [Phase 1 (Week 1): Code Standardization](#phase-1-week-1-code-standardization)
+    - [Phase 2 (Week 2): Process Standardization](#phase-2-week-2-process-standardization)
+  - [Success Metrics](#success-metrics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MURA - Eliminate Variability
 ## Phase 2: ggen.toml + clap-noun-verb Integration
 

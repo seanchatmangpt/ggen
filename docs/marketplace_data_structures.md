@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Marketplace Data Structures Reference](#ggen-marketplace-data-structures-reference)
+  - [Table of Contents](#table-of-contents)
+  - [Core Domain Types](#core-domain-types)
+    - [PackageMetadata (Infrastructure Layer)](#packagemetadata-infrastructure-layer)
+  - [Input/Output Structures](#inputoutput-structures)
+    - [Search Operations](#search-operations)
+    - [Install Operations](#install-operations)
+    - [List Operations](#list-operations)
+  - [Maturity Assessment Types](#maturity-assessment-types)
+    - [MaturityAssessment](#maturityassessment)
+  - [Search & Filter Types](#search--filter-types)
+    - [Advanced Search](#advanced-search)
+  - [Validation & Guards](#validation--guards)
+    - [Production Readiness Checks](#production-readiness-checks)
+    - [Quality Guards](#quality-guards)
+  - [Test Fixtures](#test-fixtures)
+    - [Mock Package Builder](#mock-package-builder)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Marketplace Data Structures Reference
 
 **Version**: 1.0

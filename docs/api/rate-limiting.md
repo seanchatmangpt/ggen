@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Production-Ready Rate Limiting](#production-ready-rate-limiting)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+    - [Token Bucket Algorithm](#token-bucket-algorithm)
+    - [Backend Storage](#backend-storage)
+      - [In-Memory Backend](#in-memory-backend)
+      - [Redis Backend](#redis-backend)
+  - [Configuration](#configuration)
+    - [Configuration Options](#configuration-options)
+  - [Usage Patterns](#usage-patterns)
+    - [Pattern 1: Single Tier (Middleware)](#pattern-1-single-tier-middleware)
+    - [Pattern 2: Multi-Tier Limits](#pattern-2-multi-tier-limits)
+    - [Pattern 3: Programmatic Checking](#pattern-3-programmatic-checking)
+    - [Pattern 4: Graceful Degradation](#pattern-4-graceful-degradation)
+  - [Client Identification](#client-identification)
+  - [Response Headers](#response-headers)
+  - [Error Handling](#error-handling)
+    - [Error Types](#error-types)
+    - [Error Responses](#error-responses)
+  - [Performance Characteristics](#performance-characteristics)
+    - [In-Memory Backend](#in-memory-backend-1)
+    - [Redis Backend](#redis-backend-1)
+  - [Testing](#testing)
+    - [Unit Tests (Chicago TDD)](#unit-tests-chicago-tdd)
+    - [Integration Tests](#integration-tests)
+  - [Security Considerations](#security-considerations)
+  - [Observability](#observability)
+  - [Production Deployment](#production-deployment)
+    - [Recommended Configuration](#recommended-configuration)
+    - [Redis Setup](#redis-setup)
+    - [Monitoring](#monitoring)
+  - [Migration Guide](#migration-guide)
+    - [From Legacy Rate Limiter](#from-legacy-rate-limiter)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Production-Ready Rate Limiting
 
 ## Overview

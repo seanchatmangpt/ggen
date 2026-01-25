@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Summary](#summary)
+- [Part I: Foundations](#part-i-foundations)
+- [Part II: The Pattern Language](#part-ii-the-pattern-language)
+  - [Foundation Patterns](#foundation-patterns)
+  - [Knowledge Patterns](#knowledge-patterns)
+  - [Safety Patterns](#safety-patterns)
+  - [Integrity Patterns](#integrity-patterns)
+  - [Selective Patterns](#selective-patterns)
+- [Part III: Patterns in Practice](#part-iii-patterns-in-practice)
+- [Part IV: Advanced Topics](#part-iv-advanced-topics)
+- [Part V: Reference](#part-v-reference)
+- [Appendices](#appendices)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Summary
 
 [Preface](preface.md)

@@ -1,0 +1,166 @@
+{
+  "sku": "{{ sku }}",
+  "module_prefix": "{{ module_prefix }}",
+  "test_vectors": {
+    "invalid_json": {
+      "description": "Raw invalid JSON sent to /pubsub",
+      "payload": "{not-json",
+      "expected_status": 400,
+      "expected_no_5xx": true
+    },
+    "missing_message": {
+      "description": "Empty object, no 'message' field",
+      "payload": {},
+      "expected_status": 400,
+      "expected_no_5xx": true
+    },
+    "missing_data": {
+      "description": "Message has attributes but no 'data' field",
+      "payload": {
+        "message": {
+          "attributes": {
+            "tenant_id": "t-123",
+            "source": "monitoring",
+            "name": "quota_exceeded"
+          }
+        }
+      },
+      "expected_status": 400,
+      "expected_no_5xx": true
+    },
+    "invalid_base64": {
+      "description": "Data field contains invalid base64",
+      "payload": {
+        "message": {
+          "attributes": {
+            "tenant_id": "t-123",
+            "source": "monitoring",
+            "name": "quota_exceeded"
+          },
+          "data": "%%%INVALID_BASE64%%%"
+        }
+      },
+      "expected_status": 400,
+      "expected_no_5xx": true
+    },
+    "missing_tenant_id": {
+      "description": "Attributes missing required 'tenant_id' field",
+      "payload": {
+        "message": {
+          "attributes": {
+            "source": "monitoring",
+            "name": "quota_exceeded"
+          },
+          "data": "e30="
+        }
+      },
+      "expected_status": 400,
+      "expected_no_5xx": true
+    },
+    "missing_source": {
+      "description": "Attributes missing 'source' field",
+      "payload": {
+        "message": {
+          "attributes": {
+            "tenant_id": "t-123",
+            "name": "quota_exceeded"
+          },
+          "data": "e30="
+        }
+      },
+      "expected_status": 400,
+      "expected_no_5xx": true
+    },
+    "missing_name": {
+      "description": "Attributes missing 'name' field",
+      "payload": {
+        "message": {
+          "attributes": {
+            "tenant_id": "t-123",
+            "source": "monitoring"
+          },
+          "data": "e30="
+        }
+      },
+      "expected_status": 400,
+      "expected_no_5xx": true
+    },
+    "null_tenant_id": {
+      "description": "tenant_id is null/nil",
+      "payload": {
+        "message": {
+          "attributes": {
+            "tenant_id": null,
+            "source": "monitoring",
+            "name": "quota_exceeded"
+          },
+          "data": "e30="
+        }
+      },
+      "expected_status": 400,
+      "expected_no_5xx": true
+    },
+    "empty_tenant_id": {
+      "description": "tenant_id is empty string",
+      "payload": {
+        "message": {
+          "attributes": {
+            "tenant_id": "",
+            "source": "monitoring",
+            "name": "quota_exceeded"
+          },
+          "data": "e30="
+        }
+      },
+      "expected_status": 400,
+      "expected_no_5xx": true
+    },
+    "extra_fields": {
+      "description": "Valid message with extra unexpected fields (must accept gracefully)",
+      "payload": {
+        "message": {
+          "attributes": {
+            "tenant_id": "t-123",
+            "source": "monitoring",
+            "name": "quota_exceeded",
+            "extra_field": "ignored",
+            "another": 123
+          },
+          "data": "e30="
+        }
+      },
+      "expected_status": 200,
+      "expected_no_5xx": true
+    },
+    "deeply_nested_attributes": {
+      "description": "Attributes contain nested objects (invalid)",
+      "payload": {
+        "message": {
+          "attributes": {
+            "tenant_id": "t-123",
+            "source": "monitoring",
+            "name": "quota_exceeded",
+            "metadata": {
+              "nested": "object"
+            }
+          },
+          "data": "e30="
+        }
+      },
+      "expected_status": 400,
+      "expected_no_5xx": true
+    },
+    "very_large_payload": {
+      "description": "Data contains 2MB base64-encoded payload",
+      "note": "Generated in test, not here",
+      "expected_status": 400,
+      "expected_no_5xx": true
+    },
+    "invalid_utf8_in_source": {
+      "description": "source field contains invalid UTF-8 bytes",
+      "note": "Binary representation varies, tested dynamically",
+      "expected_status": 400,
+      "expected_no_5xx": true
+    }
+  }
+}

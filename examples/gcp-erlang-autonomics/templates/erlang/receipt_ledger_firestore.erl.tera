@@ -1,0 +1,55 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_receipt_ledger).
+-export([append/2]).
+
+%% append(TenantId, Receipt) -> {ok, ChainHash} | {error, Reason}
+%% Persist receipt with hash chaining to Firestore
+%% Also emits Cloud Logging JSON for ops visibility
+append(TenantId, Receipt0) ->
+  %% Fetch previous chain hash (or start with zero)
+  {ok, Prev} = {{ module_prefix }}_firestore_store:get_last_hash(TenantId),
+
+  %% Add prev_chain_hash to receipt for audit trail
+  Receipt = maps:merge(Receipt0, #{
+    prev_chain_hash => base64:encode(Prev),
+    timestamp => iso8601_now()
+  }),
+
+  %% Compute new chain hash
+  ChainHash = {{ module_prefix }}_receipt_hash:hash_chain(Prev, Receipt),
+
+  %% Persist append-only receipt to Firestore
+  ok = ensure_ok({{ module_prefix }}_firestore_store:append_receipt(TenantId, Receipt, ChainHash)),
+
+  %% Update last chain hash for continuity
+  ok = ensure_ok({{ module_prefix }}_firestore_store:put_last_hash(TenantId, ChainHash)),
+
+  %% Cloud Logging: stdout JSON (Cloud Run picks it up automatically)
+  log_receipt(TenantId, ChainHash, Receipt),
+
+  {ok, ChainHash}.
+
+%% ensure_ok(Result) -> ok | error(Reason)
+%% TPS rule: if persistence fails → crash (stop-the-line)
+%% Prevents actions without proof.
+ensure_ok(ok) -> ok;
+ensure_ok({error, Why}) ->
+  error({receipt_persist_failed, Why}).
+
+%% log_receipt/3: Emit Cloud Logging JSON to stdout
+log_receipt(TenantId, ChainHash, Receipt) ->
+  LogEntry = #{
+    severity => <<"INFO">>,
+    message => <<"Receipt persisted">>,
+    tenant_id => TenantId,
+    chain_hash => base64:encode(ChainHash),
+    receipt => Receipt
+  },
+  io:format("~s~n", [jiffy:encode(LogEntry)]).
+
+%% iso8601_now/0: Return current time in ISO8601 format
+iso8601_now() ->
+  {date, {Y, M, D}} = calendar:local_time_to_universal_time(calendar:now_to_local_time(erlang:timestamp())),
+  {time, {H, Min, S}} = calendar:local_time_to_universal_time(calendar:now_to_local_time(erlang:timestamp())),
+  iolist_to_binary(io_lib:format("~4.10.0B-~2.10.0B-~2.10.0BT~2.10.0B:~2.10.0B:~2.10.0BZ", [Y, M, D, H, Min, S])).

@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DSPy Documentation and Examples - Completion Receipt](#dspy-documentation-and-examples---completion-receipt)
+  - [Deliverables Completed](#deliverables-completed)
+    - [1. New Example Files Created (3/3)](#1-new-example-files-created-33)
+      - [✓ crates/ggen-ai/examples/rag_pipeline.rs](#%E2%9C%93-cratesggen-aiexamplesrag_pipeliners)
+      - [✓ crates/ggen-ai/examples/assertions_demo.rs](#%E2%9C%93-cratesggen-aiexamplesassertions_demors)
+      - [✓ crates/ggen-ai/examples/testing_demo.rs](#%E2%9C%93-cratesggen-aiexamplestesting_demors)
+    - [2. Documentation Enhancements](#2-documentation-enhancements)
+      - [✓ docs/GGEN_DSPY_GUIDE.md Enhanced](#%E2%9C%93-docsggen_dspy_guidemd-enhanced)
+      - [✓ docs/MIGRATION_FROM_PYTHON.md Enhanced](#%E2%9C%93-docsmigration_from_pythonmd-enhanced)
+  - [File Inventory](#file-inventory)
+    - [Examples Created](#examples-created)
+    - [Documentation Enhanced](#documentation-enhanced)
+  - [Example Content Overview](#example-content-overview)
+    - [rag_pipeline.rs](#rag_pipeliners)
+    - [assertions_demo.rs](#assertions_demors)
+    - [testing_demo.rs](#testing_demors)
+  - [Known Issues](#known-issues)
+    - [Compilation Errors (Pre-existing in ggen-ai)](#compilation-errors-pre-existing-in-ggen-ai)
+    - [Example Compilation Status](#example-compilation-status)
+  - [Documentation Quality](#documentation-quality)
+    - [GGEN_DSPY_GUIDE.md Enhancements](#ggen_dspy_guidemd-enhancements)
+    - [MIGRATION_FROM_PYTHON.md Enhancements](#migration_from_pythonmd-enhancements)
+  - [CLAUDE.md Compliance](#claudemd-compliance)
+    - [✓ Type-First Design](#%E2%9C%93-type-first-design)
+    - [✓ Error Handling](#%E2%9C%93-error-handling)
+    - [✓ Documentation Quality](#%E2%9C%93-documentation-quality)
+    - [✓ Testing Emphasis](#%E2%9C%93-testing-emphasis)
+  - [Metrics](#metrics)
+    - [Code Written](#code-written)
+    - [Documentation Coverage](#documentation-coverage)
+    - [Example Coverage](#example-coverage)
+  - [Next Steps (For Maintainers)](#next-steps-for-maintainers)
+    - [Immediate (High Priority)](#immediate-high-priority)
+    - [Short Term (Medium Priority)](#short-term-medium-priority)
+    - [Long Term (Low Priority)](#long-term-low-priority)
+  - [Quality Assurance](#quality-assurance)
+    - [Code Review Checklist](#code-review-checklist)
+    - [Documentation Review Checklist](#documentation-review-checklist)
+  - [Summary](#summary)
+  - [Receipt Signature](#receipt-signature)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DSPy Documentation and Examples - Completion Receipt
 
 **Date**: 2026-01-11

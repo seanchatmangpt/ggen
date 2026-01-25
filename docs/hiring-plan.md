@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AGENT 7: Team & Hiring Plan for ggen-disney](#agent-7-team--hiring-plan-for-ggen-disney)
+  - [Executive Summary](#executive-summary)
+  - [Org Chart (Target: Year 1 End)](#org-chart-target-year-1-end)
+  - [Hiring Phases](#hiring-phases)
+    - [Phase 1: Founding Team Onboarding (Months 1-2)](#phase-1-founding-team-onboarding-months-1-2)
+    - [Phase 2: Product & Engineering Scale (Months 3-8)](#phase-2-product--engineering-scale-months-3-8)
+    - [Phase 3: Sales & Customer Success Scale (Months 2-8)](#phase-3-sales--customer-success-scale-months-2-8)
+    - [Phase 4: Operations & Finance Scale (Months 1-12)](#phase-4-operations--finance-scale-months-1-12)
+  - [Hiring Timeline (Month-by-Month)](#hiring-timeline-month-by-month)
+  - [Compensation & Equity](#compensation--equity)
+    - [Salary Bands (Target: Competitive in 2026)](#salary-bands-target-competitive-in-2026)
+    - [Equity Strategy](#equity-strategy)
+  - [Recruiting Strategy](#recruiting-strategy)
+    - [Recruiting Channels](#recruiting-channels)
+    - [Recruiting Timeline](#recruiting-timeline)
+  - [Onboarding & Culture](#onboarding--culture)
+    - [Onboarding Program (2 weeks)](#onboarding-program-2-weeks)
+    - [Culture & Values](#culture--values)
+    - [Retention & Growth](#retention--growth)
+  - [Headcount & Budget Forecast](#headcount--budget-forecast)
+    - [Year-by-Year Headcount](#year-by-year-headcount)
+    - [Payroll Budget (Fully Loaded)](#payroll-budget-fully-loaded)
+  - [Leadership Hiring Criteria](#leadership-hiring-criteria)
+    - [VP Engineering](#vp-engineering)
+    - [VP Sales](#vp-sales)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AGENT 7: Team & Hiring Plan for ggen-disney
 
 **Status**: COMPLETE

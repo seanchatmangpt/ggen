@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Reference: Andon Alerts](#reference-andon-alerts)
+  - [Alert Levels](#alert-levels)
+  - [Alert Triggers](#alert-triggers)
+    - [Green Andon (0 Failures)](#green-andon-0-failures)
+    - [Yellow Andon (1-5 Failures)](#yellow-andon-1-5-failures)
+    - [Red Andon (6+ Failures)](#red-andon-6-failures)
+  - [Alert Configuration](#alert-configuration)
+    - [Threshold Tuning](#threshold-tuning)
+  - [Remediation Playbooks](#remediation-playbooks)
+    - [Yellow Andon Response](#yellow-andon-response)
+    - [Red Andon Response](#red-andon-response)
+  - [Escalation Matrix](#escalation-matrix)
+  - [Notification Templates](#notification-templates)
+    - [Slack (Yellow)](#slack-yellow)
+    - [PagerDuty (Red)](#pagerduty-red)
+  - [Metrics & SLAs](#metrics--slas)
+  - [Related Resources](#related-resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Reference: Andon Alerts
 
 **Alert types, thresholds, and remediation actions**

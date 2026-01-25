@@ -1,0 +1,406 @@
+# GCP Marketplace Autonomics - C4 Component Diagrams (Level 3)
+# Tera Template for Mermaid Diagram Generation
+# Version: 1.0
+# Purpose: Generate production-ready C4 component diagrams from RDF ontology
+
+# Metadata
+document_title = "GCP Marketplace Autonomics - C4 Component Diagrams (Level 3)"
+document_version = "1.0"
+generated_date = "{{ now() | date(format='%Y-%m-%d') }}"
+spec_version = "{{ spec_version }}"
+system_name = "Erlang Autonomic Governor System"
+
+---
+
+## 1. Erlang OTP Topology Components
+
+### Context
+- Container: Erlang Runtime on Cloud Run
+- Purpose: Fault-tolerant, hot-reload runtime with hierarchical supervision
+- Technology: Erlang/OTP, gen_server, gen_statem, supervisor trees
+
+### Throughput & Latency SLOs
+- Signal routing latency: <50ms per signal
+- Concurrent tenant FSMs: {{ max_tenant_fsms | default(value="1000") }}
+- ETS lookup latency: <1ms
+- Registry throughput: {{ signal_throughput_slo | default(value="10,000+ signals/sec") }}
+
+### Template Variables Used
+```json
+{
+  "erlang_version": "{{ erlang_version | default(value='27.0') }}",
+  "otp_version": "{{ otp_version | default(value='27.0') }}",
+  "supervisor_count": "{{ supervisor_count | default(value='4') }}",
+  "max_tenant_fsms": "{{ max_tenant_fsms | default(value='1000') }}",
+  "signal_throughput_slo": "{{ signal_throughput_slo }}",
+  "signal_latency_slo": "{{ signal_latency_slo }}",
+  "ets_lookup_latency_ms": "{{ ets_lookup_latency_ms | default(value='1') }}",
+  "gproc_registry_enabled": "{{ gproc_registry_enabled | default(value='true') }}",
+  "poolboy_pool_size": "{{ poolboy_pool_size | default(value='100') }}",
+  "recon_profiling_enabled": "{{ recon_profiling_enabled | default(value='true') }}"
+}
+```
+
+### SPARQL Query: Extract Supervisor Configuration
+```sparql
+PREFIX ea: <http://ggen.org/erlang-autonomic#>
+PREFIX c4: <http://ggen.org/c4#>
+
+SELECT ?supervisor ?behavior ?responsibility ?maxChildren
+WHERE {
+  ?supervisor a ea:OTPSupervisor ;
+             c4:technology ?behavior ;
+             c4:responsibility ?responsibility ;
+             ea:maxChildren ?maxChildren .
+}
+ORDER BY ?supervisor
+```
+
+### SPARQL Query: Extract FSM Pool Config
+```sparql
+PREFIX ea: <http://ggen.org/erlang-autonomic#>
+
+SELECT ?tenantFsmConfig ?maxTenants ?scalingStrategy ?recoveryBehavior
+WHERE {
+  ?tenantFsmConfig a ea:TenantFsmPoolConfig ;
+                  ea:maxConcurrentTenants ?maxTenants ;
+                  ea:scalingStrategy ?scalingStrategy ;
+                  ea:recoveryBehavior ?recoveryBehavior .
+}
+```
+
+---
+
+## 2. Ingress Layer Components
+
+### Context
+- Container: Cloud Run Signal Ingestion Service
+- Purpose: Accept, validate, and route incoming signal events
+- Technology: Cowboy HTTP server, jose JWT, rate-limiter, idempotence gates
+
+### Throughput & Latency SLOs
+- Request processing latency: <100ms request-to-route
+- Concurrent connections: {{ max_concurrent_connections | default(value="10,000") }}
+- HTTP timeout: {{ http_request_timeout_ms | default(value="30") }}ms
+
+### Template Variables Used
+```json
+{
+  "cowboy_listener_port": "{{ cowboy_listener_port | default(value='8080') }}",
+  "max_concurrent_connections": "{{ max_concurrent_connections }}",
+  "http_request_timeout_ms": "{{ http_request_timeout_ms }}",
+  "json_parser_type": "{{ json_parser_type | default(value='jiffy') }}",
+  "signature_algorithm": "{{ signature_algorithm | default(value='HMAC-SHA256') }}",
+  "per_tenant_rate_limit_rps": "{{ per_tenant_rate_limit_rps | default(value='1000') }}",
+  "per_ip_rate_limit_rps": "{{ per_ip_rate_limit_rps | default(value='10000') }}",
+  "idempotence_cache_ttl_hours": "{{ idempotence_cache_ttl_hours | default(value='1') }}",
+  "pubsub_batch_size": "{{ pubsub_batch_size | default(value='100') }}",
+  "pubsub_batch_latency_ms": "{{ pubsub_batch_latency_ms | default(value='100') }}"
+}
+```
+
+### SPARQL Query: Extract HTTP Routes
+```sparql
+PREFIX ea: <http://ggen.org/erlang-autonomic#>
+PREFIX c4: <http://ggen.org/c4#>
+
+SELECT ?routePath ?httpMethod ?handler ?latencySLO
+WHERE {
+  ?route a ea:HttpRoute ;
+        ea:path ?routePath ;
+        ea:method ?httpMethod ;
+        ea:handler ?handler ;
+        ea:latencySLO ?latencySLO .
+}
+ORDER BY ?routePath
+```
+
+### SPARQL Query: Extract Rate Limit Policies
+```sparql
+PREFIX ea: <http://ggen.org/erlang-autonomic#>
+
+SELECT ?policyName ?tenantQuota ?ipQuota ?quotaWindow ?algorithm
+WHERE {
+  ?policy a ea:RateLimitPolicy ;
+         rdfs:label ?policyName ;
+         ea:tenantQuotaPerSecond ?tenantQuota ;
+         ea:ipQuotaPerSecond ?ipQuota ;
+         ea:quotaWindow ?quotaWindow ;
+         ea:algorithm ?algorithm .
+}
+```
+
+---
+
+## 3. Governor Core Components
+
+### Context
+- Container: Governor Engine on Cloud Run
+- Purpose: Autonomic decision-making via state machine and policy evaluation
+- Technology: Erlang gen_statem, RETE engine, policy evaluation
+
+### Throughput & Latency SLOs
+- Decision latency: <2s signal-to-decision
+- Concurrent FSM instances: {{ concurrent_fsm_instances | default(value="1000") }}
+- Policy evaluation throughput: {{ decision_throughput_slo | default(value="5,000+ decisions/sec") }}
+
+### Template Variables Used
+```json
+{
+  "pubsub_subscription": "{{ pubsub_subscription | default(value='governor-signals') }}",
+  "fsm_states": "{{ fsm_states | default(value='[stable, warn, intervene, degrade, refuse]') }}",
+  "concurrent_fsm_instances": "{{ concurrent_fsm_instances }}",
+  "event_queue_max_size": "{{ event_queue_max_size | default(value='100000') }}",
+  "policy_pack_reload_interval_secs": "{{ policy_pack_reload_interval_secs | default(value='300') }}",
+  "rete_alpha_network_size": "{{ rete_alpha_network_size | default(value='10000') }}",
+  "rete_beta_network_size": "{{ rete_beta_network_size | default(value='50000') }}",
+  "invariant_check_latency_ms": "{{ invariant_check_latency_ms | default(value='10') }}",
+  "decision_latency_slo_secs": "{{ decision_latency_slo_secs | default(value='2') }}",
+  "state_persistence_engine": "{{ state_persistence_engine | default(value='Firestore') }}",
+  "postpone_queue_enabled": "{{ postpone_queue_enabled | default(value='true') }}"
+}
+```
+
+### SPARQL Query: Extract FSM State Transitions
+```sparql
+PREFIX ea: <http://ggen.org/erlang-autonomic#>
+
+SELECT ?fromState ?toState ?trigger ?action ?guard ?rationale
+WHERE {
+  ?transition a ea:StateTransition ;
+             ea:fromState ?fromState ;
+             ea:toState ?toState ;
+             ea:trigger ?trigger ;
+             ea:action ?action ;
+             ea:guard ?guard ;
+             ea:rationale ?rationale .
+}
+ORDER BY ?fromState ?toState
+```
+
+### SPARQL Query: Extract Policy Packs
+```sparql
+PREFIX ea: <http://ggen.org/erlang-autonomic#>
+PREFIX sku: <http://ggen.org/sku#>
+
+SELECT ?policyName ?skuName ?conditionCount ?actionCount ?evaluationLatency
+WHERE {
+  ?policy a ea:PolicyPack ;
+         rdfs:label ?policyName ;
+         sku:appliedToSku ?sku ;
+         ea:conditionCount ?conditionCount ;
+         ea:actionCount ?actionCount ;
+         ea:evaluationLatency ?evaluationLatency .
+  ?sku rdfs:label ?skuName .
+}
+ORDER BY ?skuName
+```
+
+---
+
+## 4. Receipt System Components
+
+### Context
+- Container: Receipt Ledger on Cloud Run
+- Purpose: Immutable cryptographic audit trail for all decisions
+- Technology: SHA-256 hashing, hash-chain, Firestore, Cloud Logging
+
+### Throughput & Latency SLOs
+- Receipt generation latency: <100ms
+- Receipt throughput: {{ receipt_throughput_slo | default(value="10,000+ receipts/sec") }}
+- Firestore write latency: <1s per batch
+
+### Template Variables Used
+```json
+{
+  "hash_algorithm": "{{ hash_algorithm | default(value='SHA-256') }}",
+  "hash_output_hex_length": "{{ hash_output_hex_length | default(value='64') }}",
+  "hash_chain_enabled": "{{ hash_chain_enabled | default(value='true') }}",
+  "receipt_fields": "{{ receipt_fields | default(value='[decision_id, timestamp, state, action, hash]') }}",
+  "firestore_collection_name": "{{ firestore_collection_name | default(value='receipts') }}",
+  "firestore_batch_size": "{{ firestore_batch_size | default(value='500') }}",
+  "firestore_batch_latency_ms": "{{ firestore_batch_latency_ms | default(value='100') }}",
+  "cloud_logging_enabled": "{{ cloud_logging_enabled | default(value='true') }}",
+  "cloud_logging_batch_size": "{{ cloud_logging_batch_size | default(value='1000') }}",
+  "receipt_cache_max_entries": "{{ receipt_cache_max_entries | default(value='100000') }}",
+  "receipt_cache_ttl_minutes": "{{ receipt_cache_ttl_minutes | default(value='10') }}",
+  "audit_trail_enabled": "{{ audit_trail_enabled | default(value='true') }}",
+  "data_retention_years": "{{ data_retention_years | default(value='7') }}"
+}
+```
+
+### SPARQL Query: Extract Receipt Schema
+```sparql
+PREFIX ea: <http://ggen.org/erlang-autonomic#>
+
+SELECT ?fieldName ?dataType ?includeInHash ?isIndexed ?maxLength
+WHERE {
+  ?field a ea:ReceiptField ;
+        rdfs:label ?fieldName ;
+        ea:dataType ?dataType ;
+        ea:includeInHash ?includeInHash ;
+        ea:isIndexed ?isIndexed ;
+        ea:maxLength ?maxLength .
+}
+ORDER BY ?fieldName
+```
+
+### SPARQL Query: Extract Hash Chain Config
+```sparql
+PREFIX ea: <http://ggen.org/erlang-autonomic#>
+
+SELECT ?algorithm ?fieldOrder ?previousHashRef ?chainHeight
+WHERE {
+  ?chain a ea:HashChainConfig ;
+        ea:algorithm ?algorithm ;
+        ea:fieldOrder ?fieldOrder ;
+        ea:previousHashRef ?previousHashRef ;
+        ea:chainHeight ?chainHeight .
+}
+```
+
+---
+
+## 5. Observability Components
+
+### Context
+- Container: Observability Stack (Prometheus, OpenTelemetry, Logging)
+- Purpose: Metrics, traces, and logs for operational visibility
+- Technology: Prometheus, OpenTelemetry SDK, structured JSON logging
+
+### Throughput & Latency SLOs
+- Metric event throughput: {{ metrics_throughput_slo | default(value="50,000+ events/sec") }}
+- Span emission latency: <1ms per span
+- Log writing latency: <10ms
+
+### Template Variables Used
+```json
+{
+  "prometheus_port": "{{ prometheus_port | default(value='9090') }}",
+  "prometheus_scrape_interval_secs": "{{ prometheus_scrape_interval_secs | default(value='15') }}",
+  "metrics_update_cycle_secs": "{{ metrics_update_cycle_secs | default(value='1') }}",
+  "otel_batch_size": "{{ otel_batch_size | default(value='100') }}",
+  "otel_batch_timeout_ms": "{{ otel_batch_timeout_ms | default(value='5000') }}",
+  "trace_sampling_rate": "{{ trace_sampling_rate | default(value='0.1') }}",
+  "cloud_trace_enabled": "{{ cloud_trace_enabled | default(value='true') }}",
+  "cloud_monitoring_enabled": "{{ cloud_monitoring_enabled | default(value='true') }}",
+  "json_logging_enabled": "{{ json_logging_enabled | default(value='true') }}",
+  "log_level_default": "{{ log_level_default | default(value='INFO') }}",
+  "trace_id_propagation_format": "{{ trace_id_propagation_format | default(value='w3c-traceparent') }}",
+  "context_baggage_enabled": "{{ context_baggage_enabled | default(value='true') }}"
+}
+```
+
+### SPARQL Query: Extract Metrics Definitions
+```sparql
+PREFIX ea: <http://ggen.org/erlang-autonomic#>
+
+SELECT ?metricName ?metricType ?unit ?sloTarget ?alertThreshold
+WHERE {
+  ?metric a ea:Metric ;
+         rdfs:label ?metricName ;
+         ea:metricType ?metricType ;
+         ea:unit ?unit ;
+         ea:sloTarget ?sloTarget ;
+         ea:alertThreshold ?alertThreshold .
+}
+ORDER BY ?metricName
+```
+
+### SPARQL Query: Extract Trace Sampling Policy
+```sparql
+PREFIX ea: <http://ggen.org/erlang-autonomic#>
+
+SELECT ?serviceName ?sampleRate ?samplingStrategy ?minDuration
+WHERE {
+  ?sampling a ea:TraceSamplingPolicy ;
+           ea:serviceName ?serviceName ;
+           ea:sampleRate ?sampleRate ;
+           ea:strategy ?samplingStrategy ;
+           ea:minDuration ?minDuration .
+}
+```
+
+---
+
+## 6. Actuation Components
+
+### Context
+- Container: Actuator Service on Cloud Run
+- Purpose: Execute actions on GCP infrastructure
+- Technology: Action routers, capability enforcement, per-action circuit breakers
+
+### Throughput & Latency SLOs
+- Action execution throughput: {{ action_throughput_slo | default(value="500+ actions/sec") }}
+- Action execution latency: <10s end-to-end
+- Circuit breaker decision latency: <100ms
+
+### Template Variables Used
+```json
+{
+  "action_queue_max_size": "{{ action_queue_max_size | default(value='100000') }}",
+  "executor_pool_size": "{{ executor_pool_size | default(value='50') }}",
+  "action_execution_timeout_seconds": "{{ action_execution_timeout_seconds | default(value='30') }}",
+  "gcp_api_timeout_seconds": "{{ gcp_api_timeout_seconds | default(value='20') }}",
+  "scale_action_rate_limit_per_sec": "{{ scale_action_rate_limit_per_sec | default(value='100') }}",
+  "traffic_action_rate_limit_per_sec": "{{ traffic_action_rate_limit_per_sec | default(value='50') }}",
+  "cost_action_rate_limit_per_sec": "{{ cost_action_rate_limit_per_sec | default(value='10') }}",
+  "alert_action_rate_limit_per_sec": "{{ alert_action_rate_limit_per_sec | default(value='1000') }}",
+  "circuit_breaker_failure_threshold": "{{ circuit_breaker_failure_threshold | default(value='5') }}",
+  "circuit_breaker_reset_timeout_secs": "{{ circuit_breaker_reset_timeout_secs | default(value='60') }}",
+  "exponential_backoff_max_delay_secs": "{{ exponential_backoff_max_delay_secs | default(value='60') }}",
+  "exponential_backoff_jitter_enabled": "{{ exponential_backoff_jitter_enabled | default(value='true') }}",
+  "max_retries": "{{ max_retries | default(value='3') }}"
+}
+```
+
+### SPARQL Query: Extract Action Type Configuration
+```sparql
+PREFIX ea: <http://ggen.org/erlang-autonomic#>
+
+SELECT ?actionType ?capability ?rateLimit ?timeout ?retryCount
+WHERE {
+  ?action a ea:ActionType ;
+         rdfs:label ?actionType ;
+         ea:capability ?capability ;
+         ea:rateLimit ?rateLimit ;
+         ea:timeoutSeconds ?timeout ;
+         ea:maxRetries ?retryCount .
+}
+ORDER BY ?actionType
+```
+
+### SPARQL Query: Extract Circuit Breaker Configuration
+```sparql
+PREFIX ea: <http://ggen.org/erlang-autonomic#>
+
+SELECT ?actionName ?circuitBreakerType ?failureThreshold ?successThreshold ?resetTimeout
+WHERE {
+  ?cb a ea:CircuitBreaker ;
+     ea:actionName ?actionName ;
+     ea:breakerType ?circuitBreakerType ;
+     ea:failureThreshold ?failureThreshold ;
+     ea:successThreshold ?successThreshold ;
+     ea:resetTimeoutSeconds ?resetTimeout .
+}
+ORDER BY ?actionName
+```
+
+---
+
+## Summary Table
+
+| # | Component | Latency SLO | Throughput SLO | Key Technology |
+|---|-----------|------------|---|---|
+| 1 | OTP Topology | {{ signal_latency_slo \| default(value='<50ms') }} | {{ signal_throughput_slo \| default(value='10k+/sec') }} | Supervisor trees, gen_statem |
+| 2 | Ingress | <100ms | 20k+/sec | Cowboy HTTP, jose JWT |
+| 3 | Governor | {{ decision_latency_slo_secs \| default(value='<2s') }} | 5k+/sec | gen_statem FSM, RETE |
+| 4 | Receipt | <100ms | 10k+/sec | SHA-256 hash-chain |
+| 5 | Observability | <1ms | 50k+/sec | Prometheus, OTEL |
+| 6 | Actuator | <10s | 500+/sec | Circuit breakers, backoff |
+
+---
+
+**Generated**: {{ generated_date }}
+**Template Version**: 1.0
+**Status**: Production-Ready

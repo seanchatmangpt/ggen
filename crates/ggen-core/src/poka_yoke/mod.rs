@@ -31,8 +31,11 @@ pub mod timeout_io;
 pub mod validated_path;
 
 // Re-export core types
+#[allow(unused_imports)]
 pub use andon::{AndonSignal, CriticalError, Warning};
+#[allow(unused_imports)]
 pub use atomic_writer::{AtomicFileWriter, Committed, Uncommitted};
+#[allow(unused_imports)]
 pub use dry_run::{DryRunMode, Operation};
 pub use lockfile_guard::LockfileGuard;
 pub use network_retry::NetworkRetry;

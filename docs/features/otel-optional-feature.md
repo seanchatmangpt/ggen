@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [OpenTelemetry Optional Feature](#opentelemetry-optional-feature)
+  - [Overview](#overview)
+  - [Motivation](#motivation)
+  - [Feature Flag Configuration](#feature-flag-configuration)
+    - [Workspace Level (`Cargo.toml`)](#workspace-level-cargotoml)
+    - [Crate Level (`crates/ggen-core/Cargo.toml`)](#crate-level-cratesggen-corecargotoml)
+  - [Code Feature Gates](#code-feature-gates)
+    - [Telemetry Module (`crates/ggen-core/src/telemetry.rs`)](#telemetry-module-cratesggen-coresrctelemetryrs)
+  - [Usage](#usage)
+    - [Development Builds (Default - No OTEL)](#development-builds-default---no-otel)
+    - [Production Builds (With OTEL)](#production-builds-with-otel)
+    - [CI/CD Configuration](#cicd-configuration)
+  - [Performance Impact](#performance-impact)
+    - [Expected Build Time Improvements](#expected-build-time-improvements)
+  - [Affected Crates](#affected-crates)
+    - [`ggen-core`](#ggen-core)
+    - [`ggen-dod`](#ggen-dod)
+    - [`knhk-otel`](#knhk-otel)
+  - [Migration Guide](#migration-guide)
+    - [For End Users](#for-end-users)
+    - [For Developers](#for-developers)
+    - [For CI/CD](#for-cicd)
+  - [Testing Strategy](#testing-strategy)
+    - [Validation Checklist](#validation-checklist)
+    - [Build Time Benchmarking](#build-time-benchmarking)
+  - [Known Limitations](#known-limitations)
+    - [OTEL in Dev Dependencies](#otel-in-dev-dependencies)
+    - [Cross-Crate Feature Propagation](#cross-crate-feature-propagation)
+  - [Related Documentation](#related-documentation)
+  - [Implementation Timeline](#implementation-timeline)
+  - [Validation Evidence](#validation-evidence)
+    - [Compilation Validation](#compilation-validation)
+    - [Dependency Count Comparison](#dependency-count-comparison)
+  - [Future Enhancements](#future-enhancements)
+    - [Potential Improvements](#potential-improvements)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # OpenTelemetry Optional Feature
 
 ## Overview

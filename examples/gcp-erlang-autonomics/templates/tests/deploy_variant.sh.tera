@@ -1,0 +1,63 @@
+#!/bin/bash
+set -euo pipefail
+
+###############################################################################
+# Deploy Variant: Deploy SKU with specific service account
+# TPS: Explicit, repeatable, idempotent deployment
+#
+# Usage:
+#   SERVICE_ACCOUNT="sa@project.iam.gserviceaccount.com" \
+#   PROJECT_ID="my-project" \
+#   REGION="us-central1" \
+#   IMAGE="gcr.io/my-project/image:tag" \
+#   SERVICE="service-name" \
+#   ./deploy_variant.sh
+#
+# Outputs:
+#   Service URL to stdout (for capture)
+###############################################################################
+
+: "${PROJECT_ID:?ERROR: PROJECT_ID required}"
+: "${REGION:=us-central1}"
+: "${IMAGE:?ERROR: IMAGE required}"
+: "${SERVICE:={{ module_prefix }}}"
+: "${SERVICE_ACCOUNT:?ERROR: SERVICE_ACCOUNT required}"
+
+echo "[deploy_variant] Deploying $SERVICE to Cloud Run" >&2
+echo "[deploy_variant]   project:   $PROJECT_ID" >&2
+echo "[deploy_variant]   region:    $REGION" >&2
+echo "[deploy_variant]   service:   $SERVICE" >&2
+echo "[deploy_variant]   account:   $SERVICE_ACCOUNT" >&2
+echo "[deploy_variant]   image:     $IMAGE" >&2
+
+# Deploy to Cloud Run with specified service account
+gcloud run deploy "$SERVICE" \
+  --project "$PROJECT_ID" \
+  --region "$REGION" \
+  --image "$IMAGE" \
+  --service-account "$SERVICE_ACCOUNT" \
+  --allow-unauthenticated \
+  --port 8080 \
+  --memory 512Mi \
+  --cpu 1 \
+  --concurrency 80 \
+  --max-instances 100 \
+  --timeout 30 \
+  --set-env-vars "GOOGLE_CLOUD_PROJECT=$PROJECT_ID,PORT=8080,MODULE_PREFIX={{ module_prefix }},SKU_ID={{ sku }}" \
+  --quiet 2>&1 | grep -v "WARNING" || true
+
+# Fetch service URL
+SERVICE_URL=$(gcloud run services describe "$SERVICE" \
+  --project "$PROJECT_ID" \
+  --region "$REGION" \
+  --format='value(status.url)' 2>/dev/null)
+
+if [ -z "$SERVICE_URL" ]; then
+  echo "[deploy_variant] ERROR: Failed to get service URL" >&2
+  exit 1
+fi
+
+# Output service URL to stdout (for capture in parent script)
+echo "$SERVICE_URL"
+
+echo "[deploy_variant] ✓ Deployed to $SERVICE_URL" >&2

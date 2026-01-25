@@ -1,0 +1,201 @@
+# Prometheus Alertmanager Configuration
+# Handles alert routing, deduplication, grouping, and notifications
+
+global:
+  # Slack API configuration
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+  pagerduty_url: 'https://events.pagerduty.com/v2/enqueue'
+  # Email configuration
+  smtp_smarthost: '${SMTP_HOST:smtp.company.com:587}'
+  smtp_auth_username: '${SMTP_USERNAME}'
+  smtp_auth_password: '${SMTP_PASSWORD}'
+  smtp_from: '${SMTP_FROM:alerting@company.com}'
+  # Default resolve timeout (how long until resolved notification sent)
+  resolve_timeout: 5m
+
+# Default receiver (for alerts without specific routing rules)
+route:
+  receiver: 'default'
+  group_by: ['severity', 'alertname', 'service']
+  group_wait: 10s          # Wait 10s to group related alerts
+  group_interval: 5m       # Send grouped alert every 5m
+  repeat_interval: 2h      # Repeat unresolved alerts every 2h
+
+  # Nested routes for specific alert types
+  routes:
+    # CRITICAL ALERTS: Page on-call engineer immediately
+    - match:
+        severity: critical
+      receiver: 'pagerduty_oncall'
+      group_by: ['service', 'alertname']
+      group_wait: 0s        # Don't wait - page immediately
+      group_interval: 1m    # Update page every 1m
+      repeat_interval: 30m  # Repeat every 30m
+      continue: true        # Also notify other receivers
+
+    # SLO violations - direct to Slack and PagerDuty
+    - match_re:
+        severity: 'critical|warning'
+        alertname: 'SLO.*'
+      receiver: 'slo_violations'
+      group_by: ['service', 'slo_type']
+      group_wait: 5s
+      group_interval: 5m
+      repeat_interval: 1h
+      continue: true
+
+    # Performance issues - to Slack
+    - match:
+        alert_type: latency_spike|error_trend|error_rate
+      receiver: 'performance_alerts'
+      group_by: ['service', 'alert_type']
+      group_wait: 10s
+      group_interval: 5m
+      repeat_interval: 1h
+      continue: true
+
+    # Infrastructure - to infrastructure team
+    - match_re:
+        severity: 'warning'
+        alert_type: 'health|disk|database|cpu|memory'
+      receiver: 'infrastructure_team'
+      group_by: ['resource_type', 'instance']
+      group_wait: 10s
+      group_interval: 5m
+      repeat_interval: 4h
+
+    # TPS Principle alerts - grouped by principle
+    - match_re:
+        principle: 'jidoka|kanban|andon|kaizen|heijunka|tracing'
+      receiver: 'tps_alerts'
+      group_by: ['principle', 'severity']
+      group_wait: 10s
+      group_interval: 5m
+      repeat_interval: 2h
+
+# Receivers (notification channels)
+receivers:
+  # Default receiver - logs unmatched alerts
+  - name: 'default'
+    slack_configs:
+      - channel: '#alerts'
+        title: 'Alert: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+        send_resolved: true
+
+  # PagerDuty - pages on-call engineer
+  - name: 'pagerduty_oncall'
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_SERVICE_KEY}'
+        description: '{{ .GroupLabels.alertname }} - {{ .GroupLabels.service }}'
+        details:
+          firing: '{{ range .Alerts.Firing }}{{ .Labels.instance }} {{ end }}'
+          severity: '{{ .GroupLabels.severity }}'
+          runbook: '{{ (index .Alerts 0).Annotations.runbook }}'
+        client: 'Prometheus Alertmanager'
+        client_url: '{{ .ExternalURL }}'
+    slack_configs:
+      - channel: '#incidents'
+        title: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}Service: {{ .Labels.service }}\nDescription: {{ .Annotations.description }}\nAction: {{ .Annotations.action }}{{ end }}'
+        color: 'danger'
+        actions:
+          - type: button
+            text: 'View Dashboard'
+            url: '{{ (index .Alerts 0).GeneratorURL }}'
+          - type: button
+            text: 'View Runbook'
+            url: '{{ (index .Alerts 0).Annotations.runbook }}'
+
+  # SLO violations - to SRE team
+  - name: 'slo_violations'
+    slack_configs:
+      - channel: '#slo-violations'
+        title: '⚠️ SLO: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}Service: {{ .Labels.service }}\nSLO Type: {{ .Labels.slo_type }}\nDescription: {{ .Annotations.description }}\nAction: {{ .Annotations.action }}{{ end }}'
+        color: '{{ if eq .Status "firing" }}warning{{ else }}good{{ end }}'
+        send_resolved: true
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_SLO_SERVICE_KEY}'
+        description: 'SLO Violation: {{ .GroupLabels.alertname }}'
+        details:
+          service: '{{ .GroupLabels.service }}'
+          slo_type: '{{ (index .Alerts 0).Labels.slo_type }}'
+          description: '{{ (index .Alerts 0).Annotations.description }}'
+
+  # Performance alerts - to Slack
+  - name: 'performance_alerts'
+    slack_configs:
+      - channel: '#performance'
+        title: '⏱️ Performance: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}Service: {{ .Labels.service }}\nEndpoint: {{ .Labels.endpoint }}\nDescription: {{ .Annotations.description }}\nAction: {{ .Annotations.action }}{{ end }}'
+        color: 'warning'
+
+  # Infrastructure alerts - to ops team
+  - name: 'infrastructure_team'
+    slack_configs:
+      - channel: '#infrastructure'
+        title: '🔧 Infrastructure: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}Instance: {{ .Labels.instance }}\nResource: {{ .Labels.resource_type }}\nDescription: {{ .Annotations.description }}\nAction: {{ .Annotations.action }}{{ end }}'
+        color: 'warning'
+    email_configs:
+      - to: '${INFRASTRUCTURE_TEAM_EMAIL:ops@company.com}'
+        headers:
+          Subject: '[ALERT] {{ .GroupLabels.alertname }} on {{ .GroupLabels.instance }}'
+        html: |
+          <h3>Infrastructure Alert</h3>
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Instance:</strong> {{ (index .Alerts 0).Labels.instance }}</p>
+          <p><strong>Description:</strong> {{ (index .Alerts 0).Annotations.description }}</p>
+          <p><strong>Action:</strong> {{ (index .Alerts 0).Annotations.action }}</p>
+          <p><strong>Runbook:</strong> <a href="{{ (index .Alerts 0).Annotations.runbook }}">View</a></p>
+
+  # TPS principle alerts
+  - name: 'tps_alerts'
+    slack_configs:
+      - channel: '#tps-monitoring'
+        title: '📊 TPS {{ .GroupLabels.principle }}: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}Description: {{ .Annotations.description }}\nAction: {{ .Annotations.action }}{{ end }}'
+        color: '{{ if eq .Status "firing" }}{{ if eq .GroupLabels.severity "critical" }}danger{{ else }}warning{{ end }}{{ else }}good{{ end }}'
+
+# Inhibition rules (suppress alerts when other alerts fire)
+inhibit_rules:
+  # Don't alert on circuit breaker if entire service is down
+  - source_match:
+      alertname: 'JidokaCircuitOpenCritical'
+    target_match:
+      alertname: 'ServiceUnhealthy'
+    equal: ['service']
+
+  # Don't alert on queue backup if component is dead
+  - source_match:
+      alertname: 'ServiceUnhealthy'
+    target_match:
+      alertname: 'KanbanQueueDepthCritical'
+    equal: ['service']
+
+  # Don't alert on high error rate if service is restarting
+  - source_match:
+      alertname: 'ServiceUnhealthy'
+    target_match:
+      alertname: 'HighErrorRate'
+    equal: ['service']
+
+  # Don't alert on latency if service is unhealthy
+  - source_match:
+      alertname: 'ServiceUnhealthy'
+    target_match:
+      alertname: 'P99LatencyCritical|LatencySpikeDetected'
+    equal: ['service']
+
+# Alert group configuration (for deduplication & grouping)
+grouping_labels:
+  - 'severity'
+  - 'alertname'
+  - 'service'
+  - 'instance'
+
+# Deduplication settings
+deduplication:
+  enabled: true
+  window: 5m  # Deduplicate identical alerts within 5-minute window

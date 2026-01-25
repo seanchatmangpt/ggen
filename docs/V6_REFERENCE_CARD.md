@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v6.0 Migration Reference Card](#ggen-v60-migration-reference-card)
+  - [Import Changes (Copy-Paste Ready)](#import-changes-copy-paste-ready)
+    - [Before (v5.1.0) → After (v6.0.0)](#before-v510-%E2%86%92-after-v600)
+  - [Complete Import Map](#complete-import-map)
+  - [One-Command Migration](#one-command-migration)
+    - [Automated (Recommended)](#automated-recommended)
+    - [Manual (Linux)](#manual-linux)
+    - [Manual (macOS)](#manual-macos)
+  - [Common Errors](#common-errors)
+    - [Error 1: Type not found in `types`](#error-1-type-not-found-in-types)
+    - [Error 2: Cannot find `AndonSignal`](#error-2-cannot-find-andonsignal)
+    - [Error 3: Build time increased](#error-3-build-time-increased)
+  - [Validation Commands](#validation-commands)
+  - [What Did NOT Change](#what-did-not-change)
+  - [New Features (Optional)](#new-features-optional)
+  - [Support Timeline](#support-timeline)
+  - [Emergency Rollback](#emergency-rollback)
+  - [Resources](#resources)
+  - [Decision Tree](#decision-tree)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v6.0 Migration Reference Card
 
 **Quick reference for v5.1.0 → v6.0.0 migration**

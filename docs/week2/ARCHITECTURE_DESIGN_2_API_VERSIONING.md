@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 2 Architecture Design 2: API Versioning System](#week-2-architecture-design-2-api-versioning-system)
+  - [Executive Summary](#executive-summary)
+  - [Current State Analysis](#current-state-analysis)
+    - [Existing Issues](#existing-issues)
+    - [Impact Assessment](#impact-assessment)
+  - [Proposed Architecture](#proposed-architecture)
+    - [1. Semantic Versioning Scheme](#1-semantic-versioning-scheme)
+    - [2. Deprecation Attribute Pattern](#2-deprecation-attribute-pattern)
+    - [3. API Evolution Patterns](#3-api-evolution-patterns)
+      - [Pattern 1: Field Addition (MINOR version bump)](#pattern-1-field-addition-minor-version-bump)
+      - [Pattern 2: Field Removal (MAJOR version bump + deprecation)](#pattern-2-field-removal-major-version-bump--deprecation)
+      - [Pattern 3: Method Signature Change (MAJOR bump + new method)](#pattern-3-method-signature-change-major-bump--new-method)
+    - [4. `cargo semver-checks` Integration](#4-cargo-semver-checks-integration)
+  - [Migration Documentation Pattern](#migration-documentation-pattern)
+    - [CHANGELOG.md Structure](#changelogmd-structure)
+      - [`process_package` signature change](#process_package-signature-change)
+    - [Added](#added)
+    - [Deprecated](#deprecated)
+  - [&#91;3.4.0&#93; - 2025-11-25](#340---2025-11-25)
+    - [Deprecated](#deprecated-1)
+    - [Added](#added-1)
+    - [Phase 2: CI Integration (Week 2, Day 3)](#phase-2-ci-integration-week-2-day-3)
+    - [Phase 3: Test Migration (Week 2, Days 4-5)](#phase-3-test-migration-week-2-days-4-5)
+    - [Phase 4: Documentation (Week 2, Day 5)](#phase-4-documentation-week-2-day-5)
+  - [Success Criteria](#success-criteria)
+    - [Functional Requirements](#functional-requirements)
+    - [Non-Functional Requirements](#non-functional-requirements)
+    - [Quality Gates](#quality-gates)
+  - [Benefits Analysis](#benefits-analysis)
+    - [Defect Prevention](#defect-prevention)
+    - [Time Savings](#time-savings)
+  - [Risk Analysis](#risk-analysis)
+  - [ADR: API Versioning Strategy](#adr-api-versioning-strategy)
+  - [Effort Estimates](#effort-estimates)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 2 Architecture Design 2: API Versioning System
 
 **Design Phase:** Reduce Waste - API Breaking Change Prevention

@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [FMEA Analysis - Doctest Conversion Process](#fmea-analysis---doctest-conversion-process)
+  - [Step 1: Define Scope](#step-1-define-scope)
+  - [Step 2: Identify Failure Modes](#step-2-identify-failure-modes)
+    - [Failure Mode 1: Converting Doctest That Requires File I/O](#failure-mode-1-converting-doctest-that-requires-file-io)
+    - [Failure Mode 2: Converting Doctest That Requires Network](#failure-mode-2-converting-doctest-that-requires-network)
+    - [Failure Mode 3: Converting Doctest With Incorrect Syntax](#failure-mode-3-converting-doctest-with-incorrect-syntax)
+    - [Failure Mode 4: Not Verifying Converted Doctest Runs](#failure-mode-4-not-verifying-converted-doctest-runs)
+    - [Failure Mode 5: Breaking Existing Runnable Doctests](#failure-mode-5-breaking-existing-runnable-doctests)
+    - [Failure Mode 6: Inconsistent Doctest Patterns After Conversion](#failure-mode-6-inconsistent-doctest-patterns-after-conversion)
+    - [Failure Mode 7: Documentation Claims Don't Match Converted Doctest](#failure-mode-7-documentation-claims-dont-match-converted-doctest)
+    - [Failure Mode 8: Doctest Passes But Doesn't Verify Behavior](#failure-mode-8-doctest-passes-but-doesnt-verify-behavior)
+    - [Failure Mode 9: Converting Doctest That Requires Async Runtime](#failure-mode-9-converting-doctest-that-requires-async-runtime)
+    - [Failure Mode 10: Missing Error Case Examples After Conversion](#failure-mode-10-missing-error-case-examples-after-conversion)
+    - [Failure Mode 11: Doctest Uses Wrong API Methods](#failure-mode-11-doctest-uses-wrong-api-methods)
+    - [Failure Mode 12: Doctest Fails Due to Pre-Existing Compilation Errors](#failure-mode-12-doctest-fails-due-to-pre-existing-compilation-errors)
+  - [Step 3: Assess Severity](#step-3-assess-severity)
+  - [Step 4: Assess Frequency](#step-4-assess-frequency)
+  - [Step 5: Assess Detection](#step-5-assess-detection)
+  - [Step 6: Calculate RPN](#step-6-calculate-rpn)
+  - [Step 7: Prioritize and Fix](#step-7-prioritize-and-fix)
+    - [Priority 1 (Critical - RPN 501-1000) - ✅ COMPLETED](#priority-1-critical---rpn-501-1000----completed)
+    - [Priority 2 (High - RPN 301-500) - ⏳ IN PROGRESS](#priority-2-high---rpn-301-500----in-progress)
+    - [Priority 3 (Medium - RPN 101-300) - ⏳ IN PROGRESS](#priority-3-medium---rpn-101-300----in-progress)
+  - [Step 7: Implementation Status](#step-7-implementation-status)
+    - [Critical Fixes (RPN 501-1000) - ✅ COMPLETED](#critical-fixes-rpn-501-1000----completed)
+    - [High Priority Fixes (RPN 200-500) - ⏳ IN PROGRESS](#high-priority-fixes-rpn-200-500----in-progress)
+    - [Medium Priority Fixes (RPN 100-200) - ⏳ IN PROGRESS](#medium-priority-fixes-rpn-100-200----in-progress)
+    - [Low Priority Fixes (RPN <100) - ✅ COMPLETED](#low-priority-fixes-rpn-100----completed)
+  - [Summary](#summary)
+    - [Implementation Files Modified](#implementation-files-modified)
+    - [Verification Results](#verification-results)
+    - [Next Steps (Lower Priority)](#next-steps-lower-priority)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # FMEA Analysis - Doctest Conversion Process
 
 ## Step 1: Define Scope

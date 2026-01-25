@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Data Motion Validation Report](#data-motion-validation-report)
+  - [Overview](#overview)
+  - [Data Motion Architecture](#data-motion-architecture)
+  - [Commands and Their Data Motion](#commands-and-their-data-motion)
+    - [1. recommend](#1-recommend)
+    - [2. compare](#2-compare)
+    - [3. search-maturity](#3-search-maturity)
+    - [4. export](#4-export)
+  - [Validation Checks](#validation-checks)
+    - [Data Integrity](#data-integrity)
+    - [Command Input Validation](#command-input-validation)
+    - [Filter Logic](#filter-logic)
+  - [Test Data](#test-data)
+    - [Sample Packages](#sample-packages)
+    - [Dimension Ranges](#dimension-ranges)
+  - [Data Motion Verification](#data-motion-verification)
+    - [Recommend Command](#recommend-command)
+    - [Compare Command](#compare-command)
+    - [Search Command](#search-command)
+    - [Export Command](#export-command)
+  - [Compilation Verification](#compilation-verification)
+  - [Data Motion Summary](#data-motion-summary)
+  - [Validation Conclusion](#validation-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Data Motion Validation Report
 
 ## Overview

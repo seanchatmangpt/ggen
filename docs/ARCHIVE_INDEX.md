@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Documentation Archive Index](#documentation-archive-index)
+  - [Directory Structure](#directory-structure)
+    - [`/archive/thesis/` - Thesis & Research Documents](#archivethesis---thesis--research-documents)
+    - [`/archive/agent-reports/` - Multi-Agent Execution Reports](#archiveagent-reports---multi-agent-execution-reports)
+    - [`/archive/validation-reports/` - Validation & Benchmark Reports](#archivevalidation-reports---validation--benchmark-reports)
+    - [`/archive/research/` - Research & Design Documents](#archiveresearch---research--design-documents)
+    - [`/archive/infrastructure/` - Infrastructure & Deployment](#archiveinfrastructure---infrastructure--deployment)
+    - [Root Archive Files](#root-archive-files)
+  - [Migration to v6](#migration-to-v6)
+  - [Why Archive These?](#why-archive-these)
+  - [How to Use This Archive](#how-to-use-this-archive)
+    - [Finding Specific Information](#finding-specific-information)
+    - [For Active Development](#for-active-development)
+    - [Maintenance Notes](#maintenance-notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Documentation Archive Index
 
 This directory contains archived documentation, research, and historical reports that are preserved for reference but not part of the active project.

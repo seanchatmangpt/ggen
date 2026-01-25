@@ -1,0 +1,74 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_receipt_ledger).
+-behaviour(gen_server).
+
+-export([start_link/0]).
+-export([append/2, last_hash/1, verify_chain/1]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+
+-include("{{ module_prefix }}_types.hrl").
+
+-record(state, {
+  last_hash_by_tenant = #{} :: map(),
+  receipts_by_tenant  = #{} :: map()
+}).
+
+start_link() ->
+  gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+%% append(TenantId, ReceiptMap) -> {ok, ReceiptHash, ChainHash}
+append(TenantId, Receipt0) ->
+  gen_server:call(?MODULE, {append, TenantId, Receipt0}).
+
+last_hash(TenantId) ->
+  gen_server:call(?MODULE, {last_hash, TenantId}).
+
+verify_chain(TenantId) ->
+  gen_server:call(?MODULE, {verify_chain, TenantId}).
+
+init([]) ->
+  {ok, #state{}}.
+
+handle_call({append, TenantId, Receipt0}, _From, S0) ->
+  Prev = maps:get(TenantId, S0#state.last_hash_by_tenant, <<0:256>>),
+
+  %% Enrich receipt with prev hash for auditability
+  Receipt = maps:merge(Receipt0, #{prev_receipt_hash => Prev}),
+  ReceiptHash = {{ module_prefix }}_receipt_hash:hash_receipt(Receipt),
+  ChainHash = {{ module_prefix }}_receipt_hash:hash_chain(Prev, Receipt),
+
+  Receipts0 = maps:get(TenantId, S0#state.receipts_by_tenant, []),
+  Receipts1 = [#{receipt => Receipt, receipt_hash => ReceiptHash, chain_hash => ChainHash} | Receipts0],
+
+  S1 = S0#state{
+    last_hash_by_tenant = maps:put(TenantId, ChainHash, S0#state.last_hash_by_tenant),
+    receipts_by_tenant  = maps:put(TenantId, Receipts1, S0#state.receipts_by_tenant)
+  },
+
+  {reply, {ok, ReceiptHash, ChainHash}, S1};
+
+handle_call({last_hash, TenantId}, _From, S0) ->
+  {reply, maps:get(TenantId, S0#state.last_hash_by_tenant, <<0:256>>), S0};
+
+handle_call({verify_chain, TenantId}, _From, S0) ->
+  Receipts = lists:reverse(maps:get(TenantId, S0#state.receipts_by_tenant, [])),
+  Result = verify_receipts(Receipts, <<0:256>>),
+  {reply, Result, S0};
+
+handle_call(_Req, _From, S0) ->
+  {reply, {error, unknown_request}, S0}.
+
+handle_cast(_Msg, S) -> {noreply, S}.
+handle_info(_Info, S) -> {noreply, S}.
+terminate(_Reason, _S) -> ok.
+code_change(_OldVsn, S, _Extra) -> {ok, S}.
+
+verify_receipts([], _PrevChain) ->
+  {ok, verified};
+verify_receipts([#{receipt := Receipt, chain_hash := ChainHash} | Rest], PrevChain) ->
+  Expected = {{ module_prefix }}_receipt_hash:hash_chain(PrevChain, Receipt),
+  case Expected =:= ChainHash of
+    true -> verify_receipts(Rest, ChainHash);
+    false -> {error, {chain_mismatch, expected, Expected, got, ChainHash}}
+  end.

@@ -1,0 +1,960 @@
+# Erlang Autonomic C4 Architecture - Master Ontology
+# Comprehensive RDF ontology for C4 architecture levels and SKU definitions
+#
+# Version: 1.0
+# Created: 2026-01-25
+# Updated: 2026-01-25
+
+@prefix c4: <http://ggen.org/c4#> .
+@prefix ea: <http://ggen.org/erlang-autonomic#> .
+@prefix sku: <http://ggen.org/sku#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+
+# ==============================================================================
+# ONTOLOGY METADATA
+# ==============================================================================
+
+ea:ErlangAutonomicOntology a owl:Ontology ;
+    rdfs:label "Erlang Autonomic C4 Architecture Ontology" ;
+    rdfs:comment "Complete RDF ontology for C4 architecture decomposition and SKU governance" ;
+    owl:versionInfo "1.0" ;
+    dcat:issued "2026-01-25"^^xsd:date ;
+    dcat:modified "2026-01-25"^^xsd:date ;
+    owl:imports c4:, sku: ;
+    .
+
+# ==============================================================================
+# NAMESPACE DECLARATIONS & IMPORTS
+# ==============================================================================
+
+c4: a owl:Ontology ;
+    rdfs:label "C4 Architecture Model Vocabulary" ;
+    rdfs:comment "Standard vocabulary for C4 architecture modeling (System, Container, Component, Code)" ;
+    owl:versionInfo "1.0" ;
+    .
+
+sku: a owl:Ontology ;
+    rdfs:label "SKU and Marketplace Vocabulary" ;
+    rdfs:comment "Vocabulary for defining SKU offerings, policies, and governance" ;
+    owl:versionInfo "1.0" ;
+    .
+
+# ==============================================================================
+# C4 ARCHITECTURE CORE CLASSES
+# ==============================================================================
+
+c4:SoftwareSystem a owl:Class ;
+    rdfs:label "Software System" ;
+    rdfs:comment "A software system at C4 Level 1 (high-level context)" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:Actor a owl:Class ;
+    rdfs:label "Actor" ;
+    rdfs:comment "External user or system interacting with the software system" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:ExternalSystem a owl:Class ;
+    rdfs:label "External System" ;
+    rdfs:comment "External system outside the software system boundary" ;
+    rdfs:subClassOf c4:SoftwareSystem ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:Relationship a owl:Class ;
+    rdfs:label "Relationship" ;
+    rdfs:comment "Interaction between actors/systems at C4 Level 1" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:SystemBoundary a owl:Class ;
+    rdfs:label "System Boundary" ;
+    rdfs:comment "Defines the scope of the software system" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:ContainerArchitecture a owl:Class ;
+    rdfs:label "Container Architecture" ;
+    rdfs:comment "Architecture decomposition at C4 Level 2 (services, databases)" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:Container a owl:Class ;
+    rdfs:label "Container" ;
+    rdfs:comment "A deployable service or application (C4 Level 2)" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:DataSource a owl:Class ;
+    rdfs:label "Data Source" ;
+    rdfs:comment "Persistent storage, cache, or data system" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:ComponentArchitecture a owl:Class ;
+    rdfs:label "Component Architecture" ;
+    rdfs:comment "Architecture decomposition inside a container (C4 Level 3)" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:Component a owl:Class ;
+    rdfs:label "Component" ;
+    rdfs:comment "Internal component of a container (C4 Level 3)" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:Interaction a owl:Class ;
+    rdfs:label "Interaction" ;
+    rdfs:comment "Communication between containers or components" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:DeploymentArchitecture a owl:Class ;
+    rdfs:label "Deployment Architecture" ;
+    rdfs:comment "Infrastructure deployment architecture (C4 Level 4)" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:InfrastructureLayer a owl:Class ;
+    rdfs:label "Infrastructure Layer" ;
+    rdfs:comment "Logical layer in deployment architecture (compute, data, messaging)" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:ComputeService a owl:Class ;
+    rdfs:label "Compute Service" ;
+    rdfs:comment "Compute resource (Cloud Run, VM, Lambda)" ;
+    rdfs:subClassOf c4:InfrastructureLayer ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:Database a owl:Class ;
+    rdfs:label "Database" ;
+    rdfs:comment "Persistent database (SQL, NoSQL, data warehouse)" ;
+    rdfs:subClassOf c4:InfrastructureLayer ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:Cache a owl:Class ;
+    rdfs:label "Cache" ;
+    rdfs:comment "In-memory cache (Redis, Memcached)" ;
+    rdfs:subClassOf c4:InfrastructureLayer ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:ObjectStorage a owl:Class ;
+    rdfs:label "Object Storage" ;
+    rdfs:comment "Object storage system (S3, GCS, Azure Blob)" ;
+    rdfs:subClassOf c4:InfrastructureLayer ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:DataWarehouse a owl:Class ;
+    rdfs:label "Data Warehouse" ;
+    rdfs:comment "Analytics data warehouse (BigQuery, Redshift, Snowflake)" ;
+    rdfs:subClassOf c4:Database ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:PubSubTopic a owl:Class ;
+    rdfs:label "Pub/Sub Topic" ;
+    rdfs:comment "Event streaming topic (Pub/Sub, Kafka, Event Hubs)" ;
+    rdfs:subClassOf c4:InfrastructureLayer ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:NetworkService a owl:Class ;
+    rdfs:label "Network Service" ;
+    rdfs:comment "Network infrastructure (load balancer, VPC, firewall)" ;
+    rdfs:subClassOf c4:InfrastructureLayer ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:SecurityService a owl:Class ;
+    rdfs:label "Security Service" ;
+    rdfs:comment "Security infrastructure (secret manager, IAM, encryption)" ;
+    rdfs:subClassOf c4:InfrastructureLayer ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:MonitoringService a owl:Class ;
+    rdfs:label "Monitoring Service" ;
+    rdfs:comment "Monitoring and observability service" ;
+    rdfs:subClassOf c4:InfrastructureLayer ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:LoggingService a owl:Class ;
+    rdfs:label "Logging Service" ;
+    rdfs:comment "Centralized logging service" ;
+    rdfs:subClassOf c4:MonitoringService ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:TracingService a owl:Class ;
+    rdfs:label "Tracing Service" ;
+    rdfs:comment "Distributed tracing service" ;
+    rdfs:subClassOf c4:MonitoringService ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:Region a owl:Class ;
+    rdfs:label "Region" ;
+    rdfs:comment "Geographic region for deployment" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:State a owl:Class ;
+    rdfs:label "State" ;
+    rdfs:comment "State in a finite state machine" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:Protocol a owl:Class ;
+    rdfs:label "Protocol" ;
+    rdfs:comment "Communication protocol (REST, gRPC, Pub/Sub)" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:Service a owl:Class ;
+    rdfs:label "Service" ;
+    rdfs:comment "Generic service in the architecture" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:IacDefinition a owl:Class ;
+    rdfs:label "Infrastructure as Code" ;
+    rdfs:comment "IaC definition (Terraform, CloudFormation)" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:ComplianceControl a owl:Class ;
+    rdfs:label "Compliance Control" ;
+    rdfs:comment "Compliance and audit control" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:DataFlow a owl:Class ;
+    rdfs:label "Data Flow" ;
+    rdfs:comment "High-level data flow description" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:DataStructure a owl:Class ;
+    rdfs:label "Data Structure" ;
+    rdfs:comment "Data structure definition" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+# ==============================================================================
+# C4 ARCHITECTURE PROPERTIES
+# ==============================================================================
+
+c4:systemScope a owl:DatatypeProperty ;
+    rdfs:domain c4:SoftwareSystem ;
+    rdfs:range xsd:string ;
+    rdfs:label "system scope" ;
+    rdfs:comment "Describes what the system does and its scope" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:systemBoundary a owl:ObjectProperty ;
+    rdfs:domain c4:SoftwareSystem ;
+    rdfs:range c4:SystemBoundary ;
+    rdfs:label "system boundary" ;
+    rdfs:comment "The boundary of the software system" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:actorRole a owl:DatatypeProperty ;
+    rdfs:domain c4:Actor ;
+    rdfs:range xsd:string ;
+    rdfs:label "actor role" ;
+    rdfs:comment "The role or responsibility of the actor" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:interactsWith a owl:ObjectProperty ;
+    rdfs:domain [ owl:unionOf (c4:Actor c4:SoftwareSystem) ] ;
+    rdfs:range [ owl:unionOf (c4:Actor c4:SoftwareSystem) ] ;
+    rdfs:label "interacts with" ;
+    rdfs:comment "Interaction between actors or systems" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:sourceActor a owl:ObjectProperty ;
+    rdfs:domain c4:Relationship ;
+    rdfs:range c4:Actor ;
+    rdfs:label "source actor" ;
+    rdfs:comment "The actor initiating the interaction" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:sourceSystem a owl:ObjectProperty ;
+    rdfs:domain c4:Relationship ;
+    rdfs:range [ owl:unionOf (c4:SoftwareSystem c4:Container c4:Component) ] ;
+    rdfs:label "source system" ;
+    rdfs:comment "The system initiating the interaction" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:targetActor a owl:ObjectProperty ;
+    rdfs:domain c4:Relationship ;
+    rdfs:range c4:Actor ;
+    rdfs:label "target actor" ;
+    rdfs:comment "The actor receiving the interaction" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:targetSystem a owl:ObjectProperty ;
+    rdfs:domain c4:Relationship ;
+    rdfs:range [ owl:unionOf (c4:SoftwareSystem c4:Container c4:Component) ] ;
+    rdfs:label "target system" ;
+    rdfs:comment "The system receiving the interaction" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:relationshipType a owl:DatatypeProperty ;
+    rdfs:domain c4:Relationship ;
+    rdfs:range xsd:string ;
+    rdfs:label "relationship type" ;
+    rdfs:comment "Type of interaction (e.g., REST, message passing)" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:protocol a owl:DatatypeProperty ;
+    rdfs:domain c4:Relationship ;
+    rdfs:range xsd:string ;
+    rdfs:label "protocol" ;
+    rdfs:comment "Communication protocol used" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:contains a owl:ObjectProperty ;
+    rdfs:domain [ owl:unionOf (c4:SoftwareSystem c4:ContainerArchitecture c4:ComponentArchitecture) ] ;
+    rdfs:range [ owl:unionOf (c4:Container c4:Component c4:SystemBoundary) ] ;
+    rdfs:label "contains" ;
+    rdfs:comment "Structural containment relationship" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:dataSources a owl:ObjectProperty ;
+    rdfs:domain [ owl:unionOf (c4:SoftwareSystem c4:ContainerArchitecture) ] ;
+    rdfs:range c4:DataSource ;
+    rdfs:label "data sources" ;
+    rdfs:comment "Data sources used by the system" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:components a owl:ObjectProperty ;
+    rdfs:domain c4:ComponentArchitecture ;
+    rdfs:range c4:Component ;
+    rdfs:label "components" ;
+    rdfs:comment "Components in the architecture" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:container a owl:ObjectProperty ;
+    rdfs:domain c4:ComponentArchitecture ;
+    rdfs:range c4:Container ;
+    rdfs:label "container" ;
+    rdfs:comment "The container being decomposed" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:technology a owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf (c4:Container c4:Component c4:InfrastructureLayer) ] ;
+    rdfs:range xsd:string ;
+    rdfs:label "technology" ;
+    rdfs:comment "Technology stack or platform" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:responsibility a owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf (c4:Container c4:Component) ] ;
+    rdfs:range xsd:string ;
+    rdfs:label "responsibility" ;
+    rdfs:comment "Primary responsibility of the container/component" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:replicas a owl:DatatypeProperty ;
+    rdfs:domain c4:Container ;
+    rdfs:range xsd:string ;
+    rdfs:label "replicas" ;
+    rdfs:comment "Replication configuration (e.g., '3+ instances')" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:receivesFrom a owl:ObjectProperty ;
+    rdfs:domain [ owl:unionOf (c4:Container c4:Component) ] ;
+    rdfs:range [ owl:unionOf (c4:Container c4:Component c4:SoftwareSystem) ] ;
+    rdfs:label "receives from" ;
+    rdfs:comment "Receives data/messages from another service" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:sendsTo a owl:ObjectProperty ;
+    rdfs:domain [ owl:unionOf (c4:Container c4:Component) ] ;
+    rdfs:range [ owl:unionOf (c4:Container c4:Component c4:SoftwareSystem) ] ;
+    rdfs:label "sends to" ;
+    rdfs:comment "Sends data/messages to another service" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:readFrom a owl:ObjectProperty ;
+    rdfs:domain [ owl:unionOf (c4:Container c4:Component) ] ;
+    rdfs:range c4:DataSource ;
+    rdfs:label "reads from" ;
+    rdfs:comment "Reads from a data source" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:writeTo a owl:ObjectProperty ;
+    rdfs:domain [ owl:unionOf (c4:Container c4:Component) ] ;
+    rdfs:range c4:DataSource ;
+    rdfs:label "writes to" ;
+    rdfs:comment "Writes to a data source" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:type a owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf (c4:DataSource c4:Database c4:Container) ] ;
+    rdfs:range xsd:string ;
+    rdfs:label "type" ;
+    rdfs:comment "Type of the resource (e.g., 'NoSQL', 'Relational')" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:purpose a owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf (c4:DataSource c4:Database c4:Component) ] ;
+    rdfs:range xsd:string ;
+    rdfs:label "purpose" ;
+    rdfs:comment "What this resource is used for" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:consistency a owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf (c4:DataSource c4:Database) ] ;
+    rdfs:range xsd:string ;
+    rdfs:label "consistency" ;
+    rdfs:comment "Consistency model (Strong, Eventually Consistent, ACID)" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:receives a owl:ObjectProperty ;
+    rdfs:domain c4:Component ;
+    rdfs:range xsd:string ;
+    rdfs:label "receives" ;
+    rdfs:comment "What the component receives" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:sends a owl:ObjectProperty ;
+    rdfs:domain c4:Component ;
+    rdfs:range xsd:string ;
+    rdfs:label "sends" ;
+    rdfs:comment "What the component sends" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:callType a owl:DatatypeProperty ;
+    rdfs:domain c4:Interaction ;
+    rdfs:range xsd:string ;
+    rdfs:label "call type" ;
+    rdfs:comment "Type of call (Synchronous, Asynchronous)" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:data a owl:DatatypeProperty ;
+    rdfs:domain c4:Interaction ;
+    rdfs:range xsd:string ;
+    rdfs:label "data" ;
+    rdfs:comment "Data exchanged in the interaction" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:from a owl:ObjectProperty ;
+    rdfs:domain c4:Interaction ;
+    rdfs:range [ owl:unionOf (c4:Container c4:Component) ] ;
+    rdfs:label "from" ;
+    rdfs:comment "Source of the interaction" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:to a owl:ObjectProperty ;
+    rdfs:domain c4:Interaction ;
+    rdfs:range [ owl:unionOf (c4:Container c4:Component c4:DataSource) ] ;
+    rdfs:label "to" ;
+    rdfs:comment "Target of the interaction" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:entryActions a owl:DatatypeProperty ;
+    rdfs:domain c4:State ;
+    rdfs:range xsd:string ;
+    rdfs:label "entry actions" ;
+    rdfs:comment "Actions performed when entering the state" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:exitActions a owl:DatatypeProperty ;
+    rdfs:domain c4:State ;
+    rdfs:range xsd:string ;
+    rdfs:label "exit actions" ;
+    rdfs:comment "Actions performed when exiting the state" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:part a owl:ObjectProperty ;
+    rdfs:domain c4:Component ;
+    rdfs:range c4:Component ;
+    rdfs:label "part" ;
+    rdfs:comment "Is part of another component" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:skus a owl:ObjectProperty ;
+    rdfs:domain c4:SkuCatalog ;
+    rdfs:range sku:Sku ;
+    rdfs:label "SKUs" ;
+    rdfs:comment "SKUs in the catalog" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:requirement a owl:DatatypeProperty ;
+    rdfs:domain c4:ComplianceControl ;
+    rdfs:range xsd:string ;
+    rdfs:label "requirement" ;
+    rdfs:comment "Compliance requirement" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:evidence a owl:DatatypeProperty ;
+    rdfs:domain c4:ComplianceControl ;
+    rdfs:range xsd:string ;
+    rdfs:label "evidence" ;
+    rdfs:comment "Evidence that requirement is met" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:frequency a owl:DatatypeProperty ;
+    rdfs:domain c4:ComplianceControl ;
+    rdfs:range xsd:string ;
+    rdfs:label "frequency" ;
+    rdfs:comment "How often the control is verified" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:controls a owl:ObjectProperty ;
+    rdfs:domain ea:ComplianceMatrix ;
+    rdfs:range c4:ComplianceControl ;
+    rdfs:label "controls" ;
+    rdfs:comment "Compliance controls" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:flowSteps a owl:ObjectProperty ;
+    rdfs:domain c4:DataFlow ;
+    rdfs:range rdf:Seq ;
+    rdfs:label "flow steps" ;
+    rdfs:comment "Ordered steps in the data flow" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:step a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:label "step" ;
+    rdfs:comment "Step number in a sequence" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:description a owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf (c4:DataFlow c4:IacDefinition) ] ;
+    rdfs:range xsd:string ;
+    rdfs:label "description" ;
+    rdfs:comment "Description of the item" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:comprises a owl:ObjectProperty ;
+    rdfs:domain c4:InfrastructureLayer ;
+    rdfs:range [ owl:unionOf (c4:InfrastructureLayer c4:ComputeService c4:Database) ] ;
+    rdfs:label "comprises" ;
+    rdfs:comment "Components that make up this layer" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:location a owl:DatatypeProperty ;
+    rdfs:domain c4:Region ;
+    rdfs:range xsd:string ;
+    rdfs:label "location" ;
+    rdfs:comment "Geographic location of the region" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:services a owl:ObjectProperty ;
+    rdfs:domain c4:Region ;
+    rdfs:range [ owl:unionOf (c4:Service c4:Container) ] ;
+    rdfs:label "services" ;
+    rdfs:comment "Services deployed in the region" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:platform a owl:DatatypeProperty ;
+    rdfs:domain c4:ComputeService ;
+    rdfs:range xsd:string ;
+    rdfs:label "platform" ;
+    rdfs:comment "Compute platform (Cloud Run, EC2, Lambda)" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:containerImage a owl:DatatypeProperty ;
+    rdfs:domain c4:ComputeService ;
+    rdfs:range xsd:string ;
+    rdfs:label "container image" ;
+    rdfs:comment "Container image URI" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:memorySize a owl:DatatypeProperty ;
+    rdfs:domain c4:ComputeService ;
+    rdfs:range xsd:integer ;
+    rdfs:label "memory size" ;
+    rdfs:comment "Memory allocation in MB" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:cpuCount a owl:DatatypeProperty ;
+    rdfs:domain c4:ComputeService ;
+    rdfs:range xsd:string ;
+    rdfs:label "CPU count" ;
+    rdfs:comment "CPU allocation (cores or millicores)" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:timeout a owl:DatatypeProperty ;
+    rdfs:domain c4:ComputeService ;
+    rdfs:range xsd:integer ;
+    rdfs:label "timeout" ;
+    rdfs:comment "Request timeout in seconds" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:concurrency a owl:DatatypeProperty ;
+    rdfs:domain c4:ComputeService ;
+    rdfs:range xsd:integer ;
+    rdfs:label "concurrency" ;
+    rdfs:comment "Maximum concurrent requests" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:autoScaling a owl:DatatypeProperty ;
+    rdfs:domain c4:ComputeService ;
+    rdfs:range xsd:string ;
+    rdfs:label "auto scaling" ;
+    rdfs:comment "Auto-scaling configuration" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:regions a owl:ObjectProperty ;
+    rdfs:domain c4:DeploymentArchitecture ;
+    rdfs:range c4:Region ;
+    rdfs:label "regions" ;
+    rdfs:comment "Regions in the deployment" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:infrastructure a owl:ObjectProperty ;
+    rdfs:domain c4:DeploymentArchitecture ;
+    rdfs:range c4:InfrastructureLayer ;
+    rdfs:label "infrastructure" ;
+    rdfs:comment "Infrastructure layers" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:healthCheck a owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf (c4:ComputeService c4:LoadBalancer) ] ;
+    rdfs:range xsd:string ;
+    rdfs:label "health check" ;
+    rdfs:comment "Health check endpoint" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:SkuCatalog a owl:Class ;
+    rdfs:label "SKU Catalog" ;
+    rdfs:comment "Collection of SKU offerings" ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+c4:LoadBalancer a owl:Class ;
+    rdfs:label "Load Balancer" ;
+    rdfs:comment "Load balancing service" ;
+    rdfs:subClassOf c4:NetworkService ;
+    rdfs:isDefinedBy c4: ;
+    .
+
+# ==============================================================================
+# SKU VOCABULARY
+# ==============================================================================
+
+sku:Sku a owl:Class ;
+    rdfs:label "SKU" ;
+    rdfs:comment "Stock Keeping Unit - a marketable governance policy package" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:PolicyPack a owl:Class ;
+    rdfs:label "Policy Pack" ;
+    rdfs:comment "Collection of policies for a SKU" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:Policy a owl:Class ;
+    rdfs:label "Policy" ;
+    rdfs:comment "A single governance policy rule" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:MarketplaceMetadata a owl:Class ;
+    rdfs:label "Marketplace Metadata" ;
+    rdfs:comment "Metadata for marketplace distribution" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:ComplianceMatrix a owl:Class ;
+    rdfs:label "Compliance Matrix" ;
+    rdfs:comment "Compliance and audit control matrix" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:code a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:string ;
+    rdfs:label "SKU code" ;
+    rdfs:comment "Unique SKU identifier (e.g., CCB-001)" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:version a owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf (sku:Sku sku:PolicyPack) ] ;
+    rdfs:range xsd:string ;
+    rdfs:label "version" ;
+    rdfs:comment "Version number" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:marketplaceId a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:string ;
+    rdfs:label "marketplace ID" ;
+    rdfs:comment "ID in marketplace registry" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:signals a owl:ObjectProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range rdf:Bag ;
+    rdfs:label "signals" ;
+    rdfs:comment "Signals monitored by this SKU" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:governorType a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:string ;
+    rdfs:label "governor type" ;
+    rdfs:comment "Type of governor (e.g., Cost Optimizer)" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:policyModel a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:string ;
+    rdfs:label "policy model" ;
+    rdfs:comment "Policy evaluation model" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:stateModel a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:string ;
+    rdfs:label "state model" ;
+    rdfs:comment "State machine model" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:actions a owl:ObjectProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range rdf:Bag ;
+    rdfs:label "actions" ;
+    rdfs:comment "Actions available in this SKU" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:pricingModel a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:string ;
+    rdfs:label "pricing model" ;
+    rdfs:comment "Pricing model description" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:basePrice a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "base price" ;
+    rdfs:comment "Base price in USD" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:signalPrice a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "signal price" ;
+    rdfs:comment "Price per signal in USD" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:actionPrice a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "action price" ;
+    rdfs:comment "Price per action in USD" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:maxSignalsPerSecond a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max signals per second" ;
+    rdfs:comment "Maximum throughput" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:maxActionsPerDay a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max actions per day" ;
+    rdfs:comment "Maximum daily actions" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:signalRetention a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:integer ;
+    rdfs:label "signal retention" ;
+    rdfs:comment "Data retention in days" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:receiptRetention a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:integer ;
+    rdfs:label "receipt retention" ;
+    rdfs:comment "Receipt retention in days" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:decisionLatency a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:string ;
+    rdfs:label "decision latency" ;
+    rdfs:comment "SLO for decision latency" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:availabilitySlo a owl:DatatypeProperty ;
+    rdfs:domain sku:Sku ;
+    rdfs:range xsd:string ;
+    rdfs:label "availability SLO" ;
+    rdfs:comment "Uptime SLO (e.g., 99.5%)" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:skuCode a owl:DatatypeProperty ;
+    rdfs:domain sku:PolicyPack ;
+    rdfs:range xsd:string ;
+    rdfs:label "SKU code" ;
+    rdfs:comment "Reference to SKU" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:format a owl:DatatypeProperty ;
+    rdfs:domain sku:PolicyPack ;
+    rdfs:range xsd:string ;
+    rdfs:label "format" ;
+    rdfs:comment "Format of policies" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:policies a owl:ObjectProperty ;
+    rdfs:domain sku:PolicyPack ;
+    rdfs:range sku:Policy ;
+    rdfs:label "policies" ;
+    rdfs:comment "Policies in the pack" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:released a owl:DatatypeProperty ;
+    rdfs:domain sku:PolicyPack ;
+    rdfs:range xsd:date ;
+    rdfs:label "released" ;
+    rdfs:comment "Release date" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:trigger a owl:DatatypeProperty ;
+    rdfs:domain sku:Policy ;
+    rdfs:range xsd:string ;
+    rdfs:label "trigger" ;
+    rdfs:comment "What triggers this policy" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:condition a owl:DatatypeProperty ;
+    rdfs:domain sku:Policy ;
+    rdfs:range xsd:string ;
+    rdfs:label "condition" ;
+    rdfs:comment "Condition to evaluate" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:action a owl:DatatypeProperty ;
+    rdfs:domain sku:Policy ;
+    rdfs:range xsd:string ;
+    rdfs:label "action" ;
+    rdfs:comment "Action to take" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+sku:rationale a owl:DatatypeProperty ;
+    rdfs:domain sku:Policy ;
+    rdfs:range xsd:string ;
+    rdfs:label "rationale" ;
+    rdfs:comment "Why this policy exists" ;
+    rdfs:isDefinedBy sku: ;
+    .
+
+# ==============================================================================
+# DOCUMENTATION & REFERENCE
+# ==============================================================================
+
+ea:DocumentationReference a rdf:Bag ;
+    rdfs:label "Documentation References" ;
+
+    rdf:li "c4-system.ttl: C4 Level 1 - System Context" ;
+    rdf:li "c4-containers.ttl: C4 Level 2 - Container Architecture" ;
+    rdf:li "c4-components.ttl: C4 Level 3 - Governor Engine Components" ;
+    rdf:li "c4-deployment.ttl: C4 Level 4 - GCP Deployment Infrastructure" ;
+    rdf:li "sku-mapping.ttl: SKU Catalog (Cost Circuit Breaker, Deploy Rollback Guard, Backlog Pressure Valve)" ;
+    rdf:li "shapes.ttl: SHACL Validation Shapes (20 shapes for completeness)" ;
+    rdf:li "ontology.ttl: Master Ontology (this file)" ;
+    .
+

@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Changelog - ggen v0.2.0](#changelog---ggen-v020)
+  - [&#91;0.2.0&#93; - 2026-01-19](#020---2026-01-19)
+    - [Added](#added)
+      - [Unified Ontology Layer (Phase 1 Complete)](#unified-ontology-layer-phase-1-complete)
+      - [Domain Ontologies](#domain-ontologies)
+      - [Cloud Platform Bindings](#cloud-platform-bindings)
+      - [Chicago TDD Test Suite (64 Tests, 100% Passing)](#chicago-tdd-test-suite-64-tests-100-passing)
+      - [Documentation & Examples](#documentation--examples)
+      - [Build & Quality Tooling](#build--quality-tooling)
+    - [Changed](#changed)
+      - [API Improvements](#api-improvements)
+      - [Performance Optimizations](#performance-optimizations)
+      - [Dependencies](#dependencies)
+    - [Fixed](#fixed)
+      - [Oxigraph API Compatibility](#oxigraph-api-compatibility)
+      - [Type Safety Issues](#type-safety-issues)
+      - [Validator Error Messages](#validator-error-messages)
+    - [Performance](#performance)
+      - [Benchmark Results](#benchmark-results)
+    - [Security](#security)
+    - [Quality Assurance](#quality-assurance)
+    - [Documentation](#documentation)
+  - [Version History](#version-history)
+  - [Comparison to v0.1.0](#comparison-to-v010)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Changelog - ggen v0.2.0
 
 All notable changes to ggen v0.2.0 are documented here.

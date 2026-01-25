@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Changelog for ggen v0.2.0](#changelog-for-ggen-v020)
+  - [[0.2.0] - 2026-01-19](#020---2026-01-19)
+    - [Added](#added)
+      - [Core Generation Engine](#core-generation-engine)
+      - [Ontology Framework (ggen-ontology-core)](#ontology-framework-ggen-ontology-core)
+      - [Testing Infrastructure](#testing-infrastructure)
+      - [Testing Tooling](#testing-tooling)
+      - [Enterprise Features](#enterprise-features)
+      - [Knowledge Graph Computing (KNHK Systems)](#knowledge-graph-computing-knhk-systems)
+      - [Configuration Management](#configuration-management)
+      - [AI Integration](#ai-integration)
+      - [Domain-Driven Design](#domain-driven-design)
+      - [Performance](#performance)
+      - [Documentation](#documentation)
+    - [Changed](#changed)
+      - [Breaking Changes](#breaking-changes)
+      - [Improvements](#improvements)
+      - [Dependency Updates](#dependency-updates)
+    - [Fixed](#fixed)
+      - [Core Generation](#core-generation)
+      - [Testing](#testing)
+      - [Performance](#performance-1)
+      - [Security](#security)
+      - [Infrastructure](#infrastructure)
+    - [Security](#security-1)
+    - [Performance](#performance-2)
+      - [Benchmarks](#benchmarks)
+      - [Optimizations](#optimizations)
+    - [Known Issues](#known-issues)
+    - [Dependencies](#dependencies)
+      - [Updated](#updated)
+      - [Added](#added-1)
+      - [Removed](#removed)
+    - [Migration](#migration)
+    - [Platform Support](#platform-support)
+    - [Contributors](#contributors)
+    - [Repository](#repository)
+  - [Previous Versions](#previous-versions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Changelog for ggen v0.2.0
 
 All notable changes to ggen v0.2.0 are documented in this file.

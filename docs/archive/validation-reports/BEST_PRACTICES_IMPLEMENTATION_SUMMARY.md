@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Best Practices Implementation Summary](#best-practices-implementation-summary)
+  - [Phase 1: Critical Fixes Completed ✅](#phase-1-critical-fixes-completed-)
+    - [Executed in Parallel (10 Agent Analysis + Human Execution)](#executed-in-parallel-10-agent-analysis--human-execution)
+      - [**CRITICAL: Production Panics Fixed**](#critical-production-panics-fixed)
+    - [Commit Details](#commit-details)
+  - [Phase 2: Comprehensive Analysis by 10 Parallel Agents](#phase-2-comprehensive-analysis-by-10-parallel-agents)
+    - [Agent Findings Summary](#agent-findings-summary)
+  - [Phase 3: 80/20 Roadmap (High-Impact Remaining Work)](#phase-3-8020-roadmap-high-impact-remaining-work)
+    - [Tier 1: CRITICAL (Must Fix Before Release)](#tier-1-critical-must-fix-before-release)
+    - [Tier 2: HIGH (80/20 Sweet Spot)](#tier-2-high-8020-sweet-spot)
+    - [Tier 3: MEDIUM (Opportunistic)](#tier-3-medium-opportunistic)
+  - [Execution Strategy (80/20)](#execution-strategy-8020)
+    - [Phase A: Fast Wins (2-3 hours)](#phase-a-fast-wins-2-3-hours)
+    - [Phase B: Core Functionality (6-8 hours)](#phase-b-core-functionality-6-8-hours)
+    - [Phase C: Quality Assurance (8-12 hours)](#phase-c-quality-assurance-8-12-hours)
+  - [Constitutional Alignment](#constitutional-alignment)
+    - [Achieved (✅)](#achieved-)
+    - [In Progress (🟡)](#in-progress-)
+    - [To Do (🔴)](#to-do-)
+  - [Metrics Summary](#metrics-summary)
+  - [Next Steps (Recommended Order)](#next-steps-recommended-order)
+    - [Immediate (Next Session)](#immediate-next-session)
+    - [Short Term (1-2 weeks)](#short-term-1-2-weeks)
+    - [Long Term (Ongoing)](#long-term-ongoing)
+  - [Files Modified This Session](#files-modified-this-session)
+  - [Key Learnings](#key-learnings)
+  - [Success Criteria for Phase 2](#success-criteria-for-phase-2)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Best Practices Implementation Summary
 
 **Date**: 2025-12-25

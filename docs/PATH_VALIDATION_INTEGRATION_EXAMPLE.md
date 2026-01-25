@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Path Validation Integration Example](#path-validation-integration-example)
+  - [Quick Start: Integrating PathValidator into Existing Code](#quick-start-integrating-pathvalidator-into-existing-code)
+    - [Step 1: Add Import](#step-1-add-import)
+    - [Step 2: Create Workspace-Scoped Validator](#step-2-create-workspace-scoped-validator)
+    - [Step 3: Replace Unsafe File Operations](#step-3-replace-unsafe-file-operations)
+      - [Template Loading](#template-loading)
+      - [RDF Loading](#rdf-loading)
+      - [Code Generation Output](#code-generation-output)
+  - [Real Integration Examples](#real-integration-examples)
+    - [ggen-core/src/template.rs](#ggen-coresrctemplaters)
+    - [ggen-ontology-core/src/triple_store.rs](#ggen-ontology-coresrctriple_storers)
+    - [ggen-core/src/codegen/executor.rs](#ggen-coresrccodegenexecutorrs)
+    - [ggen-cli/src/cmds/sync.rs](#ggen-clisrccmdssyncrs)
+  - [Testing Integration](#testing-integration)
+  - [Rollout Checklist](#rollout-checklist)
+    - [Phase 1: Infrastructure (Complete)](#phase-1-infrastructure-complete)
+    - [Phase 2: High-Priority Modules (Week 1-2)](#phase-2-high-priority-modules-week-1-2)
+    - [Phase 3: Medium-Priority Modules (Week 3-4)](#phase-3-medium-priority-modules-week-3-4)
+    - [Phase 4: Testing & Validation (Week 5)](#phase-4-testing--validation-week-5)
+    - [Phase 5: Production Deployment (Week 6)](#phase-5-production-deployment-week-6)
+  - [Common Pitfalls](#common-pitfalls)
+    - [Pitfall 1: Forgetting to Pass Workspace](#pitfall-1-forgetting-to-pass-workspace)
+    - [Pitfall 2: Not Handling Validation Errors](#pitfall-2-not-handling-validation-errors)
+    - [Pitfall 3: Bypassing Validation](#pitfall-3-bypassing-validation)
+  - [Performance Considerations](#performance-considerations)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Path Validation Integration Example
 
 ## Quick Start: Integrating PathValidator into Existing Code

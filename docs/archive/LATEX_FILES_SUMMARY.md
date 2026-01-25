@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [LaTeX Files Summary: PhD Thesis on Specification-First Code Generation](#latex-files-summary-phd-thesis-on-specification-first-code-generation)
+  - [Overview](#overview)
+  - [PRIMARY THESIS STRUCTURE](#primary-thesis-structure)
+    - [Location: `/home/user/ggen/thesis/main.tex`](#location-homeuserggenthesismaintex)
+  - [CONTENT BREAKDOWN](#content-breakdown)
+    - [Chapter 4: OpenAPI Specification Generation (1,020 lines)](#chapter-4-openapi-specification-generation-1020-lines)
+    - [Chapter 7: Type Guards & Runtime Validation (977 lines)](#chapter-7-type-guards--runtime-validation-977-lines)
+    - [Other Key Files](#other-key-files)
+  - [SUPPORTING DOCUMENTATION](#supporting-documentation)
+    - [In `/home/user/ggen/docs/thesis/`](#in-homeuserggendocsthesis)
+    - [Diagrams (Professional TikZ)](#diagrams-professional-tikz)
+  - [CRITICAL FINDINGS](#critical-findings)
+    - [Strengths](#strengths)
+    - [Gaps Identified](#gaps-identified)
+    - [Data Quality Issue](#data-quality-issue)
+  - [DIATAXIS RECOMMENDATIONS](#diataxis-recommendations)
+    - [Apply to Your Thesis:](#apply-to-your-thesis)
+  - [IMPLEMENTATION PHASES](#implementation-phases)
+    - [Phase 1: Restructure (2 hours)](#phase-1-restructure-2-hours)
+    - [Phase 2: Migrate Content (4 hours)](#phase-2-migrate-content-4-hours)
+    - [Phase 3: Enhance (3 hours)](#phase-3-enhance-3-hours)
+    - [Phase 4: Validate (2 hours)](#phase-4-validate-2-hours)
+  - [FILES TO PRESERVE/USE](#files-to-preserveuse)
+  - [LATEX COMPILATION](#latex-compilation)
+    - [Current Status](#current-status)
+    - [Expected Output](#expected-output)
+    - [Known Issues](#known-issues)
+  - [NEXT STEPS](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # LaTeX Files Summary: PhD Thesis on Specification-First Code Generation
 
 ## Overview

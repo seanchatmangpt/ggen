@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Data Motion Validation & Implementation - Complete Summary](#data-motion-validation--implementation---complete-summary)
+  - [Overview](#overview)
+  - [Problem Statement](#problem-statement)
+  - [Solution Implemented](#solution-implemented)
+    - [1. Created Assessment Helpers Module](#1-created-assessment-helpers-module)
+    - [2. Fixed recommend Command](#2-fixed-recommend-command)
+    - [3. Fixed compare Command](#3-fixed-compare-command)
+    - [4. Fixed search-maturity Command](#4-fixed-search-maturity-command)
+    - [5. Fixed export Command](#5-fixed-export-command)
+  - [Data Validation](#data-validation)
+    - [Sample Package Data](#sample-package-data)
+    - [Filter Logic Validation](#filter-logic-validation)
+  - [Files Modified/Created](#files-modifiedcreated)
+  - [Compilation Results](#compilation-results)
+  - [Data Motion Verification](#data-motion-verification)
+    - [recommend Command](#recommend-command)
+    - [compare Command](#compare-command)
+    - [search-maturity Command](#search-maturity-command)
+    - [export Command](#export-command)
+  - [Testing Validation](#testing-validation)
+  - [Git History](#git-history)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Data Motion Validation & Implementation - Complete Summary
 
 ## Overview

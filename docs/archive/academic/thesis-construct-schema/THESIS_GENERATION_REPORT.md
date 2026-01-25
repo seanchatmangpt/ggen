@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [PhD Thesis Generation Report](#phd-thesis-generation-report)
+  - [Executive Summary](#executive-summary)
+  - [Generation Pipeline](#generation-pipeline)
+    - [Input Sources](#input-sources)
+    - [Generation Process](#generation-process)
+  - [Generated Files](#generated-files)
+    - [1. thesis.tex (1,187 lines)](#1-thesistex-1187-lines)
+      - [Chapter 1: Introduction](#chapter-1-introduction)
+      - [Chapter 2: Theoretical Foundations](#chapter-2-theoretical-foundations)
+      - [Chapter 3: SPARQL CONSTRUCT for Code Generation](#chapter-3-sparql-construct-for-code-generation)
+      - [Chapter 4: Schema.org as Universal Vocabulary](#chapter-4-schemaorg-as-universal-vocabulary)
+      - [Chapter 5: ggen.toml Configuration Model](#chapter-5-ggentoml-configuration-model)
+      - [Chapter 6: Implementation and Tooling](#chapter-6-implementation-and-tooling)
+      - [Chapter 7: Case Studies and Evaluation](#chapter-7-case-studies-and-evaluation)
+      - [Chapter 8: Conclusions and Future Work](#chapter-8-conclusions-and-future-work)
+    - [2. references.bib (82 lines)](#2-referencesbib-82-lines)
+  - [Key Contributions Documented in Thesis](#key-contributions-documented-in-thesis)
+    - [1. Zero-Drift Theorem (Chapter 2)](#1-zero-drift-theorem-chapter-2)
+    - [2. Five CONSTRUCT Transformation Patterns (Chapter 3)](#2-five-construct-transformation-patterns-chapter-3)
+    - [3. Schema.org Type Mappings (Chapter 4)](#3-schemaorg-type-mappings-chapter-4)
+    - [4. ggen.toml Configuration Sections (Chapter 5)](#4-ggentoml-configuration-sections-chapter-5)
+    - [5. Production Case Study Results (Chapter 7)](#5-production-case-study-results-chapter-7)
+  - [Code Samples Included](#code-samples-included)
+    - [SPARQL CONSTRUCT Query (Chapter 3)](#sparql-construct-query-chapter-3)
+    - [E-Commerce Domain Model (Chapter 4)](#e-commerce-domain-model-chapter-4)
+    - [CONSTRUCT Executor Implementation (Chapter 6)](#construct-executor-implementation-chapter-6)
+    - [Deterministic IRI Generation (Chapter 6)](#deterministic-iri-generation-chapter-6)
+  - [Compilation Instructions](#compilation-instructions)
+    - [Prerequisites](#prerequisites)
+    - [Compilation Steps](#compilation-steps)
+    - [Expected Output](#expected-output)
+  - [Verification](#verification)
+    - [File Checksums](#file-checksums)
+    - [Content Verification](#content-verification)
+  - [Reproducibility](#reproducibility)
+  - [Next Steps](#next-steps)
+    - [To Generate PDF](#to-generate-pdf)
+    - [To Extend Thesis](#to-extend-thesis)
+  - [Files Generated](#files-generated)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # PhD Thesis Generation Report
 
 **Generated**: 2025-12-19

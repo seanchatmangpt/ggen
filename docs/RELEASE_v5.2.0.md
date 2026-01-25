@@ -1,3 +1,57 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v5.2.0 GA Production Release](#ggen-v520-ga-production-release)
+  - [Executive Summary](#executive-summary)
+    - [Key Achievements](#key-achievements)
+  - [What's New in v5.2.0](#whats-new-in-v520)
+    - [1. Audit Trail System](#1-audit-trail-system)
+    - [2. Watch Mode](#2-watch-mode)
+    - [3. Merge Mode](#3-merge-mode)
+    - [4. Force Flag](#4-force-flag)
+    - [5. Conditional Execution](#5-conditional-execution)
+    - [6. Validation Framework](#6-validation-framework)
+  - [Quality Metrics (Achieved)](#quality-metrics-achieved)
+  - [Agent Swarm Coordination](#agent-swarm-coordination)
+    - [10 Specialized Agents Deployed](#10-specialized-agents-deployed)
+  - [Jobs-to-be-Done (JTBD) Coverage](#jobs-to-be-done-jtbd-coverage)
+  - [Entropy Metrics (HDOC Framework)](#entropy-metrics-hdoc-framework)
+    - [Entropy Reduction: 98.4%](#entropy-reduction-984)
+  - [Technical Highlights](#technical-highlights)
+    - [1. Rust 1.75+ Type Safety](#1-rust-175-type-safety)
+    - [2. Chicago TDD Methodology](#2-chicago-tdd-methodology)
+    - [3. Cargo Make Protocol](#3-cargo-make-protocol)
+    - [4. DfLSS Quality Standards](#4-dflss-quality-standards)
+    - [5. RDF-First Specification](#5-rdf-first-specification)
+  - [Migration Guide: v5.1.0 → v5.2.0](#migration-guide-v510-%E2%86%92-v520)
+    - [No Breaking Changes](#no-breaking-changes)
+    - [New Flags Available](#new-flags-available)
+    - [Configuration Changes (Optional)](#configuration-changes-optional)
+  - [Performance Benchmarks](#performance-benchmarks)
+  - [File Statistics](#file-statistics)
+    - [New Files](#new-files)
+    - [Modified Files](#modified-files)
+  - [Production Readiness Checklist](#production-readiness-checklist)
+  - [Known Limitations](#known-limitations)
+    - [1. Build Time](#1-build-time)
+    - [2. Test Suite Duration](#2-test-suite-duration)
+  - [Deployment Instructions](#deployment-instructions)
+    - [1. Version Bump](#1-version-bump)
+    - [2. Tag Release](#2-tag-release)
+    - [3. Publish to crates.io (Optional)](#3-publish-to-cratesio-optional)
+    - [4. Update CHANGELOG.md](#4-update-changelogmd)
+  - [Future Roadmap (v5.3.0+)](#future-roadmap-v530)
+    - [Phase 4: Low Priority Enhancements](#phase-4-low-priority-enhancements)
+  - [Credits](#credits)
+    - [Agent Swarm (10 Specialized Agents)](#agent-swarm-10-specialized-agents)
+    - [Coordination Infrastructure](#coordination-infrastructure)
+  - [Support](#support)
+  - [License](#license)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v5.2.0 GA Production Release
 
 **Release Date**: 2025-12-21

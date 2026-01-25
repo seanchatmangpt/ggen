@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Wave 2, Task 5: Pilot Scorecard (Week 11)](#wave-2-task-5-pilot-scorecard-week-11)
+  - [Quick Reference: Pass/Fail Criteria](#quick-reference-passfail-criteria)
+  - [Metric 1: Exception Handling Rate](#metric-1-exception-handling-rate)
+  - [Metric 2: Pilot Satisfaction](#metric-2-pilot-satisfaction)
+  - [Metric 3: Escalation Quality (Zero Rework)](#metric-3-escalation-quality-zero-rework)
+  - [Metric 4: Incident Response SLO (Maintained)](#metric-4-incident-response-slo-maintained)
+  - [Metric 5: Retention (Zero Attrition)](#metric-5-retention-zero-attrition)
+  - [Decision Matrix: Go/No-Go for Week 12 Switchover](#decision-matrix-gono-go-for-week-12-switchover)
+  - [Scorecard Summary Template (Friday Week 11)](#scorecard-summary-template-friday-week-11)
+  - [Pilot Scorecard Dashboard (Real-Time Week 11)](#pilot-scorecard-dashboard-real-time-week-11)
+  - [Contingency: If Pilot Fails](#contingency-if-pilot-fails)
+  - [Success Looks Like (Friday End of Week 11)](#success-looks-like-friday-end-of-week-11)
+  - [Escalation Contacts](#escalation-contacts)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Wave 2, Task 5: Pilot Scorecard (Week 11)
 
 **Pilot Program**: 3 volunteer ops engineers, 1-week parallel run (Week 11)

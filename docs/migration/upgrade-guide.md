@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Upgrading to ggen v6.0.0](#upgrading-to-ggen-v600)
+  - [Table of Contents](#table-of-contents)
+  - [What's New vs. Breaking Changes](#whats-new-vs-breaking-changes)
+    - [New Capabilities Table](#new-capabilities-table)
+  - [For CLI Users (90% of Users)](#for-cli-users-90-of-users)
+    - [✅ No Action Required](#-no-action-required)
+    - [Optional: Enable New Features](#optional-enable-new-features)
+    - [New Commands Available (Opt-In)](#new-commands-available-opt-in)
+    - [Example Workflow (CLI users)](#example-workflow-cli-users)
+  - [For Library Users (10% of Users)](#for-library-users-10-of-users)
+    - [Breaking Changes: Import Paths Only](#breaking-changes-import-paths-only)
+    - [Module Reorganization Table](#module-reorganization-table)
+    - [Automated Migration Script](#automated-migration-script)
+    - [New Poka-Yoke Features (Optional)](#new-poka-yoke-features-optional)
+  - [For Workspace Users](#for-workspace-users)
+    - [New Crates Added (8 total)](#new-crates-added-8-total)
+    - [Build Time Impact](#build-time-impact)
+    - [Workspace Configuration](#workspace-configuration)
+  - [Configuration Changes](#configuration-changes)
+    - [ggen.toml (No Changes Required)](#ggentoml-no-changes-required)
+    - [ggen-paas.toml (New, Optional)](#ggen-paastoml-new-optional)
+    - [Feature Flags Reference](#feature-flags-reference)
+  - [Risk Assessment](#risk-assessment)
+    - [Detailed Risk Analysis](#detailed-risk-analysis)
+  - [Step-by-Step Upgrade Instructions](#step-by-step-upgrade-instructions)
+    - [For CLI Users](#for-cli-users)
+    - [For Library Users](#for-library-users)
+  - [Troubleshooting](#troubleshooting)
+    - [Issue: "Cannot find ProtectedPath in ggen_core::types"](#issue-cannot-find-protectedpath-in-ggen_coretypes)
+    - [Issue: "Feature 'paas' not enabled"](#issue-feature-paas-not-enabled)
+    - [Issue: "Build time increased significantly"](#issue-build-time-increased-significantly)
+    - [Issue: "ggen-paas.toml not found"](#issue-ggen-paastoml-not-found)
+    - [Issue: "Type mismatch after migration"](#issue-type-mismatch-after-migration)
+  - [Rollback Procedure](#rollback-procedure)
+    - [CLI Users](#cli-users)
+    - [Library Users](#library-users)
+  - [FAQ](#faq)
+  - [Detailed Upgrade Documentation](#detailed-upgrade-documentation)
+  - [Quick Reference](#quick-reference)
+    - [Version Comparison](#version-comparison)
+    - [Migration Checklist](#migration-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Upgrading to ggen v6.0.0
 
 ggen v6.0.0 represents a significant expansion with 8 new crates (44% growth), PaaS capabilities, AI-native workflows, and enhanced error-proofing. This guide helps you migrate from v5.1.0 smoothly.

@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Security Testing Guide (v6.0.0)](#security-testing-guide-v600)
+  - [Overview](#overview)
+  - [Table of Contents](#table-of-contents)
+  - [Security Test Categories](#security-test-categories)
+    - [1. Unit Security Tests](#1-unit-security-tests)
+    - [2. Integration Security Tests](#2-integration-security-tests)
+    - [3. Property-Based Security Tests](#3-property-based-security-tests)
+    - [4. Performance Security Tests](#4-performance-security-tests)
+    - [5. Regression Security Tests](#5-regression-security-tests)
+  - [Fuzzing Strategy](#fuzzing-strategy)
+    - [AFL Fuzzing](#afl-fuzzing)
+    - [LibFuzzer](#libfuzzer)
+  - [Penetration Testing Checklist](#penetration-testing-checklist)
+    - [Automated Penetration Testing](#automated-penetration-testing)
+    - [Manual Penetration Testing](#manual-penetration-testing)
+      - [Path Traversal Testing](#path-traversal-testing)
+      - [SPARQL Injection Testing](#sparql-injection-testing)
+      - [Template Injection Testing](#template-injection-testing)
+      - [Rate Limiting Testing](#rate-limiting-testing)
+  - [Dependency Scanning Process](#dependency-scanning-process)
+    - [Cargo Audit](#cargo-audit)
+    - [Dependency Review](#dependency-review)
+  - [Static Analysis Tools](#static-analysis-tools)
+    - [Clippy (Linting)](#clippy-linting)
+    - [Cargo Deny](#cargo-deny)
+    - [MiriRun Safety Checks)](#mirirun-safety-checks)
+  - [Security Test Automation](#security-test-automation)
+    - [Pre-commit Hooks](#pre-commit-hooks)
+    - [CI/CD Pipeline](#cicd-pipeline)
+  - [Continuous Security Testing](#continuous-security-testing)
+    - [Scheduled Scans](#scheduled-scans)
+    - [Security Metrics](#security-metrics)
+  - [Security Test Execution](#security-test-execution)
+    - [Running All Security Tests](#running-all-security-tests)
+    - [Test Organization](#test-organization)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Security Testing Guide (v6.0.0)
 
 ## Overview

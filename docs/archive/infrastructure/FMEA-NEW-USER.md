@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [FMEA: New User Onboarding Failure Modes](#fmea-new-user-onboarding-failure-modes)
+  - [Executive Summary](#executive-summary)
+  - [FMEA Table: Prioritized by RPN](#fmea-table-prioritized-by-rpn)
+  - [CRITICAL FAILURES: Deep Dives & Mitigations](#critical-failures-deep-dives--mitigations)
+    - [Failure 1: User Gets Lost in README (RPN 567)](#failure-1-user-gets-lost-in-readme-rpn-567)
+    - [Failure 2: User Doesn't Understand Workflow (RPN 504)](#failure-2-user-doesnt-understand-workflow-rpn-504)
+    - [Failure 3: Error Messages Unhelpful/Cryptic (RPN 432)](#failure-3-error-messages-unhelpfulcryptic-rpn-432)
+    - [Failure 4: Template Has Syntax Errors (RPN 216)](#failure-4-template-has-syntax-errors-rpn-216)
+    - [Failure 5: Generated Code Doesn't Compile (RPN 240)](#failure-5-generated-code-doesnt-compile-rpn-240)
+  - [MEDIUM FAILURES: Summary & Mitigations](#medium-failures-summary--mitigations)
+    - [Failure 6: ggen.toml Malformed (RPN 168)](#failure-6-ggentoml-malformed-rpn-168)
+    - [Failure 7: Invalid Turtle Syntax (RPN 168)](#failure-7-invalid-turtle-syntax-rpn-168)
+    - [Failure 8: Manual Edits Overwritten (RPN 180)](#failure-8-manual-edits-overwritten-rpn-180)
+    - [Failure 9: Installation Fails (RPN 108)](#failure-9-installation-fails-rpn-108)
+  - [Prevention Strategy: Integration Back to README](#prevention-strategy-integration-back-to-readme)
+    - [Phase 1: Tutorial Design (Prevent Failures 1, 2, 8)](#phase-1-tutorial-design-prevent-failures-1-2-8)
+    - [Phase 2: Error Message Improvements (Prevent Failure 3)](#phase-2-error-message-improvements-prevent-failure-3)
+    - [Phase 3: Validator Tools (Prevent Failures 4, 6, 7)](#phase-3-validator-tools-prevent-failures-4-6-7)
+    - [Phase 4: Documentation (Prevent All)](#phase-4-documentation-prevent-all)
+  - [Success Criteria: Verify FMEA Mitigations](#success-criteria-verify-fmea-mitigations)
+    - [By Failure Mode](#by-failure-mode)
+    - [Testing & Validation Approach](#testing--validation-approach)
+  - [Recommended Mitigation Priority](#recommended-mitigation-priority)
+    - [Phase 1 (Week 1): Critical Failures](#phase-1-week-1-critical-failures)
+    - [Phase 2 (Week 2): High Failures](#phase-2-week-2-high-failures)
+    - [Phase 3 (Week 3): Medium Failures](#phase-3-week-3-medium-failures)
+  - [Appendix: FMEA Scoring Scale](#appendix-fmea-scoring-scale)
+    - [Severity (1-10)](#severity-1-10)
+    - [Occurrence (1-10)](#occurrence-1-10)
+    - [Detection (1-10)](#detection-1-10)
+    - [RPN (Risk Priority Number)](#rpn-risk-priority-number)
+  - [Document Review](#document-review)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # FMEA: New User Onboarding Failure Modes
 
 **Document**: Failure Mode & Effects Analysis for ggen new user experience

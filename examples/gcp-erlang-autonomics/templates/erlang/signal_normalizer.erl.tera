@@ -1,0 +1,75 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_signal_normalizer).
+-export([handle_pubsub/1, normalize/1, route/1]).
+
+-include("{{ module_prefix }}_types.hrl").
+
+%% handle_pubsub/1 expects an already-decoded map from HTTP/PubSub handler
+%% In real deploy: your HTTP server receives JSON and turns it into Map.
+handle_pubsub(Envelope) ->
+  Event = normalize(Envelope),
+  route(Event).
+
+%% Normalize any inbound event into:
+%% #{tenant_id => ..., source => ..., name => ..., payload => #{...}}
+normalize(Envelope) ->
+  %% Example Pub/Sub push envelope:
+  %% #{message := #{attributes := #{tenant_id := "...", source := "billing"},
+  %%               data := Base64Data}}
+  Msg = maps:get(message, Envelope, #{}),
+  Attr = maps:get(attributes, Msg, #{}),
+
+  TenantId = to_bin(maps:get({{ tenant_key }}, Attr, <<"unknown">>)),
+  Source   = to_atom(maps:get(source, Attr, <<"unknown">>)),
+
+  %% For simplicity: assume data already decoded to map or passed as map
+  Payload = maps:get(payload, Envelope, #{}),
+  Name    = to_atom(maps:get(name, Envelope, <<"unknown_signal">>)),
+
+  #{
+    tenant_id => TenantId,
+    source => Source,
+    name => Name,
+    payload => Payload
+  }.
+
+route(#{tenant_id := TenantId, name := Name, payload := Payload} = Event) ->
+  %% Ensure tenant governor exists
+  _ = {{ module_prefix }}_tenant_registry:ensure_tenant(TenantId, #{
+    {{ tenant_key }} => TenantId,
+    profile => standard,
+    entitlement => active
+  }),
+
+  %% Route signal to governor FSM
+  Reply = {{ module_prefix }}_tenant_registry:route_call(
+    TenantId,
+    {{ module_prefix }}_governor_statem,
+    {signal, Name, Payload}
+  ),
+
+  %% Emit a receipt about ingestion (optional but useful)
+  _ = {{ module_prefix }}_receipt_ledger:append(
+    TenantId,
+    #{
+      kind => signal_ingest,
+      tenant_id => TenantId,
+      sku => <<"{{ sku }}">>,
+      event => Event,
+      decision => accepted
+    }
+  ),
+
+  Reply.
+
+to_bin(B) when is_binary(B) -> B;
+to_bin(L) when is_list(L) -> list_to_binary(L);
+to_bin(A) when is_atom(A) -> atom_to_binary(A, utf8);
+to_bin(I) when is_integer(I) -> integer_to_binary(I);
+to_bin(_) -> <<"unknown">>.
+
+to_atom(A) when is_atom(A) -> A;
+to_atom(B) when is_binary(B) -> binary_to_atom(B, utf8);
+to_atom(L) when is_list(L) -> list_to_atom(L);
+to_atom(_) -> unknown.

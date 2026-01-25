@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Preface](#preface)
+  - [Why This Book Exists](#why-this-book-exists)
+  - [What This Book Is](#what-this-book-is)
+  - [What This Book Is Not](#what-this-book-is-not)
+  - [Who This Book Is For](#who-this-book-is-for)
+  - [How This Book Is Organized](#how-this-book-is-organized)
+    - [Part I: Foundations](#part-i-foundations)
+    - [Part II: The Pattern Language](#part-ii-the-pattern-language)
+    - [Part III: Patterns in Practice](#part-iii-patterns-in-practice)
+    - [Part IV: Advanced Topics](#part-iv-advanced-topics)
+    - [Part V: Reference](#part-v-reference)
+  - [How to Read This Book](#how-to-read-this-book)
+    - [The Sequential Path](#the-sequential-path)
+    - [The Explorer's Path](#the-explorers-path)
+    - [The Problem Solver's Path](#the-problem-solvers-path)
+    - [The Practitioner's Path](#the-practitioners-path)
+  - [The Confidence Stars](#the-confidence-stars)
+  - [A Living Document](#a-living-document)
+  - [Acknowledgments](#acknowledgments)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Preface
 
 > *"The elements of this language are entities called patterns. Each pattern describes a problem which occurs over and over again in our environment, and then describes the core of the solution to that problem, in such a way that you can use this solution a million times over, without ever doing it the same way twice."*

@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Incident Response Plan (v6.0.0)](#incident-response-plan-v600)
+  - [Overview](#overview)
+  - [Table of Contents](#table-of-contents)
+  - [Incident Severity Levels](#incident-severity-levels)
+    - [P0 - Critical (Response: Immediate)](#p0---critical-response-immediate)
+    - [P1 - High (Response: Urgent)](#p1---high-response-urgent)
+    - [P2 - Medium (Response: Standard)](#p2---medium-response-standard)
+    - [P3 - Low (Response: Normal)](#p3---low-response-normal)
+  - [Detection and Analysis](#detection-and-analysis)
+    - [Detection Methods](#detection-methods)
+    - [Initial Analysis](#initial-analysis)
+  - [Containment Strategy](#containment-strategy)
+    - [Immediate Containment (P0/P1)](#immediate-containment-p0p1)
+    - [Long-term Containment (P2/P3)](#long-term-containment-p2p3)
+  - [Eradication and Recovery](#eradication-and-recovery)
+    - [Eradication Process](#eradication-process)
+    - [Recovery Process](#recovery-process)
+  - [Post-Incident Review](#post-incident-review)
+    - [Review Meeting (Within 1 Week)](#review-meeting-within-1-week)
+    - [Root Cause Analysis (5 Whys)](#root-cause-analysis-5-whys)
+    - [Incident Report Template](#incident-report-template)
+  - [Communication Plan](#communication-plan)
+    - [Internal Communication](#internal-communication)
+    - [External Communication](#external-communication)
+  - [Roles and Responsibilities](#roles-and-responsibilities)
+    - [Incident Commander (IC)](#incident-commander-ic)
+    - [Security Engineer](#security-engineer)
+    - [DevOps Engineer](#devops-engineer)
+    - [Communications Lead](#communications-lead)
+  - [Incident Response Tools](#incident-response-tools)
+    - [Runbooks](#runbooks)
+    - [Scripts](#scripts)
+    - [Checklists](#checklists)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Incident Response Plan (v6.0.0)
 
 ## Overview

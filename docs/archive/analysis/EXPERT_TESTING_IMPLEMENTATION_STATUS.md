@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Expert Testing Patterns - Implementation Status](#expert-testing-patterns---implementation-status)
+  - [Overview](#overview)
+  - [Core Principle: 80/20 Rule](#core-principle-8020-rule)
+  - [Implementation Status by Module](#implementation-status-by-module)
+    - [✅ Marketplace Module (`crates/ggen-domain/src/marketplace/expert_tests.rs`)](#-marketplace-module-cratesggen-domainsrcmarketplaceexpert_testsrs)
+    - [✅ Graph Export Module (`crates/ggen-domain/src/graph/export_expert_tests.rs`)](#-graph-export-module-cratesggen-domainsrcgraphexport_expert_testsrs)
+    - [⚠️ Graph Core Module (`crates/ggen-core/src/graph/`)](#-graph-core-module-cratesggen-coresrcgraph)
+    - [⚠️ Template Render Module (`crates/ggen-domain/src/template/render_with_rdf.rs`)](#-template-render-module-cratesggen-domainsrctemplaterender_with_rdfrs)
+    - [⚠️ Cache Module (`crates/ggen-core/src/cache.rs`)](#-cache-module-cratesggen-coresrccachers)
+  - [Test Execution Summary](#test-execution-summary)
+    - [Marketplace Expert Tests](#marketplace-expert-tests)
+    - [Graph Export Expert Tests](#graph-export-expert-tests)
+  - [Next Steps (Recommended Priority)](#next-steps-recommended-priority)
+    - [Phase 1: Critical Error Paths (High Priority)](#phase-1-critical-error-paths-high-priority)
+    - [Phase 2: Boundary Conditions (High Priority)](#phase-2-boundary-conditions-high-priority)
+    - [Phase 3: Resource Management (Medium Priority)](#phase-3-resource-management-medium-priority)
+    - [Phase 4: Concurrency (Medium Priority)](#phase-4-concurrency-medium-priority)
+  - [Key Metrics](#key-metrics)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Expert Testing Patterns - Implementation Status
 
 ## Overview

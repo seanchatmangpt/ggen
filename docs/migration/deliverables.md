@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [v6.0 Migration Documentation - Complete Deliverables](#v60-migration-documentation---complete-deliverables)
+  - [Files Created](#files-created)
+    - [1. Breaking Changes Documentation (`BREAKING_CHANGES_V6.md`)](#1-breaking-changes-documentation-breaking_changes_v6md)
+    - [2. Migration Script (`scripts/migrate_to_v6.sh`)](#2-migration-script-scriptsmigrate_to_v6sh)
+    - [3. Migration FAQ (`docs/V6_MIGRATION_FAQ.md`)](#3-migration-faq-docsv6_migration_faqmd)
+    - [4. Quick Start Guide (`docs/V6_MIGRATION_QUICK_START.md`)](#4-quick-start-guide-docsv6_migration_quick_startmd)
+    - [5. Reference Card (`docs/V6_REFERENCE_CARD.md`)](#5-reference-card-docsv6_reference_cardmd)
+  - [Total Documentation](#total-documentation)
+  - [Integration Instructions](#integration-instructions)
+  - [File Locations](#file-locations)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # v6.0 Migration Documentation - Complete Deliverables
 
 This document summarizes all files created for the ggen v6.0.0 breaking changes documentation and migration support.

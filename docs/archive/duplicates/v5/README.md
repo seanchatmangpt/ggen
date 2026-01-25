@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen: Ontology-Driven Code Generation](#ggen-ontology-driven-code-generation)
+  - [What is ggen?](#what-is-ggen)
+  - [Quick Start](#quick-start)
+  - [Why ggen?](#why-ggen)
+    - [Zero-Drift Theorem](#zero-drift-theorem)
+    - [Production-Proven](#production-proven)
+    - [Deterministic & Fast](#deterministic--fast)
+    - [Multi-Format Support](#multi-format-support)
+  - [Documentation](#documentation)
+    - [🚀 Getting Started](#-getting-started)
+    - [📚 Tutorials (Learning-Oriented)](#-tutorials-learning-oriented)
+    - [🔧 How-To Guides (Problem-Oriented)](#-how-to-guides-problem-oriented)
+    - [📖 Reference (Information-Oriented)](#-reference-information-oriented)
+    - [💡 Explanations (Understanding-Oriented)](#-explanations-understanding-oriented)
+    - [📦 Examples](#-examples)
+  - [Common Questions](#common-questions)
+    - ["I just want to generate code quickly"](#i-just-want-to-generate-code-quickly)
+    - ["I don't know RDF"](#i-dont-know-rdf)
+    - ["How do I customize the generated code?"](#how-do-i-customize-the-generated-code)
+    - ["What can ggen generate?"](#what-can-ggen-generate)
+    - ["Is this production-ready?"](#is-this-production-ready)
+  - [Performance](#performance)
+  - [Architecture](#architecture)
+  - [How It Works: Example](#how-it-works-example)
+  - [Contributing](#contributing)
+  - [Support](#support)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen: Ontology-Driven Code Generation
 
 > Transform RDF knowledge graphs into production code with zero ambiguity and 100% reproducibility.

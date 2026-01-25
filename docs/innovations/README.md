@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Advanced Code Generation Innovations](#advanced-code-generation-innovations)
+  - [Overview](#overview)
+  - [Documentation Structure](#documentation-structure)
+    - [Core Pattern Guides](#core-pattern-guides)
+  - [Quick Reference: Pattern Categories](#quick-reference-pattern-categories)
+    - [By Framework/Language](#by-frameworklanguage)
+    - [By Use Case](#by-use-case)
+  - [Architecture Patterns Demonstrated](#architecture-patterns-demonstrated)
+    - [1. Code Generation Pipeline](#1-code-generation-pipeline)
+    - [2. Type-Safe Generation](#2-type-safe-generation)
+    - [3. Multi-Tier Caching](#3-multi-tier-caching)
+    - [4. Isolation Patterns](#4-isolation-patterns)
+  - [Key Statistics](#key-statistics)
+  - [Common Generation Patterns](#common-generation-patterns)
+    - [1. Schema-to-Code](#1-schema-to-code)
+    - [2. Ontology-to-Manifests](#2-ontology-to-manifests)
+    - [3. Domain-to-Resolvers](#3-domain-to-resolvers)
+  - [Best Practices Summary](#best-practices-summary)
+    - [Design Phase](#design-phase)
+    - [Generation Phase](#generation-phase)
+    - [Deployment Phase](#deployment-phase)
+  - [Integration with ggen Ecosystem](#integration-with-ggen-ecosystem)
+    - [Related Documentation](#related-documentation)
+    - [Core RDF Ontologies](#core-rdf-ontologies)
+  - [External Packages Used](#external-packages-used)
+    - [Frontend/API Clients](#frontendapi-clients)
+    - [Backend/Frameworks](#backendframeworks)
+    - [Databases & ORMs](#databases--orms)
+    - [Real-Time & Messaging](#real-time--messaging)
+    - [Deployment & Infrastructure](#deployment--infrastructure)
+    - [Testing](#testing)
+  - [Getting Started](#getting-started)
+    - [For Each Pattern Guide](#for-each-pattern-guide)
+    - [Example Workflow](#example-workflow)
+  - [Contributing & Extending](#contributing--extending)
+  - [References & Resources](#references--resources)
+    - [Official Documentation](#official-documentation)
+    - [Framework Documentation](#framework-documentation)
+    - [Deployment & Infrastructure](#deployment--infrastructure-1)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Advanced Code Generation Innovations
 
 > Hyper-advanced, enterprise-grade patterns for generating production-quality code across 10+ languages and frameworks from RDF ontologies

@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [11. TIMEOUT PROTECTION **](#11-timeout-protection-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [Configuration Layers](#configuration-layers)
+    - [Timeout Scopes](#timeout-scopes)
+    - [Execution with Timeout](#execution-with-timeout)
+    - [Error Output](#error-output)
+    - [Exit Code](#exit-code)
+  - [Choosing Timeout Values](#choosing-timeout-values)
+    - [For Development](#for-development)
+    - [For CI/CD](#for-cicd)
+    - [For Production](#for-production)
+  - [Diagnosing Timeout Issues](#diagnosing-timeout-issues)
+  - [SLO Alignment](#slo-alignment)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 11. TIMEOUT PROTECTION **
 
 *No task should run forever. Every process deserves an ending.*

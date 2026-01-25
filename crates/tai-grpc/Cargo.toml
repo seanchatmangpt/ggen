@@ -1,0 +1,57 @@
+[package]
+name = "tai-grpc"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+description = "Production-grade gRPC service-to-service communication with advanced resilience patterns"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+futures = { workspace = true }
+
+# gRPC framework
+tonic = { workspace = true }
+tonic-reflection = "0.14"
+prost = "0.12"
+prost-types = "0.12"
+
+# Middleware and interceptors
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace", "timeout"] }
+
+# Resilience patterns
+parking_lot = "0.12"
+exponential-backoff = "1.2"
+
+# Metrics and observability
+prometheus = "0.13"
+once_cell = { workspace = true }
+
+# Error handling
+log = { workspace = true }
+
+# Local crates
+ggen-utils = { workspace = true }
+
+[dev-dependencies]
+mockall = "0.13"
+proptest = { workspace = true }
+tempfile = { workspace = true }
+
+[build-dependencies]
+tonic-build = "0.14"
+
+[[test]]
+name = "grpc_integration_tests"
+path = "tests/grpc_integration_tests.rs"

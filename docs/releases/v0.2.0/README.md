@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v0.2.0 Release Documentation](#ggen-v020-release-documentation)
+  - [Quick Navigation](#quick-navigation)
+    - [For Users](#for-users)
+    - [For Developers](#for-developers)
+  - [What's New in v0.2.0](#whats-new-in-v020)
+    - [Release Highlights](#release-highlights)
+    - [Package Consolidation](#package-consolidation)
+  - [Release Contents](#release-contents)
+    - [Documentation Files](#documentation-files)
+    - [Key Features](#key-features)
+      - [1. Unified Ontology Framework](#1-unified-ontology-framework)
+      - [2. Type-First Architecture](#2-type-first-architecture)
+      - [3. Testing Infrastructure](#3-testing-infrastructure)
+      - [4. Enterprise Features](#4-enterprise-features)
+      - [5. Knowledge Graph Computing](#5-knowledge-graph-computing)
+  - [Installation](#installation)
+    - [Quick Install](#quick-install)
+    - [From Source](#from-source)
+  - [Upgrading from Previous Versions](#upgrading-from-previous-versions)
+    - [From v0.1.0](#from-v010)
+    - [From v3.3.0](#from-v330)
+  - [Performance](#performance)
+    - [Benchmarks](#benchmarks)
+    - [Improvements from Previous](#improvements-from-previous)
+  - [Packages Included](#packages-included)
+    - [Core Packages (v0.2.0)](#core-packages-v020)
+    - [Enterprise Packages (v0.2.0)](#enterprise-packages-v020)
+    - [Infrastructure (KNHK Systems)](#infrastructure-knhk-systems)
+  - [Known Issues](#known-issues)
+  - [Security](#security)
+  - [Support & Resources](#support--resources)
+  - [Release Details](#release-details)
+  - [Breaking Changes](#breaking-changes)
+  - [Contributors](#contributors)
+  - [License](#license)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v0.2.0 Release Documentation
 
 Welcome to the comprehensive documentation for ggen v0.2.0. This directory contains all information needed to understand, install, upgrade to, and deploy this release.

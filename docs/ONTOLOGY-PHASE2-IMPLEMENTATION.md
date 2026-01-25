@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Phase 2: Entity Mapping Integration + SPARQL Generation](#ggen-phase-2-entity-mapping-integration--sparql-generation)
+  - [Phase 2 Architecture Overview](#phase-2-architecture-overview)
+  - [1. Integration Layer: EnterpriseDomainMapper](#1-integration-layer-enterprisedomainmapper)
+    - [Location](#location)
+    - [Type Definitions](#type-definitions)
+    - [Core Methods](#core-methods)
+      - [Method 1: Parse Domain Description](#method-1-parse-domain-description)
+      - [Method 2: Map Entities to Ontology](#method-2-map-entities-to-ontology)
+      - [Method 3: Generate SPARQL Queries](#method-3-generate-sparql-queries)
+      - [Method 4: Execute Full Pipeline](#method-4-execute-full-pipeline)
+  - [2. Provider Mapper Interface (Phase 3 Preparation)](#2-provider-mapper-interface-phase-3-preparation)
+    - [Location](#location-1)
+    - [Type Definitions](#type-definitions-1)
+  - [3. Compliance Receipt Generator (Phase 3 Preparation)](#3-compliance-receipt-generator-phase-3-preparation)
+    - [Location](#location-2)
+    - [Type Definitions](#type-definitions-2)
+  - [4. CLI Integration](#4-cli-integration)
+    - [Location](#location-3)
+    - [Command Structure](#command-structure)
+  - [5. Testing Strategy](#5-testing-strategy)
+    - [Integration Test Path](#integration-test-path)
+    - [Test Scenarios](#test-scenarios)
+      - [Test 1: HIPAA Domain Mapping](#test-1-hipaa-domain-mapping)
+      - [Test 2: Determinism Test](#test-2-determinism-test)
+      - [Test 3: Error Handling](#test-3-error-handling)
+  - [6. Example: HIPAA Domain → MCP Proposal Outline](#6-example-hipaa-domain-%E2%86%92-mcp-proposal-outline)
+    - [Input: domain-hipaa.yaml](#input-domain-hipaayaml)
+    - [Output: Phase 2 Mapping Result (JSON)](#output-phase-2-mapping-result-json)
+    - [CLI Usage](#cli-usage)
+  - [7. Success Criteria](#7-success-criteria)
+  - [8. Risk Mitigation](#8-risk-mitigation)
+  - [9. Transition to Phase 3](#9-transition-to-phase-3)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Phase 2: Entity Mapping Integration + SPARQL Generation
 
 **Timeline**: Weeks 3-4 (10 business days)

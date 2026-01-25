@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [LLM-Construct CLI Commands](#llm-construct-cli-commands)
+  - [Overview](#overview)
+  - [Commands](#commands)
+    - [`ggen construct create`](#ggen-construct-create)
+    - [`ggen construct validate`](#ggen-construct-validate)
+  - [LLM-Construct Pipeline](#llm-construct-pipeline)
+    - [Pipeline Stages](#pipeline-stages)
+  - [Implementation Status](#implementation-status)
+    - [Current Status](#current-status)
+    - [Files Created](#files-created)
+    - [Integration](#integration)
+  - [Quality Gates](#quality-gates)
+    - [Compilation ✅](#compilation-)
+    - [Linting](#linting)
+    - [Testing](#testing)
+  - [Next Steps](#next-steps)
+  - [References](#references)
+  - [Examples](#examples)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # LLM-Construct CLI Commands
 
 **Status**: Implemented (Infrastructure Ready, Core Pipeline Pending)

@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [3. THREE-LAYER ARCHITECTURE **](#3-three-layer-architecture-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [Layer 3: CLI (`ggen-cli`)](#layer-3-cli-ggen-cli)
+    - [Layer 2: Integration (`SyncExecutor`)](#layer-2-integration-syncexecutor)
+    - [Layer 1: Domain (`GenerationPipeline`)](#layer-1-domain-generationpipeline)
+  - [The Data Flow](#the-data-flow)
+  - [Testing Each Layer](#testing-each-layer)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 3. THREE-LAYER ARCHITECTURE **
 
 *A building has structure, and the structure has layers.*

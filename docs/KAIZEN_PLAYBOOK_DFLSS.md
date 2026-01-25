@@ -1,3 +1,54 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Kaizen Playbook - DfLSS for ggen Project](#kaizen-playbook---dflss-for-ggen-project)
+  - [📋 Executive Summary](#-executive-summary)
+  - [🎯 DfLSS Philosophy: Prevent Defects AND Waste](#-dflss-philosophy-prevent-defects-and-waste)
+    - [What is DfLSS?](#what-is-dflss)
+    - [Core Principles](#core-principles)
+  - [🚨 Top 10 Error Prevention Patterns (20% Causing 80% Problems)](#-top-10-error-prevention-patterns-20-causing-80-problems)
+    - [1. Type Mismatches (25% of All Errors)](#1-type-mismatches-25-of-all-errors)
+    - [2. Missing Exports/Visibility (18% of All Errors)](#2-missing-exportsvisibility-18-of-all-errors)
+    - [3. Function Signature Changes (15% of All Errors)](#3-function-signature-changes-15-of-all-errors)
+    - [4. Test-Code Divergence (12% of All Errors)](#4-test-code-divergence-12-of-all-errors)
+    - [5. Struct Field Access Violations (10% of All Errors)](#5-struct-field-access-violations-10-of-all-errors)
+    - [6. Unused Imports/Variables (8% of All Errors - Warnings That Become Errors)](#6-unused-importsvariables-8-of-all-errors---warnings-that-become-errors)
+    - [7. Build Directory Lock Contention (5% of All Errors)](#7-build-directory-lock-contention-5-of-all-errors)
+    - [8. Missing Test Imports (5% of All Errors)](#8-missing-test-imports-5-of-all-errors)
+    - [9. Macro Expansion Errors (4% of All Errors)](#9-macro-expansion-errors-4-of-all-errors)
+    - [10. Async Runtime Panics (4% of All Errors)](#10-async-runtime-panics-4-of-all-errors)
+  - [🔍 Root Cause Analysis - Systematic Fix Patterns](#-root-cause-analysis---systematic-fix-patterns)
+    - [The 5 Whys Technique](#the-5-whys-technique)
+    - [Systematic Fix Pattern (Use for Every Error)](#systematic-fix-pattern-use-for-every-error)
+  - [🛠️ Automation Templates](#-automation-templates)
+    - [Pre-Commit Hook (Catch Errors Early)](#pre-commit-hook-catch-errors-early)
+    - [API Change Checklist (Prevent Type Mismatches)](#api-change-checklist-prevent-type-mismatches)
+  - [After Changing API](#after-changing-api)
+  - [If Breaking Change](#if-breaking-change)
+  - [E0609: no field on type](#e0609-no-field-on-type)
+  - [🎓 Training Materials](#-training-materials)
+    - [Module 1: DfLSS Principles (1-hour)](#module-1-dflss-principles-1-hour)
+    - [Module 2: Chicago TDD Practices (1-hour hands-on)](#module-2-chicago-tdd-practices-1-hour-hands-on)
+    - [Module 3: Andon Signal Recognition (30-min)](#module-3-andon-signal-recognition-30-min)
+    - [Module 4: Metrics Interpretation (30-min)](#module-4-metrics-interpretation-30-min)
+  - [🔄 Continuous Improvement Process](#-continuous-improvement-process)
+    - [Quarterly Review Schedule](#quarterly-review-schedule)
+    - [Feedback Loop Design](#feedback-loop-design)
+  - [📚 Knowledge Base Setup](#-knowledge-base-setup)
+    - [Structure](#structure)
+    - [Search Integration](#search-integration)
+  - [🎉 Celebration & Recognition](#-celebration--recognition)
+    - [What to Celebrate](#what-to-celebrate)
+    - [How to Celebrate](#how-to-celebrate)
+  - [📖 References](#-references)
+    - [Internal Documents](#internal-documents)
+    - [External Resources](#external-resources)
+  - [✅ Checklist: Are You Using This Playbook?](#-checklist-are-you-using-this-playbook)
+  - [🚀 Next Steps](#-next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Kaizen Playbook - DfLSS for ggen Project
 
 **Version**: 1.0

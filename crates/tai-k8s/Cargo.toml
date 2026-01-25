@@ -1,0 +1,47 @@
+[package]
+name = "tai-k8s"
+version = "0.1.0"
+edition = "2021"
+description = "Kubernetes deployment, KEDA autoscaling, Istio traffic management, and policy enforcement for TAI system"
+license = "MIT"
+
+[dependencies]
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+log = { workspace = true }
+
+# Kubernetes client libraries
+k8s-openapi = { version = "0.21", features = ["v1_28"] }
+kube = { version = "0.89", features = ["client", "rustls-tls", "derive"] }
+kube-runtime = "0.89"
+
+# YAML and serialization
+toml = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+futures = { workspace = true }
+
+# Error handling and utilities
+parking_lot = "0.12"
+bytes = "1.5"
+regex = { workspace = true }
+
+# Template rendering for Helm
+tera = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+testcontainers = { workspace = true }
+testcontainers-modules = { workspace = true }
+proptest = { workspace = true }
+chicago-tdd-tools = { workspace = true }
+serial_test = "3.2"
+tokio = { workspace = true, features = ["full"] }
+mockall = "0.13"

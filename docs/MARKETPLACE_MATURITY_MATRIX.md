@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Marketplace Maturity Matrix](#ggen-marketplace-maturity-matrix)
+  - [Overview](#overview)
+  - [Maturity Levels](#maturity-levels)
+    - [🔴 Experimental (0-40 points)](#-experimental-0-40-points)
+    - [🟡 Beta (41-60 points)](#-beta-41-60-points)
+    - [🟢 Production (61-80 points)](#-production-61-80-points)
+    - [🟦 Enterprise (81-100 points)](#-enterprise-81-100-points)
+  - [Scoring Dimensions](#scoring-dimensions)
+    - [1. Documentation (0-20 points)](#1-documentation-0-20-points)
+    - [2. Testing (0-20 points)](#2-testing-0-20-points)
+    - [3. Security (0-20 points)](#3-security-0-20-points)
+    - [4. Performance (0-15 points)](#4-performance-0-15-points)
+    - [5. Adoption (0-15 points)](#5-adoption-0-15-points)
+    - [6. Maintenance (0-10 points)](#6-maintenance-0-10-points)
+  - [Usage Examples](#usage-examples)
+    - [View Maturity Assessment for a Package](#view-maturity-assessment-for-a-package)
+    - [Generate Dashboard for All Packages](#generate-dashboard-for-all-packages)
+    - [Filter by Maturity Level](#filter-by-maturity-level)
+    - [View Detailed Feedback](#view-detailed-feedback)
+  - [Marketplace-Wide Statistics](#marketplace-wide-statistics)
+    - [Current State (as of Nov 2025)](#current-state-as-of-nov-2025)
+    - [Top Packages by Maturity](#top-packages-by-maturity)
+    - [Packages Needing Improvement](#packages-needing-improvement)
+  - [Implementation in CI/CD](#implementation-in-cicd)
+    - [GitHub Actions Workflow](#github-actions-workflow)
+  - [Integration with Operations](#integration-with-operations)
+    - [RevOps: Track Package Quality](#revops-track-package-quality)
+    - [DevOps: Gate Release on Maturity](#devops-gate-release-on-maturity)
+    - [GTM: Highlight Production Packages](#gtm-highlight-production-packages)
+  - [Best Practices](#best-practices)
+    - [For Package Authors](#for-package-authors)
+    - [For Package Consumers](#for-package-consumers)
+    - [For Marketplace Managers](#for-marketplace-managers)
+  - [FAQ](#faq)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Marketplace Maturity Matrix
 
 ## Overview

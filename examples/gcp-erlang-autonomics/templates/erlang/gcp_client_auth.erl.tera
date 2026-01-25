@@ -1,0 +1,63 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_gcp_client_auth).
+-export([request/5]).
+
+%% Authenticated GCP Client
+%% Handles OAuth2 token acquisition and request signing
+%% All requests are receipted for audit trail
+
+%% request(Method, Url, Headers, BodyMap, TenantId) -> {ok, Status, RespMap} | {error, Reason}
+%% Sends authenticated HTTP request to GCP API with token handling
+request(Method, Url, Headers, Body, TenantId) ->
+  %% Log request attempt
+  _ = {{ module_prefix }}_receipt_ledger:append(TenantId, #{
+    kind => gcp_request,
+    tenant_id => TenantId,
+    sku => <<"{{ sku }}">>,
+    method => Method,
+    url => Url,
+    decision => attempt
+  }),
+
+  %% Acquire OAuth2 token (cached by GCP SDK)
+  Token = fetch_token(),
+
+  %% Add Bearer token to authorization header
+  AuthHeaders = [{<<"authorization">>, <<"Bearer ", Token/binary>>} | Headers],
+
+  %% Make HTTP request to GCP API
+  Result = {{ module_prefix }}_gcp_client:request(Method, Url, AuthHeaders, Body),
+
+  %% Log response
+  _ = {{ module_prefix }}_receipt_ledger:append(TenantId, #{
+    kind => gcp_request_result,
+    tenant_id => TenantId,
+    sku => <<"{{ sku }}">>,
+    url => Url,
+    method => Method,
+    decision => Result
+  }),
+
+  Result.
+
+%% fetch_token/0 - Acquire OAuth2 access token
+%% In production: calls GCP metadata server at:
+%% http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token
+%%
+%% Returns: {ok, AccessTokenBinary} or {error, Reason}
+%% Tokens are short-lived (1 hour) and should be cached by caller
+fetch_token() ->
+  %% Placeholder: in production, use Google auth library
+  %% Example: using httpc + GCP metadata server
+  %%
+  %% {ok, {Status, _Headers, Body}} = httpc:request(
+  %%   get,
+  %%   {"http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token", []},
+  %%   [],
+  %%   [{full_result, false}]
+  %% ),
+  %% {ok, TokenMap} = json:decode(Body),
+  %% maps:get(<<"access_token">>, TokenMap)
+
+  <<"TOKEN_PLACEHOLDER_USE_GCP_AUTH_IN_PRODUCTION">>.

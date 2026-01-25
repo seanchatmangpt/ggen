@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Crossing the Event Horizon: Frequently Asked Questions (FAQ)](#crossing-the-event-horizon-frequently-asked-questions-faq)
+  - [Quick Navigation](#quick-navigation)
+  - [Table of Contents](#table-of-contents)
+  - [Conceptual Questions](#conceptual-questions)
+    - [What is the "event horizon" in RDF-first development? {&#035;what-is-the-event-horizon}](#what-is-the-event-horizon-in-rdf-first-development-what-is-the-event-horizon)
+    - [What is the A = μ(O) equation? {&#035;what-is-the-equation}](#what-is-the-a--%CE%BCo-equation-what-is-the-equation)
+    - [Is RDF-first right for my project? {&#035;is-rdf-first-right-for-my-project}](#is-rdf-first-right-for-my-project-is-rdf-first-right-for-my-project)
+    - [How long does it take to learn? {&#035;how-long-to-learn}](#how-long-does-it-take-to-learn-how-long-to-learn)
+  - [Getting Started](#getting-started)
+    - [Where do I start? {&#035;where-to-start}](#where-do-i-start-where-to-start)
+    - [Do I need to know RDF/SPARQL already? {&#035;need-to-know-rdf}](#do-i-need-to-know-rdfsparql-already-need-to-know-rdf)
+    - [What tools do I need? {&#035;what-tools-needed}](#what-tools-do-i-need-what-tools-needed)
+  - [Technical Details](#technical-details)
+    - [What's the difference between RDF, Turtle, and SPARQL? {&#035;rdf-turtle-sparql}](#whats-the-difference-between-rdf-turtle-and-sparql-rdf-turtle-sparql)
+    - [What are the five stages of μ? {&#035;five-stages}](#what-are-the-five-stages-of-%CE%BC-five-stages)
+    - [How does SHACL validation work? {&#035;how-shacl-works}](#how-does-shacl-validation-work-how-shacl-works)
+  - [Workflow and Process](#workflow-and-process)
+    - [How do I edit generated code? {&#035;edit-generated-code}](#how-do-i-edit-generated-code-edit-generated-code)
+    - [What if I need custom code that can't be generated? {&#035;custom-code}](#what-if-i-need-custom-code-that-cant-be-generated-custom-code)
+    - [Can I use RDF-first with existing projects? {&#035;existing-projects}](#can-i-use-rdf-first-with-existing-projects-existing-projects)
+  - [Troubleshooting](#troubleshooting)
+    - [Why is my SHACL validation failing? {&#035;shacl-failing}](#why-is-my-shacl-validation-failing-shacl-failing)
+    - [Why doesn't my code compile after generation? {&#035;code-not-compiling}](#why-doesnt-my-code-compile-after-generation-code-not-compiling)
+    - [How do I debug ontology issues? {&#035;debug-ontology}](#how-do-i-debug-ontology-issues-debug-ontology)
+  - [Comparison with Alternatives](#comparison-with-alternatives)
+    - [How does this compare to GraphQL/Protobuf/OpenAPI? {&#035;compare-to-alternatives}](#how-does-this-compare-to-graphqlprotobufopenapi-compare-to-alternatives)
+  - [Team and Organizational](#team-and-organizational)
+    - [How do I convince my team to try RDF-first? {&#035;convince-team}](#how-do-i-convince-my-team-to-try-rdf-first-convince-team)
+  - [Advanced Topics](#advanced-topics)
+    - [How do I optimize generation performance? {&#035;optimize-performance}](#how-do-i-optimize-generation-performance-optimize-performance)
+    - [Can I generate code for multiple languages? {&#035;multiple-languages}](#can-i-generate-code-for-multiple-languages-multiple-languages)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Crossing the Event Horizon: Frequently Asked Questions (FAQ)
 
 > **Template Instructions**: Replace all `[bracketed sections]` with actual content. Organize questions by category. Delete this instruction block when creating a real FAQ.

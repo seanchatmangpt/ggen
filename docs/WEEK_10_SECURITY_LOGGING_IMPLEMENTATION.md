@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 10: Security Logging and Intrusion Detection Implementation](#week-10-security-logging-and-intrusion-detection-implementation)
+  - [Summary](#summary)
+  - [Implementation Files](#implementation-files)
+    - [Core Modules (7 files)](#core-modules-7-files)
+    - [Integration Tests](#integration-tests)
+    - [Test Coverage](#test-coverage)
+  - [Features Implemented](#features-implemented)
+    - [1. Security Event Logging](#1-security-event-logging)
+    - [2. Immutable Audit Trail](#2-immutable-audit-trail)
+    - [3. Intrusion Detection](#3-intrusion-detection)
+    - [4. Security Metrics](#4-security-metrics)
+    - [5. Real-Time Alerting](#5-real-time-alerting)
+  - [Technical Highlights](#technical-highlights)
+    - [Type-First Design](#type-first-design)
+    - [Zero-Cost Abstractions](#zero-cost-abstractions)
+    - [Memory Safety](#memory-safety)
+    - [Performance](#performance)
+  - [Dependencies Added](#dependencies-added)
+  - [Code Quality](#code-quality)
+    - [Poka-Yoke Compliance](#poka-yoke-compliance)
+    - [Constitutional Rules](#constitutional-rules)
+  - [Integration Points](#integration-points)
+    - [With Existing ggen Systems](#with-existing-ggen-systems)
+    - [With knhk-lockchain](#with-knhk-lockchain)
+  - [Usage Example](#usage-example)
+  - [Known Issues](#known-issues)
+    - [Pre-Existing Codebase Errors (NOT from this implementation)](#pre-existing-codebase-errors-not-from-this-implementation)
+  - [Next Steps](#next-steps)
+  - [Files Created](#files-created)
+    - [Production Code](#production-code)
+    - [Tests](#tests)
+    - [Documentation](#documentation)
+  - [Metrics](#metrics)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 10: Security Logging and Intrusion Detection Implementation
 
 **Status**: ✅ Implementation Complete

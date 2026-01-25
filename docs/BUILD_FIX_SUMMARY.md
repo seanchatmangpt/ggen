@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Build Fix Summary - Quick Reference](#build-fix-summary---quick-reference)
+  - [Problem](#problem)
+  - [Solution](#solution)
+  - [Result](#result)
+  - [Verification Commands](#verification-commands)
+  - [Files Changed](#files-changed)
+  - [Packages Fixed](#packages-fixed)
+  - [Follow-up Actions](#follow-up-actions)
+  - [Documentation](#documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Build Fix Summary - Quick Reference
 
 ## Problem

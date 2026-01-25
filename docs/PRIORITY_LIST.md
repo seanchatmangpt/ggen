@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CLI Business Logic Extraction - Priority List](#cli-business-logic-extraction---priority-list)
+  - [CRITICAL FINDING](#critical-finding)
+  - [PRIORITY 0: CRITICAL (None!)](#priority-0-critical-none)
+  - [PRIORITY 1: IMPORTANT (1.5 hours total)](#priority-1-important-15-hours-total)
+    - [P1-1: Marketplace List Maturity Filtering](#p1-1-marketplace-list-maturity-filtering)
+    - [P1-2: Marketplace Improve Template Application](#p1-2-marketplace-improve-template-application)
+  - [PRIORITY 2: NICE-TO-HAVE (15 minutes total)](#priority-2-nice-to-have-15-minutes-total)
+    - [P2-1: Variable Parsing Helper (DRY)](#p2-1-variable-parsing-helper-dry)
+  - [EXECUTION SCHEDULE](#execution-schedule)
+    - [Week 1 (Total: 1 hour 45 minutes)](#week-1-total-1-hour-45-minutes)
+  - [VALIDATION COMMANDS](#validation-commands)
+  - [RISK MITIGATION](#risk-mitigation)
+    - [P1-1 Risks:](#p1-1-risks)
+    - [P1-2 Risks:](#p1-2-risks)
+    - [P2-1 Risks:](#p2-1-risks)
+  - [DEFINITION OF DONE](#definition-of-done)
+  - [POST-COMPLETION METRICS](#post-completion-metrics)
+  - [RECOMMENDATIONS](#recommendations)
+    - [DO NOW (Priority 1)](#do-now-priority-1)
+    - [DO THIS WEEK (Priority 2)](#do-this-week-priority-2)
+    - [DO LATER (Nice-to-have)](#do-later-nice-to-have)
+  - [SUCCESS CELEBRATION](#success-celebration)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CLI Business Logic Extraction - Priority List
 
 **Generated:** 2025-11-20

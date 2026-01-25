@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [FMEA - Failure Mode and Effects Analysis](#fmea---failure-mode-and-effects-analysis)
+  - [Phase 2: ggen.toml + clap-noun-verb Integration](#phase-2-ggentoml--clap-noun-verb-integration)
+  - [Scoring System](#scoring-system)
+  - [FMEA Table: 25 Critical Failure Modes](#fmea-table-25-critical-failure-modes)
+  - [RPN Distribution](#rpn-distribution)
+  - [Top 5 Critical Failures (RPN ≥ 200)](#top-5-critical-failures-rpn-%E2%89%A5-200)
+    - [1️⃣ FM-006: Circular Dependency (RPN: 252)](#-fm-006-circular-dependency-rpn-252)
+    - [2️⃣ FM-025: Unvalidated User Input (RPN: 224)](#-fm-025-unvalidated-user-input-rpn-224)
+    - [3️⃣ FM-011: Command Injection (RPN: 200)](#-fm-011-command-injection-rpn-200)
+    - [4️⃣ FM-024: Timeout During Parse (RPN: 196)](#-fm-024-timeout-during-parse-rpn-196)
+    - [5️⃣ FM-020: Race Condition (RPN: 192)](#-fm-020-race-condition-rpn-192)
+  - [Mitigation Priority Roadmap](#mitigation-priority-roadmap)
+    - [Phase 1 (Week 1): Critical Failures (RPN ≥ 200)](#phase-1-week-1-critical-failures-rpn-%E2%89%A5-200)
+    - [Phase 2 (Week 2): High Failures (RPN 100-199)](#phase-2-week-2-high-failures-rpn-100-199)
+    - [Phase 3 (Week 3): Medium Failures (RPN 50-99)](#phase-3-week-3-medium-failures-rpn-50-99)
+  - [Testing Requirements](#testing-requirements)
+  - [Success Metrics](#success-metrics)
+  - [NEXT STEPS](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # FMEA - Failure Mode and Effects Analysis
 ## Phase 2: ggen.toml + clap-noun-verb Integration
 

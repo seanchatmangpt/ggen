@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v3 SPARQL Patterns & Optimization Guide](#ggen-v3-sparql-patterns--optimization-guide)
+  - [Table of Contents](#table-of-contents)
+  - [SPARQL Fundamentals for Code Generation](#sparql-fundamentals-for-code-generation)
+    - [SPARQL in ggen Context](#sparql-in-ggen-context)
+    - [SPARQL 1.1 Features Used](#sparql-11-features-used)
+  - [Core Query Patterns](#core-query-patterns)
+    - [Pattern 1: Simple Entity Selection](#pattern-1-simple-entity-selection)
+    - [Pattern 2: Relationships (Parent/Child)](#pattern-2-relationships-parentchild)
+    - [Pattern 3: Optional Fields (OPTIONAL)](#pattern-3-optional-fields-optional)
+    - [Pattern 4: Aggregation (GROUP_CONCAT)](#pattern-4-aggregation-group_concat)
+    - [Pattern 5: Conditional Logic (FILTER)](#pattern-5-conditional-logic-filter)
+    - [Pattern 6: String Pattern Matching (REGEX)](#pattern-6-string-pattern-matching-regex)
+    - [Pattern 7: Computed Values (BIND)](#pattern-7-computed-values-bind)
+    - [Pattern 8: Multiple Aggregations](#pattern-8-multiple-aggregations)
+    - [Pattern 9: Subqueries for Complex Logic](#pattern-9-subqueries-for-complex-logic)
+    - [Pattern 10: UNION for Polymorphism](#pattern-10-union-for-polymorphism)
+  - [Query Optimization Strategies](#query-optimization-strategies)
+    - [Strategy 1: Index-Friendly Queries](#strategy-1-index-friendly-queries)
+    - [Strategy 2: Push Filtering Early](#strategy-2-push-filtering-early)
+    - [Strategy 3: Reduce Variable Count](#strategy-3-reduce-variable-count)
+    - [Strategy 4: Avoid Optional Unless Needed](#strategy-4-avoid-optional-unless-needed)
+    - [Strategy 5: Use LIMIT for Pagination](#strategy-5-use-limit-for-pagination)
+  - [Caching & Performance](#caching--performance)
+    - [Caching Strategy](#caching-strategy)
+    - [Cache Invalidation Strategy](#cache-invalidation-strategy)
+    - [Performance Benchmarks](#performance-benchmarks)
+  - [Advanced Query Techniques](#advanced-query-techniques)
+    - [Technique 1: Recursive Relationships](#technique-1-recursive-relationships)
+    - [Technique 2: Path Finding](#technique-2-path-finding)
+    - [Technique 3: Property Path Filtering](#technique-3-property-path-filtering)
+    - [Technique 4: CONSTRUCT for Transformation](#technique-4-construct-for-transformation)
+    - [Technique 5: Dynamic WHERE Clauses](#technique-5-dynamic-where-clauses)
+  - [Query Performance Benchmarks](#query-performance-benchmarks)
+    - [Benchmark Suite](#benchmark-suite)
+    - [Benchmark Results (v3.0 target)](#benchmark-results-v30-target)
+  - [Query Best Practices](#query-best-practices)
+    - [1. Write Readable Queries](#1-write-readable-queries)
+    - [2. Use Meaningful Variable Names](#2-use-meaningful-variable-names)
+    - [3. Comment Complex Queries](#3-comment-complex-queries)
+    - [4. Leverage Prefixes](#4-leverage-prefixes)
+  - [Common Query Patterns Library](#common-query-patterns-library)
+    - [Query Library](#query-library)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v3 SPARQL Patterns & Optimization Guide
 
 **Status**: COMPREHENSIVE REFERENCE

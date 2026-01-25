@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Example: PhD Thesis Generation](#example-phd-thesis-generation)
+  - [Overview](#overview)
+  - [What's Generated](#whats-generated)
+  - [Source Files](#source-files)
+  - [Key Features Demonstrated](#key-features-demonstrated)
+    - [1. Complex Hierarchical Structure](#1-complex-hierarchical-structure)
+    - [2. Mathematical Content](#2-mathematical-content)
+    - [3. Bibliography Management](#3-bibliography-management)
+    - [4. Cross-References](#4-cross-references)
+  - [SPARQL Queries Used](#sparql-queries-used)
+    - [Query 1: Extract Thesis Metadata](#query-1-extract-thesis-metadata)
+    - [Query 2: Get Chapters with Sections](#query-2-get-chapters-with-sections)
+    - [Query 3: Extract Theorems](#query-3-extract-theorems)
+  - [Templates](#templates)
+    - [Main Document (`thesis-main.tera`)](#main-document-thesis-maintera)
+    - [Chapter Template (`chapter.tera`)](#chapter-template-chaptertera)
+  - [Running This Example](#running-this-example)
+    - [1. Navigate to Source](#1-navigate-to-source)
+    - [2. Generate LaTeX](#2-generate-latex)
+    - [3. Compile to PDF](#3-compile-to-pdf)
+    - [4. Verify Determinism](#4-verify-determinism)
+  - [Customization Examples](#customization-examples)
+    - [Add a New Chapter](#add-a-new-chapter)
+    - [Add a Theorem](#add-a-theorem)
+    - [Change Theorem Numbering](#change-theorem-numbering)
+  - [Performance](#performance)
+  - [Lessons Learned](#lessons-learned)
+    - [✅ What Works Well](#-what-works-well)
+    - [⚠️ Challenges](#-challenges)
+    - [🎯 Best Practices](#-best-practices)
+  - [Related Examples](#related-examples)
+  - [Resources](#resources)
+  - [Meta-Observation](#meta-observation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Example: PhD Thesis Generation
 
 **Type**: Document Generation

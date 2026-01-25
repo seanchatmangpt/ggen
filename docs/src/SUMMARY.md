@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Summary](#summary)
+- [Tutorials](#tutorials)
+  - [Core Concepts](#core-concepts)
+  - [Marketplace Maturity](#marketplace-maturity)
+- [How-to Guides](#how-to-guides)
+  - [Core Features](#core-features)
+  - [Marketplace Maturity](#marketplace-maturity-1)
+  - [Workflow Analytics](#workflow-analytics)
+- [Reference](#reference)
+  - [Core Features](#core-features-1)
+  - [Marketplace Maturity](#marketplace-maturity-2)
+- [Explanations](#explanations)
+  - [Core Architecture](#core-architecture)
+  - [Marketplace Maturity](#marketplace-maturity-3)
+- [Additional Resources](#additional-resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Summary
 
 [Introduction](README.md)

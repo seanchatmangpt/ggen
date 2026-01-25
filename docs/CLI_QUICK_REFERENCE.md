@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-paas CLI Quick Reference Guide](#ggen-paas-cli-quick-reference-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Quick Start](#quick-start)
+    - [Installation](#installation)
+    - [First Command](#first-command)
+  - [Command Overview](#command-overview)
+    - [Generation Commands](#generation-commands)
+      - [`ggen paas generate <artifact>`](#ggen-paas-generate-artifact)
+    - [Validation Commands](#validation-commands)
+      - [`ggen paas validate <target>`](#ggen-paas-validate-target)
+    - [Synchronization Commands](#synchronization-commands)
+      - [`ggen paas sync <target>`](#ggen-paas-sync-target)
+    - [Deployment Commands](#deployment-commands)
+      - [`ggen paas deploy <environment>`](#ggen-paas-deploy-environment)
+    - [Management Commands](#management-commands)
+      - [`ggen paas status [target]`](#ggen-paas-status-target)
+      - [`ggen paas logs <service>`](#ggen-paas-logs-service)
+      - [`ggen paas describe <resource>`](#ggen-paas-describe-resource)
+    - [Help Commands](#help-commands)
+      - [`ggen paas explain <concept>`](#ggen-paas-explain-concept)
+  - [Global Options](#global-options)
+  - [Adding New Commands](#adding-new-commands)
+    - [1. Define in RDF Specification](#1-define-in-rdf-specification)
+    - [2. Generate Code](#2-generate-code)
+    - [3. Implement Command Logic](#3-implement-command-logic)
+    - [4. Write Tests](#4-write-tests)
+    - [5. Verify](#5-verify)
+  - [Project Structure](#project-structure)
+  - [Configuration](#configuration)
+    - [User Configuration](#user-configuration)
+    - [Project Configuration](#project-configuration)
+  - [Troubleshooting](#troubleshooting)
+    - [Problem: Command not found](#problem-command-not-found)
+    - [Problem: Validation fails](#problem-validation-fails)
+    - [Problem: Artifacts don't validate](#problem-artifacts-dont-validate)
+    - [Problem: Deployment stuck](#problem-deployment-stuck)
+    - [Problem: Need verbose debugging](#problem-need-verbose-debugging)
+  - [Key Concepts](#key-concepts)
+    - [RDF-Driven CLI](#rdf-driven-cli)
+    - [Chicago TDD](#chicago-tdd)
+    - [Specification Closure](#specification-closure)
+  - [Further Reading](#further-reading)
+  - [Support](#support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-paas CLI Quick Reference Guide
 
 **Last Updated**: 2026-01-08

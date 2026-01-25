@@ -1,0 +1,51 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_http_server).
+-behaviour(gen_server).
+
+-export([start_link/0]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+
+-define(DEFAULT_PORT, 8080).
+
+start_link() ->
+  gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+init([]) ->
+  application:ensure_all_started(cowboy),
+
+  Port = case os:getenv("PORT") of
+    false -> ?DEFAULT_PORT;
+    S -> list_to_integer(S)
+  end,
+
+  Dispatch = cowboy_router:compile([
+    {'_', [
+      {"/health", {{ module_prefix }}_http_handler_health, []},
+      {"/pubsub", {{ module_prefix }}_http_handler_pubsub, []},
+      {"/marketplace", {{ module_prefix }}_http_handler_marketplace, []}
+    ]}
+  ]),
+
+  ProtoOpts = #{
+    env => #{dispatch => Dispatch},
+    idle_timeout => 30000
+  },
+
+  {ok, _} = cowboy:start_clear({{ module_prefix }}_listener, [{port, Port}], ProtoOpts),
+
+  _ = {{ module_prefix }}_receipt_ledger:append(<<"system">>, #{
+    kind => system,
+    sku => <<"{{ sku }}">>,
+    event => http_server_started,
+    decision => accept,
+    port => Port
+  }),
+
+  {ok, #{port => Port}}.
+
+handle_call(_Req, _From, State) -> {reply, ok, State}.
+handle_cast(_Msg, State) -> {noreply, State}.
+handle_info(_Info, State) -> {noreply, State}.
+terminate(_Reason, _State) -> ok.
+code_change(_OldVsn, State, _Extra) -> {ok, State}.

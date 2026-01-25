@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [SPARQL Inference Rules: The Power Engine of ggen](#sparql-inference-rules-the-power-engine-of-ggen)
+  - [What Are Inference Rules?](#what-are-inference-rules)
+    - [Why It Matters](#why-it-matters)
+  - [Pattern 1: Inheritance Materialization (Class Hierarchies)](#pattern-1-inheritance-materialization-class-hierarchies)
+  - [Pattern 2: Property Inference (Domain/Range Expansion)](#pattern-2-property-inference-domainrange-expansion)
+  - [Pattern 3: Role/Capability Detection (Interface Extraction)](#pattern-3-rolecapability-detection-interface-extraction)
+  - [Pattern 4: Validation Rule Extraction (Constraint Propagation)](#pattern-4-validation-rule-extraction-constraint-propagation)
+  - [Pattern 5: Cross-Cutting Concerns (Auditing, Versioning, Soft Deletes)](#pattern-5-cross-cutting-concerns-auditing-versioning-soft-deletes)
+  - [How to Use Inference Rules in ggen](#how-to-use-inference-rules-in-ggen)
+    - [Step 1: Define Your Rule in ggen.toml](#step-1-define-your-rule-in-ggentoml)
+    - [Step 2: Apply Inference Rules During Sync](#step-2-apply-inference-rules-during-sync)
+    - [Step 3: Query Derived Facts in Templates](#step-3-query-derived-facts-in-templates)
+  - [Performance Optimization for Large Ontologies](#performance-optimization-for-large-ontologies)
+    - [Problem: SPARQL Queries Can Be Slow](#problem-sparql-queries-can-be-slow)
+    - [Solution: Query Optimization](#solution-query-optimization)
+      - [1. **Use DISTINCT to Reduce Results**](#1-use-distinct-to-reduce-results)
+      - [2. **Use MINUS to Exclude Already-Materialized Facts**](#2-use-minus-to-exclude-already-materialized-facts)
+      - [3. **Batch Rules: Mark Materialized, Skip in Next Pass**](#3-batch-rules-mark-materialized-skip-in-next-pass)
+      - [4. **Profile Your Queries**](#4-profile-your-queries)
+    - [Benchmarks](#benchmarks)
+  - [Testing Inference Rules](#testing-inference-rules)
+    - [Unit Test Pattern](#unit-test-pattern)
+  - [Real-World Example: Building a REST API](#real-world-example-building-a-rest-api)
+    - [Ontology (domain.ttl)](#ontology-domainttl)
+    - [Inference Rules (ggen.toml)](#inference-rules-ggentoml)
+    - [Template (rust-api.tera)](#template-rust-apitera)
+    - [Generated Code Output](#generated-code-output)
+  - [Key Takeaways](#key-takeaways)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # SPARQL Inference Rules: The Power Engine of ggen
 
 > **This is the crown jewel of ggen.** SPARQL CONSTRUCT queries are where intelligent code generation happens. Master this, and you unlock 60% of ggen's potential.

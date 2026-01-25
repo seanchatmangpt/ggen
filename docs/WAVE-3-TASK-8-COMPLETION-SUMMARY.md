@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Wave 3, Task 8: SOC 2 Type II Certification Roadmap - Completion Summary](#wave-3-task-8-soc-2-type-ii-certification-roadmap---completion-summary)
+  - [Executive Delivery](#executive-delivery)
+  - [Deliverable 1: SOC 2 Control Framework Specification](#deliverable-1-soc-2-control-framework-specification)
+    - [Coverage](#coverage)
+    - [Control Definitions](#control-definitions)
+    - [Phase Definitions](#phase-definitions)
+    - [Key Control Areas](#key-control-areas)
+  - [Deliverable 2: Audit Readiness Checklist](#deliverable-2-audit-readiness-checklist)
+    - [Scope](#scope)
+    - [Control Areas](#control-areas)
+    - [Checklist Item Structure](#checklist-item-structure)
+    - [Evidence Repository](#evidence-repository)
+    - [Auditor Coordination](#auditor-coordination)
+    - [Success Metrics](#success-metrics)
+  - [Deliverable 3: SOC 2 Roadmap Document](#deliverable-3-soc-2-roadmap-document)
+    - [Document Sections](#document-sections)
+  - [Deliverable 4: Compliance Mapping Document](#deliverable-4-compliance-mapping-document)
+    - [Framework Coverage](#framework-coverage)
+    - [Key Mappings](#key-mappings)
+    - [Compliance Gap Analysis](#compliance-gap-analysis)
+    - [Implementation Roadmap (Multi-Framework)](#implementation-roadmap-multi-framework)
+    - [Data Classification Matrix](#data-classification-matrix)
+    - [Encryption Standards](#encryption-standards)
+    - [Evidence Required](#evidence-required)
+    - [Cost-Benefit Analysis](#cost-benefit-analysis)
+  - [Implementation Dependencies & Critical Path](#implementation-dependencies--critical-path)
+  - [Success Criteria Summary](#success-criteria-summary)
+    - [By Phase](#by-phase)
+    - [Overall](#overall)
+  - [Next Steps (Week of Jan 20-24, 2026)](#next-steps-week-of-jan-20-24-2026)
+    - [Immediate (This Week)](#immediate-this-week)
+    - [Week of Jan 27-31](#week-of-jan-27-31)
+    - [Monthly Gates](#monthly-gates)
+  - [Files Created](#files-created)
+    - [RDF Specifications](#rdf-specifications)
+    - [Documentation](#documentation)
+  - [Resource Allocation Summary](#resource-allocation-summary)
+    - [Internal Effort (960 hours total)](#internal-effort-960-hours-total)
+    - [External Resources](#external-resources)
+    - [Timeline](#timeline)
+  - [Compliance Certifications Roadmap](#compliance-certifications-roadmap)
+  - [Document Status](#document-status)
+  - [Sign-Off](#sign-off)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Wave 3, Task 8: SOC 2 Type II Certification Roadmap - Completion Summary
 
 **Task Owner**: Compliance Architect

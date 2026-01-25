@@ -1,0 +1,37 @@
+# Flux CD Git Sources Configuration
+# Defines Git repositories as sources for Kustomizations
+
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: ggen
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/instance: ggen
+    app.kubernetes.io/name: ggen
+spec:
+  # Git repository URL
+  url: https://github.com/seanchatmangpt/ggen
+
+  # Branch to track
+  ref:
+    branch: main
+
+  # Reconciliation interval
+  interval: 5m
+
+  # Git authentication (use GitHub token stored in secret)
+  secretRef:
+    name: github-credentials
+  ignore: |
+    # Ignore certain files
+    /docs/**
+    /examples/**
+    *.md
+
+  # Verify git commits with SSH key
+  # secureShellSecretRef:
+  #   name: ssh-key
+
+  # Timeout for git operations
+  timeout: 1m

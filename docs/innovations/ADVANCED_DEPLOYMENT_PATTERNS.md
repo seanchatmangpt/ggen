@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Advanced Deployment Patterns with ggen](#advanced-deployment-patterns-with-ggen)
+  - [Overview](#overview)
+  - [Pattern 1: Advanced Container Orchestration with Kubernetes & Helm](#pattern-1-advanced-container-orchestration-with-kubernetes--helm)
+    - [Description](#description)
+    - [External Tools & Packages](#external-tools--packages)
+    - [RDF Ontology for Deployment](#rdf-ontology-for-deployment)
+    - [Generated Multi-Stage Dockerfile](#generated-multi-stage-dockerfile)
+    - [Generated Kubernetes Deployment](#generated-kubernetes-deployment)
+    - [Generated Helm Chart](#generated-helm-chart)
+    - [Generated GitHub Actions Workflow](#generated-github-actions-workflow)
+  - [Pattern 2: Multi-Cloud Deployment (AWS ECS, Azure Container Instances, GKE)](#pattern-2-multi-cloud-deployment-aws-ecs-azure-container-instances-gke)
+    - [Description](#description-1)
+  - [Pattern 3: GitOps with ArgoCD & Flux](#pattern-3-gitops-with-argocd--flux)
+    - [Description](#description-2)
+  - [Pattern 4: Service Mesh Integration (Istio, Linkerd)](#pattern-4-service-mesh-integration-istio-linkerd)
+    - [Description](#description-3)
+  - [Pattern 5: Observability Stack (Prometheus, Grafana, Jaeger)](#pattern-5-observability-stack-prometheus-grafana-jaeger)
+    - [Description](#description-4)
+  - [Tera Template Examples](#tera-template-examples)
+    - [Kubernetes Deployment Template](#kubernetes-deployment-template)
+  - [Best Practices](#best-practices)
+  - [References](#references)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Advanced Deployment Patterns with ggen
 
 > Enterprise-grade deployment patterns generated from RDF ontologies: Kubernetes, Helm, Docker, and multi-cloud orchestration

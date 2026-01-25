@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Performance Strategy, SLOs, and Monitoring](#performance-strategy-slos-and-monitoring)
+  - [Overview](#overview)
+  - [Service Level Objectives (SLOs)](#service-level-objectives-slos)
+    - [Search Performance](#search-performance)
+    - [Installation Performance](#installation-performance)
+    - [Publishing Performance](#publishing-performance)
+    - [Backend Adapter Overhead](#backend-adapter-overhead)
+  - [Performance Optimization Strategies](#performance-optimization-strategies)
+    - [1. SPARQL Query Optimization](#1-sparql-query-optimization)
+    - [2. Caching Strategy](#2-caching-strategy)
+    - [3. RDF Store Optimization](#3-rdf-store-optimization)
+    - [4. Parallel Processing](#4-parallel-processing)
+    - [5. Signature Verification Optimization](#5-signature-verification-optimization)
+  - [Performance Monitoring](#performance-monitoring)
+    - [OpenTelemetry Instrumentation](#opentelemetry-instrumentation)
+    - [Performance Dashboard (Grafana)](#performance-dashboard-grafana)
+  - [Performance Testing](#performance-testing)
+    - [Benchmark Suite](#benchmark-suite)
+    - [Load Testing](#load-testing)
+  - [Performance Optimization Checklist](#performance-optimization-checklist)
+    - [Pre-Launch Optimization](#pre-launch-optimization)
+    - [Post-Launch Monitoring](#post-launch-monitoring)
+    - [Continuous Improvement](#continuous-improvement)
+  - [Success Criteria](#success-criteria)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Performance Strategy, SLOs, and Monitoring
 
 ## Overview

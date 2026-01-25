@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Benchmarking Methodology and Standards](#ggen-benchmarking-methodology-and-standards)
+  - [Executive Summary: The 80/20 Refactoring](#executive-summary-the-8020-refactoring)
+  - [Benchmarks That Were Deleted (80%)](#benchmarks-that-were-deleted-80)
+    - [❌ sync_operation_benchmarks.rs](#-sync_operation_benchmarksrs)
+    - [❌ concurrent_operations_benchmarks.rs](#-concurrent_operations_benchmarksrs)
+  - [Benchmarks That Were Kept (20%)](#benchmarks-that-were-kept-20)
+    - [✅ error_handling_benchmarks.rs](#-error_handling_benchmarksrs)
+    - [✅ disk_io_benchmarks.rs](#-disk_io_benchmarksrs)
+    - [✅ config_loading_benchmarks.rs](#-config_loading_benchmarksrs)
+    - [✅ stability_benchmarks.rs](#-stability_benchmarksrs)
+  - [What REAL ggen Benchmarks Should Measure](#what-real-ggen-benchmarks-should-measure)
+    - [1. Template Processing Pipeline](#1-template-processing-pipeline)
+    - [2. RDF Query Performance](#2-rdf-query-performance)
+    - [3. Sync Command End-to-End](#3-sync-command-end-to-end)
+    - [4. Marketplace Operations](#4-marketplace-operations)
+  - [Standards for Honest Benchmarking](#standards-for-honest-benchmarking)
+    - [✅ DO:](#-do)
+    - [❌ DON'T:](#-dont)
+  - [How to Verify Benchmarks Are Honest](#how-to-verify-benchmarks-are-honest)
+    - [1. Read the benchmark code](#1-read-the-benchmark-code)
+    - [2. Run the benchmark](#2-run-the-benchmark)
+    - [3. Check the output](#3-check-the-output)
+    - [4. Question the claims](#4-question-the-claims)
+  - [Benchmark Execution and Reporting](#benchmark-execution-and-reporting)
+    - [Running Individual Benchmarks](#running-individual-benchmarks)
+    - [Baseline Comparison](#baseline-comparison)
+    - [Regression Detection](#regression-detection)
+  - [Future Benchmark Work](#future-benchmark-work)
+    - [High Priority](#high-priority)
+    - [Medium Priority](#medium-priority)
+    - [Documentation](#documentation)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Benchmarking Methodology and Standards
 
 ## Executive Summary: The 80/20 Refactoring

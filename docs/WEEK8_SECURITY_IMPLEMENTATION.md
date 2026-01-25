@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 8: Dependency Security and Supply Chain Protection](#week-8-dependency-security-and-supply-chain-protection)
+  - [Overview](#overview)
+  - [Components Implemented](#components-implemented)
+    - [1. Enhanced CI/CD Security Audit Workflow](#1-enhanced-cicd-security-audit-workflow)
+    - [2. Supply Chain Security Module](#2-supply-chain-security-module)
+    - [3. Cargo.lock Verification Script](#3-cargolock-verification-script)
+    - [4. Typosquatting Detection Script](#4-typosquatting-detection-script)
+    - [5. SBOM Generation Script](#5-sbom-generation-script)
+    - [6. Integration Tests](#6-integration-tests)
+    - [7. E2E Vulnerability Tests](#7-e2e-vulnerability-tests)
+    - [8. Cargo Make Targets](#8-cargo-make-targets)
+    - [9. Dependency Review Configuration](#9-dependency-review-configuration)
+  - [Security Measures Implemented](#security-measures-implemented)
+    - [1. Cargo.lock Protection](#1-cargolock-protection)
+    - [2. Vulnerability Scanning](#2-vulnerability-scanning)
+    - [3. Typosquatting Prevention](#3-typosquatting-prevention)
+    - [4. License Compliance](#4-license-compliance)
+    - [5. SBOM Generation](#5-sbom-generation)
+    - [6. Automated Updates](#6-automated-updates)
+  - [Performance Targets](#performance-targets)
+  - [Constitutional Compliance](#constitutional-compliance)
+    - [Result<T,E> Pattern](#resultte-pattern)
+    - [Chicago TDD](#chicago-tdd)
+    - [Type Safety](#type-safety)
+    - [Poka-Yoke (Error Prevention)](#poka-yoke-error-prevention)
+  - [Integration Points](#integration-points)
+    - [CI/CD Pipeline](#cicd-pipeline)
+    - [Cargo Make](#cargo-make)
+    - [GitHub Actions](#github-actions)
+  - [Known Issues](#known-issues)
+  - [Next Steps](#next-steps)
+  - [Usage Examples](#usage-examples)
+    - [Local Development](#local-development)
+    - [CI/CD](#cicd)
+    - [Manual SBOM Generation](#manual-sbom-generation)
+  - [Metrics](#metrics)
+  - [Security Improvements](#security-improvements)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 8: Dependency Security and Supply Chain Protection
 
 **Implementation Date**: January 2026

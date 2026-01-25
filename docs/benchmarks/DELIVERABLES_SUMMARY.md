@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace V2 Performance Benchmarking - Deliverables Summary](#marketplace-v2-performance-benchmarking---deliverables-summary)
+  - [Overview](#overview)
+  - [Deliverables](#deliverables)
+    - [1. Benchmark Test Suites](#1-benchmark-test-suites)
+      - [📊 Comprehensive Performance Benchmark](#-comprehensive-performance-benchmark)
+      - [🆚 V1 vs V2 Comparison Benchmark](#-v1-vs-v2-comparison-benchmark)
+      - [✅ SLO Validation Benchmark](#-slo-validation-benchmark)
+    - [2. Infrastructure & Tooling](#2-infrastructure--tooling)
+      - [🛠️ Performance Report Generator](#-performance-report-generator)
+      - [📜 Benchmark Runner Script](#-benchmark-runner-script)
+    - [3. Documentation](#3-documentation)
+      - [📖 Quick Start Guide](#-quick-start-guide)
+      - [📊 Performance Report Template](#-performance-report-template)
+    - [4. Configuration](#4-configuration)
+      - [📦 Cargo Configuration](#-cargo-configuration)
+  - [Summary Statistics](#summary-statistics)
+    - [Code Delivered](#code-delivered)
+    - [Benchmark Coverage](#benchmark-coverage)
+  - [Key Features](#key-features)
+    - [✅ Comprehensive Coverage](#-comprehensive-coverage)
+    - [🚀 Production-Grade Validation](#-production-grade-validation)
+    - [📊 Performance Insights](#-performance-insights)
+    - [🛠️ Developer Experience](#-developer-experience)
+  - [Expected Results](#expected-results)
+    - [Performance Improvements (V2 vs V1)](#performance-improvements-v2-vs-v1)
+    - [SLO Validation](#slo-validation)
+  - [Usage Workflow](#usage-workflow)
+    - [1. Run Benchmarks](#1-run-benchmarks)
+    - [2. View Results](#2-view-results)
+    - [3. Analyze Performance](#3-analyze-performance)
+    - [4. Generate Report](#4-generate-report)
+  - [Next Steps](#next-steps)
+    - [Immediate](#immediate)
+    - [Short-Term](#short-term)
+    - [Long-Term](#long-term)
+  - [Success Metrics](#success-metrics)
+    - [Deliverable Quality](#deliverable-quality)
+    - [Technical Excellence](#technical-excellence)
+    - [Production Readiness](#production-readiness)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace V2 Performance Benchmarking - Deliverables Summary
 
 ## Overview

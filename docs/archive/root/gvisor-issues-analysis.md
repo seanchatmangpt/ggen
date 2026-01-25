@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [gVisor Test Loop - Issues Analysis with FMEA and Poka-Yoke](#gvisor-test-loop---issues-analysis-with-fmea-and-poka-yoke)
+  - [Executive Summary](#executive-summary)
+  - [Problem Statement](#problem-statement)
+  - [Root Cause Analysis](#root-cause-analysis)
+    - [Issue 1: runsc Installation Failures](#issue-1-runsc-installation-failures)
+    - [Issue 2: OCI Bundle Creation Failures](#issue-2-oci-bundle-creation-failures)
+    - [Issue 3: Colima VM Communication Failures](#issue-3-colima-vm-communication-failures)
+    - [Issue 4: gVisor Execution Failures](#issue-4-gvisor-execution-failures)
+    - [Issue 5: ggen Binary Failures](#issue-5-ggen-binary-failures)
+  - [FMEA Summary Table](#fmea-summary-table)
+  - [Poka-Yoke Implementation Strategy](#poka-yoke-implementation-strategy)
+    - [Phase 1: Prevention (Compile-Time)](#phase-1-prevention-compile-time)
+    - [Phase 2: Detection (Runtime)](#phase-2-detection-runtime)
+    - [Phase 3: Correction (Auto-Recovery)](#phase-3-correction-auto-recovery)
+  - [Implementation Recommendations](#implementation-recommendations)
+    - [Immediate Actions (High Priority)](#immediate-actions-high-priority)
+    - [Medium-Term Actions](#medium-term-actions)
+    - [Long-Term Actions](#long-term-actions)
+  - [Expected Outcomes](#expected-outcomes)
+    - [Risk Reduction](#risk-reduction)
+    - [User Experience](#user-experience)
+    - [Development Velocity](#development-velocity)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # gVisor Test Loop - Issues Analysis with FMEA and Poka-Yoke
 
 ## Executive Summary

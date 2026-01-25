@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Reference: Error Catalog](#reference-error-catalog)
+  - [E0277: Trait Bound Not Satisfied](#e0277-trait-bound-not-satisfied)
+  - [E0308: Mismatched Types](#e0308-mismatched-types)
+  - [E0283: Type Annotations Needed](#e0283-type-annotations-needed)
+  - [E0599: Method Not Found](#e0599-method-not-found)
+  - [E0382: Use of Moved Value](#e0382-use-of-moved-value)
+  - [E0425: Cannot Find Value](#e0425-cannot-find-value)
+  - [Quick Diagnostic Flowchart](#quick-diagnostic-flowchart)
+  - [Compiler Suggestion Trust Score](#compiler-suggestion-trust-score)
+  - [Related Resources](#related-resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Reference: Error Catalog
 
 **Quick lookup for E0277, E0308, E0283, E0599 and common fixes**

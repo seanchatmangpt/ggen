@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Advanced TypeScript/Node.js Code Generation Patterns](#advanced-typescriptnodejs-code-generation-patterns)
+  - [Overview](#overview)
+  - [Pattern 1: Advanced Request/Response Interceptors with MSW](#pattern-1-advanced-requestresponse-interceptors-with-msw)
+    - [Description](#description)
+    - [External Packages](#external-packages)
+    - [RDF Ontology Extensions](#rdf-ontology-extensions)
+    - [Generated Code Pattern](#generated-code-pattern)
+    - [Implementation Complexity](#implementation-complexity)
+  - [Pattern 2: Advanced Type Safety with Runtime-to-Compile-Time Codegen](#pattern-2-advanced-type-safety-with-runtime-to-compile-time-codegen)
+    - [Description](#description-1)
+    - [External Packages](#external-packages-1)
+    - [RDF Ontology for Type Definitions](#rdf-ontology-for-type-definitions)
+    - [Generated Code Pattern](#generated-code-pattern-1)
+    - [Implementation Complexity](#implementation-complexity-1)
+  - [Pattern 3: Advanced API Composition & Orchestration](#pattern-3-advanced-api-composition--orchestration)
+    - [Description](#description-2)
+    - [External Packages](#external-packages-2)
+    - [RDF Ontology for Composition](#rdf-ontology-for-composition)
+    - [Generated Code Pattern](#generated-code-pattern-2)
+  - [Pattern 4: Advanced gRPC Code Generation](#pattern-4-advanced-grpc-code-generation)
+    - [Description](#description-3)
+    - [External Packages](#external-packages-3)
+  - [Pattern 5: Advanced Streaming & Real-Time Patterns](#pattern-5-advanced-streaming--real-time-patterns)
+    - [Description](#description-4)
+    - [External Packages](#external-packages-4)
+  - [Tera Template Examples](#tera-template-examples)
+    - [Axios Client Template](#axios-client-template)
+    - [MSW Handlers Template](#msw-handlers-template)
+  - [Best Practices](#best-practices)
+  - [References](#references)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Advanced TypeScript/Node.js Code Generation Patterns
 
 > Hyper-advanced patterns for generating type-safe, production-grade Node.js APIs using ggen's RDF ontology-driven code generation

@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MCP Zero-to-Hero: Using ggen in Your Model Context Protocol Server](#mcp-zero-to-hero-using-ggen-in-your-model-context-protocol-server)
+  - [Table of Contents](#table-of-contents)
+  - [What You'll Learn](#what-youll-learn)
+  - [Prerequisites](#prerequisites)
+  - [Part 1: Understanding ggen's Capabilities](#part-1-understanding-ggens-capabilities)
+    - [Why MCPs Want ggen](#why-mcps-want-ggen)
+      - [1. **Code Generation from Specifications**](#1-code-generation-from-specifications)
+      - [2. **Semantic Reasoning (RDF/SPARQL)**](#2-semantic-reasoning-rdfsparql)
+      - [3. **Ontology Management**](#3-ontology-management)
+    - [The 44 Capabilities: Grouped by Use Case](#the-44-capabilities-grouped-by-use-case)
+  - [Part 2: Discovering What ggen Can Do](#part-2-discovering-what-ggen-can-do)
+    - [The Two-Phase Discovery Pattern](#the-two-phase-discovery-pattern)
+    - [Discovering Capabilities from Your MCP](#discovering-capabilities-from-your-mcp)
+    - [The 44 Capabilities Organized by Domain](#the-44-capabilities-organized-by-domain)
+  - [Part 3: Your First ggen Tool](#part-3-your-first-ggen-tool)
+    - [Step 1: Create a Basic MCP Tool](#step-1-create-a-basic-mcp-tool)
+    - [Step 2: Test Your Tool](#step-2-test-your-tool)
+  - [Part 4: Building Complete MCP Tools](#part-4-building-complete-mcp-tools)
+    - [Pattern 1: Multi-Step Workflows](#pattern-1-multi-step-workflows)
+    - [Pattern 2: Error Recovery](#pattern-2-error-recovery)
+    - [Pattern 3: Streaming Long Operations](#pattern-3-streaming-long-operations)
+  - [Part 5: Real-World Examples](#part-5-real-world-examples)
+    - [Example 1: The Agent-Reasoning-MCP Package](#example-1-the-agent-reasoning-mcp-package)
+    - [Example 2: The Rig-MCP Package](#example-2-the-rig-mcp-package)
+    - [Example 3: Building a Code Generator MCP Tool](#example-3-building-a-code-generator-mcp-tool)
+  - [Common Patterns](#common-patterns)
+    - [Pattern 1: Tool Registration and Discovery](#pattern-1-tool-registration-and-discovery)
+    - [Pattern 2: Argument Validation](#pattern-2-argument-validation)
+    - [Pattern 3: Caching and Performance](#pattern-3-caching-and-performance)
+    - [Pattern 4: Result Formatting](#pattern-4-result-formatting)
+  - [Troubleshooting](#troubleshooting)
+    - [Issue: ggen command not found](#issue-ggen-command-not-found)
+    - [Issue: Capability metadata returns unexpected format](#issue-capability-metadata-returns-unexpected-format)
+    - [Issue: Template generation fails silently](#issue-template-generation-fails-silently)
+    - [Issue: Ontology validation fails](#issue-ontology-validation-fails)
+    - [Issue: Performance degradation with large specs](#issue-performance-degradation-with-large-specs)
+  - [Next Steps](#next-steps)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MCP Zero-to-Hero: Using ggen in Your Model Context Protocol Server
 
 **Complete guide from "What is ggen?" to building production MCP tools that leverage ggen's code generation, RDF reasoning, and ontology capabilities**
