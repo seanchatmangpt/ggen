@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TAI Integration Patterns](#tai-integration-patterns)
+  - [Service-to-Service Communication (gRPC)](#service-to-service-communication-grpc)
+    - [Synchronous gRPC Calls](#synchronous-grpc-calls)
+    - [Circuit Breaker Protection](#circuit-breaker-protection)
+  - [Asynchronous Communication (Cloud Pub/Sub)](#asynchronous-communication-cloud-pubsub)
+    - [Event Publishing Pattern](#event-publishing-pattern)
+    - [Subscription Handling](#subscription-handling)
+  - [Request/Response with Event Sourcing](#requestresponse-with-event-sourcing)
+  - [Caching and Cache Invalidation](#caching-and-cache-invalidation)
+    - [Cache-Aside Pattern](#cache-aside-pattern)
+    - [Cache Invalidation](#cache-invalidation)
+  - [State Synchronization (Multi-Region)](#state-synchronization-multi-region)
+  - [Dead Letter Queue (DLQ) Pattern](#dead-letter-queue-dlq-pattern)
+  - [Transactional Outbox Pattern](#transactional-outbox-pattern)
+  - [Fan-Out Pattern (Parallel Processing)](#fan-out-pattern-parallel-processing)
+  - [API Gateway Pattern](#api-gateway-pattern)
+  - [Monitoring Integration Points](#monitoring-integration-points)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TAI Integration Patterns
 
 Communication patterns and integration approaches between TAI components.

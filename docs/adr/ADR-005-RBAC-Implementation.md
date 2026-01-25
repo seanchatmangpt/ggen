@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ADR-005: Role-Based Access Control (RBAC) Implementation](#adr-005-role-based-access-control-rbac-implementation)
+  - [Problem Statement](#problem-statement)
+  - [Decision](#decision)
+  - [Rationale](#rationale)
+    - [Layer 1: Kubernetes RBAC](#layer-1-kubernetes-rbac)
+    - [Layer 2: Istio AuthorizationPolicy](#layer-2-istio-authorizationpolicy)
+    - [Layer 3: Application RBAC](#layer-3-application-rbac)
+  - [Implementation](#implementation)
+    - [Layer 1: Kubernetes ServiceAccounts](#layer-1-kubernetes-serviceaccounts)
+    - [Layer 2: Istio AuthorizationPolicy](#layer-2-istio-authorizationpolicy-1)
+    - [Layer 3: Application-Level RBAC](#layer-3-application-level-rbac)
+    - [gRPC Service Implementation with Authorization](#grpc-service-implementation-with-authorization)
+  - [External Client Authentication](#external-client-authentication)
+    - [OAuth2 / JWT for External Clients](#oauth2--jwt-for-external-clients)
+  - [Audit Trail](#audit-trail)
+  - [Consequences](#consequences)
+    - [Positive](#positive)
+    - [Negative](#negative)
+  - [Monitoring](#monitoring)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ADR-005: Role-Based Access Control (RBAC) Implementation
 
 **Status:** Accepted

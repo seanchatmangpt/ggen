@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Contract Testing Between Services (gRPC)](#contract-testing-between-services-grpc)
+  - [Overview](#overview)
+  - [Contract Definition](#contract-definition)
+    - [Payment Service Contract](#payment-service-contract)
+    - [Contract Tests](#contract-tests)
+      - [Test 1: Request Serialization](#test-1-request-serialization)
+      - [Test 2: Response Structure](#test-2-response-structure)
+      - [Test 3: Error Response](#test-3-error-response)
+      - [Test 4: API Versioning](#test-4-api-versioning)
+  - [Service Contract Testing](#service-contract-testing)
+    - [Deployment Service Contract](#deployment-service-contract)
+    - [Monitoring Service Contract](#monitoring-service-contract)
+  - [Contract Breaking Change Detection](#contract-breaking-change-detection)
+    - [Version Compatibility Matrix](#version-compatibility-matrix)
+  - [Request/Response Validation](#requestresponse-validation)
+    - [Payload Validation](#payload-validation)
+  - [Mock Service for Contract Testing](#mock-service-for-contract-testing)
+    - [Mock Payment Service](#mock-payment-service)
+  - [Consumer-Driven Contracts](#consumer-driven-contracts)
+  - [Contract Test Execution](#contract-test-execution)
+    - [Running Contract Tests](#running-contract-tests)
+    - [CI/CD Integration](#cicd-integration)
+  - [Contract Registry](#contract-registry)
+    - [Contract Document Template](#contract-document-template)
+  - [Best Practices](#best-practices)
+  - [Troubleshooting](#troubleshooting)
+    - [Contract Test Failures](#contract-test-failures)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Contract Testing Between Services (gRPC)
 
 Guide for testing service-to-service contracts in ggen's microservice architecture.

@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ADR-002: Firestore for Distributed State Management](#adr-002-firestore-for-distributed-state-management)
+  - [Problem Statement](#problem-statement)
+  - [Decision](#decision)
+  - [Rationale](#rationale)
+    - [Firestore Strengths](#firestore-strengths)
+    - [Alternative Evaluation](#alternative-evaluation)
+  - [Data Model](#data-model)
+    - [Collections Structure](#collections-structure)
+    - [Indexing Strategy](#indexing-strategy)
+  - [Implementation](#implementation)
+    - [Firestore Rules (Security)](#firestore-rules-security)
+    - [Rust Client Code](#rust-client-code)
+  - [Cache Strategy](#cache-strategy)
+    - [Redis Cache Layer](#redis-cache-layer)
+    - [Cache-Aside Pattern](#cache-aside-pattern)
+  - [Consequences](#consequences)
+    - [Positive](#positive)
+    - [Negative](#negative)
+  - [Cost Optimization](#cost-optimization)
+  - [Monitoring](#monitoring)
+  - [Migration Path](#migration-path)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ADR-002: Firestore for Distributed State Management
 
 **Status:** Accepted

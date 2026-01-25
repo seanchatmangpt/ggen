@@ -1,3 +1,54 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Integration Test Suite - Complete Implementation](#tps-integration-test-suite---complete-implementation)
+  - [Summary](#summary)
+  - [Test Coverage](#test-coverage)
+    - [1. End-to-End Workflow Tests](#1-end-to-end-workflow-tests)
+      - [Test Cases](#test-cases)
+    - [2. Smoke Tests](#2-smoke-tests)
+      - [Test Cases](#test-cases-1)
+    - [3. Regression Tests (Snapshot-Based)](#3-regression-tests-snapshot-based)
+      - [Test Cases](#test-cases-2)
+    - [4. Performance Regression Tests](#4-performance-regression-tests)
+      - [SLO Targets](#slo-targets)
+      - [Test Cases](#test-cases-3)
+    - [5. Chaos Tests (Resilience)](#5-chaos-tests-resilience)
+      - [Failure Scenarios](#failure-scenarios)
+    - [6. Test Data Generation](#6-test-data-generation)
+      - [Test Data Builders](#test-data-builders)
+  - [File Structure](#file-structure)
+  - [Test Execution](#test-execution)
+    - [Register Tests in Cargo.toml](#register-tests-in-cargotoml)
+    - [Run All TPS Tests](#run-all-tps-tests)
+    - [Run Specific Test Category](#run-specific-test-category)
+    - [Run with Options](#run-with-options)
+    - [CI/CD Integration](#cicd-integration)
+  - [Chicago TDD Pattern Usage](#chicago-tdd-pattern-usage)
+    - [AAA Pattern (Arrange/Act/Assert)](#aaa-pattern-arrangeactassert)
+    - [Real Objects (No Mocks)](#real-objects-no-mocks)
+    - [State-Based Verification](#state-based-verification)
+    - [Behavior Verification](#behavior-verification)
+  - [Key Metrics Tracked](#key-metrics-tracked)
+    - [System Metrics](#system-metrics)
+    - [Quality Metrics](#quality-metrics)
+    - [Resilience Metrics](#resilience-metrics)
+  - [Verification Checklist](#verification-checklist)
+    - [Before Committing](#before-committing)
+    - [Pre-Release](#pre-release)
+  - [Test Count Summary](#test-count-summary)
+  - [Next Steps](#next-steps)
+  - [Integration with Existing Systems](#integration-with-existing-systems)
+    - [ggen-tps-andon (Andon Implementation)](#ggen-tps-andon-andon-implementation)
+    - [tai-testing (Chaos Framework)](#tai-testing-chaos-framework)
+    - [ggen-domain (MAPE-K Loop)](#ggen-domain-mape-k-loop)
+    - [Existing 80+ Tests](#existing-80-tests)
+  - [References](#references)
+  - [Contact](#contact)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Integration Test Suite - Complete Implementation
 
 ## Summary

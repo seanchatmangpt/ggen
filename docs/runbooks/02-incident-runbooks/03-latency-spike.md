@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Runbook 3: Latency Spike](#runbook-3-latency-spike)
+  - [Quick Reference](#quick-reference)
+  - [Detection Mechanism](#detection-mechanism)
+    - [Latency Thresholds](#latency-thresholds)
+    - [Automated Alerts](#automated-alerts)
+  - [Root Cause Analysis (5 Whys)](#root-cause-analysis-5-whys)
+  - [Incident Timeline (Typical)](#incident-timeline-typical)
+  - [Automated Mitigation Sequence](#automated-mitigation-sequence)
+  - [Manual Investigation](#manual-investigation)
+    - [Step 1: Collect Baseline Data](#step-1-collect-baseline-data)
+    - [Step 2: Diagnose Bottleneck](#step-2-diagnose-bottleneck)
+    - [Step 3: Apply Targeted Mitigation](#step-3-apply-targeted-mitigation)
+  - [Verification & Recovery](#verification--recovery)
+  - [Receipt Contract](#receipt-contract)
+    - [Spike Detected Receipt](#spike-detected-receipt)
+    - [Mitigation Applied Receipt](#mitigation-applied-receipt)
+    - [Resolution Receipt](#resolution-receipt)
+  - [Prevention Strategies](#prevention-strategies)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Runbook 3: Latency Spike
 
 **Severity**: Sev2/Sev3 (depends on magnitude)

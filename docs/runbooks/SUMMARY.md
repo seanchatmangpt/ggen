@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Incident Management & Operational Runbooks - Summary Report](#incident-management--operational-runbooks---summary-report)
+  - [Deliverables Summary](#deliverables-summary)
+    - [Core Documentation (10 Items from Tasks 91-100)](#core-documentation-10-items-from-tasks-91-100)
+    - [Supporting Documentation (4 Items)](#supporting-documentation-4-items)
+  - [Directory Structure](#directory-structure)
+  - [Quick Navigation by Role](#quick-navigation-by-role)
+    - [For On-Call Engineers](#for-on-call-engineers)
+    - [For Incident Commanders](#for-incident-commanders)
+    - [For SRE Team](#for-sre-team)
+    - [For Management](#for-management)
+  - [Key Features](#key-features)
+    - [1. Five Major Incident Runbooks](#1-five-major-incident-runbooks)
+    - [2. Severity Classification](#2-severity-classification)
+    - [3. Automated Mitigation Patterns](#3-automated-mitigation-patterns)
+    - [4. Post-Incident Learning](#4-post-incident-learning)
+    - [5. Operational Excellence](#5-operational-excellence)
+  - [Coverage & Completeness](#coverage--completeness)
+    - [Incident Types Covered](#incident-types-covered)
+    - [Operational Procedures Covered](#operational-procedures-covered)
+    - [Automation Patterns Covered](#automation-patterns-covered)
+    - [Team Training](#team-training)
+  - [Integration Points](#integration-points)
+    - [With Existing Systems](#with-existing-systems)
+  - [Production Readiness Checklist](#production-readiness-checklist)
+  - [Training & Certification](#training--certification)
+    - [Required Training (Before First On-Call)](#required-training-before-first-on-call)
+    - [Annual Refresher](#annual-refresher)
+  - [Continuous Improvement](#continuous-improvement)
+    - [Monthly Reviews](#monthly-reviews)
+    - [Quarterly Reviews](#quarterly-reviews)
+    - [Annual Reviews](#annual-reviews)
+  - [Metrics & SLOs](#metrics--slos)
+    - [Detection & Response](#detection--response)
+    - [Resolution](#resolution)
+    - [Escalation](#escalation)
+    - [Prevention](#prevention)
+  - [File Statistics](#file-statistics)
+  - [Next Steps](#next-steps)
+    - [Week 1 (Starting 2026-01-25)](#week-1-starting-2026-01-25)
+    - [Month 1](#month-1)
+    - [Quarter 1](#quarter-1)
+  - [Support & Questions](#support--questions)
+  - [Acknowledgments](#acknowledgments)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Incident Management & Operational Runbooks - Summary Report
 
 **Status**: ✅ PRODUCTION READY

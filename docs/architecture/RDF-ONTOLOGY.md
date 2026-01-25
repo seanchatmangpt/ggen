@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TAI RDF Ontology and Specification System](#tai-rdf-ontology-and-specification-system)
+  - [.specify/ Directory Structure](#specify-directory-structure)
+  - [RDF Concepts](#rdf-concepts)
+    - [Triples (Subject-Predicate-Object)](#triples-subject-predicate-object)
+    - [Namespace Prefixes](#namespace-prefixes)
+  - [Ontology Files](#ontology-files)
+    - [1. Architecture Ontologies](#1-architecture-ontologies)
+    - [2. Domain Ontologies](#2-domain-ontologies)
+    - [3. Process Ontologies](#3-process-ontologies)
+  - [SPARQL Query Examples](#sparql-query-examples)
+    - [Find All Policies by Type](#find-all-policies-by-type)
+    - [Find Services with High Replication](#find-services-with-high-replication)
+    - [Find Resources with Encryption Requirement](#find-resources-with-encryption-requirement)
+    - [Transitivity: Find All Services in Architecture](#transitivity-find-all-services-in-architecture)
+  - [SHACL Validation](#shacl-validation)
+    - [Shape Definition (Example: Policy)](#shape-definition-example-policy)
+    - [Validation Command](#validation-command)
+  - [Feature Specification Template](#feature-specification-template)
+    - [feature.ttl (User Stories)](#featurettl-user-stories)
+    - [entities.ttl (Domain Entities)](#entitiesttl-domain-entities)
+    - [plan.ttl (Architecture)](#planttl-architecture)
+    - [tasks.ttl (Implementation)](#tasksttl-implementation)
+  - [Code Generation from RDF](#code-generation-from-rdf)
+    - [Example: Generate API Documentation](#example-generate-api-documentation)
+  - [Best Practices](#best-practices)
+    - [1. Single Source of Truth](#1-single-source-of-truth)
+    - [2. Semantic Clarity](#2-semantic-clarity)
+    - [3. Validation First](#3-validation-first)
+    - [4. Complete Specifications](#4-complete-specifications)
+  - [Tools for RDF Development](#tools-for-rdf-development)
+    - [Query and Explore](#query-and-explore)
+    - [Validate](#validate)
+    - [Generate Documentation](#generate-documentation)
+  - [References](#references)
+  - [Document Maintenance](#document-maintenance)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TAI RDF Ontology and Specification System
 
 Documentation for the RDF-based specification system that drives TAI architecture.

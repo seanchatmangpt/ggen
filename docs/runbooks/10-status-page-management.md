@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Status Page Management & Customer Communication](#status-page-management--customer-communication)
+  - [Status Page Architecture](#status-page-architecture)
+    - [Pages](#pages)
+    - [Components](#components)
+  - [Status Updates by Severity](#status-updates-by-severity)
+    - [Sev1: Critical (Full Outage)](#sev1-critical-full-outage)
+    - [Sev2: High (Partial Outage)](#sev2-high-partial-outage)
+    - [Sev3: Medium (Degradation)](#sev3-medium-degradation)
+    - [Sev4: Minor](#sev4-minor)
+  - [Communication Templates](#communication-templates)
+    - [Status Page Message Guidelines](#status-page-message-guidelines)
+    - [Tone Guidelines](#tone-guidelines)
+    - [Technical Details](#technical-details)
+  - [Incident Page Setup](#incident-page-setup)
+    - [Before Incident](#before-incident)
+    - [During Incident](#during-incident)
+    - [After Incident](#after-incident)
+  - [Customer Notification Channels](#customer-notification-channels)
+    - [Sev1: All Channels](#sev1-all-channels)
+    - [Sev2: Limited Channels](#sev2-limited-channels)
+    - [Sev3/4: Status Page Only](#sev34-status-page-only)
+  - [Post-Incident Actions](#post-incident-actions)
+    - [Incident Page Closure](#incident-page-closure)
+    - [Follow-Up Email](#follow-up-email)
+  - [SLA & Uptime Reporting](#sla--uptime-reporting)
+    - [Monthly Report](#monthly-report)
+  - [Status Page Checklist](#status-page-checklist)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Status Page Management & Customer Communication
 
 **Version**: 2.0

@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ADR-006: Secret Management with Vault and Cloud KMS](#adr-006-secret-management-with-vault-and-cloud-kms)
+  - [Problem Statement](#problem-statement)
+  - [Decision](#decision)
+  - [Rationale](#rationale)
+    - [Vault Strengths](#vault-strengths)
+    - [Cloud KMS Benefits](#cloud-kms-benefits)
+    - [Kubernetes Secrets](#kubernetes-secrets)
+  - [Architecture](#architecture)
+  - [Implementation](#implementation)
+    - [Vault Configuration](#vault-configuration)
+    - [Database Credential Rotation](#database-credential-rotation)
+    - [Vault Agent Injector (Kubernetes)](#vault-agent-injector-kubernetes)
+    - [Kubernetes Authentiation (OIDC)](#kubernetes-authentiation-oidc)
+    - [Pod Authentication Example](#pod-authentication-example)
+    - [Secret Rotation Policies](#secret-rotation-policies)
+    - [Sealed Secrets for GitOps](#sealed-secrets-for-gitops)
+  - [Audit Trail](#audit-trail)
+  - [Secret Inventory](#secret-inventory)
+  - [Consequences](#consequences)
+    - [Positive](#positive)
+    - [Negative](#negative)
+  - [High Availability](#high-availability)
+  - [Monitoring](#monitoring)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ADR-006: Secret Management with Vault and Cloud KMS
 
 **Status:** Accepted

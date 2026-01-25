@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Operator Quick-Start Guide](#tps-operator-quick-start-guide)
+  - [Prerequisites Check (1 minute)](#prerequisites-check-1-minute)
+  - [5-Minute Deployment](#5-minute-deployment)
+    - [Step 1: Create Namespace (30 seconds)](#step-1-create-namespace-30-seconds)
+    - [Step 2: Create Storage (1 minute)](#step-2-create-storage-1-minute)
+    - [Step 3: Deploy TPS System (2 minutes)](#step-3-deploy-tps-system-2-minutes)
+    - [Step 4: Verify System is Healthy (30 seconds)](#step-4-verify-system-is-healthy-30-seconds)
+    - [Step 5: Access Dashboards (30 seconds)](#step-5-access-dashboards-30-seconds)
+  - [Send Your First Signal (1 minute)](#send-your-first-signal-1-minute)
+  - [Verify Observability (1 minute)](#verify-observability-1-minute)
+    - [Check Metrics in Prometheus](#check-metrics-in-prometheus)
+    - [Check Traces in Jaeger](#check-traces-in-jaeger)
+    - [Check Logs in Loki/Grafana](#check-logs-in-lokigrafana)
+  - [Production Readiness Checklist](#production-readiness-checklist)
+  - [Common Issues During Quick-Start](#common-issues-during-quick-start)
+    - [Issue: Pod stuck in Pending](#issue-pod-stuck-in-pending)
+    - [Issue: Pod in CrashLoopBackOff](#issue-pod-in-crashloopbackoff)
+    - [Issue: API endpoint returns 503 Service Unavailable](#issue-api-endpoint-returns-503-service-unavailable)
+    - [Issue: Grafana shows "No Data"](#issue-grafana-shows-no-data)
+  - [Next Steps](#next-steps)
+  - [Cleanup (When Done)](#cleanup-when-done)
+  - [Success Summary](#success-summary)
+  - [Support](#support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Operator Quick-Start Guide
 
 **Version**: 1.0

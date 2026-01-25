@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TAI Architecture Documentation - Completion Summary](#tai-architecture-documentation---completion-summary)
+  - [Overview](#overview)
+  - [Deliverables](#deliverables)
+    - [1. Architecture Decision Records (12 Total)](#1-architecture-decision-records-12-total)
+    - [2. C4 Architecture Diagrams (3 Levels)](#2-c4-architecture-diagrams-3-levels)
+      - [Level 1: System Context](#level-1-system-context)
+      - [Level 2: Container Diagram](#level-2-container-diagram)
+      - [Level 3: Component Diagram](#level-3-component-diagram)
+    - [3. API Reference Documentation](#3-api-reference-documentation)
+    - [4. Database Schema Documentation](#4-database-schema-documentation)
+    - [5. Deployment Architecture](#5-deployment-architecture)
+    - [6. Integration Patterns](#6-integration-patterns)
+    - [7. Security Architecture](#7-security-architecture)
+    - [8. RDF Ontology Documentation](#8-rdf-ontology-documentation)
+    - [9. Architecture Index](#9-architecture-index)
+  - [Statistics](#statistics)
+  - [Code Examples Included](#code-examples-included)
+  - [Coverage](#coverage)
+    - [Systems Documented](#systems-documented)
+    - [Patterns Documented](#patterns-documented)
+    - [Concerns Covered](#concerns-covered)
+  - [Production Readiness](#production-readiness)
+  - [Next Steps](#next-steps)
+  - [File Locations (Quick Reference)](#file-locations-quick-reference)
+  - [Verification](#verification)
+  - [Document Quality](#document-quality)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TAI Architecture Documentation - Completion Summary
 
 **Date:** 2026-01-25

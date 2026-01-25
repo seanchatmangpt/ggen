@@ -1,3 +1,54 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Advanced Caching Strategies with TAI-Cache](#advanced-caching-strategies-with-tai-cache)
+  - [Overview](#overview)
+    - [Core Components](#core-components)
+  - [Architecture](#architecture)
+  - [Caching Strategies](#caching-strategies)
+    - [1. Time-Based Invalidation (TTL)](#1-time-based-invalidation-ttl)
+    - [2. Event-Based Invalidation](#2-event-based-invalidation)
+    - [3. Dependency-Based Invalidation](#3-dependency-based-invalidation)
+    - [4. Cascading Invalidation](#4-cascading-invalidation)
+  - [Cache Patterns](#cache-patterns)
+    - [1. Write-Through Caching](#1-write-through-caching)
+    - [2. Write-Behind Caching (Write-Back)](#2-write-behind-caching-write-back)
+    - [3. Read-Through Caching](#3-read-through-caching)
+    - [4. Lazy-Load Caching](#4-lazy-load-caching)
+  - [Multi-Tier Caching Architecture](#multi-tier-caching-architecture)
+    - [Three-Tier Cache Hierarchy](#three-tier-cache-hierarchy)
+    - [Cache Hit Flow](#cache-hit-flow)
+    - [Cache Warming](#cache-warming)
+  - [Cache Coherency in Distributed Systems](#cache-coherency-in-distributed-systems)
+    - [Multi-Instance Cache Consistency](#multi-instance-cache-consistency)
+  - [Metrics & Monitoring](#metrics--monitoring)
+    - [Key Metrics](#key-metrics)
+    - [Collecting Metrics](#collecting-metrics)
+    - [SLO Monitoring](#slo-monitoring)
+  - [Redis vs Memcached](#redis-vs-memcached)
+    - [Redis](#redis)
+    - [Memcached](#memcached)
+    - [Comparison Table](#comparison-table)
+  - [Best Practices](#best-practices)
+    - [1. Cache Key Design](#1-cache-key-design)
+    - [2. TTL Strategy](#2-ttl-strategy)
+    - [3. Cache Size Management](#3-cache-size-management)
+    - [4. Monitoring Strategy](#4-monitoring-strategy)
+    - [5. Failure Handling](#5-failure-handling)
+    - [6. Avoid Cache Stampede](#6-avoid-cache-stampede)
+  - [Common Patterns](#common-patterns)
+    - [Pattern 1: Cache-Aside (Lazy Loading)](#pattern-1-cache-aside-lazy-loading)
+    - [Pattern 2: Write-Through](#pattern-2-write-through)
+    - [Pattern 3: Cache Invalidation on Write](#pattern-3-cache-invalidation-on-write)
+  - [Performance Tuning](#performance-tuning)
+    - [1. Connection Pool Sizing](#1-connection-pool-sizing)
+    - [2. Batch Operations](#2-batch-operations)
+    - [3. Compression for Large Values](#3-compression-for-large-values)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Advanced Caching Strategies with TAI-Cache
 
 ## Overview

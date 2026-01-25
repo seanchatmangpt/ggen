@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [C4 Level 2: Container Diagram](#c4-level-2-container-diagram)
+  - [Container Descriptions](#container-descriptions)
+    - [API Gateway (Envoy/Istio)](#api-gateway-envoyistio)
+    - [Microservices (gRPC)](#microservices-grpc)
+      - [Governor Service](#governor-service)
+      - [Coordinator Service](#coordinator-service)
+      - [Scheduler Service](#scheduler-service)
+    - [Data Layer](#data-layer)
+      - [Firestore](#firestore)
+      - [Redis Cache](#redis-cache)
+    - [Event Streaming](#event-streaming)
+      - [Cloud Pub/Sub](#cloud-pubsub)
+      - [Kafka (Optional)](#kafka-optional)
+    - [Infrastructure](#infrastructure)
+      - [Vault (Secrets)](#vault-secrets)
+      - [Cloud KMS](#cloud-kms)
+      - [Jaeger (Distributed Tracing)](#jaeger-distributed-tracing)
+      - [Prometheus (Metrics)](#prometheus-metrics)
+  - [Communication Patterns](#communication-patterns)
+  - [Deployment](#deployment)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # C4 Level 2: Container Diagram
 
 TAI system containers and inter-service communication.

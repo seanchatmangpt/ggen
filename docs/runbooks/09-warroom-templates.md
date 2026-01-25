@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Warroom Coordination & Communication Protocols](#warroom-coordination--communication-protocols)
+  - [Warroom Setup](#warroom-setup)
+    - [Creation](#creation)
+    - [Communication Channels (By Severity)](#communication-channels-by-severity)
+  - [Warroom Roles](#warroom-roles)
+    - [Incident Commander (Lead)](#incident-commander-lead)
+    - [Technical Lead / Subject Matter Expert (SME)](#technical-lead--subject-matter-expert-sme)
+    - [On-Call Engineer (Primary Responder)](#on-call-engineer-primary-responder)
+    - [Scribe (Documentation)](#scribe-documentation)
+    - [Observers (Optional)](#observers-optional)
+  - [Warroom Protocol](#warroom-protocol)
+    - [Opening (First 5 Minutes)](#opening-first-5-minutes)
+    - [Mid-Incident (Updates Every 5 Minutes)](#mid-incident-updates-every-5-minutes)
+    - [Closing (When Resolved)](#closing-when-resolved)
+  - [Communication Templates](#communication-templates)
+    - [External Status Update (Post to &#035;incidents)](#external-status-update-post-to-incidents)
+    - [Escalation Notification](#escalation-notification)
+    - [All-Clear Announcement](#all-clear-announcement)
+  - [Decision-Making in Warroom](#decision-making-in-warroom)
+    - [Rollback Decision Matrix](#rollback-decision-matrix)
+    - [Escalation Decision Matrix](#escalation-decision-matrix)
+  - [Communication Anti-Patterns (Avoid)](#communication-anti-patterns-avoid)
+  - [Warroom Closure Checklist](#warroom-closure-checklist)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Warroom Coordination & Communication Protocols
 
 **Version**: 2.0

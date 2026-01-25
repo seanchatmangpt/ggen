@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ADR-012: Kubernetes Autoscaling with HPA and KEDA](#adr-012-kubernetes-autoscaling-with-hpa-and-keda)
+  - [Problem Statement](#problem-statement)
+  - [Decision](#decision)
+  - [Rationale](#rationale)
+    - [HPA (Resource-Based)](#hpa-resource-based)
+    - [KEDA (Event-Driven)](#keda-event-driven)
+    - [VPA (Vertical)](#vpa-vertical)
+  - [Implementation](#implementation)
+    - [HPA Configuration](#hpa-configuration)
+    - [KEDA Configuration (Event-Driven)](#keda-configuration-event-driven)
+    - [KEDA with Pub/Sub](#keda-with-pubsub)
+    - [Vertical Pod Autoscaler (VPA)](#vertical-pod-autoscaler-vpa)
+    - [Custom Metrics](#custom-metrics)
+    - [Pod Disruption Budget (PDB)](#pod-disruption-budget-pdb)
+  - [Scaling Policies by Service](#scaling-policies-by-service)
+  - [Monitoring Autoscaling](#monitoring-autoscaling)
+    - [Alerts](#alerts)
+  - [Cost Optimization](#cost-optimization)
+  - [Testing Autoscaling](#testing-autoscaling)
+  - [Consequences](#consequences)
+    - [Positive](#positive)
+    - [Negative](#negative)
+  - [SLOs for Scaling](#slos-for-scaling)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ADR-012: Kubernetes Autoscaling with HPA and KEDA
 
 **Status:** Accepted

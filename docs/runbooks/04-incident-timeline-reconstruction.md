@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Incident Timeline Reconstruction](#incident-timeline-reconstruction)
+  - [Timeline Reconstruction Process](#timeline-reconstruction-process)
+    - [Data Sources (Priority Order)](#data-sources-priority-order)
+  - [Step 1: Extract Logs](#step-1-extract-logs)
+    - [Query Cloud Logging](#query-cloud-logging)
+    - [Key Log Events to Look For](#key-log-events-to-look-for)
+  - [Step 2: Extract Traces](#step-2-extract-traces)
+    - [Query Cloud Trace](#query-cloud-trace)
+    - [Trace Event Filtering](#trace-event-filtering)
+  - [Step 3: Extract Metrics](#step-3-extract-metrics)
+    - [Query Cloud Monitoring](#query-cloud-monitoring)
+    - [Key Metrics to Extract](#key-metrics-to-extract)
+  - [Step 4: Construct Timeline](#step-4-construct-timeline)
+    - [Unified Timeline Example](#unified-timeline-example)
+  - [Step 5: Visualization](#step-5-visualization)
+    - [Timeline Diagram (ASCII)](#timeline-diagram-ascii)
+  - [Step 6: Data Validation](#step-6-data-validation)
+    - [Sanity Checks](#sanity-checks)
+  - [Step 7: Root Cause Mapping](#step-7-root-cause-mapping)
+    - [Connect Events to Root Cause](#connect-events-to-root-cause)
+  - [Tools & Commands Reference](#tools--commands-reference)
+    - [Cloud Logging Commands](#cloud-logging-commands)
+    - [Prometheus Query](#prometheus-query)
+    - [Datadog Query](#datadog-query)
+  - [Reconstruction Output Checklist](#reconstruction-output-checklist)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Incident Timeline Reconstruction
 
 **Version**: 2.0

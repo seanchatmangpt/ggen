@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Documentation: Complete Index](#tps-documentation-complete-index)
+  - [Quick Navigation](#quick-navigation)
+    - [For New Operators (Getting Started)](#for-new-operators-getting-started)
+    - [For On-Call Engineers (When Something Breaks)](#for-on-call-engineers-when-something-breaks)
+    - [For Operations Leads (Planning & Optimization)](#for-operations-leads-planning--optimization)
+    - [For Incident Commanders (During Major Incident)](#for-incident-commanders-during-major-incident)
+  - [Document Overview](#document-overview)
+    - [1. handbook-tps-operations.md (3000 lines)](#1-handbook-tps-operationsmd-3000-lines)
+    - [2. certification-tps-operator.md (2000 lines)](#2-certification-tps-operatormd-2000-lines)
+    - [3. runbook-incident-response.md (1500 lines)](#3-runbook-incident-responsemd-1500-lines)
+    - [4. runbook-capacity-planning.md (1000 lines)](#4-runbook-capacity-planningmd-1000-lines)
+    - [5. runbook-deployment.md (1000 lines)](#5-runbook-deploymentmd-1000-lines)
+    - [6. runbook-failure-recovery.md (1000 lines)](#6-runbook-failure-recoverymd-1000-lines)
+    - [7. tps-glossary.md (500 lines)](#7-tps-glossarymd-500-lines)
+    - [8. tps-faq.md (800 lines)](#8-tps-faqmd-800-lines)
+    - [9. examples/tps-reference-system/README_TPS.md (1000 lines)](#9-examplestps-reference-systemreadme_tpsmd-1000-lines)
+  - [All Files Created](#all-files-created)
+  - [Quick Reference: Metric Interpretation](#quick-reference-metric-interpretation)
+  - [Start Reading](#start-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Documentation: Complete Index
 
 **Last Updated**: January 2026

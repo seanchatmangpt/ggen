@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Knowledge Base: Incident Solutions & Prevention](#knowledge-base-incident-solutions--prevention)
+  - [Knowledge Base Structure](#knowledge-base-structure)
+    - [Entry Format](#entry-format)
+  - [Searchable Index](#searchable-index)
+    - [By Symptom](#by-symptom)
+    - [By Root Cause](#by-root-cause)
+    - [By Solution Pattern](#by-solution-pattern)
+  - [Creating Knowledge Base Entries](#creating-knowledge-base-entries)
+    - [Step 1: After PIR Complete](#step-1-after-pir-complete)
+    - [Step 2: Fill in Template](#step-2-fill-in-template)
+    - [Step 3: Cross-Reference](#step-3-cross-reference)
+  - [Searching Knowledge Base](#searching-knowledge-base)
+    - [Search Command](#search-command)
+    - [Manual Search](#manual-search)
+  - [Knowledge Base Metrics](#knowledge-base-metrics)
+  - [Knowledge Base Maintenance](#knowledge-base-maintenance)
+  - [Sample Entries (Existing)](#sample-entries-existing)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Knowledge Base: Incident Solutions & Prevention
 
 **Version**: 2.0

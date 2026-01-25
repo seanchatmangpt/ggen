@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Configuration Tuning Guide](#tps-configuration-tuning-guide)
+  - [Configuration Philosophy](#configuration-philosophy)
+    - [Core Principle: Start Conservative, Tune Empirically](#core-principle-start-conservative-tune-empirically)
+  - [1. Worker Pool Sizing](#1-worker-pool-sizing)
+    - [When to Increase Workers](#when-to-increase-workers)
+    - [When to Decrease Workers (Cost Optimization)](#when-to-decrease-workers-cost-optimization)
+    - [Worker Sizing: Quick Decision Tree](#worker-sizing-quick-decision-tree)
+    - [Implementation: Scale Workers](#implementation-scale-workers)
+  - [2. Queue Configuration](#2-queue-configuration)
+    - [Queue Max Size](#queue-max-size)
+    - [Queue Timeout](#queue-timeout)
+    - [Configuration: Queue Settings](#configuration-queue-settings)
+  - [3. Circuit Breaker Configuration](#3-circuit-breaker-configuration)
+    - [Failure Threshold](#failure-threshold)
+    - [Recovery Timeout](#recovery-timeout)
+    - [Configuration: Circuit Breaker](#configuration-circuit-breaker)
+  - [4. Timeouts Configuration](#4-timeouts-configuration)
+    - [Request Timeout](#request-timeout)
+    - [Downstream Timeout](#downstream-timeout)
+  - [5. Rate Limiting Configuration](#5-rate-limiting-configuration)
+    - [Per-Second Limit](#per-second-limit)
+    - [Burst Limit](#burst-limit)
+  - [6. Metric Collection Configuration](#6-metric-collection-configuration)
+    - [Sample Rate](#sample-rate)
+    - [Retention Period](#retention-period)
+  - [7. Load Balancing Configuration (Heijunka)](#7-load-balancing-configuration-heijunka)
+    - [Rebalance Interval](#rebalance-interval)
+    - [Imbalance Threshold](#imbalance-threshold)
+  - [8. Memory and Resource Configuration](#8-memory-and-resource-configuration)
+    - [Memory Limits](#memory-limits)
+    - [CPU Requests](#cpu-requests)
+  - [Quick Tuning Checklist](#quick-tuning-checklist)
+    - [Symptom: Queue Growing](#symptom-queue-growing)
+    - [Symptom: High Latency](#symptom-high-latency)
+    - [Symptom: High Error Rate](#symptom-high-error-rate)
+    - [Symptom: High Cost](#symptom-high-cost)
+  - [Before & After Tuning Template](#before--after-tuning-template)
+  - [Performance Tuning Case Studies](#performance-tuning-case-studies)
+    - [Case Study 1: From 50 to 500 sig/sec](#case-study-1-from-50-to-500-sigsec)
+    - [Case Study 2: Cost Optimization](#case-study-2-cost-optimization)
+  - [Golden Rules of Tuning](#golden-rules-of-tuning)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Configuration Tuning Guide
 
 **Version**: 1.0

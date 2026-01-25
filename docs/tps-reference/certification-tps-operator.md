@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Operator Certification Program](#tps-operator-certification-program)
+  - [Program Overview](#program-overview)
+  - [Level 1: Awareness Certification](#level-1-awareness-certification)
+    - [Level 1 Curriculum](#level-1-curriculum)
+      - [Module 1.1: TPS Principles (30 minutes)](#module-11-tps-principles-30-minutes)
+      - [Module 1.2: Understanding Metrics (30 minutes)](#module-12-understanding-metrics-30-minutes)
+      - [Module 1.3: Dashboard Reading (30 minutes)](#module-13-dashboard-reading-30-minutes)
+      - [Module 1.4: Glossary (15 minutes)](#module-14-glossary-15-minutes)
+    - [Level 1 Self-Assessment Quiz](#level-1-self-assessment-quiz)
+    - [Level 1 Certificate](#level-1-certificate)
+  - [Level 2: Basic Operations Certification](#level-2-basic-operations-certification)
+    - [Level 2 Prerequisites](#level-2-prerequisites)
+    - [Level 2 Hands-On Labs](#level-2-hands-on-labs)
+      - [Lab 2.1: System Setup (30 minutes)](#lab-21-system-setup-30-minutes)
+      - [Lab 2.2: Generate Load (30 minutes)](#lab-22-generate-load-30-minutes)
+      - [Lab 2.3: Reading Dashboards Under Load (30 minutes)](#lab-23-reading-dashboards-under-load-30-minutes)
+      - [Lab 2.4: Generate Failure and Recover (45 minutes)](#lab-24-generate-failure-and-recover-45-minutes)
+      - [Lab 2.5: Troubleshoot Queue Buildup (45 minutes)](#lab-25-troubleshoot-queue-buildup-45-minutes)
+      - [Lab 2.6: Read Traces to Find Bottleneck (45 minutes)](#lab-26-read-traces-to-find-bottleneck-45-minutes)
+    - [Level 2 Practical Exam](#level-2-practical-exam)
+    - [Level 2 Certificate](#level-2-certificate)
+  - [Level 3: Advanced Operations Certification](#level-3-advanced-operations-certification)
+    - [Level 3 Hands-On Labs](#level-3-hands-on-labs)
+      - [Lab 3.1: Cascade Failure Investigation (8 hours)](#lab-31-cascade-failure-investigation-8-hours)
+      - [Lab 3.2: Parameter Tuning (6 hours)](#lab-32-parameter-tuning-6-hours)
+      - [Lab 3.3: Custom Dashboard Creation (4 hours)](#lab-33-custom-dashboard-creation-4-hours)
+      - [Lab 3.4: Performance Optimization (8 hours)](#lab-34-performance-optimization-8-hours)
+      - [Lab 3.5: Capacity Planning (6 hours)](#lab-35-capacity-planning-6-hours)
+      - [Lab 3.6: Deployment Strategy (6 hours)](#lab-36-deployment-strategy-6-hours)
+      - [Lab 3.7: Failure Recovery (6 hours)](#lab-37-failure-recovery-6-hours)
+    - [Level 3 Practical Exam](#level-3-practical-exam)
+    - [Level 3 Certificate](#level-3-certificate)
+  - [Recertification Requirements](#recertification-requirements)
+  - [Continuing Education](#continuing-education)
+  - [Program Metrics](#program-metrics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Operator Certification Program
 
 **Version**: 1.0

@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Runbook 5: Region Failover (Datacenter Outage)](#runbook-5-region-failover-datacenter-outage)
+  - [Quick Reference](#quick-reference)
+  - [Prerequisites: Multi-Region Architecture](#prerequisites-multi-region-architecture)
+  - [Detection Mechanism](#detection-mechanism)
+    - [Health Check Framework](#health-check-framework)
+    - [Automated Alerts](#automated-alerts)
+  - [Root Cause Analysis (5 Whys)](#root-cause-analysis-5-whys)
+  - [Incident Timeline (Typical)](#incident-timeline-typical)
+  - [Automatic Failover Sequence](#automatic-failover-sequence)
+  - [Manual Investigation & Recovery](#manual-investigation--recovery)
+    - [Step 1: Assess Failover Status](#step-1-assess-failover-status)
+    - [Step 2: Investigate Primary Region Failure](#step-2-investigate-primary-region-failure)
+    - [Step 3: Restore Primary Region (When Recovered)](#step-3-restore-primary-region-when-recovered)
+  - [Data Consistency During Failover](#data-consistency-during-failover)
+    - [Data Replication Architecture](#data-replication-architecture)
+    - [Verification Procedure](#verification-procedure)
+  - [Verification & Recovery](#verification--recovery)
+  - [Receipt Contract](#receipt-contract)
+    - [Failover Initiated Receipt](#failover-initiated-receipt)
+    - [Failover In Progress Receipt](#failover-in-progress-receipt)
+    - [Failover Complete Receipt](#failover-complete-receipt)
+  - [Prevention & Hardening](#prevention--hardening)
+  - [Training & Certification](#training--certification)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Runbook 5: Region Failover (Datacenter Outage)
 
 **Severity**: Sev1 (Critical - Full Outage)

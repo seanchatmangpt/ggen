@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Integration Testing - Quick Start Guide](#tps-integration-testing---quick-start-guide)
+  - [What's New](#whats-new)
+  - [Quick Navigation](#quick-navigation)
+  - [Getting Started in 5 Minutes](#getting-started-in-5-minutes)
+    - [1. Run Smoke Tests (30s validation)](#1-run-smoke-tests-30s-validation)
+    - [2. Run All TPS Tests](#2-run-all-tps-tests)
+    - [3. Review Test Coverage](#3-review-test-coverage)
+  - [Test Organization](#test-organization)
+  - [Test Categories at a Glance](#test-categories-at-a-glance)
+    - [1. End-to-End Workflow Tests (6 tests, 2-5 min total)](#1-end-to-end-workflow-tests-6-tests-2-5-min-total)
+    - [2. Smoke Tests (15 tests, <30s total)](#2-smoke-tests-15-tests-30s-total)
+    - [3. Regression Tests (10 tests, 1-2 min total)](#3-regression-tests-10-tests-1-2-min-total)
+    - [4. Performance Tests (10 tests, 1-2 min total)](#4-performance-tests-10-tests-1-2-min-total)
+    - [5. Chaos Tests (10 tests, 1-2 min total)](#5-chaos-tests-10-tests-1-2-min-total)
+    - [6. Test Data Builders (6+ utilities)](#6-test-data-builders-6-utilities)
+  - [Key Metrics Verified](#key-metrics-verified)
+    - [System Performance (SLOs)](#system-performance-slos)
+    - [Quality & Reliability](#quality--reliability)
+    - [TPS Principle Coverage](#tps-principle-coverage)
+  - [Common Tasks](#common-tasks)
+    - [Run Tests Locally](#run-tests-locally)
+    - [Review Regression Snapshots](#review-regression-snapshots)
+    - [Check Performance Baselines](#check-performance-baselines)
+    - [Add New Test](#add-new-test)
+  - [Troubleshooting](#troubleshooting)
+    - [Tests Fail to Compile](#tests-fail-to-compile)
+    - [Snapshot Tests Keep Failing](#snapshot-tests-keep-failing)
+    - [Performance Tests Too Slow](#performance-tests-too-slow)
+    - [Tests Pass Locally but Fail in CI](#tests-pass-locally-but-fail-in-ci)
+  - [Integration with Existing Systems](#integration-with-existing-systems)
+    - [ggen-tps-andon Crate](#ggen-tps-andon-crate)
+    - [tai-testing Crate](#tai-testing-crate)
+    - [Existing 80+ Tests](#existing-80-tests)
+  - [Next Steps](#next-steps)
+  - [Documentation Map](#documentation-map)
+  - [Key Files](#key-files)
+  - [Contact & Support](#contact--support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Integration Testing - Quick Start Guide
 
 ## What's New

@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TAI Deployment Architecture](#tai-deployment-architecture)
+  - [Overview](#overview)
+  - [Kubernetes Cluster Configuration](#kubernetes-cluster-configuration)
+    - [Cluster Specs (Per Region)](#cluster-specs-per-region)
+    - [Node Configuration](#node-configuration)
+    - [Node Pools (Workload Separation)](#node-pools-workload-separation)
+  - [Namespace Organization](#namespace-organization)
+  - [Service Deployments](#service-deployments)
+    - [Governor Service Deployment](#governor-service-deployment)
+    - [StatefulSet for Redis](#statefulset-for-redis)
+  - [Ingress Configuration](#ingress-configuration)
+  - [Global Load Balancer](#global-load-balancer)
+  - [DNS Configuration (Geolocation-based Routing)](#dns-configuration-geolocation-based-routing)
+  - [Helm Chart Structure](#helm-chart-structure)
+  - [Deployment Steps](#deployment-steps)
+  - [Rollout Strategy](#rollout-strategy)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TAI Deployment Architecture
 
 Complete deployment topology for TAI system across GCP regions.

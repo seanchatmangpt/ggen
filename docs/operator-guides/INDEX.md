@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Operator Guides - Complete Index](#tps-operator-guides---complete-index)
+  - [Quick Navigation by Role](#quick-navigation-by-role)
+    - [For New Operators (First Week)](#for-new-operators-first-week)
+    - [For On-Call Engineers (During Incidents)](#for-on-call-engineers-during-incidents)
+    - [For Operations Managers (Daily/Weekly/Monthly)](#for-operations-managers-dailyweeklymonthly)
+    - [For DevOps/SRE Engineers (Optimization & Tuning)](#for-devopssre-engineers-optimization--tuning)
+    - [For Video Training (Visual Learners)](#for-video-training-visual-learners)
+  - [Document Overview](#document-overview)
+    - [01-quick-start-guide.md](#01-quick-start-guidemd)
+    - [02-hands-on-labs.md](#02-hands-on-labsmd)
+    - [03-troubleshooting-decision-trees.md](#03-troubleshooting-decision-treesmd)
+    - [04-video-tutorial-scripts.md](#04-video-tutorial-scriptsmd)
+    - [05-grafana-dashboard-guide.md](#05-grafana-dashboard-guidemd)
+    - [06-operator-checklists.md](#06-operator-checklistsmd)
+    - [07-configuration-tuning-guide.md](#07-configuration-tuning-guidemd)
+  - [Quick Reference Tables](#quick-reference-tables)
+    - [Symptom → Document Mapping](#symptom-%E2%86%92-document-mapping)
+    - [Role → Document Mapping](#role-%E2%86%92-document-mapping)
+  - [Roadmap: Using These Guides](#roadmap-using-these-guides)
+    - [Week 1: Onboarding New Operator](#week-1-onboarding-new-operator)
+    - [Month 1-3: Operational Excellence](#month-1-3-operational-excellence)
+    - [Month 6: Advanced Operations](#month-6-advanced-operations)
+  - [Document Maintenance](#document-maintenance)
+    - [Review Schedule](#review-schedule)
+    - [Contributing Updates](#contributing-updates)
+  - [Integration with Other Systems](#integration-with-other-systems)
+    - [Handbook Integration](#handbook-integration)
+    - [Runbook Integration](#runbook-integration)
+    - [Training Integration](#training-integration)
+  - [Success Metrics](#success-metrics)
+  - [Feedback & Continuous Improvement](#feedback--continuous-improvement)
+  - [Quick Links](#quick-links)
+  - [Version History](#version-history)
+  - [Support & Escalation](#support--escalation)
+  - [Printable Resources](#printable-resources)
+  - [Next Steps](#next-steps)
+  - [Contact & Support](#contact--support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Operator Guides - Complete Index
 
 **Version**: 1.0

@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Toyota Production System: Andon (安灯)](#toyota-production-system-andon-%E5%AE%89%E7%81%AF)
+  - [Core Philosophy](#core-philosophy)
+    - [Manufacturing Context](#manufacturing-context)
+    - [Software System Context](#software-system-context)
+  - [Implementation in ggen-tps-andon](#implementation-in-ggen-tps-andon)
+    - [1. Structured Logging (AndonLogger)](#1-structured-logging-andonlogger)
+    - [2. Metrics (AndonMetrics)](#2-metrics-andonmetrics)
+    - [3. Distributed Tracing (AndonTracer)](#3-distributed-tracing-andontracer)
+    - [4. Runtime Diagnostics (AndonObserver)](#4-runtime-diagnostics-andonobserver)
+    - [5. Alert Management (AlertManager)](#5-alert-management-alertmanager)
+  - [Integration with MAPE-K Loop](#integration-with-mape-k-loop)
+  - [Dashboard & Visualization](#dashboard--visualization)
+    - [Prometheus + Grafana](#prometheus--grafana)
+    - [Jaeger Trace Visualization](#jaeger-trace-visualization)
+  - [Best Practices](#best-practices)
+    - [1. Structured Logging](#1-structured-logging)
+    - [2. Metric Naming](#2-metric-naming)
+    - [3. Alert Threshold Tuning](#3-alert-threshold-tuning)
+    - [4. Trace Context Propagation](#4-trace-context-propagation)
+    - [5. Alert Response](#5-alert-response)
+  - [Production Deployment](#production-deployment)
+    - [Environment Variables](#environment-variables)
+    - [Docker Compose Example](#docker-compose-example)
+  - [Troubleshooting](#troubleshooting)
+    - [Problem: No logs appearing](#problem-no-logs-appearing)
+    - [Problem: Metrics not updating](#problem-metrics-not-updating)
+    - [Problem: Traces not appearing in Jaeger](#problem-traces-not-appearing-in-jaeger)
+    - [Problem: Too many alerts (alert fatigue)](#problem-too-many-alerts-alert-fatigue)
+  - [References](#references)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Toyota Production System: Andon (安灯)
 
 **Andon** (安灯, "safe light") is a visual control system in Toyota manufacturing for signaling and responding to problems.

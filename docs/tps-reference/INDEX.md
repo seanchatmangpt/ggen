@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Reference Documentation Index](#tps-reference-documentation-index)
+  - [Quick Navigation](#quick-navigation)
+    - [For Architects](#for-architects)
+    - [For Engineers](#for-engineers)
+    - [For DevOps/Implementation](#for-devopsimplementation)
+    - [For Library Selection](#for-library-selection)
+  - [Document Map](#document-map)
+  - [Cross-Document References](#cross-document-references)
+    - [00-tps-principles.md](#00-tps-principlesmd)
+    - [01-library-catalog.md](#01-library-catalogmd)
+    - [02-architecture-blueprint.md](#02-architecture-blueprintmd)
+    - [03-implementation-roadmap.md](#03-implementation-roadmapmd)
+  - [How to Use This Documentation](#how-to-use-this-documentation)
+    - [Scenario 1: "I need to build TAI 2030 from scratch"](#scenario-1-i-need-to-build-tai-2030-from-scratch)
+    - [Scenario 2: "I need to understand why we made a specific architectural decision"](#scenario-2-i-need-to-understand-why-we-made-a-specific-architectural-decision)
+    - [Scenario 3: "We're in Phase 2, and something is broken"](#scenario-3-were-in-phase-2-and-something-is-broken)
+  - [Key Principles Summary](#key-principles-summary)
+  - [Integration with Existing Documentation](#integration-with-existing-documentation)
+  - [Metrics & Compliance](#metrics--compliance)
+    - [Document Quality](#document-quality)
+    - [Auditor-Ready](#auditor-ready)
+  - [Version History](#version-history)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Reference Documentation Index
 
 **Version**: 1.0.0 (Complete Reference Library)

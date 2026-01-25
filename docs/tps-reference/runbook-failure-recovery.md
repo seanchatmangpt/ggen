@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Failure Recovery Runbook for TPS Systems](#failure-recovery-runbook-for-tps-systems)
+  - [Four Types of Failures](#four-types-of-failures)
+    - [Type 1: Jidoka Failure (Worker Unhealthy)](#type-1-jidoka-failure-worker-unhealthy)
+      - [Detection](#detection)
+      - [Recovery Procedure](#recovery-procedure)
+      - [Prevention](#prevention)
+    - [Type 2: Kanban Failure (Queue Backend Down)](#type-2-kanban-failure-queue-backend-down)
+      - [Detection](#detection-1)
+      - [Recovery Procedure](#recovery-procedure-1)
+      - [Prevention](#prevention-1)
+    - [Type 3: Andon Failure (Can't See System)](#type-3-andon-failure-cant-see-system)
+      - [Detection](#detection-2)
+      - [Recovery Procedure](#recovery-procedure-2)
+      - [Prevention](#prevention-2)
+    - [Type 4: Heijunka Failure (Can't Scale)](#type-4-heijunka-failure-cant-scale)
+      - [Detection](#detection-3)
+      - [Recovery Procedure](#recovery-procedure-3)
+      - [Prevention](#prevention-3)
+  - [Recovery Checklists](#recovery-checklists)
+    - [Jidoka Failure (Worker Down)](#jidoka-failure-worker-down)
+    - [Kanban Failure (Queue Down)](#kanban-failure-queue-down)
+    - [Andon Failure (Monitoring Down)](#andon-failure-monitoring-down)
+    - [Heijunka Failure (Can't Scale)](#heijunka-failure-cant-scale)
+  - [Multi-Failure Scenario](#multi-failure-scenario)
+  - [Post-Failure Checklist](#post-failure-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Failure Recovery Runbook for TPS Systems
 
 **Version**: 1.0

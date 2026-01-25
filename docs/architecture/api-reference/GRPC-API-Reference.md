@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [gRPC API Reference](#grpc-api-reference)
+  - [Service Summary](#service-summary)
+  - [Governor Service](#governor-service)
+    - [ProposePolicy](#proposepolicy)
+    - [EnforcePolicy](#enforcepolicy)
+    - [RevokePolicy](#revokepolicy)
+    - [GetPolicies](#getpolicies)
+    - [StreamPolicies](#streampolicies)
+    - [HealthCheck](#healthcheck)
+  - [Coordinator Service](#coordinator-service)
+    - [SubmitSignal](#submitsignal)
+    - [RequestAction](#requestaction)
+    - [StreamActions](#streamactions)
+    - [AcknowledgeAction](#acknowledgeaction)
+    - [GetStatus](#getstatus)
+  - [Scheduler Service](#scheduler-service)
+    - [SubmitTask](#submittask)
+    - [CancelTask](#canceltask)
+    - [GetTaskStatus](#gettaskstatus)
+    - [StreamTaskUpdates](#streamtaskupdates)
+  - [Common Error Handling](#common-error-handling)
+    - [gRPC Status Codes](#grpc-status-codes)
+    - [Retry Strategy](#retry-strategy)
+  - [Rate Limiting Headers](#rate-limiting-headers)
+  - [mTLS Certificate Requirements](#mtls-certificate-requirements)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Testing](#testing)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # gRPC API Reference
 
 Complete API documentation for TAI gRPC services.

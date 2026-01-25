@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ADR-003: Istio Service Mesh Integration](#adr-003-istio-service-mesh-integration)
+  - [Problem Statement](#problem-statement)
+  - [Decision](#decision)
+  - [Rationale](#rationale)
+    - [Service Mesh Benefits](#service-mesh-benefits)
+  - [Architecture](#architecture)
+    - [Istio Components](#istio-components)
+    - [Deployment Topology](#deployment-topology)
+  - [Configuration Examples](#configuration-examples)
+    - [Mutual TLS Enforcement](#mutual-tls-enforcement)
+    - [Circuit Breaker Pattern](#circuit-breaker-pattern)
+    - [Canary Deployment](#canary-deployment)
+    - [Authorization Policy](#authorization-policy)
+  - [Monitoring and Observability](#monitoring-and-observability)
+    - [Prometheus Metrics](#prometheus-metrics)
+    - [Distributed Tracing (Jaeger)](#distributed-tracing-jaeger)
+    - [Service Graph Visualization](#service-graph-visualization)
+  - [Implementation Checklist](#implementation-checklist)
+  - [Consequences](#consequences)
+    - [Positive](#positive)
+    - [Negative](#negative)
+  - [Performance Impact](#performance-impact)
+  - [Migration Path](#migration-path)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ADR-003: Istio Service Mesh Integration
 
 **Status:** Accepted

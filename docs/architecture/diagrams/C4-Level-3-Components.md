@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [C4 Level 3: Component Diagram](#c4-level-3-component-diagram)
+  - [Component Details](#component-details)
+    - [API Layer](#api-layer)
+      - [Handler](#handler)
+      - [Middleware](#middleware)
+    - [Business Logic](#business-logic)
+      - [Policy Service](#policy-service)
+      - [Validator](#validator)
+      - [Policy Enforcer](#policy-enforcer)
+    - [Data Access Layer](#data-access-layer)
+      - [Repository Pattern](#repository-pattern)
+      - [Cache Layer](#cache-layer)
+      - [Firestore Client](#firestore-client)
+    - [Infrastructure](#infrastructure)
+      - [Logger (Structured Logging)](#logger-structured-logging)
+      - [Metrics Emitter](#metrics-emitter)
+      - [Vault Client](#vault-client)
+  - [Request Flow (Example: ProposePolicy)](#request-flow-example-proposepolicy)
+  - [Error Handling](#error-handling)
+  - [Key Design Patterns](#key-design-patterns)
+  - [Testing Strategy](#testing-strategy)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # C4 Level 3: Component Diagram
 
 Internal structure of TAI services (using Governor as example).
