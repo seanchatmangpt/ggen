@@ -1,0 +1,275 @@
+# Affiliate Routing Domain Model
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix attr:  <https://ggen.io/examples/attribution#> .
+
+# ============================================================================
+# ROUTING AGGREGATE
+# ============================================================================
+
+attr:RouteAggregate a ddd:Aggregate ;
+  ddd:name "RouteAggregate" ;
+  rdfs:comment "Manages affiliate link routes and click tracking" ;
+  ddd:root attr:AffiliateLinkRoute ;
+  ddd:hasEntity attr:AffiliateLinkRoute ;
+  ddd:hasValueObject attr:ClickReceipt ;
+  ddd:hasCommand attr:ResolveRoute ;
+  ddd:hasCommand attr:TrackClick ;
+  ddd:hasEvent attr:RouteResolved ;
+  ddd:hasEvent attr:ClickTracked .
+
+# ============================================================================
+# AFFILIATE LINK ROUTE ENTITY
+# ============================================================================
+
+attr:AffiliateLinkRoute a ddd:Entity ;
+  ddd:name "AffiliateLinkRoute" ;
+  rdfs:comment "Route mapping from slug to destination URL" ;
+  ddd:identityField attr:AffiliateLinkRoute_id ;
+  ddd:hasField attr:AffiliateLinkRoute_id ;
+  ddd:hasField attr:AffiliateLinkRoute_source_path ;
+  ddd:hasField attr:AffiliateLinkRoute_destination_url ;
+  ddd:hasField attr:AffiliateLinkRoute_affiliate_id ;
+  ddd:hasField attr:AffiliateLinkRoute_tracking_params ;
+  ddd:hasField attr:AffiliateLinkRoute_created_at ;
+  ddd:hasField attr:AffiliateLinkRoute_active .
+
+attr:AffiliateLinkRoute_id a ddd:Field ;
+  ddd:name "id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  rdfs:comment "UUID v7 for time-ordered routes" .
+
+attr:AffiliateLinkRoute_source_path a ddd:Field ;
+  ddd:name "source_path" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:pattern "^[a-z0-9-]{1,64}$" ;
+  rdfs:comment "Short slug (e.g., 'promo-123')" .
+
+attr:AffiliateLinkRoute_destination_url a ddd:Field ;
+  ddd:name "destination_url" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Target URL for redirect" .
+
+attr:AffiliateLinkRoute_affiliate_id a ddd:Field ;
+  ddd:name "affiliate_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  ddd:references attr:Publisher ;
+  rdfs:comment "Publisher identifier for attribution" .
+
+attr:AffiliateLinkRoute_tracking_params a ddd:Field ;
+  ddd:name "tracking_params" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  rdfs:comment "JSON map of query params" .
+
+attr:AffiliateLinkRoute_created_at a ddd:Field ;
+  ddd:name "created_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true ;
+  rdfs:comment "ISO 8601 timestamp" .
+
+attr:AffiliateLinkRoute_active a ddd:Field ;
+  ddd:name "active" ;
+  ddd:type "bool" ;
+  ddd:required true ;
+  ddd:default "true" ;
+  rdfs:comment "Route enabled flag" .
+
+# ============================================================================
+# CLICK RECEIPT VALUE OBJECT
+# ============================================================================
+
+attr:ClickReceipt a ddd:ValueObject ;
+  ddd:name "ClickReceipt" ;
+  rdfs:comment "Cryptographic proof of click" ;
+  ddd:hasField attr:ClickReceipt_click_id ;
+  ddd:hasField attr:ClickReceipt_route_id ;
+  ddd:hasField attr:ClickReceipt_timestamp ;
+  ddd:hasField attr:ClickReceipt_ip_hash ;
+  ddd:hasField attr:ClickReceipt_user_agent ;
+  ddd:hasField attr:ClickReceipt_referrer ;
+  ddd:hasField attr:ClickReceipt_hash ;
+  ddd:hasField attr:ClickReceipt_prev_hash .
+
+attr:ClickReceipt_click_id a ddd:Field ;
+  ddd:name "click_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  rdfs:comment "UUID v7" .
+
+attr:ClickReceipt_route_id a ddd:Field ;
+  ddd:name "route_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  rdfs:comment "Reference to route" .
+
+attr:ClickReceipt_timestamp a ddd:Field ;
+  ddd:name "timestamp" ;
+  ddd:type "DateTime" ;
+  ddd:required true ;
+  rdfs:comment "ISO 8601 UTC" .
+
+attr:ClickReceipt_ip_hash a ddd:Field ;
+  ddd:name "ip_hash" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "SHA-256 hex" .
+
+attr:ClickReceipt_user_agent a ddd:Field ;
+  ddd:name "user_agent" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  rdfs:comment "User-Agent header" .
+
+attr:ClickReceipt_referrer a ddd:Field ;
+  ddd:name "referrer" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  rdfs:comment "HTTP Referer" .
+
+attr:ClickReceipt_hash a ddd:Field ;
+  ddd:name "hash" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "SHA-256 of receipt content" .
+
+attr:ClickReceipt_prev_hash a ddd:Field ;
+  ddd:name "prev_hash" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  rdfs:comment "Merkle chain link" .
+
+# ============================================================================
+# COMMANDS
+# ============================================================================
+
+attr:ResolveRoute a ddd:Command ;
+  ddd:name "ResolveRoute" ;
+  rdfs:comment "Look up route by slug" ;
+  ddd:httpMethod "GET" ;
+  ddd:httpPath "/r/{slug}" ;
+  ddd:hasField attr:ResolveRoute_slug .
+
+attr:ResolveRoute_slug a ddd:Field ;
+  ddd:name "slug" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Route slug from URL" .
+
+attr:TrackClick a ddd:Command ;
+  ddd:name "TrackClick" ;
+  rdfs:comment "Record click and generate receipt" ;
+  ddd:httpMethod "POST" ;
+  ddd:httpPath "/track/click" ;
+  ddd:hasField attr:TrackClick_route_id ;
+  ddd:hasField attr:TrackClick_visitor_ip ;
+  ddd:hasField attr:TrackClick_user_agent ;
+  ddd:hasField attr:TrackClick_referrer .
+
+attr:TrackClick_route_id a ddd:Field ;
+  ddd:name "route_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:TrackClick_visitor_ip a ddd:Field ;
+  ddd:name "visitor_ip" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Will be hashed before storage" .
+
+attr:TrackClick_user_agent a ddd:Field ;
+  ddd:name "user_agent" ;
+  ddd:type "String" ;
+  ddd:required false .
+
+attr:TrackClick_referrer a ddd:Field ;
+  ddd:name "referrer" ;
+  ddd:type "String" ;
+  ddd:required false .
+
+# ============================================================================
+# EVENTS
+# ============================================================================
+
+attr:RouteResolved a ddd:Event ;
+  ddd:name "RouteResolved" ;
+  rdfs:comment "Route successfully resolved" ;
+  ddd:hasField attr:RouteResolved_route_id ;
+  ddd:hasField attr:RouteResolved_destination_url .
+
+attr:RouteResolved_route_id a ddd:Field ;
+  ddd:name "route_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:RouteResolved_destination_url a ddd:Field ;
+  ddd:name "destination_url" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+attr:ClickTracked a ddd:Event ;
+  ddd:name "ClickTracked" ;
+  rdfs:comment "Click recorded with receipt" ;
+  ddd:hasField attr:ClickTracked_receipt .
+
+attr:ClickTracked_receipt a ddd:Field ;
+  ddd:name "receipt" ;
+  ddd:type "ClickReceipt" ;
+  ddd:required true .
+
+# ============================================================================
+# HTTP ROUTES METADATA
+# ============================================================================
+
+attr:RedirectRoute a ddd:HttpRoute ;
+  ddd:method "GET" ;
+  ddd:path "/r/{slug}" ;
+  ddd:handler "redirect_handler" ;
+  rdfs:comment "Resolve route and redirect with tracking" .
+
+attr:TrackingPixelRoute a ddd:HttpRoute ;
+  ddd:method "POST" ;
+  ddd:path "/track/click" ;
+  ddd:handler "track_click_handler" ;
+  rdfs:comment "Async click tracking endpoint" .
+
+attr:ReceiptVerificationRoute a ddd:HttpRoute ;
+  ddd:method "GET" ;
+  ddd:path "/receipts/{click_id}" ;
+  ddd:handler "verify_receipt_handler" ;
+  rdfs:comment "Retrieve and verify click receipt" .
+
+# ============================================================================
+# INVARIANTS
+# ============================================================================
+
+attr:Invariant_RouteSlugUnique a ddd:Invariant ;
+  ddd:name "RouteSlugUnique" ;
+  rdfs:comment "Route slugs must be globally unique" ;
+  ddd:rule "UNIQUE(route.source_path)" ;
+  ddd:scope attr:RouteAggregate .
+
+attr:Invariant_ActiveRoutesResolvable a ddd:Invariant ;
+  ddd:name "ActiveRoutesResolvable" ;
+  rdfs:comment "All active routes must resolve to valid URLs" ;
+  ddd:rule "route.active = true => VALID_URL(route.destination_url)" ;
+  ddd:scope attr:RouteAggregate .
+
+attr:Invariant_ReceiptHashUnique a ddd:Invariant ;
+  ddd:name "ReceiptHashUnique" ;
+  rdfs:comment "Receipt hashes must be unique (collision-free)" ;
+  ddd:rule "UNIQUE(receipt.hash)" ;
+  ddd:scope attr:ClickReceipt .
+
+attr:Invariant_MerkleChainValid a ddd:Invariant ;
+  ddd:name "MerkleChainValid" ;
+  rdfs:comment "Receipt prev_hash must match previous receipt hash" ;
+  ddd:rule "receipt[i].prev_hash = receipt[i-1].hash" ;
+  ddd:scope attr:ClickReceipt .

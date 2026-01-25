@@ -1,0 +1,345 @@
+# ggen Configuration - Rust Attribution Context
+# TCPS Reference Implementation
+# NO output_directory - explicit paths only
+
+[project]
+name = "rust-attribution-context"
+version = "1.0.0"
+description = "TCPS reference implementation: DDD attribution system"
+
+# Ontology sources (truth layer)
+[[ontology.sources]]
+path = "ontology/attribution.ttl"
+format = "turtle"
+
+[[ontology.sources]]
+path = "ontology/entities.ttl"
+format = "turtle"
+
+[[ontology.sources]]
+path = "ontology/commands.ttl"
+format = "turtle"
+
+[[ontology.sources]]
+path = "ontology/events.ttl"
+format = "turtle"
+
+[[ontology.sources]]
+path = "ontology/policies.ttl"
+format = "turtle"
+
+[[ontology.sources]]
+path = "ontology/infra.ttl"
+format = "turtle"
+
+[[ontology.sources]]
+path = "ontology/saas.ttl"
+format = "turtle"
+
+[[ontology.sources]]
+path = "ontology/saas_commands.ttl"
+format = "turtle"
+
+[[ontology.sources]]
+path = "ontology/saas_events.ttl"
+format = "turtle"
+
+[[ontology.sources]]
+path = "ontology/saas_aggregates.ttl"
+format = "turtle"
+
+[[ontology.sources]]
+path = "ontology/routing.ttl"
+format = "turtle"
+
+# Generation rules (factory production line)
+
+# ============================================================================
+# RUST DOMAIN MODEL GENERATION
+# ============================================================================
+
+[[generation.rules]]
+name = "rust_entities"
+description = "Generate Rust entity structs"
+query_file = "queries/entities.sparql"
+template_file = "templates/rust_entities.rs.tera"
+to = "world/src/entities.rs"
+
+[[generation.rules]]
+name = "rust_commands"
+description = "Generate Rust command enums"
+query_file = "queries/commands.sparql"
+template_file = "templates/rust_commands.rs.tera"
+to = "world/src/commands.rs"
+
+[[generation.rules]]
+name = "rust_events"
+description = "Generate Rust event enums"
+query_file = "queries/events.sparql"
+template_file = "templates/rust_events.rs.tera"
+to = "world/src/events.rs"
+
+[[generation.rules]]
+name = "rust_aggregates"
+description = "Generate Rust aggregate logic"
+query_file = "queries/aggregates.sparql"
+template_file = "templates/rust_aggregates.rs.tera"
+to = "world/src/aggregates.rs"
+
+[[generation.rules]]
+name = "rust_handlers"
+description = "Generate command handlers"
+query_file = "queries/handlers.sparql"
+template_file = "templates/rust_handlers.rs.tera"
+to = "world/src/handlers.rs"
+
+[[generation.rules]]
+name = "rust_projections"
+description = "Generate read model projections"
+query_file = "queries/projections.sparql"
+template_file = "templates/rust_projections.rs.tera"
+to = "world/src/projections.rs"
+
+[[generation.rules]]
+name = "rust_routes"
+description = "Generate HTTP routes (Axum)"
+query_file = "queries/routes.sparql"
+template_file = "templates/rust_routes.rs.tera"
+to = "world/src/routes.rs"
+
+[[generation.rules]]
+name = "rust_lib"
+description = "Generate lib.rs module exports"
+query_file = "queries/modules.sparql"
+template_file = "templates/rust_lib.rs.tera"
+to = "world/src/lib.rs"
+
+[[generation.rules]]
+name = "saas_handlers"
+description = "Generate SaaS revenue handlers"
+query_file = "queries/saas_commands.sparql"
+template_file = "templates/saas_handlers.rs.tera"
+to = "world/src/saas_handlers.rs"
+
+[[generation.rules]]
+name = "saas_webhook_routes"
+description = "Generate SaaS webhook routes"
+query_file = "queries/saas_commands.sparql"
+template_file = "templates/saas_webhook_routes.rs.tera"
+to = "world/src/saas_webhook_routes.rs"
+
+# ============================================================================
+# AFFILIATE ROUTING SYSTEM
+# ============================================================================
+
+[[generation.rules]]
+name = "rust_routing_resolver"
+description = "Generate route resolver with zero-alloc cache"
+query_file = "queries/routing_entities.sparql"
+template_file = "templates/rust_routing_resolver.rs.tera"
+to = "world/src/routing.rs"
+
+[[generation.rules]]
+name = "rust_click_tracker"
+description = "Generate click tracker with cryptographic receipts"
+query_file = "queries/routing_entities.sparql"
+template_file = "templates/rust_click_tracker.rs.tera"
+to = "world/src/click_tracker.rs"
+
+[[generation.rules]]
+name = "rust_routing_handlers"
+description = "Generate HTTP handlers for routing endpoints"
+query_file = "queries/routing.sparql"
+template_file = "templates/rust_routing_handlers.rs.tera"
+to = "world/src/routing_handlers.rs"
+
+[[generation.rules]]
+name = "routing_property_tests"
+description = "Generate property tests for routing invariants"
+query_file = "queries/routing_entities.sparql"
+template_file = "templates/routing_property_tests.rs.tera"
+to = "world/tests/routing_property_tests.rs"
+
+# ============================================================================
+# RUST BUILD CONFIGURATION
+# ============================================================================
+
+[[generation.rules]]
+name = "cargo_toml"
+description = "Generate Cargo.toml manifest"
+query_file = "queries/cargo.sparql"
+template_file = "templates/cargo_toml.tera"
+to = "world/Cargo.toml"
+
+[[generation.rules]]
+name = "cargo_lock"
+description = "Generate Cargo.lock placeholder"
+query_file = "queries/cargo.sparql"
+template_file = "templates/cargo_lock.tera"
+to = "world/Cargo.lock"
+
+# ============================================================================
+# INFRASTRUCTURE (TERRAFORM)
+# ============================================================================
+
+[[generation.rules]]
+name = "terraform_main"
+description = "Generate main Terraform configuration"
+query_file = "queries/infra.sparql"
+template_file = "templates/terraform_main.tf.tera"
+to = "world/infra/main.tf"
+
+[[generation.rules]]
+name = "terraform_variables"
+description = "Generate Terraform variables"
+query_file = "queries/infra.sparql"
+template_file = "templates/terraform_variables.tf.tera"
+to = "world/infra/variables.tf"
+
+[[generation.rules]]
+name = "terraform_outputs"
+description = "Generate Terraform outputs"
+query_file = "queries/infra.sparql"
+template_file = "templates/terraform_outputs.tf.tera"
+to = "world/infra/outputs.tf"
+
+# ============================================================================
+# WORLD CLOSURE (RUN SCRIPTS)
+# ============================================================================
+
+[[generation.rules]]
+name = "run_up"
+description = "Generate world/run/up script"
+query_file = "queries/closure.sparql"
+template_file = "templates/run_up.sh.tera"
+to = "world/run/up"
+
+[[generation.rules]]
+name = "run_down"
+description = "Generate world/run/down script"
+query_file = "queries/closure.sparql"
+template_file = "templates/run_down.sh.tera"
+to = "world/run/down"
+
+[[generation.rules]]
+name = "run_status"
+description = "Generate world/run/status script"
+query_file = "queries/closure.sparql"
+template_file = "templates/run_status.sh.tera"
+to = "world/run/status"
+
+[[generation.rules]]
+name = "run_verify"
+description = "Generate world/run/verify script"
+query_file = "queries/closure.sparql"
+template_file = "templates/run_verify.sh.tera"
+to = "world/run/verify"
+
+# ============================================================================
+# C4 DIAGRAMS
+# ============================================================================
+
+[[generation.rules]]
+name = "c4_context"
+description = "Generate C4 Context diagram"
+query_file = "queries/c4_context.sparql"
+template_file = "templates/c4_context.mmd.tera"
+to = "world/docs/c4/c1-context.mmd"
+
+[[generation.rules]]
+name = "c4_containers"
+description = "Generate C4 Container diagram"
+query_file = "queries/c4_containers.sparql"
+template_file = "templates/c4_containers.mmd.tera"
+to = "world/docs/c4/c2-containers.mmd"
+
+[[generation.rules]]
+name = "c4_components"
+description = "Generate C4 Component diagram"
+query_file = "queries/c4_components.sparql"
+template_file = "templates/c4_components.mmd.tera"
+to = "world/docs/c4/c3-components.mmd"
+
+# ============================================================================
+# TOGAF OUTPUTS
+# ============================================================================
+
+[[generation.rules]]
+name = "togaf_building_blocks"
+description = "Generate TOGAF Building Blocks catalog"
+query_file = "queries/togaf_building_blocks.sparql"
+template_file = "templates/togaf_building_blocks.md.tera"
+to = "world/docs/togaf/building-blocks.md"
+
+[[generation.rules]]
+name = "togaf_realization_matrix"
+description = "Generate ABB→SBB realization matrix"
+query_file = "queries/togaf_realization.sparql"
+template_file = "templates/togaf_realization.md.tera"
+to = "world/docs/togaf/realization-matrix.md"
+
+# ============================================================================
+# RECEIPTS SCHEMA
+# ============================================================================
+
+[[generation.rules]]
+name = "receipts_schema"
+description = "Generate receipts schema"
+query_file = "queries/receipts.sparql"
+template_file = "templates/receipts_schema.rs.tera"
+to = "world/src/receipts.rs"
+
+# ============================================================================
+# TESTS
+# ============================================================================
+
+[[generation.rules]]
+name = "property_tests"
+description = "Generate property-based tests"
+query_file = "queries/properties.sparql"
+template_file = "templates/property_tests.rs.tera"
+to = "world/tests/property_tests.rs"
+
+[[generation.rules]]
+name = "integration_tests"
+description = "Generate integration tests"
+query_file = "queries/integration.sparql"
+template_file = "templates/integration_tests.rs.tera"
+to = "world/tests/integration_tests.rs"
+
+# ============================================================================
+# QUALITY GATES
+# ============================================================================
+
+[gates]
+# Stop-the-line validation rules
+
+[[gates.ontology]]
+name = "ontology_valid"
+description = "Ontology must be valid RDF"
+rule = "sparql_validates"
+
+[[gates.completeness]]
+name = "all_commands_handled"
+description = "Every command must have a handler"
+query = "queries/gates/commands_handled.sparql"
+
+[[gates.completeness]]
+name = "all_events_projected"
+description = "Every event must update a projection"
+query = "queries/gates/events_projected.sparql"
+
+[[gates.runtime]]
+name = "health_endpoint_exists"
+description = "Generated service must have /health"
+check = "routes_includes_health"
+
+# ============================================================================
+# RECEIPTS CONFIGURATION
+# ============================================================================
+
+[receipts]
+enabled = true
+format = "json"
+storage = "append_only_log"
+path = "world/receipts/"

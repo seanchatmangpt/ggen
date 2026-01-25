@@ -1,0 +1,30 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd:  <https://ggen.io/ontology/ddd#>
+PREFIX sys:  <https://ggen.io/ontology/system#>
+PREFIX cloud: <https://ggen.io/ontology/cloud#>
+
+SELECT ?contextName ?version ?servicePort ?healthPath ?infraProvider
+WHERE {
+  # Find the bounded context
+  ?context a ddd:BoundedContext ;
+           ddd:name ?contextName .
+
+  OPTIONAL { ?context ddd:version ?version }
+
+  # Find service configuration
+  OPTIONAL {
+    ?context sys:servicePort ?servicePort .
+  }
+
+  OPTIONAL {
+    ?context sys:healthPath ?healthPath .
+  }
+
+  # Find infrastructure
+  OPTIONAL {
+    ?infra a cloud:ComputeInstance ;
+           cloud:provider ?infraProvider .
+  }
+}
+LIMIT 1

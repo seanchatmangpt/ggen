@@ -1,0 +1,18 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd:  <https://ggen.io/ontology/ddd#>
+
+SELECT ?routeName ?method ?path ?handler ?comment
+WHERE {
+  # Find all HTTP routes for routing system
+  ?route a ddd:HttpRoute ;
+         ddd:method ?method ;
+         ddd:path ?path ;
+         ddd:handler ?handler .
+
+  OPTIONAL { ?route rdfs:comment ?comment }
+
+  # Extract route name from URI
+  BIND(REPLACE(STR(?route), "^.*/([^/]+)$", "$1") AS ?routeName)
+}
+ORDER BY ?path

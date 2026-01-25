@@ -77,7 +77,7 @@ impl LLMConstructCodeGen {
 
         // Map output fields to template-friendly format
         let field_data: Vec<_> = construct.dspy_fields.iter()
-            .map(|f| {
+            .map(|f: &crate::dspy::OutputField| {
                 json!({
                     "name": f.name(),
                     "description": f.desc(),

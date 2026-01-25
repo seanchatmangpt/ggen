@@ -233,11 +233,8 @@ impl NamingValidator {
     }
 }
 
-impl Default for NamingValidator {
-    fn default() -> Self {
-        Self::new().expect("Failed to create default NamingValidator")
-    }
-}
+// Default implementation removed to avoid expect() in production code
+// Tests should use NamingValidator::new().unwrap() instead
 
 #[cfg(test)]
 mod tests {
@@ -357,7 +354,7 @@ mod tests {
 
     #[test]
     fn test_default_instantiation() {
-        let _validator = NamingValidator::default();
-        // Should not panic
+        let _validator = NamingValidator::new().unwrap();
+        // Should not panic - regex compilation with hardcoded patterns should always succeed
     }
 }

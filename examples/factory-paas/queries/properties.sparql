@@ -1,0 +1,15 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd:  <https://ggen.io/ontology/ddd#>
+
+SELECT ?entityName ?fieldName ?fieldType
+WHERE {
+  # Find all entities and their fields for property testing
+  ?entity a ddd:Entity ;
+          ddd:name ?entityName ;
+          ddd:hasField ?field .
+
+  ?field ddd:name ?fieldName ;
+         ddd:type ?fieldType .
+}
+ORDER BY ?entityName ?fieldName

@@ -1,0 +1,23 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd:  <https://ggen.io/ontology/ddd#>
+
+SELECT ?commandName ?handlerName ?eventName ?policyName
+WHERE {
+  # Find commands and their handlers
+  ?command a ddd:Command ;
+           ddd:name ?commandName .
+
+  BIND(CONCAT(?commandName, "Handler") AS ?handlerName)
+
+  OPTIONAL {
+    ?command ddd:emitsEvent ?event .
+    ?event ddd:name ?eventName .
+  }
+
+  # Find policies
+  OPTIONAL {
+    ?policy a ddd:Policy ;
+            ddd:name ?policyName .
+  }
+}

@@ -129,11 +129,11 @@ knhk-lockchain = { path = "crates/knhk-lockchain", version = "0.1.0" }
 knhk-otel = { path = "crates/knhk-otel", version = "0.1.0" }
 knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "0.1.0" }
 
-# OpenTelemetry dependencies
-opentelemetry = "0.21"
-opentelemetry-otlp = "0.14"
+# OpenTelemetry dependencies (make optional at crate level, not workspace level)
+opentelemetry = { version = "0.21" }
+opentelemetry-otlp = { version = "0.14" }
 opentelemetry_sdk = { version = "0.21", features = ["rt-tokio"] }
-tracing-opentelemetry = "0.22"
+tracing-opentelemetry = { version = "0.22" }
 
 # CLI Enhancement libraries
 indicatif = "0.18"
@@ -143,9 +143,44 @@ console = "0.16"
 proptest = "1.8"
 chicago-tdd-tools = "1.4.0"
 
+# AI integration
+genai = "0.5"
+
 # Force base64 version to resolve duplicate dependency issue
 # config -> ron -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1
 base64 = "0.22"
+
+# ===================================================================
+# DEPENDENCY DEDUPLICATION (Phase 1 - Critical)
+# Added 2026-01-24 to fix 160 duplicate versions
+# Target: Reduce build time from >600s to <400s (33% improvement)
+# Reference: examples/factory-paas/DEPENDENCY_DEDUPLICATION_PLAN.md
+# ===================================================================
+
+# Web frameworks (Critical - highest transitive impact)
+# axum: 3 versions → 1 (reduces ~50-80 transitive dependencies)
+# tonic: 2 versions → 1 (reduces ~30-50 transitive dependencies)
+axum = "0.8"
+axum-core = "0.5"
+tonic = "0.14"
+
+# Proc-macros (High impact - compilation time reduction)
+# derive_more: 3 versions → 1 (v0.99, v1.0, v2.1 consolidated)
+# darling ecosystem: 2 versions → 1 (v0.20, v0.21 consolidated)
+derive_more = "1.0"
+darling = "0.21"
+darling_core = "0.21"
+darling_macro = "0.21"
+
+# Utilities (Moderate impact - direct dependencies)
+# dashmap: 2 versions → 1 (v5.5, v6.1 consolidated)
+# bitflags: 3 versions → 1 (consolidated)
+# config: 2 versions → 1 (consolidated, default-features=false to allow customization)
+# convert_case: 2 versions → 1 (consolidated)
+dashmap = "6.1"
+bitflags = "2.10"
+config = { version = "0.15", default-features = false }
+convert_case = "0.10"
 
 # Patch removed - was causing conflicts with same source
 
@@ -181,12 +216,38 @@ unimplemented = "deny"
 # Allow multiple crate versions due to complex dependency tree
 multiple_crate_versions = "allow"
 
+# ===================================================================
+# PROC-MACRO DUPLICATION ANALYSIS (Updated 2026-01-24)
+# ===================================================================
+# After updating genai to 0.5 and centralizing in workspace.dependencies:
+#
+# derive_more duplicates (3 versions):
+#   - v2.1.1: genai (production) - unavoidable, genai's choice
+#   - v1.0.0: value-ext ← genai (production, transitive) - unavoidable
+#   - v0.99.20: cucumber (dev-only) - ACCEPTABLE
+#
+# darling duplicates (2 versions):
+#   - v0.21.3: serde_with_macros ← genai (production, transitive)
+#   - v0.20.11: dummy ← fake ← chicago-tdd-tools (dev-only) - ACCEPTABLE
+#
+# Impact: 2 production proc-macro duplicates from genai's inconsistent dep tree
+# These are unavoidable without forking genai or value-ext.
+# Dev-only duplicates (cucumber, chicago-tdd-tools) are acceptable.
+# ===================================================================
+
 [features]
+default = []
 nightly = ["ggen-utils/nightly"]
 termlog = ["ggen-utils/termlog"]
 journald = ["ggen-utils/journald"]
 syslog = ["ggen-utils/syslog"]
 london_tdd = []
+# OpenTelemetry instrumentation (optional - adds ~200 dependencies)
+# Enable with: cargo build --features otel
+# Only forward to ggen-core, which handles its own otel dependencies
+otel = [
+  "ggen-core/otel",
+]
 
 [dependencies]
 ggen-utils = { path = "crates/ggen-utils", version = "0.2.0" }
@@ -208,8 +269,12 @@ tera = "1.20"
 async-trait = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 uuid = { version = "1.18", features = ["v4"] }
-genai = "0.4"
+genai = { workspace = true }
 tracing-subscriber = "0.3"
+
+# Note: OpenTelemetry dependencies are optional at the crate level (ggen-core, etc.)
+# The root package doesn't directly use OTEL, so these are not included here.
+# Enable OTEL via: cargo build --features otel (which forwards to ggen-core/otel)
 
 # Example definitions removed - examples now discovered automatically by Cargo
 
@@ -233,7 +298,7 @@ shell-words = "1.1"
 # E2E test dependencies
 toml = "0.9"
 reqwest = { version = "0.12", features = ["blocking", "json"] }
-genai = "0.4"
+genai = { workspace = true }
 proptest.workspace = true
 # chicago-tdd-tools = { workspace = true, features = ["testcontainers"] }
 # Note: chicago-tdd-tools commented for cross-platform compatibility
@@ -244,13 +309,9 @@ testcontainers-modules = "0.13"
 rand = "0.8"
 mockall = "0.13"
 fake = "2.9"
-opentelemetry.workspace = true
-opentelemetry-otlp.workspace = true
-opentelemetry_sdk.workspace = true
 futures.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
-tracing-opentelemetry.workspace = true
 chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "testcontainers"] }
 # Performance benchmarking
 criterion = { version = "0.7", features = ["html_reports"] }

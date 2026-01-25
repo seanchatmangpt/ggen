@@ -1,0 +1,442 @@
+# FactoryPaaS Commands - Write Operations
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix fpaa:  <https://factorypaaS.io/ontology#> .
+
+# ============================================================================
+# CREATE SITE COMMAND
+# ============================================================================
+
+fpaa:CreateSite a ddd:Command ;
+  ddd:name "CreateSite" ;
+  rdfs:comment "Initialize new affiliate site" ;
+  ddd:aggregate fpaa:SiteAggregate ;
+  ddd:emitsEvent fpaa:SiteCreated ;
+  ddd:hasField fpaa:CreateSite_name ;
+  ddd:hasField fpaa:CreateSite_domain ;
+  ddd:hasField fpaa:CreateSite_niche ;
+  ddd:hasField fpaa:CreateSite_gcp_project_id .
+
+fpaa:CreateSite_name a ddd:Field ;
+  ddd:name "name" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:CreateSite_domain a ddd:Field ;
+  ddd:name "domain" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:format "domain" .
+
+fpaa:CreateSite_niche a ddd:Field ;
+  ddd:name "niche" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:CreateSite_gcp_project_id a ddd:Field ;
+  ddd:name "gcp_project_id" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+# ============================================================================
+# GENERATE CONTENT COMMAND
+# ============================================================================
+
+fpaa:GenerateContent a ddd:Command ;
+  ddd:name "GenerateContent" ;
+  rdfs:comment "AI-generate SEO-optimized page content" ;
+  ddd:aggregate fpaa:ContentAggregate ;
+  ddd:emitsEvent fpaa:ContentGenerated ;
+  ddd:hasField fpaa:GenerateContent_site_id ;
+  ddd:hasField fpaa:GenerateContent_primary_keyword ;
+  ddd:hasField fpaa:GenerateContent_secondary_keywords ;
+  ddd:hasField fpaa:GenerateContent_content_type ;
+  ddd:hasField fpaa:GenerateContent_target_word_count ;
+  ddd:hasField fpaa:GenerateContent_tone ;
+  ddd:hasField fpaa:GenerateContent_include_affiliate_links .
+
+fpaa:GenerateContent_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:GenerateContent_primary_keyword a ddd:Field ;
+  ddd:name "primary_keyword" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:GenerateContent_secondary_keywords a ddd:Field ;
+  ddd:name "secondary_keywords" ;
+  ddd:type "Vec<String>" ;
+  ddd:required false .
+
+fpaa:GenerateContent_content_type a ddd:Field ;
+  ddd:name "content_type" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:enum "comparison,review,guide,listicle,tutorial" ;
+  rdfs:comment "Content format template" .
+
+fpaa:GenerateContent_target_word_count a ddd:Field ;
+  ddd:name "target_word_count" ;
+  ddd:type "i32" ;
+  ddd:required false ;
+  ddd:default "1500" .
+
+fpaa:GenerateContent_tone a ddd:Field ;
+  ddd:name "tone" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  ddd:enum "professional,casual,technical,friendly" ;
+  ddd:default "professional" .
+
+fpaa:GenerateContent_include_affiliate_links a ddd:Field ;
+  ddd:name "include_affiliate_links" ;
+  ddd:type "bool" ;
+  ddd:required false ;
+  ddd:default "true" .
+
+# ============================================================================
+# PUBLISH PAGE COMMAND
+# ============================================================================
+
+fpaa:PublishPage a ddd:Command ;
+  ddd:name "PublishPage" ;
+  rdfs:comment "Publish page to production" ;
+  ddd:aggregate fpaa:ContentAggregate ;
+  ddd:emitsEvent fpaa:PagePublished ;
+  ddd:hasField fpaa:PublishPage_page_id ;
+  ddd:hasField fpaa:PublishPage_force_regenerate_html ;
+  ddd:hasField fpaa:PublishPage_notify_search_engines .
+
+fpaa:PublishPage_page_id a ddd:Field ;
+  ddd:name "page_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:PublishPage_force_regenerate_html a ddd:Field ;
+  ddd:name "force_regenerate_html" ;
+  ddd:type "bool" ;
+  ddd:required false ;
+  ddd:default "false" .
+
+fpaa:PublishPage_notify_search_engines a ddd:Field ;
+  ddd:name "notify_search_engines" ;
+  ddd:type "bool" ;
+  ddd:required false ;
+  ddd:default "true" ;
+  rdfs:comment "Submit to Google/Bing indexing APIs" .
+
+# ============================================================================
+# DEPLOY TO GCP COMMAND
+# ============================================================================
+
+fpaa:DeployToGCP a ddd:Command ;
+  ddd:name "DeployToGCP" ;
+  rdfs:comment "Deploy site to GCP infrastructure" ;
+  ddd:aggregate fpaa:DeploymentAggregate ;
+  ddd:emitsEvent fpaa:SiteDeployed ;
+  ddd:hasField fpaa:DeployToGCP_site_id ;
+  ddd:hasField fpaa:DeployToGCP_deployment_strategy ;
+  ddd:hasField fpaa:DeployToGCP_enable_cdn ;
+  ddd:hasField fpaa:DeployToGCP_min_instances ;
+  ddd:hasField fpaa:DeployToGCP_max_instances ;
+  ddd:hasField fpaa:DeployToGCP_cpu_limit ;
+  ddd:hasField fpaa:DeployToGCP_memory_limit .
+
+fpaa:DeployToGCP_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:DeployToGCP_deployment_strategy a ddd:Field ;
+  ddd:name "deployment_strategy" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:enum "blue-green,rolling,canary" ;
+  ddd:default "rolling" .
+
+fpaa:DeployToGCP_enable_cdn a ddd:Field ;
+  ddd:name "enable_cdn" ;
+  ddd:type "bool" ;
+  ddd:required false ;
+  ddd:default "true" .
+
+fpaa:DeployToGCP_min_instances a ddd:Field ;
+  ddd:name "min_instances" ;
+  ddd:type "i32" ;
+  ddd:required false ;
+  ddd:default "0" ;
+  rdfs:comment "Cloud Run minimum instances" .
+
+fpaa:DeployToGCP_max_instances a ddd:Field ;
+  ddd:name "max_instances" ;
+  ddd:type "i32" ;
+  ddd:required false ;
+  ddd:default "10" .
+
+fpaa:DeployToGCP_cpu_limit a ddd:Field ;
+  ddd:name "cpu_limit" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  ddd:default "1000m" ;
+  rdfs:comment "CPU limit (e.g., '1000m' = 1 vCPU)" .
+
+fpaa:DeployToGCP_memory_limit a ddd:Field ;
+  ddd:name "memory_limit" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  ddd:default "512Mi" .
+
+# ============================================================================
+# TRACK OUTBOUND CLICK COMMAND
+# ============================================================================
+
+fpaa:TrackOutboundClick a ddd:Command ;
+  ddd:name "TrackOutboundClick" ;
+  rdfs:comment "Record affiliate link click event" ;
+  ddd:aggregate fpaa:RevenueAggregate ;
+  ddd:emitsEvent fpaa:ClickTracked ;
+  ddd:hasField fpaa:TrackOutboundClick_link_id ;
+  ddd:hasField fpaa:TrackOutboundClick_page_id ;
+  ddd:hasField fpaa:TrackOutboundClick_site_id ;
+  ddd:hasField fpaa:TrackOutboundClick_user_agent ;
+  ddd:hasField fpaa:TrackOutboundClick_ip_hash ;
+  ddd:hasField fpaa:TrackOutboundClick_referrer ;
+  ddd:hasField fpaa:TrackOutboundClick_session_id .
+
+fpaa:TrackOutboundClick_link_id a ddd:Field ;
+  ddd:name "link_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:TrackOutboundClick_page_id a ddd:Field ;
+  ddd:name "page_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:TrackOutboundClick_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:TrackOutboundClick_user_agent a ddd:Field ;
+  ddd:name "user_agent" ;
+  ddd:type "String" ;
+  ddd:required false .
+
+fpaa:TrackOutboundClick_ip_hash a ddd:Field ;
+  ddd:name "ip_hash" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  rdfs:comment "SHA-256 hash for privacy" .
+
+fpaa:TrackOutboundClick_referrer a ddd:Field ;
+  ddd:name "referrer" ;
+  ddd:type "String" ;
+  ddd:required false .
+
+fpaa:TrackOutboundClick_session_id a ddd:Field ;
+  ddd:name "session_id" ;
+  ddd:type "String" ;
+  ddd:required false .
+
+# ============================================================================
+# OPTIMIZE KEYWORDS COMMAND
+# ============================================================================
+
+fpaa:OptimizeKeywords a ddd:Command ;
+  ddd:name "OptimizeKeywords" ;
+  rdfs:comment "Research and select optimal sideways keywords" ;
+  ddd:aggregate fpaa:SEOAggregate ;
+  ddd:emitsEvent fpaa:KeywordsOptimized ;
+  ddd:hasField fpaa:OptimizeKeywords_site_id ;
+  ddd:hasField fpaa:OptimizeKeywords_seed_keywords ;
+  ddd:hasField fpaa:OptimizeKeywords_max_difficulty ;
+  ddd:hasField fpaa:OptimizeKeywords_min_search_volume ;
+  ddd:hasField fpaa:OptimizeKeywords_target_intent .
+
+fpaa:OptimizeKeywords_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:OptimizeKeywords_seed_keywords a ddd:Field ;
+  ddd:name "seed_keywords" ;
+  ddd:type "Vec<String>" ;
+  ddd:required true ;
+  rdfs:comment "Initial keyword ideas to expand" .
+
+fpaa:OptimizeKeywords_max_difficulty a ddd:Field ;
+  ddd:name "max_difficulty" ;
+  ddd:type "i32" ;
+  ddd:required false ;
+  ddd:default "30" .
+
+fpaa:OptimizeKeywords_min_search_volume a ddd:Field ;
+  ddd:name "min_search_volume" ;
+  ddd:type "i32" ;
+  ddd:required false ;
+  ddd:default "100" .
+
+fpaa:OptimizeKeywords_target_intent a ddd:Field ;
+  ddd:name "target_intent" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  ddd:enum "informational,navigational,transactional,commercial" ;
+  ddd:default "commercial" .
+
+# ============================================================================
+# BUILD INTERNAL LINKS COMMAND
+# ============================================================================
+
+fpaa:BuildInternalLinks a ddd:Command ;
+  ddd:name "BuildInternalLinks" ;
+  rdfs:comment "Construct contextual internal linking structure" ;
+  ddd:aggregate fpaa:SEOAggregate ;
+  ddd:emitsEvent fpaa:InternalLinksBuilt ;
+  ddd:hasField fpaa:BuildInternalLinks_site_id ;
+  ddd:hasField fpaa:BuildInternalLinks_source_page_id ;
+  ddd:hasField fpaa:BuildInternalLinks_max_links_per_page ;
+  ddd:hasField fpaa:BuildInternalLinks_semantic_similarity_threshold .
+
+fpaa:BuildInternalLinks_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:BuildInternalLinks_source_page_id a ddd:Field ;
+  ddd:name "source_page_id" ;
+  ddd:type "Uuid" ;
+  ddd:required false ;
+  rdfs:comment "If specified, build links only for this page" .
+
+fpaa:BuildInternalLinks_max_links_per_page a ddd:Field ;
+  ddd:name "max_links_per_page" ;
+  ddd:type "i32" ;
+  ddd:required false ;
+  ddd:default "5" .
+
+fpaa:BuildInternalLinks_semantic_similarity_threshold a ddd:Field ;
+  ddd:name "semantic_similarity_threshold" ;
+  ddd:type "f64" ;
+  ddd:required false ;
+  ddd:default "0.7" ;
+  rdfs:comment "Minimum cosine similarity for relevant links" .
+
+# ============================================================================
+# SCHEDULE CONTENT GENERATION COMMAND
+# ============================================================================
+
+fpaa:ScheduleContentGeneration a ddd:Command ;
+  ddd:name "ScheduleContentGeneration" ;
+  rdfs:comment "Schedule automated content pipeline" ;
+  ddd:aggregate fpaa:ContentAggregate ;
+  ddd:emitsEvent fpaa:ContentScheduled ;
+  ddd:hasField fpaa:ScheduleContentGeneration_site_id ;
+  ddd:hasField fpaa:ScheduleContentGeneration_frequency ;
+  ddd:hasField fpaa:ScheduleContentGeneration_pages_per_batch ;
+  ddd:hasField fpaa:ScheduleContentGeneration_auto_publish .
+
+fpaa:ScheduleContentGeneration_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:ScheduleContentGeneration_frequency a ddd:Field ;
+  ddd:name "frequency" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:enum "daily,weekly,biweekly,monthly" .
+
+fpaa:ScheduleContentGeneration_pages_per_batch a ddd:Field ;
+  ddd:name "pages_per_batch" ;
+  ddd:type "i32" ;
+  ddd:required false ;
+  ddd:default "5" .
+
+fpaa:ScheduleContentGeneration_auto_publish a ddd:Field ;
+  ddd:name "auto_publish" ;
+  ddd:type "bool" ;
+  ddd:required false ;
+  ddd:default "false" ;
+  rdfs:comment "Auto-publish or require manual review" .
+
+# ============================================================================
+# RECORD COMMISSION COMMAND
+# ============================================================================
+
+fpaa:RecordCommission a ddd:Command ;
+  ddd:name "RecordCommission" ;
+  rdfs:comment "Manually record affiliate commission from external network" ;
+  ddd:aggregate fpaa:RevenueAggregate ;
+  ddd:emitsEvent fpaa:CommissionRecorded ;
+  ddd:hasField fpaa:RecordCommission_click_id ;
+  ddd:hasField fpaa:RecordCommission_amount ;
+  ddd:hasField fpaa:RecordCommission_currency ;
+  ddd:hasField fpaa:RecordCommission_affiliate_network ;
+  ddd:hasField fpaa:RecordCommission_transaction_id .
+
+fpaa:RecordCommission_click_id a ddd:Field ;
+  ddd:name "click_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:RecordCommission_amount a ddd:Field ;
+  ddd:name "amount" ;
+  ddd:type "Decimal" ;
+  ddd:required true .
+
+fpaa:RecordCommission_currency a ddd:Field ;
+  ddd:name "currency" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:default "USD" .
+
+fpaa:RecordCommission_affiliate_network a ddd:Field ;
+  ddd:name "affiliate_network" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:RecordCommission_transaction_id a ddd:Field ;
+  ddd:name "transaction_id" ;
+  ddd:type "String" ;
+  ddd:required false .
+
+# ============================================================================
+# CREATE SAAS SUBSCRIPTION COMMAND
+# ============================================================================
+
+fpaa:CreateSaaSSubscription a ddd:Command ;
+  ddd:name "CreateSaaSSubscription" ;
+  rdfs:comment "Create recurring revenue subscription for platform" ;
+  ddd:aggregate fpaa:RevenueAggregate ;
+  ddd:emitsEvent fpaa:SaaSSubscriptionCreated ;
+  ddd:hasField fpaa:CreateSaaSSubscription_site_id ;
+  ddd:hasField fpaa:CreateSaaSSubscription_plan_tier ;
+  ddd:hasField fpaa:CreateSaaSSubscription_billing_interval ;
+  ddd:hasField fpaa:CreateSaaSSubscription_amount .
+
+fpaa:CreateSaaSSubscription_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:CreateSaaSSubscription_plan_tier a ddd:Field ;
+  ddd:name "plan_tier" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:enum "starter,professional,enterprise" .
+
+fpaa:CreateSaaSSubscription_billing_interval a ddd:Field ;
+  ddd:name "billing_interval" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:enum "monthly,annual" .
+
+fpaa:CreateSaaSSubscription_amount a ddd:Field ;
+  ddd:name "amount" ;
+  ddd:type "Decimal" ;
+  ddd:required true .

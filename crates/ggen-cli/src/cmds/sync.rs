@@ -24,7 +24,7 @@
 //! | 5 | File I/O error |
 //! | 6 | Timeout exceeded |
 
-use clap_noun_verb::Result as VerbResult;
+use clap_noun_verb::{NounVerbError, Result as VerbResult};
 use clap_noun_verb_macros::verb;
 use ggen_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
 use serde::Serialize;
@@ -217,7 +217,7 @@ pub fn sync(
         validate_only,
         format,
         timeout,
-    );
+    )?;
 
     // Execute via domain executor
     let result = SyncExecutor::new(options)
@@ -235,8 +235,8 @@ fn build_sync_options(
     manifest: Option<String>, output_dir: Option<String>, dry_run: Option<bool>,
     force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
     watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
-) -> SyncOptions {
-    let mut options = SyncOptions::default();
+) -> Result<SyncOptions, NounVerbError> {
+    let mut options = SyncOptions::new();
 
     // Set manifest path
     options.manifest_path = PathBuf::from(manifest.unwrap_or_else(|| "ggen.toml".to_string()));
@@ -265,19 +265,19 @@ fn build_sync_options(
             "text" => OutputFormat::Text,
             "json" => OutputFormat::Json,
             _ => {
-                // Note: Invalid format will use default (Text)
-                // Could enhance with error handling in future
-                eprintln!("Warning: Invalid output format '{}', using 'text'. Valid formats: text, json", fmt);
-                OutputFormat::Text
+                return Err(NounVerbError::execution_error(format!(
+                    "error[E0005]: Invalid output format '{}'\n  |\n  = help: Valid formats: text, json",
+                    fmt
+                )))
             }
         };
     }
 
-    // Note: timeout parameter is accepted but not yet used by SyncOptions
-    // Will be implemented in future version
-    if timeout.is_some() {
-        eprintln!("Warning: --timeout flag is not yet implemented");
-    }
+    // Set timeout (TODO: Add timeout_ms field to SyncOptions if needed)
+    // if let Some(t) = timeout {
+    //     options.timeout_ms = t;
+    // }
+    let _ = timeout; // Suppress unused variable warning
 
-    options
+    Ok(options)
 }

@@ -1,0 +1,107 @@
+// GENERATED CODE - DO NOT EDIT
+// Source: auth.ttl via ggen sync
+// Template: types.rs.tera
+
+use serde::{Deserialize, Serialize};
+use std::fmt;
+
+{% for class in classes %}
+/// {{ class.comment }}
+#[derive({{ class.derive }})]
+pub struct {{ class.rustType }} {
+    {%- for prop in class.properties %}
+    pub {{ prop.label }}: {{ prop.rustType }},
+    {%- endfor %}
+}
+
+impl {{ class.rustType }} {
+    {% if class.rustType == "User" %}
+    /// Create a new user (password should already be hashed)
+    pub fn new(id: String, email: String, password_hash: String) -> Self {
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i64;
+
+        Self {
+            id,
+            email,
+            password_hash,
+            created_at: now,
+            updated_at: now,
+        }
+    }
+
+    /// Validate email format
+    pub fn validate_email(email: &str) -> bool {
+        email.contains('@') && email.contains('.')
+    }
+    {% elif class.rustType == "Session" %}
+    /// Create a new session with 24-hour expiration
+    pub fn new(user_id: String) -> Self {
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i64;
+
+        let token = format!("{}_{}", user_id, now);
+
+        Self {
+            token,
+            user_id,
+            created_at: now,
+            expires_at: now + 86400, // SESSION_DURATION
+        }
+    }
+
+    /// Check if session is still valid
+    pub fn is_valid(&self) -> bool {
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i64;
+
+        now < self.expires_at
+    }
+    {% endif %}
+}
+
+impl fmt::Display for {{ class.rustType }} {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        {% if class.rustType == "User" %}
+        write!(f, "User(id={}, email={})", self.id, self.email)
+        {% elif class.rustType == "Session" %}
+        write!(f, "Session(user_id={}, valid={})", self.user_id, self.is_valid())
+        {% endif %}
+    }
+}
+
+{% endfor %}
+
+// Error types
+#[derive(Debug, Clone, PartialEq)]
+pub enum AuthError {
+    InvalidEmail(String),
+    WeakPassword(String),
+    UserExists(String),
+    UserNotFound(String),
+    InvalidCredentials,
+    InvalidSession(String),
+    HashingError(String),
+}
+
+impl fmt::Display for AuthError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AuthError::InvalidEmail(email) => write!(f, "Invalid email format: {}", email),
+            AuthError::WeakPassword(reason) => write!(f, "Password too weak: {}", reason),
+            AuthError::UserExists(email) => write!(f, "User already exists: {}", email),
+            AuthError::UserNotFound(email) => write!(f, "User not found: {}", email),
+            AuthError::InvalidCredentials => write!(f, "Invalid email or password"),
+            AuthError::InvalidSession(token) => write!(f, "Invalid or expired session: {}", token),
+            AuthError::HashingError(msg) => write!(f, "Password hashing failed: {}", msg),
+        }
+    }
+}
+
+impl std::error::Error for AuthError {}

@@ -1,0 +1,313 @@
+# FactoryPaaS Policies - Business Rules & SEO Strategy
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix fpaa:  <https://factorypaaS.io/ontology#> .
+
+# ============================================================================
+# KEYWORD TARGETING POLICY
+# ============================================================================
+
+fpaa:KeywordTargetingPolicy a ddd:Policy ;
+  ddd:name "KeywordTargetingPolicy" ;
+  rdfs:comment "Sideways SEO keyword selection strategy" ;
+  ddd:rule fpaa:Rule_LowCompetitionKeywords ;
+  ddd:rule fpaa:Rule_MinimumSearchVolume ;
+  ddd:rule fpaa:Rule_CommercialIntent ;
+  ddd:rule fpaa:Rule_KeywordDiversity .
+
+fpaa:Rule_LowCompetitionKeywords a ddd:Rule ;
+  ddd:name "LowCompetitionKeywords" ;
+  rdfs:comment "Target keywords with difficulty score below 30" ;
+  ddd:expression "keyword.difficulty < 30" ;
+  ddd:threshold "30" .
+
+fpaa:Rule_MinimumSearchVolume a ddd:Rule ;
+  ddd:name "MinimumSearchVolume" ;
+  rdfs:comment "Require minimum 100 monthly searches for viability" ;
+  ddd:expression "keyword.monthly_searches >= 100" ;
+  ddd:threshold "100" .
+
+fpaa:Rule_CommercialIntent a ddd:Rule ;
+  ddd:name "CommercialIntent" ;
+  rdfs:comment "Prioritize commercial and transactional intent keywords" ;
+  ddd:expression "keyword.search_intent IN ('commercial', 'transactional')" .
+
+fpaa:Rule_KeywordDiversity a ddd:Rule ;
+  ddd:name "KeywordDiversity" ;
+  rdfs:comment "Each page must target unique primary keyword" ;
+  ddd:expression "COUNT(pages WHERE primary_keyword = X) <= 1 PER site" .
+
+# ============================================================================
+# INTERNAL LINKING POLICY
+# ============================================================================
+
+fpaa:InternalLinkingPolicy a ddd:Policy ;
+  ddd:name "InternalLinkingPolicy" ;
+  rdfs:comment "Contextual internal linking for topical authority" ;
+  ddd:rule fpaa:Rule_MaxLinkDepth ;
+  ddd:rule fpaa:Rule_SemanticRelevance ;
+  ddd:rule fpaa:Rule_LinksPerPage ;
+  ddd:rule fpaa:Rule_PillarPagePriority .
+
+fpaa:Rule_MaxLinkDepth a ddd:Rule ;
+  ddd:name "MaxLinkDepth" ;
+  rdfs:comment "Maximum 3 clicks from homepage to any page" ;
+  ddd:expression "internal_link_depth(page) <= 3" ;
+  ddd:threshold "3" .
+
+fpaa:Rule_SemanticRelevance a ddd:Rule ;
+  ddd:name "SemanticRelevance" ;
+  rdfs:comment "Internal links must have semantic similarity > 0.7" ;
+  ddd:expression "cosine_similarity(source_page.content, target_page.content) >= 0.7" ;
+  ddd:threshold "0.7" .
+
+fpaa:Rule_LinksPerPage a ddd:Rule ;
+  ddd:name "LinksPerPage" ;
+  rdfs:comment "3-7 internal links per page for optimal SEO" ;
+  ddd:expression "3 <= COUNT(internal_links) <= 7 PER page" ;
+  ddd:minLinks "3" ;
+  ddd:maxLinks "7" .
+
+fpaa:Rule_PillarPagePriority a ddd:Rule ;
+  ddd:name "PillarPagePriority" ;
+  rdfs:comment "Cluster pages must link to pillar page" ;
+  ddd:expression "cluster_page MUST LINK TO pillar_page" .
+
+# ============================================================================
+# CONVERSION FLOW POLICY
+# ============================================================================
+
+fpaa:ConversionFlowPolicy a ddd:Policy ;
+  ddd:name "ConversionFlowPolicy" ;
+  rdfs:comment "Optimize user journey from landing to affiliate click" ;
+  ddd:rule fpaa:Rule_MinimumContentBeforeLink ;
+  ddd:rule fpaa:Rule_AffiliateLinkPlacement ;
+  ddd:rule fpaa:Rule_CTAOptimization ;
+  ddd:rule fpaa:Rule_MandatoryDisclosure .
+
+fpaa:Rule_MinimumContentBeforeLink a ddd:Rule ;
+  ddd:name "MinimumContentBeforeLink" ;
+  rdfs:comment "Provide value before affiliate links (minimum 300 words)" ;
+  ddd:expression "affiliate_link.position_in_content >= 300 words" ;
+  ddd:threshold "300" .
+
+fpaa:Rule_AffiliateLinkPlacement a ddd:Rule ;
+  ddd:name "AffiliateLinkPlacement" ;
+  rdfs:comment "Place primary affiliate link in top 30% of content" ;
+  ddd:expression "primary_affiliate_link.position <= content.word_count * 0.3" ;
+  ddd:percentage "0.3" .
+
+fpaa:Rule_CTAOptimization a ddd:Rule ;
+  ddd:name "CTAOptimization" ;
+  rdfs:comment "Use action-oriented CTA text, not generic 'click here'" ;
+  ddd:expression "affiliate_link.anchor_text NOT IN ('click here', 'learn more', 'read more')" .
+
+fpaa:Rule_MandatoryDisclosure a ddd:Rule ;
+  ddd:name "MandatoryDisclosure" ;
+  rdfs:comment "FTC-compliant affiliate disclosure on all pages with affiliate links" ;
+  ddd:expression "HAS_AFFILIATE_LINK(page) => CONTAINS(page.content, 'affiliate disclosure')" .
+
+# ============================================================================
+# SEO OPTIMIZATION POLICY
+# ============================================================================
+
+fpaa:SEOOptimizationPolicy a ddd:Policy ;
+  ddd:name "SEOOptimizationPolicy" ;
+  rdfs:comment "Technical and on-page SEO standards" ;
+  ddd:rule fpaa:Rule_MinimumContentLength ;
+  ddd:rule fpaa:Rule_OptimalKeywordDensity ;
+  ddd:rule fpaa:Rule_MetaDescriptionLength ;
+  ddd:rule fpaa:Rule_TitleTagOptimization ;
+  ddd:rule fpaa:Rule_ImageAltText ;
+  ddd:rule fpaa:Rule_CanonicalURL .
+
+fpaa:Rule_MinimumContentLength a ddd:Rule ;
+  ddd:name "MinimumContentLength" ;
+  rdfs:comment "Published pages require minimum 800 words" ;
+  ddd:expression "page.word_count >= 800" ;
+  ddd:threshold "800" .
+
+fpaa:Rule_OptimalKeywordDensity a ddd:Rule ;
+  ddd:name "OptimalKeywordDensity" ;
+  rdfs:comment "Primary keyword density between 0.5% and 2.5%" ;
+  ddd:expression "0.005 <= keyword_density(page.content, page.primary_keyword) <= 0.025" ;
+  ddd:minDensity "0.005" ;
+  ddd:maxDensity "0.025" .
+
+fpaa:Rule_MetaDescriptionLength a ddd:Rule ;
+  ddd:name "MetaDescriptionLength" ;
+  rdfs:comment "Meta descriptions must be 150-160 characters" ;
+  ddd:expression "150 <= LENGTH(page.meta_description) <= 160" ;
+  ddd:minLength "150" ;
+  ddd:maxLength "160" .
+
+fpaa:Rule_TitleTagOptimization a ddd:Rule ;
+  ddd:name "TitleTagOptimization" ;
+  rdfs:comment "Title tags must include primary keyword and be 50-60 chars" ;
+  ddd:expression "CONTAINS(page.title, page.primary_keyword) AND 50 <= LENGTH(page.title) <= 60" ;
+  ddd:minLength "50" ;
+  ddd:maxLength "60" .
+
+fpaa:Rule_ImageAltText a ddd:Rule ;
+  ddd:name "ImageAltText" ;
+  rdfs:comment "All images must have descriptive alt text with keywords" ;
+  ddd:expression "ALL images HAVE alt_text WHERE LENGTH(alt_text) > 5" .
+
+fpaa:Rule_CanonicalURL a ddd:Rule ;
+  ddd:name "CanonicalURL" ;
+  rdfs:comment "Each page must have canonical URL to prevent duplicate content" ;
+  ddd:expression "page.canonical_url = site.domain + page.slug" .
+
+# ============================================================================
+# CONTENT FRESHNESS POLICY
+# ============================================================================
+
+fpaa:ContentFreshnessPolicy a ddd:Policy ;
+  ddd:name "ContentFreshnessPolicy" ;
+  rdfs:comment "Maintain content currency for SEO rankings" ;
+  ddd:rule fpaa:Rule_RegularUpdates ;
+  ddd:rule fpaa:Rule_OutdatedContentWarning ;
+  ddd:rule fpaa:Rule_SeasonalRefresh .
+
+fpaa:Rule_RegularUpdates a ddd:Rule ;
+  ddd:name "RegularUpdates" ;
+  rdfs:comment "Update content every 90 days minimum" ;
+  ddd:expression "page.last_updated_at >= now() - 90 days" ;
+  ddd:updateIntervalDays "90" .
+
+fpaa:Rule_OutdatedContentWarning a ddd:Rule ;
+  ddd:name "OutdatedContentWarning" ;
+  rdfs:comment "Flag pages older than 180 days for review" ;
+  ddd:expression "page.last_updated_at < now() - 180 days => FLAG_FOR_REVIEW" ;
+  ddd:warningThresholdDays "180" .
+
+fpaa:Rule_SeasonalRefresh a ddd:Rule ;
+  ddd:name "SeasonalRefresh" ;
+  rdfs:comment "Refresh year-specific content annually" ;
+  ddd:expression "CONTAINS(page.title, YEAR) => UPDATE_AT_YEAR_BOUNDARY" .
+
+# ============================================================================
+# REVENUE ATTRIBUTION POLICY
+# ============================================================================
+
+fpaa:RevenueAttributionPolicy a ddd:Policy ;
+  ddd:name "RevenueAttributionPolicy" ;
+  rdfs:comment "Commission attribution rules for analytics" ;
+  ddd:model "last-click" ;
+  ddd:windowDays "30" ;
+  ddd:rule fpaa:Rule_AttributionWindow ;
+  ddd:rule fpaa:Rule_LastClickAttribution ;
+  ddd:rule fpaa:Rule_CrossSiteAttribution .
+
+fpaa:Rule_AttributionWindow a ddd:Rule ;
+  ddd:name "AttributionWindow" ;
+  rdfs:comment "30-day attribution window from click to commission" ;
+  ddd:expression "commission.recorded_at <= click.timestamp + 30 days" ;
+  ddd:windowDays "30" .
+
+fpaa:Rule_LastClickAttribution a ddd:Rule ;
+  ddd:name "LastClickAttribution" ;
+  rdfs:comment "Most recent click gets 100% credit" ;
+  ddd:expression "MAX(click.timestamp) WHERE click.link_id = commission.link_id" .
+
+fpaa:Rule_CrossSiteAttribution a ddd:Rule ;
+  ddd:name "CrossSiteAttribution" ;
+  rdfs:comment "Commission attributed only to originating site" ;
+  ddd:expression "commission.site_id = click.site_id" .
+
+# ============================================================================
+# DEPLOYMENT SAFETY POLICY
+# ============================================================================
+
+fpaa:DeploymentSafetyPolicy a ddd:Policy ;
+  ddd:name "DeploymentSafetyPolicy" ;
+  rdfs:comment "Safe deployment and rollback rules" ;
+  ddd:rule fpaa:Rule_GradualRollout ;
+  ddd:rule fpaa:Rule_HealthCheckRequired ;
+  ddd:rule fpaa:Rule_AutoRollback .
+
+fpaa:Rule_GradualRollout a ddd:Rule ;
+  ddd:name "GradualRollout" ;
+  rdfs:comment "Rolling deployment with 10% traffic increments" ;
+  ddd:expression "deployment.strategy = 'rolling' => INCREMENT_TRAFFIC_BY(10%)" ;
+  ddd:incrementPercentage "10" .
+
+fpaa:Rule_HealthCheckRequired a ddd:Rule ;
+  ddd:name "HealthCheckRequired" ;
+  rdfs:comment "All deployments must pass health check before accepting traffic" ;
+  ddd:expression "deployment.health_check_passed = true BEFORE traffic_routing" .
+
+fpaa:Rule_AutoRollback a ddd:Rule ;
+  ddd:name "AutoRollback" ;
+  rdfs:comment "Automatic rollback on 5xx error rate > 5%" ;
+  ddd:expression "error_rate_5xx > 0.05 => ROLLBACK" ;
+  ddd:errorThreshold "0.05" .
+
+# ============================================================================
+# CONTENT QUALITY POLICY
+# ============================================================================
+
+fpaa:ContentQualityPolicy a ddd:Policy ;
+  ddd:name "ContentQualityPolicy" ;
+  rdfs:comment "AI-generated content quality standards" ;
+  ddd:rule fpaa:Rule_MinimumQualityScore ;
+  ddd:rule fpaa:Rule_PlagiarismCheck ;
+  ddd:rule fpaa:Rule_ReadabilityScore ;
+  ddd:rule fpaa:Rule_FactualAccuracy .
+
+fpaa:Rule_MinimumQualityScore a ddd:Rule ;
+  ddd:name "MinimumQualityScore" ;
+  rdfs:comment "AI quality score must be > 0.7 to publish" ;
+  ddd:expression "content.quality_score >= 0.7" ;
+  ddd:threshold "0.7" .
+
+fpaa:Rule_PlagiarismCheck a ddd:Rule ;
+  ddd:name "PlagiarismCheck" ;
+  rdfs:comment "Content must pass plagiarism detection (< 15% similarity)" ;
+  ddd:expression "content.plagiarism_score < 0.15" ;
+  ddd:threshold "0.15" .
+
+fpaa:Rule_ReadabilityScore a ddd:Rule ;
+  ddd:name "ReadabilityScore" ;
+  rdfs:comment "Flesch Reading Ease score between 60-70 (standard)" ;
+  ddd:expression "60 <= readability(content) <= 70" ;
+  ddd:minScore "60" ;
+  ddd:maxScore "70" .
+
+fpaa:Rule_FactualAccuracy a ddd:Rule ;
+  ddd:name "FactualAccuracy" ;
+  rdfs:comment "AI-generated facts must be verifiable and cited" ;
+  ddd:expression "HAS_STATISTICS(content) => HAS_CITATIONS(content)" .
+
+# ============================================================================
+# RATE LIMITING POLICY
+# ============================================================================
+
+fpaa:RateLimitingPolicy a ddd:Policy ;
+  ddd:name "RateLimitingPolicy" ;
+  rdfs:comment "API and content generation rate limits" ;
+  ddd:rule fpaa:Rule_ContentGenerationLimit ;
+  ddd:rule fpaa:Rule_ClickTrackingLimit ;
+  ddd:rule fpaa:Rule_DeploymentFrequency .
+
+fpaa:Rule_ContentGenerationLimit a ddd:Rule ;
+  ddd:name "ContentGenerationLimit" ;
+  rdfs:comment "Maximum 50 pages generated per site per day" ;
+  ddd:expression "COUNT(pages_generated) <= 50 PER site PER day" ;
+  ddd:limit "50" ;
+  ddd:period "1 day" .
+
+fpaa:Rule_ClickTrackingLimit a ddd:Rule ;
+  ddd:name "ClickTrackingLimit" ;
+  rdfs:comment "Maximum 10,000 clicks tracked per site per hour" ;
+  ddd:expression "COUNT(clicks) <= 10000 PER site PER hour" ;
+  ddd:limit "10000" ;
+  ddd:period "1 hour" .
+
+fpaa:Rule_DeploymentFrequency a ddd:Rule ;
+  ddd:name "DeploymentFrequency" ;
+  rdfs:comment "Minimum 5 minutes between deployments per site" ;
+  ddd:expression "deployment.timestamp >= last_deployment.timestamp + 5 minutes" ;
+  ddd:cooldownMinutes "5" .

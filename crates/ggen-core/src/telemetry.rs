@@ -4,6 +4,8 @@
 //! all ggen operations. It enables distributed tracing, performance monitoring,
 //! and trace validation by clnrm tests.
 //!
+//! **NOTE**: OpenTelemetry support is optional. Enable with `--features otel` when building.
+//!
 //! ## Features
 //!
 //! - **OTLP Export**: Export traces via OTLP HTTP/gRPC
@@ -21,7 +23,7 @@
 //!
 //! ## Examples
 //!
-//! ### Initializing Telemetry
+//! ### Initializing Telemetry (with "otel" feature enabled)
 //!
 //! ```rust,no_run
 //! use ggen_core::telemetry::{init_telemetry, TelemetryConfig};
@@ -40,14 +42,22 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use ggen_utils::error::Result;
+
+// OpenTelemetry implementation (only when "otel" feature is enabled)
+#[cfg(feature = "otel")]
+use ggen_utils::error::Error;
+#[cfg(feature = "otel")]
 use opentelemetry::{global, KeyValue};
+#[cfg(feature = "otel")]
 use opentelemetry_otlp::WithExportConfig;
+#[cfg(feature = "otel")]
 use opentelemetry_sdk::{
     runtime,
     trace::{RandomIdGenerator, Sampler},
     Resource,
 };
+#[cfg(feature = "otel")]
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Registry};
 
 /// OpenTelemetry configuration
@@ -65,17 +75,32 @@ pub struct TelemetryConfig {
 
 impl Default for TelemetryConfig {
     fn default() -> Self {
-        Self {
-            endpoint: std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT")
-                .unwrap_or_else(|_| "http://localhost:4318".to_string()),
-            service_name: "ggen".to_string(),
-            sample_ratio: 1.0,
-            console_output: true,
+        #[cfg(feature = "otel")]
+        {
+            Self {
+                endpoint: std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT")
+                    .unwrap_or_else(|_| "http://localhost:4318".to_string()),
+                service_name: "ggen".to_string(),
+                sample_ratio: 1.0,
+                console_output: true,
+            }
+        }
+        #[cfg(not(feature = "otel"))]
+        {
+            Self {
+                endpoint: String::new(),
+                service_name: "ggen".to_string(),
+                sample_ratio: 0.0,
+                console_output: false,
+            }
         }
     }
 }
 
 /// Initialize OpenTelemetry with OTLP exporter
+///
+/// **NOTE**: This function requires the "otel" feature to be enabled.
+/// When the "otel" feature is disabled, this function becomes a no-op.
 ///
 /// This sets up:
 /// - OTLP HTTP exporter for traces
@@ -98,6 +123,7 @@ impl Default for TelemetryConfig {
 ///     Ok(())
 /// }
 /// ```
+#[cfg(feature = "otel")]
 pub fn init_telemetry(config: TelemetryConfig) -> Result<()> {
     // Create OTLP tracer pipeline with HTTP exporter
     let tracer = opentelemetry_otlp::new_pipeline()
@@ -147,12 +173,29 @@ pub fn init_telemetry(config: TelemetryConfig) -> Result<()> {
     Ok(())
 }
 
+/// No-op implementation when "otel" feature is disabled
+#[cfg(not(feature = "otel"))]
+pub fn init_telemetry(_config: TelemetryConfig) -> Result<()> {
+    // No-op: OpenTelemetry is disabled
+    Ok(())
+}
+
 /// Shutdown OpenTelemetry and flush pending spans
 ///
+/// **NOTE**: This function requires the "otel" feature to be enabled.
+/// When the "otel" feature is disabled, this function becomes a no-op.
+///
 /// Call this before application exit to ensure all traces are exported.
+#[cfg(feature = "otel")]
 pub fn shutdown_telemetry() {
     tracing::info!("Shutting down OpenTelemetry");
     global::shutdown_tracer_provider();
+}
+
+/// No-op implementation when "otel" feature is disabled
+#[cfg(not(feature = "otel"))]
+pub fn shutdown_telemetry() {
+    // No-op: OpenTelemetry is disabled
 }
 
 /// Create a telemetry context with common attributes

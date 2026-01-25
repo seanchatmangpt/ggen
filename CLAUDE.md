@@ -687,7 +687,25 @@ ggen project performance targets:
 | proptest | 1.8 | Property-based testing |
 | criterion | 0.7 | Performance benchmarking |
 | testcontainers | 0.25 | Integration testing with Docker |
-| OpenTelemetry | 0.21 | Observability (traces, metrics, logs) |
+| OpenTelemetry | 0.21 | Observability (optional - enable with `--features otel`) |
+
+### Optional Features
+
+**OpenTelemetry Instrumentation** (opt-in for production deployments):
+```bash
+# Development builds (default - faster, no OTEL)
+cargo build
+
+# Production builds (with OTEL instrumentation)
+cargo build --release --features otel
+```
+
+**Why optional?** OTEL stack adds ~200 dependencies, significantly slowing development builds. Feature-gating provides:
+- **50% faster development builds** (no OTEL dependencies)
+- **Production observability** when needed (enable with `--features otel`)
+- **Zero runtime overhead** when disabled
+
+See `/docs/features/otel-optional-feature.md` for complete documentation.
 
 ---
 

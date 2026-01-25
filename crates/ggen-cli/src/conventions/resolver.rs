@@ -226,11 +226,14 @@ impl ConventionResolver {
                         .to_string_lossy()
                         .to_string()
                 } else {
-                    // Fallback: use file stem
-                    path.file_stem()
-                        .and_then(|s| s.to_str())
-                        .unwrap_or("unknown")
-                        .to_string()
+                    // Fallback: use file stem with proper error handling
+                    match path.file_stem().and_then(|s| s.to_str()) {
+                        Some(stem) => stem.to_string(),
+                        None => {
+                            log::warn!("Could not extract template name from path: {:?}", path);
+                            continue; // Skip templates with invalid names
+                        }
+                    }
                 };
 
                 templates.insert(name, path);
@@ -283,11 +286,14 @@ impl ConventionResolver {
                         .to_string_lossy()
                         .to_string()
                 } else {
-                    // Fallback: use file stem
-                    path.file_stem()
-                        .and_then(|s| s.to_str())
-                        .unwrap_or("unknown")
-                        .to_string()
+                    // Fallback: use file stem with proper error handling
+                    match path.file_stem().and_then(|s| s.to_str()) {
+                        Some(stem) => stem.to_string(),
+                        None => {
+                            log::warn!("Could not extract query name from path: {:?}", path);
+                            continue; // Skip queries with invalid names
+                        }
+                    }
                 };
 
                 queries.insert(name, content);

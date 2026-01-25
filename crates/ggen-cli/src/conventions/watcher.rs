@@ -3,13 +3,12 @@
 use ggen_utils::error::Result;
 use notify::{Event, RecursiveMode, Watcher};
 use notify_debouncer_full::{new_debouncer, DebounceEventResult, Debouncer, FileIdMap};
-use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::{channel, Receiver};
 use std::time::Duration;
 
 use super::planner::{GenerationPlan, GenerationPlanner};
-use super::resolver::{ConventionResolver, ProjectConventions};
+use super::resolver::ConventionResolver;
 
 /// Watches project files and triggers regeneration on changes
 pub struct ProjectWatcher {
@@ -164,20 +163,14 @@ impl ProjectWatcher {
     fn find_affected_templates(&self, _changed: &[PathBuf]) -> Vec<String> {
         // For now, return all templates
         // A more sophisticated implementation would analyze dependencies
-        let conventions = self.resolver.discover().unwrap_or_else(|_| {
-            // Return empty conventions on error
-            ProjectConventions {
-                rdf_files: vec![],
-                rdf_dir: PathBuf::new(),
-                templates: HashMap::new(),
-                templates_dir: PathBuf::new(),
-                queries: HashMap::new(),
-                output_dir: PathBuf::new(),
-                preset: "default".to_string(),
+        match self.resolver.discover() {
+            Ok(conventions) => conventions.templates.keys().cloned().collect(),
+            Err(e) => {
+                log::warn!("Failed to discover conventions for affected templates: {}", e);
+                // Return empty list on error - safer than continuing with stale data
+                Vec::new()
             }
-        });
-
-        conventions.templates.keys().cloned().collect()
+        }
     }
 
     /// Regenerate a specific template
