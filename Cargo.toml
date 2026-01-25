@@ -146,7 +146,9 @@ ggen-macros = { path = "crates/ggen-macros", version = "0.2.0" }
 ggen-dod = { path = "crates/ggen-dod", version = "0.2.0" }
 ggen-ontology-core = { path = "crates/ggen-ontology-core", version = "0.2.0" }
 
-# Optional: AI integration
+# Optional: AI integration (available in workspace.dependencies for member crates)
+# Member crates that depend on these use: ggen-ai.workspace = true
+# Root package (ggen) declares these as optional in [dependencies]
 ggen-ai = { path = "crates/ggen-ai", version = "0.2.0" }
 ggen-dspy = { path = "crates/ggen-dspy", version = "0.2.0" }
 
