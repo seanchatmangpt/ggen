@@ -231,6 +231,12 @@ impl From<oxigraph::sparql::QueryEvaluationError> for ValidationError {
     }
 }
 
+impl From<super::input::InputValidationError> for ValidationError {
+    fn from(err: super::input::InputValidationError) -> Self {
+        ValidationError::OxigraphError(err.to_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

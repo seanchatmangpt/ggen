@@ -95,6 +95,7 @@ impl Default for SecurityLoggerConfig {
 /// Comprehensive security logger
 pub struct SecurityLogger {
     /// Configuration
+    #[allow(dead_code)]
     config: SecurityLoggerConfig,
     /// Audit trail
     audit_trail: Option<AuditTrail>,

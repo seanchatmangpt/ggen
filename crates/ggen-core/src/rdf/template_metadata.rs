@@ -599,8 +599,9 @@ impl Default for TemplateMetadataStore {
                 // Create empty store with Arc-wrapped Mutex
                 Self {
                     store: Arc::new(Mutex::new(
-                        Store::new().unwrap_or_else(|_| Store::default()),
+                        Store::new().unwrap_or_else(|_| Store::new().unwrap()),
                     )),
+                    metadata_cache: Arc::new(Mutex::new(HashMap::new())),
                 }
             }
         }

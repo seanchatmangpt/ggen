@@ -29,7 +29,7 @@
 //! # }
 //! ```
 
-use super::error::{Result, ValidationError};
+use super::error::Result;
 use super::input::{CharsetRule, FormatRule, InputValidationError, StringValidator};
 use std::collections::HashMap;
 
@@ -180,7 +180,9 @@ impl CompiledValidator {
     /// Validate a field value
     pub fn validate_field(&self, field: &str, value: &str) -> Result<String> {
         if let Some(validator) = self.validators.get(field) {
-            validator.validate(value)
+            validator.validate(value).map_err(|e| InputValidationError::CompositeViolation {
+                reason: e.to_string(),
+            }.into())
         } else {
             Err(InputValidationError::EmptyInput {
                 field: format!("No validator defined for field: {}", field),
@@ -192,7 +194,7 @@ impl CompiledValidator {
     /// Validate multiple fields
     pub fn validate_fields(
         &self, fields: &HashMap<String, String>,
-    ) -> Result<HashMap<String, String>, InputValidationError> {
+    ) -> Result<HashMap<String, String>> {
         let mut validated = HashMap::new();
 
         for (field, value) in fields {

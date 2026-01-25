@@ -429,8 +429,9 @@ impl Default for IntrusionDetector {
                 log::error!("Failed to initialize default intrusion detector: {}", e);
                 // Return detector with fallback components
                 Self {
-                    pattern_matcher: PatternMatcher::default(),
-                    rate_limiter: RateLimiter::new(100, 60),
+                    pattern_matcher: Arc::new(PatternMatcher::default()),
+                    auth_limiter: RateLimiter::new(5, 300),
+                    request_limiter: RateLimiter::new(100, 60),
                 }
             }
         }
