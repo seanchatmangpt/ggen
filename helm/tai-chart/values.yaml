@@ -1,0 +1,336 @@
+# Default values for tai Helm chart
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Namespace configuration
+namespace: default
+namespaceCreate: true
+
+# TAI API deployment configuration
+api:
+  enabled: true
+  name: tai-api
+  replicaCount: 3
+  image:
+    repository: gcr.io/ggen-project/tai-api
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  port: 8080
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    metrics:
+      - type: cpu
+        targetUtilizationPercentage: 70
+      - type: memory
+        targetUtilizationPercentage: 80
+
+# TAI Worker deployment configuration (for background processing)
+worker:
+  enabled: true
+  name: tai-worker
+  replicaCount: 2
+  image:
+    repository: gcr.io/ggen-project/tai-worker
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  port: 8081
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 20
+    eventDriven:
+      - type: kafka
+        brokers: ["kafka:9092"]
+        topic: tai-events
+        consumerGroup: tai-workers
+        lagThreshold: 1000
+
+# TAI Cache StatefulSet configuration (Redis-compatible)
+cache:
+  enabled: true
+  name: tai-cache
+  replicaCount: 3
+  image:
+    repository: redis
+    pullPolicy: IfNotPresent
+    tag: "7-alpine"
+  port: 6379
+  storage:
+    enabled: true
+    size: 10Gi
+    storageClassName: "standard"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Database configuration (if using persistent storage)
+database:
+  enabled: false
+  type: postgres
+  host: postgres.default.svc.cluster.local
+  port: 5432
+  name: tai
+  credentialsSecret: tai-db-credentials
+
+# Service configuration
+service:
+  type: ClusterIP
+  apiPort: 8080
+  workerPort: 8081
+  cachePort: 6379
+  # For LoadBalancer type:
+  # externalTrafficPolicy: Local
+  # annotations:
+  #   cloud.google.com/load-balancer-type: "Internal"
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+  hosts:
+    - host: tai-api.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: tai-api-tls
+      hosts:
+        - tai-api.example.com
+
+# Istio configuration
+istio:
+  enabled: true
+  virtualService:
+    enabled: true
+    name: tai-vs
+    hosts:
+      - tai-api.example.com
+    gateways:
+      - tai-gateway
+  destinationRule:
+    enabled: true
+    name: tai-dr
+    loadBalancing: ROUND_ROBIN
+  gateway:
+    enabled: true
+    name: tai-gateway
+    selector:
+      istio: ingressgateway
+    servers:
+      - port: 80
+        protocol: HTTP
+      - port: 443
+        protocol: HTTPS
+  peerAuthentication:
+    enabled: true
+    mode: STRICT  # STRICT, PERMISSIVE, DISABLE
+
+# KEDA autoscaling configuration
+keda:
+  enabled: true
+  scaledObjects:
+    - name: tai-api-scaler
+      target: tai-api
+      kind: Deployment
+      minReplicas: 3
+      maxReplicas: 10
+      metrics:
+        - type: cpu
+          target: 70
+        - type: memory
+          target: 80
+    - name: tai-worker-scaler
+      target: tai-worker
+      kind: Deployment
+      minReplicas: 2
+      maxReplicas: 20
+      metrics:
+        - type: kafka
+          brokers: ["kafka:9092"]
+          topic: tai-events
+          lagThreshold: 1000
+
+# Network policy configuration
+networkPolicy:
+  enabled: true
+  policies:
+    - name: tai-api-netpol
+      podSelector:
+        matchLabels:
+          app: tai-api
+      policyTypes:
+        - Ingress
+        - Egress
+      ingress:
+        - from:
+            - podSelector:
+                matchLabels:
+                  app: nginx-ingress
+          ports:
+            - protocol: TCP
+              port: 8080
+      egress:
+        - to:
+            - podSelector:
+                matchLabels:
+                  app: tai-cache
+          ports:
+            - protocol: TCP
+              port: 6379
+        - to:
+            - namespaceSelector:
+                matchLabels:
+                  name: kube-system
+          ports:
+            - protocol: UDP
+              port: 53  # DNS
+
+# Pod Security Policy configuration
+podSecurityPolicy:
+  enabled: true
+  name: tai-restricted-psp
+  rules:
+    privileged: false
+    hostNetwork: false
+    hostPID: false
+    requiredDropCapabilities:
+      - ALL
+    readOnlyRootFilesystem: true
+    runAsUser: MustRunAsNonRoot
+
+# RBAC configuration
+rbac:
+  enabled: true
+  serviceAccount:
+    create: true
+    name: tai
+  roles:
+    - name: tai-reader
+      rules:
+        - apiGroups: [""]
+          resources: ["pods", "services", "configmaps"]
+          verbs: ["get", "list", "watch"]
+    - name: tai-writer
+      rules:
+        - apiGroups: [""]
+          resources: ["configmaps"]
+          verbs: ["get", "list", "watch", "create", "update", "patch"]
+
+# ConfigMap data
+configMap:
+  data:
+    config.yaml: |
+      logging:
+        level: info
+      cache:
+        ttl: 3600
+      api:
+        timeout: 30
+
+# Secrets (base64 encoded)
+secrets:
+  # These should be managed by a secret management tool
+  enabled: true
+  # Example (replace with actual values):
+  # database_url: "postgresql://user:password@host:5432/tai"
+  # api_key: "your-api-key-here"
+
+# Resource quotas for namespace
+resourceQuota:
+  enabled: true
+  hard:
+    requests.cpu: "100"
+    requests.memory: "200Gi"
+    limits.cpu: "200"
+    limits.memory: "400Gi"
+    pods: "500"
+    services: "50"
+
+# Monitoring and observability
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    interval: 30s
+  datadog:
+    enabled: false
+    apiKey: ""  # Set via secrets
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+# Node affinity and pod anti-affinity
+affinity:
+  enabled: true
+  podAntiAffinity: preferred  # or "required"
+
+# Priority and resource management
+priorityClassName: high-priority
+
+# Node selector
+nodeSelector: {}
+  # node-type: compute
+
+# Tolerations for node taints
+tolerations: []
+  # - key: "dedicated"
+  #   operator: "Equal"
+  #   value: "tai"
+  #   effect: "NoSchedule"
+
+# Health check configuration
+healthCheck:
+  enabled: true
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 2
+  startupProbe:
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    failureThreshold: 30
+
+# Logging and debugging
+logging:
+  enabled: true
+  level: info
+  format: json
+
+# Feature flags
+features:
+  caching: true
+  eventDrivenScaling: true
+  istioServiceMesh: true
+  networkPolicies: true
+  rbac: true

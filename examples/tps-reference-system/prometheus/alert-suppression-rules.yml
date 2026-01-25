@@ -1,0 +1,192 @@
+# Alert Suppression Rules
+# Suppress known false positives and maintenance windows
+
+groups:
+  - name: suppression_rules
+    interval: 15s
+    rules:
+      # Suppress alerts during known maintenance windows
+      - alert: MaintenanceWindowActive
+        expr: 'ALERTS{maintenance_window="true"}'
+        for: 0m
+        labels:
+          severity: info
+          alert_type: suppression
+        annotations:
+          summary: "Alerts suppressed during maintenance window"
+          description: "Service {{ $labels.service }} is in maintenance window - alerts suppressed"
+
+      # Suppress false positive: high CPU during log rotation
+      - alert: HighCPUDuringLogRotation
+        expr: 'gauge_process_cpu_usage_percent > 85 and timestamp(logrotate_running) < 300'
+        for: 0m
+        labels:
+          severity: info
+          suppression_reason: "log_rotation"
+        annotations:
+          summary: "CPU spike during log rotation - expected"
+          description: "High CPU detected but logrotate is running - this is expected and temporary"
+
+      # Suppress database replication lag during data sync
+      - alert: ReplicationLagDuringSyncWindow
+        expr: 'gauge_replication_lag_ms > 1000 and in_data_sync_window == 1'
+        for: 0m
+        labels:
+          severity: info
+          suppression_reason: "scheduled_sync"
+        annotations:
+          summary: "Replication lag during scheduled data sync"
+          description: "High replication lag during scheduled sync window - expected and temporary"
+
+      # Suppress memory spike alerts during daily backup
+      - alert: HighMemoryDuringBackup
+        expr: 'gauge_process_heap_size_bytes > (1024 * 1024 * 1024 * 0.8) and backup_in_progress == 1'
+        for: 0m
+        labels:
+          severity: info
+          suppression_reason: "backup_operation"
+        annotations:
+          summary: "Memory spike during backup operation"
+          description: "High memory usage detected but backup is in progress - expected behavior"
+
+      # Suppress latency spikes during rolling deployments
+      - alert: LatencySpikeDetected
+        expr: 'histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > on (service) histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m] offset 15m)) * 1.5 and deployment_in_progress{service} == 1'
+        for: 0m
+        labels:
+          severity: info
+          suppression_reason: "rolling_deployment"
+        annotations:
+          summary: "Latency spike during rolling deployment"
+          description: "Latency increase detected but rolling deployment is in progress - expected"
+
+      # Suppress error rate spikes during deployment
+      - alert: HighErrorRate
+        expr: '(sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))) * 100 > 1 and deployment_in_progress == 1'
+        for: 0m
+        labels:
+          severity: info
+          suppression_reason: "deployment"
+        annotations:
+          summary: "Error rate spike during deployment"
+          description: "High error rate detected but deployment is in progress - expected during deployment"
+
+      # Suppress queue depth alerts during planned rebalancing
+      - alert: KanbanQueueDepthCritical
+        expr: 'gauge_queue_depth > 1000 and queue_rebalancing_active{queue_name} == 1'
+        for: 0m
+        labels:
+          severity: info
+          suppression_reason: "queue_rebalancing"
+        annotations:
+          summary: "Queue depth spike during rebalancing"
+          description: "High queue depth during queue rebalancing operation - expected"
+
+# Known False Positive Patterns
+  - name: false_positive_suppression
+    interval: 15s
+    rules:
+      # Suppress alerts when traffic pattern is known spike (e.g., monthly reporting)
+      - alert: UnusualTrafficPattern
+        expr: 'rate(http_requests_total[5m]) > 10000 and hour() == 9 and day_of_month() == 1'
+        for: 0m
+        labels:
+          severity: info
+          suppression_reason: "expected_spike"
+        annotations:
+          summary: "Expected traffic spike on 1st of month at 9am"
+          description: "High traffic detected but this is the monthly reporting spike - expected"
+
+      # Suppress latency alerts when running scheduled batch jobs
+      - alert: P99LatencyCritical
+        expr: 'histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) > 5 and batch_job_running == 1'
+        for: 0m
+        labels:
+          severity: info
+          suppression_reason: "batch_processing"
+        annotations:
+          summary: "Latency increase during batch job execution"
+          description: "High latency detected but batch processing job is running - expected behavior"
+
+# Temporary Suppressions (incidents, investigations)
+  - name: temporary_suppressions
+    interval: 15s
+    rules:
+      # Template for suppressing specific alerts during investigation
+      # Uncomment and modify as needed for ongoing investigations
+
+      # Example: Suppress database alerts during DB migration
+      # - alert: DatabaseConnPoolExhausted
+      #   expr: 'alert_suppression{reason="db_migration"} == 1'
+      #   for: 0m
+      #   labels:
+      #     severity: info
+      #     suppression_reason: "db_migration"
+      #   annotations:
+      #     summary: "Database alerts suppressed during migration"
+      #     description: "Suppressed until migration completes at 2026-01-25T12:00:00Z"
+
+      # Example: Suppress specific service alerts
+      # - alert: ServiceUnhealthy
+      #   expr: 'alert_suppression{service="legacy-service"} == 1'
+      #   for: 0m
+      #   labels:
+      #     severity: info
+      #     suppression_reason: "known_issue"
+      #   annotations:
+      #     summary: "Alerts suppressed for legacy-service during investigation"
+      #     description: "Suppressed until fix deployed"
+
+# Maintenance Window Rules
+  - name: maintenance_windows
+    interval: 1m
+    rules:
+      # Check if current time falls within maintenance windows
+      - record: in_maintenance_window
+        expr: |-
+          (
+            # Monday 2am-4am UTC
+            (day_of_week() == 1 and hour() >= 2 and hour() < 4) or
+            # Third Friday of month 10pm-12am UTC (patching window)
+            (day_of_week() == 5 and day_of_month() > 14 and day_of_month() < 22 and hour() >= 22) or
+            # Explicit maintenance window flag from external system
+            maintenance_window_active == 1
+          )
+
+      # Suppress all non-critical alerts during maintenance
+      - alert: SuppressNonCriticalDuringMaintenance
+        expr: 'ALERTS{severity!="critical"} and in_maintenance_window'
+        for: 0m
+        labels:
+          severity: info
+          alert_type: maintenance_suppression
+        annotations:
+          summary: "Non-critical alerts suppressed during maintenance"
+          description: "Suppressed until maintenance window ends"
+
+# Data Sync Window Configuration
+  - name: data_sync_windows
+    interval: 1m
+    rules:
+      # Check if within scheduled data sync window
+      - record: in_data_sync_window
+        expr: |-
+          (
+            # Daily at 3am-5am UTC
+            (hour() >= 3 and hour() < 5) or
+            # Weekly on Sunday at 4am-6am UTC
+            (day_of_week() == 0 and hour() >= 4 and hour() < 6)
+          )
+
+# Deployment Detection (integrate with CI/CD)
+  - name: deployment_tracking
+    interval: 15s
+    rules:
+      # Record if deployment in progress
+      # Source: Kubernetes deployment webhook or CI/CD integration
+      - record: deployment_in_progress
+        expr: 'count(deployment_rolling_update_active) > 0'
+
+      # Record if canary deployment active (higher tolerance for issues)
+      - record: canary_deployment_active
+        expr: 'deployment_canary_enabled == 1'

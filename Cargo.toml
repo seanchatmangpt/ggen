@@ -48,6 +48,7 @@ members = [
   "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
   "crates/tai-testing",        # Production hardening & resilience testing framework
   "crates/tai-k8s",            # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
+  "crates/tai-validation",     # SLO/SLA validation, compliance framework, security scanning
   "playground",
 ]
 exclude = [
@@ -61,7 +62,6 @@ exclude = [
   "crates/tai-resilience",  # Temporarily excluded - has dependency issues
   "crates/tai-cache",  # Temporarily excluded - has dependency issues
   "crates/tai-grpc",  # Temporarily excluded - has dependency issues
-  "crates/tai-gateway",  # Temporarily excluded - has missing bench file
   "crates/tai-loadbalancer",  # Temporarily excluded - missing benchmark files
 ]
 resolver = "2" # Use new resolver for better dependency resolution

@@ -1,0 +1,24 @@
+# Grafana Dashboard Provisioning Configuration
+#
+# This configuration auto-loads all TPS dashboards on startup.
+# Place dashboard JSON files in the dashboards/ directory.
+#
+# Grafana will automatically:
+# - Load all .json files from the dashboards directory
+# - Update dashboards if files change
+# - Preserve existing dashboards that aren't in the config
+#
+# See: https://grafana.com/docs/grafana/latest/administration/provisioning/
+
+apiVersion: 1
+
+providers:
+  - name: 'TPS System Dashboards'
+    orgId: 1
+    folder: 'TPS Dashboards'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards

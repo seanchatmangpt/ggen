@@ -1,0 +1,109 @@
+%% -*- mode: erlang -*-
+%%
+%% TPS Jidoka Application Specification
+%%
+%% This file describes the TPS Jidoka application, including:
+%% - Dependencies
+%% - Startup modules
+%% - Environment variables
+%% - Application metadata
+
+{application, tps_jidoka, [
+    %% Application name and version
+    {description, "Jidoka: Autonomation with a Human Touch - Stop-the-Line Fail-Fast System for Erlang"},
+    {vsn, "1.0.0"},
+    {registered, [
+        jidoka_supervisor,
+        jidoka_circuit_breaker,
+        jidoka_rate_limiter,
+        jidoka_worker_pool
+    ]},
+
+    %% Application startup
+    {applications, [
+        kernel,
+        stdlib,
+        lager,           %% Logging
+        poolboy          %% Worker pool
+    ]},
+
+    %% OTP version requirements
+    {env, [
+        %% Circuit breaker configuration
+        {circuit_breaker, [
+            {threshold, 5},          %% Failures to trigger open
+            {window_ms, 10000},      %% Time window for counting failures
+            {recovery_ms, 30000}     %% Time before half_open attempt
+        ]},
+
+        %% Rate limiter configuration
+        {rate_limiter, [
+            {rate_limit, 1000},      %% Requests per second
+            {burst_size, 500}        %% Max tokens in bucket
+        ]},
+
+        %% Worker pool configuration
+        {worker_pool, [
+            {pool_name, jidoka_worker_pool},
+            {pool_size, 10},         %% Number of workers
+            {max_overflow, 0}        %% NO overflow (Jidoka principle)
+        ]},
+
+        %% Logging configuration
+        {lager, [
+            {log_root, "logs"},
+            {handlers, [
+                {lager_console_backend, [{level, info}]},
+                {lager_file_backend, [
+                    {file, "logs/jidoka.log"},
+                    {level, info},
+                    {size, 10485760},     %% 10MB
+                    {date, "$D0"},
+                    {count, 5}            %% Keep 5 files
+                ]},
+                {lager_file_backend, [
+                    {file, "logs/jidoka_error.log"},
+                    {level, error},
+                    {size, 10485760},
+                    {date, "$D0"},
+                    {count, 10}
+                ]}
+            ]},
+            {crash_log, "logs/jidoka_crash.log"},
+            {crash_log_msg_size, 65536},
+            {crash_log_date, "$D0"},
+            {error_logger_redirect, true},
+            {error_logger_hwm, 200}
+        ]}
+    ]},
+
+    %% Modules included in this application
+    {modules, [
+        jidoka_supervisor,
+        jidoka_circuit_breaker,
+        jidoka_worker_pool,
+        jidoka_rate_limiter
+    ]},
+
+    %% Callback module for application startup
+    {mod, {tps_jidoka_app, []}},
+
+    %% Maintainer information
+    {maintainers, ["TPS Team"]},
+    {licenses, ["MIT"]},
+    {links, [
+        {"Repository", "https://github.com/seanchatmangpt/ggen"},
+        {"Documentation", "https://github.com/seanchatmangpt/ggen/docs/tps-reference/10-jidoka.md"}
+    ]},
+
+    %% Metadata for hex.pm (if publishing)
+    {build_tools, ["rebar3"]},
+    {files, [
+        "src",
+        "tests",
+        "include",
+        "rebar.config",
+        "README.md",
+        "LICENSE"
+    ]}
+]}.

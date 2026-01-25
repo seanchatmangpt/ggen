@@ -1,0 +1,95 @@
+# Prometheus Configuration for TPS Reference System
+#
+# This configuration monitors all Toyota Production System (TPS) principles:
+# - Jidoka: Autonomation and error detection
+# - Kanban: Pull system and work-in-progress management
+# - Andon: Problem visibility and immediate escalation
+# - Kaizen: Continuous improvement and SLO tracking
+# - Heijunka: Load leveling and resource distribution
+# - Tracing: Value stream visualization and latency tracking
+
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'tps-reference-system'
+    environment: 'production'
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'alertmanager:9093'
+
+# Load alert rules
+rule_files:
+  - 'alert-rules.yml'
+
+scrape_configs:
+  # TPS Reference System Metrics
+  - job_name: 'tps-system'
+    description: 'TPS reference system metrics (Jidoka, Kanban, Andon, Kaizen, Heijunka, Tracing)'
+    static_configs:
+      - targets: ['localhost:9090']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - source_labels: [__scheme__]
+        target_label: scheme
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 15s
+
+  # Optional: Node exporter for system metrics
+  - job_name: 'node'
+    static_configs:
+      - targets: ['localhost:9100']
+    scrape_interval: 15s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+
+# Remote storage (optional - for long-term retention)
+# Uncomment to enable
+# remote_write:
+#   - url: "http://remote-storage:9009/api/v1/push"
+#     queue_config:
+#       capacity: 10000
+#       max_shards: 200
+#       min_shards: 1
+#       max_samples_per_send: 500
+#       batch_send_wait: 5s
+#       min_backoff: 30ms
+#       max_backoff: 100ms
+
+# Remote read (optional - for querying historical data)
+# Uncomment to enable
+# remote_read:
+#   - url: "http://remote-storage:9009/api/v1/read"
+#     read_recent: true
+
+# Service discovery (optional - for dynamic monitoring)
+# Uncomment to enable Kubernetes service discovery
+# scrape_configs:
+#   - job_name: 'kubernetes-apiservers'
+#     kubernetes_sd_configs:
+#       - role: endpoints
+#     scheme: https
+#     tls_config:
+#       ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+#     bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+# Metric relabeling rules
+# Example: Add custom labels, drop unnecessary metrics
+# relabel_configs:
+#   - source_labels: [__name__]
+#     regex: 'tps_.*'
+#     action: keep

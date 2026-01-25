@@ -1,0 +1,273 @@
+name: Docker Build & Push (Multi-Registry)
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ['v*']
+  workflow_dispatch:
+
+env:
+  REGISTRY_GCP: artifacts.example.com
+  REGISTRY_GHCR: ghcr.io
+  IMAGE_NAME_CONTROLLER: catalog-controller
+  IMAGE_NAME_CLI: ggen-cli
+  DOCKER_BUILDKIT: 1
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # ============================================================================
+  # STAGE 1: Build and push controller image
+  # ============================================================================
+  build-controller:
+    name: Build Controller Docker Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+      image-tags: ${{ steps.meta.outputs.tags }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GCP Artifact Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY_GCP }}
+          username: _json_key
+          password: ${{ secrets.GCP_ARTIFACT_REGISTRY_KEY }}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY_GHCR }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}
+            ${{ env.REGISTRY_GHCR }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_CONTROLLER }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Controller image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./controller/Containerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+            BUILD_DATE=${{ github.event.head_commit.timestamp || now() }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ steps.meta.outputs.version }}
+
+      - name: Image build summary
+        run: |
+          echo "## Docker Image Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Image Digest | ${{ steps.build.outputs.digest }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tags | ${{ steps.meta.outputs.tags }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # STAGE 2: Build and push CLI image
+  # ============================================================================
+  build-cli:
+    name: Build CLI Docker Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GCP Artifact Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY_GCP }}
+          username: _json_key
+          password: ${{ secrets.GCP_ARTIFACT_REGISTRY_KEY }}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY_GHCR }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}
+            ${{ env.REGISTRY_GHCR }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_CLI }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=sha,prefix={{branch}}-
+
+      - name: Build Rust CLI binary (ggen)
+        run: |
+          cargo build --release --locked
+          mkdir -p dist
+          cp target/release/ggen dist/
+
+      - name: Build and push CLI image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+
+  # ============================================================================
+  # STAGE 3: Scan images for vulnerabilities
+  # ============================================================================
+  scan-images:
+    name: Scan Docker Images (Trivy)
+    runs-on: ubuntu-latest
+    needs: [build-controller, build-cli]
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Run Trivy vulnerability scanner (Controller)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}
+          format: sarif
+          output: trivy-controller.sarif
+
+      - name: Run Trivy vulnerability scanner (CLI)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}
+          format: sarif
+          output: trivy-cli.sarif
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: |
+            trivy-controller.sarif
+            trivy-cli.sarif
+          category: 'trivy'
+
+  # ============================================================================
+  # STAGE 4: Generate SBOM and sign images
+  # ============================================================================
+  sign-and-sbom:
+    name: Sign Images & Generate SBOMs
+    runs-on: ubuntu-latest
+    needs: [build-controller, build-cli]
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.2.0'
+
+      - name: Install syft (SBOM generation)
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Log in to registries
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          echo "${{ secrets.GCP_ARTIFACT_REGISTRY_KEY }}" | docker login ${{ env.REGISTRY_GCP }} --username _json_key --password-stdin
+
+      - name: Generate SBOM (Controller)
+        run: |
+          syft "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}" \
+            -o spdx-json > sbom-controller.spdx.json
+          syft "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}" \
+            -o cyclonedx-json > sbom-controller.cyclonedx.json
+
+      - name: Generate SBOM (CLI)
+        run: |
+          syft "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}" \
+            -o spdx-json > sbom-cli.spdx.json
+          syft "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}" \
+            -o cyclonedx-json > sbom-cli.cyclonedx.json
+
+      - name: Sign Controller image (cosign)
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          cosign sign --yes \
+            "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}"
+
+      - name: Sign CLI image (cosign)
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          cosign sign --yes \
+            "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}"
+
+      - name: Attach SBOM to Controller image (cosign)
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          cosign attach attestation --attestation sbom-controller.spdx.json \
+            "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CONTROLLER }}@${{ needs.build-controller.outputs.image-digest }}"
+
+      - name: Attach SBOM to CLI image (cosign)
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          cosign attach attestation --attestation sbom-cli.spdx.json \
+            "${{ env.REGISTRY_GCP }}/${{ env.IMAGE_NAME_CLI }}@${{ needs.build-cli.outputs.image-digest }}"
+
+      - name: Upload SBOMs as artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: sbom-reports
+          path: |
+            sbom-*.spdx.json
+            sbom-*.cyclonedx.json
+          retention-days: 30
+
+      - name: Artifact provenance summary
+        run: |
+          echo "## Artifact Provenance Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Artifact | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Controller Image Signed | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| CLI Image Signed | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| SBOMs Generated | ✅ |" >> $GITHUB_STEP_SUMMARY

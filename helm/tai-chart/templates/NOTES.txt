@@ -1,0 +1,51 @@
+1. Get the TAI API service endpoint:
+  {{- if contains "NodePort" .Values.service.type }}
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Values.namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  export NODE_PORT=$(kubectl get svc {{ .Values.api.name }} --namespace {{ .Values.namespace }} -o jsonpath="{.spec.ports[0].nodePort}")
+  echo http://$NODE_IP:$NODE_PORT
+  {{- else if contains "LoadBalancer" .Values.service.type }}
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+  You can watch the status of by running 'kubectl get --namespace {{ .Values.namespace }} svc -w {{ .Values.api.name }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Values.namespace }} {{ .Values.api.name }} --template "{.status.loadBalancer.ingress[0].ip}")
+  echo http://$SERVICE_IP:{{ .Values.service.apiPort }}
+  {{- else if contains "ClusterIP" .Values.service.type }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Values.namespace }} -l "app={{ .Values.api.name }}" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Values.namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace {{ .Values.namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+  {{- end }}
+
+2. Check deployment status:
+  kubectl get deployments --namespace {{ .Values.namespace }} -l "app={{ .Values.api.name }}"
+  kubectl get pods --namespace {{ .Values.namespace }} -l "app={{ .Values.api.name }}"
+
+3. View logs:
+  kubectl logs --namespace {{ .Values.namespace }} -l "app={{ .Values.api.name }}" -f
+
+4. Scale the deployment:
+  kubectl scale deployment {{ .Values.api.name }} --replicas=5 --namespace {{ .Values.namespace }}
+
+{{- if .Values.keda.enabled }}
+5. Check KEDA autoscaling:
+  kubectl get scaledobjects --namespace {{ .Values.namespace }}
+  kubectl describe scaledobject {{ .Values.api.name }}-scaler --namespace {{ .Values.namespace }}
+
+{{- end }}
+{{- if .Values.istio.enabled }}
+6. Istio service mesh enabled:
+  Check VirtualService: kubectl get vs --namespace {{ .Values.namespace }}
+  Check DestinationRule: kubectl get dr --namespace {{ .Values.namespace }}
+  Check Gateway: kubectl get gateway --namespace {{ .Values.namespace }}
+
+{{- end }}
+{{- if .Values.networkPolicy.enabled }}
+7. Network policies are enabled for network isolation
+
+{{- end }}
+{{- if .Values.monitoring.enabled }}
+8. Monitoring enabled:
+  View metrics in Prometheus or your monitoring tool
+
+{{- end }}
+
+For more information, visit: {{ .Chart.Home }}

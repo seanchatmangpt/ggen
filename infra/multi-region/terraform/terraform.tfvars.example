@@ -1,0 +1,112 @@
+# Multi-Region Deployment - Terraform Variables Example
+# Copy this file to terraform.tfvars and fill in your values
+
+###############################################################################
+# GCP Project Configuration
+###############################################################################
+
+project_id     = "ggen-marketplace-prod"
+primary_region = "us-central1"
+
+secondary_regions = [
+  "us-east1",
+  "europe-west1"
+]
+
+###############################################################################
+# Firestore Configuration
+###############################################################################
+
+firestore_retention_days = 7
+
+firestore_collections = [
+  "marketplace_products",
+  "marketplace_orders",
+  "marketplace_users",
+  "marketplace_payments",
+  "marketplace_subscriptions",
+  "marketplace_analytics"
+]
+
+###############################################################################
+# Compute Configuration
+###############################################################################
+
+machine_type           = "n2-standard-2"
+min_replicas           = 2
+max_replicas           = 10
+target_cpu_utilization = 0.7
+
+###############################################################################
+# Load Balancer Configuration
+###############################################################################
+
+enable_cdn         = true
+cdn_default_ttl    = 3600
+cdn_max_ttl        = 86400
+health_check_interval_sec = 30
+health_check_timeout_sec  = 5
+
+###############################################################################
+# Redis Configuration
+###############################################################################
+
+redis_tier    = "standard"
+redis_size    = 5
+redis_version = "7.2"
+
+###############################################################################
+# Security Configuration
+###############################################################################
+
+# Path to your SSL certificate and key
+ssl_certificate_path = "/path/to/cert.pem"
+ssl_private_key_path = "/path/to/key.pem"
+
+# KMS key rotation period (in days)
+kms_rotation_period_days = 90
+
+###############################################################################
+# Monitoring Configuration
+###############################################################################
+
+alert_email = "incident-commander@ggen-marketplace.example.com"
+
+# Optional: Slack webhook for alerts
+# Get from: https://api.slack.com/messaging/webhooks
+slack_webhook_url = "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+
+###############################################################################
+# Network Configuration
+###############################################################################
+
+# Use default VPC (recommended for quickstart)
+create_custom_network = false
+vpc_network_name      = "default"
+
+###############################################################################
+# Cost Optimization
+###############################################################################
+
+# Purchase Commitment Discount Units for savings
+enable_cud_commitment = true
+
+# Reserve compute capacity (more expensive but guaranteed resources)
+enable_reserved_capacity = false
+
+# Backup retention in days
+backup_retention_days = 30
+
+###############################################################################
+# Environment & Tagging
+###############################################################################
+
+environment      = "production"
+application_name = "ggen-marketplace"
+
+labels = {
+  team        = "platform-engineering"
+  cost-center = "engineering"
+  managed-by  = "terraform"
+  environment = "production"
+}

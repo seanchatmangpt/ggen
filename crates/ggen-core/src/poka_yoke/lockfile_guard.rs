@@ -141,7 +141,7 @@ impl Drop for LockfileGuard {
 }
 
 #[cfg(unix)]
-trait FileExt {
+pub trait FileExt {
     fn try_lock_exclusive(&self) -> std::io::Result<()>;
 }
 

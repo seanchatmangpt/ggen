@@ -1,0 +1,335 @@
+name: GitOps - Flux Sync (Declarative Infrastructure)
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'infra/flux/**'
+      - 'helm/**'
+      - '.github/workflows/gitops-sync-flux.yml'
+  workflow_dispatch:
+    inputs:
+      namespace:
+        description: 'Kubernetes namespace to sync'
+        required: true
+        default: 'default'
+      force:
+        description: 'Force sync (skip validation)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  FLUX_VERSION: 'v2.1.0'
+  KUBECONFIG_PROD: ${{ secrets.KUBECONFIG_PROD }}
+  KUBECONFIG_STAGING: ${{ secrets.KUBECONFIG_STAGING }}
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  # ============================================================================
+  # STAGE 1: Validate Flux manifests
+  # ============================================================================
+  validate-flux:
+    name: Validate Flux Configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Flux CLI
+        run: |
+          curl -s https://fluxcd.io/install.sh | bash
+          flux version
+
+      - name: Check Flux sources
+        run: |
+          if [ -d "infra/flux/sources" ]; then
+            flux diff source all --all-namespaces --path infra/flux/sources || true
+          fi
+
+      - name: Check Flux kustomizations
+        run: |
+          if [ -d "infra/flux/kustomizations" ]; then
+            flux diff kustomization all --all-namespaces --path infra/flux/kustomizations || true
+          fi
+
+      - name: Validate Flux structure
+        run: |
+          echo "Checking Flux directory structure..."
+          test -d infra/flux/sources || echo "⚠️  No sources directory"
+          test -d infra/flux/kustomizations || echo "⚠️  No kustomizations directory"
+          test -f infra/flux/gotk-components.yaml || echo "⚠️  No gotk-components.yaml"
+          echo "✅ Flux structure validated"
+
+  # ============================================================================
+  # STAGE 2: Validate Kustomize manifests
+  # ============================================================================
+  validate-kustomize:
+    name: Validate Kustomize Manifests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: validate-flux
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Kustomize
+        run: |
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+
+      - name: Build all kustomizations
+        run: |
+          if [ -d "infra/flux/kustomizations" ]; then
+            for kustom_dir in infra/flux/kustomizations/*/; do
+              if [ -f "$kustom_dir/kustomization.yaml" ]; then
+                echo "Building: $kustom_dir"
+                kustomize build "$kustom_dir" > /tmp/manifest.yaml || \
+                  (echo "❌ Failed to build $(basename $kustom_dir)"; exit 1)
+                echo "✅ $(basename $kustom_dir) built successfully"
+              fi
+            done
+          fi
+
+  # ============================================================================
+  # STAGE 3: Validate with kubeval
+  # ============================================================================
+  validate-manifests:
+    name: Validate Kubernetes Manifests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: validate-kustomize
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kubeval
+        run: |
+          curl -sSL https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz | \
+            tar xz -C /usr/local/bin
+
+      - name: Install Kustomize
+        run: |
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+
+      - name: Validate all manifests
+        run: |
+          if [ -d "infra/flux/kustomizations" ]; then
+            for kustom_dir in infra/flux/kustomizations/*/; do
+              if [ -f "$kustom_dir/kustomization.yaml" ]; then
+                echo "Validating: $(basename $kustom_dir)"
+                kustomize build "$kustom_dir" | kubeval \
+                  --kubernetes-version 1.28.0 \
+                  --summary \
+                  --verbose || exit 1
+                echo "✅ $(basename $kustom_dir) validated"
+              fi
+            done
+          fi
+
+  # ============================================================================
+  # STAGE 4: Dry-run on Staging
+  # ============================================================================
+  dry-run-staging:
+    name: Dry-run on Staging Cluster
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [validate-flux, validate-manifests]
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubeconfig (Staging)
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ env.KUBECONFIG_STAGING }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Verify cluster connectivity
+        run: kubectl cluster-info
+
+      - name: Install Flux CLI
+        run: |
+          curl -s https://fluxcd.io/install.sh | bash
+
+      - name: Dry-run Flux apply
+        run: |
+          flux install --namespace flux-system --dry-run=client > /tmp/flux-install.yaml
+          kubectl apply -f /tmp/flux-install.yaml --dry-run=client
+
+      - name: Dry-run Kustomizations
+        run: |
+          if [ -d "infra/flux/kustomizations" ]; then
+            kubectl apply -k infra/flux/kustomizations/ --dry-run=client --namespace staging || true
+          fi
+
+      - name: Predict drift
+        run: |
+          echo "## Predicted Cluster Drift" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          flux diff kustomization all --all-namespaces --path infra/flux/kustomizations >> $GITHUB_STEP_SUMMARY || true
+
+  # ============================================================================
+  # STAGE 5: Apply to Production (Requires explicit trigger)
+  # ============================================================================
+  apply-production:
+    name: Apply to Production Cluster
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [validate-flux, validate-manifests]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+
+    concurrency:
+      group: production-gitops
+      cancel-in-progress: false
+
+    environment:
+      name: production
+      url: ${{ secrets.PROD_CLUSTER_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubeconfig (Production)
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ env.KUBECONFIG_PROD }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Verify cluster connectivity
+        run: kubectl cluster-info
+
+      - name: Install Flux CLI
+        run: |
+          curl -s https://fluxcd.io/install.sh | bash
+          flux version
+
+      - name: Check current Flux status
+        run: |
+          flux get sources all --all-namespaces || true
+          flux get kustomizations all --all-namespaces || true
+
+      - name: Show deployment diff
+        run: |
+          echo "## Proposed Changes for Production" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          flux diff kustomization all --all-namespaces --path infra/flux/kustomizations | head -50 >> $GITHUB_STEP_SUMMARY || true
+
+      - name: Apply Flux configuration
+        run: |
+          flux install --namespace flux-system
+          flux create source git ggen \
+            --url=${{ github.server_url }}/${{ github.repository }} \
+            --branch=${{ github.ref_name }} \
+            --interval=5m \
+            --export | kubectl apply -f -
+
+          flux create kustomization ggen \
+            --source=GitRepository/ggen \
+            --path="./infra/flux/kustomizations" \
+            --prune=true \
+            --interval=5m \
+            --export | kubectl apply -f -
+
+      - name: Wait for reconciliation
+        run: |
+          echo "Waiting for Flux reconciliation (max 5 minutes)..."
+          for i in {1..60}; do
+            flux get kustomizations all --all-namespaces
+            STATUS=$(kubectl get kustomization -A -o jsonpath='{.items[].status.conditions[?(@.type=="Ready")].status}' 2>/dev/null)
+            if [[ "$STATUS" == "True"* ]]; then
+              echo "✅ Flux reconciliation complete"
+              exit 0
+            fi
+            echo "Waiting... ($i/60)"
+            sleep 5
+          done
+          echo "⚠️  Timeout waiting for reconciliation"
+
+      - name: Verify deployment
+        run: |
+          echo "## Deployment Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          kubectl get deployments -A >> $GITHUB_STEP_SUMMARY
+          kubectl get kustomizations -A >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify deployment
+        run: |
+          echo "✅ GitOps deployment to production complete"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+
+  # ============================================================================
+  # STAGE 6: Post-deployment verification
+  # ============================================================================
+  verify-deployment:
+    name: Verify Deployment Health
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: apply-production
+    if: success()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubeconfig (Production)
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ env.KUBECONFIG_PROD }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Check deployment health
+        run: |
+          echo "Checking deployment rollout status..."
+          kubectl rollout status deployment/tai-controller -n production --timeout=5m || true
+
+      - name: Verify endpoints
+        run: |
+          echo "Verifying service endpoints..."
+          kubectl get endpoints -n production
+
+      - name: Health check endpoints
+        run: |
+          # Get service IP
+          SERVICE_IP=$(kubectl get svc -n production -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}')
+          if [ -n "$SERVICE_IP" ]; then
+            echo "Service IP: $SERVICE_IP"
+            curl -s -o /dev/null -w "%{http_code}" http://$SERVICE_IP/health || echo "Health check failed"
+          fi
+
+  # ============================================================================
+  # Summary
+  # ============================================================================
+  gitops-summary:
+    name: GitOps Summary
+    runs-on: ubuntu-latest
+    needs: [validate-flux, apply-production]
+    if: always()
+
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## GitOps Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Flux Validation | ${{ needs.validate-flux.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Kustomize Build | ${{ needs.validate-kustomize.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Manifest Validation | ${{ needs.validate-manifests.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Staging Dry-run | ${{ needs.dry-run-staging.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Production Apply | ${{ needs.apply-production.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,63 @@
+[package]
+name = "ggen-tps-andon"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "TPS Andon system: Toyota Production System visibility, alerting, and diagnostics"
+license = "MIT"
+
+[lib]
+name = "ggen_tps_andon"
+path = "src/lib.rs"
+
+[dependencies]
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+
+# Metrics and tracing
+prometheus = { version = "0.13", features = ["protobuf"] }
+opentelemetry = { version = "0.21" }
+opentelemetry-otlp = { version = "0.14" }
+opentelemetry_sdk = { version = "0.21", features = ["rt-tokio"] }
+tracing-opentelemetry = { version = "0.22" }
+
+# System diagnostics
+psutil = { version = "3.3", optional = true }
+sysinfo = "0.31"
+
+# Alert handling
+reqwest = { workspace = true }
+once_cell = { workspace = true }
+
+# Concurrency
+dashmap = { workspace = true }
+parking_lot = "0.12"
+
+# Utilities
+futures = { workspace = true }
+futures-util = { workspace = true }
+log = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tempfile = { workspace = true }
+
+[features]
+default = []
+# Enable system-level diagnostics (psutil)
+diagnostics = ["psutil"]
+# Enable full OpenTelemetry instrumentation
+otel = ["opentelemetry/trace"]
+
+[[example]]
+name = "andon_demo"
+path = "examples/andon_demo.rs"
