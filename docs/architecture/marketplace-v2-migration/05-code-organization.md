@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Code Organization & Implementation Structure](#code-organization--implementation-structure)
+  - [Overview](#overview)
+  - [Directory Structure](#directory-structure)
+  - [Module Hierarchy](#module-hierarchy)
+    - [ggen-marketplace-v2 (New Crate)](#ggen-marketplace-v2-new-crate)
+    - [ggen-domain/src/marketplace](#ggen-domainsrcmarketplace)
+    - [ggen-core/src/marketplace](#ggen-coresrcmarketplace)
+  - [Conditional Compilation Patterns](#conditional-compilation-patterns)
+    - [Pattern 1: Feature-Gated Module Inclusion](#pattern-1-feature-gated-module-inclusion)
+    - [Pattern 2: Feature-Gated Implementations](#pattern-2-feature-gated-implementations)
+    - [Pattern 3: Feature-Gated Factory Functions](#pattern-3-feature-gated-factory-functions)
+    - [Pattern 4: Feature-Gated Dependencies](#pattern-4-feature-gated-dependencies)
+  - [Test Organization](#test-organization)
+    - [Unit Tests (Per-Backend)](#unit-tests-per-backend)
+    - [Integration Tests (Cross-Backend)](#integration-tests-cross-backend)
+    - [Benchmark Organization](#benchmark-organization)
+  - [Configuration File Organization](#configuration-file-organization)
+  - [CLI Command Structure](#cli-command-structure)
+  - [Error Handling Organization](#error-handling-organization)
+  - [Documentation Structure](#documentation-structure)
+  - [Build Script Organization](#build-script-organization)
+  - [CI/CD Configuration](#cicd-configuration)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Code Organization & Implementation Structure
 
 ## Overview

@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Critical Untested Code Paths - Quick Reference](#critical-untested-code-paths---quick-reference)
+  - [CRITICAL PRIORITY - Application Crashes](#critical-priority---application-crashes)
+    - [1. Graph Type Conversion Panics](#1-graph-type-conversion-panics)
+    - [2. Template Parsing Panics](#2-template-parsing-panics)
+    - [3. AI Governance Decision Panic](#3-ai-governance-decision-panic)
+  - [HIGH PRIORITY - Race Conditions](#high-priority---race-conditions)
+    - [1. Query Cache Invalidation Race](#1-query-cache-invalidation-race)
+    - [2. Template Cache Lock Across I/O](#2-template-cache-lock-across-io)
+    - [3. Task Spawning Without Join Validation](#3-task-spawning-without-join-validation)
+  - [MEDIUM PRIORITY - Error Path Testing](#medium-priority---error-path-testing)
+    - [1. Network Failures Not Tested](#1-network-failures-not-tested)
+    - [2. Marketplace Registry Failures](#2-marketplace-registry-failures)
+    - [3. JSON/TOML Parsing Edge Cases](#3-jsontoml-parsing-edge-cases)
+  - [LOW PRIORITY - Edge Cases](#low-priority---edge-cases)
+    - [1. Empty Collections](#1-empty-collections)
+    - [2. Large Data Sets](#2-large-data-sets)
+    - [3. Special Characters](#3-special-characters)
+    - [4. Time-Based Issues](#4-time-based-issues)
+  - [Files with Test Infrastructure Present](#files-with-test-infrastructure-present)
+  - [Summary Statistics](#summary-statistics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Critical Untested Code Paths - Quick Reference
 
 ## CRITICAL PRIORITY - Application Crashes

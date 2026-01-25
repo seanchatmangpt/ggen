@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [A Pattern Language for ggen sync](#a-pattern-language-for-ggen-sync)
+  - [What This Book Contains](#what-this-book-contains)
+  - [The Central Pattern](#the-central-pattern)
+  - [The Quality Without a Name](#the-quality-without-a-name)
+  - [How the Patterns Are Organized](#how-the-patterns-are-organized)
+    - [Foundation Patterns (1-3)](#foundation-patterns-1-3)
+    - [Knowledge Patterns (4-7)](#knowledge-patterns-4-7)
+    - [Safety Patterns (8-12)](#safety-patterns-8-12)
+    - [Integrity Patterns (13-15)](#integrity-patterns-13-15)
+    - [Selective Patterns (16)](#selective-patterns-16)
+  - [The Pattern Format](#the-pattern-format)
+  - [Begin Here](#begin-here)
+  - [The Promise](#the-promise)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # A Pattern Language for ggen sync
 
 > *"Every pattern we define must be formulated in the form of a rule which establishes a relationship between a context, a system of forces which arises in that context, and a configuration which allows these forces to resolve themselves."*

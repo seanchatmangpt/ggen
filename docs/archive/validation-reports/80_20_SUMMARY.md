@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [80/20 Benchmark Refactoring: Complete Summary](#8020-benchmark-refactoring-complete-summary)
+  - [Overview](#overview)
+  - [What Was Deleted (80%)](#what-was-deleted-80)
+    - [1. ❌ sync_operation_benchmarks.rs](#1--sync_operation_benchmarksrs)
+    - [2. ❌ concurrent_operations_benchmarks.rs](#2--concurrent_operations_benchmarksrs)
+  - [What Was Kept (20%)](#what-was-kept-20)
+    - [✅ error_handling_benchmarks.rs (REFACTORED)](#-error_handling_benchmarksrs-refactored)
+    - [✅ disk_io_benchmarks.rs (KEPT WITH DOCUMENTATION)](#-disk_io_benchmarksrs-kept-with-documentation)
+    - [✅ config_loading_benchmarks.rs (KEPT WITH DOCUMENTATION)](#-config_loading_benchmarksrs-kept-with-documentation)
+    - [✅ stability_benchmarks.rs (KEPT WITH DOCUMENTATION)](#-stability_benchmarksrs-kept-with-documentation)
+  - [Files Created](#files-created)
+    - [BENCHMARKING_STANDARDS.md](#benchmarking_standardsmd)
+    - [80_20_SUMMARY.md (this file)](#80_20_summarymd-this-file)
+  - [Actual Measurements vs Fabrications](#actual-measurements-vs-fabrications)
+    - [Error Handling Example](#error-handling-example)
+  - [Commit History](#commit-history)
+  - [Benchmark Execution](#benchmark-execution)
+    - [Run all remaining honest benchmarks](#run-all-remaining-honest-benchmarks)
+    - [Save baseline for regression detection](#save-baseline-for-regression-detection)
+    - [Compare to baseline](#compare-to-baseline)
+  - [Key Statistics](#key-statistics)
+  - [Standards Established](#standards-established)
+    - [✓ DO:](#%E2%9C%93-do)
+    - [❌ DON'T:](#-dont)
+  - [Next Steps](#next-steps)
+    - [Short Term](#short-term)
+    - [Medium Term](#medium-term)
+    - [Long Term](#long-term)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 80/20 Benchmark Refactoring: Complete Summary
 
 ## Overview

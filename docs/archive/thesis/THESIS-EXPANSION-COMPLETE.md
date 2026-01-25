@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [PhD Thesis Expansion - Complete Status Report](#phd-thesis-expansion---complete-status-report)
+  - [Executive Summary](#executive-summary)
+    - [Quality Transformation](#quality-transformation)
+  - [Phase 1: ✅ COMPLETE - Related Work & Formal Semantics Integrated](#phase-1--complete---related-work--formal-semantics-integrated)
+    - [What Was Integrated](#what-was-integrated)
+    - [Current Thesis Status](#current-thesis-status)
+  - [Phases 2-5: Ready for Integration](#phases-2-5-ready-for-integration)
+    - [Phase 2: Evaluation & Methodology (Ready to integrate)](#phase-2-evaluation--methodology-ready-to-integrate)
+    - [Phase 3: Expanded Case Studies (Ready to integrate)](#phase-3-expanded-case-studies-ready-to-integrate)
+    - [Phase 4: Expanded Limitations & Future Work (Ready to integrate)](#phase-4-expanded-limitations--future-work-ready-to-integrate)
+    - [Phase 5: Bibliography & Glossary (Ready to integrate)](#phase-5-bibliography--glossary-ready-to-integrate)
+  - [Integration Guide](#integration-guide)
+    - [Three Options for Remaining Phases:](#three-options-for-remaining-phases)
+      - [Option A: Automated Completion (2-3 hours)](#option-a-automated-completion-2-3-hours)
+      - [Option B: Manual Integration (4-6 hours)](#option-b-manual-integration-4-6-hours)
+      - [Option C: Staged Integration (8+ weeks)](#option-c-staged-integration-8-weeks)
+  - [All Deliverables (Organized & Committed)](#all-deliverables-organized--committed)
+    - [Core Enhancement Files](#core-enhancement-files)
+    - [Supporting Materials](#supporting-materials)
+  - [Git Status](#git-status)
+  - [Quality Metrics](#quality-metrics)
+    - [Current Achievement](#current-achievement)
+    - [Coverage After Phase 1](#coverage-after-phase-1)
+  - [Next Steps for User](#next-steps-for-user)
+    - [Recommended Path](#recommended-path)
+    - [Effort Estimates](#effort-estimates)
+  - [Key Achievements](#key-achievements)
+  - [Support Resources](#support-resources)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # PhD Thesis Expansion - Complete Status Report
 
 **Date:** 2026-01-06

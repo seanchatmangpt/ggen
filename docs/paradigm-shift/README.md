@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Crossing the Event Horizon: Documentation Architecture](#crossing-the-event-horizon-documentation-architecture)
+  - [📋 What This Is](#-what-this-is)
+  - [📚 Architecture Documents](#-architecture-documents)
+    - [1. DOCUMENTATION-ARCHITECTURE.md](#1-documentation-architecturemd)
+    - [2. ARCHITECTURE-SUMMARY.md](#2-architecture-summarymd)
+    - [3. INDEX.md](#3-indexmd)
+    - [4. IMPLEMENTATION-ROADMAP.md](#4-implementation-roadmapmd)
+  - [🎯 Quick Start for Documentation Team](#-quick-start-for-documentation-team)
+    - [Immediate Next Steps (This Week)](#immediate-next-steps-this-week)
+  - [📊 What We're Building](#-what-were-building)
+    - [Total Scope](#total-scope)
+    - [By Priority](#by-priority)
+      - [P0: Critical (Week 1)](#p0-critical-week-1)
+      - [P1: High (Month 1)](#p1-high-month-1)
+      - [P2: Medium (Months 2-3)](#p2-medium-months-2-3)
+      - [P3: Low (Months 4-6)](#p3-low-months-4-6)
+  - [🗂️ Directory Structure (Planned)](#-directory-structure-planned)
+  - [🎯 Success Criteria](#-success-criteria)
+    - [Quantitative Metrics](#quantitative-metrics)
+    - [Qualitative Indicators](#qualitative-indicators)
+  - [🔗 Integration with Existing Documentation](#-integration-with-existing-documentation)
+    - [Files Requiring Updates](#files-requiring-updates)
+    - [Consolidation Required](#consolidation-required)
+  - [📞 Contact and Ownership](#-contact-and-ownership)
+  - [📅 Timeline Summary](#-timeline-summary)
+  - [🚀 Getting Started](#-getting-started)
+    - [For Documentation Contributors](#for-documentation-contributors)
+    - [For End Users (After Phase 1 Complete)](#for-end-users-after-phase-1-complete)
+  - [📖 Version History](#-version-history)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Crossing the Event Horizon: Documentation Architecture
 
 **Version**: 1.0

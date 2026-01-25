@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ChatmanGPT End-to-End Demo Specification](#chatmangpt-end-to-end-demo-specification)
+  - [Demo Overview](#demo-overview)
+    - [Input (What the Customer Describes)](#input-what-the-customer-describes)
+  - [Demo Process (Live Execution)](#demo-process-live-execution)
+    - [Step 1: ggen Compilation (10 minutes)](#step-1-ggen-compilation-10-minutes)
+    - [Step 2: MCP Server Generated (Automatic)](#step-2-mcp-server-generated-automatic)
+    - [Step 3: MCP Server Running (in-process)](#step-3-mcp-server-running-in-process)
+    - [Step 4: Claude Client Makes Proposal Request](#step-4-claude-client-makes-proposal-request)
+    - [Step 5: Tool Execution → Proposal Generation](#step-5-tool-execution-%E2%86%92-proposal-generation)
+    - [Step 6: Proposal Output (What Claude Returns)](#step-6-proposal-output-what-claude-returns)
+    - [Step 7: Customer Approval (Outside MCP)](#step-7-customer-approval-outside-mcp)
+    - [Step 8: Executor Runs (Customer's CI/CD)](#step-8-executor-runs-customers-cicd)
+    - [Step 9: Verification & Audit Trail](#step-9-verification--audit-trail)
+  - [Demo Output Files (Deliverables)](#demo-output-files-deliverables)
+    - [1. **MCP Server Package** (Production-Ready)](#1-mcp-server-package-production-ready)
+    - [2. **Infrastructure Module** (Terraform)](#2-infrastructure-module-terraform)
+    - [3. **CI Pipeline Configuration** (GitHub Actions)](#3-ci-pipeline-configuration-github-actions)
+    - [4. **Receipt Chain** (Proofs)](#4-receipt-chain-proofs)
+    - [5. **Documentation** (Generated)](#5-documentation-generated)
+  - [Demo Narrative (What We Show)](#demo-narrative-what-we-show)
+    - [Act 1: "Here's Your Ontology"](#act-1-heres-your-ontology)
+    - [Act 2: "Watch It Compile"](#act-2-watch-it-compile)
+    - [Act 3: "Here's a Proposal"](#act-3-heres-a-proposal)
+    - [Act 4: "You Approve in CI"](#act-4-you-approve-in-ci)
+    - [Act 5: "It Executes in Your Cloud"](#act-5-it-executes-in-your-cloud)
+    - [Act 6: "The Proof"](#act-6-the-proof)
+    - [Act 7: "Run It Again"](#act-7-run-it-again)
+  - [Demo Success Criteria](#demo-success-criteria)
+    - [Technical](#technical)
+    - [Narrative](#narrative)
+  - [Demo Assets](#demo-assets)
+    - [Files to Generate](#files-to-generate)
+    - [Files to Share](#files-to-share)
+  - [Post-Demo Sales Acceleration](#post-demo-sales-acceleration)
+    - [What Happens After](#what-happens-after)
+  - [The Demo is the Product](#the-demo-is-the-product)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ChatmanGPT End-to-End Demo Specification
 
 **Status**: Detailed design for canonical product demo

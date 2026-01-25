@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v5 Design: RDF-First Code Generation](#ggen-v5-design-rdf-first-code-generation)
+  - [Core Paradigm Shift: ggen.toml → RDF Ontology → Generated Code](#core-paradigm-shift-ggentoml-%E2%86%92-rdf-ontology-%E2%86%92-generated-code)
+    - [v4 (Wrong)](#v4-wrong)
+    - [v5 (Right)](#v5-right)
+  - [ggen.toml Specification (Project Manifest)](#ggentoml-specification-project-manifest)
+    - [Example: Basic ggen.toml](#example-basic-ggentoml)
+  - [RDF Ontology Structure (domain/user-model.ttl)](#rdf-ontology-structure-domainuser-modelttl)
+    - [Example: User Service Ontology](#example-user-service-ontology)
+  - [Generation Rules in N3 (domain/generation-rules.n3)](#generation-rules-in-n3-domaingeneration-rulesn3)
+  - [Pipeline: ggen.toml → Generated Code](#pipeline-ggentoml-%E2%86%92-generated-code)
+    - [Step 1: Parse ggen.toml](#step-1-parse-ggentoml)
+    - [Step 2: Load RDF Ontology](#step-2-load-rdf-ontology)
+    - [Step 3: Validate with SHACL](#step-3-validate-with-shacl)
+    - [Step 4: Execute SPARQL Queries](#step-4-execute-sparql-queries)
+    - [Step 5: Render Templates](#step-5-render-templates)
+    - [Step 6: Generate Audit Trail](#step-6-generate-audit-trail)
+  - [Why v5 Works (vs v4)](#why-v5-works-vs-v4)
+  - [Migration from v4 to v5](#migration-from-v4-to-v5)
+  - [Next: v5.0 Implementation Roadmap](#next-v50-implementation-roadmap)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v5 Design: RDF-First Code Generation
 
 **Date**: 2024-12-14

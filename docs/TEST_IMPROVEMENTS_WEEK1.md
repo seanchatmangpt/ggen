@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Test Improvements Summary - Week 1 (Day 1)](#test-improvements-summary---week-1-day-1)
+  - [80/20 Principle Applied](#8020-principle-applied)
+  - [Test Count Summary](#test-count-summary)
+    - [Before](#before)
+    - [After](#after)
+  - [Critical Fixes](#critical-fixes)
+    - [1. Constitution Module Tests (4 tests fixed)](#1-constitution-module-tests-4-tests-fixed)
+    - [2. Optimization Module (+18 tests)](#2-optimization-module-18-tests)
+    - [3. Production Readiness Module (+16 tests)](#3-production-readiness-module-16-tests)
+  - [Deferred Tests (Week 2-3)](#deferred-tests-week-2-3)
+  - [Coverage Impact](#coverage-impact)
+    - [lifecycle/optimization.rs](#lifecycleoptimizationrs)
+    - [lifecycle/production.rs](#lifecycleproductionrs)
+    - [ontology/constitution.rs](#ontologyconstitutionrs)
+  - [Success Metrics](#success-metrics)
+  - [Next Steps (Week 2)](#next-steps-week-2)
+  - [Performance](#performance)
+  - [Architectural Improvements](#architectural-improvements)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Test Improvements Summary - Week 1 (Day 1)
 
 ## 80/20 Principle Applied

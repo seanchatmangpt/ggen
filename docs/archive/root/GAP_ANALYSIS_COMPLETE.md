@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Documentation & Feature Gap Analysis](#ggen-documentation--feature-gap-analysis)
+  - [Executive Summary](#executive-summary)
+  - [🔴 TIER 1: CRITICAL GAPS (P0-P1)](#-tier-1-critical-gaps-p0-p1)
+  - [🟠 TIER 2: HIGH PRIORITY (P2)](#-tier-2-high-priority-p2)
+  - [🟡 TIER 3: MEDIUM PRIORITY (P3)](#-tier-3-medium-priority-p3)
+  - [⚡ QUICK WINS (High Value, Low Effort)](#-quick-wins-high-value-low-effort)
+  - [📊 Gap Summary by Category](#-gap-summary-by-category)
+    - [Documentation Gaps (14 items)](#documentation-gaps-14-items)
+    - [Feature Gaps (10 items)](#feature-gaps-10-items)
+    - [Example Gaps (35+ items)](#example-gaps-35-items)
+    - [Integration Gaps (30+ items)](#integration-gaps-30-items)
+    - [Advanced Topics Gaps (12 items)](#advanced-topics-gaps-12-items)
+    - [Operations Gaps (10 items)](#operations-gaps-10-items)
+  - [📋 Directory Structure Needed](#-directory-structure-needed)
+    - [New Documentation Directories](#new-documentation-directories)
+  - [🎯 Recommended Implementation Order](#-recommended-implementation-order)
+    - [**Week 1-2: Unblock Majority**](#week-1-2-unblock-majority)
+    - [**Week 3-4: Expand Reach**](#week-3-4-expand-reach)
+    - [**Week 5-6: Expert Enablement**](#week-5-6-expert-enablement)
+    - [**Week 7-8: Polish & Quick Wins**](#week-7-8-polish--quick-wins)
+  - [📈 Impact by Implementation](#-impact-by-implementation)
+  - [✅ Next Steps](#-next-steps)
+  - [📞 Questions for Team](#-questions-for-team)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Documentation & Feature Gap Analysis
 
 **Generated:** 2025-12-23

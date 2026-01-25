@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Lean Manufacturing Test Analysis: Mura & Muda Elimination](#lean-manufacturing-test-analysis-mura--muda-elimination)
+  - [Executive Summary](#executive-summary)
+  - [PHASE 1: MURA ANALYSIS (Test Variance)](#phase-1-mura-analysis-test-variance)
+    - [🚨 Critical Variance Patterns Detected](#-critical-variance-patterns-detected)
+    - [Detailed Mura Analysis](#detailed-mura-analysis)
+      - [1. TempDir Setup Variance (102 duplications)](#1-tempdir-setup-variance-102-duplications)
+      - [2. Mock Creation Variance (7 different patterns)](#2-mock-creation-variance-7-different-patterns)
+      - [3. Error Handling Variance (109 instances)](#3-error-handling-variance-109-instances)
+  - [PHASE 2: MUDA ANALYSIS (Test Waste)](#phase-2-muda-analysis-test-waste)
+    - [🗑️ Seven Types of Waste Identified](#-seven-types-of-waste-identified)
+    - [Detailed Muda Analysis](#detailed-muda-analysis)
+      - [1. Duplication Waste (215 duplicate lines = 65% bloat)](#1-duplication-waste-215-duplicate-lines--65-bloat)
+      - [2. Over-Testing Waste (32 brittle tests)](#2-over-testing-waste-32-brittle-tests)
+      - [3. Long Setup Waste (18 tests with 30-50 line setup)](#3-long-setup-waste-18-tests-with-30-50-line-setup)
+      - [4. Unclear Test Names (12 tests)](#4-unclear-test-names-12-tests)
+      - [5. Copy-Paste Assertion Waste (78 repeated assertion blocks)](#5-copy-paste-assertion-waste-78-repeated-assertion-blocks)
+  - [PHASE 3: WASTE MEASUREMENT](#phase-3-waste-measurement)
+    - [Current State Metrics](#current-state-metrics)
+    - [Target State (Lean Principles Applied)](#target-state-lean-principles-applied)
+    - [Waste Reduction Potential](#waste-reduction-potential)
+  - [PHASE 4: LEAN REFACTORING SOLUTION](#phase-4-lean-refactoring-solution)
+    - [Poka-Yoke (Error-Proofing) Standardization](#poka-yoke-error-proofing-standardization)
+  - [Implementation Results](#implementation-results)
+    - [Before Refactoring (lockfile_tests.rs)](#before-refactoring-lockfile_testsrs)
+    - [After Refactoring (Lean Approach)](#after-refactoring-lean-approach)
+    - [Waste Elimination Summary](#waste-elimination-summary)
+  - [Recommendations](#recommendations)
+    - [Immediate Actions (Week 1)](#immediate-actions-week-1)
+    - [Medium-Term Actions (Week 2-3)](#medium-term-actions-week-2-3)
+    - [Long-Term Actions (Month 1)](#long-term-actions-month-1)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Lean Manufacturing Test Analysis: Mura & Muda Elimination
 
 ## Executive Summary

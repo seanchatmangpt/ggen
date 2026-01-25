@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Phase 1: Critical 20% Analysis - ggen Testing Transformation](#phase-1-critical-20-analysis---ggen-testing-transformation)
+  - [Executive Summary](#executive-summary)
+    - [Strategic Finding: The Critical 20%](#strategic-finding-the-critical-20)
+  - [Critical Integration Points (Cross-Crate Dependencies)](#critical-integration-points-cross-crate-dependencies)
+    - [1. **Marketplace Installation Pipeline** (HIGHEST PRIORITY)](#1-marketplace-installation-pipeline-highest-priority)
+    - [2. **Template Generation Pipeline** (CRITICAL)](#2-template-generation-pipeline-critical)
+    - [3. **Production Readiness Verification** (CRITICAL)](#3-production-readiness-verification-critical)
+    - [4. **AI Agent Feedback Loops** (MEDIUM)](#4-ai-agent-feedback-loops-medium)
+  - [Dark Matter/Energy Identification](#dark-matterenergy-identification)
+    - [Dark Matter (Missing Tests for Critical Code)](#dark-matter-missing-tests-for-critical-code)
+    - [Dark Energy (Complex Interactions)](#dark-energy-complex-interactions)
+  - [Chicago-TDD-Tools v1.4.0 Feature Allocation](#chicago-tdd-tools-v140-feature-allocation)
+    - [HIGH-VALUE Features (Use These)](#high-value-features-use-these)
+      - [1. **Fail-Fast Verification** (Phase 1-12)](#1-fail-fast-verification-phase-1-12)
+      - [2. **Sector-Grade Stacks** (Production Workflows)](#2-sector-grade-stacks-production-workflows)
+      - [3. **RDF Operation Validator** (Contract-Based Testing)](#3-rdf-operation-validator-contract-based-testing)
+      - [4. **Fixture Tests** (Integration Testing)](#4-fixture-tests-integration-testing)
+    - [LOW-VALUE Features (Skip These)](#low-value-features-skip-these)
+      - [❌ Property Testing](#-property-testing)
+      - [❌ Mutation Testing](#-mutation-testing)
+      - [❌ Snapshot Testing](#-snapshot-testing)
+      - [❌ Performance Tests for Non-Critical Paths](#-performance-tests-for-non-critical-paths)
+  - [Test-to-Code Mapping (80/20 Strategy)](#test-to-code-mapping-8020-strategy)
+    - [Heavy Testing (80% Effort)](#heavy-testing-80-effort)
+    - [Light Testing (20% Effort)](#light-testing-20-effort)
+  - [Dependency Analysis](#dependency-analysis)
+    - [Existing Test Infrastructure](#existing-test-infrastructure)
+    - [Missing Test Files](#missing-test-files)
+  - [Success Metrics (80/20 Validation)](#success-metrics-8020-validation)
+    - [Phase Completion Criteria](#phase-completion-criteria)
+      - [Phase 2: Design (Next)](#phase-2-design-next)
+      - [Phase 3: Implementation](#phase-3-implementation)
+      - [Phase 4: Validation](#phase-4-validation)
+      - [Phase 5: Delivery](#phase-5-delivery)
+  - [Coordinator's Next Actions](#coordinators-next-actions)
+    - [Immediate (Phase 2 Design)](#immediate-phase-2-design)
+    - [Parallel Execution (Phase 3 Implementation)](#parallel-execution-phase-3-implementation)
+  - [Risk Assessment](#risk-assessment)
+    - [High Risks (Mitigation Required)](#high-risks-mitigation-required)
+    - [Medium Risks (Monitor)](#medium-risks-monitor)
+  - [Final Recommendation](#final-recommendation)
+    - [Readiness for Phase 2](#readiness-for-phase-2)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Phase 1: Critical 20% Analysis - ggen Testing Transformation
 
 **Queen Seraphina's Strategic Analysis**

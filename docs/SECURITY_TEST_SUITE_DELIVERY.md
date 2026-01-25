@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Security Test Suite Delivery Report](#security-test-suite-delivery-report)
+  - [Executive Summary](#executive-summary)
+  - [Deliverables](#deliverables)
+    - [1. Test Suite Files (5 Files)](#1-test-suite-files-5-files)
+      - [`/tests/security/path_traversal_tests.rs` (405 lines)](#testssecuritypath_traversal_testsrs-405-lines)
+      - [`/tests/security/sparql_injection_tests.rs` (392 lines)](#testssecuritysparql_injection_testsrs-392-lines)
+      - [`/tests/security/rate_limit_integration_tests.rs` (323 lines)](#testssecurityrate_limit_integration_testsrs-323-lines)
+      - [`/tests/security/input_validation_tests.rs` (356 lines)](#testssecurityinput_validation_testsrs-356-lines)
+      - [`/tests/security/secrets_protection_tests.rs` (387 lines)](#testssecuritysecrets_protection_testsrs-387-lines)
+    - [2. Infrastructure Files (4 Files)](#2-infrastructure-files-4-files)
+      - [`/tests/security/mod.rs`](#testssecuritymodrs)
+      - [`/tests/security/README.md` (200+ lines)](#testssecurityreadmemd-200-lines)
+      - [`/tests/security/IMPLEMENTATION_SUMMARY.md`](#testssecurityimplementation_summarymd)
+      - [`/.github/workflows/security.yml`](#githubworkflowssecurityyml)
+    - [3. Configuration Updates (2 Files)](#3-configuration-updates-2-files)
+      - [`Cargo.toml`](#cargotoml)
+      - [`Makefile.toml`](#makefiletoml)
+  - [Chicago TDD Compliance](#chicago-tdd-compliance)
+    - [✅ AAA Pattern (Arrange/Act/Assert)](#-aaa-pattern-arrangeactassert)
+    - [✅ Real Collaborators (No Mocks)](#-real-collaborators-no-mocks)
+    - [✅ State-Based Verification](#-state-based-verification)
+    - [✅ Behavior Verification](#-behavior-verification)
+  - [Test Quality Metrics](#test-quality-metrics)
+  - [Test Execution](#test-execution)
+    - [Run Commands](#run-commands)
+    - [CI/CD Execution](#cicd-execution)
+  - [Known Issues (Andon Signals)](#known-issues-andon-signals)
+    - [🟡 Build Performance](#-build-performance)
+    - [🟢 Rate Limiting Tests Disabled](#-rate-limiting-tests-disabled)
+    - [🟢 No Compilation Errors Detected](#-no-compilation-errors-detected)
+  - [Next Steps (Definition of Done)](#next-steps-definition-of-done)
+    - [Immediate (Before Marking Complete)](#immediate-before-marking-complete)
+    - [Short-Term (Week 1)](#short-term-week-1)
+    - [Long-Term (Month 1)](#long-term-month-1)
+  - [Test Suite Architecture](#test-suite-architecture)
+    - [File Organization](#file-organization)
+    - [Dependencies Used](#dependencies-used)
+  - [References](#references)
+    - [Security Standards](#security-standards)
+    - [Testing Standards](#testing-standards)
+    - [Project Documentation](#project-documentation)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Security Test Suite Delivery Report
 
 **Project:** ggen v6.0.0

@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [14. AUDIT TRAIL **](#14-audit-trail-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [Enabling the Audit Trail](#enabling-the-audit-trail)
+    - [Output Location](#output-location)
+    - [Audit Trail Structure](#audit-trail-structure)
+  - [Audit Trail Uses](#audit-trail-uses)
+    - [Debugging](#debugging)
+    - [Performance Analysis](#performance-analysis)
+    - [Reproducibility Verification](#reproducibility-verification)
+    - [Change Detection](#change-detection)
+  - [Recording Implementation](#recording-implementation)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [Audit vs. Logging](#audit-vs-logging)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 14. AUDIT TRAIL **
 
 *What happened, when, and why—recorded for posterity.*

@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [The Autonomic GCP Graph: FINAL BOSS Diagram (C4 Level &#035;46)](#the-autonomic-gcp-graph-final-boss-diagram-c4-level-46)
+  - [Overview](#overview)
+  - [The Diagram (Mermaid)](#the-diagram-mermaid)
+  - [Architecture Layers & Flows](#architecture-layers--flows)
+    - [Layer 1: Signal Collection (Real-Time Telemetry)](#layer-1-signal-collection-real-time-telemetry)
+    - [Layer 2: Analytics & Machine Learning](#layer-2-analytics--machine-learning)
+    - [Layer 3: Entitlement-Gated Actions](#layer-3-entitlement-gated-actions)
+    - [Layer 4: Receipt & Proof Trails (Cryptographic Audit)](#layer-4-receipt--proof-trails-cryptographic-audit)
+    - [Layer 5: Knowledge Graph & RDF Triple Store](#layer-5-knowledge-graph--rdf-triple-store)
+    - [Layer 6: Marketplace Integration & Feedback Loop](#layer-6-marketplace-integration--feedback-loop)
+  - [Why This Diagram Matters: Market Takeover Summary](#why-this-diagram-matters-market-takeover-summary)
+    - [1. **Complete Visibility**](#1-complete-visibility)
+    - [2. **Autonomous Yet Auditable**](#2-autonomous-yet-auditable)
+    - [3. **Network Effects**](#3-network-effects)
+    - [4. **Entitlement-Based Security**](#4-entitlement-based-security)
+    - [5. **Universal Marketplace**](#5-universal-marketplace)
+    - [6. **Competitive Advantages Over AWS/Azure/GCP Native**](#6-competitive-advantages-over-awsazuregcp-native)
+  - [Implementation Checklist](#implementation-checklist)
+    - [Phase 1: Knowledge Graph (Week 1-2)](#phase-1-knowledge-graph-week-1-2)
+    - [Phase 2: ML Models (Week 3-4)](#phase-2-ml-models-week-3-4)
+    - [Phase 3: Autonomic Engine (Week 5-6)](#phase-3-autonomic-engine-week-5-6)
+    - [Phase 4: Marketplace Integration (Week 7-8)](#phase-4-marketplace-integration-week-7-8)
+    - [Phase 5: Production Hardening (Week 9-10)](#phase-5-production-hardening-week-9-10)
+  - [Verification & Metrics](#verification--metrics)
+    - [Key Performance Indicators (KPIs)](#key-performance-indicators-kpis)
+    - [Audit Verification](#audit-verification)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # The Autonomic GCP Graph: FINAL BOSS Diagram (C4 Level #46)
 
 **Diagram ID**: `c4-level-46-autonomic-gcp-graph`

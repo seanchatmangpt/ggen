@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Docker Deployment Guide for ggen](#docker-deployment-guide-for-ggen)
+  - [Quick Start (For Users)](#quick-start-for-users)
+  - [Example: Following the README Tutorial](#example-following-the-readme-tutorial)
+  - [Docker Compose Setup](#docker-compose-setup)
+  - [Building the Image (For Contributors)](#building-the-image-for-contributors)
+    - [Option 1: Multi-Stage Build (recommended)](#option-1-multi-stage-build-recommended)
+    - [Option 2: Binary-Based Build (faster)](#option-2-binary-based-build-faster)
+    - [Push to Docker Hub](#push-to-docker-hub)
+  - [Image Details](#image-details)
+  - [Multi-Platform Builds](#multi-platform-builds)
+  - [CI/CD Integration](#cicd-integration)
+    - [GitHub Actions Example](#github-actions-example)
+  - [Troubleshooting](#troubleshooting)
+    - [Permission Issues](#permission-issues)
+    - [Volume Mounting on Windows](#volume-mounting-on-windows)
+    - [Debugging](#debugging)
+  - [Performance](#performance)
+  - [Security](#security)
+  - [Alternatives](#alternatives)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Docker Deployment Guide for ggen
 
 ## Quick Start (For Users)

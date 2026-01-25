@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Packs System Architecture](#packs-system-architecture)
+  - [Executive Summary](#executive-summary)
+  - [System Context (C4 Level 1)](#system-context-c4-level-1)
+  - [Container Diagram (C4 Level 2)](#container-diagram-c4-level-2)
+  - [Component Diagram (C4 Level 3)](#component-diagram-c4-level-3)
+    - [Pack Engine Core Components](#pack-engine-core-components)
+  - [Data Flow Diagram](#data-flow-diagram)
+    - [Pack Generation Flow](#pack-generation-flow)
+  - [Layer Architecture](#layer-architecture)
+    - [Packs Layer Stack](#packs-layer-stack)
+  - [Technology Stack](#technology-stack)
+    - [Core Dependencies](#core-dependencies)
+    - [Integration Points](#integration-points)
+  - [Architectural Patterns](#architectural-patterns)
+    - [1. Composition Over Inheritance](#1-composition-over-inheritance)
+    - [2. Dependency Injection](#2-dependency-injection)
+    - [3. Pipeline Architecture](#3-pipeline-architecture)
+    - [4. Registry Pattern](#4-registry-pattern)
+  - [Quality Attributes](#quality-attributes)
+    - [Performance Targets](#performance-targets)
+    - [Scalability](#scalability)
+    - [Reliability](#reliability)
+    - [Maintainability](#maintainability)
+  - [Non-Functional Requirements](#non-functional-requirements)
+    - [Security](#security)
+    - [Extensibility](#extensibility)
+    - [Observability](#observability)
+  - [Deployment Architecture](#deployment-architecture)
+    - [Local Development](#local-development)
+    - [Future: Cloud Registry](#future-cloud-registry)
+  - [Migration Strategy](#migration-strategy)
+    - [Phase 1: Foundation (Current)](#phase-1-foundation-current)
+    - [Phase 2: Composition](#phase-2-composition)
+    - [Phase 3: Validation](#phase-3-validation)
+    - [Phase 4: Distribution](#phase-4-distribution)
+  - [Constraints and Assumptions](#constraints-and-assumptions)
+    - [Constraints](#constraints)
+    - [Assumptions](#assumptions)
+  - [Success Metrics](#success-metrics)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Packs System Architecture
 
 ## Executive Summary

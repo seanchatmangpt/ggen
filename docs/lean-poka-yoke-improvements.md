@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Poka-Yoke - Mistake-Proofing Improvements](#poka-yoke---mistake-proofing-improvements)
+  - [Phase 2: ggen.toml + clap-noun-verb Integration](#phase-2-ggentoml--clap-noun-verb-integration)
+  - [Poka-Yoke Categories](#poka-yoke-categories)
+  - [🛡️ PREVENTION POKA-YOKE (Make Errors Impossible)](#-prevention-poka-yoke-make-errors-impossible)
+    - [PY-001: Type-Safe Config Schema (Compile-Time Prevention)](#py-001-type-safe-config-schema-compile-time-prevention)
+    - [PY-002: Path Normalization (Prevention of Path Traversal)](#py-002-path-normalization-prevention-of-path-traversal)
+    - [PY-003: Environment Variable Validation (Pre-Expansion Check)](#py-003-environment-variable-validation-pre-expansion-check)
+    - [PY-004: Circular Dependency Detection (Build-Time Graph Check)](#py-004-circular-dependency-detection-build-time-graph-check)
+    - [PY-005: Regex Validation (Compile-Time Pattern Check)](#py-005-regex-validation-compile-time-pattern-check)
+  - [🔍 DETECTION POKA-YOKE (Immediate Error Detection)](#-detection-poka-yoke-immediate-error-detection)
+    - [PY-006: 1-Second Fail-Fast Validation](#py-006-1-second-fail-fast-validation)
+    - [PY-007: Structured Error Context](#py-007-structured-error-context)
+    - [PY-008: Panic-Safe Design (No Resource Leaks on Error)](#py-008-panic-safe-design-no-resource-leaks-on-error)
+    - [PY-009: Test Coverage on All Error Paths](#py-009-test-coverage-on-all-error-paths)
+    - [PY-010: Clear Error Messages with Examples](#py-010-clear-error-messages-with-examples)
+  - [Summary Table: 10 Poka-Yoke Improvements](#summary-table-10-poka-yoke-improvements)
+  - [Implementation Roadmap](#implementation-roadmap)
+    - [Week 1: Prevention (PY-001 to PY-005)](#week-1-prevention-py-001-to-py-005)
+    - [Week 2: Detection (PY-006 to PY-010)](#week-2-detection-py-006-to-py-010)
+  - [Success Metrics](#success-metrics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Poka-Yoke - Mistake-Proofing Improvements
 ## Phase 2: ggen.toml + clap-noun-verb Integration
 

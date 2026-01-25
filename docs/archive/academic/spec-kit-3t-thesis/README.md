@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Spec-Kit-3T: RDF-First Thesis Generator](#spec-kit-3t-rdf-first-thesis-generator)
+  - [🎯 Features](#-features)
+  - [🚀 Quick Start](#-quick-start)
+    - [Installation](#installation)
+    - [Basic Usage](#basic-usage)
+  - [📦 CLI Commands](#-cli-commands)
+    - [Core Commands](#core-commands)
+    - [🆕 DSPy LLM Enhancement Commands](#-dspy-llm-enhancement-commands)
+  - [🏗️ Architecture](#-architecture)
+    - [Constitutional Equation](#constitutional-equation)
+      - [Deterministic Pipeline (μ)](#deterministic-pipeline-%CE%BC)
+      - [🆕 LLM Enhancement Layer (λ)](#-llm-enhancement-layer-%CE%BB)
+    - [Diataxis Framework](#diataxis-framework)
+  - [📊 Quality Metrics](#-quality-metrics)
+  - [🧪 Testing](#-testing)
+    - [Run Tests](#run-tests)
+    - [Test Suite Breakdown](#test-suite-breakdown)
+  - [🔒 Security](#-security)
+  - [📚 Documentation](#-documentation)
+  - [🎓 Examples](#-examples)
+    - [Minimal Thesis Example](#minimal-thesis-example)
+    - [Generated Output](#generated-output)
+  - [🔧 Development](#-development)
+    - [Prerequisites](#prerequisites)
+    - [Setup Development Environment](#setup-development-environment)
+  - [🚀 CI/CD](#-cicd)
+  - [📈 Performance Benchmarks](#-performance-benchmarks)
+    - [SLO Compliance](#slo-compliance)
+    - [Regression Baselines](#regression-baselines)
+  - [🛠️ Configuration](#-configuration)
+    - [SHACL Schemas](#shacl-schemas)
+    - [Template Engine](#template-engine)
+  - [🤝 Contributing](#-contributing)
+  - [📝 License](#-license)
+  - [🙏 Acknowledgments](#-acknowledgments)
+  - [📞 Support](#-support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Spec-Kit-3T: RDF-First Thesis Generator
 
 [![Tests](https://img.shields.io/badge/tests-48%20passed-success)](tests/)

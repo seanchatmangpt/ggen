@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Crossing the Event Horizon: Paradigm Shift Documentation](#crossing-the-event-horizon-paradigm-shift-documentation)
+  - [🚀 Start Here: Choose Your Path](#-start-here-choose-your-path)
+    - [👨‍💻 I'm a Developer (New to Ontology-Driven Development)](#-im-a-developer-new-to-ontology-driven-development)
+      - [Week 1: The Event Horizon](#week-1-the-event-horizon)
+      - [Week 2: Thinking in Triples](#week-2-thinking-in-triples)
+      - [Week 3: Production Patterns](#week-3-production-patterns)
+      - [Week 4: Deployment Readiness](#week-4-deployment-readiness)
+    - [🤔 I'm Skeptical: "Why Should I Care?"](#-im-skeptical-why-should-i-care)
+    - [👨‍💼 I'm a Manager: "How Do I Sell This to My Team?"](#-im-a-manager-how-do-i-sell-this-to-my-team)
+    - [🏗️ I'm an Architect: "How Does This Fit My System?"](#-im-an-architect-how-does-this-fit-my-system)
+  - [📚 Documentation by Category](#-documentation-by-category)
+    - [Fundamentals (P0: Critical - Week 1)](#fundamentals-p0-critical---week-1)
+    - [Skeptics & Resistance Management (P0: Critical - Week 1)](#skeptics--resistance-management-p0-critical---week-1)
+    - [Learning Paths (P1: High Priority - Month 1)](#learning-paths-p1-high-priority---month-1)
+    - [Business Case & ROI (P1: High Priority - Month 1)](#business-case--roi-p1-high-priority---month-1)
+    - [Mental Models (P2: Medium Priority - Month 2)](#mental-models-p2-medium-priority---month-2)
+    - [Anti-Patterns (P2: Medium Priority - Month 2)](#anti-patterns-p2-medium-priority---month-2)
+    - [Case Studies (P2: Medium Priority - Month 3)](#case-studies-p2-medium-priority---month-3)
+    - [Migration Guides (P2: Medium Priority - Month 3)](#migration-guides-p2-medium-priority---month-3)
+    - [Troubleshooting (P1: High Priority - Month 1)](#troubleshooting-p1-high-priority---month-1)
+  - [🎯 Hands-On Exercises](#-hands-on-exercises)
+    - [Beginner Level (Weeks 1-2)](#beginner-level-weeks-1-2)
+    - [Intermediate Level (Weeks 2-3)](#intermediate-level-weeks-2-3)
+    - [Advanced Level (Week 4+)](#advanced-level-week-4)
+  - [📖 Related Documentation](#-related-documentation)
+    - [Existing ggen Documentation](#existing-ggen-documentation)
+    - [External Resources](#external-resources)
+  - [🎓 Certification and Mastery](#-certification-and-mastery)
+    - [Beginner Certification (2 Weeks)](#beginner-certification-2-weeks)
+    - [Intermediate Certification (6 Weeks)](#intermediate-certification-6-weeks)
+    - [Advanced Certification (12 Weeks)](#advanced-certification-12-weeks)
+  - [📊 Progress Tracking](#-progress-tracking)
+    - [Your Learning Journey](#your-learning-journey)
+      - [Week 1: Event Horizon](#week-1-event-horizon)
+      - [Week 2: RDF Mastery](#week-2-rdf-mastery)
+      - [Week 3: Production Patterns](#week-3-production-patterns-1)
+      - [Week 4: Deployment](#week-4-deployment)
+  - [🆘 Getting Help](#-getting-help)
+    - [If You're Stuck](#if-youre-stuck)
+    - [Common Questions](#common-questions)
+  - [📞 Contact and Feedback](#-contact-and-feedback)
+  - [📝 Document Status](#-document-status)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Crossing the Event Horizon: Paradigm Shift Documentation
 
 **Welcome to the paradigm shift from code-first to RDF-first development.**

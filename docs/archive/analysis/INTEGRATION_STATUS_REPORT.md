@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Integration Status Report](#integration-status-report)
+  - [Summary](#summary)
+  - [Integration Test Files](#integration-test-files)
+    - [Main Integration Tests (`tests/integration/`)](#main-integration-tests-testsintegration)
+    - [Crate-Level Integration Tests](#crate-level-integration-tests)
+  - [External Integrations](#external-integrations)
+    - [1. Docker & Testcontainers ✅](#1-docker--testcontainers-)
+    - [2. OpenTelemetry (OTEL) ✅](#2-opentelemetry-otel-)
+    - [3. Weaver ✅](#3-weaver-)
+    - [4. AI/LLM Integration ✅](#4-aillm-integration-)
+    - [5. Marketplace Integration ✅](#5-marketplace-integration-)
+    - [6. Template System Integration ✅](#6-template-system-integration-)
+    - [7. RDF/SPARQL Integration ✅](#7-rdfsparql-integration-)
+    - [8. CLI Integration ✅](#8-cli-integration-)
+  - [Compilation Status](#compilation-status)
+  - [Test Execution Status](#test-execution-status)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+  - [Infrastructure Dependencies](#infrastructure-dependencies)
+  - [Integration Points Summary](#integration-points-summary)
+  - [Recommendations](#recommendations)
+    - [Quick Validation Commands](#quick-validation-commands)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Integration Status Report
 
 **Generated:** $(date)

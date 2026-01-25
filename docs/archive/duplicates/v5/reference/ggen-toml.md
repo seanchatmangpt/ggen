@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen.toml Reference](#ggentoml-reference)
+  - [Complete Example](#complete-example)
+  - [Section: `[project]`](#section-project)
+    - [`name` (required)](#name-required)
+    - [`version` (required)](#version-required)
+    - [`description` (optional)](#description-optional)
+    - [`author` (optional)](#author-optional)
+    - [`license` (optional)](#license-optional)
+  - [Section: `[rdf]`](#section-rdf)
+    - [`ontology_file` (required)](#ontology_file-required)
+    - [`schema_file` (optional)](#schema_file-optional)
+    - [`base_uri` (required)](#base_uri-required)
+    - [`prefixes` (optional)](#prefixes-optional)
+  - [Section: `[templates]`](#section-templates)
+    - [`source_dir` (required)](#source_dir-required)
+    - [`output_dir` (required)](#output_dir-required)
+    - [`backup_enabled` (optional, default: `false`)](#backup_enabled-optional-default-false)
+  - [Section: `[sparql]`](#section-sparql)
+    - [`timeout` (optional, default: `30`)](#timeout-optional-default-30)
+    - [`max_results` (optional, default: `10000`)](#max_results-optional-default-10000)
+    - [`cache_enabled` (optional, default: `true`)](#cache_enabled-optional-default-true)
+  - [Section: `[logging]`](#section-logging)
+    - [`level` (optional, default: `"info"`)](#level-optional-default-info)
+    - [`format` (optional, default: `"text"`)](#format-optional-default-text)
+    - [`output` (optional, default: `"stdout"`)](#output-optional-default-stdout)
+  - [Section: `[security]`](#section-security)
+    - [`validate_paths` (optional, default: `true`)](#validate_paths-optional-default-true)
+    - [`path_traversal_protection` (optional, default: `true`)](#path_traversal_protection-optional-default-true)
+  - [Real-World Examples](#real-world-examples)
+    - [Example 1: Thesis Generation](#example-1-thesis-generation)
+    - [Example 2: ASTRO State Machine](#example-2-astro-state-machine)
+    - [Example 3: Minimal Configuration](#example-3-minimal-configuration)
+  - [Configuration Validation](#configuration-validation)
+    - [Common Errors](#common-errors)
+      - [Error: Missing required field](#error-missing-required-field)
+      - [Error: Invalid ontology file path](#error-invalid-ontology-file-path)
+      - [Error: Invalid base URI](#error-invalid-base-uri)
+  - [Best Practices](#best-practices)
+    - [1. Separate Schema and Content](#1-separate-schema-and-content)
+    - [2. Use Meaningful Project Names](#2-use-meaningful-project-names)
+    - [3. Enable Backups During Development](#3-enable-backups-during-development)
+    - [4. Set Appropriate Timeouts](#4-set-appropriate-timeouts)
+    - [5. Use Prefixes for Readability](#5-use-prefixes-for-readability)
+  - [Environment Variables](#environment-variables)
+  - [Version History](#version-history)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen.toml Reference
 
 The `ggen.toml` file is the project manifest for ggen code generation. It defines:

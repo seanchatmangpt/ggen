@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Testing Guide (Chicago TDD)](#testing-guide-chicago-tdd)
+  - [State-Based Testing Philosophy](#state-based-testing-philosophy)
+  - [Test Organization Structure](#test-organization-structure)
+  - [AAA Pattern (Arrange-Act-Assert)](#aaa-pattern-arrange-act-assert)
+  - [Real Collaborators Pattern](#real-collaborators-pattern)
+    - [When to Mock](#when-to-mock)
+  - [Test Categories](#test-categories)
+    - [Unit Tests (20% effort, 80% coverage)](#unit-tests-20-effort-80-coverage)
+    - [Integration Tests](#integration-tests)
+    - [Performance Tests](#performance-tests)
+    - [Security Tests](#security-tests)
+  - [Test Data & Fixtures](#test-data--fixtures)
+  - [Coverage Strategy (80/20 Rule)](#coverage-strategy-8020-rule)
+    - [HIGH PRIORITY (Test thoroughly):](#high-priority-test-thoroughly)
+    - [MEDIUM PRIORITY (Test selectively):](#medium-priority-test-selectively)
+    - [LOW PRIORITY (Test minimally):](#low-priority-test-minimally)
+  - [Test Metrics](#test-metrics)
+  - [Common Pitfalls to Avoid](#common-pitfalls-to-avoid)
+  - [Running Tests](#running-tests)
+  - [Critical Rules](#critical-rules)
+  - [Examples](#examples)
+    - [Complete Unit Test](#complete-unit-test)
+    - [Complete Integration Test](#complete-integration-test)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Testing Guide (Chicago TDD)
 
 ## State-Based Testing Philosophy

@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Polyglot Code Generation with ggen](#polyglot-code-generation-with-ggen)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+  - [Pattern 1: Concurrent HTTP Services (Go/Rust)](#pattern-1-concurrent-http-services-gorust)
+    - [Description](#description)
+    - [Shared Domain Ontology](#shared-domain-ontology)
+    - [Generated Rust (Axum) Service](#generated-rust-axum-service)
+    - [Generated Go (Gin) Service](#generated-go-gin-service)
+    - [Comparison: Idiomatic Patterns](#comparison-idiomatic-patterns)
+  - [Pattern 2: Mobile Development (React Native/Flutter)](#pattern-2-mobile-development-react-nativeflutter)
+    - [Description](#description-1)
+    - [Generated React Native](#generated-react-native)
+    - [Generated Flutter (Dart)](#generated-flutter-dart)
+  - [Pattern 3: Backend Services (Java/Kotlin)](#pattern-3-backend-services-javakotlin)
+    - [Description](#description-2)
+    - [Generated Java (Spring Boot)](#generated-java-spring-boot)
+    - [Generated Kotlin](#generated-kotlin)
+  - [Pattern 4: CLI Tools (Go/Rust)](#pattern-4-cli-tools-gorust)
+    - [Description](#description-3)
+    - [Generated Go CLI](#generated-go-cli)
+  - [Pattern 5: Backend-as-a-Service (PHP/Laravel)](#pattern-5-backend-as-a-service-phplaravel)
+    - [Description](#description-4)
+    - [Generated PHP (Laravel)](#generated-php-laravel)
+  - [Tera Template System](#tera-template-system)
+    - [Multi-Language Router Template](#multi-language-router-template)
+  - [Key Advantages of Polyglot Generation](#key-advantages-of-polyglot-generation)
+  - [Language Support Matrix](#language-support-matrix)
+  - [Best Practices for Polyglot Generation](#best-practices-for-polyglot-generation)
+  - [References](#references)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Polyglot Code Generation with ggen
 
 > Generate semantically consistent code across 10+ languages and frameworks from a single RDF ontology

@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [FMEA Risk Priority Number (RPN) Analysis - ggen Codebase](#fmea-risk-priority-number-rpn-analysis---ggen-codebase)
+  - [Executive Summary](#executive-summary)
+  - [Top 20 Failure Modes Ranked by RPN](#top-20-failure-modes-ranked-by-rpn)
+    - [CRITICAL PRIORITY (RPN 400-1000)](#critical-priority-rpn-400-1000)
+  - [FMEA Analysis: FM-001 - Panic Points in Production Code](#fmea-analysis-fm-001---panic-points-in-production-code)
+  - [FMEA Analysis: FM-002 - Missing Test Coverage (698 src vs 193 tests)](#fmea-analysis-fm-002---missing-test-coverage-698-src-vs-193-tests)
+  - [FMEA Analysis: FM-003 - API Breaking Changes Without Deprecation](#fmea-analysis-fm-003---api-breaking-changes-without-deprecation)
+  - [FMEA Analysis: FM-004 - DatasetFormat Removal (87 errors)](#fmea-analysis-fm-004---datasetformat-removal-87-errors)
+    - [HIGH PRIORITY (RPN 200-399)](#high-priority-rpn-200-399)
+  - [FMEA Analysis: FM-005 - Observation::new() Signature Change (18 errors)](#fmea-analysis-fm-005---observationnew-signature-change-18-errors)
+  - [FMEA Analysis: FM-006 - ObservationType Enum Variants Removed (46 errors)](#fmea-analysis-fm-006---observationtype-enum-variants-removed-46-errors)
+  - [FMEA Analysis: FM-007 - Invariant/Receipt/TimingGuarantee API Changes](#fmea-analysis-fm-007---invariantreceipttimingguarantee-api-changes)
+  - [FMEA Analysis: FM-008 - ggen-marketplace-v2 API Changes](#fmea-analysis-fm-008---ggen-marketplace-v2-api-changes)
+  - [FMEA Analysis: FM-009 - DeltaSigmaProposal Struct Missing Fields (30 errors)](#fmea-analysis-fm-009---deltasigmaproposal-struct-missing-fields-30-errors)
+  - [FMEA Analysis: FM-010 - Observation Struct Missing Fields (18 errors)](#fmea-analysis-fm-010---observation-struct-missing-fields-18-errors)
+  - [FMEA Analysis: FM-011 - ObservationSource Enum Missing Variants (16 errors)](#fmea-analysis-fm-011---observationsource-enum-missing-variants-16-errors)
+  - [FMEA Analysis: FM-012 - ValidationContext Struct Missing Fields (10 errors)](#fmea-analysis-fm-012---validationcontext-struct-missing-fields-10-errors)
+  - [FMEA Analysis: FM-013 - ValidationEvidence Struct Missing Fields (9 errors)](#fmea-analysis-fm-013---validationevidence-struct-missing-fields-9-errors)
+  - [FMEA Analysis: FM-014 - PatternType Enum Missing Drift Variant (8 errors)](#fmea-analysis-fm-014---patterntype-enum-missing-drift-variant-8-errors)
+  - [FMEA Analysis: FM-015 - Missing validate() Methods on Validators (9 errors)](#fmea-analysis-fm-015---missing-validate-methods-on-validators-9-errors)
+  - [FMEA Analysis: FM-016 - Pipeline Struct Private Field Access (12 errors)](#fmea-analysis-fm-016---pipeline-struct-private-field-access-12-errors)
+    - [MEDIUM PRIORITY (RPN 100-199)](#medium-priority-rpn-100-199)
+  - [FMEA Analysis: FM-017 - ProposerConfig Struct Missing Fields (6 errors)](#fmea-analysis-fm-017---proposerconfig-struct-missing-fields-6-errors)
+  - [FMEA Analysis: FM-018 - ProposedChange Struct Missing Fields (6 errors)](#fmea-analysis-fm-018---proposedchange-struct-missing-fields-6-errors)
+  - [FMEA Analysis: FM-019 - Type Mismatches (18 errors)](#fmea-analysis-fm-019---type-mismatches-18-errors)
+  - [FMEA Analysis: FM-020 - DoDError Missing Serialization (1 error)](#fmea-analysis-fm-020---doderror-missing-serialization-1-error)
+  - [Summary Statistics](#summary-statistics)
+    - [RPN Distribution](#rpn-distribution)
+    - [Failure Mode Category Breakdown](#failure-mode-category-breakdown)
+    - [Top 5 Root Causes](#top-5-root-causes)
+    - [Impact Analysis](#impact-analysis)
+  - [Recommended Action Plan](#recommended-action-plan)
+    - [Phase 1: STOP THE LINE (CRITICAL - RPN 400+)](#phase-1-stop-the-line-critical---rpn-400)
+    - [Phase 2: HIGH PRIORITY (RPN 200-399)](#phase-2-high-priority-rpn-200-399)
+    - [Phase 3: MEDIUM PRIORITY (RPN 100-199)](#phase-3-medium-priority-rpn-100-199)
+    - [Phase 4: LOW PRIORITY (RPN < 100)](#phase-4-low-priority-rpn--100)
+  - [Continuous Improvement Recommendations](#continuous-improvement-recommendations)
+    - [Process Improvements](#process-improvements)
+    - [Technical Improvements](#technical-improvements)
+  - [Metrics Dashboard](#metrics-dashboard)
+    - [Leading Indicators (Preventive)](#leading-indicators-preventive)
+    - [Lagging Indicators (Detective)](#lagging-indicators-detective)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # FMEA Risk Priority Number (RPN) Analysis - ggen Codebase
 
 **Analysis Date**: 2025-11-20

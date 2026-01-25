@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DSPy Evaluation: Implementation Examples](#dspy-evaluation-implementation-examples)
+  - [Python DSPy Evaluation Patterns](#python-dspy-evaluation-patterns)
+    - [Basic Evaluation](#basic-evaluation)
+    - [Custom Metrics](#custom-metrics)
+    - [Built-in Metrics](#built-in-metrics)
+    - [Optimizer Integration](#optimizer-integration)
+  - [Proposed Rust Implementation](#proposed-rust-implementation)
+    - [Basic Evaluation](#basic-evaluation-1)
+    - [Custom Metrics](#custom-metrics-1)
+    - [Built-in Metrics Usage](#built-in-metrics-usage)
+    - [Parallel Evaluation](#parallel-evaluation)
+    - [Error Handling](#error-handling)
+    - [Export Results](#export-results)
+    - [Display Results](#display-results)
+    - [Multi-Metric Evaluation](#multi-metric-evaluation)
+    - [Optimizer Integration](#optimizer-integration-1)
+    - [Progressive Validation](#progressive-validation)
+    - [Hyperparameter Search](#hyperparameter-search)
+    - [Comparison Evaluation](#comparison-evaluation)
+  - [Testing Patterns](#testing-patterns)
+    - [Unit Tests](#unit-tests)
+    - [Benchmark Tests](#benchmark-tests)
+  - [Quick Reference](#quick-reference)
+    - [Type Signatures](#type-signatures)
+    - [Common Patterns](#common-patterns)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DSPy Evaluation: Implementation Examples
 
 **Quick Reference**: Common evaluation patterns and metric implementations for Rust DSPy

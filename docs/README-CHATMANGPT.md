@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ChatmanGPT Documentation Index](#chatmangpt-documentation-index)
+  - [Core Documents (Start Here)](#core-documents-start-here)
+    - [1. **[CHATMANGPT-EXECUTIVE-SUMMARY.md](./CHATMANGPT-EXECUTIVE-SUMMARY.md)** ⭐](#1-chatmangpt-executive-summarymdchatmangpt-executive-summarymd-)
+  - [Strategic Documents](#strategic-documents)
+    - [2. **[CHATMANGPT-BRAND-POSITIONING.md](./CHATMANGPT-BRAND-POSITIONING.md)**](#2-chatmangpt-brand-positioningmdchatmangpt-brand-positioningmd)
+    - [3. **[CHATMANGPT-FINANCIAL-MODEL.md](./CHATMANGPT-FINANCIAL-MODEL.md)**](#3-chatmangpt-financial-modelmdchatmangpt-financial-modelmd)
+  - [Technical Documents](#technical-documents)
+    - [4. **[MCP-TEMPLATE-PACK-INTEGRATION-SPEC.ttl](../.specify/MCP-TEMPLATE-PACK-INTEGRATION-SPEC.ttl)** 🏗️](#4-mcp-template-pack-integration-specttlspecifymcp-template-pack-integration-specttl-)
+    - [5. **[CHATMANGPT-END-TO-END-DEMO-SPEC.md](./CHATMANGPT-END-TO-END-DEMO-SPEC.md)** 🎬](#5-chatmangpt-end-to-end-demo-specmdchatmangpt-end-to-end-demo-specmd-)
+  - [Comparison Documents](#comparison-documents)
+    - [Internal References](#internal-references)
+  - [Quick Navigation by Role](#quick-navigation-by-role)
+    - [For Sales & Business Development](#for-sales--business-development)
+    - [For Engineering & Architecture](#for-engineering--architecture)
+    - [For Investors & Board Members](#for-investors--board-members)
+    - [For Customer Success & Onboarding](#for-customer-success--onboarding)
+  - [Key Concepts Explained](#key-concepts-explained)
+    - [The Core Thesis](#the-core-thesis)
+    - [The Safety Model](#the-safety-model)
+    - [The Business Model](#the-business-model)
+    - [The Market Opportunity](#the-market-opportunity)
+    - [Why We Win](#why-we-win)
+  - [Timeline & Milestones](#timeline--milestones)
+    - [Immediate (Next 12 Weeks)](#immediate-next-12-weeks)
+    - [Short-term (Next 6 Months)](#short-term-next-6-months)
+    - [Medium-term (Next 12 Months)](#medium-term-next-12-months)
+    - [Long-term (18-24 Months)](#long-term-18-24-months)
+  - [Success Metrics](#success-metrics)
+    - [Year 1 Targets](#year-1-targets)
+    - [Year 3 Targets](#year-3-targets)
+  - [FAQ](#faq)
+  - [Document Status](#document-status)
+  - [Next Steps](#next-steps)
+  - [Questions?](#questions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ChatmanGPT Documentation Index
 
 **ChatmanGPT**: The Integrator-Killer — replacing integrators with a deterministic, auditable, reversible compilation system.

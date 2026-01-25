@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [12. ERROR SIGNALS **](#12-error-signals-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [Exit Codes](#exit-codes)
+    - [Error Format (Text)](#error-format-text)
+    - [Error Format (JSON)](#error-format-json)
+  - [Error Categories](#error-categories)
+    - [E0001: Manifest Errors](#e0001-manifest-errors)
+    - [E0002: Ontology Errors](#e0002-ontology-errors)
+    - [E0003: SPARQL Errors](#e0003-sparql-errors)
+    - [E0004: Template Errors](#e0004-template-errors)
+    - [E0005: File I/O Errors](#e0005-file-io-errors)
+    - [E0006: Timeout Errors](#e0006-timeout-errors)
+  - [Error Handling in Code](#error-handling-in-code)
+  - [CI/CD Integration](#cicd-integration)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [The Andon Connection](#the-andon-connection)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 12. ERROR SIGNALS **
 
 *A tool that fails silently is worse than one that fails loudly.*

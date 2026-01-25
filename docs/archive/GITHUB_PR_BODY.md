@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DEB + gVisor End-to-End Testing Pipeline](#deb--gvisor-end-to-end-testing-pipeline)
+  - [Summary](#summary)
+  - [Key Features](#key-features)
+    - [🚀 Production-Ready Debian Package](#-production-ready-debian-package)
+    - [🛡️ gVisor Sandbox Compliance](#-gvisor-sandbox-compliance)
+    - [⚡ 5-Layer Fail-Fast Poka-Yoke](#-5-layer-fail-fast-poka-yoke)
+    - [🎯 Single-Command Automation](#-single-command-automation)
+  - [Artifacts Published](#artifacts-published)
+  - [Installation](#installation)
+    - [Debian/Ubuntu (Recommended)](#debianubuntu-recommended)
+    - [Docker + gVisor](#docker--gvisor)
+    - [Kubernetes + gVisor RuntimeClass](#kubernetes--gvisor-runtimeclass)
+  - [Testing Evidence](#testing-evidence)
+    - [✅ All Phases Validated](#-all-phases-validated)
+    - [Receipts (Evidence-Based)](#receipts-evidence-based)
+  - [Breaking Changes](#breaking-changes)
+    - [🚨 Major Cleanup: 24,358 Lines Removed](#-major-cleanup-24358-lines-removed)
+  - [Documentation](#documentation)
+  - [Reviewer Checklist](#reviewer-checklist)
+    - [Quick Validation (5 min)](#quick-validation-5-min)
+    - [Installation Test (10 min)](#installation-test-10-min)
+    - [gVisor Test (Optional, 15 min if Docker + gVisor available)](#gvisor-test-optional-15-min-if-docker--gvisor-available)
+  - [Performance Metrics](#performance-metrics)
+  - [Status](#status)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DEB + gVisor End-to-End Testing Pipeline
 
 ## Summary

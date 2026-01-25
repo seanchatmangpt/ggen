@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Competitive Analysis Executive Summary](#competitive-analysis-executive-summary)
+  - [PhD Thesis: Ontology-Driven Code Generation](#phd-thesis-ontology-driven-code-generation)
+  - [TL;DR](#tldr)
+  - [Positioning Statement](#positioning-statement)
+  - [Competitive Landscape (vs. 10 Major Competitors)](#competitive-landscape-vs-10-major-competitors)
+    - [Academic Research](#academic-research)
+    - [Industry Tools](#industry-tools)
+  - [Novelty Assessment: **STRONG**](#novelty-assessment-strong)
+    - [Truly Novel Contributions ✓](#truly-novel-contributions-%E2%9C%93)
+    - [Incremental Contributions ~](#incremental-contributions-)
+    - [Claims vs. Evidence](#claims-vs-evidence)
+  - [Coverage Analysis](#coverage-analysis)
+    - [Well Covered ✓](#well-covered-%E2%9C%93)
+    - [CRITICAL GAPS ✗](#critical-gaps-%E2%9C%97)
+  - [Practical Value: **HIGH**](#practical-value-high)
+    - [Use Cases: Compelling ✓](#use-cases-compelling-%E2%9C%93)
+    - [Implementation: Realistic ✓](#implementation-realistic-%E2%9C%93)
+    - [Adoption Likelihood: **MODERATE** (20-30% in 5 years)](#adoption-likelihood-moderate-20-30-in-5-years)
+  - [Research Impact: **HIGH** (within niche)](#research-impact-high-within-niche)
+    - [Opens Research Directions ✓✓](#opens-research-directions-%E2%9C%93%E2%9C%93)
+    - [Publication Venues (Ranked)](#publication-venues-ranked)
+  - [Audience Alignment](#audience-alignment)
+    - [PhD-Level Computer Science: **YES** (with revisions)](#phd-level-computer-science-yes-with-revisions)
+    - [Publishability: **STRONG** (after revisions)](#publishability-strong-after-revisions)
+    - [Industry Resonance: **HIGH**](#industry-resonance-high)
+  - [Competitive Advantages (Top 5)](#competitive-advantages-top-5)
+  - [Competitive Weaknesses (Top 5)](#competitive-weaknesses-top-5)
+  - [Critical Path to Defense](#critical-path-to-defense)
+    - [MANDATORY (0-3 months):](#mandatory-0-3-months)
+    - [STRONGLY RECOMMENDED (3-6 months):](#strongly-recommended-3-6-months)
+    - [RECOMMENDED:](#recommended)
+  - [Scorecard Summary](#scorecard-summary)
+  - [Final Verdict](#final-verdict)
+    - [Is This Work Competitive? → **YES**](#is-this-work-competitive-%E2%86%92-yes)
+    - [PhD Viability: **YES** (with revisions)](#phd-viability-yes-with-revisions)
+    - [Key Recommendations](#key-recommendations)
+  - [Impact Prediction](#impact-prediction)
+  - [Bottom Line](#bottom-line)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Competitive Analysis Executive Summary
 ## PhD Thesis: Ontology-Driven Code Generation
 

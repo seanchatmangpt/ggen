@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Merge Mode Feature](#merge-mode-feature)
+  - [Overview](#overview)
+  - [Problem Statement](#problem-statement)
+  - [Conflict Marker Syntax](#conflict-marker-syntax)
+    - [Marker Sections](#marker-sections)
+  - [Usage](#usage)
+    - [Enabling Merge Mode](#enabling-merge-mode)
+    - [Template Changes](#template-changes)
+    - [Initial Generation](#initial-generation)
+    - [Adding Manual Code](#adding-manual-code)
+    - [Subsequent Syncs](#subsequent-syncs)
+  - [Conflict Detection](#conflict-detection)
+    - [Scenario 1: Manual Code in Generated Section](#scenario-1-manual-code-in-generated-section)
+    - [Scenario 2: Overlapping Edits](#scenario-2-overlapping-edits)
+  - [Workflow Examples](#workflow-examples)
+    - [Example 1: Iterative Development](#example-1-iterative-development)
+    - [Example 2: Team Collaboration](#example-2-team-collaboration)
+    - [Example 3: CI/CD Verification](#example-3-cicd-verification)
+  - [Best Practices](#best-practices)
+  - [Advanced Features](#advanced-features)
+    - [Custom Marker Syntax](#custom-marker-syntax)
+    - [Multiple Manual Sections](#multiple-manual-sections)
+    - [Marker Metadata](#marker-metadata)
+  - [Troubleshooting](#troubleshooting)
+    - [Issue: Markers not detected](#issue-markers-not-detected)
+    - [Issue: Manual section deleted](#issue-manual-section-deleted)
+    - [Issue: Conflicts on every sync](#issue-conflicts-on-every-sync)
+  - [Security Considerations](#security-considerations)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Merge Mode Feature
 
 ## Overview

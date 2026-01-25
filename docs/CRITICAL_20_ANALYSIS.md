@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CRITICAL 20% ANALYSIS - GGEN CODEBASE](#critical-20-analysis---ggen-codebase)
+  - [EXECUTIVE SUMMARY](#executive-summary)
+  - [CRITICAL 20% MODULES (10 hours effort, 80% value)](#critical-20-modules-10-hours-effort-80-value)
+    - [1. **ggen-core/lifecycle/production.rs** 🔴 CRITICAL](#1-ggen-corelifecycleproductionrs--critical)
+    - [2. **ggen-domain/marketplace/install.rs** 🔴 CRITICAL](#2-ggen-domainmarketplaceinstallrs--critical)
+    - [3. **ggen-core/registry.rs** 🔴 CRITICAL](#3-ggen-coreregistryrs--critical)
+    - [4. **ggen-domain/marketplace/search.rs** 🔴 CRITICAL](#4-ggen-domainmarketplacesearchrs--critical)
+    - [5. **ggen-core/generator.rs** 🟠 HIGH](#5-ggen-coregeneratorrs--high)
+    - [6. **ggen-ai/client.rs** 🟠 HIGH](#6-ggen-aiclientrs--high)
+    - [7. **ggen-marketplace/search/scoring.rs** 🟠 HIGH](#7-ggen-marketplacesearchscoringrs--high)
+    - [8. **ggen-core/cache.rs** 🟠 HIGH](#8-ggen-corecachers--high)
+  - [HIGH PRIORITY MODULES (6 hours effort, 15% value)](#high-priority-modules-6-hours-effort-15-value)
+    - [9. **ggen-marketplace/search/tantivy_engine.rs** 🟡 MEDIUM](#9-ggen-marketplacesearchtantivy_enginers--medium)
+    - [10. **ggen-core/templates/generator.rs** 🟡 MEDIUM](#10-ggen-coretemplatesgeneratorrs--medium)
+    - [11. **ggen-domain/marketplace/validate.rs** 🟡 MEDIUM](#11-ggen-domainmarketplacevalidaters--medium)
+    - [12. **ggen-core/lifecycle/hooks.rs** 🟡 MEDIUM](#12-ggen-corelifecyclehooksrs--medium)
+    - [13-16. **Other lifecycle modules** 🟡 MEDIUM](#13-16-other-lifecycle-modules--medium)
+  - [MEDIUM PRIORITY (4 hours effort, 4% value)](#medium-priority-4-hours-effort-4-value)
+    - [API Endpoint Handling](#api-endpoint-handling)
+    - [Data Parsing](#data-parsing)
+    - [Configuration Loading](#configuration-loading)
+  - [LOW PRIORITY (Skip or minimal testing, 1% value)](#low-priority-skip-or-minimal-testing-1-value)
+    - [Display/Formatting](#displayformatting)
+    - [Logging](#logging)
+    - [Utility Functions](#utility-functions)
+    - [Simple Wrappers](#simple-wrappers)
+  - [80/20 VALIDATION CHECKLIST](#8020-validation-checklist)
+  - [RECOMMENDED TEST STRATEGY](#recommended-test-strategy)
+    - [Phase 1: Critical Modules (10 hours)](#phase-1-critical-modules-10-hours)
+    - [Phase 2: High Priority (6 hours)](#phase-2-high-priority-6-hours)
+    - [Phase 3: Medium Priority (4 hours)](#phase-3-medium-priority-4-hours)
+    - [Phase 4: LOW Priority (Skip)](#phase-4-low-priority-skip)
+  - [COMPLEXITY METRICS BY CRATE](#complexity-metrics-by-crate)
+  - [EXPECTED OUTCOMES](#expected-outcomes)
+  - [NEXT STEPS](#next-steps)
+  - [CONCLUSION](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CRITICAL 20% ANALYSIS - GGEN CODEBASE
 
 **Analysis Date**: 2025-11-16

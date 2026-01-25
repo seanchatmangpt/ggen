@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [7. TEMPLATE RENDERING **](#7-template-rendering-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [Tera Syntax](#tera-syntax)
+    - [Variable Access](#variable-access)
+    - [Built-in Filters](#built-in-filters)
+    - [Custom Filters](#custom-filters)
+    - [Control Flow](#control-flow)
+    - [Default Values](#default-values)
+    - [Whitespace Control](#whitespace-control)
+  - [Template Organization](#template-organization)
+    - [File-Based Templates](#file-based-templates)
+    - [Inline Templates](#inline-templates)
+    - [Template Includes](#template-includes)
+    - [Macros](#macros)
+  - [The All-Results Pattern](#the-all-results-pattern)
+  - [Error Handling](#error-handling)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [Template Best Practices](#template-best-practices)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 7. TEMPLATE RENDERING **
 
 *A template is a shape waiting to be filled.*

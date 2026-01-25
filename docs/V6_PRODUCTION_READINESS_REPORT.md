@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [v6.0.0 Production Readiness Analysis & Breaking Changes](#v600-production-readiness-analysis--breaking-changes)
+  - [Executive Summary](#executive-summary)
+  - [🔴 CRITICAL: Security Vulnerabilities](#-critical-security-vulnerabilities)
+    - [1. SPARQL Injection Vulnerabilities (SEVERITY: CRITICAL)](#1-sparql-injection-vulnerabilities-severity-critical)
+    - [2. Path Traversal Protection Not Universally Enforced (SEVERITY: HIGH)](#2-path-traversal-protection-not-universally-enforced-severity-high)
+    - [3. Rate Limiting Not Implemented (SEVERITY: HIGH)](#3-rate-limiting-not-implemented-severity-high)
+  - [🟡 HIGH: Resource Exhaustion & DoS Protection](#-high-resource-exhaustion--dos-protection)
+    - [4. Unbounded Resource Usage (SEVERITY: HIGH)](#4-unbounded-resource-usage-severity-high)
+    - [5. Missing Timeout Enforcement (SEVERITY: MEDIUM)](#5-missing-timeout-enforcement-severity-medium)
+  - [🟡 MEDIUM: Observability Gaps](#-medium-observability-gaps)
+    - [6. Missing Telemetry in Critical Paths (SEVERITY: MEDIUM)](#6-missing-telemetry-in-critical-paths-severity-medium)
+    - [7. Poor Error Messages (SEVERITY: MEDIUM)](#7-poor-error-messages-severity-medium)
+    - [8. No Graceful Degradation (SEVERITY: LOW)](#8-no-graceful-degradation-severity-low)
+  - [Breaking Changes Summary](#breaking-changes-summary)
+  - [Migration Guide for v6.0.0](#migration-guide-for-v600)
+    - [Step 1: Update SPARQL Usage](#step-1-update-sparql-usage)
+    - [Step 2: Update Path Handling](#step-2-update-path-handling)
+    - [Step 3: Add Configuration](#step-3-add-configuration)
+  - [Recommended Actions](#recommended-actions)
+    - [Immediate (Pre-v6.0.0 Release)](#immediate-pre-v600-release)
+    - [Next Release (v6.1.0)](#next-release-v610)
+    - [Future (v6.2.0)](#future-v620)
+  - [Production Deployment Checklist](#production-deployment-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # v6.0.0 Production Readiness Analysis & Breaking Changes
 
 **Date**: 2026-01-24

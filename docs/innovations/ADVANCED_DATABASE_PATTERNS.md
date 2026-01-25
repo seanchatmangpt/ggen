@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Advanced Database Code Generation Patterns](#advanced-database-code-generation-patterns)
+  - [Overview](#overview)
+  - [Pattern 1: Type-Safe Query Builders](#pattern-1-type-safe-query-builders)
+    - [Description](#description)
+    - [External Packages](#external-packages)
+    - [RDF Ontology for Queries](#rdf-ontology-for-queries)
+    - [Generated TypeScript Query Builder](#generated-typescript-query-builder)
+    - [Generated Drizzle ORM](#generated-drizzle-orm)
+  - [Pattern 2: Multi-Tenancy & Row-Level Security](#pattern-2-multi-tenancy--row-level-security)
+    - [Description](#description-1)
+    - [RDF Ontology for Multi-Tenancy](#rdf-ontology-for-multi-tenancy)
+    - [Generated PostgreSQL RLS Policies](#generated-postgresql-rls-policies)
+    - [Generated TypeScript Multi-Tenant Client](#generated-typescript-multi-tenant-client)
+  - [Pattern 3: Distributed Caching & Query Result Caching](#pattern-3-distributed-caching--query-result-caching)
+    - [Description](#description-2)
+    - [RDF Ontology for Caching](#rdf-ontology-for-caching)
+    - [Generated Caching Layer](#generated-caching-layer)
+  - [Pattern 4: Sharding & Partitioning Strategies](#pattern-4-sharding--partitioning-strategies)
+    - [Description](#description-3)
+    - [RDF Ontology for Sharding](#rdf-ontology-for-sharding)
+    - [Generated Sharding Layer](#generated-sharding-layer)
+  - [Pattern 5: Advanced Indexing & Query Optimization](#pattern-5-advanced-indexing--query-optimization)
+    - [Description](#description-4)
+    - [RDF Ontology for Indexes](#rdf-ontology-for-indexes)
+    - [Generated Index Migrations](#generated-index-migrations)
+  - [Best Practices](#best-practices)
+  - [References](#references)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Advanced Database Code Generation Patterns
 
 > Hyper-advanced database patterns: query builders, multi-tenancy, sharding, caching strategies, and optimization

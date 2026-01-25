@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Utility Dependency Deduplication Report](#utility-dependency-deduplication-report)
+  - [Summary](#summary)
+  - [Dependencies Deduplicated](#dependencies-deduplicated)
+    - [1. dashmap](#1-dashmap)
+    - [2. config](#2-config)
+    - [3. bitflags](#3-bitflags)
+    - [4. convert_case](#4-convert_case)
+  - [API Compatibility Changes Handled](#api-compatibility-changes-handled)
+    - [dashmap v5.5 → v6.1](#dashmap-v55-%E2%86%92-v61)
+    - [config v0.14 → v0.15](#config-v014-%E2%86%92-v015)
+  - [Optional Workspace Dependencies Fixed](#optional-workspace-dependencies-fixed)
+  - [Compilation Issues (Unrelated to Deduplication)](#compilation-issues-unrelated-to-deduplication)
+    - [knhk-connectors](#knhk-connectors)
+    - [knhk-lockchain](#knhk-lockchain)
+  - [Build Performance Impact](#build-performance-impact)
+    - [Expected Improvements](#expected-improvements)
+    - [Measured Results](#measured-results)
+  - [Verification](#verification)
+    - [Cargo Tree Check](#cargo-tree-check)
+    - [Cargo Check](#cargo-check)
+  - [Files Modified](#files-modified)
+    - [Workspace Root](#workspace-root)
+    - [Crate Cargo.tomls Updated to Workspace](#crate-cargotomls-updated-to-workspace)
+    - [Crate Cargo.tomls Fixed (Optional Dependencies)](#crate-cargotomls-fixed-optional-dependencies)
+  - [Recommendations](#recommendations)
+    - [Immediate Actions](#immediate-actions)
+    - [Future Deduplication Phases](#future-deduplication-phases)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Utility Dependency Deduplication Report
 
 **Date**: 2026-01-24

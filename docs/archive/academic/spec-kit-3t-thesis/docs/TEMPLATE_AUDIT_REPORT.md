@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Template Audit Report - All Issues Fixed](#template-audit-report---all-issues-fixed)
+  - [Issues Found and Fixed](#issues-found-and-fixed)
+    - [1. ❌ Extra Spaces in LaTeX Braces](#1--extra-spaces-in-latex-braces)
+    - [2. ❌ Variable Name Mismatch in Frontmatter](#2--variable-name-mismatch-in-frontmatter)
+    - [3. ❌ Jinja2 Syntax Error with Triple Braces](#3--jinja2-syntax-error-with-triple-braces)
+    - [4. ❌ LaTeX Comment Character Conflicts](#4--latex-comment-character-conflicts)
+    - [5. ❌ Missing Conditional Checks for Optional Fields](#5--missing-conditional-checks-for-optional-fields)
+  - [Validation Results](#validation-results)
+    - [Before Fixes](#before-fixes)
+    - [After Fixes](#after-fixes)
+  - [PDF Compilation Results](#pdf-compilation-results)
+    - [Final Output](#final-output)
+  - [Template Best Practices Learned](#template-best-practices-learned)
+    - [1. Jinja2 Whitespace Control](#1-jinja2-whitespace-control)
+    - [2. Avoid LaTeX `%` Line Continuations in Templates](#2-avoid-latex--line-continuations-in-templates)
+    - [3. Use Conditionals for OPTIONAL Fields](#3-use-conditionals-for-optional-fields)
+    - [4. Match Template Variables to SPARQL Query](#4-match-template-variables-to-sparql-query)
+    - [5. Avoid Triple Braces in Jinja2](#5-avoid-triple-braces-in-jinja2)
+  - [Files Modified](#files-modified)
+    - [Templates (7 files)](#templates-7-files)
+    - [Python Generator](#python-generator)
+  - [Testing Performed](#testing-performed)
+    - [1. Template Rendering Test](#1-template-rendering-test)
+    - [2. Full Pipeline Test](#2-full-pipeline-test)
+    - [3. PDF Compilation Test](#3-pdf-compilation-test)
+    - [4. Content Verification Test](#4-content-verification-test)
+  - [Summary](#summary)
+    - [Key Improvements](#key-improvements)
+    - [Performance](#performance)
+  - [Recommendations](#recommendations)
+    - [For Future Template Development](#for-future-template-development)
+    - [For Production Deployment](#for-production-deployment)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Template Audit Report - All Issues Fixed
 
 **Date**: 2025-12-20

@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Production-Grade Packs Domain Implementation](#production-grade-packs-domain-implementation)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+    - [Module Structure](#module-structure)
+    - [Design Patterns](#design-patterns)
+  - [Core Components](#core-components)
+    - [1. Repository Layer (`repository.rs`)](#1-repository-layer-repositoryrs)
+    - [2. Dependency Graph (`dependency_graph.rs`)](#2-dependency-graph-dependency_graphrs)
+    - [3. Pack Installer (`installer.rs`)](#3-pack-installer-installerrs)
+    - [4. Pack Composer (`composer.rs`)](#4-pack-composer-composerrs)
+    - [5. Data Types (`types.rs`)](#5-data-types-typesrs)
+  - [Integration Points](#integration-points)
+    - [Marketplace Integration](#marketplace-integration)
+    - [Template Engine Integration](#template-engine-integration)
+    - [RDF/SPARQL Integration](#rdfsparql-integration)
+  - [Performance Characteristics](#performance-characteristics)
+    - [Time Complexity](#time-complexity)
+    - [Performance Targets](#performance-targets)
+    - [Memory Usage](#memory-usage)
+  - [Error Handling](#error-handling)
+    - [Error Types](#error-types)
+    - [Error Recovery](#error-recovery)
+  - [Security Features](#security-features)
+    - [Input Validation](#input-validation)
+    - [Safe File Operations](#safe-file-operations)
+  - [Testing](#testing)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+  - [Usage Patterns](#usage-patterns)
+    - [Pattern 1: Simple Pack Installation](#pattern-1-simple-pack-installation)
+    - [Pattern 2: Multi-Pack Composition](#pattern-2-multi-pack-composition)
+    - [Pattern 3: Custom Repository](#pattern-3-custom-repository)
+    - [Pattern 4: Dry Run Analysis](#pattern-4-dry-run-analysis)
+  - [Pack Manifest Format](#pack-manifest-format)
+    - [TOML Format](#toml-format)
+  - [Future Enhancements](#future-enhancements)
+    - [Phase 2 Features](#phase-2-features)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Production-Grade Packs Domain Implementation
 
 ## Overview

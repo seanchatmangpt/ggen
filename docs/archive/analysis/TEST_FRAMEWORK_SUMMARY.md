@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Test Framework Summary](#test-framework-summary)
+  - [Overview](#overview)
+  - [Test Infrastructure](#test-infrastructure)
+    - [1. Test Framework: chicago_tdd_tools](#1-test-framework-chicago_tdd_tools)
+    - [2. Async Runtime: Tokio](#2-async-runtime-tokio)
+    - [3. Property-Based Testing](#3-property-based-testing)
+  - [Test Organization](#test-organization)
+    - [By Crate](#by-crate)
+    - [Root Level Tests](#root-level-tests)
+    - [Benchmark Tests](#benchmark-tests)
+  - [Test Execution](#test-execution)
+    - [Unit Tests (In-process)](#unit-tests-in-process)
+    - [Integration Tests](#integration-tests)
+    - [Async Tests](#async-tests)
+  - [Test Coverage Patterns](#test-coverage-patterns)
+    - [Well-Covered Areas](#well-covered-areas)
+    - [Gaps](#gaps)
+  - [Test Data Management](#test-data-management)
+    - [Fixtures](#fixtures)
+    - [Inline Test Data](#inline-test-data)
+    - [Property Generation](#property-generation)
+  - [Continuous Integration](#continuous-integration)
+  - [Test Dependencies](#test-dependencies)
+    - [Core Testing Crates](#core-testing-crates)
+    - [Testing Patterns](#testing-patterns)
+  - [Test Metrics](#test-metrics)
+  - [Best Practices Observed](#best-practices-observed)
+  - [Areas for Improvement](#areas-for-improvement)
+  - [Running Tests](#running-tests)
+    - [All Tests](#all-tests)
+    - [Specific Crate](#specific-crate)
+    - [Integration Tests Only](#integration-tests-only)
+    - [With Output](#with-output)
+    - [Benchmarks](#benchmarks)
+  - [Test Reporting](#test-reporting)
+  - [Recommendations](#recommendations)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Test Framework Summary
 
 ## Overview

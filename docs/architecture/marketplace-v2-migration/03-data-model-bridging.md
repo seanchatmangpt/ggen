@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Data Model Bridging - V1 ↔ V2 Conversion](#data-model-bridging---v1--v2-conversion)
+  - [Overview](#overview)
+  - [Core Data Models](#core-data-models)
+    - [V1 Data Model (Current)](#v1-data-model-current)
+    - [V2 Data Model (RDF-based)](#v2-data-model-rdf-based)
+    - [Unified Data Model (Adapter Layer)](#unified-data-model-adapter-layer)
+  - [Conversion Layer](#conversion-layer)
+    - [V1 → Unified Conversion](#v1-%E2%86%92-unified-conversion)
+    - [V2 → Unified Conversion](#v2-%E2%86%92-unified-conversion)
+    - [Unified → V1 Conversion](#unified-%E2%86%92-v1-conversion)
+    - [Unified → V2 Conversion](#unified-%E2%86%92-v2-conversion)
+  - [RDF Schema Definition](#rdf-schema-definition)
+    - [Package Ontology](#package-ontology)
+  - [Manifest Format Migration](#manifest-format-migration)
+    - [V1 Manifest (gpack.yaml)](#v1-manifest-gpackyaml)
+    - [V2 Manifest (gpack.yaml + RDF metadata)](#v2-manifest-gpackyaml--rdf-metadata)
+  - [Bidirectional Conversion Testing](#bidirectional-conversion-testing)
+  - [Schema Versioning Strategy](#schema-versioning-strategy)
+  - [Migration Utilities](#migration-utilities)
+  - [Success Criteria](#success-criteria)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Data Model Bridging - V1 ↔ V2 Conversion
 
 ## Overview

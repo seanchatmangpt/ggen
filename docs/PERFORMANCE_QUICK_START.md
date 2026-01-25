@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Performance Optimization Quick Start Guide](#performance-optimization-quick-start-guide)
+  - [🚀 Quick Start](#-quick-start)
+    - [1. Run Performance Benchmarks (5 minutes)](#1-run-performance-benchmarks-5-minutes)
+    - [2. Check Current Performance (1 minute)](#2-check-current-performance-1-minute)
+    - [3. Identify Bottlenecks (10 minutes)](#3-identify-bottlenecks-10-minutes)
+    - [4. Apply Quick Wins (30 minutes)](#4-apply-quick-wins-30-minutes)
+      - [Quick Win &#035;1: Lazy RDF Loading](#quick-win-1-lazy-rdf-loading)
+      - [Quick Win &#035;2: Cache Instrumentation](#quick-win-2-cache-instrumentation)
+      - [Quick Win &#035;3: Parallel Template Generation](#quick-win-3-parallel-template-generation)
+    - [5. Verify Improvements (5 minutes)](#5-verify-improvements-5-minutes)
+  - [🎯 Performance Targets](#-performance-targets)
+  - [🔥 Common Performance Issues & Fixes](#-common-performance-issues--fixes)
+    - [Issue 1: Slow Template Generation](#issue-1-slow-template-generation)
+    - [Issue 2: High Memory Usage](#issue-2-high-memory-usage)
+    - [Issue 3: Slow Lockfile Operations](#issue-3-slow-lockfile-operations)
+    - [Issue 4: Slow SPARQL Queries](#issue-4-slow-sparql-queries)
+  - [📊 Continuous Performance Monitoring](#-continuous-performance-monitoring)
+    - [Add to CI/CD Pipeline](#add-to-cicd-pipeline)
+    - [Performance Alerts](#performance-alerts)
+  - [🛠️ Advanced Profiling Tools](#-advanced-profiling-tools)
+    - [1. Flamegraph (CPU Profiling)](#1-flamegraph-cpu-profiling)
+    - [2. Heaptrack (Memory Profiling)](#2-heaptrack-memory-profiling)
+    - [3. Valgrind (Memory Leaks)](#3-valgrind-memory-leaks)
+    - [4. perf (Linux CPU Profiling)](#4-perf-linux-cpu-profiling)
+    - [5. Instruments (macOS)](#5-instruments-macos)
+  - [📈 Performance Optimization Checklist](#-performance-optimization-checklist)
+  - [📚 Further Reading](#-further-reading)
+  - [🤝 Contributing Performance Improvements](#-contributing-performance-improvements)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Performance Optimization Quick Start Guide
 
 **TL;DR**: Follow these steps to profile, benchmark, and optimize ggen performance.

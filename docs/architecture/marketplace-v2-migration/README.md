@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace V2 Migration Architecture](#marketplace-v2-migration-architecture)
+  - [Overview](#overview)
+  - [Quick Links](#quick-links)
+  - [Key Design Principles](#key-design-principles)
+    - [1. Zero Breaking Changes](#1-zero-breaking-changes)
+    - [2. Gradual Migration](#2-gradual-migration)
+    - [3. Automatic Fallback](#3-automatic-fallback)
+    - [4. Feature Gates](#4-feature-gates)
+    - [5. Adapter Pattern](#5-adapter-pattern)
+  - [Architecture at a Glance](#architecture-at-a-glance)
+  - [Key Technical Decisions](#key-technical-decisions)
+  - [Migration Timeline](#migration-timeline)
+    - [Week 1: Infrastructure (Low Risk)](#week-1-infrastructure-low-risk)
+    - [Week 2: Search Migration (Medium Risk)](#week-2-search-migration-medium-risk)
+    - [Week 3: Installation Migration (Medium Risk)](#week-3-installation-migration-medium-risk)
+    - [Week 4: New Features (High Risk)](#week-4-new-features-high-risk)
+    - [Week 5: Cutover (Low Risk)](#week-5-cutover-low-risk)
+  - [Service Level Objectives (SLOs)](#service-level-objectives-slos)
+    - [Performance Targets](#performance-targets)
+    - [Reliability Targets](#reliability-targets)
+  - [Test Coverage](#test-coverage)
+  - [Success Criteria](#success-criteria)
+    - [Pre-Launch](#pre-launch)
+    - [Post-Launch (Week 1)](#post-launch-week-1)
+    - [Post-Launch (Month 1)](#post-launch-month-1)
+  - [Resource Requirements](#resource-requirements)
+    - [Development Team](#development-team)
+    - [Infrastructure](#infrastructure)
+  - [Risk Assessment](#risk-assessment)
+  - [Rollback Procedures](#rollback-procedures)
+    - [Level 1: Configuration Rollback (<1 hour)](#level-1-configuration-rollback-1-hour)
+    - [Level 2: Code Rollback (<2 hours)](#level-2-code-rollback-2-hours)
+    - [Level 3: Data Rollback (<4 hours)](#level-3-data-rollback-4-hours)
+  - [Documentation Index](#documentation-index)
+    - [For Architects](#for-architects)
+    - [For Developers](#for-developers)
+    - [For DevOps](#for-devops)
+  - [Next Steps](#next-steps)
+  - [FAQ](#faq)
+    - [Why not just replace V1 with V2?](#why-not-just-replace-v1-with-v2)
+    - [Why RDF instead of SQL?](#why-rdf-instead-of-sql)
+    - [What happens if V2 fails in production?](#what-happens-if-v2-fails-in-production)
+    - [Can we skip A/B testing?](#can-we-skip-ab-testing)
+    - [How do we handle existing packages?](#how-do-we-handle-existing-packages)
+    - [What if we need to rollback?](#what-if-we-need-to-rollback)
+  - [Contact](#contact)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace V2 Migration Architecture
 
 ## Overview

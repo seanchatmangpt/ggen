@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v3 Sector Bundles Catalog](#ggen-v3-sector-bundles-catalog)
+  - [Table of Contents](#table-of-contents)
+  - [Sector Bundles Overview](#sector-bundles-overview)
+    - [Bundle Structure](#bundle-structure)
+    - [Bundle Characteristics](#bundle-characteristics)
+  - [Healthcare Bundle](#healthcare-bundle)
+    - [Bundle: `sector-healthcare-8020`](#bundle-sector-healthcare-8020)
+    - [Core Ontology Entities](#core-ontology-entities)
+    - [Key Guards](#key-guards)
+      - [Guard: HIPAACompliance](#guard-hipaacompliance)
+      - [Guard: FHIRConformance](#guard-fhirconformance)
+    - [Generated Code Example](#generated-code-example)
+    - [Dark Matter Reduction: Compliance Automation](#dark-matter-reduction-compliance-automation)
+  - [Microservices Bundle](#microservices-bundle)
+    - [Bundle: `sector-rust-microservice-8020`](#bundle-sector-rust-microservice-8020)
+    - [Core Ontology Entities](#core-ontology-entities-1)
+    - [Key Guards](#key-guards-1)
+      - [Guard: ChatmanCompliant](#guard-chatmancompliant)
+      - [Guard: ProductionReady](#guard-productionready)
+    - [Generated Code Example](#generated-code-example-1)
+  - [Observability Bundle](#observability-bundle)
+    - [Bundle: `sector-observability-8020`](#bundle-sector-observability-8020)
+    - [Core Ontology](#core-ontology)
+    - [Generated Observability Stack](#generated-observability-stack)
+  - [Financial Services Bundle](#financial-services-bundle)
+    - [Bundle: `sector-finance-8020`](#bundle-sector-finance-8020)
+    - [Key Entities](#key-entities)
+  - [SaaS & Multi-Tenancy Bundle](#saas--multi-tenancy-bundle)
+    - [Bundle: `sector-saas-8020`](#bundle-sector-saas-8020)
+    - [Key Features](#key-features)
+  - [Academic & Publishing Bundle](#academic--publishing-bundle)
+    - [Bundle: `sector-academic-8020`](#bundle-sector-academic-8020)
+    - [Key Entities](#key-entities-1)
+  - [IoT & Edge Computing Bundle](#iot--edge-computing-bundle)
+    - [Bundle: `sector-iot-edge-8020`](#bundle-sector-iot-edge-8020)
+    - [Key Entities](#key-entities-2)
+  - [Real-Time Communications Bundle](#real-time-communications-bundle)
+    - [Bundle: `sector-realtime-8020`](#bundle-sector-realtime-8020)
+  - [Data & Analytics Bundle](#data--analytics-bundle)
+    - [Bundle: `sector-analytics-8020`](#bundle-sector-analytics-8020)
+  - [Bundle Composition & Integration](#bundle-composition--integration)
+    - [Cross-Bundle Dependencies](#cross-bundle-dependencies)
+    - [Installation Pattern](#installation-pattern)
+  - [Bundle Selection Matrix](#bundle-selection-matrix)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v3 Sector Bundles Catalog
 
 **Status**: DETAILED CATALOG

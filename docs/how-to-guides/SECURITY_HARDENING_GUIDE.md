@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Security Hardening Guide for Generated Code](#security-hardening-guide-for-generated-code)
+  - [Code Generation Security](#code-generation-security)
+    - [Principle 1: Validate All Inputs](#principle-1-validate-all-inputs)
+    - [Principle 2: Use Type System](#principle-2-use-type-system)
+    - [Principle 3: Escape Output](#principle-3-escape-output)
+  - [API Security](#api-security)
+    - [1. Authentication & Authorization](#1-authentication--authorization)
+    - [2. Rate Limiting](#2-rate-limiting)
+    - [3. CORS Configuration](#3-cors-configuration)
+    - [4. HTTPS Enforcement](#4-https-enforcement)
+  - [Database Security](#database-security)
+    - [1. Encrypted Connections](#1-encrypted-connections)
+    - [2. Secret Management](#2-secret-management)
+    - [3. Row-Level Security (RLS)](#3-row-level-security-rls)
+    - [4. Prepared Statements](#4-prepared-statements)
+  - [ORM Security](#orm-security)
+    - [Safe Query Building](#safe-query-building)
+    - [Relationship Traversal](#relationship-traversal)
+  - [RDF/Ontology Security](#rdfontology-security)
+    - [1. Schema Validation](#1-schema-validation)
+    - [2. Ontology Integrity](#2-ontology-integrity)
+  - [Dependency Security](#dependency-security)
+    - [Version Pinning](#version-pinning)
+    - [Regular Audits](#regular-audits)
+  - [Secrets Management](#secrets-management)
+    - [CI/CD Secrets](#cicd-secrets)
+    - [.env Files](#env-files)
+  - [Logging & Monitoring](#logging--monitoring)
+    - [Security Logging](#security-logging)
+    - [Sensitive Data Masking](#sensitive-data-masking)
+  - [Testing Security](#testing-security)
+    - [Security Tests](#security-tests)
+  - [Deployment Security Checklist](#deployment-security-checklist)
+  - [References](#references)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Security Hardening Guide for Generated Code
 
 > Best practices for securing generated APIs, databases, and infrastructure

@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace V2 RDF Architecture Design](#marketplace-v2-rdf-architecture-design)
+  - [Executive Summary](#executive-summary)
+  - [1. RDF Schema Design](#1-rdf-schema-design)
+    - [1.1 Namespace Organization](#11-namespace-organization)
+    - [1.2 Core Classes](#12-core-classes)
+    - [1.3 Package Properties](#13-package-properties)
+    - [1.4 Version Properties](#14-version-properties)
+    - [1.5 Registry Properties](#15-registry-properties)
+    - [1.6 Capability Properties](#16-capability-properties)
+  - [2. Module Structure](#2-module-structure)
+    - [2.1 Crate Organization](#21-crate-organization)
+    - [2.2 Type-First Design](#22-type-first-design)
+  - [3. PackageMetadata V2 Model](#3-packagemetadata-v2-model)
+    - [3.1 Type Definition](#31-type-definition)
+    - [3.2 Version Metadata](#32-version-metadata)
+    - [3.3 Capability Model](#33-capability-model)
+  - [4. RdfRegistry Persistence Layer](#4-rdfregistry-persistence-layer)
+    - [4.1 RdfRegistry Design](#41-rdfregistry-design)
+    - [4.2 Transaction Support](#42-transaction-support)
+  - [5. Version Resolution Logic (SPARQL)](#5-version-resolution-logic-sparql)
+    - [5.1 SemVer Compatibility Query](#51-semver-compatibility-query)
+    - [5.2 Pre-release Handling](#52-pre-release-handling)
+    - [5.3 Yanked Version Handling](#53-yanked-version-handling)
+  - [6. SPARQL Query Patterns](#6-sparql-query-patterns)
+    - [6.1 List Packages](#61-list-packages)
+    - [6.2 Search Packages](#62-search-packages)
+    - [6.3 Dependency Graph](#63-dependency-graph)
+    - [6.4 Capability Query](#64-capability-query)
+  - [7. Error Handling Strategy](#7-error-handling-strategy)
+    - [7.1 Error Types](#71-error-types)
+    - [7.2 Validation Strategy](#72-validation-strategy)
+  - [8. Performance Design](#8-performance-design)
+    - [8.1 Performance Targets](#81-performance-targets)
+    - [8.2 Optimization Strategies](#82-optimization-strategies)
+    - [8.3 Benchmarking Plan](#83-benchmarking-plan)
+  - [9. Architecture Decision Records (ADRs)](#9-architecture-decision-records-adrs)
+    - [ADR-001: Use Oxigraph Triplestore](#adr-001-use-oxigraph-triplestore)
+    - [ADR-002: SemVer in Rust, Not SPARQL](#adr-002-semver-in-rust-not-sparql)
+    - [ADR-003: PackageId Format "namespace/name"](#adr-003-packageid-format-namespacename)
+    - [ADR-004: Atomic Transactions for Version Updates](#adr-004-atomic-transactions-for-version-updates)
+  - [10. Future Enhancements (FUTURE:)](#10-future-enhancements-future)
+  - [11. Summary](#11-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace V2 RDF Architecture Design
 
 ## Executive Summary

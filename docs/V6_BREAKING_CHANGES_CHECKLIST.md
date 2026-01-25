@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [v6.0.0 Breaking Changes Implementation Checklist](#v600-breaking-changes-implementation-checklist)
+  - [Quick Reference](#quick-reference)
+  - [🔴 CRITICAL PRIORITY (Must fix for v6.0.0)](#-critical-priority-must-fix-for-v600)
+    - [1. SPARQL Injection Prevention](#1-sparql-injection-prevention)
+    - [2. SafePath Type Enforcement](#2-safepath-type-enforcement)
+    - [3. Rate Limiting Implementation](#3-rate-limiting-implementation)
+    - [4. Resource Limits](#4-resource-limits)
+    - [5. Timeout Enforcement](#5-timeout-enforcement)
+  - [🟡 HIGH PRIORITY (Should fix for v6.0.0)](#-high-priority-should-fix-for-v600)
+    - [6. OpenTelemetry Observability](#6-opentelemetry-observability)
+    - [7. Rich Error Types](#7-rich-error-types)
+  - [🟢 MEDIUM PRIORITY (Can defer to v6.1.0)](#-medium-priority-can-defer-to-v610)
+    - [8. Circuit Breakers & Graceful Degradation](#8-circuit-breakers--graceful-degradation)
+  - [Implementation Timeline](#implementation-timeline)
+    - [Week 1 (Jan 27-31)](#week-1-jan-27-31)
+    - [Week 2 (Feb 3-7)](#week-2-feb-3-7)
+    - [Week 3 (Feb 10-14)](#week-3-feb-10-14)
+    - [Week 4 (Feb 17-21)](#week-4-feb-17-21)
+    - [Week 5 (Feb 24-28)](#week-5-feb-24-28)
+  - [Testing Strategy](#testing-strategy)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+    - [Security Tests](#security-tests)
+    - [Performance Tests](#performance-tests)
+  - [Documentation Requirements](#documentation-requirements)
+  - [Dependencies to Add](#dependencies-to-add)
+  - [Breaking API Changes Summary](#breaking-api-changes-summary)
+  - [Risk Assessment](#risk-assessment)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # v6.0.0 Breaking Changes Implementation Checklist
 
 **Created**: 2026-01-24

@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Crossing the Event Horizon: Documentation Strategy Review](#crossing-the-event-horizon-documentation-strategy-review)
+  - [Executive Summary](#executive-summary)
+  - [1. Clarity for Target Audience](#1-clarity-for-target-audience)
+    - [Current State](#current-state)
+    - [Recommendations](#recommendations)
+  - [2. Completeness](#2-completeness)
+    - [Critical Mindset Shifts Covered?](#critical-mindset-shifts-covered)
+    - [Skill Gaps Identified](#skill-gaps-identified)
+    - [Recommendations](#recommendations-1)
+  - [3. Practical Utility](#3-practical-utility)
+    - [Can Developers Actually Use This to Transition?](#can-developers-actually-use-this-to-transition)
+    - [Critical Gaps](#critical-gaps)
+    - [Hands-On Exercises](#hands-on-exercises)
+  - [4. Integration with Existing Docs](#4-integration-with-existing-docs)
+    - [How Does This Fit with CLAUDE.md and Other Guides?](#how-does-this-fit-with-claudemd-and-other-guides)
+    - [Navigation & Discovery Issues](#navigation--discovery-issues)
+  - [5. Resistance Management](#5-resistance-management)
+    - [Does It Address Skepticism About RDF-First Approach?](#does-it-address-skepticism-about-rdf-first-approach)
+    - [Critical Missing Content](#critical-missing-content)
+    - [Evidence & Quantification Gaps](#evidence--quantification-gaps)
+  - [6. Specific Recommendations Summary](#6-specific-recommendations-summary)
+    - [Immediate Actions (Week 1)](#immediate-actions-week-1)
+    - [Short-Term (Month 1)](#short-term-month-1)
+    - [Medium-Term (Months 2-3)](#medium-term-months-2-3)
+    - [Long-Term (Months 4-6)](#long-term-months-4-6)
+  - [7. Measurement & Validation](#7-measurement--validation)
+    - [How to Know If Paradigm Shift Docs Are Working](#how-to-know-if-paradigm-shift-docs-are-working)
+  - [8. Potential Issues & Risks](#8-potential-issues--risks)
+    - [Critical Concerns](#critical-concerns)
+  - [9. Gaps to Fill (Prioritized)](#9-gaps-to-fill-prioritized)
+    - [Critical (Blocking Adoption)](#critical-blocking-adoption)
+    - [High (Reduces Friction)](#high-reduces-friction)
+    - [Medium (Improves Experience)](#medium-improves-experience)
+    - [Low (Nice to Have)](#low-nice-to-have)
+  - [10. Conclusion & Action Plan](#10-conclusion--action-plan)
+    - [Overall Assessment: 🟡 MODERATE GAPS](#overall-assessment--moderate-gaps)
+    - [Recommended Approach](#recommended-approach)
+    - [Success Criteria](#success-criteria)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Crossing the Event Horizon: Documentation Strategy Review
 
 **Review Date**: 2026-01-24

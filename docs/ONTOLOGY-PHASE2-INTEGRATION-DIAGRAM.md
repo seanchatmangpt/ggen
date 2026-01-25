@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Phase 2 Integration Architecture Diagram](#phase-2-integration-architecture-diagram)
+  - [High-Level Data Flow](#high-level-data-flow)
+  - [Component Interaction Diagram](#component-interaction-diagram)
+  - [Determinism Flow](#determinism-flow)
+  - [Error Handling Path](#error-handling-path)
+  - [Performance Optimization Points](#performance-optimization-points)
+  - [Data Structure Relationships](#data-structure-relationships)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Phase 2 Integration Architecture Diagram
 
 ## High-Level Data Flow

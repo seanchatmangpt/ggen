@@ -1,3 +1,54 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Wave 3, Task 6: Critical Processes Specification Portfolio](#wave-3-task-6-critical-processes-specification-portfolio)
+  - [Full-Stack Operational Automation — 8 Processes, 90% Workload Coverage, 40% Cycle Time Reduction](#full-stack-operational-automation--8-processes-90-workload-coverage-40-cycle-time-reduction)
+  - [Executive Summary](#executive-summary)
+  - [8-Process Portfolio Overview](#8-process-portfolio-overview)
+    - [Wave 1: Foundation (1 Process)](#wave-1-foundation-1-process)
+    - [Wave 2: Validation (3 Processes)](#wave-2-validation-3-processes)
+    - [Wave 3: Production Scale (4 NEW Processes - This Task)](#wave-3-production-scale-4-new-processes---this-task)
+  - [Process Details & Specifications](#process-details--specifications)
+    - [Process 5: Revenue Management](#process-5-revenue-management)
+    - [Process 6: Guest Safety & Compliance](#process-6-guest-safety--compliance)
+    - [Process 7: Supply Chain & Procurement](#process-7-supply-chain--procurement)
+    - [Process 8: Employee Lifecycle (Onboarding & Offboarding)](#process-8-employee-lifecycle-onboarding--offboarding)
+    - [Process 9: Financial Close & Reconciliation](#process-9-financial-close--reconciliation)
+  - [Cross-System Integration Matrix](#cross-system-integration-matrix)
+  - [Portfolio-Wide Metrics & Cycle Time Improvements](#portfolio-wide-metrics--cycle-time-improvements)
+    - [Aggregate Cycle Time Reduction](#aggregate-cycle-time-reduction)
+    - [Annual FTE Savings & Business Impact](#annual-fte-savings--business-impact)
+    - [Compliance & Risk Metrics](#compliance--risk-metrics)
+  - [90% Operations Workload Coverage](#90-operations-workload-coverage)
+    - [Workload Breakdown (Pre-Automation)](#workload-breakdown-pre-automation)
+    - [Ops Team Feedback on 40% Cycle Time Reduction](#ops-team-feedback-on-40-cycle-time-reduction)
+  - [Specification Closure Checklist](#specification-closure-checklist)
+  - [Key Design Decisions](#key-design-decisions)
+    - [1. Six-Hour Revenue Optimization Cycles (vs. Once Daily)](#1-six-hour-revenue-optimization-cycles-vs-once-daily)
+    - [2. Immutable Audit Trails for Financial Close](#2-immutable-audit-trails-for-financial-close)
+    - [3. Daily Procurement with Real-Time Vendor Integration](#3-daily-procurement-with-real-time-vendor-integration)
+    - [4. 10-Day Onboarding (vs. 20-Day Manual)](#4-10-day-onboarding-vs-20-day-manual)
+    - [5. Twice-Daily Safety Inspections](#5-twice-daily-safety-inspections)
+    - [6. Four-System Integration per Process (Minimum)](#6-four-system-integration-per-process-minimum)
+  - [Risk Mitigation & Failure Modes](#risk-mitigation--failure-modes)
+    - [Critical Risk 1: System Downtime During Financial Close](#critical-risk-1-system-downtime-during-financial-close)
+    - [Critical Risk 2: Revenue Optimization Pricing Algorithm Failure](#critical-risk-2-revenue-optimization-pricing-algorithm-failure)
+    - [Critical Risk 3: Compliance Audit Finding (SOX Control Gap)](#critical-risk-3-compliance-audit-finding-sox-control-gap)
+    - [Critical Risk 4: Employee Data Privacy Breach (Background Checks)](#critical-risk-4-employee-data-privacy-breach-background-checks)
+    - [Critical Risk 5: Vendor Portal Outage During Procurement Cycle](#critical-risk-5-vendor-portal-outage-during-procurement-cycle)
+  - [Operational Readiness (Wave 3 Exit Gate)](#operational-readiness-wave-3-exit-gate)
+    - [Acceptance Criteria for Wave 3 Completion](#acceptance-criteria-for-wave-3-completion)
+  - [Implementation Roadmap (Wave 3: Weeks 21-52)](#implementation-roadmap-wave-3-weeks-21-52)
+    - [Phase 1: Weeks 21-26 (Code Generation & System Builds)](#phase-1-weeks-21-26-code-generation--system-builds)
+    - [Phase 2: Weeks 27-32 (Integration Testing & UAT)](#phase-2-weeks-27-32-integration-testing--uat)
+    - [Phase 3: Weeks 33-40 (Pilot & Early Rollout)](#phase-3-weeks-33-40-pilot--early-rollout)
+    - [Phase 4: Weeks 41-52 (Full Production & Optimization)](#phase-4-weeks-41-52-full-production--optimization)
+  - [Next Steps (Post-Specification Closure)](#next-steps-post-specification-closure)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Wave 3, Task 6: Critical Processes Specification Portfolio
 ## Full-Stack Operational Automation — 8 Processes, 90% Workload Coverage, 40% Cycle Time Reduction
 

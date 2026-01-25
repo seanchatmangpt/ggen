@@ -1,3 +1,57 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen Ontology Core - Integration Quick Start](#ggen-ontology-core---integration-quick-start)
+  - [Quick Facts](#quick-facts)
+  - [Adding to Your Crate](#adding-to-your-crate)
+    - [Option 1: Workspace Pattern (Recommended)](#option-1-workspace-pattern-recommended)
+    - [Option 2: Path Dependency](#option-2-path-dependency)
+  - [Core Use Cases](#core-use-cases)
+    - [1. Load and Query Ontology](#1-load-and-query-ontology)
+    - [2. Map Entities to Ontology](#2-map-entities-to-ontology)
+    - [3. Validate Ontology](#3-validate-ontology)
+  - [Public API Overview](#public-api-overview)
+    - [Main Types](#main-types)
+    - [Error Type](#error-type)
+    - [Type Alias](#type-alias)
+  - [Features](#features)
+    - [Default Features](#default-features)
+  - [Common Patterns](#common-patterns)
+    - [Pattern 1: Load, Query, Process](#pattern-1-load-query-process)
+    - [Pattern 2: Validate Before Loading](#pattern-2-validate-before-loading)
+    - [Pattern 3: Entity Mapping with Fallback](#pattern-3-entity-mapping-with-fallback)
+  - [Error Handling](#error-handling)
+    - [Always Use Result<T>](#always-use-resultt)
+    - [Error Context](#error-context)
+  - [Dependency Information](#dependency-information)
+    - [Direct Dependencies](#direct-dependencies)
+    - [No External Issues](#no-external-issues)
+  - [Performance Expectations](#performance-expectations)
+    - [Build Times](#build-times)
+    - [Query Times (Oxigraph)](#query-times-oxigraph)
+    - [Determinism](#determinism)
+  - [Testing Your Integration](#testing-your-integration)
+    - [Basic Integration Test](#basic-integration-test)
+  - [Documentation & Examples](#documentation--examples)
+    - [Generated Documentation](#generated-documentation)
+    - [Example Files](#example-files)
+    - [Online Resources](#online-resources)
+  - [Troubleshooting](#troubleshooting)
+    - [Build Issues](#build-issues)
+    - [Runtime Issues](#runtime-issues)
+  - [Checklist for Integration](#checklist-for-integration)
+  - [Version Compatibility](#version-compatibility)
+  - [Performance Tips](#performance-tips)
+    - [Optimize Query Performance](#optimize-query-performance)
+    - [Optimize Memory Usage](#optimize-memory-usage)
+  - [Contact & Support](#contact--support)
+    - [Related Crates](#related-crates)
+    - [Further Reading](#further-reading)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen Ontology Core - Integration Quick Start
 
 **Version**: 3.3.0

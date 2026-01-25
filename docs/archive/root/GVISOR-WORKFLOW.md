@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Complete gVisor Workflow (NO DOCKER)](#complete-gvisor-workflow-no-docker)
+  - [Quick Start](#quick-start)
+  - [What This Does](#what-this-does)
+  - [Architecture](#architecture)
+  - [Prerequisites](#prerequisites)
+  - [Step-by-Step Manual Process](#step-by-step-manual-process)
+    - [1. Build ggen Binary](#1-build-ggen-binary)
+    - [2. Create OCI Image with buildah](#2-create-oci-image-with-buildah)
+    - [3. Import to containerd](#3-import-to-containerd)
+    - [4. Run ggen in gVisor](#4-run-ggen-in-gvisor)
+  - [Verification](#verification)
+  - [Troubleshooting](#troubleshooting)
+    - [buildah not found](#buildah-not-found)
+    - [containerd not found](#containerd-not-found)
+    - [runsc runtime not available](#runsc-runtime-not-available)
+    - [Image import fails](#image-import-fails)
+  - [Benefits](#benefits)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Complete gVisor Workflow (NO DOCKER)
 
 This document provides the complete workflow to build and run ggen in gVisor **without using Docker at runtime**.

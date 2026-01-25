@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Production Validation Summary - Integration Test Suite](#production-validation-summary---integration-test-suite)
+  - [TL;DR - Executive Summary](#tldr---executive-summary)
+  - [Production Readiness Scorecard](#production-readiness-scorecard)
+  - [Critical Blockers (P0 - MUST FIX)](#critical-blockers-p0---must-fix)
+    - [1. Compilation Failures ❌](#1-compilation-failures-)
+    - [2. No Test Execution Possible ❌](#2-no-test-execution-possible-)
+    - [3. CI/CD Pipeline Blocked ❌](#3-cicd-pipeline-blocked-)
+  - [What Actually Works ✅](#what-actually-works-)
+    - [Graph Module Tests (Production Ready)](#graph-module-tests-production-ready)
+  - [Detailed Validation Results](#detailed-validation-results)
+    - [1. Compilation Validation ❌](#1-compilation-validation-)
+    - [2. Test Isolation ⚠️](#2-test-isolation-)
+    - [3. Coverage Validation ❌](#3-coverage-validation-)
+    - [4. Performance Validation ⚠️](#4-performance-validation-)
+    - [5. Documentation Validation ⚠️](#5-documentation-validation-)
+    - [6. CI/CD Integration ❌](#6-cicd-integration-)
+  - [Action Plan](#action-plan)
+    - [Phase 1: P0 Fixes (2-3 days) - CRITICAL](#phase-1-p0-fixes-2-3-days---critical)
+    - [Phase 2: P1 Fixes (1 week) - HIGH PRIORITY](#phase-2-p1-fixes-1-week---high-priority)
+    - [Phase 3: P2 Enhancements (1 week) - MEDIUM PRIORITY](#phase-3-p2-enhancements-1-week---medium-priority)
+  - [Risk Assessment](#risk-assessment)
+    - [Critical Risks ❌](#critical-risks-)
+    - [Medium Risks ⚠️](#medium-risks-)
+  - [Recommendations](#recommendations)
+    - [Immediate Actions (DO NOW)](#immediate-actions-do-now)
+    - [Short-Term Actions (THIS WEEK)](#short-term-actions-this-week)
+    - [Medium-Term Actions (NEXT 2 WEEKS)](#medium-term-actions-next-2-weeks)
+  - [Success Criteria](#success-criteria)
+    - [Minimum Viable Production Readiness](#minimum-viable-production-readiness)
+    - [Production Excellence](#production-excellence)
+  - [Conclusion](#conclusion)
+  - [Detailed Reports](#detailed-reports)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Production Validation Summary - Integration Test Suite
 
 **Date**: 2025-11-19

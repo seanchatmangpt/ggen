@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Ultra-Patterns Matrix (All Patterns Compressed)](#ultra-patterns-matrix-all-patterns-compressed)
+  - [GENERATE ANYTHING (Pattern Library)](#generate-anything-pattern-library)
+    - [REST API](#rest-api)
+    - [GraphQL](#graphql)
+    - [gRPC (.proto)](#grpc-proto)
+    - [Database Schema](#database-schema)
+    - [Validation](#validation)
+    - [Tests (Scenarios)](#tests-scenarios)
+    - [Permissions](#permissions)
+    - [State Machines](#state-machines)
+    - [Migrations](#migrations)
+    - [Kafka Schemas](#kafka-schemas)
+  - [INFERENCE RULES (Library)](#inference-rules-library)
+  - [QUICK TEMPLATES](#quick-templates)
+    - [Minimal Config](#minimal-config)
+    - [Minimal Ontology](#minimal-ontology)
+    - [Minimal Template](#minimal-template)
+  - [MULTI-LANGUAGE SNIPPETS](#multi-language-snippets)
+  - [INTEGRATION QUICK REFS](#integration-quick-refs)
+  - [TROUBLESHOOT](#troubleshoot)
+  - [ENV VARS](#env-vars)
+  - [ONE-LINERS](#one-liners)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Ultra-Patterns Matrix (All Patterns Compressed)
 
 ## GENERATE ANYTHING (Pattern Library)

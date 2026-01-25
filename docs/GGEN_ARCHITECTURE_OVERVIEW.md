@@ -1,3 +1,57 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN Codebase Architecture Overview](#ggen-codebase-architecture-overview)
+  - [Executive Summary](#executive-summary)
+    - [Key Facts](#key-facts)
+  - [1. PROJECT STRUCTURE & MAIN COMPONENTS](#1-project-structure--main-components)
+    - [1.1 Workspace Crates](#11-workspace-crates)
+    - [1.2 Core Crates Overview](#12-core-crates-overview)
+      - [**ggen-core** - The Heart of Generation](#ggen-core---the-heart-of-generation)
+      - [**ggen-ai** - LLM Integration & Swarm Orchestration](#ggen-ai---llm-integration--swarm-orchestration)
+      - [**ggen-cli** - Command-Line Interface](#ggen-cli---command-line-interface)
+      - [**ggen-domain** - Business Logic Layer](#ggen-domain---business-logic-layer)
+      - [**ggen-marketplace** - Registry & Package Management](#ggen-marketplace---registry--package-management)
+    - [1.3 Directory Organization](#13-directory-organization)
+  - [2. EXISTING TEMPLATE SYSTEM & GENERATION](#2-existing-template-system--generation)
+    - [2.1 Template Architecture](#21-template-architecture)
+    - [2.2 Template Structure](#22-template-structure)
+    - [2.3 Key Template Features](#23-key-template-features)
+    - [2.4 Template Processing Pipeline](#24-template-processing-pipeline)
+  - [3. EXISTING AI/ML & OPTIMIZATION COMPONENTS](#3-existing-aiml--optimization-components)
+    - [3.1 Swarm Intelligence Architecture](#31-swarm-intelligence-architecture)
+    - [3.2 LLM Integration](#32-llm-integration)
+    - [3.3 Performance & Optimization](#33-performance--optimization)
+    - [3.4 Graph Change Detection & Impact Analysis](#34-graph-change-detection--impact-analysis)
+  - [4. BUILD SYSTEM & TESTING INFRASTRUCTURE](#4-build-system--testing-infrastructure)
+    - [4.1 Build System (cargo-make)](#41-build-system-cargo-make)
+    - [4.2 Testing Infrastructure](#42-testing-infrastructure)
+    - [4.3 Code Quality Enforcement](#43-code-quality-enforcement)
+  - [5. KEY DATA STRUCTURES & APIs](#5-key-data-structures--apis)
+    - [5.1 Core Types](#51-core-types)
+    - [5.2 Public APIs](#52-public-apis)
+  - [6. INTEGRATION POINTS FOR SWARM INTELLIGENCE](#6-integration-points-for-swarm-intelligence)
+    - [6.1 Natural Integration Opportunities](#61-natural-integration-opportunities)
+      - [**1. Adaptive Template Selection**](#1-adaptive-template-selection)
+      - [**2. Autonomous Graph Evolution**](#2-autonomous-graph-evolution)
+      - [**3. Feedback-Driven Regeneration**](#3-feedback-driven-regeneration)
+      - [**4. Parallel Agent Specialization**](#4-parallel-agent-specialization)
+      - [**5. Marketplace Intelligence**](#5-marketplace-intelligence)
+      - [**6. Deterministic Generation with Optimization**](#6-deterministic-generation-with-optimization)
+    - [6.2 Coordination with Existing Components](#62-coordination-with-existing-components)
+  - [7. TECHNOLOGY STACK SUMMARY](#7-technology-stack-summary)
+  - [8. ARCHITECTURAL PRINCIPLES](#8-architectural-principles)
+  - [9. PERFORMANCE CHARACTERISTICS](#9-performance-characteristics)
+  - [10. KEY FILES BY Responsibility](#10-key-files-by-responsibility)
+    - [Core Engine](#core-engine)
+    - [Swarm Intelligence](#swarm-intelligence)
+    - [Optimization](#optimization)
+    - [Marketplace](#marketplace)
+  - [Document Complete](#document-complete)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN Codebase Architecture Overview
 
 ## Executive Summary

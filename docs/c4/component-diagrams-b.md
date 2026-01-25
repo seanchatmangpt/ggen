@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [C4 Component Diagrams - GCP Marketplace Autonomics (Level 3)](#c4-component-diagrams---gcp-marketplace-autonomics-level-3)
+  - [Overview](#overview)
+  - [1. Signal Normalization Components](#1-signal-normalization-components)
+  - [2. Entitlement FSM Components](#2-entitlement-fsm-components)
+  - [3. Policy Update Components](#3-policy-update-components)
+  - [4. Tenant Isolation Components](#4-tenant-isolation-components)
+  - [Template Framework Overview](#template-framework-overview)
+  - [Production Validation Checklist](#production-validation-checklist)
+  - [Integration with Container Diagrams (Level 2)](#integration-with-container-diagrams-level-2)
+  - [Next Steps (Level 4 - Code)](#next-steps-level-4---code)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # C4 Component Diagrams - GCP Marketplace Autonomics (Level 3)
 
 **Version**: 1.0.0 | **Date**: January 2026 | **Status**: Production-Ready

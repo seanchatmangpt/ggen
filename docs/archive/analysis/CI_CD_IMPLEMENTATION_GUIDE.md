@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CI/CD Bulletproof Implementation Guide](#cicd-bulletproof-implementation-guide)
+  - [🚨 DAY 1: FIX CRITICAL BLOCKER (MUST DO FIRST) ✅ **ALREADY FIXED**](#-day-1-fix-critical-blocker-must-do-first--already-fixed)
+    - [Problem: Project Doesn't Compile ✅ **RESOLVED**](#problem-project-doesnt-compile--resolved)
+    - [Solution Options (Choose One) - **HISTORICAL REFERENCE**](#solution-options-choose-one---historical-reference)
+      - [Option A: Publish to crates.io (RECOMMENDED) - **COMPLETED**](#option-a-publish-to-cratesio-recommended---completed)
+      - [Option B: Use Git Dependency (Historical Alternative)](#option-b-use-git-dependency-historical-alternative)
+      - [Option C: Make It Optional (Historical Alternative)](#option-c-make-it-optional-historical-alternative)
+  - [📋 DAY 2: ENABLE NEW QUALITY GATES](#-day-2-enable-new-quality-gates)
+    - [Step 1: Add New Workflow](#step-1-add-new-workflow)
+    - [Step 2: Configure Branch Protection](#step-2-configure-branch-protection)
+    - [Step 3: Test the Gates](#step-3-test-the-gates)
+  - [🧹 DAY 3: CLEANUP & OPTIMIZATION](#-day-3-cleanup--optimization)
+    - [Delete Obsolete Workflows](#delete-obsolete-workflows)
+    - [Consolidate Overlapping Workflows](#consolidate-overlapping-workflows)
+      - [Option A: Keep ci.yml, enhance it](#option-a-keep-ciyml-enhance-it)
+      - [Option B: Use quality-gates.yml as the main CI](#option-b-use-quality-gatesyml-as-the-main-ci)
+  - [🐛 DAY 4: FIX PRODUCTION PANIC POINTS](#-day-4-fix-production-panic-points)
+    - [Current State](#current-state)
+    - [Automated Fix](#automated-fix)
+    - [Manual Fix Guide](#manual-fix-guide)
+      - [File 1: `crates/ggen-core/src/graph/types.rs`](#file-1-cratesggen-coresrcgraphtypesrs)
+      - [File 2: `crates/ggen-core/src/template.rs`](#file-2-cratesggen-coresrctemplaters)
+      - [File 3: `crates/ggen-ai/src/governance/mod.rs`](#file-3-cratesggen-aisrcgovernancemodrs)
+    - [Add Error Types](#add-error-types)
+    - [Test the Fixes](#test-the-fixes)
+  - [📊 DAY 5: ENABLE COVERAGE ENFORCEMENT](#-day-5-enable-coverage-enforcement)
+    - [Step 1: Generate Baseline Coverage](#step-1-generate-baseline-coverage)
+    - [Step 2: Identify Low Coverage Areas](#step-2-identify-low-coverage-areas)
+    - [Step 3: Add Tests for Critical Paths](#step-3-add-tests-for-critical-paths)
+    - [Step 4: Configure Codecov](#step-4-configure-codecov)
+    - [Step 5: Test Coverage Enforcement](#step-5-test-coverage-enforcement)
+  - [🎯 VERIFICATION CHECKLIST](#-verification-checklist)
+    - [Day 1: Critical Blocker Fixed](#day-1-critical-blocker-fixed)
+    - [Day 2: Quality Gates Enabled](#day-2-quality-gates-enabled)
+    - [Day 3: Workflows Cleaned](#day-3-workflows-cleaned)
+    - [Day 4: Panic Points Fixed](#day-4-panic-points-fixed)
+    - [Day 5: Coverage Enforced](#day-5-coverage-enforced)
+  - [🚀 POST-IMPLEMENTATION](#-post-implementation)
+    - [Week 2: Monitor & Tune](#week-2-monitor--tune)
+    - [Week 3: Advanced Features](#week-3-advanced-features)
+  - [📚 Troubleshooting](#-troubleshooting)
+    - [Problem: Quality Gates Fail on Main](#problem-quality-gates-fail-on-main)
+    - [Problem: Coverage Calculation Fails](#problem-coverage-calculation-fails)
+    - [Problem: Windows Build Fails](#problem-windows-build-fails)
+  - [🎓 Success Metrics](#-success-metrics)
+  - [🔗 Next Steps](#-next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CI/CD Bulletproof Implementation Guide
 
 **Quick Start**: How to make ggen's CI/CD bulletproof in 5 days

@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pack System: Data Structures and Rust Trait Definitions](#pack-system-data-structures-and-rust-trait-definitions)
+  - [Overview](#overview)
+  - [Core Data Structures](#core-data-structures)
+    - [1. Pack](#1-pack)
+    - [2. PackMetadata](#2-packmetadata)
+    - [3. PackTemplate](#3-packtemplate)
+    - [4. SparqlQuery](#4-sparqlquery)
+    - [5. PackVariable](#5-packvariable)
+    - [6. PackHooks](#6-packhooks)
+    - [7. PackComposition](#7-packcomposition)
+    - [8. PackValidation](#8-packvalidation)
+    - [9. PackCompatibility](#9-packcompatibility)
+    - [10. PackExample](#10-packexample)
+  - [Trait Definitions](#trait-definitions)
+    - [1. PackRepository Trait](#1-packrepository-trait)
+    - [2. PackGenerator Trait](#2-packgenerator-trait)
+    - [3. PackValidator Trait](#3-packvalidator-trait)
+    - [4. PackComposer Trait](#4-packcomposer-trait)
+  - [Manifest File Formats](#manifest-file-formats)
+    - [pack.toml Example](#packtoml-example)
+  - [Error Types](#error-types)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pack System: Data Structures and Rust Trait Definitions
 
 ## Overview

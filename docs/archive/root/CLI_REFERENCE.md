@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CLI Complete Reference (All Commands & Flags)](#cli-complete-reference-all-commands--flags)
+  - [Single Command: `ggen sync`](#single-command-ggen-sync)
+    - [Syntax](#syntax)
+    - [Flags & Options](#flags--options)
+    - [Exit Codes](#exit-codes)
+  - [Examples](#examples)
+    - [Basic](#basic)
+    - [Development](#development)
+    - [CI/CD](#cicd)
+    - [Selective Execution](#selective-execution)
+    - [Debugging](#debugging)
+    - [Overrides (CI/CD)](#overrides-cicd)
+  - [Output Formats](#output-formats)
+    - [Text (Default)](#text-default)
+    - [JSON (`--format json`)](#json---format-json)
+  - [Watch Mode (`--watch`)](#watch-mode---watch)
+  - [Audit Trail (`--audit FILE`)](#audit-trail---audit-file)
+  - [Environment Variables](#environment-variables)
+  - [Integration Patterns](#integration-patterns)
+    - [GitHub Actions](#github-actions)
+    - [CI/CD: Only Validate](#cicd-only-validate)
+    - [Local Development](#local-development)
+    - [Deployment](#deployment)
+  - [Decision Matrix: When to Use Each Flag](#decision-matrix-when-to-use-each-flag)
+  - [Troubleshooting](#troubleshooting)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CLI Complete Reference (All Commands & Flags)
 
 > Every ggen CLI command and flag on 3 pages.

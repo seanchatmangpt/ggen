@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Noun-Verb Validation Design](#noun-verb-validation-design)
+  - [Executive Summary](#executive-summary)
+  - [Overview](#overview)
+    - [Design Goals](#design-goals)
+    - [Architecture Layers](#architecture-layers)
+  - [Permission Model](#permission-model)
+    - [IO Operations Taxonomy](#io-operations-taxonomy)
+    - [Permission Configuration in ggen.toml](#permission-configuration-in-ggentoml)
+  - [Permission Validator Implementation](#permission-validator-implementation)
+    - [Core Validator](#core-validator)
+  - [Constitution Checker Implementation](#constitution-checker-implementation)
+    - [Constitution Model](#constitution-model)
+  - [Audit Logger Implementation](#audit-logger-implementation)
+    - [Audit Log Structure](#audit-log-structure)
+  - [Integration with clap-noun-verb](#integration-with-clap-noun-verb)
+    - [Middleware Pattern](#middleware-pattern)
+    - [Usage in CLI](#usage-in-cli)
+  - [Error Handling](#error-handling)
+    - [Validation Errors](#validation-errors)
+  - [Testing Strategy](#testing-strategy)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+  - [Security Considerations](#security-considerations)
+    - [1. Audit Log Tampering](#1-audit-log-tampering)
+    - [2. Permission Escalation](#2-permission-escalation)
+    - [3. Race Conditions](#3-race-conditions)
+  - [Performance Optimization](#performance-optimization)
+    - [Caching Validators](#caching-validators)
+    - [Lazy Constitution Checks](#lazy-constitution-checks)
+  - [CLI Commands for Audit Management](#cli-commands-for-audit-management)
+    - [View Audit Log](#view-audit-log)
+    - [Audit Statistics](#audit-statistics)
+    - [Export Audit Log](#export-audit-log)
+  - [Success Metrics](#success-metrics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Noun-Verb Validation Design
 
 **System Architect**: Claude (Hive Mind Swarm Phase 2)

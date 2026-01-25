@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Agent 5: Rewrite Methodology Guide](#agent-5-rewrite-methodology-guide)
+  - [Executive Summary](#executive-summary)
+  - [Core Definitions](#core-definitions)
+    - [What "From Scratch" Means](#what-from-scratch-means)
+    - [What "No Refactor" Means](#what-no-refactor-means)
+  - [Example Type Classification](#example-type-classification)
+    - [1. Tutorial (15-30 min)](#1-tutorial-15-30-min)
+    - [2. Project Generation (45-60 min)](#2-project-generation-45-60-min)
+    - [3. Ontology-Driven (60-90 min)](#3-ontology-driven-60-90-min)
+    - [4. AI-Powered (45-60 min)](#4-ai-powered-45-60-min)
+    - [5. Utility/Tool (15-30 min)](#5-utilitytool-15-30-min)
+  - [Quality Gates: Pre-Rewrite](#quality-gates-pre-rewrite)
+  - [Quality Gates: Post-Rewrite](#quality-gates-post-rewrite)
+  - [Standard Example Template](#standard-example-template)
+    - [Directory Structure](#directory-structure)
+    - [README.md Sections](#readmemd-sections)
+    - [Critical Metadata](#critical-metadata)
+  - [Acceptable Variations](#acceptable-variations)
+    - [Naming](#naming)
+    - [Technology](#technology)
+    - [Complexity](#complexity)
+    - [Documentation](#documentation)
+  - [Evidence Requirements](#evidence-requirements)
+    - [Verification Commands](#verification-commands)
+  - [Execution Phases](#execution-phases)
+    - [Phase 1: Analysis](#phase-1-analysis)
+    - [Phase 2: Blank Slate](#phase-2-blank-slate)
+    - [Phase 3: Specification](#phase-3-specification)
+    - [Phase 4: Rebuild](#phase-4-rebuild)
+    - [Phase 5: Validation](#phase-5-validation)
+  - [Rollback Procedure](#rollback-procedure)
+  - [Quality Metrics](#quality-metrics)
+    - [Completeness Score](#completeness-score)
+    - [Functionality Score](#functionality-score)
+    - [Time Accuracy Score](#time-accuracy-score)
+    - [Scope Preservation Score](#scope-preservation-score)
+    - [Documentation Clarity Score](#documentation-clarity-score)
+  - [Key Takeaways](#key-takeaways)
+    - [The Rewrite is NOT:](#the-rewrite-is-not)
+    - [The Rewrite IS:](#the-rewrite-is)
+    - [The Test:](#the-test)
+  - [Final Approval Checklist](#final-approval-checklist)
+  - [JSON Methodology Document](#json-methodology-document)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Agent 5: Rewrite Methodology Guide
 **Task**: DESIGN REWRITE METHODOLOGY
 **Date**: 2026-01-04

@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Adversarial Validation & Implementation - Final Report](#adversarial-validation--implementation---final-report)
+  - [Executive Summary](#executive-summary)
+  - [Issues Found & Fixed](#issues-found--fixed)
+    - [✅ Fix 1: cargo make lint Shell Compatibility (RANK 1 - BLOCKER)](#-fix-1-cargo-make-lint-shell-compatibility-rank-1---blocker)
+    - [✅ Fix 2: clippy::unwrap_used Lint Enforcement (RANK 2)](#-fix-2-clippyunwrap_used-lint-enforcement-rank-2)
+    - [✅ Fix 3: Convert 21 @shell Tasks to Bash Command Pattern (RANK 3)](#-fix-3-convert-21-shell-tasks-to-bash-command-pattern-rank-3)
+    - [✅ Fix 4: Add Actual gVisor E2E Sandbox Tests (RANK 4 - CRITICAL)](#-fix-4-add-actual-gvisor-e2e-sandbox-tests-rank-4---critical)
+    - [✅ Fix 5: Add SLO Violation Detection (RANK 5)](#-fix-5-add-slo-violation-detection-rank-5)
+    - [✅ Fix 6: Integrate Mutation Testing Into CI (RANK 6)](#-fix-6-integrate-mutation-testing-into-ci-rank-6)
+    - [✅ Fix 7: Create Unified run-with-timeout.sh Wrapper (RANK 7)](#-fix-7-create-unified-run-with-timeoutsh-wrapper-rank-7)
+    - [✅ Fix 8: Auto-Install Git Hooks (RANK 8)](#-fix-8-auto-install-git-hooks-rank-8)
+    - [🟡 Remaining Issues](#-remaining-issues)
+      - [Fix 5+: SLO Violation Detection & Alerting (DEFERRED)](#fix-5-slo-violation-detection--alerting-deferred)
+      - [Fix 9: Remediate 2037 unwrap/expect Violations](#fix-9-remediate-2037-unwrapexpect-violations)
+      - [Fix 11: Fix cargo make check SLO Violation (20.95s → <5s)](#fix-11-fix-cargo-make-check-slo-violation-2095s-%E2%86%92-5s)
+  - [Deterministic Validation Receipts](#deterministic-validation-receipts)
+    - [✅ Build System](#-build-system)
+    - [✅ gVisor Compliance](#-gvisor-compliance)
+    - [✅ Mutation Testing](#-mutation-testing)
+    - [✅ Configuration Lints](#-configuration-lints)
+  - [Files Created & Modified](#files-created--modified)
+    - [Files Created (8 new files)](#files-created-8-new-files)
+    - [Files Modified (4 files)](#files-modified-4-files)
+  - [Summary Statistics](#summary-statistics)
+  - [Andon Signal Dashboard](#andon-signal-dashboard)
+    - [🟢 GREEN Signals (Go)](#-green-signals-go)
+    - [🟡 YELLOW Signals (Caution)](#-yellow-signals-caution)
+    - [🔴 RED Signals (Stop)](#-red-signals-stop)
+  - [Compliance Summary](#compliance-summary)
+  - [Evidence-Based Validation](#evidence-based-validation)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Adversarial Validation & Implementation - Final Report
 
 ## Executive Summary

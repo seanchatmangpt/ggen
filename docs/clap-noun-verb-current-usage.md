@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [clap-noun-verb Current Usage Analysis](#clap-noun-verb-current-usage-analysis)
+  - [Executive Summary](#executive-summary)
+  - [Version Conflict Detected](#version-conflict-detected)
+    - [Workspace Configuration (Cargo.toml)](#workspace-configuration-cargotoml)
+    - [CLI Crate Configuration (crates/ggen-cli/Cargo.toml)](#cli-crate-configuration-cratesggen-clicargotoml)
+  - [Critical 20% - Primary Files Analysis](#critical-20---primary-files-analysis)
+    - [1. Entry Point & Router](#1-entry-point--router)
+    - [2. Command Modules (Verb Implementations)](#2-command-modules-verb-implementations)
+      - [Primary Command Module (Most Complex)](#primary-command-module-most-complex)
+      - [Other Command Modules](#other-command-modules)
+  - [Common Patterns Across All Files](#common-patterns-across-all-files)
+    - [1. Macro Usage Pattern](#1-macro-usage-pattern)
+    - [2. Error Handling Pattern](#2-error-handling-pattern)
+    - [3. Output Types Pattern](#3-output-types-pattern)
+    - [4. Auto-Discovery Entry Point](#4-auto-discovery-entry-point)
+  - [Complete File List Using clap-noun-verb](#complete-file-list-using-clap-noun-verb)
+  - [Compatibility Assessment with 4.0.2](#compatibility-assessment-with-402)
+    - [✅ Already Compatible (No Changes Needed)](#-already-compatible-no-changes-needed)
+    - [⚠️ Needs Update (Simple Fix)](#-needs-update-simple-fix)
+    - [❌ Breaking Changes (None Found!)](#-breaking-changes-none-found)
+  - [Migration Complexity: VERY LOW](#migration-complexity-very-low)
+    - [The One-Line Fix](#the-one-line-fix)
+  - [Verification Steps](#verification-steps)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # clap-noun-verb Current Usage Analysis
 
 ## Executive Summary

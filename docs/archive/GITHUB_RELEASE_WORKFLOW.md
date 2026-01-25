@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen GitHub Release Workflow (Fail-Proof Edition)](#ggen-github-release-workflow-fail-proof-edition)
+  - [Architecture: Why GitHub Releases?](#architecture-why-github-releases)
+  - [Release Process (Automated + Manual Verification)](#release-process-automated--manual-verification)
+    - [Phase 1: Pre-Release Validation (No Manual Steps Required)](#phase-1-pre-release-validation-no-manual-steps-required)
+    - [Phase 2: Create GitHub Release](#phase-2-create-github-release)
+    - [Phase 3: User Installation (Poka-Yoke Protected)](#phase-3-user-installation-poka-yoke-protected)
+      - [Method 1: Direct apt install (Simplest)](#method-1-direct-apt-install-simplest)
+      - [Method 2: Using install script (Recommended for CI/CD)](#method-2-using-install-script-recommended-for-cicd)
+      - [Method 3: From source (Development)](#method-3-from-source-development)
+  - [Safety & Verification](#safety--verification)
+    - [Checksum Verification (Always Recommended)](#checksum-verification-always-recommended)
+    - [Installation Script Gates (Automated Safety)](#installation-script-gates-automated-safety)
+  - [Troubleshooting](#troubleshooting)
+    - [Build Script Failures](#build-script-failures)
+    - [Installation Script Failures](#installation-script-failures)
+    - [Verification After Install](#verification-after-install)
+  - [Maintenance & Future Releases](#maintenance--future-releases)
+    - [Releasing v5.0.3 (or any future version)](#releasing-v503-or-any-future-version)
+    - [Automating with GitHub Actions (Recommended)](#automating-with-github-actions-recommended)
+  - [GitHub Actions CI/CD (Optional, Recommended for Automation)](#github-actions-cicd-optional-recommended-for-automation)
+  - [Release Checklist](#release-checklist)
+  - [Philosophy: Poka-Yoke Fail-Proof Design](#philosophy-poka-yoke-fail-proof-design)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen GitHub Release Workflow (Fail-Proof Edition)
 
 This document describes the complete, idempotent, poka-yoke fail-proof process for releasing ggen as a Debian package via GitHub Releases.

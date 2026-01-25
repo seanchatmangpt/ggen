@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Path Validation Implementation Summary](#path-validation-implementation-summary)
+  - [Executive Summary](#executive-summary)
+  - [Deliverables](#deliverables)
+    - [1. Core Implementation](#1-core-implementation)
+    - [2. Security Test Suite](#2-security-test-suite)
+    - [3. Documentation](#3-documentation)
+    - [4. Examples](#4-examples)
+    - [5. Integration Plan](#5-integration-plan)
+  - [Security Benefits](#security-benefits)
+    - [Attack Vectors Prevented](#attack-vectors-prevented)
+    - [Threat Model](#threat-model)
+  - [Performance Characteristics](#performance-characteristics)
+    - [Validation Overhead](#validation-overhead)
+    - [Optimization Strategies](#optimization-strategies)
+    - [Benchmarks](#benchmarks)
+  - [API Design](#api-design)
+    - [Type-Safe Design](#type-safe-design)
+    - [Builder Pattern](#builder-pattern)
+  - [Integration Examples](#integration-examples)
+    - [Template Loading](#template-loading)
+    - [RDF Loading](#rdf-loading)
+    - [Code Generation](#code-generation)
+  - [Testing Strategy](#testing-strategy)
+    - [Chicago TDD Approach](#chicago-tdd-approach)
+    - [Test Coverage](#test-coverage)
+  - [Rollout Plan](#rollout-plan)
+    - [Phase 1: High-Priority Modules (Weeks 1-2)](#phase-1-high-priority-modules-weeks-1-2)
+    - [Phase 2: Medium-Priority (Weeks 3-4)](#phase-2-medium-priority-weeks-3-4)
+    - [Phase 3: Low-Priority (Week 5)](#phase-3-low-priority-week-5)
+    - [Phase 4: Testing & Validation (Week 6)](#phase-4-testing--validation-week-6)
+  - [Success Metrics](#success-metrics)
+    - [Security Metrics](#security-metrics)
+    - [Quality Metrics](#quality-metrics)
+    - [Adoption Metrics](#adoption-metrics)
+  - [Next Steps](#next-steps)
+    - [Immediate (This Week)](#immediate-this-week)
+    - [Short-Term (Next 2 Weeks)](#short-term-next-2-weeks)
+    - [Medium-Term (Next 4-6 Weeks)](#medium-term-next-4-6-weeks)
+    - [Long-Term (Next 3 Months)](#long-term-next-3-months)
+  - [Files Created](#files-created)
+  - [Compliance](#compliance)
+    - [Rust Best Practices](#rust-best-practices)
+    - [Security Best Practices](#security-best-practices)
+    - [ggen Project Standards](#ggen-project-standards)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Path Validation Implementation Summary
 
 ## Executive Summary

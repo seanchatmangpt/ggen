@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Collaboration Guide for ggen](#collaboration-guide-for-ggen)
+  - [Overview](#overview)
+  - [Collaboration Workflow](#collaboration-workflow)
+    - [1. Setting Up Your Development Environment](#1-setting-up-your-development-environment)
+    - [2. Branching Strategy](#2-branching-strategy)
+    - [3. Working on Shared Papers](#3-working-on-shared-papers)
+    - [4. Code Review Process](#4-code-review-process)
+      - [Before Submitting a Pull Request](#before-submitting-a-pull-request)
+      - [Pull Request Guidelines](#pull-request-guidelines)
+    - [5. Paper Collaboration Specifics](#5-paper-collaboration-specifics)
+      - [Paper Metadata in Ontology](#paper-metadata-in-ontology)
+      - [Generating Paper with Collaborators](#generating-paper-with-collaborators)
+      - [Managing Collaborator Comments](#managing-collaborator-comments)
+    - [6. Commit Guidelines](#6-commit-guidelines)
+    - [7. Documentation Standards](#7-documentation-standards)
+      - [Code Comments](#code-comments)
+      - [Doc Comments for Papers](#doc-comments-for-papers)
+    - [8. Resolving Conflicts](#8-resolving-conflicts)
+    - [9. Communication Channels](#9-communication-channels)
+    - [10. Meeting Etiquette (for distributed team)](#10-meeting-etiquette-for-distributed-team)
+  - [Recognition and Attribution](#recognition-and-attribution)
+  - [Questions and Support](#questions-and-support)
+  - [Code of Conduct](#code-of-conduct)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Collaboration Guide for ggen
 
 This guide covers best practices for collaborating on ggen development, especially for academic papers and research publications.

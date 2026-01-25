@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Track Implementation Workflows](#how-to-track-implementation-workflows)
+  - [Overview](#overview)
+  - [Step 1: Initialize Workflow Tracking](#step-1-initialize-workflow-tracking)
+    - [Create a new workflow](#create-a-new-workflow)
+    - [Understanding workflow types](#understanding-workflow-types)
+  - [Step 2: Record Workflow Events](#step-2-record-workflow-events)
+    - [Track a single event](#track-a-single-event)
+    - [Track a complete process](#track-a-complete-process)
+    - [Batch recording from CSV](#batch-recording-from-csv)
+  - [Step 3: Analyze Workflow Statistics](#step-3-analyze-workflow-statistics)
+    - [Get basic statistics](#get-basic-statistics)
+    - [Understanding the output](#understanding-the-output)
+    - [Summary analysis](#summary-analysis)
+  - [Step 4: Discover Process Patterns](#step-4-discover-process-patterns)
+    - [Find the process graph](#find-the-process-graph)
+    - [Extract Mermaid diagram](#extract-mermaid-diagram)
+    - [Focus on critical path (80/20)](#focus-on-critical-path-8020)
+    - [Key insights to look for](#key-insights-to-look-for)
+  - [Step 5: Optimize Based on Insights](#step-5-optimize-based-on-insights)
+    - [Example: University Research Pipeline](#example-university-research-pipeline)
+  - [Step 6: Generate Reports](#step-6-generate-reports)
+    - [Full workflow report](#full-workflow-report)
+    - [JSON report for programmatic analysis](#json-report-for-programmatic-analysis)
+    - [Custom reports](#custom-reports)
+  - [Real-World Example: University Research to Marketplace](#real-world-example-university-research-to-marketplace)
+    - [Complete workflow tracking](#complete-workflow-tracking)
+  - [Integration with RevOps](#integration-with-revops)
+    - [Track deal progression](#track-deal-progression)
+    - [Measure sales velocity](#measure-sales-velocity)
+  - [Troubleshooting](#troubleshooting)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Track Implementation Workflows
 
 This guide shows how to use ggen's workflow analytics to monitor and optimize implementation processes.

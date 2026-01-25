@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 3: Template Security Hardening Implementation](#week-3-template-security-hardening-implementation)
+  - [Summary](#summary)
+  - [Implemented Components](#implemented-components)
+    - [1. Core Security Module (`template_secure.rs`)](#1-core-security-module-template_securers)
+    - [2. Security Architecture](#2-security-architecture)
+      - [`TemplateSandbox` Trait](#templatesandbox-trait)
+      - [`SecureTeraEnvironment` Implementation](#secureteraenvironment-implementation)
+      - [`TemplateValidator`](#templatevalidator)
+      - [`ContextEscaper`](#contextescaper)
+  - [Test Coverage](#test-coverage)
+    - [Unit Tests (30+ tests)](#unit-tests-30-tests)
+      - [Template Size Validation (3 tests)](#template-size-validation-3-tests)
+      - [Variable Name Validation (7 tests)](#variable-name-validation-7-tests)
+      - [Forbidden Pattern Detection (4 tests)](#forbidden-pattern-detection-4-tests)
+      - [Include Validation (1 test)](#include-validation-1-test)
+      - [Function Whitelist (2 tests)](#function-whitelist-2-tests)
+      - [HTML Escaping (3 tests)](#html-escaping-3-tests)
+      - [SQL Escaping (3 tests)](#sql-escaping-3-tests)
+      - [Shell Escaping (3 tests)](#shell-escaping-3-tests)
+      - [Integration (3 tests)](#integration-3-tests)
+    - [Integration Tests (10+ tests)](#integration-tests-10-tests)
+      - [Real Template Scenarios (6 tests)](#real-template-scenarios-6-tests)
+    - [Security Injection Tests (15+ tests)](#security-injection-tests-15-tests)
+      - [Attack Prevention (15 tests)](#attack-prevention-15-tests)
+    - [Edge Case Tests (3+ tests)](#edge-case-tests-3-tests)
+  - [Constitutional Rules Compliance](#constitutional-rules-compliance)
+    - [✅ Zero `unwrap()`/`expect()` in Production Code](#-zero-unwrapexpect-in-production-code)
+    - [✅ Chicago TDD Methodology](#-chicago-tdd-methodology)
+    - [✅ Type Safety](#-type-safety)
+    - [✅ Production-Ready Standards](#-production-ready-standards)
+  - [Integration Points](#integration-points)
+    - [Module Exports](#module-exports)
+    - [Usage Example](#usage-example)
+  - [Known Limitations & Blockers](#known-limitations--blockers)
+    - [⚠️ Compilation Status](#-compilation-status)
+    - [Temporary Workarounds](#temporary-workarounds)
+  - [Security Guarantees](#security-guarantees)
+    - [Prevented Attack Vectors](#prevented-attack-vectors)
+    - [Security Properties](#security-properties)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Future Enhancements](#future-enhancements)
+  - [Files Created/Modified](#files-createdmodified)
+    - [Created (2 files)](#created-2-files)
+    - [Modified (1 file)](#modified-1-file)
+    - [Temporarily Modified (for validation)](#temporarily-modified-for-validation)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 3: Template Security Hardening Implementation
 
 **Implementation Date**: January 24, 2026

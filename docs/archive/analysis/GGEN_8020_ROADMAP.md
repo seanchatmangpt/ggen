@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Dark Matter/Energy 80/20 Roadmap](#ggen-dark-matterenergy-8020-roadmap)
+  - [Executive Summary](#executive-summary)
+  - [Part 1: Current State (What ggen Has Built)](#part-1-current-state-what-ggen-has-built)
+    - [1.1 ✅ O-First Ontologies (COMPLETE)](#11--o-first-ontologies-complete)
+    - [1.2 ✅ Projection Families (Π) (MOSTLY COMPLETE)](#12--projection-families-%CE%A0-mostly-complete)
+    - [1.3 ✅ Marketplace + Validation (COMPLETE)](#13--marketplace--validation-complete)
+    - [1.4 ✅ Graph-Anchored AI (COMPLETE)](#14--graph-anchored-ai-complete)
+    - [1.5 ❌ Sector Bundles (MISSING - CRITICAL GAP)](#15--sector-bundles-missing---critical-gap)
+    - [1.6 ⚠️ Validation Receipts (PARTIALLY MISSING)](#16--validation-receipts-partially-missing)
+    - [1.7 ⚠️ 8020 Guard + Badge (PARTIALLY MISSING)](#17--8020-guard--badge-partially-missing)
+    - [1.8 ⚠️ Dark Matter Reduction Targets (MISSING)](#18--dark-matter-reduction-targets-missing)
+  - [Part 2: The 80/20 Strategy (What to Build)](#part-2-the-8020-strategy-what-to-build)
+    - [2.1 Design Principle: Sector Bundles as First-Class Artifacts](#21-design-principle-sector-bundles-as-first-class-artifacts)
+    - [2.2 Five Core 8020 Packages to Build](#22-five-core-8020-packages-to-build)
+      - [**8020 Package #1: `sector-observability-8020`**](#8020-package-1-sector-observability-8020)
+      - [**8020 Package #2: `sector-rust-microservice-8020`**](#8020-package-2-sector-rust-microservice-8020)
+      - [**8020 Package #3: `sector-paper-lifecycle-8020`**](#8020-package-3-sector-paper-lifecycle-8020)
+      - [**8020 Package #4: `sector-support-hooks-8020`**](#8020-package-4-sector-support-hooks-8020)
+      - [**8020 Package #5: `sector-api-gateway-8020`**](#8020-package-5-sector-api-gateway-8020)
+    - [2.3 Guard Definitions (8020 Validation Criteria)](#23-guard-definitions-8020-validation-criteria)
+      - [Guard: `Guard8020Coverage`](#guard-guard8020coverage)
+      - [Guard: `GuardChatmanCompliant`](#guard-guardchatmancompliant)
+      - [Guard: `GuardTelemetryComplete`](#guard-guardtelemetrycomplete)
+    - [2.4 Implementation Steps (Near-Term: 2-4 Weeks)](#24-implementation-steps-near-term-2-4-weeks)
+      - [**Phase 1: Infrastructure (Week 1)**](#phase-1-infrastructure-week-1)
+      - [**Phase 2: Package Composition (Week 2-3)**](#phase-2-package-composition-week-2-3)
+      - [**Phase 3: Validation & Documentation (Week 4)**](#phase-3-validation--documentation-week-4)
+  - [Part 3: Dark Matter Reduction Targets (Measurable Claims)](#part-3-dark-matter-reduction-targets-measurable-claims)
+    - [3.1 Proposed Targets Per Sector](#31-proposed-targets-per-sector)
+      - [**Healthcare Sector**:](#healthcare-sector)
+      - [**Microservice Sector**:](#microservice-sector)
+      - [**Academic Sector**:](#academic-sector)
+      - [**Support Sector**:](#support-sector)
+    - [3.2 Measurement Approach](#32-measurement-approach)
+  - [Part 4: Roadmap Timeline & Ownership](#part-4-roadmap-timeline--ownership)
+    - [Week 1: Infrastructure](#week-1-infrastructure)
+    - [Week 2-3: Package Composition](#week-2-3-package-composition)
+    - [Week 4: Validation & Launch](#week-4-validation--launch)
+  - [Part 5: Strategic Outcomes](#part-5-strategic-outcomes)
+    - [What This Achieves](#what-this-achieves)
+  - [Part 6: Appendix](#part-6-appendix)
+    - [6.1 Package Structure Reference](#61-package-structure-reference)
+    - [6.2 Dark Matter/Energy Glossary](#62-dark-matterenergy-glossary)
+    - [6.3 Existing Proof Points](#63-existing-proof-points)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Dark Matter/Energy 80/20 Roadmap
 
 **Status**: DRAFT - Strategic Roadmap for 8020 Innovation Line

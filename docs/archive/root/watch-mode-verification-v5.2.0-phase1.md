@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Watch Mode Verification - ggen v5.2.0 Phase 1 CRITICAL](#watch-mode-verification---ggen-v520-phase-1-critical)
+  - [Executive Summary](#executive-summary)
+  - [1. Code Verification](#1-code-verification)
+    - [1.1 Execute Watch Mode Implementation](#11-execute-watch-mode-implementation)
+    - [1.2 FileWatcher Integration](#12-filewatcher-integration)
+    - [1.3 Integration Flow](#13-integration-flow)
+    - [1.4 Error Handling](#14-error-handling)
+  - [2. Test Coverage](#2-test-coverage)
+    - [2.1 Unit Tests (9 tests)](#21-unit-tests-9-tests)
+    - [2.2 Integration Tests (6 tests)](#22-integration-tests-6-tests)
+  - [3. Integration Wiring](#3-integration-wiring)
+    - [3.1 Where execute_watch_mode() is Called](#31-where-execute_watch_mode-is-called)
+    - [3.2 How File Changes Trigger Regeneration](#32-how-file-changes-trigger-regeneration)
+    - [3.3 Graceful Exit on Timeout or User Interrupt](#33-graceful-exit-on-timeout-or-user-interrupt)
+  - [4. Test Scenarios Created](#4-test-scenarios-created)
+    - [Scenario 1: File Change Triggers Regeneration](#scenario-1-file-change-triggers-regeneration)
+    - [Scenario 2: 300ms Debounce Prevents Duplicates](#scenario-2-300ms-debounce-prevents-duplicates)
+    - [Scenario 3: Queue Bounded at 10](#scenario-3-queue-bounded-at-10)
+  - [5. Success Criteria](#5-success-criteria)
+  - [6. Entropy Reduction Analysis](#6-entropy-reduction-analysis)
+  - [7. Remaining Work (Future Enhancements)](#7-remaining-work-future-enhancements)
+  - [8. Conclusion](#8-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Watch Mode Verification - ggen v5.2.0 Phase 1 CRITICAL
 
 **Date**: 2025-12-21

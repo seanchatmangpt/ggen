@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [LLM-Construct Pattern: Implementation Roadmap](#llm-construct-pattern-implementation-roadmap)
+  - [Table of Contents](#table-of-contents)
+  - [Architecture Overview](#architecture-overview)
+  - [Component Specifications](#component-specifications)
+    - [1. OWL Extractor (`crates/ggen-ai/src/owl/extractor.rs`)](#1-owl-extractor-cratesggen-aisrcowlextractorrs)
+    - [2. SHACL Generator (`crates/ggen-ai/src/owl/shacl_generator.rs`)](#2-shacl-generator-cratesggen-aisrcowlshacl_generatorrs)
+    - [3. LLM-Construct Builder (`crates/ggen-ai/src/llm_construct/builder.rs`)](#3-llm-construct-builder-cratesggen-aisrcllm_constructbuilderrs)
+  - [File Structure](#file-structure)
+  - [Implementation Phases](#implementation-phases)
+    - [Phase 1: OWL Extraction (Weeks 1-2)](#phase-1-owl-extraction-weeks-1-2)
+    - [Phase 2: SHACL Generation (Weeks 3-4)](#phase-2-shacl-generation-weeks-3-4)
+    - [Phase 3: LLM-Construct Builder (Weeks 5-6)](#phase-3-llm-construct-builder-weeks-5-6)
+    - [Phase 4: Code Generation (Weeks 7-8)](#phase-4-code-generation-weeks-7-8)
+    - [Phase 5: Documentation & Examples (Week 9)](#phase-5-documentation--examples-week-9)
+  - [Testing Strategy](#testing-strategy)
+    - [Unit Tests (Chicago TDD Pattern)](#unit-tests-chicago-tdd-pattern)
+    - [Integration Tests](#integration-tests)
+    - [Property-Based Tests](#property-based-tests)
+  - [Integration Points](#integration-points)
+    - [With Existing ggen Infrastructure](#with-existing-ggen-infrastructure)
+  - [Example Usage](#example-usage)
+    - [Command-Line Workflow](#command-line-workflow)
+    - [Rust API Usage](#rust-api-usage)
+    - [Generated Module Usage](#generated-module-usage)
+  - [Receipts & Quality Gates](#receipts--quality-gates)
+    - [Pre-Commit Requirements](#pre-commit-requirements)
+    - [Phase Completion Receipts](#phase-completion-receipts)
+  - [Future Extensions](#future-extensions)
+    - [Semantic Validation Plugins](#semantic-validation-plugins)
+    - [OWL Reasoning Integration](#owl-reasoning-integration)
+    - [Multi-Class Constructs](#multi-class-constructs)
+    - [Constraint Relaxation](#constraint-relaxation)
+  - [Summary](#summary)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # LLM-Construct Pattern: Implementation Roadmap
 
 **Core Equation**: `LLM-Construct = μ(OWL) → SHACL → DSPy → Constrained Behavior`

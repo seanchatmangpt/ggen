@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Agent 6: SHACL Validation from FIBO Constraints](#agent-6-shacl-validation-from-fibo-constraints)
+  - [Executive Summary](#executive-summary)
+  - [1. Background: OWL Constraints vs SHACL Shapes](#1-background-owl-constraints-vs-shacl-shapes)
+    - [1.1 Semantic Differences](#11-semantic-differences)
+    - [1.2 FIBO OWL Constraint Patterns](#12-fibo-owl-constraint-patterns)
+  - [2. CONSTRUCT Patterns for SHACL Derivation](#2-construct-patterns-for-shacl-derivation)
+    - [2.1 Pattern 1: Cardinality Constraints (minCount/maxCount)](#21-pattern-1-cardinality-constraints-mincountmaxcount)
+    - [2.2 Pattern 2: Datatype Constraints (sh:datatype)](#22-pattern-2-datatype-constraints-shdatatype)
+    - [2.3 Pattern 3: Value Range Constraints (sh:class, sh:nodeKind)](#23-pattern-3-value-range-constraints-shclass-shnodekind)
+    - [2.4 Pattern 4: Enumeration Constraints (sh:in)](#24-pattern-4-enumeration-constraints-shin)
+    - [2.5 Pattern 5: Regulatory Pattern Constraints (sh:pattern)](#25-pattern-5-regulatory-pattern-constraints-shpattern)
+  - [3. Complete SHACL Shapes Derived from FIBO](#3-complete-shacl-shapes-derived-from-fibo)
+    - [3.1 Financial Instrument Shape](#31-financial-instrument-shape)
+    - [3.2 Derivative Shape (Inherits from Financial Instrument)](#32-derivative-shape-inherits-from-financial-instrument)
+    - [3.3 Regulatory Compliance Shape](#33-regulatory-compliance-shape)
+  - [4. Integration with ggen Validation Pipeline](#4-integration-with-ggen-validation-pipeline)
+    - [4.1 ggen.toml Configuration](#41-ggentoml-configuration)
+    - [4.2 Rust Validator Template (rust-validator.rs.tera)](#42-rust-validator-template-rust-validatorrstera)
+  - [5. PhD Thesis Contribution Statement](#5-phd-thesis-contribution-statement)
+    - [5.1 Research Problem](#51-research-problem)
+    - [5.2 Novel Contribution](#52-novel-contribution)
+    - [5.3 Empirical Validation](#53-empirical-validation)
+    - [5.4 Theoretical Significance](#54-theoretical-significance)
+    - [5.5 Practical Impact](#55-practical-impact)
+    - [5.6 Publications Roadmap](#56-publications-roadmap)
+  - [6. Integration Architecture Diagram](#6-integration-architecture-diagram)
+  - [7. Performance Characteristics](#7-performance-characteristics)
+    - [7.1 CONSTRUCT Execution Benchmarks](#71-construct-execution-benchmarks)
+    - [7.2 Code Generation Metrics](#72-code-generation-metrics)
+  - [8. Comparison with Related Work](#8-comparison-with-related-work)
+    - [8.1 Astrea SHACL Generator](#81-astrea-shacl-generator)
+    - [8.2 TopQuadrant SHACL Tools](#82-topquadrant-shacl-tools)
+  - [9. Limitations and Future Work](#9-limitations-and-future-work)
+    - [9.1 Current Limitations](#91-current-limitations)
+    - [9.2 Future Research Directions](#92-future-research-directions)
+  - [10. Reproducibility Checklist](#10-reproducibility-checklist)
+  - [References](#references)
+  - [Appendix A: Complete ggen.toml Example](#appendix-a-complete-ggentoml-example)
+  - [Appendix B: CONSTRUCT Pattern Catalog](#appendix-b-construct-pattern-catalog)
+  - [Appendix C: Generated Validator Test Suite](#appendix-c-generated-validator-test-suite)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Agent 6: SHACL Validation from FIBO Constraints
 
 ## Executive Summary

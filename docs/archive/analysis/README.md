@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Analysis Documents](#analysis-documents)
+  - [Contents Summary](#contents-summary)
+    - [By Category](#by-category)
+  - [Recommended Reading Order](#recommended-reading-order)
+    - [For Understanding Overall Development](#for-understanding-overall-development)
+    - [For Understanding Architecture](#for-understanding-architecture)
+    - [For Understanding Quality & Testing](#for-understanding-quality--testing)
+    - [For Understanding CI/CD](#for-understanding-cicd)
+    - [For Understanding Code Quality](#for-understanding-code-quality)
+  - [Key Insights from Analysis](#key-insights-from-analysis)
+    - [Most Important Files](#most-important-files)
+  - [Searching the Analysis](#searching-the-analysis)
+    - [Quick Search Examples](#quick-search-examples)
+    - [Common Questions & Relevant Files](#common-questions--relevant-files)
+  - [Document Statistics](#document-statistics)
+  - [Using These Files](#using-these-files)
+    - [For Developers](#for-developers)
+    - [For Managers](#for-managers)
+    - [For Contributors](#for-contributors)
+  - [Maintenance Notes](#maintenance-notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Analysis Documents
 
 This directory contains detailed technical analysis, planning documents, and progress reports from ggen development.

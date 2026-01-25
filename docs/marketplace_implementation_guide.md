@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Marketplace Implementation Guide](#ggen-marketplace-implementation-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [File Structure Setup](#file-structure-setup)
+  - [Implementing Domain Functions](#implementing-domain-functions)
+    - [1. Search Function (Domain Layer)](#1-search-function-domain-layer)
+    - [2. Install Function (Domain Layer)](#2-install-function-domain-layer)
+  - [Creating Test Fixtures](#creating-test-fixtures)
+    - [Registry Index Fixture](#registry-index-fixture)
+    - [Package Fixture (agent-editor)](#package-fixture-agent-editor)
+  - [Usage](#usage)
+  - [Testing](#testing)
+  - [License](#license)
+  - [Common Patterns](#common-patterns)
+    - [Pattern 1: Registry Loading with Error Handling](#pattern-1-registry-loading-with-error-handling)
+    - [Pattern 2: Maturity Assessment with Fallback](#pattern-2-maturity-assessment-with-fallback)
+    - [Pattern 3: Pagination for Large Result Sets](#pattern-3-pagination-for-large-result-sets)
+  - [Troubleshooting](#troubleshooting)
+    - [Issue 1: Registry Index Not Found](#issue-1-registry-index-not-found)
+    - [Issue 2: Package Not Found After Search](#issue-2-package-not-found-after-search)
+    - [Issue 3: Maturity Score Always 0](#issue-3-maturity-score-always-0)
+    - [Issue 4: Install Fails with Permission Error](#issue-4-install-fails-with-permission-error)
+  - [Performance Optimization Tips](#performance-optimization-tips)
+    - [1. Cache Registry Index](#1-cache-registry-index)
+    - [2. Parallel Maturity Assessment](#2-parallel-maturity-assessment)
+    - [3. Lazy Loading Package Details](#3-lazy-loading-package-details)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Marketplace Implementation Guide
 
 **Version**: 1.0

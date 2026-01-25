@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [v6.0 Migration Quick Start](#v60-migration-quick-start)
+  - [Am I Affected?](#am-i-affected)
+    - [✅ You're Good (No Action Needed)](#-youre-good-no-action-needed)
+    - [⚠️ You Need to Act (Import Changes Required)](#-you-need-to-act-import-changes-required)
+  - [Quick Migration (3 Steps)](#quick-migration-3-steps)
+    - [Step 1: Run Migration Script (2 minutes)](#step-1-run-migration-script-2-minutes)
+    - [Step 2: Review Changes (2 minutes)](#step-2-review-changes-2-minutes)
+    - [Step 3: Test and Commit (1 minute)](#step-3-test-and-commit-1-minute)
+  - [Manual Migration (If Script Fails)](#manual-migration-if-script-fails)
+    - [Find and Replace (All Files)](#find-and-replace-all-files)
+    - [Grouped Imports](#grouped-imports)
+    - [Verify Compilation](#verify-compilation)
+  - [What Changed?](#what-changed)
+    - [Import Path Changes](#import-path-changes)
+    - [New Modules](#new-modules)
+    - [What Did NOT Change](#what-did-not-change)
+  - [Common Errors and Fixes](#common-errors-and-fixes)
+    - [Error 1: Type Not Found in `types`](#error-1-type-not-found-in-types)
+    - [Error 2: Cannot Find `AndonSignal`](#error-2-cannot-find-andonsignal)
+    - [Error 3: Build Time Increased](#error-3-build-time-increased)
+  - [Testing Your Migration](#testing-your-migration)
+    - [Minimal Testing (2 minutes)](#minimal-testing-2-minutes)
+    - [Full Testing (5 minutes)](#full-testing-5-minutes)
+    - [Integration Testing (Optional)](#integration-testing-optional)
+  - [Rollback Plan](#rollback-plan)
+    - [Option 1: Restore from Backup](#option-1-restore-from-backup)
+    - [Option 2: Downgrade to v5.1.0](#option-2-downgrade-to-v510)
+    - [Option 3: Git Reset](#option-3-git-reset)
+  - [Performance Impact](#performance-impact)
+    - [Build Times](#build-times)
+    - [Why the Increase?](#why-the-increase)
+    - [Mitigation](#mitigation)
+  - [CI/CD Updates](#cicd-updates)
+    - [GitHub Actions](#github-actions)
+    - [GitLab CI](#gitlab-ci)
+  - [Support Levels](#support-levels)
+  - [Resources](#resources)
+    - [Documentation](#documentation)
+    - [Tools](#tools)
+    - [Community](#community)
+  - [Summary Checklist](#summary-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # v6.0 Migration Quick Start
 
 **5-Minute Guide** to migrating from ggen v5.1.0 to v6.0.0

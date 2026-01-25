@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MCP Integration with ggen - Complete Documentation Index](#mcp-integration-with-ggen---complete-documentation-index)
+  - [Quick Navigation](#quick-navigation)
+    - [🚀 I Want to...](#-i-want-to)
+  - [Documentation Structure](#documentation-structure)
+    - [📚 <a name="zero-to-hero"></a> MCP Zero-to-Hero Guide](#-a-namezero-to-heroa-mcp-zero-to-hero-guide)
+    - [🛠️ <a name="how-to-build"></a> How-To: Build Your First MCP Tool with ggen](#-a-namehow-to-builda-how-to-build-your-first-mcp-tool-with-ggen)
+    - [💡 <a name="explanation"></a> Why MCP and ggen Work Together](#-a-nameexplanationa-why-mcp-and-ggen-work-together)
+  - [<a name="examples"></a> Real-World Examples](#a-nameexamplesa-real-world-examples)
+    - [From ggen's Own Packages](#from-ggens-own-packages)
+    - [In ggen Tests](#in-ggen-tests)
+  - [<a name="production"></a> Production Patterns](#a-nameproductiona-production-patterns)
+    - [Pattern 1: Simple Tool Wrapper](#pattern-1-simple-tool-wrapper)
+    - [Pattern 2: Multi-Step Workflow](#pattern-2-multi-step-workflow)
+    - [Pattern 3: Learning Agent System](#pattern-3-learning-agent-system)
+    - [Pattern 4: Agent Swarms (EPIC 9)](#pattern-4-agent-swarms-epic-9)
+  - [MCP + ggen Capabilities Summary](#mcp--ggen-capabilities-summary)
+    - [Available ggen Verbs (44 Total)](#available-ggen-verbs-44-total)
+  - [<a name="troubleshooting"></a> Troubleshooting Guide](#a-nametroubleshootinga-troubleshooting-guide)
+    - [Common Issues](#common-issues)
+  - [Configuration & Setup](#configuration--setup)
+    - [MCP Server Configuration (.mcp.json)](#mcp-server-configuration-mcpjson)
+    - [Capability Discovery Flags](#capability-discovery-flags)
+  - [Integration Checklist](#integration-checklist)
+  - [Resources](#resources)
+    - [Official Documentation](#official-documentation)
+    - [ggen Examples](#ggen-examples)
+    - [Community](#community)
+  - [Summary](#summary)
+    - [The Three Documents](#the-three-documents)
+    - [Your Learning Path](#your-learning-path)
+    - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MCP Integration with ggen - Complete Documentation Index
 
 **Everything you need to know about using ggen in Model Context Protocol servers**

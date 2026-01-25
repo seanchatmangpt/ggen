@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 9: TLS 1.3 Network Security Implementation](#week-9-tls-13-network-security-implementation)
+  - [Executive Summary](#executive-summary)
+  - [Architecture](#architecture)
+    - [Module Structure](#module-structure)
+    - [Type-First Design](#type-first-design)
+  - [Implementation Details](#implementation-details)
+    - [1. TLS Configuration (`config.rs`)](#1-tls-configuration-configrs)
+    - [2. Certificate Pinning (`pinning.rs`)](#2-certificate-pinning-pinningrs)
+    - [3. Certificate Validation (`validator.rs`)](#3-certificate-validation-validatorrs)
+    - [4. Connection Pooling (`pool.rs`)](#4-connection-pooling-poolrs)
+    - [5. HSTS Enforcement (`hsts.rs`)](#5-hsts-enforcement-hstsrs)
+    - [6. Error Handling (`error.rs`)](#6-error-handling-errorrs)
+  - [Test Coverage](#test-coverage)
+    - [Unit Tests (20+ tests per module)](#unit-tests-20-tests-per-module)
+    - [Integration Tests (18 tests)](#integration-tests-18-tests)
+    - [Security Tests (15 tests)](#security-tests-15-tests)
+  - [Chicago TDD Compliance](#chicago-tdd-compliance)
+  - [Dependencies Added](#dependencies-added)
+  - [Example Usage](#example-usage)
+  - [Constitutional Compliance](#constitutional-compliance)
+    - [✅ Zero unwrap/expect in production code](#-zero-unwrapexpect-in-production-code)
+    - [✅ Result<T,E> for all fallible operations](#-resultte-for-all-fallible-operations)
+    - [✅ Type-first thinking](#-type-first-thinking)
+    - [✅ Chicago TDD](#-chicago-tdd)
+    - [✅ Zero-cost abstractions](#-zero-cost-abstractions)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Known Limitations](#known-limitations)
+  - [Security Audit Checklist](#security-audit-checklist)
+  - [Future Enhancements](#future-enhancements)
+  - [References](#references)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 9: TLS 1.3 Network Security Implementation
 
 **Implementation Date**: 2026-01-24

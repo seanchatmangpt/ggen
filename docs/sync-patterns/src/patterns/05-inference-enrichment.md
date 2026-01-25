@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [5. INFERENCE ENRICHMENT *](#5-inference-enrichment-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [Manifest Configuration](#manifest-configuration)
+    - [Rule Execution](#rule-execution)
+    - [Materialization](#materialization)
+    - [Ordering](#ordering)
+    - [Conditional Execution](#conditional-execution)
+  - [The Inference Chain](#the-inference-chain)
+  - [Audit Trail](#audit-trail)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 5. INFERENCE ENRICHMENT *
 
 *What is implicit must be made explicit before it can be used.*

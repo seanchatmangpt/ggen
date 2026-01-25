@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [JavaScript Express Backend Generator Example](#javascript-express-backend-generator-example)
+  - [Overview](#overview)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Define Your Domain Ontology](#step-1-define-your-domain-ontology)
+  - [Step 2: Configure ggen Generation](#step-2-configure-ggen-generation)
+  - [Step 3: Create Tera Templates](#step-3-create-tera-templates)
+    - [Template: TypeScript Interfaces (templates/typescript-interface.tera)](#template-typescript-interfaces-templatestypescript-interfacetera)
+    - [Template: Express Routes (templates/express-route.tera)](#template-express-routes-templatesexpress-routetera)
+    - [Template: Zod Validators (templates/zod-validator.tera)](#template-zod-validators-templateszod-validatortera)
+  - [Step 4: Run Generation](#step-4-run-generation)
+  - [Step 5: Create Express Application](#step-5-create-express-application)
+  - [Step 6: Example Implementation](#step-6-example-implementation)
+  - [Step 7: Testing](#step-7-testing)
+  - [Best Practices](#best-practices)
+    - [1. Keep Ontology Current](#1-keep-ontology-current)
+    - [2. Layer Generated and Manual Code](#2-layer-generated-and-manual-code)
+    - [3. Version Your Ontology](#3-version-your-ontology)
+    - [4. Test Generated Code](#4-test-generated-code)
+  - [Common Patterns](#common-patterns)
+    - [Pattern 1: Resource CRUD](#pattern-1-resource-crud)
+    - [Pattern 2: Authentication](#pattern-2-authentication)
+    - [Pattern 3: Pagination](#pattern-3-pagination)
+  - [Troubleshooting](#troubleshooting)
+    - [Problem: Generated types don't match API](#problem-generated-types-dont-match-api)
+    - [Problem: Routes not generating](#problem-routes-not-generating)
+    - [Problem: Validation always fails](#problem-validation-always-fails)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # JavaScript Express Backend Generator Example
 
 > Generate production-grade Express.js APIs from RDF ontologies

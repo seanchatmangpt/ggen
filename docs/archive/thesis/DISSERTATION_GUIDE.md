@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [PhD Dissertation: Performance Analysis of ggen](#phd-dissertation-performance-analysis-of-ggen)
+  - [Overview](#overview)
+  - [Files](#files)
+  - [Compiling the Dissertation](#compiling-the-dissertation)
+    - [Prerequisites](#prerequisites)
+    - [Compilation Steps](#compilation-steps)
+    - [Quick Compilation Script](#quick-compilation-script)
+  - [Document Structure](#document-structure)
+    - [Front Matter](#front-matter)
+    - [Main Content](#main-content)
+      - [Chapter 1: Introduction](#chapter-1-introduction)
+      - [Chapter 2: Background and Related Work](#chapter-2-background-and-related-work)
+      - [Chapter 3: Methodology](#chapter-3-methodology)
+      - [Chapter 4: Benchmark Results](#chapter-4-benchmark-results)
+      - [Chapter 5: Analysis and Discussion](#chapter-5-analysis-and-discussion)
+      - [Chapter 6: Test Coverage Analysis](#chapter-6-test-coverage-analysis)
+      - [Chapter 7: Conclusion](#chapter-7-conclusion)
+    - [Back Matter](#back-matter)
+  - [Real Benchmark Data Cited](#real-benchmark-data-cited)
+    - [Configuration Loading](#configuration-loading)
+    - [Disk I/O](#disk-io)
+    - [Template Parsing](#template-parsing)
+    - [Sync Command](#sync-command)
+    - [Error Handling](#error-handling)
+    - [Concurrent Operations (Marketplace)](#concurrent-operations-marketplace)
+  - [Key Findings Presented](#key-findings-presented)
+  - [Academic Citations](#academic-citations)
+  - [Future Extensions](#future-extensions)
+  - [Compilation Troubleshooting](#compilation-troubleshooting)
+    - [Missing packages](#missing-packages)
+    - [Bibtex not found](#bibtex-not-found)
+    - [PDF generation issues](#pdf-generation-issues)
+  - [Dissertation Statistics](#dissertation-statistics)
+  - [Citing This Work](#citing-this-work)
+  - [License](#license)
+  - [Questions or Modifications](#questions-or-modifications)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # PhD Dissertation: Performance Analysis of ggen
 
 ## Overview

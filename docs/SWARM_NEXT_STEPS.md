@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [🐝 SWARM PHASE 7: NEXT STEPS](#-swarm-phase-7-next-steps)
+  - [Executive Summary](#executive-summary)
+  - [Quick Validation](#quick-validation)
+  - [Critical Path to 100% (Prioritized)](#critical-path-to-100-prioritized)
+    - [Priority 1: Fix chicago_tdd_tools API Incompatibility (4-6 hours)](#priority-1-fix-chicago_tdd_tools-api-incompatibility-4-6-hours)
+    - [Priority 2: Remove Tests from src/ Directories (2-3 hours)](#priority-2-remove-tests-from-src-directories-2-3-hours)
+    - [Priority 3: Fix Integration Test Compilation (3-4 hours)](#priority-3-fix-integration-test-compilation-3-4-hours)
+    - [Priority 4: Achieve 100% Pass Rate (2-4 hours)](#priority-4-achieve-100-pass-rate-2-4-hours)
+  - [Effort Estimate](#effort-estimate)
+  - [Success Criteria](#success-criteria)
+  - [Alternative: Quick Win Strategy](#alternative-quick-win-strategy)
+    - [Phase A: Fix ONE Module Completely (2 hours)](#phase-a-fix-one-module-completely-2-hours)
+    - [Phase B: Apply Pattern to 5 More Modules (3 hours)](#phase-b-apply-pattern-to-5-more-modules-3-hours)
+    - [Phase C: Declare "Critical 20%" Complete (15 min)](#phase-c-declare-critical-20-complete-15-min)
+  - [Recommended Approach](#recommended-approach)
+  - [Automation Scripts](#automation-scripts)
+    - [Script 1: Count Remaining Work](#script-1-count-remaining-work)
+    - [Script 2: Fix One File](#script-2-fix-one-file)
+  - [Monitoring Progress](#monitoring-progress)
+  - [Support](#support)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 🐝 SWARM PHASE 7: NEXT STEPS
 
 ## Executive Summary

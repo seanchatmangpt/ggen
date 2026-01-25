@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Phase 2: Compile-Time Validation - Implementation](#phase-2-compile-time-validation---implementation)
+  - [Status: ✅ Complete](#status--complete)
+    - [Deliverables](#deliverables)
+    - [Compile-Time Validation Features](#compile-time-validation-features)
+      - [CLI Command Validation](#cli-command-validation)
+      - [Test Configuration Validation](#test-configuration-validation)
+    - [Integration with `cargo make check`](#integration-with-cargo-make-check)
+    - [Benefits](#benefits)
+    - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Phase 2: Compile-Time Validation - Implementation
 
 ## Status: ✅ Complete

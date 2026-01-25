@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Swarm Intelligence Implementation Summary](#swarm-intelligence-implementation-summary)
+  - [Overview](#overview)
+  - [Files Created](#files-created)
+    - [1. `swarm_intelligence.rs` (589 LOC)](#1-swarm_intelligencers-589-loc)
+      - [Key Components:](#key-components)
+    - [2. `swarm_coordinator.rs` (514 LOC)](#2-swarm_coordinatorrs-514-loc)
+      - [Key Components:](#key-components-1)
+  - [Integration Points](#integration-points)
+    - [With Existing Systems](#with-existing-systems)
+  - [Module Exports](#module-exports)
+  - [Core Features Implemented (80/20 Principle)](#core-features-implemented-8020-principle)
+    - [Collective Memory (20% effort, 80% value)](#collective-memory-20-effort-80-value)
+    - [Worker Coordination (20% effort, 80% value)](#worker-coordination-20-effort-80-value)
+    - [Consensus Mechanisms (20% effort, 80% value)](#consensus-mechanisms-20-effort-80-value)
+    - [Self-Healing (20% effort, 80% value)](#self-healing-20-effort-80-value)
+  - [Test Coverage](#test-coverage)
+    - [swarm_intelligence.rs Tests](#swarm_intelligencers-tests)
+    - [swarm_coordinator.rs Tests](#swarm_coordinatorrs-tests)
+  - [Code Quality](#code-quality)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Future Enhancement Opportunities](#future-enhancement-opportunities)
+  - [Build Notes](#build-notes)
+  - [Coordination Protocol Used](#coordination-protocol-used)
+  - [Memory Keys Used](#memory-keys-used)
+  - [Summary Statistics](#summary-statistics)
+  - [Next Steps for Integration](#next-steps-for-integration)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Swarm Intelligence Implementation Summary
 
 ## Overview

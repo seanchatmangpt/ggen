@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Wave 2, Task 5: Ops Engineer 2.0 Training & Pilot Program Roadmap](#wave-2-task-5-ops-engineer-20-training--pilot-program-roadmap)
+  - [Executive Summary: The Big Picture](#executive-summary-the-big-picture)
+  - [Phase 1: Training (Weeks 9-10, 40 hours total)](#phase-1-training-weeks-9-10-40-hours-total)
+    - [Week 9: Foundation (20 hours)](#week-9-foundation-20-hours)
+    - [Week 10: Deep Skills + Tools (20 hours)](#week-10-deep-skills--tools-20-hours)
+  - [Phase 2: Parallel Run (Week 11)](#phase-2-parallel-run-week-11)
+    - [Week 11 Schedule](#week-11-schedule)
+    - [Success Metrics (Week 11)](#success-metrics-week-11)
+    - [Friday Week 11 Decision Point](#friday-week-11-decision-point)
+  - [Phase 3: Full Switchover (Week 12)](#phase-3-full-switchover-week-12)
+    - [Week 12 Schedule](#week-12-schedule)
+    - [New Ops Engineer Org Chart (Week 12 onwards)](#new-ops-engineer-org-chart-week-12-onwards)
+    - [Success Metrics (Week 12)](#success-metrics-week-12)
+  - [Training Materials Delivered](#training-materials-delivered)
+    - [Module 1: Automation 101 (8 hours, Week 9)](#module-1-automation-101-8-hours-week-9)
+    - [Module 2: Exception Handling (12 hours, Week 9-10)](#module-2-exception-handling-12-hours-week-9-10)
+    - [Module 3: Process Architecture (6 hours, Week 10)](#module-3-process-architecture-6-hours-week-10)
+    - [Module 4: Policy Interpretation (6 hours, Week 10)](#module-4-policy-interpretation-6-hours-week-10)
+    - [Module 5: Tools & Systems (8 hours, Week 10)](#module-5-tools--systems-8-hours-week-10)
+    - [Supplementary Materials](#supplementary-materials)
+  - [How We Address Real Concerns](#how-we-address-real-concerns)
+    - [Concern 1: "Will automation replace me?"](#concern-1-will-automation-replace-me)
+    - [Concern 2: "Will my skills become obsolete?"](#concern-2-will-my-skills-become-obsolete)
+    - [Concern 3: "Is there a future for me in this role?"](#concern-3-is-there-a-future-for-me-in-this-role)
+  - [Key Dates & Deadlines](#key-dates--deadlines)
+  - [Success Criteria (Exit Gate for Wave 2)](#success-criteria-exit-gate-for-wave-2)
+  - [Risks & Mitigation](#risks--mitigation)
+  - [How to Use This Roadmap](#how-to-use-this-roadmap)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Wave 2, Task 5: Ops Engineer 2.0 Training & Pilot Program Roadmap
 
 **Execution Period**: Weeks 9-12 (4 weeks total)

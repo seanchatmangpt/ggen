@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AI Integration Report - All Parts Using AI](#ai-integration-report---all-parts-using-ai)
+  - [Summary](#summary)
+  - [AI Integration Points](#ai-integration-points)
+    - [1. CLI Commands (`crates/ggen-cli/src/cmds/ai.rs`) ✅](#1-cli-commands-cratesggen-clisrccmdsairs-)
+    - [2. AI Generators (`crates/ggen-ai/src/generators/`) ✅](#2-ai-generators-cratesggen-aisrcgenerators-)
+      - [a. TemplateGenerator (`template.rs`)](#a-templategenerator-templaters)
+      - [b. OntologyGenerator (`ontology.rs`)](#b-ontologygenerator-ontologyrs)
+      - [c. SparqlGenerator (`sparql.rs`)](#c-sparqlgenerator-sparqlrs)
+      - [d. NaturalSearchGenerator (`natural_search.rs`)](#d-naturalsearchgenerator-natural_searchrs)
+      - [e. RefactorAssistant (`refactor.rs`)](#e-refactorassistant-refactorrs)
+      - [f. TemplateValidator (`validator/`)](#f-templatevalidator-validator)
+    - [3. RDF-Based CLI Generation (`crates/ggen-ai/src/rdf/`) ✅](#3-rdf-based-cli-generation-cratesggen-aisrcrdf-)
+    - [4. Swarm/Agents System (`crates/ggen-ai/src/swarm/`) ✅](#4-swarmagents-system-cratesggen-aisrcswarm-)
+    - [5. Core Agents (`crates/ggen-ai/src/agents/`) ✅](#5-core-agents-cratesggen-aisrcagents-)
+    - [6. Domain Layer (`crates/ggen-domain/src/ai/`) ⚠️](#6-domain-layer-cratesggen-domainsrcai-)
+    - [7. Examples Using AI ✅](#7-examples-using-ai-)
+      - [a. AI Microservice (`examples/ai-microservice/`)](#a-ai-microservice-examplesai-microservice)
+      - [b. AI Template Project (`examples/ai-template-project/`)](#b-ai-template-project-examplesai-template-project)
+      - [c. Advanced AI Usage (`examples/advanced-ai-usage/`)](#c-advanced-ai-usage-examplesadvanced-ai-usage)
+    - [8. Marketplace Packages Using AI ✅](#8-marketplace-packages-using-ai-)
+      - [a. AI Microservice Package (`marketplace/packages/ai-microservice/`)](#a-ai-microservice-package-marketplacepackagesai-microservice)
+      - [b. AI Code Generation (`marketplace/packages/ai-code-generation/`)](#b-ai-code-generation-marketplacepackagesai-code-generation)
+    - [9. Prompts System (`crates/ggen-ai/src/prompts/`) ✅](#9-prompts-system-cratesggen-aisrcprompts-)
+    - [10. Providers (`crates/ggen-ai/src/providers/`) ✅](#10-providers-cratesggen-aisrcproviders-)
+    - [11. Configuration (`crates/ggen-ai/src/config/`) ✅](#11-configuration-cratesggen-aisrcconfig-)
+    - [12. Caching (`crates/ggen-ai/src/cache.rs`) ✅](#12-caching-cratesggen-aisrccachers-)
+    - [13. Streaming (`crates/ggen-ai/src/streaming.rs`) ✅](#13-streaming-cratesggen-aisrcstreamingrs-)
+    - [14. Security (`crates/ggen-ai/src/security.rs`) ✅](#14-security-cratesggen-aisrcsecurityrs-)
+  - [AI Usage Summary by Component](#ai-usage-summary-by-component)
+  - [Current Configuration](#current-configuration)
+  - [Integration Status](#integration-status)
+    - [Working Integrations:](#working-integrations)
+    - [Future Enhancements:](#future-enhancements)
+  - [Recommendations](#recommendations)
+  - [Quick Reference](#quick-reference)
+    - [Using AI Generators:](#using-ai-generators)
+    - [Using Swarm System:](#using-swarm-system)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AI Integration Report - All Parts Using AI
 
 **Generated:** $(date)

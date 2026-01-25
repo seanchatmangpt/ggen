@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tutorial: RDF Basics for Code Generation](#tutorial-rdf-basics-for-code-generation)
+  - [What is RDF?](#what-is-rdf)
+    - [Example: Describing a Book](#example-describing-a-book)
+  - [Why RDF for Code Generation?](#why-rdf-for-code-generation)
+    - [The Problem with JSON/YAML](#the-problem-with-jsonyaml)
+    - [RDF Solution](#rdf-solution)
+  - [RDF Syntax: Turtle Format](#rdf-syntax-turtle-format)
+    - [1. Prefixes (Shortcuts)](#1-prefixes-shortcuts)
+    - [2. Simple Triples](#2-simple-triples)
+    - [3. Shorthand (Same Subject)](#3-shorthand-same-subject)
+    - [4. Types (Classes)](#4-types-classes)
+    - [5. Blank Nodes (Nested Objects)](#5-blank-nodes-nested-objects)
+    - [6. Lists](#6-lists)
+  - [Hands-On: Model a Blog](#hands-on-model-a-blog)
+    - [Define Classes](#define-classes)
+    - [Define Properties](#define-properties)
+    - [Add Data](#add-data)
+    - [Complete Example](#complete-example)
+  - [Querying with SPARQL](#querying-with-sparql)
+    - [Example: Find all post titles](#example-find-all-post-titles)
+    - [Example: Find posts with author names](#example-find-posts-with-author-names)
+  - [RDF for Code Generation: Pattern](#rdf-for-code-generation-pattern)
+    - [1. Define Schema (Vocabulary)](#1-define-schema-vocabulary)
+    - [2. Define Code Generation Directives](#2-define-code-generation-directives)
+    - [3. Query with SPARQL](#3-query-with-sparql)
+    - [4. Template with Tera](#4-template-with-tera)
+    - [5. Result](#5-result)
+  - [Common RDF Patterns for Code Generation](#common-rdf-patterns-for-code-generation)
+    - [Pattern 1: Hierarchical Data](#pattern-1-hierarchical-data)
+    - [Pattern 2: Ordered Lists](#pattern-2-ordered-lists)
+    - [Pattern 3: Attributes](#pattern-3-attributes)
+    - [Pattern 4: Relationships](#pattern-4-relationships)
+  - [RDF vs. JSON: When to Use Each](#rdf-vs-json-when-to-use-each)
+  - [RDF Formats](#rdf-formats)
+    - [Turtle (.ttl) - Recommended](#turtle-ttl---recommended)
+    - [JSON-LD (.jsonld)](#json-ld-jsonld)
+    - [RDF/XML (.rdf)](#rdfxml-rdf)
+  - [Practice Exercise](#practice-exercise)
+  - [Key Takeaways](#key-takeaways)
+  - [Next Steps](#next-steps)
+  - [Resources](#resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tutorial: RDF Basics for Code Generation
 
 **Time**: 15 minutes

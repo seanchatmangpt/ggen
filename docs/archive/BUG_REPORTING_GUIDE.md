@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Bug Reporting Guide for ggen](#bug-reporting-guide-for-ggen)
+  - [Before You Report](#before-you-report)
+  - [Security Vulnerabilities](#security-vulnerabilities)
+  - [How to Report a Bug](#how-to-report-a-bug)
+    - [1. Use a Clear, Descriptive Title](#1-use-a-clear-descriptive-title)
+    - [2. Provide Your Environment](#2-provide-your-environment)
+    - [3. Describe the Bug](#3-describe-the-bug)
+    - [4. Provide Minimal Reproducible Example](#4-provide-minimal-reproducible-example)
+    - [5. Include Relevant Logs](#5-include-relevant-logs)
+    - [6. Screenshots (if applicable)](#6-screenshots-if-applicable)
+  - [Bug Report Template](#bug-report-template)
+  - [Logs/Error Messages](#logserror-messages)
+  - [Additional Context](#additional-context)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Bug Reporting Guide for ggen
 
 Thank you for helping us improve ggen! This guide explains how to report bugs effectively and responsibly.

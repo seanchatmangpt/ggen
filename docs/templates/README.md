@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Event Horizon Documentation Templates](#event-horizon-documentation-templates)
+  - [Overview](#overview)
+  - [Templates Included](#templates-included)
+    - [1. EVENT_HORIZON_GUIDE_TEMPLATE.md](#1-event_horizon_guide_templatemd)
+    - [2. EVENT_HORIZON_CASE_STUDY_TEMPLATE.md](#2-event_horizon_case_study_templatemd)
+    - [3. EVENT_HORIZON_EXERCISE_TEMPLATE.md](#3-event_horizon_exercise_templatemd)
+    - [4. EVENT_HORIZON_FAQ_TEMPLATE.md](#4-event_horizon_faq_templatemd)
+  - [How to Use These Templates](#how-to-use-these-templates)
+    - [Step 1: Choose Template](#step-1-choose-template)
+    - [Step 2: Copy Template](#step-2-copy-template)
+    - [Step 3: Customize](#step-3-customize)
+    - [Step 4: Review](#step-4-review)
+    - [Step 5: Publish](#step-5-publish)
+  - [Template Conventions](#template-conventions)
+    - [Markdown Structure](#markdown-structure)
+    - [Code Blocks](#code-blocks)
+    - [Placeholders](#placeholders)
+    - [Internal Links](#internal-links)
+    - [Admonitions](#admonitions)
+  - [Example Usage](#example-usage)
+    - [Example 1: Creating Team Onboarding Guide](#example-1-creating-team-onboarding-guide)
+    - [Example 2: Documenting Feature Migration](#example-2-documenting-feature-migration)
+  - [Template Maintenance](#template-maintenance)
+    - [Version Control](#version-control)
+    - [Contribution Guidelines](#contribution-guidelines)
+    - [Feedback](#feedback)
+  - [Integration with ggen Project](#integration-with-ggen-project)
+    - [Alignment with CLAUDE.md](#alignment-with-claudemd)
+    - [Relationship to .specify/](#relationship-to-specify)
+    - [ggen Commands Used](#ggen-commands-used)
+  - [Best Practices](#best-practices)
+    - [Documentation as Code](#documentation-as-code)
+    - [Living Documentation](#living-documentation)
+    - [Accessibility](#accessibility)
+    - [Metrics-Driven](#metrics-driven)
+  - [Resources](#resources)
+    - [Related Documentation](#related-documentation)
+    - [External References](#external-references)
+    - [Tools](#tools)
+  - [License](#license)
+  - [Contact](#contact)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Event Horizon Documentation Templates
 
 ## Overview

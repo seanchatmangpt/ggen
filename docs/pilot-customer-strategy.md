@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AGENT 3: Customer Validation Strategy for ggen-disney](#agent-3-customer-validation-strategy-for-ggen-disney)
+  - [Executive Summary](#executive-summary)
+  - [Ideal Customer Profile (ICP)](#ideal-customer-profile-icp)
+    - [Primary (Disney Use Case)](#primary-disney-use-case)
+    - [Geographic Preference](#geographic-preference)
+    - [Industry Vertical Preference (Priority Order)](#industry-vertical-preference-priority-order)
+  - [Pilot Playbook (Disney + Early Adopters)](#pilot-playbook-disney--early-adopters)
+    - [Stage 1: QUALIFICATION & OUTREACH (Weeks 1-4)](#stage-1-qualification--outreach-weeks-1-4)
+    - [Stage 2: PILOT DESIGN (Weeks 5-6)](#stage-2-pilot-design-weeks-5-6)
+    - [Stage 3: DISCOVERY & DESIGN (Weeks 7-12)](#stage-3-discovery--design-weeks-7-12)
+    - [Stage 4: PILOT EXECUTION (Weeks 13-24)](#stage-4-pilot-execution-weeks-13-24)
+    - [Stage 5: CASE STUDY & REFERENCE (Weeks 25-28)](#stage-5-case-study--reference-weeks-25-28)
+  - [Pilot Candidate Pipeline (Target 3-4 pilots, Q1 2026)](#pilot-candidate-pipeline-target-3-4-pilots-q1-2026)
+    - [Candidate 1: **Disney** ✓ (CONFIRMED)](#candidate-1-disney-%E2%9C%93-confirmed)
+    - [Candidate 2: **Cleveland Clinic** (TARGET)](#candidate-2-cleveland-clinic-target)
+    - [Candidate 3: **Large Financial Institution** (TARGET)](#candidate-3-large-financial-institution-target)
+    - [Candidate 4: **Large Manufacturer** (BACKUP)](#candidate-4-large-manufacturer-backup)
+  - [Success Metrics (Program Level)](#success-metrics-program-level)
+  - [Sales Playbook (What to Say)](#sales-playbook-what-to-say)
+    - [Opening (Email/Call)](#opening-emailcall)
+    - [Pain Point (Discovery Call)](#pain-point-discovery-call)
+    - [Solution (Pitch)](#solution-pitch)
+    - [Proof](#proof)
+    - [Close](#close)
+  - [Pricing Model (Pilot Phase)](#pricing-model-pilot-phase)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AGENT 3: Customer Validation Strategy for ggen-disney
 
 **Status**: COMPLETE

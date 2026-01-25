@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GCP Marketplace Autonomics - C4 Component Diagrams (Level 3)](#gcp-marketplace-autonomics---c4-component-diagrams-level-3)
+  - [Overview](#overview)
+    - [Table of Contents](#table-of-contents)
+  - [1. Erlang OTP Topology Components](#1-erlang-otp-topology-components)
+    - [Mermaid C4 Diagram](#mermaid-c4-diagram)
+    - [Context Variables (from `.specify/*.ttl`)](#context-variables-from-specifyttl)
+    - [Tera Template Variables](#tera-template-variables)
+    - [Key Design Patterns](#key-design-patterns)
+  - [2. Ingress Layer Components](#2-ingress-layer-components)
+    - [Mermaid C4 Diagram](#mermaid-c4-diagram-1)
+    - [Context Variables (from `.specify/*.ttl`)](#context-variables-from-specifyttl-1)
+    - [Tera Template Variables](#tera-template-variables-1)
+    - [Key Design Patterns](#key-design-patterns-1)
+  - [3. Governor Core Components](#3-governor-core-components)
+    - [Mermaid C4 Diagram](#mermaid-c4-diagram-2)
+    - [Context Variables (from `.specify/*.ttl`)](#context-variables-from-specifyttl-2)
+    - [Tera Template Variables](#tera-template-variables-2)
+    - [Key Design Patterns](#key-design-patterns-2)
+  - [4. Receipt System Components](#4-receipt-system-components)
+    - [Mermaid C4 Diagram](#mermaid-c4-diagram-3)
+    - [Context Variables (from `.specify/*.ttl`)](#context-variables-from-specifyttl-3)
+    - [Tera Template Variables](#tera-template-variables-3)
+    - [Key Design Patterns](#key-design-patterns-3)
+  - [5. Observability Components](#5-observability-components)
+    - [Mermaid C4 Diagram](#mermaid-c4-diagram-4)
+    - [Context Variables (from `.specify/*.ttl`)](#context-variables-from-specifyttl-4)
+    - [Tera Template Variables](#tera-template-variables-4)
+    - [Key Design Patterns](#key-design-patterns-4)
+  - [6. Actuation Components](#6-actuation-components)
+    - [Mermaid C4 Diagram](#mermaid-c4-diagram-5)
+    - [Context Variables (from `.specify/*.ttl`)](#context-variables-from-specifyttl-5)
+    - [Tera Template Variables](#tera-template-variables-5)
+    - [Key Design Patterns](#key-design-patterns-5)
+  - [Tera Template Wrapper](#tera-template-wrapper)
+    - [Template File: `components-diagram-generator.tera`](#template-file-components-diagram-generatortera)
+    - [SPARQL Query Integration](#sparql-query-integration)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GCP Marketplace Autonomics - C4 Component Diagrams (Level 3)
 
 **Version**: 1.0

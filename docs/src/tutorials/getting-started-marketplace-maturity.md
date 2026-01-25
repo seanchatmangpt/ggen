@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tutorial: Getting Started with Marketplace Maturity](#tutorial-getting-started-with-marketplace-maturity)
+  - [Step 1: Assess Your First Package](#step-1-assess-your-first-package)
+    - [Run the command](#run-the-command)
+    - [What this means](#what-this-means)
+  - [Step 2: Understand the 4 Maturity Levels](#step-2-understand-the-4-maturity-levels)
+    - [Run a quick check on multiple packages](#run-a-quick-check-on-multiple-packages)
+    - [Try filtering packages](#try-filtering-packages)
+  - [Step 3: Generate a Marketplace Dashboard](#step-3-generate-a-marketplace-dashboard)
+    - [What this tells you](#what-this-tells-you)
+    - [Export the dashboard](#export-the-dashboard)
+  - [Step 4: Filter and Find Packages for Your Needs](#step-4-filter-and-find-packages-for-your-needs)
+    - [Scenario: You need a package for production research](#scenario-you-need-a-package-for-production-research)
+    - [Scenario: You're looking for experimental packages for R&D](#scenario-youre-looking-for-experimental-packages-for-rd)
+    - [Scenario: You want the top performers](#scenario-you-want-the-top-performers)
+  - [Step 5: Validate Before Using](#step-5-validate-before-using)
+  - [What You've Learned](#what-youve-learned)
+  - [Next Steps](#next-steps)
+  - [Troubleshooting](#troubleshooting)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tutorial: Getting Started with Marketplace Maturity
 
 In this tutorial, you'll learn to assess package quality in the ggen marketplace, understand maturity levels, and make informed decisions about which packages to use.

@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Wave 3, Task 6: Critical Processes Specification Index](#wave-3-task-6-critical-processes-specification-index)
+  - [Quick Reference for 5 New Processes (90% Ops Workload)](#quick-reference-for-5-new-processes-90-ops-workload)
+  - [RDF Specification Files](#rdf-specification-files)
+    - [1. Revenue Management Process](#1-revenue-management-process)
+    - [2. Guest Safety & Compliance Process](#2-guest-safety--compliance-process)
+    - [3. Supply Chain & Procurement Process](#3-supply-chain--procurement-process)
+    - [4. Employee Lifecycle Process (Onboarding & Offboarding)](#4-employee-lifecycle-process-onboarding--offboarding)
+    - [5. Financial Close & Reconciliation Process](#5-financial-close--reconciliation-process)
+  - [Specification Summary Document](#specification-summary-document)
+  - [Key Portfolio Metrics](#key-portfolio-metrics)
+    - [Aggregate Performance](#aggregate-performance)
+    - [Cycle Time Breakdown](#cycle-time-breakdown)
+    - [Business Impact](#business-impact)
+  - [System Integration Map](#system-integration-map)
+  - [Specification Quality Attributes](#specification-quality-attributes)
+  - [Implementation Timeline (Wave 3: Weeks 21-52)](#implementation-timeline-wave-3-weeks-21-52)
+  - [Next Steps](#next-steps)
+  - [Document Control](#document-control)
+  - [Contact & Questions](#contact--questions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Wave 3, Task 6: Critical Processes Specification Index
 ## Quick Reference for 5 New Processes (90% Ops Workload)
 

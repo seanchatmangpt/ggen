@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Packs System - Executive Summary](#packs-system---executive-summary)
+  - [🚨 CRITICAL: NOT PRODUCTION READY](#-critical-not-production-ready)
+  - [Top 3 Blockers](#top-3-blockers)
+    - [1. Async Trait Incompatibility (RPN 300) 🔥](#1-async-trait-incompatibility-rpn-300-)
+    - [2. Type Mismatches (RPN 180) 🔥](#2-type-mismatches-rpn-180-)
+    - [3. Zero User Workflows Validated (RPN 150) ⚠️](#3-zero-user-workflows-validated-rpn-150-)
+  - [Quick Metrics](#quick-metrics)
+  - [Immediate Action Items](#immediate-action-items)
+  - [Timeline Estimate](#timeline-estimate)
+  - [Conditions for Production Approval](#conditions-for-production-approval)
+  - [Recommendation](#recommendation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Packs System - Executive Summary
 
 ## 🚨 CRITICAL: NOT PRODUCTION READY

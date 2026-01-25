@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Decision Trees & Architecture Reference](#decision-trees--architecture-reference)
+  - [Decision Tree 1: "What should I do?"](#decision-tree-1-what-should-i-do)
+  - [Decision Tree 2: "Which pattern should I use?"](#decision-tree-2-which-pattern-should-i-use)
+  - [Decision Tree 3: "Which flags should I use?"](#decision-tree-3-which-flags-should-i-use)
+  - [Architecture Reference: Data Flow](#architecture-reference-data-flow)
+  - [Pattern Selection Matrix](#pattern-selection-matrix)
+  - [Performance Tiers](#performance-tiers)
+  - [When to Use What](#when-to-use-what)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Decision Trees & Architecture Reference
 
 > Navigate ggen's complexity with decision trees. Find the right pattern in 3 questions.

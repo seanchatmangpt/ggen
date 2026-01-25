@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Phase 2-3 Test Suite - Quick Reference](#phase-2-3-test-suite---quick-reference)
+  - [Test Execution Commands](#test-execution-commands)
+    - [Run All Tests](#run-all-tests)
+    - [Run Specific Categories](#run-specific-categories)
+    - [Run Individual Test Files](#run-individual-test-files)
+    - [Run with Debug Output](#run-with-debug-output)
+  - [Test Statistics](#test-statistics)
+  - [FMEA Coverage](#fmea-coverage)
+    - [High Priority (RPN 60+)](#high-priority-rpn-60)
+    - [Medium Priority (RPN 40-59)](#medium-priority-rpn-40-59)
+    - [Low Priority (RPN <40)](#low-priority-rpn-40)
+  - [Key Test Files](#key-test-files)
+    - [Installation System](#installation-system)
+    - [Other Categories](#other-categories)
+  - [Performance Targets](#performance-targets)
+  - [Quick Test Development](#quick-test-development)
+    - [Adding a New Test](#adding-a-new-test)
+  - [Test Dependencies](#test-dependencies)
+  - [Troubleshooting](#troubleshooting)
+    - [Tests Won't Compile](#tests-wont-compile)
+    - [Tests Are Slow](#tests-are-slow)
+    - [Need More Output](#need-more-output)
+  - [Coverage Report](#coverage-report)
+  - [CI/CD Integration](#cicd-integration)
+  - [Contact](#contact)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Phase 2-3 Test Suite - Quick Reference
 
 ## Test Execution Commands

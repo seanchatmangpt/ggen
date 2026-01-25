@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Explanation: Why Lean Manufacturing Works in Software](#explanation-why-lean-manufacturing-works-in-software)
+  - [The Three Evils: Mura, Muda, Muri](#the-three-evils-mura-muda-muri)
+    - [Mura (Inconsistency)](#mura-inconsistency)
+    - [Muda (Waste)](#muda-waste)
+    - [Muri (Overburden)](#muri-overburden)
+  - [The Toyota Production System (TPS)](#the-toyota-production-system-tps)
+  - [Applying TPS to Software Testing](#applying-tps-to-software-testing)
+    - [Step 1: Remove Muri (Simplify)](#step-1-remove-muri-simplify)
+    - [Step 2: Reveal Mura (Measure Consistency)](#step-2-reveal-mura-measure-consistency)
+    - [Step 3: Eliminate Muda (Remove Waste)](#step-3-eliminate-muda-remove-waste)
+  - [Continuous Improvement (Kaizen)](#continuous-improvement-kaizen)
+    - [The Kaizen Cycle](#the-kaizen-cycle)
+  - [Real-World Application: ggen's Test Refactoring](#real-world-application-ggens-test-refactoring)
+    - [Before (Mura + Muda + Muri)](#before-mura--muda--muri)
+    - [Applying TPS](#applying-tps)
+    - [After (Improved)](#after-improved)
+  - [Why This Works for Software](#why-this-works-for-software)
+    - [Reason 1: Feedback Loop](#reason-1-feedback-loop)
+    - [Reason 2: Predictability](#reason-2-predictability)
+    - [Reason 3: Continuous Improvement](#reason-3-continuous-improvement)
+  - [Anti-Patterns (What NOT to Do)](#anti-patterns-what-not-to-do)
+    - [Anti-Pattern 1: Ignore Muri](#anti-pattern-1-ignore-muri)
+    - [Anti-Pattern 2: Tolerate Mura](#anti-pattern-2-tolerate-mura)
+    - [Anti-Pattern 3: Accept Muda](#anti-pattern-3-accept-muda)
+  - [Metrics That Matter](#metrics-that-matter)
+  - [The Bigger Picture](#the-bigger-picture)
+  - [Key Insights](#key-insights)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Explanation: Why Lean Manufacturing Works in Software
 
 **Understanding Mura, Muda, and Muri in test quality and build systems**

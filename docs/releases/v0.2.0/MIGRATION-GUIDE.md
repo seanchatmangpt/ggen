@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v0.2.0 Migration Guide](#ggen-v020-migration-guide)
+  - [Overview](#overview)
+  - [Migration Paths](#migration-paths)
+    - [From v0.1.0 to v0.2.0](#from-v010-to-v020)
+    - [From v3.3.0 to v0.2.0](#from-v330-to-v020)
+  - [Pre-Upgrade Checklist](#pre-upgrade-checklist)
+  - [Step-by-Step Upgrade](#step-by-step-upgrade)
+    - [1. Backup Current Installation](#1-backup-current-installation)
+    - [2. Backup Projects Using Old Package Format](#2-backup-projects-using-old-package-format)
+    - [3. Uninstall Previous Version](#3-uninstall-previous-version)
+    - [4. Install v0.2.0](#4-install-v020)
+    - [5. Verify Installation](#5-verify-installation)
+    - [6. Run Migration Helper](#6-run-migration-helper)
+    - [7. Update Project Files](#7-update-project-files)
+    - [8. Test Generated Code](#8-test-generated-code)
+  - [Breaking Changes](#breaking-changes)
+    - [1. Package Management](#1-package-management)
+    - [2. Configuration Format](#2-configuration-format)
+    - [3. CLI Commands](#3-cli-commands)
+    - [4. Template Format](#4-template-format)
+    - [5. Error Handling](#5-error-handling)
+    - [6. Marketplace Packages](#6-marketplace-packages)
+  - [Feature Additions](#feature-additions)
+    - [1. Ontology Support](#1-ontology-support)
+    - [2. Deterministic Generation](#2-deterministic-generation)
+    - [3. AI Integration](#3-ai-integration)
+  - [Updated Dependencies](#updated-dependencies)
+    - [Major Updates](#major-updates)
+    - [New Dependencies](#new-dependencies)
+    - [Migration Impact](#migration-impact)
+  - [Configuration Migration](#configuration-migration)
+    - [Automatic Migration](#automatic-migration)
+    - [Manual Migration Steps](#manual-migration-steps)
+  - [Verification Checklist](#verification-checklist)
+  - [Rollback Procedure](#rollback-procedure)
+  - [Troubleshooting](#troubleshooting)
+    - [Issue: Migration fails with "Incompatible format"](#issue-migration-fails-with-incompatible-format)
+    - [Issue: Projects don't generate correctly](#issue-projects-dont-generate-correctly)
+    - [Issue: Old packages not working](#issue-old-packages-not-working)
+    - [Issue: Configuration not loaded after migration](#issue-configuration-not-loaded-after-migration)
+  - [Performance Comparison](#performance-comparison)
+  - [Next Steps](#next-steps)
+  - [Support](#support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v0.2.0 Migration Guide
 
 Complete guide for upgrading to ggen v0.2.0 from earlier versions.

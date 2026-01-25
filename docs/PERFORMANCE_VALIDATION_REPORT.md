@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 3 Performance Validation & Benchmarking Report](#week-3-performance-validation--benchmarking-report)
+  - [Executive Summary](#executive-summary)
+    - [Key Achievements](#key-achievements)
+  - [Quick Wins Validation](#quick-wins-validation)
+    - [1. Lazy RDF Loading (✅ VALIDATED)](#1-lazy-rdf-loading--validated)
+      - [Implementation Details](#implementation-details)
+      - [Benchmark Results](#benchmark-results)
+    - [2. Parallel Template Generation (✅ VALIDATED)](#2-parallel-template-generation--validated)
+      - [Implementation Details](#implementation-details-1)
+      - [Benchmark Results](#benchmark-results-1)
+    - [3. Cache Improvements (✅ VALIDATED)](#3-cache-improvements--validated)
+      - [Implementation Details](#implementation-details-2)
+      - [Benchmark Results](#benchmark-results-2)
+  - [Medium-Effort Optimizations Benchmark](#medium-effort-optimizations-benchmark)
+    - [1. Lockfile Resolution Optimization (🔨 IN PROGRESS)](#1-lockfile-resolution-optimization--in-progress)
+      - [Current Baseline Performance](#current-baseline-performance)
+    - [2. RDF Query Optimization (✅ IMPLEMENTED)](#2-rdf-query-optimization--implemented)
+      - [Benchmark Results](#benchmark-results-3)
+    - [3. Template Processing Optimization (✅ IMPLEMENTED)](#3-template-processing-optimization--implemented)
+      - [Benchmark Results](#benchmark-results-4)
+  - [Performance SLA Dashboard](#performance-sla-dashboard)
+  - [Historical Performance Trends](#historical-performance-trends)
+    - [Week 1 Baseline → Week 3 Current](#week-1-baseline-%E2%86%92-week-3-current)
+    - [Performance Grade History](#performance-grade-history)
+  - [Recommendations](#recommendations)
+    - [Immediate Actions](#immediate-actions)
+    - [Target A+ Grade (95+)](#target-a-grade-95)
+  - [Performance Regression Alerts](#performance-regression-alerts)
+    - [Automated Monitoring](#automated-monitoring)
+    - [CI Integration](#ci-integration)
+  - [Conclusion](#conclusion)
+  - [Appendix: Benchmark Commands](#appendix-benchmark-commands)
+    - [Run All Benchmarks](#run-all-benchmarks)
+    - [View Criterion Reports](#view-criterion-reports)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 3 Performance Validation & Benchmarking Report
 
 **Generated:** $(date)

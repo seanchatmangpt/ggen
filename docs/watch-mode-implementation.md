@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Watch Mode Implementation](#watch-mode-implementation)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+  - [Components](#components)
+    - [1. FileWatcher (`watch.rs`)](#1-filewatcher-watchrs)
+    - [2. IncrementalCache (`incremental_cache.rs`)](#2-incrementalcache-incremental_cachers)
+    - [3. WatchCacheIntegration (`watch_cache_integration.rs`)](#3-watchcacheintegration-watch_cache_integrationrs)
+    - [4. Enhanced Executor (`watch_mode_enhanced.rs`)](#4-enhanced-executor-watch_mode_enhancedrs)
+  - [Monitored Files](#monitored-files)
+  - [Usage](#usage)
+  - [Demo Output](#demo-output)
+    - [Startup](#startup)
+    - [File Change Detection](#file-change-detection)
+    - [Error Handling](#error-handling)
+    - [Graceful Shutdown (Ctrl+C)](#graceful-shutdown-ctrlc)
+  - [Performance Characteristics](#performance-characteristics)
+    - [Target SLOs (Constitutional Requirements)](#target-slos-constitutional-requirements)
+    - [Cache Performance](#cache-performance)
+  - [Integration Points](#integration-points)
+    - [1. CLI Integration (`ggen-cli`)](#1-cli-integration-ggen-cli)
+    - [2. Cache Integration](#2-cache-integration)
+    - [3. Signal Handling](#3-signal-handling)
+  - [Testing](#testing)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+  - [Error Handling](#error-handling-1)
+    - [No unwrap/expect in production](#no-unwrapexpect-in-production)
+    - [Graceful degradation](#graceful-degradation)
+  - [Constitutional Compliance](#constitutional-compliance)
+    - [✓ Result<T,E> throughout](#%E2%9C%93-resultte-throughout)
+    - [✓ No unwrap/expect in production](#%E2%9C%93-no-unwrapexpect-in-production)
+    - [✓ Type-first design](#%E2%9C%93-type-first-design)
+    - [✓ Performance targets](#%E2%9C%93-performance-targets)
+  - [Future Enhancements](#future-enhancements)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Watch Mode Implementation
 
 ## Overview

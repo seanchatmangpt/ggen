@@ -1,3 +1,54 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-ontology-core v0.2.0 - Marketplace Package](#ggen-ontology-core-v020---marketplace-package)
+  - [Package Information](#package-information)
+  - [One-Liner Summary (60 characters)](#one-liner-summary-60-characters)
+  - [Marketing Description](#marketing-description)
+  - [Feature Highlights](#feature-highlights)
+    - [✅ RDF Triple Store](#-rdf-triple-store)
+    - [✅ Entity Mapper](#-entity-mapper)
+    - [✅ SPARQL Generator](#-sparql-generator)
+    - [✅ Validators](#-validators)
+    - [✅ Domain Ontologies](#-domain-ontologies)
+    - [✅ Cloud Platform Bindings](#-cloud-platform-bindings)
+    - [✅ Production Quality](#-production-quality)
+  - [Keywords (15 keywords)](#keywords-15-keywords)
+  - [Category Classification](#category-classification)
+    - [Primary Category](#primary-category)
+    - [Secondary Categories](#secondary-categories)
+    - [Tags](#tags)
+  - [Use Cases](#use-cases)
+    - [1. Legal Document Generation](#1-legal-document-generation)
+    - [2. Infrastructure as Code](#2-infrastructure-as-code)
+    - [3. System Architecture](#3-system-architecture)
+    - [4. Compliance Management](#4-compliance-management)
+    - [5. Domain-Driven Design](#5-domain-driven-design)
+  - [Target Audience](#target-audience)
+    - [Enterprise Development Teams](#enterprise-development-teams)
+    - [Systems Architects](#systems-architects)
+    - [DevOps Engineers](#devops-engineers)
+    - [Legal & Compliance Teams](#legal--compliance-teams)
+    - [Rust Developers](#rust-developers)
+  - [Competitive Advantages](#competitive-advantages)
+  - [Technical Specifications](#technical-specifications)
+  - [Quality Metrics](#quality-metrics)
+  - [Pricing Model (Future Marketplace)](#pricing-model-future-marketplace)
+  - [Getting Started](#getting-started)
+    - [Installation](#installation)
+    - [Quick Example](#quick-example)
+    - [Documentation](#documentation)
+  - [Support & Community](#support--community)
+  - [Release Information](#release-information)
+  - [Installation Instructions](#installation-instructions)
+    - [Option 1: From crates.io](#option-1-from-cratesio)
+    - [Option 2: From GitHub](#option-2-from-github)
+    - [Option 3: Build Locally](#option-3-build-locally)
+  - [Community & Feedback](#community--feedback)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-ontology-core v0.2.0 - Marketplace Package
 
 ## Package Information

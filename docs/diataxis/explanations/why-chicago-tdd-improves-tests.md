@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Explanation: Why Chicago-TDD Improves Tests](#explanation-why-chicago-tdd-improves-tests)
+  - [Two Schools of TDD](#two-schools-of-tdd)
+    - [London School (Outside-In with Mocks)](#london-school-outside-in-with-mocks)
+    - [Chicago School (Inside-Out with Real Objects)](#chicago-school-inside-out-with-real-objects)
+  - [Why Chicago-TDD is Better for Real Systems](#why-chicago-tdd-is-better-for-real-systems)
+    - [Problem 1: Mock Lies](#problem-1-mock-lies)
+    - [Problem 2: Over-Testing Internals](#problem-2-over-testing-internals)
+    - [Problem 3: False Confidence](#problem-3-false-confidence)
+  - [Why Chicago-TDD Works](#why-chicago-tdd-works)
+    - [Principle 1: Real Behavior](#principle-1-real-behavior)
+    - [Principle 2: Observable Behavior](#principle-2-observable-behavior)
+    - [Principle 3: Early Detection of Issues](#principle-3-early-detection-of-issues)
+  - [When to Use Real Collaborators](#when-to-use-real-collaborators)
+    - [Use Real When:](#use-real-when)
+    - [Use Mocks When:](#use-mocks-when)
+  - [Real-World Application: ggen's Testing Pattern](#real-world-application-ggens-testing-pattern)
+    - [Before (London School with Mocks)](#before-london-school-with-mocks)
+    - [After (Chicago School with Real Objects)](#after-chicago-school-with-real-objects)
+  - [The Comparison](#the-comparison)
+  - [How to Structure Chicago-TDD Tests](#how-to-structure-chicago-tdd-tests)
+    - [Step 1: Create Realistic Collaborators](#step-1-create-realistic-collaborators)
+    - [Step 2: Create the Object Under Test](#step-2-create-the-object-under-test)
+    - [Step 3: Exercise the Behavior](#step-3-exercise-the-behavior)
+    - [Step 4: Verify Observable State](#step-4-verify-observable-state)
+  - [Common Mistakes](#common-mistakes)
+    - [Mistake 1: Using Real External APIs](#mistake-1-using-real-external-apis)
+    - [Mistake 2: Mocking Everything](#mistake-2-mocking-everything)
+    - [Mistake 3: Verifying Calls Instead of State](#mistake-3-verifying-calls-instead-of-state)
+  - [Integration Testing Made Easy](#integration-testing-made-easy)
+  - [Test Pyramid with Chicago-TDD](#test-pyramid-with-chicago-tdd)
+  - [Why Developers Prefer Mocks (And Why It's Wrong)](#why-developers-prefer-mocks-and-why-its-wrong)
+  - [Key Insights](#key-insights)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Explanation: Why Chicago-TDD Improves Tests
 
 **Understanding inside-out testing with real collaborators instead of mocks**

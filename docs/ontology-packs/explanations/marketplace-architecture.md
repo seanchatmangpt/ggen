@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Architecture: Ontology Packs in the Marketplace](#architecture-ontology-packs-in-the-marketplace)
+  - [System Architecture](#system-architecture)
+  - [Pack Distribution](#pack-distribution)
+    - [1. Packaging](#1-packaging)
+    - [2. Signing](#2-signing)
+    - [3. Publishing](#3-publishing)
+    - [4. Installation](#4-installation)
+  - [Security Model](#security-model)
+    - [Cryptographic Signing](#cryptographic-signing)
+    - [Verification](#verification)
+  - [Versioning and Updates](#versioning-and-updates)
+    - [Semantic Versioning](#semantic-versioning)
+    - [Update Notifications](#update-notifications)
+  - [Related Explanations](#related-explanations)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Architecture: Ontology Packs in the Marketplace
 
 Understanding the marketplace infrastructure and design decisions.

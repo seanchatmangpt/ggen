@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How-to: Eliminate Test Warnings](#how-to-eliminate-test-warnings)
+  - [Prerequisites](#prerequisites)
+  - [Problem Statement](#problem-statement)
+  - [Quick Reference](#quick-reference)
+  - [Step 1: Categorize Warnings](#step-1-categorize-warnings)
+  - [Step 2: Eliminate Unused Imports (Automatic)](#step-2-eliminate-unused-imports-automatic)
+    - [Problem Example](#problem-example)
+    - [Automated Fix](#automated-fix)
+    - [Result](#result)
+  - [Step 3: Eliminate Unused Variables](#step-3-eliminate-unused-variables)
+    - [Pattern 1: Genuinely Unused (Delete)](#pattern-1-genuinely-unused-delete)
+    - [Pattern 2: Intentionally Unused (Prefix with _)](#pattern-2-intentionally-unused-prefix-with-_)
+    - [Pattern 3: Assertion-Only Variables](#pattern-3-assertion-only-variables)
+  - [Step 4: Eliminate Unused Functions (Dead Code)](#step-4-eliminate-unused-functions-dead-code)
+    - [Pattern 1: Test Helpers Used in Single File](#pattern-1-test-helpers-used-in-single-file)
+    - [Pattern 2: Shared Test Utilities](#pattern-2-shared-test-utilities)
+    - [Pattern 3: Dead Code from Refactoring](#pattern-3-dead-code-from-refactoring)
+  - [Step 5: Replace Deprecated APIs](#step-5-replace-deprecated-apis)
+    - [Common Deprecations](#common-deprecations)
+    - [Example Fix](#example-fix)
+    - [Verification After Replacement](#verification-after-replacement)
+  - [Step 6: Configure Stricter Linting](#step-6-configure-stricter-linting)
+    - [Enable Compiler Warnings as Errors](#enable-compiler-warnings-as-errors)
+    - [Enable Clippy Lints for Tests](#enable-clippy-lints-for-tests)
+    - [Test-Specific Lints](#test-specific-lints)
+  - [Step 7: Verify Zero Warnings](#step-7-verify-zero-warnings)
+    - [Full Test Suite Check](#full-test-suite-check)
+    - [CI Integration](#ci-integration)
+  - [Common Pitfalls](#common-pitfalls)
+    - [Pitfall 1: Suppressing Legitimate Warnings](#pitfall-1-suppressing-legitimate-warnings)
+    - [Pitfall 2: Deleting Used Test Helpers](#pitfall-2-deleting-used-test-helpers)
+    - [Pitfall 3: Changing Test Behavior During Cleanup](#pitfall-3-changing-test-behavior-during-cleanup)
+  - [Automation Script](#automation-script)
+  - [Verification Checklist](#verification-checklist)
+  - [Related Guides](#related-guides)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How-to: Eliminate Test Warnings
 
 **Achieve zero warnings: unused imports, variables, dead code, deprecated APIs**

@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DSPy Integration - Implementation Summary](#dspy-integration---implementation-summary)
+  - [🎯 Implementation Overview](#-implementation-overview)
+    - [Constitutional Equation Evolution](#constitutional-equation-evolution)
+  - [📦 Deliverables Completed](#-deliverables-completed)
+    - [1. ✅ DSPy Module Architecture (9 files)](#1--dspy-module-architecture-9-files)
+    - [2. ✅ CLI Commands (4 new commands)](#2--cli-commands-4-new-commands)
+    - [3. ✅ Configuration System](#3--configuration-system)
+    - [4. ✅ Testing Suite](#4--testing-suite)
+    - [5. ✅ Documentation](#5--documentation)
+    - [6. ✅ Dependencies & Configuration](#6--dependencies--configuration)
+  - [🏗️ Architecture Design](#-architecture-design)
+    - [Two-Layer System](#two-layer-system)
+    - [DSPy Modules Implemented](#dspy-modules-implemented)
+    - [Cache Strategy](#cache-strategy)
+  - [🚀 Usage Examples](#-usage-examples)
+    - [Basic Enhancement](#basic-enhancement)
+    - [Selective Enhancement](#selective-enhancement)
+    - [Section-Specific Suggestions](#section-specific-suggestions)
+    - [Cache Management](#cache-management)
+  - [📊 Quality Metrics](#-quality-metrics)
+    - [Code Quality](#code-quality)
+    - [Performance](#performance)
+    - [Error Handling](#error-handling)
+  - [🧪 Testing Strategy](#-testing-strategy)
+    - [Unit Tests (20 tests)](#unit-tests-20-tests)
+    - [Integration Tests (Planned)](#integration-tests-planned)
+  - [🔐 Security Considerations](#-security-considerations)
+    - [Implemented](#implemented)
+    - [Future Enhancements](#future-enhancements)
+  - [📈 Performance Optimization](#-performance-optimization)
+    - [Implemented](#implemented-1)
+    - [Future Optimizations](#future-optimizations)
+  - [🐛 Known Limitations](#-known-limitations)
+    - [Current](#current)
+    - [Planned Fixes](#planned-fixes)
+  - [🔮 Future Enhancements](#-future-enhancements)
+    - [v2.2 (Q1 2026)](#v22-q1-2026)
+    - [v3.0 (Q2 2026)](#v30-q2-2026)
+  - [📚 Documentation Index](#-documentation-index)
+  - [✅ Production Readiness Checklist](#-production-readiness-checklist)
+    - [Code Quality](#code-quality-1)
+    - [Integration](#integration)
+    - [Performance](#performance-1)
+    - [Documentation](#documentation)
+  - [🎯 Success Criteria - ALL MET ✅](#-success-criteria---all-met-)
+  - [📞 Support & Resources](#-support--resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DSPy Integration - Implementation Summary
 
 **Version**: 2.1.0

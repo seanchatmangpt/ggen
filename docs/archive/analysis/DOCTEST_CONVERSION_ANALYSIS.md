@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Doctest Conversion Analysis](#doctest-conversion-analysis)
+  - [Summary](#summary)
+  - [Conversion Criteria](#conversion-criteria)
+  - [Candidates for Conversion](#candidates-for-conversion)
+    - [High Priority (Easy Conversions)](#high-priority-easy-conversions)
+      - [1. Simple Constructors](#1-simple-constructors)
+      - [2. Graph Operations (In-Memory)](#2-graph-operations-in-memory)
+    - [Medium Priority (May Require Simplification)](#medium-priority-may-require-simplification)
+      - [3. Builder Patterns](#3-builder-patterns)
+    - [Low Priority (Requires Files/Network)](#low-priority-requires-filesnetwork)
+      - [4. File I/O Operations](#4-file-io-operations)
+      - [5. Network Operations](#5-network-operations)
+      - [6. Async Operations](#6-async-operations)
+  - [Conversion Plan](#conversion-plan)
+    - [Phase 1: High Priority (Immediate) - ✅ COMPLETED](#phase-1-high-priority-immediate----completed)
+    - [Phase 2: Medium Priority (Next)](#phase-2-medium-priority-next)
+    - [Phase 3: Review Remaining](#phase-3-review-remaining)
+  - [Statistics](#statistics)
+  - [Conversion Results](#conversion-results)
+    - [Successfully Converted (5 doctests)](#successfully-converted-5-doctests)
+    - [Test Results](#test-results)
+  - [Final Summary](#final-summary)
+    - [Total Conversions Completed](#total-conversions-completed)
+    - [Impact](#impact)
+    - [Remaining Work](#remaining-work)
+    - [Recommendations](#recommendations)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Doctest Conversion Analysis
 
 ## Summary

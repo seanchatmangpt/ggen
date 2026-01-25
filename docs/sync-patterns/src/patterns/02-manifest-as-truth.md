@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [2. MANIFEST AS TRUTH **](#2-manifest-as-truth-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [The Sections](#the-sections)
+    - [Location Convention](#location-convention)
+    - [Manifest Discovery](#manifest-discovery)
+    - [Query and Template Sources](#query-and-template-sources)
+  - [Validation](#validation)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 2. MANIFEST AS TRUTH **
 
 *A map is only useful if it reflects the territory.*

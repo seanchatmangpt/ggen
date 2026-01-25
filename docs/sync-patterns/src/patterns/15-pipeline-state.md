@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [15. PIPELINE STATE *](#15-pipeline-state-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [The PipelineState Structure](#the-pipelinestate-structure)
+    - [State Progression](#state-progression)
+    - [Building State](#building-state)
+  - [State Records](#state-records)
+    - [ExecutedRule](#executedrule)
+    - [GeneratedFile](#generatedfile)
+    - [ValidationResult](#validationresult)
+  - [Querying State](#querying-state)
+  - [State and Dry Run](#state-and-dry-run)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [State Immutability](#state-immutability)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 15. PIPELINE STATE *
 
 *The pipeline is not just a sequence—it is a growing state.*

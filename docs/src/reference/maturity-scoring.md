@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Maturity Scoring Reference](#maturity-scoring-reference)
+  - [Scoring Overview](#scoring-overview)
+    - [Score to Level Mapping](#score-to-level-mapping)
+  - [Dimension Specifications](#dimension-specifications)
+    - [1. Documentation (0-20 points)](#1-documentation-0-20-points)
+      - [README (0-5 points)](#readme-0-5-points)
+      - [API Documentation (0-5 points)](#api-documentation-0-5-points)
+      - [Examples (0-5 points)](#examples-0-5-points)
+      - [Changelog (0-5 points)](#changelog-0-5-points)
+    - [2. Testing (0-20 points)](#2-testing-0-20-points)
+      - [Unit Tests (0-8 points)](#unit-tests-0-8-points)
+      - [Integration Tests (0-6 points)](#integration-tests-0-6-points)
+      - [End-to-End Tests (0-4 points)](#end-to-end-tests-0-4-points)
+    - [3. Security (0-20 points)](#3-security-0-20-points)
+      - [Vulnerability Scan (0-10 points)](#vulnerability-scan-0-10-points)
+      - [Dependency Audit (0-5 points)](#dependency-audit-0-5-points)
+      - [Safe Code (0-5 points)](#safe-code-0-5-points)
+    - [4. Performance (0-15 points)](#4-performance-0-15-points)
+      - [Benchmarks (0-8 points)](#benchmarks-0-8-points)
+      - [Optimization Documentation (0-4 points)](#optimization-documentation-0-4-points)
+      - [Determinism (0-3 points)](#determinism-0-3-points)
+    - [5. Adoption (0-15 points)](#5-adoption-0-15-points)
+      - [Downloads (0-6 points)](#downloads-0-6-points)
+      - [Academic Citations (0-5 points)](#academic-citations-0-5-points)
+      - [Community (0-4 points)](#community-0-4-points)
+    - [6. Maintenance (0-10 points)](#6-maintenance-0-10-points)
+      - [Release Cadence (0-5 points)](#release-cadence-0-5-points)
+      - [Responsiveness (0-3 points)](#responsiveness-0-3-points)
+      - [Active Maintenance (0-2 points)](#active-maintenance-0-2-points)
+  - [Total Score Calculation](#total-score-calculation)
+    - [Formula](#formula)
+    - [Ranges](#ranges)
+    - [Percentage Breakdown](#percentage-breakdown)
+  - [Level Assignment Logic](#level-assignment-logic)
+  - [Scoring Examples](#scoring-examples)
+    - [Example 1: Mature Production Package](#example-1-mature-production-package)
+    - [Example 2: Growing Project](#example-2-growing-project)
+    - [Example 3: Experimental/Prototype](#example-3-experimentalprototype)
+  - [Automatic Assessment Data Sources](#automatic-assessment-data-sources)
+  - [Audit Trail](#audit-trail)
+  - [Version History](#version-history)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Maturity Scoring Reference
 
 Complete technical specification of the marketplace maturity matrix scoring system.

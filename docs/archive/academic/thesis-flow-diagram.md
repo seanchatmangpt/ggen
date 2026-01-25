@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [PhD Thesis Flow Diagram](#phd-thesis-flow-diagram)
+  - [Logical Dependencies and Chapter Progression](#logical-dependencies-and-chapter-progression)
+    - [Current Structure (10 Chapters - Before Optimization)](#current-structure-10-chapters---before-optimization)
+    - [Optimized Structure (8 Chapters - After Consolidation)](#optimized-structure-8-chapters---after-consolidation)
+    - [Detailed Chapter 5 Internal Structure (MERGED)](#detailed-chapter-5-internal-structure-merged)
+    - [Content Flow - From RDF to Production Code](#content-flow---from-rdf-to-production-code)
+    - [Cross-Reference Network (Optimized)](#cross-reference-network-optimized)
+    - [Redundancy Elimination Map](#redundancy-elimination-map)
+    - [Implementation Timeline (6 Weeks)](#implementation-timeline-6-weeks)
+    - [Quality Metrics Dashboard](#quality-metrics-dashboard)
+    - [Terminology Consistency Map](#terminology-consistency-map)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # PhD Thesis Flow Diagram
 ## Logical Dependencies and Chapter Progression
 

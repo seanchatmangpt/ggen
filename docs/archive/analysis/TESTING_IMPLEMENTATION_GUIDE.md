@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Ggen Expert Testing Patterns - Implementation Guide](#ggen-expert-testing-patterns---implementation-guide)
+  - [Quick Start: Where to Add Tests](#quick-start-where-to-add-tests)
+    - [Error Path Tests](#error-path-tests)
+    - [Boundary Condition Tests](#boundary-condition-tests)
+    - [Resource Management Tests](#resource-management-tests)
+    - [Concurrency Tests](#concurrency-tests)
+  - [Test Template Examples](#test-template-examples)
+    - [Error Path Test Template](#error-path-test-template)
+    - [Boundary Condition Test Template](#boundary-condition-test-template)
+    - [Concurrency Test Template](#concurrency-test-template)
+  - [Using Chicago TDD Framework](#using-chicago-tdd-framework)
+  - [Key Testing Utilities Already Available](#key-testing-utilities-already-available)
+  - [Running Tests](#running-tests)
+  - [Common Test Patterns in Ggen](#common-test-patterns-in-ggen)
+    - [Graph Testing](#graph-testing)
+    - [Domain Logic Testing](#domain-logic-testing)
+    - [Error Testing](#error-testing)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Ggen Expert Testing Patterns - Implementation Guide
 
 ## Quick Start: Where to Add Tests

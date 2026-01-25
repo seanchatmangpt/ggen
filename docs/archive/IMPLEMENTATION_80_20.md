@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [80/20 Benchmark Implementation](#8020-benchmark-implementation)
+  - [What Was Implemented](#what-was-implemented)
+    - [1. error_handling_benchmarks.rs](#1-error_handling_benchmarksrs)
+    - [2. disk_io_benchmarks.rs](#2-disk_io_benchmarksrs)
+    - [3. config_loading_benchmarks.rs](#3-config_loading_benchmarksrs)
+    - [4. stability_benchmarks.rs](#4-stability_benchmarksrs)
+  - [What Was Deleted](#what-was-deleted)
+  - [Compilation Status](#compilation-status)
+  - [Running the Benchmarks](#running-the-benchmarks)
+    - [Individual benchmarks](#individual-benchmarks)
+    - [All benchmarks in one go](#all-benchmarks-in-one-go)
+    - [With baseline for regression detection](#with-baseline-for-regression-detection)
+  - [Implementation Details](#implementation-details)
+    - [Code Quality](#code-quality)
+    - [Methodology](#methodology)
+    - [Documentation](#documentation)
+  - [What's NOT Included](#whats-not-included)
+  - [Files Changed](#files-changed)
+  - [Next Steps](#next-steps)
+  - [Success Criteria](#success-criteria)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 80/20 Benchmark Implementation
 
 ## What Was Implemented

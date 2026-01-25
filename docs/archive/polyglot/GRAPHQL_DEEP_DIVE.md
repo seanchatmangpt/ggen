@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GraphQL Generation Deep Dive](#graphql-generation-deep-dive)
+  - [Table of Contents](#table-of-contents)
+  - [Architecture Overview](#architecture-overview)
+    - [Key Principles](#key-principles)
+  - [RDF to GraphQL Mapping](#rdf-to-graphql-mapping)
+    - [Entity Mapping](#entity-mapping)
+    - [Relationship Mapping](#relationship-mapping)
+    - [Enumeration Mapping](#enumeration-mapping)
+  - [Complete Workflow](#complete-workflow)
+    - [Step 1: Design RDF Ontology](#step-1-design-rdf-ontology)
+    - [Step 2: Configure Generation](#step-2-configure-generation)
+    - [Step 3: Create Tera Templates](#step-3-create-tera-templates)
+    - [Step 4: Run Generation](#step-4-run-generation)
+  - [Schema Generation](#schema-generation)
+    - [Generated GraphQL Schema](#generated-graphql-schema)
+  - [Resolver Generation](#resolver-generation)
+    - [Implementing Resolvers](#implementing-resolvers)
+    - [Apollo Server Integration](#apollo-server-integration)
+  - [Advanced Patterns](#advanced-patterns)
+    - [Pattern 1: Pagination](#pattern-1-pagination)
+    - [Pattern 2: Mutations](#pattern-2-mutations)
+    - [Pattern 3: Subscriptions](#pattern-3-subscriptions)
+  - [Performance Optimization](#performance-optimization)
+    - [DataLoader for N+1 Prevention](#dataloader-for-n1-prevention)
+    - [Query Depth Limiting](#query-depth-limiting)
+    - [Fragment Caching](#fragment-caching)
+  - [Testing Generated Code](#testing-generated-code)
+    - [GraphQL Query Testing](#graphql-query-testing)
+    - [Schema Validation](#schema-validation)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GraphQL Generation Deep Dive
 
 > Comprehensive guide to generating GraphQL schemas and resolvers from RDF ontologies

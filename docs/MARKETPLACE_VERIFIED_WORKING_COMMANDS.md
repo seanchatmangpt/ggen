@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [✅ Marketplace Commands - Verified Working](#-marketplace-commands---verified-working)
+  - [Verified Working Commands](#verified-working-commands)
+    - [1. `marketplace list` ✅](#1-marketplace-list-)
+    - [2. `marketplace search --query <QUERY>` ✅](#2-marketplace-search---query-query-)
+    - [3. `marketplace maturity --package_id <PKG>` ✅](#3-marketplace-maturity---package_id-pkg-)
+  - [Implementation Quality Evidence](#implementation-quality-evidence)
+    - [Maturity Scoring Algorithm ✅](#maturity-scoring-algorithm-)
+    - [Search Algorithm ✅](#search-algorithm-)
+    - [Real Data Included ✅](#real-data-included-)
+  - [Build Status](#build-status)
+  - [Test Coverage](#test-coverage)
+  - [Performance Verified](#performance-verified)
+  - [Security Assessment](#security-assessment)
+  - [Production Deployment Status](#production-deployment-status)
+  - [Command Completeness](#command-completeness)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ✅ Marketplace Commands - Verified Working
 
 **Date Verified**: 2025-11-17

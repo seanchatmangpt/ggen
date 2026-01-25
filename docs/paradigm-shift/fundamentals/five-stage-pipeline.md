@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [The Five-Stage Transformation Pipeline](#the-five-stage-transformation-pipeline)
+  - [The Holographic Factory Metaphor](#the-holographic-factory-metaphor)
+  - [Why This Matters: The "Single Source of Truth" Principle](#why-this-matters-the-single-source-of-truth-principle)
+  - [The Five-Stage Pipeline (μ₁ - μ₅)](#the-five-stage-pipeline-%CE%BC%E2%82%81---%CE%BC%E2%82%85)
+    - [Stage μ₁: Normalize (Validate & Prepare)](#stage-%CE%BC%E2%82%81-normalize-validate--prepare)
+    - [Stage μ₂: Extract (Query Knowledge)](#stage-%CE%BC%E2%82%82-extract-query-knowledge)
+    - [Stage μ₃: Emit (Generate Code)](#stage-%CE%BC%E2%82%83-emit-generate-code)
+    - [Stage μ₄: Canonicalize (Format & Verify)](#stage-%CE%BC%E2%82%84-canonicalize-format--verify)
+    - [Stage μ₅: Receipt (Certify & Document)](#stage-%CE%BC%E2%82%85-receipt-certify--document)
+  - [Determinism & Reproducibility](#determinism--reproducibility)
+  - [Debugging Guide: Which Stage to Check](#debugging-guide-which-stage-to-check)
+  - [Real-World Example: Complete Flow](#real-world-example-complete-flow)
+    - [Step 1: Edit ontology (source of truth)](#step-1-edit-ontology-source-of-truth)
+    - [Step 2: Run `ggen sync`](#step-2-run-ggen-sync)
+    - [Step 3: Watch the pipeline](#step-3-watch-the-pipeline)
+    - [Step 4: Verify generated code](#step-4-verify-generated-code)
+    - [Step 5: Check receipt](#step-5-check-receipt)
+    - [Step 6: Run tests](#step-6-run-tests)
+  - [Common Questions & Answers](#common-questions--answers)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # The Five-Stage Transformation Pipeline
 
 **Core Equation**: `A = μ(O)` where:

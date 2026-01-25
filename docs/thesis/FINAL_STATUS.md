@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [PhD Thesis Final Status Summary](#phd-thesis-final-status-summary)
+  - [Executive Summary](#executive-summary)
+  - [Completion Status by Phase](#completion-status-by-phase)
+  - [Key Metrics](#key-metrics)
+    - [Content Metrics](#content-metrics)
+    - [Quality Metrics](#quality-metrics)
+  - [Chapter-by-Chapter Status](#chapter-by-chapter-status)
+    - [✅ Chapters 1-10, 13 (INTEGRATED)](#-chapters-1-10-13-integrated)
+    - [📁 Enhancement Files Available](#-enhancement-files-available)
+  - [Major Achievements](#major-achievements)
+    - [✅ Completed Successfully](#-completed-successfully)
+    - [⏳ Ready for Integration](#-ready-for-integration)
+  - [Critical Gaps Identified](#critical-gaps-identified)
+    - [❌ Must Fix Before Submission](#-must-fix-before-submission)
+    - [⚠️ Should Fix for Quality](#-should-fix-for-quality)
+  - [LaTeX Compilation Status](#latex-compilation-status)
+    - [❌ NOT READY for PDF Compilation](#-not-ready-for-pdf-compilation)
+  - [Timeline to Completion](#timeline-to-completion)
+    - [Immediate Actions (Critical Path)](#immediate-actions-critical-path)
+    - [Quality Enhancements (Optional)](#quality-enhancements-optional)
+    - [Total Estimated Effort to Completion](#total-estimated-effort-to-completion)
+  - [Quality Assessment](#quality-assessment)
+    - [Strengths](#strengths)
+    - [Weaknesses](#weaknesses)
+  - [Recommendations](#recommendations)
+    - [CRITICAL - Must Do Before Submission](#critical---must-do-before-submission)
+    - [HIGH PRIORITY - Strongly Recommended](#high-priority---strongly-recommended)
+    - [MEDIUM PRIORITY - Quality Improvements](#medium-priority---quality-improvements)
+  - [Ready-for-Submission Checklist](#ready-for-submission-checklist)
+    - [❌ Current Status: NOT READY](#-current-status-not-ready)
+  - [Next Steps](#next-steps)
+    - [Immediate (This Week)](#immediate-this-week)
+    - [Short Term (Next 2 Weeks)](#short-term-next-2-weeks)
+    - [Before Submission](#before-submission)
+  - [Contact & Documentation](#contact--documentation)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # PhD Thesis Final Status Summary
 **Ontology-Driven Code Generation: Deterministic API Contract Generation using RDF and SPARQL**
 

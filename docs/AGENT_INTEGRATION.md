@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Agent Integration Guide](#agent-integration-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+    - [Big Bang 80/20 Principle](#big-bang-8020-principle)
+  - [Architecture](#architecture)
+    - [Key Components](#key-components)
+  - [Core Concepts](#core-concepts)
+    - [1. Signatures: The Contract Layer](#1-signatures-the-contract-layer)
+    - [2. Tool Registry: The Discovery Engine](#2-tool-registry-the-discovery-engine)
+    - [3. Agent-Tool Binding: The Execution Model](#3-agent-tool-binding-the-execution-model)
+  - [Tool Registry Pattern](#tool-registry-pattern)
+    - [Registering a Tool](#registering-a-tool)
+    - [Tool Discovery](#tool-discovery)
+    - [Tool Invocation with Automatic Validation](#tool-invocation-with-automatic-validation)
+  - [Signature Integration](#signature-integration)
+    - [Creating Signatures from RDF (TTL)](#creating-signatures-from-rdf-ttl)
+    - [Converting TTL to Signatures](#converting-ttl-to-signatures)
+  - [Agent Execution Flow](#agent-execution-flow)
+    - [Complete Agent-Tool Interaction Cycle](#complete-agent-tool-interaction-cycle)
+    - [Registering Agent with Registry](#registering-agent-with-registry)
+  - [Error Handling](#error-handling)
+    - [Validation Error Propagation](#validation-error-propagation)
+    - [Handling Tool Invocation Errors](#handling-tool-invocation-errors)
+    - [Error Context Mapping](#error-context-mapping)
+  - [Performance Tuning](#performance-tuning)
+    - [SLO Targets](#slo-targets)
+    - [Caching Validation Results](#caching-validation-results)
+    - [Parallel Tool Execution](#parallel-tool-execution)
+  - [Security Considerations](#security-considerations)
+    - [Input Sanitization](#input-sanitization)
+    - [SPARQL Injection Prevention](#sparql-injection-prevention)
+    - [Signature Validation Security](#signature-validation-security)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Issues and Solutions](#common-issues-and-solutions)
+      - [Issue: "Tool not found" error](#issue-tool-not-found-error)
+      - [Issue: Input validation failures](#issue-input-validation-failures)
+      - [Issue: Output validation failures](#issue-output-validation-failures)
+      - [Issue: Performance degradation](#issue-performance-degradation)
+      - [Issue: Concurrent access panics](#issue-concurrent-access-panics)
+  - [Complete Example: Weather Analysis Domain](#complete-example-weather-analysis-domain)
+  - [Next Steps](#next-steps)
+  - [Reference](#reference)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Agent Integration Guide
 
 **Complete Pattern for Binding Signatures to Agents and Tool Registries**

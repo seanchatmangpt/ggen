@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Learning Paths Design - Agent 8 Report](#ggen-learning-paths-design---agent-8-report)
+  - [Executive Summary](#executive-summary)
+  - [7 Learning Paths Designed](#7-learning-paths-designed)
+    - [**Path 1: Template Author** (Beginner → Intermediate)](#path-1-template-author-beginner-%E2%86%92-intermediate)
+    - [**Path 2: RDF Semantic Developer** (Intermediate → Advanced)](#path-2-rdf-semantic-developer-intermediate-%E2%86%92-advanced)
+    - [**Path 3: Full-Stack Developer** (Beginner → Intermediate)](#path-3-full-stack-developer-beginner-%E2%86%92-intermediate)
+    - [**Path 4: DevOps Engineer** (<60s Deployment Specialist)](#path-4-devops-engineer-60s-deployment-specialist)
+    - [**Path 5: AI Engineer** (LLM-Assisted Code Generation)](#path-5-ai-engineer-llm-assisted-code-generation)
+    - [**Path 6: Rust Specialist** (Advanced → Expert)](#path-6-rust-specialist-advanced-%E2%86%92-expert)
+    - [**Path 7: System Architect** (End-to-End Design)](#path-7-system-architect-end-to-end-design)
+  - [Missing Examples (Priority Ranking)](#missing-examples-priority-ranking)
+    - [**HIGH Priority** (Create Soon)](#high-priority-create-soon)
+      - [1. **Frontend Code Generation** (React/Vue/Angular)](#1-frontend-code-generation-reactvueangular)
+      - [2. **Data Pipeline Generation**](#2-data-pipeline-generation)
+    - [**MEDIUM Priority** (Create Next)](#medium-priority-create-next)
+      - [3. **GraphQL Code Generation**](#3-graphql-code-generation)
+      - [4. **Database Schema Evolution**](#4-database-schema-evolution)
+      - [5. **Documentation Generation**](#5-documentation-generation)
+    - [**MEDIUM-LOW Priority**](#medium-low-priority)
+      - [6. **Mobile App Generation** (React Native/Flutter)](#6-mobile-app-generation-react-nativeflutter)
+      - [7. **Compliance & Security** (GDPR/HIPAA/PCI-DSS)](#7-compliance--security-gdprhipaapci-dss)
+      - [8. **Game Development** (Entity Systems)](#8-game-development-entity-systems)
+  - [Path Dependency Graph](#path-dependency-graph)
+  - [Quality Standard: OpenAPI Example Analysis](#quality-standard-openapi-example-analysis)
+    - [✅ What Makes It Excellent](#-what-makes-it-excellent)
+    - [📋 OpenAPI Structure to Replicate](#-openapi-structure-to-replicate)
+  - [Recommended Implementation Phases](#recommended-implementation-phases)
+    - [**Phase 1: Documentation** (Week 1)](#phase-1-documentation-week-1)
+    - [**Phase 2: High-Priority Examples** (Week 2-3)](#phase-2-high-priority-examples-week-2-3)
+    - [**Phase 3: Learning Experience** (Week 4)](#phase-3-learning-experience-week-4)
+    - [**Phase 4: Continuous Improvement** (Ongoing)](#phase-4-continuous-improvement-ongoing)
+  - [Key Metrics for Success](#key-metrics-for-success)
+    - [Individual Learner Success](#individual-learner-success)
+    - [Organizational Success](#organizational-success)
+  - [Implementation Checklist](#implementation-checklist)
+    - [Documentation Updates](#documentation-updates)
+    - [Example Quality Gates](#example-quality-gates)
+    - [Path Verification](#path-verification)
+  - [File Reference](#file-reference)
+  - [Next Steps for Users](#next-steps-for-users)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Learning Paths Design - Agent 8 Report
 
 **Design Date**: 2026-01-04

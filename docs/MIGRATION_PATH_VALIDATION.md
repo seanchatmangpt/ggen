@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Path Validation Migration Guide](#path-validation-migration-guide)
+  - [Overview](#overview)
+  - [Migration Checklist](#migration-checklist)
+    - [Step 1: Identify File Operations](#step-1-identify-file-operations)
+    - [Step 2: Categorize by Operation Type](#step-2-categorize-by-operation-type)
+    - [Step 3: Create Validators](#step-3-create-validators)
+    - [Step 4: Migrate File Operations](#step-4-migrate-file-operations)
+      - [Before (Unsafe)](#before-unsafe)
+      - [After (Safe)](#after-safe)
+    - [Step 5: Update Function Signatures](#step-5-update-function-signatures)
+    - [Step 6: Handle Error Messages](#step-6-handle-error-messages)
+  - [Module-Specific Migration](#module-specific-migration)
+    - [Template Loading (ggen-domain/src/template/)](#template-loading-ggen-domainsrctemplate)
+    - [RDF Loading (ggen-ontology-core/src/triple_store.rs)](#rdf-loading-ggen-ontology-coresrctriple_storers)
+    - [Code Generation (ggen-core/src/codegen/executor.rs)](#code-generation-ggen-coresrccodegenexecutorrs)
+    - [Config Loading (ggen-config/src/parser.rs)](#config-loading-ggen-configsrcparserrs)
+  - [Testing Migration](#testing-migration)
+    - [Before Migration Tests](#before-migration-tests)
+    - [After Migration Tests](#after-migration-tests)
+  - [Common Patterns](#common-patterns)
+    - [Pattern 1: Struct with Validator](#pattern-1-struct-with-validator)
+    - [Pattern 2: Lazy Validator](#pattern-2-lazy-validator)
+    - [Pattern 3: Validator Factory](#pattern-3-validator-factory)
+  - [Rollout Plan](#rollout-plan)
+  - [Monitoring](#monitoring)
+  - [Success Metrics](#success-metrics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Path Validation Migration Guide
 
 ## Overview

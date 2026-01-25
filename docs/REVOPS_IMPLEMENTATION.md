@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [RevOps Implementation: Complete Infrastructure for Monetization](#revops-implementation-complete-infrastructure-for-monetization)
+  - [Overview](#overview)
+  - [What Was Implemented](#what-was-implemented)
+    - [1. ✅ ggen-api (REST API Layer)](#1--ggen-api-rest-api-layer)
+      - [Key Components](#key-components)
+      - [API Endpoints (Ready)](#api-endpoints-ready)
+      - [Features](#features)
+    - [2. ✅ ggen-auth (Authentication & Authorization)](#2--ggen-auth-authentication--authorization)
+      - [Key Components](#key-components-1)
+      - [Features](#features-1)
+    - [3. ✅ ggen-payments (Stripe Integration)](#3--ggen-payments-stripe-integration)
+      - [Key Components](#key-components-2)
+      - [Features](#features-2)
+    - [4. ✅ ggen-saas (Quota Enforcement & Tier Management)](#4--ggen-saas-quota-enforcement--tier-management)
+      - [Key Components](#key-components-3)
+      - [Features](#features-3)
+  - [Architecture](#architecture)
+    - [Dependency Graph](#dependency-graph)
+    - [Integration Points](#integration-points)
+  - [Production-Readiness Assessment](#production-readiness-assessment)
+    - [✅ Complete (Production-Ready)](#-complete-production-ready)
+    - [🟡 Partial (Needs Database)](#-partial-needs-database)
+    - [🟡 Partial (Needs Implementation)](#-partial-needs-implementation)
+  - [Next Steps (Phase 2)](#next-steps-phase-2)
+    - [Immediate Priorities (1–2 weeks)](#immediate-priorities-12-weeks)
+    - [Medium Term (2–4 weeks)](#medium-term-24-weeks)
+    - [Long Term (4–8 weeks)](#long-term-48-weeks)
+  - [Code Quality](#code-quality)
+    - [Standards Applied](#standards-applied)
+    - [Test Coverage Examples](#test-coverage-examples)
+  - [Revenue Impact](#revenue-impact)
+    - [Unlocked Revenue Streams](#unlocked-revenue-streams)
+    - [Timeline](#timeline)
+  - [File Structure](#file-structure)
+  - [Commands to Continue](#commands-to-continue)
+    - [Build & Test](#build--test)
+    - [Next Implementation](#next-implementation)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # RevOps Implementation: Complete Infrastructure for Monetization
 
 **Date**: January 2026

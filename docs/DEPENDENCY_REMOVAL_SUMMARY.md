@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Dependency Removal Summary](#dependency-removal-summary)
+  - [Results](#results)
+    - [Dependencies Removed: **8**](#dependencies-removed-8)
+    - [Metrics](#metrics)
+  - [Lessons Learned](#lessons-learned)
+    - [False Positives Found: 2](#false-positives-found-2)
+    - [Improved Search Strategy](#improved-search-strategy)
+  - [Files Modified](#files-modified)
+    - [Edited Files (6 total)](#edited-files-6-total)
+  - [Verification Status](#verification-status)
+    - [Compilation Check](#compilation-check)
+    - [Test Check](#test-check)
+    - [Lint Check](#lint-check)
+  - [Next Steps](#next-steps)
+    - [Immediate (Required)](#immediate-required)
+    - [Short-term (Recommended)](#short-term-recommended)
+    - [Long-term (Preventive)](#long-term-preventive)
+  - [Automated Dependency Audit (Recommended)](#automated-dependency-audit-recommended)
+  - [Cost-Benefit Analysis](#cost-benefit-analysis)
+    - [Time Invested](#time-invested)
+    - [Benefits](#benefits)
+    - [ROI](#roi)
+  - [Approval & Sign-off](#approval--sign-off)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Dependency Removal Summary
 
 **Date:** 2026-01-24

@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Force Flag Feature](#force-flag-feature)
+  - [Overview](#overview)
+  - [Default Behavior (Without `--force`)](#default-behavior-without---force)
+  - [Force Behavior (With `--force`)](#force-behavior-with---force)
+  - [Usage](#usage)
+    - [Basic Usage](#basic-usage)
+    - [Safe Usage Patterns](#safe-usage-patterns)
+  - [When to Use `--force`](#when-to-use---force)
+    - [Legitimate Use Cases](#legitimate-use-cases)
+    - [Inappropriate Use Cases](#inappropriate-use-cases)
+  - [Safety Mechanisms](#safety-mechanisms)
+    - [1. Combine with `--audit` (MANDATORY)](#1-combine-with---audit-mandatory)
+    - [2. Use `--dry-run` First](#2-use---dry-run-first)
+    - [3. Scope with `--rule`](#3-scope-with---rule)
+    - [4. Git Integration](#4-git-integration)
+  - [Workflow Examples](#workflow-examples)
+    - [Example 1: Safe Refactoring](#example-1-safe-refactoring)
+    - [Example 2: CI/CD Pipeline](#example-2-cicd-pipeline)
+    - [Example 3: Pure Code Generation Project](#example-3-pure-code-generation-project)
+  - [Flag Precedence](#flag-precedence)
+  - [Error Handling](#error-handling)
+    - [Permission Denied](#permission-denied)
+    - [File Lock Conflicts](#file-lock-conflicts)
+    - [Audit Trail Failure](#audit-trail-failure)
+  - [Best Practices](#best-practices)
+  - [Security Considerations](#security-considerations)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Force Flag Feature
 
 ## Overview

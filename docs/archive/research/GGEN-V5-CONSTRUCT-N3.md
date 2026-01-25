@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v5: CONSTRUCT Queries & N3 Rules for Innovative Code Generation](#ggen-v5-construct-queries--n3-rules-for-innovative-code-generation)
+  - [The Insight: Why CONSTRUCT & N3 Change Everything](#the-insight-why-construct--n3-change-everything)
+    - [SELECT is Limited (v4 approach)](#select-is-limited-v4-approach)
+    - [CONSTRUCT is Revolutionary (v5 approach)](#construct-is-revolutionary-v5-approach)
+    - [N3 is Meta-Programming (v5+ approach)](#n3-is-meta-programming-v5-approach)
+  - [Part 1: CONSTRUCT-Based Code Generation](#part-1-construct-based-code-generation)
+    - [Pattern 1: Domain Model → Rust Structs via CONSTRUCT](#pattern-1-domain-model-%E2%86%92-rust-structs-via-construct)
+    - [Pattern 2: Relationships → Rust Implementations via CONSTRUCT](#pattern-2-relationships-%E2%86%92-rust-implementations-via-construct)
+    - [Pattern 3: CONSTRUCT for Code Safety Validation](#pattern-3-construct-for-code-safety-validation)
+  - [Part 2: N3 Rules for Inference-Driven Code Generation](#part-2-n3-rules-for-inference-driven-code-generation)
+    - [Pattern 4: N3 Rule for Auto-Derive Inference](#pattern-4-n3-rule-for-auto-derive-inference)
+    - [How N3 Reasoning Works for Code Generation](#how-n3-reasoning-works-for-code-generation)
+  - [Part 3: Advanced Patterns](#part-3-advanced-patterns)
+    - [Pattern 5: N3 for Design Pattern Generation](#pattern-5-n3-for-design-pattern-generation)
+    - [Pattern 6: N3 for Error Type Generation](#pattern-6-n3-for-error-type-generation)
+    - [Pattern 7: CONSTRUCT for Test Generation](#pattern-7-construct-for-test-generation)
+  - [Part 4: The ggen v5 Pipeline with CONSTRUCT & N3](#part-4-the-ggen-v5-pipeline-with-construct--n3)
+  - [Part 5: Innovative Use Cases](#part-5-innovative-use-cases)
+    - [Use Case 1: Agent-Driven Refactoring via CONSTRUCT](#use-case-1-agent-driven-refactoring-via-construct)
+    - [Use Case 2: Cross-Service API Generation via N3](#use-case-2-cross-service-api-generation-via-n3)
+    - [Use Case 3: Schema Migration via CONSTRUCT](#use-case-3-schema-migration-via-construct)
+    - [Use Case 4: Documentation Generation via N3](#use-case-4-documentation-generation-via-n3)
+  - [Part 6: oxigraph N3 Integration](#part-6-oxigraph-n3-integration)
+  - [Part 7: Performance Considerations](#part-7-performance-considerations)
+    - [N3 Reasoning Complexity](#n3-reasoning-complexity)
+    - [CONSTRUCT Query Optimization](#construct-query-optimization)
+    - [Target Performance](#target-performance)
+  - [Summary: Why CONSTRUCT & N3 are Game-Changers](#summary-why-construct--n3-are-game-changers)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v5: CONSTRUCT Queries & N3 Rules for Innovative Code Generation
 
 **Date**: 2024-12-14

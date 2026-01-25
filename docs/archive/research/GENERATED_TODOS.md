@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Documentation Gaps - Actionable Todos](#documentation-gaps---actionable-todos)
+  - [CRITICAL (P0) - Do First](#critical-p0---do-first)
+  - [HIGH (P1) - Do Next](#high-p1---do-next)
+  - [MEDIUM (P2) - Nice to Have](#medium-p2---nice-to-have)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Documentation Gaps - Actionable Todos
 
 Generated from RDF: `documentation.ttl`

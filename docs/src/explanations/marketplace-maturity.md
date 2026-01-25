@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Understanding Marketplace Maturity](#understanding-marketplace-maturity)
+  - [The Problem We're Solving](#the-problem-were-solving)
+    - [Traditional Approaches Fall Short](#traditional-approaches-fall-short)
+    - [What We Actually Need](#what-we-actually-need)
+  - [The Six Dimensions](#the-six-dimensions)
+    - [Documentation (Can I understand and use this?)](#documentation-can-i-understand-and-use-this)
+    - [Testing (Can I trust this code?)](#testing-can-i-trust-this-code)
+    - [Security (Is this code safe?)**Why it matters**:](#security-is-this-code-safewhy-it-matters)
+    - [Performance (Can this handle my workload?)](#performance-can-this-handle-my-workload)
+    - [Adoption (Is this trusted by others?)](#adoption-is-this-trusted-by-others)
+    - [Maintenance (Is this actively cared for?)](#maintenance-is-this-actively-cared-for)
+  - [Why Six Dimensions Beats One Number](#why-six-dimensions-beats-one-number)
+    - [The False Equivalence Problem](#the-false-equivalence-problem)
+    - [Dimension Independence](#dimension-independence)
+  - [The Scoring Philosophy](#the-scoring-philosophy)
+    - [Dimension Independence](#dimension-independence-1)
+    - [Dimension Weights Are Equal](#dimension-weights-are-equal)
+    - [Measurable, Not Subjective](#measurable-not-subjective)
+    - [Auto-Updated](#auto-updated)
+  - [The Four Maturity Levels](#the-four-maturity-levels)
+    - [Level Design: Context Matters](#level-design-context-matters)
+    - [Level Progression](#level-progression)
+  - [How This Solves Real Problems](#how-this-solves-real-problems)
+    - [Problem: "Should I use this package?"](#problem-should-i-use-this-package)
+    - [Problem: "Our CI/CD needs standards"](#problem-our-cicd-needs-standards)
+    - [Problem: "How do I improve my package?"](#problem-how-do-i-improve-my-package)
+  - [Philosophical Underpinnings](#philosophical-underpinnings)
+    - [Quality is Multi-Dimensional](#quality-is-multi-dimensional)
+    - [Context-Dependent Readiness](#context-dependent-readiness)
+    - [Transparency Over Gatekeeping](#transparency-over-gatekeeping)
+    - [Incentives Matter](#incentives-matter)
+  - [Evolution and Feedback](#evolution-and-feedback)
+  - [Related Concepts](#related-concepts)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Understanding Marketplace Maturity
 
 This document explains the concepts, philosophy, and design thinking behind the ggen marketplace maturity system.

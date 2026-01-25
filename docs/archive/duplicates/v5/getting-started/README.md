@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Getting Started with ggen](#getting-started-with-ggen)
+  - [What You'll Learn](#what-youll-learn)
+  - [Prerequisites](#prerequisites)
+  - [Path Overview](#path-overview)
+  - [Step 1: Installation (2 minutes)](#step-1-installation-2-minutes)
+    - [Option A: Install via Cargo (Recommended)](#option-a-install-via-cargo-recommended)
+    - [Option B: Build from Source](#option-b-build-from-source)
+    - [Verify Installation](#verify-installation)
+  - [Step 2: Understand RDF (5 minutes)](#step-2-understand-rdf-5-minutes)
+    - [What is RDF?](#what-is-rdf)
+    - [Why RDF for Code Generation?](#why-rdf-for-code-generation)
+    - [Example: User Model](#example-user-model)
+    - [RDF Formats](#rdf-formats)
+  - [Step 3: Your First Generation (8 minutes)](#step-3-your-first-generation-8-minutes)
+    - [Create Project Directory](#create-project-directory)
+    - [Create Ontology Schema (ontology/book-schema.ttl)](#create-ontology-schema-ontologybook-schemattl)
+    - [Create Content (ontology/my-book.ttl)](#create-content-ontologymy-bookttl)
+    - [Create Template (templates/book.md.tera)](#create-template-templatesbookmdtera)
+    - [Create ggen.toml (Project Manifest)](#create-ggentoml-project-manifest)
+    - [Generate Your Document](#generate-your-document)
+    - [Inspect Generated Output](#inspect-generated-output)
+    - [Verify Determinism](#verify-determinism)
+  - [Next Steps](#next-steps)
+    - [Explore Real Examples](#explore-real-examples)
+    - [Learn More](#learn-more)
+    - [Resources](#resources)
+    - [Key Takeaways](#key-takeaways)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Getting Started with ggen
 
 Welcome! This guide will get you from zero to generating code in **15 minutes**.

@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Packs System Architecture Diagram](#packs-system-architecture-diagram)
+  - [High-Level System Architecture](#high-level-system-architecture)
+  - [Data Flow: Install Pack Workflow](#data-flow-install-pack-workflow)
+  - [Data Flow: Generate Project Workflow](#data-flow-generate-project-workflow)
+  - [Dependency Graph Example](#dependency-graph-example)
+  - [Error Handling Flow](#error-handling-flow)
+  - [Caching Strategy](#caching-strategy)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Packs System Architecture Diagram
 
 **Version:** 3.2.0

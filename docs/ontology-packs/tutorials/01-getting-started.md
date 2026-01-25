@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Getting Started: Your First Ontology Pack](#getting-started-your-first-ontology-pack)
+  - [Step 1: Search for Available Packs](#step-1-search-for-available-packs)
+  - [Step 2: Install SCHEMA.org Pack](#step-2-install-schemaorg-pack)
+  - [Step 3: List Installed Packs](#step-3-list-installed-packs)
+  - [Step 4: Generate Code from the Ontology](#step-4-generate-code-from-the-ontology)
+  - [Step 5: Use Generated Types](#step-5-use-generated-types)
+  - [What You Learned](#what-you-learned)
+  - [Next Steps](#next-steps)
+  - [Troubleshooting](#troubleshooting)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Getting Started: Your First Ontology Pack
 
 **Goal:** Install and use your first ontology pack in under 10 minutes.

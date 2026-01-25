@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace Commands - Production Readiness Report](#marketplace-commands---production-readiness-report)
+  - [Executive Summary](#executive-summary)
+  - [1. Code Quality ✅ PASSED](#1-code-quality--passed)
+    - [Error Handling](#error-handling)
+    - [Input Validation](#input-validation)
+    - [Code Cleanliness](#code-cleanliness)
+  - [2. Functionality ✅ PASSED](#2-functionality--passed)
+    - [Command Coverage](#command-coverage)
+    - [Output Validation](#output-validation)
+    - [Edge Case Handling](#edge-case-handling)
+  - [3. Testing ⚠️ PARTIAL PASS](#3-testing--partial-pass)
+    - [Test Coverage](#test-coverage)
+    - [Test Compilation Issues](#test-compilation-issues)
+    - [Test Quality](#test-quality)
+    - [Passing Tests](#passing-tests)
+  - [4. Dependencies ✅ PASSED](#4-dependencies--passed)
+    - [Dependency Audit](#dependency-audit)
+    - [Cargo Tree](#cargo-tree)
+  - [5. Documentation ✅ PASSED](#5-documentation--passed)
+    - [Help Text Quality](#help-text-quality)
+    - [Error Messages](#error-messages)
+    - [Code Documentation](#code-documentation)
+  - [6. Performance ✅ PASSED](#6-performance--passed)
+    - [Response Time Targets](#response-time-targets)
+    - [Search Performance](#search-performance)
+    - [Memory Usage](#memory-usage)
+  - [7. Security ✅ PASSED](#7-security--passed)
+    - [Input Validation](#input-validation-1)
+    - [Cryptographic Integrity](#cryptographic-integrity)
+    - [ZIP Bomb Protection](#zip-bomb-protection)
+    - [Authentication](#authentication)
+  - [Blockers and Warnings](#blockers-and-warnings)
+    - [❌ Blockers (Must Fix Before Production)](#-blockers-must-fix-before-production)
+    - [⚠️ Warnings (Should Fix)](#-warnings-should-fix)
+  - [Recommendations](#recommendations)
+    - [For Immediate Production Deployment](#for-immediate-production-deployment)
+    - [For Long-Term Quality](#for-long-term-quality)
+  - [Production Deployment Checklist](#production-deployment-checklist)
+    - [Pre-Deployment](#pre-deployment)
+    - [Deployment](#deployment)
+    - [Post-Deployment](#post-deployment)
+  - [Conclusion](#conclusion)
+  - [Appendix: Validation Evidence](#appendix-validation-evidence)
+    - [Command Execution Test](#command-execution-test)
+    - [Clippy Results](#clippy-results)
+    - [Security Code Samples](#security-code-samples)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace Commands - Production Readiness Report
 
 **Report Generated**: 2025-11-17

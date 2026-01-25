@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Code Quality Analysis Report - Hive Mind Swarm](#code-quality-analysis-report---hive-mind-swarm)
+  - [Executive Summary](#executive-summary)
+  - [1. Test Failure Analysis](#1-test-failure-analysis)
+    - [1.1 Error Distribution by Code](#11-error-distribution-by-code)
+    - [1.2 Failure Pattern Analysis](#12-failure-pattern-analysis)
+      - [Pattern 1: ObservationType Enum Variants Removed (46 instances)](#pattern-1-observationtype-enum-variants-removed-46-instances)
+      - [Pattern 2: Observation::new() Signature Change (18 instances)](#pattern-2-observationnew-signature-change-18-instances)
+      - [Pattern 3: DatasetFormat Removal from io Module (87 instances)](#pattern-3-datasetformat-removal-from-io-module-87-instances)
+      - [Pattern 4: Invariant, Receipt, TimingGuarantee API Changes](#pattern-4-invariant-receipt-timingguarantee-api-changes)
+      - [Pattern 5: ggen-marketplace-v2 API Changes](#pattern-5-ggen-marketplace-v2-api-changes)
+      - [Pattern 6: ObservationSchema and ReceiptStore API Changes](#pattern-6-observationschema-and-receiptstore-api-changes)
+      - [Pattern 7: DoDError Serialization Missing](#pattern-7-doderror-serialization-missing)
+  - [2. Dead Code Analysis](#2-dead-code-analysis)
+    - [2.1 Dead Code Status: ✅ RESOLVED](#21-dead-code-status--resolved)
+  - [3. Code Quality Assessment](#3-code-quality-assessment)
+    - [3.1 Core Implementation Quality: 8.5/10 ✅](#31-core-implementation-quality-8510-)
+    - [3.2 API Design Evolution: 7.0/10 ⚠️](#32-api-design-evolution-7010-)
+    - [3.3 Test Coverage: 6.0/10 ⚠️](#33-test-coverage-6010-)
+  - [4. Technical Debt Assessment](#4-technical-debt-assessment)
+    - [4.1 Immediate Debt: HIGH 🔴](#41-immediate-debt-high-)
+    - [4.2 Systematic Issues](#42-systematic-issues)
+  - [5. Systematic Migration Guide](#5-systematic-migration-guide)
+    - [5.1 Migration Checklist](#51-migration-checklist)
+    - [5.2 Automated Migration Script (Recommendation)](#52-automated-migration-script-recommendation)
+  - [6. Recommendations](#6-recommendations)
+    - [6.1 Immediate Actions (Priority: CRITICAL)](#61-immediate-actions-priority-critical)
+    - [6.2 Short-term Actions (1-2 weeks)](#62-short-term-actions-1-2-weeks)
+    - [6.3 Long-term Actions (1-2 months)](#63-long-term-actions-1-2-months)
+  - [7. Risk Assessment](#7-risk-assessment)
+    - [7.1 Deployment Risks](#71-deployment-risks)
+    - [7.2 Technical Risks](#72-technical-risks)
+  - [8. Coordination with Production Validator](#8-coordination-with-production-validator)
+  - [9. Summary](#9-summary)
+    - [9.1 Positive Findings ✅](#91-positive-findings-)
+    - [9.2 Critical Issues ❌](#92-critical-issues-)
+    - [9.3 Next Steps](#93-next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Code Quality Analysis Report - Hive Mind Swarm
 
 **Date**: 2025-11-20

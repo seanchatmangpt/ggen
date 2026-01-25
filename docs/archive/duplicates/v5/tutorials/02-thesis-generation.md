@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tutorial: Generate a PhD Thesis from RDF](#tutorial-generate-a-phd-thesis-from-rdf)
+  - [What You'll Build](#what-youll-build)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+  - [Step 1: Set Up Project Structure](#step-1-set-up-project-structure)
+  - [Step 2: Define RDF Schema](#step-2-define-rdf-schema)
+  - [Step 3: Add Thesis Content](#step-3-add-thesis-content)
+  - [Step 4: Create Templates](#step-4-create-templates)
+    - [Main Document Template](#main-document-template)
+    - [Chapter Template](#chapter-template)
+    - [Bibliography Template](#bibliography-template)
+  - [Step 5: Configure ggen.toml](#step-5-configure-ggentoml)
+  - [Step 6: Generate the Thesis](#step-6-generate-the-thesis)
+    - [Compile to PDF](#compile-to-pdf)
+  - [Step 7: Verify Determinism](#step-7-verify-determinism)
+  - [What You've Learned](#what-youve-learned)
+  - [Next Steps](#next-steps)
+    - [Extend the Thesis](#extend-the-thesis)
+    - [Try Other Examples](#try-other-examples)
+    - [Customize Templates](#customize-templates)
+  - [Real Example](#real-example)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tutorial: Generate a PhD Thesis from RDF
 
 **Time**: 30 minutes

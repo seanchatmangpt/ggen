@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Breaking Changes in v6.0](#breaking-changes-in-v60)
+  - [For CLI Users: No Breaking Changes ✅](#for-cli-users-no-breaking-changes-)
+  - [For Library Users: Import Path Changes Required ⚠️](#for-library-users-import-path-changes-required-)
+    - [What Changed](#what-changed)
+    - [Complete Import Migration Table](#complete-import-migration-table)
+    - [Automated Migration Script](#automated-migration-script)
+  - [For Workspace Builds: New Crates Added](#for-workspace-builds-new-crates-added)
+    - [New Crates](#new-crates)
+    - [Build Impact](#build-impact)
+    - [Why the Increase?](#why-the-increase)
+    - [Mitigation Strategies](#mitigation-strategies)
+  - [For Projects Using ggen-core Directly](#for-projects-using-ggen-core-directly)
+    - [What Did NOT Change ✅](#what-did-not-change-)
+    - [What DID Change](#what-did-change)
+  - [Common Errors and Solutions](#common-errors-and-solutions)
+    - [Error 1: "cannot find type `ProtectedPath` in crate `ggen_core::types`"](#error-1-cannot-find-type-protectedpath-in-crate-ggen_coretypes)
+    - [Error 2: "unresolved import `ggen_core::types::PathProtectionError`"](#error-2-unresolved-import-ggen_coretypespathprotectionerror)
+    - [Error 3: Build time increased significantly](#error-3-build-time-increased-significantly)
+    - [Error 4: "cannot find `AndonSignal` in crate `ggen_core`"](#error-4-cannot-find-andonsignal-in-crate-ggen_core)
+  - [Migration Timeline](#migration-timeline)
+  - [Troubleshooting FAQ](#troubleshooting-faq)
+  - [Support Resources](#support-resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Breaking Changes in v6.0
 
 **Version 6.0.0** introduces architectural improvements and new capabilities while maintaining backward compatibility for most users. This section documents what changed and how to migrate.

@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 3: Medium-Effort Performance Optimizations](#week-3-medium-effort-performance-optimizations)
+  - [Summary](#summary)
+  - [Optimization 1: Lockfile Dependency Resolution (Target: 50-80% improvement)](#optimization-1-lockfile-dependency-resolution-target-50-80-improvement)
+    - [Implementation](#implementation)
+    - [Key Changes](#key-changes)
+    - [Performance Impact](#performance-impact)
+  - [Optimization 2: RDF Query Optimization (Target: 20-40% improvement)](#optimization-2-rdf-query-optimization-target-20-40-improvement)
+    - [Implementation](#implementation-1)
+    - [Key Features](#key-features)
+    - [Performance Impact](#performance-impact-1)
+  - [Optimization 3: Template Processing Pipeline (Target: 20-40% improvement)](#optimization-3-template-processing-pipeline-target-20-40-improvement)
+    - [Implementation](#implementation-2)
+    - [Key Changes](#key-changes-1)
+    - [Performance Impact](#performance-impact-2)
+  - [Benchmark Suite](#benchmark-suite)
+    - [Running Benchmarks](#running-benchmarks)
+  - [Compilation Status](#compilation-status)
+  - [Integration with Existing Codebase](#integration-with-existing-codebase)
+    - [Lockfile Integration](#lockfile-integration)
+    - [RDF Query Integration](#rdf-query-integration)
+    - [Template Cache Integration](#template-cache-integration)
+  - [Performance Targets vs Results](#performance-targets-vs-results)
+  - [Next Steps](#next-steps)
+  - [Expected Grade Improvement](#expected-grade-improvement)
+  - [Code Quality](#code-quality)
+  - [Files Modified/Created](#files-modifiedcreated)
+    - [Modified](#modified)
+    - [Created](#created)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 3: Medium-Effort Performance Optimizations
 
 ## Summary

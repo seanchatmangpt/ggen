@@ -1,3 +1,13 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Git Commit Message for Thesis Enhancement](#git-commit-message-for-thesis-enhancement)
+  - [Short Commit Message (for git commit -m)](#short-commit-message-for-git-commit--m)
+  - [Alternative Conventional Commit Format](#alternative-conventional-commit-format)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Git Commit Message for Thesis Enhancement
 
 ```

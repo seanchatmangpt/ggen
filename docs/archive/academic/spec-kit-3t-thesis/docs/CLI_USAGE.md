@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Spec-Kit-3T CLI Usage Guide](#spec-kit-3t-cli-usage-guide)
+  - [Installation](#installation)
+  - [Commands](#commands)
+    - [1. Generate LaTeX from RDF](#1-generate-latex-from-rdf)
+    - [2. Validate RDF Ontology](#2-validate-rdf-ontology)
+    - [3. Extract Text from PDF](#3-extract-text-from-pdf)
+    - [4. Clean Extracted Text](#4-clean-extracted-text)
+    - [5. Compile LaTeX to PDF](#5-compile-latex-to-pdf)
+    - [6. Version Information](#6-version-information)
+  - [Complete Workflow](#complete-workflow)
+  - [Test Results](#test-results)
+  - [Punctuation Analysis Results](#punctuation-analysis-results)
+  - [Files Created](#files-created)
+    - [CLI Implementation](#cli-implementation)
+    - [Tests](#tests)
+    - [Configuration](#configuration)
+  - [Dependencies](#dependencies)
+  - [Constitutional Equation](#constitutional-equation)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Spec-Kit-3T CLI Usage Guide
 
 ## Installation
