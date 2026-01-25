@@ -1,0 +1,27 @@
+#!/bin/bash
+set -euo pipefail
+
+###############################################################################
+# Restore IAM Role
+# TPS: Explicit role restoration after sabotage test
+#
+# Usage:
+#   PROJECT_ID="my-project" \
+#   SA_EMAIL="sa@project.iam.gserviceaccount.com" \
+#   ROLE="roles/datastore.user" \
+#   ./restore_roles.sh
+###############################################################################
+
+: "${PROJECT_ID:?ERROR: PROJECT_ID required}"
+: "${SA_EMAIL:?ERROR: SA_EMAIL required}"
+: "${ROLE:?ERROR: ROLE required}"
+
+echo "[restore] Adding $ROLE to $SA_EMAIL in $PROJECT_ID" >&2
+
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:$SA_EMAIL" \
+  --role="$ROLE" \
+  --condition=None \
+  --quiet 2>&1 | grep -v "WARNING" || true
+
+echo "[restore] ✓ Role restored" >&2

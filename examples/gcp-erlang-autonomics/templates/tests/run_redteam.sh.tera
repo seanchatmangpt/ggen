@@ -1,0 +1,133 @@
+#!/bin/bash
+set -euo pipefail
+
+###############################################################################
+# Red-Team Test Orchestration
+# Deploys multiple SKU variants with different IAM roles and tests each.
+# TPS: Standard work sequence: golden → no-run → no-firestore
+#
+# Usage:
+#   PROJECT_ID="my-project" \
+#   REGION="us-central1" \
+#   IMAGE="gcr.io/my-project/image:tag" \
+#   ./run_redteam.sh
+###############################################################################
+
+: "${PROJECT_ID:?ERROR: PROJECT_ID required}"
+: "${REGION:=us-central1}"
+: "${IMAGE:?ERROR: IMAGE required}"
+
+MODULE_PREFIX="{{ module_prefix }}"
+SKU="{{ sku }}"
+
+echo "================================================================================"
+echo "🔴 RED-TEAM ADVERSARIAL TEST ORCHESTRATION"
+echo "================================================================================"
+echo ""
+echo "Configuration:"
+echo "  SKU:              $SKU"
+echo "  MODULE:           $MODULE_PREFIX"
+echo "  PROJECT:          $PROJECT_ID"
+echo "  REGION:           $REGION"
+echo "  IMAGE:            $IMAGE"
+echo ""
+
+# Service accounts (must exist or be created beforehand)
+GOLDEN_SA="${MODULE_PREFIX}-sa"
+NO_RUN_SA="${MODULE_PREFIX}-sa-no-run"
+NO_FS_SA="${MODULE_PREFIX}-sa-no-firestore"
+
+# Function to run a variant
+run_variant() {
+  local variant_name="$1"
+  local service_account="$2"
+
+  echo ""
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "Variant: $variant_name"
+  echo "Service Account: $service_account"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo ""
+
+  # Build full service account email
+  SA_EMAIL="${service_account}@${PROJECT_ID}.iam.gserviceaccount.com"
+
+  # Deploy variant
+  echo "[1] Deploying variant: $variant_name"
+  SERVICE_URL=$(SERVICE_ACCOUNT="$SA_EMAIL" \
+    PROJECT_ID="$PROJECT_ID" \
+    REGION="$REGION" \
+    IMAGE="$IMAGE" \
+    SERVICE="${MODULE_PREFIX}-${variant_name}" \
+    bash ./apps/${MODULE_PREFIX}/test/deploy_variant.sh)
+
+  echo "[1] ✓ Service deployed: $SERVICE_URL"
+  echo ""
+
+  # Wait for service to stabilize
+  echo "[2] Waiting for service to stabilize..."
+  sleep 5
+
+  # Run red-team tests
+  echo "[3] Running red-team tests..."
+  export SERVICE_URL
+
+  if rebar3 ct \
+    --suite apps/${MODULE_PREFIX}/test/${MODULE_PREFIX}_redteam_SUITE.erl \
+    --name ${MODULE_PREFIX}_redteam_${variant_name} \
+    --logdir ".ct_logs/${variant_name}"; then
+    echo "[3] ✓ Tests passed for variant: $variant_name"
+  else
+    echo "[3] ✗ Tests FAILED for variant: $variant_name"
+    echo ""
+    echo "Check logs: .ct_logs/${variant_name}/index.html"
+    return 1
+  fi
+}
+
+# Run variants in sequence
+TEST_FAILURES=0
+
+echo "🟢 Golden (Full Permissions)"
+if ! run_variant "golden" "$GOLDEN_SA"; then
+  TEST_FAILURES=$((TEST_FAILURES + 1))
+fi
+
+echo ""
+echo "🟡 No Cloud Run Admin (Actions Must Refuse)"
+if ! run_variant "no_run_admin" "$NO_RUN_SA"; then
+  TEST_FAILURES=$((TEST_FAILURES + 1))
+fi
+
+echo ""
+echo "🔴 No Firestore (Jidoka Halt Expected)"
+if ! run_variant "no_firestore" "$NO_FS_SA"; then
+  TEST_FAILURES=$((TEST_FAILURES + 1))
+fi
+
+echo ""
+echo "================================================================================"
+if [ $TEST_FAILURES -eq 0 ]; then
+  echo "✅ ALL RED-TEAM VARIANTS PASSED"
+  echo ""
+  echo "Variants tested:"
+  echo "  🟢 golden          - Full permissions (baseline)"
+  echo "  🟡 no_run_admin    - No Cloud Run access (actions refuse gracefully)"
+  echo "  🔴 no_firestore    - No Firestore access (jidoka halt)"
+  echo ""
+  echo "System demonstrated:"
+  echo "  ✓ Resilience to permission denial (no 5xx crashes)"
+  echo "  ✓ Graceful refusal under constraints"
+  echo "  ✓ Stop-the-line enforcement (Firestore mandatory)"
+  echo "  ✓ No deadlocks or undefined behavior"
+  echo ""
+  echo "Logs: .ct_logs/"
+  echo "================================================================================"
+  exit 0
+else
+  echo "❌ RED-TEAM TESTS FAILED ($TEST_FAILURES variant(s))"
+  echo ""
+  echo "Check logs in: .ct_logs/"
+  echo "================================================================================"
+  exit 1
+fi

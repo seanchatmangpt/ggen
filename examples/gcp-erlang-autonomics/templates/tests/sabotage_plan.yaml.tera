@@ -1,0 +1,146 @@
+---
+# Sabotage Plan: Red-Team IAM Testing for {{ module_prefix }}
+# TPS-grade adversarial infrastructure testing
+#
+# This declares the variants we'll test and their expected behaviors.
+# No surprises — sabotage is intentional and verifiable.
+
+sku: "{{ sku }}"
+module_prefix: "{{ module_prefix }}"
+
+gcp:
+  project_id_env: "GOOGLE_CLOUD_PROJECT"
+  region: "{{ gcp.region | default(value="us-central1") }}"
+  service_name: "{{ module_prefix }}"
+
+service_accounts:
+  golden:
+    name: "{{ module_prefix }}-sa"
+    description: "Full permissions baseline (golden path)"
+    roles:
+      - roles/datastore.user        # Firestore receipts
+      - roles/logging.logWriter     # Cloud Logging
+      - roles/monitoring.metricReader # Metrics
+{% if "cloudrun" in action_groups %}
+      - roles/run.developer         # Cloud Run actions
+      - roles/compute.networkViewer
+{% endif %}
+{% if "scheduler" in action_groups %}
+      - roles/cloudscheduler.jobRunner # Cloud Scheduler actions
+{% endif %}
+{% if "pubsub" in action_groups %}
+      - roles/pubsub.editor         # Pub/Sub actions
+      - roles/pubsub.viewer
+{% endif %}
+      - roles/iam.serviceAccountUser
+
+  no_run_admin:
+    name: "{{ module_prefix }}-sa-no-run"
+    description: "Denied Cloud Run admin role (action refusal test)"
+    roles:
+      - roles/datastore.user        # Can read/write receipts
+      - roles/logging.logWriter
+      - roles/monitoring.metricReader
+      # NO roles/run.developer or roles/run.admin
+{% if "scheduler" in action_groups %}
+      - roles/cloudscheduler.jobRunner
+{% endif %}
+{% if "pubsub" in action_groups %}
+      - roles/pubsub.editor
+      - roles/pubsub.viewer
+{% endif %}
+      - roles/iam.serviceAccountUser
+
+  no_firestore:
+    name: "{{ module_prefix }}-sa-no-firestore"
+    description: "Denied Firestore access (jidoka crash test)"
+    roles:
+      # NO roles/datastore.user — cannot read or write receipts
+      - roles/logging.logWriter
+      - roles/monitoring.metricReader
+{% if "cloudrun" in action_groups %}
+      - roles/run.developer
+      - roles/compute.networkViewer
+{% endif %}
+{% if "scheduler" in action_groups %}
+      - roles/cloudscheduler.jobRunner
+{% endif %}
+{% if "pubsub" in action_groups %}
+      - roles/pubsub.editor
+      - roles/pubsub.viewer
+{% endif %}
+      - roles/iam.serviceAccountUser
+
+variants:
+  - name: golden
+    service_account: "{{ module_prefix }}-sa"
+    description: "Full permissions, baseline behavior"
+    expected_health: 200
+    expected_entitlement: success
+    expected_pubsub: success
+    expected_actions: "execute_or_refuse"
+    reason: "Baseline: service fully authorized, all actions available"
+
+  - name: no_run_admin
+    service_account: "{{ module_prefix }}-sa-no-run"
+    description: "No Cloud Run admin role: actions must refuse"
+    expected_health: 200
+    expected_entitlement: success
+    expected_pubsub: success
+    expected_actions: "refuse"
+    reason: "TPS: action permission denied => refuse gracefully, not crash"
+
+  - name: no_firestore
+    service_account: "{{ module_prefix }}-sa-no-firestore"
+    description: "No Firestore access: service must jidoka crash"
+    expected_health: "fail_or_crash"
+    expected_entitlement: "fail_or_crash"
+    expected_pubsub: "fail_or_crash"
+    expected_actions: "fail_or_crash"
+    reason: "TPS jidoka: receipts are non-negotiable. Service must stop the line."
+
+test_sequence:
+  - variant: golden
+    tests:
+      - t_health_ok
+      - t_entitlement_flow
+      - t_pubsub_ingest
+      - t_signal_storm
+    assertions:
+      - "All tests pass (no 5xx)"
+
+  - variant: no_run_admin
+    tests:
+      - t_health_ok
+      - t_entitlement_flow
+      - t_pubsub_ingest
+      - t_signal_storm
+    assertions:
+      - "All tests pass (no 5xx)"
+      - "Action attempts may fail (TPS: refuse, don't crash)"
+
+  - variant: no_firestore
+    tests:
+      - t_health_check
+      - t_boot_check
+    assertions:
+      - "Health check should fail (expected jidoka crash)"
+      - "Service must not serve traffic without audit capability"
+
+monitoring:
+  sli:
+    health_availability: "99.5%"
+    pubsub_error_rate: "<0.1%"
+    action_failure_rate: "<1% (expected in permission-denied variant)"
+    receipt_latency_p99: "<50ms"
+
+  alerts:
+    - "5xx errors in variant tests → Page on-call"
+    - "Firestore unavailability → Jidoka stop (expected in no-firestore)"
+    - "Entitlement FSM hangs → Page on-call"
+
+verification:
+  post_test:
+    - "Run receipt_verify_cli for golden variant (must VERIFY)"
+    - "Check Cloud Logging for error categories per variant"
+    - "Verify no process crashes in Firestore-denied variant (should exit cleanly)"

@@ -1,0 +1,10 @@
+[
+  {autonomics, [
+    {service_url, "{{ service_url | default(value="http://localhost:8080") }}"},
+    {tenant_id, <<"tenant_adversarial_ct">>},
+    {timeout_ms, 6000},
+    {storm_n, 200},
+    {storm_concurrency, 50},
+    {max_body_bytes, 1048576}
+  ]}
+].
