@@ -1,0 +1,42 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_entitlement_sup).
+-behaviour(supervisor).
+
+-export([start_link/0]).
+-export([init/1]).
+
+start_link() ->
+  supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+
+init([]) ->
+  SupFlags = #{strategy => one_for_one, intensity => 3, period => 10},
+
+  EntFSM = #{
+    id => {{ module_prefix }}_entitlement_statem,
+    start => {{{ module_prefix }}_entitlement_statem, start_link, [#{}]},
+    restart => permanent,
+    shutdown => 5000,
+    type => worker,
+    modules => [{{ module_prefix }}_entitlement_statem]
+  },
+
+  Ledger = #{
+    id => {{ module_prefix }}_receipt_ledger,
+    start => {{{ module_prefix }}_receipt_ledger, start_link, []},
+    restart => permanent,
+    shutdown => 5000,
+    type => worker,
+    modules => [{{ module_prefix }}_receipt_ledger]
+  },
+
+  Registry = #{
+    id => {{ module_prefix }}_tenant_registry,
+    start => {{{ module_prefix }}_tenant_registry, start_link, []},
+    restart => permanent,
+    shutdown => 5000,
+    type => worker,
+    modules => [{{ module_prefix }}_tenant_registry]
+  },
+
+  {ok, {SupFlags, [Ledger, Registry, EntFSM]}}.

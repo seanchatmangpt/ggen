@@ -1,0 +1,18 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_actuator_adapter).
+-export([execute/3]).
+
+-include("{{ module_prefix }}_types.hrl").
+
+%% execute(ActionName, Payload, Data) -> ok
+execute(ActionName, Payload, Data) ->
+  Tenant = Data#governor_data.tenant_id,
+  case ActionName of
+{% for a in actions %}
+    {{ a.name }} ->
+      {{ module_prefix }}_gcp_actions:{{ a.adapter_fn }}(Tenant, Payload);
+{% endfor %}
+    _ ->
+      ok
+  end.

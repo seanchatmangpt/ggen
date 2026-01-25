@@ -1,0 +1,25 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_governor_sup).
+-behaviour(supervisor).
+
+-export([start_link/0]).
+-export([init/1]).
+
+start_link() ->
+  supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+
+init([]) ->
+  %% one-for-one: if the FSM dies, restart it
+  SupFlags = #{strategy => one_for_one, intensity => 3, period => 10},
+
+  ChildSpec = #{
+    id => {{ module_prefix }}_governor_statem,
+    start => {{{ module_prefix }}_governor_statem, start_link, [#{}]},
+    restart => permanent,
+    shutdown => 5000,
+    type => worker,
+    modules => [{{ module_prefix }}_governor_statem]
+  },
+
+  {ok, {SupFlags, [ChildSpec]}}.

@@ -1,0 +1,36 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_http_server).
+-behaviour(gen_server).
+
+-export([start_link/0]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+
+%% In production you'd wire cowboy/elli here.
+%% Template placeholder: "HTTP service process" that routes decoded requests.
+
+start_link() ->
+  gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+init([]) ->
+  %% Pretend we started a real HTTP server here.
+  %% Emit boot receipt.
+  _ = {{ module_prefix }}_receipt_ledger:append(<<"system">>, #{
+    kind => system,
+    sku => <<"{{ sku }}">>,
+    event => http_server_started,
+    decision => accept
+  }),
+  {ok, #{}}.
+
+handle_call({http, ReqMap}, _From, State) ->
+  Resp = {{ module_prefix }}_http_router:route(ReqMap),
+  {reply, Resp, State};
+
+handle_call(_Req, _From, State) ->
+  {reply, {error, unknown_request}, State}.
+
+handle_cast(_Msg, State) -> {noreply, State}.
+handle_info(_Info, State) -> {noreply, State}.
+terminate(_Reason, _State) -> ok.
+code_change(_OldVsn, State, _Extra) -> {ok, State}.

@@ -1,0 +1,45 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_receipt_hash).
+-export([hash_receipt/1, hash_chain/2, canonical/1]).
+
+%% We purposely keep it boring:
+%% - canonicalize maps deterministically
+%% - hash bytes using SHA-256
+
+hash_receipt(ReceiptMap) when is_map(ReceiptMap) ->
+  crypto:hash(sha256, canonical(ReceiptMap)).
+
+hash_chain(PrevHashBin, ReceiptMap) ->
+  ReceiptHash = hash_receipt(ReceiptMap),
+  crypto:hash(sha256, <<PrevHashBin/binary, ReceiptHash/binary>>).
+
+canonical(Term) ->
+  %% Deterministic binary encoding:
+  %% - maps sorted by key (term order) via lists:sort
+  %% - lists preserved order
+  %% - binaries as-is
+  iolist_to_binary(canonical_iolist(Term)).
+
+canonical_iolist(Map) when is_map(Map) ->
+  Pairs = maps:to_list(Map),
+  Sorted = lists:sort(Pairs),
+  ["{",
+   lists:join(",", [canonical_kv(K, V) || {K, V} <- Sorted]),
+   "}"];
+canonical_iolist(List) when is_list(List) ->
+  ["[", lists:join(",", [canonical_iolist(X) || X <- List]), "]"];
+canonical_iolist(Bin) when is_binary(Bin) ->
+  ["<<", Bin, ">>"];
+canonical_iolist(Atom) when is_atom(Atom) ->
+  atom_to_list(Atom);
+canonical_iolist(Int) when is_integer(Int) ->
+  integer_to_list(Int);
+canonical_iolist(Float) when is_float(Float) ->
+  float_to_list(Float);
+canonical_iolist(Other) ->
+  %% fallback
+  io_lib:format("~p", [Other]).
+
+canonical_kv(K, V) ->
+  [canonical_iolist(K), ":", canonical_iolist(V)].

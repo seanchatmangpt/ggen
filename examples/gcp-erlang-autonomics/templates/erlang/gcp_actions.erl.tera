@@ -1,0 +1,45 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_gcp_actions).
+-export([
+{% for a in actions -%}
+  {{ a.adapter_fn }}{% if not loop.last %},{% endif %}
+{% endfor %}
+]).
+
+%% Each action takes (TenantId, Payload) and returns ok.
+%% In production: enforce least-privilege scopes per action.
+
+{% for a in actions %}
+%% -------------------------------------------------------------------
+%% Action: {{ a.name }}
+%% -------------------------------------------------------------------
+{{ a.adapter_fn }}(TenantId, Payload) ->
+  %% Emit receipt before action
+  _ = {{ module_prefix }}_receipt_ledger:append(TenantId, #{
+    kind => action,
+    tenant_id => TenantId,
+    sku => <<"{{ sku }}">>,
+    action => {{ a.name }},
+    payload => Payload,
+    decision => attempt
+  }),
+
+  Result = do_{{ a.name }}(TenantId, Payload),
+
+  %% Emit receipt after action
+  _ = {{ module_prefix }}_receipt_ledger:append(TenantId, #{
+    kind => action_result,
+    tenant_id => TenantId,
+    sku => <<"{{ sku }}">>,
+    action => {{ a.name }},
+    decision => Result
+  }),
+
+  ok.
+
+do_{{ a.name }}(_TenantId, _Payload) ->
+  %% Placeholder implementation.
+  %% Replace with actual GCP API calls.
+  ok.
+{% endfor %}

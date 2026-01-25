@@ -1,0 +1,21 @@
+{
+  "1.0.0",
+  [
+    %% Upgrade from 0.9.0 to 1.0.0
+    {"0.9.0", [
+      {update, receipt_ledger, soft, {erlang_autonomics_receipt_ledger_handler, upgrade}},
+      {update, governor_statem, soft, {erlang_autonomics_governor_handler, upgrade}},
+      {update, entitlement_statem, soft, {erlang_autonomics_entitlement_handler, upgrade}},
+      {update, metrics_collector, soft, {erlang_autonomics_metrics_handler, upgrade}}
+    ]}
+  ],
+  [
+    %% Downgrade from 1.0.0 to 0.9.0
+    {"0.9.0", [
+      {update, receipt_ledger, soft, {erlang_autonomics_receipt_ledger_handler, downgrade}},
+      {update, governor_statem, soft, {erlang_autonomics_governor_handler, downgrade}},
+      {update, entitlement_statem, soft, {erlang_autonomics_entitlement_handler, downgrade}},
+      {update, metrics_collector, soft, {erlang_autonomics_metrics_handler, downgrade}}
+    ]}
+  ]
+}.
