@@ -1,0 +1,216 @@
+name: Semantic Release (Conventional Commits → SemVer)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: artifacts.example.com
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  # ============================================================================
+  # STAGE 1: Analyze Commits and Determine Version Bump
+  # ============================================================================
+  analyze-commits:
+    name: Analyze Commits (Conventional Commits → SemVer)
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.semver.outputs.version }}
+      next-version: ${{ steps.semver.outputs.next_version }}
+      release-type: ${{ steps.semver.outputs.release_type }}
+      should-release: ${{ steps.semver.outputs.should_release }}
+      changelog: ${{ steps.semver.outputs.changelog }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get current version from Cargo.toml
+        id: current-version
+        run: |
+          VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Analyze commits (Conventional Commits)
+        id: semver
+        run: |
+          # Get all commits since last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            COMMITS=$(git log --oneline)
+          else
+            COMMITS=$(git log $LAST_TAG..HEAD --oneline)
+          fi
+
+          echo "=== Commits since last release ==="
+          echo "$COMMITS"
+          echo ""
+
+          # Analyze commit types
+          HAS_BREAKING=$(echo "$COMMITS" | grep -E "^[a-f0-9]+ (feat|fix|refactor)(\(.+\))?!:" | wc -l)
+          HAS_FEATURE=$(echo "$COMMITS" | grep -E "^[a-f0-9]+ feat(\(.+\))?:" | wc -l)
+          HAS_BUGFIX=$(echo "$COMMITS" | grep -E "^[a-f0-9]+ fix(\(.+\))?:" | wc -l)
+
+          # Determine release type
+          if [ $HAS_BREAKING -gt 0 ]; then
+            RELEASE_TYPE="major"
+          elif [ $HAS_FEATURE -gt 0 ]; then
+            RELEASE_TYPE="minor"
+          elif [ $HAS_BUGFIX -gt 0 ]; then
+            RELEASE_TYPE="patch"
+          else
+            RELEASE_TYPE="none"
+          fi
+
+          echo "Release type: $RELEASE_TYPE"
+          echo "Breaking changes: $HAS_BREAKING"
+          echo "Features: $HAS_FEATURE"
+          echo "Bugfixes: $HAS_BUGFIX"
+
+          # Calculate next version (SemVer)
+          CURRENT_VERSION="${{ steps.current-version.outputs.version }}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+          case $RELEASE_TYPE in
+            major)
+              NEXT_VERSION="$((MAJOR + 1)).0.0"
+              ;;
+            minor)
+              NEXT_VERSION="$MAJOR.$((MINOR + 1)).0"
+              ;;
+            patch)
+              NEXT_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+              ;;
+            *)
+              NEXT_VERSION="$CURRENT_VERSION"
+              ;;
+          esac
+
+          # Generate changelog from commits
+          CHANGELOG=$(cat << 'EOF'
+          ## Changelog
+
+          ### Breaking Changes
+          EOF
+          )
+
+          if [ $HAS_BREAKING -gt 0 ]; then
+            echo "$COMMITS" | grep -E "^[a-f0-9]+ (feat|fix|refactor)(\(.+\))?!:" | while read commit; do
+              MSG=$(echo "$commit" | cut -d' ' -f2-)
+              echo "- $MSG" >> changelog.tmp
+            done
+            CHANGELOG="$CHANGELOG
+          $(cat changelog.tmp 2>/dev/null || echo "None")"
+          fi
+
+          CHANGELOG="$CHANGELOG
+
+          ### Features
+          "
+          if [ $HAS_FEATURE -gt 0 ]; then
+            echo "$COMMITS" | grep -E "^[a-f0-9]+ feat(\(.+\))?:" | while read commit; do
+              MSG=$(echo "$commit" | cut -d' ' -f2-)
+              echo "- $MSG" >> changelog-feat.tmp
+            done
+            CHANGELOG="$CHANGELOG
+          $(cat changelog-feat.tmp 2>/dev/null || echo "None")"
+          fi
+
+          CHANGELOG="$CHANGELOG
+
+          ### Bugfixes
+          "
+          if [ $HAS_BUGFIX -gt 0 ]; then
+            echo "$COMMITS" | grep -E "^[a-f0-9]+ fix(\(.+\))?:" | while read commit; do
+              MSG=$(echo "$commit" | cut -d' ' -f2-)
+              echo "- $MSG" >> changelog-fix.tmp
+            done
+            CHANGELOG="$CHANGELOG
+          $(cat changelog-fix.tmp 2>/dev/null || echo "None")"
+          fi
+
+          # Output results
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+          echo "should_release=$([[ $RELEASE_TYPE != 'none' ]] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          # Cleanup
+          rm -f changelog*.tmp
+
+      - name: Output semver analysis
+        run: |
+          echo "## Semantic Version Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Current Version | ${{ steps.current-version.outputs.version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Next Version | ${{ steps.semver.outputs.next_version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Release Type | ${{ steps.semver.outputs.release_type }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Should Release | ${{ steps.semver.outputs.should_release }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # STAGE 2: Create Release & Update Versions
+  # ============================================================================
+  create-release:
+    name: Create GitHub Release & Tag
+    runs-on: ubuntu-latest
+    needs: analyze-commits
+    if: needs.analyze-commits.outputs.should-release == 'true'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update version in Cargo.toml
+        run: |
+          NEW_VERSION="${{ needs.analyze-commits.outputs.next-version }}"
+          sed -i "0,/^version = \".*\"/s//version = \"$NEW_VERSION\"/" Cargo.toml
+          cat Cargo.toml | head -5
+
+      - name: Update Helm chart version
+        run: |
+          NEW_VERSION="${{ needs.analyze-commits.outputs.next-version }}"
+          if [ -f helm/tai-chart/Chart.yaml ]; then
+            sed -i "s/^version: .*/version: $NEW_VERSION/" helm/tai-chart/Chart.yaml
+            sed -i "s/^appVersion: .*/appVersion: $NEW_VERSION/" helm/tai-chart/Chart.yaml
+          fi
+
+      - name: Commit version bumps
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Cargo.toml helm/*/Chart.yaml 2>/dev/null || true
+          git commit -m "chore(release): bump version to ${{ needs.analyze-commits.outputs.next-version }}" \
+            -m "This commit was automatically generated by the semantic release workflow."
+          git push
+
+      - name: Create GitHub release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.analyze-commits.outputs.next-version }}
+          release_name: v${{ needs.analyze-commits.outputs.next-version }}
+          body: ${{ needs.analyze-commits.outputs.changelog }}
+          draft: false
+          prerelease: false
+
+      - name: Update release notes
+        run: |
+          echo "## Release v${{ needs.analyze-commits.outputs.next-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Release Type**: ${{ needs.analyze-commits.outputs.release-type }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "${{ needs.analyze-commits.outputs.changelog }}" >> $GITHUB_STEP_SUMMARY

@@ -142,7 +142,6 @@ pub mod packs; // Pack installation system - Phase 1
 pub mod pipeline;
 pub mod poka_yoke;
 pub mod poc;
-pub mod poka_yoke;
 pub mod pqc;
 pub mod preprocessor;
 pub mod project_generator;
@@ -162,7 +161,6 @@ pub mod tera_env;
 pub mod validation;
 // pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
 pub mod simple_tracing;
-pub mod validation;
 
 // Re-export production readiness types from lifecycle module
 pub use lifecycle::{

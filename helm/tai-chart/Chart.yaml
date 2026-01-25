@@ -1,0 +1,20 @@
+apiVersion: v2
+name: tai
+description: A Helm chart for TAI (Trading AI) system - production-grade Kubernetes deployment with autoscaling
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - kubernetes
+  - deployment
+  - autoscaling
+  - keda
+  - istio
+  - service-mesh
+home: https://github.com/seanchatmangpt/ggen
+sources:
+  - https://github.com/seanchatmangpt/ggen
+maintainers:
+  - name: Sean Chatman
+    email: sean@chatmangpt.com
+icon: https://raw.githubusercontent.com/seanchatmangpt/ggen/main/docs/images/ggen-logo.png

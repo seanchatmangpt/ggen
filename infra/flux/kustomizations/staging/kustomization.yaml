@@ -1,0 +1,73 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: staging
+
+# Reference base configuration
+bases:
+  - ../base
+
+# Override namespace
+namespaceOverride: staging
+
+# Common labels for staging
+commonLabels:
+  environment: staging
+
+# Patches for staging environment
+patches:
+  # Reduce replicas in staging
+  - target:
+      kind: Deployment
+      name: tai-controller
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 1
+
+  # Lower resource requests in staging
+  - target:
+      kind: Deployment
+      name: tai-controller
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+  # Enable debug logging in staging
+  - target:
+      kind: ConfigMap
+      name: tai-config
+    patch: |-
+      - op: replace
+        path: /data/LOG_LEVEL
+        value: "debug"
+      - op: add
+        path: /data/RUST_LOG
+        value: "debug"
+
+# Staging-specific secrets
+secretGenerator:
+  - name: tai-staging-secrets
+    literals:
+      - DATABASE_HOST=postgres-staging.db.svc.cluster.local
+      - DATABASE_PORT=5432
+    behavior: merge
+
+# Staging-specific ConfigMap
+configMapGenerator:
+  - name: tai-staging-config
+    literals:
+      - ENVIRONMENT=staging
+      - LOG_FORMAT=json
+
+# Image configuration for staging
+images:
+  - name: catalog-controller
+    newName: artifacts.example.com/catalog-controller
+    newTag: develop  # Use 'develop' branch images in staging

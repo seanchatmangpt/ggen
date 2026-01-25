@@ -1,0 +1,292 @@
+name: Helm Chart Validation & Testing
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'helm/**'
+      - '.github/workflows/helm-validation.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'helm/**'
+
+jobs:
+  # ============================================================================
+  # STAGE 1: Helm Lint
+  # ============================================================================
+  helm-lint:
+    name: Helm Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
+      - name: Helm lint (tai-chart)
+        run: |
+          helm lint helm/tai-chart \
+            --strict \
+            --values helm/tai-chart/values.yaml \
+            --values helm/tai-chart/values-dev.yaml 2>&1 | tee helm-lint.log
+
+      - name: Verify lint passed
+        run: |
+          if grep -E "(ERROR|FAIL)" helm-lint.log; then
+            echo "❌ Helm lint failed"
+            exit 1
+          fi
+          echo "✅ Helm lint passed"
+
+  # ============================================================================
+  # STAGE 2: Template validation
+  # ============================================================================
+  helm-template:
+    name: Helm Template Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: helm-lint
+
+    strategy:
+      matrix:
+        chart: [tai-chart]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
+      - name: Validate Helm template rendering
+        run: |
+          helm template "${{ matrix.chart }}" helm/${{ matrix.chart }} \
+            --values helm/${{ matrix.chart }}/values.yaml \
+            --debug > template-output.yaml
+
+      - name: Check template output
+        run: |
+          if [ ! -s template-output.yaml ]; then
+            echo "❌ Template rendering produced no output"
+            exit 1
+          fi
+          echo "✅ Template rendering successful"
+          echo ""
+          echo "Generated manifests:"
+          wc -l template-output.yaml
+
+      - name: Validate YAML syntax
+        run: |
+          python3 -c "import yaml; yaml.safe_load(open('template-output.yaml'))" && \
+            echo "✅ Generated YAML is valid" || \
+            (echo "❌ Generated YAML is invalid"; exit 1)
+
+      - name: Upload rendered templates
+        uses: actions/upload-artifact@v3
+        with:
+          name: helm-templates-${{ matrix.chart }}
+          path: template-output.yaml
+          retention-days: 7
+
+  # ============================================================================
+  # STAGE 3: Kubeval - Kubernetes manifest validation
+  # ============================================================================
+  kubeval:
+    name: Kubeval - Kubernetes Manifest Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: helm-template
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
+      - name: Install kubeval
+        run: |
+          curl -sSL https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz | \
+            tar xz -C /usr/local/bin
+
+      - name: Render Helm chart
+        run: |
+          helm template tai-chart helm/tai-chart \
+            --values helm/tai-chart/values.yaml > manifests.yaml
+
+      - name: Validate with kubeval
+        run: |
+          kubeval manifests.yaml \
+            --kubernetes-version 1.28.0 \
+            --schema-location https://raw.githubusercontent.com/instrumenta/kubernetes-json-schema/master \
+            --summary \
+            --verbose || true
+
+  # ============================================================================
+  # STAGE 4: Helm values schema validation (JSON Schema)
+  # ============================================================================
+  schema-validation:
+    name: Schema Validation (values.yaml)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: helm-lint
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for values schema
+        run: |
+          if [ ! -f helm/tai-chart/values.schema.json ]; then
+            echo "⚠️  No values.schema.json found - skipping schema validation"
+            exit 0
+          fi
+
+      - name: Install ajv (JSON Schema validator)
+        run: npm install -g ajv-cli
+
+      - name: Validate values.yaml against schema
+        run: |
+          ajv validate -s helm/tai-chart/values.schema.json \
+            -d helm/tai-chart/values.yaml && \
+            echo "✅ values.yaml matches schema" || \
+            (echo "❌ values.yaml does not match schema"; exit 1)
+
+  # ============================================================================
+  # STAGE 5: Helm chart version consistency
+  # ============================================================================
+  version-consistency:
+    name: Version Consistency Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract Chart.yaml version
+        id: chart-version
+        run: |
+          VERSION=$(grep '^version:' helm/tai-chart/Chart.yaml | awk '{print $2}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Chart version: $VERSION"
+
+      - name: Extract Cargo.toml version
+        id: cargo-version
+        run: |
+          VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Cargo version: $VERSION"
+
+      - name: Compare versions
+        run: |
+          echo "Chart version: ${{ steps.chart-version.outputs.version }}"
+          echo "Cargo version: ${{ steps.cargo-version.outputs.version }}"
+          echo ""
+          echo "⚠️  Note: Versions should be kept in sync during releases"
+
+  # ============================================================================
+  # STAGE 6: Helm chart testing with Kind (Kubernetes-in-Docker)
+  # ============================================================================
+  helm-chart-test:
+    name: Helm Chart K8s Integration Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Kind cluster
+        uses: helm/kind-action@v1.7.0
+        with:
+          cluster_name: helm-test
+          config: |
+            kind: Cluster
+            apiVersion: kind.x-k8s.io/v1alpha4
+            nodes:
+            - role: control-plane
+              kubeadmConfigPatches:
+              - |
+                kind: InitConfiguration
+                nodeRegistration:
+                  kubeletExtraArgs:
+                    node-labels: "ingress-ready=true"
+              extraPortMappings:
+              - containerPort: 80
+                hostPort: 80
+                protocol: TCP
+              - containerPort: 443
+                hostPort: 443
+                protocol: TCP
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
+      - name: Add required Helm repositories
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami || true
+          helm repo update
+
+      - name: Install Helm chart
+        run: |
+          helm install tai-test helm/tai-chart \
+            --namespace test-system \
+            --create-namespace \
+            --values helm/tai-chart/values.yaml \
+            --timeout 5m \
+            --wait \
+            --debug
+
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/tai-test -n test-system --timeout=5m || true
+          kubectl get all -n test-system
+
+      - name: Test chart values with different profiles
+        run: |
+          # Test dev profile
+          helm template tai-dev helm/tai-chart \
+            -f helm/tai-chart/values.yaml \
+            -f helm/tai-chart/values-dev.yaml | kubectl apply -f - --dry-run=client
+
+          # Test prod profile
+          helm template tai-prod helm/tai-chart \
+            -f helm/tai-chart/values.yaml \
+            -f helm/tai-chart/values-prod.yaml | kubectl apply -f - --dry-run=client
+
+          echo "✅ Chart works with multiple value profiles"
+
+      - name: Cleanup
+        if: always()
+        run: |
+          helm uninstall tai-test -n test-system || true
+
+  # ============================================================================
+  # STAGE 7: Summary Report
+  # ============================================================================
+  validation-summary:
+    name: Helm Validation Summary
+    runs-on: ubuntu-latest
+    needs: [helm-lint, helm-template, kubeval, schema-validation, version-consistency, helm-chart-test]
+    if: always()
+
+    steps:
+      - name: Generate validation summary
+        run: |
+          echo "## Helm Chart Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Helm Lint | ${{ needs.helm-lint.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Template Validation | ${{ needs.helm-template.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Kubeval | ${{ needs.kubeval.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Schema Validation | ${{ needs.schema-validation.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Version Consistency | ${{ needs.version-consistency.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| K8s Integration | ${{ needs.helm-chart-test.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY

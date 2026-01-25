@@ -1,0 +1,53 @@
+[package]
+name = "tps-reference"
+version = "1.0.0"
+edition = "2021"
+authors = ["TPS Reference Team"]
+description = "Toyota Production System reference implementation integrating Jidoka, Kanban, Andon, Kaizen, Heijunka, and Tracing"
+license = "MIT"
+
+[dependencies]
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+async-trait = { workspace = true }
+log = { workspace = true }
+
+# Web framework
+axum = "0.7"
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+hyper = "1.0"
+
+# Messaging
+async-nats = "0.35"
+lapin = "2.4"  # RabbitMQ client
+
+# Metrics
+prometheus = "0.13"
+metrics = "0.21"
+metrics-exporter-prometheus = "0.13"
+
+# Tracing
+opentelemetry = { version = "0.21" }
+opentelemetry-jaeger = { version = "0.20" }
+tracing-opentelemetry = "0.22"
+
+# Configuration
+config = "0.13"
+dotenv = "0.15"
+
+# Utilities
+parking_lot = "0.12"
+
+[dev-dependencies]
+tempfile = { workspace = true }
+assert_cmd = { workspace = true }
+predicates = { workspace = true }
+reqwest = { workspace = true }

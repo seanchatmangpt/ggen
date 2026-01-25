@@ -1,0 +1,65 @@
+[package]
+name = "tps-reference-system"
+version = "1.0.0"
+edition = "2021"
+authors = ["TPS Reference Team"]
+description = "TPS Reference System - Production-ready implementation with all 6 principles"
+
+[dependencies]
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+async-trait = { workspace = true }
+log = { workspace = true }
+
+# TPS reference crate
+tps-reference = { path = "../../crates/tps-reference" }
+
+# Web framework
+axum = "0.7"
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace", "compression"] }
+hyper = "1.0"
+
+# Messaging
+async-nats = "0.35"
+lapin = "2.4"
+
+# Metrics
+prometheus = "0.13"
+metrics = "0.21"
+metrics-exporter-prometheus = "0.13"
+
+# Tracing
+opentelemetry = { version = "0.21", features = ["rt-tokio"] }
+opentelemetry-jaeger = { version = "0.20", features = ["rt-tokio"] }
+tracing-opentelemetry = "0.22"
+
+# Configuration
+config = "0.13"
+dotenv = "0.15"
+
+# Utilities
+parking_lot = "0.12"
+rand = "0.8"
+
+[dev-dependencies]
+tempfile = { workspace = true }
+assert_cmd = { workspace = true }
+predicates = { workspace = true }
+reqwest = { workspace = true }
+testcontainers = { workspace = true }
+
+[[bin]]
+name = "tps-system"
+path = "src/main.rs"
+
+[[test]]
+name = "integration_test"
+path = "tests/integration_test.rs"

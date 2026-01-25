@@ -1,0 +1,567 @@
+# Prometheus Alert Rules for TPS Reference System
+#
+# These rules monitor Toyota Production System (TPS) principles and
+# alert when thresholds are violated. Each alert includes severity levels
+# and recommendations for remediation.
+
+groups:
+  - name: tps_jidoka
+    interval: 15s
+    rules:
+      # Jidoka: Circuit Breaker Open (Failure Detection)
+      - alert: JidokaCircuitOpenCritical
+        expr: 'rate(tps_jidoka_circuit_state[5m]) > 0'
+        for: 5m
+        labels:
+          severity: critical
+          principle: jidoka
+        annotations:
+          summary: "Jidoka: Circuit breaker open for >5 minutes"
+          description: "Component {{ $labels.component }} has failed and circuit breaker is open. This stops requests from being sent to the failing service. Check component logs immediately."
+          action: "1. Check component logs for errors\n2. Verify dependent services are healthy\n3. If safe, manually test component\n4. Circuit will close automatically when component recovers"
+
+      # Jidoka: High Failure Rate
+      - alert: JidokaHighFailureRate
+        expr: 'rate(tps_jidoka_failures_total[5m]) > 1'
+        for: 2m
+        labels:
+          severity: warning
+          principle: jidoka
+        annotations:
+          summary: "Jidoka: High failure rate detected"
+          description: "Component {{ $labels.component }} has failure rate > 1/sec. This indicates systemic problems."
+          action: "1. Investigate root cause of failures\n2. Check if downstream dependencies are slow\n3. Scale component if CPU/memory is bottleneck\n4. Review recent code changes"
+
+      # Jidoka: Slow Recovery
+      - alert: JidokaSlowRecovery
+        expr: 'avg(tps_jidoka_recovery_time_seconds) > 60'
+        for: 5m
+        labels:
+          severity: warning
+          principle: jidoka
+        annotations:
+          summary: "Jidoka: Circuit recovery taking >60 seconds"
+          description: "Component {{ $labels.component }} takes {{ $value | humanize }}s to recover after failure. This increases downtime."
+          action: "1. Check why component is slow to recover\n2. Review startup time of component\n3. Check if persistent storage is slow\n4. Consider faster failover mechanism"
+
+      # Jidoka: High Request Rejection
+      - alert: JidokaHighRejectionRate
+        expr: 'rate(tps_jidoka_requests_rejected_total[5m]) > 50'
+        for: 3m
+        labels:
+          severity: critical
+          principle: jidoka
+        annotations:
+          summary: "Jidoka: >50 requests/sec being rejected due to circuit open"
+          description: "Component {{ $labels.component }} is rejecting {{ $value | humanize }} requests/sec. Users are experiencing errors."
+          action: "1. Identify why circuit is open\n2. Fix underlying component failure\n3. Once fixed, requests will be served again automatically"
+
+  - name: tps_kanban
+    interval: 15s
+    rules:
+      # Kanban: Queue Growing
+      - alert: KanbanQueueDepthCritical
+        expr: 'tps_kanban_queue_depth > 1000'
+        for: 5m
+        labels:
+          severity: critical
+          principle: kanban
+        annotations:
+          summary: "Kanban: Queue depth >1000 items"
+          description: "Queue {{ $labels.queue_name }} has {{ $value | humanize }} items waiting. Pull rate is too slow."
+          action: "1. Check worker availability - are workers ready to pull?\n2. Add more workers if pool is undersized\n3. Check if downstream service is slow (causing queue backup)\n4. Monitor throughput to confirm work is being processed"
+
+      # Kanban: High Latency
+      - alert: KanbanHighLatencyP99
+        expr: 'histogram_quantile(0.99, rate(tps_kanban_latency_ms_bucket[5m])) > 5000'
+        for: 5m
+        labels:
+          severity: warning
+          principle: kanban
+        annotations:
+          summary: "Kanban: P99 latency >5 seconds"
+          description: "Queue {{ $labels.queue_name }} has P99 latency of {{ $value | humanize }}ms. Users experience slow service."
+          action: "1. Check queue depth - if high, add workers\n2. Check if worker is slow - profile processing logic\n3. Check dependencies (database, external APIs)\n4. Consider rate limiting if load is too high"
+
+      # Kanban: Dead Letter Queue Growing
+      - alert: KanbanDLQDepthHigh
+        expr: 'tps_kanban_dlq_depth > 50'
+        for: 5m
+        labels:
+          severity: warning
+          principle: kanban
+        annotations:
+          summary: "Kanban: Dead-letter queue depth >50"
+          description: "Queue {{ $labels.queue_name }} has {{ $value | humanize }} failed items in DLQ. These items need manual investigation."
+          action: "1. Review DLQ items to identify failure pattern\n2. Fix underlying issue\n3. Reprocess DLQ items\n4. Set up monitoring for this error type"
+
+      # Kanban: Workers Unavailable
+      - alert: KanbanNoAvailableWorkers
+        expr: 'tps_kanban_workers_available < 1'
+        for: 2m
+        labels:
+          severity: critical
+          principle: kanban
+        annotations:
+          summary: "Kanban: No available workers in {{ $labels.queue_name }}"
+          description: "Queue {{ $labels.queue_name }} has no workers available to pull work. Queue will back up."
+          action: "1. Check if workers are stuck or deadlocked\n2. Check worker logs for errors\n3. Restart worker pool if stuck\n4. Add more workers if pool is undersized"
+
+  - name: tps_andon
+    interval: 15s
+    rules:
+      # Andon: High Error Rate
+      - alert: AndonHighErrorRate
+        expr: '100 * avg(rate(tps_andon_errors_total[5m])) > 1'
+        for: 3m
+        labels:
+          severity: critical
+          principle: andon
+        annotations:
+          summary: "Andon: Error rate >1%"
+          description: "System error rate is {{ $value | humanize }}%. This requires immediate attention."
+          action: "1. Check Andon dashboard for which services have errors\n2. Review error types to identify pattern\n3. Investigate root cause\n4. Implement fix and verify error rate decreases"
+
+      # Andon: Alert Spam
+      - alert: AndonAlertSpam
+        expr: 'rate(tps_andon_alerts_total[1m]) > 10'
+        for: 5m
+        labels:
+          severity: warning
+          principle: andon
+        annotations:
+          summary: "Andon: Alert frequency >10/minute"
+          description: "System is generating {{ $value | humanize }} alerts/minute. Alerts may be misconfigured or system has systemic problems."
+          action: "1. Review recent alert rules changes\n2. Check if single issue is causing multiple alerts\n3. Adjust alert thresholds if too sensitive\n4. Silence if false positive until root cause is fixed"
+
+      # Andon: Slow Problem Detection
+      - alert: AndonSlowDetection
+        expr: 'avg(tps_andon_mttd_seconds) > 60'
+        for: 5m
+        labels:
+          severity: warning
+          principle: andon
+        annotations:
+          summary: "Andon: Mean Time To Detect >60 seconds"
+          description: "Problems take {{ $value | humanize }}s to detect. This delays responses to failures."
+          action: "1. Check alert configuration - are thresholds too high?\n2. Review monitoring gaps - are all important metrics covered?\n3. Reduce scrape interval for faster detection\n4. Add synthetic tests for critical paths"
+
+      # Andon: Specific Error Type Spike
+      - alert: AndonErrorTypeSpike
+        expr: 'rate(tps_andon_errors_total[5m]) > 0.5'
+        for: 2m
+        labels:
+          severity: warning
+          principle: andon
+        annotations:
+          summary: "Andon: Error type spike for {{ $labels.error_type }}"
+          description: "Error type '{{ $labels.error_type }}' rate is {{ $value | humanize }}/sec. Investigate specific error."
+          action: "1. Search logs for error type '{{ $labels.error_type }}'\n2. Identify common factors (time, user, request pattern)\n3. Fix root cause\n4. Add test case to prevent regression"
+
+  - name: tps_kaizen
+    interval: 15s
+    rules:
+      # Kaizen: SLO Miss
+      - alert: KaizenSLOMiss
+        expr: 'avg(tps_kaizen_slo_attainment) < 0.95'
+        for: 5m
+        labels:
+          severity: critical
+          principle: kaizen
+        annotations:
+          summary: "Kaizen: SLO attainment <95%"
+          description: "SLO '{{ $labels.slo_name }}' attainment is {{ $value | humanize }}% (target: >95%)"
+          action: "1. Check Kaizen dashboard for trend\n2. Identify which component is causing SLO miss\n3. Check if performance regressed recently\n4. Implement optimization or scaling"
+
+      # Kaizen: SLO Degradation
+      - alert: KaizenSLODegradation
+        expr: 'rate(tps_kaizen_slo_attainment[1h]) < -0.001'
+        for: 10m
+        labels:
+          severity: warning
+          principle: kaizen
+        annotations:
+          summary: "Kaizen: SLO attainment degrading"
+          description: "SLO '{{ $labels.slo_name }}' has been degrading over the last hour. Investigate before it violates threshold."
+          action: "1. Check Kaizen dashboard for trend over last 24h\n2. Correlate with infrastructure changes\n3. Check if load increased\n4. Profile slowest components"
+
+      # Kaizen: Many Outliers
+      - alert: KaizenHighOutlierRate
+        expr: 'rate(tps_kaizen_outliers_detected_total[5m]) > 10'
+        for: 5m
+        labels:
+          severity: warning
+          principle: kaizen
+        annotations:
+          summary: "Kaizen: High outlier detection rate"
+          description: "System detected {{ $value | humanize }} latency outliers in last 5 minutes. Many requests are significantly slower than normal."
+          action: "1. Check Tracing dashboard for slowest components\n2. Profile application code\n3. Check database query performance\n4. Review GC pause times"
+
+  - name: tps_heijunka
+    interval: 15s
+    rules:
+      # Heijunka: Pool Bottleneck
+      - alert: HeijunkaPoolBottleneck
+        expr: 'avg(tps_heijunka_pool_utilization) > 0.85'
+        for: 10m
+        labels:
+          severity: warning
+          principle: heijunka
+        annotations:
+          summary: "Heijunka: Pool {{ $labels.pool_name }} utilization >85%"
+          description: "Worker pool {{ $labels.pool_name }} is {{ $value | humanize }}% utilized. This is a bottleneck."
+          action: "1. Add more workers to the pool\n2. Check if workers are processing slowly\n3. Consider redistributing work to other pools\n4. Review pool configuration"
+
+      # Heijunka: Unbalanced Load
+      - alert: HeijunkaUnbalancedLoad
+        expr: 'avg(tps_heijunka_balance_coefficient) < 0.7'
+        for: 10m
+        labels:
+          severity: warning
+          principle: heijunka
+        annotations:
+          summary: "Heijunka: Load balance coefficient <0.7"
+          description: "Load is unevenly distributed across pools. Balance coefficient is {{ $value | humanize }}. Some pools are idle while others are busy."
+          action: "1. Review load distribution algorithm\n2. Check if work types are imbalanced\n3. Rebalance pools or add work redistribution\n4. Monitor individual pool utilization"
+
+      # Heijunka: High Scaling Cost
+      - alert: HeijunkaHighScalingCost
+        expr: 'rate(tps_heijunka_scaling_cost_total[1h]) > 100'
+        for: 10m
+        labels:
+          severity: warning
+          principle: heijunka
+        annotations:
+          summary: "Heijunka: Scaling cost >$100/hour"
+          description: "Scaling operations cost {{ $value | humanize }}/hour. Consider reserved capacity or reserved instances."
+          action: "1. Review scaling events in Heijunka dashboard\n2. Check if scaling is necessary or reactive\n3. Adjust scaling thresholds\n4. Consider reserved capacity for predictable baseline"
+
+      # Heijunka: Frequent Bursts
+      - alert: HeijunkaFrequentBursts
+        expr: 'rate(tps_heijunka_burst_detected_total[5m]) > 5'
+        for: 5m
+        labels:
+          severity: warning
+          principle: heijunka
+        annotations:
+          summary: "Heijunka: Frequent burst events (>5/min)"
+          description: "System detected {{ $value | humanize }} burst events in the last 5 minutes. Load is spiky and not level."
+          action: "1. Investigate what causes bursts\n2. Implement queue throttling to smooth load\n3. Pre-scale workers before expected bursts\n4. Use rate limiting to prevent extreme spikes"
+
+  - name: tps_tracing
+    interval: 15s
+    rules:
+      # Tracing: High P99 Latency
+      - alert: TracingHighP99Latency
+        expr: 'histogram_quantile(0.99, rate(tps_tracing_duration_ms_bucket[5m])) > 5000'
+        for: 5m
+        labels:
+          severity: critical
+          principle: tracing
+        annotations:
+          summary: "Tracing: P99 latency >5 seconds"
+          description: "Worst-case latency is {{ $value | humanize }}ms. 1% of requests take longer than 5 seconds."
+          action: "1. Check Tracing dashboard to identify slowest component\n2. Profile that component\n3. Check if it's blocked on I/O\n4. Scale component if CPU/memory bound"
+
+      # Tracing: Latency Regression
+      - alert: TracingLatencyRegression
+        expr: 'rate(tps_tracing_duration_ms_bucket[1h]) > rate(tps_tracing_duration_ms_bucket[1h] offset 1h)'
+        for: 10m
+        labels:
+          severity: warning
+          principle: tracing
+        annotations:
+          summary: "Tracing: Latency regression detected"
+          description: "Latency has increased compared to 1 hour ago. Investigate performance regression."
+          action: "1. Check git history for recent commits\n2. Revert recent changes if problematic\n3. Run performance benchmarks\n4. Check if load increased"
+
+      # Tracing: High Error Trace Rate
+      - alert: TracingHighErrorRate
+        expr: 'rate(tps_tracing_error_traces_total[5m]) > 10'
+        for: 3m
+        labels:
+          severity: warning
+          principle: tracing
+        annotations:
+          summary: "Tracing: High error trace rate (>10/sec)"
+          description: "Component {{ $labels.error_component }} is returning {{ $value | humanize }} errors/sec. Check component logs."
+          action: "1. Check component logs for error messages\n2. Identify error cause\n3. Check if dependent service is down\n4. Implement fix"
+
+      # Tracing: Bottleneck Detection
+      - alert: TracingBottleneck
+        expr: 'avg(tps_tracing_component_latency_ms) by (component) > 3000'
+        for: 10m
+        labels:
+          severity: warning
+          principle: tracing
+        annotations:
+          summary: "Tracing: Bottleneck detected in {{ $labels.component }}"
+          description: "Component {{ $labels.component }} average latency is {{ $value | humanize }}ms. This is slowing down the entire system."
+          action: "1. Profile the bottleneck component\n2. Identify hot spots\n3. Optimize code or scale component\n4. Consider caching to reduce latency"
+
+# Composite alerts combining multiple TPS principles
+  - name: tps_composite
+    interval: 15s
+    rules:
+      # When both Jidoka and Kanban are red: System is broken and backed up
+      - alert: SystemFailureWithQueueBackup
+        expr: '(rate(tps_jidoka_circuit_state[5m]) > 0) and (tps_kanban_queue_depth > 500)'
+        for: 5m
+        labels:
+          severity: critical
+          principles: "jidoka,kanban"
+        annotations:
+          summary: "System failure detected with queue backup"
+          description: "Component has failed (Jidoka) AND queue is backed up (Kanban). Queue depth: {{ $value | humanize }}"
+          action: "1. Fix the failing component immediately\n2. Once fixed, queue will drain automatically\n3. Monitor queue depth until it returns to normal"
+
+      # When Andon detects problems that are causing SLO miss
+      - alert: ProblemsCausingPerformanceDegradation
+        expr: '(100 * rate(tps_andon_errors_total[5m]) > 0.5) and (avg(tps_kaizen_slo_attainment) < 0.95)'
+        for: 5m
+        labels:
+          severity: critical
+          principles: "andon,kaizen"
+        annotations:
+          summary: "Errors are causing SLO degradation"
+          description: "Error rate {{ $value | humanize }}% is high AND SLO attainment is low. Errors are impacting user experience."
+          action: "1. Identify and fix the error cause\n2. Monitor SLO recovery\n3. Post-incident review to prevent recurrence"
+
+# SLO Compliance & Error Budget Rules
+  - name: slo_compliance
+    interval: 15s
+    rules:
+      # SLO: Availability SLO Miss
+      - alert: SLOAvailabilityMiss
+        expr: 'gauge_slo_availability_actual{job="slo-tracker"} < gauge_slo_availability_target{job="slo-tracker"}'
+        for: 5m
+        labels:
+          severity: critical
+          slo_type: availability
+        annotations:
+          summary: "SLO: Availability target missed"
+          description: "Availability SLO for {{ $labels.service }} is {{ $value | humanize }}% (target: {{ $labels.target }}%)"
+          action: "1. Identify which component is causing unavailability\n2. Check component logs for errors\n3. Implement immediate fix or mitigation\n4. Track error budget burn"
+          runbook: "https://runbooks.internal/slo-availability-miss"
+
+      # SLO: Latency SLO Miss
+      - alert: SLOLatencyMiss
+        expr: 'histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job="api-gateway"}[5m])) > 2'
+        for: 5m
+        labels:
+          severity: critical
+          slo_type: latency
+        annotations:
+          summary: "SLO: Latency P99 target missed (>2s)"
+          description: "P99 latency for {{ $labels.endpoint }} is {{ $value | humanize }}s (target: <2s)"
+          action: "1. Check Tracing dashboard for slowest services\n2. Profile slow component\n3. Check if load increased\n4. Implement optimization or scaling"
+          runbook: "https://runbooks.internal/slo-latency-miss"
+
+      # SLO: Error Budget Low
+      - alert: SLOErrorBudgetLow
+        expr: 'gauge_slo_error_budget_remaining_percent{job="slo-tracker"} < 25'
+        for: 5m
+        labels:
+          severity: warning
+          slo_type: budget
+        annotations:
+          summary: "SLO: Error budget <25% remaining"
+          description: "Error budget for {{ $labels.service }} is {{ $value | humanize }}% remaining (days until exhaustion: {{ $labels.days_remaining }})"
+          action: "1. Review SLO Error Budget dashboard\n2. Identify services burning budget fastest\n3. Prioritize performance improvements\n4. Consider SLO adjustment if baseline changed"
+          runbook: "https://runbooks.internal/slo-error-budget-low"
+
+      # SLO: Error Budget Nearly Exhausted
+      - alert: SLOErrorBudgetCritical
+        expr: 'gauge_slo_error_budget_remaining_percent{job="slo-tracker"} < 5'
+        for: 2m
+        labels:
+          severity: critical
+          slo_type: budget
+        annotations:
+          summary: "SLO: Error budget <5% remaining - CRITICAL"
+          description: "Error budget for {{ $labels.service }} is {{ $value | humanize }}% remaining. Budget will be exhausted in {{ $labels.hours_remaining }} hours."
+          action: "1. Stop new feature deployments\n2. Enter incident response mode\n3. Focus all resources on stability improvements\n4. Prioritize bug fixes over feature work"
+          runbook: "https://runbooks.internal/slo-error-budget-critical"
+
+# Latency & Performance Rules
+  - name: latency_performance
+    interval: 15s
+    rules:
+      # Latency Spike Detection
+      - alert: LatencySpikeDetected
+        expr: 'histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="api-gateway"}[5m])) > histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="api-gateway"}[5m] offset 15m)) * 1.5'
+        for: 3m
+        labels:
+          severity: warning
+          alert_type: latency_spike
+        annotations:
+          summary: "Latency spike detected on {{ $labels.endpoint }}"
+          description: "P95 latency is {{ $value | humanize }}ms - 50% higher than baseline 15m ago"
+          action: "1. Check Metric Correlation dashboard to identify root cause\n2. Check CPU, memory, disk I/O metrics\n3. Review database query performance\n4. Check if external dependencies are slow"
+          runbook: "https://runbooks.internal/latency-spike"
+
+      # P99 Latency Critical
+      - alert: P99LatencyCritical
+        expr: 'histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job="api-gateway"}[5m])) > 5'
+        for: 3m
+        labels:
+          severity: critical
+          alert_type: latency_critical
+        annotations:
+          summary: "Critical latency: P99 >5 seconds"
+          description: "Endpoint {{ $labels.endpoint }} P99 latency is {{ $value | humanize }}s. Users experiencing severe slowness."
+          action: "1. Page on-call engineer immediately\n2. Start incident response\n3. Check Tracing dashboard for bottleneck\n4. Scale resources if needed"
+          runbook: "https://runbooks.internal/p99-latency-critical"
+
+# Error Rate & Reliability Rules
+  - name: error_reliability
+    interval: 15s
+    rules:
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: '(sum(rate(http_requests_total{job="api-gateway",status=~"5.."}[5m])) / sum(rate(http_requests_total{job="api-gateway"}[5m]))) * 100 > 1'
+        for: 3m
+        labels:
+          severity: critical
+          alert_type: error_rate
+        annotations:
+          summary: "High error rate: {{ $value | humanize }}%"
+          description: "API error rate is {{ $value | humanize }}% (threshold: 1%)"
+          action: "1. Check Andon dashboard for error patterns\n2. Identify affected endpoints\n3. Check component logs\n4. Implement fix or rollback deployment"
+          runbook: "https://runbooks.internal/high-error-rate"
+
+      # Error Rate Increasing Trend
+      - alert: ErrorRateIncreasing
+        expr: 'rate((sum(rate(http_requests_total{job="api-gateway",status=~"5.."}[5m])) / sum(rate(http_requests_total{job="api-gateway"}[5m])))[1h]) > 0'
+        for: 10m
+        labels:
+          severity: warning
+          alert_type: error_trend
+        annotations:
+          summary: "Error rate trending upward over last hour"
+          description: "Error rate has increased {{ $value | humanize }}% in the last hour. Investigate before critical."
+          action: "1. Review recent code changes\n2. Check deployment timeline\n3. Monitor closely for further increases\n4. Prepare rollback if trend continues"
+          runbook: "https://runbooks.internal/error-rate-increasing"
+
+      # API Returns Too Many 4xx Errors
+      - alert: High4xxErrorRate
+        expr: '(sum(rate(http_requests_total{job="api-gateway",status=~"4.."}[5m])) / sum(rate(http_requests_total{job="api-gateway"}[5m]))) * 100 > 10'
+        for: 5m
+        labels:
+          severity: warning
+          alert_type: client_errors
+        annotations:
+          summary: "High 4xx error rate: {{ $value | humanize }}%"
+          description: "API is returning {{ $value | humanize }}% client errors (4xx). Check for invalid requests or malformed API calls."
+          action: "1. Review error details (400, 401, 403, 404, 429)\n2. Check if rate limiting is too strict\n3. Notify API consumers of breaking changes\n4. Add validation documentation"
+          runbook: "https://runbooks.internal/high-4xx-error-rate"
+
+# Resource Utilization Rules
+  - name: resource_utilization
+    interval: 15s
+    rules:
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: 'gauge_process_cpu_usage_percent{job="profiler"} > 85'
+        for: 10m
+        labels:
+          severity: warning
+          resource_type: cpu
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}: {{ $value | humanize }}%"
+          description: "Service {{ $labels.service }} is using {{ $value | humanize }}% CPU (threshold: 85%)"
+          action: "1. Check what's consuming CPU\n2. Profile the application\n3. Scale horizontally if load is high\n4. Optimize code if using excessive CPU"
+          runbook: "https://runbooks.internal/high-cpu-usage"
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: '(gauge_process_heap_size_bytes{job="profiler"} / 1024 / 1024 / 1024) > 0.85'
+        for: 10m
+        labels:
+          severity: warning
+          resource_type: memory
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}: {{ $value | humanize }}GB"
+          description: "Service {{ $labels.service }} is using {{ $value | humanize }}GB heap (approaching limit)"
+          action: "1. Check for memory leaks\n2. Review object allocation patterns\n3. Tune GC settings\n4. Scale horizontally or increase heap size"
+          runbook: "https://runbooks.internal/high-memory-usage"
+
+      # High GC Pause Times
+      - alert: HighGCPauseTimes
+        expr: 'histogram_quantile(0.99, gauge_gc_pause_seconds_bucket{job="profiler"}) * 1000 > 500'
+        for: 5m
+        labels:
+          severity: warning
+          resource_type: gc
+        annotations:
+          summary: "High GC pause times on {{ $labels.instance }}: {{ $value | humanize }}ms"
+          description: "P99 GC pause is {{ $value | humanize }}ms (threshold: 500ms). Impacts latency SLO."
+          action: "1. Check GC configuration\n2. Analyze heap size and allocation rate\n3. Consider different GC algorithm\n4. Reduce object allocation churn"
+          runbook: "https://runbooks.internal/high-gc-pause-times"
+
+# Infrastructure & Operational Rules
+  - name: infrastructure
+    interval: 15s
+    rules:
+      # Disk Space Low
+      - alert: DiskSpaceLow
+        expr: '(1 - (gauge_disk_available_bytes{job="infrastructure"} / gauge_disk_total_bytes{job="infrastructure"})) * 100 > 85'
+        for: 10m
+        labels:
+          severity: warning
+          resource_type: disk
+        annotations:
+          summary: "Disk space low on {{ $labels.instance }}: {{ $value | humanize }}% full"
+          description: "Disk is {{ $value | humanize }}% full (threshold: 85%)"
+          action: "1. Identify large files/directories\n2. Archive or delete old logs\n3. Clean up temp files\n4. Provision additional storage"
+          runbook: "https://runbooks.internal/disk-space-low"
+
+      # Database Connection Pool Exhausted
+      - alert: DatabaseConnPoolExhausted
+        expr: 'gauge_database_connections_active{job="api-server"} >= gauge_database_connections_max{job="api-server"}'
+        for: 3m
+        labels:
+          severity: critical
+          resource_type: database
+        annotations:
+          summary: "Database connection pool exhausted"
+          description: "Active connections ({{ $value }}) equal max pool size. New requests will be blocked."
+          action: "1. Increase connection pool size\n2. Kill idle connections\n3. Check for connection leaks\n4. Review slow queries holding connections"
+          runbook: "https://runbooks.internal/db-conn-pool-exhausted"
+
+      # Service Unhealthy
+      - alert: ServiceUnhealthy
+        expr: 'gauge_service_health{job="health-check"} < 1'
+        for: 2m
+        labels:
+          severity: critical
+          alert_type: health
+        annotations:
+          summary: "Service {{ $labels.service }} is unhealthy"
+          description: "Health check failing for {{ $labels.service }} on {{ $labels.instance }}"
+          action: "1. Check service logs for errors\n2. Check dependencies (database, cache, external services)\n3. Restart service if hung\n4. Check network connectivity"
+          runbook: "https://runbooks.internal/service-unhealthy"
+
+# Custom alert notifications (configure with Alertmanager)
+# Each alert can be routed to different channels based on severity:
+# - critical: Page on-call engineer immediately (PagerDuty)
+# - warning: Send to Slack/email for investigation
+# - info: Log for later review
+
+# Alert group rules:
+# Group alerts by:
+#   - Principle (jidoka, kanban, andon, kaizen, heijunka, tracing)
+#   - Severity (critical, warning)
+#   - Component/Service
+# This helps prioritize response and identify related issues
+
+# Alert Deduplication & Suppression Rules (via Alertmanager):
+# - Deduplicate identical alerts within 5-minute windows
+# - Group related alerts (same service, same issue type)
+# - Suppress maintenance window alerts
+# - Suppress known false positives
+
+# Notification Routes (configure in alertmanager.yml):
+# critical → PagerDuty (page on-call) + Slack (#incidents)
+# warning → Slack (#alerts) + Email (team@company.com)
+# info → Slack (#info) only

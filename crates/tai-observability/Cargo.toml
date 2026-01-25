@@ -1,0 +1,68 @@
+[package]
+name = "tai-observability"
+version = "0.1.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Production-grade observability layer with GCP Cloud Profiler, Cloud Trace, and Monitoring integration"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+keywords = ["observability", "profiling", "tracing", "gcp", "monitoring"]
+categories = ["development-tools", "debugging", "profiling"]
+
+[dependencies]
+# Core async runtime and utilities
+tokio = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+
+# Serialization and data handling
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+
+# Logging and tracing
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# HTTP client for GCP APIs
+reqwest = { workspace = true }
+
+# GCP Cloud Profiler and monitoring APIs (optional - for production GCP integration)
+# In production, integrate with actual Google Cloud client libraries
+# For now, we provide the abstraction layer that can be extended
+
+# Flame graph generation
+flamegraph = { version = "0.6", optional = true }
+pprof = { version = "0.13", features = ["criterion", "flamegraph"], optional = true }
+
+# Memory profiling and performance analysis
+jemallocator = { version = "0.5", optional = true }
+jemalloc-ctl = { version = "0.5", optional = true }
+
+# Sampling and statistical analysis
+rand = { version = "0.8", optional = true }
+
+# Utilities
+lazy_static = "1.4"
+once_cell = { workspace = true }
+dashmap = { workspace = true }
+
+[dev-dependencies]
+assert_cmd = { workspace = true }
+predicates = { workspace = true }
+tempfile = { workspace = true }
+proptest = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = []
+full = ["profiling", "flamegraph", "jemalloc"]
+profiling = ["dep:pprof", "dep:jemallocator", "dep:jemalloc-ctl", "dep:rand"]
+flamegraph = ["dep:flamegraph"]
+jemalloc = ["dep:jemallocator", "dep:jemalloc-ctl"]
+
+[[bench]]
+name = "observability_overhead"
+harness = false
