@@ -302,7 +302,12 @@ impl CollectiveMemory {
 
         // Evict lowest confidence entries if over capacity
         if topic_entries.len() > self.max_long_term_per_topic {
-            topic_entries.sort_by(|a, b| b.confidence.partial_cmp(&a.confidence).unwrap());
+            topic_entries.sort_by(|a, b| {
+                // Sort by confidence in descending order, treating NaN as lowest priority
+                b.confidence
+                    .partial_cmp(&a.confidence)
+                    .unwrap_or(std::cmp::Ordering::Greater)
+            });
             topic_entries.truncate(self.max_long_term_per_topic);
         }
     }
@@ -324,7 +329,12 @@ impl CollectiveMemory {
         }
 
         // Sort by confidence
-        results.sort_by(|a, b| b.confidence.partial_cmp(&a.confidence).unwrap());
+        results.sort_by(|a, b| {
+            // Sort by confidence in descending order, treating NaN as lowest priority
+            b.confidence
+                .partial_cmp(&a.confidence)
+                .unwrap_or(std::cmp::Ordering::Greater)
+        });
 
         results
     }

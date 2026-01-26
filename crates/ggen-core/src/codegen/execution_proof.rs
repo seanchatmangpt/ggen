@@ -138,8 +138,12 @@ impl ProofCarrier {
         use std::time::{SystemTime, UNIX_EPOCH};
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_nanos();
+            .map(|d| d.as_nanos())
+            .unwrap_or_else(|_| {
+                // Fallback: use a counter-based ID if system time fails
+                static COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+                COUNTER.fetch_add(1, std::sync::atomic::Ordering::SeqCst)
+            });
         format!("exec-{}", now)
     }
 

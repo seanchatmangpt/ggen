@@ -75,7 +75,6 @@
 //! # }
 //! ```
 
-#![allow(clippy::expect_used)] // RwLock poisoning is considered unrecoverable
 use config::builder::DefaultState;
 use config::{Config, ConfigBuilder, Environment};
 use serde::{Deserialize, Serialize};
@@ -192,16 +191,13 @@ impl AppConfig {
     ///
     /// # Errors
     ///
-    /// Returns an error if the configuration file cannot be read or parsed.
-    ///
-    /// # Panics
-    ///
-    /// Panics if the `RwLock` is poisoned.
+    /// Returns an error if the configuration file cannot be read or parsed,
+    /// or if the `RwLock` is poisoned.
     pub fn merge_config(config_file: Option<&Path>) -> Result<()> {
         // Merge settings with config file if there is one
         if let Some(config_file_path) = config_file {
             {
-                let mut w = BUILDER.write().expect("RwLock should not be poisoned");
+                let mut w = BUILDER.write()?;
                 *w = w.clone().add_source(config::File::with_name(
                     config_file_path.to_str().unwrap_or(""),
                 ));
@@ -214,14 +210,11 @@ impl AppConfig {
     ///
     /// # Errors
     ///
-    /// Returns an error if the configuration value cannot be set.
-    ///
-    /// # Panics
-    ///
-    /// Panics if the `RwLock` is poisoned.
+    /// Returns an error if the configuration value cannot be set,
+    /// or if the `RwLock` is poisoned.
     pub fn set(key: &str, value: &str) -> Result<()> {
         {
-            let mut w = BUILDER.write().expect("RwLock should not be poisoned");
+            let mut w = BUILDER.write()?;
             *w = w.clone().set_override(key, value)?;
         }
 
