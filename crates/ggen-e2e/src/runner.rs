@@ -4,9 +4,8 @@
 
 use crate::error::{Result, RunnerError};
 use crate::fixture::TestFixture;
-use crate::golden::GoldenFile;
 use crate::platform::Platform;
-use crate::result::{TestExecution, TestResult, TestStatus};
+use crate::result::{TestExecution, TestResult};
 use async_trait::async_trait;
 use std::path::Path;
 use std::process::Command;
@@ -162,13 +161,13 @@ impl TestRunner {
         let mut execution = TestExecution::new(&fixture.name, self.platform.clone());
 
         // Start timing
-        let start = std::time::Instant::now();
+        let _start = std::time::Instant::now();
 
         // Validate fixture before running
         fixture.validate()?;
 
         // Copy fixture to temporary directory
-        let temp_dir = fixture.copy_to_temp()?;
+        let _temp_dir = fixture.copy_to_temp()?;
 
         // For now, just report that execution was attempted
         // Phase 3 will implement proper execution with NativeExecutor/ContainerExecutor
