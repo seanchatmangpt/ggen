@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ruv-swarm",
+      "mcp__claude-flow@alpha",
+      "mcp__flow-nexus",
+      "Bash(npx claude-flow@alpha hooks pre-task:*)",
+      "Bash(ggen:*)",
+      "Bash(du:*)",
+      "Bash(cargo run:*)",
+      "Bash(timeout 60s cargo publish:*)",
+      "Bash(wc:*)"
+    ],
+    "deny": []
+  }
+}
