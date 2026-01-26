@@ -41,8 +41,8 @@ members = [
   "crates/ggen-test-opt",      # Feature 004: Test optimization tooling
   "crates/ggen-e2e",           # Feature 011: End-to-end testing with testcontainers
 
-  # Optional: Node.js bindings (feature-gated)
-  "crates/ggen-node",
+  # Optional: Node.js bindings (feature-gated) - EXCLUDED due to proc-macro compilation blocker
+  # "crates/ggen-node",
 
   # Optional: RevOps/Monetization (feature-gated)
   "crates/ggen-api",           # RevOps: REST API layer for monetization
@@ -77,6 +77,7 @@ exclude = [
   "examples/marketplace-demo/generated",
   "examples/gcp-erlang-autonomics",
   "marketplace/packages/workflow-engine-cli",
+  "crates/ggen-node",  # BLOCKER: cdylib crate-type interferes with proc-macro compilation
   "crates/tps-kaizen",  # Temporarily excluded - has Cargo.toml syntax error
   "crates/tps-reference",  # Temporarily excluded - has compilation errors (pre-existing)
   "crates/ggen-tps-andon",  # Temporarily excluded - depends on tps-reference
