@@ -1,5 +1,9 @@
 # GitHub API configuration
 [env]
+# Proc-macro linker configuration (CRITICAL for Phase 6)
+# Works around incompatibility between proc-macro compiler and x86_64 target
+RUSTFLAGS = "-C linker=gcc -C link-arg=-fuse-ld=lld"
+
 GITHUB_REPO = "seanchatmangpt/ggen"
 GITHUB_API = "https://api.github.com"
 GITHUB_PAGES_URL = "https://seanchatmangpt.github.io/ggen"

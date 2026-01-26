@@ -15,5 +15,9 @@ color = "always"
 
 # sccache configuration
 [env]
+# RUSTFLAGS for proc-macro compilation fix
+# Required to work around proc-macro linker target incompatibility issue
+# Specifies GCC linker with LLD (LLVM linker) for compatibility
+RUSTFLAGS = "-C linker=gcc -C link-arg=-fuse-ld=lld"
 SCCACHE_DIR = "$HOME/.cache/sccache"
 SCCACHE_CACHE_SIZE = "10G"
