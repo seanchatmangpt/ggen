@@ -129,16 +129,19 @@ grep -q "incremental = true" Cargo.toml && {
     echo -e "${YELLOW}⚠️  Consider enabling incremental compilation${NC}"
 }
 
-echo "2. Setting up fast linker (if available)..."
-if command -v mold &> /dev/null; then
-    echo -e "${GREEN}✅ mold linker available${NC}"
-    export RUSTFLAGS="-C link-arg=-fuse-ld=mold"
-elif command -v lld &> /dev/null; then
-    echo -e "${GREEN}✅ lld linker available${NC}"
-    export RUSTFLAGS="-C link-arg=-fuse-ld=lld"
-else
-    echo -e "${YELLOW}⚠️  No fast linker available (consider installing mold or lld)${NC}"
-fi
+echo "2. Linker configuration (disabled due to incompatibility)..."
+# NOTE: -fuse-ld=lld/-fuse-ld=mold flags don't work reliably with Cargo's linker invocation
+# on all platforms. Using system default linker instead for stability.
+# If needed in future, configure via .cargo/config.toml [target] sections, not RUSTFLAGS.
+# if command -v mold &> /dev/null; then
+#     echo -e "${GREEN}✅ mold linker available${NC}"
+#     export RUSTFLAGS="-C link-arg=-fuse-ld=mold"
+# elif command -v lld &> /dev/null; then
+#     echo -e "${GREEN}✅ lld linker available${NC}"
+#     export RUSTFLAGS="-C link-arg=-fuse-ld=lld"
+# else
+#     echo -e "${YELLOW}⚠️  No fast linker available (consider installing mold or lld)${NC}"
+# fi
 
 echo ""
 

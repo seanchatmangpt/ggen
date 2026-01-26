@@ -32,7 +32,7 @@ rsa = "0.9"
 zeroize = "1.7"
 
 # RBAC
-bitflags = "2.4"
+bitflags = { version = "2.4", features = ["serde"] }
 
 # Redis for session management
 redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
