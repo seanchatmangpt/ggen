@@ -82,7 +82,7 @@ impl ReAct {
     /// Create a new ReAct module
     pub fn new(mut signature: Signature) -> Self {
         // Add thought and action fields if not present
-        if !signature.outputs.iter().any(|f| f.name() == "thought") {
+        if !signature.outputs.iter().any(|f: &OutputField| f.name() == "thought") {
             signature = signature.with_output(OutputField::new(
                 "thought",
                 "Current reasoning about the task",
@@ -90,7 +90,7 @@ impl ReAct {
             ));
         }
 
-        if !signature.outputs.iter().any(|f| f.name() == "action") {
+        if !signature.outputs.iter().any(|f: &OutputField| f.name() == "action") {
             signature = signature.with_output(OutputField::new(
                 "action",
                 "Tool to use (or FINISH)",
@@ -98,7 +98,7 @@ impl ReAct {
             ));
         }
 
-        if !signature.outputs.iter().any(|f| f.name() == "action_input") {
+        if !signature.outputs.iter().any(|f: &OutputField| f.name() == "action_input") {
             signature = signature.with_output(OutputField::new(
                 "action_input",
                 "Input for the tool",
@@ -378,10 +378,10 @@ mod tests {
 
         // Assert
         let sig = react.predictor.signature();
-        assert!(sig.outputs.iter().any(|f| f.name() == "thought"));
-        assert!(sig.outputs.iter().any(|f| f.name() == "action"));
-        assert!(sig.outputs.iter().any(|f| f.name() == "action_input"));
-        assert!(sig.outputs.iter().any(|f| f.name() == "answer"));
+        assert!(sig.outputs.iter().any(|f: &OutputField| f.name() == "thought"));
+        assert!(sig.outputs.iter().any(|f: &OutputField| f.name() == "action"));
+        assert!(sig.outputs.iter().any(|f: &OutputField| f.name() == "action_input"));
+        assert!(sig.outputs.iter().any(|f: &OutputField| f.name() == "answer"));
     }
 
     #[test]

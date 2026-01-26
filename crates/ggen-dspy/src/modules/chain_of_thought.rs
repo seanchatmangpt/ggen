@@ -49,7 +49,7 @@ impl ChainOfThought {
     /// and updates instructions to encourage step-by-step thinking.
     pub fn new(mut signature: Signature) -> Self {
         // Add rationale field if not present
-        if !signature.outputs.iter().any(|f| f.name() == "rationale") {
+        if !signature.outputs.iter().any(|f: &OutputField| f.name() == "rationale") {
             signature = signature.with_output(OutputField::new(
                 "rationale",
                 "Step-by-step reasoning process",
@@ -154,8 +154,8 @@ mod tests {
 
         // Assert
         let sig = cot.signature();
-        assert!(sig.outputs.iter().any(|f| f.name() == "rationale"));
-        assert!(sig.outputs.iter().any(|f| f.name() == "answer"));
+        assert!(sig.outputs.iter().any(|f: &OutputField| f.name() == "rationale"));
+        assert!(sig.outputs.iter().any(|f: &OutputField| f.name() == "answer"));
     }
 
     #[test]

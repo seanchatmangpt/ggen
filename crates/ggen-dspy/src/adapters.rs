@@ -365,7 +365,7 @@ impl LlmAdapter for JSONAdapter {
     fn is_compatible(&self, model: &str) -> bool {
         self.compatible_models
             .iter()
-            .any(|pattern| model.contains(pattern))
+            .any(|pattern: &String| model.contains(pattern))
     }
 }
 
