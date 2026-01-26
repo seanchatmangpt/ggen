@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: onboarding-config
+  namespace: onboarding
+data:
+  # Database Configuration
+  db_host: postgres.onboarding.svc.cluster.local
+  db_port: '5432'
+  db_name: onboarding
+
+  # Redis Configuration
+  redis_host: redis.onboarding.svc.cluster.local
+  redis_port: '6379'
+
+  # API Configuration
+  api_url: https://api.onboarding.io
+  cors_origin: https://onboarding.io
+
+  # Application Configuration
+  environment: production
+  log_level: info
+
+  # Onboarding Configuration
+  max_setup_days: '30'
+  max_approval_days: '7'
+  min_measurement_accuracy: '85'
+  require_technical_review: 'true'
+  require_finance_review: 'true'
+
+  # Alert Thresholds
+  alert_threshold_accuracy_drop: '10'
+  alert_threshold_value_anomaly: '20'
+  alert_threshold_measurement_error: '5'
+
+  # OpenTelemetry Configuration
+  otel_exporter_otlp_endpoint: http://jaeger.onboarding.svc.cluster.local:4318
+  otel_service_name: onboarding
+
+  # Prometheus Configuration
+  prometheus_endpoint: http://prometheus.onboarding.svc.cluster.local:9090
+
+  # Feature Flags
+  feature_go_live_switch: 'true'
+  feature_custom_formulas: 'true'
+  feature_webhook_integration: 'true'
+  feature_api_keys: 'true'

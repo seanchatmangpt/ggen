@@ -1,0 +1,344 @@
+@prefix pricing: <http://pricing.tai.autonomic/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# VALUE DEFINITION ONTOLOGY
+# Formal specification of what counts as value in the pricing system
+# This ontology encodes the business rules for value realization and measurement
+
+pricing:ValueOntology a owl:Ontology ;
+  rdfs:label "Pricing Engine Value Ontology" ;
+  rdfs:comment "Deterministic value calculation ontology for autonomic pricing" ;
+  owl:versionInfo "1.0.0" .
+
+# VALUE TYPES - Core value dimensions
+pricing:ValueType a owl:Class ;
+  rdfs:label "Value Type" ;
+  rdfs:comment "Classification of value dimensions" .
+
+pricing:PerformanceValue a pricing:ValueType ;
+  rdfs:label "Performance Value" ;
+  rdfs:comment "Value derived from system performance metrics (throughput, latency)" ;
+  pricing:unit "operations_per_second" ;
+  pricing:minValue 0 ;
+  pricing:maxValue 1000000 .
+
+pricing:AvailabilityValue a pricing:ValueType ;
+  rdfs:label "Availability Value" ;
+  rdfs:comment "Value derived from system availability and uptime" ;
+  pricing:unit "percentage" ;
+  pricing:minValue 0.0 ;
+  pricing:maxValue 100.0 .
+
+pricing:ThroughputValue a pricing:ValueType ;
+  rdfs:label "Throughput Value" ;
+  rdfs:comment "Value derived from data throughput metrics" ;
+  pricing:unit "gigabytes_per_day" ;
+  pricing:minValue 0 ;
+  pricing:maxValue 1000000 .
+
+pricing:ReliabilityValue a pricing:ValueType ;
+  rdfs:label "Reliability Value" ;
+  rdfs:comment "Value derived from error rates and MTBF" ;
+  pricing:unit "percentage" ;
+  pricing:minValue 0.0 ;
+  pricing:maxValue 100.0 .
+
+pricing:SecurityValue a pricing:ValueType ;
+  rdfs:label "Security Value" ;
+  rdfs:comment "Value derived from security posture and compliance" ;
+  pricing:unit "compliance_score" ;
+  pricing:minValue 0 ;
+  pricing:maxValue 100 .
+
+# VALUE CALCULATION FUNCTION
+pricing:ValueCalculation a owl:Class ;
+  rdfs:label "Value Calculation" ;
+  rdfs:comment "Deterministic function V = f(metrics)" .
+
+pricing:valueCalculationFunction a owl:ObjectProperty ;
+  rdfs:domain pricing:ValueCalculation ;
+  rdfs:range pricing:ValueFunction ;
+  rdfs:label "calculates using" .
+
+pricing:aggregationMethod a owl:ObjectProperty ;
+  rdfs:domain pricing:ValueCalculation ;
+  rdfs:range pricing:AggregationMethod ;
+  rdfs:label "aggregation method" .
+
+# AGGREGATION RULES - How component values combine
+pricing:AggregationMethod a owl:Class ;
+  rdfs:label "Aggregation Method" ;
+  rdfs:comment "Method for combining multiple value components" .
+
+pricing:WeightedSum a pricing:AggregationMethod ;
+  rdfs:label "Weighted Sum" ;
+  rdfs:comment "V_total = Σ(w_i × V_i) where w_i are weights" ;
+  pricing:formula "weighted_sum" .
+
+pricing:Multiplicative a pricing:AggregationMethod ;
+  rdfs:label "Multiplicative" ;
+  rdfs:comment "V_total = ∏(V_i^w_i) for penalizing weaknesses" ;
+  pricing:formula "multiplicative" .
+
+pricing:WeightedPercentile a pricing:AggregationMethod ;
+  rdfs:label "Weighted Percentile" ;
+  rdfs:comment "V_total = weighted_percentile(V_i, w_i)" ;
+  pricing:formula "weighted_percentile" .
+
+# VALUE METRICS - Measurable dimensions
+pricing:ValueMetric a owl:Class ;
+  rdfs:label "Value Metric" ;
+  rdfs:comment "Individual metric contributing to value" .
+
+pricing:metric_name a owl:DatatypeProperty ;
+  rdfs:domain pricing:ValueMetric ;
+  rdfs:range xsd:string ;
+  rdfs:label "metric name" .
+
+pricing:metric_unit a owl:DatatypeProperty ;
+  rdfs:domain pricing:ValueMetric ;
+  rdfs:range xsd:string ;
+  rdfs:label "measurement unit" .
+
+pricing:metric_weight a owl:DatatypeProperty ;
+  rdfs:domain pricing:ValueMetric ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "aggregation weight" ;
+  rdfs:comment "Contribution weight in value calculation (0.0 to 1.0)" .
+
+# VALIDATION CONSTRAINTS - SHACL shapes
+pricing:ValueShape a sh:NodeShape ;
+  sh:targetClass pricing:Value ;
+  sh:property [
+    sh:path pricing:customer_id ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:description "Unique customer identifier (required)" ;
+  ] ;
+  sh:property [
+    sh:path pricing:calculated_value ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive 0 ;
+    sh:description "Calculated value magnitude (non-negative)" ;
+  ] ;
+  sh:property [
+    sh:path pricing:calculation_timestamp ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:description "When value was calculated (ISO8601)" ;
+  ] ;
+  sh:property [
+    sh:path pricing:calculation_period ;
+    sh:datatype xsd:duration ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:description "Measurement period (e.g., P1D for daily)" ;
+  ] ;
+  sh:property [
+    sh:path pricing:metric_values ;
+    sh:nodeKind sh:BlankNode ;
+    sh:minCount 1 ;
+    sh:description "Component metric values used in calculation" ;
+  ] ;
+  sh:property [
+    sh:path pricing:hash_previous ;
+    sh:datatype xsd:hexBinary ;
+    sh:maxCount 1 ;
+    sh:description "SHA-256 hash of previous value record (merkle chain)" ;
+  ] ;
+  sh:property [
+    sh:path pricing:hash_current ;
+    sh:datatype xsd:hexBinary ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:description "SHA-256 hash of this value record (deterministic)" ;
+  ] .
+
+# PRICE CALCULATION
+pricing:PricingFormula a owl:Class ;
+  rdfs:label "Pricing Formula" ;
+  rdfs:comment "Formula for calculating price from value: P = α × V" .
+
+pricing:priceFormulaType a owl:ObjectProperty ;
+  rdfs:domain pricing:PricingFormula ;
+  rdfs:range pricing:FormulaType ;
+  rdfs:label "formula type" .
+
+pricing:alphaCoefficient a owl:DatatypeProperty ;
+  rdfs:domain pricing:PricingFormula ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "α coefficient" ;
+  rdfs:comment "Price multiplier: P = α × V (unit: USD per value unit)" .
+
+pricing:minimumPrice a owl:DatatypeProperty ;
+  rdfs:domain pricing:PricingFormula ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "minimum price" ;
+  rdfs:comment "Floor price in USD (prevents zero-value calculations)" .
+
+pricing:maximumPrice a owl:DatatypeProperty ;
+  rdfs:domain pricing:PricingFormula ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "maximum price" ;
+  rdfs:comment "Ceiling price in USD (prevents unbounded growth)" .
+
+# BILLING PERIODS
+pricing:BillingPeriod a owl:Class ;
+  rdfs:label "Billing Period" ;
+  rdfs:comment "Frequency of billing cycles" .
+
+pricing:Monthly a pricing:BillingPeriod ;
+  rdfs:label "Monthly" ;
+  pricing:duration "P1M" ;
+  pricing:dayOfCycle 1 .
+
+pricing:Quarterly a pricing:BillingPeriod ;
+  rdfs:label "Quarterly" ;
+  pricing:duration "P3M" ;
+  pricing:dayOfCycle 1 .
+
+pricing:Annual a pricing:BillingPeriod ;
+  rdfs:label "Annual" ;
+  pricing:duration "P1Y" ;
+  pricing:dayOfCycle 1 .
+
+# CUSTOMER VALUE CONTEXT
+pricing:CustomerContext a owl:Class ;
+  rdfs:label "Customer Context" ;
+  rdfs:comment "Customer-specific pricing and value configuration" .
+
+pricing:customer_id a owl:DatatypeProperty ;
+  rdfs:domain pricing:CustomerContext ;
+  rdfs:range xsd:string ;
+  rdfs:label "customer ID" .
+
+pricing:billing_period a owl:ObjectProperty ;
+  rdfs:domain pricing:CustomerContext ;
+  rdfs:range pricing:BillingPeriod ;
+  rdfs:label "billing period" .
+
+pricing:pricing_formula a owl:ObjectProperty ;
+  rdfs:domain pricing:CustomerContext ;
+  rdfs:range pricing:PricingFormula ;
+  rdfs:label "pricing formula" .
+
+# RECEIPT - Cryptographic proof of value realization
+pricing:Receipt a owl:Class ;
+  rdfs:label "Value Receipt" ;
+  rdfs:comment "Tamper-proof record of calculated value and billed price" .
+
+pricing:receipt_id a owl:DatatypeProperty ;
+  rdfs:domain pricing:Receipt ;
+  rdfs:range xsd:string ;
+  rdfs:label "receipt ID" ;
+  rdfs:comment "Unique identifier (UUID)" .
+
+pricing:receipt_signature a owl:DatatypeProperty ;
+  rdfs:domain pricing:Receipt ;
+  rdfs:range xsd:hexBinary ;
+  rdfs:label "HMAC signature" ;
+  rdfs:comment "HMAC-SHA256 signature for tamper detection" .
+
+pricing:merkle_chain_next a owl:DatatypeProperty ;
+  rdfs:domain pricing:Receipt ;
+  rdfs:range xsd:hexBinary ;
+  rdfs:label "merkle chain next" ;
+  rdfs:comment "Hash chain linking to next receipt" .
+
+# AUDIT TRAIL - Non-repudiation
+pricing:AuditEntry a owl:Class ;
+  rdfs:label "Audit Trail Entry" ;
+  rdfs:comment "Immutable log entry for regulatory compliance" .
+
+pricing:audit_timestamp a owl:DatatypeProperty ;
+  rdfs:domain pricing:AuditEntry ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "timestamp" .
+
+pricing:audit_action a owl:DatatypeProperty ;
+  rdfs:domain pricing:AuditEntry ;
+  rdfs:range xsd:string ;
+  rdfs:label "action" ;
+  rdfs:comment "Action performed (calculate, verify, bill)" .
+
+pricing:audit_customer_id a owl:DatatypeProperty ;
+  rdfs:domain pricing:AuditEntry ;
+  rdfs:range xsd:string ;
+  rdfs:label "customer ID" .
+
+pricing:audit_signature a owl:DatatypeProperty ;
+  rdfs:domain pricing:AuditEntry ;
+  rdfs:range xsd:hexBinary ;
+  rdfs:label "digital signature" ;
+  rdfs:comment "Ed25519 signature for non-repudiation" .
+
+# CONSTRAINTS AND BUSINESS RULES
+pricing:ValueConstraint a owl:Class ;
+  rdfs:label "Value Constraint" ;
+  rdfs:comment "Business rule constraining valid value calculations" .
+
+# Value must be positive
+pricing:NonNegativeConstraint a pricing:ValueConstraint ;
+  rdfs:label "Non-negative constraint" ;
+  rdfs:comment "Value ≥ 0 always" ;
+  pricing:rule "value >= 0" .
+
+# Value must be within reasonable bounds (prevents calculation errors)
+pricing:BoundedConstraint a pricing:ValueConstraint ;
+  rdfs:label "Bounded constraint" ;
+  rdfs:comment "Value must be within [0, MAX_VALUE]" ;
+  pricing:rule "value <= 1_000_000_000" .
+
+# Metrics must sum to reported value within tolerance
+pricing:ConsistencyConstraint a pricing:ValueConstraint ;
+  rdfs:label "Consistency constraint" ;
+  rdfs:comment "Calculated value must match metric aggregation within 0.1%" ;
+  pricing:tolerance 0.001 .
+
+# Customer isolation - no cross-customer value mixing
+pricing:IsolationConstraint a pricing:ValueConstraint ;
+  rdfs:label "Customer isolation constraint" ;
+  rdfs:comment "Each customer's value calculation must be independently verified" ;
+  pricing:rule "no_cross_customer_data" .
+
+# Determinism constraint - same inputs must produce same value
+pricing:DeterminismConstraint a pricing:ValueConstraint ;
+  rdfs:label "Determinism constraint" ;
+  rdfs:comment "V = f(metrics) is deterministic (hash reproducible)" ;
+  pricing:rule "same_input_same_output" .
+
+# ANTI-FRAUD RULES
+pricing:FraudDetectionRule a owl:Class ;
+  rdfs:label "Fraud Detection Rule" ;
+  rdfs:comment "Rule for detecting suspicious value patterns" .
+
+# Spike detection - value increase > 500% in one period
+pricing:SpikeDetection a pricing:FraudDetectionRule ;
+  rdfs:label "Spike detection" ;
+  pricing:threshold 5.0 ;
+  pricing:action "flag_for_review" .
+
+# Anomalous pattern - zero value when metrics suggest otherwise
+pricing:AnomalyDetection a pricing:FraudDetectionRule ;
+  rdfs:label "Anomaly detection" ;
+  pricing:description "Zero value reported despite positive metrics" ;
+  pricing:action "reject_calculation" .
+
+# Signature mismatch - receipt signature doesn't verify
+pricing:SignatureMismatch a pricing:FraudDetectionRule ;
+  rdfs:label "Signature mismatch" ;
+  pricing:description "HMAC verification failed" ;
+  pricing:action "flag_receipt_as_invalid" .
+
+# METADATA
+pricing:version "1.0.0" .
+pricing:lastModified "2026-01-25T00:00:00Z"^^xsd:dateTime .
+pricing:author "Pricing Engineering Team" .

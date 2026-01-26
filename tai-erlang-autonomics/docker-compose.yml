@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  tai-autonomics:
+    build:
+      context: .
+      dockerfile: container/Containerfile
+    container_name: tai-autonomics
+    ports:
+      - "${PORT:-8080}:8080"
+    environment:
+      - PORT=8080
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID:-local-dev}
+      - GCP_REGION=${GCP_REGION:-us-central1}
+      - PUBSUB_SUBSCRIPTION=${PUBSUB_SUBSCRIPTION:-erlang-autonomics-signals}
+      - RECEIPT_LEDGER_BACKEND=${RECEIPT_LEDGER_BACKEND:-ets}
+      - METRICS_COLLECTION_INTERVAL_MS=10000
+      - TRACING_ENABLED=${TRACING_ENABLED:-false}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - tai-network
+    restart: unless-stopped
+
+  # Local Pub/Sub emulator for testing
+  pubsub-emulator:
+    image: gcr.io/google.com/cloudsdktool/cloud-sdk:emulators
+    container_name: pubsub-emulator
+    command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085
+    ports:
+      - "8085:8085"
+    environment:
+      - PUBSUB_EMULATOR_HOST=pubsub-emulator:8085
+    networks:
+      - tai-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Firestore emulator for testing
+  firestore-emulator:
+    image: gcr.io/google.com/cloudsdktool/cloud-sdk:emulators
+    container_name: firestore-emulator
+    command: gcloud beta emulators firestore start --host-port=0.0.0.0:8081
+    ports:
+      - "8081:8081"
+    environment:
+      - FIRESTORE_EMULATOR_HOST=firestore-emulator:8081
+    networks:
+      - tai-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+networks:
+  tai-network:
+    driver: bridge
