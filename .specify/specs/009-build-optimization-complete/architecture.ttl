@@ -1,0 +1,733 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix bo: <https://ggen.dev/build-optimization/> .
+@prefix : <https://ggen.dev/spec/build-optimization-009/architecture#> .
+
+# ============================================================================
+# ARCHITECTURE: Build Optimization EPIC 9 Design
+# ============================================================================
+# Comprehensive architecture including patterns, decisions, constraints
+# Integration points, configuration, and validation rules
+# ============================================================================
+
+:BuildOptimizationArchitecture a spec:Architecture ;
+    rdfs:label "Build Optimization Architecture" ;
+    rdfs:comment "Complete architectural design for EPIC 9 build optimization" ;
+    spec:architectureVersion "1.0" ;
+    spec:designPhilosophy "Systematic, data-driven optimization across 5 orthogonal dimensions: parallelism, caching, profiling, determinism, monitoring" ;
+    spec:keyPrinciples (
+        :Principle_Measurement
+        :Principle_Parallelism
+        :Principle_Caching
+        :Principle_Determinism
+        :Principle_Monitoring
+    ) ;
+    spec:architecturalDecisions (
+        :Decision_CodegenUnits
+        :Decision_LinkerChoice
+        :Decision_CacheBackend
+        :Decision_MetricsStorage
+        :Decision_SloEnforcement
+    ) ;
+    spec:qualityAttributes (
+        [ spec:attribute "Performance"; spec:measurableTarget "3-5x speedup"; spec:priority "CRITICAL" ]
+        [ spec:attribute "Reproducibility"; spec:measurableTarget "100% deterministic outputs"; spec:priority "HIGH" ]
+        [ spec:attribute "Observability"; spec:measurableTarget "Real-time performance visibility"; spec:priority "HIGH" ]
+        [ spec:attribute "Maintainability"; spec:measurableTarget "Clear documentation and procedures"; spec:priority "MEDIUM" ]
+    ) .
+
+# ============================================================================
+# CORE DESIGN PRINCIPLES
+# ============================================================================
+
+:Principle_Measurement a spec:DesignPrinciple ;
+    rdfs:label "Measure Everything" ;
+    rdfs:comment "Can't optimize what you can't measure. Comprehensive metrics collection on every build." ;
+    spec:description "All build phases instrumented with timing, resource usage, and outcome metrics" ;
+    spec:rationale "Data-driven decisions require accurate baseline and trend data" ;
+    spec:implications (
+        [ spec:implication "Benchmark suite running continuously in CI" ]
+        [ spec:implication "Per-phase timing captured (codegen, linking, linking)" ]
+        [ spec:implication "Per-crate metrics available for targeted optimization" ]
+        [ spec:implication "Historical data retention for trend analysis" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraint "Measurement overhead <5% of build time" ]
+        [ spec:constraint "Metrics stored persistently (24+ months retention)" ]
+        [ spec:constraint "Real-time metrics queries <100ms latency" ]
+    ) .
+
+:Principle_Parallelism a spec:DesignPrinciple ;
+    rdfs:label "Maximize Parallelism" ;
+    rdfs:comment "Utilize all available CPU cores across compilation, linking, testing" ;
+    spec:description "Multi-dimensional parallelism: compile units, test threads, CI runners" ;
+    spec:rationale "Modern systems have 8-128 cores; sequential builds leave 90% idle" ;
+    spec:implications (
+        [ spec:implication "Codegen-units=256 in dev profile for max parallelism" ]
+        [ spec:implication "Test suites run with --test-threads=auto" ]
+        [ spec:implication "Artifact isolation prevents lock contention" ]
+        [ spec:implication "CI runners share sccache for distributed acceleration" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraint "Zero race conditions in parallel test execution" ]
+        [ spec:constraint "Deterministic test ordering when required" ]
+        [ spec:constraint "No performance degradation on single-core systems" ]
+    ) .
+
+:Principle_Caching a spec:DesignPrinciple ;
+    rdfs:label "Aggressive Caching" ;
+    rdfs:comment "Cache compiler outputs, artifacts, and build graphs to eliminate redundant work" ;
+    spec:description "Multi-layer caching: local sccache, distributed S3/Redis, Cargo.lock stability" ;
+    spec:rationale "Compilation is idempotent; cache correctly to eliminate redundant work" ;
+    spec:implications (
+        [ spec:implication "sccache for distributed compiler unit caching" ]
+        [ spec:implication "Cargo.lock committed for deterministic dependency resolution" ]
+        [ spec:implication "Artifact caching across CI runs with smart invalidation" ]
+        [ spec:implication "Cache hit rate monitoring and optimization" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraint "Cache invalidation correct and complete" ]
+        [ spec:constraint "No false cache hits (reproducibility guaranteed)" ]
+        [ spec:constraint "Cache size bounded (<100GB)" ]
+    ) .
+
+:Principle_Determinism a spec:DesignPrinciple ;
+    rdfs:label "Deterministic Outputs" ;
+    rdfs:comment "Identical inputs produce bit-for-bit identical binaries across builds" ;
+    spec:description "Build determinism enables supply chain security and verifiable artifacts" ;
+    spec:rationale "Non-determinism breaks reproducibility; prevents audit and verification" ;
+    spec:implications (
+        [ spec:implication "Cargo.lock ensures identical dependency versions" ]
+        [ spec:implication "--remap-path-prefix removes host-specific paths" ]
+        [ spec:implication "No timestamps or build-time randomness in artifacts" ]
+        [ spec:implication "SHA-256 hash verification of binaries" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraint "100% deterministic on same Rust version + OS" ]
+        [ spec:constraint "Cross-platform binaries may differ (expected)" ]
+        [ spec:constraint "Reproducibility verified on 5+ independent builds" ]
+    ) .
+
+:Principle_Monitoring a spec:DesignPrinciple ;
+    rdfs:label "Continuous Monitoring" ;
+    rdfs:comment "Real-time visibility into build performance with automated regression detection" ;
+    spec:description "SLO dashboard, regression alerts, trend analysis, per-crate tracking" ;
+    spec:rationale "Prevent performance regression by detecting changes immediately" ;
+    spec:implications (
+        [ spec:implication "Grafana dashboard showing build SLOs" ]
+        [ spec:implication "Slack/Email alerts for >10% regressions" ]
+        [ spec:implication "Root cause analysis automation" ]
+        [ spec:implication "SLO enforcement in CI/CD pipeline" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraint "Alert latency <5 minutes from regression detection" ]
+        [ spec:constraint "False positive rate <5%" ]
+        [ spec:constraint "Dashboard uptime >99.5%" ]
+    ) .
+
+# ============================================================================
+# ARCHITECTURAL DECISIONS (ADRs)
+# ============================================================================
+
+:Decision_CodegenUnits a spec:ArchitecturalDecision ;
+    rdfs:label "ADR-001: Codegen Units Strategy" ;
+    spec:status "DECIDED" ;
+    spec:date "2026-01-26"^^xsd:date ;
+    spec:context "Codegen units determine how LLVM parallelizes code generation. Default (16) is slow; max (256) is fast but less optimized." ;
+    spec:decision "Dev: codegen-units=256 (speed), Release: codegen-units=1 (optimization), Check: codegen-units=256 (speed)" ;
+    spec:rationale "Trade-off: dev builds need speed more than optimization; release builds can afford time for optimization" ;
+    spec:consequences (
+        [ spec:consequence "Dev builds 20-30% faster" ]
+        [ spec:consequence "Release binaries 10-15% larger due to less inlining" ]
+        [ spec:consequence "Explicit control over speed vs. size tradeoff" ]
+    ) ;
+    spec:alternatives (
+        [ spec:alternative "Codegen-units=1 everywhere: too slow for dev, improves nothing for release" ]
+        [ spec:alternative "Adaptive based on profile: more complex, diminishing returns" ]
+    ) ;
+    spec:implementation "Cargo.toml [profile.dev], [profile.opt], [profile.release]" .
+
+:Decision_LinkerChoice a spec:ArchitecturalDecision ;
+    rdfs:label "ADR-002: Linker Selection" ;
+    spec:status "DECIDED" ;
+    date "2026-01-26"^^xsd:date ;
+    spec:context "Default GNU ld linker is slow for large link times. Alternatives: LLD (fast), mold (very fast but newer)" ;
+    spec:decision "Prefer mold linker (if available on OS); fallback to LLD; fallback to GNU ld" ;
+    spec:rationale "mold is 2-4x faster than GNU ld; LLD is 1.5-2x faster; GNU ld is reliable baseline" ;
+    spec:consequences (
+        [ spec:consequence "Linking 2-4x faster (40s → 10s for large workspaces)" ]
+        [ spec:consequence "Mold only available on Linux; macOS/Windows use LLD/GNU ld" ]
+        [ spec:consequence "Slight link-time variation by platform" ]
+    ) ;
+    spec:alternatives (
+        [ spec:alternative "GNU ld only: simple, compatible, but slow" ]
+        [ spec:alternative "Force mold everywhere: breaks on non-Linux" ]
+    ) ;
+    spec:implementation ".cargo/config.toml [build] rustflags = '-C link-arg=-fuse-ld=mold'" .
+
+:Decision_CacheBackend a spec:ArchitecturalDecision ;
+    rdfs:label "ADR-003: Distributed Cache Backend" ;
+    spec:status "DECIDED" ;
+    spec:date "2026-01-26"^^xsd:date ;
+    spec:context "Distributed caching can be S3 (cloud), Redis (in-memory), or local-only. Trade-off: cost, latency, complexity" ;
+    spec:decision "Phase 1: Local sccache, Phase 3: S3 backend (with Redis as alternative)" ;
+    spec:rationale "Local cache quick to implement; S3 provides team-wide sharing; Redis alternative for self-hosted" ;
+    spec:consequences (
+        [ spec:consequence "Phase 1-2: local caching only (15-person team bottleneck)" ]
+        [ spec:consequence "Phase 3: distributed caching enables >70% hit rate" ]
+        [ spec:consequence "S3 costs ~$10/month for typical usage" ]
+    ) ;
+    spec:alternatives (
+        [ spec:alternative "Only local caching: limits CI parallelism benefit" ]
+        [ spec:alternative "Redis from start: operational overhead, stateful service" ]
+        [ spec:alternative "Bazel remote execution: major architecture change, overkill" ]
+    ) ;
+    spec:implementation "sccache_s3_bucket=ggen-build-cache, sccache_s3_region=us-west-2" .
+
+:Decision_MetricsStorage a spec:ArchitecturalDecision ;
+    rdfs:label "ADR-004: Metrics Storage System" ;
+    spec:status "DECIDED" ;
+    spec:date "2026-01-26"^^xsd:date ;
+    spec:context "Need to store 1000+ metrics/day for 12+ months. Options: InfluxDB, Prometheus, TimescaleDB" ;
+    spec:decision "InfluxDB for metrics storage + Grafana for visualization" ;
+    spec:rationale "InfluxDB optimized for time-series; native Grafana integration; cost-effective" ;
+    spec:consequences (
+        [ spec:consequence "12-month retention = ~400K metric samples" ]
+        [ spec:consequence "Real-time dashboards possible" ]
+        [ spec:consequence "Retention policy: keep 12 months, archive to S3 after" ]
+    ) ;
+    spec:alternatives (
+        [ spec:alternative "Prometheus: designed for instance monitoring, less ideal for trend analysis" ]
+        [ spec:alternative "TimescaleDB: adds PostgreSQL complexity" ]
+        [ spec:alternative "CSV export: no real-time, manual analysis burden" ]
+    ) ;
+    spec:implementation "InfluxDB v2 Cloud or self-hosted; retention 12 months" .
+
+:Decision_SloEnforcement a spec:ArchitecturalDecision ;
+    rdfs:label "ADR-005: SLO Enforcement Strategy" ;
+    spec:status "DECIDED" ;
+    spec:date "2026-01-26"^^xsd:date ;
+    spec:context "SLOs should be enforced in CI/CD. Options: soft alerts, hard blocks, feedback-only" ;
+    spec:decision "Hard SLO enforcement: CI fails if build time > 15s or tests > 30s" ;
+    spec:rationale "Soft enforcement ignored; hard blocks prevent regression"; ;
+    spec:consequences (
+        [ spec:consequence "Developers cannot merge code that violates SLOs" ]
+        [ spec:consequence "Forces optimization work before merge" ]
+        [ spec:consequence "May occasionally block legitimate changes (requires override)" ]
+    ) ;
+    spec:alternatives (
+        [ spec:alternative "Soft alerts only: developers ignore regressions" ]
+        [ spec:alternative "Feedback dashboard: passive, doesn't prevent merges" ]
+        [ spec:alternative "Weighted SLO enforcement: allows some overages" ]
+    ) ;
+    spec:implementation "CI script checks build time; fails job if threshold exceeded" .
+
+# ============================================================================
+# SYSTEM COMPONENTS & INTEGRATION POINTS
+# ============================================================================
+
+:CargoConfigLayer a spec:Component ;
+    rdfs:label "Cargo Configuration Layer" ;
+    rdfs:comment "Cargo.toml and .cargo/config.toml optimization settings" ;
+    spec:componentId "COMP-001" ;
+    spec:responsibilities (
+        [ spec:responsibility "Define build profiles (dev, opt, release)" ]
+        [ spec:responsibility "Configure linker choice and RUSTFLAGS" ]
+        [ spec:responsibility "Manage dependency versions and features" ]
+    ) ;
+    spec:interfaces (
+        [ spec:interface "Input: Cargo.toml manifest" ]
+        [ spec:interface "Output: compiled binaries and artifacts" ]
+    ) ;
+    spec:dependencies (
+        [ spec:dependency "Rust compiler (stable toolchain)" ]
+        [ spec:dependency "Linker (mold/LLD/GNU ld)" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraint "Profiles must be valid Cargo syntax" ]
+        [ spec:constraint "RUSTFLAGS must be compatible with compiler version" ]
+    ) .
+
+:BenchmarkCollectionLayer a spec:Component ;
+    rdfs:label "Benchmark Collection Layer" ;
+    rdfs:comment "Criterion.rs benchmarking and metrics collection" ;
+    spec:componentId "COMP-002" ;
+    spec:responsibilities (
+        [ spec:responsibility "Run benchmarks on every commit in CI" ]
+        [ spec:responsibility "Collect build time, memory, CPU metrics" ]
+        [ spec:responsibility "Store results in InfluxDB" ]
+    ) ;
+    spec:interfaces (
+        [ spec:interface "Input: cargo build command execution" ]
+        [ spec:interface "Output: JSON metrics to InfluxDB" ]
+    ) ;
+    spec:dependencies (
+        [ spec:dependency "Criterion.rs framework" ]
+        [ spec:dependency "InfluxDB instance" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraint "Measurement overhead <5% of build time" ]
+        [ spec:constraint "Metrics collected on every build (0% sampling)" ]
+    ) .
+
+:CacheLayer a spec:Component ;
+    rdfs:label "Cache Layer" ;
+    rdfs:comment "sccache and artifact caching infrastructure" ;
+    spec:componentId "COMP-003" ;
+    spec:responsibilities (
+        [ spec:responsibility "Cache compiler units (sccache)" ]
+        [ spec:responsibility "Cache build artifacts between CI runs" ]
+        [ spec:responsibility "Monitor cache hit/miss rates" ]
+    ) ;
+    spec:interfaces (
+        [ spec:interface "Input: compilation requests" ]
+        [ spec:interface "Output: cached compilation units or fresh compilations" ]
+    ) ;
+    spec:dependencies (
+        [ spec:dependency "sccache server (local/S3/Redis)" ]
+        [ spec:dependency "Cache backend (S3 or Redis)" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraint "Cache hit rate target 70%+" ]
+        [ spec:constraint "Cache size bounded <100GB" ]
+        [ spec:constraint "No false cache hits" ]
+    ) .
+
+:TestExecutionLayer a spec:Component ;
+    rdfs:label "Test Execution Layer" ;
+    rdfs:comment "Parallel test execution with isolation" ;
+    spec:componentId "COMP-004" ;
+    spec:responsibilities (
+        [ spec:responsibility "Execute 347 tests in parallel with --test-threads=auto" ]
+        [ spec:responsibility "Isolate integration tests via CARGO_TARGET_DIR" ]
+        [ spec:responsibility "Verify zero race conditions" ]
+    ) ;
+    spec:interfaces (
+        [ spec:interface "Input: cargo test command" ]
+        [ spec:interface "Output: test results JSON, timing data" ]
+    ) ;
+    spec:dependencies (
+        [ spec:dependency "Cargo test runner" ]
+        [ spec:dependency "Isolation mechanism (CARGO_TARGET_DIR)" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraint "All tests pass deterministically" ]
+        [ spec:constraint "No flakiness (0% variance)" ]
+        [ spec:constraint "Parallelism safe (no state sharing)" ]
+    ) .
+
+:MonitoringLayer a spec:Component ;
+    rdfs:label "Monitoring & Alerting Layer" ;
+    rdfs:comment "Real-time metrics, dashboards, and regression detection" ;
+    spec:componentId "COMP-005" ;
+    spec:responsibilities (
+        [ spec:responsibility "Display Grafana SLO dashboard" ]
+        [ spec:responsibility "Detect regressions >10%" ]
+        [ spec:responsibility "Send alerts to Slack/Email" ]
+    ) ;
+    spec:interfaces (
+        [ spec:interface "Input: metrics from InfluxDB" ]
+        [ spec:interface "Output: alerts, dashboard updates" ]
+    ) ;
+    spec:dependencies (
+        [ spec:dependency "Grafana instance" ]
+        [ spec:dependency "InfluxDB data source" ]
+        [ spec:dependency "Slack/Email integration" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraint "Alert latency <5 minutes" ]
+        [ spec:constraint "Dashboard uptime >99.5%" ]
+        [ spec:constraint "False positive rate <5%" ]
+    ) .
+
+:DeterminismLayer a spec:Component ;
+    rdfs:label "Determinism & Verification Layer" ;
+    rdfs:comment "Ensure reproducible builds and artifact verification" ;
+    spec:componentId "COMP-006" ;
+    spec:responsibilities (
+        [ spec:responsibility "Generate SHA-256 hashes of binaries" ]
+        [ spec:responsibility "Verify reproducibility across builds" ]
+        [ spec:responsibility "Strip non-deterministic data" ]
+    ) ;
+    spec:interfaces (
+        [ spec:interface "Input: binary artifacts" ]
+        [ spec:interface "Output: SHA-256 hashes, verification reports" ]
+    ) ;
+    spec:dependencies (
+        [ spec:dependency "Cargo.lock for deterministic deps" ]
+        [ spec:dependency "--remap-path-prefix compiler flag" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraint "100% reproducibility on same Rust version" ]
+        [ spec:constraint "Hash verification in CI" ]
+    ) .
+
+# ============================================================================
+# CONFIGURATION & SETUP
+# ============================================================================
+
+:StandardCargoTomlConfig a spec:ConfigurationTemplate ;
+    rdfs:label "Standard Cargo.toml Configuration" ;
+    rdfs:comment "Template for optimized workspace Cargo.toml" ;
+    spec:configContent """
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[profile.dev]
+opt-level = 0
+debug = true
+codegen-units = 256
+lto = false
+incremental = true
+
+[profile.opt]
+inherits = "release"
+opt-level = 2
+codegen-units = 16
+lto = "thin"
+
+[profile.release]
+opt-level = 3
+codegen-units = 1
+lto = "fat"
+strip = true
+split-debuginfo = "packed"
+panic = "abort"
+
+[profile.test]
+opt-level = 1
+debug = true
+codegen-units = 256
+""" ;
+    spec:purpose "Enable fast dev builds while optimizing release binaries" .
+
+:CargoConfigFile a spec:ConfigurationTemplate ;
+    rdfs:label ".cargo/config.toml Configuration" ;
+    rdfs:comment "Per-workspace Cargo configuration for tools and linker" ;
+    spec:configContent """
+[build]
+jobs = 8
+target-dir = "target"
+
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+[profile.dev]
+split-debuginfo = "packed"
+
+[alias]
+check-fast = "check --profile dev"
+build-fast = "build --profile dev"
+build-opt = "build --profile opt"
+""" ;
+    spec:purpose "Configure linker and compiler settings for all platforms" .
+
+:SccacheEnvironment a spec:ConfigurationTemplate ;
+    rdfs:label "sccache Environment Variables" ;
+    rdfs:comment "Environment setup for distributed caching" ;
+    spec:configContent """
+# Phase 1-2: Local caching
+export SCCACHE_CACHE_SIZE="10G"
+export SCCACHE_DIR="$HOME/.cache/sccache"
+export RUSTC_WRAPPER="sccache"
+
+# Phase 3: Distributed caching (S3)
+export SCCACHE_S3_SERVER_SIDE_ENCRYPTION="true"
+export SCCACHE_S3_NO_CREDENTIALS="false"
+export AWS_ACCESS_KEY_ID="<AWS_KEY>"
+export AWS_SECRET_ACCESS_KEY="<AWS_SECRET>"
+export SCCACHE_BUCKET="ggen-build-cache"
+export SCCACHE_S3_REGION="us-west-2"
+""" ;
+    spec:purpose "Enable distributed compiler caching via sccache" .
+
+# ============================================================================
+# VALIDATION RULES & CONSTRAINTS
+# ============================================================================
+
+:BuildTimeConstraints a spec:ConstraintSet ;
+    rdfs:label "Build Time Constraints" ;
+    rdfs:comment "Enforced build time SLOs" ;
+    spec:constraints (
+        [ spec:constraintName "FirstBuildTime"; spec:rule "targetTime <= 15 seconds"; spec:priority "CRITICAL" ]
+        [ spec:constraintName "IncrementalBuildTime"; spec:rule "targetTime <= 2 seconds"; spec:priority "CRITICAL" ]
+        [ spec:constraintName "CheckTime"; spec:rule "targetTime <= 5 seconds"; spec:priority "HIGH" ]
+        [ spec:constraintName "TestTime"; spec:rule "targetTime <= 30 seconds"; spec:priority "CRITICAL" ]
+        [ spec:constraintName "LintTime"; spec:rule "targetTime <= 60 seconds"; spec:priority "HIGH" ]
+    ) ;
+    spec:enforcementLevel "HARD" ;
+    spec:enforcementPoint "CI/CD pipeline" .
+
+:DependencyConstraints a spec:ConstraintSet ;
+    rdfs:label "Dependency Constraints" ;
+    rdfs:comment "Constraints on dependency management" ;
+    spec:constraints (
+        [ spec:constraintName "NoDuplicateVersions"; spec:rule "Each dependency appears at most once in workspace"; spec:priority "HIGH" ]
+        [ spec:constraintName "MinimalTransitiveDeps"; spec:rule "Transitive dependencies should be <20% of total"; spec:priority "MEDIUM" ]
+        [ spec:constraintName "NoUnusedDeps"; spec:rule "All declared dependencies are used"; spec:priority "HIGH" ]
+        [ spec:constraintName "VulnerabilityCheck"; spec:rule "No dependencies with unpatched CVEs"; spec:priority "CRITICAL" ]
+    ) ;
+    spec:enforcementLevel "HARD" ;
+    spec:enforcementPoint "CI/CD pre-merge check" .
+
+:CacheConstraints a spec:ConstraintSet ;
+    rdfs:label "Cache Constraints" ;
+    rdfs:comment "Cache correctness and performance constraints" ;
+    spec:constraints (
+        [ spec:constraintName "ZeroFalseCacheHits"; spec:rule "Cached output must be identical to fresh compilation"; spec:priority "CRITICAL" ]
+        [ spec:constraintName "CacheInvalidation"; spec:rule "Cache invalidated on Cargo.lock or profile changes"; spec:priority "HIGH" ]
+        [ spec:constraintName "MinimumHitRate"; spec:rule "Cache hit rate >= 70% on CI"; spec:priority "HIGH" ]
+        [ spec:constraintName "BoundedCacheSize"; spec:rule "Cache size < 100GB"; spec:priority "MEDIUM" ]
+    ) ;
+    spec:enforcementLevel "HARD" ;
+    spec:enforcementPoint "Cache layer validation" .
+
+:DeterminismConstraints a spec:ConstraintSet ;
+    rdfs:label "Determinism Constraints" ;
+    rdfs:comment "Constraints ensuring reproducible builds" ;
+    spec:constraints (
+        [ spec:constraintName "ByteForByteReproducibility"; spec:rule "Identical inputs = identical binaries (100% hash match)"; spec:priority "CRITICAL" ]
+        [ spec:constraintName "NoTimestampsInBinary"; spec:rule "Binary contains no timestamps or host-specific paths"; spec:priority "HIGH" ]
+        [ spec:constraintName "NoRandomness"; spec:rule "No PRNG output or UUIDs in generated artifacts"; spec:priority "HIGH" ]
+        [ spec:constraintName "LockFileDeterminism"; spec:rule "Cargo.lock ensures identical dependency resolution"; spec:priority "CRITICAL" ]
+    ) ;
+    spec:enforcementLevel "HARD" ;
+    spec:enforcementPoint "Release build verification" .
+
+:TestConstraints a spec:ConstraintSet ;
+    rdfs:label "Test Execution Constraints" ;
+    rdfs:comment "Constraints on test parallelism and determinism" ;
+    spec:constraints (
+        [ spec:constraintName "ZeroFlakiness"; spec:rule "All tests pass 100% of time under parallelism"; spec:priority "CRITICAL" ]
+        [ spec:constraintName "IsolationGuarantee"; spec:rule "Tests use isolated state (no global mutable state)"; spec:priority "HIGH" ]
+        [ spec:constraintName "DeterministicOrdering"; spec:rule "Tests deterministic when ordering matters"; spec:priority "HIGH" ]
+        [ spec:constraintName "TimeoutCompliance"; spec:rule "All tests complete within timeout"; spec:priority "HIGH" ]
+    ) ;
+    spec:enforcementLevel "HARD" ;
+    spec:enforcementPoint "CI/CD test phase" .
+
+# ============================================================================
+# QUALITY ATTRIBUTES & METRICS
+# ============================================================================
+
+:PerformanceQualityAttribute a spec:QualityAttribute ;
+    rdfs:label "Performance" ;
+    rdfs:comment "Build system must meet speed targets" ;
+    spec:measurableGoal "3-5x speedup (120s → 15-40s)" ;
+    spec:measurementMethod "Criterion.rs benchmarking + CI metrics collection" ;
+    spec:acceptanceCriteria "First build ≤15s, incremental ≤2s, tests ≤30s" ;
+    spec:priority "CRITICAL" ;
+    spec:relatedMetrics (
+        "FirstBuildTime", "IncrementalBuildTime", "TestExecutionTime", "LintTime"
+    ) .
+
+:ReproducibilityQualityAttribute a spec:QualityAttribute ;
+    rdfs:label "Reproducibility" ;
+    rdfs:comment "Builds produce identical outputs from identical inputs" ;
+    spec:measurableGoal "100% deterministic outputs" ;
+    spec:measurementMethod "SHA-256 hash verification across 5+ builds" ;
+    spec:acceptanceCriteria "All builds produce identical binary hash" ;
+    spec:priority "HIGH" ;
+    spec:relatedMetrics (
+        "BinaryHashConsistency", "DeterminismScore"
+    ) .
+
+:ObservabilityQualityAttribute a spec:QualityAttribute ;
+    rdfs:label "Observability" ;
+    rdfs:comment "Build performance visible and monitorable in real-time" ;
+    spec:measurableGoal "Real-time SLO dashboard with <5min alert latency" ;
+    spec:measurementMethod "Grafana dashboard + InfluxDB metrics" ;
+    spec:acceptanceCriteria "Dashboard operational, alerts working, 99.5% uptime" ;
+    spec:priority "HIGH" ;
+    spec:relatedMetrics (
+        "DashboardUptime", "AlertLatency", "MetricsFreshness"
+    ) .
+
+:MaintainabilityQualityAttribute a spec:QualityAttribute ;
+    rdfs:label "Maintainability" ;
+    rdfs:comment "Build system easily understood and maintained by team" ;
+    spec:measurableGoal "Clear documentation, runbooks, and procedures" ;
+    spec:measurementMethod "Documentation completeness review" ;
+    spec:acceptanceCriteria "20+ page guide, quick-start, troubleshooting guide" ;
+    spec:priority "MEDIUM" ;
+    spec:relatedMetrics (
+        "DocumentationCompleteness", "RunbookCoverage"
+    ) .
+
+# ============================================================================
+# DEPLOYMENT & ROLLOUT STRATEGY
+# ============================================================================
+
+:RolloutStrategy a spec:DeploymentStrategy ;
+    rdfs:label "Rollout Strategy" ;
+    rdfs:comment "Phased rollout of optimizations to production" ;
+    spec:rolloutApproach "Staged: Phase 1-5 sequential with validation at each stage" ;
+    spec:phases (
+        [ spec:phase 1; spec:description "Foundation & profiling"; spec:duration "2 weeks"; spec:riskLevel "LOW" ]
+        [ spec:phase 2; spec:description "Parallelization"; spec:duration "2 weeks"; spec:riskLevel "MEDIUM" ]
+        [ spec:phase 3; spec:description "Caching"; spec:duration "2.5 weeks"; spec:riskLevel "MEDIUM" ]
+        [ spec:phase 4; spec:description "Monitoring"; spec:duration "2 weeks"; spec:riskLevel "LOW" ]
+        [ spec:phase 5; spec:description "Refinement"; spec:duration "1 week"; spec:riskLevel "LOW" ]
+    ) ;
+    spec:rollbackStrategy "Revert Cargo.toml and build configs to previous version if regressions detected" ;
+    spec:successCriteria (
+        [ spec:criterion "First build time ≤15 seconds consistently" ]
+        [ spec:criterion "No performance regression on any crate" ]
+        [ spec:criterion "All tests pass deterministically" ]
+        [ spec:criterion "Monitoring dashboard operational" ]
+    ) .
+
+# ============================================================================
+# RISK ANALYSIS & MITIGATION
+# ============================================================================
+
+:RiskAnalysis a spec:RiskManagement ;
+    rdfs:label "Risk Analysis and Mitigation" ;
+    rdfs:comment "Identified risks and mitigation strategies" ;
+    spec:risks (
+        [
+            spec:riskId "RISK-001" ;
+            spec:riskDescription "Linker optimization (mold) unavailable on non-Linux systems" ;
+            spec:probability "HIGH" ;
+            spec:impact "MEDIUM" ;
+            spec:severity "MEDIUM" ;
+            spec:mitigation "Fallback to LLD, then GNU ld with platform detection in .cargo/config.toml"
+        ]
+        [
+            spec:riskId "RISK-002" ;
+            spec:riskDescription "Cache invalidation bug causes false cache hits" ;
+            spec:probability "MEDIUM" ;
+            spec:impact "CRITICAL" ;
+            spec:severity "CRITICAL" ;
+            spec:mitigation "Implement cache validation tests; SHA-256 verification before cache use"
+        ]
+        [
+            spec:riskId "RISK-003" ;
+            spec:riskDescription "Test race conditions under heavy parallelism" ;
+            spec:probability "MEDIUM" ;
+            spec:impact "HIGH" ;
+            spec:severity "HIGH" ;
+            spec:mitigation "Run test suite 50+ times with max parallelism; use ThreadSanitizer"
+        ]
+        [
+            spec:riskId "RISK-004" ;
+            spec:riskDescription "Cargo updates introduce regressions in future versions" ;
+            spec:probability "MEDIUM" ;
+            spec:impact "MEDIUM" ;
+            spec:severity "MEDIUM" ;
+            spec:mitigation "Continuous regression monitoring; SLO alerts; pin Cargo version if needed"
+        ]
+        [
+            spec:riskId "RISK-005" ;
+            spec:riskDescription "S3/Redis cache outage breaks CI/CD" ;
+            spec:probability "LOW" ;
+            spec:impact "HIGH" ;
+            spec:severity "MEDIUM" ;
+            spec:mitigation "Fallback to local cache; cache graceful degradation; redundancy"
+        ]
+    ) .
+
+# ============================================================================
+# SUCCESS METRICS & KPIs
+# ============================================================================
+
+:SuccessMetrics a spec:MetricsDefinition ;
+    rdfs:label "Success Metrics" ;
+    rdfs:comment "Metrics to measure Epic 9 success" ;
+    spec:primaryMetrics (
+        [
+            spec:metricName "FirstBuildTime" ;
+            spec:currentValue 120.0 ;
+            spec:targetValue 15.0 ;
+            spec:unit "seconds" ;
+            spec:weight 0.25 ;
+            spec:slo_threshold 15.0 ;
+            spec:alert_threshold 16.5
+        ]
+        [
+            spec:metricName "IncrementalBuildTime" ;
+            spec:currentValue 10.0 ;
+            spec:targetValue 2.0 ;
+            spec:unit "seconds" ;
+            spec:weight 0.25 ;
+            spec:slo_threshold 2.0 ;
+            spec:alert_threshold 2.2
+        ]
+        [
+            spec:metricName "TestExecutionTime" ;
+            spec:currentValue 150.0 ;
+            spec:targetValue 30.0 ;
+            spec:unit "seconds" ;
+            spec:weight 0.15 ;
+            spec:slo_threshold 30.0 ;
+            spec:alert_threshold 33.0
+        ]
+        [
+            spec:metricName "LintExecutionTime" ;
+            spec:currentValue 120.0 ;
+            spec:targetValue 60.0 ;
+            spec:unit "seconds" ;
+            spec:weight 0.10 ;
+            spec:slo_threshold 60.0 ;
+            spec:alert_threshold 66.0
+        ]
+        [
+            spec:metricName "CacheHitRate" ;
+            spec:currentValue 0.0 ;
+            spec:targetValue 0.70 ;
+            spec:unit "ratio" ;
+            spec:weight 0.10 ;
+            spec:slo_threshold 0.70 ;
+            spec:alert_threshold 0.60
+        ]
+        [
+            spec:metricName "BinaryReproducibilityScore" ;
+            spec:currentValue 0.0 ;
+            spec:targetValue 1.0 ;
+            spec:unit "ratio" ;
+            spec:weight 0.10 ;
+            spec:slo_threshold 1.0 ;
+            spec:alert_threshold 0.95
+        ]
+    ) ;
+    spec:calculationFrequency "Continuous (per build)" ;
+    spec:reportingFrequency "Daily/Weekly/Monthly" .
+
+# ============================================================================
+# INTEGRATION WITH EXISTING SYSTEMS
+# ============================================================================
+
+:GgenCoreIntegration a spec:IntegrationPoint ;
+    rdfs:label "Integration with ggen-core" ;
+    rdfs:comment "Build optimization impacts ggen-core RDF/SPARQL processing" ;
+    spec:integrationType "BUILD_DEPENDENCY" ;
+    spec:affectedComponents "ggen-core RDF parser, SPARQL engine, template renderer" ;
+    spec:constraints (
+        [ spec:constraint "RDF processing must stay <5s for 1000+ triples (SLO target)" ]
+        [ spec:constraint "No changes to ggen-core API or behavior" ]
+        [ spec:constraint "Deterministic output verification required" ]
+    ) ;
+    spec:validationApproach "Performance benchmarks, determinism tests" .
+
+:CIIntegration a spec:IntegrationPoint ;
+    rdfs:label "Integration with CI/CD Pipeline" ;
+    rdfs:comment "Build optimizations must integrate with existing .github/workflows" ;
+    spec:integrationType "WORKFLOW_DEPENDENCY" ;
+    spec:affectedWorkflows "ci.yml, andon-validation.yml, performance.yml" ;
+    spec:constraints (
+        [ spec:constraint "SLO enforcement in all CI checks" ]
+        [ spec:constraint "Backward compatible with existing workflows" ]
+        [ spec:constraint "No breaking changes to CI/CD behavior" ]
+    ) ;
+    spec:validationApproach "CI dry-run, workflow validation" .
+
+# ============================================================================
+# END OF ARCHITECTURE SPECIFICATION
+# ============================================================================

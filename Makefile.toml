@@ -1668,3 +1668,163 @@ echo ""
 echo "Build Time SLO Check:"
 timeout 60s cargo bench --bench slo_tracking 2>&1 | grep -i "receipt" || echo "Check complete"
 '''
+
+# ============================================================================
+# Comprehensive Benchmarking System (New SLO Tracking Suite)
+# ============================================================================
+
+[tasks.bench-core-slo]
+description = "Run core SLO framework benchmarks (baseline metrics collection)"
+workspace = false
+command = "timeout"
+args = ["120s", "cargo", "bench", "--bench", "core_slo_framework", "--"]
+
+[tasks.bench-detailed-build]
+description = "Detailed build metrics and profiling analysis"
+workspace = false
+command = "timeout"
+args = ["240s", "cargo", "bench", "--bench", "detailed_build_metrics", "--"]
+
+[tasks.bench-test-execution]
+description = "Test execution performance and parallelism analysis"
+workspace = false
+command = "timeout"
+args = ["180s", "cargo", "bench", "--bench", "test_execution_benchmarks", "--"]
+
+[tasks.bench-comprehensive]
+description = "Comprehensive performance suite (all critical paths)"
+workspace = false
+command = "timeout"
+args = ["300s", "cargo", "bench", "--bench", "comprehensive_performance_suite", "--"]
+
+[tasks.slo-track]
+description = "Real-time SLO compliance tracking and collection"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")"
+echo "[INFO] Running comprehensive SLO tracking system..."
+bash ./scripts/slo_tracking_system.sh
+echo ""
+echo "[✓] SLO tracking complete - results in .metrics/results/"
+'''
+
+[tasks.slo-detect-regression]
+description = "Detect performance regressions against historical baselines"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")"
+echo "[INFO] Running regression detection system..."
+bash ./scripts/regression_detection.sh
+echo ""
+echo "[✓] Regression detection complete"
+'''
+
+[tasks.slo-dashboard]
+description = "Generate interactive HTML benchmark dashboard"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")"
+echo "[INFO] Generating benchmark dashboard..."
+bash ./scripts/benchmark_dashboard_generator.sh
+echo ""
+echo "[✓] Dashboard generated: .metrics/benchmark_dashboard.html"
+'''
+
+[tasks.benchmark-full]
+description = "Complete benchmarking pipeline (measure + detect + visualize)"
+workspace = false
+dependencies = [
+    "bench-core-slo",
+    "bench-detailed-build",
+    "bench-test-execution",
+    "slo-track",
+    "slo-detect-regression",
+    "slo-dashboard"
+]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+echo ""
+echo "==============================================================="
+echo "  Comprehensive Benchmarking Complete"
+echo "==============================================================="
+echo ""
+echo "📊 Results stored in: .metrics/"
+echo "   - Measurements: .metrics/results/"
+echo "   - Baselines: .metrics/baselines/"
+echo "   - Dashboard: .metrics/benchmark_dashboard.html"
+echo ""
+echo "Next steps:"
+echo "  1. Review dashboard: open .metrics/benchmark_dashboard.html"
+echo "  2. Check regressions: cat .metrics/regression_report_*.txt"
+echo "  3. View metrics: ls -la .metrics/results/"
+echo ""
+'''
+
+[tasks.quick-perf]
+description = "Quick performance check (SLO check + core benchmarks)"
+workspace = false
+dependencies = ["bench-core-slo", "slo-track"]
+
+[tasks.monitor-perf]
+description = "Continuous performance monitoring (watch mode)"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "[INFO] Starting continuous performance monitoring..."
+echo "       (Press Ctrl+C to stop)"
+echo ""
+
+while true; do
+    echo "[$(date '+%H:%M:%S')] Running SLO checks..."
+    bash ./scripts/slo_tracking_system.sh 2>&1 | tail -20
+    echo ""
+    echo "Sleeping 5 minutes before next check..."
+    sleep 300
+done
+'''
+
+[tasks.benchmark-export]
+description = "Export benchmark results to JSON for analysis"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+EXPORT_FILE=".metrics/export_$(date +%Y%m%d_%H%M%S).json"
+
+echo "[INFO] Exporting benchmark results to: $EXPORT_FILE"
+
+# Collect all results into JSON
+{
+    echo "{"
+    echo '  "export_timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",'
+    echo '  "results": ['
+
+    # Include all result files
+    find .metrics/results -name "*.txt" -type f | sort | while read file; do
+        echo "    {"
+        cat "$file" | sed 's/^/      /'
+        echo "    },"
+    done | sed '$ s/,$//'
+
+    echo "  ]"
+    echo "}"
+} | tee "$EXPORT_FILE"
+
+echo ""
+echo "[✓] Export complete"
+'''

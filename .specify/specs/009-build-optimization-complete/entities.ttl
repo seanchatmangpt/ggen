@@ -1,0 +1,570 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix bo: <https://ggen.dev/build-optimization/> .
+@prefix : <https://ggen.dev/spec/build-optimization-009/entities#> .
+
+# ============================================================================
+# BUILD OPTIMIZATION DOMAIN ENTITIES
+# ============================================================================
+# Complete domain model for build optimization initiative
+# 15+ core entities with 50+ properties and comprehensive relationships
+# ============================================================================
+
+# ============================================================================
+# ENTITY 1: BuildMetrics - Core performance measurement
+# ============================================================================
+
+:BuildMetrics a rdfs:Class ;
+    rdfs:label "Build Metrics" ;
+    rdfs:comment "Quantifiable measurements of build performance across all phases" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E001-BuildMetrics" ;
+    spec:cardinality "1..*" ;
+    spec:properties (
+        [ spec:propertyName "buildId"; spec:dataType xsd:string; spec:required true; spec:description "Unique identifier for build execution" ]
+        [ spec:propertyName "timestamp"; spec:dataType xsd:dateTime; spec:required true; spec:description "Build execution timestamp (ISO 8601)" ]
+        [ spec:propertyName "buildType"; spec:dataType xsd:string; spec:required true; spec:description "Type: 'clean', 'incremental', 'check', 'test', 'lint', 'release'" ]
+        [ spec:propertyName "totalTime"; spec:dataType xsd:decimal; spec:required true; spec:description "Total build duration in seconds" ]
+        [ spec:propertyName "compileTime"; spec:dataType xsd:decimal; spec:required true; spec:description "Compilation phase duration in seconds" ]
+        [ spec:propertyName "linkTime"; spec:dataType xsd:decimal; spec:required true; spec:description "Linking phase duration in seconds" ]
+        [ spec:propertyName "testTime"; spec:dataType xsd:decimal; spec:required true; spec:description "Test execution duration in seconds" ]
+        [ spec:propertyName "lintTime"; spec:dataType xsd:decimal; spec:required true; spec:description "Linting (clippy) duration in seconds" ]
+        [ spec:propertyName "cpuUtilization"; spec:dataType xsd:decimal; spec:required false; spec:description "Average CPU utilization percentage (0-100)" ]
+        [ spec:propertyName "peakMemory"; spec:dataType xsd:decimal; spec:required false; spec:description "Peak memory usage in MB" ]
+        [ spec:propertyName "committedHash"; spec:dataType xsd:string; spec:required true; spec:description "Git commit hash being built" ]
+        [ spec:propertyName "cratesCompiled"; spec:dataType xsd:integer; spec:required false; spec:description "Number of crates compiled in this build" ]
+        [ spec:propertyName "warningCount"; spec:dataType xsd:integer; spec:required false; spec:description "Number of compiler warnings (should be 0)" ]
+        [ spec:propertyName "errorCount"; spec:dataType xsd:integer; spec:required false; spec:description "Number of compilation errors" ]
+        [ spec:propertyName "sloStatus"; spec:dataType xsd:string; spec:required true; spec:description "SLO compliance: 'PASS', 'WARN', 'FAIL'" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraintName "TimeBoundary"; spec:rule "totalTime = compileTime + linkTime (approximately)" ]
+        [ spec:constraintName "CpuRange"; spec:rule "cpuUtilization between 0 and 100" ]
+        [ spec:constraintName "MemoryPositive"; spec:rule "peakMemory > 0" ]
+        [ spec:constraintName "SloMapping"; spec:rule "sloStatus = 'PASS' if totalTime <= SloTarget else 'FAIL'" ]
+        [ spec:constraintName "NoErrors"; spec:rule "errorCount = 0 (production constraint)" ]
+    ) ;
+    spec:validationRules (
+        [ spec:ruleName "TimesConsistent"; spec:type "TEMPORAL"; spec:description "Compile + link time should approximate total time" ]
+        [ spec:ruleName "UtilizationValid"; spec:type "RANGE"; spec:description "CPU utilization must be 0-100" ]
+        [ spec:ruleName "SloCompliance"; spec:type "SLO"; spec:description "Build must meet defined SLO targets" ]
+    ) .
+
+# ============================================================================
+# ENTITY 2: BuildProfile - Cargo profile configuration
+# ============================================================================
+
+:BuildProfile a rdfs:Class ;
+    rdfs:label "Build Profile" ;
+    rdfs:comment "Cargo build profile configuration (dev, opt, release)" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E002-BuildProfile" ;
+    spec:cardinality "1..3" ;
+    spec:properties (
+        [ spec:propertyName "profileName"; spec:dataType xsd:string; spec:required true; spec:description "Profile identifier: 'dev', 'opt', 'release'" ]
+        [ spec:propertyName "optLevel"; spec:dataType xsd:string; spec:required true; spec:description "Optimization level: '0', '1', '2', '3', 's', 'z'" ]
+        [ spec:propertyName "debugInfo"; spec:dataType xsd:boolean; spec:required true; spec:description "Include debug symbols" ]
+        [ spec:propertyName "lto"; spec:dataType xsd:string; spec:required true; spec:description "Link-time optimization: 'off', 'thin', 'fat', 'mono'" ]
+        [ spec:propertyName "codegenUnits"; spec:dataType xsd:integer; spec:required true; spec:description "Number of codegen units (1 = slowest/best optimization, 256 = fastest/less optimized)" ]
+        [ spec:propertyName "stripSymbols"; spec:dataType xsd:boolean; spec:required false; spec:description "Strip debug symbols from binary" ]
+        [ spec:propertyName "inherits"; spec:dataType xsd:string; spec:required false; spec:description "Inherits from base profile" ]
+        [ spec:propertyName "targetBuildTime"; spec:dataType xsd:decimal; spec:required true; spec:description "Target build time in seconds" ]
+        [ spec:propertyName "expectedBinarySize"; spec:dataType xsd:decimal; spec:required true; spec:description "Expected binary size in MB" ]
+        [ spec:propertyName "runtimePerformance"; spec:dataType xsd:string; spec:required false; spec:description "Expected relative runtime performance multiplier" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraintName "ValidOptLevel"; spec:rule "optLevel in ('0', '1', '2', '3', 's', 'z')" ]
+        [ spec:constraintName "ValidLto"; spec:rule "lto in ('off', 'thin', 'fat', 'mono')" ]
+        [ spec:constraintName "ValidCodegenUnits"; spec:rule "codegenUnits in (1, 2, 4, 8, 16, 32, 64, 128, 256)" ]
+        [ spec:constraintName "UniqueProfileName"; spec:rule "Each workspace has only one profile per profileName" ]
+        [ spec:constraintName "PositiveTimes"; spec:rule "targetBuildTime > 0 and expectedBinarySize > 0" ]
+    ) ;
+    spec:validationRules (
+        [ spec:ruleName "OptLevelMapping"; spec:type "ENUMERATION"; spec:description "Opt level must be valid Rust profile option" ]
+        [ spec:ruleName "ProfileBalance"; spec:type "BUSINESS"; spec:description "Balance speed vs safety based on profile intent" ]
+    ) .
+
+# ============================================================================
+# ENTITY 3: DependencyMetadata - Dependency information
+# ============================================================================
+
+:DependencyMetadata a rdfs:Class ;
+    rdfs:label "Dependency Metadata" ;
+    rdfs:comment "Information about crate dependencies affecting build time" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E003-DependencyMetadata" ;
+    spec:cardinality "1..*" ;
+    spec:properties (
+        [ spec:propertyName "dependencyId"; spec:dataType xsd:string; spec:required true; spec:description "Crate name:version identifier" ]
+        [ spec:propertyName "crateName"; spec:dataType xsd:string; spec:required true; spec:description "Crate name from crates.io" ]
+        [ spec:propertyName "version"; spec:dataType xsd:string; spec:required true; spec:description "Semantic version (e.g., 0.5.1)" ]
+        [ spec:propertyName "isTransitive"; spec:dataType xsd:boolean; spec:required true; spec:description "True if transitive dependency, false if direct" ]
+        [ spec:propertyName "isBuildDependency"; spec:dataType xsd:boolean; spec:required true; spec:description "True if only needed at build time" ]
+        [ spec:propertyName "isOptional"; spec:dataType xsd:boolean; spec:required true; spec:description "True if optional dependency" ]
+        [ spec:propertyName "compilationTime"; spec:dataType xsd:decimal; spec:required false; spec:description "Typical compilation time in seconds" ]
+        [ spec:propertyName "binarySize"; spec:dataType xsd:decimal; spec:required false; spec:description "Contribution to binary size in KB" ]
+        [ spec:propertyName "vulnerabilities"; spec:dataType xsd:integer; spec:required false; spec:description "Number of known CVEs" ]
+        [ spec:propertyName "isUnused"; spec:dataType xsd:boolean; spec:required false; spec:description "True if identified as unused by cargo-udeps" ]
+        [ spec:propertyName "duplicateVersion"; spec:dataType xsd:string; spec:required false; spec:description "If duplicate, reference to preferred version" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraintName "UniqueDependency"; spec:rule "dependencyId (name:version) is unique in workspace" ]
+        [ spec:constraintName "VersionFormat"; spec:rule "version matches semantic versioning pattern" ]
+        [ spec:constraintName "PropertiesConsistent"; spec:rule "isBuildDependency and isOptional cannot both be false if unused" ]
+        [ spec:constraintName "VulnerabilitiesNonNegative"; spec:rule "vulnerabilities >= 0" ]
+    ) ;
+    spec:validationRules (
+        [ spec:ruleName "TransitiveDependencyCheck"; spec:type "GRAPH"; spec:description "Verify transitive dependency claims via dependency graph" ]
+        [ spec:ruleName "UnusedDependencyAudit"; spec:type "BUILD"; spec:description "Run cargo-udeps to verify unused status" ]
+        [ spec:ruleName "VulnerabilityTracking"; spec:type "SECURITY"; spec:description "Cross-check vulnerabilities with CVE database" ]
+    ) .
+
+# ============================================================================
+# ENTITY 4: CacheConfiguration - Caching strategy setup
+# ============================================================================
+
+:CacheConfiguration a rdfs:Class ;
+    rdfs:label "Cache Configuration" ;
+    rdfs:comment "Configuration for compiler and artifact caching" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E004-CacheConfiguration" ;
+    spec:cardinality "1..1" ;
+    spec:properties (
+        [ spec:propertyName "cacheBackend"; spec:dataType xsd:string; spec:required true; spec:description "Cache backend: 'local', 's3', 'redis', 'gcs'" ]
+        [ spec:propertyName "isSccacheEnabled"; spec:dataType xsd:boolean; spec:required true; spec:description "Enable distributed compiler caching" ]
+        [ spec:propertyName "sccacheServer"; spec:dataType xsd:string; spec:required false; spec:description "sccache server address (host:port or S3 bucket)" ]
+        [ spec:propertyName "targetHitRate"; spec:dataType xsd:decimal; spec:required true; spec:description "Target cache hit rate (0.0-1.0)" ]
+        [ spec:propertyName "cargoLockCommitted"; spec:dataType xsd:boolean; spec:required true; spec:description "Cargo.lock file committed to version control" ]
+        [ spec:propertyName "reproducibleBuilds"; spec:dataType xsd:boolean; spec:required true; spec:description "Ensure deterministic build outputs" ]
+        [ spec:propertyName "artifactRetention"; spec:dataType xsd:integer; spec:required true; spec:description "Artifact retention period in days" ]
+        [ spec:propertyName "maxCacheSize"; spec:dataType xsd:decimal; spec:required false; spec:description "Maximum cache size in GB" ]
+        [ spec:propertyName "evictionPolicy"; spec:dataType xsd:string; spec:required true; spec:description "Cache eviction policy: 'LRU', 'LFU', 'FIFO'" ]
+    ] ;
+    spec:constraints (
+        [ spec:constraintName "BackendValid"; spec:rule "cacheBackend in ('local', 's3', 'redis', 'gcs')" ]
+        [ spec:constraintName "HitRateValid"; spec:rule "targetHitRate between 0.0 and 1.0" ]
+        [ spec:constraintName "EvictionPolicyValid"; spec:rule "evictionPolicy in ('LRU', 'LFU', 'FIFO')" ]
+        [ spec:constraintName "SccacheConsistency"; spec:rule "If isSccacheEnabled = true, sccacheServer must be specified" ]
+        [ spec:constraintName "PositiveRetention"; spec:rule "artifactRetention > 0" ]
+    ) .
+
+# ============================================================================
+# ENTITY 5: SloDefinition - Service Level Objective definition
+# ============================================================================
+
+:SloDefinition a rdfs:Class ;
+    rdfs:label "SLO Definition" ;
+    rdfs:comment "Service Level Objective for build performance" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E005-SloDefinition" ;
+    spec:cardinality "1..*" ;
+    spec:properties (
+        [ spec:propertyName "sloId"; spec:dataType xsd:string; spec:required true; spec:description "Unique SLO identifier" ]
+        [ spec:propertyName "metricName"; spec:dataType xsd:string; spec:required true; spec:description "Metric name: 'FirstBuild', 'IncrementalBuild', 'TestExecution', 'LintExecution'" ]
+        [ spec:propertyName "targetValue"; spec:dataType xsd:decimal; spec:required true; spec:description "Target metric value" ]
+        [ spec:propertyName "unit"; spec:dataType xsd:string; spec:required true; spec:description "Unit: 'seconds', 'milliseconds', 'MB', 'percent'" ]
+        [ spec:propertyName "operator"; spec:dataType xsd:string; spec:required true; spec:description "Comparison operator: 'LTE', 'LT', 'EQ', 'GTE', 'GT'" ]
+        [ spec:propertyName "weight"; spec:dataType xsd:decimal; spec:required true; spec:description "Relative importance weight (0.0-1.0)" ]
+        [ spec:propertyName "alertThreshold"; spec:dataType xsd:decimal; spec:required true; spec:description "Threshold for regression alert (percent increase)" ]
+        [ spec:propertyName "successCriteria"; spec:dataType xsd:string; spec:required true; spec:description "Plain-language success criteria" ]
+        [ spec:propertyName "warningLevel"; spec:dataType xsd:decimal; spec:required false; spec:description "Warning threshold (e.g., 80% of target)" ]
+    ] ;
+    spec:constraints (
+        [ spec:constraintName "ValidOperator"; spec:rule "operator in ('LTE', 'LT', 'EQ', 'GTE', 'GT')" ]
+        [ spec:constraintName "ValidUnit"; spec:rule "unit in ('seconds', 'milliseconds', 'MB', 'percent', 'count')" ]
+        [ spec:constraintName "WeightRange"; spec:rule "weight between 0.0 and 1.0" ]
+        [ spec:constraintName "PositiveTarget"; spec:rule "targetValue > 0" ]
+        [ spec:constraintName "AlertThresholdPositive"; spec:rule "alertThreshold > 0" ]
+    ] ;
+    spec:validationRules (
+        [ spec:ruleName "MetricNameValid"; spec:type "ENUMERATION"; spec:description "Metric names must be standardized" ]
+        [ spec:ruleName "WeightsSum"; spec:type "AGGREGATE"; spec:description "Sum of weights should be close to 1.0 for all SLOs" ]
+    ] .
+
+# ============================================================================
+# ENTITY 6: TestSuite - Test execution configuration
+# ============================================================================
+
+:TestSuite a rdfs:Class ;
+    rdfs:label "Test Suite" ;
+    rdfs:comment "Test suite configuration and execution settings" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E006-TestSuite" ;
+    spec:cardinality "1..*" ;
+    spec:properties (
+        [ spec:propertyName "suiteId"; spec:dataType xsd:string; spec:required true; spec:description "Test suite identifier" ]
+        [ spec:propertyName "suiteName"; spec:dataType xsd:string; spec:required true; spec:description "Human-readable suite name" ]
+        [ spec:propertyName "suiteType"; spec:dataType xsd:string; spec:required true; spec:description "Type: 'unit', 'integration', 'bdd', 'property', 'doc'" ]
+        [ spec:propertyName "testCount"; spec:dataType xsd:integer; spec:required true; spec:description "Number of tests in suite" ]
+        [ spec:propertyName "expectedDuration"; spec:dataType xsd:decimal; spec:required true; spec:description "Expected execution time in seconds" ]
+        [ spec:propertyName "parallelizable"; spec:dataType xsd:boolean; spec:required true; spec:description "Can tests run in parallel" ]
+        [ spec:propertyName "isolationLevel"; spec:dataType xsd:string; spec:required true; spec:description "Test isolation: 'process', 'thread', 'state'" ]
+        [ spec:propertyName "orderDependency"; spec:dataType xsd:boolean; spec:required true; spec:description "Tests have ordering dependencies" ]
+        [ spec:propertyName "timeoutSeconds"; spec:dataType xsd:decimal; spec:required true; spec:description "Test suite timeout in seconds" ]
+        [ spec:propertyName "flakinessPct"; spec:dataType xsd:decimal; spec:required false; spec:description "Historical flakiness percentage" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraintName "ValidSuiteType"; spec:rule "suiteType in ('unit', 'integration', 'bdd', 'property', 'doc')" ]
+        [ spec:constraintName "ValidIsolationLevel"; spec:rule "isolationLevel in ('process', 'thread', 'state')" ]
+        [ spec:constraintName "PositiveTestCount"; spec:rule "testCount > 0" ]
+        [ spec:constraintName "PositiveDuration"; spec:rule "expectedDuration > 0" ]
+        [ spec:constraintName "FlakinessRange"; spec:rule "flakinessPct between 0 and 100" ]
+        [ spec:constraintName "ParallelConsistency"; spec:rule "If parallelizable = false, isolationLevel can be anything; if true, must be 'process' or 'state'" ]
+    ] ;
+    spec:validationRules (
+        [ spec:ruleName "TimeoutSufficiency"; spec:type "BUSINESS"; spec:description "Timeout should be at least 1.5x expected duration" ]
+        [ spec:ruleName "FlakinessTracking"; spec:type "QUALITY"; spec:description "Track flakiness over time, flag high-flakiness suites" ]
+    ] .
+
+# ============================================================================
+# ENTITY 7: RegressionAlert - Build time regression detection
+# ============================================================================
+
+:RegressionAlert a rdfs:Class ;
+    rdfs:label "Regression Alert" ;
+    rdfs:comment "Record of build time regression detection and response" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E007-RegressionAlert" ;
+    spec:cardinality "0..*" ;
+    spec:properties (
+        [ spec:propertyName "alertId"; spec:dataType xsd:string; spec:required true; spec:description "Unique alert identifier" ]
+        [ spec:propertyName "commitHash"; spec:dataType xsd:string; spec:required true; spec:description "Commit that triggered alert" ]
+        [ spec:propertyName "alertTime"; spec:dataType xsd:dateTime; spec:required true; spec:description "When alert was triggered" ]
+        [ spec:propertyName "metricName"; spec:dataType xsd:string; spec:required true; spec:description "Which metric regressed" ]
+        [ spec:propertyName "baselineValue"; spec:dataType xsd:decimal; spec:required true; spec:description "Previous metric value" ]
+        [ spec:propertyName "observedValue"; spec:dataType xsd:decimal; spec:required true; spec:description "Current (regressed) value" ]
+        [ spec:propertyName "regressionPct"; spec:dataType xsd:decimal; spec:required true; spec:description "Percent increase (e.g., 15.5)" ]
+        [ spec:propertyName "severity"; spec:dataType xsd:string; spec:required true; spec:description "Severity: 'LOW' (<10%), 'MEDIUM' (10-25%), 'HIGH' (>25%)" ]
+        [ spec:propertyName "rootCauseAnalysis"; spec:dataType xsd:string; spec:required false; spec:description "Identified root cause of regression" ]
+        [ spec:propertyName "fixCommitHash"; spec:dataType xsd:string; spec:required false; spec:description "Commit that fixed the regression" ]
+        [ spec:propertyName "status"; spec:dataType xsd:string; spec:required true; spec:description "Status: 'OPEN', 'IN_PROGRESS', 'RESOLVED'" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraintName "ValidSeverity"; spec:rule "severity in ('LOW', 'MEDIUM', 'HIGH')" ]
+        [ spec:constraintName "ValidStatus"; spec:rule "status in ('OPEN', 'IN_PROGRESS', 'RESOLVED')" ]
+        [ spec:constraintName "PositiveRegression"; spec:rule "regressionPct > 0" ]
+        [ spec:constraintName "ObservedGreaterThanBaseline"; spec:rule "observedValue > baselineValue" ]
+    ] ;
+    spec:validationRules (
+        [ spec:ruleName "SeverityCalculation"; spec:type "FORMULA"; spec:description "Severity determined by (observedValue - baselineValue) / baselineValue * 100" ]
+        [ spec:ruleName "FixVerification"; spec:type "TEMPORAL"; spec:description "If status = RESOLVED, fixCommitHash must be specified and verified" ]
+    ] .
+
+# ============================================================================
+# ENTITY 8: ImplementationPhase - Epic phase definition
+# ============================================================================
+
+:ImplementationPhase a rdfs:Class ;
+    rdfs:label "Implementation Phase" ;
+    rdfs:comment "Major phase of the build optimization initiative" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E008-ImplementationPhase" ;
+    spec:cardinality "1..5" ;
+    spec:properties (
+        [ spec:propertyName "phaseNumber"; spec:dataType xsd:integer; spec:required true; spec:description "Phase sequence (1-5)" ]
+        [ spec:propertyName "phaseName"; spec:dataType xsd:string; spec:required true; spec:description "Phase name" ]
+        [ spec:propertyName "phaseDescription"; spec:dataType xsd:string; spec:required true; spec:description "Detailed description of phase objectives" ]
+        [ spec:propertyName "plannedStartDate"; spec:dataType xsd:date; spec:required true; spec:description "Planned phase start date" ]
+        [ spec:propertyName "plannedEndDate"; spec:dataType xsd:date; spec:required true; spec:description "Planned phase end date" ]
+        [ spec:propertyName "estimatedEffort"; spec:dataType xsd:integer; spec:required true; spec:description "Estimated effort in hours" ]
+        [ spec:propertyName "taskCount"; spec:dataType xsd:integer; spec:required true; spec:description "Number of tasks in phase" ]
+        [ spec:propertyName "expectedImpact"; spec:dataType xsd:decimal; spec:required true; spec:description "Expected speedup factor (e.g., 1.5 = 50% improvement)" ]
+        [ spec:propertyName "riskLevel"; spec:dataType xsd:string; spec:required true; spec:description "Risk level: 'LOW', 'MEDIUM', 'HIGH'" ]
+    ] ;
+    spec:constraints (
+        [ spec:constraintName "ValidPhaseNumber"; spec:rule "phaseNumber between 1 and 5" ]
+        [ spec:constraintName "ValidRiskLevel"; spec:rule "riskLevel in ('LOW', 'MEDIUM', 'HIGH')" ]
+        [ spec:constraintName "DateOrdering"; spec:rule "plannedStartDate < plannedEndDate" ]
+        [ spec:constraintName "PositiveEffort"; spec:rule "estimatedEffort > 0" ]
+        [ spec:constraintName "PositiveTaskCount"; spec:rule "taskCount > 0" ]
+        [ spec:constraintName "ImpactGreaterThanOne"; spec:rule "expectedImpact >= 1.0" ]
+    ] ;
+    spec:validationRules (
+        [ spec:ruleName "DateRealism"; spec:type "BUSINESS"; spec:description "Phase duration should be proportional to effort and task count" ]
+        [ spec:ruleName "CumulativeImpact"; spec:type "AGGREGATE"; spec:description "Sum of phase impacts should approach overall 3-5x target" ]
+    ] .
+
+# ============================================================================
+# ENTITY 9: CompilationOptimization - Individual compilation optimization
+# ============================================================================
+
+:CompilationOptimization a rdfs:Class ;
+    rdfs:label "Compilation Optimization" ;
+    rdfs:comment "Specific compilation optimization technique applied" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E009-CompilationOptimization" ;
+    spec:cardinality "1..*" ;
+    spec:properties (
+        [ spec:propertyName "optimizationId"; spec:dataType xsd:string; spec:required true; spec:description "Unique optimization identifier" ]
+        [ spec:propertyName "optimizationName"; spec:dataType xsd:string; spec:required true; spec:description "Human-readable name" ]
+        [ spec:propertyName "description"; spec:dataType xsd:string; spec:required true; spec:description "Detailed explanation of optimization" ]
+        [ spec:propertyName "category"; spec:dataType xsd:string; spec:required true; spec:description "Category: 'codegen', 'parallelism', 'dependency', 'profile', 'cache'" ]
+        [ spec:propertyName "expectedSpeedup"; spec:dataType xsd:decimal; spec:required true; spec:description "Expected speedup factor (e.g., 1.3 = 30% improvement)" ]
+        [ spec:propertyName "effortHours"; spec:dataType xsd:integer; spec:required true; spec:description "Estimated implementation effort in hours" ]
+        [ spec:propertyName "complexityLevel"; spec:dataType xsd:string; spec:required true; spec:description "Complexity: 'LOW', 'MEDIUM', 'HIGH'" ]
+        [ spec:propertyName "riskLevel"; spec:dataType xsd:string; spec:required true; spec:description "Risk: 'LOW', 'MEDIUM', 'HIGH'" ]
+        [ spec:propertyName "prerequisiteOptimizations"; spec:dataType xsd:string; spec:required false; spec:description "Comma-separated IDs of prerequisite optimizations" ]
+        [ spec:propertyName "mutuallyExclusive"; spec:dataType xsd:string; spec:required false; spec:description "Comma-separated IDs of mutually exclusive optimizations" ]
+    ] ;
+    spec:constraints (
+        [ spec:constraintName "ValidCategory"; spec:rule "category in ('codegen', 'parallelism', 'dependency', 'profile', 'cache')" ]
+        [ spec:constraintName "ValidComplexity"; spec:rule "complexityLevel in ('LOW', 'MEDIUM', 'HIGH')" ]
+        [ spec:constraintName "ValidRisk"; spec:rule "riskLevel in ('LOW', 'MEDIUM', 'HIGH')" ]
+        [ spec:constraintName "PositiveSpeedup"; spec:rule "expectedSpeedup >= 1.0" ]
+        [ spec:constraintName "PositiveEffort"; spec:rule "effortHours > 0" ]
+    ] ;
+    spec:validationRules (
+        [ spec:ruleName "PrerequisiteVerification"; spec:type "GRAPH"; spec:description "Verify all prerequisite optimizations are defined entities" ]
+        [ spec:ruleName "NoCircularDependencies"; spec:type "GRAPH"; spec:description "Prerequisite relationships must be acyclic" ]
+        [ spec:ruleName "MutualExclusivityVerification"; spec:type "BIDIRECTIONAL"; spec:description "If A exclusive with B, then B exclusive with A" ]
+    ] .
+
+# ============================================================================
+# ENTITY 10: PerformanceBenchmark - Benchmark suite definition
+# ============================================================================
+
+:PerformanceBenchmark a rdfs:Class ;
+    rdfs:label "Performance Benchmark" ;
+    rdfs:comment "Automated performance benchmark for tracking metrics" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E010-PerformanceBenchmark" ;
+    spec:cardinality "1..*" ;
+    spec:properties (
+        [ spec:propertyName "benchmarkId"; spec:dataType xsd:string; spec:required true; spec:description "Unique benchmark identifier" ]
+        [ spec:propertyName "benchmarkName"; spec:dataType xsd:string; spec:required true; spec:description "Human-readable name" ]
+        [ spec:propertyName "benchmarkType"; spec:dataType xsd:string; spec:required true; spec:description "Type: 'build', 'test', 'lint', 'rdf', 'memory'" ]
+        [ spec:propertyName "metricName"; spec:dataType xsd:string; spec:required true; spec:description "Which metric is measured" ]
+        [ spec:propertyName "unit"; spec:dataType xsd:string; spec:required true; spec:description "Unit of measurement" ]
+        [ spec:propertyName "warmupIterations"; spec:dataType xsd:integer; spec:required true; spec:description "Number of warmup runs before measurement" ]
+        [ spec:propertyName "measurementIterations"; spec:dataType xsd:integer; spec:required true; spec:description "Number of measurement iterations" ]
+        [ spec:propertyName "timeoutSeconds"; spec:dataType xsd:decimal; spec:required true; spec:description "Timeout per benchmark iteration" ]
+        [ spec:propertyName "enabled"; spec:dataType xsd:boolean; spec:required true; spec:description "Is benchmark currently enabled" ]
+    ) ;
+    spec:constraints (
+        [ spec:constraintName "ValidBenchmarkType"; spec:rule "benchmarkType in ('build', 'test', 'lint', 'rdf', 'memory')" ]
+        [ spec:constraintName "PositiveIterations"; spec:rule "warmupIterations > 0 and measurementIterations > 0" ]
+        [ spec:constraintName "PositiveTimeout"; spec:rule "timeoutSeconds > 0" ]
+    ] ;
+    spec:validationRules (
+        [ spec:ruleName "IterationAppropriateness"; spec:type "HEURISTIC"; spec:description "Too many iterations can make benchmark slow; consider runtime vs accuracy" ]
+        [ spec:ruleName "TimeoutSufficiency"; spec:type "BUSINESS"; spec:description "Timeout should accommodate slowest expected iteration" ]
+    ] .
+
+# ============================================================================
+# ENTITY 11: CargoTomlConfiguration - Workspace Cargo.toml settings
+# ============================================================================
+
+:CargoTomlConfiguration a rdfs:Class ;
+    rdfs:label "Cargo.toml Configuration" ;
+    rdfs:comment "Workspace-level Cargo.toml configuration for build optimization" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E011-CargoTomlConfiguration" ;
+    spec:cardinality "1..1" ;
+    spec:properties (
+        [ spec:propertyName "resolverVersion"; spec:dataType xsd:string; spec:required true; spec:description "Resolver version: '1' or '2'" ]
+        [ spec:propertyName "splitDebugInfo"; spec:dataType xsd:boolean; spec:required true; spec:description "Split debug info into separate files" ]
+        [ spec:propertyName "stripSymbols"; spec:dataType xsd:boolean; spec:required false; spec:description "Strip symbols in release builds" ]
+        [ spec:propertyName "incremental"; spec:dataType xsd:boolean; spec:required true; spec:description "Enable incremental compilation" ]
+        [ spec:propertyName "parallelFrontend"; spec:dataType xsd:boolean; spec:required true; spec:description "Enable parallel frontend compilation" ]
+        [ spec:propertyName "cargoLockCommitted"; spec:dataType xsd:boolean; spec:required true; spec:description "Cargo.lock committed to version control" ]
+        [ spec:propertyName "defaultRustflags"; spec:dataType xsd:string; spec:required false; spec:description "Default RUSTFLAGS environment variable" ]
+    ] ;
+    spec:constraints (
+        [ spec:constraintName "ValidResolver"; spec:rule "resolverVersion in ('1', '2')" ]
+    ] ;
+    spec:validationRules (
+        [ spec:ruleName "IncrementalDefault"; spec:type "BEST_PRACTICE"; spec:description "Incremental should be true for dev builds" ]
+        [ spec:ruleName "CargoLockRequired"; spec:type "REQUIREMENT"; spec:description "Cargo.lock must be committed for deterministic builds" ]
+    ] .
+
+# ============================================================================
+# ENTITY 12: ReleaseBuildArtifact - Generated binary artifact
+# ============================================================================
+
+:ReleaseBuildArtifact a rdfs:Class ;
+    rdfs:label "Release Build Artifact" ;
+    rdfs:comment "Reproducible release binary artifact with hash verification" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E012-ReleaseBuildArtifact" ;
+    spec:cardinality "0..*" ;
+    spec:properties (
+        [ spec:propertyName "artifactId"; spec:dataType xsd:string; spec:required true; spec:description "Unique artifact identifier (commit_hash)" ]
+        [ spec:propertyName "binaryName"; spec:dataType xsd:string; spec:required true; spec:description "Binary executable name" ]
+        [ spec:propertyName "buildDate"; spec:dataType xsd:dateTime; spec:required true; spec:description "Build execution timestamp" ]
+        [ spec:propertyName "fileSizeBytes"; spec:dataType xsd:integer; spec:required true; spec:description "Binary file size in bytes" ]
+        [ spec:propertyName "sha256Hash"; spec:dataType xsd:string; spec:required true; spec:description "SHA-256 content hash" ]
+        [ spec:propertyName "reproducible"; spec:dataType xsd:boolean; spec:required true; spec:description "Verified to be byte-for-byte reproducible" ]
+        [ spec:propertyName "strippedSymbols"; spec:dataType xsd:boolean; spec:required true; spec:description "Symbols stripped from binary" ]
+        [ spec:propertyName "rustVersion"; spec:dataType xsd:string; spec:required true; spec:description "Rust compiler version used" ]
+        [ spec:propertyName "platform"; spec:dataType xsd:string; spec:required true; spec:description "Target platform (x86_64-unknown-linux-gnu, etc.)" ]
+    ] ;
+    spec:constraints (
+        [ spec:constraintName "ValidHash"; spec:rule "sha256Hash matches pattern [0-9a-f]{64}" ]
+        [ spec:constraintName "PositiveFileSize"; spec:rule "fileSizeBytes > 0" ]
+    ] ;
+    spec:validationRules (
+        [ spec:ruleName "HashVerification"; spec:type "CRYPTOGRAPHIC"; spec:description "SHA-256 hash computed and verified against actual file" ]
+        [ spec:ruleName "ReproducibilityVerification"; spec:type "PROCESS"; spec:description "If reproducible=true, binary must match 5+ independent builds" ]
+    ] .
+
+# ============================================================================
+# ENTITY 13: ImplementationTask - Individual work task
+# ============================================================================
+
+:ImplementationTask a rdfs:Class ;
+    rdfs:label "Implementation Task" ;
+    rdfs:comment "Individual task within implementation phase" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E013-ImplementationTask" ;
+    spec:cardinality "1..*" ;
+    spec:properties (
+        [ spec:propertyName "taskId"; spec:dataType xsd:string; spec:required true; spec:description "Unique task identifier (PHASE-TASK format)" ]
+        [ spec:propertyName "taskName"; spec:dataType xsd:string; spec:required true; spec:description "Task name" ]
+        [ spec:propertyName "description"; spec:dataType xsd:string; spec:required true; spec:description "Detailed task description" ]
+        [ spec:propertyName "phaseNumber"; spec:dataType xsd:integer; spec:required true; spec:description "Phase number (1-5)" ]
+        [ spec:propertyName "estimatedHours"; spec:dataType xsd:integer; spec:required true; spec:description "Estimated effort in hours" ]
+        [ spec:propertyName "acceptanceCriteria"; spec:dataType xsd:string; spec:required true; spec:description "Acceptance criteria (comma-separated)" ]
+        [ spec:propertyName "dependsOn"; spec:dataType xsd:string; spec:required false; spec:description "Comma-separated task IDs this task depends on" ]
+        [ spec:propertyName "status"; spec:dataType xsd:string; spec:required true; spec:description "Status: 'TODO', 'IN_PROGRESS', 'COMPLETE'" ]
+    ] ;
+    spec:constraints (
+        [ spec:constraintName "ValidPhaseNumber"; spec:rule "phaseNumber between 1 and 5" ]
+        [ spec:constraintName "ValidStatus"; spec:rule "status in ('TODO', 'IN_PROGRESS', 'COMPLETE')" ]
+        [ spec:constraintName "PositiveHours"; spec:rule "estimatedHours > 0" ]
+    ] ;
+    spec:validationRules (
+        [ spec:ruleName "TaskIdFormat"; spec:type "FORMAT"; spec:description "Task ID must match PHASE-TASK pattern (e.g., 1-A, 2-B)" ]
+        [ spec:ruleName "DependencyVerification"; spec:type "GRAPH"; spec:description "All dependencies must reference valid task IDs" ]
+        [ spec:ruleName "NoCycles"; spec:type "GRAPH"; spec:description "Dependency graph must be acyclic" ]
+    ] .
+
+# ============================================================================
+# ENTITY 14: MetricsAggregation - Summary metrics across time period
+# ============================================================================
+
+:MetricsAggregation a rdfs:Class ;
+    rdfs:label "Metrics Aggregation" ;
+    rdfs:comment "Aggregated metrics over time period for trend analysis" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E014-MetricsAggregation" ;
+    spec:cardinality "0..*" ;
+    spec:properties (
+        [ spec:propertyName "aggregationId"; spec:dataType xsd:string; spec:required true; spec:description "Unique aggregation ID (date-metric)" ]
+        [ spec:propertyName "aggregationDate"; spec:dataType xsd:date; spec:required true; spec:description "Date of aggregation" ]
+        [ spec:propertyName "metricName"; spec:dataType xsd:string; spec:required true; spec:description "Which metric aggregated" ]
+        [ spec:propertyName "sampleCount"; spec:dataType xsd:integer; spec:required true; spec:description "Number of samples in aggregation" ]
+        [ spec:propertyName "minValue"; spec:dataType xsd:decimal; spec:required true; spec:description "Minimum value" ]
+        [ spec:propertyName "maxValue"; spec:dataType xsd:decimal; spec:required true; spec:description "Maximum value" ]
+        [ spec:propertyName "avgValue"; spec:dataType xsd:decimal; spec:required true; spec:description "Average value" ]
+        [ spec:propertyName "medianValue"; spec:dataType xsd:decimal; spec:required true; spec:description "Median value" ]
+        [ spec:propertyName "p95Value"; spec:dataType xsd:decimal; spec:required false; spec:description "95th percentile value" ]
+        [ spec:propertyName "p99Value"; spec:dataType xsd:decimal; spec:required false; spec:description "99th percentile value" ]
+    ] ;
+    spec:constraints (
+        [ spec:constraintName "ValueOrdering"; spec:rule "minValue <= avgValue <= maxValue and minValue <= medianValue <= maxValue" ]
+        [ spec:constraintName "PercentileOrdering"; spec:rule "if p95Value exists: avgValue <= p95Value <= maxValue; if p99Value exists: p95Value <= p99Value <= maxValue" ]
+        [ spec:constraintName "PositiveSampleCount"; spec:rule "sampleCount > 0" ]
+    ] ;
+    spec:validationRules (
+        [ spec:ruleName "StatisticalValidity"; spec:type "STATISTICAL"; spec:description "Verify calculations with independent computation" ]
+        [ spec:ruleName "TrendConsistency"; spec:type "TEMPORAL"; spec:description "Trends should be monotonic or explain anomalies" ]
+    ] .
+
+# ============================================================================
+# ENTITY 15: ClosureVerificationRecord - Specification coverage tracking
+# ============================================================================
+
+:ClosureVerificationRecord a rdfs:Class ;
+    rdfs:label "Closure Verification Record" ;
+    rdfs:comment "Tracks specification coverage and 100% closure achievement" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:entityId "E015-ClosureVerificationRecord" ;
+    spec:cardinality "1..1" ;
+    spec:properties (
+        [ spec:propertyName "recordId"; spec:dataType xsd:string; spec:required true; spec:description "Unique verification record ID" ]
+        [ spec:propertyName "verificationDate"; spec:dataType xsd:dateTime; spec:required true; spec:description "Date/time of verification" ]
+        [ spec:propertyName "totalEntities"; spec:dataType xsd:integer; spec:required true; spec:description "Total domain entities defined" ]
+        [ spec:propertyName "totalProperties"; spec:dataType xsd:integer; spec:required true; spec:description "Total properties across entities" ]
+        [ spec:propertyName "totalRelationships"; spec:dataType xsd:integer; spec:required true; spec:description "Total relationships defined" ]
+        [ spec:propertyName "totalUserStories"; spec:dataType xsd:integer; spec:required true; spec:description "Total user stories in specification" ]
+        [ spec:propertyName "totalScenarios"; spec:dataType xsd:integer; spec:required true; spec:description "Total acceptance scenarios" ]
+        [ spec:propertyName "totalCriteria"; spec:dataType xsd:integer; spec:required true; spec:description "Total acceptance criteria" ]
+        [ spec:propertyName "closurePercentage"; spec:dataType xsd:decimal; spec:required true; spec:description "Coverage percentage (0.0-1.0)" ]
+        [ spec:propertyName "isComplete"; spec:dataType xsd:boolean; spec:required true; spec:description "Is specification 100% complete" ]
+    ] ;
+    spec:constraints (
+        [ spec:constraintName "ClosureRangeValid"; spec:rule "closurePercentage between 0.0 and 1.0" ]
+        [ spec:constraintName "CompleteConsistency"; spec:rule "If isComplete = true, closurePercentage must equal 1.0" ]
+        [ spec:constraintName "AllCountsPositive"; spec:rule "All counts > 0" ]
+    ] ;
+    spec:validationRules (
+        [ spec:ruleName "ClosureConsistency"; spec:type "AGGREGATE"; spec:description "Verify closure calculation: totalStories with scenarios + criteria / totalStories" ]
+        [ spec:ruleName "100PercentRequirement"; spec:type "REQUIREMENT"; spec:description "For completeness, must have 100% (1.0) closure" ]
+    ] .
+
+# ============================================================================
+# RELATIONSHIP DEFINITIONS
+# ============================================================================
+
+:buildMetrics_sloDefinition a rdf:Property ;
+    rdfs:label "conformsTo" ;
+    rdfs:comment "BuildMetrics conforms to SloDefinition" ;
+    rdfs:domain :BuildMetrics ;
+    rdfs:range :SloDefinition ;
+    spec:cardinality "1..1" .
+
+:implementationPhase_implementationTask a rdf:Property ;
+    rdfs:label "contains" ;
+    rdfs:comment "ImplementationPhase contains multiple ImplementationTasks" ;
+    rdfs:domain :ImplementationPhase ;
+    rdfs:range :ImplementationTask ;
+    spec:cardinality "1..*" .
+
+:buildProfile_cargoTomlConfiguration a rdf:Property ;
+    rdfs:label "configures" ;
+    rdfs:comment "BuildProfile is defined in CargoTomlConfiguration" ;
+    rdfs:domain :BuildProfile ;
+    rdfs:range :CargoTomlConfiguration ;
+    spec:cardinality "1..1" .
+
+:dependencyMetadata_buildMetrics a rdf:Property ;
+    rdfs:label "affectsPerformance" ;
+    rdfs:comment "Dependencies affect build metrics" ;
+    rdfs:domain :DependencyMetadata ;
+    rdfs:range :BuildMetrics ;
+    spec:cardinality "0..*" .
+
+:compilationOptimization_buildProfile a rdf:Property ;
+    rdfs:label "improves" ;
+    rdfs:comment "CompilationOptimization improves BuildProfile performance" ;
+    rdfs:domain :CompilationOptimization ;
+    rdfs:range :BuildProfile ;
+    spec:cardinality "1..*" .
+
+:performanceBenchmark_metricsAggregation a rdf:Property ;
+    rdfs:label "produces" ;
+    rdfs:comment "PerformanceBenchmark produces MetricsAggregation results" ;
+    rdfs:domain :PerformanceBenchmark ;
+    rdfs:range :MetricsAggregation ;
+    spec:cardinality "1..*" .
+
+:cacheConfiguration_buildMetrics a rdf:Property ;
+    rdfs:label "improves" ;
+    rdfs:comment "Cache configuration improves build metrics" ;
+    rdfs:domain :CacheConfiguration ;
+    rdfs:range :BuildMetrics ;
+    spec:cardinality "1..*" .
+
+:testSuite_buildMetrics a rdf:Property ;
+    rdfs:label "measured" ;
+    rdfs:comment "Test suite execution measured in build metrics" ;
+    rdfs:domain :TestSuite ;
+    rdfs:range :BuildMetrics ;
+    spec:cardinality "0..*" .
+
+# ============================================================================
+# END OF ENTITIES SPECIFICATION
+# ============================================================================

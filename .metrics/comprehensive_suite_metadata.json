@@ -1,0 +1,309 @@
+{
+  "suite_name": "comprehensive-benchmarking-suite",
+  "version": "1.0.0",
+  "description": "Comprehensive performance benchmarking and SLO tracking system for ggen",
+  "created": "2026-01-26T00:22:00Z",
+  "status": "active",
+  "maintainer": "ggen-performance-team",
+
+  "slo_targets": {
+    "first_build_seconds": 15,
+    "first_build_description": "Complete clean build from scratch",
+    "incremental_build_seconds": 2,
+    "incremental_build_description": "Single file change recompilation",
+    "release_build_seconds": 30,
+    "release_build_description": "Full release optimization build",
+    "test_build_seconds": 10,
+    "test_build_description": "Test compilation and setup",
+    "rdf_processing_seconds": 5,
+    "rdf_processing_description": "Processing 1k+ RDF triples",
+    "cli_scaffolding_seconds": 3,
+    "cli_scaffolding_description": "End-to-end CLI command execution",
+    "generation_memory_mb": 100,
+    "generation_memory_description": "Peak memory during code generation",
+    "binary_size_mb": 500,
+    "binary_size_description": "Stripped release binary size",
+    "full_test_suite_seconds": 30,
+    "full_test_suite_description": "Complete test suite execution",
+    "unit_tests_seconds": 10,
+    "unit_tests_description": "Unit tests only",
+    "integration_tests_seconds": 20,
+    "integration_tests_description": "Integration tests only"
+  },
+
+  "benchmark_files": {
+    "core_slo_framework": {
+      "file": "benches/core_slo_framework.rs",
+      "description": "Core SLO tracking and measurement framework",
+      "benchmarks": [
+        "tracker_creation",
+        "record_duration",
+        "record_memory",
+        "check_slo_violations",
+        "generate_report",
+        "collect_1k_measurements",
+        "collect_10k_measurements"
+      ]
+    },
+    "detailed_build_metrics": {
+      "file": "benches/detailed_build_metrics.rs",
+      "description": "Build time and compilation metrics",
+      "benchmarks": [
+        "cargo_check",
+        "cargo_build_debug",
+        "check_workspace",
+        "test_build"
+      ]
+    },
+    "test_execution_benchmarks": {
+      "file": "benches/test_execution_benchmarks.rs",
+      "description": "Test suite performance analysis",
+      "benchmarks": [
+        "unit_tests",
+        "parallel_tests",
+        "single_threaded_tests"
+      ]
+    },
+    "comprehensive_performance_suite": {
+      "file": "benches/comprehensive_performance_suite.rs",
+      "description": "Full performance benchmark suite covering all critical paths",
+      "benchmarks": [
+        "build_pipeline_benchmarks",
+        "test_suite_benchmarks",
+        "memory_efficiency_benchmarks",
+        "throughput_benchmarks",
+        "concurrent_operation_benchmarks",
+        "cache_locality_benchmarks",
+        "compiler_performance_benchmarks"
+      ]
+    },
+    "binary_size_analysis": {
+      "file": "benches/binary_size_analysis.rs",
+      "description": "Binary size optimization and dead code analysis",
+      "benchmarks": [
+        "binary_size_measurement",
+        "crate_size_breakdown",
+        "symbol_analysis",
+        "optimization_effectiveness"
+      ]
+    },
+    "memory_usage_benchmarks": {
+      "file": "benches/memory_usage_benchmarks.rs",
+      "description": "Memory allocation and profiling",
+      "benchmarks": [
+        "peak_memory_measurement",
+        "allocation_patterns",
+        "gc_impact_analysis"
+      ]
+    }
+  },
+
+  "monitoring_scripts": {
+    "slo_tracking_system": {
+      "file": "scripts/slo_tracking_system.sh",
+      "description": "Real-time SLO compliance tracking and verification",
+      "features": [
+        "First build time measurement",
+        "Incremental build tracking",
+        "Test execution timing",
+        "Binary size analysis",
+        "Memory usage monitoring",
+        "SLO violation detection",
+        "Result storage and reporting"
+      ]
+    },
+    "regression_detection": {
+      "file": "scripts/regression_detection.sh",
+      "description": "Performance regression detection against historical baselines",
+      "features": [
+        "Build time regression detection",
+        "Test execution regression detection",
+        "Binary size regression detection",
+        "Historical trend analysis",
+        "Baseline creation and management",
+        "Regression reporting"
+      ]
+    },
+    "benchmark_dashboard_generator": {
+      "file": "scripts/benchmark_dashboard_generator.sh",
+      "description": "Generate interactive HTML dashboard for visualization",
+      "features": [
+        "Metric cards visualization",
+        "Historical trend charts",
+        "SLO compliance table",
+        "Responsive design",
+        "Real-time updates",
+        "Export capabilities"
+      ]
+    },
+    "build_perf_monitor": {
+      "file": "scripts/build_perf_monitor.sh",
+      "description": "Real-time build performance monitoring",
+      "features": [
+        "Live build time tracking",
+        "Memory usage during build",
+        "Compilation unit analysis",
+        "Performance alerts"
+      ]
+    },
+    "memory_monitor": {
+      "file": "scripts/memory_monitor.sh",
+      "description": "Continuous memory usage monitoring",
+      "features": [
+        "Peak memory tracking",
+        "Allocation rate monitoring",
+        "Memory leak detection",
+        "Historical memory trends"
+      ]
+    }
+  },
+
+  "documentation": {
+    "benchmarking_guide": {
+      "file": "docs/BENCHMARKING_GUIDE.md",
+      "description": "Comprehensive guide to benchmarking system",
+      "sections": [
+        "Overview",
+        "SLO Targets",
+        "Quick Start",
+        "Benchmark Categories",
+        "Core SLO Framework",
+        "Monitoring and Trending",
+        "Dashboard and Visualization",
+        "CI/CD Integration",
+        "Performance Optimization Tips",
+        "Troubleshooting",
+        "Advanced Configuration",
+        "Storage and Archival"
+      ]
+    }
+  },
+
+  "data_storage": {
+    "metrics_directory": ".metrics",
+    "structure": {
+      "baselines": "Historical performance baselines for regression detection",
+      "results": "Recent benchmark result measurements",
+      "history": "Historical metrics and trends",
+      "benchmark_dashboard": "HTML dashboard for visualization"
+    },
+    "retention_policy": {
+      "results": "Keep last 30 days of measurements",
+      "history": "Keep last 90 days of historical data",
+      "baselines": "Keep indefinitely with version tracking"
+    }
+  },
+
+  "integration": {
+    "makefile_targets": [
+      "cargo make bench",
+      "cargo make slo-check",
+      "cargo make benchmark-full",
+      "cargo make quick-perf"
+    ],
+    "ci_cd": {
+      "github_actions": "Recommended CI/CD platform",
+      "triggers": [
+        "Pre-push validation",
+        "Pull request checks",
+        "Nightly full benchmarks",
+        "Performance regression detection"
+      ]
+    }
+  },
+
+  "performance_categories": {
+    "build_performance": {
+      "metrics": [
+        "first_build_time",
+        "incremental_build_time",
+        "release_build_time",
+        "test_build_time"
+      ],
+      "targets": "Optimize build times to meet SLO targets"
+    },
+    "runtime_performance": {
+      "metrics": [
+        "rdf_processing_time",
+        "cli_scaffolding_time",
+        "generation_memory_usage"
+      ],
+      "targets": "Ensure runtime operations meet performance targets"
+    },
+    "binary_metrics": {
+      "metrics": [
+        "binary_size_total",
+        "binary_size_by_crate",
+        "dead_code_percentage",
+        "symbol_table_size"
+      ],
+      "targets": "Optimize binary size and reduce overhead"
+    },
+    "test_performance": {
+      "metrics": [
+        "full_test_suite_time",
+        "unit_test_time",
+        "integration_test_time",
+        "test_parallelism_factor"
+      ],
+      "targets": "Fast feedback loops for developers"
+    },
+    "memory_efficiency": {
+      "metrics": [
+        "peak_memory_usage",
+        "memory_allocation_rate",
+        "gc_impact",
+        "memory_growth_trend"
+      ],
+      "targets": "Efficient resource utilization"
+    }
+  },
+
+  "benchmarking_workflow": {
+    "step_1_baseline": "Run benchmarks to establish baseline on stable branch",
+    "step_2_develop": "Make performance optimizations on feature branch",
+    "step_3_measure": "Re-run benchmarks to measure improvements",
+    "step_4_compare": "Compare against baseline to quantify gains",
+    "step_5_monitor": "Track metrics over time to detect regressions",
+    "step_6_alert": "Automatic alerts on SLO violations"
+  },
+
+  "health_checks": {
+    "metrics_collection": {
+      "enabled": true,
+      "frequency": "On-demand or scheduled",
+      "storage": ".metrics/results/"
+    },
+    "regression_detection": {
+      "enabled": true,
+      "threshold_percent": 10,
+      "storage": ".metrics/baselines/"
+    },
+    "dashboard_generation": {
+      "enabled": true,
+      "output": ".metrics/benchmark_dashboard.html",
+      "refresh_interval": "Manual or triggered"
+    }
+  },
+
+  "quick_reference": {
+    "collect_metrics": "bash scripts/slo_tracking_system.sh",
+    "detect_regressions": "bash scripts/regression_detection.sh",
+    "view_dashboard": "bash scripts/benchmark_dashboard_generator.sh && open .metrics/benchmark_dashboard.html",
+    "run_benchmarks": "cargo make bench",
+    "check_slos": "cargo make slo-check"
+  },
+
+  "tags": [
+    "benchmarking",
+    "performance",
+    "slo-tracking",
+    "regression-detection",
+    "build-optimization",
+    "memory-profiling",
+    "binary-size",
+    "test-performance",
+    "monitoring",
+    "dashboards"
+  ]
+}

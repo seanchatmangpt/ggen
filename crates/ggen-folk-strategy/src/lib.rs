@@ -3,7 +3,6 @@
 
 use ndarray::{Array1, Array2};
 use serde::{Deserialize, Serialize};
-use std::f64::consts::PI;
 use std::fmt;
 use thiserror::Error;
 

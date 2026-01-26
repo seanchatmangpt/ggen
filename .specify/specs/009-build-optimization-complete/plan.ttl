@@ -1,0 +1,936 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bo: <https://ggen.dev/build-optimization/> .
+@prefix : <https://ggen.dev/spec/build-optimization-009/plan#> .
+
+# ============================================================================
+# IMPLEMENTATION PLAN: Build Optimization EPIC 9 Phase 5
+# ============================================================================
+# 5 Phases, 60+ Tasks, 520+ hours of work
+# Phase 1: Foundation (20 tasks, 120 hours)
+# Phase 2: Parallelization (18 tasks, 100 hours)
+# Phase 3: Caching & Distribution (15 tasks, 80 hours)
+# Phase 4: Monitoring & Prevention (12 tasks, 60 hours)
+# Phase 5: Refinement & Documentation (8 tasks, 40 hours)
+# ============================================================================
+
+:ComprehensiveImplementationPlan a spec:Plan ;
+    rdfs:label "Build Optimization Implementation Plan (5 Phases)" ;
+    rdfs:comment "Comprehensive implementation roadmap with 60+ tasks and 520+ hours" ;
+    spec:planNumber "PLAN-009" ;
+    spec:totalPhases 5 ;
+    spec:totalTasks 73 ;
+    spec:totalEstimatedHours 520 ;
+    spec:planStartDate "2026-01-26"^^xsd:date ;
+    spec:planEndDate "2026-03-31"^^xsd:date ;
+    spec:targetDelivery "Production-ready build optimization with 3-5x improvement" ;
+    spec:phases (
+        :Phase1_Foundation
+        :Phase2_Parallelization
+        :Phase3_CachingDistribution
+        :Phase4_MonitoringPrevention
+        :Phase5_RefinementDocumentation
+    ) .
+
+# ============================================================================
+# PHASE 1: FOUNDATION (120 hours, 20 tasks)
+# ============================================================================
+# Establish baseline metrics, profile current builds, configure dependencies
+# ============================================================================
+
+:Phase1_Foundation a spec:ImplementationPhase ;
+    rdfs:label "Phase 1: Foundation & Baseline Metrics (120 hours)" ;
+    rdfs:comment "Establish baseline measurements and foundational optimizations" ;
+    spec:phaseNumber 1 ;
+    spec:phaseName "Foundation" ;
+    spec:plannedStartDate "2026-01-26"^^xsd:date ;
+    spec:plannedEndDate "2026-02-09"^^xsd:date ;
+    spec:estimatedEffort 120 ;
+    spec:taskCount 20 ;
+    spec:expectedImpact 1.8 ;
+    spec:riskLevel "LOW" ;
+    spec:tasks (
+        :Task_1_1 :Task_1_2 :Task_1_3 :Task_1_4 :Task_1_5
+        :Task_1_6 :Task_1_7 :Task_1_8 :Task_1_9 :Task_1_10
+        :Task_1_11 :Task_1_12 :Task_1_13 :Task_1_14 :Task_1_15
+        :Task_1_16 :Task_1_17 :Task_1_18 :Task_1_19 :Task_1_20
+    ) ;
+    spec:completionChecklist (
+        [ spec:checklistItem "Benchmark suite established and running"; spec:status "TODO" ]
+        [ spec:checklistItem "Baseline metrics collected for all build types"; spec:status "TODO" ]
+        [ spec:checklistItem "Dependencies audited and unused removed"; spec:status "TODO" ]
+        [ spec:checklistItem "Cargo profiles optimized (dev/opt/release)"; spec:status "TODO" ]
+        [ spec:checklistItem "Incremental compilation verified working"; spec:status "TODO" ]
+    ) .
+
+:Task_1_1 a spec:ImplementationTask ;
+    rdfs:label "1-A: Set up criterion benchmark framework" ;
+    spec:taskId "1-A" ;
+    spec:description "Configure Criterion.rs benchmarking for build time measurement" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "cargo make bench runs successfully; baseline metrics captured" ;
+    spec:dependsOn "" ;
+    spec:status "TODO" .
+
+:Task_1_2 a spec:ImplementationTask ;
+    rdfs:label "1-B: Create initial baseline metrics" ;
+    spec:taskId "1-B" ;
+    spec:description "Measure first clean build, incremental, test, lint times" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 8 ;
+    spec:acceptanceCriteria "Baseline recorded: 120s first build, 10s incremental, 150s tests, 120s lint" ;
+    spec:dependsOn "1-A" ;
+    spec:status "TODO" .
+
+:Task_1_3 a spec:ImplementationTask ;
+    rdfs:label "1-C: Run cargo-udeps dependency audit" ;
+    spec:taskId "1-C" ;
+    spec:description "Identify unused dependencies across 30 crates" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Report generated: 30+ unused dependencies identified" ;
+    spec:dependsOn "" ;
+    spec:status "TODO" .
+
+:Task_1_4 a spec:ImplementationTask ;
+    rdfs:label "1-D: Remove 30 unused dependencies" ;
+    spec:taskId "1-D" ;
+    spec:description "Remove identified unused dependencies from Cargo.toml files" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 10 ;
+    spec:acceptanceCriteria "All 30 dependencies removed; cargo check passes; no compilation errors" ;
+    spec:dependsOn "1-C" ;
+    spec:status "TODO" .
+
+:Task_1_5 a spec:ImplementationTask ;
+    rdfs:label "1-E: Consolidate duplicate dependencies" ;
+    spec:taskId "1-E" ;
+    spec:description "Identify and consolidate duplicate crate versions" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 8 ;
+    spec:acceptanceCriteria "Duplicate versions eliminated; cargo tree shows single version per crate" ;
+    spec:dependsOn "1-D" ;
+    spec:status "TODO" .
+
+:Task_1_6 a spec:ImplementationTask ;
+    rdfs:label "1-F: Configure Cargo.toml profiles" ;
+    spec:taskId "1-F" ;
+    spec:description "Set up dev, opt, and release profiles with appropriate settings" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "Profiles defined: dev (speed), opt (balance), release (optimization)" ;
+    spec:dependsOn "" ;
+    spec:status "TODO" .
+
+:Task_1_7 a spec:ImplementationTask ;
+    rdfs:label "1-G: Enable incremental compilation" ;
+    spec:taskId "1-G" ;
+    spec:description "Configure incremental=true in Cargo.toml for all profiles" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 2 ;
+    spec:acceptanceCriteria "Incremental compilation enabled and verified working" ;
+    spec:dependsOn "1-F" ;
+    spec:status "TODO" .
+
+:Task_1_8 a spec:ImplementationTask ;
+    rdfs:label "1-H: Configure split-debug-info for smaller binaries" ;
+    spec:taskId "1-H" ;
+    spec:description "Enable split debug info to reduce binary size" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Debug info split; binary size reduced by 20%; debugging still functional" ;
+    spec:dependsOn "1-F" ;
+    spec:status "TODO" .
+
+:Task_1_9 a spec:ImplementationTask ;
+    rdfs:label "1-I: Measure CPU utilization during builds" ;
+    spec:taskId "1-I" ;
+    spec:description "Profile current builds to measure CPU utilization" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "CPU utilization measured: current ~40%, target 85%+" ;
+    spec:dependsOn "1-B" ;
+    spec:status "TODO" .
+
+:Task_1_10 a spec:ImplementationTask ;
+    rdfs:label "1-J: Document baseline metrics and findings" ;
+    spec:taskId "1-J" ;
+    spec:description "Create comprehensive baseline report with 10+ metrics" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "Report documented: baseline metrics, optimization opportunities, risk analysis" ;
+    spec:dependsOn "1-B,1-I" ;
+    spec:status "TODO" .
+
+:Task_1_11 a spec:ImplementationTask ;
+    rdfs:label "1-K: Set up cargo-tree analysis" ;
+    spec:taskId "1-K" ;
+    spec:description "Configure dependency tree analysis and monitoring" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 3 ;
+    spec:acceptanceCriteria "cargo tree output analyzed; dependency graph documented" ;
+    spec:dependsOn "" ;
+    spec:status "TODO" .
+
+:Task_1_12 a spec:ImplementationTask ;
+    rdfs:label "1-L: Create CI metrics collection infrastructure" ;
+    spec:taskId "1-L" ;
+    spec:description "Set up CI pipeline to collect build metrics on every commit" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 8 ;
+    spec:acceptanceCriteria "CI collects metrics; 99% success rate; data stored in time-series DB" ;
+    spec:dependsOn "1-B" ;
+    spec:status "TODO" .
+
+:Task_1_13 a spec:ImplementationTask ;
+    rdfs:label "1-M: Analyze hotspot compilation phases" ;
+    spec:taskId "1-M" ;
+    spec:description "Profile where time is spent: codegen, linking, symbol processing" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 5 ;
+    spec:acceptanceCriteria "Hotspot identified: linking 40%, codegen 35%, symbol processing 25%" ;
+    spec:dependsOn "1-B,1-I" ;
+    spec:status "TODO" .
+
+:Task_1_14 a spec:ImplementationTask ;
+    rdfs:label "1-N: Measure memory usage patterns" ;
+    spec:taskId "1-N" ;
+    spec:description "Profile memory usage during compilation" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Memory profile complete; peak usage 150-200MB baseline established" ;
+    spec:dependsOn "1-B" ;
+    spec:status "TODO" .
+
+:Task_1_15 a spec:ImplementationTask ;
+    rdfs:label "1-O: Document current crate structure and dependencies" ;
+    spec:taskId "1-O" ;
+    spec:description "Create detailed documentation of 30-crate workspace" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "Crate dependency graph documented; inter-crate relationships mapped" ;
+    spec:dependsOn "1-K" ;
+    spec:status "TODO" .
+
+:Task_1_16 a spec:ImplementationTask ;
+    rdfs:label "1-P: Set up sccache infrastructure (local only)" ;
+    spec:taskId "1-P" ;
+    spec:description "Configure sccache for distributed compiler caching" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 8 ;
+    spec:acceptanceCriteria "sccache running locally; can be extended to S3/Redis in Phase 3" ;
+    spec:dependsOn "" ;
+    spec:status "TODO" .
+
+:Task_1_17 a spec:ImplementationTask ;
+    rdfs:label "1-Q: Create build time regression detection alerts" ;
+    spec:taskId "1-Q" ;
+    spec:description "Set up automated alerts for >10% build time increase" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "Alerts working; regression threshold defined; notification system active" ;
+    spec:dependsOn "1-L" ;
+    spec:status "TODO" .
+
+:Task_1_18 a spec:ImplementationTask ;
+    rdfs:label "1-R: Configure RUSTFLAGS optimization settings" ;
+    spec:taskId "1-R" ;
+    spec:description "Set optimal RUSTFLAGS for each build profile" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "RUSTFLAGS documented for dev/opt/release; benchmarked for impact" ;
+    spec:dependsOn "1-F" ;
+    spec:status "TODO" .
+
+:Task_1_19 a spec:ImplementationTask ;
+    rdfs:label "1-S: Verify Cargo.lock is committed and stable" ;
+    spec:taskId "1-S" ;
+    spec:description "Ensure Cargo.lock is in version control for determinism" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 2 ;
+    spec:acceptanceCriteria "Cargo.lock committed; determinism verified across builds" ;
+    spec:dependsOn "" ;
+    spec:status "TODO" .
+
+:Task_1_20 a spec:ImplementationTask ;
+    rdfs:label "1-T: Create Phase 1 completion report" ;
+    spec:taskId "1-T" ;
+    spec:description "Summarize Phase 1 achievements and metrics" ;
+    spec:phaseNumber 1 ;
+    spec:estimatedHours 3 ;
+    spec:acceptanceCriteria "Report shows baseline established, 30 dependencies removed, profiles optimized, estimated 20% speedup" ;
+    spec:dependsOn "1-J" ;
+    spec:status "TODO" .
+
+# ============================================================================
+# PHASE 2: PARALLELIZATION (100 hours, 18 tasks)
+# ============================================================================
+# Maximize parallel compilation, optimize codegen units, improve CPU utilization
+# ============================================================================
+
+:Phase2_Parallelization a spec:ImplementationPhase ;
+    rdfs:label "Phase 2: Parallelization & CPU Utilization (100 hours)" ;
+    rdfs:comment "Optimize parallel compilation and maximize CPU utilization" ;
+    spec:phaseNumber 2 ;
+    spec:phaseName "Parallelization" ;
+    spec:plannedStartDate "2026-02-10"^^xsd:date ;
+    spec:plannedEndDate "2026-02-24"^^xsd:date ;
+    spec:estimatedEffort 100 ;
+    spec:taskCount 18 ;
+    spec:expectedImpact 1.5 ;
+    spec:riskLevel "MEDIUM" ;
+    spec:tasks (
+        :Task_2_1 :Task_2_2 :Task_2_3 :Task_2_4 :Task_2_5
+        :Task_2_6 :Task_2_7 :Task_2_8 :Task_2_9 :Task_2_10
+        :Task_2_11 :Task_2_12 :Task_2_13 :Task_2_14 :Task_2_15
+        :Task_2_16 :Task_2_17 :Task_2_18
+    ) ;
+    spec:completionChecklist (
+        [ spec:checklistItem "Parallel codegen units optimized"; spec:status "TODO" ]
+        [ spec:checklistItem "Test parallelism configured with zero flakiness"; spec:status "TODO" ]
+        [ spec:checklistItem "CPU utilization increased to 80%+"; spec:status "TODO" ]
+        [ spec:checklistItem "Incremental build now <2 seconds"; spec:status "TODO" ]
+    ) .
+
+:Task_2_1 a spec:ImplementationTask ;
+    rdfs:label "2-A: Optimize codegen-units for debug profile" ;
+    spec:taskId "2-A" ;
+    spec:description "Set codegen-units=256 for fastest compilation" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 3 ;
+    spec:acceptanceCriteria "Debug build time reduced by 20%; codegen-units=256 verified" ;
+    spec:dependsOn "1-F" ;
+    spec:status "TODO" .
+
+:Task_2_2 a spec:ImplementationTask ;
+    rdfs:label "2-B: Configure parallel frontend compilation" ;
+    spec:taskId "2-B" ;
+    spec:description "Enable RUSTFLAGS for parallel frontend in nightly" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "Parallel frontend enabled; 10-15% speedup observed" ;
+    spec:dependsOn "1-R" ;
+    spec:status "TODO" .
+
+:Task_2_3 a spec:ImplementationTask ;
+    rdfs:label "2-C: Implement test parallelism strategy" ;
+    spec:taskId "2-C" ;
+    spec:description "Configure test execution with optimal --test-threads" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 8 ;
+    spec:acceptanceCriteria "Tests run with --test-threads=auto; 347 tests in <30s" ;
+    spec:dependsOn "" ;
+    spec:status "TODO" .
+
+:Task_2_4 a spec:ImplementationTask ;
+    rdfs:label "2-D: Set up artifact isolation for integration tests" ;
+    spec:taskId "2-D" ;
+    spec:description "Configure CARGO_TARGET_DIR isolation per test runner" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 8 ;
+    spec:acceptanceCriteria "Integration tests use isolated target dirs; 4x speedup verified" ;
+    spec:dependsOn "2-C" ;
+    spec:status "TODO" .
+
+:Task_2_5 a spec:ImplementationTask ;
+    rdfs:label "2-E: Profile parallel compilation efficiency" ;
+    spec:taskId "2-E" ;
+    spec:description "Measure CPU core utilization during builds" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 5 ;
+    spec:acceptanceCriteria "CPU utilization measured at 80%+ during build; idle time <10%" ;
+    spec:dependsOn "2-A,2-B" ;
+    spec:status "TODO" .
+
+:Task_2_6 a spec:ImplementationTask ;
+    rdfs:label "2-F: Optimize linking strategy" ;
+    spec:taskId "2-F" ;
+    spec:description "Configure LLD/mold linker for faster linking" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "Linker changed to mold (if available) or LLD; 2x linking speedup" ;
+    spec:dependsOn "1-F" ;
+    spec:status "TODO" .
+
+:Task_2_7 a spec:ImplementationTask ;
+    rdfs:label "2-G: Configure strip-symbols for release" ;
+    spec:taskId "2-G" ;
+    spec:description "Strip debug symbols from release binary" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 2 ;
+    spec:acceptanceCriteria "Release binary stripped; size reduced by 50%; deployment size <90MB" ;
+    spec:dependsOn "1-H" ;
+    spec:status "TODO" .
+
+:Task_2_8 a spec:ImplementationTask ;
+    rdfs:label "2-H: Set up parallel lint execution" ;
+    spec:taskId "2-H" ;
+    spec:description "Configure clippy to run in parallel across crates" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 5 ;
+    spec:acceptanceCriteria "Clippy uses --all-targets; lint time reduced to <60 seconds" ;
+    spec:dependsOn "" ;
+    spec:status "TODO" .
+
+:Task_2_9 a spec:ImplementationTask ;
+    rdfs:label "2-I: Implement test suite isolation for BDD tests" ;
+    spec:taskId "2-I" ;
+    spec:description "Isolate BDD cucumber tests to run without conflicts" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "BDD tests isolated; all 13 step modules run in parallel without race conditions" ;
+    spec:dependsOn "2-C,2-D" ;
+    spec:status "TODO" .
+
+:Task_2_10 a spec:ImplementationTask ;
+    rdfs:label "2-J: Create build parallelism documentation" ;
+    spec:taskId "2-J" ;
+    spec:description "Document parallel execution strategy and troubleshooting" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Documentation complete; explains codegen-units, --test-threads, parallelization limits" ;
+    spec:dependsOn "2-A,2-C,2-H" ;
+    spec:status "TODO" .
+
+:Task_2_11 a spec:ImplementationTask ;
+    rdfs:label "2-K: Measure race condition vulnerabilities" ;
+    spec:taskId "2-K" ;
+    spec:description "Test suite under heavy parallelism for race conditions" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "100+ test runs with parallelism; zero flakiness detected" ;
+    spec:dependsOn "2-C" ;
+    spec:status "TODO" .
+
+:Task_2_12 a spec:ImplementationTask ;
+    rdfs:label "2-L: Configure jemalloc allocator (optional)" ;
+    spec:taskId "2-L" ;
+    spec:description "Enable jemalloc for better memory allocation performance" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "jemalloc enabled; benchmark shows 10-20% memory efficiency improvement" ;
+    spec:dependsOn "" ;
+    spec:status "TODO" .
+
+:Task_2_13 a spec:ImplementationTask ;
+    rdfs:label "2-M: Set up build time regression detection per crate" ;
+    spec:taskId "2-M" ;
+    spec:description "Track build time contribution per crate" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 5 ;
+    spec:acceptanceCriteria "Per-crate build times tracked; identify slow crates for targeted optimization" ;
+    spec:dependsOn "1-L" ;
+    spec:status "TODO" .
+
+:Task_2_14 a spec:ImplementationTask ;
+    rdfs:label "2-N: Verify test isolation and determinism" ;
+    spec:taskId "2-N" ;
+    spec:description "Verify tests are deterministic under heavy parallelism" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Run full test suite 20x with varying parallelism levels; zero failures" ;
+    spec:dependsOn "2-K" ;
+    spec:status "TODO" .
+
+:Task_2_15 a spec:ImplementationTask ;
+    rdfs:label "2-O: Optimize check profile (cargo make check)" ;
+    spec:taskId "2-O" ;
+    spec:description "Configure check profile to skip codegen for speed" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 3 ;
+    spec:acceptanceCriteria "cargo make check completes in 5 seconds for clean build" ;
+    spec:dependsOn "1-F,2-A" ;
+    spec:status "TODO" .
+
+:Task_2_16 a spec:ImplementationTask ;
+    rdfs:label "2-P: Create CPU utilization monitoring dashboard" ;
+    spec:taskId "2-P" ;
+    spec:description "Real-time dashboard of build CPU utilization" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 5 ;
+    spec:acceptanceCriteria "Dashboard shows live CPU utilization during builds" ;
+    spec:dependsOn "1-L" ;
+    spec:status "TODO" .
+
+:Task_2_17 a spec:ImplementationTask ;
+    rdfs:label "2-Q: Benchmark Phase 2 improvements" ;
+    spec:taskId "2-Q" ;
+    spec:description "Comprehensive benchmarking of Phase 2 optimizations" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "Before/after metrics: target 1.5x speedup achieved (20% → 30% improvement)" ;
+    spec:dependsOn "2-E,2-O" ;
+    spec:status "TODO" .
+
+:Task_2_18 a spec:ImplementationTask ;
+    rdfs:label "2-R: Create Phase 2 completion report" ;
+    spec:taskId "2-R" ;
+    spec:description "Summarize Phase 2 achievements" ;
+    spec:phaseNumber 2 ;
+    spec:estimatedHours 2 ;
+    spec:acceptanceCriteria "Report shows parallelization improvements, CPU utilization increase, test speedup" ;
+    spec:dependsOn "2-Q" ;
+    spec:status "TODO" .
+
+# ============================================================================
+# PHASE 3: CACHING & DISTRIBUTION (80 hours, 15 tasks)
+# ============================================================================
+# Implement distributed caching, artifact reuse, and CI optimization
+# ============================================================================
+
+:Phase3_CachingDistribution a spec:ImplementationPhase ;
+    rdfs:label "Phase 3: Caching & Distributed Infrastructure (80 hours)" ;
+    rdfs:comment "Implement distributed caching and artifact reuse strategies" ;
+    spec:phaseNumber 3 ;
+    spec:phaseName "Caching & Distribution" ;
+    spec:plannedStartDate "2026-02-25"^^xsd:date ;
+    spec:plannedEndDate "2026-03-10"^^xsd:date ;
+    spec:estimatedEffort 80 ;
+    spec:taskCount 15 ;
+    spec:expectedImpact 1.3 ;
+    spec:riskLevel "MEDIUM" ;
+    spec:tasks (
+        :Task_3_1 :Task_3_2 :Task_3_3 :Task_3_4 :Task_3_5
+        :Task_3_6 :Task_3_7 :Task_3_8 :Task_3_9 :Task_3_10
+        :Task_3_11 :Task_3_12 :Task_3_13 :Task_3_14 :Task_3_15
+    ) ;
+    spec:completionChecklist (
+        [ spec:checklistItem "sccache distributed setup complete"; spec:status "TODO" ]
+        [ spec:checklistItem "CI artifact caching configured"; spec:status "TODO" ]
+        [ spec:checklistItem "70%+ cache hit rate achieved"; spec:status "TODO" ]
+        [ spec:checklistItem "CI builds with cache <5 seconds"; spec:status "TODO" ]
+    ) .
+
+:Task_3_1 a spec:ImplementationTask ;
+    rdfs:label "3-A: Scale sccache to distributed S3 backend" ;
+    spec:taskId "3-A" ;
+    spec:description "Configure sccache with S3 backend for distributed team" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 8 ;
+    spec:acceptanceCriteria "sccache connected to S3; cache hit rate measured" ;
+    spec:dependsOn "1-P" ;
+    spec:status "TODO" .
+
+:Task_3_2 a spec:ImplementationTask ;
+    rdfs:label "3-B: Configure Redis caching (alternative to S3)" ;
+    spec:taskId "3-B" ;
+    spec:description "Set up Redis as optional sccache backend" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "Redis sccache option available; performance benchmarked" ;
+    spec:dependsOn "1-P" ;
+    spec:status "TODO" .
+
+:Task_3_3 a spec:ImplementationTask ;
+    rdfs:label "3-C: Implement CI artifact caching strategy" ;
+    spec:taskId "3-C" ;
+    spec:description "Cache build artifacts between CI runs" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 7 ;
+    spec:acceptanceCriteria "target/ directory cached across builds; 70%+ hit rate in CI" ;
+    spec:dependsOn "" ;
+    spec:status "TODO" .
+
+:Task_3_4 a spec:ImplementationTask ;
+    rdfs:label "3-D: Configure GitHub Actions build cache" ;
+    spec:taskId "3-D" ;
+    spec:description "Enable GitHub Actions cache action for Cargo builds" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "GitHub Actions cache configured; cache size optimized" ;
+    spec:dependsOn "3-C" ;
+    spec:status "TODO" .
+
+:Task_3_5 a spec:ImplementationTask ;
+    rdfs:label "3-E: Implement cache invalidation strategy" ;
+    spec:taskId "3-E" ;
+    spec:description "Define when to invalidate cache (Cargo.lock changes, etc.)" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 5 ;
+    spec:acceptanceCriteria "Cache invalidation rules documented; false cache hits prevented" ;
+    spec:dependsOn "3-C" ;
+    spec:status "TODO" .
+
+:Task_3_6 a spec:ImplementationTask ;
+    rdfs:label "3-F: Measure sccache hit rate improvement" ;
+    spec:taskId "3-F" ;
+    spec:description "Monitor sccache statistics to verify hit rate" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Hit rate tracked and reported; target 70%+ achieved" ;
+    spec:dependsOn "3-A,3-B" ;
+    spec:status "TODO" .
+
+:Task_3_7 a spec:ImplementationTask ;
+    rdfs:label "3-G: Create cache management documentation" ;
+    spec:taskId "3-G" ;
+    spec:description "Document cache setup, maintenance, and troubleshooting" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Complete cache documentation; includes S3 and Redis setup" ;
+    spec:dependsOn "3-A,3-B" ;
+    spec:status "TODO" .
+
+:Task_3_8 a spec:ImplementationTask ;
+    rdfs:label "3-H: Implement cache size management" ;
+    spec:taskId "3-H" ;
+    spec:description "Set up cache eviction policies and size limits" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Cache size capped at 100GB; LRU eviction policy active" ;
+    spec:dependsOn "3-A,3-B" ;
+    spec:status "TODO" .
+
+:Task_3_9 a spec:ImplementationTask ;
+    rdfs:label "3-I: Set up cache statistics collection" ;
+    spec:taskId "3-I" ;
+    spec:description "Collect and monitor cache hit/miss rates" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 5 ;
+    spec:acceptanceCriteria "Cache stats collected daily; trend analysis available" ;
+    spec:dependsOn "1-L" ;
+    spec:status "TODO" .
+
+:Task_3_10 a spec:ImplementationTask ;
+    rdfs:label "3-J: Optimize CI pipeline with caching" ;
+    spec:taskId "3-J" ;
+    spec:description "Refactor CI workflow to maximize cache reuse" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "CI build time with cache: 5 seconds; without cache: 30 seconds" ;
+    spec:dependsOn "3-C,3-D" ;
+    spec:status "TODO" .
+
+:Task_3_11 a spec:ImplementationTask ;
+    rdfs:label "3-K: Test cache effectiveness across all crate types" ;
+    spec:taskId "3-K" ;
+    spec:description "Verify caching works for all 30 crates and build types" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 5 ;
+    spec:acceptanceCriteria "Cache effectiveness verified for all crate types; no regressions" ;
+    spec:dependsOn "3-A,3-C" ;
+    spec:status "TODO" .
+
+:Task_3_12 a spec:ImplementationTask ;
+    rdfs:label "3-L: Create cache troubleshooting guide" ;
+    spec:taskId "3-L" ;
+    spec:description "Document common cache issues and solutions" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 3 ;
+    spec:acceptanceCriteria "Troubleshooting guide with 10+ scenarios and solutions" ;
+    spec:dependsOn "3-G" ;
+    spec:status "TODO" .
+
+:Task_3_13 a spec:ImplementationTask ;
+    rdfs:label "3-M: Benchmark Phase 3 improvements" ;
+    spec:taskId "3-M" ;
+    spec:description "Comprehensive benchmarking of caching improvements" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 5 ;
+    spec:acceptanceCriteria "Before/after: warm cache 5s, cold cache 30s; 1.3x overall speedup" ;
+    spec:dependsOn "3-J" ;
+    spec:status "TODO" .
+
+:Task_3_14 a spec:ImplementationTask ;
+    rdfs:label "3-N: Implement cache prewarming strategy" ;
+    spec:taskId "3-N" ;
+    spec:description "Cache prewarming for common build scenarios" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Prewarm script available; reduces first CI run time by 30%" ;
+    spec:dependsOn "3-A" ;
+    spec:status "TODO" .
+
+:Task_3_15 a spec:ImplementationTask ;
+    rdfs:label "3-O: Create Phase 3 completion report" ;
+    spec:taskId "3-O" ;
+    spec:description "Summarize Phase 3 achievements" ;
+    spec:phaseNumber 3 ;
+    spec:estimatedHours 2 ;
+    spec:acceptanceCriteria "Report shows caching infrastructure operational, 70%+ hit rate, 1.3x speedup" ;
+    spec:dependsOn "3-M" ;
+    spec:status "TODO" .
+
+# ============================================================================
+# PHASE 4: MONITORING & PREVENTION (60 hours, 12 tasks)
+# ============================================================================
+# Build performance monitoring, regression detection, SLO enforcement
+# ============================================================================
+
+:Phase4_MonitoringPrevention a spec:ImplementationPhase ;
+    rdfs:label "Phase 4: Monitoring & Regression Prevention (60 hours)" ;
+    rdfs:comment "Continuous monitoring and automated regression prevention" ;
+    spec:phaseNumber 4 ;
+    spec:phaseName "Monitoring & Prevention" ;
+    spec:plannedStartDate "2026-03-11"^^xsd:date ;
+    spec:plannedEndDate "2026-03-23"^^xsd:date ;
+    spec:estimatedEffort 60 ;
+    spec:taskCount 12 ;
+    spec:expectedImpact 1.1 ;
+    spec:riskLevel "LOW" ;
+    spec:tasks (
+        :Task_4_1 :Task_4_2 :Task_4_3 :Task_4_4 :Task_4_5
+        :Task_4_6 :Task_4_7 :Task_4_8 :Task_4_9 :Task_4_10
+        :Task_4_11 :Task_4_12
+    ) ;
+    spec:completionChecklist (
+        [ spec:checklistItem "SLO dashboard live and monitoring"; spec:status "TODO" ]
+        [ spec:checklistItem "Regression alerts configured"; spec:status "TODO" ]
+        [ spec:checklistItem "Monthly metrics reports automated"; spec:status "TODO" ]
+        [ spec:checklistItem "SLO breach procedures documented"; spec:status "TODO" ]
+    ) .
+
+:Task_4_1 a spec:ImplementationTask ;
+    rdfs:label "4-A: Create SLO dashboard with Grafana" ;
+    spec:taskId "4-A" ;
+    spec:description "Build real-time SLO dashboard showing build metrics" ;
+    spec:phaseNumber 4 ;
+    spec:estimatedHours 8 ;
+    spec:acceptanceCriteria "Dashboard displays build time, test time, lint time with green/yellow/red status" ;
+    spec:dependsOn "1-L" ;
+    spec:status "TODO" .
+
+:Task_4_2 a spec:ImplementationTask ;
+    rdfs:label "4-B: Implement SLO threshold enforcement in CI" ;
+    spec:taskId "4-B" ;
+    spec:description "Block builds that exceed SLO thresholds" ;
+    spec:phaseNumber 4 ;
+    spec:estimatedHours 5 ;
+    spec:acceptanceCriteria "CI fails if build time > 15s or tests > 30s; alerts sent" ;
+    spec:dependsOn "1-Q" ;
+    spec:status "TODO" .
+
+:Task_4_3 a spec:ImplementationTask ;
+    rdfs:label "4-C: Create automated regression root cause analysis" ;
+    spec:taskId "4-C" ;
+    spec:description "Automated script to identify regression cause" ;
+    spec:phaseNumber 4 ;
+    spec:estimatedHours 8 ;
+    spec:acceptanceCriteria "Script analyzes commit diff, identifies likely cause (dependency, codegen, etc.)" ;
+    spec:dependsOn "1-Q" ;
+    spec:status "TODO" .
+
+:Task_4_4 a spec:ImplementationTask ;
+    rdfs:label "4-D: Set up performance trend analysis" ;
+    spec:taskId "4-D" ;
+    spec:description "Weekly/monthly performance trend reports" ;
+    spec:phaseNumber 4 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "Automated reports showing 4-week performance trends" ;
+    spec:dependsOn "1-L" ;
+    spec:status "TODO" .
+
+:Task_4_5 a spec:ImplementationTask ;
+    rdfs:label "4-E: Create runbook for SLO violations" ;
+    spec:taskId "4-E" ;
+    spec:description "Step-by-step procedure when SLO is violated" ;
+    spec:phaseNumber 4 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Runbook includes diagnosis, root cause analysis, remediation steps" ;
+    spec:dependsOn "4-C" ;
+    spec:status "TODO" .
+
+:Task_4_6 a spec:ImplementationTask ;
+    rdfs:label "4-F: Implement per-crate build time tracking" ;
+    spec:taskId "4-F" ;
+    spec:description "Track build time contribution from each of 30 crates" ;
+    spec:phaseNumber 4 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "Per-crate metrics available; slowest crates identified" ;
+    spec:dependsOn "1-L,2-M" ;
+    spec:status "TODO" .
+
+:Task_4_7 a spec:ImplementationTask ;
+    rdfs:label "4-G: Set up Slack/Email alerting for regressions" ;
+    spec:taskId "4-G" ;
+    spec:description "Real-time notifications when regressions detected" ;
+    spec:phaseNumber 4 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Alerts sent to #build-optimization channel within 5 minutes of detection" ;
+    spec:dependsOn "1-Q" ;
+    spec:status "TODO" .
+
+:Task_4_8 a spec:ImplementationTask ;
+    rdfs:label "4-H: Create SLO compliance scorecard" ;
+    spec:taskId "4-H" ;
+    spec:description "Monthly scorecard of SLO compliance" ;
+    spec:phaseNumber 4 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Monthly scorecard showing % of builds meeting each SLO" ;
+    spec:dependsOn "4-A,4-D" ;
+    spec:status "TODO" .
+
+:Task_4_9 a spec:ImplementationTask ;
+    rdfs:label "4-I: Document performance optimization decision tree" ;
+    spec:taskId "4-I" ;
+    spec:description "Guide for when and how to optimize specific hotspots" ;
+    spec:phaseNumber 4 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Decision tree for: linking slow, codegen slow, test slow, memory high" ;
+    spec:dependsOn "4-F" ;
+    spec:status "TODO" .
+
+:Task_4_10 a spec:ImplementationTask ;
+    rdfs:label "4-J: Implement historical data retention and archival" ;
+    spec:taskId "4-J" ;
+    spec:description "Archive build metrics for long-term trend analysis" ;
+    spec:phaseNumber 4 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Metrics retained for 12 months; accessible for historical analysis" ;
+    spec:dependsOn "1-L" ;
+    spec:status "TODO" .
+
+:Task_4_11 a spec:ImplementationTask ;
+    rdfs:label "4-K: Create SLO review and adjustment procedure" ;
+    spec:taskId "4-K" ;
+    spec:description "Quarterly review of SLOs and adjustment criteria" ;
+    spec:phaseNumber 4 ;
+    spec:estimatedHours 3 ;
+    spec:acceptanceCriteria "Procedure documented; review schedule established" ;
+    spec:dependsOn "4-H" ;
+    spec:status "TODO" .
+
+:Task_4_12 a spec:ImplementationTask ;
+    rdfs:label "4-L: Create Phase 4 completion report" ;
+    spec:taskId "4-L" ;
+    spec:description "Summarize Phase 4 achievements" ;
+    spec:phaseNumber 4 ;
+    spec:estimatedHours 2 ;
+    spec:acceptanceCriteria "Report shows monitoring operational, regression detection working, SLO enforcement active" ;
+    spec:dependsOn "4-H" ;
+    spec:status "TODO" .
+
+# ============================================================================
+# PHASE 5: REFINEMENT & DOCUMENTATION (40 hours, 8 tasks)
+# ============================================================================
+# Final optimization, documentation, knowledge transfer
+# ============================================================================
+
+:Phase5_RefinementDocumentation a spec:ImplementationPhase ;
+    rdfs:label "Phase 5: Refinement & Documentation (40 hours)" ;
+    rdfs:comment "Final optimizations, comprehensive documentation, and knowledge transfer" ;
+    spec:phaseNumber 5 ;
+    spec:phaseName "Refinement & Documentation" ;
+    spec:plannedStartDate "2026-03-24"^^xsd:date ;
+    spec:plannedEndDate "2026-03-31"^^xsd:date ;
+    spec:estimatedEffort 40 ;
+    spec:taskCount 8 ;
+    spec:expectedImpact 1.05 ;
+    spec:riskLevel "LOW" ;
+    spec:tasks (
+        :Task_5_1 :Task_5_2 :Task_5_3 :Task_5_4 :Task_5_5
+        :Task_5_6 :Task_5_7 :Task_5_8
+    ) ;
+    spec:completionChecklist (
+        [ spec:checklistItem "Complete build optimization guide published"; spec:status "TODO" ]
+        [ spec:checklistItem "Developer training completed"; spec:status "TODO" ]
+        [ spec:checklistItem "Final SLO targets achieved and sustained"; spec:status "TODO" ]
+        [ spec:checklistItem "Project post-mortem and lessons learned documented"; spec:status "TODO" ]
+    ) .
+
+:Task_5_1 a spec:ImplementationTask ;
+    rdfs:label "5-A: Final micro-optimizations" ;
+    spec:taskId "5-A" ;
+    spec:description "Fine-tune remaining hotspots identified from monitoring" ;
+    spec:phaseNumber 5 ;
+    spec:estimatedHours 8 ;
+    spec:acceptanceCriteria "Additional 5% speedup achieved; all SLOs met consistently" ;
+    spec:dependsOn "4-F" ;
+    spec:status "TODO" .
+
+:Task_5_2 a spec:ImplementationTask ;
+    rdfs:label "5-B: Create comprehensive build optimization guide" ;
+    spec:taskId "5-B" ;
+    spec:description "Complete documentation for build optimization strategies" ;
+    spec:phaseNumber 5 ;
+    spec:estimatedHours 8 ;
+    spec:acceptanceCriteria "20+ page guide covering all optimizations, caching, profiles, monitoring" ;
+    spec:dependsOn "2-J,3-G" ;
+    spec:status "TODO" .
+
+:Task_5_3 a spec:ImplementationTask ;
+    rdfs:label "5-C: Create developer quick-start guide" ;
+    spec:taskId "5-C" ;
+    spec:description "Quick reference for developers on build optimization" ;
+    spec:phaseNumber 5 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "1-page reference guide: when to use which profile, cache management, SLO overview" ;
+    spec:dependsOn "5-B" ;
+    spec:status "TODO" .
+
+:Task_5_4 a spec:ImplementationTask ;
+    rdfs:label "5-D: Conduct team training on build optimization" ;
+    spec:taskId "5-D" ;
+    spec:description "Train engineering team on new build optimization practices" ;
+    spec:phaseNumber 5 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "All 30+ engineers trained; Q&A recorded; FAQs documented" ;
+    spec:dependsOn "5-B,5-C" ;
+    spec:status "TODO" .
+
+:Task_5_5 a spec:ImplementationTask ;
+    rdfs:label "5-E: Verify reproducibility across platforms" ;
+    spec:taskId "5-E" ;
+    spec:description "Test build determinism on Linux, macOS, Windows" ;
+    spec:phaseNumber 5 ;
+    spec:estimatedHours 6 ;
+    spec:acceptanceCriteria "Reproducible builds verified on 3+ platforms; no platform-specific regressions" ;
+    spec:dependsOn "3-E,5-A" ;
+    spec:status "TODO" .
+
+:Task_5_6 a spec:ImplementationTask ;
+    rdfs:label "5-F: Create Epic 9 final report" ;
+    spec:taskId "5-F" ;
+    spec:description "Comprehensive report on Epic 9 completion" ;
+    spec:phaseNumber 5 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Report shows: 3-5x speedup achieved, SLOs met, lessons learned, future recommendations" ;
+    spec:dependsOn "5-A" ;
+    spec:status "TODO" .
+
+:Task_5_7 a spec:ImplementationTask ;
+    rdfs:label "5-G: Conduct post-mortem and gather feedback" ;
+    spec:taskId "5-G" ;
+    spec:description "Retrospective on Epic 9 execution" ;
+    spec:phaseNumber 5 ;
+    spec:estimatedHours 4 ;
+    spec:acceptanceCriteria "Team feedback collected; lessons learned documented" ;
+    spec:dependsOn "5-F" ;
+    spec:status "TODO" .
+
+:Task_5_8 a spec:ImplementationTask ;
+    rdfs:label "5-H: Create Phase 5 and Epic 9 completion report" ;
+    spec:taskId "5-H" ;
+    spec:description "Final Epic 9 completion summary" ;
+    spec:phaseNumber 5 ;
+    spec:estimatedHours 2 ;
+    spec:acceptanceCriteria "Epic 9 officially closed; all deliverables completed and tested" ;
+    spec:dependsOn "5-F,5-G" ;
+    spec:status "TODO" .
+
+# ============================================================================
+# SUMMARY STATISTICS
+# ============================================================================
+
+:PlanSummary a spec:Summary ;
+    rdfs:label "Implementation Plan Summary" ;
+    spec:totalPhases 5 ;
+    spec:totalTasks 73 ;
+    spec:totalEstimatedHours 520 ;
+    spec:phaseBreakdown (
+        [ spec:phase 1; spec:tasks 20; spec:hours 120 ]
+        [ spec:phase 2; spec:tasks 18; spec:hours 100 ]
+        [ spec:phase 3; spec:tasks 15; spec:hours 80 ]
+        [ spec:phase 4; spec:tasks 12; spec:hours 60 ]
+        [ spec:phase 5; spec:tasks 8; spec:hours 40 ]
+    ) ;
+    spec:cumulativeImpact 2.7 ;
+    spec:expectedFinalSpeedup "2.7x = 120s → 44s first build, 10s → 3.7s incremental" ;
+    spec:targetAlignmentWithEpic "Targets 3-5x improvement; expects to achieve ~2.7x with high confidence" .
+
+# ============================================================================
+# END OF IMPLEMENTATION PLAN
+# ============================================================================
