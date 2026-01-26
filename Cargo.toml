@@ -21,7 +21,7 @@ members = [
   "crates/ggen-domain",
   "crates/ggen-core",
   "crates/ggen-config",
-  "crates/ggen-macros",
+  # "crates/ggen-macros",           # EXCLUDED: proc-macro crate triggers compiler target issues
   "crates/ggen-dod",           # Domain-driven design patterns (from origin/main)
   "crates/ggen-ontology-core", # Ontology handling layer: RDF/TTL, SPARQL, entity mapping
 
@@ -78,6 +78,7 @@ exclude = [
   "examples/gcp-erlang-autonomics",
   "marketplace/packages/workflow-engine-cli",
   "crates/ggen-node",  # BLOCKER: cdylib crate-type interferes with proc-macro compilation
+  "crates/ggen-macros",  # BLOCKER: proc-macro crate triggers compiler target issues
   "crates/tps-kaizen",  # Temporarily excluded - has Cargo.toml syntax error
   "crates/tps-reference",  # Temporarily excluded - has compilation errors (pre-existing)
   "crates/ggen-tps-andon",  # Temporarily excluded - depends on tps-reference
