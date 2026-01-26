@@ -192,7 +192,7 @@ testcontainers-modules = "0.13"                            # Testcontainer modul
 assert_cmd = "2.0"                                         # Command assertion testing
 predicates = "3.1"                                         # Predicate matching
 proptest = "1.8"                                           # Property-based testing
-chicago-tdd-tools = "1.4.0"                                # Chicago TDD framework
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "testcontainers"] }  # Chicago TDD framework
 fake = "2.9"                                               # Fake data generation
 
 # ===================================================================
@@ -575,11 +575,11 @@ testcontainers = "0.25"
 testcontainers-modules = "0.13"
 rand = "0.8"
 mockall = "0.13"
-fake = "2.9"
 futures.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
-chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "testcontainers"] }
+fake.workspace = true
+chicago-tdd-tools.workspace = true
 # Performance benchmarking
 criterion = { version = "0.7", features = ["html_reports"] }
 once_cell = "1.20"
