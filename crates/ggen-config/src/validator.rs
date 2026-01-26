@@ -6,6 +6,7 @@ use crate::{ConfigError, GgenConfig, Result};
 use std::collections::HashSet;
 
 /// Configuration validator
+#[derive(Debug)]
 pub struct ConfigValidator<'a> {
     config: &'a GgenConfig,
     errors: Vec<String>,

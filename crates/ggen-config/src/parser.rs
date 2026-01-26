@@ -8,6 +8,7 @@ use std::fs;
 use std::path::Path;
 
 /// Configuration loader and parser
+#[derive(Debug)]
 pub struct ConfigLoader {
     path: SafePath,
 }
