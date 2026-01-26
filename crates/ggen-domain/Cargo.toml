@@ -47,7 +47,7 @@ dirs = "5.0"
 reqwest = { workspace = true }
 zip = "0.6"
 fastrand = "2.3"                 # Lightweight RNG for jitter in retry logic
-async-trait = "0.1"
+async-trait = { workspace = true }
 
 # CRITICAL: NO clap or clap-noun-verb dependencies
 # Domain must be CLI-agnostic
