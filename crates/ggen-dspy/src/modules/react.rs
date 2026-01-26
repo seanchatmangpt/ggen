@@ -237,7 +237,7 @@ impl ReAct {
             }
 
             // Execute tool
-            if let Some(tool) = self.tools.iter().find(|t| t.name() == action.trim()) {
+            if let Some(tool) = self.tools.iter().find(|t: &&Box<dyn Tool>| t.name() == action.trim()) {
                 match tool.execute(action_input).await {
                     Ok(observation) => {
                         trajectory.push(format!("{}\nObservation: {}", step, observation));

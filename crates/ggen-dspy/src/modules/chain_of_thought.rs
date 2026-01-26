@@ -175,7 +175,7 @@ mod tests {
         assert_eq!(
             sig.outputs
                 .iter()
-                .filter(|f| f.name() == "rationale")
+                .filter(|f: &OutputField| f.name() == "rationale")
                 .count(),
             1
         );
@@ -257,7 +257,7 @@ mod tests {
 
         // Assert - rationale should be added (order may vary but both should exist)
         let sig = cot.signature();
-        let output_names: Vec<&str> = sig.outputs.iter().map(|f| f.name()).collect();
+        let output_names: Vec<&str> = sig.outputs.iter().map(|f: &OutputField| f.name()).collect();
         assert!(output_names.contains(&"rationale"));
         assert!(output_names.contains(&"answer"));
     }
