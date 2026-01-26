@@ -28,17 +28,37 @@
       "Bash(node:*)",
       "Bash(which:*)",
       "Bash(pwd)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(cargo make:*)",
+      "Bash(ggen:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [
-      "Bash(rm -rf /)"
+      "Bash(rm -rf /)",
+      "Bash(cargo check)",
+      "Bash(cargo test)",
+      "Bash(cargo build)",
+      "Bash(cargo clippy)",
+      "Bash(cargo fmt)"
     ]
   },
   "hooks": {
-    "SessionStart": [{"matcher": "", "hooks": [
-      {"type": "command", "command": "./.claude/hooks/session-start.sh", "timeout": 30},
-      {"type": "prompt", "prompt": "Session initialized. ggen v6.0.0. Read CLAUDE.md. Rules: cargo make ONLY, EPIC 9 for non-trivial, receipts not narratives."}
-    ]}],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/session-start.sh",
+            "timeout": 30
+          },
+          {
+            "type": "prompt",
+            "prompt": "Session initialized. ggen v6.0.0. Read CLAUDE.md. Rules: cargo make ONLY, EPIC 9 for non-trivial, receipts not narratives."
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -101,10 +121,15 @@
     ],
     "Stop": [
       {
+        "matcher": "",
         "hooks": [
           {
             "type": "command",
             "command": "npx claude-flow@alpha hooks session-end --generate-summary true --persist-state true --export-metrics true"
+          },
+          {
+            "type": "prompt",
+            "prompt": "Before stop: tests pass? lint clean? uncommitted? receipts?"
           }
         ]
       }
@@ -115,47 +140,559 @@
   "statusLine": {
     "type": "command",
     "command": ".claude/statusline-command.sh"
-    "Stop": [{"matcher": "", "hooks": [{"type": "prompt", "prompt": "Before stop: tests pass? lint clean? uncommitted? receipts?"}]}]
   },
   "mcp_servers": {
     "enabled": false,
     "servers": {
-      "github": {"command": "mcp-server-github", "env": {"GITHUB_TOKEN": "${GITHUB_TOKEN}"}, "disabled": true},
-      "filesystem": {"command": "mcp-server-filesystem", "args": ["/home/user/ggen"], "disabled": true},
-      "sparql": {"command": "mcp-server-sparql", "args": ["http://localhost:7878/query"], "disabled": true}
+      "github": {
+        "command": "mcp-server-github",
+        "env": {
+          "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+        },
+        "disabled": true
+      },
+      "filesystem": {
+        "command": "mcp-server-filesystem",
+        "args": ["/home/user/ggen"],
+        "disabled": true
+      },
+      "sparql": {
+        "command": "mcp-server-sparql",
+        "args": ["http://localhost:7878/query"],
+        "disabled": true
+      }
     }
   },
   "environment": {
-    "env": {"RUST_BACKTRACE": "1", "RUST_LOG": "info", "CARGO_TERM_COLOR": "always", "RUSTFLAGS": "-D warnings", "GGEN_VERSION": "6.0.0"}
+    "env": {
+      "RUST_BACKTRACE": "1",
+      "RUST_LOG": "info",
+      "CARGO_TERM_COLOR": "always",
+      "RUSTFLAGS": "-D warnings",
+      "GGEN_VERSION": "6.0.0"
+    }
   },
   "tools_and_model": {
     "model": "claude-sonnet-4-5-20250929",
     "output_style": "structured",
     "temperature": 0.0,
-    "tool_preferences": {"prefer_parallel_calls": true, "max_parallel_tools": 10}
+    "tool_preferences": {
+      "prefer_parallel_calls": true,
+      "max_parallel_tools": 10
+    }
   },
   "epic9": {
     "enabled": true,
+    "autoDetect": true,
+    "triggers": {
+      "fileCount": 5,
+      "systemCount": 3,
+      "complexityScore": 7,
+      "keywords": ["architecture", "refactor", "migration", "security", "multi-crate"]
+    },
     "default_agents": 10,
-    "mandatory_phases": ["fan_out", "independent_construction", "collision_detection", "convergence", "refactoring", "closure"],
-    "speedup_target": "2.8x-4.4x"
+    "mandatory_phases": [
+      "fan_out",
+      "independent_construction",
+      "collision_detection",
+      "convergence",
+      "refactoring",
+      "closure"
+    ],
+    "workflow": {
+      "phase1_fanout": {
+        "agents": 10,
+        "parallel": true,
+        "timeout": "5m"
+      },
+      "phase2_construction": {
+        "independence": true,
+        "receiptRequired": true
+      },
+      "phase3_collision": {
+        "detector": "bb80-collision-detector",
+        "threshold": 0.3,
+        "autoResolve": false
+      },
+      "phase4_convergence": {
+        "orchestrator": "bb80-convergence-orchestrator",
+        "selectionPressure": [
+          "coverage",
+          "invariants",
+          "minimality",
+          "elegance"
+        ]
+      },
+      "phase5_refactoring": {
+        "dryer": true,
+        "typeLevel": true
+      },
+      "phase6_closure": {
+        "cryptographic": true,
+        "deterministic": true
+      }
+    },
+    "speedupTarget": "2.8x-4.4x",
+    "qualityGates": [
+      "specification_closure",
+      "all_tests_pass",
+      "receipts_generated"
+    ]
   },
   "slo_targets": {
     "cargo_make_check": "≤5s",
+    "cargo_make_test_unit": "≤16s",
     "cargo_make_test": "≤30s",
     "cargo_make_lint": "≤60s",
     "first_build": "≤15s",
     "incremental_build": "≤2s"
   },
+  "sloMonitoring": {
+    "enabled": true,
+    "realtime": true,
+    "storage": ".claude/metrics/slo-violations.json",
+    "targets": {
+      "cargo_make_check": {
+        "threshold": "5s",
+        "alert": "warning"
+      },
+      "cargo_make_test_unit": {
+        "threshold": "16s",
+        "alert": "warning"
+      },
+      "cargo_make_test": {
+        "threshold": "30s",
+        "alert": "error"
+      },
+      "cargo_make_lint": {
+        "threshold": "60s",
+        "alert": "warning"
+      },
+      "first_build": {
+        "threshold": "15s",
+        "alert": "info"
+      },
+      "incremental_build": {
+        "threshold": "2s",
+        "alert": "warning"
+      }
+    },
+    "violations": {
+      "warning": "Store in metrics, show in statusline",
+      "error": "Create todo, trigger Andon signal"
+    },
+    "trending": {
+      "enabled": true,
+      "window": "7d",
+      "regressionThreshold": 1.2
+    }
+  },
   "cargo_make_protocol": {
     "rule": "cargo make [target] ONLY",
-    "prohibited": ["cargo check", "cargo test", "cargo build", "cargo clippy"],
-    "allowed": ["cargo make check", "cargo make test", "cargo make lint", "cargo make pre-commit"]
+    "prohibited": [
+      "cargo check",
+      "cargo test",
+      "cargo build",
+      "cargo clippy",
+      "cargo fmt"
+    ],
+    "allowed": [
+      "cargo make check",
+      "cargo make test",
+      "cargo make lint",
+      "cargo make pre-commit",
+      "cargo make test-unit",
+      "cargo make slo-check",
+      "cargo make timeout-check",
+      "cargo make speckit-validate",
+      "cargo make speckit-render",
+      "cargo make speckit-full"
+    ]
   },
   "andon_signals": {
-    "RED": {"triggers": ["error[E", "FAILED", "panicked"], "action": "STOP immediately"},
-    "YELLOW": {"triggers": ["warning:", "clippy::", "TODO"], "action": "Investigate"},
-    "GREEN": {"triggers": ["test result: ok", "0 violations"], "action": "Continue"}
+    "RED": {
+      "triggers": ["error[E", "FAILED", "panicked"],
+      "action": "STOP immediately"
+    },
+    "YELLOW": {
+      "triggers": ["warning:", "clippy::", "TODO"],
+      "action": "Investigate"
+    },
+    "GREEN": {
+      "triggers": ["test result: ok", "0 violations"],
+      "action": "Continue"
+    }
+  },
+  "andonTodoIntegration": {
+    "enabled": true,
+    "autoCreateTodos": true,
+    "minBatchSize": 10,
+    "storage": ".claude/todos/andon-generated.json",
+    "templates": {
+      "compilerError": {
+        "title": "🔴 Fix compilation error: {{error_code}}",
+        "description": "File: {{file}}:{{line}}\nError: {{message}}\nRoot Cause (5 Whys): {{root_cause}}\nProposed Fix: {{fix}}",
+        "priority": "critical",
+        "tags": ["andon-red", "compiler-error"]
+      },
+      "testFailure": {
+        "title": "🔴 Fix failing test: {{test_name}}",
+        "description": "Test: {{test_path}}\nFailure: {{failure_message}}\nExpected: {{expected}}\nActual: {{actual}}\nRoot Cause: {{root_cause}}",
+        "priority": "critical",
+        "tags": ["andon-red", "test-failure"]
+      },
+      "warning": {
+        "title": "🟡 Investigate warning: {{warning_type}}",
+        "description": "File: {{file}}:{{line}}\nWarning: {{message}}\nImpact: {{impact}}",
+        "priority": "high",
+        "tags": ["andon-yellow", "warning"]
+      },
+      "sloViolation": {
+        "title": "🟡 SLO violation: {{command}} exceeded {{threshold}}",
+        "description": "Command: {{command}}\nActual: {{actual_duration}}\nTarget: {{threshold}}\nRegression: {{regression_percent}}%",
+        "priority": "medium",
+        "tags": ["andon-yellow", "slo-violation"]
+      }
+    }
+  },
+  "receipts": {
+    "enabled": true,
+    "autoGenerate": true,
+    "storage": ".ggen-receipts/",
+    "operations": [
+      {
+        "trigger": "cargo make check",
+        "receipt": "check-{{timestamp}}.json",
+        "fields": [
+          "duration",
+          "exit_code",
+          "warnings_count",
+          "errors_count",
+          "sha256"
+        ]
+      },
+      {
+        "trigger": "cargo make test",
+        "receipt": "test-{{timestamp}}.json",
+        "fields": [
+          "duration",
+          "total_tests",
+          "passed",
+          "failed",
+          "skipped",
+          "sha256"
+        ]
+      },
+      {
+        "trigger": "cargo make lint",
+        "receipt": "lint-{{timestamp}}.json",
+        "fields": [
+          "duration",
+          "clippy_warnings",
+          "clippy_errors",
+          "fmt_changes",
+          "sha256"
+        ]
+      },
+      {
+        "trigger": "ggen sync",
+        "receipt": "sync-{{timestamp}}.json",
+        "fields": [
+          "duration",
+          "files_generated",
+          "triples_processed",
+          "sha256",
+          "deterministic"
+        ]
+      },
+      {
+        "trigger": "cargo make pre-commit",
+        "receipt": "pre-commit-{{timestamp}}.json",
+        "fields": [
+          "duration",
+          "check_result",
+          "lint_result",
+          "test_result",
+          "sha256"
+        ]
+      }
+    ],
+    "commitMessageTemplate": "[Receipt] {{operation}}: ✓ {{summary}}, SHA256:{{hash}}, {{duration}}",
+    "verification": {
+      "enabled": true,
+      "compareWithPrevious": true,
+      "alertOnDifference": true
+    }
+  },
+  "preFlightGates": {
+    "enabled": true,
+    "beforeWrite": [
+      {
+        "pattern": "**/*.rs",
+        "checks": [
+          {
+            "command": "cargo make timeout-check",
+            "required": true,
+            "message": "Verify timeout exists"
+          },
+          {
+            "command": "cargo make check",
+            "required": false,
+            "message": "Quick compile check",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "pattern": ".specify/**/*.ttl",
+        "checks": [
+          {
+            "command": "cargo make speckit-validate",
+            "required": true,
+            "message": "SHACL validation required",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "pattern": "Cargo.toml",
+        "checks": [
+          {
+            "command": "cargo make check",
+            "required": true,
+            "message": "Workspace rebuild verification",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "beforeCommit": [
+      {
+        "command": "cargo make pre-commit",
+        "required": true,
+        "timeout": 120
+      },
+      {
+        "command": "cargo make slo-check",
+        "required": true,
+        "timeout": 10
+      }
+    ]
+  },
+  "contextSwitching": {
+    "enabled": true,
+    "rules": [
+      {
+        "pattern": "**/*.ttl",
+        "loadSkills": ["rdf-ontologies", "bb80-specification-closure"],
+        "loadAgents": ["speckit-architect"],
+        "reminder": "RDF-first: Edit .ttl, not .md. Run cargo make speckit-render after changes."
+      },
+      {
+        "pattern": "crates/*/tests/**/*.rs",
+        "loadSkills": ["chicago-tdd-pattern", "poka-yoke-patterns"],
+        "loadAgents": ["test-engineer"],
+        "reminder": "Chicago TDD: State-based, real objects, AAA pattern. Verify behavior, not existence."
+      },
+      {
+        "pattern": "crates/*/src/**/*.rs",
+        "loadSkills": ["cargo-make-protocol"],
+        "loadAgents": ["rust-coder", "reviewer"],
+        "reminder": "cargo make check before completion. No unwrap/expect. Result<T,E> always."
+      },
+      {
+        "pattern": "Makefile.toml",
+        "loadSkills": ["cargo-make-protocol"],
+        "loadAgents": ["reviewer"],
+        "reminder": "All tasks need timeout wrappers. Update SLO targets. Test with cargo make."
+      },
+      {
+        "pattern": ".specify/**/*.md",
+        "loadSkills": ["rdf-ontologies"],
+        "reminder": "GENERATED FILE - DO NOT EDIT. Edit corresponding .ttl instead."
+      }
+    ]
+  },
+  "fileProtection": {
+    "enabled": true,
+    "protected": [
+      {
+        "path": "Cargo.toml",
+        "reason": "Workspace manifest - requires workspace-wide rebuild",
+        "askBefore": ["modify", "delete"],
+        "suggestion": "Use 'cargo make check' after modification to verify workspace integrity"
+      },
+      {
+        "path": "CLAUDE.md",
+        "reason": "Project constitution - single source of truth",
+        "askBefore": ["modify", "delete"],
+        "suggestion": "Update via structured process, not ad-hoc edits. Changes affect all AI agents."
+      },
+      {
+        "path": ".claude/settings.json",
+        "reason": "Claude Code configuration - session behavior",
+        "askBefore": ["modify", "delete"],
+        "suggestion": "Test changes in .claude/settings.local.json first"
+      },
+      {
+        "path": ".specify/**/*.ttl",
+        "reason": "RDF specifications - source of truth for generation",
+        "askBefore": ["delete"],
+        "suggestion": "Edit .ttl, then run 'cargo make speckit-render' to regenerate .md"
+      },
+      {
+        "path": ".specify/**/*.md",
+        "reason": "Generated from TTL - DO NOT EDIT",
+        "deny": ["modify"],
+        "suggestion": "Edit corresponding .ttl file instead, then run 'cargo make speckit-render'"
+      },
+      {
+        "path": ".ggen-receipts/**/*",
+        "reason": "Cryptographic receipts - immutable audit trail",
+        "deny": ["modify", "delete"],
+        "suggestion": "Receipts are append-only. Generate new receipts with operations."
+      }
+    ],
+    "autoBackup": true,
+    "backupPath": ".claude/backups/",
+    "maxBackups": 50
+  },
+  "commandSuggestions": {
+    "enabled": true,
+    "contexts": [
+      {
+        "trigger": "test_failure_detected",
+        "suggestions": [
+          "cargo make test {{test_name}} // Run specific failing test",
+          "cargo make test-timings // Identify slow tests",
+          "cargo make lint // Check for warnings that may cause failures"
+        ]
+      },
+      {
+        "trigger": "file_modified:*.rs",
+        "suggestions": [
+          "cargo make check // Quick compile check (<15s)",
+          "cargo make test-unit // Fast feedback (<16s)",
+          "cargo make pre-commit // Full validation before commit"
+        ]
+      },
+      {
+        "trigger": "file_modified:*.ttl",
+        "suggestions": [
+          "cargo make speckit-validate // SHACL validation",
+          "cargo make speckit-render // Regenerate markdown from TTL",
+          "ggen sync --dry_run true // Preview code generation"
+        ]
+      },
+      {
+        "trigger": "compiler_error_detected",
+        "suggestions": [
+          "cargo make check // See full error details",
+          "cargo make timeout-check // Verify timeout command exists",
+          "Create 10+ todos for systematic error fixing"
+        ]
+      },
+      {
+        "trigger": "slo_violation_detected",
+        "suggestions": [
+          "cargo make test-timings // Identify performance bottlenecks",
+          "cargo make profile // Run profiler",
+          "cargo make bench // Run benchmarks"
+        ]
+      }
+    ]
+  },
+  "sessionMemory": {
+    "enabled": true,
+    "storage": ".claude/memory/",
+    "learn": {
+      "commonErrors": true,
+      "frequentCommands": true,
+      "workflowPatterns": true,
+      "timeEstimates": true,
+      "sloViolations": true
+    },
+    "recall": {
+      "similarTasks": true,
+      "previousSolutions": true,
+      "performanceBaselines": true,
+      "errorPatterns": true
+    },
+    "share": {
+      "acrossSessions": true,
+      "anonymized": true,
+      "optOut": false
+    },
+    "retention": {
+      "maxAge": "90d",
+      "maxSize": "100MB",
+      "autoCleanup": true
+    }
+  },
+  "workspaceAwareness": {
+    "enabled": true,
+    "crateCount": 30,
+    "domains": {
+      "core": [
+        "ggen-core",
+        "ggen-cli",
+        "ggen-domain",
+        "ggen-utils",
+        "ggen-config",
+        "ggen-macros",
+        "ggen-node",
+        "ggen-dod"
+      ],
+      "cli_validation": [
+        "ggen-cli-validation",
+        "ggen-config-clap",
+        "ggen-spec-validator"
+      ],
+      "testing": [
+        "ggen-test-audit",
+        "ggen-test-opt",
+        "ggen-e2e"
+      ],
+      "marketplace": [
+        "ggen-marketplace-v2"
+      ],
+      "revops": [
+        "ggen-api",
+        "ggen-auth",
+        "ggen-payments",
+        "ggen-saas"
+      ],
+      "ai": [
+        "ggen-ai",
+        "ggen-dspy"
+      ],
+      "ontology": [
+        "ggen-ontology-core"
+      ],
+      "knhk": [
+        "knhk-etl",
+        "knhk-hot",
+        "knhk-connectors",
+        "knhk-lockchain",
+        "knhk-otel",
+        "knhk-orchestrator"
+      ],
+      "folk_strategy": [
+        "ggen-folk-strategy"
+      ]
+    },
+    "operations": {
+      "testCrate": "cargo test -p {{crate_name}}",
+      "checkCrate": "cargo check -p {{crate_name}}",
+      "testDomain": "cargo test -p {{domain_crates}}",
+      "fullWorkspace": "cargo make test"
+    },
+    "impactAnalysis": {
+      "enabled": true,
+      "suggestAffectedCrates": true,
+      "crossCrateDependencies": true,
+      "dependencyGraph": ".claude/cache/dependency-graph.json"
+    }
   },
   "project_metadata": {
     "name": "ggen",
@@ -163,7 +700,17 @@
     "description": "Ontology-driven code generation: RDF → reproducible code",
     "rust_version": "1.91.1",
     "msrv": "1.75+",
-    "workspace_crates": 27,
-    "tech_stack": ["Rust 1.91.1", "Tokio 1.47", "Oxigraph 0.5.1", "Tera 1.20", "genai 0.4", "chicago-tdd-tools 1.4.0"]
+    "workspace_crates": 30,
+    "tech_stack": [
+      "Rust 1.91.1",
+      "Tokio 1.47",
+      "Oxigraph 0.5.1",
+      "Tera 1.20",
+      "genai 0.5",
+      "chicago-tdd-tools 1.4.0",
+      "clap 4.5"
+    ],
+    "architecture": "Five-stage transformation pipeline (μ₁-μ₅)",
+    "paradigm": "Specification-first, deterministic receipts, EPIC 9 parallel convergence"
   }
 }
