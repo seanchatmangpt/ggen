@@ -159,7 +159,7 @@ impl Module for SimplifiedBaleen {
             let passages: Vec<String> = passages_str
                 .split("\n\n")
                 .map(|s| s.to_string())
-                .filter(|s| !s.is_empty())
+                .filter(|s: &String| !s.is_empty())
                 .collect();
 
             // Extract reasoning for this hop

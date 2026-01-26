@@ -76,7 +76,7 @@ impl InMemoryRetriever {
         let query_words: Vec<_> = query_lower.split_whitespace().collect();
         let matches = query_words
             .iter()
-            .filter(|word| doc_lower.contains(*word))
+            .filter(|word: &&str| doc_lower.contains(*word))
             .count();
 
         (matches as f32) / (query_words.len() as f32)
