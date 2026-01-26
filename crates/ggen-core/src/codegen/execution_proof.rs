@@ -43,7 +43,7 @@ impl ProofCarrier {
         let execution_id = Self::generate_id();
         let timestamp_ms = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .map(|d| d.as_millis() as u64)
+            .map(|d| u64::try_from(d.as_millis()).unwrap_or(0))
             .unwrap_or(0);
 
         let manifest_hash = Self::hash_content(manifest_content);

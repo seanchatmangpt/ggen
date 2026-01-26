@@ -5,7 +5,7 @@
 use super::sync_state::{FileHashState, SyncState};
 use crate::pqc::calculate_sha256_file;
 use chrono::Utc;
-use ggen_utils::error::Result;
+use ggen_utils::error::{Error, Result};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -436,7 +436,7 @@ mod tests {
         )?;
 
         // Load and verify
-        let loaded_state = SyncState::load(&detector.state_file)?;
+        let loaded_state = SyncState::load(detector.state_file_path())?;
         assert_eq!(loaded_state.imports.len(), 1);
         assert_eq!(loaded_state.inference_rules.len(), 1);
 

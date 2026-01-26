@@ -282,7 +282,6 @@ mod tests {
     fn test_red_signal_manifest_invalid() {
         let signal = AndonSignal::manifest_invalid(
             vec!["[ontology].source".to_string()],
-            "Add ontology section".to_string(),
         );
         assert!(signal.is_red());
     }

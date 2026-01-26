@@ -35,7 +35,7 @@
 
 use super::alerting::{AlertManager, ConsoleAlertHandler, FileAlertHandler};
 use super::audit_trail::{AuditError, AuditTrail};
-use super::events::SecurityEvent;
+use super::events::{AttackPattern, SecurityEvent};
 use super::intrusion_detection::{DetectionError, IntrusionDetector};
 use super::metrics::{MetricsCollector, SecurityMetrics, TimeWindow};
 use std::path::PathBuf;

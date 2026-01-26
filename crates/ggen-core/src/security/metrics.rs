@@ -2,7 +2,7 @@
 //!
 //! This module provides comprehensive security metrics for monitoring and analysis.
 
-use super::events::{EventCategory, SecurityEvent, SecuritySeverity};
+use super::events::{AttackPattern, EventCategory, SecurityEvent, SecuritySeverity};
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
