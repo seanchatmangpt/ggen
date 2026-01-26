@@ -1,0 +1,105 @@
+deal_id,prospect_name,company_name,vertical,icp_score,stage,discovery_call_date,demo_date,proposal_date,signature_date,expected_acv,deal_probability,deal_value_at_probability,owner_ae,status_notes,next_step,target_close_date,warm_intro_source
+CUST-001,John Smith,Acme Cloud Solutions,Cloud Infrastructure,85,Contract Negotiation,2026-01-09,2026-02-03,2026-02-10,2026-02-20,250000,85%,212500,Sarah Johnson,"Demo delivered Day 15. Strong buying signals. Legal review in progress. Expects signature Week 9 or early Week 10.","Resolve legal questions, obtain signature",2026-02-21,LinkedIn (VP Eng connection)
+CUST-002,Emily Rodriguez,FinServ Innovations,Fintech,82,Proposal Stage,2026-01-14,2026-02-04,2026-02-12,,175000,70%,122500,Mike Chen,"Demo delivered Day 16. Good engagement. Compliance and procurement team must approve. Slower decision cycle expected.","Address compliance questions, schedule approver call",2026-02-28,CFO referral (portfolio company)
+CUST-003,Alex Kim,PaymentFlow Systems,Fintech,79,Early Demo,2026-01-12,2026-02-04,TBD,,150000,50%,75000,Sarah Johnson,"Demo scheduled Day 16. Strong fit for finance vertical. Transaction volume use case relevant. Some hesitation on timeline.","Deliver demo, address timeline concerns",2026-02-28,Warm intro pending
+CUST-004,David Wong,DataStream Analytics,Cloud Infrastructure,81,Discovery,2026-01-11,TBD,TBD,,200000,40%,80000,Mike Chen,"ICP score 81. Multi-tenant governance pain. High budget authority (CTO). Follow-up call scheduled for Week 8 Day 10.","Schedule demo for Week 9",2026-03-15,LinkedIn (own network)
+CUST-005,Lisa Park,EnterpriseTech Solutions,SaaS,76,Discovery,2026-01-13,TBD,TBD,,180000,35%,63000,Sarah Johnson,"ICP score 76. 40+ hours/month manual SKU management confirmed. Legal review process is slow. Budget available for Q2 spend.","Qualify further on timeline, schedule demo",2026-03-31,Warm intro (VC connection)
+CUST-006,James O'Brien,CloudFlow Labs,Cloud Infrastructure,80,Discovery,2026-01-10,TBD,TBD,,220000,40%,88000,Mike Chen,"ICP score 80. Strong product-market fit signals. Technical decision maker engaged. Wants to see case study before demo.","Send Customer #1 case study, schedule demo Week 9",2026-03-15,Company website (inbound inquiry)
+CUST-007,Maria Santos,RegTech Platforms,Fintech,78,Discovery,2026-01-15,TBD,TBD,,160000,35%,56000,Sarah Johnson,"ICP score 78. Regulatory compliance focused. Longer sales cycle expected (60+ days typical). Budget approval Q1 2026.","Schedule discovery call 2, assess timeline fit",2026-04-15,Warm intro (Legal Officer)
+CUST-008,Robert Zhang,ScaleOps Ventures,SaaS,74,Discovery,2026-01-11,TBD,TBD,,140000,25%,35000,Mike Chen,"ICP score 74 (borderline). Initial interest in POC model. Budget constraints. May not be right fit for Q1/Q2 close.","Determine if POC makes sense, otherwise add to nurture",2026-06-30,Cold email response
+CUST-009,Susan Clark,PaymentTech Corp,Cloud Infrastructure,77,Initial Contact,2026-01-16,TBD,TBD,,190000,20%,38000,Sarah Johnson,"ICP score 77. Initial email open + positive response. Discovery call scheduled for Week 8 Day 13.","Execute discovery call, assess fit",2026-03-31,Cold email campaign
+CUST-010,Kevin Murphy,FinanceFlow Systems,Fintech,80,Initial Contact,2026-01-15,TBD,TBD,,165000,20%,33000,Mike Chen,"ICP score 80. Warm intro in progress (from VC). Initial conversation scheduled Week 8.","Conduct initial conversation, move to discovery",2026-04-15,VC referral (in progress)
+CUST-011,Jennifer Lee,CloudScale Infrastructure,Cloud Infrastructure,83,Initial Contact,2026-01-16,TBD,TBD,,210000,25%,52500,Sarah Johnson,"ICP score 83 (high fit). Multi-tenant governance perfect use case. Initial meeting scheduled Week 8 Day 11.","Initial meeting, qualify for discovery call",2026-03-31,Warm intro (Board connection)
+CUST-012,Marcus Johnson,EnterprisePay Solutions,Fintech,75,Prospect,N/A,N/A,N/A,,155000,15%,23250,Mike Chen,"ICP score 75 (meets threshold). Recent Series B funding. Email outreach sent Day 3. No response yet. Plan follow-up call Week 8.","Follow-up call/email, assess interest",2026-05-31,Cold email campaign
+CUST-013,Amanda Wells,DataSafe Platforms,Cloud Infrastructure,79,Prospect,N/A,N/A,N/A,,185000,15%,27750,Sarah Johnson,"ICP score 79. Director of Engineering target. Email sent Day 4. LinkedIn message sent Day 6. No response yet.","Make cold call attempt, assess interest",2026-05-31,Cold email campaign
+CUST-014,Thomas Brown,FinanceReliability,Fintech,77,Prospect,N/A,N/A,N/A,,170000,15%,25500,Mike Chen,"ICP score 77. Compliance officer target (warm intro in progress from CFO connection). Initial outreach Week 8.","Complete warm intro, conduct discovery call",2026-04-30,Warm intro (CFO referral)
+CUST-015,Rachel Anderson,SaaS Governance,SaaS,73,Prospect,N/A,N/A,N/A,,130000,10%,13000,Sarah Johnson,"ICP score 73. VP Ops target. Email sent Day 5. Secondary vertical (SaaS inventory management). Plan follow-up Week 8.","Follow-up email/call, assess interest",2026-06-30,Cold email campaign
+CUST-016,Christopher Lee,PaymentGate Systems,Cloud Infrastructure,81,Prospect,N/A,N/A,N/A,,205000,15%,30750,Mike Chen,"ICP score 81. Series C funded. Director of Platform target. Email sent Day 7. Plan call Week 8 Day 9.","Cold call attempt, assess interest",2026-04-30,Cold email campaign
+CUST-017,Victoria Martinez,FinTech Connect,Fintech,76,Prospect,N/A,N/A,N/A,,160000,10%,16000,Sarah Johnson,"ICP score 76. Head of Operations target. Email sent Day 6. Limited contact info (will try LinkedIn Week 8).","LinkedIn message, call if connected",2026-05-31,Cold email campaign
+CUST-018,William Thompson,CloudOptimize Labs,Cloud Infrastructure,80,Prospect,N/A,N/A,N/A,,195000,15%,29250,Mike Chen,"ICP score 80. VP Engineering target. Email sent Day 7. Good fit for compliance/governance use case.","Follow-up call Week 8, high-touch outreach",2026-04-30,Cold email campaign
+CUST-019,Samantha Jones,SkuManager Pro,SaaS,75,Prospect,N/A,N/A,N/A,,145000,10%,14500,Sarah Johnson,"ICP score 75. 50+ hours/month manual SKU management confirmed in initial email. Good fit for SaaS vertical.","Discovery call Week 8, assess timeline",2026-05-31,Cold email campaign
+CUST-020,Daniel Kim,PaymentReceipts Inc,Cloud Infrastructure,78,Prospect,N/A,N/A,N/A,,200000,15%,30000,Mike Chen,"ICP score 78. Cryptographic receipt use case strong fit. Email sent Day 6. Plan call Week 8 Day 10.","Cold call Week 8, schedule demo if qualified",2026-04-30,Cold email campaign
+CUST-021,Paul Anderson,FinanceAudit Systems,Fintech,82,Prospect,N/A,N/A,N/A,,180000,20%,36000,Sarah Johnson,"ICP score 82. Audit trail pain point clearly identified. Head of Compliance target. Email sent Day 4. High fit.","Follow-up call Week 8 (priority), schedule demo",2026-04-15,Cold email campaign
+CUST-022,Nancy White,CloudMultiTenant,Cloud Infrastructure,77,Prospect,N/A,N/A,N/A,,190000,15%,28500,Mike Chen,"ICP score 77. Multi-tenant platform at scale. Email sent Day 5. Initial contact Week 8.","Initial contact call, assess fit",2026-05-31,Cold email campaign
+CUST-023,George Brown,SkuOptimize Enterprise,SaaS,72,Prospect,N/A,N/A,N/A,,135000,10%,13500,Sarah Johnson,"ICP score 72 (borderline). Enterprise SKU management use case. Email sent Day 6. Budget may be constrained.","Follow-up with budget qualification question",2026-06-30,Cold email campaign
+CUST-024,Elizabeth Davis,PaymentComplianceHub,Fintech,79,Prospect,N/A,N/A,N/A,,165000,15%,24750,Mike Chen,"ICP score 79. Payment compliance focus. CFO target (warm intro pending). Good fit for fintech vertical.","Warm intro completion, discovery call Week 8",2026-04-30,Warm intro (CFO referral)
+CUST-025,Michael Johnson,CloudScale Networks,Cloud Infrastructure,81,Prospect,N/A,N/A,N/A,,210000,20%,42000,Sarah Johnson,"ICP score 81. Scale-out cloud platform. Director of Engineering target. Email sent Day 3. High fit.","Follow-up call Week 8 (priority), schedule demo",2026-03-31,Cold email campaign
+CUST-026,Laura Davis,FinanceFlow Automation,Fintech,74,Prospect,N/A,N/A,N/A,,155000,10%,15500,Mike Chen,"ICP score 74 (borderline). Automation focus. Controller target. Email sent Day 7. May be better fit as nurture.","Assessment: qualification call Week 8 or nurture list",2026-06-30,Cold email campaign
+CUST-027,Steven Wilson,SaaS Compliance Pro,SaaS,77,Prospect,N/A,N/A,N/A,,150000,15%,22500,Sarah Johnson,"ICP score 77. Compliance SaaS use case. VP Product target. Email sent Day 5. Shared pain point in response.","Follow-up call Week 8, assess demo interest",2026-05-31,Cold email campaign
+CUST-028,Jennifer Chen,PaymentScale Corp,Cloud Infrastructure,76,Prospect,N/A,N/A,N/A,,185000,15%,27750,Mike Chen,"ICP score 76. Payment scale platform. CTO target. Email sent Day 4. Good initial signal.","Follow-up call Week 8, assess discovery readiness",2026-05-31,Cold email campaign
+CUST-029,Richard Taylor,SkuAI Analytics,SaaS,71,Prospect,N/A,N/A,N/A,,125000,10%,12500,Sarah Johnson,"ICP score 71 (borderline). AI-powered SKU analytics. VP Analytics target. Email sent Day 6. Secondary fit.","Follow-up, determine if should nurture or close out",2026-06-30,Cold email campaign
+CUST-030,Patricia Martinez,CloudCompliance Hub,Cloud Infrastructure,80,Prospect,N/A,N/A,N/A,,205000,15%,30750,Mike Chen,"ICP score 80. Compliance focus. Director of Security target. Email sent Day 5. Strong fit.","Follow-up call Week 8 (priority), assess demo interest",2026-04-30,Cold email campaign
+CUST-031,James Wilson,FinanceGov Systems,Fintech,78,Prospect,N/A,N/A,N/A,,170000,15%,25500,Sarah Johnson,"ICP score 78. Governance/compliance focus. CFO target. Email sent Day 4. Warm intro pending from Board connection.","Warm intro completion, discovery call Week 8",2026-04-30,Warm intro (Board referral)
+CUST-032,Barbara Johnson,PaymentReceipt Analytics,Cloud Infrastructure,77,Prospect,N/A,N/A,N/A,,190000,10%,19000,Mike Chen,"ICP score 77. Receipt system focus. COO target. Email sent Day 7. Less specific pain point identified.","Follow-up assessment, may nurture",2026-06-30,Cold email campaign
+CUST-033,Kenneth Brown,EnterpriseSKU Pro,SaaS,76,Prospect,N/A,N/A,N/A,,145000,15%,21750,Sarah Johnson,"ICP score 76. Enterprise SKU focus. VP Operations target. Email sent Day 3. Good fit for SaaS vertical.","Follow-up call Week 8, schedule discovery if interested",2026-05-31,Cold email campaign
+CUST-034,Sandra White,FinanceTech Solutions,Fintech,75,Prospect,N/A,N/A,N/A,,155000,10%,15500,Mike Chen,"ICP score 75. FinTech solutions provider. Head of Compliance target. Email sent Day 6. May have longer sales cycle.","Initial contact call Week 8, assess timeline",2026-06-30,Cold email campaign
+CUST-035,David Miller,CloudGovernance Pro,Cloud Infrastructure,82,Prospect,N/A,N/A,N/A,,215000,20%,43000,Sarah Johnson,"ICP score 82 (high). Governance focus. VP Engineering target. Email sent Day 2. Strong signal expected. (PRIORITY)","Priority follow-up call Week 8 Day 8, schedule demo",2026-03-31,Cold email campaign
+CUST-036,Carol Anderson,PaymentCompleteness,Fintech,73,Prospect,N/A,N/A,N/A,,140000,10%,14000,Mike Chen,"ICP score 73. Completeness/accuracy focus. VP Operations target. Email sent Day 6. Secondary fit.","Follow-up assessment, likely nurture",2026-06-30,Cold email campaign
+CUST-037,Frank Davis,SaaS Reliability,SaaS,74,Prospect,N/A,N/A,N/A,,130000,10%,13000,Sarah Johnson,"ICP score 74. Reliability focus. Director of Ops target. Email sent Day 5. May not be primary pain point fit.","Follow-up assessment, determine nurture priority",2026-06-30,Cold email campaign
+CUST-038,Margaret Johnson,CloudReceipts Hub,Cloud Infrastructure,79,Prospect,N/A,N/A,N/A,,200000,15%,30000,Mike Chen,"ICP score 79. Receipt system focus. CTO target. Email sent Day 7. Good technical fit.","Follow-up call Week 8, assess demo readiness",2026-05-31,Cold email campaign
+CUST-039,Ronald Taylor,FinanceRule Engine,Fintech,81,Prospect,N/A,N/A,N/A,,175000,20%,35000,Sarah Johnson,"ICP score 81. Rule engine/deployment focus. VP Engineering target. Email sent Day 2. Strong fit. (PRIORITY)","Priority follow-up call Week 8 Day 9, high-touch outreach",2026-04-15,Cold email campaign
+CUST-040,Dorothy White,PaymentIntelligence,Cloud Infrastructure,76,Prospect,N/A,N/A,N/A,,185000,10%,18500,Mike Chen,"ICP score 76. Intelligence/insights focus. VP Product target. Email sent Day 4. Secondary pain point.","Follow-up assessment, may nurture for long-term",2026-06-30,Cold email campaign
+CUST-041,Joseph Brown,SkuAutomation Pro,SaaS,78,Prospect,N/A,N/A,N/A,,160000,15%,24000,Sarah Johnson,"ICP score 78. Automation focus. VP Ops target. Email sent Day 6. Good fit for SaaS vertical.","Follow-up call Week 8, assess discovery interest",2026-05-31,Cold email campaign
+CUST-042,Helen Davis,CloudMultiMilti,Cloud Infrastructure,75,Prospect,N/A,N/A,N/A,,180000,10%,18000,Mike Chen,"ICP score 75. Multi-tenant focus. Director of Platform target. Email sent Day 5. Borderline fit.","Follow-up assessment, determine priority",2026-06-30,Cold email campaign
+CUST-043,Charles Anderson,FinanceRules Pro,Fintech,77,Prospect,N/A,N/A,N/A,,165000,15%,24750,Sarah Johnson,"ICP score 77. Rules deployment focus. CRO target. Email sent Day 4. Good fit for fintech vertical.","Follow-up call Week 8, assess discovery interest",2026-05-31,Cold email campaign
+CUST-044,Alice Johnson,PaymentEnsure,Cloud Infrastructure,77,Prospect,N/A,N/A,N/A,,195000,15%,29250,Mike Chen,"ICP score 77. Payment assurance focus. COO target. Email sent Day 6. Technical decision maker (CTO) also relevant.","Follow-up call Week 8, multi-stakeholder approach",2026-05-31,Cold email campaign
+CUST-045,Edward Brown,SaaS Excellence,SaaS,72,Prospect,N/A,N/A,N/A,,120000,10%,12000,Sarah Johnson,"ICP score 72 (borderline). Excellence/quality focus. VP Quality target. Email sent Day 7. May not be strong fit.","Follow-up assessment, likely nurture",2026-06-30,Cold email campaign
+CUST-046,Diane Davis,CloudEdge Solutions,Cloud Infrastructure,80,Prospect,N/A,N/A,N/A,,210000,15%,31500,Mike Chen,"ICP score 80. Edge computing platform. VP Engineering target. Email sent Day 3. Good fit for multi-tenant governance.","Follow-up call Week 8 (priority), assess demo interest",2026-04-30,Cold email campaign
+CUST-047,George Miller,FinanceEdge Pro,Fintech,76,Prospect,N/A,N/A,N/A,,160000,10%,16000,Sarah Johnson,"ICP score 76. Edge/modern architecture focus. Director of Engineering target. Email sent Day 5. Secondary fit.","Follow-up assessment, determine priority",2026-06-30,Cold email campaign
+CUST-048,Evelyn Johnson,PaymentCore Systems,Cloud Infrastructure,78,Prospect,N/A,N/A,N/A,,205000,15%,30750,Mike Chen,"ICP score 78. Core payments focus. VP Technology target. Email sent Day 4. Good technical fit.","Follow-up call Week 8, assess discovery readiness",2026-05-31,Cold email campaign
+CUST-049,Frederick Davis,SkuDynamics,SaaS,75,Prospect,N/A,N/A,N/A,,140000,15%,21000,Sarah Johnson,"ICP score 75. Dynamic SKU management focus. VP Operations target. Email sent Day 5. Good fit for SaaS vertical.","Follow-up call Week 8, assess demo interest",2026-05-31,Cold email campaign
+CUST-050,Gloria White,CloudAutomation Hub,Cloud Infrastructure,79,Prospect,N/A,N/A,N/A,,200000,15%,30000,Mike Chen,"ICP score 79. Automation platform focus. Director of Operations target. Email sent Day 6. Good fit.","Follow-up call Week 8, assess discovery interest",2026-05-31,Cold email campaign
+
+## PIPELINE SUMMARY
+
+Total Prospects in Pipeline,50
+Total Pipeline Value (base ACV),"$8,490,000"
+Total Pipeline Value (probability-weighted),"$1,237,250"
+
+By Stage:
+Contract Negotiation,1
+Proposal Stage,1
+Early Demo,1
+Discovery,4
+Initial Contact,5
+Prospect,38
+
+By Vertical:
+Cloud Infrastructure,21
+Fintech,17
+SaaS,12
+
+By Probability:
+85%+ Deals,"$212,500 (Customer #2)"
+70%+ Deals,"$335,000 (Customer #2 + #3)"
+50%+ Deals,"$410,000 (Top 3 customers)"
+20%+ Deals,"$1,237,250 (Full pipeline)"
+
+Key Performance Indicators:
+Average ICP Score,77.8
+Average ACV,"$169,800"
+Weighted Average Probability,17.3%
+Deals Above ICP Threshold (75+),37 of 50 (74%)
+
+Three-Month Forecast (Next 90 Days):
+Month 1 (Feb 2026) Forecast,"$400K - $500K (Customer #2 likely closes)"
+Month 2 (Mar 2026) Forecast,"$300K - $400K (Customer #3 likely closes)"
+Month 3 (Apr 2026) Forecast,"$200K - $300K (Additional closures from top prospects)"
+Total 90-Day Forecast,"$900K - $1.2M (5-7 customers)"
+
+## NOTES
+
+This pipeline tracker reflects:
+- Week 7-9 outreach campaign (150+ touches to 50-company target list)
+- Customer #2 (CUST-001): Expected to close Week 9 Day 20-21 ($250K ACV)
+- Customer #3 (CUST-002): Expected to close Week 10 ($175K ACV)
+- 38 additional prospects in pipeline (mostly early stage, nurture/discovery)
+- High-fit prospects (ICP 80+): 12 companies with $2.2M+ potential value
+- Priority follow-ups (Week 8): CUST-004, CUST-006, CUST-009, CUST-010, CUST-011, CUST-021, CUST-025, CUST-030, CUST-035, CUST-039, CUST-046
+
+Deal progression assumes:
+- Customer #2 demo delivery: Week 9 Day 15
+- Customer #3 demo delivery: Week 9 Day 16
+- Customer #2 signature: Week 9 Day 20-21 (85% probability)
+- Customer #3 signature: Week 10 Day 1-7 (70% probability)
+- Additional customers: Week 10-13 (from top discovery call prospects)
