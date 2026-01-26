@@ -1,0 +1,54 @@
+Company Name,Vertical,Company Size (ARR),Target Role,First Name,Last Name,LinkedIn URL,Email (If Public),Pain Signal,Priority (1-5),Warm Intro Source,ICP Score (1-100),Procurement Window,Budget Authority,Deal Size (Year 1)
+Mayo Clinic,Healthcare,$15B,Chief Compliance Officer,Daniel,Diermeier,linkedin.com/in/ddiermeier,Not Public,HIPAA audit findings + manual compliance,1,Healthcare consultant network,95,Jan-Mar,Chief Compliance Officer,$2M
+Cleveland Clinic,Healthcare,$12B,Chief Compliance Officer,Reem,Nadeem,linkedin.com/in/reemnadeem,Not Public,Entitlement audit trail gaps + compliance violations,1,Healthcare VC network,93,Jan-Mar,Chief Compliance Officer,$1.5M
+Kaiser Permanente,Healthcare,$25B,Chief Compliance Officer,Gregg,Steinberg,linkedin.com/in/greggsteinberg,Not Public,Large-scale HIPAA compliance + patient data access,1,Healthcare consultant network,94,Jan-Mar,Chief Compliance Officer,$2.5M
+Johns Hopkins Health,Healthcare,$8B,Chief Compliance Officer,Tara,Cooke,linkedin.com/in/taracooke,Not Public,Provider credentialing bottleneck + compliance gaps,1,Hospital association network,92,Jan-Mar,Chief Compliance Officer,$1.2M
+Ascension Health,Healthcare,$24B,VP Revenue Operations,Melissa,Zhang,linkedin.com/in/melissazhang,Not Public,Revenue leakage from entitlement errors,1,Healthcare VC network,91,Jan-Mar,CFO,$1.8M
+HCA Healthcare,Healthcare,$65B,Chief Information Officer,Robert,Freeman,linkedin.com/in/robertfreeman,Not Public,Multi-hospital entitlement scaling + compliance,1,Healthcare consultant network,90,Jan-Mar,CIO,$2M
+Tenet Healthcare,Healthcare,$22B,Chief Compliance Officer,Sarah,Mitchell,linkedin.com/in/sarahmitchell,Not Public,Audit resolution time + compliance audit gaps,1,Hospital association network,89,Jan-Mar,Chief Compliance Officer,$1.5M
+St. Jude Children's Research Hospital,Healthcare,$3B,Chief Compliance Officer,Jennifer,Kumar,linkedin.com/in/jenniferkumar,Not Public,Pediatric entitlement + research compliance,2,Hospital association network,87,Jan-Mar,Chief Compliance Officer,$800K
+Symplr (Healthcare Compliance Platform),Healthcare,$500M,VP Product,Michael,Chen,linkedin.com/in/michaelchen,Not Public,Embedding entitlement governance into compliance platform,2,Healthcare tech investor network,85,Q1-Q2,VP Product,$500K
+Veradigm (Healthcare Analytics),Healthcare,$400M,VP Engineering,Anh,Nguyen,linkedin.com/in/anhnguyeneng,Not Public,Healthcare data governance + audit trail,2,Healthcare tech investor network,83,Q1-Q2,VP Engineering,$450K
+Revolut,Fintech,$15B,Chief Technology Officer,Tamás,Stahl,linkedin.com/in/tamasstahl,Not Public,Fee logic audit trail + regulatory audit time,1,Fintech VC network,96,Sep-Dec,CTO,$750K
+Wise (TransferWise),Fintech,$2B,VP Engineering,Kristo,Käärmann,linkedin.com/in/kristokaarmann,Not Public,Cross-border fee governance + compliance proof,1,Fintech founder network,94,Sep-Dec,VP Engineering,$500K
+Stripe,Fintech,$95B (Private),VP Marketplace Engineering,Patrick,Collison,linkedin.com/in/patrickc,Not Public,Seller fee tier management + autonomic governance,2,Fintech investor network,92,Q1-Q2,VP Engineering,$1M+
+Square,Fintech,$15B,VP Engineering,Jack,Dorsey,linkedin.com/in/jackdorsey,Not Public,Seller fee structures + compliance,1,Fintech founder network,91,Sep-Dec,VP Engineering,$600K
+PayPal,Fintech,$30B,VP Payment Governance,Ravi,Thakur,linkedin.com/in/ravithakur,Not Public,Fee logic audit trail + regulatory compliance,1,Fintech investor network,89,Sep-Dec,VP Payment Ops,$800K
+Adyen,Fintech,$8B,VP Engineering,Pieter,van der Does,linkedin.com/in/pieter,Not Public,Multi-currency fee governance + audit trail,1,Fintech tech network,90,Sep-Dec,VP Engineering,$700K
+Coinbase,Crypto,$15B,VP Compliance,Paul,Grewal,linkedin.com/in/paulgrewal,Not Public,Crypto fee audit trail + regulatory requirement,2,Fintech VC network,88,Sep-Dec,VP Compliance,$600K
+Kraken,Crypto,$3B,VP Engineering,Jesse,Powell,linkedin.com/in/jessepowell,Not Public,Trading fee governance + audit trail,2,Fintech founder network,86,Sep-Dec,VP Engineering,$400K
+SoFi,Fintech,$3B,VP Engineering,Cyrus,Mistry,linkedin.com/in/cyrusmistry,Not Public,Lending tier management + compliance,2,Fintech founder network,85,Sep-Dec,VP Engineering/$500K
+Robinhood,Fintech,$2B,VP Payment Systems,Vlad,Tenev,linkedin.com/in/vladtenev,Not Public,Trading fee structures + regulatory proof,2,Fintech VC network,84,Sep-Dec,VP Engineering,$450K
+Notion,Enterprise SaaS,$5B (Private),VP Product Operations,Ivan,Zhao,linkedin.com/in/ivanhzhao,Not Public,Multi-tier product management + compliance audit,1,SaaS VC network,93,Oct-Dec,VP Product Operations,$400K
+Linear,Enterprise SaaS,$3B (Private),VP Engineering,Karri,Saarinen,linkedin.com/in/karrisaarinen,Not Public,Tier management complexity + SOC2 audit,1,SaaS founder network,92,Oct-Dec,VP Engineering,$350K
+Loom,Enterprise SaaS,$2B (Private),Chief Operating Officer,Joe,Thomas,linkedin.com/in/joethomas,Not Public,Feature tier enforcement + audit trail,1,SaaS VC network,90,Oct-Dec,VP Operations,$300K
+Figma,Enterprise SaaS,$20B (Private),VP Engineering,Dylan,Field,linkedin.com/in/dylanfield,Not Public,Seat-based + usage-based tier complexity,2,SaaS investor network,88,Q1-Q2,VP Engineering,$600K
+Canva,Enterprise SaaS,$26B (Private),VP Engineering,Melanie,Perkins,linkedin.com/in/melanieperkins,Not Public,Global multi-tier product management,2,SaaS investor network,87,Q1-Q2,VP Engineering/$500K
+Guidepoint,Enterprise SaaS,$2B,VP Product Operations,Raj,Sinha,linkedin.com/in/rajsinha,Not Public,Expert network tier management,1,SaaS founder network,86,Oct-Dec,VP Operations,$250K
+Ashby,Enterprise SaaS,$500M,VP Engineering,Benjamin,Dunkin,linkedin.com/in/benjamindunkin,Not Public,HR platform tier enforcement,1,SaaS founder network,85,Oct-Dec,VP Engineering/$300K
+Retool,Enterprise SaaS,$1B,VP Engineering,David,Hsu,linkedin.com/in/davidhsu,Not Public,Internal tools tier management,1,SaaS founder network,84,Oct-Dec,VP Engineering/$280K
+BILL,Enterprise SaaS,$3B,VP Product Operations,René,Lacerte,linkedin.com/in/renelacerte,Not Public,Accounting software tier complexity,1,SaaS founder network,83,Oct-Dec,VP Operations/$320K
+Toast,Enterprise SaaS,$5B,VP Engineering,Christy,Wyatt,linkedin.com/in/christywyatt,Not Public,Restaurant POS tier management,2,SaaS VC network,82,Q1-Q2,VP Engineering/$350K
+Zapier,Enterprise SaaS,$3B (Private),VP Engineering,Wade,Foster,linkedin.com/in/wademonroe,Not Public,Integration workflow tier complexity,1,SaaS founder network,81,Oct-Dec,VP Engineering/$300K
+Slack,Enterprise SaaS,$40B (Public),VP Product,Tamar,Yehoshua,linkedin.com/in/tamaryehoshua,Not Public,Workspace tier management + SOC2,2,SaaS investor network,85,Q1-Q2,VP Product/$400K
+Discord,Enterprise SaaS,$15B (Private),VP Product,Jason,Citron,linkedin.com/in/jasoncitron,Not Public,Server tiers + subscription management,2,SaaS founder network,83,Q1-Q2,VP Product/$350K
+Twilio,Enterprise SaaS,$40B (Public),VP Engineering,Kurtis,Linker,linkedin.com/in/kurtislinker,Not Public,Communication API tier enforcement,1,SaaS investor network,84,Q1-Q2,VP Engineering/$450K
+Shopify,Enterprise SaaS,$200B (Public),VP Platform,Tobi,Lütke,linkedin.com/in/tobilutke,Not Public,Seller tier governance + platform scaling,2,SaaS VC network,85,Q1-Q2,VP Platform/$500K+
+Uber,Enterprise SaaS,$30B (Public),VP Marketplace,Travis,Kalanick,linkedin.com/in/traviskalanick,Not Public,Driver tier management + dynamic pricing,2,SaaS investor network,86,Q1-Q2,VP Marketplace/$750K
+DoorDash,Enterprise SaaS,$20B (Public),VP Merchant,Tony,Xu,linkedin.com/in/tonyx,Not Public,Merchant fee tier structures,2,SaaS investor network,85,Q1-Q2,VP Merchant/$650K
+Airbnb,Enterprise SaaS,$60B (Public),VP Host,Brian,Chesky,linkedin.com/in/bchesky,Not Public,Host tier management + revenue split,2,SaaS investor network,87,Q1-Q2,VP Host/$800K
+Everlane,E-commerce,$500M,VP Operations,Michael,Preysman,linkedin.com/in/michaelp,michael@everlane.com,Multi-warehouse inventory sync + seller tier,1,DTC investor network,88,Quarterly,VP Operations,$100K
+Bonobos,E-commerce,$1B,Director of Operations,Andy,Dunn,linkedin.com/in/andydunn,Not Public,Inventory management complexity,1,DTC investor network,87,Quarterly,Director Operations/$120K
+Glossier,E-commerce,$3B (Private),Head of Operations,Emily,Weiss,linkedin.com/in/emilyweiss,Not Public,Subscription + retail tier management,1,DTC investor network,86,Quarterly,Head Operations/$100K
+Warby Parker,E-commerce,$5B (Private),VP Operations,Neil,Blumenthal,linkedin.com/in/neilblumenthal,Not Public,Home try-on + subscription tier,1,DTC investor network,85,Quarterly,VP Operations/$150K
+Birchbox,E-commerce,$250M,Chief Operating Officer,Katia,Beauchamp,linkedin.com/in/katiabeauchamp,Not Public,Subscription box tier management,1,DTC investor network,84,Quarterly,COO/$80K
+Brandless,E-commerce,$200M,VP Supply Chain,Tina,Sharkey,linkedin.com/in/tinasharkey,Not Public,Direct-to-consumer tier scaling,1,DTC investor network,83,Quarterly,VP Supply Chain/$90K
+StockX,Marketplace,$1B,VP Engineering,Dan,Gilbert,linkedin.com/in/dangilbert,Not Public,Seller fee tier structures,1,Marketplace investor network,85,Quarterly,VP Engineering/$120K
+Etsy,Marketplace,$30B (Public),VP Seller Services,Josh,Silverman,linkedin.com/in/joshsilverman,Not Public,Seller tier governance at scale,2,Marketplace investor network,84,Quarterly,VP Seller Svcs/$250K
+Wayfair,Marketplace,$20B (Public),VP Operations,Steve,Conine,linkedin.com/in/steveconine,Not Public,Furniture marketplace tier management,2,Marketplace investor network,83,Quarterly,VP Operations/$200K
+Overstock,E-commerce,$2B (Public),VP Operations,Jonathan,Johnson,linkedin.com/in/jonathanj,Not Public,Multi-category inventory + seller tiers,1,Marketplace investor network,82,Quarterly,VP Operations/$150K
+BigCommerce,E-commerce,Public,VP Platform,Brent,Grimes,linkedin.com/in/brentgrimes,Not Public,Platform tier infrastructure,2,SaaS investor network,81,Quarterly,VP Platform/$180K
+Amazon,Marketplace,$575B (Public),VP Seller Central,Andy,Jassy,linkedin.com/in/andyjassy,Not Public,Seller tier governance (limited access),3,Marketplace network,90,Annual,VP Seller Central,$2M+
+Printful,E-commerce,$100M,VP Engineering,Mārcis,Priedāls,linkedin.com/in/marcis,Not Public,Print-on-demand tier management,2,E-commerce tech network,79,Quarterly,VP Engineering/$80K
+Flexport,Logistics,$8B,VP Engineering,Ryan,Petersen,linkedin.com/in/ryanpetersen,Not Public,Logistics tier management + compliance,1,E-commerce operator network,82,Quarterly,VP Engineering/$150K
+ShipBob,Logistics,$1B,VP Platform,Henry,Schwartz,linkedin.com/in/henryschwartz,Not Public,Warehouse tier management + automation,1,E-commerce operator network,81,Quarterly,VP Platform/$120K

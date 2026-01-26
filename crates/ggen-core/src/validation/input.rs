@@ -767,7 +767,7 @@ impl<T: PartialOrd + fmt::Display + Clone> RangeRule<T> {
     }
 }
 
-impl<T: PartialOrd + fmt::Display + Clone> ValidationRule<T> for RangeRule<T> {
+impl<T: PartialOrd + fmt::Display + Clone + Send + Sync + 'static> ValidationRule<T> for RangeRule<T> {
     fn validate(&self, input: &T, field_name: &str) -> Result<T> {
         if let Some(ref min) = self.min {
             if input < min {

@@ -56,7 +56,9 @@
     ledger = #{} :: #{customer_id() => [#value_record{}]},
     customer_count = 0 :: non_neg_integer(),
     total_values_calculated = 0 :: non_neg_integer(),
-    last_error = none :: none | term()
+    last_error = none :: none | term(),
+    ledger_pid = undefined :: undefined | pid(),
+    session_id = undefined :: undefined | binary()
 }).
 
 %%%===================================================================
@@ -108,7 +110,37 @@ list_receipts_for_customer(CustomerId, StartTime, EndTime) when is_binary(Custom
 callback_mode() -> handle_event_function.
 
 init(_Config) ->
-    {ok, idle, #state{}}.
+    %% Verify eval-only mode before starting
+    case ac_eval_mode:ensure_eval() of
+        ok ->
+            %% Initialize eval session context
+            case ac_eval_mode:start_session() of
+                {ok, SessionId, _SessionSecret} ->
+                    %% Start ac_receipt_ledger_mcp as child process
+                    case ac_receipt_ledger_mcp:start_link(#{
+                        session_id => SessionId,
+                        disclaimer => <<"Pricing engine in evaluation mode - advisory only">>
+                    }) of
+                        {ok, LedgerPid} ->
+                            {ok, idle, #state{
+                                ledger_pid = LedgerPid,
+                                session_id = SessionId
+                            }};
+                        {error, Reason} ->
+                            logger:error("Failed to start receipt ledger", #{error => Reason}),
+                            {ok, idle, #state{
+                                last_error = {ledger_start_failed, Reason},
+                                session_id = SessionId
+                            }}
+                    end;
+                {error, Reason} ->
+                    logger:error("Failed to initialize eval session", #{error => Reason}),
+                    {ok, idle, #state{last_error = {session_init_failed, Reason}}}
+            end;
+        {error, Reason} ->
+            logger:error("Eval mode check failed", #{error => Reason}),
+            {ok, idle, #state{last_error = {eval_mode_check_failed, Reason}}}
+    end.
 
 %% Calculate value for customer
 handle_event({call, From}, {calculate_value, CustomerId, Metrics, PricingConfig, Options}, State) ->
@@ -144,14 +176,46 @@ handle_event({call, From}, {calculate_value, CustomerId, Metrics, PricingConfig,
                                         previous_hash = get_previous_hash(CustomerId, State)
                                     },
 
-                                    %% Update ledger
-                                    NewLedger = update_ledger(CustomerId, FinalRecord, State#state.ledger),
-                                    NewState = State#state{
-                                        ledger = NewLedger,
-                                        total_values_calculated = State#state.total_values_calculated + 1
-                                    },
-
-                                    {next_state, idle, NewState, {reply, From, {ok, FinalRecord}}};
+                                    %% Decorate record with eval-mode metadata
+                                    case ac_eval_mode:decorate_payload(FinalRecord) of
+                                        {ok, DecoratedRecord} ->
+                                            %% Append to receipt ledger with timestamp and session info
+                                            LedgerMeta = #{
+                                                customer_id => CustomerId,
+                                                receipt_timestamp => erlang:system_time(millisecond),
+                                                session_id => State#state.session_id
+                                            },
+                                            case ac_receipt_ledger_mcp:append(calculate_value, DecoratedRecord, LedgerMeta) of
+                                                {ok, _ReceiptHash} ->
+                                                    %% Update ledger
+                                                    NewLedger = update_ledger(CustomerId, FinalRecord, State#state.ledger),
+                                                    NewState = State#state{
+                                                        ledger = NewLedger,
+                                                        total_values_calculated = State#state.total_values_calculated + 1
+                                                    },
+                                                    {next_state, idle, NewState, {reply, From, {ok, FinalRecord}}};
+                                                {error, LedgerReason} ->
+                                                    logger:warning("Failed to append to receipt ledger", #{error => LedgerReason}),
+                                                    %% Still return record but note ledger failure
+                                                    NewLedger = update_ledger(CustomerId, FinalRecord, State#state.ledger),
+                                                    NewState = State#state{
+                                                        ledger = NewLedger,
+                                                        total_values_calculated = State#state.total_values_calculated + 1,
+                                                        last_error = {ledger_append_failed, LedgerReason}
+                                                    },
+                                                    {next_state, idle, NewState, {reply, From, {ok, FinalRecord}}}
+                                            end;
+                                        {error, DecorateReason} ->
+                                            logger:warning("Failed to decorate record", #{error => DecorateReason}),
+                                            %% Still process record without decoration
+                                            NewLedger = update_ledger(CustomerId, FinalRecord, State#state.ledger),
+                                            NewState = State#state{
+                                                ledger = NewLedger,
+                                                total_values_calculated = State#state.total_values_calculated + 1,
+                                                last_error = {decoration_failed, DecorateReason}
+                                            },
+                                            {next_state, idle, NewState, {reply, From, {ok, FinalRecord}}}
+                                    end;
                                 {error, Reason} ->
                                     {next_state, idle, State#state{last_error = Reason},
                                      {reply, From, {error, {hash_generation_failed, Reason}}}}
@@ -190,7 +254,27 @@ handle_event({call, From}, {verify_receipt, CustomerId, ReceiptHash}, State) ->
                     %% Verify merkle chain integrity
                     case verify_merkle_chain(Record, History, State#state.ledger) of
                         ok ->
-                            {next_state, idle, State, {reply, From, {ok, Record}}};
+                            %% Verify receipt is session-scoped (not cross-session)
+                            case ac_receipt_ledger_mcp:verify_receipt(State#state.session_id, ReceiptHash, Record) of
+                                {ok, verified} ->
+                                    %% Decorate response with eval-mode metadata
+                                    ResponseMeta = #{
+                                        verification_timestamp => erlang:system_time(millisecond),
+                                        customer_id => CustomerId,
+                                        verified => true
+                                    },
+                                    case ac_eval_mode:decorate_meta(Record, ResponseMeta) of
+                                        {ok, DecoratedResponse} ->
+                                            {next_state, idle, State, {reply, From, {ok, DecoratedResponse}}};
+                                        {error, DecorateErr} ->
+                                            logger:warning("Failed to decorate verify response", #{error => DecorateErr}),
+                                            {next_state, idle, State, {reply, From, {ok, Record}}}
+                                    end;
+                                {error, VerifyErr} ->
+                                    logger:warning("Receipt verification failed", #{error => VerifyErr}),
+                                    {next_state, idle, State#state{last_error = VerifyErr},
+                                     {reply, From, {error, {session_verification_failed, VerifyErr}}}}
+                            end;
                         {error, Reason} ->
                             {next_state, idle, State#state{last_error = Reason},
                              {reply, From, {error, {merkle_chain_invalid, Reason}}}}
@@ -204,48 +288,76 @@ handle_event({call, From}, {verify_receipt, CustomerId, ReceiptHash}, State) ->
 handle_event({call, From}, {get_customer_stats, CustomerId, total_value}, State) ->
     case maps:get(CustomerId, State#state.ledger, []) of
         [] ->
-            {next_state, idle, State, {reply, From, {ok, 0.0}}};
+            StatResponse = #{
+                value => 0.0,
+                eval_disclaimer => ac_eval_mode:banner()
+            },
+            {next_state, idle, State, {reply, From, {ok, StatResponse}}};
         History ->
             Total = lists:foldl(
                 fun(#value_record{calculated_value = V}, Acc) -> Acc + V end,
                 0.0,
                 History
             ),
-            {next_state, idle, State, {reply, From, {ok, Total}}}
+            StatResponse = #{
+                value => Total,
+                eval_disclaimer => ac_eval_mode:banner()
+            },
+            {next_state, idle, State, {reply, From, {ok, StatResponse}}}
     end;
 
 handle_event({call, From}, {get_customer_stats, CustomerId, receipt_count}, State) ->
     case maps:get(CustomerId, State#state.ledger, []) of
         [] ->
-            {next_state, idle, State, {reply, From, {ok, 0}}};
+            StatResponse = #{
+                count => 0,
+                eval_disclaimer => ac_eval_mode:banner()
+            },
+            {next_state, idle, State, {reply, From, {ok, StatResponse}}};
         History ->
-            {next_state, idle, State, {reply, From, {ok, length(History)}}}
+            StatResponse = #{
+                count => length(History),
+                eval_disclaimer => ac_eval_mode:banner()
+            },
+            {next_state, idle, State, {reply, From, {ok, StatResponse}}}
     end;
 
 handle_event({call, From}, {get_customer_stats, CustomerId, _StatType}, State) ->
-    {next_state, idle, State, {reply, From, {error, unsupported_stat_type}}};
+    ErrorResponse = #{
+        error => unsupported_stat_type,
+        eval_disclaimer => ac_eval_mode:banner()
+    },
+    {next_state, idle, State, {reply, From, {error, ErrorResponse}}};
 
 %% List receipts in date range
 handle_event({call, From}, {list_receipts_for_customer, CustomerId, StartTime, EndTime}, State) ->
     case maps:get(CustomerId, State#state.ledger, []) of
         [] ->
-            {next_state, idle, State, {reply, From, {ok, []}}};
+            Response = #{
+                receipts => [],
+                eval_disclaimer => ac_eval_mode:banner()
+            },
+            {next_state, idle, State, {reply, From, {ok, Response}}};
         History ->
             Filtered = [R || R <- History,
                 R#value_record.timestamp >= StartTime,
                 R#value_record.timestamp =< EndTime],
-            {next_state, idle, State, {reply, From, {ok, Filtered}}}
+            Response = #{
+                receipts => Filtered,
+                eval_disclaimer => ac_eval_mode:banner()
+            },
+            {next_state, idle, State, {reply, From, {ok, Response}}}
     end;
 
 handle_event(EventType, EventContent, State) ->
     logger:warning("Unexpected event: ~p, ~p", [EventType, EventContent]),
     {next_state, idle, State}.
 
-terminate(_Reason, _State, _Data) ->
+terminate(_Reason, _StateName, _State) ->
     ok.
 
-code_change(_OldVsn, State, _Extra) ->
-    {ok, State}.
+code_change(_OldVsn, StateName, State, _Extra) ->
+    {ok, StateName, State}.
 
 %%%===================================================================
 %% Internal functions

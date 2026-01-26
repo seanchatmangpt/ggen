@@ -32,7 +32,7 @@
 use super::input::{
     CharsetRule, FormatRule, InputValidationError, StringValidator,
 };
-use super::error::{Result, ValidationError};
+use super::error::Result;
 use std::collections::HashMap;
 
 /// Rule definition for declarative validation
