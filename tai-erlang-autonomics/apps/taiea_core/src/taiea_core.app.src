@@ -1,0 +1,35 @@
+{application, taiea_core,
+ [
+  {description, "TAIEA Core Bootstrap - Root OTP application for TAIEA system"},
+  {vsn, "1.0.0"},
+  {registered, [
+    taiea_core_sup,
+    taiea_core_config,
+    taiea_http_server,
+    taiea_mcp_server
+  ]},
+  {applications, [
+    kernel,
+    stdlib,
+    sasl,
+    cowboy,
+    jsx,
+    jose,
+    gproc,
+    poolboy,
+    prometheus,
+    opentelemetry,
+    opentelemetry_api
+  ]},
+  {env, [
+    {port, 8080},
+    {mcp_port, 3001},
+    {taiea_env, development},
+    {taiea_log_level, info},
+    {gcp_project_id, "taiea-dev"},
+    {firestore_enabled, true},
+    {verify_signatures, false},
+    {otel_enabled, false}
+  ]},
+  {mod, {taiea_core_app, []}}
+ ]}.

@@ -33,6 +33,24 @@ This guide covers deploying TAI Erlang Autonomics to Google Cloud Platform (GCP)
 
 ## Quick Start
 
+### 0. Simulate Deployment (Recommended First Step)
+
+To preview what the deployment would do without making actual GCP API calls:
+
+```bash
+# View what would be deployed
+./tools/gcp-deploy.sh --dry-run --verbose
+
+# Run full simulation (shows receipt)
+./tools/gcp-deploy.sh
+```
+
+The simulator validates configuration, builds the image URL, and shows all steps that would be executed in Phase 2. Use this to:
+- Test deployment configuration without GCP authentication
+- CI/CD pipelines for validation
+- Documentation and training
+- Phase 1 proof-of-concept
+
 ### 1. Verify GCP Readiness
 
 ```bash
@@ -297,8 +315,137 @@ Estimated monthly costs (us-central1):
 
 **Total**: ~$0-100/month for low-medium traffic
 
+## Cloud Run Deployment Simulator
+
+The `tools/gcp-deploy.sh` script provides a simulation of the Cloud Run deployment without making actual GCP API calls. This is useful for:
+
+- **Phase 1**: Testing deployment configuration before GCP authentication is available
+- **CI/CD**: Validating deployment parameters in automated pipelines
+- **Documentation**: Generating deployment receipts for documentation and training
+- **Development**: Testing the deployment flow locally
+
+### Running the Simulator
+
+```bash
+# Basic simulation (shows receipt)
+./tools/gcp-deploy.sh
+
+# Dry run with verbose output
+./tools/gcp-deploy.sh --dry-run --verbose
+
+# Custom configuration
+GCP_PROJECT=my-project GCP_REGION=europe-west1 ./tools/gcp-deploy.sh
+```
+
+### Simulator Features
+
+1. **Configuration Validation**
+   - Validates GCP Project ID format
+   - Checks Cloud Run region availability
+   - Validates memory and CPU specifications
+   - Validates timeout configuration
+
+2. **Dockerfile Validation**
+   - Checks for Dockerfile existence
+   - Displays Dockerfile preview
+   - Simulates multi-stage build process
+
+3. **Deployment Simulation**
+   - Shows container image building steps
+   - Simulates registry push
+   - Shows Cloud Run deployment commands
+   - Simulates Pub/Sub setup
+   - Simulates Firestore configuration
+   - Simulates IAM role assignment
+
+4. **Deployment Receipt**
+   - Timestamped receipt with all configuration
+   - Service URL and endpoints
+   - Resource allocation details
+   - Cost estimation
+   - Next steps for Phase 2 (actual deployment)
+
+### Simulator Environment Variables
+
+```bash
+# Customize simulator behavior
+GCP_PROJECT=taiea-phase1       # GCP Project ID
+GCP_REGION=us-central1         # GCP Region
+DOCKER_REGISTRY=gcr.io         # Container registry
+IMAGE_TAG=1.0.0                # Image tag
+TAIEA_ENV=prod                 # Environment
+MEMORY_LIMIT=512Mi             # Memory per instance
+CPU_LIMIT=2                    # CPU per instance
+TIMEOUT_SECONDS=300            # Request timeout
+
+# Example: Customize deployment parameters
+GCP_PROJECT=my-project \
+  GCP_REGION=europe-west1 \
+  MEMORY_LIMIT=1024Mi \
+  CPU_LIMIT=4 \
+  ./tools/gcp-deploy.sh --dry-run
+```
+
+### Dockerfile
+
+The `tools/Dockerfile` provides a production-ready multi-stage build:
+
+1. **Builder Stage**
+   - Compiles Erlang release using rebar3
+   - Installs build dependencies
+   - Includes Erlang 26
+
+2. **Runtime Stage**
+   - Minimal debian:bookworm-slim base
+   - Only runtime dependencies installed
+   - Non-root user for security
+   - Health checks configured
+   - Total size: ~200-300MB
+
+### Phase 2: Actual Deployment
+
+When you're ready to deploy to GCP (Phase 2):
+
+1. Authenticate with GCP:
+   ```bash
+   gcloud auth application-default login
+   gcloud config set project taiea-phase1
+   ```
+
+2. Enable required APIs:
+   ```bash
+   gcloud services enable \
+     cloudrun.googleapis.com \
+     artifactregistry.googleapis.com \
+     pubsub.googleapis.com \
+     firestore.googleapis.com
+   ```
+
+3. Run the actual deployment:
+   ```bash
+   ./tools/gcp-deploy.sh
+   ```
+
+4. Verify service is running:
+   ```bash
+   curl -H "Authorization: Bearer $(gcloud auth print-identity-token)" \
+     https://taiea-xxx.a.run.app/health
+   ```
+
 ## Next Steps
 
+**Phase 1 (Current)**:
+- [x] Create deployment simulator (`tools/gcp-deploy.sh`)
+- [x] Create production Dockerfile (`tools/Dockerfile`)
+- [x] Document deployment process
+- [ ] Run simulator to validate configuration
+- [ ] Collect deployment feedback
+
+**Phase 2 (Future)**:
+- [ ] Authenticate with GCP
+- [ ] Set up GCP project
+- [ ] Enable required APIs
+- [ ] Run actual Cloud Run deployment
 - [ ] Set up CI/CD pipeline
 - [ ] Configure custom domain
 - [ ] Set up backup and disaster recovery
@@ -312,3 +459,4 @@ Estimated monthly costs (us-central1):
 - [Pub/Sub Documentation](https://cloud.google.com/pubsub/docs)
 - [Firestore Documentation](https://cloud.google.com/firestore/docs)
 - [Terraform GCP Provider](https://registry.terraform.io/providers/hashicorp/google/latest/docs)
+- [Docker Multi-Stage Builds](https://docs.docker.com/build/building/multi-stage/)
