@@ -5,6 +5,14 @@
 %% Writes receipts to Firestore using metadata server token.
 %% Mirrors receipts to logger as JSON.
 %%
+%% Phase 1 Receipt Types:
+%% - health_check: System health monitoring
+%% - entitlement_event: Entitlement lifecycle events
+%% - receipt_verify: Receipt verification operations
+%% - support_query: Support/billing queries
+%% - http_request: HTTP API request logging
+%% - mcp_tool_call: MCP tool invocations
+%%
 %% @end
 %%%-------------------------------------------------------------------
 -module(tai_receipts).
@@ -12,6 +20,7 @@
 %% API
 -export([create_transition_receipt/5, create_refusal/1, create_action_receipt/4]).
 -export([get_receipt/1, store_receipt/1, verify_chain/1]).
+-export([calculate_hash/1, calculate_chain_hash/2, to_json/1, emit/1]).
 
 -include("tai_autonomics.hrl").
 
@@ -127,6 +136,48 @@ store_receipt(Receipt) ->
   when Receipts :: [map()].
 verify_chain(Receipts) ->
     verify_chain(Receipts, <<>>).
+
+%% @doc Calculate SHA-256 hash of a receipt
+%%
+%% Encodes receipt as JSON and computes deterministic SHA-256 hash.
+%% Same input always produces same hash (deterministic).
+%%
+-spec calculate_hash(Receipt) -> binary()
+  when Receipt :: map().
+calculate_hash(Receipt) ->
+    compute_hash(Receipt).
+
+%% @doc Calculate chain hash combining previous and current hashes
+%%
+%% Creates SHA-256 hash of (PrevHash || CurrentHash) for hash chain verification.
+%%
+-spec calculate_chain_hash(PrevHash, CurrentHash) -> binary()
+  when PrevHash :: binary(),
+       CurrentHash :: binary().
+calculate_chain_hash(PrevHash, CurrentHash) ->
+    compute_chain_hash(PrevHash, CurrentHash).
+
+%% @doc Convert receipt to JSON binary
+%%
+%% Encodes receipt map as JSON for logging/transmission.
+%% Handles nested maps and binary values.
+%%
+-spec to_json(Receipt) -> binary()
+  when Receipt :: map().
+to_json(Receipt) ->
+    jsx:encode(Receipt).
+
+%% @doc Emit receipt to stdout (Phase 1 behavior)
+%%
+%% Outputs receipt as JSON to stdout for logging.
+%% Phase 2 will extend this to write to Firestore.
+%%
+-spec emit(Receipt) -> ok
+  when Receipt :: map().
+emit(Receipt) ->
+    Json = to_json(Receipt),
+    io:format("~s~n", [Json]),
+    ok.
 
 %%%===================================================================
 %% Internal functions
