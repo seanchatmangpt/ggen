@@ -70,3 +70,51 @@ updates:
       - "dependencies"
       - "rust"
       - "utils"
+
+  # Erlang/Hex.pm dependencies (TPS Jidoka)
+  - package-ecosystem: "mix"
+    directory: "/crates/tps-jidoka"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "erlang"
+      - "hex.pm"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    allow:
+      - dependency-type: "direct"
+
+  # Erlang/Hex.pm dependencies (TAI Erlang Autonomics)
+  - package-ecosystem: "mix"
+    directory: "/crates/tai-erlang-autonomics"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "11:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "erlang"
+      - "hex.pm"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"

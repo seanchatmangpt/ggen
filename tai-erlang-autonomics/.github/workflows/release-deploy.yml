@@ -1,0 +1,432 @@
+name: Release & Deploy to GCP
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (e.g., v1.0.0)'
+        required: true
+        type: string
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+        default: staging
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+  ARTIFACT_REGISTRY: taiea-images
+  SERVICE_NAME: taiea
+
+jobs:
+  validate-version:
+    name: Validate Version Tag
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract-version.outputs.version }}
+      is-prerelease: ${{ steps.check-prerelease.outputs.is-prerelease }}
+    steps:
+      - name: Extract Version
+        id: extract-version
+        run: |
+          # Extract version from tag or input
+          VERSION="${{ github.ref }}"
+          if [[ "$VERSION" == refs/tags/* ]]; then
+            VERSION="${VERSION#refs/tags/}"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+
+          # Validate version format (semver)
+          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+            echo "Invalid version format: $VERSION"
+            exit 1
+          fi
+
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Version validated: $VERSION"
+
+      - name: Check if Prerelease
+        id: check-prerelease
+        run: |
+          VERSION="${{ steps.extract-version.outputs.version }}"
+          if [[ "$VERSION" =~ -[a-zA-Z0-9]+$ ]]; then
+            echo "is-prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "is-prerelease=false" >> $GITHUB_OUTPUT
+          fi
+
+  build-test:
+    name: Build & Unit Test
+    runs-on: ubuntu-latest
+    needs: validate-version
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Erlang/OTP
+        uses: erlang/otp@v1
+        with:
+          otp-version: '26.0'
+
+      - name: Install Rebar3
+        run: |
+          curl -L https://s3.amazonaws.com/rebar3/rebar3 -o rebar3
+          chmod +x rebar3
+          sudo mv rebar3 /usr/local/bin/
+
+      - name: Cache Rebar3 dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/rebar3
+          key: ${{ runner.os }}-rebar3-${{ hashFiles('rebar.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rebar3-
+
+      - name: Compile
+        run: rebar3 compile
+
+      - name: Run unit tests
+        run: rebar3 eunit
+
+      - name: Run Common Test
+        run: rebar3 ct
+
+      - name: Generate test report
+        if: always()
+        run: |
+          mkdir -p test-results
+          cp -r _build/test/logs/* test-results/ || true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: test-results/
+
+  build-container:
+    name: Build & Push Container Image
+    runs-on: ubuntu-latest
+    needs: [validate-version, build-test]
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set environment variables
+        run: |
+          echo "IMAGE_TAG=${{ needs.validate-version.outputs.version }}" >> $GITHUB_ENV
+          echo "IMAGE_URI=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY }}/${{ env.SERVICE_NAME }}" >> $GITHUB_ENV
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker authentication
+        run: |
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -f tools/Dockerfile \
+            -t ${{ env.IMAGE_URI }}:${{ env.IMAGE_TAG }} \
+            -t ${{ env.IMAGE_URI }}:latest \
+            --build-arg VERSION=${{ env.IMAGE_TAG }} \
+            --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+            --build-arg VCS_REF=${{ github.sha }} \
+            .
+
+      - name: Push image to Artifact Registry
+        run: |
+          docker push ${{ env.IMAGE_URI }}:${{ env.IMAGE_TAG }}
+          docker push ${{ env.IMAGE_URI }}:latest
+
+      - name: Generate SBOM (Software Bill of Materials)
+        run: |
+          echo "Generating SBOM for image..."
+          docker sbom ${{ env.IMAGE_URI }}:${{ env.IMAGE_TAG }} || echo "SBOM generation skipped"
+
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    needs: [validate-version, build-container]
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY }}/${{ env.SERVICE_NAME }}:${{ needs.validate-version.outputs.version }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  deploy-staging:
+    name: Deploy to Staging
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging'
+    runs-on: ubuntu-latest
+    needs: [validate-version, build-container, security-scan]
+    environment: staging
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy to Cloud Run (Staging)
+        run: |
+          IMAGE_URI="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY }}/${{ env.SERVICE_NAME }}:${{ needs.validate-version.outputs.version }}"
+
+          gcloud run deploy ${{ env.SERVICE_NAME }}-staging \
+            --image=${IMAGE_URI} \
+            --platform=managed \
+            --region=${{ env.REGION }} \
+            --memory=512Mi \
+            --cpu=2 \
+            --timeout=300s \
+            --max-instances=50 \
+            --min-instances=0 \
+            --set-env-vars="TAIEA_ENV=staging,GCP_PROJECT_ID=${{ env.PROJECT_ID }},GCP_REGION=${{ env.REGION }}" \
+            --no-allow-unauthenticated \
+            --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --project=${{ env.PROJECT_ID }}
+
+      - name: Get service URL
+        id: get-url
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }}-staging \
+            --region=${{ env.REGION }} \
+            --format='value(status.url)' \
+            --project=${{ env.PROJECT_ID }})
+          echo "url=${SERVICE_URL}" >> $GITHUB_OUTPUT
+
+      - name: Health check
+        run: |
+          curl --max-time 10 \
+            -H "Authorization: Bearer $(gcloud auth print-identity-token)" \
+            ${{ steps.get-url.outputs.url }}/health || exit 1
+
+      - name: Create deployment annotation
+        run: |
+          gcloud logging write DEPLOYMENT_LOG \
+            "Deployed ${{ needs.validate-version.outputs.version }} to staging" \
+            --severity=INFO \
+            --resource=cloud_run_revision \
+            --project=${{ env.PROJECT_ID }}
+
+  deploy-production:
+    name: Deploy to Production
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && !contains(needs.validate-version.outputs.is-prerelease, 'true')
+    runs-on: ubuntu-latest
+    needs: [validate-version, build-container, security-scan]
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy to Cloud Run (Production)
+        run: |
+          IMAGE_URI="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY }}/${{ env.SERVICE_NAME }}:${{ needs.validate-version.outputs.version }}"
+
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image=${IMAGE_URI} \
+            --platform=managed \
+            --region=${{ env.REGION }} \
+            --memory=512Mi \
+            --cpu=2 \
+            --timeout=300s \
+            --max-instances=100 \
+            --min-instances=1 \
+            --set-env-vars="TAIEA_ENV=production,GCP_PROJECT_ID=${{ env.PROJECT_ID }},GCP_REGION=${{ env.REGION }}" \
+            --no-allow-unauthenticated \
+            --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --project=${{ env.PROJECT_ID }}
+
+      - name: Get service URL
+        id: get-url
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region=${{ env.REGION }} \
+            --format='value(status.url)' \
+            --project=${{ env.PROJECT_ID }})
+          echo "url=${SERVICE_URL}" >> $GITHUB_OUTPUT
+
+      - name: Canary health checks
+        run: |
+          for i in {1..5}; do
+            echo "Health check $i/5..."
+            curl --max-time 10 \
+              -H "Authorization: Bearer $(gcloud auth print-identity-token)" \
+              ${{ steps.get-url.outputs.url }}/health || exit 1
+            sleep 2
+          done
+
+      - name: Create production deployment annotation
+        run: |
+          gcloud logging write DEPLOYMENT_LOG \
+            "Deployed ${{ needs.validate-version.outputs.version }} to production" \
+            --severity=NOTICE \
+            --resource=cloud_run_revision \
+            --project=${{ env.PROJECT_ID }}
+
+      - name: Notify Slack (if configured)
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "TAIEA Production Deployment",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*TAIEA Production Deployment*\nVersion: ${{ needs.validate-version.outputs.version }}\nStatus: ${{ job.status }}\nURL: ${{ steps.get-url.outputs.url }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+  smoke-tests:
+    name: Run Smoke Tests
+    if: success()
+    runs-on: ubuntu-latest
+    needs: [validate-version, deploy-production]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Erlang/OTP
+        uses: erlang/otp@v1
+        with:
+          otp-version: '26.0'
+
+      - name: Install Rebar3
+        run: |
+          curl -L https://s3.amazonaws.com/rebar3/rebar3 -o rebar3
+          chmod +x rebar3
+          sudo mv rebar3 /usr/local/bin/
+
+      - name: Run smoke tests
+        run: rebar3 ct --suite=test/smoke_tests_SUITE
+        env:
+          GCP_PROJECT_ID: ${{ env.PROJECT_ID }}
+          GCP_REGION: ${{ env.REGION }}
+          SERVICE_NAME: ${{ env.SERVICE_NAME }}
+
+  create-release:
+    name: Create GitHub Release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    needs: [validate-version, build-container]
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${{ needs.validate-version.outputs.version }}^ 2>/dev/null || echo "HEAD")
+          CHANGELOG=$(git log ${PREVIOUS_TAG}..${{ needs.validate-version.outputs.version }} --pretty=format:"- %s (%h)" || echo "Initial release")
+          echo "changelog=${CHANGELOG}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.validate-version.outputs.version }}
+          name: Release ${{ needs.validate-version.outputs.version }}
+          body: |
+            ## Changes
+            ${{ steps.changelog.outputs.changelog }}
+
+            ## Deployment Information
+            - **Image**: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY }}/${{ env.SERVICE_NAME }}:${{ needs.validate-version.outputs.version }}
+            - **Region**: ${{ env.REGION }}
+            - **Environment**: Production
+
+            ## Documentation
+            - [Deployment Guide](../DEPLOYMENT_GUIDE.md)
+            - [Cloud Console](https://console.cloud.google.com/run/detail/${{ env.REGION }}/${{ env.SERVICE_NAME }})
+          draft: false
+          prerelease: ${{ needs.validate-version.outputs.is-prerelease }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notify-deployment:
+    name: Notify Deployment Status
+    if: always()
+    runs-on: ubuntu-latest
+    needs: [validate-version, deploy-production]
+    steps:
+      - name: Determine status
+        id: status
+        run: |
+          if [ "${{ needs.deploy-production.result }}" == "success" ]; then
+            echo "status=SUCCESS" >> $GITHUB_OUTPUT
+            echo "color=good" >> $GITHUB_OUTPUT
+          else
+            echo "status=FAILED" >> $GITHUB_OUTPUT
+            echo "color=danger" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send notification
+        if: always()
+        run: |
+          echo "Deployment Status: ${{ steps.status.outputs.status }}"
+          echo "Version: ${{ needs.validate-version.outputs.version }}"
+          echo "Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

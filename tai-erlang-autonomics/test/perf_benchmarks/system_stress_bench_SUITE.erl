@@ -38,6 +38,14 @@
     bench_recovery/1
 ]).
 
+-record(memory_trend, {
+    initial_mb :: float(),
+    peak_mb :: float(),
+    final_mb :: float(),
+    growth_rate :: float(),
+    leak_detected :: boolean()
+}).
+
 -record(perf_result, {
     test_name :: string(),
     duration_seconds :: integer(),
@@ -471,12 +479,3 @@ print_result(Result) ->
     ct:log("Peak Memory: ~.2f MB~n", [Result#perf_result.memory_peak_mb]),
     ct:log("Avg Memory: ~.2f MB~n", [Result#perf_result.memory_avg_mb]),
     ct:log("====================================~n~n", []).
-
-%% Helper record for memory trend analysis
--record(memory_trend, {
-    initial_mb :: float(),
-    peak_mb :: float(),
-    final_mb :: float(),
-    growth_rate :: float(),
-    leak_detected :: boolean()
-}).

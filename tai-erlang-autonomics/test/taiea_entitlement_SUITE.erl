@@ -24,12 +24,22 @@ suite() ->
     [{timetrap, {seconds, 30}}].
 
 init_per_suite(Config) ->
-    %% Start the application
-    application:ensure_all_started(tai_autonomics),
-    Config.
+    %% Start only the entitlement server (don't start full application)
+    %% This avoids GCP dependencies which fail in test environment
+    {ok, Pid} = taiea_entitlement:start_link(),
+    ct:log("Started taiea_entitlement: ~p", [Pid]),
+    timer:sleep(100),  % Give server time to initialize
+    case is_process_alive(Pid) of
+        true ->
+            ct:log("Server is alive and running"),
+            Config;
+        false ->
+            ct:fail("taiea_entitlement server died after startup")
+    end.
 
 end_per_suite(_Config) ->
-    application:stop(tai_autonomics),
+    %% Stop the entitlement server
+    gen_server:stop(taiea_entitlement),
     ok.
 
 init_per_testcase(_TestCase, Config) ->

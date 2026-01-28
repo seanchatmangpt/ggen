@@ -454,7 +454,7 @@ fn get_available_disk_space(path: &Path) -> Result<u64> {
     })?;
 
     // Available space = block size * available blocks
-    let available = stats.block_size() * stats.blocks_available();
+    let available = stats.block_size() * stats.blocks_available() as u64;
     Ok(available)
 }
 

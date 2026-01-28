@@ -132,7 +132,7 @@ impl FileWatcher {
         let tx_clone = tx.clone();
 
         // Create debounced watcher
-        let mut debouncer: Debouncer<RecommendedWatcher, NoCache> = new_debouncer(
+        let mut debouncer = new_debouncer(
             debounce_duration,
             None,
             move |result: DebounceEventResult| {

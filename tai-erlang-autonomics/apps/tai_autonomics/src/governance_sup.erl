@@ -52,6 +52,16 @@ init([]) ->
     },
 
     ChildSpecs = [
+        %% TAI Entitlement resolver supervisor (manages taiea_entitlement gen_server)
+        #{
+            id => taiea_entitlement_sup,
+            start => {taiea_entitlement_sup, start_link, []},
+            restart => permanent,
+            shutdown => ?SHUTDOWN_TIMEOUT,
+            type => supervisor,
+            modules => [taiea_entitlement_sup]
+        },
+
         %% Entitlement governor supervisor
         #{
             id => entitlement_sup,

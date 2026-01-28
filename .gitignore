@@ -150,12 +150,35 @@ out/
 output/
 generated/
 
-# Environment files
+# Environment files - NEVER commit these!
 .env
 .env.local
 .env.*.local
 .env.development
 .env.production
+.env.staging
+
+# Secrets and credentials - NEVER commit these!
+*.key
+*.key.json
+*.pem
+*.p12
+*.pfx
+*.jks
+credentials.json
+service-account-key.json
+private_key.json
+*.pub
+ssh/
+.ssh/
+
+# GCP and Cloud credentials
+gcp-key.json
+gcp-key.json.b64
+google-cloud-key.json
+firebase-key.json
+.gcloud/
+.google/
 
 # Node.js (if using any JS tooling)
 node_modules/

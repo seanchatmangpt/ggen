@@ -201,7 +201,7 @@ impl CompiledValidator {
     pub fn validate_fields(
         &self,
         fields: &HashMap<String, String>,
-    ) -> Result<HashMap<String, String>, InputValidationError> {
+    ) -> Result<HashMap<String, String>> {
         let mut validated = HashMap::new();
 
         for (field, value) in fields {
