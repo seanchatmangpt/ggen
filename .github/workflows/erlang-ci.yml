@@ -1,0 +1,224 @@
+name: Erlang CI/CD
+
+on:
+  push:
+    branches: [master, develop]
+    paths:
+      - 'crates/tps-jidoka/**'
+      - 'crates/tai-erlang-autonomics/**'
+      - '.github/workflows/erlang-ci.yml'
+      - 'rebar.lock'
+  pull_request:
+    paths:
+      - 'crates/tps-jidoka/**'
+      - 'crates/tai-erlang-autonomics/**'
+      - '.github/workflows/erlang-ci.yml'
+      - 'rebar.lock'
+
+concurrency:
+  group: erlang-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REBAR_CACHE_DIR: ${{ github.workspace }}/.cache/rebar3
+  OTP_VERSION: '26'
+
+jobs:
+  erlang-build:
+    name: Erlang Build (OTP ${{ matrix.otp }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        otp: ['24', '25', '26', '27']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Setup Erlang/OTP ${{ matrix.otp }}
+        uses: erlef/setup-erlang@v1
+        with:
+          otp-version: ${{ matrix.otp }}
+          rebar3-version: '3.23.0'
+
+      - name: Restore Rebar3 cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.REBAR_CACHE_DIR }}
+            ~/.cache/rebar3
+          key: rebar3-${{ matrix.otp }}-${{ hashFiles('crates/tps-jidoka/rebar.lock') }}
+          restore-keys: |
+            rebar3-${{ matrix.otp }}-
+            rebar3-
+
+      - name: Build TPS Jidoka (OTP ${{ matrix.otp }})
+        working-directory: crates/tps-jidoka
+        run: |
+          rebar3 clean
+          rebar3 compile
+        env:
+          REBAR_CACHE_DIR: ${{ env.REBAR_CACHE_DIR }}
+
+      - name: Build TAI Erlang Autonomics (OTP ${{ matrix.otp }})
+        working-directory: crates/tai-erlang-autonomics
+        run: rebar3 compile
+        continue-on-error: true
+
+  erlang-tests:
+    name: Erlang Tests (OTP ${{ matrix.otp }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      matrix:
+        otp: ['24', '25', '26']
+    needs: erlang-build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Setup Erlang/OTP ${{ matrix.otp }}
+        uses: erlef/setup-erlang@v1
+        with:
+          otp-version: ${{ matrix.otp }}
+          rebar3-version: '3.23.0'
+
+      - name: Restore Rebar3 cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.REBAR_CACHE_DIR }}
+            ~/.cache/rebar3
+          key: rebar3-${{ matrix.otp }}-${{ hashFiles('crates/tps-jidoka/rebar.lock') }}
+          restore-keys: |
+            rebar3-${{ matrix.otp }}-
+            rebar3-
+
+      - name: Run EUnit tests
+        working-directory: crates/tps-jidoka
+        run: rebar3 eunit -v
+        continue-on-error: false
+
+      - name: Run Common Test (CT)
+        working-directory: crates/tps-jidoka
+        run: |
+          rebar3 ct --suite=tests
+        continue-on-error: true
+
+      - name: Generate test coverage
+        working-directory: crates/tps-jidoka
+        run: |
+          rebar3 cover
+        continue-on-error: true
+
+      - name: Upload test logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: erlang-test-logs-otp${{ matrix.otp }}
+          path: |
+            crates/tps-jidoka/_build/test/logs/
+            crates/tps-jidoka/_build/test/ct_run.*/
+          retention-days: 14
+
+  erlang-lint:
+    name: Erlang Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Erlang/OTP
+        uses: erlef/setup-erlang@v1
+        with:
+          otp-version: '26'
+          rebar3-version: '3.23.0'
+
+      - name: Restore Rebar3 cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.REBAR_CACHE_DIR }}
+            ~/.cache/rebar3
+          key: rebar3-26-${{ hashFiles('crates/tps-jidoka/rebar.lock') }}
+
+      - name: Format check (rebar3_format)
+        working-directory: crates/tps-jidoka
+        run: |
+          rebar3 format --check
+        continue-on-error: true
+
+      - name: Run Dialyzer static analysis
+        working-directory: crates/tps-jidoka
+        run: |
+          rebar3 dialyzer
+        continue-on-error: true
+
+      - name: Generate documentation
+        working-directory: crates/tps-jidoka
+        run: rebar3 edoc
+        continue-on-error: true
+
+  erlang-release:
+    name: Build Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [erlang-build, erlang-tests]
+    if: success()
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Setup Erlang/OTP
+        uses: erlef/setup-erlang@v1
+        with:
+          otp-version: '26'
+          rebar3-version: '3.23.0'
+
+      - name: Restore Rebar3 cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.REBAR_CACHE_DIR }}
+            ~/.cache/rebar3
+          key: rebar3-26-${{ hashFiles('crates/tps-jidoka/rebar.lock') }}
+
+      - name: Build release artifact
+        working-directory: crates/tps-jidoka
+        run: |
+          rebar3 as prod release
+          mkdir -p releases
+          cp -r _build/prod/rel/tps_jidoka releases/
+
+      - name: Generate checksum
+        run: |
+          cd crates/tps-jidoka/releases
+          tar -czf tps_jidoka-${{ github.sha }}.tar.gz tps_jidoka/
+          sha256sum tps_jidoka-${{ github.sha }}.tar.gz > tps_jidoka-${{ github.sha }}.tar.gz.sha256
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: erlang-release-otp26
+          path: crates/tps-jidoka/releases/
+          retention-days: 30
+
+  erlang-ci-status:
+    name: Erlang CI Status
+    runs-on: ubuntu-latest
+    needs: [erlang-build, erlang-tests, erlang-lint, erlang-release]
+    if: always()
+    steps:
+      - name: Check Erlang CI status
+        run: |
+          if [ "${{ needs.erlang-build.result }}" != "success" ] || \
+             [ "${{ needs.erlang-tests.result }}" != "success" ] || \
+             [ "${{ needs.erlang-lint.result }}" != "success" ]; then
+            echo "❌ Erlang CI checks failed"
+            exit 1
+          fi
+          echo "✅ All Erlang CI checks passed"

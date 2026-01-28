@@ -14,6 +14,7 @@
 %%%-------------------------------------------------------------------
 -module(taiea_gates_SUITE).
 -include_lib("common_test/include/ct.hrl").
+-include_lib("eunit/include/eunit.hrl").
 
 %% CT callbacks
 -export([init_per_suite/1, end_per_suite/1, init_per_testcase/2, end_per_testcase/2, all/0]).
@@ -565,7 +566,7 @@ integration_multiple_concurrent_gates(Config) ->
     ],
 
     %% All should pass
-    PassCount = length([R || {accept, _} <- Results]),
+    PassCount = length([ok || {accept, _} <- Results]),
     ?assertEqual(length(TenantIds), PassCount),
 
     ct:log("Concurrent gate checks completed: ~w/~w passed~n", [PassCount, length(TenantIds)]),

@@ -1,0 +1,81 @@
+Contact: security@tai-autonomics.dev
+Expires: 2026-12-31T23:59:59Z
+Preferred-Languages: en
+Canonical: https://github.com/seanchatmangpt/tai-erlang-autonomics/blob/main/.well-known/security.txt
+
+# Security Policy
+
+## Vulnerability Reporting
+
+If you discover a security vulnerability, please report it responsibly using one of these methods:
+
+### Primary Contact
+- Email: security@tai-autonomics.dev
+- Response Time: Within 48 hours
+
+### Alternative Channels
+- GitHub Security Advisory: https://github.com/seanchatmangpt/tai-erlang-autonomics/security/advisories
+- GitHub Issues: Use "security" label (private to maintainers)
+
+## Supported Versions
+
+| Version | Status | End of Support |
+|---------|--------|-----------------|
+| 1.0.0   | Current | 2026-12-31 |
+| 0.9.0   | LTS | 2026-06-30 |
+
+## Security Update SLAs
+
+- **Critical (CVSS 9.0-10.0)**: Patch within 24 hours
+- **High (CVSS 7.0-8.9)**: Patch within 7 days
+- **Medium (CVSS 4.0-6.9)**: Patch within 30 days
+- **Low (CVSS 0.1-3.9)**: Patch in next scheduled release
+
+## Acknowledgments
+
+We appreciate responsible disclosure and will acknowledge security researchers in our release notes (with permission).
+
+## Security Scanning
+
+This project implements continuous security scanning:
+
+- Dependency vulnerability scanning (daily)
+- OWASP ZAP security testing (on every push)
+- Container image scanning (Trivy)
+- Code quality analysis (Elvis, Dialyzer)
+- Secret detection (TruffleHog)
+- License compliance checking
+
+## Public Key
+
+For signing security advisories (when available):
+```
+GPG Fingerprint: [To be added when security team established]
+```
+
+## Transparency
+
+- All security advisories published at: https://github.com/seanchatmangpt/tai-erlang-autonomics/security/advisories
+- Security policy at: https://github.com/seanchatmangpt/tai-erlang-autonomics/blob/main/SECURITY_POLICY.md
+- Incident reports at: https://github.com/seanchatmangpt/tai-erlang-autonomics/wiki/Incident-Reports
+
+## Responsible Disclosure Guidelines
+
+We ask that you:
+
+1. **Do not** disclose vulnerabilities publicly until a patch is available
+2. **Do** give us 30 days to release a patch before public disclosure
+3. **Do** test patches before reporting that they're ineffective
+4. **Do** allow us to credit you in security advisories (optional)
+
+## Bug Bounty
+
+Currently, we do not offer a formal bug bounty program. However:
+- Security researchers who report valid vulnerabilities will be acknowledged
+- Significant findings may be considered for recognition/rewards
+- Contact security@tai-autonomics.dev for inquiries
+
+---
+
+Generated: 2026-01-26
+Version: 1.0.0

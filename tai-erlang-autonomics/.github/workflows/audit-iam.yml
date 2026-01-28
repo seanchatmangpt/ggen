@@ -1,0 +1,253 @@
+name: IAM Audit & Security
+
+on:
+  schedule:
+    # Run audit every Monday at 09:00 UTC
+    - cron: '0 9 * * 1'
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+  # Run on changes to IAM configuration
+  push:
+    paths:
+      - 'gcp/iam*.tf'
+      - '.github/workflows/audit-iam.yml'
+
+jobs:
+  iam-audit:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: List IAM Bindings
+        id: list-iam
+        run: |
+          echo "## IAM Bindings Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Project-Level Roles" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          gcloud projects get-iam-policy ${{ secrets.GCP_PROJECT_ID }} \
+            --format="table(bindings.role, bindings.members[])" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Check for Overprivileged Accounts
+        id: check-privilege
+        run: |
+          echo "## Privilege Escalation Risk Assessment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check for Owner role (highest privilege)
+          OWNER_MEMBERS=$(gcloud projects get-iam-policy ${{ secrets.GCP_PROJECT_ID }} \
+            --flatten="bindings[].members" \
+            --filter="bindings.role:roles/owner" \
+            --format="value(bindings.members)" || echo "")
+
+          if [ ! -z "$OWNER_MEMBERS" ]; then
+            echo "### ⚠️ WARNING: Owner Role Bindings Detected" >> $GITHUB_STEP_SUMMARY
+            echo "The following principals have Owner role:" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "$OWNER_MEMBERS" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Recommendation**: Use principle of least privilege. Consider using custom roles with minimal permissions." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✓ No Owner role bindings detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Check for Editor role (dangerous)
+          EDITOR_MEMBERS=$(gcloud projects get-iam-policy ${{ secrets.GCP_PROJECT_ID }} \
+            --flatten="bindings[].members" \
+            --filter="bindings.role:roles/editor" \
+            --format="value(bindings.members)" || echo "")
+
+          if [ ! -z "$EDITOR_MEMBERS" ]; then
+            echo "### ⚠️ WARNING: Editor Role Bindings Detected" >> $GITHUB_STEP_SUMMARY
+            echo "The following principals have Editor role:" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "$EDITOR_MEMBERS" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Recommendation**: Migrate to custom roles with specific permissions." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✓ No Editor role bindings detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Check Service Account Keys
+        id: check-keys
+        run: |
+          echo "## Service Account Key Audit" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # List all service accounts
+          ACCOUNTS=$(gcloud iam service-accounts list \
+            --format="value(email)" \
+            --project=${{ secrets.GCP_PROJECT_ID }})
+
+          echo "### Service Accounts Reviewed" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "$ACCOUNTS" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check key age
+          for account in $ACCOUNTS; do
+            echo "#### Account: $account" >> $GITHUB_STEP_SUMMARY
+
+            KEYS=$(gcloud iam service-accounts keys list \
+              --iam-account="$account" \
+              --format="table(name, validAfterTime, validBeforeTime)" \
+              --project=${{ secrets.GCP_PROJECT_ID }})
+
+            if [ ! -z "$KEYS" ]; then
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              echo "$KEYS" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+            else
+              echo "No keys found (only Workload Identity enabled)" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+          done
+
+      - name: Check New Admin Accounts
+        id: check-new-admins
+        run: |
+          echo "## New Administrator Changes" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Get current admins
+          CURRENT_ADMINS=$(gcloud projects get-iam-policy ${{ secrets.GCP_PROJECT_ID }} \
+            --flatten="bindings[].members" \
+            --filter="bindings.role:roles/resourcemanager.organizationAdmin OR bindings.role:roles/resourcemanager.projectIamAdmin" \
+            --format="value(bindings.members)")
+
+          # Compare with known admins from environment
+          KNOWN_ADMINS="${{ secrets.KNOWN_ADMINS }}"
+
+          echo "### Current Administrators" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "$CURRENT_ADMINS" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check for unauthorized additions
+          if [ ! -z "$KNOWN_ADMINS" ]; then
+            NEW_ADMINS=$(comm -23 <(echo "$CURRENT_ADMINS" | sort) <(echo "$KNOWN_ADMINS" | sort) || echo "")
+
+            if [ ! -z "$NEW_ADMINS" ]; then
+              echo "### 🚨 ALERT: New Administrators Detected" >> $GITHUB_STEP_SUMMARY
+              echo "The following principals were added as administrators:" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              echo "$NEW_ADMINS" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "**Action Required**: Review and approve these changes." >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+      - name: Check Cloud Run Invoker Permissions
+        id: check-cloud-run
+        run: |
+          echo "## Cloud Run Access Control" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Get Cloud Run service IAM policy
+          CLOUD_RUN_POLICY=$(gcloud run services get-iam-policy taiea \
+            --region=us-central1 \
+            --format=json \
+            --project=${{ secrets.GCP_PROJECT_ID }} 2>/dev/null || echo '{}')
+
+          echo "### Cloud Run Service IAM Bindings" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo "$CLOUD_RUN_POLICY" | jq '.' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check for public access
+          PUBLIC=$(echo "$CLOUD_RUN_POLICY" | jq '.bindings[] | select(.members[] | contains("allUsers")) | .role' || echo "")
+
+          if [ ! -z "$PUBLIC" ]; then
+            echo "### ⚠️ WARNING: Public Access Enabled" >> $GITHUB_STEP_SUMMARY
+            echo "Cloud Run service is publicly accessible. Verify this is intended." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✓ Cloud Run service is not publicly accessible" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Export Audit Trail
+        id: export-audit
+        run: |
+          mkdir -p audit-reports
+
+          # Export complete IAM policy
+          gcloud projects get-iam-policy ${{ secrets.GCP_PROJECT_ID }} \
+            --format=json > audit-reports/iam-policy.json
+
+          # Export service accounts
+          gcloud iam service-accounts list \
+            --format=json \
+            --project=${{ secrets.GCP_PROJECT_ID }} > audit-reports/service-accounts.json
+
+          # Export audit logs (last 7 days)
+          gcloud logging read \
+            "resource.type=cloud_run_managed_environment OR resource.type=firestore_database" \
+            --limit=1000 \
+            --format=json \
+            --project=${{ secrets.GCP_PROJECT_ID }} \
+            --freshness=7d > audit-reports/recent-logs.json 2>/dev/null || echo '[]' > audit-reports/recent-logs.json
+
+          echo "Audit trail exported to audit-reports/" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Audit Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: iam-audit-reports
+          path: audit-reports/
+          retention-days: 90
+
+      - name: Create Issue on Security Finding
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '[Security] IAM Audit Found Anomalies',
+              body: 'The scheduled IAM audit detected unusual activity. Please review the audit report in the workflow run.',
+              labels: ['security', 'audit']
+            })
+
+      - name: Generate Summary
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Audit Completed" >> $GITHUB_STEP_SUMMARY
+          echo "Timestamp: $(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next Steps**:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review IAM bindings for unnecessary permissions" >> $GITHUB_STEP_SUMMARY
+          echo "2. Investigate any 'ALERT' items found" >> $GITHUB_STEP_SUMMARY
+          echo "3. Rotate service account keys older than 90 days" >> $GITHUB_STEP_SUMMARY
+          echo "4. Verify all changes are authorized" >> $GITHUB_STEP_SUMMARY

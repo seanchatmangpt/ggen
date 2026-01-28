@@ -1,0 +1,304 @@
+name: SLO Monitoring & Compliance Check
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC to check SLO metrics from previous 24 hours
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+
+jobs:
+  slo-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install gcloud CLI
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Install Python dependencies
+        run: |
+          pip install google-cloud-monitoring google-cloud-logging google-cloud-bigquery
+          pip install requests slack-sdk
+
+      - name: Check Uptime SLO (99.5%)
+        id: uptime_slo
+        run: |
+          python tools/slo_checker.py \
+            --slo-name "uptime" \
+            --threshold 0.995 \
+            --lookback-hours 24
+
+      - name: Check Success Rate SLO (99%)
+        id: success_slo
+        run: |
+          python tools/slo_checker.py \
+            --slo-name "success_rate" \
+            --threshold 0.99 \
+            --lookback-hours 24
+
+      - name: Check Latency SLO (P99 < 500ms)
+        id: latency_slo
+        run: |
+          python tools/slo_checker.py \
+            --slo-name "latency" \
+            --threshold 500 \
+            --lookback-hours 24
+
+      - name: Query error metrics from BigQuery
+        id: error_metrics
+        run: |
+          python - <<EOF
+          from google.cloud import bigquery
+          import json
+
+          client = bigquery.Client(project="${GOOGLE_CLOUD_PROJECT}")
+
+          query = """
+          SELECT
+            TIMESTAMP_TRUNC(timestamp, HOUR) as hour,
+            COUNT(*) as total_logs,
+            COUNTIF(severity="ERROR") as error_count,
+            ROUND(100.0 * COUNTIF(severity="ERROR") / COUNT(*), 2) as error_rate_percent
+          FROM `${GOOGLE_CLOUD_PROJECT}.tai_autonomics_logs.application_logs`
+          WHERE timestamp > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 24 HOUR)
+            AND severity IN ("ERROR", "INFO")
+          GROUP BY hour
+          ORDER BY hour DESC
+          """
+
+          results = client.query(query).result()
+          metrics = []
+
+          for row in results:
+            metrics.append({
+              'hour': row.hour.isoformat(),
+              'total': row.total_logs,
+              'errors': row.error_count,
+              'error_rate': row.error_rate_percent
+            })
+
+          with open('/tmp/error_metrics.json', 'w') as f:
+            json.dump(metrics, f, indent=2)
+
+          print(json.dumps({
+            'total_errors': sum(m['errors'] for m in metrics),
+            'avg_error_rate': sum(m['error_rate'] for m in metrics) / len(metrics) if metrics else 0,
+            'max_error_rate': max((m['error_rate'] for m in metrics), default=0)
+          }))
+          EOF
+
+      - name: Generate SLO Report
+        id: report
+        run: |
+          python tools/generate_slo_report.py \
+            --project-id "${GOOGLE_CLOUD_PROJECT}" \
+            --output /tmp/slo_report.md
+
+      - name: Upload report to artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: slo-report
+          path: /tmp/slo_report.md
+          retention-days: 30
+
+      - name: Notify Slack - Success
+        if: |
+          steps.uptime_slo.outcome == 'success' &&
+          steps.success_slo.outcome == 'success' &&
+          steps.latency_slo.outcome == 'success'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "SLO Check Passed ✅",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*TAI Autonomics - SLO Check Passed* ✅\n\n*Uptime SLO (99.5%)*: ✅ PASS\n*Success Rate SLO (99%)*: ✅ PASS\n*Latency SLO (P99 < 500ms)*: ✅ PASS"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Dashboard"
+                      },
+                      "url": "https://console.cloud.google.com/monitoring/dashboards"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Logs"
+                      },
+                      "url": "https://console.cloud.google.com/logs"
+                    }
+                  ]
+                }
+              ]
+            }
+
+      - name: Notify Slack - Failure (SLO Breach)
+        if: |
+          failure() &&
+          (steps.uptime_slo.outcome == 'failure' ||
+           steps.success_slo.outcome == 'failure' ||
+           steps.latency_slo.outcome == 'failure')
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "SLO Check FAILED - Error Budget Exceeded",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*⚠️ TAI Autonomics - SLO BREACH DETECTED* ⚠️\n\nOne or more SLO thresholds have been breached:\n\n${{ steps.uptime_slo.outcome == 'failure' && '❌ Uptime SLO (99.5%): FAILED' || '✅ Uptime SLO (99.5%): PASS' }}\n${{ steps.success_slo.outcome == 'failure' && '❌ Success Rate SLO (99%): FAILED' || '✅ Success Rate SLO (99%): PASS' }}\n${{ steps.latency_slo.outcome == 'failure' && '❌ Latency SLO (P99 < 500ms): FAILED' || '✅ Latency SLO (P99 < 500ms): PASS' }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Immediate Actions:*\n1. Check Cloud Logs for error patterns\n2. Review recent deployments\n3. Check downstream dependencies\n4. Trigger runbook if critical"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Error Logs"
+                      },
+                      "url": "https://console.cloud.google.com/logs?query=severity%3DERROR",
+                      "style": "danger"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View SLOs"
+                      },
+                      "url": "https://console.cloud.google.com/monitoring/slos"
+                    }
+                  ]
+                }
+              ]
+            }
+
+      - name: Create GitHub Issue on SLO Breach
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('/tmp/slo_report.md', 'utf8');
+
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '[INCIDENT] SLO Breach Detected - TAI Autonomics',
+              body: `## SLO Breach Alert
+
+            ${report}
+
+            **Severity**: High
+            **Action Required**: Investigate and remediate immediately
+
+            See runbooks: https://github.com/seanchatmangpt/ggen/wiki/SLO-Breach-Runbook`,
+              labels: ['incident', 'slo-breach', 'priority-high']
+            });
+
+  performance-baseline:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install gcloud CLI
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Install dependencies
+        run: |
+          pip install google-cloud-monitoring google-cloud-bigquery pandas
+
+      - name: Generate performance baseline report
+        run: |
+          python tools/performance_baseline.py \
+            --project-id "${GOOGLE_CLOUD_PROJECT}" \
+            --output /tmp/baseline_report.json \
+            --lookback-days 7
+
+      - name: Compare against historical baselines
+        run: |
+          python tools/compare_baselines.py \
+            --current /tmp/baseline_report.json \
+            --historical ci/baselines/weekly_baseline.json \
+            --threshold 0.1 \
+            --output /tmp/baseline_comparison.json
+
+      - name: Upload baseline report
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-baseline
+          path: /tmp/baseline_report.json
+          retention-days: 90
+
+      - name: Notify on performance regression
+        if: failure()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "Performance Baseline Check - Potential Regression Detected",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*⚠️ Performance Regression Detected*\n\nWeekly baseline check indicates potential performance degradation compared to historical data.\n\nReview the baseline comparison report and check for:\n- Recent code changes\n- Database query patterns\n- Memory usage trends"
+                  }
+                }
+              ]
+            }
