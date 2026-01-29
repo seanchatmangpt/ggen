@@ -1,512 +1,286 @@
-# Using ggen in Claude Code Web
+# Claude Code Web Agent Integration
 
-**Complete guide for running ggen in Claude Code Web environments.**
+**ggen as an agent capability for Claude Code Web systems**
 
-## Quick Start (2 Minutes)
+## Overview
 
-### Step 1: Install ggen
+ggen is a deterministic code generation system designed for AI agent automation. Claude Code Web agents can invoke ggen to transform RDF specifications into reproducible code artifacts.
 
-In any Claude Code Web session, run:
+## Agent Initialization
 
-```bash
-cargo install ggen
-```
-
-**Time**: ~45 seconds
-**What happens**: ggen binary compiled and installed to `~/.cargo/bin`
-
-### Step 2: Verify Installation
-
-```bash
-ggen --version
-# Output: ggen 6.0.0
-```
-
-### Step 3: Initialize Your First Project
-
-```bash
-mkdir my-ggen-project && cd my-ggen-project
-ggen init
-```
-
-### Step 4: Generate Code
-
-```bash
-# Preview changes without writing
-ggen sync --dry_run true
-
-# Actually generate
-ggen sync
-```
-
-That's it! You now have a working ggen project.
-
----
-
-## Installation Methods for Claude Code Web
-
-### Method 1: cargo install (RECOMMENDED)
-
-**Fastest in Claude Code Web** - uses pre-installed Rust toolchain
-
-```bash
-# Basic installation
-cargo install ggen
-
-# Install with OpenTelemetry instrumentation
-cargo install ggen --features otel
-
-# Install from main branch for latest development
-cargo install --git https://github.com/seanchatmangpt/ggen --branch main
-```
-
-**Pros**:
-- ✅ Pre-installed Rust (no extra setup)
-- ✅ Automatic binary caching
-- ✅ ~45 seconds installation
-- ✅ Easy updates: `cargo install ggen --force`
-
-**Cons**:
-- ⏱️ Requires Rust compilation
-
-### Method 2: Pre-built Binary (Fast Alternative)
-
-**If installation is too slow**, use pre-built binary:
-
-```bash
-# Download latest release
-curl -L https://github.com/seanchatmangpt/ggen/releases/download/v6.0.0/ggen-x86_64-unknown-linux-gnu.tar.gz \
-  | tar xz -C $HOME/.cargo/bin
-
-# Verify
-ggen --version
-```
-
-**Pros**:
-- ✅ ~15 seconds installation
-- ✅ No compilation needed
-- ✅ Instant availability
-
-**Cons**:
-- ⏱️ Manual binary management
-
-### Method 3: Auto-Install via SessionStart Hook
-
-**For consistent setup across sessions:**
-
-Create or update `.claude/settings.json`:
+### SessionStart Hook Configuration
 
 ```json
 {
-  "environment": {
-    "GGEN_HOME": ".ggen",
-    "GGEN_LOG_LEVEL": "info"
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "startup",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cargo install ggen --locked",
-            "timeout": 120,
-            "onError": "warn"
-          }
-        ]
-      }
-    ]
+  ".claude/settings.json": {
+    "hooks": {
+      "SessionStart": [
+        {
+          "matcher": "startup",
+          "hooks": [
+            {
+              "type": "command",
+              "command": "cargo install ggen --locked",
+              "timeout": 120000,
+              "onError": "warn"
+            },
+            {
+              "type": "command",
+              "command": "ggen init",
+              "timeout": 30000
+            }
+          ]
+        }
+      ]
+    }
   }
 }
 ```
 
-This automatically installs ggen when you start a new Claude Code Web session.
+## Workflow Integration
 
----
+### Workflow 1: Specification-Driven Generation
 
-## Working with ggen in Claude Code Web
+**Agent Steps**:
+1. Receive specification in natural language
+2. Convert to RDF ontology (.ttl)
+3. Validate with `ggen sync --validate_only true`
+4. Generate code with `ggen sync --audit true`
+5. Return artifacts + receipt for verification
 
-### Directory Structure Setup
+### Workflow 2: Multi-Agent Collaboration
 
+**Coordinator Agent**:
 ```bash
-# Create a well-organized workspace
-mkdir -p my-project/{.specify/specs,templates,src}
-cd my-project
-
-# Initialize ggen
-ggen init
-
-# Create a simple ontology
-cat > .specify/specs/001-api/.ttl <<'EOF'
-@prefix : <https://example.org/> .
-@prefix dcat: <http://www.w3.org/ns/dcat#> .
-
-:MyAPI a :APISpecification ;
-  :name "My API" ;
-  :version "1.0.0" .
-EOF
-
-# Generate code
-ggen sync --audit true
+# Master orchestrates multiple agents
+ggen sync --dry_run true  # Preview
+# Coordinate with specialized agents:
+# - RDF Agent: Refines ontology
+# - Template Agent: Creates/updates templates
+# - Validation Agent: Checks quality gates
+# - Verification Agent: Confirms receipts match
 ```
 
-### Workflow Example: Generate a REST API
+### Workflow 3: Continuous Generation
 
-**Step 1: Define ontology in `.specify/api.ttl`**
-
-```turtle
-@prefix : <https://example.org/api/> .
-@prefix owl: <http://www.w3.org/2002/07/owl#> .
-
-:UserAPI a :RESTEndpoint ;
-  :path "/users" ;
-  :method "GET" ;
-  :responseType :UserList .
-
-:UserList a :CollectionType ;
-  :itemType :User .
-
-:User a :ResourceType ;
-  :fields ( :id :name :email ) .
-```
-
-**Step 2: Create Tera template in `templates/api.rs.tera`**
-
-```tera
-// Generated REST API endpoints
-{% for endpoint in endpoints %}
-#[get("{{ endpoint.path }}")]
-pub async fn {{ endpoint.method | lower }}_{{ endpoint.name }}() -> Json<{{ endpoint.responseType }}> {
-    // Generated implementation
-}
-{% endfor %}
-```
-
-**Step 3: Generate**
-
+**Monitor Agent**:
 ```bash
-ggen sync --audit true
-
-# View results
-ggen sync --dry_run true  # Preview first
-```
-
-### Common Claude Code Web Patterns
-
-#### Pattern 1: Multi-Service Generation
-
-```bash
-# Generate multiple services from single ontology
-ggen sync --force true
-
-# Services available:
-# - Backend Rust code
-# - Frontend TypeScript types
-# - Database migrations
-# - Infrastructure as Code
-```
-
-#### Pattern 2: Incremental Development
-
-```bash
-# Watch mode for continuous generation
+# Watch for ontology changes
 ggen sync --watch true
 
-# Edit .specify/*.ttl files
-# Changes automatically regenerate code
+# Automatically regenerate on:
+# - .specify/specs/**/*.ttl changes
+# - templates/** changes
+# - ggen.toml modifications
 ```
 
-#### Pattern 3: CI/CD Pipeline
+## Agent Invocation Patterns
+
+### Pattern A: Direct Execution
 
 ```bash
-# Validation only (no generation)
-ggen sync --validate_only true
-
-# Full sync with audit trail
+# From agent code/terminal
 ggen sync --audit true
 
-# Safe overwrite with force flag
-ggen sync --force true --audit true
+# Returns:
+# - Exit code 0 (success) or non-zero (failure)
+# - Generated artifacts in src/
+# - Receipt in .ggen/receipts/latest.json
 ```
 
-#### Pattern 4: Integration with Claude Code Tasks
+### Pattern B: JSON Output for Processing
 
 ```bash
-# Use & prefix to send task to Claude Code Web
-& cargo install ggen && ggen init && ggen sync --dry_run true
+# Use for machine parsing
+ggen sync --audit true --output json
 
-# Or from Claude: Use Task tool directly
-# claude code will handle the ggen command
+# Returns: Structured JSON with:
+# - status: "success"|"failed"
+# - files_generated: [list]
+# - receipt: {metadata}
+# - errors: [if any]
 ```
 
----
+### Pattern C: Dry-Run for Planning
 
-## Claude Code Web Constraints and Solutions
-
-### Constraint 1: Network Limited (No apt-get)
-
-**Problem**: `apt-get install ggen` won't work
-
-**Solution**: Use language-specific package managers
 ```bash
-# ✅ Works - cargo (pre-installed)
-cargo install ggen
+# Preview without writing
+ggen sync --dry_run true
 
-# ❌ Won't work - apt-get (blocked)
-apt-get install ggen
+# Safe for:
+# - Pre-generation validation
+# - Estimating scope
+# - Agent decision-making
 ```
 
-### Constraint 2: Sandbox Isolation
+## Error Handling for Agents
 
-**Problem**: Limited filesystem access
+### Error Detection
 
-**Solution**: Work within project directory
 ```bash
-# ✅ Works - within project directory
-cd my-project
-ggen sync
-
-# ❌ Won't work - system paths
-ggen sync --output /usr/local/bin/  # Permission denied
-```
-
-### Constraint 3: Timeout Limits (5-30s per command)
-
-**Problem**: Long-running commands may timeout
-
-**Solution**: Use quick validation
-```bash
-# ✅ Fast (~5s) - validation only
-ggen sync --validate_only true
-
-# ⏱️ Medium (~15s) - generation
-ggen sync
-
-# ⏱️ Slow (~30s+) - generation + audit
 ggen sync --audit true
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -ne 0 ]; then
+  case $EXIT_CODE in
+    2) echo "Validation failed" ;;
+    4) echo "SPARQL error - ontology syntax" ;;
+    5) echo "Template error" ;;
+    *) echo "Unknown error" ;;
+  esac
+fi
 ```
 
-### Constraint 4: Limited System Calls
+### Root Cause Analysis
 
-**Problem**: Some operations blocked
+When generation fails, agent should:
 
-**Solution**: Use ggen's abstractions
+1. Check exit code (indicates failure type)
+2. Read logs: `cat .ggen/ggen.log`
+3. Validate ontology: `ggen sync --validate_only true`
+4. Report structured error for coordinator agent
+
+## Receipt Verification (Determinism Guarantee)
+
+Every agent invocation generates proof:
+
 ```bash
-# Instead of: system("rustfmt ...")
-# Use: ggen sync (auto-formats via Tera)
+# Inspect receipt after generation
+cat .ggen/receipts/latest.json
+
+# Contains:
+# {
+#   "execution_id": "abc123",
+#   "timestamp": "2026-01-29T...",
+#   "manifest_hash": "sha256:...",
+#   "ontology_hash": "sha256:...",
+#   "files": [{path, hash, size}, ...],
+#   "generation_time_ms": 1234
+# }
 ```
 
----
+**Verification**: Same ontology + same templates = identical receipt
 
-## Performance Optimization for Claude Code Web
+## Performance Optimization
 
-### Tip 1: Cache cargo Registry
+### Caching Strategy
 
-Add to `.claude/settings.json`:
+```bash
+# Cache enabled by default
+ggen sync --cache true
+
+# First run: ~15 seconds
+# Subsequent runs: ~2-3 seconds (6x faster)
+```
+
+### Resource Constraints
+
+Agent should respect:
+- **CPU**: 2 cores recommended
+- **RAM**: 2 GB for large ontologies (1k+ triples)
+- **Timeout**: 120 seconds for network-limited environments
+- **Disk**: 500 MB for artifacts + cache
+
+### Parallel Agent Coordination
+
+```bash
+# Coordinator spawns multiple agents in parallel
+# Each agent gets isolated .ggen/ directories
+# Merge results in coordinator
+
+export GGEN_HOME=.ggen-agent-$AGENT_ID
+ggen sync  # Isolated execution
+```
+
+## Integration with Agent Memory
+
+Store generation metadata for future reference:
 
 ```json
 {
-  "environment": {
-    "CARGO_HOME": ".cargo",
-    "CARGO_NET_RETRY": "10"
-  }
+  "generation_events": [
+    {
+      "timestamp": "2026-01-29T10:00:00Z",
+      "ontology_hash": "sha256:...",
+      "receipt_id": "abc123",
+      "artifacts": ["src/api.rs", "src/models.rs"],
+      "agent": "code-generator-v1",
+      "status": "success"
+    }
+  ]
 }
 ```
 
-### Tip 2: Use Pre-built Binaries
+## Command Reference (Agent-Focused)
 
-First session with ggen:
+| Command | Use Case | Returns |
+|---------|----------|---------|
+| `ggen sync` | Generate code | Exit code + artifacts |
+| `ggen sync --dry_run true` | Preview | Exit code + plan |
+| `ggen sync --validate_only true` | Validate specs | Exit code only |
+| `ggen sync --audit true` | Generate + proof | Exit code + receipt |
+| `ggen init` | Setup project | Creates directory structure |
+| `ggen --version` | Version check | Version string |
 
-```bash
-curl -L https://github.com/seanchatmangpt/ggen/releases/download/v6.0.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
-export PATH="$PWD:$PATH"
-```
+## Safety Constraints
 
-### Tip 3: Dry-Run Before Full Generation
+### What Agents MUST Do
 
-```bash
-# Always preview first (5s)
-ggen sync --dry_run true
+- ✅ Use `--dry_run true` before committing changes
+- ✅ Verify exit codes - don't assume success
+- ✅ Store receipts for audit trails
+- ✅ Respect timeout limits (120s max)
+- ✅ Validate ontologies before generation
 
-# Then full generation (15s)
-ggen sync
-```
+### What Agents MUST NOT Do
 
-### Tip 4: Compress Ontologies
+- ❌ Edit generated files directly (regenerate from ontology)
+- ❌ Ignore generation failures
+- ❌ Run without `--audit true` for reproducibility
+- ❌ Modify .ttl files without validation
+- ❌ Assume identical output without receipt verification
 
-Keep `.specify/*.ttl` files small:
+## Troubleshooting for Agents
 
-```bash
-# ✅ Fast - Simple ontologies
-wc -l .specify/specs/*.ttl  # < 500 lines each
-
-# ⏱️ Slow - Complex ontologies
-# Solution: Split into multiple files
-mv .specify/specs/large.ttl .specify/specs/large/{part1,part2}.ttl
-```
-
----
-
-## Troubleshooting in Claude Code Web
-
-### Issue: "cargo: command not found"
-
-**Status**: Very rare (Rust pre-installed in Claude Code Web)
-
-**Solution**:
+### Installation Timeout
 
 ```bash
-# Check if Rust installed
-rustc --version
-
-# If not, install via SessionStart hook
-# Add to .claude/settings.json
-```
-
-### Issue: Installation very slow
-
-**Cause**: Network latency or large dependency compilation
-
-**Solution**:
-
-```bash
-# Use pre-built binary instead
+# If cargo install takes > 120s:
+# Option A: Use pre-built binary
 curl -L https://github.com/seanchatmangpt/ggen/releases/download/v6.0.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
 
-# Or increase network access level to "Limited" (default)
-# Check network access settings in session
+# Option B: Increase timeout in SessionStart hook
+"timeout": 180000  # 3 minutes
 ```
 
-### Issue: "ggen: permission denied"
-
-**Cause**: Binary not marked executable
-
-**Solution**:
+### SPARQL Query Failures
 
 ```bash
-# Make sure cargo/bin is in PATH
-export PATH="$HOME/.cargo/bin:$PATH"
-
-# Or manual binary setup
-chmod +x ./ggen
-./ggen --version
-```
-
-### Issue: "RDF file not found" or SPARQL errors
-
-**Solution**:
-
-```bash
-# Verify ontology structure
-ls -la .specify/specs/
-
-# Validate SHACL conformance
+# Ontology syntax error - validate before generation
 ggen sync --validate_only true
-
-# Debug output
-GGEN_LOG_LEVEL=debug ggen sync
+# If fails: Check .ttl syntax, namespace declarations
 ```
 
-### Issue: Timeout during generation
-
-**Cause**: Complex ontology or network delay
-
-**Solution**:
+### Template Rendering Failures
 
 ```bash
-# Check resource usage
-cargo make slo-check
-
-# Optimize ontology
-# Split large .ttl files
-# Remove unused triples
-# Simplify SPARQL queries
-
-# Then retry
-ggen sync --audit true
+# Template variable mismatch - debug output
+GGEN_LOG_LEVEL=debug ggen sync --dry_run true
+# Look for: "template context" in output
 ```
+
+## Next Steps for Agent Developers
+
+- Review: `/docs/reference/01-commands.md` - Full command API
+- Study: `/docs/explanation/01-concepts.md` - Ontology/RDF/SPARQL primer
+- Build: `/docs/how-to/01-common-tasks.md` - Real generation patterns
 
 ---
 
-## Advanced Workflows
+**Agent System Information**
 
-### Workflow 1: AI-Powered Generation
-
-Use ggen-ai for LLM-enhanced code generation:
-
-```bash
-# Install with AI features
-cargo install ggen --all-features
-
-# Generate with AI assistance
-ggen sync --ai true
-```
-
-### Workflow 2: Deterministic Receipts for CI/CD
-
-```bash
-# Generate with cryptographic proof
-ggen sync --audit true
-
-# View receipt
-cat .ggen/receipts/latest.json | jq '.'
-
-# Verify files match hashes
-cat .ggen/receipts/latest.json | jq '.files[] | .path, .hash'
-```
-
-### Workflow 3: Multi-Language Generation
-
-```bash
-# Single ontology generates multiple languages
-.specify/api.ttl (source)
-  ├── Generated Rust (src/api.rs)
-  ├── Generated TypeScript (src/api.ts)
-  ├── Generated Python (src/api.py)
-  └── Generated Go (src/api.go)
-
-ggen sync
-```
-
----
-
-## Integration with Claude Code Tasks
-
-### From Claude:
-
-Tell Claude: "Use ggen to generate a REST API from the ontology"
-
-Claude will:
-1. Use the Task tool to spawn a specialized agent
-2. Agent runs: `ggen init && ggen sync`
-3. Changes reviewed in diff view before PR
-
-### From Terminal:
-
-```bash
-# Send task to Claude Code Web with & prefix
-& ggen sync && git add . && git commit -m "Generated code from ontology"
-```
-
----
-
-## Next Steps
-
-1. **Start**: [Getting Started Tutorial](../tutorials/01-getting-started.md)
-2. **Learn**: [First Project Guide](../tutorials/02-first-project.md)
-3. **Reference**: [Command Reference](../reference/01-commands.md)
-4. **Advanced**: [Multi-Service Architecture](../how-to/02-multi-service-generation.md)
-
----
-
-## Resources
-
-- 📖 [ggen Documentation](../README.md)
-- 🔧 [Command Reference](../reference/01-commands.md)
-- 🎓 [Tutorial Videos](https://youtube.com/@ggendev)
-- 💬 [Community Forum](https://github.com/seanchatmangpt/ggen/discussions)
-- 🐛 [Report Issues](https://github.com/seanchatmangpt/ggen/issues)
-
----
-
-**Happy generating! 🚀**
+- **Designed for**: Claude Code Web agents, AI automation systems
+- **Invocation**: Shell commands (bash) or direct cargo invocation
+- **Output format**: Exit codes, JSON, file artifacts
+- **Determinism**: 100% reproducible with receipt verification
+- **Timeout SLO**: 15 seconds typical, 120 seconds max

@@ -1,411 +1,142 @@
-# ggen Installation Guide
+# ggen Installation - AI Agent Integration
 
-**ggen v6.0.0** - Ontology-driven code generation
+**For Claude Code Web agents and AI automation systems**
 
-Choose your installation method based on your environment:
+## Agent Installation Methods
 
-## Quick Comparison
-
-| Method | Platform | Speed | Size | Requirements |
-|--------|----------|-------|------|--------------|
-| **cargo install** | Any | ⚡ Fast | ~200MB | Rust 1.75+ |
-| **Pre-built binary** | Linux/macOS/Windows | ⚡⚡ Fastest | ~50MB | No dependencies |
-| **Debian package** | Ubuntu/Debian | 🟢 Easy | ~50MB | dpkg |
-| **Docker** | Any | 🟢 Isolated | ~500MB | Docker |
-| **From source** | Any | ⏱️ Slow (~120s) | Build | Rust + dependencies |
-
----
-
-## 1. Claude Code Web (Recommended)
-
-**This is the fastest way to use ggen in Claude Code Web environments.**
-
-### Method A: cargo install (Recommended)
-
-Works instantly in Claude Code Web with the pre-installed Rust toolchain:
+### Method 1: Claude Code Web (Recommended for Agents)
 
 ```bash
-# Install latest stable release
+# Single command - use in TaskStart hooks or agent workflows
 cargo install ggen
 
-# Install from main branch
-cargo install --git https://github.com/seanchatmangpt/ggen
-
-# Install with all features
-cargo install ggen --features otel
-
-# Verify installation
-ggen --version
-```
-
-**Time**: ~30-60 seconds
-**Disk usage**: ~200MB in .cargo directory
-**Benefit**: Automatic updates via `cargo install --force ggen`
-
-### Method B: Pre-built Binary
-
-If you want faster installation without Rust recompilation:
-
-```bash
-# Download and extract binary
-curl -L https://github.com/seanchatmangpt/ggen/releases/download/v6.0.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
-
-# Make executable
-chmod +x ggen
-
-# Add to PATH
-export PATH="$PWD:$PATH"
-
-# Verify
-ggen --version
-```
-
-**Time**: ~10-15 seconds
-**Disk usage**: ~50MB
-**Benefit**: Instant execution, no compilation
-
----
-
-## 2. macOS
-
-### Using Homebrew
-
-```bash
-# Coming soon - currently use cargo install
-cargo install ggen
-```
-
-### Using cargo
-
-```bash
-cargo install ggen
-```
-
-### Manual Binary
-
-```bash
-curl -L https://github.com/seanchatmangpt/ggen/releases/download/v6.0.0/ggen-x86_64-apple-darwin.tar.gz | tar xz
-sudo mv ggen /usr/local/bin/
-ggen --version
-```
-
----
-
-## 3. Linux (Ubuntu/Debian)
-
-### Method A: cargo install (Fastest)
-
-```bash
-cargo install ggen
-```
-
-### Method B: Debian Package
-
-```bash
-# Download .deb file
-wget https://github.com/seanchatmangpt/ggen/releases/download/v6.0.0/ggen_6.0.0_amd64.deb
-
-# Install
-sudo dpkg -i ggen_6.0.0_amd64.deb
-
-# Or using apt
-sudo apt install ./ggen_6.0.0_amd64.deb
-```
-
-### Method C: Pre-built Binary
-
-```bash
-curl -L https://github.com/seanchatmangpt/ggen/releases/download/v6.0.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
-sudo mv ggen /usr/local/bin/
-ggen --version
-```
-
-### Build from Source
-
-```bash
-git clone https://github.com/seanchatmangpt/ggen
-cd ggen
-
-# Build with cargo make (recommended)
-cargo make build-release
-
-# Or with cargo directly
-cargo build --release -p ggen-cli
-
-# Binary at target/release/ggen
-sudo cp target/release/ggen /usr/local/bin/
-```
-
----
-
-## 4. Windows
-
-### Pre-built Binary
-
-```powershell
-# Download and extract
-$ProgressPreference = 'SilentlyContinue'
-Invoke-WebRequest -Uri "https://github.com/seanchatmangpt/ggen/releases/download/v6.0.0/ggen-x86_64-pc-windows-gnu.zip" -OutFile "ggen.zip"
-Expand-Archive -Path "ggen.zip" -DestinationPath "C:\Program Files\ggen\"
-
-# Add to PATH (requires admin)
-$env:Path += ";C:\Program Files\ggen"
-
-# Verify
-ggen --version
-```
-
-### Using Rust
-
-```powershell
-cargo install ggen
-```
-
----
-
-## 5. Docker
-
-### Quick Start
-
-```bash
-# Using official image (once published to GHCR)
-docker run -v $(pwd):/workspace ghcr.io/seanchatmangpt/ggen:latest sync
-
-# Using Dockerfile
-cat > Dockerfile <<EOF
-FROM rust:latest
-RUN cargo install ggen
-ENTRYPOINT ["ggen"]
-CMD ["--help"]
-EOF
-
-docker build -t ggen .
-docker run -v $(pwd):/workspace ggen sync
-```
-
----
-
-## 6. Alpine Linux
-
-```bash
-# Install Rust dependencies
-apk add --no-cache rustup curl
-
-# Install ggen
-cargo install ggen
-```
-
----
-
-## 7. Arch Linux (AUR)
-
-```bash
-# Build from AUR
-git clone https://aur.archlinux.org/ggen.git
-cd ggen
-makepkg -si
-```
-
----
-
-## Verification
-
-After installation, verify ggen works:
-
-```bash
-# Check version
-ggen --version
-
-# Show help
-ggen --help
-
-# Create a quick test
-mkdir -p /tmp/ggen-test && cd /tmp/ggen-test
-
-# Initialize a project
-ggen init
-
-# Run generation (dry-run)
-ggen sync --dry_run true
-```
-
----
-
-## Post-Installation Setup
-
-### 1. Shell Completion (Optional)
-
-Generate shell completions for faster CLI usage:
-
-```bash
-# Bash
-ggen --generate-bash-completion >> ~/.bashrc
-
-# Zsh
-ggen --generate-zsh-completion >> ~/.zshrc
-
-# Fish
-ggen --generate-fish-completion > ~/.config/fish/completions/ggen.fish
-
-# Reload shell
-source ~/.bashrc  # or your shell config
-```
-
-### 2. Update .claude/settings.json
-
-Configure ggen for Claude Code Web sessions:
-
-```json
+# Environment setup in .claude/settings.json
 {
   "environment": {
     "GGEN_HOME": ".ggen",
-    "GGEN_LOG_LEVEL": "info"
+    "GGEN_LOG_LEVEL": "debug",
+    "RUST_BACKTRACE": "1"
   },
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "startup",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cargo install ggen --locked"
-          }
-        ]
+        "type": "command",
+        "command": "cargo install ggen --locked",
+        "timeout": 120000
       }
     ]
   }
 }
 ```
 
-### 3. Configure Your First Project
-
-See [Getting Started Tutorial](../tutorials/01-getting-started.md) for the next steps.
-
----
-
-## Troubleshooting
-
-### "ggen: command not found"
-
-**Solution**: Add `~/.cargo/bin` to your PATH:
+### Method 2: Pre-built Binary (Fast)
 
 ```bash
-export PATH="$HOME/.cargo/bin:$PATH"
-```
-
-Add to `~/.bashrc` or `~/.zshrc` for permanent change.
-
-### "error: linker `cc` not found"
-
-**Solution**: Install build essentials:
-
-```bash
-# Ubuntu/Debian
-sudo apt-get install build-essential
-
-# Fedora
-sudo dnf install gcc
-
-# macOS
-xcode-select --install
-```
-
-### "error: cannot find openssl"
-
-**Solution**: Install OpenSSL headers:
-
-```bash
-# Ubuntu/Debian
-sudo apt-get install libssl-dev
-
-# Fedora
-sudo dnf install openssl-devel
-
-# macOS
-brew install openssl
-```
-
-### "cargo: command not found"
-
-**Solution**: Install Rust:
-
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-source $HOME/.cargo/env
-```
-
-### Performance in Claude Code Web
-
-**Issue**: Installation slow in Claude Code Web (network limited)
-
-**Solution**: Use pre-built binary or enable faster network:
-
-```bash
-# Pre-built (fastest)
+# For agents with network constraints
 curl -L https://github.com/seanchatmangpt/ggen/releases/download/v6.0.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
-
-# Or: cache cargo registry locally in .claude/cache/
+export PATH="$PWD:$PATH"
 ```
 
----
-
-## Version Management
-
-### Update to Latest
+### Method 3: Debian Package
 
 ```bash
-# Update via cargo
-cargo install ggen --force
-
-# Update from source
-git clone https://github.com/seanchatmangpt/ggen
-cd ggen && git pull
-cargo install --path crates/ggen-cli
+sudo dpkg -i ggen_6.0.0_amd64.deb
 ```
 
-### Pin to Specific Version
+## Agent Integration Patterns
+
+### Pattern 1: Specification Validation Agent
 
 ```bash
-# Install v6.0.0 specifically
-cargo install ggen --version 3.2.0
+# Use in validation workflows
+ggen sync --validate_only true --output json
 
-# Or from source
-git checkout v6.0.0
-cargo install --path crates/ggen-cli
+# Returns: JSON structure with validation status
+# Perfect for: Pre-flight checks before generation
+```
+
+### Pattern 2: Deterministic Code Generation Agent
+
+```bash
+# Use for reproducible generation
+ggen sync --audit true --force true
+
+# Guarantees:
+# - Identical output for identical input
+# - Cryptographic proof in .ggen/receipts/latest.json
+# - Audit trail for verification
+```
+
+### Pattern 3: Watch Mode for Continuous Generation
+
+```bash
+# For agents maintaining living documentation
+ggen sync --watch true
+
+# Triggers regeneration on ontology changes
+# Maintains: Real-time consistency between specs and artifacts
+```
+
+## System Requirements for Agents
+
+| Requirement | Value | Notes |
+|---|---|---|
+| CPU | 1+ cores | 2 cores recommended for parallel processing |
+| RAM | 512 MB minimum | 2 GB for large ontologies (1k+ triples) |
+| Disk | 100 MB | For binary + cache + generated artifacts |
+| Timeout | 120s | Recommended for network-limited environments |
+| Network | Limited | Uses pre-installed Rust toolchain only |
+
+## Exit Codes for Agent Automation
+
+| Code | Meaning | Agent Action |
+|------|---------|--------------|
+| 0 | Success | Continue with generated artifacts |
+| 1 | General error | Log error, retry with validation |
+| 2 | Validation failed | Trigger validation-only mode |
+| 3 | Generation failed | Check ontology syntax, retry |
+| 4 | SPARQL query failed | Inspect .ttl file, log context |
+| 5 | Template rendering failed | Check template syntax |
+
+## Environment Variables for Agents
+
+```bash
+# Logging - set before execution
+export GGEN_LOG_LEVEL=debug           # trace, debug, info, warn, error
+export GGEN_LOG_FILE=.ggen/ggen.log
+
+# Performance
+export GGEN_CACHE_DIR=.ggen/cache
+export GGEN_CACHE_MAX_SIZE=1073741824 # 1 GB
+
+# Behavioral
+export GGEN_TIMEOUT=120               # seconds
+export GGEN_HOME=.ggen
+```
+
+## Version Information
+
+**Current Version**: 6.0.0
+**Release Date**: January 18, 2026
+**Stability**: Production-ready
+
+**Breaking Changes from v5.x**: Yes - see migration guide
+
+## Success Indicators
+
+After installation, verify with:
+
+```bash
+ggen --version
+# Expected: ggen 6.0.0
+
+ggen init --help
+# Expected: Subcommand help output
+
+ggen sync --help
+# Expected: Command reference
 ```
 
 ---
 
-## Next Steps
-
-- 📖 [Getting Started Tutorial](../tutorials/01-getting-started.md)
-- 🎯 [Quick Start: Your First Project](../tutorials/02-first-project.md)
-- 📚 [Common Tasks How-To Guide](../how-to/01-common-tasks.md)
-- 🔧 [Command Reference](../reference/01-commands.md)
-
----
-
-## System Requirements
-
-| Component | Minimum | Recommended |
-|-----------|---------|-------------|
-| CPU | 1 core | 2+ cores |
-| RAM | 512 MB | 2 GB+ |
-| Disk | 100 MB | 500 MB+ |
-| Rust | 1.75+ | Latest stable |
-| OS | Ubuntu 20.04+ / macOS 10.15+ / Windows 10+ | Latest LTS |
-
----
-
-## Getting Help
-
-- 📖 [Complete Documentation](../README.md)
-- 🐛 [Report Issues](https://github.com/seanchatmangpt/ggen/issues)
-- 💬 [Discussions](https://github.com/seanchatmangpt/ggen/discussions)
-- 📧 [Email Support](mailto:sean@chatmangpt.com)
-
----
-
-## License
-
-ggen is released under the MIT License. See [LICENSE](../../LICENSE) for details.
+**For agent developers**: See `/docs/reference/01-commands.md` for complete command API
