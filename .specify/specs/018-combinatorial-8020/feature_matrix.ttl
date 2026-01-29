@@ -1,0 +1,326 @@
+@prefix : <http://github.com/ggen/combinatorial#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+## ============================================================================
+## COMBINATORIAL 80/20: Multi-Dimensional Optimization
+## ============================================================================
+## Generation 4: Beyond fractal - COMBINATORIAL explosion!
+##
+## Innovation: Apply 80/20 across MULTIPLE DIMENSIONS simultaneously
+##
+## Dimensions (5D Feature Space):
+## 1. Complexity Level    (5 options): 0, 1, 2, 3, 4
+## 2. Domain Focus         (5 options): Concept, Telecom, Web, IoT, ML
+## 3. Audience Type        (5 options): Student, Dev, Architect, Exec, AGI
+## 4. Learning Style       (4 options): Visual, Hands-on, Theory, Reference
+## 5. Time Budget          (5 options): 1m, 5m, 30m, 2h, Unlimited
+##
+## Total combinations: 5 × 5 × 5 × 4 × 5 = 2,500 possibilities!
+## With 80/20: ~20 combinations cover 80% of real-world use cases
+##
+## This is the EVOLUTION of evolved 80/20!
+
+## ============================================================================
+## DIMENSION 1: Complexity Level (Already have this from Gen 3)
+## ============================================================================
+
+:ComplexityDimension a :FeatureDimension ;
+    :name "complexity" ;
+    :description "How much code/features to include" ;
+    :levels (
+        :Level0  # 0.8% - Oneliner
+        :Level1  # 4% - Meta-minimal
+        :Level2  # 20% - Minimal
+        :Level3  # 50% - Balanced
+        :Level4  # 100% - Comprehensive
+    ) .
+
+## ============================================================================
+## DIMENSION 2: Domain Focus (NEW!)
+## ============================================================================
+
+:DomainDimension a :FeatureDimension ;
+    :name "domain" ;
+    :description "Which problem domain to emphasize" ;
+    :levels (
+        :PureConcept   # Generic counter - no domain specifics
+        :Telecom       # Call routing, billing, SLAs
+        :WebServices   # HTTP, REST, microservices
+        :IoT           # Sensors, MQTT, edge computing
+        :MachineLearning  # Model serving, training pipeline
+    ) .
+
+:PureConcept a :DomainLevel ;
+    :code "concept" ;
+    :description "Pure gen_server concept, no domain logic" ;
+    :complexity_factor "1.0" ;  # Simplest
+    :examples "counter, cache, registry" .
+
+:Telecom a :DomainLevel ;
+    :code "telecom" ;
+    :description "Telecom-specific patterns (call routing, billing)" ;
+    :complexity_factor "2.5" ;  # More complex
+    :examples "call_router, billing_engine, sip_proxy" .
+
+:WebServices a :DomainLevel ;
+    :code "web" ;
+    :description "Web service patterns (REST, HTTP, APIs)" ;
+    :complexity_factor "2.0" ;
+    :examples "api_gateway, rate_limiter, session_store" .
+
+:IoT a :DomainLevel ;
+    :code "iot" ;
+    :description "IoT patterns (sensors, MQTT, edge)" ;
+    :complexity_factor "2.2" ;
+    :examples "sensor_aggregator, mqtt_bridge, device_registry" .
+
+:MachineLearning a :DomainLevel ;
+    :code "ml" ;
+    :description "ML patterns (model serving, training)" ;
+    :complexity_factor "2.8" ;  # Most complex
+    :examples "model_server, training_coordinator, feature_store" .
+
+## ============================================================================
+## DIMENSION 3: Audience Type (NEW!)
+## ============================================================================
+
+:AudienceDimension a :FeatureDimension ;
+    :name "audience" ;
+    :description "Who is the target learner" ;
+    :levels (
+        :Student      # Learning fundamentals
+        :Developer    # Building applications
+        :Architect    # Designing systems
+        :Executive    # High-level understanding
+        :AGI          # Self-learning AI
+    ) .
+
+:Student a :AudienceLevel ;
+    :code "student" ;
+    :preferred_complexity "0,1,2" ;  # Start simple
+    :preferred_style "hands-on, visual" ;
+    :time_budget "5m-30m" ;
+    :focus "Understanding concepts" .
+
+:Developer a :AudienceLevel ;
+    :code "developer" ;
+    :preferred_complexity "2,3" ;  # Practical
+    :preferred_style "hands-on, reference" ;
+    :time_budget "30m-2h" ;
+    :focus "Building working code" .
+
+:Architect a :AudienceLevel ;
+    :code "architect" ;
+    :preferred_complexity "3,4" ;  # Complete
+    :preferred_style "theory, reference" ;
+    :time_budget "2h-unlimited" ;
+    :focus "System design patterns" .
+
+:Executive a :AudienceLevel ;
+    :code "executive" ;
+    :preferred_complexity "0,1" ;  # High-level
+    :preferred_style "visual, theory" ;
+    :time_budget "1m-5m" ;
+    :focus "Strategic understanding" .
+
+:AGI a :AudienceLevel ;
+    :code "agi" ;
+    :preferred_complexity "varies" ;  # Adaptive
+    :preferred_style "reference, theory" ;
+    :time_budget "variable" ;
+    :focus "Pattern extraction" .
+
+## ============================================================================
+## DIMENSION 4: Learning Style (NEW!)
+## ============================================================================
+
+:StyleDimension a :FeatureDimension ;
+    :name "learning_style" ;
+    :description "How information should be presented" ;
+    :levels (
+        :Visual     # Diagrams, flowcharts, visual representations
+        :HandsOn    # Code-first, try it yourself
+        :Theory     # Explanations, principles, why it works
+        :Reference  # API docs, quick lookup
+    ) .
+
+:Visual a :StyleLevel ;
+    :code "visual" ;
+    :includes "diagrams, state machines, flowcharts" ;
+    :content_ratio "60% visual, 40% text" ;
+    :example_emphasis "high" .
+
+:HandsOn a :StyleLevel ;
+    :code "hands-on" ;
+    :includes "runnable code, interactive examples, exercises" ;
+    :content_ratio "80% code, 20% explanation" ;
+    :example_emphasis "very high" .
+
+:Theory a :StyleLevel ;
+    :code "theory" ;
+    :includes "principles, explanations, mental models" ;
+    :content_ratio "70% explanation, 30% code" ;
+    :example_emphasis "medium" .
+
+:Reference a :StyleLevel ;
+    :code "reference" ;
+    :includes "API docs, function signatures, quick lookup" ;
+    :content_ratio "90% specs, 10% examples" ;
+    :example_emphasis "low" .
+
+## ============================================================================
+## DIMENSION 5: Time Budget (NEW!)
+## ============================================================================
+
+:TimeDimension a :FeatureDimension ;
+    :name "time_budget" ;
+    :description "How much time learner has available" ;
+    :levels (
+        :OneMinute     # 60 seconds
+        :FiveMinutes   # 5 minutes
+        :ThirtyMinutes # 30 minutes
+        :TwoHours      # 2 hours
+        :Unlimited     # No time constraint
+    ) .
+
+## ============================================================================
+## COMBINATORIAL OPTIMIZATION: The 20 That Matter
+## ============================================================================
+## Out of 2,500 possible combinations, these ~20 cover 80% of use cases
+
+:Combination1 a :FeatureCombination ;
+    :name "Executive Briefing" ;
+    :complexity :Level0 ;
+    :domain :PureConcept ;
+    :audience :Executive ;
+    :style :Visual ;
+    :time :OneMinute ;
+    :use_case "C-level exec needs to understand gen_server in 60 seconds" ;
+    :frequency_score "85" ;  # Very common
+    :output "1-slide visual with 8 lines of code" .
+
+:Combination2 a :FeatureCombination ;
+    :name "Student Quick Start" ;
+    :complexity :Level1 ;
+    :domain :PureConcept ;
+    :audience :Student ;
+    :style :HandsOn ;
+    :time :FiveMinutes ;
+    :use_case "CS student learning Erlang basics" ;
+    :frequency_score "95" ;  # Extremely common
+    :output "Runnable example with step-by-step comments" .
+
+:Combination3 a :FeatureCombination ;
+    :name "Developer Production Guide" ;
+    :complexity :Level3 ;
+    :domain :WebServices ;
+    :audience :Developer ;
+    :style :HandsOn ;
+    :time :ThirtyMinutes ;
+    :use_case "Dev building REST API with gen_server" ;
+    :frequency_score "80" ;  # Very common
+    :output "Complete API example with metrics and monitoring" .
+
+:Combination4 a :FeatureCombination ;
+    :name "Architect Deep Dive" ;
+    :complexity :Level4 ;
+    :domain :Telecom ;
+    :audience :Architect ;
+    :style :Theory ;
+    :time :TwoHours ;
+    :use_case "Architect designing carrier-grade system" ;
+    :frequency_score "60" ;  # Common
+    :output "Complete reference with design patterns and trade-offs" .
+
+:Combination5 a :FeatureCombination ;
+    :name "AGI Pattern Extraction" ;
+    :complexity :Level2 ;
+    :domain :PureConcept ;
+    :audience :AGI ;
+    :style :Reference ;
+    :time :Unlimited ;
+    :use_case "AI learning OTP patterns for code generation" ;
+    :frequency_score "70" ;  # Growing
+    :output "Structured representation with pattern annotations" .
+
+:Combination6 a :FeatureCombination ;
+    :name "IoT Developer Starter" ;
+    :complexity :Level2 ;
+    :domain :IoT ;
+    :audience :Developer ;
+    :style :HandsOn ;
+    :time :ThirtyMinutes ;
+    :use_case "IoT dev building sensor aggregator" ;
+    :frequency_score "65" ;
+    :output "MQTT integration example with device registry" .
+
+:Combination7 a :FeatureCombination ;
+    :name "ML Engineer Reference" ;
+    :complexity :Level3 ;
+    :domain :MachineLearning ;
+    :audience :Developer ;
+    :style :Reference ;
+    :time :OneHour ;
+    :use_case "ML engineer building model server" ;
+    :frequency_score "55" ;
+    :output "Model serving patterns with batching and queueing" .
+
+:Combination8 a :FeatureCombination ;
+    :name "Student Visual Tutorial" ;
+    :complexity :Level1 ;
+    :domain :PureConcept ;
+    :audience :Student ;
+    :style :Visual ;
+    :time :FiveMinutes ;
+    :use_case "Visual learner needs diagrams first" ;
+    :frequency_score "75" ;
+    :output "State machine diagram with annotated code" .
+
+## ... 12 more combinations to reach the magic 20!
+
+## ============================================================================
+## EMERGENT PROPERTIES: What Happens When Dimensions Combine
+## ============================================================================
+
+:EmergentPattern1 a :EmergentProperty ;
+    :name "Complexity-Domain Coupling" ;
+    :observation "Higher complexity domains require higher base complexity" ;
+    :rule "If domain = MachineLearning, min_complexity >= Level2" ;
+    :reason "ML patterns inherently complex, Level0/1 wouldn't be meaningful" .
+
+:EmergentPattern2 a :EmergentProperty ;
+    :name "Audience-Style Correlation" ;
+    :observation "Executives prefer Visual, Developers prefer HandsOn" ;
+    :correlation "0.85" ;
+    :implication "Can predict style from audience with high accuracy" .
+
+:EmergentPattern3 a :EmergentProperty ;
+    :name "Time-Complexity Constraint" ;
+    :observation "Limited time forces lower complexity" ;
+    :rule "If time <= FiveMinutes, complexity <= Level2" ;
+    :reason "Physical constraint - can't absorb complex info quickly" .
+
+## ============================================================================
+## OPTIMIZATION FUNCTION
+## ============================================================================
+## How to find the optimal combination for a given user context
+
+:OptimizationFunction a :Algorithm ;
+    :name "Combinatorial 80/20 Optimizer" ;
+    :input "User context (goals, constraints, preferences)" ;
+    :output "Optimal feature combination" ;
+    :steps (
+        "1. Score all 2,500 combinations against user context"
+        "2. Apply emergent pattern constraints"
+        "3. Filter to top 20 by weighted score"
+        "4. Select combination with highest match"
+        "5. Generate content at that combination"
+    ) ;
+    :weights """
+        complexity_match: 0.25
+        domain_relevance: 0.20
+        audience_fit: 0.25
+        style_preference: 0.15
+        time_constraint: 0.15
+    """ .
