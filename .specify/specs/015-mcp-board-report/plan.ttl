@@ -1,0 +1,317 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ggen: <https://ggen.io/ontology#> .
+@prefix mcp: <https://ggen.io/ontology/mcp#> .
+@prefix arch: <https://ggen.io/ontology/architecture#> .
+
+# =============================================================================
+# MCP+ Board Report Generation - Architecture Plan
+# Core axiom: A = μ(O), μ ∘ μ = μ, hash(A) = hash(μ(O)), O ⊨ Σ
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# System Architecture Overview
+# -----------------------------------------------------------------------------
+
+arch:McpPlusSystem a ggen:System ;
+    rdfs:label "MCP+ Board Report Generation System" ;
+    ggen:description """
+        Hybrid Erlang OTP + Rust architecture for enterprise-grade
+        sealed operating contracts with cryptographic verification.
+
+        Erlang OTP: Workflow orchestration, fault tolerance, supervision
+        Rust: Cryptographic operations, envelope enforcement, receipts
+
+        Integration: Erlang NIFs (Native Implemented Functions) for Rust calls
+    """ .
+
+# -----------------------------------------------------------------------------
+# Erlang OTP Components
+# -----------------------------------------------------------------------------
+
+arch:ErlangOtpLayer a ggen:ArchitectureLayer ;
+    rdfs:label "Erlang OTP Layer" ;
+    ggen:responsibility "Workflow orchestration, fault tolerance, hot upgrades" ;
+    arch:partOf arch:McpPlusSystem .
+
+arch:McpApplication a ggen:Component ;
+    rdfs:label "mcp_app (OTP Application)" ;
+    ggen:technology "Erlang/OTP" ;
+    ggen:module "mcp_app" ;
+    arch:belongsTo arch:ErlangOtpLayer ;
+    arch:implements [
+        a ggen:OtpBehavior ;
+        ggen:behavior "application"
+    ] .
+
+arch:McpSupervisor a ggen:Component ;
+    rdfs:label "mcp_sup (Top Supervisor)" ;
+    ggen:technology "Erlang/OTP" ;
+    ggen:module "mcp_sup" ;
+    arch:belongsTo arch:ErlangOtpLayer ;
+    arch:implements [
+        a ggen:OtpBehavior ;
+        ggen:behavior "supervisor" ;
+        ggen:strategy "one_for_one" ;
+        ggen:maxRestarts 5 ;
+        ggen:maxSeconds 10
+    ] ;
+    arch:supervises arch:ContractServer, arch:EnvelopeServer,
+                    arch:ReceiptServer, arch:KillSwitchServer .
+
+arch:ContractServer a ggen:Component ;
+    rdfs:label "mcp_contract_server (Contract Executor)" ;
+    ggen:technology "Erlang/OTP" ;
+    ggen:module "mcp_contract_server" ;
+    arch:belongsTo arch:ErlangOtpLayer ;
+    arch:implements [
+        a ggen:OtpBehavior ;
+        ggen:behavior "gen_server"
+    ] ;
+    ggen:responsibility "Execute sealed contracts, validate signatures, emit receipts" .
+
+arch:EnvelopeServer a ggen:Component ;
+    rdfs:label "mcp_envelope_server (Envelope State Machine)" ;
+    ggen:technology "Erlang/OTP" ;
+    ggen:module "mcp_envelope_server" ;
+    arch:belongsTo arch:ErlangOtpLayer ;
+    arch:implements [
+        a ggen:OtpBehavior ;
+        ggen:behavior "gen_statem"
+    ] ;
+    ggen:responsibility "Enforce envelope bounds, emit refusals on violation" ;
+    arch:states "initializing, active, exhausted, violated, terminated" .
+
+arch:ReceiptServer a ggen:Component ;
+    rdfs:label "mcp_receipt_server (Receipt Chain)" ;
+    ggen:technology "Erlang/OTP" ;
+    ggen:module "mcp_receipt_server" ;
+    arch:belongsTo arch:ErlangOtpLayer ;
+    arch:implements [
+        a ggen:OtpBehavior ;
+        ggen:behavior "gen_server"
+    ] ;
+    ggen:responsibility "Generate and chain cryptographic receipts" .
+
+arch:KillSwitchServer a ggen:Component ;
+    rdfs:label "mcp_kill_switch (Emergency Control)" ;
+    ggen:technology "Erlang/OTP" ;
+    ggen:module "mcp_kill_switch" ;
+    arch:belongsTo arch:ErlangOtpLayer ;
+    arch:implements [
+        a ggen:OtpBehavior ;
+        ggen:behavior "gen_server"
+    ] ;
+    ggen:responsibility "Global/family/capability disable with immediate effect" .
+
+arch:EvidenceServer a ggen:Component ;
+    rdfs:label "mcp_evidence_server (Bundle Generator)" ;
+    ggen:technology "Erlang/OTP" ;
+    ggen:module "mcp_evidence_server" ;
+    arch:belongsTo arch:ErlangOtpLayer ;
+    arch:implements [
+        a ggen:OtpBehavior ;
+        ggen:behavior "gen_server"
+    ] ;
+    ggen:responsibility "Generate .mcpb evidence bundles for verification" .
+
+# -----------------------------------------------------------------------------
+# Rust Cryptographic Layer
+# -----------------------------------------------------------------------------
+
+arch:RustCryptoLayer a ggen:ArchitectureLayer ;
+    rdfs:label "Rust Cryptographic Layer" ;
+    ggen:responsibility "Zero-cost cryptographic operations, envelope enforcement" ;
+    arch:partOf arch:McpPlusSystem .
+
+arch:McpCryptoLib a ggen:Component ;
+    rdfs:label "mcp_crypto (Rust Library)" ;
+    ggen:technology "Rust" ;
+    ggen:crate "mcp-crypto" ;
+    arch:belongsTo arch:RustCryptoLayer ;
+    ggen:features """
+        - SHA-256/SHA-3 hashing
+        - Ed25519 signing/verification
+        - Merkle tree construction
+        - Key epoch management
+        - Receipt generation
+    """ .
+
+arch:McpEnvelopeLib a ggen:Component ;
+    rdfs:label "mcp_envelope (Rust Library)" ;
+    ggen:technology "Rust" ;
+    ggen:crate "mcp-envelope" ;
+    arch:belongsTo arch:RustCryptoLayer ;
+    ggen:features """
+        - Envelope bound enforcement
+        - Deterministic refusal generation
+        - Resource tracking
+        - Capability validation
+    """ .
+
+arch:McpReceiptLib a ggen:Component ;
+    rdfs:label "mcp_receipt (Rust Library)" ;
+    ggen:technology "Rust" ;
+    ggen:crate "mcp-receipt" ;
+    arch:belongsTo arch:RustCryptoLayer ;
+    ggen:features """
+        - Receipt structure (execution_id, hashes, chain)
+        - Merkle chain validation
+        - Text-blind verification
+        - Bundle serialization
+    """ .
+
+arch:McpNif a ggen:Component ;
+    rdfs:label "mcp_nif (Erlang NIF Bridge)" ;
+    ggen:technology "Rust + Erlang NIF" ;
+    ggen:crate "mcp-nif" ;
+    arch:belongsTo arch:RustCryptoLayer ;
+    ggen:features """
+        - Rustler-based NIF bindings
+        - Zero-copy data transfer where possible
+        - Dirty scheduler support for crypto ops
+        - Panic safety (catch_unwind)
+    """ ;
+    arch:bridges arch:ErlangOtpLayer, arch:RustCryptoLayer .
+
+# -----------------------------------------------------------------------------
+# Data Flow Architecture
+# -----------------------------------------------------------------------------
+
+arch:ContractExecutionFlow a ggen:DataFlow ;
+    rdfs:label "Contract Execution Flow" ;
+    ggen:steps """
+        1. Contract loaded from storage (Erlang)
+        2. Signature verified via NIF (Rust)
+        3. Envelope initialized (Rust -> Erlang state)
+        4. Operations executed within envelope bounds
+        5. Each operation generates receipt (Rust)
+        6. Receipts chained via Merkle (Rust)
+        7. Envelope violation triggers deterministic refusal
+        8. Final receipt emitted on completion/refusal
+    """ .
+
+arch:VerificationFlow a ggen:DataFlow ;
+    rdfs:label "Text-Blind Verification Flow" ;
+    ggen:steps """
+        1. Load .mcpb evidence bundle
+        2. Verify bundle signature (Rust)
+        3. Validate receipt chain integrity (Rust)
+        4. Check refusal codes match known taxonomy
+        5. Verify metrics within expected bounds
+        6. Produce deterministic PASS/FAIL
+        7. No payload text accessed at any step
+    """ .
+
+# -----------------------------------------------------------------------------
+# Deployment Architecture
+# -----------------------------------------------------------------------------
+
+arch:DeploymentModel a ggen:DeploymentArchitecture ;
+    rdfs:label "MCP+ Deployment Model" ;
+    ggen:regions "us-east-1, eu-west-1, ap-northeast-1" ;
+    ggen:redundancy "Active-active with receipt chain synchronization" ;
+    ggen:drStrategy "Multi-region failover with chain continuity verification" .
+
+arch:ContainerImage a ggen:Artifact ;
+    rdfs:label "MCP+ Container Image" ;
+    ggen:baseImage "erlang:26-alpine" ;
+    ggen:includes """
+        - Erlang OTP release
+        - Rust NIF libraries (.so)
+        - Configuration templates
+        - Health check endpoints
+    """ .
+
+# -----------------------------------------------------------------------------
+# Security Architecture
+# -----------------------------------------------------------------------------
+
+arch:SecurityModel a ggen:SecurityArchitecture ;
+    rdfs:label "MCP+ Security Model" ;
+    arch:partOf arch:McpPlusSystem .
+
+arch:KeyManagement a ggen:SecurityComponent ;
+    rdfs:label "Key Management" ;
+    arch:belongsTo arch:SecurityModel ;
+    ggen:features """
+        - HSM integration for production keys
+        - Key epoch rotation (quarterly default)
+        - Emergency revocation capability
+        - Public key hash in receipts (not key material)
+    """ .
+
+arch:SupplyChainSecurity a ggen:SecurityComponent ;
+    rdfs:label "Supply Chain Security" ;
+    arch:belongsTo arch:SecurityModel ;
+    ggen:features """
+        - SBOM generation for all dependencies
+        - Reproducible builds (Nix/Bazel)
+        - Dependency attestation
+        - Build receipt generation
+    """ .
+
+# -----------------------------------------------------------------------------
+# Interface Specifications
+# -----------------------------------------------------------------------------
+
+arch:ErlangNifInterface a ggen:Interface ;
+    rdfs:label "Erlang NIF Interface" ;
+    ggen:functions """
+        mcp_nif:verify_signature(Contract, Signature, PubKeyHash) -> ok | {error, Code}
+        mcp_nif:create_receipt(ExecutionId, ManifestHash, OutcomeHash, PrevHash) -> Receipt
+        mcp_nif:verify_receipt_chain(Receipts) -> ok | {error, Code}
+        mcp_nif:check_envelope_bounds(Envelope, Usage) -> ok | {refusal, Code}
+        mcp_nif:hash_sha256(Data) -> Hash
+        mcp_nif:generate_bundle(Receipts, Refusals, Metrics) -> Bundle
+        mcp_nif:verify_bundle(Bundle) -> pass | fail
+    """ .
+
+arch:KillSwitchInterface a ggen:Interface ;
+    rdfs:label "Kill Switch Interface" ;
+    ggen:functions """
+        mcp_kill_switch:disable_global() -> ok
+        mcp_kill_switch:disable_family(FamilyId) -> ok
+        mcp_kill_switch:disable_capability(CapabilityId) -> ok
+        mcp_kill_switch:revoke_epoch(EpochId) -> ok
+        mcp_kill_switch:status() -> #{global => bool, families => [...], ...}
+    """ .
+
+# -----------------------------------------------------------------------------
+# Generated Artifacts (μ transformation outputs)
+# -----------------------------------------------------------------------------
+
+arch:GeneratedArtifacts a ggen:ArtifactSet ;
+    rdfs:label "Generated Artifacts" ;
+    ggen:artifacts """
+        Erlang:
+        - src/mcp_app.erl (application behavior)
+        - src/mcp_sup.erl (supervisor)
+        - src/mcp_contract_server.erl (gen_server)
+        - src/mcp_envelope_server.erl (gen_statem)
+        - src/mcp_receipt_server.erl (gen_server)
+        - src/mcp_kill_switch.erl (gen_server)
+        - src/mcp_evidence_server.erl (gen_server)
+        - src/mcp_nif.erl (NIF loader)
+
+        Rust:
+        - src/lib.rs (crate root)
+        - src/crypto.rs (cryptographic primitives)
+        - src/envelope.rs (envelope enforcement)
+        - src/receipt.rs (receipt generation)
+        - src/refusal.rs (deterministic refusals)
+        - src/bundle.rs (evidence bundles)
+        - src/nif.rs (Erlang NIF bindings)
+
+        Shell:
+        - scripts/kill-switch.sh (emergency control)
+        - scripts/verify-bundle.sh (text-blind verification)
+        - scripts/dr-drill.sh (disaster recovery drill)
+        - scripts/epoch-rotate.sh (key rotation)
+
+        Config:
+        - config/mcp.toml (main configuration)
+        - config/envelopes.toml (envelope policies)
+        - config/families.toml (contract families)
+    """ .
