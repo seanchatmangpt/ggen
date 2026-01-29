@@ -1,0 +1,17 @@
+[package]
+name = "mcp-merkle"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "MCP+ Merkle tree implementation for receipt chains"
+
+[dependencies]
+mcp-core = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+hex = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
