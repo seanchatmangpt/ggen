@@ -117,6 +117,7 @@
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
 pub mod audit;
+pub mod autonomic; // MAPE-K autonomic loop for self-healing systems
 pub mod benchmarks; // Performance benchmarking infrastructure
 pub mod cache;
 pub mod ci; // CI/CD workflow generation
@@ -181,6 +182,12 @@ pub use lifecycle::{
 };
 
 // Re-export commonly used types for convenience
+pub use autonomic::{
+    AnalysisResult, BackendType, ClusterState, DetectedFailure, FailureType,
+    PlannerConfig, Precondition, Priority, RecoveryCost, RecoveryPlan,
+    RecoveryStrategy, ResiliencePlanner, ResourceType, RestartType,
+    RollbackPlan, RollbackStep,
+};
 pub use cache::{CacheManager, CachedPack};
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
 pub use drift::{DriftDetector, DriftStatus, DriftChange, ChangeType, SyncState, FileHashState};

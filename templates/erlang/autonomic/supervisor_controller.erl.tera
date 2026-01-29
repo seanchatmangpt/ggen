@@ -1,0 +1,465 @@
+%%%-------------------------------------------------------------------
+%%% @doc
+%%% MAPE-K Execute Component - Supervisor Controller
+%%%
+%%% This gen_server implements the Execute phase of the MAPE-K loop.
+%%% It controls Erlang supervisors programmatically based on decisions
+%%% from the Rust MAPE-K planner, enabling autonomic reconfiguration.
+%%%
+%%% Generated from RDF specification:
+%%% {% raw %}{{ spec_uri }}{% endraw %}
+%%% @end
+%%%-------------------------------------------------------------------
+-module({% raw %}{{ module_name | default(value="supervisor_controller") }}{% endraw %}).
+-behaviour(gen_server).
+
+%% API exports
+-export([start_link/1, start_link/2]).
+-export([execute_plan/1, execute_plan/2]).
+-export([add_child/2, remove_child/1, restart_child/1]).
+-export([change_strategy/2, get_supervisor_state/1]).
+-export([get_all_supervised_children/0]).
+
+%% gen_server callbacks
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2,
+         terminate/2, code_change/3]).
+
+-define(SERVER, ?MODULE).
+-define(MAX_RESTART_INTENSITY, {% raw %}{{ max_restart_intensity | default(value="10") }}{% endraw %}).
+-define(MAX_RESTART_PERIOD, {% raw %}{{ max_restart_period | default(value="60") }}{% endraw %}).
+
+%%%===================================================================
+%%% RDF Configuration Extraction via SPARQL
+%%%===================================================================
+%{% raw %}% SPARQL Query: Extract supervisor configuration
+%% PREFIX mape: <http://ggen.io/ontology/mape-k#>
+%% PREFIX sup: <http://ggen.io/ontology/supervisor#>
+%%
+%% SELECT ?supervisor ?strategy ?intensity ?period ?child_spec
+%% WHERE {
+%%   ?execute a mape:ExecuteComponent ;
+%%            sup:managesSupervisor ?supervisor .
+%%   ?supervisor sup:restartStrategy ?strategy ;
+%%               sup:maxRestartIntensity ?intensity ;
+%%               sup:maxRestartPeriod ?period ;
+%%               sup:hasChildSpec ?child_spec .
+%%   FILTER(?execute = <{{ spec_uri }}>)
+%% }{% endraw %}
+
+-record(state, {
+    %% Configuration from RDF
+    rust_planner_uri :: string(),
+    managed_supervisors = #{} :: #{atom() => supervisor_config()},
+
+    %% Execution state
+    pending_actions = [] :: [action()],
+    action_history = [] :: [executed_action()],
+
+    %% Failure tracking
+    restart_counts = #{} :: #{atom() => restart_count()}
+}).
+
+-type supervisor_config() :: #{
+    strategy => one_for_one | one_for_all | rest_for_one | simple_one_for_one,
+    max_intensity => pos_integer(),
+    max_period => pos_integer(),
+    child_specs => [supervisor:child_spec()]
+}.
+
+-type action() :: #{
+    type => add_child | remove_child | restart_child | change_strategy | restart_supervisor,
+    supervisor => atom(),
+    params => term(),
+    priority => low | medium | high | critical
+}.
+
+-type executed_action() :: #{
+    action => action(),
+    result => ok | {error, term()},
+    timestamp => erlang:timestamp(),
+    execution_time_us => non_neg_integer()
+}.
+
+-type restart_count() :: #{
+    count => non_neg_integer(),
+    window_start => erlang:timestamp()
+}.
+
+%%%===================================================================
+%%% API Functions
+%%%===================================================================
+
+-spec start_link(Config :: map()) -> {ok, pid()} | {error, term()}.
+start_link(Config) ->
+    gen_server:start_link({local, ?SERVER}, ?MODULE, [Config], []).
+
+-spec start_link(Name :: atom(), Config :: map()) -> {ok, pid()} | {error, term()}.
+start_link(Name, Config) ->
+    gen_server:start_link({local, Name}, ?MODULE, [Config], []).
+
+-spec execute_plan(Plan :: [action()]) -> ok | {error, term()}.
+execute_plan(Plan) ->
+    gen_server:call(?SERVER, {execute_plan, Plan}, infinity).
+
+-spec execute_plan(Plan :: [action()], Async :: boolean()) -> ok | {error, term()}.
+execute_plan(Plan, true) ->
+    gen_server:cast(?SERVER, {execute_plan_async, Plan}),
+    ok;
+execute_plan(Plan, false) ->
+    execute_plan(Plan).
+
+-spec add_child(Supervisor :: atom(), ChildSpec :: supervisor:child_spec()) ->
+    {ok, pid()} | {error, term()}.
+add_child(Supervisor, ChildSpec) ->
+    gen_server:call(?SERVER, {add_child, Supervisor, ChildSpec}).
+
+-spec remove_child(ChildId :: term()) -> ok | {error, term()}.
+remove_child(ChildId) ->
+    gen_server:call(?SERVER, {remove_child, ChildId}).
+
+-spec restart_child(ChildId :: term()) -> {ok, pid()} | {error, term()}.
+restart_child(ChildId) ->
+    gen_server:call(?SERVER, {restart_child, ChildId}).
+
+-spec change_strategy(Supervisor :: atom(), NewStrategy :: supervisor:strategy()) ->
+    ok | {error, term()}.
+change_strategy(Supervisor, NewStrategy) ->
+    gen_server:call(?SERVER, {change_strategy, Supervisor, NewStrategy}).
+
+-spec get_supervisor_state(Supervisor :: atom()) ->
+    {ok, supervisor_config()} | {error, term()}.
+get_supervisor_state(Supervisor) ->
+    gen_server:call(?SERVER, {get_supervisor_state, Supervisor}).
+
+-spec get_all_supervised_children() -> {ok, [{atom(), pid(), atom()}]}.
+get_all_supervised_children() ->
+    gen_server:call(?SERVER, get_all_supervised_children).
+
+%%%===================================================================
+%%% gen_server callbacks
+%%%===================================================================
+
+init([Config]) ->
+    process_flag(trap_exit, true),
+
+    %% Extract configuration from RDF via SPARQL
+    RustPlannerUri = maps:get(rust_planner_uri, Config,
+        "{% raw %}{{ rust_planner_uri | default(value="http://localhost:8080/mape-k/planner") }}{% endraw %}"),
+
+    %% Initialize managed supervisors from RDF specification
+    ManagedSupervisors = initialize_supervisors_from_rdf(Config),
+
+    State = #state{
+        rust_planner_uri = RustPlannerUri,
+        managed_supervisors = ManagedSupervisors
+    },
+
+    {ok, State}.
+
+handle_call({execute_plan, Plan}, _From, State) ->
+    {Result, NewState} = execute_action_plan(Plan, State),
+    {reply, Result, NewState};
+
+handle_call({add_child, Supervisor, ChildSpec}, _From, State) ->
+    {Result, NewState} = do_add_child(Supervisor, ChildSpec, State),
+    {reply, Result, NewState};
+
+handle_call({remove_child, ChildId}, _From, State) ->
+    {Result, NewState} = do_remove_child(ChildId, State),
+    {reply, Result, NewState};
+
+handle_call({restart_child, ChildId}, _From, State) ->
+    {Result, NewState} = do_restart_child(ChildId, State),
+    {reply, Result, NewState};
+
+handle_call({change_strategy, Supervisor, NewStrategy}, _From, State) ->
+    {Result, NewState} = do_change_strategy(Supervisor, NewStrategy, State),
+    {reply, Result, NewState};
+
+handle_call({get_supervisor_state, Supervisor}, _From, State = #state{managed_supervisors = Sups}) ->
+    Result = maps:get(Supervisor, Sups, {error, not_found}),
+    {reply, {ok, Result}, State};
+
+handle_call(get_all_supervised_children, _From, State = #state{managed_supervisors = Sups}) ->
+    Children = lists:flatten([
+        supervisor:which_children(Sup) || Sup <- maps:keys(Sups)
+    ]),
+    {reply, {ok, Children}, State};
+
+handle_call(_Request, _From, State) ->
+    {reply, {error, unknown_call}, State}.
+
+handle_cast({execute_plan_async, Plan}, State) ->
+    {_Result, NewState} = execute_action_plan(Plan, State),
+    {noreply, NewState};
+
+handle_cast(_Msg, State) ->
+    {noreply, State}.
+
+handle_info({'EXIT', Pid, Reason}, State) ->
+    error_logger:warning_msg("Supervised process ~p exited: ~p~n", [Pid, Reason]),
+    {noreply, State};
+
+handle_info(_Info, State) ->
+    {noreply, State}.
+
+terminate(_Reason, _State) ->
+    ok.
+
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
+
+%%%===================================================================
+%%% Internal functions - Action Execution
+%%%===================================================================
+
+-spec execute_action_plan([action()], #state{}) -> {ok | {error, term()}, #state{}}.
+execute_action_plan(Plan, State) ->
+    %% Sort actions by priority (critical > high > medium > low)
+    SortedPlan = lists:sort(
+        fun(A, B) ->
+            priority_to_int(maps:get(priority, A, medium)) >=
+            priority_to_int(maps:get(priority, B, medium))
+        end,
+        Plan
+    ),
+
+    %% Execute actions sequentially
+    lists:foldl(
+        fun(Action, {_AccResult, AccState}) ->
+            execute_single_action(Action, AccState)
+        end,
+        {ok, State},
+        SortedPlan
+    ).
+
+-spec execute_single_action(action(), #state{}) -> {ok | {error, term()}, #state{}}.
+execute_single_action(Action = #{type := add_child, supervisor := Sup, params := ChildSpec}, State) ->
+    StartTime = erlang:monotonic_time(microsecond),
+    {Result, NewState} = do_add_child(Sup, ChildSpec, State),
+    EndTime = erlang:monotonic_time(microsecond),
+
+    ExecutedAction = #{
+        action => Action,
+        result => Result,
+        timestamp => erlang:timestamp(),
+        execution_time_us => EndTime - StartTime
+    },
+
+    FinalState = NewState#state{
+        action_history = [ExecutedAction | NewState#state.action_history]
+    },
+    {Result, FinalState};
+
+execute_single_action(Action = #{type := remove_child, params := ChildId}, State) ->
+    StartTime = erlang:monotonic_time(microsecond),
+    {Result, NewState} = do_remove_child(ChildId, State),
+    EndTime = erlang:monotonic_time(microsecond),
+
+    ExecutedAction = #{
+        action => Action,
+        result => Result,
+        timestamp => erlang:timestamp(),
+        execution_time_us => EndTime - StartTime
+    },
+
+    FinalState = NewState#state{
+        action_history = [ExecutedAction | NewState#state.action_history]
+    },
+    {Result, FinalState};
+
+execute_single_action(Action = #{type := restart_child, params := ChildId}, State) ->
+    StartTime = erlang:monotonic_time(microsecond),
+    {Result, NewState} = do_restart_child(ChildId, State),
+    EndTime = erlang:monotonic_time(microsecond),
+
+    ExecutedAction = #{
+        action => Action,
+        result => Result,
+        timestamp => erlang:timestamp(),
+        execution_time_us => EndTime - StartTime
+    },
+
+    FinalState = NewState#state{
+        action_history = [ExecutedAction | NewState#state.action_history]
+    },
+    {Result, FinalState};
+
+execute_single_action(Action = #{type := change_strategy, supervisor := Sup, params := NewStrategy}, State) ->
+    StartTime = erlang:monotonic_time(microsecond),
+    {Result, NewState} = do_change_strategy(Sup, NewStrategy, State),
+    EndTime = erlang:monotonic_time(microsecond),
+
+    ExecutedAction = #{
+        action => Action,
+        result => Result,
+        timestamp => erlang:timestamp(),
+        execution_time_us => EndTime - StartTime
+    },
+
+    FinalState = NewState#state{
+        action_history = [ExecutedAction | NewState#state.action_history]
+    },
+    {Result, FinalState};
+
+execute_single_action(Action, State) ->
+    error_logger:warning_msg("Unknown action type: ~p~n", [Action]),
+    {{error, unknown_action_type}, State}.
+
+-spec do_add_child(atom(), supervisor:child_spec(), #state{}) ->
+    {{ok, pid()} | {error, term()}, #state{}}.
+do_add_child(Supervisor, ChildSpec, State = #state{managed_supervisors = Sups}) ->
+    case supervisor:start_child(Supervisor, ChildSpec) of
+        {ok, Pid} ->
+            %% Update supervisor configuration
+            SupConfig = maps:get(Supervisor, Sups, #{}),
+            ChildSpecs = maps:get(child_specs, SupConfig, []),
+            NewSupConfig = SupConfig#{child_specs => [ChildSpec | ChildSpecs]},
+            NewSups = Sups#{Supervisor => NewSupConfig},
+
+            {{ok, Pid}, State#state{managed_supervisors = NewSups}};
+        {error, Reason} ->
+            error_logger:error_msg("Failed to add child to ~p: ~p~n", [Supervisor, Reason]),
+            {{error, Reason}, State}
+    end.
+
+-spec do_remove_child(term(), #state{}) -> {ok | {error, term()}, #state{}}.
+do_remove_child(ChildId, State = #state{managed_supervisors = Sups}) ->
+    %% Find which supervisor manages this child
+    case find_supervisor_for_child(ChildId, Sups) of
+        {ok, Supervisor} ->
+            case supervisor:terminate_child(Supervisor, ChildId) of
+                ok ->
+                    case supervisor:delete_child(Supervisor, ChildId) of
+                        ok -> {ok, State};
+                        {error, Reason} -> {{error, Reason}, State}
+                    end;
+                {error, Reason} ->
+                    {{error, Reason}, State}
+            end;
+        {error, not_found} ->
+            {{error, child_not_found}, State}
+    end.
+
+-spec do_restart_child(term(), #state{}) -> {{ok, pid()} | {error, term()}, #state{}}.
+do_restart_child(ChildId, State = #state{managed_supervisors = Sups, restart_counts = RestartCounts}) ->
+    case find_supervisor_for_child(ChildId, Sups) of
+        {ok, Supervisor} ->
+            %% Check restart intensity
+            case check_restart_limit(ChildId, RestartCounts) of
+                ok ->
+                    case supervisor:restart_child(Supervisor, ChildId) of
+                        {ok, Pid} ->
+                            NewRestartCounts = increment_restart_count(ChildId, RestartCounts),
+                            {{ok, Pid}, State#state{restart_counts = NewRestartCounts}};
+                        {error, Reason} ->
+                            {{error, Reason}, State}
+                    end;
+                {error, too_many_restarts} ->
+                    error_logger:error_msg("Child ~p exceeded restart limit~n", [ChildId]),
+                    {{error, too_many_restarts}, State}
+            end;
+        {error, not_found} ->
+            {{error, child_not_found}, State}
+    end.
+
+-spec do_change_strategy(atom(), supervisor:strategy(), #state{}) ->
+    {ok | {error, term()}, #state{}}.
+do_change_strategy(Supervisor, NewStrategy, State = #state{managed_supervisors = Sups}) ->
+    %% Note: Changing strategy requires supervisor restart in OTP
+    %% This is a simplified implementation
+    case maps:get(Supervisor, Sups, undefined) of
+        undefined ->
+            {{error, supervisor_not_found}, State};
+        SupConfig ->
+            NewSupConfig = SupConfig#{strategy => NewStrategy},
+            NewSups = Sups#{Supervisor => NewSupConfig},
+
+            %% In production, would need to:
+            %% 1. Get all current children
+            %% 2. Terminate supervisor
+            %% 3. Start new supervisor with new strategy
+            %% 4. Re-add all children
+
+            {ok, State#state{managed_supervisors = NewSups}}
+    end.
+
+%%%===================================================================
+%%% Helper Functions
+%%%===================================================================
+
+-spec priority_to_int(low | medium | high | critical) -> integer().
+priority_to_int(critical) -> 4;
+priority_to_int(high) -> 3;
+priority_to_int(medium) -> 2;
+priority_to_int(low) -> 1.
+
+-spec find_supervisor_for_child(term(), #{atom() => supervisor_config()}) ->
+    {ok, atom()} | {error, not_found}.
+find_supervisor_for_child(ChildId, Supervisors) ->
+    Result = lists:filter(
+        fun(Sup) ->
+            Children = supervisor:which_children(Sup),
+            lists:any(fun({Id, _Pid, _Type, _Modules}) -> Id =:= ChildId end, Children)
+        end,
+        maps:keys(Supervisors)
+    ),
+
+    case Result of
+        [Supervisor | _] -> {ok, Supervisor};
+        [] -> {error, not_found}
+    end.
+
+-spec check_restart_limit(term(), #{atom() => restart_count()}) ->
+    ok | {error, too_many_restarts}.
+check_restart_limit(ChildId, RestartCounts) ->
+    case maps:get(ChildId, RestartCounts, undefined) of
+        undefined -> ok;
+        #{count := Count, window_start := WindowStart} ->
+            Now = erlang:timestamp(),
+            WindowElapsed = timer:now_diff(Now, WindowStart) div 1_000_000,
+
+            if
+                WindowElapsed > ?MAX_RESTART_PERIOD ->
+                    ok; %% Reset window
+                Count >= ?MAX_RESTART_INTENSITY ->
+                    {error, too_many_restarts};
+                true ->
+                    ok
+            end
+    end.
+
+-spec increment_restart_count(term(), #{atom() => restart_count()}) ->
+    #{atom() => restart_count()}.
+increment_restart_count(ChildId, RestartCounts) ->
+    Now = erlang:timestamp(),
+
+    case maps:get(ChildId, RestartCounts, undefined) of
+        undefined ->
+            RestartCounts#{ChildId => #{count => 1, window_start => Now}};
+        #{count := Count, window_start := WindowStart} ->
+            WindowElapsed = timer:now_diff(Now, WindowStart) div 1_000_000,
+
+            if
+                WindowElapsed > ?MAX_RESTART_PERIOD ->
+                    %% Reset window
+                    RestartCounts#{ChildId => #{count => 1, window_start => Now}};
+                true ->
+                    %% Increment count
+                    RestartCounts#{ChildId => #{count => Count + 1, window_start => WindowStart}}
+            end
+    end.
+
+-spec initialize_supervisors_from_rdf(map()) -> #{atom() => supervisor_config()}.
+initialize_supervisors_from_rdf(_Config) ->
+    %% RDF-injected supervisor definitions from SPARQL query
+    #{
+        {% raw %}{% for supervisor in supervisors %}
+        {{ supervisor.name }} => #{
+            strategy => {{ supervisor.strategy | default(value="one_for_one") }},
+            max_intensity => {{ supervisor.max_intensity | default(value="10") }},
+            max_period => {{ supervisor.max_period | default(value="60") }},
+            child_specs => []
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}{% endraw %}
+    }.

@@ -1,0 +1,493 @@
+@prefix : <http://ggen.io/ontology/specs/017-autonomic-resilience/plan#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ggen: <http://ggen.io/ontology/core#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+# Architecture Plan for Autonomic Resilience
+
+:AutonomicResiliencePlan a ggen:ArchitecturePlan ;
+    dc:title "Autonomic Resilience Implementation Plan" ;
+    dc:description "Comprehensive plan for MAPE-K autonomic loops, resilience policies, knowledge base, continuous chaos, and Erlang integration" ;
+    ggen:version "1.0.0" ;
+    dc:created "2026-01-29"^^xsd:date ;
+    ggen:hasModule :MapekModule, :PolicyEngineModule, :KnowledgeBaseModule, :ChaosOrchestratorModule, :ErlangIntegrationModule ;
+    ggen:hasIntegrationPoint :GgenDomainIntegration, :ErlangJobsIntegration, :TestingInfraIntegration ;
+    ggen:hasDependency :OxigraphDependency, :TokioDependency, :ErlangPortDependency ;
+    ggen:hasRiskAssessment :RiskAssessment .
+
+# Module Structure
+
+:MapekModule a ggen:Module ;
+    dc:title "MAPE-K Autonomic Loop Module" ;
+    dc:description "Self-managing control loop with monitor, analyze, plan, execute, knowledge components" ;
+    ggen:hasComponent :MonitorComponent, :AnalyzerComponent, :PlannerComponent, :ExecutorComponent ;
+    ggen:hasInterface :MapekAPI ;
+    ggen:location "crates/ggen-domain/src/mape_k/" ;
+    ggen:priority "P1" .
+
+:MonitorComponent a ggen:Component ;
+    dc:title "Monitor Component" ;
+    dc:description "Observes system health metrics (availability, latency, error rates) and events (node up/down, supervisor restarts)" ;
+    ggen:hasResponsibility "Metric collection, event subscription, threshold detection, alert generation" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "8 hours" .
+
+:AnalyzerComponent a ggen:Component ;
+    dc:title "Analyzer Component" ;
+    dc:description "Detects anomalies using statistical models, trend analysis, and pattern recognition" ;
+    ggen:hasResponsibility "Anomaly detection, knowledge base queries, failure mode classification, confidence scoring" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "10 hours" .
+
+:PlannerComponent a ggen:Component ;
+    dc:title "Planner Component" ;
+    dc:description "Selects recovery strategy based on failure mode, SLO requirements, and historical success rates" ;
+    ggen:hasResponsibility "Strategy selection, cost-benefit analysis, fallback planning, retry logic" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "8 hours" .
+
+:ExecutorComponent a ggen:Component ;
+    dc:title "Executor Component" ;
+    dc:description "Executes recovery strategies via external interfaces (Erlang, Docker, Kubernetes)" ;
+    ggen:hasResponsibility "Strategy execution, timeout enforcement, rollback on failure, recovery verification" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "10 hours" .
+
+:MapekAPI a ggen:Interface ;
+    dc:title "MAPE-K API" ;
+    dc:description "Public API for autonomic loop control and observation" ;
+    ggen:hasMethod "start(), stop(), get_status(), inject_event(), query_knowledge_base()" ;
+    ggen:exampleUsage """
+use ggen_domain::mape_k::MapekLoop;
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    // Initialize MAPE-K loop with policy
+    let policy = ResiliencePolicy::from_ttl(\"policy.ttl\").await?;
+    let loop_instance = MapekLoop::new(policy).await?;
+
+    // Start autonomic control
+    loop_instance.start().await?;
+
+    // Monitor observes, Analyze detects, Plan selects, Execute recovers
+    // Loop runs continuously until stopped
+
+    Ok(())
+}
+""" .
+
+:PolicyEngineModule a ggen:Module ;
+    dc:title "Resilience Policy Engine Module" ;
+    dc:description "RDF-based policy definitions with SHACL validation" ;
+    ggen:hasComponent :PolicyLoader, :PolicyValidator, :PolicyMatcher ;
+    ggen:hasInterface :PolicyAPI ;
+    ggen:location "crates/ggen-domain/src/resilience/" ;
+    ggen:priority "P1" .
+
+:PolicyLoader a ggen:Component ;
+    dc:title "Policy Loader" ;
+    dc:description "Loads resilience policies from RDF/Turtle files" ;
+    ggen:hasResponsibility "TTL parsing, ontology imports, policy instantiation" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "5 hours" .
+
+:PolicyValidator a ggen:Component ;
+    dc:title "Policy Validator" ;
+    dc:description "Validates policies against SHACL shapes before deployment" ;
+    ggen:hasResponsibility "SHACL validation, constraint checking, error reporting" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "6 hours" .
+
+:PolicyMatcher a ggen:Component ;
+    dc:title "Policy Matcher" ;
+    dc:description "Matches failure events to applicable policies" ;
+    ggen:hasResponsibility "Event classification, policy selection, strategy lookup" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "5 hours" .
+
+:PolicyAPI a ggen:Interface ;
+    dc:title "Policy API" ;
+    dc:description "API for policy management" ;
+    ggen:hasMethod "load_policy(), validate_policy(), match_policy(), get_recovery_strategy()" ;
+    ggen:exampleUsage """
+use ggen_domain::resilience::PolicyEngine;
+
+let engine = PolicyEngine::new().await?;
+
+// Load and validate policy
+engine.load_policy(\"erlang_cluster_policy.ttl\").await?;
+engine.validate_policy(\"erlang_cluster_policy.ttl\").await?;
+
+// Match failure to policy
+let failure = FailureEvent::NodeCrash { node: \"worker@host\" };
+let strategy = engine.match_policy(&failure).await?;
+""" .
+
+:KnowledgeBaseModule a ggen:Module ;
+    dc:title "Knowledge Base Module" ;
+    dc:description "Stores failure history and learns recovery patterns" ;
+    ggen:hasComponent :FailureStore, :QueryEngine, :LearningEngine ;
+    ggen:hasInterface :KnowledgeAPI ;
+    ggen:location "crates/ggen-domain/src/knowledge/" ;
+    ggen:priority "P1" .
+
+:FailureStore a ggen:Component ;
+    dc:title "Failure Store" ;
+    dc:description "RDF-based storage for failure events, recovery attempts, and outcomes" ;
+    ggen:hasResponsibility "Event persistence, indexing, pruning (90-day retention)" ;
+    ggen:implementationLanguage "Rust + Oxigraph" ;
+    ggen:estimatedEffort "8 hours" .
+
+:QueryEngine a ggen:Component ;
+    dc:title "Query Engine" ;
+    dc:description "SPARQL queries for historical failure patterns" ;
+    ggen:hasResponsibility "SPARQL execution, result ranking, similarity matching" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "6 hours" .
+
+:LearningEngine a ggen:Component ;
+    dc:title "Learning Engine" ;
+    dc:description "Learns from past failures to improve recovery strategies" ;
+    ggen:hasResponsibility "Success rate calculation, MTTR prediction, strategy ranking" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "10 hours" .
+
+:KnowledgeAPI a ggen:Interface ;
+    dc:title "Knowledge Base API" ;
+    dc:description "API for knowledge base access" ;
+    ggen:hasMethod "store_event(), query_similar_failures(), predict_mttr(), rank_strategies()" ;
+    ggen:exampleUsage """
+use ggen_domain::knowledge::KnowledgeBase;
+
+let kb = KnowledgeBase::new().await?;
+
+// Store failure event
+let event = FailureEvent {
+    timestamp: Utc::now(),
+    failure_type: FailureType::NodeCrash,
+    recovery_strategy: RecoveryStrategy::SupervisorRestart,
+    success: true,
+    mttr: Duration::from_secs(25),
+};
+kb.store_event(&event).await?;
+
+// Query similar failures
+let similar = kb.query_similar_failures(&current_failure).await?;
+
+// Predict MTTR
+let predicted_mttr = kb.predict_mttr(FailureType::NodeCrash).await?;
+""" .
+
+:ChaosOrchestratorModule a ggen:Module ;
+    dc:title "Chaos Orchestrator Module" ;
+    dc:description "Continuous chaos engineering with scheduled failure injection" ;
+    ggen:hasComponent :ChaosScheduler, :ScenarioExecutor, :RecoveryVerifier ;
+    ggen:hasInterface :ChaosAPI ;
+    ggen:location "crates/ggen-e2e/src/chaos/" ;
+    ggen:priority "P1" .
+
+:ChaosScheduler a ggen:Component ;
+    dc:title "Chaos Scheduler" ;
+    dc:description "Schedules chaos scenarios at configurable intervals (default 60s)" ;
+    ggen:hasResponsibility "Scenario selection, timing, concurrency limits, alert-based pausing" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "6 hours" .
+
+:ScenarioExecutor a ggen:Component ;
+    dc:title "Scenario Executor" ;
+    dc:description "Executes chaos scenarios (node kill, network jitter, memory pressure, backend latency)" ;
+    ggen:hasResponsibility "Failure injection, duration tracking, cleanup" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "12 hours" .
+
+:RecoveryVerifier a ggen:Component ;
+    dc:title "Recovery Verifier" ;
+    dc:description "Verifies system recovered after chaos injection" ;
+    ggen:hasResponsibility "SLO compliance checking, metric validation, recovery time measurement" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "6 hours" .
+
+:ChaosAPI a ggen:Interface ;
+    dc:title "Chaos API" ;
+    dc:description "API for chaos orchestration" ;
+    ggen:hasMethod "schedule_chaos(), inject_failure(), verify_recovery(), get_chaos_history()" ;
+    ggen:exampleUsage """
+use ggen_e2e::chaos::ChaosOrchestrator;
+
+let chaos = ChaosOrchestrator::new().await?;
+
+// Schedule continuous chaos
+chaos.schedule_chaos(ChaosSchedule {
+    interval: Duration::from_secs(60),
+    scenarios: vec![
+        ChaosScenario::RandomNodeKill,
+        ChaosScenario::NetworkJitter,
+        ChaosScenario::MemoryPressure,
+    ],
+    max_concurrent: 1,
+    pause_on_alert: true,
+}).await?;
+
+// Verify recovery after chaos
+let recovery = chaos.verify_recovery().await?;
+assert!(recovery.availability >= 99.9);
+assert!(recovery.mttr <= Duration::from_secs(30));
+""" .
+
+:ErlangIntegrationModule a ggen:Module ;
+    dc:title "Erlang Integration Module" ;
+    dc:description "Integrates with Erlang supervisors and distributed clustering" ;
+    ggen:hasComponent :ErlangEventListener, :SupervisorController, :ClusterMonitor ;
+    ggen:hasInterface :ErlangAPI ;
+    ggen:location "crates/ggen-domain/src/erlang/" ;
+    ggen:priority "P1" .
+
+:ErlangEventListener a ggen:Component ;
+    dc:title "Erlang Event Listener" ;
+    dc:description "Listens for Erlang node_up/node_down and supervisor events via port or NIF" ;
+    ggen:hasResponsibility "Event subscription, message parsing, event translation" ;
+    ggen:implementationLanguage "Rust + Erlang Port" ;
+    ggen:estimatedEffort "8 hours" .
+
+:SupervisorController a ggen:Component ;
+    dc:title "Supervisor Controller" ;
+    dc:description "Triggers Erlang supervisor restarts and queries supervisor state" ;
+    ggen:hasResponsibility "Supervisor command execution, state queries, restart verification" ;
+    ggen:implementationLanguage "Rust + Erlang Port" ;
+    ggen:estimatedEffort "6 hours" .
+
+:ClusterMonitor a ggen:Component ;
+    dc:title "Cluster Monitor" ;
+    dc:description "Monitors Erlang cluster membership changes and quorum status" ;
+    ggen:hasResponsibility "Membership tracking, partition detection, quorum calculation" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "8 hours" .
+
+:ErlangAPI a ggen:Interface ;
+    dc:title "Erlang API" ;
+    dc:description "API for Erlang integration" ;
+    ggen:hasMethod "listen_events(), restart_supervisor(), get_cluster_status()" ;
+    ggen:exampleUsage """
+use ggen_domain::erlang::ErlangBridge;
+
+let bridge = ErlangBridge::connect(\"resilience@localhost\").await?;
+
+// Listen for Erlang events
+bridge.listen_events(|event| {
+    match event {
+        ErlangEvent::NodeDown(node) => {
+            // Trigger MAPE-K loop
+            mapek.inject_event(FailureEvent::NodeCrash { node }).await?;
+        },
+        ErlangEvent::SupervisorRestart(supervisor) => {
+            // Log to knowledge base
+            kb.store_event(supervisor_restart_event).await?;
+        },
+    }
+}).await?;
+
+// Restart supervisor
+bridge.restart_supervisor(\"job_queue_supervisor\").await?;
+""" .
+
+# Integration Points
+
+:GgenDomainIntegration a ggen:IntegrationPoint ;
+    dc:title "ggen-domain Integration" ;
+    dc:description "Resilience infrastructure integrates with existing MAPE-K loop in ggen-domain" ;
+    ggen:hasInterface "MapekLoop, ResilientDomain, AutonomicController" ;
+    ggen:hasPattern "Extend existing MAPE-K with resilience policies and chaos orchestration" ;
+    ggen:estimatedEffort "12 hours" .
+
+:ErlangJobsIntegration a ggen:IntegrationPoint ;
+    dc:title "Erlang Jobs Example Integration" ;
+    dc:description "Integrates with 015-erlang-jobs-example distributed job queue" ;
+    ggen:hasInterface "JobQueue, WorkerSupervisor, ClusterRegistry" ;
+    ggen:hasPattern "Monitor job queue health, detect agent crashes, trigger recovery" ;
+    ggen:estimatedEffort "10 hours" .
+
+:TestingInfraIntegration a ggen:IntegrationPoint ;
+    dc:title "Testing Infrastructure Integration" ;
+    dc:description "Leverages testcontainers and chaos engineering from 016-testing-infrastructure" ;
+    ggen:hasInterface "TestContainer, ChaosScenario, RecoveryCheck" ;
+    ggen:hasPattern "Use existing chaos scenarios, add resilience-specific recovery checks" ;
+    ggen:estimatedEffort "8 hours" .
+
+# Dependencies
+
+:OxigraphDependency a ggen:Dependency ;
+    dc:title "Oxigraph RDF Store" ;
+    dc:description "RDF storage for resilience policies and knowledge base" ;
+    ggen:version "0.5.1" ;
+    ggen:criticality "High" ;
+    ggen:installationNotes "Already used in ggen-core, extend for resilience data" .
+
+:TokioDependency a ggen:Dependency ;
+    dc:title "Tokio Async Runtime" ;
+    dc:description "Async runtime for MAPE-K loop and continuous chaos" ;
+    ggen:version "1.47" ;
+    ggen:criticality "High" ;
+    ggen:installationNotes "Already used throughout ggen workspace" .
+
+:ErlangPortDependency a ggen:Dependency ;
+    dc:title "Erlang Port Protocol" ;
+    dc:description "Communication with Erlang via stdin/stdout port" ;
+    ggen:version "N/A (protocol-based)" ;
+    ggen:criticality "High" ;
+    ggen:installationNotes "Requires Erlang runtime on system, design port protocol for event exchange" .
+
+# Risk Assessment
+
+:RiskAssessment a ggen:RiskAssessment ;
+    dc:title "Autonomic Resilience Risk Assessment" ;
+    ggen:hasRisk :ErlangIntegrationRisk, :KnowledgeBaseSizeRisk, :ChaosProductionRisk, :FalsePositiveRisk .
+
+:ErlangIntegrationRisk a ggen:Risk ;
+    dc:title "Erlang Port Communication Reliability" ;
+    ggen:probability "Medium" ;
+    ggen:impact "High" ;
+    ggen:description "Erlang port communication may fail or introduce latency" ;
+    ggen:mitigation "Implement heartbeat protocol, timeout enforcement, fallback to polling, thorough integration testing with Erlang jobs example" ;
+    ggen:priority "P1" .
+
+:KnowledgeBaseSizeRisk a ggen:Risk ;
+    dc:title "Knowledge Base Growth" ;
+    ggen:probability "High" ;
+    ggen:impact "Medium" ;
+    ggen:description "Knowledge base may grow unbounded with continuous chaos, affecting query performance" ;
+    ggen:mitigation "90-day retention policy, automatic pruning, indexed queries, max 10k entries limit" ;
+    ggen:priority "P2" .
+
+:ChaosProductionRisk a ggen:Risk ;
+    dc:title "Chaos Injection in Production" ;
+    ggen:probability "Medium" ;
+    ggen:impact "High" ;
+    ggen:description "Continuous chaos in production may cause customer-facing outages if not properly managed" ;
+    ggen:mitigation "Pause on active alerts, max 1 concurrent chaos, SLO-based gating (pause if availability < 99.5%), gradual rollout with monitoring" ;
+    ggen:priority "P1" .
+
+:FalsePositiveRisk a ggen:Risk ;
+    dc:title "Anomaly Detection False Positives" ;
+    ggen:probability "High" ;
+    ggen:impact "Low" ;
+    ggen:description "Analyzer may detect false positives, triggering unnecessary recovery" ;
+    ggen:mitigation "Confidence threshold (80%), knowledge base querying for validation, manual override capability, alert-based pausing" ;
+    ggen:priority "P2" .
+
+# Implementation Phases
+
+:Phase1 a ggen:Phase ;
+    dc:title "Phase 1: MAPE-K Loop Core" ;
+    ggen:hasDuration "2 weeks" ;
+    ggen:hasDeliverable "Monitor, Analyze, Plan, Execute components" ;
+    ggen:hasDeliverable "Basic resilience policy support (RDF loading)" ;
+    ggen:hasDeliverable "Chicago TDD tests for each component" ;
+    ggen:estimatedEffort "36 hours" .
+
+:Phase2 a ggen:Phase ;
+    dc:title "Phase 2: Knowledge Base and Learning" ;
+    ggen:hasDuration "1.5 weeks" ;
+    ggen:hasDeliverable "RDF-based failure history storage" ;
+    ggen:hasDeliverable "SPARQL queries for pattern recognition" ;
+    ggen:hasDeliverable "Success rate and MTTR prediction" ;
+    ggen:estimatedEffort "24 hours" .
+
+:Phase3 a ggen:Phase ;
+    dc:title "Phase 3: Continuous Chaos Orchestration" ;
+    ggen:hasDuration "2 weeks" ;
+    ggen:hasDeliverable "Chaos scheduler with configurable intervals" ;
+    ggen:hasDeliverable "Node kill, network jitter, memory pressure scenarios" ;
+    ggen:hasDeliverable "Recovery verification framework" ;
+    ggen:estimatedEffort "24 hours" .
+
+:Phase4 a ggen:Phase ;
+    dc:title "Phase 4: Erlang Integration" ;
+    ggen:hasDuration "1.5 weeks" ;
+    ggen:hasDeliverable "Erlang port protocol for event exchange" ;
+    ggen:hasDeliverable "Supervisor restart integration" ;
+    ggen:hasDeliverable "Cluster membership monitoring" ;
+    ggen:estimatedEffort "22 hours" .
+
+:Phase5 a ggen:Phase ;
+    dc:title "Phase 5: Monitoring and Visualization" ;
+    ggen:hasDuration "1 week" ;
+    ggen:hasDeliverable "Resilience dashboard (availability, MTTR, recovery success rate)" ;
+    ggen:hasDeliverable "Chaos experiment logging and reports" ;
+    ggen:hasDeliverable "80/20 proof of completion summary" ;
+    ggen:estimatedEffort "14 hours" .
+
+# SHACL Validation Shapes
+
+:ModuleShape a sh:NodeShape ;
+    sh:targetClass ggen:Module ;
+    sh:property [
+        sh:path dc:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:hasComponent ;
+        sh:class ggen:Component ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:location ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:pattern "^(crates/)" ;
+    ] .
+
+:ComponentShape a sh:NodeShape ;
+    sh:targetClass ggen:Component ;
+    sh:property [
+        sh:path ggen:estimatedEffort ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+ hours?$" ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:implementationLanguage ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] .
+
+:RiskShape a sh:NodeShape ;
+    sh:targetClass ggen:Risk ;
+    sh:property [
+        sh:path ggen:probability ;
+        sh:in ( "Low" "Medium" "High" ) ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:impact ;
+        sh:in ( "Low" "Medium" "High" ) ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:mitigation ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] .
+
+:PhaseShape a sh:NodeShape ;
+    sh:targetClass ggen:Phase ;
+    sh:property [
+        sh:path ggen:hasDuration ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9.]+ weeks?$" ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:estimatedEffort ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+ hours?$" ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:hasDeliverable ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] .

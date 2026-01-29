@@ -1,0 +1,535 @@
+%%%-------------------------------------------------------------------
+%%% @doc
+%%% Quorum Manager - Distributed Consensus Coordinator
+%%%
+%%% This gen_server manages distributed quorum reconfiguration,
+%%% node membership changes, and network partition handling for
+%%% autonomic systems integrating with Rust MAPE-K loop.
+%%%
+%%% Generated from RDF specification:
+%%% {% raw %}{{ spec_uri }}{% endraw %}
+%%% @end
+%%%-------------------------------------------------------------------
+-module({% raw %}{{ module_name | default(value="quorum_manager") }}{% endraw %}).
+-behaviour(gen_server).
+
+%% API exports
+-export([start_link/1, start_link/2]).
+-export([join_quorum/1, leave_quorum/1]).
+-export([get_quorum_status/0, get_member_nodes/0]).
+-export([propose_reconfiguration/1, vote_on_proposal/2]).
+-export([handle_partition/1, check_network_health/0]).
+
+%% gen_server callbacks
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2,
+         terminate/2, code_change/3]).
+
+-define(SERVER, ?MODULE).
+-define(QUORUM_SIZE, {% raw %}{{ quorum_size | default(value="3") }}{% endraw %}).
+-define(HEARTBEAT_INTERVAL, {% raw %}{{ heartbeat_interval_ms | default(value="2000") }}{% endraw %}).
+-define(PARTITION_TIMEOUT, {% raw %}{{ partition_timeout_ms | default(value="10000") }}{% endraw %}).
+
+%%%===================================================================
+%%% RDF Configuration Extraction via SPARQL
+%%%===================================================================
+%{% raw %}% SPARQL Query: Extract quorum configuration
+%% PREFIX mape: <http://ggen.io/ontology/mape-k#>
+%% PREFIX quorum: <http://ggen.io/ontology/quorum#>
+%% PREFIX consensus: <http://ggen.io/ontology/consensus#>
+%%
+%% SELECT ?node ?role ?weight ?priority
+%% WHERE {
+%%   ?quorum a quorum:QuorumManager ;
+%%           quorum:hasMember ?node .
+%%   ?node quorum:role ?role ;
+%%         quorum:weight ?weight ;
+%%         quorum:priority ?priority .
+%%   FILTER(?quorum = <{{ spec_uri }}>)
+%% }{% endraw %}
+
+-record(state, {
+    %% Configuration from RDF
+    quorum_size :: pos_integer(),
+    heartbeat_interval :: pos_integer(),
+    partition_timeout :: pos_integer(),
+    rust_coordinator_uri :: string(),
+
+    %% Membership state
+    member_nodes = [] :: [node()],
+    node_weights = #{} :: #{node() => float()},
+    node_roles = #{} :: #{node() => leader | follower | observer},
+
+    %% Consensus state
+    current_term = 0 :: non_neg_integer(),
+    voted_for :: node() | undefined,
+    proposals = #{} :: #{reference() => proposal()},
+
+    %% Health monitoring
+    node_heartbeats = #{} :: #{node() => erlang:timestamp()},
+    suspected_partitions = [] :: [partition_info()],
+
+    %% Timers
+    heartbeat_timer :: reference() | undefined,
+    health_check_timer :: reference() | undefined
+}).
+
+-type proposal() :: #{
+    type => add_node | remove_node | change_weight | change_role,
+    target_node => node(),
+    params => term(),
+    proposer => node(),
+    votes => #{node() => boolean()},
+    status => pending | accepted | rejected,
+    timestamp => erlang:timestamp()
+}.
+
+-type partition_info() :: #{
+    detected_at => erlang:timestamp(),
+    partitioned_nodes => [node()],
+    recovery_strategy => isolate | merge | wait,
+    status => active | recovering | resolved
+}.
+
+%%%===================================================================
+%%% API Functions
+%%%===================================================================
+
+-spec start_link(Config :: map()) -> {ok, pid()} | {error, term()}.
+start_link(Config) ->
+    gen_server:start_link({local, ?SERVER}, ?MODULE, [Config], []).
+
+-spec start_link(Name :: atom(), Config :: map()) -> {ok, pid()} | {error, term()}.
+start_link(Name, Config) ->
+    gen_server:start_link({local, Name}, ?MODULE, [Config], []).
+
+-spec join_quorum(Node :: node()) -> ok | {error, term()}.
+join_quorum(Node) ->
+    gen_server:call(?SERVER, {join_quorum, Node}).
+
+-spec leave_quorum(Node :: node()) -> ok | {error, term()}.
+leave_quorum(Node) ->
+    gen_server:call(?SERVER, {leave_quorum, Node}).
+
+-spec get_quorum_status() -> {ok, map()}.
+get_quorum_status() ->
+    gen_server:call(?SERVER, get_quorum_status).
+
+-spec get_member_nodes() -> {ok, [node()]}.
+get_member_nodes() ->
+    gen_server:call(?SERVER, get_member_nodes).
+
+-spec propose_reconfiguration(Proposal :: proposal()) -> {ok, reference()} | {error, term()}.
+propose_reconfiguration(Proposal) ->
+    gen_server:call(?SERVER, {propose_reconfiguration, Proposal}).
+
+-spec vote_on_proposal(ProposalRef :: reference(), Vote :: boolean()) -> ok | {error, term()}.
+vote_on_proposal(ProposalRef, Vote) ->
+    gen_server:call(?SERVER, {vote_on_proposal, ProposalRef, Vote}).
+
+-spec handle_partition(PartitionedNodes :: [node()]) -> ok.
+handle_partition(PartitionedNodes) ->
+    gen_server:cast(?SERVER, {handle_partition, PartitionedNodes}).
+
+-spec check_network_health() -> {ok, healthy | degraded | partitioned}.
+check_network_health() ->
+    gen_server:call(?SERVER, check_network_health).
+
+%%%===================================================================
+%%% gen_server callbacks
+%%%===================================================================
+
+init([Config]) ->
+    process_flag(trap_exit, true),
+
+    %% Extract configuration from RDF via SPARQL
+    QuorumSize = maps:get(quorum_size, Config, ?QUORUM_SIZE),
+    HeartbeatInterval = maps:get(heartbeat_interval, Config, ?HEARTBEAT_INTERVAL),
+    PartitionTimeout = maps:get(partition_timeout, Config, ?PARTITION_TIMEOUT),
+    RustCoordinatorUri = maps:get(rust_coordinator_uri, Config,
+        "{% raw %}{{ rust_coordinator_uri | default(value="http://localhost:8080/mape-k/consensus") }}{% endraw %}"),
+
+    %% Initialize member nodes from RDF
+    InitialMembers = initialize_members_from_rdf(Config),
+    NodeWeights = initialize_node_weights_from_rdf(Config),
+    NodeRoles = initialize_node_roles_from_rdf(Config),
+
+    %% Monitor all member nodes
+    lists:foreach(fun(Node) -> monitor_node(Node, true) end, InitialMembers),
+
+    %% Start heartbeat and health check timers
+    HeartbeatTimer = erlang:send_after(HeartbeatInterval, self(), send_heartbeat),
+    HealthCheckTimer = erlang:send_after(PartitionTimeout, self(), check_health),
+
+    State = #state{
+        quorum_size = QuorumSize,
+        heartbeat_interval = HeartbeatInterval,
+        partition_timeout = PartitionTimeout,
+        rust_coordinator_uri = RustCoordinatorUri,
+        member_nodes = InitialMembers,
+        node_weights = NodeWeights,
+        node_roles = NodeRoles,
+        heartbeat_timer = HeartbeatTimer,
+        health_check_timer = HealthCheckTimer
+    },
+
+    {ok, State}.
+
+handle_call({join_quorum, Node}, _From, State = #state{member_nodes = Members}) ->
+    case lists:member(Node, Members) of
+        true ->
+            {reply, {error, already_member}, State};
+        false ->
+            %% Create proposal for adding node
+            ProposalRef = make_ref(),
+            Proposal = #{
+                type => add_node,
+                target_node => Node,
+                params => #{},
+                proposer => node(),
+                votes => #{},
+                status => pending,
+                timestamp => erlang:timestamp()
+            },
+
+            NewState = State#state{
+                proposals = (State#state.proposals)#{ProposalRef => Proposal}
+            },
+
+            %% Broadcast proposal to all members
+            broadcast_proposal(ProposalRef, Proposal, Members),
+
+            {reply, {ok, ProposalRef}, NewState}
+    end;
+
+handle_call({leave_quorum, Node}, _From, State = #state{member_nodes = Members}) ->
+    case lists:member(Node, Members) of
+        false ->
+            {reply, {error, not_member}, State};
+        true ->
+            ProposalRef = make_ref(),
+            Proposal = #{
+                type => remove_node,
+                target_node => Node,
+                params => #{},
+                proposer => node(),
+                votes => #{},
+                status => pending,
+                timestamp => erlang:timestamp()
+            },
+
+            NewState = State#state{
+                proposals = (State#state.proposals)#{ProposalRef => Proposal}
+            },
+
+            broadcast_proposal(ProposalRef, Proposal, Members),
+
+            {reply, {ok, ProposalRef}, NewState}
+    end;
+
+handle_call(get_quorum_status, _From, State = #state{
+    member_nodes = Members,
+    node_weights = Weights,
+    node_roles = Roles,
+    current_term = Term,
+    suspected_partitions = Partitions
+}) ->
+    Status = #{
+        member_count => length(Members),
+        members => Members,
+        weights => Weights,
+        roles => Roles,
+        current_term => Term,
+        active_partitions => length(Partitions),
+        quorum_healthy => is_quorum_healthy(State)
+    },
+    {reply, {ok, Status}, State};
+
+handle_call(get_member_nodes, _From, State = #state{member_nodes = Members}) ->
+    {reply, {ok, Members}, State};
+
+handle_call({propose_reconfiguration, Proposal}, _From, State = #state{
+    member_nodes = Members,
+    proposals = Proposals
+}) ->
+    ProposalRef = make_ref(),
+    FullProposal = Proposal#{
+        proposer => node(),
+        votes => #{},
+        status => pending,
+        timestamp => erlang:timestamp()
+    },
+
+    NewState = State#state{proposals = Proposals#{ProposalRef => FullProposal}},
+
+    broadcast_proposal(ProposalRef, FullProposal, Members),
+
+    {reply, {ok, ProposalRef}, NewState};
+
+handle_call({vote_on_proposal, ProposalRef, Vote}, {FromPid, _Tag}, State = #state{
+    proposals = Proposals,
+    member_nodes = Members
+}) ->
+    FromNode = node(FromPid),
+
+    case maps:get(ProposalRef, Proposals, undefined) of
+        undefined ->
+            {reply, {error, proposal_not_found}, State};
+        Proposal ->
+            %% Record vote
+            Votes = maps:get(votes, Proposal),
+            NewVotes = Votes#{FromNode => Vote},
+            UpdatedProposal = Proposal#{votes => NewVotes},
+
+            %% Check if we have quorum
+            {Status, NewState} = case check_proposal_quorum(UpdatedProposal, Members, State) of
+                {accepted, FinalState} ->
+                    apply_proposal(UpdatedProposal, FinalState);
+                {rejected, FinalState} ->
+                    {rejected, FinalState};
+                {pending, FinalState} ->
+                    {pending, FinalState}
+            end,
+
+            FinalProposal = UpdatedProposal#{status => Status},
+            FinalState = NewState#state{
+                proposals = (NewState#state.proposals)#{ProposalRef => FinalProposal}
+            },
+
+            {reply, ok, FinalState}
+    end;
+
+handle_call(check_network_health, _From, State) ->
+    Health = calculate_network_health(State),
+    {reply, {ok, Health}, State};
+
+handle_call(_Request, _From, State) ->
+    {reply, {error, unknown_call}, State}.
+
+handle_cast({handle_partition, PartitionedNodes}, State = #state{
+    suspected_partitions = Partitions
+}) ->
+    PartitionInfo = #{
+        detected_at => erlang:timestamp(),
+        partitioned_nodes => PartitionedNodes,
+        recovery_strategy => determine_recovery_strategy(PartitionedNodes, State),
+        status => active
+    },
+
+    NewPartitions = [PartitionInfo | Partitions],
+    NewState = State#state{suspected_partitions = NewPartitions},
+
+    %% Notify Rust coordinator
+    notify_rust_coordinator_partition(PartitionInfo, State),
+
+    {noreply, NewState};
+
+handle_cast(_Msg, State) ->
+    {noreply, State}.
+
+handle_info(send_heartbeat, State = #state{
+    member_nodes = Members,
+    heartbeat_interval = Interval
+}) ->
+    %% Send heartbeat to all members
+    broadcast_heartbeat(Members),
+
+    %% Schedule next heartbeat
+    NewTimer = erlang:send_after(Interval, self(), send_heartbeat),
+
+    {noreply, State#state{heartbeat_timer = NewTimer}};
+
+handle_info(check_health, State = #state{
+    member_nodes = Members,
+    node_heartbeats = Heartbeats,
+    partition_timeout = Timeout
+}) ->
+    Now = erlang:timestamp(),
+
+    %% Check for stale heartbeats
+    PartitionedNodes = lists:filter(
+        fun(Node) ->
+            case maps:get(Node, Heartbeats, undefined) of
+                undefined -> true;
+                LastHeartbeat ->
+                    TimeDiff = timer:now_diff(Now, LastHeartbeat) div 1000,
+                    TimeDiff > Timeout
+            end
+        end,
+        Members
+    ),
+
+    %% Handle partitions if detected
+    NewState = case PartitionedNodes of
+        [] -> State;
+        _ -> handle_detected_partition(PartitionedNodes, State)
+    end,
+
+    %% Schedule next health check
+    NewTimer = erlang:send_after(Timeout, self(), check_health),
+
+    {noreply, NewState#state{health_check_timer = NewTimer}};
+
+handle_info({heartbeat, FromNode}, State = #state{node_heartbeats = Heartbeats}) ->
+    NewHeartbeats = Heartbeats#{FromNode => erlang:timestamp()},
+    {noreply, State#state{node_heartbeats = NewHeartbeats}};
+
+handle_info({nodedown, Node}, State = #state{member_nodes = Members}) ->
+    error_logger:warning_msg("Node ~p went down~n", [Node]),
+
+    %% Remove from members if present
+    NewMembers = lists:delete(Node, Members),
+
+    {noreply, State#state{member_nodes = NewMembers}};
+
+handle_info({nodeup, Node}, State) ->
+    error_logger:info_msg("Node ~p came up~n", [Node]),
+    {noreply, State};
+
+handle_info(_Info, State) ->
+    {noreply, State}.
+
+terminate(_Reason, #state{heartbeat_timer = HbTimer, health_check_timer = HcTimer}) ->
+    case HbTimer of
+        undefined -> ok;
+        _ -> erlang:cancel_timer(HbTimer)
+    end,
+
+    case HcTimer of
+        undefined -> ok;
+        _ -> erlang:cancel_timer(HcTimer)
+    end,
+
+    ok.
+
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
+
+%%%===================================================================
+%%% Internal functions
+%%%===================================================================
+
+-spec broadcast_proposal(reference(), proposal(), [node()]) -> ok.
+broadcast_proposal(ProposalRef, Proposal, Nodes) ->
+    lists:foreach(
+        fun(Node) ->
+            {?MODULE, Node} ! {proposal, ProposalRef, Proposal}
+        end,
+        Nodes
+    ).
+
+-spec broadcast_heartbeat([node()]) -> ok.
+broadcast_heartbeat(Nodes) ->
+    lists:foreach(
+        fun(Node) ->
+            {?MODULE, Node} ! {heartbeat, node()}
+        end,
+        Nodes
+    ).
+
+-spec check_proposal_quorum(proposal(), [node()], #state{}) ->
+    {accepted | rejected | pending, #state{}}.
+check_proposal_quorum(Proposal, Members, State = #state{quorum_size = QuorumSize}) ->
+    Votes = maps:get(votes, Proposal),
+    TotalVotes = maps:size(Votes),
+    AcceptVotes = length([V || {_Node, V} <- maps:to_list(Votes), V =:= true]),
+
+    if
+        AcceptVotes >= QuorumSize ->
+            {accepted, State};
+        TotalVotes >= length(Members) andalso AcceptVotes < QuorumSize ->
+            {rejected, State};
+        true ->
+            {pending, State}
+    end.
+
+-spec apply_proposal(proposal(), #state{}) -> {accepted, #state{}}.
+apply_proposal(#{type := add_node, target_node := Node}, State = #state{
+    member_nodes = Members
+}) ->
+    NewMembers = [Node | Members],
+    monitor_node(Node, true),
+    {accepted, State#state{member_nodes = NewMembers}};
+
+apply_proposal(#{type := remove_node, target_node := Node}, State = #state{
+    member_nodes = Members
+}) ->
+    NewMembers = lists:delete(Node, Members),
+    monitor_node(Node, false),
+    {accepted, State#state{member_nodes = NewMembers}};
+
+apply_proposal(_Proposal, State) ->
+    {accepted, State}.
+
+-spec calculate_network_health(#state{}) -> healthy | degraded | partitioned.
+calculate_network_health(#state{
+    member_nodes = Members,
+    node_heartbeats = Heartbeats,
+    suspected_partitions = Partitions
+}) ->
+    ActivePartitions = length([P || P <- Partitions, maps:get(status, P) =:= active]),
+    HealthyNodes = length([N || N <- Members, maps:is_key(N, Heartbeats)]),
+
+    if
+        ActivePartitions > 0 -> partitioned;
+        HealthyNodes < length(Members) div 2 -> degraded;
+        true -> healthy
+    end.
+
+-spec is_quorum_healthy(#state{}) -> boolean().
+is_quorum_healthy(State) ->
+    calculate_network_health(State) =:= healthy.
+
+-spec determine_recovery_strategy([node()], #state{}) -> isolate | merge | wait.
+determine_recovery_strategy(PartitionedNodes, #state{member_nodes = Members}) ->
+    PartitionSize = length(PartitionedNodes),
+    TotalSize = length(Members),
+
+    if
+        PartitionSize > TotalSize div 2 -> merge;
+        PartitionSize =:= 1 -> isolate;
+        true -> wait
+    end.
+
+-spec handle_detected_partition([node()], #state{}) -> #state{}.
+handle_detected_partition(PartitionedNodes, State) ->
+    error_logger:warning_msg("Detected partition: ~p~n", [PartitionedNodes]),
+
+    PartitionInfo = #{
+        detected_at => erlang:timestamp(),
+        partitioned_nodes => PartitionedNodes,
+        recovery_strategy => determine_recovery_strategy(PartitionedNodes, State),
+        status => active
+    },
+
+    Partitions = State#state.suspected_partitions,
+    State#state{suspected_partitions = [PartitionInfo | Partitions]}.
+
+-spec notify_rust_coordinator_partition(partition_info(), #state{}) -> ok.
+notify_rust_coordinator_partition(_PartitionInfo, _State) ->
+    %% TODO: Implement HTTP notification to Rust MAPE-K coordinator
+    ok.
+
+-spec initialize_members_from_rdf(map()) -> [node()].
+initialize_members_from_rdf(_Config) ->
+    %% RDF-injected member nodes from SPARQL query
+    [
+        {% raw %}{% for member in members %}
+        '{{ member.node }}'{% if not loop.last %},{% endif %}
+        {% endfor %}{% endraw %}
+    ].
+
+-spec initialize_node_weights_from_rdf(map()) -> #{node() => float()}.
+initialize_node_weights_from_rdf(_Config) ->
+    #{
+        {% raw %}{% for weight in node_weights %}
+        '{{ weight.node }}' => {{ weight.value | default(value="1.0") }}{% if not loop.last %},{% endif %}
+        {% endfor %}{% endraw %}
+    }.
+
+-spec initialize_node_roles_from_rdf(map()) -> #{node() => leader | follower | observer}.
+initialize_node_roles_from_rdf(_Config) ->
+    #{
+        {% raw %}{% for role in node_roles %}
+        '{{ role.node }}' => {{ role.type | default(value="follower") }}{% if not loop.last %},{% endif %}
+        {% endfor %}{% endraw %}
+    }.

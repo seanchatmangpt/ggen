@@ -1,0 +1,561 @@
+@prefix : <http://ggen.io/ontology/specs/017-autonomic-resilience/tasks#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ggen: <http://ggen.io/ontology/core#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+# Task Breakdown for Autonomic Resilience Implementation
+
+:TaskList a ggen:TaskList ;
+    dc:title "Autonomic Resilience Implementation Tasks" ;
+    dc:description "Comprehensive task breakdown for MAPE-K loops, resilience policies, knowledge base, continuous chaos, and Erlang integration" ;
+    ggen:totalTasks 48 ;
+    ggen:totalEffort "120 hours" ;
+    ggen:parallelizable 32 ;
+    dc:created "2026-01-29"^^xsd:date .
+
+# Phase 1: MAPE-K Loop Core (36 hours)
+
+:T001 a ggen:Task ;
+    dc:title "Create ggen-domain MAPE-K module structure" ;
+    dc:description "Initialize crates/ggen-domain/src/mape_k/ with Monitor, Analyze, Plan, Execute, Knowledge components" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "1 hour" ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T002 a ggen:Task ;
+    dc:title "Define MapekLoop trait and core types" ;
+    dc:description "Trait for autonomic loop lifecycle (start, stop, status), event types, metric types" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:dependsOn :T001 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T003 a ggen:Task ;
+    dc:title "Implement Monitor component" ;
+    dc:description "Metric collection (availability, latency, error rates), event subscription (Erlang, Docker), <5s polling interval" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "8 hours" ;
+    ggen:dependsOn :T002 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T004 a ggen:Task ;
+    dc:title "Implement Analyzer component" ;
+    dc:description "Anomaly detection (statistical models, trend analysis, pattern recognition), knowledge base queries" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "10 hours" ;
+    ggen:dependsOn :T002 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T005 a ggen:Task ;
+    dc:title "Implement Planner component" ;
+    dc:description "Strategy selection based on failure mode, SLO alignment, success rate ranking, fallback planning" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "8 hours" ;
+    ggen:dependsOn :T002 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T006 a ggen:Task ;
+    dc:title "Implement Executor component" ;
+    dc:description "Strategy execution via interfaces (Erlang, Docker, Kubernetes), timeout enforcement, recovery verification" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "10 hours" ;
+    ggen:dependsOn :T002 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T007 a ggen:Task ;
+    dc:title "Implement ResiliencePolicy loader" ;
+    dc:description "Load policies from RDF/Turtle files using Oxigraph, parse SLO targets and failure modes" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "5 hours" ;
+    ggen:dependsOn :T002 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T008 a ggen:Task ;
+    dc:title "Implement SHACL policy validation" ;
+    dc:description "Validate policies against SHACL shapes before deployment, report constraint violations" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "6 hours" ;
+    ggen:dependsOn :T007 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T009 a ggen:Task ;
+    dc:title "Integrate MAPE-K components into main loop" ;
+    dc:description "Wire Monitor → Analyze → Plan → Execute flow with async message passing (Tokio channels)" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T003, :T004, :T005, :T006 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T010 a ggen:Task ;
+    dc:title "Write Chicago TDD tests for Monitor" ;
+    dc:description "AAA pattern, test metric collection, event subscription, threshold detection, real metrics (not mocks)" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T003 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T011 a ggen:Task ;
+    dc:title "Write Chicago TDD tests for Analyzer" ;
+    dc:description "AAA pattern, test anomaly detection, knowledge base queries, failure classification, real data" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T004 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T012 a ggen:Task ;
+    dc:title "Write Chicago TDD tests for Planner" ;
+    dc:description "AAA pattern, test strategy selection, SLO alignment, fallback logic, real strategies" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T005 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T013 a ggen:Task ;
+    dc:title "Write Chicago TDD tests for Executor" ;
+    dc:description "AAA pattern, test strategy execution, timeout enforcement, recovery verification, real interfaces" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T006 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+# Phase 2: Knowledge Base and Learning (24 hours)
+
+:T014 a ggen:Task ;
+    dc:title "Create knowledge base module structure" ;
+    dc:description "Initialize crates/ggen-domain/src/knowledge/ with FailureStore, QueryEngine, LearningEngine" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "1 hour" ;
+    ggen:dependsOn :T001 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T015 a ggen:Task ;
+    dc:title "Implement FailureStore with Oxigraph" ;
+    dc:description "RDF-based storage for failure events (timestamp, type, strategy, success, MTTR), 90-day retention, max 10k entries" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "8 hours" ;
+    ggen:dependsOn :T014 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T016 a ggen:Task ;
+    dc:title "Implement SPARQL QueryEngine" ;
+    dc:description "Queries for similar failures, pattern recognition, time-series analysis, result ranking" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "6 hours" ;
+    ggen:dependsOn :T015 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T017 a ggen:Task ;
+    dc:title "Implement LearningEngine" ;
+    dc:description "Success rate calculation, MTTR prediction (historical avg ± stddev), strategy ranking by performance" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "10 hours" ;
+    ggen:dependsOn :T016 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T018 a ggen:Task ;
+    dc:title "Integrate knowledge base with Analyzer" ;
+    dc:description "Analyzer queries knowledge base for similar past failures, uses learning engine for confidence scoring" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T004, :T017 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T019 a ggen:Task ;
+    dc:title "Integrate knowledge base with Planner" ;
+    dc:description "Planner uses strategy rankings from learning engine, prioritizes high-success strategies" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T005, :T017 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T020 a ggen:Task ;
+    dc:title "Write Chicago TDD tests for FailureStore" ;
+    dc:description "AAA pattern, test event persistence, indexing, pruning, retention policy, real RDF storage" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T015 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T021 a ggen:Task ;
+    dc:title "Write Chicago TDD tests for LearningEngine" ;
+    dc:description "AAA pattern, test success rate calculation, MTTR prediction, strategy ranking, real historical data" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T017 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+# Phase 3: Continuous Chaos Orchestration (24 hours)
+
+:T022 a ggen:Task ;
+    dc:title "Create chaos orchestrator module structure" ;
+    dc:description "Initialize crates/ggen-e2e/src/chaos/ with ChaosScheduler, ScenarioExecutor, RecoveryVerifier" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "1 hour" ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T023 a ggen:Task ;
+    dc:title "Implement ChaosScheduler" ;
+    dc:description "Scheduler with configurable intervals (default 60s), max 1 concurrent chaos, pause on active alerts" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "6 hours" ;
+    ggen:dependsOn :T022 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T024 a ggen:Task ;
+    dc:title "Implement RandomNodeKillScenario" ;
+    dc:description "Randomly selects and kills one Erlang node via OS kill signal, 30s duration" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T022 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T025 a ggen:Task ;
+    dc:title "Implement NetworkJitterScenario" ;
+    dc:description "Inject network latency (100ms) and jitter (50ms) via tc (traffic control) for 60s" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "5 hours" ;
+    ggen:dependsOn :T022 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T026 a ggen:Task ;
+    dc:title "Implement MemoryPressureScenario" ;
+    dc:description "Limit available memory to 256MB via cgroups for 90s, monitor OOM behavior" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "5 hours" ;
+    ggen:dependsOn :T022 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T027 a ggen:Task ;
+    dc:title "Implement BackendLatencyScenario" ;
+    dc:description "Inject 500ms latency to backend database connections for 60s" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T022 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T028 a ggen:Task ;
+    dc:title "Implement RecoveryVerifier" ;
+    dc:description "Verify SLO compliance after chaos (availability ≥ 99.9%, MTTR ≤ 30s), measure actual recovery time" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "6 hours" ;
+    ggen:dependsOn :T023 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T029 a ggen:Task ;
+    dc:title "Integrate chaos orchestrator with MAPE-K loop" ;
+    dc:description "Chaos events trigger Monitor, system recovers via MAPE-K, recovery logged to knowledge base" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T009, :T028 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T030 a ggen:Task ;
+    dc:title "Write Chicago TDD tests for ChaosScheduler" ;
+    dc:description "AAA pattern, test scheduling logic, concurrency limits, pause on alert, real timing" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T023 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T031 a ggen:Task ;
+    dc:title "Write Chicago TDD tests for chaos scenarios" ;
+    dc:description "AAA pattern, test node kill, network jitter, memory pressure scenarios, real chaos injection with testcontainers" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "5 hours" ;
+    ggen:dependsOn :T024, :T025, :T026, :T027 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+# Phase 4: Erlang Integration (22 hours)
+
+:T032 a ggen:Task ;
+    dc:title "Create Erlang integration module structure" ;
+    dc:description "Initialize crates/ggen-domain/src/erlang/ with ErlangBridge, EventListener, SupervisorController, ClusterMonitor" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "1 hour" ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T033 a ggen:Task ;
+    dc:title "Design Erlang port protocol" ;
+    dc:description "Define message format for node_up/node_down, supervisor_restart, cluster_membership events (JSON over stdin/stdout)" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T032 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T034 a ggen:Task ;
+    dc:title "Implement Erlang port in Elixir/Erlang" ;
+    dc:description "Erlang GenServer that subscribes to node events and forwards to Rust via port, heartbeat protocol" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "6 hours" ;
+    ggen:dependsOn :T033 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T035 a ggen:Task ;
+    dc:title "Implement ErlangEventListener in Rust" ;
+    dc:description "Reads events from Erlang port stdin, parses JSON, translates to internal event types, forwards to Monitor" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "5 hours" ;
+    ggen:dependsOn :T033 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T036 a ggen:Task ;
+    dc:title "Implement SupervisorController" ;
+    dc:description "Send restart commands to Erlang port stdout, wait for acknowledgment, verify supervisor state" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T033 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T037 a ggen:Task ;
+    dc:title "Implement ClusterMonitor" ;
+    dc:description "Track Erlang cluster membership changes, detect partitions via node_down events, calculate quorum" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "5 hours" ;
+    ggen:dependsOn :T035 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T038 a ggen:Task ;
+    dc:title "Integrate Erlang bridge with Monitor" ;
+    dc:description "Monitor subscribes to Erlang events from EventListener, detects node crashes and supervisor restarts" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:dependsOn :T003, :T035 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T039 a ggen:Task ;
+    dc:title "Integrate Erlang bridge with Executor" ;
+    dc:description "Executor triggers supervisor restarts via SupervisorController, verifies recovery" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:dependsOn :T006, :T036 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T040 a ggen:Task ;
+    dc:title "Write Chicago TDD tests for ErlangEventListener" ;
+    dc:description "AAA pattern, test event parsing, translation, forwarding, real port communication with mock Erlang process" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T035 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T041 a ggen:Task ;
+    dc:title "Write integration tests with Erlang jobs example" ;
+    dc:description "End-to-end test: kill Erlang worker node, verify MAPE-K detects and recovers, jobs reassigned" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "6 hours" ;
+    ggen:dependsOn :T009, :T038, :T039 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+# Phase 5: Monitoring and Visualization (14 hours)
+
+:T042 a ggen:Task ;
+    dc:title "Implement resilience metrics exporter" ;
+    dc:description "Export availability, MTTR, recovery success rate, chaos experiment count to Prometheus/OpenTelemetry" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T009 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T043 a ggen:Task ;
+    dc:title "Create resilience dashboard" ;
+    dc:description "Grafana dashboard or built-in web UI showing real-time availability, MTTR trends, recovery strategies used" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "6 hours" ;
+    ggen:dependsOn :T042 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T044 a ggen:Task ;
+    dc:title "Implement chaos experiment logging" ;
+    dc:description "Log chaos events, recovery attempts, outcomes to structured logs (JSON), integrate with knowledge base" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T029 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T045 a ggen:Task ;
+    dc:title "Generate chaos experiment reports" ;
+    dc:description "Periodic reports (daily/weekly) showing chaos scenarios executed, recovery success rate, MTTR distribution" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P3" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T044 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T046 a ggen:Task ;
+    dc:title "Document autonomic resilience architecture" ;
+    dc:description "Comprehensive documentation (Diataxis): explanation (MAPE-K), how-to (writing policies), reference (API), tutorials" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "8 hours" ;
+    ggen:dependsOn :T041 ;
+    ggen:parallelizable true ;
+    ggen:status "Pending" .
+
+:T047 a ggen:Task ;
+    dc:title "Write 80/20 proof of completion summary" ;
+    dc:description "Document implemented features, SLO compliance (99.9% availability, 30s MTTR), chaos experiment results, test coverage" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T041, :T046 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+:T048 a ggen:Task ;
+    dc:title "Add cargo make targets for resilience" ;
+    dc:description "cargo make resilience-test, cargo make chaos-continuous, cargo make resilience-dashboard, timeout enforcement" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:dependsOn :T041 ;
+    ggen:parallelizable false ;
+    ggen:status "Pending" .
+
+# SHACL Validation Shapes
+
+:TaskShape a sh:NodeShape ;
+    sh:targetClass ggen:Task ;
+    sh:property [
+        sh:path dc:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:estimatedEffort ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+ hours?$" ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:phase ;
+        sh:in ( "Phase1" "Phase2" "Phase3" "Phase4" "Phase5" ) ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:priority ;
+        sh:in ( "P1" "P2" "P3" ) ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:parallelizable ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:status ;
+        sh:in ( "Pending" "In Progress" "Completed" "Blocked" ) ;
+        sh:minCount 1 ;
+    ] .
+
+:TaskListShape a sh:NodeShape ;
+    sh:targetClass ggen:TaskList ;
+    sh:property [
+        sh:path ggen:totalTasks ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:totalEffort ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+ hours?$" ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:parallelizable ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:minCount 1 ;
+    ] .

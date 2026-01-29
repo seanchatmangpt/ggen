@@ -1,0 +1,461 @@
+%%%-------------------------------------------------------------------
+%%% @doc
+%%% MAPE-K Monitor Component - Autonomic Monitoring Agent
+%%%
+%%% This gen_server implements the Monitor phase of the MAPE-K loop.
+%%% It collects metrics, detects anomalies, and sends observations to
+%%% the Rust MAPE-K controller via heartbeat mechanism.
+%%%
+%%% Generated from RDF specification:
+%%% {% raw %}{{ spec_uri }}{% endraw %}
+%%% @end
+%%%-------------------------------------------------------------------
+-module({% raw %}{{ module_name | default(value="mape_k_monitor") }}{% endraw %}).
+-behaviour(gen_server).
+
+%% API exports
+-export([start_link/1, start_link/2]).
+-export([get_metrics/0, get_metrics/1]).
+-export([register_metric/2, unregister_metric/1]).
+-export([set_threshold/2, get_thresholds/0]).
+-export([force_heartbeat/0]).
+
+%% gen_server callbacks
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2,
+         terminate/2, code_change/3]).
+
+-define(SERVER, ?MODULE).
+-define(DEFAULT_HEARTBEAT_INTERVAL, {% raw %}{{ heartbeat_interval_ms | default(value="5000") }}{% endraw %}).
+-define(DEFAULT_METRICS_RETENTION, {% raw %}{{ metrics_retention_seconds | default(value="3600") }}{% endraw %}).
+-define(PROMETHEUS_PORT, {% raw %}{{ prometheus_port | default(value="9090") }}{% endraw %}).
+
+%%%===================================================================
+%%% RDF Configuration Extraction via SPARQL
+%%%===================================================================
+%{% raw %}% SPARQL Query: Extract monitoring configuration
+%% PREFIX mape: <http://ggen.io/ontology/mape-k#>
+%% PREFIX mon: <http://ggen.io/ontology/monitoring#>
+%%
+%% SELECT ?metric ?threshold ?aggregation ?alert_severity
+%% WHERE {
+%%   ?monitor a mape:MonitorComponent ;
+%%            mon:collectsMetric ?metric .
+%%   ?metric mon:threshold ?threshold ;
+%%           mon:aggregation ?aggregation ;
+%%           mon:alertSeverity ?alert_severity .
+%%   FILTER(?monitor = <{{ spec_uri }}>)
+%% }{% endraw %}
+
+-record(state, {
+    %% Configuration from RDF
+    heartbeat_interval :: pos_integer(),
+    metrics_retention :: pos_integer(),
+    rust_controller_uri :: string(),
+
+    %% Metric storage
+    metrics = #{} :: #{atom() => metric_data()},
+    thresholds = #{} :: #{atom() => threshold_config()},
+
+    %% Heartbeat state
+    heartbeat_timer :: reference() | undefined,
+    last_heartbeat :: erlang:timestamp(),
+    heartbeat_failures = 0 :: non_neg_integer(),
+
+    %% Prometheus integration
+    prometheus_pid :: pid() | undefined,
+
+    %% Anomaly detection
+    anomalies = [] :: [anomaly()]
+}).
+
+-type metric_data() :: #{
+    value => number(),
+    timestamp => erlang:timestamp(),
+    unit => string(),
+    tags => #{atom() => term()}
+}.
+
+-type threshold_config() :: #{
+    upper => number() | infinity,
+    lower => number() | neg_infinity,
+    aggregation => mean | median | max | min | sum,
+    window_size => pos_integer()
+}.
+
+-type anomaly() :: #{
+    metric => atom(),
+    severity => critical | warning | info,
+    threshold_violated => upper | lower,
+    value => number(),
+    expected => number(),
+    timestamp => erlang:timestamp()
+}.
+
+%%%===================================================================
+%%% API Functions
+%%%===================================================================
+
+-spec start_link(Config :: map()) -> {ok, pid()} | {error, term()}.
+start_link(Config) ->
+    gen_server:start_link({local, ?SERVER}, ?MODULE, [Config], []).
+
+-spec start_link(Name :: atom(), Config :: map()) -> {ok, pid()} | {error, term()}.
+start_link(Name, Config) ->
+    gen_server:start_link({local, Name}, ?MODULE, [Config], []).
+
+-spec get_metrics() -> {ok, #{atom() => metric_data()}} | {error, term()}.
+get_metrics() ->
+    gen_server:call(?SERVER, get_metrics).
+
+-spec get_metrics(TimeRange :: {From :: erlang:timestamp(), To :: erlang:timestamp()}) ->
+    {ok, #{atom() => [metric_data()]}} | {error, term()}.
+get_metrics(TimeRange) ->
+    gen_server:call(?SERVER, {get_metrics, TimeRange}).
+
+-spec register_metric(Name :: atom(), Config :: threshold_config()) -> ok | {error, term()}.
+register_metric(Name, Config) ->
+    gen_server:call(?SERVER, {register_metric, Name, Config}).
+
+-spec unregister_metric(Name :: atom()) -> ok | {error, term()}.
+unregister_metric(Name) ->
+    gen_server:call(?SERVER, {unregister_metric, Name}).
+
+-spec set_threshold(Metric :: atom(), Threshold :: threshold_config()) -> ok | {error, term()}.
+set_threshold(Metric, Threshold) ->
+    gen_server:call(?SERVER, {set_threshold, Metric, Threshold}).
+
+-spec get_thresholds() -> {ok, #{atom() => threshold_config()}}.
+get_thresholds() ->
+    gen_server:call(?SERVER, get_thresholds).
+
+-spec force_heartbeat() -> ok.
+force_heartbeat() ->
+    gen_server:cast(?SERVER, force_heartbeat).
+
+%%%===================================================================
+%%% gen_server callbacks
+%%%===================================================================
+
+init([Config]) ->
+    process_flag(trap_exit, true),
+
+    %% Extract configuration from RDF via SPARQL (injected by Tera template)
+    RustControllerUri = maps:get(rust_controller_uri, Config,
+        "{% raw %}{{ rust_controller_uri | default(value="http://localhost:8080/mape-k") }}{% endraw %}"),
+    HeartbeatInterval = maps:get(heartbeat_interval, Config, ?DEFAULT_HEARTBEAT_INTERVAL),
+    MetricsRetention = maps:get(metrics_retention, Config, ?DEFAULT_METRICS_RETENTION),
+
+    %% Initialize metrics from RDF specification
+    InitialMetrics = initialize_metrics_from_rdf(Config),
+    InitialThresholds = initialize_thresholds_from_rdf(Config),
+
+    %% Start Prometheus exporter
+    PrometheusPid = start_prometheus_exporter(),
+
+    %% Schedule first heartbeat
+    TimerRef = erlang:send_after(HeartbeatInterval, self(), heartbeat),
+
+    State = #state{
+        heartbeat_interval = HeartbeatInterval,
+        metrics_retention = MetricsRetention,
+        rust_controller_uri = RustControllerUri,
+        metrics = InitialMetrics,
+        thresholds = InitialThresholds,
+        heartbeat_timer = TimerRef,
+        last_heartbeat = erlang:timestamp(),
+        prometheus_pid = PrometheusPid
+    },
+
+    {ok, State}.
+
+handle_call(get_metrics, _From, State = #state{metrics = Metrics}) ->
+    {reply, {ok, Metrics}, State};
+
+handle_call({get_metrics, {FromTs, ToTs}}, _From, State = #state{metrics = Metrics}) ->
+    Filtered = filter_metrics_by_time(Metrics, FromTs, ToTs),
+    {reply, {ok, Filtered}, State};
+
+handle_call({register_metric, Name, Config}, _From, State = #state{thresholds = Thresholds}) ->
+    NewThresholds = Thresholds#{Name => Config},
+    {reply, ok, State#state{thresholds = NewThresholds}};
+
+handle_call({unregister_metric, Name}, _From, State = #state{metrics = Metrics, thresholds = Thresholds}) ->
+    NewMetrics = maps:remove(Name, Metrics),
+    NewThresholds = maps:remove(Name, Thresholds),
+    {reply, ok, State#state{metrics = NewMetrics, thresholds = NewThresholds}};
+
+handle_call({set_threshold, Metric, Threshold}, _From, State = #state{thresholds = Thresholds}) ->
+    NewThresholds = Thresholds#{Metric => Threshold},
+    {reply, ok, State#state{thresholds = NewThresholds}};
+
+handle_call(get_thresholds, _From, State = #state{thresholds = Thresholds}) ->
+    {reply, {ok, Thresholds}, State};
+
+handle_call(_Request, _From, State) ->
+    {reply, {error, unknown_call}, State}.
+
+handle_cast(force_heartbeat, State) ->
+    NewState = perform_heartbeat(State),
+    {noreply, NewState};
+
+handle_cast(_Msg, State) ->
+    {noreply, State}.
+
+handle_info(heartbeat, State = #state{heartbeat_interval = Interval}) ->
+    %% Perform heartbeat operations
+    NewState = perform_heartbeat(State),
+
+    %% Schedule next heartbeat
+    TimerRef = erlang:send_after(Interval, self(), heartbeat),
+
+    {noreply, NewState#state{heartbeat_timer = TimerRef}};
+
+handle_info({metric_update, Name, Value}, State = #state{metrics = Metrics, thresholds = Thresholds}) ->
+    %% Record new metric value
+    Timestamp = erlang:timestamp(),
+    MetricData = #{
+        value => Value,
+        timestamp => Timestamp,
+        unit => get_metric_unit(Name),
+        tags => #{}
+    },
+
+    NewMetrics = Metrics#{Name => MetricData},
+
+    %% Check for threshold violations
+    Anomalies = check_threshold_violations(Name, Value, Thresholds),
+    NewState = State#state{
+        metrics = NewMetrics,
+        anomalies = Anomalies ++ State#state.anomalies
+    },
+
+    %% Update Prometheus metrics
+    update_prometheus_metric(Name, Value),
+
+    {noreply, NewState};
+
+handle_info({'EXIT', Pid, Reason}, State = #state{prometheus_pid = Pid}) ->
+    error_logger:error_msg("Prometheus exporter died: ~p. Restarting...~n", [Reason]),
+    NewPrometheusPid = start_prometheus_exporter(),
+    {noreply, State#state{prometheus_pid = NewPrometheusPid}};
+
+handle_info(_Info, State) ->
+    {noreply, State}.
+
+terminate(_Reason, #state{heartbeat_timer = Timer, prometheus_pid = Pid}) ->
+    %% Cancel heartbeat timer
+    case Timer of
+        undefined -> ok;
+        _ -> erlang:cancel_timer(Timer)
+    end,
+
+    %% Stop Prometheus exporter
+    case Pid of
+        undefined -> ok;
+        _ -> exit(Pid, shutdown)
+    end,
+
+    ok.
+
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
+
+%%%===================================================================
+%%% Internal functions
+%%%===================================================================
+
+-spec perform_heartbeat(State :: #state{}) -> #state{}.
+perform_heartbeat(State = #state{
+    rust_controller_uri = Uri,
+    metrics = Metrics,
+    anomalies = Anomalies,
+    heartbeat_failures = Failures
+}) ->
+    %% Collect current system metrics
+    SystemMetrics = collect_system_metrics(),
+
+    %% Prepare heartbeat payload
+    Payload = #{
+        timestamp => erlang:timestamp(),
+        node => node(),
+        metrics => maps:merge(Metrics, SystemMetrics),
+        anomalies => Anomalies,
+        health_status => calculate_health_status(Metrics, Anomalies)
+    },
+
+    %% Send to Rust MAPE-K controller
+    case send_heartbeat_to_rust(Uri, Payload) of
+        {ok, _Response} ->
+            State#state{
+                last_heartbeat = erlang:timestamp(),
+                heartbeat_failures = 0,
+                anomalies = [] %% Clear anomalies after successful send
+            };
+        {error, Reason} ->
+            error_logger:warning_msg("Heartbeat failed: ~p (failures: ~p)~n",
+                [Reason, Failures + 1]),
+            State#state{heartbeat_failures = Failures + 1}
+    end.
+
+-spec collect_system_metrics() -> #{atom() => metric_data()}.
+collect_system_metrics() ->
+    Timestamp = erlang:timestamp(),
+
+    #{
+        memory_total => #{
+            value => erlang:memory(total),
+            timestamp => Timestamp,
+            unit => "bytes",
+            tags => #{type => system}
+        },
+        memory_processes => #{
+            value => erlang:memory(processes),
+            timestamp => Timestamp,
+            unit => "bytes",
+            tags => #{type => system}
+        },
+        process_count => #{
+            value => erlang:system_info(process_count),
+            timestamp => Timestamp,
+            unit => "count",
+            tags => #{type => system}
+        },
+        schedulers_online => #{
+            value => erlang:system_info(schedulers_online),
+            timestamp => Timestamp,
+            unit => "count",
+            tags => #{type => system}
+        }
+    }.
+
+-spec send_heartbeat_to_rust(Uri :: string(), Payload :: map()) ->
+    {ok, term()} | {error, term()}.
+send_heartbeat_to_rust(Uri, Payload) ->
+    %% Convert Erlang map to JSON
+    JsonPayload = encode_json(Payload),
+
+    %% Send HTTP POST to Rust controller
+    Headers = [{"Content-Type", "application/json"}],
+    Request = {Uri ++ "/monitor/heartbeat", Headers, "application/json", JsonPayload},
+
+    case httpc:request(post, Request, [{timeout, 5000}], []) of
+        {ok, {{_Version, 200, _ReasonPhrase}, _Headers, Body}} ->
+            {ok, decode_json(Body)};
+        {ok, {{_Version, StatusCode, ReasonPhrase}, _Headers, _Body}} ->
+            {error, {http_error, StatusCode, ReasonPhrase}};
+        {error, Reason} ->
+            {error, Reason}
+    end.
+
+-spec check_threshold_violations(Name :: atom(), Value :: number(),
+    Thresholds :: #{atom() => threshold_config()}) -> [anomaly()].
+check_threshold_violations(Name, Value, Thresholds) ->
+    case maps:get(Name, Thresholds, undefined) of
+        undefined -> [];
+        Threshold ->
+            Upper = maps:get(upper, Threshold, infinity),
+            Lower = maps:get(lower, Threshold, neg_infinity),
+
+            Violations = lists:flatten([
+                if Value > Upper ->
+                    [#{metric => Name, severity => critical,
+                       threshold_violated => upper, value => Value,
+                       expected => Upper, timestamp => erlang:timestamp()}];
+                   true -> []
+                end,
+                if Value < Lower ->
+                    [#{metric => Name, severity => critical,
+                       threshold_violated => lower, value => Value,
+                       expected => Lower, timestamp => erlang:timestamp()}];
+                   true -> []
+                end
+            ]),
+            Violations
+    end.
+
+-spec calculate_health_status(Metrics :: #{atom() => metric_data()},
+    Anomalies :: [anomaly()]) -> healthy | degraded | critical.
+calculate_health_status(_Metrics, Anomalies) ->
+    CriticalCount = length([A || A <- Anomalies, maps:get(severity, A) =:= critical]),
+    WarningCount = length([A || A <- Anomalies, maps:get(severity, A) =:= warning]),
+
+    if
+        CriticalCount > 0 -> critical;
+        WarningCount > 3 -> degraded;
+        true -> healthy
+    end.
+
+-spec initialize_metrics_from_rdf(Config :: map()) -> #{atom() => metric_data()}.
+initialize_metrics_from_rdf(_Config) ->
+    %% RDF-injected metric definitions from SPARQL query
+    #{
+        {% raw %}{% for metric in metrics %}
+        {{ metric.name }} => #{
+            value => 0,
+            timestamp => erlang:timestamp(),
+            unit => "{{ metric.unit }}",
+            tags => #{}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}{% endraw %}
+    }.
+
+-spec initialize_thresholds_from_rdf(Config :: map()) -> #{atom() => threshold_config()}.
+initialize_thresholds_from_rdf(_Config) ->
+    %% RDF-injected threshold configurations from SPARQL query
+    #{
+        {% raw %}{% for threshold in thresholds %}
+        {{ threshold.metric_name }} => #{
+            upper => {{ threshold.upper | default(value="infinity") }},
+            lower => {{ threshold.lower | default(value="neg_infinity") }},
+            aggregation => {{ threshold.aggregation | default(value="mean") }},
+            window_size => {{ threshold.window_size | default(value="10") }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}{% endraw %}
+    }.
+
+-spec filter_metrics_by_time(Metrics :: #{atom() => metric_data()},
+    From :: erlang:timestamp(), To :: erlang:timestamp()) ->
+    #{atom() => [metric_data()]}.
+filter_metrics_by_time(Metrics, From, To) ->
+    maps:filter(
+        fun(_Name, Data) ->
+            Ts = maps:get(timestamp, Data),
+            Ts >= From andalso Ts =< To
+        end,
+        Metrics
+    ).
+
+-spec get_metric_unit(Name :: atom()) -> string().
+get_metric_unit(_Name) ->
+    "count". %% Default unit, should be overridden by RDF spec
+
+-spec start_prometheus_exporter() -> pid().
+start_prometheus_exporter() ->
+    spawn_link(fun prometheus_exporter_loop/0).
+
+-spec prometheus_exporter_loop() -> no_return().
+prometheus_exporter_loop() ->
+    %% Placeholder for Prometheus exporter (use prometheus.erl library)
+    receive
+        {export, Metric, Value} ->
+            %% Export to Prometheus
+            ok
+    end,
+    prometheus_exporter_loop().
+
+-spec update_prometheus_metric(Name :: atom(), Value :: number()) -> ok.
+update_prometheus_metric(Name, Value) ->
+    %% Send to Prometheus exporter process
+    case whereis(prometheus_exporter) of
+        undefined -> ok;
+        Pid -> Pid ! {export, Name, Value}, ok
+    end.
+
+-spec encode_json(Term :: term()) -> binary().
+encode_json(Term) ->
+    %% Use jsx or jiffy library
+    jsx:encode(Term).
+
+-spec decode_json(Binary :: binary()) -> term().
+decode_json(Binary) ->
+    jsx:decode(Binary, [return_maps]).

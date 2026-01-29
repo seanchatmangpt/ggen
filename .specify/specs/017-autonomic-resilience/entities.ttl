@@ -1,0 +1,667 @@
+@prefix : <http://ggen.io/ontology/specs/017-autonomic-resilience/entities#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ggen: <http://ggen.io/ontology/core#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+# Core Entity Definitions
+
+# ResiliencePolicy Entity
+:ResiliencePolicy a rdfs:Class ;
+    rdfs:label "Resilience Policy" ;
+    rdfs:comment "Declarative specification of resilience requirements and recovery strategies" ;
+    rdfs:subClassOf ggen:Entity .
+
+:ErlangClusterPolicy a :ResiliencePolicy ;
+    :targetSystem :DistributedJobQueue ;
+    :availabilitySLO "99.9"^^xsd:decimal ;
+    :mttrTarget "30s"^^xsd:duration ;
+    :maxDegradation "20"^^xsd:decimal ;
+    :hasFailureMode :NodeCrashMode, :NetworkPartitionMode, :BackendFailureMode ;
+    :hasChaosSchedule :ProductionChaosSchedule .
+
+:targetSystem a rdf:Property ;
+    rdfs:domain :ResiliencePolicy ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Target system identifier (e.g., distributed job queue, RDF store)" .
+
+:availabilitySLO a rdf:Property ;
+    rdfs:domain :ResiliencePolicy ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Availability target as percentage (99.9 = 99.9%)" .
+
+:mttrTarget a rdf:Property ;
+    rdfs:domain :ResiliencePolicy ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Mean time to recovery target (e.g., 30s)" .
+
+:maxDegradation a rdf:Property ;
+    rdfs:domain :ResiliencePolicy ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Maximum acceptable performance degradation as percentage (20 = 20%)" .
+
+:hasFailureMode a rdf:Property ;
+    rdfs:domain :ResiliencePolicy ;
+    rdfs:range :FailureMode ;
+    rdfs:comment "Failure modes covered by this policy" .
+
+:hasChaosSchedule a rdf:Property ;
+    rdfs:domain :ResiliencePolicy ;
+    rdfs:range :ChaosSchedule ;
+    rdfs:comment "Continuous chaos testing schedule" .
+
+# FailureMode Entity
+:FailureMode a rdfs:Class ;
+    rdfs:label "Failure Mode" ;
+    rdfs:comment "Type of system failure with associated recovery strategy" ;
+    rdfs:subClassOf ggen:Entity .
+
+:NodeCrashMode a :FailureMode ;
+    :failureType "node_crash" ;
+    :detectionTime "5s"^^xsd:duration ;
+    :recoveryStrategy :SupervisorRestart ;
+    :expectedMTTR "10s"^^xsd:duration ;
+    :severity "High" .
+
+:NetworkPartitionMode a :FailureMode ;
+    :failureType "network_partition" ;
+    :detectionTime "15s"^^xsd:duration ;
+    :recoveryStrategy :QuorumReconfiguration ;
+    :expectedMTTR "30s"^^xsd:duration ;
+    :severity "Critical" .
+
+:BackendFailureMode a :FailureMode ;
+    :failureType "backend_failure" ;
+    :detectionTime "10s"^^xsd:duration ;
+    :recoveryStrategy :BackendFailover ;
+    :expectedMTTR "20s"^^xsd:duration ;
+    :severity "High" .
+
+:ResourceExhaustionMode a :FailureMode ;
+    :failureType "resource_exhaustion" ;
+    :detectionTime "30s"^^xsd:duration ;
+    :recoveryStrategy :LoadShedding ;
+    :expectedMTTR "60s"^^xsd:duration ;
+    :severity "Medium" .
+
+:failureType a rdf:Property ;
+    rdfs:domain :FailureMode ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Failure type identifier (node_crash, network_partition, backend_failure, resource_exhaustion)" .
+
+:detectionTime a rdf:Property ;
+    rdfs:domain :FailureMode ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Expected time to detect this failure mode" .
+
+:recoveryStrategy a rdf:Property ;
+    rdfs:domain :FailureMode ;
+    rdfs:range :RecoveryStrategy ;
+    rdfs:comment "Primary recovery strategy for this failure mode" .
+
+:expectedMTTR a rdf:Property ;
+    rdfs:domain :FailureMode ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Expected mean time to recovery" .
+
+:severity a rdf:Property ;
+    rdfs:domain :FailureMode ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Failure severity (Low, Medium, High, Critical)" .
+
+# RecoveryStrategy Entity
+:RecoveryStrategy a rdfs:Class ;
+    rdfs:label "Recovery Strategy" ;
+    rdfs:comment "Automated recovery action for failure scenarios" ;
+    rdfs:subClassOf ggen:Entity .
+
+:SupervisorRestart a :RecoveryStrategy ;
+    :strategyType "supervisor_restart" ;
+    :executionTime "5s"^^xsd:duration ;
+    :successRate "95"^^xsd:decimal ;
+    :hasPreCondition "Supervisor tree available" ;
+    :hasPostCondition "Worker process restarted and registered" .
+
+:QuorumReconfiguration a :RecoveryStrategy ;
+    :strategyType "quorum_reconfiguration" ;
+    :executionTime "15s"^^xsd:duration ;
+    :successRate "85"^^xsd:decimal ;
+    :hasPreCondition "Majority partition exists" ;
+    :hasPostCondition "Cluster quorum re-established" .
+
+:BackendFailover a :RecoveryStrategy ;
+    :strategyType "backend_failover" ;
+    :executionTime "10s"^^xsd:duration ;
+    :successRate "90"^^xsd:decimal ;
+    :hasPreCondition "Replica backend available" ;
+    :hasPostCondition "Traffic routed to healthy backend" .
+
+:LoadShedding a :RecoveryStrategy ;
+    :strategyType "load_shedding" ;
+    :executionTime "2s"^^xsd:duration ;
+    :successRate "98"^^xsd:decimal ;
+    :hasPreCondition "Overload detected" ;
+    :hasPostCondition "Non-critical requests rejected, critical requests processed" .
+
+:strategyType a rdf:Property ;
+    rdfs:domain :RecoveryStrategy ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Strategy type identifier" .
+
+:executionTime a rdf:Property ;
+    rdfs:domain :RecoveryStrategy ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Typical execution time for this strategy" .
+
+:successRate a rdf:Property ;
+    rdfs:domain :RecoveryStrategy ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Historical success rate as percentage (95 = 95%)" .
+
+:hasPreCondition a rdf:Property ;
+    rdfs:domain :RecoveryStrategy ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Pre-condition that must be satisfied before execution" .
+
+:hasPostCondition a rdf:Property ;
+    rdfs:domain :RecoveryStrategy ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Post-condition that verifies successful execution" .
+
+# MapekLoop Entity
+:MapekLoop a rdfs:Class ;
+    rdfs:label "MAPE-K Autonomic Loop" ;
+    rdfs:comment "Monitor-Analyze-Plan-Execute-Knowledge autonomic control loop" ;
+    rdfs:subClassOf ggen:Entity .
+
+:MainMapekLoop a :MapekLoop ;
+    :hasMonitor :SystemMonitor ;
+    :hasAnalyzer :AnomalyAnalyzer ;
+    :hasPlanner :StrategyPlanner ;
+    :hasExecutor :RecoveryExecutor ;
+    :hasKnowledgeBase :FailureKnowledgeBase ;
+    :loopInterval "5s"^^xsd:duration ;
+    :enabled true .
+
+:hasMonitor a rdf:Property ;
+    rdfs:domain :MapekLoop ;
+    rdfs:range :Monitor ;
+    rdfs:comment "Monitor component instance" .
+
+:hasAnalyzer a rdf:Property ;
+    rdfs:domain :MapekLoop ;
+    rdfs:range :Analyzer ;
+    rdfs:comment "Analyzer component instance" .
+
+:hasPlanner a rdf:Property ;
+    rdfs:domain :MapekLoop ;
+    rdfs:range :Planner ;
+    rdfs:comment "Planner component instance" .
+
+:hasExecutor a rdf:Property ;
+    rdfs:domain :MapekLoop ;
+    rdfs:range :Executor ;
+    rdfs:comment "Executor component instance" .
+
+:hasKnowledgeBase a rdf:Property ;
+    rdfs:domain :MapekLoop ;
+    rdfs:range :KnowledgeBase ;
+    rdfs:comment "Knowledge base instance" .
+
+:loopInterval a rdf:Property ;
+    rdfs:domain :MapekLoop ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Polling interval for monitor (e.g., 5s)" .
+
+:enabled a rdf:Property ;
+    rdfs:domain :MapekLoop ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether loop is active" .
+
+# Monitor Entity
+:Monitor a rdfs:Class ;
+    rdfs:label "Monitor Component" ;
+    rdfs:comment "Observes system health metrics and events" ;
+    rdfs:subClassOf ggen:Entity .
+
+:SystemMonitor a :Monitor ;
+    :hasMetric :AvailabilityMetric, :LatencyMetric, :ErrorRateMetric ;
+    :hasEventSource :ErlangEvents, :ContainerEvents ;
+    :pollingInterval "5s"^^xsd:duration ;
+    :alertThreshold "3 consecutive failures" .
+
+:hasMetric a rdf:Property ;
+    rdfs:domain :Monitor ;
+    rdfs:range :Metric ;
+    rdfs:comment "Metrics to track" .
+
+:hasEventSource a rdf:Property ;
+    rdfs:domain :Monitor ;
+    rdfs:range :EventSource ;
+    rdfs:comment "Event sources to observe" .
+
+:pollingInterval a rdf:Property ;
+    rdfs:domain :Monitor ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Polling frequency" .
+
+:alertThreshold a rdf:Property ;
+    rdfs:domain :Monitor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Threshold for raising alerts" .
+
+# Metric Entity
+:Metric a rdfs:Class ;
+    rdfs:label "Metric" ;
+    rdfs:comment "Observable system metric" ;
+    rdfs:subClassOf ggen:Entity .
+
+:AvailabilityMetric a :Metric ;
+    :metricName "availability" ;
+    :metricType "percentage" ;
+    :targetValue "99.9"^^xsd:decimal ;
+    :alertOnBelow "99.0"^^xsd:decimal .
+
+:LatencyMetric a :Metric ;
+    :metricName "latency_p99" ;
+    :metricType "duration" ;
+    :targetValue "100ms"^^xsd:duration ;
+    :alertOnAbove "500ms"^^xsd:duration .
+
+:ErrorRateMetric a :Metric ;
+    :metricName "error_rate" ;
+    :metricType "percentage" ;
+    :targetValue "0.1"^^xsd:decimal ;
+    :alertOnAbove "1.0"^^xsd:decimal .
+
+:metricName a rdf:Property ;
+    rdfs:domain :Metric ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Metric identifier" .
+
+:metricType a rdf:Property ;
+    rdfs:domain :Metric ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Metric type (percentage, duration, count)" .
+
+:targetValue a rdf:Property ;
+    rdfs:domain :Metric ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "Target value for this metric" .
+
+:alertOnBelow a rdf:Property ;
+    rdfs:domain :Metric ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "Alert if metric falls below this value" .
+
+:alertOnAbove a rdf:Property ;
+    rdfs:domain :Metric ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "Alert if metric exceeds this value" .
+
+# Analyzer Entity
+:Analyzer a rdfs:Class ;
+    rdfs:label "Analyzer Component" ;
+    rdfs:comment "Analyzes metrics and events to detect anomalies" ;
+    rdfs:subClassOf ggen:Entity .
+
+:AnomalyAnalyzer a :Analyzer ;
+    :hasDetector :StatisticalDetector, :TrendDetector, :PatternDetector ;
+    :confidenceThreshold "80"^^xsd:decimal ;
+    :queryKnowledgeBase true .
+
+:hasDetector a rdf:Property ;
+    rdfs:domain :Analyzer ;
+    rdfs:range :Detector ;
+    rdfs:comment "Anomaly detection algorithms" .
+
+:confidenceThreshold a rdf:Property ;
+    rdfs:domain :Analyzer ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Minimum confidence for anomaly classification (as percentage)" .
+
+:queryKnowledgeBase a rdf:Property ;
+    rdfs:domain :Analyzer ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether to query knowledge base for historical patterns" .
+
+# Planner Entity
+:Planner a rdfs:Class ;
+    rdfs:label "Planner Component" ;
+    rdfs:comment "Selects recovery strategy based on analysis" ;
+    rdfs:subClassOf ggen:Entity .
+
+:StrategyPlanner a :Planner ;
+    :hasSelector :SuccessRateSelector, :MTTRSelector, :SLOAlignedSelector ;
+    :fallbackStrategy :FullClusterRestart ;
+    :maxRetries 3 .
+
+:hasSelector a rdf:Property ;
+    rdfs:domain :Planner ;
+    rdfs:range :Selector ;
+    rdfs:comment "Strategy selection algorithms" .
+
+:fallbackStrategy a rdf:Property ;
+    rdfs:domain :Planner ;
+    rdfs:range :RecoveryStrategy ;
+    rdfs:comment "Fallback strategy if all others fail" .
+
+:maxRetries a rdf:Property ;
+    rdfs:domain :Planner ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum retry attempts before fallback" .
+
+# Executor Entity
+:Executor a rdfs:Class ;
+    rdfs:label "Executor Component" ;
+    rdfs:comment "Executes recovery strategies" ;
+    rdfs:subClassOf ggen:Entity .
+
+:RecoveryExecutor a :Executor ;
+    :hasInterface :ErlangInterface, :DockerInterface, :KubernetesInterface ;
+    :executionTimeout "120s"^^xsd:duration ;
+    :verifyRecovery true .
+
+:hasInterface a rdf:Property ;
+    rdfs:domain :Executor ;
+    rdfs:range :Interface ;
+    rdfs:comment "External system interfaces" .
+
+:executionTimeout a rdf:Property ;
+    rdfs:domain :Executor ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Maximum execution time before failure" .
+
+:verifyRecovery a rdf:Property ;
+    rdfs:domain :Executor ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether to verify recovery succeeded" .
+
+# KnowledgeBase Entity
+:KnowledgeBase a rdfs:Class ;
+    rdfs:label "Knowledge Base" ;
+    rdfs:comment "Stores failure history and learned patterns" ;
+    rdfs:subClassOf ggen:Entity .
+
+:FailureKnowledgeBase a :KnowledgeBase ;
+    :hasStorage :RdfStore ;
+    :hasIndex :FailureTypeIndex, :TimestampIndex ;
+    :retentionPeriod "90 days" ;
+    :maxEntries 10000 .
+
+:hasStorage a rdf:Property ;
+    rdfs:domain :KnowledgeBase ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Storage backend (RDF store, time-series DB)" .
+
+:hasIndex a rdf:Property ;
+    rdfs:domain :KnowledgeBase ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Indices for efficient queries" .
+
+:retentionPeriod a rdf:Property ;
+    rdfs:domain :KnowledgeBase ;
+    rdfs:range xsd:string ;
+    rdfs:comment "How long to retain historical data" .
+
+:maxEntries a rdf:Property ;
+    rdfs:domain :KnowledgeBase ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum entries before pruning" .
+
+# ChaosSchedule Entity
+:ChaosSchedule a rdfs:Class ;
+    rdfs:label "Chaos Schedule" ;
+    rdfs:comment "Continuous chaos engineering schedule" ;
+    rdfs:subClassOf ggen:Entity .
+
+:ProductionChaosSchedule a :ChaosSchedule ;
+    :enabled true ;
+    :interval "60s"^^xsd:duration ;
+    :hasScenario :RandomNodeKillScenario, :NetworkJitterScenario, :MemoryPressureScenario, :BackendLatencyScenario ;
+    :maxConcurrentChaos 1 ;
+    :pauseOnAlert true .
+
+:interval a rdf:Property ;
+    rdfs:domain :ChaosSchedule ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Time between chaos injections" .
+
+:hasScenario a rdf:Property ;
+    rdfs:domain :ChaosSchedule ;
+    rdfs:range :ChaosScenario ;
+    rdfs:comment "Chaos scenarios to execute" .
+
+:maxConcurrentChaos a rdf:Property ;
+    rdfs:domain :ChaosSchedule ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum concurrent chaos injections" .
+
+:pauseOnAlert a rdf:Property ;
+    rdfs:domain :ChaosSchedule ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether to pause chaos during active alerts" .
+
+# ChaosScenario Entity
+:ChaosScenario a rdfs:Class ;
+    rdfs:label "Chaos Scenario" ;
+    rdfs:comment "Specific chaos engineering test" ;
+    rdfs:subClassOf ggen:Entity .
+
+:RandomNodeKillScenario a :ChaosScenario ;
+    :scenarioType "node_kill" ;
+    :target "random_erlang_node" ;
+    :duration "30s"^^xsd:duration ;
+    :expectedFailureMode :NodeCrashMode ;
+    :verifyRecovery true .
+
+:NetworkJitterScenario a :ChaosScenario ;
+    :scenarioType "network_jitter" ;
+    :target "cluster_network" ;
+    :duration "60s"^^xsd:duration ;
+    :latency "100ms"^^xsd:duration ;
+    :jitter "50ms"^^xsd:duration ;
+    :expectedFailureMode :NetworkPartitionMode ;
+    :verifyRecovery true .
+
+:MemoryPressureScenario a :ChaosScenario ;
+    :scenarioType "memory_pressure" ;
+    :target "worker_nodes" ;
+    :duration "90s"^^xsd:duration ;
+    :memoryLimit "256MB" ;
+    :expectedFailureMode :ResourceExhaustionMode ;
+    :verifyRecovery true .
+
+:BackendLatencyScenario a :ChaosScenario ;
+    :scenarioType "backend_latency" ;
+    :target "database_backend" ;
+    :duration "60s"^^xsd:duration ;
+    :latency "500ms"^^xsd:duration ;
+    :expectedFailureMode :BackendFailureMode ;
+    :verifyRecovery true .
+
+:scenarioType a rdf:Property ;
+    rdfs:domain :ChaosScenario ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Chaos scenario type" .
+
+:target a rdf:Property ;
+    rdfs:domain :ChaosScenario ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Target system component" .
+
+:duration a rdf:Property ;
+    rdfs:domain :ChaosScenario ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Duration of chaos injection" .
+
+:latency a rdf:Property ;
+    rdfs:domain :ChaosScenario ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Network latency to inject" .
+
+:jitter a rdf:Property ;
+    rdfs:domain :ChaosScenario ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Latency variation" .
+
+:memoryLimit a rdf:Property ;
+    rdfs:domain :ChaosScenario ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Memory limit for pressure scenarios" .
+
+:expectedFailureMode a rdf:Property ;
+    rdfs:domain :ChaosScenario ;
+    rdfs:range :FailureMode ;
+    rdfs:comment "Expected failure mode to be triggered" .
+
+# SHACL Validation Shapes
+
+:ResiliencePolicyShape a sh:NodeShape ;
+    sh:targetClass :ResiliencePolicy ;
+    sh:property [
+        sh:path :targetSystem ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :availabilitySLO ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 90.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :mttrTarget ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasFailureMode ;
+        sh:class :FailureMode ;
+        sh:minCount 1 ;
+    ] .
+
+:FailureModeShape a sh:NodeShape ;
+    sh:targetClass :FailureMode ;
+    sh:property [
+        sh:path :failureType ;
+        sh:in ( "node_crash" "network_partition" "backend_failure" "resource_exhaustion" ) ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :detectionTime ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :recoveryStrategy ;
+        sh:class :RecoveryStrategy ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :severity ;
+        sh:in ( "Low" "Medium" "High" "Critical" ) ;
+        sh:minCount 1 ;
+    ] .
+
+:RecoveryStrategyShape a sh:NodeShape ;
+    sh:targetClass :RecoveryStrategy ;
+    sh:property [
+        sh:path :strategyType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :executionTime ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :successRate ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+    ] .
+
+:MapekLoopShape a sh:NodeShape ;
+    sh:targetClass :MapekLoop ;
+    sh:property [
+        sh:path :hasMonitor ;
+        sh:class :Monitor ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasAnalyzer ;
+        sh:class :Analyzer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasPlanner ;
+        sh:class :Planner ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasExecutor ;
+        sh:class :Executor ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasKnowledgeBase ;
+        sh:class :KnowledgeBase ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :loopInterval ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+    ] .
+
+:ChaosScheduleShape a sh:NodeShape ;
+    sh:targetClass :ChaosSchedule ;
+    sh:property [
+        sh:path :enabled ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :interval ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasScenario ;
+        sh:class :ChaosScenario ;
+        sh:minCount 1 ;
+    ] .
+
+:ChaosScenarioShape a sh:NodeShape ;
+    sh:targetClass :ChaosScenario ;
+    sh:property [
+        sh:path :scenarioType ;
+        sh:in ( "node_kill" "network_jitter" "memory_pressure" "backend_latency" "cpu_stress" ) ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :target ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :duration ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :expectedFailureMode ;
+        sh:class :FailureMode ;
+        sh:minCount 1 ;
+    ] .

@@ -1,0 +1,617 @@
+{
+  "dashboard": {
+    "title": "{{ dashboard_title | default(value="Autonomic Resilience Dashboard") }}",
+    "tags": ["resilience", "autonomic", "mape-k", "chaos-engineering"],
+    "timezone": "browser",
+    "editable": true,
+    "graphTooltip": 1,
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "refresh": "{{ refresh_interval | default(value="10s") }}",
+    "version": 1,
+    "uid": "{{ uid | default(value="autonomic-resilience") }}",
+
+    {# SPARQL-driven panel configuration #}
+    {# Query RDF for metric definitions, SLO thresholds, panel layout #}
+    {% set metrics_query = "
+      PREFIX res: <http://ggen.io/ontology/resilience#>
+      PREFIX metric: <http://ggen.io/ontology/metric#>
+      SELECT ?metric ?name ?threshold ?unit WHERE {
+        ?metric a metric:PerformanceMetric ;
+                metric:name ?name ;
+                metric:threshold ?threshold ;
+                metric:unit ?unit .
+      }
+    " %}
+
+    "panels": [
+      {# Panel 1: Cluster Health Overview (Single Stat) #}
+      {
+        "id": 1,
+        "title": "{{ cluster_health_title | default(value="Cluster Health Overview") }}",
+        "type": "stat",
+        "gridPos": {
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "cluster_availability_percent{job=\"{{ job_name | default(value="erlang-resilience") }}\"}",
+            "legendFormat": "Availability %",
+            "refId": "A"
+          },
+          {
+            "expr": "avg_over_time(recovery_time_seconds{job=\"{{ job_name }}\"}[1h])",
+            "legendFormat": "MTTR (avg 1h)",
+            "refId": "B"
+          },
+          {
+            "expr": "avg_over_time(detection_time_seconds{job=\"{{ job_name }}\"}[1h])",
+            "legendFormat": "MTTD (avg 1h)",
+            "refId": "C"
+          },
+          {
+            "expr": "sum(active_failures{job=\"{{ job_name }}\"}) by (cluster)",
+            "legendFormat": "Active Failures",
+            "refId": "D"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": {{ availability_threshold_warning | default(value="95") }}, "color": "yellow"},
+                {"value": {{ availability_threshold_ok | default(value="99.9") }}, "color": "green"}
+              ]
+            },
+            "unit": "percent",
+            "decimals": 2
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "MTTR (avg 1h)"},
+              "properties": [
+                {"id": "unit", "value": "s"},
+                {"id": "thresholds", "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {"value": 0, "color": "green"},
+                    {"value": 30, "color": "yellow"},
+                    {"value": 60, "color": "red"}
+                  ]
+                }}
+              ]
+            },
+            {
+              "matcher": {"id": "byName", "options": "MTTD (avg 1h)"},
+              "properties": [
+                {"id": "unit", "value": "s"}
+              ]
+            },
+            {
+              "matcher": {"id": "byName", "options": "Active Failures"},
+              "properties": [
+                {"id": "unit", "value": "short"},
+                {"id": "thresholds", "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {"value": 0, "color": "green"},
+                    {"value": 1, "color": "yellow"},
+                    {"value": 5, "color": "red"}
+                  ]
+                }}
+              ]
+            }
+          ]
+        },
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "fields": "",
+            "calcs": ["lastNotNull"]
+          },
+          "orientation": "horizontal",
+          "textMode": "value_and_name",
+          "colorMode": "background",
+          "graphMode": "none"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "{{ prometheus_uid | default(value="prometheus") }}"
+        }
+      },
+
+      {# Panel 2: MAPE-K Cycle Times (Time Series) #}
+      {
+        "id": 2,
+        "title": "{{ mape_k_title | default(value="MAPE-K Cycle Times") }}",
+        "type": "timeseries",
+        "gridPos": {
+          "x": 6,
+          "y": 0,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "rate(mape_k_monitor_duration_seconds_sum{job=\"{{ job_name }}\"}[5m]) / rate(mape_k_monitor_duration_seconds_count{job=\"{{ job_name }}\"}[5m])",
+            "legendFormat": "Monitor Phase",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(mape_k_analyze_duration_seconds_sum{job=\"{{ job_name }}\"}[5m]) / rate(mape_k_analyze_duration_seconds_count{job=\"{{ job_name }}\"}[5m])",
+            "legendFormat": "Analyze Phase",
+            "refId": "B"
+          },
+          {
+            "expr": "rate(mape_k_plan_duration_seconds_sum{job=\"{{ job_name }}\"}[5m]) / rate(mape_k_plan_duration_seconds_count{job=\"{{ job_name }}\"}[5m])",
+            "legendFormat": "Plan Phase",
+            "refId": "C"
+          },
+          {
+            "expr": "rate(mape_k_execute_duration_seconds_sum{job=\"{{ job_name }}\"}[5m]) / rate(mape_k_execute_duration_seconds_count{job=\"{{ job_name }}\"}[5m])",
+            "legendFormat": "Execute Phase",
+            "refId": "D"
+          },
+          {
+            "expr": "rate(mape_k_total_cycle_duration_seconds_sum{job=\"{{ job_name }}\"}[5m]) / rate(mape_k_total_cycle_duration_seconds_count{job=\"{{ job_name }}\"}[5m])",
+            "legendFormat": "Total Cycle Time",
+            "refId": "E"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "barAlignment": 0,
+              "lineWidth": 2,
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "spanNulls": false,
+              "showPoints": "never",
+              "pointSize": 5,
+              "stacking": {
+                "mode": "none",
+                "group": "A"
+              },
+              "axisPlacement": "auto",
+              "axisLabel": "Duration (seconds)",
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "hideFrom": {
+                "tooltip": false,
+                "viz": false,
+                "legend": false
+              }
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "green"}
+              ]
+            }
+          }
+        },
+        "options": {
+          "tooltip": {
+            "mode": "multi",
+            "sort": "none"
+          },
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["mean", "max", "last"]
+          }
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "{{ prometheus_uid }}"
+        }
+      },
+
+      {# Panel 3: Recovery Success Rate (Gauge) #}
+      {
+        "id": 3,
+        "title": "{{ recovery_success_title | default(value="Recovery Success Rate") }}",
+        "type": "gauge",
+        "gridPos": {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(recovery_success_total{job=\"{{ job_name }}\"}[24h])) / sum(rate(recovery_attempts_total{job=\"{{ job_name }}\"}[24h])) * 100",
+            "legendFormat": "Last 24h",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(recovery_success_total{job=\"{{ job_name }}\"}[7d])) / sum(rate(recovery_attempts_total{job=\"{{ job_name }}\"}[7d])) * 100",
+            "legendFormat": "Last 7d",
+            "refId": "B"
+          },
+          {
+            "expr": "sum(recovery_success_total{job=\"{{ job_name }}\"}) / sum(recovery_attempts_total{job=\"{{ job_name }}\"}) * 100",
+            "legendFormat": "All-time",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 80, "color": "yellow"},
+                {"value": 95, "color": "green"}
+              ]
+            },
+            "min": 0,
+            "max": 100
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "fields": "",
+            "calcs": ["lastNotNull"]
+          },
+          "orientation": "auto",
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "{{ prometheus_uid }}"
+        }
+      },
+
+      {# Panel 4: Failure Types Distribution (Pie Chart) #}
+      {
+        "id": 4,
+        "title": "{{ failure_types_title | default(value="Failure Types Distribution") }}",
+        "type": "piechart",
+        "gridPos": {
+          "x": 0,
+          "y": 8,
+          "w": 8,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum by (failure_type) (increase(failure_events_total{job=\"{{ job_name }}\"}[24h]))",
+            "legendFormat": "{{`{{ failure_type }}`}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "hideFrom": {
+                "tooltip": false,
+                "viz": false,
+                "legend": false
+              }
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "node_crash"},
+              "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "red"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "network_partition"},
+              "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "orange"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "backend_failure"},
+              "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "yellow"}}]
+            },
+            {
+              "matcher": {"id": "byName", "options": "resource_exhaustion"},
+              "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "purple"}}]
+            }
+          ]
+        },
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "fields": "",
+            "calcs": ["lastNotNull"]
+          },
+          "pieType": "pie",
+          "tooltip": {
+            "mode": "single"
+          },
+          "legend": {
+            "displayMode": "table",
+            "placement": "right",
+            "values": ["value", "percent"]
+          },
+          "displayLabels": ["name", "percent"]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "{{ prometheus_uid }}"
+        }
+      },
+
+      {# Panel 5: Chaos Events Timeline (Annotations + Graph) #}
+      {
+        "id": 5,
+        "title": "{{ chaos_timeline_title | default(value="Chaos Events Timeline") }}",
+        "type": "timeseries",
+        "gridPos": {
+          "x": 8,
+          "y": 8,
+          "w": 16,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "chaos_injection_events{job=\"{{ job_name }}\"}",
+            "legendFormat": "Chaos Injection: {{`{{ event_type }}`}}",
+            "refId": "A"
+          },
+          {
+            "expr": "recovery_completion_events{job=\"{{ job_name }}\"}",
+            "legendFormat": "Recovery: {{`{{ recovery_type }}`}}",
+            "refId": "B"
+          },
+          {
+            "expr": "cluster_degradation_percent{job=\"{{ job_name }}\"}",
+            "legendFormat": "Degradation Level (%)",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "stepAfter",
+              "barAlignment": 0,
+              "lineWidth": 1,
+              "fillOpacity": 20,
+              "gradientMode": "opacity",
+              "spanNulls": false,
+              "showPoints": "always",
+              "pointSize": 5,
+              "stacking": {
+                "mode": "none",
+                "group": "A"
+              }
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "green"},
+                {"value": 10, "color": "yellow"},
+                {"value": 20, "color": "red"}
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byFrameRefID", "options": "C"},
+              "properties": [
+                {"id": "unit", "value": "percent"},
+                {"id": "custom.fillOpacity", "value": 40},
+                {"id": "custom.lineWidth", "value": 2}
+              ]
+            }
+          ]
+        },
+        "options": {
+          "tooltip": {
+            "mode": "multi",
+            "sort": "none"
+          },
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": ["min", "max", "mean"]
+          }
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "{{ prometheus_uid }}"
+        }
+      },
+
+      {# Panel 6: Knowledge Base Growth (Counter) #}
+      {
+        "id": 6,
+        "title": "{{ knowledge_base_title | default(value="Knowledge Base Growth") }}",
+        "type": "stat",
+        "gridPos": {
+          "x": 0,
+          "y": 16,
+          "w": 8,
+          "h": 6
+        },
+        "targets": [
+          {
+            "expr": "knowledge_base_total_failures{job=\"{{ job_name }}\"}",
+            "legendFormat": "Total Historical Failures",
+            "refId": "A"
+          },
+          {
+            "expr": "knowledge_base_unique_failure_types{job=\"{{ job_name }}\"}",
+            "legendFormat": "Unique Failure Types",
+            "refId": "B"
+          },
+          {
+            "expr": "knowledge_base_recovery_strategies{job=\"{{ job_name }}\"}",
+            "legendFormat": "Recovery Strategies Learned",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "blue"}
+              ]
+            },
+            "decimals": 0
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "fields": "",
+            "calcs": ["lastNotNull"]
+          },
+          "orientation": "horizontal",
+          "textMode": "value_and_name",
+          "colorMode": "value",
+          "graphMode": "area"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "{{ prometheus_uid }}"
+        }
+      },
+
+      {# Panel 7: SLO Compliance (Status Panel) #}
+      {
+        "id": 7,
+        "title": "{{ slo_compliance_title | default(value="SLO Compliance") }}",
+        "type": "stat",
+        "gridPos": {
+          "x": 8,
+          "y": 16,
+          "w": 16,
+          "h": 6
+        },
+        "targets": [
+          {
+            "expr": "(cluster_availability_percent{job=\"{{ job_name }}\"} >= {{ slo_availability | default(value="99.9") }}) * 100",
+            "legendFormat": "Availability SLO ({{ slo_availability }}%)",
+            "refId": "A"
+          },
+          {
+            "expr": "(avg_over_time(recovery_time_seconds{job=\"{{ job_name }}\"}[1h]) <= {{ slo_mttr | default(value="30") }}) * 100",
+            "legendFormat": "MTTR SLO (≤{{ slo_mttr }}s)",
+            "refId": "B"
+          },
+          {
+            "expr": "(max_over_time(cluster_degradation_percent{job=\"{{ job_name }}\"}[1h]) <= {{ slo_max_degradation | default(value="20") }}) * 100",
+            "legendFormat": "Max Degradation SLO (≤{{ slo_max_degradation }}%)",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 1, "color": "green"}
+              ]
+            },
+            "min": 0,
+            "max": 100,
+            "mappings": [
+              {
+                "type": "value",
+                "value": "0",
+                "text": "VIOLATED"
+              },
+              {
+                "type": "value",
+                "value": "100",
+                "text": "COMPLIANT"
+              }
+            ]
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "fields": "",
+            "calcs": ["lastNotNull"]
+          },
+          "orientation": "horizontal",
+          "textMode": "name",
+          "colorMode": "background",
+          "graphMode": "none"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "{{ prometheus_uid }}"
+        }
+      }
+    ],
+
+    {# SPARQL-driven annotations for chaos events #}
+    "annotations": {
+      "list": [
+        {
+          "name": "Chaos Injections",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "{{ prometheus_uid }}"
+          },
+          "enable": true,
+          "expr": "changes(chaos_injection_timestamp{job=\"{{ job_name }}\"}[5m]) > 0",
+          "tagKeys": "event_type,severity",
+          "textFormat": "Chaos: {{`{{ event_type }}`}}",
+          "titleFormat": "Chaos Event",
+          "iconColor": "red"
+        },
+        {
+          "name": "Recoveries",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "{{ prometheus_uid }}"
+          },
+          "enable": true,
+          "expr": "changes(recovery_completion_timestamp{job=\"{{ job_name }}\"}[5m]) > 0",
+          "tagKeys": "recovery_type,duration",
+          "textFormat": "Recovery: {{`{{ recovery_type }}`}} ({{`{{ duration }}`}}s)",
+          "titleFormat": "Recovery Completed",
+          "iconColor": "green"
+        }
+      ]
+    },
+
+    "templating": {
+      "list": [
+        {
+          "name": "cluster",
+          "type": "query",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "{{ prometheus_uid }}"
+          },
+          "query": "label_values(cluster_availability_percent, cluster)",
+          "refresh": 1,
+          "multi": false,
+          "includeAll": false
+        },
+        {
+          "name": "job_name",
+          "type": "constant",
+          "query": "{{ job_name | default(value="erlang-resilience") }}",
+          "hide": 0
+        }
+      ]
+    }
+  }
+}

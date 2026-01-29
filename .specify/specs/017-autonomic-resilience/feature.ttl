@@ -1,0 +1,318 @@
+@prefix : <http://ggen.io/ontology/specs/017-autonomic-resilience#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ggen: <http://ggen.io/ontology/core#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+# Feature Definition
+:AutonomicResilienceFeature a ggen:Feature ;
+    dc:title "Autonomic Resilience Infrastructure" ;
+    dc:description "Self-managing resilience system with MAPE-K autonomic loops, continuous chaos engineering, and adaptive recovery strategies for distributed Erlang systems" ;
+    ggen:version "1.0.0" ;
+    ggen:priority "P1" ;
+    ggen:status "Planned" ;
+    ggen:hasUserStory :US001, :US002, :US003, :US004, :US005 ;
+    dc:created "2026-01-29"^^xsd:date .
+
+# User Story 1: MAPE-K Autonomic Loop
+:US001 a ggen:UserStory ;
+    dc:title "MAPE-K Self-Management Loop" ;
+    dc:description """
+As a reliability engineer,
+I want a MAPE-K autonomic loop that monitors system health and adapts automatically
+So that the system self-heals without manual intervention
+""" ;
+    ggen:priority "P1" ;
+    ggen:storyPoints 13 ;
+    ggen:hasAcceptanceCriteria :AC001, :AC002, :AC003 ;
+    ggen:hasScenario :SC001, :SC002, :SC003 .
+
+:AC001 a ggen:AcceptanceCriteria ;
+    dc:description "Monitor component tracks availability, latency, error rates with <5s polling interval" ;
+    ggen:testable true .
+
+:AC002 a ggen:AcceptanceCriteria ;
+    dc:description "Analyze component detects anomalies using statistical models and trend analysis" ;
+    ggen:testable true .
+
+:AC003 a ggen:AcceptanceCriteria ;
+    dc:description "Plan component selects recovery strategy based on failure mode and SLO requirements" ;
+    ggen:testable true .
+
+:SC001 a ggen:Scenario ;
+    dc:title "Node Crash Detection and Recovery" ;
+    ggen:given "A 10-node Erlang cluster with MAPE-K loop active" ;
+    ggen:when "One node crashes unexpectedly" ;
+    ggen:then "Monitor detects crash within 5s, Analyze identifies failure mode, Plan selects supervisor restart, Execute triggers recovery, system returns to full capacity within 30s" ;
+    ggen:priority "P1" .
+
+:SC002 a ggen:Scenario ;
+    dc:title "Network Partition Handling" ;
+    ggen:given "Distributed job queue with quorum-based coordination" ;
+    ggen:when "Network partition splits cluster into two segments" ;
+    ggen:then "Monitor detects partition within 15s, Analyze determines quorum status, Plan initiates reconfiguration, Execute updates cluster topology, majority partition continues serving requests" ;
+    ggen:priority "P1" .
+
+:SC003 a ggen:Scenario ;
+    dc:title "Gradual Performance Degradation" ;
+    ggen:given "System operating under normal load" ;
+    ggen:when "Response times gradually increase from 50ms to 200ms over 10 minutes" ;
+    ggen:then "Monitor detects trend, Analyze identifies resource contention, Plan recommends load shedding, Execute activates circuit breaker for non-critical requests" ;
+    ggen:priority "P2" .
+
+# User Story 2: Resilience Policy Engine
+:US002 a ggen:UserStory ;
+    dc:title "Declarative Resilience Policies" ;
+    dc:description """
+As a system architect,
+I want to declare resilience policies in RDF ontologies
+So that recovery strategies are configuration-driven and version-controlled
+""" ;
+    ggen:priority "P1" ;
+    ggen:storyPoints 8 ;
+    ggen:hasAcceptanceCriteria :AC004, :AC005, :AC006 ;
+    ggen:hasScenario :SC004, :SC005, :SC006 .
+
+:AC004 a ggen:AcceptanceCriteria ;
+    dc:description "Policies specify SLO targets (availability, MTTR, max degradation)" ;
+    ggen:testable true .
+
+:AC005 a ggen:AcceptanceCriteria ;
+    dc:description "Failure modes map to recovery strategies (supervisor restart, quorum reconfig, backend failover, load shedding)" ;
+    ggen:testable true .
+
+:AC006 a ggen:AcceptanceCriteria ;
+    dc:description "Policies validate against SHACL shapes before deployment" ;
+    ggen:testable true .
+
+:SC004 a ggen:Scenario ;
+    dc:title "Policy Validation" ;
+    ggen:given "A resilience policy TTL file with SLO targets and failure modes" ;
+    ggen:when "I run ggen validate policy.ttl" ;
+    ggen:then "SHACL validation passes, policy is loaded into knowledge base, recovery strategies are activated" ;
+    ggen:priority "P1" .
+
+:SC005 a ggen:Scenario ;
+    dc:title "Multi-Failure Mode Handling" ;
+    ggen:given "Policy defines recovery for node crash, network partition, backend failure" ;
+    ggen:when "Backend database becomes unavailable" ;
+    ggen:then "Policy engine selects backend failover strategy, switches to replica, verifies recovery within 30s" ;
+    ggen:priority "P1" .
+
+:SC006 a ggen:Scenario ;
+    dc:title "SLO Violation Detection" ;
+    ggen:given "Policy specifies 99.9% availability SLO" ;
+    ggen:when "Availability drops to 98.5% over 5-minute window" ;
+    ggen:then "Monitor detects SLO violation, Analyze calculates error budget consumption, Plan escalates to aggressive recovery (multi-node restart), alert sent to operations team" ;
+    ggen:priority "P2" .
+
+# User Story 3: Knowledge Base and Learning
+:US003 a ggen:UserStory ;
+    dc:title "Knowledge Base for Failure History" ;
+    dc:description """
+As a resilience system,
+I want a knowledge base that learns from past failures and recovery attempts
+So that recovery strategies improve over time
+""" ;
+    ggen:priority "P1" ;
+    ggen:storyPoints 8 ;
+    ggen:hasAcceptanceCriteria :AC007, :AC008, :AC009 ;
+    ggen:hasScenario :SC007, :SC008, :SC009 .
+
+:AC007 a ggen:AcceptanceCriteria ;
+    dc:description "Knowledge base stores failure events with timestamp, type, recovery strategy, success/failure, MTTR" ;
+    ggen:testable true .
+
+:AC008 a ggen:AcceptanceCriteria ;
+    dc:description "Analyze component queries knowledge base for similar past failures" ;
+    ggen:testable true .
+
+:AC009 a ggen:AcceptanceCriteria ;
+    dc:description "Plan component prioritizes strategies with highest success rate for given failure mode" ;
+    ggen:testable true .
+
+:SC007 a ggen:Scenario ;
+    dc:title "Failure Pattern Recognition" ;
+    ggen:given "Knowledge base with 100+ past failures" ;
+    ggen:when "Node crash occurs" ;
+    ggen:then "Analyze queries knowledge base, finds 15 similar crashes, identifies supervisor restart succeeded 14/15 times with avg MTTR 25s, Plan selects supervisor restart with 93% confidence" ;
+    ggen:priority "P1" .
+
+:SC008 a ggen:Scenario ;
+    dc:title "Strategy Adaptation" ;
+    ggen:given "Network partition recovery historically failed with quorum reconfiguration 3/5 times" ;
+    ggen:when "Network partition detected" ;
+    ggen:then "Analyze detects low success rate, Plan selects alternative strategy (full cluster restart), Execute triggers restart, knowledge base updated with outcome" ;
+    ggen:priority "P2" .
+
+:SC009 a ggen:Scenario ;
+    dc:title "MTTR Prediction" ;
+    ggen:given "Knowledge base tracks MTTR for each failure mode" ;
+    ggen:when "Backend failure detected" ;
+    ggen:then "Analyze calculates predicted MTTR based on historical data (30s ± 10s), Plan factors prediction into strategy selection, Execute monitors actual MTTR, updates statistics" ;
+    ggen:priority "P3" .
+
+# User Story 4: Continuous Chaos Engineering
+:US004 a ggen:UserStory ;
+    dc:title "Continuous Chaos Orchestration" ;
+    dc:description """
+As a resilience engineer,
+I want continuous chaos experiments running in production
+So that I validate recovery strategies under real-world conditions
+""" ;
+    ggen:priority "P1" ;
+    ggen:storyPoints 13 ;
+    ggen:hasAcceptanceCriteria :AC010, :AC011, :AC012 ;
+    ggen:hasScenario :SC010, :SC011, :SC012 .
+
+:AC010 a ggen:AcceptanceCriteria ;
+    dc:description "Chaos scheduler injects failures at configurable intervals (default 60s)" ;
+    ggen:testable true .
+
+:AC011 a ggen:AcceptanceCriteria ;
+    dc:description "Scenarios include random node kill, network jitter, memory pressure, backend failure" ;
+    ggen:testable true .
+
+:AC012 a ggen:AcceptanceCriteria ;
+    dc:description "Recovery verification ensures system meets SLO targets after chaos injection" ;
+    ggen:testable true .
+
+:SC010 a ggen:Scenario ;
+    dc:title "Random Node Kill Chaos" ;
+    ggen:given "10-node Erlang cluster with continuous chaos enabled (60s interval)" ;
+    ggen:when "Chaos scheduler randomly kills one node" ;
+    ggen:then "Monitor detects failure within 5s, recovery completes within 30s, availability remains above 99.9%, no data loss, chaos event logged to knowledge base" ;
+    ggen:priority "P1" .
+
+:SC011 a ggen:Scenario ;
+    dc:title "Network Jitter Resilience" ;
+    ggen:given "Distributed job queue handling 1000 jobs/sec" ;
+    ggen:when "Chaos injects 100ms network jitter for 30s" ;
+    ggen:then "Job processing continues with increased latency (p99 < 500ms), no job failures, throughput degradation < 20%, system recovers to baseline performance after jitter stops" ;
+    ggen:priority "P1" .
+
+:SC012 a ggen:Scenario ;
+    dc:title "Memory Pressure Handling" ;
+    ggen:given "Worker nodes with 512MB heap" ;
+    ggen:when "Chaos limits available memory to 256MB for 60s" ;
+    ggen:then "Nodes activate backpressure, reject new jobs gracefully, GC frequency increases, no OOM crashes, recovery to normal throughput within 15s after pressure removed" ;
+    ggen:priority "P2" .
+
+# User Story 5: Erlang Integration
+:US005 a ggen:UserStory ;
+    dc:title "Erlang Distributed System Integration" ;
+    dc:description """
+As a distributed systems engineer,
+I want autonomic resilience integrated with Erlang supervisors and clustering
+So that BEAM-native fault tolerance is enhanced with adaptive recovery
+""" ;
+    ggen:priority "P1" ;
+    ggen:storyPoints 13 ;
+    ggen:hasAcceptanceCriteria :AC013, :AC014, :AC015 ;
+    ggen:hasScenario :SC013, :SC014, :SC015 .
+
+:AC013 a ggen:AcceptanceCriteria ;
+    dc:description "Monitor observes Erlang node_up/node_down events and supervisor restarts" ;
+    ggen:testable true .
+
+:AC014 a ggen:AcceptanceCriteria ;
+    dc:description "Execute component triggers Erlang supervisor restarts via port commands or NIFs" ;
+    ggen:testable true .
+
+:AC015 a ggen:AcceptanceCriteria ;
+    dc:description "Integration with Erlang jobs example (10-agent parallel queue)" ;
+    ggen:testable true .
+
+:SC013 a ggen:Scenario ;
+    dc:title "Supervisor Integration" ;
+    ggen:given "Erlang supervisor tree with :one_for_one strategy" ;
+    ggen:when "Worker process crashes" ;
+    ggen:then "Erlang supervisor restarts worker, Monitor detects restart event, Analyze logs failure to knowledge base, Plan evaluates if escalation needed (e.g., restart entire supervisor if crash frequency > 5/min)" ;
+    ggen:priority "P1" .
+
+:SC014 a ggen:Scenario ;
+    dc:title "Cluster Membership Changes" ;
+    ggen:given "10-node Erlang cluster with libcluster for discovery" ;
+    ggen:when "Node joins or leaves cluster" ;
+    ggen:then "Monitor detects membership change, Analyze determines if change was planned or failure, Plan triggers rebalancing if needed, Execute redistributes work across remaining nodes" ;
+    ggen:priority "P1" .
+
+:SC015 a ggen:Scenario ;
+    dc:title "Job Queue Resilience" ;
+    ggen:given "Distributed job queue from 015-erlang-jobs-example with 10 agents" ;
+    ggen:when "Agent node crashes mid-job" ;
+    ggen:then "Monitor detects crash, Analyze identifies orphaned jobs, Plan selects job requeue strategy, Execute reassigns jobs to healthy agents, job completion rate remains > 95%" ;
+    ggen:priority "P1" .
+
+# SHACL Validation Shapes
+:FeatureShape a sh:NodeShape ;
+    sh:targetClass ggen:Feature ;
+    sh:property [
+        sh:path dc:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:priority ;
+        sh:in ( "P1" "P2" "P3" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:hasUserStory ;
+        sh:class ggen:UserStory ;
+        sh:minCount 1 ;
+    ] .
+
+:UserStoryShape a sh:NodeShape ;
+    sh:targetClass ggen:UserStory ;
+    sh:property [
+        sh:path dc:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:storyPoints ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 21 ;
+    ] ;
+    sh:property [
+        sh:path ggen:hasAcceptanceCriteria ;
+        sh:class ggen:AcceptanceCriteria ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:hasScenario ;
+        sh:class ggen:Scenario ;
+        sh:minCount 1 ;
+    ] .
+
+:ScenarioShape a sh:NodeShape ;
+    sh:targetClass ggen:Scenario ;
+    sh:property [
+        sh:path ggen:given ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:when ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:then ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:priority ;
+        sh:in ( "P1" "P2" "P3" ) ;
+        sh:minCount 1 ;
+    ] .
