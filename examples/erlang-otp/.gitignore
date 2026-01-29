@@ -1,0 +1,43 @@
+# Rebar3
+.rebar3/
+_build/
+rebar3.crashdump
+rebar.lock
+
+# Erlang
+*.beam
+*.plt
+*.o
+*.so
+*.dll
+*.d
+.eunit/
+erl_crash.dump
+deps/
+
+# DETS files (test artifacts)
+*.dets
+/tmp/
+
+# Logs
+log/
+*.log
+
+# Release artifacts
+_rel/
+rel/
+
+# Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Coverage
+.cover/
+cover/
+
+# Dialyzer
+dialyzer_warnings.txt

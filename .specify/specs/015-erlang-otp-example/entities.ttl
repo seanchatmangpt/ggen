@@ -1,0 +1,485 @@
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix : <http://github.com/github/spec-kit/examples/erlang-otp#> .
+
+# ============================================================================
+# ENTITY: OTPApplication
+# ============================================================================
+
+:OTPApplication a sk:Entity ;
+    sk:name "OTPApplication" ;
+    sk:description "Erlang/OTP application with supervision tree and lifecycle callbacks" ;
+    sk:hasField :app_name, :vsn, :description, :modules, :registered, :applications, :mod, :env .
+
+:app_name a sk:Field ;
+    sk:name "app_name" ;
+    sk:type "atom" ;
+    sk:required true ;
+    sk:pattern "^[a-z][a-z0-9_]*$" ;
+    sk:description "Application name (lowercase atom, e.g., telecom_router)" .
+
+:vsn a sk:Field ;
+    sk:name "vsn" ;
+    sk:type "string" ;
+    sk:required true ;
+    sk:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+$" ;
+    sk:description "Semantic version (e.g., '1.0.0')" .
+
+:description a sk:Field ;
+    sk:name "description" ;
+    sk:type "string" ;
+    sk:required true ;
+    sk:description "Human-readable application description" .
+
+:modules a sk:Field ;
+    sk:name "modules" ;
+    sk:type "list(atom)" ;
+    sk:required true ;
+    sk:description "List of all modules in application (auto-discovered by rebar3)" .
+
+:registered a sk:Field ;
+    sk:name "registered" ;
+    sk:type "list(atom)" ;
+    sk:required false ;
+    sk:description "Globally registered process names (e.g., [call_router_sup, call_router])" .
+
+:applications a sk:Field ;
+    sk:name "applications" ;
+    sk:type "list(atom)" ;
+    sk:required true ;
+    sk:description "Dependent applications (minimum: [kernel, stdlib])" .
+
+:mod a sk:Field ;
+    sk:name "mod" ;
+    sk:type "{atom, list}" ;
+    sk:required true ;
+    sk:description "Application callback module (e.g., {telecom_router_app, []})" .
+
+:env a sk:Field ;
+    sk:name "env" ;
+    sk:type "list(tuple)" ;
+    sk:required false ;
+    sk:description "Application environment variables (e.g., [{port, 8080}])" .
+
+# ============================================================================
+# ENTITY: Supervisor
+# ============================================================================
+
+:Supervisor a sk:Entity ;
+    sk:name "Supervisor" ;
+    sk:description "OTP supervisor managing worker processes with restart strategies" ;
+    sk:hasField :sup_name, :strategy, :intensity, :period, :childspecs .
+
+:sup_name a sk:Field ;
+    sk:name "sup_name" ;
+    sk:type "atom" ;
+    sk:required true ;
+    sk:description "Supervisor process name (e.g., telecom_router_sup)" .
+
+:strategy a sk:Field ;
+    sk:name "strategy" ;
+    sk:type "SupervisionStrategy" ;
+    sk:required true ;
+    sk:description "Restart strategy: one_for_one | one_for_all | rest_for_one | simple_one_for_one" .
+
+:intensity a sk:Field ;
+    sk:name "intensity" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "5" ;
+    sk:description "Max restarts allowed within period (default: 5)" .
+
+:period a sk:Field ;
+    sk:name "period" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "60" ;
+    sk:description "Time window for intensity limit in seconds (default: 60)" .
+
+:childspecs a sk:Field ;
+    sk:name "childspecs" ;
+    sk:type "list(ChildSpec)" ;
+    sk:required true ;
+    sk:description "List of child specifications (workers or supervisors)" .
+
+# ============================================================================
+# VALUE OBJECT: SupervisionStrategy
+# ============================================================================
+
+:SupervisionStrategy a sk:ValueObject ;
+    sk:name "SupervisionStrategy" ;
+    sk:description "Supervisor restart strategy enum" ;
+    sk:variants :one_for_one, :one_for_all, :rest_for_one, :simple_one_for_one .
+
+:one_for_one a sk:Variant ;
+    sk:name "one_for_one" ;
+    sk:description "Restart only failed child, others unaffected" .
+
+:one_for_all a sk:Variant ;
+    sk:name "one_for_all" ;
+    sk:description "Restart all children if any child fails" .
+
+:rest_for_one a sk:Variant ;
+    sk:name "rest_for_one" ;
+    sk:description "Restart failed child and all children started after it" .
+
+:simple_one_for_one a sk:Variant ;
+    sk:name "simple_one_for_one" ;
+    sk:description "Simplified supervisor for dynamic child processes (same type)" .
+
+# ============================================================================
+# VALUE OBJECT: ChildSpec
+# ============================================================================
+
+:ChildSpec a sk:ValueObject ;
+    sk:name "ChildSpec" ;
+    sk:description "Child specification for supervisor" ;
+    sk:hasField :id, :start, :restart, :shutdown, :type, :modules .
+
+:child_id a sk:Field ;
+    sk:name "id" ;
+    sk:type "atom" ;
+    sk:required true ;
+    sk:description "Unique child identifier (e.g., call_router_worker)" .
+
+:start a sk:Field ;
+    sk:name "start" ;
+    sk:type "{Module, Function, Args}" ;
+    sk:required true ;
+    sk:description "Start function (e.g., {gen_server, start_link, [call_router_server, [], []]})" .
+
+:restart a sk:Field ;
+    sk:name "restart" ;
+    sk:type "permanent | temporary | transient" ;
+    sk:required true ;
+    sk:default "permanent" ;
+    sk:description "Restart policy: permanent (always restart), temporary (never restart), transient (restart if abnormal exit)" .
+
+:shutdown a sk:Field ;
+    sk:name "shutdown" ;
+    sk:type "integer | infinity | brutal_kill" ;
+    sk:required true ;
+    sk:default "5000" ;
+    sk:description "Shutdown timeout in milliseconds (5000) or brutal_kill for immediate termination" .
+
+:child_type a sk:Field ;
+    sk:name "type" ;
+    sk:type "worker | supervisor" ;
+    sk:required true ;
+    sk:description "Process type: worker (leaf process) or supervisor (nested supervision)" .
+
+:child_modules a sk:Field ;
+    sk:name "modules" ;
+    sk:type "list(atom) | dynamic" ;
+    sk:required true ;
+    sk:description "Modules implementing child behavior (or 'dynamic' for gen_event)" .
+
+# ============================================================================
+# ENTITY: GenServer
+# ============================================================================
+
+:GenServer a sk:Entity ;
+    sk:name "GenServer" ;
+    sk:description "Generic server implementing OTP gen_server behavior" ;
+    sk:hasField :server_name, :module, :init_args, :callbacks, :state_type .
+
+:server_name a sk:Field ;
+    sk:name "server_name" ;
+    sk:type "atom | {local, atom} | {global, term} | {via, Module, term}" ;
+    sk:required true ;
+    sk:description "Process registration name (local, global, or via registry)" .
+
+:module a sk:Field ;
+    sk:name "module" ;
+    sk:type "atom" ;
+    sk:required true ;
+    sk:description "Callback module implementing gen_server behavior" .
+
+:init_args a sk:Field ;
+    sk:name "init_args" ;
+    sk:type "list" ;
+    sk:required false ;
+    sk:description "Arguments passed to init/1 callback" .
+
+:callbacks a sk:Field ;
+    sk:name "callbacks" ;
+    sk:type "list(atom)" ;
+    sk:required true ;
+    sk:description "Required callbacks: [init, handle_call, handle_cast, handle_info, terminate, code_change]" .
+
+:state_type a sk:Field ;
+    sk:name "state_type" ;
+    sk:type "term" ;
+    sk:required true ;
+    sk:description "Internal state type (e.g., map, record, tuple)" .
+
+# ============================================================================
+# ENTITY: GenStatem
+# ============================================================================
+
+:GenStatem a sk:Entity ;
+    sk:name "GenStatem" ;
+    sk:description "Generic state machine implementing OTP gen_statem behavior" ;
+    sk:hasField :statem_name, :callback_mode, :states, :events, :transitions .
+
+:statem_name a sk:Field ;
+    sk:name "statem_name" ;
+    sk:type "atom" ;
+    sk:required true ;
+    sk:description "State machine process name" .
+
+:callback_mode a sk:Field ;
+    sk:name "callback_mode" ;
+    sk:type "state_functions | handle_event_function" ;
+    sk:required true ;
+    sk:description "Callback mode: state_functions (one function per state) or handle_event_function (single handler)" .
+
+:states a sk:Field ;
+    sk:name "states" ;
+    sk:type "list(atom)" ;
+    sk:required true ;
+    sk:description "Valid state names (e.g., [idle, active, suspended])" .
+
+:events a sk:Field ;
+    sk:name "events" ;
+    sk:type "list(atom)" ;
+    sk:required true ;
+    sk:description "Event types (e.g., [start, stop, pause, resume])" .
+
+:transitions a sk:Field ;
+    sk:name "transitions" ;
+    sk:type "list({State, Event, NextState})" ;
+    sk:required true ;
+    sk:description "Valid state transitions (e.g., [{idle, start, active}, {active, pause, suspended}])" .
+
+# ============================================================================
+# COMPONENT: TelecomCallRouter
+# ============================================================================
+
+:TelecomCallRouter a sk:Component ;
+    sk:name "TelecomCallRouter" ;
+    sk:description "Call routing service with load balancing" ;
+    sk:hasField :routing_table, :load_balancer, :failover_nodes .
+
+:routing_table a sk:Field ;
+    sk:name "routing_table" ;
+    sk:type "map(PhoneNumber, Endpoint)" ;
+    sk:required true ;
+    sk:description "Mapping from phone numbers to SIP endpoints" .
+
+:load_balancer a sk:Field ;
+    sk:name "load_balancer" ;
+    sk:type "round_robin | least_connections | weighted" ;
+    sk:required true ;
+    sk:description "Load balancing algorithm for call distribution" .
+
+:failover_nodes a sk:Field ;
+    sk:name "failover_nodes" ;
+    sk:type "list(node)" ;
+    sk:required false ;
+    sk:description "Backup Erlang nodes for failover (e.g., [router2@host, router3@host])" .
+
+# ============================================================================
+# COMPONENT: BillingEngine
+# ============================================================================
+
+:BillingEngine a sk:Component ;
+    sk:name "BillingEngine" ;
+    sk:description "Real-time billing with rate calculation" ;
+    sk:hasField :rate_table, :billing_interval, :currency .
+
+:rate_table a sk:Field ;
+    sk:name "rate_table" ;
+    sk:type "map(Destination, Rate)" ;
+    sk:required true ;
+    sk:description "Mapping from destination codes to per-minute rates" .
+
+:billing_interval a sk:Field ;
+    sk:name "billing_interval" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "60" ;
+    sk:description "Billing interval in seconds (e.g., 60 for per-minute)" .
+
+:currency a sk:Field ;
+    sk:name "currency" ;
+    sk:type "atom" ;
+    sk:required true ;
+    sk:default "usd" ;
+    sk:description "Currency code (e.g., usd, eur, gbp)" .
+
+# ============================================================================
+# COMPONENT: MessageQueue
+# ============================================================================
+
+:MessageQueue a sk:Component ;
+    sk:name "MessageQueue" ;
+    sk:description "High-throughput message queue with backpressure" ;
+    sk:hasField :max_queue_size, :overflow_strategy, :persistence .
+
+:max_queue_size a sk:Field ;
+    sk:name "max_queue_size" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "10000" ;
+    sk:description "Maximum messages in queue before backpressure" .
+
+:overflow_strategy a sk:Field ;
+    sk:name "overflow_strategy" ;
+    sk:type "drop_oldest | drop_newest | block" ;
+    sk:required true ;
+    sk:default "drop_oldest" ;
+    sk:description "Behavior when queue full: drop_oldest (FIFO eviction), drop_newest (reject new), block (wait)" .
+
+:persistence a sk:Field ;
+    sk:name "persistence" ;
+    sk:type "boolean" ;
+    sk:required true ;
+    sk:default "false" ;
+    sk:description "Whether to persist messages to disk (Mnesia or DETS)" .
+
+# ============================================================================
+# BENCHMARK: ThroughputBenchmark
+# ============================================================================
+
+:ThroughputBenchmark a sk:Benchmark ;
+    sk:name "ThroughputBenchmark" ;
+    sk:description "Measure operations per second under load" ;
+    sk:hasField :operation, :concurrency, :duration, :target_ops_per_sec .
+
+:operation a sk:Field ;
+    sk:name "operation" ;
+    sk:type "atom" ;
+    sk:required true ;
+    sk:description "Operation to benchmark (e.g., gen_server:call, gen_server:cast)" .
+
+:concurrency a sk:Field ;
+    sk:name "concurrency" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "1000" ;
+    sk:description "Number of concurrent processes generating load" .
+
+:duration a sk:Field ;
+    sk:name "duration" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "60" ;
+    sk:description "Benchmark duration in seconds" .
+
+:target_ops_per_sec a sk:Field ;
+    sk:name "target_ops_per_sec" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "100000" ;
+    sk:description "Target throughput in operations per second" .
+
+# ============================================================================
+# BENCHMARK: LatencyBenchmark
+# ============================================================================
+
+:LatencyBenchmark a sk:Benchmark ;
+    sk:name "LatencyBenchmark" ;
+    sk:description "Measure request latency percentiles" ;
+    sk:hasField :operation, :sample_size, :p50_target, :p99_target .
+
+:sample_size a sk:Field ;
+    sk:name "sample_size" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "10000" ;
+    sk:description "Number of requests to sample" .
+
+:p50_target a sk:Field ;
+    sk:name "p50_target" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "5" ;
+    sk:description "Target p50 latency in milliseconds" .
+
+:p99_target a sk:Field ;
+    sk:name "p99_target" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "10" ;
+    sk:description "Target p99 latency in milliseconds" .
+
+# ============================================================================
+# STRESS TEST: ProcessCrashScenario
+# ============================================================================
+
+:ProcessCrashScenario a sk:StressTest ;
+    sk:name "ProcessCrashScenario" ;
+    sk:description "Simulate random worker crashes to test supervision recovery" ;
+    sk:hasField :crash_frequency, :duration, :max_downtime .
+
+:crash_frequency a sk:Field ;
+    sk:name "crash_frequency" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "100" ;
+    sk:description "Crash interval in milliseconds (e.g., 100ms)" .
+
+:max_downtime a sk:Field ;
+    sk:name "max_downtime" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "1000" ;
+    sk:description "Maximum acceptable downtime in milliseconds per crash" .
+
+# ============================================================================
+# STRESS TEST: NetworkPartitionScenario
+# ============================================================================
+
+:NetworkPartitionScenario a sk:StressTest ;
+    sk:name "NetworkPartitionScenario" ;
+    sk:description "Simulate network partition between Erlang nodes" ;
+    sk:hasField :partition_duration, :affected_nodes, :recovery_time .
+
+:partition_duration a sk:Field ;
+    sk:name "partition_duration" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "30000" ;
+    sk:description "Partition duration in milliseconds (e.g., 30 seconds)" .
+
+:affected_nodes a sk:Field ;
+    sk:name "affected_nodes" ;
+    sk:type "list(node)" ;
+    sk:required true ;
+    sk:description "Nodes to partition (e.g., [node2@host])" .
+
+:recovery_time a sk:Field ;
+    sk:name "recovery_time" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "5000" ;
+    sk:description "Maximum time to recover after reconnection in milliseconds" .
+
+# ============================================================================
+# STRESS TEST: MessageFloodScenario
+# ============================================================================
+
+:MessageFloodScenario a sk:StressTest ;
+    sk:name "MessageFloodScenario" ;
+    sk:description "Flood gen_server with messages to test backpressure" ;
+    sk:hasField :message_count, :burst_duration, :expected_behavior .
+
+:message_count a sk:Field ;
+    sk:name "message_count" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "100000" ;
+    sk:description "Number of messages to send in burst" .
+
+:burst_duration a sk:Field ;
+    sk:name "burst_duration" ;
+    sk:type "integer" ;
+    sk:required true ;
+    sk:default "1000" ;
+    sk:description "Burst duration in milliseconds" .
+
+:expected_behavior a sk:Field ;
+    sk:name "expected_behavior" ;
+    sk:type "survive | apply_backpressure | drop_messages" ;
+    sk:required true ;
+    sk:description "Expected system behavior: survive (no crash), apply_backpressure, drop_messages" .

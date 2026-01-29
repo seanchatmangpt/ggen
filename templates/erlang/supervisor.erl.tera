@@ -1,0 +1,282 @@
+%%%-----------------------------------------------------------------------------
+%%% @doc {{ module_description | default(value="Supervisor for managing child processes") }}
+%%%
+%%% This module implements the supervisor behavior for {{ module_name }}.
+%%% Supervises child processes with configurable restart strategies.
+%%% Generated from RDF ontology via ggen.
+%%%
+%%% @sparql_context {{ sparql_context | default(value="ggen:Supervisor") }}
+%%% @end
+%%%-----------------------------------------------------------------------------
+-module({{ module_name }}).
+-behaviour(supervisor).
+
+%% API exports
+-export([start_link/0{% if dynamic_children | default(value=false) %}, start_child/1, stop_child/1{% endif %}]).
+
+%% Supervisor callbacks
+-export([init/1]).
+
+%% Telemetry integration
+{% if enable_telemetry | default(value=true) %}
+-export([telemetry_event/2, telemetry_event/3]).
+{% endif %}
+
+%%%=============================================================================
+%%% Macros and Definitions
+%%%=============================================================================
+
+-define(SERVER, ?MODULE).
+
+%% Supervision strategies
+-define(ONE_FOR_ONE, one_for_one).
+-define(ONE_FOR_ALL, one_for_all).
+-define(REST_FOR_ONE, rest_for_one).
+-define(SIMPLE_ONE_FOR_ONE, simple_one_for_one).
+
+%%%=============================================================================
+%%% Type Definitions
+%%%=============================================================================
+
+-type child_id() :: term().
+-type start_link_result() :: {ok, pid()} | ignore | {error, term()}.
+-type child_spec() :: supervisor:child_spec().
+
+%%%=============================================================================
+%%% API Functions
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Starts the supervisor.
+%%
+%% @sparql_binding ggen:startLink
+%% @end
+%%------------------------------------------------------------------------------
+-spec start_link() -> start_link_result().
+start_link() ->
+    supervisor:start_link({local, ?SERVER}, ?MODULE, []).
+
+{% if dynamic_children | default(value=false) %}
+%%------------------------------------------------------------------------------
+%% @doc Dynamically start a child process.
+%%
+%% @sparql_binding ggen:startChild
+%% @end
+%%------------------------------------------------------------------------------
+-spec start_child(term()) -> supervisor:startchild_ret().
+start_child(Args) ->
+    ChildSpec = make_child_spec(Args),
+    case supervisor:start_child(?SERVER, ChildSpec) of
+        {ok, Child} = Result ->
+            telemetry_event(child_started, #{child => Child, args => Args}),
+            Result;
+        {ok, Child, _Info} = Result ->
+            telemetry_event(child_started, #{child => Child, args => Args}),
+            Result;
+        {error, Reason} = Error ->
+            telemetry_event(child_start_failed, #{reason => Reason, args => Args}),
+            Error
+    end.
+
+%%------------------------------------------------------------------------------
+%% @doc Stop a child process.
+%%
+%% @sparql_binding ggen:stopChild
+%% @end
+%%------------------------------------------------------------------------------
+-spec stop_child(child_id()) -> ok | {error, term()}.
+stop_child(ChildId) ->
+    case supervisor:terminate_child(?SERVER, ChildId) of
+        ok ->
+            supervisor:delete_child(?SERVER, ChildId),
+            telemetry_event(child_stopped, #{child_id => ChildId}),
+            ok;
+        {error, Reason} = Error ->
+            telemetry_event(child_stop_failed, #{child_id => ChildId, reason => Reason}),
+            Error
+    end.
+{% endif %}
+
+%%%=============================================================================
+%%% Supervisor Callbacks
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Initializes the supervisor with child specifications.
+%%
+%% Configures the supervision strategy and child processes.
+%%
+%% Strategy options:
+%% - one_for_one: If one child dies, restart only that child
+%% - one_for_all: If one child dies, restart all children
+%% - rest_for_one: If one child dies, restart it and all started after it
+%% - simple_one_for_one: Simplified one_for_one for dynamic children
+%%
+%% @sparql_binding ggen:init
+%% @end
+%%------------------------------------------------------------------------------
+-spec init(Args :: term()) ->
+    {ok, {supervisor:sup_flags(), [child_spec()]}} | ignore.
+init({{ init_args | default(value="[]") }}) ->
+    %% Supervision flags
+    SupFlags = #{
+        strategy => {{ supervision_strategy | default(value="one_for_one") }},
+        intensity => {{ max_restarts | default(value=10) }},
+        period => {{ time_window | default(value=60) }}
+    },
+
+    %% Child specifications
+    ChildSpecs = [
+        {% if child_specs %}
+        {{ child_specs | safe }}
+        {% else %}
+        %% Example child specification
+        #{
+            id => example_worker,
+            start => {example_worker, start_link, []},
+            restart => permanent,
+            shutdown => 5000,
+            type => worker,
+            modules => [example_worker]
+        }
+        {% endif %}
+    ],
+
+    telemetry_event(supervisor_init, #{
+        strategy => maps:get(strategy, SupFlags),
+        child_count => length(ChildSpecs)
+    }),
+
+    {ok, {SupFlags, ChildSpecs}}.
+
+%%%=============================================================================
+%%% Internal Functions
+%%%=============================================================================
+
+{% if dynamic_children | default(value=false) %}
+%%------------------------------------------------------------------------------
+%% @doc Create a child spec for dynamic children.
+%% @private
+%%------------------------------------------------------------------------------
+-spec make_child_spec(term()) -> child_spec().
+make_child_spec(Args) ->
+    ChildId = make_ref(),
+    #{
+        id => ChildId,
+        start => {{{ child_module | default(value="worker") }}, start_link, [Args]},
+        restart => {{ child_restart | default(value="temporary") }},
+        shutdown => {{ child_shutdown | default(value=5000) }},
+        type => {{ child_type | default(value="worker") }},
+        modules => [{{ child_module | default(value="worker") }}]
+    }.
+{% endif %}
+
+{% if enable_telemetry | default(value=true) %}
+%%------------------------------------------------------------------------------
+%% @doc Emit telemetry event.
+%% @private
+%%------------------------------------------------------------------------------
+-spec telemetry_event(atom(), map()) -> ok.
+telemetry_event(EventName, Metadata) ->
+    telemetry_event(EventName, #{count => 1}, Metadata).
+
+-spec telemetry_event(atom(), map(), map()) -> ok.
+telemetry_event(EventName, Measurements, Metadata) ->
+    telemetry:execute(
+        [{{ app_name | default(value="?MODULE") }}, ?MODULE, EventName],
+        Measurements,
+        Metadata
+    ).
+{% endif %}
+
+%%%=============================================================================
+%%% Utility Functions
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Create a permanent worker child spec.
+%% @private
+%%------------------------------------------------------------------------------
+-spec worker_spec(atom(), list()) -> child_spec().
+worker_spec(Module, Args) ->
+    #{
+        id => Module,
+        start => {Module, start_link, Args},
+        restart => permanent,
+        shutdown => 5000,
+        type => worker,
+        modules => [Module]
+    }.
+
+%%------------------------------------------------------------------------------
+%% @doc Create a permanent supervisor child spec.
+%% @private
+%%------------------------------------------------------------------------------
+-spec supervisor_spec(atom(), list()) -> child_spec().
+supervisor_spec(Module, Args) ->
+    #{
+        id => Module,
+        start => {Module, start_link, Args},
+        restart => permanent,
+        shutdown => infinity,
+        type => supervisor,
+        modules => [Module]
+    }.
+
+%%------------------------------------------------------------------------------
+%% @doc Create a transient worker child spec (restart only on abnormal exit).
+%% @private
+%%------------------------------------------------------------------------------
+-spec transient_worker_spec(atom(), list()) -> child_spec().
+transient_worker_spec(Module, Args) ->
+    #{
+        id => Module,
+        start => {Module, start_link, Args},
+        restart => transient,
+        shutdown => 5000,
+        type => worker,
+        modules => [Module]
+    }.
+
+%%------------------------------------------------------------------------------
+%% @doc Create a temporary worker child spec (never restarted).
+%% @private
+%%------------------------------------------------------------------------------
+-spec temporary_worker_spec(atom(), list()) -> child_spec().
+temporary_worker_spec(Module, Args) ->
+    #{
+        id => Module,
+        start => {Module, start_link, Args},
+        restart => temporary,
+        shutdown => 5000,
+        type => worker,
+        modules => [Module]
+    }.
+
+%%%=============================================================================
+%%% Unit Tests (EUnit)
+%%%=============================================================================
+
+-ifdef(TEST).
+-include_lib("eunit/include/eunit.hrl").
+
+%%------------------------------------------------------------------------------
+%% Test setup/cleanup
+%%------------------------------------------------------------------------------
+supervisor_start_stop_test() ->
+    {ok, Pid} = start_link(),
+    ?assert(is_process_alive(Pid)),
+    Children = supervisor:which_children(?SERVER),
+    ?assert(is_list(Children)),
+    exit(Pid, shutdown),
+    timer:sleep(100),
+    ?assertNot(is_process_alive(Pid)).
+
+supervisor_child_count_test() ->
+    {ok, _Pid} = start_link(),
+    Children = supervisor:which_children(?SERVER),
+    ChildCount = length(Children),
+    ?assert(ChildCount >= 0),
+    supervisor:stop(?SERVER).
+
+-endif.

@@ -1,0 +1,344 @@
+%%%-----------------------------------------------------------------------------
+%%% @doc Common Test suite for {{ suite_name | default(value="example") }}
+%%%
+%%% Integration and system tests using Common Test framework.
+%%% Generated from RDF ontology via ggen.
+%%%
+%%% @sparql_context {{ sparql_context | default(value="ggen:CommonTest") }}
+%%% @end
+%%%-----------------------------------------------------------------------------
+-module({{ suite_name }}_SUITE).
+
+-include_lib("common_test/include/ct.hrl").
+-include_lib("eunit/include/eunit.hrl").
+
+%% CT callbacks
+-export([
+    all/0,
+    groups/0,
+    init_per_suite/1,
+    end_per_suite/1,
+    init_per_group/2,
+    end_per_group/2,
+    init_per_testcase/2,
+    end_per_testcase/2
+]).
+
+%% Test cases
+-export([
+    {% if test_cases %}
+    {{ test_cases | safe }}
+    {% else %}
+    test_startup/1,
+    test_basic_operation/1,
+    test_error_handling/1,
+    test_concurrent_operations/1
+    {% endif %}
+]).
+
+%%%=============================================================================
+%%% CT Callbacks
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Return list of test cases and groups.
+%% @end
+%%------------------------------------------------------------------------------
+all() ->
+    [
+        {group, basic_tests},
+        {group, integration_tests},
+        {group, stress_tests}
+    ].
+
+%%------------------------------------------------------------------------------
+%% @doc Define test groups.
+%% @end
+%%------------------------------------------------------------------------------
+groups() ->
+    [
+        {basic_tests, [parallel], [
+            test_startup,
+            test_basic_operation,
+            test_error_handling
+        ]},
+        {integration_tests, [sequence], [
+            {% if integration_tests %}
+            {{ integration_tests | safe }}
+            {% else %}
+            test_concurrent_operations
+            {% endif %}
+        ]},
+        {stress_tests, [], [
+            {% if stress_tests %}
+            {{ stress_tests | safe }}
+            {% endif %}
+        ]}
+    ].
+
+%%------------------------------------------------------------------------------
+%% @doc Initialize suite (runs once before all tests).
+%% @end
+%%------------------------------------------------------------------------------
+init_per_suite(Config) ->
+    ct:pal("Initializing test suite: ~p", [?MODULE]),
+
+    %% Start applications
+    {ok, _} = application:ensure_all_started({{ app_name }}),
+
+    %% Setup test environment
+    TestConfig = setup_test_environment(),
+
+    [{test_config, TestConfig} | Config].
+
+%%------------------------------------------------------------------------------
+%% @doc Cleanup suite (runs once after all tests).
+%% @end
+%%------------------------------------------------------------------------------
+end_per_suite(Config) ->
+    ct:pal("Cleaning up test suite: ~p", [?MODULE]),
+
+    %% Cleanup test environment
+    cleanup_test_environment(Config),
+
+    %% Stop applications
+    application:stop({{ app_name }}),
+
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Initialize test group.
+%% @end
+%%------------------------------------------------------------------------------
+init_per_group(GroupName, Config) ->
+    ct:pal("Initializing test group: ~p", [GroupName]),
+
+    GroupConfig = case GroupName of
+        basic_tests ->
+            setup_basic_tests(Config);
+        integration_tests ->
+            setup_integration_tests(Config);
+        stress_tests ->
+            setup_stress_tests(Config);
+        _ ->
+            Config
+    end,
+
+    [{group, GroupName} | GroupConfig].
+
+%%------------------------------------------------------------------------------
+%% @doc Cleanup test group.
+%% @end
+%%------------------------------------------------------------------------------
+end_per_group(GroupName, Config) ->
+    ct:pal("Cleaning up test group: ~p", [GroupName]),
+
+    case GroupName of
+        basic_tests ->
+            cleanup_basic_tests(Config);
+        integration_tests ->
+            cleanup_integration_tests(Config);
+        stress_tests ->
+            cleanup_stress_tests(Config);
+        _ ->
+            ok
+    end,
+
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Initialize test case.
+%% @end
+%%------------------------------------------------------------------------------
+init_per_testcase(TestCase, Config) ->
+    ct:pal("Starting test case: ~p", [TestCase]),
+
+    %% Record start time
+    StartTime = erlang:monotonic_time(millisecond),
+
+    [{test_case, TestCase}, {start_time, StartTime} | Config].
+
+%%------------------------------------------------------------------------------
+%% @doc Cleanup test case.
+%% @end
+%%------------------------------------------------------------------------------
+end_per_testcase(TestCase, Config) ->
+    StartTime = proplists:get_value(start_time, Config),
+    EndTime = erlang:monotonic_time(millisecond),
+    Duration = EndTime - StartTime,
+
+    ct:pal("Completed test case: ~p in ~pms", [TestCase, Duration]),
+
+    ok.
+
+%%%=============================================================================
+%%% Test Cases
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Test application startup.
+%% @end
+%%------------------------------------------------------------------------------
+test_startup(Config) ->
+    ct:pal("Testing application startup"),
+
+    %% Verify application is running
+    Apps = application:which_applications(),
+    ?assert(lists:keymember({{ app_name }}, 1, Apps)),
+
+    %% Verify supervisor is running
+    SupervisorName = {{ app_name }}_sup,
+    ?assertMatch(Pid when is_pid(Pid), whereis(SupervisorName)),
+
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Test basic operation.
+%% @end
+%%------------------------------------------------------------------------------
+test_basic_operation(Config) ->
+    ct:pal("Testing basic operation"),
+
+    {% if basic_operation_test %}
+    {{ basic_operation_test | safe }}
+    {% else %}
+    %% Example: call a gen_server
+    %% Result = gen_server:call(worker, get_state),
+    %% ?assertMatch({ok, _State}, Result),
+    {% endif %}
+
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Test error handling.
+%% @end
+%%------------------------------------------------------------------------------
+test_error_handling(Config) ->
+    ct:pal("Testing error handling"),
+
+    {% if error_handling_test %}
+    {{ error_handling_test | safe }}
+    {% else %}
+    %% Example: test invalid input
+    %% Result = gen_server:call(worker, {invalid, request}),
+    %% ?assertMatch({error, _Reason}, Result),
+    {% endif %}
+
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Test concurrent operations.
+%% @end
+%%------------------------------------------------------------------------------
+test_concurrent_operations(Config) ->
+    ct:pal("Testing concurrent operations"),
+
+    NumWorkers = {{ concurrent_workers | default(value=10) }},
+    OperationsPerWorker = {{ operations_per_worker | default(value=100) }},
+
+    %% Spawn concurrent workers
+    Workers = [spawn_worker(N, OperationsPerWorker) || N <- lists:seq(1, NumWorkers)],
+
+    %% Wait for completion
+    Results = [wait_for_worker(W) || W <- Workers],
+
+    %% Verify all succeeded
+    ?assertEqual(NumWorkers, length([ok || ok <- Results])),
+
+    ok.
+
+%%%=============================================================================
+%%% Helper Functions
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Setup test environment.
+%% @private
+%%------------------------------------------------------------------------------
+setup_test_environment() ->
+    #{
+        started_at => erlang:system_time(millisecond)
+    }.
+
+%%------------------------------------------------------------------------------
+%% @doc Cleanup test environment.
+%% @private
+%%------------------------------------------------------------------------------
+cleanup_test_environment(_Config) ->
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Setup basic tests group.
+%% @private
+%%------------------------------------------------------------------------------
+setup_basic_tests(Config) ->
+    Config.
+
+%%------------------------------------------------------------------------------
+%% @doc Cleanup basic tests group.
+%% @private
+%%------------------------------------------------------------------------------
+cleanup_basic_tests(_Config) ->
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Setup integration tests group.
+%% @private
+%%------------------------------------------------------------------------------
+setup_integration_tests(Config) ->
+    Config.
+
+%%------------------------------------------------------------------------------
+%% @doc Cleanup integration tests group.
+%% @private
+%%------------------------------------------------------------------------------
+cleanup_integration_tests(_Config) ->
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Setup stress tests group.
+%% @private
+%%------------------------------------------------------------------------------
+setup_stress_tests(Config) ->
+    Config.
+
+%%------------------------------------------------------------------------------
+%% @doc Cleanup stress tests group.
+%% @private
+%%------------------------------------------------------------------------------
+cleanup_stress_tests(_Config) ->
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Spawn a concurrent worker.
+%% @private
+%%------------------------------------------------------------------------------
+spawn_worker(WorkerId, NumOperations) ->
+    Parent = self(),
+    spawn(fun() ->
+        Result = perform_operations(WorkerId, NumOperations),
+        Parent ! {worker_done, self(), Result}
+    end).
+
+%%------------------------------------------------------------------------------
+%% @doc Wait for worker to complete.
+%% @private
+%%------------------------------------------------------------------------------
+wait_for_worker(WorkerPid) ->
+    receive
+        {worker_done, WorkerPid, Result} ->
+            Result
+    after {{ worker_timeout_ms | default(value=30000) }} ->
+        {error, timeout}
+    end.
+
+%%------------------------------------------------------------------------------
+%% @doc Perform operations for worker.
+%% @private
+%%------------------------------------------------------------------------------
+perform_operations(_WorkerId, 0) ->
+    ok;
+perform_operations(WorkerId, N) ->
+    %% Perform operation
+    %% Example: gen_server:call(worker, {operation, WorkerId, N}),
+    perform_operations(WorkerId, N - 1).

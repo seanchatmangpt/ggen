@@ -1,0 +1,186 @@
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix : <http://github.com/github/spec-kit/examples/erlang-otp#> .
+
+# ============================================================================
+# FEATURE: Erlang/OTP End-to-End Project Generation
+# ============================================================================
+
+:erlang-otp-example a sk:Feature ;
+    sk:name "Erlang/OTP End-to-End Project Generation" ;
+    sk:version "1.0.0" ;
+    sk:description "Complete Erlang/OTP project scaffolding with supervision trees, gen_server patterns, benchmarks, stress tests, and Diataxis documentation" ;
+    sk:priority "P1" ;
+    sk:hasUserStory :us-001, :us-002, :us-003, :us-004, :us-005 .
+
+# ============================================================================
+# USER STORY 1: OTP Application Scaffolding
+# ============================================================================
+
+:us-001 a sk:UserStory ;
+    sk:storyIndex 1 ;
+    sk:title "Generate complete OTP application structure" ;
+    sk:priority "P1" ;
+    sk:description "As a telecom engineer, I want to generate a complete Erlang/OTP application with supervision tree, application callbacks, and proper OTP structure, so that I can focus on business logic rather than boilerplate" ;
+    sk:priorityRationale "P1: Core capability - OTP patterns are the foundation for telecom-grade systems with 99.999% uptime requirements" ;
+    sk:independentTest "Generated application compiles with rebar3, starts/stops cleanly, supervision tree recovers from worker crashes" ;
+    sk:hasAcceptanceScenario :us-001-as-001, :us-001-as-002, :us-001-as-003, :us-001-as-004 .
+
+:us-001-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "User invokes ggen with Erlang/OTP template and app name 'telecom_router'" ;
+    sk:when "Generation completes" ;
+    sk:then "Directory structure includes src/, include/, test/, rebar.config, .app.src file with proper OTP application metadata" .
+
+:us-001-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Generated application with supervision tree (one_for_one strategy)" ;
+    sk:when "rebar3 compile is executed" ;
+    sk:then "Compilation succeeds with zero warnings, application:start/1 returns {ok, Pid}" .
+
+:us-001-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "Supervisor with 3 gen_server workers (call_router, billing_engine, message_queue)" ;
+    sk:when "One worker crashes with exit(kill)" ;
+    sk:then "Supervisor restarts only the failed worker (one_for_one), other workers continue unaffected" .
+
+:us-001-as-004 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 4 ;
+    sk:given "Generated application started with application:start/1" ;
+    sk:when "application:stop/1 is called" ;
+    sk:then "All workers terminate gracefully, supervisor shuts down, no orphaned processes remain" .
+
+# ============================================================================
+# USER STORY 2: gen_server Pattern Implementation
+# ============================================================================
+
+:us-002 a sk:UserStory ;
+    sk:storyIndex 2 ;
+    sk:title "Generate gen_server with callback scaffolding" ;
+    sk:priority "P1" ;
+    sk:description "As a backend developer, I need gen_server implementations with complete callback scaffolding (init, handle_call, handle_cast, handle_info, terminate, code_change), so that I can implement stateful processes following OTP conventions" ;
+    sk:priorityRationale "P1: Essential pattern - gen_server is the workhorse of Erlang systems, required for stateful business logic" ;
+    sk:independentTest "Generated gen_server compiles, starts via gen_server:start_link/3, responds to synchronous/asynchronous calls, handles unknown messages gracefully" ;
+    sk:hasAcceptanceScenario :us-002-as-001, :us-002-as-002, :us-002-as-003 .
+
+:us-002-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Generated gen_server module 'call_router_server'" ;
+    sk:when "gen_server:start_link({local, call_router}, call_router_server, [], []) is called" ;
+    sk:then "init/1 callback executes, returns {ok, State}, process registered as call_router" .
+
+:us-002-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Running gen_server with state {call_count, 0}" ;
+    sk:when "gen_server:call(call_router, increment_count) is sent" ;
+    sk:then "handle_call/3 processes request, returns {reply, 1, {call_count, 1}}, caller receives reply 1" .
+
+:us-002-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "Running gen_server receiving unknown message {unknown, data}" ;
+    sk:when "Message delivered via handle_info/2" ;
+    sk:then "Logs warning via logger:warning/2, returns {noreply, State}, process continues running" .
+
+# ============================================================================
+# USER STORY 3: Performance Benchmarks
+# ============================================================================
+
+:us-003 a sk:UserStory ;
+    sk:storyIndex 3 ;
+    sk:title "Generate performance benchmarks for telecom workloads" ;
+    sk:priority "P1" ;
+    sk:description "As a performance engineer, I need benchmarks measuring throughput (calls/sec), latency (p50/p99), and message queue depth under load, so that I can verify system meets telecom SLOs (99.999% uptime, <10ms latency)" ;
+    sk:priorityRationale "P1: Performance validation - telecom systems must meet strict SLOs, benchmarks provide evidence of compliance" ;
+    sk:independentTest "Benchmarks measure 100k+ calls/sec throughput, p99 latency <10ms, queue depth stays bounded under 10k concurrent processes" ;
+    sk:hasAcceptanceScenario :us-003-as-001, :us-003-as-002, :us-003-as-003 .
+
+:us-003-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Benchmark suite using benchee library" ;
+    sk:when "Throughput test spawns 10k processes sending synchronous calls" ;
+    sk:then "Measures calls/sec, reports >100k ops/sec on 4-core machine, latency p99 <10ms" .
+
+:us-003-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Latency benchmark with 1k concurrent clients" ;
+    sk:when "Each client sends 100 sequential gen_server:call/2" ;
+    sk:then "Reports p50 <5ms, p95 <8ms, p99 <10ms, p999 <50ms" .
+
+:us-003-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "Message queue depth benchmark under sustained load" ;
+    sk:when "10k processes send async casts for 60 seconds" ;
+    sk:then "Queue depth monitored via process_info, stays <1000 messages, no memory leaks detected" .
+
+# ============================================================================
+# USER STORY 4: Stress Tests for Fault Tolerance
+# ============================================================================
+
+:us-004 a sk:UserStory ;
+    sk:storyIndex 4 ;
+    sk:title "Generate stress tests for fault tolerance validation" ;
+    sk:priority "P1" ;
+    sk:description "As a reliability engineer, I need stress tests simulating network partitions, process crashes, and message floods, so that I can validate supervision tree recovery and system resilience under failure conditions" ;
+    sk:priorityRationale "P1: Telecom-grade reliability - must prove system survives chaos scenarios (network splits, node failures)" ;
+    sk:independentTest "Stress tests kill random workers, simulate network partitions, flood message queues - system recovers automatically, no data loss, downtime <1 second" ;
+    sk:hasAcceptanceScenario :us-004-as-001, :us-004-as-002, :us-004-as-003, :us-004-as-004 .
+
+:us-004-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Supervision tree with 10 workers under one_for_one strategy" ;
+    sk:when "Random worker killed with exit(Pid, kill) every 100ms for 60 seconds" ;
+    sk:then "Supervisor restarts failed workers, system maintains availability, total downtime <1% of test duration" .
+
+:us-004-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Distributed system with 3 Erlang nodes (node1@host, node2@host, node3@host)" ;
+    sk:when "Network partition simulated by disconnecting node2 for 30 seconds" ;
+    sk:then "Nodes detect partition, activate fallback logic, reconnect automatically, state synchronized via Mnesia or manual reconciliation" .
+
+:us-004-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "gen_server with message queue limit 10k" ;
+    sk:when "100k messages sent asynchronously in <1 second (flood attack)" ;
+    sk:then "Process applies backpressure (drops or queues messages), OOM killer not triggered, system recovers when flood stops" .
+
+:us-004-as-004 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 4 ;
+    sk:given "Supervisor with rest_for_one strategy and 5 workers (W1->W2->W3->W4->W5 dependency chain)" ;
+    sk:when "W3 crashes with exit(shutdown)" ;
+    sk:then "Supervisor restarts W3, W4, W5 (rest_for_one), W1 and W2 continue unaffected" .
+
+# ============================================================================
+# USER STORY 5: Diataxis Documentation Generation
+# ============================================================================
+
+:us-005 a sk:UserStory ;
+    sk:storyIndex 5 ;
+    sk:title "Generate Diataxis-structured documentation" ;
+    sk:priority "P2" ;
+    sk:description "As a technical writer, I want documentation generated following Diataxis framework (Tutorials, How-To Guides, Reference, Explanation), so that users can learn, solve problems, lookup APIs, and understand architecture efficiently" ;
+    sk:priorityRationale "P2: Developer experience - good documentation accelerates onboarding and reduces support burden" ;
+    sk:independentTest "Documentation includes: Tutorial (build first OTP app), How-To (add worker to supervision tree), Reference (EDoc for all modules), Explanation (OTP design principles)" ;
+    sk:hasAcceptanceScenario :us-005-as-001, :us-005-as-002, :us-005-as-003, :us-005-as-004 .
+
+:us-005-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Generated project with docs/ directory" ;
+    sk:when "Developer opens docs/tutorials/getting-started.md" ;
+    sk:then "Tutorial walks through: create project, add supervisor, add gen_server, compile, run, verify - complete working example in <30 minutes" .
+
+:us-005-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Generated docs/how-to/ directory" ;
+    sk:when "Developer searches for 'add new worker'" ;
+    sk:then "How-To guide shows: edit supervisor childspec, implement gen_server, add to .app.src, restart application - task-oriented, no theory" .
+
+:us-005-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "Generated modules with EDoc annotations (@doc, @spec, @type)" ;
+    sk:when "rebar3 edoc is executed" ;
+    sk:then "HTML reference documentation generated in doc/, every public function documented with types, examples, return values" .
+
+:us-005-as-004 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 4 ;
+    sk:given "Generated docs/explanation/ directory" ;
+    sk:when "Developer reads docs/explanation/supervision-strategies.md" ;
+    sk:then "Explanation covers: one_for_one vs one_for_all vs rest_for_one, tradeoffs, when to use each, architectural diagrams, links to OTP docs" .

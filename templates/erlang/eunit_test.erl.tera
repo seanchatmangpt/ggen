@@ -1,0 +1,225 @@
+%%%-----------------------------------------------------------------------------
+%%% @doc EUnit test module for {{ module_name }}
+%%%
+%%% Unit tests using EUnit framework.
+%%% Generated from RDF ontology via ggen.
+%%%
+%%% @sparql_context {{ sparql_context | default(value="ggen:EUnitTest") }}
+%%% @end
+%%%-----------------------------------------------------------------------------
+-module({{ module_name }}_tests).
+
+-include_lib("eunit/include/eunit.hrl").
+
+%%%=============================================================================
+%%% Test Fixtures
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Setup fixture (runs before each test).
+%% @end
+%%------------------------------------------------------------------------------
+setup() ->
+    %% Initialize test environment
+    {% if setup_code %}
+    {{ setup_code | safe }}
+    {% else %}
+    {ok, _Pid} = {{ module_name }}:start_link(),
+    ok
+    {% endif %}.
+
+%%------------------------------------------------------------------------------
+%% @doc Cleanup fixture (runs after each test).
+%% @end
+%%------------------------------------------------------------------------------
+cleanup(_) ->
+    %% Cleanup test environment
+    {% if cleanup_code %}
+    {{ cleanup_code | safe }}
+    {% else %}
+    gen_server:stop({{ module_name }}),
+    ok
+    {% endif %}.
+
+%%------------------------------------------------------------------------------
+%% @doc Foreach fixture (runs setup/cleanup for each test).
+%% @end
+%%------------------------------------------------------------------------------
+foreach_test_() ->
+    {foreach,
+     fun setup/0,
+     fun cleanup/1,
+     [
+        fun test_initialization/0,
+        fun test_basic_operations/0,
+        fun test_error_cases/0
+     ]
+    }.
+
+%%%=============================================================================
+%%% Test Cases
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Test module initialization.
+%% @end
+%%------------------------------------------------------------------------------
+test_initialization() ->
+    ?assertMatch(Pid when is_pid(Pid), whereis({{ module_name }})).
+
+%%------------------------------------------------------------------------------
+%% @doc Test basic operations.
+%% @end
+%%------------------------------------------------------------------------------
+test_basic_operations() ->
+    {% if basic_operations_test %}
+    {{ basic_operations_test | safe }}
+    {% else %}
+    %% Example test
+    {ok, State} = {{ module_name }}:get_state(),
+    ?assertMatch(#state{}, State)
+    {% endif %}.
+
+%%------------------------------------------------------------------------------
+%% @doc Test error cases.
+%% @end
+%%------------------------------------------------------------------------------
+test_error_cases() ->
+    {% if error_cases_test %}
+    {{ error_cases_test | safe }}
+    {% else %}
+    %% Example error test
+    Result = {{ module_name }}:get_value(nonexistent_key),
+    ?assertEqual({error, not_found}, Result)
+    {% endif %}.
+
+%%%=============================================================================
+%%% Specific Function Tests
+%%%=============================================================================
+
+{% if function_tests %}
+{{ function_tests | safe }}
+{% else %}
+%%------------------------------------------------------------------------------
+%% @doc Test start_link/0.
+%% @end
+%%------------------------------------------------------------------------------
+start_link_test() ->
+    {ok, Pid} = {{ module_name }}:start_link(),
+    ?assert(is_process_alive(Pid)),
+    gen_server:stop(Pid).
+
+%%------------------------------------------------------------------------------
+%% @doc Test gen_server:call operations.
+%% @end
+%%------------------------------------------------------------------------------
+call_operations_test() ->
+    {ok, _Pid} = {{ module_name }}:start_link(),
+
+    %% Test get_state
+    {ok, State} = {{ module_name }}:get_state(),
+    ?assertMatch(#state{}, State),
+
+    gen_server:stop({{ module_name }}).
+
+%%------------------------------------------------------------------------------
+%% @doc Test gen_server:cast operations.
+%% @end
+%%------------------------------------------------------------------------------
+cast_operations_test() ->
+    {ok, _Pid} = {{ module_name }}:start_link(),
+
+    %% Test config update
+    NewConfig = #{test_key => test_value},
+    ok = {{ module_name }}:update_config(NewConfig),
+
+    %% Wait for cast to process
+    timer:sleep(50),
+
+    %% Verify update
+    {ok, #state{config = Config}} = {{ module_name }}:get_state(),
+    ?assertEqual(test_value, maps:get(test_key, Config)),
+
+    gen_server:stop({{ module_name }}).
+{% endif %}
+
+%%%=============================================================================
+%%% Property-Based Tests (if PropEr is available)
+%%%=============================================================================
+
+-ifdef(PROPER).
+
+%%------------------------------------------------------------------------------
+%% @doc Property: All valid inputs should succeed.
+%% @end
+%%------------------------------------------------------------------------------
+prop_valid_inputs_succeed() ->
+    ?FORALL(Input, valid_input_generator(),
+        begin
+            Result = {{ module_name }}:process(Input),
+            ?assertMatch({ok, _}, Result),
+            true
+        end
+    ).
+
+valid_input_generator() ->
+    %% Define generator for valid inputs
+    any().
+
+-endif.
+
+%%%=============================================================================
+%%% Performance Tests
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Test performance of operations.
+%% @end
+%%------------------------------------------------------------------------------
+performance_test_() ->
+    {timeout, 60, fun() ->
+        {ok, _Pid} = {{ module_name }}:start_link(),
+
+        NumOperations = {{ performance_num_operations | default(value=10000) }},
+
+        StartTime = erlang:monotonic_time(millisecond),
+
+        %% Perform operations
+        [{{ module_name }}:get_state() || _ <- lists:seq(1, NumOperations)],
+
+        EndTime = erlang:monotonic_time(millisecond),
+        Duration = EndTime - StartTime,
+
+        OpsPerSecond = (NumOperations * 1000) div Duration,
+
+        ?debugFmt("Performance: ~p ops in ~pms (~p ops/sec)",
+                 [NumOperations, Duration, OpsPerSecond]),
+
+        %% Assert minimum performance threshold
+        MinOpsPerSecond = {{ min_ops_per_second | default(value=1000) }},
+        ?assert(OpsPerSecond >= MinOpsPerSecond),
+
+        gen_server:stop({{ module_name }})
+    end}.
+
+%%%=============================================================================
+%%% Helper Functions
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Helper to create test state.
+%% @private
+%%------------------------------------------------------------------------------
+make_test_state() ->
+    #state{
+        data = #{},
+        config = #{},
+        telemetry_metadata = #{}
+    }.
+
+%%------------------------------------------------------------------------------
+%% @doc Helper to generate test data.
+%% @private
+%%------------------------------------------------------------------------------
+generate_test_data(Size) ->
+    lists:seq(1, Size).

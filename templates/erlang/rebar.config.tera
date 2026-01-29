@@ -1,0 +1,271 @@
+%% -*- mode: erlang; erlang-indent-level: 2 -*-
+%%%-----------------------------------------------------------------------------
+%%% @doc Rebar3 configuration for {{ app_name }}
+%%%
+%%% Build configuration, dependencies, and profiles.
+%%% Generated from RDF ontology via ggen.
+%%%
+%%% @sparql_context {{ sparql_context | default(value="ggen:RebarConfig") }}
+%%% @end
+%%%-----------------------------------------------------------------------------
+
+%% Erlang compiler options
+{erl_opts, [
+    debug_info,
+    warnings_as_errors,
+    warn_export_all,
+    warn_unused_import,
+    {% if enable_dialyzer | default(value=true) %}
+    warn_untyped_record,
+    {% endif %}
+    {platform_define, "^[0-9]+", namespaced_types},
+    {i, "include"}
+    {% if extra_erl_opts %}
+    , {{ extra_erl_opts | safe }}
+    {% endif %}
+]}.
+
+%% Dependencies
+{deps, [
+    {% if dependencies %}
+    {{ dependencies | safe }}
+    {% else %}
+    %% Telemetry for metrics and monitoring
+    {telemetry, "~> 1.2"},
+
+    %% Logging framework
+    {lager, "~> 3.9"},
+
+    %% JSON encoding/decoding
+    {jsx, "~> 3.1"}
+    {% endif %}
+]}.
+
+%% Shell configuration
+{shell, [
+    {apps, [{{ app_name }}]},
+    {config, "config/sys.config"}
+]}.
+
+%% Release configuration
+{relx, [
+    {release, {{{ app_name }}, "{{ version | default(value="0.1.0") }}"},
+     [{{ app_name }}, sasl, runtime_tools]},
+
+    {mode, dev},
+
+    %% Include ERTS in release
+    {include_erts, true},
+
+    %% Extended start script
+    {extended_start_script, true},
+
+    %% System configuration
+    {sys_config, "./config/sys.config"},
+    {vm_args, "./config/vm.args"},
+
+    %% Development overrides
+    {dev_mode, true},
+    {include_src, false}
+]}.
+
+%% Profiles
+{profiles, [
+    %% Test profile
+    {test, [
+        {deps, [
+            {proper, "~> 1.4"},
+            {meck, "~> 0.9"},
+            {eunit_formatters, "~> 0.5"}
+        ]},
+        {erl_opts, [
+            debug_info,
+            nowarn_export_all,
+            {d, 'TEST'}
+        ]},
+        {cover_enabled, true},
+        {cover_opts, [verbose]}
+    ]},
+
+    %% Production profile
+    {prod, [
+        {erl_opts, [
+            no_debug_info,
+            warnings_as_errors,
+            {d, 'PROD'}
+        ]},
+        {relx, [
+            {mode, prod},
+            {dev_mode, false},
+            {include_erts, true},
+            {include_src, false},
+            {system_libs, false}
+        ]}
+    ]},
+
+    %% Benchmarking profile
+    {bench, [
+        {deps, [
+            {basho_bench, {git, "https://github.com/basho/basho_bench.git", {branch, "master"}}}
+        ]},
+        {erl_opts, [
+            {d, 'BENCH'},
+            inline_list_funcs,
+            warn_missing_spec
+        ]}
+    ]},
+
+    %% Development profile with hot code reload
+    {dev, [
+        {deps, [
+            {sync, {git, "https://github.com/rustyio/sync.git", {branch, "master"}}},
+            {recon, "~> 2.5"}
+        ]},
+        {erl_opts, [
+            debug_info,
+            {d, 'DEV'}
+        ]}
+    ]}
+    {% if custom_profiles %}
+    , {{ custom_profiles | safe }}
+    {% endif %}
+]}.
+
+%% Dialyzer configuration
+{% if enable_dialyzer | default(value=true) %}
+{dialyzer, [
+    {warnings, [
+        error_handling,
+        race_conditions,
+        unmatched_returns,
+        underspecs
+    ]},
+    {get_warnings, true},
+    {plt_apps, top_level_deps},
+    {plt_extra_apps, [
+        {% if plt_extra_apps %}
+        {{ plt_extra_apps | safe }}
+        {% else %}
+        crypto,
+        ssl,
+        public_key
+        {% endif %}
+    ]},
+    {plt_location, local},
+    {base_plt_apps, [stdlib, kernel, erts]},
+    {base_plt_location, global}
+]}.
+{% endif %}
+
+%% Code coverage
+{cover_enabled, true}.
+{cover_opts, [verbose]}.
+{cover_excl_mods, [
+    {% if cover_excluded_modules %}
+    {{ cover_excluded_modules | safe }}
+    {% endif %}
+]}.
+
+%% EUnit configuration
+{eunit_opts, [
+    verbose,
+    {report, {eunit_surefire, [{dir, "_build/test"}]}}
+]}.
+
+%% Common Test configuration
+{ct_opts, [
+    {sys_config, "config/test.config"},
+    {logdir, "_build/test/logs"},
+    {verbose, true}
+]}.
+
+%% XRef configuration (cross-reference analysis)
+{xref_checks, [
+    undefined_function_calls,
+    undefined_functions,
+    locals_not_used,
+    deprecated_function_calls,
+    deprecated_functions
+]}.
+{xref_ignores, [
+    {% if xref_ignores %}
+    {{ xref_ignores | safe }}
+    {% endif %}
+]}.
+
+%% Compiler plugins
+{plugins, [
+    {% if enable_code_coverage | default(value=true) %}
+    {rebar3_codecov, {git, "https://github.com/barrel-db/rebar3_codecov.git", {branch, "master"}}},
+    {% endif %}
+    {% if enable_hex_publish | default(value=false) %}
+    rebar3_hex,
+    {% endif %}
+    {% if extra_plugins %}
+    {{ extra_plugins | safe }}
+    {% endif %}
+]}.
+
+%% Provider hooks
+{provider_hooks, [
+    {pre, [
+        {compile, {asn, compile}}
+    ]},
+    {post, [
+        {clean, {asn, clean}}
+    ]}
+]}.
+
+%% Overrides (for dependency compilation issues)
+{overrides, [
+    {% if overrides %}
+    {{ overrides | safe }}
+    {% endif %}
+]}.
+
+%% Project plugins (custom rebar3 commands)
+{project_plugins, [
+    {% if enable_release_manager | default(value=false) %}
+    rebar3_relflow,
+    {% endif %}
+    {% if enable_documentation | default(value=true) %}
+    rebar3_ex_doc,
+    {% endif %}
+    {% if project_plugins %}
+    {{ project_plugins | safe }}
+    {% endif %}
+]}.
+
+{% if enable_documentation | default(value=true) %}
+%% ExDoc configuration
+{ex_doc, [
+    {source_url, <<"{{ source_url | default(value="https://github.com/example/repo") }}">>},
+    {extras, [<<"README.md">>, <<"LICENSE">>]},
+    {main, <<"README.md">>},
+    {output, <<"doc">>}
+]}.
+{% endif %}
+
+%% Alias commands
+{alias, [
+    {check, [
+        compile,
+        xref,
+        dialyzer,
+        eunit,
+        ct
+    ]},
+    {test, [
+        compile,
+        eunit,
+        ct
+    ]},
+    {bench, [
+        {profile, bench},
+        compile,
+        "bench run"
+    ]}
+]}.
+
+%% Minimum OTP version
+{minimum_otp_vsn, "{{ minimum_otp_version | default(value="24") }}"}.

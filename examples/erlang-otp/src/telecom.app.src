@@ -1,0 +1,35 @@
+%% -*- erlang -*-
+{application, telecom,
+ [{description, "Telecom-Grade OTP Example - Fortune 5 Capabilities"},
+  {vsn, "1.0.0"},
+  {registered, [
+      telecom_sup,
+      call_router_server,
+      billing_engine_server,
+      db_pool
+  ]},
+  {mod, {telecom_app, []}},
+  {applications, [
+      kernel,
+      stdlib,
+      sasl,
+      lager
+  ]},
+  {env, [
+      {call_router, [
+          {load_threshold, 100000},
+          {circuit_breaker, true}
+      ]},
+      {billing_engine, [
+          {fraud_threshold, 10000.00},
+          {wal_file, "data/billing_wal.dets"},
+          {audit_file, "data/billing_audit.dets"}
+      ]},
+      {db_pool, [
+          {pool_size, 20}
+      ]}
+  ]},
+  {modules, []},
+  {licenses, ["Apache-2.0"]},
+  {links, []}
+ ]}.

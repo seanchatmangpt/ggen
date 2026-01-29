@@ -1,0 +1,512 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <https://ggen.dev/spec/erlang-otp-plan#> .
+
+# ============================================================================
+# IMPLEMENTATION PLAN: Erlang/OTP End-to-End Project Generation
+# ============================================================================
+
+:ImplementationPlan a spec:Plan ;
+    rdfs:label "Erlang/OTP Project Generation Implementation Plan" ;
+    spec:startDate "2026-01-29"^^xsd:date ;
+    spec:status "PLANNING" ;
+    spec:phase1 :Phase1_TemplateDesign ;
+    spec:phase2 :Phase2_CoreGeneration ;
+    spec:phase3 :Phase3_Benchmarks ;
+    spec:phase4 :Phase4_StressTests ;
+    spec:phase5 :Phase5_Documentation .
+
+# ============================================================================
+# PHASE 1: TEMPLATE DESIGN & RDF ONTOLOGY
+# ============================================================================
+
+:Phase1_TemplateDesign a spec:Phase ;
+    rdfs:label "Phase 1: Template Design & RDF Ontology" ;
+    spec:duration "3-4 days" ;
+    spec:objectives (
+        "Design Tera templates for OTP patterns"
+        "Define RDF ontology for Erlang/OTP domain"
+        "Create SPARQL queries for code generation"
+        "Design Diataxis documentation structure"
+    ) ;
+    spec:tasks (
+        :Task1_OTPOntologyDesign
+        :Task2_SupervisorTemplate
+        :Task3_GenServerTemplate
+        :Task4_ApplicationTemplate
+        :Task5_DiataxisStructure
+    ) ;
+    spec:criticalPath true ;
+    spec:dependencies () .
+
+:Task1_OTPOntologyDesign a spec:Task ;
+    rdfs:label "Design OTP Domain Ontology" ;
+    spec:description "Create RDF ontology capturing OTP behaviors, supervision strategies, process patterns" ;
+    spec:module "ggen-ontology-core" ;
+    spec:files (
+        ".specify/specs/015-erlang-otp-example/entities.ttl"
+        ".specify/specs/015-erlang-otp-example/feature.ttl"
+    ) ;
+    spec:dependencies () ;
+    spec:effort "8h" ;
+    spec:deliverable "Complete RDF ontology with SupervisionStrategy, GenServer, Supervisor entities" .
+
+:Task2_SupervisorTemplate a spec:Task ;
+    rdfs:label "Create Supervisor Template" ;
+    spec:description "Tera template generating supervisor.erl with childspec support" ;
+    spec:files (
+        "templates/erlang/supervisor.erl.tera"
+    ) ;
+    spec:dependencies ( :Task1_OTPOntologyDesign ) ;
+    spec:effort "6h" ;
+    spec:acceptance (
+        "Template generates valid supervisor:init/1"
+        "Supports one_for_one, one_for_all, rest_for_one strategies"
+        "Childspecs configurable via SPARQL query results"
+    ) .
+
+:Task3_GenServerTemplate a spec:Task ;
+    rdfs:label "Create gen_server Template" ;
+    spec:description "Tera template generating gen_server.erl with all callbacks" ;
+    spec:files (
+        "templates/erlang/gen_server.erl.tera"
+    ) ;
+    spec:dependencies ( :Task1_OTPOntologyDesign ) ;
+    spec:effort "6h" ;
+    spec:acceptance (
+        "Template generates init, handle_call, handle_cast, handle_info, terminate, code_change"
+        "State type configurable (map, record, tuple)"
+        "Includes proper error handling and logging"
+    ) .
+
+:Task4_ApplicationTemplate a spec:Task ;
+    rdfs:label "Create Application Template" ;
+    spec:description "Tera templates for .app.src, rebar.config, top-level supervisor" ;
+    spec:files (
+        "templates/erlang/app.src.tera"
+        "templates/erlang/rebar.config.tera"
+        "templates/erlang/app_supervisor.erl.tera"
+    ) ;
+    spec:dependencies ( :Task1_OTPOntologyDesign ) ;
+    spec:effort "5h" ;
+    spec:acceptance (
+        "Generated .app.src includes all required fields (name, vsn, modules, applications, mod)"
+        "rebar.config includes deps, erl_opts, dialyzer config"
+        "Application supervisor starts with correct childspecs"
+    ) .
+
+:Task5_DiataxisStructure a spec:Task ;
+    rdfs:label "Design Diataxis Documentation Structure" ;
+    spec:description "Plan Diataxis documentation layout (Tutorials, How-To, Reference, Explanation)" ;
+    spec:files (
+        "templates/erlang/docs/tutorials/README.md.tera"
+        "templates/erlang/docs/how-to/README.md.tera"
+        "templates/erlang/docs/reference/README.md.tera"
+        "templates/erlang/docs/explanation/README.md.tera"
+    ) ;
+    spec:dependencies ( :Task1_OTPOntologyDesign ) ;
+    spec:effort "4h" ;
+    spec:deliverable "Documentation template structure with placeholders for each Diataxis category" .
+
+# ============================================================================
+# PHASE 2: CORE CODE GENERATION
+# ============================================================================
+
+:Phase2_CoreGeneration a spec:Phase ;
+    rdfs:label "Phase 2: Core Code Generation Implementation" ;
+    spec:duration "4-5 days" ;
+    spec:objectives (
+        "Implement five-stage pipeline for Erlang generation"
+        "Integrate SPARQL queries for entity extraction"
+        "Generate working OTP application"
+        "Validate with rebar3 compile"
+    ) ;
+    spec:tasks (
+        :Task6_SparqlQueries
+        :Task7_PipelineIntegration
+        :Task8_ExampleImplementation
+        :Task9_CompilationValidation
+    ) ;
+    spec:criticalPath true ;
+    spec:dependencies ( :Phase1_TemplateDesign ) .
+
+:Task6_SparqlQueries a spec:Task ;
+    rdfs:label "Implement SPARQL Queries for OTP Entities" ;
+    spec:description "Create SPARQL queries extracting Supervisor, GenServer, Application data from RDF" ;
+    spec:module "ggen-ontology-core" ;
+    spec:files (
+        "crates/ggen-ontology-core/src/queries/erlang_otp.rs"
+    ) ;
+    spec:dependencies ( :Task1_OTPOntologyDesign ) ;
+    spec:effort "10h" ;
+    spec:acceptance (
+        "Query extracts supervision strategy, childspecs"
+        "Query extracts gen_server callbacks and state type"
+        "Query extracts application metadata (name, vsn, deps)"
+        "Results serializable to JSON for Tera context"
+    ) .
+
+:Task7_PipelineIntegration a spec:Task ;
+    rdfs:label "Integrate Erlang Templates into ggen sync Pipeline" ;
+    spec:description "Wire Erlang templates into μ₁-μ₅ pipeline" ;
+    spec:module "ggen-core" ;
+    spec:dependencies ( :Task6_SparqlQueries :Task2_SupervisorTemplate :Task3_GenServerTemplate :Task4_ApplicationTemplate ) ;
+    spec:effort "8h" ;
+    spec:acceptance (
+        "ggen sync generates .erl files from TTL specs"
+        "Deterministic output (same TTL → same .erl)"
+        "Receipts generated with file hashes"
+    ) .
+
+:Task8_ExampleImplementation a spec:Task ;
+    rdfs:label "Implement telecom_router Example Application" ;
+    spec:description "Create complete example: supervision tree with call_router, billing_engine, message_queue workers" ;
+    spec:files (
+        "examples/erlang/telecom_router/src/telecom_router_app.erl"
+        "examples/erlang/telecom_router/src/telecom_router_sup.erl"
+        "examples/erlang/telecom_router/src/call_router_server.erl"
+        "examples/erlang/telecom_router/src/billing_engine_server.erl"
+        "examples/erlang/telecom_router/src/message_queue_server.erl"
+    ) ;
+    spec:dependencies ( :Task7_PipelineIntegration ) ;
+    spec:effort "12h" ;
+    spec:acceptance (
+        "Application starts with application:start(telecom_router)"
+        "All three workers register and respond to gen_server:call"
+        "Supervision tree visible via observer:start()"
+    ) .
+
+:Task9_CompilationValidation a spec:Task ;
+    rdfs:label "Validate Generated Code Compiles with rebar3" ;
+    spec:description "Ensure all generated Erlang code compiles without warnings" ;
+    spec:dependencies ( :Task8_ExampleImplementation ) ;
+    spec:effort "4h" ;
+    spec:acceptance (
+        "rebar3 compile succeeds with zero warnings"
+        "dialyzer analysis passes (no type errors)"
+        "xref analysis passes (no undefined functions)"
+    ) .
+
+# ============================================================================
+# PHASE 3: PERFORMANCE BENCHMARKS
+# ============================================================================
+
+:Phase3_Benchmarks a spec:Phase ;
+    rdfs:label "Phase 3: Performance Benchmarks Implementation" ;
+    spec:duration "3-4 days" ;
+    spec:objectives (
+        "Implement benchee-based throughput benchmarks"
+        "Implement latency percentile measurements"
+        "Implement message queue depth monitoring"
+        "Validate against telecom SLOs (100k ops/sec, p99 <10ms)"
+    ) ;
+    spec:tasks (
+        :Task10_ThroughputBenchmark
+        :Task11_LatencyBenchmark
+        :Task12_QueueDepthBenchmark
+        :Task13_BenchmarkReporting
+    ) ;
+    spec:criticalPath true ;
+    spec:dependencies ( :Phase2_CoreGeneration ) .
+
+:Task10_ThroughputBenchmark a spec:Task ;
+    rdfs:label "Implement Throughput Benchmark" ;
+    spec:description "Benchmark measuring ops/sec under 10k concurrent processes" ;
+    spec:files (
+        "examples/erlang/telecom_router/benchmarks/throughput_bench.exs"
+    ) ;
+    spec:dependencies ( :Task8_ExampleImplementation ) ;
+    spec:effort "8h" ;
+    spec:acceptance (
+        "Spawns 10k processes sending gen_server:call"
+        "Measures total ops/sec using benchee"
+        "Target: >100k ops/sec on 4-core machine"
+        "Reports results to stdout and JSON file"
+    ) .
+
+:Task11_LatencyBenchmark a spec:Task ;
+    rdfs:label "Implement Latency Percentile Benchmark" ;
+    spec:description "Measure p50, p95, p99, p999 latency under load" ;
+    spec:files (
+        "examples/erlang/telecom_router/benchmarks/latency_bench.exs"
+    ) ;
+    spec:dependencies ( :Task8_ExampleImplementation ) ;
+    spec:effort "6h" ;
+    spec:acceptance (
+        "Measures 10k sequential gen_server:call latencies"
+        "Computes percentiles using :hdr_histogram or :folsom"
+        "Target: p50 <5ms, p99 <10ms"
+        "Generates percentile distribution graph"
+    ) .
+
+:Task12_QueueDepthBenchmark a spec:Task ;
+    rdfs:label "Implement Message Queue Depth Benchmark" ;
+    spec:description "Monitor queue depth under sustained async load" ;
+    spec:files (
+        "examples/erlang/telecom_router/benchmarks/queue_depth_bench.exs"
+    ) ;
+    spec:dependencies ( :Task8_ExampleImplementation ) ;
+    spec:effort "5h" ;
+    spec:acceptance (
+        "Spawns 10k processes sending gen_server:cast"
+        "Monitors process_info(Pid, message_queue_len) every 100ms"
+        "Target: queue depth <1000 messages"
+        "Detects memory leaks (process memory should stabilize)"
+    ) .
+
+:Task13_BenchmarkReporting a spec:Task ;
+    rdfs:label "Create Benchmark Report Template" ;
+    spec:description "Tera template generating benchmark summary markdown" ;
+    spec:files (
+        "templates/erlang/docs/benchmarks/RESULTS.md.tera"
+    ) ;
+    spec:dependencies ( :Task10_ThroughputBenchmark :Task11_LatencyBenchmark :Task12_QueueDepthBenchmark ) ;
+    spec:effort "3h" ;
+    spec:acceptance (
+        "Report includes throughput (ops/sec)"
+        "Report includes latency percentiles table"
+        "Report includes queue depth graph"
+        "Report includes pass/fail vs SLOs"
+    ) .
+
+# ============================================================================
+# PHASE 4: STRESS TESTS FOR FAULT TOLERANCE
+# ============================================================================
+
+:Phase4_StressTests a spec:Phase ;
+    rdfs:label "Phase 4: Stress Tests for Fault Tolerance" ;
+    spec:duration "4-5 days" ;
+    spec:objectives (
+        "Implement process crash stress test"
+        "Implement network partition simulation"
+        "Implement message flood stress test"
+        "Validate supervision tree recovery"
+    ) ;
+    spec:tasks (
+        :Task14_ProcessCrashTest
+        :Task15_NetworkPartitionTest
+        :Task16_MessageFloodTest
+        :Task17_StressTestReporting
+    ) ;
+    spec:criticalPath true ;
+    spec:dependencies ( :Phase2_CoreGeneration ) .
+
+:Task14_ProcessCrashTest a spec:Task ;
+    rdfs:label "Implement Process Crash Stress Test" ;
+    spec:description "Kill random workers with exit(Pid, kill), verify supervisor restarts" ;
+    spec:files (
+        "examples/erlang/telecom_router/test/stress/process_crash_SUITE.erl"
+    ) ;
+    spec:dependencies ( :Task8_ExampleImplementation ) ;
+    spec:effort "8h" ;
+    spec:acceptance (
+        "Kills random worker every 100ms for 60 seconds"
+        "Measures downtime per crash (time until process restarted)"
+        "Target: <1 second downtime per crash"
+        "Verifies other workers unaffected (one_for_one)"
+    ) .
+
+:Task15_NetworkPartitionTest a spec:Task ;
+    rdfs:label "Implement Network Partition Stress Test" ;
+    spec:description "Simulate network partition using Erlang distribution, verify recovery" ;
+    spec:files (
+        "examples/erlang/telecom_router/test/stress/network_partition_SUITE.erl"
+    ) ;
+    spec:dependencies ( :Task8_ExampleImplementation ) ;
+    spec:effort "10h" ;
+    spec:acceptance (
+        "Starts 3 Erlang nodes in cluster"
+        "Disconnects node2 using erlang:disconnect_node/1"
+        "Waits 30 seconds (partition duration)"
+        "Reconnects node2, verifies state synchronized"
+        "Target: <5 seconds recovery time"
+    ) .
+
+:Task16_MessageFloodTest a spec:Task ;
+    rdfs:label "Implement Message Flood Stress Test" ;
+    spec:description "Flood gen_server with 100k messages, verify backpressure or graceful degradation" ;
+    spec:files (
+        "examples/erlang/telecom_router/test/stress/message_flood_SUITE.erl"
+    ) ;
+    spec:dependencies ( :Task8_ExampleImplementation ) ;
+    spec:effort "6h" ;
+    spec:acceptance (
+        "Sends 100k gen_server:cast in <1 second"
+        "Monitors process memory and queue depth"
+        "Target: no OOM crash, graceful degradation"
+        "Process recovers after flood stops"
+    ) .
+
+:Task17_StressTestReporting a spec:Task ;
+    rdfs:label "Create Stress Test Report Template" ;
+    spec:description "Tera template generating stress test summary" ;
+    spec:files (
+        "templates/erlang/docs/stress-tests/RESULTS.md.tera"
+    ) ;
+    spec:dependencies ( :Task14_ProcessCrashTest :Task15_NetworkPartitionTest :Task16_MessageFloodTest ) ;
+    spec:effort "3h" ;
+    spec:acceptance (
+        "Report includes crash recovery time"
+        "Report includes partition recovery time"
+        "Report includes flood survival (yes/no)"
+        "Report includes failure rate and pass/fail criteria"
+    ) .
+
+# ============================================================================
+# PHASE 5: DIATAXIS DOCUMENTATION GENERATION
+# ============================================================================
+
+:Phase5_Documentation a spec:Phase ;
+    rdfs:label "Phase 5: Diataxis Documentation Generation" ;
+    spec:duration "3-4 days" ;
+    spec:objectives (
+        "Generate Tutorials (learning-oriented)"
+        "Generate How-To Guides (task-oriented)"
+        "Generate Reference (information-oriented, EDoc)"
+        "Generate Explanation (understanding-oriented)"
+    ) ;
+    spec:tasks (
+        :Task18_TutorialGeneration
+        :Task19_HowToGeneration
+        :Task20_ReferenceGeneration
+        :Task21_ExplanationGeneration
+    ) ;
+    spec:dependencies ( :Phase2_CoreGeneration :Phase3_Benchmarks :Phase4_StressTests ) .
+
+:Task18_TutorialGeneration a spec:Task ;
+    rdfs:label "Generate Tutorial: Build Your First OTP App" ;
+    spec:description "Step-by-step tutorial walking through application creation" ;
+    spec:files (
+        "templates/erlang/docs/tutorials/getting-started.md.tera"
+    ) ;
+    spec:dependencies ( :Task8_ExampleImplementation ) ;
+    spec:effort "6h" ;
+    spec:acceptance (
+        "Tutorial covers: create project, add supervisor, add gen_server, compile, run"
+        "Includes complete working example (copy-paste ready)"
+        "Estimated completion time: <30 minutes"
+        "No prior OTP knowledge required"
+    ) .
+
+:Task19_HowToGeneration a spec:Task ;
+    rdfs:label "Generate How-To Guides" ;
+    spec:description "Task-oriented guides for common operations" ;
+    spec:files (
+        "templates/erlang/docs/how-to/add-worker.md.tera"
+        "templates/erlang/docs/how-to/change-supervision-strategy.md.tera"
+        "templates/erlang/docs/how-to/handle-errors.md.tera"
+    ) ;
+    spec:dependencies ( :Task8_ExampleImplementation ) ;
+    spec:effort "8h" ;
+    spec:acceptance (
+        "Each guide solves specific problem (no theory)"
+        "Step-by-step instructions with code snippets"
+        "Includes common pitfalls and troubleshooting"
+    ) .
+
+:Task20_ReferenceGeneration a spec:Task ;
+    rdfs:label "Generate EDoc Reference Documentation" ;
+    spec:description "Generate API reference from EDoc annotations" ;
+    spec:dependencies ( :Task8_ExampleImplementation ) ;
+    spec:effort "5h" ;
+    spec:acceptance (
+        "All public functions have @doc annotations"
+        "All functions have @spec type signatures"
+        "rebar3 edoc generates HTML successfully"
+        "Reference includes types, parameters, return values, examples"
+    ) .
+
+:Task21_ExplanationGeneration a spec:Task ;
+    rdfs:label "Generate Explanation: OTP Design Principles" ;
+    spec:description "Understanding-oriented documentation explaining OTP architecture" ;
+    spec:files (
+        "templates/erlang/docs/explanation/supervision-strategies.md.tera"
+        "templates/erlang/docs/explanation/process-lifecycle.md.tera"
+        "templates/erlang/docs/explanation/fault-tolerance.md.tera"
+    ) ;
+    spec:dependencies ( :Task8_ExampleImplementation ) ;
+    spec:effort "10h" ;
+    spec:acceptance (
+        "Explains one_for_one vs one_for_all vs rest_for_one with diagrams"
+        "Explains gen_server lifecycle (init → loop → terminate)"
+        "Explains 'let it crash' philosophy and supervision trees"
+        "Links to official OTP documentation"
+    ) .
+
+# ============================================================================
+# KEY TECHNICAL DECISIONS
+# ============================================================================
+
+:Decision_TemplateEngine a spec:TechnicalDecision ;
+    rdfs:label "Use Tera for Erlang Code Generation" ;
+    spec:rationale "Tera already integrated in ggen, supports SPARQL-aware multi-pass rendering" ;
+    spec:alternatives (
+        "Handlebars (less powerful, no SPARQL integration)"
+        "Jinja2 (Python-based, not Rust-native)"
+    ) ;
+    spec:chosen "Tera with SPARQL context binding" ;
+    spec:impact "HIGH - Enables type-safe code generation from RDF ontology" .
+
+:Decision_BenchmarkLibrary a spec:TechnicalDecision ;
+    rdfs:label "Use Elixir's benchee for Benchmarks" ;
+    spec:rationale "Industry standard, excellent reporting, integrates with Erlang via Mix" ;
+    spec:alternatives (
+        "Custom Erlang benchmark harness (more work, less features)"
+        "basho_bench (heavyweight, designed for distributed systems)"
+    ) ;
+    spec:chosen "benchee (Elixir library, callable from Erlang)" ;
+    spec:impact "MEDIUM - Provides professional-grade benchmark reports" .
+
+:Decision_DiataxisFramework a spec:TechnicalDecision ;
+    rdfs:label "Use Diataxis for Documentation Structure" ;
+    spec:rationale "Industry best practice, separates learning/task/reference/explanation concerns" ;
+    spec:alternatives (
+        "Flat documentation (harder to navigate)"
+        "Custom structure (reinventing wheel)"
+    ) ;
+    spec:chosen "Diataxis framework (4 categories: Tutorials, How-To, Reference, Explanation)" ;
+    spec:impact "HIGH - Dramatically improves documentation usability and developer onboarding" .
+
+# ============================================================================
+# RISK ANALYSIS
+# ============================================================================
+
+:Risk_ErlangExpertise a spec:Risk ;
+    rdfs:label "Limited Erlang/OTP Expertise" ;
+    spec:probability "MEDIUM" ;
+    spec:impact "HIGH" ;
+    spec:mitigation "Study OTP design principles, reference existing Erlang projects, consult Erlang community" ;
+    spec:contingency "Start with simpler patterns (gen_server only), defer gen_statem and distributed features" .
+
+:Risk_BenchmarkAccuracy a spec:Risk ;
+    rdfs:label "Benchmark Results May Not Reflect Production" ;
+    spec:probability "MEDIUM" ;
+    spec:impact "MEDIUM" ;
+    spec:mitigation "Run benchmarks on production-like hardware, use realistic workloads" ;
+    spec:contingency "Document benchmark environment, provide guidance on interpreting results" .
+
+:Risk_StressTestComplexity a spec:Risk ;
+    rdfs:label "Stress Tests May Be Difficult to Implement Correctly" ;
+    spec:probability "HIGH" ;
+    spec:impact "MEDIUM" ;
+    spec:mitigation "Start with simple crash tests, incrementally add partition and flood tests" ;
+    spec:contingency "Defer distributed stress tests to future release, focus on single-node resilience" .
+
+# ============================================================================
+# SUCCESS METRICS
+# ============================================================================
+
+:SuccessMetrics a spec:Metrics ;
+    rdfs:label "Success Metrics for Erlang/OTP Implementation" ;
+    spec:metric1 "Generated OTP application compiles with rebar3 (zero warnings)" ;
+    spec:metric2 "Supervision tree recovers from worker crashes in <1 second" ;
+    spec:metric3 "Throughput benchmark achieves >100k ops/sec" ;
+    spec:metric4 "Latency benchmark p99 <10ms" ;
+    spec:metric5 "Process crash stress test passes (downtime <1%)" ;
+    spec:metric6 "Network partition stress test passes (recovery <5 seconds)" ;
+    spec:metric7 "Message flood stress test passes (no OOM crash)" ;
+    spec:metric8 "Diataxis documentation complete (4 categories, 10+ pages)" ;
+    spec:metric9 "All documentation generated from RDF ontology (zero manual editing)" ;
+    spec:metric10 "Deterministic generation verified (same TTL → identical .erl files)" .

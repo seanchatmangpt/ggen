@@ -1,0 +1,309 @@
+%%%-----------------------------------------------------------------------------
+%%% @doc {{ app_description | default(value="OTP application implementation") }}
+%%%
+%%% This module implements the application behavior for {{ app_name }}.
+%%% Handles application startup and shutdown lifecycle.
+%%% Generated from RDF ontology via ggen.
+%%%
+%%% @sparql_context {{ sparql_context | default(value="ggen:Application") }}
+%%% @end
+%%%-----------------------------------------------------------------------------
+-module({{ app_name }}_app).
+-behaviour(application).
+
+%% Application callbacks
+-export([start/2, stop/1]).
+
+%% Optional application callbacks
+-export([prep_stop/1, start_phase/3, config_change/3]).
+
+%% Utility exports
+-export([get_env/1, get_env/2, set_env/2]).
+
+%%%=============================================================================
+%%% Type Definitions
+%%%=============================================================================
+
+-type start_type() :: normal | {takeover, node()} | {failover, node()}.
+-type state() :: term().
+
+%%%=============================================================================
+%%% Application Callbacks
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Start the application.
+%%
+%% Called when the application is started. Starts the top-level supervisor.
+%%
+%% @sparql_binding ggen:start
+%% @end
+%%------------------------------------------------------------------------------
+-spec start(StartType :: start_type(), StartArgs :: term()) ->
+    {ok, pid()} | {ok, pid(), state()} | {error, Reason :: term()}.
+start(StartType, _StartArgs) ->
+    %% Log startup
+    error_logger:info_msg("Starting application ~p with type ~p~n", [?MODULE, StartType]),
+
+    {% if enable_telemetry | default(value=true) %}
+    %% Initialize telemetry
+    setup_telemetry(),
+    telemetry_event(application_start, #{start_type => StartType}),
+    {% endif %}
+
+    {% if pre_start_hooks %}
+    %% Execute pre-start hooks
+    {{ pre_start_hooks | safe }}
+    {% endif %}
+
+    %% Start top-level supervisor
+    case {{ app_name }}_sup:start_link() of
+        {ok, Pid} = Result ->
+            {% if post_start_hooks %}
+            %% Execute post-start hooks
+            {{ post_start_hooks | safe }}
+            {% endif %}
+
+            error_logger:info_msg("Application ~p started successfully~n", [?MODULE]),
+            {% if enable_telemetry | default(value=true) %}
+            telemetry_event(application_started, #{pid => Pid}),
+            {% endif %}
+            Result;
+        {error, Reason} = Error ->
+            error_logger:error_msg("Failed to start application ~p: ~p~n", [?MODULE, Reason]),
+            {% if enable_telemetry | default(value=true) %}
+            telemetry_event(application_start_failed, #{reason => Reason}),
+            {% endif %}
+            Error
+    end.
+
+%%------------------------------------------------------------------------------
+%% @doc Stop the application.
+%%
+%% Called when the application is stopped. Performs cleanup.
+%%
+%% @sparql_binding ggen:stop
+%% @end
+%%------------------------------------------------------------------------------
+-spec stop(State :: state()) -> ok.
+stop(_State) ->
+    error_logger:info_msg("Stopping application ~p~n", [?MODULE]),
+
+    {% if pre_stop_hooks %}
+    %% Execute pre-stop hooks
+    {{ pre_stop_hooks | safe }}
+    {% endif %}
+
+    {% if enable_telemetry | default(value=true) %}
+    telemetry_event(application_stop, #{}),
+    {% endif %}
+
+    {% if cleanup_resources %}
+    %% Cleanup resources
+    {{ cleanup_resources | safe }}
+    {% endif %}
+
+    error_logger:info_msg("Application ~p stopped~n", [?MODULE]),
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Prepare to stop the application.
+%%
+%% Called before the supervision tree is terminated. Useful for cleanup that
+%% requires the supervision tree to still be alive.
+%%
+%% @sparql_binding ggen:prepStop
+%% @end
+%%------------------------------------------------------------------------------
+-spec prep_stop(State :: state()) -> NewState :: state().
+prep_stop(State) ->
+    error_logger:info_msg("Preparing to stop application ~p~n", [?MODULE]),
+
+    {% if prep_stop_hooks %}
+    {{ prep_stop_hooks | safe }}
+    {% endif %}
+
+    {% if enable_telemetry | default(value=true) %}
+    telemetry_event(application_prep_stop, #{}),
+    {% endif %}
+
+    State.
+
+%%------------------------------------------------------------------------------
+%% @doc Start a specific phase of the application.
+%%
+%% Called for each start phase defined in the .app file.
+%%
+%% @sparql_binding ggen:startPhase
+%% @end
+%%------------------------------------------------------------------------------
+-spec start_phase(Phase :: atom(), StartType :: start_type(), PhaseArgs :: term()) ->
+    ok | {error, Reason :: term()}.
+start_phase(Phase, StartType, PhaseArgs) ->
+    error_logger:info_msg(
+        "Starting phase ~p for application ~p (type: ~p, args: ~p)~n",
+        [Phase, ?MODULE, StartType, PhaseArgs]
+    ),
+
+    Result = case Phase of
+        {% if start_phases %}
+        {{ start_phases | safe }}
+        {% else %}
+        init_database ->
+            init_database_phase(PhaseArgs);
+        init_cache ->
+            init_cache_phase(PhaseArgs);
+        _ ->
+            error_logger:warning_msg("Unknown start phase: ~p~n", [Phase]),
+            ok
+        {% endif %}
+    end,
+
+    {% if enable_telemetry | default(value=true) %}
+    telemetry_event(phase_completed, #{phase => Phase, result => Result}),
+    {% endif %}
+
+    Result.
+
+%%------------------------------------------------------------------------------
+%% @doc Handle configuration changes.
+%%
+%% Called when application configuration changes at runtime.
+%%
+%% @sparql_binding ggen:configChange
+%% @end
+%%------------------------------------------------------------------------------
+-spec config_change(Changed :: [{atom(), term()}],
+                   New :: [{atom(), term()}],
+                   Removed :: [atom()]) -> ok.
+config_change(Changed, New, Removed) ->
+    error_logger:info_msg(
+        "Configuration changed for application ~p~n"
+        "  Changed: ~p~n"
+        "  New: ~p~n"
+        "  Removed: ~p~n",
+        [?MODULE, Changed, New, Removed]
+    ),
+
+    {% if config_change_handlers %}
+    {{ config_change_handlers | safe }}
+    {% endif %}
+
+    {% if enable_telemetry | default(value=true) %}
+    telemetry_event(config_changed, #{
+        changed => Changed,
+        new => New,
+        removed => Removed
+    }),
+    {% endif %}
+
+    ok.
+
+%%%=============================================================================
+%%% Utility Functions
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Get application environment variable.
+%% @end
+%%------------------------------------------------------------------------------
+-spec get_env(Key :: atom()) -> {ok, term()} | undefined.
+get_env(Key) ->
+    application:get_env({{ app_name }}, Key).
+
+%%------------------------------------------------------------------------------
+%% @doc Get application environment variable with default.
+%% @end
+%%------------------------------------------------------------------------------
+-spec get_env(Key :: atom(), Default :: term()) -> term().
+get_env(Key, Default) ->
+    application:get_env({{ app_name }}, Key, Default).
+
+%%------------------------------------------------------------------------------
+%% @doc Set application environment variable.
+%% @end
+%%------------------------------------------------------------------------------
+-spec set_env(Key :: atom(), Value :: term()) -> ok.
+set_env(Key, Value) ->
+    application:set_env({{ app_name }}, Key, Value).
+
+%%%=============================================================================
+%%% Internal Functions
+%%%=============================================================================
+
+{% if enable_telemetry | default(value=true) %}
+%%------------------------------------------------------------------------------
+%% @doc Setup telemetry handlers.
+%% @private
+%%------------------------------------------------------------------------------
+setup_telemetry() ->
+    Events = [
+        [{{ app_name }}, application, start],
+        [{{ app_name }}, application, started],
+        [{{ app_name }}, application, start_failed],
+        [{{ app_name }}, application, stop],
+        [{{ app_name }}, application, prep_stop],
+        [{{ app_name }}, phase, completed],
+        [{{ app_name }}, config, changed]
+    ],
+
+    telemetry:attach_many(
+        <<"{{ app_name }}-application-handler">>,
+        Events,
+        fun handle_telemetry_event/4,
+        #{}
+    ).
+
+%%------------------------------------------------------------------------------
+%% @doc Handle telemetry events.
+%% @private
+%%------------------------------------------------------------------------------
+handle_telemetry_event(EventName, Measurements, Metadata, _Config) ->
+    error_logger:info_msg(
+        "Telemetry event: ~p~n"
+        "  Measurements: ~p~n"
+        "  Metadata: ~p~n",
+        [EventName, Measurements, Metadata]
+    ).
+
+%%------------------------------------------------------------------------------
+%% @doc Emit telemetry event.
+%% @private
+%%------------------------------------------------------------------------------
+-spec telemetry_event(atom(), map()) -> ok.
+telemetry_event(EventName, Metadata) ->
+    telemetry:execute(
+        [{{ app_name }}, application, EventName],
+        #{count => 1},
+        Metadata
+    ).
+{% endif %}
+
+{% if start_phases %}
+%%------------------------------------------------------------------------------
+%% @doc Phase handlers
+%% @private
+%%------------------------------------------------------------------------------
+init_database_phase(_Args) ->
+    %% Initialize database connections
+    ok.
+
+init_cache_phase(_Args) ->
+    %% Initialize cache
+    ok.
+{% endif %}
+
+%%%=============================================================================
+%%% Unit Tests (EUnit)
+%%%=============================================================================
+
+-ifdef(TEST).
+-include_lib("eunit/include/eunit.hrl").
+
+get_env_test() ->
+    ok = set_env(test_key, test_value),
+    ?assertEqual({ok, test_value}, get_env(test_key)),
+    ?assertEqual(test_value, get_env(test_key, default)),
+    ?assertEqual(default, get_env(nonexistent_key, default)).
+
+-endif.

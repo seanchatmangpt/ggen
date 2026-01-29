@@ -1,0 +1,199 @@
+%% -*- mode: erlang; erlang-indent-level: 2 -*-
+%%%-----------------------------------------------------------------------------
+%%% @doc Basho Bench configuration for {{ benchmark_name | default(value="performance_test") }}
+%%%
+%%% Performance benchmarking configuration using basho_bench.
+%%% Generated from RDF ontology via ggen.
+%%%
+%%% @sparql_context {{ sparql_context | default(value="ggen:BenchmarkConfig") }}
+%%% @end
+%%%-----------------------------------------------------------------------------
+
+%% Benchmark mode
+%% {max, N} - Generate N ops/sec per worker
+%% max - Generate as many ops as possible
+{mode, {{ benchmark_mode | default(value="max") }}}.
+
+%% Duration of test in minutes
+{duration, {{ duration_minutes | default(value=5) }}}.
+
+%% Number of concurrent workers
+{concurrent, {{ num_workers | default(value=10) }}}.
+
+%% Driver module
+{driver, {{ driver_module | default(value="basho_bench_driver_http") }}}.
+
+%% Code paths
+{code_paths, [
+    "_build/bench/lib/{{ app_name }}/ebin",
+    "_build/bench/lib/*/ebin"
+]}.
+
+%% Key generator
+%% Options: {sequential_int, MaxKey} | {pareto_int, MaxKey} | {uniform_int, MaxKey}
+%%          {function, Module, Function, Args}
+{key_generator, {{ key_gen_strategy | default(value="{uniform_int, 100000}") }}}.
+
+%% Value generator
+%% Options: {fixed_bin, Size} | {exponential_bin, MinSize, Mean}
+%%          {uniform_bin, MinSize, MaxSize} | {function, Module, Function, Args}
+{value_generator, {{ value_gen_strategy | default(value="{fixed_bin, 1024}") }}}.
+
+%% RNG seed (for reproducibility)
+{rng_seed, {{ rng_seed | default(value="{42, 23, 12}") }}}.
+
+%% Operations and their distribution
+%% List of {OpTag, Count} where Count is the relative frequency
+{operations, [
+    {% if operation_mix %}
+    {{ operation_mix | safe }}
+    {% else %}
+    {get, 8},
+    {put, 2}
+    {% endif %}
+]}.
+
+{% if test_dir %}
+%% Test output directory
+{test_dir, "{{ test_dir }}"}.
+{% endif %}
+
+{% if log_level %}
+%% Logging level
+{log_level, {{ log_level }}}.
+{% endif %}
+
+%%%=============================================================================
+%%% Driver-Specific Configuration
+%%%=============================================================================
+
+{% if driver_module == "basho_bench_driver_http" %}
+%% HTTP Driver Configuration
+{http_raw_ips, ["{{ target_host | default(value="127.0.0.1") }}"]}.
+{http_raw_port, {{ target_port | default(value=8080) }}}.
+{http_raw_path, "{{ http_path | default(value="/api/v1") }}"}.
+
+%% HTTP request configuration
+{http_request_timeout, {{ request_timeout_ms | default(value=5000) }}}.
+{http_connect_timeout, {{ connect_timeout_ms | default(value=5000) }}}.
+
+%% Connection pooling
+{http_pool_size, {{ pool_size | default(value=10) }}}.
+
+{% elif driver_module == "basho_bench_driver_riakc_pb" %}
+%% Riak Protocol Buffers Driver Configuration
+{riakc_pb_ips, [{{{ riak_host | default(value="127.0.0.1") }}, {{ riak_port | default(value=8087) }}}]}.
+{riakc_pb_bucket, <<"{{ bucket_name | default(value="benchmark") }}">>}.
+{riakc_pb_bucket_type, <<"{{ bucket_type | default(value="default") }}">>}.
+
+%% Riak client options
+{riakc_pb_replies, {{ n_val | default(value=3) }}}.
+
+{% else %}
+%% Custom driver configuration
+{driver_config, [
+    {% if driver_config %}
+    {{ driver_config | safe }}
+    {% else %}
+    {host, "{{ target_host | default(value="127.0.0.1") }}"},
+    {port, {{ target_port | default(value=8080) }}},
+    {timeout, {{ timeout_ms | default(value=5000) }}}
+    {% endif %}
+]}.
+{% endif %}
+
+%%%=============================================================================
+%%% Measurement and Reporting
+%%%=============================================================================
+
+%% Report interval in seconds
+{report_interval, {{ report_interval_sec | default(value=10) }}}.
+
+%% Percentiles to track
+{percentiles, [
+    {{ percentiles | default(value="50, 75, 90, 95, 99, 99.9") }}
+]}.
+
+%% Statistics output format
+{stats_output, [
+    {format, "{{ stats_format | default(value="csv") }}"},
+    {file, "{{ stats_file | default(value="benchmark_stats.csv") }}"}
+]}.
+
+%% Histogram output
+{histogram_output, [
+    {format, "{{ histogram_format | default(value="png") }}"},
+    {file, "{{ histogram_file | default(value="benchmark_histogram.png") }}"}
+]}.
+
+%%%=============================================================================
+%%% Warmup and Shutdown
+%%%=============================================================================
+
+%% Warmup period before measurements start (seconds)
+{warmup_time, {{ warmup_time_sec | default(value=30) }}}.
+
+%% Shutdown on timeout
+{shutdown_on_error, {{ shutdown_on_error | default(value="false") }}}.
+
+%%%=============================================================================
+%%% Advanced Configuration
+%%%=============================================================================
+
+{% if enable_rate_limiting | default(value=false) %}
+%% Rate limiting (operations per second per worker)
+{rate, {{ ops_per_sec | default(value=1000) }}}.
+{% endif %}
+
+{% if enable_think_time | default(value=false) %}
+%% Think time between operations (milliseconds)
+{think_time, {{ think_time_ms | default(value=100) }}}.
+{% endif %}
+
+{% if enable_connection_pool | default(value=true) %}
+%% Connection pooling
+{connection_pool_size, {{ connection_pool_size | default(value=5) }}}.
+{connection_pool_max_overflow, {{ connection_pool_overflow | default(value=10) }}}.
+{% endif %}
+
+{% if custom_config %}
+%% Custom configuration
+{{ custom_config | safe }}
+{% endif %}
+
+%%%=============================================================================
+%%% Example Operations
+%%%=============================================================================
+
+%% Example custom operations
+%% {operations, [
+%%     {get, 4},              %% 40% GET requests
+%%     {put, 3},              %% 30% PUT requests
+%%     {update, 2},           %% 20% UPDATE requests
+%%     {delete, 1}            %% 10% DELETE requests
+%% ]}.
+
+%% Example key distribution strategies
+%% {key_generator, {sequential_int, 1000000}}.        %% Sequential keys 1..N
+%% {key_generator, {uniform_int, 1000000}}.           %% Uniform random
+%% {key_generator, {pareto_int, 1000000}}.            %% 80/20 distribution
+%% {key_generator, {truncated_pareto_int, 1000000}}.  %% Pareto with cutoff
+
+%% Example value size strategies
+%% {value_generator, {fixed_bin, 1024}}.                      %% Fixed 1KB
+%% {value_generator, {uniform_bin, 512, 2048}}.               %% 512B-2KB uniform
+%% {value_generator, {exponential_bin, 100, 1000}}.           %% Exponential distribution
+
+%%%=============================================================================
+%%% Comments and Documentation
+%%%=============================================================================
+
+%% To run this benchmark:
+%%   rebar3 as bench compile
+%%   basho_bench benchmark.config
+%%
+%% Results will be written to:
+%%   tests/current/
+%%
+%% To generate graphs:
+%%   Rscript --vanilla priv/summary.r -i tests/current

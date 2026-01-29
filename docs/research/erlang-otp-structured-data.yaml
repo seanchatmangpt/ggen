@@ -1,0 +1,375 @@
+# Erlang/OTP Research - Structured Data for Agent Consumption
+# Last Updated: 2026-01-29
+
+erlang_otp_core_concepts:
+  let_it_crash:
+    description: "Don't write defensive error checks; let processes crash and supervisors restart them"
+    benefit: "Simpler code + automatic recovery = higher reliability"
+    source: "Joe Armstrong's Philosophy"
+    key_quote: "Just let it crash - isolation prevents cascade failures"
+
+  supervision_trees:
+    description: "Hierarchical process monitors that automatically restart failed children"
+    strategies:
+      - one_for_one: "Restart only crashed process"
+      - one_for_all: "Restart all children if one crashes"
+      - rest_for_one: "Restart crashed + all subsequent processes"
+      - simple_one_for_one: "Dynamic supervision for identical workers"
+    reliability: "Enables 99.999%+ uptime (five nines)"
+
+  process_isolation:
+    memory_model: "Shared-nothing architecture"
+    communication: "Message passing only"
+    garbage_collection: "Per-process (no global GC pauses)"
+    fault_containment: "Process crashes don't corrupt other processes"
+
+  hot_code_reloading:
+    capability: "Update running code without stopping system"
+    use_case: "Zero-downtime deployments for telecom systems"
+    mechanism: "Two versions in memory (old + new), migrate on external function call"
+
+  distribution:
+    location_transparency: "Same syntax for local and remote processes"
+    scalability: "Horizontal scaling by adding nodes"
+    resilience: "Multi-datacenter deployments possible"
+
+otp_behaviors:
+  gen_server:
+    purpose: "Client-server pattern for stateful services"
+    use_cases: ["AI agent processes", "Resource managers", "Stateful services"]
+    callbacks: ["init/1", "handle_call/3", "handle_cast/2", "handle_info/2", "terminate/2", "code_change/3"]
+
+  gen_statem:
+    purpose: "State machine pattern for workflows and protocols"
+    use_cases: ["Workflow orchestrators", "Protocol handlers", "Multi-step agent tasks"]
+    callbacks: ["callback_mode/0", "init/1", "StateName/3", "terminate/3", "code_change/4"]
+
+  gen_event:
+    purpose: "Event handling pattern for pub-sub systems"
+    use_cases: ["Logging", "Monitoring", "Audit trails", "Agent communication bus"]
+
+  supervisor:
+    purpose: "Process monitoring for fault tolerance"
+    use_cases: ["Agent pool managers", "Fault-tolerant service containers"]
+
+  application:
+    purpose: "Deployment unit with start/stop semantics"
+    use_cases: ["OTP releases", "Dependency management", "Hot code upgrades"]
+
+joe_armstrong_teaching:
+  principles:
+    - "Concurrency as first-class concept (not advanced topic)"
+    - "Practical, example-driven learning (real systems, not toy examples)"
+    - "Focus on real-world problems (telecom, distributed databases, web)"
+    - "Simplicity and elegance over complexity"
+
+  pedagogical_patterns:
+    - "Start small, think big (single process → supervision → clustering)"
+    - "Fail fast, recover automatically (crashing is valid error handling)"
+    - "Learn by breaking (kill processes, disconnect nodes, inject errors)"
+    - "From prototype to production (same structure, more robust)"
+
+  typical_example_sequence:
+    - "Echo server (basic message passing)"
+    - "Chat server (multiple clients, broadcasting)"
+    - "Fault-tolerant chat server (supervision, recovery)"
+    - "Distributed chat server (multi-node clustering)"
+
+diataxis_framework:
+  overview: "Systematic approach to technical documentation with four distinct content types"
+
+  tutorials:
+    purpose: "Provide successful learning experience for beginners"
+    characteristics: ["Learning by doing", "Step-by-step", "Immediate feedback", "Safety", "Concrete examples"]
+    example: "Build Your First Erlang Chat Server in 30 Minutes"
+
+  how_to_guides:
+    purpose: "Help competent users accomplish specific tasks"
+    characteristics: ["Problem-solving", "Flexible", "Practical", "Context-aware", "Results-driven"]
+    example: "How to Handle Backpressure in gen_server"
+
+  reference:
+    purpose: "Provide accurate, complete technical description"
+    characteristics: ["Factual", "Complete", "Structured", "Authoritative", "Dry"]
+    example: "gen_server Callback Reference"
+
+  explanation:
+    purpose: "Deepen understanding of concepts and design decisions"
+    characteristics: ["Theoretical", "Contextual", "Analytical", "Discursive", "Open-ended"]
+    example: "Understanding Erlang's Scheduler: Why Preemptive Scheduling Matters"
+
+  adoption:
+    companies: ["Gatsby", "Cloudflare", "Canonical (Ubuntu)"]
+    benefits: ["Higher documentation quality", "Easier collaboration", "Better user satisfaction"]
+
+fortune_5_telecom_requirements:
+  carrier_grade_reliability:
+    five_nines: "99.999%"
+    downtime_per_year: "5.26 minutes"
+    downtime_per_day: "0.864 seconds"
+    six_nines: "99.9999% (32 seconds/year)"
+    nine_nines: "99.9999999% (31 milliseconds/year - Ericsson AXD301)"
+
+  components:
+    redundancy:
+      - "Hardware: Dual power, redundant NICs, RAID"
+      - "Software: Active-active/active-passive process pairs"
+      - "Network: Multiple PoPs, diverse routing"
+      - "Data: Multi-datacenter replication"
+    fault_isolation:
+      - "Process isolation (Erlang lightweight processes)"
+      - "Service isolation (supervision tree boundaries)"
+      - "Failure domain containment"
+      - "Circuit breakers"
+    automatic_recovery:
+      - "Health checks"
+      - "Self-healing (supervision trees)"
+      - "Automatic failover"
+      - "Graceful degradation"
+    observability:
+      - "Real-time telemetry (metrics, logs, traces)"
+      - "Proactive alerting"
+      - "Anomaly detection (AI/ML)"
+      - "Root cause analysis"
+
+  scalability:
+    requirements:
+      connections: "Millions concurrent"
+      throughput: "Thousands calls/second setup/release"
+      data: "Terabits/second for backbone"
+      geographic: "Global presence with local latency"
+    erlang_capabilities:
+      process_overhead: "2KB per process"
+      capacity: "Millions of processes per node"
+      scaling: "Horizontal via cluster"
+      load_balancing: "Built-in across processes and nodes"
+
+  real_time_constraints:
+    soft_real_time: true
+    hard_real_time: false
+    latencies:
+      call_setup: "<50ms"
+      packet_forwarding: "<10ms"
+      billing_events: "<100ms"
+      alarm_propagation: "<1s"
+
+  regulatory_compliance:
+    - "CALEA (lawful intercept)"
+    - "GDPR (data privacy)"
+    - "PCI DSS (payment security)"
+    - "SOC 2 (security controls)"
+
+  cost_economics:
+    three_nines: "99.9% - baseline cost ($X)"
+    four_nines: "99.99% - 10X cost"
+    five_nines: "99.999% - 100X cost"
+    six_nines: "99.9999% - 1000X cost"
+    note: "Each nine costs an order of magnitude more"
+
+agi_relevant_patterns:
+  self_organizing_systems:
+    mechanisms:
+      - "Emergent behavior from local interactions"
+      - "Decentralized decision-making"
+      - "Feedback loops"
+      - "Stigmergy (environment-mediated coordination)"
+    erlang_examples:
+      - "Dynamic supervision trees"
+      - "Process pool auto-sizing"
+      - "Load balancing via mailbox depth"
+      - "Cluster formation (libcluster)"
+
+  adaptive_fault_tolerance:
+    patterns:
+      - "Failure pattern recognition"
+      - "Adaptive restart strategies"
+      - "Circuit breaker tuning"
+      - "Anomaly detection"
+    erlang_primitives:
+      - "Supervisor restart intensity"
+      - "Tagged exit reasons"
+      - "SASL reports for pattern analysis"
+      - "Telemetry hooks for ML pipelines"
+
+  distributed_intelligence:
+    challenges:
+      - "Consensus despite asynchrony and failures (CAP theorem)"
+      - "Task allocation across heterogeneous agents"
+      - "Knowledge sharing without central storage"
+      - "Conflict resolution from parallel agents"
+    erlang_solutions:
+      - "Distributed Erlang (location transparency)"
+      - "Riak Core (consistent hashing + vnodes)"
+      - "Lasp (CRDTs for coordination-free programming)"
+      - "Partisan (alternative distribution for large clusters)"
+
+  actor_model_for_ai:
+    mapping:
+      ai_agent: "Erlang Process (gen_server)"
+      agent_state: "Process State"
+      agent_action: "handle_call/handle_cast"
+      perception: "receive message"
+      environment: "Other processes + external systems"
+
+    2026_trends:
+      multi_agent_surge: "1,445% increase in inquiries (Gartner Q1 2024 → Q2 2025)"
+      enterprise_adoption: "40% of apps will include agents by 2026 (up from <5%)"
+      microservices_revolution: "Single monolithic agents → orchestrated specialist teams"
+
+    orchestration_patterns:
+      - name: "Manager-Worker"
+        description: "Single coordinator dispatches to agent pool"
+      - name: "Pipeline"
+        description: "Agents form processing chain (gen_stage, Broadway)"
+      - name: "Pub-Sub"
+        description: "Agents subscribe to event streams (gen_event)"
+      - name: "Mesh"
+        description: "Fully connected peer-to-peer agents"
+
+  multi_agent_architectures:
+    symbolic_classical:
+      - "Algorithmic planning and reasoning"
+      - "Persistent state machines"
+      - "Rule-based decision making"
+      - "Deterministic behavior"
+
+    neural_generative:
+      - "Stochastic generation (LLMs)"
+      - "Prompt-driven orchestration"
+      - "Learned behaviors"
+      - "Probabilistic outputs"
+
+    hybrid_approach:
+      symbolic_coordination: "Erlang/OTP for supervision, routing, fault tolerance"
+      neural_execution: "LLM agents for task-specific intelligence"
+      example: "Erlang supervisor manages pool of LLM-powered agent processes"
+
+  agi_safety:
+    philosophical_alignment:
+      - "Erlang's 'let it crash' = safe failure modes for AI agents"
+      - "Process isolation prevents rogue agents from corrupting system"
+      - "Built-in tracing enables AI behavior monitoring"
+      - "Instant process termination (safety shutdown for misbehaving agents)"
+
+    mechanisms:
+      - "Supervisor as guardrail: Enforce agent behavior constraints"
+      - "Message inspection: Validate agent communications"
+      - "Resource limits: Cap CPU, memory, message queue per agent"
+      - "Timeout enforcement: Kill agents exceeding time budgets"
+
+project_template:
+  structure:
+    apps:
+      - name: "agent_core"
+        purpose: "Agent runtime (gen_server, supervision)"
+      - name: "agent_orchestrator"
+        purpose: "Workflow coordination (gen_statem)"
+      - name: "agent_knowledge"
+        purpose: "Shared state (Mnesia/CRDT)"
+      - name: "agent_telemetry"
+        purpose: "Observability (OpenTelemetry)"
+      - name: "agent_api"
+        purpose: "External interface (REST/gRPC)"
+
+    docs:
+      - "tutorials/ (Diataxis: Learning-oriented)"
+      - "how_to/ (Diataxis: Task-oriented)"
+      - "reference/ (Diataxis: Information-oriented)"
+      - "explanation/ (Diataxis: Understanding-oriented)"
+
+    test:
+      - "unit/ (EUnit tests)"
+      - "integration/ (Common Test suites)"
+      - "property/ (PropEr property-based tests)"
+
+  design_decisions:
+    - "Process-per-agent: Each AI agent = separate Erlang process"
+    - "Supervision as guardrails: Use supervision trees to enforce constraints"
+    - "Message passing: No shared state; all coordination via messages"
+    - "Telemetry from day one: Instrument everything for observability"
+    - "Fail-safe defaults: Design for failure; recovery is automatic"
+    - "Horizontal scaling: Add nodes to cluster for capacity"
+
+  common_pitfalls:
+    - problem: "Large messages"
+      solution: "Use ETS, references, or external storage"
+    - problem: "Synchronous bottlenecks"
+      solution: "Use cast, async pools (poolboy, jobs)"
+    - problem: "Distributed Erlang at scale"
+      solution: "Use Partisan, Riak Core, custom overlays"
+    - problem: "Ignoring backpressure"
+      solution: "Use gen_stage, Broadway, manual flow control"
+    - problem: "Inadequate testing"
+      solution: "Property-based testing, fault injection, chaos engineering"
+
+key_insights:
+  telecom_agi_synergy: "Carrier-grade requirements align with AGI safety needs; Erlang/OTP designed for exactly these constraints"
+  actor_model_fit: "Actor model is natural fit for multi-agent systems; Erlang is battle-tested actor implementation"
+  supervision_as_guardrails: "Supervision trees provide both fault tolerance AND behavior constraint enforcement for AI agents"
+  hybrid_architecture: "Symbolic coordination (Erlang/OTP) + neural execution (LLMs) = robust AGI systems"
+
+success_metrics:
+  technical:
+    uptime: "99.999% (5.26 min/year downtime)"
+    scale: "1M+ concurrent agent processes"
+    latency: "<100ms p99 for agent communication"
+    data_integrity: "Zero data loss during node failures"
+
+  documentation:
+    diataxis_coverage: "All 4 content types (tutorial, how-to, reference, explanation)"
+    tutorial_success: "New user productive in <60 minutes"
+    how_to_coverage: "10+ guides for common tasks"
+    reference_completeness: "Comprehensive API documentation"
+
+  adoption:
+    production_deployments: "Real-world carrier-grade usage"
+    community_contributions: "Open-source ecosystem growth"
+    academic_citations: "Research impact"
+
+next_steps:
+  immediate_week_1:
+    - "Create basic OTP application template (rebar3)"
+    - "Implement gen_server agent example"
+    - "Add supervision tree with restart strategies"
+    - "Write Diataxis documentation scaffold"
+
+  short_term_month_1:
+    - "Multi-node distributed agent example"
+    - "Telemetry integration (metrics, traces, logs)"
+    - "Testing framework setup (EUnit, CT, PropEr)"
+    - "Performance benchmarks (1M+ processes)"
+
+  medium_term_quarter_1:
+    - "Production-ready agent platform"
+    - "Carrier-grade compliance validation"
+    - "AGI safety mechanisms implementation"
+    - "Community feedback integration"
+
+sources:
+  erlang_otp:
+    - title: "Let It Crash - Mathias Verraes"
+      url: "https://verraes.net/2014/12/erlang-let-it-crash/"
+    - title: "Joe Armstrong's Thesis: Making Reliable Distributed Systems"
+      url: "https://erlang.org/download/armstrong_thesis_2003.pdf"
+    - title: "Erlang Design Principles"
+      url: "https://www.erlang.org/doc/design_principles/des_princ"
+
+  diataxis:
+    - title: "Diátaxis Framework"
+      url: "https://diataxis.fr/"
+    - title: "What is Diátaxis? - I'd Rather Be Writing"
+      url: "https://idratherbewriting.com/blog/what-is-diataxis-documentation-framework"
+
+  telecom:
+    - title: "Five-nines availability - TechTarget"
+      url: "https://www.techtarget.com/searchnetworking/feature/The-Holy-Grail-of-five-nines-reliability"
+    - title: "What is Carrier Grade? - GetVoIP"
+      url: "https://getvoip.com/library/what-is-carrier-grade/"
+
+  agi:
+    - title: "Agentic AI: Comprehensive Survey - arXiv"
+      url: "https://arxiv.org/html/2510.25445v1"
+    - title: "7 Agentic AI Trends to Watch in 2026"
+      url: "https://machinelearningmastery.com/7-agentic-ai-trends-to-watch-in-2026/"
+    - title: "AI Research Landscape in 2026 - Adaline Labs"
+      url: "https://labs.adaline.ai/p/the-ai-research-landscape-in-2026"

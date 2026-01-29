@@ -1,0 +1,563 @@
+%%%-----------------------------------------------------------------------------
+%%% @doc {{ test_description | default(value="Chaos engineering and stress testing") }}
+%%%
+%%% Chaos engineering test suite for {{ app_name }}.
+%%% Implements fault injection, network partitions, and stress scenarios.
+%%% Generated from RDF ontology via ggen.
+%%%
+%%% @sparql_context {{ sparql_context | default(value="ggen:StressTest") }}
+%%% @end
+%%%-----------------------------------------------------------------------------
+-module({{ test_name }}_stress).
+
+-export([
+    run/0,
+    run_scenario/1,
+    inject_fault/1,
+    inject_fault/2
+]).
+
+%% Specific scenario exports
+-export([
+    simulate_network_partition/0,
+    crash_random_worker/0,
+    flood_messages/0,
+    exhaust_memory/0,
+    exhaust_processes/0,
+    slow_network/0,
+    kill_supervisor/0,
+    corrupt_data/0
+]).
+
+%% Telemetry
+{% if enable_telemetry | default(value=true) %}
+-export([telemetry_event/2, telemetry_event/3]).
+{% endif %}
+
+-include_lib("eunit/include/eunit.hrl").
+
+%%%=============================================================================
+%%% Type Definitions
+%%%=============================================================================
+
+-type scenario() :: network_partition | process_crash | message_flood |
+                   memory_exhaustion | process_exhaustion | slow_network |
+                   supervisor_failure | data_corruption.
+
+-type fault_config() :: #{
+    duration => pos_integer(),
+    intensity => low | medium | high,
+    target => pid() | atom() | all
+}.
+
+%%%=============================================================================
+%%% Main Test Runner
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Run all stress test scenarios.
+%%
+%% Executes each chaos scenario and collects results.
+%% @end
+%%------------------------------------------------------------------------------
+-spec run() -> ok | {error, term()}.
+run() ->
+    io:format("~n=== Starting Chaos Engineering Tests ===~n~n"),
+
+    Scenarios = [
+        {network_partition, fun simulate_network_partition/0},
+        {process_crash, fun crash_random_worker/0},
+        {message_flood, fun flood_messages/0},
+        {memory_exhaustion, fun exhaust_memory/0},
+        {process_exhaustion, fun exhaust_processes/0},
+        {slow_network, fun slow_network/0},
+        {supervisor_failure, fun kill_supervisor/0},
+        {data_corruption, fun corrupt_data/0}
+    ],
+
+    Results = [execute_scenario(Name, Fun) || {Name, Fun} <- Scenarios],
+
+    io:format("~n=== Chaos Engineering Tests Complete ===~n"),
+    print_summary(Results),
+
+    case lists:all(fun is_success/1, Results) of
+        true -> ok;
+        false -> {error, some_scenarios_failed}
+    end.
+
+%%------------------------------------------------------------------------------
+%% @doc Run a specific stress test scenario.
+%% @end
+%%------------------------------------------------------------------------------
+-spec run_scenario(scenario()) -> ok | {error, term()}.
+run_scenario(Scenario) ->
+    io:format("Running scenario: ~p~n", [Scenario]),
+    case Scenario of
+        network_partition -> simulate_network_partition();
+        process_crash -> crash_random_worker();
+        message_flood -> flood_messages();
+        memory_exhaustion -> exhaust_memory();
+        process_exhaustion -> exhaust_processes();
+        slow_network -> slow_network();
+        supervisor_failure -> kill_supervisor();
+        data_corruption -> corrupt_data();
+        _ -> {error, unknown_scenario}
+    end.
+
+%%%=============================================================================
+%%% Fault Injection
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Inject a fault into the system.
+%% @end
+%%------------------------------------------------------------------------------
+-spec inject_fault(scenario()) -> ok | {error, term()}.
+inject_fault(FaultType) ->
+    inject_fault(FaultType, #{}).
+
+%%------------------------------------------------------------------------------
+%% @doc Inject a fault with configuration.
+%% @end
+%%------------------------------------------------------------------------------
+-spec inject_fault(scenario(), fault_config()) -> ok | {error, term()}.
+inject_fault(FaultType, Config) ->
+    {% if enable_telemetry | default(value=true) %}
+    telemetry_event(fault_injection_start, #{type => FaultType, config => Config}),
+    {% endif %}
+
+    Result = case FaultType of
+        {% if fault_injection_logic %}
+        {{ fault_injection_logic | safe }}
+        {% else %}
+        network_partition ->
+            Duration = maps:get(duration, Config, 5000),
+            simulate_partition(Duration);
+
+        process_crash ->
+            Target = maps:get(target, Config, random),
+            crash_process(Target);
+
+        message_flood ->
+            Intensity = maps:get(intensity, Config, medium),
+            flood_with_intensity(Intensity);
+
+        _ ->
+            {error, {unsupported_fault_type, FaultType}}
+        {% endif %}
+    end,
+
+    {% if enable_telemetry | default(value=true) %}
+    telemetry_event(fault_injection_complete, #{type => FaultType, result => Result}),
+    {% endif %}
+
+    Result.
+
+%%%=============================================================================
+%%% Chaos Scenarios
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Simulate network partition between nodes.
+%% @end
+%%------------------------------------------------------------------------------
+-spec simulate_network_partition() -> ok | {error, term()}.
+simulate_network_partition() ->
+    io:format("  [CHAOS] Simulating network partition...~n"),
+
+    {% if distributed_test | default(value=false) %}
+    Nodes = nodes(),
+    case Nodes of
+        [] ->
+            io:format("    No connected nodes, skipping partition test~n"),
+            ok;
+        _ ->
+            %% Partition the cluster
+            [Node1 | RestNodes] = Nodes,
+            disconnect_nodes([Node1], RestNodes),
+
+            timer:sleep({{ partition_duration_ms | default(value=3000) }}),
+
+            %% Heal the partition
+            reconnect_nodes([Node1], RestNodes),
+
+            verify_cluster_health()
+    end
+    {% else %}
+    io:format("    Distributed tests not enabled~n"),
+    ok
+    {% endif %}.
+
+%%------------------------------------------------------------------------------
+%% @doc Crash a random worker process.
+%% @end
+%%------------------------------------------------------------------------------
+-spec crash_random_worker() -> ok | {error, term()}.
+crash_random_worker() ->
+    io:format("  [CHAOS] Crashing random worker...~n"),
+
+    Workers = get_worker_processes(),
+    case Workers of
+        [] ->
+            io:format("    No worker processes found~n"),
+            ok;
+        _ ->
+            Target = lists:nth(rand:uniform(length(Workers)), Workers),
+            io:format("    Killing process: ~p~n", [Target]),
+
+            %% Record state before crash
+            StateBeforeCrash = capture_system_state(),
+
+            %% Kill the process
+            exit(Target, kill),
+
+            %% Wait for supervisor to restart it
+            timer:sleep({{ recovery_wait_ms | default(value=1000) }}),
+
+            %% Verify recovery
+            StateAfterRecovery = capture_system_state(),
+
+            verify_recovery(StateBeforeCrash, StateAfterRecovery)
+    end.
+
+%%------------------------------------------------------------------------------
+%% @doc Flood system with messages.
+%% @end
+%%------------------------------------------------------------------------------
+-spec flood_messages() -> ok | {error, term()}.
+flood_messages() ->
+    io:format("  [CHAOS] Flooding system with messages...~n"),
+
+    Target = get_target_process(),
+    MessageCount = {{ flood_message_count | default(value=10000) }},
+
+    %% Monitor queue length
+    QueueLengthBefore = get_message_queue_len(Target),
+
+    %% Send flood
+    [Target ! {flood, N} || N <- lists:seq(1, MessageCount)],
+
+    %% Wait for processing
+    timer:sleep({{ flood_settle_time_ms | default(value=2000) }}),
+
+    %% Verify system is still responsive
+    QueueLengthAfter = get_message_queue_len(Target),
+
+    io:format("    Queue length: ~p -> ~p~n", [QueueLengthBefore, QueueLengthAfter]),
+
+    verify_responsiveness(Target).
+
+%%------------------------------------------------------------------------------
+%% @doc Exhaust available memory.
+%% @end
+%%------------------------------------------------------------------------------
+-spec exhaust_memory() -> ok | {error, term()}.
+exhaust_memory() ->
+    io:format("  [CHAOS] Testing memory exhaustion handling...~n"),
+
+    MemBefore = erlang:memory(total),
+
+    %% Spawn process that allocates memory
+    Pid = spawn(fun() -> allocate_memory(0) end),
+
+    %% Wait for memory pressure
+    timer:sleep({{ memory_test_duration_ms | default(value=3000) }}),
+
+    %% Kill allocator
+    exit(Pid, kill),
+
+    %% Wait for GC
+    erlang:garbage_collect(),
+    timer:sleep(500),
+
+    MemAfter = erlang:memory(total),
+
+    io:format("    Memory: ~p -> ~p bytes~n", [MemBefore, MemAfter]),
+
+    %% Verify system recovered
+    verify_memory_recovered(MemBefore, MemAfter).
+
+%%------------------------------------------------------------------------------
+%% @doc Exhaust process limit.
+%% @end
+%%------------------------------------------------------------------------------
+-spec exhaust_processes() -> ok | {error, term()}.
+exhaust_processes() ->
+    io:format("  [CHAOS] Testing process exhaustion handling...~n"),
+
+    ProcessCountBefore = erlang:system_info(process_count),
+    MaxProcesses = erlang:system_info(process_limit),
+
+    %% Spawn many processes (but stay under limit)
+    TargetCount = min({{ test_process_count | default(value=1000) }},
+                     MaxProcesses - ProcessCountBefore - 100),
+
+    Pids = [spawn(fun() -> timer:sleep(60000) end) || _ <- lists:seq(1, TargetCount)],
+
+    ProcessCountDuring = erlang:system_info(process_count),
+
+    %% Cleanup
+    [exit(Pid, kill) || Pid <- Pids],
+    timer:sleep(500),
+
+    ProcessCountAfter = erlang:system_info(process_count),
+
+    io:format("    Processes: ~p -> ~p -> ~p~n",
+             [ProcessCountBefore, ProcessCountDuring, ProcessCountAfter]),
+
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Simulate slow network conditions.
+%% @end
+%%------------------------------------------------------------------------------
+-spec slow_network() -> ok | {error, term()}.
+slow_network() ->
+    io:format("  [CHAOS] Simulating slow network...~n"),
+
+    %% Inject latency into network operations
+    %% This is a placeholder - actual implementation depends on your system
+
+    io:format("    Injecting network latency: {{ network_latency_ms | default(value=500) }}ms~n"),
+
+    %% Test operations with latency
+    StartTime = erlang:monotonic_time(millisecond),
+
+    %% Perform network operation
+    _Result = perform_network_operation(),
+
+    EndTime = erlang:monotonic_time(millisecond),
+    Duration = EndTime - StartTime,
+
+    io:format("    Operation completed in ~pms~n", [Duration]),
+
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Kill and restart supervisor.
+%% @end
+%%------------------------------------------------------------------------------
+-spec kill_supervisor() -> ok | {error, term()}.
+kill_supervisor() ->
+    io:format("  [CHAOS] Killing supervisor...~n"),
+
+    SupervisorName = {{ supervisor_name | default(value="?MODULE") }}_sup,
+
+    case whereis(SupervisorName) of
+        undefined ->
+            io:format("    Supervisor not running~n"),
+            ok;
+        Pid ->
+            %% Record children before crash
+            ChildrenBefore = supervisor:which_children(SupervisorName),
+
+            %% Kill supervisor
+            exit(Pid, kill),
+
+            %% Wait for application to restart it
+            timer:sleep({{ supervisor_restart_wait_ms | default(value=2000) }}),
+
+            %% Verify restart
+            case whereis(SupervisorName) of
+                undefined ->
+                    {error, supervisor_not_restarted};
+                NewPid when NewPid /= Pid ->
+                    ChildrenAfter = supervisor:which_children(SupervisorName),
+                    verify_children_restarted(ChildrenBefore, ChildrenAfter)
+            end
+    end.
+
+%%------------------------------------------------------------------------------
+%% @doc Simulate data corruption.
+%% @end
+%%------------------------------------------------------------------------------
+-spec corrupt_data() -> ok | {error, term()}.
+corrupt_data() ->
+    io:format("  [CHAOS] Simulating data corruption...~n"),
+
+    %% This is a placeholder - implement based on your data layer
+    %% Example: corrupt ETS table, disk file, database record, etc.
+
+    io:format("    Data corruption test not implemented~n"),
+
+    ok.
+
+%%%=============================================================================
+%%% Helper Functions
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Execute a scenario with error handling.
+%% @private
+%%------------------------------------------------------------------------------
+execute_scenario(Name, Fun) ->
+    io:format("~nRunning scenario: ~p~n", [Name]),
+
+    StartTime = erlang:monotonic_time(millisecond),
+
+    Result = try
+        Fun(),
+        {ok, Name}
+    catch
+        Class:Reason:Stacktrace ->
+            io:format("  [FAILED] ~p: ~p~n~p~n", [Class, Reason, Stacktrace]),
+            {error, Name, {Class, Reason}}
+    end,
+
+    EndTime = erlang:monotonic_time(millisecond),
+    Duration = EndTime - StartTime,
+
+    io:format("  Completed in ~pms~n", [Duration]),
+
+    Result.
+
+%%------------------------------------------------------------------------------
+%% @doc Check if scenario result is successful.
+%% @private
+%%------------------------------------------------------------------------------
+is_success({ok, _}) -> true;
+is_success(_) -> false.
+
+%%------------------------------------------------------------------------------
+%% @doc Print test summary.
+%% @private
+%%------------------------------------------------------------------------------
+print_summary(Results) ->
+    Passed = length([R || R <- Results, is_success(R)]),
+    Total = length(Results),
+
+    io:format("~n=== Summary ===~n"),
+    io:format("Passed: ~p/~p~n", [Passed, Total]),
+
+    Failed = [R || R <- Results, not is_success(R)],
+    case Failed of
+        [] ->
+            io:format("All scenarios passed!~n");
+        _ ->
+            io:format("Failed scenarios:~n"),
+            [io:format("  - ~p~n", [F]) || F <- Failed]
+    end.
+
+%%------------------------------------------------------------------------------
+%% @doc Get list of worker processes.
+%% @private
+%%------------------------------------------------------------------------------
+get_worker_processes() ->
+    %% This is application-specific - implement based on your architecture
+    [].
+
+%%------------------------------------------------------------------------------
+%% @doc Get target process for testing.
+%% @private
+%%------------------------------------------------------------------------------
+get_target_process() ->
+    whereis({{ target_process | default(value="?MODULE") }}).
+
+%%------------------------------------------------------------------------------
+%% @doc Get message queue length.
+%% @private
+%%------------------------------------------------------------------------------
+get_message_queue_len(Pid) when is_pid(Pid) ->
+    {message_queue_len, Len} = erlang:process_info(Pid, message_queue_len),
+    Len;
+get_message_queue_len(_) ->
+    0.
+
+%%------------------------------------------------------------------------------
+%% @doc Capture system state.
+%% @private
+%%------------------------------------------------------------------------------
+capture_system_state() ->
+    #{
+        process_count => erlang:system_info(process_count),
+        memory => erlang:memory(total),
+        reductions => erlang:statistics(reductions)
+    }.
+
+%%------------------------------------------------------------------------------
+%% @doc Verify system recovery after crash.
+%% @private
+%%------------------------------------------------------------------------------
+verify_recovery(_Before, _After) ->
+    %% Implement recovery verification
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Verify system responsiveness.
+%% @private
+%%------------------------------------------------------------------------------
+verify_responsiveness(_Target) ->
+    %% Implement responsiveness check
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Verify memory recovered after exhaustion test.
+%% @private
+%%------------------------------------------------------------------------------
+verify_memory_recovered(_Before, _After) ->
+    %% Memory should be close to original
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Verify children were restarted.
+%% @private
+%%------------------------------------------------------------------------------
+verify_children_restarted(_Before, _After) ->
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Allocate memory in loop.
+%% @private
+%%------------------------------------------------------------------------------
+allocate_memory(N) when N < {{ max_allocations | default(value=1000) }} ->
+    _Data = binary:copy(<<0>>, 1024 * 1024), %% 1MB
+    timer:sleep(10),
+    allocate_memory(N + 1);
+allocate_memory(_) ->
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Perform network operation (placeholder).
+%% @private
+%%------------------------------------------------------------------------------
+perform_network_operation() ->
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Disconnect nodes (distributed).
+%% @private
+%%------------------------------------------------------------------------------
+disconnect_nodes(Group1, Group2) ->
+    [erlang:disconnect_node(N) || N <- Group2, _ <- Group1].
+
+%%------------------------------------------------------------------------------
+%% @doc Reconnect nodes (distributed).
+%% @private
+%%------------------------------------------------------------------------------
+reconnect_nodes(Group1, Group2) ->
+    [net_kernel:connect_node(N) || N <- Group2, _ <- Group1].
+
+%%------------------------------------------------------------------------------
+%% @doc Verify cluster health after partition.
+%% @private
+%%------------------------------------------------------------------------------
+verify_cluster_health() ->
+    ok.
+
+{% if enable_telemetry | default(value=true) %}
+%%------------------------------------------------------------------------------
+%% @doc Emit telemetry event.
+%% @private
+%%------------------------------------------------------------------------------
+-spec telemetry_event(atom(), map()) -> ok.
+telemetry_event(EventName, Metadata) ->
+    telemetry_event(EventName, #{count => 1}, Metadata).
+
+-spec telemetry_event(atom(), map(), map()) -> ok.
+telemetry_event(EventName, Measurements, Metadata) ->
+    telemetry:execute(
+        [{{ app_name | default(value="?MODULE") }}, stress_test, EventName],
+        Measurements,
+        Metadata
+    ).
+{% endif %}

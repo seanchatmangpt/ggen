@@ -1,0 +1,772 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <https://ggen.dev/spec/erlang-otp-tasks#> .
+
+# ============================================================================
+# TASK BREAKDOWN: Erlang/OTP End-to-End Project Generation
+# ============================================================================
+
+:TaskBreakdown a spec:TaskList ;
+    rdfs:label "Erlang/OTP Implementation Tasks" ;
+    spec:totalTasks 42 ;
+    spec:phase "EPIC 9 - Parallel Construction for Erlang/OTP" ;
+    spec:sprintCycle "3-4 weeks" ;
+    spec:taskList (
+        :T001 :T002 :T003 :T004 :T005 :T006 :T007 :T008 :T009 :T010
+        :T011 :T012 :T013 :T014 :T015 :T016 :T017 :T018 :T019 :T020
+        :T021 :T022 :T023 :T024 :T025 :T026 :T027 :T028 :T029 :T030
+        :T031 :T032 :T033 :T034 :T035 :T036 :T037 :T038 :T039 :T040
+        :T041 :T042
+    ) .
+
+# ============================================================================
+# PHASE 1: ONTOLOGY & TEMPLATE DESIGN (Tasks 1-10)
+# ============================================================================
+
+:T001 a spec:AtomicTask ;
+    rdfs:label "Design: Erlang/OTP RDF Ontology" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "Ontology" ;
+    spec:dependencies () ;
+    spec:effort "8h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Entities defined: OTPApplication, Supervisor, GenServer, GenStatem"
+        "Value objects defined: SupervisionStrategy, ChildSpec"
+        "Components defined: TelecomCallRouter, BillingEngine, MessageQueue"
+        "SHACL validation passes"
+    ) ;
+    spec:agent "speckit-architect" .
+
+:T002 a spec:AtomicTask ;
+    rdfs:label "Design: Tera Template for Supervisor" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "Templates" ;
+    spec:file "templates/erlang/supervisor.erl.tera" ;
+    spec:dependencies ( :T001 ) ;
+    spec:effort "6h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Template generates valid supervisor module"
+        "Supports all 4 restart strategies"
+        "Childspecs configurable via SPARQL context"
+        "Includes proper error handling"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T003 a spec:AtomicTask ;
+    rdfs:label "Design: Tera Template for gen_server" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "Templates" ;
+    spec:file "templates/erlang/gen_server.erl.tera" ;
+    spec:dependencies ( :T001 ) ;
+    spec:effort "6h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Template generates all 6 callbacks"
+        "State type configurable (map, record, tuple)"
+        "Includes logging via logger module"
+        "Handles unknown messages gracefully"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T004 a spec:AtomicTask ;
+    rdfs:label "Design: Tera Template for .app.src" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "Templates" ;
+    spec:file "templates/erlang/app.src.tera" ;
+    spec:dependencies ( :T001 ) ;
+    spec:effort "4h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Generates valid .app.src with all required fields"
+        "Application name, vsn, modules, registered, applications configurable"
+        "mod field points to correct application callback module"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T005 a spec:AtomicTask ;
+    rdfs:label "Design: Tera Template for rebar.config" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "Templates" ;
+    spec:file "templates/erlang/rebar.config.tera" ;
+    spec:dependencies ( :T001 ) ;
+    spec:effort "3h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Generates rebar.config with deps, erl_opts, dialyzer config"
+        "Includes common dependencies (e.g., logger, benchee for benchmarks)"
+        "Configurable via RDF properties"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T006 a spec:AtomicTask ;
+    rdfs:label "Design: Tera Template for Application Module" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "Templates" ;
+    spec:file "templates/erlang/application.erl.tera" ;
+    spec:dependencies ( :T001 ) ;
+    spec:effort "5h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Generates application callback module (start/2, stop/1)"
+        "Starts top-level supervisor"
+        "Handles application:start/stop lifecycle"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T007 a spec:AtomicTask ;
+    rdfs:label "Design: SPARQL Queries for OTP Entities" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "SPARQL" ;
+    spec:module "ggen-ontology-core" ;
+    spec:file "crates/ggen-ontology-core/src/queries/erlang_otp.rs" ;
+    spec:dependencies ( :T001 ) ;
+    spec:effort "10h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Query extracts Supervisor (name, strategy, intensity, period, childspecs)"
+        "Query extracts GenServer (name, callbacks, state_type)"
+        "Query extracts Application (name, vsn, modules, applications, mod)"
+        "Results serializable to JSON for Tera context"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T008 a spec:AtomicTask ;
+    rdfs:label "Design: Diataxis Documentation Structure" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "Documentation" ;
+    spec:dependencies ( :T001 ) ;
+    spec:effort "4h" ;
+    spec:priority "MEDIUM" ;
+    spec:acceptance (
+        "docs/ directory structure: tutorials/, how-to/, reference/, explanation/"
+        "Template placeholders for each category"
+        "README.md.tera for navigation"
+    ) ;
+    spec:agent "technical-writer" .
+
+:T009 a spec:AtomicTask ;
+    rdfs:label "Design: Benchmark Template Structure" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "Benchmarks" ;
+    spec:file "templates/erlang/benchmarks/throughput.exs.tera" ;
+    spec:dependencies ( :T001 ) ;
+    spec:effort "5h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Template uses benchee library"
+        "Configurable concurrency, duration, target ops/sec"
+        "Outputs results to JSON and stdout"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T010 a spec:AtomicTask ;
+    rdfs:label "Design: Stress Test Template Structure" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "Stress Tests" ;
+    spec:file "templates/erlang/test/stress/process_crash_SUITE.erl.tera" ;
+    spec:dependencies ( :T001 ) ;
+    spec:effort "5h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Template uses common_test framework"
+        "Configurable crash frequency, duration, max downtime"
+        "Reports pass/fail with metrics"
+    ) ;
+    spec:agent "rust-coder" .
+
+# ============================================================================
+# PHASE 2: CORE IMPLEMENTATION (Tasks 11-22)
+# ============================================================================
+
+:T011 a spec:AtomicTask ;
+    rdfs:label "Implement: Integrate Erlang Templates into ggen sync" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Integration" ;
+    spec:module "ggen-core" ;
+    spec:dependencies ( :T002 :T003 :T004 :T005 :T006 :T007 ) ;
+    spec:effort "8h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "ggen sync recognizes Erlang/OTP ontology"
+        "Templates rendered with SPARQL context"
+        "Generated .erl files written to correct directories"
+        "Deterministic output verified"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T012 a spec:AtomicTask ;
+    rdfs:label "Implement: telecom_router Example - Directory Structure" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Example" ;
+    spec:dependencies ( :T011 ) ;
+    spec:effort "2h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Directory structure: src/, include/, test/, benchmarks/, docs/"
+        "rebar.config, .app.src in root"
+        "README.md with quickstart"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T013 a spec:AtomicTask ;
+    rdfs:label "Implement: telecom_router_app.erl (Application Callback)" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Example" ;
+    spec:file "examples/erlang/telecom_router/src/telecom_router_app.erl" ;
+    spec:dependencies ( :T012 ) ;
+    spec:effort "3h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Implements application behavior"
+        "start/2 starts telecom_router_sup"
+        "stop/1 stops supervisor gracefully"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T014 a spec:AtomicTask ;
+    rdfs:label "Implement: telecom_router_sup.erl (Top-Level Supervisor)" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Example" ;
+    spec:file "examples/erlang/telecom_router/src/telecom_router_sup.erl" ;
+    spec:dependencies ( :T013 ) ;
+    spec:effort "4h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Implements supervisor behavior"
+        "init/1 returns {ok, {SupFlags, ChildSpecs}}"
+        "Childspecs: call_router_server, billing_engine_server, message_queue_server"
+        "Strategy: one_for_one, intensity: 5, period: 60"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T015 a spec:AtomicTask ;
+    rdfs:label "Implement: call_router_server.erl (gen_server Worker)" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Example" ;
+    spec:file "examples/erlang/telecom_router/src/call_router_server.erl" ;
+    spec:dependencies ( :T014 ) ;
+    spec:effort "5h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Implements gen_server behavior"
+        "State: {routing_table, #{PhoneNumber => Endpoint}}"
+        "handle_call supports: route_call, get_stats"
+        "handle_cast supports: update_route"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T016 a spec:AtomicTask ;
+    rdfs:label "Implement: billing_engine_server.erl (gen_server Worker)" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Example" ;
+    spec:file "examples/erlang/telecom_router/src/billing_engine_server.erl" ;
+    spec:dependencies ( :T014 ) ;
+    spec:effort "5h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Implements gen_server behavior"
+        "State: {rate_table, #{Destination => Rate}}"
+        "handle_call supports: calculate_charge, get_rate"
+        "handle_cast supports: update_rate"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T017 a spec:AtomicTask ;
+    rdfs:label "Implement: message_queue_server.erl (gen_server Worker)" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Example" ;
+    spec:file "examples/erlang/telecom_router/src/message_queue_server.erl" ;
+    spec:dependencies ( :T014 ) ;
+    spec:effort "5h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Implements gen_server behavior"
+        "State: {queue, queue:new(), max_size, 10000}"
+        "handle_call supports: enqueue, dequeue, get_depth"
+        "handle_info monitors queue depth, applies backpressure if >max_size"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T018 a spec:AtomicTask ;
+    rdfs:label "Test: Compilation with rebar3 compile" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Validation" ;
+    spec:dependencies ( :T015 :T016 :T017 ) ;
+    spec:effort "2h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "rebar3 compile succeeds with zero warnings"
+        "All modules compiled to .beam files"
+        "dialyzer analysis passes"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T019 a spec:AtomicTask ;
+    rdfs:label "Test: Application Start/Stop Lifecycle" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Integration Test" ;
+    spec:file "examples/erlang/telecom_router/test/app_lifecycle_SUITE.erl" ;
+    spec:dependencies ( :T018 ) ;
+    spec:effort "4h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "application:start(telecom_router) returns {ok, Pid}"
+        "Supervisor and all 3 workers registered and running"
+        "application:stop(telecom_router) terminates gracefully"
+        "No orphaned processes after stop"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T020 a spec:AtomicTask ;
+    rdfs:label "Test: Supervision Tree Recovery (one_for_one)" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Integration Test" ;
+    spec:file "examples/erlang/telecom_router/test/supervision_SUITE.erl" ;
+    spec:dependencies ( :T019 ) ;
+    spec:effort "5h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Kill call_router_server with exit(Pid, kill)"
+        "Supervisor restarts only call_router_server"
+        "billing_engine_server and message_queue_server continue unaffected"
+        "Restart time <100ms"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T021 a spec:AtomicTask ;
+    rdfs:label "Test: gen_server Synchronous Call (handle_call)" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Unit Test" ;
+    spec:file "examples/erlang/telecom_router/test/call_router_tests.erl" ;
+    spec:dependencies ( :T015 ) ;
+    spec:effort "3h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "gen_server:call(call_router, {route_call, '+1234567890'}) returns {ok, Endpoint}"
+        "State updated correctly after call"
+        "Timeout handled gracefully"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T022 a spec:AtomicTask ;
+    rdfs:label "Test: gen_server Asynchronous Cast (handle_cast)" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Unit Test" ;
+    spec:file "examples/erlang/telecom_router/test/billing_engine_tests.erl" ;
+    spec:dependencies ( :T016 ) ;
+    spec:effort "3h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "gen_server:cast(billing_engine, {update_rate, 'US', 0.05}) updates state"
+        "No reply sent (asynchronous)"
+        "State change verified via subsequent call"
+    ) ;
+    spec:agent "test-engineer" .
+
+# ============================================================================
+# PHASE 3: BENCHMARKS (Tasks 23-28)
+# ============================================================================
+
+:T023 a spec:AtomicTask ;
+    rdfs:label "Benchmark: Throughput (ops/sec)" ;
+    spec:phase "Phase 3 - Benchmarks" ;
+    spec:category "Performance" ;
+    spec:file "examples/erlang/telecom_router/benchmarks/throughput_bench.exs" ;
+    spec:dependencies ( :T019 ) ;
+    spec:effort "8h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Spawns 10k processes sending gen_server:call"
+        "Measures total ops/sec using benchee"
+        "Target: >100k ops/sec on 4-core machine"
+        "Reports results to JSON and stdout"
+    ) ;
+    spec:agent "performance-benchmarker" .
+
+:T024 a spec:AtomicTask ;
+    rdfs:label "Benchmark: Latency Percentiles (p50, p99)" ;
+    spec:phase "Phase 3 - Benchmarks" ;
+    spec:category "Performance" ;
+    spec:file "examples/erlang/telecom_router/benchmarks/latency_bench.exs" ;
+    spec:dependencies ( :T019 ) ;
+    spec:effort "6h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Measures 10k sequential gen_server:call latencies"
+        "Computes p50, p95, p99, p999 using :hdr_histogram"
+        "Target: p50 <5ms, p99 <10ms"
+        "Generates percentile distribution graph"
+    ) ;
+    spec:agent "performance-benchmarker" .
+
+:T025 a spec:AtomicTask ;
+    rdfs:label "Benchmark: Message Queue Depth Under Load" ;
+    spec:phase "Phase 3 - Benchmarks" ;
+    spec:category "Performance" ;
+    spec:file "examples/erlang/telecom_router/benchmarks/queue_depth_bench.exs" ;
+    spec:dependencies ( :T017 ) ;
+    spec:effort "5h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Spawns 10k processes sending gen_server:cast"
+        "Monitors process_info(Pid, message_queue_len) every 100ms"
+        "Target: queue depth <1000 messages"
+        "No memory leaks detected (stable process memory)"
+    ) ;
+    spec:agent "performance-benchmarker" .
+
+:T026 a spec:AtomicTask ;
+    rdfs:label "Benchmark: Memory Usage Under Load" ;
+    spec:phase "Phase 3 - Benchmarks" ;
+    spec:category "Performance" ;
+    spec:file "examples/erlang/telecom_router/benchmarks/memory_bench.exs" ;
+    spec:dependencies ( :T019 ) ;
+    spec:effort "4h" ;
+    spec:priority "MEDIUM" ;
+    spec:acceptance (
+        "Monitors :erlang.memory() before/after load"
+        "Checks for memory leaks (memory returns to baseline)"
+        "Target: <500MB memory usage under 10k concurrent processes"
+    ) ;
+    spec:agent "performance-benchmarker" .
+
+:T027 a spec:AtomicTask ;
+    rdfs:label "Generate: Benchmark Report Template" ;
+    spec:phase "Phase 3 - Benchmarks" ;
+    spec:category "Documentation" ;
+    spec:file "templates/erlang/docs/benchmarks/RESULTS.md.tera" ;
+    spec:dependencies ( :T023 :T024 :T025 ) ;
+    spec:effort "3h" ;
+    spec:priority "MEDIUM" ;
+    spec:acceptance (
+        "Report includes throughput (ops/sec)"
+        "Report includes latency percentiles table"
+        "Report includes queue depth graph"
+        "Report includes pass/fail vs SLOs"
+    ) ;
+    spec:agent "technical-writer" .
+
+:T028 a spec:AtomicTask ;
+    rdfs:label "Validation: Verify Benchmark SLOs Met" ;
+    spec:phase "Phase 3 - Benchmarks" ;
+    spec:category "Validation" ;
+    spec:dependencies ( :T023 :T024 :T025 ) ;
+    spec:effort "2h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Throughput >100k ops/sec: PASS/FAIL"
+        "p99 latency <10ms: PASS/FAIL"
+        "Queue depth <1000: PASS/FAIL"
+        "All SLOs documented in RESULTS.md"
+    ) ;
+    spec:agent "production-validator" .
+
+# ============================================================================
+# PHASE 4: STRESS TESTS (Tasks 29-35)
+# ============================================================================
+
+:T029 a spec:AtomicTask ;
+    rdfs:label "Stress Test: Process Crash Recovery" ;
+    spec:phase "Phase 4 - Stress Tests" ;
+    spec:category "Fault Tolerance" ;
+    spec:file "examples/erlang/telecom_router/test/stress/process_crash_SUITE.erl" ;
+    spec:dependencies ( :T020 ) ;
+    spec:effort "8h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Kills random worker every 100ms for 60 seconds"
+        "Measures downtime per crash (<1 second)"
+        "Verifies other workers unaffected (one_for_one)"
+        "Total downtime <1% of test duration"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T030 a spec:AtomicTask ;
+    rdfs:label "Stress Test: Network Partition Simulation" ;
+    spec:phase "Phase 4 - Stress Tests" ;
+    spec:category "Fault Tolerance" ;
+    spec:file "examples/erlang/telecom_router/test/stress/network_partition_SUITE.erl" ;
+    spec:dependencies ( :T019 ) ;
+    spec:effort "10h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Starts 3 Erlang nodes in cluster"
+        "Disconnects node2 using erlang:disconnect_node/1"
+        "Waits 30 seconds (partition duration)"
+        "Reconnects node2, verifies state synchronized"
+        "Recovery time <5 seconds"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T031 a spec:AtomicTask ;
+    rdfs:label "Stress Test: Message Flood Backpressure" ;
+    spec:phase "Phase 4 - Stress Tests" ;
+    spec:category "Fault Tolerance" ;
+    spec:file "examples/erlang/telecom_router/test/stress/message_flood_SUITE.erl" ;
+    spec:dependencies ( :T017 ) ;
+    spec:effort "6h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Sends 100k gen_server:cast in <1 second"
+        "Monitors process memory and queue depth"
+        "No OOM crash (process survives)"
+        "Process recovers after flood stops"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T032 a spec:AtomicTask ;
+    rdfs:label "Stress Test: Supervision Strategy (rest_for_one)" ;
+    spec:phase "Phase 4 - Stress Tests" ;
+    spec:category "Fault Tolerance" ;
+    spec:file "examples/erlang/telecom_router/test/stress/rest_for_one_SUITE.erl" ;
+    spec:dependencies ( :T020 ) ;
+    spec:effort "5h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Supervisor with 5 workers in dependency chain (W1->W2->W3->W4->W5)"
+        "Kill W3 with exit(Pid, kill)"
+        "Verify W3, W4, W5 restarted (rest_for_one)"
+        "Verify W1, W2 unaffected"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T033 a spec:AtomicTask ;
+    rdfs:label "Stress Test: Maximum Restart Intensity" ;
+    spec:phase "Phase 4 - Stress Tests" ;
+    spec:category "Fault Tolerance" ;
+    spec:file "examples/erlang/telecom_router/test/stress/restart_intensity_SUITE.erl" ;
+    spec:dependencies ( :T020 ) ;
+    spec:effort "4h" ;
+    spec:priority "MEDIUM" ;
+    spec:acceptance (
+        "Kill same worker 6 times within 60 seconds (exceeds intensity=5)"
+        "Supervisor terminates with max_restart_intensity exceeded"
+        "Application stops gracefully"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T034 a spec:AtomicTask ;
+    rdfs:label "Generate: Stress Test Report Template" ;
+    spec:phase "Phase 4 - Stress Tests" ;
+    spec:category "Documentation" ;
+    spec:file "templates/erlang/docs/stress-tests/RESULTS.md.tera" ;
+    spec:dependencies ( :T029 :T030 :T031 ) ;
+    spec:effort "3h" ;
+    spec:priority "MEDIUM" ;
+    spec:acceptance (
+        "Report includes crash recovery time"
+        "Report includes partition recovery time"
+        "Report includes flood survival (yes/no)"
+        "Report includes failure rate and pass/fail criteria"
+    ) ;
+    spec:agent "technical-writer" .
+
+:T035 a spec:AtomicTask ;
+    rdfs:label "Validation: Verify Stress Test SLOs Met" ;
+    spec:phase "Phase 4 - Stress Tests" ;
+    spec:category "Validation" ;
+    spec:dependencies ( :T029 :T030 :T031 ) ;
+    spec:effort "2h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Process crash downtime <1 second: PASS/FAIL"
+        "Network partition recovery <5 seconds: PASS/FAIL"
+        "Message flood survival: PASS/FAIL"
+        "All SLOs documented in RESULTS.md"
+    ) ;
+    spec:agent "production-validator" .
+
+# ============================================================================
+# PHASE 5: DIATAXIS DOCUMENTATION (Tasks 36-42)
+# ============================================================================
+
+:T036 a spec:AtomicTask ;
+    rdfs:label "Documentation: Tutorial - Build Your First OTP App" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "Tutorials" ;
+    spec:file "templates/erlang/docs/tutorials/getting-started.md.tera" ;
+    spec:dependencies ( :T019 ) ;
+    spec:effort "6h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Tutorial covers: create project, add supervisor, add gen_server, compile, run"
+        "Complete working example (copy-paste ready)"
+        "Estimated completion time: <30 minutes"
+        "No prior OTP knowledge required"
+    ) ;
+    spec:agent "technical-writer" .
+
+:T037 a spec:AtomicTask ;
+    rdfs:label "Documentation: How-To - Add Worker to Supervision Tree" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "How-To" ;
+    spec:file "templates/erlang/docs/how-to/add-worker.md.tera" ;
+    spec:dependencies ( :T020 ) ;
+    spec:effort "3h" ;
+    spec:priority "MEDIUM" ;
+    spec:acceptance (
+        "Step-by-step: edit supervisor childspec, implement gen_server, add to .app.src"
+        "Task-oriented (no theory)"
+        "Includes common pitfalls and troubleshooting"
+    ) ;
+    spec:agent "technical-writer" .
+
+:T038 a spec:AtomicTask ;
+    rdfs:label "Documentation: How-To - Change Supervision Strategy" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "How-To" ;
+    spec:file "templates/erlang/docs/how-to/change-supervision-strategy.md.tera" ;
+    spec:dependencies ( :T032 ) ;
+    spec:effort "3h" ;
+    spec:priority "MEDIUM" ;
+    spec:acceptance (
+        "Step-by-step: edit init/1, change strategy atom, restart application"
+        "Explains when to use one_for_one vs rest_for_one"
+    ) ;
+    spec:agent "technical-writer" .
+
+:T039 a spec:AtomicTask ;
+    rdfs:label "Documentation: Reference - EDoc API Documentation" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "Reference" ;
+    spec:dependencies ( :T015 :T016 :T017 ) ;
+    spec:effort "5h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "All public functions have @doc annotations"
+        "All functions have @spec type signatures"
+        "rebar3 edoc generates HTML successfully"
+        "Reference includes types, parameters, return values, examples"
+    ) ;
+    spec:agent "technical-writer" .
+
+:T040 a spec:AtomicTask ;
+    rdfs:label "Documentation: Explanation - Supervision Strategies" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "Explanation" ;
+    spec:file "templates/erlang/docs/explanation/supervision-strategies.md.tera" ;
+    spec:dependencies ( :T032 ) ;
+    spec:effort "5h" ;
+    spec:priority "MEDIUM" ;
+    spec:acceptance (
+        "Explains one_for_one vs one_for_all vs rest_for_one with diagrams"
+        "Discusses tradeoffs and when to use each"
+        "Links to official OTP documentation"
+    ) ;
+    spec:agent "technical-writer" .
+
+:T041 a spec:AtomicTask ;
+    rdfs:label "Documentation: Explanation - Process Lifecycle & Let It Crash" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "Explanation" ;
+    spec:file "templates/erlang/docs/explanation/process-lifecycle.md.tera" ;
+    spec:dependencies ( :T029 ) ;
+    spec:effort "5h" ;
+    spec:priority "MEDIUM" ;
+    spec:acceptance (
+        "Explains gen_server lifecycle (init → loop → terminate)"
+        "Explains 'let it crash' philosophy"
+        "Explains supervision trees and fault isolation"
+    ) ;
+    spec:agent "technical-writer" .
+
+:T042 a spec:AtomicTask ;
+    rdfs:label "Finalization: Validate All Documentation Generated from RDF" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "Validation" ;
+    spec:dependencies ( :T036 :T037 :T038 :T039 :T040 :T041 ) ;
+    spec:effort "2h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "All .md files generated via ggen sync"
+        "Zero manual editing required"
+        "Documentation structure matches Diataxis (4 categories)"
+        "Deterministic generation verified (same TTL → identical docs)"
+    ) ;
+    spec:agent "production-validator" .
+
+# ============================================================================
+# TASK DEPENDENCIES GRAPH
+# ============================================================================
+
+:DependencyGraph a spec:Graph ;
+    rdfs:label "Task Dependency Graph for Erlang/OTP Implementation" ;
+    spec:description """
+Phase 1 (Design - Tasks 1-10): Foundation
+    T001 (Ontology Design) → All other Phase 1 tasks
+    ├─ T002 (Supervisor Template) ← T001
+    ├─ T003 (gen_server Template) ← T001
+    ├─ T004 (.app.src Template) ← T001
+    ├─ T005 (rebar.config Template) ← T001
+    ├─ T006 (Application Template) ← T001
+    ├─ T007 (SPARQL Queries) ← T001
+    ├─ T008 (Diataxis Structure) ← T001
+    ├─ T009 (Benchmark Templates) ← T001
+    └─ T010 (Stress Test Templates) ← T001
+
+Phase 2 (Core Implementation - Tasks 11-22):
+    T011 (ggen sync Integration) ← T002, T003, T004, T005, T006, T007
+    T012 (Directory Structure) ← T011
+    T013 (Application Module) ← T012
+    T014 (Supervisor) ← T013
+    T015 (call_router_server) ← T014
+    T016 (billing_engine_server) ← T014
+    T017 (message_queue_server) ← T014
+    T018 (Compilation Test) ← T015, T016, T017
+    T019 (Lifecycle Test) ← T018
+    T020 (Supervision Test) ← T019
+    T021 (Call Test) ← T015
+    T022 (Cast Test) ← T016
+
+Phase 3 (Benchmarks - Tasks 23-28):
+    T023 (Throughput) ← T019
+    T024 (Latency) ← T019
+    T025 (Queue Depth) ← T017
+    T026 (Memory) ← T019
+    T027 (Report Template) ← T023, T024, T025
+    T028 (SLO Validation) ← T023, T024, T025
+
+Phase 4 (Stress Tests - Tasks 29-35):
+    T029 (Process Crash) ← T020
+    T030 (Network Partition) ← T019
+    T031 (Message Flood) ← T017
+    T032 (rest_for_one) ← T020
+    T033 (Restart Intensity) ← T020
+    T034 (Report Template) ← T029, T030, T031
+    T035 (SLO Validation) ← T029, T030, T031
+
+Phase 5 (Documentation - Tasks 36-42):
+    T036 (Tutorial) ← T019
+    T037 (How-To Add Worker) ← T020
+    T038 (How-To Change Strategy) ← T032
+    T039 (Reference EDoc) ← T015, T016, T017
+    T040 (Explanation Supervision) ← T032
+    T041 (Explanation Lifecycle) ← T029
+    T042 (Validation) ← T036, T037, T038, T039, T040, T041
+    """ .
+
+# ============================================================================
+# COMPLETION CRITERIA
+# ============================================================================
+
+:CompletionCriteria a spec:Checklist ;
+    rdfs:label "Erlang/OTP Implementation Completion Criteria" ;
+    spec:criterion1 "All 42 tasks completed with acceptance criteria met" ;
+    spec:criterion2 "Generated OTP application compiles with rebar3 (zero warnings)" ;
+    spec:criterion3 "Supervision tree recovers from worker crashes in <1 second" ;
+    spec:criterion4 "Throughput benchmark achieves >100k ops/sec" ;
+    spec:criterion5 "Latency benchmark p99 <10ms" ;
+    spec:criterion6 "Message queue depth <1000 under load" ;
+    spec:criterion7 "Process crash stress test passes (downtime <1%)" ;
+    spec:criterion8 "Network partition stress test passes (recovery <5 seconds)" ;
+    spec:criterion9 "Message flood stress test passes (no OOM crash)" ;
+    spec:criterion10 "Diataxis documentation complete (4 categories, 10+ pages)" ;
+    spec:criterion11 "All documentation generated from RDF ontology (zero manual editing)" ;
+    spec:criterion12 "Deterministic generation verified (same TTL → identical .erl and .md files)" ;
+    spec:criterion13 "Cryptographic receipts generated for all artifacts" ;
+    spec:criterion14 "EDoc reference documentation generated successfully" ;
+    spec:criterion15 "All tests pass (unit, integration, benchmarks, stress tests)" .

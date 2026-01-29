@@ -1,0 +1,54 @@
+%% -*- mode: erlang; erlang-indent-level: 2 -*-
+%%%-----------------------------------------------------------------------------
+%%% @doc Application resource file for {{ app_name }}
+%%%
+%%% Defines application metadata, modules, and dependencies.
+%%% Generated from RDF ontology via ggen.
+%%%
+%%% @sparql_context {{ sparql_context | default(value="ggen:AppSrc") }}
+%%% @end
+%%%-----------------------------------------------------------------------------
+{application, {{ app_name }},
+ [
+  {description, "{{ app_description | default(value="OTP application") }}"},
+  {vsn, "{{ version | default(value="0.1.0") }}"},
+  {registered, [{{ registered_names | default(value="") }}]},
+  {mod, {{{ app_name }}_app, []}},
+  {applications, [
+   kernel,
+   stdlib
+   {% if runtime_dependencies %}
+   , {{ runtime_dependencies | safe }}
+   {% else %}
+   , sasl,
+   lager,
+   telemetry
+   {% endif %}
+  ]},
+  {env, [
+   {% if env_config %}
+   {{ env_config | safe }}
+   {% else %}
+   {log_level, info},
+   {telemetry_enabled, true}
+   {% endif %}
+  ]},
+  {modules, []}, %% Automatically filled by rebar3
+
+  {licenses, ["{{ license | default(value="Apache-2.0") }}"]},
+  {links, [
+   {"GitHub", "{{ github_url | default(value="https://github.com/example/repo") }}"}
+  ]}
+  {% if start_phases %}
+  , {start_phases, [
+   {{ start_phases | safe }}
+  ]}
+  {% endif %}
+  {% if included_applications %}
+  , {included_applications, [{{ included_applications | safe }}]}
+  {% endif %}
+  {% if runtime_dependencies_list %}
+  , {runtime_dependencies, [{{ runtime_dependencies_list | safe }}]}
+  {% endif %}
+ ]
+}.

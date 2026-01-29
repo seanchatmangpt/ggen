@@ -1,0 +1,373 @@
+%%%-----------------------------------------------------------------------------
+%%% @doc {{ module_description | default(value="Generic server implementation") }}
+%%%
+%%% This module implements the gen_server behavior for {{ module_name }}.
+%%% Generated from RDF ontology via ggen.
+%%%
+%%% @sparql_context {{ sparql_context | default(value="ggen:GenServer") }}
+%%% @end
+%%%-----------------------------------------------------------------------------
+-module({{ module_name }}).
+-behaviour(gen_server).
+
+%% API exports
+-export([start_link/0{% if api_functions %}, {{ api_functions }}{% endif %}]).
+
+%% gen_server callbacks
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2,
+         terminate/2, code_change/3, format_status/2]).
+
+%% Telemetry integration
+{% if enable_telemetry | default(value=true) %}
+-export([telemetry_event/2, telemetry_event/3]).
+{% endif %}
+
+%%%=============================================================================
+%%% Type Definitions
+%%%=============================================================================
+
+-type state_field() :: {% if state_field_types %}{{ state_field_types }}{% else %}term(){% endif %}.
+
+-record(state, {
+    {% if state_fields %}
+    {{ state_fields | safe }}
+    {% else %}
+    %% Add your state fields here
+    data :: map(),
+    config :: map(),
+    telemetry_metadata :: map()
+    {% endif %}
+}).
+
+-type state() :: #state{}.
+-type start_link_result() :: {ok, pid()} | ignore | {error, term()}.
+
+%%%=============================================================================
+%%% API Functions
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Starts the gen_server with local registration.
+%%
+%% @sparql_binding ggen:startLink
+%% @end
+%%------------------------------------------------------------------------------
+-spec start_link() -> start_link_result().
+start_link() ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+{% if enable_named_server | default(value=false) %}
+%%------------------------------------------------------------------------------
+%% @doc Starts the gen_server with custom name registration.
+%% @end
+%%------------------------------------------------------------------------------
+-spec start_link(atom()) -> start_link_result().
+start_link(Name) when is_atom(Name) ->
+    gen_server:start_link({local, Name}, ?MODULE, [], []).
+{% endif %}
+
+{% if api_function_implementations %}
+{{ api_function_implementations | safe }}
+{% else %}
+%%------------------------------------------------------------------------------
+%% @doc Example synchronous API call.
+%%
+%% @sparql_binding ggen:callOperation
+%% @end
+%%------------------------------------------------------------------------------
+-spec get_state() -> {ok, state()} | {error, term()}.
+get_state() ->
+    try
+        gen_server:call(?MODULE, get_state, {{ call_timeout | default(value=5000) }})
+    catch
+        exit:{timeout, _} ->
+            telemetry_event(call_timeout, #{operation => get_state}),
+            {error, timeout};
+        exit:{noproc, _} ->
+            {error, not_started}
+    end.
+
+%%------------------------------------------------------------------------------
+%% @doc Example asynchronous API cast.
+%%
+%% @sparql_binding ggen:castOperation
+%% @end
+%%------------------------------------------------------------------------------
+-spec update_config(map()) -> ok.
+update_config(Config) when is_map(Config) ->
+    gen_server:cast(?MODULE, {update_config, Config}).
+{% endif %}
+
+%%%=============================================================================
+%%% gen_server Callbacks
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Initializes the gen_server.
+%%
+%% Loads initial configuration from application environment and sets up
+%% telemetry metadata.
+%%
+%% @sparql_binding ggen:init
+%% @end
+%%------------------------------------------------------------------------------
+-spec init(Args :: term()) ->
+    {ok, state()} |
+    {ok, state(), timeout() | hibernate} |
+    {stop, Reason :: term()} |
+    ignore.
+init({{ init_args | default(value="[]") }}) ->
+    process_flag(trap_exit, true),
+
+    %% Load configuration
+    Config = load_config(),
+
+    %% Initialize telemetry metadata
+    TelemetryMetadata = #{
+        module => ?MODULE,
+        node => node(),
+        start_time => erlang:system_time(millisecond)
+    },
+
+    InitialState = #state{
+        {% if initial_state %}
+        {{ initial_state | safe }}
+        {% else %}
+        data = #{},
+        config = Config,
+        telemetry_metadata = TelemetryMetadata
+        {% endif %}
+    },
+
+    telemetry_event(init_success, TelemetryMetadata),
+
+    {% if init_timeout %}
+    {ok, InitialState, {{ init_timeout }}}.
+    {% else %}
+    {ok, InitialState}.
+    {% endif %}
+
+%%------------------------------------------------------------------------------
+%% @doc Handles synchronous call messages.
+%%
+%% @sparql_binding ggen:handleCall
+%% @end
+%%------------------------------------------------------------------------------
+-spec handle_call(Request :: term(), From :: {pid(), term()}, State :: state()) ->
+    {reply, Reply :: term(), NewState :: state()} |
+    {reply, Reply :: term(), NewState :: state(), timeout() | hibernate} |
+    {noreply, NewState :: state()} |
+    {noreply, NewState :: state(), timeout() | hibernate} |
+    {stop, Reason :: term(), Reply :: term(), NewState :: state()} |
+    {stop, Reason :: term(), NewState :: state()}.
+
+{% if handle_call_cases %}
+{{ handle_call_cases | safe }}
+{% else %}
+handle_call(get_state, _From, State) ->
+    telemetry_event(call_handled, #{request => get_state}),
+    {reply, {ok, State}, State};
+
+handle_call({get_value, Key}, _From, #state{data = Data} = State) ->
+    Reply = case maps:find(Key, Data) of
+        {ok, Value} -> {ok, Value};
+        error -> {error, not_found}
+    end,
+    {reply, Reply, State};
+
+handle_call(Request, From, State) ->
+    error_logger:warning_msg(
+        "~p received unexpected call ~p from ~p~n",
+        [?MODULE, Request, From]
+    ),
+    telemetry_event(unexpected_call, #{request => Request, from => From}),
+    {reply, {error, unknown_request}, State}.
+{% endif %}
+
+%%------------------------------------------------------------------------------
+%% @doc Handles asynchronous cast messages.
+%%
+%% @sparql_binding ggen:handleCast
+%% @end
+%%------------------------------------------------------------------------------
+-spec handle_cast(Request :: term(), State :: state()) ->
+    {noreply, NewState :: state()} |
+    {noreply, NewState :: state(), timeout() | hibernate} |
+    {stop, Reason :: term(), NewState :: state()}.
+
+{% if handle_cast_cases %}
+{{ handle_cast_cases | safe }}
+{% else %}
+handle_cast({update_config, NewConfig}, #state{config = OldConfig} = State) ->
+    MergedConfig = maps:merge(OldConfig, NewConfig),
+    telemetry_event(config_updated, #{old => OldConfig, new => MergedConfig}),
+    {noreply, State#state{config = MergedConfig}};
+
+handle_cast({set_value, Key, Value}, #state{data = Data} = State) ->
+    NewData = maps:put(Key, Value, Data),
+    {noreply, State#state{data = NewData}};
+
+handle_cast(Request, State) ->
+    error_logger:warning_msg(
+        "~p received unexpected cast ~p~n",
+        [?MODULE, Request]
+    ),
+    telemetry_event(unexpected_cast, #{request => Request}),
+    {noreply, State}.
+{% endif %}
+
+%%------------------------------------------------------------------------------
+%% @doc Handles all non-call/cast messages.
+%%
+%% @sparql_binding ggen:handleInfo
+%% @end
+%%------------------------------------------------------------------------------
+-spec handle_info(Info :: timeout | term(), State :: state()) ->
+    {noreply, NewState :: state()} |
+    {noreply, NewState :: state(), timeout() | hibernate} |
+    {stop, Reason :: term(), NewState :: state()}.
+
+{% if handle_info_cases %}
+{{ handle_info_cases | safe }}
+{% else %}
+handle_info(timeout, State) ->
+    %% Handle timeout from init/1 or {noreply, State, Timeout}
+    telemetry_event(timeout_triggered, #{}),
+    {noreply, State};
+
+handle_info({'EXIT', Pid, Reason}, State) ->
+    error_logger:error_msg(
+        "~p received EXIT from ~p: ~p~n",
+        [?MODULE, Pid, Reason]
+    ),
+    telemetry_event(linked_process_exit, #{pid => Pid, reason => Reason}),
+    {noreply, State};
+
+handle_info(Info, State) ->
+    error_logger:warning_msg(
+        "~p received unexpected info ~p~n",
+        [?MODULE, Info]
+    ),
+    telemetry_event(unexpected_info, #{info => Info}),
+    {noreply, State}.
+{% endif %}
+
+%%------------------------------------------------------------------------------
+%% @doc Cleanup before shutdown.
+%%
+%% @sparql_binding ggen:terminate
+%% @end
+%%------------------------------------------------------------------------------
+-spec terminate(Reason :: term(), State :: state()) -> term().
+terminate(Reason, #state{telemetry_metadata = Metadata} = _State) ->
+    telemetry_event(terminate, Metadata#{reason => Reason}),
+    {% if cleanup_function %}
+    {{ cleanup_function }}(_State),
+    {% endif %}
+    ok.
+
+%%------------------------------------------------------------------------------
+%% @doc Handle code upgrade/downgrade.
+%%
+%% @sparql_binding ggen:codeChange
+%% @end
+%%------------------------------------------------------------------------------
+-spec code_change(OldVsn :: term() | {down, term()}, State :: state(), Extra :: term()) ->
+    {ok, NewState :: state()} | {error, Reason :: term()}.
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
+
+%%------------------------------------------------------------------------------
+%% @doc Format status for debugging (hides sensitive data).
+%% @end
+%%------------------------------------------------------------------------------
+-spec format_status(Opt :: normal | terminate, Status :: list()) -> Status :: term().
+format_status(Opt, [PDict, State]) ->
+    StateData = case Opt of
+        terminate ->
+            %% Minimal info for crash reports
+            #{module => ?MODULE};
+        normal ->
+            %% More detailed for sys:get_status/1
+            #{
+                module => ?MODULE,
+                state => sanitize_state(State)
+            }
+    end,
+    [{data, [{"State", StateData}]} | PDict].
+
+%%%=============================================================================
+%%% Internal Functions
+%%%=============================================================================
+
+%%------------------------------------------------------------------------------
+%% @doc Load configuration from application environment.
+%% @private
+%%------------------------------------------------------------------------------
+-spec load_config() -> map().
+load_config() ->
+    AppEnv = application:get_all_env({{ app_name | default(value="?MODULE") }}),
+    maps:from_list(AppEnv).
+
+%%------------------------------------------------------------------------------
+%% @doc Sanitize state for status reporting (remove sensitive data).
+%% @private
+%%------------------------------------------------------------------------------
+-spec sanitize_state(state()) -> map().
+sanitize_state(#state{data = Data, config = Config}) ->
+    #{
+        data_keys => maps:keys(Data),
+        config_keys => maps:keys(Config)
+    }.
+
+{% if enable_telemetry | default(value=true) %}
+%%------------------------------------------------------------------------------
+%% @doc Emit telemetry event.
+%% @private
+%%------------------------------------------------------------------------------
+-spec telemetry_event(atom(), map()) -> ok.
+telemetry_event(EventName, Metadata) ->
+    telemetry_event(EventName, #{count => 1}, Metadata).
+
+-spec telemetry_event(atom(), map(), map()) -> ok.
+telemetry_event(EventName, Measurements, Metadata) ->
+    telemetry:execute(
+        [{{ app_name | default(value="?MODULE") }}, ?MODULE, EventName],
+        Measurements,
+        Metadata
+    ).
+{% endif %}
+
+%%%=============================================================================
+%%% Unit Tests (EUnit)
+%%%=============================================================================
+
+-ifdef(TEST).
+-include_lib("eunit/include/eunit.hrl").
+
+%%------------------------------------------------------------------------------
+%% Test setup/cleanup
+%%------------------------------------------------------------------------------
+start_stop_test() ->
+    {ok, Pid} = start_link(),
+    ?assert(is_process_alive(Pid)),
+    gen_server:stop(Pid),
+    timer:sleep(100),
+    ?assertNot(is_process_alive(Pid)).
+
+get_state_test() ->
+    {ok, _Pid} = start_link(),
+    {ok, State} = get_state(),
+    ?assertMatch(#state{}, State),
+    gen_server:stop(?MODULE).
+
+config_update_test() ->
+    {ok, _Pid} = start_link(),
+    NewConfig = #{test_key => test_value},
+    ok = update_config(NewConfig),
+    timer:sleep(50), %% Allow cast to process
+    {ok, #state{config = Config}} = get_state(),
+    ?assertEqual(test_value, maps:get(test_key, Config)),
+    gen_server:stop(?MODULE).
+
+-endif.

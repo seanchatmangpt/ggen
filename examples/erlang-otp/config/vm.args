@@ -1,0 +1,56 @@
+## VM arguments for Telecom OTP application
+
+## Name of the node
+-name telecom@127.0.0.1
+
+## Cookie for distributed erlang
+-setcookie telecom_cookie_change_in_production
+
+## Heartbeat management; auto-restarts VM if it dies or becomes unresponsive
+-heart
+
+## Enable kernel poll for better performance
++K true
+
+## Async thread pool size (default: 64)
++A 128
+
+## Increase ETS table limit (default: 1400)
++e 100000
+
+## Set distribution buffer busy limit (default: 1024KB)
++zdbbl 32768
+
+## Set maximum number of ports (default: 65536)
+-env ERL_MAX_PORTS 100000
+
+## Set maximum number of processes (default: 262144)
++P 1000000
+
+## Scheduler settings
+## Use all available CPU cores
++sbt db
+
+## Enable SMP support
+-smp enable
+
+## Scheduler bind type
++sbt db
+
+## Dirty scheduler settings (for CPU-intensive work)
++SDcpu 8:8
+
+## Memory allocator tuning for high-throughput
++MBas aobf
++MBe true
++MBmmbcs 512
++MBsbct 2048
+
+## Crash dump settings
+-env ERL_CRASH_DUMP log/erl_crash.dump
+
+## Enable time correction
++c true
+
+## Kernel logger
+-kernel logger_level info
