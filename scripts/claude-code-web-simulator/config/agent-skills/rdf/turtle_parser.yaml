@@ -1,0 +1,46 @@
+---
+name: turtle_parser
+category: rdf_ontology
+version: "1.0.0"
+description: |
+  Parses Turtle RDF files and validates syntax. Converts Turtle format into
+  in-memory RDF graph representation with comprehensive error reporting and
+  namespace resolution support.
+capabilities:
+  - Parse Turtle format files
+  - Validate syntax and structure
+  - Resolve namespace prefixes
+  - Extract triples and metadata
+  - Handle compressed (.ttl.gz) files
+  - Generate parse error reports
+requirements:
+  memory_mb: 256
+  dependencies:
+    - oxigraph
+    - serde_json
+    - log
+  disk_mb: 50
+performance_slo:
+  max_duration_ms: 5000
+  success_rate: 0.99
+  throughput_triples_per_second: 1000
+implementation:
+  language: bash
+  entry_point: skill_turtle_parser_parse
+  module: skills-rdf.sh
+error_handling:
+  retry_strategy: exponential
+  max_retries: 3
+  retry_delay_ms: 100
+  timeout_ms: 10000
+  fallback_behavior: return_error_details
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.85
+documentation:
+  url: "https://docs.ggen.io/skills/turtle-parser"
+  examples:
+    - "skill_turtle_parser_parse ontology.ttl"
+    - "skill_turtle_parser_parse --namespace-only ontology.ttl"

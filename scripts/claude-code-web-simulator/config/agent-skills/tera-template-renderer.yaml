@@ -1,0 +1,65 @@
+skill:
+  name: "tera-template-renderer"
+  category: "template"
+  version: "2.0.0"
+  agent_types:
+    - "code-generator"
+    - "template-specialist"
+    - "code-architect"
+
+  description: "Render Tera templates with SPARQL context binding and multi-pass rendering"
+
+  capabilities:
+    - render_template
+    - compile_template
+    - bind_sparql_context
+    - multi_pass_render
+    - validate_template_syntax
+    - generate_documentation
+
+  requirements:
+    minimum_memory: "256M"
+    tool_dependencies:
+      - tera
+      - sparql-bindings
+    environment_variables:
+      - "TERA_STRICT_MODE=true"
+      - "MAX_TEMPLATE_SIZE=50M"
+      - "RENDER_TIMEOUT_SECONDS=10"
+
+  performance_slo:
+    max_duration_ms: 10000
+    success_rate: 0.98
+    memory_limit_mb: 512
+    cache_enabled: true
+
+  implementation:
+    language: "bash"
+    entry_point: "tera_template_render()"
+    dependencies:
+      - "tera-cli >= 1.20"
+      - "jq >= 1.6"
+
+  error_handling:
+    retry_strategy: "exponential_backoff"
+    max_retries: 2
+    timeout_ms: 10000
+    fallback_behavior: "return_error_with_context"
+
+  documentation:
+    usage: |
+      Render Tera templates with SPARQL query results as context.
+      Supports multi-pass rendering, variable binding, and documentation generation.
+    example: |
+      skill_load tera-template-renderer
+      tera_template_render --template code-gen.tmpl --context queries.sparql --output generated.rs
+
+  metadata:
+    author: "ggen AI Team"
+    created: "2026-01-18"
+    updated: "2026-01-25"
+    tags:
+      - "template"
+      - "rendering"
+      - "code-generation"
+      - "multi-pass"

@@ -1,0 +1,48 @@
+---
+name: output_formatter
+category: template_generation
+version: "1.0.0"
+description: |
+  Formats generated code output according to language-specific conventions. Applies
+  code formatting, syntax highlighting, and deterministic canonicalization. Supports
+  Rust (rustfmt), Python (black), JavaScript (prettier), and other languages.
+capabilities:
+  - Format Rust code (rustfmt)
+  - Format Python code (black)
+  - Format JavaScript/TypeScript (prettier)
+  - Format YAML/TOML
+  - Apply syntax highlighting
+  - Canonicalize formatting deterministically
+  - Generate formatting reports
+  - Support custom formatters
+requirements:
+  memory_mb: 256
+  dependencies:
+    - rustfmt
+    - serde_json
+    - log
+  disk_mb: 100
+performance_slo:
+  max_duration_ms: 3000
+  success_rate: 0.99
+  throughput_files_per_second: 50
+implementation:
+  language: bash
+  entry_point: skill_output_formatter_format
+  module: skills-template.sh
+error_handling:
+  retry_strategy: linear
+  max_retries: 2
+  retry_delay_ms: 100
+  timeout_ms: 5000
+  fallback_behavior: return_unformatted
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.87
+documentation:
+  url: "https://docs.ggen.io/skills/output-formatter"
+  examples:
+    - "skill_output_formatter_format --language rust file.rs"
+    - "skill_output_formatter_format --language python output/"

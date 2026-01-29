@@ -1,0 +1,278 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Agent Skill Definition Schema",
+  "description": "JSON Schema for validating agent skill YAML definitions",
+  "type": "object",
+  "required": [
+    "name",
+    "category",
+    "version",
+    "description",
+    "capabilities",
+    "requirements",
+    "performance_slo",
+    "implementation",
+    "error_handling",
+    "testing",
+    "documentation"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z_]+$",
+      "description": "Unique skill identifier in snake_case format"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "rdf_ontology",
+        "sparql",
+        "template_generation",
+        "quality_assurance",
+        "devops_infrastructure"
+      ],
+      "description": "Skill category classification"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version (e.g., 1.0.0)"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 50,
+      "maxLength": 500,
+      "description": "2-3 sentence skill description"
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "string",
+        "minLength": 10
+      },
+      "description": "List of capabilities (minimum 4 items)"
+    },
+    "requirements": {
+      "type": "object",
+      "required": [
+        "memory_mb",
+        "dependencies",
+        "disk_mb"
+      ],
+      "properties": {
+        "memory_mb": {
+          "type": "integer",
+          "minimum": 128,
+          "maximum": 4096,
+          "description": "Memory requirement in MB"
+        },
+        "dependencies": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
+          "description": "Required dependencies"
+        },
+        "disk_mb": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 5000,
+          "description": "Disk requirement in MB"
+        }
+      }
+    },
+    "performance_slo": {
+      "type": "object",
+      "required": [
+        "max_duration_ms",
+        "success_rate"
+      ],
+      "properties": {
+        "max_duration_ms": {
+          "type": "integer",
+          "minimum": 500,
+          "maximum": 120000,
+          "description": "Maximum execution duration in milliseconds"
+        },
+        "success_rate": {
+          "type": "number",
+          "minimum": 0.8,
+          "maximum": 1.0,
+          "description": "Target success rate (0.8 to 1.0)"
+        },
+        "throughput_triples_per_second": {
+          "type": "integer",
+          "minimum": 100,
+          "description": "Optional: throughput metric for RDF operations"
+        },
+        "throughput_shapes_per_second": {
+          "type": "integer",
+          "minimum": 100,
+          "description": "Optional: throughput metric for SHACL operations"
+        },
+        "throughput_queries_per_second": {
+          "type": "integer",
+          "minimum": 50,
+          "description": "Optional: throughput metric for SPARQL operations"
+        },
+        "throughput_templates_per_second": {
+          "type": "integer",
+          "minimum": 100,
+          "description": "Optional: throughput metric for template operations"
+        },
+        "throughput_renders_per_second": {
+          "type": "integer",
+          "minimum": 50,
+          "description": "Optional: throughput metric for rendering operations"
+        },
+        "throughput_passes_per_second": {
+          "type": "integer",
+          "minimum": 10,
+          "description": "Optional: throughput metric for multi-pass operations"
+        },
+        "throughput_files_per_second": {
+          "type": "integer",
+          "minimum": 10,
+          "description": "Optional: throughput metric for file operations"
+        },
+        "throughput_scans_per_second": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Optional: throughput metric for scanning operations"
+        },
+        "throughput_validations_per_second": {
+          "type": "integer",
+          "minimum": 10,
+          "description": "Optional: throughput metric for validation operations"
+        },
+        "throughput_benchmarks_per_second": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Optional: throughput metric for benchmark operations"
+        },
+        "throughput_builds_per_second": {
+          "type": "number",
+          "minimum": 0.01,
+          "description": "Optional: throughput metric for build operations"
+        }
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "required": [
+        "language",
+        "entry_point",
+        "module"
+      ],
+      "properties": {
+        "language": {
+          "type": "string",
+          "enum": ["bash", "rust", "python", "node"],
+          "description": "Implementation language"
+        },
+        "entry_point": {
+          "type": "string",
+          "pattern": "^skill_[a-z_]+_[a-z_]+$",
+          "description": "Function name following pattern: skill_[skill_name]_[action]"
+        },
+        "module": {
+          "type": "string",
+          "pattern": "^skills-[a-z]+\\.sh$",
+          "description": "Module file containing implementation"
+        }
+      }
+    },
+    "error_handling": {
+      "type": "object",
+      "required": [
+        "retry_strategy",
+        "max_retries",
+        "retry_delay_ms",
+        "timeout_ms",
+        "fallback_behavior"
+      ],
+      "properties": {
+        "retry_strategy": {
+          "type": "string",
+          "enum": ["linear", "exponential", "none"],
+          "description": "Retry strategy type"
+        },
+        "max_retries": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Maximum number of retries"
+        },
+        "retry_delay_ms": {
+          "type": "integer",
+          "minimum": 50,
+          "maximum": 2000,
+          "description": "Initial retry delay in milliseconds"
+        },
+        "timeout_ms": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 120000,
+          "description": "Total timeout in milliseconds"
+        },
+        "fallback_behavior": {
+          "type": "string",
+          "description": "Fallback behavior on error (e.g., return_error_details, return_partial_results)"
+        }
+      }
+    },
+    "testing": {
+      "type": "object",
+      "required": [
+        "unit_tests",
+        "integration_tests",
+        "test_coverage_target"
+      ],
+      "properties": {
+        "unit_tests": {
+          "type": "boolean",
+          "description": "Whether unit tests are required"
+        },
+        "integration_tests": {
+          "type": "boolean",
+          "description": "Whether integration tests are required"
+        },
+        "performance_tests": {
+          "type": "boolean",
+          "description": "Whether performance tests are required"
+        },
+        "test_coverage_target": {
+          "type": "number",
+          "minimum": 0.7,
+          "maximum": 1.0,
+          "description": "Target test coverage percentage (0.7 to 1.0)"
+        }
+      }
+    },
+    "documentation": {
+      "type": "object",
+      "required": [
+        "url",
+        "examples"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Documentation URL"
+        },
+        "examples": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
+          "description": "Usage examples"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

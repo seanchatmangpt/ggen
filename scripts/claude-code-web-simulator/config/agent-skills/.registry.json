@@ -1,0 +1,489 @@
+{
+  "skills": {
+    "turtle-parser": {
+      "skill": {
+        "name": "turtle-parser",
+        "category": "rdf",
+        "version": "1.0.0",
+        "agent_types": [
+          "rdf-specialist",
+          "data-analyst",
+          "validator"
+        ],
+        "description": "Parse and validate Turtle RDF ontologies with SHACL shape conformance",
+        "capabilities": [
+          "parse_turtle_ontology",
+          "validate_shacl_shapes",
+          "resolve_namespaces",
+          "extract_triple_patterns",
+          "generate_owl_inference"
+        ],
+        "requirements": {
+          "minimum_memory": "256M",
+          "tool_dependencies": [
+            "oxigraph",
+            "shacl-validator"
+          ],
+          "environment_variables": [
+            "RDF_PARSER_THREADS=4",
+            "SHACL_VALIDATION_MODE=strict"
+          ]
+        },
+        "performance_slo": {
+          "max_duration_ms": 5000,
+          "success_rate": 0.99,
+          "memory_limit_mb": 512,
+          "cache_enabled": true
+        },
+        "implementation": {
+          "language": "bash",
+          "entry_point": "turtle_parser_parse()",
+          "dependencies": [
+            "oxigraph-cli >= 0.5.1",
+            "rapper >= 2.0.15"
+          ]
+        },
+        "error_handling": {
+          "retry_strategy": "exponential_backoff",
+          "max_retries": 3,
+          "timeout_ms": 5000,
+          "fallback_behavior": "return_error"
+        },
+        "documentation": {
+          "usage": "Parse Turtle RDF ontologies and validate against SHACL shapes.\nSupports namespace resolution and OWL inference materialization.\n",
+          "example": "skill_load turtle-parser\nturtle_parser_parse --input ontology.ttl --validate-shacl\n"
+        },
+        "metadata": {
+          "author": "ggen AI Team",
+          "created": "2026-01-15",
+          "updated": "2026-01-25",
+          "tags": [
+            "rdf",
+            "ontology",
+            "validation",
+            "sparql"
+          ]
+        }
+      }
+    },
+    "sparql-executor": {
+      "skill": {
+        "name": "sparql-executor",
+        "category": "sparql",
+        "version": "1.0.0",
+        "agent_types": [
+          "sparql-specialist",
+          "query-optimizer",
+          "data-analyst"
+        ],
+        "description": "Execute SPARQL queries (SELECT, CONSTRUCT, ASK, DESCRIBE) with query optimization",
+        "capabilities": [
+          "execute_sparql_select",
+          "execute_sparql_construct",
+          "execute_sparql_ask",
+          "execute_sparql_describe",
+          "optimize_query_plans",
+          "cache_query_results"
+        ],
+        "requirements": {
+          "minimum_memory": "512M",
+          "tool_dependencies": [
+            "oxigraph",
+            "sparql-optimizer"
+          ],
+          "environment_variables": [
+            "SPARQL_TIMEOUT_SECONDS=30",
+            "QUERY_CACHE_SIZE=1000",
+            "OPTIMIZATION_LEVEL=2"
+          ]
+        },
+        "performance_slo": {
+          "max_duration_ms": 3000,
+          "success_rate": 0.995,
+          "memory_limit_mb": 1024,
+          "cache_enabled": true
+        },
+        "implementation": {
+          "language": "bash",
+          "entry_point": "sparql_executor_run()",
+          "dependencies": [
+            "oxigraph-cli >= 0.5.1",
+            "jq >= 1.6"
+          ]
+        },
+        "error_handling": {
+          "retry_strategy": "linear_backoff",
+          "max_retries": 2,
+          "timeout_ms": 3000,
+          "fallback_behavior": "return_partial_results"
+        },
+        "documentation": {
+          "usage": "Execute SPARQL queries against RDF triple stores.\nSupports query optimization and result caching for performance.\n",
+          "example": "skill_load sparql-executor\nsparql_executor_run --query \"SELECT ?s ?p ?o WHERE { ?s ?p ?o }\" --limit 100\n"
+        },
+        "metadata": {
+          "author": "ggen AI Team",
+          "created": "2026-01-20",
+          "updated": "2026-01-25",
+          "tags": [
+            "sparql",
+            "query",
+            "optimization",
+            "performance"
+          ]
+        }
+      }
+    },
+    "tera-template-renderer": {
+      "skill": {
+        "name": "tera-template-renderer",
+        "category": "template",
+        "version": "2.0.0",
+        "agent_types": [
+          "code-generator",
+          "template-specialist",
+          "code-architect"
+        ],
+        "description": "Render Tera templates with SPARQL context binding and multi-pass rendering",
+        "capabilities": [
+          "render_template",
+          "compile_template",
+          "bind_sparql_context",
+          "multi_pass_render",
+          "validate_template_syntax",
+          "generate_documentation"
+        ],
+        "requirements": {
+          "minimum_memory": "256M",
+          "tool_dependencies": [
+            "tera",
+            "sparql-bindings"
+          ],
+          "environment_variables": [
+            "TERA_STRICT_MODE=true",
+            "MAX_TEMPLATE_SIZE=50M",
+            "RENDER_TIMEOUT_SECONDS=10"
+          ]
+        },
+        "performance_slo": {
+          "max_duration_ms": 10000,
+          "success_rate": 0.98,
+          "memory_limit_mb": 512,
+          "cache_enabled": true
+        },
+        "implementation": {
+          "language": "bash",
+          "entry_point": "tera_template_render()",
+          "dependencies": [
+            "tera-cli >= 1.20",
+            "jq >= 1.6"
+          ]
+        },
+        "error_handling": {
+          "retry_strategy": "exponential_backoff",
+          "max_retries": 2,
+          "timeout_ms": 10000,
+          "fallback_behavior": "return_error_with_context"
+        },
+        "documentation": {
+          "usage": "Render Tera templates with SPARQL query results as context.\nSupports multi-pass rendering, variable binding, and documentation generation.\n",
+          "example": "skill_load tera-template-renderer\ntera_template_render --template code-gen.tmpl --context queries.sparql --output generated.rs\n"
+        },
+        "metadata": {
+          "author": "ggen AI Team",
+          "created": "2026-01-18",
+          "updated": "2026-01-25",
+          "tags": [
+            "template",
+            "rendering",
+            "code-generation",
+            "multi-pass"
+          ]
+        }
+      }
+    },
+    "rust-compiler-validator": {
+      "skill": {
+        "name": "rust-compiler-validator",
+        "category": "qa",
+        "version": "1.0.0",
+        "agent_types": [
+          "code-validator",
+          "rust-specialist",
+          "qa-engineer"
+        ],
+        "description": "Validate Rust code using cargo check, clippy, and rustfmt with Andon signal detection",
+        "capabilities": [
+          "cargo_check",
+          "cargo_clippy",
+          "cargo_fmt",
+          "detect_andon_signals",
+          "extract_error_locations",
+          "suggest_fixes"
+        ],
+        "requirements": {
+          "minimum_memory": "1024M",
+          "tool_dependencies": [
+            "cargo",
+            "rustfmt",
+            "clippy"
+          ],
+          "environment_variables": [
+            "RUST_BACKTRACE=1",
+            "CARGO_TERM_COLOR=always",
+            "RUSTFLAGS=-D warnings"
+          ]
+        },
+        "performance_slo": {
+          "max_duration_ms": 30000,
+          "success_rate": 0.99,
+          "memory_limit_mb": 2048,
+          "cache_enabled": true
+        },
+        "implementation": {
+          "language": "bash",
+          "entry_point": "rust_validator_check()",
+          "dependencies": [
+            "cargo >= 1.70",
+            "rustc >= 1.70",
+            "clippy",
+            "rustfmt"
+          ]
+        },
+        "error_handling": {
+          "retry_strategy": "no_retry",
+          "max_retries": 0,
+          "timeout_ms": 30000,
+          "fallback_behavior": "return_compilation_error"
+        },
+        "documentation": {
+          "usage": "Validate Rust code for compilation errors, warnings, and style violations.\nDetects Andon signals (CRITICAL RED, HIGH YELLOW) and extracts error locations.\n",
+          "example": "skill_load rust-compiler-validator\nrust_validator_check --manifest crates/ggen-core/Cargo.toml --strict\n"
+        },
+        "metadata": {
+          "author": "ggen AI Team",
+          "created": "2026-01-22",
+          "updated": "2026-01-25",
+          "tags": [
+            "quality",
+            "validation",
+            "rust",
+            "andon-signals"
+          ]
+        }
+      }
+    },
+    "cargo-make-orchestrator": {
+      "skill": {
+        "name": "cargo-make-orchestrator",
+        "category": "devops",
+        "version": "1.0.0",
+        "agent_types": [
+          "build-engineer",
+          "ci-cd-specialist",
+          "devops-engineer"
+        ],
+        "description": "Orchestrate cargo make targets with timeout enforcement and SLO verification",
+        "capabilities": [
+          "execute_cargo_make",
+          "enforce_timeouts",
+          "verify_slos",
+          "parallel_task_execution",
+          "generate_build_reports",
+          "cache_build_artifacts"
+        ],
+        "requirements": {
+          "minimum_memory": "512M",
+          "tool_dependencies": [
+            "cargo-make",
+            "timeout"
+          ],
+          "environment_variables": [
+            "CARGO_BUILD_JOBS=4",
+            "CARGO_BUILD_PIPELINED_COMPILATION=true",
+            "RUST_LTO=thin"
+          ]
+        },
+        "performance_slo": {
+          "max_duration_ms": 120000,
+          "success_rate": 0.98,
+          "memory_limit_mb": 2048,
+          "cache_enabled": true
+        },
+        "implementation": {
+          "language": "bash",
+          "entry_point": "cargo_make_run()",
+          "dependencies": [
+            "cargo-make >= 0.36",
+            "timeout",
+            "jq >= 1.6"
+          ]
+        },
+        "error_handling": {
+          "retry_strategy": "linear_backoff",
+          "max_retries": 1,
+          "timeout_ms": 120000,
+          "fallback_behavior": "return_build_error"
+        },
+        "documentation": {
+          "usage": "Execute cargo make targets with timeout enforcement.\nVerifies SLO compliance and generates build reports with metrics.\n",
+          "example": "skill_load cargo-make-orchestrator\ncargo_make_run --target \"test\" --timeout 30s --verify-slo\n"
+        },
+        "metadata": {
+          "author": "ggen AI Team",
+          "created": "2026-01-19",
+          "updated": "2026-01-25",
+          "tags": [
+            "devops",
+            "build",
+            "ci-cd",
+            "automation"
+          ]
+        }
+      }
+    },
+    "receipt-generator": {
+      "skill": {
+        "name": "receipt-generator",
+        "category": "integration",
+        "version": "1.0.0",
+        "agent_types": [
+          "audit-specialist",
+          "receipt-generator",
+          "production-validator"
+        ],
+        "description": "Generate cryptographic audit trails and deterministic receipts for ggen pipeline",
+        "capabilities": [
+          "generate_receipt",
+          "compute_content_hash",
+          "create_audit_trail",
+          "verify_determinism",
+          "sign_receipt",
+          "validate_receipt_signature"
+        ],
+        "requirements": {
+          "minimum_memory": "256M",
+          "tool_dependencies": [
+            "openssl",
+            "jq"
+          ],
+          "environment_variables": [
+            "HASH_ALGORITHM=sha256",
+            "SIGN_RECEIPTS=true",
+            "AUDIT_LOG_FORMAT=json"
+          ]
+        },
+        "performance_slo": {
+          "max_duration_ms": 2000,
+          "success_rate": 0.99,
+          "memory_limit_mb": 256,
+          "cache_enabled": false
+        },
+        "implementation": {
+          "language": "bash",
+          "entry_point": "receipt_generator_create()",
+          "dependencies": [
+            "openssl >= 1.1.1",
+            "jq >= 1.6",
+            "sha256sum"
+          ]
+        },
+        "error_handling": {
+          "retry_strategy": "no_retry",
+          "max_retries": 0,
+          "timeout_ms": 2000,
+          "fallback_behavior": "return_error"
+        },
+        "documentation": {
+          "usage": "Generate cryptographic receipts for all ggen pipeline stages (μ₁-μ₅).\nCreates deterministic audit trails with SHA-256 content hashing and optional signing.\n",
+          "example": "skill_load receipt-generator\nreceipt_generator_create --manifest ggen.toml --ontology ontology.ttl --output receipt.json\n"
+        },
+        "metadata": {
+          "author": "ggen AI Team",
+          "created": "2026-01-21",
+          "updated": "2026-01-25",
+          "tags": [
+            "audit",
+            "receipt",
+            "determinism",
+            "cryptography"
+          ]
+        }
+      }
+    }
+  },
+  "by_category": {
+    "rdf": [
+      "turtle-parser"
+    ],
+    "sparql": [
+      "sparql-executor"
+    ],
+    "template": [
+      "tera-template-renderer"
+    ],
+    "qa": [
+      "rust-compiler-validator"
+    ],
+    "devops": [
+      "cargo-make-orchestrator"
+    ],
+    "integration": [
+      "receipt-generator"
+    ]
+  },
+  "by_agent_type": {
+    "rdf-specialist": [
+      "turtle-parser"
+    ],
+    "data-analyst": [
+      "turtle-parser",
+      "sparql-executor"
+    ],
+    "validator": [
+      "turtle-parser"
+    ],
+    "sparql-specialist": [
+      "sparql-executor"
+    ],
+    "query-optimizer": [
+      "sparql-executor"
+    ],
+    "code-generator": [
+      "tera-template-renderer"
+    ],
+    "template-specialist": [
+      "tera-template-renderer"
+    ],
+    "code-architect": [
+      "tera-template-renderer"
+    ],
+    "code-validator": [
+      "rust-compiler-validator"
+    ],
+    "rust-specialist": [
+      "rust-compiler-validator"
+    ],
+    "qa-engineer": [
+      "rust-compiler-validator"
+    ],
+    "build-engineer": [
+      "cargo-make-orchestrator"
+    ],
+    "ci-cd-specialist": [
+      "cargo-make-orchestrator"
+    ],
+    "devops-engineer": [
+      "cargo-make-orchestrator"
+    ],
+    "audit-specialist": [
+      "receipt-generator"
+    ],
+    "receipt-generator": [
+      "receipt-generator"
+    ],
+    "production-validator": [
+      "receipt-generator"
+    ]
+  }
+}

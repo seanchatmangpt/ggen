@@ -1,0 +1,49 @@
+---
+name: deployment_validator
+category: devops_infrastructure
+version: "1.0.0"
+description: |
+  Validates deployment configurations (Kubernetes, Terraform, CloudFormation) for
+  correctness and best practices. Checks manifests, validates resource definitions,
+  verifies security policies, and generates deployment readiness reports.
+capabilities:
+  - Validate Kubernetes manifests
+  - Validate Terraform configurations
+  - Validate CloudFormation templates
+  - Check resource definitions
+  - Verify security policies
+  - Detect configuration errors
+  - Generate readiness reports
+  - Support policy as code (OPA)
+requirements:
+  memory_mb: 512
+  dependencies:
+    - kubectl
+    - terraform
+    - cfn-lint
+    - opa
+  disk_mb: 200
+performance_slo:
+  max_duration_ms: 5000
+  success_rate: 0.99
+  throughput_validations_per_second: 20
+implementation:
+  language: bash
+  entry_point: skill_deployment_validator_validate
+  module: skills-devops.sh
+error_handling:
+  retry_strategy: linear
+  max_retries: 2
+  retry_delay_ms: 200
+  timeout_ms: 10000
+  fallback_behavior: return_error_details
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.86
+documentation:
+  url: "https://docs.ggen.io/skills/deployment-validator"
+  examples:
+    - "skill_deployment_validator_validate --type kubernetes deploy.yaml"
+    - "skill_deployment_validator_validate --type terraform config/"
