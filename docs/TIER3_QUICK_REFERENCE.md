@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN Tier 3: Quick Reference Guide](#ggen-tier-3-quick-reference-guide)
+  - [The 8 Features (TL;DR)](#the-8-features-tldr)
+  - [80/20 Breakdown](#8020-breakdown)
+  - [Implementation Schedule](#implementation-schedule)
+  - [Per-Feature Execution](#per-feature-execution)
+    - [Feature 1: Marketplace Monetization (Phase 1)](#feature-1-marketplace-monetization-phase-1)
+    - [Feature 2: Distributed Generation (Phase 2)](#feature-2-distributed-generation-phase-2)
+    - [Feature 3: RDF Ontology Marketplace (Phase 3)](#feature-3-rdf-ontology-marketplace-phase-3)
+    - [Feature 4: Self-Healing Pipeline (Phase 3)](#feature-4-self-healing-pipeline-phase-3)
+    - [Feature 5: Real-Time Collaboration (Phase 3)](#feature-5-real-time-collaboration-phase-3)
+    - [Feature 6: Audit Trail System (Phase 4)](#feature-6-audit-trail-system-phase-4)
+    - [Feature 7: Template Recommender (Phase 2)](#feature-7-template-recommender-phase-2)
+    - [Feature 8: Multi-Tenant SaaS (Phase 5)](#feature-8-multi-tenant-saas-phase-5)
+  - [Critical Success Factors](#critical-success-factors)
+    - [Must-Have (Non-Negotiable)](#must-have-non-negotiable)
+    - [Nice-to-Have (Can Defer)](#nice-to-have-can-defer)
+  - [Risks to Watch](#risks-to-watch)
+  - [Success Metrics by Week](#success-metrics-by-week)
+  - [Memory Storage](#memory-storage)
+  - [Key Links](#key-links)
+  - [Swarm Initialization](#swarm-initialization)
+    - [For Next 10-Agent Swarm](#for-next-10-agent-swarm)
+    - [Success Definition (Phase 1 Complete)](#success-definition-phase-1-complete)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN Tier 3: Quick Reference Guide
 **For Next 10-Agent Swarm** | January 29, 2026
 
