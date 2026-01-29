@@ -1,0 +1,236 @@
+%% ============================================================================
+%% {{ module_name }} - ADAPTIVE COMPLEXITY RENDERING
+%% ============================================================================
+%% Generated at complexity level {{ complexity_level }} (0-4)
+%% Learning value threshold: {{ learning_threshold }}
+%%
+%% This template demonstrates EVOLVED 80/20:
+%% - Same template generates code at different complexity levels
+%% - Features filtered by learning_value and complexity_level
+%% - Progressive disclosure: Start simple, zoom in as needed
+
+-module({{ module_name }}).
+-behaviour(gen_server).
+
+{% if complexity_level >= 0 -%}
+%% API (Level {{ complexity_level }})
+-export([start_link/0]).
+{% for func in api_functions -%}
+{% if func.complexity_level <= complexity_level -%}
+-export([{{ func.name }}/{{ func.arity }}]).
+{% endif -%}
+{% endfor %}
+
+%% gen_server callbacks
+-export([init/1, handle_call/3, handle_cast/2{% if complexity_level >= 3 %}, handle_info/2, terminate/2, code_change/3{% endif %}]).
+{% endif %}
+
+{% if complexity_level >= 1 -%}
+%% State record (fields scale with complexity)
+-record(state, {
+    {% for field in state_fields -%}
+    {% if field.complexity_level <= complexity_level -%}
+    {{ field.name }} :: {{ field.type }}{% if not loop.last %},{% endif %}
+    {% endif -%}
+    {% endfor %}
+}).
+{% else -%}
+%% Level 0: Inline state (simplest possible)
+-define(INIT_STATE, 0).
+{% endif %}
+
+%% ============================================================================
+%% API
+%% ============================================================================
+
+start_link() ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+{% for func in api_functions -%}
+{% if func.complexity_level <= complexity_level -%}
+{{ func.name }}({% if func.arity > 0 %}Arg{% endif %}) ->
+    {% if func.type == "call" -%}
+    gen_server:call(?MODULE, {{'{'}}{{ func.name }}{% if func.arity > 0 %}, Arg{% endif %}{{'}'}}).
+    {% elif func.type == "cast" -%}
+    gen_server:cast(?MODULE, {{'{'}}{{ func.name }}{% if func.arity > 0 %}, Arg{% endif %}{{'}'}}).
+    {% endif %}
+
+{% endif -%}
+{% endfor %}
+
+%% ============================================================================
+%% gen_server callbacks
+%% ============================================================================
+
+{% if complexity_level >= 1 -%}
+init([]) ->
+    {ok, #state{
+        {% for field in state_fields -%}
+        {% if field.complexity_level <= complexity_level -%}
+        {{ field.name }} = {{ field.initial }}{% if not loop.last %},{% endif %}
+        {% endif -%}
+        {% endfor %}
+    }}.
+{% else -%}
+init([]) ->
+    {ok, ?INIT_STATE}.
+{% endif %}
+
+%% ============================================================================
+%% Level {{ complexity_level }}: {{ complexity_level * 25 }}% Features
+%% ============================================================================
+
+{% if complexity_level == 0 -%}
+%% ONELINER MODE (0.8%): Absolute essence
+handle_call(increment, _From, Count) ->
+    {reply, Count + 1, Count + 1}.
+
+{% elif complexity_level == 1 -%}
+%% META-MINIMAL MODE (4%): Critical path only
+handle_call(increment, _From, #state{count = Count} = State) ->
+    NewCount = Count + 1,
+    {reply, NewCount, State#state{count = NewCount}};
+
+handle_call(get, _From, #state{count = Count} = State) ->
+    {reply, Count, State}.
+
+{% elif complexity_level == 2 -%}
+%% MINIMAL MODE (20%): Core functionality
+handle_call(increment, _From, #state{count = Count} = State) ->
+    NewCount = Count + 1,
+    {reply, NewCount, State#state{count = NewCount}};
+
+handle_call(get, _From, #state{count = Count} = State) ->
+    {reply, Count, State};
+
+handle_call({add, Amount}, _From, #state{count = Count} = State) ->
+    NewCount = Count + Amount,
+    {reply, NewCount, State#state{count = NewCount}}.
+
+handle_cast(reset, State) ->
+    {noreply, State#state{count = 0}}.
+
+{% elif complexity_level == 3 -%}
+%% BALANCED MODE (50%): Production basics
+handle_call(increment, _From, #state{count = Count, metrics = Metrics} = State) ->
+    NewCount = Count + 1,
+    NewMetrics = maps:update_with(total, fun(V) -> V + 1 end, 1, Metrics),
+    {reply, NewCount, State#state{count = NewCount, metrics = NewMetrics}};
+
+handle_call(get, _From, #state{count = Count} = State) ->
+    {reply, Count, State};
+
+handle_call({add, Amount}, _From, #state{count = Count, metrics = Metrics} = State) ->
+    NewCount = Count + Amount,
+    NewMetrics = maps:update_with(total, fun(V) -> V + 1 end, 1, Metrics),
+    {reply, NewCount, State#state{count = NewCount, metrics = NewMetrics}};
+
+handle_call(decrement, _From, #state{count = Count, metrics = Metrics} = State) ->
+    NewCount = Count - 1,
+    NewMetrics = maps:update_with(total, fun(V) -> V + 1 end, 1, Metrics),
+    {reply, NewCount, State#state{count = NewCount, metrics = NewMetrics}};
+
+handle_call(get_metrics, _From, #state{metrics = Metrics} = State) ->
+    {reply, Metrics, State}.
+
+handle_cast(reset, State) ->
+    {noreply, State#state{count = 0}}.
+
+handle_info(_Info, State) ->
+    {noreply, State}.
+
+terminate(_Reason, _State) ->
+    ok.
+
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
+
+{% else -%}
+%% COMPREHENSIVE MODE (100%): All features
+handle_call(increment, _From, #state{count = Count, metrics = Metrics, subscribers = Subs} = State) ->
+    NewCount = Count + 1,
+    NewMetrics = maps:update_with(total, fun(V) -> V + 1 end, 1, Metrics),
+    notify_subscribers(Subs, {count_changed, NewCount}),
+    {reply, NewCount, State#state{count = NewCount, metrics = NewMetrics}};
+
+handle_call(get, _From, #state{count = Count} = State) ->
+    {reply, Count, State};
+
+handle_call({add, Amount}, _From, #state{count = Count, metrics = Metrics, subscribers = Subs} = State) ->
+    NewCount = Count + Amount,
+    NewMetrics = maps:update_with(total, fun(V) -> V + 1 end, 1, Metrics),
+    notify_subscribers(Subs, {count_changed, NewCount}),
+    {reply, NewCount, State#state{count = NewCount, metrics = NewMetrics}};
+
+handle_call(decrement, _From, #state{count = Count, metrics = Metrics, subscribers = Subs} = State) ->
+    NewCount = Count - 1,
+    NewMetrics = maps:update_with(total, fun(V) -> V + 1 end, 1, Metrics),
+    notify_subscribers(Subs, {count_changed, NewCount}),
+    {reply, NewCount, State#state{count = NewCount, metrics = NewMetrics}};
+
+handle_call(get_metrics, _From, #state{metrics = Metrics} = State) ->
+    {reply, Metrics, State};
+
+handle_call({subscribe, Pid}, _From, #state{subscribers = Subs} = State) ->
+    monitor(process, Pid),
+    {reply, ok, State#state{subscribers = [Pid | Subs]}};
+
+handle_call({unsubscribe, Pid}, _From, #state{subscribers = Subs} = State) ->
+    NewSubs = lists:delete(Pid, Subs),
+    {reply, ok, State#state{subscribers = NewSubs}}.
+
+handle_cast(reset, State) ->
+    {noreply, State#state{count = 0}}.
+
+handle_info({'DOWN', _Ref, process, Pid, _Reason}, #state{subscribers = Subs} = State) ->
+    NewSubs = lists:delete(Pid, Subs),
+    {noreply, State#state{subscribers = NewSubs}};
+
+handle_info(_Info, State) ->
+    {noreply, State}.
+
+terminate(_Reason, _State) ->
+    ok.
+
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
+
+%% ============================================================================
+%% Internal functions
+%% ============================================================================
+
+notify_subscribers(Subscribers, Message) ->
+    [Pid ! Message || Pid <- Subscribers],
+    ok.
+{% endif %}
+
+{% if complexity_level < 4 -%}
+%% ============================================================================
+%% ZOOM IN: Want more features?
+%% Re-generate at level {{ complexity_level + 1 }} to add:
+{% if complexity_level == 0 -%}
+%%   - get/0 function (retrieve counter value)
+%%   - Proper state record
+{% elif complexity_level == 1 -%}
+%%   - reset/0 function (reset to zero)
+%%   - add/1 function (add arbitrary amount)
+%%   - Metadata tracking (start time)
+{% elif complexity_level == 2 -%}
+%%   - decrement/0 function
+%%   - get_metrics/0 function
+%%   - Performance monitoring
+%%   - Full OTP callbacks (handle_info, terminate, code_change)
+{% elif complexity_level == 3 -%}
+%%   - subscribe/1 and unsubscribe/1 functions
+%%   - Real-time change notifications
+%%   - Process monitoring
+{% endif %}
+%% ============================================================================
+{% endif %}
+
+{% if complexity_level > 0 -%}
+%% ============================================================================
+%% ZOOM OUT: Too complex?
+%% Re-generate at level {{ complexity_level - 1 }} to simplify
+%% ============================================================================
+{% endif %}

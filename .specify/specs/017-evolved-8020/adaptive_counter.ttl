@@ -1,0 +1,200 @@
+@prefix : <http://github.com/ggen/adaptive#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+## ============================================================================
+## EVOLVED 80/20: FRACTAL COMPLEXITY LADDER
+## ============================================================================
+## This RDF demonstrates the EVOLUTION of 80/20:
+## - Fractal: 80/20 applied recursively (100% → 20% → 4% → 0.8%)
+## - Adaptive: Multiple complexity levels in ONE specification
+## - Self-Optimizing: Metadata guides automatic simplification
+##
+## Innovation: Instead of separate examples, ONE RDF encodes ALL levels.
+
+:CounterServer a :AdaptiveGenServer ;
+    :module_name "counter_server" ;
+
+    ## ========================================================================
+    ## COMPLEXITY LADDER: 5 Levels (Fractal 80/20)
+    ## ========================================================================
+    ## Level 0 (0.8%):  Oneliner - Absolute essence
+    ## Level 1 (4%):    Meta-minimal - Critical path only
+    ## Level 2 (20%):   Minimal - Core functionality
+    ## Level 3 (50%):   Balanced - Production-ready basics
+    ## Level 4 (100%):  Comprehensive - Full features
+
+    ## ========================================================================
+    ## STATE DEFINITION (Complexity: Progressive Disclosure)
+    ## ========================================================================
+
+    ## Level 0: Just the counter
+    :state_field [
+        :name "count" ;
+        :type "integer" ;
+        :initial "0" ;
+        :complexity_level "0" ;  ## CORE: Always included
+        :learning_value "90"     ## High learning value
+    ] ;
+
+    ## Level 2: Add metadata
+    :state_field [
+        :name "start_time" ;
+        :type "timestamp" ;
+        :initial "erlang:system_time()" ;
+        :complexity_level "2" ;  ## MINIMAL: Optional
+        :learning_value "30"
+    ] ;
+
+    ## Level 3: Add monitoring
+    :state_field [
+        :name "metrics" ;
+        :type "map" ;
+        :initial "#{total => 0, errors => 0}" ;
+        :complexity_level "3" ;  ## BALANCED: Nice to have
+        :learning_value "50"
+    ] ;
+
+    ## Level 4: Add advanced features
+    :state_field [
+        :name "subscribers" ;
+        :type "list(pid)" ;
+        :initial "[]" ;
+        :complexity_level "4" ;  ## COMPREHENSIVE: Full featured
+        :learning_value "20"
+    ] ;
+
+    ## ========================================================================
+    ## API FUNCTIONS (Ordered by Learning Value)
+    ## ========================================================================
+
+    ## Level 0: Absolute minimum (the ONE essential function)
+    :api_function [
+        :name "increment" ;
+        :arity "0" ;
+        :type "call" ;
+        :complexity_level "0" ;
+        :learning_value "100" ;  ## THE most important
+        :description "Increment counter - THE core operation"
+    ] ;
+
+    ## Level 1: Critical path (4% sweet spot)
+    :api_function [
+        :name "get" ;
+        :arity "0" ;
+        :type "call" ;
+        :complexity_level "1" ;
+        :learning_value "80" ;
+        :description "Get current value"
+    ] ;
+
+    ## Level 2: Minimal set (20% for full understanding)
+    :api_function [
+        :name "reset" ;
+        :arity "0" ;
+        :type "cast" ;
+        :complexity_level "2" ;
+        :learning_value "60" ;
+        :description "Reset to zero"
+    ] ;
+
+    :api_function [
+        :name "add" ;
+        :arity "1" ;
+        :type "call" ;
+        :complexity_level "2" ;
+        :learning_value "50" ;
+        :description "Add specific amount"
+    ] ;
+
+    ## Level 3: Balanced (50% - production basics)
+    :api_function [
+        :name "decrement" ;
+        :arity "0" ;
+        :type "call" ;
+        :complexity_level "3" ;
+        :learning_value "40" ;
+        :description "Decrement counter"
+    ] ;
+
+    :api_function [
+        :name "get_metrics" ;
+        :arity "0" ;
+        :type "call" ;
+        :complexity_level "3" ;
+        :learning_value "35" ;
+        :description "Get performance metrics"
+    ] ;
+
+    ## Level 4: Comprehensive (100% - all features)
+    :api_function [
+        :name "subscribe" ;
+        :arity "1" ;
+        :type "call" ;
+        :complexity_level "4" ;
+        :learning_value "25" ;
+        :description "Subscribe to counter changes"
+    ] ;
+
+    :api_function [
+        :name "unsubscribe" ;
+        :arity "1" ;
+        :type "call" ;
+        :complexity_level "4" ;
+        :learning_value "20" ;
+        :description "Unsubscribe from changes"
+    ] ;
+
+    ## ========================================================================
+    ## ADAPTIVE METADATA: Self-Optimization Hints
+    ## ========================================================================
+
+    :optimization_profile [
+        :target "speed_learner" ;
+        :recommended_level "0" ;  ## Start with oneliner
+        :time_budget "1_minute" ;
+        :description "Just show me the essence!"
+    ] ;
+
+    :optimization_profile [
+        :target "rapid_learner" ;
+        :recommended_level "1" ;  ## Meta-minimal
+        :time_budget "3_minutes" ;
+        :description "I want the critical path only"
+    ] ;
+
+    :optimization_profile [
+        :target "thorough_learner" ;
+        :recommended_level "2" ;  ## Minimal
+        :time_budget "5_minutes" ;
+        :description "Full understanding of core concept"
+    ] ;
+
+    :optimization_profile [
+        :target "production_engineer" ;
+        :recommended_level "3" ;  ## Balanced
+        :time_budget "30_minutes" ;
+        :description "Production-ready basics"
+    ] ;
+
+    :optimization_profile [
+        :target "architect" ;
+        :recommended_level "4" ;  ## Comprehensive
+        :time_budget "unlimited" ;
+        :description "Complete feature set"
+    ] .
+
+## ============================================================================
+## INNOVATION SUMMARY
+## ============================================================================
+## Traditional 80/20: Two separate examples (comprehensive vs minimal)
+## Evolved 80/20:     ONE adaptive RDF with 5 complexity levels
+##
+## Benefits:
+## 1. Fractal: 80/20 applies recursively (each level is 80/20 of next)
+## 2. Adaptive: Same RDF generates different complexity on demand
+## 3. Measurable: Learning value quantified per feature
+## 4. Self-optimizing: Profiles guide automatic level selection
+## 5. Progressive: Users can "zoom in" as they learn
+##
+## Result: 100% → 20% → 4% → 0.8% complexity ladder in ONE specification
