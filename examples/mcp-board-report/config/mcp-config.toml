@@ -1,0 +1,125 @@
+# =============================================================================
+# MCP+ Board Report - Production Configuration
+#
+# Core axiom: A = μ(O), μ ∘ μ = μ, hash(A) = hash(μ(O)), O ⊨ Σ
+#
+# This is the main production configuration file for the MCP+ system.
+# All cryptographic operations, envelope constraints, and receipt chains
+# are configured here with production-grade security settings.
+# =============================================================================
+
+[mcp]
+version = "0.2.0"
+environment = "production"
+
+[crypto]
+# Ed25519 for signatures (NIST-approved, high performance)
+algorithm = "ed25519"
+# SHA-256 for content hashing (deterministic receipts)
+hash_function = "sha256"
+# Key rotation every 90 days (security best practice)
+key_rotation_days = 90
+# Minimum key length for RSA fallback (if ever needed)
+min_key_bits = 2048
+
+[envelope]
+# Default resource constraints per operation
+default_max_operations = 1000
+default_max_memory_mb = 100
+default_max_duration_ms = 30000
+# Strict mode: reject operations exceeding envelope
+strict_mode = true
+# Track envelope violations in metrics
+track_violations = true
+
+[kill_switch]
+# Global emergency stop capability
+global_enabled = true
+# Per-family kill switch (group operations by family)
+family_enabled = true
+# Per-capability kill switch (fine-grained control)
+capability_enabled = true
+# Epoch-based expiration
+epoch_enabled = true
+# Cooldown period after kill switch activation (seconds)
+cooldown_seconds = 300
+
+[receipts]
+# Enable chained receipt verification (Merkle-linked)
+chain_enabled = true
+# Build Merkle tree for batch verification
+merkle_tree_enabled = true
+# Require cryptographic signatures on all receipts
+signature_required = true
+# Maximum chain depth before archival
+max_chain_depth = 10000
+# Archive old receipts after retention period
+archive_after_days = 90
+
+[bundles]
+# Bundle format (mcpb = MCP Bundle binary format)
+format = "mcpb"
+# Compression algorithm (none, gzip, zstd)
+compression = "none"
+# Retention period for bundles
+retention_days = 365
+# Maximum bundle size in MB
+max_size_mb = 100
+
+[epochs]
+# Default epoch duration
+default_duration_hours = 24
+# Automatically rotate epochs
+auto_rotate = true
+# Grace period after epoch expiration (minutes)
+grace_period_minutes = 60
+# Maximum active epochs
+max_active_epochs = 3
+
+[logging]
+# Log level (trace, debug, info, warn, error)
+level = "info"
+# Output format (json, text)
+format = "json"
+# Log file path
+file = "/var/log/mcp/mcp.log"
+# Maximum log file size in MB before rotation
+max_file_size_mb = 100
+# Number of rotated log files to keep
+max_files = 10
+
+[metrics]
+# Enable Prometheus metrics endpoint
+enabled = true
+# Metrics endpoint path
+endpoint = "/metrics"
+# Metrics server port
+port = 9090
+# Include histogram buckets for latency
+include_histograms = true
+# Labels to include on all metrics
+default_labels = ["environment", "version"]
+
+[storage]
+# Primary storage backend (file, s3, gcs)
+backend = "file"
+# Base path for file storage
+base_path = "/var/lib/mcp/data"
+# Enable encryption at rest
+encryption_enabled = true
+# Compression for stored data
+compression = "zstd"
+
+[network]
+# Bind address for API server
+bind_address = "0.0.0.0"
+# API server port
+port = 8080
+# TLS configuration
+tls_enabled = true
+tls_cert_path = "/etc/mcp/tls/cert.pem"
+tls_key_path = "/etc/mcp/tls/key.pem"
+# Request timeout in seconds
+request_timeout_seconds = 30
+# Maximum concurrent connections
+max_connections = 1000

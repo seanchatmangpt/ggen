@@ -19,7 +19,7 @@ pub fn kill_switch(ctx: &Context, drill_type: &str) -> Result<()> {
     let drill_state_dir = ctx.state_dir.join(&drill_id);
     fs::create_dir_all(&drill_state_dir)?;
 
-    let mut all_passed = true;
+    let all_passed = true;
 
     match drill_type {
         "global" => {

@@ -99,7 +99,7 @@ impl MerkleTree {
 
     /// Get the root hash as hex string
     pub fn root_hex(&self) -> Option<String> {
-        self.root().map(|r| hex::encode(r))
+        self.root().map(hex::encode)
     }
 
     /// Get number of leaves

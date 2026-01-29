@@ -1,14 +1,23 @@
 //! Receipt model
+//!
+//! Uses mcp_core for cryptographic operations.
 
 use anyhow::Result;
+use mcp_core::crypto::hash_sha256;
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-/// Cryptographic receipt for an action
+// Re-export mcp_core Receipt for contract execution use cases
+pub use mcp_core::types::Receipt as CoreReceipt;
+pub use mcp_core::types::ExecutionMetrics;
+
+/// Cryptographic receipt for a CLI action
+///
+/// This is a simplified receipt for CLI operations (kill switch, drills, etc.)
+/// For contract execution receipts, use [`CoreReceipt`].
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Receipt {
+pub struct CliReceipt {
     pub receipt_id: String,
     pub action: String,
     pub target: String,
@@ -18,8 +27,8 @@ pub struct Receipt {
     pub receipt_hash: String,
 }
 
-impl Receipt {
-    /// Create a new receipt
+impl CliReceipt {
+    /// Create a new CLI receipt
     pub fn new(action: &str, target: &str) -> Self {
         let receipt_id = format!("rcpt-{}-{}", chrono::Utc::now().timestamp(), std::process::id());
         let timestamp = chrono::Utc::now();
@@ -28,14 +37,12 @@ impl Receipt {
             .or_else(|_| std::env::var("HOST"))
             .unwrap_or_else(|_| "localhost".to_string());
 
-        // Compute hash
+        // Use mcp_core crypto for hashing
         let hash_input = format!(
             "{}|{}|{}|{}",
             receipt_id, action, target, timestamp
         );
-        let mut hasher = Sha256::new();
-        hasher.update(hash_input.as_bytes());
-        let receipt_hash = hex::encode(hasher.finalize());
+        let receipt_hash = hash_sha256(hash_input.as_bytes());
 
         Self {
             receipt_id,
@@ -57,6 +64,9 @@ impl Receipt {
     }
 }
 
+// Type alias for backwards compatibility
+pub type Receipt = CliReceipt;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -64,7 +74,7 @@ mod tests {
 
     #[test]
     fn test_receipt_creation() {
-        let receipt = Receipt::new("test_action", "test_target");
+        let receipt = CliReceipt::new("test_action", "test_target");
 
         assert!(receipt.receipt_id.starts_with("rcpt-"));
         assert_eq!(receipt.action, "test_action");
@@ -74,7 +84,7 @@ mod tests {
 
     #[test]
     fn test_receipt_save() {
-        let receipt = Receipt::new("test_action", "test_target");
+        let receipt = CliReceipt::new("test_action", "test_target");
         let tmp = TempDir::new().unwrap();
 
         let path = receipt.save(tmp.path()).unwrap();
@@ -89,11 +99,27 @@ mod tests {
     fn test_receipt_hash_determinism() {
         // Two receipts with same inputs at different times should have different hashes
         // (because timestamp is included)
-        let r1 = Receipt::new("action", "target");
+        let r1 = CliReceipt::new("action", "target");
         std::thread::sleep(std::time::Duration::from_millis(10));
-        let r2 = Receipt::new("action", "target");
+        let r2 = CliReceipt::new("action", "target");
 
         // Different timestamps should produce different hashes
         assert_ne!(r1.receipt_hash, r2.receipt_hash);
+    }
+
+    #[test]
+    fn test_core_receipt_available() {
+        // Verify mcp_core Receipt is accessible through re-export
+        let metrics = ExecutionMetrics::default();
+        let core_receipt = CoreReceipt::new(
+            1,
+            mcp_core::GENESIS_HASH,
+            "test",
+            "contract",
+            "in_hash",
+            "out_hash",
+            metrics,
+        );
+        assert!(core_receipt.receipt_id.starts_with("rcpt-"));
     }
 }

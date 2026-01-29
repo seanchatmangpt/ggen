@@ -43,6 +43,18 @@ pub enum McpError {
 
     #[error("IO error: {0}")]
     IoError(String),
+
+    #[error("Delegation error: {0}")]
+    DelegationError(String),
+
+    #[error("Capability violation: {0}")]
+    CapabilityViolation(String),
+
+    #[error("Delegation expired: {0}")]
+    DelegationExpired(String),
+
+    #[error("Constraint violation: {0}")]
+    ConstraintViolation(String),
 }
 
 impl From<std::io::Error> for McpError {

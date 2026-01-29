@@ -3,7 +3,7 @@
 //! Text-blind verification of .mcpb evidence bundles.
 
 use super::Context;
-use crate::models::bundle::{Bundle, VerificationResult};
+use crate::models::bundle::Bundle;
 use anyhow::{bail, Result};
 use colored::Colorize;
 use std::fs;
