@@ -1,0 +1,571 @@
+@prefix : <http://ggen.io/ontology/specs/016-testing-infrastructure/entities#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ggen: <http://ggen.io/ontology/core#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+# Core Entity Definitions
+
+# TestContainer Entity
+:TestContainer a rdfs:Class ;
+    rdfs:label "Test Container" ;
+    rdfs:comment "Docker container specification for integration testing" ;
+    rdfs:subClassOf ggen:Entity .
+
+:TestContainerInstance a :TestContainer ;
+    :hasImage "postgres:15-alpine" ;
+    :hasPort 5432 ;
+    :hasHealthCheck :PostgresHealthCheck ;
+    :hasTimeout "30s"^^xsd:duration ;
+    :hasEnvironment :PostgresEnv ;
+    :hasVolume :PostgresVolume ;
+    :hasNetwork :TestNetwork .
+
+:hasImage a rdf:Property ;
+    rdfs:domain :TestContainer ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Docker image name with tag" .
+
+:hasPort a rdf:Property ;
+    rdfs:domain :TestContainer ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Container port to expose" .
+
+:hasHealthCheck a rdf:Property ;
+    rdfs:domain :TestContainer ;
+    rdfs:range :HealthCheck ;
+    rdfs:comment "Health check configuration" .
+
+:hasTimeout a rdf:Property ;
+    rdfs:domain :TestContainer ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Maximum startup time before failure" .
+
+:hasEnvironment a rdf:Property ;
+    rdfs:domain :TestContainer ;
+    rdfs:range :Environment ;
+    rdfs:comment "Environment variables for container" .
+
+:hasVolume a rdf:Property ;
+    rdfs:domain :TestContainer ;
+    rdfs:range :Volume ;
+    rdfs:comment "Volume mount configuration" .
+
+:hasNetwork a rdf:Property ;
+    rdfs:domain :TestContainer ;
+    rdfs:range :Network ;
+    rdfs:comment "Network configuration" .
+
+# HealthCheck Entity
+:HealthCheck a rdfs:Class ;
+    rdfs:label "Health Check" ;
+    rdfs:comment "Container health verification configuration" ;
+    rdfs:subClassOf ggen:Entity .
+
+:PostgresHealthCheck a :HealthCheck ;
+    :hasCommand "pg_isready -U postgres" ;
+    :hasInterval "2s"^^xsd:duration ;
+    :hasRetries 15 ;
+    :hasStartPeriod "5s"^^xsd:duration .
+
+:RedisHealthCheck a :HealthCheck ;
+    :hasCommand "redis-cli ping" ;
+    :hasInterval "1s"^^xsd:duration ;
+    :hasRetries 30 ;
+    :hasStartPeriod "3s"^^xsd:duration .
+
+:hasCommand a rdf:Property ;
+    rdfs:domain :HealthCheck ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Command to execute for health check" .
+
+:hasInterval a rdf:Property ;
+    rdfs:domain :HealthCheck ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Time between health checks" .
+
+:hasRetries a rdf:Property ;
+    rdfs:domain :HealthCheck ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of retries before failure" .
+
+:hasStartPeriod a rdf:Property ;
+    rdfs:domain :HealthCheck ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Initial grace period before checks start" .
+
+# ChaosScenario Entity
+:ChaosScenario a rdfs:Class ;
+    rdfs:label "Chaos Scenario" ;
+    rdfs:comment "Chaos engineering test scenario specification" ;
+    rdfs:subClassOf ggen:Entity .
+
+:NetworkLatencyScenario a :ChaosScenario ;
+    :hasType "network_latency" ;
+    :hasTarget "postgres_container" ;
+    :hasDuration "60s"^^xsd:duration ;
+    :hasLatency "200ms"^^xsd:duration ;
+    :hasJitter "50ms"^^xsd:duration ;
+    :hasRecoveryCheck :LatencyRecoveryCheck .
+
+:ContainerKillScenario a :ChaosScenario ;
+    :hasType "container_kill" ;
+    :hasTarget "redis_container" ;
+    :hasDuration "30s"^^xsd:duration ;
+    :hasRecoveryCheck :RedisRecoveryCheck .
+
+:MemoryPressureScenario a :ChaosScenario ;
+    :hasType "memory_pressure" ;
+    :hasTarget "ggen_process" ;
+    :hasDuration "120s"^^xsd:duration ;
+    :hasMemoryLimit "50MB" ;
+    :hasRecoveryCheck :MemoryRecoveryCheck .
+
+:hasType a rdf:Property ;
+    rdfs:domain :ChaosScenario ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of chaos scenario (network_latency, container_kill, memory_pressure, cpu_stress)" .
+
+:hasTarget a rdf:Property ;
+    rdfs:domain :ChaosScenario ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Target container or process identifier" .
+
+:hasDuration a rdf:Property ;
+    rdfs:domain :ChaosScenario ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Duration of chaos injection" .
+
+:hasLatency a rdf:Property ;
+    rdfs:domain :ChaosScenario ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Network latency to inject" .
+
+:hasJitter a rdf:Property ;
+    rdfs:domain :ChaosScenario ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Latency variation range" .
+
+:hasMemoryLimit a rdf:Property ;
+    rdfs:domain :ChaosScenario ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Memory limit for pressure scenario" .
+
+:hasRecoveryCheck a rdf:Property ;
+    rdfs:domain :ChaosScenario ;
+    rdfs:range :RecoveryCheck ;
+    rdfs:comment "Verification that system recovered after chaos" .
+
+# RecoveryCheck Entity
+:RecoveryCheck a rdfs:Class ;
+    rdfs:label "Recovery Check" ;
+    rdfs:comment "Post-chaos recovery verification" ;
+    rdfs:subClassOf ggen:Entity .
+
+:LatencyRecoveryCheck a :RecoveryCheck ;
+    :hasMetric "response_time" ;
+    :hasThreshold "100ms"^^xsd:duration ;
+    :hasVerification "query_success_rate >= 99%" .
+
+:RedisRecoveryCheck a :RecoveryCheck ;
+    :hasMetric "connection_success" ;
+    :hasThreshold "5s"^^xsd:duration ;
+    :hasVerification "redis_ping returns PONG" .
+
+:MemoryRecoveryCheck a :RecoveryCheck ;
+    :hasMetric "memory_usage" ;
+    :hasThreshold "100MB" ;
+    :hasVerification "no memory leaks detected" .
+
+:hasMetric a rdf:Property ;
+    rdfs:domain :RecoveryCheck ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Metric to measure for recovery" .
+
+:hasThreshold a rdf:Property ;
+    rdfs:domain :RecoveryCheck ;
+    rdfs:range rdfs:Literal ;
+    rdfs:comment "Success threshold for recovery metric" .
+
+:hasVerification a rdf:Property ;
+    rdfs:domain :RecoveryCheck ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Verification condition (boolean expression)" .
+
+# Benchmark Entity
+:Benchmark a rdfs:Class ;
+    rdfs:label "Benchmark" ;
+    rdfs:comment "Performance benchmark specification" ;
+    rdfs:subClassOf ggen:Entity .
+
+:RdfProcessingBenchmark a :Benchmark ;
+    :hasBackend "criterion" ;
+    :hasMetrics :RdfMetrics ;
+    :hasSloTargets :RdfSloTargets ;
+    :hasWarmupTime "3s"^^xsd:duration ;
+    :hasMeasurementTime "10s"^^xsd:duration ;
+    :hasSampleSize 100 .
+
+:AsyncRuntimeBenchmark a :Benchmark ;
+    :hasBackend "criterion" ;
+    :hasMetrics :AsyncMetrics ;
+    :hasSloTargets :AsyncSloTargets ;
+    :hasWarmupTime "5s"^^xsd:duration ;
+    :hasMeasurementTime "15s"^^xsd:duration ;
+    :hasSampleSize 200 .
+
+:hasBackend a rdf:Property ;
+    rdfs:domain :Benchmark ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Benchmark framework (criterion, iai, custom)" .
+
+:hasMetrics a rdf:Property ;
+    rdfs:domain :Benchmark ;
+    rdfs:range :Metrics ;
+    rdfs:comment "Metrics to measure" .
+
+:hasSloTargets a rdf:Property ;
+    rdfs:domain :Benchmark ;
+    rdfs:range :SloTargets ;
+    rdfs:comment "Service level objective targets" .
+
+:hasWarmupTime a rdf:Property ;
+    rdfs:domain :Benchmark ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Warmup duration before measurement" .
+
+:hasMeasurementTime a rdf:Property ;
+    rdfs:domain :Benchmark ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Measurement duration" .
+
+:hasSampleSize a rdf:Property ;
+    rdfs:domain :Benchmark ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of samples to collect" .
+
+# Metrics Entity
+:Metrics a rdfs:Class ;
+    rdfs:label "Metrics" ;
+    rdfs:comment "Performance metrics collection" ;
+    rdfs:subClassOf ggen:Entity .
+
+:RdfMetrics a :Metrics ;
+    :hasThroughput "triples_per_second" ;
+    :hasLatency "p50, p95, p99" ;
+    :hasMemory "peak_bytes, allocations" ;
+    :hasCpu "user_time, system_time" .
+
+:AsyncMetrics a :Metrics ;
+    :hasThroughput "tasks_per_second" ;
+    :hasLatency "task_completion_time" ;
+    :hasConcurrency "active_tasks, queue_depth" ;
+    :hasScheduler "tokio, async-std" .
+
+:hasThroughput a rdf:Property ;
+    rdfs:domain :Metrics ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Throughput metric definition" .
+
+:hasLatency a rdf:Property ;
+    rdfs:domain :Metrics ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Latency percentiles to measure" .
+
+:hasMemory a rdf:Property ;
+    rdfs:domain :Metrics ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Memory usage metrics" .
+
+:hasCpu a rdf:Property ;
+    rdfs:domain :Metrics ;
+    rdfs:range xsd:string ;
+    rdfs:comment "CPU usage metrics" .
+
+:hasConcurrency a rdf:Property ;
+    rdfs:domain :Metrics ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Concurrency metrics" .
+
+:hasScheduler a rdf:Property ;
+    rdfs:domain :Metrics ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Async runtime scheduler" .
+
+# SloTargets Entity
+:SloTargets a rdfs:Class ;
+    rdfs:label "SLO Targets" ;
+    rdfs:comment "Service level objective performance targets" ;
+    rdfs:subClassOf ggen:Entity .
+
+:RdfSloTargets a :SloTargets ;
+    :hasProcessingTime "5s for 1000 triples" ;
+    :hasMemoryUsage "100MB maximum" ;
+    :hasThroughputMin "200 triples/second" .
+
+:AsyncSloTargets a :SloTargets ;
+    :hasTaskLatency "10ms p99" ;
+    :hasThroughputMin "1000 tasks/second" ;
+    :hasQueueDepth "100 maximum" .
+
+:hasProcessingTime a rdf:Property ;
+    rdfs:domain :SloTargets ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Maximum processing time target" .
+
+:hasMemoryUsage a rdf:Property ;
+    rdfs:domain :SloTargets ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Maximum memory usage target" .
+
+:hasThroughputMin a rdf:Property ;
+    rdfs:domain :SloTargets ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Minimum throughput target" .
+
+:hasTaskLatency a rdf:Property ;
+    rdfs:domain :SloTargets ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Maximum task latency target" .
+
+:hasQueueDepth a rdf:Property ;
+    rdfs:domain :SloTargets ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Maximum queue depth target" .
+
+# CIWorkflow Entity
+:CIWorkflow a rdfs:Class ;
+    rdfs:label "CI Workflow" ;
+    rdfs:comment "Continuous integration workflow specification" ;
+    rdfs:subClassOf ggen:Entity .
+
+:MainCIWorkflow a :CIWorkflow ;
+    :hasJob :BuildJob, :TestJob, :LintJob, :BenchmarkJob ;
+    :hasTrigger "push, pull_request" ;
+    :hasOptimization :CachingStrategy, :ParallelizationStrategy ;
+    :hasTimeout "15min"^^xsd:duration .
+
+:hasJob a rdf:Property ;
+    rdfs:domain :CIWorkflow ;
+    rdfs:range :Job ;
+    rdfs:comment "CI job definition" .
+
+:hasTrigger a rdf:Property ;
+    rdfs:domain :CIWorkflow ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Workflow trigger events" .
+
+:hasOptimization a rdf:Property ;
+    rdfs:domain :CIWorkflow ;
+    rdfs:range :Optimization ;
+    rdfs:comment "Performance optimization strategy" .
+
+# Job Entity
+:Job a rdfs:Class ;
+    rdfs:label "CI Job" ;
+    rdfs:comment "Individual CI job specification" ;
+    rdfs:subClassOf ggen:Entity .
+
+:BuildJob a :Job ;
+    :hasName "build" ;
+    :hasSteps "checkout, cache-restore, cargo-make-check" ;
+    :hasTimeout "5min"^^xsd:duration ;
+    :hasRunsOn "ubuntu-latest" .
+
+:TestJob a :Job ;
+    :hasName "test" ;
+    :hasSteps "checkout, cache-restore, cargo-make-test" ;
+    :hasTimeout "10min"^^xsd:duration ;
+    :hasRunsOn "ubuntu-latest" ;
+    :hasDependsOn :BuildJob .
+
+:LintJob a :Job ;
+    :hasName "lint" ;
+    :hasSteps "checkout, cache-restore, cargo-make-lint" ;
+    :hasTimeout "5min"^^xsd:duration ;
+    :hasRunsOn "ubuntu-latest" .
+
+:BenchmarkJob a :Job ;
+    :hasName "benchmark" ;
+    :hasSteps "checkout, cache-restore, cargo-make-bench" ;
+    :hasTimeout "20min"^^xsd:duration ;
+    :hasRunsOn "ubuntu-latest" ;
+    :hasCondition "github.ref == 'refs/heads/main'" .
+
+:hasName a rdf:Property ;
+    rdfs:domain :Job ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Job identifier" .
+
+:hasSteps a rdf:Property ;
+    rdfs:domain :Job ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Comma-separated step names" .
+
+:hasRunsOn a rdf:Property ;
+    rdfs:domain :Job ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Runner environment" .
+
+:hasDependsOn a rdf:Property ;
+    rdfs:domain :Job ;
+    rdfs:range :Job ;
+    rdfs:comment "Job dependency (must complete first)" .
+
+:hasCondition a rdf:Property ;
+    rdfs:domain :Job ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Conditional execution expression" .
+
+# Optimization Entity
+:Optimization a rdfs:Class ;
+    rdfs:label "Optimization Strategy" ;
+    rdfs:comment "CI/CD performance optimization" ;
+    rdfs:subClassOf ggen:Entity .
+
+:CachingStrategy a :Optimization ;
+    :hasCache "cargo-registry, cargo-target" ;
+    :hasCacheKey "runner.os, Cargo.lock" ;
+    :hasCacheRestore "always" .
+
+:ParallelizationStrategy a :Optimization ;
+    :hasMatrix "rust: [stable, beta], os: [ubuntu, macos]" ;
+    :hasMaxParallel 10 ;
+    :hasFailFast false .
+
+:hasCache a rdf:Property ;
+    rdfs:domain :Optimization ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cache paths to store" .
+
+:hasCacheKey a rdf:Property ;
+    rdfs:domain :Optimization ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cache key components" .
+
+:hasCacheRestore a rdf:Property ;
+    rdfs:domain :Optimization ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cache restore policy" .
+
+:hasMatrix a rdf:Property ;
+    rdfs:domain :Optimization ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Matrix strategy specification" .
+
+:hasMaxParallel a rdf:Property ;
+    rdfs:domain :Optimization ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum parallel jobs" .
+
+:hasFailFast a rdf:Property ;
+    rdfs:domain :Optimization ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Stop all jobs on first failure" .
+
+# SHACL Validation Shapes
+:TestContainerShape a sh:NodeShape ;
+    sh:targetClass :TestContainer ;
+    sh:property [
+        sh:path :hasImage ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z0-9._/-]+:[a-z0-9._-]+$" ;
+    ] ;
+    sh:property [
+        sh:path :hasPort ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 65535 ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasHealthCheck ;
+        sh:class :HealthCheck ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasTimeout ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+:ChaosScenarioShape a sh:NodeShape ;
+    sh:targetClass :ChaosScenario ;
+    sh:property [
+        sh:path :hasType ;
+        sh:in ( "network_latency" "container_kill" "memory_pressure" "cpu_stress" "disk_io" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasTarget ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasDuration ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasRecoveryCheck ;
+        sh:class :RecoveryCheck ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+:BenchmarkShape a sh:NodeShape ;
+    sh:targetClass :Benchmark ;
+    sh:property [
+        sh:path :hasBackend ;
+        sh:in ( "criterion" "iai" "custom" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasMetrics ;
+        sh:class :Metrics ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasSloTargets ;
+        sh:class :SloTargets ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasSampleSize ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 10 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+:CIWorkflowShape a sh:NodeShape ;
+    sh:targetClass :CIWorkflow ;
+    sh:property [
+        sh:path :hasJob ;
+        sh:class :Job ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasTrigger ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path :hasTimeout ;
+        sh:datatype xsd:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .

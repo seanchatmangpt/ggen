@@ -1,0 +1,432 @@
+@prefix : <http://ggen.io/ontology/specs/016-testing-infrastructure/plan#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ggen: <http://ggen.io/ontology/core#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+# Architecture Plan for Testing Infrastructure
+
+:TestingInfrastructurePlan a ggen:ArchitecturePlan ;
+    dc:title "Testing Infrastructure Implementation Plan" ;
+    dc:description "Comprehensive plan for testcontainers, chaos engineering, benchmarks, and CI/CD optimization" ;
+    ggen:version "1.0.0" ;
+    dc:created "2026-01-29"^^xsd:date ;
+    ggen:hasModule :TestcontainersModule, :ChaosModule, :BenchmarkModule, :CIModule ;
+    ggen:hasIntegrationPoint :GgenCoreIntegration, :CargoBuildIntegration, :GitHubActionsIntegration ;
+    ggen:hasDependency :DockerDependency, :CriterionDependency, :TestcontainersCrateDependency ;
+    ggen:hasRiskAssessment :RiskAssessment .
+
+# Module Structure
+
+:TestcontainersModule a ggen:Module ;
+    dc:title "Testcontainers Module" ;
+    dc:description "Docker container management for integration tests" ;
+    ggen:hasComponent :ContainerRegistry, :HealthCheckManager, :LifecycleManager ;
+    ggen:hasInterface :ContainerAPI ;
+    ggen:location "crates/ggen-e2e/src/containers/" ;
+    ggen:priority "P1" .
+
+:ContainerRegistry a ggen:Component ;
+    dc:title "Container Registry" ;
+    dc:description "Registry of available test containers (PostgreSQL, Redis, MySQL, MongoDB)" ;
+    ggen:hasResponsibility "Container image management, configuration templating" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "8 hours" .
+
+:HealthCheckManager a ggen:Component ;
+    dc:title "Health Check Manager" ;
+    dc:description "Monitors container health with configurable retries and timeouts" ;
+    ggen:hasResponsibility "Health probe execution, retry logic, failure detection" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "5 hours" .
+
+:LifecycleManager a ggen:Component ;
+    dc:title "Lifecycle Manager" ;
+    dc:description "Manages container start, stop, cleanup with timeout enforcement" ;
+    ggen:hasResponsibility "Container creation, cleanup on test completion/failure" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "6 hours" .
+
+:ContainerAPI a ggen:Interface ;
+    dc:title "Container API" ;
+    dc:description "Public API for test code to spawn and interact with containers" ;
+    ggen:hasMethod "start_postgres(), start_redis(), get_connection_string(), stop()" ;
+    ggen:exampleUsage """
+#[tokio::test]
+async fn test_rdf_persistence() {
+    let postgres = Testcontainers::start_postgres().await?;
+    let conn_str = postgres.connection_string();
+
+    // Test code using real PostgreSQL
+    let store = RdfStore::connect(&conn_str).await?;
+    store.insert_triples(triples).await?;
+
+    // Automatic cleanup on drop
+}
+""" .
+
+:ChaosModule a ggen:Module ;
+    dc:title "Chaos Engineering Module" ;
+    dc:description "Failure injection and resilience testing" ;
+    ggen:hasComponent :NetworkChaos, :ContainerChaos, :ResourceChaos ;
+    ggen:hasInterface :ChaosAPI ;
+    ggen:location "crates/ggen-e2e/src/chaos/" ;
+    ggen:priority "P1" .
+
+:NetworkChaos a ggen:Component ;
+    dc:title "Network Chaos" ;
+    dc:description "Injects network latency, packet loss, connection drops" ;
+    ggen:hasResponsibility "Network manipulation via tc (traffic control), toxiproxy integration" ;
+    ggen:implementationLanguage "Rust + shell scripts" ;
+    ggen:estimatedEffort "10 hours" .
+
+:ContainerChaos a ggen:Component ;
+    dc:title "Container Chaos" ;
+    dc:description "Simulates container crashes, restarts, zombie processes" ;
+    ggen:hasResponsibility "Docker kill/restart commands, process signal handling" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "6 hours" .
+
+:ResourceChaos a ggen:Component ;
+    dc:title "Resource Chaos" ;
+    dc:description "Simulates CPU/memory/disk pressure" ;
+    ggen:hasResponsibility "Resource limit enforcement, stress-ng integration" ;
+    ggen:implementationLanguage "Rust + cgroups" ;
+    ggen:estimatedEffort "8 hours" .
+
+:ChaosAPI a ggen:Interface ;
+    dc:title "Chaos API" ;
+    dc:description "API for chaos scenario definition and execution" ;
+    ggen:hasMethod "inject_latency(), kill_container(), limit_memory(), verify_recovery()" ;
+    ggen:exampleUsage """
+#[tokio::test]
+async fn test_network_resilience() {
+    let postgres = Testcontainers::start_postgres().await?;
+
+    // Inject 200ms latency
+    let chaos = Chaos::inject_latency(&postgres, Duration::from_millis(200)).await?;
+
+    // Verify system still functions with retries
+    let result = retry_query(&postgres, 5).await?;
+    assert!(result.is_ok());
+
+    // Verify recovery after chaos stops
+    drop(chaos);
+    let fast_result = query(&postgres).await?;
+    assert!(fast_result.latency < Duration::from_millis(50));
+}
+""" .
+
+:BenchmarkModule a ggen:Module ;
+    dc:title "Benchmark Module" ;
+    dc:description "Performance measurement and SLO validation" ;
+    ggen:hasComponent :CriterionIntegration, :CustomMetrics, :SloValidator ;
+    ggen:hasInterface :BenchmarkAPI ;
+    ggen:location "benches/" ;
+    ggen:priority "P1" .
+
+:CriterionIntegration a ggen:Component ;
+    dc:title "Criterion Integration" ;
+    dc:description "Criterion.rs benchmark harness with HTML report generation" ;
+    ggen:hasResponsibility "Benchmark execution, statistical analysis, trend detection" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "5 hours" .
+
+:CustomMetrics a ggen:Component ;
+    dc:title "Custom Metrics" ;
+    dc:description "Domain-specific metrics (triples/sec, memory per ontology, etc.)" ;
+    ggen:hasResponsibility "Metric collection, aggregation, reporting" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "8 hours" .
+
+:SloValidator a ggen:Component ;
+    dc:title "SLO Validator" ;
+    dc:description "Validates benchmarks against SLO targets (≤5s for 1k triples, etc.)" ;
+    ggen:hasResponsibility "Threshold checking, regression detection, CI integration" ;
+    ggen:implementationLanguage "Rust" ;
+    ggen:estimatedEffort "6 hours" .
+
+:BenchmarkAPI a ggen:Interface ;
+    dc:title "Benchmark API" ;
+    dc:description "API for benchmark definition and execution" ;
+    ggen:hasMethod "benchmark_rdf_processing(), benchmark_async_runtime(), validate_slos()" ;
+    ggen:exampleUsage """
+use criterion::{criterion_group, criterion_main, Criterion};
+
+fn rdf_processing_benchmark(c: &mut Criterion) {
+    c.bench_function(\"rdf_1k_triples\", |b| {
+        b.iter(|| {
+            let ontology = load_ontology(\"test_1k.ttl\");
+            process_ontology(ontology)
+        });
+    });
+
+    // Validate SLO: ≤5s for 1k triples
+    validate_slo(\"rdf_1k_triples\", Duration::from_secs(5))?;
+}
+
+criterion_group!(benches, rdf_processing_benchmark);
+criterion_main!(benches);
+""" .
+
+:CIModule a ggen:Module ;
+    dc:title "CI/CD Optimization Module" ;
+    dc:description "GitHub Actions workflows with caching and parallelization" ;
+    ggen:hasComponent :CacheStrategy, :ParallelMatrix, :AndonIntegration ;
+    ggen:hasInterface :CIConfiguration ;
+    ggen:location ".github/workflows/" ;
+    ggen:priority "P1" .
+
+:CacheStrategy a ggen:Component ;
+    dc:title "Cache Strategy" ;
+    dc:description "Cargo build caching with incremental compilation" ;
+    ggen:hasResponsibility "Cache key generation, invalidation policy, restoration" ;
+    ggen:implementationLanguage "YAML (GitHub Actions)" ;
+    ggen:estimatedEffort "4 hours" .
+
+:ParallelMatrix a ggen:Component ;
+    dc:title "Parallel Matrix" ;
+    dc:description "Matrix strategy for parallel test execution across crates" ;
+    ggen:hasResponsibility "Matrix definition, dependency management, result aggregation" ;
+    ggen:implementationLanguage "YAML (GitHub Actions)" ;
+    ggen:estimatedEffort "5 hours" .
+
+:AndonIntegration a ggen:Component ;
+    dc:title "Andon Integration" ;
+    dc:description "Fail-fast on compiler errors/warnings (Andon signal enforcement)" ;
+    ggen:hasResponsibility "cargo make check integration, warning detection, workflow cancellation" ;
+    ggen:implementationLanguage "YAML + bash" ;
+    ggen:estimatedEffort "3 hours" .
+
+:CIConfiguration a ggen:Interface ;
+    dc:title "CI Configuration" ;
+    dc:description "GitHub Actions workflow YAML configurations" ;
+    ggen:hasFile "ci.yml, test.yml, benchmark.yml" ;
+    ggen:exampleUsage """
+name: CI
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - run: cargo make check  # Andon signal check
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        crate: [ggen-core, ggen-cli, ggen-domain, ggen-ontology-core]
+    steps:
+      - run: cargo make test -p ${{ matrix.crate }}
+""" .
+
+# Integration Points
+
+:GgenCoreIntegration a ggen:IntegrationPoint ;
+    dc:title "ggen-core Integration" ;
+    dc:description "Testing infrastructure integrates with ggen-core RDF processing" ;
+    ggen:hasInterface "RdfStore, SparqlEngine, TemplateRenderer" ;
+    ggen:hasPattern "Testcontainers provide real RDF stores (Oxigraph), chaos tests validate resilience" ;
+    ggen:estimatedEffort "12 hours" .
+
+:CargoBuildIntegration a ggen:IntegrationPoint ;
+    dc:title "Cargo Build Integration" ;
+    dc:description "Makefile.toml targets integrate testcontainers and benchmarks" ;
+    ggen:hasInterface "cargo make test-integration, cargo make bench, cargo make chaos" ;
+    ggen:hasPattern "Extend Makefile.toml with new targets, maintain timeout enforcement" ;
+    ggen:estimatedEffort "4 hours" .
+
+:GitHubActionsIntegration a ggen:IntegrationPoint ;
+    dc:title "GitHub Actions Integration" ;
+    dc:description "CI workflows execute testcontainers, chaos tests, benchmarks" ;
+    ggen:hasInterface "GitHub Actions YAML, Docker daemon, artifact upload" ;
+    ggen:hasPattern "Service containers for PostgreSQL/Redis, artifact upload for benchmark reports" ;
+    ggen:estimatedEffort "8 hours" .
+
+# Dependencies
+
+:DockerDependency a ggen:Dependency ;
+    dc:title "Docker Engine" ;
+    dc:description "Required for testcontainers runtime" ;
+    ggen:version "20.10+" ;
+    ggen:criticality "High" ;
+    ggen:installationNotes "Must be available on CI runners and developer machines" .
+
+:CriterionDependency a ggen:Dependency ;
+    dc:title "Criterion.rs" ;
+    dc:description "Performance benchmarking framework" ;
+    ggen:version "0.7+" ;
+    ggen:criticality "Medium" ;
+    ggen:installationNotes "Dev dependency in Cargo.toml" .
+
+:TestcontainersCrateDependency a ggen:Dependency ;
+    dc:title "testcontainers crate" ;
+    dc:description "Rust testcontainers library" ;
+    ggen:version "0.25+" ;
+    ggen:criticality "High" ;
+    ggen:installationNotes "Core dependency for ggen-e2e crate" .
+
+# Risk Assessment
+
+:RiskAssessment a ggen:RiskAssessment ;
+    dc:title "Testing Infrastructure Risk Assessment" ;
+    ggen:hasRisk :DockerAvailabilityRisk, :PerformanceRegressionRisk, :CITimeoutRisk, :ChaosUnpredictabilityRisk .
+
+:DockerAvailabilityRisk a ggen:Risk ;
+    dc:title "Docker Daemon Availability" ;
+    ggen:probability "Medium" ;
+    ggen:impact "High" ;
+    ggen:description "Docker may not be available on all CI runners or developer machines" ;
+    ggen:mitigation "Fallback to Docker-in-Docker (DinD), clear documentation for setup, skip testcontainer tests if Docker unavailable" ;
+    ggen:priority "P1" .
+
+:PerformanceRegressionRisk a ggen:Risk ;
+    dc:title "Performance Regression False Positives" ;
+    ggen:probability "Medium" ;
+    ggen:impact "Medium" ;
+    ggen:description "Benchmarks may show regressions due to CI runner variability, not code changes" ;
+    ggen:mitigation "Statistical analysis with Criterion, baseline comparison, multiple runs, dedicated benchmark runners" ;
+    ggen:priority "P2" .
+
+:CITimeoutRisk a ggen:Risk ;
+    dc:title "CI Pipeline Timeout" ;
+    ggen:probability "Low" ;
+    ggen:impact "High" ;
+    ggen:description "Testcontainers + chaos tests may exceed GitHub Actions free tier limits (6 hours)" ;
+    ggen:mitigation "Aggressive timeout enforcement (Makefile.toml), parallel execution, conditional chaos tests (main branch only)" ;
+    ggen:priority "P1" .
+
+:ChaosUnpredictabilityRisk a ggen:Risk ;
+    dc:title "Chaos Test Unpredictability" ;
+    ggen:probability "High" ;
+    ggen:impact "Medium" ;
+    ggen:description "Chaos tests may have non-deterministic failures due to timing issues" ;
+    ggen:mitigation "Generous timeouts, retry logic, explicit recovery checks, deterministic RNG seeding where possible" ;
+    ggen:priority "P2" .
+
+# Implementation Phases
+
+:Phase1 a ggen:Phase ;
+    dc:title "Phase 1: Testcontainers Foundation" ;
+    ggen:hasDuration "2 weeks" ;
+    ggen:hasDeliverable "PostgreSQL, Redis, MySQL, MongoDB containers with health checks" ;
+    ggen:hasDeliverable "Integration with cargo make test-integration" ;
+    ggen:hasDeliverable "Documentation and examples" ;
+    ggen:estimatedEffort "40 hours" .
+
+:Phase2 a ggen:Phase ;
+    dc:title "Phase 2: Chaos Engineering" ;
+    ggen:hasDuration "1.5 weeks" ;
+    ggen:hasDeliverable "Network latency, container kill, memory pressure scenarios" ;
+    ggen:hasDeliverable "Recovery verification framework" ;
+    ggen:hasDeliverable "Integration with cargo make chaos" ;
+    ggen:estimatedEffort "30 hours" .
+
+:Phase3 a ggen:Phase ;
+    dc:title "Phase 3: Performance Benchmarks" ;
+    ggen:hasDuration "1.5 weeks" ;
+    ggen:hasDeliverable "Criterion benchmarks for RDF processing, async runtime" ;
+    ggen:hasDeliverable "SLO validation with regression detection" ;
+    ggen:hasDeliverable "HTML reports with historical trends" ;
+    ggen:estimatedEffort "25 hours" .
+
+:Phase4 a ggen:Phase ;
+    dc:title "Phase 4: CI/CD Optimization" ;
+    ggen:hasDuration "1 week" ;
+    ggen:hasDeliverable "GitHub Actions workflows with caching" ;
+    ggen:hasDeliverable "Parallel test matrix across crates" ;
+    ggen:hasDeliverable "Andon signal enforcement" ;
+    ggen:estimatedEffort "20 hours" .
+
+:Phase5 a ggen:Phase ;
+    dc:title "Phase 5: Integration and Documentation" ;
+    ggen:hasDuration "1 week" ;
+    ggen:hasDeliverable "End-to-end integration tests" ;
+    ggen:hasDeliverable "Comprehensive documentation (Diataxis)" ;
+    ggen:hasDeliverable "80/20 proof of completion summary" ;
+    ggen:estimatedEffort "25 hours" .
+
+# SHACL Validation Shapes
+
+:ModuleShape a sh:NodeShape ;
+    sh:targetClass ggen:Module ;
+    sh:property [
+        sh:path dc:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:hasComponent ;
+        sh:class ggen:Component ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:location ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:pattern "^(crates/|benches/|\\.github/)" ;
+    ] .
+
+:ComponentShape a sh:NodeShape ;
+    sh:targetClass ggen:Component ;
+    sh:property [
+        sh:path ggen:estimatedEffort ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+ hours?$" ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:implementationLanguage ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] .
+
+:RiskShape a sh:NodeShape ;
+    sh:targetClass ggen:Risk ;
+    sh:property [
+        sh:path ggen:probability ;
+        sh:in ( "Low" "Medium" "High" ) ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:impact ;
+        sh:in ( "Low" "Medium" "High" ) ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:mitigation ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] .
+
+:PhaseShape a sh:NodeShape ;
+    sh:targetClass ggen:Phase ;
+    sh:property [
+        sh:path ggen:hasDuration ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9.]+ weeks?$" ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:estimatedEffort ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+ hours?$" ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:hasDeliverable ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] .

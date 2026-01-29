@@ -1,0 +1,646 @@
+@prefix : <http://ggen.io/ontology/specs/016-testing-infrastructure/tasks#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ggen: <http://ggen.io/ontology/core#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+
+# Task Breakdown for Testing Infrastructure Implementation
+
+:TaskList a ggen:TaskList ;
+    dc:title "Testing Infrastructure Implementation Tasks" ;
+    dc:description "Comprehensive task breakdown with dependencies and effort estimates" ;
+    ggen:totalTasks 56 ;
+    ggen:totalEffort "140 hours" ;
+    ggen:parallelizable 38 ;
+    dc:created "2026-01-29"^^xsd:date .
+
+# Phase 1: Testcontainers Foundation (40 hours)
+
+:T001 a ggen:Task ;
+    dc:title "Create ggen-e2e crate structure" ;
+    dc:description "Initialize crate with Cargo.toml, add testcontainers dependency (0.25+)" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "1 hour" ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T002 a ggen:Task ;
+    dc:title "Implement Container trait abstraction" ;
+    dc:description "Define trait for container lifecycle (start, stop, health_check, connection_string)" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:dependsOn :T001 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T003 a ggen:Task ;
+    dc:title "Implement PostgresContainer" ;
+    dc:description "PostgreSQL 15-alpine with health checks, connection pooling, schema migration" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T002 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T004 a ggen:Task ;
+    dc:title "Implement RedisContainer" ;
+    dc:description "Redis 7-alpine with health checks, persistence configuration" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T002 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T005 a ggen:Task ;
+    dc:title "Implement MySQLContainer" ;
+    dc:description "MySQL 8 with health checks, charset configuration" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T002 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T006 a ggen:Task ;
+    dc:title "Implement MongoDBContainer" ;
+    dc:description "MongoDB 7 with health checks, replica set configuration" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T002 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T007 a ggen:Task ;
+    dc:title "Implement HealthCheckManager" ;
+    dc:description "Retry logic, exponential backoff, timeout enforcement (30s SLO)" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "5 hours" ;
+    ggen:dependsOn :T002 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T008 a ggen:Task ;
+    dc:title "Implement LifecycleManager" ;
+    dc:description "Container cleanup on Drop, panic cleanup, resource tracking" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T002 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T009 a ggen:Task ;
+    dc:title "Add Makefile.toml targets for testcontainers" ;
+    dc:description "cargo make test-integration with Docker check, timeout enforcement" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:dependsOn :T008 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T010 a ggen:Task ;
+    dc:title "Write Chicago TDD tests for container lifecycle" ;
+    dc:description "AAA pattern, real Docker containers, behavior verification" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T008 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T011 a ggen:Task ;
+    dc:title "Write integration tests with ggen-core RDF store" ;
+    dc:description "Test RDF persistence with PostgreSQL backend, query execution" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "5 hours" ;
+    ggen:dependsOn :T003, :T010 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T012 a ggen:Task ;
+    dc:title "Document testcontainers usage" ;
+    dc:description "How-to guide (Diataxis), examples, troubleshooting (Docker not available)" ;
+    ggen:phase "Phase1" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T010 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+# Phase 2: Chaos Engineering (30 hours)
+
+:T013 a ggen:Task ;
+    dc:title "Create chaos module structure" ;
+    dc:description "crates/ggen-e2e/src/chaos/ with scenario definitions" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "1 hour" ;
+    ggen:dependsOn :T001 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T014 a ggen:Task ;
+    dc:title "Implement ChaosScenario trait" ;
+    dc:description "Trait for chaos injection (inject, restore, verify_recovery)" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:dependsOn :T013 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T015 a ggen:Task ;
+    dc:title "Implement NetworkLatencyScenario" ;
+    dc:description "tc (traffic control) integration, latency/jitter injection (50ms-500ms)" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "5 hours" ;
+    ggen:dependsOn :T014 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T016 a ggen:Task ;
+    dc:title "Implement ContainerKillScenario" ;
+    dc:description "Docker kill/restart, signal handling (SIGKILL, SIGTERM)" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T014 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T017 a ggen:Task ;
+    dc:title "Implement MemoryPressureScenario" ;
+    dc:description "cgroups memory limit enforcement, OOM detection" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T014 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T018 a ggen:Task ;
+    dc:title "Implement CPUStressScenario" ;
+    dc:description "stress-ng integration, CPU throttling" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T014 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T019 a ggen:Task ;
+    dc:title "Implement RecoveryVerifier" ;
+    dc:description "Post-chaos health checks, SLO verification, retry logic" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T014 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T020 a ggen:Task ;
+    dc:title "Add Makefile.toml targets for chaos tests" ;
+    dc:description "cargo make chaos with conditional execution (main branch only)" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "1 hour" ;
+    ggen:dependsOn :T019 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T021 a ggen:Task ;
+    dc:title "Write chaos tests for RDF processing" ;
+    dc:description "Network latency during SPARQL queries, container crash during inference" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T019 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T022 a ggen:Task ;
+    dc:title "Document chaos testing framework" ;
+    dc:description "How-to guide, scenario catalog, troubleshooting (permissions, cgroups)" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T021 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+# Phase 3: Performance Benchmarks (25 hours)
+
+:T023 a ggen:Task ;
+    dc:title "Initialize benchmark suite" ;
+    dc:description "benches/ directory with Criterion configuration, HTML report generation" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "1 hour" ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T024 a ggen:Task ;
+    dc:title "Implement RDF processing benchmarks" ;
+    dc:description "Benchmarks for 100, 1k, 10k triple ontologies with SLO validation" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "5 hours" ;
+    ggen:dependsOn :T023 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T025 a ggen:Task ;
+    dc:title "Implement SPARQL query benchmarks" ;
+    dc:description "SELECT, CONSTRUCT, ASK query performance with complex patterns" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T023 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T026 a ggen:Task ;
+    dc:title "Implement async runtime benchmarks" ;
+    dc:description "Tokio vs async-std comparison, task spawn latency, concurrency" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T023 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T027 a ggen:Task ;
+    dc:title "Implement template rendering benchmarks" ;
+    dc:description "Tera template performance, SPARQL-aware multi-pass rendering" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T023 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T028 a ggen:Task ;
+    dc:title "Implement SLO validator" ;
+    dc:description "Threshold checking, regression detection (>10% slowdown = fail)" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T024 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T029 a ggen:Task ;
+    dc:title "Add Makefile.toml targets for benchmarks" ;
+    dc:description "cargo make bench, cargo make slo-check with timeout enforcement" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "1 hour" ;
+    ggen:dependsOn :T028 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T030 a ggen:Task ;
+    dc:title "Document benchmarking framework" ;
+    dc:description "How-to guide, interpreting reports, baseline management" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T028 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+# Phase 4: CI/CD Optimization (20 hours)
+
+:T031 a ggen:Task ;
+    dc:title "Design GitHub Actions workflow structure" ;
+    dc:description "ci.yml with build, test, lint, benchmark jobs" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T032 a ggen:Task ;
+    dc:title "Implement cargo build caching" ;
+    dc:description "actions/cache@v4 with Cargo.lock hash, target/ caching" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:dependsOn :T031 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T033 a ggen:Task ;
+    dc:title "Implement parallel test matrix" ;
+    dc:description "Matrix strategy across 30 crates, result aggregation" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T031 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T034 a ggen:Task ;
+    dc:title "Implement Andon signal enforcement" ;
+    dc:description "Fail-fast on cargo make check failure, clear error reporting" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:dependsOn :T031 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T035 a ggen:Task ;
+    dc:title "Add testcontainers to CI" ;
+    dc:description "Service containers for PostgreSQL/Redis, Docker-in-Docker setup" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T033 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T036 a ggen:Task ;
+    dc:title "Add chaos tests to CI" ;
+    dc:description "Conditional execution on main branch, privileged container setup" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:dependsOn :T033 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T037 a ggen:Task ;
+    dc:title "Add benchmarks to CI" ;
+    dc:description "Artifact upload for HTML reports, baseline comparison" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:dependsOn :T033 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T038 a ggen:Task ;
+    dc:title "Optimize workflow triggers" ;
+    dc:description "Conditional jobs (skip benchmarks on docs-only PRs), path filters" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:dependsOn :T031 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T039 a ggen:Task ;
+    dc:title "Document CI/CD workflows" ;
+    dc:description "Explanation (Diataxis), troubleshooting (cache invalidation, Docker issues)" ;
+    ggen:phase "Phase4" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:dependsOn :T037 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+# Phase 5: Integration and Documentation (25 hours)
+
+:T040 a ggen:Task ;
+    dc:title "Write end-to-end integration test" ;
+    dc:description "Full pipeline: Testcontainers → RDF processing → Chaos → Recovery → Benchmark" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P1" ;
+    ggen:estimatedEffort "6 hours" ;
+    ggen:dependsOn :T011, :T021, :T024 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+:T041 a ggen:Task ;
+    dc:title "Create tutorial: Testcontainers" ;
+    dc:description "Step-by-step guide for adding testcontainers to new crate" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T012 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T042 a ggen:Task ;
+    dc:title "Create tutorial: Chaos Testing" ;
+    dc:description "Step-by-step guide for writing resilience tests" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T022 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T043 a ggen:Task ;
+    dc:title "Create tutorial: Performance Benchmarking" ;
+    dc:description "Step-by-step guide for adding Criterion benchmarks" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T030 ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T044 a ggen:Task ;
+    dc:title "Create explanation: Testing Philosophy" ;
+    dc:description "Why Chicago TDD, testcontainers over mocks, chaos over assumptions" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T045 a ggen:Task ;
+    dc:title "Create reference: Testcontainer API" ;
+    dc:description "Complete API reference with examples" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P3" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T046 a ggen:Task ;
+    dc:title "Create reference: Chaos Scenario Catalog" ;
+    dc:description "All scenarios with parameters and expected behaviors" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P3" ;
+    ggen:estimatedEffort "2 hours" ;
+    ggen:parallelizable true ;
+    ggen:status "Completed" .
+
+:T047 a ggen:Task ;
+    dc:title "Write 80/20 proof of completion" ;
+    dc:description "Summary of testing infrastructure evolution with impact analysis" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T040 ;
+    ggen:parallelizable false ;
+    ggen:status "Completed" .
+
+# Additional Tasks (Quality, Security, Maintenance)
+
+:T048 a ggen:Task ;
+    dc:title "Implement test quality metrics" ;
+    dc:description "AAA pattern detection, mock overuse detection, meaningless test detection" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "5 hours" ;
+    ggen:parallelizable true ;
+    ggen:status "NotStarted" .
+
+:T049 a ggen:Task ;
+    dc:title "Add security tests for testcontainers" ;
+    dc:description "Validate no secrets in logs, container escape prevention" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P2" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:parallelizable true ;
+    ggen:status "NotStarted" .
+
+:T050 a ggen:Task ;
+    dc:title "Implement snapshot testing for benchmarks" ;
+    dc:description "insta snapshots for benchmark results, regression detection" ;
+    ggen:phase "Phase3" ;
+    ggen:priority "P3" ;
+    ggen:estimatedEffort "3 hours" ;
+    ggen:dependsOn :T024 ;
+    ggen:parallelizable true ;
+    ggen:status "NotStarted" .
+
+:T051 a ggen:Task ;
+    dc:title "Add property-based tests for chaos scenarios" ;
+    dc:description "proptest for chaos parameter generation, invariant verification" ;
+    ggen:phase "Phase2" ;
+    ggen:priority "P3" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:dependsOn :T019 ;
+    ggen:parallelizable true ;
+    ggen:status "NotStarted" .
+
+:T052 a ggen:Task ;
+    dc:title "Implement BDD tests for testing infrastructure" ;
+    dc:description "Cucumber .feature files for testcontainer, chaos, benchmark workflows" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P3" ;
+    ggen:estimatedEffort "5 hours" ;
+    ggen:parallelizable true ;
+    ggen:status "NotStarted" .
+
+:T053 a ggen:Task ;
+    dc:title "Add OpenTelemetry instrumentation" ;
+    dc:description "Trace testcontainer lifecycle, chaos injection timing, benchmark metrics" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P3" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:parallelizable true ;
+    ggen:status "NotStarted" .
+
+:T054 a ggen:Task ;
+    dc:title "Create video tutorial: Testing Infrastructure" ;
+    dc:description "Walkthrough of testcontainers, chaos, benchmarks with live demo" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P3" ;
+    ggen:estimatedEffort "6 hours" ;
+    ggen:parallelizable true ;
+    ggen:status "NotStarted" .
+
+:T055 a ggen:Task ;
+    dc:title "Implement test result aggregation" ;
+    dc:description "Combine unit + integration + chaos + benchmark results into single report" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P3" ;
+    ggen:estimatedEffort "4 hours" ;
+    ggen:parallelizable true ;
+    ggen:status "NotStarted" .
+
+:T056 a ggen:Task ;
+    dc:title "Add mutation testing" ;
+    dc:description "cargo-mutants integration, verify tests catch regressions" ;
+    ggen:phase "Phase5" ;
+    ggen:priority "P3" ;
+    ggen:estimatedEffort "5 hours" ;
+    ggen:parallelizable true ;
+    ggen:status "NotStarted" .
+
+# Task Statistics
+
+:TaskStatistics a ggen:Statistics ;
+    ggen:totalTasks 56 ;
+    ggen:completedTasks 47 ;
+    ggen:notStartedTasks 9 ;
+    ggen:totalEffort "140 hours" ;
+    ggen:completedEffort "115 hours" ;
+    ggen:remainingEffort "25 hours" ;
+    ggen:parallelizableTasks 38 ;
+    ggen:sequentialTasks 18 ;
+    ggen:criticalPath "T001 → T002 → T008 → T009 (Testcontainers) + T031 → T033 → T035 (CI)" ;
+    ggen:criticalPathDuration "20 hours" .
+
+# SHACL Validation Shapes
+
+:TaskShape a sh:NodeShape ;
+    sh:targetClass ggen:Task ;
+    sh:property [
+        sh:path dc:title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:estimatedEffort ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+ hours?$" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:priority ;
+        sh:in ( "P1" "P2" "P3" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:status ;
+        sh:in ( "NotStarted" "InProgress" "Completed" "Blocked" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:parallelizable ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+:TaskListShape a sh:NodeShape ;
+    sh:targetClass ggen:TaskList ;
+    sh:property [
+        sh:path ggen:totalTasks ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:totalEffort ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+ hours?$" ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ggen:parallelizable ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+    ] .

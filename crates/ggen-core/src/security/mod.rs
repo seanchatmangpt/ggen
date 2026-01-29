@@ -64,6 +64,73 @@
 //! # Ok(())
 //! # }
 //! ```
+//!
+//! ## Security Scanning Infrastructure
+//!
+//! New capabilities for vulnerability scanning and compliance checking:
+//! 1. Vulnerability scanning with cargo audit integration
+//! 2. Docker image scanning with Trivy
+//! 3. SARIF output generation for GitHub Security tab
+//! 4. Compliance checking for code quality standards
+//! 5. Detection of unwrap/expect in production code
+//! 6. SPARQL injection prevention validation
+//!
+//! ### Vulnerability Scanning Example
+//!
+//! ```rust,no_run
+//! use ggen_core::security::{VulnerabilityScanner, ScanConfig};
+//! use std::path::PathBuf;
+//!
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! let config = ScanConfig {
+//!     project_root: PathBuf::from("."),
+//!     fail_on_high_severity: true,
+//!     scan_docker: false,
+//!     docker_image: None,
+//! };
+//!
+//! let scanner = VulnerabilityScanner::new(config);
+//! let results = scanner.scan()?;
+//!
+//! println!("Found {} vulnerabilities", results.total_count());
+//! println!("Critical: {}", results.critical_count);
+//! println!("High: {}", results.high_count);
+//!
+//! // Generate SARIF for GitHub Security
+//! scanner.write_sarif(&results, &PathBuf::from("results.sarif"))?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Compliance Checking Example
+//!
+//! ```rust,no_run
+//! use ggen_core::security::{ComplianceChecker, ComplianceConfig};
+//! use std::path::PathBuf;
+//!
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! let config = ComplianceConfig {
+//!     root_dir: PathBuf::from("."),
+//!     include_patterns: vec!["**/*.rs".to_string()],
+//!     exclude_patterns: vec!["**/target/**".to_string(), "**/tests/**".to_string()],
+//!     check_unwrap: true,
+//!     check_sparql_injection: true,
+//!     check_atom_exhaustion: false,
+//! };
+//!
+//! let checker = ComplianceChecker::new(config)?;
+//! let results = checker.check()?;
+//!
+//! println!("Found {} violations", results.total_count());
+//! println!("Critical: {}", results.critical_count);
+//! println!("High: {}", results.high_count);
+//!
+//! // Generate compliance report
+//! let report = checker.generate_report(&results);
+//! println!("{}", report);
+//! # Ok(())
+//! # }
+//! ```
 
 pub mod command;
 pub mod error;
@@ -77,6 +144,10 @@ pub mod events;
 pub mod intrusion_detection;
 pub mod logging;
 pub mod metrics;
+
+// Security scanning and compliance
+pub mod compliance_checker;
+pub mod vulnerability_scanner;
 
 pub use command::{CommandError, CommandExecutor, SafeCommand};
 pub use error::{ErrorSanitizer, SanitizedError};
@@ -93,6 +164,15 @@ pub use events::{AttackPattern, EventCategory, SecurityEvent, SecuritySeverity};
 pub use intrusion_detection::{DetectionError, IntrusionDetector, PatternMatcher, RateLimiter};
 pub use logging::{LoggingError, SecurityLogger, SecurityLoggerConfig};
 pub use metrics::{MetricsCollector, MetricsError, SecurityMetrics, TimeWindow};
+
+// Security scanning and compliance exports
+pub use compliance_checker::{
+    ComplianceChecker, ComplianceConfig, ComplianceResults, Violation, ViolationSeverity,
+    ViolationType,
+};
+pub use vulnerability_scanner::{
+    ScanConfig, ScanResults, Severity, Vulnerability, VulnerabilityScanner,
+};
 
 #[cfg(test)]
 mod tests;
