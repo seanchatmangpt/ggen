@@ -19,7 +19,7 @@ cargo install ggen
 
 ```bash
 ggen --version
-# Output: ggen 3.2.0
+# Output: ggen 6.0.0
 ```
 
 ### Step 3: Initialize Your First Project
@@ -75,7 +75,7 @@ cargo install --git https://github.com/seanchatmangpt/ggen --branch main
 
 ```bash
 # Download latest release
-curl -L https://github.com/seanchatmangpt/ggen/releases/download/v3.2.0/ggen-x86_64-unknown-linux-gnu.tar.gz \
+curl -L https://github.com/seanchatmangpt/ggen/releases/download/v6.0.0/ggen-x86_64-unknown-linux-gnu.tar.gz \
   | tar xz -C $HOME/.cargo/bin
 
 # Verify
@@ -318,7 +318,7 @@ Add to `.claude/settings.json`:
 First session with ggen:
 
 ```bash
-curl -L https://github.com/seanchatmangpt/ggen/releases/download/v3.2.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
+curl -L https://github.com/seanchatmangpt/ggen/releases/download/v6.0.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
 export PATH="$PWD:$PATH"
 ```
 
@@ -371,7 +371,7 @@ rustc --version
 
 ```bash
 # Use pre-built binary instead
-curl -L https://github.com/seanchatmangpt/ggen/releases/download/v3.2.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
+curl -L https://github.com/seanchatmangpt/ggen/releases/download/v6.0.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
 
 # Or increase network access level to "Limited" (default)
 # Check network access settings in session
