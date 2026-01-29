@@ -15,7 +15,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: git
 Suggests: rust-toolchain, nodejs
-Description: Ontology-driven code generation CLI (v0.2.0)
+Description: Ontology-driven code generation CLI (v3.2.0)
  ggen is a language-agnostic, deterministic code generation tool that transforms
  RDF ontologies into reproducible code through SPARQL queries and Tera templates.
  Specification-first development using RDF/Turtle as the source of truth.

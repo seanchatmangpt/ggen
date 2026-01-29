@@ -27,7 +27,7 @@ cargo install ggen
 
 # Verify installation
 ggen --version
-# Output: ggen 0.2.0
+# Output: ggen 3.2.0
 ```
 
 **Note**: If you're in Claude Code Web, this is all you need. The Rust toolchain is pre-installed.

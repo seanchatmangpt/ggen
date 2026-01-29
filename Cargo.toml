@@ -1,6 +1,6 @@
 [package]
 name = "ggen"
-version = "0.2.0"
+version = "3.2.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -112,27 +112,27 @@ predicates = "3.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
 # NOTE: v0.2.0 unified release
-ggen-utils = { path = "crates/ggen-utils", version = "0.2.0" }
-ggen-core = { path = "crates/ggen-core", version = "0.2.0" }
-ggen-config = { path = "crates/ggen-config", version = "0.2.0" }
-ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "0.2.0" }
-ggen-config-clap = { path = "crates/ggen-config-clap", version = "0.2.0" }
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "0.2.0" }
-ggen-domain = { path = "crates/ggen-domain", version = "0.2.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "0.2.0" }
-ggen-node = { path = "crates/ggen-node", version = "0.2.0" }
-ggen-macros = { path = "crates/ggen-macros", version = "0.2.0" }
-ggen-test-audit = { path = "crates/ggen-test-audit", version = "0.2.0" }
-ggen-test-opt = { path = "crates/ggen-test-opt", version = "0.2.0" }
-ggen-e2e = { path = "crates/ggen-e2e", version = "0.2.0" }
-ggen-api = { path = "crates/ggen-api", version = "0.2.0" }
-ggen-auth = { path = "crates/ggen-auth", version = "0.2.0" }
-ggen-payments = { path = "crates/ggen-payments", version = "0.2.0" }
-ggen-saas = { path = "crates/ggen-saas", version = "0.2.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "0.2.0" }
-ggen-folk-strategy = { path = "crates/ggen-folk-strategy", version = "0.2.0" }
-ggen-dod = { path = "crates/ggen-dod", version = "0.2.0" }
-ggen-ontology-core = { path = "crates/ggen-ontology-core", version = "0.2.0" }
+ggen-utils = { path = "crates/ggen-utils", version = "3.2.0" }
+ggen-core = { path = "crates/ggen-core", version = "3.2.0" }
+ggen-config = { path = "crates/ggen-config", version = "3.2.0" }
+ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "3.2.0" }
+ggen-config-clap = { path = "crates/ggen-config-clap", version = "3.2.0" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "3.2.0" }
+ggen-domain = { path = "crates/ggen-domain", version = "3.2.0" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "3.2.0" }
+ggen-node = { path = "crates/ggen-node", version = "3.2.0" }
+ggen-macros = { path = "crates/ggen-macros", version = "3.2.0" }
+ggen-test-audit = { path = "crates/ggen-test-audit", version = "3.2.0" }
+ggen-test-opt = { path = "crates/ggen-test-opt", version = "3.2.0" }
+ggen-e2e = { path = "crates/ggen-e2e", version = "3.2.0" }
+ggen-api = { path = "crates/ggen-api", version = "3.2.0" }
+ggen-auth = { path = "crates/ggen-auth", version = "3.2.0" }
+ggen-payments = { path = "crates/ggen-payments", version = "3.2.0" }
+ggen-saas = { path = "crates/ggen-saas", version = "3.2.0" }
+ggen-ai = { path = "crates/ggen-ai", version = "3.2.0" }
+ggen-folk-strategy = { path = "crates/ggen-folk-strategy", version = "3.2.0" }
+ggen-dod = { path = "crates/ggen-dod", version = "3.2.0" }
+ggen-ontology-core = { path = "crates/ggen-ontology-core", version = "3.2.0" }
 
 # KNHK Systems (ETL + KGC-4D + Workflow Engine Integration)
 knhk-etl = { path = "crates/knhk-etl", version = "0.1.0" }
@@ -288,10 +288,10 @@ otel = [
 ]
 
 [dependencies]
-ggen-utils = { path = "crates/ggen-utils", version = "0.2.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "0.2.0" }
-ggen-core = { path = "crates/ggen-core", version = "0.2.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "0.2.0" }
+ggen-utils = { path = "crates/ggen-utils", version = "3.2.0" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "3.2.0" }
+ggen-core = { path = "crates/ggen-core", version = "3.2.0" }
+ggen-ai = { path = "crates/ggen-ai", version = "3.2.0" }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
 log = "0.4.28"
