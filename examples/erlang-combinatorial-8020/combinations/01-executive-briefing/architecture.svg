@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font: bold 24px sans-serif; fill: #2c3e50; }
+      .subtitle { font: 16px sans-serif; fill: #7f8c8d; }
+      .box { fill: #3498db; stroke: #2980b9; stroke-width: 3; }
+      .box-text { font: bold 18px sans-serif; fill: white; text-anchor: middle; }
+      .arrow { stroke: #e74c3c; stroke-width: 3; fill: none; marker-end: url(#arrowhead); }
+      .label { font: 14px sans-serif; fill: #2c3e50; }
+      .metric { font: bold 20px sans-serif; fill: #27ae60; }
+      .insight { font: 14px sans-serif; fill: #34495e; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#e74c3c" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="400" y="40" class="title" text-anchor="middle">gen_server: The Foundation Pattern</text>
+  <text x="400" y="65" class="subtitle" text-anchor="middle">99.999% uptime • Linear scalability • Zero downtime upgrades</text>
+
+  <!-- Client Box -->
+  <rect x="50" y="120" width="150" height="80" rx="10" class="box"/>
+  <text x="125" y="165" class="box-text">CLIENT</text>
+  <text x="125" y="185" class="box-text" font-size="14">(Your App)</text>
+
+  <!-- Server Box -->
+  <rect x="550" y="120" width="150" height="80" rx="10" class="box"/>
+  <text x="625" y="165" class="box-text">SERVER</text>
+  <text x="625" y="185" class="box-text" font-size="14">(gen_server)</text>
+
+  <!-- Request Arrow -->
+  <path d="M 200 140 L 550 140" class="arrow"/>
+  <text x="375" y="130" class="label" text-anchor="middle">Request: increment()</text>
+
+  <!-- Response Arrow -->
+  <path d="M 550 180 L 200 180" class="arrow"/>
+  <text x="375" y="200" class="label" text-anchor="middle">Response: {ok, 42}</text>
+
+  <!-- State Box -->
+  <rect x="550" y="240" width="150" height="60" rx="10" fill="#9b59b6" stroke="#8e44ad" stroke-width="3"/>
+  <text x="625" y="265" class="box-text">STATE</text>
+  <text x="625" y="285" class="box-text" font-size="14">Count = 42</text>
+
+  <!-- State Arrow -->
+  <path d="M 625 200 L 625 240" class="arrow"/>
+
+  <!-- The Core Pattern -->
+  <rect x="50" y="340" width="700" height="100" rx="10" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="2"/>
+  <text x="400" y="370" class="title" text-anchor="middle" font-size="20">THE CORE PATTERN</text>
+  <text x="400" y="400" class="insight" text-anchor="middle">handle_call(Request, From, State) → {reply, Response, NewState}</text>
+  <text x="400" y="425" class="insight" text-anchor="middle">This one line powers WhatsApp (2B users), T-Mobile, Goldman Sachs</text>
+
+  <!-- Business Value -->
+  <g transform="translate(50, 470)">
+    <text x="0" y="0" class="label" font-weight="bold">BUSINESS VALUE:</text>
+    <text x="0" y="25" class="metric">99.999%</text>
+    <text x="100" y="25" class="label">uptime (5 nines)</text>
+
+    <text x="250" y="25" class="metric">10x</text>
+    <text x="300" y="25" class="label">ROI on downtime cost</text>
+
+    <text x="500" y="25" class="metric">∞</text>
+    <text x="550" y="25" class="label">linear scalability</text>
+  </g>
+
+  <!-- Time to Value -->
+  <rect x="50" y="530" width="700" height="50" rx="10" fill="#2ecc71" stroke="#27ae60" stroke-width="2"/>
+  <text x="400" y="560" class="box-text" font-size="18">⏱️  TIME TO UNDERSTAND: 60 seconds • TIME TO PRODUCTION: Hours, not weeks</text>
+</svg>
