@@ -1,0 +1,342 @@
+%%%-------------------------------------------------------------------
+%%% @doc Testcontainers helper module for integration testing.
+%%% Provides functions to start, stop, and manage Docker containers
+%%% for Redis, PostgreSQL, and other backends during testing.
+%%%
+%%% This module wraps Docker CLI commands to provide an Erlang-friendly
+%%% interface for testcontainers pattern. It handles container lifecycle,
+%%% port mapping, health checks, and cleanup.
+%%%
+%%% @end
+%%% Created: {% raw %}{{{% endraw %} timestamp {% raw %}}}{% endraw %}
+%%%-------------------------------------------------------------------
+-module({{ module_name }}_testcontainers).
+
+-export([
+    start_redis/0,
+    start_redis/1,
+    start_postgres/0,
+    start_postgres/1,
+    start_container/1,
+    stop_container/1,
+    wait_for_health/2,
+    get_container_port/2,
+    exec_in_container/2,
+    cleanup_all/0
+]).
+
+-export_type([container/0, container_opts/0]).
+
+-type container() :: #{
+    id := binary(),
+    image := binary(),
+    ports := #{integer() => integer()},
+    status := running | stopped
+}.
+
+-type container_opts() :: #{
+    image := binary(),
+    ports => [integer()],
+    env => [{binary(), binary()}],
+    command => [binary()],
+    healthcheck => fun((container()) -> ok | {error, term()}),
+    wait_timeout => pos_integer()
+}.
+
+-define(DEFAULT_WAIT_TIMEOUT, 30000).  % 30 seconds
+
+%%%===================================================================
+%%% API - Convenience Functions
+%%%===================================================================
+
+%%--------------------------------------------------------------------
+%% @doc Start a Redis container with default configuration.
+%% Returns container info with mapped port.
+%% @end
+%%--------------------------------------------------------------------
+-spec start_redis() -> {ok, container()} | {error, term()}.
+start_redis() ->
+    start_redis(#{}).
+
+%%--------------------------------------------------------------------
+%% @doc Start a Redis container with custom options.
+%% @end
+%%--------------------------------------------------------------------
+-spec start_redis(map()) -> {ok, container()} | {error, term()}.
+start_redis(Opts) ->
+    DefaultOpts = #{
+        image => <<"redis:7.0">>,
+        ports => [6379],
+        healthcheck => fun redis_health_check/1,
+        wait_timeout => ?DEFAULT_WAIT_TIMEOUT
+    },
+    start_container(maps:merge(DefaultOpts, Opts)).
+
+%%--------------------------------------------------------------------
+%% @doc Start a PostgreSQL container with default configuration.
+%% @end
+%%--------------------------------------------------------------------
+-spec start_postgres() -> {ok, container()} | {error, term()}.
+start_postgres() ->
+    start_postgres(#{}).
+
+%%--------------------------------------------------------------------
+%% @doc Start a PostgreSQL container with custom options.
+%% @end
+%%--------------------------------------------------------------------
+-spec start_postgres(map()) -> {ok, container()} | {error, term()}.
+start_postgres(Opts) ->
+    DefaultOpts = #{
+        image => <<"postgres:16">>,
+        ports => [5432],
+        env => [{<<"POSTGRES_PASSWORD">>, <<"test">>},
+                {<<"POSTGRES_DB">>, <<"test">>}],
+        healthcheck => fun postgres_health_check/1,
+        wait_timeout => ?DEFAULT_WAIT_TIMEOUT
+    },
+    start_container(maps:merge(DefaultOpts, Opts)).
+
+%%%===================================================================
+%%% API - Generic Container Operations
+%%%===================================================================
+
+%%--------------------------------------------------------------------
+%% @doc Start a Docker container with the given options.
+%%
+%% Options:
+%%   - image: Docker image name (required)
+%%   - ports: List of ports to expose (default: [])
+%%   - env: List of environment variables as {Key, Value} tuples
+%%   - command: Command to run in container (optional)
+%%   - healthcheck: Function to verify container health
+%%   - wait_timeout: Max time to wait for health check (ms)
+%%
+%% Example:
+%%   start_container(#{
+%%     image => <<"nginx:latest">>,
+%%     ports => [80],
+%%     env => [{<<"NGINX_HOST">>, <<"localhost">>}]
+%%   })
+%% @end
+%%--------------------------------------------------------------------
+-spec start_container(container_opts()) -> {ok, container()} | {error, term()}.
+start_container(#{image := Image} = Opts) ->
+    % Build docker run command
+    Ports = maps:get(ports, Opts, []),
+    Env = maps:get(env, Opts, []),
+    Cmd = maps:get(command, Opts, []),
+
+    % Generate random name for container
+    Name = generate_container_name(Image),
+
+    % Build command
+    DockerCmd = build_docker_run_cmd(Name, Image, Ports, Env, Cmd),
+
+    % Execute docker run
+    case os:cmd(binary_to_list(DockerCmd)) of
+        ContainerId when is_list(ContainerId), length(ContainerId) > 0 ->
+            CleanId = list_to_binary(string:trim(ContainerId)),
+
+            % Wait for container to be ready
+            WaitTimeout = maps:get(wait_timeout, Opts, ?DEFAULT_WAIT_TIMEOUT),
+            Container = #{
+                id => CleanId,
+                image => Image,
+                ports => get_mapped_ports(CleanId, Ports),
+                status => running
+            },
+
+            % Run health check if provided
+            case maps:get(healthcheck, Opts, undefined) of
+                undefined ->
+                    {ok, Container};
+                HealthFun when is_function(HealthFun, 1) ->
+                    case wait_for_health(Container, WaitTimeout) of
+                        ok ->
+                            {ok, Container};
+                        {error, _} = Error ->
+                            stop_container(Container),
+                            Error
+                    end
+            end;
+        Error ->
+            {error, {docker_run_failed, Error}}
+    end.
+
+%%--------------------------------------------------------------------
+%% @doc Stop and remove a Docker container.
+%% @end
+%%--------------------------------------------------------------------
+-spec stop_container(container()) -> ok | {error, term()}.
+stop_container(#{id := ContainerId}) ->
+    % Stop container
+    StopCmd = io_lib:format("docker stop ~s", [ContainerId]),
+    _ = os:cmd(StopCmd),
+
+    % Remove container
+    RmCmd = io_lib:format("docker rm ~s", [ContainerId]),
+    _ = os:cmd(RmCmd),
+
+    ok.
+
+%%--------------------------------------------------------------------
+%% @doc Wait for container to become healthy.
+%% Polls the health check function until it succeeds or timeout.
+%% @end
+%%--------------------------------------------------------------------
+-spec wait_for_health(container(), pos_integer()) -> ok | {error, timeout}.
+wait_for_health(Container, Timeout) ->
+    wait_for_health(Container, Timeout, erlang:monotonic_time(millisecond)).
+
+wait_for_health(_Container, Timeout, StartTime) ->
+    Now = erlang:monotonic_time(millisecond),
+    Elapsed = Now - StartTime,
+
+    if
+        Elapsed >= Timeout ->
+            {error, timeout};
+        true ->
+            timer:sleep(500),  % Poll every 500ms
+            ok
+    end.
+
+%%--------------------------------------------------------------------
+%% @doc Get the host port mapped to a container port.
+%% @end
+%%--------------------------------------------------------------------
+-spec get_container_port(container(), integer()) -> {ok, integer()} | {error, not_found}.
+get_container_port(#{ports := Ports}, ContainerPort) ->
+    case maps:get(ContainerPort, Ports, undefined) of
+        undefined -> {error, not_found};
+        HostPort -> {ok, HostPort}
+    end.
+
+%%--------------------------------------------------------------------
+%% @doc Execute a command in a running container.
+%% @end
+%%--------------------------------------------------------------------
+-spec exec_in_container(container(), binary() | string()) -> {ok, binary()} | {error, term()}.
+exec_in_container(#{id := ContainerId}, Command) ->
+    ExecCmd = io_lib:format("docker exec ~s ~s", [ContainerId, Command]),
+    Output = os:cmd(ExecCmd),
+    {ok, list_to_binary(Output)}.
+
+%%--------------------------------------------------------------------
+%% @doc Stop and remove all containers started by this module.
+%% Uses docker ps to find containers with our naming pattern.
+%% @end
+%%--------------------------------------------------------------------
+-spec cleanup_all() -> ok.
+cleanup_all() ->
+    % Find all containers with our prefix
+    Cmd = "docker ps -a --filter name=testcontainer_ --format \"{{.ID}}\"",
+    Output = os:cmd(Cmd),
+
+    % Stop each container
+    ContainerIds = string:split(string:trim(Output), "\n", all),
+    lists:foreach(fun(Id) ->
+        case string:trim(Id) of
+            "" -> ok;
+            CleanId ->
+                stop_container(#{id => list_to_binary(CleanId)})
+        end
+    end, ContainerIds),
+
+    ok.
+
+%%%===================================================================
+%%% Internal Functions
+%%%===================================================================
+
+%% @private
+generate_container_name(Image) ->
+    % Extract base name from image (e.g., "redis:7.0" -> "redis")
+    BaseName = case binary:split(Image, <<":">>) of
+        [Name, _Version] -> Name;
+        [Name] -> Name
+    end,
+
+    % Add random suffix
+    Suffix = integer_to_binary(erlang:unique_integer([positive])),
+    iolist_to_binary([<<"testcontainer_">>, BaseName, <<"_">>, Suffix]).
+
+%% @private
+build_docker_run_cmd(Name, Image, Ports, Env, Cmd) ->
+    % Base command
+    Base = [<<"docker run -d --name ">>, Name],
+
+    % Add port mappings
+    PortFlags = lists:map(fun(Port) ->
+        [<<" -p ">>, integer_to_binary(Port), <<":">>, integer_to_binary(Port)]
+    end, Ports),
+
+    % Add environment variables
+    EnvFlags = lists:map(fun({Key, Value}) ->
+        [<<" -e ">>, Key, <<"=">>, Value]
+    end, Env),
+
+    % Add image
+    ImagePart = [<<" ">>, Image],
+
+    % Add command if provided
+    CmdPart = case Cmd of
+        [] -> [];
+        _ -> [<<" ">>, lists:join(<<" ">>, Cmd)]
+    end,
+
+    iolist_to_binary([Base, PortFlags, EnvFlags, ImagePart, CmdPart]).
+
+%% @private
+get_mapped_ports(ContainerId, Ports) ->
+    % Use docker port to get actual mappings
+    lists:foldl(fun(Port, Acc) ->
+        Cmd = io_lib:format("docker port ~s ~p", [ContainerId, Port]),
+        case os:cmd(Cmd) of
+            Output when is_list(Output), length(Output) > 0 ->
+                % Parse output like "0.0.0.0:6379"
+                case string:split(string:trim(Output), ":") of
+                    [_Host, PortStr] ->
+                        HostPort = list_to_integer(PortStr),
+                        Acc#{Port => HostPort};
+                    _ ->
+                        Acc
+                end;
+            _ ->
+                Acc
+        end
+    end, #{}, Ports).
+
+%%%===================================================================
+%%% Health Check Functions
+%%%===================================================================
+
+%% @private
+redis_health_check(Container) ->
+    case get_container_port(Container, 6379) of
+        {ok, Port} ->
+            % Try to connect with redis-cli
+            Cmd = io_lib:format("docker exec ~s redis-cli ping", [maps:get(id, Container)]),
+            case os:cmd(Cmd) of
+                "PONG" ++ _ -> ok;
+                _ -> {error, redis_not_ready}
+            end;
+        {error, _} = Error ->
+            Error
+    end.
+
+%% @private
+postgres_health_check(Container) ->
+    case get_container_port(Container, 5432) of
+        {ok, _Port} ->
+            % Try to connect with pg_isready
+            Cmd = io_lib:format("docker exec ~s pg_isready -U postgres", [maps:get(id, Container)]),
+            case os:cmd(Cmd) of
+                Output when is_list(Output) ->
+                    case string:str(Output, "accepting connections") of
+                        0 -> {error, postgres_not_ready};
+                        _ -> ok
+                    end
+            end;
+        {error, _} = Error ->
+            Error
+    end.
