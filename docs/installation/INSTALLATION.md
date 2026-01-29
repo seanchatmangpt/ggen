@@ -1,6 +1,6 @@
 # ggen Installation Guide
 
-**ggen v0.2.0** - Ontology-driven code generation
+**ggen v3.2.0** - Ontology-driven code generation
 
 Choose your installation method based on your environment:
 
@@ -48,7 +48,7 @@ If you want faster installation without Rust recompilation:
 
 ```bash
 # Download and extract binary
-curl -L https://github.com/seanchatmangpt/ggen/releases/download/v0.2.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
+curl -L https://github.com/seanchatmangpt/ggen/releases/download/v3.2.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
 
 # Make executable
 chmod +x ggen
@@ -84,7 +84,7 @@ cargo install ggen
 ### Manual Binary
 
 ```bash
-curl -L https://github.com/seanchatmangpt/ggen/releases/download/v0.2.0/ggen-x86_64-apple-darwin.tar.gz | tar xz
+curl -L https://github.com/seanchatmangpt/ggen/releases/download/v3.2.0/ggen-x86_64-apple-darwin.tar.gz | tar xz
 sudo mv ggen /usr/local/bin/
 ggen --version
 ```
@@ -103,19 +103,19 @@ cargo install ggen
 
 ```bash
 # Download .deb file
-wget https://github.com/seanchatmangpt/ggen/releases/download/v0.2.0/ggen_0.2.0_amd64.deb
+wget https://github.com/seanchatmangpt/ggen/releases/download/v3.2.0/ggen_3.2.0_amd64.deb
 
 # Install
-sudo dpkg -i ggen_0.2.0_amd64.deb
+sudo dpkg -i ggen_3.2.0_amd64.deb
 
 # Or using apt
-sudo apt install ./ggen_0.2.0_amd64.deb
+sudo apt install ./ggen_3.2.0_amd64.deb
 ```
 
 ### Method C: Pre-built Binary
 
 ```bash
-curl -L https://github.com/seanchatmangpt/ggen/releases/download/v0.2.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
+curl -L https://github.com/seanchatmangpt/ggen/releases/download/v3.2.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
 sudo mv ggen /usr/local/bin/
 ggen --version
 ```
@@ -145,7 +145,7 @@ sudo cp target/release/ggen /usr/local/bin/
 ```powershell
 # Download and extract
 $ProgressPreference = 'SilentlyContinue'
-Invoke-WebRequest -Uri "https://github.com/seanchatmangpt/ggen/releases/download/v0.2.0/ggen-x86_64-pc-windows-gnu.zip" -OutFile "ggen.zip"
+Invoke-WebRequest -Uri "https://github.com/seanchatmangpt/ggen/releases/download/v3.2.0/ggen-x86_64-pc-windows-gnu.zip" -OutFile "ggen.zip"
 Expand-Archive -Path "ggen.zip" -DestinationPath "C:\Program Files\ggen\"
 
 # Add to PATH (requires admin)
@@ -342,7 +342,7 @@ source $HOME/.cargo/env
 
 ```bash
 # Pre-built (fastest)
-curl -L https://github.com/seanchatmangpt/ggen/releases/download/v0.2.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
+curl -L https://github.com/seanchatmangpt/ggen/releases/download/v3.2.0/ggen-x86_64-unknown-linux-gnu.tar.gz | tar xz
 
 # Or: cache cargo registry locally in .claude/cache/
 ```
@@ -366,11 +366,11 @@ cargo install --path crates/ggen-cli
 ### Pin to Specific Version
 
 ```bash
-# Install v0.2.0 specifically
-cargo install ggen --version 0.2.0
+# Install v3.2.0 specifically
+cargo install ggen --version 3.2.0
 
 # Or from source
-git checkout v0.2.0
+git checkout v3.2.0
 cargo install --path crates/ggen-cli
 ```
 
