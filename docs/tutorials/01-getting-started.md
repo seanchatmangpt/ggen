@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tutorial: Getting Started with ggen](#tutorial-getting-started-with-ggen)
+  - [What You'll Learn](#what-youll-learn)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Install ggen (2 minutes)](#step-1-install-ggen-2-minutes)
+  - [Step 2: Create Your Project Directory (1 minute)](#step-2-create-your-project-directory-1-minute)
+  - [Step 3: Initialize a ggen Project (1 minute)](#step-3-initialize-a-ggen-project-1-minute)
+  - [Step 4: Understand the Core Ontology (2 minutes)](#step-4-understand-the-core-ontology-2-minutes)
+  - [Step 5: Preview Generation (2 minutes)](#step-5-preview-generation-2-minutes)
+  - [Step 6: Generate Your First Code (2 minutes)](#step-6-generate-your-first-code-2-minutes)
+  - [Step 7: Inspect Generated Code (2 minutes)](#step-7-inspect-generated-code-2-minutes)
+  - [Step 8: Edit and Regenerate (3 minutes)](#step-8-edit-and-regenerate-3-minutes)
+  - [Step 9: Understand the Five-Stage Pipeline (2 minutes)](#step-9-understand-the-five-stage-pipeline-2-minutes)
+  - [Step 10: Clean Up and Summary (1 minute)](#step-10-clean-up-and-summary-1-minute)
+  - [Next: Build Something Real](#next-build-something-real)
+  - [Troubleshooting](#troubleshooting)
+    - [Issue: "ontology not found"](#issue-ontology-not-found)
+    - [Issue: "SPARQL query failed"](#issue-sparql-query-failed)
+    - [Issue: "generation timed out"](#issue-generation-timed-out)
+  - [Key Takeaways](#key-takeaways)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tutorial: Getting Started with ggen
 
 **Learn the basics of ggen in 15 minutes.**

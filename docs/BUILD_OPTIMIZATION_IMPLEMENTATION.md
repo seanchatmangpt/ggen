@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Build System Optimization - Implementation Guide](#ggen-build-system-optimization---implementation-guide)
+  - [Overview](#overview)
+  - [Phase 1: Critical Fixes (COMPLETED ✅)](#phase-1-critical-fixes-completed-)
+    - [1. Fixed `timeout-check` Task](#1-fixed-timeout-check-task)
+    - [2. Increased `check` Timeout to 60 Seconds](#2-increased-check-timeout-to-60-seconds)
+    - [3. Simplified `lint` Task (Single-Pass Execution)](#3-simplified-lint-task-single-pass-execution)
+    - [4. Created Parallel Task Groups](#4-created-parallel-task-groups)
+      - [A. `parallel-checks` Task](#a-parallel-checks-task)
+      - [B. `parallel-tests` Task](#b-parallel-tests-task)
+      - [C. `pre-commit-fast` Task (NEW)](#c-pre-commit-fast-task-new)
+      - [D. Refactored `pre-commit` Task](#d-refactored-pre-commit-task)
+  - [Phase 2: Feature Gating (Planned - Next Week)](#phase-2-feature-gating-planned---next-week)
+    - [Objective](#objective)
+    - [Analysis: Current Workspace (30 Crates)](#analysis-current-workspace-30-crates)
+    - [Implementation Plan](#implementation-plan)
+  - [Phase 3: Workspace Linting & Documentation (End of Month)](#phase-3-workspace-linting--documentation-end-of-month)
+    - [Objective](#objective-1)
+    - [Tasks](#tasks)
+  - [Rollout Plan](#rollout-plan)
+    - [Week 1 (Current - 2026-01-25)](#week-1-current---2026-01-25)
+    - [Week 2 (2026-02-01)](#week-2-2026-02-01)
+    - [Week 3-4 (2026-02-08)](#week-3-4-2026-02-08)
+  - [Validation Checklist](#validation-checklist)
+    - [For Developers (After Pulling Changes)](#for-developers-after-pulling-changes)
+    - [For CI/CD](#for-cicd)
+  - [Performance Benchmarking](#performance-benchmarking)
+    - [Before Optimization (Baseline)](#before-optimization-baseline)
+    - [After Optimization (Phase 1)](#after-optimization-phase-1)
+    - [After Optimization (Phase 2 - Feature Gating)](#after-optimization-phase-2---feature-gating)
+  - [Troubleshooting](#troubleshooting)
+    - [Issue: `cargo make check` still times out at 60s](#issue-cargo-make-check-still-times-out-at-60s)
+    - [Issue: `cargo make lint` exceeds 90s](#issue-cargo-make-lint-exceeds-90s)
+    - [Issue: Pre-commit still takes >180s](#issue-pre-commit-still-takes-180s)
+    - [Issue: Dependencies not being cached](#issue-dependencies-not-being-cached)
+  - [Metrics to Track](#metrics-to-track)
+  - [FAQ](#faq)
+    - [Q: Why did timeout-check fail with exit code 124?](#q-why-did-timeout-check-fail-with-exit-code-124)
+    - [Q: Is 60-second timeout for `check` safe?](#q-is-60-second-timeout-for-check-safe)
+    - [Q: Can I use `pre-commit-fast` instead of full `pre-commit`?](#q-can-i-use-pre-commit-fast-instead-of-full-pre-commit)
+    - [Q: What about feature-gating for CI/CD?](#q-what-about-feature-gating-for-cicd)
+    - [Q: How do I know if my build is using cache?](#q-how-do-i-know-if-my-build-is-using-cache)
+  - [Resources](#resources)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Build System Optimization - Implementation Guide
 
 **Date**: 2026-01-25

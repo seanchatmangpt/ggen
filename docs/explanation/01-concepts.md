@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Explanation: Core Concepts](#explanation-core-concepts)
+  - [What is an Ontology?](#what-is-an-ontology)
+    - [Example: Simple Ontology](#example-simple-ontology)
+    - [Why Ontologies Matter for Code Generation](#why-ontologies-matter-for-code-generation)
+  - [RDF: Resource Description Framework](#rdf-resource-description-framework)
+    - [Triple Structure](#triple-structure)
+    - [Example: Building a REST API Ontology](#example-building-a-rest-api-ontology)
+  - [SPARQL: Query Language for RDF](#sparql-query-language-for-rdf)
+    - [Example: Finding All Endpoints](#example-finding-all-endpoints)
+    - [How SPARQL Powers Code Generation](#how-sparql-powers-code-generation)
+  - [Tera: Template Engine](#tera-template-engine)
+    - [Basic Syntax](#basic-syntax)
+    - [Tera in ggen Workflow](#tera-in-ggen-workflow)
+  - [Five-Stage Pipeline (μ₁-μ₅)](#five-stage-pipeline-%CE%BC%E2%82%81-%CE%BC%E2%82%85)
+    - [Stage Details](#stage-details)
+  - [Determinism: Why It Matters](#determinism-why-it-matters)
+    - [Example: Reproducibility](#example-reproducibility)
+    - [Why This Matters](#why-this-matters)
+  - [Specification-First Development](#specification-first-development)
+  - [SHACL: Shape Constraint Language](#shacl-shape-constraint-language)
+    - [Example: User Shape](#example-user-shape)
+  - [Comparison: Code Generation Approaches](#comparison-code-generation-approaches)
+    - [Approach 1: Manual Code](#approach-1-manual-code)
+    - [Approach 2: Code Generators (Old)](#approach-2-code-generators-old)
+    - [Approach 3: Ontology-First (ggen)](#approach-3-ontology-first-ggen)
+  - [Key Mental Models](#key-mental-models)
+    - [1. RDF Triple = Programming Concept](#1-rdf-triple--programming-concept)
+    - [2. SPARQL Query = Data Extraction](#2-sparql-query--data-extraction)
+    - [3. Template = Code Skeleton](#3-template--code-skeleton)
+    - [4. Pipeline = Transformation](#4-pipeline--transformation)
+  - [Common Mistakes](#common-mistakes)
+    - [Mistake 1: Editing Generated Code](#mistake-1-editing-generated-code)
+    - [Mistake 2: Complex Ontologies](#mistake-2-complex-ontologies)
+    - [Mistake 3: Missing Namespace Declarations](#mistake-3-missing-namespace-declarations)
+  - [Further Reading](#further-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Explanation: Core Concepts
 
 **Deep dive into ggen architecture and design philosophy.**

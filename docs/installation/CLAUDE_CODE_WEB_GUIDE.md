@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Claude Code Web Agent Integration](#claude-code-web-agent-integration)
+  - [Overview](#overview)
+  - [Agent Initialization](#agent-initialization)
+    - [SessionStart Hook Configuration](#sessionstart-hook-configuration)
+  - [Workflow Integration](#workflow-integration)
+    - [Workflow 1: Specification-Driven Generation](#workflow-1-specification-driven-generation)
+    - [Workflow 2: Multi-Agent Collaboration](#workflow-2-multi-agent-collaboration)
+    - [Workflow 3: Continuous Generation](#workflow-3-continuous-generation)
+  - [Agent Invocation Patterns](#agent-invocation-patterns)
+    - [Pattern A: Direct Execution](#pattern-a-direct-execution)
+    - [Pattern B: JSON Output for Processing](#pattern-b-json-output-for-processing)
+    - [Pattern C: Dry-Run for Planning](#pattern-c-dry-run-for-planning)
+  - [Error Handling for Agents](#error-handling-for-agents)
+    - [Error Detection](#error-detection)
+    - [Root Cause Analysis](#root-cause-analysis)
+  - [Receipt Verification (Determinism Guarantee)](#receipt-verification-determinism-guarantee)
+  - [Performance Optimization](#performance-optimization)
+    - [Caching Strategy](#caching-strategy)
+    - [Resource Constraints](#resource-constraints)
+    - [Parallel Agent Coordination](#parallel-agent-coordination)
+  - [Integration with Agent Memory](#integration-with-agent-memory)
+  - [Command Reference (Agent-Focused)](#command-reference-agent-focused)
+  - [Safety Constraints](#safety-constraints)
+    - [What Agents MUST Do](#what-agents-must-do)
+    - [What Agents MUST NOT Do](#what-agents-must-not-do)
+  - [Troubleshooting for Agents](#troubleshooting-for-agents)
+    - [Installation Timeout](#installation-timeout)
+    - [SPARQL Query Failures](#sparql-query-failures)
+    - [Template Rendering Failures](#template-rendering-failures)
+  - [Next Steps for Agent Developers](#next-steps-for-agent-developers)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Claude Code Web Agent Integration
 
 **ggen as an agent capability for Claude Code Web systems**

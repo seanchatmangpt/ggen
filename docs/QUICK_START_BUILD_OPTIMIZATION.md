@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Quick Start: Build System Optimization Guide](#quick-start-build-system-optimization-guide)
+  - [For Developers (Right Now)](#for-developers-right-now)
+    - [After Pulling Phase 1 Changes](#after-pulling-phase-1-changes)
+    - [What Changed?](#what-changed)
+  - [Development Workflow (Recommended)](#development-workflow-recommended)
+    - [For Local Development](#for-local-development)
+    - [For Feature Branches](#for-feature-branches)
+  - [CI/CD Integration](#cicd-integration)
+    - [For GitHub Actions](#for-github-actions)
+  - [Performance Gains](#performance-gains)
+    - [Build Time Comparison](#build-time-comparison)
+    - [Time Saved Per Month](#time-saved-per-month)
+  - [FAQ](#faq)
+    - [Q: Should I use `pre-commit-fast` or `pre-commit`?](#q-should-i-use-pre-commit-fast-or-pre-commit)
+    - [Q: Why is lint taking so long on first run?](#q-why-is-lint-taking-so-long-on-first-run)
+    - [Q: Can I skip slow tests locally?](#q-can-i-skip-slow-tests-locally)
+    - [Q: Is 60-second timeout for `check` safe?](#q-is-60-second-timeout-for-check-safe)
+    - [Q: When will Phase 2 (feature-gating) be available?](#q-when-will-phase-2-feature-gating-be-available)
+  - [Troubleshooting](#troubleshooting)
+    - [Problem: Still seeing timeouts](#problem-still-seeing-timeouts)
+    - [Problem: Cache not being used](#problem-cache-not-being-used)
+    - [Problem: Specific task hanging](#problem-specific-task-hanging)
+  - [New Commands](#new-commands)
+    - [Fast Path](#fast-path)
+    - [Full Path](#full-path)
+    - [Parallel Checks](#parallel-checks)
+    - [Parallel Tests](#parallel-tests)
+  - [Andon Signals (Stop the Line)](#andon-signals-stop-the-line)
+    - [🟢 Green (All Good)](#-green-all-good)
+    - [🟡 Yellow (Investigate)](#-yellow-investigate)
+    - [🔴 Red (STOP)](#-red-stop)
+  - [Common Commands Reference](#common-commands-reference)
+  - [Next Steps](#next-steps)
+    - [Phase 2 (Coming Next Week)](#phase-2-coming-next-week)
+    - [Phase 3 (End of Month)](#phase-3-end-of-month)
+  - [Get Help](#get-help)
+  - [Resources](#resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Quick Start: Build System Optimization Guide
 
 **TL;DR**: Pre-commit time reduced from 6.5 minutes to 2.5 minutes. Use fast path for quick feedback.

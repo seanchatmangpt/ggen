@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tutorial: Your First REST API Project](#tutorial-your-first-rest-api-project)
+  - [What You'll Build](#what-youll-build)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Create Project Structure (2 minutes)](#step-1-create-project-structure-2-minutes)
+  - [Step 2: Design Your Data Model (5 minutes)](#step-2-design-your-data-model-5-minutes)
+  - [Step 3: Create Tera Templates (5 minutes)](#step-3-create-tera-templates-5-minutes)
+  - [Step 4: Configure Generation (2 minutes)](#step-4-configure-generation-2-minutes)
+  - [Step 5: Preview Generation (2 minutes)](#step-5-preview-generation-2-minutes)
+  - [Step 6: Generate Code (1 minute)](#step-6-generate-code-1-minute)
+  - [Step 7: Build Your Implementation (3 minutes)](#step-7-build-your-implementation-3-minutes)
+  - [Step 8: View Generation Receipt (1 minute)](#step-8-view-generation-receipt-1-minute)
+  - [Step 9: Iterate - Add a New Endpoint (3 minutes)](#step-9-iterate---add-a-new-endpoint-3-minutes)
+  - [Step 10: Test Full Workflow (1 minute)](#step-10-test-full-workflow-1-minute)
+  - [Complete Project Structure](#complete-project-structure)
+  - [Key Patterns Learned](#key-patterns-learned)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tutorial: Your First REST API Project
 
 **Build a real REST API using ggen in 20 minutes.**
