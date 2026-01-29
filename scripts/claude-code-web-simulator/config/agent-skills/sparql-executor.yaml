@@ -1,0 +1,65 @@
+skill:
+  name: "sparql-executor"
+  category: "sparql"
+  version: "1.0.0"
+  agent_types:
+    - "sparql-specialist"
+    - "query-optimizer"
+    - "data-analyst"
+
+  description: "Execute SPARQL queries (SELECT, CONSTRUCT, ASK, DESCRIBE) with query optimization"
+
+  capabilities:
+    - execute_sparql_select
+    - execute_sparql_construct
+    - execute_sparql_ask
+    - execute_sparql_describe
+    - optimize_query_plans
+    - cache_query_results
+
+  requirements:
+    minimum_memory: "512M"
+    tool_dependencies:
+      - oxigraph
+      - sparql-optimizer
+    environment_variables:
+      - "SPARQL_TIMEOUT_SECONDS=30"
+      - "QUERY_CACHE_SIZE=1000"
+      - "OPTIMIZATION_LEVEL=2"
+
+  performance_slo:
+    max_duration_ms: 3000
+    success_rate: 0.995
+    memory_limit_mb: 1024
+    cache_enabled: true
+
+  implementation:
+    language: "bash"
+    entry_point: "sparql_executor_run()"
+    dependencies:
+      - "oxigraph-cli >= 0.5.1"
+      - "jq >= 1.6"
+
+  error_handling:
+    retry_strategy: "linear_backoff"
+    max_retries: 2
+    timeout_ms: 3000
+    fallback_behavior: "return_partial_results"
+
+  documentation:
+    usage: |
+      Execute SPARQL queries against RDF triple stores.
+      Supports query optimization and result caching for performance.
+    example: |
+      skill_load sparql-executor
+      sparql_executor_run --query "SELECT ?s ?p ?o WHERE { ?s ?p ?o }" --limit 100
+
+  metadata:
+    author: "ggen AI Team"
+    created: "2026-01-20"
+    updated: "2026-01-25"
+    tags:
+      - "sparql"
+      - "query"
+      - "optimization"
+      - "performance"

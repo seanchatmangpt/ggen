@@ -1,0 +1,66 @@
+skill:
+  name: "receipt-generator"
+  category: "integration"
+  version: "1.0.0"
+  agent_types:
+    - "audit-specialist"
+    - "receipt-generator"
+    - "production-validator"
+
+  description: "Generate cryptographic audit trails and deterministic receipts for ggen pipeline"
+
+  capabilities:
+    - generate_receipt
+    - compute_content_hash
+    - create_audit_trail
+    - verify_determinism
+    - sign_receipt
+    - validate_receipt_signature
+
+  requirements:
+    minimum_memory: "256M"
+    tool_dependencies:
+      - openssl
+      - jq
+    environment_variables:
+      - "HASH_ALGORITHM=sha256"
+      - "SIGN_RECEIPTS=true"
+      - "AUDIT_LOG_FORMAT=json"
+
+  performance_slo:
+    max_duration_ms: 2000
+    success_rate: 0.99
+    memory_limit_mb: 256
+    cache_enabled: false
+
+  implementation:
+    language: "bash"
+    entry_point: "receipt_generator_create()"
+    dependencies:
+      - "openssl >= 1.1.1"
+      - "jq >= 1.6"
+      - "sha256sum"
+
+  error_handling:
+    retry_strategy: "no_retry"
+    max_retries: 0
+    timeout_ms: 2000
+    fallback_behavior: "return_error"
+
+  documentation:
+    usage: |
+      Generate cryptographic receipts for all ggen pipeline stages (μ₁-μ₅).
+      Creates deterministic audit trails with SHA-256 content hashing and optional signing.
+    example: |
+      skill_load receipt-generator
+      receipt_generator_create --manifest ggen.toml --ontology ontology.ttl --output receipt.json
+
+  metadata:
+    author: "ggen AI Team"
+    created: "2026-01-21"
+    updated: "2026-01-25"
+    tags:
+      - "audit"
+      - "receipt"
+      - "determinism"
+      - "cryptography"

@@ -1,0 +1,46 @@
+---
+name: shacl_validator
+category: rdf_ontology
+version: "1.0.0"
+description: |
+  Validates RDF graphs against SHACL shape definitions. Executes SHACL shapes
+  with full constraint evaluation, reporting violations and generating
+  validation reports in JSON or TTL format.
+capabilities:
+  - Validate RDF against SHACL shapes
+  - Execute property shape constraints
+  - Validate cardinality, types, patterns
+  - Generate violation reports
+  - Support SHACL-AF advanced features
+  - Output HTML/JSON validation reports
+requirements:
+  memory_mb: 512
+  dependencies:
+    - oxigraph
+    - shacl-processor
+    - serde_json
+  disk_mb: 100
+performance_slo:
+  max_duration_ms: 8000
+  success_rate: 0.99
+  throughput_shapes_per_second: 500
+implementation:
+  language: bash
+  entry_point: skill_shacl_validator_validate
+  module: skills-rdf.sh
+error_handling:
+  retry_strategy: exponential
+  max_retries: 2
+  retry_delay_ms: 200
+  timeout_ms: 15000
+  fallback_behavior: return_violations
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.88
+documentation:
+  url: "https://docs.ggen.io/skills/shacl-validator"
+  examples:
+    - "skill_shacl_validator_validate data.ttl shapes.ttl"
+    - "skill_shacl_validator_validate --report-format json data.ttl shapes.ttl"

@@ -1,0 +1,7 @@
+{
+  "agent_id": "agent-002",
+  "skill_name": "code_linter",
+  "registered_at": "2026-01-29T18:08:37Z",
+  "skill_file": "/home/user/ggen/scripts/claude-code-web-simulator/config/agent-skills/qa/code_linter.yaml",
+  "module": "skills-qa"
+}

@@ -1,0 +1,46 @@
+---
+name: namespace_resolver
+category: rdf_ontology
+version: "1.0.0"
+description: |
+  Resolves RDF namespace prefixes to IRIs. Manages namespace mappings, resolves
+  compact IRIs to full URIs, and handles namespace conflicts with priority-based
+  resolution. Supports dynamic namespace discovery from external sources.
+capabilities:
+  - Resolve namespace prefixes to IRIs
+  - Manage namespace mappings
+  - Handle namespace conflicts
+  - Discover external namespaces
+  - Validate IRI formats
+  - Generate namespace reports
+requirements:
+  memory_mb: 128
+  dependencies:
+    - serde_json
+    - url
+    - log
+  disk_mb: 30
+performance_slo:
+  max_duration_ms: 1000
+  success_rate: 0.995
+  throughput_resolutions_per_second: 10000
+implementation:
+  language: bash
+  entry_point: skill_namespace_resolver_resolve
+  module: skills-rdf.sh
+error_handling:
+  retry_strategy: linear
+  max_retries: 1
+  retry_delay_ms: 50
+  timeout_ms: 2000
+  fallback_behavior: return_unresolved
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.90
+documentation:
+  url: "https://docs.ggen.io/skills/namespace-resolver"
+  examples:
+    - "skill_namespace_resolver_resolve 'ex:Person' --mappings namespaces.json"
+    - "skill_namespace_resolver_resolve --discover-external 'rdf:'"
