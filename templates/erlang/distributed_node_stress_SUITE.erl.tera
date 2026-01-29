@@ -1,0 +1,1282 @@
+%%%-------------------------------------------------------------------
+%%% @doc
+%%% Distributed Node Stress Test Suite
+%%%
+%%% Comprehensive stress testing for Erlang distributed systems using
+%%% Docker containers. Tests cluster formation, inter-node messaging,
+%%% resource exhaustion, and failure scenarios at scale.
+%%%
+%%% Test Categories:
+%%% - Cluster Formation: Scale from 2 to 200+ nodes
+%%% - Inter-Node Messaging: RPC, global registry, broadcast patterns
+%%% - Resource Exhaustion: Memory, FDs, network, connections
+%%% - Failure Scenarios: Crashes, partitions, cascading failures
+%%%
+%%% @end
+%%%-------------------------------------------------------------------
+-module(distributed_node_stress_SUITE).
+
+-include_lib("common_test/include/ct.hrl").
+-include_lib("eunit/include/eunit.hrl").
+
+%% CT callbacks
+-export([
+    all/0,
+    init_per_suite/1,
+    end_per_suite/1,
+    init_per_testcase/2,
+    end_per_testcase/2
+]).
+
+%% Test cases - Cluster Formation
+-export([
+    test_cluster_formation_2_nodes/1,
+    test_cluster_formation_10_nodes/1,
+    test_cluster_formation_25_nodes/1,
+    test_cluster_formation_50_nodes/1,
+    test_cluster_formation_100_nodes/1,
+    test_cluster_formation_200_nodes/1
+]).
+
+%% Test cases - Inter-Node Messaging
+-export([
+    test_rpc_performance/1,
+    test_global_registry/1,
+    test_broadcast_messaging/1,
+    test_point_to_point/1
+]).
+
+%% Test cases - Resource Exhaustion
+-export([
+    test_memory_pressure_with_nodes/1,
+    test_file_descriptor_limits/1,
+    test_network_saturation/1,
+    test_connection_limit/1
+]).
+
+%% Test cases - Failure Scenarios
+-export([
+    test_node_failure_recovery/1,
+    test_network_partition/1,
+    test_cascading_failures/1,
+    test_leader_election_stress/1
+]).
+
+%% Configuration
+-define(ERLANG_IMAGE, "{{ erlang_image | default(value='erlang:26-alpine') }}").
+-define(NETWORK_NAME, "erlang_stress_test_net").
+-define(COOKIE, 'stress_test_cookie').
+-define(BASE_NODE_NAME, "test_node").
+-define(RPC_ITERATIONS, 10000).
+-define(MESSAGE_BATCH_SIZE, 1000).
+-define(FORMATION_TIMEOUT_MS, 300000). % 5 minutes for large clusters
+
+%%%===================================================================
+%%% CT Callbacks
+%%%===================================================================
+
+all() ->
+    [
+        % Cluster Formation Tests (ordered by complexity)
+        test_cluster_formation_2_nodes,
+        test_cluster_formation_10_nodes,
+        test_cluster_formation_25_nodes,
+        test_cluster_formation_50_nodes,
+        test_cluster_formation_100_nodes,
+        test_cluster_formation_200_nodes,
+
+        % Inter-Node Messaging Tests
+        test_rpc_performance,
+        test_global_registry,
+        test_broadcast_messaging,
+        test_point_to_point,
+
+        % Resource Exhaustion Tests
+        test_memory_pressure_with_nodes,
+        test_file_descriptor_limits,
+        test_network_saturation,
+        test_connection_limit,
+
+        % Failure Scenarios
+        test_node_failure_recovery,
+        test_network_partition,
+        test_cascading_failures,
+        test_leader_election_stress
+    ].
+
+init_per_suite(Config) ->
+    ct:print("~n=== Initializing Distributed Node Stress Test Suite ===~n"),
+
+    %% Arrange: Set up Docker network for tests
+    ct:print("Creating Docker network: ~s~n", [?NETWORK_NAME]),
+    NetworkCmd = lists:flatten(io_lib:format(
+        "docker network create ~s 2>/dev/null || true",
+        [?NETWORK_NAME]
+    )),
+    os:cmd(NetworkCmd),
+
+    %% Configure distributed Erlang for test node
+    ct:print("Configuring test node distribution~n"),
+    case net_kernel:start(['test_runner@127.0.0.1', longnames]) of
+        {ok, _} ->
+            ct:print("Test node started: ~p~n", [node()]);
+        {error, {already_started, _}} ->
+            ct:print("Test node already running: ~p~n", [node()]);
+        {error, Reason} ->
+            ct:fail("Failed to start test node: ~p", [Reason])
+    end,
+
+    erlang:set_cookie(node(), ?COOKIE),
+
+    ct:print("Test suite initialized successfully~n"),
+    [{network_name, ?NETWORK_NAME} | Config].
+
+end_per_suite(Config) ->
+    ct:print("~n=== Cleaning Up Distributed Node Stress Test Suite ===~n"),
+
+    NetworkName = ?config(network_name, Config),
+
+    %% Clean up any remaining containers
+    ct:print("Removing all test containers~n"),
+    os:cmd("docker ps -a --filter name=test_node --format '{{.Names}}' | xargs -r docker rm -f"),
+
+    %% Remove Docker network
+    ct:print("Removing Docker network: ~s~n", [NetworkName]),
+    NetworkCmd = lists:flatten(io_lib:format("docker network rm ~s 2>/dev/null || true", [NetworkName])),
+    os:cmd(NetworkCmd),
+
+    ct:print("Test suite cleanup completed~n"),
+    ok.
+
+init_per_testcase(TestCase, Config) ->
+    ct:print("~n--- Starting test case: ~p ---~n", [TestCase]),
+    StartTime = erlang:monotonic_time(millisecond),
+    [{test_start_time, StartTime}, {test_case, TestCase} | Config].
+
+end_per_testcase(TestCase, Config) ->
+    StartTime = ?config(test_start_time, Config),
+    EndTime = erlang:monotonic_time(millisecond),
+    Duration = EndTime - StartTime,
+
+    %% Cleanup any nodes created during test
+    Nodes = proplists:get_value(cluster_nodes, Config, []),
+    ct:print("Cleaning up ~p nodes from test~n", [length(Nodes)]),
+    cleanup_cluster(Nodes),
+
+    ct:print("--- Finished test case: ~p (Duration: ~p ms) ---~n~n", [TestCase, Duration]),
+    ok.
+
+%%%===================================================================
+%%% Cluster Formation Tests
+%%%===================================================================
+
+%% @doc Test baseline cluster formation with 2 nodes
+test_cluster_formation_2_nodes(Config) ->
+    %% Arrange
+    NumNodes = 2,
+    ct:print("=== Testing cluster formation with ~p nodes ===~n", [NumNodes]),
+
+    %% Act
+    {FormationTime, Nodes, Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Assert
+    ct:print("Formation completed in ~p ms~n", [FormationTime]),
+    ct:print("Nodes formed: ~p~n", [Nodes]),
+    print_metrics(Metrics),
+
+    ?assertEqual(NumNodes, length(Nodes), "All nodes should be created"),
+    ?assert(FormationTime < 30000, "Formation should complete within 30s"),
+    ?assert(all_nodes_connected(Nodes), "All nodes should be connected"),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%% @doc Test small cluster formation with 10 nodes
+test_cluster_formation_10_nodes(Config) ->
+    %% Arrange
+    NumNodes = 10,
+    ct:print("=== Testing cluster formation with ~p nodes ===~n", [NumNodes]),
+
+    %% Act
+    {FormationTime, Nodes, Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Assert
+    ct:print("Formation completed in ~p ms~n", [FormationTime]),
+    print_metrics(Metrics),
+
+    ?assertEqual(NumNodes, length(Nodes)),
+    ?assert(FormationTime < 60000, "Formation should complete within 60s"),
+    ?assert(all_nodes_connected(Nodes)),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%% @doc Test medium cluster formation with 25 nodes
+test_cluster_formation_25_nodes(Config) ->
+    %% Arrange
+    NumNodes = 25,
+    ct:print("=== Testing cluster formation with ~p nodes ===~n", [NumNodes]),
+
+    %% Act
+    {FormationTime, Nodes, Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Assert
+    ct:print("Formation completed in ~p ms~n", [FormationTime]),
+    print_metrics(Metrics),
+
+    ?assertEqual(NumNodes, length(Nodes)),
+    ?assert(FormationTime < 120000, "Formation should complete within 120s"),
+    ?assert(all_nodes_connected(Nodes)),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%% @doc Test large cluster formation with 50 nodes
+test_cluster_formation_50_nodes(Config) ->
+    %% Arrange
+    NumNodes = 50,
+    ct:print("=== Testing cluster formation with ~p nodes ===~n", [NumNodes]),
+
+    %% Act
+    {FormationTime, Nodes, Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Assert
+    ct:print("Formation completed in ~p ms~n", [FormationTime]),
+    print_metrics(Metrics),
+
+    ?assertEqual(NumNodes, length(Nodes)),
+    ?assert(FormationTime < 180000, "Formation should complete within 180s"),
+    ?assert(all_nodes_connected(Nodes)),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%% @doc Test very large cluster formation with 100 nodes
+test_cluster_formation_100_nodes(Config) ->
+    %% Arrange
+    NumNodes = 100,
+    ct:print("=== Testing cluster formation with ~p nodes ===~n", [NumNodes]),
+
+    %% Act
+    {FormationTime, Nodes, Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Assert
+    ct:print("Formation completed in ~p ms~n", [FormationTime]),
+    print_metrics(Metrics),
+
+    ?assertEqual(NumNodes, length(Nodes)),
+    ?assert(FormationTime < ?FORMATION_TIMEOUT_MS,
+            lists:flatten(io_lib:format("Formation should complete within ~ps",
+                                       [?FORMATION_TIMEOUT_MS div 1000]))),
+    ?assert(all_nodes_connected(Nodes)),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%% @doc Test extreme scale cluster formation with 200 nodes
+test_cluster_formation_200_nodes(Config) ->
+    %% Arrange
+    NumNodes = 200,
+    ct:print("=== Testing cluster formation with ~p nodes (EXTREME SCALE) ===~n", [NumNodes]),
+    ct:print("WARNING: This test may take several minutes~n"),
+
+    %% Act
+    {FormationTime, Nodes, Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Assert
+    ct:print("Formation completed in ~p ms (~p minutes)~n",
+             [FormationTime, FormationTime div 60000]),
+    print_metrics(Metrics),
+
+    ?assertEqual(NumNodes, length(Nodes)),
+    ?assert(FormationTime < ?FORMATION_TIMEOUT_MS * 2,
+            "Formation should complete within reasonable time"),
+
+    %% At this scale, full mesh may not be achievable
+    ConnectedCount = count_connected_nodes(Nodes),
+    ConnectivityRatio = ConnectedCount / NumNodes,
+    ct:print("Connectivity ratio: ~.2f% (~p/~p nodes connected)~n",
+             [ConnectivityRatio * 100, ConnectedCount, NumNodes]),
+
+    ?assert(ConnectivityRatio > 0.95,
+            "At least 95% of nodes should be connected"),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%%%===================================================================
+%%% Inter-Node Messaging Tests
+%%%===================================================================
+
+%% @doc Test RPC call performance across cluster
+test_rpc_performance(Config) ->
+    %% Arrange
+    NumNodes = 10,
+    ct:print("=== Testing RPC Performance with ~p nodes ===~n", [NumNodes]),
+
+    {_FormTime, Nodes, _Metrics} = measure_cluster_formation(NumNodes, Config),
+    ct:print("Cluster formed, starting RPC performance test~n"),
+
+    %% Act
+    ct:print("Executing ~p RPC calls...~n", [?RPC_ITERATIONS]),
+    StartTime = erlang:monotonic_time(microsecond),
+
+    Results = [begin
+        TargetNode = lists:nth(rand:uniform(length(Nodes)), Nodes),
+        case rpc:call(TargetNode, erlang, node, [], 5000) of
+            {badrpc, Reason} -> {error, Reason};
+            Node -> {ok, Node}
+        end
+    end || _ <- lists:seq(1, ?RPC_ITERATIONS)],
+
+    EndTime = erlang:monotonic_time(microsecond),
+    Duration = EndTime - StartTime,
+
+    %% Assert
+    SuccessCount = length([R || {ok, _} <- Results]),
+    ErrorCount = length([R || {error, _} <- Results]),
+
+    Throughput = (?RPC_ITERATIONS * 1000000) div Duration, % calls per second
+    AvgLatency = Duration / ?RPC_ITERATIONS, % microseconds
+
+    ct:print("RPC Performance Results:~n"),
+    ct:print("  Total calls: ~p~n", [?RPC_ITERATIONS]),
+    ct:print("  Successful: ~p (~.2f%)~n", [SuccessCount, (SuccessCount / ?RPC_ITERATIONS) * 100]),
+    ct:print("  Failed: ~p (~.2f%)~n", [ErrorCount, (ErrorCount / ?RPC_ITERATIONS) * 100]),
+    ct:print("  Duration: ~p ms~n", [Duration div 1000]),
+    ct:print("  Throughput: ~p calls/sec~n", [Throughput]),
+    ct:print("  Avg Latency: ~.2f µs~n", [AvgLatency]),
+
+    ?assert(SuccessCount > (?RPC_ITERATIONS * 0.95),
+            "At least 95% of RPC calls should succeed"),
+    ?assert(AvgLatency < 10000,
+            "Average latency should be under 10ms"),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%% @doc Test global process registry performance
+test_global_registry(Config) ->
+    %% Arrange
+    NumNodes = 5,
+    NumProcesses = 1000,
+    ct:print("=== Testing Global Registry with ~p nodes, ~p processes ===~n",
+             [NumNodes, NumProcesses]),
+
+    {_FormTime, Nodes, _Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Act
+    ct:print("Registering ~p global processes...~n", [NumProcesses]),
+    StartTime = erlang:monotonic_time(millisecond),
+
+    %% Register processes globally across nodes
+    RegisterResults = [begin
+        TargetNode = lists:nth(rand:uniform(length(Nodes)), Nodes),
+        Name = list_to_atom("global_proc_" ++ integer_to_list(I)),
+        case rpc:call(TargetNode, global, register_name,
+                     [Name, spawn(fun() -> timer:sleep(60000) end)], 10000) of
+            yes -> {ok, Name};
+            no -> {error, already_registered};
+            {badrpc, Reason} -> {error, Reason}
+        end
+    end || I <- lists:seq(1, NumProcesses)],
+
+    RegisterTime = erlang:monotonic_time(millisecond) - StartTime,
+
+    %% Test lookup performance
+    ct:print("Testing global lookups...~n"),
+    LookupStart = erlang:monotonic_time(microsecond),
+
+    LookupResults = [begin
+        Name = list_to_atom("global_proc_" ++ integer_to_list(I)),
+        case global:whereis_name(Name) of
+            undefined -> {error, not_found};
+            Pid when is_pid(Pid) -> {ok, Pid}
+        end
+    end || I <- lists:seq(1, min(100, NumProcesses))],
+
+    LookupTime = erlang:monotonic_time(microsecond) - LookupStart,
+
+    %% Assert
+    SuccessCount = length([R || {ok, _} <- RegisterResults]),
+    LookupSuccessCount = length([R || {ok, _} <- LookupResults]),
+
+    ct:print("Global Registry Results:~n"),
+    ct:print("  Registered: ~p/~p (~.2f%)~n",
+             [SuccessCount, NumProcesses, (SuccessCount / NumProcesses) * 100]),
+    ct:print("  Registration time: ~p ms~n", [RegisterTime]),
+    ct:print("  Lookups: ~p/~p successful~n",
+             [LookupSuccessCount, length(LookupResults)]),
+    ct:print("  Lookup time: ~p µs (~.2f µs per lookup)~n",
+             [LookupTime, LookupTime / length(LookupResults)]),
+
+    ?assert(SuccessCount > (NumProcesses * 0.90),
+            "At least 90% of registrations should succeed"),
+    ?assert(LookupSuccessCount > (length(LookupResults) * 0.95),
+            "At least 95% of lookups should succeed"),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%% @doc Test broadcast messaging patterns (one-to-many)
+test_broadcast_messaging(Config) ->
+    %% Arrange
+    NumNodes = 10,
+    NumMessages = 100,
+    ct:print("=== Testing Broadcast Messaging (~p nodes, ~p messages) ===~n",
+             [NumNodes, NumMessages]),
+
+    {_FormTime, Nodes, _Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Set up receivers on each node
+    ct:print("Setting up receivers on all nodes...~n"),
+    Receivers = [begin
+        Self = self(),
+        rpc:call(Node, erlang, spawn, [fun() ->
+            receiver_loop(Self, 0)
+        end])
+    end || Node <- Nodes],
+
+    %% Act
+    ct:print("Broadcasting ~p messages...~n", [NumMessages]),
+    StartTime = erlang:monotonic_time(microsecond),
+
+    [begin
+        Msg = {broadcast, I, erlang:monotonic_time(microsecond)},
+        [Pid ! Msg || Pid <- Receivers]
+    end || I <- lists:seq(1, NumMessages)],
+
+    %% Wait for confirmations
+    Confirmations = collect_confirmations(length(Receivers), NumMessages, 30000),
+
+    EndTime = erlang:monotonic_time(microsecond),
+    Duration = EndTime - StartTime,
+
+    %% Assert
+    TotalExpected = length(Receivers) * NumMessages,
+    TotalReceived = lists:sum([Count || {_Pid, Count} <- Confirmations]),
+
+    ct:print("Broadcast Results:~n"),
+    ct:print("  Messages sent: ~p~n", [NumMessages]),
+    ct:print("  Receivers: ~p~n", [length(Receivers)]),
+    ct:print("  Expected deliveries: ~p~n", [TotalExpected]),
+    ct:print("  Actual deliveries: ~p~n", [TotalReceived]),
+    ct:print("  Duration: ~p ms~n", [Duration div 1000]),
+    ct:print("  Throughput: ~p msgs/sec~n", [(TotalReceived * 1000000) div Duration]),
+
+    ?assert(TotalReceived > (TotalExpected * 0.95),
+            "At least 95% of broadcast messages should be delivered"),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%% @doc Test point-to-point messaging patterns
+test_point_to_point(Config) ->
+    %% Arrange
+    NumNodes = 10,
+    NumMessages = 10000,
+    ct:print("=== Testing Point-to-Point Messaging (~p nodes, ~p messages) ===~n",
+             [NumNodes, NumMessages]),
+
+    {_FormTime, Nodes, _Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Set up receivers
+    Receivers = [begin
+        Self = self(),
+        rpc:call(Node, erlang, spawn, [fun() ->
+            p2p_receiver_loop(Self, [])
+        end])
+    end || Node <- Nodes],
+
+    %% Act
+    ct:print("Sending ~p point-to-point messages...~n", [NumMessages]),
+    Latencies = lists:foldl(fun(I, Acc) ->
+        TargetPid = lists:nth(rand:uniform(length(Receivers)), Receivers),
+        SendTime = erlang:monotonic_time(microsecond),
+        TargetPid ! {p2p, self(), I, SendTime},
+
+        receive
+            {ack, I, SendTime} ->
+                RecvTime = erlang:monotonic_time(microsecond),
+                Latency = RecvTime - SendTime,
+                [Latency | Acc]
+        after 5000 ->
+            Acc
+        end
+    end, [], lists:seq(1, NumMessages)),
+
+    %% Assert
+    SuccessCount = length(Latencies),
+    SortedLatencies = lists:sort(Latencies),
+
+    P50 = percentile(SortedLatencies, 50),
+    P95 = percentile(SortedLatencies, 95),
+    P99 = percentile(SortedLatencies, 99),
+    AvgLatency = lists:sum(SortedLatencies) / length(SortedLatencies),
+
+    ct:print("Point-to-Point Results:~n"),
+    ct:print("  Messages sent: ~p~n", [NumMessages]),
+    ct:print("  Acknowledged: ~p (~.2f%)~n",
+             [SuccessCount, (SuccessCount / NumMessages) * 100]),
+    ct:print("  Latency P50: ~.2f µs~n", [P50]),
+    ct:print("  Latency P95: ~.2f µs~n", [P95]),
+    ct:print("  Latency P99: ~.2f µs~n", [P99]),
+    ct:print("  Latency Avg: ~.2f µs~n", [AvgLatency]),
+
+    ?assert(SuccessCount > (NumMessages * 0.95),
+            "At least 95% of messages should be acknowledged"),
+    ?assert(P99 < 100000, "P99 latency should be under 100ms"),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%%%===================================================================
+%%% Resource Exhaustion Tests
+%%%===================================================================
+
+%% @doc Test memory pressure with many nodes
+test_memory_pressure_with_nodes(Config) ->
+    %% Arrange
+    NumNodes = 20,
+    ct:print("=== Testing Memory Pressure with ~p nodes ===~n", [NumNodes]),
+
+    {_FormTime, Nodes, _Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Act: Allocate memory on each node
+    ct:print("Allocating memory on each node...~n"),
+    MemoryPerNode = 100 * 1024 * 1024, % 100 MB per node
+
+    AllocationResults = [begin
+        case rpc:call(Node, erlang, spawn, [fun() ->
+            %% Create large binary to consume memory
+            _Data = binary:copy(<<0>>, MemoryPerNode),
+            timer:sleep(60000)
+        end], 10000) of
+            Pid when is_pid(Pid) -> {ok, Node, Pid};
+            {badrpc, Reason} -> {error, Node, Reason}
+        end
+    end || Node <- Nodes],
+
+    timer:sleep(2000), % Allow memory allocation to settle
+
+    %% Collect memory metrics
+    MemoryMetrics = [begin
+        case rpc:call(Node, erlang, memory, [], 5000) of
+            {badrpc, _} -> {Node, undefined};
+            Mem -> {Node, proplists:get_value(total, Mem)}
+        end
+    end || Node <- Nodes],
+
+    %% Assert
+    SuccessCount = length([R || {ok, _, _} <- AllocationResults]),
+
+    ct:print("Memory Pressure Results:~n"),
+    ct:print("  Nodes: ~p~n", [NumNodes]),
+    ct:print("  Successful allocations: ~p/~p~n", [SuccessCount, NumNodes]),
+    ct:print("  Target memory per node: ~p MB~n", [MemoryPerNode div (1024 * 1024)]),
+
+    lists:foreach(fun({Node, Memory}) ->
+        case Memory of
+            undefined ->
+                ct:print("  ~p: Memory query failed~n", [Node]);
+            Bytes ->
+                ct:print("  ~p: ~p MB~n", [Node, Bytes div (1024 * 1024)])
+        end
+    end, MemoryMetrics),
+
+    ?assert(SuccessCount > (NumNodes * 0.80),
+            "At least 80% of nodes should handle memory allocation"),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%% @doc Test file descriptor limits
+test_file_descriptor_limits(Config) ->
+    %% Arrange
+    NumNodes = 5,
+    ConnectionsPerNode = 100,
+    ct:print("=== Testing File Descriptor Limits (~p nodes, ~p connections each) ===~n",
+             [NumNodes, ConnectionsPerNode]),
+
+    {_FormTime, Nodes, _Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Act: Open many ports/connections on each node
+    ct:print("Opening connections on each node...~n"),
+
+    ConnectionResults = [begin
+        case rpc:call(Node, erlang, spawn, [fun() ->
+            %% Open many ports to stress FD limits
+            _Ports = [erlang:open_port({spawn, "cat"}, []) ||
+                     _ <- lists:seq(1, ConnectionsPerNode)],
+            timer:sleep(60000)
+        end], 10000) of
+            Pid when is_pid(Pid) -> {ok, Node};
+            {badrpc, Reason} -> {error, Node, Reason}
+        end
+    end || Node <- Nodes],
+
+    timer:sleep(1000),
+
+    %% Check port counts
+    PortCounts = [begin
+        case rpc:call(Node, erlang, ports, [], 5000) of
+            {badrpc, _} -> {Node, 0};
+            Ports -> {Node, length(Ports)}
+        end
+    end || Node <- Nodes],
+
+    %% Assert
+    SuccessCount = length([R || {ok, _} <- ConnectionResults]),
+
+    ct:print("File Descriptor Test Results:~n"),
+    ct:print("  Nodes: ~p~n", [NumNodes]),
+    ct:print("  Target connections per node: ~p~n", [ConnectionsPerNode]),
+    ct:print("  Successful setups: ~p/~p~n", [SuccessCount, NumNodes]),
+
+    lists:foreach(fun({Node, Count}) ->
+        ct:print("  ~p: ~p ports open~n", [Node, Count])
+    end, PortCounts),
+
+    ?assert(SuccessCount >= (NumNodes div 2),
+            "At least half of nodes should handle connection load"),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%% @doc Test network saturation
+test_network_saturation(Config) ->
+    %% Arrange
+    NumNodes = 10,
+    MessageSize = 1024 * 1024, % 1 MB messages
+    NumMessages = 100,
+    ct:print("=== Testing Network Saturation (~p nodes, ~p x ~p MB) ===~n",
+             [NumNodes, NumMessages, MessageSize div (1024 * 1024)]),
+
+    {_FormTime, Nodes, _Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Act: Send large messages between nodes
+    ct:print("Generating network traffic...~n"),
+    LargeData = binary:copy(<<0>>, MessageSize),
+
+    StartTime = erlang:monotonic_time(millisecond),
+
+    SendResults = [begin
+        TargetNode = lists:nth(rand:uniform(length(Nodes)), Nodes),
+        case rpc:call(TargetNode, erlang, byte_size, [LargeData], 30000) of
+            Size when is_integer(Size) -> {ok, Size};
+            {badrpc, Reason} -> {error, Reason}
+        end
+    end || _ <- lists:seq(1, NumMessages)],
+
+    EndTime = erlang:monotonic_time(millisecond),
+    Duration = EndTime - StartTime,
+
+    %% Assert
+    SuccessCount = length([R || {ok, _} <- SendResults]),
+    TotalBytes = SuccessCount * MessageSize,
+    ThroughputMBps = (TotalBytes / (1024 * 1024)) / (Duration / 1000),
+
+    ct:print("Network Saturation Results:~n"),
+    ct:print("  Messages sent: ~p~n", [NumMessages]),
+    ct:print("  Successful: ~p (~.2f%)~n",
+             [SuccessCount, (SuccessCount / NumMessages) * 100]),
+    ct:print("  Total data transferred: ~p MB~n", [TotalBytes div (1024 * 1024)]),
+    ct:print("  Duration: ~p ms~n", [Duration]),
+    ct:print("  Throughput: ~.2f MB/s~n", [ThroughputMBps]),
+
+    ?assert(SuccessCount > (NumMessages * 0.70),
+            "At least 70% of large messages should be transferred"),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%% @doc Test connection limits per node
+test_connection_limit(Config) ->
+    %% Arrange
+    MaxConnections = 50,
+    ct:print("=== Testing Connection Limits (target: ~p connections) ===~n",
+             [MaxConnections]),
+
+    NetworkName = ?config(network_name, Config),
+
+    %% Act: Create nodes one by one until limit reached
+    ct:print("Creating nodes until connection limit...~n"),
+
+    Nodes = create_nodes_until_limit(MaxConnections, NetworkName, []),
+    ConnectedNodes = [N || N <- Nodes, net_adm:ping(N) =:= pong],
+
+    %% Assert
+    ActualConnections = length(ConnectedNodes),
+
+    ct:print("Connection Limit Results:~n"),
+    ct:print("  Target connections: ~p~n", [MaxConnections]),
+    ct:print("  Nodes created: ~p~n", [length(Nodes)]),
+    ct:print("  Actually connected: ~p~n", [ActualConnections]),
+    ct:print("  Connection ratio: ~.2f%~n",
+             [(ActualConnections / length(Nodes)) * 100]),
+
+    ?assert(ActualConnections >= 10,
+            "Should be able to establish at least 10 connections"),
+
+    %% Cleanup
+    cleanup_cluster(Nodes),
+
+    Config.
+
+%%%===================================================================
+%%% Failure Scenario Tests
+%%%===================================================================
+
+%% @doc Test node failure and cluster recovery
+test_node_failure_recovery(Config) ->
+    %% Arrange
+    NumNodes = 10,
+    NodesToKill = 3,
+    ct:print("=== Testing Node Failure Recovery (~p nodes, killing ~p) ===~n",
+             [NumNodes, NodesToKill]),
+
+    {_FormTime, Nodes, _Metrics} = measure_cluster_formation(NumNodes, Config),
+    InitialConnectivity = count_connected_nodes(Nodes),
+
+    ct:print("Initial connectivity: ~p/~p nodes~n", [InitialConnectivity, NumNodes]),
+
+    %% Act: Kill random nodes
+    NodesToKillList = lists:sublist(shuffle(Nodes), NodesToKill),
+    ct:print("Killing nodes: ~p~n", [NodesToKillList]),
+
+    lists:foreach(fun(Node) ->
+        NodeStr = atom_to_list(Node),
+        ContainerName = lists:last(string:split(NodeStr, "@", all)),
+        KillCmd = lists:flatten(io_lib:format("docker kill ~s 2>/dev/null", [ContainerName])),
+        os:cmd(KillCmd)
+    end, NodesToKillList),
+
+    timer:sleep(5000), % Allow cluster to detect failures
+
+    %% Check recovery
+    RemainingNodes = Nodes -- NodesToKillList,
+    RecoveredConnectivity = count_connected_nodes(RemainingNodes),
+
+    %% Assert
+    ExpectedRemaining = NumNodes - NodesToKill,
+
+    ct:print("Node Failure Recovery Results:~n"),
+    ct:print("  Initial nodes: ~p~n", [NumNodes]),
+    ct:print("  Killed nodes: ~p~n", [NodesToKill]),
+    ct:print("  Expected remaining: ~p~n", [ExpectedRemaining]),
+    ct:print("  Actually connected: ~p~n", [RecoveredConnectivity]),
+    ct:print("  Recovery ratio: ~.2f%~n",
+             [(RecoveredConnectivity / ExpectedRemaining) * 100]),
+
+    ?assert(RecoveredConnectivity >= ExpectedRemaining - 1,
+            "Remaining nodes should maintain connectivity"),
+
+    [{cluster_nodes, RemainingNodes} | Config].
+
+%% @doc Test network partition (split-brain)
+test_network_partition(Config) ->
+    %% Arrange
+    NumNodes = 8,
+    ct:print("=== Testing Network Partition (split-brain with ~p nodes) ===~n",
+             [NumNodes]),
+
+    {_FormTime, Nodes, _Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Act: Create partition by disconnecting half the nodes
+    SplitPoint = NumNodes div 2,
+    Partition1 = lists:sublist(Nodes, SplitPoint),
+    Partition2 = lists:nthtail(SplitPoint, Nodes),
+
+    ct:print("Creating partition:~n"),
+    ct:print("  Partition 1: ~p nodes~n", [length(Partition1)]),
+    ct:print("  Partition 2: ~p nodes~n", [length(Partition2)]),
+
+    %% Disconnect nodes between partitions
+    lists:foreach(fun(Node1) ->
+        lists:foreach(fun(Node2) ->
+            rpc:call(Node1, erlang, disconnect_node, [Node2])
+        end, Partition2)
+    end, Partition1),
+
+    timer:sleep(2000), % Allow partition to stabilize
+
+    %% Check partition isolation
+    P1_Connectivity = count_connected_nodes(Partition1),
+    P2_Connectivity = count_connected_nodes(Partition2),
+
+    ct:print("Partition established:~n"),
+    ct:print("  Partition 1 connectivity: ~p/~p~n",
+             [P1_Connectivity, length(Partition1)]),
+    ct:print("  Partition 2 connectivity: ~p/~p~n",
+             [P2_Connectivity, length(Partition2)]),
+
+    %% Act: Heal partition
+    ct:print("Healing partition...~n"),
+    lists:foreach(fun(Node1) ->
+        lists:foreach(fun(Node2) ->
+            rpc:call(Node1, net_kernel, connect_node, [Node2])
+        end, Partition2)
+    end, Partition1),
+
+    timer:sleep(3000), % Allow healing
+
+    %% Assert
+    FinalConnectivity = count_connected_nodes(Nodes),
+
+    ct:print("Network Partition Results:~n"),
+    ct:print("  Initial nodes: ~p~n", [NumNodes]),
+    ct:print("  After partition - P1: ~p, P2: ~p~n",
+             [P1_Connectivity, P2_Connectivity]),
+    ct:print("  After healing: ~p/~p connected~n", [FinalConnectivity, NumNodes]),
+    ct:print("  Recovery ratio: ~.2f%~n", [(FinalConnectivity / NumNodes) * 100]),
+
+    ?assert(P1_Connectivity >= length(Partition1) - 1,
+            "Partition 1 should maintain internal connectivity"),
+    ?assert(P2_Connectivity >= length(Partition2) - 1,
+            "Partition 2 should maintain internal connectivity"),
+    ?assert(FinalConnectivity > NumNodes * 0.80,
+            "At least 80% of nodes should reconnect after healing"),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%% @doc Test cascading failures
+test_cascading_failures(Config) ->
+    %% Arrange
+    NumNodes = 15,
+    ct:print("=== Testing Cascading Failures (~p nodes) ===~n", [NumNodes]),
+
+    {_FormTime, Nodes, _Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Act: Kill nodes one by one, observing cascade effects
+    ct:print("Simulating cascading failures...~n"),
+
+    FailureSequence = lists:foldl(fun(I, {Remaining, Results}) ->
+        case Remaining of
+            [] -> {[], Results};
+            _ ->
+                VictimNode = hd(Remaining),
+                NodeStr = atom_to_list(VictimNode),
+                ContainerName = lists:last(string:split(NodeStr, "@", all)),
+
+                ct:print("  Failure ~p: Killing ~p~n", [I, VictimNode]),
+                KillCmd = lists:flatten(io_lib:format("docker kill ~s 2>/dev/null",
+                                                      [ContainerName])),
+                os:cmd(KillCmd),
+
+                timer:sleep(1000), % Brief pause between failures
+
+                NewRemaining = tl(Remaining),
+                Connectivity = count_connected_nodes(NewRemaining),
+
+                Result = #{
+                    iteration => I,
+                    killed => VictimNode,
+                    remaining => length(NewRemaining),
+                    connected => Connectivity
+                },
+
+                {NewRemaining, [Result | Results]}
+        end
+    end, {Nodes, []}, lists:seq(1, min(5, NumNodes))),
+
+    {_FinalNodes, Sequence} = FailureSequence,
+
+    %% Assert
+    ct:print("Cascading Failure Results:~n"),
+    lists:foreach(fun(#{iteration := I, killed := Killed,
+                       remaining := Rem, connected := Conn}) ->
+        ct:print("  Step ~p: Killed ~p, ~p/~p still connected (~.1f%)~n",
+                [I, Killed, Conn, Rem, (Conn / max(1, Rem)) * 100])
+    end, lists:reverse(Sequence)),
+
+    %% Check that failures didn't cause complete collapse
+    FinalResult = hd(Sequence),
+    FinalConnectivity = maps:get(connected, FinalResult),
+    FinalRemaining = maps:get(remaining, FinalResult),
+
+    ?assert(FinalConnectivity >= (FinalRemaining div 2),
+            "At least half of remaining nodes should stay connected"),
+
+    Config.
+
+%% @doc Test leader election under stress
+test_leader_election_stress(Config) ->
+    %% Arrange
+    NumNodes = 10,
+    ElectionRounds = 20,
+    ct:print("=== Testing Leader Election Under Stress (~p nodes, ~p rounds) ===~n",
+             [NumNodes, ElectionRounds]),
+
+    {_FormTime, Nodes, _Metrics} = measure_cluster_formation(NumNodes, Config),
+
+    %% Act: Perform multiple leader elections with node failures
+    ct:print("Running leader election stress test...~n"),
+
+    ElectionResults = lists:foldl(fun(Round, Acc) ->
+        ct:print("  Election round ~p...~n", [Round]),
+
+        %% Start election process on all nodes
+        ElectionStart = erlang:monotonic_time(millisecond),
+
+        Votes = [begin
+            case rpc:call(Node, erlang, spawn, [fun() ->
+                %% Simple leader election: node with lowest name wins
+                timer:sleep(rand:uniform(100)),
+                lists:min(Nodes)
+            end], 5000) of
+                Pid when is_pid(Pid) ->
+                    receive
+                        {_From, Leader} -> Leader
+                    after 2000 ->
+                        undefined
+                    end;
+                _ -> undefined
+            end
+        end || Node <- Nodes],
+
+        ElectionTime = erlang:monotonic_time(millisecond) - ElectionStart,
+
+        %% Count votes
+        ValidVotes = [V || V <- Votes, V =/= undefined],
+        Consensus = case ValidVotes of
+            [] -> false;
+            _ ->
+                MostCommon = lists:max([{length([V || V <- ValidVotes, V =:= X]), X}
+                                       || X <- lists:usort(ValidVotes)]),
+                {Count, _Leader} = MostCommon,
+                Count > (length(Nodes) div 2)
+        end,
+
+        Result = #{
+            round => Round,
+            votes => length(ValidVotes),
+            consensus => Consensus,
+            time_ms => ElectionTime
+        },
+
+        %% Randomly kill a node to stress the system
+        if Round rem 4 =:= 0 andalso length(Nodes) > 5 ->
+            VictimNode = lists:nth(rand:uniform(length(Nodes)), Nodes),
+            NodeStr = atom_to_list(VictimNode),
+            ContainerName = lists:last(string:split(NodeStr, "@", all)),
+            os:cmd(lists:flatten(io_lib:format("docker kill ~s 2>/dev/null",
+                                               [ContainerName])));
+           true -> ok
+        end,
+
+        [Result | Acc]
+    end, [], lists:seq(1, ElectionRounds)),
+
+    %% Assert
+    ConsensusCount = length([R || #{consensus := true} <- ElectionResults]),
+    AvgElectionTime = lists:sum([maps:get(time_ms, R) || R <- ElectionResults])
+                      / length(ElectionResults),
+
+    ct:print("Leader Election Stress Results:~n"),
+    ct:print("  Total rounds: ~p~n", [ElectionRounds]),
+    ct:print("  Consensus achieved: ~p (~.1f%)~n",
+             [ConsensusCount, (ConsensusCount / ElectionRounds) * 100]),
+    ct:print("  Avg election time: ~.1f ms~n", [AvgElectionTime]),
+
+    lists:foreach(fun(#{round := R, votes := V, consensus := C, time_ms := T}) ->
+        Status = case C of true -> "✓"; false -> "✗" end,
+        ct:print("  Round ~2p: ~s  ~p votes, ~p ms~n", [R, Status, V, T])
+    end, lists:reverse(ElectionResults)),
+
+    ?assert(ConsensusCount > (ElectionRounds * 0.60),
+            "At least 60% of elections should reach consensus under stress"),
+    ?assert(AvgElectionTime < 5000,
+            "Average election time should be reasonable"),
+
+    [{cluster_nodes, Nodes} | Config].
+
+%%%===================================================================
+%%% Helper Functions
+%%%===================================================================
+
+%% @doc Measure cluster formation time and metrics
+measure_cluster_formation(NumNodes, Config) ->
+    NetworkName = ?config(network_name, Config),
+
+    ct:print("Starting cluster formation for ~p nodes...~n", [NumNodes]),
+    StartTime = erlang:monotonic_time(millisecond),
+
+    %% Start containers
+    Nodes = start_node_cluster(NumNodes, NetworkName),
+
+    %% Connect cluster
+    ConnectStart = erlang:monotonic_time(millisecond),
+    connect_cluster(Nodes),
+    ConnectTime = erlang:monotonic_time(millisecond) - ConnectStart,
+
+    %% Collect metrics
+    Metrics = collect_metrics(Nodes),
+
+    FormationTime = erlang:monotonic_time(millisecond) - StartTime,
+
+    ct:print("Cluster formation completed:~n"),
+    ct:print("  Formation time: ~p ms~n", [FormationTime]),
+    ct:print("  Connection time: ~p ms~n", [ConnectTime]),
+    ct:print("  Nodes created: ~p~n", [length(Nodes)]),
+
+    {FormationTime, Nodes, Metrics}.
+
+%% @doc Start N Erlang nodes in Docker containers
+start_node_cluster(NumNodes, NetworkName) ->
+    ct:print("Starting ~p Docker containers...~n", [NumNodes]),
+
+    Nodes = lists:map(fun(I) ->
+        NodeName = lists:flatten(io_lib:format("~s_~p", [?BASE_NODE_NAME, I])),
+        ContainerName = NodeName,
+
+        %% Build docker run command
+        DockerCmd = lists:flatten(io_lib:format(
+            "docker run -d --name ~s --network ~s "
+            "-e NODE_NAME=~s@~s "
+            "-e COOKIE=~s "
+            "~s "
+            "erl -name ~s@~s -setcookie ~s -noshell",
+            [ContainerName, NetworkName,
+             NodeName, ContainerName,
+             ?COOKIE,
+             ?ERLANG_IMAGE,
+             NodeName, ContainerName,
+             ?COOKIE]
+        )),
+
+        %% Start container
+        case os:cmd(DockerCmd) of
+            "" ->
+                ct:print("  Warning: Failed to start ~s~n", [NodeName]),
+                undefined;
+            _ContainerId ->
+                Node = list_to_atom(NodeName ++ "@" ++ ContainerName),
+                ct:print("  Started: ~p~n", [Node]),
+                timer:sleep(100), % Brief pause between starts
+                Node
+        end
+    end, lists:seq(1, NumNodes)),
+
+    %% Filter out failed starts
+    ValidNodes = [N || N <- Nodes, N =/= undefined],
+
+    ct:print("Successfully started ~p/~p nodes~n", [length(ValidNodes), NumNodes]),
+    ValidNodes.
+
+%% @doc Connect all nodes in a cluster (mesh topology)
+connect_cluster(Nodes) ->
+    ct:print("Connecting ~p nodes in mesh topology...~n", [length(Nodes)]),
+
+    %% Give nodes time to start
+    timer:sleep(2000),
+
+    %% Connect each node to all others
+    ConnectResults = lists:foldl(fun(Node, Acc) ->
+        Results = lists:map(fun(OtherNode) ->
+            case Node =:= OtherNode of
+                true -> skipped;
+                false ->
+                    case net_adm:ping(Node) of
+                        pong ->
+                            case rpc:call(Node, net_kernel, connect_node,
+                                        [OtherNode], 5000) of
+                                true -> success;
+                                false -> failed;
+                                {badrpc, Reason} -> {error, Reason}
+                            end;
+                        pang ->
+                            node_unreachable
+                    end
+            end
+        end, Nodes),
+        [Results | Acc]
+    end, [], Nodes),
+
+    SuccessCount = length([R || Results <- ConnectResults,
+                               R <- Results, R =:= success]),
+    TotalAttempts = length(Nodes) * (length(Nodes) - 1),
+
+    ct:print("Connection results: ~p/~p successful (~.1f%)~n",
+             [SuccessCount, TotalAttempts,
+              (SuccessCount / max(1, TotalAttempts)) * 100]),
+
+    ok.
+
+%% @doc Collect metrics from all nodes
+collect_metrics(Nodes) ->
+    ct:print("Collecting metrics from ~p nodes...~n", [length(Nodes)]),
+
+    Metrics = lists:map(fun(Node) ->
+        case net_adm:ping(Node) of
+            pong ->
+                Memory = case rpc:call(Node, erlang, memory, [], 5000) of
+                    {badrpc, _} -> undefined;
+                    Mem -> proplists:get_value(total, Mem)
+                end,
+
+                ProcessCount = case rpc:call(Node, erlang, system_info,
+                                           [process_count], 5000) of
+                    {badrpc, _} -> undefined;
+                    Count -> Count
+                end,
+
+                Connections = case rpc:call(Node, erlang, nodes, [], 5000) of
+                    {badrpc, _} -> [];
+                    NodeList -> NodeList
+                end,
+
+                #{
+                    node => Node,
+                    reachable => true,
+                    memory_bytes => Memory,
+                    process_count => ProcessCount,
+                    connected_nodes => length(Connections)
+                };
+            pang ->
+                #{
+                    node => Node,
+                    reachable => false
+                }
+        end
+    end, Nodes),
+
+    Metrics.
+
+%% @doc Print collected metrics
+print_metrics(Metrics) ->
+    ct:print("~nCluster Metrics:~n"),
+
+    ReachableNodes = [M || M <- Metrics, maps:get(reachable, M) =:= true],
+
+    ct:print("  Reachable nodes: ~p/~p~n",
+             [length(ReachableNodes), length(Metrics)]),
+
+    case ReachableNodes of
+        [] ->
+            ct:print("  No metrics available~n");
+        _ ->
+            TotalMemory = lists:sum([maps:get(memory_bytes, M, 0)
+                                    || M <- ReachableNodes]),
+            AvgMemory = TotalMemory / length(ReachableNodes),
+
+            TotalProcesses = lists:sum([maps:get(process_count, M, 0)
+                                       || M <- ReachableNodes]),
+
+            TotalConnections = lists:sum([maps:get(connected_nodes, M, 0)
+                                         || M <- ReachableNodes]),
+            AvgConnections = TotalConnections / length(ReachableNodes),
+
+            ct:print("  Total memory: ~p MB~n",
+                    [TotalMemory div (1024 * 1024)]),
+            ct:print("  Avg memory per node: ~.2f MB~n",
+                    [AvgMemory / (1024 * 1024)]),
+            ct:print("  Total processes: ~p~n", [TotalProcesses]),
+            ct:print("  Avg connections per node: ~.2f~n", [AvgConnections])
+    end,
+
+    ok.
+
+%% @doc Check if all nodes are fully connected
+all_nodes_connected(Nodes) ->
+    Results = lists:map(fun(Node) ->
+        case rpc:call(Node, erlang, nodes, [], 5000) of
+            {badrpc, _} -> false;
+            ConnectedNodes ->
+                %% Node should be connected to all others
+                length(ConnectedNodes) >= length(Nodes) - 1
+        end
+    end, Nodes),
+
+    lists:all(fun(R) -> R =:= true end, Results).
+
+%% @doc Count how many nodes are reachable
+count_connected_nodes(Nodes) ->
+    length([N || N <- Nodes, net_adm:ping(N) =:= pong]).
+
+%% @doc Create nodes until connection limit reached
+create_nodes_until_limit(MaxNodes, NetworkName, Acc) when length(Acc) >= MaxNodes ->
+    Acc;
+create_nodes_until_limit(MaxNodes, NetworkName, Acc) ->
+    I = length(Acc) + 1,
+    NodeName = lists:flatten(io_lib:format("~s_~p", [?BASE_NODE_NAME, I])),
+    ContainerName = NodeName,
+
+    DockerCmd = lists:flatten(io_lib:format(
+        "docker run -d --name ~s --network ~s "
+        "~s erl -name ~s@~s -setcookie ~s -noshell",
+        [ContainerName, NetworkName, ?ERLANG_IMAGE,
+         NodeName, ContainerName, ?COOKIE]
+    )),
+
+    case os:cmd(DockerCmd) of
+        "" -> Acc; % Failed to create, stop
+        _ContainerId ->
+            Node = list_to_atom(NodeName ++ "@" ++ ContainerName),
+            timer:sleep(500),
+
+            case net_adm:ping(Node) of
+                pong -> create_nodes_until_limit(MaxNodes, NetworkName, [Node | Acc]);
+                pang -> Acc % Connection failed, stop
+            end
+    end.
+
+%% @doc Cleanup cluster nodes
+cleanup_cluster(Nodes) ->
+    ct:print("Cleaning up ~p nodes...~n", [length(Nodes)]),
+
+    lists:foreach(fun(Node) ->
+        NodeStr = atom_to_list(Node),
+        case string:split(NodeStr, "@", all) of
+            [_, ContainerName] ->
+                KillCmd = lists:flatten(io_lib:format("docker kill ~s 2>/dev/null",
+                                                      [ContainerName])),
+                RmCmd = lists:flatten(io_lib:format("docker rm -f ~s 2>/dev/null",
+                                                    [ContainerName])),
+                os:cmd(KillCmd),
+                os:cmd(RmCmd);
+            _ ->
+                ok
+        end
+    end, Nodes),
+
+    ok.
+
+%% @doc Calculate percentile from sorted list
+percentile([], _) -> 0.0;
+percentile(SortedList, Percentile) ->
+    Index = round((Percentile / 100) * length(SortedList)),
+    case Index of
+        0 -> hd(SortedList);
+        N when N > length(SortedList) -> lists:last(SortedList);
+        N -> lists:nth(N, SortedList)
+    end.
+
+%% @doc Shuffle list (Fisher-Yates)
+shuffle(List) ->
+    [X || {_, X} <- lists:sort([{rand:uniform(), E} || E <- List])].
+
+%% @doc Receiver loop for broadcast test
+receiver_loop(Parent, Count) ->
+    receive
+        {broadcast, _Id, _Timestamp} ->
+            receiver_loop(Parent, Count + 1);
+        {get_count, From} ->
+            From ! {count, Count},
+            receiver_loop(Parent, Count)
+    after 30000 ->
+        Parent ! {receiver_done, self(), Count}
+    end.
+
+%% @doc Point-to-point receiver loop
+p2p_receiver_loop(Parent, Latencies) ->
+    receive
+        {p2p, From, Id, SendTime} ->
+            From ! {ack, Id, SendTime},
+            p2p_receiver_loop(Parent, Latencies);
+        {get_latencies, From} ->
+            From ! {latencies, Latencies},
+            p2p_receiver_loop(Parent, Latencies)
+    after 30000 ->
+        ok
+    end.
+
+%% @doc Collect confirmations from receivers
+collect_confirmations(NumReceivers, ExpectedPerReceiver, Timeout) ->
+    collect_confirmations(NumReceivers, ExpectedPerReceiver, Timeout, []).
+
+collect_confirmations(0, _, _, Acc) ->
+    Acc;
+collect_confirmations(N, Expected, Timeout, Acc) ->
+    receive
+        {receiver_done, Pid, Count} ->
+            collect_confirmations(N - 1, Expected, Timeout, [{Pid, Count} | Acc])
+    after Timeout ->
+        Acc
+    end.

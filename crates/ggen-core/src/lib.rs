@@ -117,15 +117,19 @@
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
 pub mod audit;
+pub mod benchmarks; // Performance benchmarking infrastructure
 pub mod cache;
+pub mod ci; // CI/CD workflow generation
 pub mod cli_generator;
 pub mod codegen;
 pub mod config;
 pub mod delta;
+pub mod docker; // Docker Compose generation from RDF
 pub mod drift; // Drift detection for ontology changes
 #[cfg(test)]
 pub mod e2e_tests;
 pub mod generator;
+pub mod testing; // Chaos engineering and failure injection
 pub mod github;
 pub mod gpack;
 pub mod graph;
@@ -134,6 +138,7 @@ pub mod lifecycle;
 pub mod lockfile;
 pub mod manifest;
 pub mod merge;
+pub mod monitoring;
 pub mod parallel_generator;
 // Ontology system - re-enabled after oxigraph API compatibility fixes
 pub mod ontology;

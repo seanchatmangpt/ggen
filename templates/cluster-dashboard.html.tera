@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erlang Cluster Stress Testing Dashboard</title>
+
+    <!-- Chart.js for performance metrics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- D3.js for topology visualization -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --card-background: #ffffff;
+            --text-color: #2c3e50;
+            --border-color: #bdc3c7;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-left: 15px;
+        }
+
+        .status-connected {
+            background-color: var(--success-color);
+        }
+
+        .status-disconnected {
+            background-color: var(--danger-color);
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .control-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .control-group input,
+        .control-group select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1a252f;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #1e8449;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #ca6f1e;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-card {
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        /* Topology View */
+        .topology-container {
+            grid-column: 1 / -1;
+            min-height: 500px;
+        }
+
+        #topology-svg {
+            width: 100%;
+            height: 500px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: #f8f9fa;
+        }
+
+        /* Metrics Table */
+        .metrics-table-container {
+            overflow-x: auto;
+        }
+
+        #cluster-metrics {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        #cluster-metrics th,
+        #cluster-metrics td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        #cluster-metrics th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+
+        #cluster-metrics tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Chart Containers */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 15px;
+        }
+
+        /* Event Log */
+        .event-log {
+            grid-column: 1 / -1;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .event-item {
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .event-info {
+            background-color: #d1ecf1;
+            border-left: 4px solid #0c5460;
+        }
+
+        .event-success {
+            background-color: #d4edda;
+            border-left: 4px solid #155724;
+        }
+
+        .event-warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #856404;
+        }
+
+        .event-error {
+            background-color: #f8d7da;
+            border-left: 4px solid #721c24;
+        }
+
+        .timestamp {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .status-badge {
+                display: block;
+                margin: 10px 0 0 0;
+                text-align: center;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Node Health Colors */
+        .node-healthy { fill: var(--success-color); }
+        .node-degraded { fill: var(--warning-color); }
+        .node-failed { fill: var(--danger-color); }
+
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+            stroke-width: 2px;
+        }
+
+        .link-active {
+            stroke: var(--primary-color);
+            stroke-width: 3px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { stroke-opacity: 0.6; }
+            50% { stroke-opacity: 1.0; }
+        }
+
+        .node-label {
+            font-size: 12px;
+            font-weight: bold;
+            fill: var(--text-color);
+            text-anchor: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Erlang Cluster Stress Testing Dashboard</h1>
+            <span id="connection-status" class="status-badge status-disconnected">Disconnected</span>
+            <span id="cluster-info"></span>
+        </header>
+
+        <!-- Control Panel -->
+        <section class="control-panel">
+            <h2>Control Panel</h2>
+
+            <div class="control-group">
+                <label for="node-count">Node Count:</label>
+                <input type="number" id="node-count" min="2" max="100" value="5">
+
+                <button class="btn btn-success" id="spawn-cluster">
+                    <span>🚀</span> Spawn Cluster
+                </button>
+
+                <label for="scenario-selector">Stress Test Scenario:</label>
+                <select id="scenario-selector">
+                    <option value="baseline">Baseline Load</option>
+                    <option value="heavy">Heavy Load</option>
+                    <option value="burst">Burst Traffic</option>
+                    <option value="sustained">Sustained High Load</option>
+                    <option value="chaos">Chaos Engineering</option>
+                </select>
+
+                <button class="btn btn-primary" id="run-stress-test" disabled>
+                    <span>⚡</span> Run Stress Test
+                </button>
+            </div>
+
+            <div class="control-group">
+                <label for="node-selector">Target Node:</label>
+                <select id="node-selector">
+                    <option value="">Select Node...</option>
+                </select>
+
+                <button class="btn btn-danger" id="simulate-failure" disabled>
+                    <span>💥</span> Simulate Failure
+                </button>
+
+                <button class="btn btn-warning" id="export-metrics">
+                    <span>📥</span> Export Metrics
+                </button>
+            </div>
+        </section>
+
+        <!-- Topology View -->
+        <section class="dashboard-card topology-container">
+            <h2>Cluster Topology</h2>
+            <svg id="topology-svg"></svg>
+        </section>
+
+        <!-- Performance Metrics -->
+        <div class="dashboard-grid">
+            <!-- Formation Time Chart -->
+            <div class="dashboard-card">
+                <h2>Formation Time</h2>
+                <div class="chart-container">
+                    <canvas id="formation-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Throughput Chart -->
+            <div class="dashboard-card">
+                <h2>Throughput (msgs/sec)</h2>
+                <div class="chart-container">
+                    <canvas id="throughput-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Latency Distribution -->
+            <div class="dashboard-card">
+                <h2>Latency Distribution (ms)</h2>
+                <div class="chart-container">
+                    <canvas id="latency-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Resource Usage -->
+            <div class="dashboard-card">
+                <h2>Resource Usage</h2>
+                <div class="chart-container">
+                    <canvas id="resource-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Metrics Table -->
+        <section class="dashboard-card">
+            <h2>Live Metrics</h2>
+            <div class="metrics-table-container">
+                <table id="cluster-metrics">
+                    <thead>
+                        <tr>
+                            <th>Cluster Size</th>
+                            <th>Formation Time (s)</th>
+                            <th>Memory (MB)</th>
+                            <th>Throughput (msgs/sec)</th>
+                            <th>Latency P50 (ms)</th>
+                            <th>Latency P95 (ms)</th>
+                            <th>Latency P99 (ms)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="metrics-body">
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 40px;">
+                                No data available. Spawn a cluster to begin.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Event Log -->
+        <section class="dashboard-card event-log">
+            <h2>Event Log</h2>
+            <div id="event-log-container">
+                <div class="event-item event-info">
+                    <span class="timestamp">[{{ timestamp }}]</span>
+                    Dashboard initialized. Waiting for WebSocket connection...
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // WebSocket Connection
+        let ws = null;
+        let clusterData = { nodes: [], links: [], metrics: [] };
+        let charts = {};
+
+        // Initialize WebSocket
+        function initWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws`;
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                updateConnectionStatus(true);
+                logEvent('Connected to backend', 'success');
+            };
+
+            ws.onclose = () => {
+                updateConnectionStatus(false);
+                logEvent('Disconnected from backend. Reconnecting...', 'warning');
+                setTimeout(initWebSocket, 3000);
+            };
+
+            ws.onerror = (error) => {
+                logEvent(`WebSocket error: ${error.message}`, 'error');
+            };
+
+            ws.onmessage = (event) => {
+                handleWebSocketMessage(JSON.parse(event.data));
+            };
+        }
+
+        // Handle WebSocket Messages
+        function handleWebSocketMessage(data) {
+            switch (data.type) {
+                case 'cluster_spawned':
+                    handleClusterSpawned(data.payload);
+                    break;
+                case 'node_joined':
+                    handleNodeJoined(data.payload);
+                    break;
+                case 'node_left':
+                    handleNodeLeft(data.payload);
+                    break;
+                case 'message_sent':
+                    handleMessageSent(data.payload);
+                    break;
+                case 'metrics_update':
+                    handleMetricsUpdate(data.payload);
+                    break;
+                case 'stress_test_result':
+                    handleStressTestResult(data.payload);
+                    break;
+                default:
+                    console.warn('Unknown message type:', data.type);
+            }
+        }
+
+        // Connection Status
+        function updateConnectionStatus(connected) {
+            const statusEl = document.getElementById('connection-status');
+            if (connected) {
+                statusEl.textContent = 'Connected';
+                statusEl.className = 'status-badge status-connected';
+                document.getElementById('spawn-cluster').disabled = false;
+            } else {
+                statusEl.textContent = 'Disconnected';
+                statusEl.className = 'status-badge status-disconnected';
+                document.getElementById('spawn-cluster').disabled = true;
+                document.getElementById('run-stress-test').disabled = true;
+            }
+        }
+
+        // Event Logging
+        function logEvent(message, type = 'info') {
+            const container = document.getElementById('event-log-container');
+            const eventItem = document.createElement('div');
+            const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+
+            eventItem.className = `event-item event-${type}`;
+            eventItem.innerHTML = `<span class="timestamp">[${timestamp}]</span>${message}`;
+
+            container.insertBefore(eventItem, container.firstChild);
+
+            // Keep only last 50 events
+            while (container.children.length > 50) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        // D3.js Topology Visualization
+        let simulation;
+        function initTopology() {
+            const svg = d3.select('#topology-svg');
+            const width = svg.node().clientWidth;
+            const height = svg.node().clientHeight;
+
+            svg.selectAll('*').remove();
+
+            simulation = d3.forceSimulation(clusterData.nodes)
+                .force('link', d3.forceLink(clusterData.links).id(d => d.id).distance(100))
+                .force('charge', d3.forceManyBody().strength(-300))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide().radius(40));
+
+            const link = svg.append('g')
+                .selectAll('line')
+                .data(clusterData.links)
+                .enter().append('line')
+                .attr('class', 'link');
+
+            const node = svg.append('g')
+                .selectAll('circle')
+                .data(clusterData.nodes)
+                .enter().append('circle')
+                .attr('r', 20)
+                .attr('class', d => `node-${d.health}`)
+                .call(d3.drag()
+                    .on('start', dragStarted)
+                    .on('drag', dragged)
+                    .on('end', dragEnded));
+
+            const label = svg.append('g')
+                .selectAll('text')
+                .data(clusterData.nodes)
+                .enter().append('text')
+                .attr('class', 'node-label')
+                .attr('dy', 35)
+                .text(d => d.name);
+
+            simulation.on('tick', () => {
+                link.attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                node.attr('cx', d => d.x)
+                    .attr('cy', d => d.y);
+
+                label.attr('x', d => d.x)
+                     .attr('y', d => d.y);
+            });
+
+            function dragStarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragEnded(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+
+        // Update Topology
+        function updateTopology() {
+            const svg = d3.select('#topology-svg');
+
+            svg.selectAll('circle')
+                .data(clusterData.nodes, d => d.id)
+                .attr('class', d => `node-${d.health}`);
+
+            simulation.nodes(clusterData.nodes);
+            simulation.force('link').links(clusterData.links);
+            simulation.alpha(0.3).restart();
+        }
+
+        // Initialize Charts
+        function initCharts() {
+            // Formation Time Chart
+            charts.formation = new Chart(document.getElementById('formation-chart'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Formation Time (s)',
+                        data: [],
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Throughput Chart
+            charts.throughput = new Chart(document.getElementById('throughput-chart'), {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Throughput (msgs/sec)',
+                        data: [],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgb(54, 162, 235)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Latency Chart
+            charts.latency = new Chart(document.getElementById('latency-chart'), {
+                type: 'bar',
+                data: {
+                    labels: ['P50', 'P95', 'P99'],
+                    datasets: [{
+                        label: 'Latency (ms)',
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.5)',
+                            'rgba(255, 206, 86, 0.5)',
+                            'rgba(255, 99, 132, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgb(75, 192, 192)',
+                            'rgb(255, 206, 86)',
+                            'rgb(255, 99, 132)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Resource Usage Chart
+            charts.resource = new Chart(document.getElementById('resource-chart'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Memory (MB)',
+                            data: [],
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            yAxisID: 'y',
+                        },
+                        {
+                            label: 'CPU (%)',
+                            data: [],
+                            borderColor: 'rgb(54, 162, 235)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            yAxisID: 'y1',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        },
+                    }
+                }
+            });
+        }
+
+        // Event Handlers
+        function handleClusterSpawned(payload) {
+            clusterData.nodes = payload.nodes.map((name, idx) => ({
+                id: name,
+                name: name,
+                health: 'healthy'
+            }));
+
+            // Create full mesh topology
+            clusterData.links = [];
+            for (let i = 0; i < clusterData.nodes.length; i++) {
+                for (let j = i + 1; j < clusterData.nodes.length; j++) {
+                    clusterData.links.push({
+                        source: clusterData.nodes[i].id,
+                        target: clusterData.nodes[j].id
+                    });
+                }
+            }
+
+            initTopology();
+            updateNodeSelector();
+            document.getElementById('run-stress-test').disabled = false;
+            document.getElementById('simulate-failure').disabled = false;
+
+            document.getElementById('cluster-info').textContent =
+                ` | Cluster Size: ${payload.nodes.length} | Formation Time: ${payload.formation_time.toFixed(2)}s`;
+
+            logEvent(`Cluster spawned with ${payload.nodes.length} nodes (${payload.formation_time.toFixed(2)}s)`, 'success');
+        }
+
+        function handleNodeJoined(payload) {
+            const newNode = {
+                id: payload.node_name,
+                name: payload.node_name,
+                health: 'healthy'
+            };
+            clusterData.nodes.push(newNode);
+
+            // Connect to all existing nodes
+            clusterData.nodes.forEach(node => {
+                if (node.id !== newNode.id) {
+                    clusterData.links.push({
+                        source: node.id,
+                        target: newNode.id
+                    });
+                }
+            });
+
+            updateTopology();
+            updateNodeSelector();
+            logEvent(`Node joined: ${payload.node_name}`, 'success');
+        }
+
+        function handleNodeLeft(payload) {
+            clusterData.nodes = clusterData.nodes.filter(n => n.id !== payload.node_name);
+            clusterData.links = clusterData.links.filter(l =>
+                l.source.id !== payload.node_name && l.target.id !== payload.node_name
+            );
+
+            updateTopology();
+            updateNodeSelector();
+            logEvent(`Node left: ${payload.node_name}`, 'warning');
+        }
+
+        function handleMessageSent(payload) {
+            // Animate message flow
+            const link = d3.select('#topology-svg')
+                .selectAll('line')
+                .filter(d =>
+                    (d.source.id === payload.from && d.target.id === payload.to) ||
+                    (d.source.id === payload.to && d.target.id === payload.from)
+                );
+
+            link.classed('link-active', true);
+            setTimeout(() => link.classed('link-active', false), 500);
+        }
+
+        function handleMetricsUpdate(payload) {
+            // Update metrics table
+            const tbody = document.getElementById('metrics-body');
+            const existingRow = Array.from(tbody.rows).find(
+                row => row.cells[0].textContent === payload.cluster_size.toString()
+            );
+
+            if (existingRow) {
+                existingRow.cells[1].textContent = payload.formation_time.toFixed(2);
+                existingRow.cells[2].textContent = payload.memory_mb.toFixed(1);
+                existingRow.cells[3].textContent = payload.throughput.toFixed(0);
+                existingRow.cells[4].textContent = payload.latency_p50.toFixed(2);
+                existingRow.cells[5].textContent = payload.latency_p95.toFixed(2);
+                existingRow.cells[6].textContent = payload.latency_p99.toFixed(2);
+                existingRow.cells[7].textContent = payload.status;
+            } else {
+                if (tbody.rows.length === 1 && tbody.rows[0].cells[0].colSpan === 8) {
+                    tbody.innerHTML = '';
+                }
+
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${payload.cluster_size}</td>
+                    <td>${payload.formation_time.toFixed(2)}</td>
+                    <td>${payload.memory_mb.toFixed(1)}</td>
+                    <td>${payload.throughput.toFixed(0)}</td>
+                    <td>${payload.latency_p50.toFixed(2)}</td>
+                    <td>${payload.latency_p95.toFixed(2)}</td>
+                    <td>${payload.latency_p99.toFixed(2)}</td>
+                    <td>${payload.status}</td>
+                `;
+            }
+
+            // Update charts
+            updateCharts(payload);
+
+            // Update node health
+            clusterData.nodes.forEach(node => {
+                if (payload.node_health && payload.node_health[node.id]) {
+                    node.health = payload.node_health[node.id];
+                }
+            });
+            updateTopology();
+        }
+
+        function handleStressTestResult(payload) {
+            logEvent(`Stress test completed: ${payload.scenario} - ${payload.summary}`, 'info');
+
+            // Update all metrics
+            if (payload.metrics) {
+                handleMetricsUpdate(payload.metrics);
+            }
+        }
+
+        function updateCharts(metrics) {
+            // Formation Time
+            if (metrics.cluster_size && metrics.formation_time) {
+                charts.formation.data.labels.push(metrics.cluster_size);
+                charts.formation.data.datasets[0].data.push(metrics.formation_time);
+                if (charts.formation.data.labels.length > 20) {
+                    charts.formation.data.labels.shift();
+                    charts.formation.data.datasets[0].data.shift();
+                }
+                charts.formation.update();
+            }
+
+            // Throughput
+            if (metrics.throughput) {
+                charts.throughput.data.labels.push(new Date().toLocaleTimeString());
+                charts.throughput.data.datasets[0].data.push(metrics.throughput);
+                if (charts.throughput.data.labels.length > 10) {
+                    charts.throughput.data.labels.shift();
+                    charts.throughput.data.datasets[0].data.shift();
+                }
+                charts.throughput.update();
+            }
+
+            // Latency
+            if (metrics.latency_p50 && metrics.latency_p95 && metrics.latency_p99) {
+                charts.latency.data.datasets[0].data = [
+                    metrics.latency_p50,
+                    metrics.latency_p95,
+                    metrics.latency_p99
+                ];
+                charts.latency.update();
+            }
+
+            // Resource Usage
+            if (metrics.memory_mb || metrics.cpu_percent) {
+                const timestamp = new Date().toLocaleTimeString();
+                charts.resource.data.labels.push(timestamp);
+                charts.resource.data.datasets[0].data.push(metrics.memory_mb || 0);
+                charts.resource.data.datasets[1].data.push(metrics.cpu_percent || 0);
+
+                if (charts.resource.data.labels.length > 30) {
+                    charts.resource.data.labels.shift();
+                    charts.resource.data.datasets[0].data.shift();
+                    charts.resource.data.datasets[1].data.shift();
+                }
+                charts.resource.update();
+            }
+        }
+
+        function updateNodeSelector() {
+            const selector = document.getElementById('node-selector');
+            selector.innerHTML = '<option value="">Select Node...</option>';
+            clusterData.nodes.forEach(node => {
+                const option = document.createElement('option');
+                option.value = node.id;
+                option.textContent = node.name;
+                selector.appendChild(option);
+            });
+        }
+
+        // Control Panel Actions
+        document.getElementById('spawn-cluster').addEventListener('click', () => {
+            const nodeCount = parseInt(document.getElementById('node-count').value);
+            if (nodeCount < 2 || nodeCount > 100) {
+                alert('Node count must be between 2 and 100');
+                return;
+            }
+
+            ws.send(JSON.stringify({
+                type: 'spawn_cluster',
+                payload: { node_count: nodeCount }
+            }));
+
+            logEvent(`Spawning cluster with ${nodeCount} nodes...`, 'info');
+        });
+
+        document.getElementById('run-stress-test').addEventListener('click', () => {
+            const scenario = document.getElementById('scenario-selector').value;
+
+            ws.send(JSON.stringify({
+                type: 'run_stress_test',
+                payload: { scenario: scenario }
+            }));
+
+            logEvent(`Starting stress test: ${scenario}`, 'info');
+        });
+
+        document.getElementById('simulate-failure').addEventListener('click', () => {
+            const targetNode = document.getElementById('node-selector').value;
+            if (!targetNode) {
+                alert('Please select a target node');
+                return;
+            }
+
+            ws.send(JSON.stringify({
+                type: 'simulate_failure',
+                payload: { node_name: targetNode }
+            }));
+
+            logEvent(`Simulating failure for node: ${targetNode}`, 'warning');
+        });
+
+        document.getElementById('export-metrics').addEventListener('click', () => {
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                cluster: {
+                    nodes: clusterData.nodes,
+                    size: clusterData.nodes.length
+                },
+                metrics: Array.from(document.getElementById('metrics-body').rows).map(row => ({
+                    cluster_size: parseInt(row.cells[0].textContent),
+                    formation_time: parseFloat(row.cells[1].textContent),
+                    memory_mb: parseFloat(row.cells[2].textContent),
+                    throughput: parseFloat(row.cells[3].textContent),
+                    latency_p50: parseFloat(row.cells[4].textContent),
+                    latency_p95: parseFloat(row.cells[5].textContent),
+                    latency_p99: parseFloat(row.cells[6].textContent),
+                    status: row.cells[7].textContent
+                }))
+            };
+
+            // Export as JSON
+            const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const jsonUrl = URL.createObjectURL(jsonBlob);
+            const jsonLink = document.createElement('a');
+            jsonLink.href = jsonUrl;
+            jsonLink.download = `cluster-metrics-${new Date().toISOString()}.json`;
+            jsonLink.click();
+
+            // Export as CSV
+            const csvRows = [
+                ['Cluster Size', 'Formation Time', 'Memory (MB)', 'Throughput', 'P50', 'P95', 'P99', 'Status'],
+                ...exportData.metrics.map(m => [
+                    m.cluster_size, m.formation_time, m.memory_mb, m.throughput,
+                    m.latency_p50, m.latency_p95, m.latency_p99, m.status
+                ])
+            ];
+            const csvContent = csvRows.map(row => row.join(',')).join('\n');
+            const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+            const csvUrl = URL.createObjectURL(csvBlob);
+            const csvLink = document.createElement('a');
+            csvLink.href = csvUrl;
+            csvLink.download = `cluster-metrics-${new Date().toISOString()}.csv`;
+            csvLink.click();
+
+            logEvent('Metrics exported successfully', 'success');
+        });
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            initWebSocket();
+            logEvent('Dashboard loaded successfully', 'success');
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (clusterData.nodes.length > 0) {
+                initTopology();
+            }
+        });
+    </script>
+</body>
+</html>
