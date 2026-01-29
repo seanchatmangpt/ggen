@@ -34,6 +34,7 @@ impl KeyEpoch {
     }
 
     /// Revoke the epoch
+    #[allow(dead_code)]
     pub fn revoke(&mut self) {
         self.is_revoked = true;
     }

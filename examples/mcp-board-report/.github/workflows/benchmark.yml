@@ -1,0 +1,268 @@
+# =============================================================================
+# MCP+ Board Report - Performance Benchmark Workflow
+#
+# Runs Criterion benchmarks on main branch pushes, compares with baseline,
+# detects regressions, and stores results as artifacts.
+#
+# Core axiom: A = mu(O), mu . mu = mu, hash(A) = hash(mu(O)), O |= Sigma
+#
+# SLO Targets:
+# - Merkle tree construction: < 1ms for 1000 leaves
+# - SHA3-256 hashing: < 100us per operation
+# - Receipt verification: < 500us per receipt
+# - Contract execution: < 10ms per contract
+# =============================================================================
+
+name: MCP+ Benchmarks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'examples/mcp-board-report/**/*.rs'
+      - 'examples/mcp-board-report/**/Cargo.toml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'examples/mcp-board-report/**/*.rs'
+      - 'examples/mcp-board-report/**/Cargo.toml'
+  workflow_dispatch:
+  schedule:
+    # Run benchmarks weekly on Sunday at 00:00 UTC
+    - cron: '0 0 * * 0'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+defaults:
+  run:
+    working-directory: examples/mcp-board-report
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Run Criterion benchmarks
+  # ---------------------------------------------------------------------------
+  benchmark:
+    name: Run Benchmarks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for baseline comparison
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            examples/mcp-board-report/target
+          key: ${{ runner.os }}-cargo-bench-${{ hashFiles('examples/mcp-board-report/**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-bench-
+
+      - name: Install gnuplot (for Criterion HTML reports)
+        run: sudo apt-get update && sudo apt-get install -y gnuplot
+
+      - name: Download baseline (if exists)
+        uses: actions/cache@v4
+        with:
+          path: examples/mcp-board-report/target/criterion
+          key: criterion-baseline-${{ github.ref_name }}
+          restore-keys: |
+            criterion-baseline-main
+            criterion-baseline-
+
+      - name: Run benchmarks
+        run: |
+          # Create benchmark directory structure
+          mkdir -p target/criterion
+
+          # Run Criterion benchmarks with JSON output
+          cargo bench --all -- --save-baseline current 2>&1 | tee benchmark-output.txt
+
+          # Extract summary for reporting
+          echo "## Benchmark Results" > benchmark-summary.md
+          echo "" >> benchmark-summary.md
+          echo "**Commit:** ${{ github.sha }}" >> benchmark-summary.md
+          echo "**Branch:** ${{ github.ref_name }}" >> benchmark-summary.md
+          echo "**Date:** $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> benchmark-summary.md
+          echo "" >> benchmark-summary.md
+          echo "\`\`\`" >> benchmark-summary.md
+          grep -E "(time:|thrpt:|change:)" benchmark-output.txt >> benchmark-summary.md || echo "No benchmark data extracted" >> benchmark-summary.md
+          echo "\`\`\`" >> benchmark-summary.md
+        timeout-minutes: 30
+
+      - name: Check for regressions
+        id: regression
+        run: |
+          # Parse benchmark output for regressions (>10% slowdown)
+          REGRESSIONS=$(grep -E "change:.*\+[1-9][0-9]\.[0-9]+%" benchmark-output.txt || true)
+
+          if [ -n "$REGRESSIONS" ]; then
+            echo "has_regression=true" >> $GITHUB_OUTPUT
+            echo "## Performance Regressions Detected" >> benchmark-summary.md
+            echo "" >> benchmark-summary.md
+            echo "The following benchmarks show >10% regression:" >> benchmark-summary.md
+            echo "\`\`\`" >> benchmark-summary.md
+            echo "$REGRESSIONS" >> benchmark-summary.md
+            echo "\`\`\`" >> benchmark-summary.md
+          else
+            echo "has_regression=false" >> $GITHUB_OUTPUT
+            echo "" >> benchmark-summary.md
+            echo "No significant performance regressions detected." >> benchmark-summary.md
+          fi
+
+      - name: Save baseline
+        if: github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v4
+        with:
+          path: examples/mcp-board-report/target/criterion
+          key: criterion-baseline-main-${{ github.sha }}
+
+      - name: Package benchmark results
+        run: |
+          mkdir -p benchmark-artifacts
+          cp benchmark-summary.md benchmark-artifacts/
+          cp benchmark-output.txt benchmark-artifacts/
+
+          # Package Criterion HTML reports if they exist
+          if [ -d "target/criterion" ]; then
+            tar -czvf benchmark-artifacts/criterion-reports.tar.gz -C target criterion
+          fi
+
+          # Create JSON summary for programmatic access
+          cat << EOF > benchmark-artifacts/benchmark-meta.json
+          {
+            "commit": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "has_regression": ${{ steps.regression.outputs.has_regression }},
+            "workflow_run_id": "${{ github.run_id }}"
+          }
+          EOF
+
+      - name: Upload benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: examples/mcp-board-report/benchmark-artifacts/
+          retention-days: 90
+
+      - name: Comment on PR (if regression detected)
+        if: github.event_name == 'pull_request' && steps.regression.outputs.has_regression == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('examples/mcp-board-report/benchmark-summary.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Performance Benchmark Warning\n\n${summary}\n\n[View full benchmark results](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
+            });
+
+      - name: Fail on significant regression
+        if: steps.regression.outputs.has_regression == 'true' && github.event_name == 'pull_request'
+        run: |
+          echo "Performance regression detected. Review benchmark results before merging."
+          exit 1
+
+  # ---------------------------------------------------------------------------
+  # Compare with historical data
+  # ---------------------------------------------------------------------------
+  historical-analysis:
+    name: Historical Analysis
+    runs-on: ubuntu-latest
+    needs: benchmark
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download current results
+        uses: actions/download-artifact@v4
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: current-results
+
+      - name: Download historical data
+        uses: actions/cache@v4
+        with:
+          path: historical-benchmarks
+          key: benchmark-history-${{ github.ref_name }}
+          restore-keys: |
+            benchmark-history-
+
+      - name: Update historical data
+        run: |
+          mkdir -p historical-benchmarks
+
+          # Append current results to history
+          TIMESTAMP=$(date -u +%Y%m%d-%H%M%S)
+          cp current-results/benchmark-meta.json "historical-benchmarks/run-${TIMESTAMP}.json"
+
+          # Keep only last 100 runs
+          ls -t historical-benchmarks/*.json | tail -n +101 | xargs -r rm -f
+
+          # Generate trend report
+          echo "# Benchmark Trend Analysis" > historical-benchmarks/TREND.md
+          echo "" >> historical-benchmarks/TREND.md
+          echo "Last 10 runs:" >> historical-benchmarks/TREND.md
+          ls -t historical-benchmarks/*.json | head -10 | while read f; do
+            echo "- $(basename $f): $(jq -r '.timestamp' $f)" >> historical-benchmarks/TREND.md
+          done
+
+      - name: Save historical data
+        uses: actions/cache/save@v4
+        with:
+          path: historical-benchmarks
+          key: benchmark-history-${{ github.ref_name }}-${{ github.sha }}
+
+  # ---------------------------------------------------------------------------
+  # SLO Validation
+  # ---------------------------------------------------------------------------
+  slo-check:
+    name: SLO Validation
+    runs-on: ubuntu-latest
+    needs: benchmark
+    steps:
+      - name: Download benchmark results
+        uses: actions/download-artifact@v4
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: results
+
+      - name: Validate SLOs
+        run: |
+          echo "## SLO Validation Report" > slo-report.md
+          echo "" >> slo-report.md
+          echo "| Benchmark | Target | Status |" >> slo-report.md
+          echo "|-----------|--------|--------|" >> slo-report.md
+
+          # Parse benchmark output and check against SLOs
+          # (In a real scenario, this would parse Criterion JSON output)
+
+          # For now, create placeholder SLO checks
+          echo "| Merkle tree (1000 leaves) | < 1ms | PENDING |" >> slo-report.md
+          echo "| SHA3-256 hashing | < 100us | PENDING |" >> slo-report.md
+          echo "| Receipt verification | < 500us | PENDING |" >> slo-report.md
+          echo "| Contract execution | < 10ms | PENDING |" >> slo-report.md
+          echo "" >> slo-report.md
+          echo "*Note: Automated SLO extraction requires Criterion JSON output parsing.*" >> slo-report.md
+
+          cat slo-report.md
+
+      - name: Upload SLO report
+        uses: actions/upload-artifact@v4
+        with:
+          name: slo-report-${{ github.sha }}
+          path: slo-report.md
+          retention-days: 30
