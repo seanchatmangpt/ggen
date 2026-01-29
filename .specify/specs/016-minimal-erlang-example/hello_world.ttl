@@ -1,0 +1,42 @@
+@prefix : <http://github.com/ggen/minimal#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+## ============================================================================
+## MINIMAL ERLANG/OTP EXAMPLE - THE 20% THAT MATTERS
+## ============================================================================
+## This is the absolute minimum RDF needed to generate a working gen_server.
+## Everything else is optional. This is the essence of ggen philosophy.
+
+:HelloServer a :GenServer ;
+    :module_name "hello_server" ;
+    :description "Minimal gen_server that demonstrates RDF-driven code generation" ;
+
+    ## State: What data does this server hold?
+    :state_fields "counter" ;
+    :initial_state "0" ;
+
+    ## API: What functions can users call?
+    :api_function [
+        :name "increment" ;
+        :arity "0" ;
+        :type "call" ;
+        :description "Increment counter and return new value"
+    ] ;
+
+    :api_function [
+        :name "get_count" ;
+        :arity "0" ;
+        :type "call" ;
+        :description "Get current counter value"
+    ] ;
+
+    :api_function [
+        :name "reset" ;
+        :arity "0" ;
+        :type "cast" ;
+        :description "Reset counter to zero"
+    ] .
+
+## That's it! 30 lines of RDF generates a complete, working gen_server.
+## No supervision, no tests, no documentation - just the pure essence.
