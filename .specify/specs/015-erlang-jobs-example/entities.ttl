@@ -1,0 +1,464 @@
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix : <https://ggen.dev/spec/erlang-jobs#> .
+
+# ============================================================================
+# ENTITY: JobQueue
+# ============================================================================
+
+:JobQueue a sk:Entity ;
+    sk:name "JobQueue" ;
+    sk:description "Job queue with pluggable backend storage (ETS, Mnesia, Redis). Implements FIFO, priority, and delayed queue semantics." ;
+    sk:hasField :queue_name, :backend_type, :backend_config, :queue_type, :max_size, :overflow_strategy .
+
+:queue_name a sk:Field ;
+    sk:name "queue_name" ;
+    sk:type "atom()" ;
+    sk:required true ;
+    sk:description "Unique queue identifier (atom for process registration)" .
+
+:backend_type a sk:Field ;
+    sk:name "backend_type" ;
+    sk:type "ets | mnesia | redis" ;
+    sk:required true ;
+    sk:description "Storage backend selection (ets for in-memory, mnesia for distributed, redis for persistent)" .
+
+:backend_config a sk:Field ;
+    sk:name "backend_config" ;
+    sk:type "map()" ;
+    sk:required true ;
+    sk:description "Backend-specific configuration (Redis: {host, port, db}, Mnesia: {nodes, disc_copies}, ETS: {type, access})" .
+
+:queue_type a sk:Field ;
+    sk:name "queue_type" ;
+    sk:type "fifo | priority | delayed" ;
+    sk:required true ;
+    sk:default "fifo" ;
+    sk:description "Queue ordering strategy (fifo: first-in-first-out, priority: priority-based, delayed: time-based)" .
+
+:max_size a sk:Field ;
+    sk:name "max_size" ;
+    sk:type "integer() | infinity" ;
+    sk:required false ;
+    sk:default "infinity" ;
+    sk:description "Maximum queue size (jobs rejected when full if overflow_strategy is 'reject')" .
+
+:overflow_strategy a sk:Field ;
+    sk:name "overflow_strategy" ;
+    sk:type "reject | drop_oldest | drop_newest" ;
+    sk:required false ;
+    sk:default "reject" ;
+    sk:description "Behavior when queue reaches max_size" .
+
+# ============================================================================
+# ENTITY: Worker
+# ============================================================================
+
+:Worker a sk:Entity ;
+    sk:name "Worker" ;
+    sk:description "Gen_server-based worker process that dequeues and processes jobs. Supervised by worker pool supervisor." ;
+    sk:hasField :worker_id, :worker_pid, :worker_state, :current_job, :processed_count, :error_count, :avg_latency .
+
+:worker_id a sk:Field ;
+    sk:name "worker_id" ;
+    sk:type "integer()" ;
+    sk:required true ;
+    sk:description "Sequential worker identifier within pool (1, 2, 3, ...)" .
+
+:worker_pid a sk:Field ;
+    sk:name "worker_pid" ;
+    sk:type "pid()" ;
+    sk:required true ;
+    sk:description "Worker process identifier" .
+
+:worker_state a sk:Field ;
+    sk:name "worker_state" ;
+    sk:type "idle | busy | crashed" ;
+    sk:required true ;
+    sk:default "idle" ;
+    sk:description "Current worker state (idle: waiting for job, busy: processing job, crashed: awaiting supervisor restart)" .
+
+:current_job a sk:Field ;
+    sk:name "current_job" ;
+    sk:type "Job | undefined" ;
+    sk:required false ;
+    sk:description "Currently executing job (undefined when idle)" .
+
+:processed_count a sk:Field ;
+    sk:name "processed_count" ;
+    sk:type "integer()" ;
+    sk:required true ;
+    sk:default "0" ;
+    sk:description "Total jobs successfully processed by this worker" .
+
+:error_count a sk:Field ;
+    sk:name "error_count" ;
+    sk:type "integer()" ;
+    sk:required true ;
+    sk:default "0" ;
+    sk:description "Total jobs that failed processing" .
+
+:avg_latency a sk:Field ;
+    sk:name "avg_latency" ;
+    sk:type "float()" ;
+    sk:required true ;
+    sk:default "0.0" ;
+    sk:description "Average job processing latency in milliseconds (exponential moving average)" .
+
+# ============================================================================
+# ENTITY: Supervisor
+# ============================================================================
+
+:Supervisor a sk:Entity ;
+    sk:name "Supervisor" ;
+    sk:description "OTP supervisor managing worker pool or other supervised components. Implements restart strategies." ;
+    sk:hasField :supervisor_name, :supervisor_pid, :strategy, :max_restarts, :max_seconds, :children .
+
+:supervisor_name a sk:Field ;
+    sk:name "supervisor_name" ;
+    sk:type "atom()" ;
+    sk:required true ;
+    sk:description "Supervisor name for registration (jobs_sup, jobs_worker_sup, etc.)" .
+
+:supervisor_pid a sk:Field ;
+    sk:name "supervisor_pid" ;
+    sk:type "pid()" ;
+    sk:required true ;
+    sk:description "Supervisor process identifier" .
+
+:strategy a sk:Field ;
+    sk:name "strategy" ;
+    sk:type "one_for_one | one_for_all | rest_for_one | simple_one_for_one" ;
+    sk:required true ;
+    sk:description "Supervisor restart strategy (one_for_one for independent children, simple_one_for_one for worker pool)" .
+
+:max_restarts a sk:Field ;
+    sk:name "max_restarts" ;
+    sk:type "integer()" ;
+    sk:required true ;
+    sk:default "10" ;
+    sk:description "Maximum restarts allowed in max_seconds window" .
+
+:max_seconds a sk:Field ;
+    sk:name "max_seconds" ;
+    sk:type "integer()" ;
+    sk:required true ;
+    sk:default "60" ;
+    sk:description "Time window for max_restarts limit (seconds)" .
+
+:children a sk:Field ;
+    sk:name "children" ;
+    sk:type "[child_spec()]" ;
+    sk:required true ;
+    sk:description "List of child specifications for static supervisors" .
+
+# ============================================================================
+# ENTITY: Job
+# ============================================================================
+
+:Job a sk:Entity ;
+    sk:name "Job" ;
+    sk:description "Job record representing a unit of work to be processed by a worker. Includes payload, metadata, and execution context." ;
+    sk:hasField :job_id, :payload, :status, :priority, :enqueued_at, :scheduled_at, :started_at, :completed_at, :retries, :max_retries, :error_message, :metadata .
+
+:job_id a sk:Field ;
+    sk:name "job_id" ;
+    sk:type "binary()" ;
+    sk:required true ;
+    sk:description "Unique job identifier (UUID v4 or v7)" .
+
+:payload a sk:Field ;
+    sk:name "payload" ;
+    sk:type "term()" ;
+    sk:required true ;
+    sk:description "Job data to be processed (any Erlang term - MFA tuple, binary, map, etc.)" .
+
+:status a sk:Field ;
+    sk:name "status" ;
+    sk:type "pending | processing | completed | failed | scheduled" ;
+    sk:required true ;
+    sk:default "pending" ;
+    sk:description "Current job lifecycle status" .
+
+:priority a sk:Field ;
+    sk:name "priority" ;
+    sk:type "integer()" ;
+    sk:required false ;
+    sk:default "0" ;
+    sk:description "Job priority for priority queues (higher = more urgent, 0 = normal)" .
+
+:enqueued_at a sk:Field ;
+    sk:name "enqueued_at" ;
+    sk:type "erlang:timestamp()" ;
+    sk:required true ;
+    sk:description "Timestamp when job was enqueued (os:timestamp())" .
+
+:scheduled_at a sk:Field ;
+    sk:name "scheduled_at" ;
+    sk:type "erlang:timestamp() | undefined" ;
+    sk:required false ;
+    sk:description "Timestamp when job should execute (for delayed/scheduled jobs)" .
+
+:started_at a sk:Field ;
+    sk:name "started_at" ;
+    sk:type "erlang:timestamp() | undefined" ;
+    sk:required false ;
+    sk:description "Timestamp when job processing started" .
+
+:completed_at a sk:Field ;
+    sk:name "completed_at" ;
+    sk:type "erlang:timestamp() | undefined" ;
+    sk:required false ;
+    sk:description "Timestamp when job processing completed" .
+
+:retries a sk:Field ;
+    sk:name "retries" ;
+    sk:type "integer()" ;
+    sk:required true ;
+    sk:default "0" ;
+    sk:description "Number of times this job has been retried after failure" .
+
+:max_retries a sk:Field ;
+    sk:name "max_retries" ;
+    sk:type "integer()" ;
+    sk:required true ;
+    sk:default "3" ;
+    sk:description "Maximum retry attempts before job is marked as permanently failed" .
+
+:error_message a sk:Field ;
+    sk:name "error_message" ;
+    sk:type "binary() | undefined" ;
+    sk:required false ;
+    sk:description "Error message from most recent failure" .
+
+:metadata a sk:Field ;
+    sk:name "metadata" ;
+    sk:type "map()" ;
+    sk:required false ;
+    sk:default "#{}" ;
+    sk:description "Additional job metadata (tags, correlation IDs, custom fields)" .
+
+# ============================================================================
+# ENTITY: Scheduler
+# ============================================================================
+
+:Scheduler a sk:Entity ;
+    sk:name "Scheduler" ;
+    sk:description "Gen_server managing delayed, scheduled, and recurring jobs. Triggers job execution at specified times." ;
+    sk:hasField :scheduler_name, :scheduler_pid, :scheduled_jobs, :recurring_jobs, :backend .
+
+:scheduler_name a sk:Field ;
+    sk:name "scheduler_name" ;
+    sk:type "atom()" ;
+    sk:required true ;
+    sk:description "Scheduler process name (jobs_scheduler)" .
+
+:scheduler_pid a sk:Field ;
+    sk:name "scheduler_pid" ;
+    sk:type "pid()" ;
+    sk:required true ;
+    sk:description "Scheduler process identifier" .
+
+:scheduled_jobs a sk:Field ;
+    sk:name "scheduled_jobs" ;
+    sk:type "#{job_id() => ScheduledJob}" ;
+    sk:required true ;
+    sk:default "#{}" ;
+    sk:description "Map of job_id to ScheduledJob records (one-time scheduled jobs)" .
+
+:recurring_jobs a sk:Field ;
+    sk:name "recurring_jobs" ;
+    sk:type "#{job_id() => RecurringJob}" ;
+    sk:required true ;
+    sk:default "#{}" ;
+    sk:description "Map of job_id to RecurringJob records (cron-based recurring jobs)" .
+
+:backend a sk:Field ;
+    sk:name "backend" ;
+    sk:type "module()" ;
+    sk:required true ;
+    sk:description "Persistence backend for scheduler state (mnesia or redis, not ets since scheduler state must survive restarts)" .
+
+# ============================================================================
+# VALUE OBJECT: ScheduledJob
+# ============================================================================
+
+:ScheduledJob a sk:ValueObject ;
+    sk:name "ScheduledJob" ;
+    sk:description "One-time scheduled job with execution timestamp" ;
+    sk:hasField :scheduled_job_id, :scheduled_job, :execute_at, :timer_ref .
+
+:scheduled_job_id a sk:Field ;
+    sk:name "job_id" ;
+    sk:type "binary()" ;
+    sk:required true ;
+    sk:description "Unique scheduled job identifier" .
+
+:scheduled_job a sk:Field ;
+    sk:name "job" ;
+    sk:type "Job" ;
+    sk:required true ;
+    sk:description "Job to execute at scheduled time" .
+
+:execute_at a sk:Field ;
+    sk:name "execute_at" ;
+    sk:type "erlang:timestamp()" ;
+    sk:required true ;
+    sk:description "Timestamp when job should execute" .
+
+:timer_ref a sk:Field ;
+    sk:name "timer_ref" ;
+    sk:type "reference() | undefined" ;
+    sk:required false ;
+    sk:description "Timer reference from erlang:send_after/3 (undefined if not yet scheduled)" .
+
+# ============================================================================
+# VALUE OBJECT: RecurringJob
+# ============================================================================
+
+:RecurringJob a sk:ValueObject ;
+    sk:name "RecurringJob" ;
+    sk:description "Recurring job with cron-like schedule" ;
+    sk:hasField :recurring_job_id, :recurring_job, :cron_expression, :next_execution, :timer_ref .
+
+:recurring_job_id a sk:Field ;
+    sk:name "job_id" ;
+    sk:type "binary()" ;
+    sk:required true ;
+    sk:description "Unique recurring job identifier" .
+
+:recurring_job a sk:Field ;
+    sk:name "job" ;
+    sk:type "Job" ;
+    sk:required true ;
+    sk:description "Job template to execute on each recurrence" .
+
+:cron_expression a sk:Field ;
+    sk:name "cron_expression" ;
+    sk:type "binary()" ;
+    sk:required true ;
+    sk:pattern "^[0-9*,\\-/]+ [0-9*,\\-/]+ [0-9*,\\-/]+ [0-9*,\\-/]+ [0-9*,\\-/]+$" ;
+    sk:description "Cron expression (5 fields: minute hour day month weekday)" .
+
+:next_execution a sk:Field ;
+    sk:name "next_execution" ;
+    sk:type "erlang:timestamp()" ;
+    sk:required true ;
+    sk:description "Timestamp of next scheduled execution (calculated from cron expression)" .
+
+:timer_ref a sk:Field ;
+    sk:name "timer_ref" ;
+    sk:type "reference() | undefined" ;
+    sk:required false ;
+    sk:description "Timer reference for next execution" .
+
+# ============================================================================
+# ENTITY: RateLimiter
+# ============================================================================
+
+:RateLimiter a sk:Entity ;
+    sk:name "RateLimiter" ;
+    sk:description "Gen_server implementing rate limiting algorithms (token bucket or leaky bucket)" ;
+    sk:hasField :limiter_name, :limiter_pid, :algorithm, :rate, :capacity, :current_tokens, :last_refill .
+
+:limiter_name a sk:Field ;
+    sk:name "limiter_name" ;
+    sk:type "atom()" ;
+    sk:required true ;
+    sk:description "Rate limiter process name" .
+
+:limiter_pid a sk:Field ;
+    sk:name "limiter_pid" ;
+    sk:type "pid()" ;
+    sk:required true ;
+    sk:description "Rate limiter process identifier" .
+
+:algorithm a sk:Field ;
+    sk:name "algorithm" ;
+    sk:type "token_bucket | leaky_bucket" ;
+    sk:required true ;
+    sk:description "Rate limiting algorithm (token_bucket allows burst, leaky_bucket enforces strict rate)" .
+
+:rate a sk:Field ;
+    sk:name "rate" ;
+    sk:type "float()" ;
+    sk:required true ;
+    sk:description "Token refill rate (tokens per second)" .
+
+:capacity a sk:Field ;
+    sk:name "capacity" ;
+    sk:type "integer()" ;
+    sk:required true ;
+    sk:description "Maximum tokens (token_bucket: burst capacity, leaky_bucket: buffer size)" .
+
+:current_tokens a sk:Field ;
+    sk:name "current_tokens" ;
+    sk:type "float()" ;
+    sk:required true ;
+    sk:description "Current token count (can be fractional for precise rate limiting)" .
+
+:last_refill a sk:Field ;
+    sk:name "last_refill" ;
+    sk:type "erlang:timestamp()" ;
+    sk:required true ;
+    sk:description "Timestamp of last token refill (for calculating refill amount)" .
+
+# ============================================================================
+# ENTITY: JobStore
+# ============================================================================
+
+:JobStore a sk:Entity ;
+    sk:name "JobStore" ;
+    sk:description "Backend storage abstraction for job persistence. Implements behavior with callbacks for enqueue/dequeue/peek." ;
+    sk:hasField :store_module, :store_state, :connection .
+
+:store_module a sk:Field ;
+    sk:name "store_module" ;
+    sk:type "module()" ;
+    sk:required true ;
+    sk:description "Backend module implementing job_store behavior (jobs_store_ets, jobs_store_mnesia, jobs_store_redis)" .
+
+:store_state a sk:Field ;
+    sk:name "store_state" ;
+    sk:type "term()" ;
+    sk:required true ;
+    sk:description "Backend-specific state (ETS table reference, Mnesia table name, Redis connection pool)" .
+
+:connection a sk:Field ;
+    sk:name "connection" ;
+    sk:type "term() | undefined" ;
+    sk:required false ;
+    sk:description "Connection handle for networked backends (Redis connection pool, undefined for local backends)" .
+
+# ============================================================================
+# RELATIONSHIPS
+# ============================================================================
+
+:JobQueue sk:relatesTo :JobStore ;
+    sk:relationshipType "uses" ;
+    sk:cardinality "1:1" ;
+    sk:description "JobQueue uses JobStore backend for persistence" .
+
+:Worker sk:relatesTo :JobQueue ;
+    sk:relationshipType "dequeues_from" ;
+    sk:cardinality "N:1" ;
+    sk:description "Multiple workers dequeue jobs from single queue" .
+
+:Worker sk:relatesTo :Job ;
+    sk:relationshipType "processes" ;
+    sk:cardinality "1:1" ;
+    sk:description "Each worker processes one job at a time" .
+
+:Supervisor sk:relatesTo :Worker ;
+    sk:relationshipType "supervises" ;
+    sk:cardinality "1:N" ;
+    sk:description "Worker supervisor manages pool of workers" .
+
+:Scheduler sk:relatesTo :JobQueue ;
+    sk:relationshipType "enqueues_to" ;
+    sk:cardinality "1:N" ;
+    sk:description "Scheduler enqueues scheduled/recurring jobs to queues" .
+
+:RateLimiter sk:relatesTo :Worker ;
+    sk:relationshipType "throttles" ;
+    sk:cardinality "1:N" ;
+    sk:description "Rate limiter controls worker job processing rate" .

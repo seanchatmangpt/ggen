@@ -1,0 +1,18 @@
+{application, {{ app_name }},
+ [{description, "{{ description | default(value="An OTP application") }}"},
+  {vsn, "{{ version | default(value="0.1.0") }}"},
+  {registered, []},
+  {mod, { {{ app_name }}_app, []}},
+  {applications,
+   [kernel,
+    stdlib
+    {%- for app in required_apps %}
+    ,{{ app }}
+    {%- endfor %}
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {licenses, ["Apache-2.0"]},
+  {links, []}
+ ]}.

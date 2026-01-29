@@ -1,0 +1,421 @@
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <https://ggen.dev/spec/erlang-jobs#> .
+
+# ============================================================================
+# IMPLEMENTATION PLAN: Erlang OTP Job Processing Library
+# ============================================================================
+
+:plan a sk:Plan ;
+    sk:featureBranch "015-erlang-jobs-example" ;
+    sk:featureName "Erlang OTP Job Processing Library with Multiple Backends and Comprehensive Testing" ;
+    sk:planCreated "2026-01-29"^^xsd:date ;
+    sk:planStatus "Draft" ;
+    sk:architecturePattern "OTP Supervision Tree with Gen_Server Workers, Pluggable Storage Backends, and Message-Passing Concurrency" ;
+    sk:hasTechnology :tech-erlang, :tech-rebar3, :tech-proper, :tech-mnesia, :tech-redis, :tech-cron ;
+    sk:hasProjectStructure :struct-src, :struct-include, :struct-test, :struct-bench, :struct-doc ;
+    sk:hasPhase :phase-setup, :phase-foundation, :phase-queue, :phase-workers, :phase-scheduler, :phase-ratelimit, :phase-testing, :phase-docs ;
+    sk:hasDecision :decision-backend-abstraction, :decision-supervision-strategy, :decision-scheduler-impl, :decision-testing-strategy, :decision-rate-limit-algo ;
+    sk:hasRisk :risk-mnesia-split-brain, :risk-redis-latency, :risk-scheduler-accuracy, :risk-worker-crash-cascade ;
+    sk:hasDependency :dep-eredis, :dep-proper, :dep-cron .
+
+# ============================================================================
+# TECHNOLOGY STACK
+# ============================================================================
+
+:tech-erlang a sk:Technology ;
+    sk:techName "Erlang/OTP" ;
+    sk:techVersion "26.0+" ;
+    sk:techPurpose "Core language and runtime. OTP provides supervision, gen_server, application behaviors. Erlang VM handles concurrency, fault tolerance, hot code reloading." .
+
+:tech-rebar3 a sk:Technology ;
+    sk:techName "rebar3" ;
+    sk:techVersion "3.22+" ;
+    sk:techPurpose "Build tool for Erlang projects. Manages dependencies, compilation, testing (eunit, ct), releases, plugins. Standard toolchain for modern Erlang." .
+
+:tech-proper a sk:Technology ;
+    sk:techName "PropEr" ;
+    sk:techVersion "1.4+" ;
+    sk:techPurpose "Property-based testing framework. Generates random test cases, finds edge cases, shrinks counterexamples. Essential for testing queue invariants and concurrency." .
+
+:tech-mnesia a sk:Technology ;
+    sk:techName "Mnesia" ;
+    sk:techVersion "4.21+ (included in OTP)" ;
+    sk:techPurpose "Distributed database built into Erlang/OTP. Provides ACID transactions, replication, persistence. Used for distributed job queue backend." .
+
+:tech-redis a sk:Technology ;
+    sk:techName "Redis (via eredis)" ;
+    sk:techVersion "eredis 1.7+" ;
+    sk:techPurpose "External key-value store for persistent job queue backend. Provides durability, pub/sub, sorted sets for delayed jobs. Accessed via eredis client." .
+
+:tech-cron a sk:Technology ;
+    sk:techName "erlcron or custom cron parser" ;
+    sk:techVersion "Custom implementation" ;
+    sk:techPurpose "Cron expression parsing for recurring jobs. Calculates next execution time from cron syntax (minute, hour, day, month, weekday)." .
+
+# ============================================================================
+# PROJECT STRUCTURE
+# ============================================================================
+
+:struct-src a sk:ProjectStructure ;
+    sk:structurePath "src/" ;
+    sk:structurePurpose "Application source code. OTP application module, supervisors, gen_servers, backend implementations, utility modules." ;
+    sk:structureNotes "Modules: jobs_app.erl (application), jobs_sup.erl (top supervisor), jobs_worker_sup.erl (worker supervisor), jobs_worker.erl (gen_server), jobs_queue.erl (queue API), jobs_store_*.erl (backends), jobs_scheduler.erl (scheduler gen_server), jobs_rate_limiter.erl (rate limiter gen_server)" .
+
+:struct-include a sk:ProjectStructure ;
+    sk:structurePath "include/" ;
+    sk:structurePurpose "Header files with record definitions and macros" ;
+    sk:structureNotes "Files: jobs.hrl (job record, queue config), jobs_internal.hrl (internal types)" .
+
+:struct-test a sk:ProjectStructure ;
+    sk:structurePath "test/" ;
+    sk:structurePurpose "Test suites: EUnit unit tests, PropEr property tests, common_test integration tests" ;
+    sk:structureNotes "Files: jobs_SUITE.erl (ct suite), jobs_queue_tests.erl (eunit), jobs_proper_tests.erl (proper), jobs_bench.erl (benchmarks)" .
+
+:struct-bench a sk:ProjectStructure ;
+    sk:structurePath "bench/" ;
+    sk:structurePurpose "Performance benchmarks using timer module" ;
+    sk:structureNotes "Benchmarks: enqueue/dequeue latency, throughput, worker pool efficiency, backend comparison" .
+
+:struct-doc a sk:ProjectStructure ;
+    sk:structurePath "doc/" ;
+    sk:structurePurpose "Diataxis documentation: tutorials, how-tos, reference (edoc), explanation" ;
+    sk:structureNotes "Files: tutorial.md (getting started), howto-*.md (common tasks), architecture.md (explanation), API reference generated from edoc annotations" .
+
+# ============================================================================
+# IMPLEMENTATION PHASES
+# ============================================================================
+
+:phase-setup a sk:Phase ;
+    sk:phaseId "phase-setup" ;
+    sk:phaseName "Setup" ;
+    sk:phaseOrder 1 ;
+    sk:phaseDescription "Project scaffolding, rebar.config setup, directory structure, basic OTP application skeleton" ;
+    sk:phaseDeliverables "Directory structure (src/, include/, test/, bench/, doc/), rebar.config with dependencies, jobs.app.src with application metadata, basic Makefile/rebar3 commands documented" .
+
+:phase-foundation a sk:Phase ;
+    sk:phaseId "phase-foundation" ;
+    sk:phaseName "Foundation" ;
+    sk:phaseOrder 2 ;
+    sk:phaseDescription "Core types, records, error handling, OTP application behavior, top-level supervisor" ;
+    sk:phaseDeliverables "jobs.hrl with job record and type specs, jobs_app.erl (application behavior), jobs_sup.erl (top-level supervisor with one_for_one strategy), error handling conventions, logging macros" .
+
+:phase-queue a sk:Phase ;
+    sk:phaseId "phase-queue" ;
+    sk:phaseName "Job Queue with Backends" ;
+    sk:phaseOrder 3 ;
+    sk:phaseDescription "Queue API, backend behavior, three backend implementations (ETS, Mnesia, Redis)" ;
+    sk:phaseDeliverables "jobs_queue.erl (public API), jobs_store behavior (callbacks: init, enqueue, dequeue, peek, size, delete), jobs_store_ets.erl, jobs_store_mnesia.erl, jobs_store_redis.erl, configuration-based backend selection" .
+
+:phase-workers a sk:Phase ;
+    sk:phaseId "phase-workers" ;
+    sk:phaseName "Worker Pool with Supervision" ;
+    sk:phaseOrder 4 ;
+    sk:phaseDescription "Worker gen_server, worker supervisor, dynamic pool sizing, failure recovery, load balancing" ;
+    sk:phaseDeliverables "jobs_worker.erl (gen_server processing jobs), jobs_worker_sup.erl (simple_one_for_one supervisor), dynamic worker pool sizing (scale up/down based on queue depth), worker metrics (processed_count, error_count, avg_latency), graceful shutdown" .
+
+:phase-scheduler a sk:Phase ;
+    sk:phaseId "phase-scheduler" ;
+    sk:phaseName "Job Scheduler (Delayed/Recurring)" ;
+    sk:phaseOrder 5 ;
+    sk:phaseDescription "Scheduler gen_server, delayed job execution, scheduled job execution, recurring jobs with cron syntax" ;
+    sk:phaseDeliverables "jobs_scheduler.erl (gen_server managing scheduled jobs), erlang:send_after/3 for timers, cron expression parser, next execution calculation, scheduler persistence to Mnesia/Redis, APIs: enqueue_delayed/3, enqueue_at/3, enqueue_recurring/3" .
+
+:phase-ratelimit a sk:Phase ;
+    sk:phaseId "phase-ratelimit" ;
+    sk:phaseName "Rate Limiting" ;
+    sk:phaseOrder 6 ;
+    sk:phaseDescription "Rate limiter gen_server with token bucket and leaky bucket algorithms" ;
+    sk:phaseDeliverables "jobs_rate_limiter.erl (gen_server), token bucket algorithm (burst allowance), leaky bucket algorithm (strict rate), configurable rate and capacity, integration with worker pool (workers check rate limiter before dequeuing)" .
+
+:phase-testing a sk:Phase ;
+    sk:phaseId "phase-testing" ;
+    sk:phaseName "Comprehensive Testing" ;
+    sk:phaseOrder 7 ;
+    sk:phaseDescription "EUnit tests, PropEr property tests, common_test integration tests, benchmarks, stress tests" ;
+    sk:phaseDeliverables "EUnit tests for all modules (>80% coverage), PropEr tests for queue invariants (FIFO order, no duplicates, all jobs processed), common_test suites (concurrent access, failure scenarios, backend integration), benchmarks (enqueue/dequeue latency <1ms p95, throughput >10k/s), stress tests (100 concurrent workers, 1M jobs), dialyzer spec validation" .
+
+:phase-docs a sk:Phase ;
+    sk:phaseId "phase-docs" ;
+    sk:phaseName "Diataxis Documentation" ;
+    sk:phaseOrder 8 ;
+    sk:phaseDescription "Tutorial, how-to guides, API reference (edoc), architectural explanation" ;
+    sk:phaseDeliverables "Tutorial (getting started, 15-minute walkthrough), How-To guides (configure backends, scale workers, schedule jobs, implement rate limiting), API Reference (edoc-generated HTML), Explanation (architecture, supervision tree, design decisions), README with quick start and examples, CHANGELOG" .
+
+# ============================================================================
+# TECHNICAL DECISIONS
+# ============================================================================
+
+:decision-backend-abstraction a sk:PlanDecision ;
+    sk:decisionId "DEC-001" ;
+    sk:decisionTitle "Backend Abstraction via Behavior Pattern" ;
+    sk:decisionChoice "Define jobs_store behavior with callbacks (init, enqueue, dequeue, peek, size, delete). Each backend (ETS, Mnesia, Redis) implements behavior." ;
+    sk:decisionRationale "Erlang behaviors provide compile-time callback validation. Enables runtime backend selection via configuration. Allows users to implement custom backends by implementing behavior." ;
+    sk:alternativesConsidered "Protocol-based (gen_server calls to backend process), module attributes (less type-safe), hardcoded backend selection (not extensible)" ;
+    sk:tradeoffs "Gain: extensibility, type safety, configurability. Lose: slight complexity (behavior boilerplate), potential performance overhead (callback indirection - mitigated by inline optimization)" ;
+    sk:revisitCriteria "If callback overhead exceeds 5% in benchmarks, consider direct function calls or protocol buffers for hot paths" .
+
+:decision-supervision-strategy a sk:PlanDecision ;
+    sk:decisionId "DEC-002" ;
+    sk:decisionTitle "Supervision Tree Strategy" ;
+    sk:decisionChoice "Top-level supervisor (one_for_one) → Worker supervisor (simple_one_for_one) + Scheduler (permanent) + Rate limiter (permanent). Worker supervisor spawns N workers dynamically." ;
+    sk:decisionRationale "one_for_one at top level isolates failures (worker supervisor crash doesn't kill scheduler). simple_one_for_one for worker pool enables dynamic sizing. Permanent for singleton services ensures they're always restarted." ;
+    sk:alternativesConsidered "one_for_all (restarts all children - too aggressive), rest_for_one (wrong dependency order), flat structure (no isolation)" ;
+    sk:tradeoffs "Gain: fault isolation, dynamic scaling, OTP idiomatic. Lose: slight complexity in supervision tree structure" ;
+    sk:revisitCriteria "If scheduler/rate limiter failures should restart workers (unlikely), switch to rest_for_one" .
+
+:decision-scheduler-impl a sk:PlanDecision ;
+    sk:decisionId "DEC-003" ;
+    sk:decisionTitle "Scheduler Implementation using erlang:send_after/3" ;
+    sk:decisionChoice "Gen_server scheduler with erlang:send_after/3 timers. Store scheduled jobs in ETS (indexed by execution time). On timer trigger, enqueue job and reschedule if recurring." ;
+    sk:decisionRationale "erlang:send_after/3 is lightweight, precise (<1ms variance), and cancellable. ETS provides fast lookup by execution time. Gen_server ensures serialized access to scheduler state." ;
+    sk:alternativesConsidered "timer module (deprecated, less efficient), polling loop (wasteful CPU), external cron daemon (not fault-tolerant)" ;
+    sk:tradeoffs "Gain: precision, efficiency, OTP integration. Lose: in-memory timers lost on crash (mitigated by persisting scheduled jobs to Mnesia/Redis and restoring on init)" ;
+    sk:revisitCriteria "If timer precision degrades under high load (>1000 scheduled jobs), consider hierarchical timer wheel or external scheduler" .
+
+:decision-testing-strategy a sk:PlanDecision ;
+    sk:decisionId "DEC-004" ;
+    sk:decisionTitle "Multi-Level Testing Strategy: EUnit + PropEr + common_test" ;
+    sk:decisionChoice "EUnit for unit tests (individual modules), PropEr for property-based tests (queue invariants, concurrency), common_test for integration tests (full workflow, failure scenarios), benchmarks with timer:tc/1" ;
+    sk:decisionRationale "EUnit provides fast feedback. PropEr finds edge cases humans miss (concurrency bugs, queue invariants). common_test validates integration and failure scenarios. Benchmarks ensure performance SLOs." ;
+    sk:alternativesConsidered "EUnit only (misses edge cases), manual testing (not reproducible), QuickCheck (commercial license)" ;
+    sk:tradeoffs "Gain: comprehensive coverage, automated edge case discovery, regression detection. Lose: longer test execution time (mitigated by parallel test execution with rebar3)" ;
+    sk:revisitCriteria "If PropEr tests become too slow (>60s), reduce iterations or use targeted properties" .
+
+:decision-rate-limit-algo a sk:PlanDecision ;
+    sk:decisionId "DEC-005" ;
+    sk:decisionTitle "Rate Limiting Algorithm Selection" ;
+    sk:decisionChoice "Support both token bucket (burst allowance) and leaky bucket (strict rate). User selects algorithm via configuration. Implement both in single gen_server with algorithm parameter." ;
+    sk:decisionRationale "Token bucket is flexible (allows burst up to capacity). Leaky bucket is strict (enforces exact rate). Different use cases need different algorithms. Single gen_server implementation reduces code duplication." ;
+    sk:alternativesConsidered "Token bucket only (doesn't enforce strict rate), leaky bucket only (doesn't allow burst), separate modules (code duplication)" ;
+    sk:tradeoffs "Gain: flexibility, single implementation, configuration-based selection. Lose: slight complexity in gen_server state (algorithm parameter)" ;
+    sk:revisitCriteria "If algorithms diverge significantly in implementation, split into separate modules" .
+
+# ============================================================================
+# RISKS & MITIGATION
+# ============================================================================
+
+:risk-mnesia-split-brain a sk:Risk ;
+    sk:riskId "RISK-001" ;
+    sk:riskDescription "Mnesia network partition (split-brain) causes inconsistent queue state across nodes. Jobs may be processed twice or lost." ;
+    sk:riskImpact "high" ;
+    sk:riskLikelihood "medium" ;
+    sk:mitigationStrategy "Use Mnesia majority quorum (mnesia:set_master_nodes/1). Document network partition recovery procedures. Provide idempotent job processing. Test partition scenarios with common_test (net_kernel:disconnect_node/1)." .
+
+:risk-redis-latency a sk:Risk ;
+    sk:riskId "RISK-002" ;
+    sk:riskDescription "Redis backend introduces network latency (5-50ms), violating <1ms p95 SLO for enqueue/dequeue" ;
+    sk:riskImpact "medium" ;
+    sk:riskLikelihood "high" ;
+    sk:mitigationStrategy "Document Redis backend SLOs separately (accept <50ms p95). Use connection pooling (eredis_pool) to minimize connection overhead. Provide Redis pipelining for batch operations. Recommend ETS or Mnesia for latency-sensitive deployments." .
+
+:risk-scheduler-accuracy a sk:Risk ;
+    sk:riskId "RISK-003" ;
+    sk:riskDescription "Scheduler may drift or miss execution times under high load or during restarts" ;
+    sk:riskImpact "medium" ;
+    sk:riskLikelihood "medium" ;
+    sk:mitigationStrategy "Persist scheduled jobs to Mnesia/Redis. On scheduler restart, recalculate and reschedule all pending jobs. Use erlang:monotonic_time/1 for accurate timing. Test scheduler accuracy with stress tests (1000 scheduled jobs). Document accuracy SLO (±1s for scheduled jobs, ±100ms for delayed jobs)." .
+
+:risk-worker-crash-cascade a sk:Risk ;
+    sk:riskId "RISK-004" ;
+    sk:riskDescription "Malformed job payload causes all workers to crash (same payload dequeued repeatedly), cascading failure" ;
+    sk:riskImpact "high" ;
+    sk:riskLikelihood "low" ;
+    sk:mitigationStrategy "Implement job retry limit (max_retries=3). After max_retries, move job to dead-letter queue (DLQ). Supervisor restart strategy limits cascading (max_restarts=10, max_seconds=60). Log failed jobs for debugging. Test crash scenarios with PropEr and common_test." .
+
+# ============================================================================
+# DEPENDENCIES
+# ============================================================================
+
+:dep-eredis a sk:Dependency ;
+    sk:dependencyName "eredis (Erlang Redis Client)" ;
+    sk:dependencyType "external" ;
+    sk:dependencyStatus "available" ;
+    sk:dependencyNotes "GitHub: https://github.com/wooga/eredis. Add to rebar.config: {eredis, \"1.7.0\"}. Used for Redis backend implementation." .
+
+:dep-proper a sk:Dependency ;
+    sk:dependencyName "PropEr (Property-Based Testing)" ;
+    sk:dependencyType "external" ;
+    sk:dependencyStatus "available" ;
+    sk:dependencyNotes "GitHub: https://github.com/proper-testing/proper. Add to rebar.config: {proper, \"1.4.0\"}. Required for property-based tests (jobs_proper_tests.erl)." .
+
+:dep-cron a sk:Dependency ;
+    sk:dependencyName "Cron Expression Parser" ;
+    sk:dependencyType "internal" ;
+    sk:dependencyStatus "in-progress" ;
+    sk:dependencyNotes "Custom implementation in jobs_cron.erl. Parses cron expressions (5 fields: minute, hour, day, month, weekday). Calculates next execution time. No external dependency needed." .
+
+# ============================================================================
+# ARCHITECTURE DIAGRAMS
+# ============================================================================
+
+:supervision-tree a sk:Diagram ;
+    sk:diagramType "supervision-tree" ;
+    sk:diagramTitle "OTP Supervision Tree" ;
+    sk:diagramContent """
+jobs_sup (one_for_one)
+├─ jobs_worker_sup (simple_one_for_one)
+│  ├─ jobs_worker (gen_server) [1..N, dynamic]
+│  ├─ jobs_worker (gen_server)
+│  └─ jobs_worker (gen_server)
+├─ jobs_scheduler (gen_server, permanent)
+└─ jobs_rate_limiter (gen_server, permanent)
+
+Restart Strategies:
+- jobs_sup: one_for_one (isolate failures)
+- jobs_worker_sup: simple_one_for_one (dynamic worker pool)
+- Worker restart: temporary (don't restart, pool will spawn new)
+- Scheduler/Rate Limiter: permanent (always restart)
+""" .
+
+:data-flow a sk:Diagram ;
+    sk:diagramType "data-flow" ;
+    sk:diagramTitle "Job Processing Data Flow" ;
+    sk:diagramContent """
+Client
+  ↓ enqueue(Job)
+JobQueue (jobs_queue.erl)
+  ↓ Backend.enqueue(Job)
+JobStore Backend (ETS/Mnesia/Redis)
+  ↓ store job
+
+Worker Pool
+  ↓ dequeue()
+JobQueue
+  ↓ Backend.dequeue()
+JobStore Backend
+  ↓ return Job
+Worker (jobs_worker.erl)
+  ↓ process(Job)
+Job Handler (user-provided MFA)
+  ↓ {ok, Result} | {error, Reason}
+Worker
+  ↓ handle result
+
+If error + retries < max_retries:
+  ↓ re-enqueue with retries+1
+If error + retries >= max_retries:
+  ↓ enqueue to dead-letter queue
+If success:
+  ↓ mark complete, update metrics
+""" .
+
+:scheduler-flow a sk:Diagram ;
+    sk:diagramType "sequence-diagram" ;
+    sk:diagramTitle "Scheduler Job Execution Flow" ;
+    sk:diagramContent """
+Client → Scheduler: enqueue_delayed(Job, DelayMs)
+Scheduler → Scheduler: calculate execute_at = now() + DelayMs
+Scheduler → Scheduler: TimerRef = erlang:send_after(DelayMs, self(), {execute, JobId})
+Scheduler → Backend: persist scheduled job (if Mnesia/Redis)
+Scheduler → Client: {ok, JobId}
+
+... DelayMs passes ...
+
+Erlang Timer → Scheduler: {execute, JobId}
+Scheduler → Scheduler: lookup scheduled job
+Scheduler → JobQueue: enqueue(Job)
+Scheduler → Scheduler: remove from scheduled_jobs map
+Scheduler → Backend: delete scheduled job (if Mnesia/Redis)
+
+For recurring jobs:
+Scheduler → Scheduler: calculate next_execution from cron
+Scheduler → Scheduler: reschedule with new TimerRef
+""" .
+
+# ============================================================================
+# CONFIGURATION
+# ============================================================================
+
+:configuration a sk:Configuration ;
+    sk:configFormat "Erlang application environment (sys.config)" ;
+    sk:configExample """
+{jobs, [
+    {queues, [
+        {default_queue, [
+            {backend, ets},
+            {type, fifo},
+            {max_size, infinity}
+        ]},
+        {priority_queue, [
+            {backend, mnesia},
+            {type, priority},
+            {max_size, 10000},
+            {overflow_strategy, drop_oldest}
+        ]},
+        {persistent_queue, [
+            {backend, redis},
+            {type, fifo},
+            {redis_config, #{
+                host => \"localhost\",
+                port => 6379,
+                database => 0,
+                pool_size => 10
+            }}
+        ]}
+    ]},
+    {worker_pool, [
+        {pool_size, 10},
+        {max_pool_size, 50},
+        {min_pool_size, 2},
+        {dynamic_scaling, true},
+        {scale_up_threshold, 100},    % jobs in queue
+        {scale_down_threshold, 10}
+    ]},
+    {scheduler, [
+        {enabled, true},
+        {persistence_backend, mnesia}
+    ]},
+    {rate_limiter, [
+        {enabled, false},
+        {algorithm, token_bucket},
+        {rate, 100.0},                % tokens per second
+        {capacity, 500}               % max burst
+    ]}
+]}.
+""" .
+
+# ============================================================================
+# MODULE ORGANIZATION
+# ============================================================================
+
+:module-layout a sk:ModuleLayout ;
+    sk:modules [
+        "jobs_app.erl - Application behavior (start/2, stop/1)",
+        "jobs_sup.erl - Top-level supervisor (one_for_one)",
+        "jobs_worker_sup.erl - Worker pool supervisor (simple_one_for_one)",
+        "jobs_worker.erl - Worker gen_server (dequeue, process, handle errors)",
+        "jobs_queue.erl - Public queue API (enqueue, dequeue, peek, size)",
+        "jobs_store.erl - Backend behavior definition (callbacks)",
+        "jobs_store_ets.erl - ETS backend implementation",
+        "jobs_store_mnesia.erl - Mnesia backend implementation",
+        "jobs_store_redis.erl - Redis backend implementation",
+        "jobs_scheduler.erl - Scheduler gen_server (delayed/recurring jobs)",
+        "jobs_rate_limiter.erl - Rate limiter gen_server (token/leaky bucket)",
+        "jobs_cron.erl - Cron expression parser and next-time calculator",
+        "jobs_config.erl - Configuration loading and validation",
+        "jobs_metrics.erl - Worker metrics and monitoring",
+        "jobs_util.erl - Utility functions (job ID generation, timestamp conversion)"
+    ] .
+
+# ============================================================================
+# COMPLETION CRITERIA
+# ============================================================================
+
+:plan-completion a sk:Checklist ;
+    rdfs:label "Plan Implementation Completion" ;
+    spec:criterion1 "All 15 modules implemented and compiling (rebar3 compile)" ;
+    spec:criterion2 "Application starts and supervision tree is correct (observer)" ;
+    spec:criterion3 "All three backends (ETS, Mnesia, Redis) functional" ;
+    spec:criterion4 "Worker pool scales dynamically based on queue depth" ;
+    spec:criterion5 "Scheduler handles delayed, scheduled, and recurring jobs" ;
+    spec:criterion6 "Rate limiter implements both token and leaky bucket algorithms" ;
+    spec:criterion7 "All EUnit tests pass (rebar3 eunit)" ;
+    spec:criterion8 "PropEr tests find no counterexamples (1000 iterations)" ;
+    spec:criterion9 "common_test integration tests pass (rebar3 ct)" ;
+    spec:criterion10 "Benchmarks meet SLOs (enqueue <1ms p95 for ETS, throughput >10k/s)" ;
+    spec:criterion11 "Test coverage >80% (rebar3 cover)" ;
+    spec:criterion12 "Dialyzer reports zero warnings (rebar3 dialyzer)" ;
+    spec:criterion13 "Documentation complete (tutorial, how-tos, reference, explanation)" ;
+    spec:criterion14 "README with quick start and working examples" ;
+    spec:criterion15 "CHANGELOG documenting all features and versions" .

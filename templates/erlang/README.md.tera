@@ -1,0 +1,559 @@
+{% set app_name = app_name | default(value="myapp") -%}
+{% set description = description | default(value="Erlang OTP Application") -%}
+# Erlang Code Generation Templates
+
+This directory contains comprehensive Tera templates for generating production-ready Erlang/OTP code from RDF ontologies.
+
+## Overview
+
+These templates are **SPARQL-aware** and support **multi-pass rendering**, enabling sophisticated code generation driven by semantic ontologies defined in RDF/Turtle format.
+
+## Template Categories
+
+### 1. OTP Application Templates
+
+#### `erlang_app.erl.tera`
+Generates the main application behavior module.
+
+**Features:**
+- Application lifecycle management (start/stop)
+- Configuration management with defaults
+- Environment initialization and cleanup
+- Comprehensive error handling
+- EUnit test scaffolding
+
+**SPARQL Context:**
+```sparql
+SELECT ?module ?description ?author WHERE {
+  ?app rdf:type :Application ;
+       :hasModule ?module ;
+       :description ?description ;
+       :author ?author .
+}
+```
+
+**Usage:**
+```bash
+ggen sync --template erlang_app.erl.tera --context app_context.ttl
+```
+
+#### `erlang_app_sup.erl.tera`
+Generates the top-level supervisor.
+
+**Features:**
+- Configurable restart strategies (one_for_one, one_for_all, rest_for_one, simple_one_for_one)
+- Child specification from ontology
+- EUnit tests for supervisor behavior
+
+**Variables:**
+- `app_name` - Application name
+- `restart_strategy` - Supervision strategy
+- `max_restarts` - Maximum restart intensity
+- `max_seconds` - Restart period
+- `children` - List of child specifications
+
+#### `erlang.app.src.tera`
+Generates the application resource file.
+
+**Features:**
+- Automatic dependency resolution from ontology
+- Environment variable configuration
+- Registered process names
+- OTP versioning and metadata
+
+### 2. Job System Templates
+
+#### `job_queue.erl.tera`
+Generic job queue gen_server implementation.
+
+**Features:**
+- Priority-based job scheduling
+- Pluggable storage backends (ETS, Mnesia, custom)
+- Queue capacity limits with overflow handling
+- Comprehensive metrics tracking
+- Full test coverage
+
+**SPARQL Context:**
+```sparql
+SELECT ?capacity ?backend ?timeout WHERE {
+  ?queue rdf:type :JobQueue ;
+         :maxCapacity ?capacity ;
+         :backend ?backend ;
+         :timeout ?timeout .
+}
+```
+
+#### `job_worker.erl.tera`
+Worker process for job execution.
+
+**Features:**
+- Automatic retry with exponential backoff
+- Configurable timeout handling
+- Job status tracking
+- Metrics collection (processed, failed, retried)
+- Error recovery strategies
+
+**Retry Policy Configuration:**
+```erlang
+retry_policy => #{
+  max_retries => 3,
+  initial_delay => 1000,
+  max_delay => 60000,
+  backoff_factor => 2.0
+}
+```
+
+#### `job_supervisor.erl.tera`
+Supervisor for worker pool management.
+
+**Features:**
+- Dynamic worker pool sizing
+- simple_one_for_one strategy
+- Worker health monitoring
+- Pool statistics and management API
+
+#### `job.hrl.tera`
+Record definitions and type specifications.
+
+**Features:**
+- Comprehensive job record with all lifecycle fields
+- Status enumeration (pending, queued, running, completed, failed, retrying, cancelled)
+- Priority levels (LOW, NORMAL, HIGH, CRITICAL)
+- Queue statistics record
+- Worker state record
+- Utility macros for common operations
+
+### 3. Backend Templates
+
+#### `ets_backend.erl.tera`
+In-memory ETS storage backend.
+
+**Features:**
+- O(log n) priority queue using ordered_set
+- Concurrent read/write support
+- Composite key design for priority ordering
+- Rich query API (find_by_id, find_by_priority)
+- Full test coverage
+
+**Implementation Details:**
+- Uses negative priority for ordering (higher priority = lower key)
+- Counter ensures FIFO for same priority
+- Key structure: `{-Priority, Counter}`
+
+#### `mnesia_backend.erl.tera`
+Persistent Mnesia storage backend.
+
+**Features:**
+- ACID transactions
+- Distributed replication support
+- Automatic crash recovery
+- Table schema management
+- QLC query support
+
+**Configuration:**
+```erlang
+{backend_opts, [
+  {disc_copies, [node()]},
+  {ram_copies, []},
+  {disc_only_copies, []}
+]}
+```
+
+### 4. Testing Templates
+
+#### `benchmark.erl.tera`
+Performance benchmark suite.
+
+**Benchmarks:**
+- Enqueue/dequeue throughput
+- Concurrent worker performance
+- Backend comparison (ETS vs Mnesia)
+- Latency percentiles (p50, p95, p99, p99.9)
+- Memory profiling
+
+**Output:**
+```
+=== Job Queue Benchmark Suite ===
+
+1. Enqueue Throughput
+  Iterations: 10000
+  Total time: 234 ms
+  Throughput: 42735 ops/sec
+  Avg latency: 23 μs
+
+2. Backend Comparison
+  Testing ETS Backend
+    Enqueue: 45123 ops/sec (22 μs avg)
+    Dequeue: 48234 ops/sec (20 μs avg)
+  Testing Mnesia Backend
+    Enqueue: 12345 ops/sec (81 μs avg)
+    Dequeue: 13456 ops/sec (74 μs avg)
+```
+
+#### `stress_test.erl.tera`
+Property-based stress testing with PropEr.
+
+**Properties Tested:**
+- FIFO ordering within same priority
+- Priority ordering across jobs
+- Concurrent enqueue safety
+- Worker crash recovery
+- Queue capacity enforcement
+
+**Stress Scenarios:**
+- High concurrency load (100+ concurrent clients)
+- Memory pressure testing (large job payloads)
+- Failure recovery (worker crashes, process kills)
+
+#### `common_test_suite.erl.tera`
+Comprehensive Common Test suite.
+
+**Test Groups:**
+- Basic operations (enqueue, dequeue, peek, clear)
+- Worker operations (processing, failures, timeouts)
+- Backend operations (ETS, Mnesia, persistence)
+- Concurrency (parallel enqueue/dequeue, workers)
+- Failure scenarios (overflow, supervisor restart, retry)
+
+### 5. Build/Config Templates
+
+#### `rebar.config.tera`
+rebar3 project configuration.
+
+**Features:**
+- Dependency management with version pinning
+- Multiple build profiles (test, prod, dev)
+- Dialyzer and XRef configuration
+- Cover (coverage) settings
+- Plugin management
+- Alias commands for common workflows
+
+**Profiles:**
+```erlang
+{profiles, [
+  {test, [...]},   % Test dependencies and settings
+  {prod, [...]},   % Production optimization
+  {dev, [...]}     % Development tools
+]}
+```
+
+#### `Makefile.tera`
+Build automation with Make.
+
+**Targets:**
+- `make compile` - Compile source
+- `make test` - Run all tests
+- `make check` - Quality checks (dialyzer, xref, lint)
+- `make release` - Build production release
+- `make benchmark` - Run benchmarks
+- `make ci` - CI pipeline
+- `make help` - Show all targets
+
+#### `sys.config.tera`
+Runtime system configuration.
+
+**Configuration Sections:**
+- SASL (logging, error reporting)
+- Kernel (logger configuration)
+- Application-specific settings
+- Mnesia configuration
+- Third-party application configs
+
+**Logger Configuration:**
+```erlang
+{logger, [
+  {handler, default, logger_std_h, #{...}},  % Console
+  {handler, file, logger_std_h, #{...}}      % File with rotation
+]}
+```
+
+## Multi-Pass Rendering
+
+All templates support multi-pass rendering for complex code generation:
+
+**Pass 1: Extract Metadata**
+```turtle
+:MyApp a :Application ;
+  :name "job_processor" ;
+  :version "1.0.0" ;
+  :author "Generated by ggen" .
+```
+
+**Pass 2: Resolve Dependencies**
+```turtle
+:MyApp :dependsOn :stdlib, :kernel, :mnesia .
+```
+
+**Pass 3: Generate Code**
+Final Erlang code with all context applied.
+
+## SPARQL Integration Examples
+
+### Query Application Configuration
+```sparql
+PREFIX : <http://example.org/schema#>
+
+SELECT ?workers ?queueSize ?timeout WHERE {
+  ?app rdf:type :JobQueueApp ;
+       :workers ?workers ;
+       :maxQueueSize ?queueSize ;
+       :timeout ?timeout .
+}
+```
+
+### Query Worker Pool Settings
+```sparql
+SELECT ?poolSize ?strategy ?maxRestarts WHERE {
+  ?supervisor rdf:type :WorkerSupervisor ;
+              :poolSize ?poolSize ;
+              :restartStrategy ?strategy ;
+              :maxRestarts ?maxRestarts .
+}
+```
+
+### Query Backend Configuration
+```sparql
+SELECT ?backend ?opts WHERE {
+  ?config rdf:type :BackendConfig ;
+          :backendModule ?backend ;
+          :options ?opts .
+}
+```
+
+## Usage Examples
+
+### Generate Complete OTP Application
+
+```bash
+# 1. Define ontology in RDF/Turtle
+cat > my_app.ttl <<EOF
+@prefix : <http://example.org/schema#> .
+
+:MyJobApp a :Application ;
+  :name "job_processor" ;
+  :version "1.0.0" ;
+  :workers 8 ;
+  :maxQueueSize 10000 ;
+  :backend :MnesiaBackend .
+
+:MnesiaBackend a :Backend ;
+  :module "mnesia_backend" ;
+  :discCopies ( "node1@host" "node2@host" ) .
+EOF
+
+# 2. Generate code using ggen
+ggen sync --ontology my_app.ttl --template-dir templates/erlang/
+
+# 3. Generated files:
+#    src/job_processor_app.erl
+#    src/job_processor_sup.erl
+#    src/job_queue.erl
+#    src/job_worker.erl
+#    src/job_supervisor.erl
+#    src/mnesia_backend.erl
+#    include/job.hrl
+#    test/job_system_SUITE.erl
+#    rebar.config
+#    Makefile
+#    config/sys.config
+```
+
+### Generate with Custom Variables
+
+```bash
+ggen sync \
+  --template erlang_app.erl.tera \
+  --var app_name=my_processor \
+  --var workers=16 \
+  --var max_queue_size=50000 \
+  --var backend=ets_backend
+```
+
+### Generate Test Suite Only
+
+```bash
+ggen sync \
+  --template common_test_suite.erl.tera \
+  --ontology test_config.ttl \
+  --output test/my_app_SUITE.erl
+```
+
+## Template Variables
+
+### Common Variables (All Templates)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `app_name` | `"myapp"` | Application name |
+| `author` | `"Generated by ggen"` | Author name |
+| `description` | Template-specific | Module description |
+| `version` | `"0.1.0"` | Application version |
+| `current_year` | Current year | Copyright year |
+| `timestamp` | Current time | Creation timestamp |
+
+### Job Queue Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `backend_module` | `ets_backend` | Storage backend |
+| `max_size` | `infinity` | Max queue capacity |
+| `workers` | `4` | Worker pool size |
+| `timeout` | `5000` | Job timeout (ms) |
+| `max_retries` | `3` | Retry attempts |
+| `poll_interval` | `1000` | Queue poll interval |
+
+### Backend Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `table_name` | Backend-specific | ETS/Mnesia table name |
+| `read_concurrency` | `true` | ETS concurrency |
+| `write_concurrency` | `true` | ETS concurrency |
+| `disc_copies` | `[node()]` | Mnesia disc replicas |
+
+### Test Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `iterations` | `10000` | Benchmark iterations |
+| `num_tests` | `100` | PropEr test count |
+| `stress_duration` | `60000` | Stress test duration |
+| `concurrent_clients` | `100` | Concurrent load |
+
+## Best Practices
+
+### 1. Define Complete Ontologies
+Ensure RDF ontologies specify all required configuration:
+```turtle
+:MyApp :workers 8 ;
+       :maxQueueSize 1000 ;
+       :timeout 5000 ;
+       :retryPolicy [ :maxRetries 3 ; :backoffFactor 2.0 ] .
+```
+
+### 2. Use Type-Safe Records
+Leverage Erlang records for compile-time safety:
+```erlang
+-record(job, {
+  id :: binary(),
+  priority :: integer(),
+  status :: job_status(),
+  ...
+}).
+```
+
+### 3. Test Generated Code
+Always run the generated test suites:
+```bash
+make test           # All tests
+make eunit          # Unit tests
+make ct             # Common Test
+make proper         # Property tests
+make stress-test    # Stress tests
+```
+
+### 4. Profile Performance
+Use benchmarks to validate performance:
+```bash
+make benchmark
+```
+
+### 5. Enable Coverage
+Track test coverage:
+```bash
+make test-coverage
+make coverage-report  # Open HTML report
+```
+
+## Advanced Features
+
+### Custom Backends
+Implement custom storage backends by following the behavior:
+
+```erlang
+-callback init(Options) -> {ok, State} | {error, Reason}.
+-callback enqueue(Job, State) -> {ok, NewState} | {error, Reason}.
+-callback dequeue(State) -> {ok, Job, NewState} | {error, Reason}.
+-callback size(State) -> non_neg_integer().
+-callback clear(State) -> {ok, NewState}.
+-callback terminate(State) -> ok.
+```
+
+### Custom Job Handlers
+Define job processing logic:
+
+```erlang
+-module(my_handler).
+-export([handle_job/1]).
+
+handle_job(#job{data = Data}) ->
+  %% Process job
+  case do_work(Data) of
+    {ok, Result} -> ok;
+    {error, Reason} -> {error, Reason}
+  end.
+```
+
+### Distributed Setup
+Configure Mnesia for distributed queue:
+
+```erlang
+{mnesia, [
+  {extra_db_nodes, ['node1@host', 'node2@host']},
+  {schema_location, disc},
+  {disc_copies, ['node1@host', 'node2@host']}
+]}
+```
+
+## Troubleshooting
+
+### Build Issues
+```bash
+# Clear and rebuild
+make distclean
+make compile
+
+# Check Dialyzer PLT
+make build-plt
+make dialyzer
+```
+
+### Test Failures
+```bash
+# Run specific test
+rebar3 ct --suite test/job_system_SUITE --case test_enqueue_dequeue
+
+# Verbose output
+rebar3 eunit --verbose
+```
+
+### Performance Issues
+```bash
+# Profile with recon
+make shell
+1> recon:proc_count(memory, 10).
+2> recon:proc_window(reductions, 10, 1000).
+
+# Check ETS/Mnesia stats
+3> ets:info(job_queue_ets, size).
+4> mnesia:table_info(job_queue_mnesia, size).
+```
+
+## Contributing
+
+When adding new templates:
+
+1. **Document SPARQL context** - Show example queries
+2. **Add comprehensive tests** - EUnit, CT, PropEr
+3. **Include usage examples** - Command-line and ontology examples
+4. **Follow OTP conventions** - Standard module structure and naming
+5. **Support multi-pass rendering** - Design for iterative generation
+
+## License
+
+{{ license | default(value="Apache-2.0") }}
+
+## Generated By
+
+ggen v{{ ggen_version | default(value="6.0.0") }} - Specification-Driven Code Generation
+https://github.com/seanchatmangpt/ggen

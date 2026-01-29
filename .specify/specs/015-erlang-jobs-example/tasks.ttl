@@ -1,0 +1,659 @@
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <https://ggen.dev/spec/erlang-jobs#> .
+
+# ============================================================================
+# TASKS: Erlang OTP Job Processing Library Implementation
+# ============================================================================
+
+:tasks a sk:Tasks ;
+    sk:featureBranch "015-erlang-jobs-example" ;
+    sk:featureName "Erlang OTP Job Processing Library with Multiple Backends and Comprehensive Testing" ;
+    sk:tasksCreated "2026-01-29"^^xsd:date ;
+    sk:totalTasks 47 ;
+    sk:estimatedEffort "3-4 weeks (120-160 hours)" ;
+    sk:hasPhase :phase-setup, :phase-foundation, :phase-queue, :phase-workers, :phase-scheduler, :phase-ratelimit, :phase-testing, :phase-docs .
+
+# ============================================================================
+# PHASE: SETUP (T001-T006)
+# ============================================================================
+
+:phase-setup a sk:Phase ;
+    sk:phaseId "phase-setup" ;
+    sk:phaseName "Setup" ;
+    sk:phaseOrder 1 ;
+    sk:phaseDescription "Project scaffolding, rebar.config setup, directory structure, basic OTP application skeleton" ;
+    sk:phaseDeliverables "Complete Erlang project structure with rebar3 configuration" ;
+    sk:hasTask :task-001, :task-002, :task-003, :task-004, :task-005, :task-006 .
+
+:task-001 a sk:Task ;
+    sk:taskId "T001" ;
+    sk:taskOrder 1 ;
+    sk:taskDescription "Create directory structure (src/, include/, test/, bench/, doc/)" ;
+    sk:filePath "." ;
+    sk:parallelizable "false"^^xsd:boolean ;
+    sk:belongsToPhase :phase-setup ;
+    sk:taskNotes "Use rebar3 new app jobs or create manually. Standard Erlang project layout." .
+
+:task-002 a sk:Task ;
+    sk:taskId "T002" ;
+    sk:taskOrder 2 ;
+    sk:taskDescription "Create rebar.config with dependencies (eredis, proper)" ;
+    sk:filePath "rebar.config" ;
+    sk:parallelizable "false"^^xsd:boolean ;
+    sk:belongsToPhase :phase-setup ;
+    sk:dependencies "T001" ;
+    sk:taskNotes "Add eredis 1.7.0, proper 1.4.0. Configure plugins for cover, dialyzer, edoc." .
+
+:task-003 a sk:Task ;
+    sk:taskId "T003" ;
+    sk:taskOrder 3 ;
+    sk:taskDescription "Create jobs.app.src with application metadata" ;
+    sk:filePath "src/jobs.app.src" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-setup ;
+    sk:dependencies "T001" ;
+    sk:taskNotes "Define mod: {jobs_app, []}, applications: [kernel, stdlib, mnesia, eredis]." .
+
+:task-004 a sk:Task ;
+    sk:taskId "T004" ;
+    sk:taskOrder 4 ;
+    sk:taskDescription "Create sys.config with default configuration" ;
+    sk:filePath "config/sys.config" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-setup ;
+    sk:dependencies "T001" ;
+    sk:taskNotes "Configure default queue (ETS backend), worker pool size (10), scheduler enabled." .
+
+:task-005 a sk:Task ;
+    sk:taskId "T005" ;
+    sk:taskOrder 5 ;
+    sk:taskDescription "Create .gitignore for Erlang projects" ;
+    sk:filePath ".gitignore" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-setup ;
+    sk:taskNotes "Ignore _build/, .rebar3/, erl_crash.dump, rebar3.crashdump, *.beam." .
+
+:task-006 a sk:Task ;
+    sk:taskId "T006" ;
+    sk:taskOrder 6 ;
+    sk:taskDescription "Create Makefile with common rebar3 commands" ;
+    sk:filePath "Makefile" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-setup ;
+    sk:taskNotes "Targets: compile, test, eunit, ct, bench, dialyzer, cover, clean." .
+
+# ============================================================================
+# PHASE: FOUNDATION (T007-T013)
+# ============================================================================
+
+:phase-foundation a sk:Phase ;
+    sk:phaseId "phase-foundation" ;
+    sk:phaseName "Foundation" ;
+    sk:phaseOrder 2 ;
+    sk:phaseDescription "Core types, records, OTP application behavior, top-level supervisor" ;
+    sk:phaseDeliverables "Application starts with supervision tree" ;
+    sk:hasTask :task-007, :task-008, :task-009, :task-010, :task-011, :task-012, :task-013 .
+
+:task-007 a sk:Task ;
+    sk:taskId "T007" ;
+    sk:taskOrder 7 ;
+    sk:taskDescription "Define job record and types in include/jobs.hrl" ;
+    sk:filePath "include/jobs.hrl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-foundation ;
+    sk:dependencies "T001" ;
+    sk:relatedToStory :us-001 ;
+    sk:taskNotes "Record: job{id, payload, status, priority, enqueued_at, scheduled_at, started_at, completed_at, retries, max_retries, error_message, metadata}. Type specs for all fields." .
+
+:task-008 a sk:Task ;
+    sk:taskId "T008" ;
+    sk:taskOrder 8 ;
+    sk:taskDescription "Implement jobs_app.erl (application behavior)" ;
+    sk:filePath "src/jobs_app.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-foundation ;
+    sk:dependencies "T002, T007" ;
+    sk:relatedToStory :us-001 ;
+    sk:taskNotes "Implement start/2 (start top supervisor), stop/1 (cleanup). Export behavior_info." .
+
+:task-009 a sk:Task ;
+    sk:taskId "T009" ;
+    sk:taskOrder 9 ;
+    sk:taskDescription "Implement jobs_sup.erl (top-level supervisor)" ;
+    sk:filePath "src/jobs_sup.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-foundation ;
+    sk:dependencies "T007" ;
+    sk:relatedToStory :us-001 ;
+    sk:taskNotes "Supervisor behavior, one_for_one strategy, max_restarts=10, max_seconds=60. Children: jobs_worker_sup, jobs_scheduler, jobs_rate_limiter." .
+
+:task-010 a sk:Task ;
+    sk:taskId "T010" ;
+    sk:taskOrder 10 ;
+    sk:taskDescription "Implement jobs_config.erl (configuration loader)" ;
+    sk:filePath "src/jobs_config.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-foundation ;
+    sk:dependencies "T004" ;
+    sk:taskNotes "Functions: load_config/0, get_queue_config/1, get_worker_pool_config/0, validate_config/1." .
+
+:task-011 a sk:Task ;
+    sk:taskId "T011" ;
+    sk:taskOrder 11 ;
+    sk:taskDescription "Implement jobs_util.erl (utilities)" ;
+    sk:filePath "src/jobs_util.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-foundation ;
+    sk:taskNotes "Functions: generate_job_id/0 (UUID v4), timestamp_to_datetime/1, datetime_to_timestamp/1, format_error/1." .
+
+:task-012 a sk:Task ;
+    sk:taskId "T012" ;
+    sk:taskOrder 12 ;
+    sk:taskDescription "Implement jobs_metrics.erl (metrics collection)" ;
+    sk:filePath "src/jobs_metrics.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-foundation ;
+    sk:taskNotes "ETS-based metrics: job_processed/1, job_failed/1, update_latency/2, get_stats/0." .
+
+:task-013 a sk:Task ;
+    sk:taskId "T013" ;
+    sk:taskOrder 13 ;
+    sk:taskDescription "Write EUnit tests for foundation modules" ;
+    sk:filePath "test/jobs_foundation_tests.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-foundation ;
+    sk:dependencies "T007, T008, T009, T010, T011, T012" ;
+    sk:taskNotes "Test application start/stop, config loading, util functions, metrics. Use AAA pattern." .
+
+# ============================================================================
+# PHASE: JOB QUEUE (T014-T022)
+# ============================================================================
+
+:phase-queue a sk:Phase ;
+    sk:phaseId "phase-queue" ;
+    sk:phaseName "Job Queue with Backends" ;
+    sk:phaseOrder 3 ;
+    sk:phaseDescription "Queue API, backend behavior, three backend implementations" ;
+    sk:phaseDeliverables "Working queue with ETS, Mnesia, Redis backends" ;
+    sk:hasTask :task-014, :task-015, :task-016, :task-017, :task-018, :task-019, :task-020, :task-021, :task-022 .
+
+:task-014 a sk:Task ;
+    sk:taskId "T014" ;
+    sk:taskOrder 14 ;
+    sk:taskDescription "Define jobs_store behavior (callbacks)" ;
+    sk:filePath "src/jobs_store.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-queue ;
+    sk:dependencies "T007" ;
+    sk:relatedToStory :us-002 ;
+    sk:taskNotes "Callbacks: init/1, enqueue/2, dequeue/1, peek/1, size/1, delete/2, terminate/2. Export behavior_info." .
+
+:task-015 a sk:Task ;
+    sk:taskId "T015" ;
+    sk:taskOrder 15 ;
+    sk:taskDescription "Implement jobs_store_ets.erl (ETS backend)" ;
+    sk:filePath "src/jobs_store_ets.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-queue ;
+    sk:dependencies "T014" ;
+    sk:relatedToStory :us-002 ;
+    sk:taskNotes "Use ordered_set ETS table. FIFO via auto-incrementing key. Priority via custom comparator." .
+
+:task-016 a sk:Task ;
+    sk:taskId "T016" ;
+    sk:taskOrder 16 ;
+    sk:taskDescription "Implement jobs_store_mnesia.erl (Mnesia backend)" ;
+    sk:filePath "src/jobs_store_mnesia.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-queue ;
+    sk:dependencies "T014" ;
+    sk:relatedToStory :us-002 ;
+    sk:taskNotes "Create Mnesia table (disc_copies). Use transactions for enqueue/dequeue. Index by enqueued_at for FIFO." .
+
+:task-017 a sk:Task ;
+    sk:taskId "T017" ;
+    sk:taskOrder 17 ;
+    sk:taskDescription "Implement jobs_store_redis.erl (Redis backend)" ;
+    sk:filePath "src/jobs_store_redis.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-queue ;
+    sk:dependencies "T014, T002" ;
+    sk:relatedToStory :us-002 ;
+    sk:taskNotes "Use eredis client. FIFO via LPUSH/RPOP. Priority via ZADD/ZPOPMIN (sorted set by priority). Serialize jobs with term_to_binary." .
+
+:task-018 a sk:Task ;
+    sk:taskId "T018" ;
+    sk:taskOrder 18 ;
+    sk:taskDescription "Implement jobs_queue.erl (public queue API)" ;
+    sk:filePath "src/jobs_queue.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-queue ;
+    sk:dependencies "T014" ;
+    sk:relatedToStory :us-002 ;
+    sk:taskNotes "Functions: start_link/2, enqueue/2, dequeue/1, peek/1, size/1. Gen_server wrapping backend calls." .
+
+:task-019 a sk:Task ;
+    sk:taskId "T019" ;
+    sk:taskOrder 19 ;
+    sk:taskDescription "Add queue configuration support in jobs_config.erl" ;
+    sk:filePath "src/jobs_config.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-queue ;
+    sk:dependencies "T010, T018" ;
+    sk:taskNotes "Parse queue config from sys.config. Validate backend type, queue type, max_size, overflow_strategy." .
+
+:task-020 a sk:Task ;
+    sk:taskId "T020" ;
+    sk:taskOrder 20 ;
+    sk:taskDescription "Write EUnit tests for all backends" ;
+    sk:filePath "test/jobs_store_tests.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-queue ;
+    sk:dependencies "T015, T016, T017" ;
+    sk:relatedToStory :us-002 ;
+    sk:taskNotes "Parameterized tests running same suite against all backends. Test enqueue, dequeue, peek, size, FIFO order." .
+
+:task-021 a sk:Task ;
+    sk:taskId "T021" ;
+    sk:taskOrder 21 ;
+    sk:taskDescription "Write PropEr tests for queue invariants" ;
+    sk:filePath "test/jobs_proper_tests.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-queue ;
+    sk:dependencies "T018, T002" ;
+    sk:relatedToStory :us-005 ;
+    sk:taskNotes "Properties: FIFO order preserved, no duplicates, size equals enqueued - dequeued, dequeue on empty returns empty." .
+
+:task-022 a sk:Task ;
+    sk:taskId "T022" ;
+    sk:taskOrder 22 ;
+    sk:taskDescription "Write common_test suite for backend integration" ;
+    sk:filePath "test/jobs_backend_SUITE.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-queue ;
+    sk:dependencies "T015, T016, T017" ;
+    sk:relatedToStory :us-005 ;
+    sk:taskNotes "Test Mnesia cluster setup, Redis connection pooling, backend failover scenarios." .
+
+# ============================================================================
+# PHASE: WORKER POOL (T023-T029)
+# ============================================================================
+
+:phase-workers a sk:Phase ;
+    sk:phaseId "phase-workers" ;
+    sk:phaseName "Worker Pool with Supervision" ;
+    sk:phaseOrder 4 ;
+    sk:phaseDescription "Worker gen_server, worker supervisor, dynamic pool sizing, failure recovery" ;
+    sk:phaseDeliverables "Supervised worker pool processing jobs with fault tolerance" ;
+    sk:hasTask :task-023, :task-024, :task-025, :task-026, :task-027, :task-028, :task-029 .
+
+:task-023 a sk:Task ;
+    sk:taskId "T023" ;
+    sk:taskOrder 23 ;
+    sk:taskDescription "Implement jobs_worker.erl (worker gen_server)" ;
+    sk:filePath "src/jobs_worker.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-workers ;
+    sk:dependencies "T007, T018" ;
+    sk:relatedToStory :us-003 ;
+    sk:taskNotes "Gen_server: init, handle_call(dequeue_and_process), handle_info(timeout). State: worker_id, queue_pid, current_job, stats." .
+
+:task-024 a sk:Task ;
+    sk:taskId "T024" ;
+    sk:taskOrder 24 ;
+    sk:taskDescription "Implement jobs_worker_sup.erl (worker supervisor)" ;
+    sk:filePath "src/jobs_worker_sup.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-workers ;
+    sk:dependencies "T023" ;
+    sk:relatedToStory :us-003 ;
+    sk:taskNotes "simple_one_for_one supervisor. start_child/1 for dynamic worker spawning. Child spec: temporary restart (don't restart crashed workers)." .
+
+:task-025 a sk:Task ;
+    sk:taskId "T025" ;
+    sk:taskOrder 25 ;
+    sk:taskDescription "Add worker pool management to jobs_sup.erl" ;
+    sk:filePath "src/jobs_sup.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-workers ;
+    sk:dependencies "T009, T024" ;
+    sk:taskNotes "Add jobs_worker_sup as child of jobs_sup. Configure initial pool size from sys.config." .
+
+:task-026 a sk:Task ;
+    sk:taskId "T026" ;
+    sk:taskOrder 26 ;
+    sk:taskDescription "Implement dynamic worker scaling in jobs_worker_sup.erl" ;
+    sk:filePath "src/jobs_worker_sup.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-workers ;
+    sk:dependencies "T024" ;
+    sk:relatedToStory :us-003 ;
+    sk:taskNotes "Functions: scale_up/1, scale_down/1. Monitor queue depth, scale up if >threshold, scale down if <threshold. Respect min/max pool size." .
+
+:task-027 a sk:Task ;
+    sk:taskId "T027" ;
+    sk:taskOrder 27 ;
+    sk:taskDescription "Implement job retry logic in jobs_worker.erl" ;
+    sk:filePath "src/jobs_worker.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-workers ;
+    sk:dependencies "T023" ;
+    sk:taskNotes "On job failure: increment retries. If retries < max_retries, re-enqueue. Else, enqueue to DLQ (dead_letter_queue)." .
+
+:task-028 a sk:Task ;
+    sk:taskId "T028" ;
+    sk:taskOrder 28 ;
+    sk:taskDescription "Write EUnit tests for worker and supervisor" ;
+    sk:filePath "test/jobs_worker_tests.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-workers ;
+    sk:dependencies "T023, T024" ;
+    sk:relatedToStory :us-003 ;
+    sk:taskNotes "Test worker job processing, retry logic, supervisor restart on crash, dynamic scaling." .
+
+:task-029 a sk:Task ;
+    sk:taskId "T029" ;
+    sk:taskOrder 29 ;
+    sk:taskDescription "Write common_test suite for worker pool stress test" ;
+    sk:filePath "test/jobs_worker_SUITE.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-workers ;
+    sk:dependencies "T023, T024" ;
+    sk:relatedToStory :us-005 ;
+    sk:taskNotes "Stress test: 100 concurrent workers, 10k jobs, verify all jobs processed, measure throughput, test worker crash scenarios." .
+
+# ============================================================================
+# PHASE: SCHEDULER (T030-T035)
+# ============================================================================
+
+:phase-scheduler a sk:Phase ;
+    sk:phaseId "phase-scheduler" ;
+    sk:phaseName "Job Scheduler" ;
+    sk:phaseOrder 5 ;
+    sk:phaseDescription "Scheduler gen_server for delayed, scheduled, and recurring jobs" ;
+    sk:phaseDeliverables "Scheduler executing jobs at specified times with cron support" ;
+    sk:hasTask :task-030, :task-031, :task-032, :task-033, :task-034, :task-035 .
+
+:task-030 a sk:Task ;
+    sk:taskId "T030" ;
+    sk:taskOrder 30 ;
+    sk:taskDescription "Implement jobs_cron.erl (cron expression parser)" ;
+    sk:filePath "src/jobs_cron.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-scheduler ;
+    sk:dependencies "T011" ;
+    sk:relatedToStory :us-006 ;
+    sk:taskNotes "Functions: parse/1 (parse cron string), next_execution/1 (calculate next time from cron). Support 5 fields: minute hour day month weekday." .
+
+:task-031 a sk:Task ;
+    sk:taskId "T031" ;
+    sk:taskOrder 31 ;
+    sk:taskDescription "Implement jobs_scheduler.erl (scheduler gen_server)" ;
+    sk:filePath "src/jobs_scheduler.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-scheduler ;
+    sk:dependencies "T007, T030" ;
+    sk:relatedToStory :us-006 ;
+    sk:taskNotes "Gen_server managing scheduled_jobs and recurring_jobs maps. Use erlang:send_after/3 for timers. State includes backend for persistence." .
+
+:task-032 a sk:Task ;
+    sk:taskId "T032" ;
+    sk:taskOrder 32 ;
+    sk:taskDescription "Implement delayed job API (enqueue_delayed/3)" ;
+    sk:filePath "src/jobs_scheduler.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-scheduler ;
+    sk:dependencies "T031" ;
+    sk:relatedToStory :us-006 ;
+    sk:taskNotes "enqueue_delayed(QueueName, Job, DelayMs). Calculate execute_at, create timer, persist to backend if configured." .
+
+:task-033 a sk:Task ;
+    sk:taskId "T033" ;
+    sk:taskOrder 33 ;
+    sk:taskDescription "Implement scheduled job API (enqueue_at/3)" ;
+    sk:filePath "src/jobs_scheduler.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-scheduler ;
+    sk:dependencies "T031" ;
+    sk:relatedToStory :us-006 ;
+    sk:taskNotes "enqueue_at(QueueName, Job, DateTime). Convert DateTime to timestamp, calculate delay, create timer." .
+
+:task-034 a sk:Task ;
+    sk:taskId "T034" ;
+    sk:taskOrder 34 ;
+    sk:taskDescription "Implement recurring job API (enqueue_recurring/3)" ;
+    sk:filePath "src/jobs_scheduler.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-scheduler ;
+    sk:dependencies "T031, T030" ;
+    sk:relatedToStory :us-006 ;
+    sk:taskNotes "enqueue_recurring(QueueName, Job, CronExpr). Parse cron, calculate next execution, create timer. On execution, enqueue job and reschedule." .
+
+:task-035 a sk:Task ;
+    sk:taskId "T035" ;
+    sk:taskOrder 35 ;
+    sk:taskDescription "Write EUnit and common_test tests for scheduler" ;
+    sk:filePath "test/jobs_scheduler_tests.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-scheduler ;
+    sk:dependencies "T030, T031, T032, T033, T034" ;
+    sk:relatedToStory :us-006 ;
+    sk:taskNotes "Test delayed execution (verify timing ±100ms), scheduled execution, recurring jobs (3+ executions), cron parsing, scheduler restart recovery." .
+
+# ============================================================================
+# PHASE: RATE LIMITING (T036-T038)
+# ============================================================================
+
+:phase-ratelimit a sk:Phase ;
+    sk:phaseId "phase-ratelimit" ;
+    sk:phaseName "Rate Limiting" ;
+    sk:phaseOrder 6 ;
+    sk:phaseDescription "Rate limiter gen_server with token bucket and leaky bucket algorithms" ;
+    sk:phaseDeliverables "Rate limiter preventing queue overload" ;
+    sk:hasTask :task-036, :task-037, :task-038 .
+
+:task-036 a sk:Task ;
+    sk:taskId "T036" ;
+    sk:taskOrder 36 ;
+    sk:taskDescription "Implement jobs_rate_limiter.erl (rate limiter gen_server)" ;
+    sk:filePath "src/jobs_rate_limiter.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-ratelimit ;
+    sk:dependencies "T007" ;
+    sk:relatedToStory :us-007 ;
+    sk:taskNotes "Gen_server with state: algorithm, rate, capacity, current_tokens, last_refill. Functions: acquire/1 (consume token), refill/0 (add tokens)." .
+
+:task-037 a sk:Task ;
+    sk:taskId "T037" ;
+    sk:taskOrder 37 ;
+    sk:taskDescription "Implement token bucket and leaky bucket algorithms" ;
+    sk:filePath "src/jobs_rate_limiter.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-ratelimit ;
+    sk:dependencies "T036" ;
+    sk:relatedToStory :us-007 ;
+    sk:taskNotes "Token bucket: allow burst up to capacity, refill at rate. Leaky bucket: enforce strict rate, no burst. Calculate refill based on time delta." .
+
+:task-038 a sk:Task ;
+    sk:taskId "T038" ;
+    sk:taskOrder 38 ;
+    sk:taskDescription "Write EUnit tests for rate limiter algorithms" ;
+    sk:filePath "test/jobs_rate_limiter_tests.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-ratelimit ;
+    sk:dependencies "T036, T037" ;
+    sk:relatedToStory :us-007 ;
+    sk:taskNotes "Test token bucket burst, leaky bucket strict rate, refill logic, edge cases (empty bucket, full bucket)." .
+
+# ============================================================================
+# PHASE: COMPREHENSIVE TESTING (T039-T043)
+# ============================================================================
+
+:phase-testing a sk:Phase ;
+    sk:phaseId "phase-testing" ;
+    sk:phaseName "Comprehensive Testing" ;
+    sk:phaseOrder 7 ;
+    sk:phaseDescription "Benchmarks, stress tests, property-based tests, integration tests" ;
+    sk:phaseDeliverables "Test coverage >80%, benchmarks meeting SLOs, all tests passing" ;
+    sk:hasTask :task-039, :task-040, :task-041, :task-042, :task-043 .
+
+:task-039 a sk:Task ;
+    sk:taskId "T039" ;
+    sk:taskOrder 39 ;
+    sk:taskDescription "Implement benchmark suite (enqueue/dequeue latency)" ;
+    sk:filePath "bench/jobs_bench.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-testing ;
+    sk:dependencies "T018" ;
+    sk:relatedToStory :us-004 ;
+    sk:taskNotes "Use timer:tc/1 to measure latency. Benchmark: enqueue 10k jobs (measure p50, p95, p99), dequeue 10k jobs. Report as CSV/JSON." .
+
+:task-040 a sk:Task ;
+    sk:taskId "T040" ;
+    sk:taskOrder 40 ;
+    sk:taskDescription "Implement benchmark suite (throughput)" ;
+    sk:filePath "bench/jobs_bench.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-testing ;
+    sk:dependencies "T023, T024" ;
+    sk:relatedToStory :us-004 ;
+    sk:taskNotes "Measure jobs/second with N workers (N=1, 10, 50). Target: >10k jobs/s with 10 workers. Report throughput, latency distribution, worker utilization." .
+
+:task-041 a sk:Task ;
+    sk:taskId "T041" ;
+    sk:taskOrder 41 ;
+    sk:taskDescription "Implement PropEr stress tests (concurrent access)" ;
+    sk:filePath "test/jobs_proper_tests.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-testing ;
+    sk:dependencies "T021" ;
+    sk:relatedToStory :us-005 ;
+    sk:taskNotes "Property: concurrent enqueue/dequeue from 100 processes preserves invariants (no lost jobs, no duplicates). Run 1000 iterations." .
+
+:task-042 a sk:Task ;
+    sk:taskId "T042" ;
+    sk:taskOrder 42 ;
+    sk:taskDescription "Implement common_test integration tests (failure scenarios)" ;
+    sk:filePath "test/jobs_integration_SUITE.erl" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-testing ;
+    sk:dependencies "T009, T024, T031" ;
+    sk:relatedToStory :us-005 ;
+    sk:taskNotes "Test: supervisor restart, worker crash recovery, Mnesia network partition, Redis connection loss, scheduler restart with persistence." .
+
+:task-043 a sk:Task ;
+    sk:taskId "T043" ;
+    sk:taskOrder 43 ;
+    sk:taskDescription "Run dialyzer and achieve zero warnings" ;
+    sk:filePath "." ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-testing ;
+    sk:dependencies "T001, T002" ;
+    sk:taskNotes "Add -spec annotations to all exported functions. Run rebar3 dialyzer. Fix all warnings (type mismatches, missing specs)." .
+
+# ============================================================================
+# PHASE: DOCUMENTATION (T044-T047)
+# ============================================================================
+
+:phase-docs a sk:Phase ;
+    sk:phaseId "phase-docs" ;
+    sk:phaseName "Diataxis Documentation" ;
+    sk:phaseOrder 8 ;
+    sk:phaseDescription "Tutorial, how-to guides, API reference, architectural explanation" ;
+    sk:phaseDeliverables "Complete documentation for adoption" ;
+    sk:hasTask :task-044, :task-045, :task-046, :task-047 .
+
+:task-044 a sk:Task ;
+    sk:taskId "T044" ;
+    sk:taskOrder 44 ;
+    sk:taskDescription "Write tutorial (Getting Started, 15-minute walkthrough)" ;
+    sk:filePath "doc/tutorial.md" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-docs ;
+    sk:relatedToStory :us-008 ;
+    sk:taskNotes "Tutorial: install, start application, enqueue first job, configure backend, run worker pool, see results. All code examples must work." .
+
+:task-045 a sk:Task ;
+    sk:taskId "T045" ;
+    sk:taskOrder 45 ;
+    sk:taskDescription "Write how-to guides (5+ common tasks)" ;
+    sk:filePath "doc/howto/" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-docs ;
+    sk:relatedToStory :us-008 ;
+    sk:taskNotes "How-tos: configure backend (ETS/Mnesia/Redis), scale worker pool, schedule delayed job, create recurring job, implement rate limiting, handle job failures." .
+
+:task-046 a sk:Task ;
+    sk:taskId "T046" ;
+    sk:taskOrder 46 ;
+    sk:taskDescription "Generate API reference with edoc" ;
+    sk:filePath "doc/" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-docs ;
+    sk:relatedToStory :us-008 ;
+    sk:taskNotes "Add @doc annotations to all modules and functions. Run rebar3 edoc. Verify HTML output is complete and navigable." .
+
+:task-047 a sk:Task ;
+    sk:taskId "T047" ;
+    sk:taskOrder 47 ;
+    sk:taskDescription "Write architectural explanation and README" ;
+    sk:filePath "doc/architecture.md, README.md" ;
+    sk:parallelizable "true"^^xsd:boolean ;
+    sk:belongsToPhase :phase-docs ;
+    sk:relatedToStory :us-008 ;
+    sk:taskNotes "Architecture: supervision tree, backend abstraction, scheduler design, rate limiting. README: quick start, features, examples, configuration, contributing." .
+
+# ============================================================================
+# TASK DEPENDENCIES GRAPH (High-Level)
+# ============================================================================
+
+:dependencies-graph a sk:DependencyGraph ;
+    sk:graphDescription """
+Setup (T001-T006) → Foundation (T007-T013)
+                  ↓
+                  Queue (T014-T022)
+                  ↓
+                  Workers (T023-T029)
+                  ↓
+        ┌─────────┴─────────┐
+        ↓                   ↓
+    Scheduler (T030-T035)  RateLimiter (T036-T038)
+        ↓                   ↓
+        └─────────┬─────────┘
+                  ↓
+            Testing (T039-T043)
+                  ↓
+            Documentation (T044-T047)
+
+Critical Path (must be sequential):
+T001 → T002 → T007 → T014 → T018 → T023 → T024 → T031 → T039 → T044
+
+Parallelizable Tasks:
+- Foundation tests (T013) can run parallel with Queue implementation
+- All backend implementations (T015, T016, T017) are parallel
+- Scheduler and RateLimiter phases are parallel
+- Documentation tasks (T044-T047) are parallel
+""" .
+
+# ============================================================================
+# COMPLETION CRITERIA
+# ============================================================================
+
+:tasks-completion a sk:Checklist ;
+    rdfs:label "Task Implementation Completion" ;
+    spec:criterion1 "All 47 tasks completed and committed to git" ;
+    spec:criterion2 "Application compiles with rebar3 compile (zero errors/warnings)" ;
+    spec:criterion3 "Application starts successfully (rebar3 shell, application:start(jobs))" ;
+    spec:criterion4 "All EUnit tests pass (rebar3 eunit)" ;
+    spec:criterion5 "PropEr tests find no counterexamples (1000 iterations, rebar3 proper)" ;
+    spec:criterion6 "common_test integration tests pass (rebar3 ct)" ;
+    spec:criterion7 "Benchmarks meet SLOs (enqueue <1ms p95 ETS, throughput >10k/s)" ;
+    spec:criterion8 "Test coverage >80% (rebar3 cover, view _build/test/cover/index.html)" ;
+    spec:criterion9 "Dialyzer reports zero warnings (rebar3 dialyzer)" ;
+    spec:criterion10 "Documentation complete and generated (rebar3 edoc)" ;
+    spec:criterion11 "README with working quick start example" ;
+    spec:criterion12 "CHANGELOG documenting all features" ;
+    spec:criterion13 "All tasks verified by reviewer" ;
+    spec:criterion14 "No TODO comments in production code" ;
+    spec:criterion15 "Code follows Erlang style guide and OTP conventions" .

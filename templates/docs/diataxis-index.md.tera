@@ -1,0 +1,151 @@
+# {{ doc_set.label }}
+
+**Generated from RDF ontology using ggen sync**
+
+This documentation follows the [Diataxis framework](https://diataxis.fr/) for comprehensive, user-friendly technical documentation.
+
+---
+
+## Documentation Quadrants
+
+The Diataxis framework organizes documentation into four distinct types, each serving a specific purpose:
+
+```
+                       STUDY                          WORK
+                    (learning)                      (doing)
+              ┌─────────────────────┬────────────────────────┐
+              │                     │                        │
+              │    📚 Tutorials     │    🛠️ How-To Guides    │
+ACQUISITION   │   (learning-oriented)│   (task-oriented)      │
+              │                     │                        │
+              ├─────────────────────┼────────────────────────┤
+              │                     │                        │
+COGNITION     │  📖 Explanation     │    📋 Reference        │
+              │ (understanding)     │  (information)         │
+              │                     │                        │
+              └─────────────────────┴────────────────────────┘
+```
+
+---
+
+## 📚 Tutorials (Learning-Oriented)
+
+**Purpose:** {{ tutorials.purpose }}
+
+**Characteristics:** {{ tutorials.characteristics }}
+
+{% for tutorial in tutorials.items %}
+{{ loop.index }}. [{{ tutorial.label }}](tutorials/{{ tutorial.filename }})
+   - {{ tutorial.learningObjective }}
+   - **Outcome:** {{ tutorial.outcome }}
+{% endfor %}
+
+---
+
+## 🛠️ How-To Guides (Task-Oriented)
+
+**Purpose:** {{ howto_guides.purpose }}
+
+**Characteristics:** {{ howto_guides.characteristics }}
+
+{% for guide in howto_guides.items %}
+{{ loop.index }}. [{{ guide.label }}](howto/{{ guide.filename }})
+   - {{ guide.goal }}
+   - **Outcome:** {{ guide.outcome }}
+{% endfor %}
+
+---
+
+## 📋 Reference (Information-Oriented)
+
+**Purpose:** {{ reference.purpose }}
+
+**Characteristics:** {{ reference.characteristics }}
+
+{% for doc in reference.items %}
+{{ loop.index }}. [{{ doc.label }}](reference/{{ doc.filename }})
+   - **Includes:** {{ doc.includes }}
+{% endfor %}
+
+---
+
+## 📖 Explanation (Understanding-Oriented)
+
+**Purpose:** {{ explanation.purpose }}
+
+**Characteristics:** {{ explanation.characteristics }}
+
+{% for article in explanation.items %}
+{{ loop.index }}. [{{ article.label }}](explanation/{{ article.filename }})
+   - **Topics:** {{ article.topics | join(", ") }}
+{% endfor %}
+
+---
+
+## Quick Start
+
+**New to the Erlang Jobs Library?** Start here:
+
+1. **First-time users:** Begin with [Tutorial 1: Getting Started](tutorials/01-getting-started.md)
+2. **Experienced users:** Jump to [How-To Guides](howto/) for specific tasks
+3. **API lookups:** Check [Reference](reference/) for technical details
+4. **Deep dives:** Read [Explanation](explanation/) for conceptual understanding
+
+---
+
+## Navigation Tips
+
+- **Learning path:** Tutorials → How-To Guides → Explanation → Reference
+- **Problem-solving:** Start with How-To Guides, refer to Reference as needed
+- **Understanding concepts:** Read Explanation articles
+- **Quick lookups:** Use Reference documentation
+
+---
+
+## Generated with ggen
+
+This documentation is **generated from RDF ontology** using `ggen sync`.
+
+**To regenerate this documentation:**
+
+```bash
+cd {{ project_root }}
+ggen sync --audit true
+```
+
+**Source:** `{{ doc_set.rdfSource }}`
+
+**Templates:** `{{ doc_set.templateDirectory }}`
+
+**Output:** `{{ doc_set.outputDirectory }}`
+
+---
+
+## Documentation Metadata
+
+- **Version:** {{ doc_set.version }}
+- **Generated:** {{ doc_set.generatedDate }}
+- **RDF Source:** {{ doc_set.rdfSource }}
+- **Template Version:** 1.0.0
+- **Generator:** {{ doc_set.generatedBy }}
+
+---
+
+## Contributing to Documentation
+
+To improve this documentation:
+
+1. **Edit RDF source** in `{{ doc_set.rdfSource }}`
+2. **Edit templates** in `{{ doc_set.templateDirectory }}`
+3. **Regenerate** with `ggen sync --audit true`
+4. **Review changes** in `{{ doc_set.outputDirectory }}`
+
+**Never edit generated markdown directly** — changes will be overwritten on next `ggen sync`.
+
+---
+
+## License
+
+This documentation is licensed under the same license as the ggen project.
+
+See [LICENSE](../../LICENSE) for details.

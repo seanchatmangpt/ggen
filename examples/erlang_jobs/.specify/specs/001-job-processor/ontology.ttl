@@ -1,0 +1,282 @@
+# Erlang Job Processor Ontology
+# Simple job processing system with workers and supervisors
+#
+# Version: 1.0
+# Created: 2026-01-29
+
+@prefix erlang: <http://ggen.org/erlang#> .
+@prefix job: <http://ggen.org/job-processor#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==============================================================================
+# ONTOLOGY METADATA
+# ==============================================================================
+
+job:JobProcessorOntology a owl:Ontology ;
+    rdfs:label "Erlang Job Processor Ontology" ;
+    rdfs:comment "RDF ontology for a simple Erlang job processing system" ;
+    owl:versionInfo "1.0" ;
+    .
+
+# ==============================================================================
+# ERLANG CORE CLASSES
+# ==============================================================================
+
+erlang:GenServer a owl:Class ;
+    rdfs:label "GenServer" ;
+    rdfs:comment "OTP gen_server behavior" ;
+    .
+
+erlang:Supervisor a owl:Class ;
+    rdfs:label "Supervisor" ;
+    rdfs:comment "OTP supervisor behavior" ;
+    .
+
+erlang:Application a owl:Class ;
+    rdfs:label "Application" ;
+    rdfs:comment "OTP application behavior" ;
+    .
+
+erlang:Worker a owl:Class ;
+    rdfs:label "Worker" ;
+    rdfs:comment "Generic worker process" ;
+    .
+
+erlang:ChildSpec a owl:Class ;
+    rdfs:label "ChildSpec" ;
+    rdfs:comment "Supervisor child specification" ;
+    .
+
+erlang:Record a owl:Class ;
+    rdfs:label "Record" ;
+    rdfs:comment "Erlang record definition" ;
+    .
+
+erlang:ConfigParam a owl:Class ;
+    rdfs:label "ConfigParam" ;
+    rdfs:comment "Application configuration parameter" ;
+    .
+
+# ==============================================================================
+# ERLANG PROPERTIES
+# ==============================================================================
+
+erlang:moduleName a owl:DatatypeProperty ;
+    rdfs:label "moduleName" ;
+    rdfs:domain erlang:GenServer, erlang:Supervisor, erlang:Application ;
+    rdfs:range xsd:string ;
+    .
+
+erlang:behavior a owl:DatatypeProperty ;
+    rdfs:label "behavior" ;
+    rdfs:range xsd:string ;
+    .
+
+erlang:restartStrategy a owl:DatatypeProperty ;
+    rdfs:label "restartStrategy" ;
+    rdfs:domain erlang:Supervisor ;
+    rdfs:range xsd:string ;
+    .
+
+erlang:intensity a owl:DatatypeProperty ;
+    rdfs:label "intensity" ;
+    rdfs:domain erlang:Supervisor ;
+    rdfs:range xsd:integer ;
+    .
+
+erlang:period a owl:DatatypeProperty ;
+    rdfs:label "period" ;
+    rdfs:domain erlang:Supervisor ;
+    rdfs:range xsd:integer ;
+    .
+
+erlang:hasChild a owl:ObjectProperty ;
+    rdfs:label "hasChild" ;
+    rdfs:domain erlang:Supervisor ;
+    rdfs:range erlang:ChildSpec ;
+    .
+
+erlang:childId a owl:DatatypeProperty ;
+    rdfs:label "childId" ;
+    rdfs:domain erlang:ChildSpec ;
+    rdfs:range xsd:string ;
+    .
+
+erlang:childModule a owl:DatatypeProperty ;
+    rdfs:label "childModule" ;
+    rdfs:domain erlang:ChildSpec ;
+    rdfs:range xsd:string ;
+    .
+
+erlang:childType a owl:DatatypeProperty ;
+    rdfs:label "childType" ;
+    rdfs:domain erlang:ChildSpec ;
+    rdfs:range xsd:string ;
+    .
+
+erlang:childArgs a owl:DatatypeProperty ;
+    rdfs:label "childArgs" ;
+    rdfs:domain erlang:ChildSpec ;
+    rdfs:range xsd:string ;
+    .
+
+erlang:stateRecord a owl:ObjectProperty ;
+    rdfs:label "stateRecord" ;
+    rdfs:domain erlang:GenServer ;
+    rdfs:range erlang:Record ;
+    .
+
+erlang:recordName a owl:DatatypeProperty ;
+    rdfs:label "recordName" ;
+    rdfs:domain erlang:Record ;
+    rdfs:range xsd:string ;
+    .
+
+erlang:hasField a owl:ObjectProperty ;
+    rdfs:label "hasField" ;
+    rdfs:domain erlang:Record ;
+    .
+
+erlang:fieldName a owl:DatatypeProperty ;
+    rdfs:label "fieldName" ;
+    rdfs:range xsd:string ;
+    .
+
+erlang:fieldType a owl:DatatypeProperty ;
+    rdfs:label "fieldType" ;
+    rdfs:range xsd:string ;
+    .
+
+erlang:dependsOn a owl:ObjectProperty ;
+    rdfs:label "dependsOn" ;
+    rdfs:comment "Module dependency" ;
+    .
+
+erlang:requiresApp a owl:DatatypeProperty ;
+    rdfs:label "requiresApp" ;
+    rdfs:comment "Required OTP application" ;
+    rdfs:range xsd:string ;
+    .
+
+erlang:hasConfig a owl:ObjectProperty ;
+    rdfs:label "hasConfig" ;
+    rdfs:range erlang:ConfigParam ;
+    .
+
+erlang:paramName a owl:DatatypeProperty ;
+    rdfs:label "paramName" ;
+    rdfs:domain erlang:ConfigParam ;
+    rdfs:range xsd:string ;
+    .
+
+erlang:paramType a owl:DatatypeProperty ;
+    rdfs:label "paramType" ;
+    rdfs:domain erlang:ConfigParam ;
+    rdfs:range xsd:string ;
+    .
+
+erlang:defaultValue a owl:DatatypeProperty ;
+    rdfs:label "defaultValue" ;
+    rdfs:domain erlang:ConfigParam ;
+    .
+
+erlang:required a owl:DatatypeProperty ;
+    rdfs:label "required" ;
+    rdfs:domain erlang:ConfigParam ;
+    rdfs:range xsd:boolean ;
+    .
+
+erlang:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:range xsd:string ;
+    .
+
+# ==============================================================================
+# JOB PROCESSOR APPLICATION
+# ==============================================================================
+
+job:job_app a erlang:Application ;
+    erlang:moduleName "job_app" ;
+    erlang:requiresApp "kernel" ;
+    erlang:requiresApp "stdlib" ;
+    erlang:description "Job processing application" ;
+    .
+
+# ==============================================================================
+# JOB SUPERVISOR
+# ==============================================================================
+
+job:job_sup a erlang:Supervisor ;
+    erlang:moduleName "job_sup" ;
+    erlang:restartStrategy "one_for_one" ;
+    erlang:intensity "5"^^xsd:integer ;
+    erlang:period "10"^^xsd:integer ;
+    erlang:hasChild job:worker_child_spec ;
+    .
+
+job:worker_child_spec a erlang:ChildSpec ;
+    erlang:childId "job_worker" ;
+    erlang:childModule "job_worker" ;
+    erlang:childType "worker" ;
+    erlang:childArgs "[]" ;
+    .
+
+# ==============================================================================
+# JOB WORKER (GenServer)
+# ==============================================================================
+
+job:job_worker a erlang:GenServer ;
+    erlang:moduleName "job_worker" ;
+    erlang:behavior "gen_server" ;
+    erlang:stateRecord job:worker_state_record ;
+    erlang:description "Job processing worker" ;
+    .
+
+# Worker state record
+job:worker_state_record a erlang:Record ;
+    erlang:recordName "worker_state" ;
+    erlang:hasField job:field_jobs ;
+    erlang:hasField job:field_max_jobs ;
+    erlang:hasField job:field_processed ;
+    .
+
+job:field_jobs a owl:Thing ;
+    erlang:fieldName "jobs" ;
+    erlang:fieldType "queue:queue()" ;
+    .
+
+job:field_max_jobs a owl:Thing ;
+    erlang:fieldName "max_jobs" ;
+    erlang:fieldType "integer()" ;
+    .
+
+job:field_processed a owl:Thing ;
+    erlang:fieldName "processed" ;
+    erlang:fieldType "integer()" ;
+    .
+
+# ==============================================================================
+# CONFIGURATION
+# ==============================================================================
+
+job:job_app erlang:hasConfig job:config_pool_size .
+job:job_app erlang:hasConfig job:config_max_retries .
+
+job:config_pool_size a erlang:ConfigParam ;
+    erlang:paramName "pool_size" ;
+    erlang:paramType "integer()" ;
+    erlang:defaultValue "10"^^xsd:integer ;
+    erlang:required true ;
+    erlang:description "Number of worker processes in the pool" ;
+    .
+
+job:config_max_retries a erlang:ConfigParam ;
+    erlang:paramName "max_retries" ;
+    erlang:paramType "integer()" ;
+    erlang:defaultValue "3"^^xsd:integer ;
+    erlang:required true ;
+    erlang:description "Maximum number of retries for failed jobs" ;
+    .

@@ -1,0 +1,255 @@
+{% set app_name = app_name | default(value="myapp") -%}
+{%-#
+  SPARQL-Aware rebar3 Configuration Template
+
+  This template generates rebar3 configuration files.
+  Can query RDF ontologies for:
+  - Dependency specifications
+  - Build profiles and options
+  - Plugin configuration
+  - Release settings
+
+  Multi-pass rendering:
+  Pass 1: Extract project metadata
+  Pass 2: Resolve dependencies from ontology
+  Pass 3: Generate complete rebar configuration
+-%}
+
+%% -*- mode: erlang; erlang-indent-level: 2 -*-
+%% rebar3 configuration file
+
+%% Minimum OTP version
+{minimum_otp_vsn, "{{ min_otp_version | default(value='25') }}"}.
+
+%% Dependencies
+{deps, [
+    {% if dependencies %}
+    {% for dep in dependencies %}
+    {% if dep.version %}
+    {{{ dep.name }}, "{{ dep.version }}"}{% if dep.git %},
+        {git, "{{ dep.git }}", {tag, "{{ dep.version }}"}}{% endif %}
+    {% else %}
+    {{ dep.name }}
+    {% endif %}{% if not loop.last %},{% endif %}
+    {% endfor %}
+    {% else %}
+    %% Example dependencies:
+    %% {proper, "1.4.0"}
+    %% {jsx, "3.1.0"}
+    {% endif %}
+]}.
+
+%% Compiler options
+{erl_opts, [
+    debug_info,
+    warnings_as_errors,
+    {parse_transform, lager_transform},
+    {i, "include"}
+    {% if erl_opts %}
+    {% for opt in erl_opts %}
+    ,{{ opt }}
+    {% endfor %}
+    {% endif %}
+]}.
+
+%% EUnit options
+{eunit_opts, [
+    verbose,
+    {report, {eunit_surefire, [{dir, "_build/test/logs"}]}}
+]}.
+
+%% Cover options
+{cover_enabled, true}.
+{cover_opts, [verbose]}.
+{cover_export_enabled, true}.
+
+%% Dialyzer options
+{dialyzer, [
+    {warnings, [
+        error_handling,
+        race_conditions,
+        unmatched_returns,
+        unknown
+    ]},
+    {plt_apps, top_level_deps},
+    {plt_extra_apps, []},
+    {plt_location, local},
+    {base_plt_apps, [
+        stdlib,
+        kernel,
+        erts,
+        sasl,
+        crypto,
+        ssl
+    ]},
+    {base_plt_location, global}
+]}.
+
+%% XRef options
+{xref_checks, [
+    undefined_function_calls,
+    undefined_functions,
+    locals_not_used,
+    deprecated_function_calls,
+    deprecated_functions
+]}.
+
+%% Profiles
+{profiles, [
+    {test, [
+        {deps, [
+            {proper, "1.4.0"},
+            {meck, "0.9.2"}
+        ]},
+        {erl_opts, [
+            debug_info,
+            export_all,
+            nowarn_export_all
+        ]}
+    ]},
+
+    {prod, [
+        {erl_opts, [
+            no_debug_info,
+            warnings_as_errors,
+            {d, 'PRODUCTION'}
+        ]},
+        {relx, [
+            {dev_mode, false},
+            {include_erts, true},
+            {include_src, false}
+        ]}
+    ]},
+
+    {dev, [
+        {deps, [
+            {recon, "2.5.3"}
+        ]},
+        {relx, [
+            {dev_mode, true},
+            {include_erts, false}
+        ]}
+    ]}
+
+    {% if custom_profiles %}
+    {% for profile in custom_profiles %}
+    ,{{{ profile.name }}, [
+        {% if profile.deps %}
+        {deps, [
+            {% for dep in profile.deps %}
+            {{{ dep.name }}, "{{ dep.version }}"}{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ]}{% if profile.erl_opts %},{% endif %}
+        {% endif %}
+        {% if profile.erl_opts %}
+        {erl_opts, {{ profile.erl_opts }}}
+        {% endif %}
+    ]}
+    {% endfor %}
+    {% endif %}
+]}.
+
+%% Shell configuration
+{shell, [
+    {apps, [{{ app_name }}]},
+    {config, "config/sys.config"}
+]}.
+
+%% Release configuration
+{relx, [
+    {release, { {{app_name}}, "{{ version | default(value='0.1.0') }}" },
+     [
+      {{app_name}},
+      sasl
+     ]},
+
+    {dev_mode, true},
+    {include_erts, false},
+
+    {extended_start_script, true},
+
+    {sys_config, "config/sys.config"},
+    {vm_args, "config/vm.args"},
+
+    {overlay, [
+        {mkdir, "log"},
+        {mkdir, "data"},
+        {copy, "LICENSE", "LICENSE"},
+        {copy, "README.md", "README.md"}
+    ]}
+]}.
+
+%% Plugins
+{plugins, [
+    {rebar3_proper, "0.12.1"},
+    {rebar3_hex, "7.0.7"},
+    {rebar3_lint, "3.2.2"}
+    {% if plugins %}
+    {% for plugin in plugins %}
+    ,{{{ plugin.name }}, "{{ plugin.version }}"}
+    {% endfor %}
+    {% endif %}
+]}.
+
+%% Provider hooks
+{provider_hooks, [
+    {pre, [
+        {compile, {proper, compile}},
+        {eunit, {proper, compile}}
+    ]},
+    {post, [
+        {clean, {proper, clean}}
+    ]}
+]}.
+
+%% Alias commands
+{alias, [
+    {check, [
+        dialyzer,
+        xref,
+        {lint, "-w"}
+    ]},
+    {test, [
+        eunit,
+        {proper, "--cover"}
+    ]},
+    {ci, [
+        {eunit, "--cover"},
+        {proper, "--cover --numtests={{ num_tests | default(value=100) }}"},
+        xref,
+        dialyzer
+    ]}
+]}.
+
+%% Hex.pm publishing
+{hex, [
+    {doc, #{
+        provider => ex_doc
+    }}
+]}.
+
+%% Project configuration
+{project_plugins, []}.
+
+%% Override dependency options
+{overrides, [
+    {% if overrides %}
+    {% for override in overrides %}
+    {override, {{ override.dep }}, [
+        {% for key, value in override.opts %}
+        {{{ key }}, {{ value }}}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ]}{% if not loop.last %},{% endif %}
+    {% endfor %}
+    {% endif %}
+]}.
+
+%% Formats for rebar3 format
+{format, [
+    {files, ["src/*.erl", "test/*.erl"]},
+    {formatter, default_formatter},
+    {options, #{
+        paper => 100,
+        ribbon => 100
+    }}
+]}.

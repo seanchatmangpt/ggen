@@ -1,0 +1,112 @@
+# ggen Manifest for Erlang Job Processor Example
+# This file configures code generation from RDF ontology
+
+[manifest]
+version = "1.0"
+name = "erlang_jobs"
+description = "Erlang job processing application generated from RDF"
+
+[ontology]
+# Primary ontology file
+file = ".specify/specs/001-job-processor/ontology.ttl"
+format = "turtle"
+
+# Additional ontology imports (if needed)
+# imports = ["schemas/erlang-core.ttl"]
+
+[generation]
+# Output directory for generated code
+output_dir = "generated"
+
+# Template directory
+template_dir = "templates"
+
+# Generation rules
+[[generation.rules]]
+name = "gen_server_modules"
+description = "Generate GenServer modules"
+query = """
+PREFIX erlang: <http://ggen.org/erlang#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?module ?moduleName ?description ?recordName ?fields
+WHERE {
+    ?module rdf:type erlang:GenServer .
+    ?module erlang:moduleName ?moduleName .
+
+    OPTIONAL { ?module erlang:description ?description . }
+
+    OPTIONAL {
+        ?module erlang:stateRecord ?record .
+        ?record erlang:recordName ?recordName .
+    }
+}
+"""
+template = "erlang/gen_server.erl.tera"
+output_pattern = "src/{moduleName}.erl"
+
+[[generation.rules]]
+name = "supervisor_modules"
+description = "Generate Supervisor modules"
+query = """
+PREFIX erlang: <http://ggen.org/erlang#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?module ?moduleName ?restartStrategy ?intensity ?period
+WHERE {
+    ?module rdf:type erlang:Supervisor .
+    ?module erlang:moduleName ?moduleName .
+
+    OPTIONAL { ?module erlang:restartStrategy ?restartStrategy . }
+    OPTIONAL { ?module erlang:intensity ?intensity . }
+    OPTIONAL { ?module erlang:period ?period . }
+}
+"""
+template = "erlang/supervisor.erl.tera"
+output_pattern = "src/{moduleName}.erl"
+
+[[generation.rules]]
+name = "application_modules"
+description = "Generate Application modules"
+query = """
+PREFIX erlang: <http://ggen.org/erlang#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?module ?moduleName ?description
+WHERE {
+    ?module rdf:type erlang:Application .
+    ?module erlang:moduleName ?moduleName .
+
+    OPTIONAL { ?module erlang:description ?description . }
+}
+"""
+template = "erlang/application.erl.tera"
+output_pattern = "src/{moduleName}_app.erl"
+
+[[generation.rules]]
+name = "rebar_config"
+description = "Generate rebar.config"
+template = "rebar3/rebar.config.tera"
+output_pattern = "rebar.config"
+
+[[generation.rules]]
+name = "app_src"
+description = "Generate .app.src file"
+template = "rebar3/app.src.tera"
+output_pattern = "src/job_processor.app.src"
+
+[validation]
+# SHACL shapes for validation (optional)
+# shapes_file = ".specify/specs/001-job-processor/shapes.ttl"
+
+# Enable pre-flight validation
+preflight = true
+
+# Enable deterministic receipts
+audit = true
+
+[variables]
+# Global template variables
+app_name = "job_processor"
+version = "0.1.0"
+description = "Job processing application"

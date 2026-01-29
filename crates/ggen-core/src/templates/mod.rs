@@ -64,6 +64,7 @@ pub mod file_tree_generator;
 pub mod format;
 pub mod frozen;
 pub mod generator;
+pub mod helpers;
 
 pub use business_logic::BusinessLogicSeparator;
 pub use context::TemplateContext;

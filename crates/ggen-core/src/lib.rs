@@ -152,6 +152,7 @@ pub mod resolver;
 pub mod security; // Week 4 Security Hardening
 pub mod signals;
 pub mod snapshot;
+pub mod sparql;
 pub mod streaming_generator;
 pub mod telemetry;
 pub mod template;

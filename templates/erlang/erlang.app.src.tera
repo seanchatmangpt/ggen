@@ -1,0 +1,82 @@
+{% set app_name = app_name | default(value="myapp") -%}
+{% set vsn = vsn | default(value="0.1.0") -%}
+{% set description = description | default(value="An OTP application") -%}
+{%-#
+  SPARQL-Aware Application Resource File Template
+
+  This template generates .app.src files for OTP applications.
+  It can query RDF ontologies for application metadata, dependencies,
+  and configuration requirements.
+
+  Multi-pass rendering support:
+  Pass 1: Extract basic metadata (name, version, description)
+  Pass 2: Resolve dependencies from ontology
+  Pass 3: Generate complete application resource file
+-%}
+{application, {{ app_name }},
+ [
+  {description, "{{ description }}"},
+  {vsn, "{{ vsn }}"},
+  {registered, [
+      {{ app_name }}_sup
+      {% if registered_processes %}
+      {% for proc in registered_processes %}
+      ,{{ proc }}
+      {% endfor %}
+      {% endif %}
+  ]},
+  {mod, { {{app_name}}_app, []}},
+  {applications, [
+      kernel,
+      stdlib
+      {% if dependencies %}
+      {% for dep in dependencies %}
+      ,{{ dep }}
+      {% endfor %}
+      {% endif %}
+  ]},
+  {env, [
+      {% if env_vars %}
+      {% for key, value in env_vars %}
+      { {{key}}, {{value}} }{% if not loop.last %},{% endif %}
+      {% endfor %}
+      {% else %}
+      %% Application environment variables
+      %% {key, value}
+      {% endif %}
+  ]},
+  {modules, []}, %% Automatically populated by rebar3
+
+  {licenses, ["{{ license | default(value='Apache-2.0') }}"]},
+  {links, [
+      {% if links %}
+      {% for name, url in links %}
+      {"{{ name }}", "{{ url }}"}{% if not loop.last %},{% endif %}
+      {% endfor %}
+      {% endif %}
+  ]},
+
+  %% OTP application configuration
+  {mod, { {{app_name}}_app, []}},
+
+  %% Optional: Included applications
+  {included_applications, [
+      {% if included_applications %}
+      {% for app in included_applications %}
+      {{ app }}{% if not loop.last %},{% endif %}
+      {% endfor %}
+      {% endif %}
+  ]},
+
+  %% Optional: Runtime dependencies (OTP 17+)
+  {runtime_dependencies, [
+      {% if runtime_dependencies %}
+      {% for dep in runtime_dependencies %}
+      "{{ dep }}"{% if not loop.last %},{% endif %}
+      {% endfor %}
+      {% else %}
+      %% Example: "kernel-3.0", "stdlib-2.0"
+      {% endif %}
+  ]}
+ ]
+}.

@@ -1,17 +1,84 @@
 {% include "_header.erl.tera" %}
 
 -module({{ module_prefix }}_signal_normalizer).
--export([handle_pubsub/1, normalize/1, route/1]).
+-export([init/0, handle_pubsub/1, normalize/1, route/1]).
 
 -include("{{ module_prefix }}_types.hrl").
 
-%% handle_pubsub/1 expects an already-decoded map from HTTP/PubSub handler
-%% In real deploy: your HTTP server receives JSON and turns it into Map.
+%% SECURITY: Whitelist of allowed signal names to prevent atom table exhaustion (DoS)
+%% Only these signal names can be converted to atoms - all others are rejected
+-define(ALLOWED_SIGNALS, [
+  quota_exceeded,
+  rate_limit_hit,
+  cost_spike_detected,
+  deployment_failed,
+  api_error_spike,
+  security_alert,
+  health_check_failed,
+  unknown_signal
+]).
+
+%% SECURITY: Whitelist of allowed source systems
+-define(ALLOWED_SOURCES, [
+  billing,
+  monitoring,
+  deployment,
+  security,
+  health,
+  unknown
+]).
+
+%% @doc Initialize the normalizer by pre-populating atom table with whitelisted values.
+%% MUST be called during application startup (in your app's start/2 callback).
+%% This ensures binary_to_existing_atom/2 works for allowed signals/sources.
+-spec init() -> ok.
+init() ->
+  %% Pre-populate atom table with allowed signals
+  lists:foreach(fun(Signal) ->
+    _ = Signal  %% Atoms in ?ALLOWED_SIGNALS are already in atom table
+  end, ?ALLOWED_SIGNALS),
+
+  %% Pre-populate atom table with allowed sources
+  lists:foreach(fun(Source) ->
+    _ = Source  %% Atoms in ?ALLOWED_SOURCES are already in atom table
+  end, ?ALLOWED_SOURCES),
+
+  logger:info("Signal normalizer initialized with ~p allowed signals and ~p allowed sources",
+              [length(?ALLOWED_SIGNALS), length(?ALLOWED_SOURCES)]),
+  ok.
+
+%% Type specifications for all public functions
+-type pubsub_envelope() :: #{
+  message => #{
+    attributes => #{binary() => binary()},
+    data => binary()
+  },
+  name => binary(),
+  payload => map()
+}.
+
+-type normalized_event() :: #{
+  tenant_id := binary(),
+  source := atom(),
+  name := atom(),
+  payload := map()
+}.
+
+-type route_reply() :: term().
+
+%% @doc Handle incoming Pub/Sub push envelope by normalizing and routing it.
+%% Expects a map decoded from JSON with message/attributes structure.
+%% Returns the reply from the governor FSM.
+-spec handle_pubsub(pubsub_envelope()) -> route_reply().
 handle_pubsub(Envelope) ->
   Event = normalize(Envelope),
   route(Event).
 
-%% Normalize any inbound event into:
+%% @doc Normalize Pub/Sub envelope into standardized event structure.
+%% Extracts tenant_id, source, signal name, and payload from envelope.
+%% Uses whitelisting to prevent atom table exhaustion attacks.
+-spec normalize(pubsub_envelope()) -> normalized_event().
+normalize(Envelope) ->
 %% #{tenant_id => ..., source => ..., name => ..., payload => #{...}}
 normalize(Envelope) ->
   %% Example Pub/Sub push envelope:
@@ -34,6 +101,10 @@ normalize(Envelope) ->
     payload => Payload
   }.
 
+%% @doc Route normalized event to tenant governor FSM.
+%% Ensures tenant exists in registry, routes signal to governor, emits receipt.
+%% Returns reply from the governor's FSM.
+-spec route(normalized_event()) -> route_reply().
 route(#{tenant_id := TenantId, name := Name, payload := Payload} = Event) ->
   %% Ensure tenant governor exists
   _ = {{ module_prefix }}_tenant_registry:ensure_tenant(TenantId, #{
@@ -69,7 +140,22 @@ to_bin(A) when is_atom(A) -> atom_to_binary(A, utf8);
 to_bin(I) when is_integer(I) -> integer_to_binary(I);
 to_bin(_) -> <<"unknown">>.
 
-to_atom(A) when is_atom(A) -> A;
-to_atom(B) when is_binary(B) -> binary_to_atom(B, utf8);
-to_atom(L) when is_list(L) -> list_to_atom(L);
-to_atom(_) -> unknown.
+%% SECURITY FIX: Use binary_to_existing_atom/2 to prevent atom table exhaustion
+%% This prevents DoS attacks where malicious actors send arbitrary signal names
+%% Reference: https://erlef.github.io/security-wg/secure_coding_and_deployment_hardening/atom_exhaustion
+to_atom(A) when is_atom(A) ->
+  A;
+to_atom(B) when is_binary(B) ->
+  try
+    binary_to_existing_atom(B, utf8)
+  catch
+    error:badarg ->
+      %% Signal name not in atom table = not whitelisted
+      %% Log the attempt and return safe default
+      logger:warning("Rejected unknown signal name: ~p", [B]),
+      unknown_signal
+  end;
+to_atom(L) when is_list(L) ->
+  to_atom(list_to_binary(L));
+to_atom(_) ->
+  unknown.

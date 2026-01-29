@@ -1,0 +1,31 @@
+{erl_opts, [debug_info]}.
+
+{deps, [
+    {%- for dep in dependencies %}
+    {{ dep }}{{ "," if not loop.last else "" }}
+    {%- endfor %}
+]}.
+
+{shell, [
+  {config, "config/sys.config"},
+  {apps, [{{ app_name }}]}
+]}.
+
+{dialyzer, [
+    {warnings, [
+        error_handling,
+        race_conditions,
+        unmatched_returns,
+        underspecs
+    ]},
+    {plt_extra_apps, [{{ required_apps | join(", ") }}]}
+]}.
+
+{cover_enabled, true}.
+{cover_opts, [verbose]}.
+
+{profiles, [
+    {test, [
+        {erl_opts, [debug_info, export_all, nowarn_export_all]}
+    ]}
+]}.

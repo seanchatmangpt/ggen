@@ -1,0 +1,329 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix : <https://ggen.dev/spec/erlang-jobs#> .
+
+# ============================================================================
+# FEATURE: Erlang OTP Job Processing Library
+# ============================================================================
+
+:ErlangJobsFeature a spec:Feature ;
+    rdfs:label "Erlang OTP Job Processing Library" ;
+    rdfs:comment "Production-grade job queue system with OTP supervision, multiple backends (ETS, Mnesia, Redis), worker pools, and comprehensive testing" ;
+    spec:maturity 90 ;
+    spec:epicNumber 15 ;
+    spec:specification :ErlangJobsSpec ;
+    sk:hasUserStory :us-001, :us-002, :us-003, :us-004, :us-005, :us-006, :us-007, :us-008 ;
+    sk:hasEntity :job-queue, :worker, :supervisor, :job, :scheduler, :rate-limiter, :job-store ;
+    spec:philosophy "Fault-tolerant job processing via OTP principles: supervision trees, gen_server behaviors, message passing, and let-it-crash philosophy" .
+
+# ============================================================================
+# USER STORIES
+# ============================================================================
+
+# US-001: Complete OTP Application Generation
+:us-001 a sk:UserStory ;
+    sk:storyIndex 1 ;
+    sk:title "Generate Complete Erlang OTP Application for Job Processing" ;
+    sk:priority "P1" ;
+    sk:description "As a backend developer, I want to generate a complete Erlang OTP application with proper supervision tree, application behavior, and module structure, so that I have a production-ready foundation for job processing" ;
+    sk:priorityRationale "Foundational infrastructure - all other features depend on proper OTP application structure. Without this, no job processing is possible." ;
+    sk:independentTest "Generated application compiles with rebar3, starts with application:ensure_all_started(jobs), supervision tree can be inspected with observer, application stops cleanly" ;
+    sk:hasAcceptanceScenario :us-001-as-001, :us-001-as-002, :us-001-as-003 .
+
+:us-001-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "TTL specification defines OTP application structure with supervision tree" ;
+    sk:when "ggen sync generates Erlang code from specification" ;
+    sk:then "Application compiles without errors, .app.src file generated with correct dependencies, application:start(jobs) succeeds and creates supervision tree" .
+
+:us-001-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Generated OTP application with top-level supervisor" ;
+    sk:when "supervisor:which_children(jobs_sup) is called" ;
+    sk:then "Returns list of child workers and supervisors as defined in specification, all children are alive and running" .
+
+:us-001-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "Running OTP application" ;
+    sk:when "application:stop(jobs) is called" ;
+    sk:then "All child processes terminate gracefully, supervisor shuts down cleanly, no orphaned processes remain" .
+
+# US-002: Job Queue with Multiple Backends
+:us-002 a sk:UserStory ;
+    sk:storyIndex 2 ;
+    sk:title "Create Job Queue with Multiple Storage Backends (ETS, Mnesia, Redis)" ;
+    sk:priority "P1" ;
+    sk:description "As a systems architect, I want to support multiple storage backends (ETS for in-memory, Mnesia for distributed, Redis for persistence), so that I can choose the right backend for different deployment scenarios" ;
+    sk:priorityRationale "Core functionality - job storage is critical path. Different deployments need different backends (dev: ETS, prod cluster: Mnesia, cloud: Redis)." ;
+    sk:independentTest "Each backend can enqueue/dequeue jobs, jobs persist across restarts (Mnesia/Redis), performance meets SLOs (ETS: <1ms, Mnesia: <10ms, Redis: <50ms), all backends pass same behavioral test suite" ;
+    sk:hasAcceptanceScenario :us-002-as-001, :us-002-as-002, :us-002-as-003 .
+
+:us-002-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Job queue configured with ETS backend" ;
+    sk:when "jobs:enqueue(JobQueue, {job, payload, Pid}) is called 1000 times" ;
+    sk:then "All 1000 jobs are stored in ETS table, jobs:dequeue(JobQueue) retrieves jobs in FIFO order, average latency is <1ms" .
+
+:us-002-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Job queue configured with Mnesia backend in distributed cluster" ;
+    sk:when "Node A enqueues job, node B dequeues job" ;
+    sk:then "Job is successfully retrieved from different node, Mnesia replication ensures consistency, latency is <10ms" .
+
+:us-002-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "Job queue configured with Redis backend" ;
+    sk:when "Application crashes and restarts" ;
+    sk:then "All enqueued jobs are recovered from Redis, job order is preserved, no jobs are lost" .
+
+# US-003: Worker Pool with Supervision
+:us-003 a sk:UserStory ;
+    sk:storyIndex 3 ;
+    sk:title "Implement Worker Pool with OTP Supervision and Dynamic Scaling" ;
+    sk:priority "P1" ;
+    sk:description "As a DevOps engineer, I want a supervised worker pool with configurable size and dynamic scaling, so that the system can handle variable load and recover from worker failures automatically" ;
+    sk:priorityRationale "Critical for fault tolerance and performance. Worker failures must not crash the system (let-it-crash + supervision). Dynamic scaling enables efficient resource usage." ;
+    sk:independentTest "Worker pool starts with N workers, supervisor restarts failed workers within 5s, dynamic scaling adjusts worker count based on queue depth, all workers are gen_server compliant" ;
+    sk:hasAcceptanceScenario :us-003-as-001, :us-003-as-002, :us-003-as-003 .
+
+:us-003-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Worker pool supervisor configured with pool_size=10" ;
+    sk:when "supervisor:start_link(jobs_worker_sup, []) is called" ;
+    sk:then "Exactly 10 worker gen_servers are started, supervisor:which_children/1 returns 10 active workers, all workers are registered in process registry" .
+
+:us-003-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Running worker pool with 10 workers" ;
+    sk:when "One worker crashes (exit(WorkerPid, kill))" ;
+    sk:then "Supervisor detects worker death within 100ms, new worker is spawned within 5s, worker pool returns to 10 workers, no jobs are lost" .
+
+:us-003-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "Worker pool with dynamic_scaling=true, min=5, max=20" ;
+    sk:when "Queue depth exceeds threshold (100 jobs)" ;
+    sk:then "Worker pool scales up to max=20 workers, queue is drained, pool scales down to min=5 when queue is empty" .
+
+# US-004: Benchmarks with timer Module
+:us-004 a sk:UserStory ;
+    sk:storyIndex 4 ;
+    sk:title "Generate Performance Benchmarks Using Erlang timer Module" ;
+    sk:priority "P2" ;
+    sk:description "As a performance engineer, I want automated benchmarks measuring enqueue/dequeue latency, throughput, and worker pool efficiency, so that I can verify performance SLOs and detect regressions" ;
+    sk:priorityRationale "Important for production readiness but not blocking for MVP. Benchmarks enable data-driven optimization and SLO verification." ;
+    sk:independentTest "Benchmarks run via rebar3 bench, measure enqueue (<1ms p95), dequeue (<1ms p95), throughput (>10k jobs/sec), worker pool utilization (>80%), results are deterministic (variance <10%)" ;
+    sk:hasAcceptanceScenario :us-004-as-001, :us-004-as-002 .
+
+:us-004-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Benchmark suite for enqueue operation with 10000 jobs" ;
+    sk:when "Benchmark is executed with timer:tc/1" ;
+    sk:then "P95 latency is <1ms, P99 latency is <5ms, total execution time is recorded, results are formatted as CSV/JSON for analysis" .
+
+:us-004-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Benchmark suite for worker pool processing 100000 jobs" ;
+    sk:when "Benchmark measures throughput with 10 workers" ;
+    sk:then "Throughput exceeds 10k jobs/sec, worker utilization is >80%, latency distribution is reported (min/median/p95/p99/max)" .
+
+# US-005: Stress Tests with PropEr and common_test
+:us-005 a sk:UserStory ;
+    sk:storyIndex 5 ;
+    sk:title "Generate Stress Tests Using PropEr Property-Based Testing and common_test" ;
+    sk:priority "P2" ;
+    sk:description "As a QA engineer, I want property-based tests (PropEr) and integration tests (common_test) that stress the system under high load, so that I can verify fault tolerance and detect edge cases" ;
+    sk:priorityRationale "Important for production confidence. PropEr finds edge cases humans miss. common_test provides integration test framework. Not blocking for initial release." ;
+    sk:independentTest "PropEr properties verify queue invariants (FIFO order, no duplicates, all jobs processed), common_test suites test concurrent access, supervisor restarts, network partitions. All tests pass 1000 iterations." ;
+    sk:hasAcceptanceScenario :us-005-as-001, :us-005-as-002 .
+
+:us-005-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "PropEr property: enqueued jobs are dequeued in FIFO order" ;
+    sk:when "Property is tested with 1000 random job sequences" ;
+    sk:then "All 1000 iterations pass, no counterexamples found, shrinking works for failures, property execution time is <60s" .
+
+:us-005-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "common_test suite for concurrent enqueue/dequeue with 100 processes" ;
+    sk:when "Test spawns 100 processes that enqueue/dequeue randomly for 30s" ;
+    sk:then "No race conditions detected, no deadlocks occur, all jobs are processed exactly once, final queue state is consistent" .
+
+# US-006: Scheduled, Delayed, and Recurring Jobs
+:us-006 a sk:UserStory ;
+    sk:storyIndex 6 ;
+    sk:title "Support Scheduled, Delayed, and Recurring Jobs with Cron-like Syntax" ;
+    sk:priority "P2" ;
+    sk:description "As an application developer, I want to schedule jobs for future execution, delay jobs by duration, and create recurring jobs with cron syntax, so that I can implement batch processing and periodic tasks" ;
+    sk:priorityRationale "High-value feature for many use cases (daily reports, periodic cleanup, delayed notifications). Not critical path for basic queue functionality." ;
+    sk:independentTest "Delayed job executes after specified duration (±100ms), scheduled job executes at specified time (±1s), recurring job executes on cron schedule, scheduler gen_server manages all scheduled jobs" ;
+    sk:hasAcceptanceScenario :us-006-as-001, :us-006-as-002, :us-006-as-003 .
+
+:us-006-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Job scheduled with delay of 5 seconds" ;
+    sk:when "jobs:enqueue_delayed(JobQueue, Job, 5000) is called at T0" ;
+    sk:then "Job is not executed before T0+5s, job executes at T0+5s (±100ms), job is removed from scheduler after execution" .
+
+:us-006-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Job scheduled with absolute timestamp (tomorrow at 3am)" ;
+    sk:when "jobs:enqueue_at(JobQueue, Job, {{Y,M,D},{3,0,0}}) is called" ;
+    sk:then "Job is stored in scheduler, job executes at specified time (±1s), scheduler persists scheduled jobs across restarts (if Mnesia/Redis backend)" .
+
+:us-006-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "Recurring job with cron expression '0 0 * * *' (daily at midnight)" ;
+    sk:when "jobs:enqueue_recurring(JobQueue, Job, \"0 0 * * *\") is called" ;
+    sk:then "Job executes daily at midnight, scheduler calculates next execution time, job continues recurring until explicitly cancelled" .
+
+# US-007: Rate Limiting with Token Bucket and Leaky Bucket
+:us-007 a sk:UserStory ;
+    sk:storyIndex 7 ;
+    sk:title "Implement Rate Limiting with Token Bucket and Leaky Bucket Algorithms" ;
+    sk:priority "P3" ;
+    sk:description "As an API developer, I want to rate-limit job execution using token bucket (burst allowance) or leaky bucket (strict rate), so that I can protect downstream services from overload" ;
+    sk:priorityRationale "Nice-to-have for API protection scenarios. Can be implemented as separate gen_server. Not blocking for core queue functionality." ;
+    sk:independentTest "Token bucket allows burst up to capacity, refills at configured rate, leaky bucket enforces strict rate limit, both algorithms prevent exceeding rate limits" ;
+    sk:hasAcceptanceScenario :us-007-as-001, :us-007-as-002 .
+
+:us-007-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Token bucket rate limiter with capacity=10, refill_rate=1/sec" ;
+    sk:when "100 jobs are submitted instantly" ;
+    sk:then "First 10 jobs execute immediately (burst), remaining jobs execute at 1/sec rate, no jobs execute faster than configured rate" .
+
+:us-007-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Leaky bucket rate limiter with rate=10/sec" ;
+    sk:when "100 jobs are submitted instantly" ;
+    sk:then "Jobs execute at exactly 10/sec rate, no burst allowed, queue drains at constant rate" .
+
+# US-008: Diataxis Documentation Generation
+:us-008 a sk:UserStory ;
+    sk:storyIndex 8 ;
+    sk:title "Generate Diataxis-Style Documentation (Tutorials, How-Tos, Reference, Explanation)" ;
+    sk:priority "P3" ;
+    sk:description "As a library user, I want comprehensive documentation following Diataxis framework (tutorials for learning, how-tos for tasks, reference for lookup, explanation for understanding), so that I can quickly adopt the library" ;
+    sk:priorityRationale "Important for adoption and developer experience. Can be generated from TTL specifications. Not blocking for initial release." ;
+    sk:independentTest "Documentation includes: tutorial (getting started example), 5+ how-to guides (common tasks), API reference (all public functions), explanation (architecture and design decisions), all docs compile to HTML/markdown" ;
+    sk:hasAcceptanceScenario :us-008-as-001, :us-008-as-002 .
+
+:us-008-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "TTL specification with function annotations and examples" ;
+    sk:when "ggen sync generates documentation from specification" ;
+    sk:then "API reference is generated with function signatures, parameter descriptions, return values, examples, reference is navigable by module" .
+
+:us-008-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Generated tutorial documentation" ;
+    sk:when "New developer follows tutorial from scratch" ;
+    sk:then "Tutorial covers: installation, basic enqueue/dequeue, worker pool setup, running first job, all code examples work without modification" .
+
+# ============================================================================
+# SPECIFICATION CLOSURE CHECKLIST
+# ============================================================================
+
+:ErlangJobsSpec a spec:SpecificationChecklist ;
+    rdfs:label "Erlang Jobs Library Specification Closure" ;
+    spec:completionStatus "100%" ;
+    spec:section1_OTPApplication :ChecklistOTPApplication ;
+    spec:section2_JobQueue :ChecklistJobQueue ;
+    spec:section3_WorkerPool :ChecklistWorkerPool ;
+    spec:section4_Scheduler :ChecklistScheduler ;
+    spec:section5_RateLimiter :ChecklistRateLimiter ;
+    spec:section6_Testing :ChecklistTesting ;
+    spec:section7_Documentation :ChecklistDocumentation .
+
+:ChecklistOTPApplication a spec:Section ;
+    rdfs:label "OTP Application Structure" ;
+    spec:item1 "Application behavior with .app.src file" ;
+    spec:item2 "Top-level supervisor with one_for_one strategy" ;
+    spec:item3 "Module structure (src/, include/, test/)" ;
+    spec:item4 "rebar.config with dependencies (proper, eredis, etc.)" ;
+    spec:item5 "Graceful start/stop behavior" ;
+    spec:completed "true" .
+
+:ChecklistJobQueue a spec:Section ;
+    rdfs:label "Job Queue with Multiple Backends" ;
+    spec:item1 "ETS backend for in-memory storage" ;
+    spec:item2 "Mnesia backend for distributed storage" ;
+    spec:item3 "Redis backend for persistent storage" ;
+    spec:item4 "Unified queue behavior (enqueue/dequeue/peek)" ;
+    spec:item5 "Backend selection via configuration" ;
+    spec:item6 "FIFO, priority, and delayed queue types" ;
+    spec:completed "true" .
+
+:ChecklistWorkerPool a spec:Section ;
+    rdfs:label "Worker Pool with Supervision" ;
+    spec:item1 "Worker supervisor (simple_one_for_one strategy)" ;
+    spec:item2 "Worker gen_server implementation" ;
+    spec:item3 "Dynamic worker pool sizing" ;
+    spec:item4 "Worker failure recovery (<5s restart time)" ;
+    spec:item5 "Load balancing across workers" ;
+    spec:item6 "Worker metrics (processed jobs, errors, latency)" ;
+    spec:completed "true" .
+
+:ChecklistScheduler a spec:Section ;
+    rdfs:label "Job Scheduler (Delayed/Recurring)" ;
+    spec:item1 "Scheduler gen_server implementation" ;
+    spec:item2 "Delayed job execution (millisecond precision)" ;
+    spec:item3 "Scheduled job execution (datetime precision)" ;
+    spec:item4 "Recurring job execution (cron syntax)" ;
+    spec:item5 "Scheduler persistence (Mnesia/Redis)" ;
+    spec:item6 "Next execution time calculation" ;
+    spec:completed "true" .
+
+:ChecklistRateLimiter a spec:Section ;
+    rdfs:label "Rate Limiting" ;
+    spec:item1 "Token bucket algorithm implementation" ;
+    spec:item2 "Leaky bucket algorithm implementation" ;
+    spec:item3 "Rate limiter gen_server" ;
+    spec:item4 "Configurable burst and rate parameters" ;
+    spec:item5 "Integration with worker pool" ;
+    spec:completed "true" .
+
+:ChecklistTesting a spec:Section ;
+    rdfs:label "Testing Strategy" ;
+    spec:item1 "EUnit tests for all modules" ;
+    spec:item2 "PropEr property-based tests for queue invariants" ;
+    spec:item3 "common_test suites for integration tests" ;
+    spec:item4 "Benchmark suite using timer module" ;
+    spec:item5 "Stress tests (concurrent access, failure scenarios)" ;
+    spec:item6 "Test coverage >80% (cover module)" ;
+    spec:completed "true" .
+
+:ChecklistDocumentation a spec:Section ;
+    rdfs:label "Diataxis Documentation" ;
+    spec:item1 "Tutorial: Getting Started (15-minute walkthrough)" ;
+    spec:item2 "How-To: Common tasks (enqueue, configure backends, scale workers)" ;
+    spec:item3 "Reference: API documentation (edoc generated)" ;
+    spec:item4 "Explanation: Architecture and design decisions" ;
+    spec:item5 "README with quick start and examples" ;
+    spec:item6 "CHANGELOG following Keep a Changelog format" ;
+    spec:completed "true" .
+
+# ============================================================================
+# COMPLETION CRITERIA
+# ============================================================================
+
+:CompletionCriteria a spec:Checklist ;
+    rdfs:label "Erlang Jobs Library Implementation Completion" ;
+    spec:criterion1 "OTP application compiles with rebar3 compile" ;
+    spec:criterion2 "Application starts successfully with application:start(jobs)" ;
+    spec:criterion3 "All three backends (ETS, Mnesia, Redis) functional" ;
+    spec:criterion4 "Worker pool scales dynamically and recovers from failures" ;
+    spec:criterion5 "Scheduler handles delayed, scheduled, and recurring jobs" ;
+    spec:criterion6 "Rate limiting works for both algorithms" ;
+    spec:criterion7 "All EUnit tests pass (rebar3 eunit)" ;
+    spec:criterion8 "PropEr tests find no counterexamples (1000 iterations)" ;
+    spec:criterion9 "common_test suites pass (rebar3 ct)" ;
+    spec:criterion10 "Benchmarks meet SLOs (enqueue <1ms p95, throughput >10k/s)" ;
+    spec:criterion11 "Test coverage >80% (rebar3 cover)" ;
+    spec:criterion12 "Documentation complete (Tutorial, How-To, Reference, Explanation)" ;
+    spec:criterion13 "README with examples and quick start" ;
+    spec:criterion14 "Zero dialyzer warnings (rebar3 dialyzer)" ;
+    spec:criterion15 "Code follows OTP design principles and Erlang style guide" .

@@ -48,6 +48,7 @@
 //! ```
 
 pub mod checks;
+pub mod erlang;
 pub mod error;
 pub mod gate;
 pub mod input; // Week 4: Comprehensive input validation framework
@@ -83,3 +84,9 @@ pub use input::{
     WhitelistRule,
 };
 pub use input_compiler::{CompiledValidator, RuleCompiler, RuleDefinition};
+
+// Erlang-specific validation
+pub use erlang::{
+    validate_function_name, validate_module_name, validate_module_structure, validate_record_name,
+    validate_variable_name,
+};

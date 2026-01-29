@@ -1,0 +1,300 @@
+@prefix docs: <http://ggen.dev/ontology/docs#> .
+@prefix diataxis: <http://diataxis.fr/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+###############################################################################
+# ERLANG JOBS LIBRARY DOCUMENTATION ONTOLOGY
+#
+# This RDF ontology defines the complete Diataxis documentation structure
+# for the Erlang Jobs Library. It drives automatic generation of tutorials,
+# how-to guides, reference docs, and explanations via ggen sync.
+#
+# Generated files: docs/erlang_jobs/**/*.md
+###############################################################################
+
+###############################################################################
+# DOCUMENTATION SET
+###############################################################################
+
+docs:ErlangJobsDocumentation a docs:DocumentationSet ;
+    rdfs:label "Erlang Jobs Library Documentation" ;
+    docs:version "1.0.0" ;
+    docs:framework diataxis:Framework ;
+    docs:outputDirectory "docs/erlang_jobs" ;
+    docs:hasTutorials docs:Tutorials ;
+    docs:hasHowToGuides docs:HowToGuides ;
+    docs:hasReference docs:Reference ;
+    docs:hasExplanation docs:Explanation .
+
+###############################################################################
+# TUTORIALS (Learning-Oriented)
+###############################################################################
+
+docs:Tutorials a diataxis:Tutorials ;
+    rdfs:label "Tutorials" ;
+    diataxis:purpose "Guide newcomers through building their first projects" ;
+    diataxis:characteristics "Step-by-step, hands-on, complete working examples" ;
+    docs:outputSubdirectory "tutorials" ;
+    docs:hasTutorial docs:Tutorial01 ;
+    docs:hasTutorial docs:Tutorial02 ;
+    docs:hasTutorial docs:Tutorial03 ;
+    docs:hasTutorial docs:Tutorial04 .
+
+docs:Tutorial01 a diataxis:Tutorial ;
+    rdfs:label "Getting Started with ggen for Erlang" ;
+    docs:filename "01-getting-started.md" ;
+    docs:learningObjective "Install ggen, initialize project, generate first Erlang job queue" ;
+    docs:outcome "Working job queue in 15 minutes" ;
+    docs:timeEstimate 15 ;
+    docs:prerequisites "Basic Erlang knowledge, rebar3 installed" ;
+    docs:steps (
+        "Install ggen from repository"
+        "Initialize Erlang project with ggen init"
+        "Explore RDF specification in .specify/"
+        "Generate Erlang code with ggen sync"
+        "Examine generated modules"
+        "Run tests with rebar3 ct"
+        "Start application and test manually"
+    ) .
+
+docs:Tutorial02 a diataxis:Tutorial ;
+    rdfs:label "Building Your First Job Queue" ;
+    docs:filename "02-first-job-queue.md" ;
+    docs:learningObjective "Create production-ready job queue with retry and deadlines" ;
+    docs:outcome "Job queue with retry logic, deadline handling, Chicago TDD tests" ;
+    docs:timeEstimate 30 ;
+    docs:prerequisites "Completed Tutorial 1" ;
+    docs:steps (
+        "Extend RDF with retry and deadline properties"
+        "Regenerate code with ggen sync"
+        "Examine retry logic with exponential backoff"
+        "Examine deadline checking"
+        "Run Chicago TDD tests"
+        "Test manually in Erlang shell"
+        "Monitor with Prometheus metrics"
+    ) .
+
+docs:Tutorial03 a diataxis:Tutorial ;
+    rdfs:label "Creating a Supervised Worker Pool" ;
+    docs:filename "03-supervised-worker-pool.md" ;
+    docs:learningObjective "Design supervision tree, implement fault-tolerant workers" ;
+    docs:outcome "Worker pool with OTP supervision and crash recovery" ;
+    docs:timeEstimate 45 ;
+    docs:prerequisites "Completed Tutorial 2" ;
+    docs:steps (
+        "Extend RDF with WorkerPool specification"
+        "Generate supervision tree"
+        "Examine supervisor architecture"
+        "Examine worker pool implementation"
+        "Examine worker lifecycle"
+        "Test worker failures and restarts"
+        "Monitor pool status"
+    ) .
+
+docs:Tutorial04 a diataxis:Tutorial ;
+    rdfs:label "End-to-End: From RDF Spec to Running Erlang App" ;
+    docs:filename "04-rdf-to-running-app.md" ;
+    docs:learningObjective "Master complete workflow from RDF to deployed app" ;
+    docs:outcome "Production Erlang app deployed with Docker and monitoring" ;
+    docs:timeEstimate 60 ;
+    docs:prerequisites "Completed Tutorials 1-3" ;
+    docs:steps (
+        "Design comprehensive RDF ontology"
+        "Run full generation pipeline (μ₁-μ₅)"
+        "Examine cryptographic receipt"
+        "Build and test with rebar3"
+        "Deploy with Docker Compose"
+        "Monitor with Prometheus and Grafana"
+        "Load test with stress suite"
+        "Update RDF and verify determinism"
+    ) .
+
+###############################################################################
+# HOW-TO GUIDES (Task-Oriented)
+###############################################################################
+
+docs:HowToGuides a diataxis:HowToGuides ;
+    rdfs:label "How-To Guides" ;
+    diataxis:purpose "Solve specific problems users encounter" ;
+    diataxis:characteristics "Goal-focused, problem-solving, assumes basic knowledge" ;
+    docs:outputSubdirectory "howto" ;
+    docs:hasGuide docs:HowTo01 ;
+    docs:hasGuide docs:HowTo02 ;
+    docs:hasGuide docs:HowTo03 ;
+    docs:hasGuide docs:HowTo04 ;
+    docs:hasGuide docs:HowTo05 .
+
+docs:HowTo01 a diataxis:HowToGuide ;
+    rdfs:label "How to Add a Custom Job Backend" ;
+    docs:filename "01-custom-job-backend.md" ;
+    docs:goal "Integrate Redis, Kafka, PostgreSQL, or custom backend" ;
+    docs:outcome "Job queue using your preferred backend" ;
+    docs:difficulty "intermediate" ;
+    docs:timeEstimate 20 .
+
+docs:HowTo02 a diataxis:HowToGuide ;
+    rdfs:label "How to Implement Rate Limiting" ;
+    docs:filename "02-rate-limiting.md" ;
+    docs:goal "Add rate limiting with token bucket or leaky bucket" ;
+    docs:outcome "Rate-limited job processing" ;
+    docs:difficulty "intermediate" ;
+    docs:timeEstimate 25 .
+
+docs:HowTo03 a diataxis:HowToGuide ;
+    rdfs:label "How to Write Benchmarks for Your Jobs" ;
+    docs:filename "03-benchmarks.md" ;
+    docs:goal "Measure latency (p50/p95/p99), throughput, memory usage" ;
+    docs:outcome "Performance benchmarks for job queue" ;
+    docs:difficulty "intermediate" ;
+    docs:timeEstimate 30 .
+
+docs:HowTo04 a diataxis:HowToGuide ;
+    rdfs:label "How to Stress Test with PropEr" ;
+    docs:filename "04-stress-testing.md" ;
+    docs:goal "Property-based testing for concurrency and fault tolerance" ;
+    docs:outcome "Comprehensive stress tests" ;
+    docs:difficulty "advanced" ;
+    docs:timeEstimate 40 .
+
+docs:HowTo05 a diataxis:HowToGuide ;
+    rdfs:label "How to Customize Generated Templates" ;
+    docs:filename "05-customize-templates.md" ;
+    docs:goal "Edit Tera templates, add custom logic, regenerate" ;
+    docs:outcome "Customized code generation for your needs" ;
+    docs:difficulty "advanced" ;
+    docs:timeEstimate 35 .
+
+###############################################################################
+# REFERENCE (Information-Oriented)
+###############################################################################
+
+docs:Reference a diataxis:Reference ;
+    rdfs:label "Reference Documentation" ;
+    diataxis:purpose "Provide technical details and API documentation" ;
+    diataxis:characteristics "Precise, complete, searchable, up-to-date" ;
+    docs:outputSubdirectory "reference" ;
+    docs:hasDocument docs:Ref01 ;
+    docs:hasDocument docs:Ref02 ;
+    docs:hasDocument docs:Ref03 ;
+    docs:hasDocument docs:Ref04 ;
+    docs:hasDocument docs:Ref05 .
+
+docs:Ref01 a diataxis:ReferenceDocument ;
+    rdfs:label "API Documentation for Generated Modules" ;
+    docs:filename "01-api-reference.md" ;
+    docs:includes "Function signatures, types, examples" ;
+    docs:modules ("job_queue" "job_worker_pool" "job_worker" "job_scheduler") .
+
+docs:Ref02 a diataxis:ReferenceDocument ;
+    rdfs:label "RDF Ontology Reference" ;
+    docs:filename "02-rdf-ontology.md" ;
+    docs:includes "Classes, properties, constraints, examples" ;
+    docs:vocabulary "http://ggen.dev/ontology/jobs#" .
+
+docs:Ref03 a diataxis:ReferenceDocument ;
+    rdfs:label "Template Variable Reference" ;
+    docs:filename "03-template-variables.md" ;
+    docs:includes "Data types, scoping rules, filters" ;
+    docs:templateEngine "Tera" .
+
+docs:Ref04 a diataxis:ReferenceDocument ;
+    rdfs:label "Configuration Options" ;
+    docs:filename "04-configuration.md" ;
+    docs:includes "sys.config, vm.args, rebar.config options" ;
+    docs:configFiles ("sys.config" "vm.args" "rebar.config") .
+
+docs:Ref05 a diataxis:ReferenceDocument ;
+    rdfs:label "CLI Command Reference" ;
+    docs:filename "05-cli-reference.md" ;
+    docs:includes "Commands, flags, examples, outputs" ;
+    docs:commands ("ggen init" "ggen sync" "ggen validate") .
+
+###############################################################################
+# EXPLANATION (Understanding-Oriented)
+###############################################################################
+
+docs:Explanation a diataxis:Explanation ;
+    rdfs:label "Explanation Articles" ;
+    diataxis:purpose "Clarify and illuminate topics in-depth" ;
+    diataxis:characteristics "Big-picture thinking, conceptual, informative" ;
+    docs:outputSubdirectory "explanation" ;
+    docs:hasArticle docs:Explain01 ;
+    docs:hasArticle docs:Explain02 ;
+    docs:hasArticle docs:Explain03 ;
+    docs:hasArticle docs:Explain04 ;
+    docs:hasArticle docs:Explain05 .
+
+docs:Explain01 a diataxis:ExplanationArticle ;
+    rdfs:label "Why Use RDF for Code Generation" ;
+    docs:filename "01-why-rdf.md" ;
+    docs:topics ("Semantic modeling" "Deterministic generation" "Knowledge graphs") .
+
+docs:Explain02 a diataxis:ExplanationArticle ;
+    rdfs:label "OTP Design Patterns in the Jobs Library" ;
+    docs:filename "02-otp-patterns.md" ;
+    docs:topics ("gen_server" "gen_statem" "supervision trees" "poolboy") .
+
+docs:Explain03 a diataxis:ExplanationArticle ;
+    rdfs:label "Supervision Tree Architecture" ;
+    docs:filename "03-supervision-tree.md" ;
+    docs:topics ("one_for_one" "one_for_all" "restart intensities" "shutdown sequences") .
+
+docs:Explain04 a diataxis:ExplanationArticle ;
+    rdfs:label "Performance Characteristics and Trade-offs" ;
+    docs:filename "04-performance.md" ;
+    docs:topics ("Latency vs throughput" "Memory vs speed" "Pull vs push" "Benchmarks") .
+
+docs:Explain05 a diataxis:ExplanationArticle ;
+    rdfs:label "Deterministic Generation Benefits" ;
+    docs:filename "05-deterministic-generation.md" ;
+    docs:topics ("Holographic factory metaphor" "Cryptographic receipts" "Audit trails") .
+
+###############################################################################
+# SHACL VALIDATION SHAPES
+###############################################################################
+
+docs:TutorialShape a sh:NodeShape ;
+    sh:targetClass diataxis:Tutorial ;
+    sh:property [
+        sh:path docs:learningObjective ;
+        sh:datatype xsd:string ;
+        sh:minCount 1
+    ] ;
+    sh:property [
+        sh:path docs:outcome ;
+        sh:datatype xsd:string ;
+        sh:minCount 1
+    ] ;
+    sh:property [
+        sh:path docs:timeEstimate ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 120
+    ] .
+
+docs:HowToGuideShape a sh:NodeShape ;
+    sh:targetClass diataxis:HowToGuide ;
+    sh:property [
+        sh:path docs:goal ;
+        sh:datatype xsd:string ;
+        sh:minCount 1
+    ] ;
+    sh:property [
+        sh:path docs:difficulty ;
+        sh:in ("beginner" "intermediate" "advanced") ;
+        sh:minCount 1
+    ] .
+
+###############################################################################
+# METADATA
+###############################################################################
+
+docs:ErlangJobsDocumentation
+    docs:generatedBy "ggen v6.0.0" ;
+    docs:generatedDate "2026-01-29"^^xsd:date ;
+    docs:rdfSource ".specify/docs/erlang-jobs-docs.ttl" ;
+    docs:templateDirectory "templates/docs/" ;
+    docs:outputDirectory "docs/erlang_jobs/" .

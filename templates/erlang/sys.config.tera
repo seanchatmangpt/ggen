@@ -1,0 +1,136 @@
+{% set app_name = app_name | default(value="myapp") -%}
+{%-#
+  SPARQL-Aware System Configuration Template
+
+  Runtime configuration for Erlang/OTP applications.
+  Can query ontologies for:
+  - Application environment settings
+  - Logging configuration
+  - System parameters
+  - Third-party application configs
+-%}
+
+%% -*- mode: erlang; erlang-indent-level: 2 -*-
+%% sys.config - Runtime system configuration
+
+[
+ %% SASL (System Architecture Support Libraries)
+ {sasl, [
+   {sasl_error_logger, {file, "log/sasl-error.log"}},
+   {errlog_type, error},
+   {error_logger_mf_dir, "log/sasl"},
+   {error_logger_mf_maxbytes, {{ sasl_max_bytes | default(value=10485760) }}}, %% 10 MB
+   {error_logger_mf_maxfiles, {{ sasl_max_files | default(value=5) }}}
+ ]},
+
+ %% Kernel configuration
+ {kernel, [
+   {logger_level, {{ log_level | default(value="info") }}},
+   {logger, [
+     %% Console handler
+     {handler, default, logger_std_h, #{
+       level => {{ log_level | default(value="info") }},
+       config => #{
+         type => standard_io
+       },
+       formatter => {logger_formatter, #{
+         single_line => false,
+         template => [time, " [", level, "] ", pid, " ", msg, "\n"]
+       }}
+     }},
+
+     %% File handler
+     {handler, file, logger_std_h, #{
+       level => {{ log_level | default(value="info") }},
+       config => #{
+         type => {file, "log/{{ app_name }}.log"},
+         max_no_bytes => {{ log_max_bytes | default(value=10485760) }}, %% 10 MB
+         max_no_files => {{ log_max_files | default(value=5) }},
+         compress_on_rotate => true
+       },
+       formatter => {logger_formatter, #{
+         single_line => false,
+         template => [time, " [", level, "] ", pid, " ", mfa, ":", line, " ", msg, "\n"]
+       }}
+     }}
+
+     {% if custom_log_handlers %}
+     {% for handler in custom_log_handlers %}
+     ,{handler, {{ handler.name }}, {{ handler.module }}, #{
+       level => {{ handler.level | default(value="info") }},
+       config => {{ handler.config | default(value="#{}") }},
+       formatter => {{ handler.formatter | default(value="{logger_formatter, #{}}") }}
+     }}
+     {% endfor %}
+     {% endif %}
+   ]}
+ ]},
+
+ %% Application configuration
+ {{{ app_name }}, [
+   %% Job queue configuration
+   {workers, {{ workers | default(value=4) }}},
+   {max_queue_size, {{ max_queue_size | default(value=1000) }}},
+   {timeout, {{ timeout | default(value=5000) }}},
+
+   %% Backend configuration
+   {backend, {{ backend | default(value="ets_backend") }}},
+   {backend_opts, [
+     {% if backend_opts %}
+     {% for key, value in backend_opts %}
+     {{{ key }}, {{ value }}}{% if not loop.last %},{% endif %}
+     {% endfor %}
+     {% endif %}
+   ]},
+
+   %% Worker pool configuration
+   {pool_size, {{ pool_size | default(value=4) }}},
+   {pool_strategy, {{ pool_strategy | default(value="one_for_one") }}},
+
+   %% Retry policy
+   {retry_policy, #{
+     max_retries => {{ max_retries | default(value=3) }},
+     initial_delay => {{ initial_delay | default(value=1000) }},
+     max_delay => {{ max_delay | default(value=60000) }},
+     backoff_factor => {{ backoff_factor | default(value=2.0) }}
+   }},
+
+   %% Job processing
+   {job_timeout, {{ job_timeout | default(value=5000) }}},
+   {poll_interval, {{ poll_interval | default(value=1000) }}},
+
+   %% Monitoring and metrics
+   {enable_metrics, {{ enable_metrics | default(value="true") }}},
+   {metrics_interval, {{ metrics_interval | default(value=60000) }}},
+
+   {% if custom_config %}
+   %% Custom configuration from ontology
+   {% for key, value in custom_config %}
+   {{{ key }}, {{ value }}}{% if not loop.last %},{% endif %}
+   {% endfor %}
+   {% endif %}
+ ]}
+
+ {% if mnesia_config %}
+ %% Mnesia configuration
+ ,{mnesia, [
+   {dir, "{{ mnesia_dir | default(value='data/mnesia') }}"},
+   {dump_log_write_threshold, {{ mnesia_dump_threshold | default(value=1000) }}},
+   {dc_dump_limit, {{ mnesia_dc_dump_limit | default(value=40) }}},
+   {% for key, value in mnesia_config %}
+   {{{ key }}, {{ value }}}{% if not loop.last %},{% endif %}
+   {% endfor %}
+ ]}
+ {% endif %}
+
+ {% if additional_apps %}
+ %% Additional application configurations
+ {% for app in additional_apps %}
+ ,{{{ app.name }}, [
+   {% for key, value in app.config %}
+   {{{ key }}, {{ value }}}{% if not loop.last %},{% endif %}
+   {% endfor %}
+ ]}
+ {% endfor %}
+ {% endif %}
+].
