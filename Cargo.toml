@@ -564,3 +564,36 @@ required-features = []
 name = "tps_test_data_generation"
 path = "tests/tps/test_data_generation.rs"
 required-features = []
+
+# ============================================================================
+# DEBIAN PACKAGING (cargo-deb)
+# ============================================================================
+# Enables: dpkg-deb, apt installation
+# Build: cargo deb
+# Install: sudo dpkg -i target/debian/ggen_0.2.0_amd64.deb
+# Or: sudo apt install ./ggen_0.2.0_amd64.deb
+
+[package.metadata.deb]
+maintainer = "Sean Chatman <sean@chatmangpt.com>"
+copyright = "2026, Sean Chatman <sean@chatmangpt.com>"
+license-file = ["LICENSE", "4"]
+extended-description = """\
+ggen is a language-agnostic, deterministic code generation tool that transforms \
+RDF ontologies into reproducible code through SPARQL queries and Tera templates. \
+
+Perfect for generating REST APIs, microservices, database schemas, infrastructure-as-code, \
+and multi-language projects from a single specification."""
+assets = [
+    ["target/release/ggen", "usr/bin/", "755"],
+    ["README.md", "usr/share/doc/ggen/", "644"],
+    ["LICENSE", "usr/share/doc/ggen/copyright", "644"],
+]
+changelog = "debian/changelog"
+systemd-units = []
+conffiles = []
+
+[package.metadata.deb.variants.amd64]
+package = "ggen-amd64"
+
+[package.metadata.deb.lintian-overrides]
+unused-shlibs = []

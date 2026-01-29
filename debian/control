@@ -2,25 +2,43 @@ Source: ggen
 Section: development
 Priority: optional
 Maintainer: Sean Chatman <sean@chatmangpt.com>
-Build-Depends: cargo, rustc (>= 1.75)
-Standards-Version: 4.6.2
+Uploaders: Anthropic Claude Code Team <code@anthropic.com>
+Build-Depends: cargo (>= 1.70), rustc (>= 1.75), debhelper-compat (= 13)
+Standards-Version: 4.7.0
 Homepage: https://github.com/seanchatmangpt/ggen
 Vcs-Git: https://github.com/seanchatmangpt/ggen.git
 Vcs-Browser: https://github.com/seanchatmangpt/ggen
+Repository: https://github.com/seanchatmangpt/ggen
 
 Package: ggen
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Ontology-driven code generation CLI
+Recommends: git
+Suggests: rust-toolchain, nodejs
+Description: Ontology-driven code generation CLI (v0.2.0)
  ggen is a language-agnostic, deterministic code generation tool that transforms
  RDF ontologies into reproducible code through SPARQL queries and Tera templates.
+ Specification-first development using RDF/Turtle as the source of truth.
  .
- Features:
-  - Specification-first approach using RDF/Turtle ontologies
-  - Deterministic code generation from specifications
-  - SPARQL-based inference and data extraction
-  - Tera template rendering with SPARQL result injection
-  - Single unified 'ggen sync' command for all workflows
-  - Watch mode for development iteration
+ Core Features:
+  - RDF-first approach using Turtle ontologies (source of truth)
+  - Deterministic code generation (same input always produces identical output)
+  - Five-stage deterministic pipeline (μ₁-μ₅): Normalize → Extract → Emit → Canonicalize → Receipt
+  - SPARQL 1.1 query execution with OWL inference
+  - Multi-pass Tera template rendering with SPARQL result injection
+  - Unified 'ggen sync' command for specification → code generation
+  - Watch mode for continuous regeneration during development
   - SHACL validation gates for specification closure
-  - Incremental generation with smart caching
+  - Cryptographic audit trails and deterministic receipts
+  - JSON-based configuration and manifest support
+ .
+ Perfect for:
+  - Microservices API generation (REST, gRPC, GraphQL)
+  - Infrastructure-as-Code (Terraform, Kubernetes, CloudFormation)
+  - Multi-language code generation (Rust, Go, TypeScript, Python, Java)
+  - Domain-driven design with ontology-first thinking
+  - Knowledge graph-based application development
+  - Deterministic workflow automation
+ .
+ Requirements: Rust toolchain (optional for cargo install method)
+ Web Version: Install via 'cargo install ggen' in Claude Code Web
