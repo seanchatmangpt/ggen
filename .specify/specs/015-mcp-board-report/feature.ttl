@@ -1,0 +1,258 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ggen: <https://ggen.io/ontology#> .
+@prefix mcp: <https://ggen.io/ontology/mcp#> .
+@prefix board: <https://ggen.io/ontology/board#> .
+
+# =============================================================================
+# MCP+ Board Report Generation - Feature Specification
+# Core axiom: A = μ(O), μ ∘ μ = μ, hash(A) = hash(μ(O)), O ⊨ Σ
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Feature Definition
+# -----------------------------------------------------------------------------
+
+mcp:McpBoardReportFeature a ggen:Feature ;
+    rdfs:label "MCP+ Board Report Generation System" ;
+    ggen:version "1.0.0" ;
+    ggen:priority "P1" ;
+    ggen:description """
+        Enterprise-grade system for converting eligible work from labor-executed
+        processes to sealed operating contracts. Produces deterministic refusals
+        and cryptographic receipts verifiable without payload-text access.
+
+        Implements: Erlang OTP for workflow orchestration, Rust for cryptographic
+        verification, envelope enforcement, and receipt generation.
+    """ ;
+    ggen:axiomSet """
+        A = μ(O)           # Code precipitates from ontology
+        μ ∘ μ = μ          # Idempotent regeneration
+        hash(A) = hash(μ(O)) # Deterministic outputs
+        O ⊨ Σ              # Ontology satisfies schema
+    """ .
+
+# -----------------------------------------------------------------------------
+# User Stories - Board Governance
+# -----------------------------------------------------------------------------
+
+board:US001_TextBlindAudit a ggen:UserStory ;
+    ggen:belongsTo mcp:McpBoardReportFeature ;
+    ggen:priority "P1" ;
+    ggen:title "Text-Blind Audit Capability" ;
+    ggen:narrative """
+        AS A board audit committee member
+        I WANT to verify operational compliance without accessing payload text
+        SO THAT I can fulfill fiduciary duties while maintaining information barriers
+    """ ;
+    ggen:acceptanceCriteria [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Operational layer retains structure + hashes + metrics, not payload text"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Evidence bundles support deterministic verification procedures"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Independent verifier produces pass/fail from .mcpb bundles"
+    ] .
+
+board:US002_InstantKillSwitch a ggen:UserStory ;
+    ggen:belongsTo mcp:McpBoardReportFeature ;
+    ggen:priority "P1" ;
+    ggen:title "Instant Kill-Switch Authority" ;
+    ggen:narrative """
+        AS A board member with fiduciary responsibility
+        I WANT to instantly halt all automated operations
+        SO THAT I can exercise control authority in crisis situations
+    """ ;
+    ggen:acceptanceCriteria [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Global disable per contract family via single command"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Per-tool capability revocation with immediate effect"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Key epoch revocation within signing regime"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Fail-closed envelope refusal under uncertainty"
+    ] .
+
+board:US003_ExplicitAccountability a ggen:UserStory ;
+    ggen:belongsTo mcp:McpBoardReportFeature ;
+    ggen:priority "P1" ;
+    ggen:title "Explicit Accountability Chain" ;
+    ggen:narrative """
+        AS A board governance officer
+        I WANT explicit accountability assignment for all automated operations
+        SO THAT responsibility is never ambiguous in incident or audit scenarios
+    """ ;
+    ggen:acceptanceCriteria [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Business owner owns outcomes and scope"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Contract authority owns approval of sealed contract changes"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Risk & audit own acceptance of verification artifacts"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Operations owns incident response and DR"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "CISO owns key policy and supply chain integrity"
+    ] .
+
+# -----------------------------------------------------------------------------
+# User Stories - Technical Implementation
+# -----------------------------------------------------------------------------
+
+mcp:US004_EnvelopeEnforcement a ggen:UserStory ;
+    ggen:belongsTo mcp:McpBoardReportFeature ;
+    ggen:priority "P1" ;
+    ggen:title "Envelope Enforcement Engine" ;
+    ggen:narrative """
+        AS A system operator
+        I WANT all operations bounded by cryptographically signed envelopes
+        SO THAT behavior is predictable and verifiable within defined limits
+    """ ;
+    ggen:acceptanceCriteria [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Rust envelope enforcement library with zero unsafe blocks"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Envelope bounds include: time, resource, scope, capability"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Boundary violations produce deterministic refusal codes"
+    ] .
+
+mcp:US005_DeterministicRefusals a ggen:UserStory ;
+    ggen:belongsTo mcp:McpBoardReportFeature ;
+    ggen:priority "P1" ;
+    ggen:title "Deterministic Refusal System" ;
+    ggen:narrative """
+        AS AN incident responder
+        I WANT all operation failures to produce deterministic refusal codes
+        SO THAT I can diagnose issues without accessing payload text
+    """ ;
+    ggen:acceptanceCriteria [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Refusal taxonomy covers all failure modes"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Each refusal includes: code, category, envelope_id, timestamp"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Refusal codes map to remediation playbooks"
+    ] .
+
+mcp:US006_CryptographicReceipts a ggen:UserStory ;
+    ggen:belongsTo mcp:McpBoardReportFeature ;
+    ggen:priority "P1" ;
+    ggen:title "Cryptographic Receipt Generation" ;
+    ggen:narrative """
+        AS AN auditor
+        I WANT every operation to produce a cryptographic receipt
+        SO THAT I can verify operation history without trusting runtime state
+    """ ;
+    ggen:acceptanceCriteria [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Receipts include: execution_id, timestamp, manifest_hash, outcome_hash"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Receipts are chained via Merkle structure"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Receipt verification is text-blind (no payload access required)"
+    ] .
+
+mcp:US007_ErlangOrchestration a ggen:UserStory ;
+    ggen:belongsTo mcp:McpBoardReportFeature ;
+    ggen:priority "P1" ;
+    ggen:title "Erlang OTP Workflow Orchestration" ;
+    ggen:narrative """
+        AS A platform engineer
+        I WANT workflow orchestration built on Erlang OTP
+        SO THAT I get fault-tolerance, supervision, and hot code upgrades
+    """ ;
+    ggen:acceptanceCriteria [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "OTP application with supervision tree"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "gen_server behaviors for contract execution"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "gen_statem for envelope state machine"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "NIF integration with Rust crypto library"
+    ] .
+
+mcp:US008_EvidenceBundles a ggen:UserStory ;
+    ggen:belongsTo mcp:McpBoardReportFeature ;
+    ggen:priority "P1" ;
+    ggen:title "Evidence Bundle Generation" ;
+    ggen:narrative """
+        AS A compliance officer
+        I WANT evidence bundles in .mcpb format
+        SO THAT I can provide regulators with verifiable proof without payload disclosure
+    """ ;
+    ggen:acceptanceCriteria [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion ".mcpb format is self-describing and versioned"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Bundles include: receipts, metrics, refusals, attestations"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Verification produces deterministic pass/fail"
+    ] .
+
+# -----------------------------------------------------------------------------
+# User Stories - Operational Readiness
+# -----------------------------------------------------------------------------
+
+mcp:US009_DrillCapability a ggen:UserStory ;
+    ggen:belongsTo mcp:McpBoardReportFeature ;
+    ggen:priority "P2" ;
+    ggen:title "Quarterly Drill Capability" ;
+    ggen:narrative """
+        AS A risk manager
+        I WANT automated drill execution for stop-the-line scenarios
+        SO THAT I can verify kill-switch effectiveness quarterly
+    """ ;
+    ggen:acceptanceCriteria [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Drill scripts for all kill-switch scenarios"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Drill produces verifiable evidence bundle"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Drill results stored in audit trail"
+    ] .
+
+mcp:US010_MultiRegionDR a ggen:UserStory ;
+    ggen:belongsTo mcp:McpBoardReportFeature ;
+    ggen:priority "P2" ;
+    ggen:title "Multi-Region Disaster Recovery" ;
+    ggen:narrative """
+        AS AN operations director
+        I WANT multi-region DR with verified failover
+        SO THAT I can maintain operations during regional outages
+    """ ;
+    ggen:acceptanceCriteria [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "DR validation produces receipts"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Failover drill evidence in quarterly bundles"
+    ], [
+        a ggen:AcceptanceCriterion ;
+        ggen:criterion "Receipt chain continuity across regions"
+    ] .
