@@ -1,0 +1,20 @@
+{
+  "version": "1.0.0",
+  "bundle_id": "bundle-85a42816-8c2b-4932-a824-d431d057affb",
+  "created_at": "2026-01-29T17:28:40.109233643Z",
+  "period_start": "2026-01-28T17:28:40.109233643Z",
+  "period_end": "2026-01-29T17:28:40.109233643Z",
+  "contract_family": "test-family",
+  "receipt_chain_root": "0000000000000000000000000000000000000000000000000000000000000000",
+  "receipts": [],
+  "refusals": [],
+  "metrics": {
+    "total_operations": 0,
+    "successful_operations": 0,
+    "refused_operations": 0,
+    "total_duration_us": 0,
+    "peak_memory_bytes": 0
+  },
+  "attestations": [],
+  "bundle_hash": "91420cdedbc562f35b6fbfd6538fe623cc347ed029c15cc104fe58b0e2c6bc49"
+}
