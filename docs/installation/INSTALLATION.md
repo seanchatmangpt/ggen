@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Installation - AI Agent Integration](#ggen-installation---ai-agent-integration)
+  - [Agent Installation Methods](#agent-installation-methods)
+    - [Method 1: Claude Code Web (Recommended for Agents)](#method-1-claude-code-web-recommended-for-agents)
+    - [Method 2: Pre-built Binary (Fast)](#method-2-pre-built-binary-fast)
+    - [Method 3: Debian Package](#method-3-debian-package)
+  - [Agent Integration Patterns](#agent-integration-patterns)
+    - [Pattern 1: Specification Validation Agent](#pattern-1-specification-validation-agent)
+    - [Pattern 2: Deterministic Code Generation Agent](#pattern-2-deterministic-code-generation-agent)
+    - [Pattern 3: Watch Mode for Continuous Generation](#pattern-3-watch-mode-for-continuous-generation)
+  - [System Requirements for Agents](#system-requirements-for-agents)
+  - [Exit Codes for Agent Automation](#exit-codes-for-agent-automation)
+  - [Environment Variables for Agents](#environment-variables-for-agents)
+  - [Version Information](#version-information)
+  - [Success Indicators](#success-indicators)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Installation - AI Agent Integration
 
 **For Claude Code Web agents and AI automation systems**

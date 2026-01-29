@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Build System Metrics Dashboard](#ggen-build-system-metrics-dashboard)
+  - [Key Performance Indicators (KPIs)](#key-performance-indicators-kpis)
+    - [1. Cargo Make Check Time](#1-cargo-make-check-time)
+    - [2. Cargo Make Lint Time](#2-cargo-make-lint-time)
+    - [3. Cargo Make Pre-Commit Time](#3-cargo-make-pre-commit-time)
+    - [4. Build System Health](#4-build-system-health)
+  - [Measurements & Validation Plan](#measurements--validation-plan)
+    - [Phase 1: Critical Fixes (Current)](#phase-1-critical-fixes-current)
+    - [Phase 2: Feature Gating (Next Week)](#phase-2-feature-gating-next-week)
+    - [Phase 3: Workspace Linting (End of Month)](#phase-3-workspace-linting-end-of-month)
+  - [Andon Signals (Build System Health)](#andon-signals-build-system-health)
+    - [Green (All Good)](#green-all-good)
+    - [Yellow (Needs Attention)](#yellow-needs-attention)
+    - [Red (Stop the Line)](#red-stop-the-line)
+  - [Tracking Template](#tracking-template)
+  - [Historical Baseline](#historical-baseline)
+  - [Future Optimizations (Beyond Phase 3)](#future-optimizations-beyond-phase-3)
+    - [Long-term Roadmap](#long-term-roadmap)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Build System Metrics Dashboard
 
 **Last Updated**: 2026-01-25

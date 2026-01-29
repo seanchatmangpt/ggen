@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Claude Code Web Simulator: 80/20 Innovation Strategy](#claude-code-web-simulator-8020-innovation-strategy)
+  - [🎯 Three-Tier Innovation Framework](#-three-tier-innovation-framework)
+    - [Tier 1: Current State (Complete ✅)](#tier-1-current-state-complete-)
+    - [Tier 2: 80/20 Sweet Spot (High ROI, Minimal Effort)](#tier-2-8020-sweet-spot-high-roi-minimal-effort)
+    - [Tier 3: Maximum Value (Type-Level Solutions)](#tier-3-maximum-value-type-level-solutions)
+  - [📊 The 80/20 Analysis](#-the-8020-analysis)
+    - [Current Simulator: What We Have](#current-simulator-what-we-have)
+    - [The 20% That Unlocks 80% More Value](#the-20-that-unlocks-80-more-value)
+    - [Timeline Estimate: 80/20 MVP](#timeline-estimate-8020-mvp)
+  - [🚀 Tier 2: The 80/20 MVP Implementation Plan](#-tier-2-the-8020-mvp-implementation-plan)
+    - [Priority 1: Real ggen Integration (3-4 Days)](#priority-1-real-ggen-integration-3-4-days)
+    - [Priority 2: Docker Container Spawning (2-3 Days)](#priority-2-docker-container-spawning-2-3-days)
+    - [Priority 3: Persistent Storage (2 Days)](#priority-3-persistent-storage-2-days)
+    - [Priority 4: Real MCP Server Connectivity (4-5 Days)](#priority-4-real-mcp-server-connectivity-4-5-days)
+    - [Priority 5: Agent Skill Library (5-7 Days)](#priority-5-agent-skill-library-5-7-days)
+  - [📈 Impact Analysis: 80/20 MVP](#-impact-analysis-8020-mvp)
+    - [Before (Current Simulator)](#before-current-simulator)
+    - [After 80/20 MVP (2 weeks)](#after-8020-mvp-2-weeks)
+  - [🎯 The "Golden Ratio": Why 80/20 Works Here](#-the-golden-ratio-why-8020-works-here)
+    - [The Effort-Value Curve](#the-effort-value-curve)
+    - [Why Tier 2 is the Sweet Spot](#why-tier-2-is-the-sweet-spot)
+  - [🏗️ Implementation Architecture: 80/20 MVP](#-implementation-architecture-8020-mvp)
+  - [📋 Implementation Checklist: Tier 2 (80/20 MVP)](#-implementation-checklist-tier-2-8020-mvp)
+    - [Week 1: Core Integration](#week-1-core-integration)
+    - [Week 2: Extensibility & Polish](#week-2-extensibility--polish)
+  - [🚀 Getting Started: Tier 2 Development](#-getting-started-tier-2-development)
+    - [Prerequisites](#prerequisites)
+    - [Tier 2 Branch Setup](#tier-2-branch-setup)
+    - [Starting with Priority 1: ggen Integration](#starting-with-priority-1-ggen-integration)
+  - [💡 The 80/20 Insight](#-the-8020-insight)
+  - [🎯 Decision Point](#-decision-point)
+  - [🎓 Key Takeaway: 80/20 in Practice](#-key-takeaway-8020-in-practice)
+  - [📊 Next Action](#-next-action)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Claude Code Web Simulator: 80/20 Innovation Strategy
 
 **Objective**: Innovate and evolve the Claude Code Web Simulator using Big Bang 80/20 methodology to deliver maximum value with minimum effort.

@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How-To: Common Tasks](#how-to-common-tasks)
+  - [How to: Generate a REST API](#how-to-generate-a-rest-api)
+    - [Task: Create a new REST API from scratch](#task-create-a-new-rest-api-from-scratch)
+  - [How to: Generate Database Migrations](#how-to-generate-database-migrations)
+    - [Task: Create SQL migrations from ontology](#task-create-sql-migrations-from-ontology)
+  - [How to: Generate Multi-Language Code](#how-to-generate-multi-language-code)
+    - [Task: Generate TypeScript and Python from same ontology](#task-generate-typescript-and-python-from-same-ontology)
+  - [How to: Update Existing Generation](#how-to-update-existing-generation)
+    - [Task: Modify generated code by editing ontology](#task-modify-generated-code-by-editing-ontology)
+  - [How to: Debug Generation Issues](#how-to-debug-generation-issues)
+    - [Task: Diagnose why generation failed](#task-diagnose-why-generation-failed)
+  - [How to: Cache and Performance](#how-to-cache-and-performance)
+    - [Task: Speed up generation for large ontologies](#task-speed-up-generation-for-large-ontologies)
+  - [How to: Watch Mode (Auto-Regenerate)](#how-to-watch-mode-auto-regenerate)
+    - [Task: Automatically generate when files change](#task-automatically-generate-when-files-change)
+  - [How to: Verify Determinism](#how-to-verify-determinism)
+    - [Task: Confirm reproducible generation](#task-confirm-reproducible-generation)
+  - [How to: CI/CD Integration](#how-to-cicd-integration)
+    - [Task: Use ggen in your CI/CD pipeline](#task-use-ggen-in-your-cicd-pipeline)
+  - [How to: Version Control Best Practices](#how-to-version-control-best-practices)
+    - [Task: Manage ontologies and generated code in git](#task-manage-ontologies-and-generated-code-in-git)
+  - [How to: Share Ontologies as Packages](#how-to-share-ontologies-as-packages)
+    - [Task: Publish ontology to marketplace](#task-publish-ontology-to-marketplace)
+  - [How to: Troubleshoot Common Issues](#how-to-troubleshoot-common-issues)
+    - [Issue: "SPARQL query failed"](#issue-sparql-query-failed)
+    - [Issue: "Template variable undefined"](#issue-template-variable-undefined)
+    - [Issue: "Generation timed out"](#issue-generation-timed-out)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How-To: Common Tasks
 
 **Step-by-step guides for everyday ggen workflows.**

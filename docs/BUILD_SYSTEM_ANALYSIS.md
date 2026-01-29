@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Build System Strategic Review - January 2026](#ggen-build-system-strategic-review---january-2026)
+  - [Executive Summary](#executive-summary)
+  - [Part 1: Current State Analysis](#part-1-current-state-analysis)
+    - [Build Target Inventory (70+ targets)](#build-target-inventory-70-targets)
+  - [Part 2: Root Cause Analysis (5 Whys)](#part-2-root-cause-analysis-5-whys)
+    - [Issue 1: `timeout-check` Task Fails](#issue-1-timeout-check-task-fails)
+    - [Issue 2: `cargo make check` 15s Timeout Insufficient](#issue-2-cargo-make-check-15s-timeout-insufficient)
+    - [Issue 3: `pre-commit` Sequential Dependencies (Waterfall)](#issue-3-pre-commit-sequential-dependencies-waterfall)
+    - [Issue 4: `cargo make lint` Shell Script Complexity](#issue-4-cargo-make-lint-shell-script-complexity)
+    - [Issue 5: Workspace Bloat (30 Crates)](#issue-5-workspace-bloat-30-crates)
+  - [Part 3: Bottleneck Analysis (80/20)](#part-3-bottleneck-analysis-8020)
+    - [Top 3 Bottlenecks (20% of tasks, 80% of time waste)](#top-3-bottlenecks-20-of-tasks-80-of-time-waste)
+  - [Part 4: Recommendations (Priority Order)](#part-4-recommendations-priority-order)
+    - [CRITICAL (Fix First - Blocking Everything)](#critical-fix-first---blocking-everything)
+      - [1. Fix `timeout-check` Task (5 minutes)](#1-fix-timeout-check-task-5-minutes)
+      - [2. Increase `check` Timeout to 60 seconds (2 minutes to implement)](#2-increase-check-timeout-to-60-seconds-2-minutes-to-implement)
+      - [3. Fix `lint` Task Shell Script (10 minutes)](#3-fix-lint-task-shell-script-10-minutes)
+    - [HIGH (Implement This Week)](#high-implement-this-week)
+      - [4. Parallelize Pre-Commit Tasks](#4-parallelize-pre-commit-tasks)
+      - [5. Optimize Feature Flags for Dev Builds](#5-optimize-feature-flags-for-dev-builds)
+      - [6. Create Parallel Test Groups](#6-create-parallel-test-groups)
+    - [MEDIUM (This Month)](#medium-this-month)
+      - [7. Workspace Restructuring](#7-workspace-restructuring)
+      - [8. Build Cache Strategy](#8-build-cache-strategy)
+      - [9. Documentation Separation](#9-documentation-separation)
+  - [Part 5: Implementation Plan (Phased)](#part-5-implementation-plan-phased)
+    - [Phase 1: Critical Fixes (1-2 days)](#phase-1-critical-fixes-1-2-days)
+    - [Phase 2: Parallelization (2-3 days)](#phase-2-parallelization-2-3-days)
+    - [Phase 3: Workspace Optimization (1 week)](#phase-3-workspace-optimization-1-week)
+  - [Part 6: Metrics & Monitoring](#part-6-metrics--monitoring)
+    - [Key Metrics to Track](#key-metrics-to-track)
+    - [Dashboard to Create](#dashboard-to-create)
+  - [Part 7: Risk Assessment](#part-7-risk-assessment)
+  - [Appendix A: File Changes Summary](#appendix-a-file-changes-summary)
+    - [Files to Modify](#files-to-modify)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Build System Strategic Review - January 2026
 
 ## Executive Summary

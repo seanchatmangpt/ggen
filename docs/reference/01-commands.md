@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Command Reference](#command-reference)
+  - [Core Commands](#core-commands)
+    - [ggen sync](#ggen-sync)
+    - [ggen init](#ggen-init)
+    - [ggen validate](#ggen-validate)
+    - [ggen inspect](#ggen-inspect)
+    - [ggen add](#ggen-add)
+    - [ggen publish](#ggen-publish)
+  - [Project Management](#project-management)
+    - [ggen info](#ggen-info)
+  - [Environment Variables](#environment-variables)
+    - [Logging](#logging)
+    - [Performance](#performance)
+    - [Behavior](#behavior)
+  - [Exit Codes](#exit-codes)
+  - [Configuration (ggen.toml)](#configuration-ggentoml)
+    - [Project Section](#project-section)
+    - [Generation Section](#generation-section)
+    - [Output Section](#output-section)
+    - [Features](#features)
+  - [Shell Completion](#shell-completion)
+    - [Bash](#bash)
+    - [Zsh](#zsh)
+    - [Fish](#fish)
+  - [Helpful Flags (All Commands)](#helpful-flags-all-commands)
+  - [Error Messages](#error-messages)
+    - ["Specification not found"](#specification-not-found)
+    - ["SPARQL query failed"](#sparql-query-failed)
+    - ["Template variable undefined"](#template-variable-undefined)
+    - ["Generation timeout"](#generation-timeout)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Command Reference
 
 **Complete guide to all ggen commands.**

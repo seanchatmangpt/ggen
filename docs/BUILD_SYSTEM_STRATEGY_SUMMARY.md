@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Build System Strategic Review - Executive Summary](#ggen-build-system-strategic-review---executive-summary)
+  - [The Problem (Baseline)](#the-problem-baseline)
+  - [The Solution (Phase 1 - COMPLETED)](#the-solution-phase-1---completed)
+    - [Critical Fixes Implemented](#critical-fixes-implemented)
+    - [Results](#results)
+  - [Phase 2: Feature Gating (Next Week)](#phase-2-feature-gating-next-week)
+    - [Problem](#problem)
+    - [Solution](#solution)
+    - [Expected Improvement](#expected-improvement)
+    - [Commands](#commands)
+  - [Phase 3: Workspace Linting & Documentation (End of Month)](#phase-3-workspace-linting--documentation-end-of-month)
+    - [Tasks](#tasks)
+    - [Outcome](#outcome)
+  - [Validation & Rollout](#validation--rollout)
+    - [Phase 1 Checklist (Before Team Deployment)](#phase-1-checklist-before-team-deployment)
+    - [For Developers (Quick Start)](#for-developers-quick-start)
+    - [For CI/CD](#for-cicd)
+  - [Key Metrics & SLOs](#key-metrics--slos)
+    - [Build Time SLOs (Updated)](#build-time-slos-updated)
+    - [Developer Experience Improvements](#developer-experience-improvements)
+  - [Documents Created](#documents-created)
+    - [1. BUILD_SYSTEM_ANALYSIS.md](#1-build_system_analysismd)
+    - [2. BUILD_METRICS.md](#2-build_metricsmd)
+    - [3. BUILD_OPTIMIZATION_IMPLEMENTATION.md](#3-build_optimization_implementationmd)
+    - [4. This Document (BUILD_SYSTEM_STRATEGY_SUMMARY.md)](#4-this-document-build_system_strategy_summarymd)
+  - [ROI Analysis](#roi-analysis)
+    - [Time Savings Per Developer (Monthly)](#time-savings-per-developer-monthly)
+    - [Quality Improvements](#quality-improvements)
+  - [Risk Assessment](#risk-assessment)
+  - [Next Steps (Action Items)](#next-steps-action-items)
+    - [This Week (2026-01-25)](#this-week-2026-01-25)
+    - [Next Week (2026-02-01)](#next-week-2026-02-01)
+    - [End of Month (2026-02-25)](#end-of-month-2026-02-25)
+  - [Commands & Quick Reference](#commands--quick-reference)
+    - [Developers](#developers)
+    - [CI/CD](#cicd)
+    - [Monitoring](#monitoring)
+  - [Conclusion](#conclusion)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Build System Strategic Review - Executive Summary
 
 **Conducted**: 2026-01-25
