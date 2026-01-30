@@ -109,14 +109,16 @@ impl ContractLink {
                 transform_proof,
             } => {
                 // Transformed: verify the transformation proof
-                // The transform_proof contains the transformation evidence
-                // For now, we verify that the proof commits to both hashes
+                // The transform_proof contains the commitment (already a hash)
+                // Verify that the proof commits to both hashes
                 let expected_commitment = combine_hashes(source_hash, dest_hash);
-                let proof_hash = hash_sha256_bytes(transform_proof);
+
+                // transform_proof is already the commitment, compare directly
+                let proof_matches = transform_proof.as_slice() == expected_commitment.as_slice();
 
                 let valid = self.source_output_hash == *source_hash
                     && self.dest_input_hash == *dest_hash
-                    && proof_hash == expected_commitment;
+                    && proof_matches;
                 Ok(valid)
             }
             LinkProof::MerkleBridge {

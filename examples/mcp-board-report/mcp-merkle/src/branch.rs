@@ -1253,13 +1253,11 @@ mod tests {
 mod proptests {
     use super::*;
     use proptest::prelude::*;
+    use proptest::collection::vec as pvec;
 
     proptest! {
         #[test]
-        fn prop_branch_names_are_unique(names: Vec<String>) {
-            prop_assume!(!names.is_empty());
-            prop_assume!(names.len() <= 10);
-
+        fn prop_branch_names_are_unique(names in pvec(any::<String>(), 1..=10)) {
             let unique_names: Vec<_> = names.into_iter()
                 .filter(|n| !n.is_empty() && n != DEFAULT_BRANCH)
                 .collect::<std::collections::HashSet<_>>()
@@ -1283,10 +1281,8 @@ mod proptests {
 
         #[test]
         fn prop_add_receipt_updates_head(
-            operations: Vec<String>,
+            operations in pvec(any::<String>(), 1..=10),
         ) {
-            prop_assume!(!operations.is_empty());
-            prop_assume!(operations.len() <= 10);
 
             let mut chain = BranchingChain::new();
             let mut prev_hash = GENESIS_HASH.to_string();

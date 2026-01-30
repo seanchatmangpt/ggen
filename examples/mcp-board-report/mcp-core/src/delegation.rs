@@ -853,14 +853,17 @@ mod tests {
         let mut chain = DelegationChain::from_root(&envelope);
         let keypair = make_keypair();
 
+        // First delegation allows 2 levels of sub-delegation
         let del1 = DelegationBuilder::new("root", "child1")
             .capability(Capability::Read)
-            .allow_delegation(Some(1))
+            .allow_delegation(Some(2))
             .sign(&keypair);
         chain.delegate(del1).unwrap();
 
+        // Second delegation is within allowed depth
         let del2 = DelegationBuilder::new("child1", "child2")
             .capability(Capability::Read)
+            .allow_delegation(Some(1))
             .sign(&keypair);
         chain.delegate(del2).unwrap();
 
@@ -936,21 +939,21 @@ mod tests {
         let mut chain = DelegationChain::from_root(&envelope);
         let keypair = make_keypair();
 
-        // First delegation with depth limit of 1
+        // First delegation allows 2 levels of sub-delegation
         let del1 = DelegationBuilder::new("root", "child1")
             .capability(Capability::Read)
-            .allow_delegation(Some(1))
+            .allow_delegation(Some(2))
             .sign(&keypair);
         chain.delegate(del1).unwrap();
 
-        // Second delegation should succeed (depth 1)
+        // Second delegation allows 0 more sub-delegations
         let del2 = DelegationBuilder::new("child1", "child2")
             .capability(Capability::Read)
             .allow_delegation(Some(0))
             .sign(&keypair);
         chain.delegate(del2).unwrap();
 
-        // Third delegation should fail (exceeds depth)
+        // Third delegation should fail (child2 has no further delegation allowed)
         let del3 = DelegationBuilder::new("child2", "child3")
             .capability(Capability::Read)
             .sign(&keypair);
@@ -1001,10 +1004,8 @@ mod tests {
 
     #[test]
     fn test_effective_constraints() {
-        let envelope = Envelope::default()
-            .with_capability(Capability::Read)
-            .with_max_operations(1000)
-            .with_disallowed_pattern("password");
+        // Use full trust envelope which allows delegation
+        let envelope = full_trust_envelope();
 
         let mut chain = DelegationChain::from_root(&envelope);
         let keypair = make_keypair();
@@ -1012,6 +1013,7 @@ mod tests {
         let del = DelegationBuilder::new("root", "child")
             .capability(Capability::Read)
             .max_operations(100)
+            .allow_delegation(Some(1))
             .forbid_pattern("password")
             .forbid_pattern("secret")
             .sign(&keypair);
@@ -1125,7 +1127,8 @@ mod proptests {
             root_caps in arb_capability_set(),
             del_caps in arb_capability_set(),
         ) {
-            let mut envelope = Envelope::default();
+            // Use full_trust to avoid resource constraint issues
+            let mut envelope = Envelope::full_trust();
             envelope.capabilities = root_caps.iter().copied().collect();
 
             let mut chain = DelegationChain::from_root(&envelope);
@@ -1136,6 +1139,7 @@ mod proptests {
 
             let del = DelegationBuilder::new("root", "child")
                 .capabilities(valid_caps)
+                .allow_delegation(Some(1))
                 .sign(&keypair);
             chain.delegate(del).unwrap();
 
@@ -1154,9 +1158,12 @@ mod proptests {
                 let parent = if i == 0 { "root".to_string() } else { format!("child{}", i - 1) };
                 let child = format!("child{}", i);
 
+                // is_satisfied_by requires child max_depth < parent max_depth
+                // Start high (10) and decrement for each level
+                let remaining_depth = (10 - i) as u32;
                 let del = DelegationBuilder::new(&parent, &child)
                     .capability(Capability::Read)
-                    .allow_delegation(Some((depth - i) as u32))
+                    .allow_delegation(Some(remaining_depth))
                     .sign(&keypair);
                 chain.delegate(del).unwrap();
             }

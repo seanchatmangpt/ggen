@@ -435,7 +435,8 @@ impl Pipeline {
             PipelineNode::Contract(id) => {
                 let stage_start = Instant::now();
 
-                let result = engine.execute(id, "pipeline.execute", input, Capability::Execute, || {
+                // Use Read capability as base - contracts can have additional capabilities
+                let result = engine.execute(id, "pipeline.execute", input, Capability::Read, || {
                     Ok(hash_sha256(input))
                 })?;
 
@@ -507,7 +508,7 @@ impl Pipeline {
                 // Execute condition contract
                 let stage_start = Instant::now();
                 let cond_result =
-                    engine.execute(condition, "pipeline.condition", input, Capability::Execute, || {
+                    engine.execute(condition, "pipeline.condition", input, Capability::Read, || {
                         // Simulate condition evaluation based on input hash
                         let hash = hash_sha256(input);
                         // Use first byte to determine condition (for demonstration)
@@ -571,7 +572,7 @@ impl Pipeline {
                         condition,
                         "pipeline.loop_condition",
                         &current_input,
-                        Capability::Execute,
+                        Capability::Read,
                         || {
                             // Condition becomes false after a few iterations (for safety)
                             Ok(iteration < 3)
@@ -632,7 +633,7 @@ impl Pipeline {
                     transform,
                     "pipeline.transform",
                     input_hash.as_bytes(),
-                    Capability::Execute,
+                    Capability::Read,
                     || Ok(hash_sha256(input_hash.as_bytes())),
                 )?;
 

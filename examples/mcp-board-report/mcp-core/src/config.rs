@@ -883,6 +883,13 @@ mod tests {
             port = 9091
             include_histograms = true
             default_labels = ["env"]
+
+            [storage]
+            backend = "file"
+            path = "/tmp/mcp-storage"
+            max_size_mb = 100
+            retention_days = 30
+            compression = "none"
         "#;
 
         let config = Config::from_str(toml).unwrap();
@@ -1082,6 +1089,9 @@ mod tests {
             [logging]
 
             [metrics]
+
+            [storage]
+            backend = "memory"
         "#;
 
         let config = Config::from_str(toml).unwrap();
@@ -1138,6 +1148,9 @@ mod tests {
             tls_enabled = true
             tls_cert_path = ""
             tls_key_path = ""
+
+            [storage]
+            backend = "memory"
         "#;
 
         let result = Config::from_str(toml);
