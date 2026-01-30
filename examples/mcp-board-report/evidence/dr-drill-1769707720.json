@@ -1,0 +1,29 @@
+{
+  "drill_id": "dr-drill-1769707720",
+  "drill_type": "disaster_recovery",
+  "rpo_achieved": "0 receipts lost",
+  "rto_achieved": "< 30s",
+  "tests": [
+    {
+      "name": "Primary region failover",
+      "passed": true
+    },
+    {
+      "name": "Receipt chain continuity",
+      "passed": true
+    },
+    {
+      "name": "State replication",
+      "passed": true
+    },
+    {
+      "name": "Evidence bundle integrity",
+      "passed": true
+    },
+    {
+      "name": "Kill switch availability",
+      "passed": true
+    }
+  ],
+  "timestamp": "2026-01-29T17:28:40.108910653+00:00"
+}

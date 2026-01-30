@@ -1,0 +1,94 @@
+# =============================================================================
+# MCP+ Board Report - Test Configuration
+#
+# Core axiom: A = μ(O), μ ∘ μ = μ, hash(A) = hash(μ(O)), O ⊨ Σ
+#
+# Mock settings for automated testing. Optimized for speed and determinism.
+# Uses in-memory storage and minimal timeouts.
+# =============================================================================
+
+[mcp]
+version = "0.2.0"
+environment = "test"
+
+[crypto]
+algorithm = "ed25519"
+hash_function = "sha256"
+# Daily rotation for testing key rotation
+key_rotation_days = 1
+min_key_bits = 2048
+
+[envelope]
+# Smaller limits to test boundary conditions
+default_max_operations = 100
+default_max_memory_mb = 10
+default_max_duration_ms = 5000
+# Strict mode to catch violations in tests
+strict_mode = true
+track_violations = true
+
+[kill_switch]
+global_enabled = true
+family_enabled = true
+capability_enabled = true
+epoch_enabled = true
+# Minimal cooldown for fast test execution
+cooldown_seconds = 1
+
+[receipts]
+chain_enabled = true
+merkle_tree_enabled = true
+# Signatures required to test crypto paths
+signature_required = true
+# Small chain depth for boundary testing
+max_chain_depth = 100
+archive_after_days = 1
+
+[bundles]
+format = "mcpb"
+compression = "none"
+retention_days = 1
+# Small max size for boundary testing
+max_size_mb = 10
+
+[epochs]
+# Short epochs for fast test cycles
+default_duration_hours = 1
+auto_rotate = false
+grace_period_minutes = 1
+max_active_epochs = 2
+
+[logging]
+# Trace level for debugging test failures
+level = "trace"
+format = "json"
+# Test-specific log path
+file = "./target/test-logs/mcp-test.log"
+max_file_size_mb = 10
+max_files = 1
+
+[metrics]
+# Disable metrics in tests unless specifically testing metrics
+enabled = false
+endpoint = "/metrics"
+port = 9092
+include_histograms = false
+default_labels = ["environment"]
+
+[storage]
+# In-memory backend for fast tests
+backend = "memory"
+base_path = ""
+encryption_enabled = false
+compression = "none"
+
+[network]
+bind_address = "127.0.0.1"
+# Random port for test isolation (0 = auto-assign)
+port = 0
+tls_enabled = false
+tls_cert_path = ""
+tls_key_path = ""
+# Short timeout for fast failure detection
+request_timeout_seconds = 5
+max_connections = 10

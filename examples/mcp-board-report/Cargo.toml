@@ -1,0 +1,76 @@
+# =============================================================================
+# MCP+ Board Report - Unified Rust Workspace
+#
+# Core axiom: A = μ(O), μ ∘ μ = μ, hash(A) = hash(μ(O)), O ⊨ Σ
+#
+# Workspace members:
+# - mcp-core: Shared types, crypto, errors
+# - mcp-merkle: Merkle tree and receipt chain
+# - mcp-contract: Contract execution engine
+# - mcp-cli: CLI binary
+# - rust_nif: Erlang NIF bindings (optional)
+# =============================================================================
+
+[workspace]
+resolver = "2"
+members = [
+    "mcp-core",
+    "mcp-merkle",
+    "mcp-contract",
+]
+# Note: mcp-cli and rust_nif are standalone crates with their own workspaces
+# They can optionally depend on mcp-core as a path dependency
+
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
+authors = ["MCP+ Team"]
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+
+[workspace.dependencies]
+# Cryptography
+sha2 = "0.10"
+sha3 = "0.10"
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
+rand = "0.8"
+hex = "0.4"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID
+uuid = { version = "1.6", features = ["v4"] }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# CLI
+clap = { version = "4.5", features = ["derive", "color"] }
+colored = "2.1"
+
+# Async
+tokio = { version = "1.36", features = ["full"] }
+
+# Testing
+proptest = "1.4"
+criterion = "0.5"
+
+# Internal crates
+mcp-core = { path = "mcp-core" }
+mcp-merkle = { path = "mcp-merkle" }
+mcp-contract = { path = "mcp-contract" }
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.bench]
+lto = true
