@@ -1,0 +1,48 @@
+---
+name: sparql_executor
+category: sparql
+version: "1.0.0"
+description: |
+  Executes SPARQL queries (SELECT, CONSTRUCT, ASK, DESCRIBE) against RDF graphs
+  with full SPARQL 1.1 compliance. Supports multiple result formats, query timeout
+  enforcement, and detailed execution statistics.
+capabilities:
+  - Execute SELECT queries
+  - Execute CONSTRUCT queries
+  - Execute ASK queries
+  - Execute DESCRIBE queries
+  - Support multiple result formats (JSON, XML, Turtle, CSV)
+  - Enforce query timeouts
+  - Generate execution statistics
+  - Support SPARQL Update (LOAD, INSERT, DELETE)
+requirements:
+  memory_mb: 512
+  dependencies:
+    - oxigraph
+    - sparql-engine
+    - serde_json
+  disk_mb: 150
+performance_slo:
+  max_duration_ms: 5000
+  success_rate: 0.99
+  throughput_queries_per_second: 100
+implementation:
+  language: bash
+  entry_point: skill_sparql_executor_execute
+  module: skills-sparql.sh
+error_handling:
+  retry_strategy: exponential
+  max_retries: 3
+  retry_delay_ms: 200
+  timeout_ms: 10000
+  fallback_behavior: return_partial_results
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.90
+documentation:
+  url: "https://docs.ggen.io/skills/sparql-executor"
+  examples:
+    - "skill_sparql_executor_execute query.sparql data.ttl"
+    - "skill_sparql_executor_execute --format json query.sparql data.ttl"

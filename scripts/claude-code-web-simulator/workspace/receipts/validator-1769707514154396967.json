@@ -1,0 +1,24 @@
+{
+  "receipt": {
+    "execution_id": "exec-1769707515260260677",
+    "agent_id": "validator-1769707514154396967",
+    "operation": "validation",
+    "status": "passed",
+    "timestamp": "2026-01-29T17:25:15Z",
+    "hashes": {
+      "manifest": "5327fb3910196516f7f500778852ec4b9037bcba8020513306f70fcf37e71556",
+      "ontology": "be44844051aadb1b029b6aa600f467c89f2edf2888c7c6e2dbc904740939dc3c"
+    },
+    "files_generated": 47,
+    "files_modified": 12,
+    "pipeline_stages": {
+      "μ₁_normalize": { "status": "completed", "duration_ms": 400 },
+      "μ₂_extract": { "status": "completed", "duration_ms": 500 },
+      "μ₃_emit": { "status": "completed", "duration_ms": 600 },
+      "μ₄_canonicalize": { "status": "completed", "duration_ms": 300 },
+      "μ₅_receipt": { "status": "completed", "duration_ms": 200 }
+    },
+    "total_duration_ms": 2000,
+    "determinism_guarantee": true
+  }
+}

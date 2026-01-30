@@ -1,0 +1,48 @@
+---
+name: template_renderer
+category: template_generation
+version: "1.0.0"
+description: |
+  Renders Tera templates with provided context data. Executes template logic,
+  evaluates filters and functions, and produces formatted output. Supports custom
+  filters, macros, and comprehensive error reporting with context preservation.
+capabilities:
+  - Render Tera templates
+  - Evaluate template expressions
+  - Execute custom filters
+  - Support macro expansion
+  - Handle context variables
+  - Produce formatted output
+  - Generate render error reports
+  - Support template inheritance
+requirements:
+  memory_mb: 256
+  dependencies:
+    - tera
+    - serde_json
+    - log
+  disk_mb: 100
+performance_slo:
+  max_duration_ms: 2000
+  success_rate: 0.98
+  throughput_renders_per_second: 200
+implementation:
+  language: bash
+  entry_point: skill_template_renderer_render
+  module: skills-template.sh
+error_handling:
+  retry_strategy: exponential
+  max_retries: 2
+  retry_delay_ms: 100
+  timeout_ms: 5000
+  fallback_behavior: return_partial_render
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.88
+documentation:
+  url: "https://docs.ggen.io/skills/template-renderer"
+  examples:
+    - "skill_template_renderer_render template.tera context.json"
+    - "skill_template_renderer_render --output result.txt template.tera context.json"

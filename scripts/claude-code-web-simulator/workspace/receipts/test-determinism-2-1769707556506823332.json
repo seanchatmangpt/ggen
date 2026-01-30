@@ -1,0 +1,24 @@
+{
+  "receipt": {
+    "execution_id": "exec-1769707556841960325",
+    "agent_id": "test-determinism-2-1769707556506823332",
+    "operation": "test",
+    "status": "passed",
+    "timestamp": "2026-01-29T17:25:56Z",
+    "hashes": {
+      "manifest": "e810578b2dd63fa527c61f1406b91eb4f4ed308e370791ef3ea8ac3be35e9ab3",
+      "ontology": "9ca4bec0846562e2cf3e352d6d9903e6cddcad2f7fd73cf5e474facfd1363d9f"
+    },
+    "files_generated": 47,
+    "files_modified": 12,
+    "pipeline_stages": {
+      "μ₁_normalize": { "status": "completed", "duration_ms": 400 },
+      "μ₂_extract": { "status": "completed", "duration_ms": 500 },
+      "μ₃_emit": { "status": "completed", "duration_ms": 600 },
+      "μ₄_canonicalize": { "status": "completed", "duration_ms": 300 },
+      "μ₅_receipt": { "status": "completed", "duration_ms": 200 }
+    },
+    "total_duration_ms": 2000,
+    "determinism_guarantee": true
+  }
+}

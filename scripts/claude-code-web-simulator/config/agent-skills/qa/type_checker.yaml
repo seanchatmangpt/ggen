@@ -1,0 +1,49 @@
+---
+name: type_checker
+category: quality_assurance
+version: "1.0.0"
+description: |
+  Verifies type safety and correctness of generated code. Performs type inference,
+  constraint checking, and identifies type errors. Supports Rust type system,
+  Python type hints (mypy), and TypeScript type checking with detailed error reports.
+capabilities:
+  - Check Rust type safety
+  - Run mypy on Python code
+  - Run tsc on TypeScript
+  - Verify type constraints
+  - Detect type mismatches
+  - Generate type error reports
+  - Support type annotations
+  - Verify generic constraints
+requirements:
+  memory_mb: 512
+  dependencies:
+    - rustc
+    - mypy
+    - typescript
+    - serde_json
+  disk_mb: 200
+performance_slo:
+  max_duration_ms: 4000
+  success_rate: 0.99
+  throughput_files_per_second: 30
+implementation:
+  language: bash
+  entry_point: skill_type_checker_check
+  module: skills-qa.sh
+error_handling:
+  retry_strategy: exponential
+  max_retries: 2
+  retry_delay_ms: 150
+  timeout_ms: 8000
+  fallback_behavior: return_error_details
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.88
+documentation:
+  url: "https://docs.ggen.io/skills/type-checker"
+  examples:
+    - "skill_type_checker_check --language rust src/"
+    - "skill_type_checker_check --language typescript src/"
