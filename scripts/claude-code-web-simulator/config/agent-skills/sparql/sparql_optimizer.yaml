@@ -1,0 +1,47 @@
+---
+name: sparql_optimizer
+category: sparql
+version: "1.0.0"
+description: |
+  Optimizes SPARQL queries for improved execution performance. Applies rewriting rules,
+  joins optimization, filter placement, and index hints. Generates execution plans
+  with estimated cardinality and provides optimization recommendations.
+capabilities:
+  - Rewrite SPARQL queries
+  - Optimize join orderings
+  - Apply filter placement optimization
+  - Generate query execution plans
+  - Estimate cardinality
+  - Provide optimization recommendations
+  - Support query profiling
+requirements:
+  memory_mb: 256
+  dependencies:
+    - sparql-parser
+    - query-optimizer
+    - serde_json
+  disk_mb: 100
+performance_slo:
+  max_duration_ms: 2000
+  success_rate: 0.98
+  throughput_queries_per_second: 1000
+implementation:
+  language: bash
+  entry_point: skill_sparql_optimizer_optimize
+  module: skills-sparql.sh
+error_handling:
+  retry_strategy: linear
+  max_retries: 2
+  retry_delay_ms: 100
+  timeout_ms: 5000
+  fallback_behavior: return_original_query
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.88
+documentation:
+  url: "https://docs.ggen.io/skills/sparql-optimizer"
+  examples:
+    - "skill_sparql_optimizer_optimize query.sparql"
+    - "skill_sparql_optimizer_optimize --explain query.sparql"

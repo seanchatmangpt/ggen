@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "initialized": true,
+  "created_at": "",
+  "cache_stats": {
+    "total_hits": 0,
+    "total_misses": 0,
+    "total_tools_cached": 0
+  }
+}

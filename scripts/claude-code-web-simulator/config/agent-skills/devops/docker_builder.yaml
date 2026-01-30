@@ -1,0 +1,48 @@
+---
+name: docker_builder
+category: devops_infrastructure
+version: "1.0.0"
+description: |
+  Builds Docker images from Dockerfiles with optimization and validation. Validates
+  Dockerfile syntax, applies multi-stage build optimization, scans for vulnerabilities,
+  and generates build reports with layer analysis and size metrics.
+capabilities:
+  - Build Docker images
+  - Validate Dockerfile syntax
+  - Apply multi-stage optimization
+  - Scan for vulnerabilities
+  - Analyze image layers
+  - Generate build reports
+  - Support build caching
+  - Tag and push images
+requirements:
+  memory_mb: 1024
+  dependencies:
+    - docker
+    - dockerfile-parser
+    - trivy
+  disk_mb: 500
+performance_slo:
+  max_duration_ms: 60000
+  success_rate: 0.95
+  throughput_builds_per_second: 1
+implementation:
+  language: bash
+  entry_point: skill_docker_builder_build
+  module: skills-devops.sh
+error_handling:
+  retry_strategy: exponential
+  max_retries: 2
+  retry_delay_ms: 1000
+  timeout_ms: 120000
+  fallback_behavior: return_error_details
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: false
+  test_coverage_target: 0.80
+documentation:
+  url: "https://docs.ggen.io/skills/docker-builder"
+  examples:
+    - "skill_docker_builder_build --dockerfile Dockerfile --tag myapp:latest"
+    - "skill_docker_builder_build --report json --tag myapp:v1.0"

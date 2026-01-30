@@ -1,0 +1,66 @@
+skill:
+  name: "cargo-make-orchestrator"
+  category: "devops"
+  version: "1.0.0"
+  agent_types:
+    - "build-engineer"
+    - "ci-cd-specialist"
+    - "devops-engineer"
+
+  description: "Orchestrate cargo make targets with timeout enforcement and SLO verification"
+
+  capabilities:
+    - execute_cargo_make
+    - enforce_timeouts
+    - verify_slos
+    - parallel_task_execution
+    - generate_build_reports
+    - cache_build_artifacts
+
+  requirements:
+    minimum_memory: "512M"
+    tool_dependencies:
+      - cargo-make
+      - timeout
+    environment_variables:
+      - "CARGO_BUILD_JOBS=4"
+      - "CARGO_BUILD_PIPELINED_COMPILATION=true"
+      - "RUST_LTO=thin"
+
+  performance_slo:
+    max_duration_ms: 120000
+    success_rate: 0.98
+    memory_limit_mb: 2048
+    cache_enabled: true
+
+  implementation:
+    language: "bash"
+    entry_point: "cargo_make_run()"
+    dependencies:
+      - "cargo-make >= 0.36"
+      - "timeout"
+      - "jq >= 1.6"
+
+  error_handling:
+    retry_strategy: "linear_backoff"
+    max_retries: 1
+    timeout_ms: 120000
+    fallback_behavior: "return_build_error"
+
+  documentation:
+    usage: |
+      Execute cargo make targets with timeout enforcement.
+      Verifies SLO compliance and generates build reports with metrics.
+    example: |
+      skill_load cargo-make-orchestrator
+      cargo_make_run --target "test" --timeout 30s --verify-slo
+
+  metadata:
+    author: "ggen AI Team"
+    created: "2026-01-19"
+    updated: "2026-01-25"
+    tags:
+      - "devops"
+      - "build"
+      - "ci-cd"
+      - "automation"

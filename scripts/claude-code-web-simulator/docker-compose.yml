@@ -1,0 +1,189 @@
+version: '3.8'
+
+###############################################################################
+# Docker Compose Configuration for ggen Agent Execution Environment
+#
+# Purpose: Orchestrate ggen agent containers with shared resources
+# Usage:
+#   docker-compose up -d              # Start all services
+#   docker-compose exec ggen ggen --version  # Execute commands
+#   docker-compose down               # Stop all services
+#   docker-compose logs -f ggen       # View logs
+###############################################################################
+
+services:
+  # Primary ggen agent service
+  ggen:
+    build:
+      context: ../../
+      dockerfile: scripts/claude-code-web-simulator/Dockerfile
+      cache_from:
+        - ggen-agent:latest
+    image: ggen-agent:latest
+    container_name: ggen-agent
+    hostname: ggen-agent
+
+    # Resource limits (adjust based on your system)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+    # Environment variables
+    environment:
+      GGEN_HOME: /workspace
+      MCP_PROXY_URL: ${MCP_PROXY_URL:-}
+      TIMEOUT_DEFAULT: 120
+      RUST_LOG: ${RUST_LOG:-warn}
+      CARGO_HOME: /root/.cargo
+
+    # Volume mounts
+    volumes:
+      # Workspace for ggen operations (read-write)
+      - workspace:/workspace:rw
+
+      # Optional: Mount specs directory
+      - ${PWD:-.}/../../.specify:/workspace/.specify:ro
+
+      # Optional: Mount cache directory for faster builds
+      - cargo-cache:/root/.cargo:rw
+
+      # Optional: Mount rustup directory for faster builds
+      - rustup-cache:/root/.rustup:ro
+
+    # Ports
+    ports:
+      # Optional: MCP proxy port
+      - "3000:3000"
+
+    # Network configuration
+    networks:
+      - ggen-network
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "ggen", "--version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+    # Entrypoint configuration
+    entrypoint: /bin/bash
+    command: -c "echo 'ggen agent ready at $(date)'; /bin/bash"
+
+    # Interactive settings
+    stdin_open: true
+    tty: true
+
+    # Security options
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+    read_only: false
+    user: "1000:1000"
+
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=ggen-agent"
+
+    # Labels for management
+    labels:
+      service: "ggen"
+      version: "6.0.0"
+      environment: "development"
+
+  # Optional: MCP Proxy service (if using MCP)
+  mcp-proxy:
+    image: node:22-alpine
+    container_name: mcp-proxy
+    hostname: mcp-proxy
+    profiles:
+      - with-mcp
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      MCP_PORT: 3000
+    networks:
+      - ggen-network
+    restart: unless-stopped
+    # Note: Requires actual MCP proxy implementation
+    # This is a placeholder; replace with actual MCP proxy image/service
+
+  # Optional: Development tools service
+  devtools:
+    image: ubuntu:24.04
+    container_name: ggen-devtools
+    profiles:
+      - with-devtools
+    environment:
+      DEBIAN_FRONTEND: noninteractive
+    volumes:
+      - workspace:/workspace:rw
+      - ${PWD:-.}/../../.specify:/workspace/.specify:ro
+    networks:
+      - ggen-network
+    command: >
+      bash -c "
+        apt-get update &&
+        apt-get install -y --no-install-recommends
+          curl git build-essential ca-certificates &&
+        /bin/bash
+      "
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+###############################################################################
+# Volumes
+###############################################################################
+volumes:
+  workspace:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: "size=4g,mode=1777"
+
+  cargo-cache:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: "size=2g,mode=1777"
+
+  rustup-cache:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: "size=1g,mode=1755"
+
+###############################################################################
+# Networks
+###############################################################################
+networks:
+  ggen-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-ggen
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+          gateway: 172.25.0.1

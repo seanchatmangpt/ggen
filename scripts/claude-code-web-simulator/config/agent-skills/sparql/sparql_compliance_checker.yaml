@@ -1,0 +1,47 @@
+---
+name: sparql_compliance_checker
+category: sparql
+version: "1.0.0"
+description: |
+  Verifies SPARQL query compliance with SPARQL 1.1 specification. Validates syntax,
+  semantic correctness, and execution safety. Detects non-standard extensions and
+  generates detailed compliance reports with recommendations.
+capabilities:
+  - Validate SPARQL syntax
+  - Check SPARQL 1.1 compliance
+  - Detect deprecated features
+  - Identify performance anti-patterns
+  - Check for injection vulnerabilities
+  - Generate compliance reports
+  - Support W3C test suite validation
+requirements:
+  memory_mb: 256
+  dependencies:
+    - sparql-parser
+    - sparql-validator
+    - serde_json
+  disk_mb: 100
+performance_slo:
+  max_duration_ms: 1500
+  success_rate: 0.99
+  throughput_queries_per_second: 1000
+implementation:
+  language: bash
+  entry_point: skill_sparql_compliance_checker_check
+  module: skills-sparql.sh
+error_handling:
+  retry_strategy: linear
+  max_retries: 1
+  retry_delay_ms: 100
+  timeout_ms: 3000
+  fallback_behavior: return_error_details
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.92
+documentation:
+  url: "https://docs.ggen.io/skills/sparql-compliance-checker"
+  examples:
+    - "skill_sparql_compliance_checker_check query.sparql"
+    - "skill_sparql_compliance_checker_check --strict query.sparql"

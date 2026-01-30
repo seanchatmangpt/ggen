@@ -1,0 +1,31 @@
+Rank,Combination Name,Components,Effort,Value,ROI,Category,Phase,Status,Blockers,Priority,Owner,Est_Hours,Est_Days
+1,"Receipt Generation + Skill Invocation + Task Tracking","Receipts, Skills, SQLite",2,8,4.0,Observability,Phase 1,Ready,None,Critical,ggen-ai,20,2.5
+2,"Docker + Reproducible Build","Docker, Build System",2,8,4.0,Infrastructure,Phase 1,Ready,None,Critical,devops-team,16,2
+3,"MCP Caching + Skill Registry","MCP, Skills, Cache",2,7,3.5,Performance,Phase 2,Ready,None,High,perf-team,16,2
+4,"Sandbox + MCP Calls + Domain Whitelist","Sandbox, MCP, Whitelist",2,7,3.5,Security,Phase 2,Ready,"Security review",High,security-team,16,2
+5,"Sandbox + Persistent Cache","Sandbox, Cache, Storage",2,6,3.0,Infrastructure,Phase 3,Ready,None,High,devops-team,12,1.5
+6,"Docker + ggen Pipeline + Receipts","Docker, ggen, Receipts, Git",3,8,2.67,Orchestration,Phase 3,Ready,"Git integration",Medium,orchestration-team,24,3
+7,"MCP Performance + Persistent Cache + Database","MCP, Cache, SQLite",3,8,2.67,Performance,Phase 3,Ready,Schema,Medium,perf-team,24,3
+8,"Agent Orchestration + Hook Engine + Task Router","Orchestrator, Hooks, Router",3,8,2.67,Orchestration,Phase 3,Ready,"Router testing",Medium,orchestration-team,24,3
+9,"Receipt Generation + Deterministic Output + Git","Receipts, ggen, Git",3,8,2.67,DevOps,Phase 3,Ready,None,Medium,devops-team,20,2.5
+10,"SQLite + Audit Trail + MCP Calls","SQLite, Audit, MCP",3,7,2.33,Compliance,Phase 3,Ready,None,Medium,compliance-team,20,2.5
+11,"MCP Caching + TTL Expiry + Background Refresh","MCP, Cache, Background",3,7,2.33,Performance,Future,Pending,"Background tasks",Low,perf-team,20,2.5
+12,"Docker + SQLite + Agent Memory","Docker, SQLite, Memory",3,7,2.33,State Management,Future,Pending,None,Low,data-team,20,2.5
+13,"SQLite Analytics + Performance Metrics","SQLite, Analytics",3,7,2.33,Analytics,Future,Pending,None,Low,analytics-team,20,2.5
+14,"ggen Pipeline + Performance Benchmarking + SLO","Pipeline, Benchmarks, SLO",4,8,2.0,Quality,Future,Pending,None,Low,qa-team,24,3
+15,"Docker + Health Checks + SQLite Storage","Docker, Health, SQLite",3,6,2.0,Monitoring,Future,Pending,None,Low,monitoring-team,18,2.25
+16,"Agent Skills + Hook Engine + Real ggen","Skills, Hooks, Pipeline",3,6,2.0,Automation,Future,Pending,None,Low,devops-team,18,2.25
+17,"Audit Trail + Compliance Reporting","Audit, Reports",4,8,2.0,Compliance,Future,Pending,"Report templates",Low,compliance-team,24,3
+18,"Real ggen + Background Sync","Pipeline, Background",3,6,2.0,Async,Future,Pending,"Background tasks",Low,devops-team,18,2.25
+19,"MCP + Real ggen + Skill Invocation","MCP, Pipeline, Skills",4,7,1.75,Integration,Future,Pending,None,Medium,integration-team,24,3
+20,"Skill Registry + Skill Versioning + Backward Compatibility","Skills, Versioning",4,7,1.75,Governance,Future,Pending,None,Low,devops-team,24,3
+21,"ggen Pipeline + Skill Registry + Template Skills","Pipeline, Skills, Templates",4,7,1.75,Code Gen,Future,Pending,None,Low,code-gen-team,24,3
+22,"Agent Memory + Learning Loop + Skill Metrics","Memory, Learning, Analytics",5,8,1.6,Learning,Future,Pending,None,Low,ml-team,28,3.5
+23,"ggen Pipeline + OWL Inference + Skill Suggestions","Pipeline, OWL, AI",5,8,1.6,AI,Future,Pending,"OWL implementation",Low,ai-team,28,3.5
+24,"Skill Registry + Dependency Resolution + ggen Pipeline","Skills, Dependencies, Pipeline",5,8,1.6,Graph,Future,Pending,None,Low,devops-team,28,3.5
+25,"Multi-agent Memory + Docker Spawning + Collision Detection","Orchestration, Docker, Memory",6,9,1.5,Coordination,Future,Pending,"Collision detection",Low,coordination-team,32,4
+26,"Multi-agent + Task Orchestration + Memory Synchronization","Orchestration, Memory, Sync",6,9,1.5,Parallel,Future,Pending,"Memory sync protocol",Low,coordination-team,32,4
+27,"Agent Memory + Learning Loop + Skill Metrics","Memory, Learning, Analytics",5,7,1.4,Adaptive,Future,Pending,None,Low,ml-team,28,3.5
+28,"Sandbox + MCP Calls + Safety Verification","Sandbox, MCP, Safety",4,6,1.5,Security,Future,Pending,None,Low,security-team,24,3
+29,"Skill Registry + Dependency Graphs + DAG","Skills, Dependencies, Graph",5,7,1.4,Graph,Future,Pending,None,Low,devops-team,28,3.5
+30,"ggen Pipeline + Determinism + Cache","Pipeline, Determinism, Cache",4,5,1.25,Performance,Future,Pending,None,Low,perf-team,20,2.5

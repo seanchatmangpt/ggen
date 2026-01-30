@@ -1,0 +1,50 @@
+---
+name: infrastructure_scanner
+category: devops_infrastructure
+version: "1.0.0"
+description: |
+  Scans infrastructure code for security vulnerabilities and misconfigurations.
+  Detects insecure defaults, policy violations, and compliance issues in Terraform,
+  CloudFormation, and Kubernetes configurations. Generates detailed reports with
+  remediation guidance and compliance tracking.
+capabilities:
+  - Scan Terraform for misconfigurations
+  - Scan CloudFormation for security issues
+  - Scan Kubernetes manifests
+  - Detect compliance violations
+  - Check policy adherence
+  - Generate security reports
+  - Track compliance status
+  - Support custom security policies
+requirements:
+  memory_mb: 768
+  dependencies:
+    - tfsec
+    - cfn-lint
+    - kubiscan
+    - checkov
+  disk_mb: 300
+performance_slo:
+  max_duration_ms: 10000
+  success_rate: 0.97
+  throughput_scans_per_second: 5
+implementation:
+  language: bash
+  entry_point: skill_infrastructure_scanner_scan
+  module: skills-devops.sh
+error_handling:
+  retry_strategy: exponential
+  max_retries: 2
+  retry_delay_ms: 300
+  timeout_ms: 20000
+  fallback_behavior: return_warnings
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.84
+documentation:
+  url: "https://docs.ggen.io/skills/infrastructure-scanner"
+  examples:
+    - "skill_infrastructure_scanner_scan --type terraform ."
+    - "skill_infrastructure_scanner_scan --report json --compliance pci k8s-manifests/"

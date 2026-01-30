@@ -1,0 +1,50 @@
+---
+name: security_scanner
+category: quality_assurance
+version: "1.0.0"
+description: |
+  Scans code for security vulnerabilities including injection attacks, unsafe
+  dependencies, and insecure patterns. Integrates with cargo-audit for Rust,
+  bandit for Python, and npm audit for JavaScript. Generates security reports
+  with CVSS severity ratings and remediation guidance.
+capabilities:
+  - Scan for injection vulnerabilities
+  - Check dependency vulnerabilities
+  - Detect unsafe patterns
+  - Run cargo-audit on Rust
+  - Run bandit on Python
+  - Run npm audit on JavaScript
+  - Generate security reports
+  - Track vulnerability history
+requirements:
+  memory_mb: 256
+  dependencies:
+    - cargo-audit
+    - bandit
+    - npm-audit
+    - serde_json
+  disk_mb: 150
+performance_slo:
+  max_duration_ms: 8000
+  success_rate: 0.97
+  throughput_scans_per_second: 10
+implementation:
+  language: bash
+  entry_point: skill_security_scanner_scan
+  module: skills-qa.sh
+error_handling:
+  retry_strategy: exponential
+  max_retries: 3
+  retry_delay_ms: 200
+  timeout_ms: 15000
+  fallback_behavior: return_warnings
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.85
+documentation:
+  url: "https://docs.ggen.io/skills/security-scanner"
+  examples:
+    - "skill_security_scanner_scan --language rust ."
+    - "skill_security_scanner_scan --report json --language python src/"

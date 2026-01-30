@@ -1,0 +1,38 @@
+{
+  "mcp_servers": [
+    {
+      "name": "github",
+      "type": "proxy",
+      "enabled": true,
+      "domains": ["github.com", "api.github.com"],
+      "timeout_ms": 5000
+    },
+    {
+      "name": "research",
+      "type": "proxy",
+      "enabled": true,
+      "domains": ["perplexity.com", "scholar.google.com"],
+      "timeout_ms": 10000
+    },
+    {
+      "name": "sequential-thinking",
+      "type": "llm",
+      "enabled": true,
+      "max_tokens": 50000
+    },
+    {
+      "name": "context7",
+      "type": "documentation",
+      "enabled": true,
+      "domains": ["docs.rs", "crates.io"],
+      "timeout_ms": 5000
+    },
+    {
+      "name": "docker",
+      "type": "container",
+      "enabled": true,
+      "socket_path": "/var/run/docker.sock",
+      "restricted": true
+    }
+  ]
+}
