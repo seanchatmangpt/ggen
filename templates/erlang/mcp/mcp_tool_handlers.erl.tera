@@ -1,0 +1,1000 @@
+%%%-------------------------------------------------------------------
+%%% @doc
+%%% MCP Tool Handlers - AI Assistant Control Interface
+%%%
+%%% This module implements handler functions for Model Context Protocol (MCP)
+%%% tools, enabling AI assistants to control autonomic operations including:
+%%% - Chaos engineering scenario execution
+%%% - Knowledge base queries with similarity search
+%%% - Recovery action execution
+%%% - Cluster scaling operations
+%%% - MAPE-K cycle orchestration
+%%% - Chaos control (start/stop/configure)
+%%% - Knowledge export and persistence
+%%% - Recovery plan generation
+%%%
+%%% All handlers validate JSON schema inputs and return standardized responses
+%%% suitable for AI assistant consumption.
+%%%
+%%% Generated from RDF specification:
+%%% {% raw %}{{ spec_uri }}{% endraw %}
+%%% @end
+%%%-------------------------------------------------------------------
+-module({% raw %}{{ module_name | default(value="mcp_tool_handlers") }}{% endraw %}).
+
+%% MCP Tool Handler API
+-export([
+    trigger_chaos/1,
+    query_knowledge/1,
+    execute_recovery/1,
+    scale_cluster/1,
+    run_mape_k_cycle/1,
+    control_chaos/1,
+    export_knowledge/1,
+    get_recovery_plan/1
+]).
+
+%% Schema validation exports
+-export([
+    validate_trigger_chaos/1,
+    validate_query_knowledge/1,
+    validate_execute_recovery/1,
+    validate_scale_cluster/1,
+    validate_run_mape_k_cycle/1,
+    validate_control_chaos/1,
+    validate_export_knowledge/1,
+    validate_get_recovery_plan/1
+]).
+
+%% Internal utilities
+-export([format_error/1, format_success/2]).
+
+-define(DEFAULT_SIMILARITY_LIMIT, {% raw %}{{ similarity_limit | default(value="10") }}{% endraw %}).
+-define(DEFAULT_TIMEOUT, {% raw %}{{ operation_timeout_ms | default(value="30000") }}{% endraw %}).
+-define(MAX_RECOVERY_RETRIES, {% raw %}{{ max_recovery_retries | default(value="3") }}{% endraw %}).
+
+%%%===================================================================
+%%% Type Definitions
+%%%===================================================================
+
+-type mcp_response() :: #{
+    success := boolean(),
+    data => term(),
+    error => binary() | map(),
+    metadata => map()
+}.
+
+-type chaos_scenario() :: binary().  % e.g., <<"network_partition">>, <<"node_kill">>
+-type node_target() :: atom() | binary() | undefined.
+-type symptom_pattern() :: binary() | [binary()].
+-type recovery_action() :: binary().  % e.g., <<"restart_supervisor">>, <<"heal_partition">>
+-type scaling_direction() :: up | down.
+-type chaos_control_action() :: start | stop | pause | resume | reconfigure.
+
+%%%===================================================================
+%%% RDF Configuration Extraction via SPARQL
+%%%===================================================================
+%{% raw %}% SPARQL Query: Extract MCP tool configurations
+%% PREFIX mcp: <http://ggen.io/ontology/mcp#>
+%% PREFIX chaos: <http://ggen.io/ontology/chaos#>
+%% PREFIX kb: <http://ggen.io/ontology/knowledge-base#>
+%%
+%% SELECT ?tool ?schema ?timeout ?retry_policy ?validation_rules
+%% WHERE {
+%%   ?tool a mcp:ToolHandler ;
+%%         mcp:jsonSchema ?schema ;
+%%         mcp:timeout ?timeout ;
+%%         mcp:retryPolicy ?retry_policy ;
+%%         mcp:validationRules ?validation_rules .
+%%   FILTER(?tool IN (
+%%     mcp:TriggerChaosTool,
+%%     mcp:QueryKnowledgeTool,
+%%     mcp:ExecuteRecoveryTool,
+%%     mcp:ScaleClusterTool,
+%%     mcp:RunMapeKCycleTool,
+%%     mcp:ControlChaosTool,
+%%     mcp:ExportKnowledgeTool,
+%%     mcp:GetRecoveryPlanTool
+%%   ))
+%% }{% endraw %}
+
+%%%===================================================================
+%%% Tool Handler #1: Trigger Chaos
+%%%===================================================================
+
+%% @doc
+%% Trigger a chaos engineering scenario on a target node or cluster.
+%%
+%% JSON Schema:
+%% {
+%%   "type": "object",
+%%   "properties": {
+%%     "scenario": {"type": "string", "enum": ["network_partition", "node_kill",
+%%                                               "network_delay", "disk_fill",
+%%                                               "cpu_spike", "memory_pressure"]},
+%%     "target_node": {"type": "string", "description": "Optional specific node"},
+%%     "duration_ms": {"type": "integer", "minimum": 100, "default": 5000},
+%%     "intensity": {"type": "number", "minimum": 0.0, "maximum": 1.0, "default": 0.5},
+%%     "metadata": {"type": "object"}
+%%   },
+%%   "required": ["scenario"]
+%% }
+%%
+%% Example:
+%%   Params = #{
+%%     <<"scenario">> => <<"network_partition">>,
+%%     <<"target_node">> => <<"worker@node1">>,
+%%     <<"duration_ms">> => 10000,
+%%     <<"intensity">> => 0.8
+%%   },
+%%   trigger_chaos(Params).
+%%
+%% @end
+-spec trigger_chaos(Params :: map()) -> mcp_response().
+trigger_chaos(Params) ->
+    case validate_trigger_chaos(Params) of
+        {ok, ValidParams} ->
+            Scenario = maps:get(<<"scenario">>, ValidParams),
+            Target = maps:get(<<"target_node">>, ValidParams, undefined),
+            Duration = maps:get(<<"duration_ms">>, ValidParams, 5000),
+            Intensity = maps:get(<<"intensity">>, ValidParams, 0.5),
+            Metadata = maps:get(<<"metadata">>, ValidParams, #{}),
+
+            ChaosConfig = #{
+                scenario => binary_to_existing_atom(Scenario, utf8),
+                target => parse_node_target(Target),
+                duration_ms => Duration,
+                intensity => Intensity,
+                metadata => Metadata
+            },
+
+            case chaos_orchestrator:inject_chaos(ChaosConfig) of
+                {ok, EventId} ->
+                    format_success(#{
+                        event_id => EventId,
+                        scenario => Scenario,
+                        target => Target,
+                        status => <<"injected">>,
+                        timestamp => erlang:system_time(millisecond)
+                    }, #{
+                        message => <<"Chaos scenario successfully injected">>,
+                        estimated_duration_ms => Duration
+                    });
+                {error, Reason} ->
+                    format_error(#{
+                        type => <<"chaos_injection_failed">>,
+                        reason => format_error_reason(Reason),
+                        scenario => Scenario,
+                        target => Target
+                    })
+            end;
+        {error, ValidationError} ->
+            format_error(#{
+                type => <<"validation_error">>,
+                details => ValidationError,
+                hint => <<"Check JSON schema requirements">>
+            })
+    end.
+
+%%%===================================================================
+%%% Tool Handler #2: Query Knowledge Base
+%%%===================================================================
+
+%% @doc
+%% Query the knowledge base for similar failure patterns using symptom-based
+%% similarity search. Returns ranked results with recovery recommendations.
+%%
+%% JSON Schema:
+%% {
+%%   "type": "object",
+%%   "properties": {
+%%     "symptoms": {
+%%       "oneOf": [
+%%         {"type": "string"},
+%%         {"type": "array", "items": {"type": "string"}}
+%%       ],
+%%       "description": "Symptom description(s) to search for"
+%%     },
+%%     "limit": {"type": "integer", "minimum": 1, "maximum": 100, "default": 10},
+%%     "min_similarity": {"type": "number", "minimum": 0.0, "maximum": 1.0, "default": 0.5},
+%%     "include_recoveries": {"type": "boolean", "default": true},
+%%     "filter_by_tags": {"type": "array", "items": {"type": "string"}}
+%%   },
+%%   "required": ["symptoms"]
+%% }
+%%
+%% @end
+-spec query_knowledge(Params :: map()) -> mcp_response().
+query_knowledge(Params) ->
+    case validate_query_knowledge(Params) of
+        {ok, ValidParams} ->
+            Symptoms = normalize_symptoms(maps:get(<<"symptoms">>, ValidParams)),
+            Limit = maps:get(<<"limit">>, ValidParams, ?DEFAULT_SIMILARITY_LIMIT),
+            MinSimilarity = maps:get(<<"min_similarity">>, ValidParams, 0.5),
+            IncludeRecoveries = maps:get(<<"include_recoveries">>, ValidParams, true),
+            FilterTags = maps:get(<<"filter_by_tags">>, ValidParams, []),
+
+            QueryOptions = #{
+                limit => Limit,
+                min_similarity => MinSimilarity,
+                include_recoveries => IncludeRecoveries,
+                filter_tags => FilterTags
+            },
+
+            case knowledge_base:query_similar(Symptoms, QueryOptions) of
+                {ok, Results} ->
+                    FormattedResults = [failure_to_map(F) || F <- Results],
+                    format_success(#{
+                        results => FormattedResults,
+                        count => length(FormattedResults),
+                        query_symptoms => Symptoms
+                    }, #{
+                        message => <<"Knowledge base query completed">>,
+                        searched_entries => knowledge_base:count_entries()
+                    });
+                {error, Reason} ->
+                    format_error(#{
+                        type => <<"knowledge_query_failed">>,
+                        reason => format_error_reason(Reason),
+                        symptoms => Symptoms
+                    })
+            end;
+        {error, ValidationError} ->
+            format_error(#{
+                type => <<"validation_error">>,
+                details => ValidationError
+            })
+    end.
+
+%%%===================================================================
+%%% Tool Handler #3: Execute Recovery Action
+%%%===================================================================
+
+%% @doc
+%% Execute a specific recovery action for a detected failure. Supports
+%% retry logic, pre-execution validation, and rollback on failure.
+%%
+%% JSON Schema:
+%% {
+%%   "type": "object",
+%%   "properties": {
+%%     "action": {"type": "string", "enum": ["restart_supervisor", "heal_partition",
+%%                                             "rebalance_cluster", "clear_ets_tables",
+%%                                             "force_garbage_collection", "custom"]},
+%%     "target": {"type": "string", "description": "Target node or process"},
+%%     "parameters": {"type": "object", "description": "Action-specific parameters"},
+%%     "dry_run": {"type": "boolean", "default": false},
+%%     "max_retries": {"type": "integer", "minimum": 0, "maximum": 10, "default": 3},
+%%     "rollback_on_failure": {"type": "boolean", "default": true}
+%%   },
+%%   "required": ["action", "target"]
+%% }
+%%
+%% @end
+-spec execute_recovery(Params :: map()) -> mcp_response().
+execute_recovery(Params) ->
+    case validate_execute_recovery(Params) of
+        {ok, ValidParams} ->
+            Action = binary_to_existing_atom(maps:get(<<"action">>, ValidParams), utf8),
+            Target = maps:get(<<"target">>, ValidParams),
+            ActionParams = maps:get(<<"parameters">>, ValidParams, #{}),
+            DryRun = maps:get(<<"dry_run">>, ValidParams, false),
+            MaxRetries = maps:get(<<"max_retries">>, ValidParams, ?MAX_RECOVERY_RETRIES),
+            RollbackOnFailure = maps:get(<<"rollback_on_failure">>, ValidParams, true),
+
+            RecoveryConfig = #{
+                action => Action,
+                target => parse_target(Target),
+                parameters => ActionParams,
+                dry_run => DryRun,
+                max_retries => MaxRetries,
+                rollback_on_failure => RollbackOnFailure
+            },
+
+            case DryRun of
+                true ->
+                    % Pre-flight validation only
+                    case mape_k_executor:validate_recovery(RecoveryConfig) of
+                        {ok, ValidationResult} ->
+                            format_success(#{
+                                dry_run => true,
+                                validation_passed => true,
+                                estimated_duration_ms => maps:get(estimated_duration, ValidationResult, unknown),
+                                prerequisites => maps:get(prerequisites, ValidationResult, [])
+                            }, #{
+                                message => <<"Dry run validation completed">>
+                            });
+                        {error, ValidationReason} ->
+                            format_error(#{
+                                type => <<"dry_run_validation_failed">>,
+                                reason => format_error_reason(ValidationReason),
+                                action => Action,
+                                target => Target
+                            })
+                    end;
+                false ->
+                    % Execute recovery with retry logic
+                    case execute_recovery_with_retry(RecoveryConfig, MaxRetries) of
+                        {ok, ExecutionResult} ->
+                            format_success(#{
+                                action => Action,
+                                target => Target,
+                                status => <<"completed">>,
+                                execution_time_ms => maps:get(duration_ms, ExecutionResult, unknown),
+                                retries_used => maps:get(retries, ExecutionResult, 0),
+                                result_data => maps:get(data, ExecutionResult, #{})
+                            }, #{
+                                message => <<"Recovery action executed successfully">>
+                            });
+                        {error, Reason, Attempts} ->
+                            format_error(#{
+                                type => <<"recovery_execution_failed">>,
+                                reason => format_error_reason(Reason),
+                                action => Action,
+                                target => Target,
+                                attempts => Attempts,
+                                max_retries => MaxRetries
+                            })
+                    end
+            end;
+        {error, ValidationError} ->
+            format_error(#{
+                type => <<"validation_error">>,
+                details => ValidationError
+            })
+    end.
+
+%%%===================================================================
+%%% Tool Handler #4: Scale Cluster
+%%%===================================================================
+
+%% @doc
+%% Scale the distributed cluster up or down by adding or removing nodes.
+%%
+%% JSON Schema:
+%% {
+%%   "type": "object",
+%%   "properties": {
+%%     "direction": {"type": "string", "enum": ["up", "down"]},
+%%     "count": {"type": "integer", "minimum": 1, "maximum": 50, "default": 1},
+%%     "node_type": {"type": "string", "enum": ["worker", "manager", "hybrid"], "default": "worker"},
+%%     "wait_for_ready": {"type": "boolean", "default": true},
+%%     "timeout_ms": {"type": "integer", "minimum": 1000, "default": 30000}
+%%   },
+%%   "required": ["direction"]
+%% }
+%%
+%% @end
+-spec scale_cluster(Params :: map()) -> mcp_response().
+scale_cluster(Params) ->
+    case validate_scale_cluster(Params) of
+        {ok, ValidParams} ->
+            Direction = binary_to_existing_atom(maps:get(<<"direction">>, ValidParams), utf8),
+            Count = maps:get(<<"count">>, ValidParams, 1),
+            NodeType = binary_to_existing_atom(maps:get(<<"node_type">>, ValidParams, <<"worker">>), utf8),
+            WaitForReady = maps:get(<<"wait_for_ready">>, ValidParams, true),
+            Timeout = maps:get(<<"timeout_ms">>, ValidParams, ?DEFAULT_TIMEOUT),
+
+            ScalingConfig = #{
+                direction => Direction,
+                count => Count,
+                node_type => NodeType,
+                wait_for_ready => WaitForReady,
+                timeout_ms => Timeout
+            },
+
+            case cluster_scaler:scale(ScalingConfig) of
+                {ok, ScalingResult} ->
+                    format_success(#{
+                        direction => Direction,
+                        nodes_affected => maps:get(nodes, ScalingResult, []),
+                        new_cluster_size => maps:get(cluster_size, ScalingResult, unknown),
+                        duration_ms => maps:get(duration_ms, ScalingResult, unknown)
+                    }, #{
+                        message => <<"Cluster scaling completed">>,
+                        cluster_health => maps:get(health, ScalingResult, unknown)
+                    });
+                {error, Reason} ->
+                    format_error(#{
+                        type => <<"cluster_scaling_failed">>,
+                        reason => format_error_reason(Reason),
+                        direction => Direction,
+                        count => Count
+                    })
+            end;
+        {error, ValidationError} ->
+            format_error(#{
+                type => <<"validation_error">>,
+                details => ValidationError
+            })
+    end.
+
+%%%===================================================================
+%%% Tool Handler #5: Run MAPE-K Cycle
+%%%===================================================================
+
+%% @doc
+%% Manually trigger a complete MAPE-K autonomic cycle (Monitor, Analyze,
+%% Plan, Execute, Knowledge Update).
+%%
+%% JSON Schema:
+%% {
+%%   "type": "object",
+%%   "properties": {
+%%     "trigger_reason": {"type": "string"},
+%%     "skip_phases": {"type": "array", "items": {"type": "string",
+%%                                                  "enum": ["monitor", "analyze", "plan", "execute", "knowledge"]}},
+%%     "force_execution": {"type": "boolean", "default": false},
+%%     "collect_detailed_metrics": {"type": "boolean", "default": true}
+%%   }
+%% }
+%%
+%% @end
+-spec run_mape_k_cycle(Params :: map()) -> mcp_response().
+run_mape_k_cycle(Params) ->
+    case validate_run_mape_k_cycle(Params) of
+        {ok, ValidParams} ->
+            TriggerReason = maps:get(<<"trigger_reason">>, ValidParams, <<"manual_ai_trigger">>),
+            SkipPhases = maps:get(<<"skip_phases">>, ValidParams, []),
+            ForceExecution = maps:get(<<"force_execution">>, ValidParams, false),
+            CollectMetrics = maps:get(<<"collect_detailed_metrics">>, ValidParams, true),
+
+            CycleConfig = #{
+                trigger_reason => TriggerReason,
+                skip_phases => [binary_to_existing_atom(P, utf8) || P <- SkipPhases],
+                force_execution => ForceExecution,
+                collect_detailed_metrics => CollectMetrics
+            },
+
+            StartTime = erlang:monotonic_time(millisecond),
+            case mape_k_executor:run_cycle(CycleConfig) of
+                {ok, CycleResult} ->
+                    Duration = erlang:monotonic_time(millisecond) - StartTime,
+                    format_success(#{
+                        cycle_id => maps:get(cycle_id, CycleResult, unknown),
+                        phases_executed => maps:get(phases, CycleResult, []),
+                        anomalies_detected => maps:get(anomalies, CycleResult, []),
+                        actions_taken => maps:get(actions, CycleResult, []),
+                        knowledge_updated => maps:get(knowledge_updated, CycleResult, false),
+                        duration_ms => Duration
+                    }, #{
+                        message => <<"MAPE-K cycle completed">>,
+                        metrics => case CollectMetrics of
+                            true -> maps:get(metrics, CycleResult, #{});
+                            false -> #{}
+                        end
+                    });
+                {error, Reason} ->
+                    format_error(#{
+                        type => <<"mape_k_cycle_failed">>,
+                        reason => format_error_reason(Reason),
+                        trigger_reason => TriggerReason
+                    })
+            end;
+        {error, ValidationError} ->
+            format_error(#{
+                type => <<"validation_error">>,
+                details => ValidationError
+            })
+    end.
+
+%%%===================================================================
+%%% Tool Handler #6: Control Chaos
+%%%===================================================================
+
+%% @doc
+%% Control the chaos orchestrator: start, stop, pause, resume, or reconfigure
+%% ongoing chaos scenarios.
+%%
+%% JSON Schema:
+%% {
+%%   "type": "object",
+%%   "properties": {
+%%     "action": {"type": "string", "enum": ["start", "stop", "pause", "resume", "reconfigure"]},
+%%     "event_id": {"type": "string", "description": "Required for stop/pause/resume/reconfigure"},
+%%     "new_config": {"type": "object", "description": "Required for reconfigure action"}
+%%   },
+%%   "required": ["action"]
+%% }
+%%
+%% @end
+-spec control_chaos(Params :: map()) -> mcp_response().
+control_chaos(Params) ->
+    case validate_control_chaos(Params) of
+        {ok, ValidParams} ->
+            Action = binary_to_existing_atom(maps:get(<<"action">>, ValidParams), utf8),
+            EventId = maps:get(<<"event_id">>, ValidParams, undefined),
+            NewConfig = maps:get(<<"new_config">>, ValidParams, undefined),
+
+            Result = case Action of
+                start ->
+                    chaos_orchestrator:start();
+                stop when EventId =/= undefined ->
+                    chaos_orchestrator:stop_chaos(EventId);
+                stop ->
+                    chaos_orchestrator:stop_all();
+                pause when EventId =/= undefined ->
+                    chaos_orchestrator:pause_chaos(EventId);
+                resume when EventId =/= undefined ->
+                    chaos_orchestrator:resume_chaos(EventId);
+                reconfigure when EventId =/= undefined, NewConfig =/= undefined ->
+                    chaos_orchestrator:reconfigure_chaos(EventId, NewConfig);
+                _ ->
+                    {error, invalid_action_parameters}
+            end,
+
+            case Result of
+                {ok, ControlResult} ->
+                    format_success(#{
+                        action => Action,
+                        event_id => EventId,
+                        status => <<"success">>,
+                        active_scenarios => maps:get(active_scenarios, ControlResult, 0)
+                    }, #{
+                        message => iolist_to_binary([<<"Chaos control action '">>, atom_to_binary(Action, utf8), <<"' completed">>])
+                    });
+                ok ->
+                    format_success(#{
+                        action => Action,
+                        status => <<"success">>
+                    }, #{
+                        message => iolist_to_binary([<<"Chaos control action '">>, atom_to_binary(Action, utf8), <<"' completed">>])
+                    });
+                {error, Reason} ->
+                    format_error(#{
+                        type => <<"chaos_control_failed">>,
+                        reason => format_error_reason(Reason),
+                        action => Action,
+                        event_id => EventId
+                    })
+            end;
+        {error, ValidationError} ->
+            format_error(#{
+                type => <<"validation_error">>,
+                details => ValidationError
+            })
+    end.
+
+%%%===================================================================
+%%% Tool Handler #7: Export Knowledge Base
+%%%===================================================================
+
+%% @doc
+%% Export the knowledge base to a file or return as structured data.
+%% Supports filtering, aggregation, and various export formats.
+%%
+%% JSON Schema:
+%% {
+%%   "type": "object",
+%%   "properties": {
+%%     "format": {"type": "string", "enum": ["json", "erlang_term", "csv", "rdf"], "default": "json"},
+%%     "output_path": {"type": "string", "description": "File path for export"},
+%%     "filter_by_tags": {"type": "array", "items": {"type": "string"}},
+%%     "include_metadata": {"type": "boolean", "default": true},
+%%     "aggregate_similar": {"type": "boolean", "default": false}
+%%   }
+%% }
+%%
+%% @end
+-spec export_knowledge(Params :: map()) -> mcp_response().
+export_knowledge(Params) ->
+    case validate_export_knowledge(Params) of
+        {ok, ValidParams} ->
+            Format = binary_to_existing_atom(maps:get(<<"format">>, ValidParams, <<"json">>), utf8),
+            OutputPath = maps:get(<<"output_path">>, ValidParams, undefined),
+            FilterTags = maps:get(<<"filter_by_tags">>, ValidParams, []),
+            IncludeMetadata = maps:get(<<"include_metadata">>, ValidParams, true),
+            AggregateSimilar = maps:get(<<"aggregate_similar">>, ValidParams, false),
+
+            ExportConfig = #{
+                format => Format,
+                output_path => OutputPath,
+                filter_tags => FilterTags,
+                include_metadata => IncludeMetadata,
+                aggregate_similar => AggregateSimilar
+            },
+
+            case knowledge_base:export(ExportConfig) of
+                {ok, ExportResult} when OutputPath =:= undefined ->
+                    % Return data directly
+                    format_success(#{
+                        format => Format,
+                        entries_exported => maps:get(count, ExportResult, 0),
+                        data => maps:get(data, ExportResult, #{})
+                    }, #{
+                        message => <<"Knowledge base exported">>,
+                        size_bytes => maps:get(size_bytes, ExportResult, unknown)
+                    });
+                {ok, ExportResult} ->
+                    % Saved to file
+                    format_success(#{
+                        format => Format,
+                        output_path => OutputPath,
+                        entries_exported => maps:get(count, ExportResult, 0),
+                        file_size_bytes => maps:get(size_bytes, ExportResult, unknown)
+                    }, #{
+                        message => <<"Knowledge base exported to file">>
+                    });
+                {error, Reason} ->
+                    format_error(#{
+                        type => <<"knowledge_export_failed">>,
+                        reason => format_error_reason(Reason),
+                        format => Format,
+                        output_path => OutputPath
+                    })
+            end;
+        {error, ValidationError} ->
+            format_error(#{
+                type => <<"validation_error">>,
+                details => ValidationError
+            })
+    end.
+
+%%%===================================================================
+%%% Tool Handler #8: Get Recovery Plan
+%%%===================================================================
+
+%% @doc
+%% Generate a recovery plan for given symptoms without executing it.
+%% Uses the MAPE-K Analyze and Plan phases to produce actionable steps.
+%%
+%% JSON Schema:
+%% {
+%%   "type": "object",
+%%   "properties": {
+%%     "symptoms": {
+%%       "oneOf": [
+%%         {"type": "string"},
+%%         {"type": "array", "items": {"type": "string"}}
+%%       ]
+%%     },
+%%     "context": {"type": "object", "description": "Additional context (node info, metrics, etc.)"},
+%%     "include_alternatives": {"type": "boolean", "default": true},
+%%     "max_plan_steps": {"type": "integer", "minimum": 1, "maximum": 20, "default": 10}
+%%   },
+%%   "required": ["symptoms"]
+%% }
+%%
+%% @end
+-spec get_recovery_plan(Params :: map()) -> mcp_response().
+get_recovery_plan(Params) ->
+    case validate_get_recovery_plan(Params) of
+        {ok, ValidParams} ->
+            Symptoms = normalize_symptoms(maps:get(<<"symptoms">>, ValidParams)),
+            Context = maps:get(<<"context">>, ValidParams, #{}),
+            IncludeAlternatives = maps:get(<<"include_alternatives">>, ValidParams, true),
+            MaxSteps = maps:get(<<"max_plan_steps">>, ValidParams, 10),
+
+            PlanConfig = #{
+                symptoms => Symptoms,
+                context => Context,
+                include_alternatives => IncludeAlternatives,
+                max_steps => MaxSteps
+            },
+
+            case mape_k_executor:generate_plan(PlanConfig) of
+                {ok, PlanResult} ->
+                    format_success(#{
+                        plan_id => maps:get(plan_id, PlanResult, unknown),
+                        primary_plan => maps:get(primary_plan, PlanResult, []),
+                        alternative_plans => case IncludeAlternatives of
+                            true -> maps:get(alternatives, PlanResult, []);
+                            false -> []
+                        end,
+                        estimated_execution_time_ms => maps:get(estimated_duration, PlanResult, unknown),
+                        confidence_score => maps:get(confidence, PlanResult, 0.0),
+                        prerequisites => maps:get(prerequisites, PlanResult, [])
+                    }, #{
+                        message => <<"Recovery plan generated">>,
+                        plan_steps_count => length(maps:get(primary_plan, PlanResult, []))
+                    });
+                {error, Reason} ->
+                    format_error(#{
+                        type => <<"plan_generation_failed">>,
+                        reason => format_error_reason(Reason),
+                        symptoms => Symptoms
+                    })
+            end;
+        {error, ValidationError} ->
+            format_error(#{
+                type => <<"validation_error">>,
+                details => ValidationError
+            })
+    end.
+
+%%%===================================================================
+%%% JSON Schema Validation Functions
+%%%===================================================================
+
+-spec validate_trigger_chaos(map()) -> {ok, map()} | {error, term()}.
+validate_trigger_chaos(Params) ->
+    RequiredFields = [<<"scenario">>],
+    case validate_required_fields(Params, RequiredFields) of
+        ok ->
+            Scenario = maps:get(<<"scenario">>, Params),
+            ValidScenarios = [<<"network_partition">>, <<"node_kill">>,
+                              <<"network_delay">>, <<"disk_fill">>,
+                              <<"cpu_spike">>, <<"memory_pressure">>],
+            case lists:member(Scenario, ValidScenarios) of
+                true ->
+                    ValidatedParams = validate_optional_fields(Params, #{
+                        <<"duration_ms">> => fun validate_positive_integer/1,
+                        <<"intensity">> => fun validate_unit_float/1,
+                        <<"metadata">> => fun validate_map/1
+                    }),
+                    {ok, ValidatedParams};
+                false ->
+                    {error, #{field => <<"scenario">>, reason => <<"invalid_enum_value">>,
+                              valid_values => ValidScenarios}}
+            end;
+        Error ->
+            Error
+    end.
+
+-spec validate_query_knowledge(map()) -> {ok, map()} | {error, term()}.
+validate_query_knowledge(Params) ->
+    RequiredFields = [<<"symptoms">>],
+    case validate_required_fields(Params, RequiredFields) of
+        ok ->
+            ValidatedParams = validate_optional_fields(Params, #{
+                <<"limit">> => fun(V) -> validate_integer_range(V, 1, 100) end,
+                <<"min_similarity">> => fun validate_unit_float/1,
+                <<"include_recoveries">> => fun validate_boolean/1,
+                <<"filter_by_tags">> => fun validate_string_list/1
+            }),
+            {ok, ValidatedParams};
+        Error ->
+            Error
+    end.
+
+-spec validate_execute_recovery(map()) -> {ok, map()} | {error, term()}.
+validate_execute_recovery(Params) ->
+    RequiredFields = [<<"action">>, <<"target">>],
+    case validate_required_fields(Params, RequiredFields) of
+        ok ->
+            Action = maps:get(<<"action">>, Params),
+            ValidActions = [<<"restart_supervisor">>, <<"heal_partition">>,
+                            <<"rebalance_cluster">>, <<"clear_ets_tables">>,
+                            <<"force_garbage_collection">>, <<"custom">>],
+            case lists:member(Action, ValidActions) of
+                true ->
+                    ValidatedParams = validate_optional_fields(Params, #{
+                        <<"parameters">> => fun validate_map/1,
+                        <<"dry_run">> => fun validate_boolean/1,
+                        <<"max_retries">> => fun(V) -> validate_integer_range(V, 0, 10) end,
+                        <<"rollback_on_failure">> => fun validate_boolean/1
+                    }),
+                    {ok, ValidatedParams};
+                false ->
+                    {error, #{field => <<"action">>, reason => <<"invalid_enum_value">>,
+                              valid_values => ValidActions}}
+            end;
+        Error ->
+            Error
+    end.
+
+-spec validate_scale_cluster(map()) -> {ok, map()} | {error, term()}.
+validate_scale_cluster(Params) ->
+    RequiredFields = [<<"direction">>],
+    case validate_required_fields(Params, RequiredFields) of
+        ok ->
+            Direction = maps:get(<<"direction">>, Params),
+            case lists:member(Direction, [<<"up">>, <<"down">>]) of
+                true ->
+                    ValidatedParams = validate_optional_fields(Params, #{
+                        <<"count">> => fun(V) -> validate_integer_range(V, 1, 50) end,
+                        <<"node_type">> => fun(V) -> validate_enum(V, [<<"worker">>, <<"manager">>, <<"hybrid">>]) end,
+                        <<"wait_for_ready">> => fun validate_boolean/1,
+                        <<"timeout_ms">> => fun validate_positive_integer/1
+                    }),
+                    {ok, ValidatedParams};
+                false ->
+                    {error, #{field => <<"direction">>, reason => <<"invalid_enum_value">>,
+                              valid_values => [<<"up">>, <<"down">>]}}
+            end;
+        Error ->
+            Error
+    end.
+
+-spec validate_run_mape_k_cycle(map()) -> {ok, map()} | {error, term()}.
+validate_run_mape_k_cycle(Params) ->
+    ValidatedParams = validate_optional_fields(Params, #{
+        <<"trigger_reason">> => fun validate_string/1,
+        <<"skip_phases">> => fun validate_string_list/1,
+        <<"force_execution">> => fun validate_boolean/1,
+        <<"collect_detailed_metrics">> => fun validate_boolean/1
+    }),
+    {ok, ValidatedParams}.
+
+-spec validate_control_chaos(map()) -> {ok, map()} | {error, term()}.
+validate_control_chaos(Params) ->
+    RequiredFields = [<<"action">>],
+    case validate_required_fields(Params, RequiredFields) of
+        ok ->
+            Action = maps:get(<<"action">>, Params),
+            ValidActions = [<<"start">>, <<"stop">>, <<"pause">>, <<"resume">>, <<"reconfigure">>],
+            case lists:member(Action, ValidActions) of
+                true ->
+                    ValidatedParams = validate_optional_fields(Params, #{
+                        <<"event_id">> => fun validate_string/1,
+                        <<"new_config">> => fun validate_map/1
+                    }),
+                    {ok, ValidatedParams};
+                false ->
+                    {error, #{field => <<"action">>, reason => <<"invalid_enum_value">>,
+                              valid_values => ValidActions}}
+            end;
+        Error ->
+            Error
+    end.
+
+-spec validate_export_knowledge(map()) -> {ok, map()} | {error, term()}.
+validate_export_knowledge(Params) ->
+    ValidatedParams = validate_optional_fields(Params, #{
+        <<"format">> => fun(V) -> validate_enum(V, [<<"json">>, <<"erlang_term">>, <<"csv">>, <<"rdf">>]) end,
+        <<"output_path">> => fun validate_string/1,
+        <<"filter_by_tags">> => fun validate_string_list/1,
+        <<"include_metadata">> => fun validate_boolean/1,
+        <<"aggregate_similar">> => fun validate_boolean/1
+    }),
+    {ok, ValidatedParams}.
+
+-spec validate_get_recovery_plan(map()) -> {ok, map()} | {error, term()}.
+validate_get_recovery_plan(Params) ->
+    RequiredFields = [<<"symptoms">>],
+    case validate_required_fields(Params, RequiredFields) of
+        ok ->
+            ValidatedParams = validate_optional_fields(Params, #{
+                <<"context">> => fun validate_map/1,
+                <<"include_alternatives">> => fun validate_boolean/1,
+                <<"max_plan_steps">> => fun(V) -> validate_integer_range(V, 1, 20) end
+            }),
+            {ok, ValidatedParams};
+        Error ->
+            Error
+    end.
+
+%%%===================================================================
+%%% Validation Helper Functions
+%%%===================================================================
+
+-spec validate_required_fields(map(), [binary()]) -> ok | {error, term()}.
+validate_required_fields(Params, RequiredFields) ->
+    Missing = [F || F <- RequiredFields, not maps:is_key(F, Params)],
+    case Missing of
+        [] -> ok;
+        _ -> {error, #{missing_fields => Missing}}
+    end.
+
+-spec validate_optional_fields(map(), #{binary() => fun()}) -> map().
+validate_optional_fields(Params, FieldValidators) ->
+    maps:fold(fun(Field, Validator, Acc) ->
+        case maps:get(Field, Params, undefined) of
+            undefined -> Acc;
+            Value ->
+                case Validator(Value) of
+                    {ok, ValidValue} -> Acc#{Field => ValidValue};
+                    ok -> Acc#{Field => Value};
+                    _ -> Acc  % Keep original on validation failure
+                end
+        end
+    end, Params, FieldValidators).
+
+validate_positive_integer(V) when is_integer(V), V > 0 -> ok;
+validate_positive_integer(_) -> {error, not_positive_integer}.
+
+validate_integer_range(V, Min, Max) when is_integer(V), V >= Min, V =< Max -> ok;
+validate_integer_range(_, Min, Max) -> {error, #{reason => out_of_range, min => Min, max => Max}}.
+
+validate_unit_float(V) when is_float(V), V >= 0.0, V =< 1.0 -> ok;
+validate_unit_float(V) when is_integer(V), V >= 0, V =< 1 -> {ok, float(V)};
+validate_unit_float(_) -> {error, not_unit_float}.
+
+validate_boolean(V) when is_boolean(V) -> ok;
+validate_boolean(_) -> {error, not_boolean}.
+
+validate_string(V) when is_binary(V) -> ok;
+validate_string(_) -> {error, not_string}.
+
+validate_string_list(V) when is_list(V) ->
+    case lists:all(fun is_binary/1, V) of
+        true -> ok;
+        false -> {error, not_string_list}
+    end;
+validate_string_list(_) -> {error, not_list}.
+
+validate_map(V) when is_map(V) -> ok;
+validate_map(_) -> {error, not_map}.
+
+validate_enum(V, ValidValues) ->
+    case lists:member(V, ValidValues) of
+        true -> ok;
+        false -> {error, #{reason => invalid_enum, valid_values => ValidValues}}
+    end.
+
+%%%===================================================================
+%%% Utility Functions
+%%%===================================================================
+
+-spec format_success(Data :: map(), Metadata :: map()) -> mcp_response().
+format_success(Data, Metadata) ->
+    #{
+        success => true,
+        data => Data,
+        metadata => Metadata
+    }.
+
+-spec format_error(ErrorDetails :: map()) -> mcp_response().
+format_error(ErrorDetails) ->
+    #{
+        success => false,
+        error => ErrorDetails,
+        metadata => #{
+            timestamp => erlang:system_time(millisecond),
+            node => atom_to_binary(node(), utf8)
+        }
+    }.
+
+-spec format_error_reason(term()) -> binary().
+format_error_reason(Reason) when is_atom(Reason) ->
+    atom_to_binary(Reason, utf8);
+format_error_reason(Reason) when is_binary(Reason) ->
+    Reason;
+format_error_reason(Reason) when is_list(Reason) ->
+    list_to_binary(Reason);
+format_error_reason(Reason) ->
+    iolist_to_binary(io_lib:format("~p", [Reason])).
+
+-spec normalize_symptoms(binary() | [binary()]) -> [binary()].
+normalize_symptoms(Symptom) when is_binary(Symptom) ->
+    [Symptom];
+normalize_symptoms(Symptoms) when is_list(Symptoms) ->
+    Symptoms.
+
+-spec parse_node_target(undefined | binary()) -> undefined | atom().
+parse_node_target(undefined) -> undefined;
+parse_node_target(Target) when is_binary(Target) ->
+    try
+        binary_to_existing_atom(Target, utf8)
+    catch
+        error:badarg ->
+            % Not an existing atom, return as binary
+            Target
+    end.
+
+-spec parse_target(binary()) -> atom() | binary().
+parse_target(Target) when is_binary(Target) ->
+    try
+        binary_to_existing_atom(Target, utf8)
+    catch
+        error:badarg -> Target
+    end.
+
+-spec failure_to_map(term()) -> map().
+failure_to_map(Failure) when is_map(Failure) ->
+    Failure;
+failure_to_map({failure, Symptoms, Recoveries, Metadata}) ->
+    #{
+        symptoms => Symptoms,
+        recoveries => Recoveries,
+        metadata => Metadata
+    };
+failure_to_map(Failure) ->
+    #{raw => Failure}.
+
+-spec execute_recovery_with_retry(map(), non_neg_integer()) ->
+    {ok, map()} | {error, term(), non_neg_integer()}.
+execute_recovery_with_retry(RecoveryConfig, MaxRetries) ->
+    execute_recovery_with_retry(RecoveryConfig, MaxRetries, 0).
+
+execute_recovery_with_retry(RecoveryConfig, MaxRetries, Attempts) ->
+    case mape_k_executor:execute_recovery(RecoveryConfig) of
+        {ok, Result} ->
+            {ok, Result#{retries => Attempts}};
+        {error, Reason} when Attempts < MaxRetries ->
+            % Exponential backoff before retry
+            timer:sleep(min(1000 * (1 bsl Attempts), 10000)),
+            execute_recovery_with_retry(RecoveryConfig, MaxRetries, Attempts + 1);
+        {error, Reason} ->
+            {error, Reason, Attempts + 1}
+    end.

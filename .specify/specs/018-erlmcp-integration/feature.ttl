@@ -1,0 +1,652 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix mcp: <http://ggen.io/mcp#> .
+@prefix : <https://ggen.dev/spec/erlmcp-integration#> .
+
+# ============================================================================
+# FEATURE: Erlmcp MCP Integration with Autonomic Computing
+# ============================================================================
+
+:ErlmcpIntegrationFeature a spec:Feature ;
+    rdfs:label "Erlmcp MCP Integration with Autonomic Computing" ;
+    rdfs:comment "Model Context Protocol (MCP) integration for Erlang/OTP autonomic systems enabling AI assistants to observe, analyze, plan, and execute MAPE-K loop operations via standardized resources, tools, and subscriptions" ;
+    spec:maturity 85 ;
+    spec:epicNumber 18 ;
+    spec:specification :ErlmcpIntegrationSpec ;
+    sk:hasUserStory :us-001, :us-002, :us-003, :us-004, :us-005, :us-006 ;
+    sk:hasEntity :mcp-server, :mcp-resource, :mcp-tool, :mcp-subscription, :cluster-observer, :chaos-executor, :failure-analyzer, :recovery-orchestrator, :capacity-manager, :event-stream ;
+    spec:philosophy "MCP as lingua franca for AI-human-system collaboration: Resources provide observability, Tools enable actuation, Subscriptions deliver real-time awareness, all grounded in MAPE-K autonomic loop" .
+
+# ============================================================================
+# USER STORIES
+# ============================================================================
+
+# US-001: Observe Cluster Health via MCP Resources
+:us-001 a sk:UserStory ;
+    sk:storyIndex 1 ;
+    sk:title "Observe Cluster Health and Metrics via MCP Resources" ;
+    sk:priority "P1" ;
+    sk:description "As a DevOps engineer, I want AI assistants to observe cluster health (node status, process supervision trees, MAPE-K loop state, resource utilization) via MCP resources, so that AI can provide intelligent diagnostics and recommendations based on real-time system state" ;
+    sk:priorityRationale "Foundational capability - AI cannot assist without observability. MCP resources provide standardized read-only access to cluster state. Required for all higher-level AI interactions (diagnostics, planning, automation)." ;
+    sk:independentTest "MCP client reads mcp://cluster/health resource and receives JSON with: node list, process counts, supervision tree status, MAPE-K loop phases, memory/CPU usage. Resource refreshes on subscription. Response time <100ms for 1000-node cluster." ;
+    sk:hasAcceptanceScenario :us-001-as-001, :us-001-as-002, :us-001-as-003 .
+
+:us-001-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Erlang cluster running with 10 nodes, each with autonomic_sup supervision tree" ;
+    sk:when "MCP client requests mcp://cluster/health resource" ;
+    sk:then "Receives JSON response with node array (10 nodes), each node showing: name, status (up/down), uptime, process_count, memory_mb, cpu_percent, supervision_tree (supervisor hierarchy), mape_k_phase (Monitor/Analyze/Plan/Execute/Knowledge)" .
+
+:us-001-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Cluster with 3 nodes where node2 is experiencing high CPU (>90%)" ;
+    sk:when "MCP client reads mcp://cluster/health with query parameter ?node=node2" ;
+    sk:then "Returns focused view for node2 showing: cpu_percent=92, process_bottlenecks=[{pid, reductions, message_queue_len}], hot_code_paths=[{module, function, call_count}], suggested_actions=['scale_workers', 'enable_backpressure']" .
+
+:us-001-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "MAPE-K loop transitioning from Analyze to Plan phase" ;
+    sk:when "MCP client reads mcp://cluster/mape-k resource" ;
+    sk:then "Returns current_phase='Plan', phase_duration_ms=1247, analysis_results={anomaly_detected: true, failure_pattern: 'cascading_supervisor_restart'}, planned_actions=[{action: 'isolate_node', target: 'node3'}, {action: 'redistribute_load'}], confidence_score=0.87" .
+
+# US-002: Trigger Chaos Experiments via MCP Tools
+:us-002 a sk:UserStory ;
+    sk:storyIndex 2 ;
+    sk:title "Trigger Chaos Engineering Experiments via MCP Tools" ;
+    sk:priority "P1" ;
+    sk:description "As an SRE, I want AI assistants to trigger controlled chaos experiments (kill processes, partition network, inject latency, exhaust resources) via MCP tools, so that AI can validate system resilience hypotheses and discover failure modes through automated chaos engineering" ;
+    sk:priorityRationale "Critical for autonomic self-healing validation. AI must be able to inject controlled failures to test recovery mechanisms. MCP tools provide safe, auditable actuation interface with parameter validation and rollback capabilities." ;
+    sk:independentTest "MCP tool 'trigger_chaos' accepts experiment type (kill_process, network_partition, latency_injection, resource_exhaustion), validates parameters against safety schema (blast_radius, duration_max, rollback_enabled), executes experiment via chaos_executor gen_server, returns experiment_id for tracking. Audit log captures all invocations." ;
+    sk:hasAcceptanceScenario :us-002-as-001, :us-002-as-002, :us-002-as-003 .
+
+:us-002-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Healthy cluster with supervision tree, MCP server with 'trigger_chaos' tool registered" ;
+    sk:when "AI assistant invokes MCP tool: trigger_chaos({experiment: 'kill_random_worker', blast_radius: 0.1, duration_sec: 60, rollback: true})" ;
+    sk:then "Chaos executor kills 10% of worker processes, supervisor restarts workers within 5s, MAPE-K loop detects anomaly and logs recovery, after 60s rollback ensures all workers restored, returns experiment_report with: killed_pids, restart_times, supervisor_actions, mape_k_responses" .
+
+:us-002-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Distributed cluster with 5 nodes communicating via distributed Erlang" ;
+    sk:when "AI assistant invokes: trigger_chaos({experiment: 'network_partition', nodes: ['node1', 'node2'], nodes_b: ['node3', 'node4', 'node5'], duration_sec: 30})" ;
+    sk:then "Network partition created between group A (node1, node2) and group B (node3-5) using iptables/net_kernel:disconnect_node, cluster splits into two partitions, autonomic system detects split-brain via Raft quorum loss, partition heals after 30s, returns partition_report with: netsplit_detected_at, quorum_state_changes, data_reconciliation_actions" .
+
+:us-002-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "Node with latency-sensitive real-time job processing (SLO: p95 <10ms)" ;
+    sk:when "AI assistant invokes: trigger_chaos({experiment: 'latency_injection', target_module: 'job_processor', delay_ms: 50, probability: 0.3, duration_sec: 120})" ;
+    sk:then "30% of job_processor calls delayed by 50ms via process interceptor, p95 latency increases to ~55ms (breaches SLO), MAPE-K loop detects SLO violation, Plan phase proposes 'switch_to_backup_processor', Execute phase activates backup, latency returns to <10ms, experiment report includes: slo_breach_timeline, mape_k_mitigation_actions, effectiveness_score" .
+
+# US-003: Query Failure History for Diagnostics
+:us-003 a sk:UserStory ;
+    sk:storyIndex 3 ;
+    sk:title "Query Historical Failure Data for Root Cause Analysis" ;
+    sk:priority "P1" ;
+    sk:description "As an operator, I want AI assistants to query historical failure data (crash dumps, supervisor restart logs, MAPE-K decision history, error patterns) via MCP resources, so that AI can perform root cause analysis by correlating failures across time and identifying systemic issues" ;
+    sk:priorityRationale "Essential for effective diagnosis. Without historical context, AI cannot distinguish transient failures from systemic problems. MCP resources provide structured access to knowledge base (K in MAPE-K) enabling pattern recognition and predictive analytics." ;
+    sk:independentTest "MCP resource mcp://cluster/failures accepts time range query (last_24h, last_7d, custom range), returns failure events with: timestamp, node, process_pid, exit_reason, supervision_action, mape_k_analysis, similar_failures_count. Supports filtering by error_pattern, node, severity. Response time <500ms for 10k failure records." ;
+    sk:hasAcceptanceScenario :us-003-as-001, :us-003-as-002, :us-003-as-003 .
+
+:us-003-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Knowledge base with 5000 failure events over past 7 days" ;
+    sk:when "AI assistant queries: mcp://cluster/failures?time_range=last_24h&severity=high" ;
+    sk:then "Returns 47 high-severity failures from last 24h, each with: id, timestamp (ISO8601), node, process_name, crash_reason, stacktrace_summary, supervisor_restart_count, mape_k_actions=[{phase, action, outcome}], correlated_events=[event_ids], root_cause_hypothesis='memory_leak_in_worker_pool'" .
+
+:us-003-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Recurring pattern: worker processes crash every 6 hours with 'enomem' error" ;
+    sk:when "AI assistant queries: mcp://cluster/failures?error_pattern=enomem&group_by=time_interval" ;
+    sk:then "Returns time-series aggregation showing: 4 clusters of enomem failures occurring at 00:00, 06:00, 12:00, 18:00 UTC, each cluster has 15-20 failures, pattern_analysis identifies: 'periodic_memory_leak, likely_cause=unflushed_buffers_in_batch_job, recommendation=add_periodic_gc_or_reduce_batch_size'" .
+
+:us-003-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "MAPE-K loop historical decisions stored in knowledge base (1000 decisions)" ;
+    sk:when "AI assistant queries: mcp://cluster/mape-k/decisions?action=isolate_node&outcome=success" ;
+    sk:then "Returns 23 successful node isolations, each showing: trigger_condition, analysis_confidence, plan_alternatives=[{plan, estimated_cost}], execution_duration, validation_metrics={recovery_time_sec, data_loss_bytes, availability_impact}, lessons_learned=['isolation_effective_for_cascading_failures', 'require_quorum_before_isolation']" .
+
+# US-004: Execute Recovery Strategies Manually
+:us-004 a sk:UserStory ;
+    sk:storyIndex 4 ;
+    sk:title "Execute Manual Recovery Strategies via MCP Tools" ;
+    sk:priority "P2" ;
+    sk:description "As a platform engineer, I want AI assistants to execute recovery strategies (restart services, rebalance load, roll back deployments, clear caches) via MCP tools with human approval, so that AI can assist in incident response while maintaining human control over critical operations" ;
+    sk:priorityRationale "High-value for operational efficiency but requires robust safety mechanisms (approval workflows, dry-run mode, rollback). Not blocking for observability and chaos testing capabilities. Enables AI-assisted incident response." ;
+    sk:independentTest "MCP tool 'execute_recovery' accepts strategy JSON (restart_supervisor, rebalance_shards, rollback_deployment), validates against safety constraints, requires human approval token (signed JWT), executes via recovery_orchestrator, returns execution_id and real-time progress updates. All executions audited with cryptographic receipts." ;
+    sk:hasAcceptanceScenario :us-004-as-001, :us-004-as-002, :us-004-as-003 .
+
+:us-004-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Cluster with degraded worker pool (50% workers failing health checks)" ;
+    sk:when "AI assistant proposes recovery: execute_recovery({strategy: 'restart_supervisor', target: 'worker_pool_sup', approval_required: true}), human approves via signed JWT" ;
+    sk:then "Recovery orchestrator validates approval signature, stops worker_pool_sup gracefully (terminate children with 10s timeout), restarts supervisor with fresh state, workers reinitialized, health checks pass for 100% workers, returns execution_report with: downtime_ms=3421, workers_restarted=50, health_recovery_time_ms=8765" .
+
+:us-004-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Distributed system with uneven shard distribution (node1: 80% load, node2: 20% load)" ;
+    sk:when "AI assistant executes: execute_recovery({strategy: 'rebalance_shards', algorithm: 'consistent_hashing', dry_run: true})" ;
+    sk:then "Dry-run mode simulates rebalancing without actual data movement, returns rebalance_plan showing: source_shards=[{shard_id, current_node, size_mb}], target_mappings=[{shard_id, new_node}], estimated_migration_time_sec=45, estimated_load_distribution={node1: 0.52, node2: 0.48}, no actual changes executed" .
+
+:us-004-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "Recent deployment introduced bug causing 10% error rate, previous version stable" ;
+    sk:when "AI assistant executes: execute_recovery({strategy: 'rollback_deployment', from_version: 'v2.1.3', to_version: 'v2.1.2', approval_token: '<signed_jwt>'})" ;
+    sk:then "Orchestrator validates approval, initiates rolling rollback (10% nodes at a time), monitors error rate during rollback, error rate drops from 10% to 0.1% as rollback progresses, rollback completes in 8 minutes, returns rollback_report with: rollback_duration_sec=480, nodes_rolled_back=10, error_rate_improvement=0.099, validation_status='success'" .
+
+# US-005: Scale Clusters on Demand
+:us-005 a sk:UserStory ;
+    sk:storyIndex 5 ;
+    sk:title "Scale Cluster Capacity Dynamically via MCP Tools" ;
+    sk:priority "P2" ;
+    sk:description "As a capacity planner, I want AI assistants to scale clusters (add/remove nodes, resize worker pools, adjust resource limits) via MCP tools based on predicted load, so that AI can proactively optimize resource utilization and prevent capacity-related incidents" ;
+    sk:priorityRationale "Important for cost optimization and performance. Requires integration with orchestration layer (Kubernetes, Docker Swarm, bare metal provisioning). Not critical for initial MCP integration but high value for production autonomic systems." ;
+    sk:independentTest "MCP tool 'scale_cluster' accepts scaling parameters (target_node_count, worker_pool_size, resource_limits), validates against quota and cost policies, triggers provisioning via capacity_manager, monitors scaling progress, returns scaling_id with status updates (provisioning, joining_cluster, ready). Supports both scale-up and scale-down with safety checks." ;
+    sk:hasAcceptanceScenario :us-005-as-001, :us-005-as-002, :us-005-as-003 .
+
+:us-005-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "Cluster with 5 nodes, predicted load increase from 1000 req/sec to 3000 req/sec in next hour (based on historical pattern)" ;
+    sk:when "AI assistant invokes: scale_cluster({action: 'scale_up', target_nodes: 10, reason: 'predicted_load_increase', cost_limit_usd_per_hour: 50})" ;
+    sk:then "Capacity manager validates cost (estimated $35/hour < $50 limit), provisions 5 new nodes via orchestrator API, new nodes join cluster using net_kernel:connect_node, MAPE-K loop updates topology knowledge, returns scaling_report with: nodes_added=5, time_to_ready_sec=120, new_capacity_req_per_sec=3200, actual_cost_usd_per_hour=34.5" .
+
+:us-005-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Cluster with 10 nodes but only 30% average CPU utilization during off-peak hours (midnight-6am)" ;
+    sk:when "AI assistant invokes: scale_cluster({action: 'scale_down', target_nodes: 6, drain_timeout_sec: 300, safety_check: 'ensure_quorum'})" ;
+    sk:then "Capacity manager validates quorum requirement (6 nodes > quorum threshold of 5), drains 4 nodes by redirecting new requests to remaining nodes, waits for in-flight requests to complete (max 300s), gracefully shuts down drained nodes, updates cluster topology, returns scaling_report with: nodes_removed=4, drained_requests=1247, cost_savings_usd_per_hour=28, quorum_maintained=true" .
+
+:us-005-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "Worker pool with 50 workers but queue depth consistently at 500 jobs (workers saturated)" ;
+    sk:when "AI assistant invokes: scale_cluster({action: 'resize_worker_pool', pool_name: 'job_workers', target_size: 100, ramp_rate: 10_per_sec})" ;
+    sk:then "Capacity manager adds workers gradually at 10/sec rate to avoid thundering herd, supervisor spawns new workers under simple_one_for_one strategy, workers register with pool manager, queue depth decreases from 500 to 50 over 30 seconds, returns resize_report with: workers_added=50, ramp_duration_sec=5, queue_drain_time_sec=30, new_throughput_jobs_per_sec=850 (up from 425)" .
+
+# US-006: Subscribe to Real-Time Cluster Events
+:us-006 a sk:UserStory ;
+    sk:storyIndex 6 ;
+    sk:title "Real-Time MCP Subscriptions for Cluster State Changes" ;
+    sk:priority "P1" ;
+    sk:description "As a reliability engineer, I want AI assistants to subscribe to real-time cluster events (node up/down, supervisor restarts, MAPE-K phase transitions, SLO breaches) via MCP subscriptions, so that AI can react immediately to system changes without polling and provide proactive incident response" ;
+    sk:priorityRationale "Critical for real-time autonomic response. Polling introduces latency (seconds to minutes) unacceptable for incident response. Subscriptions enable push-based updates (millisecond latency) required for MAPE-K Monitor phase and proactive interventions." ;
+    sk:independentTest "MCP subscription to mcp://cluster/events accepts event filters (event_type, severity, node_pattern), establishes WebSocket or SSE connection, streams events in real-time as JSON, maintains subscription across reconnections, supports backpressure and event buffering. Event delivery latency <50ms p95." ;
+    sk:hasAcceptanceScenario :us-006-as-001, :us-006-as-002, :us-006-as-003 .
+
+:us-006-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "MCP client connected to cluster, subscription active for event_type='supervisor_restart'" ;
+    sk:when "Worker process crashes and supervisor restarts it" ;
+    sk:then "MCP subscription delivers event within 50ms: {event_type: 'supervisor_restart', timestamp: '2026-01-30T15:23:47.123Z', node: 'node3@host', supervisor: 'worker_pool_sup', child_spec: {id: 'worker_42', restart: 'permanent'}, restart_count: 1, reason: 'normal'}, AI assistant receives notification and correlates with recent failures" .
+
+:us-006-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "Subscription filter: {event_type='mape_k_transition', phase='Execute'}" ;
+    sk:when "MAPE-K loop completes analysis and transitions to Execute phase with planned action 'isolate_node'" ;
+    sk:then "Subscription streams: {event_type: 'mape_k_transition', from_phase: 'Plan', to_phase: 'Execute', timestamp: '2026-01-30T15:24:01.456Z', planned_actions: [{action: 'isolate_node', target: 'node5', reason: 'cascading_failures_detected'}], confidence: 0.91}, AI assistant monitors execution and prepares rollback if action fails" .
+
+:us-006-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "Subscription with backpressure control: max_events_per_sec=100, buffer_size=1000" ;
+    sk:when "Cluster experiences cascading failure generating 500 events/sec for 10 seconds (5000 total events)" ;
+    sk:then "Subscription buffers events up to 1000, applies rate limiting to deliver 100 events/sec to client, oldest events dropped if buffer full (drop policy: 'drop_oldest'), client receives: {events: [...], dropped_count: 4000, rate_limited: true, backpressure_active: true}, AI assistant adjusts subscription filter to focus on high-severity events only" .
+
+# ============================================================================
+# SPECIFICATION CLOSURE CHECKLIST
+# ============================================================================
+
+:ErlmcpIntegrationSpec a spec:SpecificationChecklist ;
+    rdfs:label "Erlmcp MCP Integration Specification Closure" ;
+    spec:completionStatus "100%" ;
+    spec:section1_MCPServer :ChecklistMCPServer ;
+    spec:section2_Resources :ChecklistResources ;
+    spec:section3_Tools :ChecklistTools ;
+    spec:section4_Subscriptions :ChecklistSubscriptions ;
+    spec:section5_Security :ChecklistSecurity ;
+    spec:section6_Integration :ChecklistIntegration ;
+    spec:section7_Testing :ChecklistTesting ;
+    spec:section8_Documentation :ChecklistDocumentation .
+
+:ChecklistMCPServer a spec:Section ;
+    rdfs:label "MCP Server Implementation" ;
+    spec:item1 "gen_server implementing MCP protocol (JSON-RPC 2.0 over stdio/HTTP/WebSocket)" ;
+    spec:item2 "Protocol version negotiation (supports MCP 1.0)" ;
+    spec:item3 "Capability advertisement (resources, tools, subscriptions)" ;
+    spec:item4 "Request routing to resource/tool handlers" ;
+    spec:item5 "Error handling with MCP error codes (-32700 parse error, -32600 invalid request, etc.)" ;
+    spec:item6 "Connection lifecycle management (initialize, initialized, shutdown)" ;
+    spec:completed "true" .
+
+:ChecklistResources a spec:Section ;
+    rdfs:label "MCP Resources (Observability)" ;
+    spec:item1 "mcp://cluster/health - Node health, supervision trees, MAPE-K state" ;
+    spec:item2 "mcp://cluster/metrics - CPU, memory, process counts, message queue depths" ;
+    spec:item3 "mcp://cluster/failures - Historical failure data with time-range queries" ;
+    spec:item4 "mcp://cluster/mape-k - MAPE-K loop state and decision history" ;
+    spec:item5 "mcp://cluster/topology - Cluster topology, node connections, shard distribution" ;
+    spec:item6 "Resource schema validation (JSON Schema for each resource)" ;
+    spec:item7 "Query parameter support (filtering, pagination, time ranges)" ;
+    spec:completed "true" .
+
+:ChecklistTools a spec:Section ;
+    rdfs:label "MCP Tools (Actuation)" ;
+    spec:item1 "trigger_chaos - Chaos engineering experiments (kill, partition, latency, exhaustion)" ;
+    spec:item2 "execute_recovery - Recovery strategies (restart, rebalance, rollback)" ;
+    spec:item3 "scale_cluster - Dynamic scaling (add/remove nodes, resize pools)" ;
+    spec:item4 "update_config - Runtime configuration updates" ;
+    spec:item5 "Input validation against JSON Schema for all tools" ;
+    spec:item6 "Approval workflow for destructive operations (signed JWT)" ;
+    spec:item7 "Dry-run mode for safe testing" ;
+    spec:item8 "Audit logging with cryptographic receipts" ;
+    spec:completed "true" .
+
+:ChecklistSubscriptions a spec:Section ;
+    rdfs:label "MCP Subscriptions (Real-Time Events)" ;
+    spec:item1 "mcp://cluster/events - Supervisor restarts, node up/down, MAPE-K transitions" ;
+    spec:item2 "WebSocket transport for bi-directional streaming" ;
+    spec:item3 "SSE (Server-Sent Events) transport for unidirectional streaming" ;
+    spec:item4 "Event filtering (event_type, severity, node, time window)" ;
+    spec:item5 "Backpressure control (rate limiting, buffering, drop policies)" ;
+    spec:item6 "Reconnection handling with event replay from last_event_id" ;
+    spec:item7 "Subscription lifecycle (subscribe, unsubscribe, subscription_id tracking)" ;
+    spec:completed "true" .
+
+:ChecklistSecurity a spec:Section ;
+    rdfs:label "Security and Authorization" ;
+    spec:item1 "Authentication via API keys or OAuth2 tokens" ;
+    spec:item2 "Authorization policies (read-only vs. write capabilities)" ;
+    spec:item3 "Approval workflow for destructive tools (signed JWT with exp/iat validation)" ;
+    spec:item4 "Audit log for all tool invocations (immutable append-only log)" ;
+    spec:item5 "Rate limiting per client (prevent DoS)" ;
+    spec:item6 "Input sanitization to prevent injection attacks" ;
+    spec:item7 "TLS encryption for network transport" ;
+    spec:completed "true" .
+
+:ChecklistIntegration a spec:Section ;
+    rdfs:label "Integration with Autonomic System" ;
+    spec:item1 "MAPE-K loop integration (expose loop state, trigger external plans)" ;
+    spec:item2 "Chaos executor integration (safe chaos injection API)" ;
+    spec:item3 "Supervisor tree introspection (sys:get_status, which_children)" ;
+    spec:item4 "Knowledge base integration (query failure history, CRDT sync)" ;
+    spec:item5 "Capacity manager integration (orchestrator API for scaling)" ;
+    spec:item6 "Metrics collector integration (export Prometheus/StatsD metrics)" ;
+    spec:completed "true" .
+
+:ChecklistTesting a spec:Section ;
+    rdfs:label "Testing Strategy" ;
+    spec:item1 "EUnit tests for MCP protocol handling (request/response cycles)" ;
+    spec:item2 "common_test suites for resource/tool integration tests" ;
+    spec:item3 "PropEr tests for subscription event delivery guarantees" ;
+    spec:item4 "Chaos testing: MCP server resilience to network failures, client crashes" ;
+    spec:item5 "Load testing: 100 concurrent subscriptions, 1000 resource reads/sec" ;
+    spec:item6 "Security testing: unauthorized access, invalid approval tokens, injection attacks" ;
+    spec:item7 "End-to-end testing with real AI assistant client (Claude/GPT-4)" ;
+    spec:completed "true" .
+
+:ChecklistDocumentation a spec:Section ;
+    rdfs:label "Documentation (Diataxis Framework)" ;
+    spec:item1 "Tutorial: MCP setup for Erlang cluster (15-minute quickstart)" ;
+    spec:item2 "How-To: Register custom resources and tools" ;
+    spec:item3 "How-To: Configure AI assistant with MCP server endpoint" ;
+    spec:item4 "How-To: Set up approval workflows for production" ;
+    spec:item5 "Reference: MCP resource schemas (JSON Schema definitions)" ;
+    spec:item6 "Reference: MCP tool signatures and parameters" ;
+    spec:item7 "Explanation: MCP architecture and MAPE-K integration" ;
+    spec:item8 "Explanation: Security model and threat analysis" ;
+    spec:completed "true" .
+
+# ============================================================================
+# ONTOLOGY: MCP INTEGRATION DOMAIN MODEL
+# ============================================================================
+
+# MCP Server (OTP Application)
+:MCPServer a mcp:ServerApplication ;
+    mcp:name "erlmcp" ;
+    mcp:version "1.0.0" ;
+    mcp:protocol "MCP/1.0" ;
+    mcp:transports ( mcp:Stdio mcp:HTTP mcp:WebSocket ) ;
+    mcp:capabilities [
+        mcp:resources true ;
+        mcp:tools true ;
+        mcp:subscriptions true ;
+    ] ;
+    mcp:supervisor :MCPServerSupervisor ;
+    rdfs:comment "Main MCP server OTP application providing AI assistants with observability, actuation, and real-time event streaming for autonomic computing cluster" .
+
+:MCPServerSupervisor a mcp:Supervisor ;
+    mcp:strategy "one_for_one" ;
+    mcp:children (
+        :ResourceHandler
+        :ToolHandler
+        :SubscriptionManager
+        :AuditLogger
+    ) .
+
+# Resource Definitions
+:ClusterHealthResource a mcp:Resource ;
+    mcp:uri "mcp://cluster/health" ;
+    mcp:mimeType "application/json" ;
+    mcp:handler "erlmcp_resources:cluster_health/1" ;
+    mcp:schema :ClusterHealthSchema ;
+    mcp:subscriptionSupported true ;
+    mcp:cacheable false ;
+    rdfs:comment "Real-time cluster health including node status, supervision trees, MAPE-K loop state" .
+
+:ClusterHealthSchema a mcp:JSONSchema ;
+    mcp:schemaDefinition """{
+  "type": "object",
+  "properties": {
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "status": {"enum": ["up", "down", "degraded"]},
+          "uptime_sec": {"type": "integer"},
+          "process_count": {"type": "integer"},
+          "memory_mb": {"type": "number"},
+          "cpu_percent": {"type": "number"},
+          "supervision_tree": {"type": "object"},
+          "mape_k_phase": {"enum": ["Monitor", "Analyze", "Plan", "Execute", "Knowledge"]}
+        },
+        "required": ["name", "status", "mape_k_phase"]
+      }
+    },
+    "cluster_status": {"enum": ["healthy", "degraded", "critical"]},
+    "timestamp": {"type": "string", "format": "date-time"}
+  },
+  "required": ["nodes", "cluster_status", "timestamp"]
+}""" .
+
+:FailureHistoryResource a mcp:Resource ;
+    mcp:uri "mcp://cluster/failures" ;
+    mcp:mimeType "application/json" ;
+    mcp:handler "erlmcp_resources:failure_history/1" ;
+    mcp:schema :FailureHistorySchema ;
+    mcp:queryParameters [
+        mcp:param "time_range" ;
+        mcp:param "severity" ;
+        mcp:param "error_pattern" ;
+        mcp:param "node" ;
+        mcp:param "limit" ;
+    ] ;
+    rdfs:comment "Historical failure data for root cause analysis and pattern detection" .
+
+:FailureHistorySchema a mcp:JSONSchema ;
+    mcp:schemaDefinition """{
+  "type": "object",
+  "properties": {
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "timestamp": {"type": "string", "format": "date-time"},
+          "node": {"type": "string"},
+          "process_pid": {"type": "string"},
+          "crash_reason": {"type": "string"},
+          "stacktrace": {"type": "string"},
+          "supervisor_action": {"enum": ["restart", "shutdown", "ignore"]},
+          "mape_k_analysis": {"type": "object"},
+          "similar_failures_count": {"type": "integer"},
+          "root_cause_hypothesis": {"type": "string"}
+        }
+      }
+    },
+    "total_count": {"type": "integer"},
+    "time_range": {"type": "object"}
+  }
+}""" .
+
+:MAPEKStateResource a mcp:Resource ;
+    mcp:uri "mcp://cluster/mape-k" ;
+    mcp:mimeType "application/json" ;
+    mcp:handler "erlmcp_resources:mape_k_state/1" ;
+    mcp:schema :MAPEKStateSchema ;
+    mcp:subscriptionSupported true ;
+    rdfs:comment "Current MAPE-K loop state, phase transitions, and decision history" .
+
+:MAPEKStateSchema a mcp:JSONSchema ;
+    mcp:schemaDefinition """{
+  "type": "object",
+  "properties": {
+    "current_phase": {"enum": ["Monitor", "Analyze", "Plan", "Execute", "Knowledge"]},
+    "phase_duration_ms": {"type": "integer"},
+    "analysis_results": {"type": "object"},
+    "planned_actions": {"type": "array"},
+    "confidence_score": {"type": "number", "minimum": 0, "maximum": 1},
+    "decision_history": {"type": "array"}
+  }
+}""" .
+
+# Tool Definitions
+:TriggerChaosTool a mcp:Tool ;
+    mcp:name "trigger_chaos" ;
+    mcp:description "Trigger controlled chaos engineering experiments (kill processes, partition network, inject latency, exhaust resources)" ;
+    mcp:handler "erlmcp_tools:trigger_chaos/1" ;
+    mcp:inputSchema :ChaosInputSchema ;
+    mcp:outputSchema :ChaosOutputSchema ;
+    mcp:requiresApproval false ;  # Can be overridden in production config
+    mcp:destructive true ;
+    mcp:rollbackSupported true ;
+    rdfs:comment "Chaos engineering tool for resilience validation and failure mode discovery" .
+
+:ChaosInputSchema a mcp:JSONSchema ;
+    mcp:schemaDefinition """{
+  "type": "object",
+  "properties": {
+    "experiment": {
+      "enum": ["kill_process", "kill_random_worker", "network_partition", "latency_injection", "resource_exhaustion"]
+    },
+    "blast_radius": {"type": "number", "minimum": 0, "maximum": 1},
+    "duration_sec": {"type": "integer", "minimum": 1, "maximum": 3600},
+    "rollback": {"type": "boolean", "default": true},
+    "target_node": {"type": "string"},
+    "target_module": {"type": "string"},
+    "parameters": {"type": "object"}
+  },
+  "required": ["experiment", "duration_sec"]
+}""" .
+
+:ChaosOutputSchema a mcp:JSONSchema ;
+    mcp:schemaDefinition """{
+  "type": "object",
+  "properties": {
+    "experiment_id": {"type": "string"},
+    "status": {"enum": ["running", "completed", "rolled_back", "failed"]},
+    "experiment_report": {
+      "type": "object",
+      "properties": {
+        "affected_processes": {"type": "array"},
+        "supervisor_actions": {"type": "array"},
+        "mape_k_responses": {"type": "array"},
+        "recovery_time_ms": {"type": "integer"}
+      }
+    }
+  }
+}""" .
+
+:ExecuteRecoveryTool a mcp:Tool ;
+    mcp:name "execute_recovery" ;
+    mcp:description "Execute recovery strategies (restart services, rebalance load, roll back deployments)" ;
+    mcp:handler "erlmcp_tools:execute_recovery/1" ;
+    mcp:inputSchema :RecoveryInputSchema ;
+    mcp:outputSchema :RecoveryOutputSchema ;
+    mcp:requiresApproval true ;  # Human approval required for production
+    mcp:destructive true ;
+    rdfs:comment "Recovery orchestration tool with approval workflow for incident response" .
+
+:RecoveryInputSchema a mcp:JSONSchema ;
+    mcp:schemaDefinition """{
+  "type": "object",
+  "properties": {
+    "strategy": {
+      "enum": ["restart_supervisor", "rebalance_shards", "rollback_deployment", "clear_cache", "drain_node"]
+    },
+    "target": {"type": "string"},
+    "approval_token": {"type": "string"},
+    "dry_run": {"type": "boolean", "default": false},
+    "parameters": {"type": "object"}
+  },
+  "required": ["strategy", "target"]
+}""" .
+
+:RecoveryOutputSchema a mcp:JSONSchema ;
+    mcp:schemaDefinition """{
+  "type": "object",
+  "properties": {
+    "execution_id": {"type": "string"},
+    "status": {"enum": ["pending_approval", "executing", "completed", "failed", "dry_run"]},
+    "execution_report": {"type": "object"}
+  }
+}""" .
+
+:ScaleClusterTool a mcp:Tool ;
+    mcp:name "scale_cluster" ;
+    mcp:description "Scale cluster capacity dynamically (add/remove nodes, resize worker pools)" ;
+    mcp:handler "erlmcp_tools:scale_cluster/1" ;
+    mcp:inputSchema :ScalingInputSchema ;
+    mcp:outputSchema :ScalingOutputSchema ;
+    mcp:requiresApproval true ;
+    rdfs:comment "Capacity management tool for proactive scaling based on predicted load" .
+
+:ScalingInputSchema a mcp:JSONSchema ;
+    mcp:schemaDefinition """{
+  "type": "object",
+  "properties": {
+    "action": {"enum": ["scale_up", "scale_down", "resize_worker_pool"]},
+    "target_nodes": {"type": "integer", "minimum": 1},
+    "worker_pool_name": {"type": "string"},
+    "target_size": {"type": "integer"},
+    "cost_limit_usd_per_hour": {"type": "number"},
+    "drain_timeout_sec": {"type": "integer", "default": 300},
+    "safety_check": {"type": "string"}
+  }
+}""" .
+
+:ScalingOutputSchema a mcp:JSONSchema ;
+    mcp:schemaDefinition """{
+  "type": "object",
+  "properties": {
+    "scaling_id": {"type": "string"},
+    "status": {"enum": ["provisioning", "joining", "ready", "draining", "completed"]},
+    "scaling_report": {"type": "object"}
+  }
+}""" .
+
+# Subscription Definitions
+:ClusterEventsSubscription a mcp:Subscription ;
+    mcp:uri "mcp://cluster/events" ;
+    mcp:transport mcp:WebSocket ;
+    mcp:handler "erlmcp_subscriptions:cluster_events/1" ;
+    mcp:eventTypes (
+        "supervisor_restart"
+        "node_up"
+        "node_down"
+        "mape_k_transition"
+        "slo_breach"
+        "chaos_experiment_started"
+        "chaos_experiment_completed"
+    ) ;
+    mcp:filters [
+        mcp:filter "event_type" ;
+        mcp:filter "severity" ;
+        mcp:filter "node_pattern" ;
+    ] ;
+    mcp:backpressure [
+        mcp:maxEventsPerSec 100 ;
+        mcp:bufferSize 1000 ;
+        mcp:dropPolicy "drop_oldest" ;
+    ] ;
+    rdfs:comment "Real-time event streaming for proactive incident response and monitoring" .
+
+# Integration Points
+:ClusterObserver a mcp:IntegrationComponent ;
+    mcp:type "Observer" ;
+    mcp:role "Collects cluster health metrics and supervision tree state for MCP resources" ;
+    mcp:interfaces (
+        :ObserverToResourceHandler
+    ) ;
+    rdfs:comment "gen_server monitoring cluster state using observer callbacks, net_kernel events, and supervisor introspection" .
+
+:ChaosExecutor a mcp:IntegrationComponent ;
+    mcp:type "Executor" ;
+    mcp:role "Safely executes chaos experiments triggered via MCP tools" ;
+    mcp:interfaces (
+        :ToolHandlerToChaosExecutor
+    ) ;
+    mcp:safetyMechanisms (
+        "blast_radius_limit"
+        "automatic_rollback"
+        "experiment_timeout"
+    ) ;
+    rdfs:comment "gen_server executing chaos experiments with safety constraints and audit logging" .
+
+:FailureAnalyzer a mcp:IntegrationComponent ;
+    mcp:type "Analyzer" ;
+    mcp:role "Aggregates failure data from knowledge base for pattern detection and root cause analysis" ;
+    mcp:interfaces (
+        :ResourceHandlerToKnowledgeBase
+    ) ;
+    rdfs:comment "Queries CRDT-replicated knowledge base for historical failure analysis" .
+
+:RecoveryOrchestrator a mcp:IntegrationComponent ;
+    mcp:type "Orchestrator" ;
+    mcp:role "Executes recovery strategies with approval workflow and audit trail" ;
+    mcp:interfaces (
+        :ToolHandlerToRecoveryOrchestrator
+        :ApprovalService
+    ) ;
+    rdfs:comment "Coordinates recovery actions across cluster with human-in-the-loop approval" .
+
+:CapacityManager a mcp:IntegrationComponent ;
+    mcp:type "Manager" ;
+    mcp:role "Manages dynamic scaling via orchestrator APIs (Kubernetes, Docker Swarm, bare metal)" ;
+    mcp:interfaces (
+        :ToolHandlerToCapacityManager
+        :OrchestratorAPI
+    ) ;
+    rdfs:comment "Handles cluster scaling with cost optimization and quota enforcement" .
+
+:EventStream a mcp:IntegrationComponent ;
+    mcp:type "Stream" ;
+    mcp:role "Pub/sub event bus for real-time subscription delivery" ;
+    mcp:interfaces (
+        :SubscriptionManagerToEventStream
+        :MAPEKLoopToEventStream
+    ) ;
+    mcp:eventSources (
+        "supervisor_callbacks"
+        "mape_k_loop"
+        "chaos_executor"
+        "net_kernel"
+    ) ;
+    rdfs:comment "gen_event-based event aggregation and distribution with backpressure control" .
+
+# ============================================================================
+# COMPLETION CRITERIA
+# ============================================================================
+
+:CompletionCriteria a spec:Checklist ;
+    rdfs:label "Erlmcp MCP Integration Implementation Completion" ;
+    spec:criterion1 "MCP server starts as OTP application with supervision tree" ;
+    spec:criterion2 "Resources (health, failures, mape-k) return valid JSON matching schemas" ;
+    spec:criterion3 "Tools (chaos, recovery, scaling) execute with parameter validation" ;
+    spec:criterion4 "Subscriptions deliver real-time events with <50ms p95 latency" ;
+    spec:criterion5 "Approval workflow validates signed JWT tokens for destructive operations" ;
+    spec:criterion6 "Audit log captures all tool invocations with cryptographic receipts" ;
+    spec:criterion7 "Integration tests verify MAPE-K loop interaction with MCP server" ;
+    spec:criterion8 "Chaos experiments execute safely with automatic rollback" ;
+    spec:criterion9 "Failure history queries return results in <500ms for 10k records" ;
+    spec:criterion10 "Scaling operations integrate with Kubernetes API (or Docker Swarm)" ;
+    spec:criterion11 "Load testing validates 100 concurrent subscriptions, 1000 resource reads/sec" ;
+    spec:criterion12 "Security testing confirms unauthorized access is blocked" ;
+    spec:criterion13 "PropEr tests verify subscription event delivery guarantees" ;
+    spec:criterion14 "End-to-end test with Claude/GPT-4 client successfully observes and actuates" ;
+    spec:criterion15 "Documentation complete (Tutorial, How-To, Reference, Explanation)" ;
+    spec:criterion16 "Zero dialyzer warnings in MCP server modules" ;
+    spec:criterion17 "All EUnit and common_test suites pass (rebar3 test)" ;
+    spec:criterion18 "MCP protocol compliance validated against reference implementation" .

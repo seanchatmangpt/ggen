@@ -1,0 +1,902 @@
+%%%-------------------------------------------------------------------
+%%% @doc
+%%% MCP Resource Handlers - Autonomic System State Exposure
+%%%
+%%% This gen_server implements Model Context Protocol (MCP) resource handlers
+%%% that expose autonomic system state for monitoring, debugging, and integration.
+%%% It provides 10 specialized resource endpoints for querying MAPE-K loop state,
+%%% cluster health, chaos engineering reports, and SLO compliance metrics.
+%%%
+%%% Generated from RDF specification:
+%%% {% raw %}{{ spec_uri }}{% endraw %}
+%%%
+%%% @end
+%%%-------------------------------------------------------------------
+-module({% raw %}{{ module_name | default(value="mcp_resource_handlers") }}{% endraw %}).
+-behaviour(gen_server).
+
+%% API exports - Resource Handler Functions
+-export([start_link/0, start_link/1]).
+-export([
+    cluster_health/1,
+    mape_k_phases/1,
+    knowledge_failures/1,
+    chaos_report/1,
+    topology_nodes/1,
+    slo_compliance/1,
+    strategy_effectiveness/1,
+    active_chaos/1,
+    prometheus_snapshot/1,
+    backends_health/1
+]).
+
+%% MCP Protocol exports
+-export([get_resource/1, list_resources/0]).
+
+%% gen_server callbacks
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2,
+         terminate/2, code_change/3]).
+
+%% Internal helper exports
+-export([
+    failure_to_map/1,
+    chaos_report_to_map/1,
+    topology_to_graph/1,
+    encode_timestamp/1
+]).
+
+-define(SERVER, ?MODULE).
+-define(DEFAULT_CACHE_TTL_MS, {% raw %}{{ cache_ttl_ms | default(value="5000") }}{% endraw %}).
+-define(PROMETHEUS_ENDPOINT, {% raw %}{{ prometheus_endpoint | default(value="http://localhost:9090/api/v1/query") }}{% endraw %}).
+
+%%%===================================================================
+%%% RDF Configuration Extraction via SPARQL
+%%%===================================================================
+%{% raw %}% SPARQL Query: Extract MCP resource configuration
+%% PREFIX mcp: <http://ggen.io/ontology/mcp#>
+%% PREFIX mape: <http://ggen.io/ontology/mape-k#>
+%%
+%% SELECT ?resource ?uri_pattern ?handler ?cache_ttl ?auth_required
+%% WHERE {
+%%   ?resource a mcp:Resource ;
+%%             mcp:uriPattern ?uri_pattern ;
+%%             mcp:handlerFunction ?handler ;
+%%             mcp:cacheTTL ?cache_ttl ;
+%%             mcp:authRequired ?auth_required .
+%% }{% endraw %}
+
+-record(state, {
+    %% Configuration from RDF
+    cache_ttl :: pos_integer(),
+    auth_enabled :: boolean(),
+    resource_registry :: #{binary() => resource_config()},
+
+    %% Runtime caching
+    cache = #{} :: #{cache_key() => cache_entry()},
+
+    %% Integration state
+    mape_k_pid :: pid() | undefined,
+    chaos_pid :: pid() | undefined,
+    monitor_pid :: pid() | undefined,
+
+    %% Statistics
+    request_count = 0 :: non_neg_integer(),
+    cache_hits = 0 :: non_neg_integer(),
+    cache_misses = 0 :: non_neg_integer()
+}).
+
+-type resource_config() :: #{
+    uri_pattern => binary(),
+    handler => atom(),
+    cache_ttl => pos_integer(),
+    auth_required => boolean(),
+    description => binary()
+}.
+
+-type cache_key() :: {resource, binary()}.
+-type cache_entry() :: #{
+    value => term(),
+    timestamp => erlang:timestamp(),
+    ttl => pos_integer()
+}.
+
+-type resource_result() :: {ok, binary()} | {error, term()}.
+
+%%%===================================================================
+%%% Type Specifications for Domain Models
+%%%===================================================================
+
+-type cluster_health() :: #{
+    nodes => [node_health()],
+    overall_health => healthy | degraded | critical,
+    availability_percent => float(),
+    timestamp => pos_integer()
+}.
+
+-type node_health() :: #{
+    node => atom(),
+    status => up | down | unknown,
+    memory_usage => number(),
+    cpu_load => float(),
+    process_count => pos_integer()
+}.
+
+-type mape_k_phase_timing() :: #{
+    phase => monitor | analyze | plan | execute | knowledge,
+    avg_duration_ms => float(),
+    max_duration_ms => float(),
+    min_duration_ms => float(),
+    iterations => pos_integer(),
+    last_execution => erlang:timestamp()
+}.
+
+-type failure_record() :: #{
+    id => binary(),
+    node => atom(),
+    severity => critical | warning | info,
+    component => binary(),
+    error => binary(),
+    timestamp => erlang:timestamp(),
+    recovery_attempted => boolean()
+}.
+
+-type chaos_report() :: #{
+    experiment_id => binary(),
+    type => network_partition | node_crash | resource_exhaustion | latency_injection,
+    status => running | completed | failed,
+    start_time => erlang:timestamp(),
+    duration_ms => pos_integer(),
+    affected_nodes => [atom()],
+    metrics => #{atom() => number()}
+}.
+
+-type slo_metric() :: #{
+    name => binary(),
+    target => float(),
+    current => float(),
+    compliant => boolean(),
+    breach_count => non_neg_integer(),
+    window => pos_integer()
+}.
+
+-type topology_graph() :: #{
+    nodes => [graph_node()],
+    edges => [graph_edge()],
+    metadata => #{atom() => term()}
+}.
+
+-type graph_node() :: #{
+    id => binary(),
+    label => binary(),
+    type => erlang_node | service | database,
+    metadata => #{atom() => term()}
+}.
+
+-type graph_edge() :: #{
+    source => binary(),
+    target => binary(),
+    type => connection | dependency | replication,
+    weight => float()
+}.
+
+%%%===================================================================
+%%% API Functions
+%%%===================================================================
+
+-spec start_link() -> {ok, pid()} | {error, term()}.
+start_link() ->
+    start_link(#{}).
+
+-spec start_link(Config :: map()) -> {ok, pid()} | {error, term()}.
+start_link(Config) ->
+    gen_server:start_link({local, ?SERVER}, ?MODULE, [Config], []).
+
+%%%===================================================================
+%%% Resource Handler Functions (10 Total)
+%%%===================================================================
+
+%% @doc Resource #1: Cluster Health - Overall cluster health status
+-spec cluster_health(Uri :: binary()) -> resource_result().
+cluster_health(_Uri) ->
+    try
+        Health = get_cluster_health_internal(),
+        Json = jsx:encode(Health),
+        {ok, Json}
+    catch
+        Class:Reason:Stacktrace ->
+            error_logger:error_msg("cluster_health failed: ~p:~p~n~p~n",
+                [Class, Reason, Stacktrace]),
+            {error, {Class, Reason}}
+    end.
+
+%% @doc Resource #2: MAPE-K Phase Timings - Performance metrics for each MAPE-K phase
+-spec mape_k_phases(Uri :: binary()) -> resource_result().
+mape_k_phases(_Uri) ->
+    try
+        Timings = get_mape_k_phase_timings(),
+        Json = jsx:encode(#{
+            phases => Timings,
+            total_iterations => calculate_total_iterations(Timings),
+            timestamp => erlang:system_time(second)
+        }),
+        {ok, Json}
+    catch
+        Class:Reason:Stacktrace ->
+            error_logger:error_msg("mape_k_phases failed: ~p:~p~n~p~n",
+                [Class, Reason, Stacktrace]),
+            {error, {Class, Reason}}
+    end.
+
+%% @doc Resource #3: Knowledge Failures - Failed knowledge base operations
+-spec knowledge_failures(Uri :: binary()) -> resource_result().
+knowledge_failures(_Uri) ->
+    try
+        Failures = get_knowledge_failures(),
+        FailureMaps = [failure_to_map(F) || F <- Failures],
+        Json = jsx:encode(#{
+            failures => FailureMaps,
+            count => length(FailureMaps),
+            timestamp => erlang:system_time(second)
+        }),
+        {ok, Json}
+    catch
+        Class:Reason:Stacktrace ->
+            error_logger:error_msg("knowledge_failures failed: ~p:~p~n~p~n",
+                [Class, Reason, Stacktrace]),
+            {error, {Class, Reason}}
+    end.
+
+%% @doc Resource #4: Chaos Report - Active chaos engineering experiments
+-spec chaos_report(Uri :: binary()) -> resource_result().
+chaos_report(_Uri) ->
+    try
+        Reports = get_chaos_reports(),
+        ReportMaps = [chaos_report_to_map(R) || R <- Reports],
+        Json = jsx:encode(#{
+            experiments => ReportMaps,
+            active_count => length([R || R <- Reports, maps:get(status, R) =:= running]),
+            timestamp => erlang:system_time(second)
+        }),
+        {ok, Json}
+    catch
+        Class:Reason:Stacktrace ->
+            error_logger:error_msg("chaos_report failed: ~p:~p~n~p~n",
+                [Class, Reason, Stacktrace]),
+            {error, {Class, Reason}}
+    end.
+
+%% @doc Resource #5: Topology Nodes - D3.js-compatible network topology graph
+-spec topology_nodes(Uri :: binary()) -> resource_result().
+topology_nodes(_Uri) ->
+    try
+        Topology = get_cluster_topology(),
+        Graph = topology_to_graph(Topology),
+        Json = jsx:encode(Graph),
+        {ok, Json}
+    catch
+        Class:Reason:Stacktrace ->
+            error_logger:error_msg("topology_nodes failed: ~p:~p~n~p~n",
+                [Class, Reason, Stacktrace]),
+            {error, {Class, Reason}}
+    end.
+
+%% @doc Resource #6: SLO Compliance - Service Level Objective compliance metrics
+-spec slo_compliance(Uri :: binary()) -> resource_result().
+slo_compliance(_Uri) ->
+    try
+        Metrics = get_slo_metrics(),
+        CompliantCount = length([M || M <- Metrics, maps:get(compliant, M) =:= true]),
+        Json = jsx:encode(#{
+            metrics => Metrics,
+            total_slos => length(Metrics),
+            compliant_count => CompliantCount,
+            compliance_rate => case length(Metrics) of
+                0 -> 1.0;
+                Total -> CompliantCount / Total
+            end,
+            timestamp => erlang:system_time(second)
+        }),
+        {ok, Json}
+    catch
+        Class:Reason:Stacktrace ->
+            error_logger:error_msg("slo_compliance failed: ~p:~p~n~p~n",
+                [Class, Reason, Stacktrace]),
+            {error, {Class, Reason}}
+    end.
+
+%% @doc Resource #7: Strategy Effectiveness - Autonomic strategy success rates
+-spec strategy_effectiveness(Uri :: binary()) -> resource_result().
+strategy_effectiveness(_Uri) ->
+    try
+        Strategies = get_strategy_effectiveness(),
+        Json = jsx:encode(#{
+            strategies => Strategies,
+            overall_effectiveness => calculate_overall_effectiveness(Strategies),
+            timestamp => erlang:system_time(second)
+        }),
+        {ok, Json}
+    catch
+        Class:Reason:Stacktrace ->
+            error_logger:error_msg("strategy_effectiveness failed: ~p:~p~n~p~n",
+                [Class, Reason, Stacktrace]),
+            {error, {Class, Reason}}
+    end.
+
+%% @doc Resource #8: Active Chaos - Currently running chaos experiments
+-spec active_chaos(Uri :: binary()) -> resource_result().
+active_chaos(_Uri) ->
+    try
+        Active = get_active_chaos_experiments(),
+        Json = jsx:encode(#{
+            experiments => Active,
+            count => length(Active),
+            timestamp => erlang:system_time(second)
+        }),
+        {ok, Json}
+    catch
+        Class:Reason:Stacktrace ->
+            error_logger:error_msg("active_chaos failed: ~p:~p~n~p~n",
+                [Class, Reason, Stacktrace]),
+            {error, {Class, Reason}}
+    end.
+
+%% @doc Resource #9: Prometheus Snapshot - Current Prometheus metrics snapshot
+-spec prometheus_snapshot(Uri :: binary()) -> resource_result().
+prometheus_snapshot(_Uri) ->
+    try
+        Snapshot = query_prometheus_metrics(),
+        Json = jsx:encode(Snapshot),
+        {ok, Json}
+    catch
+        Class:Reason:Stacktrace ->
+            error_logger:error_msg("prometheus_snapshot failed: ~p:~p~n~p~n",
+                [Class, Reason, Stacktrace]),
+            {error, {Class, Reason}}
+    end.
+
+%% @doc Resource #10: Backends Health - Health status of all backend services
+-spec backends_health(Uri :: binary()) -> resource_result().
+backends_health(_Uri) ->
+    try
+        Backends = get_backends_health(),
+        HealthyCount = length([B || B <- Backends, maps:get(healthy, B) =:= true]),
+        Json = jsx:encode(#{
+            backends => Backends,
+            total => length(Backends),
+            healthy_count => HealthyCount,
+            availability => case length(Backends) of
+                0 -> 1.0;
+                Total -> HealthyCount / Total
+            end,
+            timestamp => erlang:system_time(second)
+        }),
+        {ok, Json}
+    catch
+        Class:Reason:Stacktrace ->
+            error_logger:error_msg("backends_health failed: ~p:~p~n~p~n",
+                [Class, Reason, Stacktrace]),
+            {error, {Class, Reason}}
+    end.
+
+%%%===================================================================
+%%% MCP Protocol Functions
+%%%===================================================================
+
+%% @doc Get a specific resource by URI
+-spec get_resource(Uri :: binary()) -> resource_result().
+get_resource(Uri) ->
+    gen_server:call(?SERVER, {get_resource, Uri}).
+
+%% @doc List all available MCP resources
+-spec list_resources() -> {ok, [resource_config()]}.
+list_resources() ->
+    gen_server:call(?SERVER, list_resources).
+
+%%%===================================================================
+%%% gen_server callbacks
+%%%===================================================================
+
+init([Config]) ->
+    process_flag(trap_exit, true),
+
+    %% Extract configuration from RDF
+    CacheTTL = maps:get(cache_ttl, Config, ?DEFAULT_CACHE_TTL_MS),
+    AuthEnabled = maps:get(auth_enabled, Config, false),
+
+    %% Initialize resource registry
+    Registry = initialize_resource_registry(),
+
+    %% Locate MAPE-K components
+    MapeKPid = whereis(mape_k_loop),
+    ChaosPid = whereis(chaos_coordinator),
+    MonitorPid = whereis(mape_k_monitor),
+
+    State = #state{
+        cache_ttl = CacheTTL,
+        auth_enabled = AuthEnabled,
+        resource_registry = Registry,
+        mape_k_pid = MapeKPid,
+        chaos_pid = ChaosPid,
+        monitor_pid = MonitorPid
+    },
+
+    {ok, State}.
+
+handle_call({get_resource, Uri}, _From, State) ->
+    %% Check cache first
+    case check_cache(Uri, State) of
+        {hit, Value} ->
+            NewState = State#state{
+                request_count = State#state.request_count + 1,
+                cache_hits = State#state.cache_hits + 1
+            },
+            {reply, {ok, Value}, NewState};
+        miss ->
+            %% Dispatch to appropriate handler
+            case route_resource_request(Uri, State) of
+                {ok, Result} ->
+                    %% Cache the result
+                    NewState = update_cache(Uri, Result, State),
+                    FinalState = NewState#state{
+                        request_count = NewState#state.request_count + 1,
+                        cache_misses = NewState#state.cache_misses + 1
+                    },
+                    {reply, {ok, Result}, FinalState};
+                {error, Reason} ->
+                    NewState = State#state{
+                        request_count = State#state.request_count + 1
+                    },
+                    {reply, {error, Reason}, NewState}
+            end
+    end;
+
+handle_call(list_resources, _From, State = #state{resource_registry = Registry}) ->
+    Resources = maps:values(Registry),
+    {reply, {ok, Resources}, State};
+
+handle_call(_Request, _From, State) ->
+    {reply, {error, unknown_call}, State}.
+
+handle_cast({invalidate_cache, Uri}, State = #state{cache = Cache}) ->
+    NewCache = maps:remove({resource, Uri}, Cache),
+    {noreply, State#state{cache = NewCache}};
+
+handle_cast(_Msg, State) ->
+    {noreply, State}.
+
+handle_info(_Info, State) ->
+    {noreply, State}.
+
+terminate(_Reason, _State) ->
+    ok.
+
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
+
+%%%===================================================================
+%%% JSON Encoding Helpers
+%%%===================================================================
+
+%% @doc Convert failure record to JSON-compatible map
+-spec failure_to_map(Failure :: failure_record()) -> map().
+failure_to_map(Failure) ->
+    #{
+        id => maps:get(id, Failure, <<"unknown">>),
+        node => atom_to_binary(maps:get(node, Failure, node()), utf8),
+        severity => atom_to_binary(maps:get(severity, Failure, info), utf8),
+        component => maps:get(component, Failure, <<"unknown">>),
+        error => maps:get(error, Failure, <<"no error message">>),
+        timestamp => encode_timestamp(maps:get(timestamp, Failure, erlang:timestamp())),
+        recovery_attempted => maps:get(recovery_attempted, Failure, false)
+    }.
+
+%% @doc Convert chaos report to JSON-compatible map
+-spec chaos_report_to_map(Report :: chaos_report()) -> map().
+chaos_report_to_map(Report) ->
+    #{
+        experiment_id => maps:get(experiment_id, Report, <<"unknown">>),
+        type => atom_to_binary(maps:get(type, Report, network_partition), utf8),
+        status => atom_to_binary(maps:get(status, Report, unknown), utf8),
+        start_time => encode_timestamp(maps:get(start_time, Report, erlang:timestamp())),
+        duration_ms => maps:get(duration_ms, Report, 0),
+        affected_nodes => [atom_to_binary(N, utf8) || N <- maps:get(affected_nodes, Report, [])],
+        metrics => maps:get(metrics, Report, #{})
+    }.
+
+%% @doc Convert cluster topology to D3.js-compatible graph structure
+-spec topology_to_graph(Topology :: term()) -> topology_graph().
+topology_to_graph(Topology) when is_map(Topology) ->
+    Nodes = maps:get(nodes, Topology, []),
+    Edges = maps:get(edges, Topology, []),
+
+    GraphNodes = [
+        #{
+            id => node_id(N),
+            label => node_label(N),
+            type => node_type(N),
+            metadata => node_metadata(N)
+        } || N <- Nodes
+    ],
+
+    GraphEdges = [
+        #{
+            source => edge_source(E),
+            target => edge_target(E),
+            type => edge_type(E),
+            weight => edge_weight(E)
+        } || E <- Edges
+    ],
+
+    #{
+        nodes => GraphNodes,
+        edges => GraphEdges,
+        metadata => #{
+            node_count => length(GraphNodes),
+            edge_count => length(GraphEdges),
+            timestamp => erlang:system_time(second)
+        }
+    };
+topology_to_graph(_) ->
+    #{nodes => [], edges => [], metadata => #{}}.
+
+%% @doc Encode Erlang timestamp as Unix epoch seconds
+-spec encode_timestamp(Timestamp :: erlang:timestamp()) -> pos_integer().
+encode_timestamp({MegaSecs, Secs, _MicroSecs}) ->
+    MegaSecs * 1000000 + Secs.
+
+%%%===================================================================
+%%% Internal Integration Functions
+%%%===================================================================
+
+-spec get_cluster_health_internal() -> cluster_health().
+get_cluster_health_internal() ->
+    Nodes = [node() | nodes()],
+    NodeHealths = [get_node_health(N) || N <- Nodes],
+
+    OverallHealth = calculate_overall_health(NodeHealths),
+    UpNodes = length([N || N <- NodeHealths, maps:get(status, N) =:= up]),
+
+    #{
+        nodes => NodeHealths,
+        overall_health => OverallHealth,
+        availability_percent => case length(Nodes) of
+            0 -> 100.0;
+            Total -> (UpNodes / Total) * 100.0
+        end,
+        timestamp => erlang:system_time(second)
+    }.
+
+-spec get_node_health(Node :: atom()) -> node_health().
+get_node_health(Node) ->
+    case net_adm:ping(Node) of
+        pong ->
+            #{
+                node => Node,
+                status => up,
+                memory_usage => rpc:call(Node, erlang, memory, [total], 5000),
+                cpu_load => get_cpu_load(Node),
+                process_count => rpc:call(Node, erlang, system_info, [process_count], 5000)
+            };
+        pang ->
+            #{
+                node => Node,
+                status => down,
+                memory_usage => 0,
+                cpu_load => 0.0,
+                process_count => 0
+            }
+    end.
+
+-spec get_cpu_load(Node :: atom()) -> float().
+get_cpu_load(Node) ->
+    case rpc:call(Node, cpu_sup, avg1, [], 5000) of
+        {badrpc, _} -> 0.0;
+        Load -> Load / 256.0  %% cpu_sup returns load * 256
+    end.
+
+-spec get_mape_k_phase_timings() -> [mape_k_phase_timing()].
+get_mape_k_phase_timings() ->
+    case whereis(mape_k_loop) of
+        undefined -> [];
+        Pid ->
+            case catch gen_server:call(Pid, get_phase_timings, 5000) of
+                {'EXIT', _} -> [];
+                {ok, Timings} -> Timings;
+                _ -> []
+            end
+    end.
+
+-spec get_knowledge_failures() -> [failure_record()].
+get_knowledge_failures() ->
+    %% Query knowledge base for recent failures
+    case whereis(knowledge_store) of
+        undefined -> [];
+        Pid ->
+            case catch gen_server:call(Pid, get_failures, 5000) of
+                {'EXIT', _} -> [];
+                {ok, Failures} -> Failures;
+                _ -> []
+            end
+    end.
+
+-spec get_chaos_reports() -> [chaos_report()].
+get_chaos_reports() ->
+    case whereis(chaos_coordinator) of
+        undefined -> [];
+        Pid ->
+            case catch gen_server:call(Pid, get_experiments, 5000) of
+                {'EXIT', _} -> [];
+                {ok, Reports} -> Reports;
+                _ -> []
+            end
+    end.
+
+-spec get_cluster_topology() -> term().
+get_cluster_topology() ->
+    Nodes = [node() | nodes()],
+    Connections = build_connection_graph(Nodes),
+
+    #{
+        nodes => Nodes,
+        edges => Connections
+    }.
+
+-spec build_connection_graph(Nodes :: [atom()]) -> [term()].
+build_connection_graph(Nodes) ->
+    [#{source => node(), target => N, type => connection} || N <- Nodes, N =/= node()].
+
+-spec get_slo_metrics() -> [slo_metric()].
+get_slo_metrics() ->
+    %% Example SLO metrics
+    [
+        #{name => <<"response_time_p99">>, target => 100.0, current => 85.3, compliant => true, breach_count => 0, window => 3600},
+        #{name => <<"availability">>, target => 99.9, current => 99.95, compliant => true, breach_count => 0, window => 86400},
+        #{name => <<"error_rate">>, target => 0.1, current => 0.05, compliant => true, breach_count => 0, window => 3600}
+    ].
+
+-spec get_strategy_effectiveness() -> [map()].
+get_strategy_effectiveness() ->
+    case whereis(mape_k_loop) of
+        undefined -> [];
+        Pid ->
+            case catch gen_server:call(Pid, get_strategy_stats, 5000) of
+                {'EXIT', _} -> [];
+                {ok, Stats} -> Stats;
+                _ -> []
+            end
+    end.
+
+-spec get_active_chaos_experiments() -> [map()].
+get_active_chaos_experiments() ->
+    case whereis(chaos_coordinator) of
+        undefined -> [];
+        Pid ->
+            case catch gen_server:call(Pid, get_active_experiments, 5000) of
+                {'EXIT', _} -> [];
+                {ok, Experiments} -> Experiments;
+                _ -> []
+            end
+    end.
+
+-spec query_prometheus_metrics() -> map().
+query_prometheus_metrics() ->
+    %% Query Prometheus for key metrics
+    Queries = [
+        {"erlang_vm_memory_bytes_total", "sum(erlang_vm_memory_bytes_total)"},
+        {"erlang_vm_statistics_run_queues_length_total", "sum(erlang_vm_statistics_run_queues_length_total)"},
+        {"process_count", "erlang_vm_process_count"}
+    ],
+
+    Results = lists:map(fun({Name, Query}) ->
+        case query_prometheus(?PROMETHEUS_ENDPOINT, Query) of
+            {ok, Value} -> {Name, Value};
+            {error, _} -> {Name, null}
+        end
+    end, Queries),
+
+    maps:from_list(Results).
+
+-spec query_prometheus(Endpoint :: string(), Query :: string()) -> {ok, term()} | {error, term()}.
+query_prometheus(Endpoint, Query) ->
+    Url = Endpoint ++ "?query=" ++ http_uri:encode(Query),
+
+    case httpc:request(get, {Url, []}, [{timeout, 5000}], []) of
+        {ok, {{_, 200, _}, _, Body}} ->
+            case jsx:decode(list_to_binary(Body), [return_maps]) of
+                #{<<"data">> := #{<<"result">> := [#{<<"value">> := [_, Value]} | _]}} ->
+                    {ok, binary_to_float(Value)};
+                _ ->
+                    {error, parse_error}
+            end;
+        _ ->
+            {error, request_failed}
+    end.
+
+-spec get_backends_health() -> [map()].
+get_backends_health() ->
+    %% Example backend health checks
+    [
+        #{name => <<"postgres">>, healthy => true, response_time_ms => 12.5},
+        #{name => <<"redis">>, healthy => true, response_time_ms => 3.2},
+        #{name => <<"elasticsearch">>, healthy => true, response_time_ms => 45.8}
+    ].
+
+%%%===================================================================
+%%% Cache Management
+%%%===================================================================
+
+-spec check_cache(Uri :: binary(), State :: #state{}) -> {hit, binary()} | miss.
+check_cache(Uri, #state{cache = Cache, cache_ttl = TTL}) ->
+    Key = {resource, Uri},
+    case maps:get(Key, Cache, undefined) of
+        undefined ->
+            miss;
+        Entry ->
+            Timestamp = maps:get(timestamp, Entry),
+            Age = timer:now_diff(erlang:timestamp(), Timestamp) div 1000,
+            case Age < TTL of
+                true -> {hit, maps:get(value, Entry)};
+                false -> miss
+            end
+    end.
+
+-spec update_cache(Uri :: binary(), Value :: binary(), State :: #state{}) -> #state{}.
+update_cache(Uri, Value, State = #state{cache = Cache}) ->
+    Key = {resource, Uri},
+    Entry = #{
+        value => Value,
+        timestamp => erlang:timestamp(),
+        ttl => State#state.cache_ttl
+    },
+    NewCache = Cache#{Key => Entry},
+    State#state{cache = NewCache}.
+
+-spec route_resource_request(Uri :: binary(), State :: #state{}) -> resource_result().
+route_resource_request(Uri, _State) ->
+    case Uri of
+        <<"/mcp/cluster_health">> -> cluster_health(Uri);
+        <<"/mcp/mape_k_phases">> -> mape_k_phases(Uri);
+        <<"/mcp/knowledge_failures">> -> knowledge_failures(Uri);
+        <<"/mcp/chaos_report">> -> chaos_report(Uri);
+        <<"/mcp/topology_nodes">> -> topology_nodes(Uri);
+        <<"/mcp/slo_compliance">> -> slo_compliance(Uri);
+        <<"/mcp/strategy_effectiveness">> -> strategy_effectiveness(Uri);
+        <<"/mcp/active_chaos">> -> active_chaos(Uri);
+        <<"/mcp/prometheus_snapshot">> -> prometheus_snapshot(Uri);
+        <<"/mcp/backends_health">> -> backends_health(Uri);
+        _ -> {error, {not_found, Uri}}
+    end.
+
+-spec initialize_resource_registry() -> #{binary() => resource_config()}.
+initialize_resource_registry() ->
+    #{
+        <<"/mcp/cluster_health">> => #{
+            uri_pattern => <<"/mcp/cluster_health">>,
+            handler => cluster_health,
+            cache_ttl => 5000,
+            auth_required => false,
+            description => <<"Overall cluster health status">>
+        },
+        <<"/mcp/mape_k_phases">> => #{
+            uri_pattern => <<"/mcp/mape_k_phases">>,
+            handler => mape_k_phases,
+            cache_ttl => 5000,
+            auth_required => false,
+            description => <<"MAPE-K phase performance timings">>
+        },
+        <<"/mcp/knowledge_failures">> => #{
+            uri_pattern => <<"/mcp/knowledge_failures">>,
+            handler => knowledge_failures,
+            cache_ttl => 3000,
+            auth_required => false,
+            description => <<"Knowledge base failure records">>
+        },
+        <<"/mcp/chaos_report">> => #{
+            uri_pattern => <<"/mcp/chaos_report">>,
+            handler => chaos_report,
+            cache_ttl => 2000,
+            auth_required => false,
+            description => <<"Chaos engineering experiment reports">>
+        },
+        <<"/mcp/topology_nodes">> => #{
+            uri_pattern => <<"/mcp/topology_nodes">>,
+            handler => topology_nodes,
+            cache_ttl => 10000,
+            auth_required => false,
+            description => <<"Cluster topology as D3.js graph">>
+        },
+        <<"/mcp/slo_compliance">> => #{
+            uri_pattern => <<"/mcp/slo_compliance">>,
+            handler => slo_compliance,
+            cache_ttl => 5000,
+            auth_required => false,
+            description => <<"SLO compliance metrics">>
+        },
+        <<"/mcp/strategy_effectiveness">> => #{
+            uri_pattern => <<"/mcp/strategy_effectiveness">>,
+            handler => strategy_effectiveness,
+            cache_ttl => 10000,
+            auth_required => false,
+            description => <<"Autonomic strategy effectiveness rates">>
+        },
+        <<"/mcp/active_chaos">> => #{
+            uri_pattern => <<"/mcp/active_chaos">>,
+            handler => active_chaos,
+            cache_ttl => 2000,
+            auth_required => false,
+            description => <<"Currently running chaos experiments">>
+        },
+        <<"/mcp/prometheus_snapshot">> => #{
+            uri_pattern => <<"/mcp/prometheus_snapshot">>,
+            handler => prometheus_snapshot,
+            cache_ttl => 5000,
+            auth_required => false,
+            description => <<"Prometheus metrics snapshot">>
+        },
+        <<"/mcp/backends_health">> => #{
+            uri_pattern => <<"/mcp/backends_health">>,
+            handler => backends_health,
+            cache_ttl => 3000,
+            auth_required => false,
+            description => <<"Backend service health status">>
+        }
+    }.
+
+%%%===================================================================
+%%% Helper Functions
+%%%===================================================================
+
+-spec calculate_total_iterations(Timings :: [mape_k_phase_timing()]) -> pos_integer().
+calculate_total_iterations(Timings) ->
+    lists:sum([maps:get(iterations, T, 0) || T <- Timings]).
+
+-spec calculate_overall_health(NodeHealths :: [node_health()]) -> healthy | degraded | critical.
+calculate_overall_health(NodeHealths) ->
+    DownCount = length([N || N <- NodeHealths, maps:get(status, N) =:= down]),
+    Total = length(NodeHealths),
+
+    if
+        DownCount =:= 0 -> healthy;
+        DownCount < Total div 2 -> degraded;
+        true -> critical
+    end.
+
+-spec calculate_overall_effectiveness(Strategies :: [map()]) -> float().
+calculate_overall_effectiveness([]) -> 0.0;
+calculate_overall_effectiveness(Strategies) ->
+    SuccessRates = [maps:get(success_rate, S, 0.0) || S <- Strategies],
+    lists:sum(SuccessRates) / length(SuccessRates).
+
+-spec node_id(Node :: term()) -> binary().
+node_id(Node) when is_atom(Node) -> atom_to_binary(Node, utf8);
+node_id(Node) when is_map(Node) -> maps:get(id, Node, <<"unknown">>);
+node_id(_) -> <<"unknown">>.
+
+-spec node_label(Node :: term()) -> binary().
+node_label(Node) when is_atom(Node) -> atom_to_binary(Node, utf8);
+node_label(Node) when is_map(Node) -> maps:get(label, Node, <<"unknown">>);
+node_label(_) -> <<"unknown">>.
+
+-spec node_type(Node :: term()) -> atom().
+node_type(Node) when is_map(Node) -> maps:get(type, Node, erlang_node);
+node_type(_) -> erlang_node.
+
+-spec node_metadata(Node :: term()) -> map().
+node_metadata(Node) when is_map(Node) -> maps:get(metadata, Node, #{});
+node_metadata(_) -> #{}.
+
+-spec edge_source(Edge :: term()) -> binary().
+edge_source(Edge) when is_map(Edge) -> maps:get(source, Edge, <<"unknown">>);
+edge_source(_) -> <<"unknown">>.
+
+-spec edge_target(Edge :: term()) -> binary().
+edge_target(Edge) when is_map(Edge) -> maps:get(target, Edge, <<"unknown">>);
+edge_target(_) -> <<"unknown">>.
+
+-spec edge_type(Edge :: term()) -> atom().
+edge_type(Edge) when is_map(Edge) -> maps:get(type, Edge, connection);
+edge_type(_) -> connection.
+
+-spec edge_weight(Edge :: term()) -> float().
+edge_weight(Edge) when is_map(Edge) -> maps:get(weight, Edge, 1.0);
+edge_weight(_) -> 1.0.

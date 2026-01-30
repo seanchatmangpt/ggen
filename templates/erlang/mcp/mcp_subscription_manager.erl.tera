@@ -1,0 +1,579 @@
+%%%-------------------------------------------------------------------
+%%% @doc
+%%% MCP Subscription Manager - Real-Time Event Streaming to MCP Servers
+%%%
+%%% Manages subscriptions to distributed system events and forwards
+%%% notifications to MCP (Model Context Protocol) servers with backpressure
+%%% handling and debouncing for high-frequency updates.
+%%%
+%%% Implements 5 subscription types:
+%%% 1. Cluster Health Changes - Node status, network partitions
+%%% 2. Chaos Events - Injected failures, experiment lifecycle
+%%% 3. New Failures - System failures, crashes, timeouts
+%%% 4. MAPE-K Phases - Monitor/Analyze/Plan/Execute/Knowledge state changes
+%%% 5. SLO Violations - Performance degradation, threshold breaches
+%%%
+%%% @end
+%%%-------------------------------------------------------------------
+-module(mcp_subscription_manager).
+-behaviour(gen_server).
+
+%% API
+-export([
+    start_link/1,
+    stop/0,
+    subscribe_health_changes/1,
+    subscribe_chaos_events/1,
+    subscribe_new_failures/1,
+    subscribe_mape_k_phases/1,
+    subscribe_slo_violations/1,
+    unsubscribe_all/0,
+    get_stats/0
+]).
+
+%% gen_server callbacks
+-export([
+    init/1,
+    handle_call/3,
+    handle_cast/2,
+    handle_info/2,
+    terminate/2,
+    code_change/3
+]).
+
+-record(state, {
+    mcp_server :: pid(),
+    subscriptions = #{} :: #{atom() => pid()},
+    stats = #{
+        events_sent => 0,
+        events_dropped => 0,
+        last_event => undefined
+    } :: map(),
+    debounce_timers = #{} :: #{atom() => reference()},
+    debounce_interval = 100 :: non_neg_integer() % milliseconds
+}).
+
+-define(SERVER, ?MODULE).
+
+%%%===================================================================
+%%% API
+%%%===================================================================
+
+-spec start_link(pid()) -> {ok, pid()} | {error, term()}.
+start_link(McpServer) ->
+    gen_server:start_link({local, ?SERVER}, ?MODULE, [McpServer], []).
+
+-spec stop() -> ok.
+stop() ->
+    gen_server:stop(?SERVER).
+
+-spec subscribe_health_changes(pid()) -> {ok, pid()} | {error, term()}.
+subscribe_health_changes(McpServer) ->
+    gen_server:call(?SERVER, {subscribe, health_changes, McpServer}).
+
+-spec subscribe_chaos_events(pid()) -> {ok, pid()} | {error, term()}.
+subscribe_chaos_events(McpServer) ->
+    gen_server:call(?SERVER, {subscribe, chaos_events, McpServer}).
+
+-spec subscribe_new_failures(pid()) -> {ok, pid()} | {error, term()}.
+subscribe_new_failures(McpServer) ->
+    gen_server:call(?SERVER, {subscribe, new_failures, McpServer}).
+
+-spec subscribe_mape_k_phases(pid()) -> {ok, pid()} | {error, term()}.
+subscribe_mape_k_phases(McpServer) ->
+    gen_server:call(?SERVER, {subscribe, mape_k_phases, McpServer}).
+
+-spec subscribe_slo_violations(pid()) -> {ok, pid()} | {error, term()}.
+subscribe_slo_violations(McpServer) ->
+    gen_server:call(?SERVER, {subscribe, slo_violations, McpServer}).
+
+-spec unsubscribe_all() -> ok.
+unsubscribe_all() ->
+    gen_server:call(?SERVER, unsubscribe_all).
+
+-spec get_stats() -> map().
+get_stats() ->
+    gen_server:call(?SERVER, get_stats).
+
+%%%===================================================================
+%%% gen_server callbacks
+%%%===================================================================
+
+init([McpServer]) ->
+    process_flag(trap_exit, true),
+    {ok, #state{mcp_server = McpServer}}.
+
+handle_call({subscribe, Type, McpServer}, _From, State) ->
+    case spawn_subscription_worker(Type, McpServer, State) of
+        {ok, Pid, NewState} ->
+            {reply, {ok, Pid}, NewState};
+        {error, Reason} ->
+            {reply, {error, Reason}, State}
+    end;
+
+handle_call(unsubscribe_all, _From, State) ->
+    NewState = terminate_all_subscriptions(State),
+    {reply, ok, NewState};
+
+handle_call(get_stats, _From, State) ->
+    {reply, State#state.stats, State};
+
+handle_call(_Request, _From, State) ->
+    {reply, {error, unknown_request}, State}.
+
+handle_cast(_Msg, State) ->
+    {noreply, State}.
+
+handle_info({event, Type, EventData}, State) ->
+    NewState = handle_event(Type, EventData, State),
+    {noreply, NewState};
+
+handle_info({debounce_timeout, Type}, State) ->
+    NewState = clear_debounce_timer(Type, State),
+    {noreply, NewState};
+
+handle_info({'EXIT', Pid, Reason}, State) ->
+    NewState = handle_subscription_exit(Pid, Reason, State),
+    {noreply, NewState};
+
+handle_info(_Info, State) ->
+    {noreply, State}.
+
+terminate(_Reason, State) ->
+    _ = terminate_all_subscriptions(State),
+    ok.
+
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
+
+%%%===================================================================
+%%% Subscription Workers
+%%%===================================================================
+
+spawn_subscription_worker(health_changes, McpServer, State) ->
+    Pid = spawn_link(fun() -> health_subscription_loop(McpServer) end),
+    NewSubs = maps:put(health_changes, Pid, State#state.subscriptions),
+    {ok, Pid, State#state{subscriptions = NewSubs}};
+
+spawn_subscription_worker(chaos_events, McpServer, State) ->
+    Pid = spawn_link(fun() -> chaos_subscription_loop(McpServer) end),
+    NewSubs = maps:put(chaos_events, Pid, State#state.subscriptions),
+    {ok, Pid, State#state{subscriptions = NewSubs}};
+
+spawn_subscription_worker(new_failures, McpServer, State) ->
+    Pid = spawn_link(fun() -> failure_subscription_loop(McpServer) end),
+    NewSubs = maps:put(new_failures, Pid, State#state.subscriptions),
+    {ok, Pid, State#state{subscriptions = NewSubs}};
+
+spawn_subscription_worker(mape_k_phases, McpServer, State) ->
+    Pid = spawn_link(fun() -> mape_k_subscription_loop(McpServer) end),
+    NewSubs = maps:put(mape_k_phases, Pid, State#state.subscriptions),
+    {ok, Pid, State#state{subscriptions = NewSubs}};
+
+spawn_subscription_worker(slo_violations, McpServer, State) ->
+    Pid = spawn_link(fun() -> slo_subscription_loop(McpServer) end),
+    NewSubs = maps:put(slo_violations, Pid, State#state.subscriptions),
+    {ok, Pid, State#state{subscriptions = NewSubs}};
+
+spawn_subscription_worker(_Type, _McpServer, _State) ->
+    {error, unknown_subscription_type}.
+
+%%%===================================================================
+%%% Subscription Loop 1: Cluster Health Changes
+%%%===================================================================
+
+health_subscription_loop(McpServer) ->
+    case mape_k_monitor:subscribe_health_changes() of
+        {ok, SubscriptionRef} ->
+            health_subscription_receive_loop(McpServer, SubscriptionRef);
+        {error, Reason} ->
+            error_logger:error_msg("Failed to subscribe to health changes: ~p~n", [Reason]),
+            exit({subscription_failed, Reason})
+    end.
+
+health_subscription_receive_loop(McpServer, SubRef) ->
+    receive
+        {health_changed, NewHealth} ->
+            Event = #{
+                type => health_changed,
+                health => NewHealth,
+                timestamp => erlang:system_time(millisecond),
+                nodes => erlang:nodes()
+            },
+            notify_mcp_server(McpServer, <<"metrics://cluster/health">>, Event),
+            ?MODULE ! {event, health_changes, Event},
+            health_subscription_receive_loop(McpServer, SubRef);
+
+        {node_status_changed, Node, Status} ->
+            Event = #{
+                type => node_status_changed,
+                node => Node,
+                status => Status,
+                timestamp => erlang:system_time(millisecond)
+            },
+            notify_mcp_server(McpServer, <<"metrics://cluster/nodes">>, Event),
+            ?MODULE ! {event, health_changes, Event},
+            health_subscription_receive_loop(McpServer, SubRef);
+
+        {network_partition, Nodes} ->
+            Event = #{
+                type => network_partition,
+                affected_nodes => Nodes,
+                timestamp => erlang:system_time(millisecond),
+                severity => critical
+            },
+            notify_mcp_server(McpServer, <<"events://cluster/partition">>, Event),
+            ?MODULE ! {event, health_changes, Event},
+            health_subscription_receive_loop(McpServer, SubRef);
+
+        stop ->
+            mape_k_monitor:unsubscribe_health_changes(SubRef),
+            ok
+    end.
+
+%%%===================================================================
+%%% Subscription Loop 2: Chaos Events
+%%%===================================================================
+
+chaos_subscription_loop(McpServer) ->
+    case chaos_orchestrator:subscribe_events() of
+        {ok, SubscriptionRef} ->
+            chaos_subscription_receive_loop(McpServer, SubscriptionRef);
+        {error, Reason} ->
+            error_logger:error_msg("Failed to subscribe to chaos events: ~p~n", [Reason]),
+            exit({subscription_failed, Reason})
+    end.
+
+chaos_subscription_receive_loop(McpServer, SubRef) ->
+    receive
+        {chaos_started, ExperimentId, Config} ->
+            Event = #{
+                type => chaos_started,
+                experiment_id => ExperimentId,
+                config => Config,
+                timestamp => erlang:system_time(millisecond)
+            },
+            notify_mcp_server(McpServer, <<"events://chaos/experiments">>, Event),
+            ?MODULE ! {event, chaos_events, Event},
+            chaos_subscription_receive_loop(McpServer, SubRef);
+
+        {chaos_failure_injected, FailureType, Target} ->
+            Event = #{
+                type => chaos_failure_injected,
+                failure_type => FailureType,
+                target => Target,
+                timestamp => erlang:system_time(millisecond)
+            },
+            notify_mcp_server(McpServer, <<"events://chaos/failures">>, Event),
+            ?MODULE ! {event, chaos_events, Event},
+            chaos_subscription_receive_loop(McpServer, SubRef);
+
+        {chaos_completed, ExperimentId, Results} ->
+            Event = #{
+                type => chaos_completed,
+                experiment_id => ExperimentId,
+                results => Results,
+                timestamp => erlang:system_time(millisecond)
+            },
+            notify_mcp_server(McpServer, <<"events://chaos/experiments">>, Event),
+            ?MODULE ! {event, chaos_events, Event},
+            chaos_subscription_receive_loop(McpServer, SubRef);
+
+        stop ->
+            chaos_orchestrator:unsubscribe_events(SubRef),
+            ok
+    end.
+
+%%%===================================================================
+%%% Subscription Loop 3: New Failures
+%%%===================================================================
+
+failure_subscription_loop(McpServer) ->
+    case failure_detector:subscribe_failures() of
+        {ok, SubscriptionRef} ->
+            failure_subscription_receive_loop(McpServer, SubscriptionRef);
+        {error, Reason} ->
+            error_logger:error_msg("Failed to subscribe to failures: ~p~n", [Reason]),
+            exit({subscription_failed, Reason})
+    end.
+
+failure_subscription_receive_loop(McpServer, SubRef) ->
+    receive
+        {process_crashed, Pid, Reason} ->
+            Event = #{
+                type => process_crashed,
+                pid => pid_to_list(Pid),
+                reason => format_crash_reason(Reason),
+                timestamp => erlang:system_time(millisecond),
+                node => node(Pid)
+            },
+            notify_mcp_server(McpServer, <<"events://failures/crashes">>, Event),
+            ?MODULE ! {event, new_failures, Event},
+            failure_subscription_receive_loop(McpServer, SubRef);
+
+        {timeout_detected, Operation, Duration} ->
+            Event = #{
+                type => timeout_detected,
+                operation => Operation,
+                duration_ms => Duration,
+                timestamp => erlang:system_time(millisecond)
+            },
+            notify_mcp_server(McpServer, <<"events://failures/timeouts">>, Event),
+            ?MODULE ! {event, new_failures, Event},
+            failure_subscription_receive_loop(McpServer, SubRef);
+
+        {connection_lost, Node, LastSeen} ->
+            Event = #{
+                type => connection_lost,
+                node => Node,
+                last_seen => LastSeen,
+                timestamp => erlang:system_time(millisecond)
+            },
+            notify_mcp_server(McpServer, <<"events://failures/connections">>, Event),
+            ?MODULE ! {event, new_failures, Event},
+            failure_subscription_receive_loop(McpServer, SubRef);
+
+        stop ->
+            failure_detector:unsubscribe_failures(SubRef),
+            ok
+    end.
+
+%%%===================================================================
+%%% Subscription Loop 4: MAPE-K Phases
+%%%===================================================================
+
+mape_k_subscription_loop(McpServer) ->
+    case mape_k_loop:subscribe_phases() of
+        {ok, SubscriptionRef} ->
+            mape_k_subscription_receive_loop(McpServer, SubscriptionRef);
+        {error, Reason} ->
+            error_logger:error_msg("Failed to subscribe to MAPE-K phases: ~p~n", [Reason]),
+            exit({subscription_failed, Reason})
+    end.
+
+mape_k_subscription_receive_loop(McpServer, SubRef) ->
+    receive
+        {phase_started, Phase, Context} ->
+            Event = #{
+                type => phase_started,
+                phase => Phase,
+                context => Context,
+                timestamp => erlang:system_time(millisecond)
+            },
+            ResourceUri = iolist_to_binary([<<"events://mape_k/">>, atom_to_binary(Phase)]),
+            notify_mcp_server(McpServer, ResourceUri, Event),
+            ?MODULE ! {event, mape_k_phases, Event},
+            mape_k_subscription_receive_loop(McpServer, SubRef);
+
+        {phase_completed, Phase, Results} ->
+            Event = #{
+                type => phase_completed,
+                phase => Phase,
+                results => Results,
+                timestamp => erlang:system_time(millisecond)
+            },
+            ResourceUri = iolist_to_binary([<<"events://mape_k/">>, atom_to_binary(Phase)]),
+            notify_mcp_server(McpServer, ResourceUri, Event),
+            ?MODULE ! {event, mape_k_phases, Event},
+            mape_k_subscription_receive_loop(McpServer, SubRef);
+
+        {adaptation_applied, Actions} ->
+            Event = #{
+                type => adaptation_applied,
+                actions => Actions,
+                timestamp => erlang:system_time(millisecond)
+            },
+            notify_mcp_server(McpServer, <<"events://mape_k/adaptations">>, Event),
+            ?MODULE ! {event, mape_k_phases, Event},
+            mape_k_subscription_receive_loop(McpServer, SubRef);
+
+        stop ->
+            mape_k_loop:unsubscribe_phases(SubRef),
+            ok
+    end.
+
+%%%===================================================================
+%%% Subscription Loop 5: SLO Violations
+%%%===================================================================
+
+slo_subscription_loop(McpServer) ->
+    case slo_monitor:subscribe_violations() of
+        {ok, SubscriptionRef} ->
+            slo_subscription_receive_loop(McpServer, SubscriptionRef);
+        {error, Reason} ->
+            error_logger:error_msg("Failed to subscribe to SLO violations: ~p~n", [Reason]),
+            exit({subscription_failed, Reason})
+    end.
+
+slo_subscription_receive_loop(McpServer, SubRef) ->
+    receive
+        {slo_violated, Metric, Threshold, CurrentValue} ->
+            Event = #{
+                type => slo_violated,
+                metric => Metric,
+                threshold => Threshold,
+                current_value => CurrentValue,
+                timestamp => erlang:system_time(millisecond),
+                severity => calculate_severity(Threshold, CurrentValue)
+            },
+            notify_mcp_server(McpServer, <<"events://slo/violations">>, Event),
+            ?MODULE ! {event, slo_violations, Event},
+            slo_subscription_receive_loop(McpServer, SubRef);
+
+        {slo_warning, Metric, Threshold, CurrentValue} ->
+            Event = #{
+                type => slo_warning,
+                metric => Metric,
+                threshold => Threshold,
+                current_value => CurrentValue,
+                timestamp => erlang:system_time(millisecond),
+                severity => warning
+            },
+            notify_mcp_server(McpServer, <<"events://slo/warnings">>, Event),
+            ?MODULE ! {event, slo_violations, Event},
+            slo_subscription_receive_loop(McpServer, SubRef);
+
+        {slo_restored, Metric} ->
+            Event = #{
+                type => slo_restored,
+                metric => Metric,
+                timestamp => erlang:system_time(millisecond)
+            },
+            notify_mcp_server(McpServer, <<"events://slo/restorations">>, Event),
+            ?MODULE ! {event, slo_violations, Event},
+            slo_subscription_receive_loop(McpServer, SubRef);
+
+        stop ->
+            slo_monitor:unsubscribe_violations(SubRef),
+            ok
+    end.
+
+%%%===================================================================
+%%% Event Routing & Backpressure
+%%%===================================================================
+
+handle_event(Type, EventData, State) ->
+    % Check if we should debounce this event type
+    case should_debounce(Type, State) of
+        true ->
+            % Set/reset debounce timer
+            set_debounce_timer(Type, State);
+        false ->
+            % Forward immediately
+            forward_to_mcp(Type, EventData, State)
+    end.
+
+forward_to_mcp(_Type, EventData, State) ->
+    % Update statistics
+    NewStats = update_stats(sent, EventData, State#state.stats),
+    State#state{stats = NewStats}.
+
+notify_mcp_server(McpServer, ResourceUri, Event) ->
+    % Attempt to send with backpressure handling
+    case erlang:process_info(McpServer, message_queue_len) of
+        {message_queue_len, QLen} when QLen > 1000 ->
+            % Backpressure: drop event
+            ?MODULE ! {event_dropped, ResourceUri, Event},
+            ok;
+        _ ->
+            % Send notification
+            erlmcp_server:notify_resource_changed(McpServer, ResourceUri)
+    end.
+
+%%%===================================================================
+%%% Debouncing
+%%%===================================================================
+
+should_debounce(Type, State) ->
+    % High-frequency event types need debouncing
+    HighFrequencyTypes = [health_changes, mape_k_phases],
+    lists:member(Type, HighFrequencyTypes) andalso
+        not maps:is_key(Type, State#state.debounce_timers).
+
+set_debounce_timer(Type, State) ->
+    Interval = State#state.debounce_interval,
+    TimerRef = erlang:send_after(Interval, self(), {debounce_timeout, Type}),
+    NewTimers = maps:put(Type, TimerRef, State#state.debounce_timers),
+    State#state{debounce_timers = NewTimers}.
+
+clear_debounce_timer(Type, State) ->
+    NewTimers = maps:remove(Type, State#state.debounce_timers),
+    State#state{debounce_timers = NewTimers}.
+
+%%%===================================================================
+%%% Statistics & Monitoring
+%%%===================================================================
+
+update_stats(sent, EventData, Stats) ->
+    Stats#{
+        events_sent => maps:get(events_sent, Stats, 0) + 1,
+        last_event => EventData
+    };
+
+update_stats(dropped, _EventData, Stats) ->
+    Stats#{
+        events_dropped => maps:get(events_dropped, Stats, 0) + 1
+    }.
+
+%%%===================================================================
+%%% Lifecycle Management
+%%%===================================================================
+
+terminate_all_subscriptions(State) ->
+    maps:fold(
+        fun(_Type, Pid, Acc) ->
+            Pid ! stop,
+            Acc
+        end,
+        State,
+        State#state.subscriptions
+    ),
+    State#state{subscriptions = #{}}.
+
+handle_subscription_exit(Pid, Reason, State) ->
+    case find_subscription_type(Pid, State#state.subscriptions) of
+        {ok, Type} ->
+            error_logger:warning_msg(
+                "Subscription worker ~p for ~p exited: ~p~n",
+                [Pid, Type, Reason]
+            ),
+            NewSubs = maps:remove(Type, State#state.subscriptions),
+            State#state{subscriptions = NewSubs};
+        not_found ->
+            State
+    end.
+
+find_subscription_type(Pid, Subscriptions) ->
+    case maps:fold(
+        fun(Type, SubPid, Acc) ->
+            case SubPid of
+                Pid -> {found, Type};
+                _ -> Acc
+            end
+        end,
+        not_found,
+        Subscriptions
+    ) of
+        {found, Type} -> {ok, Type};
+        not_found -> not_found
+    end.
+
+%%%===================================================================
+%%% Utility Functions
+%%%===================================================================
+
+format_crash_reason(Reason) when is_atom(Reason) ->
+    atom_to_binary(Reason);
+format_crash_reason(Reason) ->
+    iolist_to_binary(io_lib:format("~p", [Reason])).
+
+calculate_severity(Threshold, CurrentValue) when is_number(Threshold), is_number(CurrentValue) ->
+    Ratio = CurrentValue / Threshold,
+    if
+        Ratio > 2.0 -> critical;
+        Ratio > 1.5 -> high;
+        Ratio > 1.2 -> medium;
+        true -> low
+    end;
+calculate_severity(_, _) ->
+    unknown.
