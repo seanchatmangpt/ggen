@@ -10,3 +10,6 @@
 [submodule "clap-noun-verb"]
 	path = clap-noun-verb
 	url = https://github.com/seanchatmangpt/clap-noun-verb.git
+[submodule "external/erlmcp"]
+	path = external/erlmcp
+	url = https://github.com/seanchatmangpt/erlmcp
