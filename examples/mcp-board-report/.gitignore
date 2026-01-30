@@ -1,0 +1,11 @@
+# Proptest regression files (auto-generated test artifacts)
+**/proptest-regressions/
+
+# Build artifacts
+target/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
