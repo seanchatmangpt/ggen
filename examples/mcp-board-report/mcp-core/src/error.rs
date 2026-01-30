@@ -55,6 +55,15 @@ pub enum McpError {
 
     #[error("Constraint violation: {0}")]
     ConstraintViolation(String),
+
+    #[error("WORM integrity error: {0}")]
+    WormIntegrityError(String),
+
+    #[error("WORM chain error: {0}")]
+    WormChainError(String),
+
+    #[error("WORM retention error: {0}")]
+    WormRetentionError(String),
 }
 
 impl From<std::io::Error> for McpError {
