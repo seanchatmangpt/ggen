@@ -1,0 +1,128 @@
+# =============================================================================
+# GGEN Integration Stack - Craftplan + A2A-RS + MCP Bridge
+# =============================================================================
+# Unified deployment bringing together:
+# - Craftplan: Elixir-based ERP for manufacturing
+# - A2A-RS: Rust agent-to-agent communication framework
+# - MCP Bridge: Integration layer for Model Context Protocol
+
+services:
+  # =============================================================================
+  # Craftplan - Manufacturing ERP
+  # =============================================================================
+  craftplan:
+    image: ghcr.io/puemos/craftplan:latest
+    ports:
+      - "4000:4000"
+    env_file:
+      - vendors/craftplan/.env
+    environment:
+      DATABASE_URL: "ecto://postgres:craftplan_password@postgres/craftplan"
+      AWS_S3_SCHEME: "http://"
+      AWS_S3_HOST: minio
+      AWS_ACCESS_KEY_ID: "minioadmin"
+      AWS_SECRET_ACCESS_KEY: "minioadmin"
+      AWS_S3_BUCKET: "craftplan"
+      AWS_REGION: "us-east-1"
+      HOST: "localhost"
+      PORT: "4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - integration-net
+    restart: unless-stopped
+
+  # =============================================================================
+  # A2A Agent Server (Rust)
+  # =============================================================================
+  a2a-server:
+    build:
+      context: ./vendors/a2a-rs
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      RUST_LOG: "debug"
+      A2A_SERVER_HOST: "0.0.0.0"
+      A2A_SERVER_PORT: "8080"
+      A2A_WS_PORT: "8081"
+      DATABASE_URL: "postgresql://postgres:craftplan_password@postgres/a2a"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - integration-net
+    restart: unless-stopped
+
+  # =============================================================================
+  # MCP Bridge (A2A <-> MCP Translation)
+  # =============================================================================
+  mcp-bridge:
+    build:
+      context: ./vendors/a2a-rs/a2a-mcp
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      RUST_LOG: "debug"
+      MCP_SERVER_PORT: "3000"
+      A2A_ENDPOINT: "http://a2a-server:8080"
+      CRAFTPLAN_ENDPOINT: "http://craftplan:4000"
+    depends_on:
+      - a2a-server
+      - craftplan
+    networks:
+      - integration-net
+    restart: unless-stopped
+
+  # =============================================================================
+  # Shared PostgreSQL Database
+  # =============================================================================
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: craftplan
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: craftplan_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - integration-net
+    restart: unless-stopped
+
+  # =============================================================================
+  # MinIO S3-Compatible Storage
+  # =============================================================================
+  minio:
+    image: minio/minio:latest
+    entrypoint: sh
+    command: -c 'mkdir -p /data/craftplan && /usr/bin/minio server /data --console-address ":9001"'
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - integration-net
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  minio_data:
+
+networks:
+  integration-net:
+    driver: bridge

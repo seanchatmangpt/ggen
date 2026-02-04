@@ -5,6 +5,7 @@ type: "analysis"
 version: "1.0.0"
 created: "2025-07-25"
 author: "Claude Code"
+description: "Advanced code quality analysis agent for comprehensive code reviews and improvements"
 
 metadata:
   description: "Advanced code quality analysis agent for comprehensive code reviews and improvements"

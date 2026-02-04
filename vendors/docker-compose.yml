@@ -1,0 +1,67 @@
+# =============================================================================
+# Craftplan — Docker Compose (Pre-built Image)
+# =============================================================================
+# Deploy Craftplan without cloning the repo:
+#
+#   curl -O https://raw.githubusercontent.com/puemos/craftplan/main/docker-compose.yml
+#   curl -O https://raw.githubusercontent.com/puemos/craftplan/main/.env.example
+#   cp .env.example .env
+#   # Fill in secrets (see .env.example for instructions)
+#   docker compose up -d
+#
+# Craftplan will be available at http://localhost:4000
+
+services:
+  craftplan:
+    image: ghcr.io/puemos/craftplan:latest
+    ports:
+      - "${PORT:-4000}:${PORT:-4000}"
+    env_file: .env
+    environment:
+      DATABASE_URL: "ecto://postgres:${POSTGRES_PASSWORD}@postgres/craftplan"
+      AWS_S3_SCHEME: "http://"
+      AWS_S3_HOST: minio
+      AWS_ACCESS_KEY_ID: "${MINIO_ROOT_USER:-minioadmin}"
+      AWS_SECRET_ACCESS_KEY: "${MINIO_ROOT_PASSWORD:-minioadmin}"
+      AWS_S3_BUCKET: "${AWS_S3_BUCKET:-craftplan}"
+      AWS_REGION: "us-east-1"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: craftplan
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    entrypoint: sh
+    command: -c 'mkdir -p /data/craftplan && /usr/bin/minio server /data --console-address ":9001"'
+    environment:
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER:-minioadmin}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:-minioadmin}"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  minio_data:

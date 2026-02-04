@@ -1,0 +1,46 @@
+defmodule {{ config.module_prefix }}Web.Live.{{ entity.name }}Index do
+  @moduledoc """
+  LiveView for listing {{ entity.name }}{% if entity.plural %} ({{ entity.plural }}){% endif %}
+  """
+
+  use {{ config.module_prefix }}Web, :live_view
+
+  @impl true
+  def mount(_params, _session, socket) do
+    {:ok, assign(socket, :{{ entity.name | lower }}_list, list_{{ entity.name | lower }}())}
+  end
+
+  @impl true
+  def render(assigns) do
+    ~H"""
+    <div class="{{ entity.name | lower }}-index">
+      <h1>{{ entity.name }}{% if entity.plural %} ({{ entity.plural }}){% endif %}</h1>
+
+      <table>
+        <thead>
+          <tr>
+            {% for attr in entity.attributes | slice(end: 5) %}
+            <th>{{ attr.name | title_case }}</th>
+            {% endfor %}
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr :for={{- "{" }}{{ attr }} <- @{{ entity.name | lower }}_list}>
+            {% for attr in entity.attributes | slice(end: 5) %}
+            <td>{{"{{"}} {{ attr.name }} {{"}}"}}</td>
+            {% endfor %}
+            <td>
+              <.link navigate="/{{ entity.name | lower }}/{{"{{"}} id {{"}}"}}">View</.link>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    """
+  end
+
+  defp list_{{ entity.name | lower }} do
+    {{ config.module_prefix }}.list_{{ entity.name | lower }}_all()
+  end
+end

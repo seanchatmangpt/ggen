@@ -5,6 +5,7 @@ color: "cyan"
 version: "1.0.0"
 created: "2025-07-25"
 author: "Claude Code"
+description: "Specialized agent for GitHub Actions CI/CD pipeline creation and optimization"
 metadata:
   description: "Specialized agent for GitHub Actions CI/CD pipeline creation and optimization"
   specialization: "GitHub Actions, workflow automation, deployment pipelines"
