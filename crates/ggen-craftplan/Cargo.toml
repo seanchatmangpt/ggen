@@ -1,0 +1,39 @@
+[package]
+name = "ggen-craftplan"
+version = "0.1.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "RDF to Elixir code generation pipeline for Craftplan ERP"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+readme = "README.md"
+keywords = ["code-generation", "rdf", "elixir", "ash-framework", "craftplan"]
+categories = ["development-tools", "command-line-utilities"]
+
+[dependencies]
+# Workspace dependencies
+ggen-utils.workspace = true
+ggen-core.workspace = true
+tera.workspace = true
+oxigraph.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+log.workspace = true
+tempfile.workspace = true
+regex.workspace = true
+chrono.workspace = true
+tracing.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+# Chicago TDD tools
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
+proptest.workspace = true
+tempfile.workspace = true
+
+[features]
+default = []
+otel = []  # Future: OpenTelemetry support

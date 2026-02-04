@@ -1,0 +1,28 @@
+defmodule {{ config.module_prefix }}.{{ entity.name | title_case }} do
+  @moduledoc """
+  Ash resource for {{ entity.name }}
+  {% if entity.plural %}Plural: {{ entity.plural }}{% endif %}
+  """
+  use Ash.Resource
+
+  attributes do
+    {% for attr in entity.attributes %}
+    attribute :{{ attr.name }}, :{{ attr.type_ }}{% if attr.required %}, allow_nil?: false{% endif %}
+    {% if attr.doc %}
+    """
+    {{ attr.doc }}
+    """
+    {% endif %}
+    {% endfor %}
+  end
+
+  relationships do
+    {% for rel in entity.relationships %}
+    {% if rel.cardinality == "one" %}
+    has_one :{{ rel.name }}, {{ config.module_prefix }}.{{ rel.target_entity }}
+    {% elif rel.cardinality == "many" %}
+    has_many :{{ rel.name }}, {{ config.module_prefix }}.{{ rel.target_entity }}
+    {% endif %}
+    {% endfor %}
+  end
+end

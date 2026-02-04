@@ -1,0 +1,22 @@
+defmodule {{ config.module_prefix }} do
+  @moduledoc """
+  Context module for {{ module_name }}
+
+  Provides access to all domain entities:
+  {% for entity in entities %}
+  - {{ entity.name }}{% if entity.plural %} ({{ entity.plural }}){% endif %}
+  {% endfor %}
+  """
+
+  {% for entity in entities %}
+  def list_{{ entity.name | lower }}_all do
+    {{ config.module_prefix }}.{{ entity.name }} |> Ash.Query.new() |> Ash.read!()
+  end
+
+  def get_{{ entity.name | lower }}!(id) do
+    {{ config.module_prefix }}.{{ entity.name }}
+    |> Ash.Query.filter(id == ^id)
+    |> Ash.read_one!()
+  end
+  {% endfor %}
+end

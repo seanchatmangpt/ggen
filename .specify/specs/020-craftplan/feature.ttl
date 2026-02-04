@@ -1,0 +1,209 @@
+@prefix craftplan: <http://craftplan.example.org/ontology#> .
+@prefix spec: <https://ggen.dev/spec/vocab/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# FEATURE: Craftplan Domain Ontology for Code Generation
+# ============================================================================
+#
+# Specification ID: 020-craftplan
+# Version: 1.0.0
+# Status: Draft
+# Created: 2026-02-04
+#
+# This feature specification defines the craftplan ERP domain ontology
+# for generating Ash Framework resources from RDF specifications.
+#
+# ============================================================================
+
+craftplan:Feature-CraftplanOntology a spec:Feature ;
+    rdfs:label "Craftplan Domain Ontology" ;
+    rdfs:comment "Complete RDF ontology for craftplan ERP domain (Catalog, Orders, Production, Inventory, CRM) with code generation plan for Ash Framework" ;
+    spec:version "1.0.0" ;
+    spec:branch "020-craftplan" ;
+    spec:featureNumber 20 ;
+    spec:status "specification" ;
+    spec:createdAt "2026-02-04T00:00:00Z"^^xsd:dateTime ;
+    spec:hasUserStory craftplan:us-001-domain-model, craftplan:us-002-code-generation, craftplan:us-002-validation-rules ;
+    spec:hasFunctionalRequirement craftplan:fr-001-rdf-ontology, craftplan:fr-002-shacl-validation, craftplan:fr-003-ash-resources, craftplan:fr-004-sparql-queries ;
+    spec:hasSuccessCriterion craftplan:sc-001-valid-ttl, craftplan:sc-002-ash-generation, craftplan:sc-003-tests-pass .
+
+# ============================================================================
+# USER STORIES
+# ============================================================================
+
+craftplan:us-001-domain-model a spec:UserStory ;
+    rdfs:label "Domain Model in RDF" ;
+    rdfs:comment "As a system architect, I need the craftplan domain model defined in RDF so that I can generate Ash Framework resources deterministically from the ontology" ;
+    spec:priority "P1" ;
+    spec:acceptanceScenario craftplan:as-001-classes-defined, craftplan:as-002-properties-typed, craftplan:as-003-shapes-validated .
+
+craftplan:as-001-classes-defined a spec:AcceptanceScenario ;
+    rdfs:label "All domain classes defined" ;
+    spec:given "RDF ontology file core.ttl exists" ;
+    spec:when "Parsing Turtle syntax" ;
+    spec:then "All 15+ domain classes are defined: Product, BOM, Order, OrderItem, ProductionBatch, Material, Lot, Customer, Supplier, etc." .
+
+craftplan:as-002-properties-typed a spec:AcceptanceScenario ;
+    rdfs:label "Properties have correct types" ;
+    spec:given "RDF property definitions" ;
+    spec:when "Examining property ranges" ;
+    spec:then "All properties have appropriate types: xsd:string, xsd:decimal, xsd:integer, xsd:date, xsd:dateTime, or domain class references" .
+
+craftplan:as-003-shapes-validated a spec:AcceptanceScenario ;
+    rdfs:label "SHACL shapes validate entities" ;
+    spec:given "SHACL validation shapes in core.ttl" ;
+    spec:when "Running SHACL validator against entities.ttl" ;
+    spec:then "All entity instances conform to shapes (no violations)" .
+
+craftplan:us-002-code-generation a spec:UserStory ;
+    rdfs:label "Code Generation Plan" ;
+    rdfs:comment "As a developer, I need a code generation plan so that I can generate Ash Framework resources from the RDF ontology" ;
+    spec:priority "P1" ;
+    spec:acceptanceScenario craftplan:as-004-templates-defined, craftplan:as-005-workflow-documented, craftplan:as-006-examples-provided .
+
+craftplan:as-004-templates-defined a spec:AcceptanceScenario ;
+    rdfs:label "Templates documented in plan" ;
+    spec:given "Code generation plan in plan.ttl" ;
+    spec:when "Examining template definitions" ;
+    spec:then "All required templates exist: Resource, Domain, LiveView, TestFactory, ResourceTest with example outputs" .
+
+craftplan:as-005-workflow-documented a spec:AcceptanceScenario ;
+    rdfs:label "Generation workflow documented" ;
+    spec:given "Code generation plan" ;
+    spec:when "Following workflow steps" ;
+    spec:then "7-step workflow is defined: Validate RDF → Generate Resources → Generate Domains → Generate Migrations → Generate Tests → Format Code → Run Tests" .
+
+craftplan:as-006-examples-provided a spec:AcceptanceScenario ;
+    rdfs:label "Entity examples provided" ;
+    spec:given "entities.ttl file" ;
+    spec:when "Examining entity instances" ;
+    spec:then "Concrete examples exist for all major entities: Product, BOM, Order, Material, Lot, Customer, Supplier" .
+
+craftplan:us-003-validation-rules a spec:UserStory ;
+    rdfs:label "Business Rule Validation" ;
+    rdfs:comment "As a domain expert, I need business rules encoded in SHACL so that validation is automatic and consistent" ;
+    spec:priority "P1" ;
+    spec:acceptanceScenario craftplan:as-007-positivity-rules, craftplan:as-008-uniqueness-constraints, craftplan:as-009-referential-integrity .
+
+craftplan:as-007-positivity-rules a spec:AcceptanceScenario ;
+    rdfs:label "Positive quantity constraints" ;
+    spec:given "SHACL shapes for numeric properties" ;
+    spec:when "Validating entities" ;
+    spec:then "All quantity fields have minInclusive(0) or minInclusive(0.01) constraints" .
+
+craftplan:as-008-uniqueness-constraints a spec:AcceptanceScenario ;
+    rdfs:label "Unique field constraints" ;
+    spec:given "SHACL shapes with uniqueLang" ;
+    spec:when "Validating entities" ;
+    spec:then "Key fields (SKU, lot code, order reference) have uniqueLang true constraint" .
+
+craftplan:as-009-referential-integrity a spec:AcceptanceScenario ;
+    rdfs:label "Referential integrity constraints" ;
+    spec:given "Object property relationships" ;
+    spec:when "Validating entity relationships" ;
+    spec:then "All relationships point to valid entity types (class constraints)" .
+
+# ============================================================================
+# FUNCTIONAL REQUIREMENTS
+# ============================================================================
+
+craftplan:fr-001-rdf-ontology a spec:FunctionalRequirement ;
+    rdfs:label "Complete RDF Ontology" ;
+    rdfs:comment "The ontology must define all domain entities, properties, and relationships using standard RDF/RDFS/OWL vocabulary" ;
+    spec:acceptanceTest "Verify core.ttl is valid Turtle syntax and contains 15+ classes, 50+ properties, and 10+ SHACL shapes" .
+
+craftplan:fr-002-shacl-validation a spec:FunctionalRequirement ;
+    rdfs:label "SHACL Validation Shapes" ;
+    rdfs:comment "All entities must have corresponding SHACL shapes defining constraints (required fields, data types, value ranges, uniqueness)" ;
+    spec:acceptanceTest "Run SHACL validator against entities.ttl; expect zero violations" .
+
+craftplan:fr-003-ash-resources a spec:FunctionalRequirement ;
+    rdfs:label "Ash Resource Generation" ;
+    rdfs:comment "Code generation plan must map RDF classes to Ash Resource modules with attributes, relationships, and validations" ;
+    spec:acceptanceTest "Generate resource from Product class; verify output contains use Ash.Resource, postgres block, attributes, relationships, actions" .
+
+craftplan:fr-004-sparql-queries a spec:AcceptanceScenario ;
+    rdfs:label "SPARQL Query Patterns" ;
+    rdfs:comment "Common query patterns must be documented in SPARQL for material requirements, lot traceability, and order profitability" ;
+    spec:acceptanceTest "Execute SPARQL queries from entities.ttl against ontology; verify results are correct" .
+
+# ============================================================================
+# SUCCESS CRITERIA
+# ============================================================================
+
+craftplan:sc-001-valid-ttl a spec:SuccessCriterion ;
+    rdfs:label "Valid Turtle Syntax" ;
+    rdfs:comment "All .ttl files must be valid Turtle RDF syntax" ;
+    spec:metric "100% of .ttl files parse without syntax errors" ;
+    spec:measurable true ;
+    spec:verifiable true .
+
+craftplan:sc-002-ash-generation a spec:SuccessCriterion ;
+    rdfs:label "Ash Code Generation" ;
+    rdfs:comment "All ontology classes must generate valid Ash Resource code" ;
+    spec:metric "100% of classes generate compilable Elixir code" ;
+    spec:measurable true ;
+    spec:verifiable true .
+
+craftplan:sc-003-tests-pass a spec:SuccessCriterion ;
+    rdfs:label "Generated Tests Pass" ;
+    rdfs:comment "Tests generated from SHACL shapes must pass" ;
+    spec:metric "100% test pass rate (mix test exit code 0)" ;
+    spec:measurable true ;
+    spec:verifiable true .
+
+# ============================================================================
+# ASSUMPTIONS & CONSTRAINTS
+# ============================================================================
+
+craftplan:feature-assumptions a spec:AssumptionSet ;
+    spec:assumedFeature "Ash Framework 3.0+ DSL is stable and suitable for code generation" ;
+    spec:assumedFeature "PostgreSQL 16 with NUMERIC type is target database" ;
+    spec:assumedFeature "Elixir 1.15+ with Decimal struct provides arbitrary precision arithmetic" ;
+    spec:assumedConstraint "Code generation uses merge markers for manual customizations" ;
+    spec:assumedConstraint "SHACL shapes map 1:1 to Ash validations (no custom validation logic)" ;
+    spec:assumedConstraint "RDF ontology is source of truth; code is derived artifact" .
+
+# ============================================================================
+# EDGE CASES & ERROR CONDITIONS
+# ============================================================================
+
+craftplan:edge-case-1 a spec:EdgeCase ;
+    rdfs:label "Circular BOM references" ;
+    spec:scenario "Product A contains Product B as component, Product B contains Product A" ;
+    spec:expectedBehavior "SHACL shape should detect and prevent circular references (max depth validation)" .
+
+craftplan:edge-case-2 a spec:EdgeCase ;
+    rdfs:label "Lot expiry before receiving" ;
+    spec:scenario "Material lot has expiryDate < receivedAt" ;
+    spec:expectedBehavior "SHACL constraint violation; fail lot creation" .
+
+craftplan:edge-case-3 a spec:EdgeCase ;
+    rdfs:label "Order item quantity exceeds batch capacity" ;
+    spec:scenario "Allocating order item to batch would exceed product.maxDailyQuantity" ;
+    spec:expectedBehavior "Ash validation error before allocation; suggest creating new batch" .
+
+craftplan:edge-case-4 a spec:EdgeCase ;
+    rdfs:label "Material lot insufficient stock" ;
+    spec:scenario "Consuming material from lot with lotCurrentStock < required quantity" ;
+    spec:expectedBehavior "Consume multiple lots or fail with error; never allow negative stock" .
+
+# ============================================================================
+# IMPLEMENTATION NOTES
+# ============================================================================
+
+craftplan:impl-notes a spec:ImplementationNotes ;
+    spec:note "Use PostgreSQL NUMERIC(20,6) for all decimal columns to prevent overflow" ;
+    spec:note "Generate unique constraints in migrations for owl:hasKey properties" ;
+    spec:note "Add foreign key indexes for all belongs_to relationships" ;
+    spec:note "Use Ash changesets for validation (not database triggers)" ;
+    spec:note "Decimal arithmetic must use Decimal.mult/Decimal.add (not * / + operators)" ;
+    spec:note "FIFO lot selection: ORDER BY lotReceivedAt ASC, lotExpiryDate ASC" ;
+    spec:note "Batch code format: BATCH-YYYY-MM-DD-NNN (e.g., BATCH-2024-02-04-001)" ;
+    spec:note "Lot code format: LOT-YYYY-NNN (e.g., LOT-2024-001)" ;
+    spec:note "Order reference format: ORD-YYYY-NNN (e.g., ORD-2024-001)" ;
+    spec:note "Product SKU format: PROD-NNN (e.g., PROD-001)" ;
+    spec:note "Material SKU format: MAT-NNN (e.g., MAT-001)" .

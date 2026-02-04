@@ -1,0 +1,837 @@
+@prefix craftplan: <http://craftplan.example.org/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/> .
+
+# ============================================================================
+# CRAFTPLAN DOMAIN ONTOLOGY
+# ============================================================================
+#
+# Manufacturing ERP Domain for Small-Scale Production
+#
+# This ontology defines the core domain model for craftplan, an ERP system
+# for small-scale manufacturers including: Catalog (Products, BOMs), Orders,
+# Production (Batches), Inventory (Materials, Lots), and CRM (Customers, Suppliers).
+#
+# Key Design Principles:
+# - Ash Framework resources as domain entities
+# - Type-safe decimal arithmetic for all quantities/costs
+# - Audit trail via Material Lots and Order allocations
+# - BOM versioning with rollup calculations
+# - Production batching with material consumption tracking
+#
+# ============================================================================
+
+# ============================================================================
+# DOMAIN: CATALOG (Products & BOMs)
+# ============================================================================
+
+craftplan:Product a rdfs:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "Manufacturable product with pricing, cost, and BOM relationships" ;
+    rdfs:subClassOf fibo-fnd:Goods ;
+    owl:hasKey ( craftplan:productSku ) .
+
+craftplan:productSku a rdf:Property ;
+    rdfs:label "product SKU" ;
+    rdfs:domain craftplan:Product ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique stock keeping unit identifier" .
+
+craftplan:productName a rdf:Property ;
+    rdfs:label "product name" ;
+    rdfs:domain craftplan:Product ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable product name" .
+
+craftplan:productDescription a rdf:Property ;
+    rdfs:label "product description" ;
+    rdfs:domain craftplan:Product ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Detailed product description" .
+
+craftplan:unitPrice a rdf:Property ;
+    rdfs:label "unit price" ;
+    rdfs:domain craftplan:Product ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Selling price per unit (decimal precision)" .
+
+craftplan:unitCost a rdf:Property ;
+    rdfs:label "unit cost" ;
+    rdfs:domain craftplan:Product ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Manufacturing cost per unit (calculated from BOM)" .
+
+craftplan:maxDailyQuantity a rdf:Property ;
+    rdfs:label "max daily quantity" ;
+    rdfs:domain craftplan:Product ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum producible quantity per day (capacity constraint)" .
+
+craftplan:hasActiveBOM a rdf:Property ;
+    rdfs:label "has active BOM" ;
+    rdfs:domain craftplan:Product ;
+    rdfs:range craftplan:BOM ;
+    rdfs:comment "Reference to currently active Bill of Materials" .
+
+craftplan:ProductStatus a rdfs:Class ;
+    rdfs:label "Product Status" ;
+    owl:oneOf ( craftplan:Active craftplan:Draft craftplan:Discontinued craftplan:Archived ) .
+
+craftplan:Active a craftplan:ProductStatus ;
+    rdfs:label "Active" ;
+    rdfs:comment "Product is available for production and sale" .
+
+craftplan:Draft a craftplan:ProductStatus ;
+    rdfs:label "Draft" ;
+    rdfs:comment "Product under development, not yet available" .
+
+craftplan:Discontinued a craftplan:ProductStatus ;
+    rdfs:label "Discontinued" ;
+    rdfs:comment "Product no longer produced but maintained in records" .
+
+craftplan:Archived a craftplan:ProductStatus ;
+    rdfs:label "Archived" ;
+    rdfs:comment "Product removed from active catalog" .
+
+craftplan:productStatus a rdf:Property ;
+    rdfs:label "product status" ;
+    rdfs:domain craftplan:Product ;
+    rdfs:range craftplan:ProductStatus .
+
+# Bill of Materials (BOM)
+craftplan:BOM a rdfs:Class ;
+    rdfs:label "Bill of Materials" ;
+    rdfs:comment "Recipe for manufacturing a product with components and labor steps" ;
+    owl:hasKey ( craftplan:bomVersion craftplan:bomProduct ) .
+
+craftplan:bomVersion a rdf:Property ;
+    rdfs:label "BOM version" ;
+    rdfs:domain craftplan:BOM ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Version number (auto-incremented, latest is editable)" .
+
+craftplan:bomProduct a rdf:Property ;
+    rdfs:label "BOM product" ;
+    rdfs:domain craftplan:BOM ;
+    rdfs:range craftplan:Product ;
+    rdfs:comment "Product this BOM defines" .
+
+craftplan:hasBOMComponent a rdf:Property ;
+    rdfs:label "has BOM component" ;
+    rdfs:domain craftplan:BOM ;
+    rdfs:range craftplan:BOMComponent ;
+    rdfs:comment "Material components in this BOM" .
+
+craftplan:hasLaborStep a rdf:Property ;
+    rdfs:label "has labor step" ;
+    rdfs:domain craftplan:BOM ;
+    rdfs:range craftplan:LaborStep ;
+    rdfs:comment "Labor operations required for production" .
+
+craftplan:hasRollup a rdf:Property ;
+    rdfs:label "has rollup" ;
+    rdfs:domain craftplan:BOM ;
+    rdfs:range craftplan:BOMRollup ;
+    rdfs:comment "Calculated cost and material summary" .
+
+craftplan:isLatestVersion a rdf:Property ;
+    rdfs:label "is latest version" ;
+    rdfs:domain craftplan:BOM ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether this is the latest editable version" .
+
+# BOM Component (Material Line Item)
+craftplan:BOMComponent a rdfs:Class ;
+    rdfs:label "BOM Component" ;
+    rdfs:comment "Material component with quantity and unit in a BOM" .
+
+craftplan:componentMaterial a rdf:Property ;
+    rdfs:label "component material" ;
+    rdfs:domain craftplan:BOMComponent ;
+    rdfs:range craftplan:Material ;
+    rdfs:comment "Material used in this component" .
+
+craftplan:componentQuantity a rdf:Property ;
+    rdfs:label "component quantity" ;
+    rdfs:domain craftplan:BOMComponent ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantity of material per product unit" .
+
+craftplan:componentUnit a rdf:Property ;
+    rdfs:label "component unit" ;
+    rdfs:domain craftplan:BOMComponent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unit of measurement (g, kg, ml, L, each, etc.)" .
+
+craftplan:componentCost a rdf:Property ;
+    rdfs:label "component cost" ;
+    rdfs:domain craftplan:BOMComponent ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Calculated cost: quantity * material unit cost" .
+
+# Labor Step (Work Operation)
+craftplan:LaborStep a rdfs:Class ;
+    rdfs:label "Labor Step" ;
+    rdfs:comment "Work operation with time and cost for BOM" .
+
+craftplan:laborStepName a rdf:Property ;
+    rdfs:label "labor step name" ;
+    rdfs:domain craftplan:LaborStep ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the operation (e.g., 'Mixing', 'Baking')" .
+
+craftplan:laborStepMinutes a rdf:Property ;
+    rdfs:label "labor step minutes" ;
+    rdfs:domain craftplan:LaborStep ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Time required in minutes per batch or per unit" .
+
+craftplan:laborStepCost a rdf:Property ;
+    rdfs:label "labor step cost" ;
+    rdfs:domain craftplan:LaborStep ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Labor cost: minutes * labor rate per minute" .
+
+craftplan:laborStepDescription a rdf:Property ;
+    rdfs:label "labor step description" ;
+    rdfs:domain craftplan:LaborStep ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Detailed operation instructions" .
+
+# BOM Rollup (Calculated Summary)
+craftplan:BOMRollup a rdfs:Class ;
+    rdfs:label "BOM Rollup" ;
+    rdfs:comment "Calculated summary of BOM costs and materials" .
+
+craftplan:rollupTotalMaterialCost a rdf:Property ;
+    rdfs:label "rollup total material cost" ;
+    rdfs:domain craftplan:BOMRollup ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Sum of all component costs" .
+
+craftplan:rollupTotalLaborCost a rdf:Property ;
+    rdfs:label "rollup total labor cost" ;
+    rdfs:domain craftplan:BOMRollup ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Sum of all labor step costs" .
+
+craftplan:rollupTotalOverheadCost a rdf:Property ;
+    rdfs:label "rollup total overhead cost" ;
+    rdfs:domain craftplan:BOMRollup ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Overhead allocation (utilities, rent, etc.)" .
+
+craftplan:rollupTotalCost a rdf:Property ;
+    rdfs:label "rollup total cost" ;
+    rdfs:domain craftplan:BOMRollup ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Total unit cost: material + labor + overhead" .
+
+# ============================================================================
+# DOMAIN: ORDERS (Customer Orders & Items)
+# ============================================================================
+
+craftplan:Order a rdfs:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "Customer purchase order with delivery date and line items" ;
+    rdfs:subClassOf fibo-fnd:Contract ;
+    owl:hasKey ( craftplan:orderReference ) .
+
+craftplan:orderReference a rdf:Property ;
+    rdfs:label "order reference" ;
+    rdfs:domain craftplan:Order ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable order number (e.g., ORD-2024-001)" .
+
+craftplan:orderDeliveryDate a rdf:Property ;
+    rdfs:label "order delivery date" ;
+    rdfs:domain craftplan:Order ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Requested delivery date for the order" .
+
+craftplan:orderStatus a rdf:Property ;
+    rdfs:label "order status" ;
+    rdfs:domain craftplan:Order ;
+    rdfs:range craftplan:OrderStatus .
+
+craftplan:orderCustomer a rdf:Property ;
+    rdfs:label "order customer" ;
+    rdfs:domain craftplan:Order ;
+    rdfs:range craftplan:Customer ;
+    rdfs:comment "Customer who placed the order" .
+
+craftplan:hasOrderItem a rdf:Property ;
+    rdfs:label "has order item" ;
+    rdfs:domain craftplan:Order ;
+    rdfs:range craftplan:OrderItem ;
+    rdfs:comment "Line items in the order" .
+
+craftplan:orderTotalCost a rdf:Property ;
+    rdfs:label "order total cost" ;
+    rdfs:domain craftplan:Order ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Total cost of all items (calculated)" .
+
+craftplan:OrderStatus a rdfs:Class ;
+    rdfs:label "Order Status" ;
+    owl:oneOf ( craftplan:OrderDraft craftplan:OrderConfirmed craftplan:OrderInProgress craftplan:OrderCompleted craftplan:OrderCancelled ) .
+
+craftplan:OrderDraft a craftplan:OrderStatus ;
+    rdfs:label "Draft" ;
+    rdfs:comment "Order being created, not yet confirmed" .
+
+craftplan:OrderConfirmed a craftplan:OrderStatus ;
+    rdfs:label "Confirmed" ;
+    rdfs:comment "Order confirmed, awaiting production" .
+
+craftplan:OrderInProgress a craftplan:OrderStatus ;
+    rdfs:label "In Progress" ;
+    rdfs:comment "Production in progress" .
+
+craftplan:OrderCompleted a craftplan:OrderStatus ;
+    rdfs:label "Completed" ;
+    rdfs:comment "Order completed and delivered" .
+
+craftplan:OrderCancelled a craftplan:OrderStatus ;
+    rdfs:label "Cancelled" ;
+    rdfs:comment "Order cancelled" .
+
+# Order Item (Line Item)
+craftplan:OrderItem a rdfs:Class ;
+    rdfs:label "Order Item" ;
+    rdfs:comment "Individual line item in an order" .
+
+craftplan:orderItemProduct a rdf:Property ;
+    rdfs:label "order item product" ;
+    rdfs:domain craftplan:OrderItem ;
+    rdfs:range craftplan:Product ;
+    rdfs:comment "Product ordered" .
+
+craftplan:orderItemQuantity a rdf:Property ;
+    rdfs:label "order item quantity" ;
+    rdfs:domain craftplan:OrderItem ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantity ordered" .
+
+craftplan:orderItemStatus a rdf:Property ;
+    rdfs:label "order item status" ;
+    rdfs:domain craftplan:OrderItem ;
+    rdfs:range craftplan:OrderItemStatus .
+
+craftplan:orderItemUnitPrice a rdf:Property ;
+    rdfs:label "order item unit price" ;
+    rdfs:domain craftplan:OrderItem ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Price per unit at time of order" .
+
+craftplan:orderItemUnitCost a rdf:Property ;
+    rdfs:label "order item unit cost" ;
+    rdfs:domain craftplan:OrderItem ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Manufacturing cost per unit (from BOM)" .
+
+craftplan:orderItemMaterialCost a rdf:Property ;
+    rdfs:label "order item material cost" ;
+    rdfs:domain craftplan:OrderItem ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Total material cost: quantity * BOM material cost" .
+
+craftplan:orderItemLaborCost a rdf:Property ;
+    rdfs:label "order item labor cost" ;
+    rdfs:domain craftplan:OrderItem ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Total labor cost: quantity * BOM labor cost" .
+
+craftplan:orderItemOverheadCost a rdf:Property ;
+    rdfs:label "order item overhead cost" ;
+    rdfs:domain craftplan:OrderItem ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Total overhead cost: quantity * BOM overhead cost" .
+
+craftplan:orderItemConsumedAt a rdf:Property ;
+    rdfs:label "order item consumed at" ;
+    rdfs:domain craftplan:OrderItem ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when production batch consumed materials" .
+
+craftplan:orderItemBatchCode a rdf:Property ;
+    rdfs:label "order item batch code" ;
+    rdfs:domain craftplan:OrderItem ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Batch code assigned after production" .
+
+craftplan:OrderItemStatus a rdfs:Class ;
+    rdfs:label "Order Item Status" ;
+    owl:oneOf ( craftplan:ItemTodo craftplan:ItemInProgress craftplan:ItemCompleted ) .
+
+craftplan:ItemTodo a craftplan:OrderItemStatus ;
+    rdfs:label "Todo" ;
+    rdfs:comment "Item not yet produced" .
+
+craftplan:ItemInProgress a craftplan:OrderItemStatus ;
+    rdfs:label "In Progress" ;
+    rdfs:comment "Item currently in production" .
+
+craftplan:ItemCompleted a craftplan:OrderItemStatus ;
+    rdfs:label "Completed" ;
+    rdfs:comment "Item produced and ready" .
+
+# Order Item Lot (Material Consumption Tracking)
+craftplan:OrderItemLot a rdfs:Class ;
+    rdfs:label "Order Item Lot" ;
+    rdfs:comment "Link between order item and material lot consumed" .
+
+craftplan:orderItemLotQuantity a rdf:Property ;
+    rdfs:label "order item lot quantity" ;
+    rdfs:domain craftplan:OrderItemLot ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantity of material consumed from lot" .
+
+craftplan:orderItemLotLot a rdf:Property ;
+    rdfs:label "order item lot" ;
+    rdfs:domain craftplan:OrderItemLot ;
+    rdfs:range craftplan:Lot ;
+    rdfs:comment "Lot from which material was consumed" .
+
+# ============================================================================
+# DOMAIN: PRODUCTION (Batching & Allocation)
+# ============================================================================
+
+craftplan:ProductionBatch a rdfs:Class ;
+    rdfs:label "Production Batch" ;
+    rdfs:comment "Production run grouping multiple order items for efficiency" .
+
+craftplan:batchCode a rdf:Property ;
+    rdfs:label "batch code" ;
+    rdfs:domain craftplan:ProductionBatch ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique batch identifier (e.g., BATCH-2024-02-04-001)" .
+
+craftplan:batchProduct a rdf:Property ;
+    rdfs:label "batch product" ;
+    rdfs:domain craftplan:ProductionBatch ;
+    rdfs:range craftplan:Product ;
+    rdfs:comment "Product being produced" .
+
+craftplan:batchBOM a rdf:Property ;
+    rdfs:label "batch BOM" ;
+    rdfs:domain craftplan:ProductionBatch ;
+    rdfs:range craftplan:BOM ;
+    rdfs:comment "BOM version used for production" .
+
+craftplan:batchStatus a rdf:Property ;
+    rdfs:label "batch status" ;
+    rdfs:domain craftplan:ProductionBatch ;
+    rdfs:range craftplan:BatchStatus .
+
+craftplan:batchProducedAt a rdf:Property ;
+    rdfs:label "batch produced at" ;
+    rdfs:domain craftplan:ProductionBatch ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when batch was completed" .
+
+craftplan:batchQuantity a rdf:Property ;
+    rdfs:label "batch quantity" ;
+    rdfs:domain craftplan:ProductionBatch ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Total quantity produced in batch" .
+
+craftplan:hasBatchAllocation a rdf:Property ;
+    rdfs:label "has batch allocation" ;
+    rdfs:domain craftplan:ProductionBatch ;
+    rdfs:range craftplan:OrderItemBatchAllocation ;
+    rdfs:comment "Order items allocated to this batch" .
+
+craftplan:hasBatchLot a rdf:Property ;
+    rdfs:label "has batch lot" ;
+    rdfs:domain craftplan:ProductionBatch ;
+    rdfs:range craftplan:ProductionBatchLot ;
+    rdfs:comment "Material lots staged for batch" .
+
+craftplan:BatchStatus a rdfs:Class ;
+    rdfs:label "Batch Status" ;
+    owl:oneOf ( craftplan:BatchOpen craftplan:BatchStarted craftplan:BatchCompleted ) .
+
+craftplan:BatchOpen a craftplan:BatchStatus ;
+    rdfs:label "Open" ;
+    rdfs:comment "Batch created, accepting order item allocations" .
+
+craftplan:BatchStarted a craftplan:BatchStatus ;
+    rdfs:label "Started" ;
+    rdfs:comment "Batch in production, materials consumed" .
+
+craftplan:BatchCompleted a craftplan:BatchStatus ;
+    rdfs:label "Completed" ;
+    rdfs:comment "Batch production completed" .
+
+# Order Item Batch Allocation (Many-to-Many Link)
+craftplan:OrderItemBatchAllocation a rdfs:Class ;
+    rdfs:label "Order Item Batch Allocation" ;
+    rdfs:comment "Link between order items and production batches" .
+
+craftplan:allocationOrderItem a rdf:Property ;
+    rdfs:label "allocation order item" ;
+    rdfs:domain craftplan:OrderItemBatchAllocation ;
+    rdfs:range craftplan:OrderItem ;
+    rdfs:comment "Order item allocated to batch" .
+
+craftplan:allocationBatch a rdf:Property ;
+    rdfs:label "allocation batch" ;
+    rdfs:domain craftplan:OrderItemBatchAllocation ;
+    rdfs:range craftplan:ProductionBatch ;
+    rdfs:comment "Batch to which item is allocated" .
+
+# Production Batch Lot (Material Staging)
+craftplan:ProductionBatchLot a rdfs:Class ;
+    rdfs:label "Production Batch Lot" ;
+    rdfs:comment "Material lot staged for production batch" .
+
+craftplan:batchLotLot a rdf:Property ;
+    rdfs:label "batch lot" ;
+    rdfs:domain craftplan:ProductionBatchLot ;
+    rdfs:range craftplan:Lot ;
+    rdfs:comment "Lot staged for batch" .
+
+# ============================================================================
+# DOMAIN: INVENTORY (Materials & Lots)
+# ============================================================================
+
+craftplan:Material a rdfs:Class ;
+    rdfs:label "Material" ;
+    rdfs:comment "Raw material or ingredient used in production" ;
+    rdfs:subClassOf fibo-fnd:Goods ;
+    owl:hasKey ( craftplan:materialSku ) .
+
+craftplan:materialSku a rdf:Property ;
+    rdfs:label "material SKU" ;
+    rdfs:domain craftplan:Material ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique material identifier" .
+
+craftplan:materialName a rdf:Property ;
+    rdfs:label "material name" ;
+    rdfs:domain craftplan:Material ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable material name" .
+
+craftplan:materialUnit a rdf:Property ;
+    rdfs:label "material unit" ;
+    rdfs:domain craftplan:Material ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unit of measurement (g, kg, ml, L, each)" .
+
+craftplan:materialUnitCost a rdf:Property ;
+    rdfs:label "material unit cost" ;
+    rdfs:domain craftplan:Material ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Cost per unit (from latest purchase)" .
+
+craftplan:materialSupplier a rdf:Property ;
+    rdfs:label "material supplier" ;
+    rdfs:domain craftplan:Material ;
+    rdfs:range craftplan:Supplier ;
+    rdfs:comment "Preferred supplier" .
+
+craftplan:hasLot a rdf:Property ;
+    rdfs:label "has lot" ;
+    rdfs:domain craftplan:Material ;
+    rdfs:range craftplan:Lot ;
+    rdfs:comment "Inventory lots for this material" .
+
+# Material Lot (Inventory Tracking)
+craftplan:Lot a rdfs:Class ;
+    rdfs:label "Material Lot" ;
+    rdfs:comment "Inventory lot with expiry tracking and cost" .
+
+craftplan:lotCode a rdf:Property ;
+    rdfs:label "lot code" ;
+    rdfs:domain craftplan:Lot ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique lot identifier (e.g., LOT-2024-001)" .
+
+craftplan:lotExpiryDate a rdf:Property ;
+    rdfs:label "lot expiry date" ;
+    rdfs:domain craftplan:Lot ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Expiry date for perishable materials" .
+
+craftplan:lotReceivedAt a rdf:Property ;
+    rdfs:label "lot received at" ;
+    rdfs:domain craftplan:Lot ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when lot was received" .
+
+craftplan:lotCurrentStock a rdf:Property ;
+    rdfs:label "lot current stock" ;
+    rdfs:domain craftplan:Lot ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Current quantity available in lot" .
+
+craftplan:lotUnitCost a rdf:Property ;
+    rdfs:label "lot unit cost" ;
+    rdfs:domain craftplan:Lot ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Cost per unit for this specific lot" .
+
+# Inventory Movement (Transactions)
+craftplan:Movement a rdfs:Class ;
+    rdfs:label "Inventory Movement" ;
+    rdfs:comment "Stock transaction: consume, receive, or adjust" .
+
+craftplan:movementType a rdf:Property ;
+    rdfs:label "movement type" ;
+    rdfs:domain craftplan:Movement ;
+    rdfs:range craftplan:MovementType .
+
+craftplan:movementQuantity a rdf:Property ;
+    rdfs:label "movement quantity" ;
+    rdfs:domain craftplan:Movement ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantity moved (positive for receive, negative for consume)" .
+
+craftplan:movementLot a rdf:Property ;
+    rdfs:label "movement lot" ;
+    rdfs:domain craftplan:Movement ;
+    rdfs:range craftplan:Lot ;
+    rdfs:comment "Lot affected by movement" .
+
+craftplan:movementTimestamp a rdf:Property ;
+    rdfs:label "movement timestamp" ;
+    rdfs:domain craftplan:Movement ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "When movement occurred" .
+
+craftplan:movementReason a rdf:Property ;
+    rdfs:label "movement reason" ;
+    rdfs:domain craftplan:Movement ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Reason for adjustment (if applicable)" .
+
+craftplan:MovementType a rdfs:Class ;
+    rdfs:label "Movement Type" ;
+    owl:oneOf ( craftplan:MovementConsume craftplan:MovementReceive craftplan:MovementAdjust ) .
+
+craftplan:MovementConsume a craftplan:MovementType ;
+    rdfs:label "Consume" ;
+    rdfs:comment "Material consumed in production" .
+
+craftplan:MovementReceive a craftplan:MovementType ;
+    rdfs:label "Receive" ;
+    rdfs:comment "Material received from supplier" .
+
+craftplan:MovementAdjust a craftplan:MovementType ;
+    rdfs:label "Adjust" ;
+    rdfs:comment "Manual inventory adjustment (correction, loss, damage)" .
+
+# ============================================================================
+# DOMAIN: CRM (Customers & Suppliers)
+# ============================================================================
+
+craftplan:Customer a rdfs:Class ;
+    rdfs:label "Customer" ;
+    rdfs:comment "Customer who places orders" ;
+    rdfs:subClassOf fibo-fnd:Party .
+
+craftplan:customerFullName a rdf:Property ;
+    rdfs:label "customer full name" ;
+    rdfs:domain craftplan:Customer ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Customer full name" .
+
+craftplan:customerEmail a rdf:Property ;
+    rdfs:label "customer email" ;
+    rdfs:domain craftplan:Customer ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Customer email address" .
+
+craftplan:customerPhone a rdf:Property ;
+    rdfs:label "customer phone" ;
+    rdfs:domain craftplan:Customer ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Customer phone number" .
+
+craftplan:customerAddress a rdf:Property ;
+    rdfs:label "customer address" ;
+    rdfs:domain craftplan:Customer ;
+    rdfs:range craftplan:Address ;
+    rdfs:comment "Customer shipping address" .
+
+craftplan:Supplier a rdfs:Class ;
+    rdfs:label "Supplier" ;
+    rdfs:comment "Material supplier" ;
+    rdfs:subClassOf fibo-fnd:Party .
+
+craftplan:supplierName a rdf:Property ;
+    rdfs:label "supplier name" ;
+    rdfs:domain craftplan:Supplier ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Supplier company name" .
+
+craftplan:supplierContact a rdf:Property ;
+    rdfs:label "supplier contact" ;
+    rdfs:domain craftplan:Supplier ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Primary contact person" .
+
+craftplan:supplierEmail a rdf:Property ;
+    rdfs:label "supplier email" ;
+    rdfs:domain craftplan:Supplier ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Supplier email address" .
+
+craftplan:supplierPhone a rdf:Property ;
+    rdfs:label "supplier phone" ;
+    rdfs:domain craftplan:Supplier ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Supplier phone number" .
+
+craftplan:Address a rdfs:Class ;
+    rdfs:label "Address" ;
+    rdfs:comment "Postal address" .
+
+craftplan:addressStreet a rdf:Property ;
+    rdfs:label "address street" ;
+    rdfs:domain craftplan:Address ;
+    rdfs:range xsd:string .
+
+craftplan:addressCity a rdf:Property ;
+    rdfs:label "address city" ;
+    rdfs:domain craftplan:Address ;
+    rdfs:range xsd:string .
+
+craftplan:addressState a rdf:Property ;
+    rdfs:label "address state" ;
+    rdfs:domain craftplan:Address ;
+    rdfs:range xsd:string .
+
+craftplan:addressPostalCode a rdf:Property ;
+    rdfs:label "address postal code" ;
+    rdfs:domain craftplan:Address ;
+    rdfs:range xsd:string .
+
+craftplan:addressCountry a rdf:Property ;
+    rdfs:label "address country" ;
+    rdfs:domain craftplan:Address ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# SHACL VALIDATION SHAPES
+# ============================================================================
+
+craftplan:ProductShape a sh:NodeShape ;
+    sh:targetClass craftplan:Product ;
+    sh:property [
+        sh:path craftplan:productSku ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 255 ;
+        sh:uniqueLang true ;
+    ] ;
+    sh:property [
+        sh:path craftplan:productName ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+    ] ;
+    sh:property [
+        sh:path craftplan:unitPrice ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+    ] .
+
+craftplan:BOMShape a sh:NodeShape ;
+    sh:targetClass craftplan:BOM ;
+    sh:property [
+        sh:path craftplan:bomVersion ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+    ] ;
+    sh:property [
+        sh:path craftplan:hasBOMComponent ;
+        sh:class craftplan:BOMComponent ;
+        sh:minCount 1 ;
+    ] .
+
+craftplan:OrderShape a sh:NodeShape ;
+    sh:targetClass craftplan:Order ;
+    sh:property [
+        sh:path craftplan:orderReference ;
+        sh:datatype xsd:string ;
+        sh:uniqueLang true ;
+    ] ;
+    sh:property [
+        sh:path craftplan:hasOrderItem ;
+        sh:class craftplan:OrderItem ;
+        sh:minCount 1 ;
+    ] .
+
+craftplan:OrderItemShape a sh:NodeShape ;
+    sh:targetClass craftplan:OrderItem ;
+    sh:property [
+        sh:path craftplan:orderItemQuantity ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.01 ;
+    ] .
+
+craftplan:MaterialShape a sh:NodeShape ;
+    sh:targetClass craftplan:Material ;
+    sh:property [
+        sh:path craftplan:materialSku ;
+        sh:datatype xsd:string ;
+        sh:uniqueLang true ;
+    ] ;
+    sh:property [
+        sh:path craftplan:materialUnitCost ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+    ] .
+
+craftplan:LotShape a sh:NodeShape ;
+    sh:targetClass craftplan:Lot ;
+    sh:property [
+        sh:path craftplan:lotCode ;
+        sh:datatype xsd:string ;
+        sh:uniqueLang true ;
+    ] ;
+    sh:property [
+        sh:path craftplan:lotCurrentStock ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+    ] .
+
+# ============================================================================
+# METADATA & PROVENANCE
+# ============================================================================
+
+craftplan:createdAt a rdf:Property ;
+    rdfs:label "created at" ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Entity creation timestamp" .
+
+craftplan:updatedAt a rdf:Property ;
+    rdfs:label "updated at" ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Entity last update timestamp" .
+
+craftplan:createdBy a rdf:Property ;
+    rdfs:label "created by" ;
+    rdfs:comment "User who created the entity" .
+
+craftplan:updatedBy a rdf:Property ;
+    rdfs:label "updated by" ;
+    rdfs:comment "User who last updated the entity" .
+
+# ============================================================================
+# ONTOLOGY METADATA
+# ============================================================================
+
+<http://craftplan.example.org/ontology> a owl:Ontology ;
+    rdfs:label "Craftplan Domain Ontology" ;
+    rdfs:comment "Manufacturing ERP domain ontology for small-scale production" ;
+    owl:versionInfo "1.0.0" ;
+    owl:versionIRI <http://craftplan.example.org/ontology/1.0.0> ;
+    dc:date "2026-02-04"^^xsd:date ;
+    dc:creator "ggen Specification System" .

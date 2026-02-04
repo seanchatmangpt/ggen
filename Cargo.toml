@@ -44,6 +44,7 @@ members = [
   "crates/knhk-lockchain",     # Merkle-linked receipt storage
   "crates/knhk-otel",          # OpenTelemetry integration
   "crates/knhk-orchestrator",  # Integration bridge (ETL → KGC-4D → Workflow)
+  "crates/ggen-craftplan",     # RDF-driven Elixir code generation for Craftplan ERP
   "crates/tps-reference",      # Toyota Production System reference implementation
   "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
   "crates/tai-testing",        # Production hardening & resilience testing framework
@@ -150,6 +151,9 @@ tai-testing = { path = "crates/tai-testing", version = "0.1.0" }
 
 # TPS (Toyota Production System) Kaizen implementation (continuous improvement)
 tps-kaizen = { path = "crates/tps-kaizen", version = "0.1.0" }
+
+# ggen-craftplan: RDF-driven Elixir code generation
+ggen-craftplan = { path = "crates/ggen-craftplan", version = "0.1.0" }
 
 # TAI Cache: Advanced caching with multi-tier strategies
 tai-cache = { path = "crates/tai-cache", version = "0.1.0" }

@@ -1,0 +1,745 @@
+@prefix craftplan: <http://craftplan.example.org/ontology#> .
+@prefix code: <http://ggen.example.org/code#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# CRAFTPLAN CODE GENERATION PLAN
+# ============================================================================
+#
+# This plan defines how to generate Ash Framework resources for the craftplan
+# ERP system from the RDF ontology defined in core.ttl and entities.ttl.
+#
+# Target Framework: Elixir + Ash Framework + Phoenix LiveView
+# Database: PostgreSQL 16
+#
+# ============================================================================
+
+craftplan:CodeGenerationPlan a rdfs:Class ;
+    rdfs:label "Craftplan Code Generation Plan" ;
+    rdfs:comment "Code generation strategy for craftplan ERP domain" .
+
+# ============================================================================
+# GENERATION PLAN METADATA
+# ============================================================================
+
+craftplan:CraftplanGenerationPlan a craftplan:CodeGenerationPlan ;
+    rdfs:label "Craftplan ERP Generation Plan" ;
+    craftplan:planVersion "1.0.0" ;
+    craftplan:planCreated "2026-02-04"^^xsd:date ;
+    craftplan:planStatus "Draft" ;
+    craftplan:targetLanguage "Elixir" ;
+    craftplan:targetFramework "AshFramework" ;
+    craftplan:targetVersion "Ash 3.0+" ;
+    craftplan:hasTechnology craftplan:Tech-Elixir, craftplan:Tech-Ash, craftplan:Tech-Phoenix, craftplan:Tech-Postgres ;
+    craftplan:hasPhase craftplan:Phase-Setup, craftplan:Phase-Resources, craftplan:Phase-Domains, craftplan:Phase-Web ;
+    craftplan:hasDecision craftplan:Decision-PostgresDecimal, craftplan:Decision-DSLFirst, craftplan:Decision-LiveViewUI ;
+    craftplan:hasTemplate craftplan:Template-Resource, craftplan:Template-Domain, craftplan:Template-LiveView, craftplan:Template-Test .
+
+# ============================================================================
+# TECHNOLOGY STACK
+# ============================================================================
+
+craftplan:Tech-Elixir a craftplan:Technology ;
+    rdfs:label "Elixir" ;
+    craftplan:techVersion "1.15+" ;
+    craftplan:techPurpose "Functional programming language with excellent concurrency support" .
+
+craftplan:Tech-Ash a craftplan:Technology ;
+    rdfs:label "Ash Framework" ;
+    craftplan:techVersion "3.0+" ;
+    craftplan:techPurpose "Resource-based domain modeling with actions, changes, validations, and policies" .
+
+craftplan:Tech-Phoenix a craftplan:Technology ;
+    rdfs:label "Phoenix Framework" ;
+    craftplan:techVersion "1.7+" ;
+    craftplan:techPurpose "Web framework with LiveView for real-time UI" .
+
+craftplan:Tech-Postgres a craftplan:Technology ;
+    rdfs:label "PostgreSQL" ;
+    craftplan:techVersion "16" ;
+    craftplan:techPurpose "Relational database with DECIMAL type support for financial calculations" .
+
+craftplan:Tech-ExDoc a craftplan:Technology ;
+    rdfs:label "ExDoc" ;
+    craftplan:techVersion "0.30+" ;
+    craftplan:techPurpose "Documentation generation from module docs" .
+
+# ============================================================================
+# GENERATION PHASES
+# ============================================================================
+
+craftplan:Phase-Setup a craftplan:Phase ;
+    rdfs:label "Phase 1: Project Setup" ;
+    craftplan:phaseOrder 1 ;
+    craftplan:phaseDescription "Initialize Elixir project, dependencies, and database configuration" ;
+    craftplan:phaseDeliverables "mix.exs, config/*.exs, .formatter.exs, test helpers" ;
+    craftplan:hasTemplate craftplan:Template-MixExs, craftplan:Template-ConfigDev, craftplan:Template-ConfigTest, craftplan:Template-FormatterExs .
+
+craftplan:Phase-Resources a craftplan:Phase ;
+    rdfs:label "Phase 2: Ash Resources" ;
+    craftplan:phaseOrder 2 ;
+    craftplan:phaseDescription "Generate Ash Resource modules for all domain entities from ontology" ;
+    craftplan:phaseDeliverables "lib/craftplan/catalog/product.ex, lib/craftplan/inventory/material.ex, etc." ;
+    craftplan:hasTemplate craftplan:Template-Resource .
+
+craftplan:Phase-Domains a craftplan:Phase ;
+    rdfs:label "Phase 3: Domain Modules" ;
+    craftplan:phaseOrder 3 ;
+    craftplan:phaseDescription "Generate Ash Domain modules grouping related resources" ;
+    craftplan:phaseDeliverables "lib/craftplan/catalog.ex, lib/craftplan/orders.ex, etc." ;
+    craftplan:hasTemplate craftplan:Template-Domain .
+
+craftplan:Phase-Web a craftplan:Phase ;
+    rdfs:label "Phase 4: Web Layer" ;
+    craftplan:phaseOrder 4 ;
+    craftplan:phaseDescription "Generate Phoenix LiveViews and components for UI" ;
+    craftplan:phaseDeliverables "lib/craftplan_web/live/manage/products_live.ex, etc." ;
+    craftplan:hasTemplate craftplan:Template-LiveView, craftplan:Template-Components .
+
+craftplan:Phase-Tests a craftplan:Phase ;
+    rdfs:label "Phase 5: Test Generation" ;
+    craftplan:phaseOrder 5 ;
+    craftplan:phaseDescription "Generate Ash test helpers and test cases" ;
+    craftplan:phaseDeliverables "test/support/factory.ex, test/craftplan/catalog/product_test.ex, etc." ;
+    craftplan:hasTemplate craftplan:Template-TestFactory, craftplan:Template-ResourceTest .
+
+# ============================================================================
+# TEMPLATES
+# ============================================================================
+
+# Ash Resource Template
+craftplan:Template-Resource a craftplan:Template ;
+    rdfs:label "Ash Resource Template" ;
+    craftplan:templatePath "templates/ash_resource.tera" ;
+    craftplan:templateOutput "lib/craftplan/{domain}/{entity}.ex" ;
+    craftplan:templateDescription """
+    Generates Ash Resource module from ontology class definition.
+
+    Template Variables:
+    - {entity}: Class name (e.g., "Product")
+    - {attributes}: List of RDF properties → Ash attributes
+    - {relationships}: Object properties → Ash relationships
+    - {validations}: SHACL shapes → Ash validations
+    - {constraints}: Cardinality constraints → Ash allow_nil/allow_blank
+
+    Example Output:
+    ```elixir
+    defmodule Craftplan.Catalog.Product do
+      use Ash.Resource,
+        data_layer: AshPostgres.DataLayer,
+        extensions: [AshJsonApi.Resource, AshGraphql.Resource]
+
+      postgres do
+        table "products"
+        repo Craftplan.Repo
+      end
+
+      attributes do
+        uuid_primary_key :id
+
+        attribute :sku, :string do
+          allow_nil? false
+          public? true
+        end
+
+        attribute :name, :string do
+          allow_nil? false
+          public? true
+        end
+
+        attribute :unit_price, :decimal do
+          allow_nil? false
+          public? true
+          constraints min: 0
+        end
+
+        attribute :unit_cost, :decimal do
+          allow_nil? false
+          public? true
+          constraints min: 0
+        end
+
+        create_timestamp :inserted_at
+        update_timestamp :updated_at
+      end
+
+      relationships do
+        belongs_to :active_bom, Craftplan.Catalog.BOM do
+          source_attribute :active_bom_id
+          destination_attribute :id
+          allow_nil? true
+        end
+      end
+
+      actions do
+        defaults [:read, :destroy, :update]
+
+        create :create do
+          primary? true
+          argument :bom_components, {:array, :map}
+
+          change manage_relationships(:bom_components, type: :append)
+        end
+      end
+    end
+    ```
+    """ .
+
+# Ash Domain Template
+craftplan:Template-Domain a craftplan:Template ;
+    rdfs:label "Ash Domain Template" ;
+    craftplan:templatePath "templates/ash_domain.tera" ;
+    craftplan:templateOutput "lib/craftplan/{domain}.ex" ;
+    craftplan:templateDescription """
+    Generates Ash Domain module grouping related resources.
+
+    Example Output:
+    ```elixir
+    defmodule Craftplan.Catalog do
+      @moduledoc false
+      use Ash.Domain,
+        extensions: [AshJsonApi.Domain, AshGraphql.Domain]
+
+      json_api do
+        prefix "/api/json"
+      end
+
+      graphql do
+      end
+
+      resources do
+        resource Craftplan.Catalog.Product do
+          define :get_product_by_id, action: :read, get_by: [:id]
+          define :get_product_by_sku, action: :read, get_by: [:sku]
+          define :list_products, action: :read
+        end
+
+        resource Craftplan.Catalog.BOM
+        resource Craftplan.Catalog.BOMComponent
+      end
+    end
+    ```
+    """ .
+
+# LiveView Template
+craftplan:Template-LiveView a craftplan:Template ;
+    rdfs:label "Phoenix LiveView Template" ;
+    craftplan:templatePath "templates/live_view.tera" ;
+    craftplan:templateOutput "lib/craftplan_web/live/manage/{entities}_live.ex" ;
+    craftplan:templateDescription """
+    Generates Phoenix LiveView for CRUD operations on resource.
+
+    Features:
+    - Real-time validation
+    - Inline editing with forms
+    - Pagination with keyset pagination
+    - Filtering and search
+    - Sortable columns
+
+    Example Output:
+    ```elixir
+    defmodule CraftplanWeb.Manage.ProductsLive do
+      use CraftplanWeb, :live_view
+      alias Craftplan.Catalog.Product
+
+      @impl true
+      def render(assigns) do
+        ~H'''
+        <.header>
+          Products
+          <:actions>
+            <.link navigate={~p"/manage/products/new"}>New Product</.link>
+          </:actions>
+        </.header>
+
+        <.table
+          rows={@streams.products}
+          row_click={&JS.navigate(~p"/manage/products/#{&1.id}")}
+        >
+          <:col :let={{_id, product}} label="SKU">
+            <%= product.sku %>
+          </:col>
+          <:col :let={{_id, product}} label="Name">
+            <%= product.name %>
+          </:col>
+          <:col :let={{_id, product}} label="Unit Price">
+            <%= Number.Delimit.number_to_delimited(product.unit_price) %>
+          </:col>
+          <:action :let={{_id, product}}>
+            <.link navigate={~p"/manage/products/#{product}/edit"}>Edit</.link>
+          </:action>
+          <:action :let={{_id, product}}>
+            <.link
+              phx-click={JS.push("delete", value: %{id: product.id})
+                        |> hide("##{product.id}")}
+              data_confirm="Are you sure?"
+            >
+              Delete
+            </.link>
+          </:action>
+        </.table>
+        '''
+      end
+    end
+    ```
+    """ .
+
+# Test Factory Template
+craftplan:Template-TestFactory a craftplan:Template ;
+    rdfs:label "Test Factory Template" ;
+    craftplan:templatePath "templates/test_factory.tera" ;
+    craftplan:templateOutput "test/support/factory.ex" ;
+    craftplan:templateDescription """
+    Generates test factory module using Ash actions directly.
+
+    Example Output:
+    ```elixir
+    defmodule Craftplan.Factory do
+      @moduledoc """
+      Test factory for creating entities via Ash actions.
+      Uses direct Ash actions instead of separate factory library.
+      """
+
+      alias Craftplan.{Catalog, Inventory, Orders, CRM}
+
+      def product(attrs \\ %{}) do
+        {:ok, product} =
+          Catalog.Product.create(
+            attrs
+            |> Map.put_new(:sku, "PROD-#{System.unique_integer()}")
+            |> Map.put_new(:name, "Test Product")
+            |> Map.put_new(:unit_price, Decimal.from_float(10.0))
+            |> Map.put_new(:unit_cost, Decimal.from_float(5.0))
+            |> Map.put_new(:max_daily_quantity, 100)
+          )
+
+        product
+      end
+
+      def material(attrs \\ %{}) do
+        {:ok, material} =
+          Inventory.Material.create(
+            attrs
+            |> Map.put_new(:sku, "MAT-#{System.unique_integer()}")
+            |> Map.put_new(:name, "Test Material")
+            |> Map.put_new(:unit, "kg")
+            |> Map.put_new(:unit_cost, Decimal.from_float(1.0))
+          )
+
+        material
+      end
+
+      def customer(attrs \\ %{}) do
+        {:ok, customer} =
+          CRM.Customer.create(
+            attrs
+            |> Map.put_new(:full_name, "Test Customer")
+            |> Map.put_new(:email, "test@example.com")
+            |> Map.put_new(:phone, "+1-555-0100")
+          )
+
+        customer
+      end
+
+      def order(attrs \\ %{}) do
+        {:ok, order} =
+          Orders.Order.create(
+            attrs
+            |> Map.put_new(:reference, "ORD-#{System.unique_integer()}")
+            |> Map.put_new(:delivery_date, Date.utc_today())
+            |> Map.put_new(:customer, customer())
+          )
+
+        order
+      end
+    end
+    ```
+    """ .
+
+# Resource Test Template
+craftplan:Template-ResourceTest a craftplan:Template ;
+    rdfs:label "Resource Test Template" ;
+    craftplan:templatePath "templates/resource_test.tera" ;
+    craftplan:templateOutput "test/craftplan/{domain}/{entity}_test.exs" ;
+    craftplan:templateDescription """
+    Generates Ash Resource test cases using Ash.Changeset.
+
+    Example Output:
+    ```elixir
+    defmodule Craftplan.Catalog.ProductTest do
+      use Craftplan.DataCase
+
+      alias Craftplan.Catalog.Product
+
+      describe "product validations" do
+        test "requires sku" do
+          changeset = Product.create_changeset(%{})
+
+          assert Keyword.has_key?(changeset.errors, :sku)
+        end
+
+        test "requires name" do
+          changeset = Product.create_changeset(%{})
+
+          assert Keyword.has_key?(changeset.errors, :name)
+        end
+
+        test "unit_price must be non-negative" do
+          attrs = %{
+            sku: "TEST-001",
+            name: "Test",
+            unit_price: Decimal.from_float(-1.0)
+          }
+
+          assert {:error, changeset} = Product.create(attrs)
+          assert Keyword.has_key?(changeset.errors, :unit_price)
+        end
+
+        test "creates product with valid attributes" do
+          attrs = %{
+            sku: "TEST-001",
+            name: "Test Product",
+            unit_price: Decimal.from_float(10.0),
+            unit_cost: Decimal.from_float(5.0)
+          }
+
+          assert {:ok, product} = Product.create(attrs)
+          assert product.sku == "TEST-001"
+        end
+      end
+
+      describe "product relationships" do
+        setup [:create_product, :create_bom]
+
+        test "associates active BOM", %{product: product, bom: bom} do
+          Product.update!(product, %{active_bom: bom})
+
+          product = Product.get_by_id!(product.id)
+          assert product.active_bom_id == bom.id
+        end
+      end
+    end
+    ```
+    """ .
+
+# ============================================================================
+# TECHNICAL DECISIONS
+# ============================================================================
+
+craftplan:Decision-PostgresDecimal a craftplan:Decision ;
+    rdfs:label "PostgreSQL DECIMAL Type" ;
+    craftplan:decisionChoice "Use PostgreSQL NUMERIC/DECIMAL type for all monetary and quantity fields" ;
+    craftplan:decisionRationale """
+    Elixir's Decimal type provides arbitrary precision arithmetic, preventing
+    floating-point rounding errors in financial calculations. PostgreSQL's
+    NUMERIC type maps directly to Elixir Decimal, ensuring end-to-end precision.
+
+    Benefits:
+    - No rounding errors in calculations
+    - Direct database type mapping (no conversion overhead)
+    - ACID-compliant atomic transactions
+    - Database-level constraints (CHECK constraints for non-negative values)
+
+    Costs:
+    - Slightly slower than floating-point (negligible for ERP scale)
+    - Requires explicit Decimal arithmetic (not a drawback, enforces correctness)
+    """ ;
+    craftplan:alternativesConsidered "Postgres FLOAT8 (floating-point), Postgres INTEGER (store in cents)" ;
+    craftplan:tradeoffs "Performance for correctness - acceptable tradeoff for financial data" ;
+    craftplan:revisitCriteria "Never - financial correctness is non-negotiable" .
+
+craftplan:Decision-DSLFirst a craftplan:Decision ;
+    rdfs:label "Ash DSL First, Code Generation Second" ;
+    craftplan:decisionChoice "Define domain model in Ash DSL, generate boilerplate only" ;
+    craftplan:decisionRationale """
+    Ash Framework's DSL is declarative and expressive. It encodes business logic
+    directly in resource definitions (actions, changes, validations, policies).
+    Code generation should focus on repetitive boilerplate (CRUD, forms, tests),
+    not abstract away the domain model.
+
+    Benefits:
+    - Domain model stays in code (not separate DSL files)
+    - Leverage Ash's compile-time validations
+    - IDE support and mix task integration
+    - Easy to customize generated resources
+
+    Costs:
+    - Manual edits to generated resources (tracked in RDF as customizations)
+    - Need to regenerate after ontology changes (merge markers)
+
+    Alternative: Generate everything from RDF, no manual edits
+    - Rejected: Too rigid, prevents domain-specific optimizations
+    """ ;
+    craftplan:alternativesConsidered "Pure RDF-driven code gen (no Ash DSL), Code-first with RDF documentation" ;
+    craftplan:tradeoffs "Flexibility vs. DRY - Ash DSL is concise enough to write manually" ;
+    craftplan:revisitCriteria "If Ash DSL becomes too verbose, consider metaprogramming macros" .
+
+craftplan:Decision-LiveViewUI a craftplan:Decision ;
+    rdfs:label "Phoenix LiveView for UI" ;
+    craftplan:decisionChoice "Use Phoenix LiveView for all user interfaces" ;
+    craftplan:decisionRationale """
+    LiveView provides real-time, server-rendered UI without writing JavaScript.
+    Ideal for ERP dashboards, forms, and data tables. Reduces client-side
+    complexity and ensures consistent state (single source of truth = server).
+
+    Benefits:
+    - No API layer (direct server-to-UI communication)
+    - Real-time updates (websocket-based reactivity)
+    - Server-side validation (Ash actions directly)
+    - Progressive enhancement (works without JS)
+
+    Costs:
+    - Requires persistent websocket connections (scalability consideration)
+    - Higher server memory usage (per-connection process)
+
+    Alternative: JSON API + React/Vue frontend
+    - Rejected: Adds complexity, overkill for small ERP
+    """ ;
+    craftplan:alternativesConsidered "JSON API + React, REST API + Vanilla JS" ;
+    craftplan:tradeoffs "Scalability vs. Development Speed - LiveView faster to build" ;
+    craftplan:revisitCriteria "If performance degrades with >100 concurrent users" .
+
+# ============================================================================
+# GENERATION RULES
+# ============================================================================
+
+craftplan:GenerationRule-ResourceFromOntology a craftplan:GenerationRule ;
+    rdfs:label "Generate Ash Resource from Ontology Class" ;
+    craftplan:rulePattern """
+    FOR EACH rdfs:Class IN ontology:
+      IF class SUBCLASS_OF fibo-fnd:BusinessObject OR craftplan domain class:
+        GENERATE Ash Resource module
+          - class rdfs:label → resource module name
+          - rdf:Property (range xsd:) → Ash attributes
+          - rdf:Property (range rdfs:Class) → Ash relationships
+          - sh:NodeShape → Ash validations
+          - owl:hasKey → unique constraint
+    """ ;
+    craftplan:template craftplan:Template-Resource ;
+    craftplan:outputPath "lib/craftplan/{domain}/{entity}.ex" .
+
+craftplan:GenerationRule-DomainFromOntologySection a craftplan:GenerationRule ;
+    rdfs:label "Generate Ash Domain from Ontology Section" ;
+    craftplan:rulePattern """
+    FOR EACH SECTION IN ontology (Catalog, Orders, Inventory, CRM):
+      GENERATE Ash Domain module
+        - SECTION → Domain module name
+        - Classes IN SECTION → Domain resources
+        - code:define → Domain code interface functions
+    """ ;
+    craftplan:template craftplan:Template-Domain ;
+    craftplan:outputPath "lib/craftplan/{domain}.ex" .
+
+craftplan:GenerationRule-TestFromSHACL a craftplan:GenerationRule ;
+    rdfs:label "Generate Tests from SHACL Shapes" ;
+    craftplan:rulePattern """
+    FOR EACH sh:NodeShape IN ontology:
+      FOR EACH sh:property IN shape:
+        IF sh:minCount > 0:
+          GENERATE test case "requires {property}"
+        IF sh:datatype == xsd:decimal AND sh:minInclusive >= 0:
+          GENERATE test case "{property} must be non-negative"
+        IF sh:uniqueLang true:
+          GENERATE test case "{property} must be unique"
+    """ ;
+    craftplan:template craftplan:Template-ResourceTest ;
+    craftplan:outputPath "test/craftplan/{domain}/{entity}_test.exs" .
+
+craftplan:GenerationRule-ForeignKeyConstraints a craftplan:GenerationRule ;
+    rdfs:label "Generate Foreign Key Migrations" ;
+    craftplan:rulePattern """
+    FOR EACH rdf:Property WITH range rdfs:Class:
+      IF property IS object property (relationship):
+        GENERATE migration add_{property}_id_fk
+          - Add foreign key column
+          - Create index on foreign key
+          - ON DELETE RESTRICT (default) or ON DELETE SET NULL
+    """ ;
+    craftplan:template craftplan:Template-MigrationFK ;
+    craftplan:outputPath "priv/repo/migrations/{timestamp}_add_{table}_fks.exs" .
+
+# ============================================================================
+# RISKS & MITIGATION
+# ============================================================================
+
+craftplan:Risk-RDFModelDrift a craftplan:Risk ;
+    rdfs:label "RDF Model Drift from Code" ;
+    craftplan:riskImpact "high" ;
+    craftplan:riskLikelihood "medium" ;
+    craftplan:mitigationStrategy """
+    - Add CI check: compare RDF timestamp vs. generated file timestamp
+    - Run 'mix codegen.check' in CI to detect drift
+    - Use merge markers for manual customizations
+    - Document all manual edits in RDF annotations
+    - Require RDF update after manual code changes
+    """ .
+
+craftplan:Risk-AshDSLVersionMismatch a craftplan:Risk ;
+    rdfs:label "Ash Framework Version Breaks Templates" ;
+    craftplan:riskImpact "high" ;
+    craftplan:riskLikelihood "low" ;
+    craftplan:mitigationStrategy """
+    - Pin Ash version in mix.exs (e.g., "~> 3.0")
+    - Test templates on each Ash minor version
+    - Maintain template version history in RDF
+    - Include Ash version in generation metadata
+    - Use Ash's stable DSL APIs only
+    """ .
+
+craftplan:Risk-DecimalOverflow a craftplan:Risk ;
+    rdfs:label "Decimal Precision Overflow" ;
+    craftplan:riskImpact "medium" ;
+    craftplan:riskLikelihood "low" ;
+    craftplan:mitigationStrategy """
+    - Use PostgreSQL NUMERIC(20,6) for all decimal columns
+    - Add CHECK constraints for reasonable ranges
+    - Validate in Ash changeset before DB insert
+    - Use Decimal.Context for precision control
+    - Test with extreme values (1e10, 1e-6)
+    """ .
+
+craftplan:Risk-LiveViewMemoryLeaks a craftplan:Risk ;
+    rdfs:label "Phoenix LiveView Memory Leaks" ;
+    craftplan:riskImpact "medium" ;
+    craftplan:riskLikelihood "medium" ;
+    craftplan:mitigationStrategy """
+    - Set @after_render hook to cleanup assigns
+    - Use :stream for large lists (not @for)
+    - Limit websocket message size (Phoenix config)
+    - Monitor BEAM memory usage in production
+    - Load test with 100+ concurrent LiveViews
+    """ .
+
+# ============================================================================
+# DEPENDENCIES
+# ============================================================================
+
+craftplan:Dependency-AshFramework a craftplan:Dependency ;
+    craftplan:dependencyName "Ash Framework" ;
+    craftplan:dependencyType "library" ;
+    craftplan:dependencyStatus "required" ;
+    craftplan:dependencyNotes """
+    Add to mix.exs:
+    {:ash, "~> 3.0"},
+    {:ash_postgres, "~> 2.0"},
+    {:ash_json_api, "~> 1.0"},
+    {:ash_graphql, "~> 1.0"},
+    {:ash_phoenix, "~> 2.0"}
+    """ .
+
+craftplan:Dependency-PhoenixFramework a craftplan:Dependency ;
+    craftplan:dependencyName "Phoenix Framework" ;
+    craftplan:dependencyType "library" ;
+    craftplan:dependencyStatus "required" ;
+    craftplan:dependencyNotes """
+    Add to mix.exs:
+    {:phoenix, "~> 1.7"},
+    {:phoenix_live_view, "~> 1.0"},
+    {:phoenix_html, "~> 4.0"}
+    """ .
+
+craftplan:Dependency-Oxigraph a craftplan:Dependency ;
+    craftplan:dependencyName "Oxigraph (RDF Store)" ;
+    craftplan:dependencyType "external" ;
+    craftplan:dependencyStatus "optional" ;
+    craftplan:dependencyNotes """
+    Only needed if loading ontology at runtime.
+    For code generation, RDF files are read directly by ggen.
+
+    Add to mix.exs (optional):
+    {:rdf, "~> 1.0"}
+    """ .
+
+# ============================================================================
+# GENERATION WORKFLOW
+# ============================================================================
+
+craftplan:Workflow-CodeGeneration a craftplan:Workflow ;
+    rdfs:label "Full Code Generation Workflow" ;
+    craftplan:workflowStep [
+        craftplan:Step-ValidateRDF,
+        craftplan:Step-GenerateResources,
+        craftplan:Step-GenerateDomains,
+        craftplan:Step-GenerateMigrations,
+        craftplan:Step-GenerateTests,
+        craftplan:Step-FormatCode,
+        craftplan:Step-RunTests
+    ] .
+
+craftplan:Step-ValidateRDF a craftplan:WorkflowStep ;
+    rdfs:label "Validate RDF Ontology" ;
+    craftplan:stepCommand "ggen validate .specify/specs/020-craftplan/" ;
+    craftplan:stepDescription "Ensure RDF files are valid Turtle and SHACL shapes pass" .
+
+craftplan:Step-GenerateResources a craftplan:WorkflowStep ;
+    rdfs:label "Generate Ash Resources" ;
+    craftplan:stepCommand "ggen generate ash_resource --output lib/craftplan/" ;
+    craftplan:stepDescription "Generate resource modules from ontology classes" .
+
+craftplan:Step-GenerateDomains a craftplan:WorkflowStep ;
+    rdfs:label "Generate Ash Domains" ;
+    craftplan:stepCommand "ggen generate ash_domain --output lib/craftplan/" ;
+    craftplan:stepDescription "Generate domain modules from ontology sections" .
+
+craftplan:Step-GenerateMigrations a craftplan:WorkflowStep ;
+    rdfs:label "Generate Database Migrations" ;
+    craftplan:stepCommand "mix ash.generate_migrations" ;
+    craftplan:stepDescription "Use Ash's built-in migration generator from resources" .
+
+craftplan:Step-GenerateTests a craftplan:WorkflowStep ;
+    rdfs:label "Generate Test Files" ;
+    craftplan:stepCommand "ggen generate test_factory && ggen generate resource_tests" ;
+    craftplan:stepDescription "Generate factory and test cases from SHACL shapes" .
+
+craftplan:Step-FormatCode a craftplan:WorkflowStep ;
+    rdfs:label "Format Generated Code" ;
+    craftplan:stepCommand "mix format" ;
+    craftplan:stepDescription "Format code with Styler, Spark.Formatter, TailwindFormatter" .
+
+craftplan:Step-RunTests a craftplan:WorkflowStep ;
+    rdfs:label "Run Test Suite" ;
+    craftplan:stepCommand "mix test" ;
+    craftplan:stepDescription "Ensure all tests pass after generation" .
+
+# ============================================================================
+# SUCCESS CRITERIA
+# ============================================================================
+
+craftplan:SuccessCriterion-AllResourcesGenerated a craftplan:SuccessCriterion ;
+    rdfs:label "All Resources Generated Successfully" ;
+    craftplan:criterionMetric "100% of ontology classes have corresponding Ash Resource files" ;
+    craftplan:criterionMeasurable true ;
+    craftplan:criterionVerifiable "Run 'find lib/craftplan -name \"*.ex\" | wc -l' and compare to ontology class count" .
+
+craftplan:SuccessCriterion-TestsPass a craftplan:SuccessCriterion ;
+    rdfs:label "All Generated Tests Pass" ;
+    craftplan:criterionMetric "100% test pass rate (mix test: 0 failures)" ;
+    craftplan:criterionMeasurable true ;
+    craftplan:criterionVerifiable "Run 'mix test' and check exit code is 0" .
+
+craftplan:SuccessCriterion-CodeFormatted a craftplan:SuccessCriterion ;
+    rdfs:label "Generated Code is Formatted" ;
+    craftplan:criterionMetric "0 formatting violations (mix format --check-formatted)" ;
+    craftplan:criterionMeasurable true ;
+    craftplan:criterionVerifiable "Run 'mix format --check-formatted'" .
+
+craftplan:SuccessCriterion-NoWarnings a craftplan:SuccessCriterion ;
+    rdfs:label "No Compiler Warnings" ;
+    craftplan:criterionMetric "0 compiler warnings (mix compile)" ;
+    craftplan:criterionMeasurable true ;
+    craftplan:criterionVerifiable "Run 'mix compile' and check stderr for warnings" .
+
+# ============================================================================
+# METADATA
+# ============================================================================
+
+craftplan:Metadata a rdf:Statement ;
+    rdfs:label "Generation Plan Metadata" ;
+    craftplan:planAuthor "ggen Specification System v6.0" ;
+    craftplan:planDate "2026-02-04"^^xsd:date ;
+    craftplan:planVersion "1.0.0" ;
+    craftplan:ontologiesUsed "core.ttl, entities.ttl" ;
+    craftplan:targetFrameworkVersion "Ash 3.0+, Phoenix 1.7+" ;
+    craftplan:outputLanguageVersion "Elixir 1.15+" .

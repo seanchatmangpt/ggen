@@ -5,6 +5,7 @@ type: "specialized"
 version: "1.0.0"
 created: "2025-07-25"
 author: "Claude Code"
+description: "Expert agent for React Native mobile application development across iOS and Android"
 
 metadata:
   description: "Expert agent for React Native mobile application development across iOS and Android"

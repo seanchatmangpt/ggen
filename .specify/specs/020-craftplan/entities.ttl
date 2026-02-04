@@ -1,0 +1,467 @@
+@prefix craftplan: <http://craftplan.example.org/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# CRAFTPLAN ENTITY INSTANCES
+# ============================================================================
+#
+# This file defines concrete entity specifications and instance examples
+# for the craftplan domain. These serve as reference implementations
+# for code generation templates and SPARQL queries.
+#
+# ============================================================================
+
+# ============================================================================
+# CATALOG ENTITIES
+# ============================================================================
+
+# Example Product: Sourdough Bread
+craftplan:Product-SourdoughBread a craftplan:Product ;
+    craftplan:productSku "PROD-001" ;
+    craftplan:productName "Sourdough Bread" ;
+    craftplan:productDescription "Artisan sourdough bread with 48-hour fermentation" ;
+    craftplan:unitPrice "8.50"^^xsd:decimal ;
+    craftplan:unitCost "3.20"^^xsd:decimal ;
+    craftplan:maxDailyQuantity 100 ;
+    craftplan:productStatus craftplan:Active ;
+    craftplan:hasActiveBOM craftplan:BOM-SourdoughBread-v1 .
+
+# BOM for Sourdough Bread
+craftplan:BOM-SourdoughBread-v1 a craftplan:BOM ;
+    craftplan:bomVersion 1 ;
+    craftplan:bomProduct craftplan:Product-SourdoughBread ;
+    craftplan:isLatestVersion true ;
+    craftplan:hasBOMComponent craftplan:BOMComponent-Flour, craftplan:BOMComponent-Water, craftplan:BOMComponent-Salt ;
+    craftplan:hasLaborStep craftplan:LaborStep-Mixing, craftplan:LaborStep-Fermentation, craftplan:LaborStep-Baking ;
+    craftplan:hasRollup craftplan:BOMRollup-SourdoughBread .
+
+# BOM Components
+craftplan:BOMComponent-Flour a craftplan:BOMComponent ;
+    craftplan:componentMaterial craftplan:Material-OrganicFlour ;
+    craftplan:componentQuantity "500.0"^^xsd:decimal ;
+    craftplan:componentUnit "g" ;
+    craftplan:componentCost "1.50"^^xsd:decimal .
+
+craftplan:BOMComponent-Water a craftplan:BOMComponent ;
+    craftplan:componentMaterial craftplan:Material-Water ;
+    craftplan:componentQuantity "350.0"^^xsd:decimal ;
+    craftplan:componentUnit "g" ;
+    craftplan:componentCost "0.00"^^xsd:decimal .
+
+craftplan:BOMComponent-Salt a craftplan:BOMComponent ;
+    craftplan:componentMaterial craftplan:Material-SeaSalt ;
+    craftplan:componentQuantity "10.0"^^xsd:decimal ;
+    craftplan:componentUnit "g" ;
+    craftplan:componentCost "0.05"^^xsd:decimal .
+
+# Labor Steps
+craftplan:LaborStep-Mixing a craftplan:LaborStep ;
+    craftplan:laborStepName "Mixing" ;
+    craftplan:laborStepMinutes "15.0"^^xsd:decimal ;
+    craftplan:laborStepCost "0.75"^^xsd:decimal ;
+    craftplan:laborStepDescription "Mix dough to proper gluten development" .
+
+craftplan:LaborStep-Fermentation a craftplan:LaborStep ;
+    craftplan:laborStepName "Bulk Fermentation" ;
+    craftplan:laborStepMinutes "240.0"^^xsd:decimal ;
+    craftplan:laborStepCost "12.00"^^xsd:decimal ;
+    craftplan:laborStepDescription "48-hour bulk fermentation with folds every 4 hours" .
+
+craftplan:LaborStep-Baking a craftplan:LaborStep ;
+    craftplan:laborStepName "Baking" ;
+    craftplan:laborStepMinutes "45.0"^^xsd:decimal ;
+    craftplan:laborStepCost "2.25"^^xsd:decimal ;
+    craftplan:laborStepDescription "Bake at 450°F for 45 minutes with steam" .
+
+# BOM Rollup (Calculated)
+craftplan:BOMRollup-SourdoughBread a craftplan:BOMRollup ;
+    craftplan:rollupTotalMaterialCost "1.55"^^xsd:decimal ;
+    craftplan:rollupTotalLaborCost "15.00"^^xsd:decimal ;
+    craftplan:rollupTotalOverheadCost "0.50"^^xsd:decimal ;
+    craftplan:rollupTotalCost "17.05"^^xsd:decimal .
+
+# Example Product 2: Croissant
+craftplan:Product-Croissant a craftplan:Product ;
+    craftplan:productSku "PROD-002" ;
+    craftplan:productName "Butter Croissant" ;
+    craftplan:productDescription "Traditional French croissant with laminated dough" ;
+    craftplan:unitPrice "4.50"^^xsd:decimal ;
+    craftplan:unitCost "2.10"^^xsd:decimal ;
+    craftplan:maxDailyQuantity 200 ;
+    craftplan:productStatus craftplan:Active .
+
+# ============================================================================
+# INVENTORY ENTITIES
+# ============================================================================
+
+# Materials
+craftplan:Material-OrganicFlour a craftplan:Material ;
+    craftplan:materialSku "MAT-001" ;
+    craftplan:materialName "Organic Bread Flour" ;
+    craftplan:materialUnit "kg" ;
+    craftplan:materialUnitCost "3.00"^^xsd:decimal ;
+    craftplan:materialSupplier craftplan:Supplier-BobMill .
+
+craftplan:Material-Water a craftplan:Material ;
+    craftplan:materialSku "MAT-002" ;
+    craftplan:materialName "Filtered Water" ;
+    craftplan:materialUnit "L" ;
+    craftplan:materialUnitCost "0.00"^^xsd:decimal .
+
+craftplan:Material-SeaSalt a craftplan:Material ;
+    craftplan:materialSku "MAT-003" ;
+    craftplan:materialName "Fine Sea Salt" ;
+    craftplan:materialUnit "kg" ;
+    craftplan:materialUnitCost "5.00"^^xsd:decimal ;
+    craftplan:materialSupplier craftplan:Supplier-BobMill .
+
+craftplan:Material-Butter a craftplan:Material ;
+    craftplan:materialSku "MAT-004" ;
+    craftplan:materialName "European Butter 82%" ;
+    craftplan:materialUnit "kg" ;
+    craftplan:materialUnitCost "12.00"^^xsd:decimal ;
+    craftplan:materialSupplier craftplan:Supplier-DairyCo .
+
+# Material Lots
+craftplan:Lot-Flour-001 a craftplan:Lot ;
+    craftplan:lotCode "LOT-2024-001" ;
+    craftplan:lotExpiryDate "2024-12-31"^^xsd:date ;
+    craftplan:lotReceivedAt "2024-01-15T10:00:00Z"^^xsd:dateTime ;
+    craftplan:lotCurrentStock "25.0"^^xsd:decimal ;
+    craftplan:lotUnitCost "3.00"^^xsd:decimal .
+
+craftplan:Lot-Butter-001 a craftplan:Lot ;
+    craftplan:lotCode "LOT-2024-002" ;
+    craftplan:lotExpiryDate "2024-06-30"^^xsd:date ;
+    craftplan:lotReceivedAt "2024-01-20T14:30:00Z"^^xsd:dateTime ;
+    craftplan:lotCurrentStock "10.0"^^xsd:decimal ;
+    craftplan:lotUnitCost "12.00"^^xsd:decimal .
+
+# Inventory Movement Example
+craftplan:Movement-Consume-001 a craftplan:Movement ;
+    craftplan:movementType craftplan:MovementConsume ;
+    craftplan:movementQuantity "-0.500"^^xsd:decimal ;
+    craftplan:movementLot craftplan:Lot-Flour-001 ;
+    craftplan:movementTimestamp "2024-02-04T08:00:00Z"^^xsd:dateTime ;
+    craftplan:movementReason "Production batch BATCH-2024-02-04-001" .
+
+# ============================================================================
+# CRM ENTITIES
+# ============================================================================
+
+# Customers
+craftplan:Customer-JohnDoe a craftplan:Customer ;
+    craftplan:customerFullName "John Doe" ;
+    craftplan:customerEmail "john.doe@example.com" ;
+    craftplan:customerPhone "+1-555-0100" ;
+    craftplan:customerAddress craftplan:Address-JohnDoe .
+
+craftplan:Address-JohnDoe a craftplan:Address ;
+    craftplan:addressStreet "123 Main St" ;
+    craftplan:addressCity "San Francisco" ;
+    craftplan:addressState "CA" ;
+    craftplan:addressPostalCode "94102" ;
+    craftplan:addressCountry "USA" .
+
+craftplan:Customer-JaneSmith a craftplan:Customer ;
+    craftplan:customerFullName "Jane Smith" ;
+    craftplan:customerEmail "jane.smith@example.com" ;
+    craftplan:customerPhone "+1-555-0101" .
+
+# Suppliers
+craftplan:Supplier-BobMill a craftplan:Supplier ;
+    craftplan:supplierName "Bob's Red Mill" ;
+    craftplan:supplierContact "Sales Team" ;
+    craftplan:supplierEmail "sales@bobsredmill.com" ;
+    craftplan:supplierPhone "+1-555-0200" .
+
+craftplan:Supplier-DairyCo a craftplan:Supplier ;
+    craftplan:supplierName "Dairy Co-operative" ;
+    craftplan:supplierContact "John Milkman" ;
+    craftplan:supplierEmail "john@dairyco.com" ;
+    craftplan:supplierPhone "+1-555-0201" .
+
+# ============================================================================
+# ORDER ENTITIES
+# ============================================================================
+
+# Order Example 1
+craftplan:Order-ORD-2024-001 a craftplan:Order ;
+    craftplan:orderReference "ORD-2024-001" ;
+    craftplan:orderDeliveryDate "2024-02-10"^^xsd:date ;
+    craftplan:orderStatus craftplan:OrderConfirmed ;
+    craftplan:orderCustomer craftplan:Customer-JohnDoe ;
+    craftplan:hasOrderItem craftplan:OrderItem-001-1, craftplan:OrderItem-001-2 ;
+    craftplan:orderTotalCost "25.50"^^xsd:decimal .
+
+# Order Items
+craftplan:OrderItem-001-1 a craftplan:OrderItem ;
+    craftplan:orderItemProduct craftplan:Product-SourdoughBread ;
+    craftplan:orderItemQuantity "2.0"^^xsd:decimal ;
+    craftplan:orderItemStatus craftplan:ItemTodo ;
+    craftplan:orderItemUnitPrice "8.50"^^xsd:decimal ;
+    craftplan:orderItemUnitCost "3.20"^^xsd:decimal ;
+    craftplan:orderItemMaterialCost "0.00"^^xsd:decimal ;
+    craftplan:orderItemLaborCost "0.00"^^xsd:decimal ;
+    craftplan:orderItemOverheadCost "0.00"^^xsd:decimal .
+
+craftplan:OrderItem-001-2 a craftplan:OrderItem ;
+    craftplan:orderItemProduct craftplan:Product-Croissant ;
+    craftplan:orderItemQuantity "1.0"^^xsd:decimal ;
+    craftplan:orderItemStatus craftplan:ItemTodo ;
+    craftplan:orderItemUnitPrice "4.50"^^xsd:decimal ;
+    craftplan:orderItemUnitCost "2.10"^^xsd:decimal .
+
+# ============================================================================
+# PRODUCTION BATCH ENTITIES
+# ============================================================================
+
+# Production Batch Example
+craftplan:ProductionBatch-BATCH-001 a craftplan:ProductionBatch ;
+    craftplan:batchCode "BATCH-2024-02-04-001" ;
+    craftplan:batchProduct craftplan:Product-SourdoughBread ;
+    craftplan:batchBOM craftplan:BOM-SourdoughBread-v1 ;
+    craftplan:batchStatus craftplan:BatchOpen ;
+    craftplan:batchQuantity "10.0"^^xsd:decimal ;
+    craftplan:hasBatchAllocation craftplan:Allocation-001-1 .
+
+# Batch Allocation
+craftplan:Allocation-001-1 a craftplan:OrderItemBatchAllocation ;
+    craftplan:allocationOrderItem craftplan:OrderItem-001-1 ;
+    craftplan:allocationBatch craftplan:ProductionBatch-BATCH-001 .
+
+# Batch Lot Staging
+craftplan:ProductionBatchLot-BATCH-001-Flour a craftplan:ProductionBatchLot ;
+    craftplan:batchLotLot craftplan:Lot-Flour-001 .
+
+# ============================================================================
+# ENTITY RELATIONSHIP EXAMPLES
+# ============================================================================
+
+# Complete supply chain traceability example:
+# Customer Order → Order Items → Production Batch → Material Lots → Supplier
+
+craftplan:TraceabilityExample a rdf:Statement ;
+    rdf:subject craftplan:Order-ORD-2024-001 ;
+    rdf:predicate craftplan:hasOrderItem ;
+    rdf:object craftplan:OrderItem-001-1 ;
+    rdfs:comment "Order contains order items" .
+
+craftplan:TraceabilityExample2 a rdf:Statement ;
+    rdf:subject craftplan:OrderItem-001-1 ;
+    rdf:predicate craftplan:orderItemBatchCode ;
+    rdf:object "BATCH-2024-02-04-001" ;
+    rdfs:comment "Order item allocated to batch" .
+
+craftplan:TraceabilityExample3 a rdf:Statement ;
+    rdf:subject craftplan:ProductionBatch-BATCH-001 ;
+    rdf:predicate craftplan:hasBatchLot ;
+    rdf:object craftplan:ProductionBatchLot-BATCH-001-Flour ;
+    rdfs:comment "Batch consumes from lot" .
+
+craftplan:TraceabilityExample4 a rdf:Statement ;
+    rdf:subject craftplan:Lot-Flour-001 ;
+    rdf:predicate craftplan:lotMaterial ;
+    rdf:object craftplan:Material-OrganicFlour ;
+    rdfs:comment "Lot is of material" .
+
+craftplan:TraceabilityExample5 a rdf:Statement ;
+    rdf:subject craftplan:Material-OrganicFlour ;
+    rdf:predicate craftplan:materialSupplier ;
+    rdf:object craftplan:Supplier-BobMill ;
+    rdfs:comment "Material sourced from supplier" .
+
+# ============================================================================
+# BUSINESS RULES & CONSTRAINT EXAMPLES
+# ============================================================================
+
+# Rule: Product must have at least one active BOM
+craftplan:BusinessRule-ProductHasBOM a rdf:Statement ;
+    rdfs:label "Product Must Have Active BOM" ;
+    rdfs:comment "Every active product must reference an active BOM version" ;
+    rdf:subject craftplan:Product ;
+    rdf:predicate craftplan:hasActiveBOM ;
+    rdf:object craftplan:BOM ;
+    rdfs:constraint "minCount(1)" .
+
+# Rule: Order item quantity must be positive
+craftplan:BusinessRule-PositiveQuantity a rdf:Statement ;
+    rdfs:label "Positive Quantity Required" ;
+    rdfs:comment "Order item quantities must be greater than zero" ;
+    rdf:subject craftplan:OrderItem ;
+    rdf:predicate craftplan:orderItemQuantity ;
+    rdf:object xsd:decimal ;
+    rdfs:constraint "minInclusive(0.01)" .
+
+# Rule: Lot expiry must be future date at receiving
+craftplan:BusinessRule-LotExpiryFuture a rdf:Statement ;
+    rdfs:label "Lot Expiry Future" ;
+    rdfs:comment "Material lot expiry date must be in the future at receiving time" ;
+    rdf:subject craftplan:Lot ;
+    rdf:predicate craftplan:lotExpiryDate ;
+    rdf:object xsd:date ;
+    rdfs:constraint "greaterThan(receivedAt)" .
+
+# Rule: BOM component quantities must be positive
+craftplan:BusinessRule-BOMComponentPositive a rdf:Statement ;
+    rdfs:label "BOM Component Positive Quantity" ;
+    rdfs:comment "BOM component quantities must be positive values" ;
+    rdf:subject craftplan:BOMComponent ;
+    rdf:predicate craftplan:componentQuantity ;
+    rdf:object xsd:decimal ;
+    rdfs:constraint "minInclusive(0.001)" .
+
+# Rule: Production batch cannot exceed daily capacity
+craftplan:BusinessRule-BatchCapacityLimit a rdf:Statement ;
+    rdfs:label "Batch Capacity Limit" ;
+    rdfs:comment "Production batch quantity cannot exceed product's max daily quantity" ;
+    rdf:subject craftplan:ProductionBatch ;
+    rdf:predicate craftplan:batchQuantity ;
+    rdf:object xsd:decimal ;
+    rdfs:constraint "lessOrEqual(product.maxDailyQuantity)" .
+
+# Rule: Order delivery date cannot be in the past
+craftplan:BusinessRule-DeliveryDateFuture a rdf:Statement ;
+    rdfs:label "Delivery Date Future" ;
+    rdfs:comment "Order delivery date must be today or in the future" ;
+    rdf:subject craftplan:Order ;
+    rdf:predicate craftplan:orderDeliveryDate ;
+    rdf:object xsd:date ;
+    rdfs:constraint "greaterOrEqual(today)" .
+
+# ============================================================================
+# QUERY PATTERNS (SPARQL Examples)
+# ============================================================================
+
+# Query Pattern 1: Find all materials needed for an order
+craftplan:QueryPattern-OrderMaterials a rdf:Statement ;
+    rdfs:label "Order Material Requirements" ;
+    rdfs:comment """
+    SPARQL Query:
+    PREFIX craftplan: <http://craftplan.example.org/ontology#>
+
+    SELECT ?material ? SUM(?componentQuantity * ?orderItemQuantity) AS ?totalQuantity
+    WHERE {
+        ?order a craftplan:Order ;
+            craftplan:orderReference "ORD-2024-001" ;
+            craftplan:hasOrderItem ?orderItem .
+
+        ?orderItem craftplan:orderItemProduct ?product ;
+                    craftplan:orderItemQuantity ?orderItemQuantity .
+
+        ?product craftplan:hasActiveBOM ?bom .
+
+        ?bom craftplan:hasBOMComponent ?bomComponent .
+
+        ?bomComponent craftplan:componentMaterial ?material ;
+                     craftplan:componentQuantity ?componentQuantity .
+    }
+    GROUP BY ?material
+    """ .
+
+# Query Pattern 2: Find all lots expiring soon
+craftplan:QueryPattern-ExpiringLots a rdf:Statement ;
+    rdfs:label "Expiring Lots Alert" ;
+    rdfs:comment """
+    SPARQL Query:
+    PREFIX craftplan: <http://craftplan.example.org/ontology#>
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+    SELECT ?lotCode ?material ?expiryDate ?currentStock
+    WHERE {
+        ?lot a craftplan:Lot ;
+            craftplan:lotCode ?lotCode ;
+            craftplan:lotExpiryDate ?expiryDate ;
+            craftplan:lotCurrentStock ?currentStock ;
+            craftplan:hasLotMaterial ?material .
+
+        FILTER (?expiryDate < NOW() + 30 DAYS)
+        FILTER (?currentStock > 0)
+    }
+    ORDER BY ?expiryDate
+    """ .
+
+# Query Pattern 3: Find production batches needing materials
+craftplan:QueryPattern-BatchMaterialNeeds a rdf:Statement ;
+    rdfs:label "Batch Material Requirements" ;
+    rdfs:comment """
+    SPARQL Query:
+    PREFIX craftplan: <http://craftplan.example.org/ontology#>
+
+    SELECT ?batchCode ?material ?SUM(?componentQuantity * ?batchQuantity) AS ?needed
+    WHERE {
+        ?batch a craftplan:ProductionBatch ;
+            craftplan:batchCode ?batchCode ;
+            craftplan:batchStatus craftplan:BatchOpen ;
+            craftplan:batchQuantity ?batchQuantity ;
+            craftplan:batchBOM ?bom .
+
+        ?bom craftplan:hasBOMComponent ?bomComponent .
+
+        ?bomComponent craftplan:componentMaterial ?material ;
+                     craftplan:componentQuantity ?componentQuantity .
+    }
+    GROUP BY ?batchCode ?material
+    """ .
+
+# Query Pattern 4: Calculate order profitability
+craftplan:QueryPattern-OrderProfitability a rdf:Statement ;
+    rdfs:label "Order Profit Margin Analysis" ;
+    rdfs:comment """
+    SPARQL Query:
+    PREFIX craftplan: <http://craftplan.example.org/ontology#>
+
+    SELECT ?orderReference
+           SUM(?orderItemQuantity * ?orderItemUnitPrice) AS ?revenue
+           SUM(?orderItemQuantity * ?orderItemUnitCost) AS ?cost
+           (SUM(?orderItemQuantity * ?orderItemUnitPrice) -
+            SUM(?orderItemQuantity * ?orderItemUnitCost)) AS ?profit
+           ((SUM(?orderItemQuantity * ?orderItemUnitPrice) -
+             SUM(?orderItemQuantity * ?orderItemUnitCost)) /
+            SUM(?orderItemQuantity * ?orderItemUnitPrice)) AS ?margin
+    WHERE {
+        ?order a craftplan:Order ;
+            craftplan:orderReference ?orderReference ;
+            craftplan:hasOrderItem ?orderItem .
+
+        ?orderItem craftplan:orderItemQuantity ?orderItemQuantity ;
+                   craftplan:orderItemUnitPrice ?orderItemUnitPrice ;
+                   craftplan:orderItemUnitCost ?orderItemUnitCost .
+    }
+    GROUP BY ?orderReference
+    """ .
+
+# Query Pattern 5: Trace lot to orders
+craftplan:QueryPattern-LotTraceability a rdf:Statement ;
+    rdfs:label "Lot to Orders Traceability" ;
+    rdfs:comment """
+    SPARQL Query:
+    PREFIX craftplan: <http://craftplan.example.org/ontology#>
+
+    SELECT ?lotCode ?orderReference ?customerName ?quantityUsed
+    WHERE {
+        ?lot a craftplan:Lot ;
+            craftplan:lotCode "LOT-2024-001" .
+
+        ?movement a craftplan:Movement ;
+            craftplan:movementLot ?lot ;
+            craftplan:movementType craftplan:MovementConsume ;
+            craftplan:movementQuantity ?quantityUsed ;
+            craftplan:movementReason ?batchReason .
+
+        ?batch a craftplan:ProductionBatch ;
+            craftplan:batchCode ?batchCode ;
+            craftplan:hasBatchAllocation ?allocation .
+
+        ?allocation craftplan:allocationOrderItem ?orderItem .
+
+        ?orderItem craftplan:orderItemOrder ?order .
+
+        ?order craftplan:orderReference ?orderReference ;
+                craftplan:orderCustomer ?customer .
+
+        ?customer craftplan:customerFullName ?customerName .
+    }
+    """ .
