@@ -13,16 +13,16 @@ Continuous coordination (Day 1-5)
 **Day 0: Setup**
 ```bash
 # Initialize swarm coordination
-npx claude-flow@alpha swarm init --topology mesh --max-agents 4
+# Use Task tool:  swarm init --topology mesh --max-agents 4
 
 # Spawn specialized agents
-npx claude-flow@alpha agent spawn --type tester --name test-engineer
-npx claude-flow@alpha agent spawn --type optimizer --name backend-dev
-npx claude-flow@alpha agent spawn --type analyst --name code-analyzer
-npx claude-flow@alpha agent spawn --type coordinator --name performance-benchmarker
+# Use Task tool:  agent spawn --type tester --name test-engineer
+# Use Task tool:  agent spawn --type optimizer --name backend-dev
+# Use Task tool:  agent spawn --type analyst --name code-analyzer
+# Use Task tool:  agent spawn --type coordinator --name performance-benchmarker
 
 # Verify all agents ready
-npx claude-flow@alpha swarm status --verbose
+# Use Task tool:  swarm status --verbose
 ```
 
 ### 2. Daily Standup Coordination
@@ -262,14 +262,14 @@ prepare_week4_context
 ### Daily Coordination Hooks
 ```bash
 # Morning: Initialize daily coordination
-npx claude-flow@alpha hooks pre-task --description "Day [N] coordination"
+# Use Task tool:  hooks pre-task --description "Day [N] coordination"
 
 # Throughout day: Track agent updates
-npx claude-flow@alpha hooks notify --message "[Agent] update: [Status]"
+# Use Task tool:  hooks notify --message "[Agent] update: [Status]"
 
 # Evening: Daily summary
-npx claude-flow@alpha hooks post-task --task-id "coordinate-day-[N]"
-npx claude-flow@alpha hooks session-end --export-metrics true
+# Use Task tool:  hooks post-task --task-id "coordinate-day-[N]"
+# Use Task tool:  hooks session-end --export-metrics true
 ```
 
 ### Agent Communication

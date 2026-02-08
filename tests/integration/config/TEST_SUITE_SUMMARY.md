@@ -151,12 +151,12 @@ cargo test config -- --show-output --test-threads=1
 ### Memory Coordination
 ```bash
 # Store test status
-npx claude-flow@alpha memory store \
+# Store in .claude/memory/ \
   --key "hive/testing/ggen-config-status" \
   --value "Test suite created, awaiting implementation"
 
 # Store test results (after implementation)
-npx claude-flow@alpha memory store \
+# Store in .claude/memory/ \
   --key "hive/testing/ggen-config-results" \
   --value "33+ tests, 100% pass rate, <2s execution"
 ```

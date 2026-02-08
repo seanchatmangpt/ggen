@@ -317,9 +317,9 @@ cargo metadata --format-version=1 | jq '.packages[] | select(.name == "oxigraph"
 
 ```bash
 # Hooks executed
-npx claude-flow@alpha hooks pre-task --description "Production validation"
-npx claude-flow@alpha hooks notify --message "Found 100+ errors in marketplace-v2"
-npx claude-flow@alpha hooks post-task --memory-key "hive/production-validator/findings"
+# Native hooks pre-task --description "Production validation"
+# Native hooks notify --message "Found 100+ errors in marketplace-v2"
+# Native hooks post-task --memory-key "hive/production-validator/findings"
 ```
 
 ---

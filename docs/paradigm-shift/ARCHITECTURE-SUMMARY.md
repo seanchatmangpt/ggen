@@ -422,7 +422,7 @@ audience: advanced
 |---------------|----------------|--------|
 | `/docs/README.md` | Add "🚀 Start Here: Paradigm Shift" section | 2h |
 | `/docs/getting-started/README.md` | Add prerequisites: mental model shift | 1h |
-| `/docs/CLAUDE.md` | Split into `CLAUDE-RUST.md` + `CLAUDE-ONTOLOGY.md` | 4h |
+| root `CLAUDE.md` | Authoritative; split into `CLAUDE-RUST.md` + `CLAUDE-ONTOLOGY.md` if needed | 4h |
 | `/docs/explanations/ontology-driven.md` | Link to paradigm-shift fundamentals | 1h |
 | `/docs/tutorials/` | Add paradigm shift intro (30-min tutorial) | 8h |
 

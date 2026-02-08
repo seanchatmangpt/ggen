@@ -295,11 +295,11 @@ Skipped tests represent edge cases and low-usage features that can be addressed 
 ## Coordination Protocol Execution
 
 ```bash
-✅ npx claude-flow@alpha hooks pre-task --description "tester: complete test suite"
-✅ npx claude-flow@alpha hooks post-edit --file "cli/Cargo.toml" --memory-key "swarm/tester/p2p_fix"
-✅ npx claude-flow@alpha hooks post-edit --file "utils/src/error.rs" --memory-key "swarm/tester/ggen_error_fix"
-✅ npx claude-flow@alpha hooks notify --message "tester: Chicago TDD 22/22 passing, Install E2E 26/26 passing, search tests validated"
-⏭️ npx claude-flow@alpha hooks post-task --task-id "testing" (pending final report)
+✅ # Native hooks pre-task --description "tester: complete test suite"
+✅ # Native hooks post-edit --file "cli/Cargo.toml" --memory-key "swarm/tester/p2p_fix"
+✅ # Native hooks post-edit --file "utils/src/error.rs" --memory-key "swarm/tester/ggen_error_fix"
+✅ # Native hooks notify --message "tester: Chicago TDD 22/22 passing, Install E2E 26/26 passing, search tests validated"
+⏭️ # Native hooks post-task --task-id "testing" (pending final report)
 ```
 
 **Test artifacts stored in swarm memory for coordinator access.**

@@ -954,7 +954,9 @@ impl WorkflowEngine {
                         // are now satisfied by the completed task
                         let completed = &workflow_state.completed_tasks;
                         for (task_id, deps) in &scheduler.dependency_graph {
-                            if !completed.contains(task_id) && !workflow_state.running_tasks.contains(task_id) {
+                            if !completed.contains(task_id)
+                                && !workflow_state.running_tasks.contains(task_id)
+                            {
                                 // Task is not completed and not running - check if all deps are met
                                 let deps_satisfied = deps.iter().all(|dep| completed.contains(dep));
                                 if deps_satisfied {

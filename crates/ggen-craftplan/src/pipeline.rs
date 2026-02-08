@@ -80,7 +80,9 @@ impl CodeGenerator {
     /// # }
     /// ```
     #[instrument(skip(self))]
-    pub fn generate_from_rdf<P: AsRef<Path> + std::fmt::Debug>(&self, rdf_path: P) -> Result<GenerationReceipt> {
+    pub fn generate_from_rdf<P: AsRef<Path> + std::fmt::Debug>(
+        &self, rdf_path: P,
+    ) -> Result<GenerationReceipt> {
         let rdf_path = rdf_path.as_ref();
         info!("Starting code generation from: {}", rdf_path.display());
 
@@ -134,7 +136,9 @@ impl CodeGenerator {
     }
 
     /// μ₁ stage: Normalize RDF
-    fn normalize_stage(&self, normalizer: &mut Normalizer, rdf_path: &Path) -> Result<NormalizedData> {
+    fn normalize_stage(
+        &self, normalizer: &mut Normalizer, rdf_path: &Path,
+    ) -> Result<NormalizedData> {
         normalizer.load_rdf(rdf_path)?;
         normalizer.validate()?;
 

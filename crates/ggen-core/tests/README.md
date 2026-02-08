@@ -279,13 +279,13 @@ All tests support hooks for coordination:
 
 ```bash
 # Pre-test hook
-npx claude-flow@alpha hooks pre-task --description "Test suite"
+# Use cargo make test for validation
 
 # Post-test hook
-npx claude-flow@alpha hooks post-task --task-id "testing"
+cargo make test
 
 # Memory storage
-npx claude-flow@alpha hooks post-edit --file "tests/integration/mod.rs" --memory-key "swarm/tester/coverage"
+# File edits tracked via git
 ```
 
 ## Maintenance

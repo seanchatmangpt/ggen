@@ -30,9 +30,3 @@ cargo make audit         # Security check
 - Minimize heap allocations
 - Optimize hot paths (20% of code)
 - Profile before optimizing
-
-## Claude Flow Benefits
-- 84.8% SWE-Bench solve rate
-- 32.3% token reduction
-- 2.8-4.4x speed improvement
-- 27+ neural models available

@@ -87,8 +87,8 @@
 
 **Development & Standards**:
 ```
-  672 lines | docs/CLAUDE.md
-  → Claude Code dev environment setup [KEEP]
+  docs/CLAUDE.md (removed 2026-02)
+  → Root CLAUDE.md is authoritative
 
   594 lines | docs/CODING_STANDARDS.md
   → Code standards and conventions [KEEP]

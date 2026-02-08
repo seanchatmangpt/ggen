@@ -500,7 +500,7 @@ Claude Code integration, agent configuration, and tool system documentation.
 ### Claude Best Practices
 
 - `docs/CLAUDE-CODE-WEB-BEST-PRACTICES.md` - Web best practices
-- `CLAUDE.md` - Main configuration (also at `docs/CLAUDE.md`)
+- `CLAUDE.md` - Main configuration (project root)
 
 ---
 

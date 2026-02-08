@@ -141,22 +141,22 @@ Implement 3 medium-effort optimizations to achieve 50-80% performance improvemen
 
 ### Before Starting Each Optimization
 ```bash
-npx claude-flow@alpha hooks pre-task --description "Optimizing [system]: [approach]"
-npx claude-flow@alpha hooks session-restore --session-id "swarm-week3"
+# Native:  hooks pre-task --description "Optimizing [system]: [approach]"
+# Native:  hooks session-restore --session-id "swarm-week3"
 ```
 
 ### During Implementation
 ```bash
 # After significant changes
-npx claude-flow@alpha hooks post-edit --file "[optimized file]" --memory-key "swarm/backend-dev/optimization-[N]"
+# Native:  hooks post-edit --file "[optimized file]" --memory-key "swarm/backend-dev/optimization-[N]"
 
 # Performance validation
-npx claude-flow@alpha hooks notify --message "Optimization [N]: [X]% improvement achieved"
+# Native:  hooks notify --message "Optimization [N]: [X]% improvement achieved"
 ```
 
 ### After Completing Each Optimization
 ```bash
-npx claude-flow@alpha hooks post-task --task-id "optimize-[system]"
+# Native:  hooks post-task --task-id "optimize-[system]"
 ```
 
 ## Quality Standards

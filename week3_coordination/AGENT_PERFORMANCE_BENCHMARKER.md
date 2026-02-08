@@ -157,7 +157,7 @@ critcmp baseline current
 
 # Alert if any benchmark regresses >5%
 if [ regression_found ]; then
-    npx claude-flow@alpha hooks notify \
+    # Native:  hooks notify \
         --message "⚠️ REGRESSION: [benchmark] regressed by [X]%"
 fi
 ```
@@ -239,22 +239,22 @@ EOF
 
 ### Before Each Benchmark
 ```bash
-npx claude-flow@alpha hooks pre-task --description "Benchmarking [optimization/quick-win]"
+# Native:  hooks pre-task --description "Benchmarking [optimization/quick-win]"
 ```
 
 ### After Each Validation
 ```bash
-npx claude-flow@alpha hooks post-edit \
+# Native:  hooks post-edit \
     --file "benchmarks/[name]_results.md" \
     --memory-key "swarm/benchmarker/validation-[N]"
 
-npx claude-flow@alpha hooks notify \
+# Native:  hooks notify \
     --message "Validated [optimization]: [X]% improvement"
 ```
 
 ### Daily Summary
 ```bash
-npx claude-flow@alpha hooks post-task --task-id "benchmark-day-[N]"
+# Native:  hooks post-task --task-id "benchmark-day-[N]"
 ```
 
 ## Success Criteria

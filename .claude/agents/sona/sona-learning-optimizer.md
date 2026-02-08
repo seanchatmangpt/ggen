@@ -56,17 +56,9 @@ Based on vibecast test-ruvector-sona benchmarks:
 - **Chat**: +2.1%
 - **Math**: +1.2%
 
-## Hooks
+## Coordination
 
-Pre-task and post-task hooks for SONA learning are available via:
-
-```bash
-# Pre-task: Initialize trajectory
-npx claude-flow@alpha hooks pre-task --description "$TASK"
-
-# Post-task: Record outcome
-npx claude-flow@alpha hooks post-task --task-id "$ID" --success true
-```
+Use Claude Code Task tool for agent execution. Batch TodoWrite and file operations per project workflow.
 
 ## References
 

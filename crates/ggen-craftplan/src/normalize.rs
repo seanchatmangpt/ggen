@@ -22,7 +22,9 @@ pub struct Normalizer {
 impl Normalizer {
     pub fn new() -> Result<Self> {
         Ok(Self {
-            store: Store::new().map_err(|e| CraftplanError::rdf_validation(format!("Failed to create RDF store: {}", e)))?,
+            store: Store::new().map_err(|e| {
+                CraftplanError::rdf_validation(format!("Failed to create RDF store: {}", e))
+            })?,
         })
     }
 
@@ -50,7 +52,9 @@ impl Normalizer {
     }
 
     pub fn validate(&self) -> Result<usize> {
-        let count = self.store.len().map_err(|e| CraftplanError::rdf_validation(format!("Failed to get store size: {}", e)))?;
+        let count = self.store.len().map_err(|e| {
+            CraftplanError::rdf_validation(format!("Failed to get store size: {}", e))
+        })?;
 
         if count == 0 {
             return Err(CraftplanError::rdf_validation(
@@ -88,9 +92,8 @@ impl Normalizer {
         match results {
             QueryResults::Solutions(mut solutions) => {
                 while let Some(solution) = solutions.next() {
-                    let solution = solution.map_err(|e| {
-                        CraftplanError::sparql_query(query, e.to_string())
-                    })?;
+                    let solution =
+                        solution.map_err(|e| CraftplanError::sparql_query(query, e.to_string()))?;
 
                     if let Some(entity) = solution.get("entity") {
                         let entity_str = entity.to_string();

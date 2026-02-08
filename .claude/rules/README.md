@@ -80,8 +80,6 @@ cargo make slo-check      # ✅ SLOs met
 ## 📚 Support
 
 - **ggen**: https://github.com/seanchatmangpt/ggen
-- **Claude Flow**: https://github.com/ruvnet/claude-flow
-- **Flow-Nexus**: https://flow-nexus.ruv.io
 
 ---
 

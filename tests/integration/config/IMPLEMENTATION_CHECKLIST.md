@@ -211,13 +211,13 @@ Once implementation is complete:
 
 1. Run hooks:
 ```bash
-npx claude-flow@alpha hooks post-task --task-id "implement-ggen-config"
-npx claude-flow@alpha memory store hive/coder/ggen-config "Implementation complete"
+# Native hooks post-task --task-id "implement-ggen-config"
+# Native memory store hive/coder/ggen-config "Implementation complete"
 ```
 
 2. Notify TESTER:
 ```bash
-npx claude-flow@alpha hooks notify --message "ggen-config crate implemented, ready for test activation"
+# Native hooks notify --message "ggen-config crate implemented, ready for test activation"
 ```
 
 3. TESTER will:

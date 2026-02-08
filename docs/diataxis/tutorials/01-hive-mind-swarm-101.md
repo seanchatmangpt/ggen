@@ -110,10 +110,7 @@ Colony 1 Workers:
 
 ### Step 1: Initialize Swarm Topology
 
-```bash
-# Choose a topology based on task complexity
-npx claude-flow@alpha swarm init --topology mesh --max-agents 8
-```
+Use Claude Code Task tool to spawn agents. Choose topology based on task complexity:
 
 **Topologies:**
 - **Mesh:** Peer-to-peer, all agents communicate (best for collaboration)
@@ -125,11 +122,10 @@ npx claude-flow@alpha swarm init --topology mesh --max-agents 8
 
 ### Step 2: Spawn Specialized Agents
 
-```bash
-# Spawn agents with specific capabilities
-npx claude-flow@alpha agent spawn --type researcher --name "API-Researcher"
-npx claude-flow@alpha agent spawn --type coder --name "Rust-Implementer"
-npx claude-flow@alpha agent spawn --type tester --name "Test-Engineer"
+```javascript
+Task("API-Researcher", "Analyze requirements and patterns...", "researcher")
+Task("Rust-Implementer", "Implement refactoring...", "coder")
+Task("Test-Engineer", "Create test suite...", "tester")
 ```
 
 **Agent Types:**
@@ -141,13 +137,7 @@ npx claude-flow@alpha agent spawn --type tester --name "Test-Engineer"
 
 ### Step 3: Orchestrate a Task
 
-```bash
-# Assign a task with strategy
-npx claude-flow@alpha task orchestrate \
-  --task "Refactor CLI from builder to derive pattern" \
-  --strategy adaptive \
-  --priority high
-```
+Use Task tool with full instructions. Batch TodoWrite and file operations per project workflow.
 
 **Strategies:**
 - **Parallel:** All agents work simultaneously (fastest, needs independence)
@@ -156,13 +146,7 @@ npx claude-flow@alpha task orchestrate \
 
 ### Step 4: Monitor Progress
 
-```bash
-# Check swarm status
-npx claude-flow@alpha swarm status
-
-# Get detailed agent metrics
-npx claude-flow@alpha agent metrics --agent-id "Rust-Implementer"
-```
+Monitor via TodoWrite status and file outputs. Use `cargo make check` and `cargo make test` for validation.
 
 **Expected Output:**
 ```json

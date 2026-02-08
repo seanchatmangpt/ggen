@@ -348,38 +348,6 @@ export MCP_CACHE_DURATION=30  # 30 seconds
 
 ## Integration with Claude Code Infrastructure
 
-### MCP + Claude Flow Coordination
-
-The MCP client coordinates with Claude Flow hooks:
-
-```bash
-# MCP initialization
-mcp_init_client
-
-# Signal ready to Claude Flow
-npx claude-flow@alpha hooks post-init --ready true
-
-# Execute via MCP
-result=$(mcp_call_tool "task")
-
-# Report result
-npx claude-flow@alpha hooks post-exec --result "$result"
-```
-
-### MCP + Memory Integration
-
-Store MCP metadata in shared memory:
-
-```bash
-# MCP initialization stores to memory
-mcp_init_client
-
-# Agents query MCP status via memory
-mcp_status | jq -r '.servers[]' | \
-    jq -s -R 'mcp__claude-flow__memory_usage@base64' | \
-    xargs -I {} echo '{"action":"store","key":"swarm/mcp/servers","value":{}}'
-```
-
 ### MCP + Receipt Generation
 
 MCP operations generate deterministic receipts:
@@ -467,7 +435,6 @@ mcp_call_tool "git-status" 2>/dev/null || echo "Git not available"
 
 - **MCP Specification**: [Model Context Protocol](https://modelcontextprotocol.io)
 - **ggen Documentation**: See `/docs` in project root
-- **Claude Flow**: [claude-flow on GitHub](https://github.com/ruvnet/claude-flow)
 - **Module Documentation**: See `README-MCP.md` in this directory
 
 ## Support

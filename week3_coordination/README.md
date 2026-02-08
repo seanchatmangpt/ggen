@@ -78,25 +78,7 @@ Task Orchestrator synthesizes reports and manages dependencies.
 
 ### Hooks Integration
 
-All agents use Claude Flow hooks:
-
-**Before work**:
-```bash
-npx claude-flow@alpha hooks pre-task --description "[task]"
-npx claude-flow@alpha hooks session-restore --session-id "swarm-week3"
-```
-
-**During work**:
-```bash
-npx claude-flow@alpha hooks post-edit --file "[file]" --memory-key "swarm/[agent]/[step]"
-npx claude-flow@alpha hooks notify --message "[status update]"
-```
-
-**After work**:
-```bash
-npx claude-flow@alpha hooks post-task --task-id "[task]"
-npx claude-flow@alpha hooks session-end --export-metrics true
-```
+Use Claude Code Task tool and TodoWrite for coordination. Track progress in `.claude/memory/MEMORY.md`.
 
 ## Success Criteria
 

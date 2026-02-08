@@ -5,7 +5,7 @@
 use crate::error::Result;
 use crate::extract::Entity;
 use serde::Serialize;
-use tera::{Tera, Value, Context};
+use tera::{Context, Tera, Value};
 
 /// Emission stage (μ₃)
 ///
@@ -61,12 +61,18 @@ impl Emitter {
     ) -> Result<String> {
         let mut context = Context::new();
         let entity_value = serde_json::to_value(entity).map_err(|e| {
-            crate::error::CraftplanError::template_rendering("ash_resource.tera", format!("Failed to serialize entity: {}", e))
+            crate::error::CraftplanError::template_rendering(
+                "ash_resource.tera",
+                format!("Failed to serialize entity: {}", e),
+            )
         })?;
         context.insert("entity", &entity_value);
 
         let config_value = serde_json::to_value(config).map_err(|e| {
-            crate::error::CraftplanError::template_rendering("ash_resource.tera", format!("Failed to serialize config: {}", e))
+            crate::error::CraftplanError::template_rendering(
+                "ash_resource.tera",
+                format!("Failed to serialize config: {}", e),
+            )
         })?;
         context.insert("config", &config_value);
 
@@ -85,12 +91,18 @@ impl Emitter {
         context.insert("module_name", &Value::String(module_name.to_string()));
 
         let entities_value = serde_json::to_value(entities).map_err(|e| {
-            crate::error::CraftplanError::template_rendering("context_module.tera", format!("Failed to serialize entities: {}", e))
+            crate::error::CraftplanError::template_rendering(
+                "context_module.tera",
+                format!("Failed to serialize entities: {}", e),
+            )
         })?;
         context.insert("entities", &entities_value);
 
         let config_value = serde_json::to_value(config).map_err(|e| {
-            crate::error::CraftplanError::template_rendering("context_module.tera", format!("Failed to serialize config: {}", e))
+            crate::error::CraftplanError::template_rendering(
+                "context_module.tera",
+                format!("Failed to serialize config: {}", e),
+            )
         })?;
         context.insert("config", &config_value);
 
@@ -108,12 +120,18 @@ impl Emitter {
     pub fn render_live_view(&self, entity: &Entity, config: &GenerationConfig) -> Result<String> {
         let mut context = Context::new();
         let entity_value = serde_json::to_value(entity).map_err(|e| {
-            crate::error::CraftplanError::template_rendering("live_view.tera", format!("Failed to serialize entity: {}", e))
+            crate::error::CraftplanError::template_rendering(
+                "live_view.tera",
+                format!("Failed to serialize entity: {}", e),
+            )
         })?;
         context.insert("entity", &entity_value);
 
         let config_value = serde_json::to_value(config).map_err(|e| {
-            crate::error::CraftplanError::template_rendering("live_view.tera", format!("Failed to serialize config: {}", e))
+            crate::error::CraftplanError::template_rendering(
+                "live_view.tera",
+                format!("Failed to serialize config: {}", e),
+            )
         })?;
         context.insert("config", &config_value);
 

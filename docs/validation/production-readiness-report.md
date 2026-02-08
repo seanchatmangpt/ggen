@@ -360,13 +360,13 @@ production = ["generate", "validate", "test", "build", "deploy"]
 **Hook Execution**:
 ```bash
 # ✅ Pre-task hooks
-npx claude-flow@alpha hooks pre-task --description "[task]"
+# Native hooks pre-task --description "[task]"
 
 # ✅ Post-edit hooks
-npx claude-flow@alpha hooks post-edit --file "[file]"
+# Native hooks post-edit --file "[file]"
 
 # ✅ Post-task hooks
-npx claude-flow@alpha hooks post-task --task-id "[task]"
+# Native hooks post-task --task-id "[task]"
 ```
 
 **Status**: ✅ **COMPLETE** - All hooks correctly configured and documented

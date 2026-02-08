@@ -600,10 +600,9 @@ jobs:
 
 ### 3. MCP Server Integration
 
-**Claude Flow MCP**:
-- `mcp__claude-flow__swarm_init` - Coordinate generation swarm
-- `mcp__claude-flow__agent_spawn` - Spawn ontology analyzer agents
-- `mcp__claude-flow__task_orchestrate` - Orchestrate multi-file generation
+**Claude Code**:
+- Task tool - Spawn ontology analyzer agents
+- TodoWrite - Track generation progress
 
 ## Examples
 

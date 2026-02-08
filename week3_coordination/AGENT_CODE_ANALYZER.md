@@ -121,11 +121,11 @@ echo "Optimization [N]: [before]ms → [after]ms ([improvement]%)" >> metrics/pe
 ### Daily Updates
 ```bash
 # Morning: Capture baseline
-npx claude-flow@alpha hooks pre-task --description "Daily metrics: Coverage tracking Day [N]"
+# Native:  hooks pre-task --description "Daily metrics: Coverage tracking Day [N]"
 
 # Evening: Report progress
-npx claude-flow@alpha hooks notify --message "Day [N] metrics: Coverage [X]%, Health [Y]%"
-npx claude-flow@alpha hooks post-edit --file "metrics/day_[N]_report.md" --memory-key "swarm/analyzer/day-[N]"
+# Native:  hooks notify --message "Day [N] metrics: Coverage [X]%, Health [Y]%"
+# Native:  hooks post-edit --file "metrics/day_[N]_report.md" --memory-key "swarm/analyzer/day-[N]"
 ```
 
 ### Integration Points
