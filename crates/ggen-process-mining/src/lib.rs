@@ -74,23 +74,23 @@
 #![warn(missing_docs)]
 #![warn(clippy::all, clippy::pedantic)]
 
+pub mod conformance;
+pub mod discovery;
 pub mod error;
 pub mod event_log;
-pub mod petri_net;
-pub mod yawl_bridge;
-pub mod discovery;
-pub mod conformance;
-pub mod xes;
 pub mod ocel;
+pub mod petri_net;
+pub mod xes;
+pub mod yawl_bridge;
 
+pub use conformance::{Alignment, ConformanceChecker, ConformanceReport};
+pub use discovery::{AlphaPlusPlus, ProcessMiner};
 pub use error::{Error, Result};
 pub use event_log::{Event, EventLog, Trace};
-pub use petri_net::{Place, Transition, PetriNet, Marking};
-pub use yawl_bridge::{YawlBridge, YawlToPetriNet, PetriNetToYawl};
-pub use discovery::{AlphaPlusPlus, ProcessMiner};
-pub use conformance::{ConformanceChecker, ConformanceReport, Alignment};
+pub use ocel::{OcelEvent, OcelObject, OcelParser};
+pub use petri_net::{Marking, PetriNet, Place, Transition};
 pub use xes::{XesParser, XesWriter};
-pub use ocel::{OcelParser, OcelEvent, OcelObject};
+pub use yawl_bridge::{PetriNetToYawl, YawlBridge, YawlToPetriNet};
 
 /// Current version of ggen-process-mining.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

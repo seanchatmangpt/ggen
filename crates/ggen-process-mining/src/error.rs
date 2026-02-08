@@ -200,10 +200,7 @@ mod tests {
     #[test]
     fn test_invalid_trace_error() {
         let err = Error::invalid_trace("trace-1".to_string(), "empty trace".to_string());
-        assert_eq!(
-            err.to_string(),
-            "Invalid trace 'trace-1': empty trace"
-        );
+        assert_eq!(err.to_string(), "Invalid trace 'trace-1': empty trace");
     }
 
     #[test]

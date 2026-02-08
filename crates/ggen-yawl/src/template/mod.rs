@@ -3,5 +3,7 @@
 pub mod context;
 pub mod renderer;
 
-pub use context::{TemplateContext, TaskContext, FlowContext, ConditionContext, VariableContext, ContextBuilder};
+pub use context::{
+    ConditionContext, ContextBuilder, FlowContext, TaskContext, TemplateContext, VariableContext,
+};
 pub use renderer::TemplateRenderer;

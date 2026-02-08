@@ -137,9 +137,3 @@ pub fn sparql_query_validate(query: String) -> WorkflowResult<()> {
 
     Ok(())
 }
-
-// Module definition
-rustler::init!(
-    "Elixir.Workflow.Query",
-    [execute_sparql, parse_sparql, validate_sparql,]
-);

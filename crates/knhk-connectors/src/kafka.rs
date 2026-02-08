@@ -10,7 +10,7 @@ use crate::{Connector, ConnectorError, ConnectorId, ConnectorSpec, DataFormat, D
 pub struct KafkaConnector {
     id: ConnectorId,
     topic: String,
-    format: DataFormat,
+    _format: DataFormat,
     bootstrap_servers: Vec<String>,
     spec: Option<ConnectorSpec>,
 }
@@ -21,7 +21,7 @@ impl KafkaConnector {
         Self {
             id,
             topic,
-            format,
+            _format: format,
             bootstrap_servers: Vec::new(),
             spec: None,
         }

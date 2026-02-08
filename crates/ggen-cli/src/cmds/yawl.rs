@@ -205,13 +205,8 @@ struct DeployConfig {
 #[allow(clippy::too_many_arguments)]
 #[verb("generate", "yawl")]
 pub fn generate(
-    ontology: Option<String>,
-    output_dir: Option<String>,
-    format: Option<String>,
-    verbose: Option<bool>,
-    validate: Option<bool>,
-    watch: Option<bool>,
-    timeout: Option<u64>,
+    ontology: Option<String>, output_dir: Option<String>, format: Option<String>,
+    verbose: Option<bool>, validate: Option<bool>, watch: Option<bool>, timeout: Option<u64>,
 ) -> VerbResult<GenerateOutput> {
     let config = GenerateConfig {
         ontology_file: ontology.unwrap_or_else(|| "schema/domain.ttl".to_string()),
@@ -235,9 +230,7 @@ pub fn generate(
 /// --verbose                 Show detailed validation output
 #[verb("validate", "yawl")]
 pub fn validate(
-    file: Option<String>,
-    strict: Option<bool>,
-    verbose: Option<bool>,
+    file: Option<String>, strict: Option<bool>, verbose: Option<bool>,
 ) -> VerbResult<ValidateOutput> {
     let config = ValidateConfig {
         file_path: file.unwrap_or_else(|| {
@@ -261,9 +254,7 @@ pub fn validate(
 #[allow(clippy::unused_unit)]
 #[verb("watch", "yawl")]
 pub fn watch(
-    ontology: Option<String>,
-    output_dir: Option<String>,
-    debounce: Option<u64>,
+    ontology: Option<String>, output_dir: Option<String>, debounce: Option<u64>,
     verbose: Option<bool>,
 ) -> VerbResult<WatchOutput> {
     let _ontology_file = ontology.unwrap_or_else(|| "schema/domain.ttl".to_string());
@@ -295,10 +286,7 @@ pub fn watch(
 /// --verbose                 Show detailed deployment output
 #[verb("deploy", "yawl")]
 pub fn deploy(
-    workflow: Option<String>,
-    target: Option<String>,
-    restart: Option<bool>,
-    compile: Option<bool>,
+    workflow: Option<String>, target: Option<String>, restart: Option<bool>, compile: Option<bool>,
     verbose: Option<bool>,
 ) -> VerbResult<DeployOutput> {
     let config = DeployConfig {
@@ -333,7 +321,10 @@ fn execute_generate(config: GenerateConfig) -> VerbResult<GenerateOutput> {
             tasks_extracted: 0,
             flows_extracted: 0,
             duration_ms: start.elapsed().as_millis() as u64,
-            error: Some(format!("Invalid output format: '{}'. Use 'xml' or 'erlang'", config.output_format)),
+            error: Some(format!(
+                "Invalid output format: '{}'. Use 'xml' or 'erlang'",
+                config.output_format
+            )),
             warning: None,
         });
     }
@@ -397,7 +388,11 @@ fn execute_validate(config: ValidateConfig) -> VerbResult<ValidateOutput> {
     let (errors, warnings, tasks_count, flows_count) = validate_yawl_content(&content);
     let is_valid_xml = errors.iter().all(|e| e.category != "XML");
     let is_valid_yawl = errors.is_empty();
-    let status = if errors.is_empty() { "valid" } else { "invalid" };
+    let status = if errors.is_empty() {
+        "valid"
+    } else {
+        "invalid"
+    };
 
     Ok(ValidateOutput {
         status: status.to_string(),
@@ -453,7 +448,11 @@ fn execute_deploy(config: DeployConfig) -> VerbResult<DeployOutput> {
     // Perform deployment
     let (workflow_name, deployed_path) = perform_deployment(&source_path, &target_dir)?;
 
-    println!("{} Deployed workflow: {}", "[DEPLOY]".green(), workflow_name);
+    println!(
+        "{} Deployed workflow: {}",
+        "[DEPLOY]".green(),
+        workflow_name
+    );
     println!("  Source: {}", source_path.display());
     println!("  Target: {}", deployed_path.display());
 
@@ -495,8 +494,7 @@ fn create_progress_bar(verbose: bool) -> Option<ProgressBar> {
 
 /// Perform the actual generation steps
 fn perform_generation(
-    config: &GenerateConfig,
-    progress: Option<ProgressBar>,
+    config: &GenerateConfig, progress: Option<ProgressBar>,
 ) -> Result<GenerateOutput, clap_noun_verb::NounVerbError> {
     let start = Instant::now();
 
@@ -528,8 +526,7 @@ fn perform_generation(
 
     // Step 2: Load ontology using ggen-core
     let load_result = crate::runtime::block_on(async {
-        ggen_core::Graph::load_from_file(&config.ontology_file)
-            .map_err(|e| e.to_string())
+        ggen_core::Graph::load_from_file(&config.ontology_file).map_err(|e| e.to_string())
     });
 
     if let Err(e) = load_result {
@@ -640,7 +637,9 @@ fn perform_generation(
 }
 
 /// Validate YAWL XML content
-fn validate_yawl_content(content: &str) -> (Vec<ValidationError>, Vec<ValidationWarning>, usize, usize) {
+fn validate_yawl_content(
+    content: &str,
+) -> (Vec<ValidationError>, Vec<ValidationWarning>, usize, usize) {
     let mut errors = vec![];
     let mut warnings = vec![];
 
@@ -713,8 +712,7 @@ fn validate_yawl_content(content: &str) -> (Vec<ValidationError>, Vec<Validation
 
 /// Perform deployment of workflow to gen_yawl
 fn perform_deployment(
-    source_path: &PathBuf,
-    target_dir: &PathBuf,
+    source_path: &PathBuf, target_dir: &PathBuf,
 ) -> Result<(String, PathBuf), clap_noun_verb::NounVerbError> {
     // Extract workflow name
     let workflow_name = source_path
@@ -730,12 +728,18 @@ fn perform_deployment(
 
     // Create workflows directory if needed
     std::fs::create_dir_all(&workflows_dir).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to create workflows directory: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to create workflows directory: {}",
+            e
+        ))
     })?;
 
     // Copy workflow file
     std::fs::copy(source_path, &target_path).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to copy workflow file: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to copy workflow file: {}",
+            e
+        ))
     })?;
 
     Ok((workflow_name, target_path))

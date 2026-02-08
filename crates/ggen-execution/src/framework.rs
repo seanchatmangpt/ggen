@@ -1,19 +1,18 @@
 // Unified execution framework for 90% semantic convergence
-use crate::types::*;
 use crate::error::*;
 use crate::metrics::MetricsCollector;
+use crate::types::*;
 use async_trait::async_trait;
-use std::collections::HashMap;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use uuid::Uuid;
-use serde::{Serialize, Deserialize};
 
 // ============================================================================
 // EXECUTION FRAMEWORK
 // ============================================================================
 
 /// Unified execution framework that works across different agent types
-#[derive(Debug, Clone)]
 pub struct ExecutionFramework {
     config: ExecutionConfig,
     agents: HashMap<AgentId, Box<dyn UnifiedAgentTrait>>,
@@ -21,6 +20,17 @@ pub struct ExecutionFramework {
     pipelines: HashMap<PipelineId, ExecutionPipeline>,
     metrics: MetricsCollector,
     error_handler: ErrorHandler,
+}
+
+impl std::fmt::Debug for ExecutionFramework {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ExecutionFramework")
+            .field("config", &self.config)
+            .field("agents", &self.agents.len())
+            .field("workflows", &self.workflows.len())
+            .field("pipelines", &self.pipelines.len())
+            .finish()
+    }
 }
 
 /// Configuration for the execution framework
@@ -65,9 +75,13 @@ impl ExecutionFramework {
     }
 
     /// Register a new agent with the framework
-    pub fn register_agent(&mut self, agent: Box<dyn UnifiedAgentTrait>) -> Result<(), ExecutionError> {
+    pub fn register_agent(
+        &mut self, agent: Box<dyn UnifiedAgentTrait>,
+    ) -> Result<(), ExecutionError> {
         if self.agents.len() >= self.config.max_concurrent_agents {
-            return Err(ExecutionError::Agent("Maximum number of agents reached".to_string()));
+            return Err(ExecutionError::Agent(
+                "Maximum number of agents reached".to_string(),
+            ));
         }
 
         let agent_id = agent.get_id().to_string();
@@ -76,7 +90,9 @@ impl ExecutionFramework {
     }
 
     /// Create and register a workflow
-    pub fn create_workflow(&mut self, name: &str, workflow_type: &str) -> Result<WorkflowId, ExecutionError> {
+    pub fn create_workflow(
+        &mut self, name: &str, workflow_type: &str,
+    ) -> Result<WorkflowId, ExecutionError> {
         let workflow_id = Uuid::new_v4().to_string();
         let workflow = Workflow::new(&workflow_id, name, workflow_type);
         self.workflows.insert(workflow_id.clone(), workflow);
@@ -84,7 +100,9 @@ impl ExecutionFramework {
     }
 
     /// Create and register a pipeline
-    pub fn create_pipeline(&mut self, name: &str, pipeline_type: &str) -> Result<PipelineId, ExecutionError> {
+    pub fn create_pipeline(
+        &mut self, name: &str, pipeline_type: &str,
+    ) -> Result<PipelineId, ExecutionError> {
         let pipeline_id = Uuid::new_v4().to_string();
         let pipeline = ExecutionPipeline::new(&pipeline_id, name, pipeline_type);
         self.pipelines.insert(pipeline_id.clone(), pipeline);
@@ -97,7 +115,9 @@ impl ExecutionFramework {
         let agent_id = self.find_available_agent_index(&task)?;
 
         // Execute the task
-        let result = self.agents.get_mut(&agent_id)
+        let result = self
+            .agents
+            .get_mut(&agent_id)
             .ok_or_else(|| ExecutionError::Agent("Agent not found".to_string()))?
             .execute_task(task.clone())
             .await?;
@@ -122,8 +142,12 @@ impl ExecutionFramework {
     }
 
     /// Execute a workflow with multiple tasks
-    pub async fn execute_workflow(&mut self, workflow_id: &str) -> Result<WorkflowResult, ExecutionError> {
-        let workflow = self.workflows.get_mut(workflow_id)
+    pub async fn execute_workflow(
+        &mut self, workflow_id: &str,
+    ) -> Result<WorkflowResult, ExecutionError> {
+        let workflow = self
+            .workflows
+            .get_mut(workflow_id)
             .ok_or_else(|| ExecutionError::Workflow("Workflow not found".to_string()))?;
 
         let mut tasks = workflow.tasks.clone();
@@ -145,12 +169,10 @@ impl ExecutionFramework {
             if dependencies_met {
                 let task_id = task.id.clone();
                 let result = self.execute_task(task).await?;
-                results.push(TaskExecutionResult {
-                    task_id,
-                    result,
-                });
+                let success = result.success;
+                results.push(TaskExecutionResult { task_id, result });
 
-                if result.success {
+                if success {
                     success_count += 1;
                 }
             } else {
@@ -164,10 +186,10 @@ impl ExecutionFramework {
 
         // Check convergence threshold
         if success_rate < self.config.convergence_threshold {
-            return Err(ExecutionError::Convergence(
-                format!("Convergence threshold not met: {:.2} < {:.2}",
-                    success_rate, self.config.convergence_threshold)
-            ));
+            return Err(ExecutionError::Convergence(format!(
+                "Convergence threshold not met: {:.2} < {:.2}",
+                success_rate, self.config.convergence_threshold
+            )));
         }
 
         // Overall success is true if all tasks completed successfully
@@ -194,21 +216,22 @@ impl ExecutionFramework {
             }
         }
 
-        Err(ExecutionError::Agent("No available agents found".to_string()))
+        Err(ExecutionError::Agent(
+            "No available agents found".to_string(),
+        ))
     }
 
     /// Get framework metrics
     pub fn get_metrics(&self) -> Option<PerformanceMetrics> {
-        self.metrics.get_average_metrics()
+        self.metrics.get_average_metrics(3600000) // Last hour
     }
 
     /// Get error statistics
     pub fn get_error_stats(&self) -> ErrorStats {
         let errors = self.error_handler.get_errors();
         let error_count = errors.len();
-        let error_types: HashMap<String, usize> = errors.iter()
-            .map(|e| (e.error_type.clone(), 1))
-            .collect();
+        let error_types: HashMap<String, usize> =
+            errors.iter().map(|e| (e.error_type.clone(), 1)).collect();
 
         ErrorStats {
             total_errors: error_count,
@@ -370,7 +393,7 @@ impl UnifiedAgentTrait for DefaultAgent {
         &self.health
     }
 
-    async fn execute_task(&mut self, task: Task) -> Result<TaskResult, ExecutionError> {
+    async fn execute_task(&mut self, _task: Task) -> Result<TaskResult, ExecutionError> {
         // Update status
         self.status = AgentStatus::Running;
 
@@ -469,7 +492,9 @@ impl ExecutionPipeline {
         self.stages.push(stage);
     }
 
-    pub async fn execute(&mut self, framework: &mut ExecutionFramework) -> Result<PipelineResult, ExecutionError> {
+    pub async fn execute(
+        &mut self, framework: &mut ExecutionFramework,
+    ) -> Result<PipelineResult, ExecutionError> {
         self.status = PipelineStatus::Running;
 
         let mut results = Vec::new();
@@ -477,9 +502,10 @@ impl ExecutionPipeline {
 
         for stage in &mut self.stages {
             let result = stage.execute(framework).await?;
+            let success = result.success;
             results.push(result);
 
-            if result.success {
+            if success {
                 success_count += 1;
             } else {
                 // Stop execution on failed stage
@@ -528,7 +554,9 @@ impl PipelineStage {
         self.tasks.push(task);
     }
 
-    async fn execute(&mut self, framework: &mut ExecutionFramework) -> Result<StageResult, ExecutionError> {
+    async fn execute(
+        &mut self, framework: &mut ExecutionFramework,
+    ) -> Result<StageResult, ExecutionError> {
         let mut success_count = 0;
         let mut failed_count = 0;
 
@@ -596,7 +624,11 @@ mod tests {
     #[tokio::test]
     async fn test_agent_registration() {
         let mut framework = ExecutionFramework::new(ExecutionConfig::default());
-        let agent = Box::new(DefaultAgent::new("test-agent", "Test Agent", vec!["test-capability".to_string()]));
+        let agent = Box::new(DefaultAgent::new(
+            "test-agent",
+            "Test Agent",
+            vec!["test-capability".to_string()],
+        ));
 
         let result = framework.register_agent(agent);
         assert!(result.is_ok());
@@ -606,11 +638,21 @@ mod tests {
     #[tokio::test]
     async fn test_task_execution() {
         let mut framework = ExecutionFramework::new(ExecutionConfig::default());
-        let agent = Box::new(DefaultAgent::new("test-agent", "Test Agent", vec!["test".to_string()]));
+        let agent = Box::new(DefaultAgent::new(
+            "test-agent",
+            "Test Agent",
+            vec!["test".to_string()],
+        ));
 
         framework.register_agent(agent).unwrap();
 
-        let task = Task::new("task-1", "Test Task", "test", TaskPriority::Normal, serde_json::json!({}));
+        let task = Task::new(
+            "task-1",
+            "Test Task",
+            "test",
+            TaskPriority::Normal,
+            serde_json::json!({}),
+        );
         let result = framework.execute_task(task).await;
 
         assert!(result.is_ok());
@@ -620,14 +662,24 @@ mod tests {
     #[tokio::test]
     async fn test_workflow_creation_and_execution() {
         let mut framework = ExecutionFramework::new(ExecutionConfig::default());
-        let agent = Box::new(DefaultAgent::new("test-agent", "Test Agent", vec!["test".to_string()]));
+        let agent = Box::new(DefaultAgent::new(
+            "test-agent",
+            "Test Agent",
+            vec!["test".to_string()],
+        ));
 
         framework.register_agent(agent).unwrap();
 
         let workflow_id = framework.create_workflow("Test Workflow", "test").unwrap();
         let workflow = framework.workflows.get_mut(&workflow_id).unwrap();
 
-        let task = Task::new("task-1", "Test Task", "test", TaskPriority::Normal, serde_json::json!({}));
+        let task = Task::new(
+            "task-1",
+            "Test Task",
+            "test",
+            TaskPriority::Normal,
+            serde_json::json!({}),
+        );
         workflow.add_task(task);
 
         let result = framework.execute_workflow(&workflow_id).await;
@@ -638,14 +690,24 @@ mod tests {
     #[tokio::test]
     async fn test_pipeline_execution() {
         let mut framework = ExecutionFramework::new(ExecutionConfig::default());
-        let agent = Box::new(DefaultAgent::new("test-agent", "Test Agent", vec!["test".to_string()]));
+        let agent = Box::new(DefaultAgent::new(
+            "test-agent",
+            "Test Agent",
+            vec!["test".to_string()],
+        ));
 
         framework.register_agent(agent).unwrap();
 
         let pipeline = ExecutionPipeline::new("test-pipeline", "Test Pipeline", "test");
         let mut stage = PipelineStage::new("Stage 1", "test");
 
-        let task = Task::new("task-1", "Test Task", "test", TaskPriority::Normal, serde_json::json!({}));
+        let task = Task::new(
+            "task-1",
+            "Test Task",
+            "test",
+            TaskPriority::Normal,
+            serde_json::json!({}),
+        );
         stage.add_task(task);
 
         let result = pipeline.execute(&mut framework).await;

@@ -193,13 +193,16 @@ yawl:Task_{} a yawl:Task ;
     for i in 0..task_count.saturating_sub(1) {
         rdf.push_str(&format!(
             "yawl:Flow_{} a yawl:Flow ; yawl:from \"task_{}\" ; yawl:into \"task_{}\" .\n",
-            i + 1, i, i + 1
+            i + 1,
+            i,
+            i + 1
         ));
     }
     if task_count > 0 {
         rdf.push_str(&format!(
             "yawl:Flow_{} a yawl:Flow ; yawl:from \"task_{}\" ; yawl:into \"output\" .\n",
-            task_count, task_count - 1
+            task_count,
+            task_count - 1
         ));
     }
 
@@ -299,37 +302,38 @@ fn bench_rdf_loading_slo(c: &mut Criterion) {
         group.measurement_time(Duration::from_secs(10));
         group.sample_size(50);
 
-        group.bench_with_input(BenchmarkId::new("load_ontology", count), &count, |b, &_count| {
-            b.iter(|| {
-                let start = std::time::Instant::now();
+        group.bench_with_input(
+            BenchmarkId::new("load_ontology", count),
+            &count,
+            |b, &_count| {
+                b.iter(|| {
+                    let start = std::time::Instant::now();
 
-                let loader = OntologyLoader::new();
-                let result = black_box(loader.load_from_str(
-                    &ontology_content,
-                    ggen_yawl::ontology::loader::OntologyFormat::Turtle,
-                ));
+                    let loader = OntologyLoader::new();
+                    let result = black_box(loader.load_from_str(
+                        &ontology_content,
+                        ggen_yawl::ontology::loader::OntologyFormat::Turtle,
+                    ));
 
-                let elapsed = start.elapsed();
+                    let elapsed = start.elapsed();
 
-                // Validate SLO for 10k triples
-                if count == 10_000 {
-                    if let Ok(ref graph) = result {
-                        let triple_count = graph.len();
-                        assert!(
-                            triple_count > 0,
-                            "Loaded graph should contain triples"
+                    // Validate SLO for 10k triples
+                    if count == 10_000 {
+                        if let Ok(ref graph) = result {
+                            let triple_count = graph.len();
+                            assert!(triple_count > 0, "Loaded graph should contain triples");
+                        }
+                        assert_slo_measured(
+                            elapsed,
+                            Duration::from_millis(SLO_RDF_LOADING_10K_MS),
+                            "rdf_loading_10k",
                         );
                     }
-                    assert_slo_measured(
-                        elapsed,
-                        Duration::from_millis(SLO_RDF_LOADING_10K_MS),
-                        "rdf_loading_10k",
-                    );
-                }
 
-                result
-            });
-        });
+                    result
+                });
+            },
+        );
     }
 
     group.finish();
@@ -372,7 +376,10 @@ fn bench_sparql_construct_slo(c: &mut Criterion) {
 
                     // Execute CONSTRUCT query
                     let executor = ConstructExecutor::new();
-                    let _result = executor.execute_query(&graph, &ggen_yawl::transform::executor::Query::new("bench", &query));
+                    let _result = executor.execute_query(
+                        &graph,
+                        &ggen_yawl::transform::executor::Query::new("bench", &query),
+                    );
 
                     let elapsed = start.elapsed();
 
@@ -464,12 +471,14 @@ fn bench_template_rendering_slo(c: &mut Criterion) {
                     }
 
                     let tasks: Vec<serde_json::Value> = (0..10)
-                        .map(|i| serde_json::json!({
-                            "id": format!("task_{}", i),
-                            "name": format!("Task {}", i),
-                            "split_type": "XOR",
-                            "join_type": "XOR"
-                        }))
+                        .map(|i| {
+                            serde_json::json!({
+                                "id": format!("task_{}", i),
+                                "name": format!("Task {}", i),
+                                "split_type": "XOR",
+                                "join_type": "XOR"
+                            })
+                        })
                         .collect();
                     context.insert("tasks", &tasks);
 
@@ -695,15 +704,19 @@ fn bench_scaling_slo(c: &mut Criterion) {
         group.measurement_time(Duration::from_secs(10));
         group.sample_size(30);
 
-        group.bench_with_input(BenchmarkId::new("load_scale", triple_count), triple_count, |b, &_count| {
-            b.iter(|| {
-                let loader = OntologyLoader::new();
-                black_box(loader.load_from_str(
-                    &ontology,
-                    ggen_yawl::ontology::loader::OntologyFormat::Turtle,
-                ))
-            });
-        });
+        group.bench_with_input(
+            BenchmarkId::new("load_scale", triple_count),
+            triple_count,
+            |b, &_count| {
+                b.iter(|| {
+                    let loader = OntologyLoader::new();
+                    black_box(loader.load_from_str(
+                        &ontology,
+                        ggen_yawl::ontology::loader::OntologyFormat::Turtle,
+                    ))
+                });
+            },
+        );
     }
 
     // Test query scaling with complexity
@@ -714,21 +727,25 @@ fn bench_scaling_slo(c: &mut Criterion) {
         group.measurement_time(Duration::from_secs(8));
         group.sample_size(50);
 
-        group.bench_with_input(BenchmarkId::new("query_scale", task_count), task_count, |b, &_count| {
-            b.iter(|| {
-                let loader = OntologyLoader::new();
-                let graph = match loader.load_from_str(
-                    &yawl_rdf,
-                    ggen_yawl::ontology::loader::OntologyFormat::Turtle,
-                ) {
-                    Ok(g) => g,
-                    Err(_) => return,
-                };
+        group.bench_with_input(
+            BenchmarkId::new("query_scale", task_count),
+            task_count,
+            |b, &_count| {
+                b.iter(|| {
+                    let loader = OntologyLoader::new();
+                    let graph = match loader.load_from_str(
+                        &yawl_rdf,
+                        ggen_yawl::ontology::loader::OntologyFormat::Turtle,
+                    ) {
+                        Ok(g) => g,
+                        Err(_) => return,
+                    };
 
-                let executor = ConstructExecutor::new();
-                let _result = black_box(executor.execute_all(&graph));
-            });
-        });
+                    let executor = ConstructExecutor::new();
+                    let _result = black_box(executor.execute_all(&graph));
+                });
+            },
+        );
     }
 
     group.finish();
@@ -767,30 +784,15 @@ fn assert_slo_measured(measured: Duration, target: Duration, slo_name: &str) {
 // Criterion Benchmark Groups
 // =============================================================================
 
-criterion_group!(
-    rdf_loading_slo,
-    bench_rdf_loading_slo
-);
+criterion_group!(rdf_loading_slo, bench_rdf_loading_slo);
 
-criterion_group!(
-    sparql_construct_slo,
-    bench_sparql_construct_slo
-);
+criterion_group!(sparql_construct_slo, bench_sparql_construct_slo);
 
-criterion_group!(
-    template_rendering_slo,
-    bench_template_rendering_slo
-);
+criterion_group!(template_rendering_slo, bench_template_rendering_slo);
 
-criterion_group!(
-    full_pipeline_slo,
-    bench_full_pipeline_slo
-);
+criterion_group!(full_pipeline_slo, bench_full_pipeline_slo);
 
-criterion_group!(
-    scaling_slo,
-    bench_scaling_slo
-);
+criterion_group!(scaling_slo, bench_scaling_slo);
 
 criterion_main!(
     rdf_loading_slo,

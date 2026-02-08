@@ -1,8 +1,9 @@
+//! File system transaction support for atomic writes and rollback
+//!
+//! Provides bulletproof file operations with automatic cleanup on failure.
+//! Constitutional Rule: No partial state - either all changes succeed or all are rolled back.
+
 use ggen_utils::error::{Error, Result};
-///! File system transaction support for atomic writes and rollback
-///!
-///! Provides bulletproof file operations with automatic cleanup on failure.
-///! Constitutional Rule: No partial state - either all changes succeed or all are rolled back.
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};

@@ -186,8 +186,7 @@ pub mod errors {
 
     /// Create an invalid attribute error
     pub fn invalid_attribute<A: Into<String>, V: Into<String>>(
-        attribute: A,
-        value: V,
+        attribute: A, value: V,
     ) -> WorkflowError {
         WorkflowError::InvalidAttribute {
             attribute: attribute.into(),

@@ -24,7 +24,7 @@ impl ConfigLoader {
     /// Returns an error if the file doesn't exist or path validation fails
     pub fn new<P: AsRef<Path>>(path: P) -> Result<Self> {
         let path = SafePath::new_absolute(path.as_ref())
-            .map_err(|e| ConfigError::Validation(format!("Path validation failed: {}", e)))?;
+            .map_err(|e| ConfigError::Validation(format!("Path validation failed: {e}")))?;
 
         if !path.exists() {
             return Err(ConfigError::FileNotFound(path.as_path_buf()));
@@ -129,13 +129,13 @@ impl ConfigLoader {
     /// Returns an error if no configuration file is found or path validation fails
     pub fn find_config_file() -> Result<SafePath> {
         let mut current = SafePath::current_dir().map_err(|e| {
-            ConfigError::Validation(format!("Failed to get current directory: {}", e))
+            ConfigError::Validation(format!("Failed to get current directory: {e}"))
         })?;
 
         loop {
             let candidate = current
                 .join("ggen.toml")
-                .map_err(|e| ConfigError::Validation(format!("Path join failed: {}", e)))?;
+                .map_err(|e| ConfigError::Validation(format!("Path join failed: {e}")))?;
 
             if candidate.exists() {
                 return Ok(candidate);
@@ -165,7 +165,7 @@ impl ConfigLoader {
         // Apply environment-specific overrides if present
         if let Some(env_overrides) = config.env.clone() {
             if let Some(overrides) = env_overrides.get(environment) {
-                apply_env_overrides(&mut config, overrides)?;
+                apply_env_overrides(&mut config, overrides);
             }
         }
 
@@ -182,27 +182,24 @@ impl ConfigLoader {
 /// Apply environment-specific overrides to configuration
 ///
 /// Uses JSON pointer notation to update nested fields
-fn apply_env_overrides(config: &mut GgenConfig, overrides: &serde_json::Value) -> Result<()> {
+fn apply_env_overrides(config: &mut GgenConfig, overrides: &serde_json::Value) {
     if let Some(obj) = overrides.as_object() {
         for (key, value) in obj {
             // Simple key-based override (supports one level of nesting)
-            apply_single_override(config, key, value)?;
+            apply_single_override(config, key, value);
         }
     }
-    Ok(())
 }
 
 /// Apply a single configuration override
-fn apply_single_override(
-    config: &mut GgenConfig, key: &str, value: &serde_json::Value,
-) -> Result<()> {
+fn apply_single_override(config: &mut GgenConfig, key: &str, value: &serde_json::Value) {
     // Parse dotted key notation (e.g., "ai.temperature")
     let parts: Vec<&str> = key.split('.').collect();
 
     match parts.as_slice() {
         ["ai", field] => {
             if let Some(ai_config) = config.ai.as_mut() {
-                update_ai_field(ai_config, field, value)?;
+                update_ai_field(ai_config, field, value);
             }
         }
         ["logging", "level"] => {
@@ -214,21 +211,17 @@ fn apply_single_override(
         }
         ["security", field] => {
             if let Some(security) = config.security.as_mut() {
-                update_security_field(security, field, value)?;
+                update_security_field(security, field, value);
             }
         }
         _ => {
             // Unsupported override path - log or ignore
         }
     }
-
-    Ok(())
 }
 
 /// Update AI configuration field
-fn update_ai_field(
-    ai: &mut crate::schema::AiConfig, field: &str, value: &serde_json::Value,
-) -> Result<()> {
+fn update_ai_field(ai: &mut crate::schema::AiConfig, field: &str, value: &serde_json::Value) {
     match field {
         "model" => {
             if let Some(s) = value.as_str() {
@@ -247,13 +240,12 @@ fn update_ai_field(
         }
         _ => {}
     }
-    Ok(())
 }
 
 /// Update security configuration field
 fn update_security_field(
     security: &mut crate::schema::SecurityConfig, field: &str, value: &serde_json::Value,
-) -> Result<()> {
+) {
     match field {
         "require_confirmation" => {
             if let Some(b) = value.as_bool() {
@@ -267,7 +259,6 @@ fn update_security_field(
         }
         _ => {}
     }
-    Ok(())
 }
 
 #[cfg(test)]

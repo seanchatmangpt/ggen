@@ -7,10 +7,10 @@ use crate::error::{CraftplanError, Result};
 use crate::models::GenerationReceipt;
 use crate::models::ReceiptMetadata;
 use serde_json;
+use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::PathBuf;
-use sha2::{Digest, Sha256};
 use tracing::{info, instrument};
 
 /// Receipt generator for audit trail
@@ -38,11 +38,7 @@ impl ReceiptGenerator {
     /// * `Err(CraftplanError)` - Receipt generation failed
     #[instrument(skip(self))]
     pub fn generate(
-        &self,
-        input_path: &str,
-        output_files: &[String],
-        entity_count: usize,
-        duration_ms: u64,
+        &self, input_path: &str, output_files: &[String], entity_count: usize, duration_ms: u64,
     ) -> Result<GenerationReceipt> {
         info!("Generating receipt for {} output files", output_files.len());
 
@@ -126,10 +122,7 @@ impl ReceiptGenerator {
     /// * `Ok(false)` - Receipt is invalid
     /// * `Err(CraftplanError)` - Verification failed
     pub fn verify(
-        &self,
-        receipt: &GenerationReceipt,
-        input_path: &str,
-        output_files: &[String],
+        &self, receipt: &GenerationReceipt, input_path: &str, output_files: &[String],
     ) -> Result<bool> {
         info!("Verifying receipt: {}", receipt.receipt_hash);
 

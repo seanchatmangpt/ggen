@@ -24,13 +24,10 @@ impl StripeClient {
     }
 
     /// Create a customer in Stripe
-    pub async fn create_customer(&self, email: &str, name: &str) -> PaymentResult<String> {
+    pub async fn create_customer(&self, _email: &str, _name: &str) -> PaymentResult<String> {
         // TODO: Call Stripe API to create customer
         // For now, return mock customer ID
-        Ok(format!(
-            "cus_{}",
-            Uuid::new_v4().to_string()[..12].to_string()
-        ))
+        Ok(format!("cus_{}", &Uuid::new_v4().to_string()[..12]))
     }
 
     /// Get customer from Stripe
@@ -49,7 +46,7 @@ impl StripeClient {
     ) -> PaymentResult<Payment> {
         // TODO: Call Stripe API to create payment intent
         Ok(Payment {
-            id: format!("pi_{}", Uuid::new_v4().to_string()[..12].to_string()),
+            id: format!("pi_{}", &Uuid::new_v4().to_string()[..12]),
             customer_id: customer_id.to_string(),
             amount_cents,
             currency: currency.to_string(),
@@ -63,7 +60,7 @@ impl StripeClient {
 
     /// Confirm a payment
     pub async fn confirm_payment(
-        &self, payment_id: &str, payment_method_id: &str,
+        &self, payment_id: &str, _payment_method_id: &str,
     ) -> PaymentResult<Payment> {
         // TODO: Call Stripe API to confirm payment
         Ok(Payment {
@@ -86,7 +83,7 @@ impl StripeClient {
         // TODO: Call Stripe API to create subscription
         let now = Utc::now();
         Ok(Subscription {
-            id: format!("sub_{}", Uuid::new_v4().to_string()[..12].to_string()),
+            id: format!("sub_{}", &Uuid::new_v4().to_string()[..12]),
             customer_id: customer_id.to_string(),
             price_id: price_id.to_string(),
             status: "active".to_string(),
@@ -116,7 +113,7 @@ impl StripeClient {
     }
 
     /// Cancel a subscription
-    pub async fn cancel_subscription(&self, subscription_id: &str) -> PaymentResult<()> {
+    pub async fn cancel_subscription(&self, _subscription_id: &str) -> PaymentResult<()> {
         // TODO: Call Stripe API to cancel subscription
         Ok(())
     }
@@ -127,7 +124,7 @@ impl StripeClient {
     ) -> PaymentResult<Invoice> {
         // TODO: Call Stripe API to create invoice
         Ok(Invoice {
-            id: format!("inv_{}", Uuid::new_v4().to_string()[..12].to_string()),
+            id: format!("inv_{}", &Uuid::new_v4().to_string()[..12]),
             customer_id: customer_id.to_string(),
             amount_cents,
             status: "draft".to_string(),
@@ -154,8 +151,8 @@ impl StripeClient {
     }
 
     /// Verify webhook signature
-    pub fn verify_webhook(&self, body: &str, signature: &str) -> PaymentResult<()> {
-        if let Some(secret) = &self.config.webhook_secret {
+    pub fn verify_webhook(&self, _body: &str, _signature: &str) -> PaymentResult<()> {
+        if let Some(_secret) = &self.config.webhook_secret {
             // TODO: Implement Stripe webhook signature verification
             // Use HMAC-SHA256 to verify
             Ok(())

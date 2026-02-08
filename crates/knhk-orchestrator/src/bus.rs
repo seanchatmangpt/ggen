@@ -152,11 +152,7 @@ impl EventBus {
 
     /// Receive a feedback event (consumes receiver)
     pub async fn recv_feedback(&mut self) -> Option<ProcessInstanceEvent> {
-        if let Some(event) = self.feedback_rx.recv().await {
-            Some(event)
-        } else {
-            None
-        }
+        self.feedback_rx.recv().await
     }
 
     /// Get current metrics

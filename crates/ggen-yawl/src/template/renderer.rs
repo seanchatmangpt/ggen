@@ -66,8 +66,7 @@ fn graph_to_template_context(graph: &Graph) -> Result<crate::template::TemplateC
         .unwrap_or_else(|_| "unnamed_workflow".to_string());
     let description = extract_string(graph, &metadata_query, 1)
         .unwrap_or_else(|_| "Generated workflow".to_string());
-    let version = extract_string(graph, &metadata_query, 2)
-        .unwrap_or_else(|_| "1.0.0".to_string());
+    let version = extract_string(graph, &metadata_query, 2).unwrap_or_else(|_| "1.0.0".to_string());
 
     // Query for tasks
     let tasks_query = format!(
@@ -125,10 +124,13 @@ fn extract_string(graph: &Graph, query: &str, col_index: usize) -> Result<String
     match results {
         oxigraph::sparql::QueryResults::Solutions(mut solutions) => {
             if let Some(solution) = solutions.next() {
-                let solution = solution.map_err(|e| Error::sparql(format!("Solution error: {}", e)))?;
+                let solution =
+                    solution.map_err(|e| Error::sparql(format!("Solution error: {}", e)))?;
 
                 // Get the value at the specified column index
-                let value = solution.iter().nth(col_index)
+                let value = solution
+                    .iter()
+                    .nth(col_index)
                     .map(|(_, term)| term.to_string())
                     .unwrap_or_default();
 
@@ -154,8 +156,8 @@ fn extract_tasks(graph: &Graph, query: &str) -> Result<Vec<crate::template::Task
     match results {
         oxigraph::sparql::QueryResults::Solutions(solutions) => {
             for solution_result in solutions {
-                let solution = solution_result
-                    .map_err(|e| Error::sparql(format!("Solution error: {}", e)))?;
+                let solution =
+                    solution_result.map_err(|e| Error::sparql(format!("Solution error: {}", e)))?;
 
                 let id = solution
                     .get("?task_id")
@@ -205,7 +207,11 @@ fn extract_tasks(graph: &Graph, query: &str) -> Result<Vec<crate::template::Task
                 });
             }
         }
-        _ => return Err(Error::sparql("Expected SELECT results for tasks".to_string())),
+        _ => {
+            return Err(Error::sparql(
+                "Expected SELECT results for tasks".to_string(),
+            ))
+        }
     }
 
     Ok(tasks)
@@ -224,8 +230,8 @@ fn extract_flows(graph: &Graph, query: &str) -> Result<Vec<crate::template::Flow
     match results {
         oxigraph::sparql::QueryResults::Solutions(solutions) => {
             for solution_result in solutions {
-                let solution = solution_result
-                    .map_err(|e| Error::sparql(format!("Solution error: {}", e)))?;
+                let solution =
+                    solution_result.map_err(|e| Error::sparql(format!("Solution error: {}", e)))?;
 
                 let source = solution
                     .get("?source")
@@ -267,7 +273,11 @@ fn extract_flows(graph: &Graph, query: &str) -> Result<Vec<crate::template::Flow
                 });
             }
         }
-        _ => return Err(Error::sparql("Expected SELECT results for flows".to_string())),
+        _ => {
+            return Err(Error::sparql(
+                "Expected SELECT results for flows".to_string(),
+            ))
+        }
     }
 
     Ok(flows)
@@ -360,7 +370,11 @@ impl TemplateRenderer {
         let template_glob = format!("{}/{}", dir_ref.display(), "*.tera");
 
         let mut tera = Tera::new(&template_glob).map_err(|e| {
-            Error::template(format!("Failed to load templates from '{}': {}", dir_ref.display(), e))
+            Error::template(format!(
+                "Failed to load templates from '{}': {}",
+                dir_ref.display(),
+                e
+            ))
         })?;
 
         // Disable auto-escaping for code generation

@@ -68,9 +68,17 @@ impl YawlXmlGenerator {
         xml.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 
         // Root element
-        xml.push_str("<specification xmlns=\"http://www.yawlfoundation.org/yawlschema\" version=\"2.0\">\n");
-        xml.push_str(&format!("  <name>{}</name>\n", escape_xml(&ctx.workflow_name)));
-        xml.push_str(&format!("  <description>{}</description>\n", escape_xml(&ctx.description)));
+        xml.push_str(
+            "<specification xmlns=\"http://www.yawlfoundation.org/yawlschema\" version=\"2.0\">\n",
+        );
+        xml.push_str(&format!(
+            "  <name>{}</name>\n",
+            escape_xml(&ctx.workflow_name)
+        ));
+        xml.push_str(&format!(
+            "  <description>{}</description>\n",
+            escape_xml(&ctx.description)
+        ));
 
         // Decomposition (net)
         xml.push_str("  <decomposition id=\"");
@@ -106,7 +114,10 @@ impl YawlXmlGenerator {
                 escape_xml(&flow.source)
             ));
             if let Some(condition) = &flow.condition {
-                xml.push_str(&format!(">\n      <predicate>{}</predicate>\n    </flow>\n", escape_xml(condition)));
+                xml.push_str(&format!(
+                    ">\n      <predicate>{}</predicate>\n    </flow>\n",
+                    escape_xml(condition)
+                ));
             } else {
                 xml.push_str("/>\n");
             }

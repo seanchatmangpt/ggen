@@ -224,9 +224,13 @@ pub trait LogHandler: Send + Sync {
 }
 
 /// File-based log handler
+#[derive(Debug)]
 pub struct FileLogHandler {
+    #[allow(dead_code)]
     path: PathBuf,
+    #[allow(dead_code)]
     rotation_size: u64,
+    #[allow(dead_code)]
     max_backups: usize,
     current_size: Arc<AtomicU32>,
 }
@@ -268,6 +272,7 @@ impl LogHandler for FileLogHandler {
 }
 
 /// Stdout log handler
+#[derive(Debug)]
 pub struct StdoutLogHandler;
 
 #[async_trait::async_trait]

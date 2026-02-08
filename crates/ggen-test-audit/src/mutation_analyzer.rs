@@ -117,7 +117,7 @@ impl MutationAnalyzer {
     fn run_mutations_for_crate(&self, crate_path: &Path) -> AuditResult<Vec<MutationResult>> {
         // Execute cargo-mutants with JSON output
         let output = Command::new("cargo")
-            .args(&[
+            .args([
                 "mutants",
                 "--json",
                 "--output",

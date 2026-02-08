@@ -125,7 +125,10 @@ impl TurtleConfigLoader {
                 }
             } else if line.contains("ggen:maxDownloadSize") {
                 if let Some(value) = Self::extract_integer_value(line) {
-                    config.max_download_size = value as u64;
+                    // Config values are non-negative; reject negative values
+                    #[allow(clippy::cast_sign_loss)]
+                    let config_value = value as u64;
+                    config.max_download_size = config_value;
                 }
             } else if line.contains("ggen:validationEnabled") {
                 if let Some(value) = Self::extract_boolean_value(line) {

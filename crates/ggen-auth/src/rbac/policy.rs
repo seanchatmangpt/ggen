@@ -249,9 +249,9 @@ impl PolicyEngine {
         }
 
         // Deny takes precedence over allow
-        let final_effect = if effects.iter().any(|e| *e == Effect::Deny) {
+        let final_effect = if effects.contains(&Effect::Deny) {
             Effect::Deny
-        } else if effects.iter().any(|e| *e == Effect::Allow) {
+        } else if effects.contains(&Effect::Allow) {
             Effect::Allow
         } else {
             self.default_effect.clone()

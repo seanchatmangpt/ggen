@@ -3,11 +3,11 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use uuid::Uuid;
 
-use ggen_workflow::workflow::{Workflow, WorkflowBuilder, WorkflowStatus, WorkflowState};
-use ggen_workflow::errors::WorkflowError;
 use ggen_workflow::context::WorkflowContext;
+use ggen_workflow::errors::WorkflowError;
 use ggen_workflow::events::WorkflowEvent;
 use ggen_workflow::storage::{MemoryStorage, WorkflowStorage};
+use ggen_workflow::workflow::{Workflow, WorkflowBuilder, WorkflowState, WorkflowStatus};
 
 // Mock external dependencies
 struct MockServices {
@@ -20,8 +20,8 @@ impl MockServices {
     fn new() -> Self {
         Self {
             api_service: Arc::new(Mutex::new(true)),
-            database_service: Arc::utex::new(true)),
-            notification_service: Arc::Mutex::new(true)),
+            database_service: Arc::new(Mutex::new(true)),
+            notification_service: Arc::new(Mutex::new(true)),
         }
     }
 
@@ -70,11 +70,7 @@ mod workflow_lifecycle_tests {
         let workflow = create_test_workflow("test_workflow");
         let storage = Arc::new(MemoryStorage::new());
         let services = Arc::new(MockServices::new());
-        let context = WorkflowContext::new(
-            workflow.clone(),
-            storage,
-            services,
-        );
+        let context = WorkflowContext::new(workflow.clone(), storage, services);
 
         // Act
         let result = Workflow::start(&context);
@@ -92,11 +88,7 @@ mod workflow_lifecycle_tests {
         let workflow = create_test_workflow("execute_test");
         let storage = Arc::new(MemoryStorage::new());
         let services = Arc::new(MockServices::new());
-        let context = WorkflowContext::new(
-            workflow.clone(),
-            storage.clone(),
-            services,
-        );
+        let context = WorkflowContext::new(workflow.clone(), storage.clone(), services);
 
         // Start the workflow first
         Workflow::start(&context).unwrap();
@@ -124,11 +116,7 @@ mod workflow_lifecycle_tests {
         let workflow = create_test_workflow("polling_test");
         let storage = Arc::new(MemoryStorage::new());
         let services = Arc::new(MockServices::new());
-        let context = WorkflowContext::new(
-            workflow.clone(),
-            storage.clone(),
-            services,
-        );
+        let context = WorkflowContext::new(workflow.clone(), storage.clone(), services);
 
         // Start workflow
         Workflow::start(&context).unwrap();
@@ -156,11 +144,7 @@ mod workflow_lifecycle_tests {
         // Simulate service failure
         services_clone.simulate_service_failure("api");
 
-        let context = WorkflowContext::new(
-            workflow.clone(),
-            storage.clone(),
-            services,
-        );
+        let context = WorkflowContext::new(workflow.clone(), storage.clone(), services);
 
         // Act
         Workflow::start(&context).unwrap();
@@ -182,11 +166,7 @@ mod workflow_lifecycle_tests {
         let workflow = create_test_workflow("transition_test");
         let storage = Arc::new(MemoryStorage::new());
         let services = Arc::new(MockServices::new());
-        let context = WorkflowContext::new(
-            workflow.clone(),
-            storage.clone(),
-            services,
-        );
+        let context = WorkflowContext::new(workflow.clone(), storage.clone(), services);
 
         // Test state transitions
         Workflow::start(&context).unwrap();
@@ -198,11 +178,7 @@ mod workflow_lifecycle_tests {
         assert_eq!(stored_after_execute.state(), WorkflowState::Completed);
 
         // Test transition failure
-        let invalid_context = WorkflowContext::new(
-            workflow.clone(),
-            storage,
-            services,
-        );
+        let invalid_context = WorkflowContext::new(workflow.clone(), storage, services);
 
         let result = Workflow::pause(&invalid_context);
         assert!(result.is_err());
@@ -224,11 +200,7 @@ mod workflow_lifecycle_tests {
         let workflow = builder.build().unwrap();
         let storage = Arc::new(MemoryStorage::new());
         let services = Arc::new(MockServices::new());
-        let context = WorkflowContext::new(
-            workflow.clone(),
-            storage.clone(),
-            services,
-        );
+        let context = WorkflowContext::new(workflow.clone(), storage.clone(), services);
 
         // Act
         Workflow::start(&context).unwrap();
@@ -239,7 +211,10 @@ mod workflow_lifecycle_tests {
         // Assert
         let stored_workflow = storage.get_workflow(&workflow.id()).unwrap();
         assert_eq!(stored_workflow.status(), WorkflowStatus::Failed);
-        assert!(stored_workflow.get_error_message().unwrap().contains("timeout"));
+        assert!(stored_workflow
+            .get_error_message()
+            .unwrap()
+            .contains("timeout"));
     }
 
     #[test]
@@ -248,11 +223,7 @@ mod workflow_lifecycle_tests {
         let workflow = create_test_workflow("events_test");
         let storage = Arc::new(MemoryStorage::new());
         let services = Arc::new(MockServices::new());
-        let context = WorkflowContext::new(
-            workflow.clone(),
-            storage,
-            services,
-        );
+        let context = WorkflowContext::new(workflow.clone(), storage, services);
 
         let mut events_received = Vec::new();
 
@@ -275,11 +246,7 @@ mod workflow_lifecycle_tests {
         let workflow = create_test_workflow("cancellation_test");
         let storage = Arc::new(MemoryStorage::new());
         let services = Arc::new(MockServices::new());
-        let context = WorkflowContext::new(
-            workflow.clone(),
-            storage.clone(),
-            services,
-        );
+        let context = WorkflowContext::new(workflow.clone(), storage.clone(), services);
 
         // Start workflow
         Workflow::start(&context).unwrap();
@@ -299,11 +266,7 @@ mod workflow_lifecycle_tests {
         let workflow = create_test_workflow("restart_test");
         let storage = Arc::new(MemoryStorage::new());
         let services = Arc::new(MockServices::new());
-        let context = WorkflowContext::new(
-            workflow.clone(),
-            storage.clone(),
-            services,
-        );
+        let context = WorkflowContext::new(workflow.clone(), storage.clone(), services);
 
         // First execution fails
         Workflow::start(&context).unwrap();
@@ -325,11 +288,7 @@ mod workflow_lifecycle_tests {
         let workflow = create_test_workflow("concurrent_test");
         let storage = Arc::new(MemoryStorage::new());
         let services = Arc::new(MockServices::new());
-        let context = WorkflowContext::new(
-            workflow.clone(),
-            storage.clone(),
-            services,
-        );
+        let context = WorkflowContext::new(workflow.clone(), storage.clone(), services);
 
         // Act - Execute concurrently
         let handle1 = std::thread::spawn({

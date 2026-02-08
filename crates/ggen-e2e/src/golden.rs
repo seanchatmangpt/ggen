@@ -41,7 +41,7 @@ impl GoldenFile {
             return Err(GoldenError::NotFound(full_path).into());
         }
 
-        let content = fs::read_to_string(&full_path).map_err(|e| GoldenError::ReadFailed(e))?;
+        let content = fs::read_to_string(&full_path).map_err(GoldenError::ReadFailed)?;
 
         let normalized = normalize_line_endings(&content);
         let checksum = compute_checksum(&normalized);
@@ -150,12 +150,12 @@ fn create_unified_diff(expected: &str, actual: &str) -> String {
 
     // Handle lines that only exist in one file
     if expected_lines.len() > actual_lines.len() {
-        for i in min_len..expected_lines.len() {
-            diff.push_str(&format!("-{}\n", expected_lines[i]));
+        for line in expected_lines.iter().skip(min_len) {
+            diff.push_str(&format!("-{}\n", line));
         }
     } else if actual_lines.len() > expected_lines.len() {
-        for i in min_len..actual_lines.len() {
-            diff.push_str(&format!("+{}\n", actual_lines[i]));
+        for line in actual_lines.iter().skip(min_len) {
+            diff.push_str(&format!("+{}\n", line));
         }
     }
 

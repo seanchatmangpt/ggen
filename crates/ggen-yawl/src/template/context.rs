@@ -239,12 +239,11 @@ impl<'a> ContextBuilder<'a> {
         "#;
 
         match self.graph.query_cached(QUERY) {
-            Ok(ggen_core::graph::types::CachedResult::Solutions(rows)) => {
-                rows.first()
-                    .and_then(|row| row.get("name"))
-                    .map(|s| Self::strip_literal_quotes(s))
-                    .unwrap_or_else(|| "Unnamed Workflow".to_string())
-            }
+            Ok(ggen_core::graph::types::CachedResult::Solutions(rows)) => rows
+                .first()
+                .and_then(|row| row.get("name"))
+                .map(|s| Self::strip_literal_quotes(s))
+                .unwrap_or_else(|| "Unnamed Workflow".to_string()),
             _ => "Unnamed Workflow".to_string(),
         }
     }
@@ -264,12 +263,11 @@ impl<'a> ContextBuilder<'a> {
         "#;
 
         match self.graph.query_cached(QUERY) {
-            Ok(ggen_core::graph::types::CachedResult::Solutions(rows)) => {
-                rows.first()
-                    .and_then(|row| row.get("comment"))
-                    .map(|s| Self::strip_literal_quotes(s))
-                    .unwrap_or_else(|| "Generated workflow".to_string())
-            }
+            Ok(ggen_core::graph::types::CachedResult::Solutions(rows)) => rows
+                .first()
+                .and_then(|row| row.get("comment"))
+                .map(|s| Self::strip_literal_quotes(s))
+                .unwrap_or_else(|| "Generated workflow".to_string()),
             _ => "Generated workflow".to_string(),
         }
     }
@@ -288,7 +286,10 @@ impl<'a> ContextBuilder<'a> {
             }
         }
         // Fallback: remove surrounding quotes if present
-        s.strip_prefix('"').and_then(|s| s.strip_suffix('"')).map(|s| s.to_string()).unwrap_or_else(|| s.to_string())
+        s.strip_prefix('"')
+            .and_then(|s| s.strip_suffix('"'))
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| s.to_string())
     }
 
     /// Extract all tasks from the YAWL RDF graph.
@@ -320,16 +321,18 @@ impl<'a> ContextBuilder<'a> {
 
         let mut tasks = Vec::new();
 
-        let result = self.graph.query_cached(QUERY).map_err(|e| {
-            Error::sparql(format!("Failed to extract tasks: {}", e))
-        })?;
+        let result = self
+            .graph
+            .query_cached(QUERY)
+            .map_err(|e| Error::sparql(format!("Failed to extract tasks: {}", e)))?;
 
         if let ggen_core::graph::types::CachedResult::Solutions(rows) = result {
             for row in rows {
                 let task_iri = row.get("task").cloned().unwrap_or_default();
-                let task_id = row.get("taskId").cloned().unwrap_or_else(|| {
-                    Self::generate_task_id_from_iri(&task_iri)
-                });
+                let task_id = row
+                    .get("taskId")
+                    .cloned()
+                    .unwrap_or_else(|| Self::generate_task_id_from_iri(&task_iri));
                 let task_id = Self::strip_literal_quotes(&task_id);
                 let task_name = row
                     .get("taskName")
@@ -578,16 +581,17 @@ impl<'a> ContextBuilder<'a> {
         let valid_flows: Vec<FlowContext> = context
             .flows
             .iter()
-            .filter(|flow| {
-                task_ids.contains(&flow.source) && task_ids.contains(&flow.target)
-            })
+            .filter(|flow| task_ids.contains(&flow.source) && task_ids.contains(&flow.target))
             .cloned()
             .collect();
 
         let removed_count = context.flows.len() - valid_flows.len();
         if removed_count > 0 {
             // Log warning about invalid flows using tracing
-            tracing::warn!("Removed {} flows with invalid task references", removed_count);
+            tracing::warn!(
+                "Removed {} flows with invalid task references",
+                removed_count
+            );
         }
 
         context.flows = valid_flows;
@@ -627,7 +631,7 @@ impl<'a> ContextBuilder<'a> {
         match behavior {
             Some(b) if b.contains("AND_Split") => "AND".to_string(),
             Some(b) if b.contains("XOR_Split") => "XOR".to_string(),
-            _ => "XOR".to_string(),  // Default to XOR (OR not fully supported in YAWL)
+            _ => "XOR".to_string(), // Default to XOR (OR not fully supported in YAWL)
         }
     }
 
@@ -636,7 +640,7 @@ impl<'a> ContextBuilder<'a> {
         match behavior {
             Some(b) if b.contains("AND_Join") => "AND".to_string(),
             Some(b) if b.contains("XOR_Join") => "XOR".to_string(),
-            _ => "XOR".to_string(),  // Default to XOR (OR not fully supported in YAWL)
+            _ => "XOR".to_string(), // Default to XOR (OR not fully supported in YAWL)
         }
     }
 
@@ -674,18 +678,12 @@ impl TemplateContext {
 
     /// Get flows originating from a specific task.
     pub fn flows_from(&self, task_id: &str) -> Vec<&FlowContext> {
-        self.flows
-            .iter()
-            .filter(|f| f.source == task_id)
-            .collect()
+        self.flows.iter().filter(|f| f.source == task_id).collect()
     }
 
     /// Get flows terminating at a specific task.
     pub fn flows_to(&self, task_id: &str) -> Vec<&FlowContext> {
-        self.flows
-            .iter()
-            .filter(|f| f.target == task_id)
-            .collect()
+        self.flows.iter().filter(|f| f.target == task_id).collect()
     }
 
     /// Get all workflow-scoped variables.

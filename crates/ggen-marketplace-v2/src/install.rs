@@ -22,11 +22,19 @@ pub struct Installer<R: AsyncRepository> {
 
 impl<R: AsyncRepository> Installer<R> {
     /// Create a new installer
+    #[must_use]
     pub fn new(repository: R) -> Self {
         Self { repository }
     }
 
     /// Resolve a dependency tree (iterative approach for Send compatibility)
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::PackageNotFound`] - When a dependency package does not exist in the repository
+    /// * [`Error::InvalidVersion`] - When a dependency version requirement cannot be parsed
+    /// * [`Error::DependencyResolutionFailed`] - When circular dependencies are detected or resolution fails
+    #[must_use]
     pub async fn resolve_dependencies(
         &self, root_id: &PackageId, root_version: &PackageVersion,
     ) -> Result<Vec<(PackageId, PackageVersion)>> {
@@ -69,6 +77,13 @@ impl<R: AsyncRepository> Installer<R> {
     }
 
     /// Create an installation manifest
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::PackageNotFound`] - When a package ID in the list does not exist in the repository
+    /// * [`Error::InvalidVersion`] - When a version string cannot be parsed during dependency resolution
+    /// * [`Error::DependencyResolutionFailed`] - When dependency resolution fails for any package
+    #[must_use]
     pub async fn create_manifest(
         &self, package_ids: Vec<PackageId>, install_path: String,
     ) -> Result<InstallationManifest> {
@@ -107,6 +122,12 @@ impl<R: AsyncRepository> Installer<R> {
     }
 
     /// Check for version conflicts
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::ValidationFailed`] - When version conflicts are detected between dependencies
+    /// * [`Error::DependencyResolutionFailed`] - When semantic version constraints cannot be satisfied
+    #[must_use]
     pub fn check_conflicts(
         &self, dependencies: &indexmap::IndexMap<PackageId, PackageVersion>,
     ) -> Result<()> {
@@ -119,6 +140,13 @@ impl<R: AsyncRepository> Installer<R> {
     }
 
     /// Validate installation manifest before execution
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::PackageNotFound`] - When a package or dependency version does not exist in the repository
+    /// * [`Error::ValidationFailed`] - When the manifest fails validation checks
+    /// * [`Error::DependencyResolutionFailed`] - When dependency conflicts are detected
+    #[must_use]
     pub async fn validate_manifest(&self, manifest: &InstallationManifest) -> Result<()> {
         // Check all packages exist
         for (pkg_id, version) in &manifest.dependencies {
@@ -134,6 +162,12 @@ impl<R: AsyncRepository> Installer<R> {
     }
 
     /// Simulate installation without making changes
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::ValidationFailed`] - When the manifest fails validation
+    /// * [`Error::PackageNotFound`] - When a dependency package does not exist in the repository
+    #[must_use]
     pub async fn dry_run(&self, manifest: &InstallationManifest) -> Result<InstallationPlan> {
         self.validate_manifest(manifest).await?;
 
@@ -159,7 +193,7 @@ impl<R: AsyncRepository> Installer<R> {
         }
 
         // Estimate time: 100KB per second
-        plan.estimated_time = std::time::Duration::from_secs((plan.total_size / 102_400) as u64);
+        plan.estimated_time = std::time::Duration::from_secs(plan.total_size / 102_400);
 
         debug!(
             "Dry-run installation: {} packages, {} bytes",
@@ -173,6 +207,15 @@ impl<R: AsyncRepository> Installer<R> {
 
 #[async_trait]
 impl<R: AsyncRepository> Installable for Installer<R> {
+    /// Install packages according to the manifest
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::ValidationFailed`] - When the manifest fails validation
+    /// * [`Error::InstallationFailed`] - When package download, extraction, or post-install hooks fail
+    /// * [`Error::IoError`] - When file system operations fail
+    /// * [`Error::SignatureVerificationFailed`] - When package signature verification fails
+    #[must_use]
     async fn install(&self, manifest: InstallationManifest) -> Result<InstallationManifest> {
         self.validate_manifest(&manifest).await?;
 
@@ -192,12 +235,27 @@ impl<R: AsyncRepository> Installable for Installer<R> {
         Ok(manifest)
     }
 
+    /// Resolve dependencies for a package
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::PackageNotFound`] - When a dependency package does not exist in the repository
+    /// * [`Error::InvalidVersion`] - When a dependency version requirement cannot be parsed
+    /// * [`Error::DependencyResolutionFailed`] - When circular dependencies are detected
+    #[must_use]
     async fn resolve_dependencies(
         &self, id: &PackageId, version: &PackageVersion,
     ) -> Result<Vec<(PackageId, PackageVersion)>> {
         Installer::resolve_dependencies(self, id, version).await
     }
 
+    /// Perform a dry run installation and return the plan as a string
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::ValidationFailed`] - When the manifest fails validation
+    /// * [`Error::PackageNotFound`] - When a dependency package does not exist in the repository
+    #[must_use]
     async fn dry_run_install(&self, manifest: &InstallationManifest) -> Result<String> {
         let plan = self.dry_run(manifest).await?;
         Ok(plan.to_string())

@@ -5,7 +5,7 @@
 
 use super::fixtures;
 use ggen_yawl::{OntologyLoader, YawlGenerator};
-use ggen_yawl::codegen::yawl_xml::validate;
+use ggen_yawl::codegen::yawl_xml;
 
 /// Expected workflow metadata for Account Opening
 const ACCOUNT_OPENING_WORKFLOW_NAME: &str = "AccountOpeningProcess";
@@ -139,7 +139,7 @@ mod account_opening_pipeline_tests {
         let xml = result.unwrap();
 
         // Validate the generated XML
-        let validation_result = validate(&xml);
+        let validation_result = ggen_yawl::codegen::yawl_xml::validate(&xml);
         assert!(validation_result.is_ok(), "Generated XML should be valid YAWL: {:?}",
                 validation_result.err());
     }
@@ -387,7 +387,7 @@ mod account_opening_validation_tests {
         assert!(xml.contains("<?xml version=\"1.0\""), "Should have canonical XML declaration");
 
         // μ₅: Verify the output is valid (receipt generation would happen in production)
-        let validation = validate(&xml);
+        let validation = ggen_yawl::codegen::yawl_xml::validate(&xml);
         assert!(validation.is_ok(), "Output should pass validation for receipt generation");
     }
 }

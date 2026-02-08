@@ -284,8 +284,9 @@ impl OntologyLoader {
     /// ```
     pub fn load_from_file<P: AsRef<Path>>(&self, path: P) -> Result<Graph> {
         let path = path.as_ref();
-        let content = std::fs::read_to_string(path)
-            .map_err(|e| Error::OntologyLoad(format!("Failed to read {}: {}", path.display(), e)))?;
+        let content = std::fs::read_to_string(path).map_err(|e| {
+            Error::OntologyLoad(format!("Failed to read {}: {}", path.display(), e))
+        })?;
 
         // Detect format from extension
         let format = path
@@ -355,19 +356,19 @@ impl OntologyLoader {
 
         let mut buffer = Vec::new();
         {
-            let mut writer = RdfSerializer::from_format(RdfFormat::Turtle)
-                .for_writer(&mut buffer);
+            let mut writer = RdfSerializer::from_format(RdfFormat::Turtle).for_writer(&mut buffer);
 
             for quad in store.quads_for_pattern(None, None, None, None) {
-                let quad = quad.map_err(|e| Error::OntologyLoad(format!("Failed to read quad: {}", e)))?;
+                let quad =
+                    quad.map_err(|e| Error::OntologyLoad(format!("Failed to read quad: {}", e)))?;
                 writer
                     .serialize_quad(&quad)
                     .map_err(|e| Error::OntologyLoad(format!("Failed to serialize quad: {}", e)))?;
             }
 
-            writer
-                .finish()
-                .map_err(|e| Error::OntologyLoad(format!("Failed to finish serialization: {}", e)))?;
+            writer.finish().map_err(|e| {
+                Error::OntologyLoad(format!("Failed to finish serialization: {}", e))
+            })?;
         }
 
         let turtle_str = std::str::from_utf8(&buffer)
@@ -414,15 +415,30 @@ mod tests {
 
     #[test]
     fn test_format_from_str() {
-        assert_eq!(OntologyFormat::from_str("ttl").unwrap(), OntologyFormat::Turtle);
-        assert_eq!(OntologyFormat::from_str("Turtle").unwrap(), OntologyFormat::Turtle);
-        assert_eq!(OntologyFormat::from_str("rdf").unwrap(), OntologyFormat::RdfXml);
+        assert_eq!(
+            OntologyFormat::from_str("ttl").unwrap(),
+            OntologyFormat::Turtle
+        );
+        assert_eq!(
+            OntologyFormat::from_str("Turtle").unwrap(),
+            OntologyFormat::Turtle
+        );
+        assert_eq!(
+            OntologyFormat::from_str("rdf").unwrap(),
+            OntologyFormat::RdfXml
+        );
     }
 
     #[test]
     fn test_format_from_extension() {
-        assert_eq!(OntologyFormat::from_extension("ttl"), Some(OntologyFormat::Turtle));
-        assert_eq!(OntologyFormat::from_extension("owl"), Some(OntologyFormat::RdfXml));
+        assert_eq!(
+            OntologyFormat::from_extension("ttl"),
+            Some(OntologyFormat::Turtle)
+        );
+        assert_eq!(
+            OntologyFormat::from_extension("owl"),
+            Some(OntologyFormat::RdfXml)
+        );
         assert_eq!(OntologyFormat::from_extension("unknown"), None);
     }
 
@@ -436,7 +452,10 @@ mod tests {
     fn test_to_rdf_format() {
         assert_eq!(OntologyFormat::Turtle.to_rdf_format(), RdfFormat::Turtle);
         assert_eq!(OntologyFormat::RdfXml.to_rdf_format(), RdfFormat::RdfXml);
-        assert_eq!(OntologyFormat::NTriples.to_rdf_format(), RdfFormat::NTriples);
+        assert_eq!(
+            OntologyFormat::NTriples.to_rdf_format(),
+            RdfFormat::NTriples
+        );
         assert_eq!(OntologyFormat::NQuads.to_rdf_format(), RdfFormat::NQuads);
         assert_eq!(OntologyFormat::Trig.to_rdf_format(), RdfFormat::TriG);
     }
@@ -465,7 +484,11 @@ mod tests {
         let loader = OntologyLoader::new();
         let result = loader.load_from_str(turtle, OntologyFormat::Turtle);
         // The load operation should succeed
-        assert!(result.is_ok(), "Loading turtle should succeed: {:?}", result.err());
+        assert!(
+            result.is_ok(),
+            "Loading turtle should succeed: {:?}",
+            result.err()
+        );
     }
 
     #[test]

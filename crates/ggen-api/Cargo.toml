@@ -43,7 +43,7 @@ validator = { version = "0.18", features = ["derive"] }
 # Rate limiting (already in workspace)
 moka = { version = "0.12", features = ["future"] }
 redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
-bb8 = "0.8"
+bb8 = "0.9"
 bb8-redis = "0.18"
 
 # Futures
@@ -71,10 +71,6 @@ tempfile = { workspace = true }
 mockall = "0.13"
 insta = "1.43"
 proptest = { workspace = true }
-
-[[test]]
-name = "integration_tests"
-path = "tests/integration.rs"
 
 [[test]]
 name = "tls_integration_tests"

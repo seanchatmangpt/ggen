@@ -22,6 +22,7 @@ pub struct KeyPair {
 
 impl KeyPair {
     /// Generate a new key pair
+    #[must_use]
     pub fn generate() -> Self {
         let secret_bytes: [u8; 32] = rand::random();
         let signing_key = SigningKey::from_bytes(&secret_bytes);
@@ -36,11 +37,17 @@ impl KeyPair {
     }
 
     /// Get the public key as hex string
+    #[must_use]
     pub fn public_key_hex(&self) -> String {
         hex_encode(self.verifying_key.to_bytes())
     }
 
     /// Load from private key hex
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::CryptoError`] - When the hex string is invalid or the key is not 32 bytes
+    #[must_use]
     pub fn from_secret_key(secret_key_hex: &str) -> Result<Self> {
         let secret_bytes = hex_decode(secret_key_hex)
             .map_err(|e| crate::error::Error::CryptoError(format!("Invalid hex: {}", e)))?;
@@ -64,6 +71,7 @@ impl KeyPair {
     }
 
     /// Get the secret key as hex string (PRIVATE - handle with care)
+    #[must_use]
     pub fn secret_key_hex(&self) -> String {
         hex_encode(self.signing_key.to_bytes())
     }
@@ -76,11 +84,17 @@ pub struct SignatureVerifier {
 
 impl SignatureVerifier {
     /// Create a new verifier with a key pair
+    #[must_use]
     pub fn new(key_pair: KeyPair) -> Self {
         Self { key_pair }
     }
 
     /// Create a verifier from public key only (for verification)
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::CryptoError`] - When the hex string is invalid, the key is not 32 bytes, or the key is not a valid Ed25519 public key
+    #[must_use]
     pub fn from_public_key(public_key_hex: &str) -> Result<Self> {
         let pub_bytes = hex_decode(public_key_hex)
             .map_err(|e| crate::error::Error::CryptoError(format!("Invalid hex: {}", e)))?;
@@ -109,6 +123,11 @@ impl SignatureVerifier {
     }
 
     /// Verify a signature
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::SignatureVerificationFailed`] - When the signature hex is invalid or not 64 bytes
+    #[must_use]
     pub fn verify_signature(&self, data: &[u8], signature_hex: &str) -> Result<bool> {
         let sig_bytes = hex_decode(signature_hex).map_err(|e| {
             crate::error::Error::SignatureVerificationFailed {
@@ -140,21 +159,25 @@ impl SignatureVerifier {
     }
 
     /// Get the public key
+    #[must_use]
     pub fn public_key(&self) -> String {
         self.key_pair.public_key_hex()
     }
 }
 
 impl Signable for SignatureVerifier {
+    #[must_use]
     fn sign(&self, data: &[u8]) -> Result<String> {
         let signature = self.key_pair.signing_key.sign(data);
         Ok(hex_encode(signature.to_bytes()))
     }
 
+    #[must_use]
     fn verify(&self, data: &[u8], signature: &str) -> Result<bool> {
         self.verify_signature(data, signature)
     }
 
+    #[must_use]
     fn public_key(&self) -> String {
         self.key_pair.public_key_hex()
     }
@@ -165,6 +188,7 @@ pub struct ChecksumCalculator;
 
 impl ChecksumCalculator {
     /// Calculate SHA-256 checksum
+    #[must_use]
     pub fn calculate(data: &[u8]) -> String {
         let mut hasher = Sha256::new();
         hasher.update(data);
@@ -172,6 +196,11 @@ impl ChecksumCalculator {
     }
 
     /// Verify checksum
+    ///
+    /// # Errors
+    ///
+    /// This function currently always returns `Ok`. It compares the calculated SHA-256 checksum with the expected value.
+    #[must_use]
     pub fn verify(data: &[u8], expected: &str) -> Result<bool> {
         let calculated = Self::calculate(data);
         Ok(calculated == expected)

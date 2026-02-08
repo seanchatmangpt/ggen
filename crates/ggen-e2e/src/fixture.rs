@@ -129,8 +129,8 @@ pub fn discover_fixtures(fixtures_dir: &Path) -> Result<Vec<TestFixture>> {
         return Ok(fixtures);
     }
 
-    for entry in fs::read_dir(fixtures_dir).map_err(|e| FixtureError::Io(e))? {
-        let entry = entry.map_err(|e| FixtureError::Io(e))?;
+    for entry in fs::read_dir(fixtures_dir).map_err(FixtureError::Io)? {
+        let entry = entry.map_err(FixtureError::Io)?;
         let path = entry.path();
 
         if path.is_dir() {
@@ -149,8 +149,8 @@ pub fn discover_fixtures(fixtures_dir: &Path) -> Result<Vec<TestFixture>> {
 fn discover_files(dir: &Path, extensions: &[&str]) -> Result<Vec<PathBuf>> {
     let mut files = Vec::new();
 
-    for entry in fs::read_dir(dir).map_err(|e| FixtureError::Io(e))? {
-        let entry = entry.map_err(|e| FixtureError::Io(e))?;
+    for entry in fs::read_dir(dir).map_err(FixtureError::Io)? {
+        let entry = entry.map_err(FixtureError::Io)?;
         let path = entry.path();
 
         if path.is_file() {
@@ -167,8 +167,8 @@ fn discover_files(dir: &Path, extensions: &[&str]) -> Result<Vec<PathBuf>> {
 
 /// Recursively discover golden files
 fn discover_golden_files(dir: &Path, base_dir: &Path, files: &mut Vec<GoldenFile>) -> Result<()> {
-    for entry in fs::read_dir(dir).map_err(|e| FixtureError::Io(e))? {
-        let entry = entry.map_err(|e| FixtureError::Io(e))?;
+    for entry in fs::read_dir(dir).map_err(FixtureError::Io)? {
+        let entry = entry.map_err(FixtureError::Io)?;
         let path = entry.path();
 
         if path.is_file() {

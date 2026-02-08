@@ -75,6 +75,7 @@ pub struct PackageValidator {
 
 impl PackageValidator {
     /// Create a new package validator with default validators
+    #[must_use]
     pub fn new() -> Self {
         Self {
             validators: vec![
@@ -88,12 +89,18 @@ impl PackageValidator {
     }
 
     /// Add a custom validator
+    #[must_use]
     pub fn add_validator(mut self, validator: Arc<dyn Validator>) -> Self {
         self.validators.push(validator);
         self
     }
 
     /// Run all validators
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::ValidationFailed`] - When any validator fails with a critical error
+    #[must_use]
     pub async fn validate_all(&self, package: &Package) -> Result<ValidationResult> {
         let mut checks = Vec::new();
         let mut total_weight = 0;
@@ -111,8 +118,9 @@ impl PackageValidator {
             checks.push(check);
         }
 
+        // u32 * 100 / u32 produces u32; cast is unnecessary
         let quality_score = if total_weight > 0 {
-            (weighted_score * 100 / total_weight) as u32
+            weighted_score * 100 / total_weight
         } else {
             0
         };
@@ -144,10 +152,12 @@ impl Default for PackageValidator {
 impl Validatable for PackageValidator {
     type ValidationResult = ValidationResult;
 
+    #[must_use]
     async fn validate(&self, package: &Package) -> Result<Self::ValidationResult> {
         self.validate_all(package).await
     }
 
+    #[must_use]
     async fn validate_manifest(&self, _manifest: &Manifest) -> Result<Self::ValidationResult> {
         // Manifest validation would go here
         Ok(ValidationResult {
@@ -157,6 +167,7 @@ impl Validatable for PackageValidator {
         })
     }
 
+    #[must_use]
     fn validation_passes(&self, result: &Self::ValidationResult) -> bool {
         result.passed
     }

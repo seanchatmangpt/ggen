@@ -66,6 +66,11 @@ pub struct QueryStats {
 
 impl V3OptimizedRegistry {
     /// Create a new v3 optimized registry
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::RegistryError`] - When cache initialization fails
+    #[must_use]
     pub fn new(primary_store: Arc<Store>) -> Result<Self> {
         // Initialize caches with TTLs
         let hot_query_cache = AsyncCache::builder()
@@ -151,6 +156,12 @@ impl V3OptimizedRegistry {
     }
 
     /// Update search index for a single package
+    ///
+    /// # Errors
+    ///
+    /// This function currently always returns `Ok`. Future implementations may return:
+    /// * [`Error::RegistryError`] - When the search index lock fails
+    #[must_use]
     pub fn update_search_index(&self, package_id: &str, package_name: &str) -> Result<()> {
         let package_uri = format!("https://ggen.io/marketplace/packages/{}", package_id);
         let mut index = self.search_index.write();
@@ -167,6 +178,7 @@ impl V3OptimizedRegistry {
     }
 
     /// Get query statistics
+    #[must_use]
     pub fn stats(&self) -> V3RegistryStats {
         let total = self
             .query_stats
@@ -189,17 +201,20 @@ impl V3OptimizedRegistry {
             .total_latency_us
             .load(std::sync::atomic::Ordering::Relaxed);
 
+        #[allow(clippy::cast_precision_loss)]
+        let cache_hit_rate = if total > 0 {
+            (hot_hits + meta_hits) as f64 / total as f64
+        } else {
+            0.0
+        };
+
         V3RegistryStats {
             total_queries: total,
             hot_cache_hits: hot_hits,
             metadata_cache_hits: meta_hits,
             store_queries,
             avg_latency_us: if total > 0 { total_latency / total } else { 0 },
-            cache_hit_rate: if total > 0 {
-                (hot_hits + meta_hits) as f64 / total as f64
-            } else {
-                0.0
-            },
+            cache_hit_rate,
         }
     }
 

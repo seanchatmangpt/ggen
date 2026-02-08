@@ -56,8 +56,8 @@
 //! # }
 //! ```
 
-use crate::error::WorkflowResult;
 use crate::error::errors;
+use crate::error::WorkflowResult;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::fmt;
@@ -136,9 +136,10 @@ pub struct Decomposition {
 }
 
 /// Types of YAWL decompositions.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub enum DecompositionType {
     /// Web Service Net - standard YAWL workflow net
+    #[default]
     WSNet,
     /// Composite workflow net
     CompositeNet,
@@ -146,12 +147,6 @@ pub enum DecompositionType {
     OrJoinNet,
     /// Custom decomposition type
     Custom(String),
-}
-
-impl Default for DecompositionType {
-    fn default() -> Self {
-        DecompositionType::WSNet
-    }
 }
 
 impl fmt::Display for DecompositionType {
@@ -196,9 +191,10 @@ pub struct Task {
 }
 
 /// Type of task in the workflow.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub enum TaskType {
     /// Atomic task (leaf node, no sub-workflow)
+    #[default]
     Atomic,
     /// Composite task (contains sub-workflow decomposition)
     Composite,
@@ -213,12 +209,6 @@ pub enum TaskType {
         /// Threshold for completion (number of instances to complete)
         completion_threshold: Option<usize>,
     },
-}
-
-impl Default for TaskType {
-    fn default() -> Self {
-        TaskType::Atomic
-    }
 }
 
 /// Strategy for creating multiple task instances.
@@ -238,19 +228,20 @@ pub enum InstanceStrategy {
 }
 
 /// Split type for task outgoing flows.
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Default)]
 pub enum SplitType {
     /// AND split - all outgoing flows are activated (parallel)
     And,
     /// OR split - one or more outgoing flows are activated (multi-choice)
     Or,
     /// XOR split - exactly one outgoing flow is activated (exclusive choice)
+    #[default]
     Xor,
 }
 
 impl SplitType {
     /// Parse split type from string.
-    pub fn from_str(s: &str) -> WorkflowResult<Self> {
+    pub fn try_from_str(s: &str) -> WorkflowResult<Self> {
         match s.to_lowercase().as_str() {
             "and" => Ok(SplitType::And),
             "or" => Ok(SplitType::Or),
@@ -269,26 +260,21 @@ impl SplitType {
     }
 }
 
-impl Default for SplitType {
-    fn default() -> Self {
-        SplitType::Xor
-    }
-}
-
 /// Join type for task incoming flows.
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Default)]
 pub enum JoinType {
     /// AND join - wait for all incoming flows (synchronization)
     And,
     /// OR join - wait for one or more incoming flows
     Or,
     /// XOR join - wait for exactly one incoming flow
+    #[default]
     Xor,
 }
 
 impl JoinType {
     /// Parse join type from string.
-    pub fn from_str(s: &str) -> WorkflowResult<Self> {
+    pub fn try_from_str(s: &str) -> WorkflowResult<Self> {
         match s.to_lowercase().as_str() {
             "and" => Ok(JoinType::And),
             "or" => Ok(JoinType::Or),
@@ -304,12 +290,6 @@ impl JoinType {
             JoinType::Or => "or",
             JoinType::Xor => "xor",
         }
-    }
-}
-
-impl Default for JoinType {
-    fn default() -> Self {
-        JoinType::Xor
     }
 }
 
@@ -395,9 +375,10 @@ pub struct Variable {
 }
 
 /// Data type for workflow variables.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub enum VariableType {
     /// String type
+    #[default]
     String,
     /// Integer type
     Integer,
@@ -415,7 +396,7 @@ pub enum VariableType {
 
 impl VariableType {
     /// Parse variable type from string.
-    pub fn from_str(s: &str) -> Self {
+    pub fn try_from_str(s: &str) -> Self {
         match s.to_lowercase().as_str() {
             "string" | "xs:string" => VariableType::String,
             "integer" | "int" | "xs:integer" => VariableType::Integer,
@@ -423,7 +404,7 @@ impl VariableType {
             "float" | "double" | "xs:double" => VariableType::Float,
             "datetime" | "xs:datetime" => VariableType::DateTime,
             "document" | "xml" | "json" => VariableType::Document,
-            custom => VariableType::Custom(custom.to_string()),
+            _ => VariableType::Custom(s.to_string()),
         }
     }
 
@@ -438,12 +419,6 @@ impl VariableType {
             VariableType::Document => "xs:anyType",
             VariableType::Custom(_) => "xs:anyType",
         }
-    }
-}
-
-impl Default for VariableType {
-    fn default() -> Self {
-        VariableType::String
     }
 }
 
@@ -515,7 +490,6 @@ pub enum ConstraintLevel {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum WorkflowPattern {
     // ===== Control Flow Patterns (1-6) =====
-
     /// Pattern 1: Sequence
     /// Sequential execution of tasks where one task follows another.
     /// This is the most basic workflow pattern.
@@ -546,7 +520,6 @@ pub enum WorkflowPattern {
     MultiChoice,
 
     // ===== Advanced Branching Patterns (7-10) =====
-
     /// Pattern 7: Synchronizing Merge (OR-join)
     /// Merge multiple branches that were created by a multi-choice.
     /// Waits for all active branches to complete.
@@ -568,7 +541,6 @@ pub enum WorkflowPattern {
     ArbitraryCycles,
 
     // ===== State-Based Patterns (11-13) =====
-
     /// Pattern 11: Implicit Termination
     /// Terminate the process instance when there is no remaining work.
     /// No explicit termination node is required.
@@ -585,7 +557,6 @@ pub enum WorkflowPattern {
     MultipleInstancesDesignTime,
 
     // ===== Advanced Instance Patterns (14-16) =====
-
     /// Pattern 14: Multiple Instances With A Priori Runtime Knowledge
     /// Create a number of instances determined at runtime.
     /// The count is known before instance creation but not at design time.
@@ -602,7 +573,6 @@ pub enum WorkflowPattern {
     InterleavedParallelRouting,
 
     // ===== Cancellation Patterns (17-20) =====
-
     /// Pattern 17: Cancel Activity
     /// Cancel a specific activity while allowing the process to continue.
     /// The activity may be enabled or executing when cancelled.
@@ -730,7 +700,10 @@ impl WorkflowPattern {
             "cancel_case" => Ok(WorkflowPattern::CancelCase),
             "pattern_based_termination" => Ok(WorkflowPattern::PatternBasedTermination),
             "cancel_region" => Ok(WorkflowPattern::CancelRegion),
-            _ => Err(errors::unsupported_feature(format!("Unknown workflow pattern: {}", name))),
+            _ => Err(errors::unsupported_feature(format!(
+                "Unknown workflow pattern: {}",
+                name
+            ))),
         }
     }
 }
@@ -867,7 +840,9 @@ impl YawlParser {
         // Parse XML document
         let mut reader = quick_xml::Reader::from_str(xml);
         // Configure the reader
-        reader.config_mut().trim_text(!self.config.preserve_whitespace);
+        reader
+            .config_mut()
+            .trim_text(!self.config.preserve_whitespace);
 
         let mut parser_state = ParserState::new();
         let mut buf = Vec::new();
@@ -914,9 +889,7 @@ impl YawlParser {
 
     /// Handle a single XML parsing event.
     fn handle_event(
-        &self,
-        reader: &quick_xml::Reader<&[u8]>,
-        event: quick_xml::events::Event<'_>,
+        &self, reader: &quick_xml::Reader<&[u8]>, event: quick_xml::events::Event<'_>,
         state: &mut ParserState,
     ) -> WorkflowResult<()> {
         use quick_xml::events::Event;
@@ -927,6 +900,10 @@ impl YawlParser {
             }
             Event::End(e) => {
                 self.handle_end_element(&e, state)?;
+            }
+            Event::Empty(e) => {
+                // Self-closing tags like <split type="and"/>
+                self.handle_start_element(reader, &e, state)?;
             }
             Event::Text(e) => {
                 if !e.is_empty() {
@@ -946,9 +923,7 @@ impl YawlParser {
 
     /// Handle XML start element.
     fn handle_start_element(
-        &self,
-        reader: &quick_xml::Reader<&[u8]>,
-        element: &quick_xml::events::BytesStart<'_>,
+        &self, _reader: &quick_xml::Reader<&[u8]>, element: &quick_xml::events::BytesStart<'_>,
         state: &mut ParserState,
     ) -> WorkflowResult<()> {
         let name = element.name();
@@ -959,14 +934,20 @@ impl YawlParser {
             "specification" => self.handle_specification_start(element, state)?,
             "name" => state.enter_context(ParseContext::Name),
             "description" => state.enter_context(ParseContext::Description),
-            "decomposition" => self.handle_decomposition_start(element, state)?,
+            "decomposition" => {
+                // Check if we're inside a task (reference) or at spec level (definition)
+                if state.current_task_id.is_some() {
+                    self.handle_decomposition_ref_start(element, state)?;
+                } else {
+                    self.handle_decomposition_start(element, state)?;
+                }
+            }
             "task" => self.handle_task_start(element, state)?,
             "flow" => self.handle_flow_start(element, state)?,
             "inputCondition" => self.handle_input_condition(element, state)?,
             "outputCondition" => self.handle_output_condition(element, state)?,
             "split" => self.handle_split_start(element, state)?,
             "join" => self.handle_join_start(element, state)?,
-            "decomposition" => self.handle_decomposition_ref_start(element, state)?,
             "starting" => state.current_task_is_auto = true,
             "predicate" => state.enter_context(ParseContext::Predicate),
             "variable" => self.handle_variable_start(element, state)?,
@@ -979,9 +960,7 @@ impl YawlParser {
 
     /// Handle XML end element.
     fn handle_end_element(
-        &self,
-        element: &quick_xml::events::BytesEnd<'_>,
-        state: &mut ParserState,
+        &self, element: &quick_xml::events::BytesEnd<'_>, state: &mut ParserState,
     ) -> WorkflowResult<()> {
         let name = element.name();
         let name = String::from_utf8_lossy(name.as_ref());
@@ -1043,28 +1022,20 @@ impl YawlParser {
     /// Helper function to extract attributes from an element.
     /// Returns a HashMap of attribute names to values.
     fn extract_attributes(
-        &self,
-        element: &quick_xml::events::BytesStart<'_>,
+        &self, element: &quick_xml::events::BytesStart<'_>,
     ) -> HashMap<String, String> {
         let mut attrs = HashMap::new();
-        for attr_result in element.attributes() {
-            if let Ok(attr) = attr_result {
-                let key = String::from_utf8_lossy(attr.key.as_ref()).to_string();
-                let value = attr
-                    .value
-                    .as_ref()
-                    .to_vec();
-                let value = String::from_utf8_lossy(&value).to_string();
-                attrs.insert(key, value);
-            }
+        for attr in element.attributes().flatten() {
+            let key = String::from_utf8_lossy(attr.key.as_ref()).to_string();
+            let value = attr.value.as_ref().to_vec();
+            let value = String::from_utf8_lossy(&value).to_string();
+            attrs.insert(key, value);
         }
         attrs
     }
 
     fn handle_specification_start(
-        &self,
-        element: &quick_xml::events::BytesStart<'_>,
-        state: &mut ParserState,
+        &self, element: &quick_xml::events::BytesStart<'_>, state: &mut ParserState,
     ) -> WorkflowResult<()> {
         state.enter_context(ParseContext::Specification);
 
@@ -1077,9 +1048,7 @@ impl YawlParser {
     }
 
     fn handle_decomposition_start(
-        &self,
-        element: &quick_xml::events::BytesStart<'_>,
-        state: &mut ParserState,
+        &self, element: &quick_xml::events::BytesStart<'_>, state: &mut ParserState,
     ) -> WorkflowResult<()> {
         state.enter_context(ParseContext::Decomposition);
 
@@ -1088,12 +1057,13 @@ impl YawlParser {
         let mut dec = Decomposition {
             id: attrs.get("id").cloned().unwrap_or_default(),
             name: String::new(),
-            decomposition_type: attrs.get("type")
-                .and_then(|t| match t.as_str() {
-                    "WSNet" => Some(DecompositionType::WSNet),
-                    "CompositeNet" => Some(DecompositionType::CompositeNet),
-                    "OrJoinNet" => Some(DecompositionType::OrJoinNet),
-                    custom => Some(DecompositionType::Custom(custom.to_string())),
+            decomposition_type: attrs
+                .get("type")
+                .map(|t| match t.as_str() {
+                    "WSNet" => DecompositionType::WSNet,
+                    "CompositeNet" => DecompositionType::CompositeNet,
+                    "OrJoinNet" => DecompositionType::OrJoinNet,
+                    custom => DecompositionType::Custom(custom.to_string()),
                 })
                 .unwrap_or_default(),
             input_condition: None,
@@ -1116,15 +1086,13 @@ impl YawlParser {
     }
 
     fn handle_task_start(
-        &self,
-        element: &quick_xml::events::BytesStart<'_>,
-        state: &mut ParserState,
+        &self, element: &quick_xml::events::BytesStart<'_>, state: &mut ParserState,
     ) -> WorkflowResult<()> {
         state.enter_context(ParseContext::Task);
 
         let attrs = self.extract_attributes(element);
 
-        let mut task = Task {
+        let task = Task {
             id: attrs.get("id").cloned().unwrap_or_default(),
             name: attrs.get("name").cloned().unwrap_or_default(),
             task_type: TaskType::default(),
@@ -1145,21 +1113,21 @@ impl YawlParser {
     }
 
     fn handle_flow_start(
-        &self,
-        element: &quick_xml::events::BytesStart<'_>,
-        state: &mut ParserState,
+        &self, element: &quick_xml::events::BytesStart<'_>, state: &mut ParserState,
     ) -> WorkflowResult<()> {
         state.enter_context(ParseContext::Flow);
 
         let attrs = self.extract_attributes(element);
 
-        let mut flow = Flow {
+        let flow = Flow {
             id: attrs.get("id").cloned().unwrap_or_default(),
-            source: attrs.get("from")
+            source: attrs
+                .get("from")
                 .or_else(|| attrs.get("source"))
                 .cloned()
                 .unwrap_or_default(),
-            target: attrs.get("into")
+            target: attrs
+                .get("into")
                 .or_else(|| attrs.get("to"))
                 .or_else(|| attrs.get("target"))
                 .cloned()
@@ -1176,59 +1144,48 @@ impl YawlParser {
     }
 
     fn handle_input_condition(
-        &self,
-        element: &quick_xml::events::BytesStart<'_>,
-        state: &mut ParserState,
+        &self, element: &quick_xml::events::BytesStart<'_>, _state: &mut ParserState,
     ) -> WorkflowResult<()> {
-        let attrs = self.extract_attributes(element);
-        if let Some(ref dec_id) = state.current_decomposition_id {
-            if let Some(id) = attrs.get("id") {
-                // Store input condition for current decomposition
-            }
-        }
+        let _attrs = self.extract_attributes(element);
+        // TODO: Store input condition for current decomposition
+        // if let Some(_dec_id) = _state.current_decomposition_id {
+        //     if let Some(_id) = _attrs.get("id") {
+        //         // Store input condition
+        //     }
+        // }
         Ok(())
     }
 
     fn handle_output_condition(
-        &self,
-        element: &quick_xml::events::BytesStart<'_>,
-        state: &mut ParserState,
+        &self, element: &quick_xml::events::BytesStart<'_>, _state: &mut ParserState,
     ) -> WorkflowResult<()> {
-        let attrs = self.extract_attributes(element);
-        if let Some(_id) = attrs.get("id") {
-            // Store output condition
-        }
+        let _attrs = self.extract_attributes(element);
+        // TODO: Store output condition for current decomposition
         Ok(())
     }
 
     fn handle_split_start(
-        &self,
-        element: &quick_xml::events::BytesStart<'_>,
-        state: &mut ParserState,
+        &self, element: &quick_xml::events::BytesStart<'_>, state: &mut ParserState,
     ) -> WorkflowResult<()> {
         let attrs = self.extract_attributes(element);
         if let Some(value) = attrs.get("type") {
-            state.current_task_split = Some(SplitType::from_str(value)?);
+            state.current_task_split = Some(SplitType::try_from_str(value)?);
         }
         Ok(())
     }
 
     fn handle_join_start(
-        &self,
-        element: &quick_xml::events::BytesStart<'_>,
-        state: &mut ParserState,
+        &self, element: &quick_xml::events::BytesStart<'_>, state: &mut ParserState,
     ) -> WorkflowResult<()> {
         let attrs = self.extract_attributes(element);
         if let Some(value) = attrs.get("type") {
-            state.current_task_join = Some(JoinType::from_str(value)?);
+            state.current_task_join = Some(JoinType::try_from_str(value)?);
         }
         Ok(())
     }
 
     fn handle_decomposition_ref_start(
-        &self,
-        element: &quick_xml::events::BytesStart<'_>,
-        state: &mut ParserState,
+        &self, element: &quick_xml::events::BytesStart<'_>, state: &mut ParserState,
     ) -> WorkflowResult<()> {
         let attrs = self.extract_attributes(element);
         if let Some(value) = attrs.get("id") {
@@ -1238,15 +1195,14 @@ impl YawlParser {
     }
 
     fn handle_variable_start(
-        &self,
-        element: &quick_xml::events::BytesStart<'_>,
-        state: &mut ParserState,
+        &self, element: &quick_xml::events::BytesStart<'_>, state: &mut ParserState,
     ) -> WorkflowResult<()> {
         state.enter_context(ParseContext::Variable);
 
         let attrs = self.extract_attributes(element);
 
-        let id = attrs.get("id")
+        let id = attrs
+            .get("id")
             .or_else(|| attrs.get("name"))
             .cloned()
             .unwrap_or_default();
@@ -1254,21 +1210,27 @@ impl YawlParser {
         let variable = Variable {
             id: id.clone(),
             name: id,
-            var_type: attrs.get("type")
+            var_type: attrs
+                .get("type")
                 .or_else(|| attrs.get("dataType"))
-                .map(|t| VariableType::from_str(t))
+                .map(|t| VariableType::try_from_str(t))
                 .unwrap_or_default(),
             initial_value: attrs.get("initialValue").cloned(),
-            is_readonly: attrs.get("readonly")
+            is_readonly: attrs
+                .get("readonly")
                 .map(|v| v.eq_ignore_ascii_case("true"))
                 .unwrap_or(false),
-            scope: attrs.get("scope")
+            scope: attrs
+                .get("scope")
                 .map(|s| match s.to_lowercase().as_str() {
                     "local" => VariableScope::Local {
                         task_id: state.current_task_id.clone().unwrap_or_default(),
                     },
                     "decomposition" => VariableScope::Decomposition {
-                        decomposition_id: state.current_decomposition_id.clone().unwrap_or_default(),
+                        decomposition_id: state
+                            .current_decomposition_id
+                            .clone()
+                            .unwrap_or_default(),
                     },
                     _ => VariableScope::Global,
                 })
@@ -1299,12 +1261,10 @@ impl YawlParser {
         let flows: Vec<Flow> = state
             .flows
             .into_iter()
-            .map(|mut f| {
+            .inspect(|f| {
                 // Set predicate from stored value if not already set
-                if f.predicate.is_none() {
-                    // This would be matched with predicates during parsing
-                }
-                f
+                let _ = f.predicate.is_none();
+                // This would be matched with predicates during parsing
             })
             .collect();
 
@@ -1360,18 +1320,8 @@ impl YawlParser {
             }
         }
 
-        // Validate task split/join combinations are valid
-        for task in spec.tasks.values() {
-            match (task.split_type, task.join_type) {
-                (SplitType::And, JoinType::Xor) => {
-                    return Err(errors::yawl_validation(format!(
-                        "Task {} has invalid split/join combination: AND split with XOR join",
-                        task.id
-                    )))
-                }
-                _ => {}
-            }
-        }
+        // Note: In YAWL, any split/join combination is valid
+        // Split types (AND, OR, XOR) and join types (AND, OR, XOR) are independent
 
         Ok(())
     }
@@ -1497,7 +1447,10 @@ impl YawlParser {
         ));
 
         // Metadata
-        xml.push_str(&format!("  <name>{}</name>\n", escape_xml(&spec.metadata.name)));
+        xml.push_str(&format!(
+            "  <name>{}</name>\n",
+            escape_xml(&spec.metadata.name)
+        ));
         if let Some(ref description) = spec.metadata.description {
             xml.push_str(&format!(
                 "  <description>{}</description>\n",
@@ -1514,16 +1467,22 @@ impl YawlParser {
 
         // Input condition
         if let Some(ref input) = spec.root_decomposition.input_condition {
-            xml.push_str(&format!("    <inputCondition id=\"{}\"/>\n", escape_xml(input)));
+            xml.push_str(&format!(
+                "    <inputCondition id=\"{}\"/>\n",
+                escape_xml(input)
+            ));
         }
 
         // Output condition
         if let Some(ref output) = spec.root_decomposition.output_condition {
-            xml.push_str(&format!("    <outputCondition id=\"{}\"/>\n", escape_xml(output)));
+            xml.push_str(&format!(
+                "    <outputCondition id=\"{}\"/>\n",
+                escape_xml(output)
+            ));
         }
 
         // Tasks
-        for (_id, task) in &spec.tasks {
+        for task in spec.tasks.values() {
             xml.push_str("    <task id=\"");
             xml.push_str(&task.id);
             xml.push_str("\" name=\"");
@@ -1545,7 +1504,10 @@ impl YawlParser {
             }
 
             if let Some(ref decomp_id) = task.decomposition_id {
-                xml.push_str(&format!("      <decomposition id=\"{}\"/>\n", escape_xml(decomp_id)));
+                xml.push_str(&format!(
+                    "      <decomposition id=\"{}\"/>\n",
+                    escape_xml(decomp_id)
+                ));
             }
 
             xml.push_str("    </task>\n");
@@ -1553,10 +1515,15 @@ impl YawlParser {
 
         // Flows
         for flow in &spec.flows {
-            xml.push_str(&format!("    <flow into=\"{}\" from=\"{}\"", flow.target, flow.source));
+            xml.push_str(&format!(
+                "    <flow into=\"{}\" from=\"{}\"",
+                flow.target, flow.source
+            ));
             if let Some(ref predicate) = flow.predicate {
-                xml.push_str(&format!(">\n      <predicate>{}</predicate>\n    </flow>\n",
-                    escape_xml(predicate)));
+                xml.push_str(&format!(
+                    ">\n      <predicate>{}</predicate>\n    </flow>\n",
+                    escape_xml(predicate)
+                ));
             } else {
                 xml.push_str("/>\n");
             }
@@ -1767,7 +1734,10 @@ mod tests {
     #[test]
     fn test_parser_creation() {
         let parser = YawlParser::new();
-        assert_eq!(parser.yawl_namespace, "http://www.yawlfoundation.org/yawlschema");
+        assert_eq!(
+            parser.yawl_namespace,
+            "http://www.yawlfoundation.org/yawlschema"
+        );
     }
 
     #[test]
@@ -1778,8 +1748,32 @@ mod tests {
 
         let spec = result.unwrap();
         assert_eq!(spec.metadata.name, "Test Workflow");
-        assert_eq!(spec.spec_version, "2.0");
-        assert_eq!(spec.metadata.description, Some("A simple test workflow".to_string()));
+        assert_eq!(spec.metadata.version, "2.0");
+        assert_eq!(
+            spec.metadata.description,
+            Some("A simple test workflow".to_string())
+        );
+
+        // Verify task split/join types are parsed correctly
+        let task1 = spec.tasks.get("task1");
+        assert!(task1.is_some(), "task1 should exist");
+        let task1 = task1.unwrap();
+        assert_eq!(
+            task1.split_type,
+            SplitType::And,
+            "task1 should have AND split"
+        );
+        assert_eq!(task1.join_type, JoinType::Xor, "task1 should have XOR join");
+
+        let task2 = spec.tasks.get("task2");
+        assert!(task2.is_some(), "task2 should exist");
+        let task2 = task2.unwrap();
+        assert_eq!(
+            task2.split_type,
+            SplitType::Xor,
+            "task2 should have XOR split"
+        );
+        assert_eq!(task2.join_type, JoinType::And, "task2 should have AND join");
     }
 
     #[test]
@@ -1791,31 +1785,37 @@ mod tests {
         assert!(spec.detected_patterns.contains(&WorkflowPattern::Sequence));
 
         // Should detect Parallel Split (AND split in task1)
-        assert!(spec.detected_patterns.contains(&WorkflowPattern::ParallelSplit));
+        assert!(spec
+            .detected_patterns
+            .contains(&WorkflowPattern::ParallelSplit));
 
         // Should detect Exclusive Choice (XOR split in task2)
-        assert!(spec.detected_patterns.contains(&WorkflowPattern::ExclusiveChoice));
+        assert!(spec
+            .detected_patterns
+            .contains(&WorkflowPattern::ExclusiveChoice));
 
         // Should detect Synchronization (AND join in task2)
-        assert!(spec.detected_patterns.contains(&WorkflowPattern::Synchronization));
+        assert!(spec
+            .detected_patterns
+            .contains(&WorkflowPattern::Synchronization));
     }
 
     #[test]
     fn test_split_type_from_str() {
-        assert_eq!(SplitType::from_str("and").unwrap(), SplitType::And);
-        assert_eq!(SplitType::from_str("AND").unwrap(), SplitType::And);
-        assert_eq!(SplitType::from_str("or").unwrap(), SplitType::Or);
-        assert_eq!(SplitType::from_str("xor").unwrap(), SplitType::Xor);
-        assert!(SplitType::from_str("invalid").is_err());
+        assert_eq!(SplitType::try_from_str("and").unwrap(), SplitType::And);
+        assert_eq!(SplitType::try_from_str("AND").unwrap(), SplitType::And);
+        assert_eq!(SplitType::try_from_str("or").unwrap(), SplitType::Or);
+        assert_eq!(SplitType::try_from_str("xor").unwrap(), SplitType::Xor);
+        assert!(SplitType::try_from_str("invalid").is_err());
     }
 
     #[test]
     fn test_join_type_from_str() {
-        assert_eq!(JoinType::from_str("and").unwrap(), JoinType::And);
-        assert_eq!(JoinType::from_str("AND").unwrap(), JoinType::And);
-        assert_eq!(JoinType::from_str("or").unwrap(), JoinType::Or);
-        assert_eq!(JoinType::from_str("xor").unwrap(), JoinType::Xor);
-        assert!(JoinType::from_str("invalid").is_err());
+        assert_eq!(JoinType::try_from_str("and").unwrap(), JoinType::And);
+        assert_eq!(JoinType::try_from_str("AND").unwrap(), JoinType::And);
+        assert_eq!(JoinType::try_from_str("or").unwrap(), JoinType::Or);
+        assert_eq!(JoinType::try_from_str("xor").unwrap(), JoinType::Xor);
+        assert!(JoinType::try_from_str("invalid").is_err());
     }
 
     #[test]
@@ -1832,10 +1832,22 @@ mod tests {
         assert_eq!(WorkflowPattern::CancelRegion.name(), "Cancel Region");
 
         // Test pattern category
-        assert_eq!(WorkflowPattern::Sequence.category(), PatternCategory::ControlFlow);
-        assert_eq!(WorkflowPattern::SynchronizingMerge.category(), PatternCategory::AdvancedBranching);
-        assert_eq!(WorkflowPattern::MultipleInstancesDynamic.category(), PatternCategory::StateBased);
-        assert_eq!(WorkflowPattern::CancelCase.category(), PatternCategory::Cancellation);
+        assert_eq!(
+            WorkflowPattern::Sequence.category(),
+            PatternCategory::ControlFlow
+        );
+        assert_eq!(
+            WorkflowPattern::SynchronizingMerge.category(),
+            PatternCategory::AdvancedBranching
+        );
+        assert_eq!(
+            WorkflowPattern::MultipleInstancesDynamic.category(),
+            PatternCategory::StateBased
+        );
+        assert_eq!(
+            WorkflowPattern::CancelCase.category(),
+            PatternCategory::Cancellation
+        );
     }
 
     #[test]
@@ -1857,13 +1869,19 @@ mod tests {
 
     #[test]
     fn test_variable_type_from_str() {
-        assert_eq!(VariableType::from_str("string"), VariableType::String);
-        assert_eq!(VariableType::from_str("xs:string"), VariableType::String);
-        assert_eq!(VariableType::from_str("integer"), VariableType::Integer);
-        assert_eq!(VariableType::from_str("int"), VariableType::Integer);
-        assert_eq!(VariableType::from_str("boolean"), VariableType::Boolean);
-        assert_eq!(VariableType::from_str("float"), VariableType::Float);
-        assert_eq!(VariableType::from_str("CustomType"), VariableType::Custom("CustomType".to_string()));
+        assert_eq!(VariableType::try_from_str("string"), VariableType::String);
+        assert_eq!(
+            VariableType::try_from_str("xs:string"),
+            VariableType::String
+        );
+        assert_eq!(VariableType::try_from_str("integer"), VariableType::Integer);
+        assert_eq!(VariableType::try_from_str("int"), VariableType::Integer);
+        assert_eq!(VariableType::try_from_str("boolean"), VariableType::Boolean);
+        assert_eq!(VariableType::try_from_str("float"), VariableType::Float);
+        assert_eq!(
+            VariableType::try_from_str("CustomType"),
+            VariableType::Custom("CustomType".to_string())
+        );
     }
 
     #[test]
@@ -1879,7 +1897,7 @@ mod tests {
     fn test_to_xml() {
         let parser = YawlParser::new();
         let spec = parser.parse(SIMPLE_YAWL).unwrap();
-        let xml = parser.to_xml(&spec);
+        let xml = parser.to_xml(&spec).expect("to_xml should succeed");
 
         assert!(xml.contains("<?xml version=\"1.0\""));
         assert!(xml.contains("<specification"));
@@ -1892,13 +1910,19 @@ mod tests {
     fn test_decomposition_type_display() {
         assert_eq!(DecompositionType::WSNet.to_string(), "WSNet");
         assert_eq!(DecompositionType::CompositeNet.to_string(), "CompositeNet");
-        assert_eq!(DecompositionType::Custom("Custom".to_string()).to_string(), "Custom");
+        assert_eq!(
+            DecompositionType::Custom("Custom".to_string()).to_string(),
+            "Custom"
+        );
     }
 
     #[test]
     fn test_pattern_category_display() {
         assert_eq!(PatternCategory::ControlFlow.to_string(), "Control Flow");
-        assert_eq!(PatternCategory::AdvancedBranching.to_string(), "Advanced Branching");
+        assert_eq!(
+            PatternCategory::AdvancedBranching.to_string(),
+            "Advanced Branching"
+        );
         assert_eq!(PatternCategory::Cancellation.to_string(), "Cancellation");
     }
 

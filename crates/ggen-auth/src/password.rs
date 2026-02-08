@@ -63,7 +63,7 @@ impl PasswordHasher {
     ///
     /// # Errors
     /// Returns error if initialization fails
-    pub fn default() -> AuthResult<Self> {
+    pub fn with_default_requirements() -> AuthResult<Self> {
         Self::new(PasswordRequirements::default())
     }
 
@@ -183,7 +183,7 @@ mod tests {
     use super::*;
 
     fn create_test_hasher() -> PasswordHasher {
-        PasswordHasher::default().unwrap()
+        PasswordHasher::with_default_requirements().unwrap()
     }
 
     #[test]

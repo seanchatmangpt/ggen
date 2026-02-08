@@ -39,15 +39,15 @@
 //! # }
 //! ```
 
+pub mod canonicalize;
+pub mod emit;
 pub mod error;
+pub mod extract;
 pub mod models;
 pub mod normalize;
-pub mod extract;
-pub mod emit;
-pub mod canonicalize;
-pub mod receipt;
 pub mod pipeline;
+pub mod receipt;
 
 // Re-export key types for convenience
-pub use error::{Result, CraftplanError};
+pub use error::{CraftplanError, Result};
 pub use pipeline::CodeGenerator;

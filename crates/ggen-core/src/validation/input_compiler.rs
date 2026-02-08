@@ -144,7 +144,7 @@ impl RuleDefinition {
     }
 
     /// Negate with NOT
-    pub fn not(self) -> Self {
+    pub fn negate(self) -> Self {
         Self::Not {
             inner: Box::new(self),
         }
@@ -512,9 +512,9 @@ mod tests {
     }
 
     #[test]
-    fn test_rule_definition_not() {
+    fn test_rule_definition_negate() {
         // Arrange & Act
-        let rule = RuleDefinition::length("field", 5, 10).not();
+        let rule = RuleDefinition::length("field", 5, 10).negate();
 
         // Assert
         assert_eq!(rule.field_name(), Some("field"));

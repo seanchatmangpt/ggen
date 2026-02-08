@@ -46,7 +46,7 @@ impl ApiKeyManager {
     pub fn verify_key(&self, key: &str, hash: &str) -> bool {
         let computed_hash = self.hash_key(key);
         // Constant-time comparison
-        computed_hash.as_bytes().len() == hash.len()
+        computed_hash.len() == hash.len()
             && computed_hash
                 .as_bytes()
                 .iter()

@@ -103,7 +103,9 @@ impl ConformanceChecker {
 
         for event in &trace.events {
             // Find matching transition
-            let matching_transition = model.transitions.iter()
+            let matching_transition = model
+                .transitions
+                .iter()
                 .find(|t| t.label.as_ref() == Some(&event.activity));
 
             match matching_transition {
@@ -131,7 +133,9 @@ impl ConformanceChecker {
         if !is_complete {
             is_conforming = false;
             missing_moves = model.final_marking.tokens.len()
-                - current_marking.tokens.iter()
+                - current_marking
+                    .tokens
+                    .iter()
                     .filter(|(k, v)| model.final_marking.tokens.get(*k) == Some(v))
                     .count();
         }
@@ -147,7 +151,9 @@ impl ConformanceChecker {
     }
 
     /// Get enabled transitions for a marking.
-    fn get_enabled_transitions(&self, model: &PetriNet, marking: &crate::petri_net::Marking) -> Vec<String> {
+    fn get_enabled_transitions(
+        &self, model: &PetriNet, marking: &crate::petri_net::Marking,
+    ) -> Vec<String> {
         let mut enabled = Vec::new();
 
         for transition in &model.transitions {
@@ -170,10 +176,7 @@ impl ConformanceChecker {
 
     /// Fire a transition and return the new marking.
     fn fire_transition(
-        &self,
-        model: &PetriNet,
-        marking: &crate::petri_net::Marking,
-        transition_id: &str,
+        &self, model: &PetriNet, marking: &crate::petri_net::Marking, transition_id: &str,
     ) -> Result<crate::petri_net::Marking> {
         let mut new_tokens = marking.tokens.clone();
 
@@ -387,8 +390,7 @@ mod tests {
     }
 
     fn make_test_log() -> EventLog {
-        EventLog::new("Test Log")
-            .with_trace(make_test_trace())
+        EventLog::new("Test Log").with_trace(make_test_trace())
     }
 
     #[test]

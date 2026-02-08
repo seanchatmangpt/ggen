@@ -3,7 +3,7 @@
 //! This test file verifies that the parser module compiles correctly
 //! and can parse YAWL XML specifications.
 
-use ggen_workflow::parser::{YawlParser, YawlSpec, WorkflowPattern};
+use ggen_workflow::parser::{WorkflowPattern, YawlParser, YawlSpec};
 use std::collections::HashMap;
 
 /// Simple YAWL specification for testing.

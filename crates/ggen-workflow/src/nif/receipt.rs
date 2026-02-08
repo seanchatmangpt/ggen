@@ -104,16 +104,3 @@ pub fn receipt_verify_internal(
 pub fn receipt_info(receipt: &WorkflowReceipt) -> WorkflowResult<String> {
     Ok(serde_json::to_string(&receipt.metadata)?)
 }
-
-// Module definition
-rustler::init!(
-    "Elixir.Workflow.Receipt",
-    [
-        generate_receipt,
-        create_test_receipt,
-        verify_receipt,
-        receipt_metadata,
-        receipt_id,
-        receipt_timestamp,
-    ]
-);

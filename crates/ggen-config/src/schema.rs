@@ -66,7 +66,7 @@ pub struct GgenConfig {
 }
 
 /// Project metadata configuration
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ProjectConfig {
     /// Project name
     pub name: String,
@@ -122,7 +122,7 @@ pub struct AiConfig {
 }
 
 /// AI prompt configuration
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct AiPrompts {
     /// System prompt
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -150,7 +150,7 @@ pub struct AiValidation {
 }
 
 /// Templates configuration
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct TemplatesConfig {
     /// Template source directory
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -170,7 +170,7 @@ pub struct TemplatesConfig {
 }
 
 /// RDF configuration
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct RdfConfig {
     /// Base IRI/URI for RDF entities
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -194,7 +194,7 @@ pub struct RdfConfig {
 }
 
 /// SPARQL configuration
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct SparqlConfig {
     /// Query timeout in seconds
     #[serde(default = "default_sparql_timeout")]
@@ -210,7 +210,7 @@ pub struct SparqlConfig {
 }
 
 /// Lifecycle configuration
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct LifecycleConfig {
     /// Enable lifecycle management
     #[serde(default)]
@@ -234,7 +234,7 @@ pub struct LifecycleConfig {
 }
 
 /// Security configuration
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct SecurityConfig {
     /// Enable path traversal protection
     #[serde(default = "default_true")]
@@ -266,7 +266,7 @@ pub struct SecurityConfig {
 }
 
 /// Performance configuration
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct PerformanceConfig {
     /// Enable parallel execution
     #[serde(default)]
@@ -290,7 +290,7 @@ pub struct PerformanceConfig {
 }
 
 /// Logging configuration
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct LoggingConfig {
     /// Log level (debug, info, warn, error)
     #[serde(default = "default_log_level")]
@@ -310,7 +310,7 @@ pub struct LoggingConfig {
 }
 
 /// Build configuration
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct BuildConfig {
     /// Build target (release, debug)
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -330,7 +330,7 @@ pub struct BuildConfig {
 }
 
 /// Test configuration
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct TestConfig {
     /// Test framework
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -354,7 +354,7 @@ pub struct TestConfig {
 }
 
 /// Package metadata (for marketplace packages)
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct PackageMetadata {
     /// Package name
     pub name: String,
@@ -392,31 +392,31 @@ pub struct PackageMetadata {
 }
 
 // Default value functions for serde
-fn default_temperature() -> f32 {
+const fn default_temperature() -> f32 {
     0.7
 }
 
-fn default_max_tokens() -> u32 {
+const fn default_max_tokens() -> u32 {
     2000
 }
 
-fn default_timeout() -> u32 {
+const fn default_timeout() -> u32 {
     30
 }
 
-fn default_quality_threshold() -> f32 {
+const fn default_quality_threshold() -> f32 {
     0.8
 }
 
-fn default_max_iterations() -> u32 {
+const fn default_max_iterations() -> u32 {
     3
 }
 
-fn default_sparql_timeout() -> u32 {
+const fn default_sparql_timeout() -> u32 {
     10
 }
 
-fn default_max_results() -> u32 {
+const fn default_max_results() -> u32 {
     1000
 }
 
@@ -432,7 +432,7 @@ fn default_log_format() -> String {
     "text".to_string()
 }
 
-fn default_true() -> bool {
+const fn default_true() -> bool {
     true
 }
 

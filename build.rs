@@ -22,7 +22,7 @@ fn main() {
 
     // Discover all templates
     let templates = discover_templates().unwrap_or_else(|e| {
-        eprintln!("Warning: Failed to discover templates: {}", e);
+        eprintln!("Warning: Failed to discover templates: {e}");
         Vec::new()
     });
 
@@ -30,7 +30,7 @@ fn main() {
 
     // Generate Rust code for template registry
     generate_template_registry(&templates).unwrap_or_else(|e| {
-        eprintln!("Warning: Failed to generate template registry: {}", e);
+        eprintln!("Warning: Failed to generate template registry: {e}");
     });
 }
 
@@ -81,7 +81,7 @@ fn discover_templates_recursive(
             if ext == "tmpl" {
                 let relative_path = path
                     .strip_prefix(base_dir)
-                    .map_err(|e| format!("Failed to strip prefix: {}", e))?
+                    .map_err(|e| format!("Failed to strip prefix: {e}"))?
                     .to_string_lossy()
                     .to_string();
 

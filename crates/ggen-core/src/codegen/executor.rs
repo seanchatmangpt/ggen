@@ -638,11 +638,7 @@ impl SyncExecutor {
             print_section("Code Generation");
             for rule in &state.executed_rules {
                 if rule.rule_type == RuleType::Generation {
-                    eprintln!(
-                        "  {} {}",
-                        rule.name,
-                        format!("({})", format_duration(rule.duration_ms))
-                    );
+                    eprintln!("  {} ({})", rule.name, format_duration(rule.duration_ms));
                 }
             }
         }

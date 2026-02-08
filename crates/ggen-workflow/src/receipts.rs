@@ -52,23 +52,26 @@ pub struct ReceiptMetadata {
 #[derive(Clone)]
 pub struct ReceiptGenerator {
     /// Private key for signing (in production, this would be properly secured)
+    #[allow(dead_code)]
     private_key: [u8; 32],
     /// Hash algorithm
+    #[allow(dead_code)]
     hash_algorithm: HashAlgorithm,
 }
 
 /// Hash algorithm selection
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub enum HashAlgorithm {
     /// SHA-256 (default)
+    #[default]
     Sha256,
     /// SHA-512
     Sha512,
 }
 
-impl Default for HashAlgorithm {
+impl Default for ReceiptGenerator {
     fn default() -> Self {
-        HashAlgorithm::Sha256
+        Self::new()
     }
 }
 
@@ -77,7 +80,8 @@ impl ReceiptGenerator {
     pub fn new() -> Self {
         // In production, this would use proper key management
         let mut private_key = [0u8; 32];
-        private_key[0..16].copy_from_slice(b"receipt_generator_key");
+        // Copy the key bytes (must match slice length)
+        private_key[0..21].copy_from_slice(b"receipt_generator_key");
 
         ReceiptGenerator {
             private_key,

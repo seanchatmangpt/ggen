@@ -8,19 +8,17 @@
 //! - XES/OCEL import/export
 //! - Workflow structure verification
 
-mod petri_net_yawl_roundtrip;
 mod alpha_plusplus_discovery;
 mod conformance_checking;
-mod xes_import_export;
 mod ocel_import_export;
+mod petri_net_yawl_roundtrip;
 mod workflow_structure_verification;
+mod xes_import_export;
 
 #[cfg(test)]
 mod helpers {
-    use ggen_process_mining::{
-        Event, EventLog, Place, PetriNet, Trace, Transition, Marking,
-    };
     use ggen_process_mining::petri_net::Arc as PetriArc;
+    use ggen_process_mining::{Event, EventLog, Marking, PetriNet, Place, Trace, Transition};
     use std::collections::HashMap;
 
     /// Create a simple sequential event log for testing.
@@ -118,7 +116,8 @@ mod helpers {
   <flow source="t_submit" target="c_review"/>
   <flow source="c_review" target="t_approve"/>
   <flow source="t_approve" target="c_output"/>
-</specification>"#.to_string()
+</specification>"#
+            .to_string()
     }
 
     /// Create a sample XES log for testing.
@@ -171,7 +170,8 @@ mod helpers {
       <string key="org:resource" value="Frank"/>
     </event>
   </trace>
-</log>"#.to_string()
+</log>"#
+            .to_string()
     }
 
     /// Create a sample OCEL JSON for testing.
@@ -248,11 +248,14 @@ mod helpers {
       }
     }
   ]
-}"#.to_string()
+}"#
+        .to_string()
     }
 
     /// Verify Petri net structural properties.
-    pub fn verify_petri_net_structure(net: &PetriNet, expected_places: usize, expected_transitions: usize, expected_arcs: usize) {
+    pub fn verify_petri_net_structure(
+        net: &PetriNet, expected_places: usize, expected_transitions: usize, expected_arcs: usize,
+    ) {
         assert_eq!(
             net.places.len(),
             expected_places,
@@ -282,16 +285,29 @@ mod helpers {
         match pattern {
             "sequential" => {
                 // Sequential workflow should have a clear start and end
-                assert!(!net.initial_marking.tokens.is_empty(), "Sequential workflow must have initial marking");
-                assert!(!net.final_marking.tokens.is_empty(), "Sequential workflow must have final marking");
-                assert!(net.transitions.len() >= 2, "Sequential workflow should have at least 2 transitions");
+                assert!(
+                    !net.initial_marking.tokens.is_empty(),
+                    "Sequential workflow must have initial marking"
+                );
+                assert!(
+                    !net.final_marking.tokens.is_empty(),
+                    "Sequential workflow must have final marking"
+                );
+                assert!(
+                    net.transitions.len() >= 2,
+                    "Sequential workflow should have at least 2 transitions"
+                );
             }
             "parallel" => {
                 // Parallel workflow should have places with multiple outputs
-                let has_parallel_split = net.places.iter().any(|p| {
-                    net.output_transitions_for(&p.id).len() > 1
-                });
-                assert!(has_parallel_split, "Parallel workflow should have at least one parallel split");
+                let has_parallel_split = net
+                    .places
+                    .iter()
+                    .any(|p| net.output_transitions_for(&p.id).len() > 1);
+                assert!(
+                    has_parallel_split,
+                    "Parallel workflow should have at least one parallel split"
+                );
             }
             "loop" => {
                 // Loop workflow should have cycles

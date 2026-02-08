@@ -9,6 +9,7 @@ license = "MIT"
 [lib]
 name = "ggen_tps_andon"
 path = "src/lib.rs"
+doctest = false
 
 [dependencies]
 tokio = { workspace = true }

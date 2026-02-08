@@ -67,9 +67,13 @@ impl MetricsCollector {
             self.search_hits.fetch_add(1, Ordering::Relaxed);
         }
 
+        // AtomicI64 used for atomic operations; value is always non-negative
+        #[allow(clippy::cast_sign_loss)]
         let current = self.avg_search_duration_ms.load(Ordering::Relaxed) as u64;
         let count = self.searches.load(Ordering::Relaxed);
         let new_avg = ((current * (count - 1)) + duration_ms) / count;
+        // Duration values are bounded; cannot exceed i64::MAX in practice
+        #[allow(clippy::cast_possible_wrap)]
         self.avg_search_duration_ms
             .store(new_avg as i64, Ordering::Relaxed);
 
@@ -83,9 +87,13 @@ impl MetricsCollector {
     pub fn record_installation(&self, duration_ms: u64, packages_count: u64) {
         self.installations.fetch_add(1, Ordering::Relaxed);
 
+        // AtomicI64 used for atomic operations; value is always non-negative
+        #[allow(clippy::cast_sign_loss)]
         let current = self.avg_install_duration_ms.load(Ordering::Relaxed) as u64;
         let count = self.installations.load(Ordering::Relaxed);
         let new_avg = ((current * (count - 1)) + duration_ms) / count;
+        // Duration values are bounded; cannot exceed i64::MAX in practice
+        #[allow(clippy::cast_possible_wrap)]
         self.avg_install_duration_ms
             .store(new_avg as i64, Ordering::Relaxed);
 
@@ -128,35 +136,46 @@ impl MetricsCollector {
     }
 
     /// Get search metrics
+    #[must_use]
     pub fn search_metrics(&self) -> SearchMetrics {
         let total = self.searches.load(Ordering::Relaxed);
         let hits = self.search_hits.load(Ordering::Relaxed);
         let avg_duration = self.avg_search_duration_ms.load(Ordering::Relaxed);
 
+        #[allow(clippy::cast_precision_loss, clippy::cast_sign_loss)]
+        let success_rate = if total > 0 {
+            hits as f64 / total as f64
+        } else {
+            0.0
+        };
+        #[allow(clippy::cast_sign_loss)]
+        let avg_duration_ms = avg_duration as u64;
+
         SearchMetrics {
             total_searches: total,
             successful_searches: hits,
-            success_rate: if total > 0 {
-                hits as f64 / total as f64
-            } else {
-                0.0
-            },
-            avg_duration_ms: avg_duration as u64,
+            success_rate,
+            avg_duration_ms,
         }
     }
 
     /// Get installation metrics
+    #[must_use]
     pub fn installation_metrics(&self) -> InstallationMetrics {
         let total = self.installations.load(Ordering::Relaxed);
         let avg_duration = self.avg_install_duration_ms.load(Ordering::Relaxed);
 
+        #[allow(clippy::cast_sign_loss)]
+        let avg_duration_ms = avg_duration as u64;
+
         InstallationMetrics {
             total_installations: total,
-            avg_duration_ms: avg_duration as u64,
+            avg_duration_ms,
         }
     }
 
     /// Get all metrics summary
+    #[must_use]
     pub fn summary(&self) -> MetricsSummary {
         MetricsSummary {
             searches: self.search_metrics(),
@@ -177,8 +196,8 @@ impl Default for MetricsCollector {
 #[async_trait]
 impl Observable for MetricsCollector {
     async fn record_metric(&self, name: &str, value: f64) -> Result<()> {
-        debug!("Recorded metric: {} = {}", name, value);
-        self.record_custom_event(format!("metric_{}", name)).await;
+        debug!("Recorded metric: {name} = {value}");
+        self.record_custom_event(format!("metric_{name}")).await;
         Ok(())
     }
 
@@ -188,6 +207,7 @@ impl Observable for MetricsCollector {
         Ok(())
     }
 
+    #[must_use]
     async fn get_metrics(&self) -> Result<String> {
         let summary = self.summary();
         Ok(summary.to_string())

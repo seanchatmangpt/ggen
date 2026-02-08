@@ -8,7 +8,7 @@ use crate::emit::Emitter;
 use crate::error::{CraftplanError, Result};
 use crate::extract::Extractor;
 use crate::models::{ExtractedData, GenerationReceipt};
-use crate::normalize::{Normalizer, NormalizedData};
+use crate::normalize::{NormalizedData, Normalizer};
 use crate::receipt::ReceiptGenerator;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
@@ -135,11 +135,7 @@ impl CodeGenerator {
     }
 
     /// μ₁ stage: Normalize RDF
-    fn normalize_stage(
-        &self,
-        normalizer: &Normalizer,
-        rdf_path: &Path,
-    ) -> Result<NormalizedData> {
+    fn normalize_stage(&self, normalizer: &Normalizer, rdf_path: &Path) -> Result<NormalizedData> {
         normalizer.load_rdf(rdf_path)?;
         normalizer.validate()?;
 
@@ -154,9 +150,7 @@ impl CodeGenerator {
 
     /// μ₂ stage: Extract entity data
     fn extract_stage(
-        &self,
-        extractor: &Extractor,
-        normalized: &NormalizedData,
+        &self, extractor: &Extractor, normalized: &NormalizedData,
     ) -> Result<ExtractedData> {
         let entities = extractor.extract_entities(normalized.store())?;
 
@@ -172,10 +166,7 @@ impl CodeGenerator {
 
     /// μ₃ stage: Emit Elixir code
     fn emit_stage(
-        &self,
-        emitter: &Emitter,
-        normalized: &NormalizedData,
-        extracted: &ExtractedData,
+        &self, emitter: &Emitter, normalized: &NormalizedData, extracted: &ExtractedData,
     ) -> Result<Vec<String>> {
         // This is a placeholder - actual implementation would use the emit module
         // For now, just return empty vector
@@ -184,21 +175,15 @@ impl CodeGenerator {
 
     /// μ₄ stage: Canonicalize output
     fn canonicalize_stage(
-        &self,
-        canonicalizer: &Canonicalizer,
-        files: &[String],
+        &self, canonicalizer: &Canonicalizer, files: &[String],
     ) -> Result<Vec<String>> {
         canonicalizer.canonicalize(files)
     }
 
     /// μ₅ stage: Generate receipt
     fn receipt_stage(
-        &self,
-        generator: &ReceiptGenerator,
-        input_path: &Path,
-        output_files: &[String],
-        entity_count: usize,
-        duration_ms: u64,
+        &self, generator: &ReceiptGenerator, input_path: &Path, output_files: &[String],
+        entity_count: usize, duration_ms: u64,
     ) -> Result<GenerationReceipt> {
         generator.generate(
             input_path.to_str().unwrap(),

@@ -3,15 +3,15 @@
 //! Tests for reading and writing OCEL (Object-Centric Event Log) format.
 //! Validates object-centric process mining capabilities.
 
-use ggen_process_mining::{OcelParser};
-use ggen_process_mining::ocel::{OcelLog, OcelEvent, OcelObject};
 use ggen_process_mining::event_log::AttributeValue;
+use ggen_process_mining::ocel::{OcelEvent, OcelLog, OcelObject};
+use ggen_process_mining::OcelParser;
 use std::collections::HashMap;
 
 #[cfg(test)]
 mod ocel_tests {
-    use super::*;
     use super::super::helpers::*;
+    use super::*;
 
     /// Test OCEL parser creation and configuration.
     #[test]
@@ -56,7 +56,9 @@ mod ocel_tests {
         let log = parser.parse_str(&ocel_json).unwrap();
 
         // Assert
-        let order_types: Vec<_> = log.object_types.iter()
+        let order_types: Vec<_> = log
+            .object_types
+            .iter()
             .filter(|ot| ot.name == "order")
             .collect();
 
@@ -511,7 +513,9 @@ mod ocel_tests {
         let log = parser.parse_str(&ocel_json).unwrap();
 
         // Assert
-        let order_type = log.object_types.iter()
+        let order_type = log
+            .object_types
+            .iter()
             .find(|ot| ot.name == "order")
             .expect("Order type should exist");
 

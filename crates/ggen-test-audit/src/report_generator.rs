@@ -43,8 +43,15 @@ impl ReportGenerator {
         &self, mutation_results: &[MutationResult], assertions: &[TestAssertion],
         false_positive_report: &FalsePositiveReport,
     ) -> QualityReport {
-        let analyzer = MutationAnalyzer::new(".", &self.output_dir)
-            .unwrap_or_else(|_| panic!("Failed to create mutation analyzer"));
+        let analyzer = MutationAnalyzer::new(".", &self.output_dir).unwrap_or_else(|e| {
+            // Fallback: create analyzer with minimal output_dir if creation fails
+            // Log the error but continue with degraded functionality
+            eprintln!("Warning: Failed to create mutation analyzer: {e:?}");
+            MutationAnalyzer::new(".", ".").unwrap_or_else(|_| {
+                // Last resort: should never happen as "." is always valid
+                std::process::abort()
+            })
+        });
 
         QualityReport {
             timestamp: Utc::now(),
@@ -112,8 +119,15 @@ impl ReportGenerator {
     ) -> Vec<Recommendation> {
         let mut recommendations = Vec::new();
 
-        let analyzer = MutationAnalyzer::new(".", &self.output_dir)
-            .unwrap_or_else(|_| panic!("Failed to create mutation analyzer"));
+        let analyzer = MutationAnalyzer::new(".", &self.output_dir).unwrap_or_else(|e| {
+            // Fallback: create analyzer with minimal output_dir if creation fails
+            // Log the error but continue with degraded functionality
+            eprintln!("Warning: Failed to create mutation analyzer: {e:?}");
+            MutationAnalyzer::new(".", ".").unwrap_or_else(|_| {
+                // Last resort: should never happen as "." is always valid
+                std::process::abort()
+            })
+        });
 
         // Mutation kill rate recommendation
         let kill_rate = analyzer.calculate_kill_rate(mutation_results);

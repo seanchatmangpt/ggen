@@ -9,13 +9,13 @@
 //! All tests follow the AAA pattern (Arrange/Act/Assert) with real collaborators,
 //! using state-based verification over interaction verification.
 
-mod loader_tests;
 mod executor_tests;
+mod loader_tests;
 mod renderer_tests;
 mod yawl_xml_tests;
 
+pub use executor_tests::fixtures as executor_fixtures;
 /// Re-export test fixtures for use in integration tests
 pub use loader_tests::fixtures as loader_fixtures;
-pub use executor_tests::fixtures as executor_fixtures;
 pub use renderer_tests::fixtures as renderer_fixtures;
 pub use yawl_xml_tests::fixtures as yawl_xml_fixtures;

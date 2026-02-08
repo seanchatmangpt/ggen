@@ -66,9 +66,9 @@ pub struct Orchestrator {
     event_bus: Arc<RwLock<EventBus>>,
     span_correlation: Arc<RwLock<SpanCorrelation>>,
 
-    // Stage state
-    pending_events: Arc<RwLock<Vec<EtlTripleEvent>>>,
+    /// Deduplication cache for transaction IDs
     dedup_cache: Arc<RwLock<HashMap<String, bool>>>,
+    /// Counter for events processed through the pipeline
     event_counter: Arc<RwLock<u64>>,
 }
 
@@ -80,7 +80,6 @@ impl Orchestrator {
             config,
             event_bus: Arc::new(RwLock::new(EventBus::new())),
             span_correlation: Arc::new(RwLock::new(SpanCorrelation::new())),
-            pending_events: Arc::new(RwLock::new(Vec::new())),
             dedup_cache: Arc::new(RwLock::new(HashMap::new())),
             event_counter: Arc::new(RwLock::new(0)),
         }
@@ -89,8 +88,10 @@ impl Orchestrator {
     /// Create with default configuration
     #[must_use]
     pub fn default_with_workflow(workflow_id: String) -> Self {
-        let mut config = OrchestratorConfig::default();
-        config.workflow_id = workflow_id;
+        let config = OrchestratorConfig {
+            workflow_id,
+            ..Default::default()
+        };
         Self::new(config)
     }
 
@@ -180,7 +181,7 @@ impl Orchestrator {
             let key = event
                 .predicate
                 .split('/')
-                .last()
+                .next_back()
                 .unwrap_or("value")
                 .to_string();
 
@@ -252,7 +253,9 @@ impl Orchestrator {
         let _kgc_context = self.stage_2_kgc_injection(&event).await?;
 
         // Stage 3: Variable Aggregation (single event)
-        let variables = self.stage_3_variable_aggregation(&[event.clone()]).await?;
+        let variables = self
+            .stage_3_variable_aggregation(std::slice::from_ref(&event))
+            .await?;
 
         // Stage 4: Trigger Generation
         let trigger = self
@@ -379,11 +382,20 @@ impl Orchestrator {
 #[derive(Clone, Debug)]
 pub enum AndonSignal {
     /// 🟢 GREEN: All systems operational
-    Green { message: String },
+    Green {
+        /// Human-readable message describing the current state.
+        message: String,
+    },
     /// 🟡 YELLOW: Warning, investigate
-    Yellow { message: String },
+    Yellow {
+        /// Human-readable message describing the warning condition.
+        message: String,
+    },
     /// 🔴 RED: Critical, stop and investigate
-    Red { message: String },
+    Red {
+        /// Human-readable message describing the critical condition.
+        message: String,
+    },
 }
 
 /// Orchestrator performance metrics

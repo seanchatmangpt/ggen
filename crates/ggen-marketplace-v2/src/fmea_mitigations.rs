@@ -162,6 +162,11 @@ impl FmeaMitigations {
     }
 
     /// Detect and handle network timeout
+    ///
+    /// # Errors
+    ///
+    /// This function currently always returns `Ok`. Future implementations may return:
+    /// * [`Error::Timeout`] - When timeout recovery fails
     pub fn handle_network_timeout(&self, url: &str, timeout_ms: u64) -> Result<RecoveryAction> {
         let mode = FailureMode::NetworkTimeout;
         let rpn = RiskPriorityNumber::calculate(
@@ -220,6 +225,11 @@ impl FmeaMitigations {
     }
 
     /// Detect and handle RDF store connection failure
+    ///
+    /// # Errors
+    ///
+    /// This function currently always returns `Ok`. Future implementations may return:
+    /// * [`Error::RdfStoreError`] - When reconnection attempts fail
     pub fn handle_rdf_store_failure(&self, error: &Error) -> Result<RecoveryAction> {
         let mode = FailureMode::RdfStoreConnectionFailure;
         let rpn = RiskPriorityNumber::calculate(
@@ -248,6 +258,12 @@ impl FmeaMitigations {
     }
 
     /// Detect and handle SPARQL query timeout
+    ///
+    /// # Errors
+    ///
+    /// This function currently always returns `Ok`. Future implementations may return:
+    /// * [`Error::Timeout`] - When query optimization fails
+    /// * [`Error::SparqlError`] - When simplified query still fails
     pub fn handle_sparql_timeout(&self, query: &str, timeout_ms: u64) -> Result<RecoveryAction> {
         let mode = FailureMode::SparqlQueryTimeout;
         let rpn = RiskPriorityNumber::calculate(
@@ -306,6 +322,11 @@ impl FmeaMitigations {
     }
 
     /// Detect and handle dependency resolution cycle
+    ///
+    /// # Errors
+    ///
+    /// This function currently always returns `Ok`. Future implementations may return:
+    /// * [`Error::DependencyResolutionFailed`] - When breaking the cycle fails
     pub fn handle_dependency_cycle(&self, cycle: &[PackageId]) -> Result<RecoveryAction> {
         let mode = FailureMode::DependencyResolutionCycle;
         let rpn = RiskPriorityNumber::calculate(

@@ -17,8 +17,10 @@ hashbrown = { version = "0.15", default-features = false }
 reqwest = { version = "0.12", features = ["blocking", "json", "rustls-tls"], optional = true }
 serde_json = { version = "1.0", optional = true }
 tokio = { version = "1.47", features = ["full"], optional = true }
+buddy_system_allocator = { version = "0.10", optional = true, default-features = false }
 
 [features]
-default = []
+default = ["std"]
 std = ["rand", "opentelemetry", "opentelemetry_sdk", "opentelemetry-otlp", "reqwest", "serde_json", "tokio"]
+alloc = ["buddy_system_allocator"]
 

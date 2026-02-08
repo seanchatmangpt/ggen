@@ -39,6 +39,7 @@ pub struct GgenOntology {
 }
 
 impl GgenOntology {
+    #[must_use]
     pub fn new(namespace: impl Into<String>) -> Self {
         Self {
             namespace: namespace.into(),
@@ -59,20 +60,24 @@ pub enum SignatureAlgorithm {
 pub struct LicenseId(String);
 
 impl LicenseId {
+    #[must_use]
     pub fn new(s: impl Into<String>) -> Self {
         Self(s.into())
     }
 
+    #[must_use]
     pub fn mit() -> Self {
         Self("MIT".to_string())
     }
 
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
 }
 
 impl AsRef<str> for LicenseId {
+    #[must_use]
     fn as_ref(&self) -> &str {
         &self.0
     }
@@ -83,10 +88,12 @@ impl AsRef<str> for LicenseId {
 pub struct AuthorEmail(String);
 
 impl AuthorEmail {
+    #[must_use]
     pub fn new(s: impl Into<String>) -> Self {
         Self(s.into())
     }
 
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -97,10 +104,12 @@ impl AuthorEmail {
 pub struct Keyword(String);
 
 impl Keyword {
+    #[must_use]
     pub fn new(s: impl Into<String>) -> Self {
         Self(s.into())
     }
 
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -111,10 +120,12 @@ impl Keyword {
 pub struct Category(String);
 
 impl Category {
+    #[must_use]
     pub fn new(s: impl Into<String>) -> Self {
         Self(s.into())
     }
 
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -125,10 +136,12 @@ impl Category {
 pub struct Checksum(String);
 
 impl Checksum {
+    #[must_use]
     pub fn new(s: impl Into<String>) -> Self {
         Self(s.into())
     }
 
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -139,10 +152,12 @@ impl Checksum {
 pub struct RepositoryUrl(String);
 
 impl RepositoryUrl {
+    #[must_use]
     pub fn new(s: impl Into<String>) -> Self {
         Self(s.into())
     }
 
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -160,6 +175,11 @@ pub struct PackageId(String);
 
 impl PackageId {
     /// Create a new validated PackageId
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::InvalidPackageId`] - When the ID is empty, too long, contains invalid characters, or starts/ends with hyphen
+    #[must_use]
     pub fn new(s: impl Into<String>) -> Result<Self> {
         let s = s.into().to_lowercase();
 
@@ -193,6 +213,7 @@ impl PackageId {
     }
 
     /// Get the package ID as a string
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -213,6 +234,7 @@ impl FromStr for PackageId {
 }
 
 impl AsRef<str> for PackageId {
+    #[must_use]
     fn as_ref(&self) -> &str {
         &self.0
     }
@@ -229,6 +251,11 @@ pub struct PackageVersion(String);
 
 impl PackageVersion {
     /// Create a new validated version
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::InvalidVersion`] - When the version is empty or does not follow semantic versioning (MAJOR.MINOR.PATCH)
+    #[must_use]
     pub fn new(v: impl Into<String>) -> Result<Self> {
         let v = v.into();
 
@@ -269,6 +296,7 @@ impl PackageVersion {
     }
 
     /// Get the version as a string
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -343,6 +371,11 @@ impl<'de> Deserialize<'de> for QualityScore {
 
 impl QualityScore {
     /// Create a new quality score
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::ValidationFailed`] - When the score is 0 or greater than 100
+    #[must_use]
     pub fn new(score: u32) -> Result<Self> {
         if score > 100 {
             return Err(Error::ValidationFailed {
@@ -357,22 +390,26 @@ impl QualityScore {
     }
 
     /// Get the raw score value
+    #[must_use]
     pub fn value(self) -> u32 {
         self.0.get()
     }
 
     /// Check if score indicates production ready (>= 95)
+    #[must_use]
     pub fn is_production_ready(self) -> bool {
         self.value() >= 95
     }
 
     /// Check if score indicates needs improvement (80-94)
+    #[must_use]
     pub fn needs_improvement(self) -> bool {
         let v = self.value();
         v >= 80 && v < 95
     }
 
     /// Check if score indicates not ready (< 80)
+    #[must_use]
     pub fn not_ready(self) -> bool {
         self.value() < 80
     }
@@ -417,6 +454,7 @@ pub struct PackageMetadata {
 
 impl PackageMetadata {
     /// Create new package metadata
+    #[must_use]
     pub fn new(
         id: PackageId, name: impl Into<String>, description: impl Into<String>,
         license: impl Into<String>,

@@ -192,7 +192,10 @@ mod renderer_creation_tests {
 
         // Assert
         let template_names: Vec<_> = renderer.tera().get_template_names().collect();
-        assert!(!template_names.is_empty(), "Renderer should have templates loaded");
+        assert!(
+            !template_names.is_empty(),
+            "Renderer should have templates loaded"
+        );
     }
 
     /// Test: TemplateRenderer::default creates a valid renderer
@@ -202,7 +205,11 @@ mod renderer_creation_tests {
         let renderer = TemplateRenderer::default();
 
         // Assert
-        assert!(!renderer.tera().get_template_names().collect::<Vec<_>>().is_empty());
+        assert!(!renderer
+            .tera()
+            .get_template_names()
+            .collect::<Vec<_>>()
+            .is_empty());
     }
 
     /// Test: TemplateRenderer::with_template_dir loads from custom directory
@@ -712,7 +719,10 @@ mod edge_case_tests {
         assert!(result1.is_ok() && result2.is_ok());
         let xml1 = result1.unwrap();
         let xml2 = result2.unwrap();
-        assert_eq!(xml1, xml2, "Multiple renders should produce identical output");
+        assert_eq!(
+            xml1, xml2,
+            "Multiple renders should produce identical output"
+        );
     }
 }
 

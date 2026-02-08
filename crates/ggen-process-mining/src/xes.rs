@@ -4,13 +4,13 @@
 //! which is the standard format for process mining event logs.
 
 use crate::error::{Error, Result};
-use crate::event_log::{Event, EventLog, Trace};
 use crate::event_log::AttributeValue;
+use crate::event_log::{Event, EventLog, Trace};
 use chrono::{DateTime, Utc};
-use quick_xml::events::{Event as XmlEvent, BytesStart, BytesEnd, BytesDecl};
+use quick_xml::events::{BytesDecl, BytesEnd, BytesStart, Event as XmlEvent};
 use quick_xml::Writer;
-use std::io::{BufReader, Read, Write};
 use std::fs::File;
+use std::io::{BufReader, Read, Write};
 use std::path::Path;
 
 /// XES event log parser.
@@ -97,99 +97,96 @@ impl XesParser {
 
         loop {
             match parser.read_event_into(&mut buf) {
-                Ok(XmlEvent::Start(ref e)) => {
-                    match e.name().as_ref() {
-                        b"log" => {
-                            if let Some(name) = get_attribute(e, b"name") {
-                                log.name = name;
-                            }
+                Ok(XmlEvent::Start(ref e)) => match e.name().as_ref() {
+                    b"log" => {
+                        if let Some(name) = get_attribute(e, b"name") {
+                            log.name = name;
                         }
-                        b"trace" => {
-                            current_trace = Some(Trace::new(generate_case_id()));
-                        }
-                        b"event" => {
-                            current_event = Some(Event::new(
-                                generate_event_id(),
-                                "",
-                                "1970-01-01T00:00:00Z",
-                            )?);
-                        }
-                        b"string" | b"int" | b"float" | b"boolean" | b"date" => {
-                            if let Some(key) = get_attribute(e, b"key") {
-                                if let Some(value) = get_attribute(e, b"value") {
-                                    let attr_value = match e.name().as_ref() {
-                                        b"string" => AttributeValue::String(value),
-                                        b"int" => {
-                                            let i = value.parse().unwrap_or(0);
-                                            AttributeValue::Integer(i)
-                                        }
-                                        b"float" => {
-                                            let f = value.parse().unwrap_or(0.0);
-                                            AttributeValue::Float(f)
-                                        }
-                                        b"boolean" => {
-                                            let b = value.parse().unwrap_or(false);
-                                            AttributeValue::Boolean(b)
-                                        }
-                                        b"date" => {
-                                            if self.validate_timestamps {
-                                                let dt = value.parse::<DateTime<Utc>>()
-                                                    .map_err(|_| Error::invalid_timestamp(value.clone()))?;
-                                                AttributeValue::Timestamp(dt)
-                                            } else {
-                                                AttributeValue::String(value)
-                                            }
-                                        }
-                                        _ => AttributeValue::String(value),
-                                    };
-                                    current_attribute = Some((key, attr_value));
-                                }
-                            }
-                        }
-                        _ => {}
                     }
-                }
-                Ok(XmlEvent::End(ref e)) => {
-                    match e.name().as_ref() {
-                        b"event" => {
-                            if let (Some(trace), Some(event)) = (&mut current_trace, current_event.take()) {
-                                trace.events.push(event);
+                    b"trace" => {
+                        current_trace = Some(Trace::new(generate_case_id()));
+                    }
+                    b"event" => {
+                        current_event =
+                            Some(Event::new(generate_event_id(), "", "1970-01-01T00:00:00Z")?);
+                    }
+                    b"string" | b"int" | b"float" | b"boolean" | b"date" => {
+                        if let Some(key) = get_attribute(e, b"key") {
+                            if let Some(value) = get_attribute(e, b"value") {
+                                let attr_value = match e.name().as_ref() {
+                                    b"string" => AttributeValue::String(value),
+                                    b"int" => {
+                                        let i = value.parse().unwrap_or(0);
+                                        AttributeValue::Integer(i)
+                                    }
+                                    b"float" => {
+                                        let f = value.parse().unwrap_or(0.0);
+                                        AttributeValue::Float(f)
+                                    }
+                                    b"boolean" => {
+                                        let b = value.parse().unwrap_or(false);
+                                        AttributeValue::Boolean(b)
+                                    }
+                                    b"date" => {
+                                        if self.validate_timestamps {
+                                            let dt =
+                                                value.parse::<DateTime<Utc>>().map_err(|_| {
+                                                    Error::invalid_timestamp(value.clone())
+                                                })?;
+                                            AttributeValue::Timestamp(dt)
+                                        } else {
+                                            AttributeValue::String(value)
+                                        }
+                                    }
+                                    _ => AttributeValue::String(value),
+                                };
+                                current_attribute = Some((key, attr_value));
                             }
                         }
-                        b"trace" => {
-                            if let Some(trace) = current_trace.take() {
-                                log.traces.push(trace);
-                            }
+                    }
+                    _ => {}
+                },
+                Ok(XmlEvent::End(ref e)) => match e.name().as_ref() {
+                    b"event" => {
+                        if let (Some(trace), Some(event)) =
+                            (&mut current_trace, current_event.take())
+                        {
+                            trace.events.push(event);
                         }
-                        b"string" | b"int" | b"float" | b"boolean" | b"date" => {
-                            if let Some((key, value)) = current_attribute.take() {
-                                if let Some(event) = &mut current_event {
-                                    match key.as_str() {
-                                        "concept:name" => {
-                                            if let AttributeValue::String(name) = value {
-                                                event.activity = name;
-                                            }
+                    }
+                    b"trace" => {
+                        if let Some(trace) = current_trace.take() {
+                            log.traces.push(trace);
+                        }
+                    }
+                    b"string" | b"int" | b"float" | b"boolean" | b"date" => {
+                        if let Some((key, value)) = current_attribute.take() {
+                            if let Some(event) = &mut current_event {
+                                match key.as_str() {
+                                    "concept:name" => {
+                                        if let AttributeValue::String(name) = value {
+                                            event.activity = name;
                                         }
-                                        "time:timestamp" => {
-                                            if let AttributeValue::Timestamp(ts) = value {
-                                                event.timestamp = ts;
-                                            }
+                                    }
+                                    "time:timestamp" => {
+                                        if let AttributeValue::Timestamp(ts) = value {
+                                            event.timestamp = ts;
                                         }
-                                        "org:resource" => {
-                                            if let AttributeValue::String(resource) = value {
-                                                event.resource = Some(resource);
-                                            }
+                                    }
+                                    "org:resource" => {
+                                        if let AttributeValue::String(resource) = value {
+                                            event.resource = Some(resource);
                                         }
-                                        _ => {
-                                            event.attributes.insert(key, value);
-                                        }
+                                    }
+                                    _ => {
+                                        event.attributes.insert(key, value);
                                     }
                                 }
                             }
                         }
-                        _ => {}
                     }
-                }
+                    _ => {}
+                },
                 Ok(XmlEvent::Eof) => break,
                 Err(e) => {
                     return Err(Error::XesParse {
@@ -381,7 +378,9 @@ fn write_event<W: Write>(writer: &mut Writer<W>, event: &Event, include_all: boo
 }
 
 /// Write an attribute value.
-fn write_attribute<W: Write>(writer: &mut Writer<W>, key: &str, value: &AttributeValue) -> Result<()> {
+fn write_attribute<W: Write>(
+    writer: &mut Writer<W>, key: &str, value: &AttributeValue,
+) -> Result<()> {
     match value {
         AttributeValue::String(s) => {
             let mut elem = BytesStart::new("string");
@@ -425,7 +424,12 @@ fn write_attribute<W: Write>(writer: &mut Writer<W>, key: &str, value: &Attribut
 fn get_attribute(event: &BytesStart<'_>, name: &[u8]) -> Option<String> {
     event
         .attributes()
-        .find(|a| a.as_ref().ok().map(|a| a.key.as_ref() == name).unwrap_or(false))
+        .find(|a| {
+            a.as_ref()
+                .ok()
+                .map(|a| a.key.as_ref() == name)
+                .unwrap_or(false)
+        })
         .and_then(|a| a.ok())
         .and_then(|a| std::str::from_utf8(a.value.as_ref()).ok().map(String::from))
 }
@@ -505,14 +509,13 @@ mod tests {
 
     #[test]
     fn test_write_and_parse_roundtrip() {
-        let original_log = EventLog::new("Test")
-            .with_trace(
-                Trace::new("case1").with_event(
-                    Event::new("e1", "A", "2024-01-01T10:00:00Z")
-                        .unwrap()
-                        .with_resource("user1"),
-                ),
-            );
+        let original_log = EventLog::new("Test").with_trace(
+            Trace::new("case1").with_event(
+                Event::new("e1", "A", "2024-01-01T10:00:00Z")
+                    .unwrap()
+                    .with_resource("user1"),
+            ),
+        );
 
         let writer = XesWriter::new();
         let xes_string = writer.write_to_string(&original_log).unwrap();

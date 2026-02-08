@@ -374,6 +374,8 @@ impl FmeaMitigationManager {
         };
 
         if attempt_count < 5 {
+            // attempt_count is bounded by the check above (<5), so 2^attempt_count fits in u64
+            #[allow(clippy::cast_possible_truncation)]
             let backoff = Duration::from_millis(100 * 2_u64.pow(attempt_count as u32));
             std::thread::sleep(backoff);
 

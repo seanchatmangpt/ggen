@@ -4,16 +4,17 @@
 //! Verifies structural preservation and semantic equivalence.
 
 use ggen_process_mining::{
-    PetriNet, Place, Transition, Marking,
-    YawlBridge, YawlToPetriNet, PetriNetToYawl,
+    Marking, PetriNet, PetriNetToYawl, Place, Transition, YawlBridge, YawlToPetriNet,
 };
+
+// Import Arc from petri_net module with a different name to avoid conflict
 use ggen_process_mining::petri_net::Arc as PetriArc;
 use std::collections::HashMap;
 
 #[cfg(test)]
 mod roundtrip_tests {
-    use super::*;
     use super::super::helpers::*;
+    use super::*;
 
     /// Test basic YAWL to Petri net conversion.
     #[test]
@@ -61,11 +62,13 @@ mod roundtrip_tests {
         let bridge = YawlBridge::new();
 
         // Act - First conversion: YAWL -> PetriNet
-        let petri_net = bridge.yawl_to_petri_net(&original_yawl)
+        let petri_net = bridge
+            .yawl_to_petri_net(&original_yawl)
             .expect("YAWL to PetriNet conversion should succeed");
 
         // Act - Second conversion: PetriNet -> YAWL
-        let roundtrip_yawl = bridge.petri_net_to_yawl(&petri_net)
+        let roundtrip_yawl = bridge
+            .petri_net_to_yawl(&petri_net)
             .expect("PetriNet to YAWL conversion should succeed");
 
         // Assert - Verify roundtrip preserves key elements
@@ -77,13 +80,19 @@ mod roundtrip_tests {
         let roundtrip_tasks = extract_task_names(&roundtrip_yawl);
 
         // Same number of tasks
-        assert_eq!(original_tasks.len(), roundtrip_tasks.len(),
-                   "Roundtrip should preserve task count");
+        assert_eq!(
+            original_tasks.len(),
+            roundtrip_tasks.len(),
+            "Roundtrip should preserve task count"
+        );
 
         // All original tasks present (may be in different order)
         for task in &original_tasks {
-            assert!(roundtrip_tasks.contains(task),
-                   "Task '{}' should be preserved in roundtrip", task);
+            assert!(
+                roundtrip_tasks.contains(task),
+                "Task '{}' should be preserved in roundtrip",
+                task
+            );
         }
     }
 
@@ -97,19 +106,26 @@ mod roundtrip_tests {
         let bridge = YawlBridge::new();
 
         // Act - First conversion: PetriNet -> YAWL
-        let yawl = bridge.petri_net_to_yawl(&original_net)
+        let yawl = bridge
+            .petri_net_to_yawl(&original_net)
             .expect("PetriNet to YAWL conversion should succeed");
 
         // Act - Second conversion: YAWL -> PetriNet
-        let roundtrip_net = bridge.yawl_to_petri_net(&yawl)
+        let roundtrip_net = bridge
+            .yawl_to_petri_net(&yawl)
             .expect("YAWL to PetriNet conversion should succeed");
 
         // Assert - Verify structural preservation
-        assert_eq!(roundtrip_net.transitions.len(), original_transition_count,
-                   "Roundtrip should preserve transition count");
+        assert_eq!(
+            roundtrip_net.transitions.len(),
+            original_transition_count,
+            "Roundtrip should preserve transition count"
+        );
         // Note: Place count may differ due to YAWL's condition mapping
-        assert!(roundtrip_net.places.len() >= 2,
-                "Roundtrip should preserve at least minimal place structure");
+        assert!(
+            roundtrip_net.places.len() >= 2,
+            "Roundtrip should preserve at least minimal place structure"
+        );
     }
 
     /// Test YAWL with AND split/join types.
@@ -225,7 +241,10 @@ mod roundtrip_tests {
         let net = result.unwrap();
 
         // Composite task should be preserved as a single transition
-        assert!(net.transitions.iter().any(|t| t.label.as_ref() == Some(&"Composite Task".to_string())));
+        assert!(net
+            .transitions
+            .iter()
+            .any(|t| t.label.as_ref() == Some(&"Composite Task".to_string())));
     }
 
     /// Test trait-based conversion convenience methods.
@@ -235,7 +254,8 @@ mod roundtrip_tests {
         let yawl_xml = create_sample_yawl();
 
         // Act - Using YawlToPetriNet trait on &str
-        let petri_net = yawl_xml.to_petri_net()
+        let petri_net = yawl_xml
+            .to_petri_net()
             .expect("Trait-based YAWL to PetriNet should work");
 
         // Assert
@@ -243,7 +263,8 @@ mod roundtrip_tests {
         assert_eq!(petri_net.name, Some("Approval Process".to_string()));
 
         // Act - Using PetriNetToYawl trait on PetriNet
-        let yawl_output = petri_net.to_yawl()
+        let yawl_output = petri_net
+            .to_yawl()
             .expect("Trait-based PetriNet to YAWL should work");
 
         // Assert
@@ -263,8 +284,9 @@ mod roundtrip_tests {
         // Assert
         assert!(result.is_err());
         if let Err(e) = result {
-            assert!(e.to_string().contains("XML parse error") ||
-                    e.to_string().contains("conversion"));
+            assert!(
+                e.to_string().contains("XML parse error") || e.to_string().contains("conversion")
+            );
         }
     }
 
@@ -311,10 +333,14 @@ mod roundtrip_tests {
         let roundtrip_net = bridge.yawl_to_petri_net(&yawl).unwrap();
 
         // Assert - Markings should be preserved
-        assert!(!roundtrip_net.initial_marking.tokens.is_empty(),
-                "Initial marking should be preserved");
-        assert!(!roundtrip_net.final_marking.tokens.is_empty(),
-                "Final marking should be preserved");
+        assert!(
+            !roundtrip_net.initial_marking.tokens.is_empty(),
+            "Initial marking should be preserved"
+        );
+        assert!(
+            !roundtrip_net.final_marking.tokens.is_empty(),
+            "Final marking should be preserved"
+        );
     }
 }
 

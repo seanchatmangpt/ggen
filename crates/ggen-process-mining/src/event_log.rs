@@ -62,8 +62,11 @@ impl Event {
     ///     "2024-01-15T10:30:00Z"
     /// ).unwrap();
     /// ```
-    pub fn new(id: impl Into<String>, activity: impl Into<String>, timestamp: &str) -> Result<Self> {
-        let ts = timestamp.parse::<DateTime<Utc>>()
+    pub fn new(
+        id: impl Into<String>, activity: impl Into<String>, timestamp: &str,
+    ) -> Result<Self> {
+        let ts = timestamp
+            .parse::<DateTime<Utc>>()
             .map_err(|_| Error::invalid_timestamp(timestamp.to_string()))?;
 
         Ok(Self {
@@ -250,7 +253,12 @@ impl EventLog {
     {
         Self {
             name: self.name.clone(),
-            traces: self.traces.iter().filter(|t| predicate(t)).cloned().collect(),
+            traces: self
+                .traces
+                .iter()
+                .filter(|t| predicate(t))
+                .cloned()
+                .collect(),
             extensions: self.extensions.clone(),
         }
     }
@@ -335,8 +343,8 @@ mod tests {
             .with_event(make_test_event("e1", "A", "2024-01-15T10:00:00Z"))
             .with_event(make_test_event("e2", "B", "2024-01-15T11:00:00Z"));
 
-        let trace2 = Trace::new("case-2")
-            .with_event(make_test_event("e3", "C", "2024-01-15T10:00:00Z"));
+        let trace2 =
+            Trace::new("case-2").with_event(make_test_event("e3", "C", "2024-01-15T10:00:00Z"));
 
         let log = EventLog::new("Test Log")
             .with_trace(trace1)
@@ -347,11 +355,11 @@ mod tests {
 
     #[test]
     fn test_event_log_filter() {
-        let trace1 = Trace::new("case-1")
-            .with_event(make_test_event("e1", "A", "2024-01-15T10:00:00Z"));
+        let trace1 =
+            Trace::new("case-1").with_event(make_test_event("e1", "A", "2024-01-15T10:00:00Z"));
 
-        let trace2 = Trace::new("case-2")
-            .with_event(make_test_event("e2", "B", "2024-01-15T11:00:00Z"));
+        let trace2 =
+            Trace::new("case-2").with_event(make_test_event("e2", "B", "2024-01-15T11:00:00Z"));
 
         let log = EventLog::new("Test Log")
             .with_trace(trace1)

@@ -234,7 +234,8 @@ fn test_receipt_chain_verification() {
 
     // Add multiple receipts to chain
     for i in 0..3 {
-        let ontology_path = fixtures::create_test_ontology(temp_dir.path(), &format!("chain_{}", i));
+        let ontology_path =
+            fixtures::create_test_ontology(temp_dir.path(), &format!("chain_{}", i));
         let receipt = fixtures::create_test_receipt_from_ontology(&ontology_path);
         chain.add_receipt(&receipt).unwrap();
     }
@@ -274,7 +275,10 @@ fn test_receipt_id_determinism() {
     let receipt1 = fixtures::create_test_receipt_from_ontology(&ontology_path);
     let receipt2 = fixtures::create_test_receipt_from_ontology(&ontology_path);
 
-    assert_eq!(receipt1.id, receipt2.id, "Receipt ID should be deterministic");
+    assert_eq!(
+        receipt1.id, receipt2.id,
+        "Receipt ID should be deterministic"
+    );
 }
 
 #[test]
@@ -285,12 +289,30 @@ fn test_input_ordering_determinism() {
     let path2 = fixtures::create_test_ontology(temp_dir.path(), "ordering_b");
     let path3 = fixtures::create_test_ontology(temp_dir.path(), "ordering_c");
 
-    let epoch1 = Epoch::create(temp_dir.path(), &[path1.clone(), path2.clone(), path3.clone()]).unwrap();
-    let epoch2 = Epoch::create(temp_dir.path(), &[path3.clone(), path1.clone(), path2.clone()]).unwrap();
-    let epoch3 = Epoch::create(temp_dir.path(), &[path2.clone(), path3.clone(), path1.clone()]).unwrap();
+    let epoch1 = Epoch::create(
+        temp_dir.path(),
+        &[path1.clone(), path2.clone(), path3.clone()],
+    )
+    .unwrap();
+    let epoch2 = Epoch::create(
+        temp_dir.path(),
+        &[path3.clone(), path1.clone(), path2.clone()],
+    )
+    .unwrap();
+    let epoch3 = Epoch::create(
+        temp_dir.path(),
+        &[path2.clone(), path3.clone(), path1.clone()],
+    )
+    .unwrap();
 
-    assert_eq!(epoch1.id, epoch2.id, "Epoch ID should be order-independent (1=2)");
-    assert_eq!(epoch2.id, epoch3.id, "Epoch ID should be order-independent (2=3)");
+    assert_eq!(
+        epoch1.id, epoch2.id,
+        "Epoch ID should be order-independent (1=2)"
+    );
+    assert_eq!(
+        epoch2.id, epoch3.id,
+        "Epoch ID should be order-independent (2=3)"
+    );
 }
 
 // ============================================================================
@@ -326,12 +348,18 @@ fn test_tampered_input_detection() {
     };
 
     // No tampering initially
-    assert!(epoch.verify(temp_dir.path()).unwrap(), "Untampered input should pass");
+    assert!(
+        epoch.verify(temp_dir.path()).unwrap(),
+        "Untampered input should pass"
+    );
 
     // Tamper with the file
     std::fs::write(&ontology_path, b"tampered content").unwrap();
 
-    assert!(!epoch.verify(temp_dir.path()).unwrap(), "Tampered input should fail");
+    assert!(
+        !epoch.verify(temp_dir.path()).unwrap(),
+        "Tampered input should fail"
+    );
 }
 
 #[test]
@@ -359,7 +387,10 @@ fn test_missing_file_detection() {
 
     // Verify should return an error for missing file
     let result = epoch.verify(temp_dir.path());
-    assert!(result.is_err() || !result.unwrap(), "Missing file should fail verification");
+    assert!(
+        result.is_err() || !result.unwrap(),
+        "Missing file should fail verification"
+    );
 }
 
 // ============================================================================
@@ -381,8 +412,14 @@ fn test_receipt_serialization_roundtrip() {
     let receipt2 = BuildReceipt::read_from_file(&receipt_path).unwrap();
 
     assert_eq!(receipt1.id, receipt2.id, "Receipt ID should be preserved");
-    assert_eq!(receipt1.epoch_id, receipt2.epoch_id, "Epoch ID should be preserved");
-    assert_eq!(receipt1.outputs_hash, receipt2.outputs_hash, "Outputs hash should be preserved");
+    assert_eq!(
+        receipt1.epoch_id, receipt2.epoch_id,
+        "Epoch ID should be preserved"
+    );
+    assert_eq!(
+        receipt1.outputs_hash, receipt2.outputs_hash,
+        "Outputs hash should be preserved"
+    );
 }
 
 // ============================================================================
@@ -399,19 +436,31 @@ fn test_full_pipeline_chain() {
     // Verify all passes exist and succeeded
     assert_eq!(receipt.passes.len(), 4, "Should have 4 passes");
 
-    let mu1 = receipt.passes.iter().find(|p| p.pass_type == PassType::Normalization);
+    let mu1 = receipt
+        .passes
+        .iter()
+        .find(|p| p.pass_type == PassType::Normalization);
     assert!(mu1.is_some(), "μ₁ should be present");
     assert!(mu1.unwrap().success, "μ₁ should succeed");
 
-    let mu2 = receipt.passes.iter().find(|p| p.pass_type == PassType::Extraction);
+    let mu2 = receipt
+        .passes
+        .iter()
+        .find(|p| p.pass_type == PassType::Extraction);
     assert!(mu2.is_some(), "μ₂ should be present");
     assert!(mu2.unwrap().success, "μ₂ should succeed");
 
-    let mu3 = receipt.passes.iter().find(|p| p.pass_type == PassType::Emission);
+    let mu3 = receipt
+        .passes
+        .iter()
+        .find(|p| p.pass_type == PassType::Emission);
     assert!(mu3.is_some(), "μ₃ should be present");
     assert!(mu3.unwrap().success, "μ₃ should succeed");
 
-    let mu4 = receipt.passes.iter().find(|p| p.pass_type == PassType::Canonicalization);
+    let mu4 = receipt
+        .passes
+        .iter()
+        .find(|p| p.pass_type == PassType::Canonicalization);
     assert!(mu4.is_some(), "μ₄ should be present");
     assert!(mu4.unwrap().success, "μ₄ should succeed");
 
@@ -548,5 +597,8 @@ fn test_receipt_id_computation() {
     hasher.update(receipt.outputs_hash.as_bytes());
     let expected_id = format!("{:x}", hasher.finalize());
 
-    assert_eq!(receipt.id, expected_id, "Receipt ID should be correctly computed");
+    assert_eq!(
+        receipt.id, expected_id,
+        "Receipt ID should be correctly computed"
+    );
 }

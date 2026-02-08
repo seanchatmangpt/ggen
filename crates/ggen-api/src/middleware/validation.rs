@@ -39,7 +39,6 @@
 //! ```
 
 use axum::{
-    async_trait,
     extract::{FromRequest, Request},
     http::StatusCode,
     response::{IntoResponse, Response},
@@ -116,7 +115,6 @@ impl From<InputValidationError> for ValidationErrorResponse {
 /// This extractor validates the JSON body against the type's validation rules.
 pub struct ValidatedJson<T>(pub T);
 
-#[async_trait]
 impl<T, S> FromRequest<S> for ValidatedJson<T>
 where
     T: DeserializeOwned + Validate,
@@ -148,7 +146,6 @@ pub trait Validate {
 /// Validated query parameters extractor
 pub struct ValidatedQuery<T>(pub T);
 
-#[async_trait]
 impl<T, S> FromRequest<S> for ValidatedQuery<T>
 where
     T: DeserializeOwned + Validate,

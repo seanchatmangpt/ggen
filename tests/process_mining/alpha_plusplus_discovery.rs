@@ -3,15 +3,13 @@
 //! Tests for the Alpha++ algorithm discovering process models from event logs.
 //! Validates that discovered models match expected workflow structures.
 
-use ggen_process_mining::{
-    EventLog, ProcessMiner, AlphaPlusPlus, PetriNet,
-};
+use ggen_process_mining::{AlphaPlusPlus, EventLog, PetriNet, ProcessMiner};
 use std::collections::HashSet;
 
 #[cfg(test)]
 mod discovery_tests {
-    use super::*;
     use super::super::helpers::*;
+    use super::*;
 
     /// Test Alpha++ discovery on simple sequential log.
     #[test]
@@ -24,11 +22,17 @@ mod discovery_tests {
         let result = miner.discover_alpha_plusplus(&log);
 
         // Assert
-        assert!(result.is_ok(), "Alpha++ discovery should succeed on simple log");
+        assert!(
+            result.is_ok(),
+            "Alpha++ discovery should succeed on simple log"
+        );
 
         let net = result.unwrap();
         assert_eq!(net.name, Some("Simple Sequential Log".to_string()));
-        assert!(!net.transitions.is_empty(), "Discovered net should have transitions");
+        assert!(
+            !net.transitions.is_empty(),
+            "Discovered net should have transitions"
+        );
 
         // Verify sequential structure
         verify_workflow_pattern(&net, "sequential");
@@ -55,13 +59,12 @@ mod discovery_tests {
     #[test]
     fn test_alpha_plusplus_insufficient_log() {
         // Arrange - Create a log with only one trace (insufficient)
-        use ggen_process_mining::{Trace, Event};
+        use ggen_process_mining::{Event, Trace};
 
-        let tiny_log = EventLog::new("Tiny Log")
-            .with_trace(
-                Trace::new("only_case")
-                    .with_event(Event::new("e1", "A", "2024-01-01T10:00:00Z").unwrap())
-            );
+        let tiny_log = EventLog::new("Tiny Log").with_trace(
+            Trace::new("only_case")
+                .with_event(Event::new("e1", "A", "2024-01-01T10:00:00Z").unwrap()),
+        );
 
         let miner = ProcessMiner::new();
 
@@ -71,8 +74,10 @@ mod discovery_tests {
         // Assert
         assert!(result.is_err());
         if let Err(e) = result {
-            assert!(e.to_string().contains("Insufficient event log") ||
-                    e.to_string().contains("need at least"));
+            assert!(
+                e.to_string().contains("Insufficient event log")
+                    || e.to_string().contains("need at least")
+            );
         }
     }
 
@@ -110,32 +115,45 @@ mod discovery_tests {
         let net = miner.discover_alpha_plusplus(&log).unwrap();
 
         // Assert - Verify discovered model has sequential structure
-        let activities: Vec<String> = net.transitions
+        let activities: Vec<String> = net
+            .transitions
             .iter()
             .filter_map(|t| t.label.clone())
             .collect();
 
-        assert!(activities.len() >= 3, "Should discover at least 3 activities");
+        assert!(
+            activities.len() >= 3,
+            "Should discover at least 3 activities"
+        );
 
         // Check for sequential ordering in the network structure
         let has_sequential_flow = net.arcs.iter().any(|arc| {
-            let from_label = net.transitions.iter()
+            let from_label = net
+                .transitions
+                .iter()
                 .find(|t| t.id == arc.source)
                 .and_then(|t| t.label.clone());
-            let to_label = net.transitions.iter()
+            let to_label = net
+                .transitions
+                .iter()
                 .find(|t| t.id == arc.source)
                 .and_then(|t| t.label.clone());
 
             match (from_label, to_label) {
                 (Some(from), Some(to)) => {
-                    matches!((from.as_str(), to.as_str()),
-                        ("Submit", "Review") | ("Review", "Approve"))
+                    matches!(
+                        (from.as_str(), to.as_str()),
+                        ("Submit", "Review") | ("Review", "Approve")
+                    )
                 }
-                _ => false
+                _ => false,
             }
         });
 
-        assert!(has_sequential_flow, "Discovered model should capture sequential flow");
+        assert!(
+            has_sequential_flow,
+            "Discovered model should capture sequential flow"
+        );
     }
 
     /// Test Alpha++ with varying minimum support thresholds.
@@ -166,7 +184,7 @@ mod discovery_tests {
     #[test]
     fn test_alpha_plusplus_duplicate_traces() {
         // Arrange
-        use ggen_process_mining::{Trace, Event};
+        use ggen_process_mining::{Event, Trace};
 
         let trace1 = Trace::new("case1")
             .with_event(Event::new("e1", "A", "2024-01-01T10:00:00Z").unwrap())
@@ -190,7 +208,9 @@ mod discovery_tests {
         let net = result.unwrap();
 
         // Should discover the same A->B pattern
-        let activities: Vec<_> = net.transitions.iter()
+        let activities: Vec<_> = net
+            .transitions
+            .iter()
             .filter_map(|t| t.label.as_ref())
             .collect();
 
@@ -211,14 +231,18 @@ mod discovery_tests {
         let net = miner.discover_alpha_plusplus(&log).unwrap();
 
         // Assert - All activities from log should be in discovered model
-        let discovered_activities: HashSet<String> = net.transitions
+        let discovered_activities: HashSet<String> = net
+            .transitions
             .iter()
             .filter_map(|t| t.label.clone())
             .collect();
 
         for activity in &log_activities {
-            assert!(discovered_activities.contains(activity),
-                   "Activity '{}' from log should be in discovered model", activity);
+            assert!(
+                discovered_activities.contains(activity),
+                "Activity '{}' from log should be in discovered model",
+                activity
+            );
         }
 
         // Assert - Discovered model should be valid
@@ -246,7 +270,10 @@ mod discovery_tests {
         let net_validated = result_validated.unwrap();
         let net_non_validated = result_non_validated.unwrap();
 
-        assert_eq!(net_validated.transitions.len(), net_non_validated.transitions.len());
+        assert_eq!(
+            net_validated.transitions.len(),
+            net_non_validated.transitions.len()
+        );
     }
 
     /// Test inductive miner as alternative discovery method.
@@ -273,18 +300,12 @@ mod discovery_tests {
     fn test_discovery_preserves_log_name() {
         // Arrange
         let log = EventLog::new("Purchase Order Process")
-            .with_trace(
-                ggen_process_mining::Trace::new("case1")
-                    .with_event(
-                        ggen_process_mining::Event::new("e1", "Create", "2024-01-01T10:00:00Z").unwrap()
-                    )
-            )
-            .with_trace(
-                ggen_process_mining::Trace::new("case2")
-                    .with_event(
-                        ggen_process_mining::Event::new("e2", "Approve", "2024-01-02T10:00:00Z").unwrap()
-                    )
-            );
+            .with_trace(ggen_process_mining::Trace::new("case1").with_event(
+                ggen_process_mining::Event::new("e1", "Create", "2024-01-01T10:00:00Z").unwrap(),
+            ))
+            .with_trace(ggen_process_mining::Trace::new("case2").with_event(
+                ggen_process_mining::Event::new("e2", "Approve", "2024-01-02T10:00:00Z").unwrap(),
+            ));
 
         let miner = ProcessMiner::new();
 
@@ -313,16 +334,16 @@ mod discovery_tests {
     #[test]
     fn test_alpha_plusplus_single_activity_traces() {
         // Arrange
-        use ggen_process_mining::{Trace, Event};
+        use ggen_process_mining::{Event, Trace};
 
         let log = EventLog::new("Single Activity Log")
             .with_trace(
                 Trace::new("case1")
-                    .with_event(Event::new("e1", "A", "2024-01-01T10:00:00Z").unwrap())
+                    .with_event(Event::new("e1", "A", "2024-01-01T10:00:00Z").unwrap()),
             )
             .with_trace(
                 Trace::new("case2")
-                    .with_event(Event::new("e2", "A", "2024-01-02T10:00:00Z").unwrap())
+                    .with_event(Event::new("e2", "A", "2024-01-02T10:00:00Z").unwrap()),
             );
 
         let miner = ProcessMiner::new();
@@ -345,10 +366,14 @@ mod discovery_tests {
         let net = miner.discover_alpha_plusplus(&log).unwrap();
 
         // Assert - Should have valid initial and final markings
-        assert!(!net.initial_marking.tokens.is_empty(),
-                "Discovered net should have initial marking");
-        assert!(!net.final_marking.tokens.is_empty(),
-                "Discovered net should have final marking");
+        assert!(
+            !net.initial_marking.tokens.is_empty(),
+            "Discovered net should have initial marking"
+        );
+        assert!(
+            !net.final_marking.tokens.is_empty(),
+            "Discovered net should have final marking"
+        );
     }
 
     /// Test conversion of discovered model to YAWL.
