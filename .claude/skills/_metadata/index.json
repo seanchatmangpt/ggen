@@ -1,0 +1,47 @@
+{
+  "version": "1.0.0",
+  "skills": [
+    {
+      "id": "cargo-make",
+      "name": "Cargo Make Protocol",
+      "tags": ["rust", "build", "quality"],
+      "size": 2048,
+      "requires": [],
+      "autoload": false
+    },
+    {
+      "id": "chicago-tdd",
+      "name": "Chicago TDD Methodology",
+      "tags": ["rust", "testing", "tdd"],
+      "size": 2048,
+      "requires": [],
+      "autoload": false
+    },
+    {
+      "id": "type-first",
+      "name": "Type-First Design",
+      "tags": ["rust", "design", "types"],
+      "size": 2048,
+      "requires": [],
+      "autoload": false
+    },
+    {
+      "id": "ontologies",
+      "name": "RDF Ontology Patterns",
+      "tags": ["rdf", "ontology", "sparql"],
+      "size": 2048,
+      "requires": [],
+      "autoload": false
+    },
+    {
+      "id": "sparql",
+      "name": "SPARQL Query Patterns",
+      "tags": ["rdf", "sparql", "query"],
+      "size": 2048,
+      "requires": ["ontologies"],
+      "autoload": false
+    }
+  ],
+  "loading_strategy": "progressive",
+  "cache_policy": "metadata_always_content_on_demand"
+}

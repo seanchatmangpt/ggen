@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggen.io/schemas/autonomous/state.json",
+  "title": "Autonomous System State",
+  "description": "State file schema for ggen autonomous execution system",
+  "type": "object",
+  "required": ["tasks", "checkpoint", "progress"],
+  "properties": {
+    "tasks": {
+      "type": "array",
+      "description": "Array of tasks to be processed by agents",
+      "items": {
+        "$ref": "#/$defs/Task"
+      },
+      "minItems": 0
+    },
+    "checkpoint": {
+      "type": "string",
+      "description": "ISO 8601 timestamp of last state save",
+      "format": "date-time",
+      "examples": ["2026-02-08T12:34:56Z", "2026-02-08T12:34:56.789Z"]
+    },
+    "progress": {
+      "$ref": "#/$defs/Progress"
+    },
+    "metadata": {
+      "$ref": "#/$defs/Metadata"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Task": {
+      "type": "object",
+      "description": "Individual task to be executed by an agent",
+      "required": ["id", "status", "desc", "created_at", "updated_at", "retry_count"],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Unique task identifier",
+          "minimum": 1,
+          "examples": [1, 42, 1001]
+        },
+        "status": {
+          "type": "string",
+          "description": "Current task execution status",
+          "enum": ["pending", "in_progress", "completed", "failed"],
+          "default": "pending"
+        },
+        "desc": {
+          "type": "string",
+          "description": "Human-readable task description (actionable)",
+          "minLength": 1,
+          "maxLength": 1000,
+          "examples": [
+            "Analyze codebase structure",
+            "Run test suite for crates/ggen-core",
+            "Generate API documentation from code comments"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "description": "ISO 8601 timestamp when task was created",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "ISO 8601 timestamp when task was last updated",
+          "format": "date-time"
+        },
+        "retry_count": {
+          "type": "integer",
+          "description": "Number of times task has been retried after failure",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 0
+        },
+        "result": {
+          "type": ["string", "null"],
+          "description": "Task execution result (if completed)",
+          "maxLength": 10000,
+          "default": null,
+          "examples": [
+            "Analysis complete: Found 3 modules, 47 functions",
+            "All 127 tests passed in 4.2s",
+            null
+          ]
+        },
+        "error": {
+          "type": ["string", "null"],
+          "description": "Error message (if failed)",
+          "maxLength": 5000,
+          "default": null,
+          "examples": [
+            "Compilation failed: missing dependency 'tokio'",
+            "Timeout after 300s",
+            null
+          ]
+        },
+        "priority": {
+          "type": "integer",
+          "description": "Task priority (higher = more important)",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 5
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tags for categorizing tasks",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "uniqueItems": true,
+          "examples": [["testing", "ci"], ["documentation"], []]
+        },
+        "scheduled_at": {
+          "type": ["string", "null"],
+          "description": "ISO 8601 timestamp for delayed execution",
+          "format": "date-time",
+          "default": null
+        },
+        "timeout_secs": {
+          "type": ["integer", "null"],
+          "description": "Maximum execution time in seconds",
+          "minimum": 1,
+          "maximum": 86400,
+          "default": null
+        },
+        "depends_on": {
+          "type": "array",
+          "description": "Task IDs that must complete before this task",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "uniqueItems": true,
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "Progress": {
+      "type": "object",
+      "description": "Overall progress statistics",
+      "required": ["completed", "total", "failed"],
+      "properties": {
+        "completed": {
+          "type": "integer",
+          "description": "Number of successfully completed tasks",
+          "minimum": 0,
+          "default": 0
+        },
+        "total": {
+          "type": "integer",
+          "description": "Total number of tasks",
+          "minimum": 0,
+          "default": 0
+        },
+        "failed": {
+          "type": "integer",
+          "description": "Number of permanently failed tasks",
+          "minimum": 0,
+          "default": 0
+        },
+        "in_progress": {
+          "type": "integer",
+          "description": "Number of tasks currently being executed",
+          "minimum": 0,
+          "default": 0
+        },
+        "pending": {
+          "type": "integer",
+          "description": "Number of tasks waiting to be processed",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "Metadata": {
+      "type": "object",
+      "description": "Optional metadata about the system state",
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "State schema version",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "default": "1.0.0"
+        },
+        "agent_count": {
+          "type": "integer",
+          "description": "Number of concurrent agents",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 20
+        },
+        "hostname": {
+          "type": "string",
+          "description": "Hostname where system is running",
+          "maxLength": 255
+        },
+        "pid": {
+          "type": "integer",
+          "description": "Process ID of supervisor",
+          "minimum": 1
+        },
+        "started_at": {
+          "type": "string",
+          "description": "ISO 8601 timestamp when system started",
+          "format": "date-time"
+        },
+        "uptime_secs": {
+          "type": "integer",
+          "description": "System uptime in seconds",
+          "minimum": 0
+        },
+        "saves_count": {
+          "type": "integer",
+          "description": "Number of times state has been saved",
+          "minimum": 0,
+          "default": 0
+        },
+        "last_error": {
+          "type": ["string", "null"],
+          "description": "Last system-level error encountered",
+          "maxLength": 5000,
+          "default": null
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    {
+      "tasks": [
+        {
+          "id": 1,
+          "status": "completed",
+          "desc": "Analyze codebase structure",
+          "created_at": "2026-02-08T10:00:00Z",
+          "updated_at": "2026-02-08T10:05:23Z",
+          "retry_count": 0,
+          "result": "Found 5 crates, 89 modules, 1247 functions",
+          "error": null,
+          "priority": 5,
+          "tags": ["analysis"],
+          "scheduled_at": null,
+          "timeout_secs": 300,
+          "depends_on": []
+        },
+        {
+          "id": 2,
+          "status": "in_progress",
+          "desc": "Run test suite",
+          "created_at": "2026-02-08T10:05:30Z",
+          "updated_at": "2026-02-08T10:05:45Z",
+          "retry_count": 0,
+          "result": null,
+          "error": null,
+          "priority": 8,
+          "tags": ["testing", "ci"],
+          "scheduled_at": null,
+          "timeout_secs": 600,
+          "depends_on": [1]
+        },
+        {
+          "id": 3,
+          "status": "failed",
+          "desc": "Generate documentation",
+          "created_at": "2026-02-08T10:00:00Z",
+          "updated_at": "2026-02-08T10:15:00Z",
+          "retry_count": 3,
+          "result": null,
+          "error": "Timeout after 300s: rustdoc process hung",
+          "priority": 3,
+          "tags": ["documentation"],
+          "scheduled_at": null,
+          "timeout_secs": 300,
+          "depends_on": []
+        },
+        {
+          "id": 4,
+          "status": "pending",
+          "desc": "Update dependencies",
+          "created_at": "2026-02-08T12:00:00Z",
+          "updated_at": "2026-02-08T12:00:00Z",
+          "retry_count": 0,
+          "result": null,
+          "error": null,
+          "priority": 5,
+          "tags": ["maintenance"],
+          "scheduled_at": "2026-02-08T18:00:00Z",
+          "timeout_secs": 1800,
+          "depends_on": [2]
+        }
+      ],
+      "checkpoint": "2026-02-08T12:34:56Z",
+      "progress": {
+        "completed": 1,
+        "total": 4,
+        "failed": 1,
+        "in_progress": 1,
+        "pending": 1
+      },
+      "metadata": {
+        "version": "1.0.0",
+        "agent_count": 20,
+        "hostname": "ggen-prod-01",
+        "pid": 12345,
+        "started_at": "2026-02-08T10:00:00Z",
+        "uptime_secs": 9296,
+        "saves_count": 47,
+        "last_error": null
+      }
+    },
+    {
+      "tasks": [],
+      "checkpoint": "2026-02-08T12:00:00Z",
+      "progress": {
+        "completed": 0,
+        "total": 0,
+        "failed": 0
+      }
+    }
+  ]
+}
