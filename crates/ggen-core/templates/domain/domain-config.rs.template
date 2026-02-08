@@ -1,0 +1,462 @@
+// Domain configuration template for A2A integration
+// Generated from RDF specification: {{spec_uri}}
+
+{% if domain_classes %}
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::time::Duration;
+
+/// Domain configuration based on A2A-RS integration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DomainConfig {
+    /// Environment configuration
+    pub environment: EnvironmentConfig,
+    /// A2A domain configuration
+    pub a2a: A2AConfig,
+    /// Agent configuration
+    pub agents: HashMap<String, AgentConfig>,
+    /// Task configuration
+    pub tasks: TaskConfig,
+    /// Message configuration
+    pub messages: MessageConfig,
+    /// Event configuration
+    pub events: EventConfig,
+    /// Storage configuration
+    pub storage: StorageConfig,
+    /// Network configuration
+    pub network: NetworkConfig,
+}
+
+/// Environment configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EnvironmentConfig {
+    /// Environment name
+    pub name: String,
+    /// Maximum concurrency
+    pub max_concurrency: usize,
+    /// Operation timeout
+    pub operation_timeout: Duration,
+    /// Network timeout
+    pub network_timeout: Duration,
+    /// Database timeout
+    pub database_timeout: Duration,
+    /// Feature flags
+    pub features: HashMap<String, bool>,
+}
+
+/// A2A Configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct A2AConfig {
+    /// Agent service configuration
+    pub agent: AgentServiceConfig,
+    /// Task service configuration
+    pub task: TaskServiceConfig,
+    /// Message service configuration
+    pub message: MessageServiceConfig,
+    /// Event service configuration
+    pub event: EventServiceConfig,
+}
+
+/// Agent service configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AgentServiceConfig {
+    /// Agent ID
+    pub id: String,
+    /// Agent type
+    pub agent_type: String,
+    /// Maximum concurrent tasks
+    pub max_concurrent_tasks: usize,
+    /// Health check interval
+    pub health_check_interval: Duration,
+    /// Port range for agents
+    pub port_range: (u16, u16),
+}
+
+/// Task service configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskServiceConfig {
+    /// Maximum task retries
+    pub max_retries: u32,
+    /// Retry delay
+    pub retry_delay: Duration,
+    /// Task timeout
+    pub timeout: Duration,
+    /// Task storage backend
+    pub storage_backend: String,
+    /// Task queue size
+    pub queue_size: usize,
+}
+
+/// Message service configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MessageServiceConfig {
+    /// Message broker type
+    pub broker_type: String,
+    /// Message timeout
+    pub timeout: Duration,
+    /// Maximum message size
+    pub max_size: usize,
+    /// Message persistence
+    pub persistence: bool,
+    /// Compression enabled
+    pub compression: bool,
+}
+
+/// Event service configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EventServiceConfig {
+    /// Event broker type
+    pub broker_type: String,
+    /// Event buffer size
+    pub buffer_size: usize,
+    /// Event retention time
+    pub retention_time: Duration,
+    /// Event filters
+    pub filters: Vec<String>,
+}
+
+/// Agent configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AgentConfig {
+    /// Agent ID
+    pub id: String,
+    /// Agent name
+    pub name: String,
+    /// Agent type
+    pub agent_type: String,
+    /// Agent capabilities
+    pub capabilities: Vec<String>,
+    /// Agent status
+    pub status: String,
+    /// Agent health score
+    pub health_score: f64,
+    /// Maximum concurrent tasks
+    pub max_concurrent_tasks: usize,
+    /// Configuration properties
+    pub properties: HashMap<String, String>,
+}
+
+/// Task configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskConfig {
+    /// Default task timeout
+    pub default_timeout: Duration,
+    /// Maximum task retries
+    pub max_retries: u32,
+    /// Retry delay
+    pub retry_delay: Duration,
+    /// Task cleanup interval
+    pub cleanup_interval: Duration,
+    /// Task storage backend
+    pub storage_backend: String,
+    /// Queue configuration
+    pub queue: QueueConfig,
+}
+
+/// Queue configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct QueueConfig {
+    /// Maximum queue size
+    pub max_size: usize,
+    /// Queue timeout
+    pub timeout: Duration,
+    /// Priority levels
+    pub priority_levels: u32,
+    /// Enable batching
+    pub enable_batching: bool,
+    /// Batch size
+    pub batch_size: usize,
+}
+
+/// Message configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MessageConfig {
+    /// Default message timeout
+    pub default_timeout: Duration,
+    /// Maximum message size
+    pub max_size: usize,
+    /// Enable persistence
+    pub persistence: bool,
+    /// Compression enabled
+    pub compression: bool,
+    /// Message format
+    pub format: String,
+    /// Topic configuration
+    pub topics: HashMap<String, TopicConfig>,
+}
+
+/// Topic configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TopicConfig {
+    /// Topic name
+    pub name: String,
+    /// Number of partitions
+    pub partitions: u32,
+    /// Replication factor
+    pub replication_factor: u32,
+    /// Retention policy
+    pub retention: String,
+}
+
+/// Event configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EventConfig {
+    /// Event buffer size
+    pub buffer_size: usize,
+    /// Event retention time
+    pub retention_time: Duration,
+    /// Event filters
+    pub filters: Vec<String>,
+    /// Event handlers
+    pub handlers: HashMap<String, EventHandlerConfig>,
+}
+
+/// Event handler configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EventHandlerConfig {
+    /// Handler name
+    pub name: String,
+    /// Handler type
+    pub handler_type: String,
+    /// Handler configuration
+    pub config: HashMap<String, String>,
+    /// Enabled flag
+    pub enabled: bool,
+}
+
+/// Storage configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StorageConfig {
+    /// Storage backend type
+    pub backend_type: String,
+    /// Connection string
+    pub connection_string: String,
+    /// Pool size
+    pub pool_size: usize,
+    /// Maximum connections
+    pub max_connections: usize,
+    /// Timeout
+    pub timeout: Duration,
+    /// Enable caching
+    pub enable_caching: bool,
+    /// Cache size
+    pub cache_size: usize,
+}
+
+/// Network configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NetworkConfig {
+    /// Default timeout
+    pub timeout: Duration,
+    /// Maximum connections
+    pub max_connections: usize,
+    /// Keep-alive enabled
+    pub keep_alive: bool,
+    /// Certificate path
+    pub cert_path: Option<String>,
+    /// Key path
+    pub key_path: Option<String>,
+    /// CA path
+    pub ca_path: Option<String>,
+}
+
+impl Default for DomainConfig {
+    fn default() -> Self {
+        Self {
+            environment: EnvironmentConfig {
+                name: "development".to_string(),
+                max_concurrency: 4,
+                operation_timeout: Duration::from_secs(30),
+                network_timeout: Duration::from_secs(5),
+                database_timeout: Duration::from_secs(15),
+                features: HashMap::new(),
+            },
+            a2a: A2AConfig {
+                agent: AgentServiceConfig {
+                    id: "agent-001".to_string(),
+                    agent_type: "workflow".to_string(),
+                    max_concurrent_tasks: 10,
+                    health_check_interval: Duration::from_secs(30),
+                    port_range: (8000, 9000),
+                },
+                task: TaskServiceConfig {
+                    max_retries: 3,
+                    retry_delay: Duration::from_secs(5),
+                    timeout: Duration::from_secs(300),
+                    storage_backend: "memory".to_string(),
+                    queue_size: 100,
+                },
+                message: MessageServiceConfig {
+                    broker_type: "memory".to_string(),
+                    timeout: Duration::from_secs(10),
+                    max_size: 1024 * 1024,
+                    persistence: false,
+                    compression: false,
+                },
+                event: EventServiceConfig {
+                    broker_type: "memory".to_string(),
+                    buffer_size: 1000,
+                    retention_time: Duration::from_secs(3600),
+                    filters: Vec::new(),
+                },
+            },
+            agents: HashMap::new(),
+            tasks: TaskConfig {
+                default_timeout: Duration::from_secs(300),
+                max_retries: 3,
+                retry_delay: Duration::from_secs(5),
+                cleanup_interval: Duration::from_secs(3600),
+                storage_backend: "memory".to_string(),
+                queue: QueueConfig {
+                    max_size: 1000,
+                    timeout: Duration::from_secs(60),
+                    priority_levels: 3,
+                    enable_batching: true,
+                    batch_size: 10,
+                },
+            },
+            messages: MessageConfig {
+                default_timeout: Duration::from_secs(10),
+                max_size: 1024 * 1024,
+                persistence: false,
+                compression: false,
+                format: "json".to_string(),
+                topics: HashMap::new(),
+            },
+            events: EventConfig {
+                buffer_size: 1000,
+                retention_time: Duration::from_secs(3600),
+                filters: Vec::new(),
+                handlers: HashMap::new(),
+            },
+            storage: StorageConfig {
+                backend_type: "memory".to_string(),
+                connection_string: "",
+                pool_size: 10,
+                max_connections: 100,
+                timeout: Duration::from_secs(30),
+                enable_caching: true,
+                cache_size: 1000,
+            },
+            network: NetworkConfig {
+                timeout: Duration::from_secs(30),
+                max_connections: 100,
+                keep_alive: true,
+                cert_path: None,
+                key_path: None,
+                ca_path: None,
+            },
+        }
+    }
+}
+{% endif %}
+
+// Domain configuration module
+pub mod domain {
+    {% if domain_classes %}
+    use super::*;
+    {% endif %}
+
+    /// Domain configuration builder
+    pub struct DomainConfigBuilder {
+        {% if domain_classes %}
+        config: DomainConfig,
+        {% endif %}
+    }
+
+    impl DomainConfigBuilder {
+        /// Create a new domain configuration builder
+        pub fn new() -> Self {
+            Self {
+                {% if domain_classes %}
+                config: DomainConfig::default(),
+                {% endif %}
+            }
+        }
+
+        /// Set environment name
+        pub fn with_environment(mut self, name: &str) -> Self {
+            {% if domain_classes %}
+            self.config.environment.name = name.to_string();
+            {% endif %}
+            self
+        }
+
+        /// Set maximum concurrency
+        pub fn with_max_concurrency(mut self, max_concurrency: usize) -> Self {
+            {% if domain_classes %}
+            self.config.environment.max_concurrency = max_concurrency;
+            {% endif %}
+            self
+        }
+
+        /// Set A2A agent ID
+        pub fn with_agent_id(mut self, id: &str) -> Self {
+            {% if domain_classes %}
+            self.config.a2a.agent.id = id.to_string();
+            {% endif %}
+            self
+        }
+
+        /// Set agent type
+        pub fn with_agent_type(mut self, agent_type: &str) -> Self {
+            {% if domain_classes %}
+            self.config.a2a.agent.agent_type = agent_type.to_string();
+            {% endif %}
+            self
+        }
+
+        /// Set maximum concurrent tasks
+        pub fn with_max_tasks(mut self, max_tasks: usize) -> Self {
+            {% if domain_classes %}
+            self.config.a2a.agent.max_concurrent_tasks = max_tasks;
+            self.config.tasks.queue.max_size = max_tasks * 10;
+            {% endif %}
+            self
+        }
+
+        /// Build the domain configuration
+        pub fn build(self) -> DomainConfig {
+            {% if domain_classes %}
+            self.config
+            {% else %}
+            unimplemented!("Domain configuration not generated from specification")
+            {% endif %}
+        }
+    }
+
+    impl Default for DomainConfigBuilder {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_domain_config_builder() {
+        let config = DomainConfigBuilder::new()
+            .with_environment("test")
+            .with_max_concurrency(8)
+            .with_agent_id("test-agent")
+            .with_agent_type("workflow")
+            .with_max_tasks(5)
+            .build();
+
+        assert_eq!(config.environment.name, "test");
+        assert_eq!(config.environment.max_concurrency, 8);
+        assert_eq!(config.a2a.agent.id, "test-agent");
+        assert_eq!(config.a2a.agent.agent_type, "workflow");
+        assert_eq!(config.a2a.agent.max_concurrent_tasks, 5);
+    }
+
+    #[test]
+    fn test_default_domain_config() {
+        let config = DomainConfig::default();
+        assert_eq!(config.environment.name, "development");
+        assert_eq!(config.environment.max_concurrency, 4);
+    }
+}

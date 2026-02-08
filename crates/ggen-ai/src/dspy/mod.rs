@@ -11,6 +11,9 @@
 //! - `assertions` - Assertion and validation system with backtracking
 //! - `testing` - Comprehensive testing infrastructure
 //! - `evaluation` - Evaluation framework with parallel processing
+//! - `constraint` - Formal constraint calculus for LLM I/O
+//! - `model_capabilities` - Type-safe model representation with capabilities
+//! - `prompt_ir` - Prompt intermediate representation for rendering
 
 pub mod field;
 pub mod signature;
@@ -23,6 +26,9 @@ pub mod optimizers;
 pub mod assertions;
 pub mod testing;
 pub mod evaluation;
+pub mod constraint;
+pub mod model_capabilities;
+pub mod prompt_ir;
 
 pub use field::{FieldConstraints, FieldMetadata, InputField, OutputField};
 pub use signature::Signature;
@@ -41,6 +47,19 @@ pub use assertions::{
     Assertion, BacktrackExecutor, AssertionError, AssertionResult,
     Validator, ValidationResult, AssertionLevel,
     AssertableModule, AssertedModule,
+};
+pub use constraint::{
+    Constraint, ConstraintSet, ConstraintViolation, JsonType,
+    decode_and_validate, suggest_repair, RepairStrategy,
+};
+pub use model_capabilities::{
+    Model, ModelProvider, ModelCapabilities, ModelCost, ModelConfig,
+    ModelRegistry, LatencyClass, ReliabilityClass, Modality,
+    default_registry,
+};
+pub use prompt_ir::{
+    PromptAtom, PromptIR, PromptMetadata, OutputFormat,
+    RenderConfig, PromptRenderer, TextRenderer, JsonRenderer,
 };
 
 // Evaluation framework exports

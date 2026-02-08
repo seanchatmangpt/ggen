@@ -1,0 +1,33 @@
+# SPARQL Query to extract domain entities from A2A ontology
+# This query extracts all domain classes and their properties
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+
+# Query to extract all domain entities with their properties
+SELECT DISTINCT ?entity ?label ?comment ?superClass ?property ?propLabel ?propDomain ?propRange ?propertyType WHERE {
+    # Main domain entities
+    {
+        ?entity a owl:Class .
+        ?entity rdfs:label ?label .
+        OPTIONAL { ?entity rdfs:comment ?comment }
+        OPTIONAL { ?entity rdfs:subClassOf ?superClass .
+                   FILTER(?superClass != owl:Thing) }
+    }
+    UNION
+    # Properties
+    {
+        ?property a ?propertyType .
+        ?property rdfs:label ?propLabel .
+        OPTIONAL { ?property rdfs:comment ?comment }
+        OPTIONAL { ?property rdfs:domain ?propDomain }
+        OPTIONAL { ?property rdfs:range ?propRange }
+
+        FILTER(?propertyType IN (owl:ObjectProperty, owl:DatatypeProperty))
+    }
+}
+ORDER BY ?entity ?label ?property ?propLabel

@@ -37,6 +37,7 @@ pub mod ai;
 pub mod construct;
 pub mod graph;
 pub mod hook;
+pub mod mcp;
 // pub mod marketplace;  // DISABLED: Pending v2 API migration (128 compilation errors)
 pub mod ontology;
 pub mod packs;

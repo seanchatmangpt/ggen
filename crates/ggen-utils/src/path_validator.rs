@@ -46,7 +46,11 @@ pub enum PathValidationError {
     /// Path is absolute when relative was expected
     AbsolutePath { path: String },
     /// Path exceeds maximum allowed depth
-    DepthExceeded { path: String, depth: usize, max: usize },
+    DepthExceeded {
+        path: String,
+        depth: usize,
+        max: usize,
+    },
     /// Path contains null bytes
     NullByte { path: String },
     /// Path has invalid extension
@@ -79,7 +83,11 @@ impl std::fmt::Display for PathValidationError {
                 write!(f, "Path contains null byte: {path}")
             }
             Self::InvalidExtension { path, expected } => {
-                write!(f, "Invalid extension for {path}, expected one of: {}", expected.join(", "))
+                write!(
+                    f,
+                    "Invalid extension for {path}, expected one of: {}",
+                    expected.join(", ")
+                )
             }
             Self::SymlinkEscape { link, target } => {
                 write!(f, "Symlink {link} points outside workspace: {target}")
@@ -271,11 +279,11 @@ impl PathValidator {
         }
 
         // Validate UTF-8
-        let path_str = path.to_str().ok_or_else(|| {
-            PathValidationError::InvalidUtf8 {
+        let path_str = path
+            .to_str()
+            .ok_or_else(|| PathValidationError::InvalidUtf8 {
                 path: path.display().to_string(),
-            }
-        })?;
+            })?;
 
         // Check for null bytes
         if path_str.contains('\0') {
@@ -346,13 +354,12 @@ impl PathValidator {
 
     /// Check file extension
     fn check_extension(&self, path: &Path) -> Result<()> {
-        let ext = path
-            .extension()
-            .and_then(|s| s.to_str())
-            .ok_or_else(|| PathValidationError::InvalidExtension {
+        let ext = path.extension().and_then(|s| s.to_str()).ok_or_else(|| {
+            PathValidationError::InvalidExtension {
                 path: path.display().to_string(),
                 expected: self.allowed_extensions.iter().cloned().collect(),
-            })?;
+            }
+        })?;
 
         if !self.allowed_extensions.contains(ext) {
             return Err(PathValidationError::InvalidExtension {
@@ -437,11 +444,7 @@ impl PathValidator {
         // If path is a symlink, check where it points
         if path.is_symlink() {
             let target = std::fs::read_link(path).map_err(|e| {
-                Error::new(&format!(
-                    "Failed to read symlink {}: {}",
-                    path.display(),
-                    e
-                ))
+                Error::new(&format!("Failed to read symlink {}: {}", path.display(), e))
             })?;
 
             // Resolve target to absolute path
@@ -684,10 +687,7 @@ mod tests {
         // Assert
         assert_eq!(safe_path.extension(), Some("tera"));
         assert_eq!(safe_path.file_name(), Some("example.tera"));
-        assert_eq!(
-            safe_path.as_path(),
-            Path::new("templates/example.tera")
-        );
+        assert_eq!(safe_path.as_path(), Path::new("templates/example.tera"));
     }
 
     #[test]

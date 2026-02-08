@@ -55,6 +55,12 @@ regex = { workspace = true }
 # Multi-provider AI client
 genai = { workspace = true }
 
+# Thread-safe lazy initialization for global registry
+once_cell = "1.19"
+
+# Optional A2A Protocol support (using generated code)
+a2a-generated = { path = "../a2a-generated", optional = true, default-features = false }
+
 # LLM Response Caching
 moka = { version = "0.12", features = ["future"] }
 
@@ -67,9 +73,19 @@ sha2 = "0.10"
 # Random number generation for dspy optimizers
 rand = "0.9"
 
+# CSV export for evaluation results
+csv = "1.4"
+
+# Pretty table display for evaluation results
+prettytable-rs = "0.10"
+
+# Progress bars for long-running operations
+indicatif = { version = "0.17", features = ["in_memory", "rayon"] }
+
 [features]
 default = []
 all-integrations = []
+use-a2a-rs = ["a2a-generated"]  # Use generated a2a code
 
 [dev-dependencies]
 tokio-test = "0.4"

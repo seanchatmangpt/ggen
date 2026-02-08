@@ -1,0 +1,57 @@
+[package]
+name = "ggen-execution"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Core dependencies
+tokio = { version = "1.42", features = ["full"] }
+async-trait = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.11", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1.0"
+anyhow = "1.0"
+futures = "0.3"
+dashmap = "6.1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tower = { version = "0.5", features = ["full"] }
+tower-http = { version = "0.6", features = ["full"] }
+hyper = { version = "1.5", features = ["full"] }
+
+# A2A-RS integration (temporarily disabled due to compilation errors)
+# a2a-generated = { path = "../a2a-generated" }
+ggen-domain = { path = "../ggen-domain" }
+ggen-core = { path = "../ggen-core" }
+
+# Utilities
+ggen-utils = { path = "../ggen-utils" }
+url = "2.5"
+reqwest = { version = "0.12", features = ["json", "stream"] }
+base64 = "0.22"
+sha2 = "0.10"
+hex = "0.4"
+
+# Optional features
+tokio-stream = { version = "0.1", optional = true }
+testcontainers = { version = "0.25", optional = true }
+opentelemetry = { version = "0.26", optional = true }
+opentelemetry-jaeger = { version = "0.22", optional = true }
+
+[features]
+default = []
+otel = ["opentelemetry", "opentelemetry-jaeger"]
+test-utils = ["tokio-stream", "testcontainers"]
+
+[dev-dependencies]
+tokio-test = "0.4"
+criterion = { version = "0.5", features = ["html_reports"] }
+mockall = "0.13"
+tokio-stream = "0.1"
+
+# [[bench]]
+# name = "execution_benchmarks"
+# harness = false
+# TODO: Create execution_benchmarks.rs or remove this section

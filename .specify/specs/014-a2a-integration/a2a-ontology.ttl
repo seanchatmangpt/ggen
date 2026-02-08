@@ -1,0 +1,1635 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# ==============================================================================
+# A2A-RS INTEGRATION ONTOLOGY
+# Formal specification for agent-to-agent communication stack
+# ==============================================================================
+
+<https://ggen.dev/ontology/a2a> a owl:Ontology ;
+  rdfs:label "A2A-RS Integration Ontology" ;
+  rdfs:comment "Comprehensive ontology mapping a2a-rs Rust domain types to RDF classes for ggen integration" ;
+  owl:versionInfo "1.0.0" ;
+  dct:created "2026-02-05"^^xsd:date ;
+  dct:creator "ggen-team" .
+
+# ==============================================================================
+# DOMAIN MODULES - 7 CORE CLUSTERS
+# ==============================================================================
+
+# Agent Domain
+a2a:Agent a owl:Class ;
+  rdfs:label "Agent" ;
+  rdfs:comment "Primary actor in the agent-to-agent communication system" ;
+  rdfs:subClassOf a2a:DomainEntity .
+
+a2a:AgentBehavior a owl:Class ;
+  rdfs:label "Agent Behavior" ;
+  rdfs:comment "Configurable behavior patterns for agent execution" ;
+  rdfs:subClassOf a2a:BehavioralPattern .
+
+a2a:AgentCapability a owl:Class ;
+  rdfs:label "Agent Capability" ;
+  rdfs:comment "Specific abilities and skills an agent can perform" ;
+  rdfs:subClassOf a2a:Capability .
+
+a2a:AgentConfiguration a owl:Class ;
+  rdfs:label "Agent Configuration" ;
+  rdfs:comment "Runtime configuration settings for agent behavior" ;
+  rdfs:subClassOf a2a:Configuration .
+
+# Message Domain
+a2a:Message a owl:Class ;
+  rdfs:label "Message" ;
+  rdfs:comment "Communication payload exchanged between agents" ;
+  rdfs:subClassOf a2a:CommunicationArtifact .
+
+a2a:MessageType a owl:Class ;
+  rdfs:label "Message Type" ;
+  rdfs:comment "Categorization of message patterns and structures" ;
+  rdfs:subClassOf a2a:Classification .
+
+a2a:MessageHeader a owl:Class ;
+  rdfs:label "Message Header" ;
+  rdfs:comment "Metadata associated with message transmission" ;
+  rdfs:subClassOf a2a:Metadata .
+
+a2a:MessagePayload a owl:Class ;
+  rdfs:label "Message Payload" ;
+  rdfs:comment "Content body of the message" ;
+  rdfs:subClassOf a2a:Content .
+
+a2a:MessageSignature a owl:Class ;
+  rdfs:label "Message Signature" ;
+  rdfs:comment "Cryptographic signature for message integrity" ;
+  rdfs:subClassOf a2a:SecurityArtifact .
+
+# Task Domain
+a2a:Task a owl:Class ;
+  rdfs:label "Task" ;
+  rdfs:comment "Unit of work to be executed by an agent" ;
+  rdfs:subClassOf a2a:WorkItem .
+
+a2a:TaskStatus a owl:Class ;
+  rdfs:label "Task Status" ;
+  rdfs:comment "Current state of task execution (pending, running, completed, failed)" ;
+  rdfs:subClassOf a2a:EnumeratedState .
+
+a2a:TaskPriority a owl:Class ;
+  rdfs:label "Task Priority" ;
+  rdfs:comment "Priority level for task scheduling and execution" ;
+  rdfs:subClassOf a2a:Priority .
+
+a2a:TaskResult a owl:Class ;
+  rdfs:label "Task Result" ;
+  rdfs:comment "Outcome and metadata from task execution" ;
+  rdfs:subClassOf a2a:ExecutionResult .
+
+a2a:Workflow a owl:Class ;
+  rdfs:label "Workflow" ;
+  rdfs:comment "Coordinated sequence of tasks with dependencies" ;
+  rdfs:subClassOf a2a:Process .
+
+a2a:WorkflowStep a owl:Class ;
+  rdfs:label "Workflow Step" ;
+  rdfs:comment "Individual step within a workflow" ;
+  rdfs:subClassOf a2a:ProcessStep .
+
+# Error Domain
+a2a:Error a owl:Class ;
+  rdfs:label "Error" ;
+  rdfs:comment "Error conditions and exception handling" ;
+  rdfs:subClassOf a2a:Exception .
+
+a2a:ErrorCode a owl:Class ;
+  rdfs:label "Error Code" ;
+  rdfs:comment "Standardized error codes for system diagnostics" ;
+  rdfs:subClassOf a2a:Code .
+
+a2a:ErrorSeverity a owl:Class ;
+  rdfs:label "Error Severity" ;
+  rdfs:comment "Severity level of errors (info, warning, error, critical)" ;
+  rdfs:subClassOf a2a:Severity .
+
+a2a:RecoveryStrategy a owl:Class ;
+  rdfs:label "Recovery Strategy" ;
+  rdfs:comment "Strategies for error recovery and retry mechanisms" ;
+  rdfs:subClassOf a2a:Strategy .
+
+# Events Domain
+a2a:Event a owl:Class ;
+  rdfs:label "Event" ;
+  rdfs:comment "Asynchronous notifications and state changes" ;
+  rdfs:subClassOf a2a:Notification .
+
+a2a:EventBus a owl:Class ;
+  rdfs:label "Event Bus" ;
+  rdfs:comment "Pub-sub mechanism for event distribution" ;
+  rdfs:subClassOf a2a:CommunicationChannel .
+
+a2a:EventSubscription a owl:Class ;
+  rdfs:label "Event Subscription" ;
+  rdfs:comment "Subscription to specific event types" ;
+  rdfs:subClassOf a2a:Subscription .
+
+a2a:EventFilter a owl:Class ;
+  rdfs:label "Event Filter" ;
+  rdfs:comment "Criteria for filtering events based on content" ;
+  rdfs:subClassOf a2a:Filter .
+
+a2a:EventHandler a owl:Class ;
+  rdfs:label "Event Handler" ;
+  rdfs:comment "Callback mechanism for processing events" ;
+  rdfs:subClassOf a2a:Handler .
+
+# JSON-RPC Domain
+a2a:JsonRpc a owl:Class ;
+  rdfs:label "JSON-RPC" ;
+  rdfs:comment "JSON-RPC protocol implementation for agent communication" ;
+  rdfs:subClassOf a2a:Protocol .
+
+a2a:JsonRpcMethod a owl:Class ;
+  rdfs:label "JSON-RPC Method" ;
+  rdfs:comment "Method definition for JSON-RPC calls" ;
+  rdfs:subClassOf a2a:Method .
+
+a2a:JsonRpcRequest a owl:Class ;
+  rdfs:label "JSON-RPC Request" ;
+  rdfs:comment "JSON-RPC request structure" ;
+  rdfs:subClassOf a2a:Message .
+
+a2a:JsonRpcResponse a owl:Class ;
+  rdfs:label "JSON-RPC Response" ;
+  rdfs:comment "JSON-RPC response structure" ;
+  rdfs:subClassOf a2a:Message .
+
+a2a:JsonRpcError a owl:Class ;
+  rdfs:label "JSON-RPC Error" ;
+  rdfs:comment "JSON-RPC error codes and responses" ;
+  rdfs:subClassOf a2a:Error .
+
+# Protocols Domain
+a2a:Protocol a owl:Class ;
+  rdfs:label "Protocol" ;
+  rdfs:comment "Communication protocol specification" ;
+  rdfs:subClassOf a2a:Specification .
+
+a2a:TransportProtocol a owl:Class ;
+  rdfs:label "Transport Protocol" ;
+  rdfs:comment "Transport layer protocols (HTTP, WebSocket, etc.)" ;
+  rdfs:subClassOf a2a:Protocol .
+
+a2a:SecurityProtocol a owl:Class ;
+  rdfs:label "Security Protocol" ;
+  rdfs:comment "Security and authentication protocols" ;
+  rdfs:subClassOf a2a:Protocol .
+
+a2a:EncryptionProtocol a owl:Class ;
+  rdfs:label "Encryption Protocol" ;
+  rdfs:comment "Encryption and cryptographic protocols" ;
+  rdfs:subClassOf a2a:SecurityProtocol .
+
+a2a:AuthenticationProtocol a owl:Class ;
+  rdfs:label "Authentication Protocol" ;
+  rdfs:comment "Authentication and authorization protocols" ;
+  rdfs:subClassOf a2a:SecurityProtocol .
+
+# ==============================================================================
+# 20+ PORT TRAITS - Interface Definitions
+# ==============================================================================
+
+# Task Management Traits
+a2a:TaskManager a owl:Class ;
+  rdfs:label "Task Manager" ;
+  rdfs:comment "Port trait for managing task lifecycle and scheduling" ;
+  rdfs:subClassOf a2a:Port .
+
+a2a:hasTaskScheduler a owl:ObjectProperty ;
+  rdfs:label "has task scheduler" ;
+  rdfs:domain a2a:TaskManager ;
+  rdfs:range a2a:TaskScheduler .
+
+a2a:canScheduleTask a owl:ObjectProperty ;
+  rdfs:label "can schedule task" ;
+  rdfs:domain a2a:TaskManager ;
+  rdfs:range a2a:Task .
+
+a2a:canCancelTask a owl:ObjectProperty ;
+  rdfs:label "can cancel task" ;
+  rdfs:domain a2a:TaskManager ;
+  rdfs:range a2a:Task .
+
+a2a:canGetTaskStatus a owl:ObjectProperty ;
+  rdfs:label "can get task status" ;
+  rdfs:domain a2a:TaskManager ;
+  rdfs:range a2a:TaskStatus .
+
+# Message Handling Traits
+a2a:MessageHandler a owl:Class ;
+  rdfs:label "Message Handler" ;
+  rdfs:comment "Port trait for processing incoming messages" ;
+  rdfs:subClassOf a2a:Port .
+
+a2a:canHandleMessage a owl:ObjectProperty ;
+  rdfs:label "can handle message" ;
+  rdfs:domain a2a:MessageHandler ;
+  rdfs:range a2a:Message .
+
+a2a:canSendMessage a owl:ObjectProperty ;
+  rdfs:label "can send message" ;
+  rdfs:domain a2a:MessageHandler ;
+  rdfs:range a2a:Message .
+
+a2a:canBroadcastMessage a owl:ObjectProperty ;
+  rdfs:label "can broadcast message" ;
+  rdfs:domain a2a:MessageHandler ;
+  rdfs:range a2a:Message .
+
+# Streaming Traits
+a2a:StreamingHandler a owl:Class ;
+  rdfs:label "Streaming Handler" ;
+  rdfs:comment "Port trait for streaming data operations" ;
+  rdfs:subClassOf a2a:Port .
+
+a2a:canStreamData a owl:ObjectProperty ;
+  rdfs:label "can stream data" ;
+  rdfs:domain a2a:StreamingHandler ;
+  rdfs:range a2a:DataStream .
+
+a2a:canSubscribeStream a owl:ObjectProperty ;
+  rdfs:label "can subscribe stream" ;
+  rdfs:domain a2a:StreamingHandler ;
+  rdfs:range a2a:StreamSubscription .
+
+a2a:hasStreamBuffer a owl:ObjectProperty ;
+  rdfs:label "has stream buffer" ;
+  rdfs:domain a2a:StreamingHandler ;
+  rdfs:range a2a:Buffer .
+
+# Authentication Traits
+a2a:Authenticator a owl:Class ;
+  rdfs:label "Authenticator" ;
+  rdfs:comment "Port trait for authentication and authorization" ;
+  rdfs:subClassOf a2a:Port .
+
+a2a:canAuthenticateUser a owl:ObjectProperty ;
+  rdfs:label "can authenticate user" ;
+  rdfs:domain a2a:Authenticator ;
+  rdfs:range a2a:User .
+
+a2a:canAuthorizeAccess a owl:ObjectProperty ;
+  rdfs:label "can authorize access" ;
+  rdfs:domain a2a:Authenticator ;
+  rdfs:range a2a:AccessControl .
+
+a2a:canGenerateToken a owl:ObjectProperty ;
+  rdfs:label "can generate token" ;
+  rdfs:domain a2a:Authenticator ;
+  rdfs:range a2a:Token .
+
+# Storage Traits
+a2a:StorageAdapter a owl:Class ;
+  rdfs:label "Storage Adapter" ;
+  rdfs:comment "Port trait for data persistence operations" ;
+  rdfs:subClassOf a2a:Port .
+
+a2a:canStoreData a owl:ObjectProperty ;
+  rdfs:label "can store data" ;
+  rdfs:domain a2a:StorageAdapter ;
+  rdfs:range a2a:Data .
+
+a2a:canRetrieveData a owl:ObjectProperty ;
+  rdfs:label "can retrieve data" ;
+  rdfs:domain a2a:StorageAdapter ;
+  rdfs:range a2a:Query .
+
+a2a:canDeleteData a owl:ObjectProperty ;
+  rdfs:label "can delete data" ;
+  rdfs:domain a2a:StorageAdapter ;
+  rdfs:range a2a:Data .
+
+# Network Traits
+a2a:NetworkAdapter a owl:Class ;
+  rdfs:label "Network Adapter" ;
+  rdfs:comment "Port trait for network communication" ;
+  rdfs:subClassOf a2a:Port .
+
+a2a:canConnectEndpoint a owl:ObjectProperty ;
+  rdfs:label "can connect endpoint" ;
+  rdfs:domain a2a:NetworkAdapter ;
+  rdfs:range a2a:Endpoint .
+
+a2a:canSendHttpRequest a owl:ObjectProperty ;
+  rdfs:label "can send HTTP request" ;
+  rdfs:domain a2a:NetworkAdapter ;
+  rdfs:range a2a:HttpRequest .
+
+a2a:canEstablishWebSocket a owl:ObjectProperty ;
+  rdfs:label "can establish WebSocket" ;
+  rdfs:domain a2a:NetworkAdapter ;
+  rdfs:range a2a:WebSocket .
+
+# Configuration Traits
+a2a:ConfigurationProvider a owl:Class ;
+  rdfs:label "Configuration Provider" ;
+  rdfs:comment "Port trait for configuration management" ;
+  rdfs:subClassOf a2a:Port .
+
+a2a:canLoadConfiguration a owl:ObjectProperty ;
+  rdfs:label "can load configuration" ;
+  rdfs:domain a2a:ConfigurationProvider ;
+  rdfs:range a2a:Configuration .
+
+a2a:canUpdateConfiguration a owl:ObjectProperty ;
+  rdfs:label "can update configuration" ;
+  rdfs:domain a2a:ConfigurationProvider ;
+  rdfs:range a2a:Configuration .
+
+a2a:canValidateConfiguration a owl:ObjectProperty ;
+  rdfs:label "can validate configuration" ;
+  rdfs:domain a2a:ConfigurationProvider ;
+  rdfs:range a2a:Validation .
+
+# Logging Traits
+a2a:Logger a owl:Class ;
+  rdfs:label "Logger" ;
+  rdfs:comment "Port trait for logging operations" ;
+  rdfs:subClassOf a2a:Port .
+
+a2a:canLogMessage a owl:ObjectProperty ;
+  rdfs:label "can log message" ;
+  rdfs:domain a2a:Logger ;
+  rdfs:range a2a:LogMessage .
+
+a2a:canLogError a owl:ObjectProperty ;
+  rdfs:label "can log error" ;
+  rdfs:domain a2a:Logger ;
+  rdfs:range a2a:Error .
+
+a2a:canRotateLogs a owl:ObjectProperty ;
+  rdfs:label "can rotate logs" ;
+  rdfs:domain a2a:Logger ;
+  rdfs:range a2a:LogRotation .
+
+# Metrics Traits
+a2a:MetricsCollector a owl:Class ;
+  rdfs:label "Metrics Collector" ;
+  rdfs:comment "Port trait for metrics collection and reporting" ;
+  rdfs:subClassOf a2a:Port .
+
+a2a:canCollectMetric a owl:ObjectProperty ;
+  rdfs:label "can collect metric" ;
+  rdfs:domain a2a:MetricsCollector ;
+  rdfs:range a2a:Metric .
+
+a2a:canReportMetrics a owl:ObjectProperty ;
+  rdfs:label "can report metrics" ;
+  rdfs:domain a2a:MetricsCollector ;
+  rdfs:range a2a:MetricReport .
+
+# Event Processing Traits
+a2a:EventProcessor a owl:Class ;
+  rdfs:label "Event Processor" ;
+  rdfs:comment "Port trait for event processing and handling" ;
+  rdfs:subClassOf a2a:Port .
+
+a2a:canProcessEvent a owl:ObjectProperty ;
+  rdfs:label "can process event" ;
+  rdfs:domain a2a:EventProcessor ;
+  rdfs:range a2a:Event .
+
+a2a:canPublishEvent a owl:ObjectProperty ;
+  rdfs:label "can publish event" ;
+  rdfs:domain a2a:EventProcessor ;
+  rdfs:range a2a:Event .
+
+a2a:canSubscribeEvent a owl:ObjectProperty ;
+  rdfs:label "can subscribe event" ;
+  rdfs:domain a2a:EventProcessor ;
+  rdfs:range a2a:EventSubscription .
+
+# Security Traits
+a2a:SecurityManager a owl:Class ;
+  rdfs:label "Security Manager" ;
+  rdfs:comment "Port trait for security operations" ;
+  rdfs:subClassOf a2a:Port .
+
+a2a:canEncryptData a owl:ObjectProperty ;
+  rdfs:label "can encrypt data" ;
+  rdfs:domain a2a:SecurityManager ;
+  rdfs:range a2a:Data .
+
+a2a:canDecryptData a owl:ObjectProperty ;
+  rdfs:label "can decrypt data" ;
+  rdfs:domain a2a:SecurityManager ;
+  rdfs:range a2a:Data .
+
+a2a:canValidateCertificate a owl:ObjectProperty ;
+  rdfs:label "can validate certificate" ;
+  rdfs:domain a2a:SecurityManager ;
+  rdfs:range a2a:Certificate .
+
+# ==============================================================================
+# 15+ ADAPTER IMPLEMENTATIONS - Concrete Types
+# ==============================================================================
+
+# HTTP Client
+a2a:HttpClient a owl:Class ;
+  rdfs:label "HTTP Client" ;
+  rdfs:comment "HTTP client adapter for REST API communication" ;
+  rdfs:subClassOf a2a:NetworkAdapter, a2a:NetworkProtocol .
+
+a2a:httpClientBaseUri a owl:DatatypeProperty ;
+  rdfs:label "HTTP client base URI" ;
+  rdfs:domain a2a:HttpClient ;
+  rdfs:range xsd:anyURI .
+
+a2a:httpClientTimeout a owl:DatatypeProperty ;
+  rdfs:label "HTTP client timeout" ;
+  rdfs:domain a2a:HttpClient ;
+  rdfs:range xsd:integer .
+
+a2a:httpClientHeaders a owl:DatatypeProperty ;
+  rdfs:label "HTTP client headers" ;
+  rdfs:domain a2a:HttpClient ;
+  rdfs:range xsd:string .
+
+# WebSocket
+a2a:WebSocketAdapter a owl:Class ;
+  rdfs:label "WebSocket Adapter" ;
+  rdfs:comment "WebSocket adapter for real-time communication" ;
+  rdfs:subClassOf a2a:NetworkAdapter, a2a:StreamingHandler .
+
+a2a:webSocketUrl a owl:DatatypeProperty ;
+  rdfs:label "WebSocket URL" ;
+  rdfs:domain a2a:WebSocketAdapter ;
+  rdfs:range xsd:anyURI .
+
+a2a:webSocketProtocol a owl:DatatypeProperty ;
+  rdfs:label "WebSocket protocol" ;
+  rdfs:domain a2a:WebSocketAdapter ;
+  rdfs:range xsd:string .
+
+# Database Adapters
+a2a:SqlxStorage a owl:Class ;
+  rdfs:label "SQLx Storage" ;
+  rdfs:comment "SQLx adapter for PostgreSQL database operations" ;
+  rdfs:subClassOf a2a:StorageAdapter .
+
+a2a:sqlxConnectionString a owl:DatatypeProperty ;
+  rdfs:label "SQLx connection string" ;
+  rdfs:domain a2a:SqlxStorage ;
+  rdfs:range xsd:string .
+
+a2a:sqlxPoolSize a owl:DatatypeProperty ;
+  rdfs:label "SQLx pool size" ;
+  rdfs:domain a2a:SqlxStorage ;
+  rdfs:range xsd:integer .
+
+a2a:RedisStorage a owl:Class ;
+  rdfs:label "Redis Storage" ;
+  rdfs:comment "Redis adapter for cache and pub-sub operations" ;
+  rdfs:subClassOf a2a:StorageAdapter, a2a:StreamingHandler .
+
+a2a:redisUrl a owl:DatatypeProperty ;
+  rdfs:label "Redis URL" ;
+  rdfs:domain a2a:RedisStorage ;
+  rdfs:range xsd:anyURI .
+
+# Authentication Adapters
+a2a:JwtAuthenticator a owl:Class ;
+  rdfs:label "JWT Authenticator" ;
+  rdfs:comment "JWT token-based authentication adapter" ;
+  rdfs:subClassOf a2a:Authenticator, a2a:SecurityProtocol .
+
+a2a:jwtSecretKey a owl:DatatypeProperty ;
+  rdfs:label "JWT secret key" ;
+  rdfs:domain a2a:JwtAuthenticator ;
+  rdfs:range xsd:string .
+
+a2a:jwtExpiration a owl:DatatypeProperty ;
+  rdfs:label "JWT expiration" ;
+  rdfs:domain a2a:JwtAuthenticator ;
+  rdfs:range xsd:integer .
+
+a2a:OAuth2Adapter a owl:Class ;
+  rdfs:label "OAuth2 Adapter" ;
+  rdfs:comment "OAuth2 authentication and authorization adapter" ;
+  rdfs:subClassOf a2a:Authenticator, a2a:AuthenticationProtocol .
+
+a2a:oauth2ClientId a owl:DatatypeProperty ;
+  rdfs:label "OAuth2 client ID" ;
+  rdfs:domain a2a:OAuth2Adapter ;
+  rdfs:range xsd:string .
+
+a2a:oauth2ClientSecret a owl:DatatypeProperty ;
+  rdfs:label "OAuth2 client secret" ;
+  rdfs:domain a2a:OAuth2Adapter ;
+  rdfs:range xsd:string .
+
+a2a:oauth2Scope a owl:DatatypeProperty ;
+  rdfs:label "OAuth2 scope" ;
+  rdfs:domain a2a:OAuth2Adapter ;
+  rdfs:range xsd:string .
+
+# File Storage
+a2a:LocalStorageAdapter a owl:Class ;
+  rdfs:label "Local Storage Adapter" ;
+  rdfs:comment "Local filesystem storage adapter" ;
+  rdfs:subClassOf a2a:StorageAdapter .
+
+a2a:localStoragePath a owl:DatatypeProperty ;
+  rdfs:label "Local storage path" ;
+  rdfs:domain a2a:LocalStorageAdapter ;
+  rdfs:range xsd:string .
+
+a2a:S3StorageAdapter a owl:Class ;
+  rdfs:label "S3 Storage Adapter" ;
+  rdfs:comment "Amazon S3 cloud storage adapter" ;
+  rdfs:subClassOf a2a:StorageAdapter .
+
+a2a:s3BucketName a owl:DatatypeProperty ;
+  rdfs:label "S3 bucket name" ;
+  rdfs:domain a2a:S3StorageAdapter ;
+  rdfs:range xsd:string .
+
+a2a:s3Region a owl:DatatypeProperty ;
+  rdfs:label "S3 region" ;
+  rdfs:domain a2a:S3StorageAdapter ;
+  rdfs:range xsd:string .
+
+# Message Queues
+a2a:RabbitMQAdapter a owl:Class ;
+  rdfs:label "RabbitMQ Adapter" ;
+  rdfs:comment "RabbitMQ message queue adapter" ;
+  rdfs:subClassOf a2a:MessageHandler, a2a:EventProcessor .
+
+a2a:rabbitMQUrl a owl:DatatypeProperty ;
+  rdfs:label "RabbitMQ URL" ;
+  rdfs:domain a2a:RabbitMQAdapter ;
+  rdfs:range xsd:anyURI .
+
+a2a:rabbitMQQueue a owl:DatatypeProperty ;
+  rdfs:label "RabbitMQ queue" ;
+  rdfs:domain a2a:RabbitMQAdapter ;
+  rdfs:range xsd:string .
+
+# Logging Adapters
+a2a:FileLogger a owl:Class ;
+  rdfs:label "File Logger" ;
+  rdfs:comment "File-based logging adapter" ;
+  rdfs:subClassOf a2a:Logger .
+
+a2a:fileLogPath a owl:DatatypeProperty ;
+  rdfs:label "File log path" ;
+  rdfs:domain a2a:FileLogger ;
+  rdfs:range xsd:string .
+
+a2a:SyslogLogger a owl:Class ;
+  rdfs:label "Syslog Logger" ;
+  rdfs:comment "Syslog logging adapter" ;
+  rdfs:subClassOf a2a:Logger .
+
+a2a:syslogFacility a owl:DatatypeProperty ;
+  rdfs:label "Syslog facility" ;
+  rdfs:domain a2a:SyslogLogger ;
+  rdfs:range xsd:string .
+
+# Metrics Adapters
+a2a:PrometheusMetrics a owl:Class ;
+  rdfs:label "Prometheus Metrics" ;
+  rdfs:comment "Prometheus metrics collection adapter" ;
+  rdfs:subClassOf a2a:MetricsCollector .
+
+a2a:prometheusPort a owl:DatatypeProperty ;
+  rdfs:label "Prometheus port" ;
+  rdfs:domain a2a:PrometheusMetrics ;
+  rdfs:range xsd:integer .
+
+a2a:DatadogMetrics a owl:Class ;
+  rdfs:label "Datadog Metrics" ;
+  rdfs:comment "Datadog metrics collection adapter" ;
+  rdfs:subClassOf a2a:MetricsCollector .
+
+a2a:datadogApiKey a owl:DatatypeProperty ;
+  rdfs:label "Datadog API key" ;
+  rdfs:domain a2a:DatadogMetrics ;
+  rdfs:range xsd:string .
+
+# Encryption Adapters
+a2a:AesEncryptor a owl:Class ;
+  rdfs:label "AES Encryptor" ;
+  rdfs:comment "AES encryption adapter" ;
+  rdfs:subClassOf a2a:SecurityManager, a2a:EncryptionProtocol .
+
+a2a:aesKeySize a owl:DatatypeProperty ;
+  rdfs:label "AES key size" ;
+  rdfs:domain a2a:AesEncryptor ;
+  rdfs:range xsd:integer .
+
+a2a:RsaEncryptor a owl:Class ;
+  rdfs:label "RSA Encryptor" ;
+  rdfs:comment "RSA encryption adapter" ;
+  rdfs:subClassOf a2a:SecurityManager, a2a:EncryptionProtocol .
+
+a2a:rsaKeySize a owl:DatatypeProperty ;
+  rdfs:label "RSA key size" ;
+  rdfs:domain a2a:RsaEncryptor ;
+  rdfs:range xsd:integer .
+
+# ==============================================================================
+# 11 JSON-RPC METHODS - Protocol Operations
+# ==============================================================================
+
+a2a:JsonRpcMethod a owl:Class ;
+  rdfs:label "JSON-RPC Method" ;
+  rdfs:comment "JSON-RPC method definitions for agent communication" .
+
+a2a:messageSendMethod a owl:NamedIndividual ;
+  rdfs:label "message send method" ;
+  rdf:type a2a:JsonRpcMethod ;
+  a2a:methodName "message/send" ;
+  a2a:methodDescription "Sends a message to a target agent" ;
+  a2a:methodVersion "1.0" .
+
+a2a:tasksGetMethod a owl:NamedIndividual ;
+  rdfs:label "tasks get method" ;
+  rdf:type a2a:JsonRpcMethod ;
+  a2a:methodName "tasks/get" ;
+  a2a:methodDescription "Retrieves a specific task by ID" ;
+  a2a:methodVersion "1.0" .
+
+a2a:tasksListMethod a owl:NamedIndividual ;
+  rdfs:label "tasks list method" ;
+  rdf:type a2a:JsonRpcMethod ;
+  a2a:methodName "tasks/list" ;
+  a2a:methodDescription "Lists all tasks with optional filtering" ;
+  a2a:methodVersion "1.0" .
+
+a2a:tasksCreateMethod a owl:NamedIndividual ;
+  rdfs:label "tasks create method" ;
+  rdf:type a2a:JsonRpcMethod ;
+  a2a:methodName "tasks/create" ;
+  a2a:methodDescription "Creates a new task for execution" ;
+  a2a:methodVersion "1.0" .
+
+a2a:tasksUpdateMethod a owl:NamedIndividual ;
+  rdfs:label "tasks update method" ;
+  rdf:type a2a:JsonRpcMethod ;
+  a2a:methodName "tasks/update" ;
+  a2a:methodDescription "Updates an existing task" ;
+  a2a:methodVersion "1.0" .
+
+a2a:tasksCancelMethod a owl:NamedIndividual ;
+  rdfs:label "tasks cancel method" ;
+  rdf:type a2a:JsonRpcMethod ;
+  a2a:methodName "tasks/cancel" ;
+  a2a:methodDescription "Cancels a running task" ;
+  a2a:methodVersion "1.0" .
+
+a2a:tasksDeleteMethod a owl:NamedIndividual ;
+  rdfs:label "tasks delete method" ;
+  rdf:type a2a:JsonRpcMethod ;
+  a2a:methodName "tasks/delete" ;
+  a2a:methodDescription "Deletes a completed task" ;
+  a2a:methodVersion "1.0" .
+
+a2a:agentsInfoMethod a owl:NamedIndividual ;
+  rdfs:label "agents info method" ;
+  rdf:type a2a:JsonRpcMethod ;
+  a2a:methodName "agents/info" ;
+  a2a:methodDescription "Retrieves information about available agents" ;
+  a2a:methodVersion "1.0" .
+
+a2a:agentsStatusMethod a owl:NamedIndividual ;
+  rdfs:label "agents status method" ;
+  rdf:type a2a:JsonRpcMethod ;
+  a2a:methodName "agents/status" ;
+  a2a:methodDescription "Gets the current status of all agents" ;
+  a2a:methodVersion "1.0" .
+
+a2a:eventsSubscribeMethod a owl:NamedIndividual ;
+  rdfs:label "events subscribe method" ;
+  rdf:type a2a:JsonRpcMethod ;
+  a2a:methodName "events/subscribe" ;
+  a2a:methodDescription "Subscribes to event notifications" ;
+  a2a:methodVersion "1.0" .
+
+a2a:eventsPublishMethod a owl:NamedIndividual ;
+  rdfs:label "events publish method" ;
+  rdf:type a2a:JsonRpcMethod ;
+  a2a:methodName "events/publish" ;
+  a2a:methodDescription "Publishes an event to subscribers" ;
+  a2a:methodVersion "1.0" .
+
+# Method Properties
+a2a:methodName a owl:DatatypeProperty ;
+  rdfs:label "method name" ;
+  rdfs:domain a2a:JsonRpcMethod ;
+  rdfs:range xsd:string .
+
+a2a:methodDescription a owl:DatatypeProperty ;
+  rdfs:label "method description" ;
+  rdfs:domain a2a:JsonRpcMethod ;
+  rdfs:range xsd:string .
+
+a2a:methodVersion a owl:DatatypeProperty ;
+  rdfs:label "method version" ;
+  rdfs:domain a2a:JsonRpcMethod ;
+  rdfs:range xsd:string .
+
+a2a:methodParameters a owl:DatatypeProperty ;
+  rdfs:label "method parameters" ;
+  rdfs:domain a2a:JsonRpcMethod ;
+  rdfs:range xsd:string .
+
+a2a:methodReturnType a owl:DatatypeProperty ;
+  rdfs:label "method return type" ;
+  rdfs:domain a2a:JsonRpcMethod ;
+  rdfs:range xsd:string .
+
+# ==============================================================================
+# PROPERTIES FOR ALL CLASSES - XSD TYPE RANGES
+# ==============================================================================
+
+# Common Properties
+a2a:id a owl:DatatypeProperty ;
+  rdfs:label "ID" ;
+  rdfs:domain a2a:DomainEntity ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Unique identifier for domain entities" .
+
+a2a:name a owl:DatatypeProperty ;
+  rdfs:label "name" ;
+  rdfs:domain a2a:NamedEntity ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Human-readable name of the entity" .
+
+a2a:description a owl:DatatypeProperty ;
+  rdfs:label "description" ;
+  rdfs:domain a2a:DescribedEntity ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Detailed description of the entity" .
+
+a2a:version a owl:DatatypeProperty ;
+  rdfs:label "version" ;
+  rdfs:domain a2a:VersionedEntity ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Semantic version identifier" .
+
+a2a:createdAt a owl:DatatypeProperty ;
+  rdfs:label "created at" ;
+  rdfs:domain a2a:TemporalEntity ;
+  rdfs:range xsd:dateTime ;
+  rdfs:comment "Timestamp when entity was created" .
+
+a2a:updatedAt a owl:DatatypeProperty ;
+  rdfs:label "updated at" ;
+  rdfs:domain a2a:TemporalEntity ;
+  rdfs:range xsd:dateTime ;
+  rdfs:comment "Timestamp when entity was last updated" .
+
+a2a:status a owl:DatatypeProperty ;
+  rdfs:label "status" ;
+  rdfs:domain a2a:StatusEntity ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Current state or status of the entity" .
+
+a2a:enabled a owl:DatatypeProperty ;
+  rdfs:label "enabled" ;
+  rdfs:domain a2a:ConfigurableEntity ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Whether the entity is currently enabled" .
+
+a2a:priority a owl:DatatypeProperty ;
+  rdfs:label "priority" ;
+  rdfs:domain a2a:PriorityEntity ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Priority level for processing or execution" .
+
+a2a:timeout a owl:DatatypeProperty ;
+  rdfs:label "timeout" ;
+  rdfs:domain a2a:TimedEntity ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Timeout duration in milliseconds" .
+
+a2a:retryCount a owl:DatatypeProperty ;
+  rdfs:label "retry count" ;
+  rdfs:domain a2a:RetryableEntity ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of retry attempts remaining" .
+
+a2a:maxRetries a owl:DatatypeProperty ;
+  rdfs:label "max retries" ;
+  rdfs:domain a2a:RetryableEntity ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Maximum number of retry attempts" .
+
+a2a:config a owl:DatatypeProperty ;
+  rdfs:label "configuration" ;
+  rdfs:domain a2a:ConfigurableEntity ;
+  rdfs:range xsd:string ;
+  rdfs:comment "JSON configuration string" .
+
+a2a:metadata a owl:DatatypeProperty ;
+  rdfs:label "metadata" ;
+  rdfs:domain a2a:MetadataEntity ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Additional metadata as JSON string" .
+
+# Task-specific Properties
+a2a:taskId a owl:DatatypeProperty ;
+  rdfs:label "task ID" ;
+  rdfs:domain a2a:Task ;
+  rdfs:range xsd:string .
+
+a2a:taskName a owl:DatatypeProperty ;
+  rdfs:label "task name" ;
+  rdfs:domain a2a:Task ;
+  rdfs:range xsd:string .
+
+a2a:taskType a owl:DatatypeProperty ;
+  rdfs:label "task type" ;
+  rdfs:domain a2a:Task ;
+  rdfs:range xsd:string .
+
+a2a:taskStatus a owl:DatatypeProperty ;
+  rdfs:label "task status" ;
+  rdfs:domain a2a:Task ;
+  rdfs:range xsd:string .
+
+a2a:taskProgress a owl:DatatypeProperty ;
+  rdfs:label "task progress" ;
+  rdfs:domain a2a:Task ;
+  rdfs:range xsd:decimal .
+
+a2a:taskResult a owl:DatatypeProperty ;
+  rdfs:label "task result" ;
+  rdfs:domain a2a:TaskResult ;
+  rdfs:range xsd:string .
+
+a2a:taskError a owl:DatatypeProperty ;
+  rdfs:label "task error" ;
+  rdfs:domain a2a:TaskResult ;
+  rdfs:range xsd:string .
+
+a2a:taskDuration a owl:DatatypeProperty ;
+  rdfs:label "task duration" ;
+  rdfs:domain a2a:Task ;
+  rdfs:range xsd:integer .
+
+a2a:taskExecutor a owl:DatatypeProperty ;
+  rdfs:label "task executor" ;
+  rdfs:domain a2a:Task ;
+  rdfs:range xsd:string .
+
+a2a:taskDependencies a owl:DatatypeProperty ;
+  rdfs:label "task dependencies" ;
+  rdfs:domain a2a:Task ;
+  rdfs:range xsd:string .
+
+# Message-specific Properties
+a2a:messageId a owl:DatatypeProperty ;
+  rdfs:label "message ID" ;
+  rdfs:domain a2a:Message ;
+  rdfs:range xsd:string .
+
+a2a:messageType a owl:DatatypeProperty ;
+  rdfs:label "message type" ;
+  rdfs:domain a2a:Message ;
+  rdfs:range xsd:string .
+
+a2a:messageFrom a owl:DatatypeProperty ;
+  rdfs:label "message from" ;
+  rdfs:domain a2a:Message ;
+  rdfs:range xsd:string .
+
+a2a:messageTo a owl:DatatypeProperty ;
+  rdfs:label "message to" ;
+  rdfs:domain a2a:Message ;
+  rdfs:range xsd:string .
+
+a2a:messageSubject a owl:DatatypeProperty ;
+  rdfs:label "message subject" ;
+  rdfs:domain a2a:Message ;
+  rdfs:range xsd:string .
+
+a2a:messageBody a owl:DatatypeProperty ;
+  rdfs:label "message body" ;
+  rdfs:domain a2a:Message ;
+  rdfs:range xsd:string .
+
+a2a:messageTimestamp a owl:DatatypeProperty ;
+  rdfs:label "message timestamp" ;
+  rdfs:domain a2a:Message ;
+  rdfs:range xsd:dateTime .
+
+a2a:messageHeaders a owl:DatatypeProperty ;
+  rdfs:label "message headers" ;
+  rdfs:domain a2a:Message ;
+  rdfs:range xsd:string .
+
+a2a:messagePayload a owl:DatatypeProperty ;
+  rdfs:label "message payload" ;
+  rdfs:domain a2a:Message ;
+  rdfs:range xsd:string .
+
+# Agent-specific Properties
+a2a:agentId a owl:DatatypeProperty ;
+  rdfs:label "agent ID" ;
+  rdfs:domain a2a:Agent ;
+  rdfs:range xsd:string .
+
+a2a:agentName a owl:DatatypeProperty ;
+  rdfs:label "agent name" ;
+  rdfs:domain a2a:Agent ;
+  rdfs:range xsd:string .
+
+a2a:agentType a owl:DatatypeProperty ;
+  rdfs:label "agent type" ;
+  rdfs:domain a2a:Agent ;
+  rdfs:range xsd:string .
+
+a2a:agentCapabilities a owl:DatatypeProperty ;
+  rdfs:label "agent capabilities" ;
+  rdfs:domain a2a:Agent ;
+  rdfs:range xsd:string .
+
+a2a:agentStatus a owl:DatatypeProperty ;
+  rdfs:label "agent status" ;
+  rdfs:domain a2a:Agent ;
+  rdfs:range xsd:string .
+
+a2a:agentHealth a owl:DatatypeProperty ;
+  rdfs:label "agent health" ;
+  rdfs:domain a2a:Agent ;
+  rdfs:range xsd:decimal .
+
+a2a:agentUptime a owl:DatatypeProperty ;
+  rdfs:label "agent uptime" ;
+  rdfs:domain a2a:Agent ;
+  rdfs:range xsd:integer .
+
+a2a:agentMetrics a owl:DatatypeProperty ;
+  rdfs:label "agent metrics" ;
+  rdfs:domain a2a:Agent ;
+  rdfs:range xsd:string .
+
+# Event-specific Properties
+a2a:eventId a owl:DatatypeProperty ;
+  rdfs:label "event ID" ;
+  rdfs:domain a2a:Event ;
+  rdfs:range xsd:string .
+
+a2a:eventType a owl:DatatypeProperty ;
+  rdfs:label "event type" ;
+  rdfs:domain a2a:Event ;
+  rdfs:range xsd:string .
+
+a2a:eventSource a owl:DatatypeProperty ;
+  rdfs:label "event source" ;
+  rdfs:domain a2a:Event ;
+  rdfs:range xsd:string .
+
+a2a:eventData a owl:DatatypeProperty ;
+  rdfs:label "event data" ;
+  rdfs:domain a2a:Event ;
+  rdfs:range xsd:string .
+
+a2a:eventTimestamp a owl:DatatypeProperty ;
+  rdfs:label "event timestamp" ;
+  rdfs:domain a2a:Event ;
+  rdfs:range xsd:dateTime .
+
+# ==============================================================================
+# SHACL SHAPES - VALIDATION RULES
+# ==============================================================================
+
+# Task Shape
+a2a:TaskShape a sh:NodeShape ;
+  sh:targetClass a2a:Task ;
+  sh:property [
+    sh:path a2a:id ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:constraint [
+      sh:minLength 1 ;
+      sh:maxLength 255 ;
+    ] ;
+  ] ;
+  sh:property [
+    sh:path a2a:name ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "Task name is required" ;
+  ] ;
+  sh:property [
+    sh:path a2a:taskType ;
+    sh:datatype xsd:string ;
+    sh:hasValue [
+      a2a:TaskType ;
+    ] ;
+    sh:severity sh:Violation ;
+    sh:message "Task type must be valid" ;
+  ] ;
+  sh:property [
+    sh:path a2a:taskStatus ;
+    sh:datatype xsd:string ;
+    sh:hasValue [
+      a2a:TaskStatus ;
+    ] ;
+    sh:severity sh:Violation ;
+    sh:message "Task status must be valid" ;
+  ] ;
+  sh:property [
+    sh:path a2a:taskProgress ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive "0"^^xsd:decimal ;
+    sh:maxInclusive "100"^^xsd:decimal ;
+    sh:severity sh:Violation ;
+    sh:message "Task progress must be between 0 and 100" ;
+  ] .
+
+# Message Shape
+a2a:MessageShape a sh:NodeShape ;
+  sh:targetClass a2a:Message ;
+  sh:property [
+    sh:path a2a:id ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path a2a:messageType ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path a2a:messageFrom ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path a2a:messageTo ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path a2a:messageTimestamp ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] .
+
+# Agent Shape
+a2a:AgentShape a sh:NodeShape ;
+  sh:targetClass a2a:Agent ;
+  sh:property [
+    sh:path a2a:id ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path a2a:name ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path a2a:agentType ;
+    sh:datatype xsd:string ;
+    sh:hasValue [
+      a2a:AgentType ;
+    ] ;
+    sh:severity sh:Violation ;
+    sh:message "Agent type must be valid" ;
+  ] ;
+  sh:property [
+    sh:path a2a:agentStatus ;
+    sh:datatype xsd:string ;
+    sh:hasValue [
+      a2a:AgentStatus ;
+    ] ;
+    sh:severity sh:Violation ;
+    sh:message "Agent status must be valid" ;
+  ] ;
+  sh:property [
+    sh:path a2a:agentHealth ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive "0"^^xsd:decimal ;
+    sh:maxInclusive "100"^^xsd:decimal ;
+  ] .
+
+# Event Shape
+a2a:EventShape a sh:NodeShape ;
+  sh:targetClass a2a:Event ;
+  sh:property [
+    sh:path a2a:id ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path a2a:eventType ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path a2a:eventSource ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path a2a:eventTimestamp ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+  sh:property [
+    sh:path a2a:eventData ;
+    sh:datatype xsd:string ;
+    sh:maxLength 10000 ;
+  ] .
+
+# JSON-RPC Method Shape
+a2a:JsonRpcMethodShape a sh:NodeShape ;
+  sh:targetClass a2a:JsonRpcMethod ;
+  sh:property [
+    sh:path a2a:methodName ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^\\w+(/[\\w-]+)*$" ;
+    sh:severity sh:Violation ;
+    sh:message "Method name must be a valid path" ;
+  ] ;
+  sh:property [
+    sh:path a2a:methodDescription ;
+    sh:datatype xsd:string ;
+    sh:minLength 10 ;
+    sh:maxLength 500 ;
+    sh:severity sh:Violation ;
+    sh:message "Method description must be 10-500 characters" ;
+  ] ;
+  sh:property [
+    sh:path a2a:methodVersion ;
+    sh:datatype xsd:string ;
+    sh:pattern "^\\d+\\.\\d+(\\.\\d+)?$" ;
+    sh:severity sh:Violation ;
+    sh:message "Method version must be semantic version" ;
+  ] .
+
+# HTTP Client Shape
+a2a:HttpClientShape a sh:NodeShape ;
+  sh:targetClass a2a:HttpClient ;
+  sh:property [
+    sh:path a2a:httpClientBaseUri ;
+    sh:datatype xsd:anyURI ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "HTTP client base URI is required" ;
+  ] ;
+  sh:property [
+    sh:path a2a:httpClientTimeout ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1000 ;
+    sh:maxInclusive 300000 ;
+    sh:severity sh:Violation ;
+    sh:message "Timeout must be between 1000 and 300000ms" ;
+  ] ;
+  sh:property [
+    sh:path a2a:httpClientHeaders ;
+    sh:datatype xsd:string ;
+    sh:maxLength 5000 ;
+  ] .
+
+# JWT Authenticator Shape
+a2a:JwtAuthenticatorShape a sh:NodeShape ;
+  sh:targetClass a2a:JwtAuthenticator ;
+  sh:property [
+    sh:path a2a:jwtSecretKey ;
+    sh:datatype xsd:string ;
+    sh:minLength 32 ;
+    sh:maxLength 512 ;
+    sh:severity sh:Violation ;
+    sh:message "JWT secret key must be 32-512 characters" ;
+  ] ;
+  sh:property [
+    sh:path a2a:jwtExpiration ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 300 ;
+    sh:maxInclusive 86400 ;
+    sh:severity sh:Violation ;
+    sh:message "JWT expiration must be 300-86400 seconds" ;
+  ] .
+
+# Task Manager Shape
+a2a:TaskManagerShape a sh:NodeShape ;
+  sh:targetClass a2a:TaskManager ;
+  sh:property [
+    sh:path a2a:canScheduleTask ;
+    sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "Task manager must implement task scheduling" ;
+  ] ;
+  sh:property [
+    sh:path a2a:canGetTaskStatus ;
+    sh:minCount 1 ;
+    sh:severity sh:Violation ;
+    sh:message "Task manager must implement task status retrieval" ;
+  ] ;
+  sh:property [
+    sh:path a2a:canCancelTask ;
+    sh:nodeKind sh:IRI ;
+    sh:severity sh:Violation ;
+    sh:message "Task manager must implement task cancellation" ;
+  ] .
+
+# ==============================================================================
+# ENUMERATIONS - Constrained Value Sets
+# ==============================================================================
+
+a2a:TaskType a rdfs:Class ;
+  rdfs:label "Task Type" ;
+  rdfs:comment "Enumeration of valid task types" .
+
+a2a:TaskTypeCompute a owl:NamedIndividual ;
+  rdf:type a2a:TaskType ;
+  rdfs:label "Compute Task" .
+
+a2a:TaskTypeStorage a owl:NamedIndividual ;
+  rdf:type a2a:TaskType ;
+  rdfs:label "Storage Task" .
+
+a2a:TaskTypeNetwork a owl:NamedIndividual ;
+  rdf:type a2a:TaskType ;
+  rdfs:label "Network Task" .
+
+a2a:TaskTypeSecurity a owl:NamedIndividual ;
+  rdf:type a2a:TaskType ;
+  rdfs:label "Security Task" .
+
+a2a:TaskTypeDataProcessing a owl:NamedIndividual ;
+  rdf:type a2a:TaskType ;
+  rdfs:label "Data Processing Task" .
+
+a2a:TaskTypeAgentCommunication a owl:NamedIndividual ;
+  rdf:type a2a:TaskType ;
+  rdfs:label "Agent Communication Task" .
+
+a2a:TaskTypeWorkflow a owl:NamedIndividual ;
+  rdf:type a2a:TaskType ;
+  rdfs:label "Workflow Task" .
+
+a2a:TaskStatus a rdfs:Class ;
+  rdfs:label "Task Status" ;
+  rdfs:comment "Enumeration of valid task statuses" .
+
+a2a:TaskStatusPending a owl:NamedIndividual ;
+  rdf:type a2a:TaskStatus ;
+  rdfs:label "Pending" .
+
+a2a:TaskStatusRunning a owl:NamedIndividual ;
+  rdf:type a2a:TaskStatus ;
+  rdfs:label "Running" .
+
+a2a:TaskStatusCompleted a owl:NamedIndividual ;
+  rdf:type a2a:TaskStatus ;
+  rdfs:label "Completed" .
+
+a2a:TaskStatusFailed a owl:NamedIndividual ;
+  rdf:type a2a:TaskStatus ;
+  rdfs:label "Failed" .
+
+a2a:TaskStatusCancelled a owl:NamedIndividual ;
+  rdf:type a2a:TaskStatus ;
+  rdfs:label "Cancelled" .
+
+a2a:AgentType a rdfs:Class ;
+  rdfs:label "Agent Type" ;
+  rdfs:comment "Enumeration of valid agent types" .
+
+a2a:AgentTypeCompute a owl:NamedIndividual ;
+  rdf:type a2a:AgentType ;
+  rdfs:label "Compute Agent" .
+
+a2a:AgentTypeStorage a owl:NamedIndividual ;
+  rdf:type a2a:AgentType ;
+  rdfs:label "Storage Agent" .
+
+a2a:AgentTypeNetwork a owl:NamedIndividual ;
+  rdf:type a2a:AgentType ;
+  rdfs:label "Network Agent" .
+
+a2a:AgentTypeSecurity a owl:NamedIndividual ;
+  rdf:type a2a:AgentType ;
+  rdfs:label "Security Agent" .
+
+a2a:AgentTypeDataProcessing a owl:NamedIndividual ;
+  rdf:type a2a:AgentType ;
+  rdfs:label "Data Processing Agent" .
+
+a2a:AgentTypeWorkflow a owl:NamedIndividual ;
+  rdf:type a2a:AgentType ;
+  rdfs:label "Workflow Agent" .
+
+a2a:AgentTypeMessageRouter a owl:NamedIndividual ;
+  rdf:type a2a:AgentType ;
+  rdfs:label "Message Router Agent" .
+
+a2a:AgentStatus a rdfs:Class ;
+  rdfs:label "Agent Status" ;
+  rdfs:comment "Enumeration of valid agent statuses" .
+
+a2a:AgentStatusActive a owl:NamedIndividual ;
+  rdf:type a2a:AgentStatus ;
+  rdfs:label "Active" .
+
+a2a:AgentStatusInactive a owl:NamedIndividual ;
+  rdf:type a2a:AgentStatus ;
+  rdfs:label "Inactive" .
+
+a2a:AgentStatusIdle a owl:NamedIndividual ;
+  rdf:type a2a:AgentStatus ;
+  rdfs:label "Idle" .
+
+a2a:AgentStatusBusy a owl:NamedIndividual ;
+  rdf:type a2a:AgentStatus ;
+  rdfs:label "Busy" .
+
+a2a:AgentStatusError a owl:NamedIndividual ;
+  rdf:type a2a:AgentStatus ;
+  rdfs:label "Error" .
+
+a2a:AgentStatusMaintenance a owl:NamedIndividual ;
+  rdf:type a2a:AgentStatus ;
+  rdfs:label "Maintenance" .
+
+# ==============================================================================
+# ABSTRACT BASE CLASSES - Type Hierarchy
+# ==============================================================================
+
+a2a:DomainEntity a owl:Class ;
+  rdfs:label "Domain Entity" ;
+  rdfs:comment "Base class for all domain entities" ;
+  rdfs:subClassOf owl:Thing .
+
+a2a:NamedEntity a owl:Class ;
+  rdfs:label "Named Entity" ;
+  rdfs:comment "Entity with a human-readable name" ;
+  rdfs:subClassOf a2a:DomainEntity .
+
+a2a:DescribedEntity a owl:Class ;
+  rdfs:label "Described Entity" ;
+  rdfs:comment "Entity with a description" ;
+  rdfs:subClassOf a2a:DomainEntity .
+
+a2a:VersionedEntity a owl:Class ;
+  rdfs:label "Versioned Entity" ;
+  rdfs:comment "Entity with version information" ;
+  rdfs:subClassOf a2a:DomainEntity .
+
+a2a:TemporalEntity a owl:Class ;
+  rdfs:label "Temporal Entity" ;
+  rdfs:comment "Entity with timestamp information" ;
+  rdfs:subClassOf a2a:DomainEntity .
+
+a2a:StatusEntity a owl:Class ;
+  rdfs:label "Status Entity" ;
+  rdfs:comment "Entity with status information" ;
+  rdfs:subClassOf a2a:DomainEntity .
+
+a2a:ConfigurableEntity a owl:Class ;
+  rdfs:label "Configurable Entity" ;
+  rdfs:comment "Entity that can be configured" ;
+  rdfs:subClassOf a2a:DomainEntity .
+
+a2a:PriorityEntity a owl:Class ;
+  rdfs:label "Priority Entity" ;
+  rdfs:comment "Entity with priority information" ;
+  rdfs:subClassOf a2a:DomainEntity .
+
+a2a:TimedEntity a owl:Class ;
+  rdfs:label "Timed Entity" ;
+  rdfs:comment "Entity with timeout information" ;
+  rdfs:subClassOf a2a:DomainEntity .
+
+a2a:RetryableEntity a owl:Class ;
+  rdfs:label "Retryable Entity" ;
+  rdfs:comment "Entity that can be retried" ;
+  rdfs:subClassOf a2a:DomainEntity .
+
+a2a:MetadataEntity a owl:Class ;
+  rdfs:label "Metadata Entity" ;
+  rdfs:comment "Entity with metadata" ;
+  rdfs:subClassOf a2a:DomainEntity .
+
+a2a:BehavioralPattern a owl:Class ;
+  rdfs:label "Behavioral Pattern" ;
+  rdfs:comment "Abstract behavioral pattern" .
+
+a2a:Capability a owl:Class ;
+  rdfs:label "Capability" ;
+  rdfs:comment "Abstract capability definition" .
+
+a2a:Configuration a owl:Class ;
+  rdfs:label "Configuration" ;
+  rdfs:comment "Abstract configuration object" .
+
+a2a:CommunicationArtifact a owl:Class ;
+  rdfs:label "Communication Artifact" ;
+  rdfs:comment "Abstract communication artifact" .
+
+a2a:Classification a owl:Class ;
+  rdfs:label "Classification" ;
+  rdfs:comment "Abstract classification" .
+
+a2a:Metadata a owl:Class ;
+  rdfs:label "Metadata" ;
+  rdfs:comment "Abstract metadata" .
+
+a2a:Content a owl:Class ;
+  rdfs:label "Content" ;
+  rdfs:comment "Abstract content" .
+
+a2a:SecurityArtifact a owl:Class ;
+  rdfs:label "Security Artifact" ;
+  rdfs:comment "Abstract security artifact" .
+
+a2a:WorkItem a owl:Class ;
+  rdfs:label "Work Item" ;
+  rdfs:comment "Abstract work item" .
+
+a2a:EnumeratedState a owl:Class ;
+  rdfs:label "Enumerated State" ;
+  rdfs:comment "Abstract state with enumerated values" .
+
+a2a:Priority a owl:Class ;
+  rdfs:label "Priority" ;
+  rdfs:comment "Abstract priority" .
+
+a2a:ExecutionResult a owl:Class ;
+  rdfs:label "Execution Result" ;
+  rdfs:comment "Abstract execution result" .
+
+a2a:Process a owl:Class ;
+  rdfs:label "Process" ;
+  rdfs:comment "Abstract process" .
+
+a2a:ProcessStep a owl:Class ;
+  rdfs:label "Process Step" ;
+  rdfs:comment "Abstract process step" .
+
+a2a:Exception a owl:Class ;
+  rdfs:label "Exception" ;
+  rdfs:comment "Abstract exception" .
+
+a2a:Code a owl:Class ;
+  rdfs:label "Code" ;
+  rdfs:comment "Abstract code" .
+
+a2a:Severity a owl:Class ;
+  rdfs:label "Severity" ;
+  rdfs:comment "Abstract severity" .
+
+a2a:Strategy a owl:Class ;
+  rdfs:label "Strategy" ;
+  rdfs:comment "Abstract strategy" .
+
+a2a:Notification a owl:Class ;
+  rdfs:label "Notification" ;
+  rdfs:comment "Abstract notification" .
+
+a2a:CommunicationChannel a owl:Class ;
+  rdfs:label "Communication Channel" ;
+  rdfs:comment "Abstract communication channel" .
+
+a2a:Subscription a owl:Class ;
+  rdfs:label "Subscription" ;
+  rdfs:comment "Abstract subscription" .
+
+a2a:Filter a owl:Class ;
+  rdfs:label "Filter" ;
+  rdfs:comment "Abstract filter" .
+
+a2a:Handler a owl:Class ;
+  rdfs:label "Handler" ;
+  rdfs:comment "Abstract handler" .
+
+a2a:Specification a owl:Class ;
+  rdfs:label "Specification" ;
+  rdfs:comment "Abstract specification" .
+
+a2a:Protocol a owl:Class ;
+  rdfs:label "Protocol" ;
+  rdfs:comment "Abstract protocol" .
+
+a2a:NetworkProtocol a owl:Class ;
+  rdfs:label "Network Protocol" ;
+  rdfs:comment "Abstract network protocol" .
+
+a2a:SecurityProtocol a owl:Class ;
+  rdfs:label "Security Protocol" ;
+  rdfs:comment "Abstract security protocol" .
+
+a2a:EncryptionProtocol a owl:Class ;
+  rdfs:label "Encryption Protocol" ;
+  rdfs:comment "Abstract encryption protocol" .
+
+a2a:AuthenticationProtocol a owl:Class ;
+  rdfs:label "Authentication Protocol" ;
+  rdfs:comment "Abstract authentication protocol" .
+
+a2a:Port a owl:Class ;
+  rdfs:label "Port" ;
+  rdfs:comment "Abstract port interface" .
+
+a2a:DataStream a owl:Class ;
+  rdfs:label "Data Stream" ;
+  rdfs:comment "Abstract data stream" .
+
+a2a:StreamSubscription a owl:Class ;
+  rdfs:label "Stream Subscription" ;
+  rdfs:comment "Abstract stream subscription" .
+
+a2a:Buffer a owl:Class ;
+  rdfs:label "Buffer" ;
+  rdfs:comment "Abstract buffer" .
+
+a2a:User a owl:Class ;
+  rdfs:label "User" ;
+  rdfs:comment "Abstract user" .
+
+a2a:AccessControl a owl:Class ;
+  rdfs:label "Access Control" ;
+  rdfs:comment "Abstract access control" .
+
+a2a:Token a owl:Class ;
+  rdfs:label "Token" ;
+  rdfs:comment "Abstract token" .
+
+a2a:Data a owl:Class ;
+  rdfs:label "Data" ;
+  rdfs:comment "Abstract data" .
+
+a2a:Query a owl:Class ;
+  rdfs:label "Query" ;
+  rdfs:comment "Abstract query" .
+
+a2a:Validation a owl:Class ;
+  rdfs:label "Validation" ;
+  rdfs:comment "Abstract validation" .
+
+a2a:LogMessage a owl:Class ;
+  rdfs:label "Log Message" ;
+  rdfs:comment "Abstract log message" .
+
+a2a:LogRotation a owl:Class ;
+  rdfs:label "Log Rotation" ;
+  rdfs:comment "Abstract log rotation" .
+
+a2a:Metric a owl:Class ;
+  rdfs:label "Metric" ;
+  rdfs:comment "Abstract metric" .
+
+a2a:MetricReport a owl:Class ;
+  rdfs:label "Metric Report" ;
+  rdfs:comment "Abstract metric report" .
+
+a2a:Endpoint a owl:Class ;
+  rdfs:label "Endpoint" ;
+  rdfs:comment "Abstract endpoint" .
+
+a2a:HttpRequest a owl:Class ;
+  rdfs:label "HTTP Request" ;
+  rdfs:comment "Abstract HTTP request" .
+
+a2a:WebSocket a owl:Class ;
+  rdfs:label "WebSocket" ;
+  rdfs:comment "Abstract WebSocket" .
+
+a2a:Certificate a owl:Class ;
+  rdfs:label "Certificate" ;
+  rdfs:comment "Abstract certificate" .
+
+a2a:Method a owl:Class ;
+  rdfs:label "Method" ;
+  rdfs:comment "Abstract method" .
+
+# ==============================================================================
+# END ONTOLOGY
+# ==============================================================================

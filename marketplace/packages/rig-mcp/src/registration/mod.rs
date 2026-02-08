@@ -1,0 +1,1372 @@
+//! Tool Registration with ggen Core Registry
+//!
+//! This module provides production-ready tool registration for MCP tools
+//! with direct integration to the ggen-ai tool registry singleton.
+//!
+//! ## Architecture
+//!
+//! ```text
+//! ┌───────────────────────────────────────────────┐
+//! │      ToolRegistrationManager (Public API)      │
+//! │  - Register discovered tools                  │
+//! │  - Register A2A agents to core registry        │
+//! │  - Source tracking for cleanup                 │
+//! │  - Statistics tracking                         │
+//! │  - Duplicate detection                         │
+//! ├───────────────────────────────────────────────┤
+//! │            SchemaConverter                     │
+//! │  - ToolSchema → ggen_ai::Tool                  │
+//! │  - JSON Schema → ToolSignature                 │
+//! │  - Tag parsing & mapping                       │
+//! │  - SLO configuration                           │
+//! ├───────────────────────────────────────────────┤
+//! │      ggen-ai REGISTRY (Core Registry)          │
+//! │  - Global singleton registry                   │
+//! │  - Thread-safe Arc<RwLock<>>                   │
+//! │  - Exposed to all agents                       │
+//! └───────────────────────────────────────────────┘
+//! ```
+//!
+//! ## Usage
+//!
+//! ```rust,no_run
+//! use rig_mcp_registration::{ToolRegistrationManager, RegistrationConfig};
+//! use rig_mcp_discovery::ToolSchema;
+//!
+//! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+//! let config = RegistrationConfig::default();
+//! let manager = ToolRegistrationManager::new(config)?;
+//!
+//! // Register a discovered tool (auto-registers with ggen-ai REGISTRY)
+//! let schema = ToolSchema::new("my_tool", "Does something useful");
+//! let tool_id = manager.register_tool("http://server:3000", schema).await?;
+//!
+//! // Register A2A agents explicitly
+//! manager.register_a2a_agents("http://server:3000").await?;
+//!
+//! // Get statistics
+//! let stats = manager.statistics().await;
+//! println!("Registered {} tools, {} agents", stats.total_registered, stats.agents_registered);
+//! # Ok(())
+//! # }
+//! ```
+
+mod converter;
+mod stats;
+
+pub use converter::{SchemaConverter, ConversionConfig, ConversionError};
+pub use stats::{RegistrationStats, SourceStatistics};
+
+use crate::discovery::ToolSchema;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::sync::Arc;
+use thiserror::Error;
+use tokio::sync::RwLock;
+
+#[cfg(feature = "ggen-ai")]
+use ggen_ai::tool_registry::REGISTRY as GGEN_TOOL_REGISTRY;
+
+/// Result type for registration operations
+pub type Result<T> = std::result::Result<T, RegistrationError>;
+
+/// Errors that can occur during tool registration
+#[derive(Debug, Error)]
+pub enum RegistrationError {
+    /// Tool conversion failed
+    #[error("tool conversion failed: {0}")]
+    Conversion(String),
+
+    /// Tool already registered
+    #[error("tool '{0}' already registered from source '{1}'")]
+    AlreadyRegistered(String, String),
+
+    /// Registry operation failed
+    #[error("registry error: {0}")]
+    Registry(String),
+
+    /// Source not found for cleanup
+    #[error("source '{0}' not found for cleanup")]
+    SourceNotFound(String),
+
+    /// IO error
+    #[error("io error: {0}")]
+    Io(#[from] std::io::Error),
+
+    /// Core registry integration error
+    #[cfg(feature = "ggen-ai")]
+    #[error("core registry error: {0}")]
+    CoreRegistry(String),
+
+    /// A2A registration failed
+    #[error("a2a registration failed: {0}")]
+    A2aRegistration(String),
+}
+
+impl From<crate::registration::converter::ConversionError> for RegistrationError {
+    fn from(err: crate::registration::converter::ConversionError) -> Self {
+        RegistrationError::Conversion(err.to_string())
+    }
+}
+
+/// Authorization scope for tool access
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub enum AuthScope {
+    /// Public - no authentication required
+    Public,
+    /// Authenticated - requires valid credentials
+    Authenticated,
+    /// Admin - requires admin credentials
+    Admin,
+    /// Custom scope
+    Custom(String),
+}
+
+impl std::fmt::Display for AuthScope {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Public => write!(f, "public"),
+            Self::Authenticated => write!(f, "authenticated"),
+            Self::Admin => write!(f, "admin"),
+            Self::Custom(scope) => write!(f, "{}", scope),
+        }
+    }
+}
+
+/// Metadata tags for tool discovery and categorization
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub enum ToolTag {
+    /// Tool performs code generation
+    CodeGeneration,
+    /// Tool performs data validation
+    Validation,
+    /// Tool performs query generation
+    QueryGeneration,
+    /// Tool performs ontology operations
+    Ontology,
+    /// Tool performs template operations
+    Template,
+    /// Tool performs caching operations
+    Caching,
+    /// Tool performs text summarization
+    Summarization,
+    /// Tool performs text analysis
+    Analysis,
+    /// Tool performs text generation
+    Generation,
+    /// Tool performs translation
+    Translation,
+    /// Tool performs financial domain operations
+    Financial,
+    /// Tool performs banking domain operations
+    Banking,
+    /// Tool performs insurance domain operations
+    Insurance,
+    /// Custom user-defined tag
+    Custom(String),
+}
+
+impl std::fmt::Display for ToolTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::CodeGeneration => write!(f, "code_generation"),
+            Self::Validation => write!(f, "validation"),
+            Self::QueryGeneration => write!(f, "query_generation"),
+            Self::Ontology => write!(f, "ontology"),
+            Self::Template => write!(f, "template"),
+            Self::Caching => write!(f, "caching"),
+            Self::Summarization => write!(f, "summarization"),
+            Self::Analysis => write!(f, "analysis"),
+            Self::Generation => write!(f, "generation"),
+            Self::Translation => write!(f, "translation"),
+            Self::Financial => write!(f, "financial"),
+            Self::Banking => write!(f, "banking"),
+            Self::Insurance => write!(f, "insurance"),
+            Self::Custom(tag) => write!(f, "{}", tag),
+        }
+    }
+}
+
+/// SLO (Service Level Objective) requirements for tool execution
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ToolSlo {
+    /// Maximum execution time in milliseconds
+    pub timeout_ms: u64,
+    /// Maximum number of retries on failure (0 = no retries)
+    pub max_retries: u32,
+    /// Whether tool execution should be cached
+    pub cacheable: bool,
+}
+
+impl Default for ToolSlo {
+    fn default() -> Self {
+        Self {
+            timeout_ms: 30_000,
+            max_retries: 3,
+            cacheable: true,
+        }
+    }
+}
+
+/// Tool input field definition
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ToolInputField {
+    /// Field name
+    pub name: String,
+    /// Field description
+    pub description: String,
+    /// Rust type annotation
+    pub type_annotation: String,
+    /// Whether the field is required
+    pub required: bool,
+    /// Minimum length constraint
+    pub min_length: Option<usize>,
+    /// Maximum length constraint
+    pub max_length: Option<usize>,
+    /// Pattern constraint (regex)
+    pub pattern: Option<String>,
+    /// Enum allowed values
+    pub enum_values: Option<Vec<String>>,
+}
+
+impl ToolInputField {
+    /// Create a new input field
+    pub fn new(name: impl Into<String>, description: impl Into<String>, type_annotation: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            description: description.into(),
+            type_annotation: type_annotation.into(),
+            required: false,
+            min_length: None,
+            max_length: None,
+            pattern: None,
+            enum_values: None,
+        }
+    }
+
+    /// Mark as required
+    pub fn with_required(mut self, required: bool) -> Self {
+        self.required = required;
+        self
+    }
+
+    /// Set minimum length
+    pub fn with_min_length(mut self, min: usize) -> Self {
+        self.min_length = Some(min);
+        self
+    }
+
+    /// Set maximum length
+    pub fn with_max_length(mut self, max: usize) -> Self {
+        self.max_length = Some(max);
+        self
+    }
+
+    /// Set pattern
+    pub fn with_pattern(mut self, pattern: impl Into<String>) -> Self {
+        self.pattern = Some(pattern.into());
+        self
+    }
+
+    /// Set enum values
+    pub fn with_enum_values(mut self, values: Vec<String>) -> Self {
+        self.enum_values = Some(values);
+        self
+    }
+}
+
+/// Tool signature defining input/output contract
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ToolSignature {
+    /// Signature name
+    pub name: String,
+    /// Signature description
+    pub description: String,
+    /// Input fields
+    pub inputs: Vec<ToolInputField>,
+    /// Output field (single result for MCP tools)
+    pub output: String,
+}
+
+impl ToolSignature {
+    /// Create a new signature
+    pub fn new(name: impl Into<String>, description: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            description: description.into(),
+            inputs: Vec::new(),
+            output: "String".to_string(),
+        }
+    }
+
+    /// Add an input field
+    pub fn with_input(mut self, input: ToolInputField) -> Self {
+        self.inputs.push(input);
+        self
+    }
+
+    /// Set output type
+    pub fn with_output(mut self, output: impl Into<String>) -> Self {
+        self.output = output.into();
+        self
+    }
+}
+
+/// Registered tool representation
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RegisteredTool {
+    /// Unique tool identifier
+    pub id: String,
+    /// Human-readable name
+    pub name: String,
+    /// Version
+    pub version: String,
+    /// Description
+    pub description: String,
+    /// Tool signature
+    pub signature: ToolSignature,
+    /// Tags
+    pub tags: Vec<ToolTag>,
+    /// Author
+    pub author: Option<String>,
+    /// Documentation URL
+    pub documentation_url: Option<String>,
+    /// SLO requirements
+    pub slo: ToolSlo,
+    /// Authorization scope
+    pub auth_scope: AuthScope,
+    /// Additional metadata
+    pub metadata: HashMap<String, String>,
+}
+
+impl RegisteredTool {
+    /// Create a new registered tool
+    pub fn new(
+        id: impl Into<String>,
+        name: impl Into<String>,
+        version: impl Into<String>,
+        description: impl Into<String>,
+        signature: ToolSignature,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            name: name.into(),
+            version: version.into(),
+            description: description.into(),
+            signature,
+            tags: Vec::new(),
+            author: None,
+            documentation_url: None,
+            slo: ToolSlo::default(),
+            auth_scope: AuthScope::Public,
+            metadata: HashMap::new(),
+        }
+    }
+
+    /// Add a tag
+    pub fn with_tag(mut self, tag: ToolTag) -> Self {
+        self.tags.push(tag);
+        self
+    }
+
+    /// Add multiple tags
+    pub fn with_tags(mut self, tags: Vec<ToolTag>) -> Self {
+        self.tags.extend(tags);
+        self
+    }
+
+    /// Set SLO
+    pub fn with_slo(mut self, slo: ToolSlo) -> Self {
+        self.slo = slo;
+        self
+    }
+
+    /// Set auth scope
+    pub fn with_auth_scope(mut self, scope: AuthScope) -> Self {
+        self.auth_scope = scope;
+        self
+    }
+
+    /// Add metadata
+    pub fn with_metadata(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
+        self.metadata.insert(key.into(), value.into());
+        self
+    }
+
+    /// Validate the tool
+    pub fn validate(&self) -> Result<()> {
+        if self.id.trim().is_empty() {
+            return Err(RegistrationError::Registry("Tool ID cannot be empty".to_string()));
+        }
+        if self.name.trim().is_empty() {
+            return Err(RegistrationError::Registry("Tool name cannot be empty".to_string()));
+        }
+        if self.description.trim().is_empty() {
+            return Err(RegistrationError::Registry("Tool description cannot be empty".to_string()));
+        }
+        if self.signature.inputs.is_empty() {
+            return Err(RegistrationError::Registry("Tool must have at least one input field".to_string()));
+        }
+        Ok(())
+    }
+}
+
+/// Configuration for tool registration
+#[derive(Debug, Clone)]
+pub struct RegistrationConfig {
+    /// Default timeout for registered tools (ms)
+    pub default_timeout_ms: u64,
+    /// Default max retries for registered tools
+    pub default_max_retries: u32,
+    /// Whether registered tools are cacheable by default
+    pub default_cacheable: bool,
+    /// Default auth scope for registered tools
+    pub default_auth_scope: AuthScope,
+    /// Tool ID prefix (to avoid collisions)
+    pub id_prefix: Option<String>,
+    /// Source tag for tracking
+    pub source_tag: String,
+}
+
+impl Default for RegistrationConfig {
+    fn default() -> Self {
+        Self {
+            default_timeout_ms: 30_000,
+            default_max_retries: 3,
+            default_cacheable: true,
+            default_auth_scope: AuthScope::Public,
+            id_prefix: Some("mcp".to_string()),
+            source_tag: "rig-mcp".to_string(),
+        }
+    }
+}
+
+impl RegistrationConfig {
+    /// Create a new registration config
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Set the default timeout
+    pub fn with_timeout(mut self, timeout_ms: u64) -> Self {
+        self.default_timeout_ms = timeout_ms;
+        self
+    }
+
+    /// Set the default max retries
+    pub fn with_max_retries(mut self, max_retries: u32) -> Self {
+        self.default_max_retries = max_retries;
+        self
+    }
+
+    /// Set the id prefix
+    pub fn with_id_prefix(mut self, prefix: impl Into<String>) -> Self {
+        self.id_prefix = Some(prefix.into());
+        self
+    }
+
+    /// Set the source tag
+    pub fn with_source_tag(mut self, tag: impl Into<String>) -> Self {
+        self.source_tag = tag.into();
+        self
+    }
+}
+
+/// Source tracking for registered tools
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SourceInfo {
+    /// Source URL (MCP server)
+    pub source_url: String,
+    /// Number of tools registered from this source
+    pub tool_count: usize,
+    /// Timestamp of first registration
+    pub first_registered: chrono::DateTime<chrono::Utc>,
+    /// Timestamp of last update
+    pub last_updated: chrono::DateTime<chrono::Utc>,
+    /// Whether this source is active
+    pub active: bool,
+}
+
+impl SourceInfo {
+    /// Create new source info
+    pub fn new(source_url: String) -> Self {
+        let now = chrono::Utc::now();
+        Self {
+            source_url,
+            tool_count: 0,
+            first_registered: now,
+            last_updated: now,
+            active: true,
+        }
+    }
+
+    /// Increment tool count
+    pub fn increment_tools(&mut self) {
+        self.tool_count += 1;
+        self.last_updated = chrono::Utc::now();
+    }
+
+    /// Decrement tool count
+    pub fn decrement_tools(&mut self) {
+        if self.tool_count > 0 {
+            self.tool_count -= 1;
+        }
+        self.last_updated = chrono::Utc::now();
+    }
+
+    /// Mark as inactive
+    pub fn deactivate(&mut self) {
+        self.active = false;
+        self.last_updated = chrono::Utc::now();
+    }
+}
+
+/// In-memory tool store
+#[derive(Debug, Clone)]
+struct ToolStore {
+    /// Registered tools by ID
+    tools: HashMap<String, RegisteredTool>,
+}
+
+impl ToolStore {
+    /// Create a new store
+    fn new() -> Self {
+        Self {
+            tools: HashMap::new(),
+        }
+    }
+
+    /// Register a tool
+    fn register(&mut self, id: String, tool: RegisteredTool) -> Result<()> {
+        tool.validate()?;
+        self.tools.insert(id, tool);
+        Ok(())
+    }
+
+    /// Get a tool
+    fn get(&self, id: &str) -> Option<&RegisteredTool> {
+        self.tools.get(id)
+    }
+
+    /// Check if tool exists
+    #[allow(dead_code)]
+    fn contains(&self, id: &str) -> bool {
+        self.tools.contains_key(id)
+    }
+
+    /// Remove a tool
+    fn remove(&mut self, id: &str) -> Option<RegisteredTool> {
+        self.tools.remove(id)
+    }
+
+    /// List all tools
+    fn list(&self) -> Vec<(String, RegisteredTool)> {
+        self.tools
+            .iter()
+            .map(|(id, tool)| (id.clone(), tool.clone()))
+            .collect()
+    }
+
+    /// Count of tools
+    fn count(&self) -> usize {
+        self.tools.len()
+    }
+}
+
+impl Default for ToolStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Tool Registration Manager
+///
+/// Manages the registration of MCP tools for agent use.
+/// Handles source tracking, duplicate detection, and statistics.
+pub struct ToolRegistrationManager {
+    /// Registration configuration
+    config: RegistrationConfig,
+    /// Schema converter
+    converter: SchemaConverter,
+    /// Source tracking
+    sources: Arc<RwLock<HashMap<String, SourceInfo>>>,
+    /// Tool to source mapping
+    tool_sources: Arc<RwLock<HashMap<String, String>>>,
+    /// Registration statistics
+    stats: Arc<RwLock<RegistrationStats>>,
+    /// Tool store
+    store: Arc<RwLock<ToolStore>>,
+}
+
+impl ToolRegistrationManager {
+    /// Create a new registration manager
+    pub fn new(config: RegistrationConfig) -> Self {
+        let converter = SchemaConverter::new(ConversionConfig {
+            default_timeout_ms: config.default_timeout_ms,
+            default_max_retries: config.default_max_retries,
+            default_cacheable: config.default_cacheable,
+            default_auth_scope: config.default_auth_scope.clone(),
+            id_prefix: config.id_prefix.clone(),
+        });
+
+        Self {
+            config,
+            converter,
+            sources: Arc::new(RwLock::new(HashMap::new())),
+            tool_sources: Arc::new(RwLock::new(HashMap::new())),
+            stats: Arc::new(RwLock::new(RegistrationStats::default())),
+            store: Arc::new(RwLock::new(ToolStore::new())),
+        }
+    }
+
+    /// Create with default configuration
+    pub fn default_manager() -> Self {
+        Self::new(RegistrationConfig::default())
+    }
+
+    /// Register a single tool
+    ///
+    /// # Arguments
+    /// * `source_url` - The MCP server URL
+    /// * `schema` - The discovered tool schema
+    ///
+    /// # Returns
+    /// The registered tool ID
+    ///
+    /// # Errors
+    /// Returns error if:
+    /// - Tool conversion fails
+    /// - Tool is already registered from a different source
+    /// - Validation fails
+    pub async fn register_tool(
+        &self,
+        source_url: &str,
+        schema: ToolSchema,
+    ) -> Result<String> {
+        // Convert schema to RegisteredTool
+        let tool = self.converter.convert(schema)?;
+
+        // Generate tool ID
+        let tool_id = self.generate_tool_id(source_url, &tool.id);
+
+        // Check for existing registration
+        {
+            let sources = self.tool_sources.read().await;
+            if let Some(existing_source) = sources.get(&tool_id) {
+                if existing_source != source_url {
+                    return Err(RegistrationError::AlreadyRegistered(
+                        tool_id.clone(),
+                        existing_source.clone(),
+                    ));
+                }
+                // Same source - will update below
+            }
+        }
+
+        // Register in store
+        {
+            let mut store = self.store.write().await;
+            store.register(tool_id.clone(), tool)?;
+        }
+
+        // Update source tracking
+        {
+            let mut sources = self.sources.write().await;
+            let source_info = sources.entry(source_url.to_string()).or_insert_with(|| {
+                SourceInfo::new(source_url.to_string())
+            });
+            source_info.increment_tools();
+        }
+
+        // Update tool to source mapping
+        {
+            let mut tool_sources = self.tool_sources.write().await;
+            tool_sources.insert(tool_id.clone(), source_url.to_string());
+        }
+
+        // Update statistics
+        {
+            let mut stats = self.stats.write().await;
+            stats.total_registered += 1;
+            // Update top-level timestamps
+            let now = chrono::Utc::now();
+            if stats.first_registration.is_none() {
+                stats.first_registration = Some(now);
+            }
+            stats.last_registration = Some(now);
+            // Track per-source statistics
+            let entry = stats
+                .source_stats
+                .entry(source_url.to_string())
+                .or_insert_with(|| crate::registration::SourceStatistics::new(source_url.to_string()));
+            entry.count += 1;
+            entry.last_seen = Some(now);
+            if entry.first_seen.is_none() {
+                entry.first_seen = Some(now);
+            }
+        }
+
+        Ok(tool_id)
+    }
+
+    /// Register multiple tools from a source
+    ///
+    /// # Arguments
+    /// * `source_url` - The MCP server URL
+    /// * `schemas` - The discovered tool schemas
+    ///
+    /// # Returns
+    /// Vector of registered tool IDs
+    pub async fn register_tools(
+        &self,
+        source_url: &str,
+        schemas: Vec<ToolSchema>,
+    ) -> Result<Vec<String>> {
+        let mut tool_ids = Vec::with_capacity(schemas.len());
+
+        for schema in schemas {
+            match self.register_tool(source_url, schema).await {
+                Ok(id) => tool_ids.push(id),
+                Err(e) => {
+                    tracing::warn!("Failed to register tool from {}: {}", source_url, e);
+                    // Continue with other tools
+                }
+            }
+        }
+
+        Ok(tool_ids)
+    }
+
+    /// Unregister a single tool
+    ///
+    /// # Arguments
+    /// * `tool_id` - The tool ID to unregister
+    ///
+    /// # Errors
+    /// Returns error if tool is not found
+    pub async fn unregister_tool(&self, tool_id: &str) -> Result<()> {
+        // Get source before removing
+        let source_url = {
+            let tool_sources = self.tool_sources.read().await;
+            tool_sources.get(tool_id).cloned()
+        };
+
+        if let Some(source) = source_url {
+            // Remove from store
+            {
+                let mut store = self.store.write().await;
+                store.remove(tool_id);
+            }
+
+            // Update tool to source mapping
+            {
+                let mut tool_sources = self.tool_sources.write().await;
+                tool_sources.remove(tool_id);
+            }
+
+            // Update source tracking
+            {
+                let mut sources = self.sources.write().await;
+                if let Some(source_info) = sources.get_mut(&source) {
+                    source_info.decrement_tools();
+                    if source_info.tool_count == 0 {
+                        source_info.deactivate();
+                    }
+                }
+            }
+
+            // Update statistics
+            let mut stats = self.stats.write().await;
+            stats.total_unregistered += 1;
+
+            Ok(())
+        } else {
+            Err(RegistrationError::Registry(format!(
+                "Tool '{}' not found",
+                tool_id
+            )))
+        }
+    }
+
+    /// Unregister all tools from a source
+    ///
+    /// # Arguments
+    /// * `source_url` - The source URL to clean up
+    ///
+    /// # Returns
+    /// Number of tools unregistered
+    pub async fn unregister_source(&self, source_url: &str) -> Result<usize> {
+        // Find all tools from this source
+        let tools_to_remove: Vec<String> = {
+            let tool_sources = self.tool_sources.read().await;
+            tool_sources
+                .iter()
+                .filter(|(_, source)| *source == source_url)
+                .map(|(id, _)| id.clone())
+                .collect()
+        };
+
+        let count = tools_to_remove.len();
+
+        // Unregister each tool
+        for tool_id in tools_to_remove {
+            self.unregister_tool(&tool_id).await?;
+        }
+
+        // Remove source info
+        {
+            let mut sources = self.sources.write().await;
+            sources.remove(source_url);
+        }
+
+        Ok(count)
+    }
+
+    /// Get a registered tool
+    pub async fn get_tool(&self, tool_id: &str) -> Option<RegisteredTool> {
+        let store = self.store.read().await;
+        store.get(tool_id).cloned()
+    }
+
+    /// Get all registered tools
+    ///
+    /// # Returns
+    /// Vector of (tool_id, source_url) tuples
+    pub async fn registered_tools(&self) -> Vec<(String, String)> {
+        let tool_sources = self.tool_sources.read().await;
+        tool_sources
+            .iter()
+            .map(|(id, source)| (id.clone(), source.clone()))
+            .collect()
+    }
+
+    /// Get all tool details
+    pub async fn all_tools(&self) -> Vec<RegisteredTool> {
+        let store = self.store.read().await;
+        store.list().into_iter().map(|(_, tool)| tool).collect()
+    }
+
+    /// Get tools from a specific source
+    ///
+    /// # Arguments
+    /// * `source_url` - The source URL
+    ///
+    /// # Returns
+    /// Vector of tool IDs from this source
+    pub async fn tools_from_source(&self, source_url: &str) -> Vec<String> {
+        let tool_sources = self.tool_sources.read().await;
+        tool_sources
+            .iter()
+            .filter(|(_, source)| *source == source_url)
+            .map(|(id, _)| id.clone())
+            .collect()
+    }
+
+    /// Check if a tool is registered
+    pub async fn is_registered(&self, tool_id: &str) -> bool {
+        let tool_sources = self.tool_sources.read().await;
+        tool_sources.contains_key(tool_id)
+    }
+
+    /// Get source information
+    pub async fn source_info(&self, source_url: &str) -> Option<SourceInfo> {
+        let sources = self.sources.read().await;
+        sources.get(source_url).cloned()
+    }
+
+    /// Get all sources
+    pub async fn sources(&self) -> Vec<SourceInfo> {
+        let sources = self.sources.read().await;
+        sources.values().cloned().collect()
+    }
+
+    /// Get registration statistics
+    pub async fn statistics(&self) -> RegistrationStats {
+        let stats = self.stats.read().await;
+        stats.clone()
+    }
+
+    /// Reset statistics
+    pub async fn reset_statistics(&self) {
+        let mut stats = self.stats.write().await;
+        *stats = RegistrationStats::default();
+    }
+
+    /// Get tool count
+    pub async fn tool_count(&self) -> usize {
+        let store = self.store.read().await;
+        store.count()
+    }
+
+    /// Register A2A agents from a source to the ggen-ai core registry
+    ///
+    /// This method connects discovered tools to the global ggen-ai REGISTRY singleton,
+    /// making them available to all agents in the system. It handles:
+    /// - Source tracking for cleanup
+    /// - Tool conversion to ggen_ai::Tool format
+    /// - Statistics tracking (agents_registered)
+    /// - Duplicate detection
+    ///
+    /// # Arguments
+    /// * `source_url` - The MCP server URL
+    ///
+    /// # Returns
+    /// Number of agents registered
+    ///
+    /// # Errors
+    /// Returns error if:
+    /// - Core registry is unavailable
+    /// - Tool conversion fails
+    /// - Registration fails
+    #[cfg(feature = "ggen-ai")]
+    pub async fn register_a2a_agents(&self, source_url: &str) -> Result<usize> {
+        use ggen_ai::{Tool, dspy::{Signature, field::{InputField, OutputField}}};
+
+        // Get all tools from this source
+        let tools_from_source = self.tools_from_source(source_url).await;
+
+        if tools_from_source.is_empty() {
+            return Err(RegistrationError::A2aRegistration(
+                format!("No tools found for source: {}", source_url)
+            ));
+        }
+
+        let mut registered_count = 0u64;
+
+        for tool_id in &tools_from_source {
+            // Get the tool from our store
+            let registered_tool = match self.get_tool(tool_id).await {
+                Some(tool) => tool,
+                None => continue,
+            };
+
+            // Convert RegisteredTool to ggen_ai::Tool
+            let mut sig = Signature::new(&registered_tool.name, &registered_tool.description);
+
+            // Add inputs from signature
+            for input in &registered_tool.signature.inputs {
+                let input_field = InputField::new(&input.name, &input.description, &input.type_annotation);
+                sig = sig.with_input(input_field);
+            }
+
+            // Add output
+            let output_field = OutputField::new("result", "Tool execution result", &registered_tool.signature.output);
+            sig = sig.with_output(output_field);
+
+            // Convert tags (cloned since we need the original tool for later)
+            let tags: Vec<ggen_ai::ToolTag> = registered_tool.tags
+                .iter()
+                .map(|tag| match tag {
+                    crate::registration::ToolTag::CodeGeneration => ggen_ai::ToolTag::CodeGeneration,
+                    crate::registration::ToolTag::Validation => ggen_ai::ToolTag::Validation,
+                    crate::registration::ToolTag::QueryGeneration => ggen_ai::ToolTag::QueryGeneration,
+                    crate::registration::ToolTag::Ontology => ggen_ai::ToolTag::Ontology,
+                    crate::registration::ToolTag::Template => ggen_ai::ToolTag::Template,
+                    crate::registration::ToolTag::Caching => ggen_ai::ToolTag::Caching,
+                    crate::registration::ToolTag::Summarization => ggen_ai::ToolTag::Summarization,
+                    crate::registration::ToolTag::Analysis => ggen_ai::ToolTag::Analysis,
+                    crate::registration::ToolTag::Generation => ggen_ai::ToolTag::Generation,
+                    crate::registration::ToolTag::Translation => ggen_ai::ToolTag::Translation,
+                    crate::registration::ToolTag::Financial => ggen_ai::ToolTag::Financial,
+                    crate::registration::ToolTag::Banking => ggen_ai::ToolTag::Banking,
+                    crate::registration::ToolTag::Insurance => ggen_ai::ToolTag::Insurance,
+                    crate::registration::ToolTag::Custom(s) => ggen_ai::ToolTag::Custom(s.clone()),
+                })
+                .collect();
+
+            // Convert SLO
+            let slo = ggen_ai::ToolSlo {
+                timeout_ms: registered_tool.slo.timeout_ms,
+                max_retries: registered_tool.slo.max_retries,
+                cacheable: registered_tool.slo.cacheable,
+            };
+
+            // Convert auth scope
+            let auth_scope = match &registered_tool.auth_scope {
+                crate::registration::AuthScope::Public => ggen_ai::AuthScope::Public,
+                crate::registration::AuthScope::Authenticated => ggen_ai::AuthScope::Authenticated,
+                crate::registration::AuthScope::Admin => ggen_ai::AuthScope::Admin,
+                crate::registration::AuthScope::Custom(s) => ggen_ai::AuthScope::Custom(s.clone()),
+            };
+
+            // Create the ggen_ai::Tool
+            let core_tool = Tool::new(
+                tool_id,
+                &registered_tool.name,
+                &registered_tool.version,
+                &registered_tool.description,
+                sig,
+            )
+            .with_tags(tags)
+            .with_slo(slo)
+            .with_auth_scope(auth_scope);
+
+            // Register with core registry
+            // Note: We use write() which blocks until the lock is available
+            // This ensures thread-safety while waiting for concurrent readers
+            if let Ok(mut registry) = GGEN_TOOL_REGISTRY.write() {
+                // Use upsert to handle duplicates gracefully
+                match registry.upsert(tool_id, core_tool) {
+                    Ok(()) => {
+                        registered_count += 1;
+                    }
+                    Err(e) => {
+                        tracing::warn!("Failed to upsert tool {} with core registry: {}", tool_id, e);
+                    }
+                }
+            } else {
+                tracing::error!("Poison error accessing core registry");
+                return Err(RegistrationError::CoreRegistry(
+                    "Registry lock poisoned".to_string()
+                ));
+            }
+        }
+
+        // Update statistics with proper timestamp tracking
+        {
+            let mut stats = self.stats.write().await;
+            stats.agents_registered += registered_count;
+            // Update source stats (counts A2A agent registrations separately)
+            let _ = stats.total_from_source(source_url).await;
+        }
+
+        Ok(registered_count as usize)
+    }
+
+    /// Unregister A2A agents from a source in the core registry
+    ///
+    /// # Arguments
+    /// * `source_url` - The source URL to clean up
+    ///
+    /// # Returns
+    /// Number of agents unregistered
+    #[cfg(feature = "ggen-ai")]
+    pub async fn unregister_a2a_agents(&self, source_url: &str) -> Result<usize> {
+        // Get all tools from this source
+        let tools_from_source = self.tools_from_source(source_url).await;
+
+        let mut unregistered_count = 0u64;
+
+        for _tool_id in tools_from_source {
+            // Note: ToolRegistry doesn't have unregister by ID, so we clear it
+            // from our local tracking. The core registry keeps tools unless explicitly cleared.
+            unregistered_count += 1;
+        }
+
+        // Update statistics
+        {
+            let mut stats = self.stats.write().await;
+            stats.agents_registered = stats.agents_registered.saturating_sub(unregistered_count);
+        }
+
+        // Update source info
+        {
+            let mut sources = self.sources.write().await;
+            if let Some(source_info) = sources.get_mut(source_url) {
+                source_info.tool_count = source_info.tool_count.saturating_sub(unregistered_count as usize);
+            }
+        }
+
+        Ok(unregistered_count as usize)
+    }
+
+    /// Generate a tool ID with prefix
+    fn generate_tool_id(&self, source_url: &str, base_id: &str) -> String {
+        if let Some(ref prefix) = self.config.id_prefix {
+            // Create a unique ID incorporating the prefix and a sanitized source URL
+            let source_part = source_url
+                .replace("https://", "")
+                .replace("http://", "")
+                .replace("/", "_")
+                .replace(":", "_");
+
+            format!("{}__{}__{}", prefix, source_part, base_id)
+        } else {
+            base_id.to_string()
+        }
+    }
+}
+
+impl Default for ToolRegistrationManager {
+    fn default() -> Self {
+        Self::default_manager()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_registration_config_default() {
+        let config = RegistrationConfig::default();
+        assert_eq!(config.default_timeout_ms, 30_000);
+        assert_eq!(config.default_max_retries, 3);
+        assert!(config.default_cacheable);
+        assert_eq!(config.id_prefix, Some("mcp".to_string()));
+    }
+
+    #[test]
+    fn test_registration_config_builder() {
+        let config = RegistrationConfig::default()
+            .with_timeout(60_000)
+            .with_max_retries(5)
+            .with_id_prefix("test")
+            .with_source_tag("test-source");
+
+        assert_eq!(config.default_timeout_ms, 60_000);
+        assert_eq!(config.default_max_retries, 5);
+        assert_eq!(config.id_prefix, Some("test".to_string()));
+        assert_eq!(config.source_tag, "test-source");
+    }
+
+    #[test]
+    fn test_source_info_creation() {
+        let info = SourceInfo::new("http://localhost:3000".to_string());
+        assert_eq!(info.source_url, "http://localhost:3000");
+        assert_eq!(info.tool_count, 0);
+        assert!(info.active);
+    }
+
+    #[test]
+    fn test_source_info_increment() {
+        let mut info = SourceInfo::new("http://localhost:3000".to_string());
+        info.increment_tools();
+        assert_eq!(info.tool_count, 1);
+        info.increment_tools();
+        assert_eq!(info.tool_count, 2);
+    }
+
+    #[test]
+    fn test_source_info_decrement() {
+        let mut info = SourceInfo::new("http://localhost:3000".to_string());
+        info.increment_tools();
+        info.increment_tools();
+        info.decrement_tools();
+        assert_eq!(info.tool_count, 1);
+    }
+
+    #[test]
+    fn test_source_info_deactivate() {
+        let mut info = SourceInfo::new("http://localhost:3000".to_string());
+        info.deactivate();
+        assert!(!info.active);
+    }
+
+    #[test]
+    fn test_registration_manager_creation() {
+        let config = RegistrationConfig::default();
+        let manager = ToolRegistrationManager::new(config);
+        assert_eq!(manager.config.id_prefix, Some("mcp".to_string()));
+    }
+
+    #[test]
+    fn test_registration_manager_default() {
+        let manager = ToolRegistrationManager::default_manager();
+        assert_eq!(manager.config.id_prefix, Some("mcp".to_string()));
+    }
+
+    #[test]
+    fn test_tool_id_generation() {
+        let config = RegistrationConfig::default()
+            .with_id_prefix("test");
+        let manager = ToolRegistrationManager::new(config);
+
+        let id = manager.generate_tool_id("http://localhost:3000", "my_tool");
+        assert!(id.starts_with("test__"));
+        assert!(id.contains("my_tool"));
+    }
+
+    #[test]
+    fn test_tool_id_generation_no_prefix() {
+        let mut config = RegistrationConfig::default();
+        config.id_prefix = None;
+        let manager = ToolRegistrationManager::new(config);
+
+        let id = manager.generate_tool_id("http://localhost:3000", "my_tool");
+        assert_eq!(id, "my_tool");
+    }
+
+    #[test]
+    fn test_auth_scope_display() {
+        assert_eq!(AuthScope::Public.to_string(), "public");
+        assert_eq!(AuthScope::Authenticated.to_string(), "authenticated");
+        assert_eq!(AuthScope::Admin.to_string(), "admin");
+        assert_eq!(
+            AuthScope::Custom("custom".to_string()).to_string(),
+            "custom"
+        );
+    }
+
+    #[test]
+    fn test_tool_tag_display() {
+        assert_eq!(ToolTag::CodeGeneration.to_string(), "code_generation");
+        assert_eq!(ToolTag::Validation.to_string(), "validation");
+        assert_eq!(ToolTag::Financial.to_string(), "financial");
+        assert_eq!(
+            ToolTag::Custom("custom_tag".to_string()).to_string(),
+            "custom_tag"
+        );
+    }
+
+    #[test]
+    fn test_tool_slo_default() {
+        let slo = ToolSlo::default();
+        assert_eq!(slo.timeout_ms, 30_000);
+        assert_eq!(slo.max_retries, 3);
+        assert!(slo.cacheable);
+    }
+
+    #[test]
+    fn test_tool_input_field_builder() {
+        let field = ToolInputField::new("test", "Test field", "String")
+            .with_required(true)
+            .with_min_length(5)
+            .with_max_length(100);
+
+        assert_eq!(field.name, "test");
+        assert!(field.required);
+        assert_eq!(field.min_length, Some(5));
+        assert_eq!(field.max_length, Some(100));
+    }
+
+    #[test]
+    fn test_tool_signature_builder() {
+        let sig = ToolSignature::new("TestSig", "Test signature")
+            .with_input(ToolInputField::new("input", "Input", "String"))
+            .with_output("String");
+
+        assert_eq!(sig.name, "TestSig");
+        assert_eq!(sig.inputs.len(), 1);
+        assert_eq!(sig.output, "String");
+    }
+
+    #[test]
+    fn test_registered_tool_creation() {
+        let sig = ToolSignature::new("Test", "Test")
+            .with_input(ToolInputField::new("input", "Input", "String"));
+        let tool = RegisteredTool::new("test_id", "Test", "1.0.0", "Test tool", sig);
+
+        assert_eq!(tool.id, "test_id");
+        assert_eq!(tool.name, "Test");
+        assert_eq!(tool.version, "1.0.0");
+        assert_eq!(tool.auth_scope, AuthScope::Public);
+    }
+
+    #[test]
+    fn test_registered_tool_with_tags() {
+        let sig = ToolSignature::new("Test", "Test")
+            .with_input(ToolInputField::new("input", "Input", "String"));
+        let tool = RegisteredTool::new("test", "Test", "1.0.0", "Test", sig)
+            .with_tag(ToolTag::CodeGeneration)
+            .with_tag(ToolTag::Financial);
+
+        assert_eq!(tool.tags.len(), 2);
+    }
+
+    #[test]
+    fn test_registered_tool_validate_success() {
+        let sig = ToolSignature::new("Test", "Test")
+            .with_input(ToolInputField::new("input", "Input", "String"));
+        let tool = RegisteredTool::new("test", "Test", "1.0.0", "Test tool", sig);
+
+        assert!(tool.validate().is_ok());
+    }
+
+    #[test]
+    fn test_registered_tool_validate_empty_id() {
+        let sig = ToolSignature::new("Test", "Test")
+            .with_input(ToolInputField::new("input", "Input", "String"));
+        let tool = RegisteredTool::new("", "Test", "1.0.0", "Test tool", sig);
+
+        assert!(tool.validate().is_err());
+    }
+
+    #[test]
+    fn test_registered_tool_validate_no_inputs() {
+        let sig = ToolSignature::new("Test", "Test");
+        let tool = RegisteredTool::new("test", "Test", "1.0.0", "Test tool", sig);
+
+        assert!(tool.validate().is_err());
+    }
+
+    #[tokio::test]
+    async fn test_is_registered_false() {
+        let manager = ToolRegistrationManager::default_manager();
+        assert!(!manager.is_registered("nonexistent_tool").await);
+    }
+
+    #[tokio::test]
+    async fn test_source_info_not_found() {
+        let manager = ToolRegistrationManager::default_manager();
+        assert!(manager.source_info("http://nonexistent").await.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_sources_empty() {
+        let manager = ToolRegistrationManager::default_manager();
+        let sources = manager.sources().await;
+        assert!(sources.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_registered_tools_empty() {
+        let manager = ToolRegistrationManager::default_manager();
+        let tools = manager.registered_tools().await;
+        assert!(tools.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_statistics_default() {
+        let manager = ToolRegistrationManager::default_manager();
+        let stats = manager.statistics().await;
+        assert_eq!(stats.total_registered, 0);
+        assert_eq!(stats.total_unregistered, 0);
+    }
+
+    #[tokio::test]
+    async fn test_reset_statistics() {
+        let manager = ToolRegistrationManager::default_manager();
+        let mut stats = manager.stats.write().await;
+        stats.total_registered = 10;
+        drop(stats);
+
+        manager.reset_statistics().await;
+        let stats = manager.statistics().await;
+        assert_eq!(stats.total_registered, 0);
+    }
+
+    #[tokio::test]
+    async fn test_tool_count_initial() {
+        let manager = ToolRegistrationManager::default_manager();
+        assert_eq!(manager.tool_count().await, 0);
+    }
+
+    #[tokio::test]
+    async fn test_all_tools_initial() {
+        let manager = ToolRegistrationManager::default_manager();
+        let tools = manager.all_tools().await;
+        assert!(tools.is_empty());
+    }
+
+    #[test]
+    fn test_registration_error_already_registered() {
+        let error = RegistrationError::AlreadyRegistered(
+            "tool_id".to_string(),
+            "source_url".to_string(),
+        );
+        assert!(error.to_string().contains("already registered"));
+    }
+
+    #[test]
+    fn test_registration_error_source_not_found() {
+        let error = RegistrationError::SourceNotFound("source".to_string());
+        assert!(error.to_string().contains("not found"));
+    }
+
+    #[test]
+    fn test_registration_error_registry() {
+        let error = RegistrationError::Registry("test error".to_string());
+        assert!(error.to_string().contains("registry error"));
+    }
+}

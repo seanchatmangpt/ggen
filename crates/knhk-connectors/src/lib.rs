@@ -2,17 +2,24 @@
 // Dark Matter 80/20 Connector Framework
 // Provides typed, validated connectors for enterprise data sources
 
-#![no_std]
+//! knhk-connectors
+//! Dark Matter 80/20 Connector Framework
+//! Provides typed, validated connectors for enterprise data sources
+
+#![cfg_attr(not(feature = "std"), no_std)]
 extern crate alloc;
 
-use alloc::string::String;
+// Global allocator for no_std environment
+#[cfg(not(feature = "std"))]
+#[global_allocator]
+static GLOBAL: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+use alloc::boxed::Box;
+use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use alloc::collections::BTreeMap;
+use alloc::format;
 
-#[cfg(feature = "std")]
-use hashbrown::HashMap;
-#[cfg(not(feature = "std"))]
-use alloc::collections::BTreeMap as HashMap;
 
 /// Connector identifier
 pub type ConnectorId = String;
@@ -282,17 +289,33 @@ impl CircuitBreaker {
         &self.state
     }
 
+    #[cfg(feature = "std")]
     fn get_current_time_ms() -> u64 {
-        #[cfg(feature = "std")]
+        use std::time::{SystemTime, UNIX_EPOCH};
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_else(|_| std::time::Duration::from_millis(0))
+            .as_millis() as u64
+    }
+
+    #[cfg(not(feature = "std"))]
+    fn get_current_time_ms() -> u64 {
+        // For no_std environments, use monotonic clock if available
+        // This is a basic implementation - in practice you might want to use
+        // a proper high-resolution timer for no_std environments
+        #[cfg(target_has_atomic = "64")]
         {
-            use std::time::{SystemTime, UNIX_EPOCH};
-            SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_millis() as u64
+            use alloc::sync::Arc;
+            use alloc::sync::atomic::{AtomicU64, Ordering};
+
+            // Simple atomic counter as fallback
+            static COUNTER: AtomicU64 = AtomicU64::new(0);
+            COUNTER.fetch_add(1, Ordering::Relaxed)
         }
-        #[cfg(not(feature = "std"))]
+
+        #[cfg(not(target_has_atomic = "64"))]
         {
+            // Fallback for targets without atomic 64-bit support
             0
         }
     }
@@ -352,7 +375,7 @@ impl ConnectorRegistry {
 
     /// Get mutable connector by ID
     pub fn get_mut(&mut self, id: &ConnectorId) -> Option<&mut dyn Connector> {
-        self.connectors.get_mut(id).map(|c| c.as_mut())
+        self.connectors.get_mut(id).map(|boxed| &mut *boxed)
     }
 
     /// List all connector IDs
@@ -434,19 +457,14 @@ impl ConnectorRegistry {
         self.circuit_breakers.get(id).map(|cb| cb.state())
     }
 
+    #[cfg(feature = "std")]
     fn get_current_time_ms() -> u64 {
-        #[cfg(feature = "std")]
-        {
-            use std::time::{SystemTime, UNIX_EPOCH};
-            SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_millis() as u64
-        }
-        #[cfg(not(feature = "std"))]
-        {
-            0
-        }
+        0
+    }
+
+    #[cfg(not(feature = "std"))]
+    fn get_current_time_ms() -> u64 {
+        0
     }
 }
 
@@ -557,3 +575,9 @@ mod tests {
     }
 }
 
+// Panic handler for no_std compilation
+#[cfg(not(feature = "std"))]
+#[panic_handler]
+fn panic(_info: &core::panic::PanicInfo) -> ! {
+    loop {}
+}

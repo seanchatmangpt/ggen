@@ -121,9 +121,9 @@ pub trait ShellLister {
     fn is_installed(&self, shell: ShellType) -> bool;
 }
 
-// NOTE: Completion generation is delegated to the CLI layer (ggen-agent-editor)
+// NOTE: Completion generation is delegated to the CLI layer
 // This domain layer only defines the contracts/traits.
-// The actual implementation using clap_complete lives in ggen-agent-editor.
+// The actual implementation using clap_complete lives in the CLI layer.
 
 /// Default implementation for installing completions
 pub struct FileSystemCompletionInstaller;

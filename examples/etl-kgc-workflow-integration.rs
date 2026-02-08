@@ -1,4 +1,4 @@
-//! End-to-End Integration Example: ETL + KGC-4D + Workflow Engine
+//! ETL-KGC-4D-Workflow Integration Example
 //!
 //! This example demonstrates the complete holographic orchestration pipeline:
 //! 1. ETL produces RDF triples with receipts
@@ -6,7 +6,35 @@
 //! 3. Variables are aggregated into workflow triggers
 //! 4. Workflow engine receives execution commands
 //!
-//! Run with: cargo run --example etl-kgc-workflow-integration
+//! ## What This Demonstrates
+//!
+//! - ETL triple event generation with timestamps
+//! - Orchestrator batch processing
+//! - Process variable aggregation
+//! - Workflow trigger submission
+//! - Andon signal monitoring (GREEN/YELLOW/RED)
+//!
+//! ## How to Run
+//!
+//! ```bash
+//! cargo run --example etl-kgc-workflow-integration
+//! ```
+//!
+//! ## Expected Output
+//!
+//! The example will:
+//! 1. Generate sample ETL events
+//! 2. Process them through the orchestrator
+//! 3. Display extracted process variables
+//! 4. Show workflow trigger submission
+//! 5. Display Andon signal status
+//!
+//! ## Architecture
+//!
+//! Implements the Chatman Equation: A = μ(O) where:
+//! - O = ETL output (RDF triples with receipts)
+//! - μ = Orchestrator's five-stage transformation pipeline
+//! - A = Workflow trigger events ready for execution
 
 use knhk_orchestrator::{
     EtlTripleEvent, Orchestrator, OrchestratorConfig, ProcessInstanceEvent,

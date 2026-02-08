@@ -67,7 +67,7 @@ const ALLOWED_COMMANDS: &[&str] = &[
     "timeout",
     "make",
     "cmake",
-    "sh",  // Only when explicitly needed with validated scripts
+    "sh",   // Only when explicitly needed with validated scripts
     "bash", // Only when explicitly needed with validated scripts
     "ggen", // Our own CLI
 ];
@@ -559,7 +559,11 @@ mod tests {
         // Act & Assert
         for cmd in dangerous_commands {
             let result = CommandName::new(cmd);
-            assert!(result.is_err(), "Should block non-whitelisted command: {}", cmd);
+            assert!(
+                result.is_err(),
+                "Should block non-whitelisted command: {}",
+                cmd
+            );
             assert!(
                 result.unwrap_err().to_string().contains("not in whitelist"),
                 "Error should mention whitelist"
@@ -690,7 +694,11 @@ mod tests {
         // Act & Assert
         for (attack, metachar) in attacks {
             let result = CommandArg::new(attack);
-            assert!(result.is_err(), "Should block shell metacharacter: {}", metachar);
+            assert!(
+                result.is_err(),
+                "Should block shell metacharacter: {}",
+                metachar
+            );
             assert!(
                 result.unwrap_err().to_string().contains("metacharacter"),
                 "Error should mention metacharacter"
@@ -755,9 +763,7 @@ mod tests {
     #[test]
     fn test_safe_command_single_arg() {
         // Arrange & Act
-        let result = SafeCommand::new("cargo")
-            .unwrap()
-            .arg("build");
+        let result = SafeCommand::new("cargo").unwrap().arg("build");
 
         // Assert
         assert!(result.is_ok());
@@ -781,9 +787,10 @@ mod tests {
     #[test]
     fn test_safe_command_args_bulk() {
         // Arrange & Act
-        let result = SafeCommand::new("cargo")
-            .unwrap()
-            .args(&["build", "--release", "--all-features"]);
+        let result =
+            SafeCommand::new("cargo")
+                .unwrap()
+                .args(&["build", "--release", "--all-features"]);
 
         // Assert
         assert!(result.is_ok());
@@ -884,9 +891,7 @@ mod tests {
     #[test]
     fn test_safe_command_injection_in_arg() {
         // Arrange & Act
-        let result = SafeCommand::new("cargo")
-            .unwrap()
-            .arg("build; rm -rf /");
+        let result = SafeCommand::new("cargo").unwrap().arg("build; rm -rf /");
 
         // Assert
         assert!(result.is_err());
@@ -1014,9 +1019,7 @@ mod tests {
     #[test]
     fn test_safe_command_no_args() {
         // Arrange & Act
-        let result = SafeCommand::new("git")
-            .unwrap()
-            .validate();
+        let result = SafeCommand::new("git").unwrap().validate();
 
         // Assert - command with no args should be valid
         assert!(result.is_ok());

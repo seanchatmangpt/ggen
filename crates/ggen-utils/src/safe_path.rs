@@ -210,7 +210,9 @@ impl SafePath {
     /// assert_eq!(parent.as_path().to_str().unwrap(), "src");
     /// ```
     pub fn parent(&self) -> Result<Self> {
-        let parent_path = self.inner.parent()
+        let parent_path = self
+            .inner
+            .parent()
             .ok_or_else(|| Error::invalid_input("Path has no parent"))?;
         // For parent, we need to check if it's absolute or relative
         if parent_path.is_absolute() {
@@ -279,7 +281,7 @@ impl SafePath {
                 if let Some(s) = os_str.to_str() {
                     if s.trim().is_empty() {
                         return Err(Error::invalid_input(
-                            "Path components cannot be empty or whitespace-only"
+                            "Path components cannot be empty or whitespace-only",
                         ));
                     }
                 }
@@ -431,7 +433,10 @@ mod tests {
 
         // Assert
         assert!(result.is_ok());
-        assert_eq!(result.unwrap().as_path().to_str().unwrap(), "src/generated/output");
+        assert_eq!(
+            result.unwrap().as_path().to_str().unwrap(),
+            "src/generated/output"
+        );
     }
 
     // Test Category: Parent Directory Attacks
@@ -535,7 +540,9 @@ mod tests {
     #[test]
     fn test_new_exceeds_max_depth_fails() {
         // Arrange - Create path with 21 levels (exceeds MAX_PATH_DEPTH)
-        let components: Vec<String> = (0..=MAX_PATH_DEPTH).map(|i| format!("level{}", i)).collect();
+        let components: Vec<String> = (0..=MAX_PATH_DEPTH)
+            .map(|i| format!("level{}", i))
+            .collect();
         let path = components.join("/");
 
         // Act
@@ -575,7 +582,10 @@ mod tests {
 
         // Assert
         assert!(result.is_ok());
-        assert_eq!(result.unwrap().as_path().to_str().unwrap(), "src/generated/output/file.rs");
+        assert_eq!(
+            result.unwrap().as_path().to_str().unwrap(),
+            "src/generated/output/file.rs"
+        );
     }
 
     #[test]
@@ -602,7 +612,10 @@ mod tests {
 
         // Assert
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("exceeds maximum allowed depth"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("exceeds maximum allowed depth"));
     }
 
     // Test Category: Type Conversions
@@ -801,7 +814,10 @@ mod tests {
 
         // Assert
         assert!(result.is_ok());
-        assert_eq!(result.unwrap().as_path().to_str().unwrap(), "src/generated/output.rs");
+        assert_eq!(
+            result.unwrap().as_path().to_str().unwrap(),
+            "src/generated/output.rs"
+        );
     }
 
     #[test]
@@ -814,6 +830,9 @@ mod tests {
 
         // Assert
         assert!(result.is_ok());
-        assert_eq!(result.unwrap().as_path().to_str().unwrap(), "src/my-project_v2.0/output");
+        assert_eq!(
+            result.unwrap().as_path().to_str().unwrap(),
+            "src/my-project_v2.0/output"
+        );
     }
 }

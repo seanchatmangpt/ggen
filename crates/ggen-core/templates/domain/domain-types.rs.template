@@ -1,0 +1,625 @@
+// Domain types template for A2A integration
+// Generated from RDF specification: {{spec_uri}}
+
+{% if domain_classes %}
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::fmt;
+use std::time::{Duration, SystemTime};
+
+/// Agent status enum
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum AgentStatus {
+    /// Agent is running
+    Running,
+    /// Agent is busy
+    Busy,
+    /// Agent is stopped
+    Stopped,
+    /// Agent is starting
+    Starting,
+    /// Agent is stopping
+    Stopping,
+    /// Agent is in error state
+    Error(String),
+}
+
+impl fmt::Display for AgentStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AgentStatus::Running => write!(f, "running"),
+            AgentStatus::Busy => write!(f, "busy"),
+            AgentStatus::Stopped => write!(f, "stopped"),
+            AgentStatus::Starting => write!(f, "starting"),
+            AgentStatus::Stopping => write!(f, "stopping"),
+            AgentStatus::Error(msg) => write!(f, "error: {}", msg),
+        }
+    }
+}
+
+impl Default for AgentStatus {
+    fn default() -> Self {
+        AgentStatus::Stopped
+    }
+}
+
+/// Agent type enum
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum AgentType {
+    /// Workflow agent
+    Workflow,
+    /// Message router
+    MessageRouter,
+    /// Task executor
+    TaskExecutor,
+    /// Event processor
+    EventProcessor,
+    /// Custom agent
+    Custom(String),
+}
+
+impl fmt::Display for AgentType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AgentType::Workflow => write!(f, "workflow"),
+            AgentType::MessageRouter => write!(f, "message_router"),
+            AgentType::TaskExecutor => write!(f, "task_executor"),
+            AgentType::EventProcessor => write!(f, "event_processor"),
+            AgentType::Custom(name) => write!(f, "custom:{}", name),
+        }
+    }
+}
+
+/// Task status enum
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum TaskStatus {
+    /// Task is pending
+    Pending,
+    /// Task is running
+    Running,
+    /// Task is completed
+    Completed,
+    /// Task is failed
+    Failed,
+    /// Task is cancelled
+    Cancelled,
+    /// Task is retrying
+    Retrying,
+}
+
+impl fmt::Display for TaskStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TaskStatus::Pending => write!(f, "pending"),
+            TaskStatus::Running => write!(f, "running"),
+            TaskStatus::Completed => write!(f, "completed"),
+            TaskStatus::Failed => write!(f, "failed"),
+            TaskStatus::Cancelled => write!(f, "cancelled"),
+            TaskStatus::Retrying => write!(f, "retrying"),
+        }
+    }
+}
+
+impl Default for TaskStatus {
+    fn default() -> Self {
+        TaskStatus::Pending
+    }
+}
+
+/// Task priority enum
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+pub enum TaskPriority {
+    /// Low priority
+    Low,
+    /// Normal priority
+    Normal,
+    /// High priority
+    High,
+    /// Critical priority
+    Critical,
+}
+
+impl fmt::Display for TaskPriority {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TaskPriority::Low => write!(f, "low"),
+            TaskPriority::Normal => write!(f, "normal"),
+            TaskPriority::High => write!(f, "high"),
+            TaskPriority::Critical => write!(f, "critical"),
+        }
+    }
+}
+
+impl Default for TaskPriority {
+    fn default() -> Self {
+        TaskPriority::Normal
+    }
+}
+
+/// Message type enum
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum MessageType {
+    /// Task update message
+    TaskUpdate,
+    /// Agent status message
+    AgentStatus,
+    /// Event message
+    Event,
+    /// Error message
+    Error,
+    /// Custom message
+    Custom(String),
+}
+
+impl fmt::Display for MessageType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            MessageType::TaskUpdate => write!(f, "task_update"),
+            MessageType::AgentStatus => write!(f, "agent_status"),
+            MessageType::Event => write!(f, "event"),
+            MessageType::Error => write!(f, "error"),
+            MessageType::Custom(name) => write!(f, "custom:{}", name),
+        }
+    }
+}
+
+/// Event type enum
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum EventType {
+    /// Task started event
+    TaskStarted,
+    /// Task completed event
+    TaskCompleted,
+    /// Task failed event
+    TaskFailed,
+    /// Agent registered event
+    AgentRegistered,
+    /// Agent unregistered event
+    AgentUnregistered,
+    /// Agent health update event
+    AgentHealthUpdate,
+    /// Custom event
+    Custom(String),
+}
+
+impl fmt::Display for EventType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            EventType::TaskStarted => write!(f, "task_started"),
+            EventType::TaskCompleted => write!(f, "task_completed"),
+            EventType::TaskFailed => write!(f, "task_failed"),
+            EventType::AgentRegistered => write!(f, "agent_registered"),
+            EventType::AgentUnregistered => write!(f, "agent_unregistered"),
+            EventType::AgentHealthUpdate => write!(f, "agent_health_update"),
+            EventType::Custom(name) => write!(f, "custom:{}", name),
+        }
+    }
+}
+
+/// Error severity enum
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum ErrorSeverity {
+    /// Information
+    Info,
+    /// Warning
+    Warning,
+    /// Error
+    Error,
+    /// Critical
+    Critical,
+}
+
+impl fmt::Display for ErrorSeverity {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ErrorSeverity::Info => write!(f, "info"),
+            ErrorSeverity::Warning => write!(f, "warning"),
+            ErrorSeverity::Error => write!(f, "error"),
+            ErrorSeverity::Critical => write!(f, "critical"),
+        }
+    }
+}
+
+/// Agent struct
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Agent {
+    /// Agent ID
+    pub id: String,
+    /// Agent name
+    pub name: String,
+    /// Agent type
+    pub agent_type: AgentType,
+    /// Agent status
+    pub status: AgentStatus,
+    /// Agent health score
+    pub health_score: f64,
+    /// Agent uptime in seconds
+    pub uptime: u64,
+    /// Maximum concurrent tasks
+    pub max_concurrent_tasks: usize,
+    /// Current concurrent tasks
+    pub current_concurrent_tasks: usize,
+    /// Agent capabilities
+    pub capabilities: Vec<String>,
+    /// Configuration properties
+    pub properties: HashMap<String, String>,
+    /// Created timestamp
+    pub created_at: SystemTime,
+    /// Updated timestamp
+    pub updated_at: SystemTime,
+}
+
+impl Agent {
+    /// Create a new agent
+    pub fn new(id: &str, name: &str, agent_type: AgentType) -> Self {
+        Self {
+            id: id.to_string(),
+            name: name.to_string(),
+            agent_type,
+            status: AgentStatus::Stopped,
+            health_score: 0.0,
+            uptime: 0,
+            max_concurrent_tasks: 10,
+            current_concurrent_tasks: 0,
+            capabilities: Vec::new(),
+            properties: HashMap::new(),
+            created_at: SystemTime::now(),
+            updated_at: SystemTime::now(),
+        }
+    }
+
+    /// Update agent status
+    pub fn update_status(&mut self, status: AgentStatus) {
+        self.status = status;
+        self.updated_at = SystemTime::now();
+    }
+
+    /// Update health score
+    pub fn update_health_score(&mut self, score: f64) {
+        self.health_score = score;
+        self.updated_at = SystemTime::now();
+    }
+
+    /// Add capability
+    pub fn add_capability(&mut self, capability: &str) {
+        if !self.capabilities.contains(&capability.to_string()) {
+            self.capabilities.push(capability.to_string());
+            self.updated_at = SystemTime::now();
+        }
+    }
+
+    /// Remove capability
+    pub fn remove_capability(&mut self, capability: &str) {
+        self.capabilities.retain(|c| c != capability);
+        self.updated_at = SystemTime::now();
+    }
+
+    /// Set configuration property
+    pub fn set_property(&mut self, key: &str, value: &str) {
+        self.properties.insert(key.to_string(), value.to_string());
+        self.updated_at = SystemTime::now();
+    }
+
+    /// Get configuration property
+    pub fn get_property(&self, key: &str) -> Option<&str> {
+        self.properties.get(key).map(|s| s.as_str())
+    }
+
+    /// Check if agent can accept tasks
+    pub fn can_accept_tasks(&self) -> bool {
+        self.status == AgentStatus::Running &&
+        self.current_concurrent_tasks < self.max_concurrent_tasks
+    }
+
+    /// Get agent age
+    pub fn age(&self) -> Duration {
+        self.updated_at.duration_since(self.created_at).unwrap_or_default()
+    }
+}
+
+impl Default for Agent {
+    fn default() -> Self {
+        Self::new("agent-001", "Default Agent", AgentType::Workflow)
+    }
+}
+
+/// Task struct
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Task {
+    /// Task ID
+    pub id: String,
+    /// Task name
+    pub name: String,
+    /// Task type
+    pub task_type: String,
+    /// Task status
+    pub status: TaskStatus,
+    /// Task progress (0.0 to 1.0)
+    pub progress: f64,
+    /// Task timeout in milliseconds
+    pub timeout: u64,
+    /// Task priority
+    pub priority: TaskPriority,
+    /// Task dependencies
+    pub dependencies: Vec<String>,
+    /// Task executor agent ID
+    pub executor: Option<String>,
+    /// Task result
+    pub result: Option<TaskResult>,
+    /// Task duration in milliseconds
+    pub duration: Option<u64>,
+    /// Task error
+    pub error: Option<String>,
+    /// Created timestamp
+    pub created_at: SystemTime,
+    /// Updated timestamp
+    pub updated_at: SystemTime,
+}
+
+impl Task {
+    /// Create a new task
+    pub fn new(id: &str, name: &str, task_type: &str) -> Self {
+        Self {
+            id: id.to_string(),
+            name: name.to_string(),
+            task_type: task_type.to_string(),
+            status: TaskStatus::Pending,
+            progress: 0.0,
+            timeout: 300000, // 5 minutes default
+            priority: TaskPriority::Normal,
+            dependencies: Vec::new(),
+            executor: None,
+            result: None,
+            duration: None,
+            error: None,
+            created_at: SystemTime::now(),
+            updated_at: SystemTime::now(),
+        }
+    }
+
+    /// Update task status
+    pub fn update_status(&mut self, status: TaskStatus) {
+        self.status = status;
+        self.updated_at = SystemTime::now();
+    }
+
+    /// Update task progress
+    pub fn update_progress(&mut self, progress: f64) {
+        self.progress = progress.clamp(0.0, 1.0);
+        self.updated_at = SystemTime::now();
+    }
+
+    /// Set executor
+    pub fn set_executor(&mut self, executor: &str) {
+        self.executor = Some(executor.to_string());
+        self.updated_at = SystemTime::now();
+    }
+
+    /// Set result
+    pub fn set_result(&mut self, result: TaskResult) {
+        self.result = Some(result);
+        self.updated_at = SystemTime::now();
+    }
+
+    /// Set error
+    pub fn set_error(&mut self, error: &str) {
+        self.error = Some(error.to_string());
+        self.update_status(TaskStatus::Failed);
+        self.updated_at = SystemTime::now();
+    }
+
+    /// Add dependency
+    pub fn add_dependency(&mut self, dependency: &str) {
+        if !self.dependencies.contains(&dependency.to_string()) {
+            self.dependencies.push(dependency.to_string());
+            self.updated_at = SystemTime::now();
+        }
+    }
+
+    /// Remove dependency
+    pub fn remove_dependency(&mut self, dependency: &str) {
+        self.dependencies.retain(|d| d != dependency);
+        self.updated_at = SystemTime::now();
+    }
+
+    /// Check if task is ready to run
+    pub fn is_ready(&self) -> bool {
+        self.status == TaskStatus::Pending && self.dependencies.is_empty()
+    }
+
+    /// Check if task is completed
+    pub fn is_completed(&self) -> bool {
+        matches!(self.status, TaskStatus::Completed | TaskStatus::Failed | TaskStatus::Cancelled)
+    }
+
+    /// Get task age
+    pub fn age(&self) -> Duration {
+        self.updated_at.duration_since(self.created_at).unwrap_or_default()
+    }
+}
+
+impl Default for Task {
+    fn default() -> Self {
+        Self::new("task-001", "Default Task", "default")
+    }
+}
+
+/// Task result struct
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskResult {
+    /// Success or failure
+    pub success: bool,
+    /// Result data
+    pub data: Option<HashMap<String, serde_json::Value>>,
+    /// Error message
+    pub error: Option<String>,
+    /// Duration in milliseconds
+    pub duration: u64,
+}
+
+impl TaskResult {
+    /// Create a successful task result
+    pub fn success(data: Option<HashMap<String, serde_json::Value>>, duration: u64) -> Self {
+        Self {
+            success: true,
+            data,
+            error: None,
+            duration,
+        }
+    }
+
+    /// Create a failed task result
+    pub fn failure(error: &str, duration: u64) -> Self {
+        Self {
+            success: false,
+            data: None,
+            error: Some(error.to_string()),
+            duration,
+        }
+    }
+}
+
+/// Message struct
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Message {
+    /// Message ID
+    pub id: String,
+    /// Message type
+    pub message_type: MessageType,
+    /// Message from agent ID
+    pub from: String,
+    /// Message to agent ID
+    pub to: String,
+    /// Message subject
+    pub subject: String,
+    /// Message body
+    pub body: String,
+    /// Message headers
+    pub headers: HashMap<String, String>,
+    /// Message payload
+    pub payload: Option<HashMap<String, serde_json::Value>>,
+    /// Message timestamp
+    pub timestamp: SystemTime,
+}
+
+impl Message {
+    /// Create a new message
+    pub fn new(
+        id: &str,
+        message_type: MessageType,
+        from: &str,
+        to: &str,
+        subject: &str,
+        body: &str,
+    ) -> Self {
+        Self {
+            id: id.to_string(),
+            message_type,
+            from: from.to_string(),
+            to: to.to_string(),
+            subject: subject.to_string(),
+            body: body.to_string(),
+            headers: HashMap::new(),
+            payload: None,
+            timestamp: SystemTime::now(),
+        }
+    }
+
+    /// Add header
+    pub fn add_header(&mut self, key: &str, value: &str) {
+        self.headers.insert(key.to_string(), value.to_string());
+    }
+
+    /// Set payload
+    pub fn set_payload(&mut self, payload: HashMap<String, serde_json::Value>) {
+        self.payload = Some(payload);
+    }
+
+    /// Get message age
+    pub fn age(&self) -> Duration {
+        SystemTime::now().duration_since(self.timestamp).unwrap_or_default()
+    }
+}
+
+/// Event struct
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Event {
+    /// Event ID
+    pub id: String,
+    /// Event type
+    pub event_type: EventType,
+    /// Event source
+    pub source: String,
+    /// Event data
+    pub data: Option<HashMap<String, serde_json::Value>>,
+    /// Event timestamp
+    pub timestamp: SystemTime,
+}
+
+impl Event {
+    /// Create a new event
+    pub fn new(id: &str, event_type: EventType, source: &str) -> Self {
+        Self {
+            id: id.to_string(),
+            event_type,
+            source: source.to_string(),
+            data: None,
+            timestamp: SystemTime::now(),
+        }
+    }
+
+    /// Set event data
+    pub fn set_data(&mut self, data: HashMap<String, serde_json::Value>) {
+        self.data = Some(data);
+    }
+
+    /// Get event age
+    pub fn age(&self) -> Duration {
+        SystemTime::now().duration_since(self.timestamp).unwrap_or_default()
+    }
+}
+
+/// Error struct
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Error {
+    /// Error ID
+    pub id: String,
+    /// Error name
+    pub name: String,
+    /// Error description
+    pub description: String,
+    /// Error code
+    pub code: String,
+    /// Error severity
+    pub severity: ErrorSeverity,
+    /// Error timestamp
+    pub timestamp: SystemTime,
+    /// Related task ID
+    pub related_task: Option<String>,
+}
+
+impl Error {
+    /// Create a new error
+    pub fn new(id: &str, name: &str, description: &str, code: &str, severity: ErrorSeverity) -> Self {
+        Self {
+            id: id.to_string(),
+            name: name.to_string(),
+            description: description.to_string(),
+            code: code.to_string(),
+            severity,
+            timestamp: SystemTime::now(),
+            related_task: None,
+        }
+    }
+
+    /// Set related task
+    pub fn set_related_task(&mut self, task_id: &str) {
+        self.related_task = Some(task_id.to_string());
+    }
+
+    /// Get error age
+    pub fn age(&self) -> Duration {
+        SystemTime::now().duration_since(self.timestamp).unwrap_or_default()
+    }
+}
+{% endif %}

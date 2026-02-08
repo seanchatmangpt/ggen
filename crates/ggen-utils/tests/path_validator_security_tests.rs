@@ -33,11 +33,7 @@ fn test_basic_path_traversal() {
 
     for attack in attacks {
         let result = validator.validate(attack);
-        assert!(
-            result.is_err(),
-            "Should block path traversal: {}",
-            attack
-        );
+        assert!(result.is_err(), "Should block path traversal: {}", attack);
         assert!(
             result.unwrap_err().to_string().contains("traversal"),
             "Error should mention path traversal"
@@ -156,7 +152,10 @@ fn test_absolute_paths_within_workspace_allowed() {
     let result = validator.validate(&test_file);
 
     // Assert
-    assert!(result.is_ok(), "Should allow absolute path within workspace");
+    assert!(
+        result.is_ok(),
+        "Should allow absolute path within workspace"
+    );
 }
 
 #[test]
@@ -289,7 +288,10 @@ fn test_extension_case_sensitivity() {
     let result = validator.validate("template.TERA");
 
     // Assert - should be blocked (case-sensitive)
-    assert!(result.is_err(), "Extension validation should be case-sensitive");
+    assert!(
+        result.is_err(),
+        "Extension validation should be case-sensitive"
+    );
 }
 
 #[test]
@@ -302,10 +304,7 @@ fn test_double_extension_handling() {
     let result = validator.validate("archive.tar.tera");
 
     // Assert - should validate based on last extension
-    assert!(
-        result.is_ok(),
-        "Should check only the last extension"
-    );
+    assert!(result.is_ok(), "Should check only the last extension");
 }
 
 // ============================================================================
@@ -347,11 +346,11 @@ fn test_unicode_path_allowed() {
 
     // Act - various Unicode paths
     let unicode_paths = vec![
-        "文件.txt",           // Chinese
-        "файл.txt",          // Russian
-        "ファイル.txt",        // Japanese
-        "αρχείο.txt",        // Greek
-        "📁/file.txt",       // Emoji
+        "文件.txt",     // Chinese
+        "файл.txt",     // Russian
+        "ファイル.txt", // Japanese
+        "αρχείο.txt",   // Greek
+        "📁/file.txt",  // Emoji
     ];
 
     for path in unicode_paths {
@@ -407,7 +406,11 @@ fn test_current_directory_reference() {
     // Assert - these should be normalized and allowed
     for path in paths {
         let result = validator.validate(path);
-        assert!(result.is_ok(), "Should allow current dir reference: {}", path);
+        assert!(
+            result.is_ok(),
+            "Should allow current dir reference: {}",
+            path
+        );
     }
 }
 
@@ -519,10 +522,7 @@ fn test_safe_path_accessors() {
     // Assert
     assert_eq!(safe_path.extension(), Some("tera"));
     assert_eq!(safe_path.file_name(), Some("example.tera"));
-    assert_eq!(
-        safe_path.as_path(),
-        Path::new("templates/example.tera")
-    );
+    assert_eq!(safe_path.as_path(), Path::new("templates/example.tera"));
     assert!(safe_path.absolute().is_absolute());
 }
 

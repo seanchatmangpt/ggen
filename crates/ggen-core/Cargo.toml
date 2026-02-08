@@ -101,6 +101,7 @@ testcontainers = "0.25"
 uuid = { version = "1.18", features = ["v4"] }
 chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "testcontainers"] }
 anyhow = "1.0"
+mockito = "1.7"
 
 [[bench]]
 name = "lifecycle_benchmarks"

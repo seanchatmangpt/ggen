@@ -7,7 +7,7 @@
 //! Run with: `docker run -p 8200:8200 -e VAULT_DEV_ROOT_TOKEN_ID=root vault`
 
 use ggen_utils::error::Result;
-use ggen_utils::secrets::{SecretsManager, SecretType, VaultConfig};
+use ggen_utils::secrets::{SecretType, SecretsManager, VaultConfig};
 use std::time::Duration;
 use tokio::time::sleep;
 
@@ -90,7 +90,10 @@ async fn test_vault_store_database_credentials() -> Result<()> {
 
     // Assert
     assert_eq!(secret.value(), "postgres_secure_password");
-    assert_eq!(secret.metadata().secret_type, SecretType::DatabaseCredential);
+    assert_eq!(
+        secret.metadata().secret_type,
+        SecretType::DatabaseCredential
+    );
 
     // Cleanup
     manager.delete_secret("db_password").await?;

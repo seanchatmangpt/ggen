@@ -1,0 +1,572 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix a2a: <https://ggen.dev/ontology/a2a> .
+
+# ==============================================================================
+# ENTITIES MODEL - Domain Entity Relationships
+# ==============================================================================
+
+<https://ggen.dev/ontology/a2a/entities> a owl:Ontology ;
+  rdfs:label "A2A-RS Entities Model" ;
+  rdfs:comment "Entity relationships and instance definitions for A2A-RS integration" ;
+  owl:versionInfo "1.0.0" ;
+  dct:created "2026-02-05"^^xsd:date .
+
+# Agent Instances
+a2a:AgentInstance1 a a2a:Agent ;
+  a2a:id "agent-001" ;
+  a2a:name "Workflow Orchestrator" ;
+  a2a:agentType "Workflow" ;
+  a2a:agentStatus "Active" ;
+  a2a:agentHealth "95.5"^^xsd:decimal ;
+  a2a:agentUptime 3600 ;
+  a2a:createdAt "2026-02-05T10:00:00Z"^^xsd:dateTime ;
+  a2a:updatedAt "2026-02-05T10:30:00Z"^^xsd:dateTime .
+
+a2a:AgentInstance2 a a2a:Agent ;
+  a2a:id "agent-002" ;
+  a2a:name "Message Router" ;
+  a2a:agentType "MessageRouter" ;
+  a2a:agentStatus "Busy" ;
+  a2a:agentHealth "88.2"^^xsd:decimal ;
+  a2a:agentUptime 7200 ;
+  a2a:createdAt "2026-02-05T09:00:00Z"^^xsd:dateTime ;
+  a2a:updatedAt "2026-02-05T10:25:00Z"^^xsd:dateTime .
+
+# Task Instances
+a2a:TaskInstance1 a a2a:Task ;
+  a2a:id "task-001" ;
+  a2a:name "Data Processing Pipeline" ;
+  a2a:taskType "DataProcessing" ;
+  a2a:taskStatus "Running" ;
+  a2a:taskProgress "65.5"^^xsd:decimal ;
+  a2a:timeout 300000 ;
+  a2a:priority 1 ;
+  a2a:taskDependencies "task-002,task-003" ;
+  a2a:createdAt "2026-02-05T10:00:00Z"^^xsd:dateTime ;
+  a2a:updatedAt "2026-02-05T10:30:00Z"^^xsd:dateTime .
+
+a2a:TaskInstance2 a a2a:Task ;
+  a2a:id "task-002" ;
+  a2a:name "File Extraction" ;
+  a2a:taskType "Storage" ;
+  a2a:taskStatus "Completed" ;
+  a2a:taskProgress "100.0"^^xsd:decimal ;
+  a2a:taskDuration 45000 ;
+  a2a:taskExecutor "agent-001" ;
+  a2a:createdAt "2026-02-05T09:45:00Z"^^xsd:dateTime ;
+  a2a:updatedAt "2026-02-05T10:15:00Z"^^xsd:dateTime .
+
+a2a:TaskInstance3 a a2a:Task ;
+  a2a:id "task-003" ;
+  a2a:name "Network Validation" ;
+  a2a:taskType "Network" ;
+  a2a:taskStatus "Pending" ;
+  a2a:taskProgress "0.0"^^xsd:decimal ;
+  a2a:priority 2 ;
+  a2a:createdAt "2026-02-05T10:15:00Z"^^xsd:dateTime ;
+  a2a:updatedAt "2026-02-05T10:15:00Z"^^xsd:dateTime .
+
+# Message Instances
+a2a:MessageInstance1 a a2a:Message ;
+  a2a:id "msg-001" ;
+  a2a:messageType "TaskUpdate" ;
+  a2a:messageFrom "agent-001" ;
+  a2a:messageTo "agent-002" ;
+  a2a:messageSubject "Task Progress Update" ;
+  a2a:messageBody "Current task progress: 65.5%" ;
+  a2a:messageTimestamp "2026-02-05T10:30:00Z"^^xsd:dateTime ;
+  a2a:messageHeaders '{"Content-Type": "application/json", "Priority": "high"}' ;
+  a2a:messagePayload '{"taskId": "task-001", "progress": 65.5, "status": "running"}' .
+
+a2a:MessageInstance2 a a2a:Message ;
+  a2a:id "msg-002" ;
+  a2a:messageType "AgentStatus" ;
+  a2a:messageFrom "agent-002" ;
+  a2a:messageTo "agent-001" ;
+  a2a:messageSubject "Agent Health Status" ;
+  a2a:messageBody "Agent health is at 88.2%" ;
+  a2a:messageTimestamp "2026-02-05T10:25:00Z"^^xsd:dateTime ;
+  a2a:messageHeaders '{"Content-Type": "text/plain", "Source": "agent-002"}' ;
+  a2a:messagePayload '{"agentId": "agent-002", "health": 88.2, "status": "busy"}' .
+
+# Event Instances
+a2a:EventInstance1 a a2a:Event ;
+  a2a:id "evt-001" ;
+  a2a:eventType "TaskStarted" ;
+  a2a:eventSource "agent-001" ;
+  a2a:eventData '{"taskId": "task-001", "executor": "agent-001", "startTime": "2026-02-05T10:00:00Z"}' ;
+  a2a:eventTimestamp "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+a2a:EventInstance2 a a2a:Event ;
+  a2a:id "evt-002" ;
+  a2a:eventType "TaskCompleted" ;
+  a2a:eventSource "agent-001" ;
+  a2a:eventData '{"taskId": "task-002", "duration": 45000, "result": "success"}' ;
+  a2a:eventTimestamp "2026-02-05T10:15:00Z"^^xsd:dateTime .
+
+a2a:EventInstance3 a a2a:Event ;
+  a2a:id "evt-003" ;
+  a2a:eventType "AgentRegistered" ;
+  a2a:eventSource "system" ;
+  a2a:eventData '{"agentId": "agent-001", "agentType": "workflow", "timestamp": "2026-02-05T10:00:00Z"}' ;
+  a2a:eventTimestamp "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+# Adapter Instances
+a2a:HttpClientInstance a a2a:HttpClient ;
+  a2a:httpClientBaseUri "https://api.example.com" ;
+  a2a:httpClientTimeout 30000 ;
+  a2a:httpClientHeaders '{"Authorization": "Bearer token", "Content-Type": "application/json"}' ;
+  a2a:enabled true .
+
+a2a:JwtAuthenticatorInstance a a2a:JwtAuthenticator ;
+  a2a:jwtSecretKey "very-long-secret-key-for-jwt-token-generation" ;
+  a2a:jwtExpiration 3600 ;
+  a2a:enabled true .
+
+a2a:SqlxStorageInstance a a2a:SqlxStorage ;
+  a2a:sqlxConnectionString "postgres://user:password@localhost:5432/a2a_db" ;
+  a2a:sqlxPoolSize 10 ;
+  a2a:enabled true .
+
+a2a:RedisStorageInstance a a2a:RedisStorage ;
+  a2a:redisUrl "redis://localhost:6379" ;
+  a2a:enabled true .
+
+a2a:OAuth2AdapterInstance a a2a:OAuth2Adapter ;
+  a2a:oauth2ClientId "client_id_123" ;
+  a2a:oauth2ClientSecret "client_secret_456" ;
+  a2a:oauth2Scope "read write" ;
+  a2a:enabled true .
+
+# JSON-RPC Method Instances
+a2a:JsonRpcMethodInstance1 a a2a:JsonRpcMethod ;
+  a2a:methodName "message/send" ;
+  a2a:methodDescription "Sends a message to a target agent" ;
+  a2a:methodVersion "1.0" ;
+  a2a:methodParameters '{"target": "string", "message": "object", "priority": "string"}' ;
+  a2a:methodReturnType "object" .
+
+a2a:JsonRpcMethodInstance2 a a2a:JsonRpcMethod ;
+  a2a:methodName "tasks/get" ;
+  a2a:methodDescription "Retrieves a specific task by ID" ;
+  a2a:methodVersion "1.0" ;
+  a2a:methodParameters '{"taskId": "string"}' ;
+  a2a:methodReturnType "object" .
+
+a2a:JsonRpcMethodInstance3 a a2a:JsonRpcMethod ;
+  a2a:methodName "agents/status" ;
+  a2a:methodDescription "Gets the current status of all agents" ;
+  a2a:methodVersion "1.0" ;
+  a2a:methodParameters '{"includeMetrics": "boolean"}' ;
+  a2a:methodReturnType "array" .
+
+# Workflow Instances
+a2a:WorkflowInstance1 a a2a:Workflow ;
+  a2a:id "workflow-001" ;
+  a2a:name "Data Processing Workflow" ;
+  a2a:description "Workflow for processing large datasets" ;
+  a2a:version "1.0.0" ;
+  a2a:status "Running" ;
+  a2a:priority 1 ;
+  a2a:createdAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+a2a:WorkflowStepInstance1 a a2a:WorkflowStep ;
+  a2a:id "step-001" ;
+  a2a:name "Extract Data" ;
+  a2a:workflow "workflow-001" ;
+  a2a:status "Completed" ;
+  a2a:position 1 ;
+  a2a:task "task-002" .
+
+a2a:WorkflowStepInstance2 a a2a:WorkflowStep ;
+  a2a:id "step-002" ;
+  a2a:name "Process Data" ;
+  a2a:workflow "workflow-001" ;
+  a2a:status "Running" ;
+  a2a:position 2 ;
+  a2a:task "task-001" .
+
+a2a:WorkflowStepInstance3 a a2a:WorkflowStep ;
+  a2a:id "step-003" ;
+  a2a:name "Validate Network" ;
+  a2a:workflow "workflow-001" ;
+  a2a:status "Pending" ;
+  a2a:position 3 ;
+  a2a:task "task-003" .
+
+# Error Instance
+a2a:ErrorInstance1 a a2a:Error ;
+  a2a:id "error-001" ;
+  a2a:name "TaskTimeoutError" ;
+  a2a:description "Task execution exceeded timeout limit" ;
+  a2a:errorCode "TIMEOUT" ;
+  a2a:errorSeverity "Error" ;
+  a2a:createdAt "2026-02-05T10:45:00Z"^^xsd:dateTime ;
+  a2a:relatedTask "task-003" .
+
+a2a:ErrorInstance2 a a2a:Error ;
+  a2a:id "error-002" ;
+  a2a:name "NetworkConnectionError" ;
+  a2a:description "Failed to establish network connection" ;
+  a2a:errorCode "NETWORK_ERROR" ;
+  a2a:errorSeverity "Critical" ;
+  a2a:createdAt "2026-02-05T10:50:00Z"^^xsd:dateTime ;
+  a2a:relatedTask "task-003" .
+
+# Recovery Strategy Instance
+a2a:RecoveryStrategyInstance1 a a2a:RecoveryStrategy ;
+  a2a:id "recovery-001" ;
+  a2a:name "TaskRetryStrategy" ;
+  a2a:description "Retry failed task with exponential backoff" ;
+  a2a:maxRetries 3 ;
+  a2a:retryDelay 5000 ;
+  a2a:enabled true .
+
+a2a:RecoveryStrategyInstance2 a a2a:RecoveryStrategy ;
+  a2a:id "recovery-002" ;
+  a2a:name "AgentFailover" ;
+  a2a:description "Failover to backup agent if primary fails" ;
+  a2a:maxRetries 1 ;
+  a2a:retryDelay 0 ;
+  a2a:enabled true .
+
+# Event Subscription Instance
+a2a:EventSubscriptionInstance1 a a2a:EventSubscription ;
+  a2a:id "sub-001" ;
+  a2a:name "Task Status Subscription" ;
+  a2a:eventType "TaskStarted,TaskCompleted,TaskFailed" ;
+  a2a:subscriber "agent-001" ;
+  a2a:enabled true ;
+  a2a:createdAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+a2a:EventSubscriptionInstance2 a a2a:EventSubscription ;
+  a2a:id "sub-002" ;
+  a2a:name "Agent Status Subscription" ;
+  a2a:eventType "AgentRegistered,AgentUnregistered,AgentHealthUpdate" ;
+  a2a:subscriber "agent-002" ;
+  a2a:enabled true ;
+  a2a:createdAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+# Event Filter Instance
+a2a:EventFilterInstance1 a a2a:EventFilter ;
+  a2a:id "filter-001" ;
+  a2a:name="High Priority Tasks Filter" ;
+  a2a:eventType "TaskStarted" ;
+  a2a:criteria '{"priority": ">=2"}' ;
+  a2a:enabled true .
+
+a2a:EventFilterInstance2 a a2a:EventFilter ;
+  a2a:id "filter-002" ;
+  a2a:name="Critical Errors Filter" ;
+  a2a:eventType "Error" ;
+  a2a:criteria '{"severity": "Critical"}' ;
+  a2a:enabled true .
+
+# Event Handler Instance
+a2a:EventHandlerInstance1 a a2a:EventHandler ;
+  a2a:id "handler-001" ;
+  a2a:name="Email Notification Handler" ;
+  a2a:eventType "TaskCompleted" ;
+  a2a:action "send_email" ;
+  a2a:enabled true ;
+  a2a:config '{"email": "admin@example.com", "template": "task_completion"}' .
+
+a2a:EventHandlerInstance2 a a2a:EventHandler ;
+  a2a:id "handler-002" ;
+  a2a:name="Log Error Handler" ;
+  a2a:eventType "Error" ;
+  a2a:action "log_to_file" ;
+  a2a:enabled true ;
+  a2a:config '{"log_file": "/var/log/a2a/errors.log", "level": "error"}' .
+
+# Configurable Entity Instances
+a2a:ConfigurationInstance1 a a2a:Configuration ;
+  a2a:id "config-001" ;
+  a2a:name="Agent Configuration" ;
+  a2a:config '{"max_concurrent_tasks": 10, "timeout_ms": 300000, "retry_attempts": 3}' ;
+  a2a:enabled true ;
+  a2a:createdAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+a2a:ConfigurationInstance2 a a2a:Configuration ;
+  a2a:id "config-002" ;
+  a2a:name="Network Configuration" ;
+  a2a:config '{"http_timeout_ms": 30000, "websocket_timeout_ms": 60000, "max_connections": 100}' ;
+  a2a:enabled true ;
+  a2a:createdAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+# Log Message Instance
+a2a:LogMessageInstance1 a a2a:LogMessage ;
+  a2a:id "log-001" ;
+  a2a:level "INFO" ;
+  a2a:message "Task started: Data Processing Pipeline" ;
+  a2a:timestamp "2026-02-05T10:00:00Z"^^xsd:dateTime ;
+  a2a:source "agent-001" ;
+  a2a:metadata '{"taskId": "task-001", "agentId": "agent-001"}' .
+
+a2a:LogMessageInstance2 a a2a:LogMessage ;
+  a2a:id "log-002" ;
+  a2a:level "ERROR" ;
+  a2a:message "Task failed: Network Validation" ;
+  a2a:timestamp "2026-02-05T10:50:00Z"^^xsd:dateTime ;
+  a2a:source "agent-001" ;
+  a2a:metadata '{"taskId": "task-003", "error": "NetworkConnectionError", "agentId": "agent-001"}' .
+
+# Log Rotation Instance
+a2a:LogRotationInstance1 a a2a:LogRotation ;
+  a2a:id "log-rotation-001" ;
+  a2a:name="Daily Log Rotation" ;
+  a2a:schedule "0 0 * * *" ;
+  a2a:maxSize "100MB" ;
+  a2a:maxFiles "30" ;
+  a2a:enabled true .
+
+# Metric Instance
+a2a:MetricInstance1 a a2a:Metric ;
+  a2a:id "metric-001" ;
+  a2a:name="Task Execution Time" ;
+  a2a:value "45000"^^xsd:integer ;
+  a2a:unit "milliseconds" ;
+  a2a:timestamp "2026-02-05T10:15:00Z"^^xsd:dateTime ;
+  a2a:source "task-002" .
+
+a2a:MetricInstance2 a a2a:Metric ;
+  a2a:id "metric-002" ;
+  a2a:name="Agent Health Score" ;
+  a2a:value "95.5"^^xsd:decimal ;
+  a2a:unit "percentage" ;
+  a2a:timestamp "2026-02-05T10:30:00Z"^^xsd:dateTime ;
+  a2a:source "agent-001" .
+
+a2a:MetricInstance3 a a2a:Metric ;
+  a2a:id "metric-003" ;
+  a2a:name="Message Throughput" ;
+  a2a:value "150"^^xsd:integer ;
+  a2a:unit "messages/minute" ;
+  a2a:timestamp "2026-02-05T10:30:00Z"^^xsd:dateTime ;
+  a2a:source="message-router" .
+
+# Metric Report Instance
+a2a:MetricReportInstance1 a a2a:MetricReport ;
+  a2a:id "report-001" ;
+  a2a:name="Hourly Performance Report" ;
+  a2a:metrics "[metric-001, metric-002, metric-003]" ;
+  a2a:generatedAt "2026-02-05T11:00:00Z"^^xsd:dateTime ;
+  a2a:period "1 hour" .
+
+# Task Result Instance
+a2a:TaskResultInstance1 a a2a:TaskResult ;
+  a2a:id "result-001" ;
+  a2a:task "task-002" ;
+  a2a:status "Completed" ;
+  a2a:result '{"processed_files": 1000, "size_mb": 2500, "success_rate": 99.9}' ;
+  a2a:duration 45000 ;
+  a2a:executor "agent-001" ;
+  a2a:completedAt "2026-02-05T10:15:00Z"^^xsd:dateTime .
+
+# Endpoint Instance
+a2a:EndpointInstance1 a a2a:Endpoint ;
+  a2a:id "endpoint-001" ;
+  a2a:name="Task Management API" ;
+  a2a:url "https://api.example.com/v1/tasks" ;
+  a2a:protocol "HTTPS" ;
+  a2a:enabled true .
+
+a2a:EndpointInstance2 a a2a:Endpoint ;
+  a2a:id "endpoint-002" ;
+  a2a:name="Agent Status API" ;
+  a2a:url="https://api.example.com/v1/agents" ;
+  a2a:protocol="HTTPS" ;
+  a2a:enabled=true .
+
+# Query Instance
+a2a:QueryInstance1 a a2a:Query ;
+  a2a:id "query-001" ;
+  a2a:name="Find Running Tasks" ;
+  a2a:query "SELECT * FROM tasks WHERE status = 'running'" ;
+  a2a:database "postgres" ;
+  a2a:timeout 10000 .
+
+a2a:QueryInstance2 a a2a:Query ;
+  a2a:id "query-002" ;
+  a2a:name="Get Agent Health" ;
+  a2a:query "SELECT agent_id, health_score, status FROM agents WHERE health_score < 90" ;
+  a2a:database "postgres" ;
+  a2a:timeout 5000 .
+
+# Validation Instance
+a2a:ValidationInstance1 a a2a:Validation ;
+  a2a:id "validation-001" ;
+  a2a:name="Task Configuration Validation" ;
+  a2a:rules '{"timeout": "positive", "priority": "required", "dependencies": "optional"}' ;
+  a2a:status "Passed" ;
+  a2a:timestamp "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+a2a:ValidationInstance2 a a2a:Validation ;
+  a2a:id "validation-002" ;
+  a2a:name="Agent Configuration Validation" ;
+  a2a:rules '{"max_tasks": "positive", "health_threshold": "required", "enabled": "boolean"}' ;
+  a2a:status "Passed" ;
+  a2a:timestamp "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+# HTTP Request Instance
+a2a:HttpRequestInstance1 a a2a:HttpRequest ;
+  a2a:id "http-req-001" ;
+  a2a:method "GET" ;
+  a2a:url "https://api.example.com/v1/tasks/001" ;
+  a2a:headers '{"Authorization": "Bearer token", "Accept": "application/json"}' ;
+  a2a:timeout 30000 .
+
+a2a:HttpRequestInstance2 a a2a:HttpRequest ;
+  a2a:id "http-req-002" ;
+  a2a:method "POST" ;
+  a2a:url "https://api.example.com/v1/tasks" ;
+  a2a:headers '{"Authorization": "Bearer token", "Content-Type": "application/json"}' ;
+  a2a:body '{"name": "New Task", "priority": 1, "timeout": 300000}' ;
+  a2a:timeout 30000 .
+
+# WebSocket Instance
+a2a:WebSocketInstance1 a a2a:WebSocket ;
+  a2a:id "ws-001" ;
+  a2a:url "wss://api.example.com/v1/tasks/events" ;
+  a2a:protocol "wss" ;
+  a2a:status "Connected" ;
+  a2a:connectedAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+# Certificate Instance
+a2a:CertificateInstance1 a a2a:Certificate ;
+  a2a:id "cert-001" ;
+  a2a:name="API Server Certificate" ;
+  a2a:type "X.509" ;
+  a2a:issuer "Let's Encrypt" ;
+  a2a:subject "api.example.com" ;
+  a2a:validFrom "2026-02-01T00:00:00Z"^^xsd:dateTime ;
+  a2a:validTo "2026-05-01T00:00:00Z"^^xsd:dateTime ;
+  a2a:enabled true .
+
+# User Instance
+a2a:UserInstance1 a a2a:User ;
+  a2a:id "user-001" ;
+  a2a:name="John Doe" ;
+  a2a:email "john.doe@example.com" ;
+  a2a:role "administrator" ;
+  a2a:enabled true ;
+  a2a:createdAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+a2a:UserInstance2 a a2a:User ;
+  a2a:id "user-002" ;
+  a2a:name="Jane Smith" ;
+  a2a:email "jane.smith@example.com" ;
+  a2a:role "developer" ;
+  a2a:enabled true ;
+  a2a:createdAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+# Access Control Instance
+a2a:AccessControlInstance1 a a2a:AccessControl ;
+  a2a:id "access-001" ;
+  a2a:user "user-001" ;
+  a2a:resource "tasks/*" ;
+  a2a:permission "read,write,delete" ;
+  a2a:grantedAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+a2a:AccessControlInstance2 a a2a:AccessControl ;
+  a2a:id "access-002" ;
+  a2a:user "user-002" ;
+  a2a:resource "tasks/list" ;
+  a2a:permission "read" ;
+  a2a:grantedAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+# Token Instance
+a2a:TokenInstance1 a a2a:Token ;
+  a2a:id "token-001" ;
+  a2a:user "user-001" ;
+  a2a:type "JWT" ;
+  a2a:value "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." ;
+  a2a:expiresAt "2026-02-05T11:00:00Z"^^xsd:dateTime ;
+  a2a:issuedAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+a2a:TokenInstance2 a a2a:Token ;
+  a2a:id "token-002" ;
+  a2a:user "user-002" ;
+  a2a:type "JWT" ;
+  a2a:value "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." ;
+  a2a:expiresAt "2026-02-05T11:00:00Z"^^xsd:dateTime ;
+  a2a:issuedAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+# Data Instance
+a2a:DataInstance1 a a2a:Data ;
+  a2a:id "data-001" ;
+  a2a:name="Processed Data" ;
+  a2a:type "JSON" ;
+  a2a:size "2500"^^xsd:integer ;
+  a2a:contentType "application/json" ;
+  a2a:storagePath "/data/processed/2026-02-05" ;
+  a2a:createdAt "2026-02-05T10:15:00Z"^^xsd:dateTime .
+
+a2a:DataInstance2 a a2a:Data ;
+  a2a:id "data-002" ;
+  a2a:name="Raw Input Data" ;
+  a2a:type="CSV" ;
+  a2a:size="1000000"^^xsd:integer ;
+  a2a:contentType="text/csv" ;
+  a2a:storagePath "/data/raw/2026-02-05" ;
+  a2a:createdAt "2026-02-05T09:45:00Z"^^xsd:dateTime .
+
+# Buffer Instance
+a2a:BufferInstance1 a a2a:Buffer ;
+  a2a:id "buffer-001" ;
+  a2a:name="Message Buffer" ;
+  a2a:size "1000"^^xsd:integer ;
+  a2a:currentSize "150"^^xsd:integer ;
+  a2a:type "FIFO" ;
+  a2a:enabled true .
+
+a2a:BufferInstance2 a a2a:Buffer ;
+  a2a:id "buffer-002" ;
+  a2a:name="Task Buffer" ;
+  a2a:size="500"^^xsd:integer ;
+  a2a:currentSize="250"^^xsd:integer ;
+  a2a:type="FIFO" ;
+  a2a:enabled=true .
+
+# Stream Subscription Instance
+a2a:StreamSubscriptionInstance1 a a2a:StreamSubscription ;
+  a2a:id "stream-sub-001" ;
+  a2a:name="Task Events Stream" ;
+  a2a:streamId "task-events" ;
+  a2a:subscriber "agent-001" ;
+  a2a:filters '{"event_type": "TaskStarted"}' ;
+  a2a:enabled true ;
+  a2a:createdAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+a2a:StreamSubscriptionInstance2 a a2a:StreamSubscription ;
+  a2a:id "stream-sub-002" ;
+  a2a:name="Agent Events Stream" ;
+  a2a:streamId "agent-events" ;
+  a2a:subscriber "agent-002" ;
+  a2a:filters '{"event_type": "AgentRegistered"}' ;
+  a2a:enabled=true ;
+  a2a:createdAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+# Data Stream Instance
+a2a:DataStreamInstance1 a a2a:DataStream ;
+  a2a:id "data-stream-001" ;
+  a2a:name="Task Metrics Stream" ;
+  a2a:format "JSON" ;
+  a2a:rate "10"^^xsd:integer ;
+  a2a:unit "metrics/second" ;
+  a2a:enabled true ;
+  a2a:createdAt "2026-02-05T10:00:00Z"^^xsd:dateTime .
+
+a2a:DataStreamInstance2 a a2a:DataStream ;
+  a2a:id "data-stream-002" ;
+  a2a:name="Error Logs Stream" ;
+  a2a:format="JSON" ;
+  a2a:rate="5"^^xsd:integer ;
+  a2a:unit="logs/second" ;
+  a2a:enabled=true ;
+  a2a:createdAt "2026-02-05T10:00:00Z"^^xsd:dateTime .

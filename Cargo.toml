@@ -29,6 +29,10 @@ members = [
   "crates/ggen-test-opt",      # Feature 004: Test optimization tooling
   "crates/ggen-e2e",           # Feature 011: End-to-end testing with testcontainers
   "crates/ggen-node", "crates/ggen-macros",
+  "crates/ggen-workflow",      # Feature 012: Workflow orchestration engine
+  "crates/ggen-execution",      # Common execution framework for semantic convergence
+  "crates/ggen-marketplace",   # Feature 013: Marketplace and integrations
+  "marketplace/packages/rig-mcp", # Feature 013: Rig MCP integration (A2A protocol)
   "crates/ggen-api",           # RevOps: REST API layer for monetization
   "crates/ggen-auth",          # RevOps: Authentication (OAuth2, JWT, API keys)
   "crates/ggen-payments",      # RevOps: Payment processing (Stripe integration)
@@ -47,6 +51,8 @@ members = [
   "crates/ggen-craftplan",     # RDF-driven Elixir code generation for Craftplan ERP
   "crates/tps-reference",      # Toyota Production System reference implementation
   "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
+  # "crates/a2a-generated",  # Temporarily excluded - has compilation errors
+  # "crates/ggen-execution",   # Temporarily excluded - depends on a2a-generated
   "crates/tai-testing",        # Production hardening & resilience testing framework
   "crates/tai-k8s",            # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
   "crates/tai-validation",     # SLO/SLA validation, compliance framework, security scanning
@@ -64,6 +70,8 @@ exclude = [
   "crates/tai-cache",  # Temporarily excluded - has dependency issues
   "crates/tai-grpc",  # Temporarily excluded - has dependency issues
   "crates/tai-loadbalancer",  # Temporarily excluded - missing benchmark files
+  "crates/a2a-generated",  # Temporarily excluded - has compilation errors
+  "crates/ggen-execution",  # Temporarily excluded - depends on a2a-generated
 ]
 resolver = "2" # Use new resolver for better dependency resolution
 
@@ -73,6 +81,7 @@ tokio = { version = "1.47", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 anyhow = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
 thiserror = "2.0"
 async-trait = "0.1"
 tracing = "0.1"
@@ -87,7 +96,6 @@ clap-noun-verb-macros = "5.0.0"
 once_cell = "1.19"
 reqwest = { version = "0.12", features = ["blocking", "json", "rustls-tls"] }
 tempfile = "3.23"
-chrono = { version = "0.4", features = ["serde"] }
 futures = "0.3"
 futures-util = "0.3"
 uuid = { version = "1.18", features = ["v4", "serde"] }
@@ -95,21 +103,19 @@ tera = "1.20"
 oxigraph = "0.5.1"
 toml = "0.9"
 serde_yaml = "0.9"
-regex = "1.12"
-rayon = "1.11"
-log = "0.4.28"
-sha2 = "0.10"
 hex = "0.4"
+sha2 = "0.10"
 
-# E2E testing with testcontainers
+rayon = "1.11"
+regex = "1.12"
+log = "0.4"
+notify = "7.0"
 testcontainers = "0.25"
 testcontainers-modules = "0.13"
-
-# File watching for auto-regeneration
-notify = "7.0"
 notify-debouncer-full = "0.4"
 assert_cmd = "2.0"
 predicates = "3.1"
+rig-core = "0.15.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
 # NOTE: v0.2.0 unified release
@@ -143,7 +149,9 @@ knhk-lockchain = { path = "crates/knhk-lockchain", version = "0.1.0" }
 knhk-otel = { path = "crates/knhk-otel", version = "0.1.0" }
 knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "0.1.0" }
 
-# TPS (Toyota Production System) Andon implementation
+# A2A Protocol Integration (Agent-to-Agent protocol)
+a2a-rs = { path = "vendors/a2a-rs/a2a-rs", version = "0.1.0", features = ["client", "server", "tracing"], default-features = false }
+
 ggen-tps-andon = { path = "crates/ggen-tps-andon", version = "0.1.0" }
 
 # TAI Testing: Production hardening & resilience testing framework
@@ -224,7 +232,8 @@ bitflags = "2.10"
 config = { version = "0.15", default-features = false }
 convert_case = "0.10"
 
-# Patch removed - was causing conflicts with same source
+# SQLite version patch - resolve conflict between a2a-rs (0.8) and ggen-api (0.7)
+sqlx = { version = "0.8", features = ["sqlite", "runtime-tokio-rustls", "chrono", "uuid"] }
 
 # Maximized linting configuration (Rust 1.78+)
 # **Poka-Yoke Design**: Warnings are treated as errors to prevent defects at compile time.
@@ -284,6 +293,11 @@ termlog = ["ggen-utils/termlog"]
 journald = ["ggen-utils/journald"]
 syslog = ["ggen-utils/syslog"]
 london_tdd = []
+# A2A Protocol Integration (Agent-to-Agent protocol)
+use-a2a-rs = [
+  "ggen-ai/use-a2a-rs",
+  "ggen-cli-lib/use-a2a-rs",
+]
 # OpenTelemetry instrumentation (optional - adds ~200 dependencies)
 # Enable with: cargo build --features otel
 # Only forward to ggen-core, which handles its own otel dependencies
@@ -296,16 +310,15 @@ ggen-utils = { path = "crates/ggen-utils", version = "0.2.0" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "0.2.0" }
 ggen-core = { path = "crates/ggen-core", version = "0.2.0" }
 ggen-ai = { path = "crates/ggen-ai", version = "0.2.0" }
+chrono = { workspace = true }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
 log = "0.4.28"
 env_logger = "0.11"
 tokio = { version = "1.47", features = ["full"] }
 anyhow = "1.0"
-chrono = { version = "0.4", features = ["serde"] }
 serde_json = "1.0"
 serde_yaml = "0.9"
-clap = { version = "4.5", features = ["derive"] }
 tempfile = "3.23"
 tera = "1.20"
 async-trait = "0.1"
@@ -326,11 +339,10 @@ predicates = "3.1.3"
 serde_json = "1.0"
 tempfile = "3.23"
 anyhow = "1.0"
-chrono = { version = "0.4", features = ["serde"] }
 ggen-domain = { path = "crates/ggen-domain" }
+knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "0.1.0" }
 oxigraph = "0.5.1"
 # BDD testing framework
-cucumber = { version = "0.21", features = ["macros"] }
 assert_fs = "1.1"
 mockito = "1.7"
 insta = "1.43"
@@ -430,6 +442,14 @@ harness = false
 
 [[bench]]
 name = "cli_startup_performance"
+harness = false
+
+[[bench]]
+name = "mcp_a2a_benchmarks"
+harness = false
+
+[[bench]]
+name = "slo_validation"
 harness = false
 
 [[test]]
@@ -532,6 +552,11 @@ name = "ontology_workflows_e2e"
 path = "tests/integration/ontology_workflows_e2e.rs"
 required-features = []
 
+[[test]]
+name = "full_workflow_scenarios"
+path = "tests/integration/full_workflow_scenarios.rs"
+required-features = []
+
 # Security integration tests
 [[test]]
 name = "security_tests"
@@ -567,4 +592,10 @@ required-features = []
 [[test]]
 name = "tps_test_data_generation"
 path = "tests/tps/test_data_generation.rs"
+required-features = []
+
+# Transport layer tests
+[[test]]
+name = "registry_client_tests"
+path = "tests/transport/registry_client_tests.rs"
 required-features = []
