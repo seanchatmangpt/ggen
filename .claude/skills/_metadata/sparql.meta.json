@@ -1,0 +1,8 @@
+{
+  "id": "sparql",
+  "name": "SPARQL Query Patterns",
+  "tags": ["rdf", "sparql", "query"],
+  "size": 2048,
+  "requires": ["ontologies"],
+  "autoload": false
+}

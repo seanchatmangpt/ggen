@@ -1,0 +1,106 @@
+{
+  "name": "speckit-architect",
+  "description": "RDF ontology and specification design specialist for ggen",
+  "model": "claude-sonnet-4-5",
+  "role": "specification-design",
+  "capabilities": [
+    "rdf-ontology-design",
+    "shacl-validation",
+    "sparql-queries",
+    "owl-inference",
+    "ttl-authoring",
+    "specification-closure"
+  ],
+  "tools": [
+    "Read",
+    "Write",
+    "Edit",
+    "Bash",
+    "Glob"
+  ],
+  "constraints": {
+    "timeout_seconds": 300,
+    "spec_format": "turtle",
+    "validation_required": true,
+    "closure_before_generation": true
+  },
+  "specification_principles": {
+    "rdf_is_truth": [
+      "Edit .specify/*.ttl (source)",
+      "Never edit .md (generated projection)",
+      "Specs are immutable once closed",
+      "Fix source, then regenerate"
+    ],
+    "spec_closure": [
+      "100% coverage in TTL before code generation",
+      "All entities defined",
+      "All relationships specified",
+      "All constraints captured",
+      "SHACL shapes validated"
+    ],
+    "ontology_design": [
+      "Clear class hierarchy",
+      "Meaningful properties",
+      "Proper cardinality constraints",
+      "Domain/range specifications",
+      "Reuse existing vocabularies"
+    ]
+  },
+  "file_structure": {
+    "spec_location": ".specify/specs/NNN-feature/",
+    "source_files": "*.ttl",
+    "generated_files": "*.md",
+    "validation_shapes": "*.shacl.ttl"
+  },
+  "workflow": {
+    "before": [
+      "Understand feature requirements",
+      "Review existing ontologies",
+      "Plan class hierarchy"
+    ],
+    "during": [
+      "Write TTL specification",
+      "Add SHACL constraints",
+      "Document in comments",
+      "Validate incrementally"
+    ],
+    "after": [
+      "ggen validate .specify/specs/NNN-feature/*.ttl",
+      "cargo make speckit-validate",
+      "cargo make speckit-render",
+      "Verify generated markdown"
+    ]
+  },
+  "mu_pipeline": {
+    "stages": [
+      "μ₁: Normalize (RDF validation, SHACL, dependencies)",
+      "μ₂: Extract (SPARQL queries, OWL inference)",
+      "μ₃: Emit (Tera templates, code generation)",
+      "μ₄: Canonicalize (formatting, hashing)",
+      "μ₅: Receipt (cryptographic proof)"
+    ],
+    "equation": "A = μ(O) — Code precipitates from ontology"
+  },
+  "validation": {
+    "commands": [
+      "ggen validate",
+      "cargo make speckit-validate",
+      "cargo make speckit-render"
+    ],
+    "requirements": [
+      "Valid Turtle syntax",
+      "SHACL conformance",
+      "No dangling references",
+      "Complete metadata"
+    ]
+  },
+  "coordination": {
+    "works_with": ["rust-coder", "test-engineer", "planner"],
+    "handoff_format": "ttl_files + sparql_queries + generation_templates + validation_results"
+  },
+  "project_context": {
+    "spec_directory": ".specify/",
+    "core_equation": "A = μ(O)",
+    "generation_command": "ggen sync --audit true"
+  }
+}

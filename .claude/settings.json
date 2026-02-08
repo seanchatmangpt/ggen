@@ -1,169 +1,495 @@
 {
-  "env": {
-    "CLAUDE_FLOW_AUTO_COMMIT": "false",
-    "CLAUDE_FLOW_AUTO_PUSH": "false",
-    "CLAUDE_FLOW_HOOKS_ENABLED": "true",
-    "CLAUDE_FLOW_TELEMETRY_ENABLED": "true",
-    "CLAUDE_FLOW_REMOTE_EXECUTION": "true",
-    "CLAUDE_FLOW_CHECKPOINTS_ENABLED": "true"
-  },
+  "$schema": "https://schemas.claude.ai/settings.json",
+  "model": "claude-haiku-4-5",
   "permissions": {
-    "allow": [
-      "Bash(npx claude-flow:*)",
-      "Bash(npm run lint)",
-      "Bash(npm run test:*)",
-      "Bash(npm test:*)",
-      "Bash(git status)",
-      "Bash(git diff:*)",
-      "Bash(git log:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push)",
-      "Bash(git config:*)",
-      "Bash(git tag:*)",
-      "Bash(git branch:*)",
-      "Bash(git checkout:*)",
-      "Bash(git stash:*)",
-      "Bash(jq:*)",
-      "Bash(node:*)",
-      "Bash(which:*)",
-      "Bash(pwd)",
-      "Bash(ls:*)"
-    ],
-    "deny": [
-      "Bash(rm -rf /)"
-    ]
+    "mode": "acceptEdits"
   },
-  "hooks": {
-    "SessionStart": [{"matcher": "", "hooks": [
-      {"type": "command", "command": "./.claude/hooks/session-start.sh", "timeout": 30},
-      {"type": "prompt", "prompt": "Session initialized. ggen v6.0.0. Read CLAUDE.md. Rules: cargo make ONLY, EPIC 9 for non-trivial, receipts not narratives."}
-    ]}],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cat | jq -r '.tool_input.command // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks pre-command --command '{}' --validate-safety true --prepare-resources true"
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cat | jq -r '.tool_input.file_path // .tool_input.path // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks pre-edit --file '{}' --auto-assign-agents true --load-context true"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cat | jq -r '.tool_input.command // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks post-command --command '{}' --track-metrics true --store-results true"
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cat | jq -r '.tool_input.file_path // .tool_input.path // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks post-edit --file '{}' --format true --update-memory true"
-          }
-        ]
-      }
-    ],
-    "PreCompact": [
-      {
-        "matcher": "manual",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/bin/bash -c 'INPUT=$(cat); CUSTOM=$(echo \"$INPUT\" | jq -r \".custom_instructions // \\\"\\\"\"); echo \"🔄 PreCompact Guidance:\"; echo \"📋 IMPORTANT: Review CLAUDE.md in project root for:\"; echo \"   • 54 available agents and concurrent usage patterns\"; echo \"   • Swarm coordination strategies (hierarchical, mesh, adaptive)\"; echo \"   • SPARC methodology workflows with batchtools optimization\"; echo \"   • Critical concurrent execution rules (GOLDEN RULE: 1 MESSAGE = ALL OPERATIONS)\"; if [ -n \"$CUSTOM\" ]; then echo \"🎯 Custom compact instructions: $CUSTOM\"; fi; echo \"✅ Ready for compact operation\"'"
-          }
-        ]
-      },
-      {
-        "matcher": "auto",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/bin/bash -c 'echo \"🔄 Auto-Compact Guidance (Context Window Full):\"; echo \"📋 CRITICAL: Before compacting, ensure you understand:\"; echo \"   • All 54 agents available in .claude/agents/ directory\"; echo \"   • Concurrent execution patterns from CLAUDE.md\"; echo \"   • Batchtools optimization for 300% performance gains\"; echo \"   • Swarm coordination strategies for complex tasks\"; echo \"⚡ Apply GOLDEN RULE: Always batch operations in single messages\"; echo \"✅ Auto-compact proceeding with full agent context\"'"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx claude-flow@alpha hooks session-end --generate-summary true --persist-state true --export-metrics true"
-          }
-        ]
-      }
-    ]
-  },
-  "includeCoAuthoredBy": true,
-  "enabledMcpjsonServers": ["claude-flow", "ruv-swarm"],
-  "statusLine": {
-    "type": "command",
-    "command": ".claude/statusline-command.sh"
-    "Stop": [{"matcher": "", "hooks": [{"type": "prompt", "prompt": "Before stop: tests pass? lint clean? uncommitted? receipts?"}]}]
-  },
-  "mcp_servers": {
-    "enabled": false,
-    "servers": {
-      "github": {"command": "mcp-server-github", "env": {"GITHUB_TOKEN": "${GITHUB_TOKEN}"}, "disabled": true},
-      "filesystem": {"command": "mcp-server-filesystem", "args": ["/home/user/ggen"], "disabled": true},
-      "sparql": {"command": "mcp-server-sparql", "args": ["http://localhost:7878/query"], "disabled": true}
+  "extendedThinking": true,
+  "metadata": {
+    "version": "6.0.0",
+    "project": "ggen",
+    "description": "Specification-driven code generation CLI built in Rust",
+    "lastUpdated": "2026-02-08",
+    "progressiveDisclosure": {
+      "defaultExpanded": ["core", "priority"],
+      "defaultCollapsed": ["specialized", "bb80"]
     }
   },
-  "environment": {
-    "env": {"RUST_BACKTRACE": "1", "RUST_LOG": "info", "CARGO_TERM_COLOR": "always", "RUSTFLAGS": "-D warnings", "GGEN_VERSION": "6.0.0"}
+  "agents": [
+    {
+      "name": "coder",
+      "category": "core",
+      "description": "Elite Rust implementation following type-first design, zero-cost abstractions, and Chicago TDD",
+      "capabilities": ["rust-implementation", "type-safety", "zero-cost-abstractions", "chicago-tdd"],
+      "priority": 1,
+      "buildCommand": "cargo make",
+      "testCommand": "cargo make test-unit"
+    },
+    {
+      "name": "reviewer",
+      "category": "core",
+      "description": "Code review with focus on Rust idioms, safety, and performance",
+      "capabilities": ["code-review", "rust-idioms", "safety-analysis", "performance-review"],
+      "priority": 1,
+      "buildCommand": "cargo make lint"
+    },
+    {
+      "name": "tester",
+      "category": "core",
+      "description": "Chicago TDD testing with AAA pattern, state-based verification, real collaborators",
+      "capabilities": ["chicago-tdd", "unit-testing", "integration-testing", "property-testing"],
+      "priority": 1,
+      "testCommand": "cargo make test"
+    },
+    {
+      "name": "planner",
+      "category": "core",
+      "description": "Task breakdown and workflow orchestration following DfLSS principles",
+      "capabilities": ["task-planning", "workflow-design", "dflss", "andon-monitoring"],
+      "priority": 1
+    },
+    {
+      "name": "researcher",
+      "category": "core",
+      "description": "Technical research, RDF/SPARQL analysis, and architectural investigation",
+      "capabilities": ["research", "rdf-analysis", "sparql", "architecture-research"],
+      "priority": 1
+    },
+    {
+      "name": "production-validator",
+      "category": "priority",
+      "description": "Production readiness validation including SLO checks, security audit, and performance benchmarks",
+      "capabilities": ["production-validation", "slo-verification", "security-audit", "performance-benchmarks"],
+      "priority": 2,
+      "validationCommands": [
+        "cargo make check",
+        "cargo make test",
+        "cargo make lint",
+        "cargo make slo-check",
+        "cargo make audit"
+      ]
+    },
+    {
+      "name": "code-analyzer",
+      "category": "priority",
+      "description": "Deep code quality analysis focusing on Rust patterns, type safety, and zero-cost abstractions",
+      "capabilities": ["code-analysis", "pattern-detection", "type-safety-verification", "performance-analysis"],
+      "priority": 2,
+      "buildCommand": "cargo make lint"
+    },
+    {
+      "name": "system-architect",
+      "category": "priority",
+      "description": "System architecture design with type-first approach and API design",
+      "capabilities": ["architecture-design", "api-design", "type-system-design", "system-modeling"],
+      "priority": 2
+    },
+    {
+      "name": "performance-benchmarker",
+      "category": "priority",
+      "description": "Performance optimization and benchmarking using Criterion",
+      "capabilities": ["performance-optimization", "benchmarking", "profiling", "hot-path-optimization"],
+      "priority": 2,
+      "benchCommand": "cargo make bench"
+    },
+    {
+      "name": "backend-dev",
+      "category": "priority",
+      "description": "Backend implementation using Axum, Tokio, and async Rust patterns",
+      "capabilities": ["backend-development", "async-rust", "axum", "tokio"],
+      "priority": 2,
+      "buildCommand": "cargo make"
+    },
+    {
+      "name": "task-orchestrator",
+      "category": "priority",
+      "description": "Complex workflow orchestration and multi-agent coordination",
+      "capabilities": ["workflow-orchestration", "multi-agent-coordination", "task-management"],
+      "priority": 2
+    },
+    {
+      "name": "hierarchical-coordinator",
+      "category": "specialized",
+      "description": "Hierarchical swarm coordination with chain-of-command structure",
+      "capabilities": ["hierarchical-coordination", "swarm-management"],
+      "priority": 3
+    },
+    {
+      "name": "mesh-coordinator",
+      "category": "specialized",
+      "description": "Mesh topology coordination for peer-to-peer agent collaboration",
+      "capabilities": ["mesh-coordination", "p2p-collaboration"],
+      "priority": 3
+    },
+    {
+      "name": "adaptive-coordinator",
+      "category": "specialized",
+      "description": "Adaptive coordination with dynamic topology adjustments",
+      "capabilities": ["adaptive-coordination", "dynamic-topology"],
+      "priority": 3
+    },
+    {
+      "name": "byzantine-coordinator",
+      "category": "specialized",
+      "description": "Byzantine fault-tolerant coordination for consensus-critical workflows",
+      "capabilities": ["byzantine-coordination", "fault-tolerance", "consensus"],
+      "priority": 3
+    },
+    {
+      "name": "raft-manager",
+      "category": "specialized",
+      "description": "Raft consensus algorithm management for distributed coordination",
+      "capabilities": ["raft-consensus", "leader-election", "log-replication"],
+      "priority": 3
+    },
+    {
+      "name": "gossip-coordinator",
+      "category": "specialized",
+      "description": "Gossip protocol coordination for eventual consistency",
+      "capabilities": ["gossip-protocol", "eventual-consistency"],
+      "priority": 3
+    },
+    {
+      "name": "crdt-synchronizer",
+      "category": "specialized",
+      "description": "CRDT-based state synchronization for conflict-free replication",
+      "capabilities": ["crdt-synchronization", "conflict-resolution"],
+      "priority": 3
+    },
+    {
+      "name": "perf-analyzer",
+      "category": "specialized",
+      "description": "Performance analysis and bottleneck detection",
+      "capabilities": ["performance-analysis", "bottleneck-detection", "profiling"],
+      "priority": 3,
+      "benchCommand": "cargo make bench"
+    },
+    {
+      "name": "memory-coordinator",
+      "category": "specialized",
+      "description": "Memory management and coordination state tracking",
+      "capabilities": ["memory-management", "state-tracking"],
+      "priority": 3
+    },
+    {
+      "name": "github-modes",
+      "category": "specialized",
+      "description": "GitHub workflow automation and repository management",
+      "capabilities": ["github-automation", "workflow-management"],
+      "priority": 3
+    },
+    {
+      "name": "pr-manager",
+      "category": "specialized",
+      "description": "Pull request creation and management",
+      "capabilities": ["pr-management", "code-review-automation"],
+      "priority": 3
+    },
+    {
+      "name": "code-review-swarm",
+      "category": "specialized",
+      "description": "Multi-agent code review swarm for comprehensive analysis",
+      "capabilities": ["swarm-review", "comprehensive-analysis"],
+      "priority": 3
+    },
+    {
+      "name": "issue-tracker",
+      "category": "specialized",
+      "description": "GitHub issue tracking and management",
+      "capabilities": ["issue-tracking", "bug-management"],
+      "priority": 3
+    },
+    {
+      "name": "release-manager",
+      "category": "specialized",
+      "description": "Release management and versioning",
+      "capabilities": ["release-management", "versioning", "changelog-generation"],
+      "priority": 3
+    },
+    {
+      "name": "workflow-automation",
+      "category": "specialized",
+      "description": "CI/CD workflow automation",
+      "capabilities": ["ci-cd", "automation", "pipeline-management"],
+      "priority": 3
+    },
+    {
+      "name": "repo-architect",
+      "category": "specialized",
+      "description": "Repository architecture and structure design",
+      "capabilities": ["repo-design", "structure-optimization"],
+      "priority": 3
+    },
+    {
+      "name": "multi-repo-swarm",
+      "category": "specialized",
+      "description": "Multi-repository coordination and management",
+      "capabilities": ["multi-repo-management", "cross-repo-coordination"],
+      "priority": 3
+    },
+    {
+      "name": "sparc-coord",
+      "category": "specialized",
+      "description": "SPARC methodology coordinator (Specification, Pseudocode, Architecture, Refinement, Completion)",
+      "capabilities": ["sparc-methodology", "specification-driven"],
+      "priority": 3
+    },
+    {
+      "name": "sparc-coder",
+      "category": "specialized",
+      "description": "SPARC-based code implementation",
+      "capabilities": ["sparc-implementation", "specification-driven-coding"],
+      "priority": 3,
+      "buildCommand": "cargo make"
+    },
+    {
+      "name": "specification",
+      "category": "specialized",
+      "description": "RDF specification creation and validation",
+      "capabilities": ["rdf-specification", "shacl-validation", "ttl-authoring"],
+      "priority": 3,
+      "validationCommand": "cargo make speckit-validate"
+    },
+    {
+      "name": "pseudocode",
+      "category": "specialized",
+      "description": "Pseudocode design and algorithmic planning",
+      "capabilities": ["pseudocode-design", "algorithm-planning"],
+      "priority": 3
+    },
+    {
+      "name": "architecture",
+      "category": "specialized",
+      "description": "Software architecture design and documentation",
+      "capabilities": ["architecture-design", "system-modeling", "documentation"],
+      "priority": 3
+    },
+    {
+      "name": "refinement",
+      "category": "specialized",
+      "description": "Code refinement and optimization",
+      "capabilities": ["code-refinement", "optimization", "refactoring"],
+      "priority": 3,
+      "buildCommand": "cargo make lint"
+    },
+    {
+      "name": "tdd-london-swarm",
+      "category": "specialized",
+      "description": "London School TDD swarm with interaction-based testing",
+      "capabilities": ["london-tdd", "interaction-testing", "mock-based-testing"],
+      "priority": 3,
+      "testCommand": "cargo make test"
+    },
+    {
+      "name": "migration-planner",
+      "category": "specialized",
+      "description": "Code migration planning and execution",
+      "capabilities": ["migration-planning", "legacy-modernization"],
+      "priority": 3
+    },
+    {
+      "name": "swarm-init",
+      "category": "specialized",
+      "description": "Swarm initialization and topology setup",
+      "capabilities": ["swarm-initialization", "topology-setup"],
+      "priority": 3
+    },
+    {
+      "name": "bb80-specification-validator",
+      "category": "bb80",
+      "description": "EPIC 9 Big Bang 80/20: Validates 100% TTL spec closure before fan-out",
+      "capabilities": ["spec-validation", "ttl-closure", "shacl-validation"],
+      "priority": 4,
+      "validationCommand": "cargo make speckit-validate"
+    },
+    {
+      "name": "bb80-parallel-task-coordinator",
+      "category": "bb80",
+      "description": "EPIC 9: Coordinates 10 parallel agents in fan-out phase",
+      "capabilities": ["parallel-coordination", "fan-out-management"],
+      "priority": 4
+    },
+    {
+      "name": "bb80-collision-detector",
+      "category": "bb80",
+      "description": "EPIC 9: Detects file/type/namespace collisions across parallel agents",
+      "capabilities": ["collision-detection", "conflict-resolution"],
+      "priority": 4
+    },
+    {
+      "name": "bb80-convergence-orchestrator",
+      "category": "bb80",
+      "description": "EPIC 9: Orchestrates convergence phase and cryptographic receipt generation",
+      "capabilities": ["convergence-orchestration", "cryptographic-audit"],
+      "priority": 4
+    },
+    {
+      "name": "rust-coder",
+      "category": "bb80",
+      "description": "EPIC 9: Elite Rust implementation with type-first design",
+      "capabilities": ["rust-implementation", "type-first", "zero-cost"],
+      "priority": 4,
+      "buildCommand": "cargo make"
+    },
+    {
+      "name": "speckit-architect",
+      "category": "bb80",
+      "description": "EPIC 9: RDF ontology architecture and SHACL shape design",
+      "capabilities": ["ontology-design", "shacl-shapes", "rdf-architecture"],
+      "priority": 4
+    },
+    {
+      "name": "test-engineer",
+      "category": "bb80",
+      "description": "EPIC 9: Comprehensive testing with Chicago TDD and property testing",
+      "capabilities": ["chicago-tdd", "property-testing", "integration-testing"],
+      "priority": 4,
+      "testCommand": "cargo make test"
+    }
+  ],
+  "env": {
+    "RUST_VERSION": "1.91.1",
+    "CARGO_MAKE_REQUIRED": "true",
+    "RNG_SEED": "42",
+    "RUST_BACKTRACE": "1",
+    "CARGO_TERM_COLOR": "always",
+    "ANDON_MONITORING": "true",
+    "CHICAGO_TDD": "true",
+    "DFLSS_MODE": "true",
+    "RDF_SOURCE_OF_TRUTH": ".specify",
+    "TEST_COVERAGE_TARGET": "80",
+    "SLO_FIRST_BUILD_MAX": "15s",
+    "SLO_INCREMENTAL_MAX": "2s",
+    "SLO_RDF_PROCESSING_MAX": "5s",
+    "SLO_GENERATION_MEMORY_MAX": "100MB",
+    "SLO_CLI_SCAFFOLDING_MAX": "3s"
   },
-  "tools_and_model": {
-    "model": "claude-sonnet-4-5-20250929",
-    "output_style": "structured",
-    "temperature": 0.0,
-    "tool_preferences": {"prefer_parallel_calls": true, "max_parallel_tools": 10}
+  "buildSystem": {
+    "primary": "cargo make",
+    "commands": {
+      "check": "cargo make check",
+      "test": "cargo make test",
+      "testUnit": "cargo make test-unit",
+      "lint": "cargo make lint",
+      "preCommit": "cargo make pre-commit",
+      "ci": "cargo make ci",
+      "sloCheck": "cargo make slo-check",
+      "audit": "cargo make audit",
+      "bench": "cargo make bench",
+      "speckitValidate": "cargo make speckit-validate",
+      "speckitRender": "cargo make speckit-render",
+      "timeoutCheck": "cargo make timeout-check"
+    },
+    "andonSignals": {
+      "critical": ["error[E", "test ... FAILED"],
+      "high": ["warning:", "clippy::"],
+      "action": "STOP_THE_LINE"
+    }
+  },
+  "testingStrategy": {
+    "methodology": "Chicago TDD",
+    "principles": [
+      "State-based verification",
+      "Real collaborators",
+      "Behavior verification",
+      "AAA pattern (Arrange/Act/Assert)"
+    ],
+    "types": [
+      "unit",
+      "integration",
+      "bdd-cucumber",
+      "property-proptest",
+      "snapshot-insta",
+      "security",
+      "determinism",
+      "performance-criterion"
+    ],
+    "coverageTarget": 80,
+    "prohibitedInProduction": ["unwrap()", "expect()", "unimplemented!()", "todo!()"]
+  },
+  "rdfPipeline": {
+    "stages": [
+      "μ₁-normalize",
+      "μ₂-extract",
+      "μ₃-emit",
+      "μ₄-canonicalize",
+      "μ₅-receipt"
+    ],
+    "sourceOfTruth": ".specify/**/*.ttl",
+    "validationCommand": "cargo make speckit-validate",
+    "renderCommand": "cargo make speckit-render"
+  },
+  "qualityGates": {
+    "requiredBeforeCompletion": [
+      "cargo make check",
+      "cargo make test",
+      "cargo make lint",
+      "cargo make slo-check"
+    ],
+    "optional": [
+      "cargo make audit",
+      "cargo make bench"
+    ]
+  },
+  "codeStandards": {
+    "rustEdition": "2021",
+    "principles": [
+      "Type-first design",
+      "Zero-cost abstractions",
+      "Memory safety via ownership",
+      "Result<T,E> over panics",
+      "Ergonomic APIs"
+    ],
+    "prohibitedPatterns": [
+      "Direct cargo commands",
+      "Commands without timeout wrappers",
+      "Ignoring Andon signals",
+      "Placeholders in production code",
+      "TODO comments (use FUTURE: prefix)",
+      "print!/println! in libraries (use log! macros)",
+      "Saving files to root folder"
+    ]
+  },
+  "workspaceStructure": {
+    "totalCrates": 30,
+    "coreCrates": [
+      "ggen-core",
+      "ggen-cli",
+      "ggen-domain",
+      "ggen-utils",
+      "ggen-config",
+      "ggen-macros",
+      "ggen-node",
+      "ggen-dod"
+    ],
+    "directories": {
+      "source": "crates/*/src/",
+      "tests": "crates/*/tests/",
+      "workspaceTests": "tests/",
+      "docs": "docs/",
+      "scripts": "scripts/",
+      "examples": "examples/",
+      "benches": "benches/",
+      "specs": ".specify/",
+      "config": ".claude/"
+    }
   },
   "epic9": {
-    "enabled": true,
-    "default_agents": 10,
-    "mandatory_phases": ["fan_out", "independent_construction", "collision_detection", "convergence", "refactoring", "closure"],
-    "speedup_target": "2.8x-4.4x"
-  },
-  "slo_targets": {
-    "cargo_make_check": "≤5s",
-    "cargo_make_test": "≤30s",
-    "cargo_make_lint": "≤60s",
-    "first_build": "≤15s",
-    "incremental_build": "≤2s"
-  },
-  "cargo_make_protocol": {
-    "rule": "cargo make [target] ONLY",
-    "prohibited": ["cargo check", "cargo test", "cargo build", "cargo clippy"],
-    "allowed": ["cargo make check", "cargo make test", "cargo make lint", "cargo make pre-commit"]
-  },
-  "andon_signals": {
-    "RED": {"triggers": ["error[E", "FAILED", "panicked"], "action": "STOP immediately"},
-    "YELLOW": {"triggers": ["warning:", "clippy::", "TODO"], "action": "Investigate"},
-    "GREEN": {"triggers": ["test result: ok", "0 violations"], "action": "Continue"}
-  },
-  "project_metadata": {
-    "name": "ggen",
-    "version": "6.0.0",
-    "description": "Ontology-driven code generation: RDF → reproducible code",
-    "rust_version": "1.91.1",
-    "msrv": "1.75+",
-    "workspace_crates": 27,
-    "tech_stack": ["Rust 1.91.1", "Tokio 1.47", "Oxigraph 0.5.1", "Tera 1.20", "genai 0.4", "chicago-tdd-tools 1.4.0"]
+    "name": "Big Bang 80/20",
+    "triggers": [
+      "Non-trivial: 5+ files or 3+ systems",
+      "Multiple valid approaches",
+      "Large architectural decisions",
+      "Unclear requirements",
+      "Unknown unknowns"
+    ],
+    "workflow": [
+      "Spec Closure (100% TTL)",
+      "Fan-Out (10 parallel agents)",
+      "Collision Detection",
+      "Convergence",
+      "Refactoring",
+      "Cryptographic Receipt"
+    ]
   }
 }

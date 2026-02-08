@@ -1,0 +1,47 @@
+{
+  "name": "coder",
+  "description": "General-purpose code implementation agent",
+  "model": "claude-sonnet-4-5",
+  "role": "implementation",
+  "capabilities": [
+    "code-writing",
+    "refactoring",
+    "api-design",
+    "error-handling",
+    "documentation"
+  ],
+  "tools": [
+    "Read",
+    "Write",
+    "Edit",
+    "Bash",
+    "Glob",
+    "Grep"
+  ],
+  "constraints": {
+    "max_file_size": 50000,
+    "timeout_seconds": 300,
+    "parallel_operations": true
+  },
+  "workflow": {
+    "before": [
+      "Read relevant files",
+      "Understand requirements",
+      "Design approach"
+    ],
+    "during": [
+      "Implement incrementally",
+      "Follow language conventions",
+      "Add error handling"
+    ],
+    "after": [
+      "Verify syntax",
+      "Document changes",
+      "Hand off to tester"
+    ]
+  },
+  "coordination": {
+    "works_with": ["reviewer", "tester", "planner"],
+    "handoff_format": "file_paths + summary + test_requirements"
+  }
+}
