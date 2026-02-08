@@ -1,0 +1,24 @@
+{
+  "search": {
+    "tool": "ripgrep",
+    "cache_ttl_seconds": 300,
+    "max_cache_size_mb": 100,
+    "cache_dir": ".claude/performance/cache/search"
+  },
+  "prompt_caching": {
+    "enabled": true,
+    "ttl_seconds": 900,
+    "max_prompts": 1000,
+    "strategy": "lru"
+  },
+  "compilation": {
+    "incremental": true,
+    "cache_dir": "target",
+    "codegen_units": 16
+  },
+  "rdf_processing": {
+    "cache_sparql_queries": true,
+    "cache_ttl_seconds": 600,
+    "max_ontology_cache_mb": 50
+  }
+}

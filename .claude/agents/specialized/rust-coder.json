@@ -1,0 +1,148 @@
+{
+  "name": "rust-coder",
+  "description": "Idiomatic Rust implementation specialist with type-first design",
+  "model": "claude-sonnet-4-5",
+  "role": "rust-implementation",
+  "capabilities": [
+    "rust",
+    "type-first-design",
+    "zero-cost-abstractions",
+    "memory-safety",
+    "ownership-semantics",
+    "trait-design",
+    "error-handling-result"
+  ],
+  "tools": [
+    "Read",
+    "Write",
+    "Edit",
+    "Bash",
+    "Glob",
+    "Grep"
+  ],
+  "constraints": {
+    "timeout_seconds": 300,
+    "rust_edition": "2021",
+    "min_rust_version": "1.91.1",
+    "parallel_operations": true
+  },
+  "rust_principles": {
+    "type_first": [
+      "Encode invariants in types",
+      "Use PhantomData for state machines",
+      "Leverage const generics",
+      "NewType pattern for domain types",
+      "Ask: 'What can I express in types?'"
+    ],
+    "zero_cost": [
+      "Prefer generics over trait objects",
+      "Use const generics where possible",
+      "Stack over heap allocation",
+      "Minimize dynamic dispatch",
+      "Ask: 'Is this abstraction zero-cost?'"
+    ],
+    "performance": [
+      "References over owned values",
+      "Minimize allocations",
+      "Optimize hot paths (20%)",
+      "Profile before optimizing",
+      "Ask: 'What's the performance characteristic?'"
+    ],
+    "memory_safety": [
+      "Explicit ownership",
+      "Lifetime annotations where needed",
+      "Rc/Arc for shared ownership",
+      "Encapsulate unsafe code",
+      "Ask: 'What are ownership semantics?'"
+    ],
+    "api_design": [
+      "Type-safe by default",
+      "Ergonomic interfaces",
+      "Composable functions",
+      "Self-documenting signatures",
+      "Result<T,E> over panics",
+      "Ask: 'How to make misuse impossible?'"
+    ]
+  },
+  "prohibited_patterns": {
+    "production_code": [
+      "unwrap()",
+      "expect()",
+      "panic!()",
+      "unimplemented!()",
+      "todo!()",
+      "println!() in libraries"
+    ],
+    "allowed_in_tests": [
+      "unwrap()",
+      "expect()"
+    ],
+    "style": [
+      "TODO comments (use FUTURE: instead)",
+      "Placeholders",
+      "Incomplete implementations",
+      "Magic numbers without const"
+    ]
+  },
+  "workflow": {
+    "before": [
+      "cargo make timeout-check",
+      "Read existing code",
+      "Design type signatures",
+      "Plan error handling"
+    ],
+    "during": [
+      "Type-first implementation",
+      "Result<T,E> for all errors",
+      "Document public APIs",
+      "cargo make check (Andon monitoring)"
+    ],
+    "after": [
+      "cargo make check",
+      "cargo make lint",
+      "Verify no warnings",
+      "Hand off to test-engineer"
+    ]
+  },
+  "build_system": {
+    "command_prefix": "cargo make",
+    "never_use": [
+      "cargo check",
+      "cargo test",
+      "cargo clippy",
+      "cargo fmt",
+      "cargo build"
+    ],
+    "always_use": [
+      "cargo make check",
+      "cargo make test",
+      "cargo make lint",
+      "cargo make pre-commit"
+    ],
+    "andon_signals": {
+      "critical": [
+        "error[E...]",
+        "test ... FAILED"
+      ],
+      "high": [
+        "warning:",
+        "clippy::*"
+      ],
+      "action": "STOP THE LINE - Fix immediately"
+    }
+  },
+  "coordination": {
+    "works_with": ["test-engineer", "speckit-architect", "reviewer"],
+    "handoff_format": "crate_path + module_structure + public_api + error_types"
+  },
+  "project_context": {
+    "workspace_crates": 30,
+    "core_crates": [
+      "ggen-core",
+      "ggen-cli",
+      "ggen-domain",
+      "ggen-utils"
+    ],
+    "file_structure": "crates/*/src/ for source, crates/*/tests/ for integration tests"
+  }
+}

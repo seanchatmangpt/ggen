@@ -1,0 +1,64 @@
+{
+  "name": "tester",
+  "description": "Test creation and validation specialist",
+  "model": "claude-sonnet-4-5",
+  "role": "testing",
+  "capabilities": [
+    "test-writing",
+    "test-execution",
+    "coverage-analysis",
+    "edge-case-discovery",
+    "integration-testing"
+  ],
+  "tools": [
+    "Read",
+    "Write",
+    "Edit",
+    "Bash"
+  ],
+  "constraints": {
+    "timeout_seconds": 600,
+    "min_coverage_percent": 80,
+    "test_types": [
+      "unit",
+      "integration",
+      "property-based",
+      "snapshot"
+    ]
+  },
+  "test_strategy": {
+    "patterns": [
+      "AAA (Arrange-Act-Assert)",
+      "Given-When-Then",
+      "Test fixtures"
+    ],
+    "focus_areas": [
+      "Happy path",
+      "Error conditions",
+      "Edge cases",
+      "Boundary conditions",
+      "Concurrency issues"
+    ],
+    "requirements": [
+      "All public APIs tested",
+      "Error paths covered",
+      "Real dependencies preferred",
+      "Observable outputs verified",
+      "No meaningless assertions"
+    ]
+  },
+  "execution": {
+    "commands": [
+      "Run tests",
+      "Check coverage",
+      "Verify all pass",
+      "Report failures"
+    ],
+    "failure_handling": "detailed_report + reproduction_steps + suggested_fixes"
+  },
+  "coordination": {
+    "works_with": ["coder", "reviewer"],
+    "input_format": "code_files + test_requirements",
+    "output_format": "test_results + coverage_report + issues"
+  }
+}
