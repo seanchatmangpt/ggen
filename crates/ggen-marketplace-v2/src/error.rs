@@ -158,6 +158,7 @@ pub enum Error {
 
 impl Error {
     /// Create a new "Package not found" error
+    #[must_use]
     pub fn package_not_found(package_id: impl Into<String>) -> Self {
         Self::PackageNotFound {
             package_id: package_id.into(),
@@ -165,6 +166,7 @@ impl Error {
     }
 
     /// Create a new "Invalid package ID" error
+    #[must_use]
     pub fn invalid_package_id(reason: impl Into<String>) -> Self {
         Self::InvalidPackageId {
             reason: reason.into(),
@@ -172,6 +174,7 @@ impl Error {
     }
 
     /// Create a new "Invalid version" error
+    #[must_use]
     pub fn invalid_version(version: impl Into<String>, reason: impl Into<String>) -> Self {
         Self::InvalidVersion {
             version: version.into(),
@@ -180,6 +183,7 @@ impl Error {
     }
 
     /// Create a new "Dependency resolution failed" error
+    #[must_use]
     pub fn dependency_resolution_failed(
         package_id: impl Into<String>, reason: impl Into<String>,
     ) -> Self {
@@ -190,31 +194,37 @@ impl Error {
     }
 
     /// Create a new cryptographic error
+    #[must_use]
     pub fn crypto_error(reason: impl Into<String>) -> Self {
         Self::CryptoError(reason.into())
     }
 
     /// Create a new search error
+    #[must_use]
     pub fn search_error(reason: impl Into<String>) -> Self {
         Self::SearchError(reason.into())
     }
 
     /// Create a new registry error
+    #[must_use]
     pub fn registry_error(reason: impl Into<String>) -> Self {
         Self::RegistryError(reason.into())
     }
 
     /// Create a new concurrency error
+    #[must_use]
     pub fn concurrency_error(reason: impl Into<String>) -> Self {
         Self::ConcurrencyError(reason.into())
     }
 
     /// Create a new configuration error
+    #[must_use]
     pub fn config_error(reason: impl Into<String>) -> Self {
         Self::ConfigError(reason.into())
     }
 
     /// Create a new timeout error
+    #[must_use]
     pub fn timeout(reason: impl Into<String>) -> Self {
         Self::Timeout(reason.into())
     }
@@ -231,6 +241,7 @@ pub struct ErrorContext {
 
 impl ErrorContext {
     /// Create new error context
+    #[must_use]
     pub fn new(operation: impl Into<String>, context: impl Into<String>) -> Self {
         Self {
             operation: operation.into(),

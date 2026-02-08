@@ -24,53 +24,102 @@ pub struct SparqlSearchEngine {
 
 impl SparqlSearchEngine {
     /// Create a new SPARQL search engine
+    #[must_use]
     pub fn new(store: Arc<Store>) -> Self {
         Self { store }
     }
 
     /// Search packages by name (semantic search)
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
+    /// * [`Error::SearchError`] - When querying the RDF store fails
+    #[must_use]
     pub fn search_by_name(&self, name: &str) -> Result<Vec<String>> {
         let query = Queries::search_by_name(name);
         self.execute_query(&query)
     }
 
     /// Search packages by description content
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
+    /// * [`Error::SearchError`] - When querying the RDF store fails
+    #[must_use]
     pub fn search_by_description(&self, text: &str) -> Result<Vec<String>> {
         let query = Queries::search_by_description(text);
         self.execute_query(&query)
     }
 
     /// Search packages by keyword/category
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
+    /// * [`Error::SearchError`] - When querying the RDF store fails
+    #[must_use]
     pub fn search_by_keyword(&self, keyword: &str) -> Result<Vec<String>> {
         let query = Queries::packages_by_keyword(keyword);
         self.execute_query(&query)
     }
 
     /// Find packages by author
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
+    /// * [`Error::SearchError`] - When querying the RDF store fails
+    #[must_use]
     pub fn search_by_author(&self, author: &str) -> Result<Vec<String>> {
         let query = Queries::packages_by_author(author);
         self.execute_query(&query)
     }
 
     /// Get trending packages (sorted by downloads)
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
+    /// * [`Error::SearchError`] - When querying the RDF store fails
+    #[must_use]
     pub fn trending_packages(&self, limit: usize) -> Result<Vec<String>> {
         let query = Queries::trending_packages(limit);
         self.execute_query(&query)
     }
 
     /// Get recent packages (newly added)
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
+    /// * [`Error::SearchError`] - When querying the RDF store fails
+    #[must_use]
     pub fn recent_packages(&self, limit: usize) -> Result<Vec<String>> {
         let query = Queries::recent_packages(limit);
         self.execute_query(&query)
     }
 
     /// Find high-quality packages (quality score >= threshold)
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
+    /// * [`Error::SearchError`] - When querying the RDF store fails
+    #[must_use]
     pub fn search_by_quality(&self, min_score: u32) -> Result<Vec<String>> {
         let query = Queries::packages_by_quality(min_score);
         self.execute_query(&query)
     }
 
     /// Get all packages
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
+    /// * [`Error::SearchError`] - When querying the RDF store fails
+    #[must_use]
     pub fn all_packages(&self) -> Result<Vec<String>> {
         let query = Queries::all_packages();
         self.execute_query(&query)
@@ -124,6 +173,7 @@ pub struct SearchFilters {
 
 impl SearchFilters {
     /// Create empty filters
+    #[must_use]
     pub fn new() -> Self {
         Self {
             min_quality: None,
@@ -134,24 +184,28 @@ impl SearchFilters {
     }
 
     /// Set quality filter
+    #[must_use]
     pub fn with_quality(mut self, min_score: u32) -> Self {
         self.min_quality = Some(min_score);
         self
     }
 
     /// Set author filter
+    #[must_use]
     pub fn with_author(mut self, author: impl Into<String>) -> Self {
         self.author = Some(author.into());
         self
     }
 
     /// Set keyword filter
+    #[must_use]
     pub fn with_keyword(mut self, keyword: impl Into<String>) -> Self {
         self.keyword = Some(keyword.into());
         self
     }
 
     /// Set result limit
+    #[must_use]
     pub fn with_limit(mut self, limit: usize) -> Self {
         self.limit = limit;
         self

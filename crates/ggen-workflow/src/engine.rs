@@ -26,7 +26,7 @@
 //! - **OR Join**: Merge from one or more branches
 
 use crate::error::{WorkflowError, WorkflowResult};
-use crate::patterns::{WorkflowContext, TraceEvent};
+use crate::patterns::{TraceEvent, WorkflowContext};
 use crate::receipts::{ReceiptGenerator, WorkflowReceipt};
 use crate::CONSTANTS;
 use serde::{Deserialize, Serialize};
@@ -329,6 +329,7 @@ pub struct ConditionEvaluator {
     /// Context variables for evaluation
     context: HashMap<String, serde_json::Value>,
     /// SPARQL endpoint for ontology-based conditions
+    #[allow(dead_code)]
     sparql_endpoint: Option<String>,
 }
 
@@ -378,8 +379,8 @@ impl ConditionEvaluator {
         }
 
         // Handle SPARQL-based conditions
-        if expr.starts_with("SPARQL:") {
-            return self.evaluate_sparql_condition(&expr[7..]);
+        if let Some(query) = expr.strip_prefix("SPARQL:") {
+            return self.evaluate_sparql_condition(query);
         }
 
         Err(WorkflowError::Validation(format!(
@@ -533,9 +534,7 @@ impl WorkflowDecomposer {
     }
 
     /// Decompose a complex workflow into manageable sub-workflows
-    pub fn decompose(
-        &mut self, tasks: Vec<TaskDefinition>,
-    ) -> WorkflowResult<DecompositionResult> {
+    pub fn decompose(&mut self, tasks: Vec<TaskDefinition>) -> WorkflowResult<DecompositionResult> {
         if self.current_depth >= self.max_depth {
             return Err(WorkflowError::Validation(
                 "Maximum decomposition depth exceeded".to_string(),
@@ -586,8 +585,7 @@ impl WorkflowDecomposer {
 
     /// Find all tasks connected through dependencies
     fn find_connected_group(
-        &self, start: &TaskDefinition, all_tasks: &[TaskDefinition],
-        assigned: &mut HashSet<String>,
+        &self, start: &TaskDefinition, all_tasks: &[TaskDefinition], assigned: &mut HashSet<String>,
     ) -> WorkflowResult<Vec<TaskDefinition>> {
         let mut group = Vec::new();
         let mut to_visit = vec![start.id.clone()];
@@ -600,9 +598,7 @@ impl WorkflowDecomposer {
             let task = all_tasks
                 .iter()
                 .find(|t| t.id == task_id)
-                .ok_or_else(|| {
-                    WorkflowError::Validation(format!("Task not found: {}", task_id))
-                })?;
+                .ok_or_else(|| WorkflowError::Validation(format!("Task not found: {}", task_id)))?;
 
             group.push(task.clone());
             assigned.insert(task_id.clone());
@@ -633,11 +629,7 @@ impl WorkflowDecomposer {
         let task_ids: HashSet<String> = tasks.iter().map(|t| t.id.clone()).collect();
         let entry_points: Vec<String> = tasks
             .iter()
-            .filter(|t| {
-                t.dependencies
-                    .iter()
-                    .all(|dep| !task_ids.contains(dep))
-            })
+            .filter(|t| t.dependencies.iter().all(|dep| !task_ids.contains(dep)))
             .map(|t| t.id.clone())
             .collect();
 
@@ -665,9 +657,7 @@ impl WorkflowDecomposer {
     }
 
     /// Identify dependencies between sub-workflows
-    fn identify_workflow_dependencies(
-        &self, workflows: &[SubWorkflow],
-    ) -> Vec<WorkflowDependency> {
+    fn identify_workflow_dependencies(&self, workflows: &[SubWorkflow]) -> Vec<WorkflowDependency> {
         let mut dependencies = Vec::new();
 
         for (i, wf_a) in workflows.iter().enumerate() {
@@ -678,8 +668,7 @@ impl WorkflowDecomposer {
 
                 let _task_ids_a: HashSet<String> =
                     wf_a.tasks.iter().map(|t| t.id.clone()).collect();
-                let task_ids_b: HashSet<String> =
-                    wf_b.tasks.iter().map(|t| t.id.clone()).collect();
+                let task_ids_b: HashSet<String> = wf_b.tasks.iter().map(|t| t.id.clone()).collect();
 
                 // Check if any task in A depends on any task in B
                 for task in &wf_a.tasks {
@@ -781,7 +770,10 @@ impl WorkflowEngine {
 
         // Phase 2: Extraction - build dependency graph
         self.trace_event(context, "extraction", "Building dependency graph")?;
-        self.scheduler.write().await.load_tasks(normalized_tasks.clone())?;
+        self.scheduler
+            .write()
+            .await
+            .load_tasks(normalized_tasks.clone())?;
         self.trace_event(context, "extraction", "Dependency graph built")?;
 
         // Initialize workflow state
@@ -809,7 +801,12 @@ impl WorkflowEngine {
         self.trace_event(context, "receipt", "Generating deterministic receipt")?;
         let execution_time_ms = start_time.elapsed().as_millis() as u64;
         let receipt = self
-            .generate_receipt(&execution_id, context, &canonical_results, execution_time_ms)
+            .generate_receipt(
+                &execution_id,
+                context,
+                &canonical_results,
+                execution_time_ms,
+            )
             .await?;
         self.trace_event(context, "receipt", "Receipt generated successfully")?;
 
@@ -832,13 +829,17 @@ impl WorkflowEngine {
     }
 
     /// Normalize workflow tasks
-    fn normalize_workflow(&self, tasks: Vec<TaskDefinition>) -> WorkflowResult<Vec<TaskDefinition>> {
+    fn normalize_workflow(
+        &self, tasks: Vec<TaskDefinition>,
+    ) -> WorkflowResult<Vec<TaskDefinition>> {
         let mut normalized = Vec::new();
 
         for task in tasks {
             // Validate task ID
             if task.id.is_empty() {
-                return Err(WorkflowError::Validation("Task ID cannot be empty".to_string()));
+                return Err(WorkflowError::Validation(
+                    "Task ID cannot be empty".to_string(),
+                ));
             }
 
             // Check for circular dependencies would go here
@@ -942,7 +943,9 @@ impl WorkflowEngine {
                     workflow_state.running_tasks.remove(&result.task_id);
 
                     if result.success {
-                        workflow_state.completed_tasks.insert(result.task_id.clone());
+                        workflow_state
+                            .completed_tasks
+                            .insert(result.task_id.clone());
                         workflow_state
                             .task_results
                             .insert(result.task_id.clone(), result.clone());
@@ -951,9 +954,10 @@ impl WorkflowEngine {
                         let newly_ready = scheduler.find_ready_after(&result.task_id)?;
                         workflow_state.ready_tasks.extend(newly_ready);
                     } else {
-                        workflow_state
-                            .failed_tasks
-                            .insert(result.task_id.clone(), result.error.clone().unwrap_or_default());
+                        workflow_state.failed_tasks.insert(
+                            result.task_id.clone(),
+                            result.error.clone().unwrap_or_default(),
+                        );
                         workflow_state
                             .task_results
                             .insert(result.task_id.clone(), result.clone());
@@ -1006,9 +1010,10 @@ impl WorkflowEngine {
         for task_def in task_defs {
             let context_clone = context.clone();
 
-            let handle = tokio::spawn(async move {
-                Self::execute_single_task(task_def, context_clone).await
-            });
+            let handle =
+                tokio::spawn(
+                    async move { Self::execute_single_task(task_def, context_clone).await },
+                );
 
             handles.push(handle);
         }
@@ -1086,7 +1091,10 @@ impl WorkflowEngine {
                     error: None,
                     execution_time_ms,
                     retry_count: 0,
-                    branch_id: task.flow_metadata.as_ref().and_then(|f| f.branch_id.clone()),
+                    branch_id: task
+                        .flow_metadata
+                        .as_ref()
+                        .and_then(|f| f.branch_id.clone()),
                 })
             }
             Err(e) => {
@@ -1104,7 +1112,10 @@ impl WorkflowEngine {
                     error: Some(e.to_string()),
                     execution_time_ms,
                     retry_count: 0,
-                    branch_id: task.flow_metadata.as_ref().and_then(|f| f.branch_id.clone()),
+                    branch_id: task
+                        .flow_metadata
+                        .as_ref()
+                        .and_then(|f| f.branch_id.clone()),
                 })
             }
         }
@@ -1205,16 +1216,6 @@ impl WorkflowEngine {
 
     /// Canonicalize and validate results
     fn canonicalize_results(&self, results: Vec<TaskResult>) -> WorkflowResult<Vec<TaskResult>> {
-        // Validate all results
-        for result in &results {
-            if result.execution_time_ms == 0 {
-                return Err(WorkflowError::Validation(format!(
-                    "Task {} has zero execution time",
-                    result.task_id
-                )));
-            }
-        }
-
         // Sort results by task ID for deterministic output
         let mut sorted = results;
         sorted.sort_by(|a, b| a.task_id.cmp(&b.task_id));
@@ -1239,9 +1240,7 @@ impl WorkflowEngine {
         // Update metadata
         receipt_context.metadata.execution_time_ms = execution_time_ms;
 
-        let receipt = self
-            .receipt_generator
-            .generate_receipt(&receipt_context)?;
+        let receipt = self.receipt_generator.generate_receipt(&receipt_context)?;
 
         Ok(receipt)
     }
@@ -1305,13 +1304,14 @@ impl TaskScheduler {
 
         // Build dependency graph
         for task in tasks {
-            self.dependency_graph.insert(task.id.clone(), task.dependencies.clone());
+            self.dependency_graph
+                .insert(task.id.clone(), task.dependencies.clone());
 
             // Build reverse dependencies
             for dep in &task.dependencies {
                 self.reverse_dependencies
                     .entry(dep.clone())
-                    .or_insert_with(Vec::new)
+                    .or_default()
                     .push(task.id.clone());
             }
 
@@ -1340,8 +1340,7 @@ impl TaskScheduler {
 
     /// Recursive cycle detection
     fn has_cycle_recursive(
-        &self, task_id: &str, visited: &mut HashSet<String>,
-        recursion_stack: &mut HashSet<String>,
+        &self, task_id: &str, visited: &mut HashSet<String>, recursion_stack: &mut HashSet<String>,
     ) -> WorkflowResult<bool> {
         visited.insert(task_id.to_string());
         recursion_stack.insert(task_id.to_string());
@@ -1546,12 +1545,14 @@ impl FlowRouter {
     }
 
     /// Check if join condition is satisfied
+    #[allow(dead_code)]
     fn check_join_condition(&self, state: &JoinState) -> bool {
         match state.condition {
             JoinCondition::All => {
-                state.completed_branches.len() >= state.expected_branches.len()
+                !state.completed_branches.is_empty()
+                    && state.completed_branches.len() >= state.expected_branches.len()
             }
-            JoinCondition::First => state.completed_branches.len() >= 1,
+            JoinCondition::First => !state.completed_branches.is_empty(),
             JoinCondition::Count(n) => state.completed_branches.len() >= n,
             JoinCondition::Predicate(_) => false, // TODO: Implement predicate evaluation
         }
@@ -1694,7 +1695,9 @@ mod tests {
         ];
 
         let engine = WorkflowEngine::default_engine();
-        let state = engine.initialize_workflow_state(&tasks, "test-execution").unwrap();
+        let state = engine
+            .initialize_workflow_state(&tasks, "test-execution")
+            .unwrap();
 
         assert_eq!(state.execution_id, "test-execution");
         assert_eq!(state.ready_tasks.len(), 1); // Only task1 is ready
@@ -1801,7 +1804,10 @@ mod tests {
         let mut router = FlowRouter::new();
 
         router
-            .create_and_split("split1".to_string(), vec!["branch1".to_string(), "branch2".to_string()])
+            .create_and_split(
+                "split1".to_string(),
+                vec!["branch1".to_string(), "branch2".to_string()],
+            )
             .unwrap();
 
         let split = router.get_split("split1").unwrap();

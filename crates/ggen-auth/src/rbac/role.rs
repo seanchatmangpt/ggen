@@ -24,7 +24,7 @@ impl RoleLevel {
     }
 
     /// Parse from string
-    pub fn from_str(s: &str) -> Option<RoleLevel> {
+    pub fn from_str_lower(s: &str) -> Option<RoleLevel> {
         match s.to_lowercase().as_str() {
             "guest" => Some(RoleLevel::Guest),
             "user" => Some(RoleLevel::User),

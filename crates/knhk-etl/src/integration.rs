@@ -1,14 +1,11 @@
 // rust/knhk-etl/src/integration.rs
 // Integration layer connecting ETL pipeline with connectors, lockchain, and OTEL
 
-#![no_std]
-extern crate alloc;
+#![cfg_attr(test, allow(dead_code))]
 
 use super::*;
-use alloc::collections::BTreeMap;
 use alloc::format;
 use alloc::string::String;
-use alloc::string::ToString;
 use alloc::vec::Vec;
 
 /// Integrated pipeline with all components wired together

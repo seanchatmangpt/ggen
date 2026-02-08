@@ -10,7 +10,7 @@
 use async_trait::async_trait;
 use axum::{
     extract::{Request, State},
-    http::{HeaderMap, StatusCode},
+    http::{HeaderMap, HeaderValue, StatusCode},
     middleware::Next,
     response::{IntoResponse, Response},
 };
@@ -74,8 +74,9 @@ impl IntoResponse for RateLimitError {
                 if let Ok(value) = retry_after.to_string().parse() {
                     headers.insert("Retry-After", value);
                 }
-                headers.insert("X-RateLimit-Limit", "0".parse().unwrap_or_default());
-                headers.insert("X-RateLimit-Remaining", "0".parse().unwrap_or_default());
+                // HeaderValue doesn't implement Default, so use from_static directly
+                headers.insert("X-RateLimit-Limit", HeaderValue::from_static("0"));
+                headers.insert("X-RateLimit-Remaining", HeaderValue::from_static("0"));
 
                 (
                     StatusCode::TOO_MANY_REQUESTS,

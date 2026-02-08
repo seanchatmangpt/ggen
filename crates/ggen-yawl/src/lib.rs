@@ -37,15 +37,15 @@
 //! # }
 //! ```
 
+pub mod codegen;
 pub mod error;
 pub mod ontology;
-pub mod transform;
 pub mod template;
-pub mod codegen;
+pub mod transform;
 
 pub use codegen::yawl_xml::{escape_xml, YawlXmlGenerator};
 pub use error::{Error, Result};
-pub use ontology::loader::{load_ontology, OntologyLoader, OntologyFormat};
+pub use ontology::loader::{load_ontology, OntologyFormat, OntologyLoader};
 pub use template::renderer::TemplateRenderer;
 pub use transform::executor::ConstructExecutor;
 

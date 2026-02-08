@@ -3,7 +3,7 @@
 //! Tests follow AAA pattern (Arrange/Act/Assert) with real collaborators.
 //! State-based verification over interaction verification.
 
-use ggen_yawl::codegen::yawl_xml::{canonicalize, validate, YawlXmlGenerator, escape_xml};
+use ggen_yawl::codegen::yawl_xml::{canonicalize, escape_xml, validate, YawlXmlGenerator};
 use ggen_yawl::template::{FlowContext, TaskContext, TemplateContext};
 
 /// Helper module for test fixtures and utilities.
@@ -211,7 +211,10 @@ mod escape_xml_tests {
         let escaped = escape_xml("<tag attr=\"value\" & 'other'>");
 
         // Assert
-        assert_eq!(escaped, "&lt;tag attr=&quot;value&quot; &amp; &apos;other&apos;&gt;");
+        assert_eq!(
+            escaped,
+            "&lt;tag attr=&quot;value&quot; &amp; &apos;other&apos;&gt;"
+        );
     }
 
     /// Test: Escape empty string returns empty string
@@ -278,7 +281,10 @@ mod validate_tests {
         let result = validate(INVALID_YAWL_NO_DECLARATION);
 
         // Assert
-        assert!(result.is_err(), "Missing XML declaration should fail validation");
+        assert!(
+            result.is_err(),
+            "Missing XML declaration should fail validation"
+        );
         match result {
             Err(e) => {
                 let error_msg = e.to_string();
@@ -295,7 +301,10 @@ mod validate_tests {
         let result = validate(INVALID_YAWL_NO_SPECIFICATION);
 
         // Assert
-        assert!(result.is_err(), "Missing specification element should fail validation");
+        assert!(
+            result.is_err(),
+            "Missing specification element should fail validation"
+        );
         match result {
             Err(e) => {
                 let error_msg = e.to_string();
@@ -312,7 +321,10 @@ mod validate_tests {
         let result = validate(INVALID_YAWL_UNCLOSED);
 
         // Assert
-        assert!(result.is_err(), "Unclosed specification should fail validation");
+        assert!(
+            result.is_err(),
+            "Unclosed specification should fail validation"
+        );
         match result {
             Err(e) => {
                 let error_msg = e.to_string();
@@ -521,15 +533,13 @@ mod generator_tests {
                     decomposition_id: None,
                 },
             ],
-            flows: vec![
-                FlowContext {
-                    source: "source".to_string(),
-                    target: "target".to_string(),
-                    condition: None,
-                    predicate: None,
-                    is_default: true,
-                },
-            ],
+            flows: vec![FlowContext {
+                source: "source".to_string(),
+                target: "target".to_string(),
+                condition: None,
+                predicate: None,
+                is_default: true,
+            }],
             input_condition: None,
             output_condition: None,
             variables: vec![],
@@ -644,7 +654,11 @@ mod generator_tests {
 
         // Assert
         assert!(result1.is_ok() && result2.is_ok());
-        assert_eq!(result1.unwrap(), result2.unwrap(), "Generation should be deterministic");
+        assert_eq!(
+            result1.unwrap(),
+            result2.unwrap(),
+            "Generation should be deterministic"
+        );
     }
 
     /// Test: YawlXmlGenerator handles empty workflow
@@ -694,7 +708,10 @@ mod integration_tests {
 
         // Validate generated XML
         let validate_result = validate(&xml);
-        assert!(validate_result.is_ok(), "Generated XML should pass validation");
+        assert!(
+            validate_result.is_ok(),
+            "Generated XML should pass validation"
+        );
     }
 
     /// Test: Full pipeline: generate -> canonicalize -> validate

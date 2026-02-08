@@ -322,7 +322,8 @@ impl PetriNet {
         }
 
         let place_ids: HashSet<&str> = self.places.iter().map(|p| p.id.as_str()).collect();
-        let transition_ids: HashSet<&str> = self.transitions.iter().map(|t| t.id.as_str()).collect();
+        let transition_ids: HashSet<&str> =
+            self.transitions.iter().map(|t| t.id.as_str()).collect();
         let all_ids: HashSet<&str> = place_ids.union(&transition_ids).copied().collect();
 
         for arc in &self.arcs {
@@ -365,8 +366,12 @@ impl PetriNet {
             let transition = Transition::new(format!("t_{i}")).with_label(*activity);
             let next_place = Place::new(format!("p_{i}"));
 
-            builder.arcs.push(Arc::new(prev_place.id.clone(), transition.id.clone()));
-            builder.arcs.push(Arc::new(transition.id.clone(), next_place.id.clone()));
+            builder
+                .arcs
+                .push(Arc::new(prev_place.id.clone(), transition.id.clone()));
+            builder
+                .arcs
+                .push(Arc::new(transition.id.clone(), next_place.id.clone()));
 
             builder.transitions.insert(transition);
             builder.places.insert(next_place.clone());
@@ -416,9 +421,7 @@ mod tests {
 
     #[test]
     fn test_marking_operations() {
-        let marking = Marking::new()
-            .with_token("p1", 3)
-            .with_token("p2", 1);
+        let marking = Marking::new().with_token("p1", 3).with_token("p2", 1);
 
         assert_eq!(marking.get("p1"), 3);
         assert_eq!(marking.get("p2"), 1);
@@ -446,10 +449,7 @@ mod tests {
     #[test]
     fn test_petri_net_validation_empty() {
         let net = PetriNet::new();
-        assert!(matches!(
-            net.validate(),
-            Err(Error::InvalidPetriNet(_))
-        ));
+        assert!(matches!(net.validate(), Err(Error::InvalidPetriNet(_))));
     }
 
     #[test]
@@ -459,10 +459,7 @@ mod tests {
             .with_transition(Transition::new("t1"))
             .with_arc(Arc::new("p1", "nonexistent"));
 
-        assert!(matches!(
-            net.validate(),
-            Err(Error::InvalidPetriNet(_))
-        ));
+        assert!(matches!(net.validate(), Err(Error::InvalidPetriNet(_))));
     }
 
     #[test]

@@ -5,9 +5,10 @@ use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 
 /// Certificate pinning strategy
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum PinningStrategy {
     /// Fail open if pin validation fails (log warning but allow connection)
+    #[default]
     FailOpen,
     /// Fail closed if pin validation fails (reject connection)
     FailClosed,

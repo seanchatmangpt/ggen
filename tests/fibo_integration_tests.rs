@@ -58,7 +58,10 @@ mod yawl_workflow_generation {
                     .map_err(|e| format!("Failed to read ontology file: {}", e))?;
 
                 if !content.contains("@prefix") {
-                    return Err(format!("File does not appear to be valid Turtle format: {}", path.display()));
+                    return Err(format!(
+                        "File does not appear to be valid Turtle format: {}",
+                        path.display()
+                    ));
                 }
 
                 Ok(())
@@ -105,8 +108,8 @@ mod yawl_workflow_generation {
 }
 
 // Import the ggen-yawl types
-use ggen_yawl::{OntologyLoader, YawlGenerator};
 use ggen_yawl::codegen::yawl_xml::validate;
+use ggen_yawl::{OntologyLoader, YawlGenerator};
 use sha2::{Digest, Sha256};
 use std::time::Instant;
 
@@ -131,11 +134,13 @@ mod verification_tests {
     #[test]
     fn test_fibo_fixtures_are_valid() {
         yawl_workflow_generation::fibo::fixtures::verify_ontology_file(
-            &yawl_workflow_generation::fibo::fixtures::fibo_account_opening_path()
-        ).expect("Account Opening ontology should be valid");
+            &yawl_workflow_generation::fibo::fixtures::fibo_account_opening_path(),
+        )
+        .expect("Account Opening ontology should be valid");
         yawl_workflow_generation::fibo::fixtures::verify_ontology_file(
-            &yawl_workflow_generation::fibo::fixtures::fibo_loan_approval_path()
-        ).expect("Loan Approval ontology should be valid");
+            &yawl_workflow_generation::fibo::fixtures::fibo_loan_approval_path(),
+        )
+        .expect("Loan Approval ontology should be valid");
     }
 
     /// Test: Account Opening ontology has expected content
@@ -178,7 +183,10 @@ mod loading_tests {
 
         let result = loader.load_from_file(&path);
 
-        assert!(result.is_ok(), "Should load FIBO Account Opening ontology from file");
+        assert!(
+            result.is_ok(),
+            "Should load FIBO Account Opening ontology from file"
+        );
         let graph = result.unwrap();
         assert!(!graph.is_empty(), "Graph should not be empty");
     }
@@ -191,7 +199,10 @@ mod loading_tests {
 
         let result = loader.load_from_str(&content, ggen_yawl::OntologyFormat::Turtle);
 
-        assert!(result.is_ok(), "Should load FIBO Account Opening ontology from string");
+        assert!(
+            result.is_ok(),
+            "Should load FIBO Account Opening ontology from string"
+        );
         let graph = result.unwrap();
         assert!(!graph.is_empty(), "Graph should not be empty");
     }
@@ -204,7 +215,10 @@ mod loading_tests {
 
         let result = loader.load_from_file(&path);
 
-        assert!(result.is_ok(), "Should load FIBO Loan Approval ontology from file");
+        assert!(
+            result.is_ok(),
+            "Should load FIBO Loan Approval ontology from file"
+        );
         let graph = result.unwrap();
         assert!(!graph.is_empty(), "Graph should not be empty");
     }
@@ -217,7 +231,10 @@ mod loading_tests {
 
         let result = loader.load_from_str(&content, ggen_yawl::OntologyFormat::Turtle);
 
-        assert!(result.is_ok(), "Should load FIBO Loan Approval ontology from string");
+        assert!(
+            result.is_ok(),
+            "Should load FIBO Loan Approval ontology from string"
+        );
         let graph = result.unwrap();
         assert!(!graph.is_empty(), "Graph should not be empty");
     }
@@ -289,12 +306,22 @@ mod pipeline_tests {
 
         let result = execute_full_pipeline(&content);
 
-        assert!(result.is_ok(), "Full pipeline should succeed: {:?}", result.err());
+        assert!(
+            result.is_ok(),
+            "Full pipeline should succeed: {:?}",
+            result.err()
+        );
 
         let pipeline_result = result.unwrap();
-        assert!(!pipeline_result.xml.is_empty(), "Output XML should not be empty");
+        assert!(
+            !pipeline_result.xml.is_empty(),
+            "Output XML should not be empty"
+        );
         assert!(!pipeline_result.hash.is_empty(), "Hash should not be empty");
-        assert!(pipeline_result.task_count > 0, "Should have at least one task");
+        assert!(
+            pipeline_result.task_count > 0,
+            "Should have at least one task"
+        );
         assert!(pipeline_result.size_bytes > 0, "Output should have content");
     }
 
@@ -305,12 +332,22 @@ mod pipeline_tests {
 
         let result = execute_full_pipeline(&content);
 
-        assert!(result.is_ok(), "Full pipeline should succeed: {:?}", result.err());
+        assert!(
+            result.is_ok(),
+            "Full pipeline should succeed: {:?}",
+            result.err()
+        );
 
         let pipeline_result = result.unwrap();
-        assert!(!pipeline_result.xml.is_empty(), "Output XML should not be empty");
+        assert!(
+            !pipeline_result.xml.is_empty(),
+            "Output XML should not be empty"
+        );
         assert!(!pipeline_result.hash.is_empty(), "Hash should not be empty");
-        assert!(pipeline_result.task_count > 0, "Should have at least one task");
+        assert!(
+            pipeline_result.task_count > 0,
+            "Should have at least one task"
+        );
     }
 
     /// Test: Full pipeline produces valid YAWL XML
@@ -325,7 +362,10 @@ mod pipeline_tests {
 
         // Validate the output
         let validation_result = validate(&pipeline_result.xml);
-        assert!(validation_result.is_ok(), "Pipeline output should be valid YAWL");
+        assert!(
+            validation_result.is_ok(),
+            "Pipeline output should be valid YAWL"
+        );
     }
 }
 
@@ -387,8 +427,11 @@ mod validation_tests {
         let xml = result.unwrap();
 
         let validation_result = validate(&xml);
-        assert!(validation_result.is_ok(), "Generated XML should be valid: {:?}",
-                validation_result.err());
+        assert!(
+            validation_result.is_ok(),
+            "Generated XML should be valid: {:?}",
+            validation_result.err()
+        );
     }
 
     /// Test: Validate Loan Approval output
@@ -403,8 +446,11 @@ mod validation_tests {
         let xml = result.unwrap();
 
         let validation_result = validate(&xml);
-        assert!(validation_result.is_ok(), "Generated XML should be valid: {:?}",
-                validation_result.err());
+        assert!(
+            validation_result.is_ok(),
+            "Generated XML should be valid: {:?}",
+            validation_result.err()
+        );
     }
 }
 
@@ -421,8 +467,10 @@ mod determinism_tests {
         let result1 = generator.generate(&content);
         let result2 = generator.generate(&content);
 
-        assert!(result1.is_ok() && result2.is_ok(),
-                "Both generations should succeed");
+        assert!(
+            result1.is_ok() && result2.is_ok(),
+            "Both generations should succeed"
+        );
 
         let xml1 = result1.unwrap();
         let xml2 = result2.unwrap();
@@ -459,8 +507,11 @@ mod performance_tests {
         let duration = start.elapsed();
 
         assert!(result.is_ok(), "Generation should succeed");
-        assert!(duration.as_secs() < 5, "Generation should complete within 5 seconds, took {:?}",
-                duration);
+        assert!(
+            duration.as_secs() < 5,
+            "Generation should complete within 5 seconds, took {:?}",
+            duration
+        );
     }
 
     /// Test: Loading performs within SLO
@@ -474,8 +525,11 @@ mod performance_tests {
         let duration = start.elapsed();
 
         assert!(result.is_ok(), "Loading should succeed");
-        assert!(duration.as_secs() < 1, "Loading should complete within 1 second, took {:?}",
-                duration);
+        assert!(
+            duration.as_secs() < 1,
+            "Loading should complete within 1 second, took {:?}",
+            duration
+        );
     }
 }
 
@@ -498,7 +552,10 @@ mod cross_ontology_tests {
         let xml1 = result1.unwrap();
         let xml2 = result2.unwrap();
 
-        assert_ne!(xml1, xml2, "Different ontologies should produce different outputs");
+        assert_ne!(
+            xml1, xml2,
+            "Different ontologies should produce different outputs"
+        );
     }
 
     /// Test: Ontologies have different task counts

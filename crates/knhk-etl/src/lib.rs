@@ -14,7 +14,7 @@ use alloc::vec::Vec;
 #[cfg(feature = "std")]
 use std::io::BufRead;
 
-use rio_api::model::{BlankNode, Literal, NamedNode, Term, Triple};
+use rio_api::model::{Literal, Subject, Term, Triple};
 use rio_api::parser::TriplesParser;
 use rio_turtle::TurtleParser;
 
@@ -26,6 +26,12 @@ pub enum PipelineStage {
     Load,
     Reflex,
     Emit,
+}
+
+impl Default for PipelineStage {
+    fn default() -> Self {
+        Self::Ingest
+    }
 }
 
 /// Pipeline metrics
@@ -58,7 +64,7 @@ impl IngestStage {
     /// 3. Validate basic structure
     /// 4. Return raw triples
     pub fn ingest(&self) -> Result<IngestResult, PipelineError> {
-        let mut all_triples = Vec::new();
+        let all_triples = Vec::new();
         let mut metadata = BTreeMap::new();
 
         // Poll each connector
@@ -85,25 +91,18 @@ impl IngestStage {
     /// - Literals (simple, typed, language-tagged)
     pub fn parse_rdf_turtle(&self, content: &str) -> Result<Vec<RawTriple>, PipelineError> {
         let mut triples = Vec::new();
-        let mut parser = TurtleParser::new(content.as_bytes(), None).map_err(|e| {
-            PipelineError::IngestError(format!("Failed to create Turtle parser: {}", e))
-        })?;
+        let mut parser = TurtleParser::new(content.as_bytes(), None);
 
-        parser
-            .parse_all(&mut |triple| {
-                let raw = Self::convert_triple(triple).map_err(|e| {
-                    PipelineError::IngestError(format!("Failed to convert triple: {}", e))
-                })?;
+        parser.parse_all(&mut |triple| match Self::convert_triple(&triple) {
+            Ok(raw) => {
                 triples.push(raw);
                 Ok(())
-            })
-            .map_err(|e| {
-                PipelineError::IngestError(format!(
-                    "RDF parse error at line {}: {}",
-                    e.location().line(),
-                    e.message()
-                ))
-            })?;
+            }
+            Err(e) => Err(PipelineError::ParseError(format!(
+                "Failed to convert triple: {}",
+                e
+            ))),
+        })?;
 
         Ok(triples)
     }
@@ -116,25 +115,18 @@ impl IngestStage {
         let mut triples = Vec::new();
         let base = base_uri.and_then(|u| NamedNode::new(u).ok());
 
-        let mut parser = TurtleParser::new(reader, base.as_ref()).map_err(|e| {
-            PipelineError::IngestError(format!("Failed to create Turtle parser: {}", e))
-        })?;
+        let mut parser = TurtleParser::new(reader, base.as_ref());
 
-        parser
-            .parse_all(&mut |triple| {
-                let raw = Self::convert_triple(triple).map_err(|e| {
-                    PipelineError::IngestError(format!("Failed to convert triple: {}", e))
-                })?;
+        parser.parse_all(&mut |triple| match Self::convert_triple(&triple) {
+            Ok(raw) => {
                 triples.push(raw);
                 Ok(())
-            })
-            .map_err(|e| {
-                PipelineError::IngestError(format!(
-                    "RDF parse error at line {}: {}",
-                    e.location().line(),
-                    e.message()
-                ))
-            })?;
+            }
+            Err(e) => Err(PipelineError::ParseError(format!(
+                "Failed to convert triple: {}",
+                e
+            ))),
+        })?;
 
         Ok(triples)
     }
@@ -142,11 +134,28 @@ impl IngestStage {
     /// Convert rio_api::Triple to RawTriple
     fn convert_triple(triple: &Triple) -> Result<RawTriple, String> {
         Ok(RawTriple {
-            subject: Self::term_to_string(triple.subject)?,
-            predicate: Self::term_to_string(triple.predicate)?,
-            object: Self::term_to_string(triple.object)?,
+            subject: Self::subject_to_string(&triple.subject)?,
+            predicate: triple.predicate.iri.to_string(),
+            object: Self::term_to_string(&triple.object)?,
             graph: None, // N-Quads support can be added later if needed
         })
+    }
+
+    /// Convert rio_api::Subject to String representation
+    fn subject_to_string(subject: &Subject) -> Result<String, String> {
+        match subject {
+            Subject::NamedNode(named) => Ok(named.iri.to_string()),
+            Subject::BlankNode(blank) => Ok(format!("_:{}", blank.id)),
+            Subject::Triple(triple) => {
+                // RDF* embedded triple - serialize as SPARQL STAR
+                Ok(format!(
+                    "<< {} {} {} >>",
+                    Self::subject_to_string(&triple.subject)?,
+                    triple.predicate.iri,
+                    Self::term_to_string(&triple.object)?
+                ))
+            }
+        }
     }
 
     /// Convert rio_api::Term to String representation
@@ -155,6 +164,7 @@ impl IngestStage {
     /// - NamedNode: Returns IRI string
     /// - BlankNode: Returns `_:id` format
     /// - Literal: Returns quoted string with type/language tags
+    /// - Triple: RDF* embedded triple
     fn term_to_string(term: &Term) -> Result<String, String> {
         match term {
             Term::NamedNode(named) => Ok(named.iri.to_string()),
@@ -170,6 +180,15 @@ impl IngestStage {
                     datatype.iri
                 )),
             },
+            Term::Triple(triple) => {
+                // RDF* embedded triple - serialize as SPARQL STAR
+                Ok(format!(
+                    "<< {} {} {} >>",
+                    Self::subject_to_string(&triple.subject)?,
+                    triple.predicate.iri,
+                    Self::term_to_string(&triple.object)?
+                ))
+            }
         }
     }
 
@@ -275,27 +294,28 @@ impl TransformStage {
     /// 3. Validate cardinality constraints
     fn validate_schema(&self, subject: &str, predicate: &str) -> Result<(), String> {
         // Check schema IRI prefix match
-        if !self.schema_iri.is_empty() {
-            if !subject.starts_with(&self.schema_iri) && !predicate.starts_with(&self.schema_iri) {
-                // Check cache first
-                let cache_key = format!("{}:{}", subject, predicate);
-                if let Some(&valid) = self.schema_cache.get(&cache_key) {
-                    if !valid {
-                        return Err(format!(
-                            "Schema validation failed for {} {}",
-                            subject, predicate
-                        ));
-                    }
-                } else {
-                    // Basic validation: check if predicate matches expected schema namespace
-                    // In production, this would query a schema registry
-                    let valid = predicate.contains(":") || subject.contains(":");
-                    if !valid {
-                        return Err(format!(
-                            "Schema validation failed: invalid IRI format for {} {}",
-                            subject, predicate
-                        ));
-                    }
+        if !self.schema_iri.is_empty()
+            && !subject.starts_with(&self.schema_iri)
+            && !predicate.starts_with(&self.schema_iri)
+        {
+            // Check cache first
+            let cache_key = format!("{}:{}", subject, predicate);
+            if let Some(&valid) = self.schema_cache.get(&cache_key) {
+                if !valid {
+                    return Err(format!(
+                        "Schema validation failed for {} {}",
+                        subject, predicate
+                    ));
+                }
+            } else {
+                // Basic validation: check if predicate matches expected schema namespace
+                // In production, this would query a schema registry
+                let valid = predicate.contains(":") || subject.contains(":");
+                if !valid {
+                    return Err(format!(
+                        "Schema validation failed: invalid IRI format for {} {}",
+                        subject, predicate
+                    ));
                 }
             }
         }
@@ -323,12 +343,18 @@ pub struct LoadStage {
     pub max_run_len: usize, // Must be ≤ 8
 }
 
-impl LoadStage {
-    pub fn new() -> Self {
+impl Default for LoadStage {
+    fn default() -> Self {
         Self {
             alignment: 64,
             max_run_len: 8,
         }
+    }
+}
+
+impl LoadStage {
+    pub fn new() -> Self {
+        Self::default()
     }
 
     /// Load triples into SoA arrays
@@ -361,7 +387,7 @@ impl LoadStage {
         for triple in &input.typed_triples {
             grouped_by_predicate
                 .entry(triple.predicate)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(triple);
         }
 
@@ -382,9 +408,9 @@ impl LoadStage {
 
             // Ensure we don't exceed SoA array capacity
             if offset as usize + triples.len() > 8 {
-                return Err(PipelineError::LoadError(format!(
-                    "Total triples exceed SoA capacity of 8"
-                )));
+                return Err(PipelineError::LoadError(
+                    "Total triples exceed SoA capacity of 8".to_string(),
+                ));
             }
 
             // Load triples into SoA arrays
@@ -408,7 +434,7 @@ impl LoadStage {
         // Verify 64-byte alignment (arrays are already aligned via #[repr(align(64))])
         // This is a compile-time guarantee, but we verify at runtime for safety
         let soa_ptr = &soa as *const SoAArrays as *const u8 as usize;
-        if soa_ptr % self.alignment != 0 {
+        if !soa_ptr.is_multiple_of(self.alignment) {
             return Err(PipelineError::LoadError(format!(
                 "SoA arrays not properly aligned to {} bytes",
                 self.alignment
@@ -429,6 +455,7 @@ pub struct LoadResult {
 
 /// SoA arrays for hot path (64-byte aligned)
 #[repr(align(64))]
+#[derive(Default)]
 pub struct SoAArrays {
     pub s: [u64; 8],
     pub p: [u64; 8],
@@ -437,11 +464,7 @@ pub struct SoAArrays {
 
 impl SoAArrays {
     pub fn new() -> Self {
-        Self {
-            s: [0; 8],
-            p: [0; 8],
-            o: [0; 8],
-        }
+        Self::default()
     }
 }
 
@@ -457,9 +480,15 @@ pub struct ReflexStage {
     pub tick_budget: u32, // Must be ≤ 8
 }
 
+impl Default for ReflexStage {
+    fn default() -> Self {
+        Self { tick_budget: 8 }
+    }
+}
+
 impl ReflexStage {
     pub fn new() -> Self {
-        Self { tick_budget: 8 }
+        Self::default()
     }
 
     /// Execute reflex over loaded data
@@ -673,6 +702,7 @@ impl ReflexStage {
     }
 
     /// Generate OTEL-compatible span ID (deterministic in no_std mode)
+    #[allow(dead_code)]
     fn generate_span_id() -> u64 {
         #[cfg(feature = "std")]
         {
@@ -689,7 +719,7 @@ impl ReflexStage {
     }
 
     /// Generate deterministic span ID from SoA data (no_std fallback)
-    fn generate_span_id_deterministic(soa: &SoAArrays, run: &PredRun) -> u64 {
+    fn generate_span_id_deterministic(_soa: &SoAArrays, run: &PredRun) -> u64 {
         const FNV_OFFSET_BASIS: u64 = 1469598103934665603;
         const FNV_PRIME: u64 = 1099511628211;
 
@@ -762,6 +792,7 @@ impl ReflexStage {
         hash
     }
 
+    #[allow(dead_code)]
     fn get_timestamp_ms() -> u64 {
         #[cfg(feature = "std")]
         {
@@ -803,7 +834,9 @@ pub struct Receipt {
 pub struct EmitStage {
     pub lockchain_enabled: bool,
     pub downstream_endpoints: Vec<String>,
+    #[allow(dead_code)]
     max_retries: u32,
+    #[allow(dead_code)]
     retry_delay_ms: u64,
     #[cfg(feature = "std")]
     lockchain: Option<knhk_lockchain::Lockchain>,
@@ -952,6 +985,7 @@ impl EmitStage {
     }
 
     /// Write receipt to lockchain (Merkle-linked)
+    #[allow(dead_code)]
     fn write_receipt_to_lockchain(&self, receipt: &Receipt) -> Result<String, String> {
         #[cfg(feature = "std")]
         {
@@ -974,6 +1008,7 @@ impl EmitStage {
     }
 
     #[cfg(feature = "std")]
+    #[allow(dead_code)]
     fn get_current_timestamp_ms() -> u64 {
         use std::time::{SystemTime, UNIX_EPOCH};
         SystemTime::now()
@@ -1079,7 +1114,7 @@ impl EmitStage {
         Err(format!("HTTP client requires std feature: {}", endpoint))
     }
 
-    fn send_kafka_action(&self, action: &Action, endpoint: &str) -> Result<(), String> {
+    fn send_kafka_action(&self, _action: &Action, endpoint: &str) -> Result<(), String> {
         // Parse Kafka endpoint: kafka://broker1:9092,broker2:9092/topic
         let endpoint = endpoint
             .strip_prefix("kafka://")
@@ -1263,6 +1298,13 @@ pub enum PipelineError {
     EmitError(String),
     GuardViolation(String),
     ParseError(String), // RDF parsing errors from rio_turtle
+}
+
+// Implement From for rio_turtle errors
+impl From<rio_turtle::TurtleError> for PipelineError {
+    fn from(e: rio_turtle::TurtleError) -> Self {
+        Self::ParseError(format!("Turtle parsing error: {}", e))
+    }
 }
 
 /// Complete ETL pipeline

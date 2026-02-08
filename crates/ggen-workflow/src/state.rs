@@ -49,8 +49,8 @@
 //! let json = sm.to_json()?;
 //! ```
 
-use crate::error::{WorkflowError, WorkflowResult};
 use crate::error::errors;
+use crate::error::{WorkflowError, WorkflowResult};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
@@ -139,12 +139,18 @@ impl WorkflowState {
 
     /// Check if this is a terminal state (no further transitions possible)
     pub fn is_terminal(&self) -> bool {
-        matches!(self, WorkflowState::Completed { .. } | WorkflowState::Failed { .. })
+        matches!(
+            self,
+            WorkflowState::Completed { .. } | WorkflowState::Failed { .. }
+        )
     }
 
     /// Check if this is an active state (workflow can be running or suspended)
     pub fn is_active(&self) -> bool {
-        matches!(self, WorkflowState::Running { .. } | WorkflowState::Suspended { .. })
+        matches!(
+            self,
+            WorkflowState::Running { .. } | WorkflowState::Suspended { .. }
+        )
     }
 
     /// Check if workflow can be started from this state
@@ -233,11 +239,7 @@ pub struct WorkflowDefinition {
 impl WorkflowDefinition {
     /// Create a new workflow definition
     pub fn new(
-        id: String,
-        name: String,
-        description: Option<String>,
-        step_count: usize,
-        version: String,
+        id: String, name: String, description: Option<String>, step_count: usize, version: String,
     ) -> Self {
         // Generate checksum from definition data
         let checksum_data = format!("{}|{}|{}|{}", id, name, step_count, version);
@@ -264,14 +266,17 @@ impl WorkflowDefinition {
 
     /// Verify the definition checksum
     pub fn verify_checksum(&self) -> bool {
-        let checksum_data = format!("{}|{}|{}|{}", self.id, self.name, self.step_count, self.version);
+        let checksum_data = format!(
+            "{}|{}|{}|{}",
+            self.id, self.name, self.step_count, self.version
+        );
         let expected = Self::generate_checksum(&checksum_data);
         self.checksum == expected
     }
 }
 
 /// Snapshot of execution state for suspend/resume
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExecutionSnapshot {
     /// Snapshot ID
     pub id: String,
@@ -289,13 +294,14 @@ pub struct ExecutionSnapshot {
     pub checksum: String,
 }
 
+/// Manual Eq implementation excluding timestamp (DateTime<Utc> doesn't implement Eq)
+impl Eq for ExecutionSnapshot {}
+
 impl ExecutionSnapshot {
     /// Create a new execution snapshot
     pub fn new(
-        current_step: usize,
-        context: HashMap<String, serde_json::Value>,
-        output: HashMap<String, serde_json::Value>,
-        trace: Vec<TraceEventSnapshot>,
+        current_step: usize, context: HashMap<String, serde_json::Value>,
+        output: HashMap<String, serde_json::Value>, trace: Vec<TraceEventSnapshot>,
     ) -> Self {
         let id = Uuid::new_v4().to_string();
         let timestamp = chrono::Utc::now();
@@ -316,9 +322,7 @@ impl ExecutionSnapshot {
 
     /// Generate checksum for snapshot verification
     fn generate_checksum(
-        id: &str,
-        step: usize,
-        context: &HashMap<String, serde_json::Value>,
+        id: &str, step: usize, context: &HashMap<String, serde_json::Value>,
         output: &HashMap<String, serde_json::Value>,
     ) -> String {
         use sha2::{Digest, Sha256};
@@ -338,18 +342,14 @@ impl ExecutionSnapshot {
 
     /// Verify snapshot integrity
     pub fn verify(&self) -> bool {
-        let expected = Self::generate_checksum(
-            &self.id,
-            self.current_step,
-            &self.context,
-            &self.output,
-        );
+        let expected =
+            Self::generate_checksum(&self.id, self.current_step, &self.context, &self.output);
         self.checksum == expected
     }
 }
 
 /// Trace event snapshot for debugging
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TraceEventSnapshot {
     /// Step name
     pub step: String,
@@ -361,8 +361,11 @@ pub struct TraceEventSnapshot {
     pub message: String,
 }
 
+/// Manual Eq implementation excluding timestamp (DateTime<Utc> doesn't implement Eq)
+impl Eq for TraceEventSnapshot {}
+
 /// Workflow execution results
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WorkflowResults {
     /// Final output data
     pub output: HashMap<String, serde_json::Value>,
@@ -373,7 +376,7 @@ pub struct WorkflowResults {
 }
 
 /// Execution metrics for completed workflows
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExecutionMetrics {
     /// Total steps executed
     pub steps_executed: usize,
@@ -388,7 +391,7 @@ pub struct ExecutionMetrics {
 }
 
 /// Serializable error information for Failed state
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct WorkflowErrorInfo {
     /// Error category
     pub category: String,
@@ -399,6 +402,9 @@ pub struct WorkflowErrorInfo {
     /// Timestamp when error occurred
     pub timestamp: chrono::DateTime<chrono::Utc>,
 }
+
+/// Manual Eq implementation excluding timestamp (DateTime<Utc> doesn't implement Eq)
+impl Eq for WorkflowErrorInfo {}
 
 impl From<&WorkflowError> for WorkflowErrorInfo {
     fn from(err: &WorkflowError) -> Self {
@@ -436,7 +442,7 @@ fn error_category(err: &WorkflowError) -> String {
 }
 
 /// State transition event emitted on every state change
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StateTransitionEvent {
     /// Unique transition ID
     pub transition_id: String,
@@ -453,6 +459,9 @@ pub struct StateTransitionEvent {
     /// Additional metadata
     pub metadata: HashMap<String, serde_json::Value>,
 }
+
+/// Manual Eq implementation excluding timestamp (DateTime<Utc> doesn't implement Eq)
+impl Eq for StateTransitionEvent {}
 
 /// Types of state transitions
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -531,19 +540,11 @@ impl StateMachine {
 
     /// Create a new state machine with a full definition
     pub fn with_definition(
-        workflow_id: String,
-        name: String,
-        description: Option<String>,
-        step_count: usize,
+        workflow_id: String, name: String, description: Option<String>, step_count: usize,
         version: String,
     ) -> Self {
-        let definition = WorkflowDefinition::new(
-            workflow_id.clone(),
-            name,
-            description,
-            step_count,
-            version,
-        );
+        let definition =
+            WorkflowDefinition::new(workflow_id.clone(), name, description, step_count, version);
 
         let state = WorkflowState::Ready {
             entered_at: chrono::Utc::now(),
@@ -636,11 +637,7 @@ impl StateMachine {
                 context,
                 ..
             } => (*current_step, *total_steps, context.clone()),
-            _ => {
-                return Err(errors::validation(
-                    "Invalid state for suspend operation",
-                ))
-            }
+            _ => return Err(errors::validation("Invalid state for suspend operation")),
         };
 
         let trace = Vec::new(); // In real implementation, capture from context
@@ -674,18 +671,15 @@ impl StateMachine {
                 snapshot,
                 ..
             } => (*suspended_at, snapshot.clone()),
-            _ => {
-                return Err(errors::validation(
-                    "Invalid state for resume operation",
-                ))
-            }
+            _ => return Err(errors::validation("Invalid state for resume operation")),
         };
 
         let duration = chrono::Utc::now().signed_duration_since(suspended_at);
         let total_steps = snapshot.trace.len();
 
         let new_state = WorkflowState::Running {
-            started_at: chrono::Utc::now() - chrono::Duration::milliseconds(duration.num_milliseconds() as i64),
+            started_at: chrono::Utc::now()
+                - chrono::Duration::milliseconds(duration.num_milliseconds()),
             current_step: snapshot.current_step,
             total_steps,
             progress: if total_steps > 0 {
@@ -711,11 +705,7 @@ impl StateMachine {
         let started_at = match &self.state {
             WorkflowState::Running { started_at, .. } => *started_at,
             WorkflowState::Suspended { suspended_at, .. } => *suspended_at,
-            _ => {
-                return Err(errors::validation(
-                    "Invalid state for complete operation",
-                ))
-            }
+            _ => return Err(errors::validation("Invalid state for complete operation")),
         };
 
         let duration = chrono::Utc::now().signed_duration_since(started_at);
@@ -748,7 +738,10 @@ impl StateMachine {
         };
 
         let mut metadata = HashMap::new();
-        metadata.insert("error_category".to_string(), serde_json::json!(error_info.category));
+        metadata.insert(
+            "error_category".to_string(),
+            serde_json::json!(error_info.category),
+        );
 
         self.transition(new_state, TransitionType::Fail, metadata)
     }
@@ -798,9 +791,7 @@ impl StateMachine {
 
     /// Internal state transition with event emission
     fn transition(
-        &mut self,
-        new_state: WorkflowState,
-        transition_type: TransitionType,
+        &mut self, new_state: WorkflowState, transition_type: TransitionType,
         metadata: HashMap<String, serde_json::Value>,
     ) -> WorkflowResult<()> {
         let from_state = self.state.name().to_string();
@@ -899,8 +890,10 @@ impl StateMachine {
 struct EventHandler {
     // Using a boxed function pointer for simplicity
     // In production, this could use channels or async handlers
+    #[allow(dead_code)]
     handler_id: String,
     #[allow(clippy::type_complexity)]
+    #[allow(dead_code)]
     callback: *const (),
 }
 
@@ -1040,12 +1033,14 @@ impl StateValidator {
             (WorkflowState::Ready { .. }, WorkflowState::Running { .. }) => Ok(()),
             (WorkflowState::Running { .. }, WorkflowState::Suspended { .. }) => Ok(()),
             (WorkflowState::Suspended { .. }, WorkflowState::Running { .. }) => Ok(()),
-            (WorkflowState::Running { .. } | WorkflowState::Suspended { .. }, WorkflowState::Completed { .. }) => {
-                Ok(())
-            }
-            (WorkflowState::Running { .. } | WorkflowState::Suspended { .. }, WorkflowState::Failed { .. }) => {
-                Ok(())
-            }
+            (
+                WorkflowState::Running { .. } | WorkflowState::Suspended { .. },
+                WorkflowState::Completed { .. },
+            ) => Ok(()),
+            (
+                WorkflowState::Running { .. } | WorkflowState::Suspended { .. },
+                WorkflowState::Failed { .. },
+            ) => Ok(()),
             (_, WorkflowState::Ready { .. }) => Ok(()), // Reset is always valid
             _ => Err(errors::validation(format!(
                 "Invalid state transition: {} -> {}",
@@ -1112,12 +1107,7 @@ mod tests {
 
     #[test]
     fn test_execution_snapshot_verify() {
-        let snapshot = ExecutionSnapshot::new(
-            5,
-            HashMap::new(),
-            HashMap::new(),
-            Vec::new(),
-        );
+        let snapshot = ExecutionSnapshot::new(5, HashMap::new(), HashMap::new(), Vec::new());
         assert!(snapshot.verify());
     }
 
@@ -1210,7 +1200,12 @@ mod tests {
 
         sm.update_progress(2, 40).unwrap();
 
-        if let WorkflowState::Running { progress, current_step, .. } = sm.current_state() {
+        if let WorkflowState::Running {
+            progress,
+            current_step,
+            ..
+        } = sm.current_state()
+        {
             assert_eq!(*progress, 40);
             assert_eq!(*current_step, 2);
         } else {

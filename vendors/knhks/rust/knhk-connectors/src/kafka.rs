@@ -9,7 +9,58 @@ use alloc::string::String;
 use alloc::string::ToString;
 use alloc::format;
 use core::hash::{Hash, Hasher};
-use hashbrown::hash_map::DefaultHasher;
+
+/// Simple hasher for no_std environments
+/// This is a basic FNV-1a hasher implementation
+struct SimpleHasher(u64);
+
+impl SimpleHasher {
+    fn new() -> Self {
+        Self(0xcbf29ce484222325) // FNV offset basis
+    }
+
+    fn finish(&self) -> u64 {
+        self.0
+    }
+
+    fn write_bytes(&mut self, bytes: &[u8]) {
+        for &byte in bytes {
+            self.0 ^= byte as u64;
+            self.0 = self.0.wrapping_mul(0x100000001b3); // FNV prime
+        }
+    }
+}
+
+impl core::hash::Hasher for SimpleHasher {
+    fn finish(&self) -> u64 {
+        self.0
+    }
+
+    fn write(&mut self, bytes: &[u8]) {
+        self.write_bytes(bytes);
+    }
+
+    fn write_u8(&mut self, i: u8) {
+        self.0 ^= i as u64;
+        self.0 = self.0.wrapping_mul(0x100000001b3);
+    }
+
+    fn write_u16(&mut self, i: u16) {
+        self.write_bytes(&i.to_le_bytes());
+    }
+
+    fn write_u32(&mut self, i: u32) {
+        self.write_bytes(&i.to_le_bytes());
+    }
+
+    fn write_u64(&mut self, i: u64) {
+        self.write_bytes(&i.to_le_bytes());
+    }
+
+    fn write_usize(&mut self, i: usize) {
+        self.write_bytes(&i.to_le_bytes());
+    }
+}
 
 #[cfg(feature = "kafka")]
 use rdkafka::{
@@ -327,7 +378,7 @@ impl KafkaConnector {
                     if json_str.contains("\"s\"") && json_str.contains("\"p\"") && json_str.contains("\"o\"") {
                     // Extract hash values (simplified)
                     // For now, generate deterministic hash from payload
-                    let mut hasher = DefaultHasher::new();
+                    let mut hasher = SimpleHasher::new();
                     json_str.hash(&mut hasher);
                     let hash = hasher.finish();
                         
@@ -360,7 +411,7 @@ impl KafkaConnector {
                 // In production, use proper RDF/Turtle parser
                 if turtle_str.contains(" <") && turtle_str.contains("> ") {
                     // Extract triple hashes (simplified)
-                    let mut hasher = DefaultHasher::new();
+                    let mut hasher = SimpleHasher::new();
                     turtle_str.hash(&mut hasher);
                     let hash = hasher.finish();
                     

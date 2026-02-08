@@ -1,20 +1,20 @@
 // Execution pipeline implementation for complex workflows
-use crate::types::*;
 use crate::error::*;
 use crate::framework::*;
-use async_trait::async_trait;
-use std::collections::HashMap;
+use crate::types::*;
+use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use std::sync::Arc;
-use tokio::sync::{Semaphore, Mutex, RwLock};
-use serde::{Serialize, Deserialize};
+use tokio::sync::{Mutex, RwLock, Semaphore};
+use uuid::Uuid;
 
 // ============================================================================
-// PIPELINE STAGE DEFINITIONS
+// ENHANCED PIPELINE STAGE DEFINITIONS
 // ============================================================================
 
-/// Pipeline stage for execution
+/// Enhanced pipeline stage with extended capabilities
 #[derive(Debug, Clone)]
-pub struct PipelineStage {
+pub struct EnhancedPipelineStage {
     pub id: String,
     pub name: String,
     pub stage_type: StageType,
@@ -27,6 +27,18 @@ pub struct PipelineStage {
     pub resources: ResourceRequirements,
 }
 
+impl From<EnhancedPipelineStage> for PipelineStage {
+    fn from(enhanced: EnhancedPipelineStage) -> Self {
+        Self {
+            name: enhanced.name,
+            stage_type: enhanced.stage_type.to_string(),
+            tasks: enhanced.tasks,
+            dependencies: enhanced.dependencies,
+            timeout_seconds: enhanced.timeout_seconds,
+        }
+    }
+}
+
 /// Stage types
 #[derive(Debug, Clone, PartialEq)]
 pub enum StageType {
@@ -36,6 +48,19 @@ pub enum StageType {
     Analysis,
     Communication,
     Custom(String),
+}
+
+impl StageType {
+    pub fn to_string(&self) -> String {
+        match self {
+            StageType::DataProcessing => "data_processing".to_string(),
+            StageType::Validation => "validation".to_string(),
+            StageType::Transformation => "transformation".to_string(),
+            StageType::Analysis => "analysis".to_string(),
+            StageType::Communication => "communication".to_string(),
+            StageType::Custom(s) => s.clone(),
+        }
+    }
 }
 
 /// Retry policy for stage execution
@@ -88,70 +113,19 @@ pub enum ComparisonOperator {
 }
 
 // ============================================================================
-// PIPELINE BUILDER
+// ENHANCED STAGE BUILDER
 // ============================================================================
 
-/// Builder for creating pipelines
-pub struct PipelineBuilder {
-    pipeline: ExecutionPipeline,
+/// Builder for enhanced pipeline stages
+pub struct EnhancedStageBuilder {
+    stage: EnhancedPipelineStage,
 }
 
-impl PipelineBuilder {
-    pub fn new(id: &str, name: &str) -> Self {
-        Self {
-            pipeline: ExecutionPipeline {
-                id: id.to_string(),
-                name: name.to_string(),
-                pipeline_type: "custom".to_string(),
-                stages: Vec::new(),
-                status: PipelineStatus::Created,
-            },
-        }
-    }
-
-    pub fn with_type(mut self, pipeline_type: &str) -> Self {
-        self.pipeline.pipeline_type = pipeline_type.to_string();
-        self
-    }
-
-    pub fn add_stage(mut self, stage: PipelineStage) -> Self {
-        self.pipeline.stages.push(stage);
-        self
-    }
-
-    pub fn with_parallelism(mut self, parallelism: usize) -> Self {
-        // Store parallelism as metadata or pipeline-level config
-        self.pipeline.stages.iter_mut().for_each(|s| {
-            if s.parallelism == 1 { // Default value
-                s.parallelism = parallelism;
-            }
-        });
-        self
-    }
-
-    pub fn with_timeout(mut self, timeout_seconds: u64) -> Self {
-        // Apply timeout to all stages
-        self.pipeline.stages.iter_mut().for_each(|s| {
-            s.timeout_seconds = timeout_seconds;
-        });
-        self
-    }
-
-    pub fn build(self) -> ExecutionPipeline {
-        self.pipeline
-    }
-}
-
-/// Builder for pipeline stages
-pub struct StageBuilder {
-    stage: PipelineStage,
-}
-
-impl StageBuilder {
+impl EnhancedStageBuilder {
     pub fn new(name: &str, stage_type: StageType) -> Self {
         Self {
-            stage: PipelineStage {
-                id: uuid::Uuid::new_v4().to_string(),
+            stage: EnhancedPipelineStage {
+                id: Uuid::new_v4().to_string(),
                 name: name.to_string(),
                 stage_type,
                 tasks: Vec::new(),
@@ -200,8 +174,58 @@ impl StageBuilder {
         self
     }
 
-    pub fn build(self) -> PipelineStage {
+    pub fn build(self) -> EnhancedPipelineStage {
         self.stage
+    }
+
+    /// Convert to base PipelineStage for framework compatibility
+    pub fn build_base(self) -> PipelineStage {
+        PipelineStage::from(self.stage)
+    }
+}
+
+// ============================================================================
+// PIPELINE BUILDER
+// ============================================================================
+
+/// Builder for creating pipelines
+pub struct PipelineBuilder {
+    pipeline: ExecutionPipeline,
+}
+
+impl PipelineBuilder {
+    pub fn new(id: &str, name: &str) -> Self {
+        Self {
+            pipeline: ExecutionPipeline {
+                id: id.to_string(),
+                name: name.to_string(),
+                pipeline_type: "custom".to_string(),
+                stages: Vec::new(),
+                status: PipelineStatus::Created,
+            },
+        }
+    }
+
+    pub fn with_type(mut self, pipeline_type: &str) -> Self {
+        self.pipeline.pipeline_type = pipeline_type.to_string();
+        self
+    }
+
+    pub fn add_stage(mut self, stage: PipelineStage) -> Self {
+        self.pipeline.stages.push(stage);
+        self
+    }
+
+    pub fn with_timeout(mut self, timeout_seconds: u64) -> Self {
+        // Apply timeout to all stages
+        self.pipeline.stages.iter_mut().for_each(|s| {
+            s.timeout_seconds = timeout_seconds;
+        });
+        self
+    }
+
+    pub fn build(self) -> ExecutionPipeline {
+        self.pipeline
     }
 }
 
@@ -209,65 +233,57 @@ impl StageBuilder {
 // ENHANCED PIPELINE EXECUTION
 // ============================================================================
 
-/// Enhanced pipeline executor with concurrency control
-pub struct PipelineExecutor {
+/// Enhanced pipeline executor with concurrency control for base stages
+pub struct EnhancedPipelineExecutor {
     framework: Arc<Mutex<ExecutionFramework>>,
-    semaphore: Arc<Semaphore>,
     metrics: Arc<RwLock<ExecutionMetrics>>,
 }
 
-impl PipelineExecutor {
+impl EnhancedPipelineExecutor {
     pub fn new(framework: ExecutionFramework) -> Self {
         Self {
             framework: Arc::new(Mutex::new(framework)),
-            semaphore: Arc::new(Semaphore::new(10)), // Default parallelism
             metrics: Arc::new(RwLock::new(ExecutionMetrics::new())),
         }
     }
 
-    pub async fn execute_pipeline(&self, pipeline: &mut ExecutionPipeline) -> Result<PipelineResult, ExecutionError> {
+    pub async fn execute_pipeline(
+        &self, pipeline: &mut ExecutionPipeline,
+    ) -> Result<PipelineResult, ExecutionError> {
         let mut stages = pipeline.stages.clone();
         let mut results = Vec::new();
         let mut success_count = 0;
 
         // Execute stages in dependency order
-        let mut completed_stages = std::collections::HashSet::new();
+        let mut completed_stages = HashSet::new();
 
         for stage in &mut stages {
             // Check dependencies
-            let mut dependencies_met = true;
-            for dep_id in &stage.dependencies {
-                if !completed_stages.contains(dep_id) {
-                    dependencies_met = false;
-                    break;
-                }
-            }
+            let dependencies_met = stage
+                .dependencies
+                .iter()
+                .all(|dep_id| completed_stages.contains(dep_id));
 
             if dependencies_met {
                 let result = self.execute_stage(stage).await?;
+                let success = result.success;
                 results.push(result);
 
-                if result.success {
+                if success {
                     success_count += 1;
                     completed_stages.insert(stage.name.clone());
                 } else {
                     // Stop execution on failed stage
-                    pipeline.status = PipelineStatus::Failed(format!("Stage {} failed", stage.name));
+                    pipeline.status =
+                        PipelineStatus::Failed(format!("Stage {} failed", stage.name));
                     break;
                 }
-            } else {
-                // Requeue stage for later execution
-                stages.insert(0, stage.clone());
             }
         }
 
         if success_count == stages.len() {
             pipeline.status = PipelineStatus::Completed;
         }
-
-        // Update metrics
-        let metrics = self.metrics.read().await;
-        // Store aggregated metrics
 
         Ok(PipelineResult {
             pipeline_id: pipeline.id.clone(),
@@ -279,89 +295,137 @@ impl PipelineExecutor {
         })
     }
 
-    async fn execute_stage(&self, stage: &mut PipelineStage) -> Result<StageResult, ExecutionError> {
-        // Check conditions
-        if !self.check_conditions(stage).await? {
-            return Ok(StageResult {
-                stage_name: stage.name.clone(),
-                success: false,
-                success_rate: 0.0,
-                total_tasks: stage.tasks.len(),
-                successful_tasks: 0,
-                failed_tasks: stage.tasks.len(),
-            });
-        }
+    async fn execute_stage(
+        &self, stage: &mut PipelineStage,
+    ) -> Result<StageResult, ExecutionError> {
+        let mut success_count = 0;
+        let mut failed_count = 0;
 
-        // Execute tasks with parallelism
-        let mut tasks = stage.tasks.clone();
-        let mut successful_tasks = 0;
-        let mut failed_tasks = 0;
+        for task in &stage.tasks {
+            let mut framework = self.framework.lock().await;
+            let result = framework.execute_task(task.clone()).await?;
 
-        // Group tasks into batches based on parallelism
-        let batch_size = stage.parallelism;
-        for chunk in tasks.chunks(batch_size) {
-            let mut results = Vec::new();
-
-            // Execute tasks in parallel
-            let permits = self.semaphore.acquire_many(chunk.len() as u32).await?;
-            let mut task_results = Vec::new();
-
-            for task in chunk {
-                let framework = self.framework.clone();
-                let task_clone = task.clone();
-                let task_id = task.id.clone();
-
-                let result = tokio::spawn(async move {
-                    let mut framework = framework.lock().await;
-                    framework.execute_task(task_clone).await
-                });
-
-                task_results.push((task_id, result));
-            }
-
-            // Wait for all tasks in the batch to complete
-            for (task_id, result) in task_results {
-                match result.await {
-                    Ok(Ok(task_result)) => {
-                        results.push(StageTaskResult {
-                            task_id,
-                            success: task_result.success,
-                            execution_time_ms: task_result.execution_time_ms,
-                        });
-                        if task_result.success {
-                            successful_tasks += 1;
-                        } else {
-                            failed_tasks += 1;
-                        }
-                    }
-                    Ok(Err(e)) => {
-                        failed_tasks += 1;
-                        results.push(StageTaskResult {
-                            task_id: "unknown".to_string(),
-                            success: false,
-                            execution_time_ms: 0,
-                        });
-                    }
-                    Err(_) => {
-                        failed_tasks += 1;
-                        results.push(StageTaskResult {
-                            task_id: "unknown".to_string(),
-                            success: false,
-                            execution_time_ms: 0,
-                        });
-                    }
-                }
-            }
-
-            drop(permits);
-
-            // Check if batch failed
-            if failed_tasks > 0 && stage.retry_policy.max_retries > 0 {
-                // Retry logic would go here
+            if result.success {
+                success_count += 1;
+            } else {
+                failed_count += 1;
             }
         }
 
         Ok(StageResult {
+            stage_name: stage.name.clone(),
+            success: failed_count == 0,
+            success_rate: success_count as f64 / (success_count + failed_count).max(1) as f64,
+            total_tasks: success_count + failed_count,
+            successful_tasks: success_count,
+            failed_tasks: failed_count,
+        })
+    }
+
+    pub async fn get_metrics(&self) -> ExecutionMetrics {
+        self.metrics.read().await.clone()
+    }
+}
+
+/// Parallel pipeline executor for enhanced stages
+pub struct ParallelPipelineExecutor {
+    framework: Arc<Mutex<ExecutionFramework>>,
+    metrics: Arc<RwLock<ExecutionMetrics>>,
+}
+
+impl ParallelPipelineExecutor {
+    pub fn new(framework: ExecutionFramework) -> Self {
+        Self {
+            framework: Arc::new(Mutex::new(framework)),
+            metrics: Arc::new(RwLock::new(ExecutionMetrics::new())),
+        }
+    }
+
+    pub async fn execute_enhanced_pipeline(
+        &self, stages: &mut Vec<EnhancedPipelineStage>,
+    ) -> Result<EnhancedPipelineResult, ExecutionError> {
+        let mut results = Vec::new();
+        let mut success_count = 0;
+        let total_stages = stages.len();
+
+        // Execute stages in dependency order
+        let mut completed_stages = HashSet::new();
+
+        for stage in &mut *stages {
+            // Check dependencies
+            let dependencies_met = stage
+                .dependencies
+                .iter()
+                .all(|dep_id| completed_stages.contains(dep_id));
+
+            if dependencies_met {
+                let result = self.execute_enhanced_stage(stage).await?;
+                results.push(result.clone());
+
+                if result.success {
+                    success_count += 1;
+                    completed_stages.insert(stage.name.clone());
+                }
+            }
+        }
+
+        Ok(EnhancedPipelineResult {
+            success: success_count == total_stages,
+            success_rate: success_count as f64 / total_stages.max(1) as f64,
+            total_stages,
+            completed_stages: success_count,
+            results,
+        })
+    }
+
+    async fn execute_enhanced_stage(
+        &self, stage: &EnhancedPipelineStage,
+    ) -> Result<EnhancedStageResult, ExecutionError> {
+        let mut successful_tasks = 0;
+        let mut failed_tasks = 0;
+
+        // Group tasks into batches based on parallelism
+        let batch_size = stage.parallelism.max(1);
+        let semaphore = Arc::new(Semaphore::new(batch_size));
+
+        let mut task_handles = Vec::new();
+
+        for task in &stage.tasks {
+            let framework = self.framework.clone();
+            let task_clone = task.clone();
+            let sem = semaphore.clone();
+
+            let handle = tokio::spawn(async move {
+                // Acquire permit
+                let _permit = sem.acquire().await.unwrap();
+
+                let mut fw = framework.lock().await;
+                fw.execute_task(task_clone).await
+            });
+
+            task_handles.push(handle);
+        }
+
+        // Wait for all tasks to complete
+        for handle in task_handles {
+            match handle.await {
+                Ok(Ok(task_result)) => {
+                    if task_result.success {
+                        successful_tasks += 1;
+                    } else {
+                        failed_tasks += 1;
+                    }
+                }
+                Ok(Err(_)) => {
+                    failed_tasks += 1;
+                }
+                Err(_) => {
+                    failed_tasks += 1;
+                }
+            }
+        }
+
+        Ok(EnhancedStageResult {
             stage_name: stage.name.clone(),
             success: failed_tasks == 0,
             success_rate: successful_tasks as f64 / (successful_tasks + failed_tasks).max(1) as f64,
@@ -371,22 +435,30 @@ impl PipelineExecutor {
         })
     }
 
-    async fn check_conditions(&self, stage: &PipelineStage) -> Result<bool, ExecutionError> {
-        for condition in &stage.conditions {
-            // Implement condition checking logic
-            // This would involve checking task results, metadata, etc.
-            let condition_met = true; // Simplified for now
-
-            if !condition_met {
-                return Ok(false);
-            }
-        }
-        Ok(true)
-    }
-
     pub async fn get_metrics(&self) -> ExecutionMetrics {
         self.metrics.read().await.clone()
     }
+}
+
+/// Enhanced pipeline result
+#[derive(Debug, Clone)]
+pub struct EnhancedPipelineResult {
+    pub success: bool,
+    pub success_rate: f64,
+    pub total_stages: usize,
+    pub completed_stages: usize,
+    pub results: Vec<EnhancedStageResult>,
+}
+
+/// Enhanced stage result
+#[derive(Debug, Clone)]
+pub struct EnhancedStageResult {
+    pub stage_name: String,
+    pub success: bool,
+    pub success_rate: f64,
+    pub total_tasks: usize,
+    pub successful_tasks: usize,
+    pub failed_tasks: usize,
 }
 
 /// Enhanced execution metrics
@@ -455,9 +527,10 @@ impl PipelineValidator {
         let mut stage_names = std::collections::HashSet::new();
         for stage in &pipeline.stages {
             if stage_names.contains(&stage.name) {
-                return Err(ExecutionError::Pipeline(
-                    format!("Duplicate stage name: {}", stage.name)
-                ));
+                return Err(ExecutionError::Pipeline(format!(
+                    "Duplicate stage name: {}",
+                    stage.name
+                )));
             }
             stage_names.insert(stage.name.clone());
         }
@@ -465,7 +538,7 @@ impl PipelineValidator {
         // Check for circular dependencies
         if Self::has_circular_dependencies(pipeline)? {
             return Err(ExecutionError::Pipeline(
-                "Circular dependencies detected in pipeline".to_string()
+                "Circular dependencies detected in pipeline".to_string(),
             ));
         }
 
@@ -482,7 +555,12 @@ impl PipelineValidator {
         let mut recursion_stack = std::collections::HashSet::new();
 
         for stage in &pipeline.stages {
-            if Self::has_circular_dependencies_recursive(stage, pipeline, &mut visited, &mut recursion_stack)? {
+            if Self::has_circular_dependencies_recursive(
+                stage,
+                pipeline,
+                &mut visited,
+                &mut recursion_stack,
+            )? {
                 return Ok(true);
             }
         }
@@ -491,8 +569,7 @@ impl PipelineValidator {
     }
 
     fn has_circular_dependencies_recursive(
-        stage: &PipelineStage,
-        pipeline: &ExecutionPipeline,
+        stage: &PipelineStage, pipeline: &ExecutionPipeline,
         visited: &mut std::collections::HashSet<String>,
         recursion_stack: &mut std::collections::HashSet<String>,
     ) -> Result<bool, ExecutionError> {
@@ -504,13 +581,20 @@ impl PipelineValidator {
         recursion_stack.insert(stage.name.clone());
 
         for dep_id in &stage.dependencies {
-            let dep_stage = pipeline.stages.iter()
+            let dep_stage = pipeline
+                .stages
+                .iter()
                 .find(|s| s.name == *dep_id)
-                .ok_or_else(|| ExecutionError::Pipeline(
-                    format!("Dependency not found: {}", dep_id)
-                ))?;
+                .ok_or_else(|| {
+                    ExecutionError::Pipeline(format!("Dependency not found: {}", dep_id))
+                })?;
 
-            if Self::has_circular_dependencies_recursive(dep_stage, pipeline, visited, recursion_stack)? {
+            if Self::has_circular_dependencies_recursive(
+                dep_stage,
+                pipeline,
+                visited,
+                recursion_stack,
+            )? {
                 return Ok(true);
             }
         }
@@ -521,21 +605,43 @@ impl PipelineValidator {
 
     fn validate_stage(stage: &PipelineStage) -> Result<(), ExecutionError> {
         if stage.tasks.is_empty() {
-            return Err(ExecutionError::Pipeline(
-                format!("Stage '{}' has no tasks", stage.name)
-            ));
-        }
-
-        if stage.parallelism == 0 {
-            return Err(ExecutionError::Pipeline(
-                format!("Stage '{}' has invalid parallelism: {}", stage.name, stage.parallelism)
-            ));
+            return Err(ExecutionError::Pipeline(format!(
+                "Stage '{}' has no tasks",
+                stage.name
+            )));
         }
 
         if stage.timeout_seconds == 0 {
-            return Err(ExecutionError::Pipeline(
-                format!("Stage '{}' has invalid timeout: {}", stage.name, stage.timeout_seconds)
-            ));
+            return Err(ExecutionError::Pipeline(format!(
+                "Stage '{}' has invalid timeout: {}",
+                stage.name, stage.timeout_seconds
+            )));
+        }
+
+        Ok(())
+    }
+
+    /// Validate enhanced pipeline stage with additional checks
+    pub fn validate_enhanced_stage(stage: &EnhancedPipelineStage) -> Result<(), ExecutionError> {
+        if stage.tasks.is_empty() {
+            return Err(ExecutionError::Pipeline(format!(
+                "Stage '{}' has no tasks",
+                stage.name
+            )));
+        }
+
+        if stage.parallelism == 0 {
+            return Err(ExecutionError::Pipeline(format!(
+                "Stage '{}' has invalid parallelism: {}",
+                stage.name, stage.parallelism
+            )));
+        }
+
+        if stage.timeout_seconds == 0 {
+            return Err(ExecutionError::Pipeline(format!(
+                "Stage '{}' has invalid timeout: {}",
+                stage.name, stage.timeout_seconds
+            )));
         }
 
         Ok(())
@@ -551,12 +657,20 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_pipeline_builder() {
-        let stage = StageBuilder::new("Test Stage", StageType::DataProcessing)
+    fn test_enhanced_stage_builder() {
+        let stage = EnhancedStageBuilder::new("Test Stage", StageType::DataProcessing)
             .with_parallelism(2)
             .with_timeout(600)
             .build();
 
+        assert_eq!(stage.name, "Test Stage");
+        assert_eq!(stage.parallelism, 2);
+        assert_eq!(stage.timeout_seconds, 600);
+    }
+
+    #[test]
+    fn test_pipeline_builder() {
+        let stage = PipelineStage::new("Test Stage", "test");
         let pipeline = PipelineBuilder::new("test-pipeline", "Test Pipeline")
             .with_type("etl")
             .add_stage(stage)
@@ -565,8 +679,7 @@ mod tests {
         assert_eq!(pipeline.name, "Test Pipeline");
         assert_eq!(pipeline.pipeline_type, "etl");
         assert_eq!(pipeline.stages.len(), 1);
-        assert_eq!(pipeline.stages[0].parallelism, 2);
-        assert_eq!(pipeline.stages[0].timeout_seconds, 600);
+        assert_eq!(pipeline.stages[0].timeout_seconds, 300);
     }
 
     #[test]
@@ -574,20 +687,35 @@ mod tests {
         let mut pipeline = ExecutionPipeline::new("test-pipeline", "Test Pipeline", "test");
 
         // Add valid stage
-        let stage = StageBuilder::new("Stage 1", StageType::DataProcessing).build();
+        let mut stage = PipelineStage::new("Stage 1", "test");
+        let task = Task::new(
+            "task-1",
+            "Test Task",
+            "test",
+            TaskPriority::Normal,
+            serde_json::json!({}),
+        );
+        stage.add_task(task);
         pipeline.stages.push(stage.clone());
 
         // Add stage with dependency
-        let dependent_stage = StageBuilder::new("Stage 2", StageType::Validation)
-            .add_dependency(&stage.id)
-            .build();
+        let mut dependent_stage = PipelineStage::new("Stage 2", "test");
+        dependent_stage.dependencies.push(stage.name.clone());
+        let task2 = Task::new(
+            "task-2",
+            "Test Task 2",
+            "test",
+            TaskPriority::Normal,
+            serde_json::json!({}),
+        );
+        dependent_stage.add_task(task2);
         pipeline.stages.push(dependent_stage);
 
         // Validation should pass
         assert!(PipelineValidator::validate_pipeline(&pipeline).is_ok());
 
         // Add duplicate stage name
-        let duplicate_stage = StageBuilder::new("Stage 1", StageType::Analysis).build();
+        let duplicate_stage = PipelineStage::new("Stage 1", "analysis");
         pipeline.stages.push(duplicate_stage);
 
         // Validation should fail
@@ -595,21 +723,123 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_pipeline_executor() {
+    async fn test_enhanced_pipeline_executor() {
         let framework = ExecutionFramework::new(ExecutionConfig::default());
-        let executor = PipelineExecutor::new(framework);
+        let executor = EnhancedPipelineExecutor::new(framework);
 
         let mut pipeline = ExecutionPipeline::new("test-pipeline", "Test Pipeline", "test");
 
-        let stage = StageBuilder::new("Test Stage", StageType::DataProcessing)
-            .add_task(Task::new("task-1", "Test Task", "test", TaskPriority::Normal, serde_json::json!({})))
-            .with_parallelism(2)
-            .build();
+        let mut stage = PipelineStage::new("Test Stage", "test");
+        let task = Task::new(
+            "task-1",
+            "Test Task",
+            "test",
+            TaskPriority::Normal,
+            serde_json::json!({}),
+        );
+        stage.add_task(task);
 
         pipeline.stages.push(stage);
 
         let result = executor.execute_pipeline(&mut pipeline).await;
         assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_parallel_pipeline_executor() {
+        let framework = ExecutionFramework::new(ExecutionConfig::default());
+        let executor = ParallelPipelineExecutor::new(framework);
+
+        let mut stages = vec![
+            EnhancedStageBuilder::new("Stage 1", StageType::DataProcessing)
+                .add_task(Task::new(
+                    "t1",
+                    "Task1",
+                    "test",
+                    TaskPriority::Normal,
+                    serde_json::json!({}),
+                ))
+                .with_parallelism(2)
+                .build(),
+        ];
+
+        let result = executor.execute_enhanced_pipeline(&mut stages).await;
+        assert!(result.is_ok());
         assert!(result.unwrap().success);
+    }
+
+    #[test]
+    fn test_execution_metrics() {
+        let mut metrics = ExecutionMetrics::new();
+
+        metrics.record_task(true, 100);
+        metrics.record_task(false, 200);
+        metrics.record_task(true, 150);
+
+        assert_eq!(metrics.total_tasks, 3);
+        assert_eq!(metrics.successful_tasks, 2);
+        assert_eq!(metrics.failed_tasks, 1);
+        assert!((metrics.error_rate - 0.333).abs() < 0.01);
+    }
+
+    #[test]
+    fn test_enhanced_stage_to_base_conversion() {
+        let enhanced = EnhancedStageBuilder::new("Test", StageType::Validation)
+            .add_task(Task::new(
+                "t1",
+                "Task1",
+                "test",
+                TaskPriority::Normal,
+                serde_json::json!({}),
+            ))
+            .with_timeout(500)
+            .build();
+
+        let base: PipelineStage = PipelineStage::from(enhanced.clone());
+
+        assert_eq!(base.name, enhanced.name);
+        assert_eq!(base.stage_type, enhanced.stage_type.to_string());
+        assert_eq!(base.timeout_seconds, enhanced.timeout_seconds);
+    }
+
+    #[test]
+    fn test_stage_type_to_string() {
+        assert_eq!(StageType::DataProcessing.to_string(), "data_processing");
+        assert_eq!(StageType::Validation.to_string(), "validation");
+        assert_eq!(
+            StageType::Custom("custom".to_string()).to_string(),
+            "custom"
+        );
+    }
+
+    #[test]
+    fn test_enhanced_stage_validation() {
+        let stage = EnhancedStageBuilder::new("Test", StageType::DataProcessing)
+            .add_task(Task::new(
+                "t1",
+                "Task1",
+                "test",
+                TaskPriority::Normal,
+                serde_json::json!({}),
+            ))
+            .with_parallelism(1)
+            .with_timeout(300)
+            .build();
+
+        assert!(PipelineValidator::validate_enhanced_stage(&stage).is_ok());
+
+        // Test invalid parallelism
+        let invalid_stage = EnhancedStageBuilder::new("Test", StageType::DataProcessing)
+            .add_task(Task::new(
+                "t1",
+                "Task1",
+                "test",
+                TaskPriority::Normal,
+                serde_json::json!({}),
+            ))
+            .with_parallelism(0)
+            .build();
+
+        assert!(PipelineValidator::validate_enhanced_stage(&invalid_stage).is_err());
     }
 }

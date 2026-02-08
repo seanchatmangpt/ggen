@@ -108,7 +108,9 @@ impl ProcessMiner {
         let activities = log.unique_activities();
 
         if activities.is_empty() {
-            return Err(Error::AlphaPlusPlusDiscovery("no activities found".to_string()));
+            return Err(Error::AlphaPlusPlusDiscovery(
+                "no activities found".to_string(),
+            ));
         }
 
         // Create a simple sequential model
@@ -308,7 +310,9 @@ impl AlphaPlusPlus {
     }
 
     /// Build arcs connecting places and transitions.
-    fn build_arcs(&self, places: &[Place], transitions: &HashSet<Transition>, log: &EventLog) -> Vec<Arc> {
+    fn build_arcs(
+        &self, places: &[Place], transitions: &HashSet<Transition>, log: &EventLog,
+    ) -> Vec<Arc> {
         let mut arcs = Vec::new();
         let activity_to_transition: HashMap<String, &Transition> = transitions
             .iter()
@@ -334,9 +338,13 @@ impl AlphaPlusPlus {
         // Add start and end connections
         if let Some(first_trace) = log.traces.first() {
             if let Some(first_activity) = first_trace.events.first() {
-                if let Some(first_transition) = activity_to_transition.get(&first_activity.activity) {
+                if let Some(first_transition) = activity_to_transition.get(&first_activity.activity)
+                {
                     let start_place = Place::new("p_start").with_label("start");
-                    arcs.push(Arc::new(start_place.id.clone(), first_transition.id.clone()));
+                    arcs.push(Arc::new(
+                        start_place.id.clone(),
+                        first_transition.id.clone(),
+                    ));
                 }
             }
         }
@@ -427,7 +435,9 @@ mod tests {
             .with_event(Event::new("e5", "B", "2024-01-02T11:00:00Z").unwrap())
             .with_event(Event::new("e6", "C", "2024-01-02T12:00:00Z").unwrap());
 
-        EventLog::new("Test Log").with_trace(trace1).with_trace(trace2)
+        EventLog::new("Test Log")
+            .with_trace(trace1)
+            .with_trace(trace2)
     }
 
     #[test]
@@ -448,10 +458,9 @@ mod tests {
 
     #[test]
     fn test_insufficient_log_error() {
-        let small_log = EventLog::new("Tiny Log")
-            .with_trace(Trace::new("case1").with_event(
-                Event::new("e1", "A", "2024-01-01T10:00:00Z").unwrap(),
-            ));
+        let small_log = EventLog::new("Tiny Log").with_trace(
+            Trace::new("case1").with_event(Event::new("e1", "A", "2024-01-01T10:00:00Z").unwrap()),
+        );
 
         let miner = ProcessMiner::new();
         let result = miner.discover_alpha_plusplus(&small_log);
@@ -494,8 +503,12 @@ mod tests {
 
         let relations = result.unwrap();
         // Should have causal relations A->B, B->C
-        assert!(relations.causal.contains(&(String::from("A"), String::from("B"))));
-        assert!(relations.causal.contains(&(String::from("B"), String::from("C"))));
+        assert!(relations
+            .causal
+            .contains(&(String::from("A"), String::from("B"))));
+        assert!(relations
+            .causal
+            .contains(&(String::from("B"), String::from("C"))));
     }
 
     #[test]

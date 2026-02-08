@@ -11,14 +11,14 @@
 //! - Cascade failures (one failure triggers another)
 
 use std::sync::Arc;
-use tokio::sync::RwLock;
 use std::time::{Duration, Instant};
+use tokio::sync::RwLock;
 
 /// Network delay injection: System recovers after latency
 #[tokio::test]
 async fn chaos_network_delay_recovery() {
     // Arrange: System with simulated 500ms network delay
-    let system = ChaosNetworkSystem::new(delay_ms: 500);
+    let system = ChaosNetworkSystem::new(500);
     let successful_requests = Arc::new(RwLock::new(0usize));
 
     // Act: Send requests with network delay
@@ -53,7 +53,7 @@ async fn chaos_network_delay_recovery() {
 #[tokio::test]
 async fn chaos_packet_loss_handling() {
     // Arrange: System with 10% packet loss
-    let system = ChaosPacketLossSystem::new(loss_rate: 0.10);
+    let system = ChaosPacketLossSystem::new(0.10);
 
     // Act: Send requests and count losses
     let mut results = Vec::new();
@@ -72,10 +72,7 @@ async fn chaos_packet_loss_handling() {
         (success_rate * 100.0) as u32
     );
 
-    assert!(
-        success_rate < 1.0,
-        "Should have some packet loss"
-    );
+    assert!(success_rate < 1.0, "Should have some packet loss");
 }
 
 /// Service unavailability: System gracefully degrades
@@ -109,7 +106,7 @@ async fn chaos_service_unavailability() {
 #[tokio::test]
 async fn chaos_memory_pressure() {
     // Arrange: System with constrained memory
-    let system = ChaosMemoryPressureSystem::new(max_mb: 50);
+    let system = ChaosMemoryPressureSystem::new(50);
 
     // Act: Allocate memory until pressure
     for i in 0..1000 {
@@ -124,7 +121,10 @@ async fn chaos_memory_pressure() {
 
     // Assert: System is still responsive
     let health = system.health_check().await;
-    assert!(health, "System should still be healthy despite memory pressure");
+    assert!(
+        health,
+        "System should still be healthy despite memory pressure"
+    );
 }
 
 /// Cascade failure: One failure doesn't crash the whole system
@@ -155,7 +155,7 @@ async fn chaos_cascade_failure_isolation() {
 #[tokio::test]
 async fn chaos_circuit_breaker_protection() {
     // Arrange: System with circuit breaker
-    let system = ChaosCircuitBreakerSystem::new(failure_threshold: 5);
+    let system = ChaosCircuitBreakerSystem::new(5);
 
     // Act: Trigger failures
     for _ in 0..10 {
@@ -165,8 +165,7 @@ async fn chaos_circuit_breaker_protection() {
     // Assert: Circuit breaker should be open after threshold
     let status = system.circuit_breaker_status().await;
     assert_eq!(
-        status,
-        "OPEN",
+        status, "OPEN",
         "Circuit breaker should be open after failures"
     );
 
@@ -192,9 +191,8 @@ async fn chaos_concurrent_failures() {
 
     for i in 0..5 {
         let sys = system.clone();
-        let handle = tokio::spawn(async move {
-            sys.fail_component(&format!("service-{}", i)).await
-        });
+        let handle =
+            tokio::spawn(async move { sys.fail_component(&format!("service-{}", i)).await });
         handles.push(handle);
     }
 
@@ -231,7 +229,7 @@ async fn chaos_data_corruption_detection() {
 #[tokio::test]
 async fn chaos_timeout_handling() {
     // Arrange
-    let system = ChaosTimeoutSystem::new(timeout_ms: 100);
+    let system = ChaosTimeoutSystem::new(100);
 
     // Act: Trigger slow operation
     let start = Instant::now();
@@ -258,9 +256,7 @@ async fn chaos_overload_degradation() {
 
     for i in 0..request_count {
         let sys = system.clone();
-        let handle = tokio::spawn(async move {
-            sys.handle_request(i).await
-        });
+        let handle = tokio::spawn(async move { sys.handle_request(i).await });
         handles.push(handle);
     }
 
@@ -502,12 +498,7 @@ impl ChaosTimeoutSystem {
     }
 
     async fn slow_operation(&self) -> Result<String, String> {
-        match tokio::time::timeout(
-            Duration::from_millis(self.timeout_ms),
-            self.do_work(),
-        )
-        .await
-        {
+        match tokio::time::timeout(Duration::from_millis(self.timeout_ms), self.do_work()).await {
             Ok(result) => result,
             Err(_) => Err("Timeout".to_string()),
         }

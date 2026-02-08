@@ -6,7 +6,7 @@
 use super::events::SecurityEvent;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use thiserror::Error;
 
 /// Audit trail errors
@@ -87,7 +87,7 @@ impl AuditTrail {
         let mut entry = AuditEntry {
             event,
             hash: None,
-            parent_hash: self.head_hash.as_ref().map(|h| hex::encode(h)),
+            parent_hash: self.head_hash.as_ref().map(hex::encode),
             audit_timestamp,
         };
 
@@ -226,7 +226,7 @@ impl AuditTrail {
     }
 
     /// Update audit trail index
-    fn update_index(&self, repo_path: &PathBuf) -> Result<(), AuditError> {
+    fn update_index(&self, repo_path: &Path) -> Result<(), AuditError> {
         use std::fs;
 
         let index_file = repo_path.join("audit_trail").join("index.json");

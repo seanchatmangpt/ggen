@@ -3,20 +3,22 @@
 //! Tests for validating event logs against process models.
 //! Verifies fitness, precision, and generalization metrics.
 
-use ggen_process_mining::{
-    EventLog, PetriNet, ConformanceChecker,
-    Trace, Event, Place, Transition, Marking,
-};
-use ggen_process_mining::petri_net::Arc as PetriArc;
 use ggen_process_mining::event_log::AttributeValue;
+use ggen_process_mining::petri_net::Arc as PetriArc;
+use ggen_process_mining::{
+    ConformanceChecker, ConformanceReport, Event, EventLog, Marking, PetriNet, Place, Trace,
+    Transition,
+};
 
 #[cfg(test)]
 mod conformance_tests {
-    use super::*;
     use super::super::helpers::*;
+    use super::*;
 
     /// Convenience function for conformance checking (local definition).
-    fn check_conformance(model: &PetriNet, log: &EventLog) -> ggen_process_mining::Result<ggen_process_mining::ConformanceReport> {
+    fn check_conformance(
+        model: &PetriNet, log: &EventLog,
+    ) -> ggen_process_mining::Result<ConformanceReport> {
         ggen_process_mining::ConformanceChecker::new().check(model, log)
     }
 
@@ -69,7 +71,10 @@ mod conformance_tests {
 
         let report = result.unwrap();
         // Fitness should be lower than 1.0 due to deviations
-        assert!(report.fitness < 1.0, "Fitness should be less than perfect with deviations");
+        assert!(
+            report.fitness < 1.0,
+            "Fitness should be less than perfect with deviations"
+        );
 
         // Should have at least one non-conforming trace
         assert!(report.non_conforming_count() >= 0);
@@ -91,7 +96,10 @@ mod conformance_tests {
         assert!(result.is_ok());
 
         let report = result.unwrap();
-        assert_eq!(report.fitness, 1.0, "Empty log has perfect fitness by definition");
+        assert_eq!(
+            report.fitness, 1.0,
+            "Empty log has perfect fitness by definition"
+        );
         assert_eq!(report.trace_results.len(), 0);
     }
 
@@ -108,8 +116,11 @@ mod conformance_tests {
         let report = checker.check(&net, &log).unwrap();
 
         // Assert
-        assert_eq!(report.trace_results.len(), log.traces.len(),
-                   "Should have one result per trace");
+        assert_eq!(
+            report.trace_results.len(),
+            log.traces.len(),
+            "Should have one result per trace"
+        );
 
         for trace_result in &report.trace_results {
             assert!(!trace_result.case_id.is_empty());
@@ -159,8 +170,7 @@ mod conformance_tests {
     #[test]
     fn test_conformance_validates_model() {
         // Arrange - Create invalid Petri net (no transitions)
-        let invalid_net = PetriNet::new()
-            .with_place(Place::new("p1"));
+        let invalid_net = PetriNet::new().with_place(Place::new("p1"));
 
         let log = create_simple_log();
         let checker = ConformanceChecker::new();
@@ -185,12 +195,21 @@ mod conformance_tests {
         let report = checker.check(&net, &log).unwrap();
 
         // Assert - All metrics should be in [0, 1] range
-        assert!(report.fitness >= 0.0 && report.fitness <= 1.0,
-               "Fitness must be in [0, 1] range, got {}", report.fitness);
-        assert!(report.precision >= 0.0 && report.precision <= 1.0,
-               "Precision must be in [0, 1] range, got {}", report.precision);
-        assert!(report.generalization >= 0.0 && report.generalization <= 1.0,
-               "Generalization must be in [0, 1] range, got {}", report.generalization);
+        assert!(
+            report.fitness >= 0.0 && report.fitness <= 1.0,
+            "Fitness must be in [0, 1] range, got {}",
+            report.fitness
+        );
+        assert!(
+            report.precision >= 0.0 && report.precision <= 1.0,
+            "Precision must be in [0, 1] range, got {}",
+            report.precision
+        );
+        assert!(
+            report.generalization >= 0.0 && report.generalization <= 1.0,
+            "Generalization must be in [0, 1] range, got {}",
+            report.generalization
+        );
     }
 
     /// Test conformance report convenience methods.
@@ -201,12 +220,12 @@ mod conformance_tests {
             .with_trace(
                 Trace::new("conforming_case")
                     .with_event(Event::new("e1", "Submit", "2024-01-01T10:00:00Z").unwrap())
-                    .with_event(Event::new("e2", "Approve", "2024-01-01T11:00:00Z").unwrap())
+                    .with_event(Event::new("e2", "Approve", "2024-01-01T11:00:00Z").unwrap()),
             )
             .with_trace(
                 Trace::new("deviating_case")
                     .with_event(Event::new("e3", "Submit", "2024-01-02T10:00:00Z").unwrap())
-                    .with_event(Event::new("e4", "Unknown", "2024-01-02T11:00:00Z").unwrap())
+                    .with_event(Event::new("e4", "Unknown", "2024-01-02T11:00:00Z").unwrap()),
             );
 
         let net = create_simple_petri_net();
@@ -241,7 +260,10 @@ mod conformance_tests {
 
         // Assert
         let trace_result = &report.trace_results[0];
-        assert!(!trace_result.is_complete, "Trace should not be marked as complete");
+        assert!(
+            !trace_result.is_complete,
+            "Trace should not be marked as complete"
+        );
     }
 
     /// Test model moves detection in conformance.
@@ -251,12 +273,11 @@ mod conformance_tests {
         // Model expects: Submit -> Review -> Approve
         // Log has: Submit -> Approve (missing Review - needs model move)
 
-        let log = EventLog::new("Skip Log")
-            .with_trace(
-                Trace::new("case1")
-                    .with_event(Event::new("e1", "Submit", "2024-01-01T10:00:00Z").unwrap())
-                    .with_event(Event::new("e2", "Approve", "2024-01-01T11:00:00Z").unwrap())
-            );
+        let log = EventLog::new("Skip Log").with_trace(
+            Trace::new("case1")
+                .with_event(Event::new("e1", "Submit", "2024-01-01T10:00:00Z").unwrap())
+                .with_event(Event::new("e2", "Approve", "2024-01-01T11:00:00Z").unwrap()),
+        );
 
         let net = create_simple_petri_net();
         let report = check_conformance(&net, &log).unwrap();
@@ -272,14 +293,13 @@ mod conformance_tests {
         // Arrange
         // Log has activities not in model
 
-        let log = EventLog::new("Extra Activity Log")
-            .with_trace(
-                Trace::new("case1")
-                    .with_event(Event::new("e1", "Submit", "2024-01-01T10:00:00Z").unwrap())
-                    .with_event(Event::new("e2", "Review", "2024-01-01T11:00:00Z").unwrap())
-                    .with_event(Event::new("e3", "NotInModel", "2024-01-01T11:30:00Z").unwrap())
-                    .with_event(Event::new("e4", "Approve", "2024-01-01T12:00:00Z").unwrap())
-            );
+        let log = EventLog::new("Extra Activity Log").with_trace(
+            Trace::new("case1")
+                .with_event(Event::new("e1", "Submit", "2024-01-01T10:00:00Z").unwrap())
+                .with_event(Event::new("e2", "Review", "2024-01-01T11:00:00Z").unwrap())
+                .with_event(Event::new("e3", "NotInModel", "2024-01-01T11:30:00Z").unwrap())
+                .with_event(Event::new("e4", "Approve", "2024-01-01T12:00:00Z").unwrap()),
+        );
 
         let net = create_simple_petri_net();
         let report = check_conformance(&net, &log).unwrap();
@@ -295,12 +315,11 @@ mod conformance_tests {
     fn test_conformance_precision_calculation() {
         // Arrange
         let net = PetriNet::from_activities(&["A", "B", "C"]);
-        let log = EventLog::new("Partial Log")
-            .with_trace(
-                Trace::new("case1")
-                    .with_event(Event::new("e1", "A", "2024-01-01T10:00:00Z").unwrap())
-                    .with_event(Event::new("e2", "B", "2024-01-01T11:00:00Z").unwrap())
-            );
+        let log = EventLog::new("Partial Log").with_trace(
+            Trace::new("case1")
+                .with_event(Event::new("e1", "A", "2024-01-01T10:00:00Z").unwrap())
+                .with_event(Event::new("e2", "B", "2024-01-01T11:00:00Z").unwrap()),
+        );
 
         let checker = ConformanceChecker::new();
 
@@ -334,12 +353,11 @@ mod conformance_tests {
             .with_initial_marking(Marking::new().with_token("p1", 1))
             .with_final_marking(Marking::new().with_token("p4", 1));
 
-        let simple_log = EventLog::new("Simple Log")
-            .with_trace(
-                Trace::new("case1")
-                    .with_event(Event::new("e1", "A", "2024-01-01T10:00:00Z").unwrap())
-                    .with_event(Event::new("e2", "B", "2024-01-01T11:00:00Z").unwrap())
-            );
+        let simple_log = EventLog::new("Simple Log").with_trace(
+            Trace::new("case1")
+                .with_event(Event::new("e1", "A", "2024-01-01T10:00:00Z").unwrap())
+                .with_event(Event::new("e2", "B", "2024-01-01T11:00:00Z").unwrap()),
+        );
 
         let checker = ConformanceChecker::new();
 
@@ -404,12 +422,12 @@ mod conformance_tests {
                 Trace::new("case1")
                     .with_event(Event::new("e1", "Submit", "2024-01-01T10:00:00Z").unwrap())
                     .with_event(Event::new("e2", "Review", "2024-01-01T11:00:00Z").unwrap())
-                    .with_event(Event::new("e3", "Approve", "2024-01-01T12:00:00Z").unwrap())
+                    .with_event(Event::new("e3", "Approve", "2024-01-01T12:00:00Z").unwrap()),
             )
             .with_trace(
                 Trace::new("case2")
                     .with_event(Event::new("e4", "Submit", "2024-01-02T10:00:00Z").unwrap())
-                    .with_event(Event::new("e5", "Extra", "2024-01-02T11:00:00Z").unwrap())
+                    .with_event(Event::new("e5", "Extra", "2024-01-02T11:00:00Z").unwrap()),
             );
 
         let net = create_simple_petri_net();

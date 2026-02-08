@@ -25,7 +25,7 @@ pub enum ResourceType {
 
 impl ResourceType {
     /// Parse from string
-    pub fn from_str(s: &str) -> Self {
+    pub fn from_string(s: &str) -> Self {
         match s.to_lowercase().as_str() {
             "template" => ResourceType::Template,
             "project" => ResourceType::Project,
@@ -180,12 +180,15 @@ mod tests {
     use crate::rbac::permission::Permission;
 
     #[test]
-    fn test_resource_type_from_str() {
+    fn test_resource_type_from_string() {
         // Arrange & Act & Assert
-        assert_eq!(ResourceType::from_str("template"), ResourceType::Template);
-        assert_eq!(ResourceType::from_str("PROJECT"), ResourceType::Project);
         assert_eq!(
-            ResourceType::from_str("custom"),
+            ResourceType::from_string("template"),
+            ResourceType::Template
+        );
+        assert_eq!(ResourceType::from_string("PROJECT"), ResourceType::Project);
+        assert_eq!(
+            ResourceType::from_string("custom"),
             ResourceType::Custom("custom".to_string())
         );
     }

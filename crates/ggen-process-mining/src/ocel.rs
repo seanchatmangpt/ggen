@@ -91,7 +91,8 @@ impl OcelParser {
 
         // Convert events
         for raw_event in raw.events {
-            let attributes = raw_event.attributes
+            let attributes = raw_event
+                .attributes
                 .unwrap_or_default()
                 .into_iter()
                 .filter_map(|(k, v)| json_to_attribute(v).map(|av| (k, av)))
@@ -116,7 +117,8 @@ impl OcelParser {
 
         // Convert objects
         for raw_object in raw.objects {
-            let attributes = raw_object.attributes
+            let attributes = raw_object
+                .attributes
                 .unwrap_or_default()
                 .into_iter()
                 .filter_map(|(k, v)| json_to_attribute(v).map(|av| (k, av)))
@@ -145,9 +147,7 @@ impl OcelParser {
 
     /// Validate that all object references point to existing objects.
     fn validate_references(
-        &self,
-        events: &HashMap<String, OcelEvent>,
-        objects: &HashMap<String, OcelObject>,
+        &self, events: &HashMap<String, OcelEvent>, objects: &HashMap<String, OcelObject>,
     ) -> Result<()> {
         for event in events.values() {
             for object_id in event.objects.keys() {

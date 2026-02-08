@@ -88,12 +88,22 @@ impl RdfRegistry {
     }
 
     /// Insert a package as RDF triples using the mapper
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::RdfStoreError`] - When inserting triples into the RDF store fails
+    /// * [`Error::SerializationError`] - When serializing package data to RDF fails
     pub async fn insert_package_rdf(&self, package: &Package) -> Result<()> {
         let _lock = self.write_lock.write();
         self.mapper.package_to_rdf(package).await
     }
 
     /// Batch insert multiple packages for efficient loading
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::RdfStoreError`] - When inserting triples into the RDF store fails
+    /// * [`Error::SerializationError`] - When serializing package data to RDF fails
     pub async fn batch_insert_packages(&self, packages: Vec<Package>) -> Result<usize> {
         let _lock = self.write_lock.write();
         let mut inserted = 0;
@@ -112,6 +122,11 @@ impl RdfRegistry {
     }
 
     /// Query packages by SPARQL
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
+    /// * [`Error::RdfStoreError`] - When querying the RDF store fails
     pub fn query_sparql(&self, query: &str) -> Result<Vec<String>> {
         let results = self
             .store

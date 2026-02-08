@@ -161,7 +161,7 @@ async fn test_jidoka_triggered_workflow() {
 #[tokio::test]
 async fn test_kanban_queue_flow_under_load() {
     // Arrange: System with limited queue depth (Kanban WIP limit)
-    let kanban = KanbanWorkflow::new(max_wip: 10).await;
+    let kanban = KanbanWorkflow::new(10).await;
 
     // Act: Submit multiple requests
     let mut handles = vec![];
@@ -170,9 +170,7 @@ async fn test_kanban_queue_flow_under_load() {
             id: format!("req-{}", i),
             priority: i % 3,
         };
-        let handle = tokio::spawn(async move {
-            kanban.submit(&request).await
-        });
+        let handle = tokio::spawn(async move { kanban.submit(&request).await });
         handles.push(handle);
     }
 
@@ -340,7 +338,9 @@ impl PaymentWorkflow {
         })
     }
 
-    async fn process(&self, request: &PaymentRequest) -> Result<PaymentResult, Box<dyn std::error::Error>> {
+    async fn process(
+        &self, request: &PaymentRequest,
+    ) -> Result<PaymentResult, Box<dyn std::error::Error>> {
         // Simulate processing
         tokio::time::sleep(Duration::from_millis(100)).await;
 
@@ -382,7 +382,9 @@ impl DeploymentWorkflow {
         })
     }
 
-    async fn deploy(&self, _req: &DeploymentRequest) -> Result<DeploymentResult, Box<dyn std::error::Error>> {
+    async fn deploy(
+        &self, _req: &DeploymentRequest,
+    ) -> Result<DeploymentResult, Box<dyn std::error::Error>> {
         tokio::time::sleep(Duration::from_millis(200)).await;
         Ok(DeploymentResult {
             replicas_ready: 3,
@@ -412,11 +414,15 @@ impl FullTpsSystem {
         })
     }
 
-    async fn process_payment(&self, req: &PaymentRequest) -> Result<PaymentResult, Box<dyn std::error::Error>> {
+    async fn process_payment(
+        &self, req: &PaymentRequest,
+    ) -> Result<PaymentResult, Box<dyn std::error::Error>> {
         self.payment.process(req).await
     }
 
-    async fn auto_deploy(&self, req: &DeploymentRequest) -> Result<DeploymentResult, Box<dyn std::error::Error>> {
+    async fn auto_deploy(
+        &self, req: &DeploymentRequest,
+    ) -> Result<DeploymentResult, Box<dyn std::error::Error>> {
         self.deployment.deploy(req).await
     }
 
@@ -457,7 +463,9 @@ impl FailureSimulatingWorkflow {
         }
     }
 
-    async fn process_with_jidoka(&self, req: &TestRequest) -> Result<String, Box<dyn std::error::Error>> {
+    async fn process_with_jidoka(
+        &self, req: &TestRequest,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         if req.should_fail {
             *self.jidoka_triggered.write().await = true;
 
@@ -466,7 +474,10 @@ impl FailureSimulatingWorkflow {
                 message: "Quality defect detected - Jidoka triggered".to_string(),
             });
 
-            self.alerts.write().await.push("JIDOKA_TRIGGERED".to_string());
+            self.alerts
+                .write()
+                .await
+                .push("JIDOKA_TRIGGERED".to_string());
 
             Err("Jidoka: Quality check failed".into())
         } else {

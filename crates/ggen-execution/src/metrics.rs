@@ -1,17 +1,16 @@
 // Metrics collection and monitoring for the execution framework
-use crate::types::*;
 use crate::error::*;
-use std::collections::{HashMap, VecDeque};
-use std::sync::Arc;
-use tokio::sync::{RwLock, Mutex};
+use crate::types::*;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, VecDeque};
 
 // ============================================================================
 // PERFORMANCE METRICS
 // ============================================================================
 
 /// Performance metrics collection
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PerformanceMetrics {
     pub timestamp: DateTime<Utc>,
     pub execution_duration_ms: u64,
@@ -48,6 +47,7 @@ impl Default for PerformanceMetrics {
 }
 
 /// Metrics collector for tracking performance
+#[derive(Debug)]
 pub struct MetricsCollector {
     metrics_history: VecDeque<PerformanceMetrics>,
     max_history_size: usize,
@@ -61,6 +61,106 @@ pub struct MetricAggregation {
     pub values: VecDeque<f64>,
     pub max_values: usize,
     pub current_average: f64,
+}
+
+// Serialize implementation for MetricAggregation
+impl Serialize for MetricAggregation {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("MetricAggregation", 4)?;
+        state.serialize_field("name", &self.name)?;
+        state.serialize_field("values", &self.values.iter().collect::<Vec<_>>())?;
+        state.serialize_field("max_values", &self.max_values)?;
+        state.serialize_field("current_average", &self.current_average)?;
+        state.end()
+    }
+}
+
+// Deserialize implementation for MetricAggregation
+impl<'de> Deserialize<'de> for MetricAggregation {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        use serde::de::{self, Visitor};
+        use std::fmt;
+
+        struct MetricAggregationVisitor;
+
+        impl<'de> Visitor<'de> for MetricAggregationVisitor {
+            type Value = MetricAggregation;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("struct MetricAggregation")
+            }
+
+            fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
+            where
+                A: de::MapAccess<'de>,
+            {
+                let mut name = None;
+                let mut values = None;
+                let mut max_values = None;
+                let mut current_average = None;
+
+                while let Some(key) = map.next_key()? {
+                    match key {
+                        "name" => {
+                            if name.is_some() {
+                                return Err(de::Error::duplicate_field("name"));
+                            }
+                            name = Some(map.next_value()?);
+                        }
+                        "values" => {
+                            if values.is_some() {
+                                return Err(de::Error::duplicate_field("values"));
+                            }
+                            let vals: Vec<f64> = map.next_value()?;
+                            values = Some(vals.into_iter().collect());
+                        }
+                        "max_values" => {
+                            if max_values.is_some() {
+                                return Err(de::Error::duplicate_field("max_values"));
+                            }
+                            max_values = Some(map.next_value()?);
+                        }
+                        "current_average" => {
+                            if current_average.is_some() {
+                                return Err(de::Error::duplicate_field("current_average"));
+                            }
+                            current_average = Some(map.next_value()?);
+                        }
+                        _ => {
+                            map.next_value::<de::IgnoredAny>()?;
+                        }
+                    }
+                }
+
+                let name = name.ok_or_else(|| de::Error::missing_field("name"))?;
+                let values = values.ok_or_else(|| de::Error::missing_field("values"))?;
+                let max_values =
+                    max_values.ok_or_else(|| de::Error::missing_field("max_values"))?;
+                let current_average =
+                    current_average.ok_or_else(|| de::Error::missing_field("current_average"))?;
+
+                Ok(MetricAggregation {
+                    name,
+                    values,
+                    max_values,
+                    current_average,
+                })
+            }
+        }
+
+        deserializer.deserialize_struct(
+            "MetricAggregation",
+            &["name", "values", "max_values", "current_average"],
+            MetricAggregationVisitor,
+        )
+    }
 }
 
 impl MetricAggregation {
@@ -117,27 +217,36 @@ impl MetricsCollector {
     /// Update aggregations with new metrics
     fn update_aggregations(&mut self, metrics: &PerformanceMetrics) {
         // Throughput aggregation
-        self.get_or_create_aggregation("throughput", 100).add_value(metrics.throughput_per_second);
+        self.get_or_create_aggregation("throughput", 100)
+            .add_value(metrics.throughput_per_second);
 
         // Success rate aggregation
-        self.get_or_create_aggregation("success_rate", 100).add_value(metrics.success_rate);
+        self.get_or_create_aggregation("success_rate", 100)
+            .add_value(metrics.success_rate);
 
         // Error rate aggregation
-        self.get_or_create_aggregation("error_rate", 100).add_value(metrics.error_rate);
+        self.get_or_create_aggregation("error_rate", 100)
+            .add_value(metrics.error_rate);
 
         // CPU usage aggregation
-        self.get_or_create_aggregation("cpu_usage", 100).add_value(metrics.cpu_usage_percent);
+        self.get_or_create_aggregation("cpu_usage", 100)
+            .add_value(metrics.cpu_usage_percent);
 
         // Memory usage aggregation
-        self.get_or_create_aggregation("memory_usage", 100).add_value(metrics.memory_usage_mb as f64);
+        self.get_or_create_aggregation("memory_usage", 100)
+            .add_value(metrics.memory_usage_mb as f64);
 
         // Execution duration aggregation
-        self.get_or_create_aggregation("execution_duration", 100).add_value(metrics.execution_duration_ms as f64);
+        self.get_or_create_aggregation("execution_duration", 100)
+            .add_value(metrics.execution_duration_ms as f64);
     }
 
     /// Get or create aggregation
-    fn get_or_create_aggregation(&mut self, name: &str, max_values: usize) -> &mut MetricAggregation {
-        self.aggregations.entry(name.to_string())
+    fn get_or_create_aggregation(
+        &mut self, name: &str, max_values: usize,
+    ) -> &mut MetricAggregation {
+        self.aggregations
+            .entry(name.to_string())
             .or_insert_with(|| MetricAggregation::new(name, max_values))
     }
 
@@ -159,7 +268,8 @@ impl MetricsCollector {
     /// Get average metrics over time period
     pub fn get_average_metrics(&self, time_period_ms: u64) -> Option<PerformanceMetrics> {
         let cutoff_time = Utc::now() - chrono::Duration::milliseconds(time_period_ms as i64);
-        let relevant_metrics: Vec<_> = self.metrics_history
+        let relevant_metrics: Vec<_> = self
+            .metrics_history
             .iter()
             .filter(|m| m.timestamp >= cutoff_time)
             .collect();
@@ -168,33 +278,41 @@ impl MetricsCollector {
             return None;
         }
 
-        let avg_duration = relevant_metrics.iter()
+        let avg_duration = relevant_metrics
+            .iter()
             .map(|m| m.execution_duration_ms)
-            .sum::<u64>() / relevant_metrics.len() as u64;
+            .sum::<u64>()
+            / relevant_metrics.len() as u64;
 
-        let avg_throughput = relevant_metrics.iter()
+        let avg_throughput = relevant_metrics
+            .iter()
             .map(|m| m.throughput_per_second)
-            .sum::<f64>() / relevant_metrics.len() as f64;
+            .sum::<f64>()
+            / relevant_metrics.len() as f64;
 
-        let avg_success_rate = relevant_metrics.iter()
-            .map(|m| m.success_rate)
-            .sum::<f64>() / relevant_metrics.len() as f64;
+        let avg_success_rate = relevant_metrics.iter().map(|m| m.success_rate).sum::<f64>()
+            / relevant_metrics.len() as f64;
 
-        let avg_error_rate = relevant_metrics.iter()
-            .map(|m| m.error_rate)
-            .sum::<f64>() / relevant_metrics.len() as f64;
+        let avg_error_rate = relevant_metrics.iter().map(|m| m.error_rate).sum::<f64>()
+            / relevant_metrics.len() as f64;
 
-        let avg_cpu = relevant_metrics.iter()
+        let avg_cpu = relevant_metrics
+            .iter()
             .map(|m| m.cpu_usage_percent)
-            .sum::<f64>() / relevant_metrics.len() as f64;
+            .sum::<f64>()
+            / relevant_metrics.len() as f64;
 
-        let avg_memory = relevant_metrics.iter()
+        let avg_memory = relevant_metrics
+            .iter()
             .map(|m| m.memory_usage_mb)
-            .sum::<u64>() / relevant_metrics.len() as u64;
+            .sum::<u64>()
+            / relevant_metrics.len() as u64;
 
-        let avg_network = relevant_metrics.iter()
+        let avg_network = relevant_metrics
+            .iter()
             .map(|m| m.network_io_mb)
-            .sum::<u64>() / relevant_metrics.len() as u64;
+            .sum::<u64>()
+            / relevant_metrics.len() as u64;
 
         Some(PerformanceMetrics {
             timestamp: Utc::now(),
@@ -221,7 +339,9 @@ impl MetricsCollector {
             return None;
         }
 
-        let peak_metrics = self.metrics_history.iter()
+        let peak_metrics = self
+            .metrics_history
+            .iter()
             .max_by_key(|m| m.memory_usage_mb)
             .unwrap();
 
@@ -304,7 +424,7 @@ impl AgentMetricsCollector {
             total_execution_time_ms: metrics.average_task_duration_ms * metrics.tasks_completed,
             average_execution_time_ms: metrics.average_task_duration_ms,
             current_concurrent_tasks: 0, // Would be updated by actual concurrent task tracking
-            max_concurrent_tasks: 10, // Default max
+            max_concurrent_tasks: 10,    // Default max
             last_activity: Utc::now(),
             cpu_usage_percent: 0.0,
             memory_usage_mb: 0,
@@ -320,18 +440,47 @@ impl AgentMetricsCollector {
     /// Update global metrics based on all agent metrics
     fn update_global_metrics(&mut self) {
         let total_agents = self.agent_metrics.len();
-        let active_agents = self.agent_metrics.values().filter(|m| m.last_activity.elapsed().unwrap_or_default().as_secs() < 300).count();
+        let active_agents = self
+            .agent_metrics
+            .values()
+            .filter(|m| {
+                Utc::now()
+                    .signed_duration_since(m.last_activity)
+                    .num_seconds()
+                    < 300
+            })
+            .count();
 
-        let total_tasks: u64 = self.agent_metrics.values().map(|m| m.tasks_completed + m.tasks_failed).sum();
+        let total_tasks: u64 = self
+            .agent_metrics
+            .values()
+            .map(|m| m.tasks_completed + m.tasks_failed)
+            .sum();
         let total_failures: u64 = self.agent_metrics.values().map(|m| m.tasks_failed).sum();
 
-        let total_cpu: f64 = self.agent_metrics.values().map(|m| m.cpu_usage_percent).sum();
+        let total_cpu: f64 = self
+            .agent_metrics
+            .values()
+            .map(|m| m.cpu_usage_percent)
+            .sum();
         let total_memory: u64 = self.agent_metrics.values().map(|m| m.memory_usage_mb).sum();
 
-        let avg_cpu = if total_agents > 0 { total_cpu / total_agents as f64 } else { 0.0 };
-        let avg_memory = if total_agents > 0 { total_memory as f64 / total_agents as f64 } else { 0.0 };
+        let avg_cpu = if total_agents > 0 {
+            total_cpu / total_agents as f64
+        } else {
+            0.0
+        };
+        let avg_memory = if total_agents > 0 {
+            total_memory as f64 / total_agents as f64
+        } else {
+            0.0
+        };
 
-        let total_throughput: f64 = self.agent_metrics.values().map(|m| m.throughput_tasks_per_second).sum();
+        let total_throughput: f64 = self
+            .agent_metrics
+            .values()
+            .map(|m| m.throughput_tasks_per_second)
+            .sum();
 
         self.global_metrics = GlobalAgentMetrics {
             total_agents,
@@ -365,16 +514,21 @@ impl AgentMetricsCollector {
         let mut agents: Vec<_> = self.agent_metrics.values().collect();
         agents.sort_by(|a, b| {
             // Sort by success rate first, then by throughput
-            let a_success_rate = a.tasks_completed as f64 / (a.tasks_completed + a.tasks_failed).max(1) as f64;
-            let b_success_rate = b.tasks_completed as f64 / (b.tasks_completed + b.tasks_failed).max(1) as f64;
-            b_success_rate.partial_cmp(&a_success_rate).unwrap_or(std::cmp::Ordering::Equal)
+            let a_success_rate =
+                a.tasks_completed as f64 / (a.tasks_completed + a.tasks_failed).max(1) as f64;
+            let b_success_rate =
+                b.tasks_completed as f64 / (b.tasks_completed + b.tasks_failed).max(1) as f64;
+            b_success_rate
+                .partial_cmp(&a_success_rate)
+                .unwrap_or(std::cmp::Ordering::Equal)
         });
         agents.into_iter().take(limit).collect()
     }
 
     /// Get agents with high error rates
     pub fn get_high_error_agents(&self, threshold: f64) -> Vec<&AgentMetricsData> {
-        self.agent_metrics.values()
+        self.agent_metrics
+            .values()
             .filter(|m| m.error_rate > threshold)
             .collect()
     }
@@ -457,26 +611,33 @@ impl ExecutionMetricsCollector {
     }
 
     /// Record workflow execution
-    pub fn record_workflow_execution(&mut self, workflow_id: &str, workflow_name: &str, duration_ms: u64, success: bool, tasks_count: u64) {
-        let metrics = self.workflow_metrics.entry(workflow_id.to_string()).or_insert_with(|| WorkflowExecutionMetrics {
-            workflow_id: workflow_id.to_string(),
-            workflow_name: workflow_name.to_string(),
-            total_executions: 0,
-            successful_executions: 0,
-            failed_executions: 0,
-            average_duration_ms: 0,
-            total_duration_ms: 0,
-            total_tasks: 0,
-            average_tasks_per_execution: 0.0,
-            success_rate: 0.0,
-            last_execution: Utc::now(),
-        });
+    pub fn record_workflow_execution(
+        &mut self, workflow_id: &str, workflow_name: &str, duration_ms: u64, success: bool,
+        tasks_count: u64,
+    ) {
+        let metrics = self
+            .workflow_metrics
+            .entry(workflow_id.to_string())
+            .or_insert_with(|| WorkflowExecutionMetrics {
+                workflow_id: workflow_id.to_string(),
+                workflow_name: workflow_name.to_string(),
+                total_executions: 0,
+                successful_executions: 0,
+                failed_executions: 0,
+                average_duration_ms: 0,
+                total_duration_ms: 0,
+                total_tasks: 0,
+                average_tasks_per_execution: 0.0,
+                success_rate: 0.0,
+                last_execution: Utc::now(),
+            });
 
         metrics.total_executions += 1;
         metrics.total_duration_ms += duration_ms;
         metrics.average_duration_ms = metrics.total_duration_ms / metrics.total_executions;
         metrics.total_tasks += tasks_count;
-        metrics.average_tasks_per_execution = metrics.total_tasks as f64 / metrics.total_executions as f64;
+        metrics.average_tasks_per_execution =
+            metrics.total_tasks as f64 / metrics.total_executions as f64;
         metrics.last_execution = Utc::now();
 
         if success {
@@ -485,7 +646,8 @@ impl ExecutionMetricsCollector {
             metrics.failed_executions += 1;
         }
 
-        metrics.success_rate = metrics.successful_executions as f64 / metrics.total_executions as f64;
+        metrics.success_rate =
+            metrics.successful_executions as f64 / metrics.total_executions as f64;
 
         // Add to execution history
         self.execution_history.push_back(ExecutionRecord {
@@ -493,36 +655,51 @@ impl ExecutionMetricsCollector {
             record_type: ExecutionRecordType::Workflow,
             entity_id: workflow_id.to_string(),
             entity_name: workflow_name.to_string(),
-            status: if success { ExecutionStatus::Completed } else { ExecutionStatus::Failed("Workflow execution failed".to_string()) },
+            status: if success {
+                ExecutionStatus::Completed
+            } else {
+                ExecutionStatus::Failed("Workflow execution failed".to_string())
+            },
             start_time: Utc::now() - chrono::Duration::milliseconds(duration_ms as i64),
             end_time: Some(Utc::now()),
             duration_ms: Some(duration_ms),
             tasks_count: Some(tasks_count),
-            error_message: if !success { Some("Workflow execution failed".to_string()) } else { None },
+            error_message: if !success {
+                Some("Workflow execution failed".to_string())
+            } else {
+                None
+            },
         });
     }
 
     /// Record pipeline execution
-    pub fn record_pipeline_execution(&mut self, pipeline_id: &str, pipeline_name: &str, duration_ms: u64, success: bool, stages_count: u64) {
-        let metrics = self.pipeline_metrics.entry(pipeline_id.to_string()).or_insert_with(|| PipelineExecutionMetrics {
-            pipeline_id: pipeline_id.to_string(),
-            pipeline_name: pipeline_name.to_string(),
-            total_executions: 0,
-            successful_executions: 0,
-            failed_executions: 0,
-            average_duration_ms: 0,
-            total_duration_ms: 0,
-            total_stages: 0,
-            average_stages_per_execution: 0.0,
-            success_rate: 0.0,
-            last_execution: Utc::now(),
-        });
+    pub fn record_pipeline_execution(
+        &mut self, pipeline_id: &str, pipeline_name: &str, duration_ms: u64, success: bool,
+        stages_count: u64,
+    ) {
+        let metrics = self
+            .pipeline_metrics
+            .entry(pipeline_id.to_string())
+            .or_insert_with(|| PipelineExecutionMetrics {
+                pipeline_id: pipeline_id.to_string(),
+                pipeline_name: pipeline_name.to_string(),
+                total_executions: 0,
+                successful_executions: 0,
+                failed_executions: 0,
+                average_duration_ms: 0,
+                total_duration_ms: 0,
+                total_stages: 0,
+                average_stages_per_execution: 0.0,
+                success_rate: 0.0,
+                last_execution: Utc::now(),
+            });
 
         metrics.total_executions += 1;
         metrics.total_duration_ms += duration_ms;
         metrics.average_duration_ms = metrics.total_duration_ms / metrics.total_executions;
         metrics.total_stages += stages_count;
-        metrics.average_stages_per_execution = metrics.total_stages as f64 / metrics.total_executions as f64;
+        metrics.average_stages_per_execution =
+            metrics.total_stages as f64 / metrics.total_executions as f64;
         metrics.last_execution = Utc::now();
 
         if success {
@@ -531,7 +708,8 @@ impl ExecutionMetricsCollector {
             metrics.failed_executions += 1;
         }
 
-        metrics.success_rate = metrics.successful_executions as f64 / metrics.total_executions as f64;
+        metrics.success_rate =
+            metrics.successful_executions as f64 / metrics.total_executions as f64;
 
         // Add to execution history
         self.execution_history.push_back(ExecutionRecord {
@@ -539,12 +717,20 @@ impl ExecutionMetricsCollector {
             record_type: ExecutionRecordType::Pipeline,
             entity_id: pipeline_id.to_string(),
             entity_name: pipeline_name.to_string(),
-            status: if success { ExecutionStatus::Completed } else { ExecutionStatus::Failed("Pipeline execution failed".to_string()) },
+            status: if success {
+                ExecutionStatus::Completed
+            } else {
+                ExecutionStatus::Failed("Pipeline execution failed".to_string())
+            },
             start_time: Utc::now() - chrono::Duration::milliseconds(duration_ms as i64),
             end_time: Some(Utc::now()),
             duration_ms: Some(duration_ms),
             tasks_count: None,
-            error_message: if !success { Some("Pipeline execution failed".to_string()) } else { None },
+            error_message: if !success {
+                Some("Pipeline execution failed".to_string())
+            } else {
+                None
+            },
         });
     }
 
@@ -582,7 +768,9 @@ impl ExecutionMetricsCollector {
     pub fn get_top_workflows(&self, limit: usize) -> Vec<&WorkflowExecutionMetrics> {
         let mut workflows: Vec<_> = self.workflow_metrics.values().collect();
         workflows.sort_by(|a, b| {
-            b.success_rate.partial_cmp(&a.success_rate).unwrap_or(std::cmp::Ordering::Equal)
+            b.success_rate
+                .partial_cmp(&a.success_rate)
+                .unwrap_or(std::cmp::Ordering::Equal)
         });
         workflows.into_iter().take(limit).collect()
     }
@@ -624,31 +812,25 @@ impl MetricsExporter {
 
     /// Export performance metrics
     pub async fn export_performance_metrics(
-        &self,
-        collector: &MetricsCollector,
-        output_path: &str,
+        &self, collector: &MetricsCollector, output_path: &str,
     ) -> Result<(), ExecutionError> {
         match self.format {
-            ExportFormat::Json => {
-                self.export_performance_json(collector, output_path).await
-            }
-            ExportFormat::Csv => {
-                self.export_performance_csv(collector, output_path).await
-            }
+            ExportFormat::Json => self.export_performance_json(collector, output_path).await,
+            ExportFormat::Csv => self.export_performance_csv(collector, output_path).await,
             ExportFormat::Prometheus => {
-                self.export_performance_prometheus(collector, output_path).await
+                self.export_performance_prometheus(collector, output_path)
+                    .await
             }
             ExportFormat::InfluxDb => {
-                self.export_performance_influxdb(collector, output_path).await
+                self.export_performance_influxdb(collector, output_path)
+                    .await
             }
         }
     }
 
     /// Export to JSON format
     async fn export_performance_json(
-        &self,
-        collector: &MetricsCollector,
-        output_path: &str,
+        &self, collector: &MetricsCollector, output_path: &str,
     ) -> Result<(), ExecutionError> {
         let metrics = collector.get_average_metrics(3600000); // Last hour
         let export_data = if let Some(metrics) = metrics {
@@ -683,9 +865,7 @@ impl MetricsExporter {
 
     /// Export to CSV format
     async fn export_performance_csv(
-        &self,
-        collector: &MetricsCollector,
-        output_path: &str,
+        &self, collector: &MetricsCollector, output_path: &str,
     ) -> Result<(), ExecutionError> {
         let metrics = collector.get_history(Some(100)); // Last 100 metrics
 
@@ -714,9 +894,7 @@ impl MetricsExporter {
 
     /// Export to Prometheus format
     async fn export_performance_prometheus(
-        &self,
-        collector: &MetricsCollector,
-        output_path: &str,
+        &self, collector: &MetricsCollector, output_path: &str,
     ) -> Result<(), ExecutionError> {
         let metrics = collector.get_average_metrics(60000); // Last minute
 
@@ -726,9 +904,7 @@ impl MetricsExporter {
             prometheus_content.push_str(&format!(
                 "# HELP ggen_execution_duration_ms Execution duration in milliseconds\n"
             ));
-            prometheus_content.push_str(&format!(
-                "# TYPE ggen_execution_duration_ms gauge\n"
-            ));
+            prometheus_content.push_str(&format!("# TYPE ggen_execution_duration_ms gauge\n"));
             prometheus_content.push_str(&format!(
                 "ggen_execution_duration_ms {}\n",
                 metrics.execution_duration_ms
@@ -737,31 +913,20 @@ impl MetricsExporter {
             prometheus_content.push_str(&format!(
                 "# HELP ggen_throughput_per_second Tasks per second\n"
             ));
-            prometheus_content.push_str(&format!(
-                "# TYPE ggen_throughput_per_second gauge\n"
-            ));
+            prometheus_content.push_str(&format!("# TYPE ggen_throughput_per_second gauge\n"));
             prometheus_content.push_str(&format!(
                 "ggen_throughput_per_second {}\n",
                 metrics.throughput_per_second
             ));
 
-            prometheus_content.push_str(&format!(
-                "# HELP ggen_success_rate Success rate\n"
-            ));
-            prometheus_content.push_str(&format!(
-                "# TYPE ggen_success_rate gauge\n"
-            ));
-            prometheus_content.push_str(&format!(
-                "ggen_success_rate {}\n",
-                metrics.success_rate
-            ));
+            prometheus_content.push_str(&format!("# HELP ggen_success_rate Success rate\n"));
+            prometheus_content.push_str(&format!("# TYPE ggen_success_rate gauge\n"));
+            prometheus_content.push_str(&format!("ggen_success_rate {}\n", metrics.success_rate));
 
             prometheus_content.push_str(&format!(
                 "# HELP ggen_cpu_usage_percent CPU usage percentage\n"
             ));
-            prometheus_content.push_str(&format!(
-                "# TYPE ggen_cpu_usage_percent gauge\n"
-            ));
+            prometheus_content.push_str(&format!("# TYPE ggen_cpu_usage_percent gauge\n"));
             prometheus_content.push_str(&format!(
                 "ggen_cpu_usage_percent {}\n",
                 metrics.cpu_usage_percent
@@ -777,9 +942,7 @@ impl MetricsExporter {
 
     /// Export to InfluxDB format
     async fn export_performance_influxdb(
-        &self,
-        collector: &MetricsCollector,
-        output_path: &str,
+        &self, collector: &MetricsCollector, output_path: &str,
     ) -> Result<(), ExecutionError> {
         let metrics = collector.get_average_metrics(60000); // Last minute
 

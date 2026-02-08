@@ -178,7 +178,7 @@ impl AndonSignal {
         AndonSignal::Yellow(Warning {
             code: "UNUSED_FILES".to_string(),
             message: format!("Found {} unused ontology files:", files.len()),
-            suggestion: if files.len() > 0 {
+            suggestion: if !files.is_empty() {
                 format!(
                     "If these aren't needed, delete them.\nOtherwise add to imports: ontology.imports = [{}]",
                     files.iter()

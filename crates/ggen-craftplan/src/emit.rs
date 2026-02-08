@@ -3,7 +3,7 @@
 //! This stage renders Elixir code from extracted data using templates.
 
 use crate::error::Result;
-use crate::extract::{Entity, ElixirModule};
+use crate::extract::{ElixirModule, Entity};
 use serde::Serialize;
 use std::collections::HashMap;
 use tera::{Tera, Value};
@@ -50,33 +50,38 @@ impl Emitter {
             crate::error::CraftplanError::template_rendering("context_module.tera", e.to_string())
         })?;
 
-        tera.add_raw_template(
-            "live_view.tera",
-            include_str!("templates/live_view.tera"),
-        )
-        .map_err(|e| {
-            crate::error::CraftplanError::template_rendering("live_view.tera", e.to_string())
-        })?;
+        tera.add_raw_template("live_view.tera", include_str!("templates/live_view.tera"))
+            .map_err(|e| {
+                crate::error::CraftplanError::template_rendering("live_view.tera", e.to_string())
+            })?;
 
         Ok(Self { tera })
     }
 
     /// Render an Ash resource module
-    pub fn render_ash_resource(&self, entity: &Entity, config: &GenerationConfig) -> Result<String> {
+    pub fn render_ash_resource(
+        &self, entity: &Entity, config: &GenerationConfig,
+    ) -> Result<String> {
         let mut context = HashMap::new();
-        context.insert("entity", serde_json::to_value(entity).map_err(|e| {
-            crate::error::CraftplanError::TemplateRendering {
-                template_name: "ash_resource.tera".to_string(),
-                reason: format!("Failed to serialize entity: {}", e),
-            }
-        })?);
+        context.insert(
+            "entity",
+            serde_json::to_value(entity).map_err(|e| {
+                crate::error::CraftplanError::TemplateRendering {
+                    template_name: "ash_resource.tera".to_string(),
+                    reason: format!("Failed to serialize entity: {}", e),
+                }
+            })?,
+        );
 
-        context.insert("config", serde_json::to_value(config).map_err(|e| {
-            crate::error::CraftplanError::TemplateRendering {
-                template_name: "ash_resource.tera".to_string(),
-                reason: format!("Failed to serialize config: {}", e),
-            }
-        })?);
+        context.insert(
+            "config",
+            serde_json::to_value(config).map_err(|e| {
+                crate::error::CraftplanError::TemplateRendering {
+                    template_name: "ash_resource.tera".to_string(),
+                    reason: format!("Failed to serialize config: {}", e),
+                }
+            })?,
+        );
 
         self.tera
             .render("ash_resource.tera", &context)
@@ -87,60 +92,66 @@ impl Emitter {
 
     /// Render a context module
     pub fn render_context(
-        &self,
-        module_name: &str,
-        entities: &[Entity],
-        config: &GenerationConfig,
+        &self, module_name: &str, entities: &[Entity], config: &GenerationConfig,
     ) -> Result<String> {
         let mut context = HashMap::new();
         context.insert("module_name", Value::String(module_name.to_string()));
-        context.insert("entities", serde_json::to_value(entities).map_err(|e| {
-            crate::error::CraftplanError::TemplateRendering {
-                template_name: "context_module.tera".to_string(),
-                reason: format!("Failed to serialize entities: {}", e),
-            }
-        })?);
+        context.insert(
+            "entities",
+            serde_json::to_value(entities).map_err(|e| {
+                crate::error::CraftplanError::TemplateRendering {
+                    template_name: "context_module.tera".to_string(),
+                    reason: format!("Failed to serialize entities: {}", e),
+                }
+            })?,
+        );
 
-        context.insert("config", serde_json::to_value(config).map_err(|e| {
-            crate::error::CraftplanError::TemplateRendering {
-                template_name: "context_module.tera".to_string(),
-                reason: format!("Failed to serialize config: {}", e),
-            }
-        })?);
+        context.insert(
+            "config",
+            serde_json::to_value(config).map_err(|e| {
+                crate::error::CraftplanError::TemplateRendering {
+                    template_name: "context_module.tera".to_string(),
+                    reason: format!("Failed to serialize config: {}", e),
+                }
+            })?,
+        );
 
         self.tera
             .render("context_module.tera", &context)
             .map_err(|e| {
-                crate::error::CraftplanError::template_rendering("context_module.tera", e.to_string())
+                crate::error::CraftplanError::template_rendering(
+                    "context_module.tera",
+                    e.to_string(),
+                )
             })
     }
 
     /// Render a Phoenix LiveView
-    pub fn render_live_view(
-        &self,
-        entity: &Entity,
-        config: &GenerationConfig,
-    ) -> Result<String> {
+    pub fn render_live_view(&self, entity: &Entity, config: &GenerationConfig) -> Result<String> {
         let mut context = HashMap::new();
-        context.insert("entity", serde_json::to_value(entity).map_err(|e| {
-            crate::error::CraftplanError::TemplateRendering {
-                template_name: "live_view.tera".to_string(),
-                reason: format!("Failed to serialize entity: {}", e),
-            }
-        })?);
+        context.insert(
+            "entity",
+            serde_json::to_value(entity).map_err(|e| {
+                crate::error::CraftplanError::TemplateRendering {
+                    template_name: "live_view.tera".to_string(),
+                    reason: format!("Failed to serialize entity: {}", e),
+                }
+            })?,
+        );
 
-        context.insert("config", serde_json::to_value(config).map_err(|e| {
-            crate::error::CraftplanError::TemplateRendering {
-                template_name: "live_view.tera".to_string(),
-                reason: format!("Failed to serialize config: {}", e),
-            }
-        })?);
+        context.insert(
+            "config",
+            serde_json::to_value(config).map_err(|e| {
+                crate::error::CraftplanError::TemplateRendering {
+                    template_name: "live_view.tera".to_string(),
+                    reason: format!("Failed to serialize config: {}", e),
+                }
+            })?,
+        );
 
-        self.tera
-            .render("live_view.tera", &context)
-            .map_err(|e| {
-                crate::error::CraftplanError::template_rendering("live_view.tera", e.to_string())
-            })
+        self.tera.render("live_view.tera", &context).map_err(|e| {
+            crate::error::CraftplanError::template_rendering("live_view.tera", e.to_string())
+        })
     }
 }
 
@@ -169,6 +180,9 @@ mod tests {
         let emitter = Emitter::default();
 
         // Assert
-        assert!(emitter.tera.get_template_names().count() > 0, "Should have templates loaded");
+        assert!(
+            emitter.tera.get_template_names().count() > 0,
+            "Should have templates loaded"
+        );
     }
 }

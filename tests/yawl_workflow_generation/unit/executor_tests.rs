@@ -4,7 +4,7 @@
 //! State-based verification over interaction verification.
 
 use ggen_core::Graph;
-use ggen_yawl::transform::executor::{ConstructExecutor, Query};
+use ggen_yawl::transform::{ConstructExecutor, Query};
 use std::collections::HashMap;
 
 /// Helper module for test fixtures and utilities.
@@ -132,7 +132,10 @@ mod query_tests {
     #[test]
     fn test_query_with_dependency() {
         // Arrange
-        let query = Query::new("dependent_query", "CONSTRUCT { ?s a ?type } WHERE { ?s a ?type }");
+        let query = Query::new(
+            "dependent_query",
+            "CONSTRUCT { ?s a ?type } WHERE { ?s a ?type }",
+        );
 
         // Act
         let query_with_dep = query.with_dependency("base_query");
@@ -184,7 +187,10 @@ mod executor_creation_tests {
         let query_names = executor.query_names();
 
         // Assert
-        assert!(!query_names.is_empty(), "Executor should have default queries");
+        assert!(
+            !query_names.is_empty(),
+            "Executor should have default queries"
+        );
 
         // Verify expected default queries exist
         assert!(query_names.contains(&"class_to_task".to_string()));
@@ -238,7 +244,10 @@ mod topological_sort_tests {
         let order = executor.topological_sort();
 
         // Assert
-        assert!(order.is_ok(), "Topological sort should succeed for default queries");
+        assert!(
+            order.is_ok(),
+            "Topological sort should succeed for default queries"
+        );
         let sorted = order.unwrap();
 
         // All default queries should be in the result
@@ -252,7 +261,9 @@ mod topological_sort_tests {
         let executor = ConstructExecutor::new();
 
         // Act
-        let order = executor.topological_sort().expect("Topological sort failed");
+        let order = executor
+            .topological_sort()
+            .expect("Topological sort failed");
 
         // Assert - Verify known dependency ordering
         // property_to_flow depends on class_to_task
@@ -260,10 +271,7 @@ mod topological_sort_tests {
             order.iter().position(|x| x == "class_to_task"),
             order.iter().position(|x| x == "property_to_flow"),
         ) {
-            assert!(
-                i1 < i2,
-                "class_to_task should come before property_to_flow"
-            );
+            assert!(i1 < i2, "class_to_task should come before property_to_flow");
         }
 
         // cardinality_splitjoin depends on property_to_flow
@@ -293,10 +301,7 @@ mod topological_sort_tests {
             order.iter().position(|x| x == "class_to_task"),
             order.iter().position(|x| x == "composite_task"),
         ) {
-            assert!(
-                i1 < i2,
-                "class_to_task should come before composite_task"
-            );
+            assert!(i1 < i2, "class_to_task should come before composite_task");
         }
     }
 
@@ -309,11 +314,11 @@ mod topological_sort_tests {
         // Create circular dependency: A -> B -> A
         executor.register_query(
             Query::new("query_a", "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }")
-                .with_dependency("query_b")
+                .with_dependency("query_b"),
         );
         executor.register_query(
             Query::new("query_b", "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }")
-                .with_dependency("query_a")
+                .with_dependency("query_a"),
         );
 
         // Act
@@ -324,7 +329,10 @@ mod topological_sort_tests {
         match order {
             Err(e) => {
                 let error_msg = e.to_string();
-                assert!(error_msg.contains("Circular"), "Error should mention circular dependency");
+                assert!(
+                    error_msg.contains("Circular"),
+                    "Error should mention circular dependency"
+                );
             }
             Ok(_) => panic!("Expected error for circular dependency"),
         }
@@ -337,18 +345,19 @@ mod topological_sort_tests {
         let mut executor = ConstructExecutor::new();
 
         // Create chain: base -> mid1 -> mid2 -> final
-        executor.register_query(Query::new("base", "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }"));
+        executor.register_query(Query::new(
+            "base",
+            "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }",
+        ));
         executor.register_query(
-            Query::new("mid1", "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }")
-                .with_dependency("base")
+            Query::new("mid1", "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }").with_dependency("base"),
         );
         executor.register_query(
-            Query::new("mid2", "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }")
-                .with_dependency("mid1")
+            Query::new("mid2", "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }").with_dependency("mid1"),
         );
         executor.register_query(
             Query::new("final", "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }")
-                .with_dependency("mid2")
+                .with_dependency("mid2"),
         );
 
         // Act
@@ -397,16 +406,20 @@ mod query_execution_tests {
         let result_graph = result.unwrap();
 
         // Verify original triples still exist
-        let original_check = result_graph.query_cached(
-            "ASK { <http://example.org/alice> <http://example.org/input> ?o }"
-        );
-        assert!(matches!(original_check, Ok(ggen_core::graph::types::CachedResult::Boolean(true))));
+        let original_check = result_graph
+            .query_cached("ASK { <http://example.org/alice> <http://example.org/input> ?o }");
+        assert!(matches!(
+            original_check,
+            Ok(ggen_core::graph::types::CachedResult::Boolean(true))
+        ));
 
         // Verify new triples were materialized
-        let new_check = result_graph.query_cached(
-            "ASK { <http://example.org/alice> <http://example.org/transformed> ?o }"
-        );
-        assert!(matches!(new_check, Ok(ggen_core::graph::types::CachedResult::Boolean(true))));
+        let new_check = result_graph
+            .query_cached("ASK { <http://example.org/alice> <http://example.org/transformed> ?o }");
+        assert!(matches!(
+            new_check,
+            Ok(ggen_core::graph::types::CachedResult::Boolean(true))
+        ));
     }
 
     /// Test: Execute CONSTRUCT with filter produces filtered results
@@ -430,7 +443,7 @@ mod query_execution_tests {
 
         // Verify only values > 10 were transformed
         let check = result_graph.query_cached(
-            "SELECT (COUNT(*) AS ?count) WHERE { ?s <http://example.org/filtered> ?o }"
+            "SELECT (COUNT(*) AS ?count) WHERE { ?s <http://example.org/filtered> ?o }",
         );
         assert!(check.is_ok());
         if let Ok(ggen_core::graph::types::CachedResult::Solutions(rows)) = check {
@@ -464,7 +477,10 @@ mod query_execution_tests {
         let check = result_graph.query_cached(
             "ASK { <http://example.org/alice> <http://example.org/inferredType> <http://www.w3.org/2000/01/rdf-schema#Class> }"
         );
-        assert!(matches!(check, Ok(ggen_core::graph::types::CachedResult::Boolean(true))));
+        assert!(matches!(
+            check,
+            Ok(ggen_core::graph::types::CachedResult::Boolean(true))
+        ));
     }
 
     /// Test: Execute CONSTRUCT that returns empty results
@@ -485,10 +501,11 @@ mod query_execution_tests {
         let result_graph = result.unwrap();
 
         // Graph should exist but have no new triples
-        let check = result_graph.query_cached(
-            "ASK { ?s <http://example.org/transformed> ?o }"
-        );
-        assert!(matches!(check, Ok(ggen_core::graph::types::CachedResult::Boolean(false))));
+        let check = result_graph.query_cached("ASK { ?s <http://example.org/transformed> ?o }");
+        assert!(matches!(
+            check,
+            Ok(ggen_core::graph::types::CachedResult::Boolean(false))
+        ));
     }
 
     /// Test: Execute invalid SPARQL returns error
@@ -522,7 +539,9 @@ mod query_execution_tests {
         match result {
             Err(e) => {
                 let error_msg = e.to_string();
-                assert!(error_msg.contains("SELECT") || error_msg.contains("expected to be CONSTRUCT"));
+                assert!(
+                    error_msg.contains("SELECT") || error_msg.contains("expected to be CONSTRUCT")
+                );
             }
             Ok(_) => panic!("Expected error for SELECT query"),
         }
@@ -544,7 +563,9 @@ mod query_execution_tests {
         match result {
             Err(e) => {
                 let error_msg = e.to_string();
-                assert!(error_msg.contains("ASK") || error_msg.contains("expected to be CONSTRUCT"));
+                assert!(
+                    error_msg.contains("ASK") || error_msg.contains("expected to be CONSTRUCT")
+                );
             }
             Ok(_) => panic!("Expected error for ASK query"),
         }
@@ -578,10 +599,11 @@ mod execute_all_tests {
         assert!(!result_graph.is_empty(), "Result graph should contain data");
 
         // Verify YAWL tasks were created
-        let check = result_graph.query_cached(
-            "ASK { ?s a <http://unrdf.org/yawl#AtomicTask> }"
-        );
-        assert!(matches!(check, Ok(ggen_core::graph::types::CachedResult::Boolean(true))));
+        let check = result_graph.query_cached("ASK { ?s a <http://unrdf.org/yawl#AtomicTask> }");
+        assert!(matches!(
+            check,
+            Ok(ggen_core::graph::types::CachedResult::Boolean(true))
+        ));
     }
 
     /// Test: Execute all preserves original data
@@ -603,10 +625,11 @@ mod execute_all_tests {
         let result_graph = result.unwrap();
 
         // Original ex:input triples should still exist
-        let check = result_graph.query_cached(
-            "ASK { ?s <http://example.org/input> ?o }"
-        );
-        assert!(matches!(check, Ok(ggen_core::graph::types::CachedResult::Boolean(true))));
+        let check = result_graph.query_cached("ASK { ?s <http://example.org/input> ?o }");
+        assert!(matches!(
+            check,
+            Ok(ggen_core::graph::types::CachedResult::Boolean(true))
+        ));
     }
 
     /// Test: Execute all with empty graph
@@ -653,15 +676,17 @@ mod execute_all_tests {
         let result_graph = result.unwrap();
 
         // Should have results from both queries
-        let q1_check = result_graph.query_cached(
-            "ASK { ?s <http://example.org/transformed> ?o }"
-        );
-        let q2_check = result_graph.query_cached(
-            "ASK { ?s <http://example.org/derived> ?o }"
-        );
+        let q1_check = result_graph.query_cached("ASK { ?s <http://example.org/transformed> ?o }");
+        let q2_check = result_graph.query_cached("ASK { ?s <http://example.org/derived> ?o }");
 
-        assert!(matches!(q1_check, Ok(ggen_core::graph::types::CachedResult::Boolean(true))));
-        assert!(matches!(q2_check, Ok(ggen_core::graph::types::CachedResult::Boolean(true))));
+        assert!(matches!(
+            q1_check,
+            Ok(ggen_core::graph::types::CachedResult::Boolean(true))
+        ));
+        assert!(matches!(
+            q2_check,
+            Ok(ggen_core::graph::types::CachedResult::Boolean(true))
+        ));
     }
 }
 
@@ -697,7 +722,11 @@ mod custom_query_tests {
         executor.register_query(q2);
 
         // Assert - Should only have one "test" query
-        let names: Vec<_> = executor.query_names().into_iter().filter(|n| n == "test").collect();
+        let names: Vec<_> = executor
+            .query_names()
+            .into_iter()
+            .filter(|n| n == "test")
+            .collect();
         assert_eq!(names.len(), 1);
     }
 
@@ -707,19 +736,21 @@ mod custom_query_tests {
         // Arrange
         let mut executor = ConstructExecutor::new();
 
-        executor.register_query(Query::new("base", r#"
+        executor.register_query(Query::new(
+            "base",
+            r#"
             PREFIX ex: <http://example.org/>
             CONSTRUCT { ?s ex:transformed ?o }
             WHERE { ?s ex:input ?o }
-        "#));
+        "#,
+        ));
         executor.register_query(
-            Query::new("mid", "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }")
-                .with_dependency("base")
+            Query::new("mid", "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }").with_dependency("base"),
         );
         executor.register_query(
             Query::new("final", "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }")
                 .with_dependency("base")
-                .with_dependency("mid")
+                .with_dependency("mid"),
         );
 
         // Act

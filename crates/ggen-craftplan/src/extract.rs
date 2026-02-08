@@ -92,9 +92,7 @@ impl Extractor {
     }
 
     pub fn extract_attributes(
-        &self,
-        store: &oxigraph::store::Store,
-        entity_name: &str,
+        &self, store: &oxigraph::store::Store, entity_name: &str,
     ) -> Result<Vec<Attribute>> {
         let query = format!(
             r#"
@@ -111,9 +109,9 @@ impl Extractor {
             "#
         );
 
-        let results = store.query(&query).map_err(|e| {
-            crate::error::CraftplanError::sparql_query(&query, e.to_string())
-        })?;
+        let results = store
+            .query(&query)
+            .map_err(|e| crate::error::CraftplanError::sparql_query(&query, e.to_string()))?;
 
         let mut attributes = Vec::new();
 

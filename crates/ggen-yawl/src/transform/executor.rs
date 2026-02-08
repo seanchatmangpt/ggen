@@ -185,7 +185,10 @@ impl ConstructExecutor {
         // Query 1: Class to Task
         self.queries.insert(
             "class_to_task".to_string(),
-            Query::new("class_to_task", include_str!("../../queries/01-extract-tasks.rq")),
+            Query::new(
+                "class_to_task",
+                include_str!("../../queries/01-extract-tasks.rq"),
+            ),
         );
 
         // Query 2: Property to Flow
@@ -290,8 +293,12 @@ impl ConstructExecutor {
                         .for_writer(&mut buffer);
 
                     for quad_result in quads {
-                        let quad = quad_result
-                            .map_err(|e| Error::sparql(format!("Error reading quad from '{}': {}", query.name, e)))?;
+                        let quad = quad_result.map_err(|e| {
+                            Error::sparql(format!(
+                                "Error reading quad from '{}': {}",
+                                query.name, e
+                            ))
+                        })?;
                         // Convert Triple to Quad by adding the default graph name
                         use oxigraph::model::QuadRef;
                         let quad_ref = QuadRef {
@@ -300,14 +307,14 @@ impl ConstructExecutor {
                             object: quad.object.as_ref(),
                             graph_name: oxigraph::model::GraphNameRef::DefaultGraph,
                         };
-                        writer
-                            .serialize_quad(quad_ref)
-                            .map_err(|e| Error::sparql(format!("Failed to serialize quad: {}", e)))?;
+                        writer.serialize_quad(quad_ref).map_err(|e| {
+                            Error::sparql(format!("Failed to serialize quad: {}", e))
+                        })?;
                     }
 
-                    writer
-                        .finish()
-                        .map_err(|e| Error::sparql(format!("Failed to finish serialization: {}", e)))?;
+                    writer.finish().map_err(|e| {
+                        Error::sparql(format!("Failed to finish serialization: {}", e))
+                    })?;
                 }
 
                 // Create a new graph with the materialized triples
@@ -355,18 +362,18 @@ impl ConstructExecutor {
     }
 
     fn visit(
-        &self,
-        name: &str,
-        visited: &mut std::collections::HashSet<String>,
-        temp: &mut std::collections::HashSet<String>,
-        sorted: &mut Vec<String>,
+        &self, name: &str, visited: &mut std::collections::HashSet<String>,
+        temp: &mut std::collections::HashSet<String>, sorted: &mut Vec<String>,
     ) -> Result<()> {
         if visited.contains(name) {
             return Ok(());
         }
 
         if temp.contains(name) {
-            return Err(Error::sparql(format!("Circular dependency involving: {}", name)));
+            return Err(Error::sparql(format!(
+                "Circular dependency involving: {}",
+                name
+            )));
         }
 
         temp.insert(name.to_string());
@@ -403,8 +410,7 @@ mod tests {
 
     #[test]
     fn test_query_with_dependency() {
-        let q = Query::new("test", "SELECT * WHERE { ?s ?p ?o }")
-            .with_dependency("other");
+        let q = Query::new("test", "SELECT * WHERE { ?s ?p ?o }").with_dependency("other");
         assert_eq!(q.dependencies, vec!["other"]);
     }
 
@@ -426,7 +432,10 @@ mod tests {
             sorted.iter().position(|x| x == "class_to_task"),
             sorted.iter().position(|x| x == "property_to_flow"),
         ) {
-            assert!(i1 < i2, "class_to_task should execute before property_to_flow");
+            assert!(
+                i1 < i2,
+                "class_to_task should execute before property_to_flow"
+            );
         }
     }
 
@@ -466,7 +475,11 @@ mod tests {
         let result_graph = exec.execute_all(&graph);
 
         // Query execution should succeed (the graph API handles the transformation)
-        assert!(result_graph.is_ok(), "Query execution should succeed: {:?}", result_graph.err());
+        assert!(
+            result_graph.is_ok(),
+            "Query execution should succeed: {:?}",
+            result_graph.err()
+        );
     }
 
     #[test]
@@ -497,10 +510,15 @@ mod tests {
         );
 
         // Execute single query
-        let result_graph = ConstructExecutor::execute_query(&ConstructExecutor::new(), &graph, &query);
+        let result_graph =
+            ConstructExecutor::execute_query(&ConstructExecutor::new(), &graph, &query);
 
         // The query execution should succeed (even if results are empty)
-        assert!(result_graph.is_ok(), "Query execution should succeed: {:?}", result_graph.err());
+        assert!(
+            result_graph.is_ok(),
+            "Query execution should succeed: {:?}",
+            result_graph.err()
+        );
     }
 
     #[test]

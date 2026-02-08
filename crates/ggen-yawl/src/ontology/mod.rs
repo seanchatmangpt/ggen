@@ -5,7 +5,7 @@
 
 pub mod loader;
 
-pub use loader::{OntologyLoader, OntologyFormat};
+pub use loader::{OntologyFormat, OntologyLoader};
 
 /// Analyzes ontology structure to detect workflow patterns.
 #[derive(Debug, Clone)]
@@ -40,7 +40,9 @@ impl OntologyAnalyzer {
     /// - Having the stereotype "BusinessProcess" or "ProcessStep"
     /// - Being a concrete (non-abstract) class
     /// - Having rdfs:label defined
-    pub fn extract_business_processes(&self, graph: &ggen_core::Graph) -> Result<Vec<ProcessClass>, crate::Error> {
+    pub fn extract_business_processes(
+        &self, graph: &ggen_core::Graph,
+    ) -> Result<Vec<ProcessClass>, crate::Error> {
         let query = r#"
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX owl: <http://www.w3.org/2002/07/owl#>
@@ -61,7 +63,9 @@ impl OntologyAnalyzer {
             ORDER BY ?label
         "#;
 
-        let _results = graph.query(query).map_err(|e| crate::Error::sparql(e.to_string()))?;
+        let _results = graph
+            .query(query)
+            .map_err(|e| crate::Error::sparql(e.to_string()))?;
 
         let processes = Vec::new();
         // Parse SPARQL results and extract process classes

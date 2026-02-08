@@ -155,18 +155,3 @@ fn workflow_context_output(context_json: String) -> String {
         "{\"error\": \"invalid context\"}".to_string()
     }
 }
-
-// Module definition
-rustler::init!(
-    "Elixir.Workflow",
-    [
-        workflow_context_create,
-        workflow_context_add_input,
-        execute_sequence,
-        execute_parallel,
-        execute_choice,
-        execute_sync,
-        workflow_context_metadata,
-        workflow_context_output,
-    ]
-);

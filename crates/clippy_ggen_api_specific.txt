@@ -1,0 +1,14 @@
+[1m[32m    Checking[0m ggen-core v0.2.0 (/Users/sac/ggen/crates/ggen-core)
+[0m[1m[38;5;9merror[E0412][0m[0m[1m: cannot find type `Path` in this scope[0m
+[0m   [0m[0m[1m[38;5;12m--> [0m[0mcrates/ggen-core/src/security/audit_trail.rs:229:40[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;12m229[0m[0m [0m[0m[1m[38;5;12m|[0m[0m [0m[0m    fn update_index(&self, repo_path: &Path) -> Result<(), AuditError> {[0m
+[0m    [0m[0m[1m[38;5;12m|[0m[0m                                        [0m[0m[1m[38;5;9m^^^^[0m[0m [0m[0m[1m[38;5;9mnot found in this scope[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m[1m[38;5;14mhelp[0m[0m: consider importing this struct[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+[0m  [0m[0m[1m[38;5;12m6[0m[0m [0m[0m[38;5;10m+ use std::path::Path;[0m
+[0m    [0m[0m[1m[38;5;12m|[0m
+
+[0m[1mFor more information about this error, try `rustc --explain E0412`.[0m
+[1m[31merror[0m[1m:[0m could not compile `ggen-core` (lib) due to 1 previous error

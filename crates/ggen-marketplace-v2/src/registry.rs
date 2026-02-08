@@ -49,6 +49,13 @@ impl Registry {
     }
 
     /// Insert a package into the registry
+    ///
+    /// # Errors
+    ///
+    /// This function currently always returns `Ok(())`. Future implementations may return:
+    /// * [`Error::PackageAlreadyExists`] - When a package with the same ID already exists
+    /// * [`Error::InvalidPackageId`] - When the package ID format is invalid
+    #[must_use]
     pub fn insert(&self, package: Package) -> Result<()> {
         let package_id = package.metadata.id.clone();
 
@@ -69,6 +76,12 @@ impl Registry {
     }
 
     /// Remove a package from the registry
+    ///
+    /// # Errors
+    ///
+    /// This function currently always returns `Ok`. Future implementations may return:
+    /// * [`Error::PackageNotFound`] - When attempting to remove a non-existent package
+    #[must_use]
     pub fn remove(&self, id: &PackageId) -> Result<Option<Package>> {
         let removed = self.packages.remove(id).map(|(_, pkg)| pkg);
 
@@ -93,6 +106,11 @@ impl Registry {
     }
 
     /// Update a package
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::PackageNotFound`] - When the package ID does not exist in the registry
+    #[must_use]
     pub fn update(&self, id: &PackageId, package: Package) -> Result<()> {
         if !self.packages.contains_key(id) {
             return Err(crate::error::Error::package_not_found(id.to_string()));
@@ -108,27 +126,33 @@ impl Registry {
     }
 
     /// Get cache statistics
+    #[must_use]
     pub fn cache_stats(&self) -> CacheStats {
         let hits = self.cache_hits.load(std::sync::atomic::Ordering::Relaxed);
         let misses = self.cache_misses.load(std::sync::atomic::Ordering::Relaxed);
 
+        #[allow(clippy::cast_precision_loss)]
+        let hit_rate = if hits + misses > 0 {
+            hits as f64 / (hits + misses) as f64
+        } else {
+            0.0
+        };
+
         CacheStats {
             hits,
             misses,
-            hit_rate: if hits + misses > 0 {
-                hits as f64 / (hits + misses) as f64
-            } else {
-                0.0
-            },
+            hit_rate,
         }
     }
 
     /// Number of packages in registry
+    #[must_use]
     pub fn len(&self) -> usize {
         self.packages.len()
     }
 
     /// Check if registry is empty
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.packages.is_empty()
     }
@@ -146,6 +170,12 @@ impl Registry {
 impl AsyncRepository for Registry {
     type PackageIterator = std::vec::IntoIter<Package>;
 
+    /// Get a package by ID
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::PackageNotFound`] - When the package ID does not exist in the registry
+    #[must_use]
     async fn get_package(&self, id: &PackageId) -> Result<Package> {
         // Check if in primary storage
         if let Some(package) = self.packages.get(id) {
@@ -161,6 +191,13 @@ impl AsyncRepository for Registry {
         Err(crate::error::Error::package_not_found(id.to_string()))
     }
 
+    /// Get a package with only the specified version
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::PackageNotFound`] - When the package ID does not exist in the registry
+    /// * [`Error::InvalidVersion`] - When the version does not exist for the package
+    #[must_use]
     async fn get_package_version(
         &self, id: &PackageId, version: &PackageVersion,
     ) -> Result<Package> {
@@ -185,6 +222,14 @@ impl AsyncRepository for Registry {
         Ok(package)
     }
 
+    /// Get all packages in the registry
+    ///
+    /// # Errors
+    ///
+    /// This function currently always returns `Ok`. Future implementations may return:
+    /// * [`Error::RegistryError`] - When the registry is unavailable or corrupted
+    /// * [`Error::ConcurrencyError`] - When concurrent access causes inconsistency
+    #[must_use]
     async fn all_packages(&self) -> Result<Vec<Package>> {
         // Try cache first
         let cache_key = "all_packages".to_string();
@@ -214,11 +259,24 @@ impl AsyncRepository for Registry {
         Ok(packages)
     }
 
+    /// List all versions of a package
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::PackageNotFound`] - When the package ID does not exist in the registry
+    #[must_use]
     async fn list_versions(&self, id: &PackageId) -> Result<Vec<PackageVersion>> {
         let package = self.get_package(id).await?;
         Ok(package.versions)
     }
 
+    /// Check if a package exists in the registry
+    ///
+    /// # Errors
+    ///
+    /// This function currently always returns `Ok`. Future implementations may return:
+    /// * [`Error::RegistryError`] - When the registry is unavailable
+    #[must_use]
     async fn package_exists(&self, id: &PackageId) -> Result<bool> {
         Ok(self.packages.contains_key(id))
     }

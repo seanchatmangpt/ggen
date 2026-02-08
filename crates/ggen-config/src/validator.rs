@@ -53,7 +53,7 @@ impl<'a> ConfigValidator<'a> {
         self.validate_project();
         self.validate_ai();
         self.validate_templates();
-        self.validate_security();
+        Self::validate_security();
         self.validate_performance();
         self.validate_logging();
 
@@ -140,7 +140,7 @@ impl<'a> ConfigValidator<'a> {
     }
 
     /// Validate security configuration
-    fn validate_security(&self) {
+    const fn validate_security() {
         // Security settings are all boolean flags, no complex validation needed
         // Could add checks for conflicting settings if needed
     }
@@ -208,7 +208,7 @@ fn is_valid_size_format(size: &str) -> bool {
 
     valid_suffixes.iter().any(|suffix| {
         size.strip_suffix(suffix)
-            .map_or(false, |num_str| num_str.parse::<u32>().is_ok())
+            .is_some_and(|num_str| num_str.parse::<u32>().is_ok())
     })
 }
 

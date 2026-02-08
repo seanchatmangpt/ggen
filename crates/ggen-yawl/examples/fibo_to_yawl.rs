@@ -167,15 +167,25 @@ fn loan_approval_workflow() -> String {
             FlowContext {
                 source: "risk_evaluation".to_string(),
                 target: "approve_loan".to_string(),
-                condition: Some("/risk_score > 30 AND /risk_score <= 70 AND /manual_approved = true".to_string()),
-                predicate: Some("risk_score > 30 && risk_score <= 70 && manual_approved == true".to_string()),
+                condition: Some(
+                    "/risk_score > 30 AND /risk_score <= 70 AND /manual_approved = true"
+                        .to_string(),
+                ),
+                predicate: Some(
+                    "risk_score > 30 && risk_score <= 70 && manual_approved == true".to_string(),
+                ),
                 is_default: false,
             },
             FlowContext {
                 source: "risk_evaluation".to_string(),
                 target: "reject_loan".to_string(),
-                condition: Some("/risk_score > 30 AND /risk_score <= 70 AND /manual_approved = false".to_string()),
-                predicate: Some("risk_score > 30 && risk_score <= 70 && manual_approved == false".to_string()),
+                condition: Some(
+                    "/risk_score > 30 AND /risk_score <= 70 AND /manual_approved = false"
+                        .to_string(),
+                ),
+                predicate: Some(
+                    "risk_score > 30 && risk_score <= 70 && manual_approved == false".to_string(),
+                ),
                 is_default: false,
             },
             // Disbursement after approval

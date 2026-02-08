@@ -644,6 +644,61 @@ mod tests {
 
 // Helper functions for generating IDs and timestamps
 
+/// Simple hasher for no_std environments
+/// This is a basic FNV-1a hasher implementation
+#[cfg(not(feature = "std"))]
+struct SimpleHasher(u64);
+
+#[cfg(not(feature = "std"))]
+impl SimpleHasher {
+    fn new() -> Self {
+        Self(0xcbf29ce484222325) // FNV offset basis
+    }
+
+    fn finish(&self) -> u64 {
+        self.0
+    }
+
+    fn write_bytes(&mut self, bytes: &[u8]) {
+        for &byte in bytes {
+            self.0 ^= byte as u64;
+            self.0 = self.0.wrapping_mul(0x100000001b3); // FNV prime
+        }
+    }
+}
+
+#[cfg(not(feature = "std"))]
+impl core::hash::Hasher for SimpleHasher {
+    fn finish(&self) -> u64 {
+        self.0
+    }
+
+    fn write(&mut self, bytes: &[u8]) {
+        self.write_bytes(bytes);
+    }
+
+    fn write_u8(&mut self, i: u8) {
+        self.0 ^= i as u64;
+        self.0 = self.0.wrapping_mul(0x100000001b3);
+    }
+
+    fn write_u16(&mut self, i: u16) {
+        self.write_bytes(&i.to_le_bytes());
+    }
+
+    fn write_u32(&mut self, i: u32) {
+        self.write_bytes(&i.to_le_bytes());
+    }
+
+    fn write_u64(&mut self, i: u64) {
+        self.write_bytes(&i.to_le_bytes());
+    }
+
+    fn write_usize(&mut self, i: usize) {
+        self.write_bytes(&i.to_le_bytes());
+    }
+}
+
 /// Generate 128-bit trace ID
 fn generate_trace_id() -> u128 {
     #[cfg(feature = "std")]
@@ -657,10 +712,10 @@ fn generate_trace_id() -> u128 {
         // For no_std, use simple hash-based generation
         // In production, use hardware RNG or external source
         use core::hash::{Hash, Hasher};
-        use hashbrown::hash_map::DefaultHasher;
-        let mut hasher = DefaultHasher::new();
+        let mut hasher = SimpleHasher::new();
         "trace".hash(&mut hasher);
-        hasher.finish() as u128 | ((hasher.finish() as u128) << 64)
+        let h = hasher.finish();
+        h as u128 | ((h as u128) << 64)
     }
 }
 
@@ -676,8 +731,7 @@ pub fn generate_span_id() -> u64 {
     {
         // For no_std, use hash-based generation with timestamp
         use core::hash::{Hash, Hasher};
-        use hashbrown::hash_map::DefaultHasher;
-        let mut hasher = DefaultHasher::new();
+        let mut hasher = SimpleHasher::new();
         "span".hash(&mut hasher);
         let timestamp = get_timestamp_ms();
         timestamp.hash(&mut hasher);

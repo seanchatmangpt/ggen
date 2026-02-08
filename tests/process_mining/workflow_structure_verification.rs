@@ -3,17 +3,16 @@
 //! Tests for verifying discovered process models match expected workflow structures.
 //! Covers sequential, parallel, loop, and complex workflow patterns.
 
-use ggen_process_mining::{
-    EventLog, ProcessMiner, PetriNet, Place, Transition, Marking,
-    Trace, Event,
-};
 use ggen_process_mining::petri_net::Arc as PetriArc;
+use ggen_process_mining::{
+    Event, EventLog, Marking, PetriNet, Place, ProcessMiner, Trace, Transition,
+};
 use std::collections::HashSet;
 
 #[cfg(test)]
 mod workflow_structure_tests {
-    use super::*;
     use super::super::helpers::*;
+    use super::*;
 
     /// Test sequential workflow structure detection.
     #[test]
@@ -24,13 +23,13 @@ mod workflow_structure_tests {
                 Trace::new("case1")
                     .with_event(Event::new("e1", "Step1", "2024-01-01T10:00:00Z").unwrap())
                     .with_event(Event::new("e2", "Step2", "2024-01-01T11:00:00Z").unwrap())
-                    .with_event(Event::new("e3", "Step3", "2024-01-01T12:00:00Z").unwrap())
+                    .with_event(Event::new("e3", "Step3", "2024-01-01T12:00:00Z").unwrap()),
             )
             .with_trace(
                 Trace::new("case2")
                     .with_event(Event::new("e4", "Step1", "2024-01-02T10:00:00Z").unwrap())
                     .with_event(Event::new("e5", "Step2", "2024-01-02T11:00:00Z").unwrap())
-                    .with_event(Event::new("e6", "Step3", "2024-01-02T12:00:00Z").unwrap())
+                    .with_event(Event::new("e6", "Step3", "2024-01-02T12:00:00Z").unwrap()),
             );
 
         let miner = ProcessMiner::new();
@@ -47,8 +46,11 @@ mod workflow_structure_tests {
             let outputs = net.output_places_for(&transition.id);
 
             // In a proper sequential flow, most transitions should have clear flow
-            assert!(!inputs.is_empty() || !outputs.is_empty(),
-                   "Transition '{}' should have connections", transition.id);
+            assert!(
+                !inputs.is_empty() || !outputs.is_empty(),
+                "Transition '{}' should have connections",
+                transition.id
+            );
         }
     }
 
@@ -63,14 +65,14 @@ mod workflow_structure_tests {
                     .with_event(Event::new("e1", "Start", "2024-01-01T10:00:00Z").unwrap())
                     .with_event(Event::new("e2", "TaskA", "2024-01-01T11:00:00Z").unwrap())
                     .with_event(Event::new("e3", "TaskB", "2024-01-01T11:00:00Z").unwrap())
-                    .with_event(Event::new("e4", "End", "2024-01-01T12:00:00Z").unwrap())
+                    .with_event(Event::new("e4", "End", "2024-01-01T12:00:00Z").unwrap()),
             )
             .with_trace(
                 Trace::new("case2")
                     .with_event(Event::new("e5", "Start", "2024-01-02T10:00:00Z").unwrap())
                     .with_event(Event::new("e6", "TaskB", "2024-01-02T11:00:00Z").unwrap())
                     .with_event(Event::new("e7", "TaskA", "2024-01-02T11:00:00Z").unwrap())
-                    .with_event(Event::new("e8", "End", "2024-01-02T12:00:00Z").unwrap())
+                    .with_event(Event::new("e8", "End", "2024-01-02T12:00:00Z").unwrap()),
             );
 
         let miner = ProcessMiner::new();
@@ -82,10 +84,14 @@ mod workflow_structure_tests {
         verify_workflow_pattern(&net, "parallel");
 
         // Check for places with multiple output transitions (parallel split)
-        let has_parallel_split = net.places.iter().any(|p| {
-            net.output_transitions_for(&p.id).len() > 1
-        });
-        assert!(has_parallel_split, "Parallel workflow should have parallel splits");
+        let has_parallel_split = net
+            .places
+            .iter()
+            .any(|p| net.output_transitions_for(&p.id).len() > 1);
+        assert!(
+            has_parallel_split,
+            "Parallel workflow should have parallel splits"
+        );
     }
 
     /// Test loop workflow structure detection.
@@ -100,13 +106,13 @@ mod workflow_structure_tests {
                     .with_event(Event::new("e2", "Review", "2024-01-01T11:00:00Z").unwrap())
                     .with_event(Event::new("e3", "Rework", "2024-01-01T12:00:00Z").unwrap())
                     .with_event(Event::new("e4", "Review", "2024-01-01T13:00:00Z").unwrap())
-                    .with_event(Event::new("e5", "Finish", "2024-01-01T14:00:00Z").unwrap())
+                    .with_event(Event::new("e5", "Finish", "2024-01-01T14:00:00Z").unwrap()),
             )
             .with_trace(
                 Trace::new("case2")
                     .with_event(Event::new("e6", "Start", "2024-01-02T10:00:00Z").unwrap())
                     .with_event(Event::new("e7", "Review", "2024-01-02T11:00:00Z").unwrap())
-                    .with_event(Event::new("e8", "Finish", "2024-01-02T12:00:00Z").unwrap())
+                    .with_event(Event::new("e8", "Finish", "2024-01-02T12:00:00Z").unwrap()),
             );
 
         let miner = ProcessMiner::new();
@@ -132,13 +138,13 @@ mod workflow_structure_tests {
                 Trace::new("case1")
                     .with_event(Event::new("e1", "Start", "2024-01-01T10:00:00Z").unwrap())
                     .with_event(Event::new("e2", "PathA", "2024-01-01T11:00:00Z").unwrap())
-                    .with_event(Event::new("e3", "End", "2024-01-01T12:00:00Z").unwrap())
+                    .with_event(Event::new("e3", "End", "2024-01-01T12:00:00Z").unwrap()),
             )
             .with_trace(
                 Trace::new("case2")
                     .with_event(Event::new("e4", "Start", "2024-01-02T10:00:00Z").unwrap())
                     .with_event(Event::new("e5", "PathB", "2024-01-02T11:00:00Z").unwrap())
-                    .with_event(Event::new("e6", "End", "2024-01-02T12:00:00Z").unwrap())
+                    .with_event(Event::new("e6", "End", "2024-01-02T12:00:00Z").unwrap()),
             );
 
         let miner = ProcessMiner::new();
@@ -147,7 +153,8 @@ mod workflow_structure_tests {
         let net = miner.discover_alpha_plusplus(&log).unwrap();
 
         // Assert - All activities discovered
-        let activities: HashSet<String> = net.transitions
+        let activities: HashSet<String> = net
+            .transitions
             .iter()
             .filter_map(|t| t.label.clone())
             .collect();
@@ -166,14 +173,14 @@ mod workflow_structure_tests {
                 Trace::new("case1")
                     .with_event(Event::new("e1", "Submit", "2024-01-01T10:00:00Z").unwrap())
                     .with_event(Event::new("e2", "AutoApprove", "2024-01-01T11:00:00Z").unwrap())
-                    .with_event(Event::new("e3", "Complete", "2024-01-01T12:00:00Z").unwrap())
+                    .with_event(Event::new("e3", "Complete", "2024-01-01T12:00:00Z").unwrap()),
             )
             .with_trace(
                 Trace::new("case2")
                     .with_event(Event::new("e4", "Submit", "2024-01-02T10:00:00Z").unwrap())
                     .with_event(Event::new("e5", "ManualReview", "2024-01-02T11:00:00Z").unwrap())
                     .with_event(Event::new("e6", "ManagerApprove", "2024-01-02T12:00:00Z").unwrap())
-                    .with_event(Event::new("e7", "Complete", "2024-01-02T13:00:00Z").unwrap())
+                    .with_event(Event::new("e7", "Complete", "2024-01-02T13:00:00Z").unwrap()),
             );
 
         let miner = ProcessMiner::new();
@@ -182,12 +189,16 @@ mod workflow_structure_tests {
         let net = miner.discover_alpha_plusplus(&log).unwrap();
 
         // Assert - Should discover multiple paths
-        let activities: Vec<String> = net.transitions
+        let activities: Vec<String> = net
+            .transitions
             .iter()
             .filter_map(|t| t.label.clone())
             .collect();
 
-        assert!(activities.len() >= 3, "Should discover at least 3 unique activities");
+        assert!(
+            activities.len() >= 3,
+            "Should discover at least 3 unique activities"
+        );
         assert!(net.validate().is_ok());
     }
 
@@ -196,7 +207,8 @@ mod workflow_structure_tests {
     fn test_workflow_structure_preserved_through_conversion() {
         // Arrange
         let original_net = create_parallel_petri_net();
-        let original_activities: HashSet<String> = original_net.transitions
+        let original_activities: HashSet<String> = original_net
+            .transitions
             .iter()
             .filter_map(|t| t.label.clone())
             .collect();
@@ -208,15 +220,19 @@ mod workflow_structure_tests {
         let yawl = bridge.petri_net_to_yawl(&original_net).unwrap();
         let recovered_net = bridge.yawl_to_petri_net(&yawl).unwrap();
 
-        let recovered_activities: HashSet<String> = recovered_net.transitions
+        let recovered_activities: HashSet<String> = recovered_net
+            .transitions
             .iter()
             .filter_map(|t| t.label.clone())
             .collect();
 
         // Assert - Activities should be preserved
         for activity in &original_activities {
-            assert!(recovered_activities.contains(activity),
-                   "Activity '{}' should be preserved after conversion", activity);
+            assert!(
+                recovered_activities.contains(activity),
+                "Activity '{}' should be preserved after conversion",
+                activity
+            );
         }
     }
 
@@ -231,19 +247,25 @@ mod workflow_structure_tests {
         let net = miner.discover_alpha_plusplus(&log).unwrap();
 
         // Assert
-        assert!(!net.initial_marking.tokens.is_empty(),
-                "Discovered model must have initial marking");
+        assert!(
+            !net.initial_marking.tokens.is_empty(),
+            "Discovered model must have initial marking"
+        );
 
-        assert!(!net.final_marking.tokens.is_empty(),
-                "Discovered model must have final marking");
+        assert!(
+            !net.final_marking.tokens.is_empty(),
+            "Discovered model must have final marking"
+        );
 
         // Initial and final markings should be different
         let initial_places: HashSet<_> = net.initial_marking.tokens.keys().collect();
         let final_places: HashSet<_> = net.final_marking.tokens.keys().collect();
 
-        assert!(initial_places != final_places ||
-                (initial_places.is_empty() && final_places.is_empty()),
-                "Initial and final markings should typically be different");
+        assert!(
+            initial_places != final_places
+                || (initial_places.is_empty() && final_places.is_empty()),
+            "Initial and final markings should typically be different"
+        );
     }
 
     /// Test workflow structure metrics.
@@ -277,23 +299,25 @@ mod workflow_structure_tests {
     fn test_workflow_covers_all_log_activities() {
         // Arrange
         let log = create_simple_log();
-        let log_activities: HashSet<String> = log.unique_activities()
-            .into_iter()
-            .collect();
+        let log_activities: HashSet<String> = log.unique_activities().into_iter().collect();
 
         let miner = ProcessMiner::new();
 
         // Act
         let net = miner.discover_alpha_plusplus(&log).unwrap();
-        let model_activities: HashSet<String> = net.transitions
+        let model_activities: HashSet<String> = net
+            .transitions
             .iter()
             .filter_map(|t| t.label.clone())
             .collect();
 
         // Assert - All log activities should be in model
         for activity in &log_activities {
-            assert!(model_activities.contains(activity),
-                   "Log activity '{}' should be in discovered model", activity);
+            assert!(
+                model_activities.contains(activity),
+                "Log activity '{}' should be in discovered model",
+                activity
+            );
         }
     }
 
@@ -353,13 +377,19 @@ mod workflow_structure_tests {
 
         // Assert - Start should reach end
         for final_place in net.final_marking.tokens.keys() {
-            assert!(reachable_from_start.contains(final_place),
-                   "Final place '{}' should be reachable from start", final_place);
+            assert!(
+                reachable_from_start.contains(final_place),
+                "Final place '{}' should be reachable from start",
+                final_place
+            );
         }
 
         for initial_place in net.initial_marking.tokens.keys() {
-            assert!(reachable_from_end.contains(initial_place),
-                   "Initial place '{}' should reach end", initial_place);
+            assert!(
+                reachable_from_end.contains(initial_place),
+                "Initial place '{}' should reach end",
+                initial_place
+            );
         }
     }
 
@@ -399,14 +429,14 @@ mod workflow_structure_tests {
                     .with_event(Event::new("e1", "Request", "2024-01-01T09:00:00Z").unwrap())
                     .with_event(Event::new("e2", "ManagerReview", "2024-01-01T10:00:00Z").unwrap())
                     .with_event(Event::new("e3", "Approve", "2024-01-01T11:00:00Z").unwrap())
-                    .with_event(Event::new("e4", "Process", "2024-01-01T12:00:00Z").unwrap())
+                    .with_event(Event::new("e4", "Process", "2024-01-01T12:00:00Z").unwrap()),
             )
             .with_trace(
                 Trace::new("case2")
                     .with_event(Event::new("e5", "Request", "2024-01-02T09:00:00Z").unwrap())
                     .with_event(Event::new("e6", "ManagerReview", "2024-01-02T10:00:00Z").unwrap())
                     .with_event(Event::new("e7", "Reject", "2024-01-02T11:00:00Z").unwrap())
-                    .with_event(Event::new("e8", "Notify", "2024-01-02T12:00:00Z").unwrap())
+                    .with_event(Event::new("e8", "Notify", "2024-01-02T12:00:00Z").unwrap()),
             );
 
         let miner = ProcessMiner::new();
@@ -415,12 +445,16 @@ mod workflow_structure_tests {
         let net = miner.discover_alpha_plusplus(&log).unwrap();
 
         // Assert - Should discover approval workflow structure
-        let activities: Vec<String> = net.transitions
+        let activities: Vec<String> = net
+            .transitions
             .iter()
             .filter_map(|t| t.label.clone())
             .collect();
 
-        assert!(activities.len() >= 4, "Should discover at least 4 activities");
+        assert!(
+            activities.len() >= 4,
+            "Should discover at least 4 activities"
+        );
         assert!(activities.contains(&"Request".to_string()));
         assert!(activities.contains(&"ManagerReview".to_string()));
         assert!(net.validate().is_ok());
@@ -439,22 +473,25 @@ mod workflow_structure_tests {
                     Event::new(
                         format!("e{}_1", i),
                         "Submit",
-                        &format!("2024-01-01T10:00:00Z")
-                    ).unwrap()
+                        &format!("2024-01-01T10:00:00Z"),
+                    )
+                    .unwrap(),
                 )
                 .with_event(
                     Event::new(
                         format!("e{}_2", i),
                         "Review",
-                        &format!("2024-01-01T11:00:00Z")
-                    ).unwrap()
+                        &format!("2024-01-01T11:00:00Z"),
+                    )
+                    .unwrap(),
                 )
                 .with_event(
                     Event::new(
                         format!("e{}_3", i),
                         "Approve",
-                        &format!("2024-01-01T12:00:00Z")
-                    ).unwrap()
+                        &format!("2024-01-01T12:00:00Z"),
+                    )
+                    .unwrap(),
                 );
 
             // Safety: We need to construct the log properly

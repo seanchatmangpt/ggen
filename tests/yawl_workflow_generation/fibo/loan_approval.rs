@@ -9,7 +9,7 @@
 
 use super::fixtures;
 use ggen_yawl::{OntologyLoader, YawlGenerator};
-use ggen_yawl::codegen::yawl_xml::validate;
+use ggen_yawl::codegen::yawl_xml;
 
 /// Expected workflow metadata for Loan Approval
 const LOAN_APPROVAL_WORKFLOW_NAME: &str = "LoanApprovalProcess";
@@ -157,7 +157,7 @@ mod loan_approval_pipeline_tests {
         let xml = result.unwrap();
 
         // Validate the generated XML
-        let validation_result = validate(&xml);
+        let validation_result = ggen_yawl::codegen::yawl_xml::validate(&xml);
         assert!(validation_result.is_ok(), "Generated XML should be valid YAWL: {:?}",
                 validation_result.err());
     }
@@ -436,7 +436,7 @@ mod loan_approval_validation_tests {
         assert!(result.is_ok(), "Generation with validation should succeed");
 
         let xml = result.unwrap();
-        let validation_result = validate(&xml);
+        let validation_result = ggen_yawl::codegen::yawl_xml::validate(&xml);
 
         assert!(validation_result.is_ok(), "Generated XML should pass validation");
     }
@@ -473,7 +473,7 @@ mod loan_approval_validation_tests {
         assert!(xml.contains("<?xml version=\"1.0\""), "Should have canonical XML declaration");
 
         // μ₅: Output is valid for receipt generation
-        let validation = validate(&xml);
+        let validation = ggen_yawl::codegen::yawl_xml::validate(&xml);
         assert!(validation.is_ok(), "Output should be valid for receipt generation");
     }
 }

@@ -59,7 +59,7 @@ impl Permission {
     }
 
     /// Parse from string
-    pub fn from_str(s: &str) -> Option<Permission> {
+    pub fn from_string(s: &str) -> Option<Permission> {
         match s.to_lowercase().as_str() {
             "read" => Some(Permission::Read),
             "write" => Some(Permission::Write),
@@ -201,13 +201,16 @@ mod tests {
     }
 
     #[test]
-    fn test_permission_from_str() {
+    fn test_permission_from_string() {
         // Arrange & Act & Assert
-        assert_eq!(Permission::from_str("read"), Some(Permission::Read));
-        assert_eq!(Permission::from_str("WRITE"), Some(Permission::Write));
-        assert_eq!(Permission::from_str("Delete"), Some(Permission::Delete));
-        assert_eq!(Permission::from_str("execute"), Some(Permission::Execute));
-        assert_eq!(Permission::from_str("invalid"), None);
+        assert_eq!(Permission::from_string("read"), Some(Permission::Read));
+        assert_eq!(Permission::from_string("WRITE"), Some(Permission::Write));
+        assert_eq!(Permission::from_string("Delete"), Some(Permission::Delete));
+        assert_eq!(
+            Permission::from_string("execute"),
+            Some(Permission::Execute)
+        );
+        assert_eq!(Permission::from_string("invalid"), None);
     }
 
     #[test]

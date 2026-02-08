@@ -73,7 +73,7 @@ async fn smoke_jidoka_quality_check() {
 #[tokio::test]
 async fn smoke_kanban_wip_limit() {
     // Arrange
-    let kanban = KanbanWIPTest::new(max_wip: 5);
+    let kanban = KanbanWIPTest::new(5);
     let mut requests = Vec::new();
     for i in 0..10 {
         requests.push(format!("req-{}", i));
@@ -191,9 +191,7 @@ async fn smoke_concurrent_requests() {
     let mut handles = Vec::new();
     for i in 0..request_count {
         let sys = system.clone();
-        let handle = tokio::spawn(async move {
-            sys.process_request(i).await
-        });
+        let handle = tokio::spawn(async move { sys.process_request(i).await });
         handles.push(handle);
     }
 
@@ -204,11 +202,7 @@ async fn smoke_concurrent_requests() {
         .collect();
 
     // Assert
-    assert_eq!(
-        results.len(),
-        request_count,
-        "All requests should complete"
-    );
+    assert_eq!(results.len(), request_count, "All requests should complete");
 }
 
 /// Smoke test: Memory usage is reasonable
@@ -379,9 +373,9 @@ struct MetricsCollector {
 impl MetricsCollector {
     fn new() -> Self {
         Self {
-            metrics: std::sync::Arc::new(tokio::sync::RwLock::new(
-                std::collections::HashMap::new(),
-            )),
+            metrics: std::sync::Arc::new(
+                tokio::sync::RwLock::new(std::collections::HashMap::new()),
+            ),
         }
     }
 
@@ -462,5 +456,5 @@ impl MemoryTest {
 }
 
 use futures;
-use uuid;
 use std::collections;
+use uuid;

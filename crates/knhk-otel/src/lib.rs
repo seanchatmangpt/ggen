@@ -2,15 +2,30 @@
 // OpenTelemetry Observability Integration
 // Provides metrics, traces, and spans for KNHKS operations
 
-#![no_std]
+#![cfg_attr(not(feature = "std"), no_std)]
 extern crate alloc;
-
-use alloc::collections::BTreeMap;
-use alloc::string::String;
-use alloc::vec::Vec;
 
 #[cfg(feature = "std")]
 use std::time::{SystemTime, UNIX_EPOCH};
+
+#[cfg(not(feature = "std"))]
+use alloc::collections::BTreeMap;
+#[cfg(not(feature = "std"))]
+use alloc::string::{String, ToString};
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
+
+// Import vec! macro for no_std
+#[cfg(not(feature = "std"))]
+use alloc::vec;
+
+// When std is available, use std collections
+#[cfg(feature = "std")]
+use std::collections::BTreeMap;
+#[cfg(feature = "std")]
+use std::string::String;
+#[cfg(feature = "std")]
+use std::vec::Vec;
 
 /// Trace ID (128-bit)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -159,20 +174,20 @@ impl WeaverLiveCheck {
 
         let mut cmd = Command::new("weaver");
 
-        cmd.args(&["registry", "live-check"]);
+        cmd.args(["registry", "live-check"]);
 
         if let Some(ref registry) = self.registry_path {
-            cmd.args(&["--registry", registry]);
+            cmd.args(["--registry", registry]);
         }
 
-        cmd.args(&["--otlp-grpc-address", &self.otlp_grpc_address]);
-        cmd.args(&["--otlp-grpc-port", &self.otlp_grpc_port.to_string()]);
-        cmd.args(&["--admin-port", &self.admin_port.to_string()]);
-        cmd.args(&["--inactivity-timeout", &self.inactivity_timeout.to_string()]);
-        cmd.args(&["--format", &self.format]);
+        cmd.args(["--otlp-grpc-address", &self.otlp_grpc_address]);
+        cmd.args(["--otlp-grpc-port", &self.otlp_grpc_port.to_string()]);
+        cmd.args(["--admin-port", &self.admin_port.to_string()]);
+        cmd.args(["--inactivity-timeout", &self.inactivity_timeout.to_string()]);
+        cmd.args(["--format", &self.format]);
 
         if let Some(ref output) = self.output {
-            cmd.args(&["--output", output]);
+            cmd.args(["--output", output]);
         }
 
         cmd.spawn()
@@ -481,13 +496,15 @@ impl Tracer {
 
     /// Start a new span
     pub fn start_span(&mut self, name: String, parent: Option<SpanContext>) -> SpanContext {
-        let trace_id = parent.map(|p| p.trace_id).unwrap_or_else(|| {
-            // Generate new trace ID (128-bit random)
-            TraceId(generate_trace_id())
-        });
+        let (trace_id, parent_span_id) = parent
+            .as_ref()
+            .map(|p| (p.trace_id, Some(p.span_id)))
+            .unwrap_or_else(|| {
+                // Generate new trace ID (128-bit random)
+                (TraceId(generate_trace_id()), None)
+            });
 
         let span_id = SpanId(generate_span_id());
-        let parent_span_id = parent.map(|p| p.span_id);
 
         let context = SpanContext {
             trace_id,
@@ -497,8 +514,8 @@ impl Tracer {
         };
 
         let span = Span {
-            context,
-            name: name.clone(),
+            context: context.clone(),
+            name,
             start_time_ms: get_timestamp_ms(),
             end_time_ms: None,
             attributes: BTreeMap::new(),
@@ -511,7 +528,7 @@ impl Tracer {
     }
 
     /// End a span
-    pub fn end_span(&mut self, context: SpanContext, status: SpanStatus) {
+    pub fn end_span(&mut self, context: &SpanContext, status: SpanStatus) {
         if let Some(span) = self
             .spans
             .iter_mut()
@@ -534,7 +551,7 @@ impl Tracer {
     }
 
     /// Add attribute to span
-    pub fn add_attribute(&mut self, context: SpanContext, key: String, value: String) {
+    pub fn add_attribute(&mut self, context: &SpanContext, key: String, value: String) {
         if let Some(span) = self
             .spans
             .iter_mut()
@@ -660,8 +677,8 @@ mod tests {
         let mut tracer = Tracer::new();
         let context = tracer.start_span("test_span".to_string(), None);
 
-        tracer.add_attribute(context, "key".to_string(), "value".to_string());
-        tracer.end_span(context, SpanStatus::Ok);
+        tracer.add_attribute(&context, "key".to_string(), "value".to_string());
+        tracer.end_span(&context, SpanStatus::Ok);
 
         assert_eq!(tracer.spans().len(), 1);
     }
@@ -678,23 +695,81 @@ mod tests {
 
 // Helper functions for generating IDs and timestamps
 
+/// Simple hasher for no_std environments
+/// This is a basic FNV-1a hasher implementation
+#[cfg(not(feature = "std"))]
+struct SimpleHasher(u64);
+
+#[cfg(not(feature = "std"))]
+impl SimpleHasher {
+    fn new() -> Self {
+        Self(0xcbf29ce484222325) // FNV offset basis
+    }
+
+    fn finish(&self) -> u64 {
+        self.0
+    }
+
+    fn write_bytes(&mut self, bytes: &[u8]) {
+        for &byte in bytes {
+            self.0 ^= byte as u64;
+            self.0 = self.0.wrapping_mul(0x100000001b3); // FNV prime
+        }
+    }
+}
+
+#[cfg(not(feature = "std"))]
+impl core::hash::Hasher for SimpleHasher {
+    fn finish(&self) -> u64 {
+        self.0
+    }
+
+    fn write(&mut self, bytes: &[u8]) {
+        self.write_bytes(bytes);
+    }
+
+    fn write_u8(&mut self, i: u8) {
+        self.0 ^= i as u64;
+        self.0 = self.0.wrapping_mul(0x100000001b3);
+    }
+
+    fn write_u16(&mut self, i: u16) {
+        self.write_bytes(&i.to_le_bytes());
+    }
+
+    fn write_u32(&mut self, i: u32) {
+        self.write_bytes(&i.to_le_bytes());
+    }
+
+    fn write_u64(&mut self, i: u64) {
+        self.write_bytes(&i.to_le_bytes());
+    }
+
+    fn write_usize(&mut self, i: usize) {
+        self.write_bytes(&i.to_le_bytes());
+    }
+}
+
 /// Generate 128-bit trace ID
 fn generate_trace_id() -> u128 {
     #[cfg(feature = "std")]
     {
         use rand::RngCore;
         let mut rng = rand::thread_rng();
-        rng.next_u128()
+        // RngCore doesn't have next_u128, so compose from u64
+        let high = rng.next_u64();
+        let low = rng.next_u64();
+        ((high as u128) << 64) | (low as u128)
     }
     #[cfg(not(feature = "std"))]
     {
         // For no_std, use simple hash-based generation
         // In production, use hardware RNG or external source
-        use core::hash::{Hash, Hasher};
-        use hashbrown::hash_map::DefaultHasher;
-        let mut hasher = DefaultHasher::new();
+        use core::hash::Hash;
+        let mut hasher = SimpleHasher::new();
         "trace".hash(&mut hasher);
-        hasher.finish() as u128 | ((hasher.finish() as u128) << 64)
+        let h = hasher.finish();
+        h as u128 | ((h as u128) << 64)
     }
 }
 
@@ -709,9 +784,8 @@ pub fn generate_span_id() -> u64 {
     #[cfg(not(feature = "std"))]
     {
         // For no_std, use hash-based generation with timestamp
-        use core::hash::{Hash, Hasher};
-        use hashbrown::hash_map::DefaultHasher;
-        let mut hasher = DefaultHasher::new();
+        use core::hash::Hash;
+        let mut hasher = SimpleHasher::new();
         "span".hash(&mut hasher);
         let timestamp = get_timestamp_ms();
         timestamp.hash(&mut hasher);
@@ -733,5 +807,46 @@ fn get_timestamp_ms() -> u64 {
         // For no_std, return 0 as placeholder
         // In production, use a no_std-compatible time source
         0
+    }
+}
+
+// =============================================================================
+// no_std Support: Panic Handler and Allocator
+// =============================================================================
+
+#[cfg(not(feature = "std"))]
+use core::panic::PanicInfo;
+
+/// Panic handler for no_std builds
+#[cfg(not(feature = "std"))]
+#[panic_handler]
+fn panic(_info: &PanicInfo<'_>) -> ! {
+    loop {}
+}
+
+/// Global allocator for no_std builds
+/// Use buddy_system_allocator when available, otherwise fallback to stub
+#[cfg(all(not(feature = "std"), feature = "alloc"))]
+use buddy_system_allocator::LockedHeap;
+
+#[cfg(all(not(feature = "std"), feature = "alloc"))]
+#[global_allocator]
+static HEAP: LockedHeap = LockedHeap::empty();
+
+#[cfg(all(not(feature = "std"), feature = "alloc"))]
+extern "C" {
+    /// Heap start symbol (defined in linker script)
+    fn _heap_start();
+    /// Heap end symbol (defined in linker script)
+    fn _heap_end();
+}
+
+#[cfg(all(not(feature = "std"), feature = "alloc"))]
+pub fn init_heap() {
+    unsafe {
+        HEAP.lock().init(
+            _heap_start as usize,
+            _heap_end as usize - _heap_start as usize,
+        );
     }
 }

@@ -28,7 +28,8 @@ impl Normalizer {
             source: e,
         })?;
 
-        oxigraph::io::read::parse Turtle.parse(&mut self.store, &rdf_content, None)
+        oxigraph::io::read::TurtleParser::new()
+            .parse(&mut self.store, &rdf_content)
             .map_err(|e| CraftplanError::Parse {
                 file_type: "Turtle".to_string(),
                 reason: e.to_string(),

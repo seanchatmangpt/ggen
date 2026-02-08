@@ -160,7 +160,9 @@ impl YawlBridge {
         let spec_elem = root
             .children()
             .find(|n| n.tag_name().name() == "specification")
-            .ok_or_else(|| Error::YawlToPetriNetConversion("missing specification element".to_string()))?;
+            .ok_or_else(|| {
+                Error::YawlToPetriNetConversion("missing specification element".to_string())
+            })?;
 
         let name = spec_elem
             .children()
@@ -224,14 +226,22 @@ impl YawlBridge {
             "and" => YawlSplitType::And,
             "or" => YawlSplitType::Or,
             "xor" => YawlSplitType::Xor,
-            _ => return Err(Error::YawlToPetriNetConversion(format!("invalid split type: {split_attr}"))),
+            _ => {
+                return Err(Error::YawlToPetriNetConversion(format!(
+                    "invalid split type: {split_attr}"
+                )))
+            }
         };
 
         let join_type = match join_attr.to_lowercase().as_str() {
             "and" => YawlJoinType::And,
             "or" => YawlJoinType::Or,
             "xor" => YawlJoinType::Xor,
-            _ => return Err(Error::YawlToPetriNetConversion(format!("invalid join type: {join_attr}"))),
+            _ => {
+                return Err(Error::YawlToPetriNetConversion(format!(
+                    "invalid join type: {join_attr}"
+                )))
+            }
         };
 
         // Check if composite (has decomposition)
@@ -327,7 +337,8 @@ impl YawlBridge {
         net.transitions.insert(transition.clone());
 
         // Connect input -> transition -> output
-        net.arcs.push(Arc::new(input_place.id, transition.id.clone()));
+        net.arcs
+            .push(Arc::new(input_place.id, transition.id.clone()));
         net.arcs.push(Arc::new(transition.id, output_place.id));
 
         Ok(())
@@ -354,7 +365,10 @@ impl YawlBridge {
 
             tasks.push(YawlTask {
                 id: transition.id.clone(),
-                name: transition.label.clone().unwrap_or_else(|| transition.id.clone()),
+                name: transition
+                    .label
+                    .clone()
+                    .unwrap_or_else(|| transition.id.clone()),
                 split_type,
                 join_type,
                 is_composite: false, // Discovered models are typically flat
@@ -370,7 +384,10 @@ impl YawlBridge {
         }
 
         Ok(YawlSpecification {
-            name: net.name.clone().unwrap_or_else(|| "Discovered Process".to_string()),
+            name: net
+                .name
+                .clone()
+                .unwrap_or_else(|| "Discovered Process".to_string()),
             tasks,
             conditions,
             flows,
@@ -379,9 +396,7 @@ impl YawlBridge {
 
     /// Determine split and join types for a transition based on connectivity.
     fn determine_split_join_types(
-        &self,
-        net: &PetriNet,
-        transition_id: &str,
+        &self, net: &PetriNet, transition_id: &str,
     ) -> Result<(YawlSplitType, YawlJoinType)> {
         let input_places = net.input_places_for(transition_id);
         let output_places = net.output_places_for(transition_id);
@@ -414,7 +429,10 @@ impl YawlBridge {
             xml.push_str("  <condition id=\"");
             xml.push_str(&condition.id);
             xml.push_str("\">\n");
-            xml.push_str(&format!("    <name>{}</name>\n", escape_xml(&condition.name)));
+            xml.push_str(&format!(
+                "    <name>{}</name>\n",
+                escape_xml(&condition.name)
+            ));
             xml.push_str("  </condition>\n");
         }
 

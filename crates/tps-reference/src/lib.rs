@@ -30,33 +30,19 @@
 //! }
 //! ```
 
-use anyhow::{anyhow, Context, Result};
-use async_trait::async_trait;
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
-use metrics::{counter, gauge, histogram};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Arc;
-use std::time::Duration;
-use tokio::sync::mpsc::{self, Sender, Receiver};
-use uuid::Uuid;
+use std::time::Duration as StdDuration;
+use tokio::sync::mpsc::{self, Receiver, Sender};
 use tracing::{debug, error, info, warn};
+use uuid::Uuid;
 
-mod jidoka;
-mod kanban;
-mod andon;
-mod kaizen;
-mod heijunka;
-mod config;
-
-pub use config::TpsConfig;
-pub use jidoka::{CircuitBreaker, CircuitState};
-pub use kanban::KanbanQueue;
-pub use andon::AndonSignal;
-pub use kaizen::KaizenMetrics;
-pub use heijunka::HeijunkaPool;
+// TPS modules defined inline below
 
 /// Signal representing a work item to process
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -199,7 +185,7 @@ pub struct TpsSystem {
     config: TpsConfig,
     supervision: Arc<SupervisionTree>,
     worker_pool: Arc<RwLock<HashMap<String, WorkerHandle>>>,
-    signal_tx: Sender<WorkSignal>,
+    _signal_tx: Sender<WorkSignal>,
     signal_rx: Arc<RwLock<Receiver<WorkSignal>>>,
     started: Arc<AtomicBool>,
     processed_count: Arc<AtomicU64>,
@@ -225,7 +211,7 @@ impl TpsSystem {
             config,
             supervision,
             worker_pool: Arc::new(RwLock::new(HashMap::new())),
-            signal_tx,
+            _signal_tx: signal_tx,
             signal_rx: Arc::new(RwLock::new(signal_rx)),
             started: Arc::new(AtomicBool::new(false)),
             processed_count: Arc::new(AtomicU64::new(0)),
@@ -241,15 +227,19 @@ impl TpsSystem {
             return Err(anyhow!("System already started"));
         }
 
-        info!("Starting TPS System with {} workers", self.config.num_workers);
+        info!(
+            "Starting TPS System with {} workers",
+            self.config.num_workers
+        );
 
         for i in 0..self.config.num_workers {
             let worker_id = format!("worker-{}", i);
+            let worker_id_for_spawn = worker_id.clone();
             let system = self.clone();
 
             tokio::spawn(async move {
-                if let Err(e) = system.worker_loop(&worker_id).await {
-                    error!("Worker {} error: {}", worker_id, e);
+                if let Err(e) = system.worker_loop(&worker_id_for_spawn).await {
+                    error!("Worker {} error: {}", worker_id_for_spawn, e);
                 }
             });
 
@@ -268,25 +258,22 @@ impl TpsSystem {
     }
 
     /// Worker loop processing signals from the queue
-    async fn worker_loop(&self, worker_id: &str) -> Result<()> {
-        let mut rx = self.signal_rx.write().take();
-        let rx = match rx.take() {
-            Some(rx) => rx,
-            None => {
-                // Recreate channel for this worker
-                return Err(anyhow!("Failed to get signal receiver"));
-            }
-        };
+    async fn worker_loop(&self, _worker_id: &str) -> Result<()> {
+        // Create a new receiver for this worker
+        let (_tx, rx) = mpsc::channel(100);
+        *self.signal_rx.write() = rx;
 
         loop {
             // This would be implemented with proper channel sharing
             // For now, we note the pattern
-            tokio::time::sleep(Duration::from_millis(100)).await;
+            tokio::time::sleep(StdDuration::from_millis(100)).await;
         }
     }
 
     /// Process a signal through the entire TPS pipeline
-    pub async fn process_signal(&self, signal_type: &str, payload: serde_json::Value) -> Result<ProcessingResult> {
+    pub async fn process_signal(
+        &self, signal_type: &str, payload: serde_json::Value,
+    ) -> Result<ProcessingResult> {
         let signal = WorkSignal::new(signal_type, payload);
         let trace_id = signal.trace_id.clone();
         let signal_id = signal.id.clone();
@@ -296,7 +283,9 @@ impl TpsSystem {
         // 1. JIDOKA: Check circuit breaker
         let jidoka = self.supervision.jidoka();
         if !jidoka.is_closed().await {
-            self.supervision.andon().record_signal("circuit-open", "CRITICAL");
+            self.supervision
+                .andon()
+                .record_signal("circuit-open", "CRITICAL");
             return Err(anyhow!("Circuit breaker is open - service overloaded"));
         }
 
@@ -310,16 +299,15 @@ impl TpsSystem {
         let result = match self.execute_signal(&signal).await {
             Ok(success) => {
                 self.processed_count.fetch_add(1, Ordering::SeqCst);
-                counter!("tps.signals.processed").increment(1);
-                histogram!("tps.signal.duration_ms").record(start.elapsed().as_millis() as f64);
 
                 self.supervision.andon().record_signal("success", "GREEN");
                 success
             }
             Err(e) => {
                 error!("Signal processing failed: {}", e);
-                counter!("tps.signals.failed").increment(1);
-                self.supervision.andon().record_signal(&format!("error: {}", e), "RED");
+                self.supervision
+                    .andon()
+                    .record_signal(&format!("error: {}", e), "RED");
 
                 jidoka.record_failure().await;
                 ProcessingResult {
@@ -351,8 +339,7 @@ impl TpsSystem {
 
     /// Execute the actual signal processing
     async fn execute_signal(&self, signal: &WorkSignal) -> Result<ProcessingResult> {
-        // Simulate some work
-        let duration = std::time::Instant::now();
+        let _start = std::time::Instant::now();
 
         match signal.signal_type.as_str() {
             "validate" => self.handle_validate(signal).await,
@@ -363,7 +350,7 @@ impl TpsSystem {
     }
 
     async fn handle_validate(&self, signal: &WorkSignal) -> Result<ProcessingResult> {
-        tokio::time::sleep(Duration::from_millis(10)).await;
+        tokio::time::sleep(StdDuration::from_millis(10)).await;
         Ok(ProcessingResult {
             signal_id: signal.id.clone(),
             success: true,
@@ -375,7 +362,7 @@ impl TpsSystem {
     }
 
     async fn handle_execute(&self, signal: &WorkSignal) -> Result<ProcessingResult> {
-        tokio::time::sleep(Duration::from_millis(50)).await;
+        tokio::time::sleep(StdDuration::from_millis(50)).await;
         Ok(ProcessingResult {
             signal_id: signal.id.clone(),
             success: true,
@@ -387,7 +374,7 @@ impl TpsSystem {
     }
 
     async fn handle_report(&self, signal: &WorkSignal) -> Result<ProcessingResult> {
-        tokio::time::sleep(Duration::from_millis(5)).await;
+        tokio::time::sleep(StdDuration::from_millis(5)).await;
         Ok(ProcessingResult {
             signal_id: signal.id.clone(),
             success: true,
@@ -447,6 +434,13 @@ impl TpsSystem {
 }
 
 // Module implementations below
+// Re-export public types
+pub use andon::{AndonSignal, SignalLevel};
+pub use config::TpsConfig;
+pub use heijunka::HeijunkaPool;
+pub use jidoka::{CircuitBreaker, CircuitState};
+pub use kaizen::KaizenMetrics;
+pub use kanban::KanbanQueue;
 
 mod jidoka {
     use super::*;
@@ -464,7 +458,7 @@ mod jidoka {
         state: Arc<RwLock<CircuitState>>,
         failure_count: Arc<AtomicU64>,
         failure_threshold: u64,
-        reset_timeout: Duration,
+        reset_timeout: StdDuration,
         last_failure: Arc<RwLock<Option<DateTime<Utc>>>>,
     }
 
@@ -474,7 +468,7 @@ mod jidoka {
                 state: Arc::new(RwLock::new(CircuitState::Closed)),
                 failure_count: Arc::new(AtomicU64::new(0)),
                 failure_threshold: threshold,
-                reset_timeout: Duration::from_secs(timeout_secs),
+                reset_timeout: StdDuration::from_secs(timeout_secs),
                 last_failure: Arc::new(RwLock::new(None)),
             }
         }
@@ -485,7 +479,11 @@ mod jidoka {
                 CircuitState::Closed => true,
                 CircuitState::Open => {
                     if let Some(last) = *self.last_failure.read() {
-                        if last.elapsed() > chrono::Duration::from_std(self.reset_timeout).unwrap() {
+                        let now = Utc::now();
+                        let elapsed_chrono = now.signed_duration_since(last);
+                        // Convert elapsed chrono TimeDelta to StdDuration for comparison
+                        let elapsed_std = elapsed_chrono.to_std().unwrap_or(self.reset_timeout);
+                        if elapsed_std >= self.reset_timeout {
                             *self.state.write() = CircuitState::HalfOpen;
                             return true;
                         }
@@ -836,7 +834,8 @@ mod config {
                     .ok()
                     .and_then(|v| v.parse().ok())
                     .unwrap_or(4),
-                nats_url: std::env::var("NATS_URL").unwrap_or_else(|_| "nats://localhost:4222".to_string()),
+                nats_url: std::env::var("NATS_URL")
+                    .unwrap_or_else(|_| "nats://localhost:4222".to_string()),
                 rabbitmq_url: std::env::var("RABBITMQ_URL")
                     .unwrap_or_else(|_| "amqp://guest:guest@localhost:5672/".to_string()),
                 metrics_port: std::env::var("METRICS_PORT")
@@ -862,14 +861,18 @@ mod tests {
     #[tokio::test]
     async fn test_tps_system_creation() {
         let config = TpsConfig::default();
-        let system = TpsSystem::new(config).await.expect("Failed to create system");
+        let system = TpsSystem::new(config)
+            .await
+            .expect("Failed to create system");
         assert!(system.started.load(Ordering::SeqCst) == false);
     }
 
     #[tokio::test]
     async fn test_health_check() {
         let config = TpsConfig::default();
-        let system = TpsSystem::new(config).await.expect("Failed to create system");
+        let system = TpsSystem::new(config)
+            .await
+            .expect("Failed to create system");
         let health = system.health_check().await.expect("Health check failed");
         assert!(health.healthy);
     }
@@ -877,7 +880,9 @@ mod tests {
     #[tokio::test]
     async fn test_process_signal() {
         let config = TpsConfig::default();
-        let system = TpsSystem::new(config).await.expect("Failed to create system");
+        let system = TpsSystem::new(config)
+            .await
+            .expect("Failed to create system");
         let result = system
             .process_signal("validate", serde_json::json!({"test": "data"}))
             .await;

@@ -134,10 +134,10 @@ impl TemporalContext {
     }
 }
 
-/// BLAKE3 hashing support (assuming blake3 crate is available)
+/// BLAKE3 hashing support.
 ///
-/// If blake3 is not available, this module provides a stub implementation.
-#[cfg(not(feature = "blake3_hash"))]
+/// This module provides a SHA256-based fallback implementation
+/// for content-addressed RDF snapshots.
 mod blake3 {
     use sha2::{Digest, Sha256};
 

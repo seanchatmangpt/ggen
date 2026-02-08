@@ -99,6 +99,10 @@ impl PackageBuilder {
     }
 
     /// Build the package
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::Other`] - When required fields (id, name, description, license) are missing
     pub fn build(self) -> Result<PackageMetadata> {
         let id = self
             .id

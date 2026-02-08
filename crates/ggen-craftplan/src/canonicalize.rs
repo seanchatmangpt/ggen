@@ -38,7 +38,10 @@ impl Canonicalizer {
             hashes.push(hash);
         }
 
-        debug!("Canonicalization complete: {} hashes computed", hashes.len());
+        debug!(
+            "Canonicalization complete: {} hashes computed",
+            hashes.len()
+        );
         Ok(hashes)
     }
 
@@ -47,13 +50,12 @@ impl Canonicalizer {
         debug!("Canonicalizing file: {}", file_path);
 
         // Read file
-        let content = std::fs::read_to_string(file_path).map_err(|e| {
-            CraftplanError::FileError {
+        let content =
+            std::fs::read_to_string(file_path).map_err(|e| CraftplanError::FileError {
                 path: file_path.into(),
                 message: format!("Failed to read file: {}", e),
                 source: Some(e),
-            }
-        })?;
+            })?;
 
         // Normalize whitespace (Elixir formatter will handle this)
         let normalized = self.normalize_whitespace(&content);
@@ -108,7 +110,10 @@ mod tests {
         let hash3 = canonicalizer.compute_hash("different content");
 
         assert_eq!(hash1, hash2, "Same content should produce same hash");
-        assert_ne!(hash1, hash3, "Different content should produce different hash");
+        assert_ne!(
+            hash1, hash3,
+            "Different content should produce different hash"
+        );
     }
 
     #[test]
@@ -118,7 +123,10 @@ mod tests {
         let input = "line 1  \nline 2   \nline 3";
         let normalized = canonicalizer.normalize_whitespace(input);
 
-        assert!(!normalized.contains("  "), "Trailing spaces should be removed");
+        assert!(
+            !normalized.contains("  "),
+            "Trailing spaces should be removed"
+        );
         assert!(normalized.contains("\n"), "Newlines should be preserved");
     }
 }

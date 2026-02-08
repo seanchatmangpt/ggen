@@ -9,9 +9,7 @@
 use crate::error::Result;
 use crate::signal::{AndonSignal, SignalColor};
 use dashmap::DashMap;
-use prometheus::{
-    CounterVec, Encoder, GaugeVec, HistogramVec, IntCounterVec, IntGauge, IntGaugeVec, Registry,
-};
+use prometheus::{Encoder, GaugeVec, HistogramVec, IntCounterVec, IntGauge, IntGaugeVec, Registry};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::Duration;
@@ -92,21 +90,31 @@ pub struct MetricThresholds {
 pub struct AndonMetrics {
     config: MetricConfig,
 
-    // Counters: total occurrences
-    pub signal_counter: IntCounterVec,  // by color
-    pub failure_counter: IntCounterVec, // by component
-    pub refusal_counter: IntCounterVec, // by reason
-    pub alert_counter: IntCounterVec,   // by severity
+    /// Counters: total occurrences
+    /// Signal counter by color (red/yellow/green)
+    pub signal_counter: IntCounterVec,
+    /// Failure counter by component
+    pub failure_counter: IntCounterVec,
+    /// Refusal counter by reason
+    pub refusal_counter: IntCounterVec,
+    /// Alert counter by severity
+    pub alert_counter: IntCounterVec,
 
-    // Gauges: current state
-    pub queue_depth: IntGaugeVec,   // by queue name
-    pub pool_utilization: GaugeVec, // by pool name
+    /// Gauges: current state
+    /// Queue depth by queue name
+    pub queue_depth: IntGaugeVec,
+    /// Pool utilization percentage by pool name
+    pub pool_utilization: GaugeVec,
+    /// Memory usage in megabytes
     pub memory_usage_mb: IntGauge,
+    /// CPU usage percentage
     pub cpu_usage_percent: IntGauge,
 
-    // Histograms: distribution of values
-    pub request_latency: HistogramVec, // by endpoint
-    pub processing_time: HistogramVec, // by operation
+    /// Histograms: distribution of values
+    /// Request latency in seconds by endpoint
+    pub request_latency: HistogramVec,
+    /// Processing time in seconds by operation
+    pub processing_time: HistogramVec,
 
     // Registry for Prometheus scraping
     registry: Registry,

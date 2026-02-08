@@ -30,6 +30,11 @@ impl RdfMapper {
     /// - Versions: version history as RDF facts
     /// - Releases: release info with checksums and dates
     /// - Relationships: dependencies as semantic links
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::RdfStoreError`] - When inserting triples into the RDF store fails
+    /// * [`Error::RegistryError`] - When creating URIs fails
     pub async fn package_to_rdf(&self, package: &Package) -> Result<()> {
         debug!("Converting package {} to RDF", package.metadata.id);
 
@@ -264,6 +269,14 @@ impl RdfMapper {
     ///
     /// Queries the RDF store for all triples related to a package
     /// and reconstructs the complete Package domain model.
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::PackageNotFound`] - When the package does not exist in the RDF store
+    /// * [`Error::RdfStoreError`] - When querying the RDF store fails
+    /// * [`Error::SearchError`] - When SPARQL queries fail
+    /// * [`Error::InvalidVersion`] - When version strings cannot be parsed
+    /// * [`Error::InvalidPackageId`] - When package ID strings cannot be parsed
     pub async fn rdf_to_package(&self, package_id: &PackageId) -> Result<Package> {
         debug!("Reconstructing package {} from RDF", package_id);
 

@@ -68,11 +68,11 @@ fn measure_build_time() -> f64 {
     println!("  Measuring build time...");
 
     // Clean build to get accurate timing
-    let _ = Command::new("cargo").args(&["clean"]).output();
+    let _ = Command::new("cargo").args(["clean"]).output();
 
     let start = Instant::now();
     let output = Command::new("cargo")
-        .args(&["build", "--all-targets"])
+        .args(["build", "--all-targets"])
         .output()
         .expect("Failed to run cargo build");
 
@@ -89,7 +89,7 @@ fn measure_test_pass_rate() -> (f64, usize, usize) {
     println!("  Measuring test pass rate...");
 
     let output = Command::new("cargo")
-        .args(&["test", "--", "--test-threads=1", "--format=json"])
+        .args(["test", "--", "--test-threads=1", "--format=json"])
         .output()
         .expect("Failed to run cargo test");
 
@@ -122,7 +122,7 @@ fn count_compiler_errors() -> usize {
     println!("  Counting compiler errors...");
 
     let output = Command::new("cargo")
-        .args(&["check", "--message-format=json"])
+        .args(["check", "--message-format=json"])
         .output()
         .expect("Failed to run cargo check");
 
@@ -139,7 +139,7 @@ fn count_compiler_warnings() -> usize {
     println!("  Counting compiler warnings...");
 
     let output = Command::new("cargo")
-        .args(&["check", "--message-format=json"])
+        .args(["check", "--message-format=json"])
         .output()
         .expect("Failed to run cargo check");
 
@@ -156,7 +156,7 @@ fn count_clippy_warnings() -> usize {
     println!("  Counting clippy warnings...");
 
     let output = Command::new("cargo")
-        .args(&["clippy", "--message-format=json"])
+        .args(["clippy", "--message-format=json"])
         .output()
         .expect("Failed to run cargo clippy");
 
@@ -173,7 +173,7 @@ fn count_lines(pattern: &str) -> usize {
     println!("  Counting lines for pattern: {}", pattern);
 
     let output = Command::new("find")
-        .args(&[
+        .args([
             "crates", "-name", "*.rs", "-type", "f", "-exec", "wc", "-l", "{}", "+",
         ])
         .output()
@@ -184,8 +184,7 @@ fn count_lines(pattern: &str) -> usize {
     stdout
         .lines()
         .filter_map(|line| {
-            line.trim()
-                .split_whitespace()
+            line.split_whitespace()
                 .next()
                 .and_then(|s| s.parse::<usize>().ok())
         })

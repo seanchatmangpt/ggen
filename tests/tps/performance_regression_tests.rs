@@ -10,8 +10,8 @@
 //! - Metrics recording: <50ms
 //! - Trace export: <500ms
 
-use std::time::Instant;
 use std::sync::Arc;
+use std::time::Instant;
 use tokio::sync::RwLock;
 
 /// Payment processing latency must be <5s (p99)
@@ -51,11 +51,7 @@ async fn perf_payment_processing_slo() {
     let p95 = latencies[p95_index];
     assert!(p95.as_secs_f64() < 3.0, "P95 should be <3s");
 
-    let avg = latencies
-        .iter()
-        .map(|d| d.as_secs_f64())
-        .sum::<f64>()
-        / latencies.len() as f64;
+    let avg = latencies.iter().map(|d| d.as_secs_f64()).sum::<f64>() / latencies.len() as f64;
     assert!(avg < 2.0, "Average latency should be <2s (got {}s)", avg);
 }
 
@@ -200,7 +196,7 @@ async fn perf_jidoka_decision_latency() {
 #[tokio::test]
 async fn perf_kanban_queue_submission() {
     // Arrange
-    let kanban = PerformanceKanbanSystem::new(max_wip: 100);
+    let kanban = PerformanceKanbanSystem::new(100);
     let iterations = 1000;
     let mut latencies = Vec::new();
 
@@ -276,9 +272,7 @@ async fn perf_concurrent_request_handling() {
     let mut handles = Vec::new();
     for i in 0..concurrent_requests {
         let sys = system.clone();
-        let handle = tokio::spawn(async move {
-            sys.process_request(i).await
-        });
+        let handle = tokio::spawn(async move { sys.process_request(i).await });
         handles.push(handle);
     }
 
@@ -338,10 +332,7 @@ impl PerformanceMetricsSystem {
     }
 
     async fn record(&self, name: &str, value: i32) {
-        self.metrics
-            .write()
-            .await
-            .push((name.to_string(), value));
+        self.metrics.write().await.push((name.to_string(), value));
     }
 }
 
@@ -463,5 +454,5 @@ impl PerformanceConcurrencyTest {
     }
 }
 
-use std::sync;
 use futures;
+use std::sync;

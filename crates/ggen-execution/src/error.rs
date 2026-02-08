@@ -1,7 +1,7 @@
 // Comprehensive error handling for the execution framework
-use thiserror::Error;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use thiserror::Error;
 
 // ============================================================================
 // ERROR HIERARCHY
@@ -74,6 +74,10 @@ pub enum ExecutionError {
     #[error("Async error: {0}")]
     Async(String),
 
+    // Semaphore acquire errors
+    #[error("Semaphore acquire error: {0}")]
+    AcquireFailed(String),
+
     // Error codes for programmatic handling
     #[error("Error code: {code}, message: {message}")]
     Coded { code: ErrorCode, message: String },
@@ -144,6 +148,54 @@ pub enum ErrorCode {
     ValidationError = 12000,
     ValidationRuleFailed = 12001,
     SchemaValidationFailed = 12002,
+}
+
+impl std::fmt::Display for ErrorCode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ErrorCode::ConfigurationInvalid => write!(f, "E1000"),
+            ErrorCode::ConfigurationMissing => write!(f, "E1001"),
+            ErrorCode::ConfigurationValidationFailed => write!(f, "E1002"),
+            ErrorCode::AgentNotFound => write!(f, "E2000"),
+            ErrorCode::AgentNotReady => write!(f, "E2001"),
+            ErrorCode::AgentCapacityExceeded => write!(f, "E2002"),
+            ErrorCode::AgentCommunicationFailed => write!(f, "E2003"),
+            ErrorCode::TaskNotFound => write!(f, "E3000"),
+            ErrorCode::TaskAlreadyRunning => write!(f, "E3001"),
+            ErrorCode::TaskDependenciesNotMet => write!(f, "E3002"),
+            ErrorCode::TaskExecutionFailed => write!(f, "E3003"),
+            ErrorCode::TaskTimeout => write!(f, "E3004"),
+            ErrorCode::TaskCancelled => write!(f, "E3005"),
+            ErrorCode::WorkflowNotFound => write!(f, "E4000"),
+            ErrorCode::WorkflowInvalid => write!(f, "E4001"),
+            ErrorCode::WorkflowTimeout => write!(f, "E4002"),
+            ErrorCode::WorkflowCancelled => write!(f, "E4003"),
+            ErrorCode::PipelineNotFound => write!(f, "E5000"),
+            ErrorCode::PipelineInvalid => write!(f, "E5001"),
+            ErrorCode::PipelineStageFailed => write!(f, "E5002"),
+            ErrorCode::PipelineTimeout => write!(f, "E5003"),
+            ErrorCode::MessageNotFound => write!(f, "E6000"),
+            ErrorCode::MessageCorrupt => write!(f, "E6001"),
+            ErrorCode::MessageRoutingFailed => write!(f, "E6002"),
+            ErrorCode::MessageTimeout => write!(f, "E6003"),
+            ErrorCode::CommunicationFailed => write!(f, "E7000"),
+            ErrorCode::NetworkError => write!(f, "E7001"),
+            ErrorCode::ProtocolError => write!(f, "E7002"),
+            ErrorCode::AuthenticationFailed => write!(f, "E7003"),
+            ErrorCode::ResourceLimitExceeded => write!(f, "E8000"),
+            ErrorCode::ResourceNotFound => write!(f, "E8001"),
+            ErrorCode::ResourceNotAvailable => write!(f, "E8002"),
+            ErrorCode::ConvergenceFailed => write!(f, "E9000"),
+            ErrorCode::ConvergenceTimeout => write!(f, "E9001"),
+            ErrorCode::ConvergenceQualityThresholdNotMet => write!(f, "E9002"),
+            ErrorCode::RecoveryFailed => write!(f, "E10000"),
+            ErrorCode::RecoveryTimeout => write!(f, "E10001"),
+            ErrorCode::RecoveryStrategyNotFound => write!(f, "E10002"),
+            ErrorCode::ValidationError => write!(f, "E12000"),
+            ErrorCode::ValidationRuleFailed => write!(f, "E12001"),
+            ErrorCode::SchemaValidationFailed => write!(f, "E12002"),
+        }
+    }
 }
 
 // ============================================================================
@@ -243,31 +295,32 @@ pub struct BasicRecovery;
 
 impl ErrorRecovery for BasicRecovery {
     fn can_recover(&self, error: &ExecutionError) -> bool {
-        matches!(error,
-            ExecutionError::TaskExecutionFailed(_)
-            | ExecutionError::CommunicationFailed(_)
-            | ExecutionError::ResourceLimitExceeded(_)
+        matches!(
+            error,
+            ExecutionError::Task(_)
+                | ExecutionError::Communication(_)
+                | ExecutionError::Resource(_)
         )
     }
 
     fn recover(&mut self, error: &ExecutionError) -> Result<(), ExecutionError> {
         match error {
-            ExecutionError::TaskExecutionFailed(_) => {
+            ExecutionError::Task(_) => {
                 // Implement retry logic
                 println!("Retrying failed task...");
                 Ok(())
             }
-            ExecutionError::CommunicationFailed(_) => {
+            ExecutionError::Communication(_) => {
                 // Implement reconnection logic
                 println!("Reconnecting...");
                 Ok(())
             }
-            ExecutionError::ResourceLimitExceeded(_) => {
+            ExecutionError::Resource(_) => {
                 // Implement scaling logic
                 println!("Scaling resources...");
                 Ok(())
             }
-            _ => Err(ExecutionError::RecoveryFailed(
+            _ => Err(ExecutionError::Recovery(
                 "Recovery not supported for this error type".to_string(),
             )),
         }
@@ -301,6 +354,7 @@ pub enum ErrorSeverity {
 }
 
 /// Error handler for tracking and managing errors
+#[derive(Debug)]
 pub struct ErrorHandler {
     errors: Vec<ErrorMetadata>,
     max_errors: usize,
@@ -354,6 +408,12 @@ impl From<String> for ExecutionError {
 impl From<&str> for ExecutionError {
     fn from(s: &str) -> Self {
         ExecutionError::Configuration(s.to_string())
+    }
+}
+
+impl From<tokio::sync::AcquireError> for ExecutionError {
+    fn from(e: tokio::sync::AcquireError) -> Self {
+        ExecutionError::AcquireFailed(e.to_string())
     }
 }
 

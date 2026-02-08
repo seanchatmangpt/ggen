@@ -325,7 +325,7 @@ impl TemplateValidator {
         }
 
         // Additional check: must not start with number
-        if name.chars().next().map_or(false, |c| c.is_numeric()) {
+        if name.chars().next().is_some_and(|c| c.is_numeric()) {
             return Err(TemplateSecurityError::InvalidVariableName(
                 "Variable name cannot start with number".to_string(),
             )

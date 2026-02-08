@@ -1,12 +1,11 @@
 // Task orchestration for complex workflows
-use crate::types::*;
 use crate::error::*;
 use crate::framework::*;
+use crate::types::*;
+use chrono::{DateTime, Utc};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
-use tokio::sync::{Mutex, RwLock, mpsc};
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
+use tokio::sync::{mpsc, Mutex, RwLock};
 
 // ============================================================================
 // ORCHESTRATION CONTEXT
@@ -45,7 +44,7 @@ impl OrchestrationContext {
         self.updated_at = Utc::now();
     }
 
-    pub fn can_start_task(&self, task_id: &str) -> bool {
+    pub fn can_start_task(&self, _task_id: &str) -> bool {
         // Check if task dependencies are completed
         true // Simplified for now
     }
@@ -62,7 +61,7 @@ impl OrchestrationContext {
         self.update_status();
     }
 
-    pub fn mark_task_failed(&mut self, task_id: &str, error: String) {
+    pub fn mark_task_failed(&mut self, task_id: &str, _error: String) {
         self.active_tasks.remove(task_id);
         self.failed_tasks.insert(task_id.to_string());
         self.update_status();
@@ -140,10 +139,11 @@ impl TaskOrchestrator {
         let framework_clone = framework_arc.clone();
         let contexts_clone = contexts.clone();
         let metrics_clone = metrics.clone();
+        let shutdown_signal_clone = shutdown_signal.clone();
 
         tokio::spawn(async move {
             while let Some(task) = receiver.recv().await {
-                if *shutdown_signal.read().await {
+                if *shutdown_signal_clone.read().await {
                     break;
                 }
 
@@ -152,7 +152,9 @@ impl TaskOrchestrator {
                     &framework_clone,
                     &contexts_clone,
                     &metrics_clone,
-                ).await {
+                )
+                .await
+                {
                     eprintln!("Error processing orchestration task: {:?}", e);
                 }
             }
@@ -169,15 +171,16 @@ impl TaskOrchestrator {
 
     /// Start orchestrating a workflow
     pub async fn orchestrate_workflow(
-        &mut self,
-        workflow: Workflow,
-        max_concurrent_tasks: usize,
+        &mut self, workflow: Workflow, _max_concurrent_tasks: usize,
     ) -> Result<WorkflowResult, ExecutionError> {
         let workflow_id = workflow.id.clone();
         let total_stages = workflow.tasks.len();
 
         // Create orchestration context
-        let context = Arc::new(Mutex::new(OrchestrationContext::new(&workflow_id, total_stages)));
+        let context = Arc::new(Mutex::new(OrchestrationContext::new(
+            &workflow_id,
+            total_stages,
+        )));
         self.contexts.insert(workflow_id.clone(), context.clone());
 
         // Update metrics
@@ -193,8 +196,12 @@ impl TaskOrchestrator {
                 retry_count: 0,
             };
 
-            self.task_queue.send(orchestration_task).await
-                .map_err(|_| ExecutionError::Workflow("Failed to queue task for orchestration".to_string()))?;
+            self.task_queue
+                .send(orchestration_task)
+                .await
+                .map_err(|_| {
+                    ExecutionError::Workflow("Failed to queue task for orchestration".to_string())
+                })?;
         }
 
         // Wait for workflow completion
@@ -205,16 +212,21 @@ impl TaskOrchestrator {
 
             if progress >= 1.0 {
                 // Workflow completed
-                let duration = Utc::now().timestamp_millis() - start_time.timestamp_millis();
+                let duration =
+                    (Utc::now().timestamp_millis() - start_time.timestamp_millis()) as u64;
                 let successful_tasks = context_guard.completed_tasks.len();
                 let failed_tasks = context_guard.failed_tasks.len();
 
                 metrics.completed_workflows += 1;
-                metrics.average_workflow_duration_ms = (metrics.average_workflow_duration_ms * metrics.completed_workflows + duration) / (metrics.completed_workflows + 1);
+                metrics.average_workflow_duration_ms =
+                    (metrics.average_workflow_duration_ms * metrics.completed_workflows + duration)
+                        / (metrics.completed_workflows + 1);
                 metrics.successful_tasks += successful_tasks as u64;
                 metrics.failed_tasks += failed_tasks as u64;
 
-                let results: Vec<TaskExecutionResult> = context_guard.task_results.iter()
+                let results: Vec<TaskExecutionResult> = context_guard
+                    .task_results
+                    .iter()
                     .map(|(task_id, result)| TaskExecutionResult {
                         task_id: task_id.clone(),
                         result: result.clone(),
@@ -224,7 +236,8 @@ impl TaskOrchestrator {
                 return Ok(WorkflowResult {
                     workflow_id: workflow_id,
                     success: failed_tasks == 0,
-                    success_rate: successful_tasks as f64 / (successful_tasks + failed_tasks).max(1) as f64,
+                    success_rate: successful_tasks as f64
+                        / (successful_tasks + failed_tasks).max(1) as f64,
                     total_tasks: successful_tasks + failed_tasks,
                     completed_tasks: successful_tasks,
                     execution_time_ms: duration as u64,
@@ -236,7 +249,9 @@ impl TaskOrchestrator {
 
             // Check for timeout
             if Utc::now().timestamp_millis() - start_time.timestamp_millis() > 300_000 {
-                return Err(ExecutionError::Workflow("Workflow orchestration timeout".to_string()));
+                return Err(ExecutionError::Workflow(
+                    "Workflow orchestration timeout".to_string(),
+                ));
             }
 
             // Sleep before checking again
@@ -246,16 +261,16 @@ impl TaskOrchestrator {
 
     /// Process an orchestration task
     async fn process_orchestration_task(
-        task: &OrchestrationTask,
-        framework: &Arc<Mutex<ExecutionFramework>>,
+        task: &OrchestrationTask, framework: &Arc<Mutex<ExecutionFramework>>,
         contexts: &HashMap<WorkflowId, Arc<Mutex<OrchestrationContext>>>,
-        metrics: &Arc<RwLock<OrchestrationMetrics>>,
+        _metrics: &Arc<RwLock<OrchestrationMetrics>>,
     ) -> Result<(), ExecutionError> {
         let workflow_id = &task.workflow_id;
         let task_id = &task.task_id;
 
-        let context = contexts.get(workflow_id)
-            .ok_or_else(|| ExecutionError::Workflow("Orchestration context not found".to_string()))?;
+        let context = contexts.get(workflow_id).ok_or_else(|| {
+            ExecutionError::Workflow("Orchestration context not found".to_string())
+        })?;
 
         let mut context_guard = context.lock().await;
 
@@ -272,14 +287,23 @@ impl TaskOrchestrator {
         let mut framework_guard = framework.lock().await;
 
         // Execute the task (simplified)
-        let task = Task::new(task_id, "Orchestrated Task", "orchestrated", TaskPriority::Normal, serde_json::json!({}));
+        let task = Task::new(
+            task_id,
+            "Orchestrated Task",
+            "orchestrated",
+            TaskPriority::Normal,
+            serde_json::json!({}),
+        );
         let result = framework_guard.execute_task(task).await?;
 
         // Update context with result
         if result.success {
             context_guard.mark_task_completed(task_id, result);
         } else {
-            context_guard.mark_task_failed(task_id, result.error.unwrap_or_else(|| "Unknown error".to_string()));
+            context_guard.mark_task_failed(
+                task_id,
+                result.error.unwrap_or_else(|| "Unknown error".to_string()),
+            );
         }
 
         Ok(())
@@ -343,9 +367,10 @@ impl ExecutionGraph {
 
     pub fn add_node(&mut self, task: Task) -> Result<(), ExecutionError> {
         if self.nodes.contains_key(&task.id) {
-            return Err(ExecutionError::Task(
-                format!("Task with ID {} already exists", task.id)
-            ));
+            return Err(ExecutionError::Task(format!(
+                "Task with ID {} already exists",
+                task.id
+            )));
         }
 
         let node = ExecutionNode {
@@ -360,7 +385,10 @@ impl ExecutionGraph {
 
         // Update edges
         for dep_id in &task.dependencies {
-            self.edges.entry(dep_id.clone()).or_insert_with(Vec::new).push(task.id.clone());
+            self.edges
+                .entry(dep_id.clone())
+                .or_insert_with(Vec::new)
+                .push(task.id.clone());
         }
 
         Ok(())
@@ -379,8 +407,9 @@ impl ExecutionGraph {
         }
 
         while !ready_nodes.is_empty() {
-            let current_node_id = ready_nodes.pop()
-                .ok_or_else(|| ExecutionError::Workflow("Circular dependency detected".to_string()))?;
+            let current_node_id = ready_nodes.pop().ok_or_else(|| {
+                ExecutionError::Workflow("Circular dependency detected".to_string())
+            })?;
 
             // Add to execution order
             order.push(current_node_id.clone());
@@ -403,7 +432,9 @@ impl ExecutionGraph {
         }
 
         if !remaining_nodes.is_empty() {
-            return Err(ExecutionError::Workflow("Circular dependency detected".to_string()));
+            return Err(ExecutionError::Workflow(
+                "Circular dependency detected".to_string(),
+            ));
         }
 
         Ok(order)
@@ -413,31 +444,44 @@ impl ExecutionGraph {
         self.nodes.get(task_id).map(|n| n.state.clone())
     }
 
-    pub fn update_node_state(&mut self, task_id: &str, new_state: ExecutionNodeState) -> Result<(), ExecutionError> {
-        let node = self.nodes.get_mut(task_id)
+    pub fn update_node_state(
+        &mut self, task_id: &str, new_state: ExecutionNodeState,
+    ) -> Result<(), ExecutionError> {
+        let node = self
+            .nodes
+            .get_mut(task_id)
             .ok_or_else(|| ExecutionError::Task(format!("Task not found: {}", task_id)))?;
 
         node.state = new_state.clone();
 
-        // Update dependents
-        if let Some(dependents) = self.edges.get(task_id) {
-            for dependent_id in dependents {
-                if let Some(dependent_node) = self.nodes.get_mut(dependent_id) {
-                    // Check if all dependencies are completed
-                    if new_state == ExecutionNodeState::Completed {
-                        let all_deps_completed = dependent_node.dependencies.iter()
-                            .all(|dep_id| {
-                                if let Some(dep_node) = self.nodes.get(dep_id) {
-                                    dep_node.state == ExecutionNodeState::Completed
-                                } else {
-                                    false
-                                }
-                            });
+        // Update dependents - collect dependents first to avoid borrow issues
+        let dependents_to_update: Vec<String> = self
+            .edges
+            .get(task_id)
+            .map(|deps| deps.iter().cloned().collect::<Vec<_>>())
+            .unwrap_or_default();
 
-                        if all_deps_completed {
-                            dependent_node.state = ExecutionNodeState::Ready;
-                        }
-                    }
+        for dependent_id in dependents_to_update {
+            // First check if all dependencies are completed (immutable borrow)
+            let all_deps_completed = if new_state == ExecutionNodeState::Completed {
+                if let Some(dep_node) = self.nodes.get(&dependent_id) {
+                    dep_node.dependencies.iter().all(|dep_id| {
+                        self.nodes
+                            .get(dep_id)
+                            .map(|n| n.state == ExecutionNodeState::Completed)
+                            .unwrap_or(false)
+                    })
+                } else {
+                    false
+                }
+            } else {
+                false
+            };
+
+            // Then apply the state change (mutable borrow)
+            if all_deps_completed {
+                if let Some(dependent_node) = self.nodes.get_mut(&dependent_id) {
+                    dependent_node.state = ExecutionNodeState::Ready;
                 }
             }
         }
@@ -470,33 +514,26 @@ impl OrchestrationStrategyExecutor {
     }
 
     pub async fn execute_workflow(
-        &self,
-        workflow: &Workflow,
-        orchestrator: &TaskOrchestrator,
+        &self, workflow: &Workflow, orchestrator: &TaskOrchestrator,
     ) -> Result<WorkflowResult, ExecutionError> {
         match &self.strategy {
             OrchestrationStrategy::Sequential => {
                 self.execute_sequential(workflow, orchestrator).await
             }
-            OrchestrationStrategy::Parallel => {
-                self.execute_parallel(workflow, orchestrator).await
-            }
+            OrchestrationStrategy::Parallel => self.execute_parallel(workflow, orchestrator).await,
             OrchestrationStrategy::DependencyGraph => {
                 self.execute_dependency_graph(workflow, orchestrator).await
             }
-            OrchestrationStrategy::Staged => {
-                self.execute_staged(workflow, orchestrator).await
-            }
+            OrchestrationStrategy::Staged => self.execute_staged(workflow, orchestrator).await,
             OrchestrationStrategy::Custom(strategy_name) => {
-                self.execute_custom(workflow, orchestrator, strategy_name).await
+                self.execute_custom(workflow, orchestrator, strategy_name)
+                    .await
             }
         }
     }
 
     async fn execute_sequential(
-        &self,
-        workflow: &Workflow,
-        orchestrator: &TaskOrchestrator,
+        &self, workflow: &Workflow, orchestrator: &TaskOrchestrator,
     ) -> Result<WorkflowResult, ExecutionError> {
         let mut workflow_result = WorkflowResult {
             workflow_id: workflow.id.clone(),
@@ -509,11 +546,16 @@ impl OrchestrationStrategyExecutor {
         };
 
         for task in &workflow.tasks {
-            let task_result = orchestrator.framework.lock().await.execute_task(task.clone()).await?;
+            let task_result = orchestrator
+                .framework
+                .lock()
+                .await
+                .execute_task(task.clone())
+                .await?;
 
             workflow_result.results.push(TaskExecutionResult {
                 task_id: task.id.clone(),
-                result: task_result,
+                result: task_result.clone(),
             });
 
             if !task_result.success {
@@ -522,15 +564,14 @@ impl OrchestrationStrategyExecutor {
         }
 
         workflow_result.completed_tasks = workflow_result.results.len();
-        workflow_result.success_rate = workflow_result.completed_tasks as f64 / workflow_result.total_tasks.max(1) as f64;
+        workflow_result.success_rate =
+            workflow_result.completed_tasks as f64 / workflow_result.total_tasks.max(1) as f64;
 
         Ok(workflow_result)
     }
 
     async fn execute_parallel(
-        &self,
-        workflow: &Workflow,
-        orchestrator: &TaskOrchestrator,
+        &self, workflow: &Workflow, orchestrator: &TaskOrchestrator,
     ) -> Result<WorkflowResult, ExecutionError> {
         let tasks = workflow.tasks.clone();
         let mut results = Vec::new();
@@ -551,37 +592,26 @@ impl OrchestrationStrategyExecutor {
         // Execute all tasks in parallel
         let task_results = futures::future::join_all(futures).await;
 
-        for result in task_results {
+        for (task_id, result) in task_results {
             match result {
-                Ok((task_id, Ok(task_result))) => {
+                Ok(task_result) => {
+                    let success = task_result.success;
                     results.push(TaskExecutionResult {
                         task_id,
                         result: task_result,
                     });
 
-                    if task_result.success {
+                    if success {
                         success_count += 1;
                     }
                 }
-                Ok((task_id, Err(e))) => {
+                Err(e) => {
                     results.push(TaskExecutionResult {
                         task_id,
                         result: TaskResult {
                             success: false,
                             output: None,
                             error: Some(e.to_string()),
-                            execution_time_ms: 0,
-                            resources_used: ResourceUsage::default(),
-                        },
-                    });
-                }
-                Err(_) => {
-                    results.push(TaskExecutionResult {
-                        task_id: "unknown".to_string(),
-                        result: TaskResult {
-                            success: false,
-                            output: None,
-                            error: Some("Task execution failed".to_string()),
                             execution_time_ms: 0,
                             resources_used: ResourceUsage::default(),
                         },
@@ -602,9 +632,7 @@ impl OrchestrationStrategyExecutor {
     }
 
     async fn execute_dependency_graph(
-        &self,
-        workflow: &Workflow,
-        orchestrator: &TaskOrchestrator,
+        &self, workflow: &Workflow, orchestrator: &TaskOrchestrator,
     ) -> Result<WorkflowResult, ExecutionError> {
         let mut graph = ExecutionGraph::new();
 
@@ -621,16 +649,26 @@ impl OrchestrationStrategyExecutor {
         let mut success_count = 0;
 
         for task_id in execution_order {
-            let task_result = orchestrator.framework.lock().await
-                .execute_task(Task::new(&task_id, "Graph Task", "graph", TaskPriority::Normal, serde_json::json!({})))
+            let task_result = orchestrator
+                .framework
+                .lock()
+                .await
+                .execute_task(Task::new(
+                    &task_id,
+                    "Graph Task",
+                    "graph",
+                    TaskPriority::Normal,
+                    serde_json::json!({}),
+                ))
                 .await?;
 
+            let success = task_result.success;
             results.push(TaskExecutionResult {
                 task_id: task_id.clone(),
                 result: task_result,
             });
 
-            if task_result.success {
+            if success {
                 success_count += 1;
             }
         }
@@ -647,40 +685,47 @@ impl OrchestrationStrategyExecutor {
     }
 
     async fn execute_staged(
-        &self,
-        workflow: &Workflow,
-        orchestrator: &TaskOrchestrator,
+        &self, workflow: &Workflow, orchestrator: &TaskOrchestrator,
     ) -> Result<WorkflowResult, ExecutionError> {
         // Group tasks by stage (simplified - in production you'd have explicit stages)
         let mut stages = std::collections::HashMap::new();
 
         for task in &workflow.tasks {
             let stage_id = task.task_type.clone();
-            stages.entry(stage_id).or_insert_with(Vec::new).push(task.clone());
+            stages
+                .entry(stage_id)
+                .or_insert_with(Vec::new)
+                .push(task.clone());
         }
 
         let mut results = Vec::new();
         let mut success_count = 0;
 
         // Execute each stage sequentially
-        for (stage_id, tasks) in stages {
-            let stage_success = tasks.len();
-            let mut stage_failures = 0;
+        for (_stage_id, tasks) in stages {
+            let mut _stage_success = 0;
+            let mut _stage_failures = 0;
 
             for task in tasks {
                 let task_id = task.id.clone();
-                let task_result = orchestrator.framework.lock().await.execute_task(task.clone()).await?;
+                let task_result = orchestrator
+                    .framework
+                    .lock()
+                    .await
+                    .execute_task(task.clone())
+                    .await?;
+                let success = task_result.success;
 
                 results.push(TaskExecutionResult {
                     task_id,
                     result: task_result,
                 });
 
-                if task_result.success {
+                if success {
                     success_count += 1;
-                    stage_success += 1;
+                    _stage_success += 1;
                 } else {
-                    stage_failures += 1;
+                    _stage_failures += 1;
                 }
             }
         }
@@ -697,16 +742,14 @@ impl OrchestrationStrategyExecutor {
     }
 
     async fn execute_custom(
-        &self,
-        workflow: &Workflow,
-        orchestrator: &TaskOrchestrator,
-        strategy_name: &str,
+        &self, _workflow: &Workflow, _orchestrator: &TaskOrchestrator, strategy_name: &str,
     ) -> Result<WorkflowResult, ExecutionError> {
         // Placeholder for custom strategy implementation
         eprintln!("Custom strategy {} not implemented", strategy_name);
-        return Err(ExecutionError::Workflow(
-            format!("Custom strategy not implemented: {}", strategy_name)
-        ));
+        return Err(ExecutionError::Workflow(format!(
+            "Custom strategy not implemented: {}",
+            strategy_name
+        )));
     }
 }
 
@@ -734,11 +777,29 @@ mod tests {
     fn test_execution_graph() {
         let mut graph = ExecutionGraph::new();
 
-        let task1 = Task::new("task-1", "Task 1", "test", TaskPriority::Normal, serde_json::json!({}));
-        let task2 = Task::new("task-2", "Task 2", "test", TaskPriority::Normal, serde_json::json!({}));
-        let task3 = Task::new("task-3", "Task 3", "test", TaskPriority::Normal, serde_json::json!({
-            "dependencies": ["task-1", "task-2"]
-        }));
+        let task1 = Task::new(
+            "task-1",
+            "Task 1",
+            "test",
+            TaskPriority::Normal,
+            serde_json::json!({}),
+        );
+        let task2 = Task::new(
+            "task-2",
+            "Task 2",
+            "test",
+            TaskPriority::Normal,
+            serde_json::json!({}),
+        );
+        let task3 = Task::new(
+            "task-3",
+            "Task 3",
+            "test",
+            TaskPriority::Normal,
+            serde_json::json!({
+                "dependencies": ["task-1", "task-2"]
+            }),
+        );
 
         graph.add_node(task1).unwrap();
         graph.add_node(task2).unwrap();
@@ -770,21 +831,48 @@ mod tests {
             name: "Test Workflow".to_string(),
             workflow_type: "test".to_string(),
             tasks: vec![
-                Task::new("task-1", "Task 1", "test", TaskPriority::Normal, serde_json::json!({})),
-                Task::new("task-2", "Task 2", "test", TaskPriority::Normal, serde_json::json!({})),
+                Task::new(
+                    "task-1",
+                    "Task 1",
+                    "test",
+                    TaskPriority::Normal,
+                    serde_json::json!({}),
+                ),
+                Task::new(
+                    "task-2",
+                    "Task 2",
+                    "test",
+                    TaskPriority::Normal,
+                    serde_json::json!({}),
+                ),
             ],
             created_at: Utc::now(),
             status: WorkflowStatus::Created,
         };
 
-        let framework = Arc::new(Mutex::new(ExecutionFramework::new(ExecutionConfig::default())));
+        let framework = Arc::new(Mutex::new(ExecutionFramework::new(
+            ExecutionConfig::default(),
+        )));
 
         // Test sequential strategy
-        let sequential_executor = OrchestrationStrategyExecutor::new(OrchestrationStrategy::Sequential);
-        assert!(sequential_executor.execute_workflow(&workflow, &TaskOrchestrator::new((*framework).try_into().unwrap())).await.is_ok());
+        let sequential_executor =
+            OrchestrationStrategyExecutor::new(OrchestrationStrategy::Sequential);
+        assert!(sequential_executor
+            .execute_workflow(
+                &workflow,
+                &TaskOrchestrator::new((*framework).try_into().unwrap())
+            )
+            .await
+            .is_ok());
 
         // Test parallel strategy
         let parallel_executor = OrchestrationStrategyExecutor::new(OrchestrationStrategy::Parallel);
-        assert!(parallel_executor.execute_workflow(&workflow, &TaskOrchestrator::new((*framework).try_into().unwrap())).await.is_ok());
+        assert!(parallel_executor
+            .execute_workflow(
+                &workflow,
+                &TaskOrchestrator::new((*framework).try_into().unwrap())
+            )
+            .await
+            .is_ok());
     }
 }

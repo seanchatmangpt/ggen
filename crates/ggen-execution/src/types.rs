@@ -1,7 +1,7 @@
 // Core types for the unified execution framework
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
 // ============================================================================
@@ -428,11 +428,7 @@ impl AgentMetrics {
 
 impl Task {
     pub fn new(
-        id: &str,
-        name: &str,
-        task_type: &str,
-        priority: TaskPriority,
-        payload: serde_json::Value,
+        id: &str, name: &str, task_type: &str, priority: TaskPriority, payload: serde_json::Value,
     ) -> Self {
         Self {
             id: id.to_string(),
@@ -466,10 +462,7 @@ impl UnifiedPayload {
 
 impl UnifiedMessage {
     pub fn new(
-        id: &str,
-        message_type: MessageType,
-        source: &str,
-        target: Option<&str>,
+        id: &str, message_type: MessageType, source: &str, target: Option<&str>,
         payload: UnifiedPayload,
     ) -> Self {
         Self {

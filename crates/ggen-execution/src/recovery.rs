@@ -1,13 +1,13 @@
 // Error recovery mechanisms for the execution framework
-use crate::types::*;
 use crate::error::*;
 use crate::framework::*;
+use crate::types::*;
+use chrono::{DateTime, Utc};
+use rand::Rng;
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
-use tokio::sync::{Mutex, mpsc};
-use chrono::{DateTime, Utc};
+use tokio::sync::{mpsc, Mutex};
 use uuid::Uuid;
-use rand::Rng;
 
 // ============================================================================
 // RECOVERY STRATEGIES
@@ -137,14 +137,18 @@ impl HealthChecker {
     }
 
     /// Check health of all agents
-    pub async fn check_all_agents_health(&mut self, agents: &HashMap<AgentId, Box<dyn UnifiedAgentTrait>>) -> Result<(), ExecutionError> {
+    pub async fn check_all_agents_health(
+        &mut self, agents: &mut HashMap<AgentId, Box<dyn UnifiedAgentTrait>>,
+    ) -> Result<(), ExecutionError> {
         let mut healthy_count = 0;
         let mut error_count = 0;
+        let total_agents = agents.len();
 
-        for (agent_id, agent) in agents {
+        for (agent_id, agent) in &mut *agents {
             let health_status = self.check_agent_health(agent).await?;
 
-            self.agent_health.insert(agent_id.clone(), health_status.clone());
+            self.agent_health
+                .insert(agent_id.clone(), health_status.clone());
 
             match health_status.status {
                 HealthStatus::Healthy => healthy_count += 1,
@@ -153,7 +157,7 @@ impl HealthChecker {
         }
 
         // Update system health
-        self.system_health.total_agents = agents.len();
+        self.system_health.total_agents = total_agents;
         self.system_health.healthy_agents = healthy_count;
         self.system_health.unhealthy_agents = error_count;
         self.system_health.status = self.calculate_system_status();
@@ -163,8 +167,12 @@ impl HealthChecker {
     }
 
     /// Check health of a single agent
-    async fn check_agent_health(&mut self, agent: &Box<dyn UnifiedAgentTrait>) -> Result<AgentHealthStatus, ExecutionError> {
-        let health = agent.get_health();
+    async fn check_agent_health(
+        &mut self, agent: &mut Box<dyn UnifiedAgentTrait>,
+    ) -> Result<AgentHealthStatus, ExecutionError> {
+        // Get the initial health values before calling execute_task
+        let error_count = agent.get_health().error_count;
+        let uptime = agent.get_health().uptime_seconds;
 
         // Create a test task to check responsiveness
         let test_task = Task::new(
@@ -178,20 +186,20 @@ impl HealthChecker {
         // Execute test task
         let result = agent.execute_task(test_task).await;
 
-        let mut error_count = health.error_count;
+        let mut final_error_count = error_count;
         let mut success_count = 0;
 
         if let Ok(task_result) = result {
             if task_result.success {
                 success_count += 1;
             } else {
-                error_count += 1;
+                final_error_count += 1;
             }
         } else {
-            error_count += 1;
+            final_error_count += 1;
         }
 
-        let success_rate = success_count as f64 / (success_count + error_count).max(1) as f64;
+        let success_rate = success_count as f64 / (success_count + final_error_count).max(1) as f64;
 
         let status = if success_rate >= self.health_thresholds.min_success_rate {
             HealthStatus::Healthy
@@ -203,11 +211,11 @@ impl HealthChecker {
 
         let agent_health = AgentHealthStatus {
             agent_id: agent.get_id().to_string(),
-            status,
+            status: status.clone(),
             last_check: Utc::now(),
-            error_count,
+            error_count: final_error_count,
             success_count,
-            average_latency_ms: health.resource_usage.memory_mb as u64, // Simplified
+            average_latency_ms: uptime / 1000, // Simplified
         };
 
         // Add to health history
@@ -330,7 +338,9 @@ impl RecoveryManager {
     }
 
     /// Handle an error and attempt recovery
-    pub async fn handle_error(&mut self, error: &ExecutionError, component: &str) -> Result<RecoveryResult, ExecutionError> {
+    pub async fn handle_error(
+        &mut self, error: &ExecutionError, component: &str,
+    ) -> Result<RecoveryResult, ExecutionError> {
         let error_id = Uuid::new_v4().to_string();
         let error_record = ErrorRecord {
             id: error_id.clone(),
@@ -360,13 +370,19 @@ impl RecoveryManager {
             retry_count: 0,
         };
 
-        self.active_recoveries.insert(recovery_attempt.id.clone(), recovery_attempt.clone());
+        self.active_recoveries
+            .insert(recovery_attempt.id.clone(), recovery_attempt.clone());
 
         // Apply recovery strategy
-        let result = self.apply_recovery_strategy(&strategy, error, &policy).await?;
+        let result = self
+            .apply_recovery_strategy(&strategy, error, &policy)
+            .await?;
 
         // Update recovery attempt
-        let mut recovery = self.active_recoveries.get_mut(&recovery_attempt.id).unwrap();
+        let recovery = self
+            .active_recoveries
+            .get_mut(&recovery_attempt.id)
+            .unwrap();
         recovery.end_time = Some(Utc::now());
         recovery.status = if result.success {
             RecoveryStatus::Succeeded
@@ -375,14 +391,16 @@ impl RecoveryManager {
         };
 
         // Update error record
-        let mut recent_error = self.error_history.iter_mut().rev().next().unwrap();
+        let recent_error = self.error_history.iter_mut().rev().next().unwrap();
         recent_error.recovery_applied = Some(strategy);
 
         Ok(result)
     }
 
     /// Find recovery policy for error
-    async fn find_recovery_policy(&self, error: &ExecutionError) -> Result<RecoveryPolicy, ExecutionError> {
+    async fn find_recovery_policy(
+        &self, error: &ExecutionError,
+    ) -> Result<RecoveryPolicy, ExecutionError> {
         // Find policy based on error type
         let error_type = self.get_error_type(error);
 
@@ -417,37 +435,25 @@ impl RecoveryManager {
 
     /// Apply recovery strategy
     async fn apply_recovery_strategy(
-        &self,
-        strategy: &RecoveryStrategy,
-        error: &ExecutionError,
-        policy: &RecoveryPolicy,
+        &self, strategy: &RecoveryStrategy, error: &ExecutionError, policy: &RecoveryPolicy,
     ) -> Result<RecoveryResult, ExecutionError> {
         match strategy {
-            RecoveryStrategy::Retry => {
-                self.retry_strategy(error, policy).await
-            }
-            RecoveryStrategy::Fallback => {
-                self.fallback_strategy(error, policy).await
-            }
-            RecoveryStrategy::CircuitBreaker => {
-                self.circuit_breaker_strategy(error, policy).await
-            }
+            RecoveryStrategy::Retry => self.retry_strategy(error, policy).await,
+            RecoveryStrategy::Fallback => self.fallback_strategy(error, policy).await,
+            RecoveryStrategy::CircuitBreaker => self.circuit_breaker_strategy(error, policy).await,
             RecoveryStrategy::DeadLetterQueue => {
                 self.dead_letter_queue_strategy(error, policy).await
             }
-            RecoveryStrategy::CircuitReset => {
-                self.circuit_reset_strategy(error, policy).await
-            }
-            RecoveryStrategy::Custom(name) => {
-                self.custom_strategy(name, error, policy).await
-            }
+            RecoveryStrategy::CircuitReset => self.circuit_reset_strategy(error, policy).await,
+            RecoveryStrategy::Custom(name) => self.custom_strategy(name, error, policy).await,
         }
     }
 
     /// Retry strategy implementation
-    async fn retry_strategy(&self, error: &ExecutionError, policy: &RecoveryPolicy) -> Result<RecoveryResult, ExecutionError> {
+    async fn retry_strategy(
+        &self, error: &ExecutionError, policy: &RecoveryPolicy,
+    ) -> Result<RecoveryResult, ExecutionError> {
         let mut retry_count = 0;
-        let mut last_error = error.clone();
 
         while retry_count < policy.max_attempts {
             retry_count += 1;
@@ -457,7 +463,7 @@ impl RecoveryManager {
             tokio::time::sleep(tokio::time::Duration::from_millis(delay_ms)).await;
 
             // Try to recover (simplified - in production would attempt actual recovery)
-            if self.attempt_recovery(last_error.clone()).await? {
+            if self.attempt_recovery(error).await? {
                 return Ok(RecoveryResult {
                     success: true,
                     strategy: RecoveryStrategy::Retry,
@@ -476,7 +482,9 @@ impl RecoveryManager {
     }
 
     /// Fallback strategy implementation
-    async fn fallback_strategy(&self, error: &ExecutionError, policy: &RecoveryPolicy) -> Result<RecoveryResult, ExecutionError> {
+    async fn fallback_strategy(
+        &self, _error: &ExecutionError, _policy: &RecoveryPolicy,
+    ) -> Result<RecoveryResult, ExecutionError> {
         // Implement fallback logic
         // This would involve switching to alternative components or modes
 
@@ -489,7 +497,9 @@ impl RecoveryManager {
     }
 
     /// Circuit breaker strategy implementation
-    async fn circuit_breaker_strategy(&self, error: &ExecutionError, policy: &RecoveryPolicy) -> Result<RecoveryResult, ExecutionError> {
+    async fn circuit_breaker_strategy(
+        &self, _error: &ExecutionError, _policy: &RecoveryPolicy,
+    ) -> Result<RecoveryResult, ExecutionError> {
         // Implement circuit breaker logic
         // Open circuit, wait, then attempt reset
 
@@ -502,7 +512,9 @@ impl RecoveryManager {
     }
 
     /// Dead letter queue strategy implementation
-    async fn dead_letter_queue_strategy(&self, error: &ExecutionError, policy: &RecoveryPolicy) -> Result<RecoveryResult, ExecutionError> {
+    async fn dead_letter_queue_strategy(
+        &self, _error: &ExecutionError, _policy: &RecoveryPolicy,
+    ) -> Result<RecoveryResult, ExecutionError> {
         // Implement dead letter queue logic
         // Move failed operations to DLQ for later processing
 
@@ -515,7 +527,9 @@ impl RecoveryManager {
     }
 
     /// Circuit reset strategy implementation
-    async fn circuit_reset_strategy(&self, error: &ExecutionError, policy: &RecoveryPolicy) -> Result<RecoveryResult, ExecutionError> {
+    async fn circuit_reset_strategy(
+        &self, _error: &ExecutionError, _policy: &RecoveryPolicy,
+    ) -> Result<RecoveryResult, ExecutionError> {
         // Implement circuit reset logic
         // Attempt to reset circuit after failure
 
@@ -528,7 +542,9 @@ impl RecoveryManager {
     }
 
     /// Custom strategy implementation
-    async fn custom_strategy(&self, name: &str, error: &ExecutionError, policy: &RecoveryPolicy) -> Result<RecoveryResult, ExecutionError> {
+    async fn custom_strategy(
+        &self, name: &str, _error: &ExecutionError, _policy: &RecoveryPolicy,
+    ) -> Result<RecoveryResult, ExecutionError> {
         // Placeholder for custom strategy implementation
         Ok(RecoveryResult {
             success: false,
@@ -540,15 +556,16 @@ impl RecoveryManager {
 
     /// Calculate backoff delay
     fn calculate_backoff_delay(&self, policy: &RecoveryPolicy, retry_count: u32) -> u64 {
-        let delay_ms = policy.initial_delay_ms * policy.backoff_multiplier.powi(retry_count as i32);
+        let delay_ms = (policy.initial_delay_ms as f64
+            * policy.backoff_multiplier.powi(retry_count as i32)) as u64;
         let mut rng = rand::thread_rng();
-        let jitter = rng.random_range(0..policy.jitter_ms);
+        let jitter = rng.gen_range(0..policy.jitter_ms);
 
         delay_ms.min(policy.max_delay_ms) + jitter
     }
 
     /// Attempt recovery operation
-    async fn attempt_recovery(&self, _error: ExecutionError) -> Result<bool, ExecutionError> {
+    async fn attempt_recovery(&self, _error: &ExecutionError) -> Result<bool, ExecutionError> {
         // Simplified recovery attempt
         // In production, this would implement specific recovery logic
         let mut rng = rand::thread_rng();
@@ -568,7 +585,9 @@ impl RecoveryManager {
     /// Get recovery statistics
     pub fn get_recovery_stats(&self) -> RecoveryStats {
         let total_errors = self.error_history.len();
-        let successful_recoveries = self.error_history.iter()
+        let successful_recoveries = self
+            .error_history
+            .iter()
             .filter(|e| e.recovery_applied.is_some())
             .count();
 
@@ -644,7 +663,9 @@ impl SelfHealingWorkflow {
     }
 
     /// Start self-healing workflow
-    pub async fn start(&mut self, agents: &HashMap<AgentId, Box<dyn UnifiedAgentTrait>>) -> Result<(), ExecutionError> {
+    pub async fn start(
+        &mut self, agents: &mut HashMap<AgentId, Box<dyn UnifiedAgentTrait>>,
+    ) -> Result<(), ExecutionError> {
         // Register default recovery policies
         self.register_default_policies();
 
@@ -659,45 +680,55 @@ impl SelfHealingWorkflow {
 
             // Sleep for check interval
             tokio::time::sleep(tokio::time::Duration::from_millis(
-                self.health_checker.check_interval_ms
-            )).await;
+                self.health_checker.check_interval_ms,
+            ))
+            .await;
         }
     }
 
     /// Register default recovery policies
     fn register_default_policies(&mut self) {
         // Task execution errors
-        self.recovery_manager.register_policy("task", RecoveryPolicy {
-            strategy: RecoveryStrategy::Retry,
-            max_attempts: 3,
-            initial_delay_ms: 1000,
-            max_delay_ms: 10000,
-            backoff_multiplier: 2.0,
-            jitter_ms: 100,
-            conditions: vec![RecoveryCondition::Always],
-        });
+        self.recovery_manager.register_policy(
+            "task",
+            RecoveryPolicy {
+                strategy: RecoveryStrategy::Retry,
+                max_attempts: 3,
+                initial_delay_ms: 1000,
+                max_delay_ms: 10000,
+                backoff_multiplier: 2.0,
+                jitter_ms: 100,
+                conditions: vec![RecoveryCondition::Always],
+            },
+        );
 
         // Communication errors
-        self.recovery_manager.register_policy("communication", RecoveryPolicy {
-            strategy: RecoveryStrategy::CircuitBreaker,
-            max_attempts: 1,
-            initial_delay_ms: 5000,
-            max_delay_ms: 30000,
-            backoff_multiplier: 1.5,
-            jitter_ms: 500,
-            conditions: vec![RecoveryCondition::Always],
-        });
+        self.recovery_manager.register_policy(
+            "communication",
+            RecoveryPolicy {
+                strategy: RecoveryStrategy::CircuitBreaker,
+                max_attempts: 1,
+                initial_delay_ms: 5000,
+                max_delay_ms: 30000,
+                backoff_multiplier: 1.5,
+                jitter_ms: 500,
+                conditions: vec![RecoveryCondition::Always],
+            },
+        );
 
         // Resource errors
-        self.recovery_manager.register_policy("resource", RecoveryPolicy {
-            strategy: RecoveryStrategy::Fallback,
-            max_attempts: 2,
-            initial_delay_ms: 2000,
-            max_delay_ms: 15000,
-            backoff_multiplier: 2.0,
-            jitter_ms: 200,
-            conditions: vec![RecoveryCondition::Always],
-        });
+        self.recovery_manager.register_policy(
+            "resource",
+            RecoveryPolicy {
+                strategy: RecoveryStrategy::Fallback,
+                max_attempts: 2,
+                initial_delay_ms: 2000,
+                max_delay_ms: 15000,
+                backoff_multiplier: 2.0,
+                jitter_ms: 200,
+                conditions: vec![RecoveryCondition::Always],
+            },
+        );
     }
 
     /// Check for errors and attempt recovery
@@ -712,13 +743,19 @@ impl SelfHealingWorkflow {
             }
         }
 
-        // Check individual agents
-        for (agent_id, agent_health) in &self.health_checker.agent_health {
-            if agent_health.status == HealthStatus::Critical {
-                // Agent-specific recovery
-                if let Err(e) = self.agent_recovery(agent_id).await {
-                    eprintln!("Agent recovery failed for {}: {:?}", agent_id, e);
-                }
+        // Check individual agents - collect agent IDs first to avoid borrow issues
+        let critical_agents: Vec<String> = self
+            .health_checker
+            .agent_health
+            .iter()
+            .filter(|(_, agent_health)| agent_health.status == HealthStatus::Critical)
+            .map(|(agent_id, _)| agent_id.clone())
+            .collect();
+
+        for agent_id in critical_agents {
+            // Agent-specific recovery
+            if let Err(e) = self.agent_recovery(&agent_id).await {
+                eprintln!("Agent recovery failed for {}: {:?}", agent_id, e);
             }
         }
     }
@@ -734,7 +771,9 @@ impl SelfHealingWorkflow {
             recovery_applied: Some(RecoveryStrategy::CircuitBreaker),
         };
 
-        self.notification_tx.send(event).await
+        self.notification_tx
+            .send(event)
+            .await
             .map_err(|_| ExecutionError::Recovery("Failed to send healing event".to_string()))?;
 
         // Implement system-wide recovery logic
@@ -752,7 +791,9 @@ impl SelfHealingWorkflow {
             recovery_applied: Some(RecoveryStrategy::Retry),
         };
 
-        self.notification_tx.send(event).await
+        self.notification_tx
+            .send(event)
+            .await
             .map_err(|_| ExecutionError::Recovery("Failed to send healing event".to_string()))?;
 
         // Implement agent-specific recovery logic

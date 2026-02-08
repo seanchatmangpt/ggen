@@ -1,6 +1,6 @@
 //! YAWL workflow generation SLO benchmarks.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use ggen_yawl::{OntologyLoader, YawlGenerator};
 
 fn bench_rdf_loading(c: &mut Criterion) {
@@ -64,16 +64,14 @@ fn bench_template_rendering(c: &mut Criterion) {
         workflow_name: "TestWorkflow".to_string(),
         description: "Test workflow for benchmarking".to_string(),
         version: "1.0.0".to_string(),
-        tasks: vec![
-            ggen_yawl::template::TaskContext {
-                id: "t1".to_string(),
-                name: "Task 1".to_string(),
-                split_type: "AND".to_string(),
-                join_type: "XOR".to_string(),
-                is_auto: true,
-                decomposition_id: None,
-            },
-        ],
+        tasks: vec![ggen_yawl::template::TaskContext {
+            id: "t1".to_string(),
+            name: "Task 1".to_string(),
+            split_type: "AND".to_string(),
+            join_type: "XOR".to_string(),
+            is_auto: true,
+            decomposition_id: None,
+        }],
         flows: vec![],
         input_condition: None,
         output_condition: None,

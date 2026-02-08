@@ -4,7 +4,7 @@
 //! State-based verification over interaction verification.
 
 use ggen_core::Graph;
-use ggen_yawl::ontology::loader::{OntologyLoader, OntologyFormat};
+use ggen_yawl::ontology::loader::{OntologyFormat, OntologyLoader};
 use std::io::Write;
 use std::str::FromStr;
 use tempfile::NamedTempFile;
@@ -308,9 +308,7 @@ mod ontology_loader_tests {
         assert!(!graph.is_empty(), "Graph should contain triples");
 
         // Verify specific triples exist
-        let check = graph.query_cached(
-            "ASK { ?s a <http://www.w3.org/2002/07/owl#Class> }"
-        );
+        let check = graph.query_cached("ASK { ?s a <http://www.w3.org/2002/07/owl#Class> }");
         assert!(check.is_ok());
         if let Ok(ggen_core::graph::types::CachedResult::Boolean(true)) = check {
             // Classes loaded
@@ -378,7 +376,10 @@ mod ontology_loader_tests {
         match result {
             Err(e) => {
                 let error_msg = e.to_string();
-                assert!(error_msg.contains("Ontology load error") || error_msg.contains("Failed to load"));
+                assert!(
+                    error_msg.contains("Ontology load error")
+                        || error_msg.contains("Failed to load")
+                );
             }
             Ok(_) => panic!("Expected error for invalid Turtle"),
         }
@@ -461,9 +462,8 @@ mod ontology_loader_tests {
         let graph = result.unwrap();
 
         // Verify classes loaded
-        let classes_query = graph.query_cached(
-            "SELECT ?class WHERE { ?class a <http://www.w3.org/2002/07/owl#Class> }"
-        );
+        let classes_query = graph
+            .query_cached("SELECT ?class WHERE { ?class a <http://www.w3.org/2002/07/owl#Class> }");
         assert!(classes_query.is_ok());
         if let Ok(ggen_core::graph::types::CachedResult::Solutions(rows)) = classes_query {
             assert!(rows.len() >= 2, "Should have at least 2 classes");
@@ -471,7 +471,7 @@ mod ontology_loader_tests {
 
         // Verify properties loaded
         let props_query = graph.query_cached(
-            "SELECT ?prop WHERE { ?prop a <http://www.w3.org/2002/07/owl#ObjectProperty> }"
+            "SELECT ?prop WHERE { ?prop a <http://www.w3.org/2002/07/owl#ObjectProperty> }",
         );
         assert!(props_query.is_ok());
     }

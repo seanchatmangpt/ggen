@@ -45,8 +45,8 @@ pub use engine::{
 };
 pub use error::{WorkflowError, WorkflowResult};
 pub use parser::{
-    Condition, ConditionType, Constraint, ConstraintLevel, Decomposition, DecompositionType,
-    Flow, InstanceStrategy, JoinType, Parameter, ParameterType, PatternCategory, SplitType, SpecMetadata,
+    Condition, ConditionType, Constraint, ConstraintLevel, Decomposition, DecompositionType, Flow,
+    InstanceStrategy, JoinType, Parameter, ParameterType, PatternCategory, SpecMetadata, SplitType,
     Task, TaskType, Variable, VariableScope, VariableType, WorkflowPattern as YawlWorkflowPattern,
     YawlParser, YawlSpec,
 };
@@ -56,9 +56,9 @@ pub use patterns::{
 };
 pub use receipts::{ReceiptGenerator, ReceiptMetadata, ReceiptStore, WorkflowReceipt};
 pub use state::{
-    ExecutionMetrics, ExecutionSnapshot, StateMachine, StateMachineBuilder,
-    StateSnapshot, StateTransitionEvent, StateValidator, SuspendReason, TraceEventSnapshot,
-    TransitionType, WorkflowDefinition, WorkflowErrorInfo, WorkflowResults, WorkflowState,
+    ExecutionMetrics, ExecutionSnapshot, StateMachine, StateMachineBuilder, StateSnapshot,
+    StateTransitionEvent, StateValidator, SuspendReason, TraceEventSnapshot, TransitionType,
+    WorkflowDefinition, WorkflowErrorInfo, WorkflowResults, WorkflowState,
 };
 
 // Use constants directly from this module

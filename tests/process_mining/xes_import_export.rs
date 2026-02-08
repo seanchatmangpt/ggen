@@ -3,15 +3,15 @@
 //! Tests for reading and writing XES (eXtensible Event Stream) format event logs.
 //! Verifies roundtrip conversion and standard compliance.
 
-use ggen_process_mining::{XesParser, XesWriter};
-use ggen_process_mining::{EventLog, Trace, Event};
 use ggen_process_mining::event_log::AttributeValue;
+use ggen_process_mining::{Event, EventLog, Trace};
+use ggen_process_mining::{XesParser, XesWriter};
 use std::io::Cursor;
 
 #[cfg(test)]
 mod xes_tests {
-    use super::*;
     use super::super::helpers::*;
+    use super::*;
 
     /// Test XES parser creation and configuration.
     #[test]
@@ -97,12 +97,11 @@ mod xes_tests {
     #[test]
     fn test_xes_export_from_event_log() {
         // Arrange
-        let log = EventLog::new("Export Test Log")
-            .with_trace(
-                Trace::new("case1")
-                    .with_event(Event::new("e1", "Start", "2024-01-01T10:00:00Z").unwrap())
-                    .with_event(Event::new("e2", "End", "2024-01-01T11:00:00Z").unwrap())
-            );
+        let log = EventLog::new("Export Test Log").with_trace(
+            Trace::new("case1")
+                .with_event(Event::new("e1", "Start", "2024-01-01T10:00:00Z").unwrap())
+                .with_event(Event::new("e2", "End", "2024-01-01T11:00:00Z").unwrap()),
+        );
 
         let writer = XesWriter::new();
 
@@ -302,15 +301,17 @@ mod xes_tests {
         // Arrange
         use ggen_process_mining::event_log::AttributeValue;
 
-        let log = EventLog::new("Attribute Test")
-            .with_trace(
-                Trace::new("case1")
-                    .with_event(
-                        Event::new("e1", "Activity", "2024-01-01T10:00:00Z").unwrap()
-                            .with_attribute("custom_attr".to_string(), AttributeValue::String("custom_value".to_string()))
-                            .with_attribute("number_attr".to_string(), AttributeValue::Integer(42))
+        let log = EventLog::new("Attribute Test").with_trace(
+            Trace::new("case1").with_event(
+                Event::new("e1", "Activity", "2024-01-01T10:00:00Z")
+                    .unwrap()
+                    .with_attribute(
+                        "custom_attr".to_string(),
+                        AttributeValue::String("custom_value".to_string()),
                     )
-            );
+                    .with_attribute("number_attr".to_string(), AttributeValue::Integer(42)),
+            ),
+        );
 
         let writer = XesWriter::new().with_all_attributes(true);
 
@@ -328,14 +329,16 @@ mod xes_tests {
         // Arrange
         use ggen_process_mining::event_log::AttributeValue;
 
-        let log = EventLog::new("Minimal Test")
-            .with_trace(
-                Trace::new("case1")
-                    .with_event(
-                        Event::new("e1", "Activity", "2024-01-01T10:00:00Z").unwrap()
-                            .with_attribute("extra".to_string(), AttributeValue::String("value".to_string()))
-                    )
-            );
+        let log = EventLog::new("Minimal Test").with_trace(
+            Trace::new("case1").with_event(
+                Event::new("e1", "Activity", "2024-01-01T10:00:00Z")
+                    .unwrap()
+                    .with_attribute(
+                        "extra".to_string(),
+                        AttributeValue::String("value".to_string()),
+                    ),
+            ),
+        );
 
         let writer = XesWriter::new().with_all_attributes(false);
 
@@ -355,13 +358,10 @@ mod xes_tests {
     #[test]
     fn test_xes_special_characters() {
         // Arrange
-        let log = EventLog::new("Special Chars")
-            .with_trace(
-                Trace::new("case<1>")
-                    .with_event(
-                        Event::new("e1", "Activity & Test", "2024-01-01T10:00:00Z").unwrap()
-                    )
-            );
+        let log = EventLog::new("Special Chars").with_trace(
+            Trace::new("case<1>")
+                .with_event(Event::new("e1", "Activity & Test", "2024-01-01T10:00:00Z").unwrap()),
+        );
 
         let writer = XesWriter::new();
 
@@ -441,7 +441,10 @@ mod xes_tests {
         let xes_output = writer.write_to_string(&log).unwrap();
 
         // Assert
-        assert_eq!(log.traces[0].events[0].resource, Some("Resource123".to_string()));
+        assert_eq!(
+            log.traces[0].events[0].resource,
+            Some("Resource123".to_string())
+        );
         assert!(xes_output.contains("Resource123"));
     }
 
