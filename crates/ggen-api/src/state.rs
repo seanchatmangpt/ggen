@@ -1,7 +1,7 @@
 //! Shared application state
 
-use std::sync::Arc;
 use ggen_core::telemetry::TelemetryConfig;
+use std::sync::Arc;
 
 /// Shared application state
 #[derive(Clone)]
@@ -39,10 +39,7 @@ impl Default for ApiConfig {
 }
 
 impl AppState {
-    pub fn new(
-        config: ApiConfig,
-        telemetry: TelemetryConfig,
-    ) -> Self {
+    pub fn new(config: ApiConfig, telemetry: TelemetryConfig) -> Self {
         Self {
             config: Arc::new(config),
             telemetry: Arc::new(telemetry),

@@ -7,13 +7,13 @@
 //! - Configurable limits and burst sizes
 //! - Comprehensive observability via tracing
 
+use async_trait::async_trait;
 use axum::{
     extract::{Request, State},
     http::{HeaderMap, StatusCode},
     middleware::Next,
     response::{IntoResponse, Response},
 };
-use async_trait::async_trait;
 use std::net::IpAddr;
 use std::sync::Arc;
 use std::time::{Duration, SystemTime};
@@ -155,13 +155,12 @@ impl TokenBucket {
 pub trait RateLimitBackendTrait: Send + Sync {
     /// Check if request is allowed and record it
     async fn check_limit(
-        &self,
-        key: &str,
-        config: &RateLimitConfig,
+        &self, key: &str, config: &RateLimitConfig,
     ) -> Result<bool, RateLimitError>;
 
     /// Get retry-after duration in seconds
-    async fn retry_after(&self, key: &str, config: &RateLimitConfig) -> Result<u64, RateLimitError>;
+    async fn retry_after(&self, key: &str, config: &RateLimitConfig)
+        -> Result<u64, RateLimitError>;
 }
 
 /// In-memory rate limiting backend
@@ -180,9 +179,7 @@ impl InMemoryBackend {
 #[async_trait]
 impl RateLimitBackendTrait for InMemoryBackend {
     async fn check_limit(
-        &self,
-        key: &str,
-        config: &RateLimitConfig,
+        &self, key: &str, config: &RateLimitConfig,
     ) -> Result<bool, RateLimitError> {
         let mut buckets = self.buckets.write().await;
         let bucket = buckets
@@ -193,7 +190,9 @@ impl RateLimitBackendTrait for InMemoryBackend {
         Ok(bucket.try_consume(refill_rate, config.burst_size))
     }
 
-    async fn retry_after(&self, key: &str, config: &RateLimitConfig) -> Result<u64, RateLimitError> {
+    async fn retry_after(
+        &self, key: &str, config: &RateLimitConfig,
+    ) -> Result<u64, RateLimitError> {
         let buckets = self.buckets.read().await;
         let refill_rate = config.requests_per_second as f64;
 
@@ -218,23 +217,21 @@ impl RedisBackend {
             .max_size(15)
             .build(manager)
             .await
-            .map_err(|e| RateLimitError::BackendError(format!("Redis pool creation failed: {}", e)))?;
+            .map_err(|e| {
+                RateLimitError::BackendError(format!("Redis pool creation failed: {}", e))
+            })?;
 
         Ok(Self { pool })
     }
 
     async fn execute_lua_script(
-        &self,
-        key: &str,
-        config: &RateLimitConfig,
+        &self, key: &str, config: &RateLimitConfig,
     ) -> Result<(i64, f64), RateLimitError> {
         use redis::AsyncCommands;
 
-        let mut conn = self
-            .pool
-            .get()
-            .await
-            .map_err(|e| RateLimitError::BackendError(format!("Failed to get Redis connection: {}", e)))?;
+        let mut conn = self.pool.get().await.map_err(|e| {
+            RateLimitError::BackendError(format!("Failed to get Redis connection: {}", e))
+        })?;
 
         // Lua script for atomic token bucket algorithm
         let script = r#"
@@ -280,7 +277,9 @@ impl RedisBackend {
             .arg(config.ttl.as_secs())
             .invoke_async(&mut *conn)
             .await
-            .map_err(|e| RateLimitError::BackendError(format!("Redis script execution failed: {}", e)))?;
+            .map_err(|e| {
+                RateLimitError::BackendError(format!("Redis script execution failed: {}", e))
+            })?;
 
         Ok(result)
     }
@@ -289,9 +288,7 @@ impl RedisBackend {
 #[async_trait]
 impl RateLimitBackendTrait for RedisBackend {
     async fn check_limit(
-        &self,
-        key: &str,
-        config: &RateLimitConfig,
+        &self, key: &str, config: &RateLimitConfig,
     ) -> Result<bool, RateLimitError> {
         match self.execute_lua_script(key, config).await {
             Ok((allowed, _)) => Ok(allowed == 1),
@@ -302,7 +299,9 @@ impl RateLimitBackendTrait for RedisBackend {
         }
     }
 
-    async fn retry_after(&self, key: &str, config: &RateLimitConfig) -> Result<u64, RateLimitError> {
+    async fn retry_after(
+        &self, key: &str, config: &RateLimitConfig,
+    ) -> Result<u64, RateLimitError> {
         match self.execute_lua_script(key, config).await {
             Ok((_, tokens)) => {
                 let refill_rate = config.requests_per_second as f64;
@@ -332,9 +331,7 @@ impl RateLimiter {
     pub async fn new(config: RateLimitConfig) -> Result<Self, RateLimitError> {
         let backend: Arc<dyn RateLimitBackendTrait> = match &config.backend {
             RateLimitBackend::InMemory => Arc::new(InMemoryBackend::new()),
-            RateLimitBackend::Redis { url } => {
-                Arc::new(RedisBackend::new(url).await?)
-            }
+            RateLimitBackend::Redis { url } => Arc::new(RedisBackend::new(url).await?),
         };
 
         let fallback = Arc::new(InMemoryBackend::new());
@@ -358,7 +355,10 @@ impl RateLimiter {
             }
             Ok(false) => {
                 let retry_after = self.retry_after(key).await?;
-                warn!("Rate limit exceeded for key: {}, retry after: {}s", key, retry_after);
+                warn!(
+                    "Rate limit exceeded for key: {}, retry after: {}s",
+                    key, retry_after
+                );
                 Err(RateLimitError::TooManyRequests { retry_after })
             }
             Err(e) => {
@@ -410,9 +410,7 @@ fn extract_client_id(headers: &HeaderMap, client_ip: Option<IpAddr>) -> String {
 
 /// Axum middleware for rate limiting
 pub async fn rate_limit_middleware(
-    State(limiter): State<Arc<RateLimiter>>,
-    request: Request,
-    next: Next,
+    State(limiter): State<Arc<RateLimiter>>, request: Request, next: Next,
 ) -> Result<Response, RateLimitError> {
     // Extract client identifier
     let client_id = extract_client_id(
@@ -634,9 +632,10 @@ mod tests {
         let mut handles = Vec::new();
         for _ in 0..20 {
             let limiter_clone = Arc::clone(&limiter);
-            let handle = tokio::spawn(async move {
-                limiter_clone.check_limit("concurrent-test").await.is_ok()
-            });
+            let handle =
+                tokio::spawn(
+                    async move { limiter_clone.check_limit("concurrent-test").await.is_ok() },
+                );
             handles.push(handle);
         }
 
@@ -649,8 +648,16 @@ mod tests {
         }
 
         // Assert: Should allow burst_size requests, block the rest
-        assert!(success_count <= 5, "Expected at most 5 successful requests, got {}", success_count);
-        assert!(success_count >= 3, "Expected at least some requests to succeed, got {}", success_count);
+        assert!(
+            success_count <= 5,
+            "Expected at most 5 successful requests, got {}",
+            success_count
+        );
+        assert!(
+            success_count >= 3,
+            "Expected at least some requests to succeed, got {}",
+            success_count
+        );
     }
 
     #[tokio::test]

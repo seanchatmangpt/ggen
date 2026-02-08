@@ -3,7 +3,9 @@
 //! This test suite verifies that the validation module prevents SPARQL injection attacks
 //! by testing various attack patterns against the URI and property name validators.
 
-use ggen_ai::codegen::validation::{validate_rdf_uri, validate_property_name, validate_prefixed_iri};
+use ggen_ai::codegen::validation::{
+    validate_prefixed_iri, validate_property_name, validate_rdf_uri,
+};
 
 #[test]
 fn test_valid_http_uri() {
@@ -24,13 +26,19 @@ fn test_valid_urn_uri() {
 #[test]
 fn test_uri_blocks_sql_injection_with_semicolon() {
     let result = validate_rdf_uri("http://example.com/'; DROP TABLE properties--");
-    assert!(result.is_err(), "Should reject SQL injection pattern with semicolon");
+    assert!(
+        result.is_err(),
+        "Should reject SQL injection pattern with semicolon"
+    );
 }
 
 #[test]
 fn test_uri_blocks_sparql_comment_injection() {
     let result = validate_rdf_uri("http://example.com/ontology#Class--\nUNION SELECT");
-    assert!(result.is_err(), "Should reject SPARQL comment injection pattern");
+    assert!(
+        result.is_err(),
+        "Should reject SPARQL comment injection pattern"
+    );
 }
 
 #[test]
@@ -89,7 +97,10 @@ fn test_property_blocks_sparql_union_injection() {
 #[test]
 fn test_property_blocks_optional_manipulation() {
     let result = validate_property_name("prop OPTIONAL { ?s ?p ?o }");
-    assert!(result.is_err(), "Should reject SPARQL OPTIONAL manipulation");
+    assert!(
+        result.is_err(),
+        "Should reject SPARQL OPTIONAL manipulation"
+    );
 }
 
 #[test]
@@ -137,19 +148,28 @@ fn test_prefixed_iri_valid_complex() {
 #[test]
 fn test_prefixed_iri_rejects_no_separator() {
     let result = validate_prefixed_iri("shpath");
-    assert!(result.is_err(), "Should reject prefixed IRI without separator");
+    assert!(
+        result.is_err(),
+        "Should reject prefixed IRI without separator"
+    );
 }
 
 #[test]
 fn test_prefixed_iri_rejects_empty_prefix() {
     let result = validate_prefixed_iri(":path");
-    assert!(result.is_err(), "Should reject prefixed IRI with empty prefix");
+    assert!(
+        result.is_err(),
+        "Should reject prefixed IRI with empty prefix"
+    );
 }
 
 #[test]
 fn test_prefixed_iri_rejects_empty_local() {
     let result = validate_prefixed_iri("sh:");
-    assert!(result.is_err(), "Should reject prefixed IRI with empty local name");
+    assert!(
+        result.is_err(),
+        "Should reject prefixed IRI with empty local name"
+    );
 }
 
 // Defense-in-depth tests

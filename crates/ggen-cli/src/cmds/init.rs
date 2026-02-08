@@ -430,9 +430,7 @@ echo "   using schema.org in 5 minutes. Stay disciplined. Use standards first."
 #[allow(clippy::unused_unit)]
 #[verb("init", "root")]
 pub fn init(
-    path: Option<String>,
-    force: Option<bool>,
-    skip_hooks: Option<bool>,
+    path: Option<String>, force: Option<bool>, skip_hooks: Option<bool>,
 ) -> clap_noun_verb::Result<InitOutput> {
     // Thin CLI layer: parse arguments and delegate to helper
     let project_dir = path.unwrap_or_else(|| ".".to_string());
@@ -460,15 +458,18 @@ pub fn init(
 ///
 /// Any error before commit triggers automatic rollback via Drop trait.
 fn perform_init(
-    project_dir: &str,
-    force: bool,
-    skip_hooks: bool,
+    project_dir: &str, force: bool, skip_hooks: bool,
 ) -> clap_noun_verb::Result<InitOutput> {
     // Convert to Path for easier manipulation
     let base_path = Path::new(project_dir);
 
     // List of ggen-specific artifacts to check for
-    let ggen_artifacts = vec!["ggen.toml", "Makefile", "schema/domain.ttl", "scripts/startup.sh"];
+    let ggen_artifacts = vec![
+        "ggen.toml",
+        "Makefile",
+        "schema/domain.ttl",
+        "scripts/startup.sh",
+    ];
 
     // Check if ggen has already been initialized in this directory
     let has_ggen_artifacts = ggen_artifacts.iter().any(|artifact| {
@@ -546,13 +547,11 @@ fn perform_init(
                 files_overwritten: None,
                 files_preserved: None,
                 directories_created: vec![],
-                error: Some(format!(
-                    "No write permission in project directory: {}",
-                    e
-                )),
+                error: Some(format!("No write permission in project directory: {}", e)),
                 warning: None,
-                next_steps: vec!["Check directory permissions or try a different location"
-                    .to_string()],
+                next_steps: vec![
+                    "Check directory permissions or try a different location".to_string()
+                ],
                 transaction: None,
                 git_hooks: None,
             });
@@ -561,7 +560,10 @@ fn perform_init(
 
     // Create FileTransaction for atomic file operations
     let mut tx = FileTransaction::new().map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to initialize file transaction: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to initialize file transaction: {}",
+            e
+        ))
     })?;
 
     let mut directories_created = vec![];
@@ -574,7 +576,10 @@ fn perform_init(
         let dir_path = base_path.join(dir);
         let existed = dir_path.exists();
         fs::create_dir_all(&dir_path).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Failed to create directory {}: {}", dir, e))
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to create directory {}: {}",
+                dir, e
+            ))
         })?;
         if !existed {
             directories_created.push(dir.to_string());
@@ -606,7 +611,10 @@ fn perform_init(
     // Create schema/domain.ttl
     let schema_path = base_path.join("schema").join("domain.ttl");
     tx.write_file(&schema_path, DOMAIN_TTL).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write schema/domain.ttl: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to write schema/domain.ttl: {}",
+            e
+        ))
     })?;
 
     // Create Makefile
@@ -617,22 +625,33 @@ fn perform_init(
 
     // Create example template (templates/example.txt.tera)
     let template_path = base_path.join("templates").join("example.txt.tera");
-    tx.write_file(&template_path, EXAMPLE_TEMPLATE).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write templates/example.txt.tera: {}", e))
-    })?;
+    tx.write_file(&template_path, EXAMPLE_TEMPLATE)
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to write templates/example.txt.tera: {}",
+                e
+            ))
+        })?;
 
     // Create scripts/startup.sh
     let startup_sh_path = base_path.join("scripts").join("startup.sh");
     tx.write_file(&startup_sh_path, STARTUP_SH).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write scripts/startup.sh: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to write scripts/startup.sh: {}",
+            e
+        ))
     })?;
 
     // Create .gitignore (only if it doesn't exist - preserve user's gitignore)
     if !gitignore_exists {
         let gitignore_content = "# ggen outputs\nsrc/generated/\n.ggen/\n";
-        tx.write_file(&gitignore_path, gitignore_content).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Failed to write .gitignore: {}", e))
-        })?;
+        tx.write_file(&gitignore_path, gitignore_content)
+            .map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to write .gitignore: {}",
+                    e
+                ))
+            })?;
     }
 
     // Create README.md (only if it doesn't exist - preserve user's README)
@@ -712,7 +731,10 @@ See `ggen.toml` to configure which templates to run and where they output.
 "#;
     if !readme_exists {
         tx.write_file(&readme_path, readme_content).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Failed to write README.md: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to write README.md: {}",
+                e
+            ))
         })?;
     }
 
@@ -720,23 +742,27 @@ See `ggen.toml` to configure which templates to run and where they output.
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
-        fs::set_permissions(
-            &startup_sh_path,
-            std::fs::Permissions::from_mode(0o755),
-        ).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Failed to set execute permissions on startup.sh: {}", e))
-        })?;
+        fs::set_permissions(&startup_sh_path, std::fs::Permissions::from_mode(0o755)).map_err(
+            |e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to set execute permissions on startup.sh: {}",
+                    e
+                ))
+            },
+        )?;
     }
 
     // Commit transaction - this is the point of no return
     // After this, all changes are permanent and rollback is disabled
     let receipt = tx.commit().map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to commit file transaction: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to commit file transaction: {}",
+            e
+        ))
     })?;
 
     // Install git hooks after successful file creation
-    let git_hooks_result = super::git_hooks::install_git_hooks(base_path, skip_hooks)
-        .ok(); // Convert to Option, don't fail init if hooks fail
+    let git_hooks_result = super::git_hooks::install_git_hooks(base_path, skip_hooks).ok(); // Convert to Option, don't fail init if hooks fail
 
     // Build InitOutput from TransactionReceipt
     let files_created: Vec<String> = receipt
@@ -821,8 +847,7 @@ mod tests {
         let temp_dir = tempdir().expect("Failed to create temp dir");
         let project_path = temp_dir.path().to_str().expect("Invalid path");
 
-        let result = perform_init(project_path, false, true)
-            .expect("Init should succeed");
+        let result = perform_init(project_path, false, true).expect("Init should succeed");
 
         // Verify success status
         assert_eq!(result.status, "success");
@@ -835,16 +860,31 @@ mod tests {
         assert!(tx_info.committed, "Transaction should be committed");
 
         // Verify files were created
-        assert!(!result.files_created.is_empty(), "Should have created files");
-        assert!(result.directories_created.len() >= 4, "Should have created at least 4 directories");
+        assert!(
+            !result.files_created.is_empty(),
+            "Should have created files"
+        );
+        assert!(
+            result.directories_created.len() >= 4,
+            "Should have created at least 4 directories"
+        );
 
         // Verify actual files exist on disk
         let base = PathBuf::from(project_path);
         assert!(base.join("ggen.toml").exists(), "ggen.toml should exist");
-        assert!(base.join("schema/domain.ttl").exists(), "domain.ttl should exist");
+        assert!(
+            base.join("schema/domain.ttl").exists(),
+            "domain.ttl should exist"
+        );
         assert!(base.join("Makefile").exists(), "Makefile should exist");
-        assert!(base.join("scripts/startup.sh").exists(), "startup.sh should exist");
-        assert!(base.join("templates/example.txt.tera").exists(), "example.txt.tera should exist");
+        assert!(
+            base.join("scripts/startup.sh").exists(),
+            "startup.sh should exist"
+        );
+        assert!(
+            base.join("templates/example.txt.tera").exists(),
+            "example.txt.tera should exist"
+        );
     }
 
     #[test]
@@ -857,27 +897,39 @@ mod tests {
         fs::create_dir_all(&base).expect("Failed to create base dir");
         let gitignore_content = "# Custom gitignore\n*.log\n";
         let readme_content = "# Custom README\n\nMy project\n";
-        fs::write(base.join(".gitignore"), gitignore_content)
-            .expect("Failed to write .gitignore");
-        fs::write(base.join("README.md"), readme_content)
-            .expect("Failed to write README.md");
+        fs::write(base.join(".gitignore"), gitignore_content).expect("Failed to write .gitignore");
+        fs::write(base.join("README.md"), readme_content).expect("Failed to write README.md");
 
-        let result = perform_init(project_path, false, true)
-            .expect("Init should succeed");
+        let result = perform_init(project_path, false, true).expect("Init should succeed");
 
         // Verify files were preserved
-        assert!(result.files_preserved.is_some(), "Should have preserved files");
+        assert!(
+            result.files_preserved.is_some(),
+            "Should have preserved files"
+        );
         let preserved = result.files_preserved.unwrap();
-        assert!(preserved.contains(&".gitignore".to_string()), "Should preserve .gitignore");
-        assert!(preserved.contains(&"README.md".to_string()), "Should preserve README.md");
+        assert!(
+            preserved.contains(&".gitignore".to_string()),
+            "Should preserve .gitignore"
+        );
+        assert!(
+            preserved.contains(&"README.md".to_string()),
+            "Should preserve README.md"
+        );
 
         // Verify original content is intact
-        let gitignore_after = fs::read_to_string(base.join(".gitignore"))
-            .expect("Failed to read .gitignore");
-        let readme_after = fs::read_to_string(base.join("README.md"))
-            .expect("Failed to read README.md");
-        assert_eq!(gitignore_after, gitignore_content, ".gitignore should be unchanged");
-        assert_eq!(readme_after, readme_content, "README.md should be unchanged");
+        let gitignore_after =
+            fs::read_to_string(base.join(".gitignore")).expect("Failed to read .gitignore");
+        let readme_after =
+            fs::read_to_string(base.join("README.md")).expect("Failed to read README.md");
+        assert_eq!(
+            gitignore_after, gitignore_content,
+            ".gitignore should be unchanged"
+        );
+        assert_eq!(
+            readme_after, readme_content,
+            "README.md should be unchanged"
+        );
     }
 
     #[test]
@@ -887,32 +939,33 @@ mod tests {
         let base = PathBuf::from(project_path);
 
         // First init
-        perform_init(project_path, false, true)
-            .expect("First init should succeed");
+        perform_init(project_path, false, true).expect("First init should succeed");
 
         // Modify a file
         let toml_path = base.join("ggen.toml");
-        let original_content = fs::read_to_string(&toml_path)
-            .expect("Failed to read ggen.toml");
+        let original_content = fs::read_to_string(&toml_path).expect("Failed to read ggen.toml");
         fs::write(&toml_path, "# Modified\n").expect("Failed to modify ggen.toml");
 
         // Second init without force should fail
-        let result = perform_init(project_path, false, true)
-            .expect("Should return result");
+        let result = perform_init(project_path, false, true).expect("Should return result");
         assert_eq!(result.status, "error");
         assert!(result.error.is_some());
         assert!(result.error.unwrap().contains("already initialized"));
 
         // Second init with force should succeed
-        let result = perform_init(project_path, true, true)
-            .expect("Force init should succeed");
+        let result = perform_init(project_path, true, true).expect("Force init should succeed");
         assert_eq!(result.status, "success");
-        assert!(result.files_overwritten.is_some(), "Should have overwritten files");
+        assert!(
+            result.files_overwritten.is_some(),
+            "Should have overwritten files"
+        );
 
         // Verify original content was restored
-        let restored_content = fs::read_to_string(&toml_path)
-            .expect("Failed to read ggen.toml");
-        assert_eq!(restored_content, original_content, "Content should be restored");
+        let restored_content = fs::read_to_string(&toml_path).expect("Failed to read ggen.toml");
+        assert_eq!(
+            restored_content, original_content,
+            "Content should be restored"
+        );
     }
 
     #[test]
@@ -920,8 +973,7 @@ mod tests {
         let temp_dir = tempdir().expect("Failed to create temp dir");
         let project_path = temp_dir.path().to_str().expect("Invalid path");
 
-        let result = perform_init(project_path, false, true)
-            .expect("Init should succeed");
+        let result = perform_init(project_path, false, true).expect("Init should succeed");
 
         // Verify transaction info is present and accurate
         assert!(result.transaction.is_some());
@@ -947,17 +999,18 @@ mod tests {
         let project_path = temp_dir.path().to_str().expect("Invalid path");
 
         // First init
-        perform_init(project_path, false, true)
-            .expect("First init should succeed");
+        perform_init(project_path, false, true).expect("First init should succeed");
 
         // Force re-init
-        let result = perform_init(project_path, true, true)
-            .expect("Force init should succeed");
+        let result = perform_init(project_path, true, true).expect("Force init should succeed");
 
         // Verify backups were created
         assert!(result.transaction.is_some());
         let tx_info = result.transaction.unwrap();
-        assert!(tx_info.backups_created > 0, "Should have created backups on overwrite");
+        assert!(
+            tx_info.backups_created > 0,
+            "Should have created backups on overwrite"
+        );
     }
 
     #[test]
@@ -966,21 +1019,35 @@ mod tests {
         let project_path = temp_dir.path().to_str().expect("Invalid path");
         let base = PathBuf::from(project_path);
 
-        let result = perform_init(project_path, false, true)
-            .expect("Init should succeed");
+        let result = perform_init(project_path, false, true).expect("Init should succeed");
 
         // Verify all required directories exist
         assert!(base.join("schema").is_dir(), "schema/ should exist");
         assert!(base.join("templates").is_dir(), "templates/ should exist");
-        assert!(base.join("src/generated").is_dir(), "src/generated/ should exist");
+        assert!(
+            base.join("src/generated").is_dir(),
+            "src/generated/ should exist"
+        );
         assert!(base.join("scripts").is_dir(), "scripts/ should exist");
 
         // Verify directories_created list
         let dirs = &result.directories_created;
-        assert!(dirs.contains(&"schema".to_string()), "Should report schema/ created");
-        assert!(dirs.contains(&"templates".to_string()), "Should report templates/ created");
-        assert!(dirs.contains(&"src/generated".to_string()), "Should report src/generated/ created");
-        assert!(dirs.contains(&"scripts".to_string()), "Should report scripts/ created");
+        assert!(
+            dirs.contains(&"schema".to_string()),
+            "Should report schema/ created"
+        );
+        assert!(
+            dirs.contains(&"templates".to_string()),
+            "Should report templates/ created"
+        );
+        assert!(
+            dirs.contains(&"src/generated".to_string()),
+            "Should report src/generated/ created"
+        );
+        assert!(
+            dirs.contains(&"scripts".to_string()),
+            "Should report scripts/ created"
+        );
     }
 
     #[test]
@@ -990,13 +1057,11 @@ mod tests {
         let project_path = temp_dir.path().to_str().expect("Invalid path");
         let base = PathBuf::from(project_path);
 
-        perform_init(project_path, false, true)
-            .expect("Init should succeed");
+        perform_init(project_path, false, true).expect("Init should succeed");
 
         // Verify startup.sh has executable permissions
         let startup_path = base.join("scripts/startup.sh");
-        let metadata = fs::metadata(&startup_path)
-            .expect("Failed to get startup.sh metadata");
+        let metadata = fs::metadata(&startup_path).expect("Failed to get startup.sh metadata");
 
         use std::os::unix::fs::PermissionsExt;
         let mode = metadata.permissions().mode();
@@ -1008,8 +1073,7 @@ mod tests {
         let temp_dir = tempdir().expect("Failed to create temp dir");
         let project_path = temp_dir.path().to_str().expect("Invalid path");
 
-        let result = perform_init(project_path, false, true)
-            .expect("Init should succeed");
+        let result = perform_init(project_path, false, true).expect("Init should succeed");
 
         // Verify InitOutput structure
         assert_eq!(result.status, "success");
@@ -1020,8 +1084,7 @@ mod tests {
         assert!(result.transaction.is_some());
 
         // Verify serialization works (for JSON output)
-        let json = serde_json::to_string(&result)
-            .expect("Should serialize to JSON");
+        let json = serde_json::to_string(&result).expect("Should serialize to JSON");
         assert!(json.contains("\"status\":\"success\""));
         assert!(json.contains("\"transaction\""));
     }

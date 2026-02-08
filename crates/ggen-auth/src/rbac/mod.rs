@@ -7,17 +7,17 @@
 //! - Policy engine for attribute-based access control (ABAC)
 //! - Privilege escalation prevention
 
-pub mod permission;
-pub mod role;
-pub mod resource;
-pub mod policy;
 pub mod context;
+pub mod permission;
+pub mod policy;
+pub mod resource;
+pub mod role;
 
+pub use context::{AuthorizationContext, AuthorizationDecision, AuthorizationRequest};
 pub use permission::{Permission, Permissions};
-pub use role::{Role, RoleHierarchy, RoleLevel, UserRole};
+pub use policy::{Effect, Policy, PolicyEngine, PolicyRule};
 pub use resource::{Resource, ResourceOwner, ResourceType};
-pub use policy::{Policy, PolicyEngine, PolicyRule, Effect};
-pub use context::{AuthorizationContext, AuthorizationRequest, AuthorizationDecision};
+pub use role::{Role, RoleHierarchy, RoleLevel, UserRole};
 
 use crate::errors::AuthError;
 
@@ -26,10 +26,7 @@ pub type RbacResult<T> = Result<T, AuthError>;
 
 /// Check if a user with given roles can perform an action on a resource
 pub fn authorize(
-    user_id: &str,
-    roles: &[Role],
-    resource: &Resource,
-    permission: Permission,
+    user_id: &str, roles: &[Role], resource: &Resource, permission: Permission,
     policy_engine: &PolicyEngine,
 ) -> RbacResult<bool> {
     // Create authorization context
@@ -123,7 +120,13 @@ mod tests {
         let policy_engine = PolicyEngine::new();
 
         // Act
-        let result = authorize(user_id, &roles, &resource, Permission::Delete, &policy_engine);
+        let result = authorize(
+            user_id,
+            &roles,
+            &resource,
+            Permission::Delete,
+            &policy_engine,
+        );
 
         // Assert
         assert!(result.is_ok());

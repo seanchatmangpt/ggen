@@ -1,0 +1,24 @@
+{
+  "receipt": {
+    "execution_id": "exec-1769707546468317858",
+    "agent_id": "error-recovery-1769707545076698651",
+    "operation": "error-recovery",
+    "status": "passed",
+    "timestamp": "2026-01-29T17:25:46Z",
+    "hashes": {
+      "manifest": "3d2e6d5f45b6a2b9edab72b7f9a68884ef463d5711d24ba277e38967d43330a5",
+      "ontology": "c40b9f29714df070c8f1e2c36d0ec759798f76b02bf0aa1f3cc7bd31767abd7e"
+    },
+    "files_generated": 47,
+    "files_modified": 12,
+    "pipeline_stages": {
+      "μ₁_normalize": { "status": "completed", "duration_ms": 400 },
+      "μ₂_extract": { "status": "completed", "duration_ms": 500 },
+      "μ₃_emit": { "status": "completed", "duration_ms": 600 },
+      "μ₄_canonicalize": { "status": "completed", "duration_ms": 300 },
+      "μ₅_receipt": { "status": "completed", "duration_ms": 200 }
+    },
+    "total_duration_ms": 2000,
+    "determinism_guarantee": true
+  }
+}

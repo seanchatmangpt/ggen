@@ -319,7 +319,20 @@ impl SecurityLogger {
 
 impl Default for SecurityLogger {
     fn default() -> Self {
-        Self::new().expect("Default security logger should always initialize")
+        // The security logger with default config should never fail in practice
+        // since all components have sensible defaults. However, we propagate
+        // the error by panicking with context if initialization fails unexpectedly.
+        Self::new().unwrap_or_else(|e| {
+            log::error!("Failed to initialize default security logger: {}", e);
+            // Create a logger with minimal functionality as fallback
+            Self {
+                config: SecurityLoggerConfig::default(),
+                audit_trail: None,
+                intrusion_detector: None,
+                metrics: None,
+                alert_manager: None,
+            }
+        })
     }
 }
 

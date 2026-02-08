@@ -95,10 +95,7 @@ pub struct Resource {
 impl Resource {
     /// Create a new resource
     pub fn new(
-        id: String,
-        resource_type: ResourceType,
-        owner: ResourceOwner,
-        permissions: Permissions,
+        id: String, resource_type: ResourceType, owner: ResourceOwner, permissions: Permissions,
     ) -> Self {
         Self {
             id,
@@ -150,9 +147,7 @@ pub enum PrincipalType {
 impl ResourceAcl {
     /// Create a new ACL entry
     pub fn new(
-        resource_id: String,
-        principal_id: String,
-        principal_type: PrincipalType,
+        resource_id: String, principal_id: String, principal_type: PrincipalType,
         permissions: Permissions,
     ) -> Self {
         Self {

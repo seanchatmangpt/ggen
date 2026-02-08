@@ -2,13 +2,8 @@
 //!
 //! Chicago TDD: State-based testing with real collaborators and behavior verification
 
-use axum::{
-    extract::State,
-    http::StatusCode,
-    routing::get,
-    Router,
-};
-use ggen_api::middleware::{rate_limit_middleware, RateLimitConfig, RateLimiter, RateLimitBackend};
+use axum::{extract::State, http::StatusCode, routing::get, Router};
+use ggen_api::middleware::{rate_limit_middleware, RateLimitBackend, RateLimitConfig, RateLimiter};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::time::sleep;

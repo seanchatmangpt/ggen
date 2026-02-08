@@ -1,0 +1,46 @@
+---
+name: owl_inference
+category: rdf_ontology
+version: "1.0.0"
+description: |
+  Executes OWL2-RL inference rules on RDF graphs. Materializes implicit triples
+  using class hierarchies, property characteristics, and logical reasoning rules.
+  Supports full OWL2-RL rule set with comprehensive logging and statistics.
+capabilities:
+  - Execute OWL2-RL inference
+  - Materialize implicit triples
+  - Support class hierarchies
+  - Apply property characteristics (transitive, symmetric, inverse)
+  - Generate inference statistics
+  - Output extended RDF graph
+requirements:
+  memory_mb: 1024
+  dependencies:
+    - oxigraph
+    - owl-processor
+    - log
+  disk_mb: 200
+performance_slo:
+  max_duration_ms: 10000
+  success_rate: 0.99
+  throughput_triples_per_second: 500
+implementation:
+  language: bash
+  entry_point: skill_owl_inference_execute
+  module: skills-rdf.sh
+error_handling:
+  retry_strategy: exponential
+  max_retries: 2
+  retry_delay_ms: 300
+  timeout_ms: 20000
+  fallback_behavior: return_partial_results
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.85
+documentation:
+  url: "https://docs.ggen.io/skills/owl-inference"
+  examples:
+    - "skill_owl_inference_execute ontology.ttl"
+    - "skill_owl_inference_execute --statistics ontology.ttl"

@@ -101,7 +101,9 @@ impl OWLExtractor {
 
         self.store
             .load_from_reader(oxigraph::io::RdfFormat::Turtle, file)
-            .map_err(|e| GgenAiError::ontology_error(format!("Failed to load RDF ontology: {}", e)))?;
+            .map_err(|e| {
+                GgenAiError::ontology_error(format!("Failed to load RDF ontology: {}", e))
+            })?;
 
         Ok(())
     }
@@ -114,8 +116,9 @@ impl OWLExtractor {
     /// - Restrictions (cardinality, datatype facets, value constraints)
     pub fn extract_class(&self, class_uri: &str) -> Result<OWLClass> {
         use crate::error::GgenAiError;
-        let class_node = NamedNode::new(class_uri)
-            .map_err(|e| GgenAiError::ontology_error(format!("Invalid class URI {}: {}", class_uri, e)))?;
+        let class_node = NamedNode::new(class_uri).map_err(|e| {
+            GgenAiError::ontology_error(format!("Invalid class URI {}: {}", class_uri, e))
+        })?;
 
         // Query for basic class info
         let label = self.query_label(&class_node)?;
@@ -147,7 +150,8 @@ impl OWLExtractor {
             None,
             None,
         ) {
-            let quad = quad.map_err(|e| GgenAiError::ontology_error(format!("Query failed: {}", e)))?;
+            let quad =
+                quad.map_err(|e| GgenAiError::ontology_error(format!("Query failed: {}", e)))?;
             if let Term::Literal(lit) = quad.object {
                 return Ok(Some(lit.value().to_string()));
             }
@@ -167,7 +171,8 @@ impl OWLExtractor {
             None,
             None,
         ) {
-            let quad = quad.map_err(|e| GgenAiError::ontology_error(format!("Query failed: {}", e)))?;
+            let quad =
+                quad.map_err(|e| GgenAiError::ontology_error(format!("Query failed: {}", e)))?;
             if let Term::Literal(lit) = quad.object {
                 return Ok(Some(lit.value().to_string()));
             }

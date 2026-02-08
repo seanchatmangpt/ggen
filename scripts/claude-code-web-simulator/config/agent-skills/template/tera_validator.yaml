@@ -1,0 +1,48 @@
+---
+name: tera_validator
+category: template_generation
+version: "1.0.0"
+description: |
+  Validates Tera template syntax and structure. Checks for valid expressions,
+  filter usage, macro definitions, and block nesting. Generates detailed error reports
+  with line numbers and suggestions for fixes.
+capabilities:
+  - Validate Tera syntax
+  - Check expression validity
+  - Validate filter usage
+  - Check macro definitions
+  - Verify block nesting
+  - Detect undefined variables (with context hints)
+  - Generate syntax error reports
+  - Support custom filter registration
+requirements:
+  memory_mb: 128
+  dependencies:
+    - tera
+    - serde_json
+    - log
+  disk_mb: 50
+performance_slo:
+  max_duration_ms: 1000
+  success_rate: 0.99
+  throughput_templates_per_second: 500
+implementation:
+  language: bash
+  entry_point: skill_tera_validator_validate
+  module: skills-template.sh
+error_handling:
+  retry_strategy: linear
+  max_retries: 1
+  retry_delay_ms: 50
+  timeout_ms: 2000
+  fallback_behavior: return_error_details
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.90
+documentation:
+  url: "https://docs.ggen.io/skills/tera-validator"
+  examples:
+    - "skill_tera_validator_validate template.tera"
+    - "skill_tera_validator_validate --strict template.tera"

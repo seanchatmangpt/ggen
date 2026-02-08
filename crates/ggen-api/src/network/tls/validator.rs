@@ -94,7 +94,9 @@ impl CertificateValidator {
         }
 
         if chain_der.is_empty() {
-            return Err(TlsError::ValidationFailed("Empty certificate chain".to_string()));
+            return Err(TlsError::ValidationFailed(
+                "Empty certificate chain".to_string(),
+            ));
         }
 
         // Validate each certificate in the chain
@@ -112,7 +114,9 @@ impl CertificateValidator {
     fn validate_certificate(&self, cert_der: &[u8], is_leaf: bool) -> TlsResult<()> {
         // Parse certificate (simplified - in production use x509-parser)
         if cert_der.is_empty() {
-            return Err(TlsError::CertificateParseError("Empty certificate".to_string()));
+            return Err(TlsError::CertificateParseError(
+                "Empty certificate".to_string(),
+            ));
         }
 
         // Check expiration if required
@@ -205,10 +209,16 @@ mod tests {
         let policy = ValidationPolicy::default();
 
         // Assert
-        assert!(policy.verify_expiration, "Should verify expiration by default");
+        assert!(
+            policy.verify_expiration,
+            "Should verify expiration by default"
+        );
         assert!(policy.verify_hostname, "Should verify hostname by default");
         assert!(!policy.require_ocsp, "Should not require OCSP by default");
-        assert!(!policy.allow_self_signed, "Should not allow self-signed by default");
+        assert!(
+            !policy.allow_self_signed,
+            "Should not allow self-signed by default"
+        );
     }
 
     #[test]
@@ -222,7 +232,10 @@ mod tests {
         assert!(policy.require_ocsp, "Strict policy should require OCSP");
         assert!(policy.require_ct, "Strict policy should require CT");
         assert!(!policy.allow_self_signed);
-        assert_eq!(policy.max_chain_depth, 3, "Strict policy should have lower chain depth");
+        assert_eq!(
+            policy.max_chain_depth, 3,
+            "Strict policy should have lower chain depth"
+        );
     }
 
     #[test]
@@ -233,7 +246,10 @@ mod tests {
         // Assert
         assert!(!policy.verify_expiration);
         assert!(!policy.verify_hostname);
-        assert!(policy.allow_self_signed, "Permissive policy should allow self-signed");
+        assert!(
+            policy.allow_self_signed,
+            "Permissive policy should allow self-signed"
+        );
         assert_eq!(policy.max_chain_depth, 10);
     }
 
@@ -333,7 +349,10 @@ mod tests {
         let result = validator.validate_hostname("", &[]);
 
         // Assert
-        assert!(result.is_ok(), "Should pass when hostname verification disabled");
+        assert!(
+            result.is_ok(),
+            "Should pass when hostname verification disabled"
+        );
     }
 
     #[test]

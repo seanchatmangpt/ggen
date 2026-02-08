@@ -24,7 +24,13 @@ fn test_authorize_owner_always_allowed() {
     let policy_engine = PolicyEngine::new();
 
     // Act
-    let result = authorize(user_id, &roles, &resource, Permission::Delete, &policy_engine);
+    let result = authorize(
+        user_id,
+        &roles,
+        &resource,
+        Permission::Delete,
+        &policy_engine,
+    );
 
     // Assert
     assert!(result.is_ok());
@@ -68,7 +74,13 @@ fn test_authorize_without_permission_denied() {
     let policy_engine = PolicyEngine::new();
 
     // Act
-    let result = authorize(user_id, &roles, &resource, Permission::Delete, &policy_engine);
+    let result = authorize(
+        user_id,
+        &roles,
+        &resource,
+        Permission::Delete,
+        &policy_engine,
+    );
 
     // Assert
     assert!(result.is_ok());
@@ -91,10 +103,27 @@ fn test_authorize_admin_full_access() {
 
     // Act
     let read_result = authorize(user_id, &roles, &resource, Permission::Read, &policy_engine);
-    let write_result = authorize(user_id, &roles, &resource, Permission::Write, &policy_engine);
-    let delete_result = authorize(user_id, &roles, &resource, Permission::Delete, &policy_engine);
-    let execute_result =
-        authorize(user_id, &roles, &resource, Permission::Execute, &policy_engine);
+    let write_result = authorize(
+        user_id,
+        &roles,
+        &resource,
+        Permission::Write,
+        &policy_engine,
+    );
+    let delete_result = authorize(
+        user_id,
+        &roles,
+        &resource,
+        Permission::Delete,
+        &policy_engine,
+    );
+    let execute_result = authorize(
+        user_id,
+        &roles,
+        &resource,
+        Permission::Execute,
+        &policy_engine,
+    );
 
     // Assert
     assert!(read_result.is_ok() && read_result.unwrap());
@@ -119,7 +148,13 @@ fn test_authorize_manager_elevated_access() {
 
     // Act
     let read_result = authorize(user_id, &roles, &resource, Permission::Read, &policy_engine);
-    let delete_result = authorize(user_id, &roles, &resource, Permission::Delete, &policy_engine);
+    let delete_result = authorize(
+        user_id,
+        &roles,
+        &resource,
+        Permission::Delete,
+        &policy_engine,
+    );
 
     // Assert
     assert!(read_result.is_ok() && read_result.unwrap());
@@ -146,7 +181,13 @@ fn test_authorize_multiple_roles_combined_permissions() {
 
     // Act
     let read_result = authorize(user_id, &roles, &resource, Permission::Read, &policy_engine);
-    let write_result = authorize(user_id, &roles, &resource, Permission::Write, &policy_engine);
+    let write_result = authorize(
+        user_id,
+        &roles,
+        &resource,
+        Permission::Write,
+        &policy_engine,
+    );
 
     // Assert - User role should grant write permission
     assert!(read_result.is_ok() && read_result.unwrap());
@@ -261,7 +302,13 @@ fn test_policy_based_authorization_deny_rule() {
     let roles = vec![Role::admin()];
 
     // Act
-    let result = authorize(user_id, &roles, &resource, Permission::Delete, &policy_engine);
+    let result = authorize(
+        user_id,
+        &roles,
+        &resource,
+        Permission::Delete,
+        &policy_engine,
+    );
 
     // Assert - Even admin should be denied by explicit deny policy
     assert!(result.is_ok());
@@ -282,10 +329,8 @@ fn test_policy_with_user_attribute_condition() {
         context,
     );
 
-    let condition = policy::Condition::AttributeEquals(
-        "department".to_string(),
-        "engineering".to_string(),
-    );
+    let condition =
+        policy::Condition::AttributeEquals("department".to_string(), "engineering".to_string());
 
     // Act
     let result = condition.evaluate(&request);
@@ -367,7 +412,13 @@ fn test_resource_owner_bypass_permission_check() {
     let policy_engine = PolicyEngine::restrictive(); // Restrictive policy
 
     // Act - Owner should bypass all checks
-    let result = authorize(user_id, &roles, &resource, Permission::Delete, &policy_engine);
+    let result = authorize(
+        user_id,
+        &roles,
+        &resource,
+        Permission::Delete,
+        &policy_engine,
+    );
 
     // Assert
     assert!(result.is_ok());

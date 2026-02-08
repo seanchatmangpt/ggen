@@ -3,7 +3,10 @@
 //! Tests complete workflows with DummyLM, optimizers, and pipelines.
 
 use ggen_ai::dspy::testing::*;
-use ggen_ai::dspy::{Module, ModuleError, optimizer::{BootstrapFewShot, Example, Demonstration}};
+use ggen_ai::dspy::{
+    optimizer::{BootstrapFewShot, Demonstration, Example},
+    Module, ModuleError,
+};
 use serde_json::json;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -270,8 +273,8 @@ async fn test_concurrent_dummy_lm_calls() {
 
 #[test]
 fn test_golden_test_workflow() {
-    use tempfile::TempDir;
     use ggen_ai::dspy::testing::GoldenTest;
+    use tempfile::TempDir;
 
     let temp_dir = TempDir::new().unwrap();
 
@@ -312,10 +315,7 @@ async fn test_demonstrations_are_diverse() {
     // Create diverse training set
     let trainset = create_complexity_trainset();
 
-    let responses: Vec<HashMap<String, _>> = trainset
-        .iter()
-        .map(|ex| ex.outputs.clone())
-        .collect();
+    let responses: Vec<HashMap<String, _>> = trainset.iter().map(|ex| ex.outputs.clone()).collect();
 
     let dummy = DummyLM::sequential(responses);
 

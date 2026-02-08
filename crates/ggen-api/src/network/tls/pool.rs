@@ -322,7 +322,9 @@ mod tests {
     async fn test_return_connection() {
         // Arrange
         let pool = ConnectionPool::new(PoolConfig::default());
-        let handle = pool.get_connection("example.com").await
+        let handle = pool
+            .get_connection("example.com")
+            .await
             .expect("Failed to get connection");
 
         // Act
@@ -336,14 +338,19 @@ mod tests {
     async fn test_connection_reuse() {
         // Arrange
         let pool = ConnectionPool::new(PoolConfig::default());
-        let handle1 = pool.get_connection("example.com").await
+        let handle1 = pool
+            .get_connection("example.com")
+            .await
             .expect("Failed to get connection");
         let id1 = handle1.id();
-        pool.return_connection(handle1).await
+        pool.return_connection(handle1)
+            .await
             .expect("Failed to return connection");
 
         // Act
-        let handle2 = pool.get_connection("example.com").await
+        let handle2 = pool
+            .get_connection("example.com")
+            .await
             .expect("Failed to get second connection");
 
         // Assert
@@ -367,7 +374,10 @@ mod tests {
         // Assert
         assert!(handle1.is_ok());
         assert!(handle2.is_ok());
-        assert!(handle3.is_err(), "Should fail when exceeding max connections per host");
+        assert!(
+            handle3.is_err(),
+            "Should fail when exceeding max connections per host"
+        );
     }
 
     #[tokio::test]
@@ -388,14 +398,19 @@ mod tests {
         // Assert
         assert!(handle1.is_ok());
         assert!(handle2.is_ok());
-        assert!(handle3.is_err(), "Should fail when exceeding total pool size");
+        assert!(
+            handle3.is_err(),
+            "Should fail when exceeding total pool size"
+        );
     }
 
     #[tokio::test]
     async fn test_close_connection() {
         // Arrange
         let pool = ConnectionPool::new(PoolConfig::default());
-        let handle = pool.get_connection("example.com").await
+        let handle = pool
+            .get_connection("example.com")
+            .await
             .expect("Failed to get connection");
 
         // Act
@@ -414,9 +429,12 @@ mod tests {
             ..Default::default()
         };
         let pool = ConnectionPool::new(config);
-        let handle = pool.get_connection("example.com").await
+        let handle = pool
+            .get_connection("example.com")
+            .await
             .expect("Failed to get connection");
-        pool.return_connection(handle).await
+        pool.return_connection(handle)
+            .await
             .expect("Failed to return connection");
 
         // Act
@@ -425,7 +443,10 @@ mod tests {
         let stats = pool.stats().await;
 
         // Assert
-        assert_eq!(stats.total_connections, 0, "Expired connections should be removed");
+        assert_eq!(
+            stats.total_connections, 0,
+            "Expired connections should be removed"
+        );
     }
 
     #[tokio::test]

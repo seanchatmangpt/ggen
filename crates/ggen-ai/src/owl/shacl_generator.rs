@@ -57,16 +57,19 @@ impl SHACLGenerator {
 
     /// Generate PropertyShape for a single property
     fn generate_property_shape(
-        property: &OWLProperty,
-        restrictions: &[OWLRestriction],
+        property: &OWLProperty, restrictions: &[OWLRestriction],
     ) -> Result<PropertyShape> {
         let (path, datatype, class) = match property {
-            OWLProperty::DatatypeProperty { uri, range, .. } => {
-                (uri.as_str().to_string(), Some(range.as_str().to_string()), None)
-            }
-            OWLProperty::ObjectProperty { uri, range, .. } => {
-                (uri.as_str().to_string(), None, Some(range.as_str().to_string()))
-            }
+            OWLProperty::DatatypeProperty { uri, range, .. } => (
+                uri.as_str().to_string(),
+                Some(range.as_str().to_string()),
+                None,
+            ),
+            OWLProperty::ObjectProperty { uri, range, .. } => (
+                uri.as_str().to_string(),
+                None,
+                Some(range.as_str().to_string()),
+            ),
         };
 
         let mut shape = PropertyShape {
@@ -236,10 +239,7 @@ impl SHACLGenerator {
 
     /// Extract local name from URI
     fn local_name(uri: &str) -> String {
-        uri.split(&['#', '/'][..])
-            .last()
-            .unwrap_or("")
-            .to_string()
+        uri.split(&['#', '/'][..]).last().unwrap_or("").to_string()
     }
 }
 
@@ -265,8 +265,14 @@ mod tests {
 
     #[test]
     fn test_local_name_extraction() {
-        assert_eq!(SHACLGenerator::local_name("http://example.com/TestClass"), "TestClass");
-        assert_eq!(SHACLGenerator::local_name("http://example.com#TestClass"), "TestClass");
+        assert_eq!(
+            SHACLGenerator::local_name("http://example.com/TestClass"),
+            "TestClass"
+        );
+        assert_eq!(
+            SHACLGenerator::local_name("http://example.com#TestClass"),
+            "TestClass"
+        );
         assert_eq!(SHACLGenerator::local_name("TestClass"), "TestClass");
     }
 

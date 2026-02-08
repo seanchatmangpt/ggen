@@ -10,12 +10,12 @@ use crate::{errors::AuthError, AuthResult};
 /// JWT token claims
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TokenClaims {
-    pub sub: String,        // Subject (user ID)
+    pub sub: String, // Subject (user ID)
     pub email: String,
     pub tier: String,
-    pub iat: i64,           // Issued at
-    pub exp: i64,           // Expiration
-    pub jti: String,        // JWT ID (for revocation)
+    pub iat: i64,    // Issued at
+    pub exp: i64,    // Expiration
+    pub jti: String, // JWT ID (for revocation)
 }
 
 /// JWT manager for token operations
@@ -34,12 +34,7 @@ impl JwtManager {
     }
 
     /// Generate a new JWT token
-    pub fn generate_token(
-        &self,
-        user_id: &str,
-        email: &str,
-        tier: &str,
-    ) -> AuthResult<String> {
+    pub fn generate_token(&self, user_id: &str, email: &str, tier: &str) -> AuthResult<String> {
         let now = Utc::now();
         let exp = now + Duration::seconds(self.expiration_secs as i64);
 

@@ -1,0 +1,9 @@
+{
+  "receipt_id": "rcpt-1769707720-5836",
+  "action": "drill_kill_switch",
+  "target": "all",
+  "timestamp": "2026-01-29T17:28:40.108500789Z",
+  "operator": "unknown",
+  "hostname": "localhost",
+  "receipt_hash": "8416412d3df66da6ab2460de589307ae6e1554ecff78d1b3463eefaaa2444655"
+}

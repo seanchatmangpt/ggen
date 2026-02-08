@@ -65,11 +65,11 @@ fn description_strategy() -> impl Strategy<Value = String> {
 /// Strategy for generating FieldConstraints
 fn field_constraints_strategy() -> impl Strategy<Value = FieldConstraints> {
     (
-        any::<bool>(),                          // required
-        prop::option::of(1usize..100),          // min_items
-        prop::option::of(100usize..1000),       // max_items
-        prop::option::of(1usize..50),           // min_length
-        prop::option::of(50usize..500),         // max_length
+        any::<bool>(),                                         // required
+        prop::option::of(1usize..100),                         // min_items
+        prop::option::of(100usize..1000),                      // max_items
+        prop::option::of(1usize..50),                          // min_length
+        prop::option::of(50usize..500),                        // max_length
         prop::option::of(Just("^[a-zA-Z0-9_]+$".to_string())), // pattern
         prop::option::of(prop::collection::vec(
             prop::string::string_regex("[a-z]{3,10}").unwrap(),
@@ -134,8 +134,8 @@ fn input_field_strategy() -> impl Strategy<Value = InputField> {
 /// Strategy for generating Signature with random fields
 fn signature_strategy() -> impl Strategy<Value = Signature> {
     (
-        field_name_strategy(), // name
-        description_strategy(), // description
+        field_name_strategy(),                               // name
+        description_strategy(),                              // description
         prop::collection::vec(input_field_strategy(), 0..5), // inputs
     )
         .prop_map(|(name, desc, inputs)| {
@@ -154,12 +154,10 @@ fn json_value_for_type(type_ann: &str) -> BoxedStrategy<Value> {
             .unwrap()
             .prop_map(|s| json!(s))
             .boxed(),
-        "i32" | "i64" | "u32" | "u64" | "int" => (-1000i32..1000i32)
-            .prop_map(|n| json!(n))
-            .boxed(),
-        "f32" | "f64" | "float" | "double" => (-1000.0f64..1000.0f64)
-            .prop_map(|f| json!(f))
-            .boxed(),
+        "i32" | "i64" | "u32" | "u64" | "int" => (-1000i32..1000i32).prop_map(|n| json!(n)).boxed(),
+        "f32" | "f64" | "float" | "double" => {
+            (-1000.0f64..1000.0f64).prop_map(|f| json!(f)).boxed()
+        }
         "bool" | "boolean" => any::<bool>().prop_map(|b| json!(b)).boxed(),
         s if s.starts_with("Vec<String>") => {
             prop::collection::vec(prop::string::string_regex(".{0,20}").unwrap(), 0..10)
@@ -169,15 +167,13 @@ fn json_value_for_type(type_ann: &str) -> BoxedStrategy<Value> {
         s if s.starts_with("Vec<i32>") => prop::collection::vec(-100i32..100i32, 0..10)
             .prop_map(|v| json!(v))
             .boxed(),
-        s if s.starts_with("Option<String>") => {
-            prop_oneof![
-                Just(json!(null)),
-                prop::string::string_regex(".{0,100}")
-                    .unwrap()
-                    .prop_map(|s| json!(s))
-            ]
-            .boxed()
-        }
+        s if s.starts_with("Option<String>") => prop_oneof![
+            Just(json!(null)),
+            prop::string::string_regex(".{0,100}")
+                .unwrap()
+                .prop_map(|s| json!(s))
+        ]
+        .boxed(),
         _ => Just(json!("default")).boxed(),
     }
 }
@@ -840,10 +836,16 @@ mod validation_edge_cases {
 
         // "你好" is 2 characters but 6 bytes
         let result = constraints.is_satisfied(&json!("你好"));
-        assert!(result.is_ok(), "Unicode string should count by chars, not bytes");
+        assert!(
+            result.is_ok(),
+            "Unicode string should count by chars, not bytes"
+        );
 
         // Single emoji
         let result = constraints.is_satisfied(&json!("🌍"));
-        assert!(result.is_err(), "Single emoji (1 char) should fail min_length=2");
+        assert!(
+            result.is_err(),
+            "Single emoji (1 char) should fail min_length=2"
+        );
     }
 }

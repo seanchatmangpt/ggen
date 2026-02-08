@@ -57,11 +57,7 @@ pub struct Role {
 impl Role {
     /// Create a new role
     pub fn new(
-        id: String,
-        name: String,
-        level: RoleLevel,
-        permissions: Permissions,
-        description: String,
+        id: String, name: String, level: RoleLevel, permissions: Permissions, description: String,
     ) -> Self {
         Self {
             id,
@@ -149,12 +145,7 @@ impl RoleHierarchy {
     /// Create a new role hierarchy
     pub fn new() -> Self {
         Self {
-            roles: vec![
-                Role::guest(),
-                Role::user(),
-                Role::manager(),
-                Role::admin(),
-            ],
+            roles: vec![Role::guest(), Role::user(), Role::manager(), Role::admin()],
         }
     }
 

@@ -6,17 +6,17 @@
 //! - Billing and usage tracking
 //! - SaaS tier management and quota enforcement
 
+pub mod error;
 pub mod handlers;
 pub mod middleware;
 pub mod models;
+pub mod network;
 pub mod routes;
 pub mod state;
-pub mod error;
-pub mod network;
 
+pub use error::ApiError;
 pub use routes::create_router;
 pub use state::AppState;
-pub use error::ApiError;
 
 use axum::Router;
 use std::sync::Arc;

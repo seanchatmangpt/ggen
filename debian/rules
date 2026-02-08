@@ -1,27 +1,57 @@
 #!/usr/bin/make -f
 
 # -*- makefile -*-
-# Sample debian/rules that uses debhelper.
+# Debian packaging rules for ggen (v0.2.0)
+#
+# Build system: cargo with cargo-make wrapper
+# This ensures all builds use quality gates (timeouts, linting, etc.)
 
 export DH_VERBOSE = 1
 export CARGO_HOME = $(CURDIR)/cargo_home
+export RUST_BACKTRACE = 1
 
 %:
 	dh $@
 
 override_dh_auto_build:
-	# Binary was pre-built via: cargo build --release -p ggen-cli-lib --bin ggen
-	# Just verify it exists
-	test -f target/release/ggen || (echo "Binary not found!" && exit 1)
+	# Use cargo make for deterministic builds with quality gates
+	# cargo make ensures timeouts, linting, and Andon signals enforced
+	timeout 120s cargo make build-release || (echo "Build failed"; exit 1)
+	test -f target/release/ggen || (echo "Binary not found at target/release/ggen"; exit 1)
 
 override_dh_auto_install:
+	# Install binary to /usr/bin
 	mkdir -p debian/ggen/usr/bin
-	cp target/release/ggen debian/ggen/usr/bin/
+	cp target/release/ggen debian/ggen/usr/bin/ggen
+	chmod 755 debian/ggen/usr/bin/ggen
+
+	# Install documentation
 	mkdir -p debian/ggen/usr/share/doc/ggen
 	cp README.md debian/ggen/usr/share/doc/ggen/
 	cp LICENSE debian/ggen/usr/share/doc/ggen/copyright
+
+	# Install man page (if available)
+	if [ -d debian/man ]; then \
+		mkdir -p debian/ggen/usr/share/man/man1; \
+		cp debian/man/ggen.1 debian/ggen/usr/share/man/man1/; \
+		gzip -9n debian/ggen/usr/share/man/man1/ggen.1 || true; \
+	fi
+
+	# Compress README
 	gzip -9n debian/ggen/usr/share/doc/ggen/README.md || true
 
+	# Install shell completions (if available)
+	if [ -d debian/completions ]; then \
+		mkdir -p debian/ggen/usr/share/bash-completion/completions; \
+		cp debian/completions/ggen.bash debian/ggen/usr/share/bash-completion/completions/ggen || true; \
+	fi
+
 override_dh_auto_test:
-	# Tests require network/LLM access, skip in packaging
-	echo "Skipping tests in package build"
+	# Skip tests in package build (unit tests run in CI)
+	# Tests require network/LLM access and are validated separately
+	echo "Package tests skipped (full test suite runs in CI)"
+	echo "To run tests locally: cargo make test"
+
+override_dh_strip_noop:
+	# Rust binaries are already stripped in release profile
+	echo "Binary stripping already applied in cargo release profile"

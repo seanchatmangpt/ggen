@@ -1,0 +1,43 @@
+{application, mcp, [
+    {description, "MCP+ Board Report Generation System - Sealed Operating Contracts"},
+    {vsn, "1.0.0"},
+    {registered, [
+        mcp_sup,
+        mcp_contract_server,
+        mcp_envelope_server,
+        mcp_receipt_server,
+        mcp_kill_switch,
+        mcp_evidence_server
+    ]},
+    {mod, {mcp_app, []}},
+    {applications, [
+        kernel,
+        stdlib,
+        crypto,
+        lager,
+        jsx
+    ]},
+    {env, [
+        %% Default envelope bounds
+        {default_time_bound_ms, 30000},
+        {default_resource_bound_bytes, 104857600},
+
+        %% Kill switch configuration
+        {kill_switch_enabled, true},
+
+        %% Receipt chain configuration
+        {receipt_chain_enabled, true},
+        {receipt_storage_path, "/var/lib/mcp/receipts"},
+
+        %% Evidence bundle configuration
+        {evidence_bundle_path, "/var/lib/mcp/bundles"},
+        {evidence_bundle_version, "1.0.0"},
+
+        %% Key management
+        {hsm_enabled, false},
+        {key_epoch_rotation_days, 90}
+    ]},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, []}
+]}.

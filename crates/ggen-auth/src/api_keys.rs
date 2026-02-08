@@ -69,15 +69,8 @@ impl ApiKeyManager {
     }
 
     /// Create an API key hash entry
-    pub fn create_hash(
-        &self,
-        key: &str,
-        name: String,
-        expires_in_days: Option<u32>,
-    ) -> ApiKeyHash {
-        let expires_at = expires_in_days.map(|days| {
-            Utc::now() + Duration::days(days as i64)
-        });
+    pub fn create_hash(&self, key: &str, name: String, expires_in_days: Option<u32>) -> ApiKeyHash {
+        let expires_at = expires_in_days.map(|days| Utc::now() + Duration::days(days as i64));
 
         ApiKeyHash {
             id: Uuid::new_v4().to_string(),

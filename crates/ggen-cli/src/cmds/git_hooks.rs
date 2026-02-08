@@ -148,9 +148,7 @@ exit 0
 
 /// Install a single git hook
 pub fn install_hook(
-    hooks_dir: &Path,
-    hook_name: &str,
-    hook_content: &str,
+    hooks_dir: &Path, hook_name: &str, hook_content: &str,
 ) -> Result<HookInstallation, std::io::Error> {
     let hook_path = hooks_dir.join(hook_name);
 
@@ -194,8 +192,7 @@ pub fn install_hook(
 
 /// Install all git hooks
 pub fn install_git_hooks(
-    project_path: &Path,
-    skip_hooks: bool,
+    project_path: &Path, skip_hooks: bool,
 ) -> Result<HooksInstallOutput, std::io::Error> {
     let mut warnings = Vec::new();
 
@@ -359,10 +356,7 @@ mod tests {
         // Assert
         assert!(!result.installed, "Hook should not be marked as installed");
         assert!(result.skipped, "Hook should be marked as skipped");
-        assert!(
-            result.reason.is_some(),
-            "Should have reason for skipping"
-        );
+        assert!(result.reason.is_some(), "Should have reason for skipping");
         let content = fs::read_to_string(&hook_path).unwrap();
         assert_eq!(
             content, "#!/bin/bash\necho existing",
@@ -416,11 +410,7 @@ mod tests {
 
         // Assert
         assert!(result.git_repo_detected, "Should detect git repo");
-        assert_eq!(
-            result.hooks_installed.len(),
-            2,
-            "Should install 2 hooks"
-        );
+        assert_eq!(result.hooks_installed.len(), 2, "Should install 2 hooks");
 
         // Check pre-commit
         let pre_commit = &result.hooks_installed[0];
@@ -462,10 +452,7 @@ mod tests {
 
         let pre_commit = &result.hooks_installed[0];
         assert_eq!(pre_commit.hook_name, "pre-commit");
-        assert!(
-            pre_commit.skipped,
-            "Existing pre-commit should be skipped"
-        );
+        assert!(pre_commit.skipped, "Existing pre-commit should be skipped");
 
         let pre_push = &result.hooks_installed[1];
         assert_eq!(pre_push.hook_name, "pre-push");
@@ -492,9 +479,6 @@ mod tests {
         let permissions = metadata.permissions();
         let mode = permissions.mode();
 
-        assert!(
-            mode & 0o111 != 0,
-            "Hook should have executable permissions"
-        );
+        assert!(mode & 0o111 != 0, "Hook should have executable permissions");
     }
 }

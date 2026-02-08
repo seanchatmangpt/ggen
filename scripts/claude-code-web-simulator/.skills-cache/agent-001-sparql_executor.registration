@@ -1,0 +1,7 @@
+{
+  "agent_id": "agent-001",
+  "skill_name": "sparql_executor",
+  "registered_at": "2026-01-29T18:08:37Z",
+  "skill_file": "/home/user/ggen/scripts/claude-code-web-simulator/config/agent-skills/sparql/sparql_executor.yaml",
+  "module": "skills-sparql"
+}

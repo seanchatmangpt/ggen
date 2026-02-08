@@ -10,7 +10,11 @@ mod paas_integration_tests {
     async fn test_validate_real_spec_directory() {
         // Arrange
         let spec_path = ".specify";
-        let required_files = vec!["cli-schema.ttl", "cli-commands.ttl", "ggen-paas-ontology.ttl"];
+        let required_files = vec![
+            "cli-schema.ttl",
+            "cli-commands.ttl",
+            "ggen-paas-ontology.ttl",
+        ];
 
         // Act
         let path = Path::new(spec_path);
@@ -37,7 +41,10 @@ mod paas_integration_tests {
         }
 
         for name in invalid_names {
-            assert!(!valid_names.contains(&name), "Invalid name should not be in valid list");
+            assert!(
+                !valid_names.contains(&name),
+                "Invalid name should not be in valid list"
+            );
         }
     }
 
@@ -108,7 +115,9 @@ mod paas_integration_tests {
     fn test_noun_verb_combinations() {
         // Arrange
         let nouns = vec!["submodule", "artifact", "specification", "environment"];
-        let verbs = vec!["init", "update", "validate", "sync", "deploy", "status", "logs", "describe", "explain"];
+        let verbs = vec![
+            "init", "update", "validate", "sync", "deploy", "status", "logs", "describe", "explain",
+        ];
 
         // Act & Assert
         assert_eq!(nouns.len(), 4, "Should have exactly 4 nouns");
@@ -140,11 +149,18 @@ mod paas_integration_tests {
     #[test]
     fn test_spec_file_formats() {
         // Arrange
-        let spec_files = vec!["cli-schema.ttl", "cli-commands.ttl", "ggen-paas-ontology.ttl"];
+        let spec_files = vec![
+            "cli-schema.ttl",
+            "cli-commands.ttl",
+            "ggen-paas-ontology.ttl",
+        ];
 
         // Act & Assert
         for spec in spec_files {
-            assert!(spec.ends_with(".ttl"), "Spec file should be TTL (RDF Turtle) format");
+            assert!(
+                spec.ends_with(".ttl"),
+                "Spec file should be TTL (RDF Turtle) format"
+            );
         }
     }
 
@@ -153,14 +169,14 @@ mod paas_integration_tests {
     fn test_slo_constraints() {
         // Arrange
         let slo_targets = vec![
-            ("init", 60_000), // 60s
+            ("init", 60_000),    // 60s
             ("validate", 5_000), // 5s
-            ("sync", 10_000), // 10s
+            ("sync", 10_000),    // 10s
             ("deploy", 600_000), // 600s
-            ("status", 5_000), // 5s
-            ("logs", 5_000), // 5s
+            ("status", 5_000),   // 5s
+            ("logs", 5_000),     // 5s
             ("describe", 5_000), // 5s
-            ("explain", 2_000), // 2s
+            ("explain", 2_000),  // 2s
         ];
 
         // Act & Assert

@@ -1,0 +1,9 @@
+{
+    "receipt_id": "rcpt-1769669390-5873",
+    "action": "drill",
+    "target": "all",
+    "timestamp": "2026-01-29T06:49:50Z",
+    "operator": "unknown",
+    "hostname": "runsc",
+    "receipt_hash": "8f0db9fa4c959c9917661f050e2330a4cd0db802bdf04598837fb34dcba5f5d5"
+}

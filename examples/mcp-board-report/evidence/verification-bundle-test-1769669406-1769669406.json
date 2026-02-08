@@ -1,0 +1,16 @@
+{
+    "verification_id": "verify-1769669406-6379",
+    "bundle_id": "bundle-test-1769669406",
+    "bundle_file": "/home/user/ggen/examples/mcp-board-report/scripts/../evidence/test-bundle-1769669406.json",
+    "result": "PASS",
+    "verified_at": "2026-01-29T06:50:06Z",
+    "verifier": "runsc",
+    "checks": {
+        "version_format": true,
+        "bundle_hash": true,
+        "period_validity": true,
+        "metrics_consistency": true,
+        "refusal_format": true
+    },
+    "text_blind": true
+}

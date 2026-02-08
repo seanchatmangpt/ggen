@@ -45,7 +45,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let inputs = HashMap::from([("prompt".to_string(), json!(question))]);
 
         let result = dummy.forward(inputs).await?;
-        let answer = result.get("answer").and_then(|v| v.as_str()).unwrap_or("N/A");
+        let answer = result
+            .get("answer")
+            .and_then(|v| v.as_str())
+            .unwrap_or("N/A");
 
         println!("Q{}: {}", i + 1, question);
         println!("A{}: {}", i + 1, answer);
@@ -53,9 +56,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     println!("Total calls: {}", dummy.call_count());
-    println!(
-        "Expected: 4 calls, cycles through 3 responses, 4th repeats 1st\n"
-    );
+    println!("Expected: 4 calls, cycles through 3 responses, 4th repeats 1st\n");
 
     // Part 2: Query-Based Mode
     println!("--- Part 2: Query-Based Mode ---\n");
@@ -68,7 +69,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
     query_map.insert(
         "Python".to_string(),
-        HashMap::from([("answer".to_string(), json!("A high-level programming language"))]),
+        HashMap::from([(
+            "answer".to_string(),
+            json!("A high-level programming language"),
+        )]),
     );
     query_map.insert(
         "AI".to_string(),
@@ -126,7 +130,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let inputs = HashMap::from([("prompt".to_string(), json!(problem_text))]);
 
         let result = dummy.forward(inputs).await?;
-        let solution = result.get("solution").and_then(|v| v.as_str()).unwrap_or("N/A");
+        let solution = result
+            .get("solution")
+            .and_then(|v| v.as_str())
+            .unwrap_or("N/A");
 
         println!("Problem: {}", problem_text);
         println!("Solution: {}", solution);
@@ -181,8 +188,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create DummyLM with expected responses
     let test_responses = vec![
-        HashMap::from([("answer".to_string(), json!("Rust is a systems programming language"))]),
-        HashMap::from([("answer".to_string(), json!("DSPy is a framework for LLM programming"))]),
+        HashMap::from([(
+            "answer".to_string(),
+            json!("Rust is a systems programming language"),
+        )]),
+        HashMap::from([(
+            "answer".to_string(),
+            json!("DSPy is a framework for LLM programming"),
+        )]),
     ];
 
     let dummy = DummyLM::sequential(test_responses).with_signature(signature);

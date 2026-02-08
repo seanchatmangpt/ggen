@@ -87,11 +87,7 @@ pub struct PolicyRule {
 impl PolicyRule {
     /// Create a new policy rule
     pub fn new(
-        id: String,
-        name: String,
-        description: String,
-        effect: Effect,
-        conditions: Vec<Condition>,
+        id: String, name: String, description: String, effect: Effect, conditions: Vec<Condition>,
         priority: u32,
     ) -> Self {
         Self {

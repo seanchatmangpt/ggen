@@ -1,0 +1,46 @@
+---
+name: rdf_merger
+category: rdf_ontology
+version: "1.0.0"
+description: |
+  Merges multiple RDF graphs into a single coherent graph. Handles duplicate triples,
+  namespace conflicts, and entity reconciliation. Supports various merge strategies
+  and generates merge reports with conflict resolution details.
+capabilities:
+  - Merge multiple RDF graphs
+  - Handle duplicate triples
+  - Resolve namespace conflicts
+  - Entity reconciliation
+  - Apply merge strategies (union, intersection, union-with-priority)
+  - Generate merge reports
+requirements:
+  memory_mb: 768
+  dependencies:
+    - oxigraph
+    - serde_json
+    - log
+  disk_mb: 150
+performance_slo:
+  max_duration_ms: 7000
+  success_rate: 0.99
+  throughput_triples_per_second: 800
+implementation:
+  language: bash
+  entry_point: skill_rdf_merger_merge
+  module: skills-rdf.sh
+error_handling:
+  retry_strategy: exponential
+  max_retries: 2
+  retry_delay_ms: 250
+  timeout_ms: 15000
+  fallback_behavior: return_partial_merge
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.85
+documentation:
+  url: "https://docs.ggen.io/skills/rdf-merger"
+  examples:
+    - "skill_rdf_merger_merge graph1.ttl graph2.ttl"
+    - "skill_rdf_merger_merge --strategy union-with-priority graph1.ttl graph2.ttl"

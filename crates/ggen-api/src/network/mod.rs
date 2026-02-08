@@ -11,6 +11,6 @@
 pub mod tls;
 
 pub use tls::{
-    TlsConfig, TlsConfigBuilder, TlsConnector, TlsError, TlsResult,
-    CertificatePin, CertificateValidator, ConnectionPool, HstsPolicy,
+    CertificatePin, CertificateValidator, ConnectionPool, HstsPolicy, TlsConfig, TlsConfigBuilder,
+    TlsConnector, TlsError, TlsResult,
 };
