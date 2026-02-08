@@ -73,10 +73,7 @@ fn create_medium_signature() -> Signature {
                 .with_pattern(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
                 .required(true),
         )
-        .with_input(
-            InputField::new("age", "User age", "i32")
-                .required(false),
-        )
+        .with_input(InputField::new("age", "User age", "i32").required(false))
         .with_input(
             InputField::new("status", "User status", "String")
                 .with_enum_values(vec![
@@ -94,20 +91,17 @@ fn create_medium_signature() -> Signature {
         .with_input(InputField::new("score", "Numeric score", "f64"))
         .with_input(InputField::new("enabled", "Is enabled", "bool"))
         .with_input(InputField::new("metadata", "Metadata", "String"))
-        .with_input(
-            InputField::new("roles", "User roles", "Vec<String>")
-                .with_min_items(1),
-        )
-        .with_input(InputField::new("created_at", "Creation timestamp", "String"));
+        .with_input(InputField::new("roles", "User roles", "Vec<String>").with_min_items(1))
+        .with_input(InputField::new(
+            "created_at",
+            "Creation timestamp",
+            "String",
+        ));
 
     // Add output fields
     sig = sig
         .with_output(OutputField::new("result", "Processing result", "String"))
-        .with_output(OutputField::new(
-            "confidence",
-            "Confidence score",
-            "f64",
-        ));
+        .with_output(OutputField::new("confidence", "Confidence score", "f64"));
 
     sig
 }
@@ -200,16 +194,13 @@ fn benchmark_json_schema_with_constraints(c: &mut Criterion) {
                 let mut sig = Signature::new("ConstrainedSig", "Signature with constraints");
 
                 for i in 0..count {
-                    let field = InputField::new(
-                        &format!("field_{}", i),
-                        &format!("Field {}", i),
-                        "String",
-                    )
-                    .with_min_length(5)
-                    .with_max_length(100)
-                    .with_pattern("^[a-zA-Z0-9_]+$")
-                    .with_enum_values(vec!["opt1".to_string(), "opt2".to_string()])
-                    .required(true);
+                    let field =
+                        InputField::new(&format!("field_{}", i), &format!("Field {}", i), "String")
+                            .with_min_length(5)
+                            .with_max_length(100)
+                            .with_pattern("^[a-zA-Z0-9_]+$")
+                            .with_enum_values(vec!["opt1".to_string(), "opt2".to_string()])
+                            .required(true);
 
                     sig = sig.with_input(field);
                 }

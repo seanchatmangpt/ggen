@@ -25,8 +25,14 @@ fn test_init_installs_git_hooks_in_git_repo() {
 
     // Verify files exist
     let hooks_dir = git_dir.join("hooks");
-    assert!(hooks_dir.join("pre-commit").exists(), "pre-commit hook should exist");
-    assert!(hooks_dir.join("pre-push").exists(), "pre-push hook should exist");
+    assert!(
+        hooks_dir.join("pre-commit").exists(),
+        "pre-commit hook should exist"
+    );
+    assert!(
+        hooks_dir.join("pre-push").exists(),
+        "pre-push hook should exist"
+    );
 }
 
 #[test]
@@ -43,9 +49,15 @@ fn test_init_skips_hooks_with_flag() {
     // Assert: Hooks should be skipped
     assert!(result.is_ok());
     let output = result.unwrap();
-    assert!(!output.git_repo_detected, "Should report not detected when skipped");
+    assert!(
+        !output.git_repo_detected,
+        "Should report not detected when skipped"
+    );
     assert_eq!(output.hooks_installed.len(), 0, "Should not install hooks");
-    assert!(!output.warnings.is_empty(), "Should have warning about skipping");
+    assert!(
+        !output.warnings.is_empty(),
+        "Should have warning about skipping"
+    );
 }
 
 #[test]
@@ -62,7 +74,10 @@ fn test_init_handles_non_git_repo_gracefully() {
     let output = result.unwrap();
     assert!(!output.git_repo_detected, "Should not detect git repo");
     assert_eq!(output.hooks_installed.len(), 0);
-    assert!(!output.warnings.is_empty(), "Should warn about non-git repo");
+    assert!(
+        !output.warnings.is_empty(),
+        "Should warn about non-git repo"
+    );
 }
 
 #[test]
@@ -96,10 +111,7 @@ fn test_hooks_are_executable_on_unix() {
             pre_commit_mode & 0o111 != 0,
             "pre-commit should be executable"
         );
-        assert!(
-            pre_push_mode & 0o111 != 0,
-            "pre-push should be executable"
-        );
+        assert!(pre_push_mode & 0o111 != 0, "pre-push should be executable");
     }
 }
 
@@ -117,10 +129,10 @@ fn test_hook_content_includes_cargo_make() {
 
     // Assert: Hook content should reference cargo check/fmt/make
     let hooks_dir = git_dir.join("hooks");
-    let pre_commit_content = fs::read_to_string(hooks_dir.join("pre-commit"))
-        .expect("Failed to read pre-commit");
-    let pre_push_content = fs::read_to_string(hooks_dir.join("pre-push"))
-        .expect("Failed to read pre-push");
+    let pre_commit_content =
+        fs::read_to_string(hooks_dir.join("pre-commit")).expect("Failed to read pre-commit");
+    let pre_push_content =
+        fs::read_to_string(hooks_dir.join("pre-push")).expect("Failed to read pre-push");
 
     assert!(
         pre_commit_content.contains("cargo check"),
@@ -131,7 +143,8 @@ fn test_hook_content_includes_cargo_make() {
         "pre-commit should run cargo fmt"
     );
     assert!(
-        pre_push_content.contains("cargo make pre-commit") || pre_push_content.contains("cargo clippy"),
+        pre_push_content.contains("cargo make pre-commit")
+            || pre_push_content.contains("cargo clippy"),
         "pre-push should run cargo make pre-commit or cargo clippy"
     );
 }
@@ -156,7 +169,8 @@ fn test_existing_hooks_are_not_overwritten() {
     assert!(result.is_ok());
     let output = result.unwrap();
 
-    let pre_commit_result = output.hooks_installed
+    let pre_commit_result = output
+        .hooks_installed
         .iter()
         .find(|h| h.hook_name == "pre-commit")
         .expect("Should have pre-commit result");
@@ -165,7 +179,9 @@ fn test_existing_hooks_are_not_overwritten() {
     assert!(!pre_commit_result.installed, "Should not overwrite");
 
     // Verify content unchanged
-    let content = fs::read_to_string(hooks_dir.join("pre-commit"))
-        .expect("Failed to read hook");
-    assert_eq!(content, existing_hook_content, "Content should be unchanged");
+    let content = fs::read_to_string(hooks_dir.join("pre-commit")).expect("Failed to read hook");
+    assert_eq!(
+        content, existing_hook_content,
+        "Content should be unchanged"
+    );
 }

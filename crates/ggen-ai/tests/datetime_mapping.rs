@@ -98,14 +98,8 @@ fn datetime_mapping_all_temporal_types() {
             "http://www.w3.org/2001/XMLSchema#dateTime",
             "chrono::DateTime<chrono::Utc>",
         ),
-        (
-            "http://www.w3.org/2001/XMLSchema#date",
-            "chrono::NaiveDate",
-        ),
-        (
-            "http://www.w3.org/2001/XMLSchema#time",
-            "chrono::NaiveTime",
-        ),
+        ("http://www.w3.org/2001/XMLSchema#date", "chrono::NaiveDate"),
+        ("http://www.w3.org/2001/XMLSchema#time", "chrono::NaiveTime"),
         (
             "http://www.w3.org/2001/XMLSchema#duration",
             "chrono::Duration",

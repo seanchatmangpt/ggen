@@ -94,10 +94,7 @@ mod enabled_tests {
         // Assert: All executions succeed
         assert_eq!(results.len(), 10);
         let successful = results.iter().filter(|r| r.is_success()).count();
-        assert_eq!(
-            successful, 10,
-            "All 10 predictor executions should succeed"
-        );
+        assert_eq!(successful, 10, "All 10 predictor executions should succeed");
 
         // Verify all results contain outputs
         for result in results {
@@ -110,10 +107,16 @@ mod enabled_tests {
     #[tokio::test]
     async fn test_chain_of_thought_parallel_execution() {
         // Arrange: Create ChainOfThought predictors
-        let signature =
-            Signature::new("MathReasoning", "Solve math problems with step-by-step reasoning")
-                .with_input(InputField::new("problem", "Math problem to solve", "String"))
-                .with_output(OutputField::new("solution", "The solution", "String"));
+        let signature = Signature::new(
+            "MathReasoning",
+            "Solve math problems with step-by-step reasoning",
+        )
+        .with_input(InputField::new(
+            "problem",
+            "Math problem to solve",
+            "String",
+        ))
+        .with_output(OutputField::new("solution", "The solution", "String"));
 
         let cot = ChainOfThought::new(signature);
         let executor = HyperConcurrentExecutor::max_performance();
@@ -252,8 +255,8 @@ mod enabled_tests {
         let t1 = Task::code_gen("Generate base types");
         let t2 = Task::code_gen("Generate derived types").with_dependencies(vec![t1.id.clone()]);
         let t3 = Task::test("Test base types").with_dependencies(vec![t1.id.clone()]);
-        let t4 = Task::test("Test derived types")
-            .with_dependencies(vec![t2.id.clone(), t3.id.clone()]);
+        let t4 =
+            Task::test("Test derived types").with_dependencies(vec![t2.id.clone(), t3.id.clone()]);
         let t5 = Task::validate("Final validation")
             .with_dependencies(vec![t3.id.clone(), t4.id.clone()]);
 
@@ -499,10 +502,10 @@ mod enabled_tests {
                 "Task should timeout"
             );
             assert!(result.error.is_some());
-            assert!(result
-                .error
-                .unwrap()
-                .contains("timed out") || result.state == AgentExecutionState::TimedOut);
+            assert!(
+                result.error.unwrap().contains("timed out")
+                    || result.state == AgentExecutionState::TimedOut
+            );
         }
     }
 
@@ -717,14 +720,14 @@ mod test_helpers {
         use ggen_ai::dspy::{InputField, OutputField, Signature};
 
         Signature::new("CodeGeneration", "Generate code from description")
-            .with_input(InputField::new(
-                "description",
-                "Code description",
-                "String",
-            ))
+            .with_input(InputField::new("description", "Code description", "String"))
             .with_input(InputField::new("language", "Target language", "String"))
             .with_output(OutputField::new("code", "Generated code", "String"))
-            .with_output(OutputField::new("explanation", "Code explanation", "String"))
+            .with_output(OutputField::new(
+                "explanation",
+                "Code explanation",
+                "String",
+            ))
     }
 
     /// Helper to create a test context

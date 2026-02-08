@@ -74,7 +74,10 @@ impl DocumentStore {
             for doc in docs {
                 let doc_lower = doc.to_lowercase();
                 // Simple keyword matching
-                if query_lower.split_whitespace().any(|word| doc_lower.contains(word)) {
+                if query_lower
+                    .split_whitespace()
+                    .any(|word| doc_lower.contains(word))
+                {
                     results.push(doc.clone());
                 }
             }
@@ -112,23 +115,21 @@ impl RAGPipeline {
         );
 
         // Step 2: Synthesize answer from context
-        let synthesize_sig = Signature::new(
-            "AnswerSynthesis",
-            "Generate answer from retrieved context",
-        )
-        .with_input(InputField::new("question", "Original question", "String"))
-        .with_input(InputField::new("context", "Retrieved documents", "String"))
-        .with_output(OutputField::new("answer", "Comprehensive answer", "String"))
-        .with_output(OutputField::new(
-            "citations",
-            "Citation indices used",
-            "String",
-        ))
-        .with_instructions(
-            "Answer the question using ONLY information from the provided context. \
+        let synthesize_sig =
+            Signature::new("AnswerSynthesis", "Generate answer from retrieved context")
+                .with_input(InputField::new("question", "Original question", "String"))
+                .with_input(InputField::new("context", "Retrieved documents", "String"))
+                .with_output(OutputField::new("answer", "Comprehensive answer", "String"))
+                .with_output(OutputField::new(
+                    "citations",
+                    "Citation indices used",
+                    "String",
+                ))
+                .with_instructions(
+                    "Answer the question using ONLY information from the provided context. \
              Include citation numbers [1], [2], etc. for each fact used. \
              If the context doesn't contain enough information, say so.",
-        );
+                );
 
         Self {
             decomposer: ChainOfThought::new(decompose_sig),
@@ -146,8 +147,7 @@ impl Module for RAGPipeline {
     }
 
     async fn forward(
-        &self,
-        inputs: HashMap<String, Value>,
+        &self, inputs: HashMap<String, Value>,
     ) -> ModuleResult<HashMap<String, Value>> {
         // Extract question
         let question = inputs
@@ -221,7 +221,11 @@ impl EnhancedRAGPipeline {
             "QueryRewriting",
             "Optimize search queries for better retrieval",
         )
-        .with_input(InputField::new("original_query", "Original query", "String"))
+        .with_input(InputField::new(
+            "original_query",
+            "Original query",
+            "String",
+        ))
         .with_output(OutputField::new(
             "optimized_query",
             "Improved search query",
@@ -247,8 +251,7 @@ impl Module for EnhancedRAGPipeline {
     }
 
     async fn forward(
-        &self,
-        inputs: HashMap<String, Value>,
+        &self, inputs: HashMap<String, Value>,
     ) -> ModuleResult<HashMap<String, Value>> {
         // Rewrite query first
         let original_query = inputs
@@ -259,10 +262,7 @@ impl Module for EnhancedRAGPipeline {
         println!("\n[Enhanced RAG with Query Rewriting]");
         println!("Original Query: {}", original_query);
 
-        let rewrite_input = HashMap::from([(
-            "original_query".to_string(),
-            json!(original_query),
-        )]);
+        let rewrite_input = HashMap::from([("original_query".to_string(), json!(original_query))]);
 
         let rewrite_result = self.query_rewriter.forward(rewrite_input).await?;
 
@@ -308,7 +308,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("\n[Result]");
                 println!(
                     "Answer: {}",
-                    result.get("answer").and_then(|v| v.as_str()).unwrap_or("N/A")
+                    result
+                        .get("answer")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("N/A")
                 );
                 println!(
                     "Citations: {}",
@@ -344,7 +347,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("\n[Result]");
             println!(
                 "Answer: {}",
-                result.get("answer").and_then(|v| v.as_str()).unwrap_or("N/A")
+                result
+                    .get("answer")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("N/A")
             );
             println!(
                 "Citations: {}",

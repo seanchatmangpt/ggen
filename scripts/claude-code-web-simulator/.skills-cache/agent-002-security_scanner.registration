@@ -1,0 +1,7 @@
+{
+  "agent_id": "agent-002",
+  "skill_name": "security_scanner",
+  "registered_at": "2026-01-29T18:08:38Z",
+  "skill_file": "/home/user/ggen/scripts/claude-code-web-simulator/config/agent-skills/qa/security_scanner.yaml",
+  "module": "skills-qa"
+}

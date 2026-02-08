@@ -1,0 +1,49 @@
+---
+name: performance_validator
+category: quality_assurance
+version: "1.0.0"
+description: |
+  Validates code performance against defined SLOs. Measures execution time, memory usage,
+  and resource consumption. Compares against baseline metrics and generates performance
+  reports with optimization recommendations and regression detection.
+capabilities:
+  - Validate against SLOs
+  - Measure execution time
+  - Monitor memory usage
+  - Track resource consumption
+  - Generate performance reports
+  - Detect regressions
+  - Compare against baselines
+  - Provide optimization suggestions
+requirements:
+  memory_mb: 512
+  dependencies:
+    - criterion
+    - perf
+    - flame
+    - serde_json
+  disk_mb: 200
+performance_slo:
+  max_duration_ms: 10000
+  success_rate: 0.95
+  throughput_benchmarks_per_second: 5
+implementation:
+  language: bash
+  entry_point: skill_performance_validator_validate
+  module: skills-qa.sh
+error_handling:
+  retry_strategy: exponential
+  max_retries: 2
+  retry_delay_ms: 500
+  timeout_ms: 20000
+  fallback_behavior: return_warnings
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.82
+documentation:
+  url: "https://docs.ggen.io/skills/performance-validator"
+  examples:
+    - "skill_performance_validator_validate --slos config.toml src/"
+    - "skill_performance_validator_validate --baseline baseline.json src/"

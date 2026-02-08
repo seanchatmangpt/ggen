@@ -1,0 +1,49 @@
+---
+name: code_linter
+category: quality_assurance
+version: "1.0.0"
+description: |
+  Runs static code analysis and linting on generated code. Executes clippy for Rust,
+  pylint for Python, and eslint for JavaScript. Detects code smells, style violations,
+  and generates detailed linting reports with actionable recommendations.
+capabilities:
+  - Run clippy on Rust code
+  - Run pylint on Python code
+  - Run eslint on JavaScript/TypeScript
+  - Detect code smells
+  - Check style compliance
+  - Generate linting reports
+  - Support custom lint rules
+  - Categorize violations by severity
+requirements:
+  memory_mb: 512
+  dependencies:
+    - clippy
+    - pylint
+    - eslint
+    - serde_json
+  disk_mb: 200
+performance_slo:
+  max_duration_ms: 5000
+  success_rate: 0.98
+  throughput_files_per_second: 20
+implementation:
+  language: bash
+  entry_point: skill_code_linter_lint
+  module: skills-qa.sh
+error_handling:
+  retry_strategy: linear
+  max_retries: 2
+  retry_delay_ms: 150
+  timeout_ms: 10000
+  fallback_behavior: return_error_details
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.86
+documentation:
+  url: "https://docs.ggen.io/skills/code-linter"
+  examples:
+    - "skill_code_linter_lint --language rust src/"
+    - "skill_code_linter_lint --language python output/"

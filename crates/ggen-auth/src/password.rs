@@ -1,8 +1,11 @@
 //! Password hashing and verification using Argon2
 
 use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher as PasswordHasherTrait, PasswordVerifier, SaltString},
-    Argon2, Params, Algorithm, Version,
+    password_hash::{
+        rand_core::OsRng, PasswordHash, PasswordHasher as PasswordHasherTrait, PasswordVerifier,
+        SaltString,
+    },
+    Algorithm, Argon2, Params, Version,
 };
 use zeroize::Zeroize;
 
@@ -76,7 +79,8 @@ impl PasswordHasher {
         let salt = SaltString::generate(&mut OsRng);
 
         // Hash password
-        let password_hash = self.argon2
+        let password_hash = self
+            .argon2
             .hash_password(password.as_bytes(), &salt)
             .map_err(|e| AuthError::CryptoError(format!("Password hashing failed: {}", e)))?;
 

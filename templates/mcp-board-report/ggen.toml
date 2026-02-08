@@ -1,0 +1,296 @@
+# =============================================================================
+# MCP+ Board Report Generation - ggen Manifest
+# Core axiom: A = μ(O), μ ∘ μ = μ, hash(A) = hash(μ(O)), O ⊨ Σ
+# =============================================================================
+
+[manifest]
+name = "mcp-board-report"
+version = "1.0.0"
+description = """
+Enterprise-grade MCP+ Board Report Generation System.
+Sealed operating contracts with cryptographic verification.
+Erlang OTP + Rust hybrid architecture.
+"""
+
+[manifest.axioms]
+core = "A = μ(O)"
+idempotent = "μ ∘ μ = μ"
+deterministic = "hash(A) = hash(μ(O))"
+valid = "O ⊨ Σ"
+
+# -----------------------------------------------------------------------------
+# Ontology Sources (Input to μ)
+# -----------------------------------------------------------------------------
+
+[ontology]
+base_uri = "https://ggen.io/ontology/mcp#"
+prefixes = [
+    { prefix = "mcp", uri = "https://ggen.io/ontology/mcp#" },
+    { prefix = "board", uri = "https://ggen.io/ontology/board#" },
+    { prefix = "arch", uri = "https://ggen.io/ontology/architecture#" },
+    { prefix = "ggen", uri = "https://ggen.io/ontology#" },
+]
+
+[[ontology.sources]]
+path = ".specify/specs/015-mcp-board-report/feature.ttl"
+purpose = "user_stories"
+
+[[ontology.sources]]
+path = ".specify/specs/015-mcp-board-report/entities.ttl"
+purpose = "domain_model"
+
+[[ontology.sources]]
+path = ".specify/specs/015-mcp-board-report/plan.ttl"
+purpose = "architecture"
+
+# -----------------------------------------------------------------------------
+# Template Configuration (μ₃ - Emit Stage)
+# -----------------------------------------------------------------------------
+
+[templates]
+base_path = "templates/mcp-board-report"
+output_path = "generated/mcp-board-report"
+
+# Erlang OTP Templates
+[[templates.files]]
+template = "erlang/mcp_app.erl.tera"
+output = "apps/mcp/src/mcp_app.erl"
+query = "SELECT ?module WHERE { ?c a ggen:Component ; ggen:module ?module ; arch:implements/ggen:behavior 'application' }"
+
+[[templates.files]]
+template = "erlang/mcp_sup.erl.tera"
+output = "apps/mcp/src/mcp_sup.erl"
+query = "SELECT ?module ?strategy ?maxRestarts ?maxSeconds WHERE { ?c a ggen:Component ; ggen:module ?module ; arch:implements [ ggen:behavior 'supervisor' ; ggen:strategy ?strategy ; ggen:maxRestarts ?maxRestarts ; ggen:maxSeconds ?maxSeconds ] }"
+
+[[templates.files]]
+template = "erlang/gen_server.erl.tera"
+output = "apps/mcp/src/{{ module }}.erl"
+query = "SELECT ?module WHERE { ?c a ggen:Component ; ggen:module ?module ; arch:implements/ggen:behavior 'gen_server' }"
+iterate = true
+
+[[templates.files]]
+template = "erlang/gen_statem.erl.tera"
+output = "apps/mcp/src/{{ module }}.erl"
+query = "SELECT ?module ?states WHERE { ?c a ggen:Component ; ggen:module ?module ; arch:implements/ggen:behavior 'gen_statem' ; arch:states ?states }"
+iterate = true
+
+[[templates.files]]
+template = "erlang/mcp_nif.erl.tera"
+output = "apps/mcp/src/mcp_nif.erl"
+query = "SELECT ?module WHERE { ?c a ggen:Component ; ggen:module 'mcp_nif' }"
+
+[[templates.files]]
+template = "erlang/rebar.config.tera"
+output = "rebar.config"
+
+[[templates.files]]
+template = "erlang/app.src.tera"
+output = "apps/mcp/src/mcp.app.src"
+
+# Rust Crate Templates
+[[templates.files]]
+template = "rust/Cargo.toml.tera"
+output = "native/mcp_nif/Cargo.toml"
+
+[[templates.files]]
+template = "rust/lib.rs.tera"
+output = "native/mcp_nif/src/lib.rs"
+
+[[templates.files]]
+template = "rust/crypto.rs.tera"
+output = "native/mcp_nif/src/crypto.rs"
+
+[[templates.files]]
+template = "rust/envelope.rs.tera"
+output = "native/mcp_nif/src/envelope.rs"
+
+[[templates.files]]
+template = "rust/receipt.rs.tera"
+output = "native/mcp_nif/src/receipt.rs"
+
+[[templates.files]]
+template = "rust/refusal.rs.tera"
+output = "native/mcp_nif/src/refusal.rs"
+
+[[templates.files]]
+template = "rust/bundle.rs.tera"
+output = "native/mcp_nif/src/bundle.rs"
+
+[[templates.files]]
+template = "rust/nif.rs.tera"
+output = "native/mcp_nif/src/nif.rs"
+
+# Shell Script Templates
+[[templates.files]]
+template = "shell/kill-switch.sh.tera"
+output = "scripts/kill-switch.sh"
+executable = true
+
+[[templates.files]]
+template = "shell/verify-bundle.sh.tera"
+output = "scripts/verify-bundle.sh"
+executable = true
+
+[[templates.files]]
+template = "shell/dr-drill.sh.tera"
+output = "scripts/dr-drill.sh"
+executable = true
+
+[[templates.files]]
+template = "shell/epoch-rotate.sh.tera"
+output = "scripts/epoch-rotate.sh"
+executable = true
+
+[[templates.files]]
+template = "shell/quarterly-drill.sh.tera"
+output = "scripts/quarterly-drill.sh"
+executable = true
+
+# Configuration Templates
+[[templates.files]]
+template = "config/mcp.toml.tera"
+output = "config/mcp.toml"
+
+[[templates.files]]
+template = "config/envelopes.toml.tera"
+output = "config/envelopes.toml"
+
+[[templates.files]]
+template = "config/families.toml.tera"
+output = "config/families.toml"
+
+[[templates.files]]
+template = "config/sys.config.tera"
+output = "config/sys.config"
+
+[[templates.files]]
+template = "config/vm.args.tera"
+output = "config/vm.args"
+
+# -----------------------------------------------------------------------------
+# Validation Configuration (μ₁ - Normalize Stage)
+# -----------------------------------------------------------------------------
+
+[validation]
+shacl_shapes = ".specify/shapes/mcp-board-report.shacl.ttl"
+
+[[validation.rules]]
+name = "sealed_contract_integrity"
+query = """
+ASK {
+    ?contract a mcp:SealedContract .
+    FILTER NOT EXISTS { ?contract mcp:contractHash ?hash }
+}
+"""
+expect = false
+message = "All SealedContracts must have a contractHash"
+
+[[validation.rules]]
+name = "envelope_has_bounds"
+query = """
+ASK {
+    ?envelope a mcp:Envelope .
+    FILTER NOT EXISTS {
+        ?envelope mcp:hasBound ?bound .
+        ?bound a mcp:EnvelopeBound .
+    }
+}
+"""
+expect = false
+message = "All Envelopes must have at least one bound"
+
+[[validation.rules]]
+name = "receipt_chain_integrity"
+query = """
+ASK {
+    ?receipt a mcp:Receipt .
+    ?receipt mcp:previousReceiptHash ?prev .
+    FILTER (?prev != "" && NOT EXISTS { ?prevReceipt mcp:outcomeHash ?prev })
+}
+"""
+expect = false
+message = "Receipt chain must be valid (previous hashes must exist)"
+
+# -----------------------------------------------------------------------------
+# Quality Gates (Poka-Yoke)
+# -----------------------------------------------------------------------------
+
+[quality_gates]
+
+[[quality_gates.pre_flight]]
+name = "ontology_syntax"
+command = "rapper -i turtle -c {{ ontology_path }}"
+timeout_ms = 5000
+
+[[quality_gates.pre_flight]]
+name = "shacl_conformance"
+command = "shacl validate --shapes {{ shacl_shapes }} --data {{ ontology_path }}"
+timeout_ms = 10000
+
+[[quality_gates.post_generation]]
+name = "erlang_compile"
+command = "cd {{ output_path }} && rebar3 compile"
+timeout_ms = 30000
+
+[[quality_gates.post_generation]]
+name = "rust_compile"
+command = "cd {{ output_path }}/native/mcp_nif && cargo build --release"
+timeout_ms = 60000
+
+[[quality_gates.post_generation]]
+name = "dialyzer_check"
+command = "cd {{ output_path }} && rebar3 dialyzer"
+timeout_ms = 120000
+
+# -----------------------------------------------------------------------------
+# Receipt Configuration (μ₅ - Receipt Stage)
+# -----------------------------------------------------------------------------
+
+[receipts]
+enabled = true
+output_path = ".ggen/receipts"
+audit_log_path = ".ggen/audit"
+hash_algorithm = "sha256"
+include_timing = true
+chain_receipts = true
+
+[receipts.fields]
+execution_id = true
+timestamp = true
+manifest_hash = true
+ontology_hash = true
+files_generated = true
+content_hashes = true
+inference_rules = true
+generation_rules = true
+
+# -----------------------------------------------------------------------------
+# SLO Configuration
+# -----------------------------------------------------------------------------
+
+[slo]
+generation_timeout_ms = 30000
+rdf_processing_timeout_ms = 5000
+template_rendering_timeout_ms = 10000
+memory_limit_mb = 100
+
+# -----------------------------------------------------------------------------
+# Output Configuration
+# -----------------------------------------------------------------------------
+
+[output]
+format = "canonical"
+deterministic = true
+reproducible = true
+
+[output.erlang]
+indent = 4
+line_length = 80
+
+[output.rust]
+edition = "2021"
+format = "rustfmt"
+
+[output.shell]
+shebang = "#!/usr/bin/env bash"
+set_options = ["set -euo pipefail"]

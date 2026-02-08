@@ -1,0 +1,402 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ggen: <https://ggen.io/ontology#> .
+@prefix mcp: <https://ggen.io/ontology/mcp#> .
+
+# =============================================================================
+# MCP+ Board Report Generation - Domain Entities
+# Core axiom: A = μ(O), μ ∘ μ = μ, hash(A) = hash(μ(O)), O ⊨ Σ
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Core Domain Classes
+# -----------------------------------------------------------------------------
+
+mcp:SealedContract a owl:Class ;
+    rdfs:label "Sealed Operating Contract" ;
+    rdfs:comment """
+        A cryptographically signed artifact that defines bounded behavior.
+        Immutable once sealed. Changes require new contract with new epoch.
+    """ ;
+    ggen:rustType "SealedContract" ;
+    ggen:erlangModule "mcp_contract" .
+
+mcp:Envelope a owl:Class ;
+    rdfs:label "Operating Envelope" ;
+    rdfs:comment """
+        Quantified bounds within which a contract may operate.
+        Includes: time limits, resource limits, scope limits, capability limits.
+    """ ;
+    ggen:rustType "Envelope" ;
+    ggen:erlangModule "mcp_envelope" .
+
+mcp:Receipt a owl:Class ;
+    rdfs:label "Cryptographic Receipt" ;
+    rdfs:comment """
+        Verifiable proof of operation. Contains hashes, not payloads.
+        Supports text-blind verification.
+    """ ;
+    ggen:rustType "Receipt" ;
+    ggen:erlangModule "mcp_receipt" .
+
+mcp:Refusal a owl:Class ;
+    rdfs:label "Deterministic Refusal" ;
+    rdfs:comment """
+        Structured failure with deterministic code and category.
+        Maps to remediation playbooks.
+    """ ;
+    ggen:rustType "Refusal" ;
+    ggen:erlangModule "mcp_refusal" .
+
+mcp:EvidenceBundle a owl:Class ;
+    rdfs:label "Evidence Bundle (.mcpb)" ;
+    rdfs:comment """
+        Self-describing archive of receipts, metrics, refusals, attestations.
+        Verifiable without payload access.
+    """ ;
+    ggen:rustType "EvidenceBundle" ;
+    ggen:erlangModule "mcp_evidence" ;
+    ggen:fileExtension ".mcpb" .
+
+mcp:ContractFamily a owl:Class ;
+    rdfs:label "Contract Family" ;
+    rdfs:comment """
+        Grouping of related contracts for governance purposes.
+        Kill-switch operates at family level.
+    """ ;
+    ggen:rustType "ContractFamily" ;
+    ggen:erlangModule "mcp_contract_family" .
+
+mcp:KeyEpoch a owl:Class ;
+    rdfs:label "Signing Key Epoch" ;
+    rdfs:comment """
+        Time-bounded signing key regime. Supports rotation and revocation.
+    """ ;
+    ggen:rustType "KeyEpoch" ;
+    ggen:erlangModule "mcp_key_epoch" .
+
+# -----------------------------------------------------------------------------
+# Envelope Bounds (Quantified Limits)
+# -----------------------------------------------------------------------------
+
+mcp:TimeBound a owl:Class ;
+    rdfs:subClassOf mcp:EnvelopeBound ;
+    rdfs:label "Time Bound" ;
+    rdfs:comment "Maximum execution duration in milliseconds" ;
+    ggen:rustType "TimeBound" .
+
+mcp:ResourceBound a owl:Class ;
+    rdfs:subClassOf mcp:EnvelopeBound ;
+    rdfs:label "Resource Bound" ;
+    rdfs:comment "Maximum memory, CPU, IO limits" ;
+    ggen:rustType "ResourceBound" .
+
+mcp:ScopeBound a owl:Class ;
+    rdfs:subClassOf mcp:EnvelopeBound ;
+    rdfs:label "Scope Bound" ;
+    rdfs:comment "Allowed data domains and entity types" ;
+    ggen:rustType "ScopeBound" .
+
+mcp:CapabilityBound a owl:Class ;
+    rdfs:subClassOf mcp:EnvelopeBound ;
+    rdfs:label "Capability Bound" ;
+    rdfs:comment "Allowed operations and tool invocations" ;
+    ggen:rustType "CapabilityBound" .
+
+mcp:EnvelopeBound a owl:Class ;
+    rdfs:label "Envelope Bound" ;
+    rdfs:comment "Abstract base for all envelope bounds" ;
+    ggen:rustType "EnvelopeBound" .
+
+# -----------------------------------------------------------------------------
+# Refusal Categories (Deterministic Failure Taxonomy)
+# -----------------------------------------------------------------------------
+
+mcp:RefusalCategory a owl:Class ;
+    rdfs:label "Refusal Category" ;
+    rdfs:comment "Classification of deterministic refusals" .
+
+mcp:EnvelopeViolation a mcp:RefusalCategory ;
+    rdfs:label "Envelope Violation" ;
+    mcp:refusalCodePrefix "ENV" ;
+    mcp:severity "CRITICAL" .
+
+mcp:ContractExpired a mcp:RefusalCategory ;
+    rdfs:label "Contract Expired" ;
+    mcp:refusalCodePrefix "EXP" ;
+    mcp:severity "HIGH" .
+
+mcp:KeyRevoked a mcp:RefusalCategory ;
+    rdfs:label "Key Revoked" ;
+    mcp:refusalCodePrefix "KEY" ;
+    mcp:severity "CRITICAL" .
+
+mcp:CapabilityDenied a mcp:RefusalCategory ;
+    rdfs:label "Capability Denied" ;
+    mcp:refusalCodePrefix "CAP" ;
+    mcp:severity "HIGH" .
+
+mcp:ResourceExhausted a mcp:RefusalCategory ;
+    rdfs:label "Resource Exhausted" ;
+    mcp:refusalCodePrefix "RES" ;
+    mcp:severity "MEDIUM" .
+
+mcp:ValidationFailed a mcp:RefusalCategory ;
+    rdfs:label "Validation Failed" ;
+    mcp:refusalCodePrefix "VAL" ;
+    mcp:severity "MEDIUM" .
+
+# -----------------------------------------------------------------------------
+# Properties - SealedContract
+# -----------------------------------------------------------------------------
+
+mcp:contractId a owl:DatatypeProperty ;
+    rdfs:domain mcp:SealedContract ;
+    rdfs:range xsd:string ;
+    rdfs:label "Contract ID" ;
+    rdfs:comment "Unique identifier (UUID v7)" .
+
+mcp:contractHash a owl:DatatypeProperty ;
+    rdfs:domain mcp:SealedContract ;
+    rdfs:range xsd:string ;
+    rdfs:label "Contract Hash" ;
+    rdfs:comment "SHA-256 hash of contract contents" .
+
+mcp:sealedAt a owl:DatatypeProperty ;
+    rdfs:domain mcp:SealedContract ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Sealed Timestamp" ;
+    rdfs:comment "ISO 8601 timestamp when contract was sealed" .
+
+mcp:expiresAt a owl:DatatypeProperty ;
+    rdfs:domain mcp:SealedContract ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Expiration Timestamp" ;
+    rdfs:comment "ISO 8601 timestamp when contract expires" .
+
+mcp:signedBy a owl:ObjectProperty ;
+    rdfs:domain mcp:SealedContract ;
+    rdfs:range mcp:KeyEpoch ;
+    rdfs:label "Signed By" ;
+    rdfs:comment "Key epoch used to sign this contract" .
+
+mcp:belongsToFamily a owl:ObjectProperty ;
+    rdfs:domain mcp:SealedContract ;
+    rdfs:range mcp:ContractFamily ;
+    rdfs:label "Belongs To Family" ;
+    rdfs:comment "Contract family for governance grouping" .
+
+mcp:hasEnvelope a owl:ObjectProperty ;
+    rdfs:domain mcp:SealedContract ;
+    rdfs:range mcp:Envelope ;
+    rdfs:label "Has Envelope" ;
+    rdfs:comment "Operating envelope bounds for this contract" .
+
+# -----------------------------------------------------------------------------
+# Properties - Envelope
+# -----------------------------------------------------------------------------
+
+mcp:envelopeId a owl:DatatypeProperty ;
+    rdfs:domain mcp:Envelope ;
+    rdfs:range xsd:string ;
+    rdfs:label "Envelope ID" .
+
+mcp:maxDurationMs a owl:DatatypeProperty ;
+    rdfs:domain mcp:TimeBound ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Max Duration (ms)" .
+
+mcp:maxMemoryBytes a owl:DatatypeProperty ;
+    rdfs:domain mcp:ResourceBound ;
+    rdfs:range xsd:long ;
+    rdfs:label "Max Memory (bytes)" .
+
+mcp:allowedScopes a owl:DatatypeProperty ;
+    rdfs:domain mcp:ScopeBound ;
+    rdfs:range xsd:string ;
+    rdfs:label "Allowed Scopes" ;
+    rdfs:comment "Comma-separated list of allowed data scopes" .
+
+mcp:allowedCapabilities a owl:DatatypeProperty ;
+    rdfs:domain mcp:CapabilityBound ;
+    rdfs:range xsd:string ;
+    rdfs:label "Allowed Capabilities" ;
+    rdfs:comment "Comma-separated list of allowed operations" .
+
+# -----------------------------------------------------------------------------
+# Properties - Receipt
+# -----------------------------------------------------------------------------
+
+mcp:executionId a owl:DatatypeProperty ;
+    rdfs:domain mcp:Receipt ;
+    rdfs:range xsd:string ;
+    rdfs:label "Execution ID" ;
+    rdfs:comment "Unique execution identifier (UUID v7)" .
+
+mcp:timestamp a owl:DatatypeProperty ;
+    rdfs:domain mcp:Receipt ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Timestamp" ;
+    rdfs:comment "ISO 8601 timestamp with microsecond precision" .
+
+mcp:manifestHash a owl:DatatypeProperty ;
+    rdfs:domain mcp:Receipt ;
+    rdfs:range xsd:string ;
+    rdfs:label "Manifest Hash" ;
+    rdfs:comment "SHA-256 hash of manifest at execution time" .
+
+mcp:outcomeHash a owl:DatatypeProperty ;
+    rdfs:domain mcp:Receipt ;
+    rdfs:range xsd:string ;
+    rdfs:label "Outcome Hash" ;
+    rdfs:comment "SHA-256 hash of operation outcome" .
+
+mcp:previousReceiptHash a owl:DatatypeProperty ;
+    rdfs:domain mcp:Receipt ;
+    rdfs:range xsd:string ;
+    rdfs:label "Previous Receipt Hash" ;
+    rdfs:comment "Hash of previous receipt (Merkle chain)" .
+
+mcp:forContract a owl:ObjectProperty ;
+    rdfs:domain mcp:Receipt ;
+    rdfs:range mcp:SealedContract ;
+    rdfs:label "For Contract" ;
+    rdfs:comment "Contract this receipt attests to" .
+
+# -----------------------------------------------------------------------------
+# Properties - Refusal
+# -----------------------------------------------------------------------------
+
+mcp:refusalCode a owl:DatatypeProperty ;
+    rdfs:domain mcp:Refusal ;
+    rdfs:range xsd:string ;
+    rdfs:label "Refusal Code" ;
+    rdfs:comment "Deterministic code (e.g., ENV-001)" .
+
+mcp:refusalCategory a owl:ObjectProperty ;
+    rdfs:domain mcp:Refusal ;
+    rdfs:range mcp:RefusalCategory ;
+    rdfs:label "Refusal Category" .
+
+mcp:refusalTimestamp a owl:DatatypeProperty ;
+    rdfs:domain mcp:Refusal ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Refusal Timestamp" .
+
+mcp:envelopeAtRefusal a owl:ObjectProperty ;
+    rdfs:domain mcp:Refusal ;
+    rdfs:range mcp:Envelope ;
+    rdfs:label "Envelope At Refusal" ;
+    rdfs:comment "Envelope that was violated" .
+
+# -----------------------------------------------------------------------------
+# Properties - EvidenceBundle
+# -----------------------------------------------------------------------------
+
+mcp:bundleId a owl:DatatypeProperty ;
+    rdfs:domain mcp:EvidenceBundle ;
+    rdfs:range xsd:string ;
+    rdfs:label "Bundle ID" .
+
+mcp:bundleVersion a owl:DatatypeProperty ;
+    rdfs:domain mcp:EvidenceBundle ;
+    rdfs:range xsd:string ;
+    rdfs:label "Bundle Format Version" .
+
+mcp:containsReceipts a owl:ObjectProperty ;
+    rdfs:domain mcp:EvidenceBundle ;
+    rdfs:range mcp:Receipt ;
+    rdfs:label "Contains Receipts" .
+
+mcp:containsRefusals a owl:ObjectProperty ;
+    rdfs:domain mcp:EvidenceBundle ;
+    rdfs:range mcp:Refusal ;
+    rdfs:label "Contains Refusals" .
+
+mcp:bundleHash a owl:DatatypeProperty ;
+    rdfs:domain mcp:EvidenceBundle ;
+    rdfs:range xsd:string ;
+    rdfs:label "Bundle Hash" ;
+    rdfs:comment "SHA-256 hash of entire bundle" .
+
+# -----------------------------------------------------------------------------
+# Properties - KeyEpoch
+# -----------------------------------------------------------------------------
+
+mcp:epochId a owl:DatatypeProperty ;
+    rdfs:domain mcp:KeyEpoch ;
+    rdfs:range xsd:string ;
+    rdfs:label "Epoch ID" .
+
+mcp:epochStart a owl:DatatypeProperty ;
+    rdfs:domain mcp:KeyEpoch ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Epoch Start" .
+
+mcp:epochEnd a owl:DatatypeProperty ;
+    rdfs:domain mcp:KeyEpoch ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Epoch End" .
+
+mcp:publicKeyHash a owl:DatatypeProperty ;
+    rdfs:domain mcp:KeyEpoch ;
+    rdfs:range xsd:string ;
+    rdfs:label "Public Key Hash" ;
+    rdfs:comment "SHA-256 hash of public key" .
+
+mcp:isRevoked a owl:DatatypeProperty ;
+    rdfs:domain mcp:KeyEpoch ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Revoked" .
+
+# -----------------------------------------------------------------------------
+# Workflow Tier Classification
+# -----------------------------------------------------------------------------
+
+mcp:WorkflowTier a owl:Class ;
+    rdfs:label "Workflow Tier" ;
+    rdfs:comment "Classification of workflow eligibility for automation" .
+
+mcp:TierA_Automate a mcp:WorkflowTier ;
+    rdfs:label "Tier A - Automate" ;
+    mcp:description "High-confidence automation: rules-heavy, repeatable, auditable" ;
+    mcp:examples "onboarding, reconciliations, claims triage, vendor validation" .
+
+mcp:TierB_Assist a mcp:WorkflowTier ;
+    rdfs:label "Tier B - Assist" ;
+    mcp:description "Human-supervised: high liability, public trust, nuanced judgment" ;
+    mcp:examples "customer disputes, complex adjudication, novel fraud" .
+
+mcp:TierC_DoNotAutomate a mcp:WorkflowTier ;
+    rdfs:label "Tier C - Do Not Automate" ;
+    mcp:description "Hard boundary: discretionary authority, sensitive human trust" ;
+    mcp:examples "employment decisions, legal judgment, safety-critical physical ops" .
+
+# -----------------------------------------------------------------------------
+# Accountability RACI
+# -----------------------------------------------------------------------------
+
+mcp:AccountabilityRole a owl:Class ;
+    rdfs:label "Accountability Role" .
+
+mcp:BusinessOwner a mcp:AccountabilityRole ;
+    rdfs:label "Business Owner" ;
+    mcp:owns "outcomes, scope" .
+
+mcp:ContractAuthority a mcp:AccountabilityRole ;
+    rdfs:label "Contract Authority" ;
+    mcp:owns "approval of sealed contract changes" .
+
+mcp:RiskAndAudit a mcp:AccountabilityRole ;
+    rdfs:label "Risk & Audit" ;
+    mcp:owns "acceptance of verification artifacts" .
+
+mcp:Operations a mcp:AccountabilityRole ;
+    rdfs:label "Operations" ;
+    mcp:owns "incident response, DR" .
+
+mcp:CISO a mcp:AccountabilityRole ;
+    rdfs:label "CISO" ;
+    mcp:owns "key policy, supply chain integrity" .

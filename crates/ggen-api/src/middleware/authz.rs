@@ -45,11 +45,14 @@ fn get_authenticated_user(request: &Request) -> Result<AuthenticatedUser, ApiErr
 
 /// Authorization middleware - checks if user has required permission
 pub async fn require_permission(
-    permission: Permission,
-    resource_type: ResourceType,
-) -> impl Fn(State<AppState>, Request, Next) -> std::pin::Pin<
-    Box<dyn std::future::Future<Output = Result<Response, Response>> + Send>,
-> + Clone {
+    permission: Permission, resource_type: ResourceType,
+) -> impl Fn(
+    State<AppState>,
+    Request,
+    Next,
+)
+    -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<Response, Response>> + Send>>
+       + Clone {
     move |state: State<AppState>, request: Request, next: Next| {
         let perm = permission;
         let res_type = resource_type.clone();
@@ -58,7 +61,12 @@ pub async fn require_permission(
             // Get authenticated user
             let user = match get_authenticated_user(&request) {
                 Ok(u) => u,
-                Err(e) => return Err(authorization_error(StatusCode::UNAUTHORIZED, &e.to_string())),
+                Err(e) => {
+                    return Err(authorization_error(
+                        StatusCode::UNAUTHORIZED,
+                        &e.to_string(),
+                    ))
+                }
             };
 
             // Get user roles from role hierarchy
@@ -104,9 +112,13 @@ pub async fn require_permission(
 /// Authorization middleware - checks if user has specific role
 pub async fn require_role(
     required_role: String,
-) -> impl Fn(State<AppState>, Request, Next) -> std::pin::Pin<
-    Box<dyn std::future::Future<Output = Result<Response, Response>> + Send>,
-> + Clone {
+) -> impl Fn(
+    State<AppState>,
+    Request,
+    Next,
+)
+    -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<Response, Response>> + Send>>
+       + Clone {
     move |_state: State<AppState>, request: Request, next: Next| {
         let role = required_role.clone();
 
@@ -114,7 +126,12 @@ pub async fn require_role(
             // Get authenticated user
             let user = match get_authenticated_user(&request) {
                 Ok(u) => u,
-                Err(e) => return Err(authorization_error(StatusCode::UNAUTHORIZED, &e.to_string())),
+                Err(e) => {
+                    return Err(authorization_error(
+                        StatusCode::UNAUTHORIZED,
+                        &e.to_string(),
+                    ))
+                }
             };
 
             // Check if user has required role
@@ -133,9 +150,13 @@ pub async fn require_role(
 /// Authorization middleware - checks resource ownership
 pub async fn require_ownership(
     resource_extractor: impl Fn(&Request) -> Option<(ResourceType, String)> + Clone + Send + 'static,
-) -> impl Fn(State<AppState>, Request, Next) -> std::pin::Pin<
-    Box<dyn std::future::Future<Output = Result<Response, Response>> + Send>,
-> + Clone {
+) -> impl Fn(
+    State<AppState>,
+    Request,
+    Next,
+)
+    -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<Response, Response>> + Send>>
+       + Clone {
     move |_state: State<AppState>, request: Request, next: Next| {
         let extractor = resource_extractor.clone();
 
@@ -143,7 +164,12 @@ pub async fn require_ownership(
             // Get authenticated user
             let user = match get_authenticated_user(&request) {
                 Ok(u) => u,
-                Err(e) => return Err(authorization_error(StatusCode::UNAUTHORIZED, &e.to_string())),
+                Err(e) => {
+                    return Err(authorization_error(
+                        StatusCode::UNAUTHORIZED,
+                        &e.to_string(),
+                    ))
+                }
             };
 
             // Extract resource information from request

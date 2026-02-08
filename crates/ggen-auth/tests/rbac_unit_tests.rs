@@ -495,8 +495,9 @@ fn test_policy_condition_and() {
 #[test]
 fn test_policy_condition_not() {
     // Arrange
-    let condition =
-        policy::Condition::Not(Box::new(policy::Condition::UserIdEquals("user456".to_string())));
+    let condition = policy::Condition::Not(Box::new(policy::Condition::UserIdEquals(
+        "user456".to_string(),
+    )));
 
     let context = context::AuthorizationContext::new(
         "user123",

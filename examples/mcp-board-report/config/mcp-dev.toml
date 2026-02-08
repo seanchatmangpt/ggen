@@ -1,0 +1,93 @@
+# =============================================================================
+# MCP+ Board Report - Development Configuration
+#
+# Core axiom: A = μ(O), μ ∘ μ = μ, hash(A) = hash(μ(O)), O ⊨ Σ
+#
+# Relaxed settings for local development and debugging.
+# DO NOT use this configuration in production!
+# =============================================================================
+
+[mcp]
+version = "0.2.0"
+environment = "development"
+
+[crypto]
+algorithm = "ed25519"
+hash_function = "sha256"
+# Shorter rotation for testing key rotation logic
+key_rotation_days = 7
+min_key_bits = 2048
+
+[envelope]
+# More permissive limits for debugging
+default_max_operations = 10000
+default_max_memory_mb = 500
+default_max_duration_ms = 120000
+# Non-strict mode: log violations but don't reject
+strict_mode = false
+track_violations = true
+
+[kill_switch]
+global_enabled = true
+family_enabled = true
+capability_enabled = true
+epoch_enabled = true
+# Shorter cooldown for development
+cooldown_seconds = 10
+
+[receipts]
+chain_enabled = true
+merkle_tree_enabled = true
+# Signatures optional in development for faster iteration
+signature_required = false
+max_chain_depth = 1000
+archive_after_days = 7
+
+[bundles]
+format = "mcpb"
+# No compression in dev for easier debugging
+compression = "none"
+retention_days = 7
+max_size_mb = 500
+
+[epochs]
+# Shorter epochs for testing rotation
+default_duration_hours = 1
+auto_rotate = true
+grace_period_minutes = 5
+max_active_epochs = 10
+
+[logging]
+# Verbose logging for debugging
+level = "debug"
+# Human-readable format for development
+format = "text"
+# Local log file
+file = "./logs/mcp-dev.log"
+max_file_size_mb = 50
+max_files = 3
+
+[metrics]
+enabled = true
+endpoint = "/metrics"
+port = 9091
+include_histograms = true
+default_labels = ["environment", "version"]
+
+[storage]
+backend = "file"
+# Local development path
+base_path = "./data/mcp"
+# No encryption in development for easier debugging
+encryption_enabled = false
+compression = "none"
+
+[network]
+bind_address = "127.0.0.1"
+port = 8081
+# TLS disabled for local development
+tls_enabled = false
+tls_cert_path = ""
+tls_key_path = ""
+request_timeout_seconds = 60
+max_connections = 100

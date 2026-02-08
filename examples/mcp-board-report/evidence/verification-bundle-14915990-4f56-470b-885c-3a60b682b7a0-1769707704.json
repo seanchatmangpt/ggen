@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": {
+    "version_format": true,
+    "metrics_consistency": true,
+    "period_validity": true,
+    "refusal_format": true,
+    "receipt_chain": true,
+    "bundle_hash": true
+  },
+  "bundle_id": "bundle-14915990-4f56-470b-885c-3a60b682b7a0",
+  "verified_at": "2026-01-29T17:28:24.196241762Z"
+}

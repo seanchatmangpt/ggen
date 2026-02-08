@@ -1,0 +1,49 @@
+---
+name: multi_pass_renderer
+category: template_generation
+version: "1.0.0"
+description: |
+  Performs multi-pass template rendering for complex template dependencies. Iteratively
+  renders templates, resolving cross-references and dependencies. Supports forward
+  declarations, lazy evaluation, and generates dependency graphs with cycle detection.
+capabilities:
+  - Multi-pass template rendering
+  - Resolve template dependencies
+  - Handle forward declarations
+  - Support lazy evaluation
+  - Generate dependency graphs
+  - Detect circular dependencies
+  - Optimize render ordering
+  - Produce render statistics
+requirements:
+  memory_mb: 512
+  dependencies:
+    - tera
+    - serde_json
+    - petgraph
+    - log
+  disk_mb: 150
+performance_slo:
+  max_duration_ms: 5000
+  success_rate: 0.97
+  throughput_passes_per_second: 50
+implementation:
+  language: bash
+  entry_point: skill_multi_pass_renderer_render
+  module: skills-template.sh
+error_handling:
+  retry_strategy: exponential
+  max_retries: 2
+  retry_delay_ms: 200
+  timeout_ms: 10000
+  fallback_behavior: return_partial_render
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.85
+documentation:
+  url: "https://docs.ggen.io/skills/multi-pass-renderer"
+  examples:
+    - "skill_multi_pass_renderer_render templates/ context.json"
+    - "skill_multi_pass_renderer_render --max-passes 5 templates/ context.json"

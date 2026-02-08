@@ -149,7 +149,9 @@ fn generate_json_schema(sig: &BenchSignature) -> serde_json::Value {
     for field in &sig.inputs {
         let schema = match field.field_type.as_str() {
             "String" => json!({ "type": "string", "minLength": 1, "maxLength": 255 }),
-            "i32" => json!({ "type": "integer", "minimum": -2147483648i64, "maximum": 2147483647i64 }),
+            "i32" => {
+                json!({ "type": "integer", "minimum": -2147483648i64, "maximum": 2147483647i64 })
+            }
             "u32" => json!({ "type": "integer", "minimum": 0, "maximum": 4294967295u64 }),
             "i64" => json!({ "type": "integer" }),
             "f64" => json!({ "type": "number" }),
@@ -288,9 +290,7 @@ fn schema_generation_performance(c: &mut Criterion) {
         group.bench_with_input(
             BenchmarkId::from_parameter(format!("{}_signatures", sig_complexity)),
             sig_complexity,
-            |b, _| {
-                b.iter(|| sigs.iter().map(generate_json_schema).collect::<Vec<_>>())
-            },
+            |b, _| b.iter(|| sigs.iter().map(generate_json_schema).collect::<Vec<_>>()),
         );
     }
 
@@ -388,8 +388,7 @@ fn full_pipeline_performance(c: &mut Criterion) {
                                 .iter()
                                 .filter_map(|ttl| transpile_ttl_to_signature(ttl).ok())
                                 .collect();
-                            let schemas: Vec<_> =
-                                sigs.iter().map(generate_json_schema).collect();
+                            let schemas: Vec<_> = sigs.iter().map(generate_json_schema).collect();
                             let test_data: Vec<_> = sigs
                                 .iter()
                                 .map(|sig| generate_test_json(sig, 5))

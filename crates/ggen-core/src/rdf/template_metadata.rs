@@ -587,7 +587,22 @@ impl TemplateMetadataStore {
 
 impl Default for TemplateMetadataStore {
     fn default() -> Self {
-        Self::new().expect("Failed to create default metadata store")
+        // The in-memory store should never fail to initialize.
+        // If it does, we create an empty store as fallback.
+        match Self::new() {
+            Ok(store) => store,
+            Err(e) => {
+                log::warn!("Failed to create metadata store with in-memory backend: {}", e);
+                // Create empty store with Arc-wrapped Mutex
+                Self {
+                    store: Arc::new(Mutex::new(Store::new().unwrap_or_else(|_| {
+                        // Create a new in-memory store as last resort
+                        Store::new().expect("Failed to create fallback Oxigraph store")
+                    }))),
+                    metadata_cache: Arc::new(Mutex::new(HashMap::new())),
+                }
+            }
+        }
     }
 }
 

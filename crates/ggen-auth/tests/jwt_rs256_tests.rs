@@ -99,10 +99,12 @@ fn test_token_pair_has_correct_expiration_times() {
     let scopes = vec!["read".to_string()];
 
     // Act
-    let pair = manager.generate_token_pair("user123", "user@example.com", "free", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "free", scopes)
+        .unwrap();
 
     // Assert
-    assert_eq!(pair.access_expires_in, 900);   // 15 minutes
+    assert_eq!(pair.access_expires_in, 900); // 15 minutes
     assert_eq!(pair.refresh_expires_in, 604800); // 7 days
 }
 
@@ -113,8 +115,12 @@ fn test_generated_tokens_are_unique() {
     let scopes = vec!["read".to_string()];
 
     // Act
-    let pair1 = manager.generate_token_pair("user123", "user@example.com", "pro", scopes.clone()).unwrap();
-    let pair2 = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair1 = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes.clone())
+        .unwrap();
+    let pair2 = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
 
     // Assert - even for same user, tokens should be unique (different JTI)
     assert_ne!(pair1.access_token, pair2.access_token);
@@ -128,7 +134,9 @@ fn test_token_contains_correct_user_data() {
     let scopes = vec!["read".to_string(), "write".to_string()];
 
     // Act
-    let pair = manager.generate_token_pair("user456", "test@example.com", "enterprise", scopes.clone()).unwrap();
+    let pair = manager
+        .generate_token_pair("user456", "test@example.com", "enterprise", scopes.clone())
+        .unwrap();
     let claims = manager.verify_token(&pair.access_token).unwrap();
 
     // Assert
@@ -145,7 +153,9 @@ fn test_access_token_has_correct_type() {
     let scopes = vec!["read".to_string()];
 
     // Act
-    let pair = manager.generate_token_pair("user123", "user@example.com", "free", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "free", scopes)
+        .unwrap();
     let claims = manager.verify_token(&pair.access_token).unwrap();
 
     // Assert
@@ -159,7 +169,9 @@ fn test_refresh_token_has_correct_type() {
     let scopes = vec!["read".to_string()];
 
     // Act
-    let pair = manager.generate_token_pair("user123", "user@example.com", "free", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "free", scopes)
+        .unwrap();
     let claims = manager.verify_token(&pair.refresh_token).unwrap();
 
     // Assert
@@ -173,7 +185,9 @@ fn test_token_has_valid_timestamps() {
     let scopes = vec!["read".to_string()];
 
     // Act
-    let pair = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
     let claims = manager.verify_token(&pair.access_token).unwrap();
 
     // Assert
@@ -189,8 +203,12 @@ fn test_token_has_unique_jti() {
     let scopes = vec!["read".to_string()];
 
     // Act
-    let pair1 = manager.generate_token_pair("user123", "user@example.com", "pro", scopes.clone()).unwrap();
-    let pair2 = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair1 = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes.clone())
+        .unwrap();
+    let pair2 = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
     let claims1 = manager.verify_token(&pair1.access_token).unwrap();
     let claims2 = manager.verify_token(&pair2.access_token).unwrap();
 
@@ -205,7 +223,9 @@ fn test_verify_valid_access_token() {
     // Arrange
     let manager = create_test_manager();
     let scopes = vec!["read".to_string(), "write".to_string()];
-    let pair = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
 
     // Act
     let result = manager.verify_token(&pair.access_token);
@@ -222,7 +242,9 @@ fn test_verify_valid_refresh_token() {
     // Arrange
     let manager = create_test_manager();
     let scopes = vec!["read".to_string()];
-    let pair = manager.generate_token_pair("user123", "user@example.com", "free", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "free", scopes)
+        .unwrap();
 
     // Act
     let result = manager.verify_token(&pair.refresh_token);
@@ -263,7 +285,9 @@ fn test_verify_rejects_token_from_different_key() {
     let manager1 = create_test_manager();
     let manager2 = create_test_manager();
     let scopes = vec!["read".to_string()];
-    let pair = manager1.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair = manager1
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
 
     // Act - try to verify with different manager (different keys)
     let result = manager2.verify_token(&pair.access_token);
@@ -289,7 +313,9 @@ fn test_verify_preserves_all_claims() {
     // Arrange
     let manager = create_test_manager();
     let scopes = vec!["admin".to_string(), "read".to_string(), "write".to_string()];
-    let pair = manager.generate_token_pair("user789", "admin@example.com", "enterprise", scopes.clone()).unwrap();
+    let pair = manager
+        .generate_token_pair("user789", "admin@example.com", "enterprise", scopes.clone())
+        .unwrap();
 
     // Act
     let claims = manager.verify_token(&pair.access_token).unwrap();
@@ -310,7 +336,9 @@ fn test_refresh_token_pair_generates_new_tokens() {
     // Arrange
     let manager = create_test_manager();
     let scopes = vec!["read".to_string()];
-    let pair = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
 
     // Act
     let result = manager.refresh_token_pair(&pair.refresh_token);
@@ -327,7 +355,9 @@ fn test_refresh_preserves_user_data() {
     // Arrange
     let manager = create_test_manager();
     let scopes = vec!["read".to_string(), "write".to_string()];
-    let pair = manager.generate_token_pair("user456", "test@example.com", "enterprise", scopes.clone()).unwrap();
+    let pair = manager
+        .generate_token_pair("user456", "test@example.com", "enterprise", scopes.clone())
+        .unwrap();
 
     // Act
     let new_pair = manager.refresh_token_pair(&pair.refresh_token).unwrap();
@@ -345,7 +375,9 @@ fn test_cannot_refresh_with_access_token() {
     // Arrange
     let manager = create_test_manager();
     let scopes = vec!["read".to_string()];
-    let pair = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
 
     // Act
     let result = manager.refresh_token_pair(&pair.access_token);
@@ -371,7 +403,9 @@ fn test_refresh_generates_new_jti() {
     // Arrange
     let manager = create_test_manager();
     let scopes = vec!["read".to_string()];
-    let pair = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
     let old_access_claims = manager.verify_token(&pair.access_token).unwrap();
 
     // Act

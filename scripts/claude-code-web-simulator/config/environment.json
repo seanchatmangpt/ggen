@@ -1,0 +1,33 @@
+{
+  "simulator": {
+    "version": "1.0.0",
+    "name": "Claude Code Web Simulation",
+    "release_date": "2026-01-29"
+  },
+  "sandbox": {
+    "enabled": true,
+    "isolation": "os-level",
+    "restrictions": {
+      "network": "proxy-only",
+      "filesystem": "workspace-only",
+      "processes": "child-inherit"
+    }
+  },
+  "mcp": {
+    "enabled": true,
+    "timeout_ms": 10000,
+    "max_output_tokens": 50000,
+    "tools_supported": 200
+  },
+  "ggen": {
+    "pipeline_stages": 5,
+    "determinism_guarantee": "sha256-hashing",
+    "timeout_slo_ms": 5000,
+    "receipt_format": "json"
+  },
+  "agents": {
+    "max_parallel": 10,
+    "bootstrap_timeout_ms": 3000,
+    "memory_isolated": true
+  }
+}

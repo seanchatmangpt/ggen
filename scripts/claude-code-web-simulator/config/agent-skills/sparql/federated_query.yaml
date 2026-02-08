@@ -1,0 +1,48 @@
+---
+name: federated_query
+category: sparql
+version: "1.0.0"
+description: |
+  Executes federated SPARQL queries across multiple RDF endpoints. Coordinates
+  sub-queries, manages remote bindings, and handles heterogeneous result formats.
+  Implements SPARQL Federation (SERVICE clause) with optimization and timeout management.
+capabilities:
+  - Execute SERVICE queries
+  - Coordinate multiple endpoints
+  - Manage remote bindings
+  - Handle result streaming
+  - Apply federated optimization
+  - Support endpoint authentication
+  - Generate federation statistics
+requirements:
+  memory_mb: 768
+  dependencies:
+    - sparql-federation
+    - http-client
+    - tokio
+    - serde_json
+  disk_mb: 200
+performance_slo:
+  max_duration_ms: 10000
+  success_rate: 0.95
+  throughput_queries_per_second: 50
+implementation:
+  language: bash
+  entry_point: skill_federated_query_execute
+  module: skills-sparql.sh
+error_handling:
+  retry_strategy: exponential
+  max_retries: 3
+  retry_delay_ms: 500
+  timeout_ms: 20000
+  fallback_behavior: return_partial_results
+testing:
+  unit_tests: true
+  integration_tests: true
+  performance_tests: true
+  test_coverage_target: 0.82
+documentation:
+  url: "https://docs.ggen.io/skills/federated-query"
+  examples:
+    - "skill_federated_query_execute query.sparql endpoints.json"
+    - "skill_federated_query_execute --timeout 15000 query.sparql endpoints.json"

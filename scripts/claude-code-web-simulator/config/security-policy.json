@@ -1,0 +1,37 @@
+{
+  "security": {
+    "network": {
+      "mode": "whitelist",
+      "allowed_domains": [
+        "github.com",
+        "crates.io",
+        "docs.rs",
+        "github.com/api",
+        "npm.js.org",
+        "pypi.org",
+        "cargo.io"
+      ],
+      "proxy_enabled": true,
+      "dns_allowed": true,
+      "ssh_allowed": true
+    },
+    "filesystem": {
+      "mode": "sandbox",
+      "root_access": false,
+      "home_access": false,
+      "workspace_access": true
+    },
+    "processes": {
+      "dangerously_skip_permissions": false,
+      "inherit_restrictions": true,
+      "subprocess_timeout_ms": 120000
+    },
+    "docker": {
+      "enabled": true,
+      "socket_access": false,
+      "build_allowed": true,
+      "run_allowed": true,
+      "network_mode": "isolated"
+    }
+  }
+}

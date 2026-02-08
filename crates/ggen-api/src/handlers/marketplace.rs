@@ -16,8 +16,7 @@ use crate::{
 
 /// Search for packages in the marketplace
 pub async fn search_packages(
-    State(state): State<AppState>,
-    Query(req): Query<SearchRequest>,
+    State(state): State<AppState>, Query(req): Query<SearchRequest>,
 ) -> ApiResult<Json<PaginatedResponse<PackageResult>>> {
     // Validate request
     if req.query.is_empty() {
@@ -30,19 +29,17 @@ pub async fn search_packages(
 
     // TODO: Execute search against marketplace
     // For now, return mock results
-    let results = vec![
-        PackageResult {
-            id: Uuid::new_v4().to_string(),
-            name: "api-client".to_string(),
-            version: "1.0.0".to_string(),
-            author: "example".to_string(),
-            description: "REST API client generator".to_string(),
-            downloads: 1250,
-            price: Some(19.99),
-            license: "MIT".to_string(),
-            rating: 4.8,
-        },
-    ];
+    let results = vec![PackageResult {
+        id: Uuid::new_v4().to_string(),
+        name: "api-client".to_string(),
+        version: "1.0.0".to_string(),
+        author: "example".to_string(),
+        description: "REST API client generator".to_string(),
+        downloads: 1250,
+        price: Some(19.99),
+        license: "MIT".to_string(),
+        rating: 4.8,
+    }];
 
     Ok(Json(PaginatedResponse {
         data: results,
@@ -54,8 +51,7 @@ pub async fn search_packages(
 
 /// Get package details
 pub async fn get_package(
-    State(_state): State<AppState>,
-    Path(package_id): Path<String>,
+    State(_state): State<AppState>, Path(package_id): Path<String>,
 ) -> ApiResult<Json<PackageResult>> {
     // TODO: Fetch package from marketplace
     if package_id.is_empty() {
@@ -77,8 +73,7 @@ pub async fn get_package(
 
 /// Purchase a package
 pub async fn purchase_package(
-    State(_state): State<AppState>,
-    Json(req): Json<PurchaseRequest>,
+    State(_state): State<AppState>, Json(req): Json<PurchaseRequest>,
 ) -> ApiResult<(StatusCode, Json<PurchaseResponse>)> {
     // Validate request
     if req.package_id.is_empty() {
@@ -108,8 +103,7 @@ pub async fn purchase_package(
 
 /// Download a package (user must be authenticated and have access)
 pub async fn download_package(
-    State(_state): State<AppState>,
-    Path((package_id, version)): Path<(String, String)>,
+    State(_state): State<AppState>, Path((package_id, version)): Path<(String, String)>,
 ) -> ApiResult<Json<serde_json::Value>> {
     // TODO: Verify user ownership/access
     // TODO: Generate signed download URL
@@ -128,8 +122,7 @@ pub async fn download_package(
 
 /// List user's purchased packages
 pub async fn list_purchases(
-    State(_state): State<AppState>,
-    Query(pagination): Query<serde_json::Value>,
+    State(_state): State<AppState>, Query(pagination): Query<serde_json::Value>,
 ) -> ApiResult<Json<PaginatedResponse<PackageResult>>> {
     // TODO: Get user from auth context
     // TODO: Fetch user's purchases from database

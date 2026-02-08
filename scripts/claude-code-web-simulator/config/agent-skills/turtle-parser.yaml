@@ -1,0 +1,63 @@
+skill:
+  name: "turtle-parser"
+  category: "rdf"
+  version: "1.0.0"
+  agent_types:
+    - "rdf-specialist"
+    - "data-analyst"
+    - "validator"
+
+  description: "Parse and validate Turtle RDF ontologies with SHACL shape conformance"
+
+  capabilities:
+    - parse_turtle_ontology
+    - validate_shacl_shapes
+    - resolve_namespaces
+    - extract_triple_patterns
+    - generate_owl_inference
+
+  requirements:
+    minimum_memory: "256M"
+    tool_dependencies:
+      - oxigraph
+      - shacl-validator
+    environment_variables:
+      - "RDF_PARSER_THREADS=4"
+      - "SHACL_VALIDATION_MODE=strict"
+
+  performance_slo:
+    max_duration_ms: 5000
+    success_rate: 0.99
+    memory_limit_mb: 512
+    cache_enabled: true
+
+  implementation:
+    language: "bash"
+    entry_point: "turtle_parser_parse()"
+    dependencies:
+      - "oxigraph-cli >= 0.5.1"
+      - "rapper >= 2.0.15"
+
+  error_handling:
+    retry_strategy: "exponential_backoff"
+    max_retries: 3
+    timeout_ms: 5000
+    fallback_behavior: "return_error"
+
+  documentation:
+    usage: |
+      Parse Turtle RDF ontologies and validate against SHACL shapes.
+      Supports namespace resolution and OWL inference materialization.
+    example: |
+      skill_load turtle-parser
+      turtle_parser_parse --input ontology.ttl --validate-shacl
+
+  metadata:
+    author: "ggen AI Team"
+    created: "2026-01-15"
+    updated: "2026-01-25"
+    tags:
+      - "rdf"
+      - "ontology"
+      - "validation"
+      - "sparql"
