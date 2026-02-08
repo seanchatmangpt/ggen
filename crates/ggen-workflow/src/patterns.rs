@@ -42,6 +42,9 @@ pub struct ExecutionMetadata {
     pub timestamp: chrono::DateTime<chrono::Utc>,
     /// Execution trace
     pub trace: Vec<TraceEvent>,
+    /// Total execution time in milliseconds
+    #[serde(default)]
+    pub execution_time_ms: u64,
 }
 
 /// Event trace for debugging
@@ -356,6 +359,7 @@ impl Default for WorkflowContext {
                 workflow_id: uuid::Uuid::new_v4().to_string(),
                 timestamp: chrono::Utc::now(),
                 trace: Vec::new(),
+                execution_time_ms: 0,
             },
         }
     }

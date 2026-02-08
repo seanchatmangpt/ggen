@@ -60,6 +60,26 @@ pub enum WorkflowError {
     /// System errors
     #[error("System error: {0}")]
     System(String),
+
+    /// XML parsing errors for YAWL specifications
+    #[error("XML parsing error: {0}")]
+    XmlParse(String),
+
+    /// YAWL specification validation errors
+    #[error("YAWL validation error: {0}")]
+    YawlValidation(String),
+
+    /// Missing required element in YAWL specification
+    #[error("Missing required element: {element}")]
+    MissingElement { element: String },
+
+    /// Invalid attribute value in YAWL specification
+    #[error("Invalid attribute '{attribute}': {value}")]
+    InvalidAttribute { attribute: String, value: String },
+
+    /// Unsupported YAWL feature
+    #[error("Unsupported YAWL feature: {0}")]
+    UnsupportedFeature(String),
 }
 
 /// Workflow result type alias for consistent error handling
@@ -146,6 +166,39 @@ pub mod errors {
     pub fn system<S: Into<String>>(message: S) -> WorkflowError {
         WorkflowError::System(message.into())
     }
+
+    /// Create an XML parse error
+    pub fn xml_parse<S: Into<String>>(message: S) -> WorkflowError {
+        WorkflowError::XmlParse(message.into())
+    }
+
+    /// Create a YAWL validation error
+    pub fn yawl_validation<S: Into<String>>(message: S) -> WorkflowError {
+        WorkflowError::YawlValidation(message.into())
+    }
+
+    /// Create a missing element error
+    pub fn missing_element<S: Into<String>>(element: S) -> WorkflowError {
+        WorkflowError::MissingElement {
+            element: element.into(),
+        }
+    }
+
+    /// Create an invalid attribute error
+    pub fn invalid_attribute<A: Into<String>, V: Into<String>>(
+        attribute: A,
+        value: V,
+    ) -> WorkflowError {
+        WorkflowError::InvalidAttribute {
+            attribute: attribute.into(),
+            value: value.into(),
+        }
+    }
+
+    /// Create an unsupported feature error
+    pub fn unsupported_feature<S: Into<String>>(feature: S) -> WorkflowError {
+        WorkflowError::UnsupportedFeature(feature.into())
+    }
 }
 
 /// Error handling utilities
@@ -191,6 +244,11 @@ pub mod error_utils {
             WorkflowError::Serialization(_) | WorkflowError::Deserialization(_) => "serialization",
             WorkflowError::Unsupported(_) => "unsupported",
             WorkflowError::System(_) => "system",
+            WorkflowError::XmlParse(_) => "xml_parsing",
+            WorkflowError::YawlValidation(_) => "yawl_validation",
+            WorkflowError::MissingElement { .. } => "missing_element",
+            WorkflowError::InvalidAttribute { .. } => "invalid_attribute",
+            WorkflowError::UnsupportedFeature(_) => "unsupported_feature",
         }
     }
 }

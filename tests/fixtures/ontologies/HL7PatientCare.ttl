@@ -1,0 +1,400 @@
+# ============================================================================
+# HL7 Patient Care Workflow Ontology (Van der Aalst: Multi-Instance Patterns)
+# ============================================================================
+# This ontology demonstrates multi-instance patterns in healthcare workflow:
+# - Parallel multi-instance (pattern 12): Multiple tasks run simultaneously
+# - Sequential multi-instance (pattern 13): Tasks run one after another
+# - Discriminator-based (pattern 14): Complete after N instances
+# ============================================================================
+
+@prefix hl7: <http://hl7.org/fhir/> .
+@prefix ex: <http://example.org/healthcare/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bpmn: <http://www.omg.org/spec/BPMN/20100524/MODEL/> .
+
+# ============================================================================
+# SECTION 1: Workflow Definition
+# ============================================================================
+
+ex:PatientCareProcess a owl:Class ;
+    rdfs:label "Patient Care Process" ;
+    rdfs:comment "Complete patient care workflow demonstrating multi-instance patterns" ;
+    ex:stereo "BusinessProcess" ;
+    ex:hasMultiInstancePattern "parallel,sequential,discriminator" ;
+    ex:domain "Healthcare" ;
+    ex:standard "HL7 FHIR" .
+
+# ============================================================================
+# SECTION 2: Process Steps
+# ============================================================================
+
+# Admission phase
+ex:PatientRegistration a owl:Class ;
+    rdfs:label "Patient Registration" ;
+    rdfs:subClassOf ex:PatientCareProcess ;
+    rdfs:comment "Register patient and create medical record" ;
+    ex:stereo "ProcessStep" ;
+    ex:isMultiInstance "false" .
+
+ex:TriageAssessment a owl:Class ;
+    rdfs:label "Triage Assessment" ;
+    rdfs:subClassOf ex:PatientCareProcess ;
+    rdfs:comment "Initial triage to determine severity" ;
+    ex:stereo "ProcessStep" ;
+    ex:isMultiInstance "false" .
+
+# Diagnostic phase - MULTI-INSTANCE: Multiple tests ordered
+ex:DiagnosticTest a owl:Class ;
+    rdfs:label "Diagnostic Test" ;
+    rdfs:subClassOf ex:PatientCareProcess ;
+    rdfs:comment "Perform diagnostic tests (can be multiple types)" ;
+    ex:stereo "ProcessStep" ;
+    ex:isMultiInstance "true" ;
+    ex:instanceType "parallel" ;
+    ex:minInstances "1"^^xsd:integer ;
+    ex:maxInstances "10"^^xsd:integer .
+
+# Specific test types
+ex:BloodTest a owl:Class ;
+    rdfs:subClassOf ex:DiagnosticTest ;
+    rdfs:label "Blood Test" ;
+    ex:testCode "BT001" .
+
+ex:RadiologyExam a owl:Class ;
+    rdfs:subClassOf ex:DiagnosticTest ;
+    rdfs:label "Radiology Examination" ;
+    ex:testCode "RD001" .
+
+ex:ECG a owl:Class ;
+    rdfs:subClassOf ex:DiagnosticTest ;
+    rdfs:label "Electrocardiogram" ;
+    ex:testCode "EC001" .
+
+ex:Ultrasound a owl:Class ;
+    rdfs:subClassOf ex:DiagnosticTest ;
+    rdfs:label "Ultrasound" ;
+    ex:testCode "US001" .
+
+ex:MRI a owl:Class ;
+    rdfs:subClassOf ex:DiagnosticTest ;
+    rdfs:label "MRI Scan" ;
+    ex:testCode "MR001" .
+
+ex:CTScan a owl:Class ;
+    rdfs:subClassOf ex:DiagnosticTest ;
+    rdfs:label "CT Scan" ;
+    ex:testCode "CT001" .
+
+# Specialist consultation phase - MULTI-INSTANCE: Sequential consultations
+ex:SpecialistConsultation a owl:Class ;
+    rdfs:label "Specialist Consultation" ;
+    rdfs:subClassOf ex:PatientCareProcess ;
+    rdfs:comment "Consult with specialists (sequential)" ;
+    ex:stereo "ProcessStep" ;
+    ex:isMultiInstance "true" ;
+    ex:instanceType "sequential" ;
+    ex:minInstances "0"^^xsd:integer ;
+    ex:maxInstances "5"^^xsd:integer .
+
+# Specialist types
+ex:CardiologistConsult a owl:Class ;
+    rdfs:subClassOf ex:SpecialistConsultation ;
+    rdfs:label "Cardiologist Consultation" ;
+    ex:specialty "Cardiology" .
+
+ex:OrthopedistConsult a owl:Class ;
+    rdfs:subClassOf ex:SpecialistConsultation ;
+    rdfs:label "Orthopedist Consultation" ;
+    ex:specialty "Orthopedics" .
+
+ex:NeurologistConsult a owl:Class ;
+    rdfs:subClassOf ex:SpecialistConsultation ;
+    rdfs:label "Neurologist Consultation" ;
+    ex:specialty "Neurology" .
+
+ex:OncologistConsult a owl:Class ;
+    rdfs:subClassOf ex:SpecialistConsultation ;
+    rdfs:label "Oncologist Consultation" ;
+    ex:specialty "Oncology" .
+
+# Treatment phase - MULTI-MERGE with Discriminator
+ex:TreatmentAdministration a owl:Class ;
+    rdfs:label "Treatment Administration" ;
+    rdfs:subClassOf ex:PatientCareProcess ;
+    rdfs:comment "Administer treatment (proceed when K treatments complete)" ;
+    ex:stereo "ProcessStep" ;
+    ex:isMultiInstance "true" ;
+    ex:instanceType "discriminator" ;
+    ex:minInstances "1"^^xsd:integer ;
+    ex:maxInstances "8"^^xsd:integer ;
+    ex:discriminatorThreshold "3"^^xsd:integer .
+
+# Treatment types
+ex:MedicationAdministration a owl:Class ;
+    rdfs:subClassOf ex:TreatmentAdministration ;
+    rdfs:label "Medication Administration" ;
+    ex:treatmentType "medication" .
+
+ex:PhysicalTherapy a owl:Class ;
+    rdfs:subClassOf ex:TreatmentAdministration ;
+    rdfs:label "Physical Therapy Session" ;
+    ex:treatmentType "therapy" .
+
+ex:DietaryConsultation a owl:Class ;
+    rdfs:subClassOf ex:TreatmentAdministration ;
+    rdfs:label "Dietary Consultation" ;
+    ex:treatmentType "nutrition" .
+
+ex:WoundCare a owl:Class ;
+    rdfs:subClassOf ex:TreatmentAdministration ;
+    rdfs:label "Wound Care" ;
+    ex:treatmentType "procedure" .
+
+ex:RespiratoryTherapy a owl:Class ;
+    rdfs:subClassOf ex:TreatmentAdministration ;
+    rdfs:label "Respiratory Therapy" ;
+    ex:treatmentType "therapy" .
+
+ex:PainManagement a owl:Class ;
+    rdfs:subClassOf ex:TreatmentAdministration ;
+    rdfs:label "Pain Management" ;
+    ex:treatmentType "medication" .
+
+ex:PsychologicalSupport a owl:Class ;
+    rdfs:subClassOf ex:TreatmentAdministration ;
+    rdfs:label "Psychological Support" ;
+    ex:treatmentType "counseling" .
+
+ex:OccupationalTherapy a owl:Class ;
+    rdfs:subClassOf ex:TreatmentAdministration ;
+    rdfs:label "Occupational Therapy" ;
+    ex:treatmentType "therapy" .
+
+# Monitoring phase - PARALLEL with N out of M
+ex:VitalSignsMonitoring a owl:Class ;
+    rdfs:label "Vital Signs Monitoring" ;
+    rdfs:subClassOf ex:PatientCareProcess ;
+    rdfs:comment "Monitor vital signs (proceed when 2 of 3 complete)" ;
+    ex:stereo "ProcessStep" ;
+    ex:isMultiInstance "true" ;
+    ex:instanceType "parallel-quorum" ;
+    ex:minInstances "3"^^xsd:integer ;
+    ex:quorumThreshold "2"^^xsd:integer .
+
+ex:BloodPressureCheck a owl:Class ;
+    rdfs:subClassOf ex:VitalSignsMonitoring ;
+    rdfs:label "Blood Pressure Check" .
+
+ex:HeartRateCheck a owl:Class ;
+    rdfs:subClassOf ex:VitalSignsMonitoring ;
+    rdfs:label "Heart Rate Check" .
+
+ex:TemperatureCheck a owl:Class ;
+    rdfs:subClassOf ex:VitalSignsMonitoring ;
+    rdfs:label "Temperature Check" .
+
+ex:RespirationCheck a owl:Class ;
+    rdfs:subClassOf ex:VitalSignsMonitoring ;
+    rdfs:label "Respiration Rate Check" .
+
+ex:OxygenSaturationCheck a owl:Class ;
+    rdfs:subClassOf ex:VitalSignsMonitoring ;
+    rdfs:label "Oxygen Saturation Check" .
+
+# Discharge phase
+ex:DischargePlanning a owl:Class ;
+    rdfs:label "Discharge Planning" ;
+    rdfs:subClassOf ex:PatientCareProcess ;
+    rdfs:comment "Plan patient discharge" ;
+    ex:stereo "ProcessStep" ;
+    ex:isMultiInstance "false" .
+
+ex:PatientDischarge a owl:Class ;
+    rdfs:label "Patient Discharge" ;
+    rdfs:subClassOf ex:PatientCareProcess ;
+    rdfs:comment "Discharge patient from care" ;
+    ex:stereo "ProcessStep" ;
+    ex:isMultiInstance "false" .
+
+# ============================================================================
+# SECTION 3: Flow Relationships
+# ============================================================================
+
+# Primary flow
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:PatientRegistration ;
+    rdfs:range ex:TriageAssessment ;
+    rdfs:label "next step" .
+
+# PARALLEL MULTI-INSTANCE (Pattern 12)
+# Multiple diagnostic tests run in parallel
+ex:triggersParallelTests a owl:ObjectProperty ;
+    rdfs:domain ex:TriageAssessment ;
+    rdfs:range ex:DiagnosticTest ;
+    rdfs:label "triggers diagnostic tests" ;
+    ex:multiInstanceBehavior "parallel" ;
+    ex:waitForCompletion "true" .
+
+# All tests merge to consultation
+ex:allTestsMerge a owl:ObjectProperty ;
+    rdfs:domain ex:DiagnosticTest ;
+    rdfs:range ex:SpecialistConsultation ;
+    rdfs:label "all tests complete" ;
+    ex:mergeBehavior "synchronizing-merge" .
+
+# SEQUENTIAL MULTI-INSTANCE (Pattern 13)
+# Specialist consultations run sequentially
+ex:triggersSequentialConsultations a owl:ObjectProperty ;
+    rdfs:domain ex:DiagnosticTest ;
+    rdfs:range ex:SpecialistConsultation ;
+    rdfs:label "triggers consultations" ;
+    ex:multiInstanceBehavior "sequential" .
+
+ex:nextConsultation a owl:ObjectProperty ;
+    rdfs:domain ex:SpecialistConsultation ;
+    rdfs:range ex:SpecialistConsultation ;
+    rdfs:label "next consultation" ;
+    ex:multiInstanceBehavior "sequential" .
+
+# DISCRIMINATOR-BASED (Pattern 14)
+# Treatment with discriminator: proceed when K of N complete
+ex:triggersTreatment a owl:ObjectProperty ;
+    rdfs:domain ex:SpecialistConsultation ;
+    rdfs:range ex:TreatmentAdministration ;
+    rdfs:label "starts treatment" ;
+    ex:multiInstanceBehavior "discriminator" ;
+    ex:discriminatorCount "3"^^xsd:integer ;
+    rdfs:comment "Proceed when 3 of up to 8 treatments are ready" .
+
+ex:mergeAfterDiscriminator a owl:ObjectProperty ;
+    rdfs:domain ex:TreatmentAdministration ;
+    rdfs:range ex:VitalSignsMonitoring ;
+    rdfs:label "discriminator merge" ;
+    ex:mergeBehavior "discriminator-merge" ;
+    ex:requiredCompletions "3"^^xsd:integer .
+
+# PARALLEL WITH QUORUM (Pattern 12 variant)
+# Vital signs: proceed when 2 of 3 critical checks complete
+ex:triggersVitalChecks a owl:ObjectProperty ;
+    rdfs:domain ex:TreatmentAdministration ;
+    rdfs:range ex:VitalSignsMonitoring ;
+    rdfs:label "triggers vital checks" ;
+    ex:multiInstanceBehavior "parallel-quorum" ;
+    ex:quorumCount "2"^^xsd:integer .
+
+ex:vitalChecksMerge a owl:ObjectProperty ;
+    rdfs:domain ex:VitalSignsMonitoring ;
+    rdfs:range ex:DischargePlanning ;
+    rdfs:label "quorum merge" ;
+    ex:mergeBehavior "quorum-merge" ;
+    ex:requiredCompletions "2"^^xsd:integer .
+
+# Discharge flow
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:DischargePlanning ;
+    rdfs:range ex:PatientDischarge ;
+    rdfs:label "next step" .
+
+# ============================================================================
+# SECTION 4: Conditional Paths
+# ============================================================================
+
+# Triage outcomes
+ex:emergencyTriage a owl:ObjectProperty ;
+    rdfs:domain ex:TriageAssessment ;
+    rdfs:range ex:DiagnosticTest ;
+    rdfs:label "emergency path" ;
+    ex:priority "critical" .
+
+ex:urgentTriage a owl:ObjectProperty ;
+    rdfs:domain ex:TriageAssessment ;
+    rdfs:range ex:DiagnosticTest ;
+    rdfs:label "urgent path" ;
+    ex:priority "high" .
+
+ex:routineTriage a owl:ObjectProperty ;
+    rdfs:domain ex:TriageAssessment ;
+    rdfs:range ex:DiagnosticTest ;
+    rdfs:label "routine path" ;
+    ex:priority "normal" .
+
+# Test result paths
+ex:abnormalTestResult a owl:ObjectProperty ;
+    rdfs:domain ex:DiagnosticTest ;
+    rdfs:range ex:SpecialistConsultation ;
+    rdfs:label "requires specialist" .
+
+ex:normalTestResult a owl:ObjectProperty ;
+    rdfs:domain ex:DiagnosticTest ;
+    rdfs:range ex:TreatmentAdministration ;
+    rdfs:label "proceed to treatment" .
+
+# Discharge conditions
+ex:stableForDischarge a owl:ObjectProperty ;
+    rdfs:domain ex:VitalSignsMonitoring ;
+    rdfs:range ex:DischargePlanning ;
+    rdfs:label "stable condition" .
+
+ex:requiresFurtherCare a owl:ObjectProperty ;
+    rdfs:domain ex:VitalSignsMonitoring ;
+    rdfs:range ex:TreatmentAdministration ;
+    rdfs:label "continue treatment" .
+
+# ============================================================================
+# SECTION 5: Multi-Instance Metadata
+# ============================================================================
+
+ex:MultiInstanceMetadata a owl:Class ;
+    rdfs:label "Multi-Instance Metadata" ;
+    rdfs:comment "Metadata for multi-instance task execution" .
+
+ex:instanceCount a owl:DatatypeProperty ;
+    rdfs:domain ex:MultiInstanceMetadata ;
+    rdfs:range xsd:integer ;
+    rdfs:label "number of instances" .
+
+ex:completedCount a owl:DatatypeProperty ;
+    rdfs:domain ex:MultiInstanceMetadata ;
+    rdfs:range xsd:integer ;
+    rdfs:label "completed instances" .
+
+ex:instanceType a owl:DatatypeProperty ;
+    rdfs:domain ex:MultiInstanceMetadata ;
+    rdfs:range xsd:string ;
+    rdfs:label "instance execution type" .
+
+ex:discriminatorThreshold a owl:DatatypeProperty ;
+    rdfs:domain ex:MultiInstanceMetadata ;
+    rdfs:range xsd:integer ;
+    rdfs:label "threshold for discriminator" .
+
+ex:quorumThreshold a owl:DatatypeProperty ;
+    rdfs:domain ex:MultiInstanceMetadata ;
+    rdfs:range xsd:integer ;
+    rdfs:label "quorum size for parallel" .
+
+# ============================================================================
+# SECTION 6: HL7 FHIR Mappings
+# ============================================================================
+
+ex:mapsToFHIRTask a owl:ObjectProperty ;
+    rdfs:domain ex:DiagnosticTest ;
+    rdfs:range hl7:Task ;
+    rdfs:label "FHIR Task mapping" .
+
+ex:mapsToFHIRServiceRequest a owl:ObjectProperty ;
+    rdfs:domain ex:TreatmentAdministration ;
+    rdfs:range hl7:ServiceRequest ;
+    rdfs:label "FHIR ServiceRequest mapping" .
+
+ex:mapsToFHIRObservation a owl:ObjectProperty ;
+    rdfs:domain ex:VitalSignsMonitoring ;
+    rdfs:range hl7:Observation ;
+    rdfs:label "FHIR Observation mapping" .
+
+ex:mapsToFHIREncounter a owl:ObjectProperty ;
+    rdfs:domain ex:PatientCareProcess ;
+    rdfs:range hl7:Encounter ;
+    rdfs:label "FHIR Encounter mapping" .

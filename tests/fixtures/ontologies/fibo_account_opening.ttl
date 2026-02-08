@@ -1,0 +1,86 @@
+# ============================================================================
+# FIBO Sample: Account Opening Workflow Ontology
+# ============================================================================
+@prefix fibo: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialEntities/Account/> .
+@prefix ex: <http://example.org/bank/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Workflow specification
+ex:AccountOpeningProcess a owl:Class ;
+    rdfs:label "Account Opening Process" ;
+    rdfs:comment "The complete workflow for opening a new bank account" ;
+    ex:stereo "BusinessProcess" .
+
+# Process steps (tasks)
+ex:ValidateIdentity a owl:Class ;
+    rdfs:label "Validate Identity" ;
+    rdfs:subClassOf ex:AccountOpeningProcess ;
+    rdfs:comment "Verify customer identity documents" ;
+    ex:stereo "ProcessStep" .
+
+ex:CreditCheck a owl:Class ;
+    rdfs:label "Credit Check" ;
+    rdfs:subClassOf ex:AccountOpeningProcess ;
+    rdfs:comment "Perform credit history check" ;
+    ex:stereo "ProcessStep" .
+
+ex:RiskAssessment a owl:Class ;
+    rdfs:label "Risk Assessment" ;
+    rdfs:subClassOf ex:AccountOpeningProcess ;
+    rdfs:comment "Assess customer risk level" ;
+    ex:stereo "ProcessStep" .
+
+ex:ApproveAccount a owl:Class ;
+    rdfs:label "Approve Account" ;
+    rdfs:subClassOf ex:AccountOpeningProcess ;
+    rdfs:comment "Final account approval decision" ;
+    ex:stereo "ProcessStep" .
+
+# Flow relationships (sequence)
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:ValidateIdentity ;
+    rdfs:range ex:CreditCheck ;
+    rdfs:label "next step" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:CreditCheck ;
+    rdfs:range ex:RiskAssessment ;
+    rdfs:label "next step" .
+
+ex:requiresApproval a owl:ObjectProperty ;
+    rdfs:domain ex:RiskAssessment ;
+    rdfs:range ex:ApproveAccount ;
+    rdfs:label "requires approval" .
+
+# Parallel branch: document verification
+ex:VerifyDocuments a owl:Class ;
+    rdfs:label "Verify Documents" ;
+    rdfs:subClassOf ex:AccountOpeningProcess ;
+    rdfs:comment "Verify submitted documents" ;
+    ex:stereo "ProcessStep" .
+
+# Parallel relationship (can run with ValidateIdentity)
+ex:runsConcurrentlyWith a owl:ObjectProperty ;
+    rdfs:domain ex:ValidateIdentity ;
+    rdfs:range ex:VerifyDocuments ;
+    rdfs:label "runs concurrently with" .
+
+# Conditional flow based on risk level
+ex:HighRiskProcess a owl:Class ;
+    rdfs:label "High Risk Process" ;
+    rdfs:subClassOf ex:AccountOpeningProcess ;
+    rdfs:comment "Additional review for high-risk customers" ;
+    ex:stereo "ProcessStep" .
+
+ex:requiresAdditionalReview a owl:ObjectProperty ;
+    rdfs:domain ex:RiskAssessment ;
+    rdfs:range ex:HighRiskProcess ;
+    rdfs:label "requires additional review" .
+
+# Merge back to approval
+ex:mergesInto a owl:ObjectProperty ;
+    rdfs:domain ex:HighRiskProcess ;
+    rdfs:range ex:ApproveAccount ;
+    rdfs:label "merges into" .

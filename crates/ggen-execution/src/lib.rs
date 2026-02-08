@@ -32,12 +32,12 @@ pub mod prelude {
         // Types
         AgentId, TaskId, MessageId, ExecutionResult, ConvergenceStatus,
         // Error handling
-        ExecutionError, ConvergenceError, RecoveryError,
+        ExecutionError,
         // Convergence
-        SemanticConvergence, ConvergenceMetrics, ConvergenceConfig,
+        SemanticConvergenceEngine, ConvergenceMetrics, ConvergenceConfig,
         // Recovery
         RecoveryStrategy, RecoveryPolicy, HealthChecker,
         // Metrics
-        ExecutionMetrics, PerformanceMetrics, MetricsCollector,
+        PerformanceMetrics, MetricsCollector,
     };
 }

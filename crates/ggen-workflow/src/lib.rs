@@ -28,18 +28,38 @@
 //! Chicago TDD mandatory testing, and deterministic receipts for reproducibility.
 
 // Module declarations
+pub mod engine;
 pub mod error;
 pub mod nif;
+pub mod parser;
 pub mod patterns;
 pub mod receipts;
+pub mod state;
 
 // Re-export commonly used types
+pub use engine::{
+    compute_execution_hash, ConditionEvaluator, DecompositionResult, EngineConfig, EngineResult,
+    FlowMetadata, FlowPattern, FlowRouter, JoinCondition, ReceiptMetadataExt, SubWorkflow,
+    TaskDefinition, TaskResult, TaskScheduler, WorkflowDecomposer, WorkflowEngine,
+    WorkflowState as EngineWorkflowState,
+};
 pub use error::{WorkflowError, WorkflowResult};
+pub use parser::{
+    Condition, ConditionType, Constraint, ConstraintLevel, Decomposition, DecompositionType,
+    Flow, InstanceStrategy, JoinType, Parameter, ParameterType, PatternCategory, SplitType, SpecMetadata,
+    Task, TaskType, Variable, VariableScope, VariableType, WorkflowPattern as YawlWorkflowPattern,
+    YawlParser, YawlSpec,
+};
 pub use patterns::{
     Choice, ExecutionMetadata, Parallel, Sequence, Sync, SyncConfig, TraceEvent, WorkflowContext,
     WorkflowPattern,
 };
 pub use receipts::{ReceiptGenerator, ReceiptMetadata, ReceiptStore, WorkflowReceipt};
+pub use state::{
+    ExecutionMetrics, ExecutionSnapshot, StateMachine, StateMachineBuilder,
+    StateSnapshot, StateTransitionEvent, StateValidator, SuspendReason, TraceEventSnapshot,
+    TransitionType, WorkflowDefinition, WorkflowErrorInfo, WorkflowResults, WorkflowState,
+};
 
 // Use constants directly from this module
 

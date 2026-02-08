@@ -140,12 +140,6 @@ pub enum ErrorCode {
     RecoveryTimeout = 10001,
     RecoveryStrategyNotFound = 10002,
 
-    // Timeout errors (11000-11999)
-    OperationTimeout = 11000,
-    TaskTimeout = 11001,
-    WorkflowTimeout = 11002,
-    PipelineTimeout = 11003,
-
     // Validation errors (12000-12999)
     ValidationError = 12000,
     ValidationRuleFailed = 12001,
@@ -222,7 +216,7 @@ impl ErrorContext for ExecutionError {
         }
     }
 
-    fn with_metadata(mut self, key: &str, value: serde_json::Value) -> Self {
+    fn with_metadata(self, _key: &str, value: serde_json::Value) -> Self {
         // Store metadata for future use
         match self {
             ExecutionError::Coded { code, mut message } => {

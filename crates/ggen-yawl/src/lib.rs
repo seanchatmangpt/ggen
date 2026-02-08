@@ -21,11 +21,11 @@
 //! ## Usage
 //!
 //! ```rust,no_run
-//! use ggen_yawl::{YawlGenerator, OntologyLoader};
+//! use ggen_yawl::YawlGenerator;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
-//! // Load industry ontology
-//! let ontology = OntologyLoader::load_from_file("fibo.ttl")?;
+//! // Read industry ontology
+//! let ontology = std::fs::read_to_string("fibo.ttl")?;
 //!
 //! // Generate YAWL workflow
 //! let generator = YawlGenerator::new();
@@ -43,11 +43,11 @@ pub mod transform;
 pub mod template;
 pub mod codegen;
 
+pub use codegen::yawl_xml::{escape_xml, YawlXmlGenerator};
 pub use error::{Error, Result};
-pub use ontology::loader::OntologyLoader;
-pub use transform::executor::ConstructExecutor;
+pub use ontology::loader::{load_ontology, OntologyLoader, OntologyFormat};
 pub use template::renderer::TemplateRenderer;
-pub use codegen::yawl_xml::YawlXmlGenerator;
+pub use transform::executor::ConstructExecutor;
 
 /// Main YAWL workflow generator orchestrating the full pipeline.
 ///
@@ -106,7 +106,7 @@ impl YawlGenerator {
         let yawl_rdf = self.executor.execute_all(&graph)?;
 
         // μ₃: Emit using templates
-        let xml = self.renderer.render_yawl_xml(&yawl_rdf)?;
+        let xml = self.renderer.render_yawl_xml_from_graph(&yawl_rdf)?;
 
         // μ₄: Canonicalize (format consistently)
         let canonical = codegen::yawl_xml::canonicalize(&xml)?;

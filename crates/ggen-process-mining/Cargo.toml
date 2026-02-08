@@ -1,0 +1,59 @@
+[package]
+name = "ggen-process-mining"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+license = "MIT"
+description = "Process mining integration with rust4pm for workflow analytics and conformance checking"
+repository = "https://github.com/seanchatmangpt/ggen"
+homepage = "https://github.com/seanchatmangpt/ggen"
+keywords = ["process-mining", "yawl", "petri-net", "xes", "ocel"]
+categories = ["development-tools", "science"]
+
+[lints.clippy]
+multiple_crate_versions = "allow"
+
+[dependencies]
+# Workspace dependencies
+ggen-utils = { path = "../ggen-utils", version = "0.2.0" }
+ggen-core = { path = "../ggen-core", version = "0.2.0" }
+ggen-yawl = { path = "../ggen-yawl", version = "0.1.0" }
+ggen-domain = { path = "../ggen-domain", version = "0.2.0" }
+
+tokio = { workspace = true, features = ["sync", "rt"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+
+# Process mining dependencies (stubbed for future rust4pm integration)
+# rust4pm = "0.2"  # TODO: Add when rust4pm is published
+
+# RDF/OWL for ontology integration
+oxigraph = { workspace = true }
+
+# Event log parsing
+quick-xml = { version = "0.37", features = ["serialize"] }
+roxmltree = "0.20"
+
+# Date/time handling for event timestamps
+chrono = { workspace = true }
+
+[dev-dependencies]
+proptest = "1.8"
+criterion = { version = "0.7", features = ["html_reports"] }
+tempfile = { workspace = true }
+
+[lib]
+# Integration tests that use this crate as a library
+doctest = false
+
+[features]
+default = []
+# Enable XES event log format support
+xes = []
+# Enable OCEL (Object-Centric Event Log) support
+ocel = []
+# Enable Alpha++ discovery algorithm (requires additional dependencies)
+alpha_plusplus = []

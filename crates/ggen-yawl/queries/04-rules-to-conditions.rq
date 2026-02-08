@@ -1,0 +1,49 @@
+# ============================================================================
+# PATTERN 4: Business Rules to YAWL Conditions
+# Converts OWL restrictions into executable YAWL condition expressions
+# ============================================================================
+PREFIX src: <http://industry-ontology.org/>
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX swrl: <http://www.w3.org/2003/11/swrl#>
+
+CONSTRUCT {
+  ?condition a yawl:Condition ;
+    yawl:conditionExpression ?expression ;
+    yawl:conditionType ?condType ;
+    rdfs:comment ?conditionComment .
+}
+WHERE {
+  # Source: OWL restriction
+  ?restriction a owl:Restriction ;
+    owl:onProperty ?prop ;
+    rdfs:label ?label .
+
+  ?prop rdfs:label ?propLabel .
+
+  # Extract condition type based on restriction
+  {
+    # Value restriction
+    ?restriction owl:hasValue ?value .
+    BIND(CONCAT("?", ?propLabel, " = ", STR(?value)) AS ?expression)
+    BIND("equality" AS ?condType)
+  } UNION {
+    # Some values from (enumeration)
+    ?restriction owl:someValuesFrom ?class .
+    BIND(CONCAT("?", ?propLabel, " IN ", STR(?class)) AS ?expression)
+    BIND("type_check" AS ?condType)
+  } UNION {
+    # All values from
+    ?restriction owl:allValuesFrom ?class .
+    BIND(CONCAT("TYPE(?", ?propLabel, ") = ", STR(?class)) AS ?expression)
+    BIND("type_validation" AS ?condType)
+  } UNION {
+    # Cardinality restriction
+    ?restriction owl:minCardinality ?minCard .
+    BIND(CONCAT("COUNT(?", ?propLabel, ") >= ", STR(?minCard)) AS ?expression)
+    BIND("min_cardinality" AS ?condType)
+  }
+
+  BIND(IRI(CONCAT(STR(yawl:), "condition/", SHA256(?expression))) AS ?condition)
+  BIND(CONCAT("Condition from restriction: ", ?label) AS ?conditionComment)
+}

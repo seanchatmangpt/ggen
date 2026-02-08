@@ -311,148 +311,21 @@ impl Default for ExecutionContext {
 // ERROR TYPES
 // ============================================================================
 
-/// Result type for operations
+/// Result type for operations - re-exported from error module
+pub use crate::error::ExecutionError;
+
+/// Result type alias for operations
 pub type ExecutionResult<T> = Result<T, ExecutionError>;
 
-/// Unified error hierarchy
-#[derive(Debug, thiserror::Error)]
-pub enum ExecutionError {
-    #[error("Configuration error: {0}")]
-    Configuration(String),
-
-    #[error("Communication error: {0}")]
-    Communication(String),
-
-    #[error("Task execution error: {0}")]
-    TaskExecution(String),
-
-    #[error("Agent error: {0}")]
-    Agent(String),
-
-    #[error("Workflow error: {0}")]
-    Workflow(String),
-
-    #[error("Timeout error: {0}")]
-    Timeout(String),
-
-    #[error("Resource limit exceeded: {0}")]
-    ResourceLimit(String),
-
-    #[error("Validation error: {0}")]
-    Validation(String),
-
-    #[error("Serialization error: {0}")]
-    Serialization(#[from] serde_json::Error),
-
-    #[error("IO error: {0}")]
-    Io(#[from] std::io::Error),
-
-    #[error("UUID error: {0}")]
-    Uuid(#[from] uuid::Error),
-}
-
 // ============================================================================
-// METRICS AND MONITORING
+// RE-EXPORTS FROM OTHER MODULES
 // ============================================================================
 
-/// Performance metrics collection
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PerformanceMetrics {
-    pub timestamp: DateTime<Utc>,
-    pub execution_duration_ms: u64,
-    pub throughput_per_second: f64,
-    pub success_rate: f64,
-    pub error_rate: f64,
-    pub resource_usage: ResourceUsage,
-    pub memory_usage_mb: u64,
-    pub cpu_usage_percent: f64,
-}
+// Re-export PerformanceMetrics from metrics module to avoid duplication
+pub use crate::metrics::PerformanceMetrics;
 
-/// Metrics collector for tracking
-#[derive(Debug, Clone)]
-pub struct MetricsCollector {
-    pub metrics: Vec<PerformanceMetrics>,
-    pub max_samples: usize,
-}
-
-impl MetricsCollector {
-    pub fn new(max_samples: usize) -> Self {
-        Self {
-            metrics: Vec::new(),
-            max_samples,
-        }
-    }
-
-    pub fn record_metric(&mut self, metric: PerformanceMetrics) {
-        self.metrics.push(metric);
-        if self.metrics.len() > self.max_samples {
-            self.metrics.remove(0);
-        }
-    }
-
-    pub fn get_average_metrics(&self) -> Option<PerformanceMetrics> {
-        if self.metrics.is_empty() {
-            return None;
-        }
-
-        let avg_duration = self.metrics.iter()
-            .map(|m| m.execution_duration_ms)
-            .sum::<u64>() / self.metrics.len() as u64;
-
-        let avg_throughput = self.metrics.iter()
-            .map(|m| m.throughput_per_second)
-            .sum::<f64>() / self.metrics.len() as f64;
-
-        let avg_success_rate = self.metrics.iter()
-            .map(|m| m.success_rate)
-            .sum::<f64>() / self.metrics.len() as f64;
-
-        let avg_error_rate = self.metrics.iter()
-            .map(|m| m.error_rate)
-            .sum::<f64>() / self.metrics.len() as f64;
-
-        let avg_memory = self.metrics.iter()
-            .map(|m| m.memory_usage_mb)
-            .sum::<u64>() / self.metrics.len() as u64;
-
-        let avg_cpu = self.metrics.iter()
-            .map(|m| m.cpu_usage_percent)
-            .sum::<f64>() / self.metrics.len() as f64;
-
-        Some(PerformanceMetrics {
-            timestamp: Utc::now(),
-            execution_duration_ms: avg_duration,
-            throughput_per_second: avg_throughput,
-            success_rate: avg_success_rate,
-            error_rate: avg_error_rate,
-            resource_usage: ResourceUsage {
-                cpu_percent: avg_cpu,
-                memory_mb: avg_memory,
-                network_in_mb: 0,
-                network_out_mb: 0,
-            },
-            memory_usage_mb: avg_memory,
-            cpu_usage_percent: avg_cpu,
-        })
-    }
-}
-
-// ============================================================================
-// SEMANTIC CONVERGENCE METRICS
-// ============================================================================
-
-/// Metrics for tracking semantic convergence
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ConvergenceMetrics {
-    pub agent_count: usize,
-    pub active_agents: usize,
-    pub message_exchanges: u64,
-    pub successful_convergences: u64,
-    pub convergence_rate: f64,
-    pub average_convergence_time_ms: u64,
-    pub semantic_score: f64,
-    pub protocol_compliance: f64,
-}
+// Re-export ConvergenceMetrics from convergence module
+pub use crate::convergence::ConvergenceMetrics;
 
 // ============================================================================
 // TEST HELPERS

@@ -6,6 +6,7 @@ use async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{Semaphore, Mutex, RwLock};
+use serde::{Serialize, Deserialize};
 
 // ============================================================================
 // PIPELINE STAGE DEFINITIONS
@@ -248,7 +249,7 @@ impl PipelineExecutor {
 
                 if result.success {
                     success_count += 1;
-                    completed_stages.insert(stage.id.clone());
+                    completed_stages.insert(stage.name.clone());
                 } else {
                     // Stop execution on failed stage
                     pipeline.status = PipelineStatus::Failed(format!("Stage {} failed", stage.name));
@@ -308,21 +309,22 @@ impl PipelineExecutor {
             for task in chunk {
                 let framework = self.framework.clone();
                 let task_clone = task.clone();
+                let task_id = task.id.clone();
 
                 let result = tokio::spawn(async move {
                     let mut framework = framework.lock().await;
                     framework.execute_task(task_clone).await
                 });
 
-                task_results.push(result);
+                task_results.push((task_id, result));
             }
 
             // Wait for all tasks in the batch to complete
-            for result in task_results {
+            for (task_id, result) in task_results {
                 match result.await {
                     Ok(Ok(task_result)) => {
                         results.push(StageTaskResult {
-                            task_id: task_result.task_id.clone(),
+                            task_id,
                             success: task_result.success,
                             execution_time_ms: task_result.execution_time_ms,
                         });
@@ -494,16 +496,16 @@ impl PipelineValidator {
         visited: &mut std::collections::HashSet<String>,
         recursion_stack: &mut std::collections::HashSet<String>,
     ) -> Result<bool, ExecutionError> {
-        if visited.contains(&stage.id) {
-            return Ok(recursion_stack.contains(&stage.id));
+        if visited.contains(&stage.name) {
+            return Ok(recursion_stack.contains(&stage.name));
         }
 
-        visited.insert(stage.id.clone());
-        recursion_stack.insert(stage.id.clone());
+        visited.insert(stage.name.clone());
+        recursion_stack.insert(stage.name.clone());
 
         for dep_id in &stage.dependencies {
             let dep_stage = pipeline.stages.iter()
-                .find(|s| s.id == *dep_id)
+                .find(|s| s.name == *dep_id)
                 .ok_or_else(|| ExecutionError::Pipeline(
                     format!("Dependency not found: {}", dep_id)
                 ))?;
@@ -513,7 +515,7 @@ impl PipelineValidator {
             }
         }
 
-        recursion_stack.remove(&stage.id);
+        recursion_stack.remove(&stage.name);
         Ok(false)
     }
 

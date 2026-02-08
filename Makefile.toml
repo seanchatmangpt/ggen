@@ -1538,3 +1538,88 @@ Files:
 Learn more: docs/KAIZEN_METRICS.md
 HELP_EOF
 '''
+
+# =============================================================================
+# Benchmark Tasks
+# =============================================================================
+
+[tasks.bench]
+description = "Run all benchmarks"
+workspace = false
+command = "cargo"
+args = ["bench"]
+
+[tasks.bench-slo]
+description = "Run all SLO validation benchmarks"
+workspace = false
+command = "cargo"
+args = ["bench", "--bench", "slo_validation"]
+
+[tasks.bench-yawl]
+description = "Run YAWL generation SLO benchmarks"
+workspace = false
+command = "timeout"
+args = ["120s", "cargo", "bench", "--bench", "yawl_generation_slo"]
+
+[tasks.bench-yawl-quick]
+description = "Run YAWL generation benchmarks (quick smoke test)"
+workspace = false
+command = "timeout"
+args = ["60s", "cargo", "bench", "--bench", "yawl_generation_slo", "--", "--warm-up-time", "1", "--measurement-time", "3"]
+
+[tasks.bench-pipeline]
+description = "Run pipeline performance benchmarks"
+workspace = false
+command = "timeout"
+args = ["60s", "cargo", "bench", "--bench", "pipeline_performance"]
+
+[tasks.bench-cli]
+description = "Run CLI startup performance benchmarks"
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "bench", "--bench", "cli_startup_performance"]
+
+[tasks.bench-marketplace]
+description = "Run marketplace performance benchmarks"
+workspace = false
+command = "timeout"
+args = ["60s", "cargo", "bench", "--bench", "marketplace_performance"]
+
+[tasks.bench-runtime]
+description = "Run runtime overhead benchmarks"
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "bench", "--bench", "runtime_overhead"]
+
+[tasks.bench-memory]
+description = "Run memory profiling benchmarks"
+workspace = false
+command = "timeout"
+args = ["60s", "cargo", "bench", "--bench", "memory_profiling"]
+
+[tasks.bench-async]
+description = "Run async runtime benchmarks"
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "bench", "--bench", "async_runtime_benchmarks"]
+
+[tasks.bench-all-slo]
+description = "Run all SLO validation benchmarks (comprehensive)"
+workspace = false
+dependencies = [
+    "bench-slo",
+    "bench-yawl",
+    "bench-pipeline",
+]
+
+[tasks.bench-report]
+description = "Generate HTML benchmark reports (requires previous bench run)"
+workspace = false
+command = "cargo"
+args = ["bench", "--", "--save-baseline", "main"]
+
+[tasks.bench-compare]
+description = "Compare benchmarks against baseline"
+workspace = false
+command = "cargo"
+args = ["bench", "--", "--baseline", "main"]

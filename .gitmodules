@@ -10,3 +10,6 @@
 [submodule "clap-noun-verb"]
 	path = clap-noun-verb
 	url = https://github.com/seanchatmangpt/clap-noun-verb.git
+[submodule "vendors/rust4pm"]
+	path = vendors/rust4pm
+	url = https://github.com/aarkue/rust4pm.git

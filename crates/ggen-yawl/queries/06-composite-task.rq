@@ -1,0 +1,48 @@
+# ============================================================================
+# PATTERN 6: Composite Task from Class Hierarchy
+# Maps subclass relationships to composite task decomposition
+# ============================================================================
+PREFIX src: <http://industry-ontology.org/>
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+CONSTRUCT {
+  # Create composite task for parent class
+  ?compositeTask a yawl:CompositeTask ;
+    yawl:taskId ?compositeTaskId ;
+    yawl:taskName ?compositeTaskName ;
+    yawl:decomposesTo ?subWorkflowSpec .
+
+  # Create sub-workflow specification
+  ?subWorkflowSpec a yawl:WorkflowSpec ;
+    yawl:specId ?subSpecId ;
+    yawl:specName ?subSpecName ;
+    yawl:hasTasks ?subTask .
+}
+WHERE {
+  # Find subclass relationships
+  ?subClass rdfs:subClassOf ?parentClass ;
+    rdfs:label ?subClassName .
+
+  ?parentClass rdfs:label ?parentClassName .
+
+  # Both should be business process stereotypes
+  FILTER EXISTS {
+    ?parentClass src:stereo ?stereo .
+    FILTER (?stereo IN ("BusinessProcess", "CompositeProcess"))
+  }
+
+  # Generate composite task
+  BIND(IRI(CONCAT(STR(yawl:), "task/", SHA256(STR(?parentClass)))) AS ?compositeTask)
+  BIND(SHA256(CONCAT("composite:", STR(?parentClass))) AS ?compositeTaskId)
+  BIND(?parentClassName AS ?compositeTaskName)
+
+  # Generate sub-workflow spec
+  BIND(IRI(CONCAT(STR(yawl:), "spec/", SHA256(CONCAT("sub:", STR(?subClass))))) AS ?subWorkflowSpec)
+  BIND(SHA256(CONCAT("sub:", STR(?subClass))) AS ?subSpecId)
+  BIND(CONCAT("Sub-workflow: ", ?subClassName) AS ?subSpecName)
+
+  # Generate sub-task
+  BIND(IRI(CONCAT(STR(yawl:), "task/", SHA256(STR(?subClass)))) AS ?subTask)
+}

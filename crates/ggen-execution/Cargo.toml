@@ -20,6 +20,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tower = { version = "0.5", features = ["full"] }
 tower-http = { version = "0.6", features = ["full"] }
 hyper = { version = "1.5", features = ["full"] }
+rand = "0.8"
 
 # A2A-RS integration (temporarily disabled due to compilation errors)
 # a2a-generated = { path = "../a2a-generated" }

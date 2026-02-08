@@ -1,0 +1,40 @@
+# ============================================================================
+# PATTERN 2: Object Property to Flow Transformation
+# Maps object properties to YAWL Flow connections
+# ============================================================================
+PREFIX src: <http://industry-ontology.org/>
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+CONSTRUCT {
+  ?flow a yawl:Flow ;
+    yawl:sourceTask ?sourceTask ;
+    yawl:targetTask ?targetTask ;
+    yawl:flowCondition ?condition ;
+    yawl:isDefaultFlow ?isDefault ;
+    rdfs:comment ?flowComment .
+}
+WHERE {
+  # Source: Object property connecting two classes
+  ?prop a owl:ObjectProperty ;
+    rdfs:domain ?srcDomain ;
+    rdfs:range ?srcRange ;
+    rdfs:label ?propLabel .
+
+  # Both domain and range are classes we've mapped to tasks
+  ?srcDomain a owl:Class ; rdfs:label ?domainLabel .
+  ?srcRange a owl:Class ; rdfs:label ?rangeLabel .
+
+  # Generate corresponding task IRIs
+  BIND(IRI(CONCAT(STR(yawl:), "task/", ENCODE_FOR_URI(?domainLabel))) AS ?sourceTask)
+  BIND(IRI(CONCAT(STR(yawl:), "task/", ENCODE_FOR_URI(?rangeLabel))) AS ?targetTask)
+  BIND(IRI(CONCAT(STR(yawl:), "flow/", ENCODE_FOR_URI(?domainLabel), "-", ENCODE_FOR_URI(?rangeLabel))) AS ?flow)
+
+  # Determine if this is the default flow (first property alphabetically)
+  BIND(IF(?propLabel = MIN(?propLabel), true, false) AS ?isDefault)
+
+  # Optional: Generate condition expression from property characteristics
+  BIND(CONCAT("?", ENCODE_FOR_URI(?propLabel), " IS NOT NULL") AS ?condition)
+  BIND(CONCAT("Flow for property: ", ?propLabel) AS ?flowComment)
+}

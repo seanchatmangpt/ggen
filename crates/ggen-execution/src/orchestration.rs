@@ -532,7 +532,7 @@ impl OrchestrationStrategyExecutor {
         workflow: &Workflow,
         orchestrator: &TaskOrchestrator,
     ) -> Result<WorkflowResult, ExecutionError> {
-        let mut tasks = workflow.tasks.clone();
+        let tasks = workflow.tasks.clone();
         let mut results = Vec::new();
         let mut success_count = 0;
 
@@ -540,10 +540,11 @@ impl OrchestrationStrategyExecutor {
         for task in &tasks {
             let framework = orchestrator.framework.clone();
             let task_clone = task.clone();
+            let task_id = task.id.clone();
 
             futures.push(async move {
                 let mut framework = framework.lock().await;
-                framework.execute_task(task_clone).await
+                (task_id, framework.execute_task(task_clone).await)
             });
         }
 
@@ -552,9 +553,9 @@ impl OrchestrationStrategyExecutor {
 
         for result in task_results {
             match result {
-                Ok(Ok(task_result)) => {
+                Ok((task_id, Ok(task_result))) => {
                     results.push(TaskExecutionResult {
-                        task_id: task_result.task_id.clone(),
+                        task_id,
                         result: task_result,
                     });
 
@@ -562,9 +563,9 @@ impl OrchestrationStrategyExecutor {
                         success_count += 1;
                     }
                 }
-                Ok(Err(e)) => {
+                Ok((task_id, Err(e))) => {
                     results.push(TaskExecutionResult {
-                        task_id: "unknown".to_string(),
+                        task_id,
                         result: TaskResult {
                             success: false,
                             output: None,
@@ -667,10 +668,11 @@ impl OrchestrationStrategyExecutor {
             let mut stage_failures = 0;
 
             for task in tasks {
+                let task_id = task.id.clone();
                 let task_result = orchestrator.framework.lock().await.execute_task(task.clone()).await?;
 
                 results.push(TaskExecutionResult {
-                    task_id: task_result.task_id.clone(),
+                    task_id,
                     result: task_result,
                 });
 
@@ -734,7 +736,7 @@ mod tests {
 
         let task1 = Task::new("task-1", "Task 1", "test", TaskPriority::Normal, serde_json::json!({}));
         let task2 = Task::new("task-2", "Task 2", "test", TaskPriority::Normal, serde_json::json!({}));
-        let task3 = Task::new("task-3", "Task 3", "test", TaskPriority::Normal, serde_json!json!({
+        let task3 = Task::new("task-3", "Task 3", "test", TaskPriority::Normal, serde_json::json!({
             "dependencies": ["task-1", "task-2"]
         }));
 

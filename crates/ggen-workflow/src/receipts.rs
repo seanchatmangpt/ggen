@@ -361,13 +361,14 @@ mod tests {
         let context = WorkflowContext::default();
 
         let receipt = generator.generate_receipt(&context).unwrap();
+        let receipt_id = receipt.receipt_id.clone();
 
         // Store receipt
         store.store_receipt(receipt).unwrap();
 
         // Retrieve receipt
-        let retrieved = store.get_receipt(&receipt.receipt_id).unwrap();
-        assert_eq!(receipt.receipt_id, retrieved.receipt_id);
+        let retrieved = store.get_receipt(&receipt_id).unwrap();
+        assert_eq!(receipt_id, retrieved.receipt_id);
 
         // List receipts
         let receipts = store.list_receipts();
