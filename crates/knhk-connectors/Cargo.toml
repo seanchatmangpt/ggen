@@ -11,6 +11,8 @@ path = "src/lib.rs"
 # For no_std compatibility, we'll use core types
 # alloc is available via extern crate alloc when needed
 hashbrown = { version = "0.15", default-features = false }
+# Global allocator for no_std
+wee_alloc = { version = "0.4.5", default-features = false }
 # Kafka connector dependencies
 rdkafka = { version = "0.36", optional = true, default-features = false }
 # Salesforce connector dependencies
@@ -25,7 +27,7 @@ tracing = { workspace = true }
 [dev-dependencies]
 
 [features]
-default = []
+default = ["std"]
 std = []
 kafka = ["std", "rdkafka"]
 salesforce = ["std", "reqwest", "serde", "serde_json"]

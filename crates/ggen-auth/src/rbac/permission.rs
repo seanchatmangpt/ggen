@@ -220,6 +220,50 @@ mod tests {
     }
 
     #[test]
+    fn test_permissions_serde_serialize() {
+        // Arrange
+        let perms = Permissions::READ | Permissions::WRITE;
+
+        // Act
+        let json = serde_json::to_string(&perms).unwrap();
+
+        // Assert - bitflags with serde feature serializes as string
+        assert_eq!(json, "\"READ | WRITE\"");
+    }
+
+    #[test]
+    fn test_permissions_serde_deserialize() {
+        // Arrange
+        let json = "\"READ | WRITE\"";
+
+        // Act
+        let perms: Permissions = serde_json::from_str(json).unwrap();
+
+        // Assert
+        assert!(perms.has_permission(Permission::Read));
+        assert!(perms.has_permission(Permission::Write));
+        assert!(!perms.has_permission(Permission::Delete));
+        assert!(!perms.has_permission(Permission::Execute));
+    }
+
+    #[test]
+    fn test_permissions_serde_roundtrip() {
+        // Arrange
+        let original = Permissions::READ | Permissions::WRITE | Permissions::EXECUTE;
+
+        // Act
+        let json = serde_json::to_string(&original).unwrap();
+        let deserialized: Permissions = serde_json::from_str(&json).unwrap();
+
+        // Assert - roundtrip preserves all bits
+        assert_eq!(original, deserialized);
+        assert!(deserialized.has_permission(Permission::Read));
+        assert!(deserialized.has_permission(Permission::Write));
+        assert!(deserialized.has_permission(Permission::Execute));
+        assert!(!deserialized.has_permission(Permission::Delete));
+    }
+
+    #[test]
     fn test_permissions_all_constant() {
         // Arrange
         let all = Permissions::ALL;

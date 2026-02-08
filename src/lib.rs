@@ -8,7 +8,6 @@
 
 // Re-export core functionality
 pub use ggen_core as core;
-pub use ggen_domain as domain;
 
 /// Workspace version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

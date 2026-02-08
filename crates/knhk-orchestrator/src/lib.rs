@@ -63,7 +63,7 @@ pub use events::{
     EtlTripleEvent, ProcessInstanceEvent, ProcessInstanceState, WorkflowTriggerEvent,
 };
 pub use kgc::TemporalContext;
-pub use orchestrator::{Orchestrator, OrchestratorConfig};
+pub use orchestrator::{Orchestrator, OrchestratorConfig, AndonSignal, OrchestratorMetrics};
 pub use bus::EventBus;
 
 /// Result type for orchestrator operations

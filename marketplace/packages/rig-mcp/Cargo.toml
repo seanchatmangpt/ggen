@@ -2,30 +2,79 @@
 name = "rig-mcp-integration"
 version = "0.1.0"
 edition = "2021"
-description = "Production-ready Rig LLM framework + MCP protocol integration"
+description = "Production-ready MCP protocol integration for ggen with transport layer and A2A support"
 authors = ["ggen-team"]
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
 
 [dependencies]
-rig-core = "0.15.1"
-rmcp = "0.8"
-tokio = { version = "1.0", features = ["full"] }
-anyhow = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-async-trait = "0.1"
-thiserror = "1.0"
+# Core dependencies (workspace)
+tokio = { workspace = true }
+anyhow = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }
+chrono = { workspace = true }
+tracing = { workspace = true }
+
+# Transport dependencies
+futures = { workspace = true }
+futures-util = { workspace = true }
+reqwest = { workspace = true, features = ["json", "stream"] }
+tokio-util = { version = "0.7", features = ["io"] }
+shell-words = "1.0"
+
+# Rig core (optional, for LLM integration)
+rig-core = { version = "0.15.1", optional = true }
+
+# A2A protocol integration (optional, feature-gated)
+a2a-rs = { workspace = true, default-features = false, optional = true }
+
+# ggen-ai integration (optional, for core registry connection)
+ggen-ai = { path = "../../../crates/ggen-ai", optional = true }
 
 [features]
-default = ["openai", "anthropic", "cohere"]
-openai = ["rig-core/openai"]
-anthropic = ["rig-core/anthropic"]
-cohere = ["rig-core/cohere"]
-ollama = ["rig-core/ollama"]
-deepseek = ["rig-core/deepseek"]
-gemini = ["rig-core/gemini"]
+default = ["stdio", "http", "a2a"]
 
+# LLM provider features (for future rig-core integration)
+openai = ["rig-integration"]
+anthropic = ["rig-integration"]
+cohere = ["rig-integration"]
+ollama = ["rig-integration"]
+deepseek = ["rig-integration"]
+gemini = ["rig-integration"]
+example = ["rig-integration"]
+
+# Rig integration (requires rig-core to be added separately)
+rig-integration = ["rig-core"]
+
+# A2A protocol integration
+a2a = ["a2a-rs/client", "a2a-rs/http-client"]
+
+# ggen-ai core registry integration
+ggen-ai = ["dep:ggen-ai"]
+
+# Transport features
+stdio = ["tokio/process", "tokio/io-util"]
+http = ["tokio/net"]
+sse = ["http", "reqwest/stream"]
+websocket = []
+
+# Full transport support
+transports = ["stdio", "http", "sse", "websocket"]
+
+# Full feature set
+full = ["a2a", "transports", "rig-integration", "ggen-ai"]
+
+# Binaries
 [[bin]]
 name = "rig-mcp-example"
 path = "src/bin/example.rs"
+required-features = []
+
+[[bin]]
+name = "rig-mcp-demo"
+path = "src/bin/demo.rs"
+required-features = []

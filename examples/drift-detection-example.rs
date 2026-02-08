@@ -1,7 +1,29 @@
-//! Example: Drift Detection Usage
+//! Drift Detection Example
 //!
 //! This example demonstrates how to use the drift detection system to track
 //! ontology changes and warn users when generated code is stale.
+//!
+//! ## What This Demonstrates
+//!
+//! - Creating a DriftDetector for project state tracking
+//! - Checking for drift between current files and last sync
+//! - Saving state after a successful sync operation
+//! - Displaying drift warnings with change details
+//!
+//! ## How to Run
+//!
+//! ```bash
+//! cargo run --example drift-detection-example
+//! ```
+//!
+//! ## Expected Output
+//!
+//! The example will:
+//! 1. Create a drift detector for the .ggen state directory
+//! 2. Check if previous sync state exists
+//! 3. Display drift status (Clean or Drifted)
+//! 4. Show warning message if drift is detected
+//! 5. Demonstrate saving state after sync
 
 use ggen_core::drift::{DriftDetector, DriftStatus};
 use std::path::Path;
@@ -30,11 +52,11 @@ fn main() -> ggen_utils::error::Result<()> {
             DriftStatus::Clean => {
                 println!("   ✓ No drift detected - code is up to date!\n");
             }
-            DriftStatus::Drifted { changes, days_since_sync } => {
+            DriftStatus::Drifted { ref changes, days_since_sync } => {
                 println!("   ⚠ Drift detected! ({} days since last sync)\n", days_since_sync);
 
                 println!("   Changes:");
-                for change in &changes {
+                for change in changes {
                     println!("     - {}", change.message);
                 }
                 println!();

@@ -28,7 +28,10 @@
 pub mod ai;
 pub mod audit;
 pub mod ci;
+pub mod domain;
+pub mod environment;
 pub mod graph;
+pub mod mcp_config;
 pub mod mape_k;
 pub mod marketplace;
 pub mod ontology;

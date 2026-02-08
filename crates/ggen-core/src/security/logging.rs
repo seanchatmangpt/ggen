@@ -112,6 +112,11 @@ impl SecurityLogger {
         Self::with_config(SecurityLoggerConfig::default())
     }
 
+    /// Get the current configuration
+    pub fn get_config(&self) -> &SecurityLoggerConfig {
+        &self.config
+    }
+
     /// Create a security logger with custom configuration
     pub fn with_config(config: SecurityLoggerConfig) -> Result<Self, LoggingError> {
         let audit_trail = if config.enable_audit {

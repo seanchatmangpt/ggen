@@ -38,7 +38,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Error, Result};
+use ggen_utils::error::{Error, Result as GgenResult};
 use regex::Regex;
 use std::fmt;
 use std::path::{Path, PathBuf};
@@ -103,7 +103,7 @@ impl From<InputValidationError> for Error {
 /// All validators implement this trait, enabling composition via AND, OR, NOT.
 pub trait ValidationRule<T>: Send + Sync {
     /// Validate input and return validated value or error
-    fn validate(&self, input: &T, field_name: &str) -> Result<T>;
+    fn validate(&self, input: &T, field_name: &str) -> GgenResult<T>;
 
     /// Combine with another validator using AND logic
     fn and<R: ValidationRule<T> + 'static>(
@@ -155,7 +155,7 @@ pub struct AndRule<T> {
 }
 
 impl<T: Clone> ValidationRule<T> for AndRule<T> {
-    fn validate(&self, input: &T, field_name: &str) -> Result<T> {
+    fn validate(&self, input: &T, field_name: &str) -> GgenResult<T> {
         let validated_left = self.left.validate(input, field_name)?;
         self.right.validate(&validated_left, field_name)
     }
@@ -168,14 +168,14 @@ pub struct OrRule<T> {
 }
 
 impl<T: Clone> ValidationRule<T> for OrRule<T> {
-    fn validate(&self, input: &T, field_name: &str) -> Result<T> {
+    fn validate(&self, input: &T, field_name: &str) -> GgenResult<T> {
         match self.left.validate(input, field_name) {
             Ok(validated) => Ok(validated),
             Err(left_err) => match self.right.validate(input, field_name) {
                 Ok(validated) => Ok(validated),
                 Err(right_err) => Err(InputValidationError::CompositeViolation {
                     reason: format!("OR failed: {} AND {}", left_err, right_err),
-                }),
+                }.into()),
             },
         }
     }
@@ -187,11 +187,11 @@ pub struct NotRule<T> {
 }
 
 impl<T: Clone> ValidationRule<T> for NotRule<T> {
-    fn validate(&self, input: &T, field_name: &str) -> Result<T> {
+    fn validate(&self, input: &T, field_name: &str) -> GgenResult<T> {
         match self.inner.validate(input, field_name) {
             Ok(_) => Err(InputValidationError::CompositeViolation {
                 reason: "NOT validation failed: inner validation succeeded".to_string(),
-            }).into(),
+            }.into()),
             Err(_) => Ok(input.clone()),
         }
     }
@@ -243,7 +243,7 @@ impl LengthRule {
 }
 
 impl ValidationRule<String> for LengthRule {
-    fn validate(&self, input: &String, field_name: &str) -> Result<String> {
+    fn validate(&self, input: &String, field_name: &str) -> GgenResult<String> {
         let len = input.len();
 
         if let Some(min) = self.min {
@@ -278,7 +278,7 @@ pub struct PatternRule {
 }
 
 impl PatternRule {
-    pub fn new(pattern: &str) -> Result<Self> {
+    pub fn new(pattern: &str) -> GgenResult<Self> {
         let regex = Regex::new(pattern)
             .map_err(|e| InputValidationError::RegexError(e.to_string()))?;
 
@@ -290,12 +290,12 @@ impl PatternRule {
 }
 
 impl ValidationRule<String> for PatternRule {
-    fn validate(&self, input: &String, field_name: &str) -> Result<String> {
+    fn validate(&self, input: &String, field_name: &str) -> GgenResult<String> {
         if !self.regex.is_match(input) {
             return Err(InputValidationError::PatternViolation {
                 field: field_name.to_string(),
                 pattern: self.pattern.clone(),
-            }).into();
+            }.into());
         }
 
         Ok(input.clone())
@@ -348,11 +348,14 @@ impl CharsetRule {
 }
 
 impl ValidationRule<String> for CharsetRule {
-    fn validate(&self, input: &String, field_name: &str) -> Result<String> {
+    fn validate(&self, input: &String, field_name: &str) -> GgenResult<String> {
+        // Suppress warning about unused description field
+        let _description = &self.description;
+
         if !input.chars().all(self.allowed_chars) {
             return Err(InputValidationError::CharsetViolation {
                 field: field_name.to_string(),
-            }).into();
+            }.into());
         }
 
         Ok(input.clone())
@@ -392,7 +395,7 @@ impl FormatRule {
 }
 
 impl ValidationRule<String> for FormatRule {
-    fn validate(&self, input: &String, field_name: &str) -> Result<String> {
+    fn validate(&self, input: &String, field_name: &str) -> GgenResult<String> {
         let (pattern, format_name) = match self {
             FormatRule::Email => (Self::email_pattern(), "email"),
             FormatRule::Uuid => (Self::uuid_pattern(), "UUID"),
@@ -428,12 +431,12 @@ impl WhitelistRule {
 }
 
 impl ValidationRule<String> for WhitelistRule {
-    fn validate(&self, input: &String, field_name: &str) -> Result<String> {
+    fn validate(&self, input: &String, field_name: &str) -> GgenResult<String> {
         if !self.allowed.contains(input) {
             return Err(InputValidationError::WhitelistViolation {
                 field: field_name.to_string(),
                 value: input.clone(),
-            }).into();
+            }.into());
         }
 
         Ok(input.clone())
@@ -453,12 +456,12 @@ impl BlacklistRule {
 }
 
 impl ValidationRule<String> for BlacklistRule {
-    fn validate(&self, input: &String, field_name: &str) -> Result<String> {
+    fn validate(&self, input: &String, field_name: &str) -> GgenResult<String> {
         if self.forbidden.contains(input) {
             return Err(InputValidationError::BlacklistViolation {
                 field: field_name.to_string(),
                 value: input.clone(),
-            }).into();
+            }.into());
         }
 
         Ok(input.clone())
@@ -519,7 +522,7 @@ impl StringValidator {
         self
     }
 
-    pub fn validate(&self, input: &str) -> Result<String> {
+    pub fn validate(&self, input: &str) -> GgenResult<String> {
         let mut validated = input.to_string();
 
         for rule in &self.rules {
@@ -578,7 +581,7 @@ impl PathValidatorRule {
         self
     }
 
-    pub fn validate(&self, path: &Path) -> Result<PathBuf> {
+    pub fn validate(&self, path: &Path) -> GgenResult<PathBuf> {
         let path_str = path.to_string_lossy();
 
         // Check length
@@ -599,7 +602,7 @@ impl PathValidatorRule {
                 if component_str == ".." {
                     return Err(InputValidationError::PathViolation {
                         reason: "Path traversal detected (..)".to_string(),
-                    }).into();
+                    }.into());
                 }
             }
         }
@@ -616,7 +619,7 @@ impl PathValidatorRule {
             } else {
                 return Err(InputValidationError::PathViolation {
                     reason: "No file extension found".to_string(),
-                }).into();
+                }.into());
             }
         }
 
@@ -684,7 +687,7 @@ impl UrlValidator {
         self
     }
 
-    pub fn validate(&self, url_str: &str) -> Result<Url> {
+    pub fn validate(&self, url_str: &str) -> GgenResult<Url> {
         let url = Url::parse(url_str).map_err(|e| InputValidationError::UrlViolation {
             reason: format!("Invalid URL: {}", e),
         })?;
@@ -693,7 +696,7 @@ impl UrlValidator {
         if self.require_https && url.scheme() != "https" {
             return Err(InputValidationError::UrlViolation {
                 reason: "HTTPS required".to_string(),
-            }).into();
+            }.into());
         }
 
         if let Some(ref allowed_schemes) = self.allowed_schemes {
@@ -715,7 +718,7 @@ impl UrlValidator {
             } else {
                 return Err(InputValidationError::UrlViolation {
                     reason: "No host found in URL".to_string(),
-                }).into();
+                }.into());
             }
         }
 
@@ -768,7 +771,7 @@ impl<T: PartialOrd + fmt::Display + Clone> RangeRule<T> {
 }
 
 impl<T: PartialOrd + fmt::Display + Clone + Send + Sync + 'static> ValidationRule<T> for RangeRule<T> {
-    fn validate(&self, input: &T, field_name: &str) -> Result<T> {
+    fn validate(&self, input: &T, field_name: &str) -> GgenResult<T> {
         if let Some(ref min) = self.min {
             if input < min {
                 return Err(InputValidationError::RangeViolation {
@@ -798,26 +801,26 @@ impl<T: PartialOrd + fmt::Display + Clone + Send + Sync + 'static> ValidationRul
 pub struct PositiveRule;
 
 impl ValidationRule<i64> for PositiveRule {
-    fn validate(&self, input: &i64, field_name: &str) -> Result<i64> {
+    fn validate(&self, input: &i64, field_name: &str) -> GgenResult<i64> {
         if *input <= 0 {
             return Err(InputValidationError::RangeViolation {
                 field: field_name.to_string(),
                 actual: input.to_string(),
                 constraint: "> 0".to_string(),
-            }).into();
+            }.into());
         }
         Ok(*input)
     }
 }
 
 impl ValidationRule<f64> for PositiveRule {
-    fn validate(&self, input: &f64, field_name: &str) -> Result<f64> {
+    fn validate(&self, input: &f64, field_name: &str) -> GgenResult<f64> {
         if *input <= 0.0 {
             return Err(InputValidationError::RangeViolation {
                 field: field_name.to_string(),
                 actual: input.to_string(),
                 constraint: "> 0".to_string(),
-            }).into();
+            }.into());
         }
         Ok(*input)
     }
@@ -828,26 +831,26 @@ impl ValidationRule<f64> for PositiveRule {
 pub struct NegativeRule;
 
 impl ValidationRule<i64> for NegativeRule {
-    fn validate(&self, input: &i64, field_name: &str) -> Result<i64> {
+    fn validate(&self, input: &i64, field_name: &str) -> GgenResult<i64> {
         if *input >= 0 {
             return Err(InputValidationError::RangeViolation {
                 field: field_name.to_string(),
                 actual: input.to_string(),
                 constraint: "< 0".to_string(),
-            }).into();
+            }.into());
         }
         Ok(*input)
     }
 }
 
 impl ValidationRule<f64> for NegativeRule {
-    fn validate(&self, input: &f64, field_name: &str) -> Result<f64> {
+    fn validate(&self, input: &f64, field_name: &str) -> GgenResult<f64> {
         if *input >= 0.0 {
             return Err(InputValidationError::RangeViolation {
                 field: field_name.to_string(),
                 actual: input.to_string(),
                 constraint: "< 0".to_string(),
-            }).into();
+            }.into());
         }
         Ok(*input)
     }
@@ -868,7 +871,7 @@ impl PrecisionRule {
 }
 
 impl ValidationRule<f64> for PrecisionRule {
-    fn validate(&self, input: &f64, field_name: &str) -> Result<f64> {
+    fn validate(&self, input: &f64, field_name: &str) -> GgenResult<f64> {
         let s = format!("{}", input);
         if let Some(decimal_pos) = s.find('.') {
             let decimal_places = s.len() - decimal_pos - 1;

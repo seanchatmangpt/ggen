@@ -141,7 +141,10 @@ verify_signatures = true
 enabled = true
 
 # Generation rules - define what to generate
-rules = []
+rules = [
+    { name = "a2a-rs", source = ".specify/specs/014-a2a-integration/", output = "crates/a2a-generated/src/", templates = "crates/ggen-core/templates/a2a-rs/" },
+    { name = "domain-config", source = ".specify/specs/014-a2a-integration/", output = "crates/ggen-domain/src/domain/", templates = "crates/ggen-core/templates/domain/" }
+]
 
 # Protected paths (glob patterns) - NEVER overwrite
 # These contain domain logic implemented by developers

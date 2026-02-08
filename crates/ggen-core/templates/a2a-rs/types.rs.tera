@@ -1,0 +1,23 @@
+{% for type in types %}
+/// {{ type.description | trim }}
+#[{{ type.visibility | default("pub") }}]
+{{ type.name }}{% if type.derive %}
+#[derive({{ type.derive | join(", ") }})]{% endif %}{% if type.struct %} {
+    {% for field in type.fields %}
+    /// {{ field.description | trim }}
+    {{ field.visibility | default("pub") }} {{ field.name }}: {{ field.type }}{% if field.default %} = {{ field.default }}{% endif %},
+    {% endfor %}
+}
+{% else if type.enum %}
+{
+    {% for variant in type.variants %}
+    {% if variant.rename %} #[serde(rename = "{{ variant.rename }}")] {% endif %}{{ variant.name }},{% endfor %}
+}
+{% else if type.union %}
+{%- for field in type.fields %}
+    {{ field.name }}({{ field.type }}),
+{%- endfor %}
+}
+{%- endif %}
+
+{% endfor %}

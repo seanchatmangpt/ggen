@@ -32,7 +32,7 @@
 use super::input::{
     CharsetRule, FormatRule, InputValidationError, StringValidator,
 };
-use super::error::Result;
+use ggen_utils::error::Result;
 use std::collections::HashMap;
 
 /// Rule definition for declarative validation
@@ -189,7 +189,10 @@ impl CompiledValidator {
         value: &str,
     ) -> Result<String> {
         if let Some(validator) = self.validators.get(field) {
-            validator.validate(value)
+            validator.validate(value).map_err(|e| InputValidationError::FormatViolation {
+                field: field.to_string(),
+                reason: format!("Validation failed: {}", e)
+            }.into())
         } else {
             Err(InputValidationError::EmptyInput {
                 field: format!("No validator defined for field: {}", field),

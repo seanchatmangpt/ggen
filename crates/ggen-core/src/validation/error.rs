@@ -142,6 +142,21 @@ pub enum ValidationError {
         /// Configured timeout limit in milliseconds
         limit_ms: u64,
     },
+
+    /// General validation error (fallback)
+    ///
+    /// Occurs when validation fails but doesn't fit specific categories.
+    /// Used for conversion from other error types.
+    ///
+    /// Example:
+    /// ```text
+    /// General: Input validation error: Invalid email format
+    /// ```
+    #[error("General validation error: {message}")]
+    General {
+        /// Error message
+        message: String,
+    },
 }
 
 impl ValidationError {
@@ -227,6 +242,15 @@ impl From<oxigraph::sparql::QueryEvaluationError> for ValidationError {
         ValidationError::SparqlError {
             message: err.to_string(),
             query: String::new(), // Query context added by caller
+        }
+    }
+}
+
+// Conversion from InputValidationError to ValidationError
+impl From<crate::validation::input::InputValidationError> for ValidationError {
+    fn from(error: crate::validation::input::InputValidationError) -> Self {
+        ValidationError::General {
+            message: format!("Input validation error: {}", error),
         }
     }
 }

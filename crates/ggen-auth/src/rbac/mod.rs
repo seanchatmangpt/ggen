@@ -79,7 +79,7 @@ mod tests {
         let policy_engine = PolicyEngine::new();
 
         // Act
-        let result = authorize(user_id, &roles, &resource, Permission::READ, &policy_engine);
+        let result = authorize(user_id, &roles, &resource, Permission::Read, &policy_engine);
 
         // Assert
         assert!(result.is_ok());
@@ -101,7 +101,7 @@ mod tests {
         let policy_engine = PolicyEngine::new();
 
         // Act
-        let result = authorize(user_id, &roles, &resource, Permission::READ, &policy_engine);
+        let result = authorize(user_id, &roles, &resource, Permission::Read, &policy_engine);
 
         // Assert
         assert!(result.is_ok());
@@ -123,7 +123,7 @@ mod tests {
         let policy_engine = PolicyEngine::new();
 
         // Act
-        let result = authorize(user_id, &roles, &resource, Permission::DELETE, &policy_engine);
+        let result = authorize(user_id, &roles, &resource, Permission::Delete, &policy_engine);
 
         // Assert
         assert!(result.is_ok());

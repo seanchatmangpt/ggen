@@ -1,7 +1,31 @@
-//! Example: Secure Path Validation for Template and RDF Loading
+//! Path Validation Security Example
 //!
 //! This example demonstrates how to use PathValidator to prevent
 //! path traversal, symlink attacks, and other security vulnerabilities.
+//!
+//! ## What This Demonstrates
+//!
+//! - Template loading with extension validation
+//! - RDF ontology loading security
+//! - Output file path validation
+//! - Batch validation for multiple paths
+//! - Attack prevention demonstrations
+//!
+//! ## How to Run
+//!
+//! ```bash
+//! cargo run --example path_validation_example
+//! ```
+//!
+//! ## Expected Output
+//!
+//! The example will:
+//! 1. Show valid template paths being accepted
+//! 2. Show valid ontology paths being accepted
+//! 3. Demonstrate blocking of path traversal attacks
+//! 4. Demonstrate blocking of null byte injection
+//! 5. Demonstrate blocking of absolute path escapes
+//! 6. Demonstrate extension-based filtering
 
 use std::path::Path;
 use ggen_utils::path_validator::{PathValidator, SafePath};

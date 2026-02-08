@@ -1,0 +1,30 @@
+use std::fmt;
+{% for module in modules %}
+pub mod {{ module.name }} {
+    {% for item in module.items %}
+    pub use super::{{ item }};
+    {% endfor %}
+}
+{% endfor %}
+
+// Re-export types for convenience
+pub use self::{% for module in modules %}{{ module.name }}, {% endfor %};
+
+impl_types!();
+{% for module in modules %}
+impl_types_for_{{ module.name }}!();
+{% endfor %}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    {% for test in tests %}
+    #[test]
+    fn {{ test.name }}() {
+        // {{ test.description }}
+        let result = {{ test.code }};
+        assert!({{ test.assertion }});
+    }
+    {% endfor %}
+}

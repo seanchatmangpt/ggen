@@ -56,7 +56,7 @@
 pub mod cache;
 pub mod client;
 pub mod config;
-// pub mod dspy; // Temporarily disabled - requires additional dependencies and submodules
+pub mod dspy;
 pub mod constants;
 pub mod error;
 pub mod error_utils;
@@ -67,6 +67,8 @@ pub mod providers;
 pub mod rdf;
 pub mod security;
 pub mod streaming;
+pub mod tool;
+pub mod tool_registry;
 pub mod types;
 
 // LLM-Construct Pattern modules
@@ -93,6 +95,8 @@ pub use rdf::{
 };
 pub use security::{MaskApiKey, SecretString};
 pub use streaming::StreamConfig;
+pub use tool::{AuthScope, Tool, ToolExample, ToolSlo, ToolTag};
+pub use tool_registry::{ToolRegistry, REGISTRY};
 pub use types::{DecisionId, PolicyId, RequestId, RuleId};
 
 /// Version information

@@ -1,0 +1,390 @@
+// Domain validation template for A2A integration
+// Generated from RDF specification: {{spec_uri}}
+
+{% if domain_classes %}
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::time::Duration;
+
+use crate::domain::DomainConfig;
+
+/// Domain validation result
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ValidationResult {
+    /// Valid or not
+    pub valid: bool,
+    /// Validation errors
+    pub errors: Vec<String>,
+    /// Validation warnings
+    pub warnings: Vec<String>,
+    /// Configuration score
+    pub score: f64,
+}
+
+/// Domain validator
+pub struct DomainValidator {
+    /// Configuration to validate
+    pub config: DomainConfig,
+}
+
+impl DomainValidator {
+    /// Create a new domain validator
+    pub fn new(config: DomainConfig) -> Self {
+        Self { config }
+    }
+
+    /// Validate the domain configuration
+    pub fn validate(&self) -> ValidationResult {
+        let mut errors = Vec::new();
+        let mut warnings = Vec::new();
+
+        // Validate environment configuration
+        self.validate_environment(&mut errors, &mut warnings);
+
+        // Validate A2A configuration
+        self.validate_a2a(&mut errors, &mut warnings);
+
+        // Validate agent configuration
+        self.validate_agents(&mut errors, &mut warnings);
+
+        // Validate task configuration
+        self.validate_tasks(&mut errors, &mut warnings);
+
+        // Validate message configuration
+        self.validate_messages(&mut errors, &mut warnings);
+
+        // Validate event configuration
+        self.validate_events(&mut errors, &mut warnings);
+
+        // Validate storage configuration
+        self.validate_storage(&mut errors, &mut warnings);
+
+        // Validate network configuration
+        self.validate_network(&mut errors, &mut warnings);
+
+        ValidationResult {
+            valid: errors.is_empty(),
+            errors,
+            warnings,
+            score: self.calculate_score(),
+        }
+    }
+
+    /// Validate environment configuration
+    fn validate_environment(&self, errors: &mut Vec<String>, warnings: &mut Vec<String>) {
+        if self.config.environment.name.is_empty() {
+            errors.push("Environment name cannot be empty".to_string());
+        }
+
+        if self.config.environment.max_concurrency == 0 {
+            errors.push("Max concurrency must be greater than 0".to_string());
+        } else if self.config.environment.max_concurrency > 1000 {
+            warnings.push("Max concurrency is very high".to_string());
+        }
+
+        if self.config.environment.operation_timeout.as_secs() == 0 {
+            errors.push("Operation timeout cannot be zero".to_string());
+        }
+    }
+
+    /// Validate A2A configuration
+    fn validate_a2a(&self, errors: &mut Vec<String>, warnings: &mut Vec<String>) {
+        // Validate agent service
+        if self.config.a2a.agent.id.is_empty() {
+            errors.push("Agent ID cannot be empty".to_string());
+        }
+
+        if self.config.a2a.agent.agent_type.is_empty() {
+            errors.push("Agent type cannot be empty".to_string());
+        }
+
+        if self.config.a2a.agent.max_concurrent_tasks == 0 {
+            errors.push("Max concurrent tasks must be greater than 0".to_string());
+        }
+
+        // Validate task service
+        if self.config.a2a.task.max_retries > 10 {
+            warnings.push("Max retries is very high".to_string());
+        }
+
+        if self.config.a2a.task.timeout.as_secs() == 0 {
+            errors.push("Task timeout cannot be zero".to_string());
+        }
+
+        if self.config.a2a.task.queue_size == 0 {
+            errors.push("Task queue size must be greater than 0".to_string());
+        }
+
+        // Validate message service
+        if self.config.a2a.message.broker_type.is_empty() {
+            errors.push("Message broker type cannot be empty".to_string());
+        }
+
+        if self.config.a2a.message.timeout.as_secs() == 0 {
+            errors.push("Message timeout cannot be zero".to_string());
+        }
+
+        if self.config.a2a.message.max_size == 0 {
+            errors.push("Max message size must be greater than 0".to_string());
+        }
+
+        // Validate event service
+        if self.config.a2a.event.broker_type.is_empty() {
+            errors.push("Event broker type cannot be empty".to_string());
+        }
+
+        if self.config.a2a.event.buffer_size == 0 {
+            warnings.push("Event buffer size is zero".to_string());
+        }
+    }
+
+    /// Validate agent configuration
+    fn validate_agents(&self, errors: &mut Vec<String>, warnings: &mut Vec<String>) {
+        for (agent_id, agent) in &self.config.agents {
+            if agent_id.is_empty() {
+                errors.push("Agent ID cannot be empty".to_string());
+                continue;
+            }
+
+            if agent.name.is_empty() {
+                warnings.push(format!("Agent {} has no name", agent_id));
+            }
+
+            if agent.agent_type.is_empty() {
+                errors.push(format!("Agent {} type is empty", agent_id));
+            }
+
+            if agent.max_concurrent_tasks == 0 {
+                warnings.push(format!("Agent {} has zero max concurrent tasks", agent_id));
+            }
+        }
+    }
+
+    /// Validate task configuration
+    fn validate_tasks(&self, errors: &mut Vec<String>, warnings: &mut Vec<String>) {
+        if self.config.tasks.default_timeout.as_secs() == 0 {
+            errors.push("Default task timeout cannot be zero".to_string());
+        }
+
+        if self.config.tasks.max_retries > 10 {
+            warnings.push("Max retries is very high".to_string());
+        }
+
+        if self.config.tasks.retry_delay.as_secs() == 0 {
+            errors.push("Retry delay cannot be zero".to_string());
+        }
+
+        if self.config.tasks.queue.max_size == 0 {
+            errors.push("Queue max size must be greater than 0".to_string());
+        }
+
+        if self.config.tasks.queue.timeout.as_secs() == 0 {
+            errors.push("Queue timeout cannot be zero".to_string());
+        }
+    }
+
+    /// Validate message configuration
+    fn validate_messages(&self, errors: &mut Vec<String>, warnings: &mut Vec<String>) {
+        if self.config.messages.default_timeout.as_secs() == 0 {
+            errors.push("Default message timeout cannot be zero".to_string());
+        }
+
+        if self.config.messages.max_size == 0 {
+            errors.push("Max message size must be greater than 0".to_string());
+        }
+
+        if self.config.messages.format.is_empty() {
+            errors.push("Message format cannot be empty".to_string());
+        }
+
+        for (topic_name, topic) in &self.config.messages.topics {
+            if topic_name.is_empty() {
+                errors.push("Topic name cannot be empty".to_string());
+            }
+
+            if topic.partitions == 0 {
+                warnings.push(format!("Topic {} has zero partitions", topic_name));
+            }
+        }
+    }
+
+    /// Validate event configuration
+    fn validate_events(&self, errors: &mut Vec<String>, warnings: &mut Vec<String>) {
+        if self.config.events.buffer_size == 0 {
+            warnings.push("Event buffer size is zero".to_string());
+        }
+
+        if self.config.events.handlers.is_empty() {
+            warnings.push("No event handlers configured".to_string());
+        }
+
+        for (handler_name, handler) in &self.config.events.handlers {
+            if handler_name.is_empty() {
+                errors.push("Handler name cannot be empty".to_string());
+            }
+
+            if handler.handler_type.is_empty() {
+                errors.push("Handler type cannot be empty".to_string());
+            }
+        }
+    }
+
+    /// Validate storage configuration
+    fn validate_storage(&self, errors: &mut Vec<String>, warnings: &mut Vec<String>) {
+        if self.config.storage.backend_type.is_empty() {
+            errors.push("Storage backend type cannot be empty".to_string());
+        }
+
+        if self.config.storage.pool_size == 0 {
+            errors.push("Storage pool size must be greater than 0".to_string());
+        }
+
+        if self.config.storage.max_connections == 0 {
+            errors.push("Max connections must be greater than 0".to_string());
+        }
+
+        if self.config.storage.enable_caching && self.config.storage.cache_size == 0 {
+            warnings.push("Cache enabled but cache size is zero".to_string());
+        }
+    }
+
+    /// Validate network configuration
+    fn validate_network(&self, errors: &mut Vec<String>, warnings: &mut Vec<String>) {
+        if self.config.network.timeout.as_secs() == 0 {
+            errors.push("Network timeout cannot be zero".to_string());
+        }
+
+        if self.config.network.max_connections == 0 {
+            errors.push("Max connections must be greater than 0".to_string());
+        }
+    }
+
+    /// Calculate configuration score
+    fn calculate_score(&self) -> f64 {
+        let mut score = 0.0;
+        let mut max_score = 0.0;
+
+        // Environment score (20 points)
+        if !self.config.environment.name.is_empty() {
+            score += 5.0;
+        }
+        if self.config.environment.max_concurrency > 0 {
+            score += 5.0;
+        }
+        if self.config.environment.operation_timeout.as_secs() > 0 {
+            score += 5.0;
+        }
+        if self.config.environment.network_timeout.as_secs() > 0 {
+            score += 5.0;
+        }
+        max_score += 20.0;
+
+        // A2A configuration score (30 points)
+        if !self.config.a2a.agent.id.is_empty() {
+            score += 7.0;
+        }
+        if !self.config.a2a.agent.agent_type.is_empty() {
+            score += 7.0;
+        }
+        if self.config.a2a.agent.max_concurrent_tasks > 0 {
+            score += 8.0;
+        }
+        if self.config.a2a.task.timeout.as_secs() > 0 {
+            score += 8.0;
+        }
+        max_score += 30.0;
+
+        // Task configuration score (20 points)
+        if self.config.tasks.default_timeout.as_secs() > 0 {
+            score += 5.0;
+        }
+        if self.config.tasks.max_retries > 0 {
+            score += 5.0;
+        }
+        if self.config.tasks.retry_delay.as_secs() > 0 {
+            score += 5.0;
+        }
+        if self.config.tasks.queue.max_size > 0 {
+            score += 5.0;
+        }
+        max_score += 20.0;
+
+        // Message configuration score (15 points)
+        if self.config.messages.default_timeout.as_secs() > 0 {
+            score += 5.0;
+        }
+        if self.config.messages.max_size > 0 {
+            score += 5.0;
+        }
+        if !self.config.messages.format.is_empty() {
+            score += 5.0;
+        }
+        max_score += 15.0;
+
+        // Storage configuration score (15 points)
+        if !self.config.storage.backend_type.is_empty() {
+            score += 5.0;
+        }
+        if self.config.storage.pool_size > 0 {
+            score += 5.0;
+        }
+        if self.config.storage.max_connections > 0 {
+            score += 5.0;
+        }
+        max_score += 15.0;
+
+        (score / max_score) * 100.0
+    }
+}
+
+impl DomainConfig {
+    /// Validate the domain configuration
+    pub fn validate(&self) -> ValidationResult {
+        DomainValidator::new(self.clone()).validate()
+    }
+
+    /// Check if the configuration is valid
+    pub fn is_valid(&self) -> bool {
+        self.validate().valid
+    }
+
+    /// Get configuration score
+    pub fn get_score(&self) -> f64 {
+        self.validate().score
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_valid_domain_config() {
+        let config = DomainConfig::default();
+        let validation = config.validate();
+        assert!(validation.valid);
+        assert_eq!(validation.score, 100.0);
+    }
+
+    #[test]
+    fn test_invalid_domain_config() {
+        let mut config = DomainConfig::default();
+        config.environment.name = "".to_string();
+        config.environment.max_concurrency = 0;
+
+        let validation = config.validate();
+        assert!(!validation.valid);
+        assert!(!validation.errors.is_empty());
+    }
+
+    #[test]
+    fn test_domain_config_score() {
+        let config = DomainConfig::default();
+        assert_eq!(config.get_score(), 100.0);
+
+        let mut config = DomainConfig::default();
+        config.environment.name = "".to_string();
+        assert!(config.get_score() < 100.0);
+    }
+}
+{% endif %}

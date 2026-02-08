@@ -109,16 +109,9 @@ pub enum DspyError {
     Other(String),
 }
 
-impl From<ggen_ai::dspy::ModuleError> for DspyError {
-    fn from(err: ggen_ai::dspy::ModuleError) -> Self {
-        match err {
-            ggen_ai::dspy::ModuleError::MissingInput(field) => DspyError::MissingInput(field),
-            ggen_ai::dspy::ModuleError::InvalidInputType(field, expected) => {
-                DspyError::InvalidInputType { field, expected }
-            }
-            ggen_ai::dspy::ModuleError::LlmError(msg) => DspyError::ModuleError(msg),
-            ggen_ai::dspy::ModuleError::Other(msg) => DspyError::Other(msg),
-        }
+impl From<DspyError> for DspyError {
+    fn from(err: DspyError) -> Self {
+        err
     }
 }
 

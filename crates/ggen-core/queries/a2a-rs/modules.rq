@@ -1,0 +1,6 @@
+SELECT DISTINCT ?module ?module_name ?item
+WHERE {
+    ?module a ggen:Module .
+    ?module ggen:name ?module_name .
+    ?module ggen:hasItem ?item .
+} ORDER BY ?module_name ?item

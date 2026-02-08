@@ -197,7 +197,10 @@ fn test_builder_pattern_chaining() {
     // Assert
     assert!(result.is_ok(), "Builder pattern should chain correctly");
     let cmd = result.unwrap();
-    assert_eq!(cmd.to_string_debug(), "cargo build --release --all-features");
+    assert_eq!(
+        cmd.to_string_debug(),
+        "cargo build --release --all-features"
+    );
 }
 
 #[test]
@@ -212,7 +215,10 @@ fn test_builder_pattern_with_args_bulk() {
     // Assert
     assert!(result.is_ok(), "Bulk args should work");
     let cmd = result.unwrap();
-    assert_eq!(cmd.to_string_debug(), "cargo build --release --all-features");
+    assert_eq!(
+        cmd.to_string_debug(),
+        "cargo build --release --all-features"
+    );
 }
 
 #[test]
