@@ -7,6 +7,7 @@ use std::sync::Arc;
 use tokio::sync::{Mutex, mpsc};
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
+use rand::Rng;
 
 // ============================================================================
 // RECOVERY STRATEGIES
@@ -540,24 +541,26 @@ impl RecoveryManager {
     /// Calculate backoff delay
     fn calculate_backoff_delay(&self, policy: &RecoveryPolicy, retry_count: u32) -> u64 {
         let delay_ms = policy.initial_delay_ms * policy.backoff_multiplier.powi(retry_count as i32);
-        let jitter = fastrand::u64(0..policy.jitter_ms);
+        let mut rng = rand::thread_rng();
+        let jitter = rng.random_range(0..policy.jitter_ms);
 
         delay_ms.min(policy.max_delay_ms) + jitter
     }
 
     /// Attempt recovery operation
-    async fn attempt_recovery(&self, error: ExecutionError) -> Result<bool, ExecutionError> {
+    async fn attempt_recovery(&self, _error: ExecutionError) -> Result<bool, ExecutionError> {
         // Simplified recovery attempt
         // In production, this would implement specific recovery logic
-        Ok(fastrand::bool())
+        let mut rng = rand::thread_rng();
+        Ok(rng.gen_bool(0.5))
     }
 
     /// Determine error severity
     fn determine_error_severity(&self, error: &ExecutionError) -> ErrorSeverity {
         match error {
-            ExecutionError::Critical(_) => ErrorSeverity::Critical,
             ExecutionError::Task(_) | ExecutionError::Agent(_) => ErrorSeverity::Error,
             ExecutionError::Communication(_) | ExecutionError::Timeout(_) => ErrorSeverity::Warning,
+            ExecutionError::Convergence(_) | ExecutionError::Recovery(_) => ErrorSeverity::Critical,
             _ => ErrorSeverity::Info,
         }
     }

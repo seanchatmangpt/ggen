@@ -102,15 +102,16 @@ impl MetricsCollector {
 
     /// Record a new metrics entry
     pub fn record_metrics(&mut self, metrics: PerformanceMetrics) {
+        // Update aggregations first
+        self.update_aggregations(&metrics);
+
+        // Then add to history
         self.metrics_history.push_back(metrics);
 
         // Keep history size within limits
         if self.metrics_history.len() > self.max_history_size {
             self.metrics_history.pop_front();
         }
-
-        // Update aggregations
-        self.update_aggregations(&metrics);
     }
 
     /// Update aggregations with new metrics
@@ -661,7 +662,7 @@ impl MetricsExporter {
                         "aggregations": collector.get_aggregations()
                     })
                 } else {
-                    serde_json::null()
+                    serde_json::json!(null)
                 }
             })
         } else {
@@ -785,17 +786,22 @@ impl MetricsExporter {
         let mut influx_content = String::new();
 
         if let Some(metrics) = metrics {
-            influx_content.push_str(&format!(
-                "ggen_metrics,timestamp={} {}",
-                metrics.timestamp.timestamp(),
-                "execution_duration_ms={},throughput_per_second={},success_rate={},error_rate={},cpu_usage_percent={},memory_usage_mb={} {}\n",
+            // InfluxDB line protocol format: measurement,tag_set field_set timestamp
+            let fields = format!(
+                "execution_duration_ms={},throughput_per_second={},success_rate={},error_rate={},cpu_usage_percent={},memory_usage_mb={}",
                 metrics.execution_duration_ms,
                 metrics.throughput_per_second,
                 metrics.success_rate,
                 metrics.error_rate,
                 metrics.cpu_usage_percent,
-                metrics.memory_usage_mb,
-                metrics.timestamp.timestamp_nanos_opt().unwrap_or(0)
+                metrics.memory_usage_mb
+            );
+            let timestamp = metrics.timestamp.timestamp_nanos_opt().unwrap_or(0);
+            influx_content.push_str(&format!(
+                "ggen_metrics,timestamp={} {} {}\n",
+                metrics.timestamp.timestamp(),
+                fields,
+                timestamp
             ));
         }
 

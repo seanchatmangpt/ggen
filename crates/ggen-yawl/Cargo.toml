@@ -16,10 +16,12 @@ tera = "1.20"
 oxigraph = { version = "0.5.1", features = ["rocksdb"] }
 sha2 = "0.10"
 chrono = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
 proptest = "1.8"
 criterion = "0.5"
+tempfile = "3.13"
 
 [[bench]]
 name = "yawl_workflow_slo"

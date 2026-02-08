@@ -1,0 +1,32 @@
+# ============================================================================
+# PATTERN 1: Class-to-Task Transformation
+# Maps industry ontology classes to YAWL Atomic Tasks
+# ============================================================================
+PREFIX src: <http://industry-ontology.org/>
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+CONSTRUCT {
+  ?task a yawl:AtomicTask ;
+    yawl:taskId ?taskId ;
+    yawl:taskName ?taskName ;
+    yawl:taskKind "atomic" ;
+    rdfs:comment ?taskComment ;
+    yawl:splitBehavior yawl:XOR_Split ;
+    yawl:joinBehavior yawl:XOR_Join .
+}
+WHERE {
+  # Source: OWL class from industry ontology
+  ?srcClass a owl:Class ;
+    rdfs:label ?label .
+
+  # Filter: Only concrete classes (not abstract)
+  FILTER NOT EXISTS { ?srcClass a owl:DeprecatedClass }
+
+  # Generate task identifiers deterministically
+  BIND(IRI(CONCAT(STR(yawl:), "task/", ENCODE_FOR_URI(?label))) AS ?task)
+  BIND(REPLACE(?label, "\\s+", "_") AS ?taskName)
+  BIND(CONCAT("Task generated from class: ", ?label) AS ?taskComment)
+  BIND(CONCAT("task-", SHA256(?label)) AS ?taskId)
+}

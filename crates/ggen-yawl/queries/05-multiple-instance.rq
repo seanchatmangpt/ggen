@@ -1,0 +1,49 @@
+# ============================================================================
+# PATTERN 5: Multiple Instance Task Generation
+# Maps properties with maxCardinality > 1 to multiple instance tasks
+# ============================================================================
+PREFIX src: <http://industry-ontology.org/>
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?miTask a yawl:MultipleInstanceTask ;
+    yawl:taskId ?taskId ;
+    yawl:taskName ?taskName ;
+    yawl:miMinimum ?minInstances ;
+    yawl:miMaximum ?maxInstances ;
+    yawl:miThreshold ?threshold ;
+    yawl:miCreationMode ?creationMode .
+}
+WHERE {
+  # Find properties with multiple cardinality
+  ?property a owl:ObjectProperty ;
+    rdfs:domain ?sourceClass ;
+    rdfs:range ?targetClass ;
+    owl:maxCardinality ?maxCard .
+
+  # Only process if maxCardinality > 1
+  FILTER(?maxCard > 1)
+
+  # Get min cardinality
+  OPTIONAL {
+    ?property owl:minCardinality ?minCard .
+  }
+  BIND(COALESCE(?minCard, 1) AS ?minInstances)
+
+  # Generate task
+  BIND(IRI(CONCAT(STR(yawl:), "task/", SHA256(CONCAT(STR(?sourceClass), "-multi")))) AS ?miTask)
+  BIND(STRAFTER(STR(?sourceClass), "#") AS ?taskName)
+  BIND(SHA256(CONCAT("mi:", STR(?sourceClass), STR(?property))) AS ?taskId)
+
+  # Calculate completion threshold (default: all instances)
+  BIND(?maxCard AS ?threshold)
+
+  # Determine creation mode
+  BIND(
+    IF(EXISTS { ?property a owl:FunctionalProperty },
+       "static",
+       "dynamic")
+  AS ?creationMode)
+}

@@ -51,6 +51,8 @@ members = [
   "crates/ggen-craftplan",     # RDF-driven Elixir code generation for Craftplan ERP
   "crates/tps-reference",      # Toyota Production System reference implementation
   "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
+  "crates/ggen-yawl",         # YAWL workflow generation from industry ontologies
+  "crates/ggen-process-mining", # Process mining integration with rust4pm (Alpha++, XES/OCEL)
   # "crates/a2a-generated",  # Temporarily excluded - has compilation errors
   # "crates/ggen-execution",   # Temporarily excluded - depends on a2a-generated
   "crates/tai-testing",        # Production hardening & resilience testing framework
@@ -63,7 +65,9 @@ exclude = [
   "examples/marketplace-demo/generated",
   "examples/gcp-erlang-autonomics",
   "marketplace/packages/workflow-engine-cli",
+  "crates/ggen-workflow/native",  # Native NIF crate - standalone build only
   "crates/tps-kaizen",  # Temporarily excluded - has Cargo.toml syntax error
+  "crates/ggen-process-mining", # Temporarily excluded - has missing benchmark files
   "crates/tai-gcp",  # Temporarily excluded - missing google-authz dependency
   "crates/tai-security",  # Temporarily excluded - has dependency issues
   "crates/tai-resilience",  # Temporarily excluded - has dependency issues
@@ -162,6 +166,12 @@ tps-kaizen = { path = "crates/tps-kaizen", version = "0.1.0" }
 
 # ggen-craftplan: RDF-driven Elixir code generation
 ggen-craftplan = { path = "crates/ggen-craftplan", version = "0.1.0" }
+
+# ggen-yawl: YAWL workflow generation from industry ontologies
+ggen-yawl = { path = "crates/ggen-yawl", version = "0.1.0" }
+
+# ggen-process-mining: Process mining integration with rust4pm (Alpha++, XES/OCEL)
+ggen-process-mining = { path = "crates/ggen-process-mining", version = "0.1.0" }
 
 # TAI Cache: Advanced caching with multi-tier strategies
 tai-cache = { path = "crates/tai-cache", version = "0.1.0" }
@@ -341,6 +351,7 @@ tempfile = "3.23"
 anyhow = "1.0"
 ggen-domain = { path = "crates/ggen-domain" }
 knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "0.1.0" }
+ggen-yawl = { path = "crates/ggen-yawl", version = "0.1.0" }
 oxigraph = "0.5.1"
 # BDD testing framework
 assert_fs = "1.1"
@@ -375,6 +386,9 @@ fastrand = "2.3"
 
 # Process Mining for workflow analytics
 process_mining = "0.2"
+ggen-process-mining = { path = "crates/ggen-process-mining", version = "0.1.0" }
+# Cryptographic hashing for receipt tests
+sha2 = "0.10"
 
 [profile.dev]
 opt-level = 0
@@ -450,6 +464,10 @@ harness = false
 
 [[bench]]
 name = "slo_validation"
+harness = false
+
+[[bench]]
+name = "yawl_generation_slo"
 harness = false
 
 [[test]]
@@ -598,6 +616,30 @@ required-features = []
 [[test]]
 name = "registry_client_tests"
 path = "tests/transport/registry_client_tests.rs"
+required-features = []
+
+# YAWL Workflow Generation Unit Tests
+[[test]]
+name = "yawl_workflow_generation_unit"
+path = "tests/yawl_workflow_generation/unit/mod.rs"
+required-features = []
+
+# YAWL Workflow Generation Receipt Verification Tests
+[[test]]
+name = "yawl_workflow_generation_receipts"
+path = "tests/yawl_workflow_generation/receipts/mod.rs"
+required-features = []
+
+# FIBO Integration Tests for YAWL Workflow Generation
+[[test]]
+name = "fibo_integration_tests"
+path = "tests/fibo_integration_tests.rs"
+required-features = []
+
+# Process Mining Integration Tests
+[[test]]
+name = "process_mining_integration"
+path = "tests/process_mining/mod.rs"
 required-features = []
 
 # ============================================================================

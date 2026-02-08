@@ -159,6 +159,8 @@ pub mod template_cache;
 pub mod templates;
 pub mod tera_env;
 pub mod validation;
+// v6: Fully-Rendered Libraries via Ontology-First Compilation (A = μ(O))
+pub mod v6;
 // pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
 pub mod simple_tracing;
 

@@ -1,0 +1,47 @@
+# ============================================================================
+# PATTERN 3: Cardinality-Based Split/Join Behavior
+# Analyzes OWL restrictions to determine YAWL gateway types
+# ============================================================================
+PREFIX src: <http://industry-ontology.org/>
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+CONSTRUCT {
+  ?task yawl:splitBehavior ?splitBehavior ;
+      yawl:joinBehavior ?joinBehavior .
+}
+WHERE {
+  {
+    # Case 1: Single outgoing (maxCardinality = 1) -> XOR
+    ?task a yawl:Task .
+    ?srcClass owl:onProperty ?prop .
+    ?restriction a owl:Restriction ;
+        owl:onProperty ?prop ;
+        owl:maxCardinality 1 .
+
+    # Map source class to task
+    ?srcClass rdfs:label ?label .
+    BIND(IRI(CONCAT(STR(yawl:), "task/", ENCODE_FOR_URI(?label))) AS ?task)
+
+    BIND(yawl:XOR_Split AS ?splitBehavior)
+    BIND(yawl:XOR_Join AS ?joinBehavior)
+  } UNION {
+    # Case 2: Multiple outgoing (no maxCardinality or >1) -> AND
+    ?task a yawl:Task .
+    ?srcClass owl:onProperty ?prop .
+
+    # No maxCardinality restriction implies multiple
+    FILTER NOT EXISTS {
+      ?restriction a owl:Restriction ;
+        owl:onProperty ?prop ;
+        owl:maxCardinality ?max .
+      FILTER(?max <= 1)
+    }
+
+    ?srcClass rdfs:label ?label .
+    BIND(IRI(CONCAT(STR(yawl:), "task/", ENCODE_FOR_URI(?label))) AS ?task)
+
+    BIND(yawl:AND_Split AS ?splitBehavior)
+    BIND(yawl:AND_Join AS ?joinBehavior)
+  }
+}

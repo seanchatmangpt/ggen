@@ -1,10 +1,12 @@
 // Unified execution framework for 90% semantic convergence
 use crate::types::*;
 use crate::error::*;
+use crate::metrics::MetricsCollector;
 use async_trait::async_trait;
 use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
+use serde::{Serialize, Deserialize};
 
 // ============================================================================
 // EXECUTION FRAMEWORK
@@ -92,14 +94,17 @@ impl ExecutionFramework {
     /// Execute a task within the framework
     pub async fn execute_task(&mut self, task: Task) -> Result<TaskResult, ExecutionError> {
         // Find an available agent
-        let agent = self.find_available_agent(&task).await?;
+        let agent_id = self.find_available_agent_index(&task)?;
 
         // Execute the task
-        let result = agent.execute_task(task.clone()).await?;
+        let result = self.agents.get_mut(&agent_id)
+            .ok_or_else(|| ExecutionError::Agent("Agent not found".to_string()))?
+            .execute_task(task.clone())
+            .await?;
 
         // Update metrics
         if self.config.enable_metrics {
-            self.metrics.record_metric(PerformanceMetrics {
+            self.metrics.record_metrics(PerformanceMetrics {
                 timestamp: Utc::now(),
                 execution_duration_ms: result.execution_time_ms,
                 throughput_per_second: 0.0, // Will be calculated based on overall throughput
@@ -108,6 +113,8 @@ impl ExecutionFramework {
                 resource_usage: result.resources_used.clone(),
                 memory_usage_mb: result.resources_used.memory_mb,
                 cpu_usage_percent: result.resources_used.cpu_percent,
+                disk_usage_percent: 0.0,
+                network_io_mb: 0,
             });
         }
 
@@ -120,7 +127,7 @@ impl ExecutionFramework {
             .ok_or_else(|| ExecutionError::Workflow("Workflow not found".to_string()))?;
 
         let mut tasks = workflow.tasks.clone();
-        let mut results = Vec::new();
+        let mut results: Vec<TaskExecutionResult> = Vec::new();
         let mut success_count = 0;
 
         // Execute tasks in dependency order
@@ -129,16 +136,17 @@ impl ExecutionFramework {
             let mut dependencies_met = true;
             for dep_id in &task.dependencies {
                 let dep_result = results.iter().find(|r| r.task_id == *dep_id);
-                if dep_result.is_none() || dep_result.as_ref().unwrap().success == false {
+                if dep_result.is_none() || !dep_result.as_ref().unwrap().result.success {
                     dependencies_met = false;
                     break;
                 }
             }
 
             if dependencies_met {
+                let task_id = task.id.clone();
                 let result = self.execute_task(task).await?;
                 results.push(TaskExecutionResult {
-                    task_id: result.task_id.clone(),
+                    task_id,
                     result,
                 });
 
@@ -162,6 +170,9 @@ impl ExecutionFramework {
             ));
         }
 
+        // Overall success is true if all tasks completed successfully
+        let success = success_count == results.len();
+
         Ok(WorkflowResult {
             workflow_id: workflow_id.to_string(),
             success,
@@ -174,12 +185,12 @@ impl ExecutionFramework {
     }
 
     /// Find an available agent for task execution
-    async fn find_available_agent(&self, task: &Task) -> Result<&Box<dyn UnifiedAgentTrait>, ExecutionError> {
+    fn find_available_agent_index(&self, _task: &Task) -> Result<String, ExecutionError> {
         // Simple round-robin selection for now
         // In production, this would consider agent capabilities, load, etc.
-        for agent in self.agents.values() {
+        for (id, agent) in &self.agents {
             if agent.is_available() {
-                return Ok(agent);
+                return Ok(id.clone());
             }
         }
 

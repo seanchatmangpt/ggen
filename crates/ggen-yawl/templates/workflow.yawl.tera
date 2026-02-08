@@ -1,0 +1,34 @@
+---
+to: "{{ workflow_name }}.yawl"
+prefixes:
+  yawl: "http://www.yawlfoundation.org/yawlschema"
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<specification xmlns="http://www.yawlfoundation.org/yawlschema" version="2.0">
+  <name>{{ workflow_name }}</name>
+  <description>{{ description }}</description>
+
+  <decomposition id="{{ workflow_name }}_net" type="WSNet">
+    <inputCondition id="input"/>
+    <outputCondition id="output"/>
+
+{% for task in tasks %}
+    <task id="{{ task.id }}" name="{{ task.name }}">
+      <split type="{{ task.split_type }}"/>
+      <join type="{{ task.join_type }}"/>
+{% if task.is_auto %}
+      <starting/>
+{% endif %}
+{% if task.decomposition_id is defined %}
+      <decomposition id="{{ task.decomposition_id }}"/>
+{% endif %}
+    </task>
+{% endfor %}
+
+{% for flow in flows %}
+    <flow into="{{ flow.target }}" from="{{ flow.source }}"{% if flow.condition is defined %}>
+      <predicate>{{ flow.condition }}</predicate>
+    </flow>{% else %}/>{% endif %}
+{% endfor %}
+  </decomposition>
+</specification>

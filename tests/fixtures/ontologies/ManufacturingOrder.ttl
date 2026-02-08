@@ -1,0 +1,637 @@
+# ============================================================================
+# Manufacturing Order Workflow Ontology (Van der Aalst: Cancellation & Regions)
+# ============================================================================
+# This ontology demonstrates advanced workflow patterns:
+# - Cancellation patterns (pattern 17): Cancel active tasks and flows
+# - Region patterns (pattern 19): Sub-process boundaries
+# - Arbitrary cycles (pattern 20): Complex looping with regions
+# - Milestone patterns (pattern 16): State-based triggers
+# ============================================================================
+
+@prefix ex: <http://example.org/manufacturing/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bpmn: <http://www.omg.org/spec/BPMN/20100524/MODEL/> .
+
+# ============================================================================
+# SECTION 1: Workflow Definition
+# ============================================================================
+
+ex:ManufacturingOrderProcess a owl:Class ;
+    rdfs:label "Manufacturing Order Process" ;
+    rdfs:comment "Complete manufacturing workflow with cancellation and region patterns" ;
+    ex:stereo "BusinessProcess" ;
+    ex:hasAdvancedPattern "cancellation,region,milestone,cycle" ;
+    ex:domain "Manufacturing" ;
+    ex:standard "ISA-95" .
+
+# ============================================================================
+# SECTION 2: Cancellation Infrastructure
+# ============================================================================
+
+ex:CancellationEvent a owl:Class ;
+    rdfs:label "Cancellation Event" ;
+    rdfs:comment "Event that triggers workflow cancellation" ;
+    ex:stereo "Event" ;
+    ex:eventType "cancel" .
+
+ex:CancelScope a owl:Class ;
+    rdfs:label "Cancel Scope" ;
+    rdfs:comment "Defines the scope of cancellation" ;
+    ex:stereo "Metadata" .
+
+ex:CancelScopeTask a owl:Class ;
+    rdfs:subClassOf ex:CancelScope ;
+    rdfs:label "Cancel Single Task" .
+
+ex:CancelScopeSubprocess a owl:Class ;
+    rdfs:subClassOf ex:CancelScope ;
+    rdfs:label "Cancel Subprocess" .
+
+ex:CancelScopeProcess a owl:Class ;
+    rdfs:subClassOf ex:CancelScope ;
+    rdfs:label "Cancel Entire Process" .
+
+# ============================================================================
+# SECTION 3: Region Definitions (Pattern 19)
+# ============================================================================
+
+# Regions represent bounded subprocess areas that can be cancelled
+ex:PlanningRegion a owl:Class ;
+    rdfs:label "Planning Region" ;
+    rdfs:comment "Production planning subprocess boundary" ;
+    ex:stereo "Region" ;
+    ex:regionType "subprocess" ;
+    ex:isCancellable "true" ;
+    ex:cancelScope "region" .
+
+ex:ProcurementRegion a owl:Class ;
+    rdfs:label "Procurement Region" ;
+    rdfs:comment "Material procurement subprocess boundary" ;
+    ex:stereo "Region" ;
+    ex:regionType "subprocess" ;
+    ex:isCancellable "true" ;
+    ex:cancelScope "region" .
+
+ex:ProductionRegion a owl:Class ;
+    rdfs:label "Production Region" ;
+    rdfs:comment "Manufacturing execution subprocess boundary" ;
+    ex:stereo "Region" ;
+    ex:regionType "subprocess" ;
+    ex:isCancellable "true" ;
+    ex:cancelScope "region" .
+
+ex:QualityRegion a owl:Class ;
+    rdfs:label "Quality Region" ;
+    rdfs:comment "Quality assurance subprocess boundary" ;
+    ex:stereo "Region" ;
+    ex:regionType "subprocess" ;
+    ex:isCancellable "true" ;
+    ex:cancelScope "region" .
+
+ex:ShippingRegion a owl:Class ;
+    rdfs:label "Shipping Region" ;
+    rdfs:comment "Shipping and delivery subprocess boundary" ;
+    ex:stereo "Region" ;
+    ex:regionType "subprocess" ;
+    ex:isCancellable "true" ;
+    ex:cancelScope "region" .
+
+# ============================================================================
+# SECTION 4: Process Steps by Region
+# ============================================================================
+
+# Planning Region Steps
+ex:OrderReceipt a owl:Class ;
+    rdfs:label "Order Receipt" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Receive customer order" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:PlanningRegion ;
+    ex:isCancellable "false" ;
+    rdfs:comment "Cannot cancel once order received" .
+
+ex:CapacityCheck a owl:Class ;
+    rdfs:label "Capacity Check" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Check production capacity availability" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:PlanningRegion ;
+    ex:isCancellable "true" .
+
+ex:ProductionScheduling a owl:Class ;
+    rdfs:label "Production Scheduling" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Schedule production runs" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:PlanningRegion ;
+    ex:isCancellable "true" .
+
+ex:BOMCreation a owl:Class ;
+    rdfs:label "Bill of Materials Creation" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Create bill of materials" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:PlanningRegion ;
+    ex:isCancellable "true" .
+
+# Procurement Region Steps
+ex:MaterialAvailabilityCheck a owl:Class ;
+    rdfs:label "Material Availability Check" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Check material inventory" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:ProcurementRegion ;
+    ex:isCancellable "true" .
+
+ex:SupplierSelection a owl:Class ;
+    rdfs:label "Supplier Selection" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Select suppliers for missing materials" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:ProcurementRegion ;
+    ex:isCancellable "true" .
+
+ex:PurchaseOrderCreation a owl:Class ;
+    rdfs:label "Purchase Order Creation" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Create purchase orders" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:ProcurementRegion ;
+    ex:isCancellable "true" .
+
+ex:MaterialReceipt a owl:Class ;
+    rdfs:label "Material Receipt" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Receive and inspect materials" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:ProcurementRegion ;
+    ex:isCancellable "true" .
+
+# Production Region Steps
+ex:WorkOrderRelease a owl:Class ;
+    rdfs:label "Work Order Release" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Release work order to shop floor" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:ProductionRegion ;
+    ex:isCancellable "true" .
+
+ex:MaterialPreparation a owl:Class ;
+    rdfs:label "Material Preparation" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Prepare materials for production" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:ProductionRegion ;
+    ex:isCancellable "true" .
+
+ex:SetupEquipment a owl:Class ;
+    rdfs:label "Setup Equipment" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Configure manufacturing equipment" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:ProductionRegion ;
+    ex:isCancellable "true" .
+
+ex:ManufacturingExecution a owl:Class ;
+    rdfs:label "Manufacturing Execution" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Execute manufacturing operations" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:ProductionRegion ;
+    ex:isCancellable "true" ;
+    ex:isCancellableDuringExecution "false" ;
+    rdfs:comment "Cannot cancel mid-operation" .
+
+ex:ProgressReporting a owl:Class ;
+    rdfs:label "Progress Reporting" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Report production progress" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:ProductionRegion ;
+    ex:isCancellable "false" .
+
+# Quality Region Steps
+ex:InProcessQualityCheck a owl:Class ;
+    rdfs:label "In-Process Quality Check" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Quality check during production" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:QualityRegion ;
+    ex:isCancellable "false" ;
+    rdfs:comment "Mandatory quality gate" .
+
+ex:FinalQualityAssurance a owl:Class ;
+    rdfs:label "Final Quality Assurance" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Final product quality inspection" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:QualityRegion ;
+    ex:isCancellable "false" ;
+    rdfs:comment "Mandatory quality gate" .
+
+ex:QualityCertification a owl:Class ;
+    rdfs:label "Quality Certification" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Issue quality certificate" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:QualityRegion ;
+    ex:isCancellable "false" .
+
+# Rework handling (cycle pattern)
+ex:ReworkTrigger a owl:Class ;
+    rdfs:label "Rework Trigger" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Trigger rework process" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:QualityRegion ;
+    ex:isCancellable "true" .
+
+ex:ReworkExecution a owl:Class ;
+    rdfs:label "Rework Execution" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Execute rework operations" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:QualityRegion ;
+    ex:isCancellable "true" .
+
+ex:ReworkInspection a owl:Class ;
+    rdfs:label "Rework Inspection" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Inspect reworked product" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:QualityRegion ;
+    ex:isCancellable "true" .
+
+# Shipping Region Steps
+ex:Packaging a owl:Class ;
+    rdfs:label "Packaging" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Package finished goods" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:ShippingRegion ;
+    ex:isCancellable "true" .
+
+ex:ShippingDocumentation a owl:Class ;
+    rdfs:label "Shipping Documentation" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Prepare shipping documents" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:ShippingRegion ;
+    ex:isCancellable "true" .
+
+ex:CarrierSelection a owl:Class ;
+    rdfs:label "Carrier Selection" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Select shipping carrier" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:ShippingRegion ;
+    ex:isCancellable "true" .
+
+ex:Shipment a owl:Class ;
+    rdfs:label "Shipment" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Ship product to customer" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:ShippingRegion ;
+    ex:isCancellable "true" .
+
+ex:DeliveryConfirmation a owl:Class ;
+    rdfs:label "Delivery Confirmation" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Confirm product delivery" ;
+    ex:stereo "ProcessStep" ;
+    ex:belongsToRegion ex:ShippingRegion ;
+    ex:isCancellable "false" .
+
+ex:OrderCompletion a owl:Class ;
+    rdfs:label "Order Completion" ;
+    rdfs:subClassOf ex:ManufacturingOrderProcess ;
+    rdfs:comment "Complete manufacturing order" ;
+    ex:stereo "ProcessStep" ;
+    ex:isCancellable "false" .
+
+# ============================================================================
+# SECTION 5: Flow Relationships
+# ============================================================================
+
+# Primary sequential flow (Region to Region)
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:OrderReceipt ;
+    rdfs:range ex:CapacityCheck ;
+    rdfs:label "next step" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:CapacityCheck ;
+    rdfs:range ex:ProductionScheduling ;
+    rdfs:label "next step" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:ProductionScheduling ;
+    rdfs:range ex:BOMCreation ;
+    rdfs:label "next step" .
+
+# Planning to Procurement
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:BOMCreation ;
+    rdfs:range ex:MaterialAvailabilityCheck ;
+    rdfs:label "to procurement" ;
+    ex:crossesRegion "true" .
+
+# Procurement flow
+ex:materialsAvailable a owl:ObjectProperty ;
+    rdfs:domain ex:MaterialAvailabilityCheck ;
+    rdfs:range ex:WorkOrderRelease ;
+    rdfs:label "materials available" ;
+    ex:crossesRegion "true" .
+
+ex:materialsNeeded a owl:ObjectProperty ;
+    rdfs:domain ex:MaterialAvailabilityCheck ;
+    rdfs:range ex:SupplierSelection ;
+    rdfs:label "materials needed" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:SupplierSelection ;
+    rdfs:range ex:PurchaseOrderCreation ;
+    rdfs:label "next step" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:PurchaseOrderCreation ;
+    rdfs:range ex:MaterialReceipt ;
+    rdfs:label "next step" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:MaterialReceipt ;
+    rdfs:range ex:WorkOrderRelease ;
+    rdfs:label "to production" ;
+    ex:crossesRegion "true" .
+
+# Production flow
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:WorkOrderRelease ;
+    rdfs:range ex:MaterialPreparation ;
+    rdfs:label "next step" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:MaterialPreparation ;
+    rdfs:range ex:SetupEquipment ;
+    rdfs:label "next step" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:SetupEquipment ;
+    rdfs:range ex:ManufacturingExecution ;
+    rdfs:label "next step" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:ManufacturingExecution ;
+    rdfs:range ex:InProcessQualityCheck ;
+    rdfs:label "to quality" ;
+    ex:crossesRegion "true" .
+
+# Quality flow with rework cycle (Pattern 20: Arbitrary Cycle)
+ex:qualityPass a owl:ObjectProperty ;
+    rdfs:domain ex:InProcessQualityCheck ;
+    rdfs:range ex:ManufacturingExecution ;
+    rdfs:label "continue production" ;
+    rdfs:comment "Continue manufacturing if quality passes" .
+
+ex:qualityFail a owl:ObjectProperty ;
+    rdfs:domain ex:InProcessQualityCheck ;
+    rdfs:range ex:ReworkTrigger ;
+    rdfs:label "quality failed" ;
+    rdfs:comment "Trigger rework if quality fails" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:ReworkTrigger ;
+    rdfs:range ex:ReworkExecution ;
+    rdfs:label "to rework" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:ReworkExecution ;
+    rdfs:range ex:ReworkInspection ;
+    rdfs:label "inspect rework" .
+
+# Rework cycle: pass continues, fail loops back
+ex:reworkPass a owl:ObjectProperty ;
+    rdfs:domain ex:ReworkInspection ;
+    rdfs:range ex:ManufacturingExecution ;
+    rdfs:label "rework complete" .
+
+ex:reworkFail a owl:ObjectProperty ;
+    rdfs:domain ex:ReworkInspection ;
+    rdfs:range ex:ReworkExecution ;
+    rdfs:label "rework failed" ;
+    ex:maxIterations "2"^^xsd:integer ;
+    rdfs:comment "Loop back to rework execution (max 2 retries)" .
+
+ex:reworkAbort a owl:ObjectProperty ;
+    rdfs:domain ex:ReworkInspection ;
+    rdfs:range ex:OrderCompletion ;
+    rdfs:label "abort order" ;
+    rdfs:comment "Abort order after max rework failures" .
+
+# Production completion to final quality
+ex:productionComplete a owl:ObjectProperty ;
+    rdfs:domain ex:ManufacturingExecution ;
+    rdfs:range ex:FinalQualityAssurance ;
+    rdfs:label "production complete" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:FinalQualityAssurance ;
+    rdfs:range ex:QualityCertification ;
+    rdfs:label "next step" .
+
+# Quality to Shipping
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:QualityCertification ;
+    rdfs:range ex:Packaging ;
+    rdfs:label "to shipping" ;
+    ex:crossesRegion "true" .
+
+# Shipping flow
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:Packaging ;
+    rdfs:range ex:ShippingDocumentation ;
+    rdfs:label "next step" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:ShippingDocumentation ;
+    rdfs:range ex:CarrierSelection ;
+    rdfs:label "next step" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:CarrierSelection ;
+    rdfs:range ex:Shipment ;
+    rdfs:label "next step" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:Shipment ;
+    rdfs:range ex:DeliveryConfirmation ;
+    rdfs:label "next step" .
+
+ex:hasNextStep a owl:ObjectProperty ;
+    rdfs:domain ex:DeliveryConfirmation ;
+    rdfs:range ex:OrderCompletion ;
+    rdfs:label "next step" .
+
+# ============================================================================
+# SECTION 6: Cancellation Patterns (Pattern 17)
+# ============================================================================
+
+# Cancellation trigger event
+ex:triggersCancellation a owl:ObjectProperty ;
+    rdfs:domain ex:CancellationEvent ;
+    rdfs:range ex:CancelScope ;
+    rdfs:label "triggers cancellation" .
+
+# Region-level cancellation
+ex:cancelPlanningRegion a owl:ObjectProperty ;
+    rdfs:domain ex:CancellationEvent ;
+    rdfs:range ex:PlanningRegion ;
+    rdfs:label "cancel planning" ;
+    ex:cancelBehavior "terminate-all" ;
+    rdfs:comment "Cancel all tasks in planning region" .
+
+ex:cancelProcurementRegion a owl:ObjectProperty ;
+    rdfs:domain ex:CancellationEvent ;
+    rdfs:range ex:ProcurementRegion ;
+    rdfs:label "cancel procurement" ;
+    ex:cancelBehavior "terminate-all" ;
+    rdfs:comment "Cancel all tasks in procurement region" .
+
+ex:cancelProductionRegion a owl:ObjectProperty ;
+    rdfs:domain ex:CancellationEvent ;
+    rdfs:range ex:ProductionRegion ;
+    rdfs:label "cancel production" ;
+    ex:cancelBehavior "terminate-safe" ;
+    rdfs:comment "Cancel production but allow safe shutdown" .
+
+ex:cancelQualityRegion a owl:ObjectProperty ;
+    rdfs:domain ex:CancellationEvent ;
+    rdfs:range ex:QualityRegion ;
+    rdfs:label "cancel quality" ;
+    ex:cancelBehavior "terminate-after-checkpoint" ;
+    rdfs:comment "Cancel after completing current quality gate" .
+
+ex:cancelShippingRegion a owl:ObjectProperty ;
+    rdfs:domain ex:CancellationEvent ;
+    rdfs:range ex:ShippingRegion ;
+    rdfs:label "cancel shipping" ;
+    ex:cancelBehavior "terminate-all" ;
+    rdfs:comment "Cancel shipping activities" .
+
+# Process-level cancellation (complete termination)
+ex:cancelEntireProcess a owl:ObjectProperty ;
+    rdfs:domain ex:CancellationEvent ;
+    rdfs:range ex:ManufacturingOrderProcess ;
+    rdfs:label "cancel process" ;
+    ex:cancelBehavior "terminate-all" ;
+    rdfs:comment "Cancel entire manufacturing order" .
+
+# Cancellation conditions
+ex:canCancelAtStep a owl:ObjectProperty ;
+    rdfs:domain ex:CancellationEvent ;
+    rdfs:range ex:ProcessStep ;
+    rdfs:label "can cancel at" .
+
+ex:cannotCancelAfterStep a owl:ObjectProperty ;
+    rdfs:domain ex:CancellationEvent ;
+    rdfs:range ex:ProcessStep ;
+    rdfs:label "cannot cancel after" .
+
+# Point of no return (cannot cancel after these points)
+ex:pointOfNoReturn a owl:ObjectProperty ;
+    rdfs:domain ex:ManufacturingExecution ;
+    rdfs:range ex:CancellationEvent ;
+    rdfs:label "point of no return" ;
+    rdfs:comment "Cannot cancel once manufacturing starts" .
+
+# ============================================================================
+# SECTION 7: Milestone Pattern (Pattern 16)
+# ============================================================================
+
+ex:Milestone a owl:Class ;
+    rdfs:label "Milestone" ;
+    rdfs:comment "State-based trigger for conditional flows" ;
+    ex:stereo "Event" .
+
+ex:OrderAccepted a owl:Class ;
+    rdfs:subClassOf ex:Milestone ;
+    rdfs:label "Order Accepted" ;
+    ex:milestoneState "accepted" .
+
+ex:MaterialsProcured a owl:Class ;
+    rdfs:subClassOf ex:Milestone ;
+    rdfs:label "Materials Procured" ;
+    ex:milestoneState "procured" .
+
+ex:ProductionStarted a owl:Class ;
+    rdfs:subClassOf ex:Milestone ;
+    rdfs:label "Production Started" ;
+    ex:milestoneState "in-production" .
+
+ex:QualityApproved a owl:Class ;
+    rdfs:subClassOf ex:Milestone ;
+    rdfs:label "Quality Approved" ;
+    ex:milestoneState "approved" .
+
+ex:ReadyToShip a owl:Class ;
+    rdfs:subClassOf ex:Milestone ;
+    rdfs:label "Ready to Ship" ;
+    ex:milestoneState "ready" .
+
+ex:OrderDelivered a owl:Class ;
+    rdfs:subClassOf ex:Milestone ;
+    rdfs:label "Order Delivered" ;
+    ex:milestoneState "delivered" .
+
+# Milestone triggers
+ex:reachesMilestone a owl:ObjectProperty ;
+    rdfs:domain ex:ProcessStep ;
+    rdfs:range ex:Milestone ;
+    rdfs:label "reaches milestone" .
+
+ex:triggersOnMilestone a owl:ObjectProperty ;
+    rdfs:domain ex:Milestone ;
+    rdfs:range ex:ProcessStep ;
+    rdfs:label "triggers on milestone" .
+
+# ============================================================================
+# SECTION 8: Metadata and Properties
+# ============================================================================
+
+ex:belongsToRegion a owl:ObjectProperty ;
+    rdfs:domain ex:ProcessStep ;
+    rdfs:range ex:CancelScope ;
+    rdfs:label "belongs to region" .
+
+ex:isCancellable a owl:DatatypeProperty ;
+    rdfs:domain ex:ProcessStep ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is cancellable" .
+
+ex:cancelBehavior a owl:DatatypeProperty ;
+    rdfs:domain ex:CancelScope ;
+    rdfs:range xsd:string ;
+    rdfs:label "cancellation behavior" .
+
+ex:regionType a owl:DatatypeProperty ;
+    rdfs:domain ex:CancelScope ;
+    rdfs:range xsd:string ;
+    rdfs:label "region type" .
+
+ex:milestoneState a owl:DatatypeProperty ;
+    rdfs:domain ex:Milestone ;
+    rdfs:range xsd:string ;
+    rdfs:label "milestone state" .
+
+ex:maxIterations a owl:DatatypeProperty ;
+    rdfs:domain owl:ObjectProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:label "maximum iterations" .
+
+ex:crossesRegion a owl:DatatypeProperty ;
+    rdfs:domain owl:ObjectProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "crosses region boundary" .

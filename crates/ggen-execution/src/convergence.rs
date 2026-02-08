@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{RwLock, Mutex};
 use serde_json::Value;
+use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
 
 // ============================================================================
@@ -77,7 +78,7 @@ pub struct SemanticConvergenceEngine {
     metrics: Arc<RwLock<ConvergenceMetrics>>,
     agent_states: HashMap<AgentId, AgentConvergenceState>,
     message_history: Vec<ConvergenceMessage>,
-    convergence_strategies: Vec<ConvergenceStrategy>,
+    convergence_strategies: Vec<Box<dyn ConvergenceStrategyTrait>>,
 }
 
 /// Agent convergence state
@@ -115,18 +116,9 @@ pub enum ContributionType {
     ConsensusBuilding,
 }
 
-/// Convergence strategy
-#[trait_enum]
-pub enum ConvergenceStrategy {
-    AlignmentStrategy,
-    ValidationStrategy,
-    NormalizationStrategy,
-    ConsensusStrategy,
-}
-
 /// Trait for convergence strategies
 #[async_trait::async_trait]
-pub trait ConvergenceStrategy: Send + Sync {
+pub trait ConvergenceStrategyTrait: Send + Sync {
     fn name(&self) -> &str;
     async fn apply_convergence(&self, engine: &mut SemanticConvergenceEngine, message: &ConvergenceMessage) -> Result<f64, ExecutionError>;
     fn is_applicable(&self, message: &ConvergenceMessage) -> bool;
@@ -140,7 +132,7 @@ pub trait ConvergenceStrategy: Send + Sync {
 pub struct AlignmentStrategy;
 
 #[async_trait::async_trait]
-impl ConvergenceStrategy for AlignmentSemanticConvergenceEngine {
+impl ConvergenceStrategyTrait for AlignmentStrategy {
     fn name(&self) -> &str {
         "AlignmentStrategy"
     }
@@ -204,7 +196,7 @@ impl AlignmentStrategy {
 pub struct ValidationStrategy;
 
 #[async_trait::async_trait]
-impl ConvergenceStrategy for ValidationStrategy {
+impl ConvergenceStrategyTrait for ValidationStrategy {
     fn name(&self) -> &str {
         "ValidationStrategy"
     }
@@ -251,7 +243,7 @@ impl ValidationStrategy {
         Ok(total_score / score_count as f64)
     }
 
-    fn extract_capabilities_from_content(content: &Value) -> Vec<String> {
+    fn extract_capabilities_from_content(_content: &Value) -> Vec<String> {
         // Extract capabilities from message content
         // Simplified implementation
         vec!["generic-capability".to_string()]
@@ -278,7 +270,7 @@ impl ValidationStrategy {
 pub struct NormalizationStrategy;
 
 #[async_trait::async_trait]
-impl ConvergenceStrategy for NormalizationStrategy {
+impl ConvergenceStrategyTrait for NormalizationStrategy {
     fn name(&self) -> &str {
         "NormalizationStrategy"
     }
@@ -324,7 +316,7 @@ impl NormalizationStrategy {
 pub struct ConsensusStrategy;
 
 #[async_trait::async_trait]
-impl ConvergenceStrategy for ConsensusStrategy {
+impl ConvergenceStrategyTrait for ConsensusStrategy {
     fn name(&self) -> &str {
         "ConsensusStrategy"
     }
@@ -537,7 +529,7 @@ impl AdaptiveConvergenceEngine {
     }
 
     /// Select the best performing strategy for this message
-    async fn select_best_strategy(&self, message: &ConvergenceMessage) -> Result<Box<dyn ConvergenceStrategy>, ExecutionError> {
+    async fn select_best_strategy(&self, message: &ConvergenceMessage) -> Result<Box<dyn ConvergenceStrategyTrait>, ExecutionError> {
         let mut best_strategy = None;
         let mut best_score = 0.0;
 

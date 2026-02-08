@@ -20,6 +20,8 @@ rustler = "0.31"
 tokio = { version = "1.47", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
+bincode = "2.0"
+futures = "0.3"
 
 # External dependencies
 thiserror = "2.0"
@@ -28,6 +30,12 @@ chrono = { version = "0.4", features = ["serde"] }
 sha2 = "0.10"
 rand = "0.8"
 hex = "0.4"
+
+# XML parsing for YAWL specifications
+quick-xml = { version = "0.37", features = ["serialize"] }
+
+# Lazy static for global state
+lazy_static = "1.5"
 
 [dev-dependencies]
 tokio-test = "0.4"
