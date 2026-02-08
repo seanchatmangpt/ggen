@@ -8,11 +8,7 @@ use crate::transport::{
     JsonRpcRequest, JsonRpcResponse, McpTransport, RequestId, TransportState,
 };
 use async_trait::async_trait;
-use std::{
-    collections::HashMap,
-    process::Stdio,
-    sync::Arc,
-};
+use std::{collections::HashMap, process::Stdio, sync::Arc};
 use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
     process::{Child as TokioChild, Command as TokioCommand},
@@ -201,9 +197,9 @@ impl StdioTransport {
         }
 
         // Spawn the process
-        let mut child = cmd
-            .spawn()
-            .map_err(|e| TransportError::ConnectionFailed(format!("Failed to spawn process: {}", e)))?;
+        let mut child = cmd.spawn().map_err(|e| {
+            TransportError::ConnectionFailed(format!("Failed to spawn process: {}", e))
+        })?;
 
         // Get the stdin/stdout handles
         let stdin = child
@@ -227,8 +223,14 @@ impl StdioTransport {
             // Clone Arc references for the reader task
             let state_arc_clone = Arc::clone(&state_arc);
             tokio::spawn(async move {
-                Self::reader_task(stdout, stderr, state_arc_clone, notification_tx, cancellation_token)
-                    .await;
+                Self::reader_task(
+                    stdout,
+                    stderr,
+                    state_arc_clone,
+                    notification_tx,
+                    cancellation_token,
+                )
+                .await;
             })
         };
 
@@ -276,10 +278,8 @@ impl StdioTransport {
 
     /// Background task for reading from stdout
     async fn reader_task(
-        stdout: tokio::process::ChildStdout,
-        stderr: Option<tokio::process::ChildStderr>,
-        state: Arc<Mutex<StdioState>>,
-        notification_tx: UnboundedSender<JsonRpcRequest>,
+        stdout: tokio::process::ChildStdout, stderr: Option<tokio::process::ChildStderr>,
+        state: Arc<Mutex<StdioState>>, notification_tx: UnboundedSender<JsonRpcRequest>,
         cancellation_token: CancellationToken,
     ) {
         let mut reader = BufReader::new(stdout).lines();
@@ -377,7 +377,10 @@ impl StdioTransport {
 
         // Get mutable stdin for writing
         let mut state = self.state.lock().await;
-        let stdin = state.stdin.as_mut().ok_or_else(|| TransportError::NotConnected)?;
+        let stdin = state
+            .stdin
+            .as_mut()
+            .ok_or_else(|| TransportError::NotConnected)?;
 
         stdin
             .write_all(data)
@@ -387,10 +390,7 @@ impl StdioTransport {
             .write_all(b"\n")
             .await
             .map_err(|e| TransportError::Io(e))?;
-        stdin
-            .flush()
-            .await
-            .map_err(|e| TransportError::Io(e))?;
+        stdin.flush().await.map_err(|e| TransportError::Io(e))?;
 
         Ok(())
     }
@@ -422,7 +422,9 @@ impl McpTransport for StdioTransport {
             RequestId::String(s) => s.clone(),
             RequestId::Number(n) => n.to_string(),
             RequestId::Null => {
-                return Err(TransportError::InvalidParams("Request ID cannot be null".to_string()))
+                return Err(TransportError::InvalidParams(
+                    "Request ID cannot be null".to_string(),
+                ))
             }
         };
 

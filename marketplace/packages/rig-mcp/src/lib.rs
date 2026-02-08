@@ -25,12 +25,11 @@ pub mod a2a;
 
 // Re-export commonly used transport types
 pub use transport::{
-    Content, JsonRpcError, JsonRpcRequest, JsonRpcResponse, McpMethod, McpTransport, McpTransportExt,
-    Resource, ResourceContents, StdioConfig, StdioTransport, StdioTransportBuilder,
-    HttpConfig, HttpTransport, HttpTransportBuilder, HttpSseTransport,
-    A2AConfig, A2ATransport, A2ATransportBuilder,
-    TransportConfig, TransportError, TransportFactory, TransportResult, TransportState,
-    TransportType, Tool, ToolResult,
+    A2AConfig, A2ATransport, A2ATransportBuilder, Content, HttpConfig, HttpSseTransport,
+    HttpTransport, HttpTransportBuilder, JsonRpcError, JsonRpcRequest, JsonRpcResponse, McpMethod,
+    McpTransport, McpTransportExt, Resource, ResourceContents, StdioConfig, StdioTransport,
+    StdioTransportBuilder, Tool, ToolResult, TransportConfig, TransportError, TransportFactory,
+    TransportResult, TransportState, TransportType,
 };
 
 // Re-export the transport builder from factory
@@ -38,14 +37,14 @@ pub use transport::factory::TransportBuilder;
 
 // Re-export discovery types
 pub use discovery::{
-    SchemaExtractor, ToolSchema, ParameterSchema, ToolSchemaValidationError,
-    extract_schemas, validate_schema, DiscoveryEngine, DiscoveryConfig, DiscoveryError,
+    extract_schemas, validate_schema, DiscoveryConfig, DiscoveryEngine, DiscoveryError,
+    ParameterSchema, SchemaExtractor, ToolSchema, ToolSchemaValidationError,
 };
 
 // Re-export registration types
 pub use registration::{
-    ToolRegistrationManager, RegistrationConfig, RegistrationError, RegistrationStats,
-    SourceInfo, SchemaConverter, ConversionConfig, ConversionError, SourceStatistics,
+    ConversionConfig, ConversionError, RegistrationConfig, RegistrationError, RegistrationStats,
+    SchemaConverter, SourceInfo, SourceStatistics, ToolRegistrationManager,
 };
 
 /// Configuration for MCP integration
@@ -134,22 +133,20 @@ impl McpClient {
 pub mod prelude {
     pub use crate::transport::*;
     pub use crate::{
-        Config, ServerConfig, DiscoveryConfigOptions, McpClient,
-        SchemaExtractor, ToolSchema, ParameterSchema,
-        ToolRegistrationManager, RegistrationConfig, RegistrationError,
+        Config, DiscoveryConfigOptions, McpClient, ParameterSchema, RegistrationConfig,
+        RegistrationError, SchemaExtractor, ServerConfig, ToolRegistrationManager, ToolSchema,
     };
     // A2A Bridge types
     pub use crate::a2a::{
-        McpToA2aBridge, BridgeConfig, BridgeState, Bridge,
-        A2aClientWrapper, A2aClientWrapperConfig,
-        A2aMessageConverter, ConversionContext, ConversionError, ConversionMetrics,
-        McpToA2aConversionMode,
-        ProtocolTranslator, ToolSchemaGenerator, TranslatorConfig, TranslationError, TranslationResult,
+        A2aClientWrapper, A2aClientWrapperConfig, A2aMessageConverter, Bridge, BridgeConfig,
+        BridgeState, ConversionContext, ConversionError, ConversionMetrics, McpToA2aBridge,
+        McpToA2aConversionMode, ProtocolTranslator, ToolSchemaGenerator, TranslationError,
+        TranslationResult, TranslatorConfig,
     };
     // A2A transport types from the transport submodule
     pub use crate::a2a::transport::{
-        A2aTransport as A2aBridgeTransport, A2aTransportConfig, HttpA2aTransport,
-        A2aTransportBuilder,
+        A2aTransport as A2aBridgeTransport, A2aTransportBuilder, A2aTransportConfig,
+        HttpA2aTransport,
     };
 }
 
@@ -159,9 +156,18 @@ mod tests {
 
     #[test]
     fn test_transport_type_parsing() {
-        assert_eq!(TransportType::from_str("stdio").unwrap(), TransportType::Stdio);
-        assert_eq!(TransportType::from_str("http").unwrap(), TransportType::Http);
-        assert_eq!(TransportType::from_str("sse").unwrap(), TransportType::HttpSse);
+        assert_eq!(
+            TransportType::from_str("stdio").unwrap(),
+            TransportType::Stdio
+        );
+        assert_eq!(
+            TransportType::from_str("http").unwrap(),
+            TransportType::Http
+        );
+        assert_eq!(
+            TransportType::from_str("sse").unwrap(),
+            TransportType::HttpSse
+        );
         assert_eq!(TransportType::from_str("a2a").unwrap(), TransportType::A2A);
     }
 

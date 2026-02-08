@@ -15,13 +15,23 @@ async fn test_framework_lifecycle() {
     let mut framework = ExecutionFramework::new(config);
 
     // Act: Register agents and create workflows
-    let agent = Box::new(DefaultAgent::new("test-agent", "Test Agent", vec!["test-capability".to_string()]));
+    let agent = Box::new(DefaultAgent::new(
+        "test-agent",
+        "Test Agent",
+        vec!["test-capability".to_string()],
+    ));
     framework.register_agent(agent).unwrap();
 
     let workflow_id = framework.create_workflow("Test Workflow", "test").unwrap();
     let workflow = framework.workflows.get_mut(&workflow_id).unwrap();
 
-    let task = Task::new("task-1", "Test Task", "test", TaskPriority::Normal, serde_json::json!({"test": "data"}));
+    let task = Task::new(
+        "task-1",
+        "Test Task",
+        "test",
+        TaskPriority::Normal,
+        serde_json::json!({"test": "data"}),
+    );
     workflow.add_task(task);
 
     // Act: Execute workflow
@@ -48,16 +58,28 @@ async fn test_parallel_execution() {
 
     // Register multiple agents
     for i in 0..5 {
-        let agent = Box::new(DefaultAgent::new(&format!("agent-{}", i), &format!("Agent {}", i), vec!["test".to_string()]));
+        let agent = Box::new(DefaultAgent::new(
+            &format!("agent-{}", i),
+            &format!("Agent {}", i),
+            vec!["test".to_string()],
+        ));
         framework.register_agent(agent).unwrap();
     }
 
     // Create workflow with multiple tasks
-    let workflow_id = framework.create_workflow("Parallel Test", "parallel").unwrap();
+    let workflow_id = framework
+        .create_workflow("Parallel Test", "parallel")
+        .unwrap();
     let workflow = framework.workflows.get_mut(&workflow_id).unwrap();
 
     for i in 0..10 {
-        let task = Task::new(&format!("task-{}", i), &format!("Task {}", i), "test", TaskPriority::Normal, serde_json::json!({"id": i}));
+        let task = Task::new(
+            &format!("task-{}", i),
+            &format!("Task {}", i),
+            "test",
+            TaskPriority::Normal,
+            serde_json::json!({"id": i}),
+        );
         workflow.add_task(task);
     }
 
@@ -77,16 +99,40 @@ async fn test_task_dependency_resolution() {
     // Arrange
     let mut framework = ExecutionFramework::new(ExecutionConfig::default());
 
-    let agent = Box::new(DefaultAgent::new("test-agent", "Test Agent", vec!["test".to_string()]));
+    let agent = Box::new(DefaultAgent::new(
+        "test-agent",
+        "Test Agent",
+        vec!["test".to_string()],
+    ));
     framework.register_agent(agent).unwrap();
 
-    let workflow_id = framework.create_workflow("Dependency Test", "dependency").unwrap();
+    let workflow_id = framework
+        .create_workflow("Dependency Test", "dependency")
+        .unwrap();
     let workflow = framework.workflows.get_mut(&workflow_id).unwrap();
 
     // Create tasks with dependencies
-    let task1 = Task::new("task-1", "First Task", "test", TaskPriority::Normal, serde_json::json!({"step": 1}));
-    let task2 = Task::new("task-2", "Second Task", "test", TaskPriority::Normal, serde_json!({"step": 2}));
-    let task3 = Task::new("task-3", "Third Task", "test", TaskPriority::Normal, serde_json!({"step": 3}));
+    let task1 = Task::new(
+        "task-1",
+        "First Task",
+        "test",
+        TaskPriority::Normal,
+        serde_json::json!({"step": 1}),
+    );
+    let task2 = Task::new(
+        "task-2",
+        "Second Task",
+        "test",
+        TaskPriority::Normal,
+        serde_json!({"step": 2}),
+    );
+    let task3 = Task::new(
+        "task-3",
+        "Third Task",
+        "test",
+        TaskPriority::Normal,
+        serde_json!({"step": 3}),
+    );
 
     task2.dependencies.push("task-1".to_string());
     task3.dependencies.push("task-2".to_string());
@@ -116,8 +162,15 @@ async fn test_semantic_convergence_engine() {
     let mut engine = SemanticConvergenceEngine::new(config);
 
     // Register agents
-    engine.register_agent("agent-1", vec!["capability-1".to_string()]).await;
-    engine.register_agent("agent-2", vec!["capability-1".to_string(), "capability-2".to_string()]).await;
+    engine
+        .register_agent("agent-1", vec!["capability-1".to_string()])
+        .await;
+    engine
+        .register_agent(
+            "agent-2",
+            vec!["capability-1".to_string(), "capability-2".to_string()],
+        )
+        .await;
 
     // Create and process convergence messages
     let message = ConvergenceMessage {
@@ -151,7 +204,9 @@ async fn test_adaptive_convergence() {
     let mut engine = AdaptiveConvergenceEngine::new(config);
 
     // Register agents
-    engine.register_agent("agent-1", vec!["capability-1".to_string()]).await;
+    engine
+        .register_agent("agent-1", vec!["capability-1".to_string()])
+        .await;
 
     // Process messages to build up performance data
     for i in 0..5 {
@@ -181,19 +236,24 @@ async fn test_adaptive_convergence() {
 async fn test_error_handling_and_recovery() {
     // Arrange
     let mut recovery_manager = RecoveryManager::new();
-    recovery_manager.register_policy("test-error", RecoveryPolicy {
-        strategy: RecoveryStrategy::Retry,
-        max_attempts: 3,
-        initial_delay_ms: 100,
-        max_delay_ms: 1000,
-        backoff_multiplier: 2.0,
-        jitter_ms: 50,
-        conditions: vec![RecoveryCondition::Always],
-    });
+    recovery_manager.register_policy(
+        "test-error",
+        RecoveryPolicy {
+            strategy: RecoveryStrategy::Retry,
+            max_attempts: 3,
+            initial_delay_ms: 100,
+            max_delay_ms: 1000,
+            backoff_multiplier: 2.0,
+            jitter_ms: 50,
+            conditions: vec![RecoveryCondition::Always],
+        },
+    );
 
     // Act: Handle error
     let error = ExecutionError::Task("Test error".to_string());
-    let result = recovery_manager.handle_error(&error, "test-component").await;
+    let result = recovery_manager
+        .handle_error(&error, "test-component")
+        .await;
 
     // Assert
     assert!(result.is_ok());
@@ -245,11 +305,21 @@ struct MockAgent {
 
 #[async_trait::async_trait]
 impl UnifiedAgentTrait for MockAgent {
-    fn get_id(&self) -> &str { &self.id }
-    fn get_name(&self) -> &str { &self.id }
-    fn get_capabilities(&self) -> &[String] { &[] }
-    fn is_available(&self) -> bool { self.healthy }
-    fn get_health(&self) -> &AgentHealth { &AgentHealth::new() }
+    fn get_id(&self) -> &str {
+        &self.id
+    }
+    fn get_name(&self) -> &str {
+        &self.id
+    }
+    fn get_capabilities(&self) -> &[String] {
+        &[]
+    }
+    fn is_available(&self) -> bool {
+        self.healthy
+    }
+    fn get_health(&self) -> &AgentHealth {
+        &AgentHealth::new()
+    }
     async fn execute_task(&mut self, _task: Task) -> Result<TaskResult, ExecutionError> {
         if self.healthy {
             self.task_count += 1;
@@ -264,11 +334,21 @@ impl UnifiedAgentTrait for MockAgent {
             Err(ExecutionError::Task("Agent unhealthy".to_string()))
         }
     }
-    async fn update_config(&mut self, _config: AgentConfiguration) -> Result<(), ExecutionError> { Ok(()) }
-    fn get_metrics(&self) -> &AgentMetrics { &AgentMetrics::new() }
-    async fn start(&mut self) -> Result<(), ExecutionError> { Ok(()) }
-    async fn stop(&mut self) -> Result<(), ExecutionError> { Ok(()) }
-    fn get_status(&self) -> &AgentStatus { &AgentStatus::Idle }
+    async fn update_config(&mut self, _config: AgentConfiguration) -> Result<(), ExecutionError> {
+        Ok(())
+    }
+    fn get_metrics(&self) -> &AgentMetrics {
+        &AgentMetrics::new()
+    }
+    async fn start(&mut self) -> Result<(), ExecutionError> {
+        Ok(())
+    }
+    async fn stop(&mut self) -> Result<(), ExecutionError> {
+        Ok(())
+    }
+    fn get_status(&self) -> &AgentStatus {
+        &AgentStatus::Idle
+    }
 }
 
 // ============================================================================
@@ -279,17 +359,33 @@ impl UnifiedAgentTrait for MockAgent {
 async fn test_pipeline_execution() {
     // Arrange
     let mut framework = ExecutionFramework::new(ExecutionConfig::default());
-    let agent = Box::new(DefaultAgent::new("test-agent", "Test Agent", vec!["test".to_string()]));
+    let agent = Box::new(DefaultAgent::new(
+        "test-agent",
+        "Test Agent",
+        vec!["test".to_string()],
+    ));
     framework.register_agent(agent).unwrap();
 
     let pipeline = ExecutionPipeline::new("test-pipeline", "Test Pipeline", "test");
 
     // Create stages
     let mut stage1 = PipelineStage::new("Stage 1", StageType::DataProcessing);
-    stage1.add_task(Task::new("task-1", "Task 1", "test", TaskPriority::Normal, serde_json::json!({})));
+    stage1.add_task(Task::new(
+        "task-1",
+        "Task 1",
+        "test",
+        TaskPriority::Normal,
+        serde_json::json!({}),
+    ));
 
     let mut stage2 = PipelineStage::new("Stage 2", StageType::Analysis);
-    stage2.add_task(Task::new("task-2", "Task 2", "test", TaskPriority::Normal, serde_json::json!({})));
+    stage2.add_task(Task::new(
+        "task-2",
+        "Task 2",
+        "test",
+        TaskPriority::Normal,
+        serde_json::json!({}),
+    ));
 
     pipeline.add_stage(stage1);
     pipeline.add_stage(stage2);
@@ -445,16 +541,28 @@ async fn test_concurrent_task_performance() {
 
     // Register multiple agents
     for i in 0..10 {
-        let agent = Box::new(DefaultAgent::new(&format!("agent-{}", i), &format!("Agent {}", i), vec!["test".to_string()]));
+        let agent = Box::new(DefaultAgent::new(
+            &format!("agent-{}", i),
+            &format!("Agent {}", i),
+            vec!["test".to_string()],
+        ));
         framework.register_agent(agent).unwrap();
     }
 
     // Create many tasks
-    let workflow_id = framework.create_workflow("Performance Test", "benchmark").unwrap();
+    let workflow_id = framework
+        .create_workflow("Performance Test", "benchmark")
+        .unwrap();
     let workflow = framework.workflows.get_mut(&workflow_id).unwrap();
 
     for i in 0..100 {
-        let task = Task::new(&format!("task-{}", i), &format!("Task {}", i), "test", TaskPriority::Normal, serde_json::json!({"id": i}));
+        let task = Task::new(
+            &format!("task-{}", i),
+            &format!("Task {}", i),
+            "test",
+            TaskPriority::Normal,
+            serde_json::json!({"id": i}),
+        );
         workflow.add_task(task);
     }
 
@@ -478,7 +586,11 @@ async fn test_concurrent_task_performance() {
 async fn test_memory_usage() {
     // Arrange
     let mut framework = ExecutionFramework::new(ExecutionConfig::default());
-    let agent = Box::new(DefaultAgent::new("test-agent", "Test Agent", vec!["test".to_string()]));
+    let agent = Box::new(DefaultAgent::new(
+        "test-agent",
+        "Test Agent",
+        vec!["test".to_string()],
+    ));
     framework.register_agent(agent).unwrap();
 
     // Create workflow with many tasks
@@ -487,7 +599,13 @@ async fn test_memory_usage() {
 
     // Add 1000 tasks
     for i in 0..1000 {
-        let task = Task::new(&format!("task-{}", i), &format!("Task {}", i), "test", TaskPriority::Normal, serde_json::json!({"id": i, "data": "x".repeat(1024)}));
+        let task = Task::new(
+            &format!("task-{}", i),
+            &format!("Task {}", i),
+            "test",
+            TaskPriority::Normal,
+            serde_json::json!({"id": i, "data": "x".repeat(1024)}),
+        );
         workflow.add_task(task);
     }
 
@@ -532,7 +650,13 @@ async fn test_error_scenarios() {
     let workflow_id = framework.create_workflow("Error Test", "error").unwrap();
     let workflow = framework.workflows.get_mut(&workflow_id).unwrap();
 
-    let task = Task::new("task-1", "Failing Task", "test", TaskPriority::Normal, serde_json::json!({"should_fail": true}));
+    let task = Task::new(
+        "task-1",
+        "Failing Task",
+        "test",
+        TaskPriority::Normal,
+        serde_json::json!({"should_fail": true}),
+    );
     workflow.add_task(task);
 
     // Execute workflow - should handle error gracefully
@@ -548,10 +672,18 @@ async fn test_error_scenarios() {
     let slow_agent = Box::new(SlowAgent::new("slow-agent"));
     framework.register_agent(slow_agent).unwrap();
 
-    let workflow_id = framework.create_workflow("Timeout Test", "timeout").unwrap();
+    let workflow_id = framework
+        .create_workflow("Timeout Test", "timeout")
+        .unwrap();
     let workflow = framework.workflows.get_mut(&workflow_id).unwrap();
 
-    let task = Task::new("task-1", "Slow Task", "slow", TaskPriority::Normal, serde_json::json!({}));
+    let task = Task::new(
+        "task-1",
+        "Slow Task",
+        "slow",
+        TaskPriority::Normal,
+        serde_json::json!({}),
+    );
     workflow.add_task(task);
 
     let result = framework.execute_workflow(&workflow_id).await;
@@ -560,10 +692,18 @@ async fn test_error_scenarios() {
 
     // Test 3: Handle workflow with no available agents
     let mut framework = ExecutionFramework::new(ExecutionConfig::default());
-    let workflow_id = framework.create_workflow("No Agents Test", "no-agents").unwrap();
+    let workflow_id = framework
+        .create_workflow("No Agents Test", "no-agents")
+        .unwrap();
     let workflow = framework.workflows.get_mut(&workflow_id).unwrap();
 
-    let task = Task::new("task-1", "Orphan Task", "test", TaskPriority::Normal, serde_json::json!({}));
+    let task = Task::new(
+        "task-1",
+        "Orphan Task",
+        "test",
+        TaskPriority::Normal,
+        serde_json::json!({}),
+    );
     workflow.add_task(task);
 
     let result = framework.execute_workflow(&workflow_id).await;
@@ -583,23 +723,48 @@ impl FailingAgent {
 
 #[async_trait::async_trait]
 impl UnifiedAgentTrait for FailingAgent {
-    fn get_id(&self) -> &str { &self.id }
-    fn get_name(&self) -> &str { &self.id }
-    fn get_capabilities(&self) -> &[String] { &[] }
-    fn is_available(&self) -> bool { true }
-    fn get_health(&self) -> &AgentHealth { &AgentHealth::new() }
+    fn get_id(&self) -> &str {
+        &self.id
+    }
+    fn get_name(&self) -> &str {
+        &self.id
+    }
+    fn get_capabilities(&self) -> &[String] {
+        &[]
+    }
+    fn is_available(&self) -> bool {
+        true
+    }
+    fn get_health(&self) -> &AgentHealth {
+        &AgentHealth::new()
+    }
     async fn execute_task(&mut self, task: Task) -> Result<TaskResult, ExecutionError> {
-        if task.payload.get("should_fail").and_then(|v| v.as_bool()).unwrap_or(false) {
+        if task
+            .payload
+            .get("should_fail")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false)
+        {
             Err(ExecutionError::Task("Task failed".to_string()))
         } else {
             Ok(TaskResult::default())
         }
     }
-    async fn update_config(&mut self, _config: AgentConfiguration) -> Result<(), ExecutionError> { Ok(()) }
-    fn get_metrics(&self) -> &AgentMetrics { &AgentMetrics::new() }
-    async fn start(&mut self) -> Result<(), ExecutionError> { Ok(()) }
-    async fn stop(&mut self) -> Result<(), ExecutionError> { Ok(()) }
-    fn get_status(&self) -> &AgentStatus { &AgentStatus::Idle }
+    async fn update_config(&mut self, _config: AgentConfiguration) -> Result<(), ExecutionError> {
+        Ok(())
+    }
+    fn get_metrics(&self) -> &AgentMetrics {
+        &AgentMetrics::new()
+    }
+    async fn start(&mut self) -> Result<(), ExecutionError> {
+        Ok(())
+    }
+    async fn stop(&mut self) -> Result<(), ExecutionError> {
+        Ok(())
+    }
+    fn get_status(&self) -> &AgentStatus {
+        &AgentStatus::Idle
+    }
 }
 
 // Slow agent for timeout testing
@@ -615,18 +780,38 @@ impl SlowAgent {
 
 #[async_trait::async_trait]
 impl UnifiedAgentTrait for SlowAgent {
-    fn get_id(&self) -> &str { &self.id }
-    fn get_name(&self) -> &str { &self.id }
-    fn get_capabilities(&self) -> &[String] { &[] }
-    fn is_available(&self) -> bool { true }
-    fn get_health(&self) -> &AgentHealth { &AgentHealth::new() }
+    fn get_id(&self) -> &str {
+        &self.id
+    }
+    fn get_name(&self) -> &str {
+        &self.id
+    }
+    fn get_capabilities(&self) -> &[String] {
+        &[]
+    }
+    fn is_available(&self) -> bool {
+        true
+    }
+    fn get_health(&self) -> &AgentHealth {
+        &AgentHealth::new()
+    }
     async fn execute_task(&mut self, _task: Task) -> Result<TaskResult, ExecutionError> {
         sleep(Duration::from_secs(2)).await; // Sleep for 2 seconds
         Ok(TaskResult::default())
     }
-    async fn update_config(&mut self, _config: AgentConfiguration) -> Result<(), ExecutionError> { Ok(()) }
-    fn get_metrics(&self) -> &AgentMetrics { &AgentMetrics::new() }
-    async fn start(&mut self) -> Result<(), ExecutionError> { Ok(()) }
-    async fn stop(&mut self) -> Result<(), ExecutionError> { Ok(()) }
-    fn get_status(&self) -> &AgentStatus { &AgentStatus::Idle }
+    async fn update_config(&mut self, _config: AgentConfiguration) -> Result<(), ExecutionError> {
+        Ok(())
+    }
+    fn get_metrics(&self) -> &AgentMetrics {
+        &AgentMetrics::new()
+    }
+    async fn start(&mut self) -> Result<(), ExecutionError> {
+        Ok(())
+    }
+    async fn stop(&mut self) -> Result<(), ExecutionError> {
+        Ok(())
+    }
+    fn get_status(&self) -> &AgentStatus {
+        &AgentStatus::Idle
+    }
 }

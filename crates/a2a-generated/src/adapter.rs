@@ -26,7 +26,9 @@ pub trait Adapter: Send + Sync {
     async fn to_a2a(&self, message: &serde_json::Value) -> Result<serde_json::Value, AdapterError>;
 
     /// Convert message from A2A format to adapter format
-    async fn from_a2a(&self, message: &serde_json::Value) -> Result<serde_json::Value, AdapterError>;
+    async fn from_a2a(
+        &self, message: &serde_json::Value,
+    ) -> Result<serde_json::Value, AdapterError>;
 
     /// Get adapter capabilities
     fn capabilities(&self) -> AdapterCapabilities;
@@ -184,7 +186,9 @@ impl Adapter for BaseAdapter {
     }
 
     fn can_handle(&self, format: &str) -> bool {
-        self.capabilities.supported_formats.contains(&format.to_string())
+        self.capabilities
+            .supported_formats
+            .contains(&format.to_string())
     }
 
     async fn to_a2a(&self, message: &serde_json::Value) -> Result<serde_json::Value, AdapterError> {
@@ -199,7 +203,9 @@ impl Adapter for BaseAdapter {
         Ok(message.clone())
     }
 
-    async fn from_a2a(&self, message: &serde_json::Value) -> Result<serde_json::Value, AdapterError> {
+    async fn from_a2a(
+        &self, message: &serde_json::Value,
+    ) -> Result<serde_json::Value, AdapterError> {
         if !self.initialized {
             return Err(AdapterError::new(
                 "Adapter not initialized".to_string(),
@@ -259,7 +265,9 @@ impl Adapter for JsonAdapter {
         Ok(message.clone())
     }
 
-    async fn from_a2a(&self, message: &serde_json::Value) -> Result<serde_json::Value, AdapterError> {
+    async fn from_a2a(
+        &self, message: &serde_json::Value,
+    ) -> Result<serde_json::Value, AdapterError> {
         // For JSON adapter, conversion is straightforward
         Ok(message.clone())
     }
@@ -291,21 +299,26 @@ impl XmlAdapter {
     fn xml_to_json(&self, xml: &str) -> Result<serde_json::Value, AdapterError> {
         // This is a simplified implementation
         // In a real implementation, you would use proper XML parsing
-        let content = format!("{{\"xml_content\": \"{}\"}}", xml.escape_default().to_string());
-        serde_json::from_str(&content)
-            .map_err(|e| AdapterError::new(
+        let content = format!(
+            "{{\"xml_content\": \"{}\"}}",
+            xml.escape_default().to_string()
+        );
+        serde_json::from_str(&content).map_err(|e| {
+            AdapterError::new(
                 format!("XML to JSON conversion failed: {}", e),
                 AdapterErrorType::ConversionFailed,
-            ))
+            )
+        })
     }
 
     // Simple JSON to XML conversion (basic implementation)
     fn json_to_xml(&self, json: &serde_json::Value) -> Result<String, AdapterError> {
-        serde_json::to_string(json)
-            .map_err(|e| AdapterError::new(
+        serde_json::to_string(json).map_err(|e| {
+            AdapterError::new(
                 format!("JSON to XML conversion failed: {}", e),
                 AdapterErrorType::ConversionFailed,
-            ))
+            )
+        })
     }
 }
 
@@ -329,16 +342,19 @@ impl Adapter for XmlAdapter {
 
     async fn to_a2a(&self, message: &serde_json::Value) -> Result<serde_json::Value, AdapterError> {
         // Extract XML content from message
-        let xml_str = message.as_str()
-            .ok_or_else(|| AdapterError::new(
+        let xml_str = message.as_str().ok_or_else(|| {
+            AdapterError::new(
                 "Message is not a string".to_string(),
                 AdapterErrorType::ConversionFailed,
-            ))?;
+            )
+        })?;
 
         self.xml_to_json(xml_str)
     }
 
-    async fn from_a2a(&self, message: &serde_json::Value) -> Result<serde_json::Value, AdapterError> {
+    async fn from_a2a(
+        &self, message: &serde_json::Value,
+    ) -> Result<serde_json::Value, AdapterError> {
         let xml_str = self.json_to_xml(message)?;
         Ok(serde_json::json!(xml_str))
     }
@@ -369,8 +385,7 @@ impl AdapterRegistry {
     }
 
     pub fn get_adapter(&self, name: &str) -> Option<&dyn Adapter> {
-        self.adapters.get(name)
-            .map(|adapter| adapter.as_ref())
+        self.adapters.get(name).map(|adapter| adapter.as_ref())
     }
 
     pub fn find_adapter_for_format(&self, format: &str) -> Option<&dyn Adapter> {
@@ -383,7 +398,10 @@ impl AdapterRegistry {
     }
 
     pub fn list_adapters(&self) -> Vec<&dyn Adapter> {
-        self.adapters.values().map(|adapter| adapter.as_ref()).collect()
+        self.adapters
+            .values()
+            .map(|adapter| adapter.as_ref())
+            .collect()
     }
 }
 
@@ -404,22 +422,34 @@ impl MessageConverter {
         self
     }
 
-    pub async fn convert_to_a2a(&self, message: &serde_json::Value, format: &str) -> Result<serde_json::Value, AdapterError> {
-        let adapter = self.registry.find_adapter_for_format(format)
-            .ok_or_else(|| AdapterError::new(
-                format!("No adapter found for format: {}", format),
-                AdapterErrorType::UnsupportedFormat,
-            ))?;
+    pub async fn convert_to_a2a(
+        &self, message: &serde_json::Value, format: &str,
+    ) -> Result<serde_json::Value, AdapterError> {
+        let adapter = self
+            .registry
+            .find_adapter_for_format(format)
+            .ok_or_else(|| {
+                AdapterError::new(
+                    format!("No adapter found for format: {}", format),
+                    AdapterErrorType::UnsupportedFormat,
+                )
+            })?;
 
         adapter.to_a2a(message).await
     }
 
-    pub async fn convert_from_a2a(&self, message: &serde_json::Value, target_format: &str) -> Result<serde_json::Value, AdapterError> {
-        let adapter = self.registry.find_adapter_for_format(target_format)
-            .ok_or_else(|| AdapterError::new(
-                format!("No adapter found for format: {}", target_format),
-                AdapterErrorType::UnsupportedFormat,
-            ))?;
+    pub async fn convert_from_a2a(
+        &self, message: &serde_json::Value, target_format: &str,
+    ) -> Result<serde_json::Value, AdapterError> {
+        let adapter = self
+            .registry
+            .find_adapter_for_format(target_format)
+            .ok_or_else(|| {
+                AdapterError::new(
+                    format!("No adapter found for format: {}", target_format),
+                    AdapterErrorType::UnsupportedFormat,
+                )
+            })?;
 
         adapter.from_a2a(message).await
     }
@@ -465,7 +495,9 @@ mod tests {
         registry.register_adapter(Box::new(JsonAdapter::new()));
 
         assert!(registry.get_adapter("json").is_some());
-        assert!(registry.find_adapter_for_format("application/json").is_some());
+        assert!(registry
+            .find_adapter_for_format("application/json")
+            .is_some());
     }
 
     #[tokio::test]
@@ -473,7 +505,10 @@ mod tests {
         let converter = MessageConverter::default();
 
         let json_msg = serde_json::json!({"test": "message"});
-        let converted = converter.convert_to_a2a(&json_msg, "application/json").await.unwrap();
+        let converted = converter
+            .convert_to_a2a(&json_msg, "application/json")
+            .await
+            .unwrap();
         assert_eq!(converted, json_msg);
     }
 }

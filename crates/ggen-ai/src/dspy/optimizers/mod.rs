@@ -6,22 +6,22 @@
 //! - `Trace` - Execution trace support for advanced metrics
 //! - `OptimizationStatistics` - Performance tracking
 
-use crate::dspy::{Module, ModuleError};
 use crate::dspy::optimizer::Example;
+use crate::dspy::{Module, ModuleError};
+use async_trait::async_trait;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::time::SystemTime;
-use async_trait::async_trait;
 
-pub mod labeled_fewshot;
-pub mod knn_fewshot;
 pub mod bootstrap_random_search;
 pub mod copro;
+pub mod knn_fewshot;
+pub mod labeled_fewshot;
 
-pub use labeled_fewshot::LabeledFewShot;
-pub use knn_fewshot::{KNNFewShot, Vectorizer, CosineVectorizer};
 pub use bootstrap_random_search::BootstrapFewShotWithRandomSearch;
 pub use copro::COPRO;
+pub use knn_fewshot::{CosineVectorizer, KNNFewShot, Vectorizer};
+pub use labeled_fewshot::LabeledFewShot;
 
 /// Execution trace step for advanced metric validation
 #[derive(Debug, Clone)]
@@ -136,9 +136,7 @@ pub trait Metric: Send + Sync {
     ///
     /// Used during evaluation and optimization phases.
     fn evaluate(
-        &self,
-        example: &Example,
-        output: &HashMap<String, Value>,
+        &self, example: &Example, output: &HashMap<String, Value>,
     ) -> Result<f64, ModuleError>;
 
     /// Validate example with boolean pass/fail
@@ -146,10 +144,7 @@ pub trait Metric: Send + Sync {
     /// Used during bootstrapping to filter demonstrations.
     /// Optional trace parameter enables intermediate step validation.
     fn validate(
-        &self,
-        example: &Example,
-        output: &HashMap<String, Value>,
-        trace: Option<&Trace>,
+        &self, example: &Example, output: &HashMap<String, Value>, trace: Option<&Trace>,
     ) -> Result<bool, ModuleError>;
 }
 
@@ -170,9 +165,7 @@ impl ExactMatchMetric {
 #[async_trait]
 impl Metric for ExactMatchMetric {
     fn evaluate(
-        &self,
-        example: &Example,
-        output: &HashMap<String, Value>,
+        &self, example: &Example, output: &HashMap<String, Value>,
     ) -> Result<f64, ModuleError> {
         let expected = example.outputs.get(&self.field_name);
         let actual = output.get(&self.field_name);
@@ -181,10 +174,7 @@ impl Metric for ExactMatchMetric {
     }
 
     fn validate(
-        &self,
-        example: &Example,
-        output: &HashMap<String, Value>,
-        _trace: Option<&Trace>,
+        &self, example: &Example, output: &HashMap<String, Value>, _trace: Option<&Trace>,
     ) -> Result<bool, ModuleError> {
         let expected = example.outputs.get(&self.field_name);
         let actual = output.get(&self.field_name);
@@ -216,11 +206,10 @@ impl FuzzyMatchMetric {
 #[async_trait]
 impl Metric for FuzzyMatchMetric {
     fn evaluate(
-        &self,
-        example: &Example,
-        output: &HashMap<String, Value>,
+        &self, example: &Example, output: &HashMap<String, Value>,
     ) -> Result<f64, ModuleError> {
-        let expected = example.outputs
+        let expected = example
+            .outputs
             .get(&self.field_name)
             .and_then(|v| v.as_str())
             .unwrap_or("");
@@ -242,10 +231,7 @@ impl Metric for FuzzyMatchMetric {
     }
 
     fn validate(
-        &self,
-        example: &Example,
-        output: &HashMap<String, Value>,
-        _trace: Option<&Trace>,
+        &self, example: &Example, output: &HashMap<String, Value>, _trace: Option<&Trace>,
     ) -> Result<bool, ModuleError> {
         let score = self.evaluate(example, output)?;
         Ok(score >= self.threshold)
@@ -297,18 +283,14 @@ pub trait Optimizer: Send + Sync {
     /// # Returns
     /// An optimized module ready for deployment
     async fn compile(
-        &self,
-        student: &dyn Module,
-        trainset: &[Example],
+        &self, student: &dyn Module, trainset: &[Example],
     ) -> Result<Box<dyn Module>, ModuleError>;
 
     /// Compile with detailed statistics tracking
     ///
     /// Returns both the optimized module and performance statistics.
     async fn compile_with_stats(
-        &self,
-        student: &dyn Module,
-        trainset: &[Example],
+        &self, student: &dyn Module, trainset: &[Example],
     ) -> Result<(Box<dyn Module>, OptimizationStatistics), ModuleError> {
         let start = SystemTime::now();
         let optimized = self.compile(student, trainset).await?;

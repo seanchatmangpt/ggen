@@ -3,10 +3,10 @@
 //! This module provides cryptographic receipt generation for workflow executions
 //! ensuring deterministic outputs and audit trail capabilities.
 
-use crate::{error::{WorkflowError}, WorkflowContext};
 use crate::patterns::TraceEvent;
-use sha2::{Sha256, Digest};
-use serde::{Serialize, Deserialize};
+use crate::{error::WorkflowError, WorkflowContext};
+use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 
 /// Receipt generation errors
@@ -100,7 +100,8 @@ impl ReceiptGenerator {
             cpu_time_ms: 0,
         };
 
-        let signature = self.sign_receipt_data(&receipt_id, &input_hash, &output_hash, &trace_hash)?;
+        let signature =
+            self.sign_receipt_data(&receipt_id, &input_hash, &output_hash, &trace_hash)?;
 
         Ok(WorkflowReceipt {
             receipt_id,
@@ -118,11 +119,16 @@ impl ReceiptGenerator {
     pub fn verify_receipt(&self, receipt: &WorkflowReceipt) -> ReceiptResult<bool> {
         // Verify receipt ID format
         if receipt.receipt_id.is_empty() || receipt.receipt_id.len() > 64 {
-            return Err(WorkflowError::Validation("Invalid receipt ID format".to_string()));
+            return Err(WorkflowError::Validation(
+                "Invalid receipt ID format".to_string(),
+            ));
         }
 
         // Verify hashes are valid
-        if receipt.input_hash.len() != 64 || receipt.output_hash.len() != 64 || receipt.trace_hash.len() != 64 {
+        if receipt.input_hash.len() != 64
+            || receipt.output_hash.len() != 64
+            || receipt.trace_hash.len() != 64
+        {
             return Err(WorkflowError::Validation("Invalid hash format".to_string()));
         }
 
@@ -140,13 +146,17 @@ impl ReceiptGenerator {
 
         // Verify workflow ID matches
         if receipt.workflow_id.is_empty() {
-            return Err(WorkflowError::Validation("Missing workflow ID in receipt".to_string()));
+            return Err(WorkflowError::Validation(
+                "Missing workflow ID in receipt".to_string(),
+            ));
         }
 
         // Verify timestamp is reasonable (not in the future)
         let now = chrono::Utc::now();
         if receipt.timestamp > now {
-            return Err(WorkflowError::Validation("Receipt timestamp is in the future".to_string()));
+            return Err(WorkflowError::Validation(
+                "Receipt timestamp is in the future".to_string(),
+            ));
         }
 
         Ok(true)
@@ -154,8 +164,7 @@ impl ReceiptGenerator {
 
     /// Hash arbitrary data
     fn hash_data(&self, data: &HashMap<String, serde_json::Value>) -> String {
-        let serialized = serde_json::to_string(data)
-            .unwrap_or_else(|_| "{}".to_string());
+        let serialized = serde_json::to_string(data).unwrap_or_else(|_| "{}".to_string());
 
         match self.hash_algorithm {
             HashAlgorithm::Sha256 => {
@@ -164,7 +173,7 @@ impl ReceiptGenerator {
                 format!("{:x}", hasher.finalize())
             }
             HashAlgorithm::Sha512 => {
-                use sha2::{Sha512, Digest};
+                use sha2::{Digest, Sha512};
                 let mut hasher = Sha512::new();
                 hasher.update(serialized.as_bytes());
                 format!("{:x}", hasher.finalize())
@@ -174,8 +183,7 @@ impl ReceiptGenerator {
 
     /// Hash trace data
     fn hash_trace(&self, trace: &[TraceEvent]) -> String {
-        let serialized = serde_json::to_string(trace)
-            .unwrap_or_else(|_| "[]".to_string());
+        let serialized = serde_json::to_string(trace).unwrap_or_else(|_| "[]".to_string());
 
         match self.hash_algorithm {
             HashAlgorithm::Sha256 => {
@@ -184,7 +192,7 @@ impl ReceiptGenerator {
                 format!("{:x}", hasher.finalize())
             }
             HashAlgorithm::Sha512 => {
-                use sha2::{Sha512, Digest};
+                use sha2::{Digest, Sha512};
                 let mut hasher = Sha512::new();
                 hasher.update(serialized.as_bytes());
                 format!("{:x}", hasher.finalize())
@@ -200,7 +208,9 @@ impl ReceiptGenerator {
     }
 
     /// Sign receipt data
-    fn sign_receipt_data(&self, receipt_id: &str, input_hash: &str, output_hash: &str, trace_hash: &str) -> ReceiptResult<String> {
+    fn sign_receipt_data(
+        &self, receipt_id: &str, input_hash: &str, output_hash: &str, trace_hash: &str,
+    ) -> ReceiptResult<String> {
         let data_to_sign = format!("{}{}{}{}", receipt_id, input_hash, output_hash, trace_hash);
         let mut hasher = Sha256::new();
         hasher.update(data_to_sign.as_bytes());
@@ -246,7 +256,9 @@ impl ReceiptStore {
     }
 
     /// Verify receipt exists and is valid
-    pub fn verify_receipt_exists(&self, receipt_id: &str, generator: &ReceiptGenerator) -> ReceiptResult<bool> {
+    pub fn verify_receipt_exists(
+        &self, receipt_id: &str, generator: &ReceiptGenerator,
+    ) -> ReceiptResult<bool> {
         match self.get_receipt(receipt_id) {
             Some(receipt) => generator.verify_receipt(receipt),
             None => Ok(false),
@@ -281,12 +293,13 @@ pub mod receipt_utils {
     }
 
     /// Validate receipt execution time is reasonable
-    pub fn validate_execution_time(receipt: &WorkflowReceipt, max_time_ms: u64) -> ReceiptResult<()> {
+    pub fn validate_execution_time(
+        receipt: &WorkflowReceipt, max_time_ms: u64,
+    ) -> ReceiptResult<()> {
         if receipt.metadata.execution_time_ms > max_time_ms {
             return Err(WorkflowError::Validation(format!(
                 "Execution time exceeded maximum: {}ms > {}ms",
-                receipt.metadata.execution_time_ms,
-                max_time_ms
+                receipt.metadata.execution_time_ms, max_time_ms
             )));
         }
 
@@ -313,7 +326,9 @@ mod tests {
     #[test]
     fn test_receipt_generation() {
         let mut context = WorkflowContext::default();
-        context.input.insert("test_key".to_string(), serde_json::json!("test_value"));
+        context
+            .input
+            .insert("test_key".to_string(), serde_json::json!("test_value"));
 
         let generator = ReceiptGenerator::new();
         let receipt = generator.generate_receipt(&context).unwrap();
@@ -327,7 +342,9 @@ mod tests {
     #[test]
     fn test_receipt_verification() {
         let mut context = WorkflowContext::default();
-        context.input.insert("test_key".to_string(), serde_json::json!("test_value"));
+        context
+            .input
+            .insert("test_key".to_string(), serde_json::json!("test_value"));
 
         let generator = ReceiptGenerator::new();
         let receipt = generator.generate_receipt(&context).unwrap();

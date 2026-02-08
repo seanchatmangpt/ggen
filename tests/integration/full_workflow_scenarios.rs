@@ -25,8 +25,8 @@ use tempfile::TempDir;
 use ggen_core::{
     cache::CacheManager,
     generator::{GenContext, Generator},
-    graph::Graph,
     gpack::GpackManifest,
+    graph::Graph,
     packs::PackLockfile,
     pipeline::PipelineBuilder,
     pqc::calculate_sha256,
@@ -52,7 +52,9 @@ struct Timer {
 
 impl Timer {
     fn new() -> Self {
-        Self { start: Instant::now() }
+        Self {
+            start: Instant::now(),
+        }
     }
 
     fn elapsed_ms(&self) -> u64 {
@@ -139,7 +141,11 @@ fn assert_file_contains(path: &Path, expected: &str) {
 
 /// Verify a file was generated with correct properties
 fn verify_generated_file(path: &Path, expected_content: Option<&str>) {
-    assert!(path.exists(), "Generated file should exist: {}", path.display());
+    assert!(
+        path.exists(),
+        "Generated file should exist: {}",
+        path.display()
+    );
     let metadata = fs::metadata(path).expect("Failed to get metadata");
     assert!(metadata.len() > 0, "Generated file should not be empty");
 
@@ -175,8 +181,7 @@ fn test_full_sync_workflow() {
 
     // Create sample ontology file
     let ontology_file = ontology_dir.join("model.ttl");
-    fs::write(&ontology_file, create_sample_ontology())
-        .expect("Failed to write ontology");
+    fs::write(&ontology_file, create_sample_ontology()).expect("Failed to write ontology");
 
     // μ₁: Normalize - Load and validate RDF
     let graph = Graph::new().expect("Failed to create graph");
@@ -191,9 +196,7 @@ fn test_full_sync_workflow() {
     );
 
     // μ₂: Extract - Execute SPARQL queries
-    let query_result = graph.query(
-        "SELECT ?s WHERE { ?s ?p ?o } LIMIT 1",
-    );
+    let query_result = graph.query("SELECT ?s WHERE { ?s ?p ?o } LIMIT 1");
     assert!(query_result.is_ok(), "Query should succeed");
 
     // μ₃: Emit - Template rendering
@@ -248,7 +251,10 @@ impl {{ struct_name }} {
     // Verify SLO compliance
     timer.assert_slo("Full sync workflow");
 
-    println!("✅ Full sync workflow completed in {}ms", timer.elapsed_ms());
+    println!(
+        "✅ Full sync workflow completed in {}ms",
+        timer.elapsed_ms()
+    );
 }
 
 // ============================================================================
@@ -400,7 +406,10 @@ pub struct UserModel {
     // Verify SLO compliance
     timer.assert_slo("Template generation");
 
-    println!("✅ Template generation completed in {}ms", timer.elapsed_ms());
+    println!(
+        "✅ Template generation completed in {}ms",
+        timer.elapsed_ms()
+    );
 }
 
 // ============================================================================
@@ -443,11 +452,9 @@ fn test_pack_installation_with_conflicts() {
 
     // Act: Check compatibility - since packs aren't actually installed,
     // the function will return load errors but won't panic
-    let compatible_result = tokio::runtime::Runtime::new()
-        .unwrap()
-        .block_on(async {
-            check_packs_compatibility(&["pack-a".to_string(), "pack-b".to_string()]).await
-        });
+    let compatible_result = tokio::runtime::Runtime::new().unwrap().block_on(async {
+        check_packs_compatibility(&["pack-a".to_string(), "pack-b".to_string()]).await
+    });
 
     assert!(
         compatible_result.is_ok(),
@@ -457,7 +464,10 @@ fn test_pack_installation_with_conflicts() {
     // The result should indicate incompatibility because packs don't exist
     let result = compatible_result.unwrap();
     // Pacts that don't load are considered incompatible
-    assert!(!result.compatible || result.compatible, "Check completes without panic");
+    assert!(
+        !result.compatible || result.compatible,
+        "Check completes without panic"
+    );
     assert!(!result.pack_ids.is_empty(), "Should return pack IDs");
 
     // Verify SLO compliance
@@ -506,12 +516,18 @@ pub struct Service {
 
     let ctx = GenContext::new(template_path.clone(), output_dir.clone());
     let mut generator = Generator::new(pipeline, ctx);
-    let first_output = generator.generate().expect("First generation should succeed");
+    let first_output = generator
+        .generate()
+        .expect("First generation should succeed");
 
     // Take snapshot
-    let _snapshot_manager = SnapshotManager::new(snapshot_dir.clone()).expect("Failed to create snapshot manager");
+    let _snapshot_manager =
+        SnapshotManager::new(snapshot_dir.clone()).expect("Failed to create snapshot manager");
 
-    let files = vec![(first_output.clone(), fs::read_to_string(&first_output).expect("Failed to read first output"))];
+    let files = vec![(
+        first_output.clone(),
+        fs::read_to_string(&first_output).expect("Failed to read first output"),
+    )];
     let templates = vec![];
     let graph = Graph::new().expect("Failed to create graph");
 
@@ -552,18 +568,23 @@ impl Service {
 
     // Verify change was applied
     let content = fs::read_to_string(&second_output).expect("Failed to read output");
-    assert!(content.contains("pub name: String"), "Should contain new field");
+    assert!(
+        content.contains("pub name: String"),
+        "Should contain new field"
+    );
     assert!(content.contains("Service v2"), "Should show version update");
 
     // Create new snapshot and compare
-    let files2 = vec![(second_output.clone(), fs::read_to_string(&second_output).expect("Failed to read second output"))];
+    let files2 = vec![(
+        second_output.clone(),
+        fs::read_to_string(&second_output).expect("Failed to read second output"),
+    )];
     let snapshot2 = Snapshot::new("updated".to_string(), &graph, files2, templates)
         .expect("Failed to create second snapshot");
 
     // Verify snapshots are different
     assert_ne!(
-        snapshot.files[0].hash,
-        snapshot2.files[0].hash,
+        snapshot.files[0].hash, snapshot2.files[0].hash,
         "Snapshots should have different hashes"
     );
 
@@ -574,7 +595,10 @@ impl Service {
     // Verify SLO compliance
     timer.assert_slo("Incremental generation");
 
-    println!("✅ Incremental generation completed in {}ms", timer.elapsed_ms());
+    println!(
+        "✅ Incremental generation completed in {}ms",
+        timer.elapsed_ms()
+    );
 }
 
 // ============================================================================
@@ -595,34 +619,46 @@ fn test_parallel_generation() {
 
     // Create multiple templates for parallel generation
     let templates = vec![
-        ("model", r#"---
+        (
+            "model",
+            r#"---
 to: "models/user.rs"
 ---
 pub struct User {
     pub id: String,
 }
-"#),
-        ("service", r#"---
+"#,
+        ),
+        (
+            "service",
+            r#"---
 to: "services/user_service.rs"
 ---
 pub struct UserService {
     pub users: Vec<User>,
 }
-"#),
-        ("controller", r#"---
+"#,
+        ),
+        (
+            "controller",
+            r#"---
 to: "controllers/user_controller.rs"
 ---
 pub struct UserController {
     pub service: UserService,
 }
-"#),
-        ("repository", r#"---
+"#,
+        ),
+        (
+            "repository",
+            r#"---
 to: "repositories/user_repository.rs"
 ---
 pub struct UserRepository {
     pub connection: String,
 }
-"#),
+"#,
+        ),
     ];
 
     // Create all templates
@@ -652,7 +688,11 @@ pub struct UserRepository {
     assert_eq!(generated_paths.len(), 4, "Should generate 4 files");
 
     for path in &generated_paths {
-        assert!(path.exists(), "Generated file should exist: {}", path.display());
+        assert!(
+            path.exists(),
+            "Generated file should exist: {}",
+            path.display()
+        );
     }
 
     // Verify output files
@@ -664,7 +704,10 @@ pub struct UserRepository {
     // Verify SLO compliance
     timer.assert_slo("Parallel generation");
 
-    println!("✅ Parallel generation completed in {}ms", timer.elapsed_ms());
+    println!(
+        "✅ Parallel generation completed in {}ms",
+        timer.elapsed_ms()
+    );
 }
 
 // ============================================================================
@@ -745,7 +788,10 @@ vars: [unclosed
 
     // Assert: Verify error recovery mechanisms work
     assert!(result.is_ok(), "Valid generation should succeed");
-    assert!(result2.is_err(), "Invalid generation should fail gracefully");
+    assert!(
+        result2.is_err(),
+        "Invalid generation should fail gracefully"
+    );
 
     // Verify SLO compliance
     timer.assert_slo("Error recovery in workflow");
@@ -875,10 +921,22 @@ pub struct Organization {
     // Register RDF prefixes for template access
     let mut prefixes = BTreeMap::new();
     prefixes.insert("ex".to_string(), "http://example.org/".to_string());
-    prefixes.insert("rdf".to_string(), "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string());
-    prefixes.insert("rdfs".to_string(), "http://www.w3.org/2000/01/rdf-schema#".to_string());
-    prefixes.insert("owl".to_string(), "http://www.w3.org/2002/07/owl#".to_string());
-    prefixes.insert("xsd".to_string(), "http://www.w3.org/2001/XMLSchema#".to_string());
+    prefixes.insert(
+        "rdf".to_string(),
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string(),
+    );
+    prefixes.insert(
+        "rdfs".to_string(),
+        "http://www.w3.org/2000/01/rdf-schema#".to_string(),
+    );
+    prefixes.insert(
+        "owl".to_string(),
+        "http://www.w3.org/2002/07/owl#".to_string(),
+    );
+    prefixes.insert(
+        "xsd".to_string(),
+        "http://www.w3.org/2001/XMLSchema#".to_string(),
+    );
 
     pipeline.register_prefixes(Some("http://example.org/"), &prefixes);
 

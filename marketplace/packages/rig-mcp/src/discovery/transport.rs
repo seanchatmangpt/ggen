@@ -5,7 +5,7 @@
 //! - **SseTransport**: For Server-Sent Events (SSE) based MCP servers
 //! - **HttpTransport**: For direct HTTP-based MCP servers
 
-use super::{Result, DiscoveryError};
+use super::{DiscoveryError, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 use std::collections::HashMap;
@@ -250,10 +250,11 @@ impl ChildProcess {
     }
 
     /// Send a JSON-RPC request
-    async fn send_request(&mut self, request: &JsonRpcRequest) -> std::result::Result<JsonRpcResponse, TransportError> {
+    async fn send_request(
+        &mut self, request: &JsonRpcRequest,
+    ) -> std::result::Result<JsonRpcResponse, TransportError> {
         // Serialize the request
-        let request_json = serde_json::to_string(request)
-            .map_err(TransportError::JsonError)?;
+        let request_json = serde_json::to_string(request).map_err(TransportError::JsonError)?;
 
         // Send the request
         self.stdin.write_all(request_json.as_bytes()).await?;
@@ -319,9 +320,10 @@ impl StdioTransport {
         }
 
         // Spawn the process
-        let (program, args) = self.command.split_first().ok_or_else(|| {
-            TransportError::ProcessSpawnFailed("Empty command".to_string())
-        })?;
+        let (program, args) = self
+            .command
+            .split_first()
+            .ok_or_else(|| TransportError::ProcessSpawnFailed("Empty command".to_string()))?;
 
         let mut cmd = Command::new(program);
         cmd.args(args);
@@ -450,10 +452,9 @@ impl TransportClient for SseTransport {
             .map_err(|e| DiscoveryError::Transport(TransportError::HttpError(e.to_string())))?;
 
         if !response.status().is_success() {
-            return Err(DiscoveryError::Transport(TransportError::HttpError(format!(
-                "HTTP {}",
-                response.status()
-            ))));
+            return Err(DiscoveryError::Transport(TransportError::HttpError(
+                format!("HTTP {}", response.status()),
+            )));
         }
 
         // Parse SSE response
@@ -473,8 +474,8 @@ impl TransportClient for SseTransport {
                 ))
             })?;
 
-        let rpc_response: JsonRpcResponse = serde_json::from_str(json_str)
-            .map_err(TransportError::JsonError)?;
+        let rpc_response: JsonRpcResponse =
+            serde_json::from_str(json_str).map_err(TransportError::JsonError)?;
 
         let duration_ms = start.elapsed().as_millis() as u64;
 
@@ -550,8 +551,8 @@ impl TransportClient for HttpTransport {
         let start = std::time::Instant::now();
 
         // Build the HTTP client
-        let mut client_builder = reqwest::Client::builder()
-            .timeout(Duration::from_secs(request.timeout_secs));
+        let mut client_builder =
+            reqwest::Client::builder().timeout(Duration::from_secs(request.timeout_secs));
 
         // Add retries if configured
         if self.config.max_retries > 0 {
@@ -586,10 +587,9 @@ impl TransportClient for HttpTransport {
             .map_err(|e| DiscoveryError::Transport(TransportError::HttpError(e.to_string())))?;
 
         if !response.status().is_success() {
-            return Err(DiscoveryError::Transport(TransportError::HttpError(format!(
-                "HTTP {}",
-                response.status()
-            ))));
+            return Err(DiscoveryError::Transport(TransportError::HttpError(
+                format!("HTTP {}", response.status()),
+            )));
         }
 
         let rpc_response: JsonRpcResponse = response

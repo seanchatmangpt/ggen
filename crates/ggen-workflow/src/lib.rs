@@ -35,8 +35,11 @@ pub mod receipts;
 
 // Re-export commonly used types
 pub use error::{WorkflowError, WorkflowResult};
-pub use patterns::{Sequence, Parallel, Choice, Sync, WorkflowContext, WorkflowPattern, ExecutionMetadata, TraceEvent, SyncConfig};
-pub use receipts::{WorkflowReceipt, ReceiptGenerator, ReceiptStore, ReceiptMetadata};
+pub use patterns::{
+    Choice, ExecutionMetadata, Parallel, Sequence, Sync, SyncConfig, TraceEvent, WorkflowContext,
+    WorkflowPattern,
+};
+pub use receipts::{ReceiptGenerator, ReceiptMetadata, ReceiptStore, WorkflowReceipt};
 
 // Use constants directly from this module
 

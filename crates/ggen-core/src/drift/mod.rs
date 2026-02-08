@@ -46,5 +46,5 @@
 pub mod detector;
 pub mod sync_state;
 
-pub use detector::{DriftDetector, DriftStatus, DriftChange, ChangeType};
-pub use sync_state::{SyncState, FileHashState};
+pub use detector::{ChangeType, DriftChange, DriftDetector, DriftStatus};
+pub use sync_state::{FileHashState, SyncState};

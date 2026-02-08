@@ -7,24 +7,25 @@ pub use message_handler::*;
 
 pub mod message_handler {
     use super::*;
-    use std::collections::HashMap;
     use async_trait::async_trait;
-    use serde::{Deserialize, Serialize};
     use chrono::{DateTime, Utc};
+    use serde::{Deserialize, Serialize};
+    use std::collections::HashMap;
 
     // Re-export message types from converged module
     pub use super::super::converged::{
-        ConvergedMessage, ConvergedMessageType, UnifiedContent, ConvergedPayload,
-        MessageEnvelope, MessageRouting, MessageLifecycle, MessageState,
-        ReliabilityLevel, LatencyRequirements, ThroughputRequirements,
-        MessagePriority, QoSRequirements,
+        ConvergedMessage, ConvergedMessageType, ConvergedPayload, LatencyRequirements,
+        MessageEnvelope, MessageLifecycle, MessagePriority, MessageRouting, MessageState,
+        QoSRequirements, ReliabilityLevel, ThroughputRequirements, UnifiedContent,
     };
 
     /// Unified handler trait for all message types
     #[async_trait]
     pub trait UnifiedMessageHandler: Send + Sync {
         /// Handle a message and return the result
-        async fn handle(&self, message: &ConvergedMessage) -> Result<UnifiedHandlerResult, UnifiedHandlerError>;
+        async fn handle(
+            &self, message: &ConvergedMessage,
+        ) -> Result<UnifiedHandlerResult, UnifiedHandlerError>;
 
         /// Check if this handler can process the given message
         fn can_handle(&self, message: &ConvergedMessage) -> bool;
@@ -286,13 +287,16 @@ pub mod message_handler {
         }
 
         /// Route a message to the appropriate handler
-        pub async fn route(&mut self, message: &ConvergedMessage) -> Result<UnifiedHandlerResult, UnifiedHandlerError> {
+        pub async fn route(
+            &mut self, message: &ConvergedMessage,
+        ) -> Result<UnifiedHandlerResult, UnifiedHandlerError> {
             let start_time = Utc::now();
             self.metrics.total_messages += 1;
 
             // Find appropriate handler
-            let handler = self.find_handler(message).await
-                .ok_or_else(|| UnifiedHandlerError::ValidationError("No suitable handler found".to_string()))?;
+            let handler = self.find_handler(message).await.ok_or_else(|| {
+                UnifiedHandlerError::ValidationError("No suitable handler found".to_string())
+            })?;
 
             // Handle the message
             let result = handler.handle(message).await;
@@ -308,16 +312,22 @@ pub mod message_handler {
             }
 
             // Update average processing time
-            self.metrics.avg_processing_time = (self.metrics.avg_processing_time * (self.metrics.total_messages - 1) + duration) / self.metrics.total_messages;
+            self.metrics.avg_processing_time =
+                (self.metrics.avg_processing_time * (self.metrics.total_messages - 1) + duration)
+                    / self.metrics.total_messages;
             self.metrics.last_processed = end_time;
 
             result
         }
 
         /// Find the best handler for a message
-        async fn find_handler(&self, message: &ConvergedMessage) -> Option<&Box<dyn UnifiedMessageHandler>> {
+        async fn find_handler(
+            &self, message: &ConvergedMessage,
+        ) -> Option<&Box<dyn UnifiedMessageHandler>> {
             // Filter handlers that can handle this message
-            let capable_handlers: Vec<_> = self.handlers.iter()
+            let capable_handlers: Vec<_> = self
+                .handlers
+                .iter()
                 .filter(|h| h.can_handle(message))
                 .collect();
 
@@ -335,8 +345,7 @@ pub mod message_handler {
             }
 
             // Select handler with highest priority
-            selected.into_iter()
-                .max_by_key(|h| h.priority())
+            selected.into_iter().max_by_key(|h| h.priority())
         }
 
         /// Get current metrics
@@ -356,8 +365,11 @@ pub mod message_handler {
 
     impl UnifiedRoutingRule {
         /// Apply this rule to filter handlers
-        pub fn apply(&self, message: &ConvergedMessage, handlers: &[&Box<dyn UnifiedMessageHandler>]) -> Option<Vec<&Box<dyn UnifiedMessageHandler>>> {
-            let filtered = handlers.iter()
+        pub fn apply(
+            &self, message: &ConvergedMessage, handlers: &[&Box<dyn UnifiedMessageHandler>],
+        ) -> Option<Vec<&Box<dyn UnifiedMessageHandler>>> {
+            let filtered = handlers
+                .iter()
                 .filter(|h| self.condition.matches(message, h))
                 .copied()
                 .collect();
@@ -394,9 +406,13 @@ pub mod message_handler {
 
     impl RoutingCondition {
         /// Check if condition matches
-        pub fn matches(&self, message: &ConvergedMessage, handler: &Box<dyn UnifiedMessageHandler>) -> bool {
+        pub fn matches(
+            &self, message: &ConvergedMessage, handler: &Box<dyn UnifiedMessageHandler>,
+        ) -> bool {
             match self {
-                RoutingCondition::MessageType(msg_type) => &message.envelope.message_type == msg_type,
+                RoutingCondition::MessageType(msg_type) => {
+                    &message.envelope.message_type == msg_type
+                }
                 RoutingCondition::SourceAgent(source) => &message.source == source,
                 RoutingCondition::TargetAgent(target) => {
                     message.target.as_ref().map_or(false, |t| t == target)
@@ -427,7 +443,9 @@ pub mod message_handler {
 
     #[async_trait]
     impl UnifiedMessageHandler for TextMessageHandler {
-        async fn handle(&self, message: &ConvergedMessage) -> Result<UnifiedHandlerResult, UnifiedHandlerError> {
+        async fn handle(
+            &self, message: &ConvergedMessage,
+        ) -> Result<UnifiedHandlerResult, UnifiedHandlerError> {
             match &message.payload.content {
                 UnifiedContent::Text { content, metadata } => {
                     // Process text content
@@ -453,19 +471,25 @@ pub mod message_handler {
                             start_time: message.envelope.timestamp,
                             end_time: Utc::now(),
                         },
-                        actions: vec![
-                            HandlerAction::Log("Text message processed".to_string(), LogLevel::Info),
-                        ],
+                        actions: vec![HandlerAction::Log(
+                            "Text message processed".to_string(),
+                            LogLevel::Info,
+                        )],
                         error: None,
                         metadata: metadata.clone(),
                     })
                 }
-                _ => Err(UnifiedHandlerError::ValidationError("Expected text content".to_string())),
+                _ => Err(UnifiedHandlerError::ValidationError(
+                    "Expected text content".to_string(),
+                )),
             }
         }
 
         fn can_handle(&self, message: &ConvergedMessage) -> bool {
-            matches!(message.envelope.message_type, ConvergedMessageType::Direct | ConvergedMessageType::Task)
+            matches!(
+                message.envelope.message_type,
+                ConvergedMessageType::Direct | ConvergedMessageType::Task
+            )
         }
 
         fn priority(&self) -> HandlerPriority {
@@ -477,10 +501,7 @@ pub mod message_handler {
         }
 
         fn supported_types(&self) -> Vec<ConvergedMessageType> {
-            vec![
-                ConvergedMessageType::Direct,
-                ConvergedMessageType::Task,
-            ]
+            vec![ConvergedMessageType::Direct, ConvergedMessageType::Task]
         }
     }
 
@@ -501,7 +522,9 @@ pub mod message_handler {
 
     #[async_trait]
     impl UnifiedMessageHandler for DataProcessingHandler {
-        async fn handle(&self, message: &ConvergedMessage) -> Result<UnifiedHandlerResult, UnifiedHandlerError> {
+        async fn handle(
+            &self, message: &ConvergedMessage,
+        ) -> Result<UnifiedHandlerResult, UnifiedHandlerError> {
             match &message.payload.content {
                 UnifiedContent::Data { data, schema } => {
                     // Process data content
@@ -527,26 +550,40 @@ pub mod message_handler {
                             start_time: message.envelope.timestamp,
                             end_time: Utc::now(),
                         },
-                        actions: vec![
-                            HandlerAction::CreateEvent("data_processed".to_string(), EventConfig {
+                        actions: vec![HandlerAction::CreateEvent(
+                            "data_processed".to_string(),
+                            EventConfig {
                                 event_type: "data.processed".to_string(),
-                                metadata: Some(schema.as_ref().map(|s| {
-                                    let mut map = HashMap::new();
-                                    map.insert("schema".to_string(), serde_json::Value::String(s.clone()));
-                                    map
-                                }).unwrap_or_default()),
-                            }),
-                        ],
+                                metadata: Some(
+                                    schema
+                                        .as_ref()
+                                        .map(|s| {
+                                            let mut map = HashMap::new();
+                                            map.insert(
+                                                "schema".to_string(),
+                                                serde_json::Value::String(s.clone()),
+                                            );
+                                            map
+                                        })
+                                        .unwrap_or_default(),
+                                ),
+                            },
+                        )],
                         error: None,
                         metadata: None,
                     })
                 }
-                _ => Err(UnifiedHandlerError::ValidationError("Expected data content".to_string())),
+                _ => Err(UnifiedHandlerError::ValidationError(
+                    "Expected data content".to_string(),
+                )),
             }
         }
 
         fn can_handle(&self, message: &ConvergedMessage) -> bool {
-            matches!(message.envelope.message_type, ConvergedMessageType::Query | ConvergedMessageType::Command)
+            matches!(
+                message.envelope.message_type,
+                ConvergedMessageType::Query | ConvergedMessageType::Command
+            )
         }
 
         fn priority(&self) -> HandlerPriority {
@@ -558,23 +595,28 @@ pub mod message_handler {
         }
 
         fn supported_types(&self) -> Vec<ConvergedMessageType> {
-            vec![
-                ConvergedMessageType::Query,
-                ConvergedMessageType::Command,
-            ]
+            vec![ConvergedMessageType::Query, ConvergedMessageType::Command]
         }
     }
 
     impl DataProcessingHandler {
-        fn process_data(data: &serde_json::Map<String, serde_json::Value>) -> Result<serde_json::Value, UnifiedHandlerError> {
+        fn process_data(
+            data: &serde_json::Map<String, serde_json::Value>,
+        ) -> Result<serde_json::Value, UnifiedHandlerError> {
             // Apply some processing logic
             let mut processed = data.clone();
 
             // Add processed timestamp
-            processed.insert("processed_at".to_string(), serde_json::Value::String(Utc::now().to_rfc3339()));
+            processed.insert(
+                "processed_at".to_string(),
+                serde_json::Value::String(Utc::now().to_rfc3339()),
+            );
 
             // Add processing info
-            processed.insert("processor".to_string(), serde_json::Value::String("DataProcessingHandler".to_string()));
+            processed.insert(
+                "processor".to_string(),
+                serde_json::Value::String("DataProcessingHandler".to_string()),
+            );
 
             Ok(serde_json::Value::Object(processed))
         }
@@ -597,7 +639,9 @@ pub mod message_handler {
 
     #[async_trait]
     impl UnifiedMessageHandler for ErrorHandler {
-        async fn handle(&self, message: &ConvergedMessage) -> Result<UnifiedHandlerResult, UnifiedHandlerError> {
+        async fn handle(
+            &self, message: &ConvergedMessage,
+        ) -> Result<UnifiedHandlerResult, UnifiedHandlerError> {
             let error_handler_result = UnifiedHandlerResult {
                 response: None,
                 status: HandlerStatus::Failed,
@@ -612,9 +656,10 @@ pub mod message_handler {
                     start_time: message.envelope.timestamp,
                     end_time: Utc::now(),
                 },
-                actions: vec![
-                    HandlerAction::Log("Error occurred during message processing".to_string(), LogLevel::Error),
-                ],
+                actions: vec![HandlerAction::Log(
+                    "Error occurred during message processing".to_string(),
+                    LogLevel::Error,
+                )],
                 error: Some(HandlerError {
                     code: "ERR_HANDLER".to_string(),
                     message: "Error occurred during message processing".to_string(),

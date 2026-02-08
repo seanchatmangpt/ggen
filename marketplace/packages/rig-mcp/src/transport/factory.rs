@@ -171,7 +171,8 @@ impl TransportConfig {
     /// Auto-detect transport type from endpoint
     pub fn auto_detect(endpoint: impl Into<String>) -> Self {
         let endpoint = endpoint.into();
-        let transport_type = if endpoint.starts_with("http://") || endpoint.starts_with("https://") {
+        let transport_type = if endpoint.starts_with("http://") || endpoint.starts_with("https://")
+        {
             TransportType::Http
         } else {
             TransportType::Stdio
@@ -243,7 +244,9 @@ impl TransportFactory {
     }
 
     /// Create from a command string (stdio)
-    pub async fn from_command(command: impl Into<String>) -> TransportResult<Arc<dyn McpTransport>> {
+    pub async fn from_command(
+        command: impl Into<String>,
+    ) -> TransportResult<Arc<dyn McpTransport>> {
         let command_str = command.into();
         let transport = StdioTransport::from_command(&command_str)?;
         transport.connect().await?;
@@ -282,8 +285,7 @@ impl TransportFactory {
 
     /// Build A2A config from transport config
     fn build_a2a_config(config: TransportConfig) -> TransportResult<A2AConfig> {
-        let mut a2a_config = A2AConfig::new(config.endpoint)
-            .with_timeout(config.timeout_secs);
+        let mut a2a_config = A2AConfig::new(config.endpoint).with_timeout(config.timeout_secs);
 
         if let Some(token) = config.auth_token {
             a2a_config = a2a_config.with_auth(token);
@@ -438,11 +440,23 @@ mod tests {
 
     #[test]
     fn test_transport_type_from_str() {
-        assert_eq!(TransportType::from_str("stdio").unwrap(), TransportType::Stdio);
-        assert_eq!(TransportType::from_str("HTTP").unwrap(), TransportType::Http);
-        assert_eq!(TransportType::from_str("Sse").unwrap(), TransportType::HttpSse);
+        assert_eq!(
+            TransportType::from_str("stdio").unwrap(),
+            TransportType::Stdio
+        );
+        assert_eq!(
+            TransportType::from_str("HTTP").unwrap(),
+            TransportType::Http
+        );
+        assert_eq!(
+            TransportType::from_str("Sse").unwrap(),
+            TransportType::HttpSse
+        );
         assert_eq!(TransportType::from_str("a2a").unwrap(), TransportType::A2A);
-        assert_eq!(TransportType::from_str("AGENT-TO-AGENT").unwrap(), TransportType::A2A);
+        assert_eq!(
+            TransportType::from_str("AGENT-TO-AGENT").unwrap(),
+            TransportType::A2A
+        );
         assert!(TransportType::from_str("unknown").is_err());
     }
 

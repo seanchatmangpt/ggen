@@ -1,13 +1,12 @@
+use ggen_utils::error::{Error, Result};
 ///! File system transaction support for atomic writes and rollback
 ///!
 ///! Provides bulletproof file operations with automatic cleanup on failure.
 ///! Constitutional Rule: No partial state - either all changes succeed or all are rolled back.
-
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use tempfile::NamedTempFile;
-use ggen_utils::error::{Error, Result};
 
 /// File operation tracking for rollback
 #[derive(Debug, Clone)]
@@ -96,9 +95,9 @@ impl FileTransaction {
         })?;
 
         use std::io::Write;
-        temp_file.write_all(content.as_bytes()).map_err(|e| {
-            Error::new(&format!("Failed to write to temporary file: {}", e))
-        })?;
+        temp_file
+            .write_all(content.as_bytes())
+            .map_err(|e| Error::new(&format!("Failed to write to temporary file: {}", e)))?;
 
         // Atomic rename (this is the critical atomic operation)
         temp_file.persist(path).map_err(|e| {
@@ -129,9 +128,9 @@ impl FileTransaction {
     fn create_backup(&self, path: &Path) -> Result<PathBuf> {
         let backup_path = if let Some(backup_dir) = &self.backup_dir {
             // Use dedicated backup directory
-            let filename = path.file_name().ok_or_else(|| {
-                Error::new(&format!("Invalid path: {}", path.display()))
-            })?;
+            let filename = path
+                .file_name()
+                .ok_or_else(|| Error::new(&format!("Invalid path: {}", path.display())))?;
             backup_dir.join(format!(
                 "{}.backup.{}",
                 filename.to_string_lossy(),
@@ -141,9 +140,7 @@ impl FileTransaction {
             // Use .backup suffix in same directory
             path.with_extension(format!(
                 "{}.backup",
-                path.extension()
-                    .and_then(|e| e.to_str())
-                    .unwrap_or("txt")
+                path.extension().and_then(|e| e.to_str()).unwrap_or("txt")
             ))
         };
 
@@ -209,7 +206,11 @@ impl FileTransaction {
                 FileOperation::Created { path } => {
                     // Remove created file
                     if let Err(e) = fs::remove_file(path) {
-                        eprintln!("Warning: Failed to remove {} during rollback: {}", path.display(), e);
+                        eprintln!(
+                            "Warning: Failed to remove {} during rollback: {}",
+                            path.display(),
+                            e
+                        );
                     }
                 }
                 FileOperation::Modified { path, backup } => {
@@ -250,7 +251,11 @@ impl TransactionReceipt {
     pub fn clean_backups(&self) -> Result<()> {
         for backup in self.backups.values() {
             if let Err(e) = fs::remove_file(backup) {
-                eprintln!("Warning: Failed to remove backup {}: {}", backup.display(), e);
+                eprintln!(
+                    "Warning: Failed to remove backup {}: {}",
+                    backup.display(),
+                    e
+                );
             }
         }
         Ok(())

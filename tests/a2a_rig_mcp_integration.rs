@@ -4,9 +4,8 @@
 //! Covers client-server communication, error handling, and investor demo scenarios.
 
 use rig_mcp_integration::{
-    Config, RigMcpClient, A2AServerClient, Message, Task, Role, Part,
-    prelude::*,
-    mcp_handlers::McpHandlers,
+    mcp_handlers::McpHandlers, prelude::*, A2AServerClient, Config, Message, Part, RigMcpClient,
+    Role, Task,
 };
 use serde_json::json;
 use std::time::Duration;
@@ -15,21 +14,17 @@ use tokio::time::timeout;
 /// Test configuration for integration tests
 fn test_config() -> Config {
     Config {
-        providers: vec![
-            ProviderConfig {
-                name: "openai".to_string(),
-                model: "gpt-4".to_string(),
-                api_key: Some("test-key".to_string()),
-                base_url: None,
-                features: vec!["text-generation".to_string()],
-            },
-        ],
-        mcp_servers: vec![
-            ServerConfig {
-                url: "http://localhost:4000/a2a".to_string(),
-                name: "test-server".to_string(),
-            },
-        ],
+        providers: vec![ProviderConfig {
+            name: "openai".to_string(),
+            model: "gpt-4".to_string(),
+            api_key: Some("test-key".to_string()),
+            base_url: None,
+            features: vec!["text-generation".to_string()],
+        }],
+        mcp_servers: vec![ServerConfig {
+            url: "http://localhost:4000/a2a".to_string(),
+            name: "test-server".to_string(),
+        }],
         embeddings: EmbeddingConfig {
             model: "text-embedding-ada-002".to_string(),
             provider: "openai".to_string(),
@@ -57,7 +52,10 @@ async fn test_client_creation() {
             println!("✅ Client created successfully");
         }
         Err(e) => {
-            println!("⚠️ Client creation failed (expected without real API keys): {}", e);
+            println!(
+                "⚠️ Client creation failed (expected without real API keys): {}",
+                e
+            );
             // This is expected behavior for integration tests without real credentials
         }
     }
@@ -72,7 +70,10 @@ async fn test_a2a_server_client_creation() {
             println!("✅ A2A server client created for: {}", test_url);
         }
         Err(e) => {
-            println!("⚠️ A2A server client creation failed (expected without real server): {}", e);
+            println!(
+                "⚠️ A2A server client creation failed (expected without real server): {}",
+                e
+            );
             // This is expected for integration tests without real servers
         }
     }
@@ -91,7 +92,10 @@ async fn test_server_status_check() {
                     println!("✅ Server status retrieved: {}", status);
                 }
                 Err(e) => {
-                    println!("⚠️ Server status check failed (expected without real server): {}", e);
+                    println!(
+                        "⚠️ Server status check failed (expected without real server): {}",
+                        e
+                    );
                 }
             }
         }
@@ -112,7 +116,10 @@ async fn test_mcp_handlers_creation() {
 
             // Test server count
             assert_eq!(mcp_handlers.server_count(), 1);
-            println!("✅ MCP handlers created with {} servers", mcp_handlers.server_count());
+            println!(
+                "✅ MCP handlers created with {} servers",
+                mcp_handlers.server_count()
+            );
         }
         Err(e) => {
             println!("⚠️ Client creation failed: {}", e);
@@ -151,18 +158,26 @@ async fn test_message_sending() {
                 content: json!({
                     "type": "test_message",
                     "content": "Hello from integration test!",
-                }).to_string(),
+                })
+                .to_string(),
             };
 
             // Test message sending with timeout
-            let result = timeout(Duration::from_secs(10), client.send_message_to_server(0, test_message)).await;
+            let result = timeout(
+                Duration::from_secs(10),
+                client.send_message_to_server(0, test_message),
+            )
+            .await;
 
             match result {
                 Ok(Ok(response)) => {
                     println!("✅ Message sent successfully: {}", response.content);
                 }
                 Ok(Err(e)) => {
-                    println!("⚠️ Message sending failed (expected without real server): {}", e);
+                    println!(
+                        "⚠️ Message sending failed (expected without real server): {}",
+                        e
+                    );
                 }
                 Err(_) => {
                     println!("⚠️ Message sending timed out (expected without real server)");
@@ -189,19 +204,27 @@ async fn test_task_execution() {
                     role: Role::User,
                     content: json!({
                         "request": "Integration test task completion",
-                    }).to_string(),
-                }])
+                    })
+                    .to_string(),
+                }]),
             );
 
             // Test task execution with timeout
-            let result = timeout(Duration::from_secs(15), client.send_task_to_server(0, test_task)).await;
+            let result = timeout(
+                Duration::from_secs(15),
+                client.send_task_to_server(0, test_task),
+            )
+            .await;
 
             match result {
                 Ok(Ok(response)) => {
                     println!("✅ Task executed successfully: {}", response.content);
                 }
                 Ok(Err(e)) => {
-                    println!("⚠️ Task execution failed (expected without real server): {}", e);
+                    println!(
+                        "⚠️ Task execution failed (expected without real server): {}",
+                        e
+                    );
                 }
                 Err(_) => {
                     println!("⚠️ Task execution timed out (expected without real server)");
@@ -232,14 +255,21 @@ async fn test_mcp_tool_request() {
             });
 
             // Test tool request with timeout
-            let result = timeout(Duration::from_secs(10), mcp_handlers.send_tool_request(0, "test_tool".to_string(), test_params)).await;
+            let result = timeout(
+                Duration::from_secs(10),
+                mcp_handlers.send_tool_request(0, "test_tool".to_string(), test_params),
+            )
+            .await;
 
             match result {
                 Ok(Ok(response)) => {
                     println!("✅ Tool request executed successfully: {:?}", response);
                 }
                 Ok(Err(e)) => {
-                    println!("⚠️ Tool request failed (expected without real server): {}", e);
+                    println!(
+                        "⚠️ Tool request failed (expected without real server): {}",
+                        e
+                    );
                 }
                 Err(_) => {
                     println!("⚠️ Tool request timed out (expected without real server)");
@@ -265,7 +295,10 @@ async fn test_agent_creation() {
                     println!("✅ Agent created successfully");
                 }
                 Err(e) => {
-                    println!("⚠️ Agent creation failed (expected without real API keys): {}", e);
+                    println!(
+                        "⚠️ Agent creation failed (expected without real API keys): {}",
+                        e
+                    );
                 }
             }
         }
@@ -295,7 +328,9 @@ async fn test_server_list_operations() {
             }
 
             // Test adding a server
-            let result = client.add_a2a_server("http://localhost:4001/a2a".to_string()).await;
+            let result = client
+                .add_a2a_server("http://localhost:4001/a2a".to_string())
+                .await;
             match result {
                 Ok(_) => {
                     println!("✅ Additional server added successfully");
@@ -344,7 +379,10 @@ async fn test_error_handling_out_of_bounds() {
             match result {
                 Err(e) => {
                     assert!(e.to_string().contains("out of bounds"));
-                    println!("✅ Out of bounds error handled correctly for message: {}", e);
+                    println!(
+                        "✅ Out of bounds error handled correctly for message: {}",
+                        e
+                    );
                 }
                 Ok(_) => {
                     println!("⚠️ Expected out of bounds error, but got success");
@@ -397,7 +435,8 @@ async fn test_investor_demo_scenario() {
                                 content: json!({
                                     "type": "investor_demo",
                                     "message": "Investor demo request",
-                                }).to_string(),
+                                })
+                                .to_string(),
                             };
 
                             match client.send_message_to_server(i, message).await {
@@ -480,7 +519,11 @@ async fn test_performance_operations() {
                 let status = client.get_server_status(i).await;
                 match status {
                     Ok(_) => {
-                        println!("✅ Server {} status check: {}ms", i + 1, start_time.elapsed().as_millis());
+                        println!(
+                            "✅ Server {} status check: {}ms",
+                            i + 1,
+                            start_time.elapsed().as_millis()
+                        );
                     }
                     Err(_) => {
                         println!("⚠️ Server {} status check failed", i + 1);

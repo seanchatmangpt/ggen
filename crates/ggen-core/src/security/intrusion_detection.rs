@@ -75,33 +75,45 @@ impl PatternMatcher {
     /// Check for SQL injection patterns
     fn is_sql_injection(&self, input: &str) -> bool {
         let lower = input.to_lowercase();
-        self.sql_patterns.iter().any(|pattern| pattern.is_match(&lower))
+        self.sql_patterns
+            .iter()
+            .any(|pattern| pattern.is_match(&lower))
     }
 
     /// Check for XSS patterns
     fn is_xss(&self, input: &str) -> bool {
         let lower = input.to_lowercase();
-        self.xss_patterns.iter().any(|pattern| pattern.is_match(&lower))
+        self.xss_patterns
+            .iter()
+            .any(|pattern| pattern.is_match(&lower))
     }
 
     /// Check for command injection patterns
     fn is_command_injection(&self, input: &str) -> bool {
-        self.command_patterns.iter().any(|pattern| pattern.is_match(input))
+        self.command_patterns
+            .iter()
+            .any(|pattern| pattern.is_match(input))
     }
 
     /// Check for path traversal patterns
     fn is_path_traversal(&self, input: &str) -> bool {
-        self.path_patterns.iter().any(|pattern| pattern.is_match(input))
+        self.path_patterns
+            .iter()
+            .any(|pattern| pattern.is_match(input))
     }
 
     /// Check for template injection patterns
     fn is_template_injection(&self, input: &str) -> bool {
-        self.template_patterns.iter().any(|pattern| pattern.is_match(input))
+        self.template_patterns
+            .iter()
+            .any(|pattern| pattern.is_match(input))
     }
 
     /// Check for LDAP injection patterns
     fn is_ldap_injection(&self, input: &str) -> bool {
-        self.ldap_patterns.iter().any(|pattern| pattern.is_match(input))
+        self.ldap_patterns
+            .iter()
+            .any(|pattern| pattern.is_match(input))
     }
 
     /// Compile SQL injection patterns
@@ -181,12 +193,7 @@ impl PatternMatcher {
 
     /// Compile template injection patterns
     fn compile_template_patterns() -> Result<Vec<Regex>, DetectionError> {
-        let patterns = vec![
-            r"\{\{.*\}\}",
-            r"\{%.*%\}",
-            r"\$\{.*\}",
-            r"<%.*%>",
-        ];
+        let patterns = vec![r"\{\{.*\}\}", r"\{%.*%\}", r"\$\{.*\}", r"<%.*%>"];
 
         Self::compile_patterns(&patterns)
     }
@@ -209,9 +216,8 @@ impl PatternMatcher {
         patterns
             .iter()
             .map(|p| {
-                Regex::new(p).map_err(|e| {
-                    DetectionError::PatternCompilationFailed(format!("{}: {}", p, e))
-                })
+                Regex::new(p)
+                    .map_err(|e| DetectionError::PatternCompilationFailed(format!("{}: {}", p, e)))
             })
             .collect()
     }
@@ -274,10 +280,13 @@ impl RateLimiter {
 
         let now = Utc::now().timestamp();
 
-        let counter = self.counters.entry(source.to_string()).or_insert(RequestCounter {
-            count: 0,
-            window_start: now,
-        });
+        let counter = self
+            .counters
+            .entry(source.to_string())
+            .or_insert(RequestCounter {
+                count: 0,
+                window_start: now,
+            });
 
         // Check if we're in a new window
         if now - counter.window_start >= self.window_secs as i64 {
@@ -464,10 +473,7 @@ mod tests {
             matcher.detect("<script>alert('XSS')</script>"),
             AttackPattern::Xss
         );
-        assert_eq!(
-            matcher.detect("javascript:alert(1)"),
-            AttackPattern::Xss
-        );
+        assert_eq!(matcher.detect("javascript:alert(1)"), AttackPattern::Xss);
         assert_eq!(
             matcher.detect("<img src=x onerror=alert(1)>"),
             AttackPattern::Xss
@@ -520,10 +526,7 @@ mod tests {
         let matcher = PatternMatcher::new().unwrap();
 
         // Act & Assert
-        assert_eq!(
-            matcher.detect("{{7*7}}"),
-            AttackPattern::TemplateInjection
-        );
+        assert_eq!(matcher.detect("{{7*7}}"), AttackPattern::TemplateInjection);
         assert_eq!(
             matcher.detect("${system('whoami')}"),
             AttackPattern::TemplateInjection

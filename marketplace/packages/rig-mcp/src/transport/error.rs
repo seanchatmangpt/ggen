@@ -117,9 +117,7 @@ impl TransportError {
 
     /// Create a JSON-RPC error with data
     pub fn json_rpc_with_data(
-        code: i32,
-        message: impl Into<String>,
-        data: serde_json::Value,
+        code: i32, message: impl Into<String>, data: serde_json::Value,
     ) -> Self {
         TransportError::JsonRpc {
             code,
@@ -170,9 +168,7 @@ impl TransportError {
     pub fn is_fatal(&self) -> bool {
         matches!(
             self,
-            TransportError::Shutdown
-                | TransportError::StreamClosed
-                | TransportError::Protocol(_)
+            TransportError::Shutdown | TransportError::StreamClosed | TransportError::Protocol(_)
         )
     }
 }
@@ -221,6 +217,9 @@ mod tests {
         let json_value = error.to_jsonrpc_error();
 
         assert_eq!(json_value["code"], INVALID_PARAMS);
-        assert!(json_value["message"].as_str().unwrap().contains("missing field"));
+        assert!(json_value["message"]
+            .as_str()
+            .unwrap()
+            .contains("missing field"));
     }
 }

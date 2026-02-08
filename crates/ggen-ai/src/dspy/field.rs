@@ -25,7 +25,9 @@ pub struct FieldMetadata {
 
 impl FieldMetadata {
     /// Create new field metadata
-    pub fn new(name: impl Into<String>, desc: impl Into<String>, type_annotation: impl Into<String>) -> Self {
+    pub fn new(
+        name: impl Into<String>, desc: impl Into<String>, type_annotation: impl Into<String>,
+    ) -> Self {
         Self {
             name: name.into(),
             desc: desc.into(),
@@ -159,18 +161,18 @@ impl FieldConstraints {
                 Value::String(s) => s.clone(),
                 Value::Number(n) => n.to_string(),
                 Value::Bool(b) => b.to_string(),
-                _ => return Err(GgenAiError::validation(
-                    format!("Enum constraint applied to non-scalar value"),
-                )),
+                _ => {
+                    return Err(GgenAiError::validation(format!(
+                        "Enum constraint applied to non-scalar value"
+                    )))
+                }
             };
 
             if !enum_values.contains(&value_str) {
-                return Err(GgenAiError::validation(
-                    format!(
-                        "Value '{}' not in allowed enum values: {:?}",
-                        value_str, enum_values
-                    ),
-                ));
+                return Err(GgenAiError::validation(format!(
+                    "Value '{}' not in allowed enum values: {:?}",
+                    value_str, enum_values
+                )));
             }
         }
 
@@ -178,17 +180,21 @@ impl FieldConstraints {
         if let Some(s) = value.as_str() {
             if let Some(min) = self.min_length {
                 if s.len() < min {
-                    return Err(GgenAiError::validation(
-                        format!("String length {} is less than minimum {}", s.len(), min),
-                    ));
+                    return Err(GgenAiError::validation(format!(
+                        "String length {} is less than minimum {}",
+                        s.len(),
+                        min
+                    )));
                 }
             }
 
             if let Some(max) = self.max_length {
                 if s.len() > max {
-                    return Err(GgenAiError::validation(
-                        format!("String length {} exceeds maximum {}", s.len(), max),
-                    ));
+                    return Err(GgenAiError::validation(format!(
+                        "String length {} exceeds maximum {}",
+                        s.len(),
+                        max
+                    )));
                 }
             }
 
@@ -196,15 +202,17 @@ impl FieldConstraints {
                 match Regex::new(pattern) {
                     Ok(regex) => {
                         if !regex.is_match(s) {
-                            return Err(GgenAiError::validation(
-                                format!("Value '{}' does not match pattern '{}'", s, pattern),
-                            ));
+                            return Err(GgenAiError::validation(format!(
+                                "Value '{}' does not match pattern '{}'",
+                                s, pattern
+                            )));
                         }
                     }
                     Err(e) => {
-                        return Err(GgenAiError::validation(
-                            format!("Invalid regex pattern '{}': {}", pattern, e),
-                        ));
+                        return Err(GgenAiError::validation(format!(
+                            "Invalid regex pattern '{}': {}",
+                            pattern, e
+                        )));
                     }
                 }
             }
@@ -214,17 +222,21 @@ impl FieldConstraints {
         if let Some(arr) = value.as_array() {
             if let Some(min) = self.min_items {
                 if arr.len() < min {
-                    return Err(GgenAiError::validation(
-                        format!("Array length {} is less than minimum {}", arr.len(), min),
-                    ));
+                    return Err(GgenAiError::validation(format!(
+                        "Array length {} is less than minimum {}",
+                        arr.len(),
+                        min
+                    )));
                 }
             }
 
             if let Some(max) = self.max_items {
                 if arr.len() > max {
-                    return Err(GgenAiError::validation(
-                        format!("Array length {} exceeds maximum {}", arr.len(), max),
-                    ));
+                    return Err(GgenAiError::validation(format!(
+                        "Array length {} exceeds maximum {}",
+                        arr.len(),
+                        max
+                    )));
                 }
             }
         }
@@ -337,7 +349,9 @@ pub struct InputField {
 
 impl InputField {
     /// Create new input field
-    pub fn new(name: impl Into<String>, desc: impl Into<String>, type_annotation: impl Into<String>) -> Self {
+    pub fn new(
+        name: impl Into<String>, desc: impl Into<String>, type_annotation: impl Into<String>,
+    ) -> Self {
         Self {
             metadata: FieldMetadata::new(name, desc, type_annotation),
             constraints: FieldConstraints::default(),
@@ -345,7 +359,10 @@ impl InputField {
     }
 
     /// Create with prefix
-    pub fn with_prefix(name: impl Into<String>, desc: impl Into<String>, type_annotation: impl Into<String>, prefix: impl Into<String>) -> Self {
+    pub fn with_prefix(
+        name: impl Into<String>, desc: impl Into<String>, type_annotation: impl Into<String>,
+        prefix: impl Into<String>,
+    ) -> Self {
         Self {
             metadata: FieldMetadata::new(name, desc, type_annotation).with_prefix(prefix),
             constraints: FieldConstraints::default(),
@@ -354,9 +371,7 @@ impl InputField {
 
     /// Create with constraints
     pub fn with_constraints(
-        name: impl Into<String>,
-        desc: impl Into<String>,
-        type_annotation: impl Into<String>,
+        name: impl Into<String>, desc: impl Into<String>, type_annotation: impl Into<String>,
         constraints: FieldConstraints,
     ) -> Self {
         Self {
@@ -441,9 +456,7 @@ impl InputField {
 
     /// Create from a SHACL constraint
     pub fn from_shacl(
-        name: impl Into<String>,
-        desc: impl Into<String>,
-        type_annotation: impl Into<String>,
+        name: impl Into<String>, desc: impl Into<String>, type_annotation: impl Into<String>,
         shacl: &SHACLConstraint,
     ) -> Self {
         Self {
@@ -465,7 +478,9 @@ pub struct OutputField {
 
 impl OutputField {
     /// Create new output field
-    pub fn new(name: impl Into<String>, desc: impl Into<String>, type_annotation: impl Into<String>) -> Self {
+    pub fn new(
+        name: impl Into<String>, desc: impl Into<String>, type_annotation: impl Into<String>,
+    ) -> Self {
         Self {
             metadata: FieldMetadata::new(name, desc, type_annotation),
             constraints: FieldConstraints::default(),
@@ -473,7 +488,10 @@ impl OutputField {
     }
 
     /// Create with prefix
-    pub fn with_prefix(name: impl Into<String>, desc: impl Into<String>, type_annotation: impl Into<String>, prefix: impl Into<String>) -> Self {
+    pub fn with_prefix(
+        name: impl Into<String>, desc: impl Into<String>, type_annotation: impl Into<String>,
+        prefix: impl Into<String>,
+    ) -> Self {
         Self {
             metadata: FieldMetadata::new(name, desc, type_annotation).with_prefix(prefix),
             constraints: FieldConstraints::default(),
@@ -482,9 +500,7 @@ impl OutputField {
 
     /// Create with constraints
     pub fn with_constraints(
-        name: impl Into<String>,
-        desc: impl Into<String>,
-        type_annotation: impl Into<String>,
+        name: impl Into<String>, desc: impl Into<String>, type_annotation: impl Into<String>,
         constraints: FieldConstraints,
     ) -> Self {
         Self {
@@ -569,9 +585,7 @@ impl OutputField {
 
     /// Create from a SHACL constraint
     pub fn from_shacl(
-        name: impl Into<String>,
-        desc: impl Into<String>,
-        type_annotation: impl Into<String>,
+        name: impl Into<String>, desc: impl Into<String>, type_annotation: impl Into<String>,
         shacl: &SHACLConstraint,
     ) -> Self {
         Self {
@@ -608,12 +622,8 @@ mod tests {
 
     #[test]
     fn test_field_with_prefix() {
-        let field = InputField::with_prefix(
-            "question",
-            "Question to answer",
-            "String",
-            "Question: "
-        );
+        let field =
+            InputField::with_prefix("question", "Question to answer", "String", "Question: ");
         assert_eq!(field.metadata.prefix, Some("Question: ".to_string()));
         assert!(!field.constraints.has_constraints());
     }
@@ -723,14 +733,14 @@ mod tests {
 
     #[test]
     fn test_string_length_both_bounds() {
-        let constraints = FieldConstraints::new()
-            .min_length(5)
-            .max_length(10);
+        let constraints = FieldConstraints::new().min_length(5).max_length(10);
 
         assert!(constraints.is_satisfied(&json!("hello")).is_ok());
         assert!(constraints.is_satisfied(&json!("1234567890")).is_ok());
         assert!(constraints.is_satisfied(&json!("hi")).is_err());
-        assert!(constraints.is_satisfied(&json!("this is too long")).is_err());
+        assert!(constraints
+            .is_satisfied(&json!("this is too long"))
+            .is_err());
     }
 
     // ===== Array Length Constraint Tests =====
@@ -768,8 +778,11 @@ mod tests {
 
     #[test]
     fn test_enum_constraint_passes() {
-        let constraints = FieldConstraints::new()
-            .enum_values(vec!["red".to_string(), "green".to_string(), "blue".to_string()]);
+        let constraints = FieldConstraints::new().enum_values(vec![
+            "red".to_string(),
+            "green".to_string(),
+            "blue".to_string(),
+        ]);
 
         assert!(constraints.is_satisfied(&json!("red")).is_ok());
         assert!(constraints.is_satisfied(&json!("green")).is_ok());
@@ -777,8 +790,8 @@ mod tests {
 
     #[test]
     fn test_enum_constraint_fails() {
-        let constraints = FieldConstraints::new()
-            .enum_values(vec!["red".to_string(), "green".to_string()]);
+        let constraints =
+            FieldConstraints::new().enum_values(vec!["red".to_string(), "green".to_string()]);
 
         let result = constraints.is_satisfied(&json!("yellow"));
         assert!(result.is_err());
@@ -787,8 +800,8 @@ mod tests {
 
     #[test]
     fn test_enum_with_numbers() {
-        let constraints = FieldConstraints::new()
-            .enum_values(vec!["1".to_string(), "2".to_string()]);
+        let constraints =
+            FieldConstraints::new().enum_values(vec!["1".to_string(), "2".to_string()]);
 
         assert!(constraints.is_satisfied(&json!(1)).is_ok());
         assert!(constraints.is_satisfied(&json!(2)).is_ok());
@@ -800,16 +813,14 @@ mod tests {
 
     #[test]
     fn test_pattern_constraint_passes() {
-        let constraints = FieldConstraints::new()
-            .pattern(r"^[a-z]+@[a-z]+\.[a-z]+$");
+        let constraints = FieldConstraints::new().pattern(r"^[a-z]+@[a-z]+\.[a-z]+$");
 
         assert!(constraints.is_satisfied(&json!("user@example.com")).is_ok());
     }
 
     #[test]
     fn test_pattern_constraint_fails() {
-        let constraints = FieldConstraints::new()
-            .pattern(r"^[a-z]+@[a-z]+\.[a-z]+$");
+        let constraints = FieldConstraints::new().pattern(r"^[a-z]+@[a-z]+\.[a-z]+$");
 
         let result = constraints.is_satisfied(&json!("not-an-email"));
         assert!(result.is_err());
@@ -818,8 +829,7 @@ mod tests {
 
     #[test]
     fn test_pattern_with_digits() {
-        let constraints = FieldConstraints::new()
-            .pattern(r"^\d{3}-\d{3}-\d{4}$");
+        let constraints = FieldConstraints::new().pattern(r"^\d{3}-\d{3}-\d{4}$");
 
         assert!(constraints.is_satisfied(&json!("123-456-7890")).is_ok());
         assert!(constraints.is_satisfied(&json!("123-456")).is_err());
@@ -827,8 +837,7 @@ mod tests {
 
     #[test]
     fn test_invalid_regex_pattern() {
-        let constraints = FieldConstraints::new()
-            .pattern("[invalid(pattern");
+        let constraints = FieldConstraints::new().pattern("[invalid(pattern");
 
         let result = constraints.is_satisfied(&json!("any"));
         assert!(result.is_err());
@@ -839,12 +848,11 @@ mod tests {
 
     #[test]
     fn test_input_field_validation() {
-        let field = InputField::new("email", "User email", "String")
-            .add_constraints(
-                FieldConstraints::new()
-                    .required(true)
-                    .pattern(r"^[a-z]+@[a-z]+\.[a-z]+$")
-            );
+        let field = InputField::new("email", "User email", "String").add_constraints(
+            FieldConstraints::new()
+                .required(true)
+                .pattern(r"^[a-z]+@[a-z]+\.[a-z]+$"),
+        );
 
         assert!(field.validate(&json!("user@example.com")).is_ok());
         assert!(field.validate(&json!("invalid")).is_err());
@@ -854,23 +862,19 @@ mod tests {
     #[test]
     fn test_output_field_validation() {
         let field = OutputField::new("tags", "Output tags", "Vec<String>")
-            .add_constraints(
-                FieldConstraints::new()
-                    .min_items(1)
-                    .max_items(5)
-            );
+            .add_constraints(FieldConstraints::new().min_items(1).max_items(5));
 
         assert!(field.validate(&json!(["tag1"])).is_ok());
         assert!(field.validate(&json!(["a", "b", "c"])).is_ok());
         assert!(field.validate(&json!([])).is_err());
-        assert!(field.validate(&json!(["a", "b", "c", "d", "e", "f"])).is_err());
+        assert!(field
+            .validate(&json!(["a", "b", "c", "d", "e", "f"]))
+            .is_err());
     }
 
     #[test]
     fn test_input_field_with_constraints_constructor() {
-        let constraints = FieldConstraints::new()
-            .required(true)
-            .min_length(5);
+        let constraints = FieldConstraints::new().required(true).min_length(5);
 
         let field = InputField::with_constraints("query", "Search query", "String", constraints);
 
@@ -901,7 +905,9 @@ mod tests {
             .pattern(r"^[a-zA-Z0-9_]+$");
 
         // Fails max length
-        assert!(constraints.is_satisfied(&json!("this_is_a_very_long_string_that_exceeds_max")).is_err());
+        assert!(constraints
+            .is_satisfied(&json!("this_is_a_very_long_string_that_exceeds_max"))
+            .is_err());
     }
 
     // ===== Serialization Tests =====
@@ -915,8 +921,8 @@ mod tests {
             .enum_values(vec!["option1".to_string(), "option2".to_string()]);
 
         let json = serde_json::to_value(&constraints).expect("serialization failed");
-        let deserialized: FieldConstraints = serde_json::from_value(json)
-            .expect("deserialization failed");
+        let deserialized: FieldConstraints =
+            serde_json::from_value(json).expect("deserialization failed");
 
         assert_eq!(deserialized.required, true);
         assert_eq!(deserialized.min_length, Some(5));
@@ -930,8 +936,8 @@ mod tests {
             .add_constraints(FieldConstraints::new().required(true).min_length(3));
 
         let json = serde_json::to_value(&field).expect("serialization failed");
-        let deserialized: InputField = serde_json::from_value(json)
-            .expect("deserialization failed");
+        let deserialized: InputField =
+            serde_json::from_value(json).expect("deserialization failed");
 
         assert_eq!(deserialized.name(), "test");
         assert!(deserialized.constraints.required);
@@ -943,8 +949,8 @@ mod tests {
             .add_constraints(FieldConstraints::new().max_length(100));
 
         let json = serde_json::to_value(&field).expect("serialization failed");
-        let deserialized: OutputField = serde_json::from_value(json)
-            .expect("deserialization failed");
+        let deserialized: OutputField =
+            serde_json::from_value(json).expect("deserialization failed");
 
         assert_eq!(deserialized.name(), "result");
         assert_eq!(deserialized.constraints.max_length, Some(100));
@@ -973,8 +979,7 @@ mod tests {
 
     #[test]
     fn test_enum_constraint_requires_scalar() {
-        let constraints = FieldConstraints::new()
-            .enum_values(vec!["a".to_string()]);
+        let constraints = FieldConstraints::new().enum_values(vec!["a".to_string()]);
 
         // Objects and arrays should fail enum constraint
         assert!(constraints.is_satisfied(&json!({})).is_err());
@@ -985,29 +990,25 @@ mod tests {
 
     #[test]
     fn test_input_field_with_min_items() {
-        let field = InputField::new("items", "List of items", "Vec<String>")
-            .with_min_items(1);
+        let field = InputField::new("items", "List of items", "Vec<String>").with_min_items(1);
         assert_eq!(field.constraints.min_items, Some(1));
     }
 
     #[test]
     fn test_input_field_with_max_items() {
-        let field = InputField::new("items", "List of items", "Vec<String>")
-            .with_max_items(10);
+        let field = InputField::new("items", "List of items", "Vec<String>").with_max_items(10);
         assert_eq!(field.constraints.max_items, Some(10));
     }
 
     #[test]
     fn test_input_field_with_min_length() {
-        let field = InputField::new("name", "User name", "String")
-            .with_min_length(3);
+        let field = InputField::new("name", "User name", "String").with_min_length(3);
         assert_eq!(field.constraints.min_length, Some(3));
     }
 
     #[test]
     fn test_input_field_with_max_length() {
-        let field = InputField::new("name", "User name", "String")
-            .with_max_length(100);
+        let field = InputField::new("name", "User name", "String").with_max_length(100);
         assert_eq!(field.constraints.max_length, Some(100));
     }
 
@@ -1023,9 +1024,12 @@ mod tests {
 
     #[test]
     fn test_input_field_with_enum_values() {
-        let values = vec!["active".to_string(), "inactive".to_string(), "pending".to_string()];
-        let field = InputField::new("status", "Status", "String")
-            .with_enum_values(values.clone());
+        let values = vec![
+            "active".to_string(),
+            "inactive".to_string(),
+            "pending".to_string(),
+        ];
+        let field = InputField::new("status", "Status", "String").with_enum_values(values.clone());
         assert_eq!(field.constraints.enum_values, Some(values));
     }
 
@@ -1041,8 +1045,7 @@ mod tests {
 
     #[test]
     fn test_input_field_required() {
-        let field = InputField::new("id", "User ID", "u64")
-            .required(true);
+        let field = InputField::new("id", "User ID", "u64").required(true);
         assert!(field.constraints.required);
     }
 
@@ -1067,15 +1070,14 @@ mod tests {
 
     #[test]
     fn test_output_field_with_min_items() {
-        let field = OutputField::new("results", "List of results", "Vec<String>")
-            .with_min_items(1);
+        let field = OutputField::new("results", "List of results", "Vec<String>").with_min_items(1);
         assert_eq!(field.constraints.min_items, Some(1));
     }
 
     #[test]
     fn test_output_field_with_max_items() {
-        let field = OutputField::new("results", "List of results", "Vec<String>")
-            .with_max_items(100);
+        let field =
+            OutputField::new("results", "List of results", "Vec<String>").with_max_items(100);
         assert_eq!(field.constraints.max_items, Some(100));
     }
 
@@ -1120,10 +1122,7 @@ mod tests {
 
         let constraints = shacl.to_field_constraints();
         assert!(constraints.required);
-        assert_eq!(
-            constraints.semantic_type,
-            Some("schema:Person".to_string())
-        );
+        assert_eq!(constraints.semantic_type, Some("schema:Person".to_string()));
         assert_eq!(constraints.datatype, Some("xsd:string".to_string()));
         assert_eq!(constraints.min_length, Some(5));
         assert_eq!(constraints.max_length, Some(254));
@@ -1180,12 +1179,7 @@ mod tests {
             custom_properties: HashMap::new(),
         };
 
-        let field = InputField::from_shacl(
-            "name",
-            "Person's name",
-            "String",
-            &shacl,
-        );
+        let field = InputField::from_shacl("name", "Person's name", "String", &shacl);
 
         assert_eq!(field.name(), "name");
         assert_eq!(field.desc(), "Person's name");
@@ -1216,12 +1210,7 @@ mod tests {
             custom_properties: HashMap::new(),
         };
 
-        let field = OutputField::from_shacl(
-            "results",
-            "Search results",
-            "Vec<String>",
-            &shacl,
-        );
+        let field = OutputField::from_shacl("results", "Search results", "Vec<String>", &shacl);
 
         assert_eq!(field.name(), "results");
         assert!(field.constraints.required);

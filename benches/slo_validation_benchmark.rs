@@ -5,9 +5,9 @@
 //! - RDF processing ≤5s/1k triples
 //! - Incremental ≤2s
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
-use std::time::Duration;
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use std::path::Path;
+use std::time::Duration;
 
 fn bench_first_build_slo(c: &mut Criterion) {
     let mut group = c.benchmark_group("slo_validation_first_build");
@@ -16,29 +16,17 @@ fn bench_first_build_slo(c: &mut Criterion) {
 
     // Simulate initial workspace setup
     group.bench_function("workspace_initialization", |b| {
-        b.iter(|| {
-            black_box(
-                setup_test_workspace()
-            )
-        });
+        b.iter(|| black_box(setup_test_workspace()));
     });
 
     // CLI startup time
     group.bench_function("cli_startup_slo", |b| {
-        b.iter(|| {
-            black_box(
-                ggen_cli::cli::build_cli()
-            )
-        });
+        b.iter(|| black_box(ggen_cli::cli::build_cli()));
     });
 
     // Initial dependency loading
     group.bench_function("dependency_loading", |b| {
-        b.iter(|| {
-            black_box(
-                load_test_dependencies()
-            )
-        });
+        b.iter(|| black_box(load_test_dependencies()));
     });
 
     group.measurement_time(Duration::from_secs(15));
@@ -59,12 +47,8 @@ fn bench_rdf_processing_slo(c: &mut Criterion) {
             BenchmarkId::new("rdf_processing", &format!("{}_triples", size)),
             &size,
             |b, &size| {
-                b.iter(|| {
-                    black_box(
-                        process_rdf_content(&rdf_content, size)
-                    )
-                });
-            }
+                b.iter(|| black_box(process_rdf_content(&rdf_content, size)));
+            },
         );
 
         // Check if SLO is met (5s per 1000 triples)
@@ -80,22 +64,14 @@ fn bench_incremental_processing_slo(c: &mut Criterion) {
 
     // File watching and incremental updates
     group.bench_function("file_watching_overhead", |b| {
-        b.iter(|| {
-            black_box(
-                simulate_file_watcher()
-            )
-        });
+        b.iter(|| black_box(simulate_file_watcher()));
     });
 
     // Incremental template rendering
     group.bench_function("incremental_template_render", |b| {
         let templates = generate_test_templates(10);
 
-        b.iter(|| {
-            black_box(
-                incremental_render_templates(&templates)
-            )
-        });
+        b.iter(|| black_box(incremental_render_templates(&templates)));
     });
 
     // Incremental RDF processing
@@ -103,11 +79,7 @@ fn bench_incremental_processing_slo(c: &mut Criterion) {
         let base_rdf = TEST_RDF_CONTENT.to_string();
         let changes = generate_small_rdf_changes();
 
-        b.iter(|| {
-            black_box(
-                incremental_process_rdf(&base_rdf, &changes)
-            )
-        });
+        b.iter(|| black_box(incremental_process_rdf(&base_rdf, &changes)));
     });
 
     group.measurement_time(Duration::from_secs(5)); // 2s SLO * 2.5 for validation
@@ -125,7 +97,10 @@ fn setup_test_workspace() -> std::io::Result<()> {
 
     // Create basic project structure
     fs::write(temp_dir.join("Cargo.toml"), basic_cargo_toml())?;
-    fs::write(temp_dir.join(".specify/specs/001-feature/feature.ttl"), basic_feature_ttl())?;
+    fs::write(
+        temp_dir.join(".specify/specs/001-feature/feature.ttl"),
+        basic_feature_ttl(),
+    )?;
 
     // Initialize git repo (simulating real workspace setup)
     use std::process::Command;
@@ -152,7 +127,8 @@ fn generate_large_rdf(triple_count: usize) -> String {
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-".to_string();
+"
+    .to_string();
 
     for i in 0..triple_count {
         rdf.push_str(&format!(
@@ -223,9 +199,10 @@ fn generate_test_templates(count: usize) -> Vec<String> {
 }
 
 fn incremental_render_templates(templates: &[String]) -> Vec<String> {
-    templates.iter().map(|t| {
-        black_box(t.replace("template", "rendered"))
-    }).collect()
+    templates
+        .iter()
+        .map(|t| black_box(t.replace("template", "rendered")))
+        .collect()
 }
 
 fn generate_small_rdf_changes() -> Vec<String> {
@@ -256,7 +233,8 @@ edition = "2021"
 
 [dependencies]
 ggen = { path = ".", features = ["default"] }
-"#.to_string()
+"#
+    .to_string()
 }
 
 fn basic_feature_ttl() -> String {
@@ -267,7 +245,8 @@ fn basic_feature_ttl() -> String {
 ex:TestFeature a ex:Feature ;
     rdfs:label "Test Feature" ;
     ex:description "A test feature for benchmarking" .
-"#.to_string()
+"#
+    .to_string()
 }
 
 criterion_group!(

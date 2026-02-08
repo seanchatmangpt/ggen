@@ -337,7 +337,10 @@ impl PreFlightValidator {
 
         for rule in &manifest.generation.rules {
             // Check if rule uses a template file
-            if let crate::manifest::types::TemplateSource::File { file: template_file } = &rule.template {
+            if let crate::manifest::types::TemplateSource::File {
+                file: template_file,
+            } = &rule.template
+            {
                 let template_path = self.base_path.join(template_file);
 
                 // Check if template file exists

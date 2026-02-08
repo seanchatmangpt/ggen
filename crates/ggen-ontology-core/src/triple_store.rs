@@ -4,10 +4,10 @@
 //! with deterministic behavior and comprehensive error handling.
 
 use crate::errors::{OntologyError, Result};
-use oxigraph::store::Store;
 use oxigraph::io::{RdfFormat, RdfParser};
-use std::path::Path;
+use oxigraph::store::Store;
 use std::io::BufReader;
+use std::path::Path;
 
 /// A deterministic, queryable RDF triple store
 ///
@@ -66,20 +66,19 @@ impl TripleStore {
         let path_str = path.to_string_lossy().to_string();
 
         let file = std::fs::File::open(path).map_err(|e| {
-            OntologyError::io(format!(
-                "Failed to open RDF file {}: {}",
-                path_str, e
-            ))
+            OntologyError::io(format!("Failed to open RDF file {}: {}", path_str, e))
         })?;
 
         let reader = BufReader::new(file);
 
-        self.store.load_from_reader(RdfParser::from_format(RdfFormat::RdfXml), reader).map_err(|e| {
-            // Try to extract line number from error if available
-            let error_msg = e.to_string();
-            let line = 0; // Oxigraph doesn't always provide line numbers
-            OntologyError::parse(&path_str, line, &error_msg)
-        })?;
+        self.store
+            .load_from_reader(RdfParser::from_format(RdfFormat::RdfXml), reader)
+            .map_err(|e| {
+                // Try to extract line number from error if available
+                let error_msg = e.to_string();
+                let line = 0; // Oxigraph doesn't always provide line numbers
+                OntologyError::parse(&path_str, line, &error_msg)
+            })?;
 
         Ok(())
     }
@@ -104,18 +103,17 @@ impl TripleStore {
         let path_str = path.to_string_lossy().to_string();
 
         let file = std::fs::File::open(path).map_err(|e| {
-            OntologyError::io(format!(
-                "Failed to open Turtle file {}: {}",
-                path_str, e
-            ))
+            OntologyError::io(format!("Failed to open Turtle file {}: {}", path_str, e))
         })?;
 
         let reader = BufReader::new(file);
 
-        self.store.load_from_reader(RdfParser::from_format(RdfFormat::Turtle), reader).map_err(|e| {
-            let error_msg = e.to_string();
-            OntologyError::parse(&path_str, 0, &error_msg)
-        })?;
+        self.store
+            .load_from_reader(RdfParser::from_format(RdfFormat::Turtle), reader)
+            .map_err(|e| {
+                let error_msg = e.to_string();
+                OntologyError::parse(&path_str, 0, &error_msg)
+            })?;
 
         Ok(())
     }
@@ -137,9 +135,10 @@ impl TripleStore {
         // Execute SPARQL query on the store
         // Note: Using the Store::query method which is currently the primary API for Oxigraph 0.5.x
         #[allow(deprecated)]
-        let results = self.store.query(query).map_err(|e| {
-            OntologyError::query(format!("Failed to execute SPARQL query: {}", e))
-        })?;
+        let results = self
+            .store
+            .query(query)
+            .map_err(|e| OntologyError::query(format!("Failed to execute SPARQL query: {}", e)))?;
 
         // Convert results to JSON for stable serialization
         let json = match results {
@@ -167,13 +166,13 @@ impl TripleStore {
                     "head": {"vars": vars},
                     "results": {"bindings": rows}
                 })
-            },
+            }
             oxigraph::sparql::QueryResults::Boolean(b) => {
                 serde_json::json!({"boolean": b})
-            },
+            }
             oxigraph::sparql::QueryResults::Graph(_) => {
                 serde_json::json!({"type": "graph"})
-            },
+            }
         };
 
         Ok(json.to_string())
@@ -192,15 +191,17 @@ impl TripleStore {
     pub fn validate_turtle<P: AsRef<Path>>(&self, path: P) -> Result<ValidationReport> {
         let path = path.as_ref();
 
-        let file = std::fs::File::open(path).map_err(|e| {
-            OntologyError::io(format!("Cannot open file for validation: {}", e))
-        })?;
+        let file = std::fs::File::open(path)
+            .map_err(|e| OntologyError::io(format!("Cannot open file for validation: {}", e)))?;
 
         let reader = BufReader::new(file);
 
         // Try to parse without actually loading into store
         let temp_store = Store::new().map_err(|e| {
-            OntologyError::triple_store(format!("Failed to create temp store for validation: {}", e))
+            OntologyError::triple_store(format!(
+                "Failed to create temp store for validation: {}",
+                e
+            ))
         })?;
 
         match temp_store.load_from_reader(RdfParser::from_format(RdfFormat::Turtle), reader) {
@@ -209,13 +210,11 @@ impl TripleStore {
                 errors: vec![],
                 warnings: vec![],
             }),
-            Err(e) => {
-                Ok(ValidationReport {
-                    is_valid: false,
-                    errors: vec![format!("Parse error: {}", e)],
-                    warnings: vec![],
-                })
-            }
+            Err(e) => Ok(ValidationReport {
+                is_valid: false,
+                errors: vec![format!("Parse error: {}", e)],
+                warnings: vec![],
+            }),
         }
     }
 
@@ -232,14 +231,16 @@ impl TripleStore {
     pub fn validate_rdf<P: AsRef<Path>>(&self, path: P) -> Result<ValidationReport> {
         let path = path.as_ref();
 
-        let file = std::fs::File::open(path).map_err(|e| {
-            OntologyError::io(format!("Cannot open file for validation: {}", e))
-        })?;
+        let file = std::fs::File::open(path)
+            .map_err(|e| OntologyError::io(format!("Cannot open file for validation: {}", e)))?;
 
         let reader = BufReader::new(file);
 
         let temp_store = Store::new().map_err(|e| {
-            OntologyError::triple_store(format!("Failed to create temp store for validation: {}", e))
+            OntologyError::triple_store(format!(
+                "Failed to create temp store for validation: {}",
+                e
+            ))
         })?;
 
         match temp_store.load_from_reader(RdfParser::from_format(RdfFormat::RdfXml), reader) {
@@ -248,13 +249,11 @@ impl TripleStore {
                 errors: vec![],
                 warnings: vec![],
             }),
-            Err(e) => {
-                Ok(ValidationReport {
-                    is_valid: false,
-                    errors: vec![format!("Parse error: {}", e)],
-                    warnings: vec![],
-                })
-            }
+            Err(e) => Ok(ValidationReport {
+                is_valid: false,
+                errors: vec![format!("Parse error: {}", e)],
+                warnings: vec![],
+            }),
         }
     }
 

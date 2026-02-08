@@ -68,11 +68,7 @@ impl A2aTransportConfig {
 
     /// Build the URL for querying a task.
     pub fn task_url(&self, task_id: &str) -> String {
-        format!(
-            "{}/tasks/{}",
-            self.base_url.trim_end_matches('/'),
-            task_id
-        )
+        format!("{}/tasks/{}", self.base_url.trim_end_matches('/'), task_id)
     }
 }
 
@@ -126,7 +122,9 @@ impl HttpA2aTransport {
             .timeout(timeout)
             .connect_timeout(Duration::from_secs(10))
             .build()
-            .map_err(|e| TransportError::Internal(format!("Failed to create HTTP client: {}", e)))?;
+            .map_err(|e| {
+                TransportError::Internal(format!("Failed to create HTTP client: {}", e))
+            })?;
 
         Ok(Self {
             client,
@@ -144,26 +142,24 @@ impl HttpA2aTransport {
         let mut last_error = None;
 
         for attempt in 0..self.config.max_retries {
-            debug!("Sending request to {} (attempt {}/{})", url, attempt + 1, self.config.max_retries);
+            debug!(
+                "Sending request to {} (attempt {}/{})",
+                url,
+                attempt + 1,
+                self.config.max_retries
+            );
 
-            let response = self
-                .client
-                .post(url)
-                .json(body)
-                .send()
-                .await
-                .map_err(|e| {
-                    warn!("Request failed: {}", e);
-                    TransportError::ConnectionFailed(format!("HTTP request failed: {}", e))
-                })?;
+            let response = self.client.post(url).json(body).send().await.map_err(|e| {
+                warn!("Request failed: {}", e);
+                TransportError::ConnectionFailed(format!("HTTP request failed: {}", e))
+            })?;
 
             let status = response.status();
 
             if status.is_success() {
-                let response_text = response
-                    .text()
-                    .await
-                    .map_err(|e| TransportError::Internal(format!("Failed to read response: {}", e)))?;
+                let response_text = response.text().await.map_err(|e| {
+                    TransportError::Internal(format!("Failed to read response: {}", e))
+                })?;
 
                 debug!("Received response: {}", response_text);
 
@@ -206,25 +202,24 @@ impl HttpA2aTransport {
         let mut last_error = None;
 
         for attempt in 0..self.config.max_retries {
-            debug!("GET request to {} (attempt {}/{})", url, attempt + 1, self.config.max_retries);
+            debug!(
+                "GET request to {} (attempt {}/{})",
+                url,
+                attempt + 1,
+                self.config.max_retries
+            );
 
-            let response = self
-                .client
-                .get(url)
-                .send()
-                .await
-                .map_err(|e| {
-                    warn!("GET request failed: {}", e);
-                    TransportError::ConnectionFailed(format!("HTTP GET failed: {}", e))
-                })?;
+            let response = self.client.get(url).send().await.map_err(|e| {
+                warn!("GET request failed: {}", e);
+                TransportError::ConnectionFailed(format!("HTTP GET failed: {}", e))
+            })?;
 
             let status = response.status();
 
             if status.is_success() {
-                let response_text = response
-                    .text()
-                    .await
-                    .map_err(|e| TransportError::Internal(format!("Failed to read response: {}", e)))?;
+                let response_text = response.text().await.map_err(|e| {
+                    TransportError::Internal(format!("Failed to read response: {}", e))
+                })?;
 
                 debug!("Received response: {}", response_text);
 
@@ -261,12 +256,10 @@ impl HttpA2aTransport {
     async fn health_check(&self) -> TransportResult<bool> {
         let url = format!("{}/health", self.config.base_url.trim_end_matches('/'));
 
-        let response = self
-            .client
-            .get(&url)
-            .send()
-            .await
-            .map_err(|e| TransportError::ConnectionFailed(format!("Health check failed: {}", e)))?;
+        let response =
+            self.client.get(&url).send().await.map_err(|e| {
+                TransportError::ConnectionFailed(format!("Health check failed: {}", e))
+            })?;
 
         Ok(response.status().is_success())
     }
@@ -408,13 +401,22 @@ mod tests {
     #[test]
     fn test_a2a_transport_config_task_url() {
         let config = A2aTransportConfig::new("http://localhost:8080/");
-        assert_eq!(config.task_url("task-123"), "http://localhost:8080/tasks/task-123");
+        assert_eq!(
+            config.task_url("task-123"),
+            "http://localhost:8080/tasks/task-123"
+        );
     }
 
     #[test]
     fn test_a2a_transport_state() {
-        assert_eq!(A2aTransportState::Disconnected, A2aTransportState::Disconnected);
-        assert_ne!(A2aTransportState::Connected, A2aTransportState::Disconnected);
+        assert_eq!(
+            A2aTransportState::Disconnected,
+            A2aTransportState::Disconnected
+        );
+        assert_ne!(
+            A2aTransportState::Connected,
+            A2aTransportState::Disconnected
+        );
     }
 
     #[test]

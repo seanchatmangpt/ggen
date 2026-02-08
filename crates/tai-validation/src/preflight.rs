@@ -86,10 +86,22 @@ impl PreFlightResult {
     /// Calculate result from checks
     pub fn from_checks(checks: Vec<PreFlightCheck>) -> Self {
         let total = checks.len();
-        let passed = checks.iter().filter(|c| c.status == CheckStatus::Passed).count();
-        let failed = checks.iter().filter(|c| c.status == CheckStatus::Failed).count();
-        let skipped = checks.iter().filter(|c| c.status == CheckStatus::Skipped).count();
-        let warnings = checks.iter().filter(|c| c.status == CheckStatus::Warning).count();
+        let passed = checks
+            .iter()
+            .filter(|c| c.status == CheckStatus::Passed)
+            .count();
+        let failed = checks
+            .iter()
+            .filter(|c| c.status == CheckStatus::Failed)
+            .count();
+        let skipped = checks
+            .iter()
+            .filter(|c| c.status == CheckStatus::Skipped)
+            .count();
+        let warnings = checks
+            .iter()
+            .filter(|c| c.status == CheckStatus::Warning)
+            .count();
 
         Self {
             checks,
@@ -186,12 +198,9 @@ mod tests {
 
     #[test]
     fn test_check_with_remediation() {
-        let check = PreFlightCheck::failed(
-            "Test".to_string(),
-            "Test".to_string(),
-            "Failed".to_string(),
-        )
-        .with_remediation("Fix it".to_string());
+        let check =
+            PreFlightCheck::failed("Test".to_string(), "Test".to_string(), "Failed".to_string())
+                .with_remediation("Fix it".to_string());
         assert!(check.remediation.is_some());
     }
 
@@ -199,7 +208,11 @@ mod tests {
     fn test_result_from_checks() {
         let checks = vec![
             PreFlightCheck::passed("Check1".to_string(), "Pass".to_string()),
-            PreFlightCheck::failed("Check2".to_string(), "Fail".to_string(), "Error".to_string()),
+            PreFlightCheck::failed(
+                "Check2".to_string(),
+                "Fail".to_string(),
+                "Error".to_string(),
+            ),
         ];
         let result = PreFlightResult::from_checks(checks);
         assert_eq!(result.passed_checks, 1);

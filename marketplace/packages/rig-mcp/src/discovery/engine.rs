@@ -277,19 +277,14 @@ impl DiscoveryEngine {
     }
 
     /// Discover tools from a single server
-    pub async fn discover(
-        &self,
-        transport: &dyn TransportClient,
-    ) -> Result<DiscoveryResult> {
+    pub async fn discover(&self, transport: &dyn TransportClient) -> Result<DiscoveryResult> {
         self.discover_with_filter(transport, &DiscoveryFilter::default())
             .await
     }
 
     /// Discover tools from a single server with filtering
     pub async fn discover_with_filter(
-        &self,
-        transport: &dyn TransportClient,
-        filter: &DiscoveryFilter,
+        &self, transport: &dyn TransportClient, filter: &DiscoveryFilter,
     ) -> Result<DiscoveryResult> {
         let server_url = transport.endpoint();
         let start = Instant::now();
@@ -323,13 +318,10 @@ impl DiscoveryEngine {
         )
         .await
         .map_err(|_| DiscoveryError::Timeout(self.config.timeout_secs))?
-        .map_err(|_| {
-            DiscoveryError::ConcurrencyLimitExceeded(self.config.max_concurrent)
-        })?;
+        .map_err(|_| DiscoveryError::ConcurrencyLimitExceeded(self.config.max_concurrent))?;
 
         // Make the request with retries
-        let request = TransportRequest::new("tools/list")
-            .with_timeout(self.config.timeout_secs);
+        let request = TransportRequest::new("tools/list").with_timeout(self.config.timeout_secs);
 
         let response = self
             .send_with_retry(transport, &request, self.config.max_retries)
@@ -371,8 +363,7 @@ impl DiscoveryEngine {
 
     /// Discover tools from multiple servers concurrently
     pub async fn discover_all(
-        &self,
-        transports: &[Arc<dyn TransportClient>],
+        &self, transports: &[Arc<dyn TransportClient>],
     ) -> Result<Vec<DiscoveryResult>> {
         self.discover_all_with_filter(transports, &DiscoveryFilter::default())
             .await
@@ -380,18 +371,13 @@ impl DiscoveryEngine {
 
     /// Discover tools from multiple servers with filtering
     pub async fn discover_all_with_filter(
-        &self,
-        transports: &[Arc<dyn TransportClient>],
-        filter: &DiscoveryFilter,
+        &self, transports: &[Arc<dyn TransportClient>], filter: &DiscoveryFilter,
     ) -> Result<Vec<DiscoveryResult>> {
         let futures: Vec<_> = transports
             .iter()
             .map(|transport| {
                 let filter = filter.clone();
-                async move {
-                    self.discover_with_filter(transport.as_ref(), &filter)
-                        .await
-                }
+                async move { self.discover_with_filter(transport.as_ref(), &filter).await }
             })
             .collect();
 
@@ -443,10 +429,7 @@ impl DiscoveryEngine {
 
     /// Send a request with retry logic
     async fn send_with_retry(
-        &self,
-        transport: &dyn TransportClient,
-        request: &TransportRequest,
-        max_retries: usize,
+        &self, transport: &dyn TransportClient, request: &TransportRequest, max_retries: usize,
     ) -> Result<crate::discovery::transport::TransportResponse> {
         let mut attempt = 0;
 

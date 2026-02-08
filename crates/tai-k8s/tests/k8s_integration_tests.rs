@@ -8,12 +8,14 @@
 //! - Network policies
 //! - Pod eviction and rescheduling
 
-use tai_k8s::{
-    keda_autoscaling::{KedaAutoscaler, ScaledObjectConfig, MetricType, EventDrivenScaler},
-    istio_traffic::{IstioTrafficManager, VirtualServiceConfig, DestinationRuleConfig, LoadBalancingAlgorithm},
-    policy_enforcement::{PolicyEnforcer, NetworkPolicyConfig, PodSecurityPolicyConfig},
-};
 use std::collections::BTreeMap;
+use tai_k8s::{
+    istio_traffic::{
+        DestinationRuleConfig, IstioTrafficManager, LoadBalancingAlgorithm, VirtualServiceConfig,
+    },
+    keda_autoscaling::{EventDrivenScaler, KedaAutoscaler, MetricType, ScaledObjectConfig},
+    policy_enforcement::{NetworkPolicyConfig, PodSecurityPolicyConfig, PolicyEnforcer},
+};
 
 #[test]
 fn test_keda_scaled_object_cpu_metric() {
@@ -48,11 +50,8 @@ fn test_keda_scaled_object_cpu_metric() {
 #[test]
 fn test_keda_pubsub_event_scaler() {
     // Arrange
-    let config = EventDrivenScaler::with_pubsub(
-        "ggen-project".to_string(),
-        "tai-events".to_string(),
-        100,
-    );
+    let config =
+        EventDrivenScaler::with_pubsub("ggen-project".to_string(), "tai-events".to_string(), 100);
 
     // Act & Assert
     assert_eq!(config.name, "pubsub-scaler-tai-even");
@@ -153,11 +152,7 @@ fn test_istio_peer_authentication_mtls() {
     let traffic_manager = IstioTrafficManager::new();
 
     // Act
-    let result = traffic_manager.generate_peer_authentication(
-        "default-mtls",
-        "default",
-        "STRICT",
-    );
+    let result = traffic_manager.generate_peer_authentication("default-mtls", "default", "STRICT");
 
     // Assert
     assert!(result.is_ok());
@@ -222,7 +217,7 @@ fn test_pod_security_policy_restricted() {
 fn test_rbac_role_generation() {
     // Arrange
     let enforcer = PolicyEnforcer::new();
-    use tai_k8s::policy_enforcement::{RoleConfig, PolicyRule};
+    use tai_k8s::policy_enforcement::{PolicyRule, RoleConfig};
 
     let config = RoleConfig {
         name: "tai-reader".to_string(),

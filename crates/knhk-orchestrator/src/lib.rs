@@ -53,18 +53,18 @@
 //! - 🟡 **YELLOW**: KGC snapshot latency >100ms, span correlation loss >1%
 //! - 🟢 **GREEN**: All SLOs met, steady state operation
 
+pub mod bus;
 pub mod events;
 pub mod kgc;
 pub mod orchestrator;
-pub mod bus;
 pub mod tracing;
 
+pub use bus::EventBus;
 pub use events::{
     EtlTripleEvent, ProcessInstanceEvent, ProcessInstanceState, WorkflowTriggerEvent,
 };
 pub use kgc::TemporalContext;
-pub use orchestrator::{Orchestrator, OrchestratorConfig, AndonSignal, OrchestratorMetrics};
-pub use bus::EventBus;
+pub use orchestrator::{AndonSignal, Orchestrator, OrchestratorConfig, OrchestratorMetrics};
 
 /// Result type for orchestrator operations
 pub type Result<T> = std::result::Result<T, OrchestratorError>;

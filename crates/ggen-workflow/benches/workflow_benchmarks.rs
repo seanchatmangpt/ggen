@@ -3,13 +3,12 @@
 //! This benchmark suite measures the performance of various workflow patterns
 //! and operations to ensure they meet SLO targets and identify optimization opportunities.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::time::Duration;
 
 // Import the workflow modules
 use ggen_workflow::{
-    Sequence, Parallel, Choice, Sync, WorkflowContext,
-    ReceiptGenerator, ReceiptStore, Constants
+    Choice, Constants, Parallel, ReceiptGenerator, ReceiptStore, Sequence, Sync, WorkflowContext,
 };
 
 /// Benchmark workflow pattern execution
@@ -20,57 +19,39 @@ fn benchmark_workflow_patterns(c: &mut Criterion) {
     group.measurement_time(Duration::from_secs(30));
 
     // Benchmark sequence pattern
-    group.bench_with_input(
-        BenchmarkId::new("sequence", 10),
-        &10,
-        |b, &steps| {
-            let sequence = Sequence {
-                steps: (1..=steps).map(|i| format!("step_{}", i)).collect(),
-            };
+    group.bench_with_input(BenchmarkId::new("sequence", 10), &10, |b, &steps| {
+        let sequence = Sequence {
+            steps: (1..=steps).map(|i| format!("step_{}", i)).collect(),
+        };
 
-            let context = WorkflowContext::default();
+        let context = WorkflowContext::default();
 
-            b.iter(|| {
-                black_box(sequence.execute(&context).unwrap())
-            });
-        },
-    );
+        b.iter(|| black_box(sequence.execute(&context).unwrap()));
+    });
 
     // Benchmark parallel pattern
-    group.bench_with_input(
-        BenchmarkId::new("parallel", 10),
-        &10,
-        |b, &tasks| {
-            let parallel = Parallel {
-                steps: (1..=tasks).map(|i| format!("task_{}", i)).collect(),
-                sync_config: Default::default(),
-            };
+    group.bench_with_input(BenchmarkId::new("parallel", 10), &10, |b, &tasks| {
+        let parallel = Parallel {
+            steps: (1..=tasks).map(|i| format!("task_{}", i)).collect(),
+            sync_config: Default::default(),
+        };
 
-            let context = WorkflowContext::default();
+        let context = WorkflowContext::default();
 
-            b.iter(|| {
-                black_box(parallel.execute(&context).unwrap())
-            });
-        },
-    );
+        b.iter(|| black_box(parallel.execute(&context).unwrap()));
+    });
 
     // Benchmark sync pattern
-    group.bench_with_input(
-        BenchmarkId::new("sync", 10),
-        &10,
-        |b, &barriers| {
-            let sync = Sync {
-                steps: (1..=barriers).map(|i| format!("barrier_{}", i)).collect(),
-                sync_config: Default::default(),
-            };
+    group.bench_with_input(BenchmarkId::new("sync", 10), &10, |b, &barriers| {
+        let sync = Sync {
+            steps: (1..=barriers).map(|i| format!("barrier_{}", i)).collect(),
+            sync_config: Default::default(),
+        };
 
-            let context = WorkflowContext::default();
+        let context = WorkflowContext::default();
 
-            b.iter(|| {
-                black_box(sync.execute(&context).unwrap())
-            });
-        },
-    );
+        b.iter(|| black_box(sync.execute(&context).unwrap()));
+    });
 
     group.finish();
 }
@@ -84,40 +65,34 @@ fn benchmark_receipt_generation(c: &mut Criterion) {
     let generator = ReceiptGenerator::new();
 
     // Benchmark receipt generation with different input sizes
-    group.bench_with_input(
-        BenchmarkId::new("small_receipt", 10),
-        &10,
-        |b, &size| {
-            let mut context = WorkflowContext::default();
+    group.bench_with_input(BenchmarkId::new("small_receipt", 10), &10, |b, &size| {
+        let mut context = WorkflowContext::default();
 
-            // Add input data
-            for i in 0..size {
-                context.input.insert(
-                    format!("input_{}", i),
-                    serde_json::json!({
-                        "id": i,
-                        "value": i * 2,
-                        "active": i % 2 == 0
-                    })
-                );
-            }
+        // Add input data
+        for i in 0..size {
+            context.input.insert(
+                format!("input_{}", i),
+                serde_json::json!({
+                    "id": i,
+                    "value": i * 2,
+                    "active": i % 2 == 0
+                }),
+            );
+        }
 
-            b.iter(|| {
-                black_box(generator.generate_receipt(&context).unwrap())
-            });
-        },
-    );
+        b.iter(|| black_box(generator.generate_receipt(&context).unwrap()));
+    });
 
     // Benchmark receipt verification
     group.bench_function("receipt_verification", |b| {
         let mut context = WorkflowContext::default();
-        context.input.insert("test".to_string(), serde_json::json!("value"));
+        context
+            .input
+            .insert("test".to_string(), serde_json::json!("value"));
 
         let receipt = generator.generate_receipt(&context).unwrap();
 
-        b.iter(|| {
-            black_box(generator.verify_receipt(&receipt).unwrap())
-        });
+        b.iter(|| black_box(generator.verify_receipt(&receipt).unwrap()));
     });
 
     group.finish();
@@ -126,9 +101,7 @@ fn benchmark_receipt_generation(c: &mut Criterion) {
 /// Benchmark workflow constants access
 fn benchmark_constants_access(c: &mut Criterion) {
     c.bench_function("constants_access", |b| {
-        b.iter(|| {
-            black_box(Constants::default())
-        });
+        b.iter(|| black_box(Constants::default()));
     });
 }
 
@@ -155,16 +128,16 @@ fn benchmark_context_operations(c: &mut Criterion) {
 
     // Benchmark context creation
     group.bench_function("context_creation", |b| {
-        b.iter(|| {
-            black_box(WorkflowContext::default())
-        });
+        b.iter(|| black_box(WorkflowContext::default()));
     });
 
     // Benchmark input insertion
     group.bench_function("input_insertion", |b| {
         let mut context = WorkflowContext::default();
         b.iter(|| {
-            context.input.insert("key".to_string(), serde_json::json!("value"));
+            context
+                .input
+                .insert("key".to_string(), serde_json::json!("value"));
         });
     });
 
@@ -172,7 +145,9 @@ fn benchmark_context_operations(c: &mut Criterion) {
     group.bench_function("output_insertion", |b| {
         let mut context = WorkflowContext::default();
         b.iter(|| {
-            context.output.insert("result".to_string(), serde_json::json!({"success": true}));
+            context
+                .output
+                .insert("result".to_string(), serde_json::json!({"success": true}));
         });
     });
 
@@ -188,7 +163,9 @@ fn benchmark_receipt_storage(c: &mut Criterion) {
     let mut store = ReceiptStore::new();
     let generator = ReceiptGenerator::new();
     let mut context = WorkflowContext::default();
-    context.input.insert("test".to_string(), serde_json::json!("value"));
+    context
+        .input
+        .insert("test".to_string(), serde_json::json!("value"));
 
     let receipt = generator.generate_receipt(&context).unwrap();
 
@@ -197,9 +174,7 @@ fn benchmark_receipt_storage(c: &mut Criterion) {
         let mut store = ReceiptStore::new();
         let receipt = generator.generate_receipt(&context).unwrap();
 
-        b.iter(|| {
-            black_box(store.store_receipt(receipt.clone()).unwrap())
-        });
+        b.iter(|| black_box(store.store_receipt(receipt.clone()).unwrap()));
     });
 
     // Benchmark retrieval
@@ -208,9 +183,7 @@ fn benchmark_receipt_storage(c: &mut Criterion) {
         let receipt = generator.generate_receipt(&context).unwrap();
         store.store_receipt(receipt).unwrap();
 
-        b.iter(|| {
-            black_box(store.get_receipt("receipt_id"))
-        });
+        b.iter(|| black_box(store.get_receipt("receipt_id")));
     });
 
     // Benchmark listing all receipts
@@ -223,9 +196,7 @@ fn benchmark_receipt_storage(c: &mut Criterion) {
             store.store_receipt(receipt).unwrap();
         }
 
-        b.iter(|| {
-            black_box(store.list_receipts())
-        });
+        b.iter(|| black_box(store.list_receipts()));
     });
 
     group.finish();
@@ -259,7 +230,10 @@ fn benchmark_workflow_performance(c: &mut Criterion) {
         };
 
         let context = WorkflowContext::default();
-        context.input.insert("workflow_type".to_string(), serde_json::json!("realistic_test"));
+        context.input.insert(
+            "workflow_type".to_string(),
+            serde_json::json!("realistic_test"),
+        );
 
         b.iter(|| {
             black_box(sequence.execute(&context).unwrap());

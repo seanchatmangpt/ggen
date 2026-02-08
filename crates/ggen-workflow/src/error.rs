@@ -15,10 +15,7 @@ pub enum WorkflowError {
 
     /// SPARQL query execution errors
     #[error("SPARQL query failed: {error_source}: {query}")]
-    SparqlQuery {
-        error_source: String,
-        query: String,
-    },
+    SparqlQuery { error_source: String, query: String },
 
     /// Validation errors
     #[error("Workflow validation failed: {0}")]
@@ -26,10 +23,7 @@ pub enum WorkflowError {
 
     /// Pattern execution errors
     #[error("Pattern execution failed: {pattern}: {message}")]
-    PatternExecution {
-        pattern: String,
-        message: String,
-    },
+    PatternExecution { pattern: String, message: String },
 
     /// Receipt generation errors
     #[error("Receipt generation failed: {0}")]
@@ -45,10 +39,7 @@ pub enum WorkflowError {
 
     /// Timeout errors
     #[error("Operation timed out after {timeout_ms}ms: {operation}")]
-    Timeout {
-        operation: String,
-        timeout_ms: u64,
-    },
+    Timeout { operation: String, timeout_ms: u64 },
 
     /// IO errors
     #[error("IO operation failed: {0}")]
@@ -92,7 +83,10 @@ pub mod errors {
 
     /// Create a new SPARQL query error
     pub fn sparql_query(error_source: String, query: String) -> WorkflowError {
-        WorkflowError::SparqlQuery { error_source, query }
+        WorkflowError::SparqlQuery {
+            error_source,
+            query,
+        }
     }
 
     /// Create a new validation error
@@ -101,7 +95,9 @@ pub mod errors {
     }
 
     /// Create a new pattern execution error
-    pub fn pattern_execution<P: Into<String>, M: Into<String>>(pattern: P, message: M) -> WorkflowError {
+    pub fn pattern_execution<P: Into<String>, M: Into<String>>(
+        pattern: P, message: M,
+    ) -> WorkflowError {
         WorkflowError::PatternExecution {
             pattern: pattern.into(),
             message: message.into(),

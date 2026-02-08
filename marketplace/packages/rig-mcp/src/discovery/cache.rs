@@ -4,7 +4,7 @@
 //! supporting both in-memory and persistent storage options.
 
 use crate::discovery::Result;
-use crate::discovery::{ToolSchema, DiscoveryError};
+use crate::discovery::{DiscoveryError, ToolSchema};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -365,7 +365,10 @@ impl SchemaCache {
                 return Ok(());
             }
             Err(e) => {
-                return Err(DiscoveryError::Cache(format!("Failed to read cache: {}", e)))
+                return Err(DiscoveryError::Cache(format!(
+                    "Failed to read cache: {}",
+                    e
+                )))
             }
         };
 
@@ -389,9 +392,8 @@ impl SchemaCache {
 
     /// Parse a cache key into server URL and tool name
     pub fn parse_key(key: &str) -> Option<(String, String)> {
-        key.split_once("::").map(|(server, tool)| {
-            (server.to_string(), tool.to_string())
-        })
+        key.split_once("::")
+            .map(|(server, tool)| (server.to_string(), tool.to_string()))
     }
 }
 
@@ -460,8 +462,14 @@ mod tests {
     async fn test_cache_clear() {
         let cache = SchemaCache::with_ttl(Duration::from_secs(60));
 
-        cache.insert("key1".to_string(), ToolSchema::new("tool1", "Tool 1")).await.unwrap();
-        cache.insert("key2".to_string(), ToolSchema::new("tool2", "Tool 2")).await.unwrap();
+        cache
+            .insert("key1".to_string(), ToolSchema::new("tool1", "Tool 1"))
+            .await
+            .unwrap();
+        cache
+            .insert("key2".to_string(), ToolSchema::new("tool2", "Tool 2"))
+            .await
+            .unwrap();
 
         cache.clear().await.unwrap();
 
@@ -496,7 +504,10 @@ mod tests {
         assert_eq!(key, "http://localhost:3000::my_tool");
 
         let parsed = SchemaCache::parse_key(&key);
-        assert_eq!(parsed, Some(("http://localhost:3000".to_string(), "my_tool".to_string())));
+        assert_eq!(
+            parsed,
+            Some(("http://localhost:3000".to_string(), "my_tool".to_string()))
+        );
     }
 
     #[tokio::test]

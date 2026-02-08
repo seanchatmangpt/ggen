@@ -130,16 +130,12 @@ fn bench_error_propagation(c: &mut Criterion) {
     ];
 
     for (name, depth) in depths {
-        group.bench_with_input(
-            BenchmarkId::from_parameter(name),
-            &depth,
-            |b, &depth| {
-                b.iter(|| {
-                    let result = level_1(black_box(depth));
-                    let _ = black_box(result);
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::from_parameter(name), &depth, |b, &depth| {
+            b.iter(|| {
+                let result = level_1(black_box(depth));
+                let _ = black_box(result);
+            });
+        });
     }
 
     group.finish();

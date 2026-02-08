@@ -2,9 +2,9 @@
 //!
 //! This module provides Erlang NIF bindings for cryptographic receipt operations.
 
-use crate::receipts::{WorkflowReceipt, ReceiptGenerator};
-use crate::patterns::WorkflowContext;
 use crate::error::WorkflowResult;
+use crate::patterns::WorkflowContext;
+use crate::receipts::{ReceiptGenerator, WorkflowReceipt};
 
 /// Generate a receipt from context data
 #[rustler::nif]
@@ -28,11 +28,16 @@ fn create_test_receipt() -> String {
     let generator = ReceiptGenerator::new();
 
     let mut context = WorkflowContext::default();
-    context.input.insert("test".to_string(), serde_json::json!("value"));
-    context.output.insert("result".to_string(), serde_json::json!({"success": true}));
+    context
+        .input
+        .insert("test".to_string(), serde_json::json!("value"));
+    context
+        .output
+        .insert("result".to_string(), serde_json::json!({"success": true}));
 
     let receipt = generator.generate_receipt(&context).unwrap();
-    serde_json::to_string(&receipt).unwrap_or_else(|_| "{\"error\": \"generation failed\"}".to_string())
+    serde_json::to_string(&receipt)
+        .unwrap_or_else(|_| "{\"error\": \"generation failed\"}".to_string())
 }
 
 /// Verify a receipt
@@ -55,7 +60,8 @@ fn verify_receipt(receipt_json: String) -> String {
 #[rustler::nif]
 fn receipt_metadata(receipt_json: String) -> String {
     if let Ok(receipt) = serde_json::from_str::<WorkflowReceipt>(&receipt_json) {
-        serde_json::to_string(&receipt.metadata).unwrap_or_else(|_| "{\"error\": \"serialization failed\"}".to_string())
+        serde_json::to_string(&receipt.metadata)
+            .unwrap_or_else(|_| "{\"error\": \"serialization failed\"}".to_string())
     } else {
         "{\"error\": \"invalid receipt\"}".to_string()
     }
@@ -83,23 +89,19 @@ fn receipt_timestamp(receipt_json: String) -> String {
 
 /// Wrapper functions for internal module use
 pub fn receipt_generate(
-    generator: &ReceiptGenerator,
-    context: &WorkflowContext,
+    generator: &ReceiptGenerator, context: &WorkflowContext,
 ) -> WorkflowResult<String> {
     let receipt = generator.generate_receipt(context)?;
     Ok(serde_json::to_string(&receipt)?)
 }
 
 pub fn receipt_verify_internal(
-    generator: &ReceiptGenerator,
-    receipt: &WorkflowReceipt,
+    generator: &ReceiptGenerator, receipt: &WorkflowReceipt,
 ) -> WorkflowResult<bool> {
     generator.verify_receipt(receipt)
 }
 
-pub fn receipt_info(
-    receipt: &WorkflowReceipt,
-) -> WorkflowResult<String> {
+pub fn receipt_info(receipt: &WorkflowReceipt) -> WorkflowResult<String> {
     Ok(serde_json::to_string(&receipt.metadata)?)
 }
 

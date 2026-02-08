@@ -173,15 +173,14 @@ impl DummyLM {
 
     /// Find matching demonstration for given inputs
     fn find_matching_demo(
-        &self,
-        inputs: &HashMap<String, Value>,
+        &self, inputs: &HashMap<String, Value>,
         demonstrations: &[(HashMap<String, Value>, HashMap<String, Value>)],
     ) -> Option<HashMap<String, Value>> {
         for (demo_inputs, demo_outputs) in demonstrations {
             // Check if any input value matches
-            let has_match = inputs.iter().any(|(k, v)| {
-                demo_inputs.get(k).map_or(false, |dv| dv == v)
-            });
+            let has_match = inputs
+                .iter()
+                .any(|(k, v)| demo_inputs.get(k).map_or(false, |dv| dv == v));
 
             if has_match {
                 return Some(demo_outputs.clone());
@@ -223,10 +222,7 @@ impl DummyLM {
                     .find(|(key, _)| prompt.contains(key.as_str()))
                     .map(|(_, val)| val.clone())
                     .unwrap_or_else(|| {
-                        HashMap::from([(
-                            "response".to_string(),
-                            json!("default response"),
-                        )])
+                        HashMap::from([("response".to_string(), json!("default response"))])
                     })
             }
 
@@ -263,14 +259,10 @@ impl Module for DummyLM {
     }
 
     async fn forward(
-        &self,
-        inputs: HashMap<String, Value>,
+        &self, inputs: HashMap<String, Value>,
     ) -> Result<HashMap<String, Value>, ModuleError> {
         // Extract prompt from inputs
-        let prompt = inputs
-            .get("prompt")
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
+        let prompt = inputs.get("prompt").and_then(|v| v.as_str()).unwrap_or("");
 
         // If no prompt, create one from all inputs
         let prompt = if prompt.is_empty() {

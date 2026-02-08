@@ -181,8 +181,7 @@ fn bench_config_parsing(c: &mut Criterion) {
 
     group.bench_function("parse_simple_ggen_toml", |b| {
         b.iter(|| {
-            let content = fs::read_to_string(black_box(&simple_path))
-                .expect("Failed to read file");
+            let content = fs::read_to_string(black_box(&simple_path)).expect("Failed to read file");
             let _parsed: Result<toml::Value, _> = toml::from_str(&content);
             // In real scenario, would validate against schema
         });
@@ -190,8 +189,8 @@ fn bench_config_parsing(c: &mut Criterion) {
 
     group.bench_function("parse_complex_ggen_toml", |b| {
         b.iter(|| {
-            let content = fs::read_to_string(black_box(&complex_path))
-                .expect("Failed to read file");
+            let content =
+                fs::read_to_string(black_box(&complex_path)).expect("Failed to read file");
             let _parsed: Result<toml::Value, _> = toml::from_str(&content);
         });
     });
@@ -207,8 +206,7 @@ fn bench_spec_parsing(c: &mut Criterion) {
 
     group.bench_function("parse_simple_spec_ttl", |b| {
         b.iter(|| {
-            let content = fs::read_to_string(black_box(&simple_path))
-                .expect("Failed to read file");
+            let content = fs::read_to_string(black_box(&simple_path)).expect("Failed to read file");
             // In real scenario, would parse with oxigraph
             let _ = black_box(content);
         });
@@ -216,8 +214,8 @@ fn bench_spec_parsing(c: &mut Criterion) {
 
     group.bench_function("parse_complex_spec_ttl", |b| {
         b.iter(|| {
-            let content = fs::read_to_string(black_box(&complex_path))
-                .expect("Failed to read file");
+            let content =
+                fs::read_to_string(black_box(&complex_path)).expect("Failed to read file");
             let _ = black_box(content);
         });
     });
@@ -232,8 +230,7 @@ fn bench_config_validation(c: &mut Criterion) {
 
     group.bench_function("validate_ggen_toml_schema", |b| {
         b.iter(|| {
-            let content = fs::read_to_string(black_box(&simple_path))
-                .expect("Failed to read file");
+            let content = fs::read_to_string(black_box(&simple_path)).expect("Failed to read file");
             let _parsed: Result<toml::Value, _> = toml::from_str(&content);
             // Would check for required fields, type correctness, etc.
         });
@@ -251,10 +248,10 @@ fn bench_concurrent_config_loads(c: &mut Criterion) {
     group.bench_function("sequential_load_10_configs", |b| {
         b.iter(|| {
             for _ in 0..10 {
-                let content_simple = fs::read_to_string(black_box(&simple_path))
-                    .expect("Failed to read file");
-                let content_complex = fs::read_to_string(black_box(&complex_path))
-                    .expect("Failed to read file");
+                let content_simple =
+                    fs::read_to_string(black_box(&simple_path)).expect("Failed to read file");
+                let content_complex =
+                    fs::read_to_string(black_box(&complex_path)).expect("Failed to read file");
                 let _: Result<toml::Value, _> = toml::from_str(&content_simple);
                 let _: Result<toml::Value, _> = toml::from_str(&content_complex);
             }

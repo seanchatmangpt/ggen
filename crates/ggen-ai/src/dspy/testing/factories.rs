@@ -48,7 +48,9 @@ pub fn summarization_example(document: &str, summary: &str) -> Example {
 }
 
 /// Create a translation example
-pub fn translation_example(source: &str, target: &str, source_lang: &str, target_lang: &str) -> Example {
+pub fn translation_example(
+    source: &str, target: &str, source_lang: &str, target_lang: &str,
+) -> Example {
     ExampleBuilder::new()
         .input("source_text", source)
         .input("source_language", source_lang)
@@ -70,7 +72,10 @@ pub fn translation_example(source: &str, target: &str, source_lang: &str, target
 pub fn create_qa_trainset() -> Vec<Example> {
     vec![
         qa_example("What is Rust?", "A systems programming language"),
-        qa_example("What is DSPy?", "A framework for programming language models"),
+        qa_example(
+            "What is DSPy?",
+            "A framework for programming language models",
+        ),
         qa_example("What is ggen?", "An ontology-driven code generator"),
         qa_example("What is 2+2?", "4"),
         qa_example("What is the capital of France?", "Paris"),
@@ -100,8 +105,16 @@ pub fn create_classification_trainset() -> Vec<Example> {
 /// ```
 pub fn create_test_signature(name: &str, description: &str) -> Signature {
     Signature::new(name, description)
-        .with_input(InputField::new("question", "The question to answer", "String"))
-        .with_output(OutputField::new("answer", "The answer to the question", "String"))
+        .with_input(InputField::new(
+            "question",
+            "The question to answer",
+            "String",
+        ))
+        .with_output(OutputField::new(
+            "answer",
+            "The answer to the question",
+            "String",
+        ))
 }
 
 /// Create a classification signature for testing
@@ -115,7 +128,11 @@ pub fn create_classification_signature() -> Signature {
 pub fn create_cot_signature() -> Signature {
     Signature::new("ChainOfThought", "Reasoning with intermediate steps")
         .with_input(InputField::new("question", "Question to answer", "String"))
-        .with_output(OutputField::new("reasoning", "Step-by-step reasoning", "String"))
+        .with_output(OutputField::new(
+            "reasoning",
+            "Step-by-step reasoning",
+            "String",
+        ))
         .with_output(OutputField::new("answer", "Final answer", "String"))
 }
 
@@ -152,10 +169,7 @@ pub fn create_edge_case_examples() -> Vec<Example> {
         // Empty
         qa_example("", ""),
         // Very long
-        qa_example(
-            &"What is ".repeat(100),
-            &"Answer ".repeat(100),
-        ),
+        qa_example(&"What is ".repeat(100), &"Answer ".repeat(100)),
         // Unicode
         qa_example("你好吗？", "我很好，谢谢"),
         // Special characters
@@ -205,7 +219,9 @@ mod tests {
     fn test_create_qa_trainset() {
         let trainset = create_qa_trainset();
         assert!(trainset.len() >= 5);
-        assert!(trainset.iter().all(|ex| !ex.inputs.is_empty() && !ex.outputs.is_empty()));
+        assert!(trainset
+            .iter()
+            .all(|ex| !ex.inputs.is_empty() && !ex.outputs.is_empty()));
     }
 
     #[test]
@@ -256,7 +272,9 @@ mod tests {
         let lengths: Vec<usize> = trainset
             .iter()
             .map(|ex| {
-                ex.inputs.values().next()
+                ex.inputs
+                    .values()
+                    .next()
                     .and_then(|v| v.as_str())
                     .map(|s| s.len())
                     .unwrap_or(0)
@@ -274,7 +292,9 @@ mod tests {
 
         // Check that we have various edge cases
         let has_empty = examples.iter().any(|ex| {
-            ex.inputs.values().next()
+            ex.inputs
+                .values()
+                .next()
                 .and_then(|v| v.as_str())
                 .map(|s| s.is_empty())
                 .unwrap_or(false)

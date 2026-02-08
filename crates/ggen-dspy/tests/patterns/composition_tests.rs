@@ -1,8 +1,6 @@
 //! Tests for pattern composition
 
-use ggen_dspy::{
-    Module, Retrieve, MultiHopQA, SimplifiedBaleen, InMemoryRetriever,
-};
+use ggen_dspy::{InMemoryRetriever, Module, MultiHopQA, Retrieve, SimplifiedBaleen};
 use std::sync::Arc;
 
 #[tokio::test]
@@ -74,10 +72,7 @@ async fn test_pattern_reusability() {
 
 #[tokio::test]
 async fn test_pattern_parallel_execution() {
-    let docs = vec![
-        "Document A".to_string(),
-        "Document B".to_string(),
-    ];
+    let docs = vec!["Document A".to_string(), "Document B".to_string()];
 
     let backend = Arc::new(InMemoryRetriever::new(docs));
 

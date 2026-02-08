@@ -167,11 +167,7 @@ impl JsonRpcRequest {
     }
 
     /// Create a request with a specific ID
-    pub fn with_id(
-        method: impl Into<String>,
-        params: Option<JsonValue>,
-        id: RequestId,
-    ) -> Self {
+    pub fn with_id(method: impl Into<String>, params: Option<JsonValue>, id: RequestId) -> Self {
         Self {
             jsonrpc: "2.0".to_string(),
             id: Some(id),
@@ -182,7 +178,10 @@ impl JsonRpcRequest {
 
     /// Check if this is a notification
     pub fn is_notification(&self) -> bool {
-        self.id.as_ref().map(|id| id.is_notification()).unwrap_or(false)
+        self.id
+            .as_ref()
+            .map(|id| id.is_notification())
+            .unwrap_or(false)
     }
 
     /// Serialize to JSON string
@@ -375,11 +374,14 @@ pub trait McpTransport: Send + Sync {
 pub trait McpTransportExt: McpTransport {
     /// Initialize the MCP session
     fn initialize<'life0, 'life1, 'async_trait>(
-        &'life0 self,
-        capabilities: JsonValue,
-    ) -> core::pin::Pin<Box<
-        dyn core::future::Future<Output = TransportResult<JsonValue>> + core::marker::Send + 'async_trait,
-    >>
+        &'life0 self, capabilities: JsonValue,
+    ) -> core::pin::Pin<
+        Box<
+            dyn core::future::Future<Output = TransportResult<JsonValue>>
+                + core::marker::Send
+                + 'async_trait,
+        >,
+    >
     where
         'life0: 'async_trait,
         'life1: 'async_trait,
@@ -407,9 +409,11 @@ pub trait McpTransportExt: McpTransport {
     fn list_tools<'life0, 'async_trait>(
         &'life0 self,
     ) -> core::pin::Pin<
-        Box<dyn core::future::Future<Output = TransportResult<Vec<Tool>>>
+        Box<
+            dyn core::future::Future<Output = TransportResult<Vec<Tool>>>
                 + core::marker::Send
-                + 'async_trait>,
+                + 'async_trait,
+        >,
     >
     where
         'life0: 'async_trait,
@@ -426,13 +430,13 @@ pub trait McpTransportExt: McpTransport {
 
     /// Call a specific tool
     fn call_tool<'life0, 'life1, 'async_trait>(
-        &'life0 self,
-        name: &'life1 str,
-        arguments: JsonValue,
+        &'life0 self, name: &'life1 str, arguments: JsonValue,
     ) -> core::pin::Pin<
-        Box<dyn core::future::Future<Output = TransportResult<ToolResult>>
+        Box<
+            dyn core::future::Future<Output = TransportResult<ToolResult>>
                 + core::marker::Send
-                + 'async_trait>,
+                + 'async_trait,
+        >,
     >
     where
         'life0: 'async_trait,
@@ -457,9 +461,11 @@ pub trait McpTransportExt: McpTransport {
     fn list_resources<'life0, 'async_trait>(
         &'life0 self,
     ) -> core::pin::Pin<
-        Box<dyn core::future::Future<Output = TransportResult<Vec<Resource>>>
+        Box<
+            dyn core::future::Future<Output = TransportResult<Vec<Resource>>>
                 + core::marker::Send
-                + 'async_trait>,
+                + 'async_trait,
+        >,
     >
     where
         'life0: 'async_trait,
@@ -476,12 +482,13 @@ pub trait McpTransportExt: McpTransport {
 
     /// Read a specific resource
     fn read_resource<'life0, 'life1, 'async_trait>(
-        &'life0 self,
-        uri: &'life1 str,
+        &'life0 self, uri: &'life1 str,
     ) -> core::pin::Pin<
-        Box<dyn core::future::Future<Output = TransportResult<ResourceContents>>
+        Box<
+            dyn core::future::Future<Output = TransportResult<ResourceContents>>
                 + core::marker::Send
-                + 'async_trait>,
+                + 'async_trait,
+        >,
     >
     where
         'life0: 'async_trait,
@@ -538,7 +545,11 @@ pub enum Content {
     /// Image content
     Image { data: String, media_type: String },
     /// Resource reference
-    Resource { uri: String, #[serde(skip_serializing_if = "Option::is_none")] text: Option<String> },
+    Resource {
+        uri: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        text: Option<String>,
+    },
 }
 
 /// MCP Resource definition
@@ -634,7 +645,10 @@ mod tests {
     fn test_mcp_method_from_str() {
         assert_eq!(McpMethod::from_str("initialize"), McpMethod::Initialize);
         assert_eq!(McpMethod::from_str("tools/list"), McpMethod::ToolsList);
-        assert_eq!(McpMethod::from_str("unknown"), McpMethod::Custom("unknown".to_string()));
+        assert_eq!(
+            McpMethod::from_str("unknown"),
+            McpMethod::Custom("unknown".to_string())
+        );
     }
 
     #[test]

@@ -49,7 +49,7 @@ pub struct NetworkPolicyRule {
     /// From/to selectors
     pub selectors: Vec<String>,
     /// Allowed ports
-    pub ports: Option<Vec<(u16, String)>>,  // (port, protocol)
+    pub ports: Option<Vec<(u16, String)>>, // (port, protocol)
 }
 
 /// Pod Security Policy configuration
@@ -182,55 +182,77 @@ impl PolicyEnforcer {
     ///
     /// Returns error if unable to generate YAML
     pub fn generate_network_policy(&self, config: &NetworkPolicyConfig) -> Result<String> {
-        let ingress_rules: Vec<_> = config.ingress_rules.iter().map(|rule| {
-            let mut rule_obj = json!({});
+        let ingress_rules: Vec<_> = config
+            .ingress_rules
+            .iter()
+            .map(|rule| {
+                let mut rule_obj = json!({});
 
-            if !rule.selectors.is_empty() {
-                rule_obj["from"] = json!(rule.selectors.iter().map(|selector| {
-                    json!({
-                        "podSelector": {
-                            "matchLabels": parse_selector(selector),
-                        }
-                    })
-                }).collect::<Vec<_>>());
-            }
+                if !rule.selectors.is_empty() {
+                    rule_obj["from"] = json!(rule
+                        .selectors
+                        .iter()
+                        .map(|selector| {
+                            json!({
+                                "podSelector": {
+                                    "matchLabels": parse_selector(selector),
+                                }
+                            })
+                        })
+                        .collect::<Vec<_>>());
+                }
 
-            if let Some(ports) = &rule.ports {
-                rule_obj["ports"] = json!(ports.iter().map(|(port, protocol)| {
-                    json!({
-                        "port": port,
-                        "protocol": protocol,
-                    })
-                }).collect::<Vec<_>>());
-            }
+                if let Some(ports) = &rule.ports {
+                    rule_obj["ports"] = json!(ports
+                        .iter()
+                        .map(|(port, protocol)| {
+                            json!({
+                                "port": port,
+                                "protocol": protocol,
+                            })
+                        })
+                        .collect::<Vec<_>>());
+                }
 
-            rule_obj
-        }).collect();
+                rule_obj
+            })
+            .collect();
 
-        let egress_rules: Vec<_> = config.egress_rules.iter().map(|rule| {
-            let mut rule_obj = json!({});
+        let egress_rules: Vec<_> = config
+            .egress_rules
+            .iter()
+            .map(|rule| {
+                let mut rule_obj = json!({});
 
-            if !rule.selectors.is_empty() {
-                rule_obj["to"] = json!(rule.selectors.iter().map(|selector| {
-                    json!({
-                        "podSelector": {
-                            "matchLabels": parse_selector(selector),
-                        }
-                    })
-                }).collect::<Vec<_>>());
-            }
+                if !rule.selectors.is_empty() {
+                    rule_obj["to"] = json!(rule
+                        .selectors
+                        .iter()
+                        .map(|selector| {
+                            json!({
+                                "podSelector": {
+                                    "matchLabels": parse_selector(selector),
+                                }
+                            })
+                        })
+                        .collect::<Vec<_>>());
+                }
 
-            if let Some(ports) = &rule.ports {
-                rule_obj["ports"] = json!(ports.iter().map(|(port, protocol)| {
-                    json!({
-                        "port": port,
-                        "protocol": protocol,
-                    })
-                }).collect::<Vec<_>>());
-            }
+                if let Some(ports) = &rule.ports {
+                    rule_obj["ports"] = json!(ports
+                        .iter()
+                        .map(|(port, protocol)| {
+                            json!({
+                                "port": port,
+                                "protocol": protocol,
+                            })
+                        })
+                        .collect::<Vec<_>>());
+                }
 
-            rule_obj
-        }).collect();
+                rule_obj
+            })
+            .collect();
 
         let network_policy = json!({
             "apiVersion": "networking.k8s.io/v1",
@@ -249,8 +271,9 @@ impl PolicyEnforcer {
             }
         });
 
-        let yaml = serde_yaml::to_string(&network_policy)
-            .map_err(|e| Error::PolicyEnforcement(format!("Failed to serialize NetworkPolicy: {e}")))?;
+        let yaml = serde_yaml::to_string(&network_policy).map_err(|e| {
+            Error::PolicyEnforcement(format!("Failed to serialize NetworkPolicy: {e}"))
+        })?;
 
         info!("Generated NetworkPolicy YAML for {}", config.name);
         debug!("NetworkPolicy YAML:\n{}", yaml);
@@ -294,8 +317,9 @@ impl PolicyEnforcer {
             }
         });
 
-        let yaml = serde_yaml::to_string(&psp)
-            .map_err(|e| Error::PolicyEnforcement(format!("Failed to serialize PodSecurityPolicy: {e}")))?;
+        let yaml = serde_yaml::to_string(&psp).map_err(|e| {
+            Error::PolicyEnforcement(format!("Failed to serialize PodSecurityPolicy: {e}"))
+        })?;
 
         info!("Generated PodSecurityPolicy YAML for {}", config.name);
         Ok(yaml)
@@ -320,8 +344,9 @@ impl PolicyEnforcer {
             }
         });
 
-        let yaml = serde_yaml::to_string(&quota)
-            .map_err(|e| Error::PolicyEnforcement(format!("Failed to serialize ResourceQuota: {e}")))?;
+        let yaml = serde_yaml::to_string(&quota).map_err(|e| {
+            Error::PolicyEnforcement(format!("Failed to serialize ResourceQuota: {e}"))
+        })?;
 
         info!("Generated ResourceQuota YAML for {}", config.name);
         Ok(yaml)
@@ -333,14 +358,18 @@ impl PolicyEnforcer {
     ///
     /// Returns error if unable to generate YAML
     pub fn generate_role(&self, config: &RoleConfig) -> Result<String> {
-        let rules: Vec<_> = config.rules.iter().map(|rule| {
-            json!({
-                "apiGroups": rule.api_groups,
-                "resources": rule.resources,
-                "verbs": rule.verbs,
-                "resourceNames": rule.resource_names,
+        let rules: Vec<_> = config
+            .rules
+            .iter()
+            .map(|rule| {
+                json!({
+                    "apiGroups": rule.api_groups,
+                    "resources": rule.resources,
+                    "verbs": rule.verbs,
+                    "resourceNames": rule.resource_names,
+                })
             })
-        }).collect();
+            .collect();
 
         let role = json!({
             "apiVersion": "rbac.authorization.k8s.io/v1",
@@ -365,13 +394,17 @@ impl PolicyEnforcer {
     ///
     /// Returns error if unable to generate YAML
     pub fn generate_role_binding(&self, config: &RoleBindingConfig) -> Result<String> {
-        let subjects: Vec<_> = config.subjects.iter().map(|subject| {
-            json!({
-                "kind": subject.kind,
-                "name": subject.name,
-                "namespace": subject.namespace,
+        let subjects: Vec<_> = config
+            .subjects
+            .iter()
+            .map(|subject| {
+                json!({
+                    "kind": subject.kind,
+                    "name": subject.name,
+                    "namespace": subject.namespace,
+                })
             })
-        }).collect();
+            .collect();
 
         let role_binding = json!({
             "apiVersion": "rbac.authorization.k8s.io/v1",
@@ -388,8 +421,9 @@ impl PolicyEnforcer {
             "subjects": subjects,
         });
 
-        let yaml = serde_yaml::to_string(&role_binding)
-            .map_err(|e| Error::PolicyEnforcement(format!("Failed to serialize RoleBinding: {e}")))?;
+        let yaml = serde_yaml::to_string(&role_binding).map_err(|e| {
+            Error::PolicyEnforcement(format!("Failed to serialize RoleBinding: {e}"))
+        })?;
 
         info!("Generated RoleBinding YAML for {}", config.name);
         Ok(yaml)
@@ -413,8 +447,9 @@ impl PolicyEnforcer {
             }
         });
 
-        let yaml = serde_yaml::to_string(&constraint)
-            .map_err(|e| Error::PolicyEnforcement(format!("Failed to serialize Constraint: {e}")))?;
+        let yaml = serde_yaml::to_string(&constraint).map_err(|e| {
+            Error::PolicyEnforcement(format!("Failed to serialize Constraint: {e}"))
+        })?;
 
         info!("Generated Constraint YAML for {}", config.name);
         Ok(yaml)

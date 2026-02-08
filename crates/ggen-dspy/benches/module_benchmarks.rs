@@ -29,5 +29,10 @@ fn benchmark_react_agent(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, benchmark_predictor_forward, benchmark_chain_of_thought, benchmark_react_agent);
+criterion_group!(
+    benches,
+    benchmark_predictor_forward,
+    benchmark_chain_of_thought,
+    benchmark_react_agent
+);
 criterion_main!(benches);

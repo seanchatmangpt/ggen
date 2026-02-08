@@ -13,8 +13,7 @@ use tokio::sync::RwLock;
 
 #[cfg(feature = "a2a")]
 use a2a_rs::{
-    adapter::transport::http::HttpClient as A2aHttpClient,
-    services::client::AsyncA2AClient,
+    adapter::transport::http::HttpClient as A2aHttpClient, services::client::AsyncA2AClient,
 };
 
 /// Configuration for A2A transport
@@ -193,8 +192,9 @@ impl McpTransport for A2ATransport {
         #[cfg(feature = "a2a")]
         {
             // Convert MCP JSON-RPC request to JSON string
-            let request_json = serde_json::to_string(&request)
-                .map_err(|e| TransportError::Internal(format!("Failed to serialize request: {}", e)))?;
+            let request_json = serde_json::to_string(&request).map_err(|e| {
+                TransportError::Internal(format!("Failed to serialize request: {}", e))
+            })?;
 
             // Create A2A client and send request
             let client = self.config.build_client();
@@ -229,8 +229,9 @@ impl McpTransport for A2ATransport {
 
         #[cfg(feature = "a2a")]
         {
-            let notification_json = serde_json::to_string(&notification)
-                .map_err(|e| TransportError::Internal(format!("Failed to serialize notification: {}", e)))?;
+            let notification_json = serde_json::to_string(&notification).map_err(|e| {
+                TransportError::Internal(format!("Failed to serialize notification: {}", e))
+            })?;
 
             let client = self.config.build_client();
 
@@ -280,9 +281,7 @@ fn convert_a2a_error(error: a2a_rs::domain::A2AError) -> TransportError {
         A2AError::UnsupportedOperation(msg) => TransportError::UnsupportedOperation(msg),
         A2AError::Internal(msg) => TransportError::Internal(msg),
         A2AError::TaskNotFound(msg) => TransportError::Internal(format!("Task not found: {}", msg)),
-        A2AError::JsonRpc { code, message, .. } => {
-            TransportError::json_rpc(code, message)
-        }
+        A2AError::JsonRpc { code, message, .. } => TransportError::json_rpc(code, message),
         _ => TransportError::Internal(format!("A2A error: {}", error)),
     }
 }

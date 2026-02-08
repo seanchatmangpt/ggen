@@ -56,8 +56,8 @@
 pub mod cache;
 pub mod client;
 pub mod config;
-pub mod dspy;
 pub mod constants;
+pub mod dspy;
 pub mod error;
 pub mod error_utils;
 pub mod generators;

@@ -13,8 +13,8 @@ use ggen_utils::error::Error as GgenError;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;
-use std::path::{Path, PathBuf};
 use std::fs;
+use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 // ============================================================================
@@ -74,7 +74,10 @@ impl Default for McpConfigFile {
         Self {
             mcp_servers: HashMap::new(),
             metadata: McpMetadata::default(),
-            description: Some("MCP (Model Context Protocol) servers for enhanced Claude Code capabilities".to_string()),
+            description: Some(
+                "MCP (Model Context Protocol) servers for enhanced Claude Code capabilities"
+                    .to_string(),
+            ),
             version: default_mcp_version(),
         }
     }
@@ -210,7 +213,9 @@ impl McpServerConfig {
         }
 
         if self.timeout == 0 {
-            return Err(McpValidationError::InvalidTimeout("Timeout must be greater than 0".to_string()));
+            return Err(McpValidationError::InvalidTimeout(
+                "Timeout must be greater than 0".to_string(),
+            ));
         }
 
         // Check for suspicious commands
@@ -389,18 +394,22 @@ impl A2aConfig {
     pub fn validate(&self) -> Result<(), A2aValidationError> {
         // Validate server configuration
         if self.server.port == 0 {
-            return Err(A2aValidationError::InvalidPort("Port cannot be zero".to_string()));
+            return Err(A2aValidationError::InvalidPort(
+                "Port cannot be zero".to_string(),
+            ));
         }
 
         if self.server.timeout == 0 {
-            return Err(A2aValidationError::InvalidTimeout("Timeout must be greater than 0".to_string()));
+            return Err(A2aValidationError::InvalidTimeout(
+                "Timeout must be greater than 0".to_string(),
+            ));
         }
 
         // Validate TLS configuration consistency
         if self.server.tls_enabled {
             if self.server.tls_cert_path.is_none() || self.server.tls_key_path.is_none() {
                 return Err(A2aValidationError::TlsMisconfigured(
-                    "TLS is enabled but certificate or key path is missing".to_string()
+                    "TLS is enabled but certificate or key path is missing".to_string(),
                 ));
             }
         }
@@ -410,7 +419,11 @@ impl A2aConfig {
 
     /// Get the server URL
     pub fn server_url(&self) -> String {
-        let scheme = if self.server.tls_enabled { "https" } else { "http" };
+        let scheme = if self.server.tls_enabled {
+            "https"
+        } else {
+            "http"
+        };
         format!("{}://{}:{}", scheme, self.server.host, self.server.port)
     }
 }
@@ -503,9 +516,7 @@ pub struct ResolvedConfig {
 
 /// Load and resolve configuration from all sources
 pub fn load_config(
-    project_dir: Option<&Path>,
-    cli_mcp_file: Option<&Path>,
-    cli_a2a_file: Option<&Path>,
+    project_dir: Option<&Path>, cli_mcp_file: Option<&Path>, cli_a2a_file: Option<&Path>,
 ) -> Result<ResolvedConfig, GgenError> {
     let mut sources = HashMap::new();
     let mut mcp_config: Option<McpConfigFile> = None;
@@ -529,7 +540,10 @@ pub fn load_config(
         let project_mcp_path = project_dir.join(PROJECT_MCP_CONFIG);
         if project_mcp_path.exists() {
             let config = load_mcp_from_file(&project_mcp_path)?;
-            if sources.get("mcp").map_or(true, |p| *p < ConfigPriority::Project) {
+            if sources
+                .get("mcp")
+                .map_or(true, |p| *p < ConfigPriority::Project)
+            {
                 sources.insert("mcp".to_string(), ConfigPriority::Project);
                 mcp_config = Some(config);
             }
@@ -538,7 +552,10 @@ pub fn load_config(
         let project_a2a_path = project_dir.join(PROJECT_A2A_CONFIG);
         if project_a2a_path.exists() {
             let config = load_a2a_from_file(&project_a2a_path)?;
-            if sources.get("a2a").map_or(true, |p| *p < ConfigPriority::Project) {
+            if sources
+                .get("a2a")
+                .map_or(true, |p| *p < ConfigPriority::Project)
+            {
                 sources.insert("a2a".to_string(), ConfigPriority::Project);
                 a2a_config = Some(config);
             }
@@ -546,24 +563,28 @@ pub fn load_config(
     }
 
     // Check user-level configuration
-    let user_mcp_path = dirs::home_dir()
-        .map(|p| p.join(USER_MCP_CONFIG));
+    let user_mcp_path = dirs::home_dir().map(|p| p.join(USER_MCP_CONFIG));
     if let Some(ref path) = user_mcp_path {
         if path.exists() {
             let config = load_mcp_from_file(path)?;
-            if sources.get("mcp").map_or(true, |p| *p < ConfigPriority::User) {
+            if sources
+                .get("mcp")
+                .map_or(true, |p| *p < ConfigPriority::User)
+            {
                 sources.insert("mcp".to_string(), ConfigPriority::User);
                 mcp_config = Some(config);
             }
         }
     }
 
-    let user_a2a_path = dirs::home_dir()
-        .map(|p| p.join(USER_A2A_CONFIG));
+    let user_a2a_path = dirs::home_dir().map(|p| p.join(USER_A2A_CONFIG));
     if let Some(ref path) = user_a2a_path {
         if path.exists() {
             let config = load_a2a_from_file(path)?;
-            if sources.get("a2a").map_or(true, |p| *p < ConfigPriority::User) {
+            if sources
+                .get("a2a")
+                .map_or(true, |p| *p < ConfigPriority::User)
+            {
                 sources.insert("a2a".to_string(), ConfigPriority::User);
                 a2a_config = Some(config);
             }
@@ -574,7 +595,10 @@ pub fn load_config(
     let system_mcp_path = PathBuf::from(SYSTEM_MCP_CONFIG);
     if system_mcp_path.exists() {
         let config = load_mcp_from_file(&system_mcp_path)?;
-        if sources.get("mcp").map_or(true, |p| *p < ConfigPriority::System) {
+        if sources
+            .get("mcp")
+            .map_or(true, |p| *p < ConfigPriority::System)
+        {
             sources.insert("mcp".to_string(), ConfigPriority::System);
             mcp_config = Some(config);
         }
@@ -583,7 +607,10 @@ pub fn load_config(
     let system_a2a_path = PathBuf::from(SYSTEM_A2A_CONFIG);
     if system_a2a_path.exists() {
         let config = load_a2a_from_file(&system_a2a_path)?;
-        if sources.get("a2a").map_or(true, |p| *p < ConfigPriority::System) {
+        if sources
+            .get("a2a")
+            .map_or(true, |p| *p < ConfigPriority::System)
+        {
             sources.insert("a2a".to_string(), ConfigPriority::System);
             a2a_config = Some(config);
         }
@@ -737,7 +764,11 @@ pub fn load_a2a_from_env() -> Result<Option<A2aConfig>, GgenError> {
         || config.server.timeout != default_a2a_timeout()
         || config.server.tls_enabled;
 
-    Ok(if has_custom_config { Some(config) } else { None })
+    Ok(if has_custom_config {
+        Some(config)
+    } else {
+        None
+    })
 }
 
 // ============================================================================
@@ -750,23 +781,35 @@ pub fn init_mcp_config(path: &Path, include_examples: bool) -> Result<McpConfigF
 
     if include_examples {
         // Add example server configurations
-        config.mcp_servers.insert("claude-code-guide".to_string(), McpServerConfig::new("npx")
-            .with_args(vec!["@anthropic-ai/claude-code-guide".to_string()])
+        config.mcp_servers.insert(
+            "claude-code-guide".to_string(),
+            McpServerConfig::new("npx")
+                .with_args(vec!["@anthropic-ai/claude-code-guide".to_string()]),
         );
 
-        config.mcp_servers.insert("git".to_string(), McpServerConfig::new("git")
-            .with_args(vec!["mcp-server".to_string()])
+        config.mcp_servers.insert(
+            "git".to_string(),
+            McpServerConfig::new("git").with_args(vec!["mcp-server".to_string()]),
         );
 
-        config.mcp_servers.insert("bash".to_string(), McpServerConfig::new("bash")
-            .with_args(vec!["--init-file".to_string(), ".claude/helpers/bash-init.sh".to_string()])
-            .with_env("CARGO_TERM_COLOR".to_string(), "always".to_string())
+        config.mcp_servers.insert(
+            "bash".to_string(),
+            McpServerConfig::new("bash")
+                .with_args(vec![
+                    "--init-file".to_string(),
+                    ".claude/helpers/bash-init.sh".to_string(),
+                ])
+                .with_env("CARGO_TERM_COLOR".to_string(), "always".to_string()),
         );
     }
 
     // Update metadata
     config.metadata.updated_at = Some(timestamp_now());
-    if let Some(project_name) = path.parent().and_then(|p| p.file_name()).and_then(|n| n.to_str()) {
+    if let Some(project_name) = path
+        .parent()
+        .and_then(|p| p.file_name())
+        .and_then(|n| n.to_str())
+    {
         config.metadata.project = Some(project_name.to_string());
     }
 
@@ -795,9 +838,8 @@ pub fn write_mcp_config(path: &Path, config: &McpConfigFile) -> Result<(), GgenE
         })?;
     }
 
-    let content = serde_json::to_string_pretty(config).map_err(|e| {
-        GgenError::invalid_input(&format!("Failed to serialize MCP config: {}", e))
-    })?;
+    let content = serde_json::to_string_pretty(config)
+        .map_err(|e| GgenError::invalid_input(&format!("Failed to serialize MCP config: {}", e)))?;
 
     fs::write(path, content).map_err(|e| {
         GgenError::invalid_input(&format!("Failed to write MCP config to {:?}: {}", path, e))
@@ -815,9 +857,8 @@ pub fn write_a2a_config(path: &Path, config: &A2aConfig) -> Result<(), GgenError
         })?;
     }
 
-    let content = toml::to_string_pretty(config).map_err(|e| {
-        GgenError::invalid_input(&format!("Failed to serialize A2A config: {}", e))
-    })?;
+    let content = toml::to_string_pretty(config)
+        .map_err(|e| GgenError::invalid_input(&format!("Failed to serialize A2A config: {}", e)))?;
 
     fs::write(path, content).map_err(|e| {
         GgenError::invalid_input(&format!("Failed to write A2A config to {:?}: {}", path, e))
@@ -920,9 +961,10 @@ pub fn get_server_status(project_dir: Option<&Path>) -> Result<ServerStatus, Gge
         GgenError::invalid_input(&format!("Failed to read PID file {:?}: {}", pid_file, e))
     })?;
 
-    let pid: u32 = pid_str.trim().parse().map_err(|_| {
-        GgenError::invalid_input(&format!("Invalid PID in file: {}", pid_str))
-    })?;
+    let pid: u32 = pid_str
+        .trim()
+        .parse()
+        .map_err(|_| GgenError::invalid_input(&format!("Invalid PID in file: {}", pid_str)))?;
 
     // Check if process is running
     let is_running = is_process_running(pid);
@@ -1023,7 +1065,10 @@ fn get_process_uptime(pid: u32) -> Result<u64, GgenError> {
 fn get_process_uptime(_pid: u32) -> Result<u64, GgenError> {
     // Windows implementation would use WMI or other methods
     // For now, return error
-    Err(GgenError::feature_not_enabled("Process uptime not available on Windows", ""))
+    Err(GgenError::feature_not_enabled(
+        "Process uptime not available on Windows",
+        "",
+    ))
 }
 
 /// Stop a running MCP server
@@ -1034,9 +1079,9 @@ pub fn stop_server(project_dir: Option<&Path>, force: bool) -> Result<bool, Ggen
         return Ok(false);
     }
 
-    let pid = status.pid.ok_or_else(|| {
-        GgenError::invalid_input("Server is running but PID is unknown")
-    })?;
+    let pid = status
+        .pid
+        .ok_or_else(|| GgenError::invalid_input("Server is running but PID is unknown"))?;
 
     // Terminate the process
     terminate_process(pid, force)?;
@@ -1120,7 +1165,7 @@ fn timestamp_now() -> String {
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
-            .as_secs()
+            .as_secs(),
     )
 }
 
@@ -1233,8 +1278,14 @@ mod tests {
     #[test]
     fn test_config_priority_display() {
         assert_eq!(format!("{}", ConfigPriority::CliArgs), "CLI arguments");
-        assert_eq!(format!("{}", ConfigPriority::EnvVars), "Environment variables");
-        assert_eq!(format!("{}", ConfigPriority::Project), "Project configuration");
+        assert_eq!(
+            format!("{}", ConfigPriority::EnvVars),
+            "Environment variables"
+        );
+        assert_eq!(
+            format!("{}", ConfigPriority::Project),
+            "Project configuration"
+        );
     }
 
     #[test]

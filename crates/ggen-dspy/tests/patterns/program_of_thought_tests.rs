@@ -1,7 +1,7 @@
 //! Tests for Program of Thought pattern
 
 use ggen_dspy::{
-    Module, ProgramOfThought, ProgramOfThoughtConfig, CodeLanguage, ProgramOfThoughtBuilder,
+    CodeLanguage, Module, ProgramOfThought, ProgramOfThoughtBuilder, ProgramOfThoughtConfig,
 };
 
 #[tokio::test]

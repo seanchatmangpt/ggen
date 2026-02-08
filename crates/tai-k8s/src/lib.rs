@@ -10,14 +10,14 @@
 //! - Istio traffic management (VirtualServices, DestinationRules)
 //! - Network and security policy enforcement (RBAC, NetworkPolicy)
 
+pub mod istio_traffic;
 pub mod k8s_client;
 pub mod keda_autoscaling;
-pub mod istio_traffic;
 pub mod policy_enforcement;
 
-pub use k8s_client::{KubernetesClient, PodOperation, DeploymentOperation};
-pub use keda_autoscaling::{KedaAutoscaler, MetricType, EventDrivenScaler};
 pub use istio_traffic::{IstioTrafficManager, VirtualServiceConfig};
+pub use k8s_client::{DeploymentOperation, KubernetesClient, PodOperation};
+pub use keda_autoscaling::{EventDrivenScaler, KedaAutoscaler, MetricType};
 pub use policy_enforcement::{PolicyEnforcer, PolicyType};
 
 /// Version of tai-k8s

@@ -1,7 +1,7 @@
 //! SaaS tier definitions
 
-use serde::{Deserialize, Serialize};
 use crate::limits::TierLimits;
+use serde::{Deserialize, Serialize};
 
 /// SaaS tier types
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize, Hash)]
@@ -105,7 +105,10 @@ mod tests {
     #[test]
     fn test_tier_hierarchy() {
         assert!(TierHierarchy::meets_requirement(Tier::Pro, Tier::Free));
-        assert!(TierHierarchy::meets_requirement(Tier::Enterprise, Tier::Pro));
+        assert!(TierHierarchy::meets_requirement(
+            Tier::Enterprise,
+            Tier::Pro
+        ));
         assert!(!TierHierarchy::meets_requirement(Tier::Free, Tier::Pro));
     }
 

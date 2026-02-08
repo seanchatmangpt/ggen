@@ -99,8 +99,13 @@ fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput>
 
 /// Manage environment variables - Simplified
 #[verb]
-fn env(_list: bool, _get: Option<String>, _set: Option<String>, _system: bool) -> Result<EnvOutput> {
+fn env(
+    _list: bool, _get: Option<String>, _set: Option<String>, _system: bool,
+) -> Result<EnvOutput> {
     // TODO: Fix compilation issue with environment variables
     // For now, return empty result
-    Ok(EnvOutput { variables: std::collections::HashMap::new(), total: 0 })
+    Ok(EnvOutput {
+        variables: std::collections::HashMap::new(),
+        total: 0,
+    })
 }

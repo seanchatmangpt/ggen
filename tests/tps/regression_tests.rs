@@ -19,7 +19,10 @@ async fn regression_payment_processing_output() {
     };
 
     // Act
-    let result = system.process(&request).await.expect("Process should succeed");
+    let result = system
+        .process(&request)
+        .await
+        .expect("Process should succeed");
 
     // Assert: Snapshot verify output is deterministic
     let output = serde_json::to_string_pretty(&result).unwrap();
@@ -33,9 +36,7 @@ async fn regression_andon_signal_format() {
     let andon = AndonSignalTest::new();
 
     // Act
-    let signal = andon
-        .generate_signal("critical", "Queue overflow")
-        .await;
+    let signal = andon.generate_signal("critical", "Queue overflow").await;
 
     // Assert: Snapshot verify signal structure
     let signal_json = serde_json::to_string_pretty(&signal).unwrap();
@@ -63,15 +64,10 @@ async fn regression_error_message_consistency() {
     let system = ErrorHandlingTest::new();
 
     // Act
-    let error = system
-        .generate_error("INVALID_PAYMENT")
-        .await;
+    let error = system.generate_error("INVALID_PAYMENT").await;
 
     // Assert: Snapshot verify error format
-    insta::assert_snapshot!(
-        "error_message_format",
-        format!("{:?}", error)
-    );
+    insta::assert_snapshot!("error_message_format", format!("{:?}", error));
 }
 
 /// Verify Kanban state transitions are repeatable
@@ -148,10 +144,7 @@ async fn regression_cross_principle_outputs() {
 
     // Assert: Snapshot verify interaction output
     let output = serde_json::to_string_pretty(&result).unwrap();
-    insta::assert_snapshot!(
-        "cross_principle_interaction_output",
-        output
-    );
+    insta::assert_snapshot!("cross_principle_interaction_output", output);
 }
 
 /// Verify alert escalation sequence
@@ -165,10 +158,7 @@ async fn regression_alert_escalation_sequence() {
 
     // Assert: Snapshot verify escalation order
     let sequence_json = serde_json::to_string_pretty(&sequence).unwrap();
-    insta::assert_snapshot!(
-        "alert_escalation_sequence",
-        sequence_json
-    );
+    insta::assert_snapshot!("alert_escalation_sequence", sequence_json);
 }
 
 // ============================================================================
@@ -422,7 +412,7 @@ impl AlertEscalationTest {
     }
 }
 
-use std::collections;
 use chrono;
 use serde;
+use std::collections;
 use uuid;

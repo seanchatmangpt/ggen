@@ -2,8 +2,8 @@
 //!
 //! Iteratively retrieves and reasons across multiple documents to answer complex questions.
 
-use crate::{Module, ModuleOutput, Result, DspyError};
 use super::retrieve::{Retrieve, RetrieverBackend};
+use crate::{DspyError, Module, ModuleOutput, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -103,7 +103,8 @@ impl MultiHopQA {
 
     /// Aggregate context from all hops
     fn aggregate_context(&self, hop_states: &[HopState]) -> String {
-        hop_states.iter()
+        hop_states
+            .iter()
             .flat_map(|hop| hop.passages.iter())
             .cloned()
             .collect::<Vec<_>>()
@@ -115,7 +116,8 @@ impl MultiHopQA {
 impl Module for MultiHopQA {
     async fn forward(&self, inputs: &[(&str, &str)]) -> Result<ModuleOutput> {
         // Extract question
-        let question = inputs.iter()
+        let question = inputs
+            .iter()
             .find(|(key, _)| *key == "question")
             .map(|(_, value)| *value)
             .ok_or_else(|| DspyError::MissingInput("question".to_string()))?;
@@ -132,10 +134,7 @@ impl Module for MultiHopQA {
             let retrieve_output = self.retrieve.forward(&retrieve_inputs).await?;
 
             let passages_str = retrieve_output.get("passages")?;
-            let passages: Vec<String> = passages_str
-                .split("\n\n")
-                .map(|s| s.to_string())
-                .collect();
+            let passages: Vec<String> = passages_str.split("\n\n").map(|s| s.to_string()).collect();
 
             // Store hop state
             hop_states.push(HopState {
@@ -160,8 +159,8 @@ impl Module for MultiHopQA {
         output.set("question", question);
 
         // Add hop details as JSON
-        let hops_json = serde_json::to_string(&hop_states)
-            .map_err(|e| DspyError::SerializationError(e))?;
+        let hops_json =
+            serde_json::to_string(&hop_states).map_err(|e| DspyError::SerializationError(e))?;
         output.set("hops", hops_json);
 
         Ok(output)
@@ -221,7 +220,8 @@ impl MultiHopQABuilder {
 
     /// Build the MultiHopQA module
     pub fn build(self) -> Result<MultiHopQA> {
-        let backend = self.backend
+        let backend = self
+            .backend
             .ok_or_else(|| DspyError::ConfigError("Retriever backend not set".to_string()))?;
 
         Ok(MultiHopQA {
@@ -263,7 +263,10 @@ mod tests {
         let backend = Arc::new(InMemoryRetriever::new(docs));
         let multihop = MultiHopQA::with_backend(backend);
 
-        let inputs = vec![("question", "Where is the Eiffel Tower and when was it built?")];
+        let inputs = vec![(
+            "question",
+            "Where is the Eiffel Tower and when was it built?",
+        )];
         let output = multihop.forward(&inputs).await.unwrap();
 
         let context = output.get("context").unwrap();

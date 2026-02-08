@@ -2,8 +2,8 @@
 //!
 //! This module provides Erlang NIF bindings for workflow pattern execution.
 
-use crate::patterns::{Sequence, Parallel, Choice, Sync, WorkflowContext, WorkflowPattern};
 use crate::error::WorkflowResult;
+use crate::patterns::{Choice, Parallel, Sequence, Sync, WorkflowContext, WorkflowPattern};
 
 /// Create a new workflow context (returns workflow_id as JSON string)
 #[rustler::nif]
@@ -12,20 +12,16 @@ fn workflow_context_create() -> String {
     serde_json::json!({
         "workflow_id": context.metadata.workflow_id,
         "timestamp": context.metadata.timestamp.to_rfc3339(),
-    }).to_string()
+    })
+    .to_string()
 }
 
 /// Add input to workflow context
 #[rustler::nif]
-fn workflow_context_add_input(
-    context_json: String,
-    key: String,
-    value_json: String,
-) -> String {
+fn workflow_context_add_input(context_json: String, key: String, value_json: String) -> String {
     let result: WorkflowResult<String> = (|| {
         // Parse existing context
-        let mut context: WorkflowContext = serde_json::from_str(&context_json)
-            .unwrap_or_default();
+        let mut context: WorkflowContext = serde_json::from_str(&context_json).unwrap_or_default();
 
         // Parse value as JSON
         let json_value: serde_json::Value = serde_json::from_str(&value_json)
@@ -81,19 +77,27 @@ fn execute_parallel(context_json: String, steps: Vec<String>) -> String {
 /// Execute a choice workflow
 #[rustler::nif]
 fn execute_choice(
-    context_json: String,
-    condition: String,
-    true_branch: Vec<String>,
-    false_branch: Vec<String>,
+    context_json: String, condition: String, true_branch: Vec<String>, false_branch: Vec<String>,
 ) -> String {
     let result: WorkflowResult<String> = (|| {
         let mut context: WorkflowContext = serde_json::from_str(&context_json)?;
 
         let mut branches = std::collections::HashMap::new();
-        branches.insert("true".to_string(), Box::new(Sequence { steps: true_branch }) as Box<dyn crate::patterns::WorkflowPattern>);
-        branches.insert("false".to_string(), Box::new(Sequence { steps: false_branch }) as Box<dyn crate::patterns::WorkflowPattern>);
+        branches.insert(
+            "true".to_string(),
+            Box::new(Sequence { steps: true_branch }) as Box<dyn crate::patterns::WorkflowPattern>,
+        );
+        branches.insert(
+            "false".to_string(),
+            Box::new(Sequence {
+                steps: false_branch,
+            }) as Box<dyn crate::patterns::WorkflowPattern>,
+        );
 
-        let choice = Choice { condition, branches };
+        let choice = Choice {
+            condition,
+            branches,
+        };
         choice.execute(&mut context)?;
 
         Ok(serde_json::to_string(&context)?)
@@ -135,7 +139,8 @@ fn workflow_context_metadata(context_json: String) -> String {
             "workflow_id": context.metadata.workflow_id,
             "timestamp": context.metadata.timestamp.to_rfc3339(),
             "trace_count": context.metadata.trace.len()
-        }).to_string()
+        })
+        .to_string()
     } else {
         "{\"error\": \"invalid context\"}".to_string()
     }

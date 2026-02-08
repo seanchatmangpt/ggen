@@ -53,8 +53,7 @@ fn bench_single_file_write(c: &mut Criterion) {
             b.iter(|| {
                 let temp_dir = TempDir::new().unwrap();
                 let file_path = temp_dir.path().join("test.txt");
-                fs::write(black_box(&file_path), black_box(content))
-                    .expect("Failed to write file");
+                fs::write(black_box(&file_path), black_box(content)).expect("Failed to write file");
             });
         });
     }
@@ -81,8 +80,7 @@ fn bench_single_file_read(c: &mut Criterion) {
         group.throughput(Throughput::Bytes(size as u64));
         group.bench_with_input(BenchmarkId::from_parameter(name), &file_path, |b, path| {
             b.iter(|| {
-                let _content = fs::read_to_string(black_box(path))
-                    .expect("Failed to read file");
+                let _content = fs::read_to_string(black_box(path)).expect("Failed to read file");
             });
         });
     }
@@ -132,18 +130,14 @@ fn bench_multiple_file_reads(c: &mut Criterion) {
         let paths = create_file_structure(&temp_dir, count);
 
         group.throughput(Throughput::Elements(count as u64));
-        group.bench_with_input(
-            BenchmarkId::from_parameter(name),
-            &paths,
-            |b, paths| {
-                b.iter(|| {
-                    for path in paths {
-                        let _content = fs::read_to_string(black_box(path))
-                            .expect("Failed to read file");
-                    }
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::from_parameter(name), &paths, |b, paths| {
+            b.iter(|| {
+                for path in paths {
+                    let _content =
+                        fs::read_to_string(black_box(path)).expect("Failed to read file");
+                }
+            });
+        });
     }
 
     group.finish();
@@ -152,11 +146,7 @@ fn bench_multiple_file_reads(c: &mut Criterion) {
 fn bench_directory_creation(c: &mut Criterion) {
     let mut group = c.benchmark_group("directory_creation");
 
-    let dir_depths = vec![
-        ("1_level", 1),
-        ("5_levels", 5),
-        ("10_levels", 10),
-    ];
+    let dir_depths = vec![("1_level", 1), ("5_levels", 5), ("10_levels", 10)];
 
     for (name, depth) in dir_depths {
         group.bench_with_input(BenchmarkId::from_parameter(name), &depth, |b, &depth| {
@@ -189,8 +179,7 @@ fn bench_file_operations_sequence(c: &mut Criterion) {
             // Write
             fs::write(&file_path, content).expect("Failed to write");
             // Read
-            let _read_content = fs::read_to_string(&file_path)
-                .expect("Failed to read");
+            let _read_content = fs::read_to_string(&file_path).expect("Failed to read");
         });
     });
 
@@ -205,8 +194,7 @@ fn bench_file_operations_sequence(c: &mut Criterion) {
                 // Write
                 fs::write(&file_path, &content).expect("Failed to write");
                 // Read
-                let mut content = fs::read_to_string(&file_path)
-                    .expect("Failed to read");
+                let mut content = fs::read_to_string(&file_path).expect("Failed to read");
                 // Modify
                 content.push_str("// Modified\n");
                 // Write again
@@ -237,8 +225,7 @@ fn bench_permission_checks(c: &mut Criterion) {
         fs::write(&file_path, "test").expect("Failed to write file");
 
         b.iter(|| {
-            let metadata = fs::metadata(black_box(&file_path))
-                .expect("Failed to get metadata");
+            let metadata = fs::metadata(black_box(&file_path)).expect("Failed to get metadata");
             let _readable = !metadata.permissions().readonly();
         });
     });

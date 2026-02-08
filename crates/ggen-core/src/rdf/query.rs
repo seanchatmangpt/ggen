@@ -192,9 +192,8 @@ impl QueryCache {
 
         for predicate in predicates {
             // Build type-safe query using query builder
-            let predicate_iri = Iri::new(*predicate).map_err(|e| {
-                Error::with_context("Invalid predicate IRI", &e.to_string())
-            })?;
+            let predicate_iri = Iri::new(*predicate)
+                .map_err(|e| Error::with_context("Invalid predicate IRI", &e.to_string()))?;
 
             let query = SparqlQueryBuilder::select()
                 .var(Variable::new("s").map_err(|e| {

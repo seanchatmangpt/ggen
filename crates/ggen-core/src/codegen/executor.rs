@@ -23,9 +23,7 @@ use crate::codegen::ux::{
     format_duration, info_message, print_section, success_message, warning_message,
     ProgressIndicator,
 };
-use crate::codegen::{
-    DependencyValidator, IncrementalCache, MarketplaceValidator, ProofCarrier,
-};
+use crate::codegen::{DependencyValidator, IncrementalCache, MarketplaceValidator, ProofCarrier};
 use crate::drift::DriftDetector;
 use crate::manifest::{ManifestParser, ManifestValidator};
 use crate::poka_yoke::QualityGateRunner;
@@ -552,12 +550,19 @@ impl SyncExecutor {
 
         if self.options.verbose {
             progress.clear();
-            eprintln!("{}", info_message(&format!("Manifest: {}", self.options.manifest_path.display())));
+            eprintln!(
+                "{}",
+                info_message(&format!(
+                    "Manifest: {}",
+                    self.options.manifest_path.display()
+                ))
+            );
             if cache.is_some() {
                 eprintln!("{}", info_message("Using incremental cache"));
             }
         } else {
-            progress.finish_with_message(&format!("Loaded manifest: {}", manifest_data.project.name));
+            progress
+                .finish_with_message(&format!("Loaded manifest: {}", manifest_data.project.name));
         }
 
         // Create pipeline and run
@@ -582,9 +587,14 @@ impl SyncExecutor {
         if self.options.verbose {
             progress.clear();
             print_section("Ontology Loaded");
-            eprintln!("{}", info_message(&format!("{} triples loaded", state.ontology_graph.len())));
+            eprintln!(
+                "{}",
+                info_message(&format!("{} triples loaded", state.ontology_graph.len()))
+            );
 
-            let inference_rules: Vec<_> = state.executed_rules.iter()
+            let inference_rules: Vec<_> = state
+                .executed_rules
+                .iter()
                 .filter(|r| r.rule_type == RuleType::Inference)
                 .collect();
 
@@ -604,17 +614,26 @@ impl SyncExecutor {
             progress.finish_with_message(&format!(
                 "Loaded {} triples, ran {} inference rules",
                 state.ontology_graph.len(),
-                state.executed_rules.iter().filter(|r| r.rule_type == RuleType::Inference).count()
+                state
+                    .executed_rules
+                    .iter()
+                    .filter(|r| r.rule_type == RuleType::Inference)
+                    .count()
             ));
         }
 
         // Generate files with progress bar
-        let generation_count = state.executed_rules.iter()
+        let generation_count = state
+            .executed_rules
+            .iter()
             .filter(|r| r.rule_type == RuleType::Generation)
             .count();
 
         if show_progress && !self.options.verbose {
-            eprintln!("{}", info_message(&format!("Generating {} files...", generation_count)));
+            eprintln!(
+                "{}",
+                info_message(&format!("Generating {} files...", generation_count))
+            );
         } else if self.options.verbose {
             print_section("Code Generation");
             for rule in &state.executed_rules {
@@ -736,7 +755,14 @@ impl SyncExecutor {
             if self.options.verbose {
                 // Verbose mode: detailed file listing
                 print_section("Summary");
-                eprintln!("{}", success_message(&format!("Synced {} files in {}", files_synced, format_duration(duration))));
+                eprintln!(
+                    "{}",
+                    success_message(&format!(
+                        "Synced {} files in {}",
+                        files_synced,
+                        format_duration(duration)
+                    ))
+                );
                 eprintln!();
                 eprintln!("Files generated:");
                 for f in &synced_files {
@@ -764,10 +790,7 @@ impl SyncExecutor {
                     "  {} inference rules, {} generation rules",
                     inference_count, generation_count
                 );
-                eprintln!(
-                    "  {} total bytes written",
-                    total_bytes
-                );
+                eprintln!("  {} total bytes written", total_bytes);
                 if let Some(ref audit) = audit_path {
                     eprintln!("  Audit: {}", audit);
                 }
@@ -918,11 +941,8 @@ impl SyncExecutor {
 
     /// Save drift state after successful sync (non-blocking)
     fn save_drift_state(
-        &self,
-        base_path: &Path,
-        manifest_data: &crate::manifest::GgenManifest,
-        files_synced: usize,
-        duration_ms: u64,
+        &self, base_path: &Path, manifest_data: &crate::manifest::GgenManifest,
+        files_synced: usize, duration_ms: u64,
     ) {
         let state_dir = base_path.join(".ggen");
         let detector = match DriftDetector::new(&state_dir) {

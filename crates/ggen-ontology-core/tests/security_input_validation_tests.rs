@@ -47,11 +47,11 @@ fn test_entity_mapper_special_characters() {
 fn test_entity_mapper_unicode_characters() {
     // Test with various unicode scripts
     let unicode_inputs = vec![
-        "プライバシーポリシー", // Japanese
-        "隐私政策",           // Chinese
-        "سياسة الخصوصية",    // Arabic
+        "プライバシーポリシー",        // Japanese
+        "隐私政策",                    // Chinese
+        "سياسة الخصوصية",              // Arabic
         "Политика конфиденциальности", // Russian
-        "नीति",             // Hindi
+        "नीति",                        // Hindi
     ];
 
     for input in unicode_inputs {
@@ -144,21 +144,17 @@ fn test_data_classification_edge_cases() {
 fn test_service_level_float_edge_cases() {
     // Test service level with boundary values
     let test_cases = vec![
-        0.0,
-        0.1,
-        50.0,
-        95.0,
-        99.0,
-        99.9,
-        99.99,
-        100.0,
-        -1.0,  // Invalid but shouldn't crash
+        0.0, 0.1, 50.0, 95.0, 99.0, 99.9, 99.99, 100.0, -1.0,   // Invalid but shouldn't crash
         1000.0, // Out of range but shouldn't crash
     ];
 
     for availability in test_cases {
         let result = EntityMapper::match_service_level(availability);
-        assert!(result.is_ok(), "Should handle availability: {}", availability);
+        assert!(
+            result.is_ok(),
+            "Should handle availability: {}",
+            availability
+        );
 
         let matches = result.unwrap();
         assert!(!matches.is_empty(), "Should always return a match");
@@ -208,12 +204,7 @@ fn test_compute_service_variations() {
 #[test]
 fn test_entity_mapper_result_consistency() {
     // Test that same input always produces same output
-    let test_inputs = vec![
-        "Privacy Policy",
-        "Security",
-        "Public Data",
-        "99.99",
-    ];
+    let test_inputs = vec!["Privacy Policy", "Security", "Public Data", "99.99"];
 
     for input in test_inputs {
         let result1 = EntityMapper::match_policy(input);

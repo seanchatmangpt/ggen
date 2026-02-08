@@ -28,7 +28,10 @@ fn example_chat_adapter() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create inputs
     let mut inputs = HashMap::new();
-    inputs.insert("question".to_string(), Value::String("What is Rust?".to_string()));
+    inputs.insert(
+        "question".to_string(),
+        Value::String("What is Rust?".to_string()),
+    );
 
     // Define output fields
     let output_fields = vec!["answer".to_string()];
@@ -58,7 +61,10 @@ fn example_json_adapter() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create inputs
     let mut inputs = HashMap::new();
-    inputs.insert("text".to_string(), Value::String("Analyze this sentiment".to_string()));
+    inputs.insert(
+        "text".to_string(),
+        Value::String("Analyze this sentiment".to_string()),
+    );
 
     // Define output fields
     let output_fields = vec!["sentiment".to_string(), "confidence".to_string()];

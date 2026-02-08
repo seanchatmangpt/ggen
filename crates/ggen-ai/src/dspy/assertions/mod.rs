@@ -99,20 +99,21 @@
 //! - Use Suggest for non-critical constraints
 //! - Use Assert only for critical requirements
 
-pub mod types;
-pub mod validator;
 pub mod executor;
 pub mod module;
+pub mod types;
+pub mod validator;
 
-pub use types::{ValidationResult, AssertionLevel, BacktrackConfig, RetryStrategy, RetryContext};
-pub use validator::{
-    Validator, BoxedValidator, ArcValidator,
-    LengthValidator, PatternValidator, NotEmptyValidator, ContainsValidator,
-    ItemCountValidator, UniqueItemsValidator,
-    AllValidator, AnyValidator, NotValidator, FnValidator,
+pub use executor::{
+    Assertion, AssertionError, AssertionResult, BacktrackExecutor, SuggestionWarning,
 };
-pub use executor::{Assertion, BacktrackExecutor, AssertionError, AssertionResult, SuggestionWarning};
 pub use module::{AssertableModule, AssertedModule};
+pub use types::{AssertionLevel, BacktrackConfig, RetryContext, RetryStrategy, ValidationResult};
+pub use validator::{
+    AllValidator, AnyValidator, ArcValidator, BoxedValidator, ContainsValidator, FnValidator,
+    ItemCountValidator, LengthValidator, NotEmptyValidator, NotValidator, PatternValidator,
+    UniqueItemsValidator, Validator,
+};
 
 #[cfg(test)]
 mod integration_tests {
@@ -144,8 +145,7 @@ mod integration_tests {
         }
 
         async fn forward(
-            &self,
-            _inputs: HashMap<String, Value>,
+            &self, _inputs: HashMap<String, Value>,
         ) -> Result<HashMap<String, Value>, crate::dspy::ModuleError> {
             let mut outputs = HashMap::new();
             outputs.insert("output".to_string(), Value::String(self.response.clone()));
@@ -238,8 +238,7 @@ mod integration_tests {
     async fn test_end_to_end_pattern_validation() {
         let module = IntegrationTestModule::new("user@example.com".to_string());
 
-        let validator = PatternValidator::new(r"^[\w\.\-]+@[\w\.\-]+\.\w+$")
-            .expect("Valid regex");
+        let validator = PatternValidator::new(r"^[\w\.\-]+@[\w\.\-]+\.\w+$").expect("Valid regex");
 
         let assertion = Assertion::assert(validator)
             .with_feedback("Must be valid email format")

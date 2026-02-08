@@ -3,8 +3,8 @@
 //! Named after Baleen whales that filter-feed, this pattern filters
 //! and refines information across multiple retrieval hops.
 
-use crate::{Module, ModuleOutput, Result, DspyError};
 use super::retrieve::{Retrieve, RetrieverBackend};
+use crate::{DspyError, Module, ModuleOutput, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -83,10 +83,7 @@ impl SimplifiedBaleen {
 
     /// Generate next query based on question and previous context
     async fn generate_next_query(
-        &self,
-        question: &str,
-        previous_context: &[String],
-        hop_num: usize,
+        &self, question: &str, previous_context: &[String], hop_num: usize,
     ) -> Result<String> {
         // TODO: Use LLM to generate refined queries
         // For now, use heuristic approach
@@ -107,10 +104,7 @@ impl SimplifiedBaleen {
 
     /// Extract reasoning from current state
     async fn extract_reasoning(
-        &self,
-        question: &str,
-        passages: &[String],
-        hop_num: usize,
+        &self, question: &str, passages: &[String], hop_num: usize,
     ) -> Result<String> {
         // TODO: Use LLM for reasoning
         // For now, return simple summary
@@ -124,11 +118,7 @@ impl SimplifiedBaleen {
     }
 
     /// Synthesize final answer from all hops
-    async fn synthesize_answer(
-        &self,
-        _question: &str,
-        hops: &[BaleenHop],
-    ) -> Result<String> {
+    async fn synthesize_answer(&self, _question: &str, hops: &[BaleenHop]) -> Result<String> {
         // TODO: Use LLM to synthesize answer
         // For now, return placeholder
 
@@ -145,7 +135,8 @@ impl SimplifiedBaleen {
 impl Module for SimplifiedBaleen {
     async fn forward(&self, inputs: &[(&str, &str)]) -> Result<ModuleOutput> {
         // Extract question
-        let question = inputs.iter()
+        let question = inputs
+            .iter()
             .find(|(key, _)| *key == "question")
             .map(|(_, value)| *value)
             .ok_or_else(|| DspyError::MissingInput("question".to_string()))?;
@@ -156,7 +147,9 @@ impl Module for SimplifiedBaleen {
         // Multi-hop retrieval with reasoning
         for hop_num in 0..self.config.max_hops {
             // Generate query for this hop
-            let query = self.generate_next_query(question, &all_passages, hop_num).await?;
+            let query = self
+                .generate_next_query(question, &all_passages, hop_num)
+                .await?;
 
             // Retrieve passages
             let retrieve_inputs = vec![("query", query.as_str())];
@@ -198,8 +191,8 @@ impl Module for SimplifiedBaleen {
         output.set("context", context);
 
         // Add hop details as JSON
-        let hops_json = serde_json::to_string(&hops)
-            .map_err(|e| DspyError::SerializationError(e))?;
+        let hops_json =
+            serde_json::to_string(&hops).map_err(|e| DspyError::SerializationError(e))?;
         output.set("hops", hops_json);
 
         Ok(output)
@@ -259,7 +252,8 @@ impl BaleenBuilder {
 
     /// Build the SimplifiedBaleen module
     pub fn build(self) -> Result<SimplifiedBaleen> {
-        let backend = self.backend
+        let backend = self
+            .backend
             .ok_or_else(|| DspyError::ConfigError("Retriever backend not set".to_string()))?;
 
         Ok(SimplifiedBaleen {

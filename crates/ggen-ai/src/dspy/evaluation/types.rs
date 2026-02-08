@@ -2,7 +2,7 @@
 //!
 //! Core types for evaluation including traces, metric results, and enhanced metric functions.
 
-use crate::dspy::{ModuleError, Example};
+use crate::dspy::{Example, ModuleError};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -87,8 +87,7 @@ pub struct ModuleCall {
 impl ModuleCall {
     /// Create a new module call
     pub fn new(
-        module_name: impl Into<String>,
-        inputs: HashMap<String, Value>,
+        module_name: impl Into<String>, inputs: HashMap<String, Value>,
         outputs: HashMap<String, Value>,
     ) -> Self {
         Self {
@@ -132,7 +131,13 @@ impl MetricResult {
     /// Convert to score (bool: 1.0 if true, 0.0 if false)
     pub fn as_score(&self) -> f64 {
         match self {
-            MetricResult::Boolean(b) => if *b { 1.0 } else { 0.0 },
+            MetricResult::Boolean(b) => {
+                if *b {
+                    1.0
+                } else {
+                    0.0
+                }
+            }
             MetricResult::Score(s) => *s,
         }
     }
@@ -168,15 +173,14 @@ impl From<f64> for MetricResult {
 pub type EnhancedMetricFn = Arc<
     dyn Fn(&Example, &HashMap<String, Value>, Option<&Trace>) -> Result<MetricResult, MetricError>
         + Send
-        + Sync
+        + Sync,
 >;
 
 /// Simple metric function (no trace support)
 ///
 /// For metrics that only need to evaluate final outputs.
-pub type SimpleMetricFn = Arc<
-    dyn Fn(&Example, &HashMap<String, Value>) -> Result<f64, MetricError> + Send + Sync
->;
+pub type SimpleMetricFn =
+    Arc<dyn Fn(&Example, &HashMap<String, Value>) -> Result<f64, MetricError> + Send + Sync>;
 
 /// Metric evaluation errors
 #[derive(Debug, thiserror::Error)]
@@ -224,11 +228,7 @@ pub struct EvaluationPoint {
 
 impl EvaluationPoint {
     /// Create a new evaluation point
-    pub fn new(
-        example: Example,
-        prediction: HashMap<String, Value>,
-        score: f64,
-    ) -> Self {
+    pub fn new(example: Example, prediction: HashMap<String, Value>, score: f64) -> Self {
         Self {
             example,
             prediction,
@@ -346,11 +346,7 @@ mod tests {
     #[test]
     fn test_trace_add_module_call() {
         let mut trace = Trace::new();
-        let call = ModuleCall::new(
-            "test_module",
-            HashMap::new(),
-            HashMap::new(),
-        );
+        let call = ModuleCall::new("test_module", HashMap::new(), HashMap::new());
 
         trace.add_module_call(call);
         assert_eq!(trace.module_calls.len(), 1);

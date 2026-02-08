@@ -26,8 +26,8 @@
 //! signal.enforce()?;  // Displays error and returns Err
 //! ```
 
+use ggen_utils::error::{Error, Result};
 use std::fmt;
-use ggen_utils::error::{Result, Error};
 
 /// Critical error information for RED signal
 #[derive(Clone, Debug)]

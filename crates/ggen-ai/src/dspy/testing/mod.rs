@@ -7,20 +7,20 @@
 //!
 //! Based on Python DSPy testing patterns adapted for Rust with Chicago TDD principles.
 
+pub mod assertions;
 pub mod dummy_lm;
 pub mod example_builder;
 pub mod factories;
-pub mod assertions;
 pub mod golden;
 
-pub use dummy_lm::{DummyLM, DummyLMMode, CallHistory};
+pub use assertions::{
+    assert_demonstration_valid, assert_example_valid, assert_metric_filters_correctly,
+    assert_output_matches_signature,
+};
+pub use dummy_lm::{CallHistory, DummyLM, DummyLMMode};
 pub use example_builder::ExampleBuilder;
 pub use factories::{
-    qa_example, classification_example, create_qa_trainset,
-    create_classification_trainset, create_test_signature,
+    classification_example, create_classification_trainset, create_qa_trainset,
+    create_test_signature, qa_example,
 };
-pub use assertions::{
-    assert_example_valid, assert_demonstration_valid,
-    assert_metric_filters_correctly, assert_output_matches_signature,
-};
-pub use golden::{GoldenTest, GoldenTestRunner, save_golden, compare_with_golden};
+pub use golden::{compare_with_golden, save_golden, GoldenTest, GoldenTestRunner};

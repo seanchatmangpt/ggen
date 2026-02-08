@@ -168,9 +168,12 @@ impl RetryContext {
 
         if !self.past_outputs.is_empty() {
             prompt.push_str("\n--- Previous Attempts ---\n");
-            for (idx, (output, feedback)) in self.past_outputs.iter()
+            for (idx, (output, feedback)) in self
+                .past_outputs
+                .iter()
                 .zip(self.feedback_history.iter())
-                .enumerate() {
+                .enumerate()
+            {
                 prompt.push_str(&format!(
                     "\nAttempt {}: Output: {}\nFeedback: {}\n",
                     idx + 1,
@@ -235,8 +238,8 @@ mod tests {
 
     #[test]
     fn test_backtrack_config_builder() {
-        let config = BacktrackConfig::new(5)
-            .with_strategy(RetryStrategy::TargetModule("test".to_string()));
+        let config =
+            BacktrackConfig::new(5).with_strategy(RetryStrategy::TargetModule("test".to_string()));
 
         assert_eq!(config.max_attempts, 5);
         assert!(matches!(config.strategy, RetryStrategy::TargetModule(_)));

@@ -15,9 +15,9 @@
 //! 3. Return program with highest validation score
 //! ```
 
+use super::{Metric, OptimizationStatistics, Optimizer};
+use crate::dspy::optimizer::{BootstrapFewShot, Demonstration, Example, OptimizedPredictor};
 use crate::dspy::{Module, ModuleError};
-use crate::dspy::optimizer::{Example, Demonstration, OptimizedPredictor, BootstrapFewShot};
-use super::{Optimizer, OptimizationStatistics, Metric};
 use async_trait::async_trait;
 use rand::Rng;
 use serde_json::Value;
@@ -61,7 +61,11 @@ impl BootstrapFewShotWithRandomSearch {
     /// let metric = Arc::new(ExactMatchMetric::new("answer"));
     /// let optimizer = BootstrapFewShotWithRandomSearch::new(metric);
     /// ```
-    pub fn new(metric: Arc<dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ModuleError> + Send + Sync>) -> Self {
+    pub fn new(
+        metric: Arc<
+            dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ModuleError> + Send + Sync,
+        >,
+    ) -> Self {
         Self {
             base: BootstrapFewShot::new(metric),
             num_candidate_programs: 16,
@@ -89,10 +93,7 @@ impl BootstrapFewShotWithRandomSearch {
 
     /// Bootstrap many candidate demonstrations
     async fn bootstrap_many(
-        &self,
-        student: &dyn Module,
-        trainset: &[Example],
-        num_candidates: usize,
+        &self, student: &dyn Module, trainset: &[Example], num_candidates: usize,
     ) -> Result<Vec<Demonstration>, ModuleError> {
         info!("Bootstrapping {} candidate demonstrations", num_candidates);
 
@@ -106,17 +107,16 @@ impl BootstrapFewShotWithRandomSearch {
         let optimized_predictor = optimized
             .as_any()
             .downcast_ref::<OptimizedPredictor>()
-            .ok_or_else(|| ModuleError::Other("Failed to downcast to OptimizedPredictor".to_string()))?;
+            .ok_or_else(|| {
+                ModuleError::Other("Failed to downcast to OptimizedPredictor".to_string())
+            })?;
 
         Ok(optimized_predictor.demonstrations().to_vec())
     }
 
     /// Evaluate program on validation set
     async fn evaluate_program(
-        &self,
-        program: &OptimizedPredictor,
-        validation: &[Example],
-        metric: &MetricAdapter,
+        &self, program: &OptimizedPredictor, validation: &[Example], metric: &MetricAdapter,
     ) -> Result<f64, ModuleError> {
         let mut total_score = 0.0;
         let mut successful = 0;
@@ -177,13 +177,11 @@ impl BootstrapFewShotWithRandomSearch {
 #[async_trait]
 impl Optimizer for BootstrapFewShotWithRandomSearch {
     async fn compile(
-        &self,
-        student: &dyn Module,
-        trainset: &[Example],
+        &self, student: &dyn Module, trainset: &[Example],
     ) -> Result<Box<dyn Module>, ModuleError> {
         if trainset.is_empty() {
             return Err(ModuleError::Other(
-                "Training set is empty. Provide at least one example.".to_string()
+                "Training set is empty. Provide at least one example.".to_string(),
             ));
         }
 
@@ -191,9 +189,7 @@ impl Optimizer for BootstrapFewShotWithRandomSearch {
         let validation = self.validation_set.as_deref().unwrap_or(trainset);
 
         if validation.is_empty() {
-            return Err(ModuleError::Other(
-                "Validation set is empty.".to_string()
-            ));
+            return Err(ModuleError::Other("Validation set is empty.".to_string()));
         }
 
         info!(
@@ -204,12 +200,14 @@ impl Optimizer for BootstrapFewShotWithRandomSearch {
 
         // Step 1: Bootstrap many candidates (3x the number we need)
         let num_candidates = self.num_candidate_programs * 3;
-        let candidates = self.bootstrap_many(student, trainset, num_candidates).await?;
+        let candidates = self
+            .bootstrap_many(student, trainset, num_candidates)
+            .await?;
 
         if candidates.is_empty() {
             warn!("No successful demonstrations found during bootstrapping");
             return Err(ModuleError::Other(
-                "Failed to bootstrap any demonstrations".to_string()
+                "Failed to bootstrap any demonstrations".to_string(),
             ));
         }
 
@@ -226,18 +224,21 @@ impl Optimizer for BootstrapFewShotWithRandomSearch {
         });
 
         for i in 0..self.num_candidate_programs {
-            debug!("Trying candidate program {}/{}", i + 1, self.num_candidate_programs);
+            debug!(
+                "Trying candidate program {}/{}",
+                i + 1,
+                self.num_candidate_programs
+            );
 
             // Random sample K demonstrations
             let demo_subset = self.random_sample(&candidates, max_demos);
 
-            let program = OptimizedPredictor::new(
-                student.signature().clone(),
-                demo_subset,
-            );
+            let program = OptimizedPredictor::new(student.signature().clone(), demo_subset);
 
             // Evaluate on validation set
-            let score = self.evaluate_program(&program, validation, metric.as_ref()).await?;
+            let score = self
+                .evaluate_program(&program, validation, metric.as_ref())
+                .await?;
 
             debug!("Program {} score: {:.3}", i + 1, score);
 
@@ -258,15 +259,13 @@ impl Optimizer for BootstrapFewShotWithRandomSearch {
                 Ok(Box::new(program))
             }
             None => Err(ModuleError::Other(
-                "No valid programs found during random search".to_string()
+                "No valid programs found during random search".to_string(),
             )),
         }
     }
 
     async fn compile_with_stats(
-        &self,
-        student: &dyn Module,
-        trainset: &[Example],
+        &self, student: &dyn Module, trainset: &[Example],
     ) -> Result<(Box<dyn Module>, OptimizationStatistics), ModuleError> {
         use std::time::SystemTime;
 
@@ -294,25 +293,21 @@ impl Optimizer for BootstrapFewShotWithRandomSearch {
 
 /// Adapter to convert legacy MetricFn to Metric trait
 struct MetricAdapter {
-    inner: Arc<dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ModuleError> + Send + Sync>,
+    inner:
+        Arc<dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ModuleError> + Send + Sync>,
 }
 
 #[async_trait::async_trait]
 impl Metric for MetricAdapter {
     fn evaluate(
-        &self,
-        example: &Example,
-        output: &HashMap<String, Value>,
+        &self, example: &Example, output: &HashMap<String, Value>,
     ) -> Result<f64, ModuleError> {
         let is_valid = (self.inner)(example, output)?;
         Ok(if is_valid { 1.0 } else { 0.0 })
     }
 
     fn validate(
-        &self,
-        example: &Example,
-        output: &HashMap<String, Value>,
-        _trace: Option<&super::Trace>,
+        &self, example: &Example, output: &HashMap<String, Value>, _trace: Option<&super::Trace>,
     ) -> Result<bool, ModuleError> {
         (self.inner)(example, output)
     }
@@ -321,8 +316,8 @@ impl Metric for MetricAdapter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Signature;
     use crate::dspy::field::{InputField, OutputField};
+    use crate::Signature;
 
     fn create_test_signature() -> Signature {
         Signature::new("QA", "Question answering")
@@ -336,21 +331,20 @@ mod tests {
                 let mut inputs = HashMap::new();
                 inputs.insert(
                     "question".to_string(),
-                    Value::String(format!("Question {}", i))
+                    Value::String(format!("Question {}", i)),
                 );
 
                 let mut outputs = HashMap::new();
-                outputs.insert(
-                    "answer".to_string(),
-                    Value::String(format!("Answer {}", i))
-                );
+                outputs.insert("answer".to_string(), Value::String(format!("Answer {}", i)));
 
                 Example::new(inputs, outputs)
             })
             .collect()
     }
 
-    fn create_simple_metric() -> Arc<dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ModuleError> + Send + Sync> {
+    fn create_simple_metric(
+    ) -> Arc<dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ModuleError> + Send + Sync>
+    {
         Arc::new(|_example: &Example, _output: &HashMap<String, Value>| {
             Ok(true) // Always pass for testing
         })
@@ -368,16 +362,16 @@ mod tests {
     #[test]
     fn test_bootstrap_random_search_with_num_candidates() {
         let metric = create_simple_metric();
-        let optimizer = BootstrapFewShotWithRandomSearch::new(metric)
-            .with_num_candidate_programs(32);
+        let optimizer =
+            BootstrapFewShotWithRandomSearch::new(metric).with_num_candidate_programs(32);
         assert_eq!(optimizer.num_candidate_programs, 32);
     }
 
     #[test]
     fn test_bootstrap_random_search_min_candidates() {
         let metric = create_simple_metric();
-        let optimizer = BootstrapFewShotWithRandomSearch::new(metric)
-            .with_num_candidate_programs(0);
+        let optimizer =
+            BootstrapFewShotWithRandomSearch::new(metric).with_num_candidate_programs(0);
         assert_eq!(optimizer.num_candidate_programs, 1);
     }
 
@@ -385,8 +379,8 @@ mod tests {
     fn test_bootstrap_random_search_with_validation_set() {
         let metric = create_simple_metric();
         let examples = create_test_examples(5);
-        let optimizer = BootstrapFewShotWithRandomSearch::new(metric)
-            .with_validation_set(examples.clone());
+        let optimizer =
+            BootstrapFewShotWithRandomSearch::new(metric).with_validation_set(examples.clone());
         assert!(optimizer.validation_set.is_some());
         assert_eq!(optimizer.validation_set.unwrap().len(), 5);
     }
@@ -471,8 +465,8 @@ mod tests {
     #[test]
     fn test_with_max_demos_zero() {
         let metric = create_simple_metric();
-        let optimizer = BootstrapFewShotWithRandomSearch::new(metric)
-            .with_max_bootstrapped_demos(0);
+        let optimizer =
+            BootstrapFewShotWithRandomSearch::new(metric).with_max_bootstrapped_demos(0);
         // Should handle gracefully (BootstrapFewShot should clamp)
     }
 

@@ -6,8 +6,8 @@
 //! - `Demonstration` - Successful example used as few-shot prompt
 //! - `OptimizedPredictor` - Predictor augmented with demonstrations
 
-use crate::dspy::{Module, ModuleError, Signature};
 use crate::dspy::module::ModuleResult;
+use crate::dspy::{Module, ModuleError, Signature};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -95,7 +95,8 @@ impl Demonstration {
 ///
 /// Takes an example (with expected outputs) and actual outputs from the model,
 /// returns whether the outputs are acceptable.
-pub type MetricFn = Arc<dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ModuleError> + Send + Sync>;
+pub type MetricFn =
+    Arc<dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ModuleError> + Send + Sync>;
 
 /// BootstrapFewShot optimizer
 ///
@@ -201,17 +202,18 @@ impl BootstrapFewShot {
     /// - Forward pass fails on any example
     /// - Metric evaluation fails
     pub async fn compile(
-        &self,
-        student: &dyn Module,
-        trainset: &[Example],
+        &self, student: &dyn Module, trainset: &[Example],
     ) -> Result<OptimizedPredictor, ModuleError> {
         if trainset.is_empty() {
             return Err(ModuleError::Other(
-                "Training set is empty. Provide at least one example.".to_string()
+                "Training set is empty. Provide at least one example.".to_string(),
             ));
         }
 
-        info!("Starting BootstrapFewShot compilation with {} examples", trainset.len());
+        info!(
+            "Starting BootstrapFewShot compilation with {} examples",
+            trainset.len()
+        );
 
         // Bootstrap demonstrations
         let mut demonstrations = Vec::new();
@@ -225,9 +227,7 @@ impl BootstrapFewShot {
             debug!("Bootstrapping example {}/{}", idx + 1, max_attempts);
 
             // Use teacher if available, otherwise use student
-            let predictor = self.teacher.as_ref()
-                .map(|t| t.as_ref())
-                .unwrap_or(student);
+            let predictor = self.teacher.as_ref().map(|t| t.as_ref()).unwrap_or(student);
 
             // Forward pass
             let output = match predictor.forward(example.inputs.clone()).await {
@@ -249,10 +249,7 @@ impl BootstrapFewShot {
 
             if is_successful {
                 debug!("Example {} passed metric, adding as demonstration", idx);
-                demonstrations.push(Demonstration::new(
-                    example.inputs.clone(),
-                    output,
-                ));
+                demonstrations.push(Demonstration::new(example.inputs.clone(), output));
             } else {
                 debug!("Example {} failed metric, skipping", idx);
             }
@@ -379,7 +376,9 @@ impl OptimizedPredictor {
 
         if outputs.is_empty() {
             outputs.insert(
-                self.signature.outputs.first()
+                self.signature
+                    .outputs
+                    .first()
                     .map(|f| f.name().to_string())
                     .unwrap_or_else(|| "output".to_string()),
                 Value::String(response.to_string()),
@@ -404,7 +403,10 @@ impl OptimizedPredictor {
 
     /// Call the LLM with the given prompt
     async fn call_llm(&self, prompt: &str) -> Result<String, ModuleError> {
-        use genai::{Client, chat::{ChatMessage, ChatOptions, ChatRequest}};
+        use genai::{
+            chat::{ChatMessage, ChatOptions, ChatRequest},
+            Client,
+        };
 
         let client = Client::default();
 
@@ -414,7 +416,11 @@ impl OptimizedPredictor {
             ));
         }
 
-        debug!("Calling LLM model: {} with {} demonstrations", self.model, self.demonstrations.len());
+        debug!(
+            "Calling LLM model: {} with {} demonstrations",
+            self.model,
+            self.demonstrations.len()
+        );
 
         let chat_req = ChatRequest::new(vec![
             ChatMessage::system("You are a helpful assistant. Follow the examples provided and respond in the exact format requested."),
@@ -425,7 +431,10 @@ impl OptimizedPredictor {
             .with_temperature(self.temperature as f64)
             .with_max_tokens(4096);
 
-        match client.exec_chat(&self.model, chat_req, Some(&chat_options)).await {
+        match client
+            .exec_chat(&self.model, chat_req, Some(&chat_options))
+            .await
+        {
             Ok(response) => {
                 let content = response.first_text().unwrap_or_default().to_string();
                 debug!("LLM response received, length: {}", content.len());
@@ -445,14 +454,19 @@ impl Module for OptimizedPredictor {
         &self.signature
     }
 
-    async fn forward(&self, inputs: HashMap<String, Value>) -> ModuleResult<HashMap<String, Value>> {
+    async fn forward(
+        &self, inputs: HashMap<String, Value>,
+    ) -> ModuleResult<HashMap<String, Value>> {
         // Validate inputs
         self.validate_inputs(&inputs)?;
 
         // Build few-shot prompt with demonstrations
         let prompt = self.build_prompt(&inputs)?;
-        debug!("Built few-shot prompt for {} with {} demonstrations",
-               self.signature.name, self.demonstrations.len());
+        debug!(
+            "Built few-shot prompt for {} with {} demonstrations",
+            self.signature.name,
+            self.demonstrations.len()
+        );
 
         // Call LLM
         let response = self.call_llm(&prompt).await?;
@@ -483,10 +497,16 @@ mod tests {
     #[test]
     fn test_example_creation() {
         let mut inputs = HashMap::new();
-        inputs.insert("question".to_string(), Value::String("What is Rust?".to_string()));
+        inputs.insert(
+            "question".to_string(),
+            Value::String("What is Rust?".to_string()),
+        );
 
         let mut outputs = HashMap::new();
-        outputs.insert("answer".to_string(), Value::String("A systems programming language".to_string()));
+        outputs.insert(
+            "answer".to_string(),
+            Value::String("A systems programming language".to_string()),
+        );
 
         let example = Example::new(inputs.clone(), outputs.clone());
 
@@ -497,7 +517,10 @@ mod tests {
     #[test]
     fn test_example_from_inputs() {
         let mut inputs = HashMap::new();
-        inputs.insert("question".to_string(), Value::String("What is DSPy?".to_string()));
+        inputs.insert(
+            "question".to_string(),
+            Value::String("What is DSPy?".to_string()),
+        );
 
         let example = Example::from_inputs(inputs);
 
@@ -510,7 +533,10 @@ mod tests {
     #[test]
     fn test_demonstration_creation() {
         let mut inputs = HashMap::new();
-        inputs.insert("question".to_string(), Value::String("What is 2+2?".to_string()));
+        inputs.insert(
+            "question".to_string(),
+            Value::String("What is 2+2?".to_string()),
+        );
 
         let mut outputs = HashMap::new();
         outputs.insert("answer".to_string(), Value::String("4".to_string()));
@@ -526,10 +552,16 @@ mod tests {
         let sig = create_test_signature();
 
         let mut inputs = HashMap::new();
-        inputs.insert("question".to_string(), Value::String("What is Rust?".to_string()));
+        inputs.insert(
+            "question".to_string(),
+            Value::String("What is Rust?".to_string()),
+        );
 
         let mut outputs = HashMap::new();
-        outputs.insert("answer".to_string(), Value::String("A programming language".to_string()));
+        outputs.insert(
+            "answer".to_string(),
+            Value::String("A programming language".to_string()),
+        );
 
         let demo = Demonstration::new(inputs, outputs);
         let formatted = demo.format(&sig);
@@ -544,9 +576,7 @@ mod tests {
 
     #[test]
     fn test_bootstrap_creation() {
-        let metric = Arc::new(|_example: &Example, _output: &HashMap<String, Value>| {
-            Ok(true)
-        });
+        let metric = Arc::new(|_example: &Example, _output: &HashMap<String, Value>| Ok(true));
 
         let optimizer = BootstrapFewShot::new(metric);
         assert_eq!(optimizer.max_bootstrapped_demos, 4);
@@ -555,9 +585,7 @@ mod tests {
 
     #[test]
     fn test_bootstrap_builder_methods() {
-        let metric = Arc::new(|_example: &Example, _output: &HashMap<String, Value>| {
-            Ok(true)
-        });
+        let metric = Arc::new(|_example: &Example, _output: &HashMap<String, Value>| Ok(true));
 
         let optimizer = BootstrapFewShot::new(metric)
             .with_max_bootstrapped_demos(8)
@@ -585,10 +613,16 @@ mod tests {
         let sig = create_test_signature();
 
         let mut inputs = HashMap::new();
-        inputs.insert("question".to_string(), Value::String("Example question".to_string()));
+        inputs.insert(
+            "question".to_string(),
+            Value::String("Example question".to_string()),
+        );
 
         let mut outputs = HashMap::new();
-        outputs.insert("answer".to_string(), Value::String("Example answer".to_string()));
+        outputs.insert(
+            "answer".to_string(),
+            Value::String("Example answer".to_string()),
+        );
 
         let demo = Demonstration::new(inputs, outputs);
         let predictor = OptimizedPredictor::new(sig, vec![demo]);
@@ -610,8 +644,7 @@ mod tests {
     #[test]
     fn test_optimized_predictor_temperature_clamping() {
         let sig = create_test_signature();
-        let predictor = OptimizedPredictor::new(sig, vec![])
-            .with_temperature(3.0);
+        let predictor = OptimizedPredictor::new(sig, vec![]).with_temperature(3.0);
 
         assert_eq!(predictor.temperature, 2.0);
     }
@@ -622,7 +655,10 @@ mod tests {
         let predictor = OptimizedPredictor::new(sig, vec![]);
 
         let mut inputs = HashMap::new();
-        inputs.insert("question".to_string(), Value::String("What is Rust?".to_string()));
+        inputs.insert(
+            "question".to_string(),
+            Value::String("What is Rust?".to_string()),
+        );
 
         let prompt = predictor.build_prompt(&inputs).unwrap();
 
@@ -637,7 +673,10 @@ mod tests {
         let sig = create_test_signature();
 
         let mut demo_inputs = HashMap::new();
-        demo_inputs.insert("question".to_string(), Value::String("What is 2+2?".to_string()));
+        demo_inputs.insert(
+            "question".to_string(),
+            Value::String("What is 2+2?".to_string()),
+        );
 
         let mut demo_outputs = HashMap::new();
         demo_outputs.insert("answer".to_string(), Value::String("4".to_string()));
@@ -646,7 +685,10 @@ mod tests {
         let predictor = OptimizedPredictor::new(sig, vec![demo]);
 
         let mut inputs = HashMap::new();
-        inputs.insert("question".to_string(), Value::String("What is 3+3?".to_string()));
+        inputs.insert(
+            "question".to_string(),
+            Value::String("What is 3+3?".to_string()),
+        );
 
         let prompt = predictor.build_prompt(&inputs).unwrap();
 
@@ -665,7 +707,10 @@ mod tests {
         let response = "answer: Rust is a systems programming language\nother: stuff";
         let value = predictor.extract_field_value(response, "answer");
 
-        assert_eq!(value, Some("Rust is a systems programming language".to_string()));
+        assert_eq!(
+            value,
+            Some("Rust is a systems programming language".to_string())
+        );
     }
 
     #[test]
@@ -731,7 +776,8 @@ mod tests {
         let metric: MetricFn = Arc::new(|example: &Example, output: &HashMap<String, Value>| {
             // Simple exact match metric
             if let (Some(expected), Some(actual)) =
-                (example.outputs.get("answer"), output.get("answer")) {
+                (example.outputs.get("answer"), output.get("answer"))
+            {
                 Ok(expected == actual)
             } else {
                 Ok(false)

@@ -101,11 +101,8 @@ fn test_authorization_failure_tracking() {
 
     // Act - multiple authorization failures
     for i in 0..5 {
-        let event = SecurityEvent::authorization_failed(
-            format!("user{}", i),
-            "/admin/settings",
-            "write",
-        );
+        let event =
+            SecurityEvent::authorization_failed(format!("user{}", i), "/admin/settings", "write");
         logger.log(event).unwrap();
     }
 
@@ -479,10 +476,7 @@ fn test_intrusion_detector_standalone() {
     assert_eq!(xss.unwrap().attack_pattern, AttackPattern::Xss);
 
     assert!(cmd.is_some());
-    assert_eq!(
-        cmd.unwrap().attack_pattern,
-        AttackPattern::CommandInjection
-    );
+    assert_eq!(cmd.unwrap().attack_pattern, AttackPattern::CommandInjection);
 
     assert!(path.is_some());
     assert_eq!(path.unwrap().attack_pattern, AttackPattern::PathTraversal);

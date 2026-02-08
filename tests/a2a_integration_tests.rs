@@ -4,8 +4,10 @@
 //! covering CLI commands with real a2a-rs backend, agent lifecycle management,
 //! tool discovery, message passing, and error scenarios.
 
-use ggen_domain::environment::{A2aConnectionConfig, IntegrationConfig, AgentConfig, AgentTransport};
-use ggen_domain::error::{A2aError, McpError, AgentError};
+use ggen_domain::environment::{
+    A2aConnectionConfig, AgentConfig, AgentTransport, IntegrationConfig,
+};
+use ggen_domain::error::{A2aError, AgentError, McpError};
 use std::collections::HashMap;
 use std::process::Command;
 use std::thread;
@@ -42,30 +44,45 @@ impl MockA2AServer {
 
     fn simulate_agent_response(&self, agent_name: &str) -> HashMap<String, serde_json::Value> {
         let mut response = HashMap::new();
-        response.insert("id".to_string(), serde_json::Value::String(agent_name.to_string()));
-        response.insert("name".to_string(), serde_json::Value::String(agent_name.to_string()));
-        response.insert("status".to_string(), serde_json::Value::String("ready".to_string()));
-        response.insert("capabilities".to_string(), serde_json::Value::Array(vec![
-            serde_json::Value::String("text-generation".to_string()),
-            serde_json::Value::String("code-analysis".to_string()),
-        ]));
+        response.insert(
+            "id".to_string(),
+            serde_json::Value::String(agent_name.to_string()),
+        );
+        response.insert(
+            "name".to_string(),
+            serde_json::Value::String(agent_name.to_string()),
+        );
+        response.insert(
+            "status".to_string(),
+            serde_json::Value::String("ready".to_string()),
+        );
+        response.insert(
+            "capabilities".to_string(),
+            serde_json::Value::Array(vec![
+                serde_json::Value::String("text-generation".to_string()),
+                serde_json::Value::String("code-analysis".to_string()),
+            ]),
+        );
         response
     }
 
     fn simulate_tool_response(&self) -> HashMap<String, serde_json::Value> {
         let mut response = HashMap::new();
-        response.insert("tools".to_string(), serde_json::Value::Array(vec![
-            serde_json::json!({
-                "name": "text-generator",
-                "description": "Generates text content",
-                "capabilities": ["text-generation"]
-            }),
-            serde_json::json!({
-                "name": "code-analyzer",
-                "description": "Analyzes code quality",
-                "capabilities": ["code-analysis"]
-            }),
-        ]));
+        response.insert(
+            "tools".to_string(),
+            serde_json::Value::Array(vec![
+                serde_json::json!({
+                    "name": "text-generator",
+                    "description": "Generates text content",
+                    "capabilities": ["text-generation"]
+                }),
+                serde_json::json!({
+                    "name": "code-analyzer",
+                    "description": "Analyzes code quality",
+                    "capabilities": ["code-analysis"]
+                }),
+            ]),
+        );
         response
     }
 }
@@ -101,14 +118,32 @@ impl MockMCPServer {
     fn simulate_list_tools_response(&self) -> Vec<HashMap<String, serde_json::Value>> {
         vec![
             HashMap::from([
-                ("name".to_string(), serde_json::Value::String("agent-list".to_string())),
-                ("description".to_string(), serde_json::Value::String("List all registered agents".to_string())),
-                ("type".to_string(), serde_json::Value::String("core".to_string())),
+                (
+                    "name".to_string(),
+                    serde_json::Value::String("agent-list".to_string()),
+                ),
+                (
+                    "description".to_string(),
+                    serde_json::Value::String("List all registered agents".to_string()),
+                ),
+                (
+                    "type".to_string(),
+                    serde_json::Value::String("core".to_string()),
+                ),
             ]),
             HashMap::from([
-                ("name".to_string(), serde_json::Value::String("agent-start".to_string())),
-                ("description".to_string(), serde_json::Value::String("Start an agent".to_string())),
-                ("type".to_string(), serde_json::Value::String("core".to_string())),
+                (
+                    "name".to_string(),
+                    serde_json::Value::String("agent-start".to_string()),
+                ),
+                (
+                    "description".to_string(),
+                    serde_json::Value::String("Start an agent".to_string()),
+                ),
+                (
+                    "type".to_string(),
+                    serde_json::Value::String("core".to_string()),
+                ),
             ]),
         ]
     }
@@ -241,9 +276,18 @@ mod agent_commands {
 
         // Simulate agent stop
         let stop_response = HashMap::from([
-            ("id".to_string(), serde_json::Value::String("lifecycle-test".to_string())),
-            ("name".to_string(), serde_json::Value::String("lifecycle-test".to_string())),
-            ("status".to_string(), serde_json::Value::String("stopped".to_string())),
+            (
+                "id".to_string(),
+                serde_json::Value::String("lifecycle-test".to_string()),
+            ),
+            (
+                "name".to_string(),
+                serde_json::Value::String("lifecycle-test".to_string()),
+            ),
+            (
+                "status".to_string(),
+                serde_json::Value::String("stopped".to_string()),
+            ),
         ]);
 
         // Assert
@@ -257,23 +301,27 @@ mod agent_commands {
     #[test]
     fn test_agent_transport_configurations() {
         // Arrange
-        let websocket_agent = AgentConfig::new("websocket-agent".to_string())
-            .with_transport(AgentTransport::WebSocket {
+        let websocket_agent = AgentConfig::new("websocket-agent".to_string()).with_transport(
+            AgentTransport::WebSocket {
                 url: "ws://localhost:8080".to_string(),
                 reconnect_interval_ms: 5000,
-            });
+            },
+        );
 
-        let http_agent = AgentConfig::new("http-agent".to_string())
-            .with_transport(AgentTransport::Http {
+        let http_agent =
+            AgentConfig::new("http-agent".to_string()).with_transport(AgentTransport::Http {
                 url: "http://localhost:8080".to_string(),
             });
 
-        let local_agent = AgentConfig::new("local-agent".to_string())
-            .with_transport(AgentTransport::Local);
+        let local_agent =
+            AgentConfig::new("local-agent".to_string()).with_transport(AgentTransport::Local);
 
         // Act & Assert
         match &websocket_agent.transport {
-            AgentTransport::WebSocket { url, reconnect_interval_ms } => {
+            AgentTransport::WebSocket {
+                url,
+                reconnect_interval_ms,
+            } => {
                 assert_eq!(url, "ws://localhost:8080");
                 assert_eq!(*reconnect_interval_ms, 5000);
             }
@@ -316,7 +364,9 @@ mod error_scenarios {
         // Test invalid agent name
         let invalid_agent_name = "";
         let result = if invalid_agent_name.is_empty() {
-            Err(AgentError::InvalidConfiguration("Agent name cannot be empty".to_string()))
+            Err(AgentError::InvalidConfiguration(
+                "Agent name cannot be empty".to_string(),
+            ))
         } else {
             Ok(())
         };
@@ -411,8 +461,7 @@ mod configuration_tests {
         assert!(invalid_agent.validate().is_err());
 
         // Test empty capabilities
-        let invalid_caps = AgentConfig::new("no-caps".to_string())
-            .with_capabilities(vec![]);
+        let invalid_caps = AgentConfig::new("no-caps".to_string()).with_capabilities(vec![]);
         assert!(invalid_caps.validate().is_err());
     }
 
@@ -464,9 +513,18 @@ mod message_passing_tests {
 
         // Act - simulate message delivery
         let message = HashMap::from([
-            ("from".to_string(), serde_json::Value::String("client".to_string())),
-            ("to".to_string(), serde_json::Value::String("agent".to_string())),
-            ("content".to_string(), serde_json::Value::String("Hello, agent!".to_string())),
+            (
+                "from".to_string(),
+                serde_json::Value::String("client".to_string()),
+            ),
+            (
+                "to".to_string(),
+                serde_json::Value::String("agent".to_string()),
+            ),
+            (
+                "content".to_string(),
+                serde_json::Value::String("Hello, agent!".to_string()),
+            ),
         ]);
 
         // Assert - message structure should be valid
@@ -543,9 +601,7 @@ mod end_to_end_tests {
 
         // Act - simulate concurrent agent operations
         let agents: Vec<_> = (0..3)
-            .map(|i| {
-                a2a_server.simulate_agent_response(&format!("agent-{}", i))
-            })
+            .map(|i| a2a_server.simulate_agent_response(&format!("agent-{}", i)))
             .collect();
 
         // Assert
@@ -571,10 +627,22 @@ mod end_to_end_tests {
 
         // Simulate error state
         let error_response = HashMap::from([
-            ("id".to_string(), serde_json::Value::String("error-recovery-test".to_string())),
-            ("name".to_string(), serde_json::Value::String("error-recovery-test".to_string())),
-            ("status".to_string(), serde_json::Value::String("error".to_string())),
-            ("error".to_string(), serde_json::Value::String("Simulated error".to_string())),
+            (
+                "id".to_string(),
+                serde_json::Value::String("error-recovery-test".to_string()),
+            ),
+            (
+                "name".to_string(),
+                serde_json::Value::String("error-recovery-test".to_string()),
+            ),
+            (
+                "status".to_string(),
+                serde_json::Value::String("error".to_string()),
+            ),
+            (
+                "error".to_string(),
+                serde_json::Value::String("Simulated error".to_string()),
+            ),
         ]);
 
         // Simulate recovery
@@ -656,9 +724,10 @@ mod main_test_suite {
         let a2a_config = A2aConnectionConfig::new("http://localhost:8080".to_string());
         let mcp_config = McpServerConfig::new("http://localhost:3000".to_string());
 
-        let integration_config = IntegrationConfig::new(a2a_config, mcp_config)
-            .add_agent(AgentConfig::new("test-agent".to_string())
-                .with_capabilities(vec!["text-generation".to_string()]));
+        let integration_config = IntegrationConfig::new(a2a_config, mcp_config).add_agent(
+            AgentConfig::new("test-agent".to_string())
+                .with_capabilities(vec!["text-generation".to_string()]),
+        );
 
         // Validate the entire configuration
         assert!(integration_config.validate().is_ok());

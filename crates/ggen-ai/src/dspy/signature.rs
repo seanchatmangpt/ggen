@@ -110,27 +110,37 @@ impl Signature {
 
     /// Generate Rust struct code representing this signature
     pub fn as_rust_struct(&self) -> String {
-        let inputs_doc = self.inputs.iter()
+        let inputs_doc = self
+            .inputs
+            .iter()
             .map(|f| format!("    /// {} ({})", f.desc(), f.type_annotation()))
             .collect::<Vec<_>>()
             .join("\n");
 
-        let inputs_fields = self.inputs.iter()
+        let inputs_fields = self
+            .inputs
+            .iter()
             .map(|f| format!("    pub {}: {},", f.name(), f.type_annotation()))
             .collect::<Vec<_>>()
             .join("\n");
 
-        let outputs_doc = self.outputs.iter()
+        let outputs_doc = self
+            .outputs
+            .iter()
             .map(|f| format!("    /// {} ({})", f.desc(), f.type_annotation()))
             .collect::<Vec<_>>()
             .join("\n");
 
-        let outputs_fields = self.outputs.iter()
+        let outputs_fields = self
+            .outputs
+            .iter()
             .map(|f| format!("    pub {}: {},", f.name(), f.type_annotation()))
             .collect::<Vec<_>>()
             .join("\n");
 
-        let instructions_comment = self.instructions.as_ref()
+        let instructions_comment = self
+            .instructions
+            .as_ref()
             .map(|inst| format!("/// Instructions: {}\n", inst))
             .unwrap_or_default();
 
@@ -154,8 +164,13 @@ pub struct {}_Outputs {{
             self.name,
             inputs_doc,
             inputs_fields,
-            self.inputs.iter()
-                .find_map(|f| f.metadata.prefix.as_ref().map(|p| format!("/// Input prefix: {}\n", p)))
+            self.inputs
+                .iter()
+                .find_map(|f| f
+                    .metadata
+                    .prefix
+                    .as_ref()
+                    .map(|p| format!("/// Input prefix: {}\n", p)))
                 .unwrap_or_default(),
             "Output from module",
             self.name,
@@ -169,14 +184,18 @@ pub struct {}_Outputs {{
         SignatureSchema {
             name: self.name.clone(),
             description: self.description.clone(),
-            inputs: self.inputs.iter()
+            inputs: self
+                .inputs
+                .iter()
                 .map(|f| FieldSchema {
                     name: f.name().to_string(),
                     description: f.desc().to_string(),
                     type_annotation: f.type_annotation().to_string(),
                 })
                 .collect(),
-            outputs: self.outputs.iter()
+            outputs: self
+                .outputs
+                .iter()
                 .map(|f| FieldSchema {
                     name: f.name().to_string(),
                     description: f.desc().to_string(),
@@ -216,13 +235,17 @@ pub struct {}_Outputs {{
 
         // Process input fields
         for field in &self.inputs {
-            let field_schema = Self::field_to_json_schema(field.type_annotation(), &field.constraints);
+            let field_schema =
+                Self::field_to_json_schema(field.type_annotation(), &field.constraints);
             let mut field_obj = field_schema;
 
             // Add description if present
             if !field.desc().is_empty() {
                 if let Value::Object(ref mut obj) = field_obj {
-                    obj.insert("description".to_string(), Value::String(field.desc().to_string()));
+                    obj.insert(
+                        "description".to_string(),
+                        Value::String(field.desc().to_string()),
+                    );
                 }
             }
 
@@ -250,7 +273,10 @@ pub struct {}_Outputs {{
         // Add description
         if !self.description.is_empty() {
             if let Some(obj) = schema.as_object_mut() {
-                obj.insert("description".to_string(), Value::String(self.description.clone()));
+                obj.insert(
+                    "description".to_string(),
+                    Value::String(self.description.clone()),
+                );
             }
         }
 
@@ -288,13 +314,17 @@ pub struct {}_Outputs {{
 
         // Process output fields
         for field in &self.outputs {
-            let field_schema = Self::field_to_json_schema(field.type_annotation(), &field.constraints);
+            let field_schema =
+                Self::field_to_json_schema(field.type_annotation(), &field.constraints);
             let mut field_obj = field_schema;
 
             // Add description if present
             if !field.desc().is_empty() {
                 if let Value::Object(ref mut obj) = field_obj {
-                    obj.insert("description".to_string(), Value::String(field.desc().to_string()));
+                    obj.insert(
+                        "description".to_string(),
+                        Value::String(field.desc().to_string()),
+                    );
                 }
             }
 
@@ -321,7 +351,10 @@ pub struct {}_Outputs {{
 
         // Add description
         if let Some(obj) = schema.as_object_mut() {
-            obj.insert("description".to_string(), Value::String(format!("Output from {}", self.name)));
+            obj.insert(
+                "description".to_string(),
+                Value::String(format!("Output from {}", self.name)),
+            );
         }
 
         schema
@@ -371,7 +404,9 @@ pub struct {}_Outputs {{
     /// - "f32", "f64" → {"type": "number"}
     /// - "bool" → {"type": "boolean"}
     /// - "Vec<T>" → {"type": "array", "items": {...}}
-    fn field_to_json_schema(type_annotation: &str, constraints: &crate::dspy::field::FieldConstraints) -> serde_json::Value {
+    fn field_to_json_schema(
+        type_annotation: &str, constraints: &crate::dspy::field::FieldConstraints,
+    ) -> serde_json::Value {
         use serde_json::json;
 
         let type_annotation = type_annotation.trim();
@@ -432,7 +467,8 @@ pub struct {}_Outputs {{
         // Basic type mappings
         match type_annotation {
             "String" | "str" | "&str" => json!({ "type": "string" }),
-            "i32" | "i64" | "i16" | "i8" | "u32" | "u64" | "u16" | "u8" | "isize" | "usize" | "int" => {
+            "i32" | "i64" | "i16" | "i8" | "u32" | "u64" | "u16" | "u8" | "isize" | "usize"
+            | "int" => {
                 json!({ "type": "integer" })
             }
             "f32" | "f64" | "float" | "double" => json!({ "type": "number" }),
@@ -611,9 +647,7 @@ mod tests {
 
     #[test]
     fn test_constraints_min_and_max_length() {
-        let constraints = FieldConstraints::new()
-            .min_length(5)
-            .max_length(100);
+        let constraints = FieldConstraints::new().min_length(5).max_length(100);
         let schema = Signature::field_to_json_schema("String", &constraints);
         assert_eq!(schema["minLength"], 5);
         assert_eq!(schema["maxLength"], 100);
@@ -621,16 +655,18 @@ mod tests {
 
     #[test]
     fn test_constraints_pattern() {
-        let constraints = FieldConstraints::new()
-            .pattern("^[a-zA-Z]+$");
+        let constraints = FieldConstraints::new().pattern("^[a-zA-Z]+$");
         let schema = Signature::field_to_json_schema("String", &constraints);
         assert_eq!(schema["pattern"], "^[a-zA-Z]+$");
     }
 
     #[test]
     fn test_constraints_enum_values() {
-        let constraints = FieldConstraints::new()
-            .enum_values(vec!["finops".to_string(), "banking".to_string(), "insurance".to_string()]);
+        let constraints = FieldConstraints::new().enum_values(vec![
+            "finops".to_string(),
+            "banking".to_string(),
+            "insurance".to_string(),
+        ]);
         let schema = Signature::field_to_json_schema("String", &constraints);
         let enum_vals = schema["enum"].as_array().unwrap();
         assert_eq!(enum_vals.len(), 3);
@@ -657,9 +693,7 @@ mod tests {
 
     #[test]
     fn test_constraints_min_and_max_items() {
-        let constraints = FieldConstraints::new()
-            .min_items(1)
-            .max_items(10);
+        let constraints = FieldConstraints::new().min_items(1).max_items(10);
         let schema = Signature::field_to_json_schema("Vec<i32>", &constraints);
         assert_eq!(schema["minItems"], 1);
         assert_eq!(schema["maxItems"], 10);
@@ -667,8 +701,11 @@ mod tests {
 
     #[test]
     fn test_json_schema_basic_single_field() {
-        let sig = Signature::new("Test", "Test signature")
-            .with_input(InputField::new("name", "User name", "String"));
+        let sig = Signature::new("Test", "Test signature").with_input(InputField::new(
+            "name",
+            "User name",
+            "String",
+        ));
 
         let schema = sig.as_json_schema();
 
@@ -712,14 +749,18 @@ mod tests {
     #[test]
     fn test_json_schema_with_enum_constraint() {
         let mut field = InputField::new("industry_domain", "Financial domain", "String");
-        field.constraints = FieldConstraints::new()
-            .enum_values(vec!["finops".to_string(), "banking".to_string(), "insurance".to_string()]);
+        field.constraints = FieldConstraints::new().enum_values(vec![
+            "finops".to_string(),
+            "banking".to_string(),
+            "insurance".to_string(),
+        ]);
 
-        let sig = Signature::new("DomainSelector", "Select financial domain")
-            .with_input(field);
+        let sig = Signature::new("DomainSelector", "Select financial domain").with_input(field);
 
         let schema = sig.as_json_schema();
-        let enum_vals = schema["properties"]["industry_domain"]["enum"].as_array().unwrap();
+        let enum_vals = schema["properties"]["industry_domain"]["enum"]
+            .as_array()
+            .unwrap();
 
         assert_eq!(enum_vals.len(), 3);
         assert_eq!(enum_vals[0], "finops");
@@ -729,13 +770,11 @@ mod tests {
 
     #[test]
     fn test_json_schema_with_array_constraints() {
-        let mut field = InputField::new("ontology_selections", "Selected ontologies", "Vec<String>");
-        field.constraints = FieldConstraints::new()
-            .min_items(1)
-            .max_items(10);
+        let mut field =
+            InputField::new("ontology_selections", "Selected ontologies", "Vec<String>");
+        field.constraints = FieldConstraints::new().min_items(1).max_items(10);
 
-        let sig = Signature::new("OntologySelector", "Select ontologies")
-            .with_input(field);
+        let sig = Signature::new("OntologySelector", "Select ontologies").with_input(field);
 
         let schema = sig.as_json_schema();
         let ontology_field = &schema["properties"]["ontology_selections"];
@@ -749,13 +788,15 @@ mod tests {
     #[test]
     fn test_json_schema_complex_example() {
         let mut domain_field = InputField::new("industry_domain", "Financial domain", "String");
-        domain_field.constraints = FieldConstraints::new()
-            .enum_values(vec!["finops".to_string(), "banking".to_string(), "insurance".to_string()]);
+        domain_field.constraints = FieldConstraints::new().enum_values(vec![
+            "finops".to_string(),
+            "banking".to_string(),
+            "insurance".to_string(),
+        ]);
 
-        let mut ontology_field = InputField::new("ontology_selections", "Selected ontologies", "Vec<String>");
-        ontology_field.constraints = FieldConstraints::new()
-            .min_items(1)
-            .max_items(10);
+        let mut ontology_field =
+            InputField::new("ontology_selections", "Selected ontologies", "Vec<String>");
+        ontology_field.constraints = FieldConstraints::new().min_items(1).max_items(10);
 
         let sig = Signature::new("ConfigSelector", "Select financial configuration")
             .with_input(domain_field)
@@ -772,7 +813,9 @@ mod tests {
         assert!(schema["properties"]["ontology_selections"].is_object());
 
         // Verify enum field
-        let enum_vals = schema["properties"]["industry_domain"]["enum"].as_array().unwrap();
+        let enum_vals = schema["properties"]["industry_domain"]["enum"]
+            .as_array()
+            .unwrap();
         assert_eq!(enum_vals.len(), 3);
 
         // Verify array field
@@ -783,15 +826,15 @@ mod tests {
 
     #[test]
     fn test_json_schema_is_valid_json() {
-        let sig = Signature::new("Test", "Test")
-            .with_input(InputField::new("field", "desc", "String"));
+        let sig =
+            Signature::new("Test", "Test").with_input(InputField::new("field", "desc", "String"));
 
         let schema = sig.as_json_schema();
         let json_str = serde_json::to_string(&schema).expect("Should serialize to JSON");
 
         // Should be able to parse back
-        let parsed: serde_json::Value = serde_json::from_str(&json_str)
-            .expect("Should deserialize from JSON");
+        let parsed: serde_json::Value =
+            serde_json::from_str(&json_str).expect("Should deserialize from JSON");
 
         assert_eq!(parsed["type"], "object");
     }
@@ -805,7 +848,9 @@ mod tests {
         assert_eq!(schema["type"], "object");
         assert_eq!(schema["description"], "Signature with no inputs");
         assert_eq!(schema["properties"].as_object().unwrap().len(), 0);
-        assert!(!schema.get("required").is_some() || schema["required"].as_array().unwrap().is_empty());
+        assert!(
+            !schema.get("required").is_some() || schema["required"].as_array().unwrap().is_empty()
+        );
     }
 
     #[test]
@@ -816,8 +861,7 @@ mod tests {
             .max_length(100)
             .pattern("^[a-zA-Z0-9_]*$");
 
-        let sig = Signature::new("ConstrainedText", "Text with constraints")
-            .with_input(field);
+        let sig = Signature::new("ConstrainedText", "Text with constraints").with_input(field);
 
         let schema = sig.as_json_schema();
         let text_field = &schema["properties"]["constrained_text"];
@@ -877,7 +921,10 @@ mod tests {
         // Assert
         assert_eq!(output_schema["type"], "object");
         assert_eq!(output_schema["properties"]["answer"]["type"], "string");
-        assert_eq!(output_schema["properties"]["answer"]["description"], "The answer");
+        assert_eq!(
+            output_schema["properties"]["answer"]["description"],
+            "The answer"
+        );
         assert_eq!(output_schema["description"], "Output from QA");
     }
 
@@ -886,7 +933,11 @@ mod tests {
         // Arrange
         let sig = Signature::new("Reasoning", "Multi-step reasoning")
             .with_input(InputField::new("question", "Question to answer", "String"))
-            .with_output(OutputField::new("rationale", "Step-by-step reasoning", "String"))
+            .with_output(OutputField::new(
+                "rationale",
+                "Step-by-step reasoning",
+                "String",
+            ))
             .with_output(OutputField::new("answer", "Final answer", "String"))
             .with_output(OutputField::new("confidence", "Confidence score", "f64"));
 
@@ -910,9 +961,7 @@ mod tests {
             .max_length(500);
 
         let mut tags_field = OutputField::new("tags", "Generated tags", "Vec<String>");
-        tags_field.constraints = FieldConstraints::new()
-            .min_items(1)
-            .max_items(5);
+        tags_field.constraints = FieldConstraints::new().min_items(1).max_items(5);
 
         let sig = Signature::new("ContentGenerator", "Generate content with tags")
             .with_input(InputField::new("topic", "Content topic", "String"))
@@ -938,9 +987,8 @@ mod tests {
     fn test_output_fields_with_enum_constraint() {
         // Arrange
         let mut classification_field = OutputField::new("category", "Document category", "String");
-        classification_field.constraints = FieldConstraints::new()
-            .required(true)
-            .enum_values(vec![
+        classification_field.constraints =
+            FieldConstraints::new().required(true).enum_values(vec![
                 "technical".to_string(),
                 "business".to_string(),
                 "legal".to_string(),
@@ -954,7 +1002,9 @@ mod tests {
         let output_schema = sig.outputs_as_json_schema();
 
         // Assert
-        let enum_vals = output_schema["properties"]["category"]["enum"].as_array().unwrap();
+        let enum_vals = output_schema["properties"]["category"]["enum"]
+            .as_array()
+            .unwrap();
         assert_eq!(enum_vals.len(), 3);
         assert_eq!(enum_vals[0], "technical");
         assert_eq!(enum_vals[1], "business");
@@ -967,15 +1017,26 @@ mod tests {
         let sig = Signature::new("Translation", "Translate text between languages")
             .with_input(InputField::new("text", "Text to translate", "String"))
             .with_input(InputField::new("target_lang", "Target language", "String"))
-            .with_output(OutputField::new("translated_text", "Translated text", "String"))
-            .with_output(OutputField::new("detected_lang", "Detected source language", "String"));
+            .with_output(OutputField::new(
+                "translated_text",
+                "Translated text",
+                "String",
+            ))
+            .with_output(OutputField::new(
+                "detected_lang",
+                "Detected source language",
+                "String",
+            ));
 
         // Act
         let full_schema = sig.as_full_json_schema();
 
         // Assert
         assert_eq!(full_schema["name"], "Translation");
-        assert_eq!(full_schema["description"], "Translate text between languages");
+        assert_eq!(
+            full_schema["description"],
+            "Translate text between languages"
+        );
 
         // Verify input schema
         assert_eq!(full_schema["input"]["type"], "object");
@@ -1027,42 +1088,59 @@ mod tests {
             .with_input(InputField::new("query", "Search query", "String"))
             .with_output(OutputField::new("results", "Search results", "Vec<String>"))
             .with_output(OutputField::new("scores", "Relevance scores", "Vec<f64>"))
-            .with_output(OutputField::new("metadata", "Result metadata", "Vec<Vec<String>>"));
+            .with_output(OutputField::new(
+                "metadata",
+                "Result metadata",
+                "Vec<Vec<String>>",
+            ));
 
         // Act
         let output_schema = sig.outputs_as_json_schema();
 
         // Assert
         assert_eq!(output_schema["properties"]["results"]["type"], "array");
-        assert_eq!(output_schema["properties"]["results"]["items"]["type"], "string");
+        assert_eq!(
+            output_schema["properties"]["results"]["items"]["type"],
+            "string"
+        );
 
         assert_eq!(output_schema["properties"]["scores"]["type"], "array");
-        assert_eq!(output_schema["properties"]["scores"]["items"]["type"], "number");
+        assert_eq!(
+            output_schema["properties"]["scores"]["items"]["type"],
+            "number"
+        );
 
         assert_eq!(output_schema["properties"]["metadata"]["type"], "array");
-        assert_eq!(output_schema["properties"]["metadata"]["items"]["type"], "array");
-        assert_eq!(output_schema["properties"]["metadata"]["items"]["items"]["type"], "string");
+        assert_eq!(
+            output_schema["properties"]["metadata"]["items"]["type"],
+            "array"
+        );
+        assert_eq!(
+            output_schema["properties"]["metadata"]["items"]["items"]["type"],
+            "string"
+        );
     }
 
     #[test]
     fn test_output_schema_serialization() {
         // Arrange
         let mut answer_field = OutputField::new("answer", "Generated answer", "String");
-        answer_field.constraints = FieldConstraints::new()
-            .required(true)
-            .min_length(5);
+        answer_field.constraints = FieldConstraints::new().required(true).min_length(5);
 
-        let sig = Signature::new("Generator", "Content generator")
-            .with_output(answer_field);
+        let sig = Signature::new("Generator", "Content generator").with_output(answer_field);
 
         // Act
         let output_schema = sig.outputs_as_json_schema();
         let json_str = serde_json::to_string(&output_schema).expect("Should serialize");
-        let parsed: serde_json::Value = serde_json::from_str(&json_str).expect("Should deserialize");
+        let parsed: serde_json::Value =
+            serde_json::from_str(&json_str).expect("Should deserialize");
 
         // Assert: Round trip preserves structure
         assert_eq!(output_schema["type"], parsed["type"]);
-        assert_eq!(output_schema["properties"]["answer"]["minLength"], parsed["properties"]["answer"]["minLength"]);
+        assert_eq!(
+            output_schema["properties"]["answer"]["minLength"],
+            parsed["properties"]["answer"]["minLength"]
+        );
     }
 
     #[test]
@@ -1087,14 +1165,10 @@ mod tests {
     fn test_chain_of_thought_pattern_multiple_outputs() {
         // Arrange: Chain-of-thought pattern with rationale and answer
         let mut rationale_field = OutputField::new("rationale", "Step-by-step reasoning", "String");
-        rationale_field.constraints = FieldConstraints::new()
-            .required(true)
-            .min_length(20);
+        rationale_field.constraints = FieldConstraints::new().required(true).min_length(20);
 
         let mut answer_field = OutputField::new("answer", "Final answer", "String");
-        answer_field.constraints = FieldConstraints::new()
-            .required(true)
-            .min_length(1);
+        answer_field.constraints = FieldConstraints::new().required(true).min_length(1);
 
         let sig = Signature::new("ChainOfThought", "Answer with reasoning")
             .with_input(InputField::new("question", "Question to answer", "String"))
@@ -1171,15 +1245,16 @@ mod tests {
         uuid_field.constraints = FieldConstraints::new()
             .pattern("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
 
-        let sig = Signature::new("UUIDGenerator", "Generate UUIDs")
-            .with_output(uuid_field);
+        let sig = Signature::new("UUIDGenerator", "Generate UUIDs").with_output(uuid_field);
 
         // Act
         let output_schema = sig.outputs_as_json_schema();
 
         // Assert
         assert!(output_schema["properties"]["uuid"]["pattern"].is_string());
-        let pattern = output_schema["properties"]["uuid"]["pattern"].as_str().unwrap();
+        let pattern = output_schema["properties"]["uuid"]["pattern"]
+            .as_str()
+            .unwrap();
         assert!(pattern.contains("^[0-9a-f]{8}"));
     }
 
@@ -1209,8 +1284,9 @@ mod tests {
     #[test]
     fn test_output_schema_preserves_descriptions() {
         // Arrange
-        let sig = Signature::new("Descriptions", "Test description preservation")
-            .with_output(OutputField::new("result", "A detailed result description", "String"));
+        let sig = Signature::new("Descriptions", "Test description preservation").with_output(
+            OutputField::new("result", "A detailed result description", "String"),
+        );
 
         // Act
         let output_schema = sig.outputs_as_json_schema();

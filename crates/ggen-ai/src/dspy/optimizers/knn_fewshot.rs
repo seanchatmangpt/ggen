@@ -16,10 +16,10 @@
 //! 3. Return program that retrieves demos dynamically per query
 //! ```
 
-use crate::dspy::{Module, ModuleError, Signature};
-use crate::dspy::optimizer::{Example, Demonstration};
+use super::{Metric, Optimizer};
 use crate::dspy::module::ModuleResult;
-use super::{Optimizer, Metric};
+use crate::dspy::optimizer::{Demonstration, Example};
+use crate::dspy::{Module, ModuleError, Signature};
 use async_trait::async_trait;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -163,13 +163,11 @@ impl KNNFewShot {
 #[async_trait]
 impl Optimizer for KNNFewShot {
     async fn compile(
-        &self,
-        student: &dyn Module,
-        trainset: &[Example],
+        &self, student: &dyn Module, trainset: &[Example],
     ) -> Result<Box<dyn Module>, ModuleError> {
         if trainset.is_empty() {
             return Err(ModuleError::Other(
-                "Training set is empty. Provide at least one example.".to_string()
+                "Training set is empty. Provide at least one example.".to_string(),
             ));
         }
 
@@ -212,10 +210,7 @@ pub struct KNNPredictor {
 
 impl KNNPredictor {
     /// Find k nearest neighbors for query
-    async fn find_nearest_neighbors(
-        &self,
-        query_text: &str,
-    ) -> Result<Vec<usize>, ModuleError> {
+    async fn find_nearest_neighbors(&self, query_text: &str) -> Result<Vec<usize>, ModuleError> {
         // Embed query
         let query_embedding = self.vectorizer.embed(query_text).await?;
 
@@ -238,9 +233,7 @@ impl KNNPredictor {
 
     /// Build prompt with retrieved demonstrations
     fn build_prompt(
-        &self,
-        inputs: &HashMap<String, Value>,
-        demonstrations: &[Demonstration],
+        &self, inputs: &HashMap<String, Value>, demonstrations: &[Demonstration],
     ) -> Result<String, ModuleError> {
         let mut prompt = format!("{}\n\n", self.signature.description);
 
@@ -318,7 +311,10 @@ impl KNNPredictor {
 
     /// Call the LLM with the given prompt
     async fn call_llm(&self, prompt: &str) -> Result<String, ModuleError> {
-        use genai::{Client, chat::{ChatMessage, ChatOptions, ChatRequest}};
+        use genai::{
+            chat::{ChatMessage, ChatOptions, ChatRequest},
+            Client,
+        };
 
         let client = Client::default();
 
@@ -328,7 +324,7 @@ impl KNNPredictor {
 
         if model.is_empty() {
             return Err(ModuleError::LlmError(
-                "Model name not set. Set GGEN_LLM_MODEL or DEFAULT_MODEL env var".to_string()
+                "Model name not set. Set GGEN_LLM_MODEL or DEFAULT_MODEL env var".to_string(),
             ));
         }
 
@@ -343,15 +339,16 @@ impl KNNPredictor {
             .with_temperature(0.7)
             .with_max_tokens(4096);
 
-        match client.exec_chat(&model, chat_req, Some(&chat_options)).await {
+        match client
+            .exec_chat(&model, chat_req, Some(&chat_options))
+            .await
+        {
             Ok(response) => {
                 let content = response.first_text().unwrap_or_default().to_string();
                 debug!("LLM response received, length: {}", content.len());
                 Ok(content)
             }
-            Err(e) => {
-                Err(ModuleError::LlmError(format!("LLM call failed: {}", e)))
-            }
+            Err(e) => Err(ModuleError::LlmError(format!("LLM call failed: {}", e))),
         }
     }
 }
@@ -363,8 +360,7 @@ impl Module for KNNPredictor {
     }
 
     async fn forward(
-        &self,
-        inputs: HashMap<String, Value>,
+        &self, inputs: HashMap<String, Value>,
     ) -> ModuleResult<HashMap<String, Value>> {
         // Validate inputs
         self.validate_inputs(&inputs)?;
@@ -413,8 +409,8 @@ impl Module for KNNPredictor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Signature;
     use crate::dspy::field::{InputField, OutputField};
+    use crate::Signature;
 
     fn create_test_signature() -> Signature {
         Signature::new("QA", "Question answering")
@@ -428,14 +424,11 @@ mod tests {
                 let mut inputs = HashMap::new();
                 inputs.insert(
                     "question".to_string(),
-                    Value::String(format!("Question {}", i))
+                    Value::String(format!("Question {}", i)),
                 );
 
                 let mut outputs = HashMap::new();
-                outputs.insert(
-                    "answer".to_string(),
-                    Value::String(format!("Answer {}", i))
-                );
+                outputs.insert("answer".to_string(), Value::String(format!("Answer {}", i)));
 
                 Example::new(inputs, outputs)
             })
@@ -543,7 +536,10 @@ mod tests {
     #[test]
     fn test_format_example_text() {
         let mut inputs = HashMap::new();
-        inputs.insert("question".to_string(), Value::String("What is Rust?".to_string()));
+        inputs.insert(
+            "question".to_string(),
+            Value::String("What is Rust?".to_string()),
+        );
         let example = Example::new(inputs, HashMap::new());
 
         let text = KNNFewShot::format_example_text(&example);
@@ -612,10 +608,7 @@ mod tests {
 
         let optimized = optimizer.compile(&predictor, &examples).await.unwrap();
 
-        let knn_predictor = optimized
-            .as_any()
-            .downcast_ref::<KNNPredictor>()
-            .unwrap();
+        let knn_predictor = optimized.as_any().downcast_ref::<KNNPredictor>().unwrap();
 
         assert_eq!(knn_predictor.embeddings.len(), 10);
         assert_eq!(knn_predictor.trainset.len(), 10);
@@ -694,10 +687,7 @@ mod tests {
 
         let optimized = optimizer.compile(&predictor, &examples).await.unwrap();
 
-        let knn_predictor = optimized
-            .as_any()
-            .downcast_ref::<KNNPredictor>()
-            .unwrap();
+        let knn_predictor = optimized.as_any().downcast_ref::<KNNPredictor>().unwrap();
 
         // Should retrieve all 3 available examples
         let neighbors = knn_predictor
@@ -719,7 +709,7 @@ mod tests {
             let mut inputs = HashMap::new();
             inputs.insert(
                 "question".to_string(),
-                Value::String(format!("Question about topic {}", i))
+                Value::String(format!("Question about topic {}", i)),
             );
             let mut outputs = HashMap::new();
             outputs.insert("answer".to_string(), Value::String(format!("Answer {}", i)));
@@ -731,10 +721,7 @@ mod tests {
         let optimizer = KNNFewShot::new(2, vectorizer);
 
         let optimized = optimizer.compile(&predictor, &examples).await.unwrap();
-        let knn_predictor = optimized
-            .as_any()
-            .downcast_ref::<KNNPredictor>()
-            .unwrap();
+        let knn_predictor = optimized.as_any().downcast_ref::<KNNPredictor>().unwrap();
 
         // Query similar to example 0
         let neighbors = knn_predictor

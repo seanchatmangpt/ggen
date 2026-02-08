@@ -3,14 +3,15 @@
 //! This benchmark focuses on memory usage patterns and allocation efficiency
 //! for the new WIP components.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::alloc::GlobalAlloc;
-use std::sync::Arc;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 // Enable memory profiling
 #[global_allocator]
-static ALLOC: tracing::allocation::TrackingAllocator = tracing::allocation::TrackingAllocator::new();
+static ALLOC: tracing::allocation::TrackingAllocator =
+    tracing::allocation::TrackingAllocator::new();
 
 fn bench_path_validator_memory(c: &mut Criterion) {
     let mut group = c.benchmark_group("memory_path_validator");
@@ -20,15 +21,16 @@ fn bench_path_validator_memory(c: &mut Criterion) {
             black_box(
                 ggen_utils::path_validator::PathValidator::new(std::path::Path::new("/tmp/test"))
                     .with_max_depth(10)
-                    .with_allowed_extensions(vec!["rs", "toml", "md"])
+                    .with_allowed_extensions(vec!["rs", "toml", "md"]),
             )
         });
     });
 
     group.bench_function("validation_calls", |b| {
-        let validator = ggen_utils::path_validator::PathValidator::new(std::path::Path::new("/tmp/test"))
-            .with_max_depth(10)
-            .with_allowed_extensions(vec!["rs", "toml", "md"]);
+        let validator =
+            ggen_utils::path_validator::PathValidator::new(std::path::Path::new("/tmp/test"))
+                .with_max_depth(10)
+                .with_allowed_extensions(vec!["rs", "toml", "md"]);
 
         let test_paths = vec![
             "src/main.rs",
@@ -41,7 +43,9 @@ fn bench_path_validator_memory(c: &mut Criterion) {
         b.iter(|| {
             for path in &test_paths {
                 black_box(
-                    validator.validate(path).unwrap_or_else(|_| panic!("Failed to validate: {}", path))
+                    validator
+                        .validate(path)
+                        .unwrap_or_else(|_| panic!("Failed to validate: {}", path)),
                 );
             }
         });
@@ -54,11 +58,7 @@ fn bench_safe_command_memory(c: &mut Criterion) {
     let mut group = c.benchmark_group("memory_safe_command");
 
     group.bench_function("command_creation", |b| {
-        b.iter(|| {
-            black_box(
-                ggen_utils::safe_command::SafeCommand::new("cargo").unwrap()
-            )
-        });
+        b.iter(|| black_box(ggen_utils::safe_command::SafeCommand::new("cargo").unwrap()));
     });
 
     group.bench_function("command_building", |b| {
@@ -75,13 +75,12 @@ fn bench_safe_command_memory(c: &mut Criterion) {
     group.bench_function("whitelist_memory", |b| {
         b.iter(|| {
             let whitelist = vec![
-                "cargo", "rustc", "git", "ls", "cat", "head", "tail",
-                "cp", "mv", "mkdir", "rm", "rmdir", "chmod", "chown",
+                "cargo", "rustc", "git", "ls", "cat", "head", "tail", "cp", "mv", "mkdir", "rm",
+                "rmdir", "chmod", "chown",
             ];
 
-            let allowed_commands: HashMap<String, bool> = whitelist.iter()
-                .map(|s| (s.to_string(), true))
-                .collect();
+            let allowed_commands: HashMap<String, bool> =
+                whitelist.iter().map(|s| (s.to_string(), true)).collect();
 
             black_box(allowed_commands)
         });
@@ -94,11 +93,7 @@ fn bench_agent_memory(c: &mut Criterion) {
     let mut group = c.benchmark_group("memory_agent");
 
     group.bench_function("agent_manager_creation", |b| {
-        b.iter(|| {
-            black_box(
-                ggen_agent::agent::AgentManager::new("test-agent", "1.0.0").unwrap()
-            )
-        });
+        b.iter(|| black_box(ggen_agent::agent::AgentManager::new("test-agent", "1.0.0").unwrap()));
     });
 
     group.bench_function("agent_registry_memory", |b| {
@@ -106,14 +101,10 @@ fn bench_agent_memory(c: &mut Criterion) {
             let registry = ggen_agent::agent::AgentRegistry::new();
 
             for i in 0..100 {
-                let agent = ggen_agent::agent::AgentManager::new(
-                    &format!("agent-{}", i),
-                    "1.0.0"
-                ).unwrap();
+                let agent =
+                    ggen_agent::agent::AgentManager::new(&format!("agent-{}", i), "1.0.0").unwrap();
 
-                black_box(
-                    registry.register(Arc::new(agent))
-                );
+                black_box(registry.register(Arc::new(agent)));
             }
         });
     });
@@ -178,15 +169,13 @@ fn bench_workflow_memory(c: &mut Criterion) {
                 input_hash: "hash123".to_string(),
                 output_hash: "hash456".to_string(),
                 execution_time_ms: 1000,
-                steps: vec![
-                    ggen_workflow::receipts::StepReceipt {
-                        name: "step1".to_string(),
-                        input_size: 1024,
-                        output_size: 2048,
-                        execution_time_ms: 500,
-                        status: "completed".to_string(),
-                    }
-                ],
+                steps: vec![ggen_workflow::receipts::StepReceipt {
+                    name: "step1".to_string(),
+                    input_size: 1024,
+                    output_size: 2048,
+                    execution_time_ms: 500,
+                    status: "completed".to_string(),
+                }],
                 metadata: HashMap::new(),
             };
 
@@ -205,17 +194,13 @@ fn bench_connector_memory(c: &mut Criterion) {
             let registry = knhk_connectors::ConnectorRegistry::new();
 
             for i in 0..50 {
-                let connector = Box::new(
-                    knhk_connectors::kafka::KafkaConnector::new(
-                        format!("kafka-{}", i),
-                        "test.topic".to_string(),
-                        knhk_connectors::DataFormat::Json,
-                    )
-                );
+                let connector = Box::new(knhk_connectors::kafka::KafkaConnector::new(
+                    format!("kafka-{}", i),
+                    "test.topic".to_string(),
+                    knhk_connectors::DataFormat::Json,
+                ));
 
-                black_box(
-                    registry.register(connector)
-                );
+                black_box(registry.register(connector));
             }
         });
     });
@@ -223,18 +208,22 @@ fn bench_connector_memory(c: &mut Criterion) {
     group.bench_function("delta_memory", |b| {
         b.iter(|| {
             let delta = knhk_connectors::Delta {
-                additions: (0..1000).map(|i| knhk_connectors::Triple {
-                    subject: i,
-                    predicate: i + 1000,
-                    object: i + 2000,
-                    graph: None,
-                }).collect(),
-                removals: (1000..2000).map(|i| knhk_connectors::Triple {
-                    subject: i,
-                    predicate: i + 1000,
-                    object: i + 2000,
-                    graph: None,
-                }).collect(),
+                additions: (0..1000)
+                    .map(|i| knhk_connectors::Triple {
+                        subject: i,
+                        predicate: i + 1000,
+                        object: i + 2000,
+                        graph: None,
+                    })
+                    .collect(),
+                removals: (1000..2000)
+                    .map(|i| knhk_connectors::Triple {
+                        subject: i,
+                        predicate: i + 1000,
+                        object: i + 2000,
+                        graph: None,
+                    })
+                    .collect(),
                 actor: "benchmark".to_string(),
                 timestamp_ms: 0,
             };
@@ -245,16 +234,16 @@ fn bench_connector_memory(c: &mut Criterion) {
 
     group.bench_function("soa_arrays_memory", |b| {
         b.iter(|| {
-            let triples: Vec<knhk_connectors::Triple> = (0..1000).map(|i| knhk_connectors::Triple {
-                subject: i,
-                predicate: i + 1000,
-                object: i + 2000,
-                graph: None,
-            }).collect();
+            let triples: Vec<knhk_connectors::Triple> = (0..1000)
+                .map(|i| knhk_connectors::Triple {
+                    subject: i,
+                    predicate: i + 1000,
+                    object: i + 2000,
+                    graph: None,
+                })
+                .collect();
 
-            black_box(
-                knhk_connectors::SoAArrays::from_triples(&triples, 1000)
-            )
+            black_box(knhk_connectors::SoAArrays::from_triples(&triples, 1000))
         });
     });
 
@@ -294,14 +283,15 @@ fn bench_cli_memory(c: &mut Criterion) {
                 ggen_cli::cmds::mcp::McpCommand::Client,
             ];
 
-            let command_configs = commands.into_iter().map(|cmd| {
-                ggen_cli::cmds::CommandConfig {
+            let command_configs = commands
+                .into_iter()
+                .map(|cmd| ggen_cli::cmds::CommandConfig {
                     name: format!("{:?}", cmd),
                     description: format!("Description for {:?}", cmd),
                     flags: vec![],
                     subcommands: vec![],
-                }
-            }).collect::<Vec<_>>();
+                })
+                .collect::<Vec<_>>();
 
             black_box(command_configs)
         });

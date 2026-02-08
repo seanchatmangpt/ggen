@@ -7,9 +7,8 @@
 //! 4. High-volume logs are sampled correctly
 
 use ggen_tps_andon::{
-    AndonConfig, AndonSignal, AndonSystem, AlertConfig, AlertRule, AlertSeverity,
-    AlertChannel, AlertCondition, LogConfig, LogLevel, LogSink, MetricConfig,
-    ObserverConfig, TracerConfig,
+    AlertChannel, AlertCondition, AlertConfig, AlertRule, AlertSeverity, AndonConfig, AndonSignal,
+    AndonSystem, LogConfig, LogLevel, LogSink, MetricConfig, ObserverConfig, TracerConfig,
 };
 
 #[tokio::test]
@@ -71,10 +70,7 @@ async fn test_queue_overflow_triggers_alert() {
     let system = AndonSystem::new(config).await.unwrap();
 
     // Update queue depth to overflow threshold
-    system
-        .metrics()
-        .update_queue_depth("default", 150)
-        .unwrap();
+    system.metrics().update_queue_depth("default", 150).unwrap();
 
     // Signal queue overflow
     let signal = AndonSignal::red("Queue overflow - 150 items pending");
@@ -125,10 +121,7 @@ async fn test_trace_request_end_to_end() {
         .unwrap();
 
     // Create child span (processing)
-    let process_span = system
-        .tracer()
-        .start_span("queue-processing")
-        .unwrap();
+    let process_span = system.tracer().start_span("queue-processing").unwrap();
 
     // Log event within span
     system
@@ -305,12 +298,18 @@ async fn test_signal_colors_routing() {
 
     // Test YELLOW signal (warning)
     let yellow_signal = AndonSignal::yellow("Warning condition");
-    assert_eq!(yellow_signal.color, ggen_tps_andon::signal::SignalColor::Yellow);
+    assert_eq!(
+        yellow_signal.color,
+        ggen_tps_andon::signal::SignalColor::Yellow
+    );
     assert!(system.signal_problem(yellow_signal).await.is_ok());
 
     // Test GREEN signal (normal)
     let green_signal = AndonSignal::green("Normal operation");
-    assert_eq!(green_signal.color, ggen_tps_andon::signal::SignalColor::Green);
+    assert_eq!(
+        green_signal.color,
+        ggen_tps_andon::signal::SignalColor::Green
+    );
     assert!(system.signal_problem(green_signal).await.is_ok());
 }
 
@@ -338,14 +337,16 @@ async fn test_complete_workflow() {
 
     // 4. Simulate queue growth
     for i in 1..=10 {
-        system.metrics().update_queue_depth("default", i * 10).unwrap();
+        system
+            .metrics()
+            .update_queue_depth("default", i * 10)
+            .unwrap();
         println!("✓ Queue depth: {} items", i * 10);
 
         if i * 10 > 50 {
             // Queue is growing - signal warning
-            let signal =
-                AndonSignal::yellow(&format!("Queue depth: {} items", i * 10))
-                    .with_trace_id(system.tracer().trace_id());
+            let signal = AndonSignal::yellow(&format!("Queue depth: {} items", i * 10))
+                .with_trace_id(system.tracer().trace_id());
             system.signal_problem(signal).await.unwrap();
         }
     }

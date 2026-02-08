@@ -15,60 +15,56 @@
 //! - `model_capabilities` - Type-safe model representation with capabilities
 //! - `prompt_ir` - Prompt intermediate representation for rendering
 
+pub mod assertions;
+pub mod constraint;
+pub mod evaluation;
 pub mod field;
-pub mod signature;
+pub mod model_capabilities;
 pub mod module;
-pub mod predictor;
-pub mod validation_error;
-pub mod signature_validator;
 pub mod optimizer;
 pub mod optimizers;
-pub mod assertions;
-pub mod testing;
-pub mod evaluation;
-pub mod constraint;
-pub mod model_capabilities;
+pub mod predictor;
 pub mod prompt_ir;
+pub mod signature;
+pub mod signature_validator;
+pub mod testing;
+pub mod validation_error;
 
-pub use field::{FieldConstraints, FieldMetadata, InputField, OutputField};
-pub use signature::Signature;
-pub use module::{Module, ModuleError};
-pub use predictor::{Predictor, ChainOfThought};
-pub use validation_error::{ValidationError, ValidationErrorDetail, ValidationErrorType};
-pub use signature_validator::SignatureValidator;
-pub use optimizer::{BootstrapFewShot, Example, Demonstration, OptimizedPredictor, MetricFn};
-pub use optimizers::{
-    Optimizer, Metric, Trace as OptimizerTrace, TraceStep, OptimizationStatistics,
-    ExactMatchMetric as OptimizerExactMatchMetric, FuzzyMatchMetric,
-    LabeledFewShot, KNNFewShot, BootstrapFewShotWithRandomSearch, COPRO,
-    Vectorizer, CosineVectorizer,
-};
 pub use assertions::{
-    Assertion, BacktrackExecutor, AssertionError, AssertionResult,
-    Validator, ValidationResult, AssertionLevel,
-    AssertableModule, AssertedModule,
+    AssertableModule, AssertedModule, Assertion, AssertionError, AssertionLevel, AssertionResult,
+    BacktrackExecutor, ValidationResult, Validator,
 };
 pub use constraint::{
-    Constraint, ConstraintSet, ConstraintViolation, JsonType,
-    decode_and_validate, suggest_repair, RepairStrategy,
+    decode_and_validate, suggest_repair, Constraint, ConstraintSet, ConstraintViolation, JsonType,
+    RepairStrategy,
 };
+pub use field::{FieldConstraints, FieldMetadata, InputField, OutputField};
 pub use model_capabilities::{
-    Model, ModelProvider, ModelCapabilities, ModelCost, ModelConfig,
-    ModelRegistry, LatencyClass, ReliabilityClass, Modality,
-    default_registry,
+    default_registry, LatencyClass, Modality, Model, ModelCapabilities, ModelConfig, ModelCost,
+    ModelProvider, ModelRegistry, ReliabilityClass,
 };
+pub use module::{Module, ModuleError};
+pub use optimizer::{BootstrapFewShot, Demonstration, Example, MetricFn, OptimizedPredictor};
+pub use optimizers::{
+    BootstrapFewShotWithRandomSearch, CosineVectorizer,
+    ExactMatchMetric as OptimizerExactMatchMetric, FuzzyMatchMetric, KNNFewShot, LabeledFewShot,
+    Metric, OptimizationStatistics, Optimizer, Trace as OptimizerTrace, TraceStep, Vectorizer,
+    COPRO,
+};
+pub use predictor::{ChainOfThought, Predictor};
 pub use prompt_ir::{
-    PromptAtom, PromptIR, PromptMetadata, OutputFormat,
-    RenderConfig, PromptRenderer, TextRenderer, JsonRenderer,
+    JsonRenderer, OutputFormat, PromptAtom, PromptIR, PromptMetadata, PromptRenderer, RenderConfig,
+    TextRenderer,
 };
+pub use signature::Signature;
+pub use signature_validator::SignatureValidator;
+pub use validation_error::{ValidationError, ValidationErrorDetail, ValidationErrorType};
 
 // Evaluation framework exports
 pub use evaluation::{
-    Evaluate, EvaluationPoint, EvaluationResult,
-    Trace as EvaluationTrace, ModuleCall, MetricResult,
-    SimpleMetricFn, EnhancedMetricFn, MetricError,
-    exact_match, exact_match_ci, passage_match, substring_match, token_overlap,
-    f1_score, length_within_range, composite,
-    ExactMatchMetric as EvalExactMatchMetric, F1Metric, PassageMatchMetric,
-    display_table, export_to_csv, export_to_json,
+    composite, display_table, exact_match, exact_match_ci, export_to_csv, export_to_json, f1_score,
+    length_within_range, passage_match, substring_match, token_overlap, EnhancedMetricFn, Evaluate,
+    EvaluationPoint, EvaluationResult, ExactMatchMetric as EvalExactMatchMetric, F1Metric,
+    MetricError, MetricResult, ModuleCall, PassageMatchMetric, SimpleMetricFn,
+    Trace as EvaluationTrace,
 };

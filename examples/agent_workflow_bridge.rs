@@ -58,10 +58,22 @@ pub struct WorkflowStep {
 /// Workflow events
 #[derive(Debug, Clone)]
 pub enum WorkflowEvent {
-    Start { workflow_id: String, agent_id: String },
-    Complete { workflow_id: String },
-    Error { workflow_id: String, error: String },
-    Progress { workflow_id: String, step: String, percentage: u8 },
+    Start {
+        workflow_id: String,
+        agent_id: String,
+    },
+    Complete {
+        workflow_id: String,
+    },
+    Error {
+        workflow_id: String,
+        error: String,
+    },
+    Progress {
+        workflow_id: String,
+        step: String,
+        percentage: u8,
+    },
 }
 
 /// Workflow status
@@ -103,18 +115,21 @@ impl AgentWorkflowBridge {
 
     /// Execute workflow with agent integration
     pub async fn execute_workflow(
-        &self,
-        workflow_id: &str,
-        agent_context: AgentContext,
+        &self, workflow_id: &str, agent_context: AgentContext,
     ) -> Result<WorkflowResult, String> {
-        let workflow = self.workflow_registry.get(workflow_id)
+        let workflow = self
+            .workflow_registry
+            .get(workflow_id)
             .ok_or_else(|| format!("Workflow {} not found", workflow_id))?;
 
         // Notify workflow start
-        let _ = self.event_tx.send(WorkflowEvent::Start {
-            workflow_id: workflow_id.to_string(),
-            agent_id: agent_context.id.clone(),
-        }).await;
+        let _ = self
+            .event_tx
+            .send(WorkflowEvent::Start {
+                workflow_id: workflow_id.to_string(),
+                agent_id: agent_context.id.clone(),
+            })
+            .await;
 
         // Initialize workflow execution
         let mut step_results = Vec::new();
@@ -136,11 +151,14 @@ impl AgentWorkflowBridge {
 
             // Update progress
             let progress = ((step_index + 1) * 100 / workflow.steps.len()) as u8;
-            let _ = self.event_tx.send(WorkflowEvent::Progress {
-                workflow_id: workflow_id.to_string(),
-                step: step.name.clone(),
-                percentage: progress,
-            }).await;
+            let _ = self
+                .event_tx
+                .send(WorkflowEvent::Progress {
+                    workflow_id: workflow_id.to_string(),
+                    step: step.name.clone(),
+                    percentage: progress,
+                })
+                .await;
 
             step_results.push(StepResult {
                 step_id: step.id.clone(),
@@ -157,19 +175,18 @@ impl AgentWorkflowBridge {
             duration_ms: start_time.elapsed().as_millis() as u64,
         };
 
-        let _ = self.event_tx.send(WorkflowEvent::Complete {
-            workflow_id: workflow_id.to_string(),
-        }).await;
+        let _ = self
+            .event_tx
+            .send(WorkflowEvent::Complete {
+                workflow_id: workflow_id.to_string(),
+            })
+            .await;
 
         Ok(result)
     }
 
     /// Check workflow dependencies
-    async fn check_dependencies(
-        &self,
-        step: &WorkflowStep,
-        step_results: &[StepResult],
-    ) -> bool {
+    async fn check_dependencies(&self, step: &WorkflowStep, step_results: &[StepResult]) -> bool {
         for dep_id in &step.dependencies {
             let dep_completed = step_results.iter().any(|r| r.step_id == *dep_id);
             if !dep_completed {
@@ -181,11 +198,12 @@ impl AgentWorkflowBridge {
 
     /// Execute agent-based step
     async fn execute_agent_step(
-        &self,
-        step: &WorkflowStep,
-        context: &AgentContext,
+        &self, step: &WorkflowStep, context: &AgentContext,
     ) -> Result<StepResult, String> {
-        println!("Executing agent step: {} with agent: {}", step.name, context.id);
+        println!(
+            "Executing agent step: {} with agent: {}",
+            step.name, context.id
+        );
 
         // Simulate agent execution
         tokio::time::sleep(Duration::from_millis(1000)).await;
@@ -292,7 +310,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Execute workflow
     println!("\nExecuting workflow...");
-    let result = bridge.execute_workflow("ml_pipeline", agent_context).await?;
+    let result = bridge
+        .execute_workflow("ml_pipeline", agent_context)
+        .await?;
 
     println!("Workflow result: {}", result.output);
     println!("Generated artifacts: {:?}", result.artifacts);
@@ -306,7 +326,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Generate bridge code
     println!("\nGenerating bridge code...");
     let bridge_code = bridge.generate_bridge_code("ml_pipeline")?;
-    println!("Generated {} lines of bridge code", bridge_code.lines().count());
+    println!(
+        "Generated {} lines of bridge code",
+        bridge_code.lines().count()
+    );
 
     println!("\nExample completed successfully!");
     Ok(())

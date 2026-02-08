@@ -6,7 +6,9 @@
 //! With the `ggen-ai` feature enabled, also provides conversion to ggen_ai::Tool.
 
 use crate::discovery::{ParameterSchema, ToolSchema};
-use crate::registration::{ToolInputField, ToolSignature, ToolSlo, ToolTag, AuthScope, RegisteredTool};
+use crate::registration::{
+    AuthScope, RegisteredTool, ToolInputField, ToolSignature, ToolSlo, ToolTag,
+};
 use std::collections::HashMap;
 use thiserror::Error;
 
@@ -112,7 +114,7 @@ impl SchemaConverter {
         let tool = RegisteredTool::new(
             schema.name.clone(),
             schema.name.clone(), // Use name as display name
-            "1.0.0", // Default version
+            "1.0.0",             // Default version
             schema.description.clone(),
             signature,
         )
@@ -121,13 +123,17 @@ impl SchemaConverter {
         .with_auth_scope(auth_scope);
 
         // Add metadata to the tool
-        let tool_with_metadata = metadata.into_iter().fold(tool, |t, (k, v)| t.with_metadata(k, v));
+        let tool_with_metadata = metadata
+            .into_iter()
+            .fold(tool, |t, (k, v)| t.with_metadata(k, v));
 
         Ok(tool_with_metadata)
     }
 
     /// Convert multiple schemas
-    pub fn convert_all(&self, schemas: Vec<ToolSchema>) -> Vec<Result<RegisteredTool, ConversionError>> {
+    pub fn convert_all(
+        &self, schemas: Vec<ToolSchema>,
+    ) -> Vec<Result<RegisteredTool, ConversionError>> {
         schemas.into_iter().map(|s| self.convert(s)).collect()
     }
 
@@ -147,17 +153,12 @@ impl SchemaConverter {
                 }
             } else {
                 // Single parameter at root level
-                let input_field =
-                    self.parameter_to_input_field("input", params, params)?;
+                let input_field = self.parameter_to_input_field("input", params, params)?;
                 sig = sig.with_input(input_field);
             }
         } else {
             // No parameters - add a dummy input for the signature
-            sig = sig.with_input(ToolInputField::new(
-                "_input",
-                "Empty input",
-                "String",
-            ));
+            sig = sig.with_input(ToolInputField::new("_input", "Empty input", "String"));
         }
 
         // Add a default output field
@@ -169,10 +170,7 @@ impl SchemaConverter {
 
     /// Convert a parameter schema to a ToolInputField
     fn parameter_to_input_field(
-        &self,
-        name: &str,
-        param: &ParameterSchema,
-        parent: &ParameterSchema,
+        &self, name: &str, param: &ParameterSchema, parent: &ParameterSchema,
     ) -> Result<ToolInputField, ConversionError> {
         // Determine Rust type from JSON Schema type
         let rust_type = self.json_type_to_rust(&param.schema_type, param);
@@ -311,17 +309,20 @@ impl SchemaConverter {
     /// Build SLO configuration from schema
     fn build_slo(&self, schema: &ToolSchema) -> ToolSlo {
         // Check for SLO hints in tags
-        let is_cacheable = !schema.tags.iter().any(|t| {
-            t.to_lowercase().contains("nocache") || t.to_lowercase().contains("no_cache")
-        });
+        let is_cacheable = !schema
+            .tags
+            .iter()
+            .any(|t| t.to_lowercase().contains("nocache") || t.to_lowercase().contains("no_cache"));
 
         // Check for timeout hints in metadata
         let timeout_ms = self.config.default_timeout_ms;
 
         // Check for retry hints
-        let max_retries = if schema.tags.iter().any(|t| {
-            t.to_lowercase().contains("idempotent")
-        }) {
+        let max_retries = if schema
+            .tags
+            .iter()
+            .any(|t| t.to_lowercase().contains("idempotent"))
+        {
             self.config.default_max_retries
         } else {
             0 // Don't retry non-idempotent operations
@@ -411,13 +412,14 @@ impl SchemaConverter {
     /// A ggen_ai::Tool ready for registration
     #[cfg(feature = "ggen-ai")]
     pub fn convert_to_core_tool(
-        &self,
-        schema: &ToolSchema,
-        tool_id: &str,
+        &self, schema: &ToolSchema, tool_id: &str,
     ) -> Result<ggen_ai::Tool, ConversionError> {
         use ggen_ai::{
+            dspy::{
+                field::{InputField, OutputField},
+                Signature,
+            },
             Tool,
-            dspy::{Signature, field::{InputField, OutputField}},
         };
 
         // Build signature
@@ -428,7 +430,8 @@ impl SchemaConverter {
             if params.schema_type == "object" {
                 if let Some(ref properties) = params.properties {
                     for (param_name, param_schema) in properties {
-                        let rust_type = self.json_type_to_rust(&param_schema.schema_type, param_schema);
+                        let rust_type =
+                            self.json_type_to_rust(&param_schema.schema_type, param_schema);
                         let description = param_schema
                             .description
                             .clone()
@@ -453,7 +456,11 @@ impl SchemaConverter {
         }
 
         // Add output field
-        sig = sig.with_output(OutputField::new("result", "Tool execution result", "String"));
+        sig = sig.with_output(OutputField::new(
+            "result",
+            "Tool execution result",
+            "String",
+        ));
 
         // Parse tags
         let tags = self.parse_tags_for_core(schema);
@@ -469,16 +476,10 @@ impl SchemaConverter {
         let auth_scope = self.determine_auth_scope_for_core(schema, &tags);
 
         // Create the tool
-        let tool = Tool::new(
-            tool_id,
-            &schema.name,
-            "1.0.0",
-            &schema.description,
-            sig,
-        )
-        .with_tags(tags)
-        .with_slo(slo)
-        .with_auth_scope(auth_scope);
+        let tool = Tool::new(tool_id, &schema.name, "1.0.0", &schema.description, sig)
+            .with_tags(tags)
+            .with_slo(slo)
+            .with_auth_scope(auth_scope);
 
         Ok(tool)
     }
@@ -506,11 +507,17 @@ impl SchemaConverter {
 
     /// Parse a single tag string to ggen_ai::ToolTag
     #[cfg(feature = "ggen-ai")]
-    fn parse_single_tag_for_core(&self, tag_str: &str) -> Result<ggen_ai::ToolTag, ConversionError> {
+    fn parse_single_tag_for_core(
+        &self, tag_str: &str,
+    ) -> Result<ggen_ai::ToolTag, ConversionError> {
         match tag_str.to_lowercase().as_str() {
-            "code_generation" | "code-generation" | "codegen" => Ok(ggen_ai::ToolTag::CodeGeneration),
+            "code_generation" | "code-generation" | "codegen" => {
+                Ok(ggen_ai::ToolTag::CodeGeneration)
+            }
             "validation" | "validate" => Ok(ggen_ai::ToolTag::Validation),
-            "query" | "query_generation" | "query-generation" => Ok(ggen_ai::ToolTag::QueryGeneration),
+            "query" | "query_generation" | "query-generation" => {
+                Ok(ggen_ai::ToolTag::QueryGeneration)
+            }
             "ontology" | "rdf" => Ok(ggen_ai::ToolTag::Ontology),
             "template" | "templating" => Ok(ggen_ai::ToolTag::Template),
             "cache" | "caching" => Ok(ggen_ai::ToolTag::Caching),
@@ -521,16 +528,17 @@ impl SchemaConverter {
             "financial" | "finance" => Ok(ggen_ai::ToolTag::Financial),
             "banking" => Ok(ggen_ai::ToolTag::Banking),
             "insurance" => Ok(ggen_ai::ToolTag::Insurance),
-            _ => Err(ConversionError::TagParse(format!("Unknown tag: {}", tag_str))),
+            _ => Err(ConversionError::TagParse(format!(
+                "Unknown tag: {}",
+                tag_str
+            ))),
         }
     }
 
     /// Determine auth scope for ggen_ai::Tool
     #[cfg(feature = "ggen-ai")]
     fn determine_auth_scope_for_core(
-        &self,
-        schema: &ToolSchema,
-        tags: &[ggen_ai::ToolTag],
+        &self, schema: &ToolSchema, tags: &[ggen_ai::ToolTag],
     ) -> ggen_ai::AuthScope {
         // Check tags for auth hints
         for tag in tags {
@@ -617,8 +625,7 @@ mod tests {
     #[test]
     fn test_json_type_to_rust_array() {
         let converter = SchemaConverter::default_converter();
-        let param = ParameterSchema::new("array")
-            .with_items(ParameterSchema::new("string"));
+        let param = ParameterSchema::new("array").with_items(ParameterSchema::new("string"));
 
         assert_eq!(converter.json_type_to_rust("array", &param), "Vec<String>");
     }
@@ -683,8 +690,7 @@ mod tests {
     #[test]
     fn test_build_slo_idempotent() {
         let converter = SchemaConverter::default_converter();
-        let schema = ToolSchema::new("test", "Test tool")
-            .with_tag("idempotent");
+        let schema = ToolSchema::new("test", "Test tool").with_tag("idempotent");
 
         let slo = converter.build_slo(&schema);
         assert_eq!(slo.max_retries, 3);
@@ -693,8 +699,7 @@ mod tests {
     #[test]
     fn test_build_slo_no_cache() {
         let converter = SchemaConverter::default_converter();
-        let schema = ToolSchema::new("test", "Test tool")
-            .with_tag("nocache");
+        let schema = ToolSchema::new("test", "Test tool").with_tag("nocache");
 
         let slo = converter.build_slo(&schema);
         assert!(!slo.cacheable);
@@ -713,8 +718,7 @@ mod tests {
     #[test]
     fn test_determine_auth_scope_authenticated() {
         let converter = SchemaConverter::default_converter();
-        let schema = ToolSchema::new("test", "Test tool")
-            .with_tag("authenticated");
+        let schema = ToolSchema::new("test", "Test tool").with_tag("authenticated");
         let tags = vec![];
 
         let scope = converter.determine_auth_scope(&schema, &tags);
@@ -724,8 +728,7 @@ mod tests {
     #[test]
     fn test_determine_auth_scope_admin() {
         let converter = SchemaConverter::default_converter();
-        let schema = ToolSchema::new("test", "Test tool")
-            .with_tag("admin");
+        let schema = ToolSchema::new("test", "Test tool").with_tag("admin");
         let tags = vec![];
 
         let scope = converter.determine_auth_scope(&schema, &tags);
@@ -776,8 +779,8 @@ mod tests {
             .with_property("count", ParameterSchema::new("integer"))
             .with_required(vec!["text".to_string()]);
 
-        let schema = ToolSchema::new("tool_with_params", "Tool with parameters")
-            .with_parameters(param);
+        let schema =
+            ToolSchema::new("tool_with_params", "Tool with parameters").with_parameters(param);
 
         let result = converter.convert(schema);
         assert!(result.is_ok());
@@ -800,7 +803,10 @@ mod tests {
         assert!(tool.tags.contains(&ToolTag::CodeGeneration));
         assert!(tool.tags.contains(&ToolTag::Financial));
         // Should also have MCP tag
-        assert!(tool.tags.iter().any(|t| matches!(t, ToolTag::Custom(s) if s == "mcp")));
+        assert!(tool
+            .tags
+            .iter()
+            .any(|t| matches!(t, ToolTag::Custom(s) if s == "mcp")));
     }
 
     #[test]

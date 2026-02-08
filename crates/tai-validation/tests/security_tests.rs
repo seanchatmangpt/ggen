@@ -2,7 +2,7 @@
 
 #[cfg(test)]
 mod tests {
-    use tai_validation::security::{SecurityScanner, ScanType};
+    use tai_validation::security::{ScanType, SecurityScanner};
 
     #[test]
     fn test_sast_scanner_creation() {

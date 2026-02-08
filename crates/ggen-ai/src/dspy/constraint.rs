@@ -226,11 +226,16 @@ impl ConstraintSet {
 
         // Check disjunctive constraints (any_of groups)
         for group in &self.any {
-            let group_satisfied = group.iter().any(|c| check_single_constraint(c, value).is_ok());
+            let group_satisfied = group
+                .iter()
+                .any(|c| check_single_constraint(c, value).is_ok());
             if !group_satisfied && !group.is_empty() {
                 violations.push(ConstraintViolation::new(
                     group[0].clone(),
-                    format!("None of the {} alternative constraints were satisfied", group.len()),
+                    format!(
+                        "None of the {} alternative constraints were satisfied",
+                        group.len()
+                    ),
                 ));
             }
         }
@@ -244,11 +249,16 @@ impl ConstraintSet {
 }
 
 /// Check a single constraint against a value
-fn check_single_constraint(constraint: &Constraint, value: &Value) -> std::result::Result<(), ConstraintViolation> {
+fn check_single_constraint(
+    constraint: &Constraint, value: &Value,
+) -> std::result::Result<(), ConstraintViolation> {
     match constraint {
         Constraint::Required => {
             if value.is_null() {
-                Err(ConstraintViolation::new(constraint.clone(), "Value is required but was null"))
+                Err(ConstraintViolation::new(
+                    constraint.clone(),
+                    "Value is required but was null",
+                ))
             } else {
                 Ok(())
             }
@@ -260,7 +270,8 @@ fn check_single_constraint(constraint: &Constraint, value: &Value) -> std::resul
                     Err(ConstraintViolation::new(
                         constraint.clone(),
                         format!("String length {} is less than minimum {}", s.len(), min),
-                    ).with_value(s))
+                    )
+                    .with_value(s))
                 } else {
                     Ok(())
                 }
@@ -275,7 +286,8 @@ fn check_single_constraint(constraint: &Constraint, value: &Value) -> std::resul
                     Err(ConstraintViolation::new(
                         constraint.clone(),
                         format!("String length {} exceeds maximum {}", s.len(), max),
-                    ).with_value(s))
+                    )
+                    .with_value(s))
                 } else {
                     Ok(())
                 }
@@ -294,7 +306,8 @@ fn check_single_constraint(constraint: &Constraint, value: &Value) -> std::resul
                             Err(ConstraintViolation::new(
                                 constraint.clone(),
                                 format!("Value does not match pattern '{}'", pattern),
-                            ).with_value(s))
+                            )
+                            .with_value(s))
                         }
                     }
                     Err(e) => Err(ConstraintViolation::new(
@@ -326,7 +339,8 @@ fn check_single_constraint(constraint: &Constraint, value: &Value) -> std::resul
                 Err(ConstraintViolation::new(
                     constraint.clone(),
                     format!("Value '{}' not in allowed values: {:?}", value_str, values),
-                ).with_value(&value_str))
+                )
+                .with_value(&value_str))
             }
         }
 
@@ -366,7 +380,11 @@ fn check_single_constraint(constraint: &Constraint, value: &Value) -> std::resul
             } else {
                 Err(ConstraintViolation::new(
                     constraint.clone(),
-                    format!("Expected type {}, got {}", json_type.name(), value_type_name(value)),
+                    format!(
+                        "Expected type {}, got {}",
+                        json_type.name(),
+                        value_type_name(value)
+                    ),
                 ))
             }
         }
@@ -435,8 +453,7 @@ fn value_type_name(value: &Value) -> &'static str {
 /// * `Ok(HashMap)` - Validated output values
 /// * `Err` - Decoding or validation failures
 pub fn decode_and_validate(
-    raw: &str,
-    output_fields: &[OutputField],
+    raw: &str, output_fields: &[OutputField],
 ) -> Result<HashMap<String, Value>> {
     let mut outputs = HashMap::new();
     let mut errors = Vec::new();
@@ -463,7 +480,10 @@ pub fn decode_and_validate(
                     None => {
                         // Check if field is required
                         if field.constraints.required {
-                            errors.push(format!("{}: required field missing from output", field_name));
+                            errors.push(format!(
+                                "{}: required field missing from output",
+                                field_name
+                            ));
                         }
                     }
                 }
@@ -509,8 +529,7 @@ pub fn decode_and_validate(
 
 /// Parse structured text output (field: value format)
 fn parse_structured_text(
-    raw: &str,
-    output_fields: &[OutputField],
+    raw: &str, output_fields: &[OutputField],
 ) -> Result<HashMap<String, Value>> {
     let mut outputs = HashMap::new();
 
@@ -529,12 +548,7 @@ fn parse_structured_text(
             if let Some(start) = raw.find(pattern) {
                 let text = &raw[start + pattern.len()..];
                 // Take until newline or end of string
-                let value = text
-                    .lines()
-                    .next()
-                    .unwrap_or("")
-                    .trim()
-                    .to_string();
+                let value = text.lines().next().unwrap_or("").trim().to_string();
 
                 if !value.is_empty() {
                     // Infer type from field annotation
@@ -547,7 +561,10 @@ fn parse_structured_text(
 
         // If field not found and it's the only output, use entire response
         if !outputs.contains_key(field_name) && output_fields.len() == 1 {
-            outputs.insert(field_name.to_string(), Value::String(raw.trim().to_string()));
+            outputs.insert(
+                field_name.to_string(),
+                Value::String(raw.trim().to_string()),
+            );
         }
     }
 
@@ -559,25 +576,21 @@ fn coerce_to_type(value: &str, type_annotation: &str) -> Value {
     let type_annotation = type_annotation.trim();
 
     match type_annotation {
-        "i32" | "i64" | "i16" | "i8" | "u32" | "u64" | "u16" | "u8" | "isize" | "usize" => {
-            value.parse::<i64>()
-                .map(Value::from)
-                .unwrap_or_else(|_| Value::String(value.to_string()))
-        }
+        "i32" | "i64" | "i16" | "i8" | "u32" | "u64" | "u16" | "u8" | "isize" | "usize" => value
+            .parse::<i64>()
+            .map(Value::from)
+            .unwrap_or_else(|_| Value::String(value.to_string())),
 
-        "f32" | "f64" => {
-            value.parse::<f64>()
-                .map(Value::from)
-                .unwrap_or_else(|_| Value::String(value.to_string()))
-        }
+        "f32" | "f64" => value
+            .parse::<f64>()
+            .map(Value::from)
+            .unwrap_or_else(|_| Value::String(value.to_string())),
 
-        "bool" | "boolean" => {
-            match value.to_lowercase().as_str() {
-                "true" | "yes" | "1" => Value::Bool(true),
-                "false" | "no" | "0" => Value::Bool(false),
-                _ => Value::String(value.to_string()),
-            }
-        }
+        "bool" | "boolean" => match value.to_lowercase().as_str() {
+            "true" | "yes" | "1" => Value::Bool(true),
+            "false" | "no" | "0" => Value::Bool(false),
+            _ => Value::String(value.to_string()),
+        },
 
         _ if type_annotation.starts_with("Vec<") => {
             // Try to parse as JSON array
@@ -778,7 +791,12 @@ mod tests {
         let raw = "This is the complete response without field labels.";
         let result = decode_and_validate(raw, &output_fields).unwrap();
 
-        assert!(result.get("result").unwrap().as_str().unwrap().contains("complete response"));
+        assert!(result
+            .get("result")
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .contains("complete response"));
     }
 
     #[test]
@@ -813,22 +831,14 @@ mod tests {
 
     #[test]
     fn test_repair_strategy_suggestions() {
-        let max_len_violation = ConstraintViolation::new(
-            Constraint::MaxLength(10),
-            "too long",
-        );
+        let max_len_violation = ConstraintViolation::new(Constraint::MaxLength(10), "too long");
         assert_eq!(suggest_repair(&max_len_violation), RepairStrategy::Truncate);
 
-        let pattern_violation = ConstraintViolation::new(
-            Constraint::Pattern(".*".to_string()),
-            "no match",
-        );
+        let pattern_violation =
+            ConstraintViolation::new(Constraint::Pattern(".*".to_string()), "no match");
         assert_eq!(suggest_repair(&pattern_violation), RepairStrategy::Retry);
 
-        let required_violation = ConstraintViolation::new(
-            Constraint::Required,
-            "missing",
-        );
+        let required_violation = ConstraintViolation::new(Constraint::Required, "missing");
         assert_eq!(suggest_repair(&required_violation), RepairStrategy::Retry);
     }
 }

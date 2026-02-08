@@ -17,7 +17,10 @@ use uuid::Uuid;
 async fn test_affiliate_link_routing_end_to_end() {
     // ARRANGE: Set up route resolver with multiple routes
     let ctx = TestContext::new();
-    let slugs = ctx.setup_sample_routes().await.expect("Failed to setup routes");
+    let slugs = ctx
+        .setup_sample_routes()
+        .await
+        .expect("Failed to setup routes");
     let test_slug = &slugs[0];
 
     // ACT: Resolve the route
@@ -66,7 +69,9 @@ async fn test_duplicate_route_slug_rejected() {
     );
 
     let mut resolver = ctx.route_resolver.write().await;
-    resolver.add_route(route1).expect("First route should succeed");
+    resolver
+        .add_route(route1)
+        .expect("First route should succeed");
 
     // ACT: Try to add duplicate route
     let route2 = affiliate::AffiliateRoute::new(
@@ -95,11 +100,19 @@ async fn test_click_tracking_generates_valid_receipt() {
 
     // ACT: Track click and generate receipt
     let mut tracker = ctx.click_tracker.write().await;
-    let receipt = tracker.track_click(click_event).expect("Tracking should succeed");
+    let receipt = tracker
+        .track_click(click_event)
+        .expect("Tracking should succeed");
 
     // ASSERT: Receipt is generated and verifiable
-    assert!(receipt.verify(), "Receipt should be cryptographically valid");
-    assert_eq!(receipt.route_slug, slug, "Receipt should reference correct route");
+    assert!(
+        receipt.verify(),
+        "Receipt should be cryptographically valid"
+    );
+    assert_eq!(
+        receipt.route_slug, slug,
+        "Receipt should reference correct route"
+    );
 }
 
 #[tokio::test]
@@ -113,7 +126,9 @@ async fn test_click_receipt_chain_integrity() {
     for i in 0..5 {
         let click_event = click_tracking::ClickEvent::new(slug.clone())
             .with_referrer(format!("https://example.com/page{}", i));
-        let receipt = tracker.track_click(click_event).expect("Tracking should succeed");
+        let receipt = tracker
+            .track_click(click_event)
+            .expect("Tracking should succeed");
         assert!(receipt.verify(), "Each receipt should be valid");
     }
 
@@ -144,8 +159,16 @@ async fn test_click_count_by_route_accurate() {
     }
 
     // ASSERT: Click counts are accurate per route
-    assert_eq!(tracker.clicks_by_route(&slug1), 3, "Route1 should have 3 clicks");
-    assert_eq!(tracker.clicks_by_route(&slug2), 2, "Route2 should have 2 clicks");
+    assert_eq!(
+        tracker.clicks_by_route(&slug1),
+        3,
+        "Route1 should have 3 clicks"
+    );
+    assert_eq!(
+        tracker.clicks_by_route(&slug2),
+        2,
+        "Route2 should have 2 clicks"
+    );
     assert_eq!(tracker.total_clicks(), 5, "Total clicks should be 5");
 }
 
@@ -167,7 +190,10 @@ async fn test_subscription_creation_webhook() {
     let events = manager.get_webhook_events(&subscription_id);
     assert_eq!(events.len(), 1, "Should have one webhook event");
     assert!(
-        matches!(events[0].event_type, subscription::WebhookEventType::SubscriptionCreated),
+        matches!(
+            events[0].event_type,
+            subscription::WebhookEventType::SubscriptionCreated
+        ),
         "Event should be SubscriptionCreated"
     );
 }
@@ -176,7 +202,9 @@ async fn test_subscription_creation_webhook() {
 async fn test_payment_succeeded_webhook_resets_usage() {
     // ARRANGE: Create subscription with used clicks
     let ctx = TestContext::new();
-    let subscription_id = ctx.create_test_subscription(SubscriptionTier::Starter).await;
+    let subscription_id = ctx
+        .create_test_subscription(SubscriptionTier::Starter)
+        .await;
 
     let mut manager = ctx.subscription_manager.write().await;
     let subscription = manager.get_subscription_mut(&subscription_id).unwrap();
@@ -188,18 +216,25 @@ async fn test_payment_succeeded_webhook_resets_usage() {
         subscription_id,
         serde_json::json!({"amount": 1000}),
     );
-    manager.process_webhook(webhook).expect("Webhook should process successfully");
+    manager
+        .process_webhook(webhook)
+        .expect("Webhook should process successfully");
 
     // ASSERT: Usage is reset
     let subscription = manager.get_subscription(&subscription_id).unwrap();
-    assert_eq!(subscription.clicks_used, 0, "Usage should be reset after payment");
+    assert_eq!(
+        subscription.clicks_used, 0,
+        "Usage should be reset after payment"
+    );
 }
 
 #[tokio::test]
 async fn test_payment_failed_webhook_sets_past_due() {
     // ARRANGE: Create active subscription
     let ctx = TestContext::new();
-    let subscription_id = ctx.create_test_subscription(SubscriptionTier::Professional).await;
+    let subscription_id = ctx
+        .create_test_subscription(SubscriptionTier::Professional)
+        .await;
 
     // ACT: Process payment failed webhook
     let mut manager = ctx.subscription_manager.write().await;
@@ -208,7 +243,9 @@ async fn test_payment_failed_webhook_sets_past_due() {
         subscription_id,
         serde_json::json!({"reason": "insufficient_funds"}),
     );
-    manager.process_webhook(webhook).expect("Webhook should process successfully");
+    manager
+        .process_webhook(webhook)
+        .expect("Webhook should process successfully");
 
     // ASSERT: Status is past due
     let subscription = manager.get_subscription(&subscription_id).unwrap();
@@ -243,7 +280,10 @@ async fn test_content_draft_to_published_workflow() {
         PublicationStatus::Published,
         "Status should be Published"
     );
-    assert!(content.published_at.is_some(), "Published timestamp should be set");
+    assert!(
+        content.published_at.is_some(),
+        "Published timestamp should be set"
+    );
 }
 
 #[tokio::test]
@@ -258,7 +298,9 @@ async fn test_content_scheduled_publication() {
     );
 
     let scheduled_time = chrono::Utc::now() + chrono::Duration::hours(1);
-    content.schedule(scheduled_time).expect("Scheduling should succeed");
+    content
+        .schedule(scheduled_time)
+        .expect("Scheduling should succeed");
 
     // ACT: Add to pipeline and process (won't publish yet)
     let mut pipeline = ctx.content_pipeline.write().await;
@@ -285,21 +327,13 @@ async fn test_content_validation_rules() {
     let mut pipeline = ctx.content_pipeline.write().await;
 
     // Test empty title
-    let content = content::ContentItem::new(
-        String::new(),
-        "Body text".to_string(),
-        Uuid::new_v4(),
-    );
+    let content = content::ContentItem::new(String::new(), "Body text".to_string(), Uuid::new_v4());
     let id = pipeline.add_content(content);
     let result = pipeline.validate_content(&id);
     assert!(result.is_err(), "Empty title should fail validation");
 
     // Test empty body
-    let content2 = content::ContentItem::new(
-        "Title".to_string(),
-        String::new(),
-        Uuid::new_v4(),
-    );
+    let content2 = content::ContentItem::new("Title".to_string(), String::new(), Uuid::new_v4());
     let id2 = pipeline.add_content(content2);
     let result2 = pipeline.validate_content(&id2);
     assert!(result2.is_err(), "Empty body should fail validation");
@@ -338,12 +372,23 @@ async fn test_revenue_attribution_accurate_commission() {
     );
 
     // ASSERT: Commission is calculated correctly
-    assert_eq!(event.amount_cents, 10_000, "Revenue amount should be $100.00");
-    assert_eq!(event.commission_cents, 1_500, "Commission should be $15.00 (15%)");
+    assert_eq!(
+        event.amount_cents, 10_000,
+        "Revenue amount should be $100.00"
+    );
+    assert_eq!(
+        event.commission_cents, 1_500,
+        "Commission should be $15.00 (15%)"
+    );
 
     // Verify commission calculation
-    let verified = attribution.verify_commission(&event.id).expect("Event should exist");
-    assert!(verified, "Commission calculation should be verified as accurate");
+    let verified = attribution
+        .verify_commission(&event.id)
+        .expect("Event should exist");
+    assert!(
+        verified,
+        "Commission calculation should be verified as accurate"
+    );
 }
 
 #[tokio::test]
@@ -490,7 +535,9 @@ async fn test_subscription_quota_enforced() {
 async fn test_subscription_upgrade_increases_quota() {
     // ARRANGE: Create Starter tier subscription
     let ctx = TestContext::new();
-    let subscription_id = ctx.create_test_subscription(SubscriptionTier::Starter).await;
+    let subscription_id = ctx
+        .create_test_subscription(SubscriptionTier::Starter)
+        .await;
 
     let mut manager = ctx.subscription_manager.write().await;
     let subscription = manager.get_subscription_mut(&subscription_id).unwrap();
@@ -499,10 +546,15 @@ async fn test_subscription_upgrade_increases_quota() {
     subscription.clicks_used = 9_999;
 
     // Upgrade to Professional (100,000 quota)
-    subscription.upgrade(SubscriptionTier::Professional).expect("Upgrade should succeed");
+    subscription
+        .upgrade(SubscriptionTier::Professional)
+        .expect("Upgrade should succeed");
 
     // ASSERT: Can continue clicking (higher quota)
-    assert!(!subscription.is_quota_exceeded(), "Should not be over quota after upgrade");
+    assert!(
+        !subscription.is_quota_exceeded(),
+        "Should not be over quota after upgrade"
+    );
 }
 
 // ============================================================================
@@ -523,11 +575,15 @@ async fn test_full_workflow_affiliate_click_to_revenue() {
         affiliate_id,
     );
     let mut resolver = ctx.route_resolver.write().await;
-    resolver.add_route(route).expect("Route creation should succeed");
+    resolver
+        .add_route(route)
+        .expect("Route creation should succeed");
     drop(resolver);
 
     // Step 2: Create subscription
-    let subscription_id = ctx.create_test_subscription(SubscriptionTier::Professional).await;
+    let subscription_id = ctx
+        .create_test_subscription(SubscriptionTier::Professional)
+        .await;
 
     // ACT: Execute full workflow
     // Step 3: Track click
@@ -535,7 +591,9 @@ async fn test_full_workflow_affiliate_click_to_revenue() {
         .with_user_agent("Mozilla/5.0".to_string())
         .with_ip_address("203.0.113.1".to_string());
     let mut tracker = ctx.click_tracker.write().await;
-    let receipt = tracker.track_click(click_event).expect("Click tracking should succeed");
+    let receipt = tracker
+        .track_click(click_event)
+        .expect("Click tracking should succeed");
     let click_id = receipt.click_id;
     drop(tracker);
 
@@ -553,11 +611,22 @@ async fn test_full_workflow_affiliate_click_to_revenue() {
     // Step 5: Increment subscription usage
     let mut manager = ctx.subscription_manager.write().await;
     let subscription = manager.get_subscription_mut(&subscription_id).unwrap();
-    subscription.increment_clicks().expect("Click increment should succeed");
+    subscription
+        .increment_clicks()
+        .expect("Click increment should succeed");
 
     // ASSERT: Verify complete workflow
     assert!(receipt.verify(), "Click receipt should be valid");
-    assert_eq!(revenue_event.amount_cents, 25_000, "Revenue should be $250.00");
-    assert_eq!(revenue_event.commission_cents, 3_750, "Commission should be $37.50 (15%)");
-    assert_eq!(subscription.clicks_used, 1, "Subscription usage should be incremented");
+    assert_eq!(
+        revenue_event.amount_cents, 25_000,
+        "Revenue should be $250.00"
+    );
+    assert_eq!(
+        revenue_event.commission_cents, 3_750,
+        "Commission should be $37.50 (15%)"
+    );
+    assert_eq!(
+        subscription.clicks_used, 1,
+        "Subscription usage should be incremented"
+    );
 }

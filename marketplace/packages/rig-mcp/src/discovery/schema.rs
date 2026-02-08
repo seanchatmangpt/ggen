@@ -3,7 +3,7 @@
 //! Provides functionality to extract, validate, and analyze tool schemas
 //! from MCP server responses.
 
-use crate::discovery::{Result, DiscoveryError};
+use crate::discovery::{DiscoveryError, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 use std::collections::HashMap;
@@ -120,8 +120,7 @@ impl SchemaExtractor {
 
     /// Parse parameter schema from JSON Schema format
     fn parse_parameter_schema(
-        &self,
-        value: &JsonValue,
+        &self, value: &JsonValue,
     ) -> std::result::Result<ParameterSchema, String> {
         let schema_type = value
             .get("type")
@@ -147,14 +146,11 @@ impl SchemaExtractor {
                     .collect()
             });
 
-        let required = value
-            .get("required")
-            .and_then(|v| v.as_array())
-            .map(|arr| {
-                arr.iter()
-                    .filter_map(|v| v.as_str().map(String::from))
-                    .collect()
-            });
+        let required = value.get("required").and_then(|v| v.as_array()).map(|arr| {
+            arr.iter()
+                .filter_map(|v| v.as_str().map(String::from))
+                .collect()
+        });
 
         let items = value
             .get("items")
@@ -184,9 +180,10 @@ impl SchemaExtractor {
             required,
             items: Box::new(items),
             default: value.get("default").cloned(),
-            enum_values: value.get("enum").and_then(|v| v.as_array()).map(|arr| {
-                arr.iter().cloned().collect()
-            }),
+            enum_values: value
+                .get("enum")
+                .and_then(|v| v.as_array())
+                .map(|arr| arr.iter().cloned().collect()),
             pattern,
             min_length,
             max_length,
@@ -194,7 +191,9 @@ impl SchemaExtractor {
     }
 
     /// Validate a tool schema
-    pub fn validate(&self, schema: &ToolSchema) -> std::result::Result<(), ToolSchemaValidationError> {
+    pub fn validate(
+        &self, schema: &ToolSchema,
+    ) -> std::result::Result<(), ToolSchemaValidationError> {
         // Name validation
         if schema.name.is_empty() {
             return Err(ToolSchemaValidationError::EmptyName);
@@ -210,7 +209,9 @@ impl SchemaExtractor {
 
         // Description validation
         if schema.description.is_empty() {
-            return Err(ToolSchemaValidationError::EmptyDescription(schema.name.clone()));
+            return Err(ToolSchemaValidationError::EmptyDescription(
+                schema.name.clone(),
+            ));
         }
 
         // Parameter validation
@@ -223,10 +224,7 @@ impl SchemaExtractor {
 
     /// Validate parameter schema recursively
     fn validate_parameters(
-        &self,
-        params: &ParameterSchema,
-        tool_name: &str,
-        depth: usize,
+        &self, params: &ParameterSchema, tool_name: &str, depth: usize,
     ) -> std::result::Result<(), ToolSchemaValidationError> {
         if depth > self.max_depth {
             return Err(ToolSchemaValidationError::MaxDepthExceeded {
@@ -352,7 +350,9 @@ impl ToolSchema {
 
     /// Check if this tool requires authentication
     pub fn requires_auth(&self) -> bool {
-        self.tags.iter().any(|t| t == "auth" || t == "authenticated")
+        self.tags
+            .iter()
+            .any(|t| t == "auth" || t == "authenticated")
     }
 
     /// Get a JSON representation of this schema
@@ -487,7 +487,10 @@ pub enum ToolSchemaValidationError {
 
     /// Invalid schema type
     #[error("tool '{tool_name}' has invalid type '{type_name}'")]
-    InvalidType { tool_name: String, type_name: String },
+    InvalidType {
+        tool_name: String,
+        type_name: String,
+    },
 
     /// Empty property name
     #[error("tool '{tool_name}' has empty property name")]
@@ -520,9 +523,7 @@ mod tests {
 
     #[test]
     fn test_schema_extractor_builder() {
-        let extractor = SchemaExtractor::new()
-            .with_strict(true)
-            .with_max_depth(20);
+        let extractor = SchemaExtractor::new().with_strict(true).with_max_depth(20);
 
         assert!(extractor.strict);
         assert_eq!(extractor.max_depth, 20);
@@ -565,7 +566,7 @@ mod tests {
                 ParameterSchema::new("object")
                     .with_property("field1", ParameterSchema::new("string"))
                     .with_property("field2", ParameterSchema::new("integer"))
-                    .with_property("field3", ParameterSchema::new("boolean"))
+                    .with_property("field3", ParameterSchema::new("boolean")),
             )
             .with_tag("complex")
             .with_tag("advanced");
@@ -630,12 +631,10 @@ mod tests {
 
     #[test]
     fn test_requires_auth() {
-        let auth_tool = ToolSchema::new("secure_tool", "Needs auth")
-            .with_tag("authenticated");
+        let auth_tool = ToolSchema::new("secure_tool", "Needs auth").with_tag("authenticated");
         assert!(auth_tool.requires_auth());
 
-        let public_tool = ToolSchema::new("public_tool", "No auth needed")
-            .with_tag("public");
+        let public_tool = ToolSchema::new("public_tool", "No auth needed").with_tag("public");
         assert!(!public_tool.requires_auth());
     }
 }

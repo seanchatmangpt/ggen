@@ -36,8 +36,7 @@
 //! - `memory_usage`: Memory footprint analysis
 
 use criterion::{
-    black_box, criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion,
-    Throughput,
+    black_box, criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput,
 };
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -191,9 +190,7 @@ fn bench_tool_discovery(c: &mut Criterion) {
             tool_count,
             |b, &count| {
                 let tools = generate_mock_tools(count);
-                b.iter(|| {
-                    black_box(tools.len())
-                });
+                b.iter(|| black_box(tools.len()));
             },
         );
     }
@@ -201,14 +198,9 @@ fn bench_tool_discovery(c: &mut Criterion) {
     // Benchmark: Tool lookup by name
     group.bench_function("lookup_by_name", |b| {
         let tools = generate_mock_tools(100);
-        let tool_map: HashMap<_, _> = tools
-            .iter()
-            .map(|t| (t.name.clone(), t))
-            .collect();
+        let tool_map: HashMap<_, _> = tools.iter().map(|t| (t.name.clone(), t)).collect();
 
-        b.iter(|| {
-            black_box(tool_map.get("tool_50"))
-        });
+        b.iter(|| black_box(tool_map.get("tool_50")));
     });
 
     // Benchmark: Tool pattern matching
@@ -231,9 +223,9 @@ fn bench_tool_discovery(c: &mut Criterion) {
         let test_input = serde_json::json!({"param1": "test", "param2": 42});
 
         b.iter(|| {
-            tools.iter().for_each(|tool| {
-                black_box(validate_input_schema(&tool.input_schema, &test_input))
-            })
+            tools
+                .iter()
+                .for_each(|tool| black_box(validate_input_schema(&tool.input_schema, &test_input)))
         });
     });
 
@@ -260,54 +252,42 @@ fn bench_message_translation(c: &mut Criterion) {
         let a2a_msg = generate_mock_a2a_message(1);
         let payload = small_payload();
 
-        b.iter(|| {
-            black_box(convert_a2a_to_mcp(&a2a_msg, &payload))
-        });
+        b.iter(|| black_box(convert_a2a_to_mcp(&a2a_msg, &payload)));
     });
 
     group.bench_function("a2a_to_mcp_medium", |b| {
         let a2a_msg = generate_mock_a2a_message(1);
         let payload = medium_payload();
 
-        b.iter(|| {
-            black_box(convert_a2a_to_mcp(&a2a_msg, &payload))
-        });
+        b.iter(|| black_box(convert_a2a_to_mcp(&a2a_msg, &payload)));
     });
 
     group.bench_function("a2a_to_mcp_large", |b| {
         let a2a_msg = generate_mock_a2a_message(1);
         let payload = large_payload();
 
-        b.iter(|| {
-            black_box(convert_a2a_to_mcp(&a2a_msg, &payload))
-        });
+        b.iter(|| black_box(convert_a2a_to_mcp(&a2a_msg, &payload)));
     });
 
     // Benchmark: MCP to A2A conversion
     group.bench_function("mcp_to_a2a_small", |b| {
         let mcp_msg = generate_mock_mcp_message("tools/call", 1);
 
-        b.iter(|| {
-            black_box(convert_mcp_to_a2a(&mcp_msg))
-        });
+        b.iter(|| black_box(convert_mcp_to_a2a(&mcp_msg)));
     });
 
     // Benchmark: JSON serialization
     group.bench_function("json_serialization", |b| {
         let a2a_msg = generate_mock_a2a_message(1);
 
-        b.iter(|| {
-            black_box(serde_json::to_string(&a2a_msg).unwrap())
-        });
+        b.iter(|| black_box(serde_json::to_string(&a2a_msg).unwrap()));
     });
 
     // Benchmark: JSON deserialization
     group.bench_function("json_deserialization", |b| {
         let json_str = serde_json::to_string(&generate_mock_a2a_message(1)).unwrap();
 
-        b.iter(|| {
-            black_box(serde_json::from_str::<MockA2AMessage>(&json_str).unwrap())
-        });
+        b.iter(|| black_box(serde_json::from_str::<MockA2AMessage>(&json_str).unwrap()));
     });
 
     // Benchmark: Batch conversion (100 messages)
@@ -329,10 +309,7 @@ fn bench_message_translation(c: &mut Criterion) {
 }
 
 /// Mock A2A to MCP conversion function
-fn convert_a2a_to_mcp(
-    a2a_msg: &MockA2AMessage,
-    payload: &serde_json::Value,
-) -> MockMCPMessage {
+fn convert_a2a_to_mcp(a2a_msg: &MockA2AMessage, payload: &serde_json::Value) -> MockMCPMessage {
     MockMCPMessage {
         jsonrpc: "2.0".to_string(),
         id: Some(a2a_msg.id.clone()),
@@ -369,9 +346,7 @@ fn bench_tool_execution(c: &mut Criterion) {
     group.bench_function("invocation_overhead", |b| {
         let tool = generate_mock_tools(1).pop().unwrap();
 
-        b.iter(|| {
-            black_box(invoke_tool(&tool, &small_payload()))
-        });
+        b.iter(|| black_box(invoke_tool(&tool, &small_payload())));
     });
 
     // Benchmark: Parameter parsing
@@ -383,9 +358,7 @@ fn bench_tool_execution(c: &mut Criterion) {
             "param4": [1, 2, 3]
         });
 
-        b.iter(|| {
-            black_box(parse_parameters(&params))
-        });
+        b.iter(|| black_box(parse_parameters(&params)));
     });
 
     // Benchmark: Response generation
@@ -395,9 +368,7 @@ fn bench_tool_execution(c: &mut Criterion) {
             "data": {"key": "value"}
         });
 
-        b.iter(|| {
-            black_box(generate_response("call_id_123", true, Some(&result)))
-        });
+        b.iter(|| black_box(generate_response("call_id_123", true, Some(&result))));
     });
 
     // Benchmark: Error handling
@@ -408,9 +379,7 @@ fn bench_tool_execution(c: &mut Criterion) {
             "data": {"detail": "Missing required parameter"}
         });
 
-        b.iter(|| {
-            black_box(generate_error_response("call_id_456", &error))
-        });
+        b.iter(|| black_box(generate_error_response("call_id_456", &error)));
     });
 
     // Benchmark: Streaming response chunks
@@ -420,9 +389,7 @@ fn bench_tool_execution(c: &mut Criterion) {
             "done": false
         });
 
-        b.iter(|| {
-            black_box(format_streaming_chunk(1, &chunk_data))
-        });
+        b.iter(|| black_box(format_streaming_chunk(1, &chunk_data)));
     });
 
     group.measurement_time(Duration::from_secs(5));
@@ -461,10 +428,7 @@ fn generate_response(id: &str, success: bool, result: Option<&serde_json::Value>
 
 /// Mock error response function
 fn generate_error_response(id: &str, error: &serde_json::Value) -> String {
-    format!(
-        r#"{{"jsonrpc":"2.0","id":"{}","error":{}}}"#,
-        id, error
-    )
+    format!(r#"{{"jsonrpc":"2.0","id":"{}","error":{}}}"#, id, error)
 }
 
 /// Mock streaming chunk formatting function
@@ -491,8 +455,9 @@ fn bench_concurrent_operations(c: &mut Criterion) {
             BenchmarkId::new("concurrent_messages", concurrency),
             concurrency,
             |b, &concurrency| {
-                let messages: Vec<_> =
-                    (0..concurrency).map(|i| generate_mock_a2a_message(i)).collect();
+                let messages: Vec<_> = (0..concurrency)
+                    .map(|i| generate_mock_a2a_message(i))
+                    .collect();
 
                 b.iter(|| {
                     let results: Vec<_> = messages
@@ -530,8 +495,9 @@ fn bench_concurrent_operations(c: &mut Criterion) {
             BenchmarkId::new("concurrent_translation", concurrency),
             concurrency,
             |b, &concurrency| {
-                let messages: Vec<_> =
-                    (0..concurrency).map(|i| generate_mock_a2a_message(i)).collect();
+                let messages: Vec<_> = (0..concurrency)
+                    .map(|i| generate_mock_a2a_message(i))
+                    .collect();
 
                 b.iter(|| {
                     let results: Vec<_> = messages
@@ -549,9 +515,7 @@ fn bench_concurrent_operations(c: &mut Criterion) {
         let state = Arc::new(RwLock::new(generate_mock_tools(100)));
 
         b.iter(|| {
-            let read_guard = tokio::task::block_in_place(|| {
-                state.blocking_read()
-            });
+            let read_guard = tokio::task::block_in_place(|| state.blocking_read());
             black_box(read_guard.len())
         });
     });
@@ -560,9 +524,7 @@ fn bench_concurrent_operations(c: &mut Criterion) {
         let state = Arc::new(RwLock::new(generate_mock_tools(100)));
 
         b.iter(|| {
-            let mut write_guard = tokio::task::block_in_place(|| {
-                state.blocking_write()
-            });
+            let mut write_guard = tokio::task::block_in_place(|| state.blocking_write());
             write_guard.push(generate_mock_tools(1).pop().unwrap());
             black_box(write_guard.len())
         });
@@ -589,9 +551,7 @@ fn bench_memory_usage(c: &mut Criterion) {
     group.bench_function("connection_state", |b| {
         b.iter_batched(
             || MockConnectionState::new(),
-            |state| {
-                black_box(state.size_bytes())
-            },
+            |state| black_box(state.size_bytes()),
             BatchSize::Small,
         );
     });
@@ -604,9 +564,7 @@ fn bench_memory_usage(c: &mut Criterion) {
             |b, &count| {
                 b.iter_batched(
                     || generate_mock_tools(count),
-                    |tools| {
-                        black_box(estimate_tool_memory(&tools))
-                    },
+                    |tools| black_box(estimate_tool_memory(&tools)),
                     BatchSize::Small,
                 );
             },
@@ -621,9 +579,7 @@ fn bench_memory_usage(c: &mut Criterion) {
             |b, &size| {
                 b.iter_batched(
                     || MockMessageBuffer::new(size),
-                    |buffer| {
-                        black_box(buffer.capacity_bytes())
-                    },
+                    |buffer| black_box(buffer.capacity_bytes()),
                     BatchSize::Small,
                 );
             },
@@ -634,9 +590,7 @@ fn bench_memory_usage(c: &mut Criterion) {
     group.bench_function("cache_entry", |b| {
         b.iter_batched(
             || MockCacheEntry::new("key_123", &small_payload()),
-            |entry| {
-                black_box(entry.size_bytes())
-            },
+            |entry| black_box(entry.size_bytes()),
             BatchSize::Small,
         );
     });
@@ -686,7 +640,9 @@ fn estimate_tool_memory(tools: &[MockTool]) -> usize {
     tools
         .iter()
         .map(|t| {
-            t.name.len() + t.description.len() + t.input_schema.to_string().len()
+            t.name.len()
+                + t.description.len()
+                + t.input_schema.to_string().len()
                 + t.output_schema.to_string().len()
         })
         .sum()
@@ -779,30 +735,15 @@ fn validate_tool_memory_slo(bytes: usize) -> bool {
 // Criterion Groups
 // =============================================================================
 
-criterion_group!(
-    tool_discovery,
-    bench_tool_discovery
-);
+criterion_group!(tool_discovery, bench_tool_discovery);
 
-criterion_group!(
-    message_translation,
-    bench_message_translation
-);
+criterion_group!(message_translation, bench_message_translation);
 
-criterion_group!(
-    tool_execution,
-    bench_tool_execution
-);
+criterion_group!(tool_execution, bench_tool_execution);
 
-criterion_group!(
-    concurrent_operations,
-    bench_concurrent_operations
-);
+criterion_group!(concurrent_operations, bench_concurrent_operations);
 
-criterion_group!(
-    memory_usage,
-    bench_memory_usage
-);
+criterion_group!(memory_usage, bench_memory_usage);
 
 criterion_main!(
     tool_discovery,

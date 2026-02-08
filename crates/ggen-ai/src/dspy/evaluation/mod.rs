@@ -183,13 +183,13 @@ impl Evaluate {
     /// - No metric configured or provided
     /// - All evaluations fail (and max_errors reached)
     pub async fn evaluate(
-        &self,
-        program: &dyn Module,
-        metric: Option<SimpleMetricFn>,
+        &self, program: &dyn Module, metric: Option<SimpleMetricFn>,
     ) -> Result<EvaluationResult, ModuleError> {
         // Validate metric is available
         let metric = metric.or_else(|| self.metric.clone()).ok_or_else(|| {
-            ModuleError::Other("No metric configured. Use with_metric() or pass metric to evaluate()".to_string())
+            ModuleError::Other(
+                "No metric configured. Use with_metric() or pass metric to evaluate()".to_string(),
+            )
         })?;
 
         if self.devset.is_empty() {
@@ -197,10 +197,7 @@ impl Evaluate {
             return Ok(EvaluationResult::new(vec![], Duration::from_secs(0)));
         }
 
-        info!(
-            "Starting evaluation with {} examples",
-            self.devset.len()
-        );
+        info!("Starting evaluation with {} examples", self.devset.len());
         let start = Instant::now();
 
         // Setup progress bar
@@ -259,10 +256,7 @@ impl Evaluate {
 
     /// Parallel evaluation implementation
     async fn evaluate_parallel(
-        &self,
-        program: &dyn Module,
-        metric: SimpleMetricFn,
-        pb: Option<&ProgressBar>,
+        &self, program: &dyn Module, metric: SimpleMetricFn, pb: Option<&ProgressBar>,
     ) -> Result<Vec<EvaluationPoint>, ModuleError> {
         // Determine thread count
         let num_threads = self.num_threads.unwrap_or_else(|| {
@@ -286,9 +280,10 @@ impl Evaluate {
 
         // Spawn evaluation tasks
         for example in self.devset.clone() {
-            let permit = semaphore.clone().acquire_owned().await.map_err(|e| {
-                ModuleError::Other(format!("Semaphore acquisition failed: {}", e))
-            })?;
+            let permit =
+                semaphore.clone().acquire_owned().await.map_err(|e| {
+                    ModuleError::Other(format!("Semaphore acquisition failed: {}", e))
+                })?;
 
             let metric = metric.clone();
             let error_count = error_count.clone();
@@ -345,7 +340,8 @@ impl Evaluate {
         // Collect results
         let mut results = Vec::new();
         while let Some(result) = join_set.join_next().await {
-            let point = result.map_err(|e| ModuleError::Other(format!("Task join failed: {}", e)))?;
+            let point =
+                result.map_err(|e| ModuleError::Other(format!("Task join failed: {}", e)))?;
             results.push(point);
         }
 
@@ -370,8 +366,7 @@ mod tests {
         }
 
         async fn forward(
-            &self,
-            inputs: HashMap<String, Value>,
+            &self, inputs: HashMap<String, Value>,
         ) -> Result<HashMap<String, Value>, ModuleError> {
             // Echo inputs as outputs
             Ok(inputs)
@@ -441,14 +436,8 @@ mod tests {
             .save_as_csv("results.csv")
             .save_as_json("results.json");
 
-        assert_eq!(
-            evaluator.save_as_csv,
-            Some(PathBuf::from("results.csv"))
-        );
-        assert_eq!(
-            evaluator.save_as_json,
-            Some(PathBuf::from("results.json"))
-        );
+        assert_eq!(evaluator.save_as_csv, Some(PathBuf::from("results.csv")));
+        assert_eq!(evaluator.save_as_json, Some(PathBuf::from("results.json")));
     }
 
     #[test]
@@ -597,9 +586,7 @@ mod tests {
             Err(MetricError::ComputationError("Always fails".to_string()))
         });
 
-        let evaluator = Evaluate::new(devset)
-            .with_metric(metric)
-            .with_max_errors(5);
+        let evaluator = Evaluate::new(devset).with_metric(metric).with_max_errors(5);
 
         let result = evaluator.evaluate(&program, None).await.unwrap();
 

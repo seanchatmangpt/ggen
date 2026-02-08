@@ -2,7 +2,7 @@
 //!
 //! Provides pluggable retrieval backends for vector databases and search engines.
 
-use crate::{Module, ModuleOutput, Result, DspyError};
+use crate::{DspyError, Module, ModuleOutput, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -74,7 +74,8 @@ impl InMemoryRetriever {
         let doc_lower = document.to_lowercase();
 
         let query_words: Vec<_> = query_lower.split_whitespace().collect();
-        let matches = query_words.iter()
+        let matches = query_words
+            .iter()
             .filter(|word| doc_lower.contains(*word))
             .count();
 
@@ -85,7 +86,9 @@ impl InMemoryRetriever {
 #[async_trait]
 impl RetrieverBackend for InMemoryRetriever {
     async fn search(&self, query: &str, k: usize) -> Result<Vec<Passage>> {
-        let mut scored: Vec<_> = self.documents.iter()
+        let mut scored: Vec<_> = self
+            .documents
+            .iter()
             .map(|doc| {
                 let score = self.score(query, doc);
                 Passage::new(doc.clone(), score)
@@ -141,7 +144,8 @@ impl Retrieve {
 impl Module for Retrieve {
     async fn forward(&self, inputs: &[(&str, &str)]) -> Result<ModuleOutput> {
         // Extract query from inputs
-        let query = inputs.iter()
+        let query = inputs
+            .iter()
             .find(|(key, _)| *key == "query" || *key == "question")
             .map(|(_, value)| *value)
             .ok_or_else(|| DspyError::MissingInput("query or question".to_string()))?;
@@ -153,7 +157,8 @@ impl Module for Retrieve {
         let mut output = ModuleOutput::new();
 
         // Join passages into context
-        let context = passages.iter()
+        let context = passages
+            .iter()
             .map(|p| &p.text)
             .cloned()
             .collect::<Vec<_>>()
@@ -163,8 +168,8 @@ impl Module for Retrieve {
         output.set("num_passages", passages.len().to_string());
 
         // Add individual passages as JSON
-        let passages_json = serde_json::to_string(&passages)
-            .map_err(|e| DspyError::SerializationError(e))?;
+        let passages_json =
+            serde_json::to_string(&passages).map_err(|e| DspyError::SerializationError(e))?;
         output.set("passages_json", passages_json);
 
         Ok(output)
@@ -212,7 +217,8 @@ impl RetrieveBuilder {
 
     /// Build the Retrieve module
     pub fn build(self) -> Result<Retrieve> {
-        let backend = self.backend
+        let backend = self
+            .backend
             .ok_or_else(|| DspyError::ConfigError("Retriever backend not set".to_string()))?;
 
         Ok(Retrieve {
@@ -278,16 +284,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_batch_search() {
-        let docs = vec![
-            "Rust is fast".to_string(),
-            "Python is easy".to_string(),
-        ];
+        let docs = vec!["Rust is fast".to_string(), "Python is easy".to_string()];
 
         let retriever = InMemoryRetriever::new(docs);
-        let queries = vec![
-            "Rust".to_string(),
-            "Python".to_string(),
-        ];
+        let queries = vec!["Rust".to_string(), "Python".to_string()];
 
         let results = retriever.batch_search(&queries, 1).await.unwrap();
         assert_eq!(results.len(), 2);

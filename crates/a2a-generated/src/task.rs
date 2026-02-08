@@ -54,7 +54,9 @@ pub enum TaskStatus {
 /// Trait for task execution
 pub trait TaskExecutor: Send + Sync {
     /// Execute a task and return the result
-    fn execute(&self, task: &Task) -> impl std::future::Future<Output = Result<TaskResult, TaskError>> + Send;
+    fn execute(
+        &self, task: &Task,
+    ) -> impl std::future::Future<Output = Result<TaskResult, TaskError>> + Send;
 
     /// Check if the executor can handle the given task type
     fn can_handle(&self, task_type: &str) -> bool;
@@ -99,12 +101,7 @@ pub enum TaskErrorType {
 }
 
 impl Task {
-    pub fn new(
-        id: String,
-        name: String,
-        task_type: String,
-        input: serde_json::Value,
-    ) -> Self {
+    pub fn new(id: String, name: String, task_type: String, input: serde_json::Value) -> Self {
         Self {
             id,
             name,

@@ -85,7 +85,7 @@ fn example_validation_errors() -> Result<(), Box<dyn std::error::Error>> {
     let invalid_temp = LlmConfig {
         model: "test-model".to_string(),
         max_tokens: Some(1000),
-        temperature: Some(3.0),  // Max is 2.0
+        temperature: Some(3.0), // Max is 2.0
         top_p: Some(0.9),
         stop: None,
         extra: HashMap::new(),
@@ -99,7 +99,7 @@ fn example_validation_errors() -> Result<(), Box<dyn std::error::Error>> {
     // Test 3: Invalid max_tokens (too low)
     let invalid_tokens = LlmConfig {
         model: "test-model".to_string(),
-        max_tokens: Some(0),  // Min is 1
+        max_tokens: Some(0), // Min is 1
         temperature: Some(0.7),
         top_p: Some(0.9),
         stop: None,
@@ -116,7 +116,7 @@ fn example_validation_errors() -> Result<(), Box<dyn std::error::Error>> {
         model: "test-model".to_string(),
         max_tokens: Some(1000),
         temperature: Some(0.7),
-        top_p: Some(-0.5),  // Must be 0.0-1.0
+        top_p: Some(-0.5), // Must be 0.0-1.0
         stop: None,
         extra: HashMap::new(),
     };
@@ -220,9 +220,7 @@ async fn example_error_recovery() -> Result<(), Box<dyn std::error::Error>> {
 
     // Strategy 2: Fallback to cached response
     async fn get_response_with_cache(
-        client: &MockClient,
-        prompt: &str,
-        cache: &HashMap<String, String>,
+        client: &MockClient, prompt: &str, cache: &HashMap<String, String>,
     ) -> Result<String> {
         match client.complete(prompt).await {
             Ok(response) => Ok(response.content),
@@ -295,10 +293,7 @@ async fn example_retry_logic() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     /// Execute request with retry logic
-    async fn retry_request<F, Fut>(
-        retry_config: &RetryConfig,
-        operation: F,
-    ) -> Result<String>
+    async fn retry_request<F, Fut>(retry_config: &RetryConfig, operation: F) -> Result<String>
     where
         F: Fn() -> Fut,
         Fut: std::future::Future<Output = Result<String>>,
@@ -443,7 +438,10 @@ async fn example_token_budgets() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    println!("  Final usage: {} / {} tokens", budget.used_tokens, budget.total_budget);
+    println!(
+        "  Final usage: {} / {} tokens",
+        budget.used_tokens, budget.total_budget
+    );
 
     println!();
     Ok(())
@@ -460,10 +458,7 @@ async fn example_timeout_handling() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Example 6: Timeout Handling ---");
 
     /// Execute with timeout
-    async fn with_timeout<F, T>(
-        duration: Duration,
-        operation: F,
-    ) -> Result<T>
+    async fn with_timeout<F, T>(duration: Duration, operation: F) -> Result<T>
     where
         F: std::future::Future<Output = Result<T>>,
     {
@@ -476,32 +471,25 @@ async fn example_timeout_handling() -> Result<(), Box<dyn std::error::Error>> {
 
     // Test 1: Fast operation (succeeds)
     println!("  Test 1: Fast operation with 2s timeout");
-    match with_timeout(
-        Duration::from_secs(2),
-        client.complete("fast"),
-    ).await {
+    match with_timeout(Duration::from_secs(2), client.complete("fast")).await {
         Ok(response) => println!("    ✓ Completed: {}", response.content),
         Err(e) => println!("    ✗ Timed out: {}", e),
     }
 
     // Test 2: Simulated slow operation
     println!("\n  Test 2: Slow operation with 100ms timeout");
-    match with_timeout(
-        Duration::from_millis(100),
-        async {
-            sleep(Duration::from_millis(200)).await;
-            client.complete("slow").await
-        },
-    ).await {
+    match with_timeout(Duration::from_millis(100), async {
+        sleep(Duration::from_millis(200)).await;
+        client.complete("slow").await
+    })
+    .await
+    {
         Ok(response) => println!("    ✓ Completed: {}", response.content),
         Err(e) => println!("    ✓ Timeout handled correctly: {}", e),
     }
 
     // Test 3: Adaptive timeout based on request size
-    async fn adaptive_timeout_request(
-        client: &MockClient,
-        prompt: &str,
-    ) -> Result<String> {
+    async fn adaptive_timeout_request(client: &MockClient, prompt: &str) -> Result<String> {
         // Calculate timeout based on prompt length
         let base_timeout = Duration::from_secs(5);
         let extra_time = Duration::from_millis(prompt.len() as u64 * 10);
@@ -546,11 +534,20 @@ async fn example_error_context() -> Result<(), Box<dyn std::error::Error>> {
             let error_str = error.to_string();
 
             let (error_type, suggestion) = if error_str.contains("API key") {
-                ("Authentication", "Check your API key environment variables".to_string())
+                (
+                    "Authentication",
+                    "Check your API key environment variables".to_string(),
+                )
             } else if error_str.contains("rate limit") {
-                ("RateLimit", "Wait before retrying or upgrade your plan".to_string())
+                (
+                    "RateLimit",
+                    "Wait before retrying or upgrade your plan".to_string(),
+                )
             } else if error_str.contains("timeout") {
-                ("Timeout", "Increase timeout or simplify your request".to_string())
+                (
+                    "Timeout",
+                    "Increase timeout or simplify your request".to_string(),
+                )
             } else if error_str.contains("validation") {
                 ("Validation", "Check your input parameters".to_string())
             } else {

@@ -1,6 +1,6 @@
 //! MIPRO optimizer - Multi-prompt Instruction Proposal Optimizer
 
-use crate::{Module, Optimizer, OptimizerConfig, Result, optimizers::TrainExample};
+use crate::{optimizers::TrainExample, Module, Optimizer, OptimizerConfig, Result};
 
 /// MIPRO optimizer
 pub struct MiproOptimizer {
@@ -22,7 +22,9 @@ impl MiproOptimizer {
 
 #[async_trait::async_trait]
 impl Optimizer for MiproOptimizer {
-    async fn compile(&self, module: Box<dyn Module>, _trainset: &[TrainExample]) -> Result<Box<dyn Module>> {
+    async fn compile(
+        &self, module: Box<dyn Module>, _trainset: &[TrainExample],
+    ) -> Result<Box<dyn Module>> {
         // TODO: Implement MIPRO optimization
         Ok(module)
     }

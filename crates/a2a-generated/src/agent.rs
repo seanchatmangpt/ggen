@@ -22,7 +22,9 @@ pub trait AgentBehavior: Send + Sync {
     fn initialize(&mut self, config: &serde_json::Value) -> Result<(), String>;
 
     /// Execute the agent's main logic
-    fn execute(&mut self, input: serde_json::Value) -> impl std::future::Future<Output = Result<serde_json::Value, String>> + Send;
+    fn execute(
+        &mut self, input: serde_json::Value,
+    ) -> impl std::future::Future<Output = Result<serde_json::Value, String>> + Send;
 
     /// Shutdown the agent gracefully
     fn shutdown(&mut self) -> Result<(), String>;
@@ -103,7 +105,10 @@ mod tests {
 
         default_agent.initialize(&serde_json::json!({})).unwrap();
 
-        let result = default_agent.execute(serde_json::json!({"test": "input"})).await.unwrap();
+        let result = default_agent
+            .execute(serde_json::json!({"test": "input"}))
+            .await
+            .unwrap();
         assert_eq!(result["status"].as_str().unwrap(), "completed");
         assert_eq!(result["agent_id"].as_str().unwrap(), "123");
     }

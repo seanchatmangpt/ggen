@@ -4,9 +4,9 @@
 //! of interface redundancy between basic and rich agent implementations.
 //! Following the BB80 pattern with convergence through selection pressure.
 
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Unified convergent agent interface eliminating 70% redundancy
 ///
@@ -2387,7 +2387,9 @@ pub enum PolicyPriority {
 }
 
 /// Import dependencies from converged message module
-use super::message::{ConvergedMessageType, ReliabilityLevel, LatencyRequirements, ThroughputRequirements};
+use super::message::{
+    ConvergedMessageType, LatencyRequirements, ReliabilityLevel, ThroughputRequirements,
+};
 
 // Unified agent builder
 pub struct UnifiedAgentBuilder {
@@ -2554,7 +2556,9 @@ impl UnifiedAgent {
     }
 
     /// Create an agent with specific capabilities
-    pub fn with_capabilities(id: String, name: String, agent_type: String, capabilities: Vec<Capability>) -> Self {
+    pub fn with_capabilities(
+        id: String, name: String, agent_type: String, capabilities: Vec<Capability>,
+    ) -> Self {
         let mut builder = UnifiedAgentBuilder::new(id, name, agent_type, "default".to_string());
         for capability in capabilities {
             builder = builder.with_capability(capability);

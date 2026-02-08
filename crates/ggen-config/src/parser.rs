@@ -128,8 +128,9 @@ impl ConfigLoader {
     ///
     /// Returns an error if no configuration file is found or path validation fails
     pub fn find_config_file() -> Result<SafePath> {
-        let mut current = SafePath::current_dir()
-            .map_err(|e| ConfigError::Validation(format!("Failed to get current directory: {}", e)))?;
+        let mut current = SafePath::current_dir().map_err(|e| {
+            ConfigError::Validation(format!("Failed to get current directory: {}", e))
+        })?;
 
         loop {
             let candidate = current
@@ -141,13 +142,11 @@ impl ConfigLoader {
             }
 
             // Try parent directory
-            current = current
-                .parent()
-                .map_err(|_e: ggen_utils::error::Error| {
-                    ConfigError::FileNotFound(
-                        std::path::PathBuf::from("ggen.toml (searched all parent directories)")
-                    )
-                })?;
+            current = current.parent().map_err(|_e: ggen_utils::error::Error| {
+                ConfigError::FileNotFound(std::path::PathBuf::from(
+                    "ggen.toml (searched all parent directories)",
+                ))
+            })?;
         }
     }
 

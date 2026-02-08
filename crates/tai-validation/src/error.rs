@@ -117,10 +117,9 @@ impl fmt::Display for ValidationError {
                 "SHACL violation [{}:{}]: {}",
                 shape_uri, property, message
             ),
-            ValidationError::PreFlightFailure {
-                check_name,
-                reason,
-            } => write!(f, "Pre-flight check [{}] failed: {}", check_name, reason),
+            ValidationError::PreFlightFailure { check_name, reason } => {
+                write!(f, "Pre-flight check [{}] failed: {}", check_name, reason)
+            }
             ValidationError::EvidenceError(e) => write!(f, "Evidence error: {}", e),
             ValidationError::CoverageError(e) => write!(f, "Coverage error: {}", e),
             ValidationError::AcceptanceCriteriaError(e) => {

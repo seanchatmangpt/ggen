@@ -75,11 +75,14 @@ impl WorkflowPattern for Sequence {
             });
 
             // Simulate step execution
-            context.output.insert(format!("{}_result", step), serde_json::json!({
-                "step": step,
-                "index": i,
-                "status": "completed"
-            }));
+            context.output.insert(
+                format!("{}_result", step),
+                serde_json::json!({
+                    "step": step,
+                    "index": i,
+                    "status": "completed"
+                }),
+            );
 
             context.metadata.trace.push(TraceEvent {
                 step: step.clone(),
@@ -94,7 +97,9 @@ impl WorkflowPattern for Sequence {
 
     fn validate(&self) -> WorkflowResult<()> {
         if self.steps.is_empty() {
-            return Err(WorkflowError::Validation("Sequence pattern must have at least one step".to_string()));
+            return Err(WorkflowError::Validation(
+                "Sequence pattern must have at least one step".to_string(),
+            ));
         }
         if self.steps.len() > CONSTANTS.max_workflow_steps {
             return Err(WorkflowError::Validation(format!(
@@ -139,11 +144,14 @@ impl WorkflowPattern for Parallel {
             });
 
             // Simulate parallel execution
-            context.output.insert(format!("{}_result", step), serde_json::json!({
-                "step": step,
-                "status": "completed",
-                "parallel": true
-            }));
+            context.output.insert(
+                format!("{}_result", step),
+                serde_json::json!({
+                    "step": step,
+                    "status": "completed",
+                    "parallel": true
+                }),
+            );
 
             context.metadata.trace.push(TraceEvent {
                 step: step.clone(),
@@ -158,7 +166,9 @@ impl WorkflowPattern for Parallel {
 
     fn validate(&self) -> WorkflowResult<()> {
         if self.steps.is_empty() {
-            return Err(WorkflowError::Validation("Parallel pattern must have at least one step".to_string()));
+            return Err(WorkflowError::Validation(
+                "Parallel pattern must have at least one step".to_string(),
+            ));
         }
         if self.steps.len() > CONSTANTS.max_parallel_tasks {
             return Err(WorkflowError::Validation(format!(
@@ -224,10 +234,14 @@ impl WorkflowPattern for Choice {
 
     fn validate(&self) -> WorkflowResult<()> {
         if self.branches.is_empty() {
-            return Err(WorkflowError::Validation("Choice pattern must have at least one branch".to_string()));
+            return Err(WorkflowError::Validation(
+                "Choice pattern must have at least one branch".to_string(),
+            ));
         }
         if self.branches.len() > 10 {
-            return Err(WorkflowError::Validation("Choice pattern supports maximum 10 branches".to_string()));
+            return Err(WorkflowError::Validation(
+                "Choice pattern supports maximum 10 branches".to_string(),
+            ));
         }
 
         for (branch_name, branch) in self.branches.iter() {
@@ -270,11 +284,14 @@ impl WorkflowPattern for Sync {
             });
 
             // Simulate step execution with synchronization
-            context.output.insert(format!("{}_sync_result", step), serde_json::json!({
-                "step": step,
-                "status": "synchronized",
-                "barrier_reached": true
-            }));
+            context.output.insert(
+                format!("{}_sync_result", step),
+                serde_json::json!({
+                    "step": step,
+                    "status": "synchronized",
+                    "barrier_reached": true
+                }),
+            );
 
             context.metadata.trace.push(TraceEvent {
                 step: step.clone(),
@@ -289,7 +306,9 @@ impl WorkflowPattern for Sync {
 
     fn validate(&self) -> WorkflowResult<()> {
         if self.steps.is_empty() {
-            return Err(WorkflowError::Validation("Sync pattern must have at least one step".to_string()));
+            return Err(WorkflowError::Validation(
+                "Sync pattern must have at least one step".to_string(),
+            ));
         }
         if self.steps.len() > CONSTANTS.max_parallel_tasks {
             return Err(WorkflowError::Validation(format!(
@@ -374,12 +393,18 @@ mod tests {
     #[test]
     fn test_choice_pattern() {
         let mut branches = HashMap::new();
-        branches.insert("true".to_string(), Box::new(Sequence {
-            steps: vec!["true_branch".to_string()],
-        }) as Box<dyn WorkflowPattern>);
-        branches.insert("false".to_string(), Box::new(Sequence {
-            steps: vec!["false_branch".to_string()],
-        }));
+        branches.insert(
+            "true".to_string(),
+            Box::new(Sequence {
+                steps: vec!["true_branch".to_string()],
+            }) as Box<dyn WorkflowPattern>,
+        );
+        branches.insert(
+            "false".to_string(),
+            Box::new(Sequence {
+                steps: vec!["false_branch".to_string()],
+            }),
+        );
 
         let choice = Choice {
             condition: "test_condition".to_string(),

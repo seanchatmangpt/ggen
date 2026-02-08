@@ -22,7 +22,7 @@ fn bench_lockfile_operations(c: &mut Criterion) {
                 let manager = lockfile::LockfileManager::new(temp_dir.path());
                 let _ = manager.create();
             },
-            criterion::BatchSize::SmallInput
+            criterion::BatchSize::SmallInput,
         )
     });
 
@@ -39,10 +39,10 @@ fn bench_lockfile_operations(c: &mut Criterion) {
                     black_box("io.ggen.test"),
                     black_box("1.0.0"),
                     black_box("abc123"),
-                    black_box("https://example.com")
+                    black_box("https://example.com"),
                 );
             },
-            criterion::BatchSize::SmallInput
+            criterion::BatchSize::SmallInput,
         )
     });
 
@@ -54,8 +54,11 @@ fn bench_tera_rendering(c: &mut Criterion) {
 
     let mut tera = tera::Tera::default();
     tera.add_raw_template("simple", "Hello {{ name }}!").ok();
-    tera.add_raw_template("complex",
-        "{% for item in items %}\n  - {{ item }}\n{% endfor %}").ok();
+    tera.add_raw_template(
+        "complex",
+        "{% for item in items %}\n  - {{ item }}\n{% endfor %}",
+    )
+    .ok();
 
     group.bench_function("render_simple_template", |b| {
         b.iter(|| {
@@ -102,7 +105,7 @@ fn bench_bmap_operations(c: &mut Criterion) {
                     let _ = map.get(&format!("key_{}", i));
                 }
             },
-            criterion::BatchSize::SmallInput
+            criterion::BatchSize::SmallInput,
         )
     });
 
@@ -118,7 +121,7 @@ fn bench_bmap_operations(c: &mut Criterion) {
             |map| {
                 let _count = map.iter().count();
             },
-            criterion::BatchSize::SmallInput
+            criterion::BatchSize::SmallInput,
         )
     });
 
@@ -179,7 +182,7 @@ fn bench_path_operations(c: &mut Criterion) {
             |path| {
                 let _ = std::fs::canonicalize(&path);
             },
-            criterion::BatchSize::SmallInput
+            criterion::BatchSize::SmallInput,
         )
     });
 

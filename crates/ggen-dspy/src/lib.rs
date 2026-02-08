@@ -107,12 +107,11 @@ pub use config::{
 
 // Module exports
 pub use modules::{
-    ChainOfThought, Module, ModuleContext, ModuleOutput, Predictor, ReAct, ReactAgent,
-    Retrieve, Passage, RetrieverBackend, InMemoryRetriever, RetrieveBuilder,
-    MultiHopQA, MultiHopConfig, HopState, MultiHopQABuilder,
-    SimplifiedBaleen, BaleenConfig, BaleenHop, BaleenBuilder,
-    ProgramOfThought, ProgramOfThoughtConfig, ProgramOfThoughtBuilder,
-    CodeLanguage, ExecutionResult,
+    BaleenBuilder, BaleenConfig, BaleenHop, ChainOfThought, CodeLanguage, ExecutionResult,
+    HopState, InMemoryRetriever, Module, ModuleContext, ModuleOutput, MultiHopConfig, MultiHopQA,
+    MultiHopQABuilder, Passage, Predictor, ProgramOfThought, ProgramOfThoughtBuilder,
+    ProgramOfThoughtConfig, ReAct, ReactAgent, Retrieve, RetrieveBuilder, RetrieverBackend,
+    SimplifiedBaleen,
 };
 
 // Optimizer exports

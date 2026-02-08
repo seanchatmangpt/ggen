@@ -8,23 +8,19 @@ pub mod message;
 
 // Re-export agent types
 pub use agent::{
-    UnifiedAgent, UnifiedAgentBuilder, AgentIdentity, AgentCapabilities,
-    AgentLifecycle, AgentCommunication, AgentExecution, AgentSecurity,
-    Capability, AgentProtocol, DataFormat, QoSLevel, ResourceConstraints,
-    AgentState, AgentHealth, HealthStatus, AgentMetrics,
-    ExecutionMode, ExecutionStrategy, AgentError,
+    AgentCapabilities, AgentCommunication, AgentError, AgentExecution, AgentHealth, AgentIdentity,
+    AgentLifecycle, AgentMetrics, AgentProtocol, AgentSecurity, AgentState, Capability, DataFormat,
+    ExecutionMode, ExecutionStrategy, HealthStatus, QoSLevel, ResourceConstraints, UnifiedAgent,
+    UnifiedAgentBuilder,
 };
 
 // Re-export message types
 pub use message::{
-    ConvergedMessage, ConvergedMessageType, ConvergedPayload, UnifiedContent,
-    MessageEnvelope, MessageRouting, MessageLifecycle, MessageState,
-    UnifiedContext, TaskContext, ConversationContext, DomainContext, TemporalContext,
-    MessageHints, ProcessingHints, SecurityHints, ResourceRequirements,
-    SecurityClassification, EncryptionRequirements,
-    MessageIntegrity, QoSRequirements, ReliabilityLevel,
-    LatencyRequirements, ThroughputRequirements,
-    MessageTimeout, TimeoutType, MessagePriority, TaskStatus,
-    MessageStateTransition, ConvergedMessageBuilder,
-    UnifiedFileContent,
+    ConvergedMessage, ConvergedMessageBuilder, ConvergedMessageType, ConvergedPayload,
+    ConversationContext, DomainContext, EncryptionRequirements, LatencyRequirements,
+    MessageEnvelope, MessageHints, MessageIntegrity, MessageLifecycle, MessagePriority,
+    MessageRouting, MessageState, MessageStateTransition, MessageTimeout, ProcessingHints,
+    QoSRequirements, ReliabilityLevel, ResourceRequirements, SecurityClassification, SecurityHints,
+    TaskContext, TaskStatus, TemporalContext, ThroughputRequirements, TimeoutType, UnifiedContent,
+    UnifiedContext, UnifiedFileContent,
 };

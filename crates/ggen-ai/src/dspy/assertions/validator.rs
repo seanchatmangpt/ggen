@@ -214,10 +214,7 @@ impl Validator for ContainsValidator {
         if found {
             ValidationResult::valid()
         } else {
-            ValidationResult::invalid(format!(
-                "Output must contain '{}'",
-                self.substring
-            ))
+            ValidationResult::invalid(format!("Output must contain '{}'", self.substring))
         }
     }
 
@@ -225,7 +222,11 @@ impl Validator for ContainsValidator {
         format!(
             "Contains '{}' ({})",
             self.substring,
-            if self.case_sensitive { "case-sensitive" } else { "case-insensitive" }
+            if self.case_sensitive {
+                "case-sensitive"
+            } else {
+                "case-insensitive"
+            }
         )
     }
 }
@@ -357,8 +358,10 @@ impl Validator for AllValidator {
     }
 
     fn description(&self) -> String {
-        format!("All of: [{}]",
-            self.validators.iter()
+        format!(
+            "All of: [{}]",
+            self.validators
+                .iter()
                 .map(|v| v.description())
                 .collect::<Vec<_>>()
                 .join(", ")
@@ -399,8 +402,10 @@ impl Validator for AnyValidator {
     }
 
     fn description(&self) -> String {
-        format!("Any of: [{}]",
-            self.validators.iter()
+        format!(
+            "Any of: [{}]",
+            self.validators
+                .iter()
                 .map(|v| v.description())
                 .collect::<Vec<_>>()
                 .join(", ")
@@ -423,9 +428,9 @@ impl NotValidator {
 impl Validator for NotValidator {
     fn validate(&self, output: &Value) -> ValidationResult {
         match self.validator.validate(output) {
-            ValidationResult::Valid => {
-                ValidationResult::invalid("Must NOT satisfy: ".to_string() + &self.validator.description())
-            }
+            ValidationResult::Valid => ValidationResult::invalid(
+                "Must NOT satisfy: ".to_string() + &self.validator.description(),
+            ),
             ValidationResult::Invalid { .. } => ValidationResult::valid(),
         }
     }
@@ -585,7 +590,9 @@ mod tests {
 
         assert!(validator.validate(&json!(["a", "b"])).is_valid());
         assert!(validator.validate(&json!(["a"])).is_invalid());
-        assert!(validator.validate(&json!(["a", "b", "c", "d", "e", "f"])).is_invalid());
+        assert!(validator
+            .validate(&json!(["a", "b", "c", "d", "e", "f"]))
+            .is_invalid());
     }
 
     #[test]
@@ -602,7 +609,9 @@ mod tests {
         let validator = ItemCountValidator::max(3);
 
         assert!(validator.validate(&json!(["a", "b"])).is_valid());
-        assert!(validator.validate(&json!(["a", "b", "c", "d"])).is_invalid());
+        assert!(validator
+            .validate(&json!(["a", "b", "c", "d"]))
+            .is_invalid());
     }
 
     // ===== UniqueItemsValidator Tests =====
@@ -653,7 +662,9 @@ mod tests {
 
         let validator = AnyValidator::new(validators);
         assert!(validator.validate(&json!("hi")).is_valid());
-        assert!(validator.validate(&json!("very long string here")).is_valid());
+        assert!(validator
+            .validate(&json!("very long string here"))
+            .is_valid());
     }
 
     #[test]
@@ -693,7 +704,7 @@ mod tests {
                     ValidationResult::invalid("Must be a string")
                 }
             },
-            "Word count > 3"
+            "Word count > 3",
         );
 
         assert!(validator.validate(&json!("one two three four")).is_valid());

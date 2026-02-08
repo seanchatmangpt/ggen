@@ -5,7 +5,11 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum SaasError {
     #[error("Quota exceeded for {resource}: used {used}/{limit}")]
-    QuotaExceeded { resource: String, used: u64, limit: u64 },
+    QuotaExceeded {
+        resource: String,
+        used: u64,
+        limit: u64,
+    },
 
     #[error("Rate limit exceeded: {0} requests per minute")]
     RateLimitExceeded(u32),

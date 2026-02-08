@@ -115,11 +115,7 @@ impl SloTracker {
     }
 
     /// Count violations in last 7 days
-    pub fn count_violations_7d(
-        &self,
-        metric_type: MetricType,
-        threshold: f64,
-    ) -> usize {
+    pub fn count_violations_7d(&self, metric_type: MetricType, threshold: f64) -> usize {
         let duration = Duration::days(7);
         let recent = self.get_recent(metric_type, duration);
         recent.iter().filter(|m| m.value > threshold).count()

@@ -5,9 +5,9 @@
 //! receipt generation.
 
 // Re-export NIF modules
-pub mod workflow;
 pub mod query;
 pub mod receipt;
+pub mod workflow;
 
 #[cfg(test)]
 mod tests {

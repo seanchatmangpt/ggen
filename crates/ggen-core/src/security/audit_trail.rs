@@ -206,9 +206,7 @@ impl AuditTrail {
 
     /// Write audit entry to disk
     fn write_entry_to_disk(
-        &self,
-        entry: &AuditEntry,
-        repo_path: &PathBuf,
+        &self, entry: &AuditEntry, repo_path: &PathBuf,
     ) -> Result<(), AuditError> {
         use std::fs;
 
@@ -252,7 +250,9 @@ impl AuditTrail {
     /// Create a Merkle proof for an event
     pub fn create_proof(&self, event_id: &str) -> Result<MerkleProof, AuditError> {
         let entry = self.get(event_id)?;
-        let hash = entry.hash.clone()
+        let hash = entry
+            .hash
+            .clone()
             .ok_or_else(|| AuditError::VerificationFailed("Missing hash".to_string()))?;
 
         Ok(MerkleProof {
@@ -260,7 +260,10 @@ impl AuditTrail {
             event_hash: hash,
             parent_hash: entry.parent_hash.clone(),
             audit_timestamp: entry.audit_timestamp,
-            chain_position: self.entries.iter().position(|e| e.event.id == event_id)
+            chain_position: self
+                .entries
+                .iter()
+                .position(|e| e.event.id == event_id)
                 .ok_or_else(|| AuditError::EventNotFound(event_id.to_string()))?,
         })
     }

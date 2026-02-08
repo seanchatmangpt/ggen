@@ -8,13 +8,11 @@
 //! - SLO compliance verification
 
 use ggen_ontology_core::{
-    triple_store::TripleStore,
-    entity_mapper::EntityMapper,
-    sparql_generator::SparqlGenerator,
+    entity_mapper::EntityMapper, sparql_generator::SparqlGenerator, triple_store::TripleStore,
     validators::validate_turtle,
 };
-use std::time::Instant;
 use std::path::PathBuf;
+use std::time::Instant;
 
 /// Benchmark result structure for reporting
 #[derive(Debug, Clone)]
@@ -27,7 +25,9 @@ struct BenchmarkResult {
 }
 
 impl BenchmarkResult {
-    fn new(operation: impl Into<String>, duration_ms: f64, target_ms: f64, metadata: impl Into<String>) -> Self {
+    fn new(
+        operation: impl Into<String>, duration_ms: f64, target_ms: f64, metadata: impl Into<String>,
+    ) -> Self {
         let op = operation.into();
         let pass = duration_ms <= target_ms;
         let metadata_str = metadata.into();
@@ -144,10 +144,14 @@ fn benchmark_rdf_loading() -> Vec<BenchmarkResult> {
 
                         total_time += duration_ms;
 
-                        println!("  ✓ {} ({:.1}KB) loaded in {:.2}ms",
-                                 description, expected_kb, duration_ms);
-                        println!("    → {} triples, {:.0} triples/sec",
-                                 triple_count, throughput);
+                        println!(
+                            "  ✓ {} ({:.1}KB) loaded in {:.2}ms",
+                            description, expected_kb, duration_ms
+                        );
+                        println!(
+                            "    → {} triples, {:.0} triples/sec",
+                            triple_count, throughput
+                        );
 
                         results.push(BenchmarkResult::new(
                             format!("RDF Load ({})", filename),
@@ -201,12 +205,7 @@ fn benchmark_sparql_queries() -> Vec<BenchmarkResult> {
     };
 
     // Load all ontologies for comprehensive query testing
-    let ontologies = vec![
-        "hipaa.ttl",
-        "it_sla.ttl",
-        "security.ttl",
-        "aws_cloud.ttl",
-    ];
+    let ontologies = vec!["hipaa.ttl", "it_sla.ttl", "security.ttl", "aws_cloud.ttl"];
 
     for ontology in ontologies {
         if let Err(e) = store.load_turtle(get_ontology_path(ontology)) {
@@ -216,25 +215,31 @@ fn benchmark_sparql_queries() -> Vec<BenchmarkResult> {
 
     // Define test queries
     let queries = vec![
-        ("find_policies_by_jurisdiction",
-         SparqlGenerator::find_policies_by_jurisdiction("US"),
-         "Find policies by jurisdiction"),
-
-        ("find_data_classifications",
-         SparqlGenerator::find_data_classifications("Public"),
-         "Find data classifications"),
-
-        ("find_services_by_sla",
-         SparqlGenerator::find_services_by_sla(0.99),
-         "Find services by SLA"),
-
-        ("find_security_controls",
-         SparqlGenerator::find_security_controls("Authentication"),
-         "Find security controls"),
-
-        ("find_compute_by_type",
-         SparqlGenerator::find_compute_by_type("VM"),
-         "Find compute services"),
+        (
+            "find_policies_by_jurisdiction",
+            SparqlGenerator::find_policies_by_jurisdiction("US"),
+            "Find policies by jurisdiction",
+        ),
+        (
+            "find_data_classifications",
+            SparqlGenerator::find_data_classifications("Public"),
+            "Find data classifications",
+        ),
+        (
+            "find_services_by_sla",
+            SparqlGenerator::find_services_by_sla(0.99),
+            "Find services by SLA",
+        ),
+        (
+            "find_security_controls",
+            SparqlGenerator::find_security_controls("Authentication"),
+            "Find security controls",
+        ),
+        (
+            "find_compute_by_type",
+            SparqlGenerator::find_compute_by_type("VM"),
+            "Find compute services",
+        ),
     ];
 
     let mut total_query_time = 0.0;
@@ -265,14 +270,19 @@ fn benchmark_sparql_queries() -> Vec<BenchmarkResult> {
 
             total_query_time += avg_duration;
 
-            println!("  ✓ {} ({:.2}ms avg, min: {:.2}ms, max: {:.2}ms)",
-                     description, avg_duration, min_duration, max_duration);
+            println!(
+                "  ✓ {} ({:.2}ms avg, min: {:.2}ms, max: {:.2}ms)",
+                description, avg_duration, min_duration, max_duration
+            );
 
             results.push(BenchmarkResult::new(
                 format!("SPARQL ({})", name),
                 avg_duration,
                 100.0, // 100ms target
-                format!("avg: {:.2}ms, range: {:.2}-{:.2}ms", min_duration, max_duration, min_duration),
+                format!(
+                    "avg: {:.2}ms, range: {:.2}-{:.2}ms",
+                    min_duration, max_duration, min_duration
+                ),
             ));
         }
     }
@@ -289,16 +299,43 @@ fn benchmark_entity_mapping() -> Vec<BenchmarkResult> {
     let mut results = Vec::new();
 
     let test_entities = vec![
-        ("Policy", vec!["Privacy Policy", "Security Policy", "Access Control Policy", "Encryption Policy", "General Policy"],
-         "Policies"),
-        ("Data Classification", vec!["Public", "Confidential", "Restricted", "Secret", "Unknown"],
-         "Data Classifications"),
-        ("Service Level", vec!["99.99", "99.9", "99.0", "95.0", "50.0"],
-         "Service Levels"),
-        ("Security Control", vec!["MFA", "Encryption", "Audit Logging", "Access Control", "Security"],
-         "Security Controls"),
-        ("Compute Service", vec!["VM", "Container", "Serverless", "Kubernetes", "Unknown"],
-         "Compute Services"),
+        (
+            "Policy",
+            vec![
+                "Privacy Policy",
+                "Security Policy",
+                "Access Control Policy",
+                "Encryption Policy",
+                "General Policy",
+            ],
+            "Policies",
+        ),
+        (
+            "Data Classification",
+            vec!["Public", "Confidential", "Restricted", "Secret", "Unknown"],
+            "Data Classifications",
+        ),
+        (
+            "Service Level",
+            vec!["99.99", "99.9", "99.0", "95.0", "50.0"],
+            "Service Levels",
+        ),
+        (
+            "Security Control",
+            vec![
+                "MFA",
+                "Encryption",
+                "Audit Logging",
+                "Access Control",
+                "Security",
+            ],
+            "Security Controls",
+        ),
+        (
+            "Compute Service",
+            vec!["VM", "Container", "Serverless", "Kubernetes", "Unknown"],
+            "Compute Services",
+        ),
     ];
 
     let mut total_time = 0.0;
@@ -321,8 +358,12 @@ fn benchmark_entity_mapping() -> Vec<BenchmarkResult> {
                             category_time += duration_ms;
                             category_matches += matches.len();
 
-                            print!("    ✓ {:25} → {} matches ({:.2}ms)",
-                                   entity, matches.len(), duration_ms);
+                            print!(
+                                "    ✓ {:25} → {} matches ({:.2}ms)",
+                                entity,
+                                matches.len(),
+                                duration_ms
+                            );
                             if !matches.is_empty() {
                                 println!(" [{}]", matches[0].label);
                             } else {
@@ -343,8 +384,12 @@ fn benchmark_entity_mapping() -> Vec<BenchmarkResult> {
                             category_time += duration_ms;
                             category_matches += matches.len();
 
-                            print!("    ✓ {:25} → {} matches ({:.2}ms)",
-                                   entity, matches.len(), duration_ms);
+                            print!(
+                                "    ✓ {:25} → {} matches ({:.2}ms)",
+                                entity,
+                                matches.len(),
+                                duration_ms
+                            );
                             if !matches.is_empty() {
                                 println!(" [{}]", matches[0].label);
                             } else {
@@ -366,8 +411,12 @@ fn benchmark_entity_mapping() -> Vec<BenchmarkResult> {
                                 category_time += duration_ms;
                                 category_matches += matches.len();
 
-                                print!("    ✓ {:25} → {} matches ({:.2}ms)",
-                                       entity, matches.len(), duration_ms);
+                                print!(
+                                    "    ✓ {:25} → {} matches ({:.2}ms)",
+                                    entity,
+                                    matches.len(),
+                                    duration_ms
+                                );
                                 if !matches.is_empty() {
                                     println!(" [{}]", matches[0].label);
                                 } else {
@@ -391,8 +440,12 @@ fn benchmark_entity_mapping() -> Vec<BenchmarkResult> {
                             category_time += duration_ms;
                             category_matches += matches.len();
 
-                            print!("    ✓ {:25} → {} matches ({:.2}ms)",
-                                   entity, matches.len(), duration_ms);
+                            print!(
+                                "    ✓ {:25} → {} matches ({:.2}ms)",
+                                entity,
+                                matches.len(),
+                                duration_ms
+                            );
                             if !matches.is_empty() {
                                 println!(" [{}]", matches[0].label);
                             } else {
@@ -413,8 +466,12 @@ fn benchmark_entity_mapping() -> Vec<BenchmarkResult> {
                             category_time += duration_ms;
                             category_matches += matches.len();
 
-                            print!("    ✓ {:25} → {} matches ({:.2}ms)",
-                                   entity, matches.len(), duration_ms);
+                            print!(
+                                "    ✓ {:25} → {} matches ({:.2}ms)",
+                                entity,
+                                matches.len(),
+                                duration_ms
+                            );
                             if !matches.is_empty() {
                                 println!(" [{}]", matches[0].label);
                             } else {
@@ -489,8 +546,10 @@ fn benchmark_validation() -> Vec<BenchmarkResult> {
                 let duration_ms = duration.as_secs_f64() * 1000.0;
                 valid_time += duration_ms;
 
-                println!("    ✓ {} - Valid: {} ({:.2}ms)",
-                         description, report.is_valid, duration_ms);
+                println!(
+                    "    ✓ {} - Valid: {} ({:.2}ms)",
+                    description, report.is_valid, duration_ms
+                );
 
                 results.push(BenchmarkResult::new(
                     format!("Validation ({})", filename),
@@ -513,7 +572,10 @@ fn benchmark_validation() -> Vec<BenchmarkResult> {
             let duration = start.elapsed();
             let duration_ms = duration.as_secs_f64() * 1000.0;
 
-            println!("    ✓ Invalid - Valid: {} ({:.2}ms)", report.is_valid, duration_ms);
+            println!(
+                "    ✓ Invalid - Valid: {} ({:.2}ms)",
+                report.is_valid, duration_ms
+            );
             println!("    → Errors detected: {}", report.errors.len());
 
             results.push(BenchmarkResult::new(
@@ -546,13 +608,19 @@ fn benchmark_validation() -> Vec<BenchmarkResult> {
             Err(_) => {
                 let duration = start.elapsed();
                 let duration_ms = duration.as_secs_f64() * 1000.0;
-                println!("    ✓ {} - Error detected ({:.2}ms)", description, duration_ms);
+                println!(
+                    "    ✓ {} - Error detected ({:.2}ms)",
+                    description, duration_ms
+                );
             }
         }
     }
 
     println!("\n  📊 Validation Summary:");
-    println!("    → Average valid file validation: {:.2}ms", valid_time / 4.0);
+    println!(
+        "    → Average valid file validation: {:.2}ms",
+        valid_time / 4.0
+    );
     println!("    → Error detection: Working");
 
     results
@@ -573,11 +641,10 @@ fn generate_report(results: &[BenchmarkResult]) {
             format!("{:30}", op_name)
         };
 
-        println!("│ {} │ {:6.2}ms │ {:6.1}ms │ {:13} │",
-                 op_name,
-                 result.duration_ms,
-                 result.target_ms,
-                 status);
+        println!(
+            "│ {} │ {:6.2}ms │ {:6.1}ms │ {:13} │",
+            op_name, result.duration_ms, result.target_ms, status
+        );
     }
 
     println!("└─────────────────────────────────────────────────────────────────────┘");
