@@ -4,9 +4,9 @@
 //! message structure duplication between basic and rich message implementations.
 //! Following the BB80 pattern with convergence through selection pressure.
 
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Unified convergent message structure eliminating 85% duplication
 ///
@@ -829,13 +829,15 @@ impl ConvergedMessage {
                     return Err("Text content cannot be empty".to_string());
                 }
             }
-            UnifiedContent::File { file, .. } => {
-                match (&file.bytes, &file.uri) {
-                    (Some(_), None) | (None, Some(_)) => (),
-                    (Some(_), Some(_)) => return Err("File content cannot have both bytes and URI".to_string()),
-                    (None, None) => return Err("File content must have either bytes or URI".to_string()),
+            UnifiedContent::File { file, .. } => match (&file.bytes, &file.uri) {
+                (Some(_), None) | (None, Some(_)) => (),
+                (Some(_), Some(_)) => {
+                    return Err("File content cannot have both bytes and URI".to_string())
                 }
-            }
+                (None, None) => {
+                    return Err("File content must have either bytes or URI".to_string())
+                }
+            },
             UnifiedContent::Data { data, .. } => {
                 if data.is_empty() {
                     return Err("Data content cannot be empty".to_string());
@@ -884,7 +886,10 @@ mod tests {
         assert_eq!(message.source, "agent-1");
         assert_eq!(message.envelope.message_type, ConvergedMessageType::Task);
 
-        if let Some(UnifiedContext { tasks: Some(tasks), .. }) = message.payload.context {
+        if let Some(UnifiedContext {
+            tasks: Some(tasks), ..
+        }) = message.payload.context
+        {
             assert_eq!(tasks.len(), 1);
             assert_eq!(tasks[0].task_id, "task-123");
         } else {
@@ -972,16 +977,14 @@ mod tests {
             timeout: None,
         };
 
-        let message = ConvergedMessageBuilder::new(
-            "msg-builder".to_string(),
-            "agent-1".to_string(),
-        )
-        .with_envelope(envelope)
-        .with_payload(payload)
-        .with_routing(routing)
-        .with_lifecycle(lifecycle)
-        .build()
-        .unwrap();
+        let message =
+            ConvergedMessageBuilder::new("msg-builder".to_string(), "agent-1".to_string())
+                .with_envelope(envelope)
+                .with_payload(payload)
+                .with_routing(routing)
+                .with_lifecycle(lifecycle)
+                .build()
+                .unwrap();
 
         assert_eq!(message.message_id, "msg-builder");
         assert_eq!(message.source, "agent-1");

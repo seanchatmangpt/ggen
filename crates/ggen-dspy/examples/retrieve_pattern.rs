@@ -2,7 +2,7 @@
 //!
 //! Demonstrates basic retrieval-augmented generation with vector search.
 
-use ggen_dspy::{Module, Retrieve, InMemoryRetriever};
+use ggen_dspy::{InMemoryRetriever, Module, Retrieve};
 use std::sync::Arc;
 
 #[tokio::main]

@@ -66,7 +66,7 @@ impl PortConfigInternal {
     pub fn new() -> Self {
         Self {
             max_message_size: 1024 * 1024, // 1MB
-            message_timeout: 30000, // 30 seconds
+            message_timeout: 30000,        // 30 seconds
             buffered: true,
             buffer_size: 100,
             parameters: HashMap::new(),
@@ -251,7 +251,6 @@ impl PortData {
     }
 }
 
-
 impl Default for PortConfigInternal {
     fn default() -> Self {
         Self::new()
@@ -405,9 +404,7 @@ impl Port for BasicPort {
 
         // Simulate message sending
         self.stats.messages_sent += 1;
-        self.stats.bytes_sent += serde_json::to_string(message)
-            .unwrap_or_default()
-            .len() as u64;
+        self.stats.bytes_sent += serde_json::to_string(message).unwrap_or_default().len() as u64;
         self.stats.last_message_timestamp = Some(chrono::Utc::now());
 
         Ok(())
@@ -466,16 +463,18 @@ impl PortRegistry {
     }
 
     pub fn get_port(&self, id: &str) -> Option<&dyn Port> {
-        self.ports.get(id)
-            .map(|port| port.as_ref())
+        self.ports.get(id).map(|port| port.as_ref())
     }
 
-    pub async fn connect_ports(&mut self, source_id: &str, target_id: &str) -> Result<(), PortError> {
-        let source_port = self.ports.get_mut(source_id)
-            .ok_or_else(|| PortError::new(
+    pub async fn connect_ports(
+        &mut self, source_id: &str, target_id: &str,
+    ) -> Result<(), PortError> {
+        let source_port = self.ports.get_mut(source_id).ok_or_else(|| {
+            PortError::new(
                 "Source port not found".to_string(),
                 PortErrorType::PortNotFound,
-            ))?;
+            )
+        })?;
 
         source_port.connect(target_id).await
     }
@@ -491,7 +490,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_port_creation() {
-        let port = BasicPort::new("port-123".to_string(), "Test Port".to_string(), PortType::Output);
+        let port = BasicPort::new(
+            "port-123".to_string(),
+            "Test Port".to_string(),
+            PortType::Output,
+        );
         assert_eq!(port.id(), "port-123");
         assert_eq!(port.name(), "Test Port");
         assert_eq!(port.port_type(), PortType::Output);
@@ -500,7 +503,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_port_initialization() {
-        let mut port = BasicPort::new("port-123".to_string(), "Test Port".to_string(), PortType::Output);
+        let mut port = BasicPort::new(
+            "port-123".to_string(),
+            "Test Port".to_string(),
+            PortType::Output,
+        );
         let config = PortConfig::new()
             .with_max_message_size(2048)
             .with_message_timeout(3000);
@@ -511,7 +518,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_port_connection() {
-        let mut port1 = BasicPort::new("port-1".to_string(), "Port 1".to_string(), PortType::Output);
+        let mut port1 =
+            BasicPort::new("port-1".to_string(), "Port 1".to_string(), PortType::Output);
         let mut port2 = BasicPort::new("port-2".to_string(), "Port 2".to_string(), PortType::Input);
 
         port1.initialize(PortConfig::new()).await.unwrap();
@@ -523,7 +531,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_port_send_receive() {
-        let mut port = BasicPort::new("port-123".to_string(), "Test Port".to_string(), PortType::Bidirectional);
+        let mut port = BasicPort::new(
+            "port-123".to_string(),
+            "Test Port".to_string(),
+            PortType::Bidirectional,
+        );
         port.initialize(PortConfig::new()).await.unwrap();
 
         let test_message = serde_json::json!({"test": "message"});
@@ -537,7 +549,11 @@ mod tests {
     fn test_port_registry() {
         let mut registry = PortRegistry::new();
 
-        let port = BasicPort::new("port-123".to_string(), "Test Port".to_string(), PortType::Output);
+        let port = BasicPort::new(
+            "port-123".to_string(),
+            "Test Port".to_string(),
+            PortType::Output,
+        );
         registry.register_port(Box::new(port));
 
         assert!(registry.get_port("port-123").is_some());

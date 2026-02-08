@@ -3,9 +3,9 @@
 //! This benchmark suite evaluates the performance of working WIP components
 //! that don't have compilation issues.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
-use std::time::Duration;
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::collections::HashMap;
+use std::time::Duration;
 
 // Use existing components that work
 fn bench_existing_benchmarking(c: &mut Criterion) {
@@ -15,9 +15,7 @@ fn bench_existing_benchmarking(c: &mut Criterion) {
     group.bench_function("cli_startup_performance", |b| {
         b.iter(|| {
             // Simulate CLI startup
-            black_box(
-                format!("ggen sync")
-            )
+            black_box(format!("ggen sync"))
         });
     });
 
@@ -57,7 +55,7 @@ fn bench_simple_implementations(c: &mut Criterion) {
                 "templates/example.tera",
                 "specs/feature.ttl",
                 "README.md",
-                "src/main.rs"
+                "src/main.rs",
             ];
 
             for path in &test_paths {
@@ -230,17 +228,17 @@ fn bench_concurrent_operations(c: &mut Criterion) {
             use std::sync::Arc;
             use std::thread;
 
-            let tasks: Vec<_> = (0..10).map(|i| {
-                let task = move || {
-                    std::thread::sleep(Duration::from_millis(10));
-                    format!("task_{}_result", i)
-                };
-                Arc::new(task)
-            }).collect();
+            let tasks: Vec<_> = (0..10)
+                .map(|i| {
+                    let task = move || {
+                        std::thread::sleep(Duration::from_millis(10));
+                        format!("task_{}_result", i)
+                    };
+                    Arc::new(task)
+                })
+                .collect();
 
-            let handles: Vec<_> = tasks.iter().map(|task| {
-                thread::spawn(|| task())
-            }).collect();
+            let handles: Vec<_> = tasks.iter().map(|task| thread::spawn(|| task())).collect();
 
             let results: Vec<_> = handles.into_iter().map(|h| h.join().unwrap()).collect();
             black_box(results);
@@ -312,9 +310,7 @@ fn bench_serialization_performance(c: &mut Criterion) {
         "#;
 
         b.iter(|| {
-            black_box(
-                serde_json::from_str::<serde_json::Value>(json_data).unwrap()
-            );
+            black_box(serde_json::from_str::<serde_json::Value>(json_data).unwrap());
         });
     });
 

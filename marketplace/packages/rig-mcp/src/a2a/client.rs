@@ -40,7 +40,7 @@ impl Default for A2aClientWrapperConfig {
             transport: A2aTransportConfig::default(),
             conversion: ConversionContext::default(),
             max_wait_time_ms: 60000, // 1 minute
-            poll_interval_ms: 500,    // 500ms
+            poll_interval_ms: 500,   // 500ms
         }
     }
 }
@@ -106,8 +106,7 @@ impl A2aClientWrapper {
 
     /// Create a new client wrapper with a specific converter.
     pub async fn new_with_converter(
-        transport_config: A2aTransportConfig,
-        converter: Arc<A2aMessageConverter>,
+        transport_config: A2aTransportConfig, converter: Arc<A2aMessageConverter>,
     ) -> Result<Self, TransportError> {
         let http_transport = HttpA2aTransport::new(transport_config.clone())?;
 
@@ -128,8 +127,7 @@ impl A2aClientWrapper {
 
     /// Create a new client wrapper with a custom transport.
     pub fn with_transport(
-        transport: Arc<dyn A2aTransport>,
-        converter: Arc<A2aMessageConverter>,
+        transport: Arc<dyn A2aTransport>, converter: Arc<A2aMessageConverter>,
     ) -> Self {
         let config = A2aClientWrapperConfig {
             transport: A2aTransportConfig::default(),

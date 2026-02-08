@@ -114,7 +114,9 @@ impl TemporalContext {
     #[must_use]
     pub fn has_monotonic_causality(&self, predecessor_timestamps: &[(String, i64)]) -> bool {
         for (pred_id, pred_time) in predecessor_timestamps {
-            if self.causality_chain.predecessors.contains(pred_id) && pred_time >= &self.timestamp_ns {
+            if self.causality_chain.predecessors.contains(pred_id)
+                && pred_time >= &self.timestamp_ns
+            {
                 return false; // Causality violation
             }
         }
@@ -211,7 +213,8 @@ mod tests {
     #[test]
     fn test_temporal_context_monotonicity() {
         let data = b"test data";
-        let mut ctx = TemporalContext::new(data.as_ref(), "abc123".to_string(), "span-456".to_string());
+        let mut ctx =
+            TemporalContext::new(data.as_ref(), "abc123".to_string(), "span-456".to_string());
 
         let current_time = ctx.timestamp_ns;
         let earlier_time = current_time - 1000; // 1000ns earlier
@@ -226,7 +229,11 @@ mod tests {
     #[test]
     fn test_git_reference_validation() {
         let data = b"test";
-        let ctx = TemporalContext::new(data.as_ref(), "a".repeat(40).to_string(), "span".to_string());
+        let ctx = TemporalContext::new(
+            data.as_ref(),
+            "a".repeat(40).to_string(),
+            "span".to_string(),
+        );
         assert!(ctx.verify_git_reference());
 
         let ctx2 = TemporalContext::new(data.as_ref(), "short".to_string(), "span".to_string());

@@ -41,10 +41,7 @@ impl QuotaManager {
 
     /// Check if user can perform an operation
     pub async fn check_quota(
-        &self,
-        user_id: &str,
-        operation: &str,
-        cost: u64,
+        &self, user_id: &str, operation: &str, cost: u64,
     ) -> SaasResult<QuotaState> {
         let quota = self.get_quota(user_id).await?;
 
@@ -84,12 +81,7 @@ impl QuotaManager {
     }
 
     /// Record usage
-    pub async fn record_usage(
-        &self,
-        user_id: &str,
-        operation: &str,
-        cost: u64,
-    ) -> SaasResult<()> {
+    pub async fn record_usage(&self, user_id: &str, operation: &str, cost: u64) -> SaasResult<()> {
         let mut quota = self.get_quota(user_id).await?;
 
         match operation {
@@ -126,7 +118,9 @@ impl QuotaManager {
         };
 
         // Cache it
-        self.quota_cache.insert(user_id.to_string(), quota.clone()).await;
+        self.quota_cache
+            .insert(user_id.to_string(), quota.clone())
+            .await;
 
         Ok(quota)
     }
@@ -193,9 +187,7 @@ mod tests {
         let _quota = manager.get_quota("user1").await.unwrap();
 
         // Try to use more than free tier limit
-        let result = manager
-            .check_quota("user1", "api_call", 2000)
-            .await;
+        let result = manager.check_quota("user1", "api_call", 2000).await;
 
         assert!(result.is_err());
     }

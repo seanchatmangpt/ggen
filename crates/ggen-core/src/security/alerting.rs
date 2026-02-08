@@ -98,7 +98,9 @@ impl Alert {
     }
 
     /// Create custom alert
-    pub fn new(severity: AlertSeverity, title: impl Into<String>, message: impl Into<String>) -> Self {
+    pub fn new(
+        severity: AlertSeverity, title: impl Into<String>, message: impl Into<String>,
+    ) -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
             severity,
@@ -217,12 +219,7 @@ impl MemoryAlertHandler {
 
     /// Get all stored alerts
     pub fn get_alerts(&self) -> Vec<Alert> {
-        self.alerts
-            .lock()
-            .unwrap()
-            .iter()
-            .cloned()
-            .collect()
+        self.alerts.lock().unwrap().iter().cloned().collect()
     }
 
     /// Clear all alerts
@@ -504,10 +501,8 @@ mod tests {
         let handler = Arc::new(MemoryAlertHandler::new(10));
         manager.register_handler(handler.clone());
 
-        let event = SecurityEvent::input_validation_failed(
-            "' OR '1'='1",
-            AttackPattern::SqlInjection,
-        );
+        let event =
+            SecurityEvent::input_validation_failed("' OR '1'='1", AttackPattern::SqlInjection);
 
         // Act
         let result = manager.send_from_event(&event);

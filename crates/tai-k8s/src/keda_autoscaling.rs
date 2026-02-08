@@ -106,12 +106,13 @@ impl EventDrivenScaler {
     /// Add Pub/Sub event source
     #[must_use]
     pub fn with_pubsub(
-        project_id: String,
-        subscription: String,
-        target_queue_length: i32,
+        project_id: String, subscription: String, target_queue_length: i32,
     ) -> ScaledObjectConfig {
         ScaledObjectConfig {
-            name: format!("pubsub-scaler-{}", &subscription[..subscription.len().min(8)]),
+            name: format!(
+                "pubsub-scaler-{}",
+                &subscription[..subscription.len().min(8)]
+            ),
             namespace: "default".to_string(),
             target_name: "unknown".to_string(),
             target_kind: "Deployment".to_string(),
@@ -131,10 +132,7 @@ impl EventDrivenScaler {
     /// Add Kafka event source
     #[must_use]
     pub fn with_kafka(
-        brokers: Vec<String>,
-        topic: String,
-        consumer_group: String,
-        target_lag: i32,
+        brokers: Vec<String>, topic: String, consumer_group: String, target_lag: i32,
     ) -> ScaledObjectConfig {
         ScaledObjectConfig {
             name: format!("kafka-scaler-{}", &topic[..topic.len().min(8)]),
@@ -465,29 +463,28 @@ mod tests {
     #[test]
     fn test_keda_autoscaler_new() {
         let autoscaler = KedaAutoscaler::new();
-        assert!(autoscaler.generate_scaled_object(&ScaledObjectConfig {
-            name: "test-scaler".to_string(),
-            namespace: "default".to_string(),
-            target_name: "test-deployment".to_string(),
-            target_kind: "Deployment".to_string(),
-            min_replicas: 1,
-            max_replicas: 10,
-            metrics: vec![MetricType::Cpu {
-                target_utilization_percentage: 70,
-            }],
-            scale_up_cooldown: 30,
-            scale_down_cooldown: 300,
-            fallback_replicas: Some(2),
-        }).is_ok());
+        assert!(autoscaler
+            .generate_scaled_object(&ScaledObjectConfig {
+                name: "test-scaler".to_string(),
+                namespace: "default".to_string(),
+                target_name: "test-deployment".to_string(),
+                target_kind: "Deployment".to_string(),
+                min_replicas: 1,
+                max_replicas: 10,
+                metrics: vec![MetricType::Cpu {
+                    target_utilization_percentage: 70,
+                }],
+                scale_up_cooldown: 30,
+                scale_down_cooldown: 300,
+                fallback_replicas: Some(2),
+            })
+            .is_ok());
     }
 
     #[test]
     fn test_event_driven_scaler_pubsub() {
-        let config = EventDrivenScaler::with_pubsub(
-            "test-project".to_string(),
-            "test-sub".to_string(),
-            100,
-        );
+        let config =
+            EventDrivenScaler::with_pubsub("test-project".to_string(), "test-sub".to_string(), 100);
         assert_eq!(config.name, "pubsub-scaler-test-sub");
         assert_eq!(config.min_replicas, 1);
         assert_eq!(config.max_replicas, 10);

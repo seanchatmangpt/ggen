@@ -30,7 +30,10 @@ fn example_json_compatible() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create inputs
     let mut inputs = HashMap::new();
-    inputs.insert("task".to_string(), Value::String("Generate response".to_string()));
+    inputs.insert(
+        "task".to_string(),
+        Value::String("Generate response".to_string()),
+    );
 
     let output_fields = vec!["response".to_string(), "metadata".to_string()];
 
@@ -60,7 +63,10 @@ fn example_chat_fallback() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create inputs
     let mut inputs = HashMap::new();
-    inputs.insert("task".to_string(), Value::String("Generate response".to_string()));
+    inputs.insert(
+        "task".to_string(),
+        Value::String("Generate response".to_string()),
+    );
 
     let output_fields = vec!["response".to_string()];
 

@@ -224,7 +224,11 @@ impl ModelCapabilities {
         // GPT-4 family
         if name_lower.contains("gpt-4") {
             return Self {
-                max_context_tokens: if name_lower.contains("turbo") { 128_000 } else { 8_192 },
+                max_context_tokens: if name_lower.contains("turbo") {
+                    128_000
+                } else {
+                    8_192
+                },
                 max_output_tokens: 4_096,
                 structured_output: true, // JSON mode
                 function_calling: true,
@@ -511,7 +515,8 @@ impl ModelRegistry {
         registry.register(Model::from_name("gpt-4-turbo").with_cost(ModelCost::gpt4_turbo()));
         registry.register(Model::from_name("gpt-3.5-turbo").with_cost(ModelCost::gpt35_turbo()));
         registry.register(Model::from_name("claude-3-opus").with_cost(ModelCost::claude3_opus()));
-        registry.register(Model::from_name("claude-3-sonnet").with_cost(ModelCost::claude3_sonnet()));
+        registry
+            .register(Model::from_name("claude-3-sonnet").with_cost(ModelCost::claude3_sonnet()));
         registry.register(Model::from_name("claude-3-haiku").with_cost(ModelCost::claude3_haiku()));
 
         registry
@@ -524,7 +529,10 @@ impl ModelRegistry {
 
     /// Get a model by name, creating default if not found
     pub fn get(&self, name: &str) -> Model {
-        self.models.get(name).cloned().unwrap_or_else(|| Model::from_name(name))
+        self.models
+            .get(name)
+            .cloned()
+            .unwrap_or_else(|| Model::from_name(name))
     }
 
     /// Check if a model is registered
@@ -557,10 +565,22 @@ mod tests {
 
     #[test]
     fn test_provider_inference() {
-        assert_eq!(ModelProvider::infer_from_name("gpt-4"), ModelProvider::OpenAI);
-        assert_eq!(ModelProvider::infer_from_name("claude-3-opus"), ModelProvider::Anthropic);
-        assert_eq!(ModelProvider::infer_from_name("gemini-pro"), ModelProvider::Google);
-        assert_eq!(ModelProvider::infer_from_name("mistral-large"), ModelProvider::Mistral);
+        assert_eq!(
+            ModelProvider::infer_from_name("gpt-4"),
+            ModelProvider::OpenAI
+        );
+        assert_eq!(
+            ModelProvider::infer_from_name("claude-3-opus"),
+            ModelProvider::Anthropic
+        );
+        assert_eq!(
+            ModelProvider::infer_from_name("gemini-pro"),
+            ModelProvider::Google
+        );
+        assert_eq!(
+            ModelProvider::infer_from_name("mistral-large"),
+            ModelProvider::Mistral
+        );
     }
 
     #[test]

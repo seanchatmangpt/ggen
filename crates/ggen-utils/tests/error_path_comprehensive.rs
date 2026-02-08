@@ -98,7 +98,8 @@ fn test_error_with_context_fn_creates_chain() {
     let step_number = 42;
 
     // Act
-    let chained_error = original_error.with_context_fn(|| format!("Failed at step {}", step_number));
+    let chained_error =
+        original_error.with_context_fn(|| format!("Failed at step {}", step_number));
 
     // Assert - verify lazy evaluation occurred
     let display = format!("{}", chained_error);
@@ -231,9 +232,9 @@ fn test_safe_command_whitelist_blocks_dangerous_commands() {
     // Arrange - dangerous commands that should be blocked
     // Note: sh and bash are intentionally excluded as they are whitelisted for validated scripts
     let dangerous_commands = vec![
-        "rm", "rmdir", "mv", "dd", "mkfs", "kill", "killall", "pkill", "sudo", "su",
-        "chmod", "chown", "curl", "wget", "nc", "netcat", "telnet", "ssh",
-        "scp", "rsync", "tar", "zip", "unzip", "7z",
+        "rm", "rmdir", "mv", "dd", "mkfs", "kill", "killall", "pkill", "sudo", "su", "chmod",
+        "chown", "curl", "wget", "nc", "netcat", "telnet", "ssh", "scp", "rsync", "tar", "zip",
+        "unzip", "7z",
     ];
 
     // Act & Assert - each dangerous command should be rejected
@@ -242,13 +243,19 @@ fn test_safe_command_whitelist_blocks_dangerous_commands() {
         assert!(result.is_err(), "Should block dangerous command: {}", cmd);
 
         let error_msg = result.unwrap_err().to_string();
-        assert!(error_msg.contains("not in whitelist") || error_msg.contains("whitelist"),
-                "Error should mention whitelist for: {}", cmd);
+        assert!(
+            error_msg.contains("not in whitelist") || error_msg.contains("whitelist"),
+            "Error should mention whitelist for: {}",
+            cmd
+        );
     }
 
     // Also verify that sh and bash are allowed (whitelisted for validated scripts)
     assert!(CommandName::new("sh").is_ok(), "sh should be whitelisted");
-    assert!(CommandName::new("bash").is_ok(), "bash should be whitelisted");
+    assert!(
+        CommandName::new("bash").is_ok(),
+        "bash should be whitelisted"
+    );
 }
 
 #[test]
@@ -270,11 +277,19 @@ fn test_safe_command_shell_metacharacters_blocked() {
     // Act & Assert - each injection attempt should be blocked
     for (attack, metachar) in injection_attempts {
         let result = CommandArg::new(attack);
-        assert!(result.is_err(), "Should block shell metacharacter '{}': {}", metachar, attack);
+        assert!(
+            result.is_err(),
+            "Should block shell metacharacter '{}': {}",
+            metachar,
+            attack
+        );
 
         let error_msg = result.unwrap_err().to_string();
-        assert!(error_msg.contains("metacharacter"),
-                "Error should mention metacharacter for: {}", attack);
+        assert!(
+            error_msg.contains("metacharacter"),
+            "Error should mention metacharacter for: {}",
+            attack
+        );
     }
 }
 
@@ -294,8 +309,10 @@ fn test_safe_command_length_limits_enforced() {
     assert!(result.is_err(), "Should block command exceeding max length");
 
     let error_msg = result.unwrap_err().to_string();
-    assert!(error_msg.contains("exceeds maximum") || error_msg.contains("length"),
-            "Error should mention length limit");
+    assert!(
+        error_msg.contains("exceeds maximum") || error_msg.contains("length"),
+        "Error should mention length limit"
+    );
 }
 
 // ============================================================================
@@ -321,8 +338,11 @@ fn test_safe_path_traversal_prevention() {
         assert!(result.is_err(), "Should block path traversal: {}", attack);
 
         let error_msg = result.unwrap_err().to_string();
-        assert!(error_msg.contains("parent directory") || error_msg.contains(".."),
-                "Error should mention parent directory for: {}", attack);
+        assert!(
+            error_msg.contains("parent directory") || error_msg.contains(".."),
+            "Error should mention parent directory for: {}",
+            attack
+        );
     }
 }
 
@@ -334,18 +354,26 @@ fn test_safe_path_empty_and_invalid_blocked() {
         "   ",
         "\t",
         "\n",
-        "path/   /file",  // whitespace component
+        "path/   /file", // whitespace component
     ];
 
     // Act & Assert - each invalid path should be blocked
     for invalid_path in invalid_paths {
         let result = SafePath::new(invalid_path);
-        assert!(result.is_err(), "Should block invalid path: {:?}", invalid_path);
+        assert!(
+            result.is_err(),
+            "Should block invalid path: {:?}",
+            invalid_path
+        );
 
         let error_msg = result.unwrap_err().to_string();
-        assert!(error_msg.contains("empty") || error_msg.contains("whitespace") ||
-                error_msg.contains("Invalid"),
-                "Error should describe the issue for: {:?}", invalid_path);
+        assert!(
+            error_msg.contains("empty")
+                || error_msg.contains("whitespace")
+                || error_msg.contains("Invalid"),
+            "Error should describe the issue for: {:?}",
+            invalid_path
+        );
     }
 }
 
@@ -362,8 +390,10 @@ fn test_safe_path_depth_limit_enforced() {
     assert!(result.is_err(), "Should block path exceeding max depth");
 
     let error_msg = result.unwrap_err().to_string();
-    assert!(error_msg.contains("depth") || error_msg.contains("exceeds"),
-            "Error should mention depth limit");
+    assert!(
+        error_msg.contains("depth") || error_msg.contains("exceeds"),
+        "Error should mention depth limit"
+    );
 }
 
 // ============================================================================
@@ -428,7 +458,10 @@ fn test_safe_command_with_safe_path_integration() {
         .validate();
 
     // Assert - integration should work seamlessly
-    assert!(cmd_result.is_ok(), "SafePath should integrate with SafeCommand");
+    assert!(
+        cmd_result.is_ok(),
+        "SafePath should integrate with SafeCommand"
+    );
 
     let cmd = cmd_result.unwrap();
     let cmd_string = cmd.to_string_debug();
@@ -468,7 +501,10 @@ fn test_multiple_validation_layers() {
 
     // Also verify command arg validation would catch shell metachars
     let arg_result = CommandArg::new(dangerous_input);
-    assert!(arg_result.is_err(), "Should also fail on metacharacter check");
+    assert!(
+        arg_result.is_err(),
+        "Should also fail on metacharacter check"
+    );
 }
 
 // ============================================================================
@@ -588,9 +624,8 @@ fn test_result_type_with_context_closure() {
     }
 
     // Act
-    let result = operation(attempt_number).with_context(|| {
-        format!("Failed on attempt {}", attempt_number)
-    });
+    let result =
+        operation(attempt_number).with_context(|| format!("Failed on attempt {}", attempt_number));
 
     // Assert
     assert!(result.is_err());

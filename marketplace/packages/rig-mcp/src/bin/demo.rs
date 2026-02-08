@@ -53,7 +53,13 @@ async fn main() -> Result<()> {
         .with_required(vec!["name".to_string()]);
 
     println!("  Schema type: {}", param_schema.schema_type);
-    println!("  Has 'name' property: {}", param_schema.properties.as_ref().map_or(false, |p| p.contains_key("name")));
+    println!(
+        "  Has 'name' property: {}",
+        param_schema
+            .properties
+            .as_ref()
+            .map_or(false, |p| p.contains_key("name"))
+    );
     println!("  'name' is required: {}", param_schema.is_required("name"));
 
     println!("\nDemo completed successfully!");

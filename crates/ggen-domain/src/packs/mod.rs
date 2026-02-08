@@ -7,7 +7,9 @@ use ggen_utils::error::Error;
 use serde::Serialize;
 
 /// Check compatibility between packs
-pub async fn check_packs_compatibility(pack_ids: &[String]) -> Result<CheckCompatibilityResult, Error> {
+pub async fn check_packs_compatibility(
+    pack_ids: &[String],
+) -> Result<CheckCompatibilityResult, Error> {
     let mut packs = Vec::new();
     let mut load_errors = Vec::new();
 

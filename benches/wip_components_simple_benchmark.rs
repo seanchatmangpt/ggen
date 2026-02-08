@@ -3,10 +3,10 @@
 //! This benchmark suite evaluates the performance of new WIP components
 //! without complex validation dependencies.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
-use std::time::Duration;
-use std::path::Path;
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::collections::HashMap;
+use std::path::Path;
+use std::time::Duration;
 
 // Simple implementations for benchmarking
 struct SimplePathValidator {
@@ -118,15 +118,21 @@ struct EventBridge {
 
 impl EventBridge {
     fn new() -> Self {
-        Self {
-            events: Vec::new(),
-        }
+        Self { events: Vec::new() }
     }
 
-    fn dispatch(&mut self, event_type: &str, payload: &HashMap<String, serde_json::Value>) -> Result<(), String> {
+    fn dispatch(
+        &mut self, event_type: &str, payload: &HashMap<String, serde_json::Value>,
+    ) -> Result<(), String> {
         let mut event = payload.clone();
-        event.insert("type".to_string(), serde_json::Value::String(event_type.to_string()));
-        event.insert("timestamp".to_string(), serde_json::Value::Number(serde_json::Number::from(1000)));
+        event.insert(
+            "type".to_string(),
+            serde_json::Value::String(event_type.to_string()),
+        );
+        event.insert(
+            "timestamp".to_string(),
+            serde_json::Value::Number(serde_json::Number::from(1000)),
+        );
 
         self.events.push(event);
         Ok(())
@@ -185,7 +191,8 @@ impl ConnectorRegistry {
     }
 
     fn register(&mut self, name: &str, connector_type: &str) -> Result<(), String> {
-        self.connectors.insert(name.to_string(), connector_type.to_string());
+        self.connectors
+            .insert(name.to_string(), connector_type.to_string());
         self.metrics.insert(name.to_string(), 0);
         Ok(())
     }
@@ -215,11 +222,7 @@ fn bench_path_validation(c: &mut Criterion) {
 
     for (name, path) in test_cases {
         group.bench_with_input(BenchmarkId::new("validate", name), path, |b, path| {
-            b.iter(|| {
-                black_box(
-                    validator.validate(path).is_ok()
-                )
-            });
+            b.iter(|| black_box(validator.validate(path).is_ok()));
         });
     }
 
@@ -246,11 +249,7 @@ fn bench_safe_command(c: &mut Criterion) {
                 cmd = cmd.arg(arg).unwrap();
             }
 
-            b.iter(|| {
-                black_box(
-                    cmd.validate().is_ok()
-                )
-            });
+            b.iter(|| black_box(cmd.validate().is_ok()));
         });
     }
 
@@ -262,13 +261,16 @@ fn bench_safe_command(c: &mut Criterion) {
     ];
 
     for (name, args) in invalid_commands {
-        group.bench_with_input(BenchmarkId::new("invalid_command", name), &args, |b, args| {
-            b.iter(|| {
-                let result = SafeCommand::new(args[0])
-                    .and_then(|cmd| cmd.arg(&args[1]));
-                black_box(result.is_err())
-            });
-        });
+        group.bench_with_input(
+            BenchmarkId::new("invalid_command", name),
+            &args,
+            |b, args| {
+                b.iter(|| {
+                    let result = SafeCommand::new(args[0]).and_then(|cmd| cmd.arg(&args[1]));
+                    black_box(result.is_err())
+                });
+            },
+        );
     }
 
     group.sample_size(100);
@@ -281,24 +283,19 @@ fn bench_agent_system(c: &mut Criterion) {
 
     // Agent creation
     group.bench_function("agent_creation", |b| {
-        b.iter(|| {
-            black_box(
-                AgentManager::new("test-agent", "1.0.0").unwrap()
-            )
-        });
+        b.iter(|| black_box(AgentManager::new("test-agent", "1.0.0").unwrap()));
     });
 
     // Event bridge performance
     group.bench_function("event_bridge_dispatch", |b| {
         let mut bridge = EventBridge::new();
         let mut event = HashMap::new();
-        event.insert("data".to_string(), serde_json::Value::String("test".to_string()));
+        event.insert(
+            "data".to_string(),
+            serde_json::Value::String("test".to_string()),
+        );
 
-        b.iter(|| {
-            black_box(
-                bridge.dispatch("test_event", &event)
-            )
-        });
+        b.iter(|| black_box(bridge.dispatch("test_event", &event)));
     });
 
     // Agent coordination
@@ -313,9 +310,7 @@ fn bench_agent_system(c: &mut Criterion) {
             for i in 0..agents.len() {
                 for j in 0..agents.len() {
                     if i != j {
-                        black_box(
-                            agents[i].coordinate_with("task", &agents[j])
-                        );
+                        black_box(agents[i].coordinate_with("task", &agents[j]));
                     }
                 }
             }
@@ -347,9 +342,7 @@ fn bench_workflow_system(c: &mut Criterion) {
 
         b.iter(|| {
             for i in 0..10 {
-                black_box(
-                    registry.execute(&format!("workflow-{}", i), &workflow_ctx)
-                );
+                black_box(registry.execute(&format!("workflow-{}", i), &workflow_ctx));
             }
         });
     });
@@ -362,13 +355,11 @@ fn bench_workflow_system(c: &mut Criterion) {
                 metadata.insert(format!("key{}", i), format!("value{}", i));
             }
 
-            black_box(
-                WorkflowContext {
-                    name: "benchmark-workflow".to_string(),
-                    input: serde_json::json!({"data": [1, 2, 3]}),
-                    metadata: metadata.clone(),
-                }
-            );
+            black_box(WorkflowContext {
+                name: "benchmark-workflow".to_string(),
+                input: serde_json::json!({"data": [1, 2, 3]}),
+                metadata: metadata.clone(),
+            });
         });
     });
 
@@ -386,9 +377,7 @@ fn bench_connectors(c: &mut Criterion) {
 
         b.iter(|| {
             for i in 0..10 {
-                black_box(
-                    registry.register(&format!("connector-{}", i), "kafka")
-                );
+                black_box(registry.register(&format!("connector-{}", i), "kafka"));
             }
         });
     });
@@ -404,9 +393,7 @@ fn bench_connectors(c: &mut Criterion) {
 
         b.iter(|| {
             for i in 0..5 {
-                black_box(
-                    registry.fetch_delta(&format!("kafka-{}", i))
-                );
+                black_box(registry.fetch_delta(&format!("kafka-{}", i)));
             }
         });
     });
@@ -421,11 +408,7 @@ fn bench_cli_commands(c: &mut Criterion) {
 
     // CLI startup simulation
     group.bench_function("cli_startup", |b| {
-        b.iter(|| {
-            black_box(
-                format!("ggen {}", "sync")
-            )
-        });
+        b.iter(|| black_box(format!("ggen {}", "sync")));
     });
 
     // Command validation simulation
@@ -464,11 +447,7 @@ fn bench_memory_usage(c: &mut Criterion) {
 
     // Path validator memory
     group.bench_function("path_validator_memory", |b| {
-        b.iter(|| {
-            black_box(
-                SimplePathValidator::new("/tmp/test")
-            )
-        });
+        b.iter(|| black_box(SimplePathValidator::new("/tmp/test")));
     });
 
     // Command builder memory
@@ -490,13 +469,11 @@ fn bench_memory_usage(c: &mut Criterion) {
                 metadata.insert(format!("key{}", i), format!("value{}", i));
             }
 
-            black_box(
-                WorkflowContext {
-                    name: "memory-benchmark".to_string(),
-                    input: serde_json::json!({"large": "data".repeat(1000)}),
-                    metadata: metadata,
-                }
-            )
+            black_box(WorkflowContext {
+                name: "memory-benchmark".to_string(),
+                input: serde_json::json!({"large": "data".repeat(1000)}),
+                metadata: metadata,
+            })
         });
     });
 
@@ -505,9 +482,7 @@ fn bench_memory_usage(c: &mut Criterion) {
         b.iter(|| {
             let mut registry = ConnectorRegistry::new();
             for i in 0..50 {
-                black_box(
-                    registry.register(&format!("conn-{}", i), "kafka")
-                );
+                black_box(registry.register(&format!("conn-{}", i), "kafka"));
             }
             black_box(registry)
         });

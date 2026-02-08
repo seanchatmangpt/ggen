@@ -354,7 +354,10 @@ fn handle_prompts_get(request: JsonRpcRequest) -> JsonRpcResponse {
         .and_then(|p| p.get("name"))
         .and_then(|n| n.as_str())
         .unwrap_or("");
-    let args = request.params.as_ref().and_then(|p| p.get("arguments").cloned());
+    let args = request
+        .params
+        .as_ref()
+        .and_then(|p| p.get("arguments").cloned());
 
     match get_prompt(name, args) {
         Ok(messages) => {

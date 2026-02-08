@@ -3,7 +3,9 @@
 //! Tests organized by adapter type and functionality
 
 use ggen_ai::client::{GenAiClient, LlmConfig};
-use ggen_dspy::adapters::{ChatAdapter, Demonstration, JSONAdapter, LlmAdapter, AdapterWithFallback};
+use ggen_dspy::adapters::{
+    AdapterWithFallback, ChatAdapter, Demonstration, JSONAdapter, LlmAdapter,
+};
 use ggen_dspy::error::DspyError;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -16,7 +18,10 @@ use std::collections::HashMap;
 fn test_chat_adapter_format_single_field() {
     let adapter = ChatAdapter::new();
     let mut inputs = HashMap::new();
-    inputs.insert("prompt".to_string(), Value::String("test input".to_string()));
+    inputs.insert(
+        "prompt".to_string(),
+        Value::String("test input".to_string()),
+    );
 
     let output_fields = vec!["response".to_string()];
     let prompt = adapter
@@ -126,7 +131,10 @@ fn test_chat_adapter_parse_json_field() {
 
     match result.get("metadata").unwrap() {
         Value::Object(obj) => {
-            assert_eq!(obj.get("version").unwrap(), &Value::String("1.0".to_string()));
+            assert_eq!(
+                obj.get("version").unwrap(),
+                &Value::String("1.0".to_string())
+            );
             assert_eq!(obj.get("count").unwrap(), &Value::Number(42.into()));
         }
         _ => panic!("Expected object"),

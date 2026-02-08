@@ -20,8 +20,7 @@ pub struct GoldenTest {
 impl GoldenTest {
     /// Create a new golden test
     pub fn new(
-        name: impl Into<String>,
-        inputs: HashMap<String, Value>,
+        name: impl Into<String>, inputs: HashMap<String, Value>,
         expected_outputs: HashMap<String, Value>,
     ) -> Self {
         Self {
@@ -41,9 +40,8 @@ impl GoldenTest {
     /// Load from file
     pub fn load(path: &Path) -> Result<Self, std::io::Error> {
         let content = fs::read_to_string(path)?;
-        serde_json::from_str(&content).map_err(|e| {
-            std::io::Error::new(std::io::ErrorKind::InvalidData, e.to_string())
-        })
+        serde_json::from_str(&content)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e.to_string()))
     }
 
     /// Save to file
@@ -124,9 +122,7 @@ impl GoldenTestRunner {
 
     /// Compare actual outputs with golden test
     pub fn compare(
-        &self,
-        test_name: &str,
-        actual_outputs: &HashMap<String, Value>,
+        &self, test_name: &str, actual_outputs: &HashMap<String, Value>,
     ) -> ComparisonResult {
         match self.get_test(test_name) {
             Some(test) => compare_outputs(&test.expected_outputs, actual_outputs),
@@ -160,8 +156,7 @@ impl ComparisonResult {
 
 /// Compare two output maps
 fn compare_outputs(
-    expected: &HashMap<String, Value>,
-    actual: &HashMap<String, Value>,
+    expected: &HashMap<String, Value>, actual: &HashMap<String, Value>,
 ) -> ComparisonResult {
     let mut missing_fields = Vec::new();
     let mut extra_fields = Vec::new();
@@ -198,10 +193,7 @@ fn compare_outputs(
 
 /// Save golden test data
 pub fn save_golden(
-    name: &str,
-    inputs: &HashMap<String, Value>,
-    outputs: &HashMap<String, Value>,
-    path: &Path,
+    name: &str, inputs: &HashMap<String, Value>, outputs: &HashMap<String, Value>, path: &Path,
 ) -> Result<(), std::io::Error> {
     let test = GoldenTest::new(name, inputs.clone(), outputs.clone());
     test.save(path)
@@ -209,8 +201,7 @@ pub fn save_golden(
 
 /// Compare with golden test data
 pub fn compare_with_golden(
-    path: &Path,
-    actual_outputs: &HashMap<String, Value>,
+    path: &Path, actual_outputs: &HashMap<String, Value>,
 ) -> Result<ComparisonResult, std::io::Error> {
     let test = GoldenTest::load(path)?;
     Ok(compare_outputs(&test.expected_outputs, actual_outputs))
@@ -219,10 +210,12 @@ pub fn compare_with_golden(
 /// Sanitize filename by replacing invalid characters
 fn sanitize_filename(name: &str) -> String {
     name.chars()
-        .map(|c| if c.is_alphanumeric() || c == '-' || c == '_' {
-            c
-        } else {
-            '_'
+        .map(|c| {
+            if c.is_alphanumeric() || c == '-' || c == '_' {
+                c
+            } else {
+                '_'
+            }
         })
         .collect()
 }

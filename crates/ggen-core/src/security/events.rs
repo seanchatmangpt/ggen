@@ -162,9 +162,7 @@ pub struct SecurityEvent {
 impl SecurityEvent {
     /// Create a new security event
     pub fn new(
-        severity: SecuritySeverity,
-        category: EventCategory,
-        message: impl Into<String>,
+        severity: SecuritySeverity, category: EventCategory, message: impl Into<String>,
     ) -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
@@ -202,9 +200,7 @@ impl SecurityEvent {
 
     /// Create an authorization failure event
     pub fn authorization_failed(
-        user: impl Into<String>,
-        resource: impl Into<String>,
-        action: impl Into<String>,
+        user: impl Into<String>, resource: impl Into<String>, action: impl Into<String>,
     ) -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
@@ -223,10 +219,7 @@ impl SecurityEvent {
     }
 
     /// Create an input validation failure event
-    pub fn input_validation_failed(
-        input: impl Into<String>,
-        pattern: AttackPattern,
-    ) -> Self {
+    pub fn input_validation_failed(input: impl Into<String>, pattern: AttackPattern) -> Self {
         let mut metadata = HashMap::new();
         metadata.insert("input".to_string(), input.into());
 
@@ -248,9 +241,7 @@ impl SecurityEvent {
 
     /// Create a configuration change event
     pub fn configuration_changed(
-        user: impl Into<String>,
-        setting: impl Into<String>,
-        old_value: impl Into<String>,
+        user: impl Into<String>, setting: impl Into<String>, old_value: impl Into<String>,
         new_value: impl Into<String>,
     ) -> Self {
         let mut metadata = HashMap::new();
@@ -405,12 +396,7 @@ mod tests {
     #[test]
     fn test_configuration_changed_event() {
         // Arrange & Act
-        let event = SecurityEvent::configuration_changed(
-            "admin",
-            "max_connections",
-            "100",
-            "200",
-        );
+        let event = SecurityEvent::configuration_changed("admin", "max_connections", "100", "200");
 
         // Assert
         assert_eq!(event.severity, SecuritySeverity::Medium);
@@ -501,10 +487,8 @@ mod tests {
     #[test]
     fn test_is_attack() {
         // Arrange
-        let event1 = SecurityEvent::input_validation_failed(
-            "' OR '1'='1",
-            AttackPattern::SqlInjection,
-        );
+        let event1 =
+            SecurityEvent::input_validation_failed("' OR '1'='1", AttackPattern::SqlInjection);
         let event2 = SecurityEvent::new(
             SecuritySeverity::Info,
             EventCategory::Authentication,

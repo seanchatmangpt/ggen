@@ -141,8 +141,8 @@ impl ProgramOfThought {
         // For now, return a simple template
 
         match self.config.language {
-            CodeLanguage::Python => {
-                Ok(format!(r#"# Problem: {}
+            CodeLanguage::Python => Ok(format!(
+                r#"# Problem: {}
 # Generated code
 def solve():
     # TODO: Implement solution
@@ -151,23 +151,24 @@ def solve():
 if __name__ == "__main__":
     result = solve()
     print(result)
-"#, problem))
-            }
-            CodeLanguage::JavaScript => {
-                Ok(format!(r#"// Problem: {}
+"#,
+                problem
+            )),
+            CodeLanguage::JavaScript => Ok(format!(
+                r#"// Problem: {}
 function solve() {{
     // TODO: Implement solution
     return "42";
 }}
 
 console.log(solve());
-"#, problem))
-            }
-            _ => {
-                Err(DspyError::ModuleError(
-                    format!("Code generation not implemented for {:?}", self.config.language)
-                ))
-            }
+"#,
+                problem
+            )),
+            _ => Err(DspyError::ModuleError(format!(
+                "Code generation not implemented for {:?}",
+                self.config.language
+            ))),
         }
     }
 
@@ -179,10 +180,11 @@ console.log(solve());
 
         // Check code length
         if code.len() > self.config.max_code_length {
-            return Err(DspyError::ValidationError(
-                format!("Code exceeds maximum length: {} > {}",
-                    code.len(), self.config.max_code_length)
-            ));
+            return Err(DspyError::ValidationError(format!(
+                "Code exceeds maximum length: {} > {}",
+                code.len(),
+                self.config.max_code_length
+            )));
         }
 
         // Check for dangerous operations
@@ -199,9 +201,10 @@ console.log(solve());
 
         for pattern in &dangerous_patterns {
             if code.contains(pattern) {
-                return Err(DspyError::ValidationError(
-                    format!("Code contains potentially dangerous pattern: {}", pattern)
-                ));
+                return Err(DspyError::ValidationError(format!(
+                    "Code contains potentially dangerous pattern: {}",
+                    pattern
+                )));
             }
         }
 
@@ -216,15 +219,15 @@ console.log(solve());
 
         // Create temporary file for code
         let temp_dir = std::env::temp_dir();
-        let file_name = format!("pot_{}.{}",
+        let file_name = format!(
+            "pot_{}.{}",
             uuid::Uuid::new_v4(),
             self.config.language.extension()
         );
         let file_path = temp_dir.join(&file_name);
 
         // Write code to file
-        std::fs::write(&file_path, code)
-            .map_err(|e| DspyError::IoError(e))?;
+        std::fs::write(&file_path, code).map_err(|e| DspyError::IoError(e))?;
 
         // Execute code
         let output = Command::new(self.config.language.command())
@@ -255,7 +258,8 @@ console.log(solve());
 impl Module for ProgramOfThought {
     async fn forward(&self, inputs: &[(&str, &str)]) -> Result<ModuleOutput> {
         // Extract problem/question
-        let problem = inputs.iter()
+        let problem = inputs
+            .iter()
             .find(|(key, _)| *key == "problem" || *key == "question")
             .map(|(_, value)| *value)
             .ok_or_else(|| DspyError::MissingInput("problem or question".to_string()))?;
@@ -273,7 +277,10 @@ impl Module for ProgramOfThought {
         output.set("stdout", exec_result.stdout.clone());
         output.set("stderr", exec_result.stderr.clone());
         output.set("exit_code", exec_result.exit_code.to_string());
-        output.set("execution_time_ms", exec_result.execution_time_ms.to_string());
+        output.set(
+            "execution_time_ms",
+            exec_result.execution_time_ms.to_string(),
+        );
         output.set("success", exec_result.is_success().to_string());
 
         // Set answer from stdout or error

@@ -186,11 +186,7 @@ impl Vector {
 
     /// Magnitude (L2 norm)
     pub fn magnitude(&self) -> f64 {
-        self.components
-            .iter()
-            .map(|x| x * x)
-            .sum::<f64>()
-            .sqrt()
+        self.components.iter().map(|x| x * x).sum::<f64>().sqrt()
     }
 
     /// Dot product with another vector
@@ -201,7 +197,12 @@ impl Vector {
                 actual: other.components.len(),
             });
         }
-        Ok(self.components.iter().zip(&other.components).map(|(a, b)| a * b).sum())
+        Ok(self
+            .components
+            .iter()
+            .zip(&other.components)
+            .map(|(a, b)| a * b)
+            .sum())
     }
 
     /// Cosine similarity (alignment metric)
@@ -275,7 +276,9 @@ impl OpportunityField {
     /// Create a field from potential matrix and bounds
     pub fn new(potential: Array2<f64>, x_bounds: (f64, f64), y_bounds: (f64, f64)) -> Result<Self> {
         if potential.is_empty() {
-            return Err(Error::FieldError("Potential field cannot be empty".to_string()));
+            return Err(Error::FieldError(
+                "Potential field cannot be empty".to_string(),
+            ));
         }
         if x_bounds.0 >= x_bounds.1 || y_bounds.0 >= y_bounds.1 {
             return Err(Error::FieldError(
@@ -293,10 +296,7 @@ impl OpportunityField {
     pub fn evaluate(&self, pos: Position) -> Result<f64> {
         let (x, y) = (pos.x, pos.y);
 
-        if x < self.x_bounds.0
-            || x > self.x_bounds.1
-            || y < self.y_bounds.0
-            || y > self.y_bounds.1
+        if x < self.x_bounds.0 || x > self.x_bounds.1 || y < self.y_bounds.0 || y > self.y_bounds.1
         {
             return Err(Error::FieldError(format!(
                 "Position {:.3},{:.3} out of bounds",
@@ -348,7 +348,10 @@ impl OpportunityField {
 
     /// Maximum potential in field
     pub fn max_potential(&self) -> f64 {
-        self.potential.iter().copied().fold(f64::NEG_INFINITY, f64::max)
+        self.potential
+            .iter()
+            .copied()
+            .fold(f64::NEG_INFINITY, f64::max)
     }
 
     /// Minimum potential in field
@@ -550,14 +553,18 @@ impl CompetitorDynamics {
         }
 
         // Compute centroid
-        let centroid_x = all_positions.iter().map(|p| p.x).sum::<f64>() / all_positions.len() as f64;
-        let centroid_y = all_positions.iter().map(|p| p.y).sum::<f64>() / all_positions.len() as f64;
+        let centroid_x =
+            all_positions.iter().map(|p| p.x).sum::<f64>() / all_positions.len() as f64;
+        let centroid_y =
+            all_positions.iter().map(|p| p.y).sum::<f64>() / all_positions.len() as f64;
         let centroid = Position::new(centroid_x, centroid_y);
 
         // Compute average distance from centroid
-        let avg_distance =
-            all_positions.iter().map(|p| p.distance_to(centroid)).sum::<f64>()
-                / all_positions.len() as f64;
+        let avg_distance = all_positions
+            .iter()
+            .map(|p| p.distance_to(centroid))
+            .sum::<f64>()
+            / all_positions.len() as f64;
 
         if avg_distance < 1e-10 {
             return Ok(1.0); // Perfect concentration
@@ -603,11 +610,14 @@ pub fn execution(trajectory: &Trajectory) -> Result<f64> {
     let path_length = trajectory.path_length();
 
     // Penalize time taken
-    let duration = trajectory.time.last().ok_or_else(|| {
-        Error::TrajectoryError("Empty trajectory".to_string())
-    })? - trajectory.time.first().ok_or_else(|| {
-        Error::TrajectoryError("Empty trajectory".to_string())
-    })?;
+    let duration = trajectory
+        .time
+        .last()
+        .ok_or_else(|| Error::TrajectoryError("Empty trajectory".to_string()))?
+        - trajectory
+            .time
+            .first()
+            .ok_or_else(|| Error::TrajectoryError("Empty trajectory".to_string()))?;
 
     if duration < 1e-10 {
         return Err(Error::TrajectoryError(
@@ -624,9 +634,9 @@ pub fn execution(trajectory: &Trajectory) -> Result<f64> {
 /// Compute momentum: Current velocity in trajectory
 pub fn momentum(trajectory: &Trajectory) -> Result<f64> {
     let velocities = trajectory.velocities()?;
-    let final_velocity = velocities.last().ok_or_else(|| {
-        Error::TrajectoryError("No velocity computed".to_string())
-    })?;
+    let final_velocity = velocities
+        .last()
+        .ok_or_else(|| Error::TrajectoryError("No velocity computed".to_string()))?;
 
     Ok(*final_velocity)
 }
@@ -634,9 +644,9 @@ pub fn momentum(trajectory: &Trajectory) -> Result<f64> {
 /// Compute traction: Acceleration magnitude
 pub fn traction(trajectory: &Trajectory) -> Result<f64> {
     let accelerations = trajectory.accelerations()?;
-    let final_acceleration = accelerations.last().ok_or_else(|| {
-        Error::TrajectoryError("No acceleration computed".to_string())
-    })?;
+    let final_acceleration = accelerations
+        .last()
+        .ok_or_else(|| Error::TrajectoryError("No acceleration computed".to_string()))?;
 
     Ok(final_acceleration.abs())
 }
@@ -718,9 +728,7 @@ pub struct SuccessDecomposition {
 
 /// Decompose success into luck, execution, and timing components
 pub fn decompose_success(
-    initial_potential: f64,
-    execution_cost: f64,
-    timing_score: f64,
+    initial_potential: f64, execution_cost: f64, timing_score: f64,
 ) -> Result<SuccessDecomposition> {
     if !(0.0..=1.0).contains(&execution_cost) {
         return Err(Error::ValidationError(
@@ -756,13 +764,8 @@ pub fn decompose_success(
 
 /// Compute all 67 folk terms at once
 pub fn compute_folk_terms(
-    initial_position: Position,
-    field: &OpportunityField,
-    trajectory: &Trajectory,
-    capability: &Vector,
-    demand: &Vector,
-    entry_time: f64,
-    window: &Window,
+    initial_position: Position, field: &OpportunityField, trajectory: &Trajectory,
+    capability: &Vector, demand: &Vector, entry_time: f64, window: &Window,
 ) -> Result<Vec<(FolkTerm, f64)>> {
     let mut terms = Vec::with_capacity(67);
 

@@ -87,7 +87,7 @@ ex:Relation a rdfs:Class ;
     rdfs:subClassOf ex:KnowledgeGraph ;
     rdfs:label "Relation" .
 
-"#
+"#,
     );
 
     for i in 0..triple_count {
@@ -110,10 +110,7 @@ fn generate_template(name: &str, complexity: usize) -> String {
 
     // Add template complexity
     for i in 0..complexity {
-        template.push_str(&format!(
-            "block_{}: value_{}\n",
-            i, i
-        ));
+        template.push_str(&format!("block_{}: value_{}\n", i, i));
     }
 
     template.push_str("--- end ---");
@@ -127,14 +124,11 @@ fn generate_sparql_query(pattern_count: usize) -> String {
          PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n\
          PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\
          \n\
-         SELECT ?subject ?predicate ?object WHERE {\n"
+         SELECT ?subject ?predicate ?object WHERE {\n",
     );
 
     for i in 0..pattern_count {
-        query.push_str(&format!(
-            "  ?subject ex:property{} ?object .\n",
-            i
-        ));
+        query.push_str(&format!("  ?subject ex:property{} ?object .\n", i));
     }
 
     query.push_str("}\nLIMIT 100");
@@ -211,7 +205,7 @@ fn bench_first_build_slo(c: &mut Criterion) {
             assert_slo_met(
                 elapsed,
                 Duration::from_millis(SLO_FIRST_BUILD_MS),
-                "first_build"
+                "first_build",
             );
 
             elapsed
@@ -231,9 +225,7 @@ fn simulate_cli_startup() -> Vec<String> {
 }
 
 fn load_workspace_dependencies(count: usize) -> Vec<String> {
-    (0..count)
-        .map(|i| format!("ggen-crate-{}", i))
-        .collect()
+    (0..count).map(|i| format!("ggen-crate-{}", i)).collect()
 }
 
 fn initialize_workspace() -> HashMap<String, String> {
@@ -276,13 +268,13 @@ fn bench_rdf_processing_slo(c: &mut Criterion) {
                         assert_slo_met(
                             elapsed,
                             Duration::from_millis(SLO_RDF_PROCESSING_1K_MS),
-                            "rdf_processing_1k"
+                            "rdf_processing_1k",
                         );
                     }
 
                     elapsed
                 });
-            }
+            },
         );
     }
 
@@ -342,7 +334,8 @@ fn process_rdf_pipeline(rdf_content: &str, triple_count: usize) -> ProcessedRdf 
 
 fn normalize_rdf(content: &str) -> String {
     // Simulate RDF normalization (convert to consistent format)
-    content.lines()
+    content
+        .lines()
         .map(|line| line.trim())
         .filter(|line| !line.is_empty())
         .collect::<Vec<_>>()
@@ -445,7 +438,7 @@ fn bench_incremental_build_slo(c: &mut Criterion) {
             assert_slo_met(
                 elapsed,
                 Duration::from_millis(SLO_INCREMENTAL_BUILD_MS),
-                "incremental_build"
+                "incremental_build",
             );
 
             elapsed
@@ -477,10 +470,7 @@ fn simulate_file_watcher() -> Vec<String> {
 
 fn check_incremental_changes() -> Vec<String> {
     // Simulate checking which files need recompilation
-    vec![
-        "src/lib.rs".to_string(),
-        "src/types.rs".to_string(),
-    ]
+    vec!["src/lib.rs".to_string(), "src/types.rs".to_string()]
 }
 
 fn rebuild_with_small_change() -> usize {
@@ -518,7 +508,7 @@ fn bench_template_render_slo(c: &mut Criterion) {
             assert_slo_met(
                 elapsed,
                 Duration::from_millis(SLO_TEMPLATE_RENDER_MS),
-                "template_render"
+                "template_render",
             );
 
             elapsed
@@ -559,7 +549,11 @@ fn bench_template_render_slo(c: &mut Criterion) {
         b.iter(|| {
             let start = Instant::now();
 
-            std::hint::black_box(render_cached_template(&template, &create_simple_context(), &cache));
+            std::hint::black_box(render_cached_template(
+                &template,
+                &create_simple_context(),
+                &cache,
+            ));
 
             start.elapsed()
         });
@@ -573,7 +567,8 @@ fn generate_template_with_loops() -> String {
 @foreach items as item
   @item.name: @item.value
 @endforeach
-"#.to_string()
+"#
+    .to_string()
 }
 
 fn create_simple_context() -> HashMap<String, String> {
@@ -601,9 +596,7 @@ fn render_template(template: &str, context: &HashMap<String, String>) -> String 
 }
 
 fn render_cached_template(
-    template: &str,
-    context: &HashMap<String, String>,
-    cache: &Arc<RwLock<HashMap<String, String>>>
+    template: &str, context: &HashMap<String, String>, cache: &Arc<RwLock<HashMap<String, String>>>,
 ) -> String {
     // Try to get from cache first
     let cache_key = format!("{}:{:?}", template, context);
@@ -626,7 +619,13 @@ fn render_cached_template(
 
 fn create_loop_context() -> HashMap<String, String> {
     let mut ctx = HashMap::new();
-    ctx.insert("items".to_string(), (0..10).map(|i| format!("item_{}", i)).collect::<Vec<_>>().join(", "));
+    ctx.insert(
+        "items".to_string(),
+        (0..10)
+            .map(|i| format!("item_{}", i))
+            .collect::<Vec<_>>()
+            .join(", "),
+    );
     ctx
 }
 
@@ -652,7 +651,7 @@ fn bench_cached_query_slo(c: &mut Criterion) {
                 QueryResult {
                     row_count: 100,
                     execution_time_ms: 1,
-                }
+                },
             );
         }
 
@@ -667,7 +666,7 @@ fn bench_cached_query_slo(c: &mut Criterion) {
             assert_slo_met(
                 elapsed,
                 Duration::from_millis(SLO_CACHED_QUERY_MS),
-                "cached_query"
+                "cached_query",
             );
 
             result
@@ -679,7 +678,10 @@ fn bench_cached_query_slo(c: &mut Criterion) {
         let cache = Arc::new(RwLock::new(HashMap::new()));
 
         b.iter(|| {
-            let query = format!("SELECT * WHERE {{ ?s ?p ?o }} LIMIT {}", fastrand::usize(100));
+            let query = format!(
+                "SELECT * WHERE {{ ?s ?p ?o }} LIMIT {}",
+                fastrand::usize(100)
+            );
             let start = Instant::now();
 
             std::hint::black_box(execute_cached_query(&query, &cache));
@@ -700,7 +702,7 @@ fn bench_cached_query_slo(c: &mut Criterion) {
                     QueryResult {
                         row_count: 10,
                         execution_time_ms: 1,
-                    }
+                    },
                 );
             }
         }
@@ -717,7 +719,9 @@ fn bench_cached_query_slo(c: &mut Criterion) {
     group.finish();
 }
 
-fn execute_cached_query(query: &str, cache: &Arc<RwLock<HashMap<String, QueryResult>>>) -> QueryResult {
+fn execute_cached_query(
+    query: &str, cache: &Arc<RwLock<HashMap<String, QueryResult>>>,
+) -> QueryResult {
     // Try cache first
     if let Ok(read_guard) = cache.try_read() {
         if let Some(cached) = read_guard.get(query) {
@@ -742,7 +746,9 @@ fn execute_cached_query(query: &str, cache: &Arc<RwLock<HashMap<String, QueryRes
     result
 }
 
-fn invalidate_cache_entries(cache: &Arc<RwLock<HashMap<String, QueryResult>>>, count: usize) -> usize {
+fn invalidate_cache_entries(
+    cache: &Arc<RwLock<HashMap<String, QueryResult>>>, count: usize,
+) -> usize {
     if let Ok(mut write_guard) = cache.try_write() {
         let keys: Vec<_> = write_guard.keys().take(count).cloned().collect();
         for key in keys {
@@ -777,7 +783,7 @@ fn bench_registry_operations_slo(c: &mut Criterion) {
             assert_slo_met(
                 elapsed,
                 Duration::from_millis(SLO_REGISTRY_FETCH_MS),
-                "registry_fetch"
+                "registry_fetch",
             );
 
             elapsed
@@ -799,7 +805,7 @@ fn bench_registry_operations_slo(c: &mut Criterion) {
             assert_slo_met(
                 elapsed,
                 Duration::from_millis(SLO_PACK_INSTALL_MS),
-                "pack_install"
+                "pack_install",
             );
 
             elapsed
@@ -923,35 +929,17 @@ fn assert_slo_met(measured: Duration, target: Duration, slo_name: &str) {
 // Criterion Benchmark Groups
 // =============================================================================
 
-criterion_group!(
-    first_build_slo,
-    bench_first_build_slo
-);
+criterion_group!(first_build_slo, bench_first_build_slo);
 
-criterion_group!(
-    rdf_processing_slo,
-    bench_rdf_processing_slo
-);
+criterion_group!(rdf_processing_slo, bench_rdf_processing_slo);
 
-criterion_group!(
-    incremental_build_slo,
-    bench_incremental_build_slo
-);
+criterion_group!(incremental_build_slo, bench_incremental_build_slo);
 
-criterion_group!(
-    template_render_slo,
-    bench_template_render_slo
-);
+criterion_group!(template_render_slo, bench_template_render_slo);
 
-criterion_group!(
-    cached_query_slo,
-    bench_cached_query_slo
-);
+criterion_group!(cached_query_slo, bench_cached_query_slo);
 
-criterion_group!(
-    registry_operations_slo,
-    bench_registry_operations_slo
-);
+criterion_group!(registry_operations_slo, bench_registry_operations_slo);
 
 criterion_main!(
     first_build_slo,

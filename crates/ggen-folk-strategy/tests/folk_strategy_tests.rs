@@ -167,7 +167,10 @@ fn test_vector_alignment_perfect() {
     let alignment = v1.alignment(&v2).unwrap();
 
     // Assert
-    assert!((alignment - 1.0).abs() < 1e-10, "Aligned vectors should have similarity 1.0");
+    assert!(
+        (alignment - 1.0).abs() < 1e-10,
+        "Aligned vectors should have similarity 1.0"
+    );
 }
 
 #[test]
@@ -180,7 +183,10 @@ fn test_vector_alignment_orthogonal() {
     let alignment = v1.alignment(&v2).unwrap();
 
     // Assert
-    assert!(alignment.abs() < 1e-10, "Orthogonal vectors should have similarity 0.0");
+    assert!(
+        alignment.abs() < 1e-10,
+        "Orthogonal vectors should have similarity 0.0"
+    );
 }
 
 #[test]
@@ -193,7 +199,10 @@ fn test_vector_alignment_opposite() {
     let alignment = v1.alignment(&v2).unwrap();
 
     // Assert
-    assert!((alignment + 1.0).abs() < 1e-10, "Opposite vectors should have similarity -1.0");
+    assert!(
+        (alignment + 1.0).abs() < 1e-10,
+        "Opposite vectors should have similarity -1.0"
+    );
 }
 
 #[test]
@@ -257,7 +266,10 @@ fn test_window_feasibility_score() {
     let outside_score = window.feasibility_score(15.0);
 
     // Assert
-    assert!((center_score - 1.0).abs() < 1e-10, "Center should score 1.0");
+    assert!(
+        (center_score - 1.0).abs() < 1e-10,
+        "Center should score 1.0"
+    );
     assert!((edge_score - 0.0).abs() < 1e-10, "Edge should score 0.0");
     assert!(outside_score < 1e-10, "Outside should score 0.0");
 }
@@ -432,7 +444,10 @@ fn test_trajectory_velocities() {
     assert!(velocities.is_ok());
     let vels = velocities.unwrap();
     assert_eq!(vels.len(), 5, "Should have 5 velocities");
-    assert!(vels.iter().all(|v| *v >= 0.0), "All velocities should be non-negative");
+    assert!(
+        vels.iter().all(|v| *v >= 0.0),
+        "All velocities should be non-negative"
+    );
 }
 
 #[test]
@@ -541,7 +556,10 @@ fn test_timing_score() {
     let edge_score = timing_score(0.0, &window).unwrap();
 
     // Assert
-    assert!((center_score - 1.0).abs() < 1e-10, "Center should score 1.0");
+    assert!(
+        (center_score - 1.0).abs() < 1e-10,
+        "Center should score 1.0"
+    );
     assert!((edge_score - 0.0).abs() < 1e-10, "Edge should score 0.0");
 }
 
@@ -644,7 +662,10 @@ fn test_network_effect_scaling() {
     let nw2 = network_effect(n2).unwrap();
 
     // Assert
-    assert!(nw2.value > nw1.value, "Network value should increase with users");
+    assert!(
+        nw2.value > nw1.value,
+        "Network value should increase with users"
+    );
 }
 
 #[test]
@@ -705,10 +726,11 @@ fn test_decomposition_components_sum() {
 
     // Assert
     // Total should be weighted average
-    let expected = (luck.abs() % 10.0 / 10.0) * 0.3
-        + (1.0 - execution / 10.0) * 0.4
-        + timing * 0.3;
-    assert!((decomp.total - expected).abs() < 1e-10, "Total should be weighted sum");
+    let expected = (luck.abs() % 10.0 / 10.0) * 0.3 + (1.0 - execution / 10.0) * 0.4 + timing * 0.3;
+    assert!(
+        (decomp.total - expected).abs() < 1e-10,
+        "Total should be weighted sum"
+    );
 }
 
 #[test]
@@ -948,11 +970,17 @@ fn test_realistic_startup_scenario() {
     // Assert
     assert!(luck_val > 0.0, "Startup should find some luck");
     assert!(pmf_val > 0.8, "Technical startup should have good PMF");
-    assert!(momentum_val > 0.0, "Trajectory should have positive momentum");
+    assert!(
+        momentum_val > 0.0,
+        "Trajectory should have positive momentum"
+    );
 
     // Decompose success
     let decomp = decompose_success(luck_val, execution_val / 10.0, 0.9).unwrap();
-    assert!(decomp.total > 0.3, "Startup should have reasonable success score");
+    assert!(
+        decomp.total > 0.3,
+        "Startup should have reasonable success score"
+    );
 }
 
 #[test]
@@ -968,7 +996,10 @@ fn test_competitive_market_scenario() {
     let min_dist = dynamics.min_distance().unwrap();
 
     // Assert
-    assert!(concentration > 0.0, "Competitors should have measurable concentration");
+    assert!(
+        concentration > 0.0,
+        "Competitors should have measurable concentration"
+    );
     assert!(min_dist > 0.0, "Competitors should be separate");
 }
 
@@ -984,8 +1015,14 @@ fn test_timing_advantage_scenario() {
     let late_score = timing_score(5.9, &window).unwrap();
 
     // Assert
-    assert!(optimal_score > early_score, "Optimal timing should beat early");
-    assert!(optimal_score > late_score, "Optimal timing should beat late");
+    assert!(
+        optimal_score > early_score,
+        "Optimal timing should beat early"
+    );
+    assert!(
+        optimal_score > late_score,
+        "Optimal timing should beat late"
+    );
 }
 
 #[test]

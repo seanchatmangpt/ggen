@@ -2,7 +2,7 @@
 
 #[cfg(test)]
 mod tests {
-    use tai_validation::evidence::{ValidationReceipt, EvidenceCollector, FileHash};
+    use tai_validation::evidence::{EvidenceCollector, FileHash, ValidationReceipt};
 
     #[test]
     fn test_receipt_generation() {
@@ -13,8 +13,7 @@ mod tests {
 
     #[test]
     fn test_receipt_with_manifest_hash() {
-        let receipt = ValidationReceipt::new()
-            .with_manifest_hash("abc123def456".to_string());
+        let receipt = ValidationReceipt::new().with_manifest_hash("abc123def456".to_string());
         assert_eq!(receipt.manifest_hash, "abc123def456");
     }
 
@@ -45,7 +44,11 @@ mod tests {
         let mut collector = EvidenceCollector::new();
         assert_eq!(collector.count(), 0);
 
-        collector.collect("log".to_string(), "Test log".to_string(), "data".to_string());
+        collector.collect(
+            "log".to_string(),
+            "Test log".to_string(),
+            "data".to_string(),
+        );
         assert_eq!(collector.count(), 1);
     }
 
@@ -62,8 +65,16 @@ mod tests {
     #[test]
     fn test_evidence_audit_trail() {
         let mut collector = EvidenceCollector::new();
-        collector.collect("log".to_string(), "Audit event".to_string(), "event data".to_string());
-        collector.collect("config".to_string(), "Config check".to_string(), "config data".to_string());
+        collector.collect(
+            "log".to_string(),
+            "Audit event".to_string(),
+            "event data".to_string(),
+        );
+        collector.collect(
+            "config".to_string(),
+            "Config check".to_string(),
+            "config data".to_string(),
+        );
 
         let trail = collector.generate_audit_trail();
         assert!(trail.is_ok());

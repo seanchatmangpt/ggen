@@ -51,7 +51,8 @@ impl RegistrationStats {
 
     /// Get total active tools (registered - unregistered)
     pub fn active_tools(&self) -> u64 {
-        self.total_registered.saturating_sub(self.total_unregistered)
+        self.total_registered
+            .saturating_sub(self.total_unregistered)
     }
 
     /// Get success rate as percentage

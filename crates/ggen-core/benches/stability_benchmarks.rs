@@ -84,20 +84,16 @@ fn bench_string_allocation_stability(c: &mut Criterion) {
 
     for (name, size) in string_sizes {
         group.throughput(Throughput::Bytes(size as u64));
-        group.bench_with_input(
-            BenchmarkId::from_parameter(name),
-            &size,
-            |b, &size| {
-                b.iter(|| {
-                    let mut strings = Vec::new();
-                    for i in 0..100 {
-                        let s = "x".repeat(size);
-                        strings.push(black_box(s));
-                    }
-                    let _total_len: usize = strings.iter().map(|s| s.len()).sum();
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::from_parameter(name), &size, |b, &size| {
+            b.iter(|| {
+                let mut strings = Vec::new();
+                for i in 0..100 {
+                    let s = "x".repeat(size);
+                    strings.push(black_box(s));
+                }
+                let _total_len: usize = strings.iter().map(|s| s.len()).sum();
+            });
+        });
     }
 
     group.finish();
@@ -205,10 +201,8 @@ fn bench_error_path_stability(c: &mut Criterion) {
     group.bench_function("error_creation_and_drop_1000x", |b| {
         b.iter(|| {
             for _i in 0..1000 {
-                let _err = std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    black_box("Test error message"),
-                );
+                let _err =
+                    std::io::Error::new(std::io::ErrorKind::Other, black_box("Test error message"));
                 // Error dropped here
             }
         });

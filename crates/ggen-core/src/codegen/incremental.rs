@@ -191,18 +191,24 @@ impl IncrementalGenerator {
     /// Compute SHA256 hash of file content
     pub fn compute_content_hash(file_path: &Path) -> Result<String> {
         let mut file = fs::File::open(file_path).map_err(|e| {
-            Error::io_error(format!("Failed to open file '{}': {}", file_path.display(), e))
+            Error::io_error(format!(
+                "Failed to open file '{}': {}",
+                file_path.display(),
+                e
+            ))
         })?;
 
         let mut hasher = Sha256::new();
         let mut buffer = [0; 8192]; // 8KB buffer for streaming
 
         loop {
-            let bytes_read = file
-                .read(&mut buffer)
-                .map_err(|e| {
-                    Error::io_error(format!("Failed to read file '{}': {}", file_path.display(), e))
-                })?;
+            let bytes_read = file.read(&mut buffer).map_err(|e| {
+                Error::io_error(format!(
+                    "Failed to read file '{}': {}",
+                    file_path.display(),
+                    e
+                ))
+            })?;
 
             if bytes_read == 0 {
                 break;

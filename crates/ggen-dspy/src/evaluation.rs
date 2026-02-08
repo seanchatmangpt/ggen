@@ -59,11 +59,8 @@ impl EvaluationResult {
     /// Create a new evaluation result
     pub fn new(scores: Vec<f64>) -> Self {
         let mean_score = scores.iter().sum::<f64>() / scores.len() as f64;
-        let variance = scores
-            .iter()
-            .map(|s| (s - mean_score).powi(2))
-            .sum::<f64>()
-            / scores.len() as f64;
+        let variance =
+            scores.iter().map(|s| (s - mean_score).powi(2)).sum::<f64>() / scores.len() as f64;
         let std_dev = variance.sqrt();
 
         Self {

@@ -65,7 +65,7 @@ pub enum DspyError {
         /// Tool name
         tool: String,
         /// Error reason
-        reason: String
+        reason: String,
     },
 
     /// Retrieval operation failed
@@ -90,14 +90,14 @@ pub enum DspyError {
         /// Field name
         field: String,
         /// Expected type
-        expected: String
+        expected: String,
     },
 
     /// Field extraction error
     #[error("Failed to extract field: {field}")]
     FieldError {
         /// Field name
-        field: String
+        field: String,
     },
 
     /// Parsing error

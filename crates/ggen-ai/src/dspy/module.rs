@@ -20,7 +20,9 @@ pub trait Module: Send + Sync {
     ///
     /// # Returns
     /// HashMap of output field names to values
-    async fn forward(&self, inputs: HashMap<String, Value>) -> Result<HashMap<String, Value>, ModuleError>;
+    async fn forward(
+        &self, inputs: HashMap<String, Value>,
+    ) -> Result<HashMap<String, Value>, ModuleError>;
 
     /// Get module name
     fn name(&self) -> &str {
@@ -93,7 +95,9 @@ mod tests {
             &self.sig
         }
 
-        async fn forward(&self, _inputs: HashMap<String, Value>) -> Result<HashMap<String, Value>, ModuleError> {
+        async fn forward(
+            &self, _inputs: HashMap<String, Value>,
+        ) -> Result<HashMap<String, Value>, ModuleError> {
             Ok(HashMap::new())
         }
 

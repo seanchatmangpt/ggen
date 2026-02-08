@@ -13,18 +13,23 @@
 //! - RDF processing ≤5s/1k triples
 //! - Incremental ≤2s
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
-use std::time::Duration;
-use std::path::Path;
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::collections::HashMap;
+use std::path::Path;
+use std::time::Duration;
 
 // WIP Components imports
-use ggen_utils::path_validator::{PathValidator, SafePath};
-use ggen_utils::safe_command::{SafeCommand, CommandName, CommandArg};
-use ggen_agent::{bridge::EventBridge, agent::AgentManager};
-use ggen_workflow::{patterns::{Sequence, Parallel, WorkflowContext}, WorkflowContext as WorkflowCtx};
-use knhk_connectors::{ConnectorRegistry, ConnectorId, Delta, Triple, SoAArrays, DataFormat, SourceType};
+use ggen_agent::{agent::AgentManager, bridge::EventBridge};
 use ggen_cli::{cmds::agent::*, cmds::mcp::*};
+use ggen_utils::path_validator::{PathValidator, SafePath};
+use ggen_utils::safe_command::{CommandArg, CommandName, SafeCommand};
+use ggen_workflow::{
+    patterns::{Parallel, Sequence, WorkflowContext},
+    WorkflowContext as WorkflowCtx,
+};
+use knhk_connectors::{
+    ConnectorId, ConnectorRegistry, DataFormat, Delta, SoAArrays, SourceType, Triple,
+};
 
 // Test fixtures
 const TEST_WORKSPACE_ROOT: &str = "/tmp/ggen-test-workspace";
@@ -56,13 +61,15 @@ fn create_test_environment() {
     // Create test files
     std::fs::write(
         format!("{}/templates/example.tera", TEST_WORKSPACE_ROOT),
-        "Hello, {{ name }}!"
-    ).unwrap();
+        "Hello, {{ name }}!",
+    )
+    .unwrap();
 
     std::fs::write(
         format!("{}/specs/test.ttl", TEST_WORKSPACE_ROOT),
-        TEST_RDF_CONTENT
-    ).unwrap();
+        TEST_RDF_CONTENT,
+    )
+    .unwrap();
 }
 
 fn cleanup_test_environment() {
@@ -88,11 +95,7 @@ fn bench_path_validation(c: &mut Criterion) {
             .with_allowed_extensions(vec!["tera", "ttl"]);
 
         group.bench_with_input(BenchmarkId::new("validate", name), path, |b, path| {
-            b.iter(|| {
-                black_box(
-                    validator.validate(path).unwrap()
-                )
-            });
+            b.iter(|| black_box(validator.validate(path).unwrap()));
         });
     }
 
@@ -104,15 +107,18 @@ fn bench_path_validation(c: &mut Criterion) {
     ];
 
     for (name, path) in malicious_paths {
-        let validator = PathValidator::new(Path::new(TEST_WORKSPACE_ROOT))
-            .with_max_depth(10);
+        let validator = PathValidator::new(Path::new(TEST_WORKSPACE_ROOT)).with_max_depth(10);
 
-        group.bench_with_input(BenchmarkId::new("security_validate", name), path, |b, path| {
-            b.iter(|| {
-                let result = validator.validate(path);
-                black_box(result.is_err())
-            });
-        });
+        group.bench_with_input(
+            BenchmarkId::new("security_validate", name),
+            path,
+            |b, path| {
+                b.iter(|| {
+                    let result = validator.validate(path);
+                    black_box(result.is_err())
+                });
+            },
+        );
     }
 
     group.sample_size(100);
@@ -152,14 +158,16 @@ fn bench_safe_command(c: &mut Criterion) {
     ];
 
     for (name, args) in invalid_commands {
-        group.bench_with_input(BenchmarkId::new("invalid_command", name), &args, |b, args| {
-            b.iter(|| {
-                let result = SafeCommand::new(args[0]).and_then(|cmd| {
-                    cmd.arg(&args[1])
+        group.bench_with_input(
+            BenchmarkId::new("invalid_command", name),
+            &args,
+            |b, args| {
+                b.iter(|| {
+                    let result = SafeCommand::new(args[0]).and_then(|cmd| cmd.arg(&args[1]));
+                    black_box(result.is_err())
                 });
-                black_box(result.is_err())
-            });
-        });
+            },
+        );
     }
 
     group.sample_size(100);
@@ -174,11 +182,7 @@ fn bench_agent_system(c: &mut Criterion) {
 
     // Agent creation and initialization
     group.bench_function("agent_creation", |b| {
-        b.iter(|| {
-            black_box(
-                AgentManager::new("test-agent", "1.0.0").unwrap()
-            )
-        });
+        b.iter(|| black_box(AgentManager::new("test-agent", "1.0.0").unwrap()));
     });
 
     // Event bridge performance
@@ -189,11 +193,7 @@ fn bench_agent_system(c: &mut Criterion) {
             ("data".to_string(), serde_json::json!({"key": "value"})),
         ]);
 
-        b.iter(|| {
-            black_box(
-                bridge.dispatch("test_event", &test_event)
-            )
-        });
+        b.iter(|| black_box(bridge.dispatch("test_event", &test_event)));
     });
 
     // Agent coordination
@@ -203,17 +203,13 @@ fn bench_agent_system(c: &mut Criterion) {
 
         // Create test agents
         for i in 0..10 {
-            agents.push(
-                AgentManager::new(&format!("agent-{}", i), "1.0.0").unwrap()
-            );
+            agents.push(AgentManager::new(&format!("agent-{}", i), "1.0.0").unwrap());
         }
 
         b.iter(|| {
             // Simulate agent coordination
             for agent in &agents {
-                black_box(
-                    manager.coordinate_with("task", agent)
-                );
+                black_box(manager.coordinate_with("task", agent));
             }
         });
     });
@@ -239,30 +235,19 @@ fn bench_workflow_system(c: &mut Criterion) {
 
     // Sequential workflow
     group.bench_function("sequential_workflow", |b| {
-        let sequence = Sequence::new(
-            vec!["step1", "step2", "step3"],
-            false
-        );
+        let sequence = Sequence::new(vec!["step1", "step2", "step3"], false);
 
-        b.iter(|| {
-            black_box(
-                sequence.execute(&workflow_ctx)
-            )
-        });
+        b.iter(|| black_box(sequence.execute(&workflow_ctx)));
     });
 
     // Parallel workflow
     group.bench_function("parallel_workflow", |b| {
         let parallel = Parallel::new(
             vec!["task1", "task2", "task3", "task4", "task5"],
-            WorkflowContext::default()
+            WorkflowContext::default(),
         );
 
-        b.iter(|| {
-            black_box(
-                parallel.execute(&workflow_ctx)
-            )
-        });
+        b.iter(|| black_box(parallel.execute(&workflow_ctx)));
     });
 
     // Workflow overhead measurement
@@ -274,9 +259,7 @@ fn bench_workflow_system(c: &mut Criterion) {
                 metadata: HashMap::new(),
             };
 
-            black_box(
-                ctx.validate_inputs().unwrap()
-            )
+            black_box(ctx.validate_inputs().unwrap())
         });
     });
 
@@ -289,14 +272,9 @@ fn bench_workflow_system(c: &mut Criterion) {
         }
 
         b.iter(|| {
-            let parallel = Parallel::new(
-                workflow_steps.clone(),
-                WorkflowContext::default()
-            );
+            let parallel = Parallel::new(workflow_steps.clone(), WorkflowContext::default());
 
-            black_box(
-                parallel.execute(&workflow_ctx)
-            )
+            black_box(parallel.execute(&workflow_ctx))
         });
     });
 
@@ -312,33 +290,21 @@ fn bench_cli_commands(c: &mut Criterion) {
 
     // CLI startup performance
     group.bench_function("cli_startup", |b| {
-        b.iter(|| {
-            black_box(
-                ggen_cli::cli::build_cli()
-            )
-        });
+        b.iter(|| black_box(ggen_cli::cli::build_cli()));
     });
 
     // Agent command processing
     group.bench_function("agent_command_processing", |b| {
         let mut args = vec!["ggen", "agent", "start", "test-agent"];
 
-        b.iter(|| {
-            black_box(
-                ggen_cli::cmds::agent::process_args(&mut args)
-            )
-        });
+        b.iter(|| black_box(ggen_cli::cmds::agent::process_args(&mut args)));
     });
 
     // MCP command processing
     group.bench_function("mcp_command_processing", |b| {
         let mut args = vec!["ggen", "mcp", "server", "--host", "localhost"];
 
-        b.iter(|| {
-            black_box(
-                ggen_cli::cmds::mcp::process_mcp_args(&mut args)
-            )
-        });
+        b.iter(|| black_box(ggen_cli::cmds::mcp::process_mcp_args(&mut args)));
     });
 
     // Command validation overhead
@@ -351,9 +317,7 @@ fn bench_cli_commands(c: &mut Criterion) {
 
         b.iter(|| {
             for (name, args) in &test_commands {
-                black_box(
-                    ggen_cli::cmds::validate_command(args).is_ok()
-                );
+                black_box(ggen_cli::cmds::validate_command(args).is_ok());
             }
         });
     });
@@ -373,16 +337,12 @@ fn bench_connectors(c: &mut Criterion) {
         b.iter(|| {
             // Simulate registering multiple connectors
             for i in 0..10 {
-                let connector = Box::new(
-                    knhk_connectors::kafka::KafkaConnector::new(
-                        format!("kafka-{}", i),
-                        "test.topic".to_string(),
-                        DataFormat::Json,
-                    )
-                );
-                black_box(
-                    registry.register(connector)
-                );
+                let connector = Box::new(knhk_connectors::kafka::KafkaConnector::new(
+                    format!("kafka-{}", i),
+                    "test.topic".to_string(),
+                    DataFormat::Json,
+                ));
+                black_box(registry.register(connector));
             }
         });
     });
@@ -392,71 +352,55 @@ fn bench_connectors(c: &mut Criterion) {
         let mut registry = ConnectorRegistry::new();
 
         // Register a test connector
-        let connector = Box::new(
-            knhk_connectors::kafka::KafkaConnector::new(
-                "test-kafka".to_string(),
-                "test.topic".to_string(),
-                DataFormat::Json,
-            )
-        );
+        let connector = Box::new(knhk_connectors::kafka::KafkaConnector::new(
+            "test-kafka".to_string(),
+            "test.topic".to_string(),
+            DataFormat::Json,
+        ));
         registry.register(connector).unwrap();
 
         // Create test delta
         let delta = Delta {
-            additions: vec![
-                Triple {
-                    subject: 0xA11CE,
-                    predicate: 0xC0FFEE,
-                    object: 0xB0B,
-                    graph: None,
-                }
-            ],
+            additions: vec![Triple {
+                subject: 0xA11CE,
+                predicate: 0xC0FFEE,
+                object: 0xB0B,
+                graph: None,
+            }],
             removals: vec![],
             actor: "benchmark".to_string(),
             timestamp_ms: 0,
         };
 
-        b.iter(|| {
-            black_box(
-                registry.fetch_delta(&"test-kafka".to_string())
-            )
-        });
+        b.iter(|| black_box(registry.fetch_delta(&"test-kafka".to_string())));
     });
 
     // SoA conversion performance
     group.bench_function("soa_conversion", |b| {
-        let test_triples: Vec<Triple> = (0..1000).map(|i| Triple {
-            subject: i,
-            predicate: i + 1000,
-            object: i + 2000,
-            graph: None,
-        }).collect();
+        let test_triples: Vec<Triple> = (0..1000)
+            .map(|i| Triple {
+                subject: i,
+                predicate: i + 1000,
+                object: i + 2000,
+                graph: None,
+            })
+            .collect();
 
-        b.iter(|| {
-            black_box(
-                SoAArrays::from_triples(&test_triples, 8)
-            )
-        });
+        b.iter(|| black_box(SoAArrays::from_triples(&test_triples, 8)));
     });
 
     // Circuit breaker performance
     group.bench_function("circuit_breaker_overhead", |b| {
         let mut registry = ConnectorRegistry::new();
 
-        let connector = Box::new(
-            knhk_connectors::kafka::KafkaConnector::new(
-                "cb-test".to_string(),
-                "test.topic".to_string(),
-                DataFormat::Json,
-            )
-        );
+        let connector = Box::new(knhk_connectors::kafka::KafkaConnector::new(
+            "cb-test".to_string(),
+            "test.topic".to_string(),
+            DataFormat::Json,
+        ));
         registry.register(connector).unwrap();
 
-        b.iter(|| {
-            black_box(
-                registry.fetch_delta(&"cb-test".to_string())
-            )
-        });
+        b.iter(|| black_box(registry.fetch_delta(&"cb-test".to_string())));
     });
 
     group.sample_size(50);
@@ -511,16 +455,12 @@ fn bench_memory_usage(c: &mut Criterion) {
         b.iter(|| {
             let mut registry = ConnectorRegistry::new();
             for i in 0..50 {
-                let connector = Box::new(
-                    knhk_connectors::kafka::KafkaConnector::new(
-                        format!("mem-test-{}", i),
-                        "test.topic".to_string(),
-                        DataFormat::Json,
-                    )
-                );
-                black_box(
-                    registry.register(connector)
-                );
+                let connector = Box::new(knhk_connectors::kafka::KafkaConnector::new(
+                    format!("mem-test-{}", i),
+                    "test.topic".to_string(),
+                    DataFormat::Json,
+                ));
+                black_box(registry.register(connector));
             }
             black_box(registry)
         });
@@ -539,9 +479,7 @@ fn bench_critical_path_analysis(c: &mut Criterion) {
         b.iter(|| {
             // Simulate RDF normalization
             let rdf_content = TEST_RDF_CONTENT.repeat(10);
-            black_box(
-                ggen_core::rdf::normalize_rdf(&rdf_content)
-            )
+            black_box(ggen_core::rdf::normalize_rdf(&rdf_content))
         });
     });
 
@@ -550,9 +488,7 @@ fn bench_critical_path_analysis(c: &mut Criterion) {
             // Simulate SPARQL query execution
             let query = "SELECT ?s ?p ?o WHERE { ?s ?p ?o }";
             let store = ggen_core::rdf::create_test_store();
-            black_box(
-                store.query(query)
-            )
+            black_box(store.query(query))
         });
     });
 
@@ -561,9 +497,7 @@ fn bench_critical_path_analysis(c: &mut Criterion) {
             // Simulate template rendering
             let template = "Hello, {{ name }}!";
             let context = serde_json::json!({"name": "World"});
-            black_box(
-                ggen_core::templates::render_template(template, &context)
-            )
+            black_box(ggen_core::templates::render_template(template, &context))
         });
     });
 
@@ -571,9 +505,7 @@ fn bench_critical_path_analysis(c: &mut Criterion) {
         b.iter(|| {
             // Simulate deterministic formatting
             let content = "  Hello  World  \n  \n  ".to_string();
-            black_box(
-                ggen_core::canonicalize::format_deterministic(&content)
-            )
+            black_box(ggen_core::canonicalize::format_deterministic(&content))
         });
     });
 
@@ -581,9 +513,7 @@ fn bench_critical_path_analysis(c: &mut Criterion) {
         b.iter(|| {
             // Simulate receipt generation
             let content = "test content".repeat(100);
-            black_box(
-                ggen_core::receipts::generate_receipt(&content)
-            )
+            black_box(ggen_core::receipts::generate_receipt(&content))
         });
     });
 
@@ -594,9 +524,7 @@ fn bench_critical_path_analysis(c: &mut Criterion) {
             let rdf_content = TEST_RDF_CONTENT;
             let pipeline = ggen_core::pipeline::create_pipeline();
 
-            black_box(
-                pipeline.process_rdf(rdf_content)
-            )
+            black_box(pipeline.process_rdf(rdf_content))
         });
     });
 

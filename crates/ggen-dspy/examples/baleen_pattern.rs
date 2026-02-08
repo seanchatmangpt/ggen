@@ -2,7 +2,7 @@
 //!
 //! Demonstrates multi-hop reasoning with retrieval refinement.
 
-use ggen_dspy::{Module, SimplifiedBaleen, BaleenConfig, InMemoryRetriever};
+use ggen_dspy::{BaleenConfig, InMemoryRetriever, Module, SimplifiedBaleen};
 use std::sync::Arc;
 
 #[tokio::main]
@@ -15,19 +15,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let documents = vec![
         // Rust basics
         "Rust is a systems programming language focused on safety and performance.".to_string(),
-        "Rust's ownership system prevents common memory bugs without garbage collection.".to_string(),
+        "Rust's ownership system prevents common memory bugs without garbage collection."
+            .to_string(),
         "Rust provides zero-cost abstractions and minimal runtime overhead.".to_string(),
-
         // Rust features
         "Rust has algebraic data types with pattern matching.".to_string(),
         "Rust's type system prevents data races at compile time.".to_string(),
         "Rust has excellent support for concurrent programming.".to_string(),
-
         // Rust ecosystem
         "Cargo is Rust's build system and package manager.".to_string(),
         "Rust has a growing ecosystem of libraries called crates.".to_string(),
         "The Rust compiler (rustc) provides helpful error messages.".to_string(),
-
         // Rust history
         "Rust was created by Mozilla Research and first released in 2015.".to_string(),
         "Rust has been voted most loved programming language multiple years.".to_string(),
@@ -50,7 +48,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Complex question requiring refinement
     println!("\n--- Question: What makes Rust unique for systems programming? ---\n");
 
-    let inputs = vec![("question", "What makes Rust unique for systems programming?")];
+    let inputs = vec![(
+        "question",
+        "What makes Rust unique for systems programming?",
+    )];
     let output = baleen.forward(&inputs).await?;
 
     let answer = output.get("answer")?;

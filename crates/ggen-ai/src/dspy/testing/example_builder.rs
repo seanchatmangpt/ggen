@@ -190,9 +190,7 @@ mod tests {
 
     #[test]
     fn test_builder_default() {
-        let example = ExampleBuilder::default()
-            .input("test", "value")
-            .build();
+        let example = ExampleBuilder::default().input("test", "value").build();
 
         assert_eq!(example.inputs.len(), 1);
     }
@@ -207,10 +205,7 @@ mod tests {
             example.inputs.get("question").unwrap(),
             &json!("What is Rust?")
         );
-        assert_eq!(
-            example.outputs.get("answer").unwrap(),
-            &json!("A language")
-        );
+        assert_eq!(example.outputs.get("answer").unwrap(), &json!("A language"));
     }
 
     #[test]

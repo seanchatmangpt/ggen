@@ -2,12 +2,12 @@
 
 #[cfg(test)]
 mod tests {
-    use tai_validation::slo::SloValidator;
-    use tai_validation::slo::metrics::MetricType;
     use tai_validation::compliance::ComplianceFramework;
-    use tai_validation::security::SecurityScanner;
-    use tai_validation::evidence::{ValidationReceipt, EvidenceCollector};
+    use tai_validation::evidence::{EvidenceCollector, ValidationReceipt};
     use tai_validation::execution::{TestBatch, TestResult};
+    use tai_validation::security::SecurityScanner;
+    use tai_validation::slo::metrics::MetricType;
+    use tai_validation::slo::SloValidator;
 
     #[test]
     fn test_slo_validator_integration() {
@@ -21,8 +21,12 @@ mod tests {
     #[test]
     fn test_multiple_metrics() {
         let validator = SloValidator::new();
-        let m1 = validator.validate_metric(MetricType::BuildTime, 12.0).unwrap();
-        let m2 = validator.validate_metric(MetricType::MemoryUsage, 80.0).unwrap();
+        let m1 = validator
+            .validate_metric(MetricType::BuildTime, 12.0)
+            .unwrap();
+        let m2 = validator
+            .validate_metric(MetricType::MemoryUsage, 80.0)
+            .unwrap();
 
         let result = validator.validate_metrics(vec![m1, m2]);
         assert!(result.all_compliant);
@@ -31,8 +35,12 @@ mod tests {
     #[test]
     fn test_violation_detection() {
         let validator = SloValidator::new();
-        let m1 = validator.validate_metric(MetricType::BuildTime, 20.0).unwrap();
-        let m2 = validator.validate_metric(MetricType::MemoryUsage, 80.0).unwrap();
+        let m1 = validator
+            .validate_metric(MetricType::BuildTime, 20.0)
+            .unwrap();
+        let m2 = validator
+            .validate_metric(MetricType::MemoryUsage, 80.0)
+            .unwrap();
 
         let result = validator.validate_metrics(vec![m1, m2]);
         assert!(!result.all_compliant);
@@ -42,7 +50,11 @@ mod tests {
     #[test]
     fn test_evidence_collection() {
         let mut collector = EvidenceCollector::new();
-        collector.collect("log".to_string(), "Test log".to_string(), "data".to_string());
+        collector.collect(
+            "log".to_string(),
+            "Test log".to_string(),
+            "data".to_string(),
+        );
         assert_eq!(collector.count(), 1);
     }
 

@@ -6,9 +6,9 @@
 //!
 //! Use case: Quick baseline with manually labeled data
 
+use super::{OptimizationStatistics, Optimizer};
+use crate::dspy::optimizer::{Demonstration, Example, OptimizedPredictor};
 use crate::dspy::{Module, ModuleError};
-use crate::dspy::optimizer::{Example, Demonstration, OptimizedPredictor};
-use super::{Optimizer, OptimizationStatistics};
 use async_trait::async_trait;
 use tracing::{debug, info};
 
@@ -77,13 +77,11 @@ impl Default for LabeledFewShot {
 #[async_trait]
 impl Optimizer for LabeledFewShot {
     async fn compile(
-        &self,
-        student: &dyn Module,
-        trainset: &[Example],
+        &self, student: &dyn Module, trainset: &[Example],
     ) -> Result<Box<dyn Module>, ModuleError> {
         if trainset.is_empty() {
             return Err(ModuleError::Other(
-                "Training set is empty. Provide at least one example.".to_string()
+                "Training set is empty. Provide at least one example.".to_string(),
             ));
         }
 
@@ -120,9 +118,7 @@ impl Optimizer for LabeledFewShot {
     }
 
     async fn compile_with_stats(
-        &self,
-        student: &dyn Module,
-        trainset: &[Example],
+        &self, student: &dyn Module, trainset: &[Example],
     ) -> Result<(Box<dyn Module>, OptimizationStatistics), ModuleError> {
         use std::time::SystemTime;
 
@@ -147,8 +143,8 @@ impl Optimizer for LabeledFewShot {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Signature;
     use crate::dspy::field::{InputField, OutputField};
+    use crate::Signature;
     use serde_json::Value;
     use std::collections::HashMap;
 
@@ -164,14 +160,11 @@ mod tests {
                 let mut inputs = HashMap::new();
                 inputs.insert(
                     "question".to_string(),
-                    Value::String(format!("Question {}", i))
+                    Value::String(format!("Question {}", i)),
                 );
 
                 let mut outputs = HashMap::new();
-                outputs.insert(
-                    "answer".to_string(),
-                    Value::String(format!("Answer {}", i))
-                );
+                outputs.insert("answer".to_string(), Value::String(format!("Answer {}", i)));
 
                 Example::new(inputs, outputs)
             })

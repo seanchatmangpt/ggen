@@ -21,7 +21,9 @@ pub struct ValidationErrorDetail {
 
 impl ValidationErrorDetail {
     /// Create a new validation error detail
-    pub fn new(field: impl Into<String>, error_type: ValidationErrorType, message: impl Into<String>) -> Self {
+    pub fn new(
+        field: impl Into<String>, error_type: ValidationErrorType, message: impl Into<String>,
+    ) -> Self {
         Self {
             field: field.into(),
             error_type,
@@ -32,7 +34,11 @@ impl ValidationErrorDetail {
 
 impl fmt::Display for ValidationErrorDetail {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Field '{}': {} ({})", self.field, self.message, self.error_type)
+        write!(
+            f,
+            "Field '{}': {} ({})",
+            self.field, self.message, self.error_type
+        )
     }
 }
 
@@ -119,7 +125,11 @@ impl ValidationError {
             format!("Validation failed: {}", errors[0])
         } else {
             let field_names: Vec<&str> = errors.iter().map(|e| e.field.as_str()).collect();
-            format!("Validation failed on {} field(s): {}", count, field_names.join(", "))
+            format!(
+                "Validation failed on {} field(s): {}",
+                count,
+                field_names.join(", ")
+            )
         };
 
         Self { errors, summary }
@@ -130,7 +140,11 @@ impl ValidationError {
         self.errors.push(detail);
         let count = self.errors.len();
         let field_names: Vec<&str> = self.errors.iter().map(|e| e.field.as_str()).collect();
-        self.summary = format!("Validation failed on {} field(s): {}", count, field_names.join(", "));
+        self.summary = format!(
+            "Validation failed on {} field(s): {}",
+            count,
+            field_names.join(", ")
+        );
     }
 
     /// Check if any errors are present
@@ -208,8 +222,16 @@ mod tests {
     #[test]
     fn test_validation_error_multiple() {
         let errors = vec![
-            ValidationErrorDetail::new("email", ValidationErrorType::FieldMissing, "required field"),
-            ValidationErrorDetail::new("age", ValidationErrorType::TypeMismatch, "expected integer"),
+            ValidationErrorDetail::new(
+                "email",
+                ValidationErrorType::FieldMissing,
+                "required field",
+            ),
+            ValidationErrorDetail::new(
+                "age",
+                ValidationErrorType::TypeMismatch,
+                "expected integer",
+            ),
         ];
         let err = ValidationError::multiple(errors);
 
@@ -221,12 +243,14 @@ mod tests {
 
     #[test]
     fn test_validation_error_add() {
-        let detail1 = ValidationErrorDetail::new("name", ValidationErrorType::FieldMissing, "required");
+        let detail1 =
+            ValidationErrorDetail::new("name", ValidationErrorType::FieldMissing, "required");
         let mut err = ValidationError::new(detail1);
 
         assert_eq!(err.error_count(), 1);
 
-        let detail2 = ValidationErrorDetail::new("email", ValidationErrorType::NullValue, "cannot be null");
+        let detail2 =
+            ValidationErrorDetail::new("email", ValidationErrorType::NullValue, "cannot be null");
         err.add(detail2);
 
         assert_eq!(err.error_count(), 2);
@@ -237,8 +261,16 @@ mod tests {
     fn test_validation_error_errors_for_field() {
         let errors = vec![
             ValidationErrorDetail::new("email", ValidationErrorType::FieldMissing, "required"),
-            ValidationErrorDetail::new("email", ValidationErrorType::PatternMismatch, "invalid format"),
-            ValidationErrorDetail::new("age", ValidationErrorType::TypeMismatch, "expected integer"),
+            ValidationErrorDetail::new(
+                "email",
+                ValidationErrorType::PatternMismatch,
+                "invalid format",
+            ),
+            ValidationErrorDetail::new(
+                "age",
+                ValidationErrorType::TypeMismatch,
+                "expected integer",
+            ),
         ];
         let err = ValidationError::multiple(errors);
 
@@ -272,7 +304,11 @@ mod tests {
     fn test_validation_error_display() {
         let errors = vec![
             ValidationErrorDetail::new("name", ValidationErrorType::FieldMissing, "required field"),
-            ValidationErrorDetail::new("age", ValidationErrorType::StringTooShort, "minimum length 1"),
+            ValidationErrorDetail::new(
+                "age",
+                ValidationErrorType::StringTooShort,
+                "minimum length 1",
+            ),
         ];
         let err = ValidationError::multiple(errors);
 
@@ -284,20 +320,33 @@ mod tests {
 
     #[test]
     fn test_validation_error_type_display() {
-        assert_eq!(ValidationErrorType::FieldMissing.to_string(), "field_missing");
-        assert_eq!(ValidationErrorType::TypeMismatch.to_string(), "type_mismatch");
-        assert_eq!(ValidationErrorType::PatternMismatch.to_string(), "pattern_mismatch");
-        assert_eq!(ValidationErrorType::EnumConstraintViolation.to_string(), "enum_constraint_violation");
+        assert_eq!(
+            ValidationErrorType::FieldMissing.to_string(),
+            "field_missing"
+        );
+        assert_eq!(
+            ValidationErrorType::TypeMismatch.to_string(),
+            "type_mismatch"
+        );
+        assert_eq!(
+            ValidationErrorType::PatternMismatch.to_string(),
+            "pattern_mismatch"
+        );
+        assert_eq!(
+            ValidationErrorType::EnumConstraintViolation.to_string(),
+            "enum_constraint_violation"
+        );
     }
 
     #[test]
     fn test_validation_error_serialization() {
-        let detail = ValidationErrorDetail::new("field", ValidationErrorType::FieldMissing, "required");
+        let detail =
+            ValidationErrorDetail::new("field", ValidationErrorType::FieldMissing, "required");
         let err = ValidationError::new(detail);
 
         let json = serde_json::to_value(&err).expect("serialization failed");
-        let deserialized: ValidationError = serde_json::from_value(json)
-            .expect("deserialization failed");
+        let deserialized: ValidationError =
+            serde_json::from_value(json).expect("deserialization failed");
 
         assert_eq!(deserialized.error_count(), err.error_count());
         assert_eq!(deserialized.errors[0].field, "field");

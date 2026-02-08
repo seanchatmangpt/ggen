@@ -111,7 +111,8 @@ impl EventBus {
 
     /// Send a workflow trigger event
     pub async fn send_trigger(&mut self, trigger: WorkflowTriggerEvent) -> Result<()> {
-        self.workflow_tx.send(trigger.clone())
+        self.workflow_tx
+            .send(trigger.clone())
             .map_err(|e| crate::OrchestratorError::QueueError(e.to_string()))?;
 
         self.triggers_sent_count += 1;
@@ -136,7 +137,8 @@ impl EventBus {
 
     /// Send a process instance feedback event
     pub async fn send_feedback(&mut self, event: ProcessInstanceEvent) -> Result<()> {
-        self.feedback_tx.send(event.clone())
+        self.feedback_tx
+            .send(event.clone())
             .map_err(|e| crate::OrchestratorError::QueueError(e.to_string()))?;
 
         self.feedback_events_count += 1;
@@ -267,10 +269,7 @@ mod tests {
     async fn test_workflow_trigger_flow() {
         let mut bus = EventBus::new();
 
-        let trigger = WorkflowTriggerEvent::new(
-            "workflow-123".to_string(),
-            "txn-456".to_string(),
-        );
+        let trigger = WorkflowTriggerEvent::new("workflow-123".to_string(), "txn-456".to_string());
 
         bus.send_trigger(trigger.clone()).await.unwrap();
 

@@ -26,10 +26,7 @@ pub struct ComplianceEvidence {
 impl ComplianceEvidence {
     /// Create new evidence
     pub fn new(
-        control_id: String,
-        evidence_type: String,
-        description: String,
-        content: String,
+        control_id: String, evidence_type: String, description: String, content: String,
         source: String,
     ) -> Self {
         Self {

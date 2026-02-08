@@ -3,7 +3,7 @@
 //! Demonstrates iterative retrieval for complex questions requiring
 //! information from multiple sources.
 
-use ggen_dspy::{Module, MultiHopQA, MultiHopConfig, InMemoryRetriever};
+use ggen_dspy::{InMemoryRetriever, Module, MultiHopConfig, MultiHopQA};
 use std::sync::Arc;
 
 #[tokio::main]
@@ -17,16 +17,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // About Paris
         "Paris is the capital and largest city of France.".to_string(),
         "The Eiffel Tower is located in Paris on the Champ de Mars.".to_string(),
-
         // About the Eiffel Tower
         "The Eiffel Tower was built in 1889 for the World's Fair.".to_string(),
         "The Eiffel Tower was designed by Gustave Eiffel's company.".to_string(),
-        "The Eiffel Tower is 330 meters tall and was the world's tallest structure until 1930.".to_string(),
-
+        "The Eiffel Tower is 330 meters tall and was the world's tallest structure until 1930."
+            .to_string(),
         // About France
         "France is a country in Western Europe.".to_string(),
         "France has a population of about 67 million people.".to_string(),
-
         // About Gustave Eiffel
         "Gustave Eiffel was a French civil engineer and architect.".to_string(),
         "Eiffel also designed the internal structure of the Statue of Liberty.".to_string(),
@@ -68,7 +66,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n--- Hop Details ---");
     for (i, hop) in hops.iter().enumerate() {
         println!("\nHop {}: {}", i + 1, hop["query"].as_str().unwrap_or(""));
-        println!("Passages retrieved: {}", hop["passages"].as_array().map(|a| a.len()).unwrap_or(0));
+        println!(
+            "Passages retrieved: {}",
+            hop["passages"].as_array().map(|a| a.len()).unwrap_or(0)
+        );
     }
 
     println!("\n=== Example Complete ===");

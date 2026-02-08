@@ -183,13 +183,19 @@ impl ReAct {
             context.push_str(&format!("{}: {}\n", key, value));
         }
 
-        debug!("Starting ReAct loop with {} tools, max {} iterations",
-               self.tools.len(), self.max_iterations);
+        debug!(
+            "Starting ReAct loop with {} tools, max {} iterations",
+            self.tools.len(),
+            self.max_iterations
+        );
 
         let mut iteration_count = 0;
         for iteration in 0..self.max_iterations {
             iteration_count = iteration + 1;
-            debug!("ReAct iteration {}/{}", iteration_count, self.max_iterations);
+            debug!(
+                "ReAct iteration {}/{}",
+                iteration_count, self.max_iterations
+            );
 
             // Add trajectory context
             if !trajectory.is_empty() {

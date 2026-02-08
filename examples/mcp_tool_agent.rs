@@ -65,8 +65,13 @@ pub struct McpAgentSystem {
 /// A2A command types
 #[derive(Debug, Clone)]
 pub enum A2ACommand {
-    ExecuteTool { tool_name: String, arguments: HashMap<String, String> },
-    GetToolInfo { tool_name: String },
+    ExecuteTool {
+        tool_name: String,
+        arguments: HashMap<String, String>,
+    },
+    GetToolInfo {
+        tool_name: String,
+    },
     ListTools {},
 }
 
@@ -110,22 +115,29 @@ impl McpAgentSystem {
     /// Register an MCP tool
     pub fn register_tool(&mut self, tool: MCPTool) {
         self.tools.insert(tool.name.clone(), tool);
-        println!("Registered tool: {} for agent: {}", self.tools.len(), self.agent_id);
+        println!(
+            "Registered tool: {} for agent: {}",
+            self.tools.len(),
+            self.agent_id
+        );
     }
 
     /// Execute tool via A2A protocol
     pub async fn execute_tool(
-        &self,
-        tool_name: &str,
-        arguments: HashMap<String, String>,
+        &self, tool_name: &str, arguments: HashMap<String, String>,
     ) -> Result<ToolResult, Box<dyn std::error::Error>> {
-        let tool = self.tools.get(tool_name)
+        let tool = self
+            .tools
+            .get(tool_name)
             .ok_or_else(|| format!("Tool {} not found", tool_name))?;
 
         // Validate arguments
         self.validate_arguments(tool, &arguments)?;
 
-        println!("Executing tool: {} with agent: {}", tool_name, self.agent_id);
+        println!(
+            "Executing tool: {} with agent: {}",
+            tool_name, self.agent_id
+        );
 
         // Simulate tool execution
         let start_time = std::time::Instant::now();
@@ -133,42 +145,34 @@ impl McpAgentSystem {
 
         // Generate result based on tool type
         let result = match tool_name {
-            "data_processor" => {
-                ToolResult {
-                    tool_name: tool_name.to_string(),
-                    output: "Data processed successfully".to_string(),
-                    artifacts: vec!["data_output.json".to_string()],
-                    execution_time_ms: start_time.elapsed().as_millis() as u64,
-                    success: true,
-                }
+            "data_processor" => ToolResult {
+                tool_name: tool_name.to_string(),
+                output: "Data processed successfully".to_string(),
+                artifacts: vec!["data_output.json".to_string()],
+                execution_time_ms: start_time.elapsed().as_millis() as u64,
+                success: true,
             },
-            "model_trainer" => {
-                ToolResult {
-                    tool_name: tool_name.to_string(),
-                    output: "Model trained with 95% accuracy".to_string(),
-                    artifacts: vec!["model.bin".to_string(), "metrics.json".to_string()],
-                    execution_time_ms: start_time.elapsed().as_millis() as u64,
-                    success: true,
-                }
+            "model_trainer" => ToolResult {
+                tool_name: tool_name.to_string(),
+                output: "Model trained with 95% accuracy".to_string(),
+                artifacts: vec!["model.bin".to_string(), "metrics.json".to_string()],
+                execution_time_ms: start_time.elapsed().as_millis() as u64,
+                success: true,
             },
-            "file_generator" => {
-                ToolResult {
-                    tool_name: tool_name.to_string(),
-                    output: "File generated successfully".to_string(),
-                    artifacts: vec!["output.txt".to_string()],
-                    execution_time_ms: start_time.elapsed().as_millis() as u64,
-                    success: true,
-                }
+            "file_generator" => ToolResult {
+                tool_name: tool_name.to_string(),
+                output: "File generated successfully".to_string(),
+                artifacts: vec!["output.txt".to_string()],
+                execution_time_ms: start_time.elapsed().as_millis() as u64,
+                success: true,
             },
-            _ => {
-                ToolResult {
-                    tool_name: tool_name.to_string(),
-                    output: "Tool executed successfully".to_string(),
-                    artifacts: vec![],
-                    execution_time_ms: start_time.elapsed().as_millis() as u64,
-                    success: true,
-                }
-            }
+            _ => ToolResult {
+                tool_name: tool_name.to_string(),
+                output: "Tool executed successfully".to_string(),
+                artifacts: vec![],
+                execution_time_ms: start_time.elapsed().as_millis() as u64,
+                success: true,
+            },
         };
 
         println!("Tool execution completed in {}ms", result.execution_time_ms);
@@ -176,7 +180,9 @@ impl McpAgentSystem {
     }
 
     /// Validate tool arguments
-    fn validate_arguments(&self, tool: &MCPTool, arguments: &HashMap<String, String>) -> Result<(), Box<dyn std::error::Error>> {
+    fn validate_arguments(
+        &self, tool: &MCPTool, arguments: &HashMap<String, String>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         for required_arg in &tool.input_schema.required {
             if !arguments.contains_key(required_arg) {
                 return Err(format!("Missing required argument: {}", required_arg).into());
@@ -187,7 +193,8 @@ impl McpAgentSystem {
 
     /// Get tool info
     pub fn get_tool_info(&self, tool_name: &str) -> Result<&MCPTool, Box<dyn std::error::Error>> {
-        self.tools.get(tool_name)
+        self.tools
+            .get(tool_name)
             .ok_or_else(|| format!("Tool {} not found", tool_name).into())
     }
 
@@ -208,24 +215,31 @@ impl BidirectionalProtocol {
     }
 
     /// Register MCP tool with A2A mapping
-    pub fn register_tool(&mut self, tool: MCPTool, agent_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn register_tool(
+        &mut self, tool: MCPTool, agent_id: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let tool_name = tool.name.clone();
         self.mcp_tools.insert(tool_name.clone(), tool);
-        self.a2a_registry.insert(tool_name.clone(), agent_id.to_string());
+        self.a2a_registry
+            .insert(tool_name.clone(), agent_id.to_string());
         println!("Registered MCP tool {} to agent {}", tool_name, agent_id);
         Ok(())
     }
 
     /// Execute tool via bidirectional protocol
     pub async fn execute_bidirectional(
-        &mut self,
-        tool_name: &str,
-        arguments: HashMap<String, String>,
+        &mut self, tool_name: &str, arguments: HashMap<String, String>,
     ) -> Result<ToolResult, Box<dyn std::error::Error>> {
-        let agent_id = self.a2a_registry.get(tool_name)
-            .ok_or_else(|| format!("Tool {} not registered to any agent", tool_name))?.clone();
+        let agent_id = self
+            .a2a_registry
+            .get(tool_name)
+            .ok_or_else(|| format!("Tool {} not registered to any agent", tool_name))?
+            .clone();
 
-        println!("Executing {} via A2A protocol through agent: {}", tool_name, agent_id);
+        println!(
+            "Executing {} via A2A protocol through agent: {}",
+            tool_name, agent_id
+        );
 
         // Create MCP agent system
         let mut agent_system = McpAgentSystem::new(agent_id.clone());
@@ -257,7 +271,8 @@ impl BidirectionalProtocol {
 
     /// Get agent tool capabilities
     pub fn get_agent_capabilities(&self, agent_id: &str) -> Vec<&str> {
-        self.mcp_tools.keys()
+        self.mcp_tools
+            .keys()
             .filter(|tool| self.a2a_registry.get(*tool).map(|s| s.as_str()) == Some(agent_id))
             .map(|s| s.as_str())
             .collect()
@@ -280,12 +295,16 @@ impl BidirectionalProtocol {
         }
 
         let total = self.execution_history.len() as u64;
-        let total_time_ms: u64 = self.execution_history.iter()
+        let total_time_ms: u64 = self
+            .execution_history
+            .iter()
             .map(|r| r.duration.as_millis() as u64)
             .sum();
         let average_time = total_time_ms as f64 / total as f64;
 
-        let successful = self.execution_history.iter()
+        let successful = self
+            .execution_history
+            .iter()
             .filter(|r| r.result.success)
             .count() as u64;
         let success_rate = successful as f64 / total as f64 * 100.0;
@@ -295,7 +314,8 @@ impl BidirectionalProtocol {
         for record in &self.execution_history {
             *tool_counts.entry(record.tool_name.clone()).or_insert(0) += 1;
         }
-        let most_used_tool = tool_counts.into_iter()
+        let most_used_tool = tool_counts
+            .into_iter()
             .max_by_key(|(_, count)| *count)
             .map(|(tool, _)| tool);
 
@@ -332,16 +352,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             input_schema: ToolSchema {
                 properties: {
                     let mut props = HashMap::new();
-                    props.insert("input_file".to_string(), SchemaProperty {
-                        type_: "string".to_string(),
-                        description: "Input file path".to_string(),
-                        default: None,
-                    });
-                    props.insert("operation".to_string(), SchemaProperty {
-                        type_: "string".to_string(),
-                        description: "Operation to perform".to_string(),
-                        default: Some("transform".to_string()),
-                    });
+                    props.insert(
+                        "input_file".to_string(),
+                        SchemaProperty {
+                            type_: "string".to_string(),
+                            description: "Input file path".to_string(),
+                            default: None,
+                        },
+                    );
+                    props.insert(
+                        "operation".to_string(),
+                        SchemaProperty {
+                            type_: "string".to_string(),
+                            description: "Operation to perform".to_string(),
+                            default: Some("transform".to_string()),
+                        },
+                    );
                     props
                 },
                 required: vec!["input_file".to_string()],
@@ -350,11 +376,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             output_schema: ToolSchema {
                 properties: {
                     let mut props = HashMap::new();
-                    props.insert("output_file".to_string(), SchemaProperty {
-                        type_: "string".to_string(),
-                        description: "Output file path".to_string(),
-                        default: None,
-                    });
+                    props.insert(
+                        "output_file".to_string(),
+                        SchemaProperty {
+                            type_: "string".to_string(),
+                            description: "Output file path".to_string(),
+                            default: None,
+                        },
+                    );
                     props
                 },
                 required: vec!["output_file".to_string()],
@@ -367,16 +396,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             input_schema: ToolSchema {
                 properties: {
                     let mut props = HashMap::new();
-                    props.insert("dataset".to_string(), SchemaProperty {
-                        type_: "string".to_string(),
-                        description: "Dataset path".to_string(),
-                        default: None,
-                    });
-                    props.insert("algorithm".to_string(), SchemaProperty {
-                        type_: "string".to_string(),
-                        description: "ML algorithm".to_string(),
-                        default: Some("random_forest".to_string()),
-                    });
+                    props.insert(
+                        "dataset".to_string(),
+                        SchemaProperty {
+                            type_: "string".to_string(),
+                            description: "Dataset path".to_string(),
+                            default: None,
+                        },
+                    );
+                    props.insert(
+                        "algorithm".to_string(),
+                        SchemaProperty {
+                            type_: "string".to_string(),
+                            description: "ML algorithm".to_string(),
+                            default: Some("random_forest".to_string()),
+                        },
+                    );
                     props
                 },
                 required: vec!["dataset".to_string()],
@@ -385,16 +420,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             output_schema: ToolSchema {
                 properties: {
                     let mut props = HashMap::new();
-                    props.insert("model_path".to_string(), SchemaProperty {
-                        type_: "string".to_string(),
-                        description: "Trained model path".to_string(),
-                        default: None,
-                    });
-                    props.insert("accuracy".to_string(), SchemaProperty {
-                        type_: "number".to_string(),
-                        description: "Model accuracy".to_string(),
-                        default: None,
-                    });
+                    props.insert(
+                        "model_path".to_string(),
+                        SchemaProperty {
+                            type_: "string".to_string(),
+                            description: "Trained model path".to_string(),
+                            default: None,
+                        },
+                    );
+                    props.insert(
+                        "accuracy".to_string(),
+                        SchemaProperty {
+                            type_: "number".to_string(),
+                            description: "Model accuracy".to_string(),
+                            default: None,
+                        },
+                    );
                     props
                 },
                 required: vec!["model_path".to_string()],
@@ -420,18 +461,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let data_args = vec![
         ("input_file".to_string(), "/data/input.csv".to_string()),
         ("operation".to_string(), "clean".to_string()),
-    ].into_iter().collect();
+    ]
+    .into_iter()
+    .collect();
 
-    let data_result = protocol.execute_bidirectional("data_processor", data_args).await?;
+    let data_result = protocol
+        .execute_bidirectional("data_processor", data_args)
+        .await?;
     println!("Data processor result: {}", data_result.output);
 
     // Execute model trainer
     let model_args = vec![
         ("dataset".to_string(), "/data/cleaned.csv".to_string()),
         ("algorithm".to_string(), "xgboost".to_string()),
-    ].into_iter().collect();
+    ]
+    .into_iter()
+    .collect();
 
-    let model_result = protocol.execute_bidirectional("model_trainer", model_args).await?;
+    let model_result = protocol
+        .execute_bidirectional("model_trainer", model_args)
+        .await?;
     println!("Model trainer result: {}", model_result.output);
 
     // Get agent capabilities
@@ -453,11 +502,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Show execution history
     println!("\nExecution history:");
     for record in protocol.get_execution_history() {
-        println!("  {}: {} via {} in {}ms",
+        println!(
+            "  {}: {} via {} in {}ms",
             record.tool_name,
             if record.result.success { "OK" } else { "FAIL" },
             record.agent_id,
-            record.duration.as_millis());
+            record.duration.as_millis()
+        );
     }
 
     println!("\nBidirectional protocol example completed successfully!");

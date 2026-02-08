@@ -82,7 +82,11 @@ impl SecurityScanResult {
     pub fn summary(&self) -> String {
         format!(
             "Scan found: {} total ({} critical, {} high, {} medium, {} low)",
-            self.total_vulnerabilities, self.critical_count, self.high_count, self.medium_count, self.low_count
+            self.total_vulnerabilities,
+            self.critical_count,
+            self.high_count,
+            self.medium_count,
+            self.low_count
         )
     }
 }

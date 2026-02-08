@@ -8,49 +8,31 @@ use serde_json::Value as JsonValue;
 #[serde(tag = "type")]
 pub enum WebhookEvent {
     #[serde(rename = "payment_intent.succeeded")]
-    PaymentIntentSucceeded {
-        data: PaymentIntentData,
-    },
+    PaymentIntentSucceeded { data: PaymentIntentData },
 
     #[serde(rename = "payment_intent.payment_failed")]
-    PaymentIntentFailed {
-        data: PaymentIntentData,
-    },
+    PaymentIntentFailed { data: PaymentIntentData },
 
     #[serde(rename = "customer.subscription.created")]
-    SubscriptionCreated {
-        data: SubscriptionData,
-    },
+    SubscriptionCreated { data: SubscriptionData },
 
     #[serde(rename = "customer.subscription.updated")]
-    SubscriptionUpdated {
-        data: SubscriptionData,
-    },
+    SubscriptionUpdated { data: SubscriptionData },
 
     #[serde(rename = "customer.subscription.deleted")]
-    SubscriptionDeleted {
-        data: SubscriptionData,
-    },
+    SubscriptionDeleted { data: SubscriptionData },
 
     #[serde(rename = "invoice.paid")]
-    InvoicePaid {
-        data: InvoiceData,
-    },
+    InvoicePaid { data: InvoiceData },
 
     #[serde(rename = "invoice.payment_failed")]
-    InvoicePaymentFailed {
-        data: InvoiceData,
-    },
+    InvoicePaymentFailed { data: InvoiceData },
 
     #[serde(rename = "charge.failed")]
-    ChargeFailed {
-        data: ChargeData,
-    },
+    ChargeFailed { data: ChargeData },
 
     #[serde(rename = "charge.refunded")]
-    ChargeRefunded {
-        data: ChargeData,
-    },
+    ChargeRefunded { data: ChargeData },
 }
 
 /// Payment intent data

@@ -1,8 +1,8 @@
-use std::fmt;
-use crate::signals::AndonSignal;
 use super::checks::Check;
 #[cfg(test)]
 use super::checks::CheckError;
+use crate::signals::AndonSignal;
+use std::fmt;
 
 #[derive(Debug, Clone)]
 pub struct CheckResult {
@@ -38,9 +38,7 @@ pub struct QualityGate {
 
 impl QualityGate {
     pub fn new() -> Self {
-        Self {
-            checks: Vec::new(),
-        }
+        Self { checks: Vec::new() }
     }
 
     pub fn add_check(mut self, check: Box<dyn Check>) -> Self {

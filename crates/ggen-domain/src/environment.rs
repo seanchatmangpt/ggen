@@ -75,8 +75,7 @@ impl EnvironmentConfig {
     /// Create a new environment configuration
     pub fn new(environment: &str) -> Result<Self, String> {
         // Get base directories
-        let home_dir = dirs::home_dir()
-            .ok_or_else(|| "Could not determine home directory")?;
+        let home_dir = dirs::home_dir().ok_or_else(|| "Could not determine home directory")?;
 
         let data_dir = home_dir.join(".ggen").join("data");
         let config_dir = home_dir.join(".ggen").join("config");

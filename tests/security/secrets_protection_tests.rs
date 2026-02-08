@@ -74,8 +74,14 @@ endpoint = "https://api.example.com"
     let stderr = String::from_utf8_lossy(&output.stderr);
 
     // Assert: API key should never appear in logs
-    assert!(!stdout.contains(&fixture.api_key), "API key leaked in stdout");
-    assert!(!stderr.contains(&fixture.api_key), "API key leaked in stderr");
+    assert!(
+        !stdout.contains(&fixture.api_key),
+        "API key leaked in stdout"
+    );
+    assert!(
+        !stderr.contains(&fixture.api_key),
+        "API key leaked in stderr"
+    );
 
     // Should show redacted version
     assert!(
@@ -105,8 +111,14 @@ fn test_passwords_not_logged() -> Result<(), Box<dyn std::error::Error>> {
     let stderr = String::from_utf8_lossy(&output.stderr);
 
     // Assert: Password should never appear in logs
-    assert!(!stdout.contains(&fixture.password), "Password leaked in stdout");
-    assert!(!stderr.contains(&fixture.password), "Password leaked in stderr");
+    assert!(
+        !stdout.contains(&fixture.password),
+        "Password leaked in stdout"
+    );
+    assert!(
+        !stderr.contains(&fixture.password),
+        "Password leaked in stderr"
+    );
 
     // Should show redacted
     assert!(
@@ -140,8 +152,14 @@ fn test_tokens_not_logged() -> Result<(), Box<dyn std::error::Error>> {
     let stderr = String::from_utf8_lossy(&output.stderr);
 
     // Assert: Token should not appear
-    assert!(!stdout.contains(&fixture.secret_token), "Token leaked in stdout");
-    assert!(!stderr.contains(&fixture.secret_token), "Token leaked in stderr");
+    assert!(
+        !stdout.contains(&fixture.secret_token),
+        "Token leaked in stdout"
+    );
+    assert!(
+        !stderr.contains(&fixture.secret_token),
+        "Token leaked in stderr"
+    );
 
     Ok(())
 }
@@ -178,7 +196,10 @@ url = "postgresql://user:{}@localhost/db"
     let stderr = String::from_utf8_lossy(&output.stderr);
 
     // Assert: Password should be redacted in error messages
-    assert!(!stderr.contains(&fixture.password), "Password in error message");
+    assert!(
+        !stderr.contains(&fixture.password),
+        "Password in error message"
+    );
     assert!(
         stderr.contains("***") || stderr.contains("REDACTED") || stderr.is_empty(),
         "Should show redacted credentials"
@@ -191,10 +212,7 @@ url = "postgresql://user:{}@localhost/db"
 fn test_connection_string_errors_redacted() -> Result<(), Box<dyn std::error::Error>> {
     // Arrange
     let fixture = SecretsFixture::new()?;
-    let connection_string = format!(
-        "mongodb://admin:{}@localhost:27017/db",
-        fixture.password
-    );
+    let connection_string = format!("mongodb://admin:{}@localhost:27017/db", fixture.password);
 
     // Act: Try to use connection string (will fail, but should redact)
     let mut cmd = Command::cargo_bin("ggen")?;
@@ -208,7 +226,10 @@ fn test_connection_string_errors_redacted() -> Result<(), Box<dyn std::error::Er
     let stderr = String::from_utf8_lossy(&output.stderr);
 
     // Assert: Connection string password should be redacted
-    assert!(!stderr.contains(&fixture.password), "Password in connection string error");
+    assert!(
+        !stderr.contains(&fixture.password),
+        "Password in connection string error"
+    );
 
     Ok(())
 }
@@ -265,8 +286,7 @@ fn test_config_values_not_in_output() -> Result<(), Box<dyn std::error::Error>> 
 api_key = "{}"
 password = "{}"
         "#,
-        fixture.api_key,
-        fixture.password
+        fixture.api_key, fixture.password
     );
     fs::write(&config_file, config_content)?;
 
@@ -289,8 +309,14 @@ password = "{}"
     // Assert: Generated file should not contain secrets
     if output_file.exists() {
         let generated_content = fs::read_to_string(&output_file)?;
-        assert!(!generated_content.contains(&fixture.api_key), "API key in generated output");
-        assert!(!generated_content.contains(&fixture.password), "Password in generated output");
+        assert!(
+            !generated_content.contains(&fixture.api_key),
+            "API key in generated output"
+        );
+        assert!(
+            !generated_content.contains(&fixture.password),
+            "Password in generated output"
+        );
     }
 
     Ok(())
@@ -318,8 +344,14 @@ fn test_env_vars_not_exposed_in_errors() -> Result<(), Box<dyn std::error::Error
     let stderr = String::from_utf8_lossy(&output.stderr);
 
     // Assert: Env var values should not appear in error
-    assert!(!stderr.contains(&fixture.api_key), "API key from env in error");
-    assert!(!stderr.contains(&fixture.secret_token), "Token from env in error");
+    assert!(
+        !stderr.contains(&fixture.api_key),
+        "API key from env in error"
+    );
+    assert!(
+        !stderr.contains(&fixture.secret_token),
+        "Token from env in error"
+    );
 
     Ok(())
 }
@@ -335,7 +367,10 @@ fn test_env_var_dump_redacts_secrets() -> Result<(), Box<dyn std::error::Error>>
         .arg("debug")
         .arg("--show-env")
         .env("GGEN_API_KEY", &fixture.api_key)
-        .env("DATABASE_URL", format!("postgres://user:{}@host/db", fixture.password))
+        .env(
+            "DATABASE_URL",
+            format!("postgres://user:{}@host/db", fixture.password),
+        )
         .env("NORMAL_VAR", "public_value")
         .current_dir(fixture.workspace_path())
         .output()?;
@@ -347,8 +382,14 @@ fn test_env_var_dump_redacts_secrets() -> Result<(), Box<dyn std::error::Error>>
         stdout.contains("GGEN_API_KEY") || stdout.is_empty(),
         "Should show env var name"
     );
-    assert!(!stdout.contains(&fixture.api_key), "Should redact API key value");
-    assert!(!stdout.contains(&fixture.password), "Should redact password value");
+    assert!(
+        !stdout.contains(&fixture.api_key),
+        "Should redact API key value"
+    );
+    assert!(
+        !stdout.contains(&fixture.password),
+        "Should redact password value"
+    );
 
     // Non-secret vars can be shown
     assert!(
@@ -433,9 +474,9 @@ fn test_public_values_not_redacted() -> Result<(), Box<dyn std::error::Error>> {
     // Assert: Public values should be visible (not over-redacted)
     // Note: Might not appear if command fails early
     if !combined.is_empty() {
-        let contains_some_public = public_values.iter().any(|(_, value)| {
-            combined.contains(value)
-        });
+        let contains_some_public = public_values
+            .iter()
+            .any(|(_, value)| combined.contains(value));
 
         // At least one public value should be visible if there's output
         // (This is a weak assertion since output might be minimal)

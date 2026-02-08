@@ -1,3 +1,3 @@
 pub mod andon;
 
-pub use andon::{AndonSignal, AndonContext};
+pub use andon::{AndonContext, AndonSignal};

@@ -41,7 +41,7 @@ impl Default for CacheConfig {
             memory_max_entries: 1000,
             disk_cache_dir: PathBuf::from(".dspy_cache"),
             disk_size_limit_bytes: 1_000_000_000, // 1GB
-            ttl_seconds: Some(86400),              // 24 hours
+            ttl_seconds: Some(86400),             // 24 hours
         }
     }
 }
@@ -113,8 +113,7 @@ impl CacheManager {
     /// Create new cache manager
     pub fn new(config: CacheConfig) -> Result<Self, DspyError> {
         let memory_cache = if config.enable_memory {
-            let mut builder = MokaCache::builder()
-                .max_capacity(config.memory_max_entries as u64);
+            let mut builder = MokaCache::builder().max_capacity(config.memory_max_entries as u64);
 
             if let Some(ttl) = config.ttl_seconds {
                 builder = builder.time_to_live(std::time::Duration::from_secs(ttl));

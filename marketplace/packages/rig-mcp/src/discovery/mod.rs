@@ -67,15 +67,15 @@ mod engine;
 mod schema;
 mod transport;
 
-pub use cache::{SchemaCache, CacheConfig, CacheEntry, CacheStats};
-pub use engine::{DiscoveryEngine, DiscoveryConfig, DiscoveryResult, DiscoveryMetrics};
+pub use cache::{CacheConfig, CacheEntry, CacheStats, SchemaCache};
+pub use engine::{DiscoveryConfig, DiscoveryEngine, DiscoveryMetrics, DiscoveryResult};
 pub use schema::{
-    SchemaExtractor, ToolSchema, ParameterSchema, ToolSchemaValidationError,
-    extract_schemas, validate_schema,
+    extract_schemas, validate_schema, ParameterSchema, SchemaExtractor, ToolSchema,
+    ToolSchemaValidationError,
 };
 pub use transport::{
-    TransportClient, TransportType, TransportRequest, TransportResponse,
-    StdioTransport, SseTransport, HttpTransport, TransportError,
+    HttpTransport, SseTransport, StdioTransport, TransportClient, TransportError, TransportRequest,
+    TransportResponse, TransportType,
 };
 
 /// Result type for discovery operations

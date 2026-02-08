@@ -90,11 +90,27 @@ fn show_all_provider_configs() {
         ("Gemini", "gemini/gemini-2.0-flash-exp", "GEMINI_API_KEY"),
         ("OpenAI GPT-4o", "openai/gpt-4o", "OPENAI_API_KEY"),
         ("OpenAI GPT-4o-mini", "openai/gpt-4o-mini", "OPENAI_API_KEY"),
-        ("Claude 3.5 Sonnet", "anthropic/claude-3-5-sonnet-20241022", "ANTHROPIC_API_KEY"),
-        ("Claude 3.5 Haiku", "anthropic/claude-3-5-haiku-20241022", "ANTHROPIC_API_KEY"),
+        (
+            "Claude 3.5 Sonnet",
+            "anthropic/claude-3-5-sonnet-20241022",
+            "ANTHROPIC_API_KEY",
+        ),
+        (
+            "Claude 3.5 Haiku",
+            "anthropic/claude-3-5-haiku-20241022",
+            "ANTHROPIC_API_KEY",
+        ),
         ("Ollama Llama 3.2", "ollama/llama3.2", "none (local)"),
-        ("Groq Llama 3.3", "groq/llama-3.3-70b-versatile", "GROQ_API_KEY"),
-        ("DeepSeek Chat", "deepseek/deepseek-chat", "DEEPSEEK_API_KEY"),
+        (
+            "Groq Llama 3.3",
+            "groq/llama-3.3-70b-versatile",
+            "GROQ_API_KEY",
+        ),
+        (
+            "DeepSeek Chat",
+            "deepseek/deepseek-chat",
+            "DEEPSEEK_API_KEY",
+        ),
         ("Cohere Command R", "cohere/command-r", "COHERE_API_KEY"),
     ];
 
@@ -280,7 +296,10 @@ fn example_ollama_config() -> Result<(), Box<dyn std::error::Error>> {
     let models = vec![
         ("ollama/llama3.2", "Meta's Llama 3.2 (8B)"),
         ("ollama/mistral", "Mistral 7B"),
-        ("ollama/qwen2.5-coder", "Qwen 2.5 Coder (specialized for code)"),
+        (
+            "ollama/qwen2.5-coder",
+            "Qwen 2.5 Coder (specialized for code)",
+        ),
         ("ollama/deepseek-r1", "DeepSeek R1 (reasoning)"),
     ];
 
@@ -342,7 +361,11 @@ async fn example_multi_provider_fallback() -> Result<(), Box<dyn std::error::Err
     let providers = vec![
         ("Gemini", "gemini/gemini-2.0-flash-exp", "GEMINI_API_KEY"),
         ("OpenAI", "openai/gpt-4o-mini", "OPENAI_API_KEY"),
-        ("Anthropic", "anthropic/claude-3-5-haiku-20241022", "ANTHROPIC_API_KEY"),
+        (
+            "Anthropic",
+            "anthropic/claude-3-5-haiku-20241022",
+            "ANTHROPIC_API_KEY",
+        ),
     ];
 
     println!("  Attempting providers in order:");
@@ -364,18 +387,16 @@ async fn example_multi_provider_fallback() -> Result<(), Box<dyn std::error::Err
             };
 
             match GenAiClient::new(config) {
-                Ok(client) => {
-                    match client.complete(prompt).await {
-                        Ok(response) => {
-                            println!("      ✓ Success with {}", name);
-                            response_content = Some(response.content);
-                            break;
-                        }
-                        Err(e) => {
-                            println!("      ✗ Failed: {}", e);
-                        }
+                Ok(client) => match client.complete(prompt).await {
+                    Ok(response) => {
+                        println!("      ✓ Success with {}", name);
+                        response_content = Some(response.content);
+                        break;
                     }
-                }
+                    Err(e) => {
+                        println!("      ✗ Failed: {}", e);
+                    }
+                },
                 Err(e) => {
                     println!("      ✗ Client creation failed: {}", e);
                 }
@@ -389,7 +410,7 @@ async fn example_multi_provider_fallback() -> Result<(), Box<dyn std::error::Err
     if response_content.is_none() {
         println!("    Using MockClient as fallback...");
         let mock = MockClient::with_response(
-            "Rust is a systems programming language focused on safety and performance."
+            "Rust is a systems programming language focused on safety and performance.",
         );
         let response = mock.complete(prompt).await?;
         response_content = Some(response.content);
@@ -429,7 +450,8 @@ fn example_env_based_selection() -> Result<(), Box<dyn std::error::Error>> {
         available_providers.push("Groq");
     }
 
-    println!("  Available providers: {}",
+    println!(
+        "  Available providers: {}",
         if available_providers.is_empty() {
             "None (using mock for testing)".to_string()
         } else {
@@ -452,7 +474,7 @@ fn example_env_based_selection() -> Result<(), Box<dyn std::error::Error>> {
             LlmConfig {
                 model: "anthropic/claude-3-5-sonnet-20241022".to_string(),
                 max_tokens: Some(4096),
-                temperature: Some(0.3),  // Lower for consistency
+                temperature: Some(0.3), // Lower for consistency
                 top_p: Some(0.9),
                 stop: None,
                 extra: HashMap::new(),

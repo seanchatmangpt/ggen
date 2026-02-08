@@ -11,11 +11,7 @@ use reqwest::{
     header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE},
     Client,
 };
-use std::{
-    collections::HashMap,
-    sync::Arc,
-    time::Duration,
-};
+use std::{collections::HashMap, sync::Arc, time::Duration};
 use tokio::sync::RwLock;
 
 /// Configuration for HTTP transport
@@ -132,17 +128,20 @@ impl HttpTransport {
 
         // Custom headers
         for (key, value) in &self.config.headers {
-            let header_name = HeaderName::from_bytes(key.as_bytes())
-                .map_err(|_| TransportError::InvalidEndpoint(format!("Invalid header name: {}", key)))?;
-            let header_value = HeaderValue::from_str(value)
-                .map_err(|_| TransportError::InvalidEndpoint(format!("Invalid header value: {}", value)))?;
+            let header_name = HeaderName::from_bytes(key.as_bytes()).map_err(|_| {
+                TransportError::InvalidEndpoint(format!("Invalid header name: {}", key))
+            })?;
+            let header_value = HeaderValue::from_str(value).map_err(|_| {
+                TransportError::InvalidEndpoint(format!("Invalid header value: {}", value))
+            })?;
             headers.insert(header_name, header_value);
         }
 
         // Authorization
         if let Some(token) = &self.config.auth_token {
-            let auth_value = HeaderValue::from_str(&format!("Bearer {}", token))
-                .map_err(|_| TransportError::Authentication("Invalid auth token format".to_string()))?;
+            let auth_value = HeaderValue::from_str(&format!("Bearer {}", token)).map_err(|_| {
+                TransportError::Authentication("Invalid auth token format".to_string())
+            })?;
             headers.insert(reqwest::header::AUTHORIZATION, auth_value);
         }
 
@@ -159,7 +158,9 @@ impl HttpTransport {
 
         // Check concurrency limit
         if state.active_requests >= self.config.max_concurrent_requests {
-            return Err(TransportError::Internal("Max concurrent requests reached".to_string()));
+            return Err(TransportError::Internal(
+                "Max concurrent requests reached".to_string(),
+            ));
         }
 
         // Clone the client for the request
@@ -440,10 +441,7 @@ mod tests {
         .unwrap();
 
         let headers = transport.build_headers().unwrap();
-        assert_eq!(
-            headers.get(CONTENT_TYPE).unwrap(),
-            "application/json"
-        );
+        assert_eq!(headers.get(CONTENT_TYPE).unwrap(), "application/json");
         assert_eq!(headers.get("X-API-Key").unwrap(), "test123");
         assert_eq!(
             headers.get(reqwest::header::AUTHORIZATION).unwrap(),
@@ -453,9 +451,8 @@ mod tests {
 
     #[test]
     fn test_invalid_header_name() {
-        let result = HttpTransport::new(
-            HttpConfig::new("http://localhost:8080").header("\n", "value"),
-        );
+        let result =
+            HttpTransport::new(HttpConfig::new("http://localhost:8080").header("\n", "value"));
         assert!(result.is_err());
     }
 }

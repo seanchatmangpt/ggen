@@ -9,11 +9,11 @@
 //! Uses Chicago TDD: AAA pattern, real RDF stores, observable outputs
 
 use assert_cmd::Command;
+use oxigraph::io::RdfFormat;
+use oxigraph::store::Store;
 use predicates::prelude::*;
 use std::fs;
 use tempfile::TempDir;
-use oxigraph::store::Store;
-use oxigraph::io::RdfFormat;
 
 /// Test fixture with RDF store and malicious query attempts
 struct SparqlInjectionFixture {
@@ -94,7 +94,10 @@ fn test_union_based_injection_blocked() -> Result<(), Box<dyn std::error::Error>
     assert!(!stdout.contains("topsecret456"), "Should not leak password");
 
     // Should only contain legitimate user data
-    assert!(stdout.contains("Alice") || stdout.contains("Bob"), "Should have legitimate data");
+    assert!(
+        stdout.contains("Alice") || stdout.contains("Bob"),
+        "Should have legitimate data"
+    );
 
     Ok(())
 }
@@ -128,7 +131,10 @@ fn test_comment_injection_blocked() -> Result<(), Box<dyn std::error::Error>> {
         let stdout = String::from_utf8_lossy(&output.stdout);
 
         // Assert: Should not expose sensitive data
-        assert!(!stdout.contains("password"), "Should not contain password field");
+        assert!(
+            !stdout.contains("password"),
+            "Should not contain password field"
+        );
         assert!(!stdout.contains("secret"), "Should not leak secrets");
     }
 
@@ -191,8 +197,14 @@ fn test_graph_traversal_injection_blocked() -> Result<(), Box<dyn std::error::Er
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     // Assert: Should not execute arbitrary graph patterns
-    assert!(!stdout.contains("secret123"), "Should not allow graph traversal");
-    assert!(!stdout.contains("password"), "Should not expose password field");
+    assert!(
+        !stdout.contains("secret123"),
+        "Should not allow graph traversal"
+    );
+    assert!(
+        !stdout.contains("password"),
+        "Should not expose password field"
+    );
 
     Ok(())
 }
@@ -221,7 +233,10 @@ fn test_property_path_injection_blocked() -> Result<(), Box<dyn std::error::Erro
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     // Assert: Should only return safe properties
-    assert!(!stdout.contains("secret"), "Should not expose passwords via property paths");
+    assert!(
+        !stdout.contains("secret"),
+        "Should not expose passwords via property paths"
+    );
 
     Ok(())
 }
@@ -252,7 +267,10 @@ fn test_service_injection_blocked() -> Result<(), Box<dyn std::error::Error>> {
 
     // Should not make network requests
     let stdout = String::from_utf8_lossy(&output.stdout);
-    assert!(!stdout.contains("attacker.com"), "Should not execute external SERVICE");
+    assert!(
+        !stdout.contains("attacker.com"),
+        "Should not execute external SERVICE"
+    );
 
     Ok(())
 }
@@ -283,7 +301,11 @@ fn test_blind_injection_timing_attack() -> Result<(), Box<dyn std::error::Error>
     let elapsed = start.elapsed();
 
     // Assert: Should not allow time-based attacks (should complete quickly)
-    assert!(elapsed.as_secs() < 2, "Should not allow timing attacks (took {:?})", elapsed);
+    assert!(
+        elapsed.as_secs() < 2,
+        "Should not allow timing attacks (took {:?})",
+        elapsed
+    );
 
     Ok(())
 }
@@ -316,8 +338,14 @@ fn test_no_data_exfiltration_via_error_messages() -> Result<(), Box<dyn std::err
     let stderr = String::from_utf8_lossy(&output.stderr);
 
     // Assert: Error messages should not contain sensitive data
-    assert!(!stderr.contains("secret123"), "Error should not leak password");
-    assert!(!stderr.contains("topsecret456"), "Error should not leak password");
+    assert!(
+        !stderr.contains("secret123"),
+        "Error should not leak password"
+    );
+    assert!(
+        !stderr.contains("topsecret456"),
+        "Error should not leak password"
+    );
 
     // Should have sanitized error message
     assert!(
@@ -337,10 +365,9 @@ fn test_parameterized_queries_safe() -> Result<(), Box<dyn std::error::Error>> {
     let store = Store::new().map_err(|e| format!("Failed to create store: {}", e))?;
     let rdf_content = fs::read_to_string(&fixture.rdf_file)?;
 
-    store.load_from_reader(
-        RdfFormat::Turtle,
-        std::io::Cursor::new(rdf_content)
-    ).map_err(|e| format!("Failed to load RDF: {}", e))?;
+    store
+        .load_from_reader(RdfFormat::Turtle, std::io::Cursor::new(rdf_content))
+        .map_err(|e| format!("Failed to load RDF: {}", e))?;
 
     // Act: Execute query with user input as literal (not injected into query structure)
     let user_input = "Alice'; DROP GRAPH <http://example.com/>; --";

@@ -20,8 +20,8 @@
 //! cargo run --example genai_integration
 //! ```
 
-use ggen_ai::{GenAiClient, LlmClient, LlmConfig, MockClient};
 use futures::StreamExt;
+use ggen_ai::{GenAiClient, LlmClient, LlmConfig, MockClient};
 
 /// Main entry point demonstrating GenAI integration patterns
 #[tokio::main]
@@ -110,10 +110,9 @@ async fn example_mock_client() -> Result<(), Box<dyn std::error::Error>> {
 
     // Token usage is available even with MockClient
     if let Some(usage) = &response1.usage {
-        println!("  Tokens: {} prompt + {} completion = {} total",
-            usage.prompt_tokens,
-            usage.completion_tokens,
-            usage.total_tokens
+        println!(
+            "  Tokens: {} prompt + {} completion = {} total",
+            usage.prompt_tokens, usage.completion_tokens, usage.total_tokens
         );
     }
 
@@ -160,7 +159,10 @@ async fn example_real_provider() -> Result<(), Box<dyn std::error::Error>> {
 
     // Make a real API call
     println!("  Making API call...");
-    match client.complete("Explain ownership in Rust in one sentence.").await {
+    match client
+        .complete("Explain ownership in Rust in one sentence.")
+        .await
+    {
         Ok(response) => {
             println!("  ✓ API call successful!");
             println!("  Response: {}", response.content);
@@ -192,7 +194,7 @@ async fn example_streaming() -> Result<(), Box<dyn std::error::Error>> {
     // Use MockClient for demonstration (works identically with real providers)
     let client = MockClient::with_response(
         "Streaming allows you to display responses as they're generated, \
-         improving user experience for long-form content."
+         improving user experience for long-form content.",
     );
 
     println!("  Question: Why use streaming?");
@@ -264,11 +266,14 @@ async fn example_token_counting() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n  Session Summary:");
     println!("    Total Prompt Tokens: {}", total_prompt_tokens);
     println!("    Total Completion Tokens: {}", total_completion_tokens);
-    println!("    Total Tokens: {}", total_prompt_tokens + total_completion_tokens);
+    println!(
+        "    Total Tokens: {}",
+        total_prompt_tokens + total_completion_tokens
+    );
 
     // Example cost estimation (GPT-4 pricing as example)
-    let estimated_cost = (total_prompt_tokens as f64 * 0.00003)
-        + (total_completion_tokens as f64 * 0.00006);
+    let estimated_cost =
+        (total_prompt_tokens as f64 * 0.00003) + (total_completion_tokens as f64 * 0.00006);
     println!("    Estimated Cost (GPT-4 rates): ${:.6}", estimated_cost);
 
     println!("  ✓ Token tracking complete\n");
@@ -290,7 +295,7 @@ async fn example_custom_config() -> Result<(), Box<dyn std::error::Error>> {
     let creative_config = LlmConfig {
         model: "gemini/gemini-2.0-flash-exp".to_string(),
         max_tokens: Some(2048),
-        temperature: Some(1.2),  // Higher = more creative
+        temperature: Some(1.2), // Higher = more creative
         top_p: Some(0.95),
         stop: None,
         extra: std::collections::HashMap::new(),
@@ -300,23 +305,29 @@ async fn example_custom_config() -> Result<(), Box<dyn std::error::Error>> {
     creative_config.validate()?;
     println!("  Creative Config:");
     println!("    Model: {}", creative_config.model);
-    println!("    Temperature: {:?} (high for creativity)", creative_config.temperature);
+    println!(
+        "    Temperature: {:?} (high for creativity)",
+        creative_config.temperature
+    );
     println!("    Max Tokens: {:?}", creative_config.max_tokens);
 
     // Configuration for factual/analytical tasks (low temperature)
     let analytical_config = LlmConfig {
         model: "gemini/gemini-2.0-flash-exp".to_string(),
         max_tokens: Some(1024),
-        temperature: Some(0.1),  // Lower = more deterministic
+        temperature: Some(0.1), // Lower = more deterministic
         top_p: Some(0.9),
-        stop: Some(vec!["\n\n".to_string()]),  // Stop at paragraph breaks
+        stop: Some(vec!["\n\n".to_string()]), // Stop at paragraph breaks
         extra: std::collections::HashMap::new(),
     };
 
     analytical_config.validate()?;
     println!("\n  Analytical Config:");
     println!("    Model: {}", analytical_config.model);
-    println!("    Temperature: {:?} (low for accuracy)", analytical_config.temperature);
+    println!(
+        "    Temperature: {:?} (low for accuracy)",
+        analytical_config.temperature
+    );
     println!("    Stop sequences: {:?}", analytical_config.stop);
 
     println!("\n  ✓ Custom configurations validated\n");

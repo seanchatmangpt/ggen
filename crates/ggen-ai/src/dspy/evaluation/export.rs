@@ -22,7 +22,8 @@ pub fn export_to_csv(result: &EvaluationResult, path: impl AsRef<Path>) -> Resul
     let mut writer = csv::Writer::from_writer(file);
 
     // Write header
-    writer.write_record(&["index", "score", "error", "duration_ms"])
+    writer
+        .write_record(&["index", "score", "error", "duration_ms"])
         .map_err(|e| ModuleError::Other(format!("Failed to write CSV header: {}", e)))?;
 
     // Write data rows
@@ -34,16 +35,18 @@ pub fn export_to_csv(result: &EvaluationResult, path: impl AsRef<Path>) -> Resul
 
         let error_str = point.error.as_deref().unwrap_or("");
 
-        writer.write_record(&[
-            &idx.to_string(),
-            &point.score.to_string(),
-            error_str,
-            &duration_ms,
-        ])
-        .map_err(|e| ModuleError::Other(format!("Failed to write CSV row: {}", e)))?;
+        writer
+            .write_record(&[
+                &idx.to_string(),
+                &point.score.to_string(),
+                error_str,
+                &duration_ms,
+            ])
+            .map_err(|e| ModuleError::Other(format!("Failed to write CSV row: {}", e)))?;
     }
 
-    writer.flush()
+    writer
+        .flush()
         .map_err(|e| ModuleError::Other(format!("Failed to flush CSV writer: {}", e)))?;
     Ok(())
 }
@@ -56,7 +59,9 @@ pub fn export_to_csv(result: &EvaluationResult, path: impl AsRef<Path>) -> Resul
 ///
 /// # Returns
 /// Result indicating success or failure
-pub fn export_to_json(result: &EvaluationResult, path: impl AsRef<Path>) -> Result<(), ModuleError> {
+pub fn export_to_json(
+    result: &EvaluationResult, path: impl AsRef<Path>,
+) -> Result<(), ModuleError> {
     let file = File::create(path)
         .map_err(|e| ModuleError::Other(format!("Failed to create JSON file: {}", e)))?;
 
@@ -102,11 +107,7 @@ pub fn display_table(result: &EvaluationResult, num_rows: usize) {
 
     // Data rows
     for (idx, point) in result.results.iter().enumerate().take(num_rows) {
-        let status = if point.is_success() {
-            "OK"
-        } else {
-            "FAIL"
-        };
+        let status = if point.is_success() { "OK" } else { "FAIL" };
 
         let duration = point
             .duration
@@ -147,8 +148,8 @@ mod tests {
         let example1 = Example::new(HashMap::new(), HashMap::new());
         let example2 = Example::new(HashMap::new(), HashMap::new());
 
-        let point1 =
-            EvaluationPoint::new(example1, HashMap::new(), 1.0).with_duration(Duration::from_millis(100));
+        let point1 = EvaluationPoint::new(example1, HashMap::new(), 1.0)
+            .with_duration(Duration::from_millis(100));
         let point2 = EvaluationPoint::failed(example2, "Test error".to_string())
             .with_duration(Duration::from_millis(50));
 

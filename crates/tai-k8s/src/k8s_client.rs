@@ -12,18 +12,18 @@
 
 use crate::{Error, Result};
 use async_trait::async_trait;
+use futures::stream::StreamExt;
 use k8s_openapi::api::apps::v1::{Deployment, StatefulSet};
 use k8s_openapi::api::batch::v1::Job;
 use k8s_openapi::api::core::v1::{
-    ConfigMap, Container, ContainerPort, Pod, PodSpec, PodTemplateSpec,
-    ResourceRequirements, Secret, Service, ServicePort, ServiceSpec,
+    ConfigMap, Container, ContainerPort, Pod, PodSpec, PodTemplateSpec, ResourceRequirements,
+    Secret, Service, ServicePort, ServiceSpec,
 };
 use k8s_openapi::apimachinery::pkg::api::resource::Quantity;
-use k8s_openapi::apimachinery::pkg::apis::meta::v1::{ObjectMeta, LabelSelector};
+use k8s_openapi::apimachinery::pkg::apis::meta::v1::{LabelSelector, ObjectMeta};
 use k8s_openapi::apimachinery::pkg::util::intstr::IntOrString;
 use k8s_openapi::ByteString;
 use kube::{Api, Client};
-use futures::stream::StreamExt;
 use std::collections::BTreeMap;
 use tracing::{debug, error, info};
 
@@ -32,11 +32,7 @@ use tracing::{debug, error, info};
 pub trait PodOperation {
     /// Create a pod
     async fn create_pod(
-        &self,
-        namespace: &str,
-        pod_name: &str,
-        image: &str,
-        labels: BTreeMap<String, String>,
+        &self, namespace: &str, pod_name: &str, image: &str, labels: BTreeMap<String, String>,
     ) -> Result<Pod>;
 
     /// Delete a pod
@@ -57,20 +53,13 @@ pub trait PodOperation {
 pub trait DeploymentOperation {
     /// Create a deployment
     async fn create_deployment(
-        &self,
-        namespace: &str,
-        deployment_name: &str,
-        replicas: i32,
-        image: &str,
+        &self, namespace: &str, deployment_name: &str, replicas: i32, image: &str,
         labels: BTreeMap<String, String>,
     ) -> Result<Deployment>;
 
     /// Scale deployment
     async fn scale_deployment(
-        &self,
-        namespace: &str,
-        deployment_name: &str,
-        replicas: i32,
+        &self, namespace: &str, deployment_name: &str, replicas: i32,
     ) -> Result<()>;
 
     /// Get deployment
@@ -78,10 +67,7 @@ pub trait DeploymentOperation {
 
     /// Update deployment image
     async fn update_deployment_image(
-        &self,
-        namespace: &str,
-        deployment_name: &str,
-        image: &str,
+        &self, namespace: &str, deployment_name: &str, image: &str,
     ) -> Result<()>;
 
     /// Rollback deployment to previous revision
@@ -123,12 +109,11 @@ impl KubernetesClient {
             ..Default::default()
         };
 
-        let ns_api: Api<k8s_openapi::api::core::v1::Namespace> =
-            Api::all(self.client.clone());
+        let ns_api: Api<k8s_openapi::api::core::v1::Namespace> = Api::all(self.client.clone());
 
-        ns_api.create(&Default::default(), &ns)
-            .await
-            .map_err(|e| Error::KubernetesApi(format!("Failed to create namespace {namespace}: {e}")))?;
+        ns_api.create(&Default::default(), &ns).await.map_err(|e| {
+            Error::KubernetesApi(format!("Failed to create namespace {namespace}: {e}"))
+        })?;
 
         info!("Namespace {} created", namespace);
         Ok(())
@@ -140,10 +125,7 @@ impl KubernetesClient {
     ///
     /// Returns error if unable to create ConfigMap
     pub async fn create_config_map(
-        &self,
-        namespace: &str,
-        name: &str,
-        data: BTreeMap<String, String>,
+        &self, namespace: &str, name: &str, data: BTreeMap<String, String>,
     ) -> Result<ConfigMap> {
         let cm = ConfigMap {
             metadata: ObjectMeta {
@@ -156,7 +138,8 @@ impl KubernetesClient {
         };
 
         let cm_api: Api<ConfigMap> = Api::namespaced(self.client.clone(), namespace);
-        cm_api.create(&Default::default(), &cm)
+        cm_api
+            .create(&Default::default(), &cm)
             .await
             .map_err(|e| Error::KubernetesApi(format!("Failed to create ConfigMap {name}: {e}")))
     }
@@ -167,20 +150,19 @@ impl KubernetesClient {
     ///
     /// Returns error if unable to update ConfigMap
     pub async fn update_config_map(
-        &self,
-        namespace: &str,
-        name: &str,
-        data: BTreeMap<String, String>,
+        &self, namespace: &str, name: &str, data: BTreeMap<String, String>,
     ) -> Result<()> {
         let cm_api: Api<ConfigMap> = Api::namespaced(self.client.clone(), namespace);
 
-        let mut cm = cm_api.get(name)
+        let mut cm = cm_api
+            .get(name)
             .await
             .map_err(|e| Error::KubernetesApi(format!("Failed to get ConfigMap {name}: {e}")))?;
 
         cm.data = Some(data);
 
-        cm_api.replace(name, &Default::default(), &cm)
+        cm_api
+            .replace(name, &Default::default(), &cm)
             .await
             .map_err(|e| Error::KubernetesApi(format!("Failed to update ConfigMap {name}: {e}")))?;
 
@@ -194,15 +176,10 @@ impl KubernetesClient {
     ///
     /// Returns error if unable to create Secret
     pub async fn create_secret(
-        &self,
-        namespace: &str,
-        name: &str,
-        data: BTreeMap<String, Vec<u8>>,
+        &self, namespace: &str, name: &str, data: BTreeMap<String, Vec<u8>>,
     ) -> Result<Secret> {
-        let converted_data: BTreeMap<String, ByteString> = data
-            .into_iter()
-            .map(|(k, v)| (k, ByteString(v)))
-            .collect();
+        let converted_data: BTreeMap<String, ByteString> =
+            data.into_iter().map(|(k, v)| (k, ByteString(v))).collect();
 
         let secret = Secret {
             metadata: ObjectMeta {
@@ -215,7 +192,8 @@ impl KubernetesClient {
         };
 
         let secret_api: Api<Secret> = Api::namespaced(self.client.clone(), namespace);
-        secret_api.create(&Default::default(), &secret)
+        secret_api
+            .create(&Default::default(), &secret)
             .await
             .map_err(|e| Error::KubernetesApi(format!("Failed to create Secret {name}: {e}")))
     }
@@ -225,13 +203,10 @@ impl KubernetesClient {
     /// # Errors
     ///
     /// Returns error if unable to get Secret
-    pub async fn get_secret(
-        &self,
-        namespace: &str,
-        name: &str,
-    ) -> Result<Secret> {
+    pub async fn get_secret(&self, namespace: &str, name: &str) -> Result<Secret> {
         let secret_api: Api<Secret> = Api::namespaced(self.client.clone(), namespace);
-        secret_api.get(name)
+        secret_api
+            .get(name)
             .await
             .map_err(|e| Error::KubernetesApi(format!("Failed to get Secret {name}: {e}")))
     }
@@ -246,7 +221,7 @@ impl KubernetesClient {
         namespace: &str,
         name: &str,
         selector: BTreeMap<String, String>,
-        ports: Vec<(u16, u16)>,  // (port, target_port)
+        ports: Vec<(u16, u16)>, // (port, target_port)
         service_type: &str,
     ) -> Result<Service> {
         let service_ports: Vec<ServicePort> = ports
@@ -274,7 +249,8 @@ impl KubernetesClient {
         };
 
         let svc_api: Api<Service> = Api::namespaced(self.client.clone(), namespace);
-        svc_api.create(&Default::default(), &service)
+        svc_api
+            .create(&Default::default(), &service)
             .await
             .map_err(|e| Error::KubernetesApi(format!("Failed to create Service {name}: {e}")))
     }
@@ -286,7 +262,8 @@ impl KubernetesClient {
     /// Returns error if unable to list services
     pub async fn list_services(&self, namespace: &str) -> Result<Vec<Service>> {
         let svc_api: Api<Service> = Api::namespaced(self.client.clone(), namespace);
-        let services = svc_api.list(&Default::default())
+        let services = svc_api
+            .list(&Default::default())
             .await
             .map_err(|e| Error::KubernetesApi(format!("Failed to list services: {e}")))?;
 
@@ -299,12 +276,7 @@ impl KubernetesClient {
     ///
     /// Returns error if unable to create StatefulSet
     pub async fn create_stateful_set(
-        &self,
-        namespace: &str,
-        name: &str,
-        replicas: i32,
-        image: &str,
-        service_name: &str,
+        &self, namespace: &str, name: &str, replicas: i32, image: &str, service_name: &str,
         labels: BTreeMap<String, String>,
     ) -> Result<StatefulSet> {
         let mut labels = labels;
@@ -364,7 +336,8 @@ impl KubernetesClient {
         };
 
         let ss_api: Api<StatefulSet> = Api::namespaced(self.client.clone(), namespace);
-        ss_api.create(&Default::default(), &stateful_set)
+        ss_api
+            .create(&Default::default(), &stateful_set)
             .await
             .map_err(|e| Error::KubernetesApi(format!("Failed to create StatefulSet {name}: {e}")))
     }
@@ -375,11 +348,7 @@ impl KubernetesClient {
     ///
     /// Returns error if unable to create Job
     pub async fn create_job(
-        &self,
-        namespace: &str,
-        name: &str,
-        image: &str,
-        labels: BTreeMap<String, String>,
+        &self, namespace: &str, name: &str, image: &str, labels: BTreeMap<String, String>,
     ) -> Result<Job> {
         let mut labels = labels;
         labels.insert("app".to_string(), name.to_string());
@@ -414,7 +383,8 @@ impl KubernetesClient {
         };
 
         let job_api: Api<Job> = Api::namespaced(self.client.clone(), namespace);
-        job_api.create(&Default::default(), &job)
+        job_api
+            .create(&Default::default(), &job)
             .await
             .map_err(|e| Error::KubernetesApi(format!("Failed to create Job {name}: {e}")))
     }
@@ -427,7 +397,8 @@ impl KubernetesClient {
     pub async fn monitor_job(&self, namespace: &str, job_name: &str) -> Result<bool> {
         let job_api: Api<Job> = Api::namespaced(self.client.clone(), namespace);
 
-        let job = job_api.get(job_name)
+        let job = job_api
+            .get(job_name)
             .await
             .map_err(|e| Error::KubernetesApi(format!("Failed to get Job {job_name}: {e}")))?;
 
@@ -454,11 +425,7 @@ impl KubernetesClient {
 #[async_trait]
 impl PodOperation for KubernetesClient {
     async fn create_pod(
-        &self,
-        namespace: &str,
-        pod_name: &str,
-        image: &str,
-        labels: BTreeMap<String, String>,
+        &self, namespace: &str, pod_name: &str, image: &str, labels: BTreeMap<String, String>,
     ) -> Result<Pod> {
         let container = Container {
             name: "main".to_string(),
@@ -481,14 +448,16 @@ impl PodOperation for KubernetesClient {
         };
 
         let pod_api: Api<Pod> = Api::namespaced(self.client.clone(), namespace);
-        pod_api.create(&Default::default(), &pod)
+        pod_api
+            .create(&Default::default(), &pod)
             .await
             .map_err(|e| Error::KubernetesApi(format!("Failed to create Pod {pod_name}: {e}")))
     }
 
     async fn delete_pod(&self, namespace: &str, pod_name: &str) -> Result<()> {
         let pod_api: Api<Pod> = Api::namespaced(self.client.clone(), namespace);
-        pod_api.delete(pod_name, &Default::default())
+        pod_api
+            .delete(pod_name, &Default::default())
             .await
             .map_err(|e| Error::KubernetesApi(format!("Failed to delete Pod {pod_name}: {e}")))?;
 
@@ -504,7 +473,8 @@ impl PodOperation for KubernetesClient {
             list_params = list_params.labels(selector);
         }
 
-        let pods = pod_api.list(&list_params)
+        let pods = pod_api
+            .list(&list_params)
             .await
             .map_err(|e| Error::KubernetesApi(format!("Failed to list pods: {e}")))?;
 
@@ -537,7 +507,10 @@ impl PodOperation for KubernetesClient {
     async fn get_pod_logs(&self, namespace: &str, pod_name: &str) -> Result<String> {
         // This would require additional setup for actual log streaming
         // For now, return a placeholder
-        debug!("Getting logs for pod {} in namespace {}", pod_name, namespace);
+        debug!(
+            "Getting logs for pod {} in namespace {}",
+            pod_name, namespace
+        );
         Ok("Log streaming not fully implemented in mock client".to_string())
     }
 }
@@ -545,11 +518,7 @@ impl PodOperation for KubernetesClient {
 #[async_trait]
 impl DeploymentOperation for KubernetesClient {
     async fn create_deployment(
-        &self,
-        namespace: &str,
-        deployment_name: &str,
-        replicas: i32,
-        image: &str,
+        &self, namespace: &str, deployment_name: &str, replicas: i32, image: &str,
         labels: BTreeMap<String, String>,
     ) -> Result<Deployment> {
         let mut labels = labels;
@@ -608,53 +577,58 @@ impl DeploymentOperation for KubernetesClient {
         };
 
         let deploy_api: Api<Deployment> = Api::namespaced(self.client.clone(), namespace);
-        deploy_api.create(&Default::default(), &deployment)
+        deploy_api
+            .create(&Default::default(), &deployment)
             .await
-            .map_err(|e| Error::KubernetesApi(format!("Failed to create Deployment {deployment_name}: {e}")))
+            .map_err(|e| {
+                Error::KubernetesApi(format!(
+                    "Failed to create Deployment {deployment_name}: {e}"
+                ))
+            })
     }
 
     async fn scale_deployment(
-        &self,
-        namespace: &str,
-        deployment_name: &str,
-        replicas: i32,
+        &self, namespace: &str, deployment_name: &str, replicas: i32,
     ) -> Result<()> {
         let deploy_api: Api<Deployment> = Api::namespaced(self.client.clone(), namespace);
 
-        let mut deployment = deploy_api.get(deployment_name)
-            .await
-            .map_err(|e| Error::KubernetesApi(format!("Failed to get Deployment {deployment_name}: {e}")))?;
+        let mut deployment = deploy_api.get(deployment_name).await.map_err(|e| {
+            Error::KubernetesApi(format!("Failed to get Deployment {deployment_name}: {e}"))
+        })?;
 
         if let Some(spec) = &mut deployment.spec {
             spec.replicas = Some(replicas);
         }
 
-        deploy_api.replace(deployment_name, &Default::default(), &deployment)
+        deploy_api
+            .replace(deployment_name, &Default::default(), &deployment)
             .await
-            .map_err(|e| Error::KubernetesApi(format!("Failed to scale Deployment {deployment_name}: {e}")))?;
+            .map_err(|e| {
+                Error::KubernetesApi(format!("Failed to scale Deployment {deployment_name}: {e}"))
+            })?;
 
-        info!("Deployment {} scaled to {} replicas", deployment_name, replicas);
+        info!(
+            "Deployment {} scaled to {} replicas",
+            deployment_name, replicas
+        );
         Ok(())
     }
 
     async fn get_deployment(&self, namespace: &str, deployment_name: &str) -> Result<Deployment> {
         let deploy_api: Api<Deployment> = Api::namespaced(self.client.clone(), namespace);
-        deploy_api.get(deployment_name)
-            .await
-            .map_err(|e| Error::KubernetesApi(format!("Failed to get Deployment {deployment_name}: {e}")))
+        deploy_api.get(deployment_name).await.map_err(|e| {
+            Error::KubernetesApi(format!("Failed to get Deployment {deployment_name}: {e}"))
+        })
     }
 
     async fn update_deployment_image(
-        &self,
-        namespace: &str,
-        deployment_name: &str,
-        image: &str,
+        &self, namespace: &str, deployment_name: &str, image: &str,
     ) -> Result<()> {
         let deploy_api: Api<Deployment> = Api::namespaced(self.client.clone(), namespace);
 
-        let mut deployment = deploy_api.get(deployment_name)
-            .await
-            .map_err(|e| Error::KubernetesApi(format!("Failed to get Deployment {deployment_name}: {e}")))?;
+        let mut deployment = deploy_api.get(deployment_name).await.map_err(|e| {
+            Error::KubernetesApi(format!("Failed to get Deployment {deployment_name}: {e}"))
+        })?;
 
         if let Some(spec) = &mut deployment.spec {
             let template = &mut spec.template;
@@ -665,7 +639,8 @@ impl DeploymentOperation for KubernetesClient {
             }
         }
 
-        deploy_api.replace(deployment_name, &Default::default(), &deployment)
+        deploy_api
+            .replace(deployment_name, &Default::default(), &deployment)
             .await
             .map_err(|e| Error::KubernetesApi(format!("Failed to update Deployment image: {e}")))?;
 

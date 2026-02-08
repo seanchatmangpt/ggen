@@ -23,9 +23,7 @@ use thiserror::Error;
 use tokio::sync::RwLock;
 
 #[cfg(feature = "a2a")]
-use a2a_rs::{
-    domain::core::{message::Part, task::TaskState, Message, Role, Task},
-};
+use a2a_rs::domain::core::{message::Part, task::TaskState, Message, Role, Task};
 
 /// Conversion context containing configuration for message translation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -212,14 +210,15 @@ impl A2aMessageConverter {
     ///
     /// Returns an error if the request is invalid or conversion fails.
     pub async fn mcp_request_to_a2a_task(
-        &self,
-        request: &JsonRpcRequest,
+        &self, request: &JsonRpcRequest,
     ) -> Result<TaskWrapper, ConversionError> {
         let start = std::time::Instant::now();
 
         // Validate request
         if request.method.is_empty() {
-            return Err(ConversionError::InvalidMcpRequest("Empty method".to_string()));
+            return Err(ConversionError::InvalidMcpRequest(
+                "Empty method".to_string(),
+            ));
         }
 
         let task_id = request
@@ -264,9 +263,7 @@ impl A2aMessageConverter {
     ///
     /// Returns an error if the task is invalid or conversion fails.
     pub async fn a2a_task_to_mcp_response(
-        &self,
-        task: &TaskWrapper,
-        original_request: &JsonRpcRequest,
+        &self, task: &TaskWrapper, original_request: &JsonRpcRequest,
     ) -> Result<JsonRpcResponse, ConversionError> {
         let start = std::time::Instant::now();
 
@@ -280,10 +277,7 @@ impl A2aMessageConverter {
                 // For pending states, return a "still working" response
                 JsonRpcResponse::error(
                     request_id,
-                    JsonRpcError::new(
-                        -32000,
-                        "Task is still being processed",
-                    ),
+                    JsonRpcError::new(-32000, "Task is still being processed"),
                 )
             }
             _ => self.convert_failed_task(task, request_id)?,
@@ -304,9 +298,7 @@ impl A2aMessageConverter {
 
     /// Convert MCP tool call to A2A Task.
     fn convert_tool_call(
-        &self,
-        request: &JsonRpcRequest,
-        task_id: &str,
+        &self, request: &JsonRpcRequest, task_id: &str,
     ) -> Result<Task, ConversionError> {
         let tool_name = request
             .params
@@ -336,24 +328,20 @@ impl A2aMessageConverter {
                     data.insert("arguments".to_string(), arguments);
                     Part::data(data)
                 }
-                McpToA2aConversionMode::Passthrough => {
-                    Part::text_with_metadata(
-                        message_text,
-                        passthrough_metadata(&request.method, &request.params),
-                    )
-                }
+                McpToA2aConversionMode::Passthrough => Part::text_with_metadata(
+                    message_text,
+                    passthrough_metadata(&request.method, &request.params),
+                ),
             };
 
-            Ok(Task::new(
-                task_id.to_string(),
-                self.context.context_id.clone(),
+            Ok(
+                Task::new(task_id.to_string(), self.context.context_id.clone()).with_message(
+                    Role::User,
+                    vec![part],
+                    Some(self.context.agent_id.clone()),
+                    task_id,
+                ),
             )
-            .with_message(
-                Role::User,
-                vec![part],
-                Some(self.context.agent_id.clone()),
-                task_id,
-            ))
         }
 
         #[cfg(not(feature = "a2a"))]
@@ -367,24 +355,20 @@ impl A2aMessageConverter {
 
     /// Convert MCP tools list to A2A Task.
     fn convert_tools_list(
-        &self,
-        _request: &JsonRpcRequest,
-        task_id: &str,
+        &self, _request: &JsonRpcRequest, task_id: &str,
     ) -> Result<Task, ConversionError> {
         #[cfg(feature = "a2a")]
         {
             let part = Part::text("List available tools".to_string());
 
-            Ok(Task::new(
-                task_id.to_string(),
-                self.context.context_id.clone(),
+            Ok(
+                Task::new(task_id.to_string(), self.context.context_id.clone()).with_message(
+                    Role::User,
+                    vec![part],
+                    Some(self.context.agent_id.clone()),
+                    task_id,
+                ),
             )
-            .with_message(
-                Role::User,
-                vec![part],
-                Some(self.context.agent_id.clone()),
-                task_id,
-            ))
         }
 
         #[cfg(not(feature = "a2a"))]
@@ -398,30 +382,29 @@ impl A2aMessageConverter {
 
     /// Convert generic MCP request to A2A Task.
     fn convert_generic_request(
-        &self,
-        request: &JsonRpcRequest,
-        task_id: &str,
+        &self, request: &JsonRpcRequest, task_id: &str,
     ) -> Result<Task, ConversionError> {
         #[cfg(feature = "a2a")]
         {
             let mut data = Map::new();
-            data.insert("method".to_string(), JsonValue::String(request.method.clone()));
+            data.insert(
+                "method".to_string(),
+                JsonValue::String(request.method.clone()),
+            );
             if let Some(params) = &request.params {
                 data.insert("params".to_string(), params.clone());
             }
 
             let part = Part::data(data);
 
-            Ok(Task::new(
-                task_id.to_string(),
-                self.context.context_id.clone(),
+            Ok(
+                Task::new(task_id.to_string(), self.context.context_id.clone()).with_message(
+                    Role::User,
+                    vec![part],
+                    Some(self.context.agent_id.clone()),
+                    task_id,
+                ),
             )
-            .with_message(
-                Role::User,
-                vec![part],
-                Some(self.context.agent_id.clone()),
-                task_id,
-            ))
         }
 
         #[cfg(not(feature = "a2a"))]
@@ -435,9 +418,7 @@ impl A2aMessageConverter {
 
     /// Convert completed A2A Task to MCP success response.
     fn convert_completed_task(
-        &self,
-        task: &Task,
-        request_id: RequestId,
+        &self, task: &Task, request_id: RequestId,
     ) -> Result<JsonRpcResponse, ConversionError> {
         #[cfg(feature = "a2a")]
         {
@@ -456,9 +437,7 @@ impl A2aMessageConverter {
 
     /// Convert failed A2A Task to MCP error response.
     fn convert_failed_task(
-        &self,
-        task: &Task,
-        request_id: RequestId,
+        &self, task: &Task, request_id: RequestId,
     ) -> Result<JsonRpcResponse, ConversionError> {
         let error_message = task
             .status
@@ -484,15 +463,24 @@ pub struct TaskWrapper(
 /// Helper to create metadata for tool call messages.
 fn tool_call_metadata(tool_name: &str) -> Map<String, JsonValue> {
     let mut metadata = Map::new();
-    metadata.insert("tool_name".to_string(), JsonValue::String(tool_name.to_string()));
-    metadata.insert("call_type".to_string(), JsonValue::String("tool_call".to_string()));
+    metadata.insert(
+        "tool_name".to_string(),
+        JsonValue::String(tool_name.to_string()),
+    );
+    metadata.insert(
+        "call_type".to_string(),
+        JsonValue::String("tool_call".to_string()),
+    );
     metadata
 }
 
 /// Helper to create metadata for passthrough messages.
 fn passthrough_metadata(method: &str, params: &Option<JsonValue>) -> Map<String, JsonValue> {
     let mut metadata = Map::new();
-    metadata.insert("original_method".to_string(), JsonValue::String(method.to_string()));
+    metadata.insert(
+        "original_method".to_string(),
+        JsonValue::String(method.to_string()),
+    );
     if let Some(p) = params {
         metadata.insert("original_params".to_string(), p.clone());
     }
@@ -529,14 +517,12 @@ fn extract_task_result(task: &Task) -> Result<JsonValue, ConversionError> {
         let mut content_map = Map::new();
         content_map.insert("isError".to_string(), JsonValue::Bool(false));
 
-        let content_array = vec![
-            JsonValue::Object({
-                let mut item = Map::new();
-                item.insert("type".to_string(), JsonValue::String("text".to_string()));
-                item.insert("text".to_string(), JsonValue::String(content));
-                item
-            })
-        ];
+        let content_array = vec![JsonValue::Object({
+            let mut item = Map::new();
+            item.insert("type".to_string(), JsonValue::String("text".to_string()));
+            item.insert("text".to_string(), JsonValue::String(content));
+            item
+        })];
         content_map.insert("content".to_string(), JsonValue::Array(content_array));
 
         return Ok(JsonValue::Object(content_map));
@@ -601,22 +587,14 @@ impl TaskWrapper {
 #[cfg(feature = "a2a")]
 trait TaskExt {
     fn with_message(
-        self,
-        role: Role,
-        parts: Vec<Part>,
-        agent_id: Option<String>,
-        task_id: &str,
+        self, role: Role, parts: Vec<Part>, agent_id: Option<String>, task_id: &str,
     ) -> Self;
 }
 
 #[cfg(feature = "a2a")]
 impl TaskExt for Task {
     fn with_message(
-        mut self,
-        role: Role,
-        parts: Vec<Part>,
-        _agent_id: Option<String>,
-        task_id: &str,
+        mut self, role: Role, parts: Vec<Part>, _agent_id: Option<String>, task_id: &str,
     ) -> Self {
         let message = Message {
             role,
@@ -683,8 +661,8 @@ mod tests {
     #[test]
     fn test_converter_with_mode() {
         let context = ConversionContext::default();
-        let converter = A2aMessageConverter::new(context)
-            .with_mode(McpToA2aConversionMode::Passthrough);
+        let converter =
+            A2aMessageConverter::new(context).with_mode(McpToA2aConversionMode::Passthrough);
         assert_eq!(converter.mode, McpToA2aConversionMode::Passthrough);
     }
 

@@ -25,12 +25,10 @@ fn test_full_pipeline_simple_ontology() {
             craftplan:namespace "Catalog" .
     "#;
 
-    std::fs::write(&ontology_path, ontology_content)
-        .expect("Failed to write ontology file");
+    std::fs::write(&ontology_path, ontology_content).expect("Failed to write ontology file");
 
     // Act: Run the pipeline
-    let generator = CodeGenerator::new(output_dir.path())
-        .expect("Failed to create generator");
+    let generator = CodeGenerator::new(output_dir.path()).expect("Failed to create generator");
 
     // This test verifies the pipeline infrastructure exists
     // Full integration would require more complete implementations
@@ -73,7 +71,10 @@ fn test_receipt_generation() {
     let hash3 = generator.compute_hash("different content");
 
     assert_eq!(hash1, hash2, "Same content should produce same hash");
-    assert_ne!(hash1, hash3, "Different content should produce different hash");
+    assert_ne!(
+        hash1, hash3,
+        "Different content should produce different hash"
+    );
     assert_eq!(hash1.len(), 64, "SHA-256 hash should be 64 hex characters");
 }
 
@@ -86,6 +87,9 @@ fn test_canonicalization() {
     let input = "line 1  \nline 2   \nline 3";
     let normalized = canonicalizer.normalize_whitespace(input);
 
-    assert!(!normalized.contains("  "), "Trailing spaces should be removed");
+    assert!(
+        !normalized.contains("  "),
+        "Trailing spaces should be removed"
+    );
     assert!(normalized.contains("\n"), "Newlines should be preserved");
 }

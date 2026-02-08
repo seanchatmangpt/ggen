@@ -41,16 +41,22 @@ fn parse_sparql(query: String) -> String {
         // Basic validation - check if it starts with SELECT, ASK, DESCRIBE, or CONSTRUCT
         let trimmed = query.trim();
 
-        if !trimmed.starts_with("SELECT") &&
-           !trimmed.starts_with("ASK") &&
-           !trimmed.starts_with("DESCRIBE") &&
-           !trimmed.starts_with("CONSTRUCT") {
-            return Err(WorkflowError::Validation("Invalid SPARQL query: must start with SELECT, ASK, DESCRIBE, or CONSTRUCT".to_string()));
+        if !trimmed.starts_with("SELECT")
+            && !trimmed.starts_with("ASK")
+            && !trimmed.starts_with("DESCRIBE")
+            && !trimmed.starts_with("CONSTRUCT")
+        {
+            return Err(WorkflowError::Validation(
+                "Invalid SPARQL query: must start with SELECT, ASK, DESCRIBE, or CONSTRUCT"
+                    .to_string(),
+            ));
         }
 
         // Check for basic structure
         if !query.contains('{') || !query.contains('}') {
-            return Err(WorkflowError::Validation("Invalid SPARQL query: missing braces".to_string()));
+            return Err(WorkflowError::Validation(
+                "Invalid SPARQL query: missing braces".to_string(),
+            ));
         }
 
         Ok("Query parsed successfully".to_string())
@@ -69,15 +75,21 @@ fn validate_sparql(query: String) -> String {
         // Reuse parse_sparql logic
         let trimmed = query.trim();
 
-        if !trimmed.starts_with("SELECT") &&
-           !trimmed.starts_with("ASK") &&
-           !trimmed.starts_with("DESCRIBE") &&
-           !trimmed.starts_with("CONSTRUCT") {
-            return Err(WorkflowError::Validation("Invalid SPARQL query: must start with SELECT, ASK, DESCRIBE, or CONSTRUCT".to_string()));
+        if !trimmed.starts_with("SELECT")
+            && !trimmed.starts_with("ASK")
+            && !trimmed.starts_with("DESCRIBE")
+            && !trimmed.starts_with("CONSTRUCT")
+        {
+            return Err(WorkflowError::Validation(
+                "Invalid SPARQL query: must start with SELECT, ASK, DESCRIBE, or CONSTRUCT"
+                    .to_string(),
+            ));
         }
 
         if !query.contains('{') || !query.contains('}') {
-            return Err(WorkflowError::Validation("Invalid SPARQL query: missing braces".to_string()));
+            return Err(WorkflowError::Validation(
+                "Invalid SPARQL query: missing braces".to_string(),
+            ));
         }
 
         Ok(true)
@@ -113,11 +125,14 @@ pub fn sparql_query(_query: String) -> WorkflowResult<String> {
 pub fn sparql_query_validate(query: String) -> WorkflowResult<()> {
     let trimmed = query.trim();
 
-    if !trimmed.starts_with("SELECT") &&
-       !trimmed.starts_with("ASK") &&
-       !trimmed.starts_with("DESCRIBE") &&
-       !trimmed.starts_with("CONSTRUCT") {
-        return Err(WorkflowError::Validation("Invalid SPARQL query: must start with SELECT, ASK, DESCRIBE, or CONSTRUCT".to_string()));
+    if !trimmed.starts_with("SELECT")
+        && !trimmed.starts_with("ASK")
+        && !trimmed.starts_with("DESCRIBE")
+        && !trimmed.starts_with("CONSTRUCT")
+    {
+        return Err(WorkflowError::Validation(
+            "Invalid SPARQL query: must start with SELECT, ASK, DESCRIBE, or CONSTRUCT".to_string(),
+        ));
     }
 
     Ok(())
@@ -126,9 +141,5 @@ pub fn sparql_query_validate(query: String) -> WorkflowResult<()> {
 // Module definition
 rustler::init!(
     "Elixir.Workflow.Query",
-    [
-        execute_sparql,
-        parse_sparql,
-        validate_sparql,
-    ]
+    [execute_sparql, parse_sparql, validate_sparql,]
 );

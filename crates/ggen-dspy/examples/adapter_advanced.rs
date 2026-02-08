@@ -71,11 +71,10 @@ async fn example_with_caching() -> Result<(), Box<dyn std::error::Error>> {
     let client = GenAiClient::new(config)?;
 
     // Create adapter with caching enabled
-    let adapter = GgenAiAdapter::new(client)
-        .with_cache(
-            Duration::from_secs(3600), // 1 hour TTL
-            1000,                       // Max 1000 cached entries
-        );
+    let adapter = GgenAiAdapter::new(client).with_cache(
+        Duration::from_secs(3600), // 1 hour TTL
+        1000,                      // Max 1000 cached entries
+    );
 
     println!("Adapter configured with:");
     println!("  - Cache TTL: 1 hour");

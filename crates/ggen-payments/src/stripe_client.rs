@@ -1,8 +1,6 @@
 //! Stripe API client wrapper
 
-use crate::{
-    errors::PaymentError, Invoice, Payment, PaymentResult, Subscription,
-};
+use crate::{errors::PaymentError, Invoice, Payment, PaymentResult, Subscription};
 use chrono::{Duration, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -26,14 +24,13 @@ impl StripeClient {
     }
 
     /// Create a customer in Stripe
-    pub async fn create_customer(
-        &self,
-        email: &str,
-        name: &str,
-    ) -> PaymentResult<String> {
+    pub async fn create_customer(&self, email: &str, name: &str) -> PaymentResult<String> {
         // TODO: Call Stripe API to create customer
         // For now, return mock customer ID
-        Ok(format!("cus_{}", Uuid::new_v4().to_string()[..12].to_string()))
+        Ok(format!(
+            "cus_{}",
+            Uuid::new_v4().to_string()[..12].to_string()
+        ))
     }
 
     /// Get customer from Stripe
@@ -48,11 +45,7 @@ impl StripeClient {
 
     /// Create a payment intent
     pub async fn create_payment_intent(
-        &self,
-        customer_id: &str,
-        amount_cents: i64,
-        currency: &str,
-        description: &str,
+        &self, customer_id: &str, amount_cents: i64, currency: &str, description: &str,
     ) -> PaymentResult<Payment> {
         // TODO: Call Stripe API to create payment intent
         Ok(Payment {
@@ -70,9 +63,7 @@ impl StripeClient {
 
     /// Confirm a payment
     pub async fn confirm_payment(
-        &self,
-        payment_id: &str,
-        payment_method_id: &str,
+        &self, payment_id: &str, payment_method_id: &str,
     ) -> PaymentResult<Payment> {
         // TODO: Call Stripe API to confirm payment
         Ok(Payment {
@@ -90,9 +81,7 @@ impl StripeClient {
 
     /// Create a subscription
     pub async fn create_subscription(
-        &self,
-        customer_id: &str,
-        price_id: &str,
+        &self, customer_id: &str, price_id: &str,
     ) -> PaymentResult<Subscription> {
         // TODO: Call Stripe API to create subscription
         let now = Utc::now();
@@ -110,9 +99,7 @@ impl StripeClient {
 
     /// Update a subscription
     pub async fn update_subscription(
-        &self,
-        subscription_id: &str,
-        price_id: &str,
+        &self, subscription_id: &str, price_id: &str,
     ) -> PaymentResult<Subscription> {
         // TODO: Call Stripe API to update subscription
         let now = Utc::now();
@@ -136,10 +123,7 @@ impl StripeClient {
 
     /// Create an invoice
     pub async fn create_invoice(
-        &self,
-        customer_id: &str,
-        description: &str,
-        amount_cents: i64,
+        &self, customer_id: &str, description: &str, amount_cents: i64,
     ) -> PaymentResult<Invoice> {
         // TODO: Call Stripe API to create invoice
         Ok(Invoice {

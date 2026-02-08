@@ -6,8 +6,8 @@
 //! - Load tests (performance under load)
 
 pub mod integration_tests;
-pub mod property_tests;
 pub mod load_tests;
+pub mod property_tests;
 
 use ggen_saas::factory_paas::*;
 use std::sync::Arc;
@@ -35,10 +35,8 @@ impl TestDatabase {
         let container = docker.run(image);
         let port = container.get_host_port_ipv4(5432);
 
-        let connection_string = format!(
-            "postgresql://postgres:postgres@localhost:{}/postgres",
-            port
-        );
+        let connection_string =
+            format!("postgresql://postgres:postgres@localhost:{}/postgres", port);
 
         Ok(Self {
             _container: container,
@@ -94,10 +92,7 @@ impl TestContext {
     }
 
     /// Create a test subscription
-    pub async fn create_test_subscription(
-        &self,
-        tier: SubscriptionTier,
-    ) -> Uuid {
+    pub async fn create_test_subscription(&self, tier: SubscriptionTier) -> Uuid {
         let user_id = Uuid::new_v4();
         let mut manager = self.subscription_manager.write().await;
         manager.create_subscription(user_id, tier)

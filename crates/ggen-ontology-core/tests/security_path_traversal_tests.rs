@@ -15,7 +15,8 @@ fn test_path_traversal_valid_file() {
 
     // Create a valid Turtle file
     let mut file = File::create(&file_path).expect("Failed to create file");
-    file.write_all(b"@prefix ex: <http://example.com/> .\nex:s ex:p ex:o .").expect("Failed to write");
+    file.write_all(b"@prefix ex: <http://example.com/> .\nex:s ex:p ex:o .")
+        .expect("Failed to write");
     drop(file);
 
     // Should be able to load valid file
@@ -36,7 +37,8 @@ fn test_path_traversal_parent_directory_attempt() {
     // Create a file outside the intended directory
     let outside_file = dir.path().join("outside.ttl");
     let mut file = File::create(&outside_file).expect("Failed to create file");
-    file.write_all(b"@prefix ex: <http://example.com/> .\nex:s ex:p ex:o .").expect("Failed to write");
+    file.write_all(b"@prefix ex: <http://example.com/> .\nex:s ex:p ex:o .")
+        .expect("Failed to write");
     drop(file);
 
     // Try to access file with traversal path
@@ -50,7 +52,10 @@ fn test_path_traversal_parent_directory_attempt() {
     // This should succeed because the file exists and is readable
     // True path traversal prevention would require additional checks at application layer
     // The key is that Oxigraph doesn't execute arbitrary code based on paths
-    assert!(result.is_ok() || result.is_err(), "Path handling is consistent");
+    assert!(
+        result.is_ok() || result.is_err(),
+        "Path handling is consistent"
+    );
 }
 
 #[test]
@@ -71,7 +76,8 @@ fn test_path_traversal_symlink_handling() {
 
     // Create a valid Turtle file
     let mut file = File::create(&file_path).expect("Failed to create file");
-    file.write_all(b"@prefix ex: <http://example.com/> .\nex:s ex:p ex:o .").expect("Failed to write");
+    file.write_all(b"@prefix ex: <http://example.com/> .\nex:s ex:p ex:o .")
+        .expect("Failed to write");
     drop(file);
 
     // Symlinks are followed by Rust's File::open by default (expected behavior)
@@ -89,7 +95,8 @@ fn test_path_traversal_unicode_paths() {
 
     // Create a valid Turtle file with unicode name
     let mut file = File::create(&file_path).expect("Failed to create file");
-    file.write_all(b"@prefix ex: <http://example.com/> .\nex:s ex:p ex:o .").expect("Failed to write");
+    file.write_all(b"@prefix ex: <http://example.com/> .\nex:s ex:p ex:o .")
+        .expect("Failed to write");
     drop(file);
 
     // Should handle unicode paths safely
@@ -106,12 +113,15 @@ fn test_validate_turtle_path_safety() {
 
     // Create a valid Turtle file
     let mut file = File::create(&file_path).expect("Failed to create file");
-    file.write_all(b"@prefix ex: <http://example.com/> .\nex:s ex:p ex:o .").expect("Failed to write");
+    file.write_all(b"@prefix ex: <http://example.com/> .\nex:s ex:p ex:o .")
+        .expect("Failed to write");
     drop(file);
 
     // Should validate without path issues
     let store = TripleStore::new().expect("Failed to create store");
-    let report = store.validate_turtle(&file_path).expect("Failed to validate");
+    let report = store
+        .validate_turtle(&file_path)
+        .expect("Failed to validate");
     assert!(report.is_valid, "Should validate correctly");
 }
 
@@ -128,7 +138,8 @@ fn test_validate_rdf_path_safety() {
   <rdf:Description rdf:about="http://example.com/s">
   </rdf:Description>
 </rdf:RDF>"#;
-    file.write_all(rdf_content.as_bytes()).expect("Failed to write");
+    file.write_all(rdf_content.as_bytes())
+        .expect("Failed to write");
     drop(file);
 
     // Should validate safely
@@ -136,5 +147,8 @@ fn test_validate_rdf_path_safety() {
     let report = store.validate_rdf(&file_path).expect("Failed to validate");
 
     // Report should indicate validation result
-    assert!(report.is_valid || !report.is_valid, "Report should be deterministic");
+    assert!(
+        report.is_valid || !report.is_valid,
+        "Report should be deterministic"
+    );
 }

@@ -190,8 +190,7 @@ mod tests {
 
     #[test]
     fn test_signal_json_format() {
-        let signal = AndonSignal::yellow("Memory pressure")
-            .with_component("memory-manager");
+        let signal = AndonSignal::yellow("Memory pressure").with_component("memory-manager");
 
         let json = signal.as_json();
         assert_eq!(json["color"], "YLW");

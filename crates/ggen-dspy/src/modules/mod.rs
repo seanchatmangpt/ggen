@@ -8,24 +8,24 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-pub mod predictor;
+pub mod baleen;
 pub mod chain_of_thought;
+pub mod multihop_qa;
+pub mod predictor;
+pub mod program_of_thought;
 pub mod react;
 pub mod retrieve;
-pub mod multihop_qa;
-pub mod baleen;
-pub mod program_of_thought;
 
-pub use predictor::Predictor;
+pub use baleen::{BaleenBuilder, BaleenConfig, BaleenHop, SimplifiedBaleen};
 pub use chain_of_thought::ChainOfThought;
-pub use react::{ReAct, ReactAgent, Tool};
-pub use retrieve::{Retrieve, Passage, RetrieverBackend, InMemoryRetriever, RetrieveBuilder};
-pub use multihop_qa::{MultiHopQA, MultiHopConfig, HopState, MultiHopQABuilder};
-pub use baleen::{SimplifiedBaleen, BaleenConfig, BaleenHop, BaleenBuilder};
+pub use multihop_qa::{HopState, MultiHopConfig, MultiHopQA, MultiHopQABuilder};
+pub use predictor::Predictor;
 pub use program_of_thought::{
-    ProgramOfThought, ProgramOfThoughtConfig, ProgramOfThoughtBuilder,
-    CodeLanguage, ExecutionResult,
+    CodeLanguage, ExecutionResult, ProgramOfThought, ProgramOfThoughtBuilder,
+    ProgramOfThoughtConfig,
 };
+pub use react::{ReAct, ReactAgent, Tool};
+pub use retrieve::{InMemoryRetriever, Passage, Retrieve, RetrieveBuilder, RetrieverBackend};
 
 /// Module trait for composable LLM components
 #[async_trait]

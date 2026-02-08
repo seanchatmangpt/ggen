@@ -9,8 +9,8 @@
 //! The PromptAtom enum captures the semantic units of a prompt,
 //! enabling programmatic manipulation before rendering.
 
-use crate::dspy::field::{FieldConstraints, FieldMetadata};
 use crate::dspy::constraint::ConstraintSet;
+use crate::dspy::field::{FieldConstraints, FieldMetadata};
 use crate::dspy::signature::Signature;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -142,11 +142,13 @@ impl PromptIR {
         ir.metadata.signature_name = Some(signature.name.clone());
 
         // Add task description
-        ir.atoms.push(PromptAtom::TaskDescription(signature.description.clone()));
+        ir.atoms
+            .push(PromptAtom::TaskDescription(signature.description.clone()));
 
         // Add instructions if present
         if let Some(ref instructions) = signature.instructions {
-            ir.atoms.push(PromptAtom::Instructions(instructions.clone()));
+            ir.atoms
+                .push(PromptAtom::Instructions(instructions.clone()));
         }
 
         ir.atoms.push(PromptAtom::Separator);
@@ -184,7 +186,9 @@ impl PromptIR {
                 ir.metadata.constraints_embedded = true;
                 ir.atoms.push(PromptAtom::Constraint {
                     field_name: output_field.name().to_string(),
-                    constraint_set: ConstraintSet::from_field_constraints(&output_field.constraints),
+                    constraint_set: ConstraintSet::from_field_constraints(
+                        &output_field.constraints,
+                    ),
                 });
             }
         }
@@ -199,12 +203,15 @@ impl PromptIR {
 
     /// Add a system context
     pub fn with_system_context(mut self, context: impl Into<String>) -> Self {
-        self.atoms.insert(0, PromptAtom::SystemContext(context.into()));
+        self.atoms
+            .insert(0, PromptAtom::SystemContext(context.into()));
         self
     }
 
     /// Add an example
-    pub fn with_example(mut self, inputs: Vec<(String, Value)>, outputs: Vec<(String, Value)>) -> Self {
+    pub fn with_example(
+        mut self, inputs: Vec<(String, Value)>, outputs: Vec<(String, Value)>,
+    ) -> Self {
         self.metadata.has_examples = true;
         self.atoms.push(PromptAtom::Example { inputs, outputs });
         self
@@ -249,17 +256,26 @@ impl PromptIR {
 
     /// Filter atoms by type
     pub fn inputs(&self) -> Vec<&PromptAtom> {
-        self.atoms.iter().filter(|a| matches!(a, PromptAtom::Input { .. })).collect()
+        self.atoms
+            .iter()
+            .filter(|a| matches!(a, PromptAtom::Input { .. }))
+            .collect()
     }
 
     /// Filter to get output specifications
     pub fn outputs(&self) -> Vec<&PromptAtom> {
-        self.atoms.iter().filter(|a| matches!(a, PromptAtom::Output { .. })).collect()
+        self.atoms
+            .iter()
+            .filter(|a| matches!(a, PromptAtom::Output { .. }))
+            .collect()
     }
 
     /// Filter to get constraints
     pub fn constraints(&self) -> Vec<&PromptAtom> {
-        self.atoms.iter().filter(|a| matches!(a, PromptAtom::Constraint { .. })).collect()
+        self.atoms
+            .iter()
+            .filter(|a| matches!(a, PromptAtom::Constraint { .. }))
+            .collect()
     }
 }
 
@@ -335,7 +351,11 @@ impl PromptRenderer for TextRenderer {
                     output.push_str("\n\n");
                 }
 
-                PromptAtom::Input { metadata, value, constraints } => {
+                PromptAtom::Input {
+                    metadata,
+                    value,
+                    constraints,
+                } => {
                     let prefix = if config.use_prefixes {
                         metadata.prefix.as_deref().unwrap_or("")
                     } else {
@@ -366,7 +386,10 @@ impl PromptRenderer for TextRenderer {
                     }
                 }
 
-                PromptAtom::Output { metadata, constraints } => {
+                PromptAtom::Output {
+                    metadata,
+                    constraints,
+                } => {
                     let type_suffix = if config.include_types {
                         format!(" ({})", metadata.type_annotation)
                     } else {
@@ -387,7 +410,10 @@ impl PromptRenderer for TextRenderer {
                     output.push('\n');
                 }
 
-                PromptAtom::Constraint { field_name, constraint_set } => {
+                PromptAtom::Constraint {
+                    field_name,
+                    constraint_set,
+                } => {
                     if config.include_constraints && !constraint_set.is_empty() {
                         output.push_str(&format!(
                             "Constraints for {}: {}\n",
@@ -424,7 +450,10 @@ impl PromptRenderer for TextRenderer {
                             output.push_str("\nRespond with valid JSON.\n");
                         }
                         OutputFormat::JsonSchema(schema) => {
-                            output.push_str(&format!("\nRespond with JSON matching schema:\n{}\n", schema));
+                            output.push_str(&format!(
+                                "\nRespond with JSON matching schema:\n{}\n",
+                                schema
+                            ));
                         }
                         OutputFormat::Yaml => {
                             output.push_str("\nRespond in YAML format.\n");
@@ -476,18 +505,25 @@ impl PromptRenderer for JsonRenderer {
         output.push_str("Input:\n");
         let mut input_obj = serde_json::Map::new();
         for atom in &ir.atoms {
-            if let PromptAtom::Input { metadata, value, .. } = atom {
+            if let PromptAtom::Input {
+                metadata, value, ..
+            } = atom
+            {
                 input_obj.insert(metadata.name.clone(), value.clone());
             }
         }
-        output.push_str(&serde_json::to_string_pretty(&Value::Object(input_obj)).unwrap_or_default());
+        output
+            .push_str(&serde_json::to_string_pretty(&Value::Object(input_obj)).unwrap_or_default());
         output.push_str("\n\n");
 
         // Output specification
         output.push_str("Respond with a JSON object containing:\n");
         for atom in &ir.atoms {
             if let PromptAtom::Output { metadata, .. } = atom {
-                output.push_str(&format!("- \"{}\": {} ({})\n", metadata.name, metadata.desc, metadata.type_annotation));
+                output.push_str(&format!(
+                    "- \"{}\": {} ({})\n",
+                    metadata.name, metadata.desc, metadata.type_annotation
+                ));
             }
         }
 
@@ -660,7 +696,7 @@ mod tests {
             constraints: Some(
                 FieldConstraints::new()
                     .required(true)
-                    .enum_values(vec!["active".to_string(), "inactive".to_string()])
+                    .enum_values(vec!["active".to_string(), "inactive".to_string()]),
             ),
         });
 
@@ -691,11 +727,10 @@ mod tests {
 
     #[test]
     fn test_with_example() {
-        let ir = PromptIR::new()
-            .with_example(
-                vec![("input".to_string(), json!("example input"))],
-                vec![("output".to_string(), json!("example output"))],
-            );
+        let ir = PromptIR::new().with_example(
+            vec![("input".to_string(), json!("example input"))],
+            vec![("output".to_string(), json!("example output"))],
+        );
 
         assert!(ir.metadata().has_examples);
         assert_eq!(ir.len(), 1);
@@ -703,8 +738,7 @@ mod tests {
 
     #[test]
     fn test_output_format() {
-        let ir = PromptIR::new()
-            .with_output_format(OutputFormat::Json);
+        let ir = PromptIR::new().with_output_format(OutputFormat::Json);
 
         assert_eq!(ir.output_format(), &OutputFormat::Json);
 

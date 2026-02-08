@@ -13,10 +13,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use ggen_domain::mcp_config::{
-    load_config, McpServerConfig, A2aConfig,
-    stop_server,
-};
+use ggen_domain::mcp_config::{load_config, stop_server, A2aConfig, McpServerConfig};
 use serde_json::Value as JsonValue;
 
 use crate::runtime::block_on;
@@ -79,11 +76,7 @@ impl McpBackendManager {
     }
 
     async fn load_config(&mut self) {
-        if let Ok(resolved) = load_config(
-            Some(&self.project_dir),
-            None,
-            None,
-        ) {
+        if let Ok(resolved) = load_config(Some(&self.project_dir), None, None) {
             if let Some(mcp) = resolved.mcp {
                 self.mcp_config = Some(McpConfigWrapper {
                     mcp_servers: mcp.mcp_servers,
@@ -137,25 +130,21 @@ impl McpBackendManager {
         tools
     }
 
-    async fn bridge_agent(
-        &mut self,
-        agent_name: &str,
-        tool_name: Option<&str>,
-    ) -> String {
+    async fn bridge_agent(&mut self, agent_name: &str, tool_name: Option<&str>) -> String {
         let tool_name = tool_name
             .unwrap_or(&format!("agent-{}", agent_name))
             .to_string();
 
-        self.agent_mappings.write().await
+        self.agent_mappings
+            .write()
+            .await
             .insert(tool_name.clone(), agent_name.to_string());
         self.tools_cache.write().await.clear();
         tool_name
     }
 
     async fn test_tool(
-        &mut self,
-        tool_name: &str,
-        arguments: Option<JsonValue>,
+        &mut self, tool_name: &str, arguments: Option<JsonValue>,
     ) -> ToolExecutionResult {
         let start = std::time::Instant::now();
 
@@ -305,19 +294,14 @@ impl McpBackendManager {
         ]
     }
 
-    async fn execute_core_tool(
-        tool_name: &str,
-        arguments: Option<JsonValue>,
-    ) -> Option<JsonValue> {
+    async fn execute_core_tool(tool_name: &str, arguments: Option<JsonValue>) -> Option<JsonValue> {
         match tool_name {
-            "agent-list" => {
-                Some(serde_json::json!({
-                    "agents": [
-                        {"name": "test-agent", "status": "ready"},
-                        {"name": "workflow-agent", "status": "ready"}
-                    ]
-                }))
-            }
+            "agent-list" => Some(serde_json::json!({
+                "agents": [
+                    {"name": "test-agent", "status": "ready"},
+                    {"name": "workflow-agent", "status": "ready"}
+                ]
+            })),
             "agent-start" => {
                 let name = arguments
                     .as_ref()
@@ -344,12 +328,10 @@ impl McpBackendManager {
                     "uptime_seconds": 0
                 }))
             }
-            "workflow-start" => {
-                Some(serde_json::json!({
-                    "status": "created",
-                    "case_id": "case-uuid-456"
-                }))
-            }
+            "workflow-start" => Some(serde_json::json!({
+                "status": "created",
+                "case_id": "case-uuid-456"
+            })),
             _ => None,
         }
     }
@@ -446,30 +428,34 @@ struct ServerStopOutput {
 #[verb]
 fn list(verbose: bool) -> VerbResult<MCPListOutput> {
     let mut manager = McpBackendManager::new(None);
-    let tools = block_on(async {
-        manager.list_tools().await
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!(
-        "Failed to list tools: {}", e
-    )))?;
+    let tools = block_on(async { manager.list_tools().await }).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to list tools: {}", e))
+    })?;
 
     let core_count = tools.iter().filter(|t| t.tool_type == "core").count();
     let agent_count = tools.iter().filter(|t| t.tool_type == "agent").count();
 
     if verbose {
         for tool in &tools {
-            println!("  - {} ({}): {}", tool.name, tool.tool_type, tool.description);
+            println!(
+                "  - {} ({}): {}",
+                tool.name, tool.tool_type, tool.description
+            );
         }
     }
 
     Ok(MCPListOutput {
-        tools: tools.into_iter().map(|t| MCPTool {
-            name: t.name,
-            description: t.description,
-            tool_type: t.tool_type,
-            agent_id: t.agent_id,
-            available: t.available,
-            agent_name: t.agent_name,
-        }).collect(),
+        tools: tools
+            .into_iter()
+            .map(|t| MCPTool {
+                name: t.name,
+                description: t.description,
+                tool_type: t.tool_type,
+                agent_id: t.agent_id,
+                available: t.available,
+                agent_name: t.agent_name,
+            })
+            .collect(),
         total_count: core_count + agent_count,
         core_tools: core_count,
         agent_tools: agent_count,
@@ -478,18 +464,21 @@ fn list(verbose: bool) -> VerbResult<MCPListOutput> {
 
 /// Bridge an agent as an MCP tool
 #[verb]
-fn bridge(
-    agent_name: String,
-    tool_name: Option<String>,
-) -> VerbResult<MCPBridgeOutput> {
+fn bridge(agent_name: String, tool_name: Option<String>) -> VerbResult<MCPBridgeOutput> {
     let mut manager = McpBackendManager::new(None);
     let created_tool_name = block_on(async {
-        manager.bridge_agent(&agent_name, tool_name.as_deref()).await
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!(
-        "Failed to bridge agent: {}", e
-    )))?;
+        manager
+            .bridge_agent(&agent_name, tool_name.as_deref())
+            .await
+    })
+    .map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to bridge agent: {}", e))
+    })?;
 
-    let message = format!("Agent '{}' bridged as tool '{}'", agent_name, created_tool_name);
+    let message = format!(
+        "Agent '{}' bridged as tool '{}'",
+        agent_name, created_tool_name
+    );
 
     Ok(MCPBridgeOutput {
         tool_name: created_tool_name,
@@ -503,20 +492,30 @@ fn bridge(
 #[verb]
 fn status(tool_name: String) -> VerbResult<MCPStatusOutput> {
     let mut manager = McpBackendManager::new(None);
-    let tool_info = block_on(async {
-        manager.get_tool_status(&tool_name).await
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!(
-        "Failed to get tool status: {}", e
-    )))?.ok_or_else(|| clap_noun_verb::NounVerbError::argument_error(
-        format!("Tool '{}' not found", tool_name)
-    ))?;
+    let tool_info = block_on(async { manager.get_tool_status(&tool_name).await })
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to get tool status: {}",
+                e
+            ))
+        })?
+        .ok_or_else(|| {
+            clap_noun_verb::NounVerbError::argument_error(format!("Tool '{}' not found", tool_name))
+        })?;
 
     Ok(MCPStatusOutput {
         tool_name: tool_info.name.clone(),
         tool_type: tool_info.tool_type,
         agent_id: tool_info.agent_id,
-        status: if tool_info.available { "available" } else { "unavailable" }.to_string(),
-        schema: tool_info.input_schema.unwrap_or_else(|| serde_json::json!({})),
+        status: if tool_info.available {
+            "available"
+        } else {
+            "unavailable"
+        }
+        .to_string(),
+        schema: tool_info
+            .input_schema
+            .unwrap_or_else(|| serde_json::json!({})),
     })
 }
 
@@ -524,15 +523,17 @@ fn status(tool_name: String) -> VerbResult<MCPStatusOutput> {
 #[verb]
 fn schemas(verbose: bool) -> VerbResult<MCPSchemasOutput> {
     let mut manager = McpBackendManager::new(None);
-    let schemas = block_on(async {
-        manager.get_schemas().await
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!(
-        "Failed to get schemas: {}", e
-    )))?;
+    let schemas = block_on(async { manager.get_schemas().await }).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to get schemas: {}", e))
+    })?;
 
     if verbose {
         for (name, schema) in &schemas {
-            println!("{}: {}", name, serde_json::to_string_pretty(schema).unwrap_or_default());
+            println!(
+                "{}: {}",
+                name,
+                serde_json::to_string_pretty(schema).unwrap_or_default()
+            );
         }
     }
 
@@ -544,10 +545,7 @@ fn schemas(verbose: bool) -> VerbResult<MCPSchemasOutput> {
 
 /// Test an MCP tool
 #[verb]
-fn test(
-    tool_name: String,
-    arguments: Option<String>,
-) -> VerbResult<MCPTestOutput> {
+fn test(tool_name: String, arguments: Option<String>) -> VerbResult<MCPTestOutput> {
     let parsed_args = if let Some(args_str) = arguments {
         Some(serde_json::from_str(&args_str).map_err(|e| {
             clap_noun_verb::NounVerbError::argument_error(format!("Invalid JSON arguments: {}", e))
@@ -557,11 +555,10 @@ fn test(
     };
 
     let mut manager = McpBackendManager::new(None);
-    let result = block_on(async {
-        manager.test_tool(&tool_name, parsed_args).await
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!(
-        "Failed to test tool: {}", e
-    )))?;
+    let result =
+        block_on(async { manager.test_tool(&tool_name, parsed_args).await }).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to test tool: {}", e))
+        })?;
 
     Ok(MCPTestOutput {
         tool_name: result.tool_name,
@@ -574,11 +571,7 @@ fn test(
 
 /// Initialize MCP configuration
 #[verb]
-fn init_config(
-    _mcp: bool,
-    _a2a: bool,
-    _force: bool,
-) -> VerbResult<ConfigInitOutput> {
+fn init_config(_mcp: bool, _a2a: bool, _force: bool) -> VerbResult<ConfigInitOutput> {
     // Simplified: delegate to domain logic
     let results = vec![
         "MCP config initialization: Use domain functions".to_string(),
@@ -595,8 +588,7 @@ fn init_config(
 /// Validate MCP configuration
 #[verb]
 fn validate_config(
-    _mcp_file: Option<String>,
-    _a2a_file: Option<String>,
+    _mcp_file: Option<String>, _a2a_file: Option<String>,
 ) -> VerbResult<ConfigValidateOutput> {
     // Simplified: delegate to domain logic
     Ok(ConfigValidateOutput {
@@ -608,10 +600,7 @@ fn validate_config(
 
 /// Start an MCP server
 #[verb]
-fn start_server(
-    server_name: String,
-    background: bool,
-) -> VerbResult<ServerStartOutput> {
+fn start_server(server_name: String, background: bool) -> VerbResult<ServerStartOutput> {
     if background {
         Ok(ServerStartOutput {
             server_name,
@@ -631,18 +620,16 @@ fn start_server(
 
 /// Stop an MCP server
 #[verb]
-fn stop_server_cmd(
-    server_name: String,
-    force: bool,
-) -> VerbResult<ServerStopOutput> {
+fn stop_server_cmd(server_name: String, force: bool) -> VerbResult<ServerStopOutput> {
     match stop_server(std::env::current_dir().ok().as_deref(), force) {
         Ok(_) => Ok(ServerStopOutput {
             server_name: server_name.clone(),
             status: "stopped".to_string(),
             message: format!("Server '{}' stopped successfully", server_name),
         }),
-        Err(e) => Err(clap_noun_verb::NounVerbError::execution_error(
-            format!("Failed to stop server: {}", e)
-        )),
+        Err(e) => Err(clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to stop server: {}",
+            e
+        ))),
     }
 }

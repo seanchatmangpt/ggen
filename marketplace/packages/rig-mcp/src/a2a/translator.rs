@@ -65,12 +65,10 @@ use thiserror::Error;
 
 // A2A types from the vendor crate
 #[cfg(feature = "a2a")]
-use a2a_rs::{
-    domain::core::{
-        agent::{AgentCard, AgentSkill},
-        message::{Artifact, Message, Part, Role},
-        task::{Task, TaskState, TaskStatus},
-    },
+use a2a_rs::domain::core::{
+    agent::{AgentCard, AgentSkill},
+    message::{Artifact, Message, Part, Role},
+    task::{Task, TaskState, TaskStatus},
 };
 
 /// Configuration for the protocol translator.
@@ -288,10 +286,9 @@ impl ProtocolTranslator {
     /// Returns an error if no AgentCard is configured.
     #[cfg(feature = "a2a")]
     pub fn generate_tools(&self) -> TranslationResult<Vec<Tool>> {
-        let card = self
-            .agent_card
-            .as_ref()
-            .ok_or_else(|| TranslationError::InvalidAgentCard("No AgentCard configured".to_string()))?;
+        let card = self.agent_card.as_ref().ok_or_else(|| {
+            TranslationError::InvalidAgentCard("No AgentCard configured".to_string())
+        })?;
 
         self.generate_tools_from_card(card)
     }
@@ -360,7 +357,9 @@ impl ProtocolTranslator {
     /// }
     /// ```
     #[cfg(feature = "a2a")]
-    fn generate_input_schema(&self, skill: &AgentSkill, _card: &AgentCard) -> TranslationResult<JsonValue> {
+    fn generate_input_schema(
+        &self, skill: &AgentSkill, _card: &AgentCard,
+    ) -> TranslationResult<JsonValue> {
         let mut properties = Map::new();
 
         // Add prompt property for text input modes
@@ -385,7 +384,10 @@ impl ProtocolTranslator {
                         prompt_schema.insert(
                             "examples".to_string(),
                             JsonValue::Array(
-                                examples.iter().map(|e| JsonValue::String(e.clone())).collect(),
+                                examples
+                                    .iter()
+                                    .map(|e| JsonValue::String(e.clone()))
+                                    .collect(),
                             ),
                         );
                     }
@@ -480,10 +482,7 @@ impl ProtocolTranslator {
         };
 
         // Extract arguments
-        let arguments = params
-            .get("arguments")
-            .cloned()
-            .unwrap_or(JsonValue::Null);
+        let arguments = params.get("arguments").cloned().unwrap_or(JsonValue::Null);
 
         // Generate task ID from request ID
         let task_id = request
@@ -536,7 +535,9 @@ impl ProtocolTranslator {
     /// - `{"data": {...}}` → Data part
     /// - Other structures → Data part with raw arguments
     #[cfg(feature = "a2a")]
-    fn arguments_to_parts(&self, arguments: &JsonValue, _skill_id: &str) -> TranslationResult<Vec<Part>> {
+    fn arguments_to_parts(
+        &self, arguments: &JsonValue, _skill_id: &str,
+    ) -> TranslationResult<Vec<Part>> {
         let mut parts = Vec::new();
 
         match arguments {
@@ -598,14 +599,9 @@ impl ProtocolTranslator {
     /// Returns an error if the task status cannot be converted.
     #[cfg(feature = "a2a")]
     pub fn task_result_to_response(
-        &self,
-        task: &Task,
-        original_request: &JsonRpcRequest,
+        &self, task: &Task, original_request: &JsonRpcRequest,
     ) -> TranslationResult<JsonRpcResponse> {
-        let request_id = original_request
-            .id
-            .clone()
-            .unwrap_or_else(RequestId::new);
+        let request_id = original_request.id.clone().unwrap_or_else(RequestId::new);
 
         match &task.status.state {
             TaskState::Completed => {
@@ -626,18 +622,17 @@ impl ProtocolTranslator {
                     JsonRpcError::new(-32001, error_msg),
                 ))
             }
-            TaskState::Working | TaskState::Submitted => {
-                Ok(JsonRpcResponse::error(
-                    request_id,
-                    JsonRpcError::new(-32000, "Task is still being processed"),
-                ))
-            }
-            _ => {
-                Ok(JsonRpcResponse::error(
-                    request_id,
-                    JsonRpcError::new(-32002, format!("Task in unexpected state: {:?}", task.status.state)),
-                ))
-            }
+            TaskState::Working | TaskState::Submitted => Ok(JsonRpcResponse::error(
+                request_id,
+                JsonRpcError::new(-32000, "Task is still being processed"),
+            )),
+            _ => Ok(JsonRpcResponse::error(
+                request_id,
+                JsonRpcError::new(
+                    -32002,
+                    format!("Task in unexpected state: {:?}", task.status.state),
+                ),
+            )),
         }
     }
 
@@ -734,11 +729,12 @@ impl ProtocolTranslator {
     ///
     /// Handles prefix stripping if configured.
     #[cfg(feature = "a2a")]
-    pub fn find_skill_by_tool_name(&self, tool_name: &str) -> TranslationResult<Option<&AgentSkill>> {
-        let card = self
-            .agent_card
-            .as_ref()
-            .ok_or_else(|| TranslationError::InvalidAgentCard("No AgentCard configured".to_string()))?;
+    pub fn find_skill_by_tool_name(
+        &self, tool_name: &str,
+    ) -> TranslationResult<Option<&AgentSkill>> {
+        let card = self.agent_card.as_ref().ok_or_else(|| {
+            TranslationError::InvalidAgentCard("No AgentCard configured".to_string())
+        })?;
 
         // Strip prefix if configured
         let skill_id = if let Some(prefix) = &self.config.tool_name_prefix {
@@ -825,9 +821,7 @@ impl ProtocolTranslator {
 
     /// Convert task result to response (stub when a2a feature is disabled).
     pub fn task_result_to_response(
-        &self,
-        _task: &(),
-        _original_request: &JsonRpcRequest,
+        &self, _task: &(), _original_request: &JsonRpcRequest,
     ) -> TranslationResult<JsonRpcResponse> {
         Err(TranslationError::A2AError(
             "A2A feature not enabled".to_string(),
@@ -893,8 +887,7 @@ mod tests {
 
     #[test]
     fn test_tool_name_prefix_stripping() {
-        let config = TranslatorConfig::new()
-            .with_tool_name_prefix("agent");
+        let config = TranslatorConfig::new().with_tool_name_prefix("agent");
 
         // Test stripping logic
         let prefixed = "agent_my_skill";
@@ -987,9 +980,8 @@ mod integration_tests {
 
         let card = create_agent_card_with_skill(skill);
 
-        let translator = ProtocolTranslator::new(
-            TranslatorConfig::new().with_tool_name_prefix("my_agent"),
-        );
+        let translator =
+            ProtocolTranslator::new(TranslatorConfig::new().with_tool_name_prefix("my_agent"));
         let tools = translator.generate_tools_from_card(&card).unwrap();
 
         assert_eq!(tools.len(), 1);
@@ -1046,7 +1038,9 @@ mod integration_tests {
             .build();
 
         let original_request = JsonRpcRequest::new("tools/call", None);
-        let response = translator.task_result_to_response(&task, &original_request).unwrap();
+        let response = translator
+            .task_result_to_response(&task, &original_request)
+            .unwrap();
 
         assert!(response.is_success());
         assert!(response.result.is_some());
@@ -1077,7 +1071,9 @@ mod integration_tests {
             .build();
 
         let original_request = JsonRpcRequest::new("tools/call", None);
-        let response = translator.task_result_to_response(&task, &original_request).unwrap();
+        let response = translator
+            .task_result_to_response(&task, &original_request)
+            .unwrap();
 
         assert!(response.is_error());
         assert!(response.error.is_some());
@@ -1095,11 +1091,14 @@ mod integration_tests {
         );
 
         let card = create_agent_card_with_skill(skill);
-        let mut translator = ProtocolTranslator::new(TranslatorConfig::new().with_tool_name_prefix("agent"));
+        let mut translator =
+            ProtocolTranslator::new(TranslatorConfig::new().with_tool_name_prefix("agent"));
         translator.set_agent_card(card);
 
         // Find with prefix
-        let skill = translator.find_skill_by_tool_name("agent_my_skill").unwrap();
+        let skill = translator
+            .find_skill_by_tool_name("agent_my_skill")
+            .unwrap();
         assert!(skill.is_some());
         assert_eq!(skill.unwrap().id, "my_skill");
 
@@ -1142,7 +1141,9 @@ mod integration_tests {
         let translator = ProtocolTranslator::default_config();
         let arguments = serde_json::json!({"prompt": "Hello, world!"});
 
-        let parts = translator.arguments_to_parts(&arguments, "test_skill").unwrap();
+        let parts = translator
+            .arguments_to_parts(&arguments, "test_skill")
+            .unwrap();
 
         assert_eq!(parts.len(), 1);
         match &parts[0] {
@@ -1158,7 +1159,9 @@ mod integration_tests {
             "data": {"key": "value"}
         });
 
-        let parts = translator.arguments_to_parts(&arguments, "test_skill").unwrap();
+        let parts = translator
+            .arguments_to_parts(&arguments, "test_skill")
+            .unwrap();
 
         assert_eq!(parts.len(), 1);
         match &parts[0] {

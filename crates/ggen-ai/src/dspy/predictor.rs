@@ -138,10 +138,8 @@ impl Predictor {
 
     /// Build a prompt from inputs using Prompt-IR
     fn build_prompt(&self, inputs: &HashMap<String, Value>) -> Result<String, ModuleError> {
-        let input_vec: Vec<(String, Value)> = inputs
-            .iter()
-            .map(|(k, v)| (k.clone(), v.clone()))
-            .collect();
+        let input_vec: Vec<(String, Value)> =
+            inputs.iter().map(|(k, v)| (k.clone(), v.clone())).collect();
 
         let mut ir = PromptIR::from_signature(&self.signature, &input_vec);
 
@@ -159,9 +157,8 @@ impl Predictor {
     fn parse_output(&self, response: &str) -> Result<HashMap<String, Value>, ModuleError> {
         if self.validate_outputs {
             // Use constraint-aware decoding
-            decode_and_validate(response, &self.signature.outputs).map_err(|e| {
-                ModuleError::Other(format!("Output validation failed: {}", e))
-            })
+            decode_and_validate(response, &self.signature.outputs)
+                .map_err(|e| ModuleError::Other(format!("Output validation failed: {}", e)))
         } else {
             // Fall back to simple extraction without validation
             self.parse_output_simple(response)
@@ -247,9 +244,7 @@ impl Predictor {
 
         // Build system message based on output format
         let system_msg = match self.output_format {
-            OutputFormat::Json => {
-                "You are a helpful assistant. Respond with valid JSON only."
-            }
+            OutputFormat::Json => "You are a helpful assistant. Respond with valid JSON only.",
             _ => "You are a helpful assistant. Provide responses in the exact format requested.",
         };
 
@@ -260,11 +255,7 @@ impl Predictor {
         ]);
 
         // Set chat options using model capabilities
-        let max_tokens = self
-            .model
-            .capabilities
-            .max_output_tokens
-            .min(4096) as u32;
+        let max_tokens = self.model.capabilities.max_output_tokens.min(4096) as u32;
 
         let chat_options = ChatOptions::default()
             .with_temperature(self.temperature as f64)
@@ -294,13 +285,18 @@ impl Module for Predictor {
         &self.signature
     }
 
-    async fn forward(&self, inputs: HashMap<String, Value>) -> ModuleResult<HashMap<String, Value>> {
+    async fn forward(
+        &self, inputs: HashMap<String, Value>,
+    ) -> ModuleResult<HashMap<String, Value>> {
         // Validate inputs
         self.validate_inputs(&inputs)?;
 
         // Build prompt
         let prompt = self.build_prompt(&inputs)?;
-        debug!("Built prompt for {} with model {}", self.signature.name, self.model.name);
+        debug!(
+            "Built prompt for {} with model {}",
+            self.signature.name, self.model.name
+        );
 
         // Call actual LLM
         let response = self.call_llm(&prompt).await?;
@@ -324,9 +320,8 @@ impl ChainOfThought {
     /// Create a new chain-of-thought predictor
     pub fn new(signature: Signature) -> Self {
         let mut sig = signature;
-        sig.instructions = Some(
-            "Think through this step-by-step before providing your answer.".to_string()
-        );
+        sig.instructions =
+            Some("Think through this step-by-step before providing your answer.".to_string());
 
         Self {
             predictor: Predictor::new(sig),
@@ -350,7 +345,9 @@ impl Module for ChainOfThought {
         self.predictor.signature()
     }
 
-    async fn forward(&self, inputs: HashMap<String, Value>) -> ModuleResult<HashMap<String, Value>> {
+    async fn forward(
+        &self, inputs: HashMap<String, Value>,
+    ) -> ModuleResult<HashMap<String, Value>> {
         self.predictor.forward(inputs).await
     }
 
@@ -460,7 +457,9 @@ mod tests {
         let pred = Predictor::with_model(sig, "test-model").with_output_validation(false);
 
         // Parse simple response without validation
-        let result = pred.parse_output_simple("answer: This is the answer").unwrap();
+        let result = pred
+            .parse_output_simple("answer: This is the answer")
+            .unwrap();
         assert!(result.contains_key("answer"));
     }
 
@@ -485,7 +484,10 @@ mod tests {
         let json_response = r#"{"answer": "42 is the answer"}"#;
         let result = pred.parse_output_simple(json_response).unwrap();
 
-        assert_eq!(result.get("answer").unwrap(), &Value::String("42 is the answer".to_string()));
+        assert_eq!(
+            result.get("answer").unwrap(),
+            &Value::String("42 is the answer".to_string())
+        );
     }
 
     #[test]
@@ -496,7 +498,12 @@ mod tests {
         let md_response = "**answer**: The answer is 42";
         let result = pred.parse_output_simple(md_response).unwrap();
 
-        assert!(result.get("answer").unwrap().as_str().unwrap().contains("42"));
+        assert!(result
+            .get("answer")
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .contains("42"));
     }
 
     #[test]

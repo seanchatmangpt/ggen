@@ -81,7 +81,7 @@ pub use converter::{
     McpToA2aConversionMode,
 };
 pub use translator::{
-    ProtocolTranslator, ToolSchemaGenerator, TranslatorConfig, TranslationError, TranslationResult,
+    ProtocolTranslator, ToolSchemaGenerator, TranslationError, TranslationResult, TranslatorConfig,
 };
 pub use transport::{A2aTransport, A2aTransportConfig};
 
@@ -267,18 +267,16 @@ impl McpToA2aBridge {
 
         let converter = Arc::new(A2aMessageConverter::new(ConversionContext {
             agent_id: config.agent_id.clone(),
-            context_id: config.context_id.clone().unwrap_or_else(|| {
-                format!("ctx-{}", uuid::Uuid::new_v4())
-            }),
+            context_id: config
+                .context_id
+                .clone()
+                .unwrap_or_else(|| format!("ctx-{}", uuid::Uuid::new_v4())),
             bidirectional: config.bidirectional,
             collect_metrics: config.collect_metrics,
         }));
 
-        let client = A2aClientWrapper::new_with_converter(
-            transport_config,
-            converter.clone(),
-        )
-        .await?;
+        let client =
+            A2aClientWrapper::new_with_converter(transport_config, converter.clone()).await?;
 
         Ok(Self {
             config,
@@ -322,17 +320,13 @@ impl McpToA2aBridge {
             })?;
 
         // Send via A2A client
-        let response_task = self
-            .client
-            .send_task(&task)
-            .await
-            .map_err(|e| {
-                let err_msg = e.to_string();
-                let mut state = self.state.blocking_write();
-                state.errors = state.errors.saturating_add(1);
-                state.last_error = Some(err_msg.clone());
-                TransportError::Internal(format!("A2A client error: {}", err_msg))
-            })?;
+        let response_task = self.client.send_task(&task).await.map_err(|e| {
+            let err_msg = e.to_string();
+            let mut state = self.state.blocking_write();
+            state.errors = state.errors.saturating_add(1);
+            state.last_error = Some(err_msg.clone());
+            TransportError::Internal(format!("A2A client error: {}", err_msg))
+        })?;
 
         // Convert A2A task response back to MCP response
         let mcp_response = self
@@ -439,8 +433,7 @@ mod tests {
 
     #[test]
     fn test_bridge_config_with_context_id() {
-        let config = BridgeConfig::default()
-            .with_context_id("test-context");
+        let config = BridgeConfig::default().with_context_id("test-context");
 
         assert_eq!(config.context_id, Some("test-context".to_string()));
     }

@@ -3,8 +3,8 @@
 //! These tests verify adapter functionality independently
 
 use ggen_dspy::adapters::{
-    ChatAdapter, CompletionAdapter, Demonstration, JSONAdapter, LlmAdapter, RetryConfig,
-    TokenCounter, AdapterWithFallback,
+    AdapterWithFallback, ChatAdapter, CompletionAdapter, Demonstration, JSONAdapter, LlmAdapter,
+    RetryConfig, TokenCounter,
 };
 use serde_json::Value;
 use std::collections::HashMap;
@@ -23,7 +23,10 @@ fn test_chat_adapter_basic() {
 fn test_chat_adapter_format_single_field() {
     let adapter = ChatAdapter::new();
     let mut inputs = HashMap::new();
-    inputs.insert("prompt".to_string(), Value::String("test input".to_string()));
+    inputs.insert(
+        "prompt".to_string(),
+        Value::String("test input".to_string()),
+    );
 
     let output_fields = vec!["response".to_string()];
     let prompt = adapter

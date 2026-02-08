@@ -28,15 +28,18 @@
 //! Phase 3: Return best program
 //! ```
 
-use crate::dspy::{Module, ModuleError, Predictor};
+use super::{Metric, OptimizationStatistics, Optimizer};
 use crate::dspy::optimizer::Example;
-use super::{Optimizer, OptimizationStatistics, Metric};
+use crate::dspy::{Module, ModuleError, Predictor};
 use async_trait::async_trait;
+use genai::{
+    chat::{ChatMessage, ChatOptions, ChatRequest},
+    Client,
+};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::{debug, info};
-use genai::{Client, chat::{ChatMessage, ChatOptions, ChatRequest}};
 
 /// COPRO optimizer - Coordinate Ascent for Instruction Optimization
 ///
@@ -134,20 +137,15 @@ impl COPRO {
 
     /// Generate instruction variant using LLM
     async fn generate_instruction_variant(
-        &self,
-        baseline: &str,
-        context: Option<&str>,
+        &self, baseline: &str, context: Option<&str>,
     ) -> Result<String, ModuleError> {
         if self.prompt_model.is_empty() {
             return Err(ModuleError::LlmError(
-                "Prompt model not set. Set GGEN_LLM_MODEL or DEFAULT_MODEL env var".to_string()
+                "Prompt model not set. Set GGEN_LLM_MODEL or DEFAULT_MODEL env var".to_string(),
             ));
         }
 
-        let mut prompt = format!(
-            "Given this instruction: \"{}\"\n\n",
-            baseline
-        );
+        let mut prompt = format!("Given this instruction: \"{}\"\n\n", baseline);
 
         if let Some(ctx) = context {
             prompt.push_str(&format!("Context: {}\n\n", ctx));
@@ -157,7 +155,9 @@ impl COPRO {
 
         let client = Client::default();
         let chat_req = ChatRequest::new(vec![
-            ChatMessage::system("You are an expert at crafting precise instructions for language models."),
+            ChatMessage::system(
+                "You are an expert at crafting precise instructions for language models.",
+            ),
             ChatMessage::user(prompt),
         ]);
 
@@ -165,23 +165,24 @@ impl COPRO {
             .with_temperature(self.temperature as f64)
             .with_max_tokens(200);
 
-        match client.exec_chat(&self.prompt_model, chat_req, Some(&chat_options)).await {
+        match client
+            .exec_chat(&self.prompt_model, chat_req, Some(&chat_options))
+            .await
+        {
             Ok(response) => {
                 let content = response.first_text().unwrap_or_default().to_string();
                 Ok(content.trim().to_string())
             }
-            Err(e) => {
-                Err(ModuleError::LlmError(format!("Instruction generation failed: {}", e)))
-            }
+            Err(e) => Err(ModuleError::LlmError(format!(
+                "Instruction generation failed: {}",
+                e
+            ))),
         }
     }
 
     /// Evaluate instruction on validation set
     async fn evaluate_instruction(
-        &self,
-        predictor: &Predictor,
-        instruction: &str,
-        trainset: &[Example],
+        &self, predictor: &Predictor, instruction: &str, trainset: &[Example],
     ) -> Result<f64, ModuleError> {
         // Check cache first
         {
@@ -228,10 +229,10 @@ impl COPRO {
 
     /// Generate next batch of candidate instructions from top performers
     async fn generate_next_batch(
-        &self,
-        top_performers: &[(String, f64)],
+        &self, top_performers: &[(String, f64)],
     ) -> Result<Vec<String>, ModuleError> {
-        let mut prompt = "Based on these instructions and their performance scores:\n\n".to_string();
+        let mut prompt =
+            "Based on these instructions and their performance scores:\n\n".to_string();
         for (instr, score) in top_performers {
             prompt.push_str(&format!("- \"{}\" (score: {:.2})\n", instr, score));
         }
@@ -240,7 +241,9 @@ impl COPRO {
 
         let client = Client::default();
         let chat_req = ChatRequest::new(vec![
-            ChatMessage::system("You are an expert at crafting precise instructions for language models."),
+            ChatMessage::system(
+                "You are an expert at crafting precise instructions for language models.",
+            ),
             ChatMessage::user(prompt),
         ]);
 
@@ -252,7 +255,10 @@ impl COPRO {
             return Err(ModuleError::LlmError("Prompt model not set".to_string()));
         }
 
-        match client.exec_chat(&self.prompt_model, chat_req, Some(&chat_options)).await {
+        match client
+            .exec_chat(&self.prompt_model, chat_req, Some(&chat_options))
+            .await
+        {
             Ok(response) => {
                 let content = response.first_text().unwrap_or_default();
 
@@ -267,7 +273,9 @@ impl COPRO {
 
                     // Remove leading numbers, bullets, quotes
                     let cleaned = trimmed
-                        .trim_start_matches(|c: char| c.is_numeric() || c == '.' || c == '-' || c == '*')
+                        .trim_start_matches(|c: char| {
+                            c.is_numeric() || c == '.' || c == '-' || c == '*'
+                        })
                         .trim()
                         .trim_matches('"')
                         .trim();
@@ -291,9 +299,10 @@ impl COPRO {
 
                 Ok(instructions)
             }
-            Err(e) => {
-                Err(ModuleError::LlmError(format!("Batch generation failed: {}", e)))
-            }
+            Err(e) => Err(ModuleError::LlmError(format!(
+                "Batch generation failed: {}",
+                e
+            ))),
         }
     }
 }
@@ -301,13 +310,11 @@ impl COPRO {
 #[async_trait]
 impl Optimizer for COPRO {
     async fn compile(
-        &self,
-        student: &dyn Module,
-        trainset: &[Example],
+        &self, student: &dyn Module, trainset: &[Example],
     ) -> Result<Box<dyn Module>, ModuleError> {
         if trainset.is_empty() {
             return Err(ModuleError::Other(
-                "Training set is empty. Provide at least one example.".to_string()
+                "Training set is empty. Provide at least one example.".to_string(),
             ));
         }
 
@@ -326,7 +333,10 @@ impl Optimizer for COPRO {
         // Phase 1: Initialize candidates
         let mut instruction_candidates = vec![baseline.clone()];
 
-        info!("Generating {} initial instruction variants", self.breadth - 1);
+        info!(
+            "Generating {} initial instruction variants",
+            self.breadth - 1
+        );
         for i in 0..(self.breadth - 1) {
             debug!("Generating variant {}/{}", i + 1, self.breadth - 1);
             match self.generate_instruction_variant(&baseline, None).await {
@@ -365,7 +375,9 @@ impl Optimizer for COPRO {
                     candidate.chars().take(50).collect::<String>()
                 );
 
-                let score = self.evaluate_instruction(predictor, candidate, trainset).await?;
+                let score = self
+                    .evaluate_instruction(predictor, candidate, trainset)
+                    .await?;
                 scores.insert(candidate.clone(), score);
 
                 debug!("Candidate {} score: {:.3}", idx + 1, score);
@@ -401,10 +413,7 @@ impl Optimizer for COPRO {
             }
         }
 
-        info!(
-            "COPRO complete: best score = {:.3}",
-            best_score
-        );
+        info!("COPRO complete: best score = {:.3}", best_score);
 
         // Create optimized predictor with best instruction
         let mut optimized_sig = student.signature().clone();
@@ -414,9 +423,7 @@ impl Optimizer for COPRO {
     }
 
     async fn compile_with_stats(
-        &self,
-        student: &dyn Module,
-        trainset: &[Example],
+        &self, student: &dyn Module, trainset: &[Example],
     ) -> Result<(Box<dyn Module>, OptimizationStatistics), ModuleError> {
         use std::time::SystemTime;
 
@@ -430,12 +437,9 @@ impl Optimizer for COPRO {
         let mut metadata = HashMap::new();
         metadata.insert(
             "instructions_evaluated".to_string(),
-            Value::Number(total_evaluated.into())
+            Value::Number(total_evaluated.into()),
         );
-        metadata.insert(
-            "iterations".to_string(),
-            Value::Number(self.depth.into())
-        );
+        metadata.insert("iterations".to_string(), Value::Number(self.depth.into()));
 
         let stats = OptimizationStatistics {
             total_attempts: total_evaluated,
@@ -453,9 +457,9 @@ impl Optimizer for COPRO {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Signature;
     use crate::dspy::field::{InputField, OutputField};
     use crate::dspy::optimizers::ExactMatchMetric;
+    use crate::Signature;
 
     fn create_test_signature() -> Signature {
         Signature::new("QA", "Answer questions accurately")
@@ -470,14 +474,11 @@ mod tests {
                 let mut inputs = HashMap::new();
                 inputs.insert(
                     "question".to_string(),
-                    Value::String(format!("Question {}", i))
+                    Value::String(format!("Question {}", i)),
                 );
 
                 let mut outputs = HashMap::new();
-                outputs.insert(
-                    "answer".to_string(),
-                    Value::String(format!("Answer {}", i))
-                );
+                outputs.insert("answer".to_string(), Value::String(format!("Answer {}", i)));
 
                 Example::new(inputs, outputs)
             })

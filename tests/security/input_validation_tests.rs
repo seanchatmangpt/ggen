@@ -55,7 +55,8 @@ fn test_malformed_template_rejected() -> Result<(), Box<dyn std::error::Error>> 
         .assert();
 
     // Assert: Should reject malformed template
-    assert.failure()
+    assert
+        .failure()
         .stderr(predicate::str::contains("template").or(predicate::str::contains("syntax")));
 
     Ok(())
@@ -70,7 +71,7 @@ fn test_template_with_code_execution_blocked() -> Result<(), Box<dyn std::error:
     // Attempt to inject code execution
     let malicious_templates = vec![
         "{{ __import__('os').system('rm -rf /') }}", // Python-style
-        "{{ system('cat /etc/passwd') }}", // System call
+        "{{ system('cat /etc/passwd') }}",           // System call
         "{% raw %}{{ dangerous_function() }}{% endraw %}", // Raw execution
     ];
 
@@ -146,7 +147,8 @@ fn test_invalid_rdf_syntax_rejected() -> Result<(), Box<dyn std::error::Error>> 
         .assert();
 
     // Assert: Should reject invalid RDF
-    assert.failure()
+    assert
+        .failure()
         .stderr(predicate::str::contains("syntax").or(predicate::str::contains("parse")));
 
     Ok(())
@@ -183,7 +185,10 @@ fn test_rdf_with_external_entities_blocked() -> Result<(), Box<dyn std::error::E
 
     // Assert: Should not process external entities
     assert!(!stdout.contains("root:"), "Should not leak /etc/passwd");
-    assert!(!stderr.contains("root:"), "Should not leak /etc/passwd in errors");
+    assert!(
+        !stderr.contains("root:"),
+        "Should not leak /etc/passwd in errors"
+    );
 
     Ok(())
 }
@@ -239,7 +244,8 @@ fn test_invalid_toml_config_rejected() -> Result<(), Box<dyn std::error::Error>>
         .assert();
 
     // Assert: Should reject invalid config
-    assert.failure()
+    assert
+        .failure()
         .stderr(predicate::str::contains("config").or(predicate::str::contains("toml")));
 
     Ok(())
@@ -284,14 +290,11 @@ max_template_size_mb = 999999
 fn test_negative_numeric_arguments_rejected() -> Result<(), Box<dyn std::error::Error>> {
     // Arrange & Act
     let mut cmd = Command::cargo_bin("ggen")?;
-    let assert = cmd
-        .arg("generate")
-        .arg("--max-depth")
-        .arg("-1")
-        .assert();
+    let assert = cmd.arg("generate").arg("--max-depth").arg("-1").assert();
 
     // Assert: Should reject negative values
-    assert.failure()
+    assert
+        .failure()
         .stderr(predicate::str::contains("invalid").or(predicate::str::contains("value")));
 
     Ok(())
@@ -304,11 +307,7 @@ fn test_extremely_long_argument_rejected() -> Result<(), Box<dyn std::error::Err
 
     // Act
     let mut cmd = Command::cargo_bin("ggen")?;
-    let assert = cmd
-        .arg("generate")
-        .arg("--output")
-        .arg(long_arg)
-        .assert();
+    let assert = cmd.arg("generate").arg("--output").arg(long_arg).assert();
 
     // Assert: Should handle long arguments without crashing
     assert.failure();
@@ -322,10 +321,10 @@ fn test_special_characters_in_arguments_handled() -> Result<(), Box<dyn std::err
     let fixture = InputValidationFixture::new()?;
 
     let special_chars = vec![
-        "file\0name.txt", // Null byte
-        "file\nname.txt", // Newline
+        "file\0name.txt",    // Null byte
+        "file\nname.txt",    // Newline
         "file;rm -rf /.txt", // Command injection attempt
-        "file`whoami`.txt", // Command substitution
+        "file`whoami`.txt",  // Command substitution
     ];
 
     for special_char_name in special_chars {
@@ -422,7 +421,8 @@ fn test_empty_required_arguments_rejected() -> Result<(), Box<dyn std::error::Er
         .assert();
 
     // Assert: Should reject empty required arguments
-    assert.failure()
+    assert
+        .failure()
         .stderr(predicate::str::contains("required").or(predicate::str::contains("empty")));
 
     Ok(())

@@ -5,9 +5,9 @@
 #![no_std]
 extern crate alloc;
 
-use alloc::vec::Vec;
-use alloc::string::String;
 use alloc::collections::BTreeMap;
+use alloc::string::String;
+use alloc::vec::Vec;
 
 #[cfg(feature = "std")]
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -156,25 +156,25 @@ impl WeaverLiveCheck {
     /// The caller should send telemetry to the configured OTLP endpoint
     pub fn start(&self) -> Result<std::process::Child, String> {
         use std::process::Command;
-        
+
         let mut cmd = Command::new("weaver");
-        
+
         cmd.args(&["registry", "live-check"]);
-        
+
         if let Some(ref registry) = self.registry_path {
             cmd.args(&["--registry", registry]);
         }
-        
+
         cmd.args(&["--otlp-grpc-address", &self.otlp_grpc_address]);
         cmd.args(&["--otlp-grpc-port", &self.otlp_grpc_port.to_string()]);
         cmd.args(&["--admin-port", &self.admin_port.to_string()]);
         cmd.args(&["--inactivity-timeout", &self.inactivity_timeout.to_string()]);
         cmd.args(&["--format", &self.format]);
-        
+
         if let Some(ref output) = self.output {
             cmd.args(&["--output", output]);
         }
-        
+
         cmd.spawn()
             .map_err(|e| format!("Failed to start Weaver live-check: {}", e))
     }
@@ -183,14 +183,14 @@ impl WeaverLiveCheck {
     pub fn stop(&self) -> Result<(), String> {
         use reqwest::blocking::Client;
         use std::time::Duration;
-        
+
         let client = Client::builder()
             .timeout(Duration::from_secs(5))
             .build()
             .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
-        
+
         let url = format!("http://{}:{}/stop", self.otlp_grpc_address, self.admin_port);
-        
+
         match client.post(&url).send() {
             Ok(_) => Ok(()),
             Err(e) => Err(format!("Failed to stop Weaver live-check: {}", e)),
@@ -217,7 +217,7 @@ impl OtlpExporter {
     pub fn new(endpoint: String) -> Self {
         Self { endpoint }
     }
-    
+
     pub fn export_spans(&self, spans: &[Span]) -> Result<(), String> {
         if spans.is_empty() {
             return Ok(());
@@ -227,19 +227,19 @@ impl OtlpExporter {
         {
             use reqwest::blocking::Client;
             use std::time::Duration;
-            
+
             // Build OTLP JSON payload
             let payload = self.build_otlp_spans_payload(spans);
-            
+
             // Create HTTP client
             let client = Client::builder()
                 .timeout(Duration::from_secs(30))
                 .build()
                 .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
-            
+
             // Send spans to OTLP endpoint (traces endpoint)
             let traces_endpoint = format!("{}/v1/traces", self.endpoint.trim_end_matches('/'));
-            
+
             match client
                 .post(&traces_endpoint)
                 .json(&payload)
@@ -256,53 +256,64 @@ impl OtlpExporter {
                 Err(e) => Err(format!("OTLP export failed: {}", e)),
             }
         }
-        
+
         #[cfg(not(all(feature = "std", feature = "reqwest")))]
         {
             // Fallback: log spans (for no_std or when reqwest not available)
-            eprintln!("OTLP Export to {}: {} spans (HTTP client not available)", self.endpoint, spans.len());
+            eprintln!(
+                "OTLP Export to {}: {} spans (HTTP client not available)",
+                self.endpoint,
+                spans.len()
+            );
             Ok(())
         }
     }
-    
+
     #[cfg(all(feature = "std", feature = "serde_json"))]
     fn build_otlp_spans_payload(&self, spans: &[Span]) -> serde_json::Value {
         use serde_json::json;
-        
-        let spans_json: Vec<_> = spans.iter().map(|span| {
-            let mut span_json = json!({
-                "traceId": format!("{:032x}", span.context.trace_id.0),
-                "spanId": format!("{:016x}", span.context.span_id.0),
-                "name": span.name,
-                "startTimeUnixNano": span.start_time_ms * 1_000_000,
-                "endTimeUnixNano": span.end_time_ms.unwrap_or(span.start_time_ms) * 1_000_000,
-                "status": {
-                    "code": match span.status {
-                        SpanStatus::Ok => 1,
-                        SpanStatus::Error => 2,
-                        SpanStatus::Unset => 0,
+
+        let spans_json: Vec<_> = spans
+            .iter()
+            .map(|span| {
+                let mut span_json = json!({
+                    "traceId": format!("{:032x}", span.context.trace_id.0),
+                    "spanId": format!("{:016x}", span.context.span_id.0),
+                    "name": span.name,
+                    "startTimeUnixNano": span.start_time_ms * 1_000_000,
+                    "endTimeUnixNano": span.end_time_ms.unwrap_or(span.start_time_ms) * 1_000_000,
+                    "status": {
+                        "code": match span.status {
+                            SpanStatus::Ok => 1,
+                            SpanStatus::Error => 2,
+                            SpanStatus::Unset => 0,
+                        }
                     }
+                });
+
+                // Add parent span ID if present
+                if let Some(parent_id) = span.context.parent_span_id {
+                    span_json["parentSpanId"] = json!(format!("{:016x}", parent_id.0));
                 }
-            });
-            
-            // Add parent span ID if present
-            if let Some(parent_id) = span.context.parent_span_id {
-                span_json["parentSpanId"] = json!(format!("{:016x}", parent_id.0));
-            }
-            
-            // Add attributes
-            if !span.attributes.is_empty() {
-                span_json["attributes"] = json!(span.attributes.iter().map(|(k, v)| {
-                    json!({
-                        "key": k,
-                        "value": {"stringValue": v}
-                    })
-                }).collect::<Vec<_>>());
-            }
-            
-            span_json
-        }).collect();
-        
+
+                // Add attributes
+                if !span.attributes.is_empty() {
+                    span_json["attributes"] = json!(span
+                        .attributes
+                        .iter()
+                        .map(|(k, v)| {
+                            json!({
+                                "key": k,
+                                "value": {"stringValue": v}
+                            })
+                        })
+                        .collect::<Vec<_>>());
+                }
+
+                span_json
+            })
+            .collect();
+
         json!({
             "resourceSpans": [{
                 "resource": {},
@@ -313,13 +324,13 @@ impl OtlpExporter {
             }]
         })
     }
-    
+
     #[cfg(not(all(feature = "std", feature = "serde_json")))]
     fn build_otlp_spans_payload(&self, _spans: &[Span]) -> String {
         // Fallback: return empty JSON
         "{}".to_string()
     }
-    
+
     pub fn export_metrics(&self, metrics: &[Metric]) -> Result<(), String> {
         if metrics.is_empty() {
             return Ok(());
@@ -329,19 +340,19 @@ impl OtlpExporter {
         {
             use reqwest::blocking::Client;
             use std::time::Duration;
-            
+
             // Build OTLP JSON payload
             let payload = self.build_otlp_metrics_payload(metrics);
-            
+
             // Create HTTP client
             let client = Client::builder()
                 .timeout(Duration::from_secs(30))
                 .build()
                 .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
-            
+
             // Send metrics to OTLP endpoint (metrics endpoint)
             let metrics_endpoint = format!("{}/v1/metrics", self.endpoint.trim_end_matches('/'));
-            
+
             match client
                 .post(&metrics_endpoint)
                 .json(&payload)
@@ -358,51 +369,62 @@ impl OtlpExporter {
                 Err(e) => Err(format!("OTLP export failed: {}", e)),
             }
         }
-        
+
         #[cfg(not(all(feature = "std", feature = "reqwest")))]
         {
             // Fallback: log metrics (for no_std or when reqwest not available)
-            eprintln!("OTLP Export to {}: {} metrics (HTTP client not available)", self.endpoint, metrics.len());
+            eprintln!(
+                "OTLP Export to {}: {} metrics (HTTP client not available)",
+                self.endpoint,
+                metrics.len()
+            );
             Ok(())
         }
     }
-    
+
     #[cfg(all(feature = "std", feature = "serde_json"))]
     fn build_otlp_metrics_payload(&self, metrics: &[Metric]) -> serde_json::Value {
         use serde_json::json;
-        
-        let metrics_json: Vec<_> = metrics.iter().map(|metric| {
-            let value_json = match &metric.value {
-                MetricValue::Counter(c) => json!({
-                    "asInt": format!("{}", c)
-                }),
-                MetricValue::Gauge(g) => json!({
-                    "asDouble": *g
-                }),
-                MetricValue::Histogram(h) => json!({
-                    "asInt": format!("{}", h.len())
-                }),
-            };
-            
-            let mut metric_json = json!({
-                "name": metric.name,
-                "timestamp": metric.timestamp_ms * 1_000_000,
-                "value": value_json
-            });
-            
-            // Add attributes
-            if !metric.attributes.is_empty() {
-                metric_json["attributes"] = json!(metric.attributes.iter().map(|(k, v)| {
-                    json!({
-                        "key": k,
-                        "value": {"stringValue": v}
-                    })
-                }).collect::<Vec<_>>());
-            }
-            
-            metric_json
-        }).collect();
-        
+
+        let metrics_json: Vec<_> = metrics
+            .iter()
+            .map(|metric| {
+                let value_json = match &metric.value {
+                    MetricValue::Counter(c) => json!({
+                        "asInt": format!("{}", c)
+                    }),
+                    MetricValue::Gauge(g) => json!({
+                        "asDouble": *g
+                    }),
+                    MetricValue::Histogram(h) => json!({
+                        "asInt": format!("{}", h.len())
+                    }),
+                };
+
+                let mut metric_json = json!({
+                    "name": metric.name,
+                    "timestamp": metric.timestamp_ms * 1_000_000,
+                    "value": value_json
+                });
+
+                // Add attributes
+                if !metric.attributes.is_empty() {
+                    metric_json["attributes"] = json!(metric
+                        .attributes
+                        .iter()
+                        .map(|(k, v)| {
+                            json!({
+                                "key": k,
+                                "value": {"stringValue": v}
+                            })
+                        })
+                        .collect::<Vec<_>>());
+                }
+
+                metric_json
+            })
+            .collect();
+
         json!({
             "resourceMetrics": [{
                 "resource": {},
@@ -413,7 +435,7 @@ impl OtlpExporter {
             }]
         })
     }
-    
+
     #[cfg(not(all(feature = "std", feature = "serde_json")))]
     fn build_otlp_metrics_payload(&self, _metrics: &[Metric]) -> String {
         // Fallback: return empty JSON
@@ -438,7 +460,7 @@ impl Tracer {
             exporter: None,
         }
     }
-    
+
     #[cfg(feature = "std")]
     pub fn with_otlp_exporter(endpoint: String) -> Self {
         Self {
@@ -447,7 +469,7 @@ impl Tracer {
             exporter: Some(OtlpExporter::new(endpoint)),
         }
     }
-    
+
     #[cfg(feature = "std")]
     pub fn export(&mut self) -> Result<(), String> {
         if let Some(ref mut exporter) = self.exporter {
@@ -490,7 +512,11 @@ impl Tracer {
 
     /// End a span
     pub fn end_span(&mut self, context: SpanContext, status: SpanStatus) {
-        if let Some(span) = self.spans.iter_mut().find(|s| s.context.span_id == context.span_id) {
+        if let Some(span) = self
+            .spans
+            .iter_mut()
+            .find(|s| s.context.span_id == context.span_id)
+        {
             span.end_time_ms = Some(get_timestamp_ms());
             span.status = status;
         }
@@ -498,14 +524,22 @@ impl Tracer {
 
     /// Add event to span
     pub fn add_event(&mut self, context: SpanContext, event: SpanEvent) {
-        if let Some(span) = self.spans.iter_mut().find(|s| s.context.span_id == context.span_id) {
+        if let Some(span) = self
+            .spans
+            .iter_mut()
+            .find(|s| s.context.span_id == context.span_id)
+        {
             span.events.push(event);
         }
     }
 
     /// Add attribute to span
     pub fn add_attribute(&mut self, context: SpanContext, key: String, value: String) {
-        if let Some(span) = self.spans.iter_mut().find(|s| s.context.span_id == context.span_id) {
+        if let Some(span) = self
+            .spans
+            .iter_mut()
+            .find(|s| s.context.span_id == context.span_id)
+        {
             span.attributes.insert(key, value);
         }
     }
@@ -625,7 +659,7 @@ mod tests {
     fn test_tracer_span() {
         let mut tracer = Tracer::new();
         let context = tracer.start_span("test_span".to_string(), None);
-        
+
         tracer.add_attribute(context, "key".to_string(), "value".to_string());
         tracer.end_span(context, SpanStatus::Ok);
 
@@ -701,4 +735,3 @@ fn get_timestamp_ms() -> u64 {
         0
     }
 }
-

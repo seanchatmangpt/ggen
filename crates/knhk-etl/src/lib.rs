@@ -5,17 +5,17 @@
 #![no_std]
 extern crate alloc;
 
-use alloc::vec::Vec;
 use alloc::collections::BTreeMap;
+use alloc::format;
 use alloc::string::String;
 use alloc::string::ToString;
-use alloc::format;
+use alloc::vec::Vec;
 
 #[cfg(feature = "std")]
 use std::io::BufRead;
 
+use rio_api::model::{BlankNode, Literal, NamedNode, Term, Triple};
 use rio_api::parser::TriplesParser;
-use rio_api::model::{Term, NamedNode, BlankNode, Literal, Triple};
 use rio_turtle::TurtleParser;
 
 /// Pipeline stage identifier
@@ -51,7 +51,7 @@ impl IngestStage {
     }
 
     /// Ingest delta from connectors
-    /// 
+    ///
     /// Production implementation:
     /// 1. Poll connectors for new data
     /// 2. Parse based on format (RDF/Turtle, JSON-LD, etc.)
@@ -77,7 +77,7 @@ impl IngestStage {
     }
 
     /// Parse RDF/Turtle content into raw triples using rio_turtle
-    /// 
+    ///
     /// Full Turtle syntax support including:
     /// - Prefix resolution
     /// - Blank nodes
@@ -85,22 +85,25 @@ impl IngestStage {
     /// - Literals (simple, typed, language-tagged)
     pub fn parse_rdf_turtle(&self, content: &str) -> Result<Vec<RawTriple>, PipelineError> {
         let mut triples = Vec::new();
-        let mut parser = TurtleParser::new(content.as_bytes(), None)
-            .map_err(|e| PipelineError::IngestError(format!("Failed to create Turtle parser: {}", e)))?;
-        
-        parser.parse_all(&mut |triple| {
-            let raw = Self::convert_triple(triple)
-                .map_err(|e| PipelineError::IngestError(format!("Failed to convert triple: {}", e)))?;
-            triples.push(raw);
-            Ok(())
-        })
-        .map_err(|e| {
-            PipelineError::IngestError(format!(
-                "RDF parse error at line {}: {}",
-                e.location().line(),
-                e.message()
-            ))
+        let mut parser = TurtleParser::new(content.as_bytes(), None).map_err(|e| {
+            PipelineError::IngestError(format!("Failed to create Turtle parser: {}", e))
         })?;
+
+        parser
+            .parse_all(&mut |triple| {
+                let raw = Self::convert_triple(triple).map_err(|e| {
+                    PipelineError::IngestError(format!("Failed to convert triple: {}", e))
+                })?;
+                triples.push(raw);
+                Ok(())
+            })
+            .map_err(|e| {
+                PipelineError::IngestError(format!(
+                    "RDF parse error at line {}: {}",
+                    e.location().line(),
+                    e.message()
+                ))
+            })?;
 
         Ok(triples)
     }
@@ -108,30 +111,30 @@ impl IngestStage {
     /// Parse RDF/Turtle from a BufRead stream (memory-efficient for large files)
     #[cfg(feature = "std")]
     pub fn parse_rdf_turtle_stream<R: BufRead>(
-        reader: R,
-        base_uri: Option<&str>
+        reader: R, base_uri: Option<&str>,
     ) -> Result<Vec<RawTriple>, PipelineError> {
         let mut triples = Vec::new();
-        let base = base_uri.and_then(|u| {
-            NamedNode::new(u).ok()
-        });
-        
-        let mut parser = TurtleParser::new(reader, base.as_ref())
-            .map_err(|e| PipelineError::IngestError(format!("Failed to create Turtle parser: {}", e)))?;
-        
-        parser.parse_all(&mut |triple| {
-            let raw = Self::convert_triple(triple)
-                .map_err(|e| PipelineError::IngestError(format!("Failed to convert triple: {}", e)))?;
-            triples.push(raw);
-            Ok(())
-        })
-        .map_err(|e| {
-            PipelineError::IngestError(format!(
-                "RDF parse error at line {}: {}",
-                e.location().line(),
-                e.message()
-            ))
+        let base = base_uri.and_then(|u| NamedNode::new(u).ok());
+
+        let mut parser = TurtleParser::new(reader, base.as_ref()).map_err(|e| {
+            PipelineError::IngestError(format!("Failed to create Turtle parser: {}", e))
         })?;
+
+        parser
+            .parse_all(&mut |triple| {
+                let raw = Self::convert_triple(triple).map_err(|e| {
+                    PipelineError::IngestError(format!("Failed to convert triple: {}", e))
+                })?;
+                triples.push(raw);
+                Ok(())
+            })
+            .map_err(|e| {
+                PipelineError::IngestError(format!(
+                    "RDF parse error at line {}: {}",
+                    e.location().line(),
+                    e.message()
+                ))
+            })?;
 
         Ok(triples)
     }
@@ -147,7 +150,7 @@ impl IngestStage {
     }
 
     /// Convert rio_api::Term to String representation
-    /// 
+    ///
     /// Handles:
     /// - NamedNode: Returns IRI string
     /// - BlankNode: Returns `_:id` format
@@ -156,17 +159,17 @@ impl IngestStage {
         match term {
             Term::NamedNode(named) => Ok(named.iri.to_string()),
             Term::BlankNode(blank) => Ok(format!("_:{}", blank.id)),
-            Term::Literal(literal) => {
-                match literal {
-                    Literal::Simple { value } => Ok(format!("\"{}\"", Self::escape_string(value))),
-                    Literal::LanguageTaggedString { value, language } => {
-                        Ok(format!("\"{}\"@{}", Self::escape_string(value), language))
-                    }
-                    Literal::Typed { value, datatype } => {
-                        Ok(format!("\"{}\"^^{}", Self::escape_string(value), datatype.iri))
-                    }
+            Term::Literal(literal) => match literal {
+                Literal::Simple { value } => Ok(format!("\"{}\"", Self::escape_string(value))),
+                Literal::LanguageTaggedString { value, language } => {
+                    Ok(format!("\"{}\"@{}", Self::escape_string(value), language))
                 }
-            }
+                Literal::Typed { value, datatype } => Ok(format!(
+                    "\"{}\"^^{}",
+                    Self::escape_string(value),
+                    datatype.iri
+                )),
+            },
         }
     }
 
@@ -212,7 +215,7 @@ impl TransformStage {
     }
 
     /// Transform raw triples to typed, validated triples
-    /// 
+    ///
     /// Production implementation:
     /// 1. Validate against Σ schema (O ⊨ Σ)
     /// 2. Check Q invariants (preserve(Q))
@@ -265,7 +268,7 @@ impl TransformStage {
     }
 
     /// Validate triple against schema (O ⊨ Σ)
-    /// 
+    ///
     /// In production, this would:
     /// 1. Query schema registry for predicate validation
     /// 2. Check object type constraints
@@ -278,14 +281,20 @@ impl TransformStage {
                 let cache_key = format!("{}:{}", subject, predicate);
                 if let Some(&valid) = self.schema_cache.get(&cache_key) {
                     if !valid {
-                        return Err(format!("Schema validation failed for {} {}", subject, predicate));
+                        return Err(format!(
+                            "Schema validation failed for {} {}",
+                            subject, predicate
+                        ));
                     }
                 } else {
                     // Basic validation: check if predicate matches expected schema namespace
                     // In production, this would query a schema registry
                     let valid = predicate.contains(":") || subject.contains(":");
                     if !valid {
-                        return Err(format!("Schema validation failed: invalid IRI format for {} {}", subject, predicate));
+                        return Err(format!(
+                            "Schema validation failed: invalid IRI format for {} {}",
+                            subject, predicate
+                        ));
                     }
                 }
             }
@@ -301,16 +310,16 @@ pub struct TransformResult {
 }
 
 pub struct TypedTriple {
-    pub subject: u64,    // Hashed IRI
-    pub predicate: u64,   // Hashed IRI
-    pub object: u64,     // Hashed value
+    pub subject: u64,   // Hashed IRI
+    pub predicate: u64, // Hashed IRI
+    pub object: u64,    // Hashed value
     pub graph: Option<u64>,
 }
 
 /// Stage 3: Load
 /// SoA-aligned arrays in L1 cache
 pub struct LoadStage {
-    pub alignment: usize, // Must be 64
+    pub alignment: usize,   // Must be 64
     pub max_run_len: usize, // Must be ≤ 8
 }
 
@@ -323,7 +332,7 @@ impl LoadStage {
     }
 
     /// Load triples into SoA arrays
-    /// 
+    ///
     /// Production implementation:
     /// 1. Group by predicate (for run formation)
     /// 2. Ensure run.len ≤ 8
@@ -333,11 +342,11 @@ impl LoadStage {
         // Validate guard: total triples must not exceed max_run_len
         // (In production, we'd handle multiple runs, but for simplicity, enforce single run)
         if input.typed_triples.len() > self.max_run_len {
-            return Err(PipelineError::GuardViolation(
-                format!("Triple count {} exceeds max_run_len {}", 
-                    input.typed_triples.len(), 
-                    self.max_run_len)
-            ));
+            return Err(PipelineError::GuardViolation(format!(
+                "Triple count {} exceeds max_run_len {}",
+                input.typed_triples.len(),
+                self.max_run_len
+            )));
         }
 
         if input.typed_triples.is_empty() {
@@ -364,18 +373,18 @@ impl LoadStage {
         for (predicate, triples) in grouped_by_predicate {
             // Validate run length ≤ 8
             if triples.len() > self.max_run_len {
-                return Err(PipelineError::GuardViolation(
-                    format!("Predicate run length {} exceeds max_run_len {}", 
-                        triples.len(), 
-                        self.max_run_len)
-                ));
+                return Err(PipelineError::GuardViolation(format!(
+                    "Predicate run length {} exceeds max_run_len {}",
+                    triples.len(),
+                    self.max_run_len
+                )));
             }
 
             // Ensure we don't exceed SoA array capacity
             if offset as usize + triples.len() > 8 {
-                return Err(PipelineError::LoadError(
-                    format!("Total triples exceed SoA capacity of 8")
-                ));
+                return Err(PipelineError::LoadError(format!(
+                    "Total triples exceed SoA capacity of 8"
+                )));
             }
 
             // Load triples into SoA arrays
@@ -400,9 +409,10 @@ impl LoadStage {
         // This is a compile-time guarantee, but we verify at runtime for safety
         let soa_ptr = &soa as *const SoAArrays as *const u8 as usize;
         if soa_ptr % self.alignment != 0 {
-            return Err(PipelineError::LoadError(
-                format!("SoA arrays not properly aligned to {} bytes", self.alignment)
-            ));
+            return Err(PipelineError::LoadError(format!(
+                "SoA arrays not properly aligned to {} bytes",
+                self.alignment
+            )));
         }
 
         Ok(LoadResult {
@@ -449,13 +459,11 @@ pub struct ReflexStage {
 
 impl ReflexStage {
     pub fn new() -> Self {
-        Self {
-            tick_budget: 8,
-        }
+        Self { tick_budget: 8 }
     }
 
     /// Execute reflex over loaded data
-    /// 
+    ///
     /// Production implementation:
     /// 1. Call C hot path API (knhk_eval_bool, knhk_eval_construct8)
     /// 2. Ensure each hook ≤ 8 ticks
@@ -478,16 +486,18 @@ impl ReflexStage {
         for run in &input.runs {
             // Validate run length ≤ 8 (Chatman Constant guard - defense in depth)
             if run.len > 8 {
-                return Err(PipelineError::GuardViolation(
-                    format!("Run length {} exceeds max_run_len 8", run.len)
-                ));
+                return Err(PipelineError::GuardViolation(format!(
+                    "Run length {} exceeds max_run_len 8",
+                    run.len
+                )));
             }
-            
+
             // Validate run length ≤ tick_budget (guard check)
             if run.len > self.tick_budget as u64 {
-                return Err(PipelineError::ReflexError(
-                    format!("Run length {} exceeds tick budget {}", run.len, self.tick_budget)
-                ));
+                return Err(PipelineError::ReflexError(format!(
+                    "Run length {} exceeds tick budget {}",
+                    run.len, self.tick_budget
+                )));
             }
 
             // Execute hook via C hot path API (FFI)
@@ -495,10 +505,10 @@ impl ReflexStage {
 
             // Check tick budget violation
             if receipt.ticks > self.tick_budget {
-                return Err(PipelineError::ReflexError(
-                    format!("Hook execution {} ticks exceeds budget {} ticks", 
-                        receipt.ticks, self.tick_budget)
-                ));
+                return Err(PipelineError::ReflexError(format!(
+                    "Hook execution {} ticks exceeds budget {} ticks",
+                    receipt.ticks, self.tick_budget
+                )));
             }
 
             max_ticks = max_ticks.max(receipt.ticks);
@@ -532,35 +542,37 @@ impl ReflexStage {
     fn execute_hook(&self, soa: &SoAArrays, run: &PredRun) -> Result<Receipt, PipelineError> {
         #[cfg(feature = "std")]
         {
-            use knhk_hot::{Engine, Op, Ir, Receipt as HotReceipt, Run as HotRun};
-            
+            use knhk_hot::{Engine, Ir, Op, Receipt as HotReceipt, Run as HotRun};
+
             // Initialize engine with SoA arrays
             let engine = Engine::new(soa.s.as_ptr(), soa.p.as_ptr(), soa.o.as_ptr());
-            
+
             // Pin run (validates len ≤ 8 via C API)
             // Additional guard validation before pinning (defense in depth)
             if run.len > 8 {
-                return Err(PipelineError::GuardViolation(
-                    format!("Run length {} exceeds max_run_len 8", run.len)
-                ));
+                return Err(PipelineError::GuardViolation(format!(
+                    "Run length {} exceeds max_run_len 8",
+                    run.len
+                )));
             }
-            
+
             // Validate offset bounds
             if run.off >= 8 {
-                return Err(PipelineError::GuardViolation(
-                    format!("Run offset {} exceeds SoA array capacity 8", run.off)
-                ));
+                return Err(PipelineError::GuardViolation(format!(
+                    "Run offset {} exceeds SoA array capacity 8",
+                    run.off
+                )));
             }
-            
+
             let hot_run = HotRun {
                 pred: run.pred,
                 off: run.off,
                 len: run.len,
             };
-            engine.pin_run(hot_run).map_err(|e| {
-                PipelineError::ReflexError(format!("Failed to pin run: {}", e))
-            })?;
-            
+            engine
+                .pin_run(hot_run)
+                .map_err(|e| PipelineError::ReflexError(format!("Failed to pin run: {}", e)))?;
+
             // Create hook IR (default to ASK_SP operation)
             // Validate bounds before array access
             let s_val = if run.len > 0 && run.off < 8 {
@@ -573,7 +585,7 @@ impl ReflexStage {
             } else {
                 0
             };
-            
+
             let mut ir = Ir {
                 op: Op::AskSp,
                 s: s_val,
@@ -585,11 +597,11 @@ impl ReflexStage {
                 out_O: core::ptr::null_mut(),
                 out_mask: 0,
             };
-            
+
             // Execute hook via C FFI
             let mut hot_receipt = HotReceipt::default();
             let result = engine.eval_bool(&mut ir, &mut hot_receipt);
-            
+
             // Convert to ETL receipt format
             Ok(Receipt {
                 id: format!("receipt_{}", hot_receipt.span_id),
@@ -599,22 +611,22 @@ impl ReflexStage {
                 a_hash: hot_receipt.a_hash,
             })
         }
-        
+
         #[cfg(not(feature = "std"))]
         {
             // In no_std mode, compute receipt deterministically from SoA data
             // This provides functional correctness without C FFI
             let lanes = run.len as u32;
-            
+
             // Generate deterministic span_id from SoA data
             let span_id = Self::generate_span_id_deterministic(soa, run);
-            
+
             // Compute a_hash (hash(A) = hash(μ(O)) fragment)
             let a_hash = Self::compute_a_hash(soa, run);
-            
+
             // Estimate ticks based on run length (conservative estimate)
             let ticks = if run.len <= 4 { 4 } else { 6 };
-            
+
             Ok(Receipt {
                 id: format!("receipt_{}", span_id),
                 ticks,
@@ -670,17 +682,19 @@ impl ReflexStage {
         #[cfg(not(feature = "std"))]
         {
             let timestamp = Self::get_timestamp_ms();
-            timestamp.wrapping_mul(0x9e3779b9u64).wrapping_add(0x517cc1b7u64)
+            timestamp
+                .wrapping_mul(0x9e3779b9u64)
+                .wrapping_add(0x517cc1b7u64)
         }
     }
-    
+
     /// Generate deterministic span ID from SoA data (no_std fallback)
     fn generate_span_id_deterministic(soa: &SoAArrays, run: &PredRun) -> u64 {
         const FNV_OFFSET_BASIS: u64 = 1469598103934665603;
         const FNV_PRIME: u64 = 1099511628211;
-        
+
         let mut hash = FNV_OFFSET_BASIS;
-        
+
         // Hash run info
         let mut value = run.pred;
         for _ in 0..8 {
@@ -688,21 +702,21 @@ impl ReflexStage {
             hash = hash.wrapping_mul(FNV_PRIME);
             value >>= 8;
         }
-        
+
         value = run.off;
         for _ in 0..8 {
             hash ^= value & 0xFF;
             hash = hash.wrapping_mul(FNV_PRIME);
             value >>= 8;
         }
-        
+
         value = run.len;
         for _ in 0..8 {
             hash ^= value & 0xFF;
             hash = hash.wrapping_mul(FNV_PRIME);
             value >>= 8;
         }
-        
+
         hash
     }
 
@@ -713,7 +727,7 @@ impl ReflexStage {
         const FNV_PRIME: u64 = 1099511628211;
 
         let mut hash = FNV_OFFSET_BASIS;
-        
+
         // Hash the relevant portion of SoA arrays
         for i in 0..run.len as usize {
             let idx = (run.off as usize) + i;
@@ -736,7 +750,7 @@ impl ReflexStage {
                 value >>= 8;
             }
         }
-        
+
         // Hash predicate
         let mut value = run.pred;
         for _ in 0..8 {
@@ -744,7 +758,7 @@ impl ReflexStage {
             hash = hash.wrapping_mul(FNV_PRIME);
             value >>= 8;
         }
-        
+
         hash
     }
 
@@ -810,7 +824,7 @@ impl EmitStage {
             },
         }
     }
-    
+
     #[cfg(feature = "std")]
     pub fn with_git_repo(mut self, repo_path: String) -> Self {
         if self.lockchain_enabled {
@@ -820,7 +834,7 @@ impl EmitStage {
     }
 
     /// Emit actions and receipts
-    /// 
+    ///
     /// Production implementation:
     /// 1. Write receipts to lockchain (Merkle-linked)
     /// 2. Send actions to downstream APIs (webhooks, Kafka, gRPC)
@@ -840,25 +854,28 @@ impl EmitStage {
                     lockchain.clone()
                 } else {
                     return Err(PipelineError::EmitError(
-                        "Lockchain enabled but not initialized".to_string()
+                        "Lockchain enabled but not initialized".to_string(),
                     ));
                 };
-                
+
                 for receipt in &input.receipts {
-                    match self.write_receipt_to_lockchain_with_lockchain(&mut lockchain_ref, receipt) {
+                    match self
+                        .write_receipt_to_lockchain_with_lockchain(&mut lockchain_ref, receipt)
+                    {
                         Ok(hash) => {
                             receipts_written += 1;
                             lockchain_hashes.push(hash);
                         }
                         Err(e) => {
-                            return Err(PipelineError::EmitError(
-                                format!("Failed to write receipt {} to lockchain: {}", receipt.id, e)
-                            ));
+                            return Err(PipelineError::EmitError(format!(
+                                "Failed to write receipt {} to lockchain: {}",
+                                receipt.id, e
+                            )));
                         }
                     }
                 }
             }
-            
+
             #[cfg(not(feature = "std"))]
             {
                 // In no_std mode, compute hash only
@@ -890,10 +907,10 @@ impl EmitStage {
 
             if !success {
                 // All endpoints failed
-                return Err(PipelineError::EmitError(
-                    format!("Failed to send action {} to all endpoints: {:?}", 
-                        action.id, last_error)
-                ));
+                return Err(PipelineError::EmitError(format!(
+                    "Failed to send action {} to all endpoints: {:?}",
+                    action.id, last_error
+                )));
             }
         }
 
@@ -907,35 +924,33 @@ impl EmitStage {
     /// Write receipt to lockchain (Merkle-linked) - with mutable lockchain reference
     #[cfg(feature = "std")]
     fn write_receipt_to_lockchain_with_lockchain(
-        &self,
-        lockchain: &mut knhk_lockchain::Lockchain,
-        receipt: &Receipt,
+        &self, lockchain: &mut knhk_lockchain::Lockchain, receipt: &Receipt,
     ) -> Result<String, String> {
-        use knhk_lockchain::{LockchainEntry, LockchainError};
         use alloc::collections::BTreeMap;
-        
+        use knhk_lockchain::{LockchainEntry, LockchainError};
+
         // Create lockchain entry
         let mut metadata = BTreeMap::new();
         metadata.insert("span_id".to_string(), receipt.span_id.to_string());
         metadata.insert("ticks".to_string(), receipt.ticks.to_string());
         metadata.insert("lanes".to_string(), receipt.lanes.to_string());
         metadata.insert("a_hash".to_string(), format!("{:016x}", receipt.a_hash));
-        
+
         let entry = LockchainEntry {
             receipt_id: receipt.id.clone(),
             receipt_hash: [0; 32], // Will be computed by append
-            parent_hash: None, // Will be linked by append
+            parent_hash: None,     // Will be linked by append
             timestamp_ms: Self::get_current_timestamp_ms(),
             metadata,
         };
-        
+
         // Append to lockchain (computes hash and links to parent)
         match lockchain.append(entry) {
             Ok(hash) => Ok(hex::encode(&hash)),
             Err(e) => Err(format!("Failed to append receipt to lockchain: {:?}", e)),
         }
     }
-    
+
     /// Write receipt to lockchain (Merkle-linked)
     fn write_receipt_to_lockchain(&self, receipt: &Receipt) -> Result<String, String> {
         #[cfg(feature = "std")]
@@ -949,7 +964,7 @@ impl EmitStage {
                 Ok(format!("{:016x}", hash))
             }
         }
-        
+
         #[cfg(not(feature = "std"))]
         {
             // In no_std mode, compute hash only
@@ -957,7 +972,7 @@ impl EmitStage {
             Ok(format!("{:016x}", hash))
         }
     }
-    
+
     #[cfg(feature = "std")]
     fn get_current_timestamp_ms() -> u64 {
         use std::time::{SystemTime, UNIX_EPOCH};
@@ -966,7 +981,7 @@ impl EmitStage {
             .map(|d| d.as_millis() as u64)
             .unwrap_or(0)
     }
-    
+
     #[cfg(not(feature = "std"))]
     fn get_current_timestamp_ms() -> u64 {
         0 // Placeholder for no_std
@@ -995,13 +1010,13 @@ impl EmitStage {
     fn send_http_webhook(&self, action: &Action, endpoint: &str) -> Result<(), String> {
         use reqwest::blocking::Client;
         use std::time::Duration;
-        
+
         // Create HTTP client with timeout
         let client = Client::builder()
             .timeout(Duration::from_secs(30))
             .build()
             .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
-        
+
         // Serialize action payload
         #[cfg(feature = "serde_json")]
         let payload = serde_json::json!({
@@ -1009,47 +1024,53 @@ impl EmitStage {
             "receipt_id": action.receipt_id,
             "payload": action.payload,
         });
-        
+
         #[cfg(not(feature = "serde_json"))]
         let payload = alloc::format!(
             r#"{{"id":"{}","receipt_id":"{}","payload":[]}}"#,
-            action.id, action.receipt_id
+            action.id,
+            action.receipt_id
         );
-        
+
         // Retry logic with exponential backoff
         let mut last_error = None;
         for attempt in 0..self.max_retries {
-            let request = client.post(endpoint).header("Content-Type", "application/json");
-            
+            let request = client
+                .post(endpoint)
+                .header("Content-Type", "application/json");
+
             #[cfg(feature = "serde_json")]
             let request = request.json(&payload);
-            
+
             #[cfg(not(feature = "serde_json"))]
             let request = request.body(payload.clone());
-            
+
             match request.send() {
                 Ok(response) => {
                     if response.status().is_success() {
                         return Ok(());
                     } else {
-                        last_error = Some(format!("HTTP {}: {}", response.status(), response.status()));
+                        last_error =
+                            Some(format!("HTTP {}: {}", response.status(), response.status()));
                     }
                 }
                 Err(e) => {
                     last_error = Some(format!("HTTP request failed: {}", e));
                 }
             }
-            
+
             // Exponential backoff: wait before retry
             if attempt < self.max_retries - 1 {
                 let delay_ms = self.retry_delay_ms * (1 << attempt); // 1s, 2s, 4s
                 std::thread::sleep(Duration::from_millis(delay_ms));
             }
         }
-        
-        Err(format!("Failed to send action after {} retries: {}", 
-                    self.max_retries, 
-                    last_error.unwrap_or_else(|| "Unknown error".to_string())))
+
+        Err(format!(
+            "Failed to send action after {} retries: {}",
+            self.max_retries,
+            last_error.unwrap_or_else(|| "Unknown error".to_string())
+        ))
     }
 
     #[cfg(not(feature = "std"))]
@@ -1060,54 +1081,57 @@ impl EmitStage {
 
     fn send_kafka_action(&self, action: &Action, endpoint: &str) -> Result<(), String> {
         // Parse Kafka endpoint: kafka://broker1:9092,broker2:9092/topic
-        let endpoint = endpoint.strip_prefix("kafka://")
+        let endpoint = endpoint
+            .strip_prefix("kafka://")
             .ok_or_else(|| "Invalid Kafka endpoint format".to_string())?;
-        
-        let (brokers, topic) = endpoint.split_once('/')
-            .ok_or_else(|| "Kafka endpoint must include topic: kafka://brokers/topic".to_string())?;
-        
+
+        let (brokers, topic) = endpoint.split_once('/').ok_or_else(|| {
+            "Kafka endpoint must include topic: kafka://brokers/topic".to_string()
+        })?;
+
         if brokers.is_empty() {
             return Err("Bootstrap servers cannot be empty".to_string());
         }
-        
+
         if topic.is_empty() {
             return Err("Topic name cannot be empty".to_string());
         }
-        
+
         #[cfg(feature = "kafka")]
         {
             use rdkafka::producer::{BaseProducer, BaseRecord};
             use rdkafka::ClientConfig;
             use std::time::Duration;
-            
+
             // Create Kafka producer (blocking)
             let mut config = ClientConfig::new();
             config.set("bootstrap.servers", brokers);
             config.set("message.timeout.ms", "5000");
             config.set("queue.buffering.max.messages", "100000");
-            
-            let producer: BaseProducer = config.create()
+
+            let producer: BaseProducer = config
+                .create()
                 .map_err(|e| format!("Failed to create Kafka producer: {}", e))?;
-            
+
             // Serialize action payload
             #[cfg(feature = "serde_json")]
             let payload = serde_json::json!({
                 "id": action.id,
                 "receipt_id": action.receipt_id,
                 "payload": action.payload,
-            }).to_string();
-            
+            })
+            .to_string();
+
             #[cfg(not(feature = "serde_json"))]
             let payload = alloc::format!(
                 r#"{{"id":"{}","receipt_id":"{}","payload":[]}}"#,
-                action.id, action.receipt_id
+                action.id,
+                action.receipt_id
             );
-            
+
             // Send message to Kafka topic (blocking)
-            let record = BaseRecord::to(topic)
-                .key(&action.id)
-                .payload(&payload);
-            
+            let record = BaseRecord::to(topic).key(&action.id).payload(&payload);
+
             // Poll for delivery
             let mut last_error = None;
             for attempt in 0..self.max_retries {
@@ -1124,40 +1148,46 @@ impl EmitStage {
                         last_error = Some(format!("Failed to send Kafka message: {}", e));
                     }
                 }
-                
+
                 // Exponential backoff
                 if attempt < self.max_retries - 1 {
                     let delay_ms = self.retry_delay_ms * (1 << attempt);
                     std::thread::sleep(Duration::from_millis(delay_ms));
                 }
             }
-            
-            Err(format!("Failed to send action to Kafka after {} retries: {}", 
-                self.max_retries, 
-                last_error.unwrap_or_else(|| "Unknown error".to_string())))
+
+            Err(format!(
+                "Failed to send action to Kafka after {} retries: {}",
+                self.max_retries,
+                last_error.unwrap_or_else(|| "Unknown error".to_string())
+            ))
         }
-        
+
         #[cfg(not(feature = "kafka"))]
         {
-            Err(format!("Kafka feature not enabled. Enable with 'kafka' feature: {}", endpoint))
+            Err(format!(
+                "Kafka feature not enabled. Enable with 'kafka' feature: {}",
+                endpoint
+            ))
         }
     }
 
     fn send_grpc_action(&self, action: &Action, endpoint: &str) -> Result<(), String> {
         // Parse gRPC endpoint: grpc://host:port/service/method
         let endpoint = endpoint.strip_prefix("grpc://").unwrap_or(endpoint);
-        
+
         #[cfg(feature = "grpc")]
         {
             // gRPC requires async runtime - use HTTP POST to gRPC gateway as fallback
             // For blocking operation, convert gRPC endpoint to HTTP gateway endpoint
-            let http_endpoint = if endpoint.starts_with("http://") || endpoint.starts_with("https://") {
-                endpoint.to_string()
-            } else {
-                // Convert grpc://host:port/service/method to http://host:port/service/method
-                format!("http://{}", endpoint)
-            };
-            
+            let http_endpoint =
+                if endpoint.starts_with("http://") || endpoint.starts_with("https://") {
+                    endpoint.to_string()
+                } else {
+                    // Convert grpc://host:port/service/method to http://host:port/service/method
+                    format!("http://{}", endpoint)
+                };
+
             // Use HTTP POST to gRPC gateway (enables blocking operation)
             self.send_http_webhook(action, &http_endpoint)
         }
@@ -1168,7 +1198,10 @@ impl EmitStage {
             if endpoint.starts_with("http://") || endpoint.starts_with("https://") {
                 self.send_http_webhook(action, endpoint)
             } else {
-                Err(format!("gRPC feature not enabled. Use HTTP gateway or enable 'grpc' feature: {}", endpoint))
+                Err(format!(
+                    "gRPC feature not enabled. Use HTTP gateway or enable 'grpc' feature: {}",
+                    endpoint
+                ))
             }
         }
     }
@@ -1180,7 +1213,7 @@ impl EmitStage {
         const FNV_PRIME: u64 = 1099511628211;
 
         let mut hash = FNV_OFFSET_BASIS;
-        
+
         // Hash receipt fields
         let mut value = receipt.ticks as u64;
         for _ in 0..4 {
@@ -1188,28 +1221,28 @@ impl EmitStage {
             hash = hash.wrapping_mul(FNV_PRIME);
             value >>= 8;
         }
-        
+
         value = receipt.lanes as u64;
         for _ in 0..4 {
             hash ^= value & 0xFF;
             hash = hash.wrapping_mul(FNV_PRIME);
             value >>= 8;
         }
-        
+
         value = receipt.span_id;
         for _ in 0..8 {
             hash ^= value & 0xFF;
             hash = hash.wrapping_mul(FNV_PRIME);
             value >>= 8;
         }
-        
+
         value = receipt.a_hash;
         for _ in 0..8 {
             hash ^= value & 0xFF;
             hash = hash.wrapping_mul(FNV_PRIME);
             value >>= 8;
         }
-        
+
         hash
     }
 }
@@ -1243,9 +1276,7 @@ pub struct Pipeline {
 
 impl Pipeline {
     pub fn new(
-        connectors: Vec<String>,
-        schema_iri: String,
-        lockchain_enabled: bool,
+        connectors: Vec<String>, schema_iri: String, lockchain_enabled: bool,
         downstream_endpoints: Vec<String>,
     ) -> Self {
         Self {
@@ -1301,12 +1332,15 @@ mod tests {
     fn test_load_stage_guard() {
         let load = LoadStage::new();
         let transform_result = TransformResult {
-            typed_triples: vec![TypedTriple {
-                subject: 1,
-                predicate: 2,
-                object: 3,
-                graph: None,
-            }; 10], // Exceeds max_run_len
+            typed_triples: vec![
+                TypedTriple {
+                    subject: 1,
+                    predicate: 2,
+                    object: 3,
+                    graph: None,
+                };
+                10
+            ], // Exceeds max_run_len
             validation_errors: Vec::new(),
         };
 
@@ -1316,10 +1350,10 @@ mod tests {
     #[test]
     fn test_ingest_stage_rdf_parsing() {
         let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
-        
+
         let content = "<http://example.org/subject> <http://example.org/predicate> <http://example.org/object> .";
         let result = ingest.parse_rdf_turtle(content);
-        
+
         assert!(result.is_ok());
         let triples = result.unwrap();
         assert_eq!(triples.len(), 1);
@@ -1331,13 +1365,13 @@ mod tests {
     #[test]
     fn test_ingest_stage_prefix_resolution() {
         let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
-        
+
         let content = r#"
             @prefix ex: <http://example.org/> .
             ex:subject ex:predicate ex:object .
         "#;
         let result = ingest.parse_rdf_turtle(content);
-        
+
         assert!(result.is_ok());
         let triples = result.unwrap();
         assert_eq!(triples.len(), 1);
@@ -1349,13 +1383,13 @@ mod tests {
     #[test]
     fn test_ingest_stage_blank_nodes() {
         let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
-        
+
         let content = r#"
             _:alice <http://example.org/name> "Alice" .
             _:bob <http://example.org/name> "Bob" .
         "#;
         let result = ingest.parse_rdf_turtle(content);
-        
+
         assert!(result.is_ok());
         let triples = result.unwrap();
         assert_eq!(triples.len(), 2);
@@ -1368,14 +1402,14 @@ mod tests {
     #[test]
     fn test_ingest_stage_literals() {
         let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
-        
+
         let content = r#"
             <http://example.org/subject> <http://example.org/name> "Alice" .
             <http://example.org/subject> <http://example.org/age> "30"^^<http://www.w3.org/2001/XMLSchema#integer> .
             <http://example.org/subject> <http://example.org/label> "Hello"@en .
         "#;
         let result = ingest.parse_rdf_turtle(content);
-        
+
         assert!(result.is_ok());
         let triples = result.unwrap();
         assert_eq!(triples.len(), 3);
@@ -1387,13 +1421,13 @@ mod tests {
     #[test]
     fn test_ingest_stage_base_uri() {
         let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
-        
+
         let content = r#"
             @base <http://example.org/> .
             <subject> <predicate> <object> .
         "#;
         let result = ingest.parse_rdf_turtle(content);
-        
+
         assert!(result.is_ok());
         let triples = result.unwrap();
         assert_eq!(triples.len(), 1);
@@ -1405,14 +1439,14 @@ mod tests {
     #[test]
     fn test_ingest_stage_multiple_triples() {
         let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
-        
+
         let content = r#"
             <http://example.org/alice> <http://example.org/name> "Alice" .
             <http://example.org/alice> <http://example.org/age> "30" .
             <http://example.org/bob> <http://example.org/name> "Bob" .
         "#;
         let result = ingest.parse_rdf_turtle(content);
-        
+
         assert!(result.is_ok());
         let triples = result.unwrap();
         assert_eq!(triples.len(), 3);
@@ -1421,7 +1455,7 @@ mod tests {
     #[test]
     fn test_ingest_stage_empty_input() {
         let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
-        
+
         let result = ingest.parse_rdf_turtle("");
         assert!(result.is_ok());
         assert_eq!(result.unwrap().len(), 0);
@@ -1430,10 +1464,10 @@ mod tests {
     #[test]
     fn test_ingest_stage_invalid_syntax() {
         let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
-        
+
         let content = "<http://example.org/subject> <http://example.org/predicate>";
         let result = ingest.parse_rdf_turtle(content);
-        
+
         assert!(result.is_err());
         if let Err(PipelineError::IngestError(msg)) = result {
             assert!(msg.contains("parse error"));
@@ -1445,22 +1479,20 @@ mod tests {
     #[test]
     fn test_transform_stage_hashing() {
         let transform = TransformStage::new("urn:knhk:schema:test".to_string(), false);
-        
+
         let ingest_result = IngestResult {
-            triples: vec![
-                RawTriple {
-                    subject: "http://example.org/subject".to_string(),
-                    predicate: "http://example.org/predicate".to_string(),
-                    object: "http://example.org/object".to_string(),
-                    graph: None,
-                }
-            ],
+            triples: vec![RawTriple {
+                subject: "http://example.org/subject".to_string(),
+                predicate: "http://example.org/predicate".to_string(),
+                object: "http://example.org/object".to_string(),
+                graph: None,
+            }],
             metadata: BTreeMap::new(),
         };
-        
+
         let result = transform.transform(ingest_result);
         assert!(result.is_ok());
-        
+
         let transform_result = result.unwrap();
         assert_eq!(transform_result.typed_triples.len(), 1);
         assert!(transform_result.typed_triples[0].subject > 0);
@@ -1471,19 +1503,34 @@ mod tests {
     #[test]
     fn test_load_stage_predicate_grouping() {
         let load = LoadStage::new();
-        
+
         let transform_result = TransformResult {
             typed_triples: vec![
-                TypedTriple { subject: 1, predicate: 100, object: 10, graph: None },
-                TypedTriple { subject: 2, predicate: 100, object: 20, graph: None },
-                TypedTriple { subject: 3, predicate: 200, object: 30, graph: None },
+                TypedTriple {
+                    subject: 1,
+                    predicate: 100,
+                    object: 10,
+                    graph: None,
+                },
+                TypedTriple {
+                    subject: 2,
+                    predicate: 100,
+                    object: 20,
+                    graph: None,
+                },
+                TypedTriple {
+                    subject: 3,
+                    predicate: 200,
+                    object: 30,
+                    graph: None,
+                },
             ],
             validation_errors: Vec::new(),
         };
-        
+
         let result = load.load(transform_result);
         assert!(result.is_ok());
-        
+
         let load_result = result.unwrap();
         assert_eq!(load_result.runs.len(), 2); // Two different predicates
         assert_eq!(load_result.runs[0].pred, 100);
@@ -1495,22 +1542,26 @@ mod tests {
     #[test]
     fn test_reflex_stage_tick_budget() {
         let reflex = ReflexStage::new();
-        
+
         let mut soa = SoAArrays::new();
         soa.s[0] = 1;
         soa.p[0] = 100;
         soa.o[0] = 10;
-        
-        let run = PredRun { pred: 100, off: 0, len: 1 };
-        
+
+        let run = PredRun {
+            pred: 100,
+            off: 0,
+            len: 1,
+        };
+
         let load_result = LoadResult {
             soa_arrays: soa,
             runs: vec![run],
         };
-        
+
         let result = reflex.reflex(load_result);
         assert!(result.is_ok());
-        
+
         let reflex_result = result.unwrap();
         assert!(reflex_result.max_ticks <= 8);
         assert!(!reflex_result.receipts.is_empty());
@@ -1525,7 +1576,7 @@ mod tests {
             span_id: 0x1234,
             a_hash: 0xABCD,
         };
-        
+
         let receipt2 = Receipt {
             id: "r2".to_string(),
             ticks: 6,
@@ -1533,9 +1584,9 @@ mod tests {
             span_id: 0x5678,
             a_hash: 0xEF00,
         };
-        
+
         let merged = ReflexStage::merge_receipts(&[receipt1, receipt2]);
-        
+
         assert_eq!(merged.ticks, 6); // Max ticks
         assert_eq!(merged.lanes, 16); // Sum lanes
         assert_eq!(merged.span_id, 0x1234 ^ 0x5678); // XOR merge
@@ -1545,7 +1596,7 @@ mod tests {
     #[test]
     fn test_emit_stage() {
         let emit = EmitStage::new(true, vec!["https://webhook.example.com".to_string()]);
-        
+
         let receipt = Receipt {
             id: "receipt1".to_string(),
             ticks: 4,
@@ -1553,26 +1604,23 @@ mod tests {
             span_id: 0x1234,
             a_hash: 0xABCD,
         };
-        
+
         let reflex_result = ReflexResult {
-            actions: vec![
-                Action {
-                    id: "action1".to_string(),
-                    payload: vec![1, 2, 3],
-                    receipt_id: "receipt1".to_string(),
-                }
-            ],
+            actions: vec![Action {
+                id: "action1".to_string(),
+                payload: vec![1, 2, 3],
+                receipt_id: "receipt1".to_string(),
+            }],
             receipts: vec![receipt],
             max_ticks: 4,
         };
-        
+
         let result = emit.emit(reflex_result);
         assert!(result.is_ok());
-        
+
         let emit_result = result.unwrap();
         assert_eq!(emit_result.receipts_written, 1);
         assert_eq!(emit_result.actions_sent, 1);
         assert_eq!(emit_result.lockchain_hashes.len(), 1);
     }
 }
-

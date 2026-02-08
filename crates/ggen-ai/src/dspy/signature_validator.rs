@@ -96,7 +96,12 @@ impl SignatureValidator {
             };
 
             // Validate the field value against its constraints
-            if let Err(validation_err) = self.validate_field(field_name, field.type_annotation(), value, &field.constraints) {
+            if let Err(validation_err) = self.validate_field(
+                field_name,
+                field.type_annotation(),
+                value,
+                &field.constraints,
+            ) {
                 errors.extend(validation_err.errors);
             }
         }
@@ -110,10 +115,7 @@ impl SignatureValidator {
 
     /// Validate a single field value against its constraints
     fn validate_field(
-        &self,
-        field_name: &str,
-        type_annotation: &str,
-        value: &Value,
+        &self, field_name: &str, type_annotation: &str, value: &Value,
         constraints: &FieldConstraints,
     ) -> Result<(), ValidationError> {
         let mut errors = Vec::new();
@@ -212,10 +214,7 @@ impl SignatureValidator {
 
     /// Validate field type matches expected type annotation
     fn validate_type(
-        &self,
-        field_name: &str,
-        type_annotation: &str,
-        value: &Value,
+        &self, field_name: &str, type_annotation: &str, value: &Value,
     ) -> Result<(), ValidationError> {
         let type_annotation = type_annotation.trim();
 
@@ -225,7 +224,11 @@ impl SignatureValidator {
                 let detail = ValidationErrorDetail::new(
                     field_name,
                     ValidationErrorType::TypeMismatch,
-                    format!("expected array ({}), got {}", type_annotation, self.value_type_name(value)),
+                    format!(
+                        "expected array ({}), got {}",
+                        type_annotation,
+                        self.value_type_name(value)
+                    ),
                 );
                 return Err(ValidationError::new(detail));
             }
@@ -244,9 +247,8 @@ impl SignatureValidator {
         // Basic type checking
         let expected_json_type = match type_annotation {
             "String" | "str" | "&str" => "string",
-            "i32" | "i64" | "i16" | "i8" | "u32" | "u64" | "u16" | "u8" | "isize" | "usize" | "int" => {
-                "integer or number"
-            }
+            "i32" | "i64" | "i16" | "i8" | "u32" | "u64" | "u16" | "u8" | "isize" | "usize"
+            | "int" => "integer or number",
             "f32" | "f64" | "float" | "double" => "number",
             "bool" | "boolean" => "boolean",
             _ => "value",
@@ -254,9 +256,8 @@ impl SignatureValidator {
 
         let is_valid = match type_annotation {
             "String" | "str" | "&str" => value.is_string(),
-            "i32" | "i64" | "i16" | "i8" | "u32" | "u64" | "u16" | "u8" | "isize" | "usize" | "int" => {
-                value.is_number()
-            }
+            "i32" | "i64" | "i16" | "i8" | "u32" | "u64" | "u16" | "u8" | "isize" | "usize"
+            | "int" => value.is_number(),
             "f32" | "f64" | "float" | "double" => value.is_number(),
             "bool" | "boolean" => value.is_boolean(),
             _ => true, // Unknown types pass type check
@@ -266,7 +267,11 @@ impl SignatureValidator {
             let detail = ValidationErrorDetail::new(
                 field_name,
                 ValidationErrorType::TypeMismatch,
-                format!("expected {}, got {}", expected_json_type, self.value_type_name(value)),
+                format!(
+                    "expected {}, got {}",
+                    expected_json_type,
+                    self.value_type_name(value)
+                ),
             );
             return Err(ValidationError::new(detail));
         }
@@ -276,10 +281,7 @@ impl SignatureValidator {
 
     /// Validate enum constraint
     fn validate_enum(
-        &self,
-        field_name: &str,
-        value: &Value,
-        enum_values: &[String],
+        &self, field_name: &str, value: &Value, enum_values: &[String],
     ) -> Result<(), ValidationError> {
         let value_str = match value {
             Value::String(s) => s.clone(),
@@ -313,10 +315,7 @@ impl SignatureValidator {
 
     /// Validate regex pattern constraint
     fn validate_pattern(
-        &self,
-        field_name: &str,
-        value: &str,
-        pattern: &str,
+        &self, field_name: &str, value: &str, pattern: &str,
     ) -> Result<(), ValidationError> {
         match Regex::new(pattern) {
             Ok(regex) => {
@@ -415,8 +414,8 @@ mod tests {
 
     #[test]
     fn test_validate_string_type() {
-        let sig = Signature::new("Test", "Test")
-            .with_input(InputField::new("name", "Name", "String"));
+        let sig =
+            Signature::new("Test", "Test").with_input(InputField::new("name", "Name", "String"));
         let validator = SignatureValidator::new(sig);
 
         let valid_input = json!({"name": "John"});
@@ -428,8 +427,7 @@ mod tests {
 
     #[test]
     fn test_validate_integer_type() {
-        let sig = Signature::new("Test", "Test")
-            .with_input(InputField::new("age", "Age", "i32"));
+        let sig = Signature::new("Test", "Test").with_input(InputField::new("age", "Age", "i32"));
         let validator = SignatureValidator::new(sig);
 
         let valid_input = json!({"age": 25});
@@ -441,8 +439,8 @@ mod tests {
 
     #[test]
     fn test_validate_float_type() {
-        let sig = Signature::new("Test", "Test")
-            .with_input(InputField::new("score", "Score", "f64"));
+        let sig =
+            Signature::new("Test", "Test").with_input(InputField::new("score", "Score", "f64"));
         let validator = SignatureValidator::new(sig);
 
         let valid_input = json!({"score": 3.14});
@@ -454,8 +452,8 @@ mod tests {
 
     #[test]
     fn test_validate_boolean_type() {
-        let sig = Signature::new("Test", "Test")
-            .with_input(InputField::new("active", "Active", "bool"));
+        let sig =
+            Signature::new("Test", "Test").with_input(InputField::new("active", "Active", "bool"));
         let validator = SignatureValidator::new(sig);
 
         let valid_input = json!({"active": true});
@@ -467,8 +465,11 @@ mod tests {
 
     #[test]
     fn test_validate_array_type() {
-        let sig = Signature::new("Test", "Test")
-            .with_input(InputField::new("items", "Items", "Vec<String>"));
+        let sig = Signature::new("Test", "Test").with_input(InputField::new(
+            "items",
+            "Items",
+            "Vec<String>",
+        ));
         let validator = SignatureValidator::new(sig);
 
         let valid_input = json!({"items": ["a", "b", "c"]});
@@ -550,8 +551,7 @@ mod tests {
 
     #[test]
     fn test_string_min_length_passes() {
-        let field = InputField::new("username", "Username", "String")
-            .with_min_length(3);
+        let field = InputField::new("username", "Username", "String").with_min_length(3);
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -562,8 +562,7 @@ mod tests {
 
     #[test]
     fn test_string_min_length_fails() {
-        let field = InputField::new("username", "Username", "String")
-            .with_min_length(5);
+        let field = InputField::new("username", "Username", "String").with_min_length(5);
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -573,13 +572,15 @@ mod tests {
         assert!(result.is_err());
 
         let err = result.unwrap_err();
-        assert_eq!(err.errors[0].error_type, ValidationErrorType::StringTooShort);
+        assert_eq!(
+            err.errors[0].error_type,
+            ValidationErrorType::StringTooShort
+        );
     }
 
     #[test]
     fn test_string_max_length_passes() {
-        let field = InputField::new("comment", "Comment", "String")
-            .with_max_length(100);
+        let field = InputField::new("comment", "Comment", "String").with_max_length(100);
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -590,13 +591,13 @@ mod tests {
 
     #[test]
     fn test_string_max_length_fails() {
-        let field = InputField::new("comment", "Comment", "String")
-            .with_max_length(20);
+        let field = InputField::new("comment", "Comment", "String").with_max_length(20);
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
 
-        let invalid_input = json!({"comment": "This is a very long comment that exceeds the maximum length"});
+        let invalid_input =
+            json!({"comment": "This is a very long comment that exceeds the maximum length"});
         let result = validator.validate(&invalid_input);
         assert!(result.is_err());
 
@@ -627,8 +628,8 @@ mod tests {
 
     #[test]
     fn test_pattern_constraint_passes() {
-        let field = InputField::new("email", "Email", "String")
-            .with_pattern(r"^[a-z]+@[a-z]+\.[a-z]+$");
+        let field =
+            InputField::new("email", "Email", "String").with_pattern(r"^[a-z]+@[a-z]+\.[a-z]+$");
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -639,8 +640,8 @@ mod tests {
 
     #[test]
     fn test_pattern_constraint_fails() {
-        let field = InputField::new("email", "Email", "String")
-            .with_pattern(r"^[a-z]+@[a-z]+\.[a-z]+$");
+        let field =
+            InputField::new("email", "Email", "String").with_pattern(r"^[a-z]+@[a-z]+\.[a-z]+$");
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -650,13 +651,15 @@ mod tests {
         assert!(result.is_err());
 
         let err = result.unwrap_err();
-        assert_eq!(err.errors[0].error_type, ValidationErrorType::PatternMismatch);
+        assert_eq!(
+            err.errors[0].error_type,
+            ValidationErrorType::PatternMismatch
+        );
     }
 
     #[test]
     fn test_pattern_constraint_invalid_regex() {
-        let field = InputField::new("field", "Field", "String")
-            .with_pattern("[invalid(regex");
+        let field = InputField::new("field", "Field", "String").with_pattern("[invalid(regex");
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -666,7 +669,10 @@ mod tests {
         assert!(result.is_err());
 
         let err = result.unwrap_err();
-        assert_eq!(err.errors[0].error_type, ValidationErrorType::InvalidPattern);
+        assert_eq!(
+            err.errors[0].error_type,
+            ValidationErrorType::InvalidPattern
+        );
     }
 
     // ===== Enum Constraint Tests =====
@@ -696,13 +702,19 @@ mod tests {
         assert!(result.is_err());
 
         let err = result.unwrap_err();
-        assert_eq!(err.errors[0].error_type, ValidationErrorType::EnumConstraintViolation);
+        assert_eq!(
+            err.errors[0].error_type,
+            ValidationErrorType::EnumConstraintViolation
+        );
     }
 
     #[test]
     fn test_enum_with_numeric_values() {
-        let field = InputField::new("level", "Level", "i32")
-            .with_enum_values(vec!["1".to_string(), "2".to_string(), "3".to_string()]);
+        let field = InputField::new("level", "Level", "i32").with_enum_values(vec![
+            "1".to_string(),
+            "2".to_string(),
+            "3".to_string(),
+        ]);
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -718,8 +730,7 @@ mod tests {
 
     #[test]
     fn test_array_min_items_passes() {
-        let field = InputField::new("tags", "Tags", "Vec<String>")
-            .with_min_items(1);
+        let field = InputField::new("tags", "Tags", "Vec<String>").with_min_items(1);
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -730,8 +741,7 @@ mod tests {
 
     #[test]
     fn test_array_min_items_fails() {
-        let field = InputField::new("tags", "Tags", "Vec<String>")
-            .with_min_items(1);
+        let field = InputField::new("tags", "Tags", "Vec<String>").with_min_items(1);
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -746,8 +756,7 @@ mod tests {
 
     #[test]
     fn test_array_max_items_passes() {
-        let field = InputField::new("tags", "Tags", "Vec<String>")
-            .with_max_items(5);
+        let field = InputField::new("tags", "Tags", "Vec<String>").with_max_items(5);
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -758,8 +767,7 @@ mod tests {
 
     #[test]
     fn test_array_max_items_fails() {
-        let field = InputField::new("tags", "Tags", "Vec<String>")
-            .with_max_items(3);
+        let field = InputField::new("tags", "Tags", "Vec<String>").with_max_items(3);
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -840,8 +848,7 @@ mod tests {
 
     #[test]
     fn test_errors_for_field() {
-        let field1 = InputField::new("email", "Email", "String")
-            .required(true);
+        let field1 = InputField::new("email", "Email", "String").required(true);
 
         let field2 = InputField::new("phone", "Phone", "String");
 
@@ -883,8 +890,7 @@ mod tests {
 
     #[test]
     fn test_validate_unicode_string() {
-        let field = InputField::new("name", "Name", "String")
-            .with_min_length(1);
+        let field = InputField::new("name", "Name", "String").with_min_length(1);
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -895,8 +901,7 @@ mod tests {
 
     #[test]
     fn test_validate_empty_string_with_min_length() {
-        let field = InputField::new("text", "Text", "String")
-            .with_min_length(1);
+        let field = InputField::new("text", "Text", "String").with_min_length(1);
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -907,8 +912,7 @@ mod tests {
 
     #[test]
     fn test_validate_empty_array_with_min_items() {
-        let field = InputField::new("items", "Items", "Vec<String>")
-            .with_min_items(1);
+        let field = InputField::new("items", "Items", "Vec<String>").with_min_items(1);
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -921,8 +925,8 @@ mod tests {
 
     #[test]
     fn test_validate_to_json_success() {
-        let sig = Signature::new("Test", "Test")
-            .with_input(InputField::new("name", "Name", "String"));
+        let sig =
+            Signature::new("Test", "Test").with_input(InputField::new("name", "Name", "String"));
         let validator = SignatureValidator::new(sig);
 
         let valid_input = json!({"name": "John"});
@@ -934,8 +938,7 @@ mod tests {
 
     #[test]
     fn test_validate_to_json_failure() {
-        let field = InputField::new("email", "Email", "String")
-            .required(true);
+        let field = InputField::new("email", "Email", "String").required(true);
 
         let sig = Signature::new("Test", "Test").with_input(field);
         let validator = SignatureValidator::new(sig);
@@ -960,8 +963,7 @@ mod tests {
             InputField::new("email", "Email", "String")
                 .required(true)
                 .with_pattern(r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"),
-            InputField::new("age", "Age", "i32")
-                .required(true),
+            InputField::new("age", "Age", "i32").required(true),
             InputField::new("tags", "Tags", "Vec<String>")
                 .with_min_items(1)
                 .with_max_items(5),

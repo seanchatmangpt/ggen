@@ -46,7 +46,9 @@ pub mod andon_tracer;
 pub mod error;
 pub mod signal;
 
-pub use andon_alert::{AlertChannel, AlertCondition, AlertConfig, AlertManager, AlertRule, AlertSeverity};
+pub use andon_alert::{
+    AlertChannel, AlertCondition, AlertConfig, AlertManager, AlertRule, AlertSeverity,
+};
 pub use andon_logger::{AndonLogger, LogConfig, LogLevel, LogSink};
 pub use andon_metrics::{AndonMetrics, MetricConfig};
 pub use andon_observer::{AndonObserver, ObserverConfig};

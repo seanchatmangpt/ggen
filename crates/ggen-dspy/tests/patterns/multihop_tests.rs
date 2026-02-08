@@ -1,8 +1,6 @@
 //! Tests for MultiHopQA pattern
 
-use ggen_dspy::{
-    Module, MultiHopQA, MultiHopConfig, InMemoryRetriever, MultiHopQABuilder,
-};
+use ggen_dspy::{InMemoryRetriever, Module, MultiHopConfig, MultiHopQA, MultiHopQABuilder};
 use std::sync::Arc;
 
 #[tokio::test]

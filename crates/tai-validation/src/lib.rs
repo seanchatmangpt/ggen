@@ -25,14 +25,14 @@ pub mod shacl;
 pub mod slo;
 
 pub use acceptance::{AcceptanceCriteria, CriteriaValidator};
-pub use compliance::{ComplianceFramework, ComplianceResult, FrameworkType};
 pub use compliance::frameworks::ComplianceViolation;
+pub use compliance::{ComplianceFramework, ComplianceResult, FrameworkType};
 pub use coverage::{CoverageGapAnalysis, CoverageMetrics};
 pub use error::{Result, ValidationError};
 pub use evidence::{EvidenceCollector, ValidationReceipt};
 pub use execution::{ExecutionPipeline, TestBatch, TestResult};
 pub use preflight::{PreFlightChecklist, PreFlightResult};
-pub use security::{SecurityScanner, SecurityScanResult};
+pub use security::{SecurityScanResult, SecurityScanner};
 pub use shacl::{ShaclValidator, ShapeViolation};
 pub use slo::{SloMetrics, SloValidator};
 

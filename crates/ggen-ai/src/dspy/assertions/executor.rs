@@ -155,9 +155,7 @@ impl BacktrackExecutor {
     /// - Module execution fails
     /// - Hard assertion fails after max retries
     pub async fn execute(
-        &mut self,
-        module: &dyn Module,
-        inputs: HashMap<String, Value>,
+        &mut self, module: &dyn Module, inputs: HashMap<String, Value>,
     ) -> AssertionResult<HashMap<String, Value>> {
         if self.assertions.is_empty() {
             // No assertions - just execute once
@@ -165,7 +163,8 @@ impl BacktrackExecutor {
         }
 
         // Find max attempts across all assertions
-        let max_attempts = self.assertions
+        let max_attempts = self
+            .assertions
             .iter()
             .map(|a| a.max_attempts())
             .max()
@@ -199,15 +198,11 @@ impl BacktrackExecutor {
                     return Ok(output);
                 }
                 ValidationResult::Invalid { feedback } => {
-                    debug!(
-                        "Validation failed on attempt {}: {}",
-                        attempt + 1,
-                        feedback
-                    );
+                    debug!("Validation failed on attempt {}: {}", attempt + 1, feedback);
 
                     // Serialize output for context
-                    let output_str = serde_json::to_string(&output)
-                        .unwrap_or_else(|_| format!("{:?}", output));
+                    let output_str =
+                        serde_json::to_string(&output).unwrap_or_else(|_| format!("{:?}", output));
 
                     context.add_failure(output_str, feedback.clone());
 
@@ -221,7 +216,7 @@ impl BacktrackExecutor {
 
         // Should not reach here, but handle gracefully
         Err(AssertionError::ValidationError(
-            "Unexpected end of retry loop".to_string()
+            "Unexpected end of retry loop".to_string(),
         ))
     }
 
@@ -230,15 +225,14 @@ impl BacktrackExecutor {
     /// This version modifies the input to include retry context (past outputs
     /// and feedback) to help the model self-correct.
     pub async fn execute_with_context(
-        &mut self,
-        module: &dyn Module,
-        mut inputs: HashMap<String, Value>,
+        &mut self, module: &dyn Module, mut inputs: HashMap<String, Value>,
     ) -> AssertionResult<HashMap<String, Value>> {
         if self.assertions.is_empty() {
             return module.forward(inputs).await.map_err(Into::into);
         }
 
-        let max_attempts = self.assertions
+        let max_attempts = self
+            .assertions
             .iter()
             .map(|a| a.max_attempts())
             .max()
@@ -253,10 +247,7 @@ impl BacktrackExecutor {
             if attempt > 0 {
                 let retry_prompt = context.format_for_prompt();
                 if !retry_prompt.is_empty() {
-                    inputs.insert(
-                        "__retry_context".to_string(),
-                        Value::String(retry_prompt),
-                    );
+                    inputs.insert("__retry_context".to_string(), Value::String(retry_prompt));
                 }
             }
 
@@ -283,14 +274,10 @@ impl BacktrackExecutor {
                     return Ok(output);
                 }
                 ValidationResult::Invalid { feedback } => {
-                    debug!(
-                        "Validation failed on attempt {}: {}",
-                        attempt + 1,
-                        feedback
-                    );
+                    debug!("Validation failed on attempt {}: {}", attempt + 1, feedback);
 
-                    let output_str = serde_json::to_string(&output)
-                        .unwrap_or_else(|_| format!("{:?}", output));
+                    let output_str =
+                        serde_json::to_string(&output).unwrap_or_else(|_| format!("{:?}", output));
 
                     context.add_failure(output_str, feedback.clone());
 
@@ -302,7 +289,7 @@ impl BacktrackExecutor {
         }
 
         Err(AssertionError::ValidationError(
-            "Unexpected end of retry loop".to_string()
+            "Unexpected end of retry loop".to_string(),
         ))
     }
 
@@ -311,8 +298,8 @@ impl BacktrackExecutor {
         for assertion in &self.assertions {
             // For multi-field outputs, validate each field separately
             // Or validate the whole output as JSON
-            let output_json = serde_json::to_value(output)
-                .unwrap_or(Value::Object(serde_json::Map::new()));
+            let output_json =
+                serde_json::to_value(output).unwrap_or(Value::Object(serde_json::Map::new()));
 
             let result = assertion.validate(&output_json);
 
@@ -330,13 +317,11 @@ impl BacktrackExecutor {
 
     /// Handle max retries reached
     fn handle_max_retries_reached(
-        &mut self,
-        output: HashMap<String, Value>,
-        feedback: String,
-        attempts: usize,
+        &mut self, output: HashMap<String, Value>, feedback: String, attempts: usize,
     ) -> AssertionResult<HashMap<String, Value>> {
         // Check if any assertion is hard (Assert level)
-        let has_hard_assertion = self.assertions
+        let has_hard_assertion = self
+            .assertions
             .iter()
             .any(|a| a.level() == AssertionLevel::Assert);
 
@@ -398,11 +383,12 @@ mod tests {
         }
 
         async fn forward(
-            &self,
-            _inputs: HashMap<String, Value>,
+            &self, _inputs: HashMap<String, Value>,
         ) -> Result<HashMap<String, Value>, ModuleError> {
             let mut attempt = self.current_attempt.lock().unwrap();
-            let output = self.outputs.get(*attempt)
+            let output = self
+                .outputs
+                .get(*attempt)
                 .cloned()
                 .unwrap_or_else(|| self.outputs.last().unwrap().clone());
             *attempt += 1;
@@ -458,7 +444,10 @@ mod tests {
         let result = executor.execute(&module, inputs).await;
 
         assert!(result.is_ok());
-        assert_eq!(result.unwrap().get("output").unwrap(), &Value::String("result".to_string()));
+        assert_eq!(
+            result.unwrap().get("output").unwrap(),
+            &Value::String("result".to_string())
+        );
     }
 
     #[tokio::test]
@@ -467,12 +456,14 @@ mod tests {
 
         let sig = create_test_signature();
         let mut outputs = HashMap::new();
-        outputs.insert("output".to_string(), Value::String("hello world".to_string()));
+        outputs.insert(
+            "output".to_string(),
+            Value::String("hello world".to_string()),
+        );
 
         let module = MockModule::new(sig, vec![outputs.clone()]);
 
-        let assertion = Assertion::assert(LengthValidator::min(5))
-            .max_retries(3);
+        let assertion = Assertion::assert(LengthValidator::min(5)).max_retries(3);
 
         let mut executor = BacktrackExecutor::new(vec![assertion]);
 
@@ -494,8 +485,7 @@ mod tests {
 
         let module = MockModule::new(sig, vec![output1.clone(), output1.clone(), output1]);
 
-        let assertion = Assertion::assert(LengthValidator::min(10))
-            .max_retries(3);
+        let assertion = Assertion::assert(LengthValidator::min(10)).max_retries(3);
 
         let mut executor = BacktrackExecutor::new(vec![assertion]);
 
@@ -525,12 +515,14 @@ mod tests {
         output2.insert("output".to_string(), Value::String("hello".to_string()));
 
         let mut output3 = HashMap::new();
-        output3.insert("output".to_string(), Value::String("hello world".to_string()));
+        output3.insert(
+            "output".to_string(),
+            Value::String("hello world".to_string()),
+        );
 
         let module = MockModule::new(sig, vec![output1, output2, output3]);
 
-        let assertion = Assertion::assert(LengthValidator::min(10))
-            .max_retries(3);
+        let assertion = Assertion::assert(LengthValidator::min(10)).max_retries(3);
 
         let mut executor = BacktrackExecutor::new(vec![assertion]);
 
@@ -539,7 +531,10 @@ mod tests {
 
         assert!(result.is_ok());
         let output = result.unwrap();
-        assert_eq!(output.get("output").unwrap(), &Value::String("hello world".to_string()));
+        assert_eq!(
+            output.get("output").unwrap(),
+            &Value::String("hello world".to_string())
+        );
     }
 
     #[tokio::test]
@@ -554,8 +549,7 @@ mod tests {
         let module = MockModule::new(sig, vec![output.clone()]);
 
         // Soft suggestion - should warn but not fail
-        let assertion = Assertion::suggest(LengthValidator::min(10))
-            .max_retries(2);
+        let assertion = Assertion::suggest(LengthValidator::min(10)).max_retries(2);
 
         let mut executor = BacktrackExecutor::new(vec![assertion]);
 
@@ -603,7 +597,10 @@ mod tests {
         let sig = create_test_signature();
 
         let mut output = HashMap::new();
-        output.insert("output".to_string(), Value::String("hello world".to_string()));
+        output.insert(
+            "output".to_string(),
+            Value::String("hello world".to_string()),
+        );
 
         let module = MockModule::new(sig, vec![output.clone()]);
 
@@ -625,10 +622,7 @@ mod tests {
     #[test]
     fn test_retry_context_formatting() {
         let mut context = RetryContext::new();
-        context.add_failure(
-            "bad output".to_string(),
-            "Output too short".to_string(),
-        );
+        context.add_failure("bad output".to_string(), "Output too short".to_string());
 
         let formatted = context.format_for_prompt();
         assert!(formatted.contains("Previous Attempts"));
@@ -649,8 +643,7 @@ mod tests {
 
         let module = MockModule::new(sig, vec![output.clone()]);
 
-        let assertion = Assertion::suggest(LengthValidator::min(20))
-            .max_retries(2);
+        let assertion = Assertion::suggest(LengthValidator::min(20)).max_retries(2);
 
         let mut executor = BacktrackExecutor::new(vec![assertion]);
 

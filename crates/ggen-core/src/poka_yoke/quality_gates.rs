@@ -262,10 +262,7 @@ impl QualityGate for OntologyDependenciesGate {
         ];
 
         if error.contains("not found") {
-            suggestions.insert(
-                0,
-                "Create the missing file or fix the path".to_string(),
-            );
+            suggestions.insert(0, "Create the missing file or fix the path".to_string());
         }
 
         suggestions
@@ -384,13 +381,11 @@ impl QualityGate for FilePermissionsGate {
                 let _ = std::fs::remove_file(&test_file);
                 Ok(())
             }
-            Err(e) => {
-                Err(Error::new(&format!(
-                    "Output directory not writable: {}\nReason: {}",
-                    output_dir.display(),
-                    e
-                )))
-            }
+            Err(e) => Err(Error::new(&format!(
+                "Output directory not writable: {}\nReason: {}",
+                output_dir.display(),
+                e
+            ))),
         }
     }
 

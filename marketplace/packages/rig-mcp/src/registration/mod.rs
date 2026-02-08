@@ -54,7 +54,7 @@
 mod converter;
 mod stats;
 
-pub use converter::{SchemaConverter, ConversionConfig, ConversionError};
+pub use converter::{ConversionConfig, ConversionError, SchemaConverter};
 pub use stats::{RegistrationStats, SourceStatistics};
 
 use crate::discovery::ToolSchema;
@@ -231,7 +231,9 @@ pub struct ToolInputField {
 
 impl ToolInputField {
     /// Create a new input field
-    pub fn new(name: impl Into<String>, description: impl Into<String>, type_annotation: impl Into<String>) -> Self {
+    pub fn new(
+        name: impl Into<String>, description: impl Into<String>, type_annotation: impl Into<String>,
+    ) -> Self {
         Self {
             name: name.into(),
             description: description.into(),
@@ -342,11 +344,8 @@ pub struct RegisteredTool {
 impl RegisteredTool {
     /// Create a new registered tool
     pub fn new(
-        id: impl Into<String>,
-        name: impl Into<String>,
-        version: impl Into<String>,
-        description: impl Into<String>,
-        signature: ToolSignature,
+        id: impl Into<String>, name: impl Into<String>, version: impl Into<String>,
+        description: impl Into<String>, signature: ToolSignature,
     ) -> Self {
         Self {
             id: id.into(),
@@ -396,16 +395,24 @@ impl RegisteredTool {
     /// Validate the tool
     pub fn validate(&self) -> Result<()> {
         if self.id.trim().is_empty() {
-            return Err(RegistrationError::Registry("Tool ID cannot be empty".to_string()));
+            return Err(RegistrationError::Registry(
+                "Tool ID cannot be empty".to_string(),
+            ));
         }
         if self.name.trim().is_empty() {
-            return Err(RegistrationError::Registry("Tool name cannot be empty".to_string()));
+            return Err(RegistrationError::Registry(
+                "Tool name cannot be empty".to_string(),
+            ));
         }
         if self.description.trim().is_empty() {
-            return Err(RegistrationError::Registry("Tool description cannot be empty".to_string()));
+            return Err(RegistrationError::Registry(
+                "Tool description cannot be empty".to_string(),
+            ));
         }
         if self.signature.inputs.is_empty() {
-            return Err(RegistrationError::Registry("Tool must have at least one input field".to_string()));
+            return Err(RegistrationError::Registry(
+                "Tool must have at least one input field".to_string(),
+            ));
         }
         Ok(())
     }
@@ -638,11 +645,7 @@ impl ToolRegistrationManager {
     /// - Tool conversion fails
     /// - Tool is already registered from a different source
     /// - Validation fails
-    pub async fn register_tool(
-        &self,
-        source_url: &str,
-        schema: ToolSchema,
-    ) -> Result<String> {
+    pub async fn register_tool(&self, source_url: &str, schema: ToolSchema) -> Result<String> {
         // Convert schema to RegisteredTool
         let tool = self.converter.convert(schema)?;
 
@@ -672,9 +675,9 @@ impl ToolRegistrationManager {
         // Update source tracking
         {
             let mut sources = self.sources.write().await;
-            let source_info = sources.entry(source_url.to_string()).or_insert_with(|| {
-                SourceInfo::new(source_url.to_string())
-            });
+            let source_info = sources
+                .entry(source_url.to_string())
+                .or_insert_with(|| SourceInfo::new(source_url.to_string()));
             source_info.increment_tools();
         }
 
@@ -698,7 +701,9 @@ impl ToolRegistrationManager {
             let entry = stats
                 .source_stats
                 .entry(source_url.to_string())
-                .or_insert_with(|| crate::registration::SourceStatistics::new(source_url.to_string()));
+                .or_insert_with(|| {
+                    crate::registration::SourceStatistics::new(source_url.to_string())
+                });
             entry.count += 1;
             entry.last_seen = Some(now);
             if entry.first_seen.is_none() {
@@ -718,9 +723,7 @@ impl ToolRegistrationManager {
     /// # Returns
     /// Vector of registered tool IDs
     pub async fn register_tools(
-        &self,
-        source_url: &str,
-        schemas: Vec<ToolSchema>,
+        &self, source_url: &str, schemas: Vec<ToolSchema>,
     ) -> Result<Vec<String>> {
         let mut tool_ids = Vec::with_capacity(schemas.len());
 
@@ -920,15 +923,22 @@ impl ToolRegistrationManager {
     /// - Registration fails
     #[cfg(feature = "ggen-ai")]
     pub async fn register_a2a_agents(&self, source_url: &str) -> Result<usize> {
-        use ggen_ai::{Tool, dspy::{Signature, field::{InputField, OutputField}}};
+        use ggen_ai::{
+            dspy::{
+                field::{InputField, OutputField},
+                Signature,
+            },
+            Tool,
+        };
 
         // Get all tools from this source
         let tools_from_source = self.tools_from_source(source_url).await;
 
         if tools_from_source.is_empty() {
-            return Err(RegistrationError::A2aRegistration(
-                format!("No tools found for source: {}", source_url)
-            ));
+            return Err(RegistrationError::A2aRegistration(format!(
+                "No tools found for source: {}",
+                source_url
+            )));
         }
 
         let mut registered_count = 0u64;
@@ -945,21 +955,31 @@ impl ToolRegistrationManager {
 
             // Add inputs from signature
             for input in &registered_tool.signature.inputs {
-                let input_field = InputField::new(&input.name, &input.description, &input.type_annotation);
+                let input_field =
+                    InputField::new(&input.name, &input.description, &input.type_annotation);
                 sig = sig.with_input(input_field);
             }
 
             // Add output
-            let output_field = OutputField::new("result", "Tool execution result", &registered_tool.signature.output);
+            let output_field = OutputField::new(
+                "result",
+                "Tool execution result",
+                &registered_tool.signature.output,
+            );
             sig = sig.with_output(output_field);
 
             // Convert tags (cloned since we need the original tool for later)
-            let tags: Vec<ggen_ai::ToolTag> = registered_tool.tags
+            let tags: Vec<ggen_ai::ToolTag> = registered_tool
+                .tags
                 .iter()
                 .map(|tag| match tag {
-                    crate::registration::ToolTag::CodeGeneration => ggen_ai::ToolTag::CodeGeneration,
+                    crate::registration::ToolTag::CodeGeneration => {
+                        ggen_ai::ToolTag::CodeGeneration
+                    }
                     crate::registration::ToolTag::Validation => ggen_ai::ToolTag::Validation,
-                    crate::registration::ToolTag::QueryGeneration => ggen_ai::ToolTag::QueryGeneration,
+                    crate::registration::ToolTag::QueryGeneration => {
+                        ggen_ai::ToolTag::QueryGeneration
+                    }
                     crate::registration::ToolTag::Ontology => ggen_ai::ToolTag::Ontology,
                     crate::registration::ToolTag::Template => ggen_ai::ToolTag::Template,
                     crate::registration::ToolTag::Caching => ggen_ai::ToolTag::Caching,
@@ -1011,13 +1031,17 @@ impl ToolRegistrationManager {
                         registered_count += 1;
                     }
                     Err(e) => {
-                        tracing::warn!("Failed to upsert tool {} with core registry: {}", tool_id, e);
+                        tracing::warn!(
+                            "Failed to upsert tool {} with core registry: {}",
+                            tool_id,
+                            e
+                        );
                     }
                 }
             } else {
                 tracing::error!("Poison error accessing core registry");
                 return Err(RegistrationError::CoreRegistry(
-                    "Registry lock poisoned".to_string()
+                    "Registry lock poisoned".to_string(),
                 ));
             }
         }
@@ -1063,7 +1087,9 @@ impl ToolRegistrationManager {
         {
             let mut sources = self.sources.write().await;
             if let Some(source_info) = sources.get_mut(source_url) {
-                source_info.tool_count = source_info.tool_count.saturating_sub(unregistered_count as usize);
+                source_info.tool_count = source_info
+                    .tool_count
+                    .saturating_sub(unregistered_count as usize);
             }
         }
 
@@ -1168,8 +1194,7 @@ mod tests {
 
     #[test]
     fn test_tool_id_generation() {
-        let config = RegistrationConfig::default()
-            .with_id_prefix("test");
+        let config = RegistrationConfig::default().with_id_prefix("test");
         let manager = ToolRegistrationManager::new(config);
 
         let id = manager.generate_tool_id("http://localhost:3000", "my_tool");
@@ -1351,10 +1376,8 @@ mod tests {
 
     #[test]
     fn test_registration_error_already_registered() {
-        let error = RegistrationError::AlreadyRegistered(
-            "tool_id".to_string(),
-            "source_url".to_string(),
-        );
+        let error =
+            RegistrationError::AlreadyRegistered("tool_id".to_string(), "source_url".to_string());
         assert!(error.to_string().contains("already registered"));
     }
 

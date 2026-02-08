@@ -6,10 +6,10 @@
 // For now, include a placeholder
 
 pub mod domain_config;
-pub mod domain_validation;
 pub mod domain_types;
+pub mod domain_validation;
 
 // Re-export for convenience
 pub use domain_config::*;
-pub use domain_validation::*;
 pub use domain_types::*;
+pub use domain_validation::*;

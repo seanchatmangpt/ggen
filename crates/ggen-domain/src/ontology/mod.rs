@@ -9,21 +9,18 @@ use std::path::PathBuf;
 
 /// Extract schema from ontology file
 pub async fn extract_ontology_schema(
-    ontology_file: &PathBuf,
-    namespace: &str,
+    ontology_file: &PathBuf, namespace: &str,
 ) -> Result<OntologySchema, Error> {
     use ggen_core::Graph;
 
-    let graph = Graph::new().map_err(|e| {
-        Error::new(&format!("Failed to create graph: {}", e))
-    })?;
+    let graph = Graph::new().map_err(|e| Error::new(&format!("Failed to create graph: {}", e)))?;
 
     let file_content = std::fs::read_to_string(ontology_file)
         .map_err(|e| Error::new(&format!("Failed to read file: {}", e)))?;
 
-    graph.insert_turtle(&file_content).map_err(|e| {
-        Error::new(&format!("Failed to load ontology: {}", e))
-    })?;
+    graph
+        .insert_turtle(&file_content)
+        .map_err(|e| Error::new(&format!("Failed to load ontology: {}", e)))?;
 
     let schema = ggen_core::OntologyExtractor::extract(&graph, namespace)
         .map_err(|e| Error::new(&format!("Extraction failed: {}", e)))?;
@@ -33,57 +30,46 @@ pub async fn extract_ontology_schema(
 
 /// Generate code from ontology schema
 pub async fn generate_code_from_ontology(
-    schema: &OntologySchema,
-    language: &str,
-    output_dir: &PathBuf,
-    zod: bool,
-    utilities: bool,
+    schema: &OntologySchema, language: &str, output_dir: &PathBuf, zod: bool, utilities: bool,
 ) -> Result<(usize, String), Error> {
     use ggen_core::codegen::TypeScriptGenerator;
 
-    std::fs::create_dir_all(output_dir).map_err(|e| {
-        Error::new(&format!("Failed to create output directory: {}", e))
-    })?;
+    std::fs::create_dir_all(output_dir)
+        .map_err(|e| Error::new(&format!("Failed to create output directory: {}", e)))?;
 
     let mut files_generated = 0;
     let mut primary_file = String::new();
 
     if language == "typescript" {
         // Generate interfaces
-        let interfaces = TypeScriptGenerator::generate_interfaces(schema).map_err(|e| {
-            Error::new(&format!("Interface generation failed: {}", e))
-        })?;
+        let interfaces = TypeScriptGenerator::generate_interfaces(schema)
+            .map_err(|e| Error::new(&format!("Interface generation failed: {}", e)))?;
 
         let interfaces_path = output_dir.join("types.ts");
-        std::fs::write(&interfaces_path, interfaces).map_err(|e| {
-            Error::new(&format!("Failed to write types: {}", e))
-        })?;
+        std::fs::write(&interfaces_path, interfaces)
+            .map_err(|e| Error::new(&format!("Failed to write types: {}", e)))?;
         files_generated += 1;
         primary_file = interfaces_path.to_string_lossy().to_string();
 
         // Generate Zod schemas if requested
         if zod {
-            let zod_schemas = TypeScriptGenerator::generate_zod_schemas(schema).map_err(|e| {
-                Error::new(&format!("Zod generation failed: {}", e))
-            })?;
+            let zod_schemas = TypeScriptGenerator::generate_zod_schemas(schema)
+                .map_err(|e| Error::new(&format!("Zod generation failed: {}", e)))?;
 
             let zod_path = output_dir.join("schemas.ts");
-            std::fs::write(&zod_path, zod_schemas).map_err(|e| {
-                Error::new(&format!("Failed to write schemas: {}", e))
-            })?;
+            std::fs::write(&zod_path, zod_schemas)
+                .map_err(|e| Error::new(&format!("Failed to write schemas: {}", e)))?;
             files_generated += 1;
         }
 
         // Generate utility types if requested
         if utilities {
-            let utils = TypeScriptGenerator::generate_utility_types(schema).map_err(|e| {
-                Error::new(&format!("Utilities generation failed: {}", e))
-            })?;
+            let utils = TypeScriptGenerator::generate_utility_types(schema)
+                .map_err(|e| Error::new(&format!("Utilities generation failed: {}", e)))?;
 
             let utils_path = output_dir.join("utilities.ts");
-            std::fs::write(&utils_path, utils).map_err(|e| {
-                Error::new(&format!("Failed to write utilities: {}", e))
-            })?;
+            std::fs::write(&utils_path, utils)
+                .map_err(|e| Error::new(&format!("Failed to write utilities: {}", e)))?;
             files_generated += 1;
         }
     }
@@ -93,8 +79,7 @@ pub async fn generate_code_from_ontology(
 
 /// Validate ontology schema quality
 pub async fn validate_ontology_schema(
-    schema: &OntologySchema,
-    strict: bool,
+    schema: &OntologySchema, strict: bool,
 ) -> Result<(bool, Vec<String>, Vec<String>), Error> {
     let mut warnings = Vec::new();
     let mut errors = Vec::new();
@@ -133,26 +118,21 @@ pub async fn validate_ontology_schema(
 
 /// Initialize ontology project structure
 pub async fn initialize_ontology_project(
-    project_name: &str,
-    template: Option<&str>,
+    project_name: &str, template: Option<&str>,
 ) -> Result<(String, String, Vec<String>), Error> {
     let proj_dir = PathBuf::from(project_name);
 
     // Create project directory
-    std::fs::create_dir_all(&proj_dir).map_err(|e| {
-        Error::new(&format!("Failed to create project: {}", e))
-    })?;
+    std::fs::create_dir_all(&proj_dir)
+        .map_err(|e| Error::new(&format!("Failed to create project: {}", e)))?;
 
     // Create subdirectories
-    std::fs::create_dir_all(proj_dir.join("ontologies")).map_err(|e| {
-        Error::new(&format!("Failed to create ontologies dir: {}", e))
-    })?;
-    std::fs::create_dir_all(proj_dir.join("src")).map_err(|e| {
-        Error::new(&format!("Failed to create src dir: {}", e))
-    })?;
-    std::fs::create_dir_all(proj_dir.join("generated")).map_err(|e| {
-        Error::new(&format!("Failed to create generated dir: {}", e))
-    })?;
+    std::fs::create_dir_all(proj_dir.join("ontologies"))
+        .map_err(|e| Error::new(&format!("Failed to create ontologies dir: {}", e)))?;
+    std::fs::create_dir_all(proj_dir.join("src"))
+        .map_err(|e| Error::new(&format!("Failed to create src dir: {}", e)))?;
+    std::fs::create_dir_all(proj_dir.join("generated"))
+        .map_err(|e| Error::new(&format!("Failed to create generated dir: {}", e)))?;
 
     let mut generated_files = Vec::new();
 
@@ -179,9 +159,8 @@ pub async fn initialize_ontology_project(
         project_name
     );
     let pkg_path = proj_dir.join("package.json");
-    std::fs::write(&pkg_path, package_json).map_err(|e| {
-        Error::new(&format!("Failed to write package.json: {}", e))
-    })?;
+    std::fs::write(&pkg_path, package_json)
+        .map_err(|e| Error::new(&format!("Failed to write package.json: {}", e)))?;
     generated_files.push("package.json".to_string());
 
     // Create ggen.config.json
@@ -200,9 +179,8 @@ pub async fn initialize_ontology_project(
 }
 "#;
     let config_path = proj_dir.join("ggen.config.json");
-    std::fs::write(&config_path, config).map_err(|e| {
-        Error::new(&format!("Failed to write config: {}", e))
-    })?;
+    std::fs::write(&config_path, config)
+        .map_err(|e| Error::new(&format!("Failed to write config: {}", e)))?;
     generated_files.push("ggen.config.json".to_string());
 
     // Create example ontology based on template
@@ -215,9 +193,8 @@ pub async fn initialize_ontology_project(
 
     let example_ttl = get_example_ontology(template);
     let ontology_path = proj_dir.join("ontologies").join(ontology_file);
-    std::fs::write(&ontology_path, example_ttl).map_err(|e| {
-        Error::new(&format!("Failed to write example ontology: {}", e))
-    })?;
+    std::fs::write(&ontology_path, example_ttl)
+        .map_err(|e| Error::new(&format!("Failed to write example ontology: {}", e)))?;
     generated_files.push(format!("ontologies/{}", ontology_file));
 
     // Create README
@@ -290,9 +267,8 @@ This project includes example ontologies:
         project_name
     );
     let readme_path = proj_dir.join("README.md");
-    std::fs::write(&readme_path, readme).map_err(|e| {
-        Error::new(&format!("Failed to write README: {}", e))
-    })?;
+    std::fs::write(&readme_path, readme)
+        .map_err(|e| Error::new(&format!("Failed to write README: {}", e)))?;
     generated_files.push("README.md".to_string());
 
     let ontology_file_path = proj_dir.join("ontologies").join(ontology_file);

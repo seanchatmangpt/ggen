@@ -4,8 +4,8 @@
 //! Run with: cargo run --example react_agent
 
 use async_trait::async_trait;
-use ggen_dspy::{ReAct, Result, Tool};
 use ggen_ai::dspy::{InputField, OutputField, Signature};
+use ggen_dspy::{ReAct, Result, Tool};
 
 // Example Calculator tool
 struct Calculator;
@@ -72,16 +72,8 @@ async fn main() -> Result<()> {
 
     // Define a signature for agent tasks
     let signature = Signature::new("AgentTask", "Solve problems using available tools")
-        .with_input(InputField::new(
-            "task",
-            "The task to accomplish",
-            "String",
-        ))
-        .with_output(OutputField::new(
-            "answer",
-            "The final result",
-            "String",
-        ));
+        .with_input(InputField::new("task", "The task to accomplish", "String"))
+        .with_output(OutputField::new("answer", "The final result", "String"));
 
     // Create ReAct agent
     let mut react = ReAct::new(signature)

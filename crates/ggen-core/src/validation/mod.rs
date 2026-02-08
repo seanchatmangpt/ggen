@@ -63,23 +63,22 @@ pub mod violation;
 mod tests;
 
 // Re-export public API
+pub use checks::{Check, CheckError, CompilationCheck, LintCheck, SecurityCheck, TestCheck};
 pub use error::{Result, ValidationError};
+pub use gate::{CheckResult, QualityGate, QualityGateResult};
+pub use preflight::{PreFlightResult, PreFlightValidator};
 pub use shacl::{PropertyConstraint, ShaclShape, ShaclShapeSet, ShapeLoader};
 pub use sparql_rules::{RuleExecutor, RuleSeverity, ValidationRule};
-pub use validator::SparqlValidator;
-pub use violation::{ConstraintType, Severity, ValidationResult, Violation};
-pub use checks::{Check, CheckError, CompilationCheck, LintCheck, TestCheck, SecurityCheck};
-pub use gate::{QualityGate, QualityGateResult, CheckResult};
 pub use standard_ontologies::{
     OntologyScreeningConfig, StandardOntology, StandardOntologyValidator,
 };
-pub use preflight::{PreFlightValidator, PreFlightResult};
+pub use validator::SparqlValidator;
+pub use violation::{ConstraintType, Severity, ValidationResult, Violation};
 
 // Week 4: Re-export comprehensive input validation framework
 pub use input::{
     AndRule, BlacklistRule, CharsetRule, FormatRule, InputValidationError, LengthRule,
     NegativeRule, NotRule, OrRule, PathValidatorRule, PatternRule, PositiveRule, PrecisionRule,
-    RangeRule, StringValidator, UrlValidator, ValidationRule as InputValidationRule,
-    WhitelistRule,
+    RangeRule, StringValidator, UrlValidator, ValidationRule as InputValidationRule, WhitelistRule,
 };
 pub use input_compiler::{CompiledValidator, RuleCompiler, RuleDefinition};

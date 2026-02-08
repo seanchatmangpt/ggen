@@ -33,9 +33,9 @@
 
 use ggen_core::graph::{Graph, GraphQuery};
 use ggen_ontology_core::sparql_generator::SparqlGenerator;
+use oxigraph::io::RdfFormat;
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
-use oxigraph::io::RdfFormat;
 use std::collections::BTreeMap;
 
 // ============================================================================
@@ -74,7 +74,8 @@ fn create_test_store() -> Store {
 
     let store = Store::new().expect("Failed to create store");
     let reader = std::io::Cursor::new(ttl);
-    store.load_from_reader(RdfFormat::Turtle, reader)
+    store
+        .load_from_reader(RdfFormat::Turtle, reader)
         .expect("Failed to load TTL");
     store
 }
@@ -82,7 +83,9 @@ fn create_test_store() -> Store {
 /// Create a Graph instance with test data
 fn create_test_graph() -> Graph {
     let graph = Graph::new().expect("Failed to create graph");
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
         @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -94,16 +97,16 @@ fn create_test_graph() -> Graph {
         ex:project2 a ex:Project ;
             ex:name "Project Beta" ;
             ex:status "completed" .
-    "#).expect("Failed to insert turtle");
+    "#,
+        )
+        .expect("Failed to insert turtle");
     graph
 }
 
 /// Helper to count solutions in QueryResults
 fn count_solutions(results: QueryResults) -> usize {
     match results {
-        QueryResults::Solutions(solutions) => {
-            solutions.filter_map(|s| s.ok()).count()
-        }
+        QueryResults::Solutions(solutions) => solutions.filter_map(|s| s.ok()).count(),
         _ => 0,
     }
 }
@@ -180,7 +183,7 @@ fn test_ask_query_returns_boolean() {
 
     // Assert - Verify boolean result
     match results {
-        QueryResults::Boolean(true) => {}, // Success
+        QueryResults::Boolean(true) => {} // Success
         QueryResults::Boolean(false) => panic!("Should find Alice"),
         _ => panic!("ASK should return Boolean"),
     }
@@ -248,12 +251,16 @@ fn test_select_with_optional_pattern() {
 fn test_select_with_union_queries() {
     // Arrange
     let graph = Graph::new().expect("Failed to create graph");
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
 
         ex:item1 ex:type "book" ; ex:title "Book 1" .
         ex:item2 ex:type "article" ; ex:title "Article 1" .
-    "#).expect("Failed to insert turtle");
+    "#,
+        )
+        .expect("Failed to insert turtle");
 
     // Act - UNION combines results from two patterns
     let query = r#"
@@ -339,13 +346,17 @@ fn test_select_with_limit_and_offset() {
 fn test_select_with_distinct() {
     // Arrange
     let graph = Graph::new().expect("Failed to create graph");
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
 
         ex:person1 ex:country "USA" .
         ex:person2 ex:country "USA" .
         ex:person3 ex:country "Canada" .
-    "#).expect("Failed to insert turtle");
+    "#,
+        )
+        .expect("Failed to insert turtle");
 
     // Act - DISTINCT removes duplicates
     let query = r#"
@@ -382,13 +393,17 @@ fn test_select_with_count_aggregate() {
 fn test_select_with_group_by() {
     // Arrange
     let graph = Graph::new().expect("Failed to create graph");
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
 
         ex:emp1 ex:dept "Engineering" ; ex:salary 100000 .
         ex:emp2 ex:dept "Engineering" ; ex:salary 110000 .
         ex:emp3 ex:dept "Sales" ; ex:salary 90000 .
-    "#).expect("Failed to insert turtle");
+    "#,
+        )
+        .expect("Failed to insert turtle");
 
     // Act - GROUP BY department
     let query = r#"
@@ -411,9 +426,9 @@ fn test_query_with_graph_query_builder() {
     let query = GraphQuery::new(&graph);
 
     // Act - Use GraphQuery builder
-    let results = query.execute(
-        "SELECT ?name WHERE { ?s <http://example.org/name> ?name }"
-    ).expect("Query should execute");
+    let results = query
+        .execute("SELECT ?name WHERE { ?s <http://example.org/name> ?name }")
+        .expect("Query should execute");
 
     // Assert - Should find 2 projects
     let count = count_solutions(results);
@@ -690,7 +705,10 @@ fn test_sparql_generator_escapes_quotes() {
 
     // Assert - Query should contain escaped quote
     assert!(query.contains("\\\""), "Should escape double quotes");
-    assert!(!query.contains("DROP TABLE"), "Should escape the injection attempt");
+    assert!(
+        !query.contains("DROP TABLE"),
+        "Should escape the injection attempt"
+    );
 }
 
 #[test]
@@ -876,8 +894,8 @@ fn test_very_long_query_handled_gracefully() {
 
     // Assert - Should handle gracefully (ok or error, not panic)
     match result {
-        Ok(_) => {}, // Handled
-        Err(_) => {}, // Also acceptable
+        Ok(_) => {}  // Handled
+        Err(_) => {} // Also acceptable
     }
 }
 
@@ -932,11 +950,15 @@ fn test_deeply_nested_query_handled() {
 fn test_query_with_special_characters_in_iri() {
     // Arrange
     let graph = Graph::new().expect("Failed to create graph");
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         <http://example.org/resource-with-dash> ex:name "Test" .
         <http://example.org/resource_with_underscore> ex:name "Test2" .
-    "#).expect("Failed to insert turtle");
+    "#,
+        )
+        .expect("Failed to insert turtle");
 
     // Act - Query with special chars in IRI
     let query = r#"
@@ -968,8 +990,8 @@ fn test_query_with_reserved_keyword_as_variable() {
 
     // Assert - Should handle or reject gracefully
     match result {
-        Ok(_) => {}, // Some parsers allow this
-        Err(_) => {}, // Some parsers reject this
+        Ok(_) => {}  // Some parsers allow this
+        Err(_) => {} // Some parsers reject this
     }
 }
 
@@ -977,12 +999,16 @@ fn test_query_with_reserved_keyword_as_variable() {
 fn test_query_with_unicode_characters() {
     // Arrange
     let graph = Graph::new().expect("Failed to create graph");
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:person1 ex:name "José" .
         ex:person2 ex:name "李明" .
         ex:person3 ex:name "Müller" .
-    "#).expect("Failed to insert turtle");
+    "#,
+        )
+        .expect("Failed to insert turtle");
 
     // Act - Query for Unicode name
     let query = r#"
@@ -1001,11 +1027,15 @@ fn test_query_with_unicode_characters() {
 fn test_query_with_blank_nodes() {
     // Arrange
     let graph = Graph::new().expect("Failed to create graph");
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         _:blank1 ex:name "Anonymous" .
         _:blank2 ex:name "Unknown" .
-    "#).expect("Failed to insert turtle");
+    "#,
+        )
+        .expect("Failed to insert turtle");
 
     // Act - Query for blank nodes
     let query = r#"
@@ -1024,11 +1054,15 @@ fn test_query_with_blank_nodes() {
 fn test_query_with_language_tags() {
     // Arrange
     let graph = Graph::new().expect("Failed to create graph");
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:resource ex:label "Hello"@en .
         ex:resource ex:label "Bonjour"@fr .
-    "#).expect("Failed to insert turtle");
+    "#,
+        )
+        .expect("Failed to insert turtle");
 
     // Act - Query for English label
     let query = r#"
@@ -1048,13 +1082,17 @@ fn test_query_with_language_tags() {
 fn test_query_with_typed_literals() {
     // Arrange
     let graph = Graph::new().expect("Failed to create graph");
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
         ex:item1 ex:price "10.50"^^xsd:decimal .
         ex:item2 ex:price "20.00"^^xsd:decimal .
-    "#).expect("Failed to insert turtle");
+    "#,
+        )
+        .expect("Failed to insert turtle");
 
     // Act - Query with typed literal filter
     let query = r#"
@@ -1102,8 +1140,8 @@ fn test_duplicate_variable_names_handled() {
 
     // Assert - Should handle or reject
     match result {
-        Ok(_) => {}, // Some parsers allow this
-        Err(_) => {}, // Some parsers reject this
+        Ok(_) => {}  // Some parsers allow this
+        Err(_) => {} // Some parsers reject this
     }
 }
 
@@ -1298,11 +1336,9 @@ fn test_graphquery_with_prefixes() {
     prefixes.insert("ex".to_string(), "http://example.org/".to_string());
 
     // Act
-    let results = query.execute_with_prefixes(
-        "SELECT ?name WHERE { ?s ex:name ?name }",
-        &prefixes,
-        None
-    ).expect("Query should execute");
+    let results = query
+        .execute_with_prefixes("SELECT ?name WHERE { ?s ex:name ?name }", &prefixes, None)
+        .expect("Query should execute");
 
     // Assert
     let count = count_solutions(results);
@@ -1316,21 +1352,25 @@ fn test_graphquery_cached_execution() {
     let query = GraphQuery::new(&graph);
 
     // Act - Execute same query twice
-    let result1 = query.execute_cached(
-        "SELECT ?name WHERE { ?s <http://example.org/name> ?name }"
-    ).expect("First query should execute");
+    let result1 = query
+        .execute_cached("SELECT ?name WHERE { ?s <http://example.org/name> ?name }")
+        .expect("First query should execute");
 
-    let result2 = query.execute_cached(
-        "SELECT ?name WHERE { ?s <http://example.org/name> ?name }"
-    ).expect("Second query should execute (cached)");
+    let result2 = query
+        .execute_cached("SELECT ?name WHERE { ?s <http://example.org/name> ?name }")
+        .expect("Second query should execute (cached)");
 
     // Assert - Both should return same results
     match (result1, result2) {
         (
             ggen_core::graph::types::CachedResult::Solutions(rows1),
-            ggen_core::graph::types::CachedResult::Solutions(rows2)
+            ggen_core::graph::types::CachedResult::Solutions(rows2),
         ) => {
-            assert_eq!(rows1.len(), rows2.len(), "Cached query should return same count");
+            assert_eq!(
+                rows1.len(),
+                rows2.len(),
+                "Cached query should return same count"
+            );
             assert_eq!(rows1.len(), 2, "Should find 2 projects");
         }
         _ => panic!("Expected Solutions"),

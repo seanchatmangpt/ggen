@@ -74,15 +74,15 @@
 #![deny(warnings)]
 #![deny(missing_docs)]
 
-pub mod errors;
 pub mod entity_mapper;
+pub mod errors;
 pub mod sparql_generator;
 pub mod triple_store;
 pub mod validators;
 
 // Public API re-exports
-pub use errors::{OntologyError, Result};
 pub use entity_mapper::{EntityMapper, OntologyMatch, Score};
+pub use errors::{OntologyError, Result};
 pub use sparql_generator::SparqlGenerator;
 pub use triple_store::{TripleStore, ValidationReport};
 pub use validators::{validate_ontology, validate_rdf_xml, validate_sparql_query, validate_turtle};

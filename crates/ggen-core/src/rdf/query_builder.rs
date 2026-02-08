@@ -142,10 +142,7 @@ impl Variable {
         let name_clean = name_str.strip_prefix('?').unwrap_or(name_str);
 
         // Validate variable name - must be alphanumeric with underscores
-        if !name_clean
-            .chars()
-            .all(|c| c.is_alphanumeric() || c == '_')
-        {
+        if !name_clean.chars().all(|c| c.is_alphanumeric() || c == '_') {
             return Err(Error::new(&format!(
                 "Invalid variable name: {}. Must be alphanumeric with underscores.",
                 name_str
@@ -653,9 +650,7 @@ impl SparqlQueryBuilder<Ask, Building> {
 
     /// Add a WHERE pattern
     #[inline]
-    pub fn where_pattern(
-        mut self, pattern: impl AsRef<str>,
-    ) -> SparqlQueryBuilder<Ask, WithWhere> {
+    pub fn where_pattern(mut self, pattern: impl AsRef<str>) -> SparqlQueryBuilder<Ask, WithWhere> {
         self.where_patterns.push(pattern.as_ref().to_string());
         SparqlQueryBuilder {
             query_type: PhantomData,

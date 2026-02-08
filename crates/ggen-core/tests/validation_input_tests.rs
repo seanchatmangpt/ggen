@@ -123,16 +123,12 @@ fn test_pattern_rule_phone_number() {
     let rule = PatternRule::new(r"^\d{3}-\d{3}-\d{4}$").expect("valid regex");
 
     // Act & Assert - valid format
-    assert!(rule
-        .validate(&"555-123-4567".to_string(), "phone")
-        .is_ok());
+    assert!(rule.validate(&"555-123-4567".to_string(), "phone").is_ok());
 
     // Act & Assert - invalid formats
     assert!(rule.validate(&"5551234567".to_string(), "phone").is_err());
     assert!(rule.validate(&"555-12-4567".to_string(), "phone").is_err());
-    assert!(rule
-        .validate(&"abc-def-ghij".to_string(), "phone")
-        .is_err());
+    assert!(rule.validate(&"abc-def-ghij".to_string(), "phone").is_err());
 }
 
 #[test]
@@ -146,9 +142,7 @@ fn test_pattern_rule_alphanumeric() {
     assert!(rule.validate(&"123".to_string(), "field").is_ok());
 
     // Act & Assert - invalid
-    assert!(rule
-        .validate(&"abc-123".to_string(), "field")
-        .is_err());
+    assert!(rule.validate(&"abc-123".to_string(), "field").is_err());
     assert!(rule.validate(&"abc 123".to_string(), "field").is_err());
 }
 
@@ -164,10 +158,7 @@ fn test_pattern_rule_error_message() {
     // Assert
     assert!(result.is_err());
     match result.unwrap_err() {
-        InputValidationError::PatternViolation {
-            field,
-            pattern: p,
-        } => {
+        InputValidationError::PatternViolation { field, pattern: p } => {
             assert_eq!(field, "test_field");
             assert_eq!(p, pattern);
         }
@@ -192,9 +183,7 @@ fn test_charset_rule_alphanumeric_invalid() {
     let rule = CharsetRule::alphanumeric();
 
     // Act & Assert
-    assert!(rule
-        .validate(&"abc-123".to_string(), "field")
-        .is_err());
+    assert!(rule.validate(&"abc-123".to_string(), "field").is_err());
     assert!(rule.validate(&"abc_123".to_string(), "field").is_err());
     assert!(rule.validate(&"abc 123".to_string(), "field").is_err());
 }
@@ -244,9 +233,7 @@ fn test_format_rule_email_invalid() {
     let rule = FormatRule::Email;
 
     // Act & Assert - various invalid emails
-    assert!(rule
-        .validate(&"not-an-email".to_string(), "email")
-        .is_err());
+    assert!(rule.validate(&"not-an-email".to_string(), "email").is_err());
     assert!(rule.validate(&"@example.com".to_string(), "email").is_err());
     assert!(rule.validate(&"user@".to_string(), "email").is_err());
     assert!(rule.validate(&"user".to_string(), "email").is_err());
@@ -269,9 +256,7 @@ fn test_format_rule_uuid_invalid() {
     let rule = FormatRule::Uuid;
 
     // Act & Assert
-    assert!(rule
-        .validate(&"not-a-uuid".to_string(), "uuid")
-        .is_err());
+    assert!(rule.validate(&"not-a-uuid".to_string(), "uuid").is_err());
     assert!(rule
         .validate(&"550e8400-e29b-41d4-a716".to_string(), "uuid")
         .is_err());
@@ -284,9 +269,7 @@ fn test_format_rule_semver_valid() {
 
     // Act & Assert - various valid semver strings
     assert!(rule.validate(&"1.0.0".to_string(), "version").is_ok());
-    assert!(rule
-        .validate(&"2.3.4-alpha".to_string(), "version")
-        .is_ok());
+    assert!(rule.validate(&"2.3.4-alpha".to_string(), "version").is_ok());
     assert!(rule
         .validate(&"1.0.0+build.123".to_string(), "version")
         .is_ok());
@@ -311,7 +294,11 @@ fn test_format_rule_semver_invalid() {
 #[test]
 fn test_whitelist_rule_valid() {
     // Arrange
-    let rule = WhitelistRule::new(vec!["foo".to_string(), "bar".to_string(), "baz".to_string()]);
+    let rule = WhitelistRule::new(vec![
+        "foo".to_string(),
+        "bar".to_string(),
+        "baz".to_string(),
+    ]);
 
     // Act & Assert - all allowed values
     assert!(rule.validate(&"foo".to_string(), "field").is_ok());
@@ -539,19 +526,13 @@ fn test_complex_composite_rule() {
     let composite = length_short.or(length_long).and(charset);
 
     // Act & Assert - valid short
-    assert!(composite
-        .validate(&"hello".to_string(), "field")
-        .is_ok());
+    assert!(composite.validate(&"hello".to_string(), "field").is_ok());
 
     // Act & Assert - valid long
-    assert!(composite
-        .validate(&"a".repeat(25), "field")
-        .is_ok());
+    assert!(composite.validate(&"a".repeat(25), "field").is_ok());
 
     // Act & Assert - invalid (wrong length)
-    assert!(composite
-        .validate(&"a".repeat(15), "field")
-        .is_err());
+    assert!(composite.validate(&"a".repeat(15), "field").is_err());
 
     // Act & Assert - invalid (wrong charset)
     assert!(composite
@@ -600,12 +581,8 @@ fn test_path_validator_traversal_multiple() {
     let validator = PathValidatorRule::new();
 
     // Act & Assert
-    assert!(validator
-        .validate(Path::new("../../etc/passwd"))
-        .is_err());
-    assert!(validator
-        .validate(Path::new("../../../root"))
-        .is_err());
+    assert!(validator.validate(Path::new("../../etc/passwd")).is_err());
+    assert!(validator.validate(Path::new("../../../root")).is_err());
 }
 
 #[test]
@@ -623,22 +600,20 @@ fn test_path_validator_traversal_allowed() {
 #[test]
 fn test_path_validator_extension_whitelist_valid() {
     // Arrange
-    let validator = PathValidatorRule::new()
-        .with_extensions(vec!["rs".to_string(), "toml".to_string()]);
+    let validator =
+        PathValidatorRule::new().with_extensions(vec!["rs".to_string(), "toml".to_string()]);
 
     // Act & Assert
     assert!(validator.validate(Path::new("main.rs")).is_ok());
     assert!(validator.validate(Path::new("Cargo.toml")).is_ok());
-    assert!(validator
-        .validate(Path::new("src/lib.rs"))
-        .is_ok());
+    assert!(validator.validate(Path::new("src/lib.rs")).is_ok());
 }
 
 #[test]
 fn test_path_validator_extension_whitelist_invalid() {
     // Arrange
-    let validator = PathValidatorRule::new()
-        .with_extensions(vec!["rs".to_string(), "toml".to_string()]);
+    let validator =
+        PathValidatorRule::new().with_extensions(vec!["rs".to_string(), "toml".to_string()]);
 
     // Act
     let result = validator.validate(Path::new("script.sh"));
@@ -770,15 +745,10 @@ fn test_url_validator_require_https_invalid() {
 #[test]
 fn test_url_validator_scheme_whitelist_valid() {
     // Arrange
-    let validator = UrlValidator::new().with_schemes(vec![
-        "https".to_string(),
-        "wss".to_string(),
-    ]);
+    let validator = UrlValidator::new().with_schemes(vec!["https".to_string(), "wss".to_string()]);
 
     // Act & Assert
-    assert!(validator
-        .validate("https://example.com")
-        .is_ok());
+    assert!(validator.validate("https://example.com").is_ok());
     assert!(validator.validate("wss://example.com").is_ok());
 }
 
@@ -797,23 +767,15 @@ fn test_url_validator_scheme_whitelist_invalid() {
 #[test]
 fn test_url_validator_domain_whitelist_valid() {
     // Arrange
-    let validator = UrlValidator::new().with_domains(vec![
-        "example.com".to_string(),
-        "trusted.org".to_string(),
-    ]);
+    let validator = UrlValidator::new()
+        .with_domains(vec!["example.com".to_string(), "trusted.org".to_string()]);
 
     // Act & Assert - exact match
-    assert!(validator
-        .validate("https://example.com")
-        .is_ok());
+    assert!(validator.validate("https://example.com").is_ok());
 
     // Act & Assert - subdomain
-    assert!(validator
-        .validate("https://api.example.com")
-        .is_ok());
-    assert!(validator
-        .validate("https://www.trusted.org")
-        .is_ok());
+    assert!(validator.validate("https://api.example.com").is_ok());
+    assert!(validator.validate("https://www.trusted.org").is_ok());
 }
 
 #[test]
@@ -842,19 +804,13 @@ fn test_url_validator_combined_rules() {
         .with_domains(vec!["github.com".to_string()]);
 
     // Act & Assert - valid
-    assert!(validator
-        .validate("https://github.com/user/repo")
-        .is_ok());
+    assert!(validator.validate("https://github.com/user/repo").is_ok());
 
     // Act & Assert - wrong scheme
-    assert!(validator
-        .validate("http://github.com/user/repo")
-        .is_err());
+    assert!(validator.validate("http://github.com/user/repo").is_err());
 
     // Act & Assert - wrong domain
-    assert!(validator
-        .validate("https://gitlab.com/user/repo")
-        .is_err());
+    assert!(validator.validate("https://gitlab.com/user/repo").is_err());
 }
 
 // =============================================================================

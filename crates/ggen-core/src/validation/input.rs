@@ -106,10 +106,7 @@ pub trait ValidationRule<T>: Send + Sync {
     fn validate(&self, input: &T, field_name: &str) -> GgenResult<T>;
 
     /// Combine with another validator using AND logic
-    fn and<R: ValidationRule<T> + 'static>(
-        self,
-        other: R,
-    ) -> AndRule<T>
+    fn and<R: ValidationRule<T> + 'static>(self, other: R) -> AndRule<T>
     where
         Self: Sized + 'static,
     {
@@ -120,10 +117,7 @@ pub trait ValidationRule<T>: Send + Sync {
     }
 
     /// Combine with another validator using OR logic
-    fn or<R: ValidationRule<T> + 'static>(
-        self,
-        other: R,
-    ) -> OrRule<T>
+    fn or<R: ValidationRule<T> + 'static>(self, other: R) -> OrRule<T>
     where
         Self: Sized + 'static,
     {
@@ -175,7 +169,8 @@ impl<T: Clone> ValidationRule<T> for OrRule<T> {
                 Ok(validated) => Ok(validated),
                 Err(right_err) => Err(InputValidationError::CompositeViolation {
                     reason: format!("OR failed: {} AND {}", left_err, right_err),
-                }.into()),
+                }
+                .into()),
             },
         }
     }
@@ -191,7 +186,8 @@ impl<T: Clone> ValidationRule<T> for NotRule<T> {
         match self.inner.validate(input, field_name) {
             Ok(_) => Err(InputValidationError::CompositeViolation {
                 reason: "NOT validation failed: inner validation succeeded".to_string(),
-            }.into()),
+            }
+            .into()),
             Err(_) => Ok(input.clone()),
         }
     }
@@ -252,7 +248,8 @@ impl ValidationRule<String> for LengthRule {
                     field: field_name.to_string(),
                     actual: len,
                     constraint: format!("min {}", min),
-                }.into());
+                }
+                .into());
             }
         }
 
@@ -262,7 +259,8 @@ impl ValidationRule<String> for LengthRule {
                     field: field_name.to_string(),
                     actual: len,
                     constraint: format!("max {}", max),
-                }.into());
+                }
+                .into());
             }
         }
 
@@ -279,8 +277,8 @@ pub struct PatternRule {
 
 impl PatternRule {
     pub fn new(pattern: &str) -> GgenResult<Self> {
-        let regex = Regex::new(pattern)
-            .map_err(|e| InputValidationError::RegexError(e.to_string()))?;
+        let regex =
+            Regex::new(pattern).map_err(|e| InputValidationError::RegexError(e.to_string()))?;
 
         Ok(Self {
             pattern: pattern.to_string(),
@@ -295,7 +293,8 @@ impl ValidationRule<String> for PatternRule {
             return Err(InputValidationError::PatternViolation {
                 field: field_name.to_string(),
                 pattern: self.pattern.clone(),
-            }.into());
+            }
+            .into());
         }
 
         Ok(input.clone())
@@ -355,7 +354,8 @@ impl ValidationRule<String> for CharsetRule {
         if !input.chars().all(self.allowed_chars) {
             return Err(InputValidationError::CharsetViolation {
                 field: field_name.to_string(),
-            }.into());
+            }
+            .into());
         }
 
         Ok(input.clone())
@@ -404,14 +404,15 @@ impl ValidationRule<String> for FormatRule {
             FormatRule::Hostname => (Self::hostname_pattern(), "hostname"),
         };
 
-        let regex = Regex::new(pattern)
-            .map_err(|e| InputValidationError::RegexError(e.to_string()))?;
+        let regex =
+            Regex::new(pattern).map_err(|e| InputValidationError::RegexError(e.to_string()))?;
 
         if !regex.is_match(input) {
             return Err(InputValidationError::FormatViolation {
                 field: field_name.to_string(),
                 reason: format!("does not match {} format", format_name),
-            }.into());
+            }
+            .into());
         }
 
         Ok(input.clone())
@@ -436,7 +437,8 @@ impl ValidationRule<String> for WhitelistRule {
             return Err(InputValidationError::WhitelistViolation {
                 field: field_name.to_string(),
                 value: input.clone(),
-            }.into());
+            }
+            .into());
         }
 
         Ok(input.clone())
@@ -461,7 +463,8 @@ impl ValidationRule<String> for BlacklistRule {
             return Err(InputValidationError::BlacklistViolation {
                 field: field_name.to_string(),
                 value: input.clone(),
-            }.into());
+            }
+            .into());
         }
 
         Ok(input.clone())
@@ -479,8 +482,7 @@ impl StringValidator {
     }
 
     pub fn with_length(mut self, min: usize, max: usize) -> Self {
-        self.rules
-            .push(Box::new(LengthRule::range(min, max)));
+        self.rules.push(Box::new(LengthRule::range(min, max)));
         self
     }
 
@@ -517,8 +519,7 @@ impl StringValidator {
     }
 
     pub fn with_blacklist(mut self, forbidden: Vec<String>) -> Self {
-        self.rules
-            .push(Box::new(BlacklistRule::new(forbidden)));
+        self.rules.push(Box::new(BlacklistRule::new(forbidden)));
         self
     }
 
@@ -592,7 +593,8 @@ impl PathValidatorRule {
                     path_str.len(),
                     self.max_length
                 ),
-            }.into());
+            }
+            .into());
         }
 
         // Check for traversal
@@ -602,7 +604,8 @@ impl PathValidatorRule {
                 if component_str == ".." {
                     return Err(InputValidationError::PathViolation {
                         reason: "Path traversal detected (..)".to_string(),
-                    }.into());
+                    }
+                    .into());
                 }
             }
         }
@@ -614,12 +617,14 @@ impl PathValidatorRule {
                 if !allowed_exts.contains(&ext_str) {
                     return Err(InputValidationError::PathViolation {
                         reason: format!("Extension '{}' not in whitelist", ext_str),
-                    }.into());
+                    }
+                    .into());
                 }
             } else {
                 return Err(InputValidationError::PathViolation {
                     reason: "No file extension found".to_string(),
-                }.into());
+                }
+                .into());
             }
         }
 
@@ -638,7 +643,8 @@ impl PathValidatorRule {
                         abs_path.display(),
                         base.display()
                     ),
-                }.into());
+                }
+                .into());
             }
         }
 
@@ -696,14 +702,16 @@ impl UrlValidator {
         if self.require_https && url.scheme() != "https" {
             return Err(InputValidationError::UrlViolation {
                 reason: "HTTPS required".to_string(),
-            }.into());
+            }
+            .into());
         }
 
         if let Some(ref allowed_schemes) = self.allowed_schemes {
             if !allowed_schemes.contains(&url.scheme().to_string()) {
                 return Err(InputValidationError::UrlViolation {
                     reason: format!("Scheme '{}' not in whitelist", url.scheme()),
-                }.into());
+                }
+                .into());
             }
         }
 
@@ -713,12 +721,14 @@ impl UrlValidator {
                 if !allowed_domains.iter().any(|d| host.ends_with(d)) {
                     return Err(InputValidationError::UrlViolation {
                         reason: format!("Domain '{}' not in whitelist", host),
-                    }.into());
+                    }
+                    .into());
                 }
             } else {
                 return Err(InputValidationError::UrlViolation {
                     reason: "No host found in URL".to_string(),
-                }.into());
+                }
+                .into());
             }
         }
 
@@ -770,7 +780,9 @@ impl<T: PartialOrd + fmt::Display + Clone> RangeRule<T> {
     }
 }
 
-impl<T: PartialOrd + fmt::Display + Clone + Send + Sync + 'static> ValidationRule<T> for RangeRule<T> {
+impl<T: PartialOrd + fmt::Display + Clone + Send + Sync + 'static> ValidationRule<T>
+    for RangeRule<T>
+{
     fn validate(&self, input: &T, field_name: &str) -> GgenResult<T> {
         if let Some(ref min) = self.min {
             if input < min {
@@ -778,7 +790,8 @@ impl<T: PartialOrd + fmt::Display + Clone + Send + Sync + 'static> ValidationRul
                     field: field_name.to_string(),
                     actual: format!("{}", input),
                     constraint: format!(">= {}", min),
-                }.into());
+                }
+                .into());
             }
         }
 
@@ -788,7 +801,8 @@ impl<T: PartialOrd + fmt::Display + Clone + Send + Sync + 'static> ValidationRul
                     field: field_name.to_string(),
                     actual: format!("{}", input),
                     constraint: format!("<= {}", max),
-                }.into());
+                }
+                .into());
             }
         }
 
@@ -807,7 +821,8 @@ impl ValidationRule<i64> for PositiveRule {
                 field: field_name.to_string(),
                 actual: input.to_string(),
                 constraint: "> 0".to_string(),
-            }.into());
+            }
+            .into());
         }
         Ok(*input)
     }
@@ -820,7 +835,8 @@ impl ValidationRule<f64> for PositiveRule {
                 field: field_name.to_string(),
                 actual: input.to_string(),
                 constraint: "> 0".to_string(),
-            }.into());
+            }
+            .into());
         }
         Ok(*input)
     }
@@ -837,7 +853,8 @@ impl ValidationRule<i64> for NegativeRule {
                 field: field_name.to_string(),
                 actual: input.to_string(),
                 constraint: "< 0".to_string(),
-            }.into());
+            }
+            .into());
         }
         Ok(*input)
     }
@@ -850,7 +867,8 @@ impl ValidationRule<f64> for NegativeRule {
                 field: field_name.to_string(),
                 actual: input.to_string(),
                 constraint: "< 0".to_string(),
-            }.into());
+            }
+            .into());
         }
         Ok(*input)
     }
@@ -864,9 +882,7 @@ pub struct PrecisionRule {
 
 impl PrecisionRule {
     pub fn new(max_decimal_places: usize) -> Self {
-        Self {
-            max_decimal_places,
-        }
+        Self { max_decimal_places }
     }
 }
 
@@ -882,7 +898,8 @@ impl ValidationRule<f64> for PrecisionRule {
                         "Precision {} exceeds maximum {}",
                         decimal_places, self.max_decimal_places
                     ),
-                }.into());
+                }
+                .into());
             }
         }
         Ok(*input)
@@ -909,9 +926,7 @@ mod tests {
     #[test]
     fn test_length_rule_too_long() {
         let rule = LengthRule::range(3, 5);
-        assert!(rule
-            .validate(&"toolong".to_string(), "test")
-            .is_err());
+        assert!(rule.validate(&"toolong".to_string(), "test").is_err());
     }
 
     #[test]
@@ -1019,8 +1034,8 @@ mod tests {
 
     #[test]
     fn test_path_validator_extension_whitelist() {
-        let validator = PathValidatorRule::new()
-            .with_extensions(vec!["rs".to_string(), "toml".to_string()]);
+        let validator =
+            PathValidatorRule::new().with_extensions(vec!["rs".to_string(), "toml".to_string()]);
 
         assert!(validator.validate(Path::new("main.rs")).is_ok());
         assert!(validator.validate(Path::new("config.toml")).is_ok());
@@ -1031,28 +1046,22 @@ mod tests {
     #[test]
     fn test_url_validator_basic() {
         let validator = UrlValidator::new();
-        assert!(validator
-            .validate("https://example.com")
-            .is_ok());
+        assert!(validator.validate("https://example.com").is_ok());
     }
 
     #[test]
     fn test_url_validator_require_https() {
         let validator = UrlValidator::new().require_https();
-        assert!(validator
-            .validate("https://example.com")
-            .is_ok());
+        assert!(validator.validate("https://example.com").is_ok());
         assert!(validator.validate("http://example.com").is_err());
     }
 
     #[test]
     fn test_url_validator_scheme_whitelist() {
-        let validator = UrlValidator::new()
-            .with_schemes(vec!["https".to_string(), "wss".to_string()]);
+        let validator =
+            UrlValidator::new().with_schemes(vec!["https".to_string(), "wss".to_string()]);
 
-        assert!(validator
-            .validate("https://example.com")
-            .is_ok());
+        assert!(validator.validate("https://example.com").is_ok());
         assert!(validator.validate("wss://example.com").is_ok());
         assert!(validator.validate("http://example.com").is_err());
     }
@@ -1062,15 +1071,9 @@ mod tests {
         let validator = UrlValidator::new()
             .with_domains(vec!["example.com".to_string(), "trusted.org".to_string()]);
 
-        assert!(validator
-            .validate("https://example.com/path")
-            .is_ok());
-        assert!(validator
-            .validate("https://api.example.com")
-            .is_ok());
-        assert!(validator
-            .validate("https://untrusted.com")
-            .is_err());
+        assert!(validator.validate("https://example.com/path").is_ok());
+        assert!(validator.validate("https://api.example.com").is_ok());
+        assert!(validator.validate("https://untrusted.com").is_err());
     }
 
     // Numeric validator tests

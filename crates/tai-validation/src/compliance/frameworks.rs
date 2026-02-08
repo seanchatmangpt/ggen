@@ -94,7 +94,11 @@ impl ComplianceResult {
 
         format!(
             "{}: {} violations found ({} high, {} medium, {} low)",
-            self.framework, self.violations.len(), high_count, medium_count, low_count
+            self.framework,
+            self.violations.len(),
+            high_count,
+            medium_count,
+            low_count
         )
     }
 }

@@ -185,9 +185,7 @@ ORDER BY ?provider ?compute"#,
     /// # Returns
     /// A deterministic SPARQL query string with standard PREFIX declarations
     pub fn select_with_filters(
-        variables: &[&str],
-        class_type: &str,
-        filters: &[(String, String)],
+        variables: &[&str], class_type: &str, filters: &[(String, String)],
     ) -> String {
         let var_list = variables.join(" ?");
         let escaped_class = escape_sparql_string(class_type);
@@ -373,8 +371,10 @@ end"#;
             ("availability".to_string(), "?avail > 99".to_string()),
             ("cost".to_string(), "?cost < 1000".to_string()),
         ];
-        let query1 = SparqlGenerator::select_with_filters(&["?label", "?cost"], "Service", &filters);
-        let query2 = SparqlGenerator::select_with_filters(&["?label", "?cost"], "Service", &filters);
+        let query1 =
+            SparqlGenerator::select_with_filters(&["?label", "?cost"], "Service", &filters);
+        let query2 =
+            SparqlGenerator::select_with_filters(&["?label", "?cost"], "Service", &filters);
         assert_eq!(query1, query2);
     }
 
@@ -405,10 +405,19 @@ end"#;
     fn test_all_queries_have_valid_prefix_syntax() {
         // Verify all generated queries start with proper PREFIX declarations
         let queries = vec![
-            ("policies", SparqlGenerator::find_policies_by_jurisdiction("US")),
-            ("classifications", SparqlGenerator::find_data_classifications("Public")),
+            (
+                "policies",
+                SparqlGenerator::find_policies_by_jurisdiction("US"),
+            ),
+            (
+                "classifications",
+                SparqlGenerator::find_data_classifications("Public"),
+            ),
             ("sla", SparqlGenerator::find_services_by_sla(0.99)),
-            ("security", SparqlGenerator::find_security_controls("Encryption")),
+            (
+                "security",
+                SparqlGenerator::find_security_controls("Encryption"),
+            ),
             ("compute", SparqlGenerator::find_compute_by_type("VM")),
         ];
 

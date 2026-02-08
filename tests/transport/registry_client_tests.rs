@@ -52,7 +52,8 @@ fn create_valid_registry_index() -> String {
                 "documentation": "https://docs.ggen.dev"
             }
         }
-    }"#.to_string()
+    }"#
+    .to_string()
 }
 
 /// Test 1: Network timeout handling
@@ -87,10 +88,7 @@ async fn test_network_timeout() {
         .unwrap();
 
     let registry_client = RegistryClient::with_base_url(url).unwrap();
-    let result = tokio::time::timeout(
-        Duration::from_secs(5),
-        registry_client.fetch_index()
-    ).await;
+    let result = tokio::time::timeout(Duration::from_secs(5), registry_client.fetch_index()).await;
 
     // Assert: Verify timeout behavior
     // The request should fail due to timeout
@@ -100,8 +98,12 @@ async fn test_network_timeout() {
             // Verify error message contains relevant timeout information
             let error_msg = format!("{:?}", e);
             assert!(
-                error_msg.contains("timeout") || error_msg.contains("timed out") || error_msg.contains("deadline") || error_msg.contains("error"),
-                "Error message should indicate timeout: {}", error_msg
+                error_msg.contains("timeout")
+                    || error_msg.contains("timed out")
+                    || error_msg.contains("deadline")
+                    || error_msg.contains("error"),
+                "Error message should indicate timeout: {}",
+                error_msg
             );
         }
         Err(_) => {
@@ -129,8 +131,12 @@ async fn test_connection_refused() {
 
     let error_msg = format!("{:?}", result.unwrap_err());
     assert!(
-        error_msg.contains("connect") || error_msg.contains("connection") || error_msg.contains("refused") || error_msg.contains("error"),
-        "Error message should indicate connection failure: {}", error_msg
+        error_msg.contains("connect")
+            || error_msg.contains("connection")
+            || error_msg.contains("refused")
+            || error_msg.contains("error"),
+        "Error message should indicate connection failure: {}",
+        error_msg
     );
 }
 
@@ -151,8 +157,13 @@ async fn test_dns_failure() {
 
     let error_msg = format!("{:?}", result.unwrap_err());
     assert!(
-        error_msg.contains("dns") || error_msg.contains("resolve") || error_msg.contains("name") || error_msg.contains("no such host") || error_msg.contains("error"),
-        "Error message should indicate DNS failure: {}", error_msg
+        error_msg.contains("dns")
+            || error_msg.contains("resolve")
+            || error_msg.contains("name")
+            || error_msg.contains("no such host")
+            || error_msg.contains("error"),
+        "Error message should indicate DNS failure: {}",
+        error_msg
     );
 }
 
@@ -228,8 +239,12 @@ async fn test_retry_exhaustion() {
 
     let error_msg = format!("{:?}", result.unwrap_err());
     assert!(
-        error_msg.contains("500") || error_msg.contains("status") || error_msg.contains("attempt") || error_msg.contains("error"),
-        "Error message should indicate retry exhaustion: {}", error_msg
+        error_msg.contains("500")
+            || error_msg.contains("status")
+            || error_msg.contains("attempt")
+            || error_msg.contains("error"),
+        "Error message should indicate retry exhaustion: {}",
+        error_msg
     );
 
     mock.assert_async().await;
@@ -265,8 +280,12 @@ async fn test_invalid_response_format() {
 
     let error_msg = format!("{:?}", result.unwrap_err());
     assert!(
-        error_msg.contains("parse") || error_msg.contains("json") || error_msg.contains("syntax") || error_msg.contains("error"),
-        "Error message should indicate parse failure: {}", error_msg
+        error_msg.contains("parse")
+            || error_msg.contains("json")
+            || error_msg.contains("syntax")
+            || error_msg.contains("error"),
+        "Error message should indicate parse failure: {}",
+        error_msg
     );
 
     mock.assert_async().await;
@@ -300,8 +319,11 @@ async fn test_404_not_found() {
 
     let error_msg = format!("{:?}", result.unwrap_err());
     assert!(
-        error_msg.contains("404") || error_msg.contains("client error") || error_msg.contains("error"),
-        "Error message should indicate 404: {}", error_msg
+        error_msg.contains("404")
+            || error_msg.contains("client error")
+            || error_msg.contains("error"),
+        "Error message should indicate 404: {}",
+        error_msg
     );
 
     mock.assert_async().await;
@@ -335,8 +357,11 @@ async fn test_500_internal_server_error() {
 
     let error_msg = format!("{:?}", result.unwrap_err());
     assert!(
-        error_msg.contains("500") || error_msg.contains("Internal Server Error") || error_msg.contains("error"),
-        "Error message should indicate 500 error: {}", error_msg
+        error_msg.contains("500")
+            || error_msg.contains("Internal Server Error")
+            || error_msg.contains("error"),
+        "Error message should indicate 500 error: {}",
+        error_msg
     );
 
     mock.assert_async().await;
@@ -374,8 +399,12 @@ async fn test_malformed_json() {
 
     let error_msg = format!("{:?}", result.unwrap_err());
     assert!(
-        error_msg.contains("parse") || error_msg.contains("json") || error_msg.contains("expected") || error_msg.contains("error"),
-        "Error message should indicate malformed JSON: {}", error_msg
+        error_msg.contains("parse")
+            || error_msg.contains("json")
+            || error_msg.contains("expected")
+            || error_msg.contains("error"),
+        "Error message should indicate malformed JSON: {}",
+        error_msg
     );
 
     mock.assert_async().await;
@@ -428,17 +457,23 @@ async fn test_exponential_backoff_timing() {
     assert!(
         total_duration >= min_expected_duration,
         "Total duration {:?} should be at least {:?} for exponential backoff",
-        total_duration, min_expected_duration
+        total_duration,
+        min_expected_duration
     );
 
     assert!(
         total_duration < max_expected_duration,
         "Total duration {:?} should be less than {:?}",
-        total_duration, max_expected_duration
+        total_duration,
+        max_expected_duration
     );
 
     // Verify we had 3 requests (initial + 2 retries)
-    assert!(times.len() >= 3, "Should have made at least 3 requests (initial + 2 retries), got {}", times.len());
+    assert!(
+        times.len() >= 3,
+        "Should have made at least 3 requests (initial + 2 retries), got {}",
+        times.len()
+    );
 
     // Verify delays between requests approximate exponential backoff
     if times.len() >= 2 {
@@ -446,7 +481,8 @@ async fn test_exponential_backoff_timing() {
         // First retry should be after ~100ms backoff
         assert!(
             delay1 >= Duration::from_millis(50) && delay1 <= Duration::from_millis(300),
-            "First retry delay {:?} should be approximately 100ms", delay1
+            "First retry delay {:?} should be approximately 100ms",
+            delay1
         );
     }
 
@@ -455,7 +491,8 @@ async fn test_exponential_backoff_timing() {
         // Second retry should be after ~200ms backoff
         assert!(
             delay2 >= Duration::from_millis(150) && delay2 <= Duration::from_millis(500),
-            "Second retry delay {:?} should be approximately 200ms", delay2
+            "Second retry delay {:?} should be approximately 200ms",
+            delay2
         );
     }
 
@@ -759,7 +796,11 @@ async fn test_large_registry_index() {
     let result = registry_client.fetch_index().await;
 
     // Assert: Verify all packs parsed correctly
-    assert!(result.is_ok(), "Expected success with large registry: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Expected success with large registry: {:?}",
+        result.err()
+    );
 
     let index = result.unwrap();
     assert_eq!(index.packs.len(), 10);

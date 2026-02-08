@@ -12,8 +12,14 @@ fn test_sparql_injection_quote_in_jurisdiction() {
     let query = SparqlGenerator::find_policies_by_jurisdiction(malicious);
 
     // The query should contain the escaped input, not execute the injected DROP command
-    assert!(query.contains("SELECT"), "Query should still be valid SPARQL");
-    assert!(query.contains("WHERE"), "Query should still be valid SPARQL");
+    assert!(
+        query.contains("SELECT"),
+        "Query should still be valid SPARQL"
+    );
+    assert!(
+        query.contains("WHERE"),
+        "Query should still be valid SPARQL"
+    );
 
     // The dangerous characters should be escaped
     assert!(query.contains(r#"\""#), "Quotes should be escaped");
@@ -26,7 +32,10 @@ fn test_sparql_injection_newline_in_classification() {
     let query = SparqlGenerator::find_data_classifications(malicious);
 
     // Should prevent the UNION injection
-    assert!(query.contains("SELECT"), "Query should still be valid SPARQL");
+    assert!(
+        query.contains("SELECT"),
+        "Query should still be valid SPARQL"
+    );
     assert!(query.contains(r#"\n"#), "Newlines should be escaped");
 }
 
@@ -57,7 +66,10 @@ fn test_sparql_injection_carriage_return() {
     let query = SparqlGenerator::find_data_classifications(malicious);
 
     // Should escape carriage return
-    assert!(query.contains(r#"\r"#), "Carriage returns should be escaped");
+    assert!(
+        query.contains(r#"\r"#),
+        "Carriage returns should be escaped"
+    );
 }
 
 #[test]
@@ -89,12 +101,7 @@ fn test_sparql_injection_unicode_characters() {
 #[test]
 fn test_sparql_safe_strings_unchanged() {
     // Test that safe strings pass through unchanged
-    let safe_inputs = vec![
-        "US",
-        "Public",
-        "Encryption",
-        "some_valid_label",
-    ];
+    let safe_inputs = vec!["US", "Public", "Encryption", "some_valid_label"];
 
     for input in safe_inputs {
         let query = SparqlGenerator::find_policies_by_jurisdiction(input);
@@ -106,7 +113,10 @@ fn test_sparql_safe_strings_unchanged() {
 fn test_select_with_filters_determinism_with_injection_attempt() {
     // Test select_with_filters with malicious filter
     let filters = vec![
-        ("availability".to_string(), "?avail > 99; DROP GRAPH test".to_string()),
+        (
+            "availability".to_string(),
+            "?avail > 99; DROP GRAPH test".to_string(),
+        ),
         ("cost".to_string(), "?cost < 1000".to_string()),
     ];
 

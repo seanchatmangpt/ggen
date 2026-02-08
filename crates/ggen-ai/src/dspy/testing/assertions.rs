@@ -18,9 +18,7 @@ use std::collections::HashMap;
 /// assert_example_valid(&example, &["question"], &["answer"]);
 /// ```
 pub fn assert_example_valid(
-    example: &Example,
-    required_inputs: &[&str],
-    required_outputs: &[&str],
+    example: &Example, required_inputs: &[&str], required_outputs: &[&str],
 ) {
     for input_key in required_inputs {
         assert!(
@@ -40,10 +38,7 @@ pub fn assert_example_valid(
 }
 
 /// Assert that a demonstration is valid
-pub fn assert_demonstration_valid(
-    demo: &Demonstration,
-    signature: &Signature,
-) {
+pub fn assert_demonstration_valid(demo: &Demonstration, signature: &Signature) {
     // Check all signature inputs are present
     for input_field in &signature.inputs {
         assert!(
@@ -91,8 +86,7 @@ pub fn assert_demonstration_valid(
 /// assert_metric_filters_correctly(&metric, &passing_examples, &failing_examples);
 /// ```
 pub fn assert_metric_filters_correctly(
-    metric: &MetricFn,
-    should_pass: &[(Example, HashMap<String, Value>)],
+    metric: &MetricFn, should_pass: &[(Example, HashMap<String, Value>)],
     should_fail: &[(Example, HashMap<String, Value>)],
 ) {
     // Check that all expected passing examples pass
@@ -115,10 +109,7 @@ pub fn assert_metric_filters_correctly(
 }
 
 /// Assert that output matches signature structure
-pub fn assert_output_matches_signature(
-    output: &HashMap<String, Value>,
-    signature: &Signature,
-) {
+pub fn assert_output_matches_signature(output: &HashMap<String, Value>, signature: &Signature) {
     for output_field in &signature.outputs {
         assert!(
             output.contains_key(output_field.name()),
@@ -134,7 +125,9 @@ pub fn assert_non_empty_outputs(output: &HashMap<String, Value>) {
         match value {
             Value::String(s) => assert!(!s.is_empty(), "Output field '{}' is empty", key),
             Value::Array(arr) => assert!(!arr.is_empty(), "Output field '{}' is empty array", key),
-            Value::Object(obj) => assert!(!obj.is_empty(), "Output field '{}' is empty object", key),
+            Value::Object(obj) => {
+                assert!(!obj.is_empty(), "Output field '{}' is empty object", key)
+            }
             _ => {} // Numbers, booleans are fine
         }
     }
@@ -142,9 +135,7 @@ pub fn assert_non_empty_outputs(output: &HashMap<String, Value>) {
 
 /// Assert that all examples in a dataset are valid
 pub fn assert_dataset_valid(
-    examples: &[Example],
-    required_inputs: &[&str],
-    required_outputs: &[&str],
+    examples: &[Example], required_inputs: &[&str], required_outputs: &[&str],
 ) {
     assert!(!examples.is_empty(), "Dataset is empty");
 
@@ -154,7 +145,12 @@ pub fn assert_dataset_valid(
         // Additional check: ensure no empty values
         for (key, value) in &example.inputs {
             if let Value::String(s) = value {
-                assert!(!s.is_empty(), "Example {} has empty input field '{}'", i, key);
+                assert!(
+                    !s.is_empty(),
+                    "Example {} has empty input field '{}'",
+                    i,
+                    key
+                );
             }
         }
     }
@@ -205,7 +201,7 @@ pub fn assert_value_type(value: &Value, expected_type: &str) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dspy::testing::{qa_example, create_test_signature};
+    use crate::dspy::testing::{create_test_signature, qa_example};
     use serde_json::json;
 
     #[test]
@@ -291,10 +287,7 @@ mod tests {
 
     #[test]
     fn test_assert_dataset_valid() {
-        let examples = vec![
-            qa_example("Q1", "A1"),
-            qa_example("Q2", "A2"),
-        ];
+        let examples = vec![qa_example("Q1", "A1"), qa_example("Q2", "A2")];
 
         assert_dataset_valid(&examples, &["question"], &["answer"]);
     }

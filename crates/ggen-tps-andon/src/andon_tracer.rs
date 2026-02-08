@@ -138,15 +138,9 @@ impl SpanContext {
     /// Export as W3C Trace Context headers
     pub fn to_w3c_headers(&self) -> Vec<(String, String)> {
         let trace_flags = if self.sampled { "01" } else { "00" };
-        let trace_context = format!(
-            "00-{}-{}-{}",
-            self.trace_id, self.span_id, trace_flags
-        );
+        let trace_context = format!("00-{}-{}-{}", self.trace_id, self.span_id, trace_flags);
 
-        let mut headers = vec![(
-            "traceparent".to_string(),
-            trace_context,
-        )];
+        let mut headers = vec![("traceparent".to_string(), trace_context)];
 
         // Add baggage as custom header
         if !self.baggage.is_empty() {
@@ -300,10 +294,7 @@ impl AndonTracer {
 
     /// Add an attribute to a span
     pub fn add_span_attribute(
-        &self,
-        span_id: &str,
-        key: impl Into<String>,
-        value: serde_json::Value,
+        &self, span_id: &str, key: impl Into<String>, value: serde_json::Value,
     ) -> Result<()> {
         if let Some(mut record) = self.active_spans.get_mut(span_id) {
             record.attributes.insert(key.into(), value);
@@ -313,9 +304,7 @@ impl AndonTracer {
 
     /// Log an event within a span
     pub fn span_event(
-        &self,
-        span_id: &str,
-        name: impl Into<String>,
+        &self, span_id: &str, name: impl Into<String>,
         attributes: Option<serde_json::Map<String, serde_json::Value>>,
     ) -> Result<()> {
         if let Some(mut record) = self.active_spans.get_mut(span_id) {
@@ -346,8 +335,9 @@ impl AndonTracer {
     /// Export span as JSON
     pub fn export_span(&self, span_id: &str) -> Result<Option<String>> {
         if let Some(record) = self.active_spans.get(span_id) {
-            let json = serde_json::to_string(&*record)
-                .map_err(|e| crate::error::AndonError::tracer(format!("Serialization failed: {}", e)))?;
+            let json = serde_json::to_string(&*record).map_err(|e| {
+                crate::error::AndonError::tracer(format!("Serialization failed: {}", e))
+            })?;
             return Ok(Some(json));
         }
         Ok(None)
@@ -411,13 +401,15 @@ mod tests {
             .with_baggage("request_path", "/api/test");
 
         assert_eq!(ctx.baggage.get("user_id"), Some(&"12345".to_string()));
-        assert_eq!(ctx.baggage.get("request_path"), Some(&"/api/test".to_string()));
+        assert_eq!(
+            ctx.baggage.get("request_path"),
+            Some(&"/api/test".to_string())
+        );
     }
 
     #[test]
     fn test_w3c_trace_context_headers() {
-        let ctx = SpanContext::new_root()
-            .with_baggage("user_id", "123");
+        let ctx = SpanContext::new_root().with_baggage("user_id", "123");
 
         let headers = ctx.to_w3c_headers();
         assert!(headers.len() >= 1);

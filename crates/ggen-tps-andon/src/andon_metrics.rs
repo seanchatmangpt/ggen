@@ -10,8 +10,7 @@ use crate::error::Result;
 use crate::signal::{AndonSignal, SignalColor};
 use dashmap::DashMap;
 use prometheus::{
-    CounterVec, GaugeVec, HistogramVec, IntCounterVec,
-    IntGauge, IntGaugeVec, Registry, Encoder,
+    CounterVec, Encoder, GaugeVec, HistogramVec, IntCounterVec, IntGauge, IntGaugeVec, Registry,
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -94,20 +93,20 @@ pub struct AndonMetrics {
     config: MetricConfig,
 
     // Counters: total occurrences
-    pub signal_counter: IntCounterVec,     // by color
-    pub failure_counter: IntCounterVec,    // by component
-    pub refusal_counter: IntCounterVec,    // by reason
-    pub alert_counter: IntCounterVec,      // by severity
+    pub signal_counter: IntCounterVec,  // by color
+    pub failure_counter: IntCounterVec, // by component
+    pub refusal_counter: IntCounterVec, // by reason
+    pub alert_counter: IntCounterVec,   // by severity
 
     // Gauges: current state
-    pub queue_depth: IntGaugeVec,          // by queue name
-    pub pool_utilization: GaugeVec,        // by pool name
+    pub queue_depth: IntGaugeVec,   // by queue name
+    pub pool_utilization: GaugeVec, // by pool name
     pub memory_usage_mb: IntGauge,
     pub cpu_usage_percent: IntGauge,
 
     // Histograms: distribution of values
-    pub request_latency: HistogramVec,     // by endpoint
-    pub processing_time: HistogramVec,     // by operation
+    pub request_latency: HistogramVec, // by endpoint
+    pub processing_time: HistogramVec, // by operation
 
     // Registry for Prometheus scraping
     registry: Registry,
@@ -126,25 +125,33 @@ impl AndonMetrics {
             prometheus::Opts::new("andon_signals_total", "Total Andon signals by color"),
             &["color"],
         )
-        .map_err(|e| crate::error::AndonError::metrics(format!("Counter creation failed: {}", e)))?;
+        .map_err(|e| {
+            crate::error::AndonError::metrics(format!("Counter creation failed: {}", e))
+        })?;
 
         let failure_counter = IntCounterVec::new(
             prometheus::Opts::new("andon_failures_total", "Total failures by component"),
             &["component"],
         )
-        .map_err(|e| crate::error::AndonError::metrics(format!("Counter creation failed: {}", e)))?;
+        .map_err(|e| {
+            crate::error::AndonError::metrics(format!("Counter creation failed: {}", e))
+        })?;
 
         let refusal_counter = IntCounterVec::new(
             prometheus::Opts::new("andon_refusals_total", "Total refusals by reason"),
             &["reason"],
         )
-        .map_err(|e| crate::error::AndonError::metrics(format!("Counter creation failed: {}", e)))?;
+        .map_err(|e| {
+            crate::error::AndonError::metrics(format!("Counter creation failed: {}", e))
+        })?;
 
         let alert_counter = IntCounterVec::new(
             prometheus::Opts::new("andon_alerts_total", "Total alerts by severity"),
             &["severity"],
         )
-        .map_err(|e| crate::error::AndonError::metrics(format!("Counter creation failed: {}", e)))?;
+        .map_err(|e| {
+            crate::error::AndonError::metrics(format!("Counter creation failed: {}", e))
+        })?;
 
         // Create gauges
         let queue_depth = IntGaugeVec::new(
@@ -159,17 +166,15 @@ impl AndonMetrics {
         )
         .map_err(|e| crate::error::AndonError::metrics(format!("Gauge creation failed: {}", e)))?;
 
-        let memory_usage_mb = IntGauge::new(
-            "andon_memory_usage_mb",
-            "Memory usage in megabytes",
-        )
-        .map_err(|e| crate::error::AndonError::metrics(format!("Gauge creation failed: {}", e)))?;
+        let memory_usage_mb = IntGauge::new("andon_memory_usage_mb", "Memory usage in megabytes")
+            .map_err(|e| {
+            crate::error::AndonError::metrics(format!("Gauge creation failed: {}", e))
+        })?;
 
-        let cpu_usage_percent = IntGauge::new(
-            "andon_cpu_usage_percent",
-            "CPU usage percentage",
-        )
-        .map_err(|e| crate::error::AndonError::metrics(format!("Gauge creation failed: {}", e)))?;
+        let cpu_usage_percent = IntGauge::new("andon_cpu_usage_percent", "CPU usage percentage")
+            .map_err(|e| {
+                crate::error::AndonError::metrics(format!("Gauge creation failed: {}", e))
+            })?;
 
         // Create histograms
         let request_latency = HistogramVec::new(
@@ -442,7 +447,9 @@ mod tests {
         let metrics = AndonMetrics::new(config).unwrap();
 
         let duration = Duration::from_millis(100);
-        assert!(metrics.record_request_latency("/api/test", duration).is_ok());
+        assert!(metrics
+            .record_request_latency("/api/test", duration)
+            .is_ok());
         assert!(metrics.record_processing_time("query", duration).is_ok());
     }
 }

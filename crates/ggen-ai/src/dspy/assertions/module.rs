@@ -100,8 +100,7 @@ impl<M: Module> AssertedModule<M> {
 
     /// Execute with assertions using backtrack executor
     async fn execute_with_assertions(
-        &self,
-        inputs: HashMap<String, Value>,
+        &self, inputs: HashMap<String, Value>,
     ) -> AssertionResult<HashMap<String, Value>> {
         let mut executor = BacktrackExecutor::new(self.assertions.clone());
 
@@ -120,8 +119,7 @@ impl<M: Module + Send + Sync + 'static> Module for AssertedModule<M> {
     }
 
     async fn forward(
-        &self,
-        inputs: HashMap<String, Value>,
+        &self, inputs: HashMap<String, Value>,
     ) -> Result<HashMap<String, Value>, ModuleError> {
         if self.assertions.is_empty() {
             // No assertions - just forward to inner module
@@ -154,8 +152,7 @@ impl<M: Module + Send + Sync + 'static> Module for AssertedModule<M> {
 /// );
 /// ```
 pub fn create_asserted_module<M: Module>(
-    module: M,
-    assertions: Vec<Assertion>,
+    module: M, assertions: Vec<Assertion>,
 ) -> AssertedModule<M> {
     AssertedModule::new(module).with_assertions(assertions)
 }
@@ -184,9 +181,9 @@ pub fn arc_asserted_module<M: Module + Send + Sync + 'static>(
 
 #[cfg(test)]
 mod tests {
+    use super::super::validator::*;
     use super::*;
     use crate::dspy::{field::*, Signature};
-    use super::super::validator::*;
 
     // Mock module for testing
     struct TestModule {
@@ -211,8 +208,7 @@ mod tests {
         }
 
         async fn forward(
-            &self,
-            _inputs: HashMap<String, Value>,
+            &self, _inputs: HashMap<String, Value>,
         ) -> Result<HashMap<String, Value>, ModuleError> {
             let mut outputs = HashMap::new();
             outputs.insert("output".to_string(), Value::String(self.output.clone()));
@@ -248,8 +244,7 @@ mod tests {
     async fn test_asserted_module_execute_success() {
         let module = TestModule::new("hello world".to_string());
 
-        let assertion = Assertion::assert(LengthValidator::between(5, 20))
-            .max_retries(2);
+        let assertion = Assertion::assert(LengthValidator::between(5, 20)).max_retries(2);
 
         let asserted = module.with_assertion(assertion);
 
@@ -263,8 +258,7 @@ mod tests {
     async fn test_asserted_module_execute_failure() {
         let module = TestModule::new("hi".to_string());
 
-        let assertion = Assertion::assert(LengthValidator::min(10))
-            .max_retries(2);
+        let assertion = Assertion::assert(LengthValidator::min(10)).max_retries(2);
 
         let asserted = module.with_assertion(assertion);
 

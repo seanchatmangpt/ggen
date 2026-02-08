@@ -93,7 +93,10 @@ fn test_template_path_traversal_blocked() -> Result<(), Box<dyn std::error::Erro
 
         // Verify: Secret file was NOT accessed
         let secret_content = fs::read_to_string(fixture.secrets_path().join("secrets.txt"))?;
-        assert!(secret_content.contains("API_KEY"), "Secret file should be unchanged");
+        assert!(
+            secret_content.contains("API_KEY"),
+            "Secret file should be unchanged"
+        );
     }
 
     Ok(())
@@ -139,10 +142,7 @@ fn test_null_byte_injection_blocked() -> Result<(), Box<dyn std::error::Error>> 
     let fixture = PathTraversalFixture::new()?;
 
     // Null byte can truncate path in C APIs: "safe.txt\0../../secrets.txt"
-    let malicious_paths = vec![
-        "template.tera\0/etc/passwd",
-        "safe\0/../../../secrets.txt",
-    ];
+    let malicious_paths = vec!["template.tera\0/etc/passwd", "safe\0/../../../secrets.txt"];
 
     for malicious_path in malicious_paths {
         // Act
@@ -204,11 +204,7 @@ fn test_rdf_file_path_traversal_blocked() -> Result<(), Box<dyn std::error::Erro
     let ontology_dir = fixture.workspace_path().join("ontology");
     fs::create_dir_all(&ontology_dir)?;
 
-    let malicious_rdf_paths = vec![
-        "../../../etc/hosts",
-        "../../secrets.txt",
-        "/etc/passwd",
-    ];
+    let malicious_rdf_paths = vec!["../../../etc/hosts", "../../secrets.txt", "/etc/passwd"];
 
     for malicious_path in malicious_rdf_paths {
         // Act: Attempt to load RDF file with traversal
@@ -259,10 +255,11 @@ fn test_output_path_traversal_blocked() -> Result<(), Box<dyn std::error::Error>
             .assert();
 
         // Assert: Should fail with sandbox violation
-        assert.failure()
-            .stderr(predicate::str::contains("sandbox")
+        assert.failure().stderr(
+            predicate::str::contains("sandbox")
                 .or(predicate::str::contains("permission"))
-                .or(predicate::str::contains("invalid")));
+                .or(predicate::str::contains("invalid")),
+        );
 
         // Verify: No files created outside workspace
         let workspace_files: Vec<_> = fs::read_dir(fixture.workspace_path())?
@@ -270,7 +267,10 @@ fn test_output_path_traversal_blocked() -> Result<(), Box<dyn std::error::Error>
             .collect();
 
         // Should only have templates and output directories
-        assert!(workspace_files.len() <= 3, "No extra files should be created");
+        assert!(
+            workspace_files.len() <= 3,
+            "No extra files should be created"
+        );
     }
 
     Ok(())
@@ -301,8 +301,14 @@ fn test_error_messages_dont_leak_system_paths() -> Result<(), Box<dyn std::error
 
     // Assert: Error message should NOT contain system paths
     assert!(!stderr.contains("/etc/"), "Should not leak /etc/ path");
-    assert!(!stderr.contains("C:\\"), "Should not leak Windows system paths");
-    assert!(!stderr.contains("/home/"), "Should not leak user home paths");
+    assert!(
+        !stderr.contains("C:\\"),
+        "Should not leak Windows system paths"
+    );
+    assert!(
+        !stderr.contains("/home/"),
+        "Should not leak user home paths"
+    );
     assert!(!stderr.contains("/root/"), "Should not leak root paths");
 
     // Should contain generic error message

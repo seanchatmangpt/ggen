@@ -48,9 +48,7 @@ pub fn exact_match(field: &str) -> SimpleMetricFn {
         let actual = pred.get(&field);
 
         match (expected, actual) {
-            (Some(exp), Some(act)) => {
-                Ok(if exp == act { 1.0 } else { 0.0 })
-            }
+            (Some(exp), Some(act)) => Ok(if exp == act { 1.0 } else { 0.0 }),
             _ => Ok(0.0),
         }
     })
@@ -70,13 +68,11 @@ pub fn exact_match_ci(field: &str) -> SimpleMetricFn {
         let actual = pred.get(&field).and_then(|v| v.as_str());
 
         match (expected, actual) {
-            (Some(exp), Some(act)) => {
-                Ok(if exp.to_lowercase() == act.to_lowercase() {
-                    1.0
-                } else {
-                    0.0
-                })
-            }
+            (Some(exp), Some(act)) => Ok(if exp.to_lowercase() == act.to_lowercase() {
+                1.0
+            } else {
+                0.0
+            }),
             _ => Ok(0.0),
         }
     })
@@ -105,11 +101,9 @@ pub fn passage_match(answer_field: &str, passage_field: &str) -> SimpleMetricFn 
             .and_then(|v| v.as_array())
             .ok_or_else(|| MetricError::MissingField(passage_field.clone()))?;
 
-        let found = passages.iter().any(|p| {
-            p.as_str()
-                .map(|s| s.contains(answer))
-                .unwrap_or(false)
-        });
+        let found = passages
+            .iter()
+            .any(|p| p.as_str().map(|s| s.contains(answer)).unwrap_or(false));
 
         Ok(if found { 1.0 } else { 0.0 })
     })

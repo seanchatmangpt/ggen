@@ -26,7 +26,9 @@ pub struct Limits {
 }
 
 impl Limits {
-    pub fn new(resource: String, limit: u64, used: u64, reset_at: Option<chrono::DateTime<chrono::Utc>>) -> Self {
+    pub fn new(
+        resource: String, limit: u64, used: u64, reset_at: Option<chrono::DateTime<chrono::Utc>>,
+    ) -> Self {
         let remaining = limit.saturating_sub(used);
         let percentage_used = if limit > 0 {
             (used as f64 / limit as f64) * 100.0

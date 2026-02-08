@@ -334,11 +334,7 @@ impl AndonLogger {
 
     /// Log a message at a specific level
     #[tracing::instrument(skip(self))]
-    pub async fn log(
-        &self,
-        level: LogLevel,
-        message: &str,
-    ) -> Result<()> {
+    pub async fn log(&self, level: LogLevel, message: &str) -> Result<()> {
         // Filter by level
         if level < self.config.level {
             return Ok(());
@@ -354,7 +350,7 @@ impl AndonLogger {
             level: level.as_str().to_string(),
             message: message.to_string(),
             component: "andon".to_string(),
-            trace_id: None,  // Could integrate with OpenTelemetry context if needed
+            trace_id: None, // Could integrate with OpenTelemetry context if needed
             context: serde_json::Map::new(),
             file: None,
             line: None,

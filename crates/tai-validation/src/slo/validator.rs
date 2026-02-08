@@ -109,7 +109,10 @@ impl SloValidator {
     pub fn new() -> Self {
         let mut thresholds = HashMap::new();
         thresholds.insert(MetricType::BuildTime, super::SLO_BUILD_FIRST);
-        thresholds.insert(MetricType::IncrementalBuildTime, super::SLO_BUILD_INCREMENTAL);
+        thresholds.insert(
+            MetricType::IncrementalBuildTime,
+            super::SLO_BUILD_INCREMENTAL,
+        );
         thresholds.insert(MetricType::RdfProcessingTime, super::SLO_RDF_PROCESSING);
         thresholds.insert(MetricType::MemoryUsage, super::SLO_MEMORY_MAX);
         thresholds.insert(MetricType::CliEndToEnd, super::SLO_CLI_END_TO_END);
@@ -126,17 +129,13 @@ impl SloValidator {
     }
 
     /// Validate single metric
-    pub fn validate_metric(
-        &self,
-        metric_type: MetricType,
-        value: f64,
-    ) -> Result<SloMetrics> {
-        let threshold = self
-            .thresholds
-            .get(&metric_type)
-            .ok_or_else(|| ValidationError::ConfigError(
-                format!("No SLO threshold configured for {:?}", metric_type),
-            ))?;
+    pub fn validate_metric(&self, metric_type: MetricType, value: f64) -> Result<SloMetrics> {
+        let threshold = self.thresholds.get(&metric_type).ok_or_else(|| {
+            ValidationError::ConfigError(format!(
+                "No SLO threshold configured for {:?}",
+                metric_type
+            ))
+        })?;
 
         let mut metrics = SloMetrics::new(metric_type, value, *threshold);
         if metrics.is_violating() {

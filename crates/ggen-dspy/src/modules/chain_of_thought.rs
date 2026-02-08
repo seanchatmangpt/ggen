@@ -173,7 +173,10 @@ mod tests {
         let sig = cot.signature();
         // Should not duplicate rationale field
         assert_eq!(
-            sig.outputs.iter().filter(|f| f.name() == "rationale").count(),
+            sig.outputs
+                .iter()
+                .filter(|f| f.name() == "rationale")
+                .count(),
             1
         );
     }

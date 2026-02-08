@@ -91,7 +91,11 @@ pub enum MessageStatus {
 /// Trait for message handling
 pub trait MessageHandler: Send + Sync {
     /// Handle an incoming message
-    fn handle_message(&self, message: Message) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<MessageResponse, MessageError>> + Send>>;
+    fn handle_message(
+        &self, message: Message,
+    ) -> std::pin::Pin<
+        Box<dyn std::future::Future<Output = Result<MessageResponse, MessageError>> + Send>,
+    >;
 
     /// Check if this handler can process the given message type
     fn can_handle(&self, message_type: &MessageType) -> bool;
@@ -217,10 +221,7 @@ impl MessageBroker {
 
 impl Message {
     pub fn new(
-        id: String,
-        message_type: MessageType,
-        source: String,
-        target: Option<String>,
+        id: String, message_type: MessageType, source: String, target: Option<String>,
         content: serde_json::Value,
     ) -> Self {
         Self {
@@ -314,7 +315,11 @@ impl MessageResponse {
 pub struct DefaultMessageHandler;
 
 impl MessageHandler for DefaultMessageHandler {
-    fn handle_message(&self, message: Message) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<MessageResponse, MessageError>> + Send>> {
+    fn handle_message(
+        &self, message: Message,
+    ) -> std::pin::Pin<
+        Box<dyn std::future::Future<Output = Result<MessageResponse, MessageError>> + Send>,
+    > {
         Box::pin(async move {
             match message.message_type {
                 MessageType::TaskRequest => {

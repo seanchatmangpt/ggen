@@ -273,11 +273,7 @@ mod tests {
 
     #[test]
     fn test_result_failed() {
-        let result = TestResult::failed(
-            "test1".to_string(),
-            2.0,
-            "Assertion failed".to_string(),
-        );
+        let result = TestResult::failed("test1".to_string(), 2.0, "Assertion failed".to_string());
         assert!(!result.passed);
         assert!(result.error_message.is_some());
     }

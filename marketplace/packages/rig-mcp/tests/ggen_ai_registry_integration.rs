@@ -4,8 +4,8 @@
 //! to the ggen-ai REGISTRY singleton, making them available to all agents.
 
 use rig_mcp_integration::{
-    registration::{ToolRegistrationManager, RegistrationConfig, RegistrationError},
     discovery::ToolSchema,
+    registration::{RegistrationConfig, RegistrationError, ToolRegistrationManager},
 };
 
 /// Test that discovered tools are registered to the ggen-ai REGISTRY
@@ -54,7 +54,9 @@ async fn test_register_a2a_agents_to_core_registry() {
     // Verify tool is in core registry
     let registry = REGISTRY.read().unwrap();
     assert!(registry.contains(&tool_id));
-    let core_tool = registry.get(&tool_id).expect("Tool should be in core registry");
+    let core_tool = registry
+        .get(&tool_id)
+        .expect("Tool should be in core registry");
     assert_eq!(core_tool.name, "test_tool_registry");
     assert_eq!(core_tool.id, tool_id);
 
@@ -265,7 +267,9 @@ async fn test_registration_standalone_without_ggen_ai() {
 
     let schema = ToolSchema::new("standalone_tool", "Tool without ggen-ai");
 
-    let result = manager.register_tool("http://standalone-7:3000", schema).await;
+    let result = manager
+        .register_tool("http://standalone-7:3000", schema)
+        .await;
 
     assert!(result.is_ok());
 
