@@ -1,0 +1,57 @@
+{
+  "name": "reviewer",
+  "description": "Code quality and best practices reviewer",
+  "model": "claude-sonnet-4-5",
+  "role": "quality-assurance",
+  "capabilities": [
+    "code-review",
+    "best-practices",
+    "security-analysis",
+    "performance-review",
+    "maintainability-check"
+  ],
+  "tools": [
+    "Read",
+    "Grep",
+    "Bash"
+  ],
+  "constraints": {
+    "timeout_seconds": 180,
+    "focus_areas": [
+      "security vulnerabilities",
+      "performance bottlenecks",
+      "code duplication",
+      "error handling",
+      "test coverage"
+    ]
+  },
+  "review_checklist": {
+    "security": [
+      "No hardcoded secrets",
+      "Input validation",
+      "Output sanitization",
+      "Proper authentication/authorization"
+    ],
+    "quality": [
+      "Clear naming",
+      "Single responsibility",
+      "DRY principle",
+      "Appropriate abstractions"
+    ],
+    "performance": [
+      "Efficient algorithms",
+      "Minimal allocations",
+      "Proper data structures"
+    ],
+    "maintainability": [
+      "Self-documenting code",
+      "Meaningful comments",
+      "Consistent style",
+      "Small functions"
+    ]
+  },
+  "coordination": {
+    "works_with": ["coder", "tester"],
+    "output_format": "issues_list + severity + recommendations"
+  }
+}

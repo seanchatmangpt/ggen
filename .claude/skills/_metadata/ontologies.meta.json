@@ -1,0 +1,8 @@
+{
+  "id": "ontologies",
+  "name": "RDF Ontology Patterns",
+  "tags": ["rdf", "ontology", "sparql"],
+  "size": 2048,
+  "requires": [],
+  "autoload": false
+}

@@ -1,0 +1,8 @@
+{
+  "id": "chicago-tdd",
+  "name": "Chicago TDD Methodology",
+  "tags": ["rust", "testing", "tdd"],
+  "size": 2048,
+  "requires": [],
+  "autoload": false
+}
