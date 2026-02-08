@@ -1,0 +1,26 @@
+[package]
+name = "ggen-yawl"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+license = "MIT"
+description = "YAWL workflow generation from industry ontologies using SPARQL CONSTRUCT"
+
+[dependencies]
+ggen-core = { path = "../ggen-core" }
+ggen-utils = { path = "../ggen-utils" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tera = "1.20"
+oxigraph = { version = "0.5.1", features = ["rocksdb"] }
+sha2 = "0.10"
+chrono = { workspace = true }
+
+[dev-dependencies]
+proptest = "1.8"
+criterion = "0.5"
+
+[[bench]]
+name = "yawl_workflow_slo"
+harness = false
