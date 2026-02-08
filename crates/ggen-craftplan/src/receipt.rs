@@ -10,7 +10,6 @@ use serde_json;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::fs;
-use std::path::PathBuf;
 use tracing::{info, instrument};
 
 /// Receipt generator for audit trail
@@ -100,10 +99,9 @@ impl ReceiptGenerator {
             }
         })?;
 
-        fs::write(output_path, json).map_err(|e| CraftplanError::FileError {
+        fs::write(output_path, json).map_err(|e| CraftplanError::Io {
             path: output_path.into(),
-            message: format!("Failed to write receipt: {}", e),
-            source: Some(e),
+            source: e,
         })?;
 
         info!("Receipt written to: {}", output_path);
@@ -149,10 +147,9 @@ impl ReceiptGenerator {
 
     /// Compute hash of a file
     fn hash_file(&self, file_path: &str) -> Result<String> {
-        let content = fs::read(file_path).map_err(|e| CraftplanError::FileError {
+        let content = fs::read(file_path).map_err(|e| CraftplanError::Io {
             path: file_path.into(),
-            message: format!("Failed to read file for hashing: {}", e),
-            source: Some(e),
+            source: e,
         })?;
 
         Ok(self.compute_hash_bytes(&content))

@@ -4,6 +4,7 @@
 #![cfg_attr(test, allow(dead_code))]
 
 use super::*;
+#[cfg(all(feature = "std", feature = "knhk-otel"))]
 use alloc::format;
 use alloc::string::String;
 use alloc::vec::Vec;

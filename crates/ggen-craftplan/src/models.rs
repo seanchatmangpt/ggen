@@ -3,7 +3,6 @@
 //! This module defines the data structures that represent extracted RDF entities
 //! and the Elixir code artifacts to be generated.
 
-use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 

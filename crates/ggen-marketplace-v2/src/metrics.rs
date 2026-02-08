@@ -207,7 +207,6 @@ impl Observable for MetricsCollector {
         Ok(())
     }
 
-    #[must_use]
     async fn get_metrics(&self) -> Result<String> {
         let summary = self.summary();
         Ok(summary.to_string())

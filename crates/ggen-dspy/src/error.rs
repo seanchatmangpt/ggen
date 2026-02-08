@@ -109,12 +109,6 @@ pub enum DspyError {
     Other(String),
 }
 
-impl From<DspyError> for DspyError {
-    fn from(err: DspyError) -> Self {
-        err
-    }
-}
-
 impl DspyError {
     /// Create a module error
     pub fn module(msg: impl Into<String>) -> Self {

@@ -19,20 +19,25 @@ pub trait AsyncRepository: Send + Sync {
     type PackageIterator: Iterator<Item = Package> + Send;
 
     /// Get a package by ID
+    #[must_use]
     async fn get_package(&self, id: &PackageId) -> Result<Package>;
 
     /// Get a specific version of a package
+    #[must_use]
     async fn get_package_version(
         &self, id: &PackageId, version: &PackageVersion,
     ) -> Result<Package>;
 
     /// Get all packages in the repository
+    #[must_use]
     async fn all_packages(&self) -> Result<Vec<Package>>;
 
     /// List all versions of a package
+    #[must_use]
     async fn list_versions(&self, id: &PackageId) -> Result<Vec<PackageVersion>>;
 
     /// Check if a package exists
+    #[must_use]
     async fn package_exists(&self, id: &PackageId) -> Result<bool>;
 }
 
@@ -46,9 +51,11 @@ pub trait Queryable: Send + Sync {
     type QueryResult: Send + Sync;
 
     /// Execute a query
+    #[must_use]
     async fn query(&self, query: Self::Query) -> Result<Self::QueryResult>;
 
     /// Explain a query (for debugging)
+    #[must_use]
     fn explain_query(&self, query: &Self::Query) -> String;
 }
 
@@ -56,14 +63,17 @@ pub trait Queryable: Send + Sync {
 #[async_trait]
 pub trait Installable: Send + Sync {
     /// Install a package
+    #[must_use]
     async fn install(&self, manifest: InstallationManifest) -> Result<InstallationManifest>;
 
     /// Resolve dependencies for a package
+    #[must_use]
     async fn resolve_dependencies(
         &self, id: &PackageId, version: &PackageVersion,
     ) -> Result<Vec<(PackageId, PackageVersion)>>;
 
     /// Dry-run installation without actual changes
+    #[must_use]
     async fn dry_run_install(&self, manifest: &InstallationManifest) -> Result<String>;
 }
 
@@ -74,24 +84,30 @@ pub trait Validatable: Send + Sync {
     type ValidationResult: Send + Sync;
 
     /// Validate a package
+    #[must_use]
     async fn validate(&self, package: &Package) -> Result<Self::ValidationResult>;
 
     /// Validate a manifest
+    #[must_use]
     async fn validate_manifest(&self, manifest: &Manifest) -> Result<Self::ValidationResult>;
 
     /// Check if validation passes
+    #[must_use]
     fn validation_passes(&self, result: &Self::ValidationResult) -> bool;
 }
 
 /// Trait for cryptographic operations with HRTB
 pub trait Signable {
     /// Sign data and return signature
+    #[must_use]
     fn sign(&self, data: &[u8]) -> Result<String>;
 
     /// Verify a signature
+    #[must_use]
     fn verify(&self, data: &[u8], signature: &str) -> Result<bool>;
 
     /// Get the public key
+    #[must_use]
     fn public_key(&self) -> String;
 }
 
@@ -105,6 +121,7 @@ pub trait Observable: Send + Sync {
     async fn record_event(&self, name: &str, data: &str) -> Result<()>;
 
     /// Get metrics summary
+    #[must_use]
     async fn get_metrics(&self) -> Result<String>;
 }
 

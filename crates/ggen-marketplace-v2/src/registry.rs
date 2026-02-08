@@ -175,7 +175,6 @@ impl AsyncRepository for Registry {
     /// # Errors
     ///
     /// * [`Error::PackageNotFound`] - When the package ID does not exist in the registry
-    #[must_use]
     async fn get_package(&self, id: &PackageId) -> Result<Package> {
         // Check if in primary storage
         if let Some(package) = self.packages.get(id) {
@@ -197,7 +196,6 @@ impl AsyncRepository for Registry {
     ///
     /// * [`Error::PackageNotFound`] - When the package ID does not exist in the registry
     /// * [`Error::InvalidVersion`] - When the version does not exist for the package
-    #[must_use]
     async fn get_package_version(
         &self, id: &PackageId, version: &PackageVersion,
     ) -> Result<Package> {
@@ -229,7 +227,6 @@ impl AsyncRepository for Registry {
     /// This function currently always returns `Ok`. Future implementations may return:
     /// * [`Error::RegistryError`] - When the registry is unavailable or corrupted
     /// * [`Error::ConcurrencyError`] - When concurrent access causes inconsistency
-    #[must_use]
     async fn all_packages(&self) -> Result<Vec<Package>> {
         // Try cache first
         let cache_key = "all_packages".to_string();
@@ -264,7 +261,6 @@ impl AsyncRepository for Registry {
     /// # Errors
     ///
     /// * [`Error::PackageNotFound`] - When the package ID does not exist in the registry
-    #[must_use]
     async fn list_versions(&self, id: &PackageId) -> Result<Vec<PackageVersion>> {
         let package = self.get_package(id).await?;
         Ok(package.versions)
@@ -276,7 +272,6 @@ impl AsyncRepository for Registry {
     ///
     /// This function currently always returns `Ok`. Future implementations may return:
     /// * [`Error::RegistryError`] - When the registry is unavailable
-    #[must_use]
     async fn package_exists(&self, id: &PackageId) -> Result<bool> {
         Ok(self.packages.contains_key(id))
     }

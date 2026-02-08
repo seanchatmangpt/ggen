@@ -1018,6 +1018,7 @@ impl EmitStage {
     }
 
     #[cfg(not(feature = "std"))]
+    #[allow(dead_code)]
     fn get_current_timestamp_ms() -> u64 {
         0 // Placeholder for no_std
     }

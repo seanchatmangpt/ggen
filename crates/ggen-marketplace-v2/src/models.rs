@@ -77,6 +77,7 @@ impl LicenseId {
 }
 
 impl AsRef<str> for LicenseId {
+    #[allow(unused_attributes)] // standard trait method
     #[must_use]
     fn as_ref(&self) -> &str {
         &self.0
@@ -234,6 +235,7 @@ impl FromStr for PackageId {
 }
 
 impl AsRef<str> for PackageId {
+    #[allow(unused_attributes)] // standard trait method
     #[must_use]
     fn as_ref(&self) -> &str {
         &self.0
