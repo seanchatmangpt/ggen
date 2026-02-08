@@ -542,21 +542,7 @@ Created comprehensive architecture documentation:
 
 ## Memory Storage
 
-Architecture design stored in Claude Flow memory:
-
-```bash
-# Module architecture
-npx claude-flow@alpha hooks post-task \
-  --memory-key "swarm/architecture/domain-modules"
-
-# API signatures
-npx claude-flow@alpha hooks post-task \
-  --memory-key "swarm/architecture/api-signatures"
-
-# Dependency graph
-npx claude-flow@alpha hooks post-task \
-  --memory-key "swarm/architecture/dependencies"
-```
+Architecture design stored in `.claude/memory/MEMORY.md` or via Claude Code Task tool.
 
 ---
 

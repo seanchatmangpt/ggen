@@ -217,7 +217,7 @@
 
 ### Pre-Task Hook ✅
 ```bash
-npx claude-flow@alpha hooks pre-task --description "integration-testing-v2.0.0"
+# Native hooks pre-task --description "integration-testing-v2.0.0"
 # Result: Task ID generated, saved to memory
 ```
 
@@ -228,7 +228,7 @@ npx claude-flow@alpha hooks pre-task --description "integration-testing-v2.0.0"
 
 ### Post-Task Hook ✅
 ```bash
-npx claude-flow@alpha hooks post-task --task-id "integration-testing-v2.0.0"
+# Native hooks post-task --task-id "integration-testing-v2.0.0"
 # Result: Task completion recorded
 ```
 

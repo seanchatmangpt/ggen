@@ -21,25 +21,9 @@ Each agent has been assigned a specific mission document:
 4. **Report progress daily** via Task Orchestrator
 5. **Escalate blockers immediately** (don't wait)
 
-### Coordination Hooks
+### Coordination
 
-**Before starting work**:
-```bash
-npx claude-flow@alpha hooks pre-task --description "[your task]"
-npx claude-flow@alpha hooks session-restore --session-id "swarm-week3"
-```
-
-**During work** (after significant changes):
-```bash
-npx claude-flow@alpha hooks post-edit --file "[changed file]" --memory-key "swarm/[your-agent]/[step]"
-npx claude-flow@alpha hooks notify --message "[status update]"
-```
-
-**After completing work**:
-```bash
-npx claude-flow@alpha hooks post-task --task-id "[your-task-id]"
-npx claude-flow@alpha hooks session-end --export-metrics true
-```
+Use Claude Code Task tool and TodoWrite. Batch operations per project workflow. Track progress via `.claude/memory/MEMORY.md`.
 
 ### Daily Standup Format
 
@@ -73,7 +57,7 @@ Metrics: [Quantifiable progress]
 
 **If you encounter a blocker**:
 1. Log it immediately: `echo "BLOCKER: [description]" >> week3_coordination/blockers.log`
-2. Notify Task Orchestrator: `npx claude-flow@alpha hooks notify --message "[BLOCKER] [description]"`
+2. Log blocker in week3_coordination/blockers.log and update TodoWrite
 3. Assess impact: Can you work around it or is it critical path?
 4. If critical: Wait for resolution. If non-critical: Continue other work.
 
@@ -127,9 +111,8 @@ Metrics: [Quantifiable progress]
 - `hyperfine`, `flamegraph` (profiling)
 
 **Coordination**:
-- `npx claude-flow@alpha hooks [command]`
-- `npx claude-flow@alpha swarm status`
-- `npx claude-flow@alpha agent list`
+- Claude Code Task tool for agent execution
+- TodoWrite for progress tracking
 
 ### Timeline Awareness
 

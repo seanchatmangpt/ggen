@@ -201,7 +201,7 @@ This document specifies the complete documentation architecture for "Crossing th
 |--------------|-------------------|-----------------|
 | `/docs/README.md` | Main entry point | Add "🚀 Start Here: Paradigm Shift" section |
 | `/docs/getting-started/README.md` | Installation guide | Add "Before You Start: Mental Model Shift" prereq |
-| `/docs/CLAUDE.md` | Agent instructions | Split into `CLAUDE-RUST.md` + `CLAUDE-ONTOLOGY.md` |
+| root `CLAUDE.md` | Agent instructions | Authoritative; split into `CLAUDE-RUST.md` + `CLAUDE-ONTOLOGY.md` if needed |
 | `/docs/explanations/ontology-driven.md` | Ontology basics | Link to paradigm-shift fundamentals |
 | `/docs/tutorials/` | Hands-on guides | Add paradigm shift intro tutorial |
 | `/docs/how-to/` | Task guides | Add migration and debugging guides |

@@ -483,28 +483,6 @@ Since this is an Erlang project (not Rust), here are the rebar3 equivalents to c
 
 ---
 
-## Coordination Hooks
-
-### Pre-Task Hook
-```bash
-npx claude-flow@alpha hooks pre-task \
-  --task-id "taiea-build-verify" \
-  --description "TAIEA build verification"
-```
-**Status**: ✅ Executed
-**Task Complexity**: LOW (19%)
-**Recommended Model**: Haiku
-**Estimated Duration**: 10-30 min
-
-### Post-Task Hook
-```bash
-npx claude-flow@alpha hooks post-task \
-  --task-id "taiea-build-verify"
-```
-**Status**: ⏳ To be executed after this receipt is written
-
----
-
 ## Build Receipt Cryptographic Hash
 
 **Build Timestamp**: 2026-01-27T09:18:00Z

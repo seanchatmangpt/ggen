@@ -235,13 +235,13 @@ Tests support coordination hooks for swarm testing:
 
 ```bash
 # Pre-test hook
-npx claude-flow@alpha hooks pre-task --description "Run marketplace validation tests"
+# Native hooks pre-task --description "Run marketplace validation tests"
 
 # Post-test hook
-npx claude-flow@alpha hooks post-task --task-id "marketplace-validation"
+# Native hooks post-task --task-id "marketplace-validation"
 
 # Memory storage
-npx claude-flow@alpha hooks post-edit \
+# Native hooks post-edit \
     --file "tests/integration/marketplace_validation.rs" \
     --memory-key "swarm/tests/marketplace-validation"
 ```

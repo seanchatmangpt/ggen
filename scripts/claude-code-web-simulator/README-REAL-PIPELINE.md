@@ -524,18 +524,13 @@ Audit Log Entries:
 
 ## Integration with Claude Code
 
-The simulator integrates with Claude Code's task coordination via hooks:
+The simulator integrates with Claude Code's Task tool. Use native patterns:
 
 ```bash
-# Before generation
-npx claude-flow@alpha hooks pre-task --description "Generate code with ggen"
+# Run generation via Task tool
+Task("ggen", "Generate code with ggen sync...", "coder")
 
-# During generation
-npx claude-flow@alpha hooks post-edit --file "workspace/receipts/exec-*.json"
-
-# After generation
-npx claude-flow@alpha hooks post-task --task-id "generation-001"
-npx claude-flow@alpha hooks session-end --export-metrics true
+# Receipts written to workspace/receipts/exec-*.json
 ```
 
 ## Known Limitations

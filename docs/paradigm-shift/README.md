@@ -251,7 +251,7 @@ Advanced mastery.
 |---------------|----------------|-------|
 | `/docs/README.md` | Add "🚀 Start Here: Paradigm Shift" section | Phase 1 |
 | `/docs/getting-started/README.md` | Add prerequisites: mental model shift | Phase 1 |
-| `/docs/CLAUDE.md` | Split into CLAUDE-RUST.md + CLAUDE-ONTOLOGY.md | Phase 2 |
+| root `CLAUDE.md` | Authoritative; split into CLAUDE-RUST.md + CLAUDE-ONTOLOGY.md if needed | Phase 2 |
 | `/docs/explanations/ontology-driven.md` | Link to paradigm-shift fundamentals | Phase 1 |
 | `/docs/tutorials/` | Add paradigm shift intro (30-min tutorial) | Phase 2 |
 

@@ -151,7 +151,9 @@ impl Extractor {
                         crate::error::CraftplanError::sparql_query(&query, e.to_string())
                     })?;
 
-                    if let (Some(attr_name), Some(type_)) = (solution.get("attr_name"), solution.get("type")) {
+                    if let (Some(attr_name), Some(type_)) =
+                        (solution.get("attr_name"), solution.get("type"))
+                    {
                         let required = solution
                             .get("required")
                             .map(|r| r.to_string() == "true")

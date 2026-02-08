@@ -255,7 +255,7 @@ Found an error or want to improve the documentation? Contributions are welcome!
 ### Development Tools
 - **[Cargo Make Guide](MAKEFILE.md)** - Complete guide to `cargo make` tasks and workflows
 - **[CI/CD Workflows](how-to-guides/cicd-workflows.md)** - GitHub Actions workflows for CI/CD and releases
-- **[Claude Development Configuration](CLAUDE.md)** - Claude-specific development environment setup
+- **[Claude Development Configuration](../CLAUDE.md)** - Claude-specific development environment setup
 
 ### Marketplace
 - **[Marketplace Production Guide](MARKETPLACE.md)** - Production deployment guide for the marketplace

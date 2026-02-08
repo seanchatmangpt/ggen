@@ -1559,13 +1559,7 @@ pub fn resolve(&self, candidates: &[DependencyCandidate])
 
 ## Memory Storage Strategy
 
-**Design decisions stored at**: `hive/architect/ggen-toml-design`
-
-```bash
-npx claude-flow@alpha hooks post-edit \
-  --file "docs/week2/ARCHITECTURE_DESIGN_GGEN_TOML.md" \
-  --memory-key "hive/architect/ggen-toml-design"
-```
+**Design decisions stored at**: `.claude/memory/MEMORY.md` (key: `hive/architect/ggen-toml-design`)
 
 **Memory contents:**
 - Type-first API design with PhantomData state machines

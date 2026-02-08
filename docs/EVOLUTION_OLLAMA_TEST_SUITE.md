@@ -275,7 +275,7 @@ A comprehensive test suite was designed for the evolution system + ollama integr
 **Note**: Test files were created but not executed due to workspace configuration issues (ggen-temporal dependency conflicts). The tests are production-ready and follow all Chicago TDD principles.
 
 ### Memory Storage
-✅ Test results stored in `.swarm/memory.db` via claude-flow hooks:
+✅ Test results stored in `.swarm/memory.db` via native patterns:
 - Task ID: `evolution-ollama-tests`
 - Memory Key: `evolution-ollama/test-results`
 - Timestamp: 2025-11-19T19:24:23.239Z

@@ -1153,21 +1153,7 @@ All domain operations must meet:
 
 ## Memory Storage Strategy
 
-Store design decisions in Claude Flow memory:
-
-```bash
-npx claude-flow@alpha hooks post-task \
-  --memory-key "swarm/architecture/modules" \
-  --description "Marketplace, Template, Project domain module design"
-
-npx claude-flow@alpha hooks post-task \
-  --memory-key "swarm/architecture/dependencies" \
-  --description "Cross-module dependency graph and shared types"
-
-npx claude-flow@alpha hooks post-task \
-  --memory-key "swarm/architecture/api-patterns" \
-  --description "Async, Serialize, Result<T> API design patterns"
-```
+Store design decisions in `.claude/memory/MEMORY.md` or use Claude Code Task tool with native patterns.
 
 ---
 

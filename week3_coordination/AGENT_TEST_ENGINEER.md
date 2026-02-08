@@ -120,18 +120,18 @@ mod graph_core_tests {
 
 ### Before Starting Each Module
 ```bash
-npx claude-flow@alpha hooks pre-task --description "Testing [module]: [focus area]"
+# Native:  hooks pre-task --description "Testing [module]: [focus area]"
 ```
 
 ### After Completing Each Module
 ```bash
-npx claude-flow@alpha hooks post-task --task-id "test-[module]"
-npx claude-flow@alpha hooks notify --message "Completed [X] tests for [module], [Y] passing"
+# Native:  hooks post-task --task-id "test-[module]"
+# Native:  hooks notify --message "Completed [X] tests for [module], [Y] passing"
 ```
 
 ### Daily Progress Updates
 ```bash
-npx claude-flow@alpha hooks post-edit --file "[test file]" --memory-key "swarm/test-engineer/day-[N]"
+# Native:  hooks post-edit --file "[test file]" --memory-key "swarm/test-engineer/day-[N]"
 ```
 
 ## Success Criteria

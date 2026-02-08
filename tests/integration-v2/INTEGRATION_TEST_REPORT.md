@@ -345,8 +345,8 @@ The gap: **CLI integration is 5/77 commands migrated**. Most CLI commands show "
 
 ## Next Steps
 
-1. **Store results in Claude-Flow memory**: `mcp__claude-flow__memory_usage store`
-2. **Run post-task hook**: `npx claude-flow@alpha hooks post-task`
+1. **Store results in project memory**: `.claude/memory/MEMORY.md`
+2. **Run post-task hook**: `TodoWrite task completion`
 3. **Generate executive summary**: For Hive Mind coordinator
 4. **Create migration tracker**: Track 77-command migration progress
 

@@ -49,11 +49,10 @@ impl Canonicalizer {
         debug!("Canonicalizing file: {}", file_path);
 
         // Read file
-        let content =
-            std::fs::read_to_string(file_path).map_err(|e| CraftplanError::Io {
-                path: file_path.into(),
-                source: e,
-            })?;
+        let content = std::fs::read_to_string(file_path).map_err(|e| CraftplanError::Io {
+            path: file_path.into(),
+            source: e,
+        })?;
 
         // Normalize whitespace (Elixir formatter will handle this)
         let normalized = self.normalize_whitespace(&content);
