@@ -46,6 +46,7 @@ pub struct RdfRegistry {
 
 impl RdfRegistry {
     /// Create a new RDF-backed registry
+    #[must_use]
     pub fn new() -> Self {
         let store = Store::new().expect("Failed to create RDF store");
 
@@ -93,6 +94,7 @@ impl RdfRegistry {
     ///
     /// * [`Error::RdfStoreError`] - When inserting triples into the RDF store fails
     /// * [`Error::SerializationError`] - When serializing package data to RDF fails
+    #[must_use]
     pub async fn insert_package_rdf(&self, package: &Package) -> Result<()> {
         let _lock = self.write_lock.write();
         self.mapper.package_to_rdf(package).await
@@ -104,6 +106,7 @@ impl RdfRegistry {
     ///
     /// * [`Error::RdfStoreError`] - When inserting triples into the RDF store fails
     /// * [`Error::SerializationError`] - When serializing package data to RDF fails
+    #[must_use]
     pub async fn batch_insert_packages(&self, packages: Vec<Package>) -> Result<usize> {
         let _lock = self.write_lock.write();
         let mut inserted = 0;
@@ -127,6 +130,7 @@ impl RdfRegistry {
     ///
     /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
     /// * [`Error::RdfStoreError`] - When querying the RDF store fails
+    #[must_use]
     pub fn query_sparql(&self, query: &str) -> Result<Vec<String>> {
         let results = self
             .store
@@ -156,6 +160,7 @@ impl RdfRegistry {
     }
 
     /// Get statistics about the RDF store
+    #[must_use]
     pub fn stats(&self) -> RdfRegistryStats {
         let query_count = self
             .queries_executed

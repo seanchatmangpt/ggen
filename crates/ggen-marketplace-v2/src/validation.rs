@@ -152,12 +152,10 @@ impl Default for PackageValidator {
 impl Validatable for PackageValidator {
     type ValidationResult = ValidationResult;
 
-    #[must_use]
     async fn validate(&self, package: &Package) -> Result<Self::ValidationResult> {
         self.validate_all(package).await
     }
 
-    #[must_use]
     async fn validate_manifest(&self, _manifest: &Manifest) -> Result<Self::ValidationResult> {
         // Manifest validation would go here
         Ok(ValidationResult {
@@ -167,7 +165,6 @@ impl Validatable for PackageValidator {
         })
     }
 
-    #[must_use]
     fn validation_passes(&self, result: &Self::ValidationResult) -> bool {
         result.passed
     }

@@ -71,6 +71,15 @@ pub enum CraftplanError {
     /// Parse error with context
     #[error("Failed to parse {file_type}: {reason}")]
     Parse { file_type: String, reason: String },
+
+    /// File operation error with detailed context
+    #[error("File error for {path}: {message}")]
+    FileError {
+        path: String,
+        message: String,
+        #[source]
+        source: Option<std::io::Error>,
+    },
 }
 
 impl CraftplanError {

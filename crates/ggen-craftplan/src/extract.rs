@@ -2,17 +2,18 @@
 
 use crate::error::Result;
 use crate::normalize::Normalizer;
-use serde::Deserialize;
+use oxigraph::sparql::{QueryResults, SparqlEvaluator};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ElixirModule {
     pub module_name: String,
     pub doc: Option<String>,
     pub entities: Vec<Entity>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Entity {
     pub name: String,
     pub plural: Option<String>,
@@ -20,7 +21,7 @@ pub struct Entity {
     pub relationships: Vec<Relationship>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Attribute {
     pub name: String,
     pub type_: String,
@@ -28,7 +29,7 @@ pub struct Attribute {
     pub doc: Option<String>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Relationship {
     pub name: String,
     pub cardinality: String,
@@ -46,7 +47,7 @@ struct ExtractionContext {
 }
 
 impl Extractor {
-    pub fn new(normalizer: &Normalizer) -> Result<Self> {
+    pub fn new(_normalizer: &Normalizer) -> Result<Self> {
         Ok(Self {
             context: ExtractionContext {
                 entities: HashMap::new(),
@@ -66,26 +67,50 @@ impl Extractor {
             }
             "#;
 
-        let results = store
-            .query(query)
+        let results = SparqlEvaluator::new()
+            .parse_query(query)
+            .map_err(|e| crate::error::CraftplanError::sparql_query(query, e.to_string()))?
+            .on_store(store)
+            .execute()
             .map_err(|e| crate::error::CraftplanError::sparql_query(query, e.to_string()))?;
 
         let mut entities = Vec::new();
 
-        for result in results {
-            let name = result.get("name").map_err(|_| {
-                crate::error::CraftplanError::rdf_validation("Missing 'name' binding")
-            })?;
+        // Process QueryResults based on its actual type
+        match results {
+            QueryResults::Solutions(mut solutions) => {
+                while let Some(solution) = solutions.next() {
+                    let solution = solution.map_err(|e| {
+                        crate::error::CraftplanError::sparql_query(query, e.to_string())
+                    })?;
 
-            let name_str = name.to_string();
-            let plural_str = result.get("plural").map(|p| p.to_string());
+                    let name = solution.get("name").ok_or_else(|| {
+                        crate::error::CraftplanError::rdf_validation("Missing 'name' binding")
+                    })?;
 
-            entities.push(Entity {
-                name: name_str,
-                plural: plural_str,
-                attributes: Vec::new(),
-                relationships: Vec::new(),
-            });
+                    let name_str = name.to_string();
+                    let plural_str = solution.get("plural").map(|p| p.to_string());
+
+                    entities.push(Entity {
+                        name: name_str,
+                        plural: plural_str,
+                        attributes: Vec::new(),
+                        relationships: Vec::new(),
+                    });
+                }
+            }
+            QueryResults::Boolean(_) => {
+                return Err(crate::error::CraftplanError::sparql_query(
+                    query,
+                    "Expected SELECT query, got ASK".to_string(),
+                ));
+            }
+            QueryResults::Graph(_) => {
+                return Err(crate::error::CraftplanError::sparql_query(
+                    query,
+                    "Expected SELECT query, got CONSTRUCT/DESCRIBE".to_string(),
+                ));
+            }
         }
 
         Ok(entities)
@@ -109,27 +134,51 @@ impl Extractor {
             "#
         );
 
-        let results = store
-            .query(&query)
+        let results = SparqlEvaluator::new()
+            .parse_query(&query)
+            .map_err(|e| crate::error::CraftplanError::sparql_query(&query, e.to_string()))?
+            .on_store(store)
+            .execute()
             .map_err(|e| crate::error::CraftplanError::sparql_query(&query, e.to_string()))?;
 
         let mut attributes = Vec::new();
 
-        for result in results {
-            if let (Some(attr_name), Some(type_)) = (result.get("attr_name"), result.get("type")) {
-                let required = result
-                    .get("required")
-                    .map(|r| r.to_string() == "true")
-                    .unwrap_or(false);
+        // Process QueryResults based on its actual type
+        match results {
+            QueryResults::Solutions(mut solutions) => {
+                while let Some(solution) = solutions.next() {
+                    let solution = solution.map_err(|e| {
+                        crate::error::CraftplanError::sparql_query(&query, e.to_string())
+                    })?;
 
-                let doc = result.get("doc").map(|d| d.to_string());
+                    if let (Some(attr_name), Some(type_)) = (solution.get("attr_name"), solution.get("type")) {
+                        let required = solution
+                            .get("required")
+                            .map(|r| r.to_string() == "true")
+                            .unwrap_or(false);
 
-                attributes.push(Attribute {
-                    name: attr_name.to_string(),
-                    type_: type_.to_string(),
-                    required,
-                    doc,
-                });
+                        let doc = solution.get("doc").map(|d| d.to_string());
+
+                        attributes.push(Attribute {
+                            name: attr_name.to_string(),
+                            type_: type_.to_string(),
+                            required,
+                            doc,
+                        });
+                    }
+                }
+            }
+            QueryResults::Boolean(_) => {
+                return Err(crate::error::CraftplanError::sparql_query(
+                    &query,
+                    "Expected SELECT query, got ASK".to_string(),
+                ));
+            }
+            QueryResults::Graph(_) => {
+                return Err(crate::error::CraftplanError::sparql_query(
+                    &query,
+                    "Expected SELECT query, got CONSTRUCT/DESCRIBE".to_string(),
+                ));
             }
         }
 

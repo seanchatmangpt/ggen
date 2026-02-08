@@ -48,10 +48,9 @@ impl CodeGenerator {
         let output_dir = output_dir.as_ref().to_path_buf();
 
         // Create output directory
-        std::fs::create_dir_all(&output_dir).map_err(|e| CraftplanError::FileError {
+        std::fs::create_dir_all(&output_dir).map_err(|e| CraftplanError::Io {
             path: output_dir.clone(),
-            message: format!("Failed to create output directory: {}", e),
-            source: Some(e),
+            source: e,
         })?;
 
         Ok(Self {
@@ -81,7 +80,7 @@ impl CodeGenerator {
     /// # }
     /// ```
     #[instrument(skip(self))]
-    pub fn generate_from_rdf<P: AsRef<Path>>(&self, rdf_path: P) -> Result<GenerationReceipt> {
+    pub fn generate_from_rdf<P: AsRef<Path> + std::fmt::Debug>(&self, rdf_path: P) -> Result<GenerationReceipt> {
         let rdf_path = rdf_path.as_ref();
         info!("Starting code generation from: {}", rdf_path.display());
 
@@ -89,13 +88,13 @@ impl CodeGenerator {
 
         // μ₁: Normalize
         info!("Stage μ₁ (Normalize): Validating RDF");
-        let normalizer = Normalizer::new()?;
-        let normalized = self.normalize_stage(&normalizer, rdf_path)?;
+        let mut normalizer = Normalizer::new()?;
+        let normalized = self.normalize_stage(&mut normalizer, rdf_path)?;
 
         // μ₂: Extract
         info!("Stage μ₂ (Extract): Querying RDF graph");
-        let extractor = Extractor::new()?;
-        let extracted = self.extract_stage(&extractor, &normalized)?;
+        let mut extractor = Extractor::new(&normalizer)?;
+        let extracted = self.extract_stage(&mut extractor, &normalized)?;
 
         // μ₃: Emit
         info!("Stage μ₃ (Emit): Rendering Elixir code");
@@ -135,7 +134,7 @@ impl CodeGenerator {
     }
 
     /// μ₁ stage: Normalize RDF
-    fn normalize_stage(&self, normalizer: &Normalizer, rdf_path: &Path) -> Result<NormalizedData> {
+    fn normalize_stage(&self, normalizer: &mut Normalizer, rdf_path: &Path) -> Result<NormalizedData> {
         normalizer.load_rdf(rdf_path)?;
         normalizer.validate()?;
 
@@ -150,23 +149,20 @@ impl CodeGenerator {
 
     /// μ₂ stage: Extract entity data
     fn extract_stage(
-        &self, extractor: &Extractor, normalized: &NormalizedData,
+        &self, extractor: &mut Extractor, normalized: &NormalizedData,
     ) -> Result<ExtractedData> {
-        let entities = extractor.extract_entities(normalized.store())?;
+        let entities = extractor.extract_entities(&normalized.store)?;
 
-        let mut extracted = ExtractedData::new();
-        for entity in entities {
-            let attributes = extractor.extract_attributes(normalized.store(), &entity.name)?;
-            // Build full Elixir module with attributes
-            // This is simplified - full implementation would handle relationships too
-        }
+        // For now, just return empty ExtractedData
+        // Full implementation would build ElixirModule from entities
+        let _ = entities; // Suppress unused warning for now
 
-        Ok(extracted)
+        Ok(ExtractedData::new())
     }
 
     /// μ₃ stage: Emit Elixir code
     fn emit_stage(
-        &self, emitter: &Emitter, normalized: &NormalizedData, extracted: &ExtractedData,
+        &self, _emitter: &Emitter, _normalized: &NormalizedData, _extracted: &ExtractedData,
     ) -> Result<Vec<String>> {
         // This is a placeholder - actual implementation would use the emit module
         // For now, just return empty vector
@@ -198,12 +194,6 @@ impl CodeGenerator {
         self.generate_receipts = generate;
         self
     }
-}
-
-/// Temporary struct for normalized data (simplified)
-pub struct NormalizedData {
-    pub store: oxigraph::store::Store,
-    pub entities: Vec<String>,
 }
 
 #[cfg(test)]

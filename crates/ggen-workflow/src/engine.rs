@@ -950,9 +950,18 @@ impl WorkflowEngine {
                             .task_results
                             .insert(result.task_id.clone(), result.clone());
 
-                        // Find newly ready tasks
-                        let newly_ready = scheduler.find_ready_after(&result.task_id)?;
-                        workflow_state.ready_tasks.extend(newly_ready);
+                        // Find newly ready tasks - check all tasks whose dependencies
+                        // are now satisfied by the completed task
+                        let completed = &workflow_state.completed_tasks;
+                        for (task_id, deps) in &scheduler.dependency_graph {
+                            if !completed.contains(task_id) && !workflow_state.running_tasks.contains(task_id) {
+                                // Task is not completed and not running - check if all deps are met
+                                let deps_satisfied = deps.iter().all(|dep| completed.contains(dep));
+                                if deps_satisfied {
+                                    workflow_state.ready_tasks.insert(task_id.clone());
+                                }
+                            }
+                        }
                     } else {
                         workflow_state.failed_tasks.insert(
                             result.task_id.clone(),
@@ -1299,11 +1308,8 @@ impl TaskScheduler {
         self.reverse_dependencies.clear();
         self.tasks.clear();
 
-        // Validate for circular dependencies
-        self.validate_no_cycles(&tasks)?;
-
-        // Build dependency graph
-        for task in tasks {
+        // Build dependency graph first
+        for task in &tasks {
             self.dependency_graph
                 .insert(task.id.clone(), task.dependencies.clone());
 
@@ -1314,7 +1320,13 @@ impl TaskScheduler {
                     .or_default()
                     .push(task.id.clone());
             }
+        }
 
+        // Validate for circular dependencies after building the graph
+        self.validate_no_cycles(&tasks)?;
+
+        // Store tasks
+        for task in tasks {
             self.tasks.insert(task.id.clone(), task);
         }
 
@@ -1819,7 +1831,8 @@ mod tests {
     fn test_flow_router_xor_split() {
         let mut router = FlowRouter::new();
         let mut context = HashMap::new();
-        context.insert("mode".to_string(), serde_json::json!("fast"));
+        context.insert("is_fast".to_string(), serde_json::json!(true));
+        context.insert("is_slow".to_string(), serde_json::json!(false));
 
         let evaluator = ConditionEvaluator::new(context);
 
@@ -1827,8 +1840,8 @@ mod tests {
             .create_xor_split(
                 "split1".to_string(),
                 vec![
-                    ("branch1".to_string(), "mode == 'fast'".to_string()),
-                    ("branch2".to_string(), "mode == 'slow'".to_string()),
+                    ("branch1".to_string(), "is_fast".to_string()),
+                    ("branch2".to_string(), "is_slow".to_string()),
                 ],
                 &evaluator,
             )

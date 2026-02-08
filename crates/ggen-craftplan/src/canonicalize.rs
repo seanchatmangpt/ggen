@@ -5,7 +5,6 @@
 
 use crate::error::{CraftplanError, Result};
 use sha2::{Digest, Sha256};
-use std::path::Path;
 use tracing::{debug, info};
 
 /// Canonicalizer for generated Elixir code
@@ -51,10 +50,9 @@ impl Canonicalizer {
 
         // Read file
         let content =
-            std::fs::read_to_string(file_path).map_err(|e| CraftplanError::FileError {
+            std::fs::read_to_string(file_path).map_err(|e| CraftplanError::Io {
                 path: file_path.into(),
-                message: format!("Failed to read file: {}", e),
-                source: Some(e),
+                source: e,
             })?;
 
         // Normalize whitespace (Elixir formatter will handle this)

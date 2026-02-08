@@ -166,18 +166,15 @@ impl SignatureVerifier {
 }
 
 impl Signable for SignatureVerifier {
-    #[must_use]
     fn sign(&self, data: &[u8]) -> Result<String> {
         let signature = self.key_pair.signing_key.sign(data);
         Ok(hex_encode(signature.to_bytes()))
     }
 
-    #[must_use]
     fn verify(&self, data: &[u8], signature: &str) -> Result<bool> {
         self.verify_signature(data, signature)
     }
 
-    #[must_use]
     fn public_key(&self) -> String {
         self.key_pair.public_key_hex()
     }
