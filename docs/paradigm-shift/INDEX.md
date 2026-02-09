@@ -249,6 +249,43 @@
 
 ## 📚 Documentation by Category
 
+### 🏭 A2A/TPS/CONSTRUCT Paradigm Shift (NEW)
+Manufacturing-grade code generation using Toyota Production System principles.
+
+**Core Theory (Read in Order)**:
+1. **[Regime Split: SELECT/DO vs CONSTRUCT](01-regime-split.md)** (25 min) - The fundamental divide
+2. **[Physical Constraints: Conway & Little Laws](02-physical-constraints.md)** (45 min) - Laws, not metaphors
+3. **[SCM vs CCM: Manufacturing Regimes](03-scm-vs-ccm.md)** (45 min) - Subjective vs Constructive Code Manufacture
+4. **[No Moving Parts Principle](04-no-moving-parts.md)** (20 min) - Pre-shaped IR architecture
+5. **[43 Workflow Patterns](05-workflow-patterns.md)** (45 min) - Completeness basis for coordination
+
+**Autonomy & Quality Control**:
+6. **[Autonomy vs Automation](06-autonomy-vs-automation.md)** (25 min) - Critical distinction
+7. **[TPS Manufacturing OS](07-tps-manufacturing-os.md)** (31 pages) - JIT + Jidoka pillars
+8. **[OSIRIS Architecture](08-osiris-architecture.md)** (25 min) - Zero cognitive load goal
+9. **[Life Firewall](09-life-firewall.md)** (35 min) - Perimeter-first design
+10. **[Packet Discipline](10-packet-discipline.md)** (30 min) - Work order types
+
+**Flow Control & Backpressure**:
+11. **[Backpressure & Admission Control](11-backpressure.md)** (38 min) - λ ≤ μ enforcement
+12. **[Supplier Quality Scoring](12-supplier-quality.md)** (38 min) - Defect-based rate limiting
+13. **[Jidoka & Receipts](13-jidoka-receipts.md)** (40 min) - Stop-the-line + cryptographic proof
+
+**Implementation Pipeline**:
+14. **[ggen Pipeline μ₁-μ₅](14-ggen-pipeline.md)** (45 min) - Five-stage compilation
+15. **[Prompt Manufacturing](15-prompt-manufacturing.md)** (35 min) - Deterministic prompt generation
+16. **[A2A-CONSTRUCT Protocol](16-a2a-construct.md)** (40 min) - Agent-to-agent task state machines
+
+**Economics & Deployment**:
+17. **[Dominance Theorem](17-dominance-theorem.md)** (50 min) - Economic proof & cost curves
+18. **[Marketplace Economy](18-marketplace-economy.md)** (40 min) - Adoption strategy & CLM
+19. **[Chicago TDD Doctrine](19-testing-doctrine.md)** (40 min) - Real collaborators, no mocks
+20. **[MCP/A2A Transport Obligations](20-mcp-a2a-obligations.md)** (50 min) - Production-grade invariants
+
+**Total Reading Time**: ~12 hours | **Difficulty**: Advanced
+
+---
+
 ### Fundamentals (P0: Critical - Week 1)
 Core concepts for understanding the paradigm shift.
 
