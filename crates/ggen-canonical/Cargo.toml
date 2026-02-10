@@ -1,0 +1,21 @@
+[package]
+name = "ggen-canonical"
+version = "0.2.0"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+license = "MIT"
+description = "Deterministic canonicalization system for ggen - ensures reproducible hashes across code, JSON, and RDF"
+repository = "https://github.com/seanchatmangpt/ggen"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+toml = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+thiserror = { workspace = true }
+oxigraph = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+proptest = { workspace = true }

@@ -1,0 +1,11 @@
+---
+source: crates/ggen-testing/src/snapshot.rs
+assertion_line: 37
+expression: state
+---
+{
+  "data": {
+    "key1": "value1",
+    "key2": "value2"
+  }
+}

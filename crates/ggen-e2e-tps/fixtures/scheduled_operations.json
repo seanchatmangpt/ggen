@@ -1,0 +1,20 @@
+[
+  {
+    "operation": "database_backup",
+    "schedule": "0 2 * * *",
+    "priority": "High",
+    "channel": "Scheduled"
+  },
+  {
+    "operation": "cache_warmup",
+    "schedule": "0 */4 * * *",
+    "priority": "Normal",
+    "channel": "Scheduled"
+  },
+  {
+    "operation": "analytics_aggregation",
+    "schedule": "0 1 * * *",
+    "priority": "Low",
+    "channel": "Batch"
+  }
+]
