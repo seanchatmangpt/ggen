@@ -1,0 +1,9 @@
+{# Deterministic prompt template #}
+{# Metadata: {{ metadata.id }} v{{ metadata.version }} #}
+{% for section in sections -%}
+=== {{ section.type | upper }} ===
+{% for block in section.blocks -%}
+{{ block.content }}
+{% endfor %}
+
+{% endfor -%}

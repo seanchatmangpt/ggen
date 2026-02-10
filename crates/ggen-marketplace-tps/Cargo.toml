@@ -1,0 +1,47 @@
+[package]
+name = "ggen-marketplace-tps"
+version = "0.2.0"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Marketplace/workspace economy integration with GCP Marketplace and CLM proxy"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+homepage = "https://github.com/seanchatmangpt/ggen"
+keywords = ["marketplace", "gcp", "workspace", "entitlement", "oauth2"]
+categories = ["development-tools"]
+
+[dependencies]
+# Async runtime
+tokio = { workspace = true }
+
+# HTTP client
+reqwest = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Observability
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# Utilities
+async-trait = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+
+# URL parsing
+url = "2.5"
+
+# Base64 encoding for OAuth2
+base64 = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full", "test-util"] }
+mockito = "1.7"
+tempfile = { workspace = true }
+proptest = { workspace = true }

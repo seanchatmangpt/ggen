@@ -1,0 +1,17 @@
+[package]
+name = "ggen-heijunka"
+version = "6.0.0"
+edition = "2021"
+authors = ["ggen contributors"]
+description = "Heijunka load leveling system for smooth workload distribution"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/ggen"
+
+[dependencies]
+tokio = { version = "1.41.1", features = ["time", "sync", "rt"] }
+thiserror = "2.0.9"
+serde = { version = "1.0.217", features = ["derive"] }
+tracing = "0.1.41"
+
+[dev-dependencies]
+tokio = { version = "1.41.1", features = ["full", "test-util"] }
