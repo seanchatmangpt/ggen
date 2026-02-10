@@ -1,0 +1,33 @@
+# PATTERN 6: Workflow Construction
+PREFIX a2a: <https://ggen.dev/ontology/a2a>
+PREFIX wf: <https://ggen.dev/ontology/workflow>
+PREFIX yawl: <http://unrdf.org/yawl#>
+
+CONSTRUCT {
+  ?workflow a yawl:Workflow ;
+    yawl:workflowId ?workflowId ;
+    yawl:workflowName ?workflowName ;
+    yawl:hasTask ?task .
+}
+WHERE {
+  ?workflowDef a wf:WorkflowDefinition ;
+    wf:workflowName ?workflowName .
+
+  BIND(CONCAT("workflow-", SHA512(?workflowName)) AS ?workflowId)
+  BIND(IRI(CONCAT(STR(yawl:), "workflow/", ENCODE_FOR_URI(?workflowId))) AS ?workflow)
+
+  ?taskDef wf:taskName ?taskName ;
+    wf:requiresCapability ?capability .
+
+  ?agent a a2a:Agent ;
+    a2a:id ?agentId ;
+    a2a:hasCapability ?cap .
+  
+  ?cap a a2a:Capability ;
+    a2a:name ?agentCapability .
+  
+  FILTER (?agentCapability = ?capability)
+
+  BIND(CONCAT("task-", SHA512(CONCAT(?workflowId, "-", ?taskName))) AS ?taskId)
+  BIND(IRI(CONCAT(STR(yawl:), "task/", ENCODE_FOR_URI(?taskId))) AS ?task)
+}

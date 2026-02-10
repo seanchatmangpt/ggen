@@ -1,0 +1,24 @@
+# PATTERN 2: Capability Discovery
+PREFIX a2a: <https://ggen.dev/ontology/a2a>
+
+CONSTRUCT {
+  ?capabilityProfile a a2a:CapabilityProfile ;
+    a2a:forAgent ?agentId ;
+    a2a:primaryCapabilities ?primaryList .
+}
+WHERE {
+  ?agent a a2a:Agent ;
+    a2a:id ?agentId .
+
+  {
+    SELECT ?agentId (GROUP_CONCAT(DISTINCT ?capName; separator=",") AS ?primaryList)
+    WHERE {
+      ?agent a a2a:Agent ;
+        a2a:id ?agentId ;
+        a2a:hasCapability ?cap .
+      ?cap a a2a:PrimaryCapability ;
+        a2a:name ?capName .
+    }
+    GROUP BY ?agentId
+  }
+}

@@ -1,0 +1,91 @@
+# SPARQL SELECT Query (μ₂): Extract A2A Agents for Tera Template Rendering
+#
+# This query extracts agent data from the A2A ontology and formats it as
+# JSON bindings compatible with Tera templates.
+#
+# Extracts:
+# - agentName (string)
+# - skillName (string)
+# - skillInputType (string)
+# - skillOutputType (string)
+# - skillDescription (optional string)
+# - transportUrl (string)
+# - transportType (string: http, websocket, stdio, memory)
+# - inputMode (string)
+#
+# Output format: JSON bindings for Tera template rendering
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+PREFIX gv6: <http://ggen.dev/v6#>
+
+# Query extracts all agent-skill-transport combinations with their I/O modes
+SELECT DISTINCT
+    ?agentName
+    ?skillName
+    (COALESCE(?skillInputType, ?defaultInputType) AS ?skillInputType)
+    (COALESCE(?skillOutputType, ?defaultOutputType) AS ?skillOutputType)
+    ?skillDescription
+    ?transportUrl
+    ?transportType
+    (COALESCE(?skillInputMode, ?defaultInputMode) AS ?inputMode)
+WHERE {
+    # Get the agent and its name
+    ?agent a a2a:Agent .
+    ?agent a2a:name ?agentName .
+
+    # Get the agent's default input/output modes
+    OPTIONAL {
+        ?agent a2a:defaultInputMode ?defaultInputType .
+    }
+    OPTIONAL {
+        ?agent a2a:defaultOutputMode ?defaultOutputType .
+    }
+
+    # Get the agent's skills
+    ?agent a2a:hasSkill ?skill .
+    ?skill a2a:name ?skillName .
+
+    # Get skill description (optional)
+    OPTIONAL {
+        ?skill a2a:description ?skillDescription .
+    }
+
+    # Get skill-specific input/output types (optional, fall back to agent defaults)
+    OPTIONAL {
+        ?skill a2a:inputMode ?skillInputMode .
+    }
+    OPTIONAL {
+        ?skill a2a:inputType ?skillInputType .
+    }
+    OPTIONAL {
+        ?skill a2a:outputType ?skillOutputType .
+    }
+
+    # Get the agent's transport endpoint
+    ?agent a2a:hasTransport ?transport .
+    ?transport a2a:url ?transportUrl .
+
+    # Get transport type (http, websocket, stdio, memory)
+    {
+        ?transport a2a:transportType ?transportTypeRaw .
+        FILTER(?transportTypeRaw IN ("http", "websocket", "stdio", "memory"))
+        BIND(?transportTypeRaw AS ?transportType)
+    }
+    UNION
+    {
+        # Default to http if transport type not specified
+        ?transport a2a:url ?transportUrl .
+        NOT EXISTS { ?transport a2a:transportType ?anyType }
+        BIND("http" AS ?transportType)
+    }
+
+    # Get default input mode from agent (for fallback)
+    OPTIONAL {
+        ?agent a2a:defaultInputMode ?defaultInputMode .
+    }
+}
+ORDER BY ?agentName ?skillName ?transportType

@@ -6,16 +6,59 @@
 //! This module contains the A2A (Agent-to-Agent) protocol integration code generated
 //! from the RDF ontology by ggen. It provides type-safe interfaces for agent communication,
 //! task management, and message handling.
+//!
+//! ## Module Structure
+//!
+//! - [`adapter`]: Data format adapters (JSON, XML)
+//! - [`agent`]: Core agent types and factory
+//! - [`converged`]: Unified interfaces combining agent and message types
+//! - [`error`]: Unified error handling for all A2A operations
+//! - [`handlers`]: Message handlers and routing logic
+//! - [`message`]: Message types, priority, and status
+//! - [`port`]: Port abstractions for agent I/O
+//! - [`task`]: Task execution and management
+//!
+//! ## Quick Start
+//!
+//! ```rust,no_run
+//! use a2a_generated::prelude::*;
+//!
+//! #[tokio::main]
+//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//!     // Create an agent
+//!     let agent = AgentFactory::create_agent("my-type", "agent-1", "My Agent");
+//!
+//!     // Create a task
+//!     let task = Task::new(
+//!         "task-1".to_string(),
+//!         "Test Task".to_string(),
+//!         "test".to_string(),
+//!         serde_json::json!({"input": "data"}),
+//!     );
+//!
+//!     // Create a message
+//!     let message = Message::new(
+//!         "msg-1".to_string(),
+//!         MessageType::TaskRequest,
+//!         "agent-1".to_string(),
+//!         Some("agent-2".to_string()),
+//!         serde_json::json!({"task": "data"}),
+//!     );
+//!
+//!     Ok(())
+//! }
+//! ```
 
 pub mod adapter;
 pub mod agent;
 pub mod converged;
+pub mod error;
 pub mod handlers;
 pub mod message;
 pub mod port;
 pub mod task;
 
-// Re-export commonly used types
+// Re-export commonly used types from core modules
 pub use adapter::{
     Adapter, AdapterCapabilities, AdapterError, BaseAdapter, JsonAdapter, XmlAdapter,
 };
@@ -27,48 +70,78 @@ pub use message::{
 pub use port::{BasicPort, Port, PortData, PortError, PortStats, PortStatus, PortType};
 pub use task::{Task, TaskError, TaskExecutor, TaskPriority, TaskResult, TaskStatus};
 
-// Re-export unified converged interfaces
+// Re-export unified error types
+pub use error::{AgentError as UnifiedAgentError, A2AResult};
+
+// Re-export converged types (includes both agent and message types)
+// Note: AgentError from converged is the agent-specific error type
 pub use converged::{
+    // Agent types
     AgentCapabilities, AgentCommunication, AgentError, AgentExecution, AgentHealth, AgentIdentity,
-    AgentLifecycle, AgentMetrics, AgentProtocol, AgentSecurity, AgentState, Capability,
-    ComparisonOperator, DataFormat, ExecutionMode, ExecutionStrategy, HealthStatus,
-    LatencyRequirements, QoSLevel, ReliabilityLevel, ResourceConstraints, ThroughputRequirements,
+    AgentLifecycle, AgentMetrics, AgentProtocol, AgentSecurity, AgentState, Capability, ComparisonOperator,
+    DataFormat, ExecutionMode, ExecutionStrategy, HealthStatus, QoSLevel, ResourceConstraints,
     UnifiedAgent, UnifiedAgentBuilder, ValidationAction, ValidationRule, ValidationSeverity,
-};
-
-// Re-export message types and handlers
-pub use message::{
-    ConvergedMessage, ConvergedMessageType, ConvergedPayload, HandlerAction, HandlerPriority,
-    HandlerStatus, LatencyRequirements, MessageEnvelope, MessageHandler, MessageHandlerError,
-    MessageHandlerFactory, MessageHandlerResult, MessageLifecycle, MessageRouter, MessageRouting,
-    MessageState, ProcessingMetrics, ReliabilityLevel, ResourceUsageMetrics,
-    ThroughputRequirements, UnifiedContent,
-};
-
-// Re-export security types
-pub use agent::{
+    // Security types from agent
     AuditConfig, AuditEvent, AuthenticationConfig, AuthenticationMethod, AuthenticationProvider,
     AuthorizationConfig, AuthorizationModel, AuthorizationRole, ComplianceConfig,
     ComplianceControl, ComplianceFramework, ComplianceRequirement, ComplianceStandard,
     DestinationType, EncryptionAlgorithm, EncryptionConfig, EncryptionKey, EncryptionMode,
-    EncryptionRequirements, Permission, PermissionScope, PermissionType, PolicyEffect,
+    Permission, PermissionScope, PermissionType, PolicyEffect,
     PolicyPriority, PolicyType, ProviderType, RequirementType, RetentionPolicy,
-    SecurityClassification, SecurityPolicies, SecurityPolicy, SecurityRule,
+    SecurityPolicies, SecurityPolicy, SecurityRule,
+    // Message types
+    ConvergedMessage, ConvergedMessageType, ConvergedPayload, UnifiedContent,
+    MessageEnvelope, MessageRouting, MessageLifecycle, MessageState,
+    LatencyRequirements, ReliabilityLevel, ThroughputRequirements,
+    EncryptionRequirements, SecurityClassification, HandlerAction, HandlerPriority, HandlerStatus,
+    MessageRouter,
 };
 
 // Prelude for easier imports
 pub mod prelude {
     pub use super::{
+        // Core adapter types
         Adapter,
         AdapterCapabilities,
         AdapterError,
+        BaseAdapter,
+        JsonAdapter,
+        XmlAdapter,
+        // Core agent types
         Agent,
         AgentBehavior,
+        AgentFactory,
+        // Core message types
+        Message,
+        MessageError,
+        MessageHandler,
+        MessagePriority,
+        MessageResponse,
+        MessageStatus,
+        MessageType,
+        // Core port types
+        BasicPort,
+        Port,
+        PortData,
+        PortError,
+        PortStats,
+        PortStatus,
+        PortType,
+        // Core task types
+        Task,
+        TaskError,
+        TaskExecutor,
+        TaskPriority,
+        TaskResult,
+        TaskStatus,
+        // Unified error handling
+        A2AResult,
+        UnifiedAgentError,
+        // Converged agent types
         AgentCapabilities,
         AgentCommunication,
-        AgentError,
+        AgentError, // This is the converged::agent::AgentError (agent-specific)
         AgentExecution,
-        AgentFactory,
         AgentHealth,
         AgentIdentity,
         AgentLifecycle,
@@ -76,67 +149,68 @@ pub mod prelude {
         AgentProtocol,
         AgentSecurity,
         AgentState,
-        AuditConfig,
+        Capability,
+        ComparisonOperator,
+        DataFormat,
+        ExecutionMode,
+        ExecutionStrategy,
+        HealthStatus,
+        QoSLevel,
+        ResourceConstraints,
+        UnifiedAgent,
+        UnifiedAgentBuilder,
+        ValidationAction,
+        ValidationRule,
+        ValidationSeverity,
         // Security types
+        AuditConfig,
+        AuditEvent,
         AuthenticationConfig,
         AuthenticationMethod,
+        AuthenticationProvider,
         AuthorizationConfig,
         AuthorizationModel,
-        BaseAdapter,
-        BasicPort,
-        Capability,
-        // Message types
+        AuthorizationRole,
+        ComplianceConfig,
+        ComplianceControl,
+        ComplianceFramework,
+        ComplianceRequirement,
+        ComplianceStandard,
+        DestinationType,
+        EncryptionAlgorithm,
+        EncryptionConfig,
+        EncryptionKey,
+        EncryptionMode,
+        Permission,
+        PermissionScope,
+        PermissionType,
+        PolicyEffect,
+        PolicyPriority,
+        PolicyType,
+        ProviderType,
+        RequirementType,
+        RetentionPolicy,
+        SecurityPolicies,
+        SecurityPolicy,
+        SecurityRule,
+        // Converged message types
         ConvergedMessage,
         ConvergedMessageType,
         ConvergedPayload,
-        DataFormat,
-        EncryptionAlgorithm,
-        EncryptionConfig,
-        ExecutionMode,
+        EncryptionRequirements,
         HandlerAction,
         HandlerPriority,
         HandlerStatus,
-        HealthStatus,
-        JsonAdapter,
         LatencyRequirements,
-        Message,
         MessageEnvelope,
-        MessageError,
-        MessageHandler,
-        // Message handlers
-        MessageHandler,
-        MessageHandlerError,
-        MessageHandlerResult,
         MessageLifecycle,
-        MessagePriority,
-        MessageResponse,
         MessageRouter,
         MessageRouting,
         MessageState,
-        MessageStatus,
-        MessageType,
-        Port,
-        PortData,
-        PortError,
-        PortStats,
-        PortStatus,
-        PortType,
-        QoSLevel,
         ReliabilityLevel,
-        ResourceConstraints,
-        SecurityPolicy,
-        Task,
-        TaskError,
-        TaskExecutor,
-        TaskPriority,
-        TaskResult,
-        TaskStatus,
+        SecurityClassification,
         ThroughputRequirements,
-        // Unified converged interfaces
-        UnifiedAgent,
-        UnifiedAgentBuilder,
         UnifiedContent,
-        XmlAdapter,
     };
 }
 
@@ -219,6 +293,28 @@ mod tests {
         let converted = json_adapter.to_a2a(&test_json).await.unwrap();
         assert_eq!(converted, test_json);
     }
+
+    #[test]
+    fn test_unified_error_alias() {
+        // Verify UnifiedAgentError is an alias for error::AgentError
+        let error = UnifiedAgentError::transport("test");
+        assert_eq!(error.category(), "transport");
+        assert!(error.is_retryable());
+    }
+
+    #[test]
+    fn test_a2a_result_alias() {
+        fn returns_ok() -> A2AResult<String> {
+            Ok("success".to_string())
+        }
+
+        fn returns_err() -> A2AResult<String> {
+            Err(UnifiedAgentError::network("Connection failed"))
+        }
+
+        assert!(returns_ok().is_ok());
+        assert!(returns_err().is_err());
+    }
 }
 
 // Benchmark suite
@@ -236,16 +332,6 @@ pub mod benchmarks {
             })
         });
 
-        group.bench_function("agent_behavior", |b| {
-            let agent = AgentFactory::create_agent("test", "123", "Test Agent");
-            let mut behavior = DefaultAgent::new(agent);
-            b.iter(|| {
-                black_box(tokio::task::block_in_place(|| {
-                    black_box(behavior.initialize(&serde_json::json!({})));
-                }));
-            })
-        });
-
         group.finish();
     }
 
@@ -260,21 +346,6 @@ pub mod benchmarks {
                     "test".to_string(),
                     serde_json::json!({"input": "test"}),
                 ));
-            })
-        });
-
-        group.bench_function("task_execution", |b| {
-            let task = Task::new(
-                "task-123".to_string(),
-                "Test Task".to_string(),
-                "test".to_string(),
-                serde_json::json!({"input": "test"}),
-            );
-            let executor = DefaultTaskExecutor { max_parallel: 4 };
-            b.iter(|| {
-                black_box(tokio::task::block_in_place(|| {
-                    black_box(executor.execute(&task));
-                }));
             })
         });
 
@@ -325,21 +396,6 @@ pub mod benchmarks {
             })
         });
 
-        group.bench_function("port_send_receive", |b| {
-            let mut port = BasicPort::new(
-                "port-123".to_string(),
-                "Test Port".to_string(),
-                PortType::Bidirectional,
-            );
-            port.initialize(PortConfig::new()).await.unwrap();
-            let test_message = serde_json::json!({"test": "message"});
-            b.iter(|| {
-                black_box(tokio::task::block_in_place(|| {
-                    black_box(port.send(&test_message));
-                }));
-            })
-        });
-
         group.finish();
     }
 
@@ -352,16 +408,6 @@ pub mod benchmarks {
             b.iter(|| {
                 black_box(tokio::task::block_in_place(|| {
                     black_box(adapter.to_a2a(&test_json));
-                }));
-            })
-        });
-
-        group.bench_function("xml_conversion", |b| {
-            let adapter = XmlAdapter::new();
-            let test_xml = serde_json::json!("<test>message</test>");
-            b.iter(|| {
-                black_box(tokio::task::block_in_place(|| {
-                    black_box(adapter.to_a2a(&test_xml));
                 }));
             })
         });

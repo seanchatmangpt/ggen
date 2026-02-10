@@ -90,6 +90,13 @@ pub struct SyncOptions {
 
     /// Generate audit trail
     pub audit: bool,
+
+    // A2A-specific options
+    /// Run specific μ stage only (μ₁, μ₂, μ₃, μ₄, μ₅)
+    pub a2a_stage: Option<String>,
+
+    /// Override ontology path for A2A generation
+    pub ontology_path: Option<PathBuf>,
 }
 
 impl Default for SyncOptions {
@@ -107,6 +114,8 @@ impl Default for SyncOptions {
             use_cache: true,
             force: false,
             audit: false,
+            a2a_stage: None,
+            ontology_path: None,
         }
     }
 }

@@ -6,14 +6,13 @@
 pub use message_handler::*;
 
 pub mod message_handler {
-    use super::*;
     use async_trait::async_trait;
     use chrono::{DateTime, Utc};
     use serde::{Deserialize, Serialize};
     use std::collections::HashMap;
 
     // Re-export message types from converged module
-    pub use super::super::converged::{
+    pub use crate::converged::{
         ConvergedMessage, ConvergedMessageType, ConvergedPayload, LatencyRequirements,
         MessageEnvelope, MessageLifecycle, MessagePriority, MessageRouting, MessageState,
         QoSRequirements, ReliabilityLevel, ThroughputRequirements, UnifiedContent,
@@ -82,7 +81,7 @@ pub mod message_handler {
     }
 
     /// Error severity levels
-    #[derive(Debug, Clone, PartialEq, Eq)]
+    #[derive(Debug, Clone, PartialEq)]
     pub enum ErrorSeverity {
         Info,
         Warning,
@@ -102,7 +101,7 @@ pub mod message_handler {
     }
 
     /// Handler status
-    #[derive(Debug, Clone, PartialEq, Eq)]
+    #[derive(Debug, Clone, PartialEq)]
     pub enum HandlerStatus {
         Success,
         PartialSuccess,
@@ -112,7 +111,7 @@ pub mod message_handler {
     }
 
     /// Handler actions
-    #[derive(Debug, Clone, PartialEq, Eq)]
+    #[derive(Debug, Clone, PartialEq)]
     pub enum HandlerAction {
         /// Send a response message
         SendResponse(ConvergedMessage),
@@ -137,7 +136,7 @@ pub mod message_handler {
     }
 
     /// Log levels
-    #[derive(Debug, Clone, PartialEq, Eq)]
+    #[derive(Debug, Clone, PartialEq)]
     pub enum LogLevel {
         Debug,
         Info,
@@ -312,9 +311,11 @@ pub mod message_handler {
             }
 
             // Update average processing time
-            self.metrics.avg_processing_time =
-                (self.metrics.avg_processing_time * (self.metrics.total_messages - 1) + duration)
-                    / self.metrics.total_messages;
+            let duration_ms = duration.num_milliseconds() as i64;
+            let current_avg_ms = self.metrics.avg_processing_time.num_milliseconds() as i64;
+            let total_msgs = self.metrics.total_messages as i64;
+            let new_avg_ms = (current_avg_ms * (total_msgs - 1) + duration_ms) / total_msgs;
+            self.metrics.avg_processing_time = chrono::Duration::milliseconds(new_avg_ms);
             self.metrics.last_processed = end_time;
 
             result
@@ -324,28 +325,34 @@ pub mod message_handler {
         async fn find_handler(
             &self, message: &ConvergedMessage,
         ) -> Option<&Box<dyn UnifiedMessageHandler>> {
-            // Filter handlers that can handle this message
-            let capable_handlers: Vec<_> = self
+            // Start with all handlers
+            let mut selected_handlers: Vec<&Box<dyn UnifiedMessageHandler>> = self
                 .handlers
                 .iter()
                 .filter(|h| h.can_handle(message))
                 .collect();
 
-            if capable_handlers.is_empty() {
+            if selected_handlers.is_empty() {
                 return None;
             }
 
-            // Apply routing rules
-            let mut selected = capable_handlers;
-
+            // Apply routing rules - filter in place
+            // We need to rebuild selected_handlers from the original handlers each time
             for rule in &self.routing_rules {
-                if let Some(filtered) = rule.apply(message, &selected) {
-                    selected = filtered;
+                // Get all handlers that pass can_handle and this rule
+                let filtered: Vec<&Box<dyn UnifiedMessageHandler>> = self
+                    .handlers
+                    .iter()
+                    .filter(|h| h.can_handle(message) && rule.condition.matches(message, h))
+                    .collect();
+                
+                if !filtered.is_empty() {
+                    selected_handlers = filtered;
                 }
             }
 
             // Select handler with highest priority
-            selected.into_iter().max_by_key(|h| h.priority())
+            selected_handlers.into_iter().max_by_key(|h| h.priority())
         }
 
         /// Get current metrics
@@ -355,7 +362,6 @@ pub mod message_handler {
     }
 
     /// Unified routing rule
-    #[derive(Debug, Clone, PartialEq)]
     pub struct UnifiedRoutingRule {
         pub name: String,
         pub condition: RoutingCondition,
@@ -363,15 +369,25 @@ pub mod message_handler {
         pub metadata: Option<HashMap<String, serde_json::Value>>,
     }
 
+    impl std::fmt::Debug for UnifiedRoutingRule {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            f.debug_struct("UnifiedRoutingRule")
+                .field("name", &self.name)
+                .field("condition", &self.condition)
+                .field("priority", &self.priority)
+                .field("metadata", &self.metadata)
+                .finish()
+        }
+    }
+
     impl UnifiedRoutingRule {
         /// Apply this rule to filter handlers
-        pub fn apply(
-            &self, message: &ConvergedMessage, handlers: &[&Box<dyn UnifiedMessageHandler>],
-        ) -> Option<Vec<&Box<dyn UnifiedMessageHandler>>> {
-            let filtered = handlers
+        pub fn apply<'a>(
+            &self, message: &ConvergedMessage, handlers: &'a [Box<dyn UnifiedMessageHandler>],
+        ) -> Option<Vec<&'a Box<dyn UnifiedMessageHandler>>> {
+            let filtered: Vec<&'a Box<dyn UnifiedMessageHandler>> = handlers
                 .iter()
                 .filter(|h| self.condition.matches(message, h))
-                .copied()
                 .collect();
 
             if filtered.is_empty() {
@@ -383,7 +399,6 @@ pub mod message_handler {
     }
 
     /// Routing condition
-    #[derive(Debug, Clone, PartialEq)]
     pub enum RoutingCondition {
         /// Message type based
         MessageType(ConvergedMessageType),
@@ -402,6 +417,31 @@ pub mod message_handler {
 
         /// Custom condition
         Custom(Box<dyn Fn(&ConvergedMessage) -> bool + Send + Sync>),
+    }
+
+    impl std::fmt::Debug for RoutingCondition {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self {
+                RoutingCondition::MessageType(msg_type) => {
+                    f.debug_tuple("MessageType").field(msg_type).finish()
+                }
+                RoutingCondition::SourceAgent(source) => {
+                    f.debug_tuple("SourceAgent").field(source).finish()
+                }
+                RoutingCondition::TargetAgent(target) => {
+                    f.debug_tuple("TargetAgent").field(target).finish()
+                }
+                RoutingCondition::ContentCondition(_) => {
+                    f.debug_tuple("ContentCondition").field(&"<function>").finish()
+                }
+                RoutingCondition::MinimumPriority(priority) => {
+                    f.debug_tuple("MinimumPriority").field(priority).finish()
+                }
+                RoutingCondition::Custom(_) => {
+                    f.debug_tuple("Custom").field(&"<function>").finish()
+                }
+            }
+        }
     }
 
     impl RoutingCondition {
@@ -632,7 +672,7 @@ pub mod message_handler {
         pub fn new() -> Self {
             Self {
                 name: "ErrorHandler".to_string(),
-                priority: HandlerPriority::Critical,
+                priority: HandlerPriority::Lowest,
             }
         }
     }
@@ -673,7 +713,7 @@ pub mod message_handler {
             Ok(error_handler_result)
         }
 
-        fn can_handle(&self, message: &ConvergedMessage) -> bool {
+        fn can_handle(&self, _message: &ConvergedMessage) -> bool {
             // This handler can handle any message, but has lowest priority
             true
         }
@@ -754,7 +794,7 @@ pub mod message_handler {
         async fn test_data_handler() {
             let handler = DataProcessingHandler::new();
             let mut data = serde_json::Map::new();
-            data.insert("test".to_string(), serde_json::Value::String("value"));
+            data.insert("test".to_string(), serde_json::Value::String("value".to_string()));
 
             let message = ConvergedMessage::text(
                 "msg-456".to_string(),
@@ -763,8 +803,7 @@ pub mod message_handler {
             );
 
             // Set data content
-            use super::super::converged::ConvergedPayload;
-            use super::super::converged::UnifiedContent;
+            use crate::converged::{ConvergedPayload, UnifiedContent};
             let mut message = message;
             message.payload.content = UnifiedContent::Data { data, schema: None };
 

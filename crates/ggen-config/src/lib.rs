@@ -54,7 +54,9 @@ pub use validator::ConfigValidator;
 /// Re-export commonly used types
 pub mod prelude {
     pub use super::{
-        AiConfig, ConfigError, ConfigLoader, ConfigValidator, GgenConfig, ProjectConfig, Result,
-        TemplatesConfig,
+        A2AConfig, A2AMessagingConfig, A2AOrchestrationConfig, A2ARetryConfig, A2ATransportConfig,
+        AiConfig, ConfigError, ConfigLoader, ConfigValidator, GgenConfig, McpConfig,
+        McpDiscoveryConfig, McpTlsConfig, McpToolsConfig, McpTransportConfig, McpZaiConfig,
+        ProjectConfig, Result, TemplatesConfig,
     };
 }

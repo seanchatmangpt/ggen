@@ -1,0 +1,70 @@
+# SPARQL SELECT Query (μ₂): Extract A2A Tasks for Tera Template Rendering
+#
+# This query extracts task data from the A2A ontology and formats it as
+# JSON bindings compatible with Tera templates.
+#
+# Extracts:
+# - taskName (string)
+# - taskDescription (optional string)
+# - taskInputType (string)
+# - taskOutputType (string)
+# - taskCapability (string)
+# - taskExecutor (string - agent name)
+#
+# Output format: JSON bindings for Tera template rendering
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+PREFIX gv6: <http://ggen.dev/v6#>
+
+# Query extracts all task definitions with their executor agents
+SELECT DISTINCT
+    ?taskName
+    ?taskDescription
+    ?taskInputType
+    ?taskOutputType
+    ?taskCapability
+    ?taskExecutor
+WHERE {
+    # Get task definitions
+    ?task a a2a:Task .
+    ?task a2a:name ?taskName .
+
+    # Get task description (optional)
+    OPTIONAL {
+        ?task a2a:description ?taskDescription .
+    }
+
+    # Get input type
+    OPTIONAL {
+        ?task a2a:inputType ?taskInputType .
+    }
+
+    # Get output type
+    OPTIONAL {
+        ?task a2a:outputType ?taskOutputType .
+    }
+
+    # Get capability (skill) that implements this task
+    OPTIONAL {
+        ?task a2a:capability ?taskCapability .
+    }
+    UNION
+    {
+        ?task a2a:skill ?taskCapability .
+    }
+
+    # Get executor agent
+    OPTIONAL {
+        ?task a2a:executedBy ?agent .
+        ?agent a2a:name ?taskExecutor .
+    }
+    UNION
+    {
+        ?agent a2a:executesTask ?task .
+        ?agent a2a:name ?taskExecutor .
+    }
+}
+ORDER BY ?taskName

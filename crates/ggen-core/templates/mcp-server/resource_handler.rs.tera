@@ -1,0 +1,259 @@
+{# Resource handler implementation template #}
+{# Context variables: resources (array of Resource objects), error_type #}
+{# Each resource has: name, uri_pattern, description, mime_type #}
+
+{% extends "mcp-server/_head.tera" %}
+
+{% block imports %}
+{{ super() }}
+use std::collections::HashMap;
+use std::path::PathBuf;
+use tokio::io::{AsyncReadExt, AsyncSeekExt};
+{% endblock imports %}
+
+{% block body %}
+/// Resource handler for MCP resources
+///
+/// Manages resource access including files, URIs, and custom resource types.
+pub struct ResourceHandler {
+    /// Registered resources by URI pattern
+    resources: HashMap<String, {{ resource_type | default(value="Resource") }}>>,
+    /// Base directory for file resources
+    base_dir: PathBuf,
+    /// Resource cache
+    cache: HashMap<String, {{ cache_entry_type | default(value="CacheEntry") }},
+}
+
+/// Cache entry for resource data
+#[derive(Debug, Clone)]
+struct {{ cache_entry_type | default(value="CacheEntry") }} {
+    data: String,
+    mime_type: String,
+    timestamp: chrono::DateTime<chrono::Utc>,
+    ttl_seconds: u64,
+}
+
+impl {{ cache_entry_type | default(value="CacheEntry") }} {
+    /// Check if the cache entry has expired
+    fn is_expired(&self) -> bool {
+        let now = chrono::Utc::now();
+        let elapsed = now.signed_duration_since(self.timestamp);
+        elapsed.num_seconds() as u64 > self.ttl_seconds
+    }
+}
+
+impl ResourceHandler {
+    /// Create a new resource handler
+    pub fn new(base_dir: PathBuf) -> Self {
+        Self {
+            resources: HashMap::new(),
+            base_dir,
+            cache: HashMap::new(),
+        }
+    }
+
+    /// Register a resource
+    pub fn register(&mut self, resource: {{ resource_type | default(value="Resource") }}) -> Result<(), {{ error_type | default(value="McpError") }}> {
+        self.resources.insert(resource.uri_pattern.clone(), resource);
+        Ok(())
+    }
+
+    /// Get a resource by URI
+{%- for resource in resources %}
+    /// Get resource: {{ resource.name }}
+    {%- if resource.description %}
+    ///
+    /// {{ resource.description }}
+    {%- endif %}
+    {%- if resource.uri_pattern %}
+    ///
+    /// # URI Pattern
+    /// `{{ resource.uri_pattern }}`
+    {%- endif %}
+    pub async fn get_{{ resource.name | snake_case }}(&self, uri: &str) -> Result<{{ resource_response_type | default(value="String") }}, {{ error_type | default(value="McpError") }}> {
+        self.get_resource(uri, "{{ resource.mime_type | default(value="text/plain") }}").await
+    }
+
+{%- endfor -%}
+    /// Generic resource getter
+    pub async fn get_resource(&self, uri: &str, expected_mime_type: &str) -> Result<String, {{ error_type | default(value="McpError") }}> {
+        // Check cache first
+        if let Some(entry) = self.cache.get(uri) {
+            if !entry.is_expired() && entry.mime_type == expected_mime_type {
+                return Ok(entry.data.clone());
+            }
+        }
+
+        // Find matching resource pattern
+        let resource = self
+            .find_resource_for_uri(uri)
+            .ok_or_else(|| {{ error_type | default(value="McpError") }}::resource_not_found(format!(
+                "No resource handler for URI: {}",
+                uri
+            )))?;
+
+        // Load resource data
+        let data = self.load_resource_data(uri, resource).await?;
+
+        // Cache the result
+        self.cache.insert(uri.to_string(), {{ cache_entry_type | default(value="CacheEntry") }} {
+            data: data.clone(),
+            mime_type: expected_mime_type.to_string(),
+            timestamp: chrono::Utc::now(),
+            ttl_seconds: resource.cache_ttl_seconds,
+        });
+
+        Ok(data)
+    }
+
+    /// Find a resource pattern that matches the given URI
+    fn find_resource_for_uri(&self, uri: &str) -> Option<&{{ resource_type | default(value="Resource") }}> {
+        self.resources
+            .values()
+            .find(|r| uri_matches_pattern(uri, &r.uri_pattern))
+    }
+
+    /// Load resource data based on resource type
+    async fn load_resource_data(&self, uri: &str, resource: &{{ resource_type | default(value="Resource") }}) -> Result<String, {{ error_type | default(value="McpError") }}> {
+        match resource.resource_type.as_str() {
+            "file" => self.load_file_resource(uri).await,
+            "memory" => self.load_memory_resource(uri).await,
+            "http" | "https" => self.load_http_resource(uri).await,
+            "custom" => self.load_custom_resource(uri, resource).await,
+            _ => Err({{ error_type | default(value="McpError") }}::unsupported_resource_type(format!(
+                "Unsupported resource type: {}",
+                resource.resource_type
+            ))),
+        }
+    }
+
+    /// Load a file resource
+    async fn load_file_resource(&self, uri: &str) -> Result<String, {{ error_type | default(value="McpError") }}> {
+        // Strip file:// prefix if present
+        let path = uri.strip_prefix("file://").unwrap_or(uri);
+        let full_path = self.base_dir.join(path);
+
+        // Security check: ensure path is within base directory
+        if !full_path.starts_with(&self.base_dir) {
+            return Err({{ error_type | default(value="McpError") }}::access_denied(format!(
+                "Access denied: path outside base directory: {}",
+                uri
+            )));
+        }
+
+        // Read file
+        let mut file = tokio::fs::File::open(&full_path)
+            .await
+            .map_err(|e| {{ error_type | default(value="McpError") }}::io_error(format!(
+                "Failed to open file {}: {}",
+                full_path.display(),
+                e
+            )))?;
+
+        let mut contents = Vec::new();
+        file.read_to_end(&mut contents)
+            .await
+            .map_err(|e| {{ error_type | default(value="McpError") }}::io_error(format!(
+                "Failed to read file {}: {}",
+                full_path.display(),
+                e
+            )))?;
+
+        String::from_utf8(contents)
+            .map_err(|e| {{ error_type | default(value="McpError") }}::invalid_data(format!(
+                "File {} is not valid UTF-8: {}",
+                full_path.display(),
+                e
+            )))
+    }
+
+    /// Load a memory resource
+    async fn load_memory_resource(&self, uri: &str) -> Result<String, {{ error_type | default(value="McpError") }}> {
+        // Memory resources are stored in a runtime map
+        Err({{ error_type | default(value="McpError") }}::not_implemented(format!(
+            "Memory resources not yet implemented: {}",
+            uri
+        )))
+    }
+
+    /// Load an HTTP resource
+    async fn load_http_resource(&self, uri: &str) -> Result<String, {{ error_type | default(value="McpError") }}> {
+        // HTTP resources are fetched via reqwest
+        Err({{ error_type | default(value="McpError") }}::not_implemented(format!(
+            "HTTP resources not yet implemented: {}",
+            uri
+        )))
+    }
+
+    /// Load a custom resource
+    async fn load_custom_resource(&self, uri: &str, resource: &{{ resource_type | default(value="Resource") }}) -> Result<String, {{ error_type | default(value="McpError") }}> {
+        // Custom resources use a user-defined loader
+        if let Some(loader) = &resource.custom_loader {
+            loader.load(uri).await
+        } else {
+            Err({{ error_type | default(value="McpError") }}::invalid_params(format!(
+                "Custom resource has no loader: {}",
+                uri
+            )))
+        }
+    }
+
+    /// Clear the resource cache
+    pub fn clear_cache(&mut self) {
+        self.cache.clear();
+    }
+
+    /// Get cache statistics
+    pub fn cache_stats(&self) -> CacheStats {
+        CacheStats {
+            entries: self.cache.len(),
+            total_bytes: self.cache.values().map(|e| e.data.len()).sum(),
+        }
+    }
+}
+
+/// Resource definition
+#[derive(Debug, Clone)]
+pub struct {{ resource_type | default(value="Resource") }} {
+    /// URI pattern this resource handles
+    pub uri_pattern: String,
+    /// Resource type (file, memory, http, custom)
+    pub resource_type: String,
+    /// MIME type of the resource
+    pub mime_type: String,
+    /// Cache TTL in seconds
+    pub cache_ttl_seconds: u64,
+    /// Custom loader for custom resource types
+    pub custom_loader: Option<Box<dyn ResourceLoader>>,
+}
+
+/// Custom resource loader trait
+#[async_trait::async_trait]
+pub trait ResourceLoader: Send + Sync {
+    /// Load a resource by URI
+    async fn load(&self, uri: &str) -> Result<String, {{ error_type | default(value="McpError") }};
+}
+
+/// Cache statistics
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CacheStats {
+    pub entries: usize,
+    pub total_bytes: usize,
+}
+
+/// Check if a URI matches a pattern
+fn uri_matches_pattern(uri: &str, pattern: &str) -> bool {
+    // Simple pattern matching (wildcards at the end)
+    if let Some(prefix) = pattern.strip_suffix('*') {
+        uri.starts_with(prefix)
+    } else {
+        uri == pattern
+    }
+}
+
+impl Default for ResourceHandler {
+    fn default() -> Self {
+        Self::new(std::env::current_dir().unwrap_or_default())
+    }
+}
+{% endblock body %}

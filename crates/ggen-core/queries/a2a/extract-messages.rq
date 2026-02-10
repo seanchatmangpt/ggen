@@ -1,0 +1,72 @@
+# SPARQL SELECT Query (μ₂): Extract A2A Messages for Tera Template Rendering
+#
+# This query extracts message data from the A2A ontology and formats it as
+# JSON bindings compatible with Tera templates.
+#
+# Extracts:
+# - messageName (string)
+# - messageDescription (optional string)
+# - messageInputType (string)
+# - messageOutputType (string)
+# - messageMode (string)
+# - messageSchema (optional string)
+#
+# Output format: JSON bindings for Tera template rendering
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+PREFIX gv6: <http://ggen.dev/v6#>
+
+# Query extracts all message type definitions with their I/O schemas
+SELECT DISTINCT
+    ?messageName
+    ?messageDescription
+    ?messageInputType
+    ?messageOutputType
+    ?messageMode
+    ?messageSchema
+WHERE {
+    # Get message type definitions
+    ?message a a2a:MessageType .
+    ?message a2a:name ?messageName .
+
+    # Get message description (optional)
+    OPTIONAL {
+        ?message a2a:description ?messageDescription .
+    }
+
+    # Get input type
+    {
+        ?message a2a:inputType ?messageInputType .
+    }
+    UNION
+    {
+        ?message a2a:input ?messageInputType .
+    }
+
+    # Get output type
+    {
+        ?message a2a:outputType ?messageOutputType .
+    }
+    UNION
+    {
+        ?message a2a:output ?messageOutputType .
+    }
+
+    # Get message mode (request/response, notification, etc.)
+    OPTIONAL {
+        ?message a2a:mode ?messageMode .
+    }
+    UNION
+    {
+        ?message a2a:messageMode ?messageMode .
+    }
+
+    # Get schema reference (optional)
+    OPTIONAL {
+        ?message a2a:schema ?messageSchema .
+    }
+}
+ORDER BY ?messageName

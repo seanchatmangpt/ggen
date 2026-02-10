@@ -10,6 +10,7 @@ use alloc::format;
 use alloc::string::String;
 use alloc::string::ToString;
 use alloc::vec::Vec;
+use alloc::vec;  // Import vec! macro
 
 #[cfg(feature = "std")]
 use std::io::BufRead;

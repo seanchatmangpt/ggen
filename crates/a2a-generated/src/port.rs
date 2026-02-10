@@ -508,9 +508,13 @@ mod tests {
             "Test Port".to_string(),
             PortType::Output,
         );
-        let config = PortConfig::new()
-            .with_max_message_size(2048)
-            .with_message_timeout(3000);
+        let mut config = PortConfig::new(
+            "port-config-123".to_string(),
+            "Test Port Config".to_string(),
+            PortType::Output,
+        );
+        config.config.max_message_size = 2048;
+        config.config.message_timeout = 3000;
 
         port.initialize(config).await.unwrap();
         assert_eq!(port.status(), PortStatus::Ready);
@@ -522,8 +526,8 @@ mod tests {
             BasicPort::new("port-1".to_string(), "Port 1".to_string(), PortType::Output);
         let mut port2 = BasicPort::new("port-2".to_string(), "Port 2".to_string(), PortType::Input);
 
-        port1.initialize(PortConfig::new()).await.unwrap();
-        port2.initialize(PortConfig::new()).await.unwrap();
+        port1.initialize(PortConfig::new("port-1-config".to_string(), "Port 1 Config".to_string(), PortType::Output)).await.unwrap();
+        port2.initialize(PortConfig::new("port-2-config".to_string(), "Port 2 Config".to_string(), PortType::Input)).await.unwrap();
 
         port1.connect("port-2").await.unwrap();
         assert_eq!(port1.status(), PortStatus::Connected);
@@ -536,7 +540,10 @@ mod tests {
             "Test Port".to_string(),
             PortType::Bidirectional,
         );
-        port.initialize(PortConfig::new()).await.unwrap();
+        port.initialize(PortConfig::new("port-config-456".to_string(), "Port Config".to_string(), PortType::Bidirectional)).await.unwrap();
+
+        // Connect the port to simulate it being connected
+        port.connect("target-port").await.unwrap();
 
         let test_message = serde_json::json!({"test": "message"});
         port.send(&test_message).await.unwrap();

@@ -1,0 +1,120 @@
+# SPARQL SELECT Query (μ₂): Extract A2A Skills for Tera Template Rendering
+#
+# This query extracts skill data from the A2A ontology and formats it as
+# JSON bindings compatible with Tera templates.
+#
+# Extracts:
+# - skillName (string)
+# - skillDescription (optional string)
+# - skillInputType (string)
+# - skillOutputType (string)
+# - skillInputMode (string)
+# - skillOutputMode (string)
+# - skillTags (optional string)
+# - skillExamples (optional string)
+#
+# Output format: JSON bindings for Tera template rendering
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+PREFIX gv6: <http://ggen.dev/v6#>
+
+# Query extracts all skill definitions
+SELECT DISTINCT
+    ?skillName
+    ?skillDescription
+    (COALESCE(?skillInputType, ?defaultInputType) AS ?skillInputType)
+    (COALESCE(?skillOutputType, ?defaultOutputType) AS ?skillOutputType)
+    (COALESCE(?skillInputMode, ?defaultInputMode) AS ?skillInputMode)
+    (COALESCE(?skillOutputMode, ?defaultOutputMode) AS ?skillOutputMode)
+    ?skillTags
+    ?skillExamples
+WHERE {
+    # Get skill definitions
+    ?skill a a2a:Skill .
+    ?skill a2a:name ?skillName .
+
+    # Get skill description (optional)
+    OPTIONAL {
+        ?skill a2a:description ?skillDescription .
+    }
+
+    # Get skill input type
+    OPTIONAL {
+        ?skill a2a:inputType ?skillInputType .
+    }
+    UNION
+    {
+        ?skill a2a:input ?skillInputType .
+    }
+
+    # Get skill output type
+    OPTIONAL {
+        ?skill a2a:outputType ?skillOutputType .
+    }
+    UNION
+    {
+        ?skill a2a:output ?skillOutputType .
+    }
+
+    # Get skill input mode
+    OPTIONAL {
+        ?skill a2a:inputMode ?skillInputMode .
+    }
+
+    # Get skill output mode
+    OPTIONAL {
+        ?skill a2a:outputMode ?skillOutputMode .
+    }
+
+    # Get skill tags (concatenated as comma-separated string)
+    OPTIONAL {
+        ?skill a2a:tags ?tagsList .
+        ?tagsList rdf:rest*/rdf:first ?tag .
+        BIND(GROUP_CONCAT(?tag; ",") AS ?skillTags)
+    }
+    UNION
+    {
+        ?skill a2a:tag ?singleTag .
+        BIND(?singleTag AS ?skillTags)
+    }
+
+    # Get skill examples (concatenated as |||-separated string)
+    OPTIONAL {
+        ?skill a2a:examples ?examplesList .
+        ?examplesList rdf:rest*/rdf:first ?example .
+        BIND(GROUP_CONCAT(?example; "|||") AS ?skillExamples)
+    }
+    UNION
+    {
+        ?skill a2a:example ?singleExample .
+        BIND(?singleExample AS ?skillExamples)
+    }
+
+    # Get default input mode from agent if skill doesn't specify
+    OPTIONAL {
+        ?agent a2a:hasSkill ?skill .
+        ?agent a2a:defaultInputMode ?defaultInputMode .
+    }
+
+    # Get default output mode from agent if skill doesn't specify
+    OPTIONAL {
+        ?agent a2a:hasSkill ?skill .
+        ?agent a2a:defaultOutputMode ?defaultOutputMode .
+    }
+
+    # Get default input type from agent if skill doesn't specify
+    OPTIONAL {
+        ?agent a2a:hasSkill ?skill .
+        ?agent a2a:defaultInputType ?defaultInputType .
+    }
+
+    # Get default output type from agent if skill doesn't specify
+    OPTIONAL {
+        ?agent a2a:hasSkill ?skill .
+        ?agent a2a:defaultOutputType ?defaultOutputType .
+    }
+}
+ORDER BY ?skillName

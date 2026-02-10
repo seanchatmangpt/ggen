@@ -1,0 +1,33 @@
+# PATTERN 1: Agent Discovery - Find agents by capability and state
+PREFIX a2a: <https://ggen.dev/ontology/a2a>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?discoveredAgent a a2a:DiscoveredAgent ;
+    a2a:agentId ?agentId ;
+    a2a:agentName ?agentName ;
+    a2a:agentType ?agentType ;
+    a2a:agentStatus ?agentStatus ;
+    a2a:hasCapability ?capability .
+}
+WHERE {
+  ?agent a a2a:Agent ;
+    a2a:id ?agentId ;
+    a2a:name ?agentName ;
+    a2a:agentType ?agentType ;
+    a2a:agentStatus ?agentStatus .
+
+  FILTER (?agentStatus IN ("Active", "Ready", "Busy"))
+  
+  VALUES ?requiredCapability { "data-processing" }
+  
+  ?agent a2a:hasCapability ?capRef .
+  ?capRef a a2a:Capability ;
+    a2a:name ?capability .
+  
+  FILTER (?capability = ?requiredCapability)
+  
+  BIND(IRI(CONCAT(STR(a2a:), "discovered/", ENCODE_FOR_URI(?agentId))) AS ?discoveredAgent)
+}

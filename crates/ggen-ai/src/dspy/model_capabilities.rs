@@ -122,6 +122,7 @@ pub enum ModelProvider {
     Cohere,
     Mistral,
     Ollama,
+    Zai,
     Local,
     Custom,
 }
@@ -143,6 +144,8 @@ impl ModelProvider {
             ModelProvider::Mistral
         } else if name_lower.contains("ollama") || name_lower.contains("llama") {
             ModelProvider::Ollama
+        } else if name_lower.contains("zai") || name_lower.contains("genai") {
+            ModelProvider::Zai
         } else if name_lower.contains("local") || name_lower.starts_with("file://") {
             ModelProvider::Local
         } else {
@@ -159,6 +162,7 @@ impl ModelProvider {
             ModelProvider::Cohere => "cohere",
             ModelProvider::Mistral => "mistral",
             ModelProvider::Ollama => "ollama",
+            ModelProvider::Zai => "zai",
             ModelProvider::Local => "local",
             ModelProvider::Custom => "custom",
         }
@@ -306,6 +310,22 @@ impl ModelCapabilities {
                 streaming: true,
                 vision: false,
                 latency_class: LatencyClass::Fast,
+                reliability: ReliabilityClass::Standard,
+                modalities: vec![Modality::Text],
+            };
+        }
+
+        // GLM (Zhipu AI / ZAI) models
+        if name_lower.contains("glm") || name_lower.contains("zai") || name_lower.contains("zhipu") {
+            return Self {
+                max_context_tokens: 128_000,
+                max_output_tokens: 8_192,
+                structured_output: true,
+                function_calling: true,
+                system_messages: true,
+                streaming: true,
+                vision: name_lower.contains("4v") || name_lower.contains("vision"),
+                latency_class: LatencyClass::Medium,
                 reliability: ReliabilityClass::Standard,
                 modalities: vec![Modality::Text],
             };

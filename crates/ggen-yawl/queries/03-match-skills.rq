@@ -1,0 +1,36 @@
+# PATTERN 3: Skill Matching
+PREFIX a2a: <https://ggen.dev/ontology/a2a>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?skillMatch a a2a:SkillMatch ;
+    a2a:agent ?agentId ;
+    a2a:requiredSkill ?requiredSkill ;
+    a2a:relevanceScore ?relevanceScore .
+}
+WHERE {
+  VALUES ?requiredSkill { "rust-development" "sparql-queries" }
+
+  ?agent a a2a:Agent ;
+    a2a:id ?agentId ;
+    a2a:agentStatus ?status ;
+    a2a:hasSkill ?skill .
+  
+  ?skill a a2a:Skill ;
+    a2a:name ?matchedSkill ;
+    a2a:proficiency ?proficiency .
+  
+  FILTER (?matchedSkill = ?requiredSkill)
+  FILTER (?status IN ("Active", "Ready"))
+
+  BIND(
+    CASE 
+      WHEN xsd:decimal(?proficiency) >= 0.9 THEN 1.0
+      WHEN xsd:decimal(?proficiency) >= 0.7 THEN 0.8
+      ELSE 0.6
+    END AS ?relevanceScore
+  )
+
+  BIND(IRI(CONCAT(STR(a2a:), "match/", ENCODE_FOR_URI(CONCAT(?agentId, "-", ?requiredSkill)))) AS ?skillMatch)
+}
+ORDER BY DESC(?relevanceScore)

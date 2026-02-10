@@ -4,6 +4,7 @@
 //! converting OntologySchema into working code for TypeScript, GraphQL, SQL, and more.
 
 pub mod audit;
+pub mod canonicalize; // μ₄: Code canonicalization for A2A-RS integration
 pub mod code_graph;
 pub mod concurrent;
 pub mod dependency_validation;
@@ -29,6 +30,10 @@ pub mod watch_mode;
 
 // Re-export key types
 pub use audit::{AuditOutput, AuditStep, AuditTrail, AuditTrailBuilder};
+pub use canonicalize::{
+    canonicalize, canonicalize_a2a, canonicalize_file, canonicalize_rust_quick,
+    CanonicalizeOptions,
+};
 pub use code_graph::{
     CodeEnum, CodeField, CodeGraphBuilder, CodeImpl, CodeImport, CodeItem, CodeMethod, CodeModule,
     CodeParam, CodeStruct, CodeTrait, CodeVariant,

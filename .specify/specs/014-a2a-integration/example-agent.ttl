@@ -1,0 +1,179 @@
+# A2A Example Agent Specifications
+# Demonstrates agent definitions using the A2A ontology
+# Base URI: https://ggen.dev/specs/014-a2a-integration/example-agent#
+
+@prefix a2a: <https://a2a.dev/ontology#> .
+@prefix ex: <https://ggen.dev/specs/014-a2a-integration/example-agent#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+#    Agent 1: TestAgent - Basic Echo Agent
+#################################################################
+
+ex:TestAgent rdf:type a2a:Agent ;
+    a2a:hasName "TestAgent" ;
+    a2a:hasId "test-agent-001" ;
+    a2a:hasVersion "1.0.0" ;
+    a2a:hasEndpoint "http://localhost:8080" ;
+    a2a:hasDescription "A simple test agent that echoes received messages. Used for testing A2A protocol compliance and transport connectivity." ;
+    a2a:hasSkill ex:EchoSkill ;
+    a2a:hasTransport ex:TestAgentHTTPTransport .
+
+ex:EchoSkill rdf:type a2a:Skill ;
+    a2a:hasName "echo" ;
+    a2a:hasDescription "Echoes the input message back to the sender. Used for connectivity testing and protocol validation." ;
+    a2a:hasInputType "string" ;
+    a2a:hasOutputType "string" .
+
+ex:TestAgentHTTPTransport rdf:type a2a:Transport ;
+    a2a:hasType "http" ;
+    a2a:hasUrl "http://localhost:8080/a2a" ;
+    a2a:hasDescription "HTTP transport endpoint for TestAgent" .
+
+#################################################################
+#    Agent 2: CodeAnalysisAgent - Code Analysis Specialist
+#################################################################
+
+ex:CodeAnalysisAgent rdf:type a2a:Agent ;
+    a2a:hasName "CodeAnalysisAgent" ;
+    a2a:hasId "code-analysis-agent-002" ;
+    a2a:hasVersion "2.1.0" ;
+    a2a:hasEndpoint "http://localhost:9090" ;
+    a2a:hasDescription "Specialized agent for static code analysis, linting, and code quality assessment. Supports multiple programming languages and provides detailed reports on code quality, security vulnerabilities, and potential bugs." ;
+    a2a:hasSkill ex:LintSkill ;
+    a2a:hasSkill ex:SecurityScanSkill ;
+    a2a:hasSkill ex:ComplexityAnalysisSkill ;
+    a2a:hasTransport ex:CodeAnalysisHTTPTransport .
+
+ex:LintSkill rdf:type a2a:Skill ;
+    a2a:hasName "lint" ;
+    a2a:hasDescription "Performs static analysis on code to identify style violations, potential bugs, and code smells. Returns a detailed report with line-by-line findings." ;
+    a2a:hasInputType "CodeAnalysisRequest" ;
+    a2a:hasOutputType "LintReport" .
+
+ex:SecurityScanSkill rdf:type a2a:Skill ;
+    a2a:hasName "security_scan" ;
+    a2a:hasDescription "Scans code for security vulnerabilities including SQL injection, XSS, hardcoded secrets, and insecure dependencies. Produces a security assessment report." ;
+    a2a:hasInputType "SecurityScanRequest" ;
+    a2a:hasOutputType "SecurityReport" .
+
+ex:ComplexityAnalysisSkill rdf:type a2a:Skill ;
+    a2a:hasName "complexity_analysis" ;
+    a2a:hasDescription "Analyzes code complexity metrics including cyclomatic complexity, nesting depth, and cognitive load. Provides recommendations for code simplification." ;
+    a2a:hasInputType "ComplexityRequest" ;
+    a2a:hasOutputType "ComplexityReport" .
+
+ex:CodeAnalysisHTTPTransport rdf:type a2a:Transport ;
+    a2a:hasType "http" ;
+    a2a:hasUrl "http://localhost:9090/api/v1/analyze" ;
+    a2a:hasDescription "HTTP REST API endpoint for CodeAnalysisAgent with JSON request/response format" .
+
+#################################################################
+#    Agent 3: FileProcessingAgent - File Operations Agent
+#################################################################
+
+ex:FileProcessingAgent rdf:type a2a:Agent ;
+    a2a:hasName "FileProcessingAgent" ;
+    a2a:hasId "file-processing-agent-003" ;
+    a2a:hasVersion "1.5.0" ;
+    a2a:hasDescription "Agent for file system operations including read, write, search, and transform operations. Optimized for batch processing and large file handling." ;
+    a2a:hasSkill ex:FileReadSkill ;
+    a2a:hasSkill ex:FileWriteSkill ;
+    a2a:hasSkill ex:FileSearchSkill ;
+    a2a:hasSkill ex:FileTransformSkill ;
+    a2a:hasTransport ex:FileProcessingSTDIOTransport .
+
+ex:FileReadSkill rdf:type a2a:Skill ;
+    a2a:hasName "file_read" ;
+    a2a:hasDescription "Reads file contents from the local filesystem. Supports partial reads, offset-based reading, and various file formats including text, JSON, and binary files." ;
+    a2a:hasInputType "FileReadRequest { path: string, offset?: integer, limit?: integer }" ;
+    a2a:hasOutputType "FileReadResponse { content: string, metadata: FileInfo }" .
+
+ex:FileWriteSkill rdf:type a2a:Skill ;
+    a2a:hasName "file_write" ;
+    a2a:hasDescription "Writes content to a file on the local filesystem. Supports create, append, and overwrite modes. Automatically creates parent directories if needed." ;
+    a2a:hasInputType "FileWriteRequest { path: string, content: string, mode: 'rewrite'|'append' }" ;
+    a2a:hasOutputType "FileWriteResponse { success: boolean, bytesWritten: integer }" .
+
+ex:FileSearchSkill rdf:type a2a:Skill ;
+    a2a:hasName "file_search" ;
+    a2a:hasDescription "Searches for files by name pattern or content within the filesystem. Supports glob patterns, regex, and recursive directory traversal." ;
+    a2a:hasInputType "FileSearchRequest { pattern: string, searchType: 'files'|'content', path?: string }" ;
+    a2a:hasOutputType "FileSearchResponse { matches: FileMatch[], totalCount: integer }" .
+
+ex:FileTransformSkill rdf:type a2a:Skill ;
+    a2a:hasName "file_transform" ;
+    a2a:hasDescription "Transforms file contents using specified operations such as format conversion, content replacement, or data extraction. Supports streaming for large files." ;
+    a2a:hasInputType "TransformRequest { path: string, operations: TransformOperation[] }" ;
+    a2a:hasOutputType "TransformResponse { success: boolean, outputPath: string }" .
+
+ex:FileProcessingSTDIOTransport rdf:type a2a:Transport ;
+    a2a:hasType "stdio" ;
+    a2a:hasDescription "STDIO transport for FileProcessingAgent. Communicates via JSON-RPC messages over standard input/output for local process integration." .
+
+#################################################################
+#    Additional Example: Multi-Transport Agent
+#################################################################
+
+ex:HybridAgent rdf:type a2a:Agent ;
+    a2a:hasName "HybridAgent" ;
+    a2a:hasId "hybrid-agent-004" ;
+    a2a:hasVersion "1.0.0" ;
+    a2a:hasEndpoint "http://localhost:7070" ;
+    a2a:hasDescription "An agent that demonstrates multi-transport support. Can be contacted via HTTP for remote requests or STDIO for local process communication." ;
+    a2a:hasSkill ex:HybridProcessSkill ;
+    a2a:hasTransport ex:HybridHTTPTransport ;
+    a2a:hasTransport ex:HybridSTDIOTransport .
+
+ex:HybridProcessSkill rdf:type a2a:Skill ;
+    a2a:hasName "process" ;
+    a2a:hasDescription "Generic processing skill that accepts arbitrary work items and returns processed results. Demonstrates the flexibility of the A2A protocol." ;
+    a2a:hasInputType "WorkItem" ;
+    a2a:hasOutputType "ProcessedResult" .
+
+ex:HybridHTTPTransport rdf:type a2a:Transport ;
+    a2a:hasType "http" ;
+    a2a:hasUrl "http://localhost:7070/process" ;
+    a2a:hasDescription "HTTP endpoint for remote access to HybridAgent" .
+
+ex:HybridSTDIOTransport rdf:type a2a:Transport ;
+    a2a:hasType "stdio" ;
+    a2a:hasDescription "STDIO endpoint for local process communication with HybridAgent" .
+
+#################################################################
+#    Task Examples (demonstrating Task class usage)
+#################################################################
+
+ex:ExampleLintTask rdf:type a2a:Task ;
+    a2a:hasStatus ex:CompletedStatus ;
+    a2a:hasAgent ex:CodeAnalysisAgent ;
+    a2a:hasMessage ex:LintRequestMessage ;
+    a2a:producesArtifact ex:LintReportArtifact .
+
+ex:LintRequestMessage rdf:type a2a:Message ;
+    a2a:hasRole ex:UserRole ;
+    a2a:timestamp "2026-02-08T10:30:00Z"^^xsd:dateTime ;
+    a2a:hasPart ex:LintRequestPart .
+
+ex:LintRequestPart rdf:type a2a:Part ;
+    a2a:hasData '{"code": "function test() { return true; }", "language": "javascript"}' ;
+    a2a:hasMimeType "application/json" .
+
+ex:LintReportArtifact rdf:type a2a:Artifact ;
+    a2a:hasDescription "Generated lint report for the analyzed code" .
+
+#################################################################
+#    Additional Transport Examples
+#################################################################
+
+ex:GRPCTransportExample rdf:type a2a:Transport ;
+    a2a:hasType "grpc" ;
+    a2a:hasUrl "grpc://localhost:5050" ;
+    a2a:hasDescription "High-performance gRPC transport for low-latency agent communication" .
+
+ex:WebSocketTransportExample rdf:type a2a:Transport ;
+    a2a:hasType "websocket" ;
+    a2a:hasUrl "ws://localhost:6060/a2a" ;
+    a2a:hasDescription "WebSocket transport for real-time bidirectional agent communication" .
