@@ -390,6 +390,7 @@ mockito = "1.7"
 insta = "1.43"
 serial_test = "3.2"
 md5 = "0.8"
+sha2 = "0.10"
 shell-words = "1.1"
 # E2E test dependencies
 toml = "0.9"
