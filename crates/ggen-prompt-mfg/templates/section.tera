@@ -1,0 +1,5 @@
+{# Section template for individual sections #}
+--- {{ section_type }} ---
+{% for block in blocks -%}
+{{ block.content }}
+{% endfor -%}

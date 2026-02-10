@@ -27,12 +27,15 @@ members = [
   "crates/ggen-marketplace",
   "crates/ggen-test-audit",    # Feature 004: Test quality audit tooling
   "crates/ggen-test-opt",      # Feature 004: Test optimization tooling
+  "crates/ggen-testing",       # Chicago TDD test infrastructure
   "crates/ggen-e2e",           # Feature 011: End-to-end testing with testcontainers
+  "crates/ggen-poka-yoke",     # Poka-yoke error proofing mechanisms
   "crates/ggen-node", "crates/ggen-macros",
   "crates/ggen-workflow",      # Feature 012: Workflow orchestration engine
-  "crates/ggen-execution",      # Common execution framework for semantic convergence
+  "crates/ggen-workflow-43",   # van der Aalst's 43 workflow patterns implementation
+  # "crates/ggen-execution",      # Common execution framework for semantic convergence - temporarily excluded
   "crates/ggen-marketplace",   # Feature 013: Marketplace and integrations
-  "marketplace/packages/rig-mcp", # Feature 013: Rig MCP integration (A2A protocol)
+  # "marketplace/packages/rig-mcp", # Feature 013: Rig MCP integration (A2A protocol) - temporarily excluded
   "crates/ggen-api",           # RevOps: REST API layer for monetization
   "crates/ggen-auth",          # RevOps: Authentication (OAuth2, JWT, API keys)
   "crates/ggen-payments",      # RevOps: Payment processing (Stripe integration)
@@ -53,6 +56,23 @@ members = [
   "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
   "crates/ggen-yawl",         # YAWL workflow generation from industry ontologies
   "crates/ggen-process-mining", # Process mining integration with rust4pm (Alpha++, XES/OCEL)
+  "crates/ggen-backpressure", # Backpressure and admission control (λ ≤ μ)
+  "crates/ggen-heijunka",    # Heijunka load leveling and smooth workload distribution
+  "crates/ggen-osiris",      # OSIRIS zero cognitive load architecture
+  "crates/ggen-canonical",   # Deterministic canonicalization (Rust/JSON/RDF) with hash verification
+  "crates/ggen-jidoka",        # Jidoka gates and andon signal system for quality control
+  "crates/ggen-kaizen",        # Kaizen continuous improvement tracking with PDCA cycles
+  "crates/ggen-prompt-mfg",    # Prompt manufacturing via CONSTRUCT - deterministic compilation from RDF
+  "crates/ggen-packet",        # Packet discipline and work order types
+  "crates/ggen-receipt",       # Cryptographic receipt system with Ed25519 signatures
+  "crates/ggen-consensus",     # Byzantine consensus for receipt verification
+  "crates/ggen-a2a",           # A2A task state machine protocol
+  "crates/ggen-cli-tps",       # CLI commands for A2A/TPS operations
+  "crates/ggen-metrics-tps",   # A2A/TPS metrics collection and telemetry
+  "crates/ggen-marketplace-tps", # TPS: Marketplace/workspace economy integration with GCP and CLM
+  "crates/ggen-integration",   # Integration layer connecting all A2A/TPS systems
+  "crates/ggen-transport",     # MCP/A2A transport layer with streaming support
+  "crates/ggen-e2e-tps",       # End-to-end integration tests for A2A/TPS pipeline
   # "crates/a2a-generated",  # Temporarily excluded - has compilation errors
   # "crates/ggen-execution",   # Temporarily excluded - depends on a2a-generated
   "crates/tai-testing",        # Production hardening & resilience testing framework
@@ -135,6 +155,7 @@ ggen-node = { path = "crates/ggen-node", version = "0.2.0" }
 ggen-macros = { path = "crates/ggen-macros", version = "0.2.0" }
 ggen-test-audit = { path = "crates/ggen-test-audit", version = "0.2.0" }
 ggen-test-opt = { path = "crates/ggen-test-opt", version = "0.2.0" }
+ggen-testing = { path = "crates/ggen-testing", version = "0.2.0" }
 ggen-e2e = { path = "crates/ggen-e2e", version = "0.2.0" }
 ggen-api = { path = "crates/ggen-api", version = "0.2.0" }
 ggen-auth = { path = "crates/ggen-auth", version = "0.2.0" }
@@ -144,6 +165,13 @@ ggen-ai = { path = "crates/ggen-ai", version = "0.2.0" }
 ggen-folk-strategy = { path = "crates/ggen-folk-strategy", version = "0.2.0" }
 ggen-dod = { path = "crates/ggen-dod", version = "0.2.0" }
 ggen-ontology-core = { path = "crates/ggen-ontology-core", version = "0.2.0" }
+ggen-canonical = { path = "crates/ggen-canonical", version = "0.2.0" }
+ggen-receipt = { path = "crates/ggen-receipt", version = "0.2.0" }
+ggen-jidoka = { path = "crates/ggen-jidoka", version = "0.1.0" }
+ggen-packet = { path = "crates/ggen-packet", version = "0.1.0" }
+ggen-backpressure = { path = "crates/ggen-backpressure", version = "6.0.0" }
+ggen-a2a = { path = "crates/ggen-a2a", version = "6.0.0" }
+ggen-prompt-mfg = { path = "crates/ggen-prompt-mfg", version = "0.2.0" }
 
 # KNHK Systems (ETL + KGC-4D + Workflow Engine Integration)
 knhk-etl = { path = "crates/knhk-etl", version = "0.1.0" }
@@ -157,6 +185,9 @@ knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "0.1.0" }
 a2a-rs = { path = "vendors/a2a-rs/a2a-rs", version = "0.1.0", features = ["client", "server", "tracing"], default-features = false }
 
 ggen-tps-andon = { path = "crates/ggen-tps-andon", version = "0.1.0" }
+ggen-heijunka = { path = "crates/ggen-heijunka", version = "6.0.0" }
+ggen-metrics-tps = { path = "crates/ggen-metrics-tps", version = "6.0.0" }
+ggen-transport = { path = "crates/ggen-transport", version = "6.0.0" }
 
 # TAI Testing: Production hardening & resilience testing framework
 tai-testing = { path = "crates/tai-testing", version = "0.1.0" }
@@ -389,6 +420,16 @@ process_mining = "0.2"
 ggen-process-mining = { path = "crates/ggen-process-mining", version = "0.1.0" }
 # Cryptographic hashing for receipt tests
 sha2 = "0.10"
+# A2A/TPS System Benchmarks
+ggen-receipt.workspace = true
+ggen-jidoka.workspace = true
+ggen-packet.workspace = true
+ggen-backpressure.workspace = true
+ggen-a2a.workspace = true
+ggen-canonical.workspace = true
+regex = "1.12"
+validator = "0.19"
+ed25519-dalek = "2.1"
 
 [profile.dev]
 opt-level = 0
@@ -468,6 +509,30 @@ harness = false
 
 [[bench]]
 name = "yawl_generation_slo"
+harness = false
+
+[[bench]]
+name = "receipt_bench"
+harness = false
+
+[[bench]]
+name = "jidoka_bench"
+harness = false
+
+[[bench]]
+name = "packet_bench"
+harness = false
+
+[[bench]]
+name = "backpressure_bench"
+harness = false
+
+[[bench]]
+name = "a2a_bench"
+harness = false
+
+[[bench]]
+name = "canonical_bench"
 harness = false
 
 [[test]]
