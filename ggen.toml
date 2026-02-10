@@ -110,6 +110,54 @@ output = "stderr"
 "logging.level" = "warn"
 "logging.format" = "json"
 
+# ============================================================================
+# ZAI Environment (Local GenAI Integration)
+# Configuration for ZAI MCP server and local AI model integration
+# ============================================================================
+[env.zai]
+# Provider identifier for ZAI integration
+"ai.provider" = "zai"
+
+# Default model to use for generation
+# Common values: "zai-chat", "zai-code", "zai-vision"
+"ai.model" = "zai-chat"
+
+# ZAI API endpoint URL
+# Default: http://localhost:8080 (standard ZAI server port)
+# For Docker: use container name (e.g., http://zai-server:8080)
+"ai.base_url" = "http://localhost:8080"
+
+# Optional API key for authenticated ZAI deployments
+# Leave empty for local development (default: no authentication)
+# Set via environment variable: export ZAI_API_KEY="your-key-here"
+"ai.api_key" = ""  # Optional: set via ZAI_API_KEY env var
+
+# Temperature for model responses (0.0 = deterministic, 1.0 = creative)
+"ai.temperature" = 0.7
+
+# Request timeout in seconds
+"ai.timeout" = 120
+
+# Logging level for ZAI operations
+"logging.level" = "debug"
+
+# Enable request/response caching for faster repeated queries
+"zai.cache_enabled" = true
+
+# Cache TTL in seconds (default: 1 hour)
+"zai.cache_ttl" = 3600
+
+# Retry configuration for failed requests
+"zai.max_retries" = 3
+"zai.retry_delay_ms" = 1000
+
+# === Local ZAI Server Setup ===
+# To run ZAI locally:
+# 1. Clone ZAI repository: git clone https://github.com/zai-mcp/zai-server
+# 2. Start server: docker run -p 8080:8080 zai-mcp/server:latest
+# 3. Or install via npm: npm install -g @zai-mcp/server && zai-server
+# 4. Verify health: curl http://localhost:8080/health
+
 # Production environment
 [env.production]
 "ai.temperature" = 0.3  # Deterministic
@@ -142,7 +190,15 @@ enabled = true
 
 # Generation rules - define what to generate
 rules = [
-    { name = "a2a-rs", source = ".specify/specs/014-a2a-integration/", output = "crates/a2a-generated/src/", templates = "crates/ggen-core/templates/a2a-rs/" },
+    # A2A-RS Pipeline (μ₁-μ₅): Agent-to-Agent code generation from RDF ontology
+    # Each rule follows the pattern: query → template → output_file
+    { name = "a2a-agents", query = "crates/ggen-core/queries/a2a/construct-agents.rq", template = "crates/ggen-core/templates/a2a/agent.rs.tera", output_file = "crates/a2a-generated/src/agent.rs", mode = "Overwrite" },
+    { name = "a2a-messages", query = "crates/ggen-core/queries/a2a/extract-messages.rq", template = "crates/ggen-core/templates/a2a/message.rs.tera", output_file = "crates/a2a-generated/src/message.rs", mode = "Overwrite" },
+    { name = "a2a-tasks", query = "crates/ggen-core/queries/a2a/extract-tasks.rq", template = "crates/ggen-core/templates/a2a/task.rs.tera", output_file = "crates/a2a-generated/src/task.rs", mode = "Overwrite" },
+    { name = "a2a-transports", query = "crates/ggen-core/queries/a2a/extract-transports.rq", template = "crates/ggen-core/templates/a2a/transport.rs.tera", output_file = "crates/a2a-generated/src/transport.rs", mode = "Overwrite" },
+    { name = "a2a-skills", query = "crates/ggen-core/queries/a2a/extract-skills.rq", template = "crates/ggen-core/templates/a2a/skill.rs.tera", output_file = "crates/a2a-generated/src/skill.rs", mode = "Overwrite" },
+    { name = "a2a-lib", query = "", template = "crates/ggen-core/templates/a2a/lib.rs.tera", output_file = "crates/a2a-generated/src/lib.rs", mode = "Overwrite" },
+    # Domain config generation
     { name = "domain-config", source = ".specify/specs/014-a2a-integration/", output = "crates/ggen-domain/src/domain/", templates = "crates/ggen-core/templates/domain/" }
 ]
 

@@ -3,8 +3,10 @@
 //! Provides functionality for executing SPARQL CONSTRUCT queries to transform
 //! industry ontologies into YAWL workflow specifications.
 
+pub mod agents;
 pub mod executor;
 
+pub use agents::{A2aPattern, all_patterns};
 pub use executor::{ConstructExecutor, Query};
 
 /// Pattern mappings for FIBO to YAWL transformation.

@@ -63,6 +63,14 @@ pub struct GgenConfig {
     /// Package metadata (for marketplace packages)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub package: Option<PackageMetadata>,
+
+    /// MCP configuration (optional)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mcp: Option<McpConfig>,
+
+    /// A2A configuration (optional)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub a2a: Option<A2AConfig>,
 }
 
 /// Project metadata configuration
@@ -391,6 +399,301 @@ pub struct PackageMetadata {
     pub metadata: Option<HashMap<String, serde_json::Value>>,
 }
 
+/// MCP (Model Context Protocol) configuration
+///
+/// Configuration for MCP server and client integration.
+/// Enables LLM-driven agents to discover and invoke tools through
+/// a standardized JSON-RPC interface.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct McpConfig {
+    /// Server name
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+
+    /// Server version
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
+
+    /// Maximum time to wait for tool execution (milliseconds)
+    #[serde(default = "default_mcp_tool_timeout")]
+    pub tool_timeout_ms: u64,
+
+    /// Maximum concurrent requests
+    #[serde(default = "default_mcp_max_concurrent")]
+    pub max_concurrent_requests: usize,
+
+    /// Server transport configuration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub transport: Option<McpTransportConfig>,
+
+    /// Tool registry configuration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tools: Option<McpToolsConfig>,
+
+    /// ZAI integration settings
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub zai: Option<McpZaiConfig>,
+
+    /// Enable MCP server
+    #[serde(default = "default_mcp_enabled")]
+    pub enabled: bool,
+
+    /// Server discovery settings
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub discovery: Option<McpDiscoveryConfig>,
+}
+
+/// MCP transport configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct McpTransportConfig {
+    /// Transport type (stdio, http, websocket)
+    #[serde(default = "default_mcp_transport_type")]
+    pub transport_type: String,
+
+    /// HTTP server port (for http/websocket transport)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub port: Option<u16>,
+
+    /// HTTP server host
+    #[serde(default = "default_mcp_host")]
+    pub host: String,
+
+    /// TLS configuration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tls: Option<McpTlsConfig>,
+
+    /// Request timeout (seconds)
+    #[serde(default = "default_mcp_request_timeout")]
+    pub request_timeout_seconds: u64,
+}
+
+/// MCP TLS configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct McpTlsConfig {
+    /// Enable TLS
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Path to certificate file
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cert_path: Option<String>,
+
+    /// Path to private key file
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub key_path: Option<String>,
+
+    /// Path to CA certificate file
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ca_path: Option<String>,
+}
+
+/// MCP tools configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct McpToolsConfig {
+    /// Tool discovery path (directory to scan for tools)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub discovery_path: Option<String>,
+
+    /// Tool registration is required
+    #[serde(default)]
+    pub require_registration: bool,
+
+    /// Validate tool signatures
+    #[serde(default = "default_true")]
+    pub validate_signatures: bool,
+
+    /// Allowed tool prefixes (whitelist)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allowed_prefixes: Option<Vec<String>>,
+}
+
+/// MCP ZAI integration configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct McpZaiConfig {
+    /// Enable ZAI integration
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// ZAI provider URL
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub provider_url: Option<String>,
+
+    /// ZAI model for tool processing
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+
+    /// Cache ZAI responses
+    #[serde(default = "default_mcp_zai_cache")]
+    pub cache_enabled: bool,
+
+    /// Cache TTL (seconds)
+    #[serde(default = "default_mcp_zai_cache_ttl")]
+    pub cache_ttl_seconds: u64,
+}
+
+/// MCP discovery configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct McpDiscoveryConfig {
+    /// Enable server discovery
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Discovery method (local, remote, hybrid)
+    #[serde(default = "default_mcp_discovery_method")]
+    pub method: String,
+
+    /// Remote discovery URL
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub registry_url: Option<String>,
+
+    /// Discovery cache TTL (seconds)
+    #[serde(default = "default_mcp_discovery_cache_ttl")]
+    pub cache_ttl_seconds: u64,
+}
+
+/// A2A (Agent-to-Agent) configuration
+///
+/// Configuration for A2A message passing and agent coordination.
+/// Enables agents to communicate, coordinate, and orchestrate workflows.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct A2AConfig {
+    /// Agent identifier
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub agent_id: Option<String>,
+
+    /// Agent name
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub agent_name: Option<String>,
+
+    /// Agent type (coordinator, worker, specialist, etc.)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub agent_type: Option<String>,
+
+    /// Transport configuration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub transport: Option<A2ATransportConfig>,
+
+    /// Message handling configuration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub messaging: Option<A2AMessagingConfig>,
+
+    /// Orchestration settings
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub orchestration: Option<A2AOrchestrationConfig>,
+
+    /// Agent capabilities
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub capabilities: Option<Vec<String>>,
+
+    /// Enable A2A
+    #[serde(default = "default_a2a_enabled")]
+    pub enabled: bool,
+}
+
+/// A2A transport configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct A2ATransportConfig {
+    /// Transport type (memory, http, websocket, amqp)
+    #[serde(default = "default_a2a_transport_type")]
+    pub transport_type: String,
+
+    /// Server bind address
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bind_address: Option<String>,
+
+    /// Server port
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub port: Option<u16>,
+
+    /// Connection timeout (milliseconds)
+    #[serde(default = "default_a2a_timeout")]
+    pub timeout_ms: u64,
+
+    /// Maximum concurrent connections
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_connections: Option<usize>,
+
+    /// Retry configuration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub retry: Option<A2ARetryConfig>,
+}
+
+/// A2A retry configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct A2ARetryConfig {
+    /// Maximum retry attempts
+    #[serde(default = "default_a2a_max_retries")]
+    pub max_attempts: u32,
+
+    /// Initial retry delay (milliseconds)
+    #[serde(default = "default_a2a_retry_delay")]
+    pub initial_delay_ms: u64,
+
+    /// Maximum retry delay (milliseconds)
+    #[serde(default = "default_a2a_max_retry_delay")]
+    pub max_delay_ms: u64,
+
+    /// Enable exponential backoff
+    #[serde(default)]
+    pub exponential_backoff: bool,
+}
+
+/// A2A messaging configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct A2AMessagingConfig {
+    /// Message queue size
+    #[serde(default = "default_a2a_queue_size")]
+    pub queue_size: usize,
+
+    /// Message TTL (seconds)
+    #[serde(default = "default_a2a_message_ttl")]
+    pub message_ttl_seconds: u64,
+
+    /// Enable message persistence
+    #[serde(default)]
+    pub persistence_enabled: bool,
+
+    /// Persistence path
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub persistence_path: Option<String>,
+
+    /// Enable message signing
+    #[serde(default)]
+    pub signing_enabled: bool,
+
+    /// Signature algorithm (ed25519, rsa, ecdsa)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub signature_algorithm: Option<String>,
+}
+
+/// A2A orchestration configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct A2AOrchestrationConfig {
+    /// Orchestration mode (centralized, decentralized, hierarchical)
+    #[serde(default = "default_a2a_orchestration_mode")]
+    pub mode: String,
+
+    /// Coordinator address (for centralized mode)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub coordinator_address: Option<String>,
+
+    /// Heartbeat interval (seconds)
+    #[serde(default = "default_a2a_heartbeat_interval")]
+    pub heartbeat_interval_seconds: u64,
+
+    /// Agent timeout (seconds)
+    #[serde(default = "default_a2a_agent_timeout")]
+    pub agent_timeout_seconds: u64,
+
+    /// Enable consensus
+    #[serde(default)]
+    pub consensus_enabled: bool,
+
+    /// Consensus algorithm (raft, pbft, naive)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub consensus_algorithm: Option<String>,
+}
+
 // Default value functions for serde
 const fn default_temperature() -> f32 {
     0.7
@@ -466,6 +769,93 @@ impl Default for GgenConfig {
             build: None,
             test: None,
             package: None,
+            mcp: None,
+            a2a: None,
         }
     }
+}
+
+// MCP and A2A default value functions for serde
+const fn default_mcp_tool_timeout() -> u64 {
+    30000
+}
+
+const fn default_mcp_max_concurrent() -> usize {
+    100
+}
+
+fn default_mcp_transport_type() -> String {
+    "stdio".to_string()
+}
+
+fn default_mcp_host() -> String {
+    "127.0.0.1".to_string()
+}
+
+const fn default_mcp_request_timeout() -> u64 {
+    30
+}
+
+fn default_mcp_enabled() -> bool {
+    false
+}
+
+const fn default_mcp_zai_cache() -> bool {
+    true
+}
+
+const fn default_mcp_zai_cache_ttl() -> u64 {
+    3600
+}
+
+fn default_mcp_discovery_method() -> String {
+    "local".to_string()
+}
+
+const fn default_mcp_discovery_cache_ttl() -> u64 {
+    7200
+}
+
+fn default_a2a_enabled() -> bool {
+    false
+}
+
+fn default_a2a_transport_type() -> String {
+    "memory".to_string()
+}
+
+const fn default_a2a_timeout() -> u64 {
+    5000
+}
+
+const fn default_a2a_max_retries() -> u32 {
+    3
+}
+
+const fn default_a2a_retry_delay() -> u64 {
+    1000
+}
+
+const fn default_a2a_max_retry_delay() -> u64 {
+    30000
+}
+
+const fn default_a2a_queue_size() -> usize {
+    1000
+}
+
+const fn default_a2a_message_ttl() -> u64 {
+    3600
+}
+
+fn default_a2a_orchestration_mode() -> String {
+    "decentralized".to_string()
+}
+
+const fn default_a2a_heartbeat_interval() -> u64 {
+    30
+}
+
+const fn default_a2a_agent_timeout() -> u64 {
+    300
 }

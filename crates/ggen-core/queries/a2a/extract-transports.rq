@@ -1,0 +1,75 @@
+# SPARQL SELECT Query (μ₂): Extract A2A Transports for Tera Template Rendering
+#
+# This query extracts transport data from the A2A ontology and formats it as
+# JSON bindings compatible with Tera templates.
+#
+# Extracts:
+# - transportName (string)
+# - transportType (string: http, websocket, stdio, memory)
+# - transportUrl (string)
+# - transportVersion (optional string)
+# - transportEnabled (boolean)
+#
+# Output format: JSON bindings for Tera template rendering
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+PREFIX gv6: <http://ggen.dev/v6#>
+
+# Query extracts all transport definitions
+SELECT DISTINCT
+    ?transportName
+    ?transportType
+    ?transportUrl
+    ?transportVersion
+    ?transportEnabled
+WHERE {
+    # Get transport definitions
+    ?transport a a2a:Transport .
+
+    # Get transport name
+    {
+        ?transport a2a:name ?transportName .
+    }
+    UNION
+    {
+        BIND(REPLACE(STR(?transport), "^.*/", "") AS ?transportName)
+    }
+
+    # Get transport type (http, websocket, stdio, memory)
+    {
+        ?transport a2a:transportType ?transportTypeRaw .
+        FILTER(?transportTypeRaw IN ("http", "websocket", "stdio", "memory"))
+        BIND(?transportTypeRaw AS ?transportType)
+    }
+    UNION
+    {
+        # Default to http if transport type not specified
+        ?transport a2a:url ?transportUrl .
+        NOT EXISTS { ?transport a2a:transportType ?anyType }
+        BIND("http" AS ?transportType)
+    }
+
+    # Get transport URL
+    OPTIONAL {
+        ?transport a2a:url ?transportUrl .
+    }
+    UNION
+    {
+        ?transport a2a:endpoint ?transportUrl .
+    }
+
+    # Get transport version (optional)
+    OPTIONAL {
+        ?transport a2a:version ?transportVersion .
+    }
+
+    # Get enabled status (default to true)
+    BIND(COALESCE(?enabled, true) AS ?transportEnabled)
+    OPTIONAL {
+        ?transport a2a:enabled ?enabled .
+    }
+}
+ORDER BY ?transportName

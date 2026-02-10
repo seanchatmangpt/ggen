@@ -3,6 +3,21 @@
 //! `ggen sync` is the unified code synchronization pipeline that replaces ALL
 //! previous ggen commands. It transforms domain ontologies through inference
 //! rules into typed code via Tera templates.
+//!
+//! ## A2A-RS μ Pipeline
+//!
+//! For A2A-RS integration, the sync command executes the full μ₁-μ₅ pipeline:
+//!
+//! - **μ₁ (CONSTRUCT)**: Normalize RDF ontology from .specify/specs/014-a2a-integration/
+//! - **μ₂ (SELECT)**: Extract bindings for each module (agent, message, task, transport, skill)
+//! - **μ₃ (Tera)**: Generate Rust code from templates
+//! - **μ₄ (Canonicalize)**: Format and organize generated code
+//! - **μ₅ (Receipt)**: Generate cryptographic receipt for verification
+//!
+//! Usage:
+//!   ggen sync --audit              # Full A2A pipeline with receipt
+//!   ggen sync --dry-run            # Preview without writing
+//!   ggen sync --output crates/     # Custom output directory
 
 #![allow(clippy::unused_unit)] // clap-noun-verb macro generates this
 //!
@@ -110,6 +125,44 @@ impl From<SyncResult> for SyncOutput {
 /// (`ggen generate`, `ggen validate`, `ggen template`, etc.) with a single
 /// unified pipeline.
 ///
+/// ## A2A-RS μ Pipeline (μ₁ through μ₅)
+///
+/// When generating A2A-RS code from `.specify/specs/014-a2a-integration/`:
+///
+/// ```text
+/// μ₁ CONSTRUCT: Normalize RDF ontology
+///    Input: .specify/specs/014-a2a-integration/a2a-ontology.ttl
+///    Query: crates/ggen-core/queries/a2a/construct-agents.rq
+///    Output: Normalized A2A RDF with a2a: prefix
+///
+/// μ₂ SELECT: Extract bindings for each module
+///    Queries: crates/ggen-core/queries/a2a/extract-*.rq
+///      - extract-agents.rq → agent bindings
+///      - extract-messages.rq → message bindings
+///      - extract-tasks.rq → task bindings
+///      - extract-transports.rq → transport bindings
+///      - extract-skills.rq → skill bindings
+///    Output: SPARQL result bindings
+///
+/// μ₃ Tera: Generate Rust code
+///    Templates: crates/ggen-core/templates/a2a/*.tera
+///      - agent.rs.tera → crates/a2a-generated/src/agent.rs
+///      - message.rs.tera → crates/a2a-generated/src/message.rs
+///      - task.rs.tera → crates/a2a-generated/src/task.rs
+///      - transport.rs.tera → crates/a2a-generated/src/transport.rs
+///      - skill.rs.tera → crates/a2a-generated/src/skill.rs
+///      - lib.rs.tera → crates/a2a-generated/src/lib.rs
+///    Output: Generated Rust source files
+///
+/// μ₄ Canonicalize: Format and organize
+///    Action: rustfmt, organize imports, verify compilation
+///    Output: Formatted, ready-to-compile code
+///
+/// μ₅ Receipt: Generate cryptographic verification
+///    Output: .ggen/receipts/a2a-{timestamp}.json
+///    Contains: SHA256 hashes, input ontology hash, timestamp
+/// ```
+///
 /// ## Pipeline Flow
 ///
 /// ```text
@@ -129,6 +182,8 @@ impl From<SyncResult> for SyncOutput {
 /// --validate-only         Run SHACL/SPARQL validation without generation
 /// --format FORMAT         Output format: text, json, yaml (default: text)
 /// --timeout MS            Maximum execution time in milliseconds (default: 30000)
+/// --stage STAGE           Run specific μ stage only (μ₁, μ₂, μ₃, μ₄, μ₅)
+/// --ontology PATH         Override ontology path (default: from manifest)
 ///
 /// ## Flag Combinations
 ///
@@ -136,6 +191,11 @@ impl From<SyncResult> for SyncOutput {
 ///   ggen sync --dry-run --audit         Preview with audit
 ///   ggen sync --force --audit           Destructive overwrite with tracking
 ///   ggen sync --watch --validate-only   Continuous validation
+///
+/// A2A-specific workflows:
+///   ggen sync --audit                   Full A2A μ₁-μ₅ pipeline with receipt
+///   ggen sync --stage μ₃                Only run template generation
+///   ggen sync --ontology .specify/specs/014-a2a-integration/a2a-ontology.ttl
 ///
 /// CI/CD workflows:
 ///   ggen sync --format json             Machine-readable output
@@ -145,11 +205,42 @@ impl From<SyncResult> for SyncOutput {
 ///   ggen sync --watch --verbose         Live feedback
 ///   ggen sync --rule structs            Focused iteration
 ///
+/// ## Progress Reporting (A2A Pipeline)
+///
+/// When running A2A sync, progress is reported for each μ stage:
+///
+/// ```text
+/// [μ₁/5] CONSTRUCT: Normalizing ontology...
+///        Loaded 847 triples from a2a-ontology.ttl
+///        +124 triples from construct-agents.rq
+/// [μ₂/5] SELECT: Extracting bindings...
+///        Agents: 8 bindings
+///        Messages: 12 bindings
+///        Tasks: 15 bindings
+///        Transports: 3 bindings
+///        Skills: 24 bindings
+/// [μ₃/5] Tera: Generating code...
+///        agent.rs (2.4 KB)
+///        message.rs (3.1 KB)
+///        task.rs (2.8 KB)
+///        transport.rs (1.2 KB)
+///        skill.rs (4.5 KB)
+///        lib.rs (1.8 KB)
+/// [μ₄/5] Canonicalizing: Formatting code...
+///        Running rustfmt...
+///        Verifying compilation...
+/// [μ₅/5] Receipt: Generating verification...
+///        Receipt: .ggen/receipts/a2a-20250208-143022.json
+///        Ontology hash: a3f2e1b4...
+///        Total: 6 files, 15.8 KB, 2.34s
+/// ```
+///
 /// ## Flag Precedence
 ///
 /// --validate-only overrides --force
 /// --dry-run prevents file writes (--force has no effect)
 /// --watch triggers continuous execution
+/// --stage limits execution to specific μ stage
 ///
 /// ## Safety Notes
 ///
@@ -184,6 +275,12 @@ impl From<SyncResult> for SyncOutput {
 /// # JSON output for CI/CD
 /// ggen sync --format json
 ///
+/// # A2A generation with custom ontology
+/// ggen sync --ontology .specify/specs/014-a2a-integration/a2a-ontology.ttl --audit
+///
+/// # Run specific μ stage only
+/// ggen sync --stage μ₃
+///
 /// # Complex: Watch, audit, verbose
 /// ggen sync --watch --audit --verbose --rule api_endpoints
 /// ```
@@ -197,12 +294,23 @@ impl From<SyncResult> for SyncOutput {
 ///   - docs/features/watch-mode.md           Continuous regeneration
 ///   - docs/features/conditional-execution.md SPARQL ASK conditions
 ///   - docs/features/validation.md           SHACL/SPARQL constraints
+///   - docs/features/a2a-pipeline.md         A2A μ₁-μ₅ pipeline details
 #[allow(clippy::unused_unit, clippy::too_many_arguments)]
 #[verb("sync", "root")]
 pub fn sync(
-    manifest: Option<String>, output_dir: Option<String>, dry_run: Option<bool>,
-    force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
-    watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
+    manifest: Option<String>,
+    output_dir: Option<String>,
+    dry_run: Option<bool>,
+    force: Option<bool>,
+    audit: Option<bool>,
+    rule: Option<String>,
+    verbose: Option<bool>,
+    watch: Option<bool>,
+    validate_only: Option<bool>,
+    format: Option<String>,
+    timeout: Option<u64>,
+    stage: Option<String>,
+    ontology: Option<String>,
 ) -> VerbResult<SyncOutput> {
     // Build options from CLI args
     let options = build_sync_options(
@@ -217,6 +325,8 @@ pub fn sync(
         validate_only,
         format,
         timeout,
+        stage,
+        ontology,
     )?;
 
     // Execute via domain executor
@@ -232,9 +342,19 @@ pub fn sync(
 /// This helper keeps the verb function thin by extracting option building.
 #[allow(clippy::too_many_arguments)]
 fn build_sync_options(
-    manifest: Option<String>, output_dir: Option<String>, dry_run: Option<bool>,
-    force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
-    watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
+    manifest: Option<String>,
+    output_dir: Option<String>,
+    dry_run: Option<bool>,
+    force: Option<bool>,
+    audit: Option<bool>,
+    rule: Option<String>,
+    verbose: Option<bool>,
+    watch: Option<bool>,
+    validate_only: Option<bool>,
+    format: Option<String>,
+    timeout: Option<u64>,
+    stage: Option<String>,
+    ontology: Option<String>,
 ) -> Result<SyncOptions, NounVerbError> {
     let mut options = SyncOptions::new();
 
@@ -278,6 +398,22 @@ fn build_sync_options(
     //     options.timeout_ms = t;
     // }
     let _ = timeout; // Suppress unused variable warning
+
+    // A2A-specific options
+    if let Some(s) = stage {
+        // Validate stage format: μ₁, μ₂, μ₃, μ₄, μ₅
+        if !matches!(s.as_str(), "μ₁" | "μ₂" | "μ₃" | "μ₄" | "μ₅" | "mu1" | "mu2" | "mu3" | "mu4" | "mu5") {
+            return Err(NounVerbError::execution_error(format!(
+                "error[E0006]: Invalid stage '{}'\n  |\n  = help: Valid stages: μ₁, μ₂, μ₃, μ₄, μ₅ (or mu1-mu5)",
+                s
+            )));
+        }
+        options.a2a_stage = Some(s);
+    }
+
+    if let Some(ont) = ontology {
+        options.ontology_path = Some(PathBuf::from(ont));
+    }
 
     Ok(options)
 }

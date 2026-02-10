@@ -56,6 +56,8 @@ impl<'a> ConfigValidator<'a> {
         Self::validate_security();
         self.validate_performance();
         self.validate_logging();
+        self.validate_mcp();
+        self.validate_a2a();
 
         if self.errors.is_empty() {
             Ok(())
@@ -186,6 +188,95 @@ impl<'a> ConfigValidator<'a> {
                     "Invalid log format: '{}'. Valid formats: {:?}",
                     logging.format, valid_formats
                 ));
+            }
+        }
+    }
+
+    /// Validate MCP configuration
+    fn validate_mcp(&mut self) {
+        if let Some(mcp) = &self.config.mcp {
+            // Validate transport type if specified
+            if let Some(transport) = &mcp.transport {
+                let valid_transports = ["stdio", "http", "websocket"];
+                if !valid_transports.contains(&transport.transport_type.as_str()) {
+                    self.errors.push(format!(
+                        "Invalid MCP transport type: '{}'. Valid types: {:?}",
+                        transport.transport_type, valid_transports
+                    ));
+                }
+
+                // Validate port if specified
+                if let Some(port) = transport.port {
+                    if port == 0 || port > 65535 {
+                        self.errors.push(format!(
+                            "Invalid MCP port: {}. Must be between 1 and 65535",
+                            port
+                        ));
+                    }
+                }
+            }
+
+            // Validate tool timeout
+            if mcp.tool_timeout_ms == 0 {
+                self.errors
+                    .push("MCP tool_timeout_ms must be greater than 0".to_string());
+            }
+
+            // Validate max concurrent requests
+            if mcp.max_concurrent_requests == 0 {
+                self.errors.push(
+                    "MCP max_concurrent_requests must be greater than 0".to_string(),
+                );
+            }
+        }
+    }
+
+    /// Validate A2A configuration
+    fn validate_a2a(&mut self) {
+        if let Some(a2a) = &self.config.a2a {
+            // Validate transport type if specified
+            if let Some(transport) = &a2a.transport {
+                let valid_transports = ["memory", "http", "websocket", "amqp"];
+                if !valid_transports.contains(&transport.transport_type.as_str()) {
+                    self.errors.push(format!(
+                        "Invalid A2A transport type: '{}'. Valid types: {:?}",
+                        transport.transport_type, valid_transports
+                    ));
+                }
+
+                // Validate port if specified
+                if let Some(port) = transport.port {
+                    if port == 0 || port > 65535 {
+                        self.errors.push(format!(
+                            "Invalid A2A port: {}. Must be between 1 and 65535",
+                            port
+                        ));
+                    }
+                }
+            }
+
+            // Validate orchestration mode if specified
+            if let Some(orchestration) = &a2a.orchestration {
+                let valid_modes = ["centralized", "decentralized", "hierarchical"];
+                if !valid_modes.contains(&orchestration.mode.as_str()) {
+                    self.errors.push(format!(
+                        "Invalid A2A orchestration mode: '{}'. Valid modes: {:?}",
+                        orchestration.mode, valid_modes
+                    ));
+                }
+
+                // Validate consensus algorithm if consensus enabled
+                if orchestration.consensus_enabled {
+                    if let Some(algorithm) = &orchestration.consensus_algorithm {
+                        let valid_algorithms = ["raft", "pbft", "naive"];
+                        if !valid_algorithms.contains(&algorithm.as_str()) {
+                            self.errors.push(format!(
+                                "Invalid A2A consensus algorithm: '{}'. Valid: {:?}",
+                                algorithm, valid_algorithms
+                            ));
+                        }
+                    }
+                }
             }
         }
     }
@@ -328,5 +419,126 @@ mod tests {
 
         let config = ConfigLoader::from_str(toml).unwrap();
         assert!(ConfigValidator::validate(&config).is_err());
+    }
+
+    #[test]
+    fn test_validate_mcp_transport_type() {
+        let toml = r#"
+            [project]
+            name = "test"
+            version = "1.0.0"
+
+            [mcp]
+            enabled = true
+
+            [mcp.transport]
+            transport_type = "invalid"
+        "#;
+
+        let config = ConfigLoader::from_str(toml).unwrap();
+        assert!(ConfigValidator::validate(&config).is_err());
+    }
+
+    #[test]
+    fn test_validate_a2a_orchestration_mode() {
+        let toml = r#"
+            [project]
+            name = "test"
+            version = "1.0.0"
+
+            [a2a]
+            enabled = true
+
+            [a2a.orchestration]
+            mode = "invalid"
+        "#;
+
+        let config = ConfigLoader::from_str(toml).unwrap();
+        assert!(ConfigValidator::validate(&config).is_err());
+    }
+
+    #[test]
+    fn test_valid_mcp_config() {
+        let toml = r#"
+            [project]
+            name = "test"
+            version = "1.0.0"
+
+            [mcp]
+            enabled = true
+            name = "test-mcp"
+            version = "0.1.0"
+
+            [mcp.transport]
+            transport_type = "stdio"
+
+            [mcp.zai]
+            enabled = true
+            provider_url = "http://localhost:8080"
+        "#;
+
+        let config = ConfigLoader::from_str(toml).unwrap();
+        assert!(ConfigValidator::validate(&config).is_ok());
+    }
+
+    #[test]
+    fn test_valid_a2a_config() {
+        let toml = r#"
+            [project]
+            name = "test"
+            version = "1.0.0"
+
+            [a2a]
+            enabled = true
+            agent_id = "agent-001"
+            agent_name = "TestAgent"
+            agent_type = "coordinator"
+
+            [a2a.transport]
+            transport_type = "memory"
+
+            [a2a.orchestration]
+            mode = "decentralized"
+            consensus_enabled = true
+            consensus_algorithm = "raft"
+        "#;
+
+        let config = ConfigLoader::from_str(toml).unwrap();
+        assert!(ConfigValidator::validate(&config).is_ok());
+    }
+
+    #[test]
+    fn test_env_zai_override() {
+        let toml = r#"
+            [project]
+            name = "test"
+            version = "1.0.0"
+
+            [ai]
+            provider = "anthropic"
+            model = "claude-3-opus-20240229"
+
+            [env.zai]
+            "ai.provider" = "zai"
+            "ai.model" = "zai-chat"
+            "mcp.enabled" = true
+        "#;
+
+        let config = ConfigLoader::from_str(toml).unwrap();
+        assert_eq!(config.ai.as_ref().unwrap().provider, "anthropic");
+        assert_eq!(config.ai.as_ref().unwrap().model, "claude-3-opus-20240229");
+
+        // Apply ZAI environment override
+        let config_with_zai = ConfigLoader::from_str(toml)
+            .unwrap()
+            .load_with_env_from_map(&[("zai", serde_json::json!({
+                "ai.provider": "zai",
+                "ai.model": "zai-chat",
+                "mcp.enabled": true
+            }))])
+            .unwrap();
+
+        assert_eq!(config_with_zai.ai.as_ref().unwrap().provider, "zai");
+        assert_eq!(config_with_zai.ai.as_ref().unwrap().model, "zai-chat");
     }
 }

@@ -1,0 +1,39 @@
+[package]
+name = "ggen-a2a-mcp"
+version = "0.1.0"
+edition = "2021"
+authors = ["ggen-team"]
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+description = "Integration between A2A protocol and RMCP for ggen"
+
+[dependencies]
+# A2A generated types from our ontology
+a2a-generated = { path = "../a2a-generated" }
+
+# ggen-ai for LLM provider integration
+ggen-ai = { path = "../ggen-ai" }
+
+# genai for LLM client integration
+genai = "0.1"
+
+# Core dependencies
+tokio = { workspace = true }
+anyhow = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }
+chrono = { workspace = true }
+tracing = { workspace = true }
+url = "2.4"
+futures = "0.3"
+
+# RMCP (Rusty Model Context Protocol)
+rmcp = { version = "0.1.5", optional = true }
+
+[features]
+default = []
+rmcp = ["dep:rmcp"]
+full = ["rmcp"]

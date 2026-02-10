@@ -32,7 +32,6 @@ members = [
   "crates/ggen-workflow",      # Feature 012: Workflow orchestration engine
   "crates/ggen-execution",      # Common execution framework for semantic convergence
   "crates/ggen-marketplace",   # Feature 013: Marketplace and integrations
-  "marketplace/packages/rig-mcp", # Feature 013: Rig MCP integration (A2A protocol)
   "crates/ggen-api",           # RevOps: REST API layer for monetization
   "crates/ggen-auth",          # RevOps: Authentication (OAuth2, JWT, API keys)
   "crates/ggen-payments",      # RevOps: Payment processing (Stripe integration)
@@ -53,11 +52,17 @@ members = [
   "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
   "crates/ggen-yawl",         # YAWL workflow generation from industry ontologies
   "crates/ggen-process-mining", # Process mining integration with rust4pm (Alpha++, XES/OCEL)
-  # "crates/a2a-generated",  # Temporarily excluded - has compilation errors
-  # "crates/ggen-execution",   # Temporarily excluded - depends on a2a-generated
+  "crates/a2a-generated",     # A2A-RS integration code generated from RDF ontology
+  "crates/ggen-execution",    # Common execution framework for semantic convergence
+  "crates/ggen-a2a-mcp",      # A2A-MCP integration for ggen
   "crates/tai-testing",        # Production hardening & resilience testing framework
   "crates/tai-k8s",            # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
   "crates/tai-validation",     # SLO/SLA validation, compliance framework, security scanning
+  "crates/osiris-core",        # OSIRIS Core: Toyota Production System Autonomic Life Management
+  "crates/osiris-tps",         # OSIRIS TPS: Toyota Production System integration
+  "crates/osiris-domains",     # OSIRIS Domains: Life management domains
+  "crates/osiris-sensors",     # OSIRIS Sensors: Apple/Android sensor integration
+  "crates/osiris-autonomic",   # OSIRIS Autonomic: Self-governing life management
   "playground",
 ]
 exclude = [
@@ -74,9 +79,7 @@ exclude = [
   "crates/tai-cache",  # Temporarily excluded - has dependency issues
   "crates/tai-grpc",  # Temporarily excluded - has dependency issues
   "crates/tai-loadbalancer",  # Temporarily excluded - missing benchmark files
-  "crates/a2a-generated",  # Temporarily excluded - has compilation errors
-  "crates/ggen-execution",  # Temporarily excluded - depends on a2a-generated
-]
+  ]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
@@ -153,10 +156,21 @@ knhk-lockchain = { path = "crates/knhk-lockchain", version = "0.1.0" }
 knhk-otel = { path = "crates/knhk-otel", version = "0.1.0" }
 knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "0.1.0" }
 
-# A2A Protocol Integration (Agent-to-Agent protocol)
-a2a-rs = { path = "vendors/a2a-rs/a2a-rs", version = "0.1.0", features = ["client", "server", "tracing"], default-features = false }
+# A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
+# The vendor a2a-rs is for reference only - we use our generated types
+a2a-generated = { path = "crates/a2a-generated", version = "0.1.0" }
+
+# A2A-MCP Integration for ggen
+ggen-a2a-mcp = { path = "crates/ggen-a2a-mcp", version = "0.1.0" }
 
 ggen-tps-andon = { path = "crates/ggen-tps-andon", version = "0.1.0" }
+
+# OSIRIS Integration (Autonomic Life Management System)
+osiris-core = { path = "crates/osiris-core", version = "0.1.0" }
+osiris-tps = { path = "crates/osiris-tps", version = "0.1.0" }
+osiris-domains = { path = "crates/osiris-domains", version = "0.1.0" }
+osiris-sensors = { path = "crates/osiris-sensors", version = "0.1.0" }
+osiris-autonomic = { path = "crates/osiris-autonomic", version = "0.1.0" }
 
 # TAI Testing: Production hardening & resilience testing framework
 tai-testing = { path = "crates/tai-testing", version = "0.1.0" }
@@ -303,10 +317,9 @@ termlog = ["ggen-utils/termlog"]
 journald = ["ggen-utils/journald"]
 syslog = ["ggen-utils/syslog"]
 london_tdd = []
-# A2A Protocol Integration (Agent-to-Agent protocol)
-use-a2a-rs = [
-  "ggen-ai/use-a2a-rs",
-  "ggen-cli-lib/use-a2a-rs",
+# A2A-MCP Integration
+use-a2a-mcp = [
+  "ggen-a2a-mcp/rmcp",
 ]
 # OpenTelemetry instrumentation (optional - adds ~200 dependencies)
 # Enable with: cargo build --features otel
@@ -320,6 +333,7 @@ ggen-utils = { path = "crates/ggen-utils", version = "0.2.0" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "0.2.0" }
 ggen-core = { path = "crates/ggen-core", version = "0.2.0" }
 ggen-ai = { path = "crates/ggen-ai", version = "0.2.0" }
+ggen-a2a-mcp = { path = "crates/ggen-a2a-mcp", version = "0.1.0", optional = true }
 chrono = { workspace = true }
 human-panic = "2.0.3"
 better-panic = "0.3.0"

@@ -1,0 +1,402 @@
+{#
+  A2A Task Template
+  Generates Task struct with state management and builder pattern
+#}
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 ggen contributors
+
+{% comment %}
+  Requirements:
+  - uuid: Uuid for task IDs
+  - chrono: DateTime<Utc> for timestamps
+  - serde: Serialize, Deserialize for serialization
+{% endcomment %}
+
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+
+/// Task status representation with state transition validation
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum TaskStatus {
+    /// Task is created but not yet started
+    Pending,
+    /// Task is actively being processed
+    InProgress,
+    /// Task completed successfully
+    Completed,
+    /// Task failed during execution
+    Failed,
+}
+
+impl TaskStatus {
+    /// Check if this status allows transition to target status
+    #[must_use]
+    pub const fn can_transition_to(self, target: TaskStatus) -> bool {
+        match (self, target) {
+            // Pending can go to InProgress or Failed
+            (TaskStatus::Pending, TaskStatus::InProgress) => true,
+            (TaskStatus::Pending, TaskStatus::Failed) => true,
+            // InProgress can go to Completed or Failed
+            (TaskStatus::InProgress, TaskStatus::Completed) => true,
+            (TaskStatus::InProgress, TaskStatus::Failed) => true,
+            // Same state is always valid
+            (TaskStatus::Pending, TaskStatus::Pending) => true,
+            (TaskStatus::InProgress, TaskStatus::InProgress) => true,
+            (TaskStatus::Completed, TaskStatus::Completed) => true,
+            (TaskStatus::Failed, TaskStatus::Failed) => true,
+            // All other transitions are invalid
+            _ => false,
+        }
+    }
+
+    /// Check if task is in a terminal state
+    #[must_use]
+    pub const fn is_terminal(self) -> bool {
+        matches!(self, TaskStatus::Completed | TaskStatus::Failed)
+    }
+
+    /// Check if task is active (not terminal)
+    #[must_use]
+    pub const fn is_active(self) -> bool {
+        !self.is_terminal()
+    }
+}
+
+impl Default for TaskStatus {
+    fn default() -> Self {
+        Self::Pending
+    }
+}
+
+/// Task with state management for A2A message processing
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Task {
+    /// Unique task identifier
+    pub id: Uuid,
+    /// Current task status
+    status: TaskStatus,
+    /// Associated message IDs for this task
+    messages: Vec<Uuid>,
+    /// Task creation timestamp
+    created_at: DateTime<Utc>,
+    /// Last update timestamp
+    updated_at: DateTime<Utc>,
+}
+
+impl Task {
+    /// Create a new task with default state
+    #[must_use]
+    pub fn new() -> Self {
+        let now = Utc::now();
+        Self {
+            id: Uuid::new_v4(),
+            status: TaskStatus::Pending,
+            messages: Vec::new(),
+            created_at: now,
+            updated_at: now,
+        }
+    }
+
+    /// Get the task ID
+    #[must_use]
+    pub const fn id(&self) -> Uuid {
+        self.id
+    }
+
+    /// Get the current status
+    #[must_use]
+    pub const fn status(&self) -> TaskStatus {
+        self.status
+    }
+
+    /// Get associated message IDs
+    #[must_use]
+    pub fn messages(&self) -> &[Uuid] {
+        &self.messages
+    }
+
+    /// Get creation timestamp
+    #[must_use]
+    pub const fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
+
+    /// Get last update timestamp
+    #[must_use]
+    pub const fn updated_at(&self) -> DateTime<Utc> {
+        self.updated_at
+    }
+
+    /// Transition task to InProgress status
+    ///
+    /// # Errors
+    /// Returns error if current status doesn't allow transition
+    pub fn start(&mut self) -> Result<(), TaskTransitionError> {
+        self.transition_to(TaskStatus::InProgress)
+    }
+
+    /// Transition task to Completed status
+    ///
+    /// # Errors
+    /// Returns error if current status doesn't allow transition
+    pub fn complete(&mut self) -> Result<(), TaskTransitionError> {
+        self.transition_to(TaskStatus::Completed)
+    }
+
+    /// Transition task to Failed status
+    ///
+    /// # Errors
+    /// Returns error if current status doesn't allow transition
+    pub fn fail(&mut self) -> Result<(), TaskTransitionError> {
+        self.transition_to(TaskStatus::Failed)
+    }
+
+    /// Internal state transition with validation and timestamp update
+    fn transition_to(&mut self, target: TaskStatus) -> Result<(), TaskTransitionError> {
+        if self.status.can_transition_to(target) {
+            self.status = target;
+            self.updated_at = Utc::now();
+            Ok(())
+        } else {
+            Err(TaskTransitionError {
+                from: self.status,
+                to: target,
+            })
+        }
+    }
+
+    /// Add a message ID to this task
+    pub fn add_message(&mut self, message_id: Uuid) {
+        if !self.messages.contains(&message_id) {
+            self.messages.push(message_id);
+            self.updated_at = Utc::now();
+        }
+    }
+
+    /// Remove a message ID from this task
+    ///
+    /// Returns true if the message was present and removed
+    pub fn remove_message(&mut self, message_id: &Uuid) -> bool {
+        if let Some(pos) = self.messages.iter().position(|id| id == message_id) {
+            self.messages.remove(pos);
+            self.updated_at = Utc::now();
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Clear all associated messages
+    pub fn clear_messages(&mut self) {
+        if !self.messages.is_empty() {
+            self.messages.clear();
+            self.updated_at = Utc::now();
+        }
+    }
+
+    /// Get the number of associated messages
+    #[must_use]
+    pub fn message_count(&self) -> usize {
+        self.messages.len()
+    }
+}
+
+impl Default for Task {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Error type for invalid task state transitions
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct TaskTransitionError {
+    /// The status we're transitioning from
+    pub from: TaskStatus,
+    /// The status we're trying to transition to
+    pub to: TaskStatus,
+}
+
+impl std::fmt::Display for TaskTransitionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Invalid task state transition: {:?} -> {:?}",
+            self.from, self.to
+        )
+    }
+}
+
+impl std::error::Error for TaskTransitionError {}
+
+/// Builder for creating Task instances with custom configuration
+#[derive(Debug, Default)]
+pub struct TaskBuilder {
+    id: Option<Uuid>,
+    status: TaskStatus,
+    messages: Vec<Uuid>,
+    created_at: Option<DateTime<Utc>>,
+    updated_at: Option<DateTime<Utc>>,
+}
+
+impl TaskBuilder {
+    /// Create a new TaskBuilder with default values
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Set a specific task ID
+    #[must_use]
+    pub fn id(mut self, id: Uuid) -> Self {
+        self.id = Some(id);
+        self
+    }
+
+    /// Set the initial status
+    #[must_use]
+    pub const fn status(mut self, status: TaskStatus) -> Self {
+        self.status = status;
+        self
+    }
+
+    /// Add a message ID
+    #[must_use]
+    pub fn add_message(mut self, message_id: Uuid) -> Self {
+        self.messages.push(message_id);
+        self
+    }
+
+    /// Set multiple message IDs
+    #[must_use]
+    pub fn messages(mut self, messages: Vec<Uuid>) -> Self {
+        self.messages = messages;
+        self
+    }
+
+    /// Set creation timestamp
+    #[must_use]
+    pub fn created_at(mut self, created_at: DateTime<Utc>) -> Self {
+        self.created_at = Some(created_at);
+        self
+    }
+
+    /// Set update timestamp
+    #[must_use]
+    pub fn updated_at(mut self, updated_at: DateTime<Utc>) -> Self {
+        self.updated_at = Some(updated_at);
+        self
+    }
+
+    /// Build the Task instance
+    #[must_use]
+    pub fn build(self) -> Task {
+        let now = Utc::now();
+        Task {
+            id: self.id.unwrap_or_else(Uuid::new_v4),
+            status: self.status,
+            messages: self.messages,
+            created_at: self.created_at.unwrap_or(now),
+            updated_at: self.updated_at.unwrap_or(now),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_task_creation() {
+        let task = Task::new();
+        assert_eq!(task.status(), TaskStatus::Pending);
+        assert_eq!(task.message_count(), 0);
+        assert!(!task.id().is_nil());
+    }
+
+    #[test]
+    fn test_status_transitions() {
+        let mut task = Task::new();
+
+        // Pending -> InProgress
+        assert!(task.start().is_ok());
+        assert_eq!(task.status(), TaskStatus::InProgress);
+
+        // InProgress -> Completed
+        assert!(task.complete().is_ok());
+        assert_eq!(task.status(), TaskStatus::Completed);
+    }
+
+    #[test]
+    fn test_invalid_transition() {
+        let mut task = Task::new();
+
+        // Cannot go Pending -> Completed directly
+        assert!(task.complete().is_err());
+        assert_eq!(task.status(), TaskStatus::Pending);
+
+        let err = task.complete().unwrap_err();
+        assert_eq!(err.from, TaskStatus::Pending);
+        assert_eq!(err.to, TaskStatus::Completed);
+    }
+
+    #[test]
+    fn test_message_operations() {
+        let mut task = Task::new();
+        let msg_id = Uuid::new_v4();
+
+        assert_eq!(task.message_count(), 0);
+
+        task.add_message(msg_id);
+        assert_eq!(task.message_count(), 1);
+        assert!(task.messages().contains(&msg_id));
+
+        // Adding duplicate should be ignored
+        task.add_message(msg_id);
+        assert_eq!(task.message_count(), 1);
+
+        // Remove message
+        assert!(task.remove_message(&msg_id));
+        assert_eq!(task.message_count(), 0);
+
+        // Removing non-existent returns false
+        assert!(!task.remove_message(&msg_id));
+    }
+
+    #[test]
+    fn test_terminal_states() {
+        assert!(TaskStatus::Completed.is_terminal());
+        assert!(TaskStatus::Failed.is_terminal());
+        assert!(!TaskStatus::Pending.is_terminal());
+        assert!(!TaskStatus::InProgress.is_terminal());
+    }
+
+    #[test]
+    fn test_builder() {
+        let id = Uuid::new_v4();
+        let msg1 = Uuid::new_v4();
+        let msg2 = Uuid::new_v4();
+
+        let task = TaskBuilder::new()
+            .id(id)
+            .status(TaskStatus::InProgress)
+            .messages(vec![msg1, msg2])
+            .build();
+
+        assert_eq!(task.id(), id);
+        assert_eq!(task.status(), TaskStatus::InProgress);
+        assert_eq!(task.message_count(), 2);
+    }
+
+    #[test]
+    fn test_serialization() {
+        let task = Task::new();
+        let json = serde_json::to_string(&task).unwrap();
+        let deserialized: Task = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(task.id(), deserialized.id());
+        assert_eq!(task.status(), deserialized.status());
+    }
+}

@@ -1,0 +1,38 @@
+[agent]
+name = "autonomic-life-agent"
+type = "governance"
+version = "2.0.0"
+
+[description]
+"A self-governing life management system using 43 workflow patterns and autonomic principles"
+
+[patterns]
+core = ["sequence", "parallel", "choice", "sync"]
+advanced = ["multiple_instances", "deferred_choice", "cancel_activity"]
+life = ["habit_loop", "goal_gradient", "energy_rhythm", "social_graph", "learning_spiral"]
+
+[autonomics]
+refusals = 10  # Explicit refusal modes
+governance = "jidoka"  # Fail-safe principles
+receipts = true  # Cryptographic audit trail
+
+[life_domains]
+domains = ["health", "work", "relationships", "growth", "finances"]
+energy_monitoring = true
+social_balance = true
+goal_tracking = true
+
+[workflow_engine]
+yawl_generation = true
+canonicalization = true
+pattern_selection = "adaptive"
+refusal_handling = "explicit"
+
+[capabilities]
+life_ontology = true
+energy_management = true
+habit_formation = true
+social_graph = true
+learning_spirals = true
+self_healing = false  # Phase 3 feature
+predictive = false     # Phase 3 feature

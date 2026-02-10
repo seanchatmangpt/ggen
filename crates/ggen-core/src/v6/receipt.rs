@@ -3,11 +3,20 @@
 //! A Receipt cryptographically binds the projection outputs (A) to the
 //! frozen inputs (O) via the epoch. This enables verification that
 //! hash(A) = hash(μ(O)).
+//!
+//! ## A2A-RS Integration (μ₅)
+//!
+//! For A2A-RS code generation, the receipt provides:
+//! - Cryptographic proof that generated code matches ontology
+//! - Timestamped storage in `.ggen/receipts/<timestamp>.json`
+//! - Verification that ontology_hash matches inputs
+//! - Complete file listing with SHA-256 hashes
 
 use crate::v6::{Epoch, PassExecution};
 use ggen_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+use std::fs;
 use std::path::{Path, PathBuf};
 
 /// A build receipt binding outputs to inputs
@@ -16,8 +25,11 @@ pub struct BuildReceipt {
     /// Unique receipt ID (SHA-256 of all contents)
     pub id: String,
 
-    /// Reference to the input epoch
+    /// Reference to the input epoch (ontology hash)
     pub epoch_id: String,
+
+    /// SHA-256 hash of the ontology source files
+    pub ontology_hash: String,
 
     /// When the projection was performed (ISO 8601)
     pub timestamp: String,
@@ -28,7 +40,7 @@ pub struct BuildReceipt {
     /// Passes that were executed
     pub passes: Vec<PassExecution>,
 
-    /// Output files with hashes
+    /// Output files with hashes (Vec<FileInfo>)
     pub outputs: Vec<OutputFile>,
 
     /// SHA-256 of all output hashes (for quick verification)
@@ -43,6 +55,9 @@ pub struct BuildReceipt {
     /// Policies applied during projection
     pub policies: ReceiptPolicies,
 }
+
+/// File information for receipt tracking
+pub type FileInfo = OutputFile;
 
 /// Output file record in a receipt
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -99,10 +114,14 @@ impl BuildReceipt {
         // Check validity (all passes succeeded)
         let is_valid = passes.iter().all(|p| p.success);
 
+        // The epoch_id serves as the ontology_hash
+        let ontology_hash = epoch.id.clone();
+
         // Compute receipt ID
         let mut receipt = Self {
             id: String::new(), // Will be computed below
             epoch_id: epoch.id.clone(),
+            ontology_hash,
             timestamp,
             toolchain_version: toolchain_version.to_string(),
             passes,
@@ -115,6 +134,81 @@ impl BuildReceipt {
 
         receipt.id = receipt.compute_id();
         receipt
+    }
+
+    /// Generate a receipt from generated files
+    ///
+    /// This is the main μ₅ receipt generation function for A2A-RS integration.
+    /// It creates SHA-256 hashes of all generated files and returns a receipt.
+    ///
+    /// # Arguments
+    /// * `epoch` - The frozen input epoch containing ontology hashes
+    /// * `output_dir` - Directory containing generated files
+    /// * `toolchain_version` - ggen version string
+    ///
+    /// # Returns
+    /// * `Ok(BuildReceipt)` - Receipt with all file hashes
+    /// * `Err(Error)` - If files cannot be read
+    pub fn generate(
+        epoch: &Epoch, output_dir: &Path, toolchain_version: &str,
+    ) -> Result<Self> {
+        let outputs = Self::scan_output_files(output_dir)?;
+        Ok(Self::new(epoch, Vec::new(), outputs, toolchain_version))
+    }
+
+    /// Scan output directory and create file records
+    fn scan_output_files(output_dir: &Path) -> Result<Vec<OutputFile>> {
+        let mut outputs = Vec::new();
+
+        if !output_dir.exists() {
+            return Ok(outputs);
+        }
+
+        let entries = fs::read_dir(output_dir).map_err(|e| {
+            Error::new(&format!(
+                "Failed to read output directory '{}': {}",
+                output_dir.display(),
+                e
+            ))
+        })?;
+
+        for entry in entries {
+            let entry = entry.map_err(|e| {
+                Error::new(&format!("Failed to read directory entry: {}", e))
+            })?;
+
+            let path = entry.path();
+
+            // Skip directories
+            if path.is_dir() {
+                continue;
+            }
+
+            // Create output file record
+            let rel_path = path
+                .strip_prefix(output_dir)
+                .map_err(|e| Error::new(&format!("Failed to get relative path: {}", e)))?
+                .to_path_buf();
+
+            let content = fs::read(&path).map_err(|e| {
+                Error::new(&format!(
+                    "Failed to read output file '{}': {}",
+                    path.display(),
+                    e
+                ))
+            })?;
+
+            let hash = format!("{:x}", Sha256::digest(&content));
+
+            outputs.push(OutputFile {
+                path: rel_path,
+                hash,
+                size_bytes: content.len(),
+                produced_by: "μ₅:receipt".to_string(),
+            });
+        }
+
+        Ok(outputs)
     }
 
     /// Compute the receipt ID from its contents
@@ -158,6 +252,29 @@ impl BuildReceipt {
         Ok(true)
     }
 
+    /// Verify receipt matches current state
+    ///
+    /// This is the main μ₅ receipt verification function for A2A-RS integration.
+    /// It verifies both the ontology hash and the generated output files.
+    ///
+    /// # Arguments
+    /// * `output_root` - Root directory for output files
+    /// * `epoch` - Current epoch to verify ontology hash against
+    ///
+    /// # Returns
+    /// * `Ok(true)` - Receipt is valid (hash(A) = hash(μ(O)))
+    /// * `Ok(false)` - Receipt is invalid
+    /// * `Err(Error)` - Verification failed
+    pub fn verify(&self, output_root: &Path, epoch: &Epoch) -> Result<bool> {
+        // Verify ontology hash
+        if self.ontology_hash != epoch.id {
+            return Ok(false);
+        }
+
+        // Verify all output files
+        self.verify_outputs(output_root)
+    }
+
     /// Get list of files that have changed since receipt was created
     pub fn get_changed_outputs(&self, output_root: &Path) -> Result<Vec<PathBuf>> {
         let mut changed = Vec::new();
@@ -192,16 +309,66 @@ impl BuildReceipt {
     /// # Arguments
     /// * `path` - Path to write the receipt
     pub fn write_to_file(&self, path: &Path) -> Result<()> {
+        // Ensure parent directory exists
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent).map_err(|e| {
+                Error::new(&format!(
+                    "Failed to create receipt directory '{}': {}",
+                    parent.display(),
+                    e
+                ))
+            })?;
+        }
+
         let json = serde_json::to_string_pretty(self)
             .map_err(|e| Error::new(&format!("Failed to serialize receipt: {}", e)))?;
 
-        std::fs::write(path, json).map_err(|e| {
+        fs::write(path, json).map_err(|e| {
             Error::new(&format!(
                 "Failed to write receipt to '{}': {}",
                 path.display(),
                 e
             ))
         })
+    }
+
+    /// Save receipt to `.ggen/receipts/<timestamp>.json`
+    ///
+    /// This is the standard μ₅ receipt saving function for A2A-RS integration.
+    ///
+    /// # Arguments
+    /// * `project_root` - Project root directory
+    ///
+    /// # Returns
+    /// * `Ok(PathBuf)` - Path where receipt was saved
+    /// * `Err(Error)` - If receipt cannot be saved
+    pub fn save(&self, project_root: &Path) -> Result<PathBuf> {
+        // Create .ggen/receipts directory
+        let receipts_dir = project_root.join(".ggen").join("receipts");
+        fs::create_dir_all(&receipts_dir).map_err(|e| {
+            Error::new(&format!(
+                "Failed to create receipts directory '{}': {}",
+                receipts_dir.display(),
+                e
+            ))
+        })?;
+
+        // Create filename from timestamp
+        // Format: receipt-YYYY-MM-DD-HHMMSS.json
+        let filename = format!(
+            "receipt-{}.json",
+            self.timestamp.replace([':', '.'], "-")
+        );
+        let receipt_path = receipts_dir.join(&filename);
+
+        // Write receipt
+        self.write_to_file(&receipt_path)?;
+
+        // Also write to .ggen/latest.json for convenience
+        let latest_path = project_root.join(".ggen").join("latest.json");
+        self.write_to_file(&latest_path)?;
+
+        Ok(receipt_path)
     }
 
     /// Read receipt from a file
@@ -257,6 +424,95 @@ impl OutputFile {
             produced_by: produced_by.to_string(),
         })
     }
+}
+
+/// Generate receipt from generated files (μ₅)
+///
+/// Standalone function for A2A-RS integration that creates a receipt
+/// by hashing all generated files in the output directory.
+///
+/// # Arguments
+/// * `epoch` - The frozen input epoch (O)
+/// * `output_dir` - Directory containing generated artifacts (A)
+/// * `ggen_version` - ggen version string
+///
+/// # Returns
+/// * `Ok(BuildReceipt)` - Receipt binding A to O
+/// * `Err(Error)` - If files cannot be read
+///
+/// # Example
+/// ```rust,no_run
+/// use ggen_core::v6::{epoch::Epoch, receipt::generate_receipt};
+///
+/// # fn main() -> ggen_utils::error::Result<()> {
+/// let epoch = Epoch::create(&std::path::Path::new("."), &vec![])?;
+/// let receipt = generate_receipt(&epoch, std::path::Path::new("src/generated"), "6.0.0")?;
+/// println!("Generated receipt: {}", receipt.id);
+/// # Ok(())
+/// # }
+/// ```
+pub fn generate_receipt(epoch: &Epoch, output_dir: &Path, ggen_version: &str) -> Result<BuildReceipt> {
+    BuildReceipt::generate(epoch, output_dir, ggen_version)
+}
+
+/// Save receipt to `.ggen/receipts/<timestamp>.json`
+///
+/// Standalone function for A2A-RS integration that saves a receipt
+/// to the standard location.
+///
+/// # Arguments
+/// * `receipt` - Receipt to save
+/// * `project_root` - Project root directory
+///
+/// # Returns
+/// * `Ok(PathBuf)` - Path where receipt was saved
+/// * `Err(Error)` - If receipt cannot be saved
+///
+/// # Example
+/// ```rust,no_run
+/// use ggen_core::v6::receipt::{generate_receipt, save_receipt};
+///
+/// # fn main() -> ggen_utils::error::Result<()> {
+/// # let epoch = unimplemented!();
+/// let receipt = generate_receipt(&epoch, std::path::Path::new("src/generated"), "6.0.0")?;
+/// let path = save_receipt(&receipt, std::path::Path::new("."))?;
+/// println!("Saved receipt to: {:?}", path);
+/// # Ok(())
+/// # }
+/// ```
+pub fn save_receipt(receipt: &BuildReceipt, project_root: &Path) -> Result<PathBuf> {
+    receipt.save(project_root)
+}
+
+/// Verify receipt matches current state
+///
+/// Standalone function for A2A-RS integration that verifies a receipt
+/// matches both the ontology hash and generated files.
+///
+/// # Arguments
+/// * `receipt` - Receipt to verify
+/// * `output_root` - Root directory for output files
+/// * `epoch` - Current epoch to verify against
+///
+/// # Returns
+/// * `Ok(true)` - Receipt is valid (hash(A) = hash(μ(O)))
+/// * `Ok(false)` - Receipt is invalid
+/// * `Err(Error)` - Verification failed
+///
+/// # Example
+/// ```rust,no_run
+/// use ggen_core::v6::receipt::verify_receipt;
+///
+/// # fn main() -> ggen_utils::error::Result<()> {
+/// # let receipt = unimplemented!();
+/// # let epoch = unimplemented!();
+/// let is_valid = verify_receipt(&receipt, std::path::Path::new("src/generated"), &epoch)?;
+/// assert!(is_valid, "Generated files have been modified!");
+/// # Ok(())
+/// # }
+/// ```
+pub fn verify_receipt(receipt: &BuildReceipt, output_root: &Path, epoch: &Epoch) -> Result<bool> {
+    receipt.verify(output_root, epoch)
 }
 
 #[cfg(test)]
@@ -334,5 +590,146 @@ mod tests {
 
         assert_eq!(receipt.id, loaded.id);
         assert_eq!(receipt.epoch_id, loaded.epoch_id);
+    }
+
+    #[test]
+    fn test_generate_receipt() {
+        let temp_dir = TempDir::new().unwrap();
+        let output_dir = temp_dir.path().join("generated");
+        fs::create_dir_all(&output_dir).unwrap();
+
+        // Create test files
+        fs::write(output_dir.join("agent.rs"), "pub struct Agent {}").unwrap();
+        fs::write(output_dir.join("message.rs"), "pub struct Message {}").unwrap();
+
+        let epoch = create_test_epoch();
+
+        let receipt = generate_receipt(&epoch, &output_dir, "6.0.0").unwrap();
+
+        assert!(!receipt.id.is_empty());
+        assert_eq!(receipt.toolchain_version, "6.0.0");
+        assert_eq!(receipt.outputs.len(), 2);
+        assert_eq!(receipt.ontology_hash, epoch.id);
+    }
+
+    #[test]
+    fn test_save_receipt() {
+        let temp_dir = TempDir::new().unwrap();
+        let output_dir = temp_dir.path().join("generated");
+        fs::create_dir_all(&output_dir).unwrap();
+
+        fs::write(output_dir.join("agent.rs"), "pub struct Agent {}").unwrap();
+
+        let epoch = create_test_epoch();
+        let receipt = BuildReceipt::generate(&epoch, &output_dir, "6.0.0").unwrap();
+
+        let saved_path = save_receipt(&receipt, temp_dir.path()).unwrap();
+
+        // Verify receipt was saved to .ggen/receipts/
+        assert!(saved_path.starts_with(temp_dir.path().join(".ggen/receipts")));
+        assert!(saved_path.exists());
+
+        // Verify .ggen/latest.json was created
+        let latest_path = temp_dir.path().join(".ggen/latest.json");
+        assert!(latest_path.exists());
+    }
+
+    #[test]
+    fn test_verify_receipt_valid() {
+        let temp_dir = TempDir::new().unwrap();
+        let output_dir = temp_dir.path().join("generated");
+        fs::create_dir_all(&output_dir).unwrap();
+
+        let content = b"pub struct Agent {}";
+        fs::write(output_dir.join("agent.rs"), content).unwrap();
+
+        let epoch = create_test_epoch();
+        let receipt = BuildReceipt::generate(&epoch, &output_dir, "6.0.0").unwrap();
+
+        // Verify should pass
+        let is_valid = verify_receipt(&receipt, &output_dir, &epoch).unwrap();
+        assert!(is_valid);
+    }
+
+    #[test]
+    fn test_verify_receipt_invalid_file() {
+        let temp_dir = TempDir::new().unwrap();
+        let output_dir = temp_dir.path().join("generated");
+        fs::create_dir_all(&output_dir).unwrap();
+
+        let content = b"pub struct Agent {}";
+        fs::write(output_dir.join("agent.rs"), content).unwrap();
+
+        let epoch = create_test_epoch();
+        let receipt = BuildReceipt::generate(&epoch, &output_dir, "6.0.0").unwrap();
+
+        // Modify file
+        fs::write(output_dir.join("agent.rs"), b"modified content").unwrap();
+
+        // Verify should fail
+        let is_valid = verify_receipt(&receipt, &output_dir, &epoch).unwrap();
+        assert!(!is_valid);
+    }
+
+    #[test]
+    fn test_verify_receipt_invalid_epoch() {
+        let temp_dir = TempDir::new().unwrap();
+        let output_dir = temp_dir.path().join("generated");
+        fs::create_dir_all(&output_dir).unwrap();
+
+        fs::write(output_dir.join("agent.rs"), b"pub struct Agent {}").unwrap();
+
+        let epoch1 = create_test_epoch();
+        let epoch2 = Epoch {
+            id: "differenthash".repeat(4),
+            timestamp: chrono::Utc::now().to_rfc3339(),
+            inputs: Default::default(),
+            total_triples: 0,
+        };
+
+        let receipt = BuildReceipt::generate(&epoch1, &output_dir, "6.0.0").unwrap();
+
+        // Verify should fail due to epoch mismatch
+        let is_valid = verify_receipt(&receipt, &output_dir, &epoch2).unwrap();
+        assert!(!is_valid);
+    }
+
+    #[test]
+    fn test_receipt_with_ontology_hash() {
+        let epoch = create_test_epoch();
+        let receipt = BuildReceipt::new(&epoch, vec![], vec![], "6.0.0");
+
+        // ontology_hash should equal epoch_id
+        assert_eq!(receipt.ontology_hash, epoch.id);
+        assert_eq!(receipt.ontology_hash, receipt.epoch_id);
+    }
+
+    #[test]
+    fn test_scan_output_files_empty() {
+        let temp_dir = TempDir::new().unwrap();
+        let output_dir = temp_dir.path().join("generated");
+        fs::create_dir_all(&output_dir).unwrap();
+
+        let outputs = BuildReceipt::scan_output_files(&output_dir).unwrap();
+        assert_eq!(outputs.len(), 0);
+    }
+
+    #[test]
+    fn test_scan_output_files_with_subdirectories() {
+        let temp_dir = TempDir::new().unwrap();
+        let output_dir = temp_dir.path().join("generated");
+        let subdir = output_dir.join("subdir");
+        fs::create_dir_all(&subdir).unwrap();
+
+        // Create files in main and subdirectory
+        fs::write(output_dir.join("main.rs"), "fn main() {}").unwrap();
+        fs::write(subdir.join("lib.rs"), "pub fn lib() {}").unwrap();
+        fs::write(subdir.join("nested.rs"), "pub fn nested() {}").unwrap();
+
+        let outputs = BuildReceipt::scan_output_files(&output_dir).unwrap();
+
+        // Only files in the root of output_dir (not recursive)
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(outputs[0].path, PathBuf::from("main.rs"));
     }
 }

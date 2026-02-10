@@ -9,6 +9,7 @@ description = "YAWL workflow generation from industry ontologies using SPARQL CO
 [dependencies]
 ggen-core = { path = "../ggen-core" }
 ggen-utils = { path = "../ggen-utils" }
+a2a-generated = { path = "../a2a-generated" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
@@ -17,6 +18,9 @@ oxigraph = { version = "0.5.1", features = ["rocksdb"] }
 sha2 = "0.10"
 chrono = { workspace = true }
 tracing = { workspace = true }
+tokio = { workspace = true }
+async-trait = { workspace = true }
+uuid = { version = "1.11", features = ["v4", "serde"] }
 
 [dev-dependencies]
 proptest = "1.8"

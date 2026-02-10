@@ -1,0 +1,666 @@
+# ==============================================================================
+# SPARQL CONSTRUCT Query (μ₁): Normalize Agent Definitions from RDF to A2A Format
+# ==============================================================================
+# Purpose: Transform raw RDF agent definitions into normalized A2A structure
+# Input: Raw RDF agent definitions with various schemas
+# Output: Normalized A2A RDF structure with a2a: prefix for SELECT extraction
+#
+# This query constructs new triples that:
+# 1. Normalize agent identifiers and names
+# 2. Extract and structure skills with optional properties
+# 3. Map transports and endpoints to A2A interfaces
+# 4. Create proper relationships between agents and capabilities
+# ==============================================================================
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ggen: <http://ggen.dev/ontology#>
+PREFIX a2a: <https://ggen.dev/ontology/a2a>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+
+CONSTRUCT {
+    # ========================================================================
+    # AGENT CORE PROPERTIES - Normalized AgentCard structure
+    # ========================================================================
+
+    # Create normalized agent URI
+    ?normalizedAgent a a2a:Agent ;
+        a2a:agentId ?agentId ;
+        a2a:name ?agentName ;
+        a2a:description ?agentDescription ;
+        a2a:version ?agentVersion ;
+        a2a:url ?agentUrl ;
+        a2a:protocolVersion ?protocolVersion ;
+        a2a:preferredTransport ?preferredTransport ;
+        a2a:defaultInputModes ?defaultInputModes ;
+        a2a:defaultOutputModes ?defaultOutputModes .
+
+    # Agent provider information
+    ?normalizedAgent a2a:provider ?normalizedProvider .
+    ?normalizedProvider a a2a:AgentProvider ;
+        a2a:providerOrganization ?providerOrganization ;
+        a2a:providerUrl ?providerUrl .
+
+    # ========================================================================
+    # AGENT CAPABILITIES - Feature flags and extensions
+    # ========================================================================
+
+    ?normalizedAgent a2a:capabilities ?normalizedCapabilities .
+    ?normalizedCapabilities a a2a:AgentCapabilities ;
+        a2a:streaming ?streamingEnabled ;
+        a2a:pushNotifications ?pushNotificationsEnabled ;
+        a2a:stateTransitionHistory ?stateHistoryEnabled .
+
+    # ========================================================================
+    # AGENT INTERFACES - Transport endpoints (multiple supported)
+    # ========================================================================
+
+    ?normalizedAgent a2a:interface ?normalizedInterface .
+    ?normalizedInterface a a2a:AgentInterface ;
+        a2a:interfaceUrl ?interfaceUrl ;
+        a2a:interfaceTransport ?interfaceTransport .
+
+    # ========================================================================
+    # AGENT SKILLS - Primary capability definitions
+    # ========================================================================
+
+    ?normalizedAgent a2a:skill ?normalizedSkill .
+    ?normalizedSkill a a2a:AgentSkill ;
+        a2a:skillId ?skillId ;
+        a2a:skillName ?skillName ;
+        a2a:skillDescription ?skillDescription ;
+        a2a:skillTags ?skillTags ;
+        a2a:skillInputModes ?skillInputModes ;
+        a2a:skillOutputModes ?skillOutputModes ;
+        a2a:skillExamples ?skillExamples .
+
+    # ========================================================================
+    # SECURITY SCHEMES - Authentication configurations
+    # ========================================================================
+
+    ?normalizedAgent a2a:securityScheme ?normalizedSecurityScheme .
+    ?normalizedSecurityScheme a a2a:SecurityScheme ;
+        a2a:schemeName ?schemeName ;
+        a2a:schemeType ?schemeType ;
+        a2a:schemeDescription ?schemeDescription .
+
+    # ========================================================================
+    # TASK RELATIONSHIPS - Agent task associations
+    # ========================================================================
+
+    ?normalizedAgent a2a:executesTask ?normalizedTaskRef .
+    ?normalizedTaskRef a a2a:TaskReference ;
+        a2a:taskId ?taskId ;
+        a2a:taskName ?taskName ;
+        a2a:taskStatus ?taskStatus .
+
+    # ========================================================================
+    # MESSAGE HANDLING - Communication patterns
+    # ========================================================================
+
+    ?normalizedAgent a2a:canHandleMessageType ?messageType .
+    ?normalizedAgent a2a:canSendMessageType ?messageType .
+    ?messageType a a2a:MessageType ;
+        a2a:messageTypeName ?messageTypeName ;
+        a2a:messageTypeDescription ?messageTypeDescription .
+
+    # ========================================================================
+    # TRANSPORT PROTOCOLS - Supported communication mechanisms
+    # ========================================================================
+
+    ?normalizedAgent a2a:supportsTransport ?transportProtocol .
+    ?transportProtocol a a2a:TransportProtocol ;
+        a2a:transportProtocolName ?transportProtocolName ;
+        a2a:transportProtocolVersion ?transportProtocolVersion .
+
+    # ========================================================================
+    # ENDPOINT CONFIGURATIONS - Detailed endpoint metadata
+    # ========================================================================
+
+    ?normalizedAgent a2a:endpoint ?normalizedEndpoint .
+    ?normalizedEndpoint a a2a:Endpoint ;
+        a2a:endpointId ?endpointId ;
+        a2a:endpointUrl ?endpointUrl ;
+        a2a:endpointProtocol ?endpointProtocol ;
+        a2a:endpointEnabled ?endpointEnabled .
+
+    # ========================================================================
+    # EXTENSION DEFINITIONS - Protocol extensions (v0.3.0)
+    # ========================================================================
+
+    ?normalizedCapabilities a2a:extension ?normalizedExtension .
+    ?normalizedExtension a a2a:AgentExtension ;
+        a2a:extensionUri ?extensionUri ;
+        a2a:extensionDescription ?extensionDescription ;
+        a2a:extensionRequired ?extensionRequired .
+
+    # ========================================================================
+    # SIGNATURES - AgentCard integrity verification
+    # ========================================================================
+
+    ?normalizedAgent a2a:signature ?normalizedSignature .
+    ?normalizedSignature a a2a:AgentCardSignature ;
+        a2a:signatureProtected ?signatureProtected ;
+        a2a:signatureValue ?signatureValue .
+
+    # ========================================================================
+    # METADATA ADDITIONS - Optional descriptive properties
+    # ========================================================================
+
+    ?normalizedAgent a2a:iconUrl ?iconUrl .
+    ?normalizedAgent a2a:documentationUrl ?documentationUrl .
+    ?normalizedAgent a2a:createdAt ?createdAt .
+    ?normalizedAgent a2a:updatedAt ?updatedAt .
+}
+WHERE {
+    # ========================================================================
+    # INPUT PATTERNS - Match various RDF input formats
+    # ========================================================================
+
+    # Primary agent definition - match A2A Agent instances
+    {
+        ?agent a a2a:Agent .
+        BIND(?agent AS ?normalizedAgent)
+    }
+    UNION
+    # Alternative: Match generic agents from other ontologies
+    {
+        ?agent a/rdfs:subClassOf* a2a:Agent .
+        FILTER(!ISBLANK(?agent))
+        BIND(IRI(CONCAT(STR(a2a:), "agent/", SHA1(STR(?agent)))) AS ?normalizedAgent)
+    }
+    UNION
+    # Alternative: Match entities with agent-like properties
+    {
+        ?agent a ?type .
+        ?agent ggen:name ?agentName .
+        FILTER EXISTS { ?agent ggen:skill ?skill }
+        BIND(IRI(CONCAT(STR(a2a:), "agent/", SHA1(STR(?agent)))) AS ?normalizedAgent)
+    }
+
+    # ========================================================================
+    # EXTRACT AGENT CORE PROPERTIES
+    # ========================================================================
+
+    # Agent ID - prefer explicit a2a:id, fallback to hash
+    {
+        ?agent a2a:id ?agentId .
+    }
+    UNION
+    {
+        FILTER NOT EXISTS { ?agent a2a:id ?id }
+        BIND(SHA1(STR(?agent)) AS ?agentId)
+    }
+
+    # Agent name
+    {
+        ?agent a2a:name ?agentName .
+    }
+    UNION
+    {
+        ?agent ggen:name ?agentName .
+        FILTER NOT EXISTS { ?agent a2a:name ?name }
+    }
+
+    # Agent description
+    OPTIONAL {
+        ?agent a2a:description ?agentDescription .
+    }
+    UNION
+    {
+        ?agent ggen:description ?agentDescription .
+        FILTER NOT EXISTS { ?agent a2a:description ?desc }
+    }
+
+    # Agent version
+    OPTIONAL {
+        ?agent a2a:version ?agentVersion .
+    }
+    UNION
+    {
+        ?agent ggen:version ?agentVersion .
+        FILTER NOT EXISTS { ?agent a2a:version ?ver }
+    }
+
+    # Agent URL
+    OPTIONAL {
+        ?agent a2a:url ?agentUrl .
+    }
+
+    # Protocol version (default to 0.3.0 for A2A)
+    BIND(COALESCE(
+        ?protocolVersion,
+        "0.3.0"
+    ) AS ?protocolVersion)
+    OPTIONAL {
+        ?agent a2a:protocolVersion ?protocolVersion .
+    }
+
+    # Preferred transport (default to JSONRPC)
+    BIND(COALESCE(
+        ?preferredTransport,
+        "JSONRPC"
+    ) AS ?preferredTransport)
+    OPTIONAL {
+        ?agent a2a:preferredTransport ?preferredTransport .
+    }
+
+    # Default input/output modes
+    BIND(COALESCE(
+        ?defaultInputModes,
+        "text"
+    ) AS ?defaultInputModes)
+    OPTIONAL {
+        ?agent a2a:defaultInputModes ?defaultInputModes .
+    }
+
+    BIND(COALESCE(
+        ?defaultOutputModes,
+        "text"
+    ) AS ?defaultOutputModes)
+    OPTIONAL {
+        ?agent a2a:defaultOutputModes ?defaultOutputModes .
+    }
+
+    # ========================================================================
+    # EXTRACT PROVIDER INFORMATION
+    # ========================================================================
+
+    OPTIONAL {
+        ?agent a2a:provider ?provider .
+        BIND(IRI(CONCAT(STR(?normalizedAgent), "/provider")) AS ?normalizedProvider)
+
+        OPTIONAL {
+            ?provider a2a:organization ?providerOrganization .
+        }
+        UNION
+        {
+            ?provider a2a:providerOrganization ?providerOrganization .
+        }
+
+        OPTIONAL {
+            ?provider a2a:url ?providerUrl .
+        }
+        UNION
+        {
+            ?provider a2a:providerUrl ?providerUrl .
+        }
+    }
+
+    # ========================================================================
+    # EXTRACT AGENT CAPABILITIES
+    # ========================================================================
+
+    BIND(IRI(CONCAT(STR(?normalizedAgent), "/capabilities")) AS ?normalizedCapabilities)
+
+    # Streaming capability
+    BIND(COALESCE(
+        ?streamingEnabled,
+        false
+    ) AS ?streamingEnabled)
+    OPTIONAL {
+        ?agent a2a:streaming ?streamingEnabled .
+    }
+    UNION
+    {
+        ?agent a2a:capabilities ?caps .
+        ?caps a2a:streaming ?streamingEnabled .
+    }
+
+    # Push notifications capability
+    BIND(COALESCE(
+        ?pushNotificationsEnabled,
+        false
+    ) AS ?pushNotificationsEnabled)
+    OPTIONAL {
+        ?agent a2a:pushNotifications ?pushNotificationsEnabled .
+    }
+    UNION
+    {
+        ?agent a2a:capabilities ?caps .
+        ?caps a2a:pushNotifications ?pushNotificationsEnabled .
+    }
+
+    # State transition history capability
+    BIND(COALESCE(
+        ?stateHistoryEnabled,
+        false
+    ) AS ?stateHistoryEnabled)
+    OPTIONAL {
+        ?agent a2a:stateTransitionHistory ?stateHistoryEnabled .
+    }
+    UNION
+    {
+        ?agent a2a:capabilities ?caps .
+        ?caps a2a:stateTransitionHistory ?stateHistoryEnabled .
+    }
+
+    # ========================================================================
+    # EXTRACT AGENT INTERFACES (Transport endpoints)
+    # ========================================================================
+
+    OPTIONAL {
+        ?agent a2a:interface ?interface .
+        BIND(IRI(CONCAT(STR(?normalizedAgent), "/interface/", SHA1(STR(?interface)))) AS ?normalizedInterface)
+
+        OPTIONAL {
+            ?interface a2a:url ?interfaceUrl .
+        }
+        UNION
+        {
+            ?interface a2a:endpoint ?endpointUrl .
+            BIND(?endpointUrl AS ?interfaceUrl)
+        }
+
+        OPTIONAL {
+            ?interface a2a:transport ?interfaceTransport .
+        }
+        UNION
+        {
+            ?interface a2a:protocol ?interfaceTransport .
+        }
+    }
+    UNION
+    # Extract from additionalInterfaces property
+    OPTIONAL {
+        ?agent a2a:additionalInterfaces ?interfaces .
+        ?interfaces rdf:rest*/rdf:first ?interface .
+        BIND(IRI(CONCAT(STR(?normalizedAgent), "/interface/", SHA1(STR(?interface)))) AS ?normalizedInterface)
+
+        OPTIONAL {
+            ?interface a2a:url ?interfaceUrl .
+        }
+        OPTIONAL {
+            ?interface a2a:transport ?interfaceTransport .
+        }
+    }
+
+    # ========================================================================
+    # EXTRACT AGENT SKILLS
+    # ========================================================================
+
+    OPTIONAL {
+        ?agent a2a:skills ?skillsList .
+        ?skillsList rdf:rest*/rdf:first ?skill .
+
+        BIND(IRI(CONCAT(STR(?normalizedAgent), "/skill/", SHA1(STR(?skill)))) AS ?normalizedSkill)
+
+        # Skill ID
+        OPTIONAL {
+            ?skill a2a:id ?skillId .
+        }
+        UNION
+        {
+            ?skill a2a:skillId ?skillId .
+        }
+        UNION
+        {
+            BIND(SHA1(STR(?skill)) AS ?skillId)
+            FILTER NOT EXISTS { ?skill a2a:id ?id }
+            FILTER NOT EXISTS { ?skill a2a:skillId ?id }
+        }
+
+        # Skill name
+        OPTIONAL {
+            ?skill a2a:name ?skillName .
+        }
+        UNION
+        {
+            ?skill a2a:skillName ?skillName .
+        }
+
+        # Skill description
+        OPTIONAL {
+            ?skill a2a:description ?skillDescription .
+        }
+        UNION
+        {
+            ?skill a2a:skillDescription ?skillDescription .
+        }
+
+        # Skill tags
+        OPTIONAL {
+            ?skill a2a:tags ?skillTags .
+        }
+        UNION
+        {
+            ?skill a2a:skillTags ?tagsList .
+            ?tagsList rdf:rest*/rdf:first ?tag .
+            BIND(GROUP_CONCAT(?tag; ",") AS ?skillTags)
+        }
+
+        # Skill input modes (optional)
+        OPTIONAL {
+            ?skill a2a:inputModes ?skillInputModes .
+        }
+        UNION
+        {
+            ?skill a2a:input_modes ?skillInputModes .
+        }
+        UNION
+        {
+            ?skill a2a:skillInputModes ?inputModesList .
+            ?inputModesList rdf:rest*/rdf:first ?mode .
+            BIND(GROUP_CONCAT(?mode; ",") AS ?skillInputModes)
+        }
+
+        # Skill output modes (optional)
+        OPTIONAL {
+            ?skill a2a:outputModes ?skillOutputModes .
+        }
+        UNION
+        {
+            ?skill a2a:output_modes ?skillOutputModes .
+        }
+        UNION
+        {
+            ?skill a2a:skillOutputModes ?outputModesList .
+            ?outputModesList rdf:rest*/rdf:first ?mode .
+            BIND(GROUP_CONCAT(?mode; ",") AS ?skillOutputModes)
+        }
+
+        # Skill examples (optional)
+        OPTIONAL {
+            ?skill a2a:examples ?examplesList .
+            ?examplesList rdf:rest*/rdf:first ?example .
+            BIND(GROUP_CONCAT(?example; "|||") AS ?skillExamples)
+        }
+    }
+    UNION
+    # Alternative skill extraction pattern
+    OPTIONAL {
+        ?agent a2a:skill ?skill .
+        FILTER NOT EXISTS { ?agent a2a:skills ?list }
+
+        BIND(IRI(CONCAT(STR(?normalizedAgent), "/skill/", SHA1(STR(?skill)))) AS ?normalizedSkill)
+
+        OPTIONAL { ?skill a2a:id ?skillId . }
+        OPTIONAL { ?skill a2a:name ?skillName . }
+        OPTIONAL { ?skill a2a:description ?skillDescription . }
+        OPTIONAL { ?skill a2a:tags ?skillTags . }
+        OPTIONAL { ?skill a2a:inputModes ?skillInputModes . }
+        OPTIONAL { ?skill a2a:outputModes ?skillOutputModes . }
+    }
+
+    # ========================================================================
+    # EXTRACT SECURITY SCHEMES
+    # ========================================================================
+
+    OPTIONAL {
+        ?agent a2a:securitySchemes ?schemesMap .
+        ?schemesMap ?schemeEntry ?securityScheme .
+
+        BIND(IRI(CONCAT(STR(?normalizedAgent), "/security/", SHA1(STR(?securityScheme)))) AS ?normalizedSecurityScheme)
+
+        # Extract scheme key as name
+        BIND(REPLACE(STR(?schemeEntry), "^.*/", "") AS ?schemeName)
+
+        # Extract scheme type
+        OPTIONAL {
+            ?securityScheme a ?schemeType .
+            FILTER(?schemeType != rdf:Statement)
+        }
+        UNION
+        {
+            ?securityScheme a2a:type ?schemeType .
+        }
+
+        # Extract scheme description
+        OPTIONAL {
+            ?securityScheme a2a:description ?schemeDescription .
+        }
+    }
+    UNION
+    # Alternative: Direct security scheme property
+    OPTIONAL {
+        ?agent a2a:securityScheme ?securityScheme .
+        FILTER NOT EXISTS { ?agent a2a:securitySchemes ?map }
+
+        BIND(IRI(CONCAT(STR(?normalizedAgent), "/security/", SHA1(STR(?securityScheme)))) AS ?normalizedSecurityScheme)
+
+        OPTIONAL { ?securityScheme a2a:name ?schemeName . }
+        OPTIONAL { ?securityScheme a2a:type ?schemeType . }
+        OPTIONAL { ?securityScheme a2a:description ?schemeDescription . }
+    }
+
+    # ========================================================================
+    # EXTRACT TASK RELATIONSHIPS
+    # ========================================================================
+
+    OPTIONAL {
+        ?agent a2a:executesTask ?task .
+        BIND(IRI(CONCAT(STR(?normalizedAgent), "/task/", SHA1(STR(?task)))) AS ?normalizedTaskRef)
+
+        OPTIONAL { ?task a2a:id ?taskId . }
+        UNION
+        { ?task a2a:taskId ?taskId . }
+
+        OPTIONAL { ?task a2a:name ?taskName . }
+        UNION
+        { ?task a2a:taskName ?taskName . }
+
+        OPTIONAL { ?task a2a:status ?taskStatus . }
+        UNION
+        { ?task a2a:taskStatus ?taskStatus . }
+    }
+
+    # ========================================================================
+    # EXTRACT MESSAGE HANDLING CAPABILITIES
+    # ========================================================================
+
+    OPTIONAL {
+        ?agent a2a:canHandleMessage ?messageTypeDef .
+        BIND(IRI(CONCAT(STR(?normalizedAgent), "/message-type/", SHA1(STR(?messageTypeDef)))) AS ?messageType)
+
+        OPTIONAL { ?messageTypeDef a2a:name ?messageTypeName . }
+        OPTIONAL { ?messageTypeDef a2a:description ?messageTypeDescription . }
+    }
+
+    OPTIONAL {
+        ?agent a2a:canSendMessage ?messageTypeDef .
+        BIND(IRI(CONCAT(STR(?normalizedAgent), "/message-type/", SHA1(STR(?messageTypeDef)))) AS ?messageType)
+
+        OPTIONAL { ?messageTypeDef a2a:name ?messageTypeName . }
+        OPTIONAL { ?messageTypeDef a2a:description ?messageTypeDescription . }
+    }
+
+    # ========================================================================
+    # EXTRACT TRANSPORT PROTOCOLS
+    # ========================================================================
+
+    OPTIONAL {
+        ?agent a2a:supportsTransport ?transport .
+        BIND(IRI(CONCAT(STR(?normalizedAgent), "/transport/", SHA1(STR(?transport)))) AS ?transportProtocol)
+
+        OPTIONAL {
+            ?transport a2a:name ?transportProtocolName .
+        }
+        UNION
+        {
+            ?transport a2a:protocolName ?transportProtocolName .
+        }
+
+        OPTIONAL {
+            ?transport a2a:version ?transportProtocolVersion .
+        }
+    }
+
+    # ========================================================================
+    # EXTRACT ENDPOINT CONFIGURATIONS
+    # ========================================================================
+
+    OPTIONAL {
+        ?agent a2a:endpoint ?endpoint .
+        BIND(IRI(CONCAT(STR(?normalizedAgent), "/endpoint/", SHA1(STR(?endpoint)))) AS ?normalizedEndpoint)
+
+        OPTIONAL { ?endpoint a2a:id ?endpointId . }
+        OPTIONAL { ?endpoint a2a:url ?endpointUrl . }
+        OPTIONAL { ?endpoint a2a:protocol ?endpointProtocol . }
+        OPTIONAL { ?endpoint a2a:enabled ?endpointEnabled . }
+    }
+
+    # ========================================================================
+    # EXTRACT EXTENSION DEFINITIONS
+    # ========================================================================
+
+    OPTIONAL {
+        ?agent a2a:extension ?extension .
+        BIND(IRI(CONCAT(STR(?normalizedCapabilities), "/extension/", SHA1(STR(?extension)))) AS ?normalizedExtension)
+
+        OPTIONAL {
+            ?extension a2a:uri ?extensionUri .
+        }
+        UNION
+        {
+            ?extension a2a:extensionUri ?extensionUri .
+        }
+
+        OPTIONAL {
+            ?extension a2a:description ?extensionDescription .
+        }
+        UNION
+        {
+            ?extension a2a:extensionDescription ?extensionDescription .
+        }
+
+        OPTIONAL {
+            ?extension a2a:required ?extensionRequired .
+        }
+    }
+
+    # ========================================================================
+    # EXTRACT SIGNATURES
+    # ========================================================================
+
+    OPTIONAL {
+        ?agent a2a:signature ?signature .
+        BIND(IRI(CONCAT(STR(?normalizedAgent), "/signature/", SHA1(STR(?signature)))) AS ?normalizedSignature)
+
+        OPTIONAL {
+            ?signature a2a:protected ?signatureProtected .
+        }
+        UNION
+        {
+            ?signature a2a:signatureProtected ?signatureProtected .
+        }
+
+        OPTIONAL {
+            ?signature a2a:signature ?signatureValue .
+        }
+        UNION
+        {
+            ?signature a2a:signatureValue ?signatureValue .
+        }
+    }
+
+    # ========================================================================
+    # EXTRACT OPTIONAL METADATA
+    # ========================================================================
+
+    OPTIONAL { ?agent a2a:iconUrl ?iconUrl . }
+    OPTIONAL { ?agent a2a:documentationUrl ?documentationUrl . }
+    OPTIONAL { ?agent a2a:createdAt ?createdAt . }
+    OPTIONAL { ?agent a2a:updatedAt ?updatedAt . }
+}

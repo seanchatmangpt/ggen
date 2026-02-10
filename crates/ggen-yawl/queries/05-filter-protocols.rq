@@ -1,0 +1,29 @@
+# PATTERN 5: Protocol Filtering
+PREFIX a2a: <https://ggen.dev/ontology/a2a>
+
+CONSTRUCT {
+  ?filteredAgent a a2a:ProtocolCompatibleAgent ;
+    a2a:agentId ?agentId ;
+    a2a:supportedProtocols ?protocolList .
+}
+WHERE {
+  VALUES ?requiredProtocol { "http" "websocket" }
+
+  ?agent a a2a:Agent ;
+    a2a:id ?agentId ;
+    a2a:supportsProtocol ?supportedProtocol .
+
+  FILTER (?supportedProtocol = ?requiredProtocol)
+
+  {
+    SELECT ?agentId (GROUP_CONCAT(DISTINCT ?proto; separator=",") AS ?protocolList)
+    WHERE {
+      ?agent a a2a:Agent ;
+        a2a:id ?agentId ;
+        a2a:supportsProtocol ?proto .
+    }
+    GROUP BY ?agentId
+  }
+
+  BIND(IRI(CONCAT(STR(a2a:), "agent/", ENCODE_FOR_URI(?agentId))) AS ?filteredAgent)
+}

@@ -28,6 +28,7 @@
 pub mod ai;
 pub mod audit;
 pub mod ci;
+pub mod config;
 pub mod domain;
 pub mod environment;
 pub mod graph;

@@ -71,6 +71,9 @@ pub mod network {
     /// Ollama health check endpoint
     pub const OLLAMA_HEALTH_ENDPOINT: &str = "http://localhost:11434/api/tags";
 
+    /// ZAI local server API endpoint
+    pub const ZAI_API_URL: &str = "http://localhost:8080/v1/chat/completions";
+
     /// Expected HTTP success status code
     pub const HTTP_STATUS_OK: &str = "200";
 }
@@ -87,6 +90,9 @@ pub mod models {
 
     /// Default Ollama model
     pub const OLLAMA_DEFAULT: &str = "qwen3-coder:30b";
+
+    /// Default ZAI model (Zhipu AI GLM-4.6 coding model)
+    pub const ZAI_DEFAULT: &str = "zai-coding::glm-4.6";
 
     /// Mock model for testing
     pub const MOCK_MODEL: &str = "mock-model";
@@ -179,6 +185,9 @@ pub mod env_vars {
     /// Anthropic API key
     pub const ANTHROPIC_API_KEY: &str = "ANTHROPIC_API_KEY";
 
+    /// ZAI API key
+    pub const ZAI_API_KEY: &str = "ZAI_API_KEY";
+
     /// OpenAI model
     pub const OPENAI_MODEL: &str = "OPENAI_MODEL";
 
@@ -187,6 +196,12 @@ pub mod env_vars {
 
     /// Ollama model
     pub const OLLAMA_MODEL: &str = "OLLAMA_MODEL";
+
+    /// ZAI model
+    pub const ZAI_MODEL: &str = "ZAI_MODEL";
+
+    /// ZAI API endpoint
+    pub const ZAI_ENDPOINT: &str = "ZAI_ENDPOINT";
 }
 
 /// Target Languages
@@ -237,6 +252,7 @@ mod tests {
         assert_eq!(models::OPENAI_DEFAULT, "gpt-3.5-turbo");
         assert_eq!(models::ANTHROPIC_DEFAULT, "claude-3-sonnet-20240229");
         assert_eq!(models::OLLAMA_DEFAULT, "qwen3-coder:30b");
+        assert_eq!(models::ZAI_DEFAULT, "zai-coding::glm-4.6");
     }
 
     #[test]

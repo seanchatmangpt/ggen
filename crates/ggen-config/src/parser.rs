@@ -172,6 +172,56 @@ impl ConfigLoader {
         Ok(config)
     }
 
+    /// Load configuration with environment-specific overrides from a map
+    ///
+    /// # Arguments
+    ///
+    /// * `overrides` - Slice of (environment_name, overrides) tuples
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the config cannot be loaded
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ggen_config::ConfigLoader;
+    /// use serde_json::json;
+    ///
+    /// let toml = r#"
+    ///     [project]
+    ///     name = "test"
+    ///     version = "1.0.0"
+    ///
+    ///     [ai]
+    ///     provider = "anthropic"
+    ///     model = "claude-3-opus"
+    /// "#;
+    ///
+    /// let config = ConfigLoader::from_str(toml)
+    ///     .unwrap()
+    ///     .load_with_env_from_map(&[("zai", json!({"ai.provider": "zai"}))])
+    ///     .unwrap();
+    ///
+    /// assert_eq!(config.ai.unwrap().provider, "zai");
+    /// ```
+    pub fn load_with_env_from_map(
+        self,
+        overrides: &[(&str, serde_json::Value)],
+    ) -> Result<GgenConfig> {
+        let mut config = self.load()?;
+
+        for (_env_name, env_overrides) in overrides {
+            if let Some(obj) = env_overrides.as_object() {
+                for (key, value) in obj {
+                    apply_single_override(&mut config, key, value);
+                }
+            }
+        }
+
+        Ok(config)
+    }
+
     /// Get the config file path
     #[must_use]
     pub fn path(&self) -> &Path {
@@ -193,7 +243,7 @@ fn apply_env_overrides(config: &mut GgenConfig, overrides: &serde_json::Value) {
 
 /// Apply a single configuration override
 fn apply_single_override(config: &mut GgenConfig, key: &str, value: &serde_json::Value) {
-    // Parse dotted key notation (e.g., "ai.temperature")
+    // Parse dotted key notation (e.g., "ai.temperature", "mcp.enabled")
     let parts: Vec<&str> = key.split('.').collect();
 
     match parts.as_slice() {
@@ -209,9 +259,54 @@ fn apply_single_override(config: &mut GgenConfig, key: &str, value: &serde_json:
                 }
             }
         }
+        ["logging", field] => {
+            if let Some(logging) = config.logging.as_mut() {
+                update_logging_field(logging, field, value);
+            }
+        }
         ["security", field] => {
             if let Some(security) = config.security.as_mut() {
                 update_security_field(security, field, value);
+            }
+        }
+        ["performance", field] => {
+            if let Some(performance) = config.performance.as_mut() {
+                update_performance_field(performance, field, value);
+            }
+        }
+        ["mcp", field] => {
+            if config.mcp.is_none() {
+                config.mcp = Some(crate::schema::McpConfig {
+                    name: None,
+                    version: None,
+                    tool_timeout_ms: default_mcp_tool_timeout(),
+                    max_concurrent_requests: default_mcp_max_concurrent(),
+                    transport: None,
+                    tools: None,
+                    zai: None,
+                    enabled: default_mcp_enabled(),
+                    discovery: None,
+                });
+            }
+            if let Some(mcp) = config.mcp.as_mut() {
+                update_mcp_field(mcp, field, value);
+            }
+        }
+        ["a2a", field] => {
+            if config.a2a.is_none() {
+                config.a2a = Some(crate::schema::A2AConfig {
+                    agent_id: None,
+                    agent_name: None,
+                    agent_type: None,
+                    transport: None,
+                    messaging: None,
+                    orchestration: None,
+                    capabilities: None,
+                    enabled: default_a2a_enabled(),
+                });
+            }
+            if let Some(a2a) = config.a2a.as_mut() {
+                update_a2a_field(a2a, field, value);
             }
         }
         _ => {
@@ -259,6 +354,136 @@ fn update_security_field(
         }
         _ => {}
     }
+}
+
+/// Update logging configuration field
+fn update_logging_field(
+    logging: &mut crate::schema::LoggingConfig, field: &str, value: &serde_json::Value,
+) {
+    match field {
+        "format" => {
+            if let Some(s) = value.as_str() {
+                logging.format = s.to_string();
+            }
+        }
+        "file" => {
+            if let Some(s) = value.as_str() {
+                logging.file = Some(s.to_string());
+            }
+        }
+        "rotation" => {
+            if let Some(s) = value.as_str() {
+                logging.rotation = Some(s.to_string());
+            }
+        }
+        _ => {}
+    }
+}
+
+/// Update performance configuration field
+fn update_performance_field(
+    performance: &mut crate::schema::PerformanceConfig, field: &str,
+    value: &serde_json::Value,
+) {
+    match field {
+        "max_workers" => {
+            if let Some(n) = value.as_u64() {
+                performance.max_workers = n as u32;
+            }
+        }
+        "cache_size" => {
+            if let Some(s) = value.as_str() {
+                performance.cache_size = Some(s.to_string());
+            }
+        }
+        "memory_limit_mb" => {
+            if let Some(n) = value.as_u64() {
+                performance.memory_limit_mb = Some(n as u32);
+            }
+        }
+        "parallel_execution" => {
+            if let Some(b) = value.as_bool() {
+                performance.parallel_execution = b;
+            }
+        }
+        _ => {}
+    }
+}
+
+/// Update MCP configuration field
+fn update_mcp_field(mcp: &mut crate::schema::McpConfig, field: &str, value: &serde_json::Value) {
+    match field {
+        "enabled" => {
+            if let Some(b) = value.as_bool() {
+                mcp.enabled = b;
+            }
+        }
+        "name" => {
+            if let Some(s) = value.as_str() {
+                mcp.name = Some(s.to_string());
+            }
+        }
+        "version" => {
+            if let Some(s) = value.as_str() {
+                mcp.version = Some(s.to_string());
+            }
+        }
+        "tool_timeout_ms" => {
+            if let Some(n) = value.as_u64() {
+                mcp.tool_timeout_ms = n;
+            }
+        }
+        "max_concurrent_requests" => {
+            if let Some(n) = value.as_u64() {
+                mcp.max_concurrent_requests = n as usize;
+            }
+        }
+        _ => {}
+    }
+}
+
+/// Update A2A configuration field
+fn update_a2a_field(a2a: &mut crate::schema::A2AConfig, field: &str, value: &serde_json::Value) {
+    match field {
+        "enabled" => {
+            if let Some(b) = value.as_bool() {
+                a2a.enabled = b;
+            }
+        }
+        "agent_id" => {
+            if let Some(s) = value.as_str() {
+                a2a.agent_id = Some(s.to_string());
+            }
+        }
+        "agent_name" => {
+            if let Some(s) = value.as_str() {
+                a2a.agent_name = Some(s.to_string());
+            }
+        }
+        "agent_type" => {
+            if let Some(s) = value.as_str() {
+                a2a.agent_type = Some(s.to_string());
+            }
+        }
+        _ => {}
+    }
+}
+
+// Default value functions (re-export from schema for parser use)
+const fn default_mcp_tool_timeout() -> u64 {
+    30000
+}
+
+const fn default_mcp_max_concurrent() -> usize {
+    100
+}
+
+fn default_mcp_enabled() -> bool {
+    false
+}
+
+fn default_a2a_enabled() -> bool {
+    false
 }
 
 #[cfg(test)]

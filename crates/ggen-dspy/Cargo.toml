@@ -61,6 +61,15 @@ uuid = { workspace = true, features = ["v4"] }
 # Regular expressions for pattern matching
 regex = { workspace = true }
 
+# A2A protocol support
+a2a-generated = { path = "../a2a-generated" }
+
+# Async streaming
+async-stream = "0.3"
+
+# In-memory LRU cache
+lru = "0.12"
+
 [dev-dependencies]
 # Property-based testing
 proptest = { workspace = true }

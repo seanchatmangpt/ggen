@@ -1,0 +1,1130 @@
+{#
+  A2A Skill Template
+  Generates Skill trait, SkillRegistry, and SkillMetadata for type-safe skill execution
+#}
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 ggen contributors
+
+{% comment %}
+  Requirements:
+  - async_trait: async_trait::async_trait for async trait methods
+  - serde: Serialize, Deserialize for serialization
+  - thiserror: Error for error types
+  - chrono: DateTime<Utc> for timestamps
+  - uuid: Uuid for skill IDs
+  - jsonschema: JSON Schema for validation
+{% endcomment %}
+
+use async_trait::async_trait;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::RwLock;
+use uuid::Uuid;
+
+// Re-export AgentError from converged module
+use crate::converged::AgentError;
+
+/// Skill metadata describing a skill's capabilities and interfaces
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SkillMetadata {
+    /// Unique skill identifier
+    #[serde(rename = "skillId")]
+    pub skill_id: String,
+
+    /// Human-readable skill name
+    pub name: String,
+
+    /// Detailed skill description
+    pub description: String,
+
+    /// Skill version
+    pub version: String,
+
+    /// Input schema (JSON Schema)
+    #[serde(rename = "inputSchema")]
+    pub input_schema: JSONSchema,
+
+    /// Output schema (JSON Schema)
+    #[serde(rename = "outputSchema")]
+    pub output_schema: JSONSchema,
+
+    /// Skill category for organization
+    pub category: SkillCategory,
+
+    /// Required capabilities for execution
+    #[serde(rename = "requiredCapabilities")]
+    pub required_capabilities: Vec<String>,
+
+    /// Execution timeout in seconds
+    #[serde(rename = "timeoutSeconds")]
+    pub timeout_seconds: u64,
+
+    /// Whether skill is idempotent
+    pub idempotent: bool,
+
+    /// Skill tags for discovery
+    pub tags: Vec<String>,
+
+    /// Creation timestamp
+    #[serde(rename = "createdAt")]
+    pub created_at: DateTime<Utc>,
+
+    /// Last update timestamp
+    #[serde(rename = "updatedAt")]
+    pub updated_at: DateTime<Utc>,
+}
+
+impl SkillMetadata {
+    /// Create new skill metadata
+    #[must_use]
+    pub fn new(
+        name: String,
+        description: String,
+        version: String,
+        input_schema: JSONSchema,
+        output_schema: JSONSchema,
+    ) -> Self {
+        let now = Utc::now();
+        Self {
+            skill_id: Uuid::new_v4().to_string(),
+            name,
+            description,
+            version,
+            input_schema,
+            output_schema,
+            category: SkillCategory::General,
+            required_capabilities: Vec::new(),
+            timeout_seconds: 30,
+            idempotent: false,
+            tags: Vec::new(),
+            created_at: now,
+            updated_at: now,
+        }
+    }
+
+    /// Set skill category
+    #[must_use]
+    pub const fn with_category(mut self, category: SkillCategory) -> Self {
+        self.category = category;
+        self
+    }
+
+    /// Add required capability
+    pub fn with_capability(mut self, capability: String) -> Self {
+        self.required_capabilities.push(capability);
+        self
+    }
+
+    /// Set timeout
+    #[must_use]
+    pub const fn with_timeout(mut self, timeout_seconds: u64) -> Self {
+        self.timeout_seconds = timeout_seconds;
+        self
+    }
+
+    /// Set idempotent flag
+    #[must_use]
+    pub const fn with_idempotent(mut self, idempotent: bool) -> Self {
+        self.idempotent = idempotent;
+        self
+    }
+
+    /// Add tag
+    pub fn with_tag(mut self, tag: String) -> Self {
+        self.tags.push(tag);
+        self
+    }
+
+    /// Validate metadata
+    ///
+    /// # Errors
+    /// Returns error if validation fails
+    pub fn validate(&self) -> Result<(), SkillError> {
+        if self.name.is_empty() {
+            return Err(SkillError::InvalidMetadata("Skill name cannot be empty".to_string()));
+        }
+        if self.description.is_empty() {
+            return Err(SkillError::InvalidMetadata("Skill description cannot be empty".to_string()));
+        }
+        if self.timeout_seconds == 0 {
+            return Err(SkillError::InvalidMetadata("Timeout must be positive".to_string()));
+        }
+        Ok(())
+    }
+}
+
+/// Skill category for organization
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum SkillCategory {
+    /// General purpose skills
+    General,
+    /// Data processing skills
+    DataProcessing,
+    /// Communication skills
+    Communication,
+    /// Analysis skills
+    Analysis,
+    /// Transformation skills
+    Transformation,
+    /// Validation skills
+    Validation,
+    /// AI/ML skills
+    AI,
+    /// Storage skills
+    Storage,
+    /// Custom category
+    Custom(String),
+}
+
+/// JSON Schema representation for input/output validation
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct JSONSchema {
+    /// Schema type (e.g., "object", "string", "number")
+    #[serde(rename = "type")]
+    pub schema_type: String,
+
+    /// Schema title
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+
+    /// Schema description
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+
+    /// Required properties
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub required: Option<Vec<String>>,
+
+    /// Properties (for object types)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub properties: Option<HashMap<String, JSONSchema>>,
+
+    /// Items schema (for array types)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub items: Option<Box<JSONSchema>>,
+
+    /// Enum values
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enum_values: Option<Vec<serde_json::Value>>,
+
+    /// Additional properties
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub additional_properties: Option<Box<JSONSchema>>,
+
+    /// Custom schema extensions
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub extensions: Option<HashMap<String, serde_json::Value>>,
+}
+
+impl JSONSchema {
+    /// Create a new string schema
+    #[must_use]
+    pub fn string() -> Self {
+        Self {
+            schema_type: "string".to_string(),
+            title: None,
+            description: None,
+            required: None,
+            properties: None,
+            items: None,
+            enum_values: None,
+            additional_properties: None,
+            extensions: None,
+        }
+    }
+
+    /// Create a new number schema
+    #[must_use]
+    pub fn number() -> Self {
+        Self {
+            schema_type: "number".to_string(),
+            title: None,
+            description: None,
+            required: None,
+            properties: None,
+            items: None,
+            enum_values: None,
+            additional_properties: None,
+            extensions: None,
+        }
+    }
+
+    /// Create a new boolean schema
+    #[must_use]
+    pub fn boolean() -> Self {
+        Self {
+            schema_type: "boolean".to_string(),
+            title: None,
+            description: None,
+            required: None,
+            properties: None,
+            items: None,
+            enum_values: None,
+            additional_properties: None,
+            extensions: None,
+        }
+    }
+
+    /// Create a new object schema
+    #[must_use]
+    pub fn object(properties: HashMap<String, JSONSchema>) -> Self {
+        Self {
+            schema_type: "object".to_string(),
+            title: None,
+            description: None,
+            required: None,
+            properties: Some(properties),
+            items: None,
+            enum_values: None,
+            additional_properties: None,
+            extensions: None,
+        }
+    }
+
+    /// Create a new array schema
+    #[must_use]
+    pub fn array(items: JSONSchema) -> Self {
+        Self {
+            schema_type: "array".to_string(),
+            title: None,
+            description: None,
+            required: None,
+            properties: None,
+            items: Some(Box::new(items)),
+            enum_values: None,
+            additional_properties: None,
+            extensions: None,
+        }
+    }
+
+    /// Set title
+    #[must_use]
+    pub fn with_title(mut self, title: String) -> Self {
+        self.title = Some(title);
+        self
+    }
+
+    /// Set description
+    #[must_use]
+    pub fn with_description(mut self, description: String) -> Self {
+        self.description = Some(description);
+        self
+    }
+
+    /// Set required properties
+    #[must_use]
+    pub fn with_required(mut self, required: Vec<String>) -> Self {
+        self.required = Some(required);
+        self
+    }
+
+    /// Validate a value against this schema
+    ///
+    /// # Errors
+    /// Returns error if validation fails
+    pub fn validate(&self, value: &serde_json::Value) -> Result<(), SchemaValidationError> {
+        match self.schema_type.as_str() {
+            "string" => {
+                if !value.is_string() {
+                    return Err(SchemaValidationError::TypeMismatch {
+                        expected: "string".to_string(),
+                        found: value_type(value),
+                    });
+                }
+            }
+            "number" | "integer" => {
+                if !value.is_number() {
+                    return Err(SchemaValidationError::TypeMismatch {
+                        expected: self.schema_type.clone(),
+                        found: value_type(value),
+                    });
+                }
+            }
+            "boolean" => {
+                if !value.is_boolean() {
+                    return Err(SchemaValidationError::TypeMismatch {
+                        expected: "boolean".to_string(),
+                        found: value_type(value),
+                    });
+                }
+            }
+            "object" => {
+                if !value.is_object() {
+                    return Err(SchemaValidationError::TypeMismatch {
+                        expected: "object".to_string(),
+                        found: value_type(value),
+                    });
+                }
+                if let Some(properties) = &self.properties {
+                    let obj = value.as_object().ok();
+                    for (key, schema) in properties {
+                        if let Some(obj_value) = obj.and_then(|o| o.get(key)) {
+                            schema.validate(obj_value)?;
+                        } else if let Some(required) = &self.required {
+                            if required.contains(key) {
+                                return Err(SchemaValidationError::MissingRequired(key.clone()));
+                            }
+                        }
+                    }
+                }
+            }
+            "array" => {
+                if !value.is_array() {
+                    return Err(SchemaValidationError::TypeMismatch {
+                        expected: "array".to_string(),
+                        found: value_type(value),
+                    });
+                }
+                if let Some(items) = &self.items {
+                    if let Some(arr) = value.as_array() {
+                        for item in arr {
+                            items.validate(item)?;
+                        }
+                    }
+                }
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+}
+
+fn value_type(value: &serde_json::Value) -> String {
+    match value {
+        serde_json::Value::Null => "null".to_string(),
+        serde_json::Value::Bool(_) => "boolean".to_string(),
+        serde_json::Value::Number(_) => "number".to_string(),
+        serde_json::Value::String(_) => "string".to_string(),
+        serde_json::Value::Array(_) => "array".to_string(),
+        serde_json::Value::Object(_) => "object".to_string(),
+    }
+}
+
+/// Schema validation error
+#[derive(Debug, Clone, PartialEq, thiserror::Error)]
+pub enum SchemaValidationError {
+    #[error("Type mismatch: expected {expected}, found {found}")]
+    TypeMismatch { expected: String, found: String },
+
+    #[error("Missing required property: {0}")]
+    MissingRequired(String),
+
+    #[error("Invalid value: {0}")]
+    InvalidValue(String),
+
+    #[error("Schema error: {0}")]
+    SchemaError(String),
+}
+
+/// Skill trait for type-safe skill execution
+///
+/// Skills are composable units of agent functionality that can be
+/// registered, discovered, and executed through the SkillRegistry.
+#[async_trait]
+pub trait Skill: Send + Sync {
+    /// Get skill metadata
+    fn metadata(&self) -> &SkillMetadata;
+
+    /// Execute the skill with input data
+    ///
+    /// # Errors
+    /// Returns error if execution fails
+    async fn execute(&self, input: serde_json::Value) -> Result<serde_json::Value, SkillError>;
+
+    /// Validate input against skill's input schema
+    ///
+    /// # Errors
+    /// Returns error if validation fails
+    fn validate_input(&self, input: &serde_json::Value) -> Result<(), SchemaValidationError> {
+        self.metadata().input_schema.validate(input)
+    }
+
+    /// Validate output against skill's output schema
+    ///
+    /// # Errors
+    /// Returns error if validation fails
+    fn validate_output(&self, output: &serde_json::Value) -> Result<(), SchemaValidationError> {
+        self.metadata().output_schema.validate(output)
+    }
+
+    /// Execute with automatic validation
+    ///
+    /// # Errors
+    /// Returns error if validation or execution fails
+    async fn execute_validated(
+        &self,
+        input: serde_json::Value,
+    ) -> Result<serde_json::Value, SkillError> {
+        self.validate_input(&input)?;
+        let output = self.execute(input).await?;
+        self.validate_output(&output)?;
+        Ok(output)
+    }
+
+    /// Check if skill can handle given input
+    fn can_handle(&self, input: &serde_json::Value) -> bool {
+        self.validate_input(input).is_ok()
+    }
+}
+
+/// Skill execution error
+#[derive(Debug, Clone, PartialEq, thiserror::Error)]
+pub enum SkillError {
+    #[error("Skill not found: {0}")]
+    NotFound(String),
+
+    #[error("Skill execution failed: {0}")]
+    Execution(String),
+
+    #[error("Input validation failed: {0}")]
+    InputValidation(String),
+
+    #[error("Output validation failed: {0}")]
+    OutputValidation(String),
+
+    #[error("Invalid metadata: {0}")]
+    InvalidMetadata(String),
+
+    #[error("Timeout: skill execution exceeded {0}s")]
+    Timeout(u64),
+
+    #[error("Agent error: {0}")]
+    AgentError(String),
+
+    #[error("IO error: {0}")]
+    Io(String),
+
+    #[error("Serialization error: {0}")]
+    Serialization(String),
+}
+
+impl From<SchemaValidationError> for SkillError {
+    fn from(err: SchemaValidationError) -> Self {
+        SkillError::InputValidation(err.to_string())
+    }
+}
+
+impl From<AgentError> for SkillError {
+    fn from(err: AgentError) -> Self {
+        SkillError::AgentError(err.to_string())
+    }
+}
+
+/// Typed skill wrapper for Rust-native execution
+///
+/// Provides type-safe skill execution by converting between
+/// JSON and Rust types.
+pub struct TypedSkill<I, O>
+where
+    I: Serialize + for<'de> Deserialize<'de> + Send + Sync,
+    O: Serialize + for<'de> Deserialize<'de> + Send + Sync,
+{
+    metadata: SkillMetadata,
+    handler: Arc<dyn Fn(I) -> Result<O, SkillError> + Send + Sync>,
+}
+
+impl<I, O> TypedSkill<I, O>
+where
+    I: Serialize + for<'de> Deserialize<'de> + Send + Sync,
+    O: Serialize + for<'de> Deserialize<'de> + Send + Sync,
+{
+    /// Create a new typed skill
+    #[must_use]
+    pub fn new<F>(metadata: SkillMetadata, handler: F) -> Self
+    where
+        F: Fn(I) -> Result<O, SkillError> + Send + Sync + 'static,
+    {
+        Self {
+            metadata,
+            handler: Arc::new(handler),
+        }
+    }
+}
+
+#[async_trait]
+impl<I, O> Skill for TypedSkill<I, O>
+where
+    I: Serialize + for<'de> Deserialize<'de> + Send + Sync,
+    O: Serialize + for<'de> Deserialize<'de> + Send + Sync,
+{
+    fn metadata(&self) -> &SkillMetadata {
+        &self.metadata
+    }
+
+    async fn execute(&self, input: serde_json::Value) -> Result<serde_json::Value, SkillError> {
+        // Parse input
+        let typed_input: I = serde_json::from_value(input)
+            .map_err(|e| SkillError::InputValidation(format!("Failed to parse input: {e}")))?;
+
+        // Execute handler
+        let typed_output = (self.handler)(typed_input)?;
+
+        // Serialize output
+        serde_json::to_value(typed_output)
+            .map_err(|e| SkillError::Serialization(format!("Failed to serialize output: {e}")))
+    }
+}
+
+/// Async typed skill wrapper
+pub struct AsyncTypedSkill<I, O>
+where
+    I: Serialize + for<'de> Deserialize<'de> + Send + Sync,
+    O: Serialize + for<'de> Deserialize<'de> + Send + Sync,
+{
+    metadata: SkillMetadata,
+    handler: Arc<dyn Fn(I) -> Pin<Box<dyn Future<Output = Result<O, SkillError>> + Send>> + Send + Sync>,
+}
+
+use std::pin::Pin;
+use std::future::Future;
+
+impl<I, O> AsyncTypedSkill<I, O>
+where
+    I: Serialize + for<'de> Deserialize<'de> + Send + Sync,
+    O: Serialize + for<'de> Deserialize<'de> + Send + Sync,
+{
+    /// Create a new async typed skill
+    #[must_use]
+    pub fn new<F, Fut>(metadata: SkillMetadata, handler: F) -> Self
+    where
+        F: Fn(I) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = Result<O, SkillError>> + Send + 'static,
+    {
+        Self {
+            metadata,
+            handler: Arc::new(move |input| Box::pin(handler(input))),
+        }
+    }
+}
+
+#[async_trait]
+impl<I, O> Skill for AsyncTypedSkill<I, O>
+where
+    I: Serialize + for<'de> Deserialize<'de> + Send + Sync,
+    O: Serialize + for<'de> Deserialize<'de> + Send + Sync,
+{
+    fn metadata(&self) -> &SkillMetadata {
+        &self.metadata
+    }
+
+    async fn execute(&self, input: serde_json::Value) -> Result<serde_json::Value, SkillError> {
+        let typed_input: I = serde_json::from_value(input)
+            .map_err(|e| SkillError::InputValidation(format!("Failed to parse input: {e}")))?;
+
+        let typed_output = (self.handler)(typed_input).await?;
+
+        serde_json::to_value(typed_output)
+            .map_err(|e| SkillError::Serialization(format!("Failed to serialize output: {e}")))
+    }
+}
+
+/// Skill registry for managing and discovering skills
+///
+/// Provides thread-safe registration, retrieval, and execution of skills
+/// by name or category.
+#[derive(Debug, Clone)]
+pub struct SkillRegistry {
+    skills: Arc<RwLock<HashMap<String, Arc<dyn Skill>>>>,
+}
+
+impl Default for SkillRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl SkillRegistry {
+    /// Create a new skill registry
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            skills: Arc::new(RwLock::new(HashMap::new())),
+        }
+    }
+
+    /// Register a skill
+    ///
+    /// # Errors
+    /// Returns error if registration fails
+    pub async fn register(&self, skill: Arc<dyn Skill>) -> Result<(), SkillError> {
+        let metadata = skill.metadata().clone();
+        metadata.validate()?;
+
+        let mut skills = self.skills.write().await;
+        skills.insert(metadata.name.clone(), skill);
+        Ok(())
+    }
+
+    /// Unregister a skill by name
+    ///
+    /// Returns true if skill was found and removed
+    pub async fn unregister(&self, name: &str) -> bool {
+        let mut skills = self.skills.write().await;
+        skills.remove(name).is_some()
+    }
+
+    /// Get a skill by name
+    ///
+    /// # Errors
+    /// Returns error if skill not found
+    pub async fn get(&self, name: &str) -> Result<Arc<dyn Skill>, SkillError> {
+        let skills = self.skills.read().await;
+        skills
+            .get(name)
+            .cloned()
+            .ok_or_else(|| SkillError::NotFound(name.to_string()))
+    }
+
+    /// Check if a skill exists
+    pub async fn contains(&self, name: &str) -> bool {
+        let skills = self.skills.read().await;
+        skills.contains_key(name)
+    }
+
+    /// List all registered skill names
+    pub async fn list(&self) -> Vec<String> {
+        let skills = self.skills.read().await;
+        skills.keys().cloned().collect()
+    }
+
+    /// List skills by category
+    pub async fn list_by_category(&self, category: SkillCategory) -> Vec<String> {
+        let skills = self.skills.read().await;
+        skills
+            .iter()
+            .filter(|(_, s)| s.metadata().category == category)
+            .map(|(name, _)| name.clone())
+            .collect()
+    }
+
+    /// Find skills that can handle the given input
+    pub async fn find_handlers(&self, input: &serde_json::Value) -> Vec<String> {
+        let skills = self.skills.read().await;
+        skills
+            .iter()
+            .filter(|(_, s)| s.can_handle(input))
+            .map(|(name, _)| name.clone())
+            .collect()
+    }
+
+    /// Execute a skill by name
+    ///
+    /// # Errors
+    /// Returns error if skill not found or execution fails
+    pub async fn execute(
+        &self,
+        name: &str,
+        input: serde_json::Value,
+    ) -> Result<serde_json::Value, SkillError> {
+        let skill = self.get(name).await?;
+        skill.execute_validated(input).await
+    }
+
+    /// Execute a skill with timeout
+    ///
+    /// # Errors
+    /// Returns error if skill not found, execution fails, or timeout
+    pub async fn execute_with_timeout(
+        &self,
+        name: &str,
+        input: serde_json::Value,
+    ) -> Result<serde_json::Value, SkillError> {
+        let skill = self.get(name).await?;
+        let timeout = skill.metadata().timeout_seconds;
+
+        tokio::time::timeout(
+            tokio::time::Duration::from_secs(timeout),
+            skill.execute_validated(input),
+        )
+        .await
+        .map_err(|_| SkillError::Timeout(timeout))?
+    }
+
+    /// Get skill metadata by name
+    ///
+    /// # Errors
+    /// Returns error if skill not found
+    pub async fn metadata(&self, name: &str) -> Result<SkillMetadata, SkillError> {
+        let skill = self.get(name).await?;
+        Ok(skill.metadata().clone())
+    }
+
+    /// Get all skill metadata
+    pub async fn all_metadata(&self) -> Vec<SkillMetadata> {
+        let skills = self.skills.read().await;
+        skills.values().map(|s| s.metadata().clone()).collect()
+    }
+
+    /// Count registered skills
+    pub async fn count(&self) -> usize {
+        let skills = self.skills.read().await;
+        skills.len()
+    }
+
+    /// Clear all registered skills
+    pub async fn clear(&self) {
+        let mut skills = self.skills.write().await;
+        skills.clear();
+    }
+}
+
+/// Builder pattern for creating skill metadata
+#[derive(Debug, Default)]
+pub struct SkillMetadataBuilder {
+    name: Option<String>,
+    description: Option<String>,
+    version: Option<String>,
+    input_schema: Option<JSONSchema>,
+    output_schema: Option<JSONSchema>,
+    category: SkillCategory,
+    required_capabilities: Vec<String>,
+    timeout_seconds: u64,
+    idempotent: bool,
+    tags: Vec<String>,
+}
+
+impl SkillMetadataBuilder {
+    /// Create a new builder
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Set skill name
+    #[must_use]
+    pub fn name(mut self, name: String) -> Self {
+        self.name = Some(name);
+        self
+    }
+
+    /// Set skill description
+    #[must_use]
+    pub fn description(mut self, description: String) -> Self {
+        self.description = Some(description);
+        self
+    }
+
+    /// Set skill version
+    #[must_use]
+    pub fn version(mut self, version: String) -> Self {
+        self.version = Some(version);
+        self
+    }
+
+    /// Set input schema
+    #[must_use]
+    pub fn input_schema(mut self, schema: JSONSchema) -> Self {
+        self.input_schema = Some(schema);
+        self
+    }
+
+    /// Set output schema
+    #[must_use]
+    pub fn output_schema(mut self, schema: JSONSchema) -> Self {
+        self.output_schema = Some(schema);
+        self
+    }
+
+    /// Set skill category
+    #[must_use]
+    pub const fn category(mut self, category: SkillCategory) -> Self {
+        self.category = category;
+        self
+    }
+
+    /// Add required capability
+    pub fn with_capability(mut self, capability: String) -> Self {
+        self.required_capabilities.push(capability);
+        self
+    }
+
+    /// Set timeout
+    #[must_use]
+    pub const fn timeout(mut self, seconds: u64) -> Self {
+        self.timeout_seconds = seconds;
+        self
+    }
+
+    /// Set idempotent
+    #[must_use]
+    pub const fn idempotent(mut self, idempotent: bool) -> Self {
+        self.idempotent = idempotent;
+        self
+    }
+
+    /// Add tag
+    pub fn with_tag(mut self, tag: String) -> Self {
+        self.tags.push(tag);
+        self
+    }
+
+    /// Build the metadata
+    ///
+    /// # Errors
+    /// Returns error if required fields are missing
+    pub fn build(self) -> Result<SkillMetadata, SkillError> {
+        let name = self
+            .name
+            .ok_or_else(|| SkillError::InvalidMetadata("Name is required".to_string()))?;
+        let description = self.description.ok_or_else(|| {
+            SkillError::InvalidMetadata("Description is required".to_string())
+        })?;
+        let version = self
+            .version
+            .ok_or_else(|| SkillError::InvalidMetadata("Version is required".to_string()))?;
+        let input_schema = self.input_schema.ok_or_else(|| {
+            SkillError::InvalidMetadata("Input schema is required".to_string())
+        })?;
+        let output_schema = self.output_schema.ok_or_else(|| {
+            SkillError::InvalidMetadata("Output schema is required".to_string())
+        })?;
+
+        let mut metadata = SkillMetadata::new(name, description, version, input_schema, output_schema);
+        metadata.category = self.category;
+        metadata.required_capabilities = self.required_capabilities;
+        metadata.timeout_seconds = self.timeout_seconds;
+        metadata.idempotent = self.idempotent;
+        metadata.tags = self.tags;
+
+        metadata.validate()?;
+        Ok(metadata)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_json_schema_string() {
+        let schema = JSONSchema::string().with_title("name".to_string());
+        assert_eq!(schema.schema_type, "string");
+        assert_eq!(schema.title, Some("name".to_string()));
+
+        let value = serde_json::json!("test");
+        assert!(schema.validate(&value).is_ok());
+
+        let invalid = serde_json::json!(123);
+        assert!(schema.validate(&invalid).is_err());
+    }
+
+    #[test]
+    fn test_json_schema_object() {
+        let mut properties = HashMap::new();
+        properties.insert("name".to_string(), JSONSchema::string());
+        properties.insert("age".to_string(), JSONSchema::number());
+
+        let schema = JSONSchema::object(properties).with_required(vec!["name".to_string()]);
+
+        let valid = serde_json::json!({"name": "Alice", "age": 30});
+        assert!(schema.validate(&valid).is_ok());
+
+        let missing = serde_json::json!({"age": 30});
+        assert!(schema.validate(&missing).is_err());
+    }
+
+    #[test]
+    fn test_json_schema_array() {
+        let schema = JSONSchema::array(JSONSchema::string());
+
+        let valid = serde_json::json!(["a", "b", "c"]);
+        assert!(schema.validate(&valid).is_ok());
+
+        let invalid = serde_json::json!([1, 2, 3]);
+        assert!(schema.validate(&invalid).is_err());
+    }
+
+    #[test]
+    fn test_skill_metadata() {
+        let input_schema = JSONSchema::string();
+        let output_schema = JSONSchema::boolean();
+
+        let metadata = SkillMetadata::new(
+            "test_skill".to_string(),
+            "A test skill".to_string(),
+            "1.0.0".to_string(),
+            input_schema,
+            output_schema,
+        )
+        .with_category(SkillCategory::Validation)
+        .with_capability("validation".to_string())
+        .with_idempotent(true);
+
+        assert_eq!(metadata.name, "test_skill");
+        assert_eq!(metadata.category, SkillCategory::Validation);
+        assert!(metadata.idempotent);
+        assert!(metadata.validate().is_ok());
+    }
+
+    #[test]
+    fn test_skill_metadata_invalid() {
+        let input_schema = JSONSchema::string();
+        let output_schema = JSONSchema::boolean();
+
+        let metadata = SkillMetadata::new(
+            "".to_string(),
+            "A test skill".to_string(),
+            "1.0.0".to_string(),
+            input_schema,
+            output_schema,
+        );
+
+        assert!(metadata.validate().is_err());
+    }
+
+    #[test]
+    fn test_skill_registry() {
+        tokio::runtime::Runtime::new()
+            .unwrap()
+            .block_on(async {
+                let registry = SkillRegistry::new();
+
+                // Create a simple test skill
+                let skill = TestSkill::new();
+                let skill_arc: Arc<dyn Skill> = Arc::new(skill);
+
+                // Register
+                assert!(registry.register(skill_arc).await.is_ok());
+                assert_eq!(registry.count().await, 1);
+
+                // Get
+                let retrieved = registry.get("test_skill").await;
+                assert!(retrieved.is_ok());
+
+                // List
+                let names = registry.list().await;
+                assert_eq!(names, vec!["test_skill".to_string()]);
+
+                // Execute
+                let result = registry.execute("test_skill", serde_json::json!("input")).await;
+                assert!(result.is_ok());
+                assert_eq!(result.unwrap(), serde_json::json!("output"));
+
+                // Unregister
+                assert!(registry.unregister("test_skill").await);
+                assert_eq!(registry.count().await, 0);
+            });
+    }
+
+    #[test]
+    fn test_skill_not_found() {
+        tokio::runtime::Runtime::new()
+            .unwrap()
+            .block_on(async {
+                let registry = SkillRegistry::new();
+                let result = registry.get("nonexistent").await;
+                assert!(matches!(result, Err(SkillError::NotFound(_))));
+            });
+    }
+
+    #[test]
+    fn test_skill_metadata_builder() {
+        let builder = SkillMetadataBuilder::new()
+            .name("builder_skill".to_string())
+            .description("Built with builder".to_string())
+            .version("1.0.0".to_string())
+            .input_schema(JSONSchema::string())
+            .output_schema(JSONSchema::boolean())
+            .category(SkillCategory::Analysis)
+            .timeout(60);
+
+        let metadata = builder.build().unwrap();
+        assert_eq!(metadata.name, "builder_skill");
+        assert_eq!(metadata.category, SkillCategory::Analysis);
+        assert_eq!(metadata.timeout_seconds, 60);
+    }
+
+    #[test]
+    fn test_find_handlers() {
+        tokio::runtime::Runtime::new()
+            .unwrap()
+            .block_on(async {
+                let registry = SkillRegistry::new();
+
+                let skill1 = TestSkill::new();
+                let skill2 = NumberSkill::new();
+
+                registry.register(Arc::new(skill1)).await.unwrap();
+                registry.register(Arc::new(skill2)).await.unwrap();
+
+                // Find handlers for string input
+                let handlers = registry.find_handlers(&serde_json::json!("test")).await;
+                assert_eq!(handlers, vec!["test_skill".to_string()]);
+
+                // Find handlers for number input
+                let handlers = registry.find_handlers(&serde_json::json!(42)).await;
+                assert_eq!(handlers, vec!["number_skill".to_string()]);
+            });
+    }
+
+    // Test skill implementation
+    struct TestSkill {
+        metadata: SkillMetadata,
+    }
+
+    impl TestSkill {
+        fn new() -> Self {
+            let input_schema = JSONSchema::string();
+            let output_schema = JSONSchema::string();
+
+            Self {
+                metadata: SkillMetadata::new(
+                    "test_skill".to_string(),
+                    "A test skill".to_string(),
+                    "1.0.0".to_string(),
+                    input_schema,
+                    output_schema,
+                ),
+            }
+        }
+    }
+
+    #[async_trait]
+    impl Skill for TestSkill {
+        fn metadata(&self) -> &SkillMetadata {
+            &self.metadata
+        }
+
+        async fn execute(&self, input: serde_json::Value) -> Result<serde_json::Value, SkillError> {
+            Ok(serde_json::json!("output"))
+        }
+    }
+
+    // Number skill implementation
+    struct NumberSkill {
+        metadata: SkillMetadata,
+    }
+
+    impl NumberSkill {
+        fn new() -> Self {
+            let input_schema = JSONSchema::number();
+            let output_schema = JSONSchema::number();
+
+            Self {
+                metadata: SkillMetadata::new(
+                    "number_skill".to_string(),
+                    "A number skill".to_string(),
+                    "1.0.0".to_string(),
+                    input_schema,
+                    output_schema,
+                ),
+            }
+        }
+    }
+
+    #[async_trait]
+    impl Skill for NumberSkill {
+        fn metadata(&self) -> &SkillMetadata {
+            &self.metadata
+        }
+
+        async fn execute(&self, input: serde_json::Value) -> Result<serde_json::Value, SkillError> {
+            Ok(serde_json::json!(42))
+        }
+    }
+}

@@ -1,0 +1,21 @@
+# PATTERN 4: Message Construction
+PREFIX a2a: <https://ggen.dev/ontology/a2a>
+PREFIX msg: <https://ggen.dev/ontology/message>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?constructedMessage a a2a:ConvergedMessage ;
+    a2a:messageId ?messageId ;
+    a2a:source ?sourceAgent ;
+    a2a:target ?targetAgent ;
+    a2a:messageType ?messageType .
+}
+WHERE {
+  VALUES ?sourceAgent { "agent-001" }
+  VALUES ?targetAgent { "agent-002" }
+  
+  BIND(CONCAT("msg-", SHA512(CONCAT(?sourceAgent, ?targetAgent, STR(NOW())))) AS ?messageId)
+  BIND("Task" AS ?messageType)
+
+  BIND(IRI(CONCAT(STR(a2a:), "message/", ENCODE_FOR_URI(?messageId))) AS ?constructedMessage)
+}

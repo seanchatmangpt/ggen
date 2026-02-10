@@ -335,7 +335,7 @@ pub struct ResourceRequirements {
 }
 
 /// Security classification levels
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum SecurityClassification {
     Public,
     Internal,
@@ -408,7 +408,7 @@ pub struct QoSRequirements {
 }
 
 /// Reliability levels
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ReliabilityLevel {
     BestEffort,
     AtLeastOnce,
@@ -445,7 +445,7 @@ pub struct ThroughputRequirements {
 }
 
 /// Message lifecycle state
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MessageLifecycle {
     /// Current state
     pub state: MessageState,
@@ -534,7 +534,7 @@ pub enum TimeoutType {
 }
 
 /// Converged message types
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ConvergedMessageType {
     /// Task request/response
@@ -571,7 +571,7 @@ pub enum MessagePriority {
 }
 
 /// Task status
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum TaskStatus {
     /// Task created
     Created,
@@ -990,4 +990,161 @@ mod tests {
         assert_eq!(message.source, "agent-1");
         assert_eq!(message.envelope.priority, MessagePriority::High);
     }
+}
+
+/// Message handler actions
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum HandlerAction {
+    /// Process the message
+    Process,
+    /// Forward the message
+    Forward,
+    /// Respond to the message
+    Respond,
+    /// Ignore the message
+    Ignore,
+    /// Retry the message
+    Retry,
+    /// Drop the message
+    Drop,
+    /// Enqueue the message
+    Enqueue,
+    /// Dequeue the message
+    Dequeue,
+}
+
+/// Message handler priorities
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum HandlerPriority {
+    /// Lowest priority
+    Lowest,
+    /// Low priority
+    Low,
+    /// Normal priority
+    Normal,
+    /// High priority
+    High,
+    /// Highest priority
+    Highest,
+    /// Critical priority
+    Critical,
+}
+
+/// Message handler status
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum HandlerStatus {
+    /// Handler is idle
+    Idle,
+    /// Handler is active
+    Active,
+    /// Handler is busy
+    Busy,
+    /// Handler is paused
+    Paused,
+    /// Handler is stopped
+    Stopped,
+    /// Handler is errored
+    Error,
+    /// Handler is completed
+    Completed,
+}
+
+/// Message router for advanced routing scenarios
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MessageRouter {
+    /// Router identifier
+    pub id: String,
+
+    /// Router name
+    pub name: String,
+
+    /// Routing rules
+    pub rules: Vec<RoutingRule>,
+
+    /// Default route
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default_route: Option<Route>,
+
+    /// Router metadata
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<HashMap<String, serde_json::Value>>,
+}
+
+/// Routing rule for message routing decisions
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RoutingRule {
+    /// Rule identifier
+    pub id: String,
+
+    /// Rule name
+    pub name: String,
+
+    /// Condition for routing
+    pub condition: RoutingCondition,
+
+    /// Action to take
+    pub action: RouteAction,
+
+    /// Priority of the rule
+    pub priority: i32,
+
+    /// Whether rule is enabled
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+
+    /// Rule metadata
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<HashMap<String, serde_json::Value>>,
+}
+
+/// Routing condition for message routing
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum RoutingCondition {
+    /// Route by message type
+    MessageType(String),
+    /// Route by source agent
+    SourceAgent(String),
+    /// Route by target agent
+    TargetAgent(String),
+    /// Route by priority
+    Priority(MessagePriority),
+    /// Route by content
+    Content(String),
+    /// Custom condition
+    Custom(String),
+}
+
+/// Route action for routing decisions
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum RouteAction {
+    /// Direct route
+    Direct(String),
+    /// Route to multiple targets
+    Broadcast(Vec<String>),
+    /// Route based on load
+    LoadBalanced(Vec<String>),
+    /// Route with filter
+    Filtered { target: String, filter: String },
+    /// Custom route
+    Custom(String),
+}
+
+/// Route definition
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Route {
+    /// Target identifier
+    pub target: String,
+
+    /// Route metadata
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<HashMap<String, serde_json::Value>>,
+}
+
+fn default_true() -> bool {
+    true
 }

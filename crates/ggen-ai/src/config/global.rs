@@ -28,6 +28,8 @@ pub enum LlmProvider {
     Anthropic,
     /// Ollama (local models)
     Ollama,
+    /// ZAI (rust-genai)
+    Zai,
     /// Mock provider for testing
     Mock,
 }
@@ -103,6 +105,22 @@ impl Default for GlobalLlmConfig {
             },
         );
 
+        // ZAI defaults
+        providers.insert(
+            LlmProvider::Zai,
+            LlmConfig {
+                model: std::env::var(env_vars::ZAI_MODEL)
+                    .or_else(|_| std::env::var(env_vars::DEFAULT_MODEL))
+                    .or_else(|_| std::env::var("DEFAULT_MODEL"))
+                    .unwrap_or_else(|_| models::ZAI_DEFAULT.to_string()),
+                max_tokens: Some(llm::DEFAULT_MAX_TOKENS),
+                temperature: Some(llm::DEFAULT_TEMPERATURE),
+                top_p: Some(llm::DEFAULT_TOP_P),
+                stop: None,
+                extra: HashMap::new(),
+            },
+        );
+
         // Mock defaults
         providers.insert(
             LlmProvider::Mock,
@@ -140,14 +158,19 @@ impl GlobalLlmConfig {
                 "openai" => LlmProvider::OpenAI,
                 "anthropic" => LlmProvider::Anthropic,
                 "ollama" => LlmProvider::Ollama,
+                "zai" => LlmProvider::Zai,
                 "mock" => LlmProvider::Mock,
-                _ => LlmProvider::Ollama,
+                _ => LlmProvider::Zai,  // Default to ZAI
             };
         }
 
-        // 2. Default to Ollama (no requirements)
-        // Ollama is the default local provider - it will fail fast if not available when used
-        LlmProvider::Ollama
+        // 2. Check ZAI_API_KEY - use ZAI if available
+        if std::env::var(crate::constants::env_vars::ZAI_API_KEY).is_ok() {
+            return LlmProvider::Zai;
+        }
+
+        // 3. Default to ZAI (rust-genai supports many providers)
+        LlmProvider::Zai
     }
 
     /// Create a new global configuration
@@ -165,8 +188,9 @@ impl GlobalLlmConfig {
                 "openai" => LlmProvider::OpenAI,
                 "anthropic" => LlmProvider::Anthropic,
                 "ollama" => LlmProvider::Ollama,
+                "zai" => LlmProvider::Zai,
                 "mock" => LlmProvider::Mock,
-                _ => LlmProvider::Ollama,
+                _ => LlmProvider::Zai,
             };
         }
 
@@ -251,6 +275,12 @@ impl GlobalLlmConfig {
             .clone();
 
         match provider {
+            LlmProvider::Zai => {
+                // ZAI (rust-genai) - works with ZAI_API_KEY
+                // If no key set, genai will try to use default providers
+                let client = GenAiClient::new(config)?;
+                Ok(Arc::new(client))
+            }
             LlmProvider::Ollama => {
                 // Ollama is default - no API key required
                 // Will fail fast on first request if Ollama isn't running
@@ -302,6 +332,7 @@ impl GlobalLlmConfig {
     /// Get the name of the current provider as a string
     pub fn provider_name(&self) -> &'static str {
         match self.provider {
+            LlmProvider::Zai => "Zai",
             LlmProvider::OpenAI => "OpenAI",
             LlmProvider::Anthropic => "Anthropic",
             LlmProvider::Ollama => "Ollama",
@@ -336,11 +367,12 @@ mod tests {
     #[test]
     fn test_default_config() {
         let config = GlobalLlmConfig::default();
-        // Ollama is always the default (no requirements)
-        assert_eq!(config.provider, LlmProvider::Ollama);
+        // ZAI is the default (supports many providers)
+        assert_eq!(config.provider, LlmProvider::Zai);
         assert!(config.providers.contains_key(&LlmProvider::OpenAI));
         assert!(config.providers.contains_key(&LlmProvider::Anthropic));
         assert!(config.providers.contains_key(&LlmProvider::Ollama));
+        assert!(config.providers.contains_key(&LlmProvider::Zai));
         assert!(config.providers.contains_key(&LlmProvider::Mock));
     }
 

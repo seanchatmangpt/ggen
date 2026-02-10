@@ -74,6 +74,9 @@ pub mod error;
 // Module types
 pub mod modules;
 
+// A2A predictors for agent communication
+pub mod predictors;
+
 // Optimization algorithms
 pub mod optimizers;
 
@@ -132,6 +135,16 @@ pub use adapters::{
 
 // Pattern exports
 pub use patterns::{AgentPattern, PatternBuilder, PatternLibrary};
+
+// A2A predictor exports
+pub use predictors::{
+    A2aModule, A2aModuleTrait, A2aPredictor, A2aPredictorConfig,
+    StreamingA2aPredictor, StreamingChunk, TokenUsage,
+};
+
+// Re-export CacheStats from predictors with a different name to avoid conflict
+pub use predictors::CacheStats as A2aPredictorCacheStats;
+pub use predictors::ModuleOutput as A2aModuleOutput;
 
 /// Version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

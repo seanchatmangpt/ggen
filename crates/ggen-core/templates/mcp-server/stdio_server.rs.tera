@@ -1,0 +1,415 @@
+{# STDIO transport implementation template #}
+{# Context variables: server_name, buffer_size, line_timeout_ms #}
+
+{% extends "mcp-server/_head.tera" %}
+
+{% block imports %}
+{{ super() }}
+use std::io::{self, BufRead, Write};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::Arc;
+use tokio::sync::Mutex;
+{% endblock imports %}
+
+{% block body %}
+/// STDIO transport for MCP JSON-RPC
+///
+/// Implements the Model Context Protocol over standard input/output.
+/// This is the standard transport for MCP servers.
+pub struct StdioServer {
+    /// Server instance
+    server: Arc<{{ server_type | default(value="McpServer") }}>,
+    /// Running state
+    running: Arc<AtomicBool>,
+    /// Request counter
+    request_counter: Arc<AtomicU64>,
+    /// Buffer size for reading input
+    buffer_size: usize,
+    /// Line timeout in milliseconds
+    line_timeout_ms: u64,
+}
+
+/// STDIO server configuration
+#[derive(Debug, Clone)]
+pub struct StdioConfig {
+    /// Buffer size for reading input (default: 64KB)
+    pub buffer_size: usize,
+    /// Line timeout in milliseconds (default: 30s)
+    pub line_timeout_ms: u64,
+    /// Enable request logging
+    pub enable_logging: bool,
+    /// Maximum concurrent requests
+    pub max_concurrent_requests: usize,
+}
+
+impl Default for StdioConfig {
+    fn default() -> Self {
+        Self {
+            buffer_size: {{ buffer_size | default(value=65536) }},
+            line_timeout_ms: {{ line_timeout_ms | default(value=30000) }},
+            enable_logging: false,
+            max_concurrent_requests: 100,
+        }
+    }
+}
+
+impl StdioServer {
+    /// Create a new STDIO server
+    pub fn new(server: Arc<{{ server_type | default(value="McpServer") }}>) -> Self {
+        Self::with_config(server, StdioConfig::default())
+    }
+
+    /// Create a new STDIO server with custom configuration
+    pub fn with_config(server: Arc<{{ server_type | default(value="McpServer") }}>, config: StdioConfig) -> Self {
+        Self {
+            server,
+            running: Arc::new(AtomicBool::new(false)),
+            request_counter: Arc::new(AtomicU64::new(0)),
+            buffer_size: config.buffer_size,
+            line_timeout_ms: config.line_timeout_ms,
+        }
+    }
+
+    /// Start the STDIO server
+    ///
+    /// This method blocks and reads JSON-RPC messages from stdin,
+    /// processes them, and writes responses to stdout.
+    pub fn start(&mut self) -> Result<(), {{ error_type | default(value="McpError") }}> {
+        self.running.store(true, Ordering::SeqCst);
+
+        let stdin = io::stdin();
+        let mut stdout = io::stdout();
+        let reader = stdin.lock();
+
+        // Main event loop
+        for line in reader.lines() {
+            if !self.running.load(Ordering::SeqCst) {
+                break;
+            }
+
+            let line = line.map_err(|e| {{ error_type | default(value="McpError") }}::io_error(format!(
+                "Failed to read from stdin: {}",
+                e
+            )))?;
+
+            // Skip empty lines
+            if line.trim().is_empty() {
+                continue;
+            }
+
+            // Process request
+            let response = self.process_line(&line)?;
+
+            // Write response
+            writeln!(stdout, "{}", response)
+                .map_err(|e| {{ error_type | default(value="McpError") }}::io_error(format!(
+                    "Failed to write to stdout: {}",
+                    e
+                )))?;
+
+            stdout.flush()
+                .map_err(|e| {{ error_type | default(value="McpError") }}::io_error(format!(
+                    "Failed to flush stdout: {}",
+                    e
+                )))?;
+        }
+
+        Ok(())
+    }
+
+    /// Start the STDIO server asynchronously
+    pub async fn start_async(&mut self) -> Result<(), {{ error_type | default(value="McpError") }}> {
+        self.running.store(true, Ordering::SeqCst);
+
+        let running = self.running.clone();
+        let server = self.server.clone();
+        let counter = self.request_counter.clone();
+
+        tokio::task::spawn_blocking(move || {
+            let stdin = io::stdin();
+            let stdout = Arc::new(Mutex::new(io::stdout()));
+            let reader = stdin.lock();
+
+            for line in reader.lines() {
+                if !running.load(Ordering::SeqCst) {
+                    break;
+                }
+
+                let line = match line {
+                    Ok(l) => l,
+                    Err(e) => {
+                        eprintln!("Error reading stdin: {}", e);
+                        break;
+                    }
+                };
+
+                if line.trim().is_empty() {
+                    continue;
+                }
+
+                // Increment request counter
+                let request_id = counter.fetch_add(1, Ordering::SeqCst);
+
+                // Process request (in blocking context for now)
+                match Self::process_request_static(&server, &line) {
+                    Ok(response) => {
+                        if let Err(e) = Self::write_response_static(&stdout, &response) {
+                            eprintln!("Error writing response: {}", e);
+                        }
+                    }
+                    Err(e) => {
+                        let error_response = Self::error_response(&line, &e.to_string());
+                        if let Err(write_err) = Self::write_response_static(&stdout, &error_response) {
+                            eprintln!("Error writing error response: {}", write_err);
+                        }
+                    }
+                }
+            }
+
+            Result::<(), {{ error_type | default(value="McpError") }}>::Ok(())
+        });
+
+        Ok(())
+    }
+
+    /// Stop the STDIO server
+    pub fn stop(&mut self) {
+        self.running.store(false, Ordering::SeqCst);
+    }
+
+    /// Check if the server is running
+    pub fn is_running(&self) -> bool {
+        self.running.load(Ordering::SeqCst)
+    }
+
+    /// Get the request count
+    pub fn request_count(&self) -> u64 {
+        self.request_counter.load(Ordering::SeqCst)
+    }
+
+    /// Process a single line of input
+    fn process_line(&self, line: &str) -> Result<String, {{ error_type | default(value="McpError") }}> {
+        Self::process_request_static(&self.server, line)
+    }
+
+    /// Static method to process a request
+    fn process_request_static(server: &{{ server_type | default(value="McpServer") }}, line: &str) -> Result<String, {{ error_type | default(value="McpError") }}> {
+        // Parse JSON-RPC request
+        let request: serde_json::Value = serde_json::from_str(line)
+            .map_err(|e| {{ error_type | default(value="McpError") }}::invalid_request(format!(
+                "Failed to parse JSON-RPC request: {}",
+                e
+            )))?;
+
+        // Process the request
+        let response = server.handle_request(request)?;
+
+        // Serialize response
+        serde_json::to_string(&response)
+            .map_err(|e| {{ error_type | default(value="McpError") }}::serialization_error(format!(
+                "Failed to serialize response: {}",
+                e
+            )))
+    }
+
+    /// Static method to write a response
+    fn write_response_static(stdout: &Arc<Mutex<io::Stdout>>, response: &str) -> Result<(), {{ error_type | default(value="McpError") }}> {
+        let mut stdout_guard = stdout.blocking_lock();
+        writeln!(stdout_guard, "{}", response)
+            .map_err(|e| {{ error_type | default(value="McpError") }}::io_error(format!(
+                "Failed to write response: {}",
+                e
+            )))?;
+        stdout_guard.flush()
+            .map_err(|e| {{ error_type | default(value="McpError") }}::io_error(format!(
+                "Failed to flush stdout: {}",
+                e
+            )))?;
+        Ok(())
+    }
+
+    /// Create an error response
+    fn error_response(request: &str, error_message: &str) -> String {
+        // Try to extract request ID for proper error response
+        if let Ok(req) = serde_json::from_str::<serde_json::Value>(request) {
+            let id = req.get("id").cloned().unwrap_or(serde_json::Value::Null);
+            let error_response = serde_json::json!({
+                "jsonrpc": "2.0",
+                "id": id,
+                "error": {
+                    "code": -32603,
+                    "message": error_message
+                }
+            });
+            serde_json::to_string(&error_response).unwrap_or_default()
+        } else {
+            // Fallback error response
+            serde_json::json!({
+                "jsonrpc": "2.0",
+                "id": null,
+                "error": {
+                    "code": -32700,
+                    "message": "Parse error"
+                }
+            }).to_string()
+        }
+    }
+}
+
+/// Asynchronous STDIO server with concurrent request handling
+pub struct AsyncStdioServer {
+    /// Server instance
+    server: Arc<{{ server_type | default(value="McpServer") }}>,
+    /// Running state
+    running: Arc<AtomicBool>,
+    /// Request semaphore for concurrency control
+    semaphore: tokio::sync::Semaphore,
+    /// Request timeout
+    timeout: std::time::Duration,
+}
+
+impl AsyncStdioServer {
+    /// Create a new async STDIO server
+    pub fn new(server: Arc<{{ server_type | default(value="McpServer") }}>) -> Self {
+        Self::with_concurrency(server, 100)
+    }
+
+    /// Create a new async STDIO server with custom concurrency
+    pub fn with_concurrency(server: Arc<{{ server_type | default(value="McpServer") }}>, max_concurrent: usize) -> Self {
+        Self {
+            server,
+            running: Arc::new(AtomicBool::new(false)),
+            semaphore: tokio::sync::Semaphore::new(max_concurrent),
+            timeout: std::time::Duration::from_secs(30),
+        }
+    }
+
+    /// Start the async STDIO server
+    pub async fn start(&mut self) -> Result<(), {{ error_type | default(value="McpError") }}> {
+        self.running.store(true, Ordering::SeqCst);
+
+        let stdin = tokio::io::stdin();
+        let reader = tokio::io::BufReader::new(stdin);
+        let mut lines = reader.lines();
+
+        while self.running.load(Ordering::SeqCst) {
+            match lines.next_line().await {
+                Ok(Some(line)) => {
+                    if !line.trim().is_empty() {
+                        self.spawn_request_handler(line);
+                    }
+                }
+                Ok(None) => break,
+                Err(e) => {
+                    eprintln!("Error reading stdin: {}", e);
+                    break;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Spawn a handler for a single request
+    fn spawn_request_handler(&self, line: String) {
+        let server = self.server.clone();
+        let permit = self.semaphore.clone();
+        let timeout = self.timeout;
+
+        tokio::spawn(async move {
+            // Acquire semaphore permit
+            let _permit = match permit.acquire().await {
+                Ok(p) => p,
+                Err(_) => return,
+            };
+
+            // Process with timeout
+            let result = tokio::time::timeout(
+                timeout,
+                Self::process_request(&server, &line),
+            )
+            .await;
+
+            let response = match result {
+                Ok(Ok(resp)) => resp,
+                Ok(Err(e)) => Self::error_response(&line, &e.to_string()),
+                Err(_) => Self::timeout_response(&line),
+            };
+
+            // Write response
+            if let Err(e) = Self::write_response(&response).await {
+                eprintln!("Error writing response: {}", e);
+            }
+        });
+    }
+
+    /// Process a request
+    async fn process_request(server: &{{ server_type | default(value="McpServer") }}, line: &str) -> Result<String, {{ error_type | default(value="McpError") }}> {
+        let request: serde_json::Value = serde_json::from_str(line)
+            .map_err(|e| {{ error_type | default(value="McpError") }}::invalid_request(format!(
+                "Failed to parse JSON-RPC request: {}",
+                e
+            )))?;
+
+        let response = server.handle_request_async(request).await?;
+
+        serde_json::to_string(&response)
+            .map_err(|e| {{ error_type | default(value="McpError") }}::serialization_error(format!(
+                "Failed to serialize response: {}",
+                e
+            )))
+    }
+
+    /// Write a response to stdout
+    async fn write_response(response: &str) -> Result<(), {{ error_type | default(value="McpError") }}> {
+        let mut stdout = tokio::io::stdout();
+        writeln!(stdout, "{}", response)
+            .await
+            .map_err(|e| {{ error_type | default(value="McpError") }}::io_error(format!(
+                "Failed to write response: {}",
+                e
+            )))?;
+        stdout.flush()
+            .await
+            .map_err(|e| {{ error_type | default(value="McpError") }}::io_error(format!(
+                "Failed to flush stdout: {}",
+                e
+            )))?;
+        Ok(())
+    }
+
+    /// Create a timeout error response
+    fn timeout_response(request: &str) -> String {
+        if let Ok(req) = serde_json::from_str::<serde_json::Value>(request) {
+            let id = req.get("id").cloned().unwrap_or(serde_json::Value::Null);
+            serde_json::json!({
+                "jsonrpc": "2.0",
+                "id": id,
+                "error": {
+                    "code": -32603,
+                    "message": "Request timeout"
+                }
+            }).to_string()
+        } else {
+            serde_json::json!({
+                "jsonrpc": "2.0",
+                "id": null,
+                "error": {
+                    "code": -32700,
+                    "message": "Parse error"
+                }
+            }).to_string()
+        }
+    }
+
+    /// Create an error response
+    fn error_response(request: &str, error_message: &str) -> String {
+        StdioServer::error_response(request, error_message)
+    }
+
+    /// Stop the async STDIO server
+    pub fn stop(&mut self) {
+        self.running.store(false, Ordering::SeqCst);
+    }
+}
+{% endblock body %}

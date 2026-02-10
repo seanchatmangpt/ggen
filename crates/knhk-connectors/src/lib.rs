@@ -502,7 +502,7 @@ mod tests {
         assert_eq!(*cb.state(), CircuitBreakerState::Closed);
 
         // Failures
-        let result2 = cb.call(|| Err(ConnectorError::NetworkError("test".to_string())));
+        let result2: Result<i32, ConnectorError> = cb.call(|| Err(ConnectorError::NetworkError("test".to_string())));
         assert!(result2.is_err());
 
         let result3 = cb.call(|| Err(ConnectorError::NetworkError("test".to_string())));
@@ -523,7 +523,7 @@ mod tests {
     fn test_connector_registry_with_circuit_breaker() {
         use crate::kafka::KafkaConnector;
 
-        let mut registry = ConnectorRegistry::new();
+        let registry = ConnectorRegistry::new();
         let connector = Box::new(KafkaConnector::new(
             "test_kafka".to_string(),
             "test.topic".to_string(),
