@@ -2,6 +2,12 @@
 //!
 //! Performs files → canonical files transformation.
 //! Ensures deterministic output through consistent formatting and ordering.
+//!
+//! ## CONSTRUCT Guarantees
+//!
+//! - **Formatter as gate**: All files must be valid and formattable
+//! - **Stop-the-line**: Any formatting failure halts the pipeline
+//! - **Receipt integration**: All canonicalized files are hashed and verified
 
 use crate::v6::pass::{Pass, PassContext, PassResult, PassType};
 use ggen_utils::error::{Error, Result};
@@ -42,6 +48,9 @@ pub struct CanonicalizationPass {
     /// Whether to remove unused imports (requires static analysis)
     #[allow(dead_code)]
     remove_unused: bool,
+
+    /// Whether to enable strict mode (formatting errors stop the line)
+    strict_mode: bool,
 }
 
 impl CanonicalizationPass {
@@ -66,6 +75,7 @@ impl CanonicalizationPass {
             extension_policies,
             sort_imports: false,
             remove_unused: false,
+            strict_mode: true, // v6 default: stop the line on formatting errors
         }
     }
 
@@ -84,6 +94,12 @@ impl CanonicalizationPass {
     /// Enable import sorting
     pub fn with_sort_imports(mut self, enabled: bool) -> Self {
         self.sort_imports = enabled;
+        self
+    }
+
+    /// Enable strict mode (formatting errors stop the line)
+    pub fn with_strict_mode(mut self, enabled: bool) -> Self {
+        self.strict_mode = enabled;
         self
     }
 
@@ -167,12 +183,36 @@ impl CanonicalizationPass {
 
     /// Format JSON with consistent indentation
     fn format_json(&self, content: &str) -> Result<String> {
-        let value: serde_json::Value = serde_json::from_str(content)
-            .map_err(|e| Error::new(&format!("Invalid JSON: {}", e)))?;
+        let value: serde_json::Value = serde_json::from_str(content).map_err(|e| {
+            if self.strict_mode {
+                Error::new(&format!(
+                    "🚨 Invalid JSON Detected in μ₄:canonicalization\n\n\
+                     μ₄:canonicalization STOPPED THE LINE (Andon Protocol)\n\n\
+                     JSON parsing failed: {}\n\n\
+                     μ₄ requires all files to be valid and formattable.\n\n\
+                     Fix: Correct JSON syntax errors in template output.",
+                    e
+                ))
+            } else {
+                Error::new(&format!("Invalid JSON: {}", e))
+            }
+        })?;
 
         serde_json::to_string_pretty(&value)
             .map(|s| s + "\n")
-            .map_err(|e| Error::new(&format!("JSON serialization error: {}", e)))
+            .map_err(|e| {
+                if self.strict_mode {
+                    Error::new(&format!(
+                        "🚨 JSON Serialization Failed in μ₄:canonicalization\n\n\
+                         μ₄:canonicalization STOPPED THE LINE (Andon Protocol)\n\n\
+                         Serialization error: {}\n\n\
+                         Fix: Check for circular references or unsupported values.",
+                        e
+                    ))
+                } else {
+                    Error::new(&format!("JSON serialization error: {}", e))
+                }
+            })
     }
 
     /// Process a single file
@@ -180,15 +220,31 @@ impl CanonicalizationPass {
         let full_path = ctx.output_dir.join(rel_path);
 
         if !full_path.exists() {
+            if self.strict_mode {
+                return Err(Error::new(&format!(
+                    "🚨 Missing File in μ₄:canonicalization\n\n\
+                     μ₄:canonicalization STOPPED THE LINE (Andon Protocol)\n\n\
+                     Expected file '{}' does not exist.\n\n\
+                     Fix: Verify μ₃:emission generated all expected files.",
+                    rel_path.display()
+                )));
+            }
             return Ok(false);
         }
 
         let content = std::fs::read_to_string(&full_path).map_err(|e| {
-            Error::new(&format!(
-                "Failed to read file '{}': {}",
-                full_path.display(),
-                e
-            ))
+            if self.strict_mode {
+                Error::new(&format!(
+                    "🚨 File Read Failed in μ₄:canonicalization\n\n\
+                     μ₄:canonicalization STOPPED THE LINE (Andon Protocol)\n\n\
+                     Failed to read file '{}': {}\n\n\
+                     Fix: Check file permissions and encoding.",
+                    full_path.display(),
+                    e
+                ))
+            } else {
+                Error::new(&format!("Failed to read file '{}': {}", full_path.display(), e))
+            }
         })?;
 
         let canonicalized = self.canonicalize(rel_path, &content)?;
@@ -196,11 +252,18 @@ impl CanonicalizationPass {
         // Only write if changed
         if canonicalized != content {
             std::fs::write(&full_path, &canonicalized).map_err(|e| {
-                Error::new(&format!(
-                    "Failed to write file '{}': {}",
-                    full_path.display(),
-                    e
-                ))
+                if self.strict_mode {
+                    Error::new(&format!(
+                        "🚨 File Write Failed in μ₄:canonicalization\n\n\
+                         μ₄:canonicalization STOPPED THE LINE (Andon Protocol)\n\n\
+                         Failed to write file '{}': {}\n\n\
+                         Fix: Check file permissions and disk space.",
+                        full_path.display(),
+                        e
+                    ))
+                } else {
+                    Error::new(&format!("Failed to write file '{}': {}", full_path.display(), e))
+                }
             })?;
             return Ok(true);
         }

@@ -15,7 +15,7 @@ mod normalization;
 mod receipt_gen;
 
 pub use canonicalization::CanonicalizationPass;
-pub use emission::EmissionPass;
-pub use extraction::ExtractionPass;
-pub use normalization::NormalizationPass;
+pub use emission::{EmissionPass, EmissionRule};
+pub use extraction::{ExtractionPass, ExtractionRule};
+pub use normalization::{NormalizationPass, NormalizationRule};
 pub use receipt_gen::ReceiptGenerationPass;

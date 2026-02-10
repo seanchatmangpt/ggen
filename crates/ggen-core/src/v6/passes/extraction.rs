@@ -2,6 +2,12 @@
 //!
 //! Performs ontology → bindings transformation using SELECT queries.
 //! Extracts template variables from the RDF graph.
+//!
+//! ## CONSTRUCT Guarantees
+//!
+//! - **SELECT-only verification**: All queries must be SELECT, not CONSTRUCT/ASK/DESCRIBE
+//! - **Stop-the-line**: Any CONSTRUCT query immediately halts the pipeline
+//! - **Receipt integration**: All extraction results are recorded in the receipt
 
 use crate::v6::pass::{Pass, PassContext, PassResult, PassType};
 use ggen_utils::error::{Error, Result};
@@ -47,6 +53,38 @@ impl ExtractionPass {
     pub fn with_rules(mut self, rules: Vec<ExtractionRule>) -> Self {
         self.rules = rules;
         self
+    }
+
+    /// Verify all queries are SELECT-only (CONSTRUCT gate)
+    fn verify_select_only_gate(&self) -> Result<()> {
+        for rule in &self.rules {
+            let query_upper = rule.query.to_uppercase();
+
+            // Check for forbidden query types
+            if query_upper.contains("CONSTRUCT") {
+                return Err(Error::new(&format!(
+                    "🚨 CONSTRUCT Detected in μ₂:extraction\n\n\
+                     μ₂:extraction STOPPED THE LINE (Andon Protocol)\n\n\
+                     Rule '{}' contains CONSTRUCT keyword.\n\n\
+                     μ₂ is SELECT-only. CONSTRUCT belongs in μ₁:normalization.\n\n\
+                     Fix: Move CONSTRUCT to μ₁ or rewrite as SELECT.",
+                    rule.name
+                )));
+            }
+
+            if query_upper.contains("INSERT") || query_upper.contains("DELETE") {
+                return Err(Error::new(&format!(
+                    "🚨 UPDATE Query Detected in μ₂:extraction\n\n\
+                     μ₂:extraction STOPPED THE LINE (Andon Protocol)\n\n\
+                     Rule '{}' contains INSERT/DELETE (SPARQL Update).\n\n\
+                     μ₂ is read-only SELECT-only. Graph updates belong in μ₁:normalization.\n\n\
+                     Fix: Move UPDATE to μ₁ or rewrite as SELECT.",
+                    rule.name
+                )));
+            }
+        }
+
+        Ok(())
     }
 
     /// Clean a SPARQL term for template use
@@ -96,7 +134,11 @@ impl ExtractionPass {
             }
             QueryResults::Boolean(b) => Ok(serde_json::Value::Bool(b)),
             QueryResults::Graph(_) => Err(Error::new(&format!(
-                "Extraction rule '{}' must use SELECT, not CONSTRUCT",
+                "🚨 CONSTRUCT Query Detected in μ₂:extraction\n\n\
+                 μ₂:extraction STOPPED THE LINE (Andon Protocol)\n\n\
+                 Rule '{}' used CONSTRUCT instead of SELECT.\n\n\
+                 μ₂ MUST use SELECT queries only. CONSTRUCT belongs in μ₁:normalization.\n\n\
+                 Fix: Move CONSTRUCT query to μ₁ or rewrite as SELECT.",
                 rule.name
             ))),
         }
@@ -120,6 +162,10 @@ impl Pass for ExtractionPass {
 
     fn execute(&self, ctx: &mut PassContext<'_>) -> Result<PassResult> {
         let start = Instant::now();
+
+        // GATE: Verify all queries are SELECT-only (no CONSTRUCT/UPDATE)
+        // Stop the line immediately if any forbidden query type detected
+        self.verify_select_only_gate()?;
 
         for rule in &self.rules {
             let value = self.execute_rule(ctx, rule)?;

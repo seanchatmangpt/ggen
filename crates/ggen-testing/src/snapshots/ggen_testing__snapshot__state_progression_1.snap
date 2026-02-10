@@ -1,0 +1,10 @@
+---
+source: crates/ggen-testing/src/snapshot.rs
+assertion_line: 71
+expression: state
+---
+{
+  "data": {
+    "first": "1"
+  }
+}

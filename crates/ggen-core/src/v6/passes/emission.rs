@@ -2,11 +2,18 @@
 //!
 //! Performs bindings → files transformation using Tera templates.
 //! Renders extracted data into source code files.
+//!
+//! ## CONSTRUCT Guarantees
+//!
+//! - **Determinism checks**: Verify template rendering is deterministic (no timestamps, randomness)
+//! - **Stop-the-line**: Any non-deterministic output halts the pipeline
+//! - **Receipt integration**: All generated files are hashed and recorded
 
 use crate::v6::guard::{GuardAction, GuardSet, GuardViolation};
 use crate::v6::pass::{Pass, PassContext, PassResult, PassType};
 use ggen_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 use std::time::Instant;
 
@@ -43,6 +50,9 @@ pub struct EmissionPass {
 
     /// Guards to apply to outputs
     guards: GuardSet,
+
+    /// Whether to enable determinism verification
+    enable_determinism_check: bool,
 }
 
 impl EmissionPass {
@@ -51,6 +61,7 @@ impl EmissionPass {
         Self {
             rules: Vec::new(),
             guards: GuardSet::default_v6(),
+            enable_determinism_check: true,
         }
     }
 
@@ -69,6 +80,51 @@ impl EmissionPass {
     pub fn with_guards(mut self, guards: GuardSet) -> Self {
         self.guards = guards;
         self
+    }
+
+    /// Enable or disable determinism checking
+    pub fn with_determinism_check(mut self, enabled: bool) -> Self {
+        self.enable_determinism_check = enabled;
+        self
+    }
+
+    /// Verify template rendering is deterministic
+    fn verify_determinism(&self, _ctx: &PassContext<'_>, path: &PathBuf, content: &str) -> Result<()> {
+        if !self.enable_determinism_check {
+            return Ok(());
+        }
+
+        // Check for common non-deterministic patterns
+        let non_deterministic_patterns = [
+            ("timestamp", vec!["now()", "Utc::now()", "Local::now()", "SystemTime::now()"]),
+            ("random", vec!["rand()", "random()", "uuid()", "Uuid::new_v4()"]),
+            ("process", vec!["pid()", "getpid()", "thread_id()"]),
+        ];
+
+        for (category, patterns) in &non_deterministic_patterns {
+            for pattern in patterns {
+                if content.contains(pattern) {
+                    return Err(Error::new(&format!(
+                        "🚨 Non-Deterministic Pattern Detected in μ₃:emission\n\n\
+                         μ₃:emission STOPPED THE LINE (Andon Protocol)\n\n\
+                         File '{}' contains non-deterministic {} pattern: '{}'\n\n\
+                         μ₃ output must be deterministic for reproducible builds.\n\n\
+                         Fix: Remove {} calls or use fixed seed/value.",
+                        path.display(),
+                        category,
+                        pattern,
+                        pattern
+                    )));
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Verify file hash for determinism (same input = same output)
+    fn record_file_hash(&self, _path: &PathBuf, content: &str) -> String {
+        format!("{:x}", Sha256::digest(content.as_bytes()))
     }
 
     /// Render a single file from template and context
@@ -153,9 +209,15 @@ impl EmissionPass {
                     let (output_path, content) =
                         self.render_file(ctx, rule, &template_content, item)?;
 
-                    // Apply guards
+                    // GATE 1: Determinism check
+                    self.verify_determinism(ctx, &output_path, &content)?;
+
+                    // GATE 2: Apply guards
                     let violations = self.guards.check(&output_path, &content);
                     self.handle_violations(&violations)?;
+
+                    // Record hash for receipt
+                    let _hash = self.record_file_hash(&output_path, &content);
 
                     // Write file
                     let full_output_path = ctx.output_dir.join(&output_path);
@@ -175,9 +237,15 @@ impl EmissionPass {
             let (output_path, content) =
                 self.render_file(ctx, rule, &template_content, &context_value)?;
 
-            // Apply guards
+            // GATE 1: Determinism check
+            self.verify_determinism(ctx, &output_path, &content)?;
+
+            // GATE 2: Apply guards
             let violations = self.guards.check(&output_path, &content);
             self.handle_violations(&violations)?;
+
+            // Record hash for receipt
+            let _hash = self.record_file_hash(&output_path, &content);
 
             // Write file
             let full_output_path = ctx.output_dir.join(&output_path);

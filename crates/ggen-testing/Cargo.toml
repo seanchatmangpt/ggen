@@ -1,0 +1,35 @@
+[package]
+name = "ggen-testing"
+version = "0.2.0"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+license = "MIT"
+description = "Chicago TDD test infrastructure for ggen - state-based verification with real collaborators"
+repository = "https://github.com/seanchatmangpt/ggen"
+keywords = ["testing", "tdd", "chicago", "state-verification"]
+categories = ["development-tools::testing"]
+
+[dependencies]
+# Test frameworks
+proptest = { workspace = true }
+insta = { version = "1.43", features = ["json", "yaml"] }
+criterion = { version = "0.7", features = ["html_reports"] }
+
+# Core dependencies
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+chrono = { workspace = true }
+
+# Utilities
+tempfile = { workspace = true }
+uuid = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util"] }
+
+[lib]
+name = "ggen_testing"
+path = "src/lib.rs"
