@@ -1,0 +1,16 @@
+[package]
+name = "ggen-backpressure"
+version = "6.0.0"
+edition = "2021"
+authors = ["ggen contributors"]
+description = "Backpressure and admission control (λ ≤ μ) for ggen"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+tokio = { version = "1.45.0", features = ["sync", "time", "macros", "rt"] }
+async-trait = "0.1.83"
+thiserror = "2.0.10"
+
+[dev-dependencies]
+tokio = { version = "1.45.0", features = ["full", "test-util"] }
+futures = "0.3"
