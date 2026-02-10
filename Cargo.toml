@@ -58,6 +58,7 @@ members = [
   "crates/tai-testing",        # Production hardening & resilience testing framework
   "crates/tai-k8s",            # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
   "crates/tai-validation",     # SLO/SLA validation, compliance framework, security scanning
+  "crates/specification-mcp-server", # MCP server for specification validation and rendering
   "playground",
 ]
 exclude = [
@@ -160,6 +161,9 @@ ggen-tps-andon = { path = "crates/ggen-tps-andon", version = "0.1.0" }
 
 # TAI Testing: Production hardening & resilience testing framework
 tai-testing = { path = "crates/tai-testing", version = "0.1.0" }
+
+# Specification MCP Server: MCP tools for specification validation and rendering
+specification-mcp-server = { path = "crates/specification-mcp-server", version = "0.1.0" }
 
 # TPS (Toyota Production System) Kaizen implementation (continuous improvement)
 tps-kaizen = { path = "crates/tps-kaizen", version = "0.1.0" }

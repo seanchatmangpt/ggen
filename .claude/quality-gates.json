@@ -1,0 +1,58 @@
+{
+  "version": "1.0.0",
+  "description": "Quality gates for ggen v6.0.0 - Definition of Done validation",
+  "gates": [
+    {
+      "name": "timeout-check",
+      "command": "cargo make timeout-check",
+      "timeout_seconds": 5,
+      "signal": "🔴 CRITICAL",
+      "critical": true,
+      "description": "Verify timeout configuration exists and is valid"
+    },
+    {
+      "name": "check",
+      "command": "cargo make check",
+      "timeout_seconds": 5,
+      "signal": "🔴 CRITICAL",
+      "critical": true,
+      "description": "Compilation check - no compiler errors"
+    },
+    {
+      "name": "test",
+      "command": "cargo make test",
+      "timeout_seconds": 30,
+      "signal": "🔴 CRITICAL",
+      "critical": true,
+      "description": "Full test suite (unit + integration + property) - all tests pass"
+    },
+    {
+      "name": "lint",
+      "command": "cargo make lint",
+      "timeout_seconds": 60,
+      "signal": "🟡 HIGH",
+      "critical": false,
+      "description": "Clippy + rustfmt - no warnings or style issues"
+    },
+    {
+      "name": "slo-check",
+      "command": "cargo make slo-check",
+      "timeout_seconds": 30,
+      "signal": "🟡 HIGH",
+      "critical": false,
+      "description": "Performance SLOs validation - build times and resource limits"
+    }
+  ],
+  "definition_of_done": [
+    "timeout-check ✅",
+    "check ✅",
+    "test ✅",
+    "lint ✅",
+    "slo-check ✅"
+  ],
+  "andon_protocol": {
+    "critical_gates": ["timeout-check", "check", "test"],
+    "halt_on_critical": true,
+    "action_on_signal": "STOP THE LINE - Fix root cause immediately"
+  }
+}
