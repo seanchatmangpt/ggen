@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [`ggen mcp` Command Reference](#ggen-mcp-command-reference)
+  - [Command Overview](#command-overview)
+  - [Configuration Commands](#configuration-commands)
+    - [`ggen mcp config init`](#ggen-mcp-config-init)
+    - [`ggen mcp config validate`](#ggen-mcp-config-validate)
+    - [`ggen mcp config show`](#ggen-mcp-config-show)
+  - [Server Commands](#server-commands)
+    - [`ggen mcp server start`](#ggen-mcp-server-start)
+    - [`ggen mcp server stop`](#ggen-mcp-server-stop)
+    - [`ggen mcp server status`](#ggen-mcp-server-status)
+  - [Tool Commands](#tool-commands)
+    - [`ggen mcp list`](#ggen-mcp-list)
+    - [`ggen mcp bridge`](#ggen-mcp-bridge)
+    - [`ggen mcp status`](#ggen-mcp-status)
+    - [`ggen mcp schemas`](#ggen-mcp-schemas)
+    - [`ggen mcp test`](#ggen-mcp-test)
+  - [Environment Variables](#environment-variables)
+  - [Configuration Priority](#configuration-priority)
+  - [Common Workflows](#common-workflows)
+    - [Initial Setup](#initial-setup)
+    - [Agent Bridging Workflow](#agent-bridging-workflow)
+    - [Troubleshooting Workflow](#troubleshooting-workflow)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # `ggen mcp` Command Reference
 
 Complete reference for all MCP (Model Context Protocol) commands in ggen.

@@ -1,5 +1,5 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RERUN doctoc TO UPDATE -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
 - [MCP & A2A Troubleshooting Reference](#mcp--a2a-troubleshooting-reference)
@@ -54,8 +54,9 @@
     - [Registration Errors](#registration-errors)
     - [Configuration Errors](#configuration-errors)
     - [CLI Exit Codes](#cli-exit-codes)
+  - [Next Steps](#next-steps)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # MCP & A2A Troubleshooting Reference
 

@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Actionable Recommendations - Claude Code Best Practices for ggen](#actionable-recommendations---claude-code-best-practices-for-ggen)
+  - [Immediate Actions (Week 1)](#immediate-actions-week-1)
+    - [1. Enable Agent Teams (30 minutes)](#1-enable-agent-teams-30-minutes)
+    - [2. Add Async Hooks for Automated Quality Checks (1 hour)](#2-add-async-hooks-for-automated-quality-checks-1-hour)
+    - [3. Create Persistent rust-reviewer Subagent (45 minutes)](#3-create-persistent-rust-reviewer-subagent-45-minutes)
+  - [Medium-Term Actions (Week 2-4)](#medium-term-actions-week-2-4)
+    - [4. Implement MCP Specification Server (8 hours)](#4-implement-mcp-specification-server-8-hours)
+    - [5. Setup Phased Workflow State Persistence (4 hours)](#5-setup-phased-workflow-state-persistence-4-hours)
+    - [6. Configure Quality Gate Validation Hooks (3 hours)](#6-configure-quality-gate-validation-hooks-3-hours)
+  - [Advanced Actions (Week 5+)](#advanced-actions-week-5)
+    - [7. CI/CD Integration with GitHub Actions (4 hours)](#7-cicd-integration-with-github-actions-4-hours)
+    - [8. Monitoring with Prometheus Metrics (6 hours)](#8-monitoring-with-prometheus-metrics-6-hours)
+  - [Summary of Expected Outcomes](#summary-of-expected-outcomes)
+    - [Week 1 Results](#week-1-results)
+    - [Week 2-4 Results](#week-2-4-results)
+    - [Week 5+ Results](#week-5-results)
+  - [Validation Checklist](#validation-checklist)
+  - [Cost-Benefit Analysis](#cost-benefit-analysis)
+  - [Support](#support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Actionable Recommendations - Claude Code Best Practices for ggen
 
 **Date**: 2026-02-08

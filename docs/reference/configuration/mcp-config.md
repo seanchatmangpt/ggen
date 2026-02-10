@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MCP Configuration Reference](#mcp-configuration-reference)
+  - [Configuration Overview](#configuration-overview)
+    - [Configuration Priority](#configuration-priority)
+  - [Configuration File Schema](#configuration-file-schema)
+    - [Root Structure](#root-structure)
+    - [Root Properties](#root-properties)
+  - [Server Configuration](#server-configuration)
+    - [ServerConfig Schema](#serverconfig-schema)
+    - [Server Properties](#server-properties)
+  - [Metadata Schema](#metadata-schema)
+    - [Metadata Properties](#metadata-properties)
+  - [Complete Example](#complete-example)
+  - [Environment Variable Configuration](#environment-variable-configuration)
+    - [Variable Format](#variable-format)
+    - [Supported Properties](#supported-properties)
+    - [Environment Configuration Example](#environment-configuration-example)
+  - [Validation Rules](#validation-rules)
+    - [Server Validation](#server-validation)
+    - [Dangerous Command Detection](#dangerous-command-detection)
+  - [Default Values](#default-values)
+    - [Default Server Configuration](#default-server-configuration)
+    - [Default Root Configuration](#default-root-configuration)
+  - [File Locations](#file-locations)
+    - [PID and Lock Files](#pid-and-lock-files)
+  - [Common Server Examples](#common-server-examples)
+    - [Claude Code Guide](#claude-code-guide)
+    - [Git Server](#git-server)
+    - [Bash Server](#bash-server)
+    - [Filesystem Server](#filesystem-server)
+    - [SSH Remote Server](#ssh-remote-server)
+    - [Python Server](#python-server)
+  - [Configuration Validation](#configuration-validation)
+    - [Validate with CLI](#validate-with-cli)
+    - [Programmatic Validation](#programmatic-validation)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MCP Configuration Reference
 
 Complete reference for MCP (Model Context Protocol) configuration files.

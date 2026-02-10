@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Integration Patterns for New Components](#integration-patterns-for-new-components)
+  - [Overview](#overview)
+  - [Integration Architecture](#integration-architecture)
+    - [System Integration Overview](#system-integration-overview)
+    - [Component Interaction Flow](#component-interaction-flow)
+  - [Data Flow Patterns](#data-flow-patterns)
+    - [Event-Driven Architecture](#event-driven-architecture)
+    - [Pipeline Integration Pattern](#pipeline-integration-pattern)
+  - [Five-Stage Pipeline Integration](#five-stage-pipeline-integration)
+    - [μ₁ (Normalize) Stage Integration](#%CE%BC%E2%82%81-normalize-stage-integration)
+    - [μ₂ (Extract) Stage Integration](#%CE%BC%E2%82%82-extract-stage-integration)
+    - [μ₃ (Emit) Stage Integration](#%CE%BC%E2%82%83-emit-stage-integration)
+    - [μ₄ (Canonicalize) Stage Integration](#%CE%BC%E2%82%84-canonicalize-stage-integration)
+    - [μ₅ (Receipt) Stage Integration](#%CE%BC%E2%82%85-receipt-stage-integration)
+  - [Error Handling Patterns](#error-handling-patterns)
+    - [Unified Error Handling](#unified-error-handling)
+    - [Circuit Breaker Pattern](#circuit-breaker-pattern)
+  - [Performance Patterns](#performance-patterns)
+    - [Hot Path Optimization](#hot-path-optimization)
+    - [Load Balancing Pattern](#load-balancing-pattern)
+  - [Security Patterns](#security-patterns)
+    - [Zero-Trust Security Model](#zero-trust-security-model)
+  - [Implementation Examples](#implementation-examples)
+    - [End-to-End Workflow Example](#end-to-end-workflow-example)
+    - [Event-Driven Example](#event-driven-example)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Integration Patterns for New Components
 
 ## Overview

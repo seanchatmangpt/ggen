@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Erlang Release Process](#erlang-release-process)
+  - [Table of Contents](#table-of-contents)
+  - [Release Workflow](#release-workflow)
+    - [Automatic CI/CD Pipeline](#automatic-cicd-pipeline)
+  - [Versioning Strategy](#versioning-strategy)
+    - [Semantic Versioning](#semantic-versioning)
+    - [Examples](#examples)
+  - [Creating a Release](#creating-a-release)
+    - [Step 1: Prepare the Release](#step-1-prepare-the-release)
+    - [Step 2: Tag the Release](#step-2-tag-the-release)
+    - [Step 3: Monitor CI/CD Pipeline](#step-3-monitor-cicd-pipeline)
+    - [Step 4: Verify Release](#step-4-verify-release)
+  - [Verification Steps](#verification-steps)
+    - [Pre-Release Verification](#pre-release-verification)
+    - [Post-Release Verification](#post-release-verification)
+  - [Artifact Management](#artifact-management)
+    - [Artifact Naming Convention](#artifact-naming-convention)
+    - [Artifact Retention](#artifact-retention)
+    - [Artifact Contents](#artifact-contents)
+  - [Release Receipt](#release-receipt)
+  - [Rollback Procedures](#rollback-procedures)
+    - [If Release Has Issues](#if-release-has-issues)
+      - [Option 1: Delete the GitHub Release (Recommended for Critical Issues)](#option-1-delete-the-github-release-recommended-for-critical-issues)
+      - [Option 2: Mark as Pre-Release (For Minor Issues)](#option-2-mark-as-pre-release-for-minor-issues)
+      - [Option 3: Create a Patch Release (For Bug Fixes)](#option-3-create-a-patch-release-for-bug-fixes)
+    - [Rollback in Production](#rollback-in-production)
+  - [Troubleshooting](#troubleshooting)
+    - [Build Failures](#build-failures)
+    - [Test Failures](#test-failures)
+    - [Docker Push Failures](#docker-push-failures)
+    - [Checksum Verification Fails](#checksum-verification-fails)
+  - [Branch Protection Rules](#branch-protection-rules)
+  - [FAQ](#faq)
+  - [Contact & Support](#contact--support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Erlang Release Process
 
 This document describes the release process for Erlang components (TPS Jidoka, TAI Erlang Autonomics) in the ggen project using GitHub Actions CI/CD.

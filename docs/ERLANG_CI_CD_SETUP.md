@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Erlang CI/CD Pipeline Setup Guide](#erlang-cicd-pipeline-setup-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Quick Start](#quick-start)
+    - [Minimal Setup (5 minutes)](#minimal-setup-5-minutes)
+    - [Verify Setup](#verify-setup)
+  - [Workflow Architecture](#workflow-architecture)
+    - [Erlang CI Workflow (`erlang-ci.yml`)](#erlang-ci-workflow-erlang-ciyml)
+    - [Erlang Release Workflow (`erlang-release.yml`)](#erlang-release-workflow-erlang-releaseyml)
+  - [Configuration Details](#configuration-details)
+    - [Environment Variables](#environment-variables)
+    - [Caching Strategy](#caching-strategy)
+    - [Matrix Strategy](#matrix-strategy)
+    - [Timeout Configuration](#timeout-configuration)
+    - [Concurrency Control](#concurrency-control)
+    - [Artifact Retention](#artifact-retention)
+  - [Local Testing](#local-testing)
+    - [Test CI Workflow Locally](#test-ci-workflow-locally)
+    - [Simulate Specific Scenarios](#simulate-specific-scenarios)
+    - [Manual Testing](#manual-testing)
+  - [Troubleshooting](#troubleshooting)
+    - [Build Fails with "rebar3 not found"](#build-fails-with-rebar3-not-found)
+    - [Cache Not Working](#cache-not-working)
+    - [Tests Pass Locally but Fail in CI](#tests-pass-locally-but-fail-in-ci)
+    - [OTP Version Compatibility](#otp-version-compatibility)
+    - [Docker Push Fails](#docker-push-fails)
+    - [Artifact Upload Fails](#artifact-upload-fails)
+  - [Performance Optimization](#performance-optimization)
+    - [Current Performance](#current-performance)
+    - [Optimization Tips](#optimization-tips)
+    - [Monitoring Performance](#monitoring-performance)
+    - [SLO Targets](#slo-targets)
+  - [Advanced Configuration](#advanced-configuration)
+    - [Custom Slack Notifications](#custom-slack-notifications)
+    - [Custom Email Notifications](#custom-email-notifications)
+    - [GitHub Pages Deployment](#github-pages-deployment)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Erlang CI/CD Pipeline Setup Guide
 
 This guide provides complete setup instructions for the GitHub Actions CI/CD pipeline for Erlang components in the ggen project.

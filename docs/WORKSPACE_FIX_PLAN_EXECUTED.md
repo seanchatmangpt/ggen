@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Workspace Error Fix Plan - Executed Summary](#workspace-error-fix-plan---executed-summary)
+  - [Executive Summary](#executive-summary)
+    - [Fixes Applied](#fixes-applied)
+  - [Critical Fixes (Blocking Errors)](#critical-fixes-blocking-errors)
+    - [1. ggen-core (2 errors) - FIXED](#1-ggen-core-2-errors---fixed)
+      - [Error 1: Missing Path import](#error-1-missing-path-import)
+      - [Error 2: Recursive Default implementation](#error-2-recursive-default-implementation)
+    - [2. knhk-otel (4 errors) - FIXED](#2-knhk-otel-4-errors---fixed)
+      - [Fixes Applied:](#fixes-applied-1)
+    - [3. ggen-folk-strategy (1 error) - FIXED](#3-ggen-folk-strategy-1-error---fixed)
+  - [Warning Fixes (Non-Blocking But Cleaned Up)](#warning-fixes-non-blocking-but-cleaned-up)
+    - [ggen-auth (2 warnings)](#ggen-auth-2-warnings)
+    - [ggen-e2e (4 warnings)](#ggen-e2e-4-warnings)
+    - [ggen-payments (7 warnings)](#ggen-payments-7-warnings)
+    - [knhk-etl (5 warnings)](#knhk-etl-5-warnings)
+    - [knhk-connectors (1 warning)](#knhk-connectors-1-warning)
+  - [Remaining Warnings (Non-Blocking)](#remaining-warnings-non-blocking)
+    - [knhk-etl (4 warnings - dead code)](#knhk-etl-4-warnings---dead-code)
+  - [Verification](#verification)
+  - [Files Modified](#files-modified)
+  - [Next Steps](#next-steps)
+  - [Agent Allocation Summary](#agent-allocation-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Workspace Error Fix Plan - Executed Summary
 
 **Date**: 2026-02-08

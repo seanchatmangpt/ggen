@@ -1,5 +1,5 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doCTOC TO UPDATE -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
 - [How to Monitor Agent Health and Metrics](#how-to-monitor-agent-health-and-metrics)
@@ -7,17 +7,32 @@
   - [Health Checks](#health-checks)
   - [Real-time Metrics](#real-time-metrics)
   - [Performance Monitoring](#performance-monitoring)
+    - [Request Latency](#request-latency)
+    - [Throughput](#throughput)
+    - [Error Tracking](#error-tracking)
   - [Resource Monitoring](#resource-monitoring)
+    - [CPU Usage](#cpu-usage)
+    - [Memory Usage](#memory-usage)
+    - [Network I/O](#network-io)
   - [Log Monitoring](#log-monitoring)
+    - [Viewing Logs](#viewing-logs)
+    - [Filtering Logs](#filtering-logs)
+    - [Log Analytics](#log-analytics)
   - [Alerting](#alerting)
+    - [Setting Up Alerts](#setting-up-alerts)
+    - [Alert Channels](#alert-channels)
+    - [Alert Rules](#alert-rules)
   - [Dashboards](#dashboards)
+    - [Built-in Dashboard](#built-in-dashboard)
+    - [Metrics Export](#metrics-export)
+    - [Integrations](#integrations)
   - [Troubleshooting](#troubleshooting)
     - [Agent Not Reporting](#agent-not-reporting)
     - [Incorrect Metrics](#incorrect-metrics)
     - [Alerts Not Firing](#alerts-not-firing)
   - [Next Steps](#next-steps)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # How to Monitor Agent Health and Metrics
 

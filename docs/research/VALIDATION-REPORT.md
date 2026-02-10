@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Validation Report: Claude Code Best Practices vs ggen Codebase](#validation-report-claude-code-best-practices-vs-ggen-codebase)
+  - [Executive Summary](#executive-summary)
+  - [1. Current Implementation Analysis](#1-current-implementation-analysis)
+    - [✅ Excellently Implemented Patterns](#-excellently-implemented-patterns)
+      - [1.1 Agent System (48 Agents!)](#11-agent-system-48-agents)
+      - [1.2 Hook System](#12-hook-system)
+      - [1.3 MCP Server Configuration](#13-mcp-server-configuration)
+      - [1.4 Quality Gates & Andon Protocol](#14-quality-gates--andon-protocol)
+      - [1.5 Chicago TDD Configuration](#15-chicago-tdd-configuration)
+      - [1.6 Phased Workflow Pattern](#16-phased-workflow-pattern)
+  - [2. Quick Wins (Week 1 Implementation)](#2-quick-wins-week-1-implementation)
+    - [2.1 Enable Agent Teams ⚡](#21-enable-agent-teams-)
+    - [2.2 Add Async Hooks ⚡](#22-add-async-hooks-)
+    - [2.3 Add Persistent Memory to rust-reviewer Agent ⚡](#23-add-persistent-memory-to-rust-reviewer-agent-)
+  - [3. Medium-Term Enhancements (Week 2-4)](#3-medium-term-enhancements-week-2-4)
+    - [3.1 Implement Specification MCP Server 🚀](#31-implement-specification-mcp-server-)
+    - [3.2 Setup Workflow State Persistence 🚀](#32-setup-workflow-state-persistence-)
+    - [3.3 Quality Gate Enforcement Hook 🚀](#33-quality-gate-enforcement-hook-)
+  - [4. Advanced Features (Week 5+)](#4-advanced-features-week-5)
+    - [4.1 CI/CD Integration 📋](#41-cicd-integration-)
+    - [4.2 Monitoring & Observability 📋](#42-monitoring--observability-)
+  - [5. Alignment with Best Practices Research](#5-alignment-with-best-practices-research)
+    - [Perfectly Aligned Patterns ✅](#perfectly-aligned-patterns-)
+    - [Opportunities for Enhancement ⚡](#opportunities-for-enhancement-)
+  - [6. Risk Assessment](#6-risk-assessment)
+    - [Low Risk Enhancements ✅](#low-risk-enhancements-)
+    - [Medium Risk Enhancements ⚠️](#medium-risk-enhancements-)
+    - [Managed Risk Enhancements 🔒](#managed-risk-enhancements-)
+  - [7. Token Budget Impact Analysis](#7-token-budget-impact-analysis)
+    - [Current Token Usage (Estimated)](#current-token-usage-estimated)
+    - [With Recommended Enhancements](#with-recommended-enhancements)
+    - [Optimization Strategy](#optimization-strategy)
+  - [8. Recommendations Summary](#8-recommendations-summary)
+    - [Week 1 (Immediate - 2 hours total)](#week-1-immediate---2-hours-total)
+    - [Week 2-4 (Medium-term - 15 hours total)](#week-2-4-medium-term---15-hours-total)
+    - [Week 5+ (Advanced - 10+ hours)](#week-5-advanced---10-hours)
+  - [9. Validation Checklist](#9-validation-checklist)
+  - [10. Conclusion](#10-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Validation Report: Claude Code Best Practices vs ggen Codebase
 
 **Date**: 2026-02-08
