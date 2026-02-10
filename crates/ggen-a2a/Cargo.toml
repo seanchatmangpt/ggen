@@ -17,3 +17,4 @@ uuid = { version = "1.11", features = ["v4", "serde"] }
 
 [dev-dependencies]
 tokio-test = "0.4"
+proptest = { workspace = true }
