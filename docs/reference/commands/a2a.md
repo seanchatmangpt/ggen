@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [`ggen a2a` Command Reference](#ggen-a2a-command-reference)
+  - [Command Overview](#command-overview)
+  - [Agent Commands](#agent-commands)
+    - [`ggen a2a list`](#ggen-a2a-list)
+    - [`ggen a2a start`](#ggen-a2a-start)
+    - [`ggen a2a stop`](#ggen-a2a-stop)
+    - [`ggen a2a status`](#ggen-a2a-status)
+  - [Message Commands](#message-commands)
+    - [`ggen a2a message send`](#ggen-a2a-message-send)
+    - [`ggen a2a message list`](#ggen-a2a-message-list)
+  - [Configuration](#configuration)
+    - [Configuration Files](#configuration-files)
+    - [Environment Variables](#environment-variables)
+  - [Common Workflows](#common-workflows)
+    - [Agent Lifecycle Management](#agent-lifecycle-management)
+    - [Multi-Agent Coordination](#multi-agent-coordination)
+    - [Troubleshooting](#troubleshooting)
+    - [MCP Integration](#mcp-integration)
+  - [Error Handling](#error-handling)
+    - [Common Exit Codes](#common-exit-codes)
+    - [Error Messages](#error-messages)
+  - [Type Definitions](#type-definitions)
+    - [AgentStatus](#agentstatus)
+    - [MessageDeliveryStatus](#messagedeliverystatus)
+    - [MessageDirection](#messagedirection)
+    - [AgentMetrics](#agentmetrics)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # `ggen a2a` Command Reference
 
 Complete reference for all A2A (Agent-to-Agent) protocol commands in ggen.

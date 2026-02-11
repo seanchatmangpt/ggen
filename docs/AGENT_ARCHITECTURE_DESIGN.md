@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-agent Architecture Design](#ggen-agent-architecture-design)
+  - [Overview](#overview)
+  - [Core Architecture](#core-architecture)
+    - [System Components](#system-components)
+    - [A2A Protocol Integration](#a2a-protocol-integration)
+    - [Type-Level Agent State Machine](#type-level-agent-state-machine)
+    - [Workflow Integration](#workflow-integration)
+    - [Event Bus System](#event-bus-system)
+    - [Security Framework](#security-framework)
+    - [Observability and Monitoring](#observability-and-monitoring)
+    - [Integration with Five-Stage Pipeline](#integration-with-five-stage-pipeline)
+      - [μ₁ (Normalize) Stage Integration](#%CE%BC%E2%82%81-normalize-stage-integration)
+      - [μ₂ (Extract) Stage Integration](#%CE%BC%E2%82%82-extract-stage-integration)
+      - [μ₃ (Emit) Stage Integration](#%CE%BC%E2%82%83-emit-stage-integration)
+      - [μ₄ (Canonicalize) Stage Integration](#%CE%BC%E2%82%84-canonicalize-stage-integration)
+      - [μ₅ (Receipt) Stage Integration](#%CE%BC%E2%82%85-receipt-stage-integration)
+    - [Error Handling](#error-handling)
+    - [Performance Optimizations](#performance-optimizations)
+    - [Usage Examples](#usage-examples)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-agent Architecture Design
 
 ## Overview

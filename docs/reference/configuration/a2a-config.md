@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [A2A Configuration Reference](#a2a-configuration-reference)
+  - [Configuration Overview](#configuration-overview)
+    - [Configuration Priority](#configuration-priority)
+  - [Configuration File Schema](#configuration-file-schema)
+    - [Root Structure](#root-structure)
+  - [Server Configuration](#server-configuration)
+    - [`[server]` Section](#server-section)
+    - [Example](#example)
+    - [TLS Configuration](#tls-configuration)
+  - [Agent Configuration](#agent-configuration)
+    - [`[agents.<name>]` Section](#agentsname-section)
+    - [Agent Types](#agent-types)
+    - [Example](#example-1)
+  - [Workflow Configuration](#workflow-configuration)
+    - [`[workflows.<name>]` Section](#workflowsname-section)
+    - [Example](#example-2)
+  - [Metadata Configuration](#metadata-configuration)
+    - [`[metadata]` Section](#metadata-section)
+    - [Example](#example-3)
+  - [Complete Example](#complete-example)
+  - [Environment Variable Configuration](#environment-variable-configuration)
+    - [Variable Format](#variable-format)
+    - [Supported Properties](#supported-properties)
+    - [Environment Configuration Example](#environment-configuration-example)
+  - [Validation Rules](#validation-rules)
+    - [Server Validation](#server-validation)
+  - [Default Values](#default-values)
+    - [Default Server Configuration](#default-server-configuration)
+    - [Default Metadata](#default-metadata)
+  - [File Locations](#file-locations)
+  - [Common Configuration Patterns](#common-configuration-patterns)
+    - [Development Environment](#development-environment)
+    - [Production Environment](#production-environment)
+    - [Testing Environment](#testing-environment)
+    - [Multi-Agent Setup](#multi-agent-setup)
+  - [Configuration Validation](#configuration-validation)
+    - [Validate with CLI](#validate-with-cli)
+    - [Programmatic Validation](#programmatic-validation)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # A2A Configuration Reference
 
 Complete reference for A2A (Agent-to-Agent) configuration files.

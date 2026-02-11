@@ -1,0 +1,32 @@
+{
+  "timestamp": "20260210_021024",
+  "summary": {
+    "total_gates": 1,
+    "passed": 0,
+    "failed": 1,
+    "pass_rate": 0
+  },
+  "gates": [
+    {
+      "name": "timeout-check",
+      "status": "FAIL",
+      "signal": "🔴 CRITICAL",
+      "description": "Verify timeout configuration exists and is valid",
+      "command": "cargo make timeout-check",
+      "critical": true,
+      "exit_code": 101,
+      "duration_seconds": 0,
+      "output_snippet": "\u001b[1m\u001b[91merror\u001b[0m: no such command: `make`\n\nhelp: a command with a similar name exists: `add`\n\nhelp: view all installed commands with `cargo --list`\nhelp: find a package to install `make` with `cargo search cargo-make`",
+      "timestamp": 1770689424
+    }
+  ],
+  "decision": {
+    "action": "HALT",
+    "continue_allowed": false,
+    "halt_reason": "Andon protocol triggered: critical gate failure"
+  },
+  "andon_protocol": {
+    "active": true,
+    "critical_gates_failed": "true"
+  }
+}

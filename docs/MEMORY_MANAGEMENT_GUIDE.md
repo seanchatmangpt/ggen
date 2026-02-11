@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen v7 Memory Management Guide](#ggen-v7-memory-management-guide)
+  - [1. Memory Management Philosophy](#1-memory-management-philosophy)
+    - [1.1 Core Principles](#11-core-principles)
+  - [2. Memory Architecture Overview](#2-memory-architecture-overview)
+  - [3. Key Data Structures](#3-key-data-structures)
+    - [3.1 Shared State with Arc<Mutex<T>>](#31-shared-state-with-arcmutext)
+    - [3.2 Zero-Copy String Interning](#32-zero-copy-string-interning)
+    - [3.3 Memory Pool for Frequent Allocations](#33-memory-pool-for-frequent-allocations)
+  - [4. Lifecycle Management](#4-lifecycle-management)
+    - [4.1 Resource Tracking](#41-resource-tracking)
+    - [4.2 Memory Pressure Detection](#42-memory-pressure-detection)
+  - [5. Performance Optimization Patterns](#5-performance-optimization-patterns)
+    - [5.1 Batch Processing](#51-batch-processing)
+    - [5.2 Lazy Loading](#52-lazy-loading)
+  - [6. Error Handling and Recovery](#6-error-handling-and-recovery)
+    - [6.1 Memory Exhaustion Handling](#61-memory-exhaustion-handling)
+  - [7. Testing Memory Management](#7-testing-memory-management)
+    - [7.1 Memory Usage Tests](#71-memory-usage-tests)
+    - [7.2 Memory Leak Detection](#72-memory-leak-detection)
+  - [8. Monitoring and Profiling](#8-monitoring-and-profiling)
+    - [8.1 Memory Metrics](#81-memory-metrics)
+  - [9. Best Practices](#9-best-practices)
+    - [9.1 Memory Management Guidelines](#91-memory-management-guidelines)
+    - [9.2 Performance Optimization Tips](#92-performance-optimization-tips)
+  - [10. Conclusion](#10-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen v7 Memory Management Guide
 
 ## 1. Memory Management Philosophy

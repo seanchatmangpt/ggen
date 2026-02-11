@@ -9,16 +9,26 @@
   - [Step 1: Basic Server Structure](#step-1-basic-server-structure)
   - [Step 2: Implementing Tools](#step-2-implementing-tools)
   - [Step 3: Transport Layer](#step-3-transport-layer)
+    - [Stdio Transport (Already Implemented)](#stdio-transport-already-implemented)
+    - [HTTP Transport](#http-transport)
+    - [SSE Transport (Server-Sent Events)](#sse-transport-server-sent-events)
   - [Step 4: Advanced Features](#step-4-advanced-features)
+    - [Resources (Data Access)](#resources-data-access)
+    - [Prompts (Template Generation)](#prompts-template-generation)
   - [Step 5: Testing](#step-5-testing)
   - [Complete Example](#complete-example)
   - [Running the Example](#running-the-example)
   - [Testing Your Server](#testing-your-server)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
   - [Common Patterns](#common-patterns)
+    - [Pattern 1: Request Validation](#pattern-1-request-validation)
+    - [Pattern 2: Error Handling](#pattern-2-error-handling)
+    - [Pattern 3: Async Tool Execution](#pattern-3-async-tool-execution)
   - [Troubleshooting](#troubleshooting)
   - [Next Steps](#next-steps)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Developing an MCP Server
 

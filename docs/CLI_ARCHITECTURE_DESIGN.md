@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen CLI Architecture Design](#ggen-cli-architecture-design)
+  - [Overview](#overview)
+  - [Core Architecture](#core-architecture)
+    - [Command System Overview](#command-system-overview)
+    - [Agent Command Architecture](#agent-command-architecture)
+    - [MCP Command Architecture](#mcp-command-architecture)
+    - [Integration with Existing CLI System](#integration-with-existing-cli-system)
+    - [Error Handling](#error-handling)
+    - [Output Formatting](#output-formatting)
+    - [Plugin System](#plugin-system)
+  - [Usage Examples](#usage-examples)
+  - [Implementation Roadmap](#implementation-roadmap)
+    - [Phase 1: Foundation (Week 1)](#phase-1-foundation-week-1)
+    - [Phase 2: Core Commands (Week 2)](#phase-2-core-commands-week-2)
+    - [Phase 3: Advanced Features (Week 3)](#phase-3-advanced-features-week-3)
+    - [Phase 4: Validation and Testing (Week 4)](#phase-4-validation-and-testing-week-4)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen CLI Architecture Design
 
 ## Overview

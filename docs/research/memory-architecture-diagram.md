@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen AI Memory Architecture (2026)](#ggen-ai-memory-architecture-2026)
+  - [System Architecture Overview](#system-architecture-overview)
+  - [4-Level Memory Hierarchy (Priority Order)](#4-level-memory-hierarchy-priority-order)
+  - [Three-Tier Memory Lifespan](#three-tier-memory-lifespan)
+  - [Memory Compression Pipeline (Hierarchical)](#memory-compression-pipeline-hierarchical)
+  - [Hybrid Search Architecture](#hybrid-search-architecture)
+  - [SQLite-vec Integration](#sqlite-vec-integration)
+  - [Memory Manager API (Unified)](#memory-manager-api-unified)
+  - [μ₁-μ₅ Pipeline Integration](#%CE%BC%E2%82%81-%CE%BC%E2%82%85-pipeline-integration)
+  - [Security Architecture (Post-Quantum)](#security-architecture-post-quantum)
+  - [File System Layout](#file-system-layout)
+  - [Data Flow Diagram](#data-flow-diagram)
+  - [Performance Metrics (2026 Targets)](#performance-metrics-2026-targets)
+  - [Comparison: Before vs After Memory System](#comparison-before-vs-after-memory-system)
+  - [Decision Tree: When to Use What](#decision-tree-when-to-use-what)
+  - [Implementation Timeline](#implementation-timeline)
+  - [Key Takeaways](#key-takeaways)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen AI Memory Architecture (2026)
 
 **Visual reference for implementing memory system in ggen v6.0.0**

@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Examples Catalog](#ggen-examples-catalog)
+  - [Quick Reference](#quick-reference)
+  - [MCP Tool Agent Example](#mcp-tool-agent-example)
+  - [Agent Workflow Bridge Example](#agent-workflow-bridge-example)
+  - [Drift Detection Example](#drift-detection-example)
+  - [Path Validation Example](#path-validation-example)
+  - [ETL-KGC-4D-Workflow Integration Example](#etl-kgc-4d-workflow-integration-example)
+  - [Running Examples](#running-examples)
+    - [Build All Examples](#build-all-examples)
+    - [Run a Specific Example](#run-a-specific-example)
+    - [List Available Examples](#list-available-examples)
+  - [Example Development Guidelines](#example-development-guidelines)
+  - [Example File Organization](#example-file-organization)
+  - [Troubleshooting](#troubleshooting)
+    - [Example Fails to Compile](#example-fails-to-compile)
+    - [Example Runtime Errors](#example-runtime-errors)
+    - [Missing Dependencies](#missing-dependencies)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Examples Catalog
 
 This catalog provides a comprehensive overview of all example code included in the ggen project, demonstrating various features and capabilities of the code generation framework.

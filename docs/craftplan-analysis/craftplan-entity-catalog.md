@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Craftplan Entity Quick Reference Catalog](#craftplan-entity-quick-reference-catalog)
+  - [Catalog Domain](#catalog-domain)
+    - [Product](#product)
+    - [BOM (Bill of Materials)](#bom-bill-of-materials)
+    - [BOMComponent](#bomcomponent)
+    - [LaborStep](#laborstep)
+    - [BOMRollup](#bomrollup)
+  - [Orders Domain](#orders-domain)
+    - [Order](#order)
+    - [OrderItem](#orderitem)
+    - [ProductionBatch](#productionbatch)
+    - [OrderItemBatchAllocation](#orderitembatchallocation)
+    - [OrderItemLot](#orderitemlot)
+  - [Inventory Domain](#inventory-domain)
+    - [Material](#material)
+    - [Lot](#lot)
+    - [Movement](#movement)
+    - [Allergen](#allergen)
+    - [NutritionalFact](#nutritionalfact)
+    - [MaterialAllergen (Join)](#materialallergen-join)
+    - [MaterialNutritionalFact (Join)](#materialnutritionalfact-join)
+    - [Supplier](#supplier)
+    - [PurchaseOrder](#purchaseorder)
+    - [PurchaseOrderItem](#purchaseorderitem)
+  - [CRM Domain](#crm-domain)
+    - [Customer](#customer)
+  - [Accounts Domain](#accounts-domain)
+    - [User](#user)
+    - [ApiKey](#apikey)
+    - [Token](#token)
+  - [Summary by Domain](#summary-by-domain)
+    - [Catalog (6 entities)](#catalog-6-entities)
+    - [Orders (5 entities)](#orders-5-entities)
+    - [Inventory (10 entities)](#inventory-10-entities)
+    - [CRM (1 entity)](#crm-1-entity)
+    - [Accounts (3 entities)](#accounts-3-entities)
+    - [Settings (not detailed)](#settings-not-detailed)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Craftplan Entity Quick Reference Catalog
 
 **Generated**: 2026-02-04
