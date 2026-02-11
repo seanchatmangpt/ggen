@@ -1,0 +1,178 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ggen: <https://ggen.io/ontology#> .
+@prefix ln_ctrl: <https://ggen.io/ontology/ln_ctrl#> .
+
+# ln_ctrl Replay Pack Ontology
+# Deterministic re-execution support for λn scenarios
+# Supports: choice logging, RNG seeding, trace verification, state capture
+
+ln_ctrl:ReplayPack a rdfs:Class ;
+    rdfs:label "Replay Pack" ;
+    rdfs:comment "Deterministic replay pack for re-executing λn scenarios with identical results" .
+
+ln_ctrl:ChoiceLog a rdfs:Class ;
+    rdfs:label "Choice Log" ;
+    rdfs:comment "Log of choices made during execution for deterministic replay" .
+
+ln_ctrl:InitialState a rdfs:Class ;
+    rdfs:label "Initial State" ;
+    rdfs:comment "Captured initial state for scenario replay" .
+
+# Core Replay Pack Properties
+
+ln_ctrl:scenario_id a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "scenario_id" ;
+    rdfs:comment "Unique identifier for the scenario being replayed" .
+
+ln_ctrl:initial_state a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range ln_ctrl:InitialState ;
+    rdfs:label "initial_state" ;
+    rdfs:comment "Captured initial state for deterministic replay" .
+
+ln_ctrl:choice_log a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range ln_ctrl:ChoiceLog ;
+    rdfs:label "choice_log" ;
+    rdfs:comment "Ordered log of choices made at each Choice node during execution" .
+
+ln_ctrl:expected_trace_hash a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "expected_trace_hash" ;
+    rdfs:comment "SHA-256 hash of expected execution trace for verification" .
+
+ln_ctrl:seed a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range xsd:integer ;
+    rdfs:label "seed" ;
+    rdfs:comment "RNG seed for deterministic random number generation" .
+
+ln_ctrl:timestamp a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" ;
+    rdfs:comment "ISO 8601 timestamp when replay pack was created" .
+
+# Metadata Properties
+
+ln_ctrl:version a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "version" ;
+    rdfs:comment "Replay pack format version" .
+
+ln_ctrl:workflow_version a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "workflow_version" ;
+    rdfs:comment "Version of the workflow/scenario being replayed" .
+
+ln_ctrl:description a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "description" ;
+    rdfs:comment "Human-readable description of the replay scenario" .
+
+# Choice Log Properties
+
+ln_ctrl:choices a rdf:Property ;
+    rdfs:domain ln_ctrl:ChoiceLog ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "choices" ;
+    rdfs:comment "Array of choice records made during execution" .
+
+ln_ctrl:choice_step_index a rdf:Property ;
+    rdfs:domain ln_ctrl:ChoiceLog ;
+    rdfs:range xsd:integer ;
+    rdfs:label "choice_step_index" ;
+    rdfs:comment "Step index when the choice was made" .
+
+ln_ctrl:choice_node_id a rdf:Property ;
+    rdfs:domain ln_ctrl:ChoiceLog ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "choice_node_id" ;
+    rdfs:comment "Identifier of the Choice node" .
+
+ln_ctrl:choice_branch_taken a rdf:Property ;
+    rdfs:domain ln_ctrl:ChoiceLog ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "choice_branch_taken" ;
+    rdfs:comment "Identifier of the branch taken at this choice point" .
+
+ln_ctrl:choice_context a rdf:Property ;
+    rdfs:domain ln_ctrl:ChoiceLog ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "choice_context" ;
+    rdfs:comment "Optional context data at time of choice" .
+
+# Initial State Properties
+
+ln_ctrl:state_variables a rdf:Property ;
+    rdfs:domain ln_ctrl:InitialState ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "state_variables" ;
+    rdfs:comment "Serialized initial state variables" .
+
+ln_ctrl:state_environment a rdf:Property ;
+    rdfs:domain ln_ctrl:InitialState ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "state_environment" ;
+    rdfs:comment "Environment variables and configuration at start" .
+
+ln_ctrl:state_context a rdf:Property ;
+    rdfs:domain ln_ctrl:InitialState ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "state_context" ;
+    rdfs:comment "Additional context needed for replay" .
+
+ln_ctrl:state_hash a rdf:Property ;
+    rdfs:domain ln_ctrl:InitialState ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "state_hash" ;
+    rdfs:comment "SHA-256 hash of initial state for verification" .
+
+# Verification Properties
+
+ln_ctrl:verified a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "verified" ;
+    rdfs:comment "Whether this replay pack has been verified" .
+
+ln_ctrl:verification_timestamp a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "verification_timestamp" ;
+    rdfs:comment "Timestamp of last verification" .
+
+ln_ctrl:replay_count a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range xsd:integer ;
+    rdfs:label "replay_count" ;
+    rdfs:comment "Number of times this pack has been replayed" .
+
+# Signature and Integrity
+
+ln_ctrl:signature a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "signature" ;
+    rdfs:comment "Ed25519 signature of replay pack contents" .
+
+ln_ctrl:public_key a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "public_key" ;
+    rdfs:comment "Public key used for signature verification" .
+
+ln_ctrl:pack_hash a rdf:Property ;
+    rdfs:domain ln_ctrl:ReplayPack ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "pack_hash" ;
+    rdfs:comment "SHA-256 hash of entire replay pack for integrity verification" .

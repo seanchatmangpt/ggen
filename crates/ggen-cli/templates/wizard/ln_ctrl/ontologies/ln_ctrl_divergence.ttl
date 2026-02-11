@@ -1,0 +1,218 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ggen: <https://ggen.io/ontology#> .
+@prefix ln_ctrl: <https://ggen.io/ontology/ln_ctrl#> .
+
+# ln_ctrl Divergence Report Ontology
+# Execution mismatch detection for λn execution traces
+# Supports: divergence point identification, state comparison, diagnosis, repair suggestions
+
+ln_ctrl:DivergenceReport a rdfs:Class ;
+    rdfs:label "Divergence Report" ;
+    rdfs:comment "Report identifying execution mismatch between expected and actual traces" .
+
+ln_ctrl:DivergencePoint a rdfs:Class ;
+    rdfs:label "Divergence Point" ;
+    rdfs:comment "Location where execution first diverged from expected behavior" .
+
+ln_ctrl:StateComparison a rdfs:Class ;
+    rdfs:label "State Comparison" ;
+    rdfs:comment "Comparison between expected and actual execution states" .
+
+ln_ctrl:StackFrame a rdfs:Class ;
+    rdfs:label "Stack Frame" ;
+    rdfs:comment "Stack frame context at divergence point" .
+
+ln_ctrl:RepairSuggestion a rdfs:Class ;
+    rdfs:label "Repair Suggestion" ;
+    rdfs:comment "Actionable suggestion for fixing divergence" .
+
+# Core Report Properties
+
+ln_ctrl:detected_at a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergenceReport ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "detected_at" ;
+    rdfs:comment "Timestamp when divergence was detected" .
+
+ln_ctrl:workflow_id a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergenceReport ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "workflow_id" ;
+    rdfs:comment "UUID of workflow execution where divergence occurred" .
+
+ln_ctrl:divergence_severity a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergenceReport ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "divergence_severity" ;
+    rdfs:comment "Severity level (critical, high, medium, low)" .
+
+# Divergence Point Properties
+
+ln_ctrl:step_number a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergencePoint ;
+    rdfs:range xsd:integer ;
+    rdfs:label "step_number" ;
+    rdfs:comment "Step index where divergence first occurred (0-indexed)" .
+
+ln_ctrl:redex_at_divergence a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergencePoint ;
+    rdfs:range ln_ctrl:Redex ;
+    rdfs:label "redex_at_divergence" ;
+    rdfs:comment "Redex being executed when divergence occurred" .
+
+ln_ctrl:operation_at_divergence a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergencePoint ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "operation_at_divergence" ;
+    rdfs:comment "Operation type at divergence point" .
+
+# State Comparison Properties
+
+ln_ctrl:expected_frontier a rdf:Property ;
+    rdfs:domain ln_ctrl:StateComparison ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "expected_frontier" ;
+    rdfs:comment "Expected frontier state (array of terms)" .
+
+ln_ctrl:actual_frontier a rdf:Property ;
+    rdfs:domain ln_ctrl:StateComparison ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "actual_frontier" ;
+    rdfs:comment "Actual frontier state (array of terms)" .
+
+ln_ctrl:expected_hash a rdf:Property ;
+    rdfs:domain ln_ctrl:StateComparison ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "expected_hash" ;
+    rdfs:comment "SHA-256 hash of expected frontier state" .
+
+ln_ctrl:actual_hash a rdf:Property ;
+    rdfs:domain ln_ctrl:StateComparison ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "actual_hash" ;
+    rdfs:comment "SHA-256 hash of actual frontier state" .
+
+ln_ctrl:frontier_diff a rdf:Property ;
+    rdfs:domain ln_ctrl:StateComparison ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "frontier_diff" ;
+    rdfs:comment "Structured diff between expected and actual frontiers" .
+
+# Diagnosis Properties
+
+ln_ctrl:diagnosis a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergenceReport ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "diagnosis" ;
+    rdfs:comment "Human-readable diagnosis of divergence cause" .
+
+ln_ctrl:root_cause a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergenceReport ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "root_cause" ;
+    rdfs:comment "Identified root cause category (reduction_error, budget_exceeded, effect_failure, etc.)" .
+
+ln_ctrl:affected_terms a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergenceReport ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "affected_terms" ;
+    rdfs:comment "List of terms affected by divergence" .
+
+# Stack Trace Properties
+
+ln_ctrl:stack_trace a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergenceReport ;
+    rdfs:range ln_ctrl:StackFrame ;
+    rdfs:label "stack_trace" ;
+    rdfs:comment "Execution stack trace at divergence point" .
+
+ln_ctrl:frame_index a rdf:Property ;
+    rdfs:domain ln_ctrl:StackFrame ;
+    rdfs:range xsd:integer ;
+    rdfs:label "frame_index" ;
+    rdfs:comment "Index of stack frame (0 = top)" .
+
+ln_ctrl:frame_operation a rdf:Property ;
+    rdfs:domain ln_ctrl:StackFrame ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "frame_operation" ;
+    rdfs:comment "Operation at this stack frame" .
+
+ln_ctrl:frame_expression a rdf:Property ;
+    rdfs:domain ln_ctrl:StackFrame ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "frame_expression" ;
+    rdfs:comment "Expression being evaluated at this frame" .
+
+ln_ctrl:frame_location a rdf:Property ;
+    rdfs:domain ln_ctrl:StackFrame ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "frame_location" ;
+    rdfs:comment "Source location or path in term structure" .
+
+# Repair Suggestion Properties
+
+ln_ctrl:repair_suggestions a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergenceReport ;
+    rdfs:range ln_ctrl:RepairSuggestion ;
+    rdfs:label "repair_suggestions" ;
+    rdfs:comment "List of actionable repair suggestions" .
+
+ln_ctrl:suggestion_priority a rdf:Property ;
+    rdfs:domain ln_ctrl:RepairSuggestion ;
+    rdfs:range xsd:integer ;
+    rdfs:label "suggestion_priority" ;
+    rdfs:comment "Priority ranking (1 = highest)" .
+
+ln_ctrl:suggestion_action a rdf:Property ;
+    rdfs:domain ln_ctrl:RepairSuggestion ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "suggestion_action" ;
+    rdfs:comment "Recommended action to fix divergence" .
+
+ln_ctrl:suggestion_rationale a rdf:Property ;
+    rdfs:domain ln_ctrl:RepairSuggestion ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "suggestion_rationale" ;
+    rdfs:comment "Explanation of why this suggestion is recommended" .
+
+ln_ctrl:suggestion_risk a rdf:Property ;
+    rdfs:domain ln_ctrl:RepairSuggestion ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "suggestion_risk" ;
+    rdfs:comment "Risk level of applying suggestion (low, medium, high)" .
+
+# Context and Metadata
+
+ln_ctrl:expected_receipt_hash a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergenceReport ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "expected_receipt_hash" ;
+    rdfs:comment "Hash of expected receipt at divergence point" .
+
+ln_ctrl:actual_receipt_hash a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergenceReport ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "actual_receipt_hash" ;
+    rdfs:comment "Hash of actual receipt at divergence point" .
+
+ln_ctrl:execution_context a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergenceReport ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "execution_context" ;
+    rdfs:comment "Additional execution context (environment, configuration, etc.)" .
+
+ln_ctrl:is_deterministic a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergenceReport ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is_deterministic" ;
+    rdfs:comment "Whether divergence is deterministically reproducible" .
+
+ln_ctrl:reproduction_steps a rdf:Property ;
+    rdfs:domain ln_ctrl:DivergenceReport ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "reproduction_steps" ;
+    rdfs:comment "Steps to reproduce the divergence" .
