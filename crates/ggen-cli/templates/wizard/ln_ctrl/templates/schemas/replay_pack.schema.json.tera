@@ -1,0 +1,221 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ln_ctrl Replay Pack",
+  "description": "Deterministic replay pack for re-executing λn scenarios with identical results",
+  "type": "object",
+  "properties": {
+    "scenario_id": {
+      "type": "string",
+      "description": "Unique identifier for the scenario being replayed",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "description": "Replay pack format version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "default": "1.0.0"
+    },
+    "workflow_version": {
+      "type": "string",
+      "description": "Version of the workflow/scenario being replayed",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of the replay scenario",
+      "nullable": true
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when replay pack was created"
+    },
+    "initial_state": {
+      "type": "object",
+      "description": "Captured initial state for deterministic replay",
+      "properties": {
+        "state_variables": {
+          "type": "object",
+          "description": "Serialized initial state variables",
+          "additionalProperties": true
+        },
+        "state_environment": {
+          "type": "object",
+          "description": "Environment variables and configuration at start",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "state_context": {
+          "type": "object",
+          "description": "Additional context needed for replay",
+          "additionalProperties": true,
+          "nullable": true
+        },
+        "state_hash": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "description": "SHA-256 hash of initial state for verification"
+        }
+      },
+      "required": ["state_variables", "state_environment", "state_hash"],
+      "additionalProperties": false
+    },
+    "choice_log": {
+      "type": "array",
+      "description": "Ordered log of choices made at each Choice node during execution",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step_index": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Step index when the choice was made"
+          },
+          "node_id": {
+            "type": "string",
+            "description": "Identifier of the Choice node",
+            "minLength": 1
+          },
+          "branch_taken": {
+            "type": "string",
+            "description": "Identifier of the branch taken at this choice point",
+            "minLength": 1
+          },
+          "context": {
+            "type": "object",
+            "description": "Optional context data at time of choice",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this choice was made"
+          }
+        },
+        "required": ["step_index", "node_id", "branch_taken", "timestamp"],
+        "additionalProperties": false
+      },
+      "default": []
+    },
+    "seed": {
+      "type": "integer",
+      "description": "RNG seed for deterministic random number generation",
+      "minimum": 0
+    },
+    "expected_trace_hash": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "SHA-256 hash of expected execution trace for verification"
+    },
+    "verified": {
+      "type": "boolean",
+      "description": "Whether this replay pack has been verified",
+      "default": false
+    },
+    "verification_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of last verification",
+      "nullable": true
+    },
+    "replay_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of times this pack has been replayed",
+      "default": 0
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{128}$",
+      "description": "Ed25519 signature of replay pack contents"
+    },
+    "public_key": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "Public key used for signature verification"
+    },
+    "pack_hash": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "SHA-256 hash of entire replay pack for integrity verification"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "version",
+    "workflow_version",
+    "timestamp",
+    "initial_state",
+    "choice_log",
+    "seed",
+    "expected_trace_hash",
+    "signature",
+    "public_key",
+    "pack_hash"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "scenario_id": "user-onboarding-happy-path",
+      "version": "1.0.0",
+      "workflow_version": "2.3.1",
+      "description": "Successful user onboarding with email verification",
+      "timestamp": "2026-02-11T21:30:00Z",
+      "initial_state": {
+        "state_variables": {
+          "user_id": null,
+          "email": "test@example.com",
+          "session_id": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        "state_environment": {
+          "ENV": "test",
+          "API_VERSION": "v2",
+          "FEATURE_FLAGS": "email_verification=true"
+        },
+        "state_context": {
+          "request_id": "req-12345",
+          "client_version": "3.2.0"
+        },
+        "state_hash": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
+      },
+      "choice_log": [
+        {
+          "step_index": 5,
+          "node_id": "email_verification_choice",
+          "branch_taken": "verified_successfully",
+          "context": {
+            "verification_code": "123456",
+            "attempts": 1
+          },
+          "timestamp": "2026-02-11T21:30:05Z"
+        },
+        {
+          "step_index": 12,
+          "node_id": "terms_acceptance_choice",
+          "branch_taken": "accepted",
+          "context": {
+            "terms_version": "2.1"
+          },
+          "timestamp": "2026-02-11T21:30:12Z"
+        },
+        {
+          "step_index": 18,
+          "node_id": "profile_completion_choice",
+          "branch_taken": "skip_for_now",
+          "context": null,
+          "timestamp": "2026-02-11T21:30:18Z"
+        }
+      ],
+      "seed": 42,
+      "expected_trace_hash": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+      "verified": true,
+      "verification_timestamp": "2026-02-11T21:35:00Z",
+      "replay_count": 3,
+      "signature": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "public_key": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+      "pack_hash": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    }
+  ]
+}

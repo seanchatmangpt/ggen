@@ -1,0 +1,377 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ln_ctrl Divergence Report",
+  "description": "Report identifying execution mismatch between expected and actual traces",
+  "type": "object",
+  "properties": {
+    "detected_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when divergence was detected"
+    },
+    "workflow_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of workflow execution where divergence occurred"
+    },
+    "divergence_severity": {
+      "type": "string",
+      "description": "Severity level",
+      "enum": ["critical", "high", "medium", "low"]
+    },
+    "divergence_point": {
+      "type": "object",
+      "description": "Location where execution first diverged from expected behavior",
+      "properties": {
+        "step_number": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Step index where divergence first occurred (0-indexed)"
+        },
+        "operation_at_divergence": {
+          "type": "string",
+          "description": "Operation type at divergence point",
+          "enum": ["reduce", "apply", "evaluate", "bind", "substitute", "normalize"]
+        },
+        "redex_at_divergence": {
+          "type": "object",
+          "description": "Redex being executed when divergence occurred",
+          "properties": {
+            "redex_type": {
+              "type": "string",
+              "description": "Type of redex",
+              "enum": ["beta", "eta", "delta", "iota", "zeta", "custom"]
+            },
+            "redex_expression": {
+              "type": "string",
+              "description": "Serialized representation of the redex"
+            },
+            "redex_location": {
+              "type": "string",
+              "description": "Path or address of redex in term structure"
+            }
+          },
+          "required": ["redex_type", "redex_expression"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["step_number", "operation_at_divergence", "redex_at_divergence"],
+      "additionalProperties": false
+    },
+    "state_comparison": {
+      "type": "object",
+      "description": "Comparison between expected and actual execution states",
+      "properties": {
+        "expected_frontier": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Expected frontier state (array of terms)"
+        },
+        "actual_frontier": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Actual frontier state (array of terms)"
+        },
+        "expected_hash": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "description": "SHA-256 hash of expected frontier state"
+        },
+        "actual_hash": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "description": "SHA-256 hash of actual frontier state"
+        },
+        "frontier_diff": {
+          "type": "object",
+          "description": "Structured diff between expected and actual frontiers",
+          "properties": {
+            "added_terms": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Terms present in actual but not in expected"
+            },
+            "removed_terms": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Terms present in expected but not in actual"
+            },
+            "modified_terms": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "index": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "expected": {
+                    "type": "string"
+                  },
+                  "actual": {
+                    "type": "string"
+                  }
+                },
+                "required": ["index", "expected", "actual"]
+              },
+              "description": "Terms that differ between expected and actual"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["expected_frontier", "actual_frontier", "expected_hash", "actual_hash"],
+      "additionalProperties": false
+    },
+    "diagnosis": {
+      "type": "string",
+      "description": "Human-readable diagnosis of divergence cause"
+    },
+    "root_cause": {
+      "type": "string",
+      "description": "Identified root cause category",
+      "enum": [
+        "reduction_error",
+        "budget_exceeded",
+        "effect_failure",
+        "type_mismatch",
+        "unbound_variable",
+        "substitution_error",
+        "evaluation_order",
+        "nondeterminism",
+        "unknown"
+      ]
+    },
+    "affected_terms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of terms affected by divergence"
+    },
+    "stack_trace": {
+      "type": "array",
+      "description": "Execution stack trace at divergence point",
+      "items": {
+        "type": "object",
+        "properties": {
+          "frame_index": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Index of stack frame (0 = top)"
+          },
+          "frame_operation": {
+            "type": "string",
+            "description": "Operation at this stack frame"
+          },
+          "frame_expression": {
+            "type": "string",
+            "description": "Expression being evaluated at this frame"
+          },
+          "frame_location": {
+            "type": "string",
+            "description": "Source location or path in term structure",
+            "nullable": true
+          }
+        },
+        "required": ["frame_index", "frame_operation", "frame_expression"],
+        "additionalProperties": false
+      }
+    },
+    "repair_suggestions": {
+      "type": "array",
+      "description": "List of actionable repair suggestions",
+      "items": {
+        "type": "object",
+        "properties": {
+          "suggestion_priority": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Priority ranking (1 = highest)"
+          },
+          "suggestion_action": {
+            "type": "string",
+            "description": "Recommended action to fix divergence"
+          },
+          "suggestion_rationale": {
+            "type": "string",
+            "description": "Explanation of why this suggestion is recommended"
+          },
+          "suggestion_risk": {
+            "type": "string",
+            "description": "Risk level of applying suggestion",
+            "enum": ["low", "medium", "high"]
+          }
+        },
+        "required": ["suggestion_priority", "suggestion_action", "suggestion_rationale", "suggestion_risk"],
+        "additionalProperties": false
+      }
+    },
+    "expected_receipt_hash": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "Hash of expected receipt at divergence point"
+    },
+    "actual_receipt_hash": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "Hash of actual receipt at divergence point"
+    },
+    "execution_context": {
+      "type": "object",
+      "description": "Additional execution context",
+      "properties": {
+        "environment": {
+          "type": "object",
+          "description": "Environment variables and configuration",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "runtime_version": {
+          "type": "string",
+          "description": "Version of λn runtime"
+        },
+        "platform": {
+          "type": "string",
+          "description": "Platform information (OS, architecture)"
+        },
+        "rng_seed": {
+          "type": "integer",
+          "description": "Random number generator seed (if applicable)",
+          "nullable": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "is_deterministic": {
+      "type": "boolean",
+      "description": "Whether divergence is deterministically reproducible",
+      "default": true
+    },
+    "reproduction_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Steps to reproduce the divergence"
+    }
+  },
+  "required": [
+    "detected_at",
+    "workflow_id",
+    "divergence_severity",
+    "divergence_point",
+    "state_comparison",
+    "diagnosis",
+    "root_cause",
+    "stack_trace",
+    "repair_suggestions",
+    "expected_receipt_hash",
+    "actual_receipt_hash",
+    "is_deterministic"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "detected_at": "2026-02-11T21:45:00Z",
+      "workflow_id": "550e8400-e29b-41d4-a716-446655440000",
+      "divergence_severity": "high",
+      "divergence_point": {
+        "step_number": 42,
+        "operation_at_divergence": "reduce",
+        "redex_at_divergence": {
+          "redex_type": "beta",
+          "redex_expression": "(λx.x+1) 5",
+          "redex_location": "root.body.app[0]"
+        }
+      },
+      "state_comparison": {
+        "expected_frontier": ["6", "42", "λy.y*2"],
+        "actual_frontier": ["5", "42", "λy.y*2"],
+        "expected_hash": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "actual_hash": "fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+        "frontier_diff": {
+          "added_terms": [],
+          "removed_terms": [],
+          "modified_terms": [
+            {
+              "index": 0,
+              "expected": "6",
+              "actual": "5"
+            }
+          ]
+        }
+      },
+      "diagnosis": "Beta reduction failed to apply arithmetic operation. Expected '5+1' to evaluate to '6', but actual result was '5'. This indicates the addition operation was not performed during reduction.",
+      "root_cause": "reduction_error",
+      "affected_terms": ["5+1", "6", "x+1"],
+      "stack_trace": [
+        {
+          "frame_index": 0,
+          "frame_operation": "reduce",
+          "frame_expression": "(λx.x+1) 5",
+          "frame_location": "root.body.app[0]"
+        },
+        {
+          "frame_index": 1,
+          "frame_operation": "substitute",
+          "frame_expression": "x+1 [x:=5]",
+          "frame_location": "root.body.app[0].body"
+        },
+        {
+          "frame_index": 2,
+          "frame_operation": "evaluate",
+          "frame_expression": "5+1",
+          "frame_location": "root.body.app[0].body.binop"
+        }
+      ],
+      "repair_suggestions": [
+        {
+          "suggestion_priority": 1,
+          "suggestion_action": "Verify that arithmetic operations are properly implemented in the delta reduction rules. Check that the '+' operator is bound to the correct primitive function.",
+          "suggestion_rationale": "The substitution appears correct (x was replaced with 5), but the subsequent evaluation of '5+1' did not occur. This suggests the arithmetic evaluator is not being invoked.",
+          "suggestion_risk": "low"
+        },
+        {
+          "suggestion_priority": 2,
+          "suggestion_action": "Check if delta reduction is enabled in the reduction strategy configuration. Enable it if disabled.",
+          "suggestion_rationale": "Delta reduction handles primitive operations like arithmetic. If disabled, expressions like '5+1' will remain unreduced.",
+          "suggestion_risk": "low"
+        },
+        {
+          "suggestion_priority": 3,
+          "suggestion_action": "Inspect the redex selection strategy to ensure arithmetic expressions are being recognized as reducible.",
+          "suggestion_rationale": "The reduction engine may be skipping over primitive operations if the redex selector doesn't recognize them.",
+          "suggestion_risk": "medium"
+        }
+      ],
+      "expected_receipt_hash": "a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5",
+      "actual_receipt_hash": "b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6",
+      "execution_context": {
+        "environment": {
+          "LN_CTRL_MODE": "strict",
+          "LN_CTRL_TRACE": "enabled"
+        },
+        "runtime_version": "ln_ctrl-0.1.0",
+        "platform": "linux-x86_64",
+        "rng_seed": 42
+      },
+      "is_deterministic": true,
+      "reproduction_steps": [
+        "Initialize λn runtime with strict mode",
+        "Load test program with arithmetic operations",
+        "Execute reduction at step 42",
+        "Observe that '(λx.x+1) 5' reduces to '5' instead of '6'"
+      ]
+    }
+  ]
+}
