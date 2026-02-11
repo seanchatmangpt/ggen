@@ -27,10 +27,11 @@
 // Shared helpers for command modules
 pub mod helpers;
 
-// Core commands: ggen sync & ggen init
+// Core commands: ggen sync & ggen init & ggen wizard
 pub mod git_hooks;
 pub mod init;
 pub mod sync;
+pub mod wizard;
 
 // Command modules - clap-noun-verb auto-discovery
 pub mod ai;
