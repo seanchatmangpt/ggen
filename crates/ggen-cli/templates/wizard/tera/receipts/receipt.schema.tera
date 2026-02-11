@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Receipt",
+  "description": "Cryptographic receipt for generation operations",
+  "type": "object",
+  "properties": {
+    {%- for row in results %}
+    {%- if row.label == "timestamp" or row.label == "operation" or row.label == "inputs" or row.label == "outputs" or row.label == "signature" %}
+    "{{ row.label }}": {
+      "type": "string",
+      {%- if row.comment %}
+      "description": "{{ row.comment }}",
+      {%- endif %}
+      {%- if row.label == "timestamp" %}
+      "format": "date-time"
+      {%- endif %}
+    }{% if not loop.last %},{% endif %}
+    {%- endif %}
+    {%- endfor %}
+  },
+  "required": ["timestamp", "operation", "inputs", "outputs", "signature"],
+  "additionalProperties": false
+}
