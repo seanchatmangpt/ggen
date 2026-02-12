@@ -1,0 +1,822 @@
+# ln_ctrl Kernel IR Specification
+
+**Version**: 1.0.0 | **Status**: Specification | **Last Updated**: {{ timestamp | default(value="2026-02-11") }}
+
+> **SPECIFICATION**: This document defines the kernel intermediate representation (IR) for λn execution. All implementations MUST conform to this specification.
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Kernel Primitives](#kernel-primitives)
+3. [Reduction Rules](#reduction-rules)
+4. [State Machine](#state-machine)
+5. [Type System](#type-system)
+6. [Operational Semantics](#operational-semantics)
+7. [Effect System](#effect-system)
+8. [Budget Tracking](#budget-tracking)
+9. [Validation Gates](#validation-gates)
+10. [Success Criteria](#success-criteria)
+
+---
+
+## Overview
+
+The ln_ctrl kernel is a resource-bounded λ-calculus interpreter with explicit effect tracking and cryptographic auditability. It provides a minimal, well-specified execution model for reproducible computation.
+
+**Design Principles**:
+- **Minimalism**: Small core, no unnecessary features
+- **Determinism**: Same input always produces same output
+- **Boundedness**: All resources explicitly limited
+- **Auditability**: Complete execution trace via receipts
+- **Composability**: Terms can be freely combined
+
+**Key Features**:
+- Pure λ-calculus core (λ, application, variables)
+- Explicit effect system (IO, state, control)
+- Resource budgets (steps, memory, time)
+- Cryptographic receipts for every reduction
+- Causal and hash chaining for auditability
+
+---
+
+## Kernel Primitives
+
+### 1. Lambda Abstraction
+
+**Syntax**: `λx.M`
+
+**Semantics**: Function definition binding variable `x` in body `M`.
+
+**Properties**:
+- **Capture-avoiding substitution**: α-conversion when necessary
+- **Lexical scoping**: Variables resolved by lexical environment
+- **Higher-order**: Can accept and return functions
+
+**Example**:
+```
+λx.(λy.x + y)  -- Function returning a function
+```
+
+**IR Representation**:
+```json
+{
+  "tag": "Lam",
+  "var": "x",
+  "body": {
+    "tag": "Lam",
+    "var": "y",
+    "body": {
+      "tag": "App",
+      "func": {"tag": "Prim", "op": "+"},
+      "args": [
+        {"tag": "Var", "name": "x"},
+        {"tag": "Var", "name": "y"}
+      ]
+    }
+  }
+}
+```
+
+### 2. Application
+
+**Syntax**: `M N`
+
+**Semantics**: Apply function `M` to argument `N`.
+
+**Evaluation Strategy**: Call-by-value (strict evaluation)
+- Evaluate `M` to `λx.M'`
+- Evaluate `N` to value `V`
+- Substitute `V` for `x` in `M'`
+- Evaluate resulting term
+
+**Example**:
+```
+(λx.x + 1) 5
+  → [x := 5] (x + 1)
+  → 5 + 1
+  → 6
+```
+
+**IR Representation**:
+```json
+{
+  "tag": "App",
+  "func": {
+    "tag": "Lam",
+    "var": "x",
+    "body": {
+      "tag": "App",
+      "func": {"tag": "Prim", "op": "+"},
+      "args": [
+        {"tag": "Var", "name": "x"},
+        {"tag": "Lit", "value": 1}
+      ]
+    }
+  },
+  "arg": {"tag": "Lit", "value": 5}
+}
+```
+
+### 3. Variable
+
+**Syntax**: `x`, `y`, `foo`, `bar_baz`
+
+**Semantics**: Reference to bound variable.
+
+**Scoping**: Lexical (resolved at parse time, verified at runtime)
+
+**Properties**:
+- Must be bound by enclosing λ or let
+- Free variables are errors
+- Case-sensitive identifiers
+
+**IR Representation**:
+```json
+{
+  "tag": "Var",
+  "name": "x",
+  "de_bruijn_index": 0
+}
+```
+
+### 4. Literal
+
+**Syntax**: `42`, `true`, `"hello"`, `3.14`
+
+**Types**: Integer, Boolean, String, Float
+
+**Properties**:
+- Self-evaluating (values)
+- Immutable
+- Primitive type checking
+
+**IR Representation**:
+```json
+{
+  "tag": "Lit",
+  "type": "Int",
+  "value": 42
+}
+```
+
+### 5. Primitive Operations
+
+**Syntax**: `+`, `-`, `*`, `/`, `==`, `<`, `>`, etc.
+
+**Semantics**: Built-in operations on literals.
+
+**Supported Operations**:
+
+| Category | Operations | Types |
+|----------|------------|-------|
+| Arithmetic | `+`, `-`, `*`, `/`, `%` | Int, Float |
+| Comparison | `==`, `!=`, `<`, `<=`, `>`, `>=` | Int, Float, String |
+| Logical | `&&`, `||`, `!` | Bool |
+| String | `++` (concat), `len`, `substr` | String |
+
+**IR Representation**:
+```json
+{
+  "tag": "Prim",
+  "op": "+",
+  "arity": 2,
+  "type_signature": "Int -> Int -> Int"
+}
+```
+
+### 6. Let Binding
+
+**Syntax**: `let x = M in N`
+
+**Semantics**: Bind `M` to `x` in scope of `N`.
+
+**Evaluation**:
+1. Evaluate `M` to value `V`
+2. Substitute `V` for `x` in `N`
+3. Evaluate resulting term
+
+**Desugaring**: `let x = M in N` ≡ `(λx.N) M`
+
+**IR Representation**:
+```json
+{
+  "tag": "Let",
+  "var": "x",
+  "def": {"tag": "Lit", "value": 42},
+  "body": {
+    "tag": "Var",
+    "name": "x"
+  }
+}
+```
+
+### 7. Conditional
+
+**Syntax**: `if C then T else E`
+
+**Semantics**: Branch based on boolean condition.
+
+**Evaluation**:
+1. Evaluate `C` to boolean value
+2. If `true`, evaluate `T`
+3. If `false`, evaluate `E`
+
+**IR Representation**:
+```json
+{
+  "tag": "If",
+  "cond": {"tag": "Lit", "value": true},
+  "then": {"tag": "Lit", "value": 1},
+  "else": {"tag": "Lit", "value": 0}
+}
+```
+
+### 8. Effect Operations
+
+**Syntax**: `perform effect_type effect_data`
+
+**Semantics**: Perform side effect, record in receipt.
+
+**Effect Types**: `io`, `state`, `control`, `logging`, `network`, `filesystem`
+
+**IR Representation**:
+```json
+{
+  "tag": "Effect",
+  "effect_type": "io",
+  "effect_data": "{\"action\":\"print\",\"value\":\"Hello\"}"
+}
+```
+
+---
+
+## Reduction Rules
+
+### β-Reduction (Function Application)
+
+**Rule**: `(λx.M) V → M[x := V]`
+
+**Preconditions**:
+- Left side is lambda abstraction
+- Right side is value (evaluated)
+- Budget has steps remaining
+
+**Example**:
+```
+(λx.x + 1) 5
+  → [x := 5] (x + 1)
+  → 5 + 1
+```
+
+**Receipt Generated**:
+```json
+{
+  "operation": "reduce",
+  "redex_executed": {
+    "redex_type": "beta",
+    "redex_expression": "(λx.x+1) 5",
+    "redex_location": "root"
+  }
+}
+```
+
+### η-Reduction (Eta Conversion)
+
+**Rule**: `λx.M x → M` (when `x ∉ FV(M)`)
+
+**Preconditions**:
+- Body is application of `M` to bound variable `x`
+- `x` not free in `M`
+- Enables point-free style
+
+**Example**:
+```
+λx.f x  → f   (when x not in f)
+λx.add 1 x  → add 1
+```
+
+**Receipt Generated**:
+```json
+{
+  "operation": "reduce",
+  "redex_executed": {
+    "redex_type": "eta",
+    "redex_expression": "λx.f x",
+    "redex_location": "root.body"
+  }
+}
+```
+
+### δ-Reduction (Primitive Operations)
+
+**Rule**: `op v₁ v₂ ... vₙ → result`
+
+**Preconditions**:
+- `op` is primitive operation
+- All arguments are values
+- Types match operation signature
+
+**Examples**:
+```
++ 3 4     → 7
+== 5 5    → true
+len "hi"  → 2
+```
+
+**Receipt Generated**:
+```json
+{
+  "operation": "evaluate",
+  "redex_executed": {
+    "redex_type": "delta",
+    "redex_expression": "+ 3 4",
+    "redex_location": "root.app[2]"
+  }
+}
+```
+
+### ι-Reduction (Destructor)
+
+**Rule**: Pattern matching and destructuring
+
+**Preconditions**:
+- Constructor applied to arguments
+- Pattern matches structure
+
+**Example**:
+```
+case (Cons 1 Nil) of
+  Cons x xs → x      -- Matches, returns 1
+  Nil → 0            -- Not matched
+```
+
+### ζ-Reduction (Let Expansion)
+
+**Rule**: `let x = V in M → M[x := V]`
+
+**Preconditions**:
+- Definition `V` is a value
+- Body `M` references `x`
+
+**Example**:
+```
+let x = 42 in x + 1
+  → [x := 42] (x + 1)
+  → 42 + 1
+  → 43
+```
+
+### Reduction Strategy
+
+**Call-by-Value**: Evaluate arguments before application
+
+**Evaluation Order**:
+1. Find leftmost-outermost redex
+2. Check budget before reducing
+3. Perform reduction
+4. Generate receipt
+5. Update frontier
+6. Repeat until value or budget exceeded
+
+```mermaid
+graph TD
+    A[Parse Term] --> B[Find Redex]
+    B --> C{Budget OK?}
+    C -->|No| Z[Stop: Budget Exceeded]
+    C -->|Yes| D[Check Reduction Type]
+    D --> E{Type?}
+    E -->|β| F[Beta Reduce]
+    E -->|η| G[Eta Reduce]
+    E -->|δ| H[Delta Reduce]
+    E -->|ι| I[Iota Reduce]
+    E -->|ζ| J[Zeta Reduce]
+    F --> K[Generate Receipt]
+    G --> K
+    H --> K
+    I --> K
+    J --> K
+    K --> L[Update Frontier]
+    L --> M{Is Value?}
+    M -->|Yes| N[Return Result]
+    M -->|No| B
+```
+
+---
+
+## State Machine
+
+### States
+
+```mermaid
+stateDiagram-v2
+    [*] --> Ready
+    Ready --> Parsing: receive_term()
+    Parsing --> Ready: error
+    Parsing --> Evaluating: parse_success()
+    Evaluating --> Evaluating: reduce_step()
+    Evaluating --> Completed: value_reached()
+    Evaluating --> BudgetExceeded: budget_limit()
+    Evaluating --> Failed: runtime_error()
+    Completed --> [*]
+    BudgetExceeded --> [*]
+    Failed --> [*]
+```
+
+### State Transitions
+
+| From State | Event | To State | Actions |
+|------------|-------|----------|---------|
+| `Ready` | `receive_term()` | `Parsing` | Tokenize, parse |
+| `Parsing` | `parse_success()` | `Evaluating` | Initialize frontier, create genesis receipt |
+| `Parsing` | `parse_error()` | `Ready` | Emit error, reset state |
+| `Evaluating` | `reduce_step()` | `Evaluating` | Find redex, reduce, emit receipt |
+| `Evaluating` | `value_reached()` | `Completed` | Emit final receipt, return value |
+| `Evaluating` | `budget_exceeded()` | `BudgetExceeded` | Emit budget exceeded receipt |
+| `Evaluating` | `runtime_error()` | `Failed` | Emit error receipt |
+
+### State Invariants
+
+**Ready State**:
+- No active workflow
+- Budget unallocated
+- Frontier empty
+
+**Parsing State**:
+- Workflow ID assigned
+- Budget initialized
+- Frontier not yet created
+
+**Evaluating State**:
+- Workflow ID present
+- Budget > 0 (unless just exceeded)
+- Frontier non-empty
+- Causal chain valid
+
+**Completed State**:
+- Frontier contains single value
+- Budget remaining
+- Chain valid
+
+**BudgetExceeded State**:
+- At least one budget limit reached 0
+- `budget_exceeded == true` in final receipt
+- Frontier may be non-value
+
+**Failed State**:
+- Runtime error occurred
+- Error receipt emitted
+- Chain still valid up to failure
+
+---
+
+## Type System
+
+### Base Types
+
+```
+T ::= Int           -- 64-bit signed integer
+    | Float         -- 64-bit IEEE 754
+    | Bool          -- true | false
+    | String        -- UTF-8 string
+    | Unit          -- () singleton
+    | T -> T        -- Function type
+    | T * T         -- Product (tuple)
+    | T + T         -- Sum (variant)
+```
+
+### Type Rules
+
+#### Lambda Abstraction
+
+```
+Γ, x:A ⊢ M : B
+─────────────────  (T-Lam)
+Γ ⊢ λx.M : A -> B
+```
+
+#### Application
+
+```
+Γ ⊢ M : A -> B    Γ ⊢ N : A
+─────────────────────────────  (T-App)
+      Γ ⊢ M N : B
+```
+
+#### Variable
+
+```
+x:A ∈ Γ
+───────────  (T-Var)
+Γ ⊢ x : A
+```
+
+#### Literal
+
+```
+─────────────────  (T-Int)
+Γ ⊢ n : Int
+```
+
+#### Primitive
+
+```
+op : A₁ -> A₂ -> ... -> Aₙ -> B    Γ ⊢ Mᵢ : Aᵢ  (for all i)
+────────────────────────────────────────────────────────────  (T-Prim)
+            Γ ⊢ op M₁ M₂ ... Mₙ : B
+```
+
+### Type Checking
+
+**Algorithm**: Bidirectional type checking
+- **Synthesis**: Infer type from term
+- **Checking**: Verify term has expected type
+
+**Properties**:
+- **Soundness**: Well-typed terms don't go wrong
+- **Decidability**: Type checking always terminates
+- **Principality**: Most general type exists
+
+---
+
+## Operational Semantics
+
+### Small-Step Semantics
+
+```
+Configuration: ⟨term, environment, budget, frontier, chain⟩
+
+Initial:  ⟨M, ∅, B₀, ∅, []⟩
+Final:    ⟨V, σ, B, {V}, chain⟩  (value reached)
+Stuck:    ⟨M, σ, 0, F, chain⟩    (budget exceeded)
+```
+
+### Evaluation Rules
+
+#### E-Beta
+
+```
+⟨(λx.M) V, σ, B, F, C⟩  →  ⟨M[x := V], σ, B-1, F', C·R⟩
+  where R = receipt(beta, (λx.M) V, ...)
+        F' = updated_frontier(M[x := V])
+```
+
+#### E-Delta
+
+```
+⟨op v₁ v₂, σ, B, F, C⟩  →  ⟨result, σ, B-1, F', C·R⟩
+  where result = eval_prim(op, v₁, v₂)
+        R = receipt(delta, op v₁ v₂, ...)
+        F' = updated_frontier(result)
+```
+
+#### E-App1
+
+```
+⟨M N, σ, B, F, C⟩  →  ⟨M' N, σ, B', F', C'⟩
+  if ⟨M, σ, B, F, C⟩ → ⟨M', σ, B', F', C'⟩
+```
+
+#### E-App2
+
+```
+⟨V M, σ, B, F, C⟩  →  ⟨V M', σ, B', F', C'⟩
+  if ⟨M, σ, B, F, C⟩ → ⟨M', σ, B', F', C'⟩
+```
+
+### Evaluation Context
+
+```
+E ::= []                -- Hole
+    | E M              -- Left of application
+    | V E              -- Right of application
+    | let x = E in M   -- Let RHS
+    | if E then M else N  -- Conditional test
+```
+
+---
+
+## Effect System
+
+### Effect Categories
+
+```
+Effect ::= Pure           -- No effects
+         | IO Effect      -- Input/output
+         | State Effect   -- Mutable state
+         | Control Effect -- Non-local control
+         | Logging Effect -- Diagnostic logging
+         | Network Effect -- Network requests
+         | FS Effect      -- Filesystem access
+```
+
+### Effect Tracking
+
+**Pure Computation**:
+```
+⟨M, σ, B, F, C⟩  →  ⟨M', σ, B', F', C'⟩
+  effects_performed = []
+```
+
+**Effectful Computation**:
+```
+⟨perform io "print" "Hello", σ, B, F, C⟩  →  ⟨(), σ, B-1, F', C·R⟩
+  where R.effects_performed = [{effect_type: "io", effect_data: ...}]
+```
+
+### Effect Ordering
+
+Effects are performed in **left-to-right** order:
+
+```
+let _ = print "A" in
+let _ = print "B" in
+let _ = print "C" in
+()
+
+-- Guarantees output: A B C
+-- Receipts record effects in order
+```
+
+---
+
+## Budget Tracking
+
+### Budget Components
+
+```json
+{
+  "budget_steps": 10000,      // Max reduction steps
+  "budget_memory": 104857600, // Max memory bytes (100 MB)
+  "budget_time": 30000        // Max time milliseconds (30s)
+}
+```
+
+### Budget Consumption
+
+**Per Step**:
+- `budget_steps` decreases by 1
+- `budget_time` decreases by elapsed time
+- `budget_memory` tracks current heap usage
+
+**Budget Check**:
+```python
+def check_budget(budget):
+    if budget.steps <= 0:
+        raise BudgetExceeded("steps")
+    if budget.memory <= 0:
+        raise BudgetExceeded("memory")
+    if budget.time <= 0:
+        raise BudgetExceeded("time")
+```
+
+### Budget Exceeded Handling
+
+1. Generate final receipt with `budget_exceeded = true`
+2. Set state to `BudgetExceeded`
+3. Return partial frontier (non-value)
+4. Emit budget exceeded error
+
+**Receipt Example**:
+```json
+{
+  "operation": "reduce",
+  "budget_remaining": {
+    "budget_steps": 0,
+    "budget_memory": 50000000,
+    "budget_time": 5000,
+    "budget_exceeded": true
+  }
+}
+```
+
+---
+
+## Validation Gates
+
+### Gate 1: Syntactic Validity
+
+**Requirement**: All terms must parse successfully.
+
+**Checks**:
+- Balanced parentheses
+- Valid identifiers
+- Well-formed literals
+- No syntax errors
+
+**Exit Criteria**: Parser succeeds, AST produced.
+
+### Gate 2: Type Safety
+
+**Requirement**: All terms must be well-typed.
+
+**Checks**:
+- Type inference succeeds
+- No type mismatches
+- Primitives used correctly
+- No free variables
+
+**Exit Criteria**: Type checker accepts term.
+
+### Gate 3: Resource Bounds
+
+**Requirement**: Budget must be sufficient for computation.
+
+**Checks**:
+- Budget allocated before evaluation
+- Budget checked before each step
+- Budget exceeded halts execution
+- Receipt records budget state
+
+**Exit Criteria**: Computation completes within budget or budget exceeded handled.
+
+### Gate 4: Determinism
+
+**Requirement**: Same input always produces same output.
+
+**Checks**:
+- No non-deterministic operations
+- Effect order preserved
+- Reduction strategy deterministic
+- Hash chain reproducible
+
+**Exit Criteria**: Running same term twice produces identical receipt chain.
+
+### Gate 5: Receipt Validity
+
+**Requirement**: All receipts must be valid and chained.
+
+**Checks**:
+- Causal chain unbroken
+- Hash chain valid
+- Signatures verify
+- Schema compliant
+
+**Exit Criteria**: Receipt chain passes all validators.
+
+---
+
+## Success Criteria
+
+### ✅ Kernel Implementation Requirements
+
+- [ ] All primitives implemented correctly
+- [ ] All reduction rules working
+- [ ] State machine transitions validated
+- [ ] Type system enforced
+- [ ] Budget tracking functional
+- [ ] Effect recording complete
+- [ ] Deterministic execution verified
+
+### ✅ Correctness Properties
+
+- [ ] **Type Safety**: Well-typed programs don't go wrong
+- [ ] **Progress**: Non-value terms can always step (if budget allows)
+- [ ] **Preservation**: Types preserved during reduction
+- [ ] **Termination**: Budget ensures termination
+- [ ] **Determinism**: Same input → same output
+- [ ] **Auditability**: Complete trace via receipts
+
+### ✅ Performance Requirements
+
+- [ ] Reduction step: <1ms (average)
+- [ ] Receipt generation: <1ms per step
+- [ ] Memory usage: <100MB for typical programs
+- [ ] Chain verification: <100ms per 1000 receipts
+
+### ✅ Test Coverage
+
+- [ ] Unit tests: All primitives
+- [ ] Integration tests: Reduction rules
+- [ ] Property tests: Type safety, determinism
+- [ ] Adversarial tests: Budget exhaustion, malformed input
+- [ ] Regression tests: Known bugs
+
+---
+
+## Appendix: IR Grammar (EBNF)
+
+```ebnf
+term     ::= lam | app | var | lit | prim | let | if | effect
+
+lam      ::= "λ" var "." term
+app      ::= "(" term term+ ")"
+var      ::= identifier
+lit      ::= int | float | bool | string
+prim     ::= "+" | "-" | "*" | "/" | "==" | "<" | ">" | "&&" | "||" | "!"
+let      ::= "let" var "=" term "in" term
+if       ::= "if" term "then" term "else" term
+effect   ::= "perform" effect_type string
+
+int      ::= ["-"]? [0-9]+
+float    ::= ["-"]? [0-9]+ "." [0-9]+
+bool     ::= "true" | "false"
+string   ::= '"' [^"]* '"'
+identifier ::= [a-zA-Z_][a-zA-Z0-9_]*
+effect_type ::= "io" | "state" | "control" | "logging" | "network" | "filesystem"
+```
+
+---
+
+**Generated from**: `ln_ctrl_receipts.ttl` ontology
+**Specification Version**: 1.0.0
+**Compatible Runtimes**: Any λ-calculus interpreter with effect tracking
