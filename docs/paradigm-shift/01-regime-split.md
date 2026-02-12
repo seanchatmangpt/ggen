@@ -1,3 +1,54 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [The Fundamental Regime Split: SELECT/DO vs CONSTRUCT](#the-fundamental-regime-split-selectdo-vs-construct)
+  - [Overview](#overview)
+  - [The SELECT/DO Regime](#the-selectdo-regime)
+    - [Core Characteristics](#core-characteristics)
+    - [Code Example: SELECT/DO in Action](#code-example-selectdo-in-action)
+    - [Real-World SELECT/DO Pattern](#real-world-selectdo-pattern)
+    - [When SELECT/DO Is Appropriate](#when-selectdo-is-appropriate)
+    - [SELECT/DO Trade-offs](#selectdo-trade-offs)
+  - [The CONSTRUCT Regime](#the-construct-regime)
+    - [Core Characteristics](#core-characteristics-1)
+    - [Code Example: CONSTRUCT in Action](#code-example-construct-in-action)
+    - [Real-World CONSTRUCT Pattern](#real-world-construct-pattern)
+    - [When CONSTRUCT Is Required](#when-construct-is-required)
+    - [CONSTRUCT Trade-offs](#construct-trade-offs)
+  - [Why the Split Matters for Manufacturing](#why-the-split-matters-for-manufacturing)
+    - [Manufacturing Paradigm Requirements](#manufacturing-paradigm-requirements)
+    - [The Impossibility of Mixing Regimes](#the-impossibility-of-mixing-regimes)
+    - [Concrete Failure Modes](#concrete-failure-modes)
+      - [Failure Mode 1: The "Almost Works" Trap](#failure-mode-1-the-almost-works-trap)
+      - [Failure Mode 2: The "Flexible Schema" Trap](#failure-mode-2-the-flexible-schema-trap)
+      - [Failure Mode 3: The "Gradual Migration" Trap](#failure-mode-3-the-gradual-migration-trap)
+  - [Practical Examples by Domain](#practical-examples-by-domain)
+    - [Example 1: REST API Generation](#example-1-rest-api-generation)
+      - [SELECT/DO Approach](#selectdo-approach)
+      - [CONSTRUCT Approach](#construct-approach)
+    - [Example 2: Database Schema Migration](#example-2-database-schema-migration)
+      - [SELECT/DO Approach](#selectdo-approach-1)
+      - [CONSTRUCT Approach](#construct-approach-1)
+    - [Example 3: Type-Safe Configuration](#example-3-type-safe-configuration)
+      - [SELECT/DO Approach](#selectdo-approach-2)
+      - [CONSTRUCT Approach](#construct-approach-2)
+  - [Decision Framework: Which Regime?](#decision-framework-which-regime)
+    - [Migration Path: SELECT/DO → CONSTRUCT](#migration-path-selectdo-%E2%86%92-construct)
+  - [Validation Checklist](#validation-checklist)
+    - [For SELECT/DO Regime](#for-selectdo-regime)
+    - [For CONSTRUCT Regime](#for-construct-regime)
+    - [For Regime Purity](#for-regime-purity)
+  - [Common Misconceptions](#common-misconceptions)
+    - [Misconception 1: "CONSTRUCT is just SELECT/DO with better docs"](#misconception-1-construct-is-just-selectdo-with-better-docs)
+    - [Misconception 2: "We can be 'mostly CONSTRUCT' with some flexibility"](#misconception-2-we-can-be-mostly-construct-with-some-flexibility)
+    - [Misconception 3: "Manual fixes to generated code are OK if documented"](#misconception-3-manual-fixes-to-generated-code-are-ok-if-documented)
+  - [Summary](#summary)
+  - [Further Reading](#further-reading)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # The Fundamental Regime Split: SELECT/DO vs CONSTRUCT
 
 **Version**: 1.0.0

@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [knhk-connectors Architecture Design](#knhk-connectors-architecture-design)
+  - [Overview](#overview)
+  - [Core Architecture](#core-architecture)
+    - [System Components](#system-components)
+    - [Delta Processing Architecture](#delta-processing-architecture)
+    - [Kafka Connector Implementation](#kafka-connector-implementation)
+    - [Salesforce Connector Implementation](#salesforce-connector-implementation)
+    - [Circuit Breaker Implementation](#circuit-breaker-implementation)
+    - [Integration with Five-Stage Pipeline](#integration-with-five-stage-pipeline)
+      - [μ₁ (Normalize) Stage Integration](#%CE%BC%E2%82%81-normalize-stage-integration)
+      - [μ₂ (Extract) Stage Integration](#%CE%BC%E2%82%82-extract-stage-integration)
+      - [μ₃ (Emit) Stage Integration](#%CE%BC%E2%82%83-emit-stage-integration)
+      - [μ₄ (Canonicalize) Stage Integration](#%CE%BC%E2%82%84-canonicalize-stage-integration)
+      - [μ₅ (Receipt) Stage Integration](#%CE%BC%E2%82%85-receipt-stage-integration)
+    - [Performance Optimizations](#performance-optimizations)
+    - [Error Handling and Recovery](#error-handling-and-recovery)
+    - [Monitoring and Observability](#monitoring-and-observability)
+  - [Usage Examples](#usage-examples)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # knhk-connectors Architecture Design
 
 ## Overview

@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AI Testing Patterns - Quick Reference](#ai-testing-patterns---quick-reference)
+  - [Critical Statistics](#critical-statistics)
+  - [Quick Testing Checklist for AI Code](#quick-testing-checklist-for-ai-code)
+  - [Essential Test Commands (Add to ggen)](#essential-test-commands-add-to-ggen)
+  - [Top 5 AI Testing Patterns](#top-5-ai-testing-patterns)
+    - [1. Proof-Based Workflow](#1-proof-based-workflow)
+    - [2. Mutation Testing (60%+ score)](#2-mutation-testing-60-score)
+    - [3. Property-Based Testing](#3-property-based-testing)
+    - [4. Security Validation](#4-security-validation)
+    - [5. Snapshot Testing](#5-snapshot-testing)
+  - [Priority Security Checks](#priority-security-checks)
+    - [CWE Patterns to Target (2026 Data)](#cwe-patterns-to-target-2026-data)
+    - [Automated Detection](#automated-detection)
+  - [Test Organization Structure](#test-organization-structure)
+  - [Quality Metrics (2026 Standards)](#quality-metrics-2026-standards)
+  - [CI/CD Quality Gates](#cicd-quality-gates)
+  - [Recommended Tools](#recommended-tools)
+    - [Core Stack (Already in ggen)](#core-stack-already-in-ggen)
+    - [Add for 2026](#add-for-2026)
+  - [Common AI Code Issues](#common-ai-code-issues)
+    - [Issue 1: Missing Authorization](#issue-1-missing-authorization)
+    - [Issue 2: Hardcoded Secrets](#issue-2-hardcoded-secrets)
+    - [Issue 3: Unvalidated Input](#issue-3-unvalidated-input)
+  - [Test-Driven AI Development Workflow](#test-driven-ai-development-workflow)
+  - [Meta TestGen-LLM Pattern](#meta-testgen-llm-pattern)
+  - [EQS Metric (2026 Composite)](#eqs-metric-2026-composite)
+  - [Implementation Priority](#implementation-priority)
+    - [Week 1-2: Foundation](#week-1-2-foundation)
+    - [Week 3-4: Enhancement](#week-3-4-enhancement)
+    - [Week 5-6: Advanced](#week-5-6-advanced)
+  - [Useful Commands](#useful-commands)
+  - [Resources](#resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AI Testing Patterns - Quick Reference
 
 **Last Updated:** 2026-02-08

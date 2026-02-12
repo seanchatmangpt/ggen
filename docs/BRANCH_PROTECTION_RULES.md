@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Branch Protection Rules](#branch-protection-rules)
+  - [Overview](#overview)
+  - [Protected Branches](#protected-branches)
+    - [Master Branch (`master`)](#master-branch-master)
+    - [Develop Branch (`develop`)](#develop-branch-develop)
+  - [Setting Up Branch Protection via GitHub UI](#setting-up-branch-protection-via-github-ui)
+    - [Master Branch Setup](#master-branch-setup)
+    - [Develop Branch Setup](#develop-branch-setup)
+  - [Setting Up Branch Protection via GitHub API](#setting-up-branch-protection-via-github-api)
+    - [Create Protection Rule](#create-protection-rule)
+    - [Check Current Protection](#check-current-protection)
+    - [Update Protection Rule](#update-protection-rule)
+    - [Remove Protection Rule](#remove-protection-rule)
+  - [CI Status Checks Required](#ci-status-checks-required)
+    - [Rust-Based Checks](#rust-based-checks)
+    - [Erlang-Based Checks](#erlang-based-checks)
+  - [Status Check Configuration](#status-check-configuration)
+    - [Branches Requiring Status Checks](#branches-requiring-status-checks)
+    - [Strict Status Checks](#strict-status-checks)
+  - [Code Review Requirements](#code-review-requirements)
+    - [Pull Request Review Policy](#pull-request-review-policy)
+    - [CODEOWNERS File](#codeowners-file)
+  - [Bypass Rules](#bypass-rules)
+    - [Who Can Bypass Protection](#who-can-bypass-protection)
+    - [When to Bypass](#when-to-bypass)
+  - [Troubleshooting](#troubleshooting)
+    - ["Required status check is expected but was not provided"](#required-status-check-is-expected-but-was-not-provided)
+    - ["This branch has 1 behind" or "This branch has conflicts"](#this-branch-has-1-behind-or-this-branch-has-conflicts)
+    - ["This branch can't be deleted (branch is protected)"](#this-branch-cant-be-deleted-branch-is-protected)
+    - ["Merge blocked: review from a code owner is required"](#merge-blocked-review-from-a-code-owner-is-required)
+  - [Best Practices](#best-practices)
+    - [For Developers](#for-developers)
+    - [For Code Owners](#for-code-owners)
+    - [For Maintainers](#for-maintainers)
+  - [Monitoring](#monitoring)
+    - [View Protection Status](#view-protection-status)
+    - [Audit Trail](#audit-trail)
+  - [Related Documents](#related-documents)
+  - [Quick Reference](#quick-reference)
+    - [Master Branch Protection Checklist](#master-branch-protection-checklist)
+    - [Required Status Checks](#required-status-checks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Branch Protection Rules
 
 This document describes the branch protection rules configured for the ggen repository to ensure code quality and prevent accidental deployments.

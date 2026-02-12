@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 3 Summary: System Architecture and Implementation](#chapter-3-summary-system-architecture-and-implementation)
+  - [Structure](#structure)
+    - [3.1 System Overview (7 pages)](#31-system-overview-7-pages)
+    - [3.2 The 20-Agent Implementation (15 pages)](#32-the-20-agent-implementation-15-pages)
+    - [3.3-3.5 Verification Infrastructure (18 pages)](#33-35-verification-infrastructure-18-pages)
+    - [3.6-3.7 Code Generation Pipeline (8 pages)](#36-37-code-generation-pipeline-8-pages)
+    - [3.8 Swarm Coordination Loop (6 pages)](#38-swarm-coordination-loop-6-pages)
+    - [3.9 Ontology Design Patterns (7 pages)](#39-ontology-design-patterns-7-pages)
+    - [3.10 Discussion (6 pages)](#310-discussion-6-pages)
+    - [3.11 Conclusion (2 pages)](#311-conclusion-2-pages)
+  - [Key Statistics](#key-statistics)
+  - [Code Snippets Included](#code-snippets-included)
+  - [Diagrams & Tables](#diagrams--tables)
+  - [Novel Contributions Documented](#novel-contributions-documented)
+  - [References](#references)
+  - [Next Chapter Preview](#next-chapter-preview)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 3 Summary: System Architecture and Implementation
 
 **Document**: /home/user/ggen/docs/research/phd-thesis/chapter-3-implementation.md

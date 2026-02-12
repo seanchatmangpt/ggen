@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 1: Introduction & Background](#chapter-1-introduction--background)
+  - [Abstract](#abstract)
+  - [1. Introduction (5-7 pages)](#1-introduction-5-7-pages)
+    - [1.1 Problem Statement: The Crisis of Correctness in AI-Generated Code](#11-problem-statement-the-crisis-of-correctness-in-ai-generated-code)
+    - [1.2 Why This Matters: From Assistive Tools to Autonomous Systems](#12-why-this-matters-from-assistive-tools-to-autonomous-systems)
+    - [1.3 Research Question: Can We Build Verifier-Driven Swarm Systems?](#13-research-question-can-we-build-verifier-driven-swarm-systems)
+    - [1.4 Contributions of This Work](#14-contributions-of-this-work)
+    - [1.5 Thesis Organization](#15-thesis-organization)
+  - [2. Background & Motivation (8-10 pages)](#2-background--motivation-8-10-pages)
+    - [2.1 Evolution of AI Coding Assistants](#21-evolution-of-ai-coding-assistants)
+    - [2.2 Limitations of Current Approaches](#22-limitations-of-current-approaches)
+    - [2.3 The Need for External Verification](#23-the-need-for-external-verification)
+    - [2.4 Output Contracts as Constraints](#24-output-contracts-as-constraints)
+    - [2.5 Specification-Driven Development](#25-specification-driven-development)
+    - [2.6 The Missing Piece: Verifier as Ground Truth](#26-the-missing-piece-verifier-as-ground-truth)
+  - [3. Related Work (10-12 pages)](#3-related-work-10-12-pages)
+    - [3.1 Multi-Agent Systems and Coordination](#31-multi-agent-systems-and-coordination)
+    - [3.2 Program Synthesis and Formal Verification](#32-program-synthesis-and-formal-verification)
+    - [3.3 Test-Driven Development and Contract-Based Design](#33-test-driven-development-and-contract-based-design)
+    - [3.4 RDF/Ontology-Driven Code Generation](#34-rdfontology-driven-code-generation)
+    - [3.5 Research Gap: Verifier-Driven Swarm Coordination](#35-research-gap-verifier-driven-swarm-coordination)
+  - [4. Research Gap](#4-research-gap)
+    - [4.1 Why Existing Approaches Fail to Constrain Agent Behavior](#41-why-existing-approaches-fail-to-constrain-agent-behavior)
+    - [4.2 The Missing Piece: Verifier as Architectural Constraint](#42-the-missing-piece-verifier-as-architectural-constraint)
+    - [4.3 Implications for Multi-Agent Coordination](#43-implications-for-multi-agent-coordination)
+  - [5. Conclusion of Chapter 1](#5-conclusion-of-chapter-1)
+  - [References (Selected)](#references-selected)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 1: Introduction & Background
 
 **Verifier-Driven Multi-Agent Swarm Coordination for Constraint-Based Code Generation**

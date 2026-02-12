@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Secrets Management Guide](#secrets-management-guide)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+  - [File Structure](#file-structure)
+  - [Getting Started](#getting-started)
+    - [1. Initial Setup](#1-initial-setup)
+      - [Create .env File (Local Development Only)](#create-env-file-local-development-only)
+      - [Initialize GCP Secret Manager](#initialize-gcp-secret-manager)
+    - [2. Adding Secrets to GCP Secret Manager](#2-adding-secrets-to-gcp-secret-manager)
+      - [Using gcloud CLI](#using-gcloud-cli)
+      - [Creating GitHub Token](#creating-github-token)
+      - [Creating GCP Service Account Key](#creating-gcp-service-account-key)
+      - [Creating Erlang Cookie](#creating-erlang-cookie)
+      - [Creating TLS Certificate & Key](#creating-tls-certificate--key)
+    - [3. Configuring GitHub Organization Secrets](#3-configuring-github-organization-secrets)
+  - [Using Secrets in CI/CD](#using-secrets-in-cicd)
+    - [GitHub Actions](#github-actions)
+    - [Cloud Run Environment Variables](#cloud-run-environment-variables)
+  - [Secret Rotation](#secret-rotation)
+    - [Rotation Schedule](#rotation-schedule)
+    - [Rotating a Secret](#rotating-a-secret)
+    - [Automated Rotation with Cloud Scheduler](#automated-rotation-with-cloud-scheduler)
+  - [Emergency Access Procedure](#emergency-access-procedure)
+    - [Step 1: Authenticate](#step-1-authenticate)
+    - [Step 2: Retrieve Secret](#step-2-retrieve-secret)
+    - [Step 3: Document Access](#step-3-document-access)
+    - [Step 4: Communicate](#step-4-communicate)
+  - [Compliance & Security](#compliance--security)
+    - [Principle of Least Privilege](#principle-of-least-privilege)
+    - [Audit Logging](#audit-logging)
+    - [Encryption](#encryption)
+  - [Troubleshooting](#troubleshooting)
+    - [Secret Not Found](#secret-not-found)
+    - [Permission Denied](#permission-denied)
+    - [Secret Version Issues](#secret-version-issues)
+  - [Best Practices](#best-practices)
+    - [Do's ✓](#dos-%E2%9C%93)
+    - [Don'ts ✗](#donts-%E2%9C%97)
+  - [Related Documentation](#related-documentation)
+  - [Support](#support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Secrets Management Guide
 
 ## Overview

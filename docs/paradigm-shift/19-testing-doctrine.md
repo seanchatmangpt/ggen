@@ -39,7 +39,7 @@
     - [Reproducibility Invariants](#reproducibility-invariants)
   - [Testing Deterministic Compilation Pipelines](#testing-deterministic-compilation-pipelines)
     - [Pipeline Determinism Requirements](#pipeline-determinism-requirements)
-    - [Five-Stage Pipeline Testing (μ₁-μ₅)](#five-stage-pipeline-testing-μ₁-μ₅)
+    - [Five-Stage Pipeline Testing (μ₁-μ₅)](#five-stage-pipeline-testing-%CE%BC%E2%82%81-%CE%BC%E2%82%85)
     - [Hash Verification Testing](#hash-verification-testing)
   - [Coverage and Mutation Testing Requirements](#coverage-and-mutation-testing-requirements)
     - [Coverage Targets](#coverage-targets)

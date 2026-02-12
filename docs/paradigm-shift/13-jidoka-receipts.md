@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Jidoka Boundary Gates and Receipt System](#jidoka-boundary-gates-and-receipt-system)
+  - [Overview](#overview)
+  - [The Fundamental Principle: Stop the Line](#the-fundamental-principle-stop-the-line)
+    - [Abnormality Detection](#abnormality-detection)
+    - [What Constitutes an Abnormality](#what-constitutes-an-abnormality)
+  - [Boundary Gates: GREEN/YELLOW/RED](#boundary-gates-greenyellowred)
+    - [Gate Modes](#gate-modes)
+    - [Gate Implementation](#gate-implementation)
+    - [No Negotiation - Only Routing](#no-negotiation---only-routing)
+  - [Receipt Structure: Hash-Linked Chain](#receipt-structure-hash-linked-chain)
+    - [Base Receipt Structure](#base-receipt-structure)
+    - [Receipt Chain Example](#receipt-chain-example)
+  - [Narrative Replaced by Verifiable Artifacts](#narrative-replaced-by-verifiable-artifacts)
+    - [Traditional Approach: Narrative](#traditional-approach-narrative)
+    - [Jidoka Approach: Verifiable Artifacts](#jidoka-approach-verifiable-artifacts)
+    - [Concrete Example: Entitlement Expiration](#concrete-example-entitlement-expiration)
+  - [Receipt Verification and Audit Trails](#receipt-verification-and-audit-trails)
+    - [Verification Algorithm](#verification-algorithm)
+    - [Audit Trail Queries](#audit-trail-queries)
+  - [Implementation in Rust with Cryptographic Signatures](#implementation-in-rust-with-cryptographic-signatures)
+    - [Complete Receipt System](#complete-receipt-system)
+    - [Usage Example](#usage-example)
+  - [Real-World Scenarios](#real-world-scenarios)
+    - [Scenario 1: Rate Limit Exceeded (Yellow Mode)](#scenario-1-rate-limit-exceeded-yellow-mode)
+    - [Scenario 2: Circuit Breaker Opens (Red Mode)](#scenario-2-circuit-breaker-opens-red-mode)
+    - [Scenario 3: Entitlement Expiration During Request](#scenario-3-entitlement-expiration-during-request)
+  - [Summary](#summary)
+    - [Key Principles](#key-principles)
+    - [Benefits](#benefits)
+    - [The Manufacturing Paradigm Applied](#the-manufacturing-paradigm-applied)
+  - [Further Reading](#further-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Jidoka Boundary Gates and Receipt System
 
 **Version**: 1.0.0

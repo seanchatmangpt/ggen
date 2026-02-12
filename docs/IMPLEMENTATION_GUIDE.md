@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen v7 Implementation Guide](#ggen-v7-implementation-guide)
+  - [1. Core Implementation Patterns](#1-core-implementation-patterns)
+    - [1.1 Five-Stage Pipeline Implementation](#11-five-stage-pipeline-implementation)
+    - [1.2 Type-Safe Interfaces](#12-type-safe-interfaces)
+  - [2. Memory Management Implementation](#2-memory-management-implementation)
+    - [2.1 Zero-Copy Data Structures](#21-zero-copy-data-structures)
+    - [2.2 Arc-Based Shared State](#22-arc-based-shared-state)
+  - [3. Performance Optimization Implementation](#3-performance-optimization-implementation)
+    - [3.1 Parallel Processing](#31-parallel-processing)
+    - [3.2 Multi-Level Cache](#32-multi-level-cache)
+  - [4. Integration Pattern Implementation](#4-integration-pattern-implementation)
+    - [4.1 ggen-agent Integration](#41-ggen-agent-integration)
+    - [4.2 CLI Integration](#42-cli-integration)
+  - [5. Testing Implementation](#5-testing-implementation)
+    - [5.1 Unit Tests](#51-unit-tests)
+    - [5.2 Integration Tests](#52-integration-tests)
+  - [6. Production Deployment](#6-production-deployment)
+    - [6.1 Docker Configuration](#61-docker-configuration)
+    - [6.2 Kubernetes Deployment](#62-kubernetes-deployment)
+    - [6.3 Monitoring Configuration](#63-monitoring-configuration)
+  - [7. Quality Assurance](#7-quality-assurance)
+    - [7.1 Poka-Yoke Implementation](#71-poka-yoke-implementation)
+    - [7.2 Lint Configuration](#72-lint-configuration)
+  - [8. Development Workflow](#8-development-workflow)
+    - [8.1 Cargo Make Tasks](#81-cargo-make-tasks)
+    - [8.2 Git Hooks](#82-git-hooks)
+  - [9. Documentation Generation](#9-documentation-generation)
+    - [9.1 Structured Documentation](#91-structured-documentation)
+    - [9.2 API Documentation Generation](#92-api-documentation-generation)
+  - [10. Conclusion](#10-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen v7 Implementation Guide
 
 ## 1. Core Implementation Patterns

@@ -17,7 +17,7 @@
     - [Perimeter-First Core Move](#perimeter-first-core-move)
   - [Architecture Principles](#architecture-principles)
     - [Principle 1: Eliminate Exported Decisions](#principle-1-eliminate-exported-decisions)
-    - [Principle 2: Drive λ_admitted → 0](#principle-2-drive-λ_admitted--0)
+    - [Principle 2: Drive λ_admitted → 0](#principle-2-drive-%CE%BB_admitted-%E2%86%92-0)
     - [Principle 3: World Interaction is the Problem](#principle-3-world-interaction-is-the-problem)
     - [Principle 4: Internal Structure is Sunk Cost](#principle-4-internal-structure-is-sunk-cost)
   - [OSIRIS vs Traditional System Design](#osiris-vs-traditional-system-design)

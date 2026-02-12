@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AI Memory Management Research Summary](#ai-memory-management-research-summary)
+  - [Research Overview](#research-overview)
+  - [Key Findings](#key-findings)
+    - [2026 = "The Year of Context"](#2026--the-year-of-context)
+    - [Technology Recommendations for ggen](#technology-recommendations-for-ggen)
+    - [Architecture Patterns](#architecture-patterns)
+  - [Documents Produced](#documents-produced)
+    - [1. Full Research Report](#1-full-research-report)
+    - [2. Quick Reference Guide](#2-quick-reference-guide)
+    - [3. Implementation Guide (Rust)](#3-implementation-guide-rust)
+  - [Immediate Action Items](#immediate-action-items)
+    - [Week 1: Foundation](#week-1-foundation)
+    - [Month 1: Lightweight Integration](#month-1-lightweight-integration)
+    - [Quarter 1: Advanced Features](#quarter-1-advanced-features)
+  - [Critical Insights](#critical-insights)
+    - [1. Local-First Revival](#1-local-first-revival)
+    - [2. RAG → Context Engines](#2-rag-%E2%86%92-context-engines)
+    - [3. Universal Memory Extensions](#3-universal-memory-extensions)
+    - [4. Post-Quantum Urgency](#4-post-quantum-urgency)
+    - [5. Regulatory Wave (2026)](#5-regulatory-wave-2026)
+  - [Performance Targets](#performance-targets)
+  - [Security Checklist](#security-checklist)
+  - [ggen-Specific Considerations](#ggen-specific-considerations)
+    - [Determinism](#determinism)
+    - [RDF Ontology Integration](#rdf-ontology-integration)
+    - [Chicago TDD Requirements](#chicago-tdd-requirements)
+    - [DfLSS (Prevent Waste)](#dflss-prevent-waste)
+  - [Gaps Identified](#gaps-identified)
+    - [High-Impact](#high-impact)
+    - [Medium-Impact](#medium-impact)
+  - [Emerging Trends (2026-2030)](#emerging-trends-2026-2030)
+  - [Next Steps](#next-steps)
+  - [Resources](#resources)
+    - [Internal Documents](#internal-documents)
+    - [External Resources](#external-resources)
+    - [Research Papers (January 2026)](#research-papers-january-2026)
+  - [Research Methodology](#research-methodology)
+  - [Contact & Feedback](#contact--feedback)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AI Memory Management Research Summary
 
 **Research Date:** 2026-02-08

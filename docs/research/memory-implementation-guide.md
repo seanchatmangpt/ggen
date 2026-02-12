@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AI Memory Implementation Guide for ggen (Rust)](#ai-memory-implementation-guide-for-ggen-rust)
+  - [1. SQLite-vec Integration](#1-sqlite-vec-integration)
+    - [Add Dependencies (Cargo.toml)](#add-dependencies-cargotoml)
+    - [Semantic Search Module (`crates/ggen-core/src/memory/semantic_search.rs`)](#semantic-search-module-cratesggen-coresrcmemorysemantic_searchrs)
+  - [2. Memory Compression (Hierarchical Summarization)](#2-memory-compression-hierarchical-summarization)
+    - [Compression Module (`crates/ggen-core/src/memory/compression.rs`)](#compression-module-cratesggen-coresrcmemorycompressionrs)
+  - [3. Memory Encryption (Post-Quantum)](#3-memory-encryption-post-quantum)
+    - [Encryption Module (`crates/ggen-core/src/memory/encryption.rs`)](#encryption-module-cratesggen-coresrcmemoryencryptionrs)
+  - [4. Memory Manager (Unified API)](#4-memory-manager-unified-api)
+    - [Memory Manager (`crates/ggen-core/src/memory/mod.rs`)](#memory-manager-cratesggen-coresrcmemorymodrs)
+  - [5. Integration with ggen Pipeline](#5-integration-with-ggen-pipeline)
+    - [Pipeline Memory Extension (`crates/ggen-core/src/pipeline/memory_integration.rs`)](#pipeline-memory-extension-cratesggen-coresrcpipelinememory_integrationrs)
+  - [6. CLI Integration](#6-cli-integration)
+    - [Memory Commands (`crates/ggen-cli/src/commands/memory.rs`)](#memory-commands-cratesggen-clisrccommandsmemoryrs)
+    - [Add to main CLI (`crates/ggen-cli/src/cli.rs`)](#add-to-main-cli-cratesggen-clisrcclirs)
+  - [7. Testing Strategy](#7-testing-strategy)
+    - [Integration Test (`crates/ggen-core/tests/memory_integration_test.rs`)](#integration-test-cratesggen-coretestsmemory_integration_testrs)
+  - [8. Makefile.toml Tasks](#8-makefiletoml-tasks)
+  - [9. Performance Considerations](#9-performance-considerations)
+    - [Benchmarks (`benches/memory_benchmarks.rs`)](#benchmarks-benchesmemory_benchmarksrs)
+  - [10. Documentation](#10-documentation)
+    - [Module Documentation (`crates/ggen-core/src/memory.rs`)](#module-documentation-cratesggen-coresrcmemoryrs)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AI Memory Implementation Guide for ggen (Rust)
 
 **Target:** ggen v6.0.0 Rust codebase

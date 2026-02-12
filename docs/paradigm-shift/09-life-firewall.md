@@ -13,7 +13,7 @@
   - [Packet Discipline: Typed Work Orders](#packet-discipline-typed-work-orders)
     - [Work Order Anatomy](#work-order-anatomy)
     - [Work Order Types](#work-order-types)
-  - [The "No Packet ⇒ No Work" Principle](#the-no-packet--no-work-principle)
+  - [The "No Packet ⇒ No Work" Principle](#the-no-packet-%E2%87%92-no-work-principle)
   - [Implementation Patterns in Rust](#implementation-patterns-in-rust)
     - [Core Traits](#core-traits)
     - [Firewall Implementation](#firewall-implementation)

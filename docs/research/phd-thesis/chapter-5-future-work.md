@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 5: Future Work and Conclusions](#chapter-5-future-work-and-conclusions)
+  - [Abstract](#abstract)
+  - [5.1 Future Research Directions](#51-future-research-directions)
+    - [5.1.1 Self-Improving Verifiers](#511-self-improving-verifiers)
+    - [5.1.2 Multi-Language Support](#512-multi-language-support)
+    - [5.1.3 Formal Verification Integration](#513-formal-verification-integration)
+    - [5.1.4 Autonomous Swarm Scaling](#514-autonomous-swarm-scaling)
+    - [5.1.5 Human-Agent Collaboration](#515-human-agent-collaboration)
+    - [5.1.6 Application Domains](#516-application-domains)
+  - [5.2 Broader Impact](#52-broader-impact)
+    - [5.2.1 Implications for AI Safety](#521-implications-for-ai-safety)
+  - [5.3 Lessons Learned](#53-lessons-learned)
+    - [5.3.1 What Worked: Parallel Agent Execution](#531-what-worked-parallel-agent-execution)
+    - [5.3.2 What Worked: Boolean Verification Gates](#532-what-worked-boolean-verification-gates)
+    - [5.3.3 What Worked: RDF Specifications](#533-what-worked-rdf-specifications)
+    - [5.3.4 What Surprised Us: Language Agnosticism](#534-what-surprised-us-language-agnosticism)
+    - [5.3.5 What Surprised Us: Verification Performance](#535-what-surprised-us-verification-performance)
+    - [5.3.6 What Didn't Work: Initial Confidence-Only Approach](#536-what-didnt-work-initial-confidence-only-approach)
+    - [5.3.7 What Didn't Work: Monolithic Agent Tasks](#537-what-didnt-work-monolithic-agent-tasks)
+    - [5.3.8 Advice for Future Researchers](#538-advice-for-future-researchers)
+  - [5.4 Conclusions](#54-conclusions)
+    - [5.4.1 Summary of Contributions](#541-summary-of-contributions)
+    - [5.4.2 Thesis Statement Validated](#542-thesis-statement-validated)
+    - [5.4.3 Key Insight: Constraints > Confidence](#543-key-insight-constraints--confidence)
+    - [5.4.4 The Future is Verified](#544-the-future-is-verified)
+  - [Appendices](#appendices)
+    - [Appendix A: Complete File Listing](#appendix-a-complete-file-listing)
+    - [Appendix B: Full Ontology Schemas](#appendix-b-full-ontology-schemas)
+    - [Appendix C: Example Verification Reports](#appendix-c-example-verification-reports)
+    - [Appendix D: Agent Task Breakdown](#appendix-d-agent-task-breakdown)
+    - [Appendix E: Code Samples](#appendix-e-code-samples)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 5: Future Work and Conclusions
 
 **Verifier-Driven Multi-Agent Swarm Coordination for Constraint-Based Code Generation**

@@ -13,6 +13,7 @@
     - [👨‍💼 I'm a Manager: "How Do I Sell This to My Team?"](#-im-a-manager-how-do-i-sell-this-to-my-team)
     - [🏗️ I'm an Architect: "How Does This Fit My System?"](#-im-an-architect-how-does-this-fit-my-system)
   - [📚 Documentation by Category](#-documentation-by-category)
+    - [🏭 A2A/TPS/CONSTRUCT Paradigm Shift (NEW)](#-a2atpsconstruct-paradigm-shift-new)
     - [Fundamentals (P0: Critical - Week 1)](#fundamentals-p0-critical---week-1)
     - [Skeptics & Resistance Management (P0: Critical - Week 1)](#skeptics--resistance-management-p0-critical---week-1)
     - [Learning Paths (P1: High Priority - Month 1)](#learning-paths-p1-high-priority---month-1)

@@ -4,16 +4,36 @@
 
 - [Protocol Translation](#protocol-translation)
   - [Translation Challenge](#translation-challenge)
+    - [Conceptual Differences](#conceptual-differences)
+    - [Structural Differences](#structural-differences)
   - [Translation Architecture](#translation-architecture)
+    - [Translation Pipeline](#translation-pipeline)
   - [Message Format Translation](#message-format-translation)
+    - [Tool Call to Message](#tool-call-to-message)
+    - [Resource Read to Message](#resource-read-to-message)
+    - [Prompt Get to Task](#prompt-get-to-task)
   - [Type System Mapping](#type-system-mapping)
+    - [Schema Translation](#schema-translation)
+    - [Type Mapping Table](#type-mapping-table)
+    - [Complex Type Translation](#complex-type-translation)
   - [Stream Translation](#stream-translation)
+    - [MCP Streaming](#mcp-streaming)
+    - [A2A Streaming](#a2a-streaming)
+    - [Stream Translation Layer](#stream-translation-layer)
+    - [Stream Mapping Implementation](#stream-mapping-implementation)
   - [Error Translation](#error-translation)
+    - [Error Code Mapping](#error-code-mapping)
+    - [Error Translation Table](#error-translation-table)
+    - [Error Translation Implementation](#error-translation-implementation)
   - [Metadata Translation](#metadata-translation)
+    - [Header Mapping](#header-mapping)
   - [Performance Optimization](#performance-optimization)
+    - [Translation Caching](#translation-caching)
+    - [Batch Translation](#batch-translation)
+    - [Performance Targets](#performance-targets)
   - [See Also](#see-also)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Protocol Translation
 

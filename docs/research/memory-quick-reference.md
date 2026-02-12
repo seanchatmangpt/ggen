@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AI Memory Management - Quick Reference (2026)](#ai-memory-management---quick-reference-2026)
+  - [TL;DR - Top Recommendations for ggen](#tldr---top-recommendations-for-ggen)
+    - [1. Directory Structure (Adopt Now)](#1-directory-structure-adopt-now)
+    - [2. Technology Stack Recommendations](#2-technology-stack-recommendations)
+    - [3. Key Metrics (2026 Industry Standards)](#3-key-metrics-2026-industry-standards)
+    - [4. Architecture Patterns](#4-architecture-patterns)
+      - [Three-Tier Memory](#three-tier-memory)
+      - [Hybrid Search (2026 Standard)](#hybrid-search-2026-standard)
+      - [Memory Types](#memory-types)
+    - [5. Security Checklist](#5-security-checklist)
+    - [6. Implementation Priority](#6-implementation-priority)
+    - [7. Critical Insights](#7-critical-insights)
+    - [8. Common Pitfalls to Avoid](#8-common-pitfalls-to-avoid)
+    - [9. Quick Wins for ggen](#9-quick-wins-for-ggen)
+    - [10. Decision Matrix](#10-decision-matrix)
+    - [11. ggen-Specific Considerations](#11-ggen-specific-considerations)
+  - [Resources](#resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AI Memory Management - Quick Reference (2026)
 
 **Last Updated:** 2026-02-08

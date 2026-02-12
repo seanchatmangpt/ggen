@@ -4,16 +4,38 @@
 
 - [Security Model](#security-model)
   - [Security Architecture](#security-architecture)
+    - [Security Layers](#security-layers)
   - [Authentication](#authentication)
+    - [MCP Authentication](#mcp-authentication)
+    - [Authentication Methods](#authentication-methods)
+      - [JWT Tokens](#jwt-tokens)
+      - [API Keys](#api-keys)
+      - [OAuth2](#oauth2)
+    - [A2A Authentication](#a2a-authentication)
   - [Authorization](#authorization)
+    - [Permission Model](#permission-model)
+    - [Permission Structure](#permission-structure)
+    - [Role-Based Access Control (RBAC)](#role-based-access-control-rbac)
+    - [Attribute-Based Access Control (ABAC)](#attribute-based-access-control-abac)
   - [Transport Security](#transport-security)
+    - [TLS Configuration](#tls-configuration)
+    - [Mutual TLS (mTLS)](#mutual-tls-mtls)
   - [Message Security](#message-security)
+    - [Message Signing](#message-signing)
+    - [Message Encryption](#message-encryption)
   - [Credential Management](#credential-management)
+    - [Credential Storage](#credential-storage)
+    - [Key Rotation](#key-rotation)
   - [Security Policies](#security-policies)
+    - [Rate Limiting](#rate-limiting)
+    - [IP Whitelisting](#ip-whitelisting)
+    - [Audit Logging](#audit-logging)
   - [Threat Model](#threat-model)
+    - [Identified Threats](#identified-threats)
+    - [Security Checklist](#security-checklist)
   - [See Also](#see-also)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Security Model
 

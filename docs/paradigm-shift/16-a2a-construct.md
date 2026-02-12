@@ -11,6 +11,7 @@
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
 
 - [Executive Summary](#executive-summary)
 - [The Fundamental Shift: Chat to Construction](#the-fundamental-shift-chat-to-construction)
@@ -19,10 +20,21 @@
   - [The Event Horizon](#the-event-horizon)
 - [Core Principles](#core-principles)
   - [Principle 1: Tasks as Kanban Cards](#principle-1-tasks-as-kanban-cards)
+    - [Task Structure](#task-structure)
+    - [Kanban Board View](#kanban-board-view)
   - [Principle 2: Artifacts Over Prose](#principle-2-artifacts-over-prose)
+    - [Before: Prose-Based](#before-prose-based)
+    - [After: Artifact-Based](#after-artifact-based)
+    - [Artifact Types](#artifact-types)
   - [Principle 3: Events as Andon Signals](#principle-3-events-as-andon-signals)
+    - [Event Stream](#event-stream)
+    - [Event Categories](#event-categories)
   - [Principle 4: Pull-Only Work Distribution](#principle-4-pull-only-work-distribution)
+    - [Push vs Pull](#push-vs-pull)
   - [Principle 5: Terminal State Machines](#principle-5-terminal-state-machines)
+    - [State Machine Diagram](#state-machine-diagram)
+    - [Terminal State Properties](#terminal-state-properties)
+    - [Enforcement](#enforcement)
 - [Protocol Specifications](#protocol-specifications)
   - [Task State Machine](#task-state-machine)
   - [Event Stream Protocol](#event-stream-protocol)
@@ -32,10 +44,18 @@
   - [The Vision: Humans Removed from Loop](#the-vision-humans-removed-from-loop)
   - [Token Flow Architecture](#token-flow-architecture)
   - [Station Types](#station-types)
+    - [Station 1: RDF Parser](#station-1-rdf-parser)
+    - [Station 2: Code Generator](#station-2-code-generator)
+    - [Station 3: Validator](#station-3-validator)
+    - [Station 4: Test Runner](#station-4-test-runner)
+    - [Station 5: Packager](#station-5-packager)
 - [a2a-rs: Transport and State Machine Substrate](#a2a-rs-transport-and-state-machine-substrate)
   - [Core Responsibilities](#core-responsibilities)
   - [Integration Points](#integration-points)
   - [Implementation Patterns](#implementation-patterns)
+    - [Pattern 1: Task State Machine](#pattern-1-task-state-machine)
+    - [Pattern 2: Event Subscription](#pattern-2-event-subscription)
+    - [Pattern 3: Artifact Storage](#pattern-3-artifact-storage)
 - [TPS Profile: Manufacturing Discipline at Protocol Level](#tps-profile-manufacturing-discipline-at-protocol-level)
   - [Pull-Only (JIT)](#pull-only-jit)
   - [WIP Limits (Kanban)](#wip-limits-kanban)
@@ -46,15 +66,27 @@
   - [Example 2: Multi-Language Code Generation](#example-2-multi-language-code-generation)
   - [Example 3: Documentation Generation](#example-3-documentation-generation)
 - [Anti-Patterns and Common Mistakes](#anti-patterns-and-common-mistakes)
+  - [Anti-Pattern 1: Chat-Based Coordination](#anti-pattern-1-chat-based-coordination)
+  - [Anti-Pattern 2: Unbounded Queues](#anti-pattern-2-unbounded-queues)
+  - [Anti-Pattern 3: Mutable Terminal States](#anti-pattern-3-mutable-terminal-states)
+  - [Anti-Pattern 4: Push-Based Work Distribution](#anti-pattern-4-push-based-work-distribution)
+  - [Anti-Pattern 5: No Validation Gates](#anti-pattern-5-no-validation-gates)
 - [Implementation Guide](#implementation-guide)
   - [Phase 1: Foundation](#phase-1-foundation)
   - [Phase 2: Agent Integration](#phase-2-agent-integration)
   - [Phase 3: Post-Human Scaling](#phase-3-post-human-scaling)
 - [Metrics and Validation](#metrics-and-validation)
+  - [TPS Metrics](#tps-metrics)
+  - [Validation Metrics](#validation-metrics)
+  - [Reproducibility Metrics](#reproducibility-metrics)
 - [Further Reading](#further-reading)
 - [Appendix: Protocol Message Formats](#appendix-protocol-message-formats)
+  - [Task Creation (JSON-RPC)](#task-creation-json-rpc)
+  - [Task Pull (HTTP GET)](#task-pull-http-get)
+  - [Task Completion (HTTP POST)](#task-completion-http-post)
+  - [Event Stream (WebSocket)](#event-stream-websocket)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ---
 
