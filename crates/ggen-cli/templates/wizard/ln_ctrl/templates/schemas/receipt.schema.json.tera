@@ -1,0 +1,211 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ln_ctrl Receipt",
+  "description": "Cryptographic receipt for λn execution with causal and hash chaining",
+  "type": "object",
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of execution step"
+    },
+    "operation": {
+      "type": "string",
+      "description": "Operation type (reduce, apply, evaluate, etc.)",
+      "enum": ["reduce", "apply", "evaluate", "bind", "substitute", "normalize"]
+    },
+    "causal_parent": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "SHA-256 hash of parent receipt (establishes causal chain)",
+      "nullable": true
+    },
+    "hash_chain": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "Running cryptographic hash (SHA-256) of entire chain"
+    },
+    "workflow_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID identifying the workflow execution"
+    },
+    "step_index": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Sequential step number in workflow (0-indexed)"
+    },
+    "redex_executed": {
+      "type": "object",
+      "description": "The reducible expression that was executed",
+      "properties": {
+        "redex_type": {
+          "type": "string",
+          "description": "Type of redex (beta, eta, delta, etc.)",
+          "enum": ["beta", "eta", "delta", "iota", "zeta", "custom"]
+        },
+        "redex_expression": {
+          "type": "string",
+          "description": "Serialized representation of the redex"
+        },
+        "redex_location": {
+          "type": "string",
+          "description": "Path or address of redex in term structure"
+        }
+      },
+      "required": ["redex_type", "redex_expression"],
+      "additionalProperties": false
+    },
+    "frontier_after": {
+      "type": "object",
+      "description": "Execution frontier state after this reduction",
+      "properties": {
+        "frontier_terms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of terms at execution frontier"
+        },
+        "frontier_size": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of terms in frontier"
+        },
+        "frontier_hash": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "description": "Hash of frontier state for quick comparison"
+        }
+      },
+      "required": ["frontier_terms", "frontier_size", "frontier_hash"],
+      "additionalProperties": false
+    },
+    "effects_performed": {
+      "type": "array",
+      "description": "List of side effects performed during execution",
+      "items": {
+        "type": "object",
+        "properties": {
+          "effect_type": {
+            "type": "string",
+            "description": "Type of effect (io, state, control, etc.)",
+            "enum": ["io", "state", "control", "logging", "network", "filesystem"]
+          },
+          "effect_data": {
+            "type": "string",
+            "description": "Serialized effect data"
+          },
+          "effect_result": {
+            "type": "string",
+            "description": "Result or outcome of effect execution",
+            "nullable": true
+          }
+        },
+        "required": ["effect_type", "effect_data"],
+        "additionalProperties": false
+      },
+      "default": []
+    },
+    "budget_remaining": {
+      "type": "object",
+      "description": "Remaining resource budget after this step",
+      "properties": {
+        "budget_steps": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Remaining reduction steps"
+        },
+        "budget_memory": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Remaining memory budget in bytes"
+        },
+        "budget_time": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Remaining time budget in milliseconds"
+        },
+        "budget_exceeded": {
+          "type": "boolean",
+          "description": "Whether any budget limit was exceeded",
+          "default": false
+        }
+      },
+      "required": ["budget_steps", "budget_memory", "budget_time", "budget_exceeded"],
+      "additionalProperties": false
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{128}$",
+      "description": "Ed25519 signature of receipt contents"
+    },
+    "public_key": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "Public key used for signature verification"
+    },
+    "chain_valid": {
+      "type": "boolean",
+      "description": "Whether the causal chain is valid up to this receipt",
+      "default": true
+    },
+    "chain_length": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of receipts in causal chain"
+    }
+  },
+  "required": [
+    "timestamp",
+    "operation",
+    "hash_chain",
+    "workflow_id",
+    "step_index",
+    "redex_executed",
+    "frontier_after",
+    "effects_performed",
+    "budget_remaining",
+    "signature",
+    "public_key",
+    "chain_length"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "timestamp": "2026-02-11T21:30:00Z",
+      "operation": "reduce",
+      "causal_parent": "a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5",
+      "hash_chain": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+      "workflow_id": "550e8400-e29b-41d4-a716-446655440000",
+      "step_index": 42,
+      "redex_executed": {
+        "redex_type": "beta",
+        "redex_expression": "(λx.x+1) 5",
+        "redex_location": "root.body.app[0]"
+      },
+      "frontier_after": {
+        "frontier_terms": ["5+1", "42", "λy.y*2"],
+        "frontier_size": 3,
+        "frontier_hash": "fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321"
+      },
+      "effects_performed": [
+        {
+          "effect_type": "logging",
+          "effect_data": "{\"level\":\"info\",\"message\":\"Reduced beta redex\"}",
+          "effect_result": "logged"
+        }
+      ],
+      "budget_remaining": {
+        "budget_steps": 9958,
+        "budget_memory": 104857600,
+        "budget_time": 29500,
+        "budget_exceeded": false
+      },
+      "signature": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "public_key": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+      "chain_valid": true,
+      "chain_length": 43
+    }
+  ]
+}

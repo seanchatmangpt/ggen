@@ -1,0 +1,36 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ln_ctrl: <https://ggen.io/ontology/ln_ctrl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?outputClass ?label ?comment ?property ?propLabel ?propComment ?range ?isRequired
+WHERE {
+  # Match output-related classes (Receipt, Redex, Frontier, Effect, Budget)
+  VALUES ?outputClass {
+    ln_ctrl:Receipt
+    ln_ctrl:Redex
+    ln_ctrl:Frontier
+    ln_ctrl:Effect
+    ln_ctrl:Budget
+    ln_ctrl:ReplayPack
+    ln_ctrl:ChoiceLog
+    ln_ctrl:InitialState
+  }
+
+  ?outputClass a rdfs:Class ;
+               rdfs:label ?label .
+  OPTIONAL { ?outputClass rdfs:comment ?comment . }
+
+  # Get all properties for output classes
+  OPTIONAL {
+    ?property a rdf:Property ;
+              rdfs:domain ?outputClass ;
+              rdfs:label ?propLabel .
+    OPTIONAL { ?property rdfs:comment ?propComment . }
+    OPTIONAL { ?property rdfs:range ?range . }
+
+    # Determine if property is required (heuristic: has specific range)
+    BIND(EXISTS { ?property rdfs:range ?r . } AS ?isRequired)
+  }
+}
+ORDER BY ?label ?propLabel

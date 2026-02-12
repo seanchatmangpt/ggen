@@ -1,0 +1,24 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ln_ctrl: <https://ggen.io/ontology/ln_ctrl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?property ?label ?comment ?range ?domain
+WHERE {
+  # Extract all receipt contract properties
+  ?property a rdf:Property ;
+            rdfs:label ?label .
+  OPTIONAL { ?property rdfs:comment ?comment . }
+  OPTIONAL { ?property rdfs:range ?range . }
+  OPTIONAL { ?property rdfs:domain ?domain . }
+
+  # Filter for receipt-related properties
+  FILTER(
+    ?domain = ln_ctrl:Receipt ||
+    ?domain = ln_ctrl:Redex ||
+    ?domain = ln_ctrl:Frontier ||
+    ?domain = ln_ctrl:Effect ||
+    ?domain = ln_ctrl:Budget
+  )
+}
+ORDER BY ?domain ?label

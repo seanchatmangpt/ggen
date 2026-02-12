@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "timestamp": "{{ timestamp | default(value="2026-02-11T00:00:00Z") }}",
+  "artifacts": [
+    {%- for row in results %}
+    {
+      "path": "{{ row.path }}",
+      "format": "{{ row.format }}",
+      {%- if row.validator %}
+      "validator": "{{ row.validator }}",
+      {%- endif %}
+      "hash": ""
+    }{% if not loop.last %},{% endif %}
+    {%- endfor %}
+  ]
+}

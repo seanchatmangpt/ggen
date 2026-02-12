@@ -1,0 +1,27 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX lnctrl: <https://ggen.io/ontology/ln_ctrl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?class ?label ?comment ?property ?propLabel ?propComment ?range ?domain
+WHERE {
+  # Match all kernel node classes
+  ?class rdfs:subClassOf* lnctrl:KernelNode ;
+         rdfs:label ?label .
+  OPTIONAL { ?class rdfs:comment ?comment . }
+
+  # Get all properties associated with kernel nodes
+  OPTIONAL {
+    ?property a rdf:Property ;
+              rdfs:label ?propLabel .
+    OPTIONAL { ?property rdfs:comment ?propComment . }
+    OPTIONAL { ?property rdfs:range ?range . }
+    OPTIONAL { ?property rdfs:domain ?domain . }
+    FILTER(
+      ?domain = ?class ||
+      ?domain = lnctrl:KernelNode ||
+      EXISTS { ?class rdfs:subClassOf+ ?domain }
+    )
+  }
+}
+ORDER BY ?label ?propLabel

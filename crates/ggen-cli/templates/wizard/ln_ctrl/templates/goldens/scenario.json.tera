@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ln_ctrl Test Scenario",
+  "description": "Test scenario definition for λn execution traces",
+  "type": "object",
+  "scenario_id": "{{ scenario_id | default(value="550e8400-e29b-41d4-a716-446655440000") }}",
+  "scenario_name": "{{ scenario_name | default(value="basic_beta_reduction") }}",
+  "scenario_type": "{{ scenario_type | default(value="positive") }}",
+  "description": "{{ description | default(value="Basic beta reduction test scenario") }}",
+  "test_parameters": {
+    "workflow_id": "{{ workflow_id | default(value="550e8400-e29b-41d4-a716-446655440000") }}",
+    "initial_expression": "{{ initial_expression | default(value="(λx.x+1) 5") }}",
+    "expected_steps": {{ expected_steps | default(value="3") }},
+    "budget": {
+      "budget_steps": {{ budget_steps | default(value="10000") }},
+      "budget_memory": {{ budget_memory | default(value="104857600") }},
+      "budget_time": {{ budget_time | default(value="30000") }}
+    },
+    "enable_effects": {{ enable_effects | default(value="true") }},
+    "enable_signatures": {{ enable_signatures | default(value="true") }}
+  },
+  "execution_context": {
+    "environment": {
+      {%- for key, value in environment | default(value={}) %}
+      "{{ key }}": "{{ value }}"{% if not loop.last %},{% endif %}
+      {%- endfor %}
+    },
+    "initial_bindings": {
+      {%- for key, value in initial_bindings | default(value={}) %}
+      "{{ key }}": "{{ value }}"{% if not loop.last %},{% endif %}
+      {%- endfor %}
+    }
+  },
+  "expected_outcomes": {
+    "should_complete": {{ should_complete | default(value="true") }},
+    "final_value": "{{ final_value | default(value="6") }}",
+    "total_receipts": {{ total_receipts | default(value="3") }},
+    "chain_valid": {{ chain_valid | default(value="true") }},
+    "budget_exceeded": {{ budget_exceeded | default(value="false") }},
+    "effects_count": {{ effects_count | default(value="0") }}
+  },
+  "normalization_rules": {
+    "timestamp_placeholder": "{{TIMESTAMP}}",
+    "hash_placeholder": "{{HASH}}",
+    "signature_placeholder": "{{SIGNATURE}}",
+    "uuid_placeholder": "{{UUID}}",
+    "normalize_whitespace": true,
+    "ignore_fields": [
+      "timestamp",
+      "signature",
+      "public_key"
+    ]
+  },
+  "metadata": {
+    "created_at": "{{ created_at | default(value="2026-02-11T00:00:00Z") }}",
+    "schema_version": "{{ schema_version | default(value="1.0.0") }}",
+    "author": "{{ author | default(value="ggen-wizard") }}",
+    "tags": [
+      {%- for tag in tags | default(value=["lambda-calculus", "beta-reduction", "golden-test"]) %}
+      "{{ tag }}"{% if not loop.last %},{% endif %}
+      {%- endfor %}
+    ]
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Expected Divergence Report",
+  "description": "Expected divergence detection report for negative test cases",
+  "scenario_id": "{{ scenario_id | default(value="550e8400-e29b-41d4-a716-446655440000") }}",
+  "workflow_id": "{{ workflow_id | default(value="550e8400-e29b-41d4-a716-446655440000") }}",
+  "divergence_detected": {{ divergence_detected | default(value="true") }},
+  "divergence_type": "{{ divergence_type | default(value="invalid_chain") }}",
+  "detection_metadata": {
+    "detected_at_step": {{ detected_at_step | default(value="1") }},
+    "detection_timestamp": "{{TIMESTAMP}}",
+    "validator_version": "{{ validator_version | default(value="1.0.0") }}"
+  },
+  "divergence_details": {
+    "primary_issue": "{{ primary_issue | default(value="Hash chain break detected") }}",
+    "issue_category": "{{ issue_category | default(value="cryptographic_integrity") }}",
+    "severity": "{{ severity | default(value="critical") }}",
+    "affected_receipts": [
+      {%- for receipt_idx in affected_receipts | default(value=[1]) %}
+      {{ receipt_idx }}{% if not loop.last %},{% endif %}
+      {%- endfor %}
+    ]
+  },
+  "validation_failures": [
+    {%- for failure in validation_failures | default(value=[]) %}
+    {
+      "failure_type": "{{ failure.failure_type }}",
+      "failure_message": "{{ failure.failure_message }}",
+      "receipt_index": {{ failure.receipt_index }},
+      "field_path": "{{ failure.field_path }}",
+      "expected_value": "{{ failure.expected_value | default(value="null") }}",
+      "actual_value": "{{ failure.actual_value | default(value="null") }}",
+      "severity": "{{ failure.severity | default(value="error") }}"
+    }{% if not loop.last %},{% endif %}
+    {%- endfor %}
+  ],
+  "chain_analysis": {
+    "total_receipts": {{ total_receipts | default(value="3") }},
+    "valid_receipts": {{ valid_receipts | default(value="1") }},
+    "invalid_receipts": {{ invalid_receipts | default(value="2") }},
+    "chain_breaks": [
+      {%- for chain_break in chain_breaks | default(value=[]) %}
+      {
+        "break_location": {{ chain_break.break_location }},
+        "break_type": "{{ chain_break.break_type }}",
+        "parent_receipt": {{ chain_break.parent_receipt }},
+        "child_receipt": {{ chain_break.child_receipt }},
+        "description": "{{ chain_break.description }}"
+      }{% if not loop.last %},{% endif %}
+      {%- endfor %}
+    ],
+    "hash_chain_status": "{{ hash_chain_status | default(value="broken") }}",
+    "causal_chain_status": "{{ causal_chain_status | default(value="broken") }}"
+  },
+  "cryptographic_issues": [
+    {%- for issue in cryptographic_issues | default(value=[]) %}
+    {
+      "issue_type": "{{ issue.issue_type }}",
+      "issue_description": "{{ issue.issue_description }}",
+      "affected_receipt": {{ issue.affected_receipt }},
+      "expected_hash": "{{HASH}}",
+      "actual_hash": "{{HASH}}",
+      "collision_detected": {{ issue.collision_detected | default(value="false") }}
+    }{% if not loop.last %},{% endif %}
+    {%- endfor %}
+  ],
+  "semantic_issues": [
+    {%- for issue in semantic_issues | default(value=[]) %}
+    {
+      "issue_type": "{{ issue.issue_type }}",
+      "issue_description": "{{ issue.issue_description }}",
+      "affected_receipt": {{ issue.affected_receipt }},
+      "reduction_rule_violated": "{{ issue.reduction_rule_violated | default(value="none") }}",
+      "frontier_inconsistency": {{ issue.frontier_inconsistency | default(value="false") }}
+    }{% if not loop.last %},{% endif %}
+    {%- endfor %}
+  ],
+  "budget_violations": {
+    "budget_exceeded": {{ budget_exceeded | default(value="false") }},
+    "exceeded_at_step": {{ exceeded_at_step | default(value="null") }},
+    "violations": [
+      {%- for violation in budget_violations | default(value=[]) %}
+      {
+        "violation_type": "{{ violation.violation_type }}",
+        "receipt_index": {{ violation.receipt_index }},
+        "budget_limit": {{ violation.budget_limit }},
+        "actual_consumption": {{ violation.actual_consumption }},
+        "overflow_amount": {{ violation.overflow_amount }}
+      }{% if not loop.last %},{% endif %}
+      {%- endfor %}
+    ]
+  },
+  "expected_behavior": {
+    "should_reject": {{ should_reject | default(value="true") }},
+    "rejection_reason": "{{ rejection_reason | default(value="Chain integrity violation") }}",
+    "should_halt_execution": {{ should_halt_execution | default(value="true") }},
+    "recovery_possible": {{ recovery_possible | default(value="false") }}
+  },
+  "normalization_rules": {
+    "timestamp_placeholder": "{{TIMESTAMP}}",
+    "hash_placeholder": "{{HASH}}",
+    "signature_placeholder": "{{SIGNATURE}}",
+    "uuid_placeholder": "{{UUID}}",
+    "normalize_line_endings": true,
+    "normalize_hash_values": true,
+    "comparison_mode": "semantic"
+  },
+  "test_assertions": {
+    "assert_divergence_detected": {{ assert_divergence_detected | default(value="true") }},
+    "assert_error_count": {{ assert_error_count | default(value="1") }},
+    "assert_chain_invalid": {{ assert_chain_invalid | default(value="true") }},
+    "assert_specific_error_codes": [
+      {%- for error_code in assert_specific_error_codes | default(value=["E_HASH_CHAIN_BREAK"]) %}
+      "{{ error_code }}"{% if not loop.last %},{% endif %}
+      {%- endfor %}
+    ]
+  },
+  "metadata": {
+    "report_timestamp": "{{ report_timestamp | default(value="2026-02-11T00:00:00Z") }}",
+    "schema_version": "{{ schema_version | default(value="1.0.0") }}",
+    "test_category": "{{ test_category | default(value="negative") }}",
+    "deterministic": true,
+    "tags": [
+      {%- for tag in tags | default(value=["negative-test", "divergence", "chain-validation"]) %}
+      "{{ tag }}"{% if not loop.last %},{% endif %}
+      {%- endfor %}
+    ]
+  }
+}
