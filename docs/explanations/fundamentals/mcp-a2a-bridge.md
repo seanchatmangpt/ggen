@@ -5,16 +5,34 @@
 - [MCP-A2A Bridge](#mcp-a2a-bridge)
   - [What is the Bridge?](#what-is-the-bridge)
   - [Why the Bridge Exists](#why-the-bridge-exists)
+    - [The Integration Challenge](#the-integration-challenge)
+    - [Key Benefits](#key-benefits)
   - [Bridge Architecture](#bridge-architecture)
+    - [Component Responsibilities](#component-responsibilities)
   - [Translation Layer](#translation-layer)
+    - [MCP to A2A Translation](#mcp-to-a2a-translation)
+      - [Translation Mapping](#translation-mapping)
+      - [Example: Tool Call to Message](#example-tool-call-to-message)
+    - [A2A to MCP Translation](#a2a-to-mcp-translation)
+      - [Response Translation](#response-translation)
+      - [Example: Response to Result](#example-response-to-result)
   - [Message Flow](#message-flow)
+    - [Inbound Flow (MCP → A2A)](#inbound-flow-mcp-%E2%86%92-a2a)
+    - [Outbound Flow (A2A → MCP)](#outbound-flow-a2a-%E2%86%92-mcp)
+    - [Bidirectional Flow](#bidirectional-flow)
   - [Capability Mapping](#capability-mapping)
+    - [Dynamic Discovery](#dynamic-discovery)
   - [Error Handling](#error-handling)
+    - [Error Mapping](#error-mapping)
   - [Security Integration](#security-integration)
+    - [Authentication Strategies](#authentication-strategies)
   - [Performance Considerations](#performance-considerations)
+    - [Latency Sources](#latency-sources)
+    - [Optimization Strategies](#optimization-strategies)
+    - [Performance Targets](#performance-targets)
   - [See Also](#see-also)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # MCP-A2A Bridge
 

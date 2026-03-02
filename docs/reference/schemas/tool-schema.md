@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MCP Tool Schema Reference](#mcp-tool-schema-reference)
+  - [Overview](#overview)
+  - [Tool Schema Structure](#tool-schema-structure)
+    - [Basic Schema](#basic-schema)
+    - [Schema Properties](#schema-properties)
+  - [Core MCP Tools](#core-mcp-tools)
+    - [agent-list](#agent-list)
+    - [agent-start](#agent-start)
+    - [agent-status](#agent-status)
+    - [workflow-start](#workflow-start)
+  - [Agent Tool Schemas](#agent-tool-schemas)
+    - [Agent Tool Template](#agent-tool-template)
+  - [Parameter Type Definitions](#parameter-type-definitions)
+    - [String](#string)
+    - [Integer](#integer)
+    - [Boolean](#boolean)
+    - [Array](#array)
+    - [Object](#object)
+    - [Enum](#enum)
+  - [Return Value Schemas](#return-value-schemas)
+    - [Success Response](#success-response)
+    - [Error Response](#error-response)
+    - [Agent List Response](#agent-list-response)
+    - [Agent Metrics Response](#agent-metrics-response)
+  - [Tool Categories](#tool-categories)
+    - [Core Tools](#core-tools)
+    - [Agent Tools](#agent-tools)
+    - [Custom Tools](#custom-tools)
+  - [Schema Validation](#schema-validation)
+    - [Validation Rules](#validation-rules)
+    - [Example Validation](#example-validation)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MCP Tool Schema Reference
 
 Complete reference for MCP (Model Context Protocol) tool schemas used in ggen.

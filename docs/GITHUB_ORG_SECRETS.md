@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GitHub Organization Secrets Configuration](#github-organization-secrets-configuration)
+  - [Overview](#overview)
+  - [Required Organization Secrets](#required-organization-secrets)
+    - [1. GCP_PROJECT_ID](#1-gcp_project_id)
+    - [2. GCP_SERVICE_ACCOUNT_EMAIL](#2-gcp_service_account_email)
+    - [3. GCP_WORKLOAD_IDENTITY_PROVIDER](#3-gcp_workload_identity_provider)
+    - [4. GCP_SERVICE_ACCOUNT_KEY](#4-gcp_service_account_key)
+    - [5. SLACK_WEBHOOK_URL](#5-slack_webhook_url)
+    - [6. DOCKER_REGISTRY_TOKEN](#6-docker_registry_token)
+    - [7. GitHub_TOKEN (Repository-Level)](#7-github_token-repository-level)
+  - [Organization Secret Matrix](#organization-secret-matrix)
+  - [Setting Up Organization Secrets](#setting-up-organization-secrets)
+    - [Step 1: Authenticate to GitHub](#step-1-authenticate-to-github)
+    - [Step 2: Create Secrets via CLI](#step-2-create-secrets-via-cli)
+    - [Step 3: Verify Secrets](#step-3-verify-secrets)
+  - [Using Secrets in Workflows](#using-secrets-in-workflows)
+    - [Example: Using Organization Secrets](#example-using-organization-secrets)
+  - [Secret Rotation Schedule](#secret-rotation-schedule)
+    - [Daily](#daily)
+    - [Weekly](#weekly)
+    - [Monthly](#monthly)
+    - [Quarterly (90 days)](#quarterly-90-days)
+    - [Biannually (60 days)](#biannually-60-days)
+  - [Rotation Procedure](#rotation-procedure)
+    - [Example: Rotating SLACK_WEBHOOK_URL](#example-rotating-slack_webhook_url)
+  - [Incident Response](#incident-response)
+    - [If Secret Is Exposed](#if-secret-is-exposed)
+  - [Troubleshooting](#troubleshooting)
+    - [Secret Not Available in Workflow](#secret-not-available-in-workflow)
+    - [Workflow Failing with Authentication Error](#workflow-failing-with-authentication-error)
+    - [Secret Appears in Logs (BREACH!)](#secret-appears-in-logs-breach)
+  - [Related Documentation](#related-documentation)
+  - [Support](#support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GitHub Organization Secrets Configuration
 
 ## Overview

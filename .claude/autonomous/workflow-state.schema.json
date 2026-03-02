@@ -1,0 +1,227 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ggen Phased Workflow State Schema",
+  "description": "Schema for persisting phased agent workflow state with auto-resume capability",
+  "type": "object",
+  "required": [
+    "workflow_id",
+    "current_phase",
+    "phases",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "workflow_id": {
+      "type": "string",
+      "description": "Unique identifier for the workflow session (UUID format)",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "current_phase": {
+      "type": "string",
+      "enum": [
+        "explore",
+        "plan",
+        "execute",
+        "verify",
+        "complete"
+      ],
+      "description": "Current phase of the workflow"
+    },
+    "phases": {
+      "type": "object",
+      "description": "Phase execution records",
+      "properties": {
+        "explore": {
+          "$ref": "#/definitions/phase"
+        },
+        "plan": {
+          "$ref": "#/definitions/phase"
+        },
+        "execute": {
+          "$ref": "#/definitions/phase"
+        },
+        "verify": {
+          "$ref": "#/definitions/phase"
+        }
+      },
+      "additionalProperties": false
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when workflow was created"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when workflow state was last updated"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional metadata about the workflow",
+      "properties": {
+        "initiated_by": {
+          "type": "string",
+          "description": "User or system that initiated the workflow"
+        },
+        "root_task": {
+          "type": "string",
+          "description": "Root task description or identifier"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Categorization tags for the workflow"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "definitions": {
+    "phase": {
+      "type": "object",
+      "description": "State of a single workflow phase",
+      "required": [
+        "status",
+        "agents_count",
+        "started_at"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "in_progress",
+            "completed",
+            "failed"
+          ],
+          "description": "Current status of the phase"
+        },
+        "agents_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of agents participating in this phase"
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when phase started"
+        },
+        "completed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when phase completed (null if not yet complete)"
+        },
+        "outputs": {
+          "type": "array",
+          "description": "Results and deliverables from this phase",
+          "items": {
+            "$ref": "#/definitions/output"
+          }
+        },
+        "errors": {
+          "type": "array",
+          "description": "Any errors encountered during this phase",
+          "items": {
+            "$ref": "#/definitions/error"
+          }
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "description": "Single output artifact from a phase",
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for this output"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "finding",
+            "plan",
+            "implementation",
+            "test",
+            "report",
+            "metric"
+          ],
+          "description": "Type of output artifact"
+        },
+        "agent_id": {
+          "type": "string",
+          "description": "Agent ID that produced this output"
+        },
+        "content": {
+          "type": [
+            "string",
+            "object",
+            "array"
+          ],
+          "description": "Output content (finding description, implementation details, metrics, etc.)"
+        },
+        "file_path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Optional path to persisted output file"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When output was created"
+        }
+      }
+    },
+    "error": {
+      "type": "object",
+      "description": "Error encountered during phase execution",
+      "required": [
+        "severity",
+        "message"
+      ],
+      "properties": {
+        "severity": {
+          "type": "string",
+          "enum": [
+            "warning",
+            "error",
+            "critical"
+          ],
+          "description": "Error severity level"
+        },
+        "message": {
+          "type": "string",
+          "description": "Error message"
+        },
+        "agent_id": {
+          "type": "string",
+          "description": "Agent ID where error occurred"
+        },
+        "task_id": {
+          "type": "string",
+          "description": "Task ID where error occurred"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When error occurred"
+        },
+        "context": {
+          "type": "object",
+          "description": "Additional error context"
+        }
+      }
+    }
+  }
+}

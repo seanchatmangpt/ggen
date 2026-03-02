@@ -1,23 +1,40 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doCTOC TO UPDATE -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
 - [How to Configure Transport Protocols](#how-to-configure-transport-protocols)
   - [Transport Overview](#transport-overview)
   - [HTTP Transport](#http-transport)
+    - [Basic Configuration](#basic-configuration)
+    - [Advanced HTTP Configuration](#advanced-http-configuration)
+    - [Testing HTTP Transport](#testing-http-transport)
   - [WebSocket Transport](#websocket-transport)
+    - [Basic Configuration](#basic-configuration-1)
+    - [Advanced WebSocket Configuration](#advanced-websocket-configuration)
+    - [Testing WebSocket Transport](#testing-websocket-transport)
+    - [WebSocket Client Example](#websocket-client-example)
   - [QUIC Transport](#quic-transport)
+    - [Basic Configuration](#basic-configuration-2)
+    - [Advanced QUIC Configuration](#advanced-quic-configuration)
+    - [Testing QUIC Transport](#testing-quic-transport)
+    - [QUIC Client Example](#quic-client-example)
   - [Transport Comparison](#transport-comparison)
   - [Transport Selection](#transport-selection)
   - [Configuration Management](#configuration-management)
+    - [Switching Transports](#switching-transports)
+    - [Multi-Transport Configuration](#multi-transport-configuration)
+    - [Transport-Specific Settings](#transport-specific-settings)
   - [TLS Configuration](#tls-configuration)
+    - [TLS for HTTP/WebSocket](#tls-for-httpwebsocket)
+    - [TLS for QUIC (Required)](#tls-for-quic-required)
+    - [Generating Certificates](#generating-certificates)
   - [Troubleshooting](#troubleshooting)
     - [Transport Not Connecting](#transport-not-connecting)
     - [Slow Transport](#slow-transport)
     - [Connection Drops](#connection-drops)
   - [Next Steps](#next-steps)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # How to Configure Transport Protocols
 

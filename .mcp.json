@@ -25,6 +25,14 @@
       "env": {
         "OXIGRAPH_PORT": "7878"
       }
+    },
+    "specification-mcp-server": {
+      "command": "cargo",
+      "args": ["run", "--manifest-path", "crates/specification-mcp-server/Cargo.toml"],
+      "env": {
+        "OXIGRAPH_ENDPOINT": "http://localhost:7878",
+        "WORKSPACE_ROOT": "/home/user/ggen"
+      }
     }
   },
   "description": "MCP (Model Context Protocol) servers for enhanced Claude Code capabilities",

@@ -31,7 +31,9 @@
       "description": "Code review with focus on Rust idioms, safety, and performance",
       "capabilities": ["code-review", "rust-idioms", "safety-analysis", "performance-review"],
       "priority": 1,
-      "buildCommand": "cargo make lint"
+      "buildCommand": "cargo make lint",
+      "memory": "project",
+      "model": "sonnet"
     },
     {
       "name": "tester",
@@ -362,7 +364,8 @@
     "SLO_INCREMENTAL_MAX": "2s",
     "SLO_RDF_PROCESSING_MAX": "5s",
     "SLO_GENERATION_MEMORY_MAX": "100MB",
-    "SLO_CLI_SCAFFOLDING_MAX": "3s"
+    "SLO_CLI_SCAFFOLDING_MAX": "3s",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "buildSystem": {
     "primary": "cargo make",
@@ -491,5 +494,13 @@
       "Refactoring",
       "Cryptographic Receipt"
     ]
+  },
+  "hooks": {
+    "PostToolUse": {
+      "matcher": "Write|Edit",
+      "script": "./.claude/hooks/post-edit-formatter.sh",
+      "async": true,
+      "timeout": 30
+    }
   }
 }

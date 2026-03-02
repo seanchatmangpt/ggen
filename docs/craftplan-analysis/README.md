@@ -1,3 +1,58 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Craftplan Domain Analysis for ggen RDF-Driven Code Generation](#craftplan-domain-analysis-for-ggen-rdf-driven-code-generation)
+  - [Overview](#overview)
+    - [What is Craftplan?](#what-is-craftplan)
+    - [What is ggen?](#what-is-ggen)
+  - [Documents in This Analysis](#documents-in-this-analysis)
+    - [1. Domain Analysis](#1-domain-analysis)
+    - [2. RDF Mapping Guide](#2-rdf-mapping-guide)
+    - [3. Entity Catalog](#3-entity-catalog)
+  - [Quick Start Guide](#quick-start-guide)
+    - [For RDF Specification Creation](#for-rdf-specification-creation)
+    - [For Template Development](#for-template-development)
+  - [Domain Organization](#domain-organization)
+    - [Six Major Domains](#six-major-domains)
+  - [Key Business Patterns](#key-business-patterns)
+    - [1. BOM Versioning](#1-bom-versioning)
+    - [2. Production Batching](#2-production-batching)
+    - [3. Cost Rollup](#3-cost-rollup)
+    - [4. Inventory Forecasting](#4-inventory-forecasting)
+    - [5. Order Lifecycle](#5-order-lifecycle)
+    - [6. Batch Workflow](#6-batch-workflow)
+  - [Technology Stack Mapping](#technology-stack-mapping)
+  - [Statistics](#statistics)
+    - [Codebase Metrics](#codebase-metrics)
+    - [Domain Metrics](#domain-metrics)
+    - [RDF Mapping Estimates](#rdf-mapping-estimates)
+  - [Next Steps](#next-steps)
+    - [Phase 1: Core RDF Specifications (Week 1-2)](#phase-1-core-rdf-specifications-week-1-2)
+    - [Phase 2: Business Logic Extraction (Week 3-4)](#phase-2-business-logic-extraction-week-3-4)
+    - [Phase 3: Template Development (Week 5-6)](#phase-3-template-development-week-5-6)
+    - [Phase 4: Integration & Validation (Week 7-8)](#phase-4-integration--validation-week-7-8)
+  - [Validation Strategy](#validation-strategy)
+    - [Three-Level Validation](#three-level-validation)
+  - [Code Generation Target](#code-generation-target)
+    - [Primary Output: Elixir/Ash Code](#primary-output-elixirash-code)
+    - [Secondary Output: Ecto Migrations](#secondary-output-ecto-migrations)
+    - [Tertiary Output: Tests](#tertiary-output-tests)
+  - [Quality Assurance](#quality-assurance)
+    - [Lean Six Sigma Standards](#lean-six-sigma-standards)
+    - [Andon Signals](#andon-signals)
+  - [Contributing to This Analysis](#contributing-to-this-analysis)
+    - [When Adding New Entities](#when-adding-new-entities)
+    - [When Updating Existing Entities](#when-updating-existing-entities)
+  - [Contact & Support](#contact--support)
+  - [Appendix: Quick Reference](#appendix-quick-reference)
+    - [Entity Count by Domain](#entity-count-by-domain)
+    - [Most Complex Entities](#most-complex-entities)
+    - [Key Relationships to Model Carefully](#key-relationships-to-model-carefully)
+    - [Critical Business Rules](#critical-business-rules)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Craftplan Domain Analysis for ggen RDF-Driven Code Generation
 
 **Analysis Date**: 2026-02-04

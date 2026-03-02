@@ -1,0 +1,30 @@
+[package]
+name = "specification-mcp-server"
+version = "0.1.0"
+edition = "2021"
+description = "MCP server for ggen specification validation and rendering"
+license = "MIT"
+
+[dependencies]
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+oxigraph = { workspace = true }
+
+# MCP server SDK
+rmcp = "0.8"
+
+# Workspace dependencies
+ggen-ontology-core = { workspace = true }
+
+[dev-dependencies]
+tokio-test = "0.4"
+tempfile = { workspace = true }
+
+[lib]
+name = "specification_mcp_server"
+path = "src/lib.rs"
