@@ -1,0 +1,182 @@
+{#- Virtual Thread Kanban Pipeline - Java 21+ -#}
+{#- Mapped from ggen-backpressure/src/kanban.rs pull-only flow pattern -#}
+{#- Context: package_name, class_name, stages, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// Virtual-thread-safe Kanban pipeline with pull-only semantics.
+///
+/// Mapped from ggen-backpressure Kanban flow control pattern.
+/// Downstream stages pull work only when they have capacity — preventing
+/// overproduction and enforcing WIP limits per stage.
+///
+/// ## Stages
+{%- for stage in stages | default(value=[]) %}
+/// - `{{ stage.name }}` (WIP limit: {{ stage.wip_limit | default(value=5) }})
+{%- endfor %}
+{%- else %}
+/**
+ * Virtual-thread-safe Kanban pipeline with pull-only semantics.
+ *
+ * <p>Mapped from ggen-backpressure Kanban flow control pattern.
+ * Downstream stages pull work only when they have capacity — preventing
+ * overproduction and enforcing WIP limits per stage.</p>
+ */
+{%- endif %}
+public final class {{ class_name | default(value="KanbanPipeline") }}<T> {
+
+    private final List<Stage<T>> stages;
+    private final Map<String, AtomicInteger> wipCounters = new ConcurrentHashMap<>();
+
+    public {{ class_name | default(value="KanbanPipeline") }}(List<Stage<T>> stages) {
+        this.stages = List.copyOf(stages);
+        stages.forEach(s -> wipCounters.put(s.name(), new AtomicInteger(0)));
+    }
+
+{%- if jv >= 23 %}
+
+    /// Pull an item into the given stage if capacity allows.
+    ///
+    /// Pull-only: downstream must request — upstream never pushes.
+    ///
+    /// @return the WIP token if pulled, empty if stage is at capacity
+{%- else %}
+
+    /**
+     * Pull an item into the given stage if capacity allows.
+     *
+     * <p>Pull-only: downstream must request — upstream never pushes.</p>
+     *
+     * @param stageName the target stage name
+     * @param item the work item to pull
+     * @return the WIP token if pulled, empty if stage is at capacity
+     */
+{%- endif %}
+    public Optional<WipToken<T>> pull(String stageName, T item) {
+        var stage = findStage(stageName).orElseThrow(() ->
+            new IllegalArgumentException("Unknown stage: " + stageName));
+
+        var counter = wipCounters.get(stageName);
+        int current = counter.get();
+        if (current >= stage.wipLimit()) return Optional.empty();
+
+        if (!counter.compareAndSet(current, current + 1)) return Optional.empty();
+        return Optional.of(new WipToken<>(item, stageName, this));
+    }
+
+{%- if jv >= 23 %}
+
+    /// Release a WIP token, decrementing the stage counter.
+{%- else %}
+
+    /**
+     * Release a WIP token, decrementing the stage counter.
+     *
+     * @param stageName the stage to release from
+     */
+{%- endif %}
+    void release(String stageName) {
+        var counter = wipCounters.get(stageName);
+        if (counter != null) counter.decrementAndGet();
+    }
+
+{%- if jv >= 23 %}
+
+    /// Check if a stage has available capacity.
+{%- else %}
+
+    /**
+     * Check if a stage has available capacity.
+     *
+     * @param stageName the stage to check
+     * @return true if the stage has capacity
+     */
+{%- endif %}
+    public boolean hasCapacity(String stageName) {
+        return findStage(stageName)
+            .map(s -> wipCounters.get(stageName).get() < s.wipLimit())
+            .orElse(false);
+    }
+
+{%- if jv >= 23 %}
+
+    /// Snapshot of current WIP counts per stage.
+{%- else %}
+
+    /**
+     * Snapshot of current WIP counts per stage.
+     *
+     * @return map of stage name to current WIP count
+     */
+{%- endif %}
+    public Map<String, Integer> wipSnapshot() {
+        var snapshot = new ConcurrentHashMap<String, Integer>();
+        wipCounters.forEach((k, v) -> snapshot.put(k, v.get()));
+        return Map.copyOf(snapshot);
+    }
+
+    private Optional<Stage<T>> findStage(String name) {
+        return stages.stream().filter(s -> s.name().equals(name)).findFirst();
+    }
+
+{%- if jv >= 23 %}
+
+    /// A pipeline stage with a name, WIP limit, and processing function.
+{%- else %}
+
+    /**
+     * A pipeline stage with a name, WIP limit, and processing function.
+     *
+     * @param <T> the work item type
+     */
+{%- endif %}
+    public record Stage<T>(
+        String name,
+        int wipLimit,
+        java.util.function.Function<T, T> processor
+    ) {
+        public Stage {
+            java.util.Objects.requireNonNull(name, "name must not be null");
+            if (wipLimit <= 0) throw new IllegalArgumentException("wipLimit must be positive");
+            java.util.Objects.requireNonNull(processor, "processor must not be null");
+        }
+    }
+
+{%- if jv >= 23 %}
+
+    /// RAII WIP token — releases the stage slot on close.
+{%- else %}
+
+    /**
+     * RAII WIP token — releases the stage slot on close.
+     *
+     * @param <T> the work item type
+     */
+{%- endif %}
+    public record WipToken<T>(
+        T item,
+        String stageName,
+        {{ class_name | default(value="KanbanPipeline") }}<T> pipeline
+    ) implements AutoCloseable {
+
+        public T process() {
+            var stage = pipeline.findStage(stageName).orElseThrow();
+            return stage.processor().apply(item);
+        }
+
+        @Override
+        public void close() {
+            pipeline.release(stageName);
+        }
+    }
+}

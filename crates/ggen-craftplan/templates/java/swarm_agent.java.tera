@@ -1,0 +1,180 @@
+{#- Virtual Thread Swarm Agent - Java 21+ -#}
+{#- Mapped from ggen-ai/src/swarm/ agent model pattern -#}
+{#- Context: package_name, agent_name, context_type, output_type, operations, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.StructuredTaskScope;
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// Virtual thread-based swarm agent.
+///
+/// Mapped from ggen-ai swarm agent model. Each agent executes a pipeline
+/// with structured concurrency on virtual threads — no OS thread blocking.
+{%- else %}
+/**
+ * Virtual thread-based swarm agent.
+ *
+ * <p>Mapped from ggen-ai swarm agent model. Each agent executes a pipeline
+ * with structured concurrency on virtual threads — no OS thread blocking.</p>
+ */
+{%- endif %}
+public final class {{ agent_name | default(value="SwarmAgent") }} implements AutoCloseable {
+
+    private final String id;
+    private final AgentConfig config;
+    private final Map<String, Object> state = new ConcurrentHashMap<>();
+    private volatile AgentStatus status = AgentStatus.IDLE;
+
+    public {{ agent_name | default(value="SwarmAgent") }}(String id, AgentConfig config) {
+        this.id = java.util.Objects.requireNonNull(id, "id must not be null");
+        this.config = java.util.Objects.requireNonNull(config, "config must not be null");
+    }
+
+{%- if jv >= 23 %}
+
+    /// Execute the agent pipeline with the given context.
+    ///
+    /// Runs on the calling virtual thread; spawns sub-tasks via StructuredTaskScope.
+    ///
+    /// @return the agent output on success
+    /// @throws Exception on execution failure
+{%- else %}
+
+    /**
+     * Execute the agent pipeline with the given context.
+     *
+     * <p>Runs on the calling virtual thread; spawns sub-tasks via StructuredTaskScope.</p>
+     *
+     * @param context the execution context
+     * @return the agent output on success
+     * @throws Exception on execution failure
+     */
+{%- endif %}
+    public AgentOutput execute(AgentContext context) throws Exception {
+        status = AgentStatus.RUNNING;
+        try {
+            return switch (config.executionMode()) {
+                case SEQUENTIAL -> executeSequential(context);
+                case PARALLEL -> executeParallel(context);
+                case RACE -> executeRace(context);
+            };
+        } catch (Exception e) {
+            status = AgentStatus.FAILED;
+            throw e;
+        } finally {
+            if (status == AgentStatus.RUNNING) status = AgentStatus.IDLE;
+        }
+    }
+
+    private AgentOutput executeSequential(AgentContext context) throws Exception {
+        var results = new java.util.ArrayList<StageResult>();
+        for (var stage : config.stages()) {
+            var result = stage.execute(context, state);
+            results.add(result);
+            if (!result.success()) break;
+        }
+        return new AgentOutput(id, results, status);
+    }
+
+    private AgentOutput executeParallel(AgentContext context) throws Exception {
+        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+            var subtasks = config.stages().stream()
+                .map(stage -> scope.fork(() -> stage.execute(context, state)))
+                .toList();
+
+            scope.join().throwIfFailed();
+
+            var results = subtasks.stream()
+                .map(StructuredTaskScope.Subtask::get)
+                .toList();
+            return new AgentOutput(id, results, AgentStatus.IDLE);
+        }
+    }
+
+    private AgentOutput executeRace(AgentContext context) throws Exception {
+        try (var scope = new StructuredTaskScope.ShutdownOnSuccess<StageResult>()) {
+            config.stages().forEach(stage ->
+                scope.fork(() -> stage.execute(context, state)));
+
+            scope.join();
+            return new AgentOutput(id, List.of(scope.result()), AgentStatus.IDLE);
+        }
+    }
+
+{%- for op in operations | default(value=[]) %}
+
+{%- if jv >= 23 %}
+    /// {{ op.description | default(value="Execute " ~ op.name) }}
+{%- else %}
+    /**
+     * {{ op.description | default(value="Execute " ~ op.name) }}
+     */
+{%- endif %}
+    public {{ op.return_type | default(value="void") }} {{ op.name }}({% for param in op.params | default(value=[]) %}{{ param.type }} {{ param.name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+        {{ op.body | default(value="throw new UnsupportedOperationException(\"Not yet implemented\");") }}
+    }
+{%- endfor %}
+
+    public String id() { return id; }
+    public AgentStatus status() { return status; }
+
+    @Override
+    public void close() {
+        status = AgentStatus.IDLE;
+        state.clear();
+    }
+
+    // --- Supporting types ---
+
+    public enum AgentStatus { IDLE, RUNNING, FAILED }
+
+    public enum ExecutionMode { SEQUENTIAL, PARALLEL, RACE }
+
+    public record AgentConfig(
+        List<AgentStage> stages,
+        ExecutionMode executionMode,
+        int maxRetries
+    ) {
+        public AgentConfig {
+            java.util.Objects.requireNonNull(stages, "stages must not be null");
+            java.util.Objects.requireNonNull(executionMode, "executionMode must not be null");
+        }
+    }
+
+    public record AgentContext(
+        String requestId,
+        Map<String, Object> parameters,
+        java.time.Instant deadline
+    ) {}
+
+    public record StageResult(
+        String stageName,
+        boolean success,
+        Object output,
+        String errorMessage
+    ) {}
+
+    public record AgentOutput(
+        String agentId,
+        List<StageResult> results,
+        AgentStatus finalStatus
+    ) {
+        public boolean succeeded() {
+            return results.stream().allMatch(StageResult::success);
+        }
+    }
+
+    @FunctionalInterface
+    public interface AgentStage {
+        StageResult execute(AgentContext context, Map<String, Object> state) throws Exception;
+    }
+}

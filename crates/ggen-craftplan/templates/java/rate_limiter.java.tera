@@ -1,0 +1,185 @@
+{#- Virtual Thread Rate Limiter - Java 21+ -#}
+{#- Mapped from ggen-backpressure/src/limiter.rs token bucket pattern -#}
+{#- Context: package_name, class_name, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// Virtual-thread-safe token bucket rate limiter.
+///
+/// Implements dual enforcement: rate limit (tokens/sec) + concurrent WIP limit.
+/// Mapped from ggen-backpressure token bucket pattern.
+///
+/// ## Usage
+/// ```java
+/// var limiter = new {{ class_name | default(value="RateLimiter") }}(100, 50, 10);
+/// limiter.acquire(); // blocks virtual thread, not OS thread
+/// try { doWork(); } finally { limiter.release(); }
+/// ```
+{%- else %}
+/**
+ * Virtual-thread-safe token bucket rate limiter.
+ *
+ * <p>Implements dual enforcement: rate limit (tokens/sec) + concurrent WIP limit.
+ * Mapped from ggen-backpressure token bucket pattern.</p>
+ */
+{%- endif %}
+public final class {{ class_name | default(value="RateLimiter") }} implements AutoCloseable {
+
+    private final long maxRps;
+    private final int maxConcurrent;
+    private final long burstSize;
+
+    private final Semaphore wipSemaphore;
+    private final AtomicLong tokenBucket;
+    private final AtomicReference<Instant> lastRefill;
+    private final Thread refillThread;
+    private volatile boolean closed = false;
+
+    public {{ class_name | default(value="RateLimiter") }}(long maxRps, int maxConcurrent, long burstSize) {
+        if (maxRps <= 0) throw new IllegalArgumentException("maxRps must be positive");
+        if (maxConcurrent <= 0) throw new IllegalArgumentException("maxConcurrent must be positive");
+        if (burstSize <= 0) throw new IllegalArgumentException("burstSize must be positive");
+
+        this.maxRps = maxRps;
+        this.maxConcurrent = maxConcurrent;
+        this.burstSize = burstSize;
+        this.wipSemaphore = new Semaphore(maxConcurrent, true);
+        this.tokenBucket = new AtomicLong(burstSize);
+        this.lastRefill = new AtomicReference<>(Instant.now());
+
+        // Background virtual thread for token refill
+        this.refillThread = Thread.ofVirtual()
+            .name("rate-limiter-refill")
+            .start(this::refillLoop);
+    }
+
+{%- if jv >= 23 %}
+
+    /// Acquire a permit, blocking the calling virtual thread until one is available.
+    ///
+    /// @throws InterruptedException if interrupted while waiting
+    /// @throws IllegalStateException if the limiter is closed
+{%- else %}
+
+    /**
+     * Acquire a permit, blocking the calling virtual thread until one is available.
+     *
+     * @throws InterruptedException if interrupted while waiting
+     * @throws IllegalStateException if the limiter is closed
+     */
+{%- endif %}
+    public void acquire() throws InterruptedException {
+        if (closed) throw new IllegalStateException("RateLimiter is closed");
+        wipSemaphore.acquire();
+        waitForToken();
+    }
+
+{%- if jv >= 23 %}
+
+    /// Try to acquire a permit without blocking.
+    ///
+    /// @return a permit token if available, empty if capacity is exceeded
+{%- else %}
+
+    /**
+     * Try to acquire a permit without blocking.
+     *
+     * @return a permit token if available, empty if capacity is exceeded
+     */
+{%- endif %}
+    public Optional<Permit> tryAcquire() {
+        if (closed) return Optional.empty();
+        if (!wipSemaphore.tryAcquire()) return Optional.empty();
+        if (!consumeToken()) {
+            wipSemaphore.release();
+            return Optional.empty();
+        }
+        return Optional.of(new Permit(this));
+    }
+
+{%- if jv >= 23 %}
+
+    /// Release a WIP slot back to the pool.
+{%- else %}
+
+    /**
+     * Release a WIP slot back to the pool.
+     */
+{%- endif %}
+    public void release() {
+        wipSemaphore.release();
+    }
+
+{%- if jv >= 23 %}
+
+    /// Current utilization as a fraction (0.0 to 1.0).
+{%- else %}
+
+    /**
+     * Current utilization as a fraction (0.0 to 1.0).
+     *
+     * @return utilization ratio
+     */
+{%- endif %}
+    public double utilization() {
+        int used = maxConcurrent - wipSemaphore.availablePermits();
+        return (double) used / maxConcurrent;
+    }
+
+    private void waitForToken() throws InterruptedException {
+        while (!consumeToken()) {
+            Thread.sleep(Duration.ofMillis(1));
+        }
+    }
+
+    private boolean consumeToken() {
+        long current = tokenBucket.get();
+        if (current <= 0) return false;
+        return tokenBucket.compareAndSet(current, current - 1);
+    }
+
+    private void refillLoop() {
+        long intervalNanos = 1_000_000_000L / maxRps;
+        while (!closed && !Thread.currentThread().isInterrupted()) {
+            try {
+                Thread.sleep(Duration.ofNanos(intervalNanos));
+                tokenBucket.updateAndGet(t -> Math.min(t + 1, burstSize));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void close() {
+        closed = true;
+        refillThread.interrupt();
+    }
+
+{%- if jv >= 23 %}
+
+    /// RAII permit token — releases WIP slot on close.
+{%- else %}
+
+    /**
+     * RAII permit token — releases WIP slot on close.
+     */
+{%- endif %}
+    public record Permit({{ class_name | default(value="RateLimiter") }} limiter) implements AutoCloseable {
+        @Override
+        public void close() {
+            limiter.release();
+        }
+    }
+}
