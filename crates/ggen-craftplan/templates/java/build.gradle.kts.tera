@@ -1,0 +1,196 @@
+{#- Build Gradle KTS Template - Kotlin DSL Gradle build for Java 21-26 projects -#}
+{#- Context: project_name, group_id, java_version, dependencies (list), enable_preview -#}
+{%- set jv = java_version | default(value=21) -%}
+{%- set preview_versions = [22, 23, 24] -%}
+{%- set use_preview = enable_preview | default(value=false) or jv in preview_versions -%}
+plugins {
+    java
+    application
+    jacoco
+    id("com.diffplug.spotless") version "6.25.0"
+}
+
+group = "{{ group_id | default(value="com.example") }}"
+version = "0.1.0-SNAPSHOT"
+description = "{{ project_name | default(value="app") }}"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of({{ jv }})
+    }
+    withSourcesJar()
+    withJavadocJar()
+}
+
+repositories {
+    mavenCentral()
+}
+
+// ─── Dependency versions ───────────────────────────────────────────────────────
+val junitVersion       = "5.11.4"
+val assertjVersion     = "3.27.3"
+val mockitoVersion     = "5.15.2"
+val slf4jVersion       = "2.0.16"
+val logbackVersion     = "1.5.15"
+{%- if jv >= 24 %}
+val httpClientVersion  = "5.4.1"
+{%- endif %}
+
+// ─── Dependencies ─────────────────────────────────────────────────────────────
+dependencies {
+
+    // Logging
+    implementation("org.slf4j:slf4j-api:${slf4jVersion}")
+    runtimeOnly("ch.qos.logback:logback-classic:${logbackVersion}")
+
+    // Testing – JUnit 5
+    testImplementation(platform("org.junit:junit-bom:${junitVersion}"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // Testing – AssertJ
+    testImplementation("org.assertj:assertj-core:${assertjVersion}")
+
+    // Testing – Mockito (only if real collaborators are insufficient)
+    testImplementation("org.mockito:mockito-core:${mockitoVersion}")
+    testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
+{%- for dep in dependencies | default(value=[]) %}
+
+    // {{ dep.scope | default(value="implementation") | capitalize }}
+    {{ dep.scope | default(value="implementation") }}("{{ dep.group }}:{{ dep.artifact }}:{{ dep.version }}")
+{%- endfor %}
+}
+
+// ─── Application ──────────────────────────────────────────────────────────────
+application {
+    mainClass = "{{ group_id | default(value="com.example") }}.{{ project_name | default(value="app") | capitalize }}.Main"
+{%- if use_preview %}
+    applicationDefaultJvmArgs = listOf(
+        "--enable-preview",
+        "-XX:+UseZGC",
+        "-XX:+ZGenerational",
+        "-Xss512k",
+    )
+{%- else %}
+    applicationDefaultJvmArgs = listOf(
+        "-XX:+UseZGC",
+        "-XX:+ZGenerational",
+        "-Xss512k",
+    )
+{%- endif %}
+}
+
+// ─── Compilation ──────────────────────────────────────────────────────────────
+tasks.withType<JavaCompile>().configureEach {
+    options.release = {{ jv }}
+{%- if use_preview %}
+    options.compilerArgs.addAll(listOf("--enable-preview", "-Xlint:preview"))
+{%- endif %}
+    options.compilerArgs.addAll(listOf(
+        "-Xlint:all",
+        "-Xlint:-processing",
+        "-Werror",
+    ))
+    options.encoding = "UTF-8"
+}
+
+tasks.withType<Javadoc>().configureEach {
+    options.encoding = "UTF-8"
+{%- if use_preview %}
+    (options as StandardJavadocDocletOptions).addBooleanOption("-enable-preview", true)
+    (options as StandardJavadocDocletOptions).source = "{{ jv }}"
+{%- endif %}
+}
+
+// ─── Test configuration ───────────────────────────────────────────────────────
+tasks.test {
+    useJUnitPlatform()
+
+{%- if use_preview %}
+    jvmArgs("--enable-preview")
+{%- endif %}
+
+    // Virtual thread executor for parallel test execution (Java 21+)
+    jvmArgs(
+        "-Djunit.jupiter.execution.parallel.enabled=true",
+        "-Djunit.jupiter.execution.parallel.mode.default=concurrent",
+        "-Djunit.jupiter.execution.parallel.config.strategy=dynamic",
+        "-Djunit.jupiter.execution.parallel.config.dynamic.factor=2",
+    )
+
+    // Deterministic seed for property-based and randomised tests
+    systemProperty("junit.jupiter.extensions.autodetection.enabled", "true")
+    environment("RNG_SEED", "42")
+
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showStandardStreams = false
+    }
+
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+// ─── JaCoCo coverage ──────────────────────────────────────────────────────────
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.jacocoTestReport)
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.80".toBigDecimal()   // 80 % line coverage minimum
+            }
+        }
+        rule {
+            limit {
+                counter = "BRANCH"
+                value   = "COVEREDRATIO"
+                minimum = "0.75".toBigDecimal()   // 75 % branch coverage minimum
+            }
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
+}
+
+// ─── Spotless formatting ──────────────────────────────────────────────────────
+spotless {
+    java {
+        googleJavaFormat("1.25.2").aosp()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+// ─── Build metadata ───────────────────────────────────────────────────────────
+tasks.jar {
+    manifest {
+        attributes(
+            "Implementation-Title"   to project.name,
+            "Implementation-Version" to project.version,
+            "Main-Class"             to application.mainClass,
+            "Java-Version"           to "{{ jv }}",
+{%- if use_preview %}
+            "Enable-Preview"         to "true",
+{%- endif %}
+        )
+    }
+}

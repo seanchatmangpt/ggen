@@ -1,0 +1,407 @@
+{#- Aggregate Template - DDD Aggregate Root (Java 21+) -#}
+{#- Context: package_name, aggregate_name, attributes, domain_events, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+{%- set agg_lower = aggregate_name | lower -%}
+package {{ package_name }};
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.time.Instant;
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// DDD Aggregate Root: [{{ aggregate_name }}].
+///
+/// Enforces invariants, collects domain events, and supports optimistic locking.
+/// Domain events are immutable records; the aggregate is virtual-thread-safe
+/// provided callers respect the single-writer principle per aggregate instance.
+///
+/// Generated from RDF specification.
+{%- else %}
+/**
+ * DDD Aggregate Root: {@link {{ aggregate_name }}}.
+ *
+ * <p>Enforces invariants, collects domain events, and supports optimistic
+ * locking. Domain events are immutable records; the aggregate is virtual-thread-
+ * safe provided callers respect the single-writer principle per aggregate
+ * instance.</p>
+ *
+ * <p>Generated from RDF specification.</p>
+ */
+{%- endif %}
+public final class {{ aggregate_name }} {
+
+    // -------------------------------------------------------------------------
+    // Identity & versioning
+    // -------------------------------------------------------------------------
+
+    private final UUID id;
+    private long version;
+
+    // -------------------------------------------------------------------------
+    // Domain attributes
+    // -------------------------------------------------------------------------
+
+{%- for attr in attributes | default(value=[]) %}
+    private {{ attr.type }} {{ attr.name }};
+{%- endfor %}
+
+    // -------------------------------------------------------------------------
+    // Domain event outbox (cleared after persistence)
+    // -------------------------------------------------------------------------
+
+    private final List<{{ aggregate_name }}Event> domainEvents = new ArrayList<>();
+
+    // =========================================================================
+    // Sealed result type
+    // =========================================================================
+
+{%- if jv >= 23 %}
+    /// Sealed result type for aggregate command outcomes.
+    ///
+    /// - [Ok] — command succeeded; carry the updated aggregate.
+    /// - [Err] — command rejected; carry a human-readable reason.
+{%- else %}
+    /**
+     * Sealed result type for aggregate command outcomes.
+     *
+     * <ul>
+     *   <li>{@link Ok}  – command succeeded; carries the updated aggregate.</li>
+     *   <li>{@link Err} – command rejected; carries a human-readable reason.</li>
+     * </ul>
+     */
+{%- endif %}
+    public sealed interface AggregateResult<T> permits AggregateResult.Ok, AggregateResult.Err {
+
+{%- if jv >= 23 %}
+        /// @return {@code true} when the command succeeded.
+{%- else %}
+        /** @return {@code true} when the command succeeded. */
+{%- endif %}
+        boolean isOk();
+
+{%- if jv >= 23 %}
+        /// Fold over both branches.
+{%- else %}
+        /** Fold over both branches. */
+{%- endif %}
+        default <R> R fold(
+                java.util.function.Function<Ok<T>, R> onOk,
+                java.util.function.Function<Err<T>, R> onErr) {
+            return switch (this) {
+                case Ok<T> ok   -> onOk.apply(ok);
+                case Err<T> err -> onErr.apply(err);
+            };
+        }
+
+{%- if jv >= 23 %}
+        /// Successful command result.
+        /// @param value the updated aggregate value
+{%- else %}
+        /**
+         * Successful command result.
+         * @param value the updated aggregate value
+         */
+{%- endif %}
+        record Ok<T>(T value) implements AggregateResult<T> {
+            public Ok {
+                Objects.requireNonNull(value, "value must not be null");
+            }
+            @Override public boolean isOk() { return true; }
+        }
+
+{%- if jv >= 23 %}
+        /// Rejected command result.
+        /// @param reason human-readable rejection message
+{%- else %}
+        /**
+         * Rejected command result.
+         * @param reason human-readable rejection message
+         */
+{%- endif %}
+        record Err<T>(String reason) implements AggregateResult<T> {
+            public Err {
+                Objects.requireNonNull(reason, "reason must not be null");
+            }
+            @Override public boolean isOk() { return false; }
+        }
+    }
+
+    // =========================================================================
+    // Domain event hierarchy (sealed, immutable records)
+    // =========================================================================
+
+{%- if jv >= 23 %}
+    /// Sealed domain event hierarchy for [{{ aggregate_name }}].
+    ///
+    /// All events carry: [eventId] (UUID), [occurredAt] (Instant),
+    /// and [aggregateId] (UUID) for correlation.
+{%- else %}
+    /**
+     * Sealed domain event hierarchy for {@link {{ aggregate_name }}}.
+     *
+     * <p>All events carry: {@code eventId} (UUID), {@code occurredAt} (Instant),
+     * and {@code aggregateId} (UUID) for correlation.</p>
+     */
+{%- endif %}
+    public sealed interface {{ aggregate_name }}Event
+            permits
+{%- for event in domain_events | default(value=[]) %}
+                {{ aggregate_name }}Event.{{ event.name }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+    {
+{%- if jv >= 23 %}
+        /// Unique identifier for this event instance.
+{%- else %}
+        /** Unique identifier for this event instance. */
+{%- endif %}
+        UUID eventId();
+{%- if jv >= 23 %}
+        /// Wall-clock instant at which the event occurred.
+{%- else %}
+        /** Wall-clock instant at which the event occurred. */
+{%- endif %}
+        Instant occurredAt();
+{%- if jv >= 23 %}
+        /// ID of the aggregate that emitted this event.
+{%- else %}
+        /** ID of the aggregate that emitted this event. */
+{%- endif %}
+        UUID aggregateId();
+
+{%- for event in domain_events | default(value=[]) %}
+
+{%- if jv >= 23 %}
+        /// Event raised when {{ event.description | default(value=event.name) }}.
+{%- for field in event.fields | default(value=[]) %}
+        /// @param {{ field.name }} {{ field.description | default(value="") }}
+{%- endfor %}
+        /// @param eventId    unique event identifier
+        /// @param occurredAt when the event occurred
+        /// @param aggregateId the emitting aggregate
+{%- else %}
+        /**
+         * Event raised when {{ event.description | default(value=event.name) }}.
+{%- for field in event.fields | default(value=[]) %}
+         * @param {{ field.name }} {{ field.description | default(value="") }}
+{%- endfor %}
+         * @param eventId    unique event identifier
+         * @param occurredAt when the event occurred
+         * @param aggregateId the emitting aggregate
+         */
+{%- endif %}
+        record {{ event.name }}(
+{%- for field in event.fields | default(value=[]) %}
+                {{ field.type }} {{ field.name }},
+{%- endfor %}
+                UUID eventId,
+                Instant occurredAt,
+                UUID aggregateId) implements {{ aggregate_name }}Event {
+
+            public {{ event.name }} {
+{%- for field in event.fields | default(value=[]) %}
+{%- if field.not_null | default(value=true) %}
+                Objects.requireNonNull({{ field.name }}, "{{ field.name }} must not be null");
+{%- endif %}
+{%- endfor %}
+                Objects.requireNonNull(eventId,     "eventId must not be null");
+                Objects.requireNonNull(occurredAt,  "occurredAt must not be null");
+                Objects.requireNonNull(aggregateId, "aggregateId must not be null");
+            }
+
+{%- if jv >= 23 %}
+            /// Convenience factory — generates eventId and occurredAt automatically.
+{%- else %}
+            /** Convenience factory — generates eventId and occurredAt automatically. */
+{%- endif %}
+            public static {{ event.name }} of(UUID aggregateId{% for field in event.fields | default(value=[]) %}, {{ field.type }} {{ field.name }}{% endfor %}) {
+                return new {{ event.name }}({% for field in event.fields | default(value=[]) %}{{ field.name }}, {% endfor %}UUID.randomUUID(), Instant.now(), aggregateId);
+            }
+        }
+{%- endfor %}
+    }
+
+    // =========================================================================
+    // Constructors
+    // =========================================================================
+
+    private {{ aggregate_name }}(UUID id{% for attr in attributes | default(value=[]) %}, {{ attr.type }} {{ attr.name }}{% endfor %}) {
+        this.id      = Objects.requireNonNull(id, "id must not be null");
+        this.version = 0L;
+{%- for attr in attributes | default(value=[]) %}
+{%- if attr.not_null | default(value=false) %}
+        Objects.requireNonNull({{ attr.name }}, "{{ attr.name }} must not be null");
+{%- endif %}
+        this.{{ attr.name }} = {{ attr.name }};
+{%- endfor %}
+    }
+
+{%- if jv >= 23 %}
+    /// Reconstitute an aggregate from persisted state (event replay or snapshot).
+{%- else %}
+    /**
+     * Reconstitute an aggregate from persisted state (event replay or snapshot).
+     */
+{%- endif %}
+    public static {{ aggregate_name }} reconstitute(UUID id, long version{% for attr in attributes | default(value=[]) %}, {{ attr.type }} {{ attr.name }}{% endfor %}) {
+        var agg = new {{ aggregate_name }}(id{% for attr in attributes | default(value=[]) %}, {{ attr.name }}{% endfor %});
+        agg.version = version;
+        return agg;
+    }
+
+    // =========================================================================
+    // Factory / command methods
+    // =========================================================================
+
+{%- if jv >= 23 %}
+    /// Create a new [{{ aggregate_name }}] and raise the corresponding domain event.
+{%- else %}
+    /**
+     * Create a new {@link {{ aggregate_name }}} and raise the corresponding domain event.
+     * @return the new aggregate wrapped in {@link AggregateResult.Ok}
+     */
+{%- endif %}
+    public static AggregateResult<{{ aggregate_name }}> create({% for attr in attributes | default(value=[]) %}{{ attr.type }} {{ attr.name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+        var id  = UUID.randomUUID();
+        var agg = new {{ aggregate_name }}(id{% for attr in attributes | default(value=[]) %}, {{ attr.name }}{% endfor %});
+{%- if domain_events | default(value=[]) | length > 0 %}
+        agg.raiseEvent({{ aggregate_name }}Event.{{ domain_events[0].name }}.of(id{% for field in domain_events[0].fields | default(value=[]) %}, {{ field.name | default(value="null") }}{% endfor %}));
+{%- endif %}
+        return new AggregateResult.Ok<>(agg);
+    }
+
+{%- for attr in attributes | default(value=[]) %}
+{%- if attr.mutable | default(value=false) %}
+
+{%- if jv >= 23 %}
+    /// Update [{{ attr.name }}] and record a domain event.
+{%- else %}
+    /**
+     * Update {@code {{ attr.name }}} and record a domain event.
+     * @param {{ attr.name }} the new value
+     * @return result wrapping {@code this}
+     */
+{%- endif %}
+    public AggregateResult<{{ aggregate_name }}> update{{ attr.name | capitalize }}({{ attr.type }} {{ attr.name }}) {
+{%- if attr.not_null | default(value=false) %}
+        Objects.requireNonNull({{ attr.name }}, "{{ attr.name }} must not be null");
+{%- endif %}
+        this.{{ attr.name }} = {{ attr.name }};
+        return new AggregateResult.Ok<>(this);
+    }
+{%- endif %}
+{%- endfor %}
+
+    // =========================================================================
+    // Event sourcing helpers
+    // =========================================================================
+
+{%- if jv >= 23 %}
+    /// Apply a domain event to mutate aggregate state (for event sourcing replay).
+{%- else %}
+    /**
+     * Apply a domain event to mutate aggregate state (for event sourcing replay).
+     * @param event the event to apply
+     */
+{%- endif %}
+    public void apply({{ aggregate_name }}Event event) {
+        switch (event) {
+{%- for event in domain_events | default(value=[]) %}
+            case {{ aggregate_name }}Event.{{ event.name }} e -> apply{{ event.name }}(e);
+{%- endfor %}
+        }
+    }
+
+{%- for event in domain_events | default(value=[]) %}
+
+    @SuppressWarnings("unused")
+    private void apply{{ event.name }}({{ aggregate_name }}Event.{{ event.name }} event) {
+        // TODO: update aggregate state from event fields
+        this.version++;
+    }
+{%- endfor %}
+
+{%- if jv >= 23 %}
+    /// Collect and return all pending domain events, then clear the outbox.
+    ///
+    /// Call this after persisting the aggregate so events can be dispatched.
+{%- else %}
+    /**
+     * Collect and return all pending domain events, then clear the outbox.
+     *
+     * <p>Call this after persisting the aggregate so events can be dispatched.</p>
+     * @return unmodifiable snapshot of pending events
+     */
+{%- endif %}
+    public List<{{ aggregate_name }}Event> collectDomainEvents() {
+        var snapshot = List.copyOf(domainEvents);
+        domainEvents.clear();
+        return snapshot;
+    }
+
+    private void raiseEvent({{ aggregate_name }}Event event) {
+        apply(event);
+        domainEvents.add(event);
+    }
+
+    // =========================================================================
+    // Accessors
+    // =========================================================================
+
+{%- if jv >= 23 %}
+    /// Aggregate identity.
+{%- else %}
+    /** Aggregate identity. */
+{%- endif %}
+    public UUID id() { return id; }
+
+{%- if jv >= 23 %}
+    /// Optimistic-locking version counter.
+{%- else %}
+    /** Optimistic-locking version counter. */
+{%- endif %}
+    public long version() { return version; }
+
+{%- for attr in attributes | default(value=[]) %}
+
+{%- if jv >= 23 %}
+    /// @return current value of [{{ attr.name }}]
+{%- else %}
+    /** @return current value of {@code {{ attr.name }}} */
+{%- endif %}
+    public {{ attr.type }} {{ attr.name }}() { return {{ attr.name }}; }
+{%- endfor %}
+
+{%- if jv >= 23 %}
+    /// Pending (unpublished) domain events.
+{%- else %}
+    /** Pending (unpublished) domain events. */
+{%- endif %}
+    public List<{{ aggregate_name }}Event> pendingDomainEvents() {
+        return Collections.unmodifiableList(domainEvents);
+    }
+
+    // =========================================================================
+    // Object contract
+    // =========================================================================
+
+    @Override
+    public boolean equals(Object o) {
+        return switch (o) {
+            case {{ aggregate_name }} that -> Objects.equals(this.id, that.id);
+            case null, default            -> false;
+        };
+    }
+
+    @Override
+    public int hashCode() { return Objects.hash(id); }
+
+    @Override
+    public String toString() {
+        return "{{ aggregate_name }}[id=" + id + ", version=" + version + "]";
+    }
+}
