@@ -1,0 +1,207 @@
+{#- GitHub Actions CI/CD for Java 21-26 -#}
+{#- Mapped from ggen .github/workflows/ci.yml pattern -#}
+{#- Context: app_name, java_versions, build_tool, java_version, enable_security_scan -#}
+{%- set primary_jv = java_version | default(value=21) -%}
+{%- set tool = build_tool | default(value="gradle") -%}
+name: CI — {{ app_name | default(value="Java Application") }}
+
+on:
+  push:
+    branches: [main, master, "claude/**"]
+  pull_request:
+    branches: [main, master]
+
+env:
+  JAVA_VERSION: "{{ primary_jv }}"
+  BUILD_TOOL: "{{ tool }}"
+
+jobs:
+  check:
+    name: Compile & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java {{ primary_jv }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: "{{ primary_jv }}"
+          distribution: temurin
+{%- if tool == "gradle" %}
+          cache: gradle
+{%- else %}
+          cache: maven
+{%- endif %}
+
+{%- if tool == "gradle" %}
+      - name: Compile
+        run: ./gradlew compileJava compileTestJava --no-daemon
+{%- else %}
+      - name: Compile
+        run: mvn compile test-compile --no-transfer-progress
+{%- endif %}
+
+{%- if tool == "gradle" %}
+      - name: Checkstyle
+        run: ./gradlew checkstyleMain checkstyleTest --no-daemon
+{%- else %}
+      - name: Checkstyle
+        run: mvn checkstyle:check --no-transfer-progress
+{%- endif %}
+
+  test:
+    name: Test (Java ${{ "{{" }} matrix.java {{ "}}" }})
+    runs-on: ubuntu-latest
+    needs: check
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [{{ java_versions | default(value=["21", "25"]) | join(sep=", ") }}]
+    services:
+{%- for svc in test_services | default(value=[]) %}
+      {{ svc.name }}:
+        image: {{ svc.image }}
+        ports:
+          - {{ svc.port }}:{{ svc.port }}
+        options: {{ svc.health_options | default(value="--health-cmd='echo ok'") }}
+{%- endfor %}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java ${{ "{{" }} matrix.java {{ "}}" }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ "{{" }} matrix.java {{ "}}" }}
+          distribution: temurin
+{%- if tool == "gradle" %}
+          cache: gradle
+{%- else %}
+          cache: maven
+{%- endif %}
+
+{%- if tool == "gradle" %}
+      - name: Run unit tests
+        run: ./gradlew test --no-daemon
+
+      - name: Run integration tests
+        run: ./gradlew integrationTest --no-daemon
+{%- else %}
+      - name: Run tests
+        run: mvn verify --no-transfer-progress
+{%- endif %}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-java-${{ "{{" }} matrix.java {{ "}}" }}
+{%- if tool == "gradle" %}
+          path: build/reports/tests/
+{%- else %}
+          path: target/surefire-reports/
+{%- endif %}
+
+  coverage:
+    name: Coverage (≥80%)
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java {{ primary_jv }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: "{{ primary_jv }}"
+          distribution: temurin
+{%- if tool == "gradle" %}
+          cache: gradle
+
+      - name: Generate coverage report
+        run: ./gradlew jacocoTestReport jacocoTestCoverageVerification --no-daemon
+{%- else %}
+          cache: maven
+
+      - name: Generate coverage report
+        run: mvn jacoco:report jacoco:check --no-transfer-progress
+{%- endif %}
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: true
+
+{%- if enable_security_scan | default(value=true) %}
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java {{ primary_jv }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: "{{ primary_jv }}"
+          distribution: temurin
+
+      - name: OWASP Dependency Check
+{%- if tool == "gradle" %}
+        run: ./gradlew dependencyCheckAnalyze --no-daemon
+{%- else %}
+        run: mvn org.owasp:dependency-check-maven:check --no-transfer-progress
+{%- endif %}
+
+      - name: Upload OWASP report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: owasp-report
+{%- if tool == "gradle" %}
+          path: build/reports/dependency-check-report.html
+{%- else %}
+          path: target/dependency-check-report.html
+{%- endif %}
+{%- endif %}
+
+  build:
+    name: Build Artifact
+    runs-on: ubuntu-latest
+    needs: [test, coverage]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java {{ primary_jv }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: "{{ primary_jv }}"
+          distribution: temurin
+{%- if tool == "gradle" %}
+          cache: gradle
+
+      - name: Build JAR
+        run: ./gradlew bootJar --no-daemon
+{%- else %}
+          cache: maven
+
+      - name: Build JAR
+        run: mvn package -DskipTests --no-transfer-progress
+{%- endif %}
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg JAVA_VERSION={{ primary_jv }} \
+            --tag {{ app_name | default(value="app") }}:${{ "{{" }} github.sha {{ "}}" }} \
+            .
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: {{ app_name | default(value="app") }}-jar
+{%- if tool == "gradle" %}
+          path: build/libs/*.jar
+{%- else %}
+          path: target/*.jar
+{%- endif %}
+          retention-days: 7

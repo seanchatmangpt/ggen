@@ -1,0 +1,203 @@
+{#- Kubernetes Deployment for Java 21-26 Services -#}
+{#- Mapped from ggen templates/k8s-deployment.tera pattern -#}
+{#- Context: app_name, namespace, image, java_version, port, replicas, resources, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+{%- set ns = namespace | default(value="default") -%}
+{%- set app_port = port | default(value=8080) -%}
+{%- set replica_count = replicas | default(value=2) -%}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ ns }}
+  labels:
+    app.kubernetes.io/managed-by: ggen
+    java.version: "{{ jv }}"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ app_name }}-config
+  namespace: {{ ns }}
+data:
+  JAVA_OPTS: >-
+    -XX:+UseZGC
+    -XX:+ZGenerational
+{%- if jv >= 21 %}
+    -Djdk.tracePinnedThreads=short
+{%- endif %}
+{%- if enable_preview | default(value=false) %}
+    --enable-preview
+{%- endif %}
+    -XX:MaxRAMPercentage=75.0
+    -Xss512k
+    -Dfile.encoding=UTF-8
+  SERVER_PORT: "{{ app_port }}"
+{%- for key, value in config | default(value={}) %}
+  {{ key }}: "{{ value }}"
+{%- endfor %}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ app_name }}
+  namespace: {{ ns }}
+  labels:
+    app: {{ app_name }}
+    app.kubernetes.io/name: {{ app_name }}
+    app.kubernetes.io/version: "{{ app_version | default(value="1.0.0") }}"
+    java.version: "{{ jv }}"
+spec:
+  replicas: {{ replica_count }}
+  selector:
+    matchLabels:
+      app: {{ app_name }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: {{ app_name }}
+        app.kubernetes.io/name: {{ app_name }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: "{{ app_port }}"
+    spec:
+      serviceAccountName: {{ app_name }}-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: {{ app_name }}
+          image: {{ image }}
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: {{ app_port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ app_name }}-config
+{%- if secret_name is defined %}
+            - secretRef:
+                name: {{ secret_name }}
+{%- endif %}
+          resources:
+            requests:
+              cpu: "{{ resources.requests.cpu | default(value="250m") }}"
+              memory: "{{ resources.requests.memory | default(value="512Mi") }}"
+            limits:
+              cpu: "{{ resources.limits.cpu | default(value="1000m") }}"
+              memory: "{{ resources.limits.memory | default(value="1Gi") }}"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            failureThreshold: 30
+            periodSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp-dir
+              mountPath: /tmp
+            - name: logs-dir
+              mountPath: /app/logs
+      volumes:
+        - name: tmp-dir
+          emptyDir: {}
+        - name: logs-dir
+          emptyDir: {}
+      terminationGracePeriodSeconds: 60
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ app_name }}
+  namespace: {{ ns }}
+  labels:
+    app: {{ app_name }}
+spec:
+  selector:
+    app: {{ app_name }}
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ app_name }}-sa
+  namespace: {{ ns }}
+  labels:
+    app: {{ app_name }}
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ app_name }}-pdb
+  namespace: {{ ns }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{ app_name }}
+
+{%- if hpa_enabled | default(value=true) %}
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ app_name }}-hpa
+  namespace: {{ ns }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ app_name }}
+  minReplicas: {{ replica_count }}
+  maxReplicas: {{ hpa_max_replicas | default(value=10) }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+{%- endif %}
