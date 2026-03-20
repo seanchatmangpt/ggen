@@ -1,0 +1,98 @@
+{#- Dockerfile Template - Multi-stage build for Java 21-26 applications -#}
+{#- Context: java_version, app_name, main_class, jvm_args (list), port, enable_preview -#}
+{%- set jv = java_version | default(value=21) -%}
+{%- set preview_versions = [22, 23, 24] -%}
+{%- set use_preview = enable_preview | default(value=false) or jv in preview_versions -%}
+{%- set app = app_name | default(value="app") -%}
+{%- set svc_port = port | default(value=8080) -%}
+{%- set mgmt_port = management_port | default(value=8081) -%}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Stage 1 – Build
+# Base: eclipse-temurin {{ jv }}-jdk (Eclipse Adoptium)
+# ──────────────────────────────────────────────────────────────────────────────
+FROM eclipse-temurin:{{ jv }}-jdk AS build
+
+WORKDIR /workspace
+
+# Cache dependency layer before copying source (works for both Gradle and Maven)
+{%- if build_tool | default(value="gradle") == "maven" %}
+COPY pom.xml ./
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn dependency:go-offline -q
+COPY src ./src
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn package -DskipTests -q{%- if use_preview %} \
+    -Dmaven.compiler.enablePreview=true{%- endif %}
+{%- else %}
+COPY gradlew settings.gradle.kts build.gradle.kts ./
+COPY gradle ./gradle
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew dependencies --configuration runtimeClasspath -q
+COPY src ./src
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew assemble -x test -q
+{%- endif %}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Stage 2 – Runtime
+# Base: eclipse-temurin {{ jv }}-jre (minimal JRE image)
+# ──────────────────────────────────────────────────────────────────────────────
+FROM eclipse-temurin:{{ jv }}-jre AS runtime
+
+# Security: non-root user
+RUN groupadd --system --gid 1001 appgroup \
+ && useradd  --system --uid 1001 --gid appgroup \
+             --no-create-home --shell /sbin/nologin appuser
+
+WORKDIR /app
+
+# Copy application artifact from build stage
+{%- if build_tool | default(value="gradle") == "maven" %}
+COPY --from=build /workspace/target/{{ app }}-*.jar app.jar
+{%- else %}
+COPY --from=build /workspace/build/libs/{{ app }}-*.jar app.jar
+{%- endif %}
+
+# Restrict ownership
+RUN chown appuser:appgroup app.jar
+
+USER appuser
+
+# ─── JVM flags ────────────────────────────────────────────────────────────────
+# -XX:+UseZGC              – low-latency GC (available since Java 15)
+# -XX:+ZGenerational       – generational ZGC (GA in Java 21)
+# -Xss512k                 – smaller thread stacks (virtual threads are cheap)
+# -XX:+TieredCompilation   – fast startup + peak throughput
+# -Djava.security.egd=...  – faster SecureRandom on Linux
+ENV JAVA_TOOL_OPTIONS="\
+{%- if use_preview %} --enable-preview\
+{%- endif %}\
+ -XX:+UseZGC\
+ -XX:+ZGenerational\
+ -Xss512k\
+ -XX:MaxRAMPercentage=75.0\
+ -XX:+TieredCompilation\
+ -Djava.security.egd=file:/dev/./urandom\
+{%- for arg in jvm_args | default(value=[]) %}\
+ {{ arg }}\
+{%- endfor %}\
+"
+
+# Application port
+ENV SERVER_PORT={{ svc_port }}
+ENV MANAGEMENT_PORT={{ mgmt_port }}
+
+EXPOSE {{ svc_port }}
+EXPOSE {{ mgmt_port }}
+
+# ─── Health check ─────────────────────────────────────────────────────────────
+# Targets actuator/health (Spring Boot) or /health (Micronaut/Quarkus/plain).
+# Adjust path if your framework differs.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD curl -fsS http://localhost:{{ mgmt_port }}/actuator/health \
+        || curl -fsS http://localhost:{{ mgmt_port }}/health \
+        || exit 1
+
+# ─── Entrypoint ───────────────────────────────────────────────────────────────
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

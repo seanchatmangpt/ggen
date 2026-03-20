@@ -1,0 +1,200 @@
+{#- Specification Template - Composable predicate pattern (Java 21+) -#}
+{#- Context: package_name, spec_name, entity_type, specifications (list: name, description, predicate_body), java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+import java.util.Objects;
+import java.util.function.Predicate;
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// Specification pattern for [{{ entity_type }}].
+///
+/// Specifications are composable, reusable predicates that encapsulate a single
+/// business rule. They can be combined with [and], [or], and [not] to form
+/// complex rules without polluting domain objects or repositories.
+///
+/// ## Usage
+/// ```java
+/// var spec = new {{ spec_name }}Specifications.Active()
+///     .and(new {{ spec_name }}Specifications.OwnedBy(userId));
+/// var results = repository.findAll(spec);
+/// ```
+///
+/// Generated from RDF specification.
+{%- else %}
+/**
+ * Specification pattern for {@link {{ entity_type }}}.
+ *
+ * <p>Specifications are composable, reusable predicates that encapsulate a
+ * single business rule. They can be combined with {@link #and}, {@link #or},
+ * and {@link #not} to form complex rules without polluting domain objects or
+ * repositories.</p>
+ *
+ * <pre>{@code
+ * var spec = new {{ spec_name }}Specifications.Active()
+ *     .and(new {{ spec_name }}Specifications.OwnedBy(userId));
+ * var results = repository.findAll(spec);
+ * }</pre>
+ *
+ * <p>Generated from RDF specification.</p>
+ */
+{%- endif %}
+public interface {{ spec_name }}Specification {
+
+{%- if jv >= 23 %}
+    /// Evaluate whether [candidate] satisfies this specification.
+    /// @param candidate the object under test
+    /// @return {@code true} if the candidate satisfies all criteria
+{%- else %}
+    /**
+     * Evaluate whether {@code candidate} satisfies this specification.
+     * @param candidate the object under test
+     * @return {@code true} if the candidate satisfies all criteria
+     */
+{%- endif %}
+    boolean isSatisfiedBy({{ entity_type }} candidate);
+
+    // -------------------------------------------------------------------------
+    // Composition combinators (default methods)
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+    /// Return a specification that is satisfied only when both {@code this} and
+    /// [other] are satisfied (logical AND).
+{%- else %}
+    /**
+     * Return a specification that is satisfied only when both {@code this} and
+     * {@code other} are satisfied (logical AND).
+     * @param other the specification to combine with
+     * @return a composed AND specification
+     */
+{%- endif %}
+    default {{ spec_name }}Specification and({{ spec_name }}Specification other) {
+        Objects.requireNonNull(other, "other must not be null");
+        return candidate -> this.isSatisfiedBy(candidate) && other.isSatisfiedBy(candidate);
+    }
+
+{%- if jv >= 23 %}
+    /// Return a specification that is satisfied when either {@code this} or
+    /// [other] (or both) are satisfied (logical OR).
+{%- else %}
+    /**
+     * Return a specification that is satisfied when either {@code this} or
+     * {@code other} (or both) are satisfied (logical OR).
+     * @param other the specification to combine with
+     * @return a composed OR specification
+     */
+{%- endif %}
+    default {{ spec_name }}Specification or({{ spec_name }}Specification other) {
+        Objects.requireNonNull(other, "other must not be null");
+        return candidate -> this.isSatisfiedBy(candidate) || other.isSatisfiedBy(candidate);
+    }
+
+{%- if jv >= 23 %}
+    /// Return the logical negation of this specification.
+{%- else %}
+    /**
+     * Return the logical negation of this specification.
+     * @return a specification satisfied when {@code this} is not satisfied
+     */
+{%- endif %}
+    default {{ spec_name }}Specification not() {
+        return candidate -> !this.isSatisfiedBy(candidate);
+    }
+
+{%- if jv >= 23 %}
+    /// Adapt this specification into a standard [java.util.function.Predicate].
+    ///
+    /// Useful when passing to [java.util.stream.Stream#filter] or collection APIs.
+{%- else %}
+    /**
+     * Adapt this specification into a standard {@link java.util.function.Predicate}.
+     *
+     * <p>Useful when passing to {@link java.util.stream.Stream#filter} or
+     * collection APIs.</p>
+     * @return a {@link Predicate} backed by this specification
+     */
+{%- endif %}
+    default Predicate<{{ entity_type }}> asPredicate() {
+        return this::isSatisfiedBy;
+    }
+
+    // =========================================================================
+    // Concrete specifications
+    // =========================================================================
+
+{%- for spec in specifications | default(value=[]) %}
+
+    // -- {{ spec.name }} ------------------------------------------------------
+
+{%- if jv >= 23 %}
+    /// Specification: {{ spec.description | default(value=spec.name) }}.
+{%- for param in spec.params | default(value=[]) %}
+    /// @param {{ param.name }} {{ param.description | default(value="") }}
+{%- endfor %}
+{%- else %}
+    /**
+     * Specification: {{ spec.description | default(value=spec.name) }}.
+{%- for param in spec.params | default(value=[]) %}
+     * @param {{ param.name }} {{ param.description | default(value="") }}
+{%- endfor %}
+     */
+{%- endif %}
+    record {{ spec.name }}({% for param in spec.params | default(value=[]) %}{{ param.type }} {{ param.name }}{% if not loop.last %}, {% endif %}{% endfor %}) implements {{ spec_name }}Specification {
+
+{%- if spec.params | default(value=[]) | length > 0 %}
+        public {{ spec.name }} {
+{%- for param in spec.params | default(value=[]) %}
+{%- if param.not_null | default(value=true) %}
+            Objects.requireNonNull({{ param.name }}, "{{ param.name }} must not be null");
+{%- endif %}
+{%- endfor %}
+        }
+
+{%- endif %}
+        @Override
+        public boolean isSatisfiedBy({{ entity_type }} candidate) {
+            Objects.requireNonNull(candidate, "candidate must not be null");
+            {{ spec.predicate_body | default(value="return true; // TODO: implement predicate") }}
+        }
+    }
+{%- endfor %}
+
+    // =========================================================================
+    // Factory helpers
+    // =========================================================================
+
+{%- if jv >= 23 %}
+    /// A specification that is always satisfied (identity element for AND).
+{%- else %}
+    /** A specification that is always satisfied (identity element for AND). */
+{%- endif %}
+    static {{ spec_name }}Specification any() {
+        return candidate -> true;
+    }
+
+{%- if jv >= 23 %}
+    /// A specification that is never satisfied (identity element for OR).
+{%- else %}
+    /** A specification that is never satisfied (identity element for OR). */
+{%- endif %}
+    static {{ spec_name }}Specification none() {
+        return candidate -> false;
+    }
+
+{%- if jv >= 23 %}
+    /// Lift a plain [java.util.function.Predicate] into a [{{ spec_name }}Specification].
+{%- else %}
+    /**
+     * Lift a plain {@link Predicate} into a {@link {{ spec_name }}Specification}.
+     * @param predicate the predicate to wrap
+     * @return an anonymous specification backed by the predicate
+     */
+{%- endif %}
+    static {{ spec_name }}Specification of(Predicate<{{ entity_type }}> predicate) {
+        Objects.requireNonNull(predicate, "predicate must not be null");
+        return predicate::test;
+    }
+}

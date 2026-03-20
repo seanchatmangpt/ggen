@@ -1,0 +1,482 @@
+{#- REST Controller Template - Framework-agnostic CRUD endpoints (Java 21+) -#}
+{#- Context: package_name, entity_name, attributes, framework (spring|micronaut|quarkus), java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+{%- set entity_lower = entity_name | lower -%}
+{%- set entity_plural = entity_name | lower ~ "s" -%}
+{%- set fw = framework | default(value="spring") -%}
+{%- set id_t = id_type | default(value="Long") -%}
+package {{ package_name }};
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import java.net.URI;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+{%- if fw == "spring" %}
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.scheduling.annotation.Async;
+{%- elif fw == "micronaut" %}
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.Put;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.annotation.Error;
+import io.micronaut.scheduling.TaskExecutors;
+import io.micronaut.scheduling.annotation.ExecuteOn;
+{%- elif fw == "quarkus" %}
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
+import io.smallrye.common.annotation.RunOnVirtualThread;
+{%- endif %}
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+
+{%- if jv >= 23 %}
+/// REST controller for [{{ entity_name }}] CRUD operations.
+///
+/// Endpoints:
+/// - `GET    /{{ entity_plural }}`         - list all
+/// - `GET    /{{ entity_plural }}/{id}`    - find by id
+/// - `POST   /{{ entity_plural }}`         - create
+/// - `PUT    /{{ entity_plural }}/{id}`    - update
+/// - `DELETE /{{ entity_plural }}/{id}`    - delete
+///
+/// Framework: {{ fw }} | Java {{ jv }}+
+/// Generated from RDF specification.
+{%- else %}
+/**
+ * REST controller for {@link {{ entity_name }}} CRUD operations.
+ *
+ * <p>Endpoints:
+ * <ul>
+ *   <li>{@code GET    /{{ entity_plural }}}       - list all</li>
+ *   <li>{@code GET    /{{ entity_plural }}/{id}}  - find by id</li>
+ *   <li>{@code POST   /{{ entity_plural }}}       - create</li>
+ *   <li>{@code PUT    /{{ entity_plural }}/{id}}  - update</li>
+ *   <li>{@code DELETE /{{ entity_plural }}/{id}}  - delete</li>
+ * </ul>
+ *
+ * <p>Framework: {{ fw }} | Java {{ jv }}+
+ * <p>Generated from RDF specification.
+ */
+{%- endif %}
+
+{%- if fw == "spring" %}
+@RestController
+@RequestMapping("/{{ entity_plural }}")
+{%- elif fw == "micronaut" %}
+@Controller("/{{ entity_plural }}")
+{%- elif fw == "quarkus" %}
+@Path("/{{ entity_plural }}")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+{%- endif %}
+public final class {{ entity_name }}Controller {
+
+    private final {{ entity_name }}Service {{ entity_lower }}Service;
+{%- if fw == "spring" and jv >= 21 %}
+    private static final ExecutorService VIRTUAL_EXECUTOR =
+        Executors.newVirtualThreadPerTaskExecutor();
+{%- endif %}
+
+    public {{ entity_name }}Controller({{ entity_name }}Service {{ entity_lower }}Service) {
+        this.{{ entity_lower }}Service = Objects.requireNonNull({{ entity_lower }}Service, "{{ entity_lower }}Service must not be null");
+    }
+
+    // -------------------------------------------------------------------------
+    // Request / Response DTOs
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+    /// Immutable request record for creating or updating a [{{ entity_name }}].
+{%- else %}
+    /**
+     * Immutable request record for creating or updating a {@link {{ entity_name }}}.
+     */
+{%- endif %}
+    public record {{ entity_name }}Request(
+{%- for attr in attributes | default(value=[]) %}
+{%- if attr.constraints is defined %}
+{%- if attr.constraints.not_null | default(value=false) or attr.constraints.not_blank | default(value=false) %}
+        @NotNull
+{%- endif %}
+{%- if attr.constraints.positive | default(value=false) %}
+        @Positive
+{%- endif %}
+{%- endif %}
+        {{ attr.type | default(value="String") }} {{ attr.name }}{% if not loop.last %},{% endif %}
+
+{%- endfor %}
+    ) {
+        public {{ entity_name }}Request {
+{%- for attr in attributes | default(value=[]) %}
+{%- if attr.constraints is defined and (attr.constraints.not_null | default(value=false) or attr.constraints.not_blank | default(value=false)) %}
+            Objects.requireNonNull({{ attr.name }}, "{{ attr.name }} must not be null");
+{%- endif %}
+{%- endfor %}
+        }
+    }
+
+{%- if jv >= 23 %}
+    /// Immutable response record for [{{ entity_name }}].
+{%- else %}
+    /**
+     * Immutable response record for {@link {{ entity_name }}}.
+     */
+{%- endif %}
+    public record {{ entity_name }}Response(
+        {{ id_t }} id{% if attributes | default(value=[]) | length > 0 %},{% endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+        {{ attr.type | default(value="String") }} {{ attr.name }}{% if not loop.last %},{% endif %}
+
+{%- endfor %}
+    ) {
+        public static {{ entity_name }}Response from({{ entity_name }} entity) {
+            Objects.requireNonNull(entity, "entity must not be null");
+            return new {{ entity_name }}Response(
+                entity.id(){% if attributes | default(value=[]) | length > 0 %},{% endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+                entity.{{ attr.name }}(){% if not loop.last %},{% endif %}
+
+{%- endfor %}
+            );
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Error hierarchy (sealed, pattern-matched in handler)
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+    /// Sealed API error hierarchy for exhaustive pattern-matched HTTP mapping.
+{%- else %}
+    /**
+     * Sealed API error hierarchy for exhaustive pattern-matched HTTP mapping.
+     */
+{%- endif %}
+    public sealed interface ApiError
+        permits ApiError.NotFound, ApiError.ValidationFailed, ApiError.Conflict, ApiError.Forbidden, ApiError.Unexpected {
+
+        record NotFound(String resourceType, {{ id_t }} id) implements ApiError {}
+        record ValidationFailed(String field, String reason) implements ApiError {}
+        record Conflict(String reason) implements ApiError {}
+        record Forbidden(String reason) implements ApiError {}
+        record Unexpected(String detail, Throwable cause) implements ApiError {}
+    }
+
+    // -------------------------------------------------------------------------
+    // CRUD endpoints
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+    /// List all [{{ entity_name }}] entities.
+    /// @return 200 with list of responses
+{%- else %}
+    /**
+     * List all {@link {{ entity_name }}} entities.
+     * @return 200 with list of responses
+     */
+{%- endif %}
+{%- if fw == "spring" %}
+    @GetMapping
+{%- if jv >= 21 %}
+    @Async
+{%- endif %}
+    public {% if jv >= 21 %}CompletableFuture<{% endif %}ResponseEntity<List<{{ entity_name }}Response>>{% if jv >= 21 %}>{% endif %} listAll() {
+{%- if jv >= 21 %}
+        return CompletableFuture.supplyAsync(() ->
+            ResponseEntity.ok({{ entity_lower }}Service.findAll().stream()
+                .map({{ entity_name }}Response::from)
+                .toList()),
+            VIRTUAL_EXECUTOR
+        );
+{%- else %}
+        return ResponseEntity.ok({{ entity_lower }}Service.findAll().stream()
+            .map({{ entity_name }}Response::from)
+            .toList());
+{%- endif %}
+    }
+{%- elif fw == "micronaut" %}
+    @Get
+    @ExecuteOn(TaskExecutors.VIRTUAL)
+    public HttpResponse<List<{{ entity_name }}Response>> listAll() {
+        return HttpResponse.ok({{ entity_lower }}Service.findAll().stream()
+            .map({{ entity_name }}Response::from)
+            .toList());
+    }
+{%- elif fw == "quarkus" %}
+    @GET
+    @RunOnVirtualThread
+    public Response listAll() {
+        return Response.ok({{ entity_lower }}Service.findAll().stream()
+            .map({{ entity_name }}Response::from)
+            .toList()).build();
+    }
+{%- endif %}
+
+{%- if jv >= 23 %}
+    /// Find a [{{ entity_name }}] by its primary key.
+    /// @param id the entity identifier
+    /// @return 200 if found, 404 otherwise
+{%- else %}
+    /**
+     * Find a {@link {{ entity_name }}} by its primary key.
+     * @param id the entity identifier
+     * @return 200 if found, 404 otherwise
+     */
+{%- endif %}
+{%- if fw == "spring" %}
+    @GetMapping("/{id}")
+    public ResponseEntity<{{ entity_name }}Response> getById(@PathVariable {{ id_t }} id) {
+        return {{ entity_lower }}Service.findById(id)
+            .map({{ entity_name }}Response::from)
+            .map(ResponseEntity::ok)
+            .orElseThrow(() -> new {{ entity_name }}NotFoundException(id));
+    }
+{%- elif fw == "micronaut" %}
+    @Get("/{id}")
+    @ExecuteOn(TaskExecutors.VIRTUAL)
+    public HttpResponse<{{ entity_name }}Response> getById(@PathVariable {{ id_t }} id) {
+        return {{ entity_lower }}Service.findById(id)
+            .map({{ entity_name }}Response::from)
+            .map(HttpResponse::ok)
+            .orElseThrow(() -> new {{ entity_name }}NotFoundException(id));
+    }
+{%- elif fw == "quarkus" %}
+    @GET
+    @Path("/{id}")
+    @RunOnVirtualThread
+    public Response getById(@PathParam("id") {{ id_t }} id) {
+        return {{ entity_lower }}Service.findById(id)
+            .map({{ entity_name }}Response::from)
+            .map(r -> Response.ok(r).build())
+            .orElseThrow(() -> new {{ entity_name }}NotFoundException(id));
+    }
+{%- endif %}
+
+{%- if jv >= 23 %}
+    /// Create a new [{{ entity_name }}].
+    /// @param request validated request body
+    /// @return 201 Created with Location header
+{%- else %}
+    /**
+     * Create a new {@link {{ entity_name }}}.
+     * @param request validated request body
+     * @return 201 Created with Location header
+     */
+{%- endif %}
+{%- if fw == "spring" %}
+    @PostMapping
+    public ResponseEntity<{{ entity_name }}Response> create(@Valid @RequestBody {{ entity_name }}Request request) {
+        var created = {{ entity_lower }}Service.create(toEntity(request));
+        var response = {{ entity_name }}Response.from(created);
+        var location = URI.create("/{{ entity_plural }}/" + response.id());
+        return ResponseEntity.created(location).body(response);
+    }
+{%- elif fw == "micronaut" %}
+    @Post
+    @ExecuteOn(TaskExecutors.VIRTUAL)
+    public HttpResponse<{{ entity_name }}Response> create(@Valid @Body {{ entity_name }}Request request) {
+        var created = {{ entity_lower }}Service.create(toEntity(request));
+        var response = {{ entity_name }}Response.from(created);
+        return HttpResponse.created(response, URI.create("/{{ entity_plural }}/" + response.id()));
+    }
+{%- elif fw == "quarkus" %}
+    @POST
+    @RunOnVirtualThread
+    public Response create(@Valid {{ entity_name }}Request request) {
+        var created = {{ entity_lower }}Service.create(toEntity(request));
+        var response = {{ entity_name }}Response.from(created);
+        var location = UriBuilder.fromPath("/{{ entity_plural }}/{id}").build(response.id());
+        return Response.created(location).entity(response).build();
+    }
+{%- endif %}
+
+{%- if jv >= 23 %}
+    /// Replace a [{{ entity_name }}] by primary key.
+    /// @param id the entity identifier
+    /// @param request validated request body
+    /// @return 200 with updated representation
+{%- else %}
+    /**
+     * Replace a {@link {{ entity_name }}} by primary key.
+     * @param id the entity identifier
+     * @param request validated request body
+     * @return 200 with updated representation
+     */
+{%- endif %}
+{%- if fw == "spring" %}
+    @PutMapping("/{id}")
+    public ResponseEntity<{{ entity_name }}Response> update(
+            @PathVariable {{ id_t }} id,
+            @Valid @RequestBody {{ entity_name }}Request request) {
+        var updated = {{ entity_lower }}Service.update(id, toEntity(request));
+        return ResponseEntity.ok({{ entity_name }}Response.from(updated));
+    }
+{%- elif fw == "micronaut" %}
+    @Put("/{id}")
+    @ExecuteOn(TaskExecutors.VIRTUAL)
+    public HttpResponse<{{ entity_name }}Response> update(
+            @PathVariable {{ id_t }} id,
+            @Valid @Body {{ entity_name }}Request request) {
+        var updated = {{ entity_lower }}Service.update(id, toEntity(request));
+        return HttpResponse.ok({{ entity_name }}Response.from(updated));
+    }
+{%- elif fw == "quarkus" %}
+    @PUT
+    @Path("/{id}")
+    @RunOnVirtualThread
+    public Response update(
+            @PathParam("id") {{ id_t }} id,
+            @Valid {{ entity_name }}Request request) {
+        var updated = {{ entity_lower }}Service.update(id, toEntity(request));
+        return Response.ok({{ entity_name }}Response.from(updated)).build();
+    }
+{%- endif %}
+
+{%- if jv >= 23 %}
+    /// Delete a [{{ entity_name }}] by primary key.
+    /// @param id the entity identifier
+    /// @return 204 No Content
+{%- else %}
+    /**
+     * Delete a {@link {{ entity_name }}} by primary key.
+     * @param id the entity identifier
+     * @return 204 No Content
+     */
+{%- endif %}
+{%- if fw == "spring" %}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable {{ id_t }} id) {
+        {{ entity_lower }}Service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+{%- elif fw == "micronaut" %}
+    @Delete("/{id}")
+    @ExecuteOn(TaskExecutors.VIRTUAL)
+    public HttpResponse<Void> delete(@PathVariable {{ id_t }} id) {
+        {{ entity_lower }}Service.delete(id);
+        return HttpResponse.noContent();
+    }
+{%- elif fw == "quarkus" %}
+    @DELETE
+    @Path("/{id}")
+    @RunOnVirtualThread
+    public Response delete(@PathParam("id") {{ id_t }} id) {
+        {{ entity_lower }}Service.delete(id);
+        return Response.noContent().build();
+    }
+{%- endif %}
+
+    // -------------------------------------------------------------------------
+    // Exception handlers (pattern matching on ApiError / domain exceptions)
+    // -------------------------------------------------------------------------
+
+{%- if fw == "spring" %}
+
+    @ExceptionHandler({{ entity_name }}NotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleNotFound({{ entity_name }}NotFoundException ex) {
+        var problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problem.setTitle("{{ entity_name }} Not Found");
+        problem.setDetail(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+    }
+
+    @ExceptionHandler({{ entity_name }}ValidationException.class)
+    public ResponseEntity<ProblemDetail> handleValidation({{ entity_name }}ValidationException ex) {
+        var problem = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
+        problem.setTitle("Validation Failed");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("field", ex.field());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(problem);
+    }
+
+    @ExceptionHandler({{ entity_name }}ConflictException.class)
+    public ResponseEntity<ProblemDetail> handleConflict({{ entity_name }}ConflictException ex) {
+        var problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problem.setTitle("Conflict");
+        problem.setDetail(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ProblemDetail> handleUnexpected(Exception ex) {
+        var problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        problem.setTitle("Internal Server Error");
+        problem.setDetail("An unexpected error occurred");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem);
+    }
+{%- elif fw == "micronaut" %}
+
+    @Error
+    public HttpResponse<{{ entity_name }}ErrorResponse> handleDomainException({{ entity_name }}DomainException ex) {
+        var status = switch (ex) {
+            case {{ entity_name }}NotFoundException e -> HttpStatus.NOT_FOUND;
+            case {{ entity_name }}ValidationException e -> HttpStatus.UNPROCESSABLE_ENTITY;
+            case {{ entity_name }}ConflictException e -> HttpStatus.CONFLICT;
+        };
+        return HttpResponse.<{{ entity_name }}ErrorResponse>status(status)
+            .body(new {{ entity_name }}ErrorResponse(ex.getMessage()));
+    }
+{%- elif fw == "quarkus" %}
+
+    // Quarkus uses @Provider ExceptionMapper<T> — wire in ExceptionMappers class.
+{%- endif %}
+
+    // -------------------------------------------------------------------------
+    // Private helpers
+    // -------------------------------------------------------------------------
+
+    private {{ entity_name }} toEntity({{ entity_name }}Request request) {
+        return new {{ entity_name }}(
+            null{% if attributes | default(value=[]) | length > 0 %},{% endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+            request.{{ attr.name }}(){% if not loop.last %},{% endif %}
+
+{%- endfor %}
+        );
+    }
+
+{%- if fw == "micronaut" %}
+
+    public record {{ entity_name }}ErrorResponse(String message) {}
+{%- endif %}
+}
