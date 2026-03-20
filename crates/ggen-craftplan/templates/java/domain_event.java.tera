@@ -1,0 +1,225 @@
+{#- Domain Event Template - Sealed event hierarchy (Java 21+) -#}
+{#- Context: package_name, event_name, variants (each: name, description, fields[name,type,description,not_null]), java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+import java.util.Objects;
+import java.util.UUID;
+import java.time.Instant;
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// Sealed domain event hierarchy: [{{ event_name }}Event].
+///
+/// Every variant is an immutable record carrying standard event metadata:
+/// - [eventId]    — unique identifier for this event instance (UUID v4)
+/// - [occurredAt] — wall-clock time when the event occurred (Instant)
+/// - [aggregateId] — identity of the emitting aggregate (UUID)
+///
+/// Use exhaustive switch expressions (Java 21+) to process events without
+/// a default branch, ensuring compile-time completeness guarantees.
+///
+/// Generated from RDF specification.
+{%- else %}
+/**
+ * Sealed domain event hierarchy: {@code {{ event_name }}Event}.
+ *
+ * <p>Every variant is an immutable record carrying standard event metadata:</p>
+ * <ul>
+ *   <li>{@code eventId}     – unique identifier for this event instance (UUID v4)</li>
+ *   <li>{@code occurredAt}  – wall-clock time when the event occurred (Instant)</li>
+ *   <li>{@code aggregateId} – identity of the emitting aggregate (UUID)</li>
+ * </ul>
+ *
+ * <p>Use exhaustive switch expressions (Java 21+) to process events without
+ * a default branch, ensuring compile-time completeness guarantees.</p>
+ *
+ * <p>Generated from RDF specification.</p>
+ */
+{%- endif %}
+public sealed interface {{ event_name }}Event
+        permits
+{%- for variant in variants | default(value=[]) %}
+            {{ event_name }}Event.{{ variant.name }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+{
+    // -------------------------------------------------------------------------
+    // Shared event metadata — all implementations must provide these
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+    /// Unique identifier for this individual event occurrence.
+{%- else %}
+    /** Unique identifier for this individual event occurrence. */
+{%- endif %}
+    UUID eventId();
+
+{%- if jv >= 23 %}
+    /// Wall-clock instant at which the event was raised.
+{%- else %}
+    /** Wall-clock instant at which the event was raised. */
+{%- endif %}
+    Instant occurredAt();
+
+{%- if jv >= 23 %}
+    /// Identity of the aggregate that emitted this event.
+{%- else %}
+    /** Identity of the aggregate that emitted this event. */
+{%- endif %}
+    UUID aggregateId();
+
+    // -------------------------------------------------------------------------
+    // Exhaustive visitor via pattern-matching switch (Java 21+)
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+    /// Visit every event variant without a fallback branch.
+    ///
+    /// The compiler enforces exhaustiveness — adding a new variant to the sealed
+    /// hierarchy will produce a compile error until a corresponding handler is
+    /// provided here.
+{%- else %}
+    /**
+     * Visit every event variant without a fallback branch.
+     *
+     * <p>The compiler enforces exhaustiveness — adding a new variant to the sealed
+     * hierarchy will produce a compile error until a corresponding handler is
+     * provided here.</p>
+     *
+     * @param <R> return type of the visitor
+     * @return the result produced by the matched handler
+     */
+{%- endif %}
+    default <R> R match(
+{%- for variant in variants | default(value=[]) %}
+            java.util.function.Function<{{ variant.name }}, R> on{{ variant.name }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+    ) {
+        return switch (this) {
+{%- for variant in variants | default(value=[]) %}
+            case {{ variant.name }} e -> on{{ variant.name }}.apply(e);
+{%- endfor %}
+        };
+    }
+
+{%- if jv >= 23 %}
+    /// Fire-and-forget visitor for side-effecting consumers.
+{%- else %}
+    /**
+     * Fire-and-forget visitor for side-effecting consumers.
+     */
+{%- endif %}
+    default void handle(
+{%- for variant in variants | default(value=[]) %}
+            java.util.function.Consumer<{{ variant.name }}> on{{ variant.name }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+    ) {
+        switch (this) {
+{%- for variant in variants | default(value=[]) %}
+            case {{ variant.name }} e -> on{{ variant.name }}.accept(e);
+{%- endfor %}
+        }
+    }
+
+    // =========================================================================
+    // Variant records
+    // =========================================================================
+
+{%- for variant in variants | default(value=[]) %}
+
+    // -- {{ variant.name }} ---------------------------------------------------
+
+{%- if jv >= 23 %}
+    /// {{ variant.description | default(value=variant.name) }}.
+{%- for field in variant.fields | default(value=[]) %}
+    /// @param {{ field.name }} {{ field.description | default(value="") }}
+{%- endfor %}
+    /// @param eventId    unique event identifier (auto-generated by factory)
+    /// @param occurredAt instant the event was raised (auto-generated by factory)
+    /// @param aggregateId the aggregate that produced this event
+{%- else %}
+    /**
+     * {{ variant.description | default(value=variant.name) }}.
+{%- for field in variant.fields | default(value=[]) %}
+     * @param {{ field.name }} {{ field.description | default(value="") }}
+{%- endfor %}
+     * @param eventId     unique event identifier (auto-generated by factory)
+     * @param occurredAt  instant the event was raised (auto-generated by factory)
+     * @param aggregateId the aggregate that produced this event
+     */
+{%- endif %}
+    record {{ variant.name }}(
+{%- for field in variant.fields | default(value=[]) %}
+            {{ field.type }} {{ field.name }},
+{%- endfor %}
+            UUID eventId,
+            Instant occurredAt,
+            UUID aggregateId) implements {{ event_name }}Event {
+
+        public {{ variant.name }} {
+{%- for field in variant.fields | default(value=[]) %}
+{%- if field.not_null | default(value=true) %}
+            Objects.requireNonNull({{ field.name }}, "{{ field.name }} must not be null");
+{%- endif %}
+{%- endfor %}
+            Objects.requireNonNull(eventId,     "eventId must not be null");
+            Objects.requireNonNull(occurredAt,  "occurredAt must not be null");
+            Objects.requireNonNull(aggregateId, "aggregateId must not be null");
+        }
+
+{%- if jv >= 23 %}
+        /// Convenience factory — generates [eventId] and [occurredAt] automatically.
+        /// @param aggregateId the aggregate raising this event
+{%- for field in variant.fields | default(value=[]) %}
+        /// @param {{ field.name }} {{ field.description | default(value="") }}
+{%- endfor %}
+{%- else %}
+        /**
+         * Convenience factory — generates {@code eventId} and {@code occurredAt} automatically.
+         * @param aggregateId the aggregate raising this event
+{%- for field in variant.fields | default(value=[]) %}
+         * @param {{ field.name }} {{ field.description | default(value="") }}
+{%- endfor %}
+         * @return a new {@link {{ variant.name }}}
+         */
+{%- endif %}
+        public static {{ variant.name }} of(UUID aggregateId{% for field in variant.fields | default(value=[]) %}, {{ field.type }} {{ field.name }}{% endfor %}) {
+            return new {{ variant.name }}({% for field in variant.fields | default(value=[]) %}{{ field.name }}, {% endfor %}UUID.randomUUID(), Instant.now(), aggregateId);
+        }
+    }
+{%- endfor %}
+
+    // =========================================================================
+    // Processing utilities
+    // =========================================================================
+
+{%- if jv >= 23 %}
+    /// Return the simple class name of this event variant (useful for logging).
+{%- else %}
+    /** Return the simple class name of this event variant (useful for logging). */
+{%- endif %}
+    default String eventType() {
+        return this.getClass().getSimpleName();
+    }
+
+{%- if jv >= 23 %}
+    /// Reconstruct the event type tag as a stable string for serialisation.
+    ///
+    /// Exhaustive switch guarantees new variants are handled at compile time.
+{%- else %}
+    /**
+     * Reconstruct the event type tag as a stable string for serialisation.
+     *
+     * <p>Exhaustive switch guarantees new variants are handled at compile time.</p>
+     * @return a stable string tag identifying the variant
+     */
+{%- endif %}
+    default String typeTag() {
+        return switch (this) {
+{%- for variant in variants | default(value=[]) %}
+            case {{ variant.name }} ignored -> "{{ event_name }}.{{ variant.name }}";
+{%- endfor %}
+        };
+    }
+}

@@ -1,0 +1,434 @@
+{#- Structured Concurrency Orchestrator Template - Java 21-26+ -#}
+{#- Context: package_name, class_name, operations, timeout_seconds, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
+{%- if jv >= 24 %}
+import java.lang.ScopedValue;
+{%- endif %}
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// Structured concurrency orchestrator for [{{ class_name }}] operations.
+///
+/// Implements fan-out/fan-in, race, and timeout patterns using
+/// `StructuredTaskScope` (Java 21+). All forked subtasks are
+/// automatically cancelled when the scope exits.
+///
+/// ## Patterns
+/// - **Fan-out / fan-in**: [#runAll] — all must succeed (ShutdownOnFailure)
+/// - **Race**: [#raceFirst] — first success wins (ShutdownOnSuccess)
+/// - **Timeout**: [#runWithTimeout] — deadline propagation
+/// - **Cancellation**: scope exit cancels all pending subtasks
+{%- if jv >= 24 %}
+///
+/// Uses [ScopedValue] for per-call context propagation (Java 24+).
+{%- endif %}
+{%- else %}
+/**
+ * Structured concurrency orchestrator for {@link {{ class_name }}} operations.
+ *
+ * <p>Implements fan-out/fan-in, race, and timeout patterns using
+ * {@code StructuredTaskScope} (Java 21+). All forked subtasks are
+ * automatically cancelled when the scope exits.</p>
+ *
+ * <h2>Patterns</h2>
+ * <ul>
+ *   <li><b>Fan-out / fan-in</b>: {@link #runAll} — all must succeed (ShutdownOnFailure)</li>
+ *   <li><b>Race</b>: {@link #raceFirst} — first success wins (ShutdownOnSuccess)</li>
+ *   <li><b>Timeout</b>: {@link #runWithTimeout} — deadline propagation</li>
+ *   <li><b>Cancellation</b>: scope exit cancels all pending subtasks</li>
+ * </ul>
+{%- if jv >= 24 %}
+ *
+ * <p>Uses {@link ScopedValue} for per-call context propagation (Java 24+).</p>
+{%- endif %}
+ */
+{%- endif %}
+public final class {{ class_name }} implements AutoCloseable {
+
+    private static final long DEFAULT_TIMEOUT_SECONDS = {{ timeout_seconds | default(value=30) }};
+{%- if jv >= 24 %}
+
+    private static final ScopedValue<String> CORRELATION_ID = ScopedValue.newInstance();
+    private static final ScopedValue<Boolean> CACHE_BYPASS   = ScopedValue.newInstance();
+{%- endif %}
+
+    // -------------------------------------------------------------------------
+    // Fan-out / fan-in: ALL tasks must succeed
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+
+    /// Execute all tasks concurrently; fail fast if any task throws.
+    ///
+    /// Uses `StructuredTaskScope.ShutdownOnFailure` so that the first
+    /// failure cancels all sibling subtasks before re-throwing the cause.
+    ///
+    /// @param tasks callable tasks to run in parallel
+    /// @param <T>   common result type
+    /// @return ordered list of results matching the input task order
+    /// @throws Exception the first failure thrown by any subtask
+{%- else %}
+
+    /**
+     * Execute all tasks concurrently; fail fast if any task throws.
+     *
+     * <p>Uses {@code StructuredTaskScope.ShutdownOnFailure} so that the first
+     * failure cancels all sibling subtasks before re-throwing the cause.</p>
+     *
+     * @param tasks callable tasks to run in parallel
+     * @param <T>   common result type
+     * @return ordered list of results matching the input task order
+     * @throws Exception the first failure thrown by any subtask
+     */
+{%- endif %}
+    public <T> List<T> runAll(List<Callable<T>> tasks) throws Exception {
+        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+            List<Subtask<T>> subtasks = new ArrayList<>(tasks.size());
+            for (Callable<T> task : tasks) {
+                subtasks.add(scope.fork(task));
+            }
+            scope.join().throwIfFailed();
+
+            List<T> results = new ArrayList<>(subtasks.size());
+            for (Subtask<T> st : subtasks) {
+                results.add(st.get());
+            }
+            return List.copyOf(results);
+        }
+    }
+
+{%- if jv >= 23 %}
+
+    /// Execute all tasks with an explicit deadline; cancels remaining work
+    /// after `timeoutSeconds` and throws `java.util.concurrent.TimeoutException`.
+    ///
+    /// @param tasks          callable tasks to run in parallel
+    /// @param timeoutSeconds maximum wall-clock seconds to wait
+    /// @param <T>            common result type
+    /// @return ordered list of results
+    /// @throws Exception including TimeoutException on deadline breach
+{%- else %}
+
+    /**
+     * Execute all tasks with an explicit deadline; cancels remaining work
+     * after {@code timeoutSeconds} and throws
+     * {@link java.util.concurrent.TimeoutException}.
+     *
+     * @param tasks          callable tasks to run in parallel
+     * @param timeoutSeconds maximum wall-clock seconds to wait
+     * @param <T>            common result type
+     * @return ordered list of results
+     * @throws Exception including TimeoutException on deadline breach
+     */
+{%- endif %}
+    public <T> List<T> runWithTimeout(List<Callable<T>> tasks, long timeoutSeconds) throws Exception {
+        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+            List<Subtask<T>> subtasks = new ArrayList<>(tasks.size());
+            for (Callable<T> task : tasks) {
+                subtasks.add(scope.fork(task));
+            }
+            scope.joinUntil(Instant.now().plusSeconds(timeoutSeconds)).throwIfFailed();
+
+            List<T> results = new ArrayList<>(subtasks.size());
+            for (Subtask<T> st : subtasks) {
+                results.add(st.get());
+            }
+            return List.copyOf(results);
+        }
+    }
+
+{%- if jv >= 23 %}
+
+    /// Convenience overload using the configured default timeout of
+    /// `{{ timeout_seconds | default(value=30) }}` seconds.
+{%- else %}
+
+    /**
+     * Convenience overload using the configured default timeout of
+     * {@code {{ timeout_seconds | default(value=30) }}} seconds.
+     *
+     * @param tasks callable tasks to run in parallel
+     * @param <T>   common result type
+     * @return ordered list of results
+     * @throws Exception on failure or timeout
+     */
+{%- endif %}
+    public <T> List<T> runWithDefaultTimeout(List<Callable<T>> tasks) throws Exception {
+        return runWithTimeout(tasks, DEFAULT_TIMEOUT_SECONDS);
+    }
+
+    // -------------------------------------------------------------------------
+    // Race pattern: FIRST success wins
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+
+    /// Race tasks; return the first successful result and cancel the rest.
+    ///
+    /// Uses `StructuredTaskScope.ShutdownOnSuccess` which shuts down the scope
+    /// the moment any subtask succeeds. Remaining subtasks receive an
+    /// interrupt and are not awaited.
+    ///
+    /// @param tasks callable tasks competing for first result
+    /// @param <T>   common result type
+    /// @return the first successful result
+    /// @throws Exception if every subtask fails
+{%- else %}
+
+    /**
+     * Race tasks; return the first successful result and cancel the rest.
+     *
+     * <p>Uses {@code StructuredTaskScope.ShutdownOnSuccess} which shuts down
+     * the scope the moment any subtask succeeds. Remaining subtasks receive an
+     * interrupt and are not awaited.</p>
+     *
+     * @param tasks callable tasks competing for first result
+     * @param <T>   common result type
+     * @return the first successful result
+     * @throws Exception if every subtask fails
+     */
+{%- endif %}
+    public <T> T raceFirst(List<Callable<T>> tasks) throws Exception {
+        try (var scope = new StructuredTaskScope.ShutdownOnSuccess<T>()) {
+            for (Callable<T> task : tasks) {
+                scope.fork(task);
+            }
+            scope.join();
+            return scope.result();
+        }
+    }
+
+{%- if jv >= 23 %}
+
+    /// Race with deadline: first success within `timeoutSeconds` wins;
+    /// all tasks are cancelled on deadline breach.
+    ///
+    /// @param tasks          callable tasks competing for first result
+    /// @param timeoutSeconds maximum wall-clock seconds to wait
+    /// @param <T>            common result type
+    /// @return the first successful result
+    /// @throws Exception including TimeoutException on deadline breach
+{%- else %}
+
+    /**
+     * Race with deadline: first success within {@code timeoutSeconds} wins;
+     * all tasks are cancelled on deadline breach.
+     *
+     * @param tasks          callable tasks competing for first result
+     * @param timeoutSeconds maximum wall-clock seconds to wait
+     * @param <T>            common result type
+     * @return the first successful result
+     * @throws Exception including TimeoutException on deadline breach
+     */
+{%- endif %}
+    public <T> T raceFirstWithTimeout(List<Callable<T>> tasks, long timeoutSeconds) throws Exception {
+        try (var scope = new StructuredTaskScope.ShutdownOnSuccess<T>()) {
+            for (Callable<T> task : tasks) {
+                scope.fork(task);
+            }
+            scope.joinUntil(Instant.now().plusSeconds(timeoutSeconds));
+            return scope.result();
+        }
+    }
+
+{%- if jv >= 23 %}
+
+    /// Attempt to obtain a result; return `Optional.empty()` on total failure
+    /// rather than throwing.
+    ///
+    /// @param tasks callable tasks competing for first result
+    /// @param <T>   common result type
+    /// @return `Optional` containing the first success, or empty if all fail
+{%- else %}
+
+    /**
+     * Attempt to obtain a result; return {@link Optional#empty()} on total
+     * failure rather than throwing.
+     *
+     * @param tasks callable tasks competing for first result
+     * @param <T>   common result type
+     * @return {@link Optional} containing the first success, or empty if all fail
+     * @throws InterruptedException if the calling thread is interrupted
+     */
+{%- endif %}
+    public <T> Optional<T> tryRaceFirst(List<Callable<T>> tasks) throws InterruptedException {
+        try {
+            return Optional.of(raceFirst(tasks));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw e;
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+{%- if jv >= 24 %}
+
+    // -------------------------------------------------------------------------
+    // Scoped-value context (Java 24+)
+    // -------------------------------------------------------------------------
+
+    /// Run tasks inside a scoped-value context that binds a correlation ID
+    /// and an optional cache-bypass flag for the duration of the scope.
+    ///
+    /// The values are visible to all forked subtasks without being passed
+    /// explicitly as parameters.
+    ///
+    /// @param correlationId  request-scoped tracing identifier
+    /// @param bypassCache    when true, subtasks should skip caches
+    /// @param tasks          callable tasks to execute
+    /// @param <T>            common result type
+    /// @return ordered list of results
+    /// @throws Exception on subtask failure
+    public <T> List<T> runWithContext(
+            String correlationId,
+            boolean bypassCache,
+            List<Callable<T>> tasks) throws Exception {
+        return ScopedValue
+            .where(CORRELATION_ID, correlationId)
+            .where(CACHE_BYPASS, bypassCache)
+            .call(() -> runAll(tasks));
+    }
+
+    /// Read the correlation ID bound to the current virtual-thread call.
+    ///
+    /// Returns `"unset"` when called outside a scoped context.
+    public static String currentCorrelationId() {
+        return CORRELATION_ID.orElse("unset");
+    }
+
+    /// Return `true` if the current call context requests cache bypass.
+    public static boolean isCacheBypass() {
+        return CACHE_BYPASS.orElse(false);
+    }
+{%- endif %}
+
+{%- if jv >= 24 %}
+
+    // -------------------------------------------------------------------------
+    // Custom scope policy (Java 24+: StructuredTaskScope<T> is non-sealed)
+    // -------------------------------------------------------------------------
+
+    /// Custom scope that collects partial results even when some subtasks fail,
+    /// requiring at least `minimumSuccesses` to succeed before returning.
+    ///
+    /// Extends `StructuredTaskScope<T>` using the open policy hook available
+    /// in Java 24+ (the class became non-sealed, allowing subclassing outside
+    /// `java.util.concurrent`).
+    ///
+    /// @param <T> the result element type
+{%- else %}
+
+    // -------------------------------------------------------------------------
+    // Custom scope policy (Java 24+ feature — shown as inner class template)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Custom scope that collects partial results even when some subtasks fail,
+     * requiring at least {@code minimumSuccesses} to succeed before returning.
+     *
+     * <p>Requires Java 24+: {@code StructuredTaskScope} became non-sealed,
+     * permitting subclasses outside {@code java.util.concurrent}.</p>
+     *
+     * @param <T> the result element type
+     */
+{%- endif %}
+    public static final class AtLeastNScope<T> extends StructuredTaskScope<T> {
+
+        private final int minimumSuccesses;
+        private final List<T> results   = new java.util.concurrent.CopyOnWriteArrayList<>();
+        private final List<Throwable> failures = new java.util.concurrent.CopyOnWriteArrayList<>();
+
+        public AtLeastNScope(int minimumSuccesses) {
+            this.minimumSuccesses = minimumSuccesses;
+        }
+
+        @Override
+        protected void handleComplete(Subtask<? extends T> subtask) {
+            switch (subtask.state()) {
+                case SUCCESS  -> {
+                    results.add(subtask.get());
+                    if (results.size() >= minimumSuccesses) {
+                        shutdown();
+                    }
+                }
+                case FAILED   -> failures.add(subtask.exception());
+                case UNAVAILABLE -> { /* cancelled — ignore */ }
+            }
+        }
+
+{%- if jv >= 23 %}
+
+        /// Return all successful results collected so far.
+        ///
+        /// @throws Exception if fewer than `minimumSuccesses` tasks succeeded
+{%- else %}
+
+        /**
+         * Return all successful results collected so far.
+         *
+         * @return immutable list of successful results
+         * @throws Exception if fewer than {@code minimumSuccesses} tasks succeeded
+         */
+{%- endif %}
+        public List<T> results() throws Exception {
+            ensureOwnerAndJoined();
+            if (results.size() < minimumSuccesses) {
+                var cause = failures.isEmpty() ? null : failures.get(0);
+                throw new Exception(
+                    "Required %d successes but got %d".formatted(minimumSuccesses, results.size()),
+                    cause);
+            }
+            return List.copyOf(results);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Named operations
+    // -------------------------------------------------------------------------
+
+{%- for op in operations | default(value=[]) %}
+
+{%- if jv >= 23 %}
+    /// {{ op.description | default(value="Execute the " ~ op.name ~ " operation using structured concurrency.") }}
+{%- else %}
+    /**
+     * {{ op.description | default(value="Execute the " ~ op.name ~ " operation using structured concurrency.") }}
+     *
+     * @return result of {{ op.name }}
+     * @throws Exception on failure or timeout
+     */
+{%- endif %}
+    public {{ op.return_type | default(value="void") }} {{ op.name }}(
+            {% for param in op.params | default(value=[]) %}{{ param.type }} {{ param.name }}{% if not loop.last %}, {% endif %}{% endfor %}) throws Exception {
+        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+            var subtask = scope.fork(() -> {
+                {{ op.body | default(value="// TODO: implement " ~ op.name) }}
+                {% if op.return_type is defined and op.return_type != "void" %}return null;{% endif %}
+            });
+            scope.joinUntil(Instant.now().plusSeconds(DEFAULT_TIMEOUT_SECONDS)).throwIfFailed();
+            {% if op.return_type is defined and op.return_type != "void" %}return subtask.get();{% endif %}
+        }
+    }
+{%- endfor %}
+
+    // -------------------------------------------------------------------------
+    // Lifecycle
+    // -------------------------------------------------------------------------
+
+    @Override
+    public void close() {
+        // No persistent state — scopes are created per-call and auto-closed.
+        // Implement if background threads or resources are added.
+    }
+}
