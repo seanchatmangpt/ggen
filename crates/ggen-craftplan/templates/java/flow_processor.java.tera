@@ -1,0 +1,438 @@
+{#- Flow API Reactive Streams Template - Java 9+ Flow, optimised for Java 21+ -#}
+{#- Context: package_name, class_name, input_type, output_type, buffer_size, transform_body, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+{%- set ibuf = buffer_size | default(value=256) -%}
+package {{ package_name }};
+
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Flow;
+import java.util.concurrent.SubmissionPublisher;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// Reactive pipeline for transforming [{{ input_type }}] → [{{ output_type }}].
+///
+/// Built on the Java `Flow` API (reactive streams compliant). The pipeline
+/// consists of:
+///
+/// 1. **Source**: caller-supplied `SubmissionPublisher<{{ input_type }}>` or the
+///    built-in [{{ class_name }}.Publisher].
+/// 2. **Processor**: [{{ class_name }}.Processor] — transforms items and enforces
+///    backpressure with a bounded internal buffer of `{{ ibuf }}` items.
+/// 3. **Subscriber**: [{{ class_name }}.Subscriber] — collects or consumes results.
+///
+/// ## Backpressure
+/// The processor requests `{{ ibuf }}` items from upstream initially and
+/// re-requests after each item is forwarded downstream, keeping the pipeline
+/// flowing without unbounded buffering.
+///
+/// ## Error propagation
+/// Any exception thrown by the transform function calls `onError` on all
+/// downstream subscribers and cancels the upstream subscription.
+{%- else %}
+/**
+ * Reactive pipeline for transforming {@link {{ input_type }}} to
+ * {@link {{ output_type }}}.
+ *
+ * <p>Built on the Java {@link java.util.concurrent.Flow} API (reactive-streams
+ * compliant). The pipeline consists of:</p>
+ * <ol>
+ *   <li><b>Source</b>: caller-supplied {@link SubmissionPublisher} or the
+ *       built-in {@link {{ class_name }}.Publisher}.</li>
+ *   <li><b>Processor</b>: {@link {{ class_name }}.Processor} — transforms items
+ *       and enforces backpressure with a bounded internal buffer of
+ *       {@value #BUFFER_SIZE} items.</li>
+ *   <li><b>Subscriber</b>: {@link {{ class_name }}.Subscriber} — collects or
+ *       consumes results.</li>
+ * </ol>
+ *
+ * <h2>Backpressure</h2>
+ * <p>The processor requests {@value #BUFFER_SIZE} items from upstream initially
+ * and re-requests after each item is forwarded downstream, keeping the pipeline
+ * flowing without unbounded buffering.</p>
+ *
+ * <h2>Error propagation</h2>
+ * <p>Any exception thrown by the transform function calls {@code onError} on all
+ * downstream subscribers and cancels the upstream subscription.</p>
+ */
+{%- endif %}
+public final class {{ class_name }} {
+
+    /** Internal buffer capacity used by the processor and built-in publisher. */
+    public static final int BUFFER_SIZE = {{ ibuf }};
+
+    private {{ class_name }}() { /* utility/factory class */ }
+
+    // =========================================================================
+    // Publisher
+    // =========================================================================
+
+{%- if jv >= 23 %}
+
+    /// Ready-to-use publisher that emits [{{ input_type }}] items.
+    ///
+    /// Backed by [SubmissionPublisher] with a virtual-thread executor so that
+    /// slow subscriber `onNext` calls never block the submitting thread.
+    ///
+    /// Call [#submit] to publish items and [#close] to signal completion.
+{%- else %}
+
+    /**
+     * Ready-to-use publisher that emits {@link {{ input_type }}} items.
+     *
+     * <p>Backed by {@link SubmissionPublisher} with a virtual-thread executor
+     * so that slow subscriber {@code onNext} calls never block the submitting
+     * thread.</p>
+     *
+     * <p>Call {@link #submit} to publish items and {@link #close} to signal
+     * completion.</p>
+     */
+{%- endif %}
+    public static final class Publisher
+            extends SubmissionPublisher<{{ input_type }}> {
+
+        public Publisher() {
+            super(Executors.newVirtualThreadPerTaskExecutor(), BUFFER_SIZE);
+        }
+
+{%- if jv >= 23 %}
+
+        /// Submit a single item, blocking if the internal buffer is full.
+        ///
+        /// @param item the item to publish; must not be null
+{%- else %}
+
+        /**
+         * Submit a single item, blocking if the internal buffer is full.
+         *
+         * @param item the item to publish; must not be null
+         */
+{%- endif %}
+        public void publish({{ input_type }} item) {
+            Objects.requireNonNull(item, "item must not be null");
+            submit(item);
+        }
+
+{%- if jv >= 23 %}
+
+        /// Publish all items in the list in encounter order.
+        ///
+        /// @param items the items to publish; must not be null
+{%- else %}
+
+        /**
+         * Publish all items in the list in encounter order.
+         *
+         * @param items the items to publish; must not be null
+         */
+{%- endif %}
+        public void publishAll(List<? extends {{ input_type }}> items) {
+            Objects.requireNonNull(items, "items must not be null");
+            for ({{ input_type }} item : items) {
+                submit(item);
+            }
+        }
+    }
+
+    // =========================================================================
+    // Processor
+    // =========================================================================
+
+{%- if jv >= 23 %}
+
+    /// Transforms [{{ input_type }}] → [{{ output_type }}] inside the reactive pipeline.
+    ///
+    /// Implements `Flow.Processor` (both `Subscriber` and `Publisher`).
+    /// Backpressure is applied by requesting items from upstream in chunks of
+    /// [#BUFFER_SIZE] and forwarding each transformed item immediately.
+    ///
+    /// The processor is reusable: subscribe it to a new upstream after the
+    /// previous one completes.
+{%- else %}
+
+    /**
+     * Transforms {@link {{ input_type }}} to {@link {{ output_type }}} inside the
+     * reactive pipeline.
+     *
+     * <p>Implements {@link Flow.Processor} (both {@link Flow.Subscriber} and
+     * {@link Flow.Publisher}). Backpressure is applied by requesting items from
+     * upstream in chunks of {@value #BUFFER_SIZE} and forwarding each transformed
+     * item immediately.</p>
+     *
+     * <p>The processor is reusable: subscribe it to a new upstream after the
+     * previous one completes.</p>
+     */
+{%- endif %}
+    public static final class Processor
+            extends SubmissionPublisher<{{ output_type }}>
+            implements Flow.Processor<{{ input_type }}, {{ output_type }}> {
+
+        private final Function<{{ input_type }}, {{ output_type }}> transform;
+        private volatile Flow.Subscription upstream;
+        private final AtomicBoolean completed = new AtomicBoolean(false);
+        private final AtomicLong totalProcessed = new AtomicLong(0L);
+
+{%- if jv >= 23 %}
+
+        /// Construct with a custom transform function.
+        ///
+        /// @param transform converts each [{{ input_type }}] to [{{ output_type }}];
+        ///                  must not be null and must not throw checked exceptions
+{%- else %}
+
+        /**
+         * Construct with a custom transform function.
+         *
+         * @param transform converts each {@link {{ input_type }}} to
+         *                  {@link {{ output_type }}}; must not be null
+         */
+{%- endif %}
+        public Processor(Function<{{ input_type }}, {{ output_type }}> transform) {
+            super(Executors.newVirtualThreadPerTaskExecutor(), BUFFER_SIZE);
+            this.transform = Objects.requireNonNull(transform, "transform must not be null");
+        }
+
+{%- if jv >= 23 %}
+
+        /// Create a processor using the template-defined transform body.
+{%- else %}
+
+        /**
+         * Create a processor using the template-defined transform body.
+         *
+         * @return a new processor with the default transform
+         */
+{%- endif %}
+        public static Processor withDefaultTransform() {
+            return new Processor(input -> {
+                {{ transform_body | default(value="// TODO: transform input → output\n                throw new UnsupportedOperationException(\"transform_body not configured\");") }}
+            });
+        }
+
+        @Override
+        public void onSubscribe(Flow.Subscription subscription) {
+            this.upstream = Objects.requireNonNull(subscription);
+            subscription.request(BUFFER_SIZE);
+        }
+
+        @Override
+        public void onNext({{ input_type }} item) {
+            Objects.requireNonNull(item, "onNext item must not be null");
+            try {
+                {{ output_type }} result = transform.apply(item);
+                submit(result);
+                totalProcessed.incrementAndGet();
+                // Re-request one slot to maintain steady flow (credit-based backpressure).
+                upstream.request(1);
+            } catch (Exception ex) {
+                upstream.cancel();
+                closeExceptionally(ex);
+            }
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            Objects.requireNonNull(throwable, "throwable must not be null");
+            closeExceptionally(throwable);
+        }
+
+        @Override
+        public void onComplete() {
+            if (completed.compareAndSet(false, true)) {
+                close(); // signals downstream subscribers
+            }
+        }
+
+{%- if jv >= 23 %}
+
+        /// Return the total number of items successfully processed.
+{%- else %}
+
+        /**
+         * Return the total number of items successfully processed.
+         *
+         * @return item count
+         */
+{%- endif %}
+        public long totalProcessed() {
+            return totalProcessed.get();
+        }
+    }
+
+    // =========================================================================
+    // Subscriber
+    // =========================================================================
+
+{%- if jv >= 23 %}
+
+    /// Terminal subscriber that collects [{{ output_type }}] results into a list.
+    ///
+    /// Thread-safe: `onNext`, `onError`, and `onComplete` may be called from
+    /// any thread (virtual or platform). Await completion with [#awaitCompletion].
+{%- else %}
+
+    /**
+     * Terminal subscriber that collects {@link {{ output_type }}} results into
+     * a list.
+     *
+     * <p>Thread-safe: {@code onNext}, {@code onError}, and {@code onComplete}
+     * may be called from any thread. Await completion with
+     * {@link #awaitCompletion}.</p>
+     */
+{%- endif %}
+    public static final class Subscriber implements Flow.Subscriber<{{ output_type }}> {
+
+        private final List<{{ output_type }}> results =
+            new java.util.concurrent.CopyOnWriteArrayList<>();
+        private final java.util.concurrent.CountDownLatch latch =
+            new java.util.concurrent.CountDownLatch(1);
+        private volatile Throwable error;
+        private volatile Flow.Subscription subscription;
+
+        @Override
+        public void onSubscribe(Flow.Subscription subscription) {
+            this.subscription = Objects.requireNonNull(subscription);
+            subscription.request(BUFFER_SIZE);
+        }
+
+        @Override
+        public void onNext({{ output_type }} item) {
+            Objects.requireNonNull(item);
+            results.add(item);
+            subscription.request(1);
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            this.error = Objects.requireNonNull(throwable);
+            latch.countDown();
+        }
+
+        @Override
+        public void onComplete() {
+            latch.countDown();
+        }
+
+{%- if jv >= 23 %}
+
+        /// Block until the publisher signals completion or error.
+        ///
+        /// @return immutable snapshot of all collected results
+        /// @throws Exception wrapping any upstream error, or InterruptedException
+{%- else %}
+
+        /**
+         * Block until the publisher signals completion or error.
+         *
+         * @return immutable snapshot of all collected results
+         * @throws Exception wrapping any upstream error, or InterruptedException
+         */
+{%- endif %}
+        public List<{{ output_type }}> awaitCompletion() throws Exception {
+            latch.await();
+            if (error != null) {
+                throw new Exception("Pipeline failed", error);
+            }
+            return List.copyOf(results);
+        }
+
+{%- if jv >= 23 %}
+
+        /// Block with a deadline; returns partial results on timeout.
+        ///
+        /// @param timeoutSeconds maximum seconds to wait
+        /// @return immutable snapshot of collected results (may be partial)
+        /// @throws Exception on upstream error or interrupt
+{%- else %}
+
+        /**
+         * Block with a deadline; returns partial results on timeout.
+         *
+         * @param timeoutSeconds maximum seconds to wait
+         * @return immutable snapshot of collected results (may be partial)
+         * @throws Exception on upstream error or interrupt
+         */
+{%- endif %}
+        public List<{{ output_type }}> awaitCompletion(long timeoutSeconds) throws Exception {
+            boolean finished = latch.await(timeoutSeconds, java.util.concurrent.TimeUnit.SECONDS);
+            if (!finished) {
+                subscription.cancel();
+            }
+            if (error != null) {
+                throw new Exception("Pipeline failed", error);
+            }
+            return List.copyOf(results);
+        }
+    }
+
+    // =========================================================================
+    // Pipeline factory
+    // =========================================================================
+
+{%- if jv >= 23 %}
+
+    /// Build and wire a complete [Publisher] → [Processor] → [Subscriber] pipeline.
+    ///
+    /// The returned record gives access to all three stages. Submit items via
+    /// `pipeline.publisher().publish(item)`, then close the publisher when done.
+    ///
+    /// @param transform the transformation function
+    /// @return a wired [Pipeline] ready to accept items
+{%- else %}
+
+    /**
+     * Build and wire a complete Publisher → Processor → Subscriber pipeline.
+     *
+     * <p>The returned record gives access to all three stages. Submit items via
+     * {@code pipeline.publisher().publish(item)}, then close the publisher when
+     * done.</p>
+     *
+     * @param transform the transformation function
+     * @return a wired pipeline record ready to accept items
+     */
+{%- endif %}
+    public static Pipeline<{{ input_type }}, {{ output_type }}> buildPipeline(
+            Function<{{ input_type }}, {{ output_type }}> transform) {
+        var publisher  = new Publisher();
+        var processor  = new Processor(transform);
+        var subscriber = new Subscriber();
+
+        publisher.subscribe(processor);
+        processor.subscribe(subscriber);
+
+        return new Pipeline<>(publisher, processor, subscriber);
+    }
+
+{%- if jv >= 23 %}
+
+    /// Wired pipeline record holding all three stages.
+    ///
+    /// @param publisher  the source that accepts new items
+    /// @param processor  the transform stage
+    /// @param subscriber the terminal collector
+    /// @param <I>        input type
+    /// @param <O>        output type
+{%- else %}
+
+    /**
+     * Wired pipeline record holding all three stages.
+     *
+     * @param publisher  the source that accepts new items
+     * @param processor  the transform stage
+     * @param subscriber the terminal collector
+     * @param <I>        input type
+     * @param <O>        output type
+     */
+{%- endif %}
+    public record Pipeline<I, O>(
+        {{ class_name }}.Publisher publisher,
+        {{ class_name }}.Processor processor,
+        {{ class_name }}.Subscriber subscriber
+    ) {}
+}
