@@ -1,0 +1,105 @@
+{#- Class Template - Generate Java class (Java 21+) -#}
+{#- Context: package_name, class_name, attributes, methods, imports, doc_comments, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// {{ doc_comments | default(value="Generated class from RDF specification.") }}
+{%- else %}
+/**
+ * {{ doc_comments | default(value="Generated class from RDF specification.") }}
+ */
+{%- endif %}
+public{% if is_sealed | default(value=false) %} sealed{% endif %}{% if is_abstract | default(value=false) %} abstract{% endif %}{% if is_final | default(value=true) %} final{% endif %} class {{ class_name }}{% if extends is defined %} extends {{ extends }}{% endif %}{% if implements is defined and implements | length > 0 %} implements {{ implements | join(sep=", ") }}{% endif %}{% if permits is defined and permits | length > 0 %} permits {{ permits | join(sep=", ") }}{% endif %} {
+
+{%- for attr in attributes | default(value=[]) %}
+    private {% if attr.is_final | default(value=true) %}final {% endif %}{{ attr.type }} {{ attr.name }};
+{%- endfor %}
+
+{%- if attributes is defined and attributes | length > 0 %}
+
+{%- if jv >= 22 %}
+    public {{ class_name }}(
+{%- for attr in attributes %}
+        {{ attr.type }} {{ attr.name }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+    ) {
+{%- for attr in attributes %}
+{%- if attr.constraints is defined and attr.constraints.not_null | default(value=false) %}
+        java.util.Objects.requireNonNull({{ attr.name }}, "{{ attr.name }} must not be null");
+{%- endif %}
+{%- endfor %}
+{%- for attr in attributes %}
+        this.{{ attr.name }} = {{ attr.name }};
+{%- endfor %}
+    }
+{%- else %}
+    public {{ class_name }}(
+{%- for attr in attributes %}
+        {{ attr.type }} {{ attr.name }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+    ) {
+{%- for attr in attributes %}
+{%- if attr.constraints is defined and attr.constraints.not_null | default(value=false) %}
+        java.util.Objects.requireNonNull({{ attr.name }}, "{{ attr.name }} must not be null");
+{%- endif %}
+{%- endfor %}
+{%- for attr in attributes %}
+        this.{{ attr.name }} = {{ attr.name }};
+{%- endfor %}
+    }
+{%- endif %}
+{%- endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+
+    public {{ attr.type }} {{ attr.name }}() {
+        return {{ attr.name }};
+    }
+{%- endfor %}
+
+{%- for method in methods | default(value=[]) %}
+
+{%- if jv >= 23 %}
+    /// {{ method.description | default(value="") }}
+{%- else %}
+    /**
+     * {{ method.description | default(value="") }}
+     */
+{%- endif %}
+    public {{ method.return_type | default(value="void") }} {{ method.name }}({% for param in method.params | default(value=[]) %}{{ param.type }} {{ param.name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+        {{ method.body | default(value="throw new UnsupportedOperationException(\"Not yet implemented\");") }}
+    }
+{%- endfor %}
+
+    @Override
+    public boolean equals(Object o) {
+{%- if jv >= 21 %}
+        return switch (o) {
+            case {{ class_name }} that -> {% for attr in attributes | default(value=[]) %}java.util.Objects.equals(this.{{ attr.name }}, that.{{ attr.name }}){% if not loop.last %} && {% endif %}{% endfor %}{% if attributes | default(value=[]) | length == 0 %}true{% endif %};
+            case null, default -> false;
+        };
+{%- else %}
+        if (this == o) return true;
+        if (!(o instanceof {{ class_name }} that)) return false;
+        return {% for attr in attributes | default(value=[]) %}java.util.Objects.equals(this.{{ attr.name }}, that.{{ attr.name }}){% if not loop.last %} && {% endif %}{% endfor %}{% if attributes | default(value=[]) | length == 0 %}true{% endif %};
+{%- endif %}
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash({% for attr in attributes | default(value=[]) %}{{ attr.name }}{% if not loop.last %}, {% endif %}{% endfor %});
+    }
+
+    @Override
+    public String toString() {
+        return "{{ class_name }}[" +
+{%- for attr in attributes | default(value=[]) %}
+            "{{ attr.name }}=" + {{ attr.name }}{% if not loop.last %} + ", " +{% else %} +{% endif %}
+{%- endfor %}
+            "]";
+    }
+}

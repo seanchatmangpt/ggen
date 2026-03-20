@@ -1,0 +1,166 @@
+{#- Test Template - Generate JUnit 5 tests with AAA pattern (Java 21+) -#}
+{#- Context: package_name, entity_name, attributes, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+{%- set entity_lower = entity_name | lower -%}
+package {{ package_name }};
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+{%- if jv >= 23 %}
+/// Tests for [{{ entity_name }}].
+///
+/// Generated from RDF specification with AAA pattern.
+{%- else %}
+/**
+ * Tests for {@link {{ entity_name }}}.
+ *
+ * <p>Generated from RDF specification with AAA pattern.</p>
+ */
+{%- endif %}
+class {{ entity_name }}Test {
+
+{%- if attributes is defined and attributes | length > 0 %}
+
+    private {{ entity_name }} {{ entity_lower }};
+
+    @BeforeEach
+    void setUp() {
+        {{ entity_lower }} = {% if is_record | default(value=true) %}new {{ entity_name }}(
+{%- for attr in attributes %}
+            {{ attr.test_value | default(value="null") }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+        ){% else %}create{{ entity_name }}(){% endif %};
+    }
+{%- endif %}
+
+    @Nested
+    @DisplayName("Creation")
+    class CreationTests {
+
+        @Test
+        @DisplayName("creates {{ entity_name }} with valid attributes")
+        void createsWithValidAttributes() {
+            // Arrange
+{%- for attr in attributes | default(value=[]) %}
+            var {{ attr.name }} = {{ attr.test_value | default(value="null") }};
+{%- endfor %}
+
+            // Act
+            var result = new {{ entity_name }}({% for attr in attributes | default(value=[]) %}{{ attr.name }}{% if not loop.last %}, {% endif %}{% endfor %});
+
+            // Assert
+            assertNotNull(result);
+{%- for attr in attributes | default(value=[]) %}
+            assertEquals({{ attr.name }}, result.{{ attr.name }}());
+{%- endfor %}
+        }
+
+{%- for attr in attributes | default(value=[]) %}
+{%- if attr.constraints is defined and attr.constraints.not_null | default(value=false) %}
+
+        @Test
+        @DisplayName("rejects null {{ attr.name }}")
+        void rejectsNull{{ attr.name | capitalize }}() {
+            // Arrange & Act & Assert
+            assertThrows(NullPointerException.class, () ->
+                new {{ entity_name }}({% for a in attributes %}{% if a.name == attr.name %}null{% else %}{{ a.test_value | default(value="null") }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %})
+            );
+        }
+{%- endif %}
+{%- endfor %}
+    }
+
+{%- if jv >= 21 %}
+
+    @Nested
+    @DisplayName("Pattern Matching (Java 21+)")
+    class PatternMatchingTests {
+
+        @Test
+        @DisplayName("supports instanceof pattern matching")
+        void supportsInstanceofPatternMatching() {
+            // Arrange
+            Object obj = {{ entity_lower }};
+
+            // Act & Assert
+            if (obj instanceof {{ entity_name }}{% for attr in attributes | default(value=[]) | first %} matched{% endfor %}) {
+                assertNotNull({% if attributes | default(value=[]) | length > 0 %}matched{% else %}obj{% endif %});
+            } else {
+                fail("Should match {{ entity_name }} pattern");
+            }
+        }
+
+        @Test
+        @DisplayName("works with switch pattern matching")
+        void worksWithSwitchPatternMatching() {
+            // Arrange
+            Object obj = {{ entity_lower }};
+
+            // Act
+            var result = switch (obj) {
+                case {{ entity_name }} e -> e.toString();
+                case null -> "null";
+                default -> "unknown";
+            };
+
+            // Assert
+            assertNotNull(result);
+            assertFalse(result.equals("unknown"));
+        }
+    }
+{%- endif %}
+
+{%- if jv >= 22 %}
+
+    @Nested
+    @DisplayName("Unnamed Patterns (Java 22+)")
+    class UnnamedPatternTests {
+
+        @Test
+        @DisplayName("supports unnamed variables in patterns")
+        void supportsUnnamedVariables() {
+            // Arrange
+            var items = java.util.List.of({{ entity_lower }}, {{ entity_lower }});
+
+            // Act - using unnamed variable (Java 22+)
+            int count = 0;
+            for (var _ : items) {
+                count++;
+            }
+
+            // Assert
+            assertEquals(2, count);
+        }
+    }
+{%- endif %}
+
+    @Nested
+    @DisplayName("Equality")
+    class EqualityTests {
+
+        @Test
+        @DisplayName("equal objects have same hashCode")
+        void equalObjectsHaveSameHashCode() {
+            // Arrange
+            var other = new {{ entity_name }}({% for attr in attributes | default(value=[]) %}{{ attr.test_value | default(value="null") }}{% if not loop.last %}, {% endif %}{% endfor %});
+
+            // Act & Assert
+            assertEquals({{ entity_lower }}, other);
+            assertEquals({{ entity_lower }}.hashCode(), other.hashCode());
+        }
+
+        @Test
+        @DisplayName("different objects are not equal")
+        void differentObjectsAreNotEqual() {
+            // Arrange
+            var other = new {{ entity_name }}({% for attr in attributes | default(value=[]) %}{{ attr.different_value | default(value=attr.test_value | default(value="null")) }}{% if not loop.last %}, {% endif %}{% endfor %});
+
+            // Act & Assert
+            assertNotEquals({{ entity_lower }}, other);
+        }
+    }
+}

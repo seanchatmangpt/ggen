@@ -1,0 +1,128 @@
+{#- Virtual Thread Service Template - Java 21+ virtual threads -#}
+{#- Context: package_name, service_name, operations, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.StructuredTaskScope;
+{%- if jv >= 24 %}
+import java.lang.ScopedValue;
+{%- endif %}
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// Service using virtual threads for concurrent {{ service_name }} operations.
+///
+/// Leverages Project Loom features available since Java 21.
+{%- else %}
+/**
+ * Service using virtual threads for concurrent {{ service_name }} operations.
+ *
+ * <p>Leverages Project Loom features available since Java 21.</p>
+ */
+{%- endif %}
+public final class {{ service_name }}VirtualThreadService implements AutoCloseable {
+
+    private final ExecutorService executor;
+{%- if jv >= 24 %}
+    private static final ScopedValue<String> CURRENT_OPERATION = ScopedValue.newInstance();
+{%- endif %}
+
+    public {{ service_name }}VirtualThreadService() {
+        this.executor = Executors.newVirtualThreadPerTaskExecutor();
+    }
+
+{%- if jv >= 23 %}
+
+    /// Execute multiple operations concurrently using structured concurrency.
+    ///
+    /// @return results from all operations
+    /// @throws Exception if any operation fails
+{%- else %}
+
+    /**
+     * Execute multiple operations concurrently using structured concurrency.
+     *
+     * @param <T> the result type
+     * @param tasks the tasks to execute
+     * @return results from all operations
+     * @throws Exception if any operation fails
+     */
+{%- endif %}
+    public <T> List<T> executeAll(List<java.util.concurrent.Callable<T>> tasks) throws Exception {
+        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+            var subtasks = tasks.stream()
+                .map(scope::fork)
+                .toList();
+
+            scope.join().throwIfFailed();
+
+            return subtasks.stream()
+                .map(StructuredTaskScope.Subtask::get)
+                .toList();
+        }
+    }
+
+{%- if jv >= 23 %}
+
+    /// Execute operation with first-success semantics.
+    ///
+    /// @return the first successful result
+{%- else %}
+
+    /**
+     * Execute operation with first-success semantics.
+     *
+     * @param <T> the result type
+     * @param tasks the tasks to race
+     * @return the first successful result
+     * @throws Exception if all operations fail
+     */
+{%- endif %}
+    public <T> T executeAny(List<java.util.concurrent.Callable<T>> tasks) throws Exception {
+        try (var scope = new StructuredTaskScope.ShutdownOnSuccess<T>()) {
+            for (var task : tasks) {
+                scope.fork(task);
+            }
+            scope.join();
+            return scope.result();
+        }
+    }
+
+{%- if jv >= 24 %}
+
+    /// Execute operation with scoped value context (Java 24+).
+    public <T> T executeWithContext(String operationName, java.util.concurrent.Callable<T> task) throws Exception {
+        return ScopedValue.callWhere(CURRENT_OPERATION, operationName, task);
+    }
+
+    /// Get the current operation name from scoped context.
+    public static String currentOperation() {
+        return CURRENT_OPERATION.orElse("unknown");
+    }
+{%- endif %}
+
+{%- for op in operations | default(value=[]) %}
+
+{%- if jv >= 23 %}
+    /// {{ op.description | default(value="Execute " ~ op.name ~ " operation.") }}
+{%- else %}
+    /**
+     * {{ op.description | default(value="Execute " ~ op.name ~ " operation.") }}
+     */
+{%- endif %}
+    public {{ op.return_type | default(value="void") }} {{ op.name }}({% for param in op.params | default(value=[]) %}{{ param.type }} {{ param.name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+        executor.submit(() -> {
+            {{ op.body | default(value="// TODO: implement") }}
+        });
+    }
+{%- endfor %}
+
+    @Override
+    public void close() {
+        executor.close();
+    }
+}

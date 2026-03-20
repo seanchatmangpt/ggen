@@ -1,0 +1,63 @@
+{#- Record Template - Generate Java records (Java 21+) -#}
+{#- Context: package_name, entity_name, attributes, imports, doc_comments, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// {{ doc_comments | default(value="Generated record from RDF specification.") }}
+///
+/// @param {% for attr in attributes %}{{ attr.name }} {{ attr.description | default(value="") }}{% if not loop.last %}
+/// @param {% endif %}{% endfor %}
+{%- else %}
+/**
+ * {{ doc_comments | default(value="Generated record from RDF specification.") }}
+ *
+{%- for attr in attributes %}
+ * @param {{ attr.name }} {{ attr.description | default(value="") }}
+{%- endfor %}
+ */
+{%- endif %}
+{%- if sealed_permits is defined and sealed_permits | length > 0 %}
+public sealed record {{ entity_name }}(
+{%- else %}
+public record {{ entity_name }}(
+{%- endif %}
+{%- for attr in attributes %}
+    {{ attr.type }} {{ attr.name }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+){% if implements is defined and implements | length > 0 %} implements {{ implements | join(sep=", ") }}{% endif %}{% if sealed_permits is defined and sealed_permits | length > 0 %} permits {{ sealed_permits | join(sep=", ") }}{% endif %} {
+
+{%- for attr in attributes %}
+{%- if attr.constraints is defined %}
+
+    public {{ entity_name }} {
+{%- for attr2 in attributes %}
+{%- if attr2.constraints is defined %}
+{%- if attr2.constraints.not_null | default(value=false) %}
+        java.util.Objects.requireNonNull({{ attr2.name }}, "{{ attr2.name }} must not be null");
+{%- endif %}
+{%- if attr2.constraints.min_length is defined %}
+        if ({{ attr2.name }}.length() < {{ attr2.constraints.min_length }}) {
+            throw new IllegalArgumentException("{{ attr2.name }} must be at least {{ attr2.constraints.min_length }} characters");
+        }
+{%- endif %}
+{%- if attr2.constraints.max_length is defined %}
+        if ({{ attr2.name }}.length() > {{ attr2.constraints.max_length }}) {
+            throw new IllegalArgumentException("{{ attr2.name }} must be at most {{ attr2.constraints.max_length }} characters");
+        }
+{%- endif %}
+{%- if attr2.constraints.positive | default(value=false) %}
+        if ({{ attr2.name }} <= 0) {
+            throw new IllegalArgumentException("{{ attr2.name }} must be positive");
+        }
+{%- endif %}
+{%- endif %}
+{%- endfor %}
+    }
+{%- break %}
+{%- endif %}
+{%- endfor %}
+}

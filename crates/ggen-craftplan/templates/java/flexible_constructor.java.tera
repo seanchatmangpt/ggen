@@ -1,0 +1,110 @@
+{#- Flexible Constructor Template - Java 22+ (preview) / Java 25+ (final) -#}
+{#- JEP 482: Statements before super() / this() in constructors -#}
+{#- Context: package_name, class_name, parent_class, attributes, validations, java_version -#}
+{%- set jv = java_version | default(value=25) -%}
+package {{ package_name }};
+
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// {{ doc_comments | default(value="Class with flexible constructor bodies (JEP 482).") }}
+///
+/// Demonstrates pre-super() validation and computation available since Java 22 (preview)
+/// and finalized in Java 25.
+{%- else %}
+/**
+ * {{ doc_comments | default(value="Class with flexible constructor bodies (JEP 482).") }}
+ *
+ * <p>Demonstrates pre-super() validation and computation available since Java 22 (preview)
+ * and finalized in Java 25.</p>
+ */
+{%- endif %}
+public class {{ class_name }}{% if parent_class is defined %} extends {{ parent_class }}{% endif %}{% if implements is defined and implements | length > 0 %} implements {{ implements | join(sep=", ") }}{% endif %} {
+
+{%- for attr in attributes | default(value=[]) %}
+{%- if not attr.inherited | default(value=false) %}
+    private final {{ attr.type }} {{ attr.name }};
+{%- endif %}
+{%- endfor %}
+
+{%- if jv >= 22 %}
+    public {{ class_name }}(
+{%- for attr in attributes %}
+        {{ attr.type }} {{ attr.name }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+    ) {
+        // Pre-super() validation (Java 22+ / JEP 482)
+{%- for attr in attributes %}
+{%- if attr.constraints is defined %}
+{%- if attr.constraints.not_null | default(value=false) %}
+        java.util.Objects.requireNonNull({{ attr.name }}, "{{ attr.name }} must not be null");
+{%- endif %}
+{%- if attr.constraints.not_blank | default(value=false) %}
+        if ({{ attr.name }}.isBlank()) {
+            throw new IllegalArgumentException("{{ attr.name }} must not be blank");
+        }
+{%- endif %}
+{%- if attr.constraints.positive | default(value=false) %}
+        if ({{ attr.name }} <= 0) {
+            throw new IllegalArgumentException("{{ attr.name }} must be positive");
+        }
+{%- endif %}
+{%- if attr.constraints.range is defined %}
+        if ({{ attr.name }} < {{ attr.constraints.range.min }} || {{ attr.name }} > {{ attr.constraints.range.max }}) {
+            throw new IllegalArgumentException("{{ attr.name }} must be between {{ attr.constraints.range.min }} and {{ attr.constraints.range.max }}");
+        }
+{%- endif %}
+{%- endif %}
+{%- endfor %}
+{%- if parent_class is defined %}
+
+        // Pre-computed values can now be passed to super()
+{%- for attr in attributes %}
+{%- if attr.inherited | default(value=false) %}
+{%- if attr.transform is defined %}
+        var computed{{ attr.name | capitalize }} = {{ attr.transform }};
+{%- endif %}
+{%- endif %}
+{%- endfor %}
+        super({% for attr in attributes %}{% if attr.inherited | default(value=false) %}{% if attr.transform is defined %}computed{{ attr.name | capitalize }}{% else %}{{ attr.name }}{% endif %}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %});
+{%- endif %}
+
+{%- for attr in attributes %}
+{%- if not attr.inherited | default(value=false) %}
+        this.{{ attr.name }} = {{ attr.name }};
+{%- endif %}
+{%- endfor %}
+    }
+{%- else %}
+    public {{ class_name }}(
+{%- for attr in attributes %}
+        {{ attr.type }} {{ attr.name }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+    ) {
+{%- if parent_class is defined %}
+        super({% for attr in attributes %}{% if attr.inherited | default(value=false) %}{{ attr.name }}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %});
+{%- endif %}
+        // Validation must come after super() in Java < 22
+{%- for attr in attributes %}
+{%- if attr.constraints is defined and attr.constraints.not_null | default(value=false) %}
+        java.util.Objects.requireNonNull({{ attr.name }}, "{{ attr.name }} must not be null");
+{%- endif %}
+{%- endfor %}
+{%- for attr in attributes %}
+{%- if not attr.inherited | default(value=false) %}
+        this.{{ attr.name }} = {{ attr.name }};
+{%- endif %}
+{%- endfor %}
+    }
+{%- endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+{%- if not attr.inherited | default(value=false) %}
+
+    public {{ attr.type }} {{ attr.name }}() {
+        return {{ attr.name }};
+    }
+{%- endif %}
+{%- endfor %}
+}

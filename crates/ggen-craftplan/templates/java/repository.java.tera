@@ -1,0 +1,46 @@
+{#- Repository Template - Generate Java repository interface (Java 21+) -#}
+{#- Context: package_name, entity_name, id_type, attributes, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+import java.util.List;
+import java.util.Optional;
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// Repository interface for [{{ entity_name }}] persistence.
+///
+/// Generated from RDF specification.
+{%- else %}
+/**
+ * Repository interface for {@link {{ entity_name }}} persistence.
+ *
+ * <p>Generated from RDF specification.</p>
+ */
+{%- endif %}
+public interface {{ entity_name }}Repository {
+
+    Optional<{{ entity_name }}> findById({{ id_type | default(value="Long") }} id);
+
+    List<{{ entity_name }}> findAll();
+
+    {{ entity_name }} save({{ entity_name }} entity);
+
+    void deleteById({{ id_type | default(value="Long") }} id);
+
+    boolean existsById({{ id_type | default(value="Long") }} id);
+
+    long count();
+
+{%- for attr in attributes | default(value=[]) %}
+{%- if attr.searchable | default(value=false) %}
+
+    List<{{ entity_name }}> findBy{{ attr.name | capitalize }}({{ attr.type }} {{ attr.name }});
+{%- endif %}
+{%- if attr.unique | default(value=false) %}
+
+    Optional<{{ entity_name }}> findBy{{ attr.name | capitalize }}({{ attr.type }} {{ attr.name }});
+{%- endif %}
+{%- endfor %}
+}

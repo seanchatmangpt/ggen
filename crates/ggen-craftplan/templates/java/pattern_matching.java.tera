@@ -1,0 +1,115 @@
+{#- Pattern Matching Template - Java 21+ exhaustive switch patterns -#}
+{#- Context: package_name, class_name, sealed_type, variants, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// Pattern matching processor for [{{ sealed_type }}] hierarchy.
+///
+/// Uses exhaustive switch expressions (Java 21+) for type-safe dispatch.
+{%- else %}
+/**
+ * Pattern matching processor for {@link {{ sealed_type }}} hierarchy.
+ *
+ * <p>Uses exhaustive switch expressions (Java 21+) for type-safe dispatch.</p>
+ */
+{%- endif %}
+public final class {{ class_name }} {
+
+    private {{ class_name }}() {
+        // utility class
+    }
+
+{%- if jv >= 23 %}
+
+    /// Process a [{{ sealed_type }}] using exhaustive pattern matching.
+    ///
+    /// The switch is exhaustive - the compiler ensures all permitted subtypes are handled.
+{%- else %}
+
+    /**
+     * Process a {@link {{ sealed_type }}} using exhaustive pattern matching.
+     *
+     * <p>The switch is exhaustive - the compiler ensures all permitted subtypes are handled.</p>
+     *
+     * @param value the value to process
+     * @return the processing result
+     */
+{%- endif %}
+    public static String process({{ sealed_type }} value) {
+        return switch (value) {
+{%- for variant in variants %}
+            case {{ variant.type }} {{ variant.name | lower }} -> {{ variant.handler | default(value="\"" ~ variant.type ~ ": \" + " ~ variant.name | lower ~ ".toString()") }};
+{%- endfor %}
+        };
+    }
+
+{%- if jv >= 21 %}
+
+{%- if jv >= 23 %}
+    /// Process with guarded patterns (Java 21+).
+{%- else %}
+    /**
+     * Process with guarded patterns (Java 21+).
+     *
+     * @param value the value to process
+     * @return the processing result
+     */
+{%- endif %}
+    public static String processWithGuards({{ sealed_type }} value) {
+        return switch (value) {
+{%- for variant in variants %}
+{%- if variant.guard is defined %}
+            case {{ variant.type }} {{ variant.name | lower }} when {{ variant.guard }} -> {{ variant.guarded_handler | default(value="\"guarded: \" + " ~ variant.name | lower) }};
+{%- endif %}
+            case {{ variant.type }} {{ variant.name | lower }} -> {{ variant.handler | default(value="\"" ~ variant.type ~ ": \" + " ~ variant.name | lower ~ ".toString()") }};
+{%- endfor %}
+        };
+    }
+{%- endif %}
+
+{%- if jv >= 23 %}
+
+    /// Process with deconstruction patterns (Java 21+ record patterns).
+{%- else %}
+
+    /**
+     * Process with deconstruction patterns (Java 21+ record patterns).
+     *
+     * @param value the value to process
+     * @return the processing result
+     */
+{%- endif %}
+    public static String processWithDeconstruction({{ sealed_type }} value) {
+        return switch (value) {
+{%- for variant in variants %}
+{%- if variant.is_record | default(value=false) %}
+            case {{ variant.type }}({% for f in variant.fields | default(value=[]) %}var {{ f.name }}{% if not loop.last %}, {% endif %}{% endfor %}) -> {% for f in variant.fields | default(value=[]) %}{{ f.name }}{% if not loop.last %} + ", " + {% endif %}{% endfor %}{% if variant.fields | default(value=[]) | length == 0 %}"empty"{% endif %};
+{%- else %}
+            case {{ variant.type }} {{ variant.name | lower }} -> {{ variant.name | lower }}.toString();
+{%- endif %}
+{%- endfor %}
+        };
+    }
+
+{%- if jv >= 26 %}
+
+    /// Process using value class patterns (Java 26+).
+    ///
+    /// Value classes provide identity-free, inline-optimized types.
+    public static String processValueTypes({{ sealed_type }} value) {
+        return switch (value) {
+{%- for variant in variants %}
+{%- if variant.is_value_class | default(value=false) %}
+            case {{ variant.type }} v -> "value[" + v + "]";
+{%- else %}
+            case {{ variant.type }} v -> "ref[" + v + "]";
+{%- endif %}
+{%- endfor %}
+        };
+    }
+{%- endif %}
+}

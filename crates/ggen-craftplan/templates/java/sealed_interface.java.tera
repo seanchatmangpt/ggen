@@ -1,0 +1,66 @@
+{#- Sealed Interface Template - Generate Java sealed interfaces (Java 21+) -#}
+{#- Context: package_name, interface_name, permits, methods, doc_comments, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// {{ doc_comments | default(value="Generated sealed interface from RDF specification.") }}
+///
+/// Permitted subtypes:
+/// {% for p in permits %}- [{{ p }}]{% if not loop.last %}
+/// {% endif %}{% endfor %}
+{%- else %}
+/**
+ * {{ doc_comments | default(value="Generated sealed interface from RDF specification.") }}
+ *
+ * <p>Permitted subtypes:</p>
+ * <ul>
+{%- for p in permits %}
+ *   <li>{@link {{ p }}}</li>
+{%- endfor %}
+ * </ul>
+ */
+{%- endif %}
+public sealed interface {{ interface_name }}{% if extends is defined and extends | length > 0 %} extends {{ extends | join(sep=", ") }}{% endif %} permits {{ permits | join(sep=", ") }} {
+
+{%- for method in methods | default(value=[]) %}
+
+{%- if jv >= 23 %}
+    /// {{ method.description | default(value="") }}
+{%- else %}
+    /**
+     * {{ method.description | default(value="") }}
+{%- for param in method.params | default(value=[]) %}
+     * @param {{ param.name }} {{ param.description | default(value="") }}
+{%- endfor %}
+     * @return {{ method.return_description | default(value="the result") }}
+     */
+{%- endif %}
+    {{ method.return_type | default(value="void") }} {{ method.name }}({% for param in method.params | default(value=[]) %}{{ param.type }} {{ param.name }}{% if not loop.last %}, {% endif %}{% endfor %});
+{%- endfor %}
+
+{%- if jv >= 21 %}
+
+    {%- if jv >= 23 %}
+    /// Pattern match visitor using exhaustive switch (Java 21+).
+    {%- else %}
+    /**
+     * Pattern match visitor using exhaustive switch (Java 21+).
+     */
+    {%- endif %}
+    default <R> R match(
+{%- for p in permits %}
+        java.util.function.Function<{{ p }}, R> on{{ p }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+    ) {
+        return switch (this) {
+{%- for p in permits %}
+            case {{ p }} v -> on{{ p }}.apply(v);
+{%- endfor %}
+        };
+    }
+{%- endif %}
+}

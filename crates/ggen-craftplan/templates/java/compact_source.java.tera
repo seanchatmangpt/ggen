@@ -1,0 +1,50 @@
+{#- Compact Source File Template - Java 25+ (JEP 477) -#}
+{#- Context: package_name, class_name, main_body, methods, java_version -#}
+{%- set jv = java_version | default(value=25) -%}
+{%- if jv >= 25 %}
+{#- Java 25+ compact source files: implicit class, no explicit main method declaration needed -#}
+{#- Top-level statements execute as the program entry point -#}
+
+{%- for import in imports | default(value=[]) %}
+import {{ import }};
+{%- endfor %}
+{%- if jv >= 26 %}
+import module java.base;
+{%- endif %}
+
+{{ main_body | default(value="System.out.println(\"Hello from \" + {{ class_name }});") }}
+
+{%- for method in methods | default(value=[]) %}
+
+{{ method.return_type | default(value="void") }} {{ method.name }}({% for param in method.params | default(value=[]) %}{{ param.type }} {{ param.name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+    {{ method.body | default(value="// TODO: implement") }}
+}
+{%- endfor %}
+{%- else %}
+{#- Pre-Java 25: traditional main class structure -#}
+package {{ package_name }};
+
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// {{ doc_comments | default(value="Application entry point.") }}
+{%- else %}
+/**
+ * {{ doc_comments | default(value="Application entry point.") }}
+ */
+{%- endif %}
+public final class {{ class_name }} {
+
+    public static void main(String[] args) {
+        {{ main_body | default(value="System.out.println(\"Hello from " ~ class_name ~ "\");") }}
+    }
+
+{%- for method in methods | default(value=[]) %}
+
+    static {{ method.return_type | default(value="void") }} {{ method.name }}({% for param in method.params | default(value=[]) %}{{ param.type }} {{ param.name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+        {{ method.body | default(value="// TODO: implement") }}
+    }
+{%- endfor %}
+}
+{%- endif %}

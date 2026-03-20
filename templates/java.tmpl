@@ -1,0 +1,11 @@
+---
+to: src/main/java/{{ package_path | default(value="com/example") }}/Main.java
+vars: { name: "hello", java_version: 21 }
+---
+package {{ package_name | default(value="com.example") }};
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, {{name}}!");
+    }
+}

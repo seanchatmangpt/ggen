@@ -1,0 +1,157 @@
+{#- Stream Gatherer Template - Java 22+ (preview) / Java 24+ (final) -#}
+{#- Context: package_name, class_name, gatherers, java_version -#}
+{%- set jv = java_version | default(value=24) -%}
+package {{ package_name }};
+
+import java.util.stream.Gatherer;
+import java.util.stream.Gatherers;
+import java.util.stream.Stream;
+import java.util.List;
+import java.util.ArrayList;
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// Custom stream gatherers for {{ class_name }} processing.
+///
+/// Stream Gatherers (JEP 461/473) enable custom intermediate stream operations.
+{%- if jv >= 22 and jv < 24 %}
+/// **Note:** Gatherers are a preview feature in Java {{ jv }}.
+{%- endif %}
+{%- else %}
+/**
+ * Custom stream gatherers for {{ class_name }} processing.
+ *
+ * <p>Stream Gatherers (JEP 461/473) enable custom intermediate stream operations.</p>
+{%- if jv >= 22 and jv < 24 %}
+ * <p><b>Note:</b> Gatherers are a preview feature in Java {{ jv }}.</p>
+{%- endif %}
+ */
+{%- endif %}
+public final class {{ class_name }}Gatherers {
+
+    private {{ class_name }}Gatherers() {
+        // utility class
+    }
+
+{%- if jv >= 23 %}
+
+    /// Gatherer that groups consecutive elements by a key function.
+    ///
+    /// @param keyExtractor function to extract grouping key
+    /// @return a gatherer that emits lists of consecutive elements with the same key
+{%- else %}
+
+    /**
+     * Gatherer that groups consecutive elements by a key function.
+     *
+     * @param <T> element type
+     * @param <K> key type
+     * @param keyExtractor function to extract grouping key
+     * @return a gatherer that emits lists of consecutive elements with the same key
+     */
+{%- endif %}
+    public static <T, K> Gatherer<T, ?, List<T>> groupConsecutiveBy(
+            java.util.function.Function<T, K> keyExtractor) {
+        return Gatherer.ofSequential(
+            () -> new Object() {
+                K currentKey = null;
+                List<T> currentGroup = new ArrayList<>();
+            },
+            (state, element, downstream) -> {
+                K key = keyExtractor.apply(element);
+                if (state.currentKey != null && !state.currentKey.equals(key)) {
+                    if (!downstream.push(List.copyOf(state.currentGroup))) {
+                        return false;
+                    }
+                    state.currentGroup.clear();
+                }
+                state.currentKey = key;
+                state.currentGroup.add(element);
+                return true;
+            },
+            (state, downstream) -> {
+                if (!state.currentGroup.isEmpty()) {
+                    downstream.push(List.copyOf(state.currentGroup));
+                }
+            }
+        );
+    }
+
+{%- if jv >= 23 %}
+
+    /// Gatherer that emits sliding windows of fixed size.
+    ///
+    /// @param windowSize the size of each window
+    /// @return a gatherer that emits overlapping windows
+{%- else %}
+
+    /**
+     * Gatherer that emits sliding windows of fixed size.
+     *
+     * @param <T> element type
+     * @param windowSize the size of each window
+     * @return a gatherer that emits overlapping windows
+     */
+{%- endif %}
+    public static <T> Gatherer<T, ?, List<T>> slidingWindow(int windowSize) {
+        if (windowSize < 1) {
+            throw new IllegalArgumentException("Window size must be positive, got: " + windowSize);
+        }
+        return Gatherer.ofSequential(
+            () -> new ArrayList<T>(),
+            (window, element, downstream) -> {
+                window.add(element);
+                if (window.size() > windowSize) {
+                    window.removeFirst();
+                }
+                if (window.size() == windowSize) {
+                    return downstream.push(List.copyOf(window));
+                }
+                return true;
+            }
+        );
+    }
+
+{%- if jv >= 23 %}
+
+    /// Gatherer that deduplicates consecutive equal elements.
+    ///
+    /// @return a gatherer that emits only when the element changes
+{%- else %}
+
+    /**
+     * Gatherer that deduplicates consecutive equal elements.
+     *
+     * @param <T> element type
+     * @return a gatherer that emits only when the element changes
+     */
+{%- endif %}
+    public static <T> Gatherer<T, ?, T> distinctConsecutive() {
+        return Gatherer.ofSequential(
+            () -> new Object() { T last = null; boolean hasLast = false; },
+            (state, element, downstream) -> {
+                if (!state.hasLast || !java.util.Objects.equals(state.last, element)) {
+                    state.last = element;
+                    state.hasLast = true;
+                    return downstream.push(element);
+                }
+                return true;
+            }
+        );
+    }
+
+{%- for gatherer in gatherers | default(value=[]) %}
+
+{%- if jv >= 23 %}
+    /// {{ gatherer.description | default(value="Custom gatherer: " ~ gatherer.name) }}
+{%- else %}
+    /**
+     * {{ gatherer.description | default(value="Custom gatherer: " ~ gatherer.name) }}
+     */
+{%- endif %}
+    public static {{ gatherer.signature }} {{ gatherer.name }}({% for param in gatherer.params | default(value=[]) %}{{ param.type }} {{ param.name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+        {{ gatherer.body | default(value="return Gatherer.of((state, element, downstream) -> downstream.push(element));") }}
+    }
+{%- endfor %}
+}

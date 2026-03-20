@@ -1,0 +1,36 @@
+{#- Module Info Template - Generate Java module descriptor (Java 21+ JPMS) -#}
+{#- Context: module_name, exports, requires, opens, provides, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+{%- if jv >= 23 %}
+/// Module descriptor for {{ module_name }}.
+///
+/// Generated from RDF specification.
+{%- else %}
+/**
+ * Module descriptor for {{ module_name }}.
+ *
+ * <p>Generated from RDF specification.</p>
+ */
+{%- endif %}
+module {{ module_name }} {
+
+{%- for req in requires | default(value=[]) %}
+    requires {% if req.transitive | default(value=false) %}transitive {% endif %}{% if req.static | default(value=false) %}static {% endif %}{{ req.name }};
+{%- endfor %}
+
+{%- for exp in exports | default(value=[]) %}
+    exports {{ exp.package }}{% if exp.to is defined and exp.to | length > 0 %} to {{ exp.to | join(sep=", ") }}{% endif %};
+{%- endfor %}
+
+{%- for open in opens | default(value=[]) %}
+    opens {{ open.package }}{% if open.to is defined and open.to | length > 0 %} to {{ open.to | join(sep=", ") }}{% endif %};
+{%- endfor %}
+
+{%- for prov in provides | default(value=[]) %}
+    provides {{ prov.service }} with {{ prov.implementations | join(sep=", ") }};
+{%- endfor %}
+
+{%- for use in uses | default(value=[]) %}
+    uses {{ use }};
+{%- endfor %}
+}

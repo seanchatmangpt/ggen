@@ -1,0 +1,128 @@
+{#- Service Template - Generate Java service class (Java 21+) -#}
+{#- Context: package_name, entity_name, attributes, relationships, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+{%- set entity_lower = entity_name | lower -%}
+package {{ package_name }};
+
+import java.util.List;
+import java.util.Optional;
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// Service for managing [{{ entity_name }}] entities.
+///
+/// Generated from RDF specification.
+{%- else %}
+/**
+ * Service for managing {@link {{ entity_name }}} entities.
+ *
+ * <p>Generated from RDF specification.</p>
+ */
+{%- endif %}
+public final class {{ entity_name }}Service {
+
+    private final {{ entity_name }}Repository repository;
+
+    public {{ entity_name }}Service({{ entity_name }}Repository repository) {
+        this.repository = java.util.Objects.requireNonNull(repository, "repository must not be null");
+    }
+
+{%- if jv >= 23 %}
+
+    /// Find {{ entity_name }} by ID.
+    /// @return the entity if found
+{%- else %}
+
+    /**
+     * Find {{ entity_name }} by ID.
+     * @param id the entity ID
+     * @return the entity if found
+     */
+{%- endif %}
+    public Optional<{{ entity_name }}> findById({{ id_type | default(value="Long") }} id) {
+        return repository.findById(id);
+    }
+
+{%- if jv >= 23 %}
+
+    /// List all {{ entity_name }} entities.
+{%- else %}
+
+    /**
+     * List all {{ entity_name }} entities.
+     * @return all entities
+     */
+{%- endif %}
+    public List<{{ entity_name }}> findAll() {
+        return repository.findAll();
+    }
+
+{%- if jv >= 23 %}
+
+    /// Create a new {{ entity_name }}.
+{%- else %}
+
+    /**
+     * Create a new {{ entity_name }}.
+     * @param {{ entity_lower }} the entity to create
+     * @return the created entity
+     */
+{%- endif %}
+    public {{ entity_name }} create({{ entity_name }} {{ entity_lower }}) {
+        java.util.Objects.requireNonNull({{ entity_lower }}, "{{ entity_lower }} must not be null");
+{%- for attr in attributes | default(value=[]) %}
+{%- if attr.constraints is defined and attr.constraints.not_blank | default(value=false) %}
+        if ({{ entity_lower }}.{{ attr.name }}() == null || {{ entity_lower }}.{{ attr.name }}().isBlank()) {
+            throw new IllegalArgumentException("{{ attr.name }} must not be blank");
+        }
+{%- endif %}
+{%- endfor %}
+        return repository.save({{ entity_lower }});
+    }
+
+{%- if jv >= 23 %}
+
+    /// Update an existing {{ entity_name }}.
+{%- else %}
+
+    /**
+     * Update an existing {{ entity_name }}.
+     * @param id the entity ID
+     * @param {{ entity_lower }} the updated entity
+     * @return the updated entity
+     */
+{%- endif %}
+    public {{ entity_name }} update({{ id_type | default(value="Long") }} id, {{ entity_name }} {{ entity_lower }}) {
+        if (repository.findById(id).isEmpty()) {
+            throw new {{ entity_name }}NotFoundException(id);
+        }
+        return repository.save({{ entity_lower }});
+    }
+
+{%- if jv >= 23 %}
+
+    /// Delete {{ entity_name }} by ID.
+{%- else %}
+
+    /**
+     * Delete {{ entity_name }} by ID.
+     * @param id the entity ID
+     */
+{%- endif %}
+    public void delete({{ id_type | default(value="Long") }} id) {
+        if (repository.findById(id).isEmpty()) {
+            throw new {{ entity_name }}NotFoundException(id);
+        }
+        repository.deleteById(id);
+    }
+
+{%- for attr in attributes | default(value=[]) %}
+{%- if attr.searchable | default(value=false) %}
+
+    public List<{{ entity_name }}> findBy{{ attr.name | capitalize }}({{ attr.type }} {{ attr.name }}) {
+        return repository.findBy{{ attr.name | capitalize }}({{ attr.name }});
+    }
+{%- endif %}
+{%- endfor %}
+}

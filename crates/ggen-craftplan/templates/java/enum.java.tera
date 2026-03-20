@@ -1,0 +1,61 @@
+{#- Enum Template - Generate Java enum (Java 21+) -#}
+{#- Context: package_name, enum_name, variants, methods, doc_comments, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// {{ doc_comments | default(value="Generated enum from RDF specification.") }}
+{%- else %}
+/**
+ * {{ doc_comments | default(value="Generated enum from RDF specification.") }}
+ */
+{%- endif %}
+public enum {{ enum_name }}{% if implements is defined and implements | length > 0 %} implements {{ implements | join(sep=", ") }}{% endif %} {
+
+{%- for variant in variants %}
+{%- if variant.description is defined %}
+{%- if jv >= 23 %}
+    /// {{ variant.description }}
+{%- else %}
+    /** {{ variant.description }} */
+{%- endif %}
+{%- endif %}
+    {{ variant.name }}{% if variant.args is defined %}({{ variant.args | join(sep=", ") }}){% endif %}{% if loop.last %};{% else %},{% endif %}
+{%- endfor %}
+
+{%- if variant_fields is defined and variant_fields | length > 0 %}
+
+{%- for field in variant_fields %}
+    private final {{ field.type }} {{ field.name }};
+{%- endfor %}
+
+    {{ enum_name }}({% for field in variant_fields %}{{ field.type }} {{ field.name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+{%- for field in variant_fields %}
+        this.{{ field.name }} = {{ field.name }};
+{%- endfor %}
+    }
+
+{%- for field in variant_fields %}
+    public {{ field.type }} {{ field.name }}() {
+        return {{ field.name }};
+    }
+{%- endfor %}
+{%- endif %}
+
+{%- for method in methods | default(value=[]) %}
+
+{%- if jv >= 23 %}
+    /// {{ method.description | default(value="") }}
+{%- else %}
+    /**
+     * {{ method.description | default(value="") }}
+     */
+{%- endif %}
+    public {{ method.return_type | default(value="void") }} {{ method.name }}({% for param in method.params | default(value=[]) %}{{ param.type }} {{ param.name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+        {{ method.body | default(value="throw new UnsupportedOperationException();") }}
+    }
+{%- endfor %}
+}

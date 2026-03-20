@@ -1,0 +1,93 @@
+{#- Value Class Template - Java 25/26+ (JEP 401) -#}
+{#- Context: package_name, class_name, attributes, methods, doc_comments, java_version -#}
+{%- set jv = java_version | default(value=25) -%}
+package {{ package_name }};
+
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 25 %}
+{%- if jv >= 23 %}
+/// {{ doc_comments | default(value="Value class - identity-free, inline-optimizable type.") }}
+///
+/// Value classes (JEP 401) are identity-free objects that can be flattened
+/// and optimized by the JVM. They cannot be synchronized on and have no
+/// identity-sensitive operations.
+{%- else %}
+/**
+ * {{ doc_comments | default(value="Value class - identity-free, inline-optimizable type.") }}
+ *
+ * <p>Value classes (JEP 401) are identity-free objects that can be flattened
+ * and optimized by the JVM. They cannot be synchronized on and have no
+ * identity-sensitive operations.</p>
+ */
+{%- endif %}
+public value class {{ class_name }}{% if implements is defined and implements | length > 0 %} implements {{ implements | join(sep=", ") }}{% endif %} {
+
+{%- for attr in attributes | default(value=[]) %}
+    private final {{ attr.type }} {{ attr.name }};
+{%- endfor %}
+
+    public {{ class_name }}(
+{%- for attr in attributes %}
+        {{ attr.type }} {{ attr.name }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+    ) {
+{%- for attr in attributes %}
+{%- if attr.constraints is defined and attr.constraints.not_null | default(value=false) %}
+        java.util.Objects.requireNonNull({{ attr.name }}, "{{ attr.name }} must not be null");
+{%- endif %}
+{%- endfor %}
+{%- for attr in attributes %}
+        this.{{ attr.name }} = {{ attr.name }};
+{%- endfor %}
+    }
+
+{%- for attr in attributes | default(value=[]) %}
+
+    public {{ attr.type }} {{ attr.name }}() {
+        return {{ attr.name }};
+    }
+{%- endfor %}
+
+{%- for method in methods | default(value=[]) %}
+
+{%- if jv >= 23 %}
+    /// {{ method.description | default(value="") }}
+{%- else %}
+    /**
+     * {{ method.description | default(value="") }}
+     */
+{%- endif %}
+    public {{ method.return_type | default(value="void") }} {{ method.name }}({% for param in method.params | default(value=[]) %}{{ param.type }} {{ param.name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+        {{ method.body | default(value="throw new UnsupportedOperationException();") }}
+    }
+{%- endfor %}
+
+    @Override
+    public boolean equals(Object o) {
+        return switch (o) {
+            case {{ class_name }} that -> {% for attr in attributes | default(value=[]) %}java.util.Objects.equals(this.{{ attr.name }}, that.{{ attr.name }}){% if not loop.last %} && {% endif %}{% endfor %}{% if attributes | default(value=[]) | length == 0 %}true{% endif %};
+            case null, default -> false;
+        };
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash({% for attr in attributes | default(value=[]) %}{{ attr.name }}{% if not loop.last %}, {% endif %}{% endfor %});
+    }
+
+    @Override
+    public String toString() {
+        return "{{ class_name }}[" +
+{%- for attr in attributes | default(value=[]) %}
+            "{{ attr.name }}=" + {{ attr.name }}{% if not loop.last %} + ", " +{% else %} +{% endif %}
+{%- endfor %}
+            "]";
+    }
+}
+{%- else %}
+// Value classes require Java 25+. Current target: Java {{ jv }}
+// Consider using a record instead:
+// public record {{ class_name }}({% for attr in attributes | default(value=[]) %}{{ attr.type }} {{ attr.name }}{% if not loop.last %}, {% endif %}{% endfor %}) {}
+{%- endif %}
