@@ -1,0 +1,450 @@
+{#- Result Type Template - Railway-oriented programming with sealed Result<T> (Java 21+) -#}
+{#- Context: package_name, type_name, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// Railway-oriented result type: [{{ type_name }}].
+///
+/// Models the outcome of an operation that can either succeed with a value
+/// ([Ok]) or fail with a structured error ([Err]). Enables functional
+/// composition via [map], [flatMap], [recover], and [fold] without
+/// propagating exceptions across domain boundaries.
+///
+/// ## Example
+/// ```java
+/// {{ type_name }}<Order> result = createOrder(cmd)
+///     .flatMap(order -> applyDiscount(order, cmd.coupon()))
+///     .map(Order::confirm);
+///
+/// String response = result.fold(
+///     ok  -> "Created order " + ok.value().id(),
+///     err -> "Failed: "       + err.message());
+/// ```
+///
+{%- if jv >= 26 %}
+/// This is a **value class** (JEP 401, Java 26+) — instances are
+/// identity-free and eligible for JVM flattening optimisations.
+{%- endif %}
+///
+/// Generated from RDF specification.
+{%- else %}
+/**
+ * Railway-oriented result type: {@code {{ type_name }}}.
+ *
+ * <p>Models the outcome of an operation that can either succeed with a value
+ * ({@link Ok}) or fail with a structured error ({@link Err}). Enables functional
+ * composition via {@link #map}, {@link #flatMap}, {@link #recover}, and
+ * {@link #fold} without propagating exceptions across domain boundaries.</p>
+ *
+ * <pre>{@code
+ * {{ type_name }}<Order> result = createOrder(cmd)
+ *     .flatMap(order -> applyDiscount(order, cmd.coupon()))
+ *     .map(Order::confirm);
+ *
+ * String response = result.fold(
+ *     ok  -> "Created order " + ok.value().id(),
+ *     err -> "Failed: "       + err.message());
+ * }</pre>
+ *
+ * <p>Generated from RDF specification.</p>
+ */
+{%- endif %}
+{%- if jv >= 26 %}
+public value sealed interface {{ type_name }}<T> permits {{ type_name }}.Ok, {{ type_name }}.Err {
+{%- else %}
+public sealed interface {{ type_name }}<T> permits {{ type_name }}.Ok, {{ type_name }}.Err {
+{%- endif %}
+
+    // =========================================================================
+    // Variant records
+    // =========================================================================
+
+{%- if jv >= 23 %}
+    /// Successful result carrying a non-null value of type [T].
+    /// @param value the success value
+{%- else %}
+    /**
+     * Successful result carrying a non-null value of type {@code T}.
+     * @param value the success value
+     */
+{%- endif %}
+    record Ok<T>(T value) implements {{ type_name }}<T> {
+        public Ok {
+            Objects.requireNonNull(value, "Ok value must not be null");
+        }
+    }
+
+{%- if jv >= 23 %}
+    /// Failed result carrying a machine-readable [code], human-readable [message],
+    /// and an optional root-cause [cause].
+    ///
+    /// @param code    machine-readable error code (e.g. {@code "VALIDATION_FAILED"})
+    /// @param message human-readable error message
+    /// @param cause   optional root-cause throwable ({@code null} if none)
+{%- else %}
+    /**
+     * Failed result carrying a machine-readable {@code code}, human-readable
+     * {@code message}, and an optional root-cause {@code cause}.
+     *
+     * @param code    machine-readable error code (e.g. {@code "VALIDATION_FAILED"})
+     * @param message human-readable error message
+     * @param cause   optional root-cause throwable ({@code null} if none)
+     */
+{%- endif %}
+    record Err<T>(String code, String message, Throwable cause) implements {{ type_name }}<T> {
+        public Err {
+            Objects.requireNonNull(code,    "Err code must not be null");
+            Objects.requireNonNull(message, "Err message must not be null");
+            // cause may legitimately be null
+        }
+    }
+
+    // =========================================================================
+    // Static factories
+    // =========================================================================
+
+{%- if jv >= 23 %}
+    /// Wrap [value] in a successful result.
+{%- else %}
+    /**
+     * Wrap {@code value} in a successful result.
+     * @param <T>   the value type
+     * @param value the success value (must not be null)
+     * @return an {@link Ok} result
+     */
+{%- endif %}
+    static <T> {{ type_name }}<T> ok(T value) {
+        return new Ok<>(value);
+    }
+
+{%- if jv >= 23 %}
+    /// Create a failed result from [code] and [message] with no root cause.
+{%- else %}
+    /**
+     * Create a failed result from {@code code} and {@code message} with no root cause.
+     * @param <T>     the expected value type (phantom)
+     * @param code    machine-readable error code
+     * @param message human-readable message
+     * @return an {@link Err} result
+     */
+{%- endif %}
+    static <T> {{ type_name }}<T> err(String code, String message) {
+        return new Err<>(code, message, null);
+    }
+
+{%- if jv >= 23 %}
+    /// Create a failed result from [code], [message], and a root-cause [cause].
+{%- else %}
+    /**
+     * Create a failed result from {@code code}, {@code message}, and a root-cause
+     * {@code cause}.
+     * @param <T>     the expected value type (phantom)
+     * @param code    machine-readable error code
+     * @param message human-readable message
+     * @param cause   the underlying throwable
+     * @return an {@link Err} result
+     */
+{%- endif %}
+    static <T> {{ type_name }}<T> err(String code, String message, Throwable cause) {
+        return new Err<>(code, message, cause);
+    }
+
+{%- if jv >= 23 %}
+    /// Execute [supplier] and wrap any thrown exception as an [Err].
+    ///
+    /// The error code defaults to the exception's simple class name.
+{%- else %}
+    /**
+     * Execute {@code supplier} and wrap any thrown exception as an {@link Err}.
+     *
+     * <p>The error code defaults to the exception's simple class name.</p>
+     * @param <T>      the value type
+     * @param supplier the computation to execute
+     * @return {@link Ok} on success or {@link Err} on exception
+     */
+{%- endif %}
+    static <T> {{ type_name }}<T> catching(Supplier<T> supplier) {
+        Objects.requireNonNull(supplier, "supplier must not be null");
+        try {
+            return ok(supplier.get());
+        } catch (Exception ex) {
+            return err(ex.getClass().getSimpleName(), ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName(), ex);
+        }
+    }
+
+    // =========================================================================
+    // Query methods
+    // =========================================================================
+
+{%- if jv >= 23 %}
+    /// @return {@code true} if this is an [Ok] result.
+{%- else %}
+    /** @return {@code true} if this is an {@link Ok} result. */
+{%- endif %}
+    default boolean isOk() {
+        return this instanceof Ok<T>;
+    }
+
+{%- if jv >= 23 %}
+    /// @return {@code true} if this is an [Err] result.
+{%- else %}
+    /** @return {@code true} if this is an {@link Err} result. */
+{%- endif %}
+    default boolean isErr() {
+        return this instanceof Err<T>;
+    }
+
+{%- if jv >= 23 %}
+    /// Return the success value, or [Optional.empty] if this is an [Err].
+{%- else %}
+    /**
+     * Return the success value, or {@link Optional#empty()} if this is an {@link Err}.
+     * @return an optional containing the value, or empty on failure
+     */
+{%- endif %}
+    default Optional<T> toOptional() {
+        return switch (this) {
+            case Ok<T>  ok  -> Optional.of(ok.value());
+            case Err<T> err -> Optional.empty();
+        };
+    }
+
+{%- if jv >= 23 %}
+    /// Return the success value or throw an [IllegalStateException] if this is [Err].
+    ///
+    /// Prefer [fold] or [toOptional] in production code.
+{%- else %}
+    /**
+     * Return the success value or throw an {@link IllegalStateException} if this is
+     * {@link Err}.
+     *
+     * <p>Prefer {@link #fold} or {@link #toOptional} in production code.</p>
+     * @return the success value
+     * @throws IllegalStateException if this is an {@link Err}
+     */
+{%- endif %}
+    default T getOrThrow() {
+        return switch (this) {
+            case Ok<T>  ok  -> ok.value();
+            case Err<T> err -> throw new IllegalStateException(
+                    "Called getOrThrow() on Err[" + err.code() + "]: " + err.message(),
+                    err.cause());
+        };
+    }
+
+{%- if jv >= 23 %}
+    /// Return the success value or [fallback] if this is an [Err].
+{%- else %}
+    /**
+     * Return the success value or {@code fallback} if this is an {@link Err}.
+     * @param fallback the value to return on failure
+     * @return the success value or the fallback
+     */
+{%- endif %}
+    default T getOrElse(T fallback) {
+        return switch (this) {
+            case Ok<T>  ok  -> ok.value();
+            case Err<T> ignored -> fallback;
+        };
+    }
+
+    // =========================================================================
+    // Functional composition
+    // =========================================================================
+
+{%- if jv >= 23 %}
+    /// Transform the success value with [f], leaving [Err] untouched.
+    ///
+    /// This is the "railway-happy-path" map — errors short-circuit.
+{%- else %}
+    /**
+     * Transform the success value with {@code f}, leaving {@link Err} untouched.
+     *
+     * <p>This is the "railway-happy-path" map — errors short-circuit.</p>
+     * @param <U> the mapped value type
+     * @param f   the mapping function
+     * @return a new result with the mapped value, or the original {@link Err}
+     */
+{%- endif %}
+    default <U> {{ type_name }}<U> map(Function<? super T, ? extends U> f) {
+        Objects.requireNonNull(f, "f must not be null");
+        return switch (this) {
+            case Ok<T>  ok  -> ok(f.apply(ok.value()));
+            case Err<T> err -> err(err.code(), err.message(), err.cause());
+        };
+    }
+
+{%- if jv >= 23 %}
+    /// Chain a computation that itself returns a [{{ type_name }}] (monadic bind).
+    ///
+    /// Errors at any point short-circuit the chain.
+{%- else %}
+    /**
+     * Chain a computation that itself returns a {@link {{ type_name }}} (monadic bind).
+     *
+     * <p>Errors at any point short-circuit the chain.</p>
+     * @param <U> the result value type of the next step
+     * @param f   the next computation
+     * @return the result of the chained computation, or the first {@link Err}
+     */
+{%- endif %}
+    default <U> {{ type_name }}<U> flatMap(Function<? super T, ? extends {{ type_name }}<U>> f) {
+        Objects.requireNonNull(f, "f must not be null");
+        return switch (this) {
+            case Ok<T>  ok  -> f.apply(ok.value());
+            case Err<T> err -> err(err.code(), err.message(), err.cause());
+        };
+    }
+
+{%- if jv >= 23 %}
+    /// Transform the error with [f] if this is an [Err]; [Ok] passes through.
+{%- else %}
+    /**
+     * Transform the error with {@code f} if this is an {@link Err};
+     * {@link Ok} passes through unchanged.
+     * @param f the function mapping the current {@link Err} to a new result
+     * @return the recovered result or the original {@link Ok}
+     */
+{%- endif %}
+    default {{ type_name }}<T> recover(Function<? super Err<T>, ? extends {{ type_name }}<T>> f) {
+        Objects.requireNonNull(f, "f must not be null");
+        return switch (this) {
+            case Ok<T>  ok  -> ok;
+            case Err<T> err -> f.apply(err);
+        };
+    }
+
+{%- if jv >= 23 %}
+    /// Map the error details, leaving [Ok] untouched.
+    ///
+    /// Useful for translating between error domains (e.g. infrastructure → domain).
+{%- else %}
+    /**
+     * Map the error details, leaving {@link Ok} untouched.
+     *
+     * <p>Useful for translating between error domains (e.g. infrastructure → domain).</p>
+     * @param codeMapper    maps the old error code to a new one
+     * @param messageMapper maps the old message to a new one
+     * @return a result with remapped error, or the original {@link Ok}
+     */
+{%- endif %}
+    default {{ type_name }}<T> mapErr(Function<String, String> codeMapper, Function<String, String> messageMapper) {
+        Objects.requireNonNull(codeMapper,    "codeMapper must not be null");
+        Objects.requireNonNull(messageMapper, "messageMapper must not be null");
+        return switch (this) {
+            case Ok<T>  ok  -> ok;
+            case Err<T> err -> err(codeMapper.apply(err.code()), messageMapper.apply(err.message()), err.cause());
+        };
+    }
+
+{%- if jv >= 23 %}
+    /// Collapse both branches into a single value of type [R].
+    ///
+    /// Exactly one of the two functions will be called.
+{%- else %}
+    /**
+     * Collapse both branches into a single value of type {@code R}.
+     *
+     * <p>Exactly one of the two functions will be called.</p>
+     * @param <R>   the return type
+     * @param onOk  called with the {@link Ok} instance on success
+     * @param onErr called with the {@link Err} instance on failure
+     * @return the value produced by the matched branch
+     */
+{%- endif %}
+    default <R> R fold(Function<Ok<T>, R> onOk, Function<Err<T>, R> onErr) {
+        Objects.requireNonNull(onOk,  "onOk must not be null");
+        Objects.requireNonNull(onErr, "onErr must not be null");
+        return switch (this) {
+            case Ok<T>  ok  -> onOk.apply(ok);
+            case Err<T> err -> onErr.apply(err);
+        };
+    }
+
+{%- if jv >= 23 %}
+    /// Filter the success value: if [predicate] is not satisfied the result
+    /// becomes [Err] with [errorCode] and [errorMessage].
+{%- else %}
+    /**
+     * Filter the success value: if {@code predicate} is not satisfied the result
+     * becomes {@link Err} with {@code errorCode} and {@code errorMessage}.
+     * @param predicate    the test to apply to the success value
+     * @param errorCode    error code to use when the predicate fails
+     * @param errorMessage error message to use when the predicate fails
+     * @return this result if satisfied, otherwise {@link Err}
+     */
+{%- endif %}
+    default {{ type_name }}<T> filter(Predicate<? super T> predicate, String errorCode, String errorMessage) {
+        Objects.requireNonNull(predicate,    "predicate must not be null");
+        Objects.requireNonNull(errorCode,    "errorCode must not be null");
+        Objects.requireNonNull(errorMessage, "errorMessage must not be null");
+        return switch (this) {
+            case Ok<T>  ok  -> predicate.test(ok.value()) ? ok : err(errorCode, errorMessage);
+            case Err<T> err -> err;
+        };
+    }
+
+    // =========================================================================
+    // Side-effect helpers
+    // =========================================================================
+
+{%- if jv >= 23 %}
+    /// Execute [action] with the success value if this is [Ok].
+{%- else %}
+    /**
+     * Execute {@code action} with the success value if this is {@link Ok}.
+     * @param action the consumer to invoke on success
+     * @return this result (for chaining)
+     */
+{%- endif %}
+    default {{ type_name }}<T> ifOk(Consumer<? super T> action) {
+        Objects.requireNonNull(action, "action must not be null");
+        if (this instanceof Ok<T> ok) {
+            action.accept(ok.value());
+        }
+        return this;
+    }
+
+{%- if jv >= 23 %}
+    /// Execute [action] with the [Err] details if this is [Err].
+{%- else %}
+    /**
+     * Execute {@code action} with the {@link Err} details if this is {@link Err}.
+     * @param action the consumer to invoke on failure
+     * @return this result (for chaining)
+     */
+{%- endif %}
+    default {{ type_name }}<T> ifErr(Consumer<? super Err<T>> action) {
+        Objects.requireNonNull(action, "action must not be null");
+        if (this instanceof Err<T> err) {
+            action.accept(err);
+        }
+        return this;
+    }
+
+{%- if jv >= 26 %}
+
+    // =========================================================================
+    // Java 26+ value class notes
+    // =========================================================================
+    //
+    // This sealed interface is declared `value` (JEP 401).  The JVM may flatten
+    // Ok<T> and Err<T> instances where T is a primitive or another value type,
+    // eliminating heap allocation on hot paths entirely.
+    //
+    // Constraints that apply (enforced by the JVM, not the compiler alone):
+    //   - Instances are identity-free: do not use == or synchronized on them.
+    //   - Cannot be used as monitor objects (synchronized blocks).
+    //   - Nullable only at reference sites; avoid null checks on value fields.
+{%- endif %}
+}

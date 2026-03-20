@@ -1,0 +1,424 @@
+{#- In-Process Event Bus Template - Java 21+ virtual threads + sealed events -#}
+{#- Context: package_name, class_name, event_type, handlers, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+package {{ package_name }};
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.LongAdder;
+import java.util.function.Consumer;
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// In-process, typed event bus that dispatches [{{ event_type }}] events to
+/// registered subscribers on virtual threads.
+///
+/// ## Design
+/// - **Type safety**: subscribers register for a specific `Class<T extends
+///   {{ event_type }}>` and only receive events of that exact type.
+/// - **Dispatch**: each `publish` call forks a new virtual thread per
+///   subscriber, so slow handlers never block the publisher.
+/// - **Dead-letter queue**: events with no subscribers are enqueued in
+///   the DLQ for inspection or replay.
+/// - **Pattern matching**: the internal dispatcher uses an exhaustive
+///   `switch` over the [{{ event_type }}] sealed hierarchy (Java 21+).
+/// - **Thread safety**: all mutable state is protected by concurrent
+///   collections; no external synchronisation is required.
+///
+/// ## Usage
+/// ```java
+/// var bus = new {{ class_name }}();
+/// bus.subscribe(MyEvent.class, e -> System.out.println(e));
+/// bus.publish(new MyEvent("hello"));
+/// bus.close();
+/// ```
+{%- else %}
+/**
+ * In-process, typed event bus that dispatches {@link {{ event_type }}} events
+ * to registered subscribers on virtual threads.
+ *
+ * <h2>Design</h2>
+ * <ul>
+ *   <li><b>Type safety</b>: subscribers register for a specific
+ *       {@link Class}{@code <T extends {{ event_type }}>} and only receive events
+ *       of that exact type.</li>
+ *   <li><b>Dispatch</b>: each {@link #publish} call forks a new virtual thread
+ *       per subscriber, so slow handlers never block the publisher.</li>
+ *   <li><b>Dead-letter queue</b>: events with no subscribers are enqueued in
+ *       the DLQ for inspection or replay.</li>
+ *   <li><b>Pattern matching</b>: the internal dispatcher uses an exhaustive
+ *       {@code switch} over the {@link {{ event_type }}} sealed hierarchy
+ *       (Java 21+).</li>
+ *   <li><b>Thread safety</b>: all mutable state is protected by concurrent
+ *       collections; no external synchronisation is required.</li>
+ * </ul>
+ *
+ * <h2>Usage</h2>
+ * <pre>{@code
+ * var bus = new {{ class_name }}();
+ * bus.subscribe(MyEvent.class, e -> System.out.println(e));
+ * bus.publish(new MyEvent("hello"));
+ * bus.close();
+ * }</pre>
+ */
+{%- endif %}
+public final class {{ class_name }} implements AutoCloseable {
+
+    // -------------------------------------------------------------------------
+    // Subscriber registry
+    // -------------------------------------------------------------------------
+
+    /**
+     * Registry: event class → list of raw-typed consumers.
+     * CopyOnWriteArrayList makes iteration safe without locking during dispatch.
+     */
+    @SuppressWarnings("rawtypes")
+    private final ConcurrentHashMap<Class<?>, CopyOnWriteArrayList<Consumer>> registry =
+        new ConcurrentHashMap<>();
+
+    // -------------------------------------------------------------------------
+    // Dead-letter queue
+    // -------------------------------------------------------------------------
+
+    private final LinkedBlockingQueue<DeadLetter> deadLetterQueue =
+        new LinkedBlockingQueue<>();
+
+    // -------------------------------------------------------------------------
+    // Dispatch executor (virtual threads)
+    // -------------------------------------------------------------------------
+
+    private final ExecutorService dispatcher =
+        Executors.newVirtualThreadPerTaskExecutor();
+
+    // -------------------------------------------------------------------------
+    // Statistics
+    // -------------------------------------------------------------------------
+
+    private final LongAdder published = new LongAdder();
+    private final LongAdder dispatched = new LongAdder();
+    private final LongAdder deadLettered = new LongAdder();
+    private final LongAdder handlerErrors = new LongAdder();
+
+    // =========================================================================
+    // Subscribe
+    // =========================================================================
+
+{%- if jv >= 23 %}
+
+    /// Register `handler` to receive all events of type `T`.
+    ///
+    /// The handler is called on a virtual thread; it may block without
+    /// impacting the publisher or other subscribers.
+    ///
+    /// @param type    the exact event class to subscribe to; must not be null
+    /// @param handler consumer invoked on each matching event; must not be null
+    /// @param <T>     the event subtype
+    /// @return a [Subscription] token that can be used to unsubscribe
+{%- else %}
+
+    /**
+     * Register {@code handler} to receive all events of type {@code T}.
+     *
+     * <p>The handler is called on a virtual thread; it may block without
+     * impacting the publisher or other subscribers.</p>
+     *
+     * @param type    the exact event class to subscribe to; must not be null
+     * @param handler consumer invoked on each matching event; must not be null
+     * @param <T>     the event subtype
+     * @return a {@link Subscription} token that can be used to unsubscribe
+     */
+{%- endif %}
+    @SuppressWarnings("unchecked")
+    public <T extends {{ event_type }}> Subscription subscribe(
+            Class<T> type, Consumer<T> handler) {
+        Objects.requireNonNull(type,    "type must not be null");
+        Objects.requireNonNull(handler, "handler must not be null");
+        registry.computeIfAbsent(type, k -> new CopyOnWriteArrayList<>())
+                .add(handler);
+        return new Subscription(type, handler);
+    }
+
+{%- if jv >= 23 %}
+
+    /// Remove a previously registered handler.
+    ///
+    /// @param subscription the token returned by [#subscribe]
+{%- else %}
+
+    /**
+     * Remove a previously registered handler.
+     *
+     * @param subscription the token returned by {@link #subscribe}
+     */
+{%- endif %}
+    @SuppressWarnings("unchecked")
+    public void unsubscribe(Subscription subscription) {
+        Objects.requireNonNull(subscription, "subscription must not be null");
+        CopyOnWriteArrayList<?> handlers = registry.get(subscription.eventType());
+        if (handlers != null) {
+            handlers.remove(subscription.handler());
+        }
+    }
+
+    // =========================================================================
+    // Publish
+    // =========================================================================
+
+{%- if jv >= 23 %}
+
+    /// Publish `event` to all matching subscribers.
+    ///
+    /// This method is non-blocking: each subscriber is invoked on a fresh
+    /// virtual thread. If no subscribers are registered for the event's
+    /// concrete type, the event is placed on the dead-letter queue.
+    ///
+    /// Exceptions thrown by handlers are caught, counted, and do not
+    /// propagate to the publisher.
+    ///
+    /// @param event the event to publish; must not be null
+{%- else %}
+
+    /**
+     * Publish {@code event} to all matching subscribers.
+     *
+     * <p>This method is non-blocking: each subscriber is invoked on a fresh
+     * virtual thread. If no subscribers are registered for the event's
+     * concrete type, the event is placed on the dead-letter queue.</p>
+     *
+     * <p>Exceptions thrown by handlers are caught, counted, and do not
+     * propagate to the publisher.</p>
+     *
+     * @param event the event to publish; must not be null
+     */
+{%- endif %}
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public void publish({{ event_type }} event) {
+        Objects.requireNonNull(event, "event must not be null");
+        published.increment();
+
+        // Pattern-matching dispatch over the sealed {{ event_type }} hierarchy.
+        dispatchWithPatternMatch(event);
+    }
+
+    /**
+     * Core dispatch: use pattern matching switch to route to typed handlers,
+     * then fan out to all registered consumers on virtual threads.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private void dispatchWithPatternMatch({{ event_type }} event) {
+{%- if handlers | default(value=[]) | length > 0 %}
+        // Exhaustive pattern-match over known handler types (Java 21+).
+        switch (event) {
+{%- for handler in handlers %}
+            case {{ handler.event_class }} e -> fanOut({{ handler.event_class }}.class, e);
+{%- endfor %}
+            default -> fanOut(event.getClass(), event);
+        }
+{%- else %}
+        // No handler types declared — dispatch by concrete runtime type.
+        fanOut(event.getClass(), event);
+{%- endif %}
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private <T extends {{ event_type }}> void fanOut(Class<?> type, T event) {
+        CopyOnWriteArrayList<Consumer> handlers =
+            (CopyOnWriteArrayList<Consumer>) registry.get(type);
+        if (handlers == null || handlers.isEmpty()) {
+            deadLetterQueue.offer(new DeadLetter(event, "no subscribers for " + type.getSimpleName()));
+            deadLettered.increment();
+            return;
+        }
+        for (Consumer handler : handlers) {
+            dispatcher.submit(() -> {
+                try {
+                    handler.accept(event);
+                    dispatched.increment();
+                } catch (Exception ex) {
+                    handlerErrors.increment();
+                    deadLetterQueue.offer(new DeadLetter(
+                        event,
+                        "handler threw: " + ex.getMessage()));
+                }
+            });
+        }
+    }
+
+    // =========================================================================
+    // Predefined handlers
+    // =========================================================================
+
+{%- for handler in handlers | default(value=[]) %}
+
+{%- if jv >= 23 %}
+    /// Default handler for [{{ handler.event_class }}] events.
+    ///
+    /// Override or replace with [#subscribe] to customise behaviour.
+{%- else %}
+    /**
+     * Default handler for {@link {{ handler.event_class }}} events.
+     *
+     * <p>Override or replace with {@link #subscribe} to customise behaviour.</p>
+     */
+{%- endif %}
+    public void handle{{ handler.event_class }}({{ handler.event_class }} event) {
+        {{ handler.body | default(value="// TODO: handle " ~ handler.event_class) }}
+    }
+{%- endfor %}
+
+    // =========================================================================
+    // Dead-letter queue
+    // =========================================================================
+
+{%- if jv >= 23 %}
+
+    /// Drain all dead-lettered events into a snapshot list and clear the queue.
+    ///
+    /// @return immutable list of [DeadLetter] records captured since last drain
+{%- else %}
+
+    /**
+     * Drain all dead-lettered events into a snapshot list and clear the queue.
+     *
+     * @return immutable list of {@link DeadLetter} records captured since last drain
+     */
+{%- endif %}
+    public List<DeadLetter> drainDeadLetters() {
+        List<DeadLetter> snapshot = new java.util.ArrayList<>();
+        deadLetterQueue.drainTo(snapshot);
+        return List.copyOf(snapshot);
+    }
+
+{%- if jv >= 23 %}
+
+    /// Return the current dead-letter queue size without draining.
+{%- else %}
+
+    /**
+     * Return the current dead-letter queue size without draining.
+     *
+     * @return number of unhandled dead-letter entries
+     */
+{%- endif %}
+    public int deadLetterCount() {
+        return deadLetterQueue.size();
+    }
+
+{%- if jv >= 23 %}
+
+    /// An unhandled event together with the reason it was dead-lettered.
+    ///
+    /// @param event  the original event that had no subscriber or caused an error
+    /// @param reason human-readable explanation
+{%- else %}
+
+    /**
+     * An unhandled event together with the reason it was dead-lettered.
+     *
+     * @param event  the original event that had no subscriber or caused an error
+     * @param reason human-readable explanation
+     */
+{%- endif %}
+    public record DeadLetter({{ event_type }} event, String reason) {}
+
+    // =========================================================================
+    // Subscription token
+    // =========================================================================
+
+{%- if jv >= 23 %}
+
+    /// Opaque token returned by [#subscribe] that can be passed to
+    /// [#unsubscribe] to remove the handler.
+{%- else %}
+
+    /**
+     * Opaque token returned by {@link #subscribe} that can be passed to
+     * {@link #unsubscribe} to remove the handler.
+     */
+{%- endif %}
+    @SuppressWarnings("rawtypes")
+    public record Subscription(Class<?> eventType, Consumer handler) {}
+
+    // =========================================================================
+    // Statistics
+    // =========================================================================
+
+{%- if jv >= 23 %}
+
+    /// Return a snapshot of bus-level statistics.
+{%- else %}
+
+    /**
+     * Return a snapshot of bus-level statistics.
+     *
+     * @return immutable statistics record
+     */
+{%- endif %}
+    public Stats stats() {
+        return new Stats(
+            published.sum(),
+            dispatched.sum(),
+            deadLettered.sum(),
+            handlerErrors.sum());
+    }
+
+{%- if jv >= 23 %}
+
+    /// Bus-level statistics snapshot.
+    ///
+    /// @param published     total events published since construction
+    /// @param dispatched    total successful handler invocations
+    /// @param deadLettered  total events routed to the dead-letter queue
+    /// @param handlerErrors total handler exceptions caught during dispatch
+{%- else %}
+
+    /**
+     * Bus-level statistics snapshot.
+     *
+     * @param published     total events published since construction
+     * @param dispatched    total successful handler invocations
+     * @param deadLettered  total events routed to the dead-letter queue
+     * @param handlerErrors total handler exceptions caught during dispatch
+     */
+{%- endif %}
+    public record Stats(
+        long published,
+        long dispatched,
+        long deadLettered,
+        long handlerErrors) {}
+
+    // =========================================================================
+    // Lifecycle
+    // =========================================================================
+
+{%- if jv >= 23 %}
+
+    /// Shut down the dispatch executor, allowing in-flight virtual threads to
+    /// complete. Waits up to 10 seconds before forcing shutdown.
+{%- else %}
+
+    /**
+     * Shut down the dispatch executor, allowing in-flight virtual threads to
+     * complete. Waits up to 10 seconds before forcing shutdown.
+     */
+{%- endif %}
+    @Override
+    public void close() {
+        dispatcher.shutdown();
+        try {
+            if (!dispatcher.awaitTermination(10, java.util.concurrent.TimeUnit.SECONDS)) {
+                dispatcher.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            dispatcher.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+}

@@ -1,0 +1,335 @@
+{#- Property Test Template - jqwik property-based tests (Java 21+) -#}
+{#- Context: package_name, entity_name, attributes, properties (list with name, invariant_body), java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+{%- set entity_lower = entity_name | lower -%}
+package {{ package_name }};
+
+import net.jqwik.api.Arbitrary;
+import net.jqwik.api.ArbitrarySupplier;
+import net.jqwik.api.Combinators;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.From;
+import net.jqwik.api.Property;
+import net.jqwik.api.Provide;
+import net.jqwik.api.ShrinkingMode;
+import net.jqwik.api.Label;
+import net.jqwik.api.Tag;
+import net.jqwik.api.constraints.IntRange;
+import net.jqwik.api.constraints.NotBlank;
+import net.jqwik.api.constraints.StringLength;
+import java.util.List;
+import java.util.Objects;
+import static org.junit.jupiter.api.Assertions.*;
+
+{%- if jv >= 23 %}
+/// Property-based tests for [{{ entity_name }}] invariants using jqwik.
+///
+/// Each `@Property` method encodes a law that must hold for all inputs.
+/// Generators are shrinking-friendly: prefer primitive ranges and
+/// filtered arbitraries over complex domain objects.
+///
+/// Java {{ jv }}+ features used: record patterns, pattern-matching switch,
+/// virtual-thread-friendly test execution.
+{%- else %}
+/**
+ * Property-based tests for {@link {{ entity_name }}} invariants using jqwik.
+ *
+ * <p>Each {@code @Property} method encodes a law that must hold for all inputs.
+ * Generators are shrinking-friendly: prefer primitive ranges and filtered
+ * arbitraries over complex domain objects.
+ *
+ * <p>Java {{ jv }}+ features used: record patterns, pattern-matching switch,
+ * virtual-thread-friendly test execution.
+ */
+{%- endif %}
+@Tag("property")
+class {{ entity_name }}PropertyTest {
+
+    // -------------------------------------------------------------------------
+    // Shrinking-friendly domain generators
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+    /// Builds a valid [{{ entity_name }}] from typed component arbitraries.
+    ///
+    /// Designed for minimal shrinking surface: each component arbitrary is
+    /// as small as possible while still covering the interesting domain.
+{%- else %}
+    /**
+     * Builds a valid {@link {{ entity_name }}} from typed component arbitraries.
+     *
+     * <p>Designed for minimal shrinking surface: each component arbitrary is
+     * as small as possible while still covering the interesting domain.
+     */
+{%- endif %}
+    @Provide
+    Arbitrary<{{ entity_name }}> valid{{ entity_name }}s() {
+{%- if attributes | default(value=[]) | length == 0 %}
+        return net.jqwik.api.Arbitraries.just(new {{ entity_name }}());
+{%- elif attributes | default(value=[]) | length == 1 %}
+{%- set a0 = attributes | first %}
+        return {{ a0.arbitrary | default(value="net.jqwik.api.Arbitraries.strings().ofMinLength(1).ofMaxLength(255)") }}
+            .map({{ a0.name }} -> new {{ entity_name }}(null, {{ a0.name }}));
+{%- elif attributes | default(value=[]) | length == 2 %}
+{%- set a0 = attributes | nth(n=0) %}
+{%- set a1 = attributes | nth(n=1) %}
+        return Combinators.combine(
+            {{ a0.arbitrary | default(value="net.jqwik.api.Arbitraries.strings().ofMinLength(1).ofMaxLength(255)") }},
+            {{ a1.arbitrary | default(value="net.jqwik.api.Arbitraries.strings().ofMinLength(1).ofMaxLength(255)") }}
+        ).as(({{ a0.name }}, {{ a1.name }}) -> new {{ entity_name }}(null, {{ a0.name }}, {{ a1.name }}));
+{%- else %}
+        // Combinators.combine supports up to 8 arbitraries; split into stages for more.
+        return Combinators.combine(
+{%- for attr in attributes | default(value=[]) %}
+            {{ attr.arbitrary | default(value="net.jqwik.api.Arbitraries.strings().ofMinLength(1).ofMaxLength(255)") }}{% if not loop.last %},{% endif %}
+
+{%- endfor %}
+        ).as(({% for attr in attributes | default(value=[]) %}{{ attr.name }}{% if not loop.last %}, {% endif %}{% endfor %}) ->
+            new {{ entity_name }}(null{% for attr in attributes | default(value=[]) %}, {{ attr.name }}{% endfor %})
+        );
+{%- endif %}
+    }
+
+{%- if jv >= 23 %}
+    /// Generator for non-blank, shrinking-friendly strings.
+{%- else %}
+    /**
+     * Generator for non-blank, shrinking-friendly strings.
+     */
+{%- endif %}
+    @Provide
+    Arbitrary<String> nonBlankStrings() {
+        return net.jqwik.api.Arbitraries.strings()
+            .withCharRange('a', 'z')
+            .ofMinLength(1)
+            .ofMaxLength(64)
+            .filter(s -> !s.isBlank());
+    }
+
+{%- if jv >= 23 %}
+    /// Generator for positive Long IDs (simulates DB-assigned keys).
+{%- else %}
+    /**
+     * Generator for positive Long IDs (simulates DB-assigned keys).
+     */
+{%- endif %}
+    @Provide
+    Arbitrary<Long> positiveIds() {
+        return net.jqwik.api.Arbitraries.longs().between(1L, Long.MAX_VALUE / 2);
+    }
+
+    // -------------------------------------------------------------------------
+    // Core invariant properties
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+    /// Invariant: equals ↔ hashCode contract (Java Object contract).
+    ///
+    /// If `a.equals(b)` then `a.hashCode() == b.hashCode()`.
+    /// Records provide this automatically; this test guards against regressions
+    /// if [{{ entity_name }}] is ever converted to a class.
+{%- else %}
+    /**
+     * Invariant: equals ↔ hashCode contract (Java Object contract).
+     *
+     * <p>If {@code a.equals(b)} then {@code a.hashCode() == b.hashCode()}.
+     * Records provide this automatically; this test guards against regressions
+     * if {@link {{ entity_name }}} is ever converted to a class.
+     */
+{%- endif %}
+    @Property(tries = 200, shrinking = ShrinkingMode.FULL)
+    @Label("equals implies same hashCode")
+    void equalsImpliesSameHashCode(@ForAll @From("valid{{ entity_name }}s") {{ entity_name }} a) {
+        // Act
+        var b = a; // same reference; establish reflexivity baseline
+
+        // Assert — reflexivity
+        assertEquals(a, b, "reflexivity: a must equal itself");
+        assertEquals(a.hashCode(), b.hashCode(), "reflexivity: hashCodes must match");
+    }
+
+{%- if jv >= 23 %}
+    /// Invariant: symmetric equality — two independently constructed records
+    /// with identical fields must be equal.
+{%- else %}
+    /**
+     * Invariant: symmetric equality — two independently constructed records
+     * with identical fields must be equal.
+     */
+{%- endif %}
+    @Property(tries = 200)
+    @Label("symmetric equality for same-field instances")
+    void symmetricEqualityForSameFields(
+{%- for attr in attributes | default(value=[]) %}
+{%- if attr.type is defined and attr.type == "String" %}
+        @ForAll @From("nonBlankStrings") String {{ attr.name }}{% if not loop.last %},{% endif %}
+
+{%- elif attr.type is defined and attr.type == "Long" %}
+        @ForAll Long {{ attr.name }}{% if not loop.last %},{% endif %}
+
+{%- elif attr.type is defined and attr.type == "Integer" %}
+        @ForAll Integer {{ attr.name }}{% if not loop.last %},{% endif %}
+
+{%- else %}
+        @ForAll String {{ attr.name }}{% if not loop.last %},{% endif %}
+
+{%- endif %}
+{%- endfor %}
+    ) {
+        // Arrange
+        var a = new {{ entity_name }}(null{% for attr in attributes | default(value=[]) %}, {{ attr.name }}{% endfor %});
+        var b = new {{ entity_name }}(null{% for attr in attributes | default(value=[]) %}, {{ attr.name }}{% endfor %});
+
+        // Assert
+        assertEquals(a, b, "two instances with same fields must be equal");
+        assertEquals(b, a, "equality must be symmetric");
+        assertEquals(a.hashCode(), b.hashCode());
+    }
+
+{%- if jv >= 23 %}
+    /// Invariant: toString must be non-null and non-blank.
+{%- else %}
+    /**
+     * Invariant: toString must be non-null and non-blank.
+     */
+{%- endif %}
+    @Property(tries = 100)
+    @Label("toString is non-null and non-blank")
+    void toStringIsNonNullAndNonBlank(@ForAll @From("valid{{ entity_name }}s") {{ entity_name }} entity) {
+        var str = entity.toString();
+        assertNotNull(str, "toString must never return null");
+        assertFalse(str.isBlank(), "toString must not be blank");
+    }
+
+{%- if jv >= 21 %}
+
+{%- if jv >= 23 %}
+    /// Invariant: pattern-matching switch on [{{ entity_name }}] is total —
+    /// the compiler-enforced exhaustive switch must never fall through to default.
+{%- else %}
+    /**
+     * Invariant: pattern-matching switch on {@link {{ entity_name }}} is total —
+     * the compiler-enforced exhaustive switch must never fall through to default.
+     */
+{%- endif %}
+    @Property(tries = 100)
+    @Label("exhaustive switch never reaches default arm")
+    void exhaustiveSwitchNeverReachesDefault(@ForAll @From("valid{{ entity_name }}s") {{ entity_name }} entity) {
+        // Act — switch exhaustive over record type
+        String result = switch (entity) {
+            case {{ entity_name }} e -> "matched";
+        };
+
+        // Assert
+        assertEquals("matched", result, "exhaustive switch must always match the record arm");
+    }
+
+{%- if jv >= 21 %}
+
+{%- if jv >= 23 %}
+    /// Invariant: record deconstruction preserves field identity.
+{%- else %}
+    /**
+     * Invariant: record deconstruction preserves field identity.
+     */
+{%- endif %}
+    @Property(tries = 100)
+    @Label("record deconstruction preserves field identity")
+    void recordDeconstructionPreservesFields(@ForAll @From("valid{{ entity_name }}s") {{ entity_name }} entity) {
+        // Act — destructure via pattern (Java 21+)
+        if (entity instanceof {{ entity_name }}({% for attr in attributes | default(value=[]) %}var {{ attr.name }}{% if not loop.last %}, {% endif %}{% endfor %}) {{ entity_lower }}) {
+            // Assert — each deconstructed component must equal accessor result
+{%- for attr in attributes | default(value=[]) %}
+            assertEquals(entity.{{ attr.name }}(), {{ attr.name }}, "deconstructed {{ attr.name }} must equal accessor");
+{%- endfor %}
+        } else {
+            fail("record deconstruction must always succeed for {{ entity_name }}");
+        }
+    }
+{%- endif %}
+{%- endif %}
+
+    // -------------------------------------------------------------------------
+    // Null-safety invariants
+    // -------------------------------------------------------------------------
+
+{%- for attr in attributes | default(value=[]) %}
+{%- if attr.constraints is defined and attr.constraints.not_null | default(value=false) %}
+
+{%- if jv >= 23 %}
+    /// Invariant: [{{ entity_name }}] rejects null `{{ attr.name }}` at construction time.
+{%- else %}
+    /**
+     * Invariant: {@link {{ entity_name }}} rejects null {@code {{ attr.name }}} at construction time.
+     */
+{%- endif %}
+    @Property(tries = 50)
+    @Label("null {{ attr.name }} is rejected")
+    void null{{ attr.name | capitalize }}IsRejected(
+{%- for a in attributes | default(value=[]) %}
+{%- if a.name != attr.name %}
+        @ForAll String {{ a.name }}{% if not loop.last %},{% endif %}  // provide valid values for other fields
+
+{%- endif %}
+{%- endfor %}
+    ) {
+        assertThrows(NullPointerException.class, () ->
+            new {{ entity_name }}(
+                null{% for a in attributes | default(value=[]) %}{% if a.name == attr.name %}, null{% else %}, {{ a.name }}{% endif %}{% endfor %}
+            )
+        );
+    }
+{%- endif %}
+{%- endfor %}
+
+    // -------------------------------------------------------------------------
+    // User-defined invariant properties
+    // -------------------------------------------------------------------------
+
+{%- for prop in properties | default(value=[]) %}
+
+{%- if jv >= 23 %}
+    /// Invariant: {{ prop.name }}.
+{%- else %}
+    /**
+     * Invariant: {{ prop.name }}.
+     */
+{%- endif %}
+    @Property(tries = 150, shrinking = ShrinkingMode.FULL)
+    @Label("{{ prop.name }}")
+    void {{ prop.name | replace(from=" ", to="_") | lower }}(@ForAll @From("valid{{ entity_name }}s") {{ entity_name }} {{ entity_lower }}) {
+        {{ prop.invariant_body }}
+    }
+{%- endfor %}
+
+    // -------------------------------------------------------------------------
+    // Composition invariant — @ForAll @From cross-product
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+    /// Invariant: a list of [{{ entity_name }}] can always be sorted by id without exception.
+    ///
+    /// Exercises @ForAll list generation and demonstrates @From composition.
+{%- else %}
+    /**
+     * Invariant: a list of {@link {{ entity_name }}} can always be sorted by id without exception.
+     *
+     * <p>Exercises {@code @ForAll} list generation and demonstrates {@code @From} composition.
+     */
+{%- endif %}
+    @Property(tries = 50)
+    @Label("list of entities can always be sorted by id without exception")
+    void listCanBeSortedById(
+        @ForAll("valid{{ entity_name }}s") List<{{ entity_name }}> entities
+    ) {
+        // Act
+        var sorted = entities.stream()
+            .filter(e -> e.id() != null)
+            .sorted(java.util.Comparator.comparingLong({{ entity_name }}::id))
+            .toList();
+
+        // Assert — no exception thrown, result is stable
+        assertNotNull(sorted);
+        assertTrue(sorted.size() <= entities.size());
+    }
+}

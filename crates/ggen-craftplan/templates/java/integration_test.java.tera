@@ -1,0 +1,460 @@
+{#- Integration Test Template - TestContainers + JUnit 5 (Java 21+) -#}
+{#- Context: package_name, entity_name, attributes, container_image, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+{%- set entity_lower = entity_name | lower -%}
+{%- set entity_plural = entity_name | lower ~ "s" -%}
+{%- set pg_image = container_image | default(value="postgres:16-alpine") -%}
+package {{ package_name }};
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.From;
+import net.jqwik.api.Property;
+import net.jqwik.api.Provide;
+import net.jqwik.api.Arbitrary;
+import net.jqwik.api.arbitraries.StringArbitrary;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+import static org.junit.jupiter.api.Assertions.*;
+
+{%- if jv >= 23 %}
+/// Integration tests for [{{ entity_name }}] using TestContainers and PostgreSQL.
+///
+/// Each test class shares one container (started with `@BeforeAll`) to reduce
+/// Docker overhead.  Dynamic property injection wires the container URL/port
+/// into the application context after the container is healthy.
+///
+/// Java {{ jv }}+ patterns used: virtual threads, record patterns, pattern matching.
+{%- else %}
+/**
+ * Integration tests for {@link {{ entity_name }}} using TestContainers and PostgreSQL.
+ *
+ * <p>Each test class shares one container (started with {@code @BeforeAll}) to
+ * reduce Docker overhead.  Dynamic property injection wires the container
+ * URL/port into the application context after the container is healthy.
+ *
+ * <p>Java {{ jv }}+ patterns used: virtual threads, record patterns, pattern matching.
+ */
+{%- endif %}
+@Testcontainers
+class {{ entity_name }}IntegrationTest {
+
+    // -------------------------------------------------------------------------
+    // Container lifecycle
+    // -------------------------------------------------------------------------
+
+    @Container
+    static final PostgreSQLContainer<?> POSTGRES =
+        new PostgreSQLContainer<>(DockerImageName.parse("{{ pg_image }}"))
+            .withDatabaseName("{{ entity_lower }}_test")
+            .withUsername("test_user")
+            .withPassword("test_secret")
+            .withReuse(true);   // Ryuk-based reuse across test runs
+
+    @BeforeAll
+    static void startContainer() {
+        POSTGRES.start();
+        // Dynamic property injection for Spring / Micronaut / Quarkus test context
+        System.setProperty("DB_URL",      POSTGRES.getJdbcUrl());
+        System.setProperty("DB_USERNAME", POSTGRES.getUsername());
+        System.setProperty("DB_PASSWORD", POSTGRES.getPassword());
+    }
+
+    @AfterAll
+    static void stopContainer() {
+        // Container is shared via @Testcontainers reuse; stop only on full suite exit.
+        System.clearProperty("DB_URL");
+        System.clearProperty("DB_USERNAME");
+        System.clearProperty("DB_PASSWORD");
+    }
+
+    // -------------------------------------------------------------------------
+    // Test fixtures (immutable records)
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+    /// Valid fixture for a persisted [{{ entity_name }}].
+{%- else %}
+    /**
+     * Valid fixture for a persisted {@link {{ entity_name }}}.
+     */
+{%- endif %}
+    record Valid{{ entity_name }}Fixture(
+{%- for attr in attributes | default(value=[]) %}
+        {{ attr.type | default(value="String") }} {{ attr.name }}{% if not loop.last %},{% endif %}
+
+{%- endfor %}
+    ) {
+        static Valid{{ entity_name }}Fixture defaults() {
+            return new Valid{{ entity_name }}Fixture(
+{%- for attr in attributes | default(value=[]) %}
+                {{ attr.test_value | default(value="null") }}{% if not loop.last %},{% endif %}
+
+{%- endfor %}
+            );
+        }
+    }
+
+{%- if jv >= 23 %}
+    /// Parametrized fixture source — data-driven happy paths.
+{%- else %}
+    /**
+     * Parametrized fixture source — data-driven happy paths.
+     */
+{%- endif %}
+    static Stream<Valid{{ entity_name }}Fixture> validFixtures() {
+        return Stream.of(
+            Valid{{ entity_name }}Fixture.defaults()
+{%- for attr in attributes | default(value=[]) %}
+{%- if attr.alt_test_value is defined %}
+            , new Valid{{ entity_name }}Fixture({{ attr.alt_test_value }}{% for a in attributes %}{% if not loop.first %}, {{ a.test_value | default(value="null") }}{% endif %}{% endfor %})
+{%- endif %}
+{%- endfor %}
+        );
+    }
+
+    // -------------------------------------------------------------------------
+    // Subject-under-test (wired after container start)
+    // -------------------------------------------------------------------------
+
+    private {{ entity_name }}Repository repository;
+    private {{ entity_name }}Service service;
+
+    @BeforeEach
+    void setUp() {
+        // Replace with framework-specific context retrieval
+        // e.g. @Autowired (Spring), @Inject (CDI), ApplicationContext.getBean(...)
+        repository = buildRepository();
+        service    = new {{ entity_name }}Service(repository);
+    }
+
+    private {{ entity_name }}Repository buildRepository() {
+        // Wire JDBC/JPA datasource using container properties
+        var url      = System.getProperty("DB_URL");
+        var username = System.getProperty("DB_USERNAME");
+        var password = System.getProperty("DB_PASSWORD");
+        // TODO: initialise your framework's datasource / EntityManagerFactory here
+        throw new UnsupportedOperationException(
+            "Implement buildRepository() with actual datasource: url=" + url);
+    }
+
+    // -------------------------------------------------------------------------
+    // CRUD integration tests
+    // -------------------------------------------------------------------------
+
+    @Nested
+    @DisplayName("Create")
+    class CreateTests {
+
+        @Test
+        @DisplayName("persists a valid {{ entity_name }} and returns it with generated id")
+        void persistsValidEntity() {
+            // Arrange
+            var fixture = Valid{{ entity_name }}Fixture.defaults();
+            var entity  = new {{ entity_name }}(
+                null{% if attributes | default(value=[]) | length > 0 %},{% endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+                fixture.{{ attr.name }}(){% if not loop.last %},{% endif %}
+
+{%- endfor %}
+            );
+
+            // Act
+            var created = service.create(entity);
+
+            // Assert
+            assertNotNull(created.id(), "id must be assigned by persistence layer");
+{%- for attr in attributes | default(value=[]) %}
+            assertEquals(fixture.{{ attr.name }}(), created.{{ attr.name }}(), "{{ attr.name }} must be preserved");
+{%- endfor %}
+        }
+
+        @ParameterizedTest(name = "[{index}] {0}")
+        @MethodSource("{{ package_name }}.{{ entity_name }}IntegrationTest#validFixtures")
+        @DisplayName("persists each valid fixture")
+        void persistsEachFixture(Valid{{ entity_name }}Fixture fixture) {
+            // Arrange
+            var entity = new {{ entity_name }}(
+                null{% if attributes | default(value=[]) | length > 0 %},{% endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+                fixture.{{ attr.name }}(){% if not loop.last %},{% endif %}
+
+{%- endfor %}
+            );
+
+            // Act
+            var created = service.create(entity);
+
+            // Assert
+            assertNotNull(created.id());
+        }
+    }
+
+    @Nested
+    @DisplayName("Read")
+    class ReadTests {
+
+        @Test
+        @DisplayName("finds {{ entity_name }} by id after creation")
+        void findsByIdAfterCreation() {
+            // Arrange
+            var fixture = Valid{{ entity_name }}Fixture.defaults();
+            var created = service.create(new {{ entity_name }}(
+                null{% if attributes | default(value=[]) | length > 0 %},{% endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+                fixture.{{ attr.name }}(){% if not loop.last %},{% endif %}
+
+{%- endfor %}
+            ));
+
+            // Act
+            Optional<{{ entity_name }}> found = service.findById(created.id());
+
+            // Assert
+            assertTrue(found.isPresent(), "must be findable after creation");
+{%- if jv >= 21 %}
+            if (found.get() instanceof {{ entity_name }} e) {
+{%- for attr in attributes | default(value=[]) %}
+                assertEquals(fixture.{{ attr.name }}(), e.{{ attr.name }}());
+{%- endfor %}
+            }
+{%- endif %}
+        }
+
+        @Test
+        @DisplayName("returns empty for unknown id")
+        void returnsEmptyForUnknownId() {
+            // Act
+            var found = service.findById(Long.MAX_VALUE);
+
+            // Assert
+            assertTrue(found.isEmpty(), "unknown id must yield empty optional");
+        }
+
+        @Test
+        @DisplayName("findAll returns all persisted entities")
+        void findAllReturnsAll() {
+            // Arrange
+            int initial = service.findAll().size();
+            var fixture = Valid{{ entity_name }}Fixture.defaults();
+            service.create(new {{ entity_name }}(
+                null{% if attributes | default(value=[]) | length > 0 %},{% endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+                fixture.{{ attr.name }}(){% if not loop.last %},{% endif %}
+
+{%- endfor %}
+            ));
+
+            // Act
+            var all = service.findAll();
+
+            // Assert
+            assertEquals(initial + 1, all.size(), "findAll must include newly created entity");
+        }
+    }
+
+    @Nested
+    @DisplayName("Update")
+    class UpdateTests {
+
+        @Test
+        @DisplayName("update reflects new field values")
+        void updateReflectsNewValues() {
+            // Arrange
+            var fixture = Valid{{ entity_name }}Fixture.defaults();
+            var created = service.create(new {{ entity_name }}(
+                null{% if attributes | default(value=[]) | length > 0 %},{% endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+                fixture.{{ attr.name }}(){% if not loop.last %},{% endif %}
+
+{%- endfor %}
+            ));
+            var updated = new {{ entity_name }}(
+                created.id(){% if attributes | default(value=[]) | length > 0 %},{% endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+                {{ attr.updated_value | default(value=attr.test_value | default(value="null")) }}{% if not loop.last %},{% endif %}
+
+{%- endfor %}
+            );
+
+            // Act
+            var result = service.update(created.id(), updated);
+
+            // Assert
+            assertEquals(created.id(), result.id(), "id must remain stable after update");
+{%- for attr in attributes | default(value=[]) %}
+            assertEquals({{ attr.updated_value | default(value=attr.test_value | default(value="null")) }}, result.{{ attr.name }}(), "{{ attr.name }} must reflect update");
+{%- endfor %}
+        }
+
+        @Test
+        @DisplayName("update on unknown id throws NotFoundException")
+        void updateUnknownThrows() {
+            // Arrange
+            var fixture = Valid{{ entity_name }}Fixture.defaults();
+            var ghost   = new {{ entity_name }}(
+                Long.MAX_VALUE{% if attributes | default(value=[]) | length > 0 %},{% endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+                fixture.{{ attr.name }}(){% if not loop.last %},{% endif %}
+
+{%- endfor %}
+            );
+
+            // Act & Assert
+            assertThrows({{ entity_name }}NotFoundException.class,
+                () -> service.update(Long.MAX_VALUE, ghost));
+        }
+    }
+
+    @Nested
+    @DisplayName("Delete")
+    class DeleteTests {
+
+        @Test
+        @DisplayName("entity is no longer findable after deletion")
+        void notFindableAfterDeletion() {
+            // Arrange
+            var fixture = Valid{{ entity_name }}Fixture.defaults();
+            var created = service.create(new {{ entity_name }}(
+                null{% if attributes | default(value=[]) | length > 0 %},{% endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+                fixture.{{ attr.name }}(){% if not loop.last %},{% endif %}
+
+{%- endfor %}
+            ));
+
+            // Act
+            service.delete(created.id());
+
+            // Assert
+            assertTrue(service.findById(created.id()).isEmpty(),
+                "entity must be absent after deletion");
+        }
+
+        @Test
+        @DisplayName("delete on unknown id throws NotFoundException")
+        void deleteUnknownThrows() {
+            assertThrows({{ entity_name }}NotFoundException.class,
+                () -> service.delete(Long.MAX_VALUE));
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Property-based tests (jqwik) — invariants across arbitrary inputs
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+    /// Property: round-trip persistence preserves all field values.
+{%- else %}
+    /**
+     * Property: round-trip persistence preserves all field values.
+     */
+{%- endif %}
+    @Property(tries = 50)
+    @DisplayName("[property] round-trip preserves fields")
+    void roundTripPreservesFields(
+{%- for attr in attributes | default(value=[]) %}
+{%- if attr.type is defined and attr.type == "String" %}
+        @ForAll @From("validStrings") String {{ attr.name }}{% if not loop.last %},{% endif %}
+
+{%- elif attr.type is defined and attr.type == "Integer" %}
+        @ForAll Integer {{ attr.name }}{% if not loop.last %},{% endif %}
+
+{%- elif attr.type is defined and attr.type == "Long" %}
+        @ForAll Long {{ attr.name }}{% if not loop.last %},{% endif %}
+
+{%- else %}
+        @ForAll String {{ attr.name }}{% if not loop.last %},{% endif %}  // fallback — specialise per type
+
+{%- endif %}
+{%- endfor %}
+    ) {
+        // Arrange
+        var entity = new {{ entity_name }}(
+            null{% if attributes | default(value=[]) | length > 0 %},{% endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+            {{ attr.name }}{% if not loop.last %},{% endif %}
+
+{%- endfor %}
+        );
+
+        // Act
+        var persisted = service.create(entity);
+        var loaded    = service.findById(persisted.id()).orElseThrow();
+
+        // Assert — record deconstruction (Java 21+ pattern matching)
+{%- if jv >= 21 %}
+        if (loaded instanceof {{ entity_name }} e) {
+{%- for attr in attributes | default(value=[]) %}
+            assertEquals({{ attr.name }}, e.{{ attr.name }}(), "{{ attr.name }} must survive round-trip");
+{%- endfor %}
+        }
+{%- else %}
+{%- for attr in attributes | default(value=[]) %}
+        assertEquals({{ attr.name }}, loaded.{{ attr.name }}(), "{{ attr.name }} must survive round-trip");
+{%- endfor %}
+{%- endif %}
+    }
+
+{%- if jv >= 23 %}
+    /// Property: create + delete leaves findById empty.
+{%- else %}
+    /**
+     * Property: create + delete leaves findById empty.
+     */
+{%- endif %}
+    @Property(tries = 30)
+    @DisplayName("[property] create then delete yields empty findById")
+    void createThenDeleteYieldsEmpty(
+{%- for attr in attributes | default(value=[]) %}
+        @ForAll String {{ attr.name }}{% if not loop.last %},{% endif %}
+
+{%- endfor %}
+    ) {
+        var entity = new {{ entity_name }}(
+            null{% if attributes | default(value=[]) | length > 0 %},{% endif %}
+
+{%- for attr in attributes | default(value=[]) %}
+            {{ attr.name }}{% if not loop.last %},{% endif %}
+
+{%- endfor %}
+        );
+        var created = service.create(entity);
+        service.delete(created.id());
+        assertTrue(service.findById(created.id()).isEmpty());
+    }
+
+    // -------------------------------------------------------------------------
+    // jqwik Arbitraries
+    // -------------------------------------------------------------------------
+
+    @Provide
+    Arbitrary<String> validStrings() {
+        return net.jqwik.api.Arbitraries.strings()
+            .withCharRange('a', 'z')
+            .ofMinLength(1)
+            .ofMaxLength(255)
+            .filter(s -> !s.isBlank());
+    }
+}

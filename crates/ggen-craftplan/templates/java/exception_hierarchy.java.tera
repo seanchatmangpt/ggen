@@ -1,0 +1,307 @@
+{#- Exception Hierarchy Template - Sealed class exception hierarchy with HTTP mapping (Java 21+) -#}
+{#- Context: package_name, domain_name, exceptions (list with name, fields, http_status), java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+{%- set domain_lower = domain_name | lower -%}
+{%- set permits_list = exceptions | default(value=[]) | map(attribute="name") | join(sep=", ") -%}
+package {{ package_name }};
+
+import java.util.Objects;
+import java.util.Map;
+import java.util.LinkedHashMap;
+
+{%- if jv >= 23 %}
+/// Sealed exception hierarchy for the [{{ domain_name }}] domain.
+///
+/// All domain failures are subtypes of [{{ domain_name }}Exception].
+/// The sealed hierarchy enables exhaustive `switch` dispatching — the
+/// compiler enforces every failure case is handled; no silent defaults.
+///
+/// HTTP status mapping is centralised in [{{ domain_name }}ExceptionHandler].
+///
+/// Permitted subtypes:
+/// {% for ex in exceptions | default(value=[]) %}- [{{ ex.name }}]{% if not loop.last %}
+/// {% endif %}{% endfor %}
+
+{%- else %}
+/**
+ * Sealed exception hierarchy for the {@link {{ domain_name }}} domain.
+ *
+ * <p>All domain failures are subtypes of {@link {{ domain_name }}Exception}.
+ * The sealed hierarchy enables exhaustive {@code switch} dispatching — the
+ * compiler enforces every failure case is handled; no silent defaults.
+ *
+ * <p>HTTP status mapping is centralised in {@link {{ domain_name }}ExceptionHandler}.
+ *
+ * <p>Permitted subtypes:
+ * <ul>
+{%- for ex in exceptions | default(value=[]) %}
+ *   <li>{@link {{ ex.name }}}</li>
+{%- endfor %}
+ * </ul>
+ */
+{%- endif %}
+public abstract sealed class {{ domain_name }}Exception extends RuntimeException
+    permits {% for ex in exceptions | default(value=[]) %}{{ ex.name }}{% if not loop.last %}, {% endif %}{% endfor %} {
+
+    private final String errorCode;
+    private final Map<String, Object> context;
+
+    protected {{ domain_name }}Exception(String errorCode, String message) {
+        super(Objects.requireNonNull(message, "message must not be null"));
+        this.errorCode = Objects.requireNonNull(errorCode, "errorCode must not be null");
+        this.context   = Map.of();
+    }
+
+    protected {{ domain_name }}Exception(String errorCode, String message, Throwable cause) {
+        super(Objects.requireNonNull(message, "message must not be null"),
+              Objects.requireNonNull(cause,   "cause must not be null"));
+        this.errorCode = Objects.requireNonNull(errorCode, "errorCode must not be null");
+        this.context   = Map.of();
+    }
+
+    protected {{ domain_name }}Exception(String errorCode, String message, Map<String, Object> context) {
+        super(Objects.requireNonNull(message, "message must not be null"));
+        this.errorCode = Objects.requireNonNull(errorCode, "errorCode must not be null");
+        this.context   = Map.copyOf(Objects.requireNonNull(context, "context must not be null"));
+    }
+
+{%- if jv >= 23 %}
+    /// Machine-readable error code for client-side branching.
+{%- else %}
+    /**
+     * Machine-readable error code for client-side branching.
+     * @return never null
+     */
+{%- endif %}
+    public final String errorCode() {
+        return errorCode;
+    }
+
+{%- if jv >= 23 %}
+    /// Structured diagnostic context (field names → values).
+{%- else %}
+    /**
+     * Structured diagnostic context (field names → values).
+     * @return immutable map, never null
+     */
+{%- endif %}
+    public final Map<String, Object> context() {
+        return context;
+    }
+}
+
+// =============================================================================
+// Permitted subtypes
+// =============================================================================
+
+{%- for ex in exceptions | default(value=[]) %}
+
+{%- if jv >= 23 %}
+/// [{{ domain_name }}] failure: {{ ex.description | default(value=ex.name) }}.
+///
+/// HTTP status: {{ ex.http_status | default(value=500) }}
+{%- else %}
+/**
+ * {@link {{ domain_name }}} failure: {{ ex.description | default(value=ex.name) }}.
+ *
+ * <p>HTTP status: {{ ex.http_status | default(value=500) }}
+ */
+{%- endif %}
+public final class {{ ex.name }} extends {{ domain_name }}Exception {
+
+    static final int HTTP_STATUS = {{ ex.http_status | default(value=500) }};
+
+{%- for field in ex.fields | default(value=[]) %}
+    private final {{ field.type | default(value="String") }} {{ field.name }};
+{%- endfor %}
+
+    public {{ ex.name }}({% for field in ex.fields | default(value=[]) %}{{ field.type | default(value="String") }} {{ field.name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+        super(
+            "{{ domain_name | upper }}_{{ ex.name | upper | replace(from="EXCEPTION", to="") | replace(from=" ", to="_") }}",
+            buildMessage({% for field in ex.fields | default(value=[]) %}{{ field.name }}{% if not loop.last %}, {% endif %}{% endfor %})
+        );
+{%- for field in ex.fields | default(value=[]) %}
+        this.{{ field.name }} = {{ field.name }};
+{%- endfor %}
+    }
+
+{%- if ex.has_cause | default(value=false) %}
+
+    public {{ ex.name }}({% for field in ex.fields | default(value=[]) %}{{ field.type | default(value="String") }} {{ field.name }}, {% endfor %}Throwable cause) {
+        super(
+            "{{ domain_name | upper }}_{{ ex.name | upper | replace(from="EXCEPTION", to="") | replace(from=" ", to="_") }}",
+            buildMessage({% for field in ex.fields | default(value=[]) %}{{ field.name }}{% if not loop.last %}, {% endif %}{% endfor %}),
+            cause
+        );
+{%- for field in ex.fields | default(value=[]) %}
+        this.{{ field.name }} = {{ field.name }};
+{%- endfor %}
+    }
+{%- endif %}
+
+{%- for field in ex.fields | default(value=[]) %}
+{%- if jv >= 23 %}
+    /// Returns the `{{ field.name }}` that caused this failure.
+{%- else %}
+    /**
+     * Returns the {@code {{ field.name }}} that caused this failure.
+     * @return the {{ field.name }}, never null
+     */
+{%- endif %}
+    public {{ field.type | default(value="String") }} {{ field.name }}() {
+        return {{ field.name }};
+    }
+{%- endfor %}
+
+    private static String buildMessage({% for field in ex.fields | default(value=[]) %}{{ field.type | default(value="String") }} {{ field.name }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+        return "{{ ex.name }}{% if ex.fields | default(value=[]) | length > 0 %}: {% for field in ex.fields | default(value=[]) %}{{ field.name }}=" + {{ field.name }}{% if not loop.last %} + ", " + {% endif %}{% endfor %}{% endif %}";
+    }
+
+    public int httpStatus() {
+        return HTTP_STATUS;
+    }
+}
+{%- endfor %}
+
+// =============================================================================
+// Global exception handler — exhaustive pattern-matched HTTP status mapping
+// =============================================================================
+
+{%- if jv >= 23 %}
+/// Centralised HTTP response mapping for the [{{ domain_name }}Exception] hierarchy.
+///
+/// Uses an exhaustive sealed-class switch so that adding a new permitted
+/// subtype without updating this handler causes a **compile error**, not a
+/// silent 500.
+///
+/// Wire this as:
+/// - Spring 6.x: `@RestControllerAdvice` method returning `ResponseEntity`
+/// - Micronaut:  `@Error(global = true)` handler on a `@Controller`
+/// - Quarkus:    `@Provider ExceptionMapper<{{ domain_name }}Exception>`
+{%- else %}
+/**
+ * Centralised HTTP response mapping for the {@link {{ domain_name }}Exception} hierarchy.
+ *
+ * <p>Uses an exhaustive sealed-class switch so that adding a new permitted
+ * subtype without updating this handler causes a <em>compile error</em>, not a
+ * silent 500.
+ *
+ * <p>Wire this as:
+ * <ul>
+ *   <li>Spring 6.x: {@code @RestControllerAdvice} method returning {@code ResponseEntity}</li>
+ *   <li>Micronaut: {@code @Error(global = true)} handler on a {@code @Controller}</li>
+ *   <li>Quarkus: {@code @Provider ExceptionMapper&lt;{{ domain_name }}Exception&gt;}</li>
+ * </ul>
+ */
+{%- endif %}
+public final class {{ domain_name }}ExceptionHandler {
+
+    private {{ domain_name }}ExceptionHandler() {
+        // static utility; not instantiable
+    }
+
+{%- if jv >= 23 %}
+    /// Map a [{{ domain_name }}Exception] to its canonical HTTP status code.
+    ///
+    /// The switch is exhaustive over the sealed hierarchy — the compiler
+    /// ensures every case is handled.
+    ///
+    /// @return HTTP status integer (e.g. 404, 422, 409 …)
+{%- else %}
+    /**
+     * Map a {@link {{ domain_name }}Exception} to its canonical HTTP status code.
+     *
+     * <p>The switch is exhaustive over the sealed hierarchy — the compiler
+     * ensures every case is handled.
+     *
+     * @param ex the domain exception, never null
+     * @return HTTP status integer (e.g. 404, 422, 409 …)
+     */
+{%- endif %}
+    public static int toHttpStatus({{ domain_name }}Exception ex) {
+        Objects.requireNonNull(ex, "ex must not be null");
+        return switch (ex) {
+{%- for ex in exceptions | default(value=[]) %}
+            case {{ ex.name }} e -> {{ ex.http_status | default(value=500) }};
+{%- endfor %}
+        };
+    }
+
+{%- if jv >= 23 %}
+    /// Build a structured error body for the given exception.
+    ///
+    /// Returns an immutable map suitable for JSON serialisation.
+    /// Keys: `errorCode`, `message`, `status`, `context`.
+{%- else %}
+    /**
+     * Build a structured error body for the given exception.
+     *
+     * <p>Returns an immutable map suitable for JSON serialisation.
+     * Keys: {@code errorCode}, {@code message}, {@code status}, {@code context}.
+     *
+     * @param ex the domain exception, never null
+     * @return immutable map, never null
+     */
+{%- endif %}
+    public static Map<String, Object> toErrorBody({{ domain_name }}Exception ex) {
+        Objects.requireNonNull(ex, "ex must not be null");
+        int status = toHttpStatus(ex);
+
+{%- if jv >= 21 %}
+        // Java 21+ pattern matching switch for richer per-type bodies
+        var extra = switch (ex) {
+{%- for ex in exceptions | default(value=[]) %}
+{%- if ex.fields | default(value=[]) | length > 0 %}
+            case {{ ex.name }} e -> Map.<String, Object>of(
+{%- for field in ex.fields | default(value=[]) %}
+                "{{ field.name }}", String.valueOf(e.{{ field.name }}()){% if not loop.last %},{% endif %}
+
+{%- endfor %}
+            );
+{%- else %}
+            case {{ ex.name }} e -> Map.<String, Object>of();
+{%- endif %}
+{%- endfor %}
+        };
+{%- else %}
+        var extra = ex.context();
+{%- endif %}
+
+        var body = new LinkedHashMap<String, Object>();
+        body.put("errorCode", ex.errorCode());
+        body.put("message",   ex.getMessage());
+        body.put("status",    status);
+        body.putAll(extra);
+        body.putAll(ex.context());
+        return Map.copyOf(body);
+    }
+
+{%- if jv >= 23 %}
+    /// Determine whether the exception represents a client error (4xx).
+{%- else %}
+    /**
+     * Determine whether the exception represents a client error (4xx).
+     *
+     * @param ex the domain exception, never null
+     * @return {@code true} for 4xx, {@code false} for 5xx
+     */
+{%- endif %}
+    public static boolean isClientError({{ domain_name }}Exception ex) {
+        int status = toHttpStatus(ex);
+        return status >= 400 && status < 500;
+    }
+
+{%- if jv >= 23 %}
+    /// Determine whether the exception represents a server error (5xx).
+{%- else %}
+    /**
+     * Determine whether the exception represents a server error (5xx).
+     *
+     * @param ex the domain exception, never null
+     * @return {@code true} for 5xx
+     */
+{%- endif %}
+    public static boolean isServerError({{ domain_name }}Exception ex) {
+        return toHttpStatus(ex) >= 500;
+    }
+}

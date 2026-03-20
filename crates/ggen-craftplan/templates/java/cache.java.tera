@@ -1,0 +1,435 @@
+{#- High-Performance Concurrent Cache Template - Java 21+ -#}
+{#- Context: package_name, class_name, key_type, value_type, ttl_seconds, max_size, java_version -#}
+{%- set jv = java_version | default(value=21) -%}
+{%- set ttl  = ttl_seconds | default(value=300) -%}
+{%- set mxsz = max_size    | default(value=1024) -%}
+package {{ package_name }};
+
+import java.time.Instant;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.locks.StampedLock;
+import java.util.function.Function;
+{%- if jv >= 24 %}
+import java.lang.ScopedValue;
+{%- endif %}
+{% for import in imports | default(value=[]) -%}
+import {{ import }};
+{% endfor -%}
+{%- if jv >= 23 %}
+/// High-performance concurrent cache for [{{ key_type }}] → [{{ value_type }}] mappings.
+///
+/// ## Design
+/// - **Storage**: `ConcurrentHashMap` for lock-free concurrent reads.
+/// - **TTL eviction**: Virtual-thread scheduler runs every
+///   `{{ ttl }}s` and purges expired entries in bulk.
+/// - **Read optimisation**: `StampedLock` optimistic reads eliminate
+///   contention on the hot path; writes degrade to a write-lock only
+///   when entries are inserted or evicted.
+/// - **Capacity**: soft cap of `{{ mxsz }}` entries; LRU-like eviction
+///   drops the oldest entries when the cap is reached.
+/// - **Statistics**: hits, misses, and evictions tracked with `LongAdder`
+///   for minimal contention.
+{%- if jv >= 24 %}
+///
+/// ## Scoped-value bypass (Java 24+)
+/// Within a `ScopedValue.where({{ class_name }}.BYPASS, true)` scope the
+/// cache is transparently bypassed: [#get] always calls the loader and
+/// [#put] is a no-op, enabling per-request cache isolation in tests.
+{%- endif %}
+{%- else %}
+/**
+ * High-performance concurrent cache for {@code {{ key_type }}} →
+ * {@code {{ value_type }}} mappings.
+ *
+ * <h2>Design</h2>
+ * <ul>
+ *   <li><b>Storage</b>: {@link ConcurrentHashMap} for lock-free concurrent
+ *       reads.</li>
+ *   <li><b>TTL eviction</b>: Virtual-thread scheduler runs every
+ *       {@value #TTL_SECONDS}s and purges expired entries in bulk.</li>
+ *   <li><b>Read optimisation</b>: {@link StampedLock} optimistic reads
+ *       eliminate contention on the hot path; writes degrade to a
+ *       write-lock only when entries are inserted or evicted.</li>
+ *   <li><b>Capacity</b>: soft cap of {@value #MAX_SIZE} entries; LRU-like
+ *       eviction drops the oldest entries when the cap is reached.</li>
+ *   <li><b>Statistics</b>: hits, misses, and evictions tracked with
+ *       {@link LongAdder} for minimal contention.</li>
+ * </ul>
+{%- if jv >= 24 %}
+ *
+ * <h2>Scoped-value bypass (Java 24+)</h2>
+ * <p>Within a {@code ScopedValue.where({{ class_name }}.BYPASS, true)} scope
+ * the cache is transparently bypassed: {@link #get} always calls the loader
+ * and {@link #put} is a no-op, enabling per-request cache isolation in
+ * tests.</p>
+{%- endif %}
+ */
+{%- endif %}
+public final class {{ class_name }} implements AutoCloseable {
+
+    /** Time-to-live for cached entries in seconds. */
+    public static final long TTL_SECONDS = {{ ttl }};
+
+    /** Soft maximum number of cached entries. */
+    public static final int MAX_SIZE = {{ mxsz }};
+
+{%- if jv >= 24 %}
+
+    /**
+     * Bind this ScopedValue to {@code true} to bypass the cache for the
+     * duration of a structured-concurrency or virtual-thread scope.
+     */
+    public static final ScopedValue<Boolean> BYPASS = ScopedValue.newInstance();
+{%- endif %}
+
+    // -------------------------------------------------------------------------
+    // Internal entry type
+    // -------------------------------------------------------------------------
+
+    private record Entry<V>(V value, Instant expiresAt) {
+        boolean isExpired() {
+            return Instant.now().isAfter(expiresAt);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // State
+    // -------------------------------------------------------------------------
+
+    private final ConcurrentHashMap<{{ key_type }}, Entry<{{ value_type }}>> store;
+    private final StampedLock lock = new StampedLock();
+    private final ScheduledExecutorService cleaner;
+    private final ScheduledFuture<?> cleanerTask;
+
+    // Statistics
+    private final LongAdder hits      = new LongAdder();
+    private final LongAdder misses    = new LongAdder();
+    private final LongAdder evictions = new LongAdder();
+
+    // -------------------------------------------------------------------------
+    // Constructor
+    // -------------------------------------------------------------------------
+
+    public {{ class_name }}() {
+        this.store   = new ConcurrentHashMap<>(Math.min(MAX_SIZE, 256));
+        this.cleaner = Executors.newSingleThreadScheduledExecutor(
+            Thread.ofVirtual().name("{{ class_name | lower }}-cleaner").factory());
+        this.cleanerTask = cleaner.scheduleAtFixedRate(
+            this::evictExpired, TTL_SECONDS, TTL_SECONDS, TimeUnit.SECONDS);
+    }
+
+    // -------------------------------------------------------------------------
+    // Core operations
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+
+    /// Return the cached value for `key`, or [Optional#empty()] on miss/expiry.
+    ///
+    /// Uses optimistic stamped-read; falls back to a pessimistic read-lock
+    /// if the optimistic validation fails.
+    ///
+    /// @param key cache key; must not be null
+    /// @return `Optional` containing the value, or empty on miss
+{%- else %}
+
+    /**
+     * Return the cached value for {@code key}, or {@link Optional#empty()}
+     * on miss or expiry.
+     *
+     * <p>Uses optimistic stamped-read; falls back to a pessimistic read-lock
+     * if the optimistic validation fails.</p>
+     *
+     * @param key cache key; must not be null
+     * @return {@link Optional} containing the value, or empty on miss
+     */
+{%- endif %}
+    public Optional<{{ value_type }}> get({{ key_type }} key) {
+        Objects.requireNonNull(key, "key must not be null");
+{%- if jv >= 24 %}
+        if (Boolean.TRUE.equals(BYPASS.orElse(false))) {
+            misses.increment();
+            return Optional.empty();
+        }
+{%- endif %}
+        // Optimistic read path (no lock acquisition on common case)
+        long stamp = lock.tryOptimisticRead();
+        Entry<{{ value_type }}> entry = store.get(key);
+        if (!lock.validate(stamp)) {
+            // Validation failed — re-read under a proper read-lock
+            stamp = lock.readLock();
+            try {
+                entry = store.get(key);
+            } finally {
+                lock.unlockRead(stamp);
+            }
+        }
+        if (entry == null || entry.isExpired()) {
+            misses.increment();
+            if (entry != null) {
+                removeExpired(key);
+            }
+            return Optional.empty();
+        }
+        hits.increment();
+        return Optional.of(entry.value());
+    }
+
+{%- if jv >= 23 %}
+
+    /// Put a value into the cache with the default TTL.
+    ///
+    /// If the cache has reached [#MAX_SIZE], the oldest entries are evicted
+    /// before the new entry is inserted.
+    ///
+    /// @param key   cache key; must not be null
+    /// @param value cache value; must not be null
+{%- else %}
+
+    /**
+     * Put a value into the cache with the default TTL.
+     *
+     * <p>If the cache has reached {@link #MAX_SIZE}, the oldest entries are
+     * evicted before the new entry is inserted.</p>
+     *
+     * @param key   cache key; must not be null
+     * @param value cache value; must not be null
+     */
+{%- endif %}
+    public void put({{ key_type }} key, {{ value_type }} value) {
+        Objects.requireNonNull(key,   "key must not be null");
+        Objects.requireNonNull(value, "value must not be null");
+{%- if jv >= 24 %}
+        if (Boolean.TRUE.equals(BYPASS.orElse(false))) {
+            return; // silently skip in bypass mode
+        }
+{%- endif %}
+        long stamp = lock.writeLock();
+        try {
+            enforceCapacity();
+            store.put(key, new Entry<>(value, Instant.now().plusSeconds(TTL_SECONDS)));
+        } finally {
+            lock.unlockWrite(stamp);
+        }
+    }
+
+{%- if jv >= 23 %}
+
+    /// Get the cached value if present; otherwise call `loader`, cache the
+    /// result, and return it.
+    ///
+    /// Uses `ConcurrentHashMap.computeIfAbsent` for atomic load-or-get
+    /// semantics under concurrent access.
+    ///
+    /// @param key    cache key; must not be null
+    /// @param loader function to compute the value on cache miss; must not be null
+    /// @return the cached or freshly loaded value
+{%- else %}
+
+    /**
+     * Get the cached value if present; otherwise call {@code loader}, cache
+     * the result, and return it.
+     *
+     * <p>Uses {@link ConcurrentHashMap#computeIfAbsent} for atomic
+     * load-or-get semantics under concurrent access.</p>
+     *
+     * @param key    cache key; must not be null
+     * @param loader function to compute the value on cache miss; must not be null
+     * @return the cached or freshly loaded value
+     */
+{%- endif %}
+    public {{ value_type }} getOrLoad({{ key_type }} key, Function<{{ key_type }}, {{ value_type }}> loader) {
+        Objects.requireNonNull(key,    "key must not be null");
+        Objects.requireNonNull(loader, "loader must not be null");
+{%- if jv >= 24 %}
+        if (Boolean.TRUE.equals(BYPASS.orElse(false))) {
+            misses.increment();
+            return loader.apply(key);
+        }
+{%- endif %}
+        Entry<{{ value_type }}> entry = store.computeIfAbsent(key, k -> {
+            misses.increment();
+            enforceCapacityUnderLock();
+            return new Entry<>(loader.apply(k), Instant.now().plusSeconds(TTL_SECONDS));
+        });
+        // computeIfAbsent may return an existing (possibly expired) entry
+        if (entry.isExpired()) {
+            long stamp = lock.writeLock();
+            try {
+                store.remove(key);
+                evictions.increment();
+                {{ value_type }} fresh = loader.apply(key);
+                store.put(key, new Entry<>(fresh, Instant.now().plusSeconds(TTL_SECONDS)));
+                return fresh;
+            } finally {
+                lock.unlockWrite(stamp);
+            }
+        }
+        hits.increment();
+        return entry.value();
+    }
+
+{%- if jv >= 23 %}
+
+    /// Remove the entry for `key` if it exists.
+    ///
+    /// @param key cache key; must not be null
+{%- else %}
+
+    /**
+     * Remove the entry for {@code key} if it exists.
+     *
+     * @param key cache key; must not be null
+     */
+{%- endif %}
+    public void invalidate({{ key_type }} key) {
+        Objects.requireNonNull(key, "key must not be null");
+        long stamp = lock.writeLock();
+        try {
+            store.remove(key);
+        } finally {
+            lock.unlockWrite(stamp);
+        }
+    }
+
+{%- if jv >= 23 %}
+
+    /// Remove all entries from the cache.
+{%- else %}
+
+    /**
+     * Remove all entries from the cache.
+     */
+{%- endif %}
+    public void invalidateAll() {
+        long stamp = lock.writeLock();
+        try {
+            store.clear();
+        } finally {
+            lock.unlockWrite(stamp);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Statistics
+    // -------------------------------------------------------------------------
+
+{%- if jv >= 23 %}
+
+    /// Return a point-in-time snapshot of cache statistics.
+{%- else %}
+
+    /**
+     * Return a point-in-time snapshot of cache statistics.
+     *
+     * @return immutable statistics snapshot
+     */
+{%- endif %}
+    public Stats stats() {
+        return new Stats(hits.sum(), misses.sum(), evictions.sum(), store.size());
+    }
+
+{%- if jv >= 23 %}
+
+    /// Immutable snapshot of cache statistics.
+    ///
+    /// @param hits      total cache hits since construction
+    /// @param misses    total cache misses since construction
+    /// @param evictions total entries evicted (TTL + capacity) since construction
+    /// @param size      current number of entries in the cache
+{%- else %}
+
+    /**
+     * Immutable snapshot of cache statistics.
+     *
+     * @param hits      total cache hits since construction
+     * @param misses    total cache misses since construction
+     * @param evictions total entries evicted (TTL + capacity) since construction
+     * @param size      current number of entries in the cache
+     */
+{%- endif %}
+    public record Stats(long hits, long misses, long evictions, int size) {
+        public double hitRate() {
+            long total = hits + misses;
+            return total == 0 ? 0.0 : (double) hits / total;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Internal helpers
+    // -------------------------------------------------------------------------
+
+    private void evictExpired() {
+        long count = store.entrySet().removeIf(e -> e.getValue().isExpired()) ? 1 : 0;
+        // Re-count accurately
+        long removed = store.entrySet().stream()
+            .filter(e -> e.getValue().isExpired())
+            .mapToLong(e -> {
+                store.remove(e.getKey(), e.getValue());
+                return 1L;
+            })
+            .sum();
+        evictions.add(removed);
+    }
+
+    private void removeExpired({{ key_type }} key) {
+        long stamp = lock.writeLock();
+        try {
+            Entry<{{ value_type }}> current = store.get(key);
+            if (current != null && current.isExpired()) {
+                store.remove(key);
+                evictions.increment();
+            }
+        } finally {
+            lock.unlockWrite(stamp);
+        }
+    }
+
+    private void enforceCapacity() {
+        // Called under write-lock
+        while (store.size() >= MAX_SIZE) {
+            // Drop the first entry encountered (approximate LRU)
+            {{ key_type }} victim = store.keys().nextElement();
+            if (victim != null) {
+                store.remove(victim);
+                evictions.increment();
+            }
+        }
+    }
+
+    private void enforceCapacityUnderLock() {
+        if (store.size() < MAX_SIZE) return;
+        long stamp = lock.writeLock();
+        try {
+            enforceCapacity();
+        } finally {
+            lock.unlockWrite(stamp);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Lifecycle
+    // -------------------------------------------------------------------------
+
+    @Override
+    public void close() {
+        cleanerTask.cancel(false);
+        cleaner.shutdown();
+        try {
+            if (!cleaner.awaitTermination(5, TimeUnit.SECONDS)) {
+                cleaner.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            cleaner.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+}
