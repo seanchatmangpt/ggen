@@ -45,12 +45,6 @@ impl OSIRISDomains {
             core_engine,
         })
     }
-}
-            domains,
-            workflows,
-            lifecycle,
-        })
-    }
 
     /// Initialize the domains system
     pub async fn initialize(&self) -> Result<(), Box<dyn std::error::Error>> {

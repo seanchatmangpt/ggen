@@ -3,7 +3,6 @@ use crate::origin::{Origin, OriginValidator};
 use crate::session::{ResumeCursor, SessionId, SessionManager};
 use crate::streaming::{MessageStream, StreamBuilder, StreamSender};
 use async_trait::async_trait;
-use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;

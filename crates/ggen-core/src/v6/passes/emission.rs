@@ -130,7 +130,7 @@ impl EmissionPass {
     }
 
     /// Verify template rendering is deterministic
-    fn verify_determinism(&self, _ctx: &PassContext<'_>, path: &PathBuf, content: &str) -> Result<()> {
+    fn verify_determinism(&self, _ctx: &PassContext<'_>, path: &std::path::Path, content: &str) -> Result<()> {
         if !self.enable_determinism_check {
             return Ok(());
         }
