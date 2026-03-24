@@ -6,6 +6,11 @@
 //! - Public key management
 //! - Signature receipts
 
+#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::uninlined_format_args)]
+#![allow(clippy::double_must_use)]
+#![allow(clippy::ignored_unit_patterns)]
+
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
 use hex::{decode as hex_decode, encode as hex_encode};
 use sha2::{Digest, Sha256};
@@ -146,15 +151,12 @@ impl SignatureVerifier {
 
         let signature = Signature::from_bytes(&sig_array);
 
-        match self.key_pair.verifying_key.verify(data, &signature) {
-            Ok(_) => {
-                debug!("Signature verified successfully");
-                Ok(true)
-            }
-            Err(_) => {
-                debug!("Signature verification failed");
-                Ok(false)
-            }
+        if self.key_pair.verifying_key.verify(data, &signature).is_ok() {
+            debug!("Signature verified successfully");
+            Ok(true)
+        } else {
+            debug!("Signature verification failed");
+            Ok(false)
         }
     }
 

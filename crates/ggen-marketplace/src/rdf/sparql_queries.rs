@@ -9,6 +9,9 @@
 //!
 //! All queries use the POKA YOKE type system for compile-time safety.
 
+#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::needless_borrows_for_generic_args)]
+
 use super::ontology::{namespaces, Property};
 use super::poka_yoke::{typestate, PokaYokeError, SparqlQuery};
 use serde::{Deserialize, Serialize};
@@ -113,8 +116,7 @@ impl MarketplaceQueries {
         // Apply filters
         if let Some(search_query) = &params.query {
             let filter = format!(
-                "regex(?name, \"{}\", \"i\") || regex(?description, \"{}\", \"i\")",
-                search_query, search_query
+                "regex(?name, \"{search_query}\", \"i\") || regex(?description, \"{search_query}\", \"i\")"
             );
             query = query.filter(filter);
         }
@@ -122,19 +124,19 @@ impl MarketplaceQueries {
         if let Some(category) = &params.category {
             query = query
                 .where_pattern("?package ggen:hasCategory ?cat")
-                .filter(format!("?cat = \"{}\"", category));
+                .filter(format!("?cat = \"{category}\""));
         }
 
         if !params.tags.is_empty() {
-            for tag in &params.tags {
+            for (idx, tag) in params.tags.iter().enumerate() {
                 query = query
-                    .where_pattern(&format!("?package ggen:hasTag ?tag{}", tag))
-                    .filter(format!("?tag{} = \"{}\"", tag, tag));
+                    .where_pattern(&format!("?package ggen:hasTag ?tag{idx}"))
+                    .filter(format!("?tag{idx} = \"{tag}\""));
             }
         }
 
         if let Some(min_rating) = params.min_rating {
-            query = query.filter(format!("?rating >= {}", min_rating));
+            query = query.filter(format!("?rating >= {min_rating}"));
         }
 
         // Ordering and pagination
@@ -152,6 +154,10 @@ impl MarketplaceQueries {
     }
 
     /// Get package details by ID
+    ///
+    /// # Errors
+    ///
+    /// Returns [`PokaYokeError`] if query validation fails
     pub fn get_package_details(
         package_id: &str,
     ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
@@ -168,8 +174,8 @@ impl MarketplaceQueries {
                 "?license",
                 "?author",
             ])
-            .where_pattern(&format!("<{}> a ggen:Package", package_id))
-            .where_pattern(&format!("<{}> dc:title ?name", package_id))
+            .where_pattern(&format!("<{package_id}> a ggen:Package"))
+            .where_pattern(&format!("<{package_id}> dc:title ?name"))
             .where_pattern("OPTIONAL { ?package dc:description ?description }")
             .where_pattern("OPTIONAL { ?package foaf:homepage ?homepage }")
             .where_pattern("OPTIONAL { ?package ggen:repository ?repository }")
@@ -182,6 +188,10 @@ impl MarketplaceQueries {
     }
 
     /// Get all versions of a package
+    ///
+    /// # Errors
+    ///
+    /// Returns [`PokaYokeError`] if query validation fails
     pub fn get_package_versions(
         package_id: &str,
     ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
@@ -195,7 +205,7 @@ impl MarketplaceQueries {
                 "?deprecated",
                 "?yanked",
             ])
-            .where_pattern(&format!("<{}> ggen:hasVersion ?version", package_id))
+            .where_pattern(&format!("<{package_id}> ggen:hasVersion ?version"))
             .where_pattern("?version ggen:versionNumber ?versionNumber")
             .where_pattern("?version dc:created ?published")
             .where_pattern("OPTIONAL { ?version ggen:deprecated ?deprecated }")
@@ -205,6 +215,10 @@ impl MarketplaceQueries {
     }
 
     /// Get dependencies for a package version
+    ///
+    /// # Errors
+    ///
+    /// Returns [`PokaYokeError`] if query validation fails
     pub fn get_dependencies(
         package_id: &str, version: &str,
     ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
@@ -217,8 +231,8 @@ impl MarketplaceQueries {
                 "?depType",
                 "?optional",
             ])
-            .where_pattern(&format!("<{}> ggen:hasVersion ?versionNode", package_id))
-            .where_pattern(&format!("?versionNode ggen:versionNumber \"{}\"", version))
+            .where_pattern(&format!("<{package_id}> ggen:hasVersion ?versionNode"))
+            .where_pattern(&format!("?versionNode ggen:versionNumber \"{version}\""))
             .where_pattern("?versionNode ggen:hasDependency ?dep")
             .where_pattern("?dep ggen:dependsOn ?depPackage")
             .where_pattern("?depPackage dc:title ?depName")
@@ -229,6 +243,10 @@ impl MarketplaceQueries {
     }
 
     /// Check if package is installed
+    ///
+    /// # Errors
+    ///
+    /// Returns [`PokaYokeError`] if query validation fails
     pub fn get_installation_status(
         package_id: &str,
     ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
@@ -236,7 +254,7 @@ impl MarketplaceQueries {
             .prefix("ggen", namespaces::GGEN)
             .prefix("prov", namespaces::PROV)
             .select(&["?status", "?version", "?installedAt", "?path"])
-            .where_pattern(&format!("<{}> ggen:hasInstallation ?install", package_id))
+            .where_pattern(&format!("<{package_id}> ggen:hasInstallation ?install"))
             .where_pattern("?install a ggen:InstallationState")
             .where_pattern("?install ggen:installationStatus ?status")
             .where_pattern("?install ggen:versionNumber ?version")
@@ -248,6 +266,11 @@ impl MarketplaceQueries {
     }
 
     /// Record package installation
+    ///
+    /// # Errors
+    ///
+    /// This function never returns an error
+    #[must_use]
     pub fn insert_installation(
         package_id: &str, version: &str, status: &str, path: &str,
     ) -> String {
@@ -280,6 +303,10 @@ INSERT DATA {{
     }
 
     /// Get validation results for a package version
+    ///
+    /// # Errors
+    ///
+    /// Returns [`PokaYokeError`] if query validation fails
     pub fn get_validation_results(
         package_id: &str, version: &str,
     ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
@@ -287,8 +314,8 @@ INSERT DATA {{
             .prefix("ggen", namespaces::GGEN)
             .prefix("prov", namespaces::PROV)
             .select(&["?result", "?status", "?validatedAt", "?violations"])
-            .where_pattern(&format!("<{}> ggen:hasVersion ?versionNode", package_id))
-            .where_pattern(&format!("?versionNode ggen:versionNumber \"{}\"", version))
+            .where_pattern(&format!("<{package_id}> ggen:hasVersion ?versionNode"))
+            .where_pattern(&format!("?versionNode ggen:versionNumber \"{version}\""))
             .where_pattern("?versionNode ggen:hasValidation ?result")
             .where_pattern("?result a ggen:ValidationResult")
             .where_pattern("?result ggen:validationStatus ?status")
@@ -300,14 +327,15 @@ INSERT DATA {{
     }
 
     /// Insert validation result
+    ///
+    /// # Errors
+    ///
+    /// This function never returns an error
+    #[must_use]
     pub fn insert_validation_result(
         package_id: &str, version: &str, status: &str, violations: &[String],
     ) -> String {
-        let result_id = format!(
-            "{}#validation-{}",
-            package_id,
-            chrono::Utc::now().timestamp()
-        );
+        let result_id = format!("{package_id}#validation-{}", chrono::Utc::now().timestamp());
         let violations_ttl = if violations.is_empty() {
             String::new()
         } else {
@@ -316,7 +344,7 @@ INSERT DATA {{
                 .map(|v| format!("\"{}\"", v.replace('"', "\\\"")))
                 .collect::<Vec<_>>()
                 .join(", ");
-            format!("        ggen:violations ( {} ) ;", violations_str)
+            format!("        ggen:violations ( {violations_str} ) ;")
         };
 
         format!(
@@ -347,6 +375,10 @@ INSERT DATA {{
     }
 
     /// Get package statistics
+    ///
+    /// # Errors
+    ///
+    /// Returns [`PokaYokeError`] if query validation fails
     pub fn get_package_statistics() -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         SparqlQuery::new()
             .prefix("ggen", namespaces::GGEN)
@@ -364,6 +396,10 @@ INSERT DATA {{
     }
 
     /// Get most popular packages
+    ///
+    /// # Errors
+    ///
+    /// Returns [`PokaYokeError`] if query validation fails
     pub fn get_popular_packages(
         limit: usize,
     ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
@@ -381,6 +417,10 @@ INSERT DATA {{
     }
 
     /// Get recently published packages
+    ///
+    /// # Errors
+    ///
+    /// Returns [`PokaYokeError`] if query validation fails
     pub fn get_recent_packages(
         limit: usize,
     ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
@@ -399,6 +439,10 @@ INSERT DATA {{
     }
 
     /// Get packages by category
+    ///
+    /// # Errors
+    ///
+    /// Returns [`PokaYokeError`] if query validation fails
     pub fn get_packages_by_category(
         category: &str,
     ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
@@ -409,12 +453,16 @@ INSERT DATA {{
             .where_pattern("?package a ggen:Package")
             .where_triple("?package", Property::PackageName, "?name")
             .where_pattern("?package ggen:hasCategory ?cat")
-            .where_pattern(&format!("?cat rdfs:label \"{}\"", category))
+            .where_pattern(&format!("?cat rdfs:label \"{category}\""))
             .where_pattern("OPTIONAL { ?package dc:description ?description }")
             .validate()
     }
 
     /// Get packages by author
+    ///
+    /// # Errors
+    ///
+    /// Returns [`PokaYokeError`] if query validation fails
     pub fn get_packages_by_author(
         author: &str,
     ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
@@ -426,12 +474,16 @@ INSERT DATA {{
             .where_pattern("?package a ggen:Package")
             .where_triple("?package", Property::PackageName, "?name")
             .where_pattern("?package foaf:maker ?authorNode")
-            .where_pattern(&format!("?authorNode foaf:name \"{}\"", author))
+            .where_pattern(&format!("?authorNode foaf:name \"{author}\""))
             .where_pattern("OPTIONAL { ?package dc:description ?description }")
             .validate()
     }
 
     /// Check for circular dependencies
+    ///
+    /// # Errors
+    ///
+    /// Returns [`PokaYokeError`] if query validation fails
     pub fn detect_circular_dependencies(
         package_id: &str,
     ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
@@ -439,16 +491,20 @@ INSERT DATA {{
             .prefix("ggen", namespaces::GGEN)
             .select(&["?dep1", "?dep2", "?dep3"])
             .where_pattern(&format!(
-                "<{}> ggen:hasVersion/ggen:hasDependency/ggen:dependsOn ?dep1",
-                package_id
+                "<{package_id}> ggen:hasVersion/ggen:hasDependency/ggen:dependsOn ?dep1"
             ))
             .where_pattern("?dep1 ggen:hasVersion/ggen:hasDependency/ggen:dependsOn ?dep2")
             .where_pattern("?dep2 ggen:hasVersion/ggen:hasDependency/ggen:dependsOn ?dep3")
-            .where_pattern(&format!("FILTER (?dep3 = <{}>)", package_id))
+            .where_pattern(&format!("FILTER (?dep3 = <{package_id}>)"))
             .validate()
     }
 
     /// Update package download count
+    ///
+    /// # Errors
+    ///
+    /// This function never returns an error
+    #[must_use]
     pub fn increment_download_count(package_id: &str) -> String {
         format!(
             r"PREFIX ggen: <{}>
@@ -469,6 +525,11 @@ WHERE {{
     }
 
     /// Update package rating
+    ///
+    /// # Errors
+    ///
+    /// This function never returns an error
+    #[must_use]
     pub fn update_package_rating(package_id: &str, new_rating: f64) -> String {
         format!(
             r#"PREFIX ggen: <{}>
@@ -491,6 +552,11 @@ WHERE {{
     }
 
     /// Mark version as deprecated
+    ///
+    /// # Errors
+    ///
+    /// This function never returns an error
+    #[must_use]
     pub fn deprecate_version(package_id: &str, version: &str) -> String {
         format!(
             r#"PREFIX ggen: <{}>
@@ -511,6 +577,11 @@ WHERE {{
     }
 
     /// Yank a version
+    ///
+    /// # Errors
+    ///
+    /// This function never returns an error
+    #[must_use]
     pub fn yank_version(package_id: &str, version: &str) -> String {
         format!(
             r#"PREFIX ggen: <{}>
@@ -531,6 +602,10 @@ WHERE {{
     }
 
     /// Get dependency tree (recursive)
+    ///
+    /// # Errors
+    ///
+    /// Returns [`PokaYokeError`] if query validation fails
     pub fn get_dependency_tree(
         package_id: &str, _version: &str, max_depth: usize,
     ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
@@ -544,7 +619,7 @@ WHERE {{
             .prefix("ggen", namespaces::GGEN)
             .prefix("dc", namespaces::DC)
             .select(&["?dep", "?depName", "?depVersion"])
-            .where_pattern(&format!("<{}> {} ?dep", package_id, depth_path))
+            .where_pattern(&format!("<{package_id}> {depth_path} ?dep"))
             .where_pattern("?dep dc:title ?depName")
             .where_pattern("?dep ggen:hasVersion/ggen:versionNumber ?depVersion")
             .validate()

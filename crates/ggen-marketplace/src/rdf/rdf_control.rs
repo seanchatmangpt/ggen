@@ -43,6 +43,10 @@ pub struct RdfControlPlane {
 
 impl RdfControlPlane {
     /// Initialize the RDF control plane
+    ///
+    /// # Errors
+    ///
+    /// * [`ControlPlaneError::ConfigurationError`] - When loading configuration fails
     pub fn new(config_dir: &str) -> Result<Self, ControlPlaneError> {
         info!("Initializing RDF control plane");
 
@@ -77,8 +81,16 @@ impl RdfControlPlane {
     }
 
     /// Execute a SPARQL query with FMEA protection
+    ///
+    /// # Panics
+    ///
+    /// Panics if the FMEA manager lock is poisoned
+    ///
+    /// # Errors
+    ///
+    /// * [`ControlPlaneError::SecurityViolation`] - When SPARQL injection is detected
     pub fn execute_query(
-        &self, query: SparqlQuery<typestate::Validated>,
+        &self, query: &SparqlQuery<typestate::Validated>,
     ) -> Result<String, ControlPlaneError> {
         let query_string = query.to_string();
 
@@ -99,11 +111,19 @@ impl RdfControlPlane {
     }
 
     /// Search for packages
+    ///
+    /// # Panics
+    ///
+    /// Panics if the query cache lock is poisoned
+    ///
+    /// # Errors
+    ///
+    /// * [`ControlPlaneError::QueryBuildError`] - When query building fails
     pub fn search_packages(
         &self, params: &SearchParams,
     ) -> Result<Vec<PackageSearchResult>, ControlPlaneError> {
         // Check cache first
-        let cache_key = format!("{:?}", params);
+        let cache_key = format!("{params:?}");
         if let Some(cached) = self.query_cache.read().unwrap().get(&cache_key) {
             info!("Returning cached search results");
             return Ok(cached.clone());
@@ -113,7 +133,7 @@ impl RdfControlPlane {
         let query = MarketplaceQueries::search_packages(params)
             .map_err(ControlPlaneError::QueryBuildError)?;
 
-        let _results_str = self.execute_query(query)?;
+        let _results_str = self.execute_query(&query)?;
 
         // Result parsing from RDF query response (implementation pending)
         let results = vec![];
@@ -128,20 +148,27 @@ impl RdfControlPlane {
     }
 
     /// Add a new package to the marketplace
+    ///
+    /// # Panics
+    ///
+    /// Panics if the graph lock is poisoned
+    ///
+    /// # Errors
+    ///
+    /// * [`ControlPlaneError::InvalidResource`] - When package ID is invalid
+    /// * [`ControlPlaneError::GraphOperationError`] - When adding triples fails
     pub fn add_package(
         &self, name: &str, description: &str, _version: &str, _author: &str,
     ) -> Result<ResourceId, ControlPlaneError> {
-        info!("Adding new package: {}", name);
+        info!("Adding new package: {name}");
 
         // Create package resource ID
-        let package_id = ResourceId::new(format!("http://ggen.dev/packages/{}", name))
+        let package_id = ResourceId::new(format!("http://ggen.dev/packages/{name}"))
             .map_err(ControlPlaneError::InvalidResource)?;
 
         // Build triples
-        let mut triples = Vec::new();
-
-        // Package type
-        triples.push(
+        let triples = vec![
+            // Package type
             Triple::builder()
                 .subject(package_id.clone())
                 .predicate(
@@ -149,25 +176,19 @@ impl RdfControlPlane {
                 )
                 .object_resource(ResourceId::from_class(Class::Package))
                 .build(),
-        );
-
-        // Package name
-        triples.push(
+            // Package name
             Triple::builder()
                 .subject(package_id.clone())
                 .predicate_from_property(Property::PackageName)
                 .object_literal(Literal::String(name.to_string()))
                 .build(),
-        );
-
-        // Package description
-        triples.push(
+            // Package description
             Triple::builder()
                 .subject(package_id.clone())
                 .predicate_from_property(Property::PackageDescription)
                 .object_literal(Literal::String(description.to_string()))
                 .build(),
-        );
+        ];
 
         // Add triples to graph
         let mut graph = self.graph.write().unwrap();
@@ -177,15 +198,19 @@ impl RdfControlPlane {
                 .map_err(ControlPlaneError::GraphOperationError)?;
         }
 
-        info!("Package added successfully: {}", name);
+        info!("Package added successfully: {name}");
         Ok(package_id)
     }
 
     /// Validate a package against SHACL constraints
+    ///
+    /// # Errors
+    ///
+    /// This function currently never returns an error
     pub fn validate_package(
         &self, package_id: &ResourceId,
     ) -> Result<ValidationResult, ControlPlaneError> {
-        info!("Validating package: {}", package_id);
+        info!("Validating package: {package_id}");
 
         let violations = Vec::new();
 
@@ -200,13 +225,14 @@ impl RdfControlPlane {
     }
 
     /// Transition package through state machine
+    ///
+    /// # Errors
+    ///
+    /// This function currently never returns an error
     pub fn transition_state(
         &self, package_id: &ResourceId, event: &str,
     ) -> Result<StateTransitionResult, ControlPlaneError> {
-        info!(
-            "Transitioning state for package: {} with event: {}",
-            package_id, event
-        );
+        info!("Transitioning state for package: {package_id} with event: {event}");
 
         // State machine transitions based on state-machines.ttl (implementation pending)
         Ok(StateTransitionResult {
@@ -217,10 +243,14 @@ impl RdfControlPlane {
     }
 
     /// Record installation
+    ///
+    /// # Errors
+    ///
+    /// This function currently never returns an error
     pub fn record_installation(
         &self, package_id: &str, version: &str, path: &str,
     ) -> Result<(), ControlPlaneError> {
-        info!("Recording installation: {} v{}", package_id, version);
+        info!("Recording installation: {package_id} v{version}");
 
         let _insert_query =
             MarketplaceQueries::insert_installation(package_id, version, "installed", path);
@@ -230,6 +260,11 @@ impl RdfControlPlane {
     }
 
     /// Get FMEA metrics
+    ///
+    /// # Panics
+    ///
+    /// Panics if the FMEA manager lock is poisoned
+    #[must_use]
     pub fn get_fmea_metrics(
         &self,
     ) -> HashMap<&'static str, super::fmea_mitigations::FailureMetrics> {
@@ -243,12 +278,18 @@ impl RdfControlPlane {
     }
 
     /// Export graph to Turtle format
+    ///
+    /// # Panics
+    ///
+    /// Panics if the graph lock is poisoned
+    #[must_use]
     pub fn export_to_turtle(&self) -> String {
         let graph = self.graph.read().unwrap();
         graph.to_turtle()
     }
 
     /// Get configuration
+    #[must_use]
     pub fn get_config(&self) -> &MarketplaceConfig {
         &self.config
     }
@@ -265,6 +306,7 @@ impl RdfControlPlane {
         ]
     }
 
+    #[allow(clippy::unused_self)]
     fn detect_injection(&self, query: &str) -> bool {
         // Basic injection detection
         let suspicious_patterns = [
@@ -277,7 +319,7 @@ impl RdfControlPlane {
 
         for pattern in &suspicious_patterns {
             if query.contains(pattern) {
-                warn!("Suspicious pattern detected in query: {}", pattern);
+                warn!("Suspicious pattern detected in query: {pattern}");
                 return true;
             }
         }
@@ -317,16 +359,16 @@ pub enum ControlPlaneError {
 impl std::fmt::Display for ControlPlaneError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::ConfigurationError(e) => write!(f, "Configuration error: {}", e),
-            Self::QueryBuildError(e) => write!(f, "Query build error: {}", e),
-            Self::GraphOperationError(e) => write!(f, "Graph operation error: {}", e),
-            Self::InvalidResource(e) => write!(f, "Invalid resource: {}", e),
-            Self::SecurityViolation { reason } => write!(f, "Security violation: {}", reason),
+            Self::ConfigurationError(e) => write!(f, "Configuration error: {e}"),
+            Self::QueryBuildError(e) => write!(f, "Query build error: {e}"),
+            Self::GraphOperationError(e) => write!(f, "Graph operation error: {e}"),
+            Self::InvalidResource(e) => write!(f, "Invalid resource: {e}"),
+            Self::SecurityViolation { reason } => write!(f, "Security violation: {reason}"),
             Self::ValidationFailure { violations } => {
                 write!(f, "Validation failure: {} violations", violations.len())
             }
             Self::StateTransitionError { reason } => {
-                write!(f, "State transition error: {}", reason)
+                write!(f, "State transition error: {reason}")
             }
         }
     }

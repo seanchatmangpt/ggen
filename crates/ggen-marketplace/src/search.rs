@@ -147,7 +147,6 @@ impl SearchEngine {
     ///
     /// This function currently always returns `Ok`. Future implementations may return:
     /// * [`Error::SearchError`] - When search query parsing fails
-    #[must_use]
     pub fn search(&self, packages: Vec<Package>, query: &SearchQuery) -> Result<Vec<SearchResult>> {
         let text_lower = query.text.to_lowercase();
 
@@ -156,12 +155,12 @@ impl SearchEngine {
             .into_iter()
             .filter_map(|pkg| {
                 // Apply filters first
-                if !self.passes_filters(&pkg, query) {
+                if !Self::passes_filters(&pkg, query) {
                     return None;
                 }
 
                 // Calculate relevance score
-                let relevance = self.calculate_relevance(&pkg, &text_lower);
+                let relevance = Self::calculate_relevance(&pkg, &text_lower);
 
                 if relevance > 0.0 {
                     Some(SearchResult {
@@ -194,7 +193,7 @@ impl SearchEngine {
     }
 
     /// Calculate relevance score for a package
-    fn calculate_relevance(&self, package: &Package, query_text: &str) -> f64 {
+    fn calculate_relevance(package: &Package, query_text: &str) -> f64 {
         let mut score: f64 = 0.0;
 
         let pkg_name_lower = package.metadata.name.to_lowercase();
@@ -237,7 +236,7 @@ impl SearchEngine {
     }
 
     /// Check if package passes all filters
-    fn passes_filters(&self, package: &Package, query: &SearchQuery) -> bool {
+    fn passes_filters(package: &Package, query: &SearchQuery) -> bool {
         // Category filter
         if let Some(ref category) = query.category_filter {
             if !package
@@ -339,16 +338,16 @@ fn levenshtein_distance(s1: &str, s2: &str) -> usize {
     let len2 = s2.len();
     let mut matrix = vec![vec![0; len2 + 1]; len1 + 1];
 
-    for i in 0..=len1 {
-        matrix[i][0] = i;
+    for (i, row) in matrix.iter_mut().enumerate() {
+        row[0] = i;
     }
-    for j in 0..=len2 {
-        matrix[0][j] = j;
+    for (j, val) in matrix[0].iter_mut().enumerate() {
+        *val = j;
     }
 
     for (i, c1) in s1.chars().enumerate() {
         for (j, c2) in s2.chars().enumerate() {
-            let cost = if c1 == c2 { 0 } else { 1 };
+            let cost = usize::from(c1 != c2);
             matrix[i + 1][j + 1] = std::cmp::min(
                 std::cmp::min(matrix[i][j + 1] + 1, matrix[i + 1][j] + 1),
                 matrix[i][j] + cost,

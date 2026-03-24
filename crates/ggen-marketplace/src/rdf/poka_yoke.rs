@@ -15,7 +15,7 @@
 #![allow(clippy::return_self_not_must_use)]
 
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use std::fmt::{self, Write};
 use std::marker::PhantomData;
 
 use super::ontology::{Class, Property, XsdType};
@@ -301,8 +301,10 @@ impl SparqlQuery<typestate::Building> {
         self
     }
 
+    #[must_use]
     pub fn select(mut self, vars: &[&str]) -> Self {
-        self.select_vars.extend(vars.iter().map(|s| s.to_string()));
+        self.select_vars
+            .extend(vars.iter().map(std::string::ToString::to_string));
         self
     }
 
@@ -311,6 +313,7 @@ impl SparqlQuery<typestate::Building> {
         self
     }
 
+    #[must_use]
     pub fn where_triple(mut self, subject: &str, predicate: Property, object: &str) -> Self {
         let pattern = format!("{} <{}> {}", subject, predicate.uri(), object);
         self.where_patterns.push(pattern);
@@ -327,17 +330,24 @@ impl SparqlQuery<typestate::Building> {
         self
     }
 
+    #[must_use]
     pub fn limit(mut self, limit: usize) -> Self {
         self.limit = Some(limit);
         self
     }
 
+    #[must_use]
     pub fn offset(mut self, offset: usize) -> Self {
         self.offset = Some(offset);
         self
     }
 
     /// Validate and transition to Validated state
+    ///
+    /// # Errors
+    ///
+    /// * [`PokaYokeError::MissingSelectVars`] - When no SELECT variables are defined
+    /// * [`PokaYokeError::MissingWhereClause`] - When no WHERE clause is defined
     pub fn validate(self) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         if self.select_vars.is_empty() {
             return Err(PokaYokeError::MissingSelectVars);
@@ -361,12 +371,14 @@ impl SparqlQuery<typestate::Building> {
 
 impl SparqlQuery<typestate::Validated> {
     /// Generate SPARQL query string (only possible with validated query)
+    #[must_use]
+    #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         let mut query = String::new();
 
         // Prefixes
         for (prefix, uri) in &self.prefixes {
-            query.push_str(&format!("PREFIX {}: <{}>\n", prefix, uri));
+            let _ = writeln!(query, "PREFIX {prefix}: <{uri}>");
         }
 
         // SELECT
@@ -377,12 +389,12 @@ impl SparqlQuery<typestate::Validated> {
         // WHERE
         query.push_str("WHERE {\n");
         for pattern in &self.where_patterns {
-            query.push_str(&format!("  {} .\n", pattern));
+            let _ = writeln!(query, "  {pattern} .");
         }
 
         // FILTER
         for filter in &self.filters {
-            query.push_str(&format!("  FILTER ({}) .\n", filter));
+            let _ = writeln!(query, "  FILTER ({filter}) .");
         }
 
         query.push_str("}\n");
@@ -396,12 +408,12 @@ impl SparqlQuery<typestate::Validated> {
 
         // LIMIT
         if let Some(limit) = self.limit {
-            query.push_str(&format!("LIMIT {}\n", limit));
+            let _ = writeln!(query, "LIMIT {limit}");
         }
 
         // OFFSET
         if let Some(offset) = self.offset {
-            query.push_str(&format!("OFFSET {}\n", offset));
+            let _ = writeln!(query, "OFFSET {offset}");
         }
 
         query
@@ -416,6 +428,7 @@ pub struct RdfGraph {
 }
 
 impl RdfGraph {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             triples: Vec::new(),
@@ -423,6 +436,7 @@ impl RdfGraph {
         }
     }
 
+    #[must_use]
     pub fn with_name(named_graph: ResourceId) -> Self {
         Self {
             triples: Vec::new(),
@@ -431,6 +445,10 @@ impl RdfGraph {
     }
 
     /// Add triple with validation
+    ///
+    /// # Errors
+    ///
+    /// This function currently never returns an error
     pub fn add_triple(&mut self, triple: Triple) -> Result<(), PokaYokeError> {
         // Could add additional validation here
         self.triples.push(triple);
@@ -438,6 +456,10 @@ impl RdfGraph {
     }
 
     /// Add multiple triples atomically
+    ///
+    /// # Errors
+    ///
+    /// This function currently never returns an error
     pub fn add_triples(&mut self, triples: Vec<Triple>) -> Result<(), PokaYokeError> {
         // Validate all before adding any
         for triple in &triples {
@@ -448,11 +470,12 @@ impl RdfGraph {
         Ok(())
     }
 
+    #[must_use]
     pub fn to_turtle(&self) -> String {
         let mut ttl = String::new();
 
         if let Some(graph) = &self.named_graph {
-            ttl.push_str(&format!("GRAPH {} {{\n", graph));
+            let _ = writeln!(ttl, "GRAPH {graph} {{");
         }
 
         for triple in &self.triples {
@@ -468,10 +491,12 @@ impl RdfGraph {
         ttl
     }
 
+    #[must_use]
     pub fn len(&self) -> usize {
         self.triples.len()
     }
 
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.triples.is_empty()
     }
@@ -503,6 +528,7 @@ pub enum ConstraintType {
 }
 
 impl ValidationConstraint {
+    #[must_use]
     pub fn required(target_class: Class, property: Property) -> Self {
         Self {
             target_class,
@@ -511,6 +537,7 @@ impl ValidationConstraint {
         }
     }
 
+    #[must_use]
     pub fn min_count(target_class: Class, property: Property, count: usize) -> Self {
         Self {
             target_class,
@@ -519,6 +546,7 @@ impl ValidationConstraint {
         }
     }
 
+    #[must_use]
     pub fn datatype(target_class: Class, property: Property, xsd_type: XsdType) -> Self {
         Self {
             target_class,
@@ -527,6 +555,7 @@ impl ValidationConstraint {
         }
     }
 
+    #[must_use]
     pub fn pattern(target_class: Class, property: Property, regex: String) -> Self {
         Self {
             target_class,
@@ -535,6 +564,7 @@ impl ValidationConstraint {
         }
     }
 
+    #[must_use]
     pub fn to_shacl(&self) -> String {
         format!(
             r"[] a sh:PropertyShape ;
@@ -547,15 +577,16 @@ impl ValidationConstraint {
         )
     }
 
+    #[must_use]
     fn constraint_turtle(&self) -> String {
         match &self.constraint_type {
             ConstraintType::Required => "sh:minCount 1".to_string(),
-            ConstraintType::MinCount(n) => format!("sh:minCount {}", n),
-            ConstraintType::MaxCount(n) => format!("sh:maxCount {}", n),
+            ConstraintType::MinCount(n) => format!("sh:minCount {n}"),
+            ConstraintType::MaxCount(n) => format!("sh:maxCount {n}"),
             ConstraintType::Datatype(dt) => format!("sh:datatype <{}>", dt.uri()),
-            ConstraintType::Pattern(p) => format!("sh:pattern \"{}\"", p),
-            ConstraintType::MinValue(v) => format!("sh:minInclusive {}", v),
-            ConstraintType::MaxValue(v) => format!("sh:maxInclusive {}", v),
+            ConstraintType::Pattern(p) => format!("sh:pattern \"{p}\""),
+            ConstraintType::MinValue(v) => format!("sh:minInclusive {v}"),
+            ConstraintType::MaxValue(v) => format!("sh:maxInclusive {v}"),
         }
     }
 }
@@ -578,25 +609,21 @@ pub enum PokaYokeError {
 impl fmt::Display for PokaYokeError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::InvalidUri(uri) => write!(f, "Invalid URI: {}", uri),
+            Self::InvalidUri(uri) => write!(f, "Invalid URI: {uri}"),
             Self::MissingSubject => write!(f, "Triple missing subject"),
             Self::MissingPredicate => write!(f, "Triple missing predicate"),
             Self::MissingObject => write!(f, "Triple missing object"),
             Self::MissingSelectVars => write!(f, "SPARQL query missing SELECT variables"),
             Self::MissingWhereClause => write!(f, "SPARQL query missing WHERE clause"),
             Self::InvalidDatatype { expected, got } => {
-                write!(f, "Expected datatype {:?}, got {}", expected, got)
+                write!(f, "Expected datatype {expected:?}, got {got}")
             }
             Self::ConstraintViolation { constraint, value } => {
-                write!(
-                    f,
-                    "Constraint '{}' violated by value '{}'",
-                    constraint, value
-                )
+                write!(f, "Constraint '{constraint}' violated by value '{value}'")
             }
-            Self::OrphanedResource(id) => write!(f, "Orphaned resource: {}", id),
+            Self::OrphanedResource(id) => write!(f, "Orphaned resource: {id}"),
             Self::CircularDependency { resources } => {
-                write!(f, "Circular dependency detected: {:?}", resources)
+                write!(f, "Circular dependency detected: {resources:?}")
             }
         }
     }

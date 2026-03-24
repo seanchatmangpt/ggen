@@ -57,6 +57,11 @@ pub enum CheckSeverity {
 #[async_trait]
 pub trait Validator: Send + Sync {
     /// Run validation
+    ///
+    /// # Errors
+    ///
+    /// Implementations may return:
+    /// * [`Error::ValidationFailed`] - When validation fails
     async fn validate(&self, package: &Package) -> Result<ValidationCheck>;
 
     /// Get validator name
@@ -100,7 +105,6 @@ impl PackageValidator {
     /// # Errors
     ///
     /// * [`Error::ValidationFailed`] - When any validator fails with a critical error
-    #[must_use]
     pub async fn validate_all(&self, package: &Package) -> Result<ValidationResult> {
         let mut checks = Vec::new();
         let mut total_weight = 0;
@@ -212,6 +216,7 @@ impl Validator for MetadataValidator {
         })
     }
 
+    #[allow(clippy::unnecessary_literal_bound)]
     fn name(&self) -> &str {
         "MetadataValidator"
     }
@@ -241,11 +246,12 @@ impl Validator for LicenseValidator {
             } else {
                 CheckSeverity::Critical
             },
-            message: format!("License: {}", package.metadata.license),
+            message: format!("License: {license}", license = package.metadata.license),
             weight: 25,
         })
     }
 
+    #[allow(clippy::unnecessary_literal_bound)]
     fn name(&self) -> &str {
         "LicenseValidator"
     }
@@ -277,6 +283,7 @@ impl Validator for ReadmeValidator {
         })
     }
 
+    #[allow(clippy::unnecessary_literal_bound)]
     fn name(&self) -> &str {
         "ReadmeValidator"
     }
@@ -307,6 +314,7 @@ impl Validator for RepositoryValidator {
         })
     }
 
+    #[allow(clippy::unnecessary_literal_bound)]
     fn name(&self) -> &str {
         "RepositoryValidator"
     }
@@ -329,7 +337,8 @@ impl Validator for AuthorValidator {
             passed: has_authors,
             severity: CheckSeverity::Minor,
             message: if has_authors {
-                format!("Authors: {}", package.metadata.authors.join(", "))
+                let authors = package.metadata.authors.join(", ");
+                format!("Authors: {authors}")
             } else {
                 "No authors specified".to_string()
             },
@@ -337,6 +346,7 @@ impl Validator for AuthorValidator {
         })
     }
 
+    #[allow(clippy::unnecessary_literal_bound)]
     fn name(&self) -> &str {
         "AuthorValidator"
     }

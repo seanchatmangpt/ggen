@@ -3,6 +3,8 @@
 //! Provides utilities for migrating package data from the v1 in-memory
 //! registry to the v2 RDF-backed semantic store.
 
+#![allow(clippy::missing_errors_doc)]
+
 use crate::error::Result;
 use crate::models::{Package, PackageId};
 use crate::registry_rdf::RdfRegistry;
@@ -31,7 +33,7 @@ impl MigrationCoordinator {
     ///
     /// * [`Error::RdfStoreError`] - When batch insertion fails for any package batch
     /// * [`Error::RegistryError`] - When the target registry is unavailable
-    pub async fn migrate_packages(&self, v1_packages: Vec<Package>) -> Result<MigrationReport> {
+    pub fn migrate_packages(&self, v1_packages: &[Package]) -> Result<MigrationReport> {
         info!(
             "Starting migration of {} packages from v1 to RDF",
             v1_packages.len()
@@ -43,7 +45,7 @@ impl MigrationCoordinator {
         // Batch insert for efficiency
         let batch_size = 50;
         for chunk in v1_packages.chunks(batch_size) {
-            match self.target.batch_insert_packages(chunk.to_vec()).await {
+            match self.target.batch_insert_packages(chunk.to_vec()) {
                 Ok(inserted) => {
                     report.migrated_packages += inserted;
                 }
@@ -70,14 +72,14 @@ impl MigrationCoordinator {
     ///
     /// * [`Error::PackageNotFound`] - When a v1 package does not exist in the v2 registry
     /// * [`Error::RdfStoreError`] - When querying the RDF store fails
-    pub async fn verify_migration(&self, v1_packages: Vec<Package>) -> Result<VerificationReport> {
+    pub async fn verify_migration(&self, v1_packages: &[Package]) -> Result<VerificationReport> {
         info!("Verifying migration of {} packages", v1_packages.len());
 
         let mut report = VerificationReport::new();
         report.total_packages = v1_packages.len();
 
         for v1_package in v1_packages {
-            match self.verify_package(&v1_package).await {
+            match self.verify_package(v1_package).await {
                 Ok(true) => {
                     report.verified_packages += 1;
                 }
@@ -135,7 +137,7 @@ impl MigrationCoordinator {
     ///
     /// * [`Error::RdfStoreError`] - When inserting a package into the RDF store fails
     /// * [`Error::RegistryError`] - When checking package existence fails
-    pub async fn incremental_migrate(&self, v1_packages: Vec<Package>) -> Result<MigrationReport> {
+    pub async fn incremental_migrate(&self, v1_packages: &[Package]) -> Result<MigrationReport> {
         info!("Starting incremental migration");
 
         let mut report = MigrationReport::new();
@@ -150,7 +152,7 @@ impl MigrationCoordinator {
                 }
                 Ok(false) | Err(_) => {
                     // Migrate new package
-                    match self.target.insert_package_rdf(&package).await {
+                    match self.target.insert_package_rdf(package) {
                         Ok(()) => {
                             report.migrated_packages += 1;
                         }
@@ -343,13 +345,13 @@ impl ConsistencyChecker {
     ///
     /// * [`Error::PackageNotFound`] - When a package does not exist in the v2 registry
     /// * [`Error::RdfStoreError`] - When querying the RDF store fails
-    pub async fn periodic_check(&self, v1_packages: Vec<Package>) -> Result<ConsistencyReport> {
+    pub async fn periodic_check(&self, v1_packages: &[Package]) -> Result<ConsistencyReport> {
         let mut report = ConsistencyReport::new();
         report.total_packages = v1_packages.len();
 
         for v1_package in v1_packages {
             match self
-                .check_package_consistency(&v1_package.metadata.id, &v1_package)
+                .check_package_consistency(&v1_package.metadata.id, v1_package)
                 .await
             {
                 Ok(result) => {
@@ -451,8 +453,8 @@ impl std::fmt::Display for ConsistencyReport {
 mod tests {
     use super::*;
 
-    #[tokio::test]
-    async fn test_migration_report() {
+    #[test]
+    fn test_migration_report() {
         let report = MigrationReport {
             total_packages: 100,
             migrated_packages: 95,
