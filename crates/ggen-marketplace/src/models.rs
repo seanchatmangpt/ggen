@@ -175,12 +175,11 @@ impl RepositoryUrl {
 pub struct PackageId(String);
 
 impl PackageId {
-    /// Create a new validated PackageId
+    /// Create a new validated `PackageId`
     ///
     /// # Errors
     ///
     /// * [`Error::InvalidPackageId`] - When the ID is empty, too long, contains invalid characters, or starts/ends with hyphen
-    #[must_use]
     pub fn new(s: impl Into<String>) -> Result<Self> {
         let s = s.into().to_lowercase();
 
@@ -257,7 +256,6 @@ impl PackageVersion {
     /// # Errors
     ///
     /// * [`Error::InvalidVersion`] - When the version is empty or does not follow semantic versioning (MAJOR.MINOR.PATCH)
-    #[must_use]
     pub fn new(v: impl Into<String>) -> Result<Self> {
         let v = v.into();
 
@@ -279,14 +277,16 @@ impl PackageVersion {
         }
 
         // Validate major, minor, patch are numbers
-        if !parts[0].parse::<u32>().is_ok()
-            || !parts[1].parse::<u32>().is_ok()
-            || !parts[2]
-                .split(|c: char| c == '-' || c == '+')
-                .next()
-                .unwrap_or("")
-                .parse::<u32>()
-                .is_ok()
+        let patch_numeric = parts[2]
+            .split(|c: char| c == '-' || c == '+')
+            .next()
+            .unwrap_or("")
+            .parse::<u32>()
+            .is_ok();
+
+        if ![parts[0].parse::<u32>().is_ok(), parts[1].parse::<u32>().is_ok(), patch_numeric]
+            .into_iter()
+            .all(|b| b)
         {
             return Err(Error::invalid_version(
                 &v,
