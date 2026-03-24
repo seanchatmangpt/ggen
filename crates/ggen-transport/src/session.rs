@@ -229,7 +229,10 @@ mod tests {
         let session = manager.create_session().await;
         let cursor = ResumeCursor::new(session.id.clone(), 42);
 
-        manager.set_cursor(&session.id, cursor.clone()).await.unwrap();
+        manager
+            .set_cursor(&session.id, cursor.clone())
+            .await
+            .unwrap();
         let retrieved = manager.get_cursor(&session.id).await.unwrap();
 
         assert!(retrieved.is_some());

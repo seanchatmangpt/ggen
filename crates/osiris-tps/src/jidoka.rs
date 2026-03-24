@@ -8,7 +8,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, error, info, warn};
 
-use crate::signals::{TPSSignal, TPSLevel};
+use crate::signals::{TPSLevel, TPSSignal};
 
 /// Jidoka action types
 #[derive(Debug, Clone, PartialEq)]
@@ -111,7 +111,8 @@ impl JidokaController {
                 for (_, stop) in stops.iter_mut() {
                     // Check if stop has been resolved
                     if let Some(resolution_time) = stop.resolution_time {
-                        let duration = resolution_time.timestamp_millis() - stop.timestamp.timestamp_millis();
+                        let duration =
+                            resolution_time.timestamp_millis() - stop.timestamp.timestamp_millis();
                         history.push(StopHistory {
                             stop_id: stop.stop_id.clone(),
                             stop_type: stop.stop_type.clone(),
@@ -132,7 +133,9 @@ impl JidokaController {
     }
 
     /// Handle a critical signal
-    pub async fn handle_critical_signal(&self, signal: TPSSignal) -> Result<Value, Box<dyn std::error::Error>> {
+    pub async fn handle_critical_signal(
+        &self, signal: TPSSignal,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
         debug!("Handling critical signal with Jidoka: {}", signal.message);
 
         // Determine action based on signal type
@@ -169,10 +172,13 @@ impl JidokaController {
     }
 
     /// Determine the appropriate Jidoka action
-    async fn determine_action(&self, signal_type: &str) -> Result<JidokaAction, Box<dyn std::error::Error>> {
+    async fn determine_action(
+        &self, signal_type: &str,
+    ) -> Result<JidokaAction, Box<dyn std::error::Error>> {
         let rules = self.action_rules.read().await;
 
-        rules.get(signal_type)
+        rules
+            .get(signal_type)
             .cloned()
             .ok_or_else(|| format!("No action rule for signal type: {}", signal_type).into())
     }
@@ -288,7 +294,9 @@ impl JidokaController {
     }
 
     /// Resume the line
-    pub async fn resume_line(&self, stop_id: &str, resolution: String) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn resume_line(
+        &self, stop_id: &str, resolution: String,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         info!("Resuming line for stop: {}", stop_id);
 
         let mut stops = self.active_stops.write().await;
@@ -304,7 +312,9 @@ impl JidokaController {
                 reason: stop.reason.clone(),
                 severity: stop.severity.clone(),
                 timestamp: stop.timestamp,
-                duration_ms: stop.resolution_time.map(|rt| rt.timestamp_millis() - stop.timestamp.timestamp_millis()),
+                duration_ms: stop
+                    .resolution_time
+                    .map(|rt| rt.timestamp_millis() - stop.timestamp.timestamp_millis()),
                 resolved: true,
                 resolution: Some(resolution),
             });
@@ -340,8 +350,14 @@ impl JidokaController {
         let is_monitoring = *self.monitoring_active.read().await;
 
         let active_stops = stops.len();
-        let critical_stops = stops.values().filter(|s| s.severity == TPSLevel::Critical).count();
-        let warning_stops = stops.values().filter(|s| s.severity == TPSLevel::Warning).count();
+        let critical_stops = stops
+            .values()
+            .filter(|s| s.severity == TPSLevel::Critical)
+            .count();
+        let warning_stops = stops
+            .values()
+            .filter(|s| s.severity == TPSLevel::Warning)
+            .count();
 
         let total_stops = history.len();
         let resolved_stops = history.iter().filter(|h| h.resolved).count();
@@ -369,29 +385,26 @@ impl JidokaController {
     }
 
     /// Implement a Jidoka principle
-    pub async fn implement_principle(&self, parameters: Value) -> Result<Value, Box<dyn std::error::Error>> {
-        let principle = parameters.get("principle")
+    pub async fn implement_principle(
+        &self, parameters: Value,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
+        let principle = parameters
+            .get("principle")
             .and_then(|v| v.as_str())
             .ok_or_else(|| "Principle not specified")?;
 
         match principle {
-            "autonomation" => {
-                self.implement_autonomation(parameters).await
-            }
-            "quality_first" => {
-                self.implement_quality_first(parameters).await
-            }
-            "human_automation" => {
-                self.implement_human_automation(parameters).await
-            }
-            _ => {
-                Err(format!("Unknown Jidoka principle: {}", principle).into())
-            }
+            "autonomation" => self.implement_autonomation(parameters).await,
+            "quality_first" => self.implement_quality_first(parameters).await,
+            "human_automation" => self.implement_human_automation(parameters).await,
+            _ => Err(format!("Unknown Jidoka principle: {}", principle).into()),
         }
     }
 
     /// Implement autonomation principle
-    async fn implement_autonomation(&self, _parameters: Value) -> Result<Value, Box<dyn std::error::Error>> {
+    async fn implement_autonomation(
+        &self, _parameters: Value,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
         info!("Implementing autonomation principle");
 
         // Set monitoring active
@@ -406,7 +419,9 @@ impl JidokaController {
     }
 
     /// Implement quality first principle
-    async fn implement_quality_first(&self, _parameters: Value) -> Result<Value, Box<dyn std::error::Error>> {
+    async fn implement_quality_first(
+        &self, _parameters: Value,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
         info!("Implementing quality first principle");
 
         // Update action rules to prioritize quality
@@ -421,7 +436,9 @@ impl JidokaController {
     }
 
     /// Implement human automation principle
-    async fn implement_human_automation(&self, _parameters: Value) -> Result<Value, Box<dyn std::error::Error>> {
+    async fn implement_human_automation(
+        &self, _parameters: Value,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
         info!("Implementing human automation principle");
 
         // Ensure human intervention is required for critical issues
@@ -498,7 +515,9 @@ mod tests {
 
         // For testing, we'll create a stop first
         let stop_id = "stop_test_123";
-        controller.resume_line(stop_id, "Test resolution".to_string()).await;
+        controller
+            .resume_line(stop_id, "Test resolution".to_string())
+            .await;
         // This will fail as we don't have a real stop, but the test structure is there
     }
 

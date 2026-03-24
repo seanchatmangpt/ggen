@@ -2,10 +2,10 @@
 //!
 //! Tests the complete OSIRIS architecture end-to-end.
 
-use ggen_osiris::{Osiris, OsirisConfig};
-use ggen_osiris::admission::AdmissionPolicy;
-use ggen_osiris::routing::{Router, RequestHandler};
 use async_trait::async_trait;
+use ggen_osiris::admission::AdmissionPolicy;
+use ggen_osiris::routing::{RequestHandler, Router};
+use ggen_osiris::{Osiris, OsirisConfig};
 use std::time::Duration;
 use tokio::time::sleep;
 

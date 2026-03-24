@@ -1,7 +1,7 @@
 //! Multiple Instance Patterns (12-15)
 
+use crate::{ActivityId, ExecutionResult, Result, WorkflowEngine, WorkflowError, WorkflowPattern};
 use async_trait::async_trait;
-use crate::{ActivityId, Result, WorkflowEngine, WorkflowError, WorkflowPattern, ExecutionResult};
 
 /// Pattern 12: Multiple Instances without Synchronization
 /// Multiple instances of an activity are created, each executing independently
@@ -35,7 +35,8 @@ impl WorkflowPattern for MultipleInstancesWithoutSyncPattern {
         let mut instances = Vec::new();
 
         for i in 0..self.instance_count {
-            let instance_id = ActivityId::new(format!("{}-instance-{}", self.template_activity.0, i));
+            let instance_id =
+                ActivityId::new(format!("{}-instance-{}", self.template_activity.0, i));
             instances.push(instance_id.clone());
 
             let handle = tokio::spawn(async move {
@@ -91,7 +92,8 @@ impl WorkflowPattern for MultipleInstancesDesignTimePattern {
         let mut instances = Vec::new();
 
         for i in 0..self.instance_count {
-            let instance_id = ActivityId::new(format!("{}-instance-{}", self.template_activity.0, i));
+            let instance_id =
+                ActivityId::new(format!("{}-instance-{}", self.template_activity.0, i));
             instances.push(instance_id.clone());
 
             let handle = tokio::spawn(async move {
@@ -104,7 +106,8 @@ impl WorkflowPattern for MultipleInstancesDesignTimePattern {
 
         // Wait for all instances to complete
         for handle in handles {
-            handle.await
+            handle
+                .await
                 .map_err(|e| WorkflowError::MultipleInstanceError(e.to_string()))??;
         }
 
@@ -145,15 +148,20 @@ impl WorkflowPattern for MultipleInstancesRuntimePattern {
         engine.execute_activity(&self.count_source_activity).await?;
 
         let context = engine.get_context(&self.count_source_activity)?;
-        let instance_count = context.output_data.get("instance_count")
+        let instance_count = context
+            .output_data
+            .get("instance_count")
             .and_then(|v| v.as_u64())
-            .ok_or_else(|| WorkflowError::MultipleInstanceError("No instance_count in output".to_string()))? as usize;
+            .ok_or_else(|| {
+                WorkflowError::MultipleInstanceError("No instance_count in output".to_string())
+            })? as usize;
 
         let mut handles = Vec::new();
         let mut instances = vec![self.count_source_activity.clone()];
 
         for i in 0..instance_count {
-            let instance_id = ActivityId::new(format!("{}-instance-{}", self.template_activity.0, i));
+            let instance_id =
+                ActivityId::new(format!("{}-instance-{}", self.template_activity.0, i));
             instances.push(instance_id.clone());
 
             let handle = tokio::spawn(async move {
@@ -165,7 +173,8 @@ impl WorkflowPattern for MultipleInstancesRuntimePattern {
         }
 
         for handle in handles {
-            handle.await
+            handle
+                .await
                 .map_err(|e| WorkflowError::MultipleInstanceError(e.to_string()))??;
         }
 
@@ -219,7 +228,8 @@ impl WorkflowPattern for MultipleInstancesDynamicPattern {
             while *controller_running.lock().await {
                 tokio::time::sleep(tokio::time::Duration::from_millis(20)).await;
 
-                let instance_id = ActivityId::new(format!("{}-dynamic-{}", template_activity.0, count));
+                let instance_id =
+                    ActivityId::new(format!("{}-dynamic-{}", template_activity.0, count));
                 controller_instances.lock().await.push(instance_id);
                 count += 1;
 
@@ -230,7 +240,8 @@ impl WorkflowPattern for MultipleInstancesDynamicPattern {
             Ok::<_, WorkflowError>(())
         });
 
-        controller_handle.await
+        controller_handle
+            .await
             .map_err(|e| WorkflowError::MultipleInstanceError(e.to_string()))??;
 
         let final_instances = instances.lock().await.clone();
@@ -265,7 +276,9 @@ mod tests {
         let mut engine = WorkflowEngine::new();
         let template = ActivityId::new("template");
 
-        engine.register_activity(Box::new(TestActivity { id: template.clone() }));
+        engine.register_activity(Box::new(TestActivity {
+            id: template.clone(),
+        }));
 
         let pattern = MultipleInstancesWithoutSyncPattern::new(template, 3);
         let result = pattern.execute(&mut engine).await;
@@ -278,7 +291,9 @@ mod tests {
         let mut engine = WorkflowEngine::new();
         let template = ActivityId::new("template");
 
-        engine.register_activity(Box::new(TestActivity { id: template.clone() }));
+        engine.register_activity(Box::new(TestActivity {
+            id: template.clone(),
+        }));
 
         let pattern = MultipleInstancesDesignTimePattern::new(template, 3);
         let result = pattern.execute(&mut engine).await;
@@ -292,8 +307,12 @@ mod tests {
         let template = ActivityId::new("template");
         let count_source = ActivityId::new("count-source");
 
-        engine.register_activity(Box::new(TestActivity { id: template.clone() }));
-        engine.register_activity(Box::new(TestActivity { id: count_source.clone() }));
+        engine.register_activity(Box::new(TestActivity {
+            id: template.clone(),
+        }));
+        engine.register_activity(Box::new(TestActivity {
+            id: count_source.clone(),
+        }));
 
         // Set instance count
         if let Ok(context) = engine.get_context_mut(&count_source) {

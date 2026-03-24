@@ -43,9 +43,7 @@ impl Receipt {
     /// A new `Receipt` instance ready to be signed.
     #[must_use]
     pub fn new(
-        operation_id: String,
-        input_hashes: Vec<String>,
-        output_hashes: Vec<String>,
+        operation_id: String, input_hashes: Vec<String>, output_hashes: Vec<String>,
         previous_receipt_hash: Option<String>,
     ) -> Self {
         Self {
@@ -95,11 +93,11 @@ impl Receipt {
     pub fn verify(&self, verifying_key: &VerifyingKey) -> Result<()> {
         let message = self.signing_message()?;
 
-        let signature_bytes = hex::decode(&self.signature)
-            .map_err(|_| ReceiptError::InvalidSignature)?;
+        let signature_bytes =
+            hex::decode(&self.signature).map_err(|_| ReceiptError::InvalidSignature)?;
 
-        let signature = Signature::from_slice(&signature_bytes)
-            .map_err(|_| ReceiptError::InvalidSignature)?;
+        let signature =
+            Signature::from_slice(&signature_bytes).map_err(|_| ReceiptError::InvalidSignature)?;
 
         verifying_key
             .verify(&message, &signature)

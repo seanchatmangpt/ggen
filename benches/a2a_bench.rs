@@ -208,43 +208,32 @@ fn bench_batch_state_transitions(c: &mut Criterion) {
 
     for count in [10, 100, 1000].iter() {
         group.throughput(Throughput::Elements(*count));
-        group.bench_with_input(
-            BenchmarkId::from_parameter(count),
-            count,
-            |b, &count| {
-                b.iter(|| {
-                    for i in 0..count {
-                        let mut task = Task::new(
-                            format!("Task {}", i),
-                            format!("agent-{}", i),
-                        )
+        group.bench_with_input(BenchmarkId::from_parameter(count), count, |b, &count| {
+            b.iter(|| {
+                for i in 0..count {
+                    let mut task = Task::new(format!("Task {}", i), format!("agent-{}", i))
                         .with_assignment(format!("agent-{}", i));
 
-                        let transition = StateTransition::new(
-                            TaskState::Running,
-                            format!("agent-{}", i),
-                        );
-                        TaskStateMachine::transition(&mut task, transition).unwrap();
+                    let transition =
+                        StateTransition::new(TaskState::Running, format!("agent-{}", i));
+                    TaskStateMachine::transition(&mut task, transition).unwrap();
 
-                        let transition = StateTransition::new(
-                            TaskState::Completed,
-                            format!("agent-{}", i),
-                        );
-                        TaskStateMachine::transition(&mut task, transition).unwrap();
+                    let transition =
+                        StateTransition::new(TaskState::Completed, format!("agent-{}", i));
+                    TaskStateMachine::transition(&mut task, transition).unwrap();
 
-                        black_box(task);
-                    }
-                });
-            },
-        );
+                    black_box(task);
+                }
+            });
+        });
     }
 
     group.finish();
 }
 
 fn bench_task_duration_calculation(c: &mut Criterion) {
-    let mut task = Task::new("Test".to_string(), "agent-1".to_string())
-        .with_assignment("agent-1".to_string());
+    let mut task =
+        Task::new("Test".to_string(), "agent-1".to_string()).with_assignment("agent-1".to_string());
 
     // Complete the task
     let transition = StateTransition::new(TaskState::Running, "agent-1".to_string());

@@ -172,10 +172,7 @@ impl A2aCommands {
     }
 
     async fn create_task(
-        title: String,
-        description: Option<String>,
-        agent: String,
-        assign_to: Option<String>,
+        title: String, description: Option<String>, agent: String, assign_to: Option<String>,
         output: PathBuf,
     ) -> Result<()> {
         let task_id = format!("task-{}", chrono::Utc::now().timestamp());
@@ -207,9 +204,7 @@ impl A2aCommands {
     }
 
     async fn transition_state(
-        task_path: PathBuf,
-        state: TaskStateArg,
-        reason: Option<String>,
+        task_path: PathBuf, state: TaskStateArg, reason: Option<String>,
     ) -> Result<()> {
         let content = tokio::fs::read_to_string(&task_path).await?;
         let mut task: Task = serde_json::from_str(&content)?;
@@ -296,9 +291,7 @@ impl A2aCommands {
     }
 
     async fn list_tasks(
-        directory: PathBuf,
-        state_filter: Option<TaskStateArg>,
-        format: OutputFormat,
+        directory: PathBuf, state_filter: Option<TaskStateArg>, format: OutputFormat,
     ) -> Result<()> {
         let mut tasks = Vec::new();
 
@@ -394,10 +387,7 @@ impl A2aCommands {
     }
 
     async fn add_artifact(
-        task_path: PathBuf,
-        name: String,
-        content_path: PathBuf,
-        artifact_type: ArtifactTypeArg,
+        task_path: PathBuf, name: String, content_path: PathBuf, artifact_type: ArtifactTypeArg,
     ) -> Result<()> {
         let task_content = tokio::fs::read_to_string(&task_path).await?;
         let mut task: Task = serde_json::from_str(&task_content)?;

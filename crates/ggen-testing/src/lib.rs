@@ -33,11 +33,11 @@ pub mod fixtures;
 pub mod property;
 pub mod snapshot;
 
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
 use std::future::Future;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use anyhow::Result;
-use serde::{Deserialize, Serialize};
 
 /// Type alias for test results
 pub type TestResult<T> = Result<T>;
@@ -133,7 +133,8 @@ impl TestHarness {
     /// Panics if the metadata lock is poisoned
     #[must_use]
     pub fn metadata(&self) -> Vec<TestMetadata> {
-        self.metadata.lock()
+        self.metadata
+            .lock()
             .map(|guard| guard.clone())
             .unwrap_or_default()
     }
@@ -229,7 +230,9 @@ impl<T: Clone> StateVerifier<T> {
     /// Get state diff (returns tuple of before and after)
     #[must_use]
     pub fn diff(&self) -> Option<(T, T)> {
-        self.after.as_ref().map(|a| (self.before.clone(), a.clone()))
+        self.after
+            .as_ref()
+            .map(|a| (self.before.clone(), a.clone()))
     }
 }
 

@@ -67,9 +67,8 @@ impl RustCanonicalizer {
             .map_err(|e| CanonicalError::Format(format!("Failed to run rustfmt: {}", e)))?;
 
         if output.status.success() {
-            String::from_utf8(output.stdout).map_err(|e| {
-                CanonicalError::Format(format!("Invalid UTF-8 from rustfmt: {}", e))
-            })
+            String::from_utf8(output.stdout)
+                .map_err(|e| CanonicalError::Format(format!("Invalid UTF-8 from rustfmt: {}", e)))
         } else {
             let stderr = String::from_utf8_lossy(&output.stderr);
             Err(CanonicalError::Format(format!(

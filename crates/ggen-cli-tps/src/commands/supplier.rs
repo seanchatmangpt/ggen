@@ -148,11 +148,7 @@ impl SupplierCommands {
                 min_quality,
                 format,
             } => Self::list_suppliers(min_quality, format).await,
-            Self::Deliver {
-                id,
-                success,
-                notes,
-            } => Self::record_delivery(id, success, notes).await,
+            Self::Deliver { id, success, notes } => Self::record_delivery(id, success, notes).await,
         }
     }
 
@@ -359,8 +355,8 @@ impl SupplierCommands {
             supplier.last_update = chrono::Utc::now().to_rfc3339();
 
             let quality_adjustment = if success { 1 } else { -5 };
-            supplier.quality_score = (supplier.quality_score as i16 + quality_adjustment)
-                .clamp(0, 100) as u8;
+            supplier.quality_score =
+                (supplier.quality_score as i16 + quality_adjustment).clamp(0, 100) as u8;
 
             supplier.status = if supplier.quality_score < 50 {
                 SupplierStatus::Suspended

@@ -2,15 +2,18 @@
 
 use ed25519_dalek::{Signer, SigningKey, VerifyingKey};
 use ggen_consensus::{
-    ConsensusMessage, ConsensusProtocol, PbftConfig, PbftConsensus, QuorumCalculator,
-    QuorumConfig, ReplicaId, Vote, VoteCollector, VoteType,
+    ConsensusMessage, ConsensusProtocol, PbftConfig, PbftConsensus, QuorumCalculator, QuorumConfig,
+    ReplicaId, Vote, VoteCollector, VoteType,
 };
 use std::collections::HashMap;
 
 fn create_pbft_setup(
-    replica_id: ReplicaId,
-    total: usize,
-) -> (PbftConsensus, Vec<SigningKey>, HashMap<ReplicaId, VerifyingKey>) {
+    replica_id: ReplicaId, total: usize,
+) -> (
+    PbftConsensus,
+    Vec<SigningKey>,
+    HashMap<ReplicaId, VerifyingKey>,
+) {
     let mut signing_keys = Vec::new();
     let mut public_keys = HashMap::new();
 
@@ -153,7 +156,8 @@ fn test_byzantine_replica_conflicting_digests() {
     let digest1 = [1u8; 32];
     let digest2 = [2u8; 32];
 
-    let mut collector1 = VoteCollector::new(view, sequence, digest1, quorum.clone(), public_keys.clone());
+    let mut collector1 =
+        VoteCollector::new(view, sequence, digest1, quorum.clone(), public_keys.clone());
     let mut collector2 = VoteCollector::new(view, sequence, digest2, quorum, public_keys);
 
     // Act - Byzantine replica votes for both digests
@@ -167,7 +171,14 @@ fn test_byzantine_replica_conflicting_digests() {
         let hash = blake3::hash(&content);
         let signature = signing_keys[0].sign(hash.as_bytes());
 
-        let vote = Vote::new(VoteType::Prepare, view, sequence, digest, 0, signature.to_bytes().to_vec());
+        let vote = Vote::new(
+            VoteType::Prepare,
+            view,
+            sequence,
+            digest,
+            0,
+            signature.to_bytes().to_vec(),
+        );
         collector.add_vote(vote).unwrap();
     }
 
@@ -207,7 +218,14 @@ fn test_tolerate_f_byzantine_with_honest_quorum() {
         let hash = blake3::hash(&content);
         let signature = signing_keys[i].sign(hash.as_bytes());
 
-        let vote = Vote::new(VoteType::Prepare, view, sequence, digest, i as u64, signature.to_bytes().to_vec());
+        let vote = Vote::new(
+            VoteType::Prepare,
+            view,
+            sequence,
+            digest,
+            i as u64,
+            signature.to_bytes().to_vec(),
+        );
         collector.add_vote(vote).unwrap();
     }
 
@@ -363,7 +381,14 @@ fn test_safety_with_f_byzantine_failures() {
         let hash = blake3::hash(&content);
         let signature = signing_keys[i].sign(hash.as_bytes());
 
-        let vote = Vote::new(VoteType::Commit, view, sequence, digest, i as u64, signature.to_bytes().to_vec());
+        let vote = Vote::new(
+            VoteType::Commit,
+            view,
+            sequence,
+            digest,
+            i as u64,
+            signature.to_bytes().to_vec(),
+        );
         collector.add_vote(vote).unwrap();
     }
 
@@ -389,9 +414,9 @@ fn test_liveness_under_asynchrony() {
 fn test_maximum_byzantine_tolerance() {
     // Test boundary: exactly 3f+1 replicas
     let scenarios = vec![
-        (4, 1),   // Minimum: 4 replicas, 1 Byzantine
-        (7, 2),   // 7 replicas, 2 Byzantine
-        (10, 3),  // 10 replicas, 3 Byzantine
+        (4, 1),    // Minimum: 4 replicas, 1 Byzantine
+        (7, 2),    // 7 replicas, 2 Byzantine
+        (10, 3),   // 10 replicas, 3 Byzantine
         (100, 33), // Large: 100 replicas, 33 Byzantine
     ];
 

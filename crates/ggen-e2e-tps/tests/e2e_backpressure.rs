@@ -59,7 +59,9 @@ async fn test_capacity_enforcement() {
 
     let mut tokens = Vec::new();
     for i in 0..capacity {
-        let token = limiter.try_acquire().unwrap_or_else(|e| panic!("Token {}: {}", i, e));
+        let token = limiter
+            .try_acquire()
+            .unwrap_or_else(|e| panic!("Token {}: {}", i, e));
         assert!(token.is_some());
         tokens.push(token);
     }

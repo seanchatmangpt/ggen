@@ -78,7 +78,10 @@ impl ProductionLine {
     pub async fn run(&self) -> Result<Vec<GateResult>> {
         let mut results = Vec::new();
 
-        info!("🏭 Starting production line with {} gates", self.gates.len());
+        info!(
+            "🏭 Starting production line with {} gates",
+            self.gates.len()
+        );
 
         for gate in &self.gates {
             let gate_name = gate.name();
@@ -123,8 +126,8 @@ impl ProductionLine {
                 Err(e) => {
                     error!("❌ Gate execution failed: {}", e);
                     error!("   Gate: {}", gate_name);
-                    let result = GateResult::new(gate_name, AndonSignal::Red)
-                        .with_message(e.to_string());
+                    let result =
+                        GateResult::new(gate_name, AndonSignal::Red).with_message(e.to_string());
                     results.push(result);
                     return Err(JidokaError::LineHalted {
                         signal: AndonSignal::Red,

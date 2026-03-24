@@ -221,10 +221,7 @@ pub enum Priority {
 
 impl WorkOrder {
     /// Create a new work order
-    pub fn new(
-        objective: String,
-        owner: String,
-    ) -> Result<Self, validation::ValidationError> {
+    pub fn new(objective: String, owner: String) -> Result<Self, validation::ValidationError> {
         let work_order = Self {
             objective,
             constraints: Vec::new(),
@@ -257,35 +254,45 @@ impl WorkOrder {
     }
 
     /// Add a constraint to the work order
-    pub fn with_constraint(mut self, constraint: Constraint) -> Result<Self, validation::ValidationError> {
+    pub fn with_constraint(
+        mut self, constraint: Constraint,
+    ) -> Result<Self, validation::ValidationError> {
         self.constraints.push(constraint);
         validation::validate_work_order(&self)?;
         Ok(self)
     }
 
     /// Set acceptance test
-    pub fn with_acceptance_test(mut self, test: AcceptanceTest) -> Result<Self, validation::ValidationError> {
+    pub fn with_acceptance_test(
+        mut self, test: AcceptanceTest,
+    ) -> Result<Self, validation::ValidationError> {
         self.acceptance_test = test;
         validation::validate_work_order(&self)?;
         Ok(self)
     }
 
     /// Set reversibility policy
-    pub fn with_reversibility(mut self, policy: ReversibilityPolicy) -> Result<Self, validation::ValidationError> {
+    pub fn with_reversibility(
+        mut self, policy: ReversibilityPolicy,
+    ) -> Result<Self, validation::ValidationError> {
         self.reversibility = policy;
         validation::validate_work_order(&self)?;
         Ok(self)
     }
 
     /// Add dependencies
-    pub fn with_dependencies(mut self, deps: Vec<String>) -> Result<Self, validation::ValidationError> {
+    pub fn with_dependencies(
+        mut self, deps: Vec<String>,
+    ) -> Result<Self, validation::ValidationError> {
         self.dependencies = deps;
         validation::validate_work_order(&self)?;
         Ok(self)
     }
 
     /// Set priority
-    pub fn with_priority(mut self, priority: Priority) -> Result<Self, validation::ValidationError> {
+    pub fn with_priority(
+        mut self, priority: Priority,
+    ) -> Result<Self, validation::ValidationError> {
         self.priority = priority;
         validation::validate_work_order(&self)?;
         Ok(self)
@@ -299,7 +306,9 @@ impl WorkOrder {
     }
 
     /// Transition to a new status
-    pub fn transition_to(&mut self, status: WorkOrderStatus) -> Result<(), validation::ValidationError> {
+    pub fn transition_to(
+        &mut self, status: WorkOrderStatus,
+    ) -> Result<(), validation::ValidationError> {
         self.status = status;
         validation::validate_work_order(self)?;
         Ok(())
@@ -354,12 +363,9 @@ mod tests {
 
     #[test]
     fn test_work_order_with_constraint() {
-        let wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap();
+        let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap();
 
         let constraint = Constraint {
             description: String::from("Must complete in 2 hours"),
@@ -374,12 +380,9 @@ mod tests {
 
     #[test]
     fn test_work_order_state_transitions() {
-        let mut wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap();
+        let mut wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap();
 
         assert!(wo.transition_to(WorkOrderStatus::Validated).is_ok());
         assert_eq!(wo.status, WorkOrderStatus::Validated);
@@ -407,12 +410,9 @@ mod tests {
 
     #[test]
     fn test_reversibility_policy() {
-        let wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap();
+        let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap();
 
         let policy = ReversibilityPolicy {
             reversible: true,
@@ -451,13 +451,10 @@ mod tests {
             test_type: TestType::Automated,
         };
 
-        let wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap()
-        .with_acceptance_test(test);
+        let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap()
+            .with_acceptance_test(test);
 
         assert!(wo.is_ok());
         let wo = wo.ok().unwrap();
@@ -471,13 +468,10 @@ mod tests {
         tags.insert(String::from("urgent"));
         tags.insert(String::from("backend"));
 
-        let wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap()
-        .with_tags(tags);
+        let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap()
+            .with_tags(tags);
 
         assert!(wo.is_ok());
         let wo = wo.ok().unwrap();

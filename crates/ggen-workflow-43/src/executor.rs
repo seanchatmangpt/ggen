@@ -1,6 +1,6 @@
 //! Pattern execution engine
 
-use crate::{Result, WorkflowEngine, WorkflowPattern, WorkflowError};
+use crate::{Result, WorkflowEngine, WorkflowError, WorkflowPattern};
 use async_trait::async_trait;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -46,7 +46,8 @@ impl PatternExecutor {
         }
 
         for handle in handles {
-            handle.await
+            handle
+                .await
                 .map_err(|e| WorkflowError::PatternExecutionFailed(e.to_string()))??;
         }
 
@@ -151,7 +152,8 @@ impl WorkflowPattern for CompositePattern {
                 }
 
                 for handle in handles {
-                    handle.await
+                    handle
+                        .await
                         .map_err(|e| WorkflowError::PatternExecutionFailed(e.to_string()))??;
                 }
             }
@@ -209,7 +211,9 @@ mod tests {
         engine.register_activity(Box::new(TestActivity { id: act_id.clone() }));
 
         let executor = PatternExecutor::new(engine);
-        let pattern = Box::new(TestPattern { activity_id: act_id });
+        let pattern = Box::new(TestPattern {
+            activity_id: act_id,
+        });
 
         let result = executor.execute_pattern(pattern).await;
         assert!(result.is_ok());
@@ -223,7 +227,9 @@ mod tests {
         engine.register_activity(Box::new(TestActivity { id: act_id.clone() }));
 
         let builder = PatternBuilder::new(engine);
-        let pattern = Box::new(TestPattern { activity_id: act_id });
+        let pattern = Box::new(TestPattern {
+            activity_id: act_id,
+        });
 
         let result = builder.with_pattern(pattern).await;
         assert!(result.is_ok());
@@ -237,8 +243,12 @@ mod tests {
         engine.register_activity(Box::new(TestActivity { id: act_id.clone() }));
 
         let composite = CompositePattern::new("test-composite", ExecutionMode::Sequential)
-            .add_pattern(Box::new(TestPattern { activity_id: act_id.clone() }))
-            .add_pattern(Box::new(TestPattern { activity_id: act_id }));
+            .add_pattern(Box::new(TestPattern {
+                activity_id: act_id.clone(),
+            }))
+            .add_pattern(Box::new(TestPattern {
+                activity_id: act_id,
+            }));
 
         let result = composite.execute(&mut engine).await;
         assert!(result.is_ok());

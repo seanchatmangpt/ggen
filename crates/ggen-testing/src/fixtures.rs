@@ -10,11 +10,11 @@
 //! - Isolated test environments
 //! - Deterministic behavior
 
-use std::path::{Path, PathBuf};
 use anyhow::Result;
-use tempfile::TempDir;
-use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+use std::path::{Path, PathBuf};
+use tempfile::TempDir;
 
 /// Temporary file system fixture
 ///

@@ -8,7 +8,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, info, warn};
 
-use crate::signals::{TPSSignal, TPSLevel};
+use crate::signals::{TPSLevel, TPSSignal};
 
 /// Kaizen improvement stages
 #[derive(Debug, Clone, PartialEq)]
@@ -133,7 +133,9 @@ impl KaizenCycle {
     }
 
     /// Suggest an improvement
-    pub async fn suggest_improvement(&self, message: String) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn suggest_improvement(
+        &self, message: String,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         info!("Kaizen improvement suggestion: {}", message);
 
         let suggestion = ImprovementSuggestion {
@@ -168,11 +170,14 @@ impl KaizenCycle {
     }
 
     /// Record an observation
-    pub async fn record_observation(&self, message: String) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn record_observation(
+        &self, message: String,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         debug!("Kaizen observation: {}", message);
 
         // Observations can be converted to suggestions
-        self.suggest_improvement(format!("Observation: {}", message)).await?;
+        self.suggest_improvement(format!("Observation: {}", message))
+            .await?;
 
         Ok(())
     }
@@ -193,7 +198,10 @@ impl KaizenCycle {
                 }
             };
 
-            info!("Moving Kaizen cycle from {:?} to {:?}", cycle.current_stage, next_stage);
+            info!(
+                "Moving Kaizen cycle from {:?} to {:?}",
+                cycle.current_stage, next_stage
+            );
             cycle.current_stage = next_stage;
         } else {
             return Err("No active Kaizen cycle".into());
@@ -203,8 +211,11 @@ impl KaizenCycle {
     }
 
     /// Implement an improvement
-    pub async fn improve_process(&self, parameters: Value) -> Result<Value, Box<dyn std::error::Error>> {
-        let improvement_id = parameters.get("improvement_id")
+    pub async fn improve_process(
+        &self, parameters: Value,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
+        let improvement_id = parameters
+            .get("improvement_id")
             .and_then(|v| v.as_str())
             .ok_or_else(|| "Improvement ID not specified")?;
 
@@ -252,7 +263,9 @@ impl KaizenCycle {
     }
 
     /// Capture baseline metrics
-    async fn capture_baseline_metrics(&self) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
+    async fn capture_baseline_metrics(
+        &self,
+    ) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
         // In real implementation, this would capture actual metrics
         // For now, return mock data
         Ok(HashMap::from([
@@ -264,7 +277,9 @@ impl KaizenCycle {
     }
 
     /// Capture improved metrics
-    async fn capture_improved_metrics(&self) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
+    async fn capture_improved_metrics(
+        &self,
+    ) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
         // In real implementation, this would capture actual metrics after improvement
         // For now, return mock data with improvements
         Ok(HashMap::from([
@@ -280,8 +295,10 @@ impl KaizenCycle {
         let baseline = self.capture_baseline_metrics().await?;
         let improved = self.capture_improved_metrics().await?;
 
-        let efficiency_improvement = improved.get("efficiency").unwrap() - baseline.get("efficiency").unwrap();
-        let overall_improvement = (efficiency_improvement / baseline.get("efficiency").unwrap()) * 100.0;
+        let efficiency_improvement =
+            improved.get("efficiency").unwrap() - baseline.get("efficiency").unwrap();
+        let overall_improvement =
+            (efficiency_improvement / baseline.get("efficiency").unwrap()) * 100.0;
 
         Ok(overall_improvement)
     }
@@ -330,7 +347,9 @@ impl KaizenCycle {
     }
 
     /// Get all improvements
-    pub async fn get_improvements(&self, status_filter: Option<ImprovementStatus>) -> Vec<KaizenImprovement> {
+    pub async fn get_improvements(
+        &self, status_filter: Option<ImprovementStatus>,
+    ) -> Vec<KaizenImprovement> {
         let improvements = self.improvements.read().await;
         let improvements_vec = improvements.values().cloned().collect::<Vec<_>>();
 
@@ -368,8 +387,14 @@ impl KaizenCycle {
         let active_cycle = self.get_active_cycle().await;
 
         let total_improvements = improvements.len();
-        let implemented_improvements = improvements.values().filter(|i| i.status == ImprovementStatus::Implemented).count();
-        let suggested_improvements = improvements.values().filter(|i| i.status == ImprovementStatus::Suggested).count();
+        let implemented_improvements = improvements
+            .values()
+            .filter(|i| i.status == ImprovementStatus::Implemented)
+            .count();
+        let suggested_improvements = improvements
+            .values()
+            .filter(|i| i.status == ImprovementStatus::Suggested)
+            .count();
         let total_suggestions = suggestions.len();
 
         let average_improvement = if !history.is_empty() {
@@ -425,7 +450,9 @@ mod tests {
         let kaizen = KaizenCycle::new();
         kaizen.start_cycle().await.unwrap();
 
-        let result = kaizen.suggest_improvement("Test improvement suggestion".to_string()).await;
+        let result = kaizen
+            .suggest_improvement("Test improvement suggestion".to_string())
+            .await;
         assert!(result.is_ok());
 
         let improvements = kaizen.get_improvements(None).await;
@@ -441,7 +468,9 @@ mod tests {
         let kaizen = KaizenCycle::new();
         kaizen.start_cycle().await.unwrap();
 
-        let result = kaizen.record_observation("Test observation".to_string()).await;
+        let result = kaizen
+            .record_observation("Test observation".to_string())
+            .await;
         assert!(result.is_ok());
 
         let improvements = kaizen.get_improvements(None).await;
@@ -479,7 +508,10 @@ mod tests {
         kaizen.start_cycle().await.unwrap();
 
         // First suggest an improvement
-        kaizen.suggest_improvement("Test improvement".to_string()).await.unwrap();
+        kaizen
+            .suggest_improvement("Test improvement".to_string())
+            .await
+            .unwrap();
 
         // Get the improvement ID
         let improvements = kaizen.get_improvements(None).await;

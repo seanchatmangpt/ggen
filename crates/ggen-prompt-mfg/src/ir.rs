@@ -167,10 +167,7 @@ impl PromptIR {
     /// # Errors
     ///
     /// Returns error if query execution fails
-    pub fn from_store(
-        store: &oxigraph::store::Store,
-        construct_query: &str,
-    ) -> Result<Self> {
+    pub fn from_store(store: &oxigraph::store::Store, construct_query: &str) -> Result<Self> {
         use oxigraph::sparql::QueryResults;
 
         // Execute CONSTRUCT query

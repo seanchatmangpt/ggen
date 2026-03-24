@@ -183,22 +183,18 @@ fn bench_admission_throughput(c: &mut Criterion) {
         let pool = TokenPool::new(*count);
 
         group.throughput(Throughput::Elements(*count as u64));
-        group.bench_with_input(
-            BenchmarkId::from_parameter(count),
-            count,
-            |b, &count| {
-                b.iter(|| {
-                    rt.block_on(async {
-                        let mut tokens = vec![];
-                        for _ in 0..count {
-                            let token = pool.acquire().await.unwrap();
-                            tokens.push(token);
-                        }
-                        black_box(tokens);
-                    });
+        group.bench_with_input(BenchmarkId::from_parameter(count), count, |b, &count| {
+            b.iter(|| {
+                rt.block_on(async {
+                    let mut tokens = vec![];
+                    for _ in 0..count {
+                        let token = pool.acquire().await.unwrap();
+                        tokens.push(token);
+                    }
+                    black_box(tokens);
                 });
-            },
-        );
+            });
+        });
     }
 
     group.finish();
@@ -236,14 +232,13 @@ fn bench_utilization_tracking(c: &mut Criterion) {
     let pool = TokenPool::new(100);
 
     // Acquire 50% capacity
-    let _tokens: Vec<WIPToken> = rt
-        .block_on(async {
-            let mut tokens = vec![];
-            for _ in 0..50 {
-                tokens.push(pool.acquire().await.unwrap());
-            }
-            tokens
-        });
+    let _tokens: Vec<WIPToken> = rt.block_on(async {
+        let mut tokens = vec![];
+        for _ in 0..50 {
+            tokens.push(pool.acquire().await.unwrap());
+        }
+        tokens
+    });
 
     c.bench_function("utilization_at_50_percent", |b| {
         b.iter(|| {

@@ -180,12 +180,8 @@ impl FirewallCommands {
     }
 
     async fn add_rule(
-        rule_type: RuleType,
-        source: String,
-        destination: Option<String>,
-        port: Option<u16>,
-        protocol: Option<Protocol>,
-        priority: u32,
+        rule_type: RuleType, source: String, destination: Option<String>, port: Option<u16>,
+        protocol: Option<Protocol>, priority: u32,
     ) -> Result<()> {
         let mut config = Self::load_config().await?;
 
@@ -233,10 +229,7 @@ impl FirewallCommands {
         config.rules.retain(|r| r.id != id);
 
         if config.rules.len() == initial_len {
-            return Err(CliError::FirewallBlocked(format!(
-                "Rule {} not found",
-                id
-            )));
+            return Err(CliError::FirewallBlocked(format!("Rule {} not found", id)));
         }
 
         config.last_updated = chrono::Utc::now().to_rfc3339();
@@ -276,7 +269,10 @@ impl FirewallCommands {
                 println!();
 
                 for rule in rules {
-                    println!("{} [{:?}] Priority: {}", rule.id, rule.rule_type, rule.priority);
+                    println!(
+                        "{} [{:?}] Priority: {}",
+                        rule.id, rule.rule_type, rule.priority
+                    );
                     println!("  Source: {}", rule.source);
                     if let Some(ref dest) = rule.destination {
                         println!("  Destination: {}", dest);
@@ -297,10 +293,7 @@ impl FirewallCommands {
     }
 
     async fn test_traffic(
-        source: IpAddr,
-        destination: IpAddr,
-        port: u16,
-        protocol: Protocol,
+        source: IpAddr, destination: IpAddr, port: u16, protocol: Protocol,
     ) -> Result<()> {
         let config = Self::load_config().await?;
 
@@ -439,11 +432,7 @@ impl FirewallCommands {
     }
 
     fn rule_matches(
-        rule: &FirewallRule,
-        source: &IpAddr,
-        destination: &IpAddr,
-        port: u16,
-        protocol: &Protocol,
+        rule: &FirewallRule, source: &IpAddr, destination: &IpAddr, port: u16, protocol: &Protocol,
     ) -> bool {
         // Simple string matching for demonstration
         // In production, would use CIDR matching

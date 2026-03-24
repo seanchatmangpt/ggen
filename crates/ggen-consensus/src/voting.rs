@@ -39,12 +39,8 @@ pub struct Vote {
 impl Vote {
     /// Create a new vote
     pub fn new(
-        vote_type: VoteType,
-        view: ViewNumber,
-        sequence: SequenceNumber,
-        digest: Digest,
-        replica_id: ReplicaId,
-        signature: Vec<u8>,
+        vote_type: VoteType, view: ViewNumber, sequence: SequenceNumber, digest: Digest,
+        replica_id: ReplicaId, signature: Vec<u8>,
     ) -> Self {
         Self {
             vote_type,
@@ -91,10 +87,7 @@ pub struct VoteCollector {
 impl VoteCollector {
     /// Create a new vote collector
     pub fn new(
-        view: ViewNumber,
-        sequence: SequenceNumber,
-        digest: Digest,
-        quorum: QuorumCalculator,
+        view: ViewNumber, sequence: SequenceNumber, digest: Digest, quorum: QuorumCalculator,
         public_keys: HashMap<ReplicaId, VerifyingKey>,
     ) -> Self {
         Self {
@@ -252,12 +245,8 @@ mod tests {
     }
 
     fn create_vote(
-        vote_type: VoteType,
-        view: ViewNumber,
-        sequence: SequenceNumber,
-        digest: Digest,
-        replica_id: ReplicaId,
-        signing_key: &SigningKey,
+        vote_type: VoteType, view: ViewNumber, sequence: SequenceNumber, digest: Digest,
+        replica_id: ReplicaId, signing_key: &SigningKey,
     ) -> Vote {
         let mut content = Vec::new();
         content.extend_from_slice(&[vote_type as u8]);
@@ -399,7 +388,14 @@ mod tests {
 
         // Act - Add 2 prepare votes (need 2f = 2 for f=1)
         for i in 0..2 {
-            let vote = create_vote(VoteType::Prepare, view, sequence, digest, i, &keys[i as usize].1);
+            let vote = create_vote(
+                VoteType::Prepare,
+                view,
+                sequence,
+                digest,
+                i,
+                &keys[i as usize].1,
+            );
             collector.add_vote(vote).unwrap();
         }
 
@@ -419,7 +415,14 @@ mod tests {
 
         // Act - Add 3 commit votes (need 2f+1 = 3 for f=1)
         for i in 0..3 {
-            let vote = create_vote(VoteType::Commit, view, sequence, digest, i, &keys[i as usize].1);
+            let vote = create_vote(
+                VoteType::Commit,
+                view,
+                sequence,
+                digest,
+                i,
+                &keys[i as usize].1,
+            );
             collector.add_vote(vote).unwrap();
         }
 
@@ -462,12 +465,26 @@ mod tests {
 
         // Act
         for i in 0..3 {
-            let prepare_vote = create_vote(VoteType::Prepare, view, sequence, digest, i, &keys[i as usize].1);
+            let prepare_vote = create_vote(
+                VoteType::Prepare,
+                view,
+                sequence,
+                digest,
+                i,
+                &keys[i as usize].1,
+            );
             collector.add_vote(prepare_vote).unwrap();
         }
 
         for i in 1..4 {
-            let commit_vote = create_vote(VoteType::Commit, view, sequence, digest, i, &keys[i as usize].1);
+            let commit_vote = create_vote(
+                VoteType::Commit,
+                view,
+                sequence,
+                digest,
+                i,
+                &keys[i as usize].1,
+            );
             collector.add_vote(commit_vote).unwrap();
         }
 

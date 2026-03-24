@@ -11,7 +11,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Generate keypair for signing receipts
     let (signing_key, verifying_key) = generate_keypair();
     println!("Generated Ed25519 keypair");
-    println!("Verifying key: {:?}\n", hex::encode(verifying_key.to_bytes()));
+    println!(
+        "Verifying key: {:?}\n",
+        hex::encode(verifying_key.to_bytes())
+    );
 
     // Create genesis receipt
     println!("Step 1: Creating genesis receipt");
@@ -50,7 +53,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .sign(&signing_key)?;
 
     println!("  Operation: extract-entities");
-    println!("  Previous hash: {:?}", extract_receipt.previous_receipt_hash);
+    println!(
+        "  Previous hash: {:?}",
+        extract_receipt.previous_receipt_hash
+    );
     extract_receipt.verify(&verifying_key)?;
     println!("  ✓ Signature verified");
 
@@ -72,7 +78,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .sign(&signing_key)?;
 
     println!("  Operation: generate-code");
-    println!("  Previous hash: {:?}", generate_receipt.previous_receipt_hash);
+    println!(
+        "  Previous hash: {:?}",
+        generate_receipt.previous_receipt_hash
+    );
     generate_receipt.verify(&verifying_key)?;
     println!("  ✓ Signature verified");
 

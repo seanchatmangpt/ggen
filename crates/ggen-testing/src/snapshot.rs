@@ -15,8 +15,10 @@
 //! }
 //! ```
 
-pub use insta::{assert_debug_snapshot, assert_json_snapshot, assert_snapshot, assert_yaml_snapshot};
 use anyhow::Result;
+pub use insta::{
+    assert_debug_snapshot, assert_json_snapshot, assert_snapshot, assert_yaml_snapshot,
+};
 use serde::Serialize;
 use std::path::Path;
 
@@ -167,9 +169,7 @@ impl SnapshotSettings {
 macro_rules! with_redaction {
     ($selector:expr, $value:expr) => {{
         let mut settings = insta::Settings::clone_current();
-        settings.add_redaction($selector, insta::dynamic_redaction(|value, _| {
-            $value
-        }));
+        settings.add_redaction($selector, insta::dynamic_redaction(|value, _| $value));
         settings
     }};
 }

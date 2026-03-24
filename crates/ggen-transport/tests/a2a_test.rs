@@ -30,10 +30,7 @@ async fn test_a2a_protocol_compliance_message_exchange() {
 
     assert!(response.error.is_none());
     assert_eq!(response.correlation_id, "msg-001");
-    assert_eq!(
-        response.payload,
-        serde_json::json!({"action": "process"})
-    );
+    assert_eq!(response.payload, serde_json::json!({"action": "process"}));
 }
 
 #[tokio::test]
@@ -144,7 +141,11 @@ async fn test_a2a_origin_validation() {
 async fn test_a2a_session_management() {
     let session_manager = SessionManager::new(3600);
     let origin_validator = OriginValidator::allow_all();
-    let transport = A2aTransport::new("agent1".to_string(), session_manager.clone(), origin_validator);
+    let transport = A2aTransport::new(
+        "agent1".to_string(),
+        session_manager.clone(),
+        origin_validator,
+    );
 
     let session = session_manager.create_session().await;
 
@@ -166,7 +167,10 @@ async fn test_a2a_session_management() {
     let response = transport.handle_message(message).await;
 
     assert!(response.error.is_none());
-    assert_eq!(response.session_id.as_ref().unwrap().as_str(), session.id.as_str());
+    assert_eq!(
+        response.session_id.as_ref().unwrap().as_str(),
+        session.id.as_str()
+    );
 }
 
 #[tokio::test]
@@ -227,7 +231,11 @@ async fn test_a2a_correlation_id() {
 async fn test_a2a_stream_types() {
     let session_manager = SessionManager::new(3600);
     let origin_validator = OriginValidator::allow_all();
-    let transport = A2aTransport::new("agent1".to_string(), session_manager.clone(), origin_validator);
+    let transport = A2aTransport::new(
+        "agent1".to_string(),
+        session_manager.clone(),
+        origin_validator,
+    );
 
     transport
         .register_handler("Bidirectional".to_string(), Arc::new(EchoA2aHandler))

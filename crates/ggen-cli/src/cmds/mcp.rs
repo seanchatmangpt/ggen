@@ -13,6 +13,8 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
+use ggen_ai::constants::{env_vars, models};
+use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
 use ggen_domain::mcp_config::{load_config, stop_server, A2aConfig, McpServerConfig};
 use serde_json::Value as JsonValue;
 
@@ -421,6 +423,43 @@ struct ServerStopOutput {
 }
 
 // ============================================================================
+// Groq Command Output Types
+// ============================================================================
+
+#[derive(Serialize)]
+struct GroqGenerateOutput {
+    model: String,
+    prompt: String,
+    response: String,
+    prompt_tokens: u32,
+    completion_tokens: u32,
+    total_tokens: u32,
+    duration_ms: u64,
+}
+
+#[derive(Serialize)]
+struct GroqChatOutput {
+    model: String,
+    messages: Vec<ChatMessageEntry>,
+    response: String,
+    total_tokens: u32,
+    duration_ms: u64,
+}
+
+#[derive(Serialize)]
+struct ChatMessageEntry {
+    role: String,
+    content: String,
+}
+
+#[derive(Serialize)]
+struct GroqStreamChunk {
+    model: String,
+    chunk: String,
+    done: bool,
+}
+
+// ============================================================================
 // Verb Functions (MCP Commands)
 // ============================================================================
 
@@ -632,4 +671,194 @@ fn stop_server_cmd(server_name: String, force: bool) -> VerbResult<ServerStopOut
             e
         ))),
     }
+}
+
+// ============================================================================
+// Groq Verb Functions
+// ============================================================================
+
+/// Helper function to create Groq LLM config
+fn create_groq_config(
+    model: Option<String>,
+    temperature: Option<f32>,
+    max_tokens: Option<u32>,
+) -> Result<LlmConfig, String> {
+    // Check for GROQ_API_KEY
+    if std::env::var(env_vars::GROQ_API_KEY).is_err() {
+        return Err("GROQ_API_KEY environment variable not set".to_string());
+    }
+
+    // Select model: explicit > GROQ_MODEL env var > GROQ_DEFAULT
+    let model_name = model
+        .or_else(|| std::env::var(env_vars::GROQ_MODEL).ok())
+        .unwrap_or_else(|| models::GROQ_DEFAULT.to_string());
+
+    // Create LLM config
+    let mut config = LlmConfig::default();
+    config.model = model_name;
+    if let Some(temp) = temperature {
+        config.temperature = Some(temp);
+    }
+    if let Some(tokens) = max_tokens {
+        config.max_tokens = Some(tokens);
+    }
+
+    Ok(config)
+}
+
+/// Generate text using Groq
+#[verb]
+fn groq_generate(
+    prompt: String,
+    model: Option<String>,
+    temperature: Option<f32>,
+    max_tokens: Option<u32>,
+) -> VerbResult<GroqGenerateOutput> {
+    let config = create_groq_config(model, temperature, max_tokens)
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+
+    let client = GenAiClient::new(config).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to create client: {}", e))
+    })?;
+
+    let start = std::time::Instant::now();
+    let response = block_on(async { client.complete(&prompt).await })
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Generation failed: {}", e)))?
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Generation failed: {}", e)))?;
+    let duration = start.elapsed();
+
+    let usage = response.usage.unwrap_or_else(|| ggen_ai::UsageStats {
+        prompt_tokens: 0,
+        completion_tokens: 0,
+        total_tokens: 0,
+    });
+
+    Ok(GroqGenerateOutput {
+        model: response.model,
+        prompt,
+        response: response.content,
+        prompt_tokens: usage.prompt_tokens,
+        completion_tokens: usage.completion_tokens,
+        total_tokens: usage.total_tokens,
+        duration_ms: duration.as_millis() as u64,
+    })
+}
+
+/// Chat with Groq (multi-turn conversation)
+#[verb]
+fn groq_chat(
+    message: String,
+    model: Option<String>,
+    temperature: Option<f32>,
+    max_tokens: Option<u32>,
+    system: Option<String>,
+) -> VerbResult<GroqChatOutput> {
+    let config = create_groq_config(model, temperature, max_tokens)
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+
+    // Build prompt with system message if provided
+    let full_prompt = if let Some(ref sys_msg) = system {
+        format!("System: {}\n\nUser: {}", sys_msg, message)
+    } else {
+        message.clone()
+    };
+
+    let client = GenAiClient::new(config).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to create client: {}", e))
+    })?;
+
+    let start = std::time::Instant::now();
+    let response = block_on(async { client.complete(&full_prompt).await })
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e)))?
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e)))?;
+    let duration = start.elapsed();
+
+    // Build message history for output
+    let mut messages = vec![];
+    if let Some(sys) = system {
+        messages.push(ChatMessageEntry {
+            role: "system".to_string(),
+            content: sys,
+        });
+    }
+    messages.push(ChatMessageEntry {
+        role: "user".to_string(),
+        content: message,
+    });
+    messages.push(ChatMessageEntry {
+        role: "assistant".to_string(),
+        content: response.content.clone(),
+    });
+
+    let usage = response.usage.unwrap_or_else(|| ggen_ai::UsageStats {
+        prompt_tokens: 0,
+        completion_tokens: 0,
+        total_tokens: 0,
+    });
+
+    Ok(GroqChatOutput {
+        model: response.model,
+        messages,
+        response: response.content,
+        total_tokens: usage.total_tokens,
+        duration_ms: duration.as_millis() as u64,
+    })
+}
+
+/// Stream text generation using Groq
+#[verb]
+fn groq_stream(
+    prompt: String,
+    model: Option<String>,
+    temperature: Option<f32>,
+    max_tokens: Option<u32>,
+) -> VerbResult<Vec<GroqStreamChunk>> {
+    let config = create_groq_config(model, temperature, max_tokens)
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+
+    let model_name = config.model.clone();
+
+    let client = GenAiClient::new(config).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to create client: {}", e))
+    })?;
+
+    let mut stream = block_on(async { client.complete_stream(&prompt).await })
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Stream failed: {}", e)))?
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Stream failed: {}", e)))?;
+
+    let mut chunks = Vec::new();
+
+    // Collect all chunks
+    loop {
+        let chunk_result: Option<ggen_ai::LlmChunk> = block_on(async {
+            use futures::StreamExt;
+            stream.next().await
+        })
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Stream error: {}", e)))?;
+
+        match chunk_result {
+            Some(chunk) => {
+                let is_done = chunk.finish_reason.is_some();
+                chunks.push(GroqStreamChunk {
+                    model: model_name.clone(),
+                    chunk: chunk.content,
+                    done: is_done,
+                });
+                if is_done {
+                    break;
+                }
+            }
+            None => break,
+        }
+    }
+
+    if chunks.is_empty() {
+        chunks.push(GroqStreamChunk {
+            model: model_name,
+            chunk: String::new(),
+            done: true,
+        });
+    }
+
+    Ok(chunks)
 }

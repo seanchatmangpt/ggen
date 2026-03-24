@@ -7,8 +7,8 @@
 //! - Resource safety: tokens properly release capacity
 
 use ggen_backpressure::{
-    AdmissionController, RateLimiter, RateLimiterConfig, WIPToken,
     kanban::{KanbanBoard, KanbanConfig, Stage},
+    AdmissionController, RateLimiter, RateLimiterConfig, WIPToken,
 };
 use proptest::prelude::*;
 use std::time::Duration;

@@ -17,8 +17,8 @@
 //! }
 //! ```
 
-pub use proptest::prelude::*;
 use anyhow::Result;
+pub use proptest::prelude::*;
 
 /// Strategy builder for common test data patterns
 pub struct StrategyBuilder;

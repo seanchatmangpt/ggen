@@ -51,11 +51,12 @@ impl MultiSignature {
     /// Verify all signatures
     pub fn verify_all(&self, public_keys: &HashMap<ReplicaId, VerifyingKey>) -> Result<()> {
         for (replica_id, signature_bytes) in &self.signatures {
-            let public_key = public_keys.get(replica_id).ok_or_else(|| {
-                ConsensusError::ByzantineFault {
-                    reason: format!("Unknown replica {}", replica_id),
-                }
-            })?;
+            let public_key =
+                public_keys
+                    .get(replica_id)
+                    .ok_or_else(|| ConsensusError::ByzantineFault {
+                        reason: format!("Unknown replica {}", replica_id),
+                    })?;
 
             let signature = Signature::from_slice(signature_bytes).map_err(|_| {
                 ConsensusError::InvalidSignature {
@@ -63,11 +64,11 @@ impl MultiSignature {
                 }
             })?;
 
-            public_key.verify_strict(&self.digest, &signature).map_err(|_| {
-                ConsensusError::InvalidSignature {
+            public_key
+                .verify_strict(&self.digest, &signature)
+                .map_err(|_| ConsensusError::InvalidSignature {
                     replica_id: *replica_id,
-                }
-            })?;
+                })?;
         }
 
         Ok(())
@@ -96,20 +97,17 @@ impl SignatureAggregator {
 
     /// Verify a single signature
     pub fn verify_signature(
-        &self,
-        replica_id: ReplicaId,
-        message: &[u8],
-        signature_bytes: &[u8],
+        &self, replica_id: ReplicaId, message: &[u8], signature_bytes: &[u8],
     ) -> Result<()> {
-        let public_key = self.public_keys.get(&replica_id).ok_or_else(|| {
-            ConsensusError::ByzantineFault {
-                reason: format!("Unknown replica {}", replica_id),
-            }
-        })?;
+        let public_key =
+            self.public_keys
+                .get(&replica_id)
+                .ok_or_else(|| ConsensusError::ByzantineFault {
+                    reason: format!("Unknown replica {}", replica_id),
+                })?;
 
-        let signature = Signature::from_slice(signature_bytes).map_err(|_| {
-            ConsensusError::InvalidSignature { replica_id }
-        })?;
+        let signature = Signature::from_slice(signature_bytes)
+            .map_err(|_| ConsensusError::InvalidSignature { replica_id })?;
 
         let digest = blake3::hash(message);
         public_key
@@ -121,9 +119,7 @@ impl SignatureAggregator {
 
     /// Create a multi-signature from individual signatures
     pub fn aggregate_signatures(
-        &self,
-        digest: Digest,
-        signatures: Vec<(ReplicaId, Vec<u8>)>,
+        &self, digest: Digest, signatures: Vec<(ReplicaId, Vec<u8>)>,
     ) -> Result<MultiSignature> {
         let mut multi_sig = MultiSignature::new(digest);
 

@@ -82,10 +82,7 @@ impl TaskStateMachine {
     }
 
     /// Apply a state transition to a task
-    pub fn transition(
-        task: &mut Task,
-        transition: StateTransition,
-    ) -> Result<(), TransitionError> {
+    pub fn transition(task: &mut Task, transition: StateTransition) -> Result<(), TransitionError> {
         // Guard: Check if task is already in terminal state
         if task.is_terminal() {
             return Err(TransitionError::TerminalState { state: task.state });
@@ -265,10 +262,7 @@ mod tests {
         TaskStateMachine::transition(&mut task, transition).unwrap();
 
         assert_eq!(task.state, TaskState::Failed);
-        assert_eq!(
-            task.failure_reason,
-            Some("Connection timeout".to_string())
-        );
+        assert_eq!(task.failure_reason, Some("Connection timeout".to_string()));
         assert!(task.completed_at.is_some());
     }
 

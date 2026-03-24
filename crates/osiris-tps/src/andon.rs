@@ -8,7 +8,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, error, info, warn};
 
-use crate::signals::{TPSSignal, TPSLevel};
+use crate::signals::{TPSLevel, TPSSignal};
 
 /// TPS Andon System configuration
 #[derive(Debug, Clone)]
@@ -170,16 +170,21 @@ impl TPSAndonSystem {
                     if alert.acknowledged {
                         true
                     } else {
-                        let elapsed = chrono::Utc::now().timestamp_millis() - alert.timestamp.timestamp_millis();
+                        let elapsed = chrono::Utc::now().timestamp_millis()
+                            - alert.timestamp.timestamp_millis();
                         elapsed < config.alert_timeout_ms as i64
                     }
                 });
 
                 // Check for alerts that need escalation
                 for (_, alert) in alerts.iter_mut() {
-                    if !alert.acknowledged && alert.escalation_level < config.escalation_path.len() {
+                    if !alert.acknowledged && alert.escalation_level < config.escalation_path.len()
+                    {
                         alert.escalation_level += 1;
-                        info!("Alert {} escalated to level {}", alert.alert_id, alert.escalation_level);
+                        info!(
+                            "Alert {} escalated to level {}",
+                            alert.alert_id, alert.escalation_level
+                        );
                     }
                 }
             }
@@ -189,7 +194,9 @@ impl TPSAndonSystem {
     }
 
     /// Handle a warning signal
-    pub async fn handle_warning_signal(&self, signal: TPSSignal) -> Result<Value, Box<dyn std::error::Error>> {
+    pub async fn handle_warning_signal(
+        &self, signal: TPSSignal,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
         debug!("Handling warning signal: {}", signal.message);
 
         // Create alert
@@ -231,7 +238,9 @@ impl TPSAndonSystem {
     }
 
     /// Acknowledge an alert
-    pub async fn acknowledge_alert(&self, alert_id: &str, acknowledged_by: String) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn acknowledge_alert(
+        &self, alert_id: &str, acknowledged_by: String,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let mut alerts = self.active_alerts.write().await;
 
         if let Some(alert) = alerts.get_mut(alert_id) {
@@ -245,7 +254,9 @@ impl TPSAndonSystem {
     }
 
     /// Resolve an alert
-    pub async fn resolve_alert(&self, alert_id: &str, resolution: String) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn resolve_alert(
+        &self, alert_id: &str, resolution: String,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let mut alerts = self.active_alerts.write().await;
         let mut history = self.alert_history.write().await;
 
@@ -274,8 +285,14 @@ impl TPSAndonSystem {
 
         let active_alert_count = alerts.len();
         let unresolved_alerts = alerts.values().filter(|a| !a.acknowledged).count();
-        let critical_alerts = alerts.values().filter(|a| a.severity == TPSLevel::Critical).count();
-        let warning_alerts = alerts.values().filter(|a| a.severity == TPSLevel::Warning).count();
+        let critical_alerts = alerts
+            .values()
+            .filter(|a| a.severity == TPSLevel::Critical)
+            .count();
+        let warning_alerts = alerts
+            .values()
+            .filter(|a| a.severity == TPSLevel::Warning)
+            .count();
 
         let total_alerts = history.len();
         let resolved_alerts = history.iter().filter(|h| h.resolved).count();
@@ -314,7 +331,10 @@ impl TPSAndonSystem {
     pub async fn check_health(&self) -> Value {
         let alerts = self.active_alerts.read().await;
         let unresolved_alerts = alerts.values().filter(|a| !a.acknowledged).count();
-        let critical_alerts = alerts.values().filter(|a| a.severity == TPSLevel::Critical).count();
+        let critical_alerts = alerts
+            .values()
+            .filter(|a| a.severity == TPSLevel::Critical)
+            .count();
 
         let health_status = if critical_alerts > 0 {
             "critical"
@@ -383,7 +403,9 @@ mod tests {
         let result = andon.handle_warning_signal(signal).await.unwrap();
         let alert_id = result["alert_id"].as_str().unwrap();
 
-        let ack_result = andon.acknowledge_alert(alert_id, "test_user".to_string()).await;
+        let ack_result = andon
+            .acknowledge_alert(alert_id, "test_user".to_string())
+            .await;
         assert!(ack_result.is_ok());
     }
 
@@ -401,7 +423,9 @@ mod tests {
         let result = andon.handle_warning_signal(signal).await.unwrap();
         let alert_id = result["alert_id"].as_str().unwrap();
 
-        let resolve_result = andon.resolve_alert(alert_id, "Test resolution".to_string()).await;
+        let resolve_result = andon
+            .resolve_alert(alert_id, "Test resolution".to_string())
+            .await;
         assert!(resolve_result.is_ok);
 
         let status = andon.get_status().await;

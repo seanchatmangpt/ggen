@@ -112,7 +112,9 @@ impl JidokaCommands {
         }
     }
 
-    async fn pull_andon(level: SignalLevel, message: String, context: Option<String>) -> Result<()> {
+    async fn pull_andon(
+        level: SignalLevel, message: String, context: Option<String>,
+    ) -> Result<()> {
         let signal_id = format!("andon-{}", chrono::Utc::now().timestamp());
         let timestamp = chrono::Utc::now().to_rfc3339();
 
@@ -160,10 +162,7 @@ impl JidokaCommands {
                 if !status.active_signals.is_empty() {
                     println!("\nActive Signals:");
                     for signal in &status.active_signals {
-                        println!(
-                            "  - {} [{:?}] {}",
-                            signal.id, signal.level, signal.message
-                        );
+                        println!("  - {} [{:?}] {}", signal.id, signal.level, signal.message);
                     }
                 }
             }
@@ -256,7 +255,11 @@ impl JidokaCommands {
         let json = serde_json::to_string_pretty(&signals)?;
         tokio::fs::write(&output, json).await?;
 
-        println!("✓ Exported {} signals to {}", signals.len(), output.display());
+        println!(
+            "✓ Exported {} signals to {}",
+            signals.len(),
+            output.display()
+        );
         Ok(())
     }
 

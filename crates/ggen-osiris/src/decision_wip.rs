@@ -56,9 +56,7 @@ impl DecisionWip {
             });
         }
 
-        Ok(WipGuard {
-            wip: self.clone(),
-        })
+        Ok(WipGuard { wip: self.clone() })
     }
 
     /// Get current WIP count

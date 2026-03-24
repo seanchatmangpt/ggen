@@ -78,8 +78,7 @@ pub fn verify_prompt_hash(content: &str, expected_hash: &str) -> Result<bool> {
 /// Returns error if serialization or hashing fails
 pub fn compute_ir_hash(ir: &crate::ir::PromptIR) -> Result<String> {
     // Serialize to canonical JSON
-    let json = serde_json::to_string(ir)
-        .map_err(|e| PromptError::Serialization(e.to_string()))?;
+    let json = serde_json::to_string(ir).map_err(|e| PromptError::Serialization(e.to_string()))?;
 
     compute_hash(&json.as_bytes())
 }
@@ -116,7 +115,10 @@ mod tests {
         let hash1 = compute_prompt_hash(content1).unwrap();
         let hash2 = compute_prompt_hash(content2).unwrap();
 
-        assert_ne!(hash1, hash2, "Different content must produce different hashes");
+        assert_ne!(
+            hash1, hash2,
+            "Different content must produce different hashes"
+        );
     }
 
     #[test]

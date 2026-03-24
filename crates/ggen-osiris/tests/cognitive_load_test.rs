@@ -2,8 +2,8 @@
 //!
 //! Validates that OSIRIS maintains λ_admitted → 0.
 
-use ggen_osiris::{Osiris, OsirisConfig};
 use ggen_osiris::admission::AdmissionPolicy;
+use ggen_osiris::{Osiris, OsirisConfig};
 use std::time::Duration;
 use tokio::time::sleep;
 
@@ -47,7 +47,10 @@ async fn test_zero_cognitive_load_sequential_requests() {
 
     // Assert
     let stats = osiris.stats();
-    assert_eq!(stats.current_wip, 0, "WIP should return to zero after all requests");
+    assert_eq!(
+        stats.current_wip, 0,
+        "WIP should return to zero after all requests"
+    );
 }
 
 #[tokio::test]
@@ -64,9 +67,10 @@ async fn test_refuse_at_wip_limit() {
 
     // Act - try to process request
     let result = osiris
-        .process("task", |_req| async move {
-            Ok::<_, String>("done".to_string())
-        })
+        .process(
+            "task",
+            |_req| async move { Ok::<_, String>("done".to_string()) },
+        )
         .await;
 
     // Assert - should succeed
@@ -144,7 +148,10 @@ async fn test_admission_control_prevents_overload() {
     // Assert
     assert!(admitted > 0, "Some requests should be admitted");
     // Note: In sequential execution, all should succeed since they complete before next starts
-    assert_eq!(refused, 0, "No requests should be refused in sequential execution");
+    assert_eq!(
+        refused, 0,
+        "No requests should be refused in sequential execution"
+    );
 
     let stats = osiris.stats();
     assert_eq!(stats.current_wip, 0, "Final WIP should be zero");
