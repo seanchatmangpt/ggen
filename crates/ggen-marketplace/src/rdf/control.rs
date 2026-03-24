@@ -300,7 +300,7 @@ impl RdfControlPlane {
     /// * [`Error::NotImplemented`] - When getting published package is not implemented
     pub fn publish_package(&self, package_id: &PackageId, _checksum: String) -> Result<Package> {
         // Check current state
-        let current_state = self.get_package_state(&package_id)?;
+        let current_state = self.get_package_state(package_id)?;
         if current_state != "Draft" {
             return Err(Error::InvalidStateTransition {
                 from: current_state,
@@ -313,6 +313,7 @@ impl RdfControlPlane {
             .validate_transition(Some("Draft"), "Published")?;
 
         // Update state via SPARQL UPDATE
+        #[allow(clippy::uninlined_format_args)]
         let update_query = format!(
             r#"
             PREFIX mp: <https://ggen.io/marketplace/>
@@ -328,7 +329,7 @@ impl RdfControlPlane {
         self.bump_epoch();
 
         // Load and return published package
-        self.get_published_package(&package_id)
+        self.get_published_package(package_id)
     }
 
     /// Get package state
@@ -342,6 +343,7 @@ impl RdfControlPlane {
         let _epoch = self.current_epoch();
 
         // Direct SPARQL query
+        #[allow(clippy::uninlined_format_args)]
         let query = format!(
             r"PREFIX mp: <https://ggen.io/marketplace/>
             SELECT ?state
