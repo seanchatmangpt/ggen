@@ -65,6 +65,7 @@ impl ResourceId {
     }
 
     /// Create from ontology class
+    #[must_use]
     pub fn from_class(class: Class) -> Self {
         Self(class.uri())
     }
@@ -73,6 +74,7 @@ impl ResourceId {
         uri.starts_with("http://") || uri.starts_with("https://") || uri.starts_with("urn:")
     }
 
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -96,6 +98,7 @@ pub enum Literal {
 }
 
 impl Literal {
+    #[must_use]
     pub fn xsd_type(&self) -> XsdType {
         match self {
             Self::String(_) => XsdType::String,
