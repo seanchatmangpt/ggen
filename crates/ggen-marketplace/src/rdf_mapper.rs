@@ -3,6 +3,14 @@
 //! This module provides complete mapping between Package domain models
 //! and RDF representations, ensuring data integrity and semantic richness.
 
+#![allow(clippy::uninlined_format_args)]
+#![allow(clippy::manual_flatten)]
+#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::too_many_lines)]
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_possible_wrap)]
+#![allow(clippy::cast_sign_loss)]
+
 use crate::error::{Error, Result};
 use crate::models::{Package, PackageId, PackageMetadata, PackageVersion, ReleaseInfo};
 use crate::ontology::{Classes, Namespaces, Properties};
@@ -19,6 +27,7 @@ pub struct RdfMapper {
 
 impl RdfMapper {
     /// Create a new RDF mapper
+    #[must_use]
     pub fn new(store: Arc<Store>) -> Self {
         Self { store }
     }
@@ -35,10 +44,10 @@ impl RdfMapper {
     ///
     /// * [`Error::RdfStoreError`] - When inserting triples into the RDF store fails
     /// * [`Error::RegistryError`] - When creating URIs fails
-    pub async fn package_to_rdf(&self, package: &Package) -> Result<()> {
+    pub fn package_to_rdf(&self, package: &Package) -> Result<()> {
         debug!("Converting package {} to RDF", package.metadata.id);
 
-        let package_uri = self.create_package_uri(&package.metadata.id)?;
+        let package_uri = Self::create_package_uri(&package.metadata.id)?;
 
         // Insert package type
         self.insert_triple(
@@ -120,7 +129,7 @@ impl RdfMapper {
         if let Some(quality_score) = package.metadata.quality_score {
             let quality_pred = Self::named_node(&Properties::quality_score())?;
             let quality_lit =
-                Literal::new_typed_literal(&quality_score.value().to_string(), xsd_integer());
+                Literal::new_typed_literal(quality_score.value().to_string(), xsd_integer());
             let quad = QuadRef::new(
                 &package_uri,
                 &quality_pred,
@@ -160,7 +169,7 @@ impl RdfMapper {
 
         // Insert all versions
         for version in &package.versions {
-            let version_uri = self.create_version_uri(&package.metadata.id, version)?;
+            let version_uri = Self::create_version_uri(&package.metadata.id, version)?;
 
             // Link package to version
             self.insert_triple(
@@ -182,7 +191,7 @@ impl RdfMapper {
 
         // Insert release information
         for (version, release) in &package.releases {
-            let version_uri = self.create_version_uri(&package.metadata.id, version)?;
+            let version_uri = Self::create_version_uri(&package.metadata.id, version)?;
 
             // Release date
             self.insert_datetime_triple(
@@ -245,7 +254,7 @@ impl RdfMapper {
                 // Optional flag
                 let optional_pred = Self::named_node(&format!("{}optional", Namespaces::GGEN))?;
                 let optional_lit =
-                    Literal::new_typed_literal(&dep.optional.to_string(), xsd_boolean());
+                    Literal::new_typed_literal(dep.optional.to_string(), xsd_boolean());
                 let quad = QuadRef::new(
                     &dep_uri,
                     &optional_pred,
@@ -277,18 +286,16 @@ impl RdfMapper {
     /// * [`Error::SearchError`] - When SPARQL queries fail
     /// * [`Error::InvalidVersion`] - When version strings cannot be parsed
     /// * [`Error::InvalidPackageId`] - When package ID strings cannot be parsed
-    pub async fn rdf_to_package(&self, package_id: &PackageId) -> Result<Package> {
+    pub fn rdf_to_package(&self, package_id: &PackageId) -> Result<Package> {
         debug!("Reconstructing package {} from RDF", package_id);
 
-        let package_uri = self.create_package_uri(package_id)?;
+        let package_uri = Self::create_package_uri(package_id)?;
 
         // Query basic metadata
-        let metadata = self
-            .query_package_metadata(&package_uri, package_id)
-            .await?;
+        let metadata = self.query_package_metadata(&package_uri, package_id)?;
 
         // Query versions
-        let versions = self.query_package_versions(&package_uri).await?;
+        let versions = self.query_package_versions(&package_uri)?;
         if versions.is_empty() {
             return Err(Error::RegistryError(format!(
                 "Package {} has no versions in RDF store",
@@ -297,12 +304,12 @@ impl RdfMapper {
         }
 
         // Query latest version
-        let latest_version = self.query_latest_version(&package_uri).await?;
+        let latest_version = self.query_latest_version(&package_uri)?;
 
         // Query release information for all versions
         let mut releases = indexmap::IndexMap::new();
         for version in &versions {
-            if let Ok(release) = self.query_release_info(package_id, version).await {
+            if let Ok(release) = self.query_release_info(package_id, version) {
                 releases.insert(version.clone(), release);
             }
         }
@@ -319,7 +326,7 @@ impl RdfMapper {
     }
 
     /// Query package metadata from RDF store
-    async fn query_package_metadata(
+    fn query_package_metadata(
         &self, package_uri: &NamedNode, package_id: &PackageId,
     ) -> Result<PackageMetadata> {
         // Query for all metadata fields
@@ -392,13 +399,11 @@ impl RdfMapper {
 
                     let created_at = Self::extract_optional_literal(&solution, "created")
                         .and_then(|s| DateTime::parse_from_rfc3339(&s).ok())
-                        .map(|dt| dt.with_timezone(&Utc))
-                        .unwrap_or_else(Utc::now);
+                        .map_or_else(Utc::now, |dt| dt.with_timezone(&Utc));
 
                     let updated_at = Self::extract_optional_literal(&solution, "updated")
                         .and_then(|s| DateTime::parse_from_rfc3339(&s).ok())
-                        .map(|dt| dt.with_timezone(&Utc))
-                        .unwrap_or_else(Utc::now);
+                        .map_or_else(Utc::now, |dt| dt.with_timezone(&Utc));
 
                     (
                         name,
@@ -424,8 +429,8 @@ impl RdfMapper {
         };
 
         // Query authors and keywords (after results dropped)
-        let authors = self.query_authors(package_uri).await?;
-        let keywords = self.query_keywords(package_uri).await?;
+        let authors = self.query_authors(package_uri)?;
+        let keywords = self.query_keywords(package_uri)?;
 
         let mut metadata = PackageMetadata::new(package_id.clone(), name, description, license);
         metadata.authors = authors;
@@ -441,7 +446,7 @@ impl RdfMapper {
     }
 
     /// Query package versions
-    async fn query_package_versions(&self, package_uri: &NamedNode) -> Result<Vec<PackageVersion>> {
+    fn query_package_versions(&self, package_uri: &NamedNode) -> Result<Vec<PackageVersion>> {
         let query = format!(
             r"
             SELECT ?version WHERE {{
@@ -478,7 +483,7 @@ impl RdfMapper {
     }
 
     /// Query latest version
-    async fn query_latest_version(&self, package_uri: &NamedNode) -> Result<PackageVersion> {
+    fn query_latest_version(&self, package_uri: &NamedNode) -> Result<PackageVersion> {
         let query = format!(
             r"
             SELECT ?latestVersion WHERE {{
@@ -508,10 +513,10 @@ impl RdfMapper {
     }
 
     /// Query release information for a specific version
-    async fn query_release_info(
+    fn query_release_info(
         &self, package_id: &PackageId, version: &PackageVersion,
     ) -> Result<ReleaseInfo> {
-        let version_uri = self.create_version_uri(package_id, version)?;
+        let version_uri = Self::create_version_uri(package_id, version)?;
 
         let query = format!(
             r"
@@ -545,8 +550,7 @@ impl RdfMapper {
                     if let Some(Ok(solution)) = solutions.next() {
                         let released_at = Self::extract_optional_literal(&solution, "releasedAt")
                             .and_then(|s| DateTime::parse_from_rfc3339(&s).ok())
-                            .map(|dt| dt.with_timezone(&Utc))
-                            .unwrap_or_else(Utc::now);
+                            .map_or_else(Utc::now, |dt| dt.with_timezone(&Utc));
 
                         let changelog = Self::extract_literal(&solution, "changelog")?;
                         let checksum = Self::extract_literal(&solution, "checksum")?;
@@ -569,7 +573,7 @@ impl RdfMapper {
         }?;
 
         // Now we can await safely - results and iterator are dropped
-        let dependencies = self.query_dependencies(&version_uri).await?;
+        let dependencies = self.query_dependencies(&version_uri)?;
 
         Ok(ReleaseInfo {
             version: version.clone(),
@@ -582,7 +586,7 @@ impl RdfMapper {
     }
 
     /// Query authors for a package
-    async fn query_authors(&self, package_uri: &NamedNode) -> Result<Vec<String>> {
+    fn query_authors(&self, package_uri: &NamedNode) -> Result<Vec<String>> {
         let query = format!(
             r"
             SELECT ?authorName WHERE {{
@@ -595,11 +599,11 @@ impl RdfMapper {
             Properties::author_name(),
         );
 
-        self.query_string_list(&query, "authorName").await
+        self.query_string_list(&query, "authorName")
     }
 
     /// Query keywords for a package
-    async fn query_keywords(&self, package_uri: &NamedNode) -> Result<Vec<String>> {
+    fn query_keywords(&self, package_uri: &NamedNode) -> Result<Vec<String>> {
         let query = format!(
             r"
             SELECT ?keyword WHERE {{
@@ -610,11 +614,11 @@ impl RdfMapper {
             Properties::keywords(),
         );
 
-        self.query_string_list(&query, "keyword").await
+        self.query_string_list(&query, "keyword")
     }
 
     /// Query dependencies for a version
-    async fn query_dependencies(
+    fn query_dependencies(
         &self, version_uri: &NamedNode,
     ) -> Result<Vec<crate::models::PackageDependency>> {
         let query = format!(
@@ -663,7 +667,7 @@ impl RdfMapper {
     }
 
     /// Helper: Query list of strings
-    async fn query_string_list(&self, query: &str, var_name: &str) -> Result<Vec<String>> {
+    fn query_string_list(&self, query: &str, var_name: &str) -> Result<Vec<String>> {
         let results = self
             .store
             .query(query)
@@ -685,21 +689,19 @@ impl RdfMapper {
 
     // Helper methods for RDF operations
 
-    fn create_package_uri(&self, package_id: &PackageId) -> Result<NamedNode> {
+    fn create_package_uri(package_id: &PackageId) -> Result<NamedNode> {
         NamedNode::new(format!("{}packages/{}", Namespaces::GGEN, package_id))
-            .map_err(|e| Error::RegistryError(format!("Invalid package URI: {}", e)))
+            .map_err(|e| Error::RegistryError(format!("Invalid package URI: {e}")))
     }
 
-    fn create_version_uri(
-        &self, package_id: &PackageId, version: &PackageVersion,
-    ) -> Result<NamedNode> {
+    fn create_version_uri(package_id: &PackageId, version: &PackageVersion) -> Result<NamedNode> {
         NamedNode::new(format!(
             "{}packages/{}/versions/{}",
             Namespaces::GGEN,
             package_id,
             version
         ))
-        .map_err(|e| Error::RegistryError(format!("Invalid version URI: {}", e)))
+        .map_err(|e| Error::RegistryError(format!("Invalid version URI: {e}")))
     }
 
     fn named_node(uri: &str) -> Result<NamedNode> {
@@ -730,7 +732,7 @@ impl RdfMapper {
         &self, subject: &NamedNode, predicate_uri: &str, value: u64,
     ) -> Result<()> {
         let predicate = Self::named_node(predicate_uri)?;
-        let literal = Literal::new_typed_literal(&value.to_string(), xsd_integer());
+        let literal = Literal::new_typed_literal(value.to_string(), xsd_integer());
         let quad = QuadRef::new(subject, &predicate, &literal, GraphNameRef::DefaultGraph);
         self.store
             .insert(quad)
@@ -740,7 +742,7 @@ impl RdfMapper {
     fn insert_datetime_triple(
         &self, subject: &NamedNode, predicate: &NamedNode, datetime: &DateTime<Utc>,
     ) -> Result<()> {
-        let literal = Literal::new_typed_literal(&datetime.to_rfc3339(), xsd_datetime());
+        let literal = Literal::new_typed_literal(datetime.to_rfc3339(), xsd_datetime());
         let quad = QuadRef::new(subject, predicate, &literal, GraphNameRef::DefaultGraph);
         self.store
             .insert(quad)
@@ -786,7 +788,7 @@ mod tests {
     use crate::models::{PackageMetadata, PackageVersion};
 
     #[tokio::test]
-    async fn test_package_to_rdf_basic() {
+    fn test_package_to_rdf_basic() {
         let store = Arc::new(Store::new().unwrap());
         let mapper = RdfMapper::new(store);
 
@@ -799,7 +801,7 @@ mod tests {
             releases: indexmap::IndexMap::new(),
         };
 
-        let result = mapper.package_to_rdf(&package).await;
+        let result = mapper.package_to_rdf(&package);
         assert!(result.is_ok());
     }
 }

@@ -8,6 +8,10 @@
 //! - Query optimization
 //! - Performance SLOs (<100ms lookup, <200ms search)
 
+#![allow(clippy::manual_flatten)]
+#![allow(clippy::match_wildcard_for_single_variants)]
+#![allow(clippy::double_must_use)]
+
 use async_trait::async_trait;
 use moka::future::Cache as AsyncCache;
 use oxigraph::store::Store;
@@ -140,7 +144,7 @@ impl V3OptimizedRegistry {
                         for term in name_str.to_lowercase().split_whitespace() {
                             index
                                 .entry(term.to_string())
-                                .or_insert_with(Vec::new)
+                                .or_default()
                                 .push(package_uri.clone());
                         }
                     }
@@ -163,14 +167,14 @@ impl V3OptimizedRegistry {
     /// * [`Error::RegistryError`] - When the search index lock fails
     #[must_use]
     pub fn update_search_index(&self, package_id: &str, package_name: &str) -> Result<()> {
-        let package_uri = format!("https://ggen.io/marketplace/packages/{}", package_id);
+        let package_uri = format!("https://ggen.io/marketplace/packages/{package_id}");
         let mut index = self.search_index.write();
 
         // Index by name terms
         for term in package_name.to_lowercase().split_whitespace() {
             index
                 .entry(term.to_string())
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(package_uri.clone());
         }
 
@@ -254,7 +258,7 @@ impl AsyncRepository for V3OptimizedRegistry {
     async fn get_package_version(
         &self, id: &PackageId, version: &PackageVersion,
     ) -> Result<Package> {
-        let _cache_key = format!("{}@{}", id, version);
+        let _cache_key = format!("{id}@{version}");
         // Similar two-level cache lookup
         Err(crate::error::Error::Other(
             "v3 version lookup not yet implemented".to_string(),

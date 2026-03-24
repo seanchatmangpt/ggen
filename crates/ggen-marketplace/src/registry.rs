@@ -1,6 +1,6 @@
 //! High-performance async registry with concurrent access patterns
 //!
-//! Uses DashMap for lock-free concurrent access and advanced async patterns.
+//! Uses `DashMap` for lock-free concurrent access and advanced async patterns.
 
 use async_trait::async_trait;
 use dashmap::DashMap;
@@ -15,7 +15,7 @@ use crate::traits::AsyncRepository;
 /// High-performance marketplace registry
 ///
 /// Features:
-/// - Lock-free concurrent access (DashMap)
+/// - Lock-free concurrent access (`DashMap`)
 /// - LRU caching with moka
 /// - Async I/O operations
 /// - Distributed tracing support
@@ -36,7 +36,8 @@ pub struct Registry {
 
 impl Registry {
     /// Create a new registry
-    pub async fn new(cache_size: u64) -> Self {
+    #[must_use]
+    pub fn new(cache_size: u64) -> Self {
         let cache = AsyncCache::new(cache_size);
 
         Self {
@@ -55,8 +56,7 @@ impl Registry {
     /// This function currently always returns `Ok(())`. Future implementations may return:
     /// * [`Error::PackageAlreadyExists`] - When a package with the same ID already exists
     /// * [`Error::InvalidPackageId`] - When the package ID format is invalid
-    #[must_use]
-    pub fn insert(&self, package: Package) -> Result<()> {
+    pub fn insert(&self, package: &Package) -> Result<()> {
         let package_id = package.metadata.id.clone();
 
         // Add to primary storage
@@ -65,7 +65,7 @@ impl Registry {
 
         // Add to version index for all versions
         for version in &package.versions {
-            let key = format!("{}@{}", package_id, version);
+            let key = format!("{package_id}@{version}");
             self.version_index.insert(key, package_id.clone());
         }
 
@@ -81,7 +81,6 @@ impl Registry {
     ///
     /// This function currently always returns `Ok`. Future implementations may return:
     /// * [`Error::PackageNotFound`] - When attempting to remove a non-existent package
-    #[must_use]
     pub fn remove(&self, id: &PackageId) -> Result<Option<Package>> {
         let removed = self.packages.remove(id).map(|(_, pkg)| pkg);
 
@@ -110,7 +109,6 @@ impl Registry {
     /// # Errors
     ///
     /// * [`Error::PackageNotFound`] - When the package ID does not exist in the registry
-    #[must_use]
     pub fn update(&self, id: &PackageId, package: Package) -> Result<()> {
         if !self.packages.contains_key(id) {
             return Err(crate::error::Error::package_not_found(id.to_string()));
@@ -205,7 +203,7 @@ impl AsyncRepository for Registry {
         if !package.versions.contains(version) {
             return Err(crate::error::Error::InvalidVersion {
                 version: version.to_string(),
-                reason: format!("Version not found for package {}", id),
+                reason: format!("Version not found for package {id}"),
             });
         }
 
@@ -307,7 +305,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_registry_insert_and_get() {
-        let registry = Registry::new(100).await;
+        let registry = Registry::new(100);
 
         let id = PackageId::new("test-pkg").unwrap();
         let metadata = PackageMetadata::new(id.clone(), "Test Package", "A test package", "MIT");
@@ -318,7 +316,7 @@ mod tests {
             releases: indexmap::IndexMap::new(),
         };
 
-        registry.insert(package.clone()).unwrap();
+        registry.insert(&package).unwrap();
         let retrieved = registry.get_package(&id).await.unwrap();
 
         assert_eq!(retrieved.metadata.id, id);
@@ -326,7 +324,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_registry_remove() {
-        let registry = Registry::new(100).await;
+        let registry = Registry::new(100);
 
         let id = PackageId::new("test-pkg").unwrap();
         let metadata = PackageMetadata::new(id.clone(), "Test Package", "A test package", "MIT");
@@ -337,7 +335,7 @@ mod tests {
             releases: indexmap::IndexMap::new(),
         };
 
-        registry.insert(package).unwrap();
+        registry.insert(&package).unwrap();
         let removed = registry.remove(&id).unwrap();
 
         assert!(removed.is_some());
@@ -346,7 +344,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_cache_stats() {
-        let registry = Registry::new(100).await;
+        let registry = Registry::new(100);
         let stats = registry.cache_stats();
 
         assert_eq!(stats.hits, 0);

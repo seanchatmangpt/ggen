@@ -13,7 +13,7 @@ use super::turtle_config::TurtleConfigLoader;
 pub struct StateMachineExecutor {
     /// State definitions loaded from RDF
     states: HashMap<String, StateDefinition>,
-    /// Valid transitions (from_state -> to_states)
+    /// Valid transitions (`from_state` -> `to_states`)
     transitions: HashMap<String, HashSet<String>>,
     /// Transition guards (conditions that must be met)
     guards: HashMap<(String, String), Vec<TransitionGuard>>,
@@ -53,6 +53,7 @@ pub enum TransitionGuard {
 
 impl StateMachineExecutor {
     /// Create a new state machine executor with default states
+    #[must_use]
     pub fn new() -> Self {
         let mut states = HashMap::new();
         let mut transitions = HashMap::new();
@@ -143,6 +144,10 @@ impl StateMachineExecutor {
     }
 
     /// Load state machine configuration from Turtle files
+    ///
+    /// # Errors
+    ///
+    /// This function currently never returns an error
     pub fn load_from_config(&self, _config: &TurtleConfigLoader) -> Result<()> {
         // In production, this would parse state definitions from RDF
         // For now, using default states defined in new()
@@ -150,6 +155,15 @@ impl StateMachineExecutor {
     }
 
     /// Validate a state transition
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::InvalidStateTransition`] if the transition is not allowed
+    /// Returns [`Error::UnknownState`] if either state is not defined
+    ///
+    /// # Panics
+    ///
+    /// Panics if the internal state machine logic is inconsistent
     pub fn validate_transition(&self, from_state: Option<&str>, to_state: &str) -> Result<()> {
         // Check if from_state is None (initial state)
         if from_state.is_none() {
@@ -203,6 +217,10 @@ impl StateMachineExecutor {
     }
 
     /// Validate transition guards (conditions that must be met)
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error`] if guard condition evaluation fails
     pub fn validate_guards(
         &self, from_state: &str, to_state: &str, context: &TransitionContext,
     ) -> Result<Vec<String>> {
@@ -212,7 +230,7 @@ impl StateMachineExecutor {
         if let Some(guards) = self.guards.get(&key) {
             for guard in guards {
                 if !self.check_guard(guard, context)? {
-                    failed_guards.push(format!("{:?}", guard));
+                    failed_guards.push(format!("{guard:?}"));
                 }
             }
         }
@@ -221,6 +239,12 @@ impl StateMachineExecutor {
     }
 
     /// Check if a guard condition is met
+    ///
+    /// # Errors
+    ///
+    /// This function currently never returns an error
+    #[allow(clippy::unused_self)]
+    #[allow(clippy::unnecessary_wraps)]
     fn check_guard(&self, guard: &TransitionGuard, context: &TransitionContext) -> Result<bool> {
         match guard {
             TransitionGuard::HasAuthors => Ok(context.has_authors),
@@ -228,7 +252,7 @@ impl StateMachineExecutor {
             TransitionGuard::HasCategories => Ok(context.has_categories),
             TransitionGuard::HasChecksum => Ok(context.has_checksum),
             TransitionGuard::MinimumQuality(min) => {
-                Ok(context.quality_score.map(|q| q >= *min).unwrap_or(false))
+                Ok(context.quality_score.is_some_and(|q| q >= *min))
             }
             TransitionGuard::CustomQuery(_query) => {
                 // Would execute SPARQL query in production
@@ -238,6 +262,10 @@ impl StateMachineExecutor {
     }
 
     /// Get allowed operations for a state
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::UnknownState`] if the state is not defined
     pub fn allowed_operations(&self, state: &str) -> Result<Vec<String>> {
         self.states
             .get(state)
@@ -248,12 +276,20 @@ impl StateMachineExecutor {
     }
 
     /// Check if an operation is allowed in a state
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::UnknownState`] if the state is not defined
     pub fn is_operation_allowed(&self, state: &str, operation: &str) -> Result<bool> {
         let allowed = self.allowed_operations(state)?;
         Ok(allowed.contains(&operation.to_string()))
     }
 
     /// Get all possible transitions from a state
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::UnknownState`] if the state is not defined
     pub fn get_transitions(&self, from_state: &str) -> Result<Vec<String>> {
         self.transitions
             .get(from_state)
@@ -264,16 +300,19 @@ impl StateMachineExecutor {
     }
 
     /// Get state definition
+    #[must_use]
     pub fn get_state(&self, state: &str) -> Option<&StateDefinition> {
         self.states.get(state)
     }
 
     /// Check if a state is final (terminal)
+    #[must_use]
     pub fn is_final_state(&self, state: &str) -> bool {
-        self.states.get(state).map(|s| s.is_final).unwrap_or(false)
+        self.states.get(state).is_some_and(|s| s.is_final)
     }
 
     /// Get initial states
+    #[must_use]
     pub fn initial_states(&self) -> Vec<String> {
         self.states
             .values()
@@ -291,6 +330,7 @@ impl Default for StateMachineExecutor {
 
 /// Context for evaluating transition guards
 #[derive(Debug, Clone, Default)]
+#[allow(clippy::struct_excessive_bools)]
 pub struct TransitionContext {
     /// Whether the package has author metadata
     pub has_authors: bool,

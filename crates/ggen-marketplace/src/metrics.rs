@@ -118,7 +118,7 @@ impl MetricsCollector {
     }
 
     /// Record a custom event
-    pub async fn record_custom_event(&self, name: impl Into<String>) {
+    pub fn record_custom_event(&self, name: impl Into<String>) {
         let name = name.into();
         let now = chrono::Utc::now();
 
@@ -198,13 +198,13 @@ impl Default for MetricsCollector {
 impl Observable for MetricsCollector {
     async fn record_metric(&self, name: &str, value: f64) -> Result<()> {
         debug!("Recorded metric: {name} = {value}");
-        self.record_custom_event(format!("metric_{name}")).await;
+        self.record_custom_event(format!("metric_{name}"));
         Ok(())
     }
 
     async fn record_event(&self, name: &str, _data: &str) -> Result<()> {
         debug!("Recorded event: {}", name);
-        self.record_custom_event(name).await;
+        self.record_custom_event(name);
         Ok(())
     }
 
@@ -310,8 +310,8 @@ mod tests {
     async fn test_event_recording() {
         let metrics = MetricsCollector::new();
 
-        metrics.record_custom_event("test_event").await;
-        metrics.record_custom_event("test_event").await;
+        metrics.record_custom_event("test_event");
+        metrics.record_custom_event("test_event");
 
         assert_eq!(metrics.events.len(), 1);
     }

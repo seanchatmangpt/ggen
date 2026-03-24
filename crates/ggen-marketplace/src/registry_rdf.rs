@@ -6,6 +6,10 @@
 //! - Version history as RDF facts
 //! - Full-text search over package descriptions
 
+#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::uninlined_format_args)]
+#![allow(clippy::too_many_lines)]
+
 use async_trait::async_trait;
 use oxigraph::model::{GraphNameRef, NamedNode, QuadRef, Term};
 use oxigraph::store::Store;
@@ -46,6 +50,10 @@ pub struct RdfRegistry {
 
 impl RdfRegistry {
     /// Create a new RDF-backed registry
+    ///
+    /// # Panics
+    ///
+    /// Panics if the RDF store cannot be created (should not happen in practice)
     #[must_use]
     pub fn new() -> Self {
         let store = Store::new().expect("Failed to create RDF store");
@@ -94,10 +102,9 @@ impl RdfRegistry {
     ///
     /// * [`Error::RdfStoreError`] - When inserting triples into the RDF store fails
     /// * [`Error::SerializationError`] - When serializing package data to RDF fails
-    #[must_use]
-    pub async fn insert_package_rdf(&self, package: &Package) -> Result<()> {
+    pub fn insert_package_rdf(&self, package: &Package) -> Result<()> {
         let _lock = self.write_lock.write();
-        self.mapper.package_to_rdf(package).await
+        self.mapper.package_to_rdf(package)
     }
 
     /// Batch insert multiple packages for efficient loading
@@ -106,14 +113,13 @@ impl RdfRegistry {
     ///
     /// * [`Error::RdfStoreError`] - When inserting triples into the RDF store fails
     /// * [`Error::SerializationError`] - When serializing package data to RDF fails
-    #[must_use]
-    pub async fn batch_insert_packages(&self, packages: Vec<Package>) -> Result<usize> {
+    pub fn batch_insert_packages(&self, packages: Vec<Package>) -> Result<usize> {
         let _lock = self.write_lock.write();
         let mut inserted = 0;
 
         for package in packages {
-            match self.mapper.package_to_rdf(&package).await {
-                Ok(_) => inserted += 1,
+            match self.mapper.package_to_rdf(&package) {
+                Ok(()) => inserted += 1,
                 Err(e) => {
                     tracing::warn!("Failed to insert package {}: {}", package.metadata.id, e);
                 }
@@ -130,12 +136,11 @@ impl RdfRegistry {
     ///
     /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
     /// * [`Error::RdfStoreError`] - When querying the RDF store fails
-    #[must_use]
     pub fn query_sparql(&self, query: &str) -> Result<Vec<String>> {
         let results = self
             .store
             .query(query)
-            .map_err(|e| crate::error::Error::SearchError(format!("SPARQL query failed: {}", e)))?;
+            .map_err(|e| crate::error::Error::SearchError(format!("SPARQL query failed: {e}")))?;
 
         self.queries_executed
             .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
@@ -144,12 +149,10 @@ impl RdfRegistry {
 
         // Parse results
         if let oxigraph::sparql::QueryResults::Solutions(solutions) = results {
-            for solution in solutions {
-                if let Ok(solution) = solution {
-                    for (_, term) in solution.iter() {
-                        if let Term::NamedNode(node) = term {
-                            packages.push(node.as_str().to_string());
-                        }
+            for solution in solutions.flatten() {
+                for (_, term) in solution.iter() {
+                    if let Term::NamedNode(node) = term {
+                        packages.push(node.as_str().to_string());
                     }
                 }
             }
@@ -187,7 +190,7 @@ impl AsyncRepository for RdfRegistry {
             .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
         debug!("Retrieving package {} from RDF store", id);
-        self.mapper.rdf_to_package(id).await
+        self.mapper.rdf_to_package(id)
     }
 
     async fn get_package_version(
@@ -236,7 +239,7 @@ impl AsyncRepository for RdfRegistry {
         let mut packages = Vec::with_capacity(results.len());
         for package_id_str in results {
             if let Ok(package_id) = PackageId::new(package_id_str) {
-                if let Ok(package) = self.mapper.rdf_to_package(&package_id).await {
+                if let Ok(package) = self.mapper.rdf_to_package(&package_id) {
                     packages.push(package);
                 }
             }
@@ -261,7 +264,7 @@ impl AsyncRepository for RdfRegistry {
         // Parse versions from URIs
         let mut versions = Vec::new();
         for result_uri in results {
-            if let Some(version_str) = result_uri.split('/').last() {
+            if let Some(version_str) = result_uri.split('/').next_back() {
                 if let Ok(version) = PackageVersion::new(version_str) {
                     versions.push(version);
                 }
@@ -285,7 +288,7 @@ impl AsyncRepository for RdfRegistry {
         let results = self
             .store
             .query(&query)
-            .map_err(|e| crate::error::Error::SearchError(format!("SPARQL query failed: {}", e)))?;
+            .map_err(|e| crate::error::Error::SearchError(format!("SPARQL query failed: {e}")))?;
 
         match results {
             oxigraph::sparql::QueryResults::Boolean(exists) => {

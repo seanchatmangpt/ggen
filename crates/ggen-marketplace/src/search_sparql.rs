@@ -3,6 +3,10 @@
 //! Implements intelligent package discovery using SPARQL queries against
 //! the RDF knowledge graph. Enables semantic search, filtering, and ranking.
 
+#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::uninlined_format_args)]
+#![allow(clippy::double_must_use)]
+
 use crate::error::Result;
 use crate::ontology::Queries;
 use oxigraph::store::Store;

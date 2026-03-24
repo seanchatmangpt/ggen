@@ -4,6 +4,7 @@
 //! All marketplace configuration is stored in RDF/Turtle format, not YAML/JSON.
 
 use serde::{Deserialize, Serialize};
+use std::fmt::Write;
 use std::fs;
 
 use super::ontology::generate_prefixes;
@@ -59,6 +60,12 @@ impl TurtleConfigLoader {
     }
 
     /// Load main marketplace configuration
+    ///
+    /// # Errors
+    ///
+    /// * [`ConfigError::FileReadError`] - When the marketplace.ttl file cannot be read
+    /// * [`ConfigError::ParseError`] - When the Turtle content cannot be parsed
+    /// * [`ConfigError::MissingRequiredField`] - When required fields are missing
     pub fn load_marketplace_config(&self) -> Result<MarketplaceConfig, ConfigError> {
         let config_path = format!("{}/marketplace.ttl", self.config_dir);
         let turtle_content =
@@ -67,10 +74,14 @@ impl TurtleConfigLoader {
                 error: e.to_string(),
             })?;
 
-        self.parse_marketplace_config(&turtle_content)
+        Self::parse_marketplace_config(&turtle_content)
     }
 
     /// Load validation rules from Turtle
+    ///
+    /// # Errors
+    ///
+    /// * [`ConfigError::FileReadError`] - When the validation-rules.ttl file cannot be read
     pub fn load_validation_rules(&self) -> Result<Vec<String>, ConfigError> {
         let rules_path = format!("{}/validation-rules.ttl", self.config_dir);
         let turtle_content =
@@ -83,6 +94,11 @@ impl TurtleConfigLoader {
     }
 
     /// Load state machine definitions
+    ///
+    /// # Errors
+    ///
+    /// * [`ConfigError::FileReadError`] - When the state-machines.ttl file cannot be read
+    /// * [`ConfigError::ParseError`] - When the Turtle content cannot be parsed
     pub fn load_state_machines(&self) -> Result<Vec<StateMachine>, ConfigError> {
         let sm_path = format!("{}/state-machines.ttl", self.config_dir);
         let turtle_content =
@@ -91,11 +107,11 @@ impl TurtleConfigLoader {
                 error: e.to_string(),
             })?;
 
-        self.parse_state_machines(&turtle_content)
+        Ok(Self::parse_state_machines(&turtle_content))
     }
 
     /// Parse marketplace configuration from Turtle
-    fn parse_marketplace_config(&self, turtle: &str) -> Result<MarketplaceConfig, ConfigError> {
+    fn parse_marketplace_config(turtle: &str) -> Result<MarketplaceConfig, ConfigError> {
         // Simplified parsing - in production, use a proper Turtle parser like sophia or oxigraph
         let mut config = MarketplaceConfig {
             registry_url: String::new(),
@@ -151,9 +167,9 @@ impl TurtleConfigLoader {
     }
 
     /// Parse state machine definitions
-    fn parse_state_machines(&self, _turtle: &str) -> Result<Vec<StateMachine>, ConfigError> {
+    fn parse_state_machines(_turtle: &str) -> Vec<StateMachine> {
         // Stub - would parse state machine triples
-        Ok(Vec::new())
+        Vec::new()
     }
 
     fn extract_string_value(line: &str) -> Option<String> {
@@ -186,9 +202,13 @@ impl TurtleConfigLoader {
     }
 
     /// Save configuration back to Turtle
+    ///
+    /// # Errors
+    ///
+    /// * [`ConfigError::FileWriteError`] - When the marketplace.ttl file cannot be written
     pub fn save_marketplace_config(&self, config: &MarketplaceConfig) -> Result<(), ConfigError> {
         let config_path = format!("{}/marketplace.ttl", self.config_dir);
-        let turtle = self.generate_marketplace_turtle(config);
+        let turtle = Self::generate_marketplace_turtle(config);
 
         fs::write(&config_path, turtle).map_err(|e| ConfigError::FileWriteError {
             path: config_path,
@@ -197,50 +217,53 @@ impl TurtleConfigLoader {
     }
 
     /// Generate Turtle representation of configuration
-    fn generate_marketplace_turtle(&self, config: &MarketplaceConfig) -> String {
+    fn generate_marketplace_turtle(config: &MarketplaceConfig) -> String {
         let mut ttl = generate_prefixes();
 
-        ttl.push_str(&format!(
+        writeln!(
+            ttl,
             r#"
 :marketplace a ggen:MarketplaceConfig ;
-    ggen:registryUrl "{}" ;
-    ggen:cacheDir "{}" ;
-    ggen:maxDownloadSize "{}"^^xsd:integer ;
-    ggen:validationEnabled "{}"^^xsd:boolean ;
-    ggen:autoUpdateEnabled "{}"^^xsd:boolean ;
-    ggen:telemetryEnabled "{}"^^xsd:boolean .
+    ggen:registryUrl "{registry_url}" ;
+    ggen:cacheDir "{cache_dir}" ;
+    ggen:maxDownloadSize "{max_download_size}"^^xsd:integer ;
+    ggen:validationEnabled "{validation_enabled}"^^xsd:boolean ;
+    ggen:autoUpdateEnabled "{auto_update_enabled}"^^xsd:boolean ;
+    ggen:telemetryEnabled "{telemetry_enabled}"^^xsd:boolean .
 
 "#,
-            config.registry_url,
-            config.cache_dir,
-            config.max_download_size,
-            config.validation_enabled,
-            config.auto_update_enabled,
-            config.telemetry_enabled,
-        ));
+            registry_url = config.registry_url,
+            cache_dir = config.cache_dir,
+            max_download_size = config.max_download_size,
+            validation_enabled = config.validation_enabled,
+            auto_update_enabled = config.auto_update_enabled,
+            telemetry_enabled = config.telemetry_enabled,
+        )
+        .unwrap();
 
         // Add registries
         for (i, registry) in config.registries.iter().enumerate() {
-            ttl.push_str(&format!(
+            writeln!(
+                ttl,
                 r#"
-:registry{} a ggen:RegistryConfig ;
-    ggen:name "{}" ;
-    ggen:url "{}" ;
-    ggen:priority "{}"^^xsd:integer ;
-    ggen:enabled "{}"^^xsd:boolean ;
-    ggen:authRequired "{}"^^xsd:boolean .
+:registry{index} a ggen:RegistryConfig ;
+    ggen:name "{name}" ;
+    ggen:url "{url}" ;
+    ggen:priority "{priority}"^^xsd:integer ;
+    ggen:enabled "{enabled}"^^xsd:boolean ;
+    ggen:authRequired "{auth_required}"^^xsd:boolean .
 
-:marketplace ggen:hasRegistry :registry{} .
+:marketplace ggen:hasRegistry :registry{index} .
 
 "#,
-                i,
-                registry.name,
-                registry.url,
-                registry.priority,
-                registry.enabled,
-                registry.auth_required,
-                i,
-            ));
+                index = i,
+                name = registry.name,
+                url = registry.url,
+                priority = registry.priority,
+                enabled = registry.enabled,
+                auth_required = registry.auth_required,
+            )
+            .unwrap();
         }
 
         ttl
@@ -328,19 +351,19 @@ impl std::fmt::Display for ConfigError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::FileReadError { path, error } => {
-                write!(f, "Failed to read config file {}: {}", path, error)
+                write!(f, "Failed to read config file {path}: {error}")
             }
             Self::FileWriteError { path, error } => {
-                write!(f, "Failed to write config file {}: {}", path, error)
+                write!(f, "Failed to write config file {path}: {error}")
             }
             Self::ParseError { line, error } => {
-                write!(f, "Parse error at line {}: {}", line, error)
+                write!(f, "Parse error at line {line}: {error}")
             }
             Self::MissingRequiredField { field } => {
-                write!(f, "Missing required field: {}", field)
+                write!(f, "Missing required field: {field}")
             }
             Self::InvalidValue { field, value } => {
-                write!(f, "Invalid value for {}: {}", field, value)
+                write!(f, "Invalid value for {field}: {value}")
             }
         }
     }
@@ -380,8 +403,7 @@ mod tests {
             validation_rules: vec![],
         };
 
-        let loader = TurtleConfigLoader::new("/tmp");
-        let turtle = loader.generate_marketplace_turtle(&config);
+        let turtle = TurtleConfigLoader::generate_marketplace_turtle(&config);
 
         assert!(turtle.contains("@prefix ggen:"));
         assert!(turtle.contains("https://registry.ggen.dev"));
