@@ -242,6 +242,7 @@ impl Property {
         }
     }
 
+    #[must_use]
     pub fn local_name(&self) -> &'static str {
         match self {
             Self::PackageName => "packageName",
@@ -313,10 +314,12 @@ pub enum XsdType {
 }
 
 impl XsdType {
+    #[must_use]
     pub fn uri(&self) -> String {
         format!("{}{}", namespaces::XSD, self.local_name())
     }
 
+    #[must_use]
     pub fn local_name(&self) -> &'static str {
         match self {
             Self::String => "string",
