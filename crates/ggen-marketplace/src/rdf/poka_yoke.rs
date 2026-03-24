@@ -110,14 +110,15 @@ impl Literal {
         }
     }
 
+    #[must_use]
     pub fn to_turtle(&self) -> String {
         match self {
             Self::String(s) => format!("\"{}\"", s.replace('"', "\\\"")),
-            Self::Integer(i) => format!("\"{}\"^^<{}>", i, XsdType::Integer.uri()),
-            Self::Boolean(b) => format!("\"{}\"^^<{}>", b, XsdType::Boolean.uri()),
-            Self::DateTime(dt) => format!("\"{}\"^^<{}>", dt, XsdType::DateTime.uri()),
-            Self::Decimal(d) => format!("\"{}\"^^<{}>", d, XsdType::Decimal.uri()),
-            Self::Uri(u) => format!("<{}>", u),
+            Self::Integer(i) => format!("\"{i}\"^^<{}>", XsdType::Integer.uri()),
+            Self::Boolean(b) => format!("\"{b}\"^^<{}>", XsdType::Boolean.uri()),
+            Self::DateTime(dt) => format!("\"{dt}\"^^<{}>", XsdType::DateTime.uri()),
+            Self::Decimal(d) => format!("\"{d}\"^^<{}>", XsdType::Decimal.uri()),
+            Self::Uri(u) => format!("<{u}>"),
         }
     }
 }
@@ -140,6 +141,7 @@ pub enum TripleObject {
 
 impl Triple {
     /// Start building a triple (typestate pattern)
+    #[must_use]
     pub fn builder() -> TripleBuilder<typestate::NoSubject> {
         TripleBuilder {
             subject: None,
