@@ -409,13 +409,12 @@ fn publish(
 /// Update installed packages
 #[verb]
 fn update(
-    package: Option<String>,
-    all: bool,
+    update_all: bool,
     dry_run: bool,
 ) -> Result<UpdateOutput> {
     let input = UpdateInput {
-        package,
-        all,
+        package: None,
+        all: update_all,
         dry_run,
     };
 
