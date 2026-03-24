@@ -209,6 +209,7 @@ impl RdfControlPlane {
 
         // Insert package via SPARQL UPDATE
         // Build INSERT query directly for type-safe RDF operations
+        #[allow(clippy::uninlined_format_args)]
         let insert_query = format!(
             r#"
             PREFIX mp: <https://ggen.io/marketplace/>
@@ -251,8 +252,8 @@ impl RdfControlPlane {
     ///
     /// * [`Error::RdfStoreError`] - When SPARQL UPDATE operation fails
     pub fn add_package_metadata(
-        &self, package_id: &PackageId, authors: Vec<String>, keywords: Vec<String>,
-        categories: Vec<String>,
+        &self, package_id: &PackageId, authors: &[String], keywords: &[String],
+        categories: &[String],
     ) -> Result<()> {
         // Build SPARQL INSERT for metadata via direct RDF operations
         let mut metadata_query = String::from(
@@ -263,18 +264,18 @@ impl RdfControlPlane {
         let pkg_uri = format!("<https://ggen.io/marketplace/{}>", package_id);
 
         // Add authors
-        for author in &authors {
-            metadata_query.push_str(&format!("\n    {} mp:author \"{}\" ;", pkg_uri, author));
+        for author in authors {
+            metadata_query.push_str(&format!("\n    {} mp:author \"{author}\" ;", pkg_uri));
         }
 
         // Add keywords
-        for keyword in &keywords {
-            metadata_query.push_str(&format!("\n    {} mp:keyword \"{}\" ;", pkg_uri, keyword));
+        for keyword in keywords {
+            metadata_query.push_str(&format!("\n    {} mp:keyword \"{keyword}\" ;", pkg_uri));
         }
 
         // Add categories
-        for category in &categories {
-            metadata_query.push_str(&format!("\n    {} mp:category \"{}\" ;", pkg_uri, category));
+        for category in categories {
+            metadata_query.push_str(&format!("\n    {} mp:category \"{category}\" ;", pkg_uri));
         }
 
         metadata_query.push_str("\n}");
