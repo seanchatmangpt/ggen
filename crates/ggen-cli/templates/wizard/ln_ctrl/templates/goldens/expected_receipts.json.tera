@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Expected Receipt Trace",
+  "description": "Expected sequence of receipts for λn execution scenario",
+  "scenario_id": "{{ scenario_id | default(value="550e8400-e29b-41d4-a716-446655440000") }}",
+  "workflow_id": "{{ workflow_id | default(value="550e8400-e29b-41d4-a716-446655440000") }}",
+  "receipts": [
+    {%- for receipt in receipts | default(value=[]) %}
+    {
+      "timestamp": "{{TIMESTAMP}}",
+      "operation": "{{ receipt.operation }}",
+      {%- if receipt.causal_parent %}
+      "causal_parent": "{{HASH}}",
+      {%- else %}
+      "causal_parent": null,
+      {%- endif %}
+      "hash_chain": "{{HASH}}",
+      "workflow_id": "{{ workflow_id | default(value="550e8400-e29b-41d4-a716-446655440000") }}",
+      "step_index": {{ receipt.step_index | default(value=loop.index0) }},
+      "redex_executed": {
+        "redex_type": "{{ receipt.redex_type | default(value="beta") }}",
+        "redex_expression": "{{ receipt.redex_expression }}",
+        {%- if receipt.redex_location %}
+        "redex_location": "{{ receipt.redex_location }}"
+        {%- else %}
+        "redex_location": "root"
+        {%- endif %}
+      },
+      "frontier_after": {
+        "frontier_terms": [
+          {%- for term in receipt.frontier_terms %}
+          "{{ term }}"{% if not loop.last %},{% endif %}
+          {%- endfor %}
+        ],
+        "frontier_size": {{ receipt.frontier_terms | length }},
+        "frontier_hash": "{{HASH}}"
+      },
+      "effects_performed": [
+        {%- for effect in receipt.effects | default(value=[]) %}
+        {
+          "effect_type": "{{ effect.effect_type }}",
+          "effect_data": "{{ effect.effect_data }}",
+          {%- if effect.effect_result %}
+          "effect_result": "{{ effect.effect_result }}"
+          {%- else %}
+          "effect_result": null
+          {%- endif %}
+        }{% if not loop.last %},{% endif %}
+        {%- endfor %}
+      ],
+      "budget_remaining": {
+        "budget_steps": {{ receipt.budget_steps | default(value="9999") }},
+        "budget_memory": {{ receipt.budget_memory | default(value="104857600") }},
+        "budget_time": {{ receipt.budget_time | default(value="29999") }},
+        "budget_exceeded": {{ receipt.budget_exceeded | default(value="false") }}
+      },
+      "signature": "{{SIGNATURE}}",
+      "public_key": "{{HASH}}",
+      "chain_valid": {{ receipt.chain_valid | default(value="true") }},
+      "chain_length": {{ receipt.step_index | default(value=loop.index0) | int + 1 }}
+    }{% if not loop.last %},{% endif %}
+    {%- endfor %}
+  ],
+  "chain_summary": {
+    "total_receipts": {{ receipts | length }},
+    "initial_hash": "{{HASH}}",
+    "final_hash": "{{HASH}}",
+    "chain_valid": {{ chain_valid | default(value="true") }},
+    "total_operations": {
+      {%- set operations = receipts | map(attribute="operation") | list %}
+      {%- set operation_types = operations | unique | list %}
+      {%- for op_type in operation_types %}
+      "{{ op_type }}": {{ operations | select("equalto", op_type) | list | length }}{% if not loop.last %},{% endif %}
+      {%- endfor %}
+    }
+  },
+  "normalization_rules": {
+    "timestamp_placeholder": "{{TIMESTAMP}}",
+    "hash_placeholder": "{{HASH}}",
+    "signature_placeholder": "{{SIGNATURE}}",
+    "uuid_placeholder": "{{UUID}}",
+    "normalize_line_endings": true,
+    "normalize_whitespace": false,
+    "comparison_mode": "structural"
+  },
+  "metadata": {
+    "generated_at": "{{ generated_at | default(value="2026-02-11T00:00:00Z") }}",
+    "schema_version": "{{ schema_version | default(value="1.0.0") }}",
+    "deterministic": true,
+    "checksum_algorithm": "SHA-256"
+  }
+}

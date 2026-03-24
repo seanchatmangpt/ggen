@@ -1,0 +1,21 @@
+[package]
+name = "ggen-poka-yoke"
+version = "6.0.0"
+edition = "2021"
+rust-version = "1.91.1"
+authors = ["ggen contributors"]
+description = "Poka-yoke (error proofing) mechanisms using type-level guarantees"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/ggen"
+
+[dependencies]
+thiserror = "2.0"
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+proptest = "1.6"
+serde_json = "1.0"
+
+[lib]
+name = "ggen_poka_yoke"
+path = "src/lib.rs"

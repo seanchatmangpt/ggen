@@ -1,0 +1,43 @@
+[package]
+name = "ggen-e2e-tps"
+version = "0.2.0"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "End-to-end integration tests for A2A/TPS pipeline"
+license = "MIT"
+
+[dependencies]
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+futures = { workspace = true }
+
+# TPS/A2A components
+ggen-receipt = { path = "../ggen-receipt" }
+ggen-jidoka = { path = "../ggen-jidoka" }
+ggen-backpressure = { path = "../ggen-backpressure" }
+ggen-firewall = { path = "../ggen-firewall" }
+ggen-packet = { path = "../ggen-packet" }
+ggen-a2a = { path = "../ggen-a2a" }
+# ggen-integration = { path = "../ggen-integration" } # Temporarily excluded - has compilation errors
+
+# Ed25519 for receipt signatures
+ed25519-dalek = "2.1"
+sha2 = { workspace = true }
+hex = { workspace = true }
+
+[dev-dependencies]
+testcontainers = { workspace = true }
+testcontainers-modules = { workspace = true }
+tempfile = { workspace = true }
+proptest = "1.6"
+
+[lints]
+workspace = true

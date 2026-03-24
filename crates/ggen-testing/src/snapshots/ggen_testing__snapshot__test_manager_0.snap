@@ -1,0 +1,9 @@
+---
+source: crates/ggen-testing/src/snapshot.rs
+assertion_line: 71
+expression: state
+---
+{
+  "value": 1,
+  "name": "first"
+}

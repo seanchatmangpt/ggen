@@ -1,0 +1,25 @@
+[package]
+name = "ggen-receipt"
+version = "0.2.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Cryptographic receipt system for ggen operations"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+keywords = ["cryptography", "receipts", "verification", "blockchain"]
+categories = ["cryptography", "development-tools"]
+
+[dependencies]
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
+sha2 = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+thiserror = { workspace = true }
+hex = { workspace = true }
+rand = "0.8"
+
+[dev-dependencies]
+tempfile = { workspace = true }
+proptest = { workspace = true }
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }

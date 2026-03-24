@@ -74,5 +74,6 @@ pub use vocabulary::{AllowedVocabulary, ForbiddenVocabulary, VocabularyRegistry}
 
 // Pass implementations
 pub use passes::{
-    CanonicalizationPass, EmissionPass, ExtractionPass, NormalizationPass, ReceiptGenerationPass,
+    CanonicalizationPass, EmissionPass, ExtractionPass, ExtractionReceipt, NormalizationPass,
+    ParallelStats, QueryExecution, ReceiptGenerationPass, TensorQuery,
 };
