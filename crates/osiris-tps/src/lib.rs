@@ -17,10 +17,10 @@ pub use kaizen::{KaizenCycle, KaizenImprovement};
 pub use signals::{TPSLevel, TPSSignal};
 
 use osiris_core::{OSIRISConfig, OSIRISEngine};
-use serde_json::Value;
+use serde_json::{json, Value};
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{error, info, warn};
+use tracing::{info, warn};
 
 /// OSIRIS TPS Integration System
 #[derive(Clone)]
@@ -135,7 +135,7 @@ impl OSIRISTPS {
                 "kaizen-improvement".to_string(),
                 "Kaizen Improvement Pattern".to_string(),
                 "Implements continuous improvements".to_string(),
-                osiris_core::PatternCategory::Optimization,
+                osiris_core::PatternCategory::Efficiency,
                 "1.0.0".to_string(),
                 json!({
                     "improvement_cycle": "pdca",
@@ -188,6 +188,11 @@ impl OSIRISTPS {
     ) -> Result<Value, Box<dyn std::error::Error>> {
         info!("Processing TPS Signal: {}", signal);
 
+        // Extract signal metadata before moving
+        let signal_type = signal.signal_type.clone();
+        let message = signal.message.clone();
+        let level = signal.level.clone();
+
         // Route signal based on type
         let result = match signal.level {
             TPSLevel::Critical => {
@@ -208,9 +213,9 @@ impl OSIRISTPS {
 
         // Forward to core engine
         let core_signal = osiris_core::OSIRISSignal::new(
-            format!("tps_{}", signal.signal_type),
-            signal.message.clone(),
-            match signal.level {
+            format!("tps_{}", signal_type),
+            message,
+            match level {
                 TPSLevel::Critical => osiris_core::SignalLevel::Critical,
                 TPSLevel::Warning => osiris_core::SignalLevel::Warning,
                 TPSLevel::Information => osiris_core::SignalLevel::Info,
@@ -249,10 +254,14 @@ impl OSIRISTPS {
 
     /// Get TPS system status
     pub async fn get_tps_status(&self) -> Value {
+        let andon_status = self.andon_system.get_status().await;
+        let jidoka_status = self.jidoka_controller.get_status().await;
+        let kaizen_status = self.kaizen_cycle.get_status().await;
+
         json!({
-            "andon_system": self.andon_system.get_status(),
-            "jidoka_controller": self.jidoka_controller.get_status(),
-            "kaizen_cycle": self.kaizen_cycle.get_status(),
+            "andon_system": andon_status,
+            "jidoka_controller": jidoka_status,
+            "kaizen_cycle": kaizen_status,
             "integration_status": "active",
             "timestamp": chrono::Utc::now().to_rfc3339()
         })
@@ -319,10 +328,11 @@ impl OSIRISTPS {
             .and_then(|v| v.as_f64())
             .unwrap_or(0.8);
 
+        let default_path = Vec::new();
         let escalation_path = parameters
             .get("escalation_path")
             .and_then(|v| v.as_array())
-            .unwrap_or(&Vec::new());
+            .unwrap_or(&default_path);
 
         // Implement Andon logic would go here
         // For now, return a success response

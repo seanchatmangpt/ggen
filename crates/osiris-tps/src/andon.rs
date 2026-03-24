@@ -2,7 +2,7 @@
 //!
 //! Implements the Andon principle - visual control system for signaling problems
 
-use serde_json::Value;
+use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -219,12 +219,12 @@ impl TPSAndonSystem {
         let mut history = self.alert_history.write().await;
         history.push(AlertHistory {
             alert_id: alert_id.clone(),
-            alert_type: signal.signal_type,
-            severity: signal.level,
+            alert_type: signal.signal_type.clone(),
+            severity: signal.level.clone(),
             timestamp: chrono::Utc::now(),
             resolved: false,
             resolution_time: None,
-            message: signal.message,
+            message: signal.message.clone(),
         });
 
         // Process signal
@@ -426,7 +426,7 @@ mod tests {
         let resolve_result = andon
             .resolve_alert(alert_id, "Test resolution".to_string())
             .await;
-        assert!(resolve_result.is_ok);
+        assert!(resolve_result.is_ok());
 
         let status = andon.get_status().await;
         assert_eq!(status["active_alerts"], 0);
@@ -442,6 +442,7 @@ mod tests {
 
         let result = TPSSignalProcessor::process_signal(signal).await;
         assert!(result.is_ok());
-        assert_eq!(result["status"], "critical_handled");
+        let result_value = result.ok().unwrap();
+        assert_eq!(result_value["status"], "critical_handled");
     }
 }

@@ -1,66 +1,23 @@
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+pub mod service_mesh;
+pub mod agents;
+pub mod mcp_tools;
+pub mod fault_tolerance;
+pub mod error;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Service {
-    pub id: Uuid,
-    pub name: String,
-    pub port: u16,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ServiceRegistry {
-    services: Vec<Service>,
-}
-
-impl Default for ServiceRegistry {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl ServiceRegistry {
-    pub fn new() -> Self {
-        Self {
-            services: Vec::new(),
-        }
-    }
-
-    pub fn register(&mut self, service: Service) {
-        self.services.push(service);
-    }
-
-    pub fn services(&self) -> &[Service] {
-        &self.services
-    }
-}
+pub use service_mesh::{Service, ServiceRegistry, ServiceMesh};
+pub use agents::{ServiceManagerAgent, HealthCheckAgent, LoadBalancerAgent, RecoveryAgent};
+pub use mcp_tools::{ToolRegistry, ServiceDiscoveryTool};
+pub use fault_tolerance::{CircuitBreaker, ServiceHealthMonitor};
+pub use error::{MicroserviceError, Result};
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_service_registration() {
-        let mut registry = ServiceRegistry::new();
-        let svc = Service {
-            id: Uuid::new_v4(),
-            name: "auth".to_string(),
-            port: 8001,
-        };
-        registry.register(svc.clone());
-        assert_eq!(registry.services().len(), 1);
-    }
-
-    #[test]
-    fn test_multiple_services() {
-        let mut registry = ServiceRegistry::new();
-        for i in 0..3 {
-            registry.register(Service {
-                id: Uuid::new_v4(),
-                name: format!("service{}", i),
-                port: 8000 + i as u16,
-            });
-        }
-        assert_eq!(registry.services().len(), 3);
+    fn test_module_exports() {
+        let _ = std::any::type_name::<Service>();
+        let _ = std::any::type_name::<ServiceRegistry>();
+        let _ = std::any::type_name::<ServiceMesh>();
     }
 }

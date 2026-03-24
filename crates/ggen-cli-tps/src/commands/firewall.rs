@@ -4,6 +4,22 @@ use serde::{Deserialize, Serialize};
 use std::net::IpAddr;
 use std::path::PathBuf;
 
+/// Subcommands for managing firewall rules in the TPS system.
+///
+/// Provides commands to configure and validate firewall rules including adding,
+/// removing, listing, testing, and managing rule sets. Rules are prioritized
+/// and can be exported/imported for backup and migration.
+///
+/// # Variants
+///
+/// - `Add`: Create a new firewall rule
+/// - `Remove`: Delete a specific rule
+/// - `List`: Display all rules with optional filtering
+/// - `Test`: Simulate traffic against rules
+/// - `Export`: Save rules to a file
+/// - `Import`: Load rules from a file
+/// - `Stats`: Show rule statistics
+/// - `Clear`: Remove all rules (with confirmation)
 #[derive(Debug, Subcommand)]
 pub enum FirewallCommands {
     /// Add firewall rule
@@ -103,57 +119,102 @@ pub enum FirewallCommands {
     },
 }
 
+/// Type of firewall rule action.
+///
+/// Determines whether matching traffic is permitted or blocked.
 #[derive(Debug, Clone, clap::ValueEnum, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum RuleType {
+    /// Allow matching traffic
     Allow,
+    /// Block matching traffic
     Deny,
 }
 
+/// Network protocol types for firewall rules.
+///
+/// Specifies which transport layer protocol a rule applies to.
 #[derive(Debug, Clone, clap::ValueEnum, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Protocol {
+    /// TCP (Transmission Control Protocol)
     Tcp,
+    /// UDP (User Datagram Protocol)
     Udp,
+    /// ICMP (Internet Control Message Protocol)
     Icmp,
 }
 
+/// Output format for firewall commands.
 #[derive(Debug, Clone, clap::ValueEnum)]
 pub enum OutputFormat {
+    /// JSON format output
     Json,
+    /// Human-readable text format
     Text,
 }
 
+/// Represents a single firewall rule.
+///
+/// A rule specifies matching criteria (source, destination, port, protocol)
+/// and an action (allow/deny). Rules are ordered by priority; lower numbers
+/// are evaluated first.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FirewallRule {
+    /// Unique identifier for the rule
     pub id: String,
+    /// Action to take when rule matches (Allow or Deny)
     pub rule_type: RuleType,
+    /// Source IP address or CIDR notation
     pub source: String,
+    /// Optional destination IP address or CIDR
     pub destination: Option<String>,
+    /// Optional port number to match
     pub port: Option<u16>,
+    /// Optional protocol to match
     pub protocol: Option<Protocol>,
+    /// Priority order (lower = higher priority)
     pub priority: u32,
+    /// RFC 3339 timestamp when rule was created
     pub created_at: String,
+    /// Number of times this rule has matched traffic
     pub hits: u64,
 }
 
+/// Complete firewall configuration and rule set.
+///
+/// Stores all rules along with the default policy applied when no rule matches.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FirewallConfig {
+    /// All configured firewall rules, ordered by priority
     pub rules: Vec<FirewallRule>,
+    /// Default action when traffic matches no rules
     pub default_action: RuleType,
+    /// RFC 3339 timestamp of last configuration update
     pub last_updated: String,
 }
 
+/// Statistical summary of firewall rules and activity.
+///
+/// Provides aggregated metrics about the firewall configuration and usage.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FirewallStats {
+    /// Total number of rules
     pub total_rules: usize,
+    /// Number of allow-type rules
     pub allow_rules: usize,
+    /// Number of deny-type rules
     pub deny_rules: usize,
+    /// Cumulative hits across all rules
     pub total_hits: u64,
+    /// RFC 3339 timestamp of last statistics update
     pub last_updated: String,
 }
 
 impl FirewallCommands {
+    /// Execute the firewall command asynchronously.
+    ///
+    /// Dispatches to the appropriate handler based on the command variant.
     pub async fn execute(self) -> Result<()> {
         match self {
             Self::Add {
@@ -179,6 +240,9 @@ impl FirewallCommands {
         }
     }
 
+    /// Add a new firewall rule to the configuration.
+    ///
+    /// Creates and persists a new rule, re-sorting all rules by priority.
     async fn add_rule(
         rule_type: RuleType, source: String, destination: Option<String>, port: Option<u16>,
         protocol: Option<Protocol>, priority: u32,
@@ -222,6 +286,9 @@ impl FirewallCommands {
         Ok(())
     }
 
+    /// Remove a firewall rule by ID.
+    ///
+    /// Deletes the specified rule from the configuration and persists the changes.
     async fn remove_rule(id: String) -> Result<()> {
         let mut config = Self::load_config().await?;
 
@@ -239,6 +306,9 @@ impl FirewallCommands {
         Ok(())
     }
 
+    /// List all firewall rules with optional type filtering.
+    ///
+    /// Displays all rules in the specified format, optionally filtered by rule type.
     async fn list_rules(format: OutputFormat, rule_type_filter: Option<RuleType>) -> Result<()> {
         let config = Self::load_config().await?;
 
@@ -292,6 +362,10 @@ impl FirewallCommands {
         Ok(())
     }
 
+    /// Test whether traffic would be allowed by the current rules.
+    ///
+    /// Simulates traffic against the rule set and displays the matching rule
+    /// or default policy result.
     async fn test_traffic(
         source: IpAddr, destination: IpAddr, port: u16, protocol: Protocol,
     ) -> Result<()> {
@@ -334,6 +408,9 @@ impl FirewallCommands {
         Ok(())
     }
 
+    /// Export firewall rules to a JSON file.
+    ///
+    /// Saves the complete firewall configuration for backup or migration.
     async fn export_rules(output: PathBuf) -> Result<()> {
         let config = Self::load_config().await?;
         let json = serde_json::to_string_pretty(&config)?;
@@ -344,6 +421,9 @@ impl FirewallCommands {
         Ok(())
     }
 
+    /// Import firewall rules from a JSON file.
+    ///
+    /// Loads rules from a file, optionally clearing existing rules first.
     async fn import_rules(input: PathBuf, clear: bool) -> Result<()> {
         let content = tokio::fs::read_to_string(&input).await?;
         let imported_config: FirewallConfig = serde_json::from_str(&content)?;
@@ -372,6 +452,9 @@ impl FirewallCommands {
         Ok(())
     }
 
+    /// Display firewall statistics.
+    ///
+    /// Shows aggregate metrics about rules and traffic hits.
     async fn show_stats(format: OutputFormat) -> Result<()> {
         let config = Self::load_config().await?;
 
@@ -410,6 +493,10 @@ impl FirewallCommands {
         Ok(())
     }
 
+    /// Clear all firewall rules.
+    ///
+    /// Removes all rules and sets default policy to Deny.
+    /// Requires explicit confirmation flag.
     async fn clear_rules(confirm: bool) -> Result<()> {
         if !confirm {
             return Err(CliError::Validation(
@@ -431,6 +518,9 @@ impl FirewallCommands {
         Ok(())
     }
 
+    /// Check if a rule matches the given traffic parameters.
+    ///
+    /// Returns true if all specified criteria in the rule match the traffic parameters.
     fn rule_matches(
         rule: &FirewallRule, source: &IpAddr, destination: &IpAddr, port: u16, protocol: &Protocol,
     ) -> bool {
@@ -457,6 +547,9 @@ impl FirewallCommands {
         source_match && dest_match && port_match && proto_match
     }
 
+    /// Load firewall configuration from storage.
+    ///
+    /// Returns a default empty config if no file exists yet.
     async fn load_config() -> Result<FirewallConfig> {
         let path = Self::config_path();
         if !path.exists() {
@@ -471,6 +564,7 @@ impl FirewallCommands {
         Ok(serde_json::from_str(&content)?)
     }
 
+    /// Persist firewall configuration to storage.
     async fn save_config(config: &FirewallConfig) -> Result<()> {
         let path = Self::config_path();
         if let Some(parent) = path.parent() {
@@ -482,6 +576,7 @@ impl FirewallCommands {
         Ok(())
     }
 
+    /// Get the path to the firewall configuration file.
     fn config_path() -> PathBuf {
         PathBuf::from(".ggen/firewall-config.json")
     }

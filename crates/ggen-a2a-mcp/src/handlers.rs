@@ -930,7 +930,7 @@ impl BatchProcessor {
 mod tests {
     use super::*;
 
-    fn create_test_message(message_type: ConvergedMessageType) -> ConvergedMessage {
+    fn create_test_message(_message_type: ConvergedMessageType) -> ConvergedMessage {
         ConvergedMessage::text(
             format!("test-{}", uuid::Uuid::new_v4()),
             "test-agent".to_string(),
@@ -959,7 +959,7 @@ mod tests {
     async fn test_data_handler() {
         let handler = DataContentHandler::new();
 
-        let mut data = HashMap::new();
+        let mut data = serde_json::Map::new();
         data.insert(
             "key".to_string(),
             serde_json::Value::String("value".to_string()),

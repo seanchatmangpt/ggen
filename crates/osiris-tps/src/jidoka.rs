@@ -2,7 +2,7 @@
 //!
 //! Implements Jidoka - automation with human intelligence
 
-use serde_json::Value;
+use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -106,9 +106,10 @@ impl JidokaController {
                 // Check for active stops that need resolution
                 let mut stops = stops.write().await;
                 let mut history = history.write().await;
-                let rules = rules.read().await;
+                let _rules = rules.read().await;
 
-                for (_, stop) in stops.iter_mut() {
+                let mut stops_to_remove = Vec::new();
+                for (_, stop) in stops.iter() {
                     // Check if stop has been resolved
                     if let Some(resolution_time) = stop.resolution_time {
                         let duration =
@@ -123,8 +124,11 @@ impl JidokaController {
                             resolved: true,
                             resolution: Some("Resolved automatically".to_string()),
                         });
-                        stops.remove(&stop.stop_id);
+                        stops_to_remove.push(stop.stop_id.clone());
                     }
+                }
+                for stop_id in stops_to_remove {
+                    stops.remove(&stop_id);
                 }
             }
         });
@@ -221,7 +225,7 @@ impl JidokaController {
     async fn pause_line(&self, signal: &TPSSignal) -> Result<(), Box<dyn std::error::Error>> {
         info!("Pausing line due to: {}", signal.message);
 
-        let stop_id = format("pause_{}", uuid::Uuid::new_v4());
+        let stop_id = format!("pause_{}", uuid::Uuid::new_v4());
         let stop = ActiveStop {
             stop_id: stop_id.clone(),
             stop_type: "line_pause".to_string(),
@@ -531,7 +535,8 @@ mod tests {
 
         let result = controller.implement_principle(params).await;
         assert!(result.is_ok());
-        assert_eq!(result["status"], "success");
+        let result_value = result.ok().unwrap();
+        assert_eq!(result_value["status"], "success");
     }
 
     #[tokio::test]

@@ -67,9 +67,10 @@ pub enum PromptAtom {
 }
 
 /// Output format specification
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
 pub enum OutputFormat {
     /// Plain text, field: value format
+    #[default]
     Text,
 
     /// JSON object
@@ -86,12 +87,6 @@ pub enum OutputFormat {
 
     /// Custom format with template
     Custom(String),
-}
-
-impl Default for OutputFormat {
-    fn default() -> Self {
-        OutputFormat::Text
-    }
 }
 
 /// Prompt Intermediate Representation

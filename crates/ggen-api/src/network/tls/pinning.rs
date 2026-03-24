@@ -74,12 +74,19 @@ impl CertificatePin {
 }
 
 /// Certificate pinning manager
+///
+/// Dead code: This struct is part of the planned certificate pinning infrastructure
+/// but is currently unused. Certificate pinning is currently configured at the TlsConfig
+/// level and managed by TlsConnector. This manager may be used in future versions
+/// for more dynamic pin management. Keeping for forward compatibility and as reference.
+#[allow(dead_code)]
 #[derive(Default)]
 pub struct PinningManager {
     pins: HashMap<String, Vec<CertificatePin>>,
     strategy: PinningStrategy,
 }
 
+#[allow(dead_code)]
 impl PinningManager {
     /// Create a new pinning manager
     #[must_use]

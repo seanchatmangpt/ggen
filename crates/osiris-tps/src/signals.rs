@@ -3,7 +3,8 @@
 //! Signals specific to TPS (Toyota Production System)
 
 use chrono::{DateTime, Utc};
-use serde_json::Value;
+use serde_json::{json, Value};
+use std::collections::HashMap;
 
 /// TPS Signal levels
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -78,6 +79,12 @@ impl TPSSignal {
     /// Add metadata to the signal
     pub fn with_metadata(mut self, key: String, value: Value) -> Self {
         self.metadata.insert(key, value);
+        self
+    }
+
+    /// Set the source of the signal
+    pub fn with_source(mut self, source: String) -> Self {
+        self.source = Some(source);
         self
     }
 

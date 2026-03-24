@@ -1,0 +1,86 @@
+[package]
+name = "performance-benchmarks"
+version = "0.1.0"
+edition = "2021"
+authors = ["ggen team"]
+description = "Wave 5 example: Performance benchmarks validating system SLOs"
+license = "MIT"
+
+[dependencies]
+# Async runtime
+tokio = { version = "1.40", features = ["full"] }
+async-trait = "0.1"
+futures = "0.3"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Utilities
+uuid = { version = "1.0", features = ["serde", "v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+dashmap = "5.5"
+
+# ggen integration crates
+a2a-generated = { path = "../../crates/a2a-generated" }
+ggen-a2a-mcp = { path = "../../crates/ggen-a2a-mcp" }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["async_tokio"] }
+tokio-test = "0.4"
+proptest = "1.8"
+mockall = "0.13"
+
+[[bench]]
+name = "agent_creation"
+harness = false
+
+[[bench]]
+name = "agent_startup"
+harness = false
+
+[[bench]]
+name = "message_throughput"
+harness = false
+
+[[bench]]
+name = "tool_discovery"
+harness = false
+
+[[bench]]
+name = "plan_generation"
+harness = false
+
+[[bench]]
+name = "tool_execution"
+harness = false
+
+[[bench]]
+name = "consensus"
+harness = false
+
+[[bench]]
+name = "domain_balance"
+harness = false
+
+[[test]]
+name = "benchmark_validation"
+path = "tests/benchmark_validation.rs"
+
+[[test]]
+name = "slo_validation"
+path = "tests/slo_validation.rs"
+
+[[test]]
+name = "performance_regression"
+path = "tests/performance_regression.rs"
+
+[workspace]

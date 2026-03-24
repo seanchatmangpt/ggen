@@ -8,6 +8,9 @@ use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
+/// Type alias for demonstration pair (inputs, outputs)
+type DemoPair = (HashMap<String, Value>, HashMap<String, Value>);
+
 /// Call history entry for tracking LM interactions
 #[derive(Debug, Clone)]
 pub struct CallHistory {
@@ -174,13 +177,13 @@ impl DummyLM {
     /// Find matching demonstration for given inputs
     fn find_matching_demo(
         &self, inputs: &HashMap<String, Value>,
-        demonstrations: &[(HashMap<String, Value>, HashMap<String, Value>)],
+        demonstrations: &[DemoPair],
     ) -> Option<HashMap<String, Value>> {
         for (demo_inputs, demo_outputs) in demonstrations {
             // Check if any input value matches
             let has_match = inputs
                 .iter()
-                .any(|(k, v)| demo_inputs.get(k).map_or(false, |dv| dv == v));
+                .any(|(k, v)| demo_inputs.get(k) == Some(v));
 
             if has_match {
                 return Some(demo_outputs.clone());

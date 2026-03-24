@@ -89,13 +89,17 @@ impl WorkflowEngine {
         }
     }
 
-    async fn register_workflow(&self, workflow: Workflow) -> Result<(), Box<dyn std::error::Error>> {
+    async fn register_workflow(
+        &self, workflow: Workflow,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let mut workflows = self.workflows.write().await;
         workflows.insert(workflow.id.clone(), workflow);
         Ok(())
     }
 
-    async fn execute_workflow(&self, _id: &str, _input: Value) -> Result<Value, Box<dyn std::error::Error>> {
+    async fn execute_workflow(
+        &self, _id: &str, _input: Value,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
         Ok(json!({"status": "executed"}))
     }
 
@@ -137,7 +141,9 @@ impl LifecycleManager {
         *self.stage.read().await
     }
 
-    async fn transition_to_next_stage(&self, _reason: String) -> Result<(), Box<dyn std::error::Error>> {
+    async fn transition_to_next_stage(
+        &self, _reason: String,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let mut stage = self.stage.write().await;
         *stage = match *stage {
             LifecycleStage::Assessment => LifecycleStage::Planning,
@@ -153,7 +159,9 @@ impl LifecycleManager {
         0.5
     }
 
-    async fn record_improvement(&self, _domain_id: &str, _result: Value) -> Result<(), Box<dyn std::error::Error>> {
+    async fn record_improvement(
+        &self, _domain_id: &str, _result: Value,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         Ok(())
     }
 }
@@ -499,7 +507,7 @@ mod tests {
 
         let stage = domains.get_lifecycle_stage().await;
         // Should have a default stage
-        assert!(format!("{:?}", stage).is_string());
+        assert!(!format!("{:?}", stage).is_empty());
     }
 
     #[tokio::test]

@@ -6,6 +6,7 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, info, warn};
 
@@ -82,18 +83,18 @@ pub enum PrivacyLevel {
 /// Sensor manager for handling multiple sensors
 #[derive(Clone)]
 pub struct SensorManager {
-    sensors: RwLock<HashMap<String, SensorConfig>>,
-    data_buffer: RwLock<HashMap<String, Vec<SensorDataType>>>,
-    is_initialized: RwLock<bool>,
+    sensors: Arc<RwLock<HashMap<String, SensorConfig>>>,
+    data_buffer: Arc<RwLock<HashMap<String, Vec<SensorDataType>>>>,
+    is_initialized: Arc<RwLock<bool>>,
 }
 
 impl SensorManager {
     /// Create a new sensor manager
     pub fn new() -> Self {
         Self {
-            sensors: RwLock::new(HashMap::new()),
-            data_buffer: RwLock::new(HashMap::new()),
-            is_initialized: RwLock::new(false),
+            sensors: Arc::new(RwLock::new(HashMap::new())),
+            data_buffer: Arc::new(RwLock::new(HashMap::new())),
+            is_initialized: Arc::new(RwLock::new(false)),
         }
     }
 
@@ -186,7 +187,7 @@ impl SensorManager {
         sensors.insert(id.clone(), config.clone());
 
         let mut buffer = self.data_buffer.write().await;
-        buffer.insert(id, Vec::new());
+        buffer.insert(id.clone(), Vec::new());
 
         debug!("Added sensor: {}", id);
         Ok(())

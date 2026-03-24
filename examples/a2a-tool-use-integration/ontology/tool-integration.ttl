@@ -1,0 +1,137 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://ggen.org/a2a/tool-integration#> .
+
+# ===================================================================
+# A2A Tool Integration Ontology
+# Defines autonomous agent goal systems, tool discovery, planning,
+# execution, and learning from tool use
+# ===================================================================
+
+:Goal a owl:Class ;
+  rdfs:label "Agent Goal"@en ;
+  rdfs:comment "High-level objective that an agent wants to accomplish"@en .
+
+:goal_type a owl:ObjectProperty ;
+  rdfs:label "Goal Type"@en ;
+  rdfs:domain :Goal ;
+  rdfs:range :GoalType .
+
+:GoalType a owl:Class ;
+  rdfs:label "Goal Type"@en .
+
+:GenerateCode a :GoalType ;
+  rdfs:label "Generate Code"@en .
+
+:AnalyzeData a :GoalType ;
+  rdfs:label "Analyze Data"@en .
+
+:ResearchInformation a :GoalType ;
+  rdfs:label "Research Information"@en .
+
+:goal_description a owl:DatatypeProperty ;
+  rdfs:label "Goal Description"@en ;
+  rdfs:domain :Goal ;
+  rdfs:range xsd:string .
+
+:goal_success_criteria a owl:DatatypeProperty ;
+  rdfs:label "Success Criteria"@en ;
+  rdfs:domain :Goal ;
+  rdfs:range xsd:string .
+
+# Tool definitions
+:Tool a owl:Class ;
+  rdfs:label "MCP Tool"@en ;
+  rdfs:comment "Tool available via MCP (Model Context Protocol)"@en .
+
+:tool_name a owl:DatatypeProperty ;
+  rdfs:label "Tool Name"@en ;
+  rdfs:domain :Tool ;
+  rdfs:range xsd:string .
+
+:tool_description a owl:DatatypeProperty ;
+  rdfs:label "Tool Description"@en ;
+  rdfs:domain :Tool ;
+  rdfs:range xsd:string .
+
+:tool_category a owl:ObjectProperty ;
+  rdfs:label "Tool Category"@en ;
+  rdfs:domain :Tool ;
+  rdfs:range :ToolCategory .
+
+:ToolCategory a owl:Class ;
+  rdfs:label "Tool Category"@en .
+
+:CodeGeneration a :ToolCategory ;
+  rdfs:label "Code Generation"@en .
+
+:Validation a :ToolCategory ;
+  rdfs:label "Validation"@en .
+
+:tool_success_rate a owl:DatatypeProperty ;
+  rdfs:label "Success Rate"@en ;
+  rdfs:domain :Tool ;
+  rdfs:range xsd:float .
+
+# Tool sequences
+:ToolSequence a owl:Class ;
+  rdfs:label "Tool Sequence"@en ;
+  rdfs:comment "Ordered sequence of tool invocations"@en .
+
+:has_step a owl:ObjectProperty ;
+  rdfs:label "Has Step"@en ;
+  rdfs:domain :ToolSequence ;
+  rdfs:range :ExecutionStep .
+
+:ExecutionStep a owl:Class ;
+  rdfs:label "Execution Step"@en .
+
+:step_tool a owl:ObjectProperty ;
+  rdfs:label "Step Tool"@en ;
+  rdfs:domain :ExecutionStep ;
+  rdfs:range :Tool .
+
+:step_order a owl:DatatypeProperty ;
+  rdfs:label "Step Order"@en ;
+  rdfs:domain :ExecutionStep ;
+  rdfs:range xsd:positiveInteger .
+
+# Execution results
+:ExecutionResult a owl:Class ;
+  rdfs:label "Execution Result"@en .
+
+:result_status a owl:ObjectProperty ;
+  rdfs:label "Result Status"@en ;
+  rdfs:domain :ExecutionResult ;
+  rdfs:range :ExecutionStatus .
+
+:ExecutionStatus a owl:Class ;
+  rdfs:label "Execution Status"@en .
+
+:Success a :ExecutionStatus ;
+  rdfs:label "Success"@en .
+
+:Failure a :ExecutionStatus ;
+  rdfs:label "Failure"@en .
+
+:result_output a owl:DatatypeProperty ;
+  rdfs:label "Result Output"@en ;
+  rdfs:domain :ExecutionResult ;
+  rdfs:range xsd:string .
+
+# Learning records
+:LearningRecord a owl:Class ;
+  rdfs:label "Learning Record"@en ;
+  rdfs:comment "Record of agent learning from tool use"@en .
+
+:learned_pattern a owl:DatatypeProperty ;
+  rdfs:label "Learned Pattern"@en ;
+  rdfs:domain :LearningRecord ;
+  rdfs:range xsd:string .
+
+:pattern_success_rate a owl:DatatypeProperty ;
+  rdfs:label "Pattern Success Rate"@en ;
+  rdfs:domain :LearningRecord ;
+  rdfs:range xsd:float .

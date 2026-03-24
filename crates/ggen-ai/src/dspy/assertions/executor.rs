@@ -111,8 +111,12 @@ impl Assertion {
         let result = self.validator.validate(output);
 
         // Use custom feedback if validation failed and custom feedback is set
-        if result.is_invalid() && self.custom_feedback.is_some() {
-            ValidationResult::invalid(self.custom_feedback.as_ref().unwrap())
+        if result.is_invalid() {
+            if let Some(feedback) = &self.custom_feedback {
+                ValidationResult::invalid(feedback)
+            } else {
+                result
+            }
         } else {
             result
         }

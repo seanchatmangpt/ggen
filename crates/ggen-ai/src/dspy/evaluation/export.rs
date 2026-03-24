@@ -23,7 +23,7 @@ pub fn export_to_csv(result: &EvaluationResult, path: impl AsRef<Path>) -> Resul
 
     // Write header
     writer
-        .write_record(&["index", "score", "error", "duration_ms"])
+        .write_record(["index", "score", "error", "duration_ms"])
         .map_err(|e| ModuleError::Other(format!("Failed to write CSV header: {}", e)))?;
 
     // Write data rows
@@ -36,7 +36,7 @@ pub fn export_to_csv(result: &EvaluationResult, path: impl AsRef<Path>) -> Resul
         let error_str = point.error.as_deref().unwrap_or("");
 
         writer
-            .write_record(&[
+            .write_record([
                 &idx.to_string(),
                 &point.score.to_string(),
                 error_str,

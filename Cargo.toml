@@ -30,7 +30,6 @@ members = [
   "crates/ggen-e2e",           # Feature 011: End-to-end testing with testcontainers
   "crates/ggen-poka-yoke",     # Poka-yoke error proofing mechanisms
   "crates/ggen-node", "crates/ggen-macros",
-  "crates/ggen-workflow",      # Feature 012: Workflow orchestration engine
   "crates/ggen-workflow-43",   # van der Aalst's 43 workflow patterns implementation
   "crates/ggen-execution",      # Common execution framework for semantic convergence
   "crates/ggen-marketplace",   # Feature 013: Marketplace and integrations
@@ -88,7 +87,11 @@ exclude = [
   "examples/rust-cli-lifecycle",
   "examples/marketplace-demo/generated",
   "examples/gcp-erlang-autonomics",
+  "examples/osiris-life-domains",
+  "examples/api-endpoint",  # Wave 2: Standalone example with own Makefile
+  "examples/advanced-lifecycle-demo",  # Wave 2: Standalone example with own Makefile
   "marketplace/packages/workflow-engine-cli",
+  "crates/ggen-workflow",     # Requires Erlang NIF runtime - standalone build only
   "crates/ggen-workflow/native",  # Native NIF crate - standalone build only
   "crates/tps-kaizen",  # Temporarily excluded - has Cargo.toml syntax error
   "crates/ggen-process-mining", # Temporarily excluded - has missing benchmark files
@@ -397,6 +400,7 @@ knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "0.1.0" }
 ggen-yawl = { path = "crates/ggen-yawl", version = "0.1.0" }
 oxigraph = "0.5.1"
 # BDD testing framework
+cucumber = "0.20"
 assert_fs = "1.1"
 mockito = "1.7"
 insta = "1.43"

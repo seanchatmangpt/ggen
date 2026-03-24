@@ -679,9 +679,7 @@ fn stop_server_cmd(server_name: String, force: bool) -> VerbResult<ServerStopOut
 
 /// Helper function to create Groq LLM config
 fn create_groq_config(
-    model: Option<String>,
-    temperature: Option<f32>,
-    max_tokens: Option<u32>,
+    model: Option<String>, temperature: Option<f32>, max_tokens: Option<u32>,
 ) -> Result<LlmConfig, String> {
     // Check for GROQ_API_KEY
     if std::env::var(env_vars::GROQ_API_KEY).is_err() {
@@ -709,10 +707,7 @@ fn create_groq_config(
 /// Generate text using Groq
 #[verb]
 fn groq_generate(
-    prompt: String,
-    model: Option<String>,
-    temperature: Option<f32>,
-    max_tokens: Option<u32>,
+    prompt: String, model: Option<String>, temperature: Option<f32>, max_tokens: Option<u32>,
 ) -> VerbResult<GroqGenerateOutput> {
     let config = create_groq_config(model, temperature, max_tokens)
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
@@ -723,8 +718,12 @@ fn groq_generate(
 
     let start = std::time::Instant::now();
     let response = block_on(async { client.complete(&prompt).await })
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Generation failed: {}", e)))?
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Generation failed: {}", e)))?;
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Generation failed: {}", e))
+        })?
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Generation failed: {}", e))
+        })?;
     let duration = start.elapsed();
 
     let usage = response.usage.unwrap_or_else(|| ggen_ai::UsageStats {
@@ -747,10 +746,7 @@ fn groq_generate(
 /// Chat with Groq (multi-turn conversation)
 #[verb]
 fn groq_chat(
-    message: String,
-    model: Option<String>,
-    temperature: Option<f32>,
-    max_tokens: Option<u32>,
+    message: String, model: Option<String>, temperature: Option<f32>, max_tokens: Option<u32>,
     system: Option<String>,
 ) -> VerbResult<GroqChatOutput> {
     let config = create_groq_config(model, temperature, max_tokens)
@@ -770,7 +766,9 @@ fn groq_chat(
     let start = std::time::Instant::now();
     let response = block_on(async { client.complete(&full_prompt).await })
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e)))?
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e)))?;
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e))
+        })?;
     let duration = start.elapsed();
 
     // Build message history for output
@@ -808,10 +806,7 @@ fn groq_chat(
 /// Stream text generation using Groq
 #[verb]
 fn groq_stream(
-    prompt: String,
-    model: Option<String>,
-    temperature: Option<f32>,
-    max_tokens: Option<u32>,
+    prompt: String, model: Option<String>, temperature: Option<f32>, max_tokens: Option<u32>,
 ) -> VerbResult<Vec<GroqStreamChunk>> {
     let config = create_groq_config(model, temperature, max_tokens)
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
@@ -823,8 +818,12 @@ fn groq_stream(
     })?;
 
     let mut stream = block_on(async { client.complete_stream(&prompt).await })
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Stream failed: {}", e)))?
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Stream failed: {}", e)))?;
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Stream failed: {}", e))
+        })?
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Stream failed: {}", e))
+        })?;
 
     let mut chunks = Vec::new();
 
@@ -834,7 +833,9 @@ fn groq_stream(
             use futures::StreamExt;
             stream.next().await
         })
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Stream error: {}", e)))?;
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Stream error: {}", e))
+        })?;
 
         match chunk_result {
             Some(chunk) => {

@@ -230,7 +230,7 @@ mod tests {
     #[test]
     fn test_data_content_extraction() {
         let converter = A2aMessageConverter::new();
-        let mut data = HashMap::new();
+        let mut data = serde_json::Map::new();
         data.insert(
             "key".to_string(),
             serde_json::Value::String("value".to_string()),
