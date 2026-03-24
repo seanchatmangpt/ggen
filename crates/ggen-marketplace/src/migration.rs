@@ -151,7 +151,7 @@ impl MigrationCoordinator {
                 Ok(false) | Err(_) => {
                     // Migrate new package
                     match self.target.insert_package_rdf(&package).await {
-                        Ok(_) => {
+                        Ok(()) => {
                             report.migrated_packages += 1;
                         }
                         Err(e) => {
@@ -197,11 +197,13 @@ impl MigrationReport {
     }
 
     /// Check if migration was successful
+    #[must_use]
     pub fn is_successful(&self) -> bool {
         self.errors.is_empty() && self.migrated_packages == self.total_packages
     }
 
     /// Get success rate (0.0 - 1.0)
+    #[must_use]
     #[allow(clippy::cast_precision_loss)]
     pub fn success_rate(&self) -> f64 {
         if self.total_packages == 0 {
