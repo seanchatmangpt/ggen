@@ -5,16 +5,16 @@
 #![warn(missing_docs, missing_debug_implementations, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-pub mod domain;
-pub mod workflow;
-pub mod patterns;
-pub mod lifecycle;
+// pub mod domain;
+// pub mod workflow;
+// pub mod patterns;
+// pub mod lifecycle;
 
-// Re-export main types
-pub use domain::{LifeDomain, DomainRegistry, DomainStatus};
-pub use workflow::{Workflow, WorkflowEngine, WorkflowStatus};
-pub use patterns::{LifePattern, PatternRegistry, PatternCategory};
-pub use lifecycle::{LifecycleStage, LifecycleManager};
+// Re-export main types (TODO: implement modules)
+// pub use domain::{LifeDomain, DomainRegistry, DomainStatus};
+// pub use workflow::{Workflow, WorkflowEngine, WorkflowStatus};
+// pub use patterns::{LifePattern, PatternRegistry, PatternCategory};
+// pub use lifecycle::{LifecycleStage, LifecycleManager};
 
 use serde_json::Value;
 use std::collections::HashMap;
@@ -28,9 +28,9 @@ use osiris_core::{OSIRISEngine, OSIRISConfig};
 #[derive(Clone)]
 pub struct OSIRISDomains {
     core_engine: Arc<OSIRISEngine>,
-    domains: Arc<LifeDomainRegistry>,
-    workflows: Arc<WorkflowEngine>,
-    lifecycle: Arc<LifecycleManager>,
+    // domains: Arc<LifeDomainRegistry>,
+    // workflows: Arc<WorkflowEngine>,
+    // lifecycle: Arc<LifecycleManager>,
 }
 
 impl OSIRISDomains {
@@ -41,13 +41,11 @@ impl OSIRISDomains {
         // Create core OSIRIS engine
         let core_engine = Arc::new(OSIRISEngine::with_config(config).await?);
 
-        // Initialize domains components
-        let domains = Arc::new(LifeDomainRegistry::new());
-        let workflows = Arc::new(WorkflowEngine::new());
-        let lifecycle = Arc::new(LifecycleManager::new());
-
         Ok(Self {
             core_engine,
+        })
+    }
+}
             domains,
             workflows,
             lifecycle,

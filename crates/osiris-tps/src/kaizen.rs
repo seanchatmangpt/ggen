@@ -139,7 +139,7 @@ impl KaizenCycle {
         let suggestion = ImprovementSuggestion {
             id: format!("suggestion_{}", uuid::Uuid::new_v4()),
             area: "general".to_string(), // Would be parsed from message in real implementation
-            description: message,
+            description: message.clone(),
             priority: 0.5, // Default priority
             suggested_by: "system".to_string(),
             timestamp: chrono::Utc::now(),

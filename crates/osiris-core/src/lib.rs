@@ -24,6 +24,63 @@ pub mod error;
 // Simple exports for now to avoid compilation issues
 pub use error::{OSIRISError, Result};
 
+// Stub types for osiris-* crates (TODO: implement proper modules)
+#[derive(Debug, Clone)]
+pub struct Domain {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+}
+
+impl Domain {
+    pub fn with_description(id: String, name: String, description: String) -> Self {
+        Self { id, name, description }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PatternCategory {
+    Quality,
+    Efficiency,
+    Safety,
+    Delivery,
+    Cost,
+}
+
+#[derive(Debug, Clone)]
+pub struct LifePattern {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub category: PatternCategory,
+    pub version: String,
+}
+
+impl LifePattern {
+    pub fn with_fields(
+        id: String,
+        name: String,
+        description: String,
+        category: PatternCategory,
+        version: String,
+        _metadata: serde_json::Value,
+    ) -> Self {
+        Self { id, name, description, category, version }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct SignalLevel {
+    pub level: u8,
+}
+
+#[derive(Debug, Clone)]
+pub struct OSIRISSignal {
+    pub id: String,
+    pub level: SignalLevel,
+    pub message: String,
+}
+
 /// OSIRIS System Configuration
 #[derive(Debug, Clone)]
 pub struct OSIRISConfig {
@@ -64,6 +121,11 @@ impl OSIRISEngine {
         Ok(Self { config })
     }
 
+    /// Create a new OSIRIS engine with custom configuration
+    pub async fn with_config(config: OSIRISConfig) -> Result<Self> {
+        Ok(Self { config })
+    }
+
     /// Get the current health status of the system
     pub async fn get_health(&self) -> String {
         "healthy".to_string()
@@ -71,6 +133,21 @@ impl OSIRISEngine {
 
     /// Emit an OSIRIS signal
     pub async fn emit_signal(&self, _signal: String) -> Result<()> {
+        Ok(())
+    }
+
+    /// Register a domain (stub implementation)
+    pub async fn register_domain(&self, _domain: Domain) -> Result<()> {
+        Ok(())
+    }
+
+    /// Register a pattern (stub implementation)
+    pub async fn register_pattern(&self, _pattern: LifePattern) -> Result<()> {
+        Ok(())
+    }
+
+    /// Initialize the engine (stub implementation)
+    pub async fn initialize(&self) -> Result<()> {
         Ok(())
     }
 }
