@@ -62,7 +62,10 @@ fn test_project_new_with_custom_output() {
 
     // Verify state: Custom output path used
     let workspace_path = temp_dir.path().join("workspace");
-    assert!(workspace_path.exists(), "Custom output directory should be created");
+    assert!(
+        workspace_path.exists(),
+        "Custom output directory should be created"
+    );
 }
 
 #[test]

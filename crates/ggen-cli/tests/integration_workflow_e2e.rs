@@ -102,7 +102,10 @@ fn test_workflow_init_with_output_dir() {
         .success();
 
     // Verify state: Custom output directory used
-    assert!(output_dir.exists(), "Custom output directory should be created");
+    assert!(
+        output_dir.exists(),
+        "Custom output directory should be created"
+    );
 }
 
 #[test]
@@ -218,7 +221,9 @@ fn test_workflow_event() {
         .current_dir(&temp_dir)
         .assert()
         .success()
-        .stdout(predicate::str::contains("Event recorded").or(predicate::str::contains("timestamp")));
+        .stdout(
+            predicate::str::contains("Event recorded").or(predicate::str::contains("timestamp")),
+        );
 }
 
 #[test]
@@ -257,7 +262,9 @@ fn test_workflow_report() {
         .current_dir(&temp_dir)
         .assert()
         .success()
-        .stdout(predicate::str::contains("Report generated").or(predicate::str::contains("status")));
+        .stdout(
+            predicate::str::contains("Report generated").or(predicate::str::contains("status")),
+        );
 }
 
 #[test]
