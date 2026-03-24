@@ -252,11 +252,13 @@ impl VerificationReport {
     }
 
     /// Check if verification passed
+    #[must_use]
     pub fn is_valid(&self) -> bool {
         self.errors.is_empty() && self.mismatches.is_empty()
     }
 
     /// Get verification rate (0.0 - 1.0)
+    #[must_use]
     #[allow(clippy::cast_precision_loss)]
     pub fn verification_rate(&self) -> f64 {
         if self.total_packages == 0 {
@@ -414,11 +416,13 @@ impl ConsistencyReport {
     }
 
     /// Check if all packages are consistent
+    #[must_use]
     pub fn is_fully_consistent(&self) -> bool {
         self.inconsistent_packages.is_empty() && self.errors.is_empty()
     }
 
     /// Get consistency rate (0.0 - 1.0)
+    #[must_use]
     #[allow(clippy::cast_precision_loss)]
     pub fn consistency_rate(&self) -> f64 {
         if self.total_packages == 0 {
