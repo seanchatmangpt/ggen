@@ -1095,13 +1095,13 @@ command = "./marketplace/scripts/generate_validation_report.sh"
 description = "Emit validation receipts for all marketplace packages (Track A)"
 workspace = false
 command = "cargo"
-args = ["run", "--release", "--bin", "ggen", "--", "marketplace", "emit-receipts", "--report"]
+args = ["run", "--release", "-p", "ggen-cli-lib", "--bin", "ggen", "--", "marketplace", "emit_receipts", "--marketplace_root", "."]
 
 [tasks.marketplace-health]
 description = "Generate marketplace health report from validation receipts"
 workspace = false
 command = "cargo"
-args = ["run", "--release", "--bin", "ggen", "--", "marketplace", "report", "--output", "marketplace/MARKETPLACE_HEALTH.json"]
+args = ["run", "--release", "-p", "ggen-cli-lib", "--bin", "ggen", "--", "marketplace", "report", "--marketplace_root", "."]
 
 [tasks.marketplace-validate-with-receipts]
 description = "Validate all packages and emit receipts (combined Track A)"
@@ -1112,7 +1112,7 @@ dependencies = ["marketplace-validate", "marketplace-emit-receipts"]
 description = "Generate JSON registry and Markdown from receipts (Track B)"
 workspace = false
 command = "cargo"
-args = ["run", "--release", "--bin", "ggen", "--", "marketplace", "generate-artifacts"]
+args = ["run", "--release", "-p", "ggen-cli-lib", "--bin", "ggen", "--", "marketplace", "generate_artifacts", "--marketplace_root", "."]
 
 [tasks.marketplace-full-pipeline]
 description = "Complete marketplace pipeline: validate → emit receipts → generate artifacts (Track A+B)"

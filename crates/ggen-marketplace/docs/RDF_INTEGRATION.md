@@ -264,7 +264,7 @@ package_exists          time:   [12.3 μs 12.8 μs 13.3 μs]
 ### Basic Package Storage
 
 ```rust
-use ggen_marketplace::{
+use ggen_marketplace_v2::{
     RdfRegistry, PackageMetadata, Package, PackageId, PackageVersion,
     traits::AsyncRepository,
 };
@@ -292,7 +292,7 @@ assert_eq!(retrieved.metadata.name, "My Package");
 ### Migration from v1
 
 ```rust
-use ggen_marketplace::migration::MigrationCoordinator;
+use ggen_marketplace_v2::migration::MigrationCoordinator;
 
 let v1_packages = vec![/* v1 packages */];
 let rdf_registry = Arc::new(RdfRegistry::new());
@@ -310,7 +310,7 @@ assert!(verification.is_valid());
 ### SPARQL Queries
 
 ```rust
-use ggen_marketplace::ontology::Queries;
+use ggen_marketplace_v2::ontology::Queries;
 
 let registry = RdfRegistry::new();
 

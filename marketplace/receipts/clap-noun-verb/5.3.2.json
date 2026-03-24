@@ -1,0 +1,55 @@
+{
+  "package_id": "clap-noun-verb",
+  "version": "5.3.2",
+  "validated_at": "2026-03-24T06:27:54.054024+00:00",
+  "ggen_version": "3.0.0",
+  "guard_results": [
+    {
+      "guard_name": "Metadata Guard",
+      "guard_type": "metadata",
+      "passed": true,
+      "message": "Metadata complete: id, version, description found",
+      "weight": 10,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "License Guard",
+      "guard_type": "license",
+      "passed": false,
+      "message": "No LICENSE file found (LICENSE, LICENSE-MIT, or LICENSE-APACHE required)",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "README Guard",
+      "guard_type": "readme",
+      "passed": true,
+      "message": "README.md found (4621 chars, minimum 500 required)",
+      "weight": 7,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Tests Guard",
+      "guard_type": "tests",
+      "passed": false,
+      "message": "No test directory or test files found",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Chicago Compliance Guard",
+      "guard_type": "chicago_compliance",
+      "passed": true,
+      "message": "No src/ directory found (not applicable to non-Rust packages)",
+      "weight": 15,
+      "severity": "Critical"
+    }
+  ],
+  "overall_score": 66.66666666666666,
+  "production_ready": false,
+  "checksum": "c0fc0d458371273776e676e96752f718ecef37340ce22e2487d907a2232c3934",
+  "critical_passed": 3,
+  "critical_total": 5,
+  "bonus_passed": 0,
+  "bonus_total": 0
+}

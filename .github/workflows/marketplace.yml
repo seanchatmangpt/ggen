@@ -28,109 +28,35 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Validate registry
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust-cached
+
+      - name: Build ggen
+        run: |
+          cargo build --release --bin ggen
+
+      - name: Validate marketplace
         run: |
           set -euo pipefail
-          echo "Validating marketplace registry..."
+          echo "Validating marketplace packages..."
 
-          # Check if packages.toml exists
-          if [ ! -f "marketplace/registry/packages.toml" ]; then
-            echo "ERROR: marketplace/registry/packages.toml not found"
-            exit 1
-          fi
+          # Emit validation receipts
+          ./target/release/ggen marketplace emit_receipts --marketplace_root .
 
-          # TOML syntax validation using Python
-          python3 << 'PYTHON_EOF'
-          import sys
-          import re
+          # Generate validation report
+          ./target/release/ggen marketplace report --marketplace_root .
 
-          try:
-              with open("marketplace/registry/packages.toml", 'r') as f:
-                  content = f.read()
+          echo "✅ Marketplace validation passed"
 
-              # Validate TOML structure
-              if not re.search(r'^\s*\[\w+', content, re.MULTILINE):
-                  raise ValueError("Invalid TOML: no tables found")
-
-              # Basic structure validation
-              required_sections = ['packages']
-              for section in required_sections:
-                  if f'[{section}]' not in content:
-                      raise ValueError(f"Invalid TOML: missing [{section}] section")
-
-              print("✅ TOML syntax validation passed")
-          except Exception as e:
-              print(f"❌ TOML validation failed: {e}")
-              sys.exit(1)
-          PYTHON_EOF
-
-          echo "✅ Registry validation passed"
-
-      - name: Generate marketplace index
+      - name: Generate marketplace artifacts
         run: |
-          echo "Generating marketplace index.html..."
-          cat > marketplace/index.html << 'EOF'
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>ggen Marketplace</title>
-              <style>
-                  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                         max-width: 1200px; margin: 0 auto; padding: 20px; line-height: 1.6; }
-                  h1 { color: #2c3e50; }
-                  .package { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
-                  .package h3 { margin-top: 0; color: #3498db; }
-                  .tags { display: flex; gap: 5px; flex-wrap: wrap; }
-                  .tag { background: #ecf0f1; padding: 3px 8px; border-radius: 3px; font-size: 0.9em; }
-                  code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }
-              </style>
-          </head>
-          <body>
-              <h1>🚀 ggen Marketplace</h1>
-              <p>Production-ready packages for the ggen ecosystem</p>
+          set -euo pipefail
+          echo "Generating marketplace artifacts..."
 
-              <h2>🔧 Installation</h2>
-              <pre><code># Search packages
-          ggen market search "rust api"
+          # Generate registry index and PACKAGES.md
+          ./target/release/ggen marketplace generate_artifacts --marketplace_root .
 
-          # Install package
-          ggen market add "advanced-rust-api-8020"
-
-          # List installed
-          ggen market list</code></pre>
-
-              <h2>📦 Available Packages</h2>
-              <div id="packages"></div>
-
-              <h2>📚 Resources</h2>
-              <ul>
-                  <li><a href="registry/packages.toml">Registry File</a></li>
-                  <li><a href="https://github.com/seanchatmangpt/ggen">GitHub Repository</a></li>
-                  <li><a href="README.md">Publishing Guide</a></li>
-              </ul>
-
-              <script>
-                  // Load and display packages from registry
-                  fetch('registry/packages.toml')
-                      .then(r => r.text())
-                      .then(data => {
-                          const container = document.getElementById('packages');
-                          container.innerHTML = '<p>📦 Loading packages from registry...</p>';
-                          // For now, show static message
-                          // TODO: Parse TOML and display dynamically
-                          container.innerHTML = '<p>✅ Registry loaded. Use CLI to browse packages.</p>';
-                      })
-                      .catch(e => {
-                          document.getElementById('packages').innerHTML =
-                              '<p>⚠️ Could not load registry. Please use the CLI.</p>';
-                      });
-              </script>
-          </body>
-          </html>
-          EOF
-          echo "✅ Index generated"
+          echo "✅ Artifacts generated"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
@@ -153,4 +79,5 @@ jobs:
         run: |
           echo "🎉 Marketplace deployed successfully!"
           echo "📍 URL: https://seanchatmangpt.github.io/ggen/marketplace/"
-          echo "📦 Registry: https://seanchatmangpt.github.io/ggen/marketplace/registry/packages.toml"
+          echo "📦 Registry: https://seanchatmangpt.github.io/ggen/registry/index.json"
+          echo "📚 Packages: https://seanchatmangpt.github.io/ggen/PACKAGES.md"

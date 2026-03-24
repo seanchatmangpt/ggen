@@ -205,9 +205,9 @@ impl<'a> ConfigValidator<'a> {
                     ));
                 }
 
-                // Validate port if specified
+                // Validate port if specified (port is u16, so just check for 0)
                 if let Some(port) = transport.port {
-                    if port == 0 || port > 65535 {
+                    if port == 0 {
                         self.errors.push(format!(
                             "Invalid MCP port: {}. Must be between 1 and 65535",
                             port
@@ -244,9 +244,9 @@ impl<'a> ConfigValidator<'a> {
                     ));
                 }
 
-                // Validate port if specified
+                // Validate port if specified (port is u16, so just check for 0)
                 if let Some(port) = transport.port {
-                    if port == 0 || port > 65535 {
+                    if port == 0 {
                         self.errors.push(format!(
                             "Invalid A2A port: {}. Must be between 1 and 65535",
                             port

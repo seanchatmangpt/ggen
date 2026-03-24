@@ -169,10 +169,11 @@ pub async fn update_and_report(package: Option<&str>, all: bool, dry_run: bool) 
     Ok(())
 }
 
-/// Execute update command using ggen-marketplace-v2 backend with RDF semantic versioning
+/// Execute update command using ggen-marketplace backend with RDF semantic versioning
+#[cfg(feature = "marketplace")]
 pub async fn execute_update(input: UpdateInput) -> Result<UpdateOutput> {
-    use ggen_marketplace_v2::prelude::*;
-    use ggen_marketplace_v2::RdfRegistry;
+    use ggen_marketplace::prelude::*;
+    use ggen_marketplace::RdfRegistry;
 
     let _registry_path = dirs::home_dir()
         .ok_or_else(|| ggen_utils::error::Error::new("home directory not found"))?
@@ -253,6 +254,27 @@ pub async fn execute_update(input: UpdateInput) -> Result<UpdateOutput> {
 
     Ok(UpdateOutput {
         packages_updated: updated_count,
+    })
+}
+
+/// Fallback implementation without marketplace
+#[cfg(not(feature = "marketplace"))]
+pub async fn execute_update(input: UpdateInput) -> Result<UpdateOutput> {
+    // Simple fallback: just report 0 packages updated
+    if let Some(ref pkg_name) = input.package {
+        ggen_utils::alert_info!("Update functionality requires marketplace feature");
+        ggen_utils::alert_info!("Package: {}", pkg_name);
+    } else if input.all {
+        ggen_utils::alert_info!("Update functionality requires marketplace feature");
+        ggen_utils::alert_info!("Update all packages requested");
+    } else {
+        return Err(ggen_utils::error::Error::new(
+            "Please specify a package name or use --all to update all packages"
+        ));
+    }
+
+    Ok(UpdateOutput {
+        packages_updated: 0,
     })
 }
 

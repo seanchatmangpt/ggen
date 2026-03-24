@@ -550,6 +550,15 @@ async fn load_registry_index() -> Result<RegistryIndex> {
     }
 
     // Cache miss - load from filesystem/network (slow path)
+
+    // Check for explicit marketplace root override first
+    if let Ok(marketplace_root) = std::env::var("GGEN_MARKETPLACE_ROOT") {
+        let registry_path = PathBuf::from(marketplace_root).join("registry").join("index.json");
+        if registry_path.exists() {
+            return load_registry_from_path(&registry_path).await;
+        }
+    }
+
     // Determine registry URL
     let registry_url = std::env::var("GGEN_REGISTRY_URL").unwrap_or_else(|_| {
         "https://seanchatmangpt.github.io/ggen/marketplace/registry/index.json".to_string()
@@ -625,6 +634,55 @@ async fn load_registry_index() -> Result<RegistryIndex> {
     };
 
     let content = tokio::fs::read_to_string(&registry_path)
+        .await
+        .map_err(|e| {
+            ggen_utils::error::Error::new(&format!(
+                "Failed to read registry index {}: {}",
+                registry_path.display(),
+                e
+            ))
+        })?;
+
+    // Validate JSON structure before parsing
+    let json_value: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
+        ggen_utils::error::Error::new(&format!(
+            "Invalid JSON in registry index {}: {}. Please check registry format.",
+            registry_path.display(),
+            e
+        ))
+    })?;
+
+    // Validate required fields
+    if !json_value.is_object() {
+        return Err(ggen_utils::error::Error::new(&format!(
+            "Invalid registry format: expected object, got {}",
+            json_value
+        )));
+    }
+
+    let index: RegistryIndex = serde_json::from_value(json_value).map_err(|e| {
+        ggen_utils::error::Error::new(&format!(
+            "Invalid registry structure {}: {}. Expected 'packages' array and 'updated' timestamp.",
+            registry_path.display(),
+            e
+        ))
+    })?;
+
+    // FM6 & FM7: Validate registry index structure and package data
+    validate_registry_index(&index)?;
+
+    // Cache the loaded index (80/20 performance fix)
+    {
+        let mut cache = REGISTRY_CACHE.write().await;
+        *cache = Some(index.clone());
+    }
+
+    Ok(index)
+}
+
+/// Load registry index from a specific filesystem path
+async fn load_registry_from_path(registry_path: &PathBuf) -> Result<RegistryIndex> {
+    let content = tokio::fs::read_to_string(registry_path)
         .await
         .map_err(|e| {
             ggen_utils::error::Error::new(&format!(

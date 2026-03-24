@@ -9,6 +9,7 @@
 
 use std::fs;
 use std::path::Path;
+use std::time::Duration;
 
 /// Performance metrics for a single benchmark
 #[derive(Debug, Clone)]

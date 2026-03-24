@@ -1,0 +1,55 @@
+{
+  "package_id": "chatman-cli",
+  "version": "0.1.0",
+  "validated_at": "2026-03-24T06:27:54.054969+00:00",
+  "ggen_version": "3.0.0",
+  "guard_results": [
+    {
+      "guard_name": "Metadata Guard",
+      "guard_type": "metadata",
+      "passed": false,
+      "message": "Missing metadata: id=false, version=true, description=true",
+      "weight": 10,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "License Guard",
+      "guard_type": "license",
+      "passed": true,
+      "message": "License file found",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "README Guard",
+      "guard_type": "readme",
+      "passed": true,
+      "message": "README.md found (4151 chars, minimum 500 required)",
+      "weight": 7,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Tests Guard",
+      "guard_type": "tests",
+      "passed": true,
+      "message": "Test files found",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Chicago Compliance Guard",
+      "guard_type": "chicago_compliance",
+      "passed": false,
+      "message": "❌ Forbidden patterns found:\n  - Unwrap without fallback: unwrap() in /Users/sac/ggen/marketplace/packages/chatman-cli/src/lib.rs",
+      "weight": 15,
+      "severity": "Critical"
+    }
+  ],
+  "overall_score": 47.91666666666667,
+  "production_ready": false,
+  "checksum": "c1744e0d57ed61f88549a9d84a4c1e2cf3459f0841c299b4357b02a5e15e8a84",
+  "critical_passed": 3,
+  "critical_total": 5,
+  "bonus_passed": 0,
+  "bonus_total": 0
+}

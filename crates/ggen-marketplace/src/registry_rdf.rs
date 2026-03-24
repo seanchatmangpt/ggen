@@ -46,6 +46,7 @@ pub struct RdfRegistry {
 
 impl RdfRegistry {
     /// Create a new RDF-backed registry
+    #[must_use]
     pub fn new() -> Self {
         let store = Store::new().expect("Failed to create RDF store");
 
@@ -88,12 +89,24 @@ impl RdfRegistry {
     }
 
     /// Insert a package as RDF triples using the mapper
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::RdfStoreError`] - When inserting triples into the RDF store fails
+    /// * [`Error::SerializationError`] - When serializing package data to RDF fails
+    #[must_use]
     pub async fn insert_package_rdf(&self, package: &Package) -> Result<()> {
         let _lock = self.write_lock.write();
         self.mapper.package_to_rdf(package).await
     }
 
     /// Batch insert multiple packages for efficient loading
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::RdfStoreError`] - When inserting triples into the RDF store fails
+    /// * [`Error::SerializationError`] - When serializing package data to RDF fails
+    #[must_use]
     pub async fn batch_insert_packages(&self, packages: Vec<Package>) -> Result<usize> {
         let _lock = self.write_lock.write();
         let mut inserted = 0;
@@ -112,6 +125,12 @@ impl RdfRegistry {
     }
 
     /// Query packages by SPARQL
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::SparqlError`] - When the SPARQL query syntax is invalid
+    /// * [`Error::RdfStoreError`] - When querying the RDF store fails
+    #[must_use]
     pub fn query_sparql(&self, query: &str) -> Result<Vec<String>> {
         let results = self
             .store
@@ -128,14 +147,8 @@ impl RdfRegistry {
             for solution in solutions {
                 if let Ok(solution) = solution {
                     for (_, term) in solution.iter() {
-                        match term {
-                            Term::NamedNode(node) => {
-                                packages.push(node.as_str().to_string());
-                            }
-                            Term::Literal(lit) => {
-                                packages.push(lit.value().to_string());
-                            }
-                            _ => {}
+                        if let Term::NamedNode(node) = term {
+                            packages.push(node.as_str().to_string());
                         }
                     }
                 }
@@ -147,6 +160,7 @@ impl RdfRegistry {
     }
 
     /// Get statistics about the RDF store
+    #[must_use]
     pub fn stats(&self) -> RdfRegistryStats {
         let query_count = self
             .queries_executed
@@ -207,7 +221,7 @@ impl AsyncRepository for RdfRegistry {
         let query = format!(
             r"
             SELECT ?packageId WHERE {{
-                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <{}classes/Package> .
+                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <{}Package> .
                 ?package <{}> ?packageId .
             }}
             ",
@@ -235,7 +249,7 @@ impl AsyncRepository for RdfRegistry {
         let query = format!(
             r#"
             SELECT ?version WHERE {{
-                ?package <{}properties/hasVersion> ?version .
+                ?package <{}hasVersion> ?version .
                 FILTER(CONTAINS(str(?package), "{}"))
             }}
             "#,
@@ -261,7 +275,7 @@ impl AsyncRepository for RdfRegistry {
         let query = format!(
             r#"
             ASK {{
-                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <{}classes/Package> .
+                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <{}Package> .
                 FILTER(CONTAINS(str(?package), "{}"))
             }}
             "#,

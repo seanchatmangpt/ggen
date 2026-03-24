@@ -260,7 +260,7 @@ Installed → Removing → (deleted)
 ### Initialize Control Plane
 
 ```rust
-use ggen_marketplace::rdf::RdfControlPlane;
+use ggen_marketplace_v2::rdf::RdfControlPlane;
 
 let control_plane = RdfControlPlane::new("./config")?;
 ```
@@ -268,7 +268,7 @@ let control_plane = RdfControlPlane::new("./config")?;
 ### Search Packages
 
 ```rust
-use ggen_marketplace::rdf::{SearchParams, MarketplaceQueries};
+use ggen_marketplace_v2::rdf::{SearchParams, MarketplaceQueries};
 
 let params = SearchParams {
     query: Some("react".to_string()),
@@ -365,7 +365,7 @@ The RDF control plane integrates with existing marketplace components:
 
 ```rust
 // In your CLI commands
-use ggen_marketplace::rdf::RdfControlPlane;
+use ggen_marketplace_v2::rdf::RdfControlPlane;
 
 pub fn search_command(args: SearchArgs) -> Result<()> {
     let control_plane = RdfControlPlane::new("./config")?;
@@ -384,12 +384,12 @@ Comprehensive test suite with integration tests:
 
 ```bash
 # Run all RDF tests
-cargo test --package ggen-marketplace --lib rdf
+cargo test --package ggen-marketplace-v2 --lib rdf
 
 # Run specific test modules
-cargo test --package ggen-marketplace poka_yoke::tests
-cargo test --package ggen-marketplace sparql_queries::tests
-cargo test --package ggen-marketplace fmea_mitigations::tests
+cargo test --package ggen-marketplace-v2 poka_yoke::tests
+cargo test --package ggen-marketplace-v2 sparql_queries::tests
+cargo test --package ggen-marketplace-v2 fmea_mitigations::tests
 ```
 
 ## Migration from v1
@@ -397,8 +397,8 @@ cargo test --package ggen-marketplace fmea_mitigations::tests
 Migration script to convert existing packages to RDF:
 
 ```rust
-use ggen_marketplace::rdf::RdfControlPlane;
-use ggen_marketplace::legacy::LegacyPackageStore;
+use ggen_marketplace_v2::rdf::RdfControlPlane;
+use ggen_marketplace_v2::legacy::LegacyPackageStore;
 
 let legacy = LegacyPackageStore::load()?;
 let control_plane = RdfControlPlane::new("./config")?;

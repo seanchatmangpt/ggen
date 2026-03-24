@@ -38,7 +38,7 @@ pub mod construct;
 pub mod graph;
 pub mod hook;
 pub mod mcp;
-// pub mod marketplace;  // DISABLED: Pending v2 API migration (128 compilation errors)
+pub mod marketplace;  // Re-enabled with slim version (4 core verbs: search, install, list, publish)
 pub mod ontology;
 pub mod packs;
 pub mod paper;

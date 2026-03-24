@@ -22,6 +22,7 @@ pub struct KeyPair {
 
 impl KeyPair {
     /// Generate a new key pair
+    #[must_use]
     pub fn generate() -> Self {
         let secret_bytes: [u8; 32] = rand::random();
         let signing_key = SigningKey::from_bytes(&secret_bytes);
@@ -36,11 +37,17 @@ impl KeyPair {
     }
 
     /// Get the public key as hex string
+    #[must_use]
     pub fn public_key_hex(&self) -> String {
         hex_encode(self.verifying_key.to_bytes())
     }
 
     /// Load from private key hex
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::CryptoError`] - When the hex string is invalid or the key is not 32 bytes
+    #[must_use]
     pub fn from_secret_key(secret_key_hex: &str) -> Result<Self> {
         let secret_bytes = hex_decode(secret_key_hex)
             .map_err(|e| crate::error::Error::CryptoError(format!("Invalid hex: {}", e)))?;
@@ -64,6 +71,7 @@ impl KeyPair {
     }
 
     /// Get the secret key as hex string (PRIVATE - handle with care)
+    #[must_use]
     pub fn secret_key_hex(&self) -> String {
         hex_encode(self.signing_key.to_bytes())
     }
@@ -76,11 +84,17 @@ pub struct SignatureVerifier {
 
 impl SignatureVerifier {
     /// Create a new verifier with a key pair
+    #[must_use]
     pub fn new(key_pair: KeyPair) -> Self {
         Self { key_pair }
     }
 
     /// Create a verifier from public key only (for verification)
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::CryptoError`] - When the hex string is invalid, the key is not 32 bytes, or the key is not a valid Ed25519 public key
+    #[must_use]
     pub fn from_public_key(public_key_hex: &str) -> Result<Self> {
         let pub_bytes = hex_decode(public_key_hex)
             .map_err(|e| crate::error::Error::CryptoError(format!("Invalid hex: {}", e)))?;
@@ -109,6 +123,11 @@ impl SignatureVerifier {
     }
 
     /// Verify a signature
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::SignatureVerificationFailed`] - When the signature hex is invalid or not 64 bytes
+    #[must_use]
     pub fn verify_signature(&self, data: &[u8], signature_hex: &str) -> Result<bool> {
         let sig_bytes = hex_decode(signature_hex).map_err(|e| {
             crate::error::Error::SignatureVerificationFailed {
@@ -140,6 +159,7 @@ impl SignatureVerifier {
     }
 
     /// Get the public key
+    #[must_use]
     pub fn public_key(&self) -> String {
         self.key_pair.public_key_hex()
     }
@@ -165,6 +185,7 @@ pub struct ChecksumCalculator;
 
 impl ChecksumCalculator {
     /// Calculate SHA-256 checksum
+    #[must_use]
     pub fn calculate(data: &[u8]) -> String {
         let mut hasher = Sha256::new();
         hasher.update(data);
@@ -172,6 +193,11 @@ impl ChecksumCalculator {
     }
 
     /// Verify checksum
+    ///
+    /// # Errors
+    ///
+    /// This function currently always returns `Ok`. It compares the calculated SHA-256 checksum with the expected value.
+    #[must_use]
     pub fn verify(data: &[u8], expected: &str) -> Result<bool> {
         let calculated = Self::calculate(data);
         Ok(calculated == expected)
@@ -198,208 +224,9 @@ impl std::fmt::Display for SignatureReceipt {
         writeln!(f, "Signature Receipt")?;
         writeln!(f, "Package: {}", self.package_identifier)?;
         writeln!(f, "Signed at: {}", self.signed_at)?;
-        // Safe truncation - show first 16 chars or entire string if shorter
-        let pub_key_preview = if self.public_key.len() > 16 {
-            &self.public_key[..16]
-        } else {
-            &self.public_key
-        };
-        writeln!(f, "Public key: {}", pub_key_preview)?;
-
-        let checksum_preview = if self.data_checksum.len() > 16 {
-            &self.data_checksum[..16]
-        } else {
-            &self.data_checksum
-        };
-        writeln!(f, "Data checksum: {}", checksum_preview)?;
+        writeln!(f, "Public key: {}", &self.public_key[..16])?; // Show first 16 chars
+        writeln!(f, "Data checksum: {}", &self.data_checksum[..16])?;
         Ok(())
-    }
-}
-
-/// Result of integrity validation
-#[derive(Clone, Debug)]
-pub struct IntegrityValidationResult {
-    /// Whether the validation passed
-    pub is_valid: bool,
-    /// Package identifier
-    pub package_identifier: String,
-    /// Checksum verification result
-    pub checksum_valid: bool,
-    /// Signature verification result
-    pub signature_valid: Option<bool>,
-    /// Validation timestamp
-    pub validated_at: chrono::DateTime<chrono::Utc>,
-    /// Any error messages
-    pub errors: Vec<String>,
-}
-
-impl IntegrityValidationResult {
-    /// Create a successful validation result
-    pub fn success(
-        package_identifier: String, checksum_valid: bool, signature_valid: Option<bool>,
-    ) -> Self {
-        Self {
-            is_valid: checksum_valid && signature_valid.unwrap_or(true),
-            package_identifier,
-            checksum_valid,
-            signature_valid,
-            validated_at: chrono::Utc::now(),
-            errors: Vec::new(),
-        }
-    }
-
-    /// Create a failed validation result
-    pub fn failure(package_identifier: String, errors: Vec<String>) -> Self {
-        Self {
-            is_valid: false,
-            package_identifier,
-            checksum_valid: false,
-            signature_valid: None,
-            validated_at: chrono::Utc::now(),
-            errors,
-        }
-    }
-}
-
-impl std::fmt::Display for IntegrityValidationResult {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Integrity Validation Result")?;
-        writeln!(f, "Package: {}", self.package_identifier)?;
-        writeln!(f, "Valid: {}", self.is_valid)?;
-        writeln!(
-            f,
-            "Checksum: {}",
-            if self.checksum_valid { "PASS" } else { "FAIL" }
-        )?;
-        if let Some(sig_valid) = self.signature_valid {
-            writeln!(f, "Signature: {}", if sig_valid { "PASS" } else { "FAIL" })?;
-        }
-        if !self.errors.is_empty() {
-            writeln!(f, "Errors:")?;
-            for err in &self.errors {
-                writeln!(f, "  - {}", err)?;
-            }
-        }
-        Ok(())
-    }
-}
-
-/// Comprehensive integrity validator for packages
-pub struct IntegrityValidator {
-    /// Optional signature verifier for signed packages
-    verifier: Option<SignatureVerifier>,
-}
-
-impl IntegrityValidator {
-    /// Create a new validator without signature verification
-    pub fn new() -> Self {
-        Self { verifier: None }
-    }
-
-    /// Create a new validator with signature verification
-    pub fn with_verifier(verifier: SignatureVerifier) -> Self {
-        Self {
-            verifier: Some(verifier),
-        }
-    }
-
-    /// Validate package integrity (checksum only)
-    pub fn validate_checksum(
-        &self, package_identifier: &str, data: &[u8], expected_checksum: &str,
-    ) -> IntegrityValidationResult {
-        let checksum_valid = match ChecksumCalculator::verify(data, expected_checksum) {
-            Ok(valid) => valid,
-            Err(e) => {
-                return IntegrityValidationResult::failure(
-                    package_identifier.to_string(),
-                    vec![format!("Checksum verification error: {}", e)],
-                );
-            }
-        };
-
-        if checksum_valid {
-            debug!("Checksum validation passed for {}", package_identifier);
-        } else {
-            debug!("Checksum validation failed for {}", package_identifier);
-        }
-
-        IntegrityValidationResult::success(package_identifier.to_string(), checksum_valid, None)
-    }
-
-    /// Validate package integrity (checksum and signature)
-    pub fn validate_full(
-        &self, package_identifier: &str, data: &[u8], expected_checksum: &str,
-        signature: Option<&str>,
-    ) -> IntegrityValidationResult {
-        // First verify checksum
-        let checksum_valid = match ChecksumCalculator::verify(data, expected_checksum) {
-            Ok(valid) => valid,
-            Err(e) => {
-                return IntegrityValidationResult::failure(
-                    package_identifier.to_string(),
-                    vec![format!("Checksum verification error: {}", e)],
-                );
-            }
-        };
-
-        // Then verify signature if provided and verifier is available
-        let signature_valid = match (&self.verifier, signature) {
-            (Some(verifier), Some(sig)) => match verifier.verify_signature(data, sig) {
-                Ok(valid) => Some(valid),
-                Err(e) => {
-                    return IntegrityValidationResult::failure(
-                        package_identifier.to_string(),
-                        vec![format!("Signature verification error: {}", e)],
-                    );
-                }
-            },
-            (None, Some(_)) => {
-                return IntegrityValidationResult::failure(
-                    package_identifier.to_string(),
-                    vec!["Signature provided but no verifier configured".to_string()],
-                );
-            }
-            _ => None,
-        };
-
-        let is_valid = checksum_valid && signature_valid.unwrap_or(true);
-
-        if is_valid {
-            debug!(
-                "Full integrity validation passed for {}",
-                package_identifier
-            );
-        } else {
-            debug!(
-                "Full integrity validation failed for {}",
-                package_identifier
-            );
-        }
-
-        IntegrityValidationResult {
-            is_valid,
-            package_identifier: package_identifier.to_string(),
-            checksum_valid,
-            signature_valid,
-            validated_at: chrono::Utc::now(),
-            errors: Vec::new(),
-        }
-    }
-
-    /// Validate multiple packages in batch
-    pub fn validate_batch(
-        &self, packages: &[(String, Vec<u8>, String, Option<String>)],
-    ) -> Vec<IntegrityValidationResult> {
-        packages
-            .iter()
-            .map(|(id, data, checksum, sig)| self.validate_full(id, data, checksum, sig.as_deref()))
-            .collect()
-    }
-}
-
-impl Default for IntegrityValidator {
-    fn default() -> Self {
-        Self::new()
     }
 }
 
@@ -471,73 +298,5 @@ mod tests {
         let key_pair2 = KeyPair::from_secret_key(&secret_hex).unwrap();
 
         assert_eq!(key_pair1.public_key_hex(), key_pair2.public_key_hex());
-    }
-
-    #[test]
-    fn test_integrity_validator_checksum_only() {
-        let validator = IntegrityValidator::new();
-        let data = b"test package data";
-        let checksum = ChecksumCalculator::calculate(data);
-
-        let result = validator.validate_checksum("test-pkg@1.0.0", data, &checksum);
-        assert!(result.is_valid);
-        assert!(result.checksum_valid);
-        assert!(result.signature_valid.is_none());
-    }
-
-    #[test]
-    fn test_integrity_validator_checksum_failure() {
-        let validator = IntegrityValidator::new();
-        let data = b"test package data";
-        let wrong_checksum = "0".repeat(64);
-
-        let result = validator.validate_checksum("test-pkg@1.0.0", data, &wrong_checksum);
-        assert!(!result.is_valid);
-        assert!(!result.checksum_valid);
-    }
-
-    #[test]
-    fn test_integrity_validator_full_with_signature() {
-        let key_pair = KeyPair::generate();
-        let verifier = SignatureVerifier::new(key_pair);
-        let validator = IntegrityValidator::with_verifier(verifier);
-
-        let data = b"test package data";
-        let checksum = ChecksumCalculator::calculate(data);
-        let signature = validator.verifier.as_ref().unwrap().sign(data).unwrap();
-
-        let result = validator.validate_full("test-pkg@1.0.0", data, &checksum, Some(&signature));
-        assert!(result.is_valid);
-        assert!(result.checksum_valid);
-        assert_eq!(result.signature_valid, Some(true));
-    }
-
-    #[test]
-    fn test_integrity_validator_batch() {
-        let validator = IntegrityValidator::new();
-
-        let data1 = b"package one";
-        let checksum1 = ChecksumCalculator::calculate(data1);
-
-        let data2 = b"package two";
-        let checksum2 = ChecksumCalculator::calculate(data2);
-
-        let packages = vec![
-            ("pkg1@1.0.0".to_string(), data1.to_vec(), checksum1, None),
-            ("pkg2@1.0.0".to_string(), data2.to_vec(), checksum2, None),
-        ];
-
-        let results = validator.validate_batch(&packages);
-        assert_eq!(results.len(), 2);
-        assert!(results.iter().all(|r| r.is_valid));
-    }
-
-    #[test]
-    fn test_integrity_validation_result_display() {
-        let result =
-            IntegrityValidationResult::success("test-pkg@1.0.0".to_string(), true, Some(true));
-        let display = format!("{}", result);
-        assert!(display.contains("test-pkg@1.0.0"));
-        assert!(display.contains("PASS"));
     }
 }

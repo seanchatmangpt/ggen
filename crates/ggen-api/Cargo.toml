@@ -30,7 +30,6 @@ http = "1.0"
 toml = { workspace = true }
 
 # Local crates
-ggen-marketplace = { workspace = true }
 ggen-core = { workspace = true }
 ggen-utils = { workspace = true }
 ggen-config = { workspace = true }

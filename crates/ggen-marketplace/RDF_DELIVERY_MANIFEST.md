@@ -128,7 +128,7 @@ RegistryConfig      - Registry settings
 ### Usage Example
 
 ```rust
-use ggen_marketplace::rdf::*;
+use ggen_marketplace_v2::rdf::*;
 
 // Initialize
 let control_plane = RdfControlPlane::new("./config")?;
@@ -189,7 +189,7 @@ Ready to integrate with:
 
 ```bash
 # Run all RDF tests
-cargo test --package ggen-marketplace --lib rdf
+cargo test --package ggen-marketplace-v2 --lib rdf
 
 # Run specific modules
 cargo test poka_yoke::tests

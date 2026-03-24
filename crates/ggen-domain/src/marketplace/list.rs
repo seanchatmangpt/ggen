@@ -148,10 +148,11 @@ pub async fn list_and_display(detailed: bool, json: bool) -> Result<()> {
     Ok(())
 }
 
-/// Execute list command using ggen-marketplace-v2 backend
+/// Execute list command using ggen-marketplace backend
+#[cfg(feature = "marketplace")]
 pub async fn execute_list(_input: ListInput) -> Result<ListOutput> {
-    use ggen_marketplace_v2::prelude::*;
-    use ggen_marketplace_v2::RdfRegistry;
+    use ggen_marketplace::prelude::*;
+    use ggen_marketplace::RdfRegistry;
     use std::path::PathBuf;
 
     // FM22 (RPN 350): Missing home directory - fail fast for determinism (no temp fallback)
@@ -255,6 +256,61 @@ pub async fn execute_list(_input: ListInput) -> Result<ListOutput> {
                                             installed_at: None, // Not installed, available in repo
                                         });
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(ListOutput {
+        packages_listed: packages.len(),
+        packages,
+    })
+}
+
+/// Fallback implementation without marketplace
+#[cfg(not(feature = "marketplace"))]
+pub async fn execute_list(_input: ListInput) -> Result<ListOutput> {
+    use std::path::PathBuf;
+
+    let packages_dir = PathBuf::from("marketplace/packages");
+    let mut packages = vec![];
+
+    if packages_dir.exists() {
+        if let Ok(entries) = std::fs::read_dir(&packages_dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.is_dir() {
+                    let package_toml = path.join("package.toml");
+                    if package_toml.exists() {
+                        if let Ok(content) = std::fs::read_to_string(&package_toml) {
+                            if let Ok(pkg_toml) = toml::from_str::<toml::Value>(&content) {
+                                if let Some(pkg) = pkg_toml.get("package") {
+                                    let name_str = pkg.get("name")
+                                        .and_then(|n| n.as_str())
+                                        .unwrap_or("");
+                                    let name = if name_str.is_empty() {
+                                        entry.file_name().to_string_lossy().to_string()
+                                    } else {
+                                        name_str.to_string()
+                                    };
+                                    let version = pkg.get("version")
+                                        .and_then(|v| v.as_str())
+                                        .unwrap_or("1.0.0");
+                                    let description = pkg.get("description")
+                                        .and_then(|d| d.as_str())
+                                        .unwrap_or("");
+
+                                    packages.push(PackageListItem {
+                                        name: name.to_string(),
+                                        version: version.to_string(),
+                                        title: name.to_string(),
+                                        description: description.to_string(),
+                                        installed_at: None,
+                                    });
                                 }
                             }
                         }
