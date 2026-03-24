@@ -337,7 +337,7 @@ impl FmeaMitigationManager {
         if let Some(_optimized) = self.optimize_query(query) {
             self.record_success(FmeaFailureModes::QUERY_TIMEOUT.id, start.elapsed());
             MitigationResult::Success {
-                action_taken: format!("Optimized query and added LIMIT clause"),
+                action_taken: "Optimized query and added LIMIT clause".to_string(),
             }
         } else {
             self.record_failure(FmeaFailureModes::QUERY_TIMEOUT.id);
@@ -378,7 +378,7 @@ impl FmeaMitigationManager {
                 start.elapsed(),
             );
             MitigationResult::Success {
-                action_taken: format!("Retried with backoff (attempt {})", attempt_count),
+                action_taken: format!("Retried with backoff (attempt {attempt_count})"),
             }
         } else {
             // Reset counter
@@ -425,7 +425,7 @@ impl FmeaMitigationManager {
         } else {
             self.record_failure(FmeaFailureModes::CONFIG_PARSE_ERROR.id);
             MitigationResult::ManualInterventionRequired {
-                details: format!("Fix syntax error in {}: {}", file_path, error),
+                details: format!("Fix syntax error in {file_path}: {error}"),
             }
         }
     }
