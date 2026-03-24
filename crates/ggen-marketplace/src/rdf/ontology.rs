@@ -101,10 +101,12 @@ pub enum Class {
 }
 
 impl Class {
+    #[must_use]
     pub fn uri(&self) -> String {
         format!("{}{}", namespaces::GGEN, self.local_name())
     }
 
+    #[must_use]
     pub fn local_name(&self) -> &'static str {
         match self {
             Self::Package => "Package",
@@ -212,6 +214,7 @@ pub enum Property {
 }
 
 impl Property {
+    #[must_use]
     pub fn uri(&self) -> String {
         match self {
             // Use standard vocabularies where appropriate
