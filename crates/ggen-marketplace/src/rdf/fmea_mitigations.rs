@@ -467,20 +467,23 @@ impl FmeaMitigationManager {
         None
     }
 
+    #[allow(clippy::unused_self)]
     fn has_no_references(&self, _resource_id: &str) -> bool {
         // Stub: Check if resource is referenced anywhere
         true
     }
 
+    #[allow(clippy::unused_self)]
     fn optimize_query(&self, query: &str) -> Option<String> {
         // Add LIMIT if missing
         if !query.contains("LIMIT") && !query.contains("limit") {
-            Some(format!("{}\nLIMIT 100", query))
+            Some(format!("{query}\nLIMIT 100"))
         } else {
             None
         }
     }
 
+    #[allow(clippy::unused_self)]
     fn load_backup_config(&self, _file_path: &str) -> Option<String> {
         // Stub: Load backup configuration
         None
