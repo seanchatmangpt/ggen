@@ -75,7 +75,7 @@ impl WorkOrderId {
 
     /// Create a work order ID from an existing UUID
     #[must_use]
-    pub fn from_uuid(uuid: Uuid) -> Self {
+    pub const fn from_uuid(uuid: Uuid) -> Self {
         Self(uuid)
     }
 
@@ -221,6 +221,9 @@ pub enum Priority {
 
 impl WorkOrder {
     /// Create a new work order
+    ///
+    /// # Errors
+    /// Returns validation error if objective is empty/exceeds 1000 chars or owner is empty/exceeds 100 chars.
     pub fn new(objective: String, owner: String) -> Result<Self, validation::ValidationError> {
         let work_order = Self {
             objective,
@@ -254,6 +257,9 @@ impl WorkOrder {
     }
 
     /// Add a constraint to the work order
+    ///
+    /// # Errors
+    /// Returns validation error if adding the constraint causes constraints to exceed 100 items or if work order validation fails.
     pub fn with_constraint(
         mut self, constraint: Constraint,
     ) -> Result<Self, validation::ValidationError> {
@@ -263,6 +269,9 @@ impl WorkOrder {
     }
 
     /// Set acceptance test
+    ///
+    /// # Errors
+    /// Returns validation error if acceptance test fails validation (description empty/exceeds 500 chars, criteria empty/exceeds 50 items, etc.).
     pub fn with_acceptance_test(
         mut self, test: AcceptanceTest,
     ) -> Result<Self, validation::ValidationError> {
@@ -272,6 +281,9 @@ impl WorkOrder {
     }
 
     /// Set reversibility policy
+    ///
+    /// # Errors
+    /// Returns validation error if work order validation fails.
     pub fn with_reversibility(
         mut self, policy: ReversibilityPolicy,
     ) -> Result<Self, validation::ValidationError> {
@@ -281,6 +293,9 @@ impl WorkOrder {
     }
 
     /// Add dependencies
+    ///
+    /// # Errors
+    /// Returns validation error if work order validation fails.
     pub fn with_dependencies(
         mut self, deps: Vec<String>,
     ) -> Result<Self, validation::ValidationError> {
@@ -290,6 +305,9 @@ impl WorkOrder {
     }
 
     /// Set priority
+    ///
+    /// # Errors
+    /// Returns validation error if work order validation fails.
     pub fn with_priority(
         mut self, priority: Priority,
     ) -> Result<Self, validation::ValidationError> {
@@ -299,6 +317,9 @@ impl WorkOrder {
     }
 
     /// Add tags
+    ///
+    /// # Errors
+    /// Returns validation error if work order validation fails.
     pub fn with_tags(mut self, tags: HashSet<String>) -> Result<Self, validation::ValidationError> {
         self.tags = tags;
         validation::validate_work_order(&self)?;
@@ -306,6 +327,9 @@ impl WorkOrder {
     }
 
     /// Transition to a new status
+    ///
+    /// # Errors
+    /// Returns validation error if work order validation fails.
     pub fn transition_to(
         &mut self, status: WorkOrderStatus,
     ) -> Result<(), validation::ValidationError> {

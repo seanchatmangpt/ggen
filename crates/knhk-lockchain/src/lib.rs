@@ -285,7 +285,7 @@ mod tests {
     fn test_lockchain_append() {
         let mut chain = Lockchain::new();
         let entry = LockchainEntry {
-            receipt_id: "receipt1".to_string(),
+            receipt_id: String::from("receipt1"),
             receipt_hash: [0; 32],
             parent_hash: None,
             timestamp_ms: 1000,
@@ -301,7 +301,7 @@ mod tests {
     fn test_lockchain_verify() {
         let mut chain = Lockchain::new();
         let entry = LockchainEntry {
-            receipt_id: "receipt1".to_string(),
+            receipt_id: String::from("receipt1"),
             receipt_hash: [0; 32],
             parent_hash: None,
             timestamp_ms: 1000,

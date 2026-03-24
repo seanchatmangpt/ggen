@@ -162,9 +162,9 @@ impl FieldConstraints {
                 Value::Number(n) => n.to_string(),
                 Value::Bool(b) => b.to_string(),
                 _ => {
-                    return Err(GgenAiError::validation(format!(
-                        "Enum constraint applied to non-scalar value"
-                    )))
+                    return Err(GgenAiError::validation(
+                        "Enum constraint applied to non-scalar value".to_string()
+                    ))
                 }
             };
 
@@ -324,7 +324,7 @@ impl SHACLConstraint {
     /// Convert SHACL constraint to FieldConstraints
     pub fn to_field_constraints(&self) -> FieldConstraints {
         FieldConstraints {
-            required: self.min_count.map_or(false, |c| c > 0),
+            required: self.min_count.is_some_and(|c| c > 0),
             min_items: self.min_count,
             max_items: self.max_count,
             min_length: self.min_length,

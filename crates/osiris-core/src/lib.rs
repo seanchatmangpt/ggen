@@ -17,12 +17,13 @@ pub mod error;
 // pub mod health;
 // pub mod persistence;
 // pub mod patterns;
-// pub mod signals;
+pub mod signals;
 // pub mod tps;
 // pub mod workflow;
 
 // Simple exports for now to avoid compilation issues
 pub use error::{OSIRISError, Result};
+pub use signals::{SignalLevel, OSIRISSignal};
 
 // Stub types for osiris-* crates (TODO: implement proper modules)
 
@@ -145,17 +146,6 @@ impl LifePattern {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct SignalLevel {
-    pub level: u8,
-}
-
-#[derive(Debug, Clone)]
-pub struct OSIRISSignal {
-    pub id: String,
-    pub level: SignalLevel,
-    pub message: String,
-}
 
 /// OSIRIS System Configuration
 #[derive(Debug, Clone)]
@@ -208,7 +198,7 @@ impl OSIRISEngine {
     }
 
     /// Emit an OSIRIS signal
-    pub async fn emit_signal(&self, _signal: String) -> Result<()> {
+    pub async fn emit_signal(&self, _signal: OSIRISSignal) -> Result<()> {
         Ok(())
     }
 

@@ -3,6 +3,20 @@ use clap::Subcommand;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+/// Subcommands for managing andon signals (stop-the-line protocol).
+///
+/// This enum provides commands to control the andon cord system, which implements
+/// a "stop the line" protocol for halting operations when critical issues are detected.
+/// Signals track problems by level, allowing teams to prioritize fixes and resume
+/// operations only when issues are resolved.
+///
+/// # Variants
+///
+/// - `Pull`: Raise an andon signal to stop the line
+/// - `Status`: Check current andon status and active signals
+/// - `Clear`: Clear a resolved signal
+/// - `List`: Display all active signals with optional filtering
+/// - `Export`: Save signal history to a file for auditing
 #[derive(Debug, Subcommand)]
 pub enum JidokaCommands {
     /// Pull the andon cord (stop the line)
@@ -61,40 +75,75 @@ pub enum JidokaCommands {
     },
 }
 
+/// Severity levels for andon signals.
+///
+/// Defines the priority and severity of a signal raised to stop the line.
+/// Higher severity levels require faster resolution.
 #[derive(Debug, Clone, Serialize, Deserialize, clap::ValueEnum)]
 #[serde(rename_all = "lowercase")]
 pub enum SignalLevel {
+    /// Critical issue that requires immediate halt
     Critical,
+    /// High-priority issue affecting operations
     High,
+    /// Medium-priority issue with noticeable impact
     Medium,
+    /// Low-priority issue for tracking
     Low,
 }
 
+/// Output format specification for andon commands.
+///
+/// Controls how command output is rendered to the user.
 #[derive(Debug, Clone, clap::ValueEnum)]
 pub enum OutputFormat {
+    /// JSON format output
     Json,
+    /// Human-readable text format
     Text,
 }
 
+/// Represents an andon signal that stops production.
+///
+/// A signal records when the andon cord is pulled, capturing the issue,
+/// its severity level, and tracking whether it has been resolved.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AndonSignal {
+    /// Unique signal identifier (format: "andon-{timestamp}")
     pub id: String,
+    /// Severity level of this signal
     pub level: SignalLevel,
+    /// Human-readable description of the issue
     pub message: String,
+    /// Additional context data as JSON (e.g., error details, stack traces)
     pub context: serde_json::Value,
+    /// RFC 3339 timestamp when signal was raised
     pub timestamp: String,
+    /// Whether this signal has been cleared/resolved
     pub cleared: bool,
+    /// Resolution notes explaining how the issue was fixed
     pub resolution: Option<String>,
 }
 
+/// Current state of the andon system.
+///
+/// Captures the overall status of all active signals and whether production
+/// has been halted.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AndonStatus {
+    /// List of all active andon signals
     pub active_signals: Vec<AndonSignal>,
+    /// Whether the production line is currently stopped
     pub line_stopped: bool,
+    /// RFC 3339 timestamp of the last status update
     pub last_update: String,
 }
 
 impl JidokaCommands {
+    /// Execute the jidoka command asynchronously.
+    ///
+    /// Dispatches to the appropriate handler method based on the command variant.
+    /// Each handler manages andon signals and the stop-the-line protocol.
     pub async fn execute(self) -> Result<()> {
         match self {
             Self::Pull {
@@ -112,6 +161,16 @@ impl JidokaCommands {
         }
     }
 
+    /// Raise an andon signal to stop the line.
+    ///
+    /// Creates and persists a new andon signal with the specified level and message.
+    /// Stops the production line by setting `line_stopped` to true.
+    ///
+    /// # Arguments
+    ///
+    /// * `level` - Severity level of the signal
+    /// * `message` - Human-readable problem description
+    /// * `context` - Optional JSON context data with additional problem details
     async fn pull_andon(
         level: SignalLevel, message: String, context: Option<String>,
     ) -> Result<()> {
@@ -144,6 +203,13 @@ impl JidokaCommands {
         Ok(())
     }
 
+    /// Check current andon system status.
+    ///
+    /// Displays whether the line is stopped and lists all active signals.
+    ///
+    /// # Arguments
+    ///
+    /// * `format` - Output format (JSON or text)
     async fn check_status(format: OutputFormat) -> Result<()> {
         let status = Self::load_status().await?;
 
@@ -171,6 +237,15 @@ impl JidokaCommands {
         Ok(())
     }
 
+    /// Clear a resolved andon signal.
+    ///
+    /// Marks a signal as cleared and records resolution notes. When all signals
+    /// are cleared, the production line can resume.
+    ///
+    /// # Arguments
+    ///
+    /// * `signal_id` - ID of the signal to clear
+    /// * `notes` - Resolution notes explaining the fix
     async fn clear_signal(signal_id: String, notes: String) -> Result<()> {
         let mut status = Self::load_status().await?;
 
@@ -195,6 +270,14 @@ impl JidokaCommands {
         Ok(())
     }
 
+    /// List all active andon signals.
+    ///
+    /// Displays all active signals, optionally filtered by severity level.
+    ///
+    /// # Arguments
+    ///
+    /// * `level` - Optional severity level to filter by
+    /// * `format` - Output format (JSON or text)
     async fn list_signals(level: Option<SignalLevel>, format: OutputFormat) -> Result<()> {
         let status = Self::load_status().await?;
 
@@ -239,6 +322,14 @@ impl JidokaCommands {
         Ok(())
     }
 
+    /// Export signal history to a file for auditing.
+    ///
+    /// Writes all signals to a JSON file, optionally including cleared signals.
+    ///
+    /// # Arguments
+    ///
+    /// * `output` - Path where the history file will be written
+    /// * `include_cleared` - Whether to include resolved signals
     async fn export_history(output: PathBuf, include_cleared: bool) -> Result<()> {
         let status = Self::load_status().await?;
 
@@ -263,6 +354,9 @@ impl JidokaCommands {
         Ok(())
     }
 
+    /// Save a new signal and update status.
+    ///
+    /// Persists the signal and marks the line as stopped.
     async fn save_signal(signal: &AndonSignal) -> Result<()> {
         let mut status = Self::load_status().await.unwrap_or_else(|_| AndonStatus {
             active_signals: Vec::new(),
@@ -277,6 +371,9 @@ impl JidokaCommands {
         Self::save_status(&status).await
     }
 
+    /// Load the current andon status from storage.
+    ///
+    /// Returns a default empty status if no file exists yet.
     async fn load_status() -> Result<AndonStatus> {
         let path = Self::status_path();
         if !path.exists() {
@@ -291,6 +388,7 @@ impl JidokaCommands {
         Ok(serde_json::from_str(&content)?)
     }
 
+    /// Persist andon status to storage.
     async fn save_status(status: &AndonStatus) -> Result<()> {
         let path = Self::status_path();
         if let Some(parent) = path.parent() {
@@ -302,6 +400,7 @@ impl JidokaCommands {
         Ok(())
     }
 
+    /// Get the path to the andon status file.
     fn status_path() -> PathBuf {
         PathBuf::from(".ggen/andon-status.json")
     }

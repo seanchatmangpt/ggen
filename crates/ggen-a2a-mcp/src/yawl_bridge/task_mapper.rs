@@ -336,7 +336,7 @@ mod tests {
         };
 
         let message = mapper.yawl_to_a2a_task(&yawl_task).unwrap();
-        let converted = mapper.a2a_to_yawl_task(&message).unwrap();
+        let converted = TaskMapper::a2a_to_yawl_task(&message).unwrap();
 
         assert_eq!(converted.id, yawl_task.id);
         assert_eq!(converted.name, yawl_task.name);

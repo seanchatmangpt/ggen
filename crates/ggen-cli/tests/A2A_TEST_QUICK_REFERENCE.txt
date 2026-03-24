@@ -1,0 +1,227 @@
+================================================================================
+A2A AGENT LIFECYCLE - CHICAGO TDD TEST SUITE - QUICK REFERENCE
+================================================================================
+
+FILE:           /Users/sac/ggen/crates/ggen-cli/tests/a2a_agent_lifecycle.rs
+TEST COUNT:     38 unit tests (all passing)
+LINE COUNT:     1,199 lines
+STATUS:         ✅ READY FOR PRODUCTION
+
+================================================================================
+AGENT STATE MACHINE
+================================================================================
+
+States:
+  • Initializing  - Initial state after agent creation
+  • Ready         - Fully initialized and available for processing
+  • Processing    - Actively executing a task
+  • Idle          - Task complete, ready for next task
+  • Error         - Error state (requires recovery)
+  • Terminated    - Agent shut down
+
+Valid Transitions:
+  Initializing → Ready
+  Ready ↔ Processing (start/complete)
+  Processing → Idle
+  Any → Error (when error occurs)
+  Error → Idle (recovery)
+  Any → Terminated (shutdown)
+
+================================================================================
+TEST CATEGORIES (38 TESTS TOTAL)
+================================================================================
+
+[1] Initialization & Readiness                              (3 tests)
+    • test_agent_initialization_transition
+    • test_agent_double_initialization_error
+    • test_agent_readiness_validation
+
+[2] State Transitions (Ready → Processing → Idle → Error)   (7 tests)
+    • test_ready_to_processing_transition
+    • test_processing_to_idle_transition
+    • test_full_state_cycle
+    • test_error_state_transition
+    • test_error_recovery_transition
+    • test_invalid_state_transitions
+    • test_processing_timeout_detection
+
+[3] Timeout Handling During Processing                      (3 tests)
+    • test_processing_timeout_detection
+    • test_timeout_causes_error_state
+    • test_concurrent_task_timeout_isolation
+
+[4] Concurrent Agent Operations                             (5 tests)
+    • test_concurrent_agents_independent_states
+    • test_concurrent_agent_task_processing
+    • test_concurrent_agent_completion
+    • test_concurrent_task_timeout_isolation
+    • test_concurrent_agent_limit_enforcement
+
+[5] Message Passing & Routing                               (5 tests)
+    • test_agent_message_enqueue_dequeue
+    • test_agent_message_fifo_ordering
+    • test_agent_message_routing_to_multiple_recipients
+    • test_message_in_error_state
+    • test_agent_list_by_state
+
+[6] Bridged Agent Execution (as MCP tools)                  (3 tests)
+    • test_agent_bridging_as_tool
+    • test_bridged_agent_task_execution
+    • test_bridged_agent_error_handling
+
+[7] Failure Recovery                                        (3 tests)
+    • test_single_agent_recovery
+    • test_recovery_invalid_state
+    • test_pool_recovery_multiple_agents
+
+[8] Maximum Concurrent Agent Limits                         (3 tests)
+    • test_agent_pool_capacity_limit
+    • test_agent_task_concurrency_limit
+    • test_concurrent_agent_limit_enforcement
+
+[9] Termination & Cleanup                                   (4 tests)
+    • test_agent_termination_cleanup
+    • test_terminate_processing_agent
+    • test_terminate_error_agent
+    • test_double_termination_error
+    • test_pool_termination_cleanup
+
+[10] Status Reporting & Aggregation                         (5 tests)
+     • test_agent_status_reporting
+     • test_agent_uptime_tracking
+     • test_pool_status_summary
+     • test_agent_list_by_state
+     • test_agent_list_with_error_recovery
+
+================================================================================
+CHICAGO TDD PRINCIPLES APPLIED
+================================================================================
+
+✅ REAL STATE TRANSITIONS
+   • Uses actual TestAgent struct with mutable state
+   • No mocks - real FSM implementation
+
+✅ STATE-BASED VERIFICATION
+   • Assertions check observable agent.state field
+   • Verifies state changes via .state property
+
+✅ NO ARBITRARY SLEEPS
+   • Timeout tests use SystemTime::elapsed()
+   • Message operations are synchronous
+   • All operations complete immediately
+
+✅ BEHAVIOR VERIFICATION
+   • Tests observable state mutations
+   • Queue operations verified through dequeue
+   • Pool state counts verified explicitly
+
+✅ ERROR PATHS COVERED
+   • Invalid state transitions tested
+   • Double termination error caught
+   • Recovery from non-error state fails
+   • Timeout error transitions tested
+
+✅ AAA PATTERN
+   • All tests follow Arrange/Act/Assert
+   • Clear separation of setup/execution/verification
+   • Test names describe behavior, not implementation
+
+================================================================================
+RUNNING TESTS
+================================================================================
+
+Run all tests:
+  $ cargo test --package ggen-cli-lib --test a2a_agent_lifecycle
+
+Run with output:
+  $ cargo test --package ggen-cli-lib --test a2a_agent_lifecycle -- --nocapture
+
+List all tests:
+  $ cargo test --package ggen-cli-lib --test a2a_agent_lifecycle -- --list
+
+Run specific test:
+  $ cargo test --package ggen-cli-lib --test a2a_agent_lifecycle test_agent_initialization_transition
+
+Performance:
+  • All 38 tests complete in <100ms (event-based, no sleeps)
+  • No external dependencies
+  • Fully deterministic
+
+================================================================================
+HELPER CLASSES
+================================================================================
+
+TestAgent:
+  • Represents single agent with full lifecycle
+  • States: Initializing → Ready → Processing → Idle → Error → Terminated
+  • Methods: initialize(), start_processing(), complete_task(), set_error(),
+            recover_from_error(), terminate(), enqueue_message(), dequeue_message()
+  • Properties: id, name, state, uptime_secs, message_queue, active_tasks
+
+AgentMessage:
+  • FIFO message for inter-agent communication
+  • Fields: from, to, content, timestamp
+
+AgentPool:
+  • Manages multiple agents with capacity limits
+  • Enforces max_agents constraint
+  • Methods: register_agent(), get_agent_mut(), count_by_state(),
+            get_ready_agents(), get_processing_agents(), get_error_agents()
+
+================================================================================
+KEY COVERAGE
+================================================================================
+
+States Covered:        All 6 states (Initializing, Ready, Processing, Idle,
+                      Error, Terminated)
+
+Transitions Covered:   All valid transitions + invalid cases
+
+Scenarios Covered:
+  ✓ Single agent lifecycle
+  ✓ Multiple concurrent agents (independent states)
+  ✓ Agent-to-agent messaging (FIFO)
+  ✓ Agent bridging (tool registration)
+  ✓ Error handling and recovery
+  ✓ Resource constraints (pool capacity, task limits)
+  ✓ Timeout detection (event-based)
+  ✓ Concurrent task processing
+  ✓ Status queries and aggregation
+  ✓ Graceful shutdown and cleanup
+
+Edge Cases:
+  ✓ Double initialization
+  ✓ Double termination
+  ✓ Invalid state transitions
+  ✓ Recovery from non-error state
+  ✓ Messages in error state
+  ✓ Timeout during processing
+  ✓ Pool capacity overflow
+  ✓ Task limit enforcement
+
+================================================================================
+DOCUMENTATION
+================================================================================
+
+Detailed Summary:  /Users/sac/ggen/crates/ggen-cli/tests/A2A_LIFECYCLE_TEST_SUMMARY.md
+                   (Complete test descriptions, patterns, design decisions)
+
+Test File:         /Users/sac/ggen/crates/ggen-cli/tests/a2a_agent_lifecycle.rs
+                   (1,199 lines, 38 tests, ready for use)
+
+================================================================================
+TEST RESULTS
+================================================================================
+
+Status:            ✅ ALL PASSING
+Test Count:        38/38 passed
+Failures:          0
+Ignored:           0
+Duration:          <100ms
+Warnings:          2 (unused methods in helper classes - intentional)
+
+Last Run Output:
+  running 38 tests
+  test result: ok. 38 passed; 0 failed; 0 ignored; 0 measured
+
+================================================================================

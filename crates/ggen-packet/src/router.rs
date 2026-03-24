@@ -177,6 +177,7 @@ impl CompositeRouter {
     }
 
     /// Add a routing strategy to the chain
+    #[must_use]
     pub fn add_strategy(mut self, strategy: Box<dyn RoutingStrategy>) -> Self {
         self.strategies.push(strategy);
         self

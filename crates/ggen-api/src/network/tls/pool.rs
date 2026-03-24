@@ -36,8 +36,6 @@ impl Default for PoolConfig {
 /// Connection metadata
 #[derive(Debug)]
 struct ConnectionMetadata {
-    /// When the connection was created
-    created_at: Instant,
     /// When the connection was last used
     last_used: Instant,
     /// Number of times this connection has been reused
@@ -46,10 +44,8 @@ struct ConnectionMetadata {
 
 impl ConnectionMetadata {
     fn new() -> Self {
-        let now = Instant::now();
         Self {
-            created_at: now,
-            last_used: now,
+            last_used: Instant::now(),
             use_count: 0,
         }
     }

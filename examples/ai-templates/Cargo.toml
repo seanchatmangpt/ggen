@@ -1,3 +1,5 @@
+[workspace]
+
 [package]
 name = "ai-templates"
 version = "0.1.0"
@@ -11,6 +13,12 @@ thiserror = "1.0"
 uuid = { version = "1.0", features = ["v4", "serde"] }
 regex = "1.10"
 anyhow = "1.0"
+tera = "1.20"
+oxigraph = "0.5.1"
+tracing = "0.1"
 
 [dev-dependencies]
 tokio = { version = "1.47", features = ["full"] }
+proptest = "1.8"
+insta = "1.43"
+tempfile = "3.23"

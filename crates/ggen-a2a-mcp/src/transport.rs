@@ -410,6 +410,6 @@ mod tests {
 
         assert_eq!(parsed["jsonrpc"], "2.0");
         assert_eq!(parsed["id"], 1);
-        assert!(parsed["error"].is_null() || parsed["error"].is_none());
+        assert!(parsed["error"].is_null());
     }
 }

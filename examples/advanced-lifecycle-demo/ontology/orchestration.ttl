@@ -1,0 +1,233 @@
+# Advanced Lifecycle Demo - Orchestration Ontology
+# Purpose: Define agent orchestration patterns with task distribution and backpressure
+# Version: 2.0 (Enhanced with Queue Management and Backpressure)
+# Updated: 2026-03-24
+
+@prefix orch: <http://orchestration.example.org/> .
+@prefix a2a: <https://a2a.dev/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==============================================================================
+# ORCHESTRATION ONTOLOGY
+# ==============================================================================
+
+<http://orchestration.example.org> rdf:type owl:Ontology ;
+    rdfs:label "Agent Orchestration Ontology"@en ;
+    rdfs:comment "Formal specification of agent orchestration patterns, including task distribution, queue management, and backpressure handling."@en ;
+    owl:versionInfo "2.0" .
+
+# ==============================================================================
+# AGENT TYPES
+# ==============================================================================
+
+orch:CoordinatorAgent a owl:Class ;
+    rdfs:label "Coordinator Agent" ;
+    rdfs:comment "Agent responsible for distributing tasks to executor agents and monitoring progress" ;
+    rdfs:subClassOf a2a:Agent .
+
+orch:ExecutorAgent a owl:Class ;
+    rdfs:label "Executor Agent" ;
+    rdfs:comment "Worker agent that processes tasks from the queue" ;
+    rdfs:subClassOf a2a:Agent .
+
+orch:MonitorAgent a owl:Class ;
+    rdfs:label "Monitor Agent" ;
+    rdfs:comment "Agent responsible for tracking system health and metrics" ;
+    rdfs:subClassOf a2a:Agent .
+
+# ==============================================================================
+# TASK QUEUE & DISTRIBUTION
+# ==============================================================================
+
+orch:TaskQueue a owl:Class ;
+    rdfs:label "Task Queue" ;
+    rdfs:comment "FIFO queue for distributing tasks to agents" ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty orch:hasMaxSize ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every queue has exactly one max size"
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty orch:currentSize ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every queue tracks its current size"
+    ] .
+
+orch:WorkerPool a owl:Class ;
+    rdfs:label "Worker Pool" ;
+    rdfs:comment "Pool of executor agents available to process tasks" ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty orch:poolSize ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every pool has exactly one size"
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty orch:activeWorkers ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every pool tracks active workers"
+    ] .
+
+# ==============================================================================
+# BACKPRESSURE & FLOW CONTROL
+# ==============================================================================
+
+orch:BackpressurePolicy a owl:Class ;
+    rdfs:label "Backpressure Policy" ;
+    rdfs:comment "Policy for handling queue overflow and rejecting tasks" ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty orch:rejectThreshold ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Threshold percentage at which to reject new tasks"
+    ] .
+
+orch:RejectBackpressure a orch:BackpressurePolicy ;
+    rdfs:label "Reject Backpressure" ;
+    rdfs:comment "Reject new tasks when queue is full" ;
+    orch:strategy "reject" .
+
+orch:BlockingBackpressure a orch:BackpressurePolicy ;
+    rdfs:label "Blocking Backpressure" ;
+    rdfs:comment "Block callers until queue has space" ;
+    orch:strategy "block" .
+
+# ==============================================================================
+# ORCHESTRATOR SERVICE
+# ==============================================================================
+
+orch:Orchestrator a owl:Class ;
+    rdfs:label "Orchestrator Service" ;
+    rdfs:comment "Central service managing agent coordination, task distribution, and backpressure" ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty orch:manages ;
+        owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Orchestrator manages at least one task queue"
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty orch:coordinates ;
+        owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Orchestrator coordinates at least one executor agent"
+    ] .
+
+orch:DefaultOrchestrator a orch:Orchestrator ;
+    rdfs:label "Default Orchestrator" ;
+    rdfs:comment "Standard orchestrator configuration for production use" ;
+    orch:maxQueueSize 1000 ;
+    orch:workerPoolSize 10 ;
+    orch:backpressurePolicy orch:RejectBackpressure ;
+    orch:rejectThreshold 80 .
+
+# ==============================================================================
+# AGENT LIFECYCLE STATES
+# ==============================================================================
+
+orch:Idle a orch:AgentState ;
+    rdfs:label "Idle" ;
+    rdfs:comment "Agent is idle and ready to accept tasks" .
+
+orch:Processing a orch:AgentState ;
+    rdfs:label "Processing" ;
+    rdfs:comment "Agent is actively processing a task" .
+
+orch:Failed a orch:AgentState ;
+    rdfs:label "Failed" ;
+    rdfs:comment "Agent encountered an error" .
+
+orch:Recovered a orch:AgentState ;
+    rdfs:label "Recovered" ;
+    rdfs:comment "Agent recovered from failure" .
+
+# ==============================================================================
+# TASK LIFECYCLE STATES
+# ==============================================================================
+
+orch:TaskState a owl:Class ;
+    rdfs:label "Task State" ;
+    rdfs:comment "States in the task lifecycle" .
+
+orch:TaskQueued a orch:TaskState ;
+    rdfs:label "Queued" ;
+    rdfs:comment "Task is waiting in queue" .
+
+orch:TaskAssigned a orch:TaskState ;
+    rdfs:label "Assigned" ;
+    rdfs:comment "Task assigned to an agent" .
+
+orch:TaskExecuting a orch:TaskState ;
+    rdfs:label "Executing" ;
+    rdfs:comment "Task is being executed" .
+
+orch:TaskCompleted a orch:TaskState ;
+    rdfs:label "Completed" ;
+    rdfs:comment "Task completed successfully" .
+
+orch:TaskFailed a orch:TaskState ;
+    rdfs:label "Failed" ;
+    rdfs:comment "Task failed during execution" .
+
+# ==============================================================================
+# PROPERTIES
+# ==============================================================================
+
+orch:hasMaxSize a owl:DatatypeProperty ;
+    rdfs:label "has max size" ;
+    rdfs:domain orch:TaskQueue ;
+    rdfs:range xsd:integer .
+
+orch:currentSize a owl:DatatypeProperty ;
+    rdfs:label "current size" ;
+    rdfs:domain orch:TaskQueue ;
+    rdfs:range xsd:integer .
+
+orch:poolSize a owl:DatatypeProperty ;
+    rdfs:label "pool size" ;
+    rdfs:domain orch:WorkerPool ;
+    rdfs:range xsd:integer .
+
+orch:activeWorkers a owl:DatatypeProperty ;
+    rdfs:label "active workers" ;
+    rdfs:domain orch:WorkerPool ;
+    rdfs:range xsd:integer .
+
+orch:rejectThreshold a owl:DatatypeProperty ;
+    rdfs:label "reject threshold" ;
+    rdfs:domain orch:BackpressurePolicy ;
+    rdfs:range xsd:integer .
+
+orch:strategy a owl:DatatypeProperty ;
+    rdfs:label "strategy" ;
+    rdfs:domain orch:BackpressurePolicy ;
+    rdfs:range xsd:string .
+
+orch:manages a owl:ObjectProperty ;
+    rdfs:label "manages" ;
+    rdfs:domain orch:Orchestrator ;
+    rdfs:range orch:TaskQueue .
+
+orch:coordinates a owl:ObjectProperty ;
+    rdfs:label "coordinates" ;
+    rdfs:domain orch:Orchestrator ;
+    rdfs:range a2a:Agent .
+
+orch:maxQueueSize a owl:DatatypeProperty ;
+    rdfs:label "max queue size" ;
+    rdfs:domain orch:Orchestrator ;
+    rdfs:range xsd:integer .
+
+orch:workerPoolSize a owl:DatatypeProperty ;
+    rdfs:label "worker pool size" ;
+    rdfs:domain orch:Orchestrator ;
+    rdfs:range xsd:integer .
+
+orch:backpressurePolicy a owl:ObjectProperty ;
+    rdfs:label "backpressure policy" ;
+    rdfs:domain orch:Orchestrator ;
+    rdfs:range orch:BackpressurePolicy .

@@ -297,7 +297,7 @@ impl AutonomicRefusalSystem {
     /// Match policies against context
     async fn match_policies(
         &self, context: &RefusalContext, policies: &[RefusalPolicy],
-    ) -> Result<Vec<&RefusalPolicy>> {
+    ) -> Result<Vec<RefusalPolicy>> {
         let mut matching = Vec::new();
 
         for policy in policies {
@@ -314,7 +314,7 @@ impl AutonomicRefusalSystem {
             }
 
             if matches_all {
-                matching.push(policy);
+                matching.push(policy.clone());
             }
         }
 
@@ -372,8 +372,8 @@ impl AutonomicRefusalSystem {
     }
 
     /// Select the best matching policy
-    async fn select_best_policy(&self, policies: &[&RefusalPolicy]) -> Result<&RefusalPolicy> {
-        Ok(&policies[0]) // Policies are sorted by priority
+    async fn select_best_policy(&self, policies: &[RefusalPolicy]) -> Result<RefusalPolicy> {
+        Ok(policies[0].clone()) // Policies are sorted by priority
     }
 
     /// Execute policy actions

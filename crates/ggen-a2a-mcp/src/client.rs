@@ -809,6 +809,10 @@ mod tests {
 
         use a2a_generated::converged::{
             AgentCapabilities, AgentCommunication, AgentIdentity, AgentLifecycle,
+            ExecutionStrategy,
+        };
+        use a2a_generated::converged::agent::{
+            AgentConfiguration, CommunicationQoS, StrategyType,
         };
 
         let agent = UnifiedAgent {
@@ -841,7 +845,7 @@ mod tests {
                     errors: None,
                 },
                 metrics: None,
-                configuration: a2a_generated::converged::AgentConfiguration {
+                configuration: AgentConfiguration {
                     parameters: std::collections::HashMap::new(),
                     version: "1.0.0".to_string(),
                     timestamp: chrono::Utc::now(),
@@ -856,23 +860,55 @@ mod tests {
                 protocols: vec![],
                 handlers: None,
                 security: None,
-                qos: a2a_generated::converged::CommunicationQoS {
-                    reliability: a2a_generated::converged::Reliability::AtLeastOnce,
+                qos: CommunicationQoS {
+                    reliability: a2a_generated::converged::ReliabilityLevel::AtLeastOnce,
                     latency: None,
                     throughput: None,
                 },
             },
             execution: a2a_generated::converged::AgentExecution {
                 mode: a2a_generated::converged::ExecutionMode::Synchronous,
-                strategy: a2a_generated::converged::ExecutionStrategy::Direct,
-                timeout: None,
-                constraints: None,
+                parameters: std::collections::HashMap::new(),
+                context: None,
+                strategy: Some(ExecutionStrategy {
+                    strategy_type: StrategyType::Sequential,
+                    configuration: std::collections::HashMap::new(),
+                    parameters: None,
+                    metadata: None,
+                }),
+                monitoring: None,
+                policies: None,
             },
             security: a2a_generated::converged::AgentSecurity {
-                authentication: None,
-                authorization: None,
-                encryption: None,
-                audit: None,
+                authentication: a2a_generated::converged::AuthenticationConfig {
+                    methods: vec![],
+                    providers: None,
+                    metadata: None,
+                },
+                authorization: a2a_generated::converged::AuthorizationConfig {
+                    model: a2a_generated::converged::AuthorizationModel::Rbac,
+                    roles: vec![],
+                    policies: vec![],
+                    metadata: None,
+                },
+                encryption: a2a_generated::converged::EncryptionConfig {
+                    algorithm: a2a_generated::converged::EncryptionAlgorithm::Aes256,
+                    mode: a2a_generated::converged::EncryptionMode::Cbc,
+                    keys: vec![],
+                    metadata: None,
+                },
+                compliance: None,
+                audit: a2a_generated::converged::AuditConfig {
+                    events: vec![a2a_generated::converged::AuditEvent::Authentication],
+                    destinations: Vec::new(),
+                    retention: a2a_generated::converged::agent::AuditRetention {
+                        period: std::time::Duration::from_secs(365 * 24 * 60 * 60),
+                        policy: a2a_generated::converged::RetentionPolicy::TimeBased,
+                        metadata: None,
+                    },
+                    metadata: None,
+                },
+                policies: None,
             },
             extensions: None,
         };

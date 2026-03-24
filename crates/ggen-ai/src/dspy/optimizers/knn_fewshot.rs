@@ -247,7 +247,7 @@ impl KNNPredictor {
             for (idx, demo) in demonstrations.iter().enumerate() {
                 prompt.push_str(&format!("--- Example {} ---\n", idx + 1));
                 prompt.push_str(&demo.format(&self.signature));
-                prompt.push_str("\n");
+                prompt.push('\n');
             }
             prompt.push_str("--- Your Turn ---\n\n");
         }
