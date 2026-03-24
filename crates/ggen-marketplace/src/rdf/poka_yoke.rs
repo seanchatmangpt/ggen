@@ -42,7 +42,11 @@ pub mod typestate {
 pub struct ResourceId(String);
 
 impl ResourceId {
-    /// Create a new ResourceId with URI validation
+    /// Create a new `ResourceId` with URI validation
+    ///
+    /// # Errors
+    ///
+    /// * [`PokaYokeError::InvalidUri`] - When the URI is invalid
     pub fn new(uri: impl Into<String>) -> Result<Self, PokaYokeError> {
         let uri = uri.into();
         if !Self::is_valid_uri(&uri) {
@@ -52,8 +56,12 @@ impl ResourceId {
     }
 
     /// Create from namespace and local name
+    ///
+    /// # Errors
+    ///
+    /// * [`PokaYokeError::InvalidUri`] - When the resulting URI is invalid
     pub fn from_qname(namespace: &str, local_name: &str) -> Result<Self, PokaYokeError> {
-        Self::new(format!("{}{}", namespace, local_name))
+        Self::new(format!("{namespace}{local_name}"))
     }
 
     /// Create from ontology class
