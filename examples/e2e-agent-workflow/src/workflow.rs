@@ -286,9 +286,13 @@ mod tests {
             "{}".to_string(),
         );
         step2 = step2.add_dependency(step1_id);
+        let step2_id = step2.id;
         workflow.add_step(step2);
 
-        assert!(!workflow.dependencies_met(step1_id));
+        // step1 has no dependencies, so they are met
+        assert!(workflow.dependencies_met(step1_id));
+        // step2 depends on step1 which is not completed yet
+        assert!(!workflow.dependencies_met(step2_id));
     }
 
     #[test]

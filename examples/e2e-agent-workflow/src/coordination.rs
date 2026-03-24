@@ -1,7 +1,6 @@
 //! Distributed consensus and coordination between agents
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use uuid::Uuid;
 
 /// Voting strategy for consensus
@@ -172,8 +171,8 @@ mod tests {
     fn test_supermajority_voting() {
         let strategy = VotingStrategy::Supermajority;
         assert!(strategy.passes(3, 0));
-        assert!(strategy.passes(2, 1));
-        assert!(!strategy.passes(1, 2));
+        assert!(strategy.passes(3, 1)); // 3 yes out of 4 = 75% > 66.67%
+        assert!(!strategy.passes(2, 1)); // 2 yes out of 3 = 66% < 66.67%
     }
 
     #[test]

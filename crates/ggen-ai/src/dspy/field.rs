@@ -163,7 +163,7 @@ impl FieldConstraints {
                 Value::Bool(b) => b.to_string(),
                 _ => {
                     return Err(GgenAiError::validation(
-                        "Enum constraint applied to non-scalar value".to_string()
+                        "Enum constraint applied to non-scalar value".to_string(),
                     ))
                 }
             };

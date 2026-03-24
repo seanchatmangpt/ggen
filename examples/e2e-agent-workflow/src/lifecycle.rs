@@ -2,7 +2,6 @@
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use tokio::sync::RwLock;
 use uuid::Uuid;
 use dashmap::DashMap;
 use serde::{Serialize, Deserialize};
@@ -38,7 +37,6 @@ pub struct AgentHealth {
     /// Current health status
     pub status: HealthStatus,
     /// Last heartbeat timestamp
-    #[serde(skip)]
     pub last_heartbeat: Instant,
     /// Number of failures
     pub failure_count: usize,
@@ -120,7 +118,6 @@ pub struct AgentInstance {
     /// Tasks assigned to this agent
     pub task_count: usize,
     /// Creation time
-    #[serde(skip)]
     pub created_at: Instant,
 }
 
@@ -172,7 +169,7 @@ impl AgentPool {
 
     /// Get all agents
     pub fn all(&self) -> Vec<AgentInstance> {
-        self.agents.iter().map(|r| r.clone()).collect()
+        self.agents.iter().map(|r| r.value().clone()).collect()
     }
 
     /// Update agent health
@@ -184,19 +181,17 @@ impl AgentPool {
 
     /// Get healthy agents
     pub fn healthy_agents(&self) -> Vec<AgentInstance> {
-        self.agents
-            .iter()
-            .filter(|r| r.health.status == HealthStatus::Healthy)
-            .map(|r| r.clone())
+        self.all()
+            .into_iter()
+            .filter(|a| a.health.status == HealthStatus::Healthy)
             .collect()
     }
 
     /// Get failed agents
     pub fn failed_agents(&self) -> Vec<AgentInstance> {
-        self.agents
-            .iter()
-            .filter(|r| r.health.status == HealthStatus::Failed)
-            .map(|r| r.clone())
+        self.all()
+            .into_iter()
+            .filter(|a| a.health.status == HealthStatus::Failed)
             .collect()
     }
 

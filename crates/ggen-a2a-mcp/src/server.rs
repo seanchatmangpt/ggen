@@ -301,7 +301,7 @@ mod tests {
     use ggen_ai::dspy::model_capabilities::{ModelCapabilities, ModelConfig, ModelProvider};
 
     fn create_test_model() -> Model {
-        use ggen_ai::dspy::model_capabilities::{LatencyClass, ReliabilityClass, Modality};
+        use ggen_ai::dspy::model_capabilities::{LatencyClass, Modality, ReliabilityClass};
         Model {
             name: "test-model".to_string(),
             provider: ModelProvider::Zai,

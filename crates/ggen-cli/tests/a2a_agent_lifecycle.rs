@@ -178,7 +178,11 @@ mod a2a_agent_lifecycle_tests {
         fn get_status(&self) -> String {
             format!(
                 "Agent(id={}, name={}, state={:?}, uptime={}s, active_tasks={}/{})",
-                self.id, self.name, self.state, self.uptime_secs, self.active_tasks,
+                self.id,
+                self.name,
+                self.state,
+                self.uptime_secs,
+                self.active_tasks,
                 self.max_concurrent_tasks
             )
         }
@@ -275,7 +279,11 @@ mod a2a_agent_lifecycle_tests {
 
         // Assert: Verify successful initialization and state change
         assert!(result.is_ok(), "Initialization should succeed");
-        assert_eq!(agent.state, AgentState::Ready, "Agent should transition to Ready");
+        assert_eq!(
+            agent.state,
+            AgentState::Ready,
+            "Agent should transition to Ready"
+        );
     }
 
     #[tokio::test]
@@ -290,7 +298,11 @@ mod a2a_agent_lifecycle_tests {
 
         // Assert: Verify error and state unchanged
         assert!(result.is_err(), "Double initialization should fail");
-        assert_eq!(agent.state, AgentState::Ready, "State should not change on error");
+        assert_eq!(
+            agent.state,
+            AgentState::Ready,
+            "State should not change on error"
+        );
     }
 
     #[tokio::test]
@@ -307,7 +319,10 @@ mod a2a_agent_lifecycle_tests {
         pool.register_agent(agent3).unwrap();
 
         // Act: Initialize first agent
-        pool.get_agent_mut("agent-003").unwrap().initialize().unwrap();
+        pool.get_agent_mut("agent-003")
+            .unwrap()
+            .initialize()
+            .unwrap();
 
         // Assert: Verify mixed states
         assert_eq!(
@@ -338,7 +353,11 @@ mod a2a_agent_lifecycle_tests {
 
         // Assert: Verify transition
         assert!(result.is_ok(), "Should transition to Processing");
-        assert_eq!(agent.state, AgentState::Processing, "State should be Processing");
+        assert_eq!(
+            agent.state,
+            AgentState::Processing,
+            "State should be Processing"
+        );
         assert_eq!(agent.active_tasks, 1, "Should have one active task");
     }
 
@@ -426,10 +445,7 @@ mod a2a_agent_lifecycle_tests {
 
         // Act & Assert: Attempt invalid transitions
         let err1 = agent.start_processing("task-001");
-        assert!(
-            err1.is_err(),
-            "Cannot process from Initializing state"
-        );
+        assert!(err1.is_err(), "Cannot process from Initializing state");
 
         agent.initialize().unwrap();
         agent.start_processing("task-001").unwrap();
@@ -466,7 +482,11 @@ mod a2a_agent_lifecycle_tests {
         // Assert: Verify timeout can be detected
         // In real scenario, agent would be marked as timed out
         if !exceeded {
-            assert_eq!(agent.state, AgentState::Processing, "Should still be processing");
+            assert_eq!(
+                agent.state,
+                AgentState::Processing,
+                "Should still be processing"
+            );
         }
     }
 
@@ -486,7 +506,10 @@ mod a2a_agent_lifecycle_tests {
             agent.error_message,
             Some("Task timeout - exceeded 30s limit".to_string())
         );
-        assert_eq!(agent.active_tasks, 1, "Task should still be counted until recovered");
+        assert_eq!(
+            agent.active_tasks, 1,
+            "Task should still be counted until recovered"
+        );
     }
 
     #[tokio::test]
@@ -543,8 +566,7 @@ mod a2a_agent_lifecycle_tests {
         // Arrange: Create pool with initialized agents
         let mut pool = AgentPool::new(10);
         for i in 0..4 {
-            let mut agent =
-                TestAgent::new(format!("agent-{:03}", i + 200), format!("agent-{}", i));
+            let mut agent = TestAgent::new(format!("agent-{:03}", i + 200), format!("agent-{}", i));
             agent.initialize().unwrap();
             pool.register_agent(agent).unwrap();
         }
@@ -576,8 +598,7 @@ mod a2a_agent_lifecycle_tests {
         // Arrange: Create pool with processing agents
         let mut pool = AgentPool::new(10);
         for i in 0..3 {
-            let mut agent =
-                TestAgent::new(format!("agent-{:03}", i + 300), format!("agent-{}", i));
+            let mut agent = TestAgent::new(format!("agent-{:03}", i + 300), format!("agent-{}", i));
             agent.initialize().unwrap();
             agent.start_processing(&format!("task-{}", i)).unwrap();
             pool.register_agent(agent).unwrap();
@@ -693,11 +714,7 @@ mod a2a_agent_lifecycle_tests {
         }
 
         // Assert: Verify all agents received message
-        let total_messages: usize = pool
-            .agents
-            .values()
-            .map(|a| a.message_queue.len())
-            .sum();
+        let total_messages: usize = pool.agents.values().map(|a| a.message_queue.len()).sum();
         assert_eq!(total_messages, 3, "All agents should have received message");
     }
 
@@ -738,10 +755,8 @@ mod a2a_agent_lifecycle_tests {
 
         // Act: Simulate bridging by storing tool name reference
         let tool_name = format!("agent-{}", agent.name);
-        let bridge_mapping: HashMap<String, String> = HashMap::from_iter(vec![(
-            tool_name.clone(),
-            agent.id.clone(),
-        )]);
+        let bridge_mapping: HashMap<String, String> =
+            HashMap::from_iter(vec![(tool_name.clone(), agent.id.clone())]);
 
         // Assert: Verify bridging configuration
         assert!(
@@ -836,8 +851,7 @@ mod a2a_agent_lifecycle_tests {
         let mut agents = vec![];
 
         for i in 0..5 {
-            let mut agent =
-                TestAgent::new(format!("agent-{:03}", i + 800), format!("agent-{}", i));
+            let mut agent = TestAgent::new(format!("agent-{:03}", i + 800), format!("agent-{}", i));
             agent.initialize().unwrap();
 
             if i % 2 == 0 {
@@ -868,10 +882,22 @@ mod a2a_agent_lifecycle_tests {
         }
 
         // Assert: Verify recovery - all error agents should be idle
-        assert_eq!(pool.count_by_state(AgentState::Error), 0, "All error agents should be recovered");
+        assert_eq!(
+            pool.count_by_state(AgentState::Error),
+            0,
+            "All error agents should be recovered"
+        );
         // 3 agents were in error (i=0,2,4), 2 are still ready (i=1,3)
-        assert_eq!(pool.count_by_state(AgentState::Idle), initial_error_count, "All recovered agents should be idle");
-        assert_eq!(pool.count_by_state(AgentState::Ready), 5 - initial_error_count, "Non-error agents should remain ready");
+        assert_eq!(
+            pool.count_by_state(AgentState::Idle),
+            initial_error_count,
+            "All recovered agents should be idle"
+        );
+        assert_eq!(
+            pool.count_by_state(AgentState::Ready),
+            5 - initial_error_count,
+            "Non-error agents should remain ready"
+        );
     }
 
     // =========================================================================
@@ -891,8 +917,7 @@ mod a2a_agent_lifecycle_tests {
         }
 
         // Act: Try to exceed limit
-        let overflow_agent =
-            TestAgent::new("agent-999-overflow", "overflow-agent");
+        let overflow_agent = TestAgent::new("agent-999-overflow", "overflow-agent");
         let result = pool.register_agent(overflow_agent);
 
         // Assert: Verify capacity limit enforcement
@@ -1093,7 +1118,10 @@ mod a2a_agent_lifecycle_tests {
 
         // Assert: Uptime should be updated (though may be 0 on very fast systems)
         let elapsed = created.elapsed().unwrap_or_default().as_secs();
-        assert!(agent.uptime_secs <= elapsed + 1, "Uptime should not exceed actual elapsed");
+        assert!(
+            agent.uptime_secs <= elapsed + 1,
+            "Uptime should not exceed actual elapsed"
+        );
     }
 
     #[tokio::test]

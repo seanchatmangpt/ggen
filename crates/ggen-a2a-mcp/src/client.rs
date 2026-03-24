@@ -807,12 +807,9 @@ mod tests {
         let model = Model::from_name("gpt-4");
         let client = A2aLlmClient::new(model).await.unwrap();
 
+        use a2a_generated::converged::agent::{AgentConfiguration, CommunicationQoS, StrategyType};
         use a2a_generated::converged::{
-            AgentCapabilities, AgentCommunication, AgentIdentity, AgentLifecycle,
-            ExecutionStrategy,
-        };
-        use a2a_generated::converged::agent::{
-            AgentConfiguration, CommunicationQoS, StrategyType,
+            AgentCapabilities, AgentCommunication, AgentIdentity, AgentLifecycle, ExecutionStrategy,
         };
 
         let agent = UnifiedAgent {
