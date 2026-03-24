@@ -32,11 +32,13 @@ pub struct Ontology;
 
 impl Ontology {
     /// Get the GGEN namespace
+    #[must_use]
     pub fn ggen_ns() -> &'static str {
         namespaces::GGEN
     }
 
     /// Get the marketplace namespace
+    #[must_use]
     pub fn marketplace_ns() -> &'static str {
         namespaces::MARKETPLACE
     }
@@ -47,11 +49,13 @@ pub struct UriBuilder;
 
 impl UriBuilder {
     /// Build a GGEN namespace URI
+    #[must_use]
     pub fn ggen(resource: &str) -> String {
         format!("{}{}", namespaces::GGEN, resource)
     }
 
     /// Build a marketplace namespace URI
+    #[must_use]
     pub fn marketplace(resource: &str) -> String {
         format!("{}{}", namespaces::MARKETPLACE, resource)
     }
