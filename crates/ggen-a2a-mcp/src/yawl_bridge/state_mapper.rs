@@ -3,8 +3,8 @@
 //! Provides bidirectional mapping between YAWL workflow task states
 //! and A2A protocol task/message states.
 
-use a2a_generated::task::TaskStatus;
 use a2a_generated::converged::message::MessageState;
+use a2a_generated::task::TaskStatus;
 
 /// Maps YAWL task states to A2A task states
 pub struct YawlStateMapper;
@@ -162,8 +162,14 @@ mod tests {
     fn test_valid_transitions() {
         assert!(YawlStateMapper::is_valid_transition("NotStarted", "Ready"));
         assert!(YawlStateMapper::is_valid_transition("Ready", "Executing"));
-        assert!(YawlStateMapper::is_valid_transition("Executing", "Completed"));
-        assert!(!YawlStateMapper::is_valid_transition("Completed", "Executing"));
+        assert!(YawlStateMapper::is_valid_transition(
+            "Executing",
+            "Completed"
+        ));
+        assert!(!YawlStateMapper::is_valid_transition(
+            "Completed",
+            "Executing"
+        ));
     }
 
     #[test]

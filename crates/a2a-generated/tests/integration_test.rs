@@ -9,18 +9,25 @@
 //! - Memory transport for in-process
 //! - Error handling scenarios
 
-use a2a_generated::prelude::*;
+use a2a_generated::adapter::{
+    Adapter, AdapterError, AdapterErrorType, AdapterRegistry, JsonAdapter, MessageConverter,
+    XmlAdapter,
+};
 use a2a_generated::agent::DefaultAgent;
 use a2a_generated::converged::agent::{CommunicationEndpoint, EndpointType};
 use a2a_generated::converged::message::{
-    ConvergedMessage, ConvergedMessageType, UnifiedContent, UnifiedContext,
-    UnifiedFileContent, MessageState, MessageStateTransition,
+    ConvergedMessage, ConvergedMessageType, MessageState, MessageStateTransition, UnifiedContent,
+    UnifiedContext, UnifiedFileContent,
 };
 use a2a_generated::handlers::message_handler::*;
-use a2a_generated::port::{PortConfig, PortConfigInternal, PortType, PortStatus, PortErrorType, PortRegistry};
-use a2a_generated::task::{Task, TaskStatus, TaskPriority, TaskResult, TaskError, TaskErrorType, DefaultTaskExecutor};
-use a2a_generated::adapter::{Adapter, AdapterError, AdapterErrorType, AdapterRegistry, JsonAdapter, XmlAdapter, MessageConverter};
 use a2a_generated::message::{MessageError, MessageErrorType};
+use a2a_generated::port::{
+    PortConfig, PortConfigInternal, PortErrorType, PortRegistry, PortStatus, PortType,
+};
+use a2a_generated::prelude::*;
+use a2a_generated::task::{
+    DefaultTaskExecutor, Task, TaskError, TaskErrorType, TaskPriority, TaskResult, TaskStatus,
+};
 use serde_json::{json, Value};
 use std::time::Duration;
 
@@ -118,7 +125,8 @@ mod agent_tests {
             "Test Agent".to_string(),
             "test".to_string(),
             "test-namespace".to_string(),
-        ).build();
+        )
+        .build();
 
         assert!(invalid_agent2.validate().is_err());
     }
@@ -165,8 +173,22 @@ mod agent_tests {
         );
 
         // Initialize ports
-        agent1_port.initialize(PortConfig::new("port-1-config".to_string(), "Port 1 Config".to_string(), PortType::Output)).await.unwrap();
-        agent2_port.initialize(PortConfig::new("port-2-config".to_string(), "Port 2 Config".to_string(), PortType::Input)).await.unwrap();
+        agent1_port
+            .initialize(PortConfig::new(
+                "port-1-config".to_string(),
+                "Port 1 Config".to_string(),
+                PortType::Output,
+            ))
+            .await
+            .unwrap();
+        agent2_port
+            .initialize(PortConfig::new(
+                "port-2-config".to_string(),
+                "Port 2 Config".to_string(),
+                PortType::Input,
+            ))
+            .await
+            .unwrap();
 
         // Connect ports
         agent1_port.connect("agent-2-port").await.unwrap();
@@ -206,12 +228,14 @@ mod message_tests {
 
         assert_eq!(message.message_id, "msg-task-001");
         assert_eq!(message.envelope.message_type, ConvergedMessageType::Task);
-        assert_eq!(message.envelope.correlation_id, Some("task-123".to_string()));
+        assert_eq!(
+            message.envelope.correlation_id,
+            Some("task-123".to_string())
+        );
 
         // Verify task context is present
         if let Some(UnifiedContext {
-            tasks: Some(tasks),
-            ..
+            tasks: Some(tasks), ..
         }) = message.payload.context
         {
             assert_eq!(tasks.len(), 1);
@@ -241,8 +265,8 @@ mod message_tests {
         .with_file(UnifiedFileContent {
             name: Some("test.txt".to_string()),
             mime_type: Some("text/plain".to_string()),
-            bytes: None,  // No bytes
-            uri: None,    // No URI
+            bytes: None, // No bytes
+            uri: None,   // No URI
             size: None,
             hash: None,
         });
@@ -302,7 +326,9 @@ mod message_tests {
             bytes: Some("SGVsbG8gV29ybGQ=".to_string()), // "Hello World" in base64
             uri: None,
             size: Some(11),
-            hash: Some("a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146".to_string()),
+            hash: Some(
+                "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146".to_string(),
+            ),
         };
 
         let message = ConvergedMessage::text(
@@ -486,12 +512,9 @@ mod task_tests {
     /// Test task result creation
     #[tokio::test]
     async fn test_task_result_creation() {
-        let result = TaskResult::new(
-            "task-001".to_string(),
-            json!({"result": "success"}),
-        )
-        .with_execution_time(Duration::from_millis(500))
-        .with_metadata("key1".to_string(), "value1".to_string());
+        let result = TaskResult::new("task-001".to_string(), json!({"result": "success"}))
+            .with_execution_time(Duration::from_millis(500))
+            .with_metadata("key1".to_string(), "value1".to_string());
 
         assert_eq!(result.task_id, "task-001");
         assert_eq!(result.output["result"], "success");
@@ -615,7 +638,9 @@ mod adapter_tests {
         let adapter = JsonAdapter::new();
         let capabilities = adapter.capabilities();
 
-        assert!(capabilities.supported_formats.contains(&"application/json".to_string()));
+        assert!(capabilities
+            .supported_formats
+            .contains(&"application/json".to_string()));
         assert_eq!(capabilities.max_message_size, 10 * 1024 * 1024);
     }
 
@@ -659,7 +684,11 @@ mod port_tests {
             PortType::Bidirectional,
         );
 
-        let config = PortConfig::new("port-init-config".to_string(), "Port Init Config".to_string(), PortType::Bidirectional);
+        let config = PortConfig::new(
+            "port-init-config".to_string(),
+            "Port Init Config".to_string(),
+            PortType::Bidirectional,
+        );
         let result = port.initialize(config).await;
 
         assert!(result.is_ok());
@@ -681,8 +710,22 @@ mod port_tests {
             PortType::Input,
         );
 
-        port1.initialize(PortConfig::new("port-1-cfg".to_string(), "Port 1 Config".to_string(), PortType::Output)).await.unwrap();
-        port2.initialize(PortConfig::new("port-2-cfg".to_string(), "Port 2 Config".to_string(), PortType::Input)).await.unwrap();
+        port1
+            .initialize(PortConfig::new(
+                "port-1-cfg".to_string(),
+                "Port 1 Config".to_string(),
+                PortType::Output,
+            ))
+            .await
+            .unwrap();
+        port2
+            .initialize(PortConfig::new(
+                "port-2-cfg".to_string(),
+                "Port 2 Config".to_string(),
+                PortType::Input,
+            ))
+            .await
+            .unwrap();
 
         let result = port1.connect("port-dst-001").await;
 
@@ -699,7 +742,13 @@ mod port_tests {
             PortType::Output,
         );
 
-        port.initialize(PortConfig::new("port-send-cfg".to_string(), "Send Config".to_string(), PortType::Output)).await.unwrap();
+        port.initialize(PortConfig::new(
+            "port-send-cfg".to_string(),
+            "Send Config".to_string(),
+            PortType::Output,
+        ))
+        .await
+        .unwrap();
         port.connect("target-port").await.unwrap();
 
         let message = json!({"test": "message"});
@@ -720,7 +769,13 @@ mod port_tests {
             PortType::Input,
         );
 
-        port.initialize(PortConfig::new("port-recv-cfg".to_string(), "Recv Config".to_string(), PortType::Input)).await.unwrap();
+        port.initialize(PortConfig::new(
+            "port-recv-cfg".to_string(),
+            "Recv Config".to_string(),
+            PortType::Input,
+        ))
+        .await
+        .unwrap();
         port.connect("source-port").await.unwrap();
 
         let result = port.receive().await;
@@ -740,7 +795,13 @@ mod port_tests {
             PortType::Bidirectional,
         );
 
-        port.initialize(PortConfig::new("port-disc-cfg".to_string(), "Disc Config".to_string(), PortType::Bidirectional)).await.unwrap();
+        port.initialize(PortConfig::new(
+            "port-disc-cfg".to_string(),
+            "Disc Config".to_string(),
+            PortType::Bidirectional,
+        ))
+        .await
+        .unwrap();
         port.connect("target").await.unwrap();
         port.disconnect().await.unwrap();
 
@@ -756,7 +817,13 @@ mod port_tests {
             PortType::Input,
         );
 
-        port.initialize(PortConfig::new("port-ready-cfg".to_string(), "Ready Config".to_string(), PortType::Input)).await.unwrap();
+        port.initialize(PortConfig::new(
+            "port-ready-cfg".to_string(),
+            "Ready Config".to_string(),
+            PortType::Input,
+        ))
+        .await
+        .unwrap();
         assert!(port.is_ready().await);
 
         port.connect("target").await.unwrap();
@@ -772,7 +839,13 @@ mod port_tests {
             PortType::Bidirectional,
         );
 
-        port.initialize(PortConfig::new("port-stats-cfg".to_string(), "Stats Config".to_string(), PortType::Bidirectional)).await.unwrap();
+        port.initialize(PortConfig::new(
+            "port-stats-cfg".to_string(),
+            "Stats Config".to_string(),
+            PortType::Bidirectional,
+        ))
+        .await
+        .unwrap();
         port.connect("target").await.unwrap();
 
         let message = json!({"data": "test"});
@@ -795,13 +868,22 @@ mod port_tests {
             PortType::Output,
         );
 
-        port.initialize(PortConfig::new("port-err-cfg".to_string(), "Err Config".to_string(), PortType::Output)).await.unwrap();
+        port.initialize(PortConfig::new(
+            "port-err-cfg".to_string(),
+            "Err Config".to_string(),
+            PortType::Output,
+        ))
+        .await
+        .unwrap();
 
         let message = json!({"test": "message"});
         let result = port.send(&message).await;
 
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err().error_type, PortErrorType::PortNotConnected);
+        assert_eq!(
+            result.unwrap_err().error_type,
+            PortErrorType::PortNotConnected
+        );
     }
 
     /// Test port registry
@@ -841,7 +923,14 @@ mod port_tests {
             PortType::Output,
         )) as Box<dyn Port>;
         // Note: initialize replaces the port's config ID with the config's ID
-        port1.initialize(PortConfig::new("port-reg-src-001".to_string(), "Port 1 Config".to_string(), PortType::Output)).await.unwrap();
+        port1
+            .initialize(PortConfig::new(
+                "port-reg-src-001".to_string(),
+                "Port 1 Config".to_string(),
+                PortType::Output,
+            ))
+            .await
+            .unwrap();
 
         // Create and initialize destination port
         let mut port2 = Box::new(BasicPort::new(
@@ -849,14 +938,23 @@ mod port_tests {
             "Registry Destination".to_string(),
             PortType::Input,
         )) as Box<dyn Port>;
-        port2.initialize(PortConfig::new("port-reg-dst-001".to_string(), "Port 2 Config".to_string(), PortType::Input)).await.unwrap();
+        port2
+            .initialize(PortConfig::new(
+                "port-reg-dst-001".to_string(),
+                "Port 2 Config".to_string(),
+                PortType::Input,
+            ))
+            .await
+            .unwrap();
 
         // Register initialized ports
         registry.register_port(port1);
         registry.register_port(port2);
 
         // Connect through registry
-        let result = registry.connect_ports("port-reg-src-001", "port-reg-dst-001").await;
+        let result = registry
+            .connect_ports("port-reg-src-001", "port-reg-dst-001")
+            .await;
         match result {
             Ok(_) => {}
             Err(e) => panic!("Connection failed: {}", e.message),
@@ -895,14 +993,20 @@ mod handler_tests {
 
         assert!(handler.can_handle(&message));
         assert_eq!(handler.name(), "TextMessageHandler");
-        assert_eq!(handler.priority(), a2a_generated::handlers::message_handler::HandlerPriority::Normal);
+        assert_eq!(
+            handler.priority(),
+            a2a_generated::handlers::message_handler::HandlerPriority::Normal
+        );
 
         let result = handler.handle(&message).await;
         assert!(result.is_ok());
 
         let handler_result = result.unwrap();
         // Just check status is success without deep comparison to avoid potential stack overflow
-        assert!(matches!(handler_result.status, a2a_generated::handlers::message_handler::HandlerStatus::Success));
+        assert!(matches!(
+            handler_result.status,
+            a2a_generated::handlers::message_handler::HandlerStatus::Success
+        ));
     }
 
     /// Test data processing handler
@@ -912,7 +1016,10 @@ mod handler_tests {
 
         // Test handler properties without triggering handle() which may have stack overflow issues
         assert_eq!(handler.name(), "DataProcessingHandler");
-        assert_eq!(handler.priority(), a2a_generated::handlers::message_handler::HandlerPriority::High);
+        assert_eq!(
+            handler.priority(),
+            a2a_generated::handlers::message_handler::HandlerPriority::High
+        );
     }
 
     /// Test message router
@@ -935,7 +1042,10 @@ mod handler_tests {
 
         let router_result = result.unwrap();
         // Just check status is success without deep comparison to avoid potential stack overflow
-        assert!(matches!(router_result.status, a2a_generated::handlers::message_handler::HandlerStatus::Success));
+        assert!(matches!(
+            router_result.status,
+            a2a_generated::handlers::message_handler::HandlerStatus::Success
+        ));
 
         // Check metrics
         let metrics = router.metrics();
@@ -951,7 +1061,9 @@ mod handler_tests {
         router.register_handler(TextMessageHandler::new());
         router.add_routing_rule(UnifiedRoutingRule {
             name: "direct-messages".to_string(),
-            condition: a2a_generated::handlers::message_handler::RoutingCondition::MessageType(ConvergedMessageType::Direct),
+            condition: a2a_generated::handlers::message_handler::RoutingCondition::MessageType(
+                ConvergedMessageType::Direct,
+            ),
             priority: 100,
             metadata: None,
         });
@@ -996,7 +1108,10 @@ mod handler_tests {
 
         let handler_result = result.unwrap();
         // Check status is failed
-        assert!(matches!(handler_result.status, a2a_generated::handlers::message_handler::HandlerStatus::Failed));
+        assert!(matches!(
+            handler_result.status,
+            a2a_generated::handlers::message_handler::HandlerStatus::Failed
+        ));
         assert!(handler_result.error.is_some());
     }
 }
@@ -1302,7 +1417,10 @@ mod json_rpc_tests {
         });
 
         assert_eq!(jsonrpc_request["jsonrpc"], "2.0");
-        assert_eq!(jsonrpc_request["params"]["message"]["messageId"], "msg-conv-001");
+        assert_eq!(
+            jsonrpc_request["params"]["message"]["messageId"],
+            "msg-conv-001"
+        );
     }
 }
 
@@ -1366,8 +1484,22 @@ mod end_to_end_tests {
             PortType::Input,
         );
 
-        agent1_port.initialize(PortConfig::new("agent-1-cfg".to_string(), "Agent 1 Config".to_string(), PortType::Output)).await.unwrap();
-        agent2_port.initialize(PortConfig::new("agent-2-cfg".to_string(), "Agent 2 Config".to_string(), PortType::Input)).await.unwrap();
+        agent1_port
+            .initialize(PortConfig::new(
+                "agent-1-cfg".to_string(),
+                "Agent 1 Config".to_string(),
+                PortType::Output,
+            ))
+            .await
+            .unwrap();
+        agent2_port
+            .initialize(PortConfig::new(
+                "agent-2-cfg".to_string(),
+                "Agent 2 Config".to_string(),
+                PortType::Input,
+            ))
+            .await
+            .unwrap();
 
         agent1_port.connect("agent-2-in").await.unwrap();
 
@@ -1407,7 +1539,10 @@ mod end_to_end_tests {
         let recovered = deserialized.unwrap();
         assert_eq!(recovered.message_id, original.message_id);
         assert_eq!(recovered.source, original.source);
-        assert_eq!(recovered.envelope.message_type, original.envelope.message_type);
+        assert_eq!(
+            recovered.envelope.message_type,
+            original.envelope.message_type
+        );
     }
 
     /// Test multi-agent task coordination
@@ -1451,14 +1586,23 @@ mod end_to_end_tests {
             PortType::Output,
         );
 
-        port.initialize(PortConfig::new("port-err-cfg".to_string(), "Error Config".to_string(), PortType::Output)).await.unwrap();
+        port.initialize(PortConfig::new(
+            "port-err-cfg".to_string(),
+            "Error Config".to_string(),
+            PortType::Output,
+        ))
+        .await
+        .unwrap();
 
         // Try to send without connecting - should fail
         let message = json!({"test": "message"});
         let send_result = port.send(&message).await;
 
         assert!(send_result.is_err());
-        assert_eq!(send_result.unwrap_err().error_type, PortErrorType::PortNotConnected);
+        assert_eq!(
+            send_result.unwrap_err().error_type,
+            PortErrorType::PortNotConnected
+        );
 
         // Now connect and retry
         port.connect("target").await.unwrap();

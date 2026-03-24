@@ -68,7 +68,7 @@ pub use guard::{Guard, GuardAction, GuardViolation, PathGuard, SecretGuard};
 pub use pass::{Pass, PassContext, PassExecution, PassResult, PassType};
 pub use pipeline::{PipelineConfig, StagedPipeline, VerifyMode};
 pub use receipt::{
-    BuildReceipt, FileInfo, OutputFile, generate_receipt, save_receipt, verify_receipt,
+    generate_receipt, save_receipt, verify_receipt, BuildReceipt, FileInfo, OutputFile,
 };
 pub use vocabulary::{AllowedVocabulary, ForbiddenVocabulary, VocabularyRegistry};
 

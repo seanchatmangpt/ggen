@@ -67,9 +67,7 @@ impl ConfigValidator {
     }
 
     fn validate_project_metadata(
-        &self,
-        config: &GgenConfig,
-        errors: &mut Vec<ValidationError>,
+        &self, config: &GgenConfig, errors: &mut Vec<ValidationError>,
         warnings: &mut Vec<ValidationWarning>,
     ) {
         if config.project.name.is_empty() {
@@ -117,9 +115,7 @@ impl ConfigValidator {
     }
 
     fn validate_ai_config(
-        &self,
-        config: &GgenConfig,
-        errors: &mut Vec<ValidationError>,
+        &self, config: &GgenConfig, errors: &mut Vec<ValidationError>,
         warnings: &mut Vec<ValidationWarning>,
     ) {
         if config.ai.model.is_empty() {
@@ -165,12 +161,12 @@ impl ConfigValidator {
     }
 
     fn validate_zai_config(
-        &self,
-        config: &GgenConfig,
-        errors: &mut Vec<ValidationError>,
+        &self, config: &GgenConfig, errors: &mut Vec<ValidationError>,
         warnings: &mut Vec<ValidationWarning>,
     ) {
-        if !config.zai.base_url.starts_with("http://") && !config.zai.base_url.starts_with("https://") {
+        if !config.zai.base_url.starts_with("http://")
+            && !config.zai.base_url.starts_with("https://")
+        {
             errors.push(ValidationError::invalid_value(
                 "zai.base_url",
                 "Must start with http:// or https://",
@@ -197,15 +193,15 @@ impl ConfigValidator {
         if config.zai.api_key.is_some() {
             warnings.push(ValidationWarning {
                 field: Some("zai.api_key".to_string()),
-                message: "API key is hardcoded in config file. Consider using environment variables.".to_string(),
+                message:
+                    "API key is hardcoded in config file. Consider using environment variables."
+                        .to_string(),
             });
         }
     }
 
     fn validate_logging_config(
-        &self,
-        config: &GgenConfig,
-        errors: &mut Vec<ValidationError>,
+        &self, config: &GgenConfig, errors: &mut Vec<ValidationError>,
         warnings: &mut Vec<ValidationWarning>,
     ) {
         if !self.allowed_log_levels.contains(&config.logging.level) {
@@ -245,16 +241,17 @@ impl ConfigValidator {
     }
 
     fn validate_ontology_config(
-        &self,
-        config: &GgenConfig,
-        errors: &mut Vec<ValidationError>,
+        &self, config: &GgenConfig, errors: &mut Vec<ValidationError>,
         warnings: &mut Vec<ValidationWarning>,
     ) {
         if config.ontology.source.is_empty() {
             errors.push(ValidationError::missing_required_field("ontology.source"));
         }
 
-        if !self.allowed_ontology_formats.contains(&config.ontology.format) {
+        if !self
+            .allowed_ontology_formats
+            .contains(&config.ontology.format)
+        {
             warnings.push(ValidationWarning {
                 field: Some("ontology.format".to_string()),
                 message: format!(
@@ -274,9 +271,7 @@ impl ConfigValidator {
     }
 
     fn validate_sparql_config(
-        &self,
-        config: &GgenConfig,
-        errors: &mut Vec<ValidationError>,
+        &self, config: &GgenConfig, errors: &mut Vec<ValidationError>,
         _warnings: &mut Vec<ValidationWarning>,
     ) {
         if config.sparql.timeout == 0 {
@@ -295,9 +290,7 @@ impl ConfigValidator {
     }
 
     fn validate_performance_config(
-        &self,
-        config: &GgenConfig,
-        errors: &mut Vec<ValidationError>,
+        &self, config: &GgenConfig, errors: &mut Vec<ValidationError>,
         warnings: &mut Vec<ValidationWarning>,
     ) {
         if config.performance.max_workers == 0 {
@@ -319,9 +312,7 @@ impl ConfigValidator {
     }
 
     fn validate_a2a_config(
-        &self,
-        config: &GgenConfig,
-        errors: &mut Vec<ValidationError>,
+        &self, config: &GgenConfig, errors: &mut Vec<ValidationError>,
         warnings: &mut Vec<ValidationWarning>,
     ) {
         if config.a2a.server.port == 0 {
@@ -507,10 +498,7 @@ mod tests {
 
         let result = validator.validate_ggen_config(&config);
         assert!(!result.is_valid);
-        assert!(result
-            .errors
-            .iter()
-            .any(|e| e.field == "project.name"));
+        assert!(result.errors.iter().any(|e| e.field == "project.name"));
     }
 
     #[test]
@@ -521,10 +509,7 @@ mod tests {
 
         let result = validator.validate_ggen_config(&config);
         assert!(!result.is_valid);
-        assert!(result
-            .errors
-            .iter()
-            .any(|e| e.field == "ai.temperature"));
+        assert!(result.errors.iter().any(|e| e.field == "ai.temperature"));
     }
 
     #[test]
@@ -535,10 +520,7 @@ mod tests {
 
         let result = validator.validate_ggen_config(&config);
         assert!(!result.is_valid);
-        assert!(result
-            .errors
-            .iter()
-            .any(|e| e.field == "logging.level"));
+        assert!(result.errors.iter().any(|e| e.field == "logging.level"));
     }
 
     #[test]
@@ -549,10 +531,11 @@ mod tests {
 
         let result = validator.validate_ggen_config(&config);
         assert!(result.is_valid); // Warnings don't make it invalid
-        assert!(result
-            .warnings
-            .iter()
-            .any(|w| w.field.as_ref().map(|f| f == "ai.provider").unwrap_or(false)));
+        assert!(result.warnings.iter().any(|w| w
+            .field
+            .as_ref()
+            .map(|f| f == "ai.provider")
+            .unwrap_or(false)));
     }
 
     #[test]
@@ -563,10 +546,11 @@ mod tests {
 
         let result = validator.validate_ggen_config(&config);
         assert!(result.is_valid);
-        assert!(result
-            .warnings
-            .iter()
-            .any(|w| w.field.as_ref().map(|f| f == "project.version").unwrap_or(false)));
+        assert!(result.warnings.iter().any(|w| w
+            .field
+            .as_ref()
+            .map(|f| f == "project.version")
+            .unwrap_or(false)));
     }
 
     #[test]
@@ -577,22 +561,17 @@ mod tests {
 
         let result = validator.validate_ggen_config(&config);
         assert!(!result.is_valid);
-        assert!(result
-            .errors
-            .iter()
-            .any(|e| e.field == "sparql.timeout"));
+        assert!(result.errors.iter().any(|e| e.field == "sparql.timeout"));
     }
 
     #[test]
     fn test_validation_result_format() {
         let result = ValidationResult {
             is_valid: false,
-            errors: vec![
-                ValidationError {
-                    field: "test.field".to_string(),
-                    message: "Test error".to_string(),
-                },
-            ],
+            errors: vec![ValidationError {
+                field: "test.field".to_string(),
+                message: "Test error".to_string(),
+            }],
             warnings: vec![],
         };
 

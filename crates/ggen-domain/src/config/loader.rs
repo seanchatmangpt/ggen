@@ -676,9 +676,7 @@ impl ConfigLoader {
 
     /// Load ggen.toml with environment override
     pub fn load_with_env(
-        &self,
-        config_path: &Path,
-        environment: &str,
+        &self, config_path: &Path, environment: &str,
     ) -> Result<(GgenConfig, ValidationResult), ConfigError> {
         let mut config = self.load_base_config(config_path)?;
         self.apply_environment_overrides(&mut config, environment)?;
@@ -706,9 +704,7 @@ impl ConfigLoader {
     }
 
     fn apply_environment_overrides(
-        &self,
-        config: &mut GgenConfig,
-        environment: &str,
+        &self, config: &mut GgenConfig, environment: &str,
     ) -> Result<(), ConfigError> {
         let overrides = config.env.get(environment).cloned().unwrap_or_default();
 
@@ -720,10 +716,7 @@ impl ConfigLoader {
     }
 
     fn apply_override(
-        &self,
-        config: &mut GgenConfig,
-        key_path: &str,
-        value: toml::Value,
+        &self, config: &mut GgenConfig, key_path: &str, value: toml::Value,
     ) -> Result<(), ConfigError> {
         let parts: Vec<&str> = key_path.split('.').collect();
 
@@ -804,13 +797,15 @@ pub enum ConfigError {
     #[error("IO error reading config at {path:?}: {source}")]
     IoError {
         path: PathBuf,
-        #[source] source: std::io::Error,
+        #[source]
+        source: std::io::Error,
     },
 
     #[error("Parse error in config at {path:?}: {source}")]
     ParseError {
         path: PathBuf,
-        #[source] source: toml::de::Error,
+        #[source]
+        source: toml::de::Error,
     },
 
     #[error("Validation error: {0}")]

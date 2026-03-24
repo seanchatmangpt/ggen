@@ -526,8 +526,22 @@ mod tests {
             BasicPort::new("port-1".to_string(), "Port 1".to_string(), PortType::Output);
         let mut port2 = BasicPort::new("port-2".to_string(), "Port 2".to_string(), PortType::Input);
 
-        port1.initialize(PortConfig::new("port-1-config".to_string(), "Port 1 Config".to_string(), PortType::Output)).await.unwrap();
-        port2.initialize(PortConfig::new("port-2-config".to_string(), "Port 2 Config".to_string(), PortType::Input)).await.unwrap();
+        port1
+            .initialize(PortConfig::new(
+                "port-1-config".to_string(),
+                "Port 1 Config".to_string(),
+                PortType::Output,
+            ))
+            .await
+            .unwrap();
+        port2
+            .initialize(PortConfig::new(
+                "port-2-config".to_string(),
+                "Port 2 Config".to_string(),
+                PortType::Input,
+            ))
+            .await
+            .unwrap();
 
         port1.connect("port-2").await.unwrap();
         assert_eq!(port1.status(), PortStatus::Connected);
@@ -540,7 +554,13 @@ mod tests {
             "Test Port".to_string(),
             PortType::Bidirectional,
         );
-        port.initialize(PortConfig::new("port-config-456".to_string(), "Port Config".to_string(), PortType::Bidirectional)).await.unwrap();
+        port.initialize(PortConfig::new(
+            "port-config-456".to_string(),
+            "Port Config".to_string(),
+            PortType::Bidirectional,
+        ))
+        .await
+        .unwrap();
 
         // Connect the port to simulate it being connected
         port.connect("target-port").await.unwrap();

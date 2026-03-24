@@ -169,7 +169,13 @@ impl InMemoryToolRegistry {
     /// MCP tool names must match: ^[a-zA-Z0-9_]{1,64}$
     fn sanitize_tool_name(&self, name: &str) -> String {
         name.chars()
-            .map(|c| if c.is_alphanumeric() || c == '_' { c } else { '_' })
+            .map(|c| {
+                if c.is_alphanumeric() || c == '_' {
+                    c
+                } else {
+                    '_'
+                }
+            })
             .collect::<String>()
             .chars()
             .take(64)
@@ -190,9 +196,7 @@ impl InMemoryToolRegistry {
 
     /// Register a skill with associated metadata
     pub async fn register_skill_with_metadata(
-        &mut self,
-        skill: A2aSkill,
-        metadata: A2aSkillMetadata,
+        &mut self, skill: A2aSkill, metadata: A2aSkillMetadata,
     ) -> Result<(), A2aMcpError> {
         let tool_name = self.sanitize_tool_name(&skill.name);
         let input_schema = self.skill_to_json_schema(&skill)?;
@@ -281,14 +285,12 @@ mod tests {
                     required: false,
                 },
             ],
-            outputs: vec![
-                SkillParameter {
-                    name: "results".to_string(),
-                    description: "List of matching files".to_string(),
-                    param_type: SkillParamType::Array,
-                    required: true,
-                },
-            ],
+            outputs: vec![SkillParameter {
+                name: "results".to_string(),
+                description: "List of matching files".to_string(),
+                param_type: SkillParamType::Array,
+                required: true,
+            }],
         }
     }
 
@@ -297,9 +299,18 @@ mod tests {
         let registry = InMemoryToolRegistry::new();
 
         assert_eq!(registry.sanitize_tool_name("valid_name"), "valid_name");
-        assert_eq!(registry.sanitize_tool_name("name-with-dashes"), "name_with_dashes");
-        assert_eq!(registry.sanitize_tool_name("name with spaces"), "name_with_spaces");
-        assert_eq!(registry.sanitize_tool_name("name@with!special"), "name_with_special");
+        assert_eq!(
+            registry.sanitize_tool_name("name-with-dashes"),
+            "name_with_dashes"
+        );
+        assert_eq!(
+            registry.sanitize_tool_name("name with spaces"),
+            "name_with_spaces"
+        );
+        assert_eq!(
+            registry.sanitize_tool_name("name@with!special"),
+            "name_with_special"
+        );
 
         // Test truncation to 64 chars
         let long_name = "a".repeat(100);
@@ -375,7 +386,10 @@ mod tests {
             execution_mode: ExecutionMode::Async,
         };
 
-        registry.register_skill_with_metadata(skill, metadata).await.unwrap();
+        registry
+            .register_skill_with_metadata(skill, metadata)
+            .await
+            .unwrap();
 
         let meta = registry.get_metadata("search_files").await;
         assert!(meta.is_some());

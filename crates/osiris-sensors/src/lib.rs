@@ -13,18 +13,52 @@ use uuid::Uuid;
 /// Sensor data types
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SensorDataType {
-    Accelerometer { x: f64, y: f64, z: f64 },
-    Gyroscope { x: f64, y: f64, z: f64 },
-    Magnetometer { x: f64, y: f64, z: f64 },
-    AmbientLight { lux: f64 },
-    Proximity { distance: f64 },
-    Temperature { celsius: f64 },
-    Humidity { percent: f64 },
-    Battery { level: f64, charging: bool },
-    Location { latitude: f64, longitude: f64, accuracy: f64 },
-    Activity { type_: String, confidence: f64 },
-    HeartRate { bpm: f64 },
-    StepCount { steps: u64 },
+    Accelerometer {
+        x: f64,
+        y: f64,
+        z: f64,
+    },
+    Gyroscope {
+        x: f64,
+        y: f64,
+        z: f64,
+    },
+    Magnetometer {
+        x: f64,
+        y: f64,
+        z: f64,
+    },
+    AmbientLight {
+        lux: f64,
+    },
+    Proximity {
+        distance: f64,
+    },
+    Temperature {
+        celsius: f64,
+    },
+    Humidity {
+        percent: f64,
+    },
+    Battery {
+        level: f64,
+        charging: bool,
+    },
+    Location {
+        latitude: f64,
+        longitude: f64,
+        accuracy: f64,
+    },
+    Activity {
+        type_: String,
+        confidence: f64,
+    },
+    HeartRate {
+        bpm: f64,
+    },
+    StepCount {
+        steps: u64,
+    },
 }
 
 /// Sensor configuration
@@ -40,10 +74,10 @@ pub struct SensorConfig {
 /// Privacy levels for sensor data
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum PrivacyLevel {
-    None,           // No personal data
-    Low,            // Aggregated data only
-    Medium,         // Data with timestamps
-    High,           // Full personal data
+    None,   // No personal data
+    Low,    // Aggregated data only
+    Medium, // Data with timestamps
+    High,   // Full personal data
 }
 
 /// Sensor manager for handling multiple sensors
@@ -77,50 +111,70 @@ impl SensorManager {
         // Initialize default sensors based on platform
         #[cfg(target_os = "ios")]
         {
-            self.add_sensor("accelerometer".to_string(), SensorConfig {
-                sensor_type: "accelerometer".to_string(),
-                enabled: true,
-                frequency_ms: 100,
-                batch_size: 10,
-                privacy_level: PrivacyLevel::Medium,
-            }).await?;
+            self.add_sensor(
+                "accelerometer".to_string(),
+                SensorConfig {
+                    sensor_type: "accelerometer".to_string(),
+                    enabled: true,
+                    frequency_ms: 100,
+                    batch_size: 10,
+                    privacy_level: PrivacyLevel::Medium,
+                },
+            )
+            .await?;
 
-            self.add_sensor("gyroscope".to_string(), SensorConfig {
-                sensor_type: "gyroscope".to_string(),
-                enabled: true,
-                frequency_ms: 100,
-                batch_size: 10,
-                privacy_level: PrivacyLevel::Medium,
-            }).await?;
+            self.add_sensor(
+                "gyroscope".to_string(),
+                SensorConfig {
+                    sensor_type: "gyroscope".to_string(),
+                    enabled: true,
+                    frequency_ms: 100,
+                    batch_size: 10,
+                    privacy_level: PrivacyLevel::Medium,
+                },
+            )
+            .await?;
         }
 
         #[cfg(target_os = "android")]
         {
-            self.add_sensor("accelerometer".to_string(), SensorConfig {
-                sensor_type: "accelerometer".to_string(),
-                enabled: true,
-                frequency_ms: 100,
-                batch_size: 10,
-                privacy_level: PrivacyLevel::Medium,
-            }).await?;
+            self.add_sensor(
+                "accelerometer".to_string(),
+                SensorConfig {
+                    sensor_type: "accelerometer".to_string(),
+                    enabled: true,
+                    frequency_ms: 100,
+                    batch_size: 10,
+                    privacy_level: PrivacyLevel::Medium,
+                },
+            )
+            .await?;
 
-            self.add_sensor("location".to_string(), SensorConfig {
-                sensor_type: "location".to_string(),
-                enabled: false, // Require explicit permission
-                frequency_ms: 1000,
-                batch_size: 5,
-                privacy_level: PrivacyLevel::High,
-            }).await?;
+            self.add_sensor(
+                "location".to_string(),
+                SensorConfig {
+                    sensor_type: "location".to_string(),
+                    enabled: false, // Require explicit permission
+                    frequency_ms: 1000,
+                    batch_size: 5,
+                    privacy_level: PrivacyLevel::High,
+                },
+            )
+            .await?;
         }
 
         // Cross-platform sensors
-        self.add_sensor("battery".to_string(), SensorConfig {
-            sensor_type: "battery".to_string(),
-            enabled: true,
-            frequency_ms: 60000, // Check every minute
-            batch_size: 1,
-            privacy_level: PrivacyLevel::None,
-        }).await?;
+        self.add_sensor(
+            "battery".to_string(),
+            SensorConfig {
+                sensor_type: "battery".to_string(),
+                enabled: true,
+                frequency_ms: 60000, // Check every minute
+                batch_size: 1,
+                privacy_level: PrivacyLevel::None,
+            },
+        )
+        .await?;
 
         *initialized = true;
         info!("OSIRIS sensors initialized successfully");
@@ -160,7 +214,8 @@ impl SensorManager {
     /// Get sensor data buffer
     pub async fn get_sensor_data(&self, sensor_id: &str) -> Result<Vec<SensorDataType>> {
         let buffer = self.data_buffer.read().await;
-        let data = buffer.get(sensor_id)
+        let data = buffer
+            .get(sensor_id)
             .ok_or_else(|| anyhow::anyhow!("Sensor {} not found", sensor_id))?;
         Ok(data.clone())
     }
@@ -168,7 +223,8 @@ impl SensorManager {
     /// Add sensor data to buffer
     pub async fn add_sensor_data(&self, sensor_id: &str, data: SensorDataType) -> Result<()> {
         let mut buffer = self.data_buffer.write().await;
-        let data_vec = buffer.get_mut(sensor_id)
+        let data_vec = buffer
+            .get_mut(sensor_id)
             .ok_or_else(|| anyhow::anyhow!("Sensor {} not found", sensor_id))?;
 
         data_vec.push(data);
@@ -184,14 +240,19 @@ impl SensorManager {
     /// Process a batch of sensor data
     async fn process_sensor_batch(&self, sensor_id: &str) -> Result<()> {
         let buffer = self.data_buffer.read().await;
-        let data_vec = buffer.get(sensor_id)
+        let data_vec = buffer
+            .get(sensor_id)
             .ok_or_else(|| anyhow::anyhow!("Sensor {} not found", sensor_id))?;
 
         if data_vec.is_empty() {
             return Ok(());
         }
 
-        info!("Processing batch for sensor {}: {} items", sensor_id, data_vec.len());
+        info!(
+            "Processing batch for sensor {}: {} items",
+            sensor_id,
+            data_vec.len()
+        );
 
         // Here you would integrate with OSIRIS core for processing
         #[cfg(feature = "autonomic")]
@@ -298,7 +359,11 @@ pub mod desktop {
             info!("Simulating sensor data for desktop");
             // Generate mock data for testing
             use SensorDataType::*;
-            let mock_data = Accelerometer { x: 0.0, y: 0.0, z: 9.81 };
+            let mock_data = Accelerometer {
+                x: 0.0,
+                y: 0.0,
+                z: 9.81,
+            };
             self.manager.add_sensor_data(sensor_id, mock_data).await
         }
     }

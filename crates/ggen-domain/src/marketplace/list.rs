@@ -289,18 +289,19 @@ pub async fn execute_list(_input: ListInput) -> Result<ListOutput> {
                         if let Ok(content) = std::fs::read_to_string(&package_toml) {
                             if let Ok(pkg_toml) = toml::from_str::<toml::Value>(&content) {
                                 if let Some(pkg) = pkg_toml.get("package") {
-                                    let name_str = pkg.get("name")
-                                        .and_then(|n| n.as_str())
-                                        .unwrap_or("");
+                                    let name_str =
+                                        pkg.get("name").and_then(|n| n.as_str()).unwrap_or("");
                                     let name = if name_str.is_empty() {
                                         entry.file_name().to_string_lossy().to_string()
                                     } else {
                                         name_str.to_string()
                                     };
-                                    let version = pkg.get("version")
+                                    let version = pkg
+                                        .get("version")
                                         .and_then(|v| v.as_str())
                                         .unwrap_or("1.0.0");
-                                    let description = pkg.get("description")
+                                    let description = pkg
+                                        .get("description")
                                         .and_then(|d| d.as_str())
                                         .unwrap_or("");
 

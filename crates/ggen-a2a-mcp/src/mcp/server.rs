@@ -1,8 +1,8 @@
 //! MCP server implementation
 
-use crate::error::A2aMcpResult;
-use super::transport::StdioTransport;
 use super::registry::InMemoryToolRegistry;
+use super::transport::StdioTransport;
+use crate::error::A2aMcpResult;
 
 /// MCP server configuration
 #[derive(Debug, Clone)]

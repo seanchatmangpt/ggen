@@ -269,7 +269,7 @@ pub async fn execute_update(input: UpdateInput) -> Result<UpdateOutput> {
         ggen_utils::alert_info!("Update all packages requested");
     } else {
         return Err(ggen_utils::error::Error::new(
-            "Please specify a package name or use --all to update all packages"
+            "Please specify a package name or use --all to update all packages",
         ));
     }
 

@@ -6,7 +6,7 @@
 pub mod agents;
 pub mod executor;
 
-pub use agents::{A2aPattern, all_patterns};
+pub use agents::{all_patterns, A2aPattern};
 pub use executor::{ConstructExecutor, Query};
 
 /// Pattern mappings for FIBO to YAWL transformation.

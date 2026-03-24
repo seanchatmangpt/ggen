@@ -206,8 +206,7 @@ impl ConfigLoader {
     /// assert_eq!(config.ai.unwrap().provider, "zai");
     /// ```
     pub fn load_with_env_from_map(
-        self,
-        overrides: &[(&str, serde_json::Value)],
+        self, overrides: &[(&str, serde_json::Value)],
     ) -> Result<GgenConfig> {
         let mut config = self.load()?;
 
@@ -382,8 +381,7 @@ fn update_logging_field(
 
 /// Update performance configuration field
 fn update_performance_field(
-    performance: &mut crate::schema::PerformanceConfig, field: &str,
-    value: &serde_json::Value,
+    performance: &mut crate::schema::PerformanceConfig, field: &str, value: &serde_json::Value,
 ) {
     match field {
         "max_workers" => {

@@ -31,8 +31,7 @@ pub mod watch_mode;
 // Re-export key types
 pub use audit::{AuditOutput, AuditStep, AuditTrail, AuditTrailBuilder};
 pub use canonicalize::{
-    canonicalize, canonicalize_a2a, canonicalize_file, canonicalize_rust_quick,
-    CanonicalizeOptions,
+    canonicalize, canonicalize_a2a, canonicalize_file, canonicalize_rust_quick, CanonicalizeOptions,
 };
 pub use code_graph::{
     CodeEnum, CodeField, CodeGraphBuilder, CodeImpl, CodeImport, CodeItem, CodeMethod, CodeModule,

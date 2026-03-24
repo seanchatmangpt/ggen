@@ -163,12 +163,42 @@ impl MaturityAssessment {
         Self {
             package_id,
             package_name,
-            documentation: DocumentationScores { total: 0, readme: 0, api_docs: 0, examples: 0, changelog: 0 },
-            testing: TestingScores { total: 0, unit_tests: 0, integration_tests: 0, e2e_tests: 0 },
-            security: SecurityScores { total: 0, vulnerability_free: 0, audit: 0, safe_code: 0 },
-            performance: PerformanceScores { total: 0, benchmarks: 0, optimization: 0, determinism: 0 },
-            adoption: AdoptionScores { total: 0, freshness: 0, contributors: 0, community: 0 },
-            maintenance: MaintenanceScores { total: 0, responsiveness: 0, activity: 0 },
+            documentation: DocumentationScores {
+                total: 0,
+                readme: 0,
+                api_docs: 0,
+                examples: 0,
+                changelog: 0,
+            },
+            testing: TestingScores {
+                total: 0,
+                unit_tests: 0,
+                integration_tests: 0,
+                e2e_tests: 0,
+            },
+            security: SecurityScores {
+                total: 0,
+                vulnerability_free: 0,
+                audit: 0,
+                safe_code: 0,
+            },
+            performance: PerformanceScores {
+                total: 0,
+                benchmarks: 0,
+                optimization: 0,
+                determinism: 0,
+            },
+            adoption: AdoptionScores {
+                total: 0,
+                freshness: 0,
+                contributors: 0,
+                community: 0,
+            },
+            maintenance: MaintenanceScores {
+                total: 0,
+                responsiveness: 0,
+                activity: 0,
+            },
         }
     }
 
@@ -197,12 +227,30 @@ impl MaturityAssessment {
     pub fn score_breakdown(&self) -> std::collections::HashMap<String, f32> {
         let max = 100.0;
         let mut map = std::collections::HashMap::new();
-        map.insert("documentation".to_string(), (self.documentation.total as f32 / max) * 20.0);
-        map.insert("testing".to_string(), (self.testing.total as f32 / max) * 20.0);
-        map.insert("security".to_string(), (self.security.total as f32 / max) * 20.0);
-        map.insert("performance".to_string(), (self.performance.total as f32 / max) * 15.0);
-        map.insert("adoption".to_string(), (self.adoption.total as f32 / max) * 15.0);
-        map.insert("maintenance".to_string(), (self.maintenance.total as f32 / max) * 10.0);
+        map.insert(
+            "documentation".to_string(),
+            (self.documentation.total as f32 / max) * 20.0,
+        );
+        map.insert(
+            "testing".to_string(),
+            (self.testing.total as f32 / max) * 20.0,
+        );
+        map.insert(
+            "security".to_string(),
+            (self.security.total as f32 / max) * 20.0,
+        );
+        map.insert(
+            "performance".to_string(),
+            (self.performance.total as f32 / max) * 15.0,
+        );
+        map.insert(
+            "adoption".to_string(),
+            (self.adoption.total as f32 / max) * 15.0,
+        );
+        map.insert(
+            "maintenance".to_string(),
+            (self.maintenance.total as f32 / max) * 10.0,
+        );
         map
     }
 
@@ -210,27 +258,36 @@ impl MaturityAssessment {
         let mut feedback = Vec::new();
 
         if self.documentation.total < 15 {
-            feedback.push(("documentation".to_string(), vec![
-                "Add comprehensive README".to_string(),
-                "Document API with examples".to_string(),
-                "Include usage examples".to_string(),
-            ]));
+            feedback.push((
+                "documentation".to_string(),
+                vec![
+                    "Add comprehensive README".to_string(),
+                    "Document API with examples".to_string(),
+                    "Include usage examples".to_string(),
+                ],
+            ));
         }
 
         if self.testing.total < 15 {
-            feedback.push(("testing".to_string(), vec![
-                "Increase test coverage".to_string(),
-                "Add integration tests".to_string(),
-                "Include E2E tests".to_string(),
-            ]));
+            feedback.push((
+                "testing".to_string(),
+                vec![
+                    "Increase test coverage".to_string(),
+                    "Add integration tests".to_string(),
+                    "Include E2E tests".to_string(),
+                ],
+            ));
         }
 
         if self.security.total < 15 {
-            feedback.push(("security".to_string(), vec![
-                "Fix security vulnerabilities".to_string(),
-                "Run dependency audit".to_string(),
-                "Reduce unsafe code".to_string(),
-            ]));
+            feedback.push((
+                "security".to_string(),
+                vec![
+                    "Fix security vulnerabilities".to_string(),
+                    "Run dependency audit".to_string(),
+                    "Reduce unsafe code".to_string(),
+                ],
+            ));
         }
 
         feedback
@@ -268,7 +325,13 @@ impl MaturityEvaluator {
         let changelog = if input.has_changelog { 5 } else { 0 };
         let total = readme + api_docs + examples + changelog;
 
-        DocumentationScores { total, readme, api_docs, examples, changelog }
+        DocumentationScores {
+            total,
+            readme,
+            api_docs,
+            examples,
+            changelog,
+        }
     }
 
     fn evaluate_testing(input: &EvaluationInput) -> TestingScores {
@@ -278,16 +341,30 @@ impl MaturityEvaluator {
         let e2e_tests = if input.has_e2e_tests { 4 } else { 0 };
         let total = coverage_score + unit_tests + integration_tests + e2e_tests;
 
-        TestingScores { total, unit_tests, integration_tests, e2e_tests }
+        TestingScores {
+            total,
+            unit_tests,
+            integration_tests,
+            e2e_tests,
+        }
     }
 
     fn evaluate_security(input: &EvaluationInput) -> SecurityScores {
         let vuln_score = if input.vulnerabilities == 0 { 8 } else { 0 };
         let audit_score = if input.has_dependency_audit { 6 } else { 0 };
-        let safe_score = if input.unsafe_code_percent < 1.0 { 6 } else { 0 };
+        let safe_score = if input.unsafe_code_percent < 1.0 {
+            6
+        } else {
+            0
+        };
         let total = vuln_score + audit_score + safe_score;
 
-        SecurityScores { total, vulnerability_free: vuln_score, audit: audit_score, safe_code: safe_score }
+        SecurityScores {
+            total,
+            vulnerability_free: vuln_score,
+            audit: audit_score,
+            safe_code: safe_score,
+        }
     }
 
     fn evaluate_performance(input: &EvaluationInput) -> PerformanceScores {
@@ -296,21 +373,39 @@ impl MaturityEvaluator {
         let determinism = if input.determinism_verified { 5 } else { 0 };
         let total = benchmarks + optimization + determinism;
 
-        PerformanceScores { total, benchmarks, optimization, determinism }
+        PerformanceScores {
+            total,
+            benchmarks,
+            optimization,
+            determinism,
+        }
     }
 
     fn evaluate_adoption(input: &EvaluationInput) -> AdoptionScores {
-        let freshness = if input.days_since_last_release < 90 { 5 } else { 0 };
+        let freshness = if input.days_since_last_release < 90 {
+            5
+        } else {
+            0
+        };
         let contributors = (input.active_contributors as u32 * 2).min(5);
         let community = if input.rating >= 4.0 { 5 } else { 0 };
         let total = freshness + contributors + community;
 
-        AdoptionScores { total, freshness, contributors, community }
+        AdoptionScores {
+            total,
+            freshness,
+            contributors,
+            community,
+        }
     }
 
     fn evaluate_maintenance(_input: &EvaluationInput) -> MaintenanceScores {
         // Simplified - always return moderate score
-        MaintenanceScores { total: 5, responsiveness: 3, activity: 2 }
+        MaintenanceScores {
+            total: 5,
+            responsiveness: 3,
+            activity: 2,
+        }
     }
 }
 

@@ -3,7 +3,7 @@
 //! Test suite following AAA pattern (Arrange-Act-Assert)
 //! Coverage target: 80%+
 
-use ggen_a2a_mcp::transport::{McpTransport, McpRequest, McpResponse, McpErrorCode};
+use ggen_a2a_mcp::transport::{McpErrorCode, McpRequest, McpResponse, McpTransport};
 use serde_json::json;
 
 #[tokio::test]

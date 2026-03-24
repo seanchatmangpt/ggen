@@ -49,15 +49,20 @@ impl AgentToToolAdapter {
 
     /// Generate tools from A2A agent capabilities
     pub fn generate_tools(&self, agent_name: &str, capabilities: &[&str]) -> Vec<Tool> {
-        capabilities.iter().map(|cap| Tool {
-            name: format!("{}:{}", agent_name, cap),
-            description: format!("{} capability", cap),
-            parameters: None,
-        }).collect()
+        capabilities
+            .iter()
+            .map(|cap| Tool {
+                name: format!("{}:{}", agent_name, cap),
+                description: format!("{} capability", cap),
+                parameters: None,
+            })
+            .collect()
     }
 
     /// Convert LLM tool call to A2A message
-    pub fn tool_call_to_message(&self, call: &ToolCall, agent_id: &str) -> A2aMcpResult<ConvergedMessage> {
+    pub fn tool_call_to_message(
+        &self, call: &ToolCall, agent_id: &str,
+    ) -> A2aMcpResult<ConvergedMessage> {
         let content = format!(
             "Execute tool: {}\nParameters: {}",
             call.method,
@@ -72,7 +77,9 @@ impl AgentToToolAdapter {
     }
 
     /// Convert A2A message to tool response
-    pub fn message_to_tool_response(&self, message: &ConvergedMessage) -> A2aMcpResult<ToolResponse> {
+    pub fn message_to_tool_response(
+        &self, message: &ConvergedMessage,
+    ) -> A2aMcpResult<ToolResponse> {
         let content = match &message.payload.content {
             UnifiedContent::Text { content, .. } => {
                 json!({ "result": content })
@@ -80,7 +87,11 @@ impl AgentToToolAdapter {
             UnifiedContent::Data { data, .. } => {
                 json!({ "result": data })
             }
-            _ => return Err(A2aMcpError::Translation("Unsupported content type for tool response".to_string())),
+            _ => {
+                return Err(A2aMcpError::Translation(
+                    "Unsupported content type for tool response".to_string(),
+                ))
+            }
         };
 
         Ok(ToolResponse { result: content })
@@ -154,10 +165,8 @@ mod tests {
 
     #[test]
     fn test_tool_to_agent_adapter() {
-        let mut adapter = ToolToAgentAdapter::new(
-            "test-agent".to_string(),
-            "A test agent".to_string(),
-        );
+        let mut adapter =
+            ToolToAgentAdapter::new("test-agent".to_string(), "A test agent".to_string());
 
         adapter.add_tool(Tool {
             name: "read".to_string(),

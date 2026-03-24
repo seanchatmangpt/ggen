@@ -298,19 +298,10 @@ impl From<SyncResult> for SyncOutput {
 #[allow(clippy::unused_unit, clippy::too_many_arguments)]
 #[verb("sync", "root")]
 pub fn sync(
-    manifest: Option<String>,
-    output_dir: Option<String>,
-    dry_run: Option<bool>,
-    force: Option<bool>,
-    audit: Option<bool>,
-    rule: Option<String>,
-    verbose: Option<bool>,
-    watch: Option<bool>,
-    validate_only: Option<bool>,
-    format: Option<String>,
-    timeout: Option<u64>,
-    stage: Option<String>,
-    ontology: Option<String>,
+    manifest: Option<String>, output_dir: Option<String>, dry_run: Option<bool>,
+    force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
+    watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
+    stage: Option<String>, ontology: Option<String>,
 ) -> VerbResult<SyncOutput> {
     // Build options from CLI args
     let options = build_sync_options(
@@ -342,19 +333,10 @@ pub fn sync(
 /// This helper keeps the verb function thin by extracting option building.
 #[allow(clippy::too_many_arguments)]
 fn build_sync_options(
-    manifest: Option<String>,
-    output_dir: Option<String>,
-    dry_run: Option<bool>,
-    force: Option<bool>,
-    audit: Option<bool>,
-    rule: Option<String>,
-    verbose: Option<bool>,
-    watch: Option<bool>,
-    validate_only: Option<bool>,
-    format: Option<String>,
-    timeout: Option<u64>,
-    stage: Option<String>,
-    ontology: Option<String>,
+    manifest: Option<String>, output_dir: Option<String>, dry_run: Option<bool>,
+    force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
+    watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
+    stage: Option<String>, ontology: Option<String>,
 ) -> Result<SyncOptions, NounVerbError> {
     let mut options = SyncOptions::new();
 
@@ -402,7 +384,10 @@ fn build_sync_options(
     // A2A-specific options
     if let Some(s) = stage {
         // Validate stage format: μ₁, μ₂, μ₃, μ₄, μ₅
-        if !matches!(s.as_str(), "μ₁" | "μ₂" | "μ₃" | "μ₄" | "μ₅" | "mu1" | "mu2" | "mu3" | "mu4" | "mu5") {
+        if !matches!(
+            s.as_str(),
+            "μ₁" | "μ₂" | "μ₃" | "μ₄" | "μ₅" | "mu1" | "mu2" | "mu3" | "mu4" | "mu5"
+        ) {
             return Err(NounVerbError::execution_error(format!(
                 "error[E0006]: Invalid stage '{}'\n  |\n  = help: Valid stages: μ₁, μ₂, μ₃, μ₄, μ₅ (or mu1-mu5)",
                 s

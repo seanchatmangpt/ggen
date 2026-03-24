@@ -84,23 +84,28 @@ pub use guards::{Guard, GuardCheckResult, ValidationReceipt};
 pub use observability::{HealthCheck, HealthStatus};
 
 // Reporting (internal, but needed for documentation generation)
-pub use artifact_generator::{generate_packages_markdown, generate_registry_index, write_packages_markdown, write_registry_index};
-pub use receipt_emitter::{emit_receipt_for_package, emit_receipts_for_marketplace, ValidationReport, generate_validation_report};
+pub use artifact_generator::{
+    generate_packages_markdown, generate_registry_index, write_packages_markdown,
+    write_registry_index,
+};
+pub use receipt_emitter::{
+    emit_receipt_for_package, emit_receipts_for_marketplace, generate_validation_report,
+    ValidationReport,
+};
 
 // Validation (internal, but needed for package quality checks)
-pub use validate::{validate_package, validate_all_packages, PackageValidation};
+pub use validate::{validate_all_packages, validate_package, PackageValidation};
 
 // Quality autopilot (internal, but needed for improvement suggestions)
-pub use quality_autopilot::{generate_improvement_plan, apply_template_improvements};
+pub use quality_autopilot::{apply_template_improvements, generate_improvement_plan};
 
 // Bundles (internal, but needed for sector package management)
-pub use bundles::{BundleRegistry, generate_bundle_docs, BundleInstallManifest};
+pub use bundles::{generate_bundle_docs, BundleInstallManifest, BundleRegistry};
 
 // Maturity assessment (internal, but needed for package quality evaluation)
 pub use maturity::{
-    MaturityEvaluator, MaturityAssessment, MaturityLevel, EvaluationInput,
-    DocumentationScores, TestingScores, SecurityScores, PerformanceScores,
-    AdoptionScores, MaintenanceScores,
+    AdoptionScores, DocumentationScores, EvaluationInput, MaintenanceScores, MaturityAssessment,
+    MaturityEvaluator, MaturityLevel, PerformanceScores, SecurityScores, TestingScores,
 };
 
 // Legacy types for backwards compatibility

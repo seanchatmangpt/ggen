@@ -33,11 +33,18 @@ pub struct JsonRpcError {
 #[serde(tag = "method", content = "params")]
 pub enum McpRequest {
     #[serde(rename = "initialize")]
-    Initialize { request_id: i64, params: InitializeParams },
+    Initialize {
+        request_id: i64,
+        params: InitializeParams,
+    },
     #[serde(rename = "tools/list")]
     ListTools { request_id: i64 },
     #[serde(rename = "tools/call")]
-    CallTool { request_id: i64, name: String, arguments: serde_json::Value },
+    CallTool {
+        request_id: i64,
+        name: String,
+        arguments: serde_json::Value,
+    },
     #[serde(rename = "ping")]
     Ping { request_id: i64 },
 }
@@ -122,7 +129,10 @@ impl McpResponse {
             jsonrpc: "2.0".to_string(),
             request_id,
             result: None,
-            error: Some(McpError { code, message: message.to_string() }),
+            error: Some(McpError {
+                code,
+                message: message.to_string(),
+            }),
         }
     }
 

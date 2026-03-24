@@ -5,14 +5,16 @@
 use crate::adapter::{A2aAgentCard, ToolToAgentAdapter};
 use crate::client::A2aLlmClient;
 use crate::error::A2aMcpResult;
-use crate::mcp::{A2aSkillRegistry, McpToolDefinition as A2aMcpToolDefinition, McpToolRegistryTrait};
+use crate::mcp::{
+    A2aSkillRegistry, McpToolDefinition as A2aMcpToolDefinition, McpToolRegistryTrait,
+};
 use crate::registry::McpToolRegistry;
-use crate::transport::{McpTransport, McpToolDefinition};
+use crate::transport::{McpToolDefinition, McpTransport};
 use a2a_generated::converged::message::ConvergedMessage;
 use ggen_ai::dspy::model_capabilities::Model;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{info, debug, instrument};
+use tracing::{debug, info, instrument};
 
 /// A2A server configuration
 #[derive(Debug, Clone)]
@@ -27,7 +29,8 @@ impl Default for A2aServerConfig {
     fn default() -> Self {
         Self {
             agent_name: "ggen-llm-agent".to_string(),
-            agent_description: "ggen LLM-powered agent for code generation and analysis".to_string(),
+            agent_description: "ggen LLM-powered agent for code generation and analysis"
+                .to_string(),
             host: "127.0.0.1".to_string(),
             port: 8080,
         }
@@ -78,10 +81,8 @@ impl A2aLlmServer {
     #[instrument(skip(model, config))]
     pub async fn new(model: Model, config: A2aServerConfig) -> A2aMcpResult<Self> {
         let client = A2aLlmClient::new(model).await?;
-        let mut adapter = ToolToAgentAdapter::new(
-            config.agent_name.clone(),
-            config.agent_description.clone(),
-        );
+        let mut adapter =
+            ToolToAgentAdapter::new(config.agent_name.clone(), config.agent_description.clone());
 
         // Add default capabilities
         adapter.add_tool(crate::adapter::Tool {
@@ -116,9 +117,7 @@ impl A2aLlmServer {
     /// Create a new server with MCP tool registry
     #[instrument(skip(model, a2a_config, _mcp_config))]
     pub async fn with_mcp(
-        model: Model,
-        a2a_config: A2aServerConfig,
-        _mcp_config: McpServerConfig,
+        model: Model, a2a_config: A2aServerConfig, _mcp_config: McpServerConfig,
     ) -> A2aMcpResult<Self> {
         let server = Self::new(model, a2a_config).await?;
 
@@ -156,7 +155,9 @@ impl A2aLlmServer {
 
     /// Handle an incoming A2A message
     #[instrument(skip(self, message))]
-    pub async fn handle_message(&self, message: &ConvergedMessage) -> A2aMcpResult<ConvergedMessage> {
+    pub async fn handle_message(
+        &self, message: &ConvergedMessage,
+    ) -> A2aMcpResult<ConvergedMessage> {
         debug!("Handling message from {}", message.source);
 
         // Process the message through the LLM client
@@ -282,9 +283,9 @@ impl A2aLlmServerBuilder {
 
     /// Build the server
     pub async fn build(self) -> A2aMcpResult<A2aLlmServer> {
-        let model = self.model.ok_or_else(|| {
-            crate::error::A2aMcpError::Llm("Model not specified".to_string())
-        })?;
+        let model = self
+            .model
+            .ok_or_else(|| crate::error::A2aMcpError::Llm("Model not specified".to_string()))?;
 
         if self.with_mcp {
             A2aLlmServer::with_mcp(model, self.a2a_config, self.mcp_config).await
@@ -297,9 +298,7 @@ impl A2aLlmServerBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ggen_ai::dspy::model_capabilities::{
-        ModelCapabilities, ModelConfig, ModelProvider,
-    };
+    use ggen_ai::dspy::model_capabilities::{ModelCapabilities, ModelConfig, ModelProvider};
 
     fn create_test_model() -> Model {
         Model {
@@ -340,9 +339,7 @@ mod tests {
     #[tokio::test]
     async fn test_server_builder() {
         let model = create_test_model();
-        let builder = A2aLlmServerBuilder::new()
-            .with_model(model)
-            .enable_mcp();
+        let builder = A2aLlmServerBuilder::new().with_model(model).enable_mcp();
 
         assert!(builder.model.is_some());
         assert!(builder.with_mcp);

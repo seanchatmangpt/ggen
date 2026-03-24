@@ -4,8 +4,8 @@
 //! and can generate valid Rust code.
 
 use ggen_core::register::register_all;
-use tera::{Context, Tera};
 use std::collections::HashMap;
+use tera::{Context, Tera};
 
 fn create_test_tera() -> Tera {
     let mut tera = Tera::default();
@@ -16,26 +16,24 @@ fn create_test_tera() -> Tera {
 #[test]
 fn test_head_template_is_parseable() {
     let tera = create_test_tera();
-    let template = std::fs::read_to_string(
-        "templates/mcp-server/_head.tera"
-    ).expect("Failed to read _head.tera");
+    let template = std::fs::read_to_string("templates/mcp-server/_head.tera")
+        .expect("Failed to read _head.tera");
 
     // Should be parseable even with blocks
     let result = tera.render_str(&template, &Context::new());
     // This will fail due to missing variables but template should parse
     // We just want to ensure the syntax is valid
     match result {
-        Err(_) => {}, // Expected - missing context
-        Ok(_) => {},  // Also OK
+        Err(_) => {} // Expected - missing context
+        Ok(_) => {}  // Also OK
     }
 }
 
 #[test]
 fn test_mcp_server_template_is_parseable() {
     let tera = create_test_tera();
-    let template = std::fs::read_to_string(
-        "templates/mcp-server/mcp_server.rs.tera"
-    ).expect("Failed to read mcp_server.rs.tera");
+    let template = std::fs::read_to_string("templates/mcp-server/mcp_server.rs.tera")
+        .expect("Failed to read mcp_server.rs.tera");
 
     let mut ctx = Context::new();
     ctx.insert("server_name", "TestMcpServer");
@@ -55,9 +53,8 @@ fn test_mcp_server_template_is_parseable() {
 fn test_tool_handler_template_is_parseable() {
     let tera = create_test_tera();
 
-    let template = std::fs::read_to_string(
-        "templates/mcp-server/tool_handler.rs.tera"
-    ).expect("Failed to read tool_handler.rs.tera");
+    let template = std::fs::read_to_string("templates/mcp-server/tool_handler.rs.tera")
+        .expect("Failed to read tool_handler.rs.tera");
 
     let mut ctx = Context::new();
     ctx.insert("error_type", "McpError");
@@ -96,9 +93,8 @@ fn test_tool_handler_template_is_parseable() {
 fn test_resource_handler_template_is_parseable() {
     let tera = create_test_tera();
 
-    let template = std::fs::read_to_string(
-        "templates/mcp-server/resource_handler.rs.tera"
-    ).expect("Failed to read resource_handler.rs.tera");
+    let template = std::fs::read_to_string("templates/mcp-server/resource_handler.rs.tera")
+        .expect("Failed to read resource_handler.rs.tera");
 
     let mut ctx = Context::new();
     ctx.insert("error_type", "McpError");
@@ -136,9 +132,8 @@ fn test_resource_handler_template_is_parseable() {
 fn test_stdio_server_template_is_parseable() {
     let tera = create_test_tera();
 
-    let template = std::fs::read_to_string(
-        "templates/mcp-server/stdio_server.rs.tera"
-    ).expect("Failed to read stdio_server.rs.tera");
+    let template = std::fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
+        .expect("Failed to read stdio_server.rs.tera");
 
     let mut ctx = Context::new();
     ctx.insert("server_type", "McpServer");

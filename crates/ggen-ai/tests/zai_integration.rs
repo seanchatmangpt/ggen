@@ -112,21 +112,12 @@ async fn zai_client_returns_usage_stats() -> Result<(), Box<dyn std::error::Erro
 
     if let Some(usage) = response.usage {
         assert!(usage.prompt_tokens > 0, "Should have prompt tokens");
-        assert!(
-            usage.completion_tokens > 0,
-            "Should have completion tokens"
-        );
-        assert!(
-            usage.total_tokens > 0,
-            "Should have total tokens"
-        );
+        assert!(usage.completion_tokens > 0, "Should have completion tokens");
+        assert!(usage.total_tokens > 0, "Should have total tokens");
 
         println!("✅ ZAI usage statistics:");
         println!("  Prompt tokens: {}", usage.prompt_tokens);
-        println!(
-            "  Completion tokens: {}",
-            usage.completion_tokens
-        );
+        println!("  Completion tokens: {}", usage.completion_tokens);
         println!("  Total tokens: {}", usage.total_tokens);
     }
 
@@ -159,10 +150,7 @@ async fn zai_client_streams_response() -> Result<(), Box<dyn std::error::Error>>
         }
     }
 
-    assert!(
-        chunk_count > 0,
-        "Should receive at least one chunk"
-    );
+    assert!(chunk_count > 0, "Should receive at least one chunk");
     assert!(
         !full_content.is_empty(),
         "Streamed content should not be empty"
@@ -214,7 +202,10 @@ fn test_zai_config_validation() {
     // Test invalid model
     let mut invalid_config = config.clone();
     invalid_config.model = String::new();
-    assert!(invalid_config.validate().is_err(), "Empty model should fail");
+    assert!(
+        invalid_config.validate().is_err(),
+        "Empty model should fail"
+    );
 }
 
 #[test]
@@ -243,8 +234,7 @@ fn test_global_config_zai_provider() {
     // Check that ZAI config uses correct model
     if let Some(zai_config) = config.get_provider_config(&LlmProvider::Zai) {
         assert_eq!(
-            zai_config.model,
-            "zai-coding::glm-4.6",
+            zai_config.model, "zai-coding::glm-4.6",
             "ZAI provider should use correct model"
         );
     }

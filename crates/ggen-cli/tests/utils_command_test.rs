@@ -16,8 +16,7 @@ use std::collections::HashMap;
 // ============================================================================
 
 use ggen_domain::utils::{
-    CheckStatus, CheckResult, DoctorInput, DoctorResult, EnvironmentInfo,
-    execute_doctor,
+    execute_doctor, CheckResult, CheckStatus, DoctorInput, DoctorResult, EnvironmentInfo,
 };
 
 // ============================================================================

@@ -9,7 +9,9 @@ pub fn validate_url(url: &str) -> A2aMcpResult<String> {
 
     // Ensure URL has a scheme and host
     if parsed.scheme().is_empty() || parsed.host_str().is_none() {
-        return Err(A2aMcpError::Translation("URL must have a scheme and host".to_string()));
+        return Err(A2aMcpError::Translation(
+            "URL must have a scheme and host".to_string(),
+        ));
     }
 
     // Normalize URL
@@ -54,10 +56,7 @@ mod tests {
             extract_tool_name("https://example.com/agent:toolName"),
             Some("toolName".to_string())
         );
-        assert_eq!(
-            extract_tool_name("simple"),
-            Some("simple".to_string())
-        );
+        assert_eq!(extract_tool_name("simple"), Some("simple".to_string()));
     }
 
     #[test]
@@ -66,10 +65,7 @@ mod tests {
             extract_agent_url("https://example.com/agent:toolName"),
             Some("https://example.com/agent".to_string())
         );
-        assert_eq!(
-            extract_agent_url("simple"),
-            Some("simple".to_string())
-        );
+        assert_eq!(extract_agent_url("simple"), Some("simple".to_string()));
     }
 
     #[test]

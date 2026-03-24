@@ -502,7 +502,8 @@ mod tests {
         assert_eq!(*cb.state(), CircuitBreakerState::Closed);
 
         // Failures
-        let result2: Result<i32, ConnectorError> = cb.call(|| Err(ConnectorError::NetworkError("test".to_string())));
+        let result2: Result<i32, ConnectorError> =
+            cb.call(|| Err(ConnectorError::NetworkError("test".to_string())));
         assert!(result2.is_err());
 
         let result3 = cb.call(|| Err(ConnectorError::NetworkError("test".to_string())));

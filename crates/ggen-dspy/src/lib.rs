@@ -138,8 +138,8 @@ pub use patterns::{AgentPattern, PatternBuilder, PatternLibrary};
 
 // A2A predictor exports
 pub use predictors::{
-    A2aModule, A2aModuleTrait, A2aPredictor, A2aPredictorConfig,
-    StreamingA2aPredictor, StreamingChunk, TokenUsage,
+    A2aModule, A2aModuleTrait, A2aPredictor, A2aPredictorConfig, StreamingA2aPredictor,
+    StreamingChunk, TokenUsage,
 };
 
 // Re-export CacheStats from predictors with a different name to avoid conflict

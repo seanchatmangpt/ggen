@@ -1,13 +1,8 @@
 #[cfg(test)]
 mod tests {
     use osiris_autonomic::{
-        AutonomicRefusalSystem,
-        RefusalContext,
-        RefusalType,
-        Priority,
+        uuid::Uuid, AutonomicRefusalSystem, Priority, RefusalContext, RefusalType, RiskLevel,
         Urgency,
-        RiskLevel,
-        uuid::Uuid,
     };
 
     #[tokio::test]

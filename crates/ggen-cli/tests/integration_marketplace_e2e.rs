@@ -42,7 +42,10 @@ fn test_marketplace_search_basic() {
         .arg("rust")
         .assert()
         .success()
-        .stdout(predicate::str::contains("advanced-rust-project").or(predicate::str::contains("packages")));
+        .stdout(
+            predicate::str::contains("advanced-rust-project")
+                .or(predicate::str::contains("packages")),
+        );
 }
 
 #[test]
@@ -92,10 +95,7 @@ fn test_marketplace_list_empty() {
         .current_dir(&temp_dir)
         .assert()
         .success()
-        .stdout(
-            predicate::str::contains("packages")
-                .or(predicate::str::contains("total")),
-        );
+        .stdout(predicate::str::contains("packages").or(predicate::str::contains("total")));
 }
 
 #[test]

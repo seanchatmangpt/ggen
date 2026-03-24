@@ -257,7 +257,10 @@ impl McpTransport {
             .and_then(|v| v.as_str())
             .ok_or_else(|| A2aMcpError::InvalidToolMethod("Missing tool name".to_string()))?;
 
-        let arguments = params.get("arguments").cloned().unwrap_or_else(|| json!({}));
+        let arguments = params
+            .get("arguments")
+            .cloned()
+            .unwrap_or_else(|| json!({}));
 
         // Find the tool
         let tools = self.tools.read().await;
@@ -282,7 +285,9 @@ impl McpTransport {
     }
 
     /// Execute a tool
-    async fn execute_tool(&self, _tool: &McpToolDefinition, _arguments: Value) -> A2aMcpResult<String> {
+    async fn execute_tool(
+        &self, _tool: &McpToolDefinition, _arguments: Value,
+    ) -> A2aMcpResult<String> {
         // For now, return a placeholder response
         // In a full implementation, this would dispatch to the actual tool handler
         Ok("Tool executed successfully".to_string())
@@ -321,11 +326,8 @@ impl McpTransport {
                 Ok(req) => req,
                 Err(e) => {
                     error!("Failed to parse request: {}", e);
-                    let error_response = self.create_error(
-                        json!(null),
-                        McpErrorCode::ParseError,
-                        &e.to_string(),
-                    );
+                    let error_response =
+                        self.create_error(json!(null), McpErrorCode::ParseError, &e.to_string());
                     let error_json = self.serialize_response(&error_response)?;
                     use tokio::io::AsyncWriteExt;
                     stdout_lock.write_all(error_json.as_bytes()).await?;
@@ -339,11 +341,7 @@ impl McpTransport {
                 Ok(resp) => resp,
                 Err(e) => {
                     error!("Failed to handle request: {}", e);
-                    self.create_error(
-                        json!(null),
-                        McpErrorCode::InternalError,
-                        &e.to_string(),
-                    )
+                    self.create_error(json!(null), McpErrorCode::InternalError, &e.to_string())
                 }
             };
 

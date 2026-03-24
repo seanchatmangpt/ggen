@@ -3,8 +3,7 @@
 //! These tests verify the canonicalization functionality for A2A-RS integration.
 
 use ggen_core::codegen::canonicalize::{
-    canonicalize, canonicalize_a2a, canonicalize_file, canonicalize_rust_quick,
-    CanonicalizeOptions,
+    canonicalize, canonicalize_a2a, canonicalize_file, canonicalize_rust_quick, CanonicalizeOptions,
 };
 use std::path::Path;
 

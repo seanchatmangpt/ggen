@@ -2406,7 +2406,8 @@ pub enum PolicyPriority {
 
 /// Import dependencies from converged message module
 use super::message::{
-    ConvergedMessageType, EncryptionRequirements, LatencyRequirements, ReliabilityLevel, ThroughputRequirements,
+    ConvergedMessageType, EncryptionRequirements, LatencyRequirements, ReliabilityLevel,
+    ThroughputRequirements,
 };
 
 // Unified agent builder
@@ -2732,7 +2733,6 @@ mod tests {
         assert_eq!(agent.communication.endpoints.len(), 1);
     }
 }
-
 
 /// Agent error types
 #[derive(Debug, Clone, PartialEq, thiserror::Error, Serialize, Deserialize)]

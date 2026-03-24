@@ -13,9 +13,8 @@ use crate::error::{A2aMcpError, A2aMcpResult};
 use crate::message::{A2aMessageConverter, LlmRequest, LlmResponse};
 use a2a_generated::converged::{
     message::{
-        ConvergedMessage, ConvergedMessageType, MessageEnvelope, MessageLifecycle,
-        MessagePriority, MessageRouting, MessageState, QoSRequirements, ReliabilityLevel,
-        UnifiedContent,
+        ConvergedMessage, ConvergedMessageType, MessageEnvelope, MessageLifecycle, MessagePriority,
+        MessageRouting, MessageState, QoSRequirements, ReliabilityLevel, UnifiedContent,
     },
     UnifiedAgent,
 };
@@ -26,7 +25,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::{Mutex, RwLock, Semaphore};
-use tokio::time::{Instant, interval};
+use tokio::time::{interval, Instant};
 use tracing::{debug, error, info, warn};
 
 /// Connection state for the A2A client
@@ -66,25 +65,25 @@ impl Default for ConnectionHealth {
 pub struct A2aClientConfig {
     /// Maximum concurrent requests
     pub max_concurrent_requests: usize,
-    
+
     /// Connection timeout
     pub connection_timeout: Duration,
-    
+
     /// Request timeout
     pub request_timeout: Duration,
-    
+
     /// Health check interval
     pub health_check_interval: Duration,
-    
+
     /// Maximum retry attempts
     pub max_retries: usize,
-    
+
     /// Retry backoff multiplier
     pub retry_backoff_multiplier: f64,
-    
+
     /// Enable streaming support
     pub enable_streaming: bool,
-    
+
     /// Enable ZAI support
     pub enable_zai: bool,
 }
@@ -109,19 +108,19 @@ impl Default for A2aClientConfig {
 pub struct ToolExecutionResult {
     /// Tool name that was executed
     pub tool_name: String,
-    
+
     /// Execution result
     pub result: serde_json::Value,
-    
+
     /// Whether execution was successful
     pub success: bool,
-    
+
     /// Error message if unsuccessful
     pub error: Option<String>,
-    
+
     /// Execution duration
     pub duration_ms: u64,
-    
+
     /// Metadata from the execution
     pub metadata: HashMap<String, serde_json::Value>,
 }
@@ -131,13 +130,13 @@ pub struct ToolExecutionResult {
 pub struct StreamingChunk {
     /// Content chunk
     pub content: String,
-    
+
     /// Whether this is the final chunk
     pub is_final: bool,
-    
+
     /// Tool calls in this chunk (if any)
     pub tool_calls: Vec<ToolCall>,
-    
+
     /// Usage statistics (only in final chunk)
     pub usage: Option<crate::message::TokenUsage>,
 }
@@ -146,31 +145,31 @@ pub struct StreamingChunk {
 pub struct A2aLlmClient {
     /// LLM client for direct API calls
     llm_client: Arc<Mutex<GenAiClient>>,
-    
+
     /// Adapter for A2A to tool conversions
     adapter: Arc<Mutex<AgentToToolAdapter>>,
-    
+
     /// Message converter
     converter: Arc<A2aMessageConverter>,
-    
+
     /// Model configuration
     model: Model,
-    
+
     /// Client configuration
     config: A2aClientConfig,
-    
+
     /// Connection health
     health: Arc<RwLock<ConnectionHealth>>,
-    
+
     /// Semaphore for concurrent request limiting
     request_semaphore: Arc<Semaphore>,
-    
+
     /// Registered A2A agents
     agents: Arc<RwLock<HashMap<String, UnifiedAgent>>>,
-    
+
     /// Active tasks being tracked
     active_tasks: Arc<RwLock<HashMap<String, TaskContext>>>,
-    
+
     /// Whether the client is running
     running: Arc<RwLock<bool>>,
 }
@@ -213,7 +212,7 @@ impl A2aLlmClient {
             .map_err(|e| A2aMcpError::Llm(format!("Failed to create LLM client: {}", e)))?;
 
         let semaphore = Arc::new(Semaphore::new(config.max_concurrent_requests));
-        
+
         let client = Self {
             llm_client: Arc::new(Mutex::new(llm_client)),
             adapter: Arc::new(Mutex::new(AgentToToolAdapter::new())),
@@ -235,12 +234,11 @@ impl A2aLlmClient {
 
     /// Create a new client with a custom system prompt
     pub async fn with_system_prompt<S: Into<String>>(
-        model: Model,
-        system_prompt: S,
+        model: Model, system_prompt: S,
     ) -> A2aMcpResult<Self> {
         let converter = A2aMessageConverter::new().with_system_prompt(system_prompt);
         let config = A2aClientConfig::default();
-        
+
         let llm_config = LlmConfig {
             model: model.name.clone(),
             max_tokens: Some(model.capabilities.max_output_tokens as u32),
@@ -283,13 +281,13 @@ impl A2aLlmClient {
 
         tokio::spawn(async move {
             let mut timer = interval(check_interval);
-            
+
             while *running.read().await {
                 timer.tick().await;
-                
+
                 let mut h = health.write().await;
                 h.last_heartbeat = Instant::now();
-                
+
                 // Update state based on recent activity
                 if h.failed_requests > 10 && h.successful_requests == 0 {
                     h.state = ConnectionState::Disconnected;
@@ -303,9 +301,9 @@ impl A2aLlmClient {
     /// Connect to an A2A agent
     pub async fn connect_to_agent(&self, agent: UnifiedAgent) -> A2aMcpResult<()> {
         let agent_id = agent.identity.id.clone();
-        
+
         info!("Connecting to A2A agent: {}", agent_id);
-        
+
         // Update connection state
         {
             let mut health = self.health.write().await;
@@ -332,7 +330,7 @@ impl A2aLlmClient {
     /// Disconnect from an A2A agent
     pub async fn disconnect_agent(&self, agent_id: &str) -> A2aMcpResult<()> {
         info!("Disconnecting from agent: {}", agent_id);
-        
+
         let mut agents = self.agents.write().await;
         match agents.remove(agent_id) {
             Some(_) => {
@@ -360,8 +358,7 @@ impl A2aLlmClient {
 
     /// Process an A2A message through the LLM
     pub async fn process_message(
-        &self,
-        message: &ConvergedMessage,
+        &self, message: &ConvergedMessage,
     ) -> A2aMcpResult<ConvergedMessage> {
         info!("Processing A2A message: {}", message.message_id);
 
@@ -387,7 +384,10 @@ impl A2aLlmClient {
         let duration = start.elapsed();
         self.update_health_metrics(true, duration).await;
 
-        info!("Successfully processed message: {} (took {:?})", message.message_id, duration);
+        info!(
+            "Successfully processed message: {} (took {:?})",
+            message.message_id, duration
+        );
         Ok(response)
     }
 
@@ -415,8 +415,7 @@ impl A2aLlmClient {
         let prompt = format!(
             "Tool: {}\nParameters: {}\n\nExecute this tool call and return the result.",
             call.method,
-            serde_json::to_string_pretty(&call.params)
-                .unwrap_or_else(|_| call.params.to_string())
+            serde_json::to_string_pretty(&call.params).unwrap_or_else(|_| call.params.to_string())
         );
 
         // Make LLM call
@@ -448,24 +447,16 @@ impl A2aLlmClient {
 
     /// Execute a tool on a specific A2A agent
     pub async fn execute_tool_on_agent(
-        &self,
-        agent_id: &str,
-        tool_name: &str,
-        params: serde_json::Value,
+        &self, agent_id: &str, tool_name: &str, params: serde_json::Value,
     ) -> A2aMcpResult<ToolExecutionResult> {
         let method = format!("{}:{}", agent_id, tool_name);
-        let call = ToolCall {
-            method,
-            params,
-        };
+        let call = ToolCall { method, params };
         self.call_tool(call).await
     }
 
     /// Send a message to an A2A agent and get the result
     pub async fn send_message_to_agent(
-        &self,
-        agent_id: &str,
-        content: String,
+        &self, agent_id: &str, content: String,
     ) -> A2aMcpResult<ConvergedMessage> {
         // Verify agent exists
         let _agent = self.get_agent(agent_id).await?;
@@ -483,11 +474,12 @@ impl A2aLlmClient {
 
     /// Stream LLM response
     pub async fn stream_response(
-        &self,
-        prompt: &str,
+        &self, prompt: &str,
     ) -> A2aMcpResult<impl futures::Stream<Item = StreamingChunk>> {
         if !self.config.enable_streaming {
-            return Err(A2aMcpError::Translation("Streaming is not enabled".to_string()));
+            return Err(A2aMcpError::Translation(
+                "Streaming is not enabled".to_string(),
+            ));
         }
 
         let client = self.llm_client.lock().await;
@@ -498,17 +490,15 @@ impl A2aLlmClient {
 
         let model = self.model.name.clone();
 
-        Ok(stream.map(move |chunk| {
-            StreamingChunk {
-                content: chunk.content,
-                is_final: chunk.finish_reason.is_some(),
-                tool_calls: Vec::new(),
-                usage: chunk.usage.map(|u| crate::message::TokenUsage {
-                    prompt_tokens: u.prompt_tokens,
-                    completion_tokens: u.completion_tokens,
-                    total_tokens: u.total_tokens,
-                }),
-            }
+        Ok(stream.map(move |chunk| StreamingChunk {
+            content: chunk.content,
+            is_final: chunk.finish_reason.is_some(),
+            tool_calls: Vec::new(),
+            usage: chunk.usage.map(|u| crate::message::TokenUsage {
+                prompt_tokens: u.prompt_tokens,
+                completion_tokens: u.completion_tokens,
+                total_tokens: u.total_tokens,
+            }),
         }))
     }
 
@@ -527,11 +517,7 @@ impl A2aLlmClient {
     }
 
     /// Update task status
-    pub async fn update_task_status(
-        &self,
-        task_id: &str,
-        status: TaskStatus,
-    ) -> A2aMcpResult<()> {
+    pub async fn update_task_status(&self, task_id: &str, status: TaskStatus) -> A2aMcpResult<()> {
         let mut tasks = self.active_tasks.write().await;
         match tasks.get_mut(task_id) {
             Some(context) => {
@@ -576,7 +562,10 @@ impl A2aLlmClient {
         let client = self.llm_client.lock().await;
 
         // Build the prompt with system context
-        let full_prompt = format!("{}\n\nUser: {}", request.system_prompt, request.user_content);
+        let full_prompt = format!(
+            "{}\n\nUser: {}",
+            request.system_prompt, request.user_content
+        );
 
         // Make the API call using the GenAiClient
         let ggen_response = client
@@ -609,11 +598,13 @@ impl A2aLlmClient {
                         attempt, e, delay
                     );
                     last_error = Some(e);
-                    
+
                     if attempt < self.config.max_retries {
                         tokio::time::sleep(delay).await;
-                        delay =
-                            Duration::from_millis((delay.as_millis() as f64 * self.config.retry_backoff_multiplier) as u64);
+                        delay = Duration::from_millis(
+                            (delay.as_millis() as f64 * self.config.retry_backoff_multiplier)
+                                as u64,
+                        );
                     }
                 }
             }
@@ -627,10 +618,10 @@ impl A2aLlmClient {
     /// Update health metrics after a request
     async fn update_health_metrics(&self, success: bool, duration: Duration) {
         let mut health = self.health.write().await;
-        
+
         if success {
             health.successful_requests += 1;
-            
+
             // Update average latency
             let total_requests = (health.successful_requests + health.failed_requests) as f64;
             let current_avg = health.average_latency_ms;
@@ -787,10 +778,10 @@ mod tests {
         let client = A2aLlmClient::new(model).await.unwrap();
 
         let task_id = "test-task-123";
-        
+
         // Create task
         assert!(client.create_task(task_id.to_string()).await.is_ok());
-        
+
         // Check status
         let status = client.get_task_status(task_id).await.unwrap();
         assert_eq!(status, TaskStatus::Pending);
@@ -800,13 +791,13 @@ mod tests {
             .update_task_status(task_id, TaskStatus::Running)
             .await
             .is_ok());
-        
+
         let status = client.get_task_status(task_id).await.unwrap();
         assert_eq!(status, TaskStatus::Running);
 
         // Complete task
         assert!(client.complete_task(task_id).await.is_ok());
-        
+
         // Task should no longer exist
         assert!(client.get_task_status(task_id).await.is_err());
     }
@@ -888,7 +879,7 @@ mod tests {
 
         assert!(client.connect_to_agent(agent).await.is_ok());
         assert!(client.get_agent("test-agent").await.is_ok());
-        
+
         let agents = client.list_agents().await;
         assert!(agents.contains(&"test-agent".to_string()));
 

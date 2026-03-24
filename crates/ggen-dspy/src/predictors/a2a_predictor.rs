@@ -44,9 +44,9 @@ use crate::{DspyError, Result};
 use a2a_generated::converged::message::ConvergedMessage;
 use async_trait::async_trait;
 use futures::stream::Stream;
-use ggen_ai::dspy::model_capabilities::Model;
 use genai::chat::{ChatMessage, ChatOptions, ChatRequest};
 use genai::Client;
+use ggen_ai::dspy::model_capabilities::Model;
 use serde_json::Value;
 use std::pin::Pin;
 use std::sync::Arc;
@@ -258,8 +258,7 @@ fn extract_content_from_message(message: &ConvergedMessage) -> Result<String> {
     match &message.payload.content {
         UnifiedContent::Text { content, .. } => Ok(content.clone()),
         UnifiedContent::Data { data, .. } => {
-            serde_json::to_string_pretty(data)
-                .map_err(|e| DspyError::SerializationError(e))
+            serde_json::to_string_pretty(data).map_err(|e| DspyError::SerializationError(e))
         }
         UnifiedContent::File { file, .. } => {
             if let Some(uri) = &file.uri {
@@ -282,9 +281,7 @@ fn extract_content_from_message(message: &ConvergedMessage) -> Result<String> {
             }
             Ok(contents.join("\n\n---\n\n"))
         }
-        UnifiedContent::Stream { stream_id, .. } => {
-            Ok(format!("[Stream: {}]", stream_id))
-        }
+        UnifiedContent::Stream { stream_id, .. } => Ok(format!("[Stream: {}]", stream_id)),
     }
 }
 
@@ -304,10 +301,7 @@ fn build_llm_messages(system_prompt: &str, user_content: &str) -> Vec<ChatMessag
 /// Creates a new A2A message from the LLM response content.
 /// Preserves message metadata and adds LLM-specific extensions.
 fn parse_llm_to_a2a(
-    request_id: &str,
-    response_content: &str,
-    model: &str,
-    usage: Option<TokenUsage>,
+    request_id: &str, response_content: &str, model: &str, usage: Option<TokenUsage>,
 ) -> ConvergedMessage {
     let mut message = ConvergedMessage::text(
         format!("resp-{}", request_id),
@@ -527,11 +521,10 @@ impl A2aPredictor {
     /// # Returns
     ///
     /// Vector of response messages in the same order as inputs
-    pub async fn forward_batch(&self, messages: &[ConvergedMessage]) -> Result<Vec<ConvergedMessage>> {
-        let futures: Vec<_> = messages
-            .iter()
-            .map(|msg| self.forward(msg))
-            .collect();
+    pub async fn forward_batch(
+        &self, messages: &[ConvergedMessage],
+    ) -> Result<Vec<ConvergedMessage>> {
+        let futures: Vec<_> = messages.iter().map(|msg| self.forward(msg)).collect();
 
         let results = futures::future::join_all(futures).await;
 
@@ -552,7 +545,11 @@ impl A2aPredictor {
                 Ok(result) => return Ok(result),
                 Err(e) => {
                     last_error = Some(e);
-                    warn!("LLM attempt {} failed: {}", attempt, last_error.as_ref().unwrap());
+                    warn!(
+                        "LLM attempt {} failed: {}",
+                        attempt,
+                        last_error.as_ref().unwrap()
+                    );
 
                     if attempt < self.config.max_retries {
                         // Exponential backoff
@@ -605,15 +602,14 @@ impl A2aPredictor {
         })
         .await
         .map_err(|_| DspyError::Timeout(self.config.timeout_secs * 1000))?
-        .map_err(|e| DspyError::LlmError(ggen_ai::GgenAiError::Other {
-            message: format!("LLM error: {}", e),
-        }))?;
+        .map_err(|e| {
+            DspyError::LlmError(ggen_ai::GgenAiError::Other {
+                message: format!("LLM error: {}", e),
+            })
+        })?;
 
         // Extract content
-        let content = response
-            .first_text()
-            .unwrap_or_default()
-            .to_string();
+        let content = response.first_text().unwrap_or_default().to_string();
 
         // Extract usage information if available
         let usage = TokenUsage::new(0, 0); // genai doesn't provide token counts directly
@@ -738,8 +734,7 @@ impl StreamingA2aPredictor {
     ///
     /// Returns a stream of chunks as they arrive from the LLM.
     pub async fn forward_stream(
-        &self,
-        message: &ConvergedMessage,
+        &self, message: &ConvergedMessage,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<StreamingChunk>> + Send>>> {
         // For now, return a non-streaming response as a single chunk
         // Full streaming support requires genai streaming API integration

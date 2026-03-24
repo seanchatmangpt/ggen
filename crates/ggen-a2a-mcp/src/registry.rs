@@ -40,9 +40,7 @@ pub struct McpTool {
 impl McpTool {
     /// Create a new MCP tool definition
     pub fn new(
-        id: impl Into<String>,
-        name: impl Into<String>,
-        description: impl Into<String>,
+        id: impl Into<String>, name: impl Into<String>, description: impl Into<String>,
         input_schema: serde_json::Value,
     ) -> Self {
         Self {
@@ -105,7 +103,9 @@ pub struct ToolExecutionResult {
 
 impl ToolExecutionResult {
     /// Create a successful result
-    pub fn success(tool_id: impl Into<String>, result: serde_json::Value, duration_ms: u64) -> Self {
+    pub fn success(
+        tool_id: impl Into<String>, result: serde_json::Value, duration_ms: u64,
+    ) -> Self {
         Self {
             tool_id: tool_id.into(),
             result,
@@ -176,9 +176,9 @@ impl McpToolRegistry {
     /// Loads all tools from ggen-ai and converts them to MCP format.
     /// This should be called at startup and when tools are updated.
     pub async fn sync(&self) -> A2aMcpResult<usize> {
-        let registry = GGEN_REGISTRY
-            .read()
-            .map_err(|e| A2aMcpError::Translation(format!("Failed to acquire registry lock: {}", e)))?;
+        let registry = GGEN_REGISTRY.read().map_err(|e| {
+            A2aMcpError::Translation(format!("Failed to acquire registry lock: {}", e))
+        })?;
 
         let ggen_tools = registry.list();
         let mut mcp_tools = HashMap::new();
@@ -191,7 +191,8 @@ impl McpToolRegistry {
         let mut tools = self.tools.write().await;
         *tools = mcp_tools;
 
-        self.synced.store(true, std::sync::atomic::Ordering::Release);
+        self.synced
+            .store(true, std::sync::atomic::Ordering::Release);
 
         Ok(tools.len())
     }
@@ -230,7 +231,9 @@ impl McpToolRegistry {
     }
 
     /// Validate tool input against schema
-    pub async fn validate_input(&self, tool_id: &str, input: &serde_json::Value) -> A2aMcpResult<()> {
+    pub async fn validate_input(
+        &self, tool_id: &str, input: &serde_json::Value,
+    ) -> A2aMcpResult<()> {
         let tool = self.get(tool_id).await?;
 
         // Basic required field validation
@@ -258,9 +261,7 @@ impl McpToolRegistry {
     /// The actual implementation would dispatch to the appropriate
     /// tool handler based on the tool ID.
     pub async fn execute_tool(
-        &self,
-        tool_id: &str,
-        input: serde_json::Value,
+        &self, tool_id: &str, input: serde_json::Value,
     ) -> A2aMcpResult<ToolExecutionResult> {
         let start = std::time::Instant::now();
 
@@ -268,9 +269,9 @@ impl McpToolRegistry {
         self.validate_input(tool_id, &input).await?;
 
         // Get the ggen tool for execution
-        let registry = GGEN_REGISTRY
-            .read()
-            .map_err(|e| A2aMcpError::Translation(format!("Failed to acquire registry lock: {}", e)))?;
+        let registry = GGEN_REGISTRY.read().map_err(|e| {
+            A2aMcpError::Translation(format!("Failed to acquire registry lock: {}", e))
+        })?;
 
         let ggen_tool = registry.get(tool_id).map_err(|e| {
             A2aMcpError::AgentNotFound(format!("Tool '{}' not found: {}", tool_id, e))
@@ -295,7 +296,10 @@ impl McpToolRegistry {
             &ggen_tool.description,
             input_schema,
         )
-        .with_auth(matches!(ggen_tool.auth_scope, ggen_ai::tool::AuthScope::Authenticated | ggen_ai::tool::AuthScope::Admin))
+        .with_auth(matches!(
+            ggen_tool.auth_scope,
+            ggen_ai::tool::AuthScope::Authenticated | ggen_ai::tool::AuthScope::Admin
+        ))
         .with_timeout(ggen_tool.slo.timeout_ms)
         .with_cacheable(ggen_tool.slo.cacheable);
 
@@ -304,8 +308,7 @@ impl McpToolRegistry {
 
     /// Execute a ggen tool (placeholder implementation)
     async fn execute_ggen_tool(
-        _tool: &GgenTool,
-        input: serde_json::Value,
+        _tool: &GgenTool, input: serde_json::Value,
     ) -> A2aMcpResult<serde_json::Value> {
         // This is a placeholder implementation
         // In a real scenario, this would dispatch to the actual tool implementation
@@ -334,9 +337,7 @@ pub struct McpToolBuilder {
 impl McpToolBuilder {
     /// Create a new tool builder
     pub fn new(
-        id: impl Into<String>,
-        name: impl Into<String>,
-        description: impl Into<String>,
+        id: impl Into<String>, name: impl Into<String>, description: impl Into<String>,
     ) -> Self {
         Self {
             id: id.into(),
@@ -349,9 +350,7 @@ impl McpToolBuilder {
 
     /// Add a string property
     pub fn add_string_property(
-        mut self,
-        name: impl Into<String>,
-        description: impl Into<String>,
+        mut self, name: impl Into<String>, description: impl Into<String>,
     ) -> Self {
         let name_str = name.into();
         self.properties.insert(
@@ -366,9 +365,7 @@ impl McpToolBuilder {
 
     /// Add a required string property
     pub fn add_required_string_property(
-        mut self,
-        name: impl Into<String>,
-        description: impl Into<String>,
+        mut self, name: impl Into<String>, description: impl Into<String>,
     ) -> Self {
         let name_str = name.into();
         self.properties.insert(
@@ -384,10 +381,7 @@ impl McpToolBuilder {
 
     /// Add an array property
     pub fn add_array_property(
-        mut self,
-        name: impl Into<String>,
-        description: impl Into<String>,
-        item_type: &str,
+        mut self, name: impl Into<String>, description: impl Into<String>, item_type: &str,
     ) -> Self {
         self.properties.insert(
             name.into(),
@@ -431,8 +425,9 @@ pub async fn register_core_tools(registry: &McpToolRegistry) -> A2aMcpResult<Vec
     // Note: These tools should be registered in the ggen-ai ToolRegistry
     // This function ensures they're available for MCP clients
     for id in &tool_ids {
-        let _tool = registry.get(id).await
-            .map_err(|_| A2aMcpError::AgentNotFound(format!("Core tool '{}' not found in ggen registry", id)))?;
+        let _tool = registry.get(id).await.map_err(|_| {
+            A2aMcpError::AgentNotFound(format!("Core tool '{}' not found in ggen registry", id))
+        })?;
     }
 
     Ok(tool_ids.into_iter().map(|s| s.to_string()).collect())
@@ -496,11 +491,7 @@ mod tests {
 
     #[test]
     fn test_tool_execution_result_success() {
-        let result = ToolExecutionResult::success(
-            "test-tool",
-            json!({"output": "success"}),
-            100,
-        );
+        let result = ToolExecutionResult::success("test-tool", json!({"output": "success"}), 100);
 
         assert!(result.success);
         assert_eq!(result.tool_id, "test-tool");
@@ -510,11 +501,7 @@ mod tests {
 
     #[test]
     fn test_tool_execution_result_failure() {
-        let result = ToolExecutionResult::failure(
-            "test-tool",
-            "Something went wrong",
-            50,
-        );
+        let result = ToolExecutionResult::failure("test-tool", "Something went wrong", 50);
 
         assert!(!result.success);
         assert_eq!(result.error, Some("Something went wrong".to_string()));

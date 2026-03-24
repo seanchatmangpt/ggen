@@ -12,4 +12,4 @@ pub use loader::{
     GenerationConfig, GenerationRule, GgenConfig, McpConfig, McpServerDef, ProjectMetadata,
     ZaiConfig,
 };
-pub use validation::{ConfigValidator, ValidationWarning, ValidationResult, ValidationError};
+pub use validation::{ConfigValidator, ValidationError, ValidationResult, ValidationWarning};

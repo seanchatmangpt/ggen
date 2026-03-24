@@ -1,8 +1,8 @@
 //! STDIO transport for MCP JSON-RPC protocol
 
-use std::io::{BufRead, BufReader, Write};
 use crate::error::{A2aMcpError, A2aMcpResult};
 use crate::mcp::protocol::{McpRequest, McpResponse};
+use std::io::{BufRead, BufReader, Write};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -41,10 +41,9 @@ impl StdioTransport {
             let response = self.handle_request(&line)?;
 
             // Write response
-            let response_json = serde_json::to_string(&response)
-                .map_err(|e| A2aMcpError::Json(e))?;
-            writeln!(stdout_lock, "{}", response_json)
-                .map_err(|e| A2aMcpError::Io(e))?;
+            let response_json =
+                serde_json::to_string(&response).map_err(|e| A2aMcpError::Json(e))?;
+            writeln!(stdout_lock, "{}", response_json).map_err(|e| A2aMcpError::Io(e))?;
         }
 
         Ok(())
@@ -52,8 +51,8 @@ impl StdioTransport {
 
     fn handle_request(&self, line: &str) -> A2aMcpResult<McpResponse> {
         // Parse JSON-RPC request
-        let value: serde_json::Value = serde_json::from_str(line)
-            .map_err(|e| A2aMcpError::Json(e))?;
+        let value: serde_json::Value =
+            serde_json::from_str(line).map_err(|e| A2aMcpError::Json(e))?;
 
         let method = value.get("method").and_then(|m| m.as_str());
 

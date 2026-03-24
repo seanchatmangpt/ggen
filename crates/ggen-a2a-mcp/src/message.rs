@@ -35,11 +35,16 @@ impl A2aMessageConverter {
     }
 
     /// Convert LLM response to A2A ConvergedMessage
-    pub fn llm_response_to_a2a(&self, response: &LlmResponse, original_message: &ConvergedMessage) -> A2aMcpResult<ConvergedMessage> {
+    pub fn llm_response_to_a2a(
+        &self, response: &LlmResponse, original_message: &ConvergedMessage,
+    ) -> A2aMcpResult<ConvergedMessage> {
         // Create a new ConvergedMessage with the LLM response
         let mut message = ConvergedMessage::text(
             format!("llm-response-{}", uuid::Uuid::new_v4()),
-            original_message.target.clone().unwrap_or_else(|| "llm-bridge".to_string()),
+            original_message
+                .target
+                .clone()
+                .unwrap_or_else(|| "llm-bridge".to_string()),
             response.content.clone(),
         );
 
@@ -54,8 +59,7 @@ impl A2aMessageConverter {
         match &message.payload.content {
             UnifiedContent::Text { content, .. } => Ok(content.clone()),
             UnifiedContent::Data { data, .. } => {
-                serde_json::to_string_pretty(data)
-                    .map_err(A2aMcpError::from)
+                serde_json::to_string_pretty(data).map_err(A2aMcpError::from)
             }
             UnifiedContent::File { file, .. } => {
                 if let Some(uri) = &file.uri {
@@ -63,7 +67,9 @@ impl A2aMessageConverter {
                 } else if let Some(bytes) = &file.bytes {
                     Ok(format!("Base64 encoded file content: {}", bytes))
                 } else {
-                    Err(A2aMcpError::Translation("File content has no URI or bytes".to_string()))
+                    Err(A2aMcpError::Translation(
+                        "File content has no URI or bytes".to_string(),
+                    ))
                 }
             }
             UnifiedContent::Multipart { parts, .. } => {
@@ -116,9 +122,8 @@ pub struct TokenUsage {
 mod tests {
     use super::*;
     use a2a_generated::converged::message::{
-        ConvergedPayload, MessageEnvelope, MessageLifecycle, MessagePriority,
-        ConvergedMessageType, MessageState, MessageRouting, QoSRequirements,
-        ReliabilityLevel,
+        ConvergedMessageType, ConvergedPayload, MessageEnvelope, MessageLifecycle, MessagePriority,
+        MessageRouting, MessageState, QoSRequirements, ReliabilityLevel,
     };
     use chrono::Utc;
     use std::collections::HashMap;
@@ -215,7 +220,9 @@ mod tests {
             usage: None,
         };
 
-        let result = converter.llm_response_to_a2a(&llm_response, &original).unwrap();
+        let result = converter
+            .llm_response_to_a2a(&llm_response, &original)
+            .unwrap();
         assert_eq!(result.source, "user");
         assert_eq!(result.target, Some("llm-bridge".to_string()));
     }
@@ -224,7 +231,10 @@ mod tests {
     fn test_data_content_extraction() {
         let converter = A2aMessageConverter::new();
         let mut data = HashMap::new();
-        data.insert("key".to_string(), serde_json::Value::String("value".to_string()));
+        data.insert(
+            "key".to_string(),
+            serde_json::Value::String("value".to_string()),
+        );
 
         let message = ConvergedMessage {
             message_id: "data-msg".to_string(),
@@ -240,10 +250,7 @@ mod tests {
                 causation_chain: None,
             },
             payload: ConvergedPayload {
-                content: UnifiedContent::Data {
-                    data,
-                    schema: None,
-                },
+                content: UnifiedContent::Data { data, schema: None },
                 context: None,
                 hints: None,
                 integrity: None,

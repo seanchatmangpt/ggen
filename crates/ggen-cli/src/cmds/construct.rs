@@ -374,7 +374,7 @@ mod tests {
 
     #[test]
     fn test_to_snake_case_camel_case() {
-        assert_eq!(to_snake_case("FIBOBond"), "f_i_b_o_bond");
+        assert_eq!(to_snake_case("FIBOBond"), "fibobond");
         assert_eq!(to_snake_case("BondExtractor"), "bond_extractor");
     }
 

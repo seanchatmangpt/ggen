@@ -24,9 +24,9 @@ pub enum RefusalType {
     Postpone(Uuid, chrono::DateTime<chrono::Utc>), // ID and suggested time
 
     // System decisions
-    Override,         // System override for critical operations
-    Escalate,         // Escalate to higher authority
-    Delegate(Uuid),   // Delegate to another agent
+    Override,       // System override for critical operations
+    Escalate,       // Escalate to higher authority
+    Delegate(Uuid), // Delegate to another agent
 }
 
 /// Refusal context
@@ -227,7 +227,9 @@ impl AutonomicRefusalSystem {
 
     /// Process sensor data (from osiris-sensors)
     #[cfg(feature = "sensors")]
-    pub async fn process_sensor_data(&self, sensor_id: &str, data: &[osiris_sensors::SensorDataType]) -> Result<()> {
+    pub async fn process_sensor_data(
+        &self, sensor_id: &str, data: &[osiris_sensors::SensorDataType],
+    ) -> Result<()> {
         info!("Processing sensor data from sensor: {}", sensor_id);
 
         // Analyze sensor data for patterns
@@ -247,23 +249,18 @@ impl AutonomicRefusalSystem {
                 id: "high-risk-activity".to_string(),
                 name: "High Risk Activity Refusal".to_string(),
                 description: "Refuse high-risk activities based on context".to_string(),
-                conditions: vec![
-                    PolicyCondition {
-                        field: "risk_assessment".to_string(),
-                        operator: ConditionOperator::Equals,
-                        value: serde_json::Value::String("Critical".to_string()),
-                    },
-                ],
-                actions: vec![
-                    PolicyAction {
-                        action_type: "refuse".to_string(),
-                        parameters: HashMap::new(),
-                    },
-                ],
+                conditions: vec![PolicyCondition {
+                    field: "risk_assessment".to_string(),
+                    operator: ConditionOperator::Equals,
+                    value: serde_json::Value::String("Critical".to_string()),
+                }],
+                actions: vec![PolicyAction {
+                    action_type: "refuse".to_string(),
+                    parameters: HashMap::new(),
+                }],
                 active: true,
                 priority: 100,
             },
-
             // After-hours work refusal policy
             RefusalPolicy {
                 id: "after-hours-work".to_string(),
@@ -281,12 +278,10 @@ impl AutonomicRefusalSystem {
                         value: serde_json::Value::String("Emergency".to_string()),
                     },
                 ],
-                actions: vec![
-                    PolicyAction {
-                        action_type: "postpone".to_string(),
-                        parameters: HashMap::new(),
-                    },
-                ],
+                actions: vec![PolicyAction {
+                    action_type: "postpone".to_string(),
+                    parameters: HashMap::new(),
+                }],
                 active: true,
                 priority: 50,
             },
@@ -301,7 +296,9 @@ impl AutonomicRefusalSystem {
     }
 
     /// Match policies against context
-    async fn match_policies(&self, context: &RefusalContext, policies: &[RefusalPolicy]) -> Result<Vec<&RefusalPolicy>> {
+    async fn match_policies(
+        &self, context: &RefusalContext, policies: &[RefusalPolicy],
+    ) -> Result<Vec<&RefusalPolicy>> {
         let mut matching = Vec::new();
 
         for policy in policies {
@@ -326,28 +323,24 @@ impl AutonomicRefusalSystem {
     }
 
     /// Evaluate a policy condition
-    async fn evaluate_condition(&self, context: &RefusalContext, condition: &PolicyCondition) -> Result<bool> {
+    async fn evaluate_condition(
+        &self, context: &RefusalContext, condition: &PolicyCondition,
+    ) -> Result<bool> {
         let field_value = self.get_field_value(context, &condition.field).await?;
 
         match condition.operator {
-            ConditionOperator::Equals => {
-                Ok(field_value == condition.value)
-            }
-            ConditionOperator::NotEquals => {
-                Ok(field_value != condition.value)
-            }
+            ConditionOperator::Equals => Ok(field_value == condition.value),
+            ConditionOperator::NotEquals => Ok(field_value != condition.value),
             ConditionOperator::GreaterThan => {
                 match (field_value.as_f64(), condition.value.as_f64()) {
                     (Some(a), Some(b)) => Ok(a > b),
                     _ => Ok(false),
                 }
             }
-            ConditionOperator::LessThan => {
-                match (field_value.as_f64(), condition.value.as_f64()) {
-                    (Some(a), Some(b)) => Ok(a < b),
-                    _ => Ok(false),
-                }
-            }
+            ConditionOperator::LessThan => match (field_value.as_f64(), condition.value.as_f64()) {
+                (Some(a), Some(b)) => Ok(a < b),
+                _ => Ok(false),
+            },
             _ => {
                 debug!("Unimplemented operator: {:?}", condition.operator);
                 Ok(false)
@@ -356,11 +349,16 @@ impl AutonomicRefusalSystem {
     }
 
     /// Get field value from context
-    async fn get_field_value(&self, context: &RefusalContext, field: &str) -> Result<serde_json::Value> {
+    async fn get_field_value(
+        &self, context: &RefusalContext, field: &str,
+    ) -> Result<serde_json::Value> {
         match field {
             "priority" => Ok(serde_json::Value::String(format!("{:?}", context.priority))),
             "urgency" => Ok(serde_json::Value::String(format!("{:?}", context.urgency))),
-            "risk_assessment" => Ok(serde_json::Value::String(format!("{:?}", context.risk_assessment))),
+            "risk_assessment" => Ok(serde_json::Value::String(format!(
+                "{:?}",
+                context.risk_assessment
+            ))),
             _ => {
                 // Check user context first
                 if let Some(value) = context.user_context.get(field) {
@@ -380,7 +378,9 @@ impl AutonomicRefusalSystem {
     }
 
     /// Execute policy actions
-    async fn execute_policy_actions(&self, context: &RefusalContext, policy: &RefusalPolicy) -> Result<RefusalDecision> {
+    async fn execute_policy_actions(
+        &self, context: &RefusalContext, policy: &RefusalPolicy,
+    ) -> Result<RefusalDecision> {
         let mut refusal_type = RefusalType::Accept;
         let mut reason = None;
 
@@ -407,13 +407,20 @@ impl AutonomicRefusalSystem {
     }
 
     /// Update learned preferences
-    async fn update_preferences(&self, context: &RefusalContext, decision: &RefusalDecision) -> Result<()> {
+    async fn update_preferences(
+        &self, context: &RefusalContext, decision: &RefusalDecision,
+    ) -> Result<()> {
         let mut preferences = self.learned_preferences.write().await;
 
         // Simple preference learning - track rejections
-        if matches!(decision.refusal_type, RefusalType::Decline | RefusalType::DeclineWithReason(_)) {
+        if matches!(
+            decision.refusal_type,
+            RefusalType::Decline | RefusalType::DeclineWithReason(_)
+        ) {
             let key = format!("rejected_{}", context.request_type);
-            let count = preferences.entry(key.clone()).or_insert(serde_json::Value::Number(0.into()));
+            let count = preferences
+                .entry(key.clone())
+                .or_insert(serde_json::Value::Number(0.into()));
             if let serde_json::Value::Number(n) = count {
                 *count = serde_json::Value::Number((n.as_u64().unwrap_or(0) + 1).into());
             }
@@ -424,13 +431,16 @@ impl AutonomicRefusalSystem {
 
     /// Analyze sensor data patterns
     #[cfg(feature = "sensors")]
-    async fn analyze_sensor_patterns(&self, sensor_id: &str, data: &[osiris_sensors::SensorDataType]) -> Result<Vec<String>> {
+    async fn analyze_sensor_patterns(
+        &self, sensor_id: &str, data: &[osiris_sensors::SensorDataType],
+    ) -> Result<Vec<String>> {
         let mut patterns = Vec::new();
 
         // Simple pattern detection
         if sensor_id == "accelerometer" {
             // Detect sudden movements
-            let movements: Vec<_> = data.iter()
+            let movements: Vec<_> = data
+                .iter()
                 .filter(|d| matches!(d, SensorDataType::Accelerometer { .. }))
                 .collect();
 

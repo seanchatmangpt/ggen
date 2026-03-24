@@ -345,7 +345,7 @@ pub mod message_handler {
                     .iter()
                     .filter(|h| h.can_handle(message) && rule.condition.matches(message, h))
                     .collect();
-                
+
                 if !filtered.is_empty() {
                     selected_handlers = filtered;
                 }
@@ -431,9 +431,10 @@ pub mod message_handler {
                 RoutingCondition::TargetAgent(target) => {
                     f.debug_tuple("TargetAgent").field(target).finish()
                 }
-                RoutingCondition::ContentCondition(_) => {
-                    f.debug_tuple("ContentCondition").field(&"<function>").finish()
-                }
+                RoutingCondition::ContentCondition(_) => f
+                    .debug_tuple("ContentCondition")
+                    .field(&"<function>")
+                    .finish(),
                 RoutingCondition::MinimumPriority(priority) => {
                     f.debug_tuple("MinimumPriority").field(priority).finish()
                 }
@@ -794,7 +795,10 @@ pub mod message_handler {
         async fn test_data_handler() {
             let handler = DataProcessingHandler::new();
             let mut data = serde_json::Map::new();
-            data.insert("test".to_string(), serde_json::Value::String("value".to_string()));
+            data.insert(
+                "test".to_string(),
+                serde_json::Value::String("value".to_string()),
+            );
 
             let message = ConvergedMessage::text(
                 "msg-456".to_string(),

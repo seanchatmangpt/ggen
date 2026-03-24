@@ -7,13 +7,7 @@ use std::time::Duration;
 use tokio::time::sleep;
 
 use osiris_core::{
-    OSIRIS,
-    OSIRISEngine,
-    WorkflowStatus,
-    TPSMetrics,
-    DomainType,
-    AutonomicDecision,
-    Error
+    AutonomicDecision, DomainType, Error, OSIRISEngine, TPSMetrics, WorkflowStatus, OSIRIS,
 };
 
 /// Test OSIRIS engine initialization
@@ -45,7 +39,10 @@ async fn test_workflow_execution_lifecycle() -> Result<(), Error> {
     // Assert
     assert!(result.is_ok());
     let workflow_status = engine.get_workflow_status(workflow_id);
-    assert!(matches!(workflow_status, WorkflowStatus::Completed | WorkflowStatus::InProgress));
+    assert!(matches!(
+        workflow_status,
+        WorkflowStatus::Completed | WorkflowStatus::InProgress
+    ));
     Ok(())
 }
 
@@ -93,7 +90,9 @@ async fn test_kaizen_improvement_cycle() -> Result<(), Error> {
 
     // Act - Execute multiple workflows to collect data
     for i in 0..3 {
-        engine.execute_workflow(&format!("kaizen-test-{}", i)).await?;
+        engine
+            .execute_workflow(&format!("kaizen-test-{}", i))
+            .await?;
     }
 
     // Apply Kaizen improvements
@@ -129,7 +128,11 @@ async fn test_domain_coordination() -> Result<(), Error> {
     let engine = OSIRIS::new(config).await?;
 
     // Act - Coordinate multiple domains
-    let domains = vec![DomainType::Production, DomainType::Staging, DomainType::Development];
+    let domains = vec![
+        DomainType::Production,
+        DomainType::Staging,
+        DomainType::Development,
+    ];
     let coordination_result = engine.coordinate_domains(domains).await;
 
     // Assert
@@ -154,7 +157,10 @@ async fn test_autonomic_decision_making() -> Result<(), Error> {
     let decision = engine.make_autonomic_decision(&context).await?;
 
     // Assert
-    assert!(matches!(decision.action, AutonomicAction::Adjust | AutonomicAction::Continue | AutonomicAction::Intervene));
+    assert!(matches!(
+        decision.action,
+        AutonomicAction::Adjust | AutonomicAction::Continue | AutonomicAction::Intervene
+    ));
     assert!(decision.confidence >= 0.0 && decision.confidence <= 1.0);
     Ok(())
 }
@@ -229,7 +235,9 @@ async fn test_a2a_agent_communication() -> Result<(), Error> {
     let engine = OSIRIS::new(config).await?;
 
     // Act - Prepare A2A message
-    let message = engine.prepare_a2a_message("agent_id", "request_type", &serde_json::json!({})).await?;
+    let message = engine
+        .prepare_a2a_message("agent_id", "request_type", &serde_json::json!({}))
+        .await?;
 
     // Assert
     assert_eq!(message.from, "osiris-engine");
@@ -319,11 +327,15 @@ impl OSIRIS {
         unimplemented!()
     }
 
-    pub async fn coordinate_domains(&self, domains: Vec<DomainType>) -> Result<Vec<CoordinationResult>, Error> {
+    pub async fn coordinate_domains(
+        &self, domains: Vec<DomainType>,
+    ) -> Result<Vec<CoordinationResult>, Error> {
         unimplemented!()
     }
 
-    pub async fn make_autonomic_decision(&self, context: &AutonomicContext) -> Result<AutonomicDecision, Error> {
+    pub async fn make_autonomic_decision(
+        &self, context: &AutonomicContext,
+    ) -> Result<AutonomicDecision, Error> {
         unimplemented!()
     }
 
@@ -339,7 +351,9 @@ impl OSIRIS {
         unimplemented!()
     }
 
-    pub async fn prepare_a2a_message(&self, to: &str, message_type: &str, data: &serde_json::Value) -> Result<A2AMessage, Error> {
+    pub async fn prepare_a2a_message(
+        &self, to: &str, message_type: &str, data: &serde_json::Value,
+    ) -> Result<A2AMessage, Error> {
         unimplemented!()
     }
 }
@@ -425,5 +439,8 @@ pub struct A2AMessage {
 #[tokio::test]
 async fn test_red_phase_all_tests_fail() {
     // This test should fail until we implement the engine
-    assert!(false, "RED phase - All tests should fail until implementation");
+    assert!(
+        false,
+        "RED phase - All tests should fail until implementation"
+    );
 }
