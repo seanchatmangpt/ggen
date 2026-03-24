@@ -261,21 +261,24 @@ impl RdfControlPlane {
             INSERT DATA {",
         );
 
-        let pkg_uri = format!("<https://ggen.io/marketplace/{}>", package_id);
+        let pkg_uri = format!("<https://ggen.io/marketplace/{package_id}>");
 
         // Add authors
+        #[allow(clippy::format_push_string)]
         for author in authors {
-            metadata_query.push_str(&format!("\n    {} mp:author \"{author}\" ;", pkg_uri));
+            metadata_query.push_str(&format!("\n    {pkg_uri} mp:author \"{author}\" ;"));
         }
 
         // Add keywords
+        #[allow(clippy::format_push_string)]
         for keyword in keywords {
-            metadata_query.push_str(&format!("\n    {} mp:keyword \"{keyword}\" ;", pkg_uri));
+            metadata_query.push_str(&format!("\n    {pkg_uri} mp:keyword \"{keyword}\" ;"));
         }
 
         // Add categories
+        #[allow(clippy::format_push_string)]
         for category in categories {
-            metadata_query.push_str(&format!("\n    {} mp:category \"{category}\" ;", pkg_uri));
+            metadata_query.push_str(&format!("\n    {pkg_uri} mp:category \"{category}\" ;"));
         }
 
         metadata_query.push_str("\n}");
