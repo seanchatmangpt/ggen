@@ -151,18 +151,22 @@ impl Triple {
         }
     }
 
+    #[must_use]
     pub fn subject(&self) -> &ResourceId {
         &self.subject
     }
 
+    #[must_use]
     pub fn predicate(&self) -> &ResourceId {
         &self.predicate
     }
 
+    #[must_use]
     pub fn object(&self) -> &TripleObject {
         &self.object
     }
 
+    #[must_use]
     pub fn to_turtle(&self) -> String {
         let object_str = match &self.object {
             TripleObject::Resource(r) => r.to_string(),
