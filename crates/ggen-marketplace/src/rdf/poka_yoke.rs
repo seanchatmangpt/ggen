@@ -12,6 +12,8 @@
 //! All safety guarantees are enforced at compile time through phantom types
 //! and builder patterns with typestate.
 
+#![allow(clippy::return_self_not_must_use)]
+
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::marker::PhantomData;
