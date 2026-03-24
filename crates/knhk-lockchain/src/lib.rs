@@ -244,12 +244,12 @@ impl Lockchain {
             let mut next_level = Vec::new();
             for chunk in hashes.chunks(2) {
                 let mut hasher = Sha256::new();
-                hasher.update(&chunk[0]);
+                hasher.update(chunk[0]);
                 if chunk.len() == 2 {
-                    hasher.update(&chunk[1]);
+                    hasher.update(chunk[1]);
                 } else {
                     // Odd number: duplicate last hash
-                    hasher.update(&chunk[0]);
+                    hasher.update(chunk[0]);
                 }
                 let output = hasher.finalize();
                 let mut hash = [0u8; 32];
