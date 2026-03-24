@@ -33,6 +33,9 @@ const DEFAULT_RESULT_CACHE_SIZE: usize = 1000;
 const INITIAL_EPOCH: u64 = 1;
 const EPOCH_INCREMENT: u64 = 1;
 
+/// Type alias for result cache to reduce complexity
+type ResultCache = Arc<Mutex<LruCache<(u64, u64), Vec<String>>>>;
+
 /// RDF Control Plane - Central coordinator for all RDF operations
 ///
 /// Uses epoch-based cache invalidation pattern from ggen-core for:
@@ -50,8 +53,8 @@ pub struct RdfControlPlane {
     epoch: Arc<AtomicU64>,
     /// Plan cache: SPARQL query execution plans
     plan_cache: Arc<Mutex<LruCache<u64, String>>>,
-    /// Result cache: Query results keyed by (epoch, query_hash)
-    result_cache: Arc<Mutex<LruCache<(u64, u64), Vec<String>>>>,
+    /// Result cache: Query results keyed by (epoch, `query_hash`)
+    result_cache: ResultCache,
 }
 
 /// Cached package entry (reserved for cache optimization strategies)
@@ -72,6 +75,11 @@ struct CachedPackage {
 
 impl RdfControlPlane {
     /// Create a new RDF control plane with epoch-based cache invalidation
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::RdfStoreError`] - When opening the RDF store fails
+    /// * [`Error::ConfigurationError`] - When cache size configuration is invalid
     pub fn new(store_path: impl AsRef<Path>) -> Result<Self> {
         let store = Store::open(store_path.as_ref()).map_err(|e| Error::RdfStoreError {
             operation: "open".to_string(),
@@ -110,6 +118,11 @@ impl RdfControlPlane {
     }
 
     /// Create an in-memory RDF control plane (for testing)
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::RdfStoreError`] - When creating the in-memory RDF store fails
+    /// * [`Error::ConfigurationError`] - When cache size configuration is invalid
     pub fn in_memory() -> Result<Self> {
         let store = Store::new().map_err(|e| Error::RdfStoreError {
             operation: "new".to_string(),
@@ -142,6 +155,7 @@ impl RdfControlPlane {
     }
 
     /// Get current epoch value (for cache invalidation)
+    #[must_use]
     pub fn current_epoch(&self) -> u64 {
         self.epoch.load(Ordering::Relaxed)
     }
@@ -152,11 +166,15 @@ impl RdfControlPlane {
     }
 
     /// Load Turtle configuration files
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::ConfigurationError`] - When loading marketplace config fails
     pub fn load_config(&self, _config_dir: impl AsRef<Path>) -> Result<()> {
         // Load marketplace config (this will read from the config_dir set in TurtleConfigLoader)
         let _config = self.config_loader.load_marketplace_config().map_err(|e| {
             Error::ConfigurationError {
-                message: format!("Failed to load marketplace config: {}", e),
+                message: format!("Failed to load marketplace config: {e}"),
             }
         })?;
         // Apply configuration to state machine

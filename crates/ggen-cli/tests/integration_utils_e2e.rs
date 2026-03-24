@@ -23,16 +23,11 @@ fn ggen() -> Command {
 #[test]
 fn test_utils_doctor_runs() {
     // Chicago TDD: Verify system diagnostics execute
-    ggen()
-        .arg("utils")
-        .arg("doctor")
-        .assert()
-        .success()
-        .stdout(
-            predicate::str::contains("Rust")
-                .or(predicate::str::contains("Cargo"))
-                .or(predicate::str::contains("checks")),
-        );
+    ggen().arg("utils").arg("doctor").assert().success().stdout(
+        predicate::str::contains("Rust")
+            .or(predicate::str::contains("Cargo"))
+            .or(predicate::str::contains("checks")),
+    );
 }
 
 #[test]
@@ -160,7 +155,10 @@ fn test_utils_doctor_checks_system_tools() {
     // Verify system tools are checked
     // Output should contain information about Rust, Cargo, or Git
     assert!(
-        stdout.contains("Rust") || stdout.contains("Cargo") || stdout.contains("Git") || stdout.contains("checks"),
+        stdout.contains("Rust")
+            || stdout.contains("Cargo")
+            || stdout.contains("Git")
+            || stdout.contains("checks"),
         "Doctor should check system tools"
     );
 }
@@ -178,7 +176,9 @@ fn test_utils_doctor_reports_health_status() {
 
     // Verify health status reported
     assert!(
-        stdout.contains("healthy") || stdout.contains("needs attention") || stdout.contains("status"),
+        stdout.contains("healthy")
+            || stdout.contains("needs attention")
+            || stdout.contains("status"),
         "Doctor should report health status"
     );
 }

@@ -112,7 +112,10 @@ fn test_ontology_generate_creates_code() {
 
     // Verify state: Generated files created
     let generated_dir = temp_dir.path().join("generated");
-    assert!(generated_dir.exists(), "Generated directory should be created");
+    assert!(
+        generated_dir.exists(),
+        "Generated directory should be created"
+    );
 }
 
 #[test]
@@ -136,7 +139,10 @@ fn test_ontology_generate_with_output() {
         .success();
 
     // Verify state: Custom output directory used
-    assert!(output_dir.exists(), "Custom output directory should be created");
+    assert!(
+        output_dir.exists(),
+        "Custom output directory should be created"
+    );
 }
 
 #[test]
