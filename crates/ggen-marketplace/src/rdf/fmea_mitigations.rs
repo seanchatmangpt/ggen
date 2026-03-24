@@ -8,7 +8,7 @@
 //! - Logging and alerting
 
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 use std::time::{Duration, Instant};
 use tracing::{error, info, warn};
 
@@ -224,10 +224,9 @@ pub enum MitigationResult {
 }
 
 /// FMEA mitigation manager
-/// **FMEA Fix**: Use BTreeMap instead of HashMap for deterministic iteration order
 pub struct FmeaMitigationManager {
-    metrics: BTreeMap<&'static str, FailureMetrics>,
-    recovery_attempts: BTreeMap<&'static str, usize>,
+    metrics: HashMap<&'static str, FailureMetrics>,
+    recovery_attempts: HashMap<&'static str, usize>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -242,8 +241,8 @@ pub struct FailureMetrics {
 impl FmeaMitigationManager {
     pub fn new() -> Self {
         Self {
-            metrics: BTreeMap::new(),
-            recovery_attempts: BTreeMap::new(),
+            metrics: HashMap::new(),
+            recovery_attempts: HashMap::new(),
         }
     }
 
@@ -375,6 +374,8 @@ impl FmeaMitigationManager {
         };
 
         if attempt_count < 5 {
+            // attempt_count is bounded by the check above (<5), so 2^attempt_count fits in u64
+            #[allow(clippy::cast_possible_truncation)]
             let backoff = Duration::from_millis(100 * 2_u64.pow(attempt_count as u32));
             std::thread::sleep(backoff);
 
@@ -441,7 +442,7 @@ impl FmeaMitigationManager {
     }
 
     /// Get all metrics
-    pub fn get_all_metrics(&self) -> &BTreeMap<&'static str, FailureMetrics> {
+    pub fn get_all_metrics(&self) -> &HashMap<&'static str, FailureMetrics> {
         &self.metrics
     }
 

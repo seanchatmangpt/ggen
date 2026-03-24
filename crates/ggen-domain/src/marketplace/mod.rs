@@ -22,6 +22,7 @@ pub mod hook;
 pub mod install;
 pub mod list;
 pub mod mape_k_integration;
+pub mod maturity;
 pub mod observability;
 pub mod packs;
 pub mod packs_services;
@@ -83,8 +84,24 @@ pub use guards::{Guard, GuardCheckResult, ValidationReceipt};
 pub use observability::{HealthCheck, HealthStatus};
 
 // Reporting (internal, but needed for documentation generation)
-pub use artifact_generator::{generate_packages_markdown, generate_registry_index};
-pub use receipt_emitter::{emit_receipt_for_package, ValidationReport};
+pub use artifact_generator::{generate_packages_markdown, generate_registry_index, write_packages_markdown, write_registry_index};
+pub use receipt_emitter::{emit_receipt_for_package, emit_receipts_for_marketplace, ValidationReport, generate_validation_report};
+
+// Validation (internal, but needed for package quality checks)
+pub use validate::{validate_package, validate_all_packages, PackageValidation};
+
+// Quality autopilot (internal, but needed for improvement suggestions)
+pub use quality_autopilot::{generate_improvement_plan, apply_template_improvements};
+
+// Bundles (internal, but needed for sector package management)
+pub use bundles::{BundleRegistry, generate_bundle_docs, BundleInstallManifest};
+
+// Maturity assessment (internal, but needed for package quality evaluation)
+pub use maturity::{
+    MaturityEvaluator, MaturityAssessment, MaturityLevel, EvaluationInput,
+    DocumentationScores, TestingScores, SecurityScores, PerformanceScores,
+    AdoptionScores, MaintenanceScores,
+};
 
 // Legacy types for backwards compatibility
 use serde::{Deserialize, Serialize};

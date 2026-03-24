@@ -499,23 +499,15 @@ impl A2aLlmClient {
         let model = self.model.name.clone();
 
         Ok(stream.map(move |chunk| {
-            match chunk {
-                Ok(c) => StreamingChunk {
-                    content: c.content,
-                    is_final: c.finish_reason.is_some(),
-                    tool_calls: Vec::new(),
-                    usage: c.usage.map(|u| crate::message::TokenUsage {
-                        prompt_tokens: u.prompt_tokens,
-                        completion_tokens: u.completion_tokens,
-                        total_tokens: u.total_tokens,
-                    }),
-                },
-                Err(e) => StreamingChunk {
-                    content: format!("Error: {}", e),
-                    is_final: true,
-                    tool_calls: Vec::new(),
-                    usage: None,
-                },
+            StreamingChunk {
+                content: chunk.content,
+                is_final: chunk.finish_reason.is_some(),
+                tool_calls: Vec::new(),
+                usage: chunk.usage.map(|u| crate::message::TokenUsage {
+                    prompt_tokens: u.prompt_tokens,
+                    completion_tokens: u.completion_tokens,
+                    total_tokens: u.total_tokens,
+                }),
             }
         }))
     }

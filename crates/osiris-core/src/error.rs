@@ -6,7 +6,7 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum OSIRISError {
     #[error("Domain not found: {0}")]
-    DomainNotFound(DomainType),
+    DomainNotFound(String),
 
     #[error("Workflow not found: {0}")]
     WorkflowNotFound(String),

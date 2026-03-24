@@ -1,0 +1,55 @@
+{
+  "package_id": "data-pipeline-cli",
+  "version": "1.0.0",
+  "validated_at": "2026-03-24T06:27:54.064268+00:00",
+  "ggen_version": "3.0.0",
+  "guard_results": [
+    {
+      "guard_name": "Metadata Guard",
+      "guard_type": "metadata",
+      "passed": true,
+      "message": "Metadata complete: id, version, description found",
+      "weight": 10,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "License Guard",
+      "guard_type": "license",
+      "passed": true,
+      "message": "License file found",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "README Guard",
+      "guard_type": "readme",
+      "passed": true,
+      "message": "README.md found (18809 chars, minimum 500 required)",
+      "weight": 7,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Tests Guard",
+      "guard_type": "tests",
+      "passed": true,
+      "message": "Test files found",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Chicago Compliance Guard",
+      "guard_type": "chicago_compliance",
+      "passed": true,
+      "message": "✅ No forbidden patterns found, test suite present",
+      "weight": 15,
+      "severity": "Critical"
+    }
+  ],
+  "overall_score": 100.0,
+  "production_ready": true,
+  "checksum": "fd941754d1f38de6369093680c13bd40591f8ea2b7dd46e2eb0be6457a7672da",
+  "critical_passed": 5,
+  "critical_total": 5,
+  "bonus_passed": 0,
+  "bonus_total": 0
+}

@@ -6,21 +6,21 @@
 
 ```bash
 # Search for packages
-ggen market search "rust api"
+ggen marketplace search "rust api"
 
 # Install a package
-ggen market install "advanced-rust-api-8020"
+ggen marketplace install "advanced-rust-api-8020"
 
 # List installed packages
-ggen market list
+ggen marketplace list
 
 # Search for package details
-ggen market search "advanced-rust-api-8020"
+ggen marketplace search "advanced-rust-api-8020"
 ```
 
 ## 📖 Documentation
 
-- **[Packages Directory](PACKAGES.md)** - Complete guide to all 48+ marketplace packages
+- **[Packages Directory](PACKAGES.md)** - Complete guide to all 66+ marketplace packages
 - **[User Guide](USER_GUIDE.md)** - Browse, install, and use packages
 - **[Publishing Guide](PUBLISHING_GUIDE.md)** - Create and publish your packages
 - **[API Reference](API.md)** - Registry API and package format
@@ -121,13 +121,13 @@ Use `cargo make marketplace-validate-update` to validate all packages and update
 
 ```bash
 # Production REST API with authentication
-ggen market install "advanced-rust-api-8020"
+ggen marketplace install "advanced-rust-api-8020"
 
 # Comprehensive Rust showcase
-ggen market install "comprehensive-rust-showcase"
+ggen marketplace install "comprehensive-rust-showcase"
 
 # AI-powered microservice
-ggen market install "ai-microservice"
+ggen marketplace install "ai-microservice"
 ```
 
 ## 🏗️ Package Structure
@@ -169,4 +169,4 @@ We welcome package contributions! See:
 
 ---
 
-**Ready to get started?** Run `ggen market search` to explore available packages!
+**Ready to get started?** Run `ggen marketplace search` to explore available packages!

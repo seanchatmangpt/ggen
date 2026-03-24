@@ -16,7 +16,7 @@
 // pub mod domain;
 // pub mod domains;
 // pub mod engine;
-// pub mod error;
+pub mod error;
 // pub mod health;
 // pub mod persistence;
 // pub mod patterns;
@@ -57,7 +57,7 @@ pub struct OSIRISEngine {
 
 impl OSIRISEngine {
     /// Create a new OSIRIS engine with default configuration
-    pub async fn new(config: OSIRISConfig) -> Result<Self, Box<dyn std::error::Error>> {
+    pub async fn new(config: OSIRISConfig) -> Result<Self> {
         Ok(Self { config })
     }
 
@@ -67,7 +67,7 @@ impl OSIRISEngine {
     }
 
     /// Emit an OSIRIS signal
-    pub async fn emit_signal(&self, signal: String) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn emit_signal(&self, signal: String) -> Result<()> {
         Ok(())
     }
 }

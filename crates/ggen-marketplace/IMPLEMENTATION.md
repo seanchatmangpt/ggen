@@ -260,7 +260,7 @@ v3 SLOs:
 ### v2: Basic Usage
 
 ```rust
-use ggen_marketplace::prelude::*;
+use ggen_marketplace_v2::prelude::*;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -291,7 +291,7 @@ async fn main() -> Result<()> {
 ### v3: With Optimization
 
 ```rust
-use ggen_marketplace::prelude::*;
+use ggen_marketplace_v2::prelude::*;
 
 #[tokio::main]
 async fn main() -> Result<()> {

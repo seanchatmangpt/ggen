@@ -1,0 +1,55 @@
+{
+  "package_id": "workflow-engine-cli",
+  "version": "1.0.0",
+  "validated_at": "2026-03-24T06:27:54.051044+00:00",
+  "ggen_version": "3.0.0",
+  "guard_results": [
+    {
+      "guard_name": "Metadata Guard",
+      "guard_type": "metadata",
+      "passed": true,
+      "message": "Metadata complete: id, version, description found",
+      "weight": 10,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "License Guard",
+      "guard_type": "license",
+      "passed": true,
+      "message": "License file found",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "README Guard",
+      "guard_type": "readme",
+      "passed": true,
+      "message": "README.md found (21327 chars, minimum 500 required)",
+      "weight": 7,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Tests Guard",
+      "guard_type": "tests",
+      "passed": true,
+      "message": "Test files found",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Chicago Compliance Guard",
+      "guard_type": "chicago_compliance",
+      "passed": true,
+      "message": "✅ No forbidden patterns found, test suite present",
+      "weight": 15,
+      "severity": "Critical"
+    }
+  ],
+  "overall_score": 100.0,
+  "production_ready": true,
+  "checksum": "26bb740fff09cc3bc5b657f3441a892c5239887e30b5e5cceacd50414a08ded1",
+  "critical_passed": 5,
+  "critical_total": 5,
+  "bonus_passed": 0,
+  "bonus_total": 0
+}

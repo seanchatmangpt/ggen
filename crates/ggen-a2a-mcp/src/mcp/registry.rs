@@ -178,22 +178,14 @@ impl InMemoryToolRegistry {
 
     /// Get metadata for a tool
     pub async fn get_metadata(&self, name: &str) -> Option<A2aSkillMetadata> {
-        self.metadata
-            .read()
-            .await
-            .ok()?
-            .get(name)
-            .cloned()
+        let metadata = self.metadata.read().await;
+        metadata.get(name).cloned()
     }
 
     /// Get tool name by skill ID
     pub async fn get_tool_by_skill_id(&self, skill_id: &str) -> Option<String> {
-        self.skill_mapping
-            .read()
-            .await
-            .ok()?
-            .get(skill_id)
-            .cloned()
+        let mapping = self.skill_mapping.read().await;
+        mapping.get(skill_id).cloned()
     }
 
     /// Register a skill with associated metadata
@@ -212,15 +204,9 @@ impl InMemoryToolRegistry {
             deprecated: false,
         };
 
-        let mut tools = self.tools.write().await.map_err(|e| {
-            A2aMcpError::Server(format!("Registry lock error: {}", e))
-        })?;
-        let mut mapping = self.skill_mapping.write().await.map_err(|e| {
-            A2aMcpError::Server(format!("Mapping lock error: {}", e))
-        })?;
-        let mut meta = self.metadata.write().await.map_err(|e| {
-            A2aMcpError::Server(format!("Metadata lock error: {}", e))
-        })?;
+        let mut tools = self.tools.write().await;
+        let mut mapping = self.skill_mapping.write().await;
+        let mut meta = self.metadata.write().await;
 
         tools.insert(tool_name.clone(), tool);
         mapping.insert(skill.id.clone(), tool_name.clone());
@@ -243,10 +229,8 @@ impl McpToolRegistry for InMemoryToolRegistry {
             deprecated: false,
         };
 
-        let mut tools = self.tools.write().await
-            .map_err(|e| A2aMcpError::Server(format!("Registry lock error: {}", e)))?;
-        let mut mapping = self.skill_mapping.write().await
-            .map_err(|e| A2aMcpError::Server(format!("Mapping lock error: {}", e)))?;
+        let mut tools = self.tools.write().await;
+        let mut mapping = self.skill_mapping.write().await;
 
         tools.insert(tool_name.clone(), tool);
         mapping.insert(skill.id, tool_name);
@@ -255,20 +239,13 @@ impl McpToolRegistry for InMemoryToolRegistry {
     }
 
     async fn get_tool(&self, name: &str) -> Option<McpToolDefinition> {
-        self.tools
-            .read()
-            .await
-            .ok()?
-            .get(name)
-            .cloned()
+        let tools = self.tools.read().await;
+        tools.get(name).cloned()
     }
 
     async fn list_tools(&self) -> Vec<McpToolDefinition> {
-        self.tools
-            .read()
-            .await
-            .map(|tools| tools.values().cloned().collect())
-            .unwrap_or_default()
+        let tools = self.tools.read().await;
+        tools.values().cloned().collect()
     }
 }
 

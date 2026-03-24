@@ -6,8 +6,9 @@
 use crate::error::{A2aMcpError, A2aMcpResult};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::io::{self, BufRead, BufReader, Write};
+use std::io::{self, Write};
 use std::sync::Arc;
+use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::sync::RwLock;
 use tracing::{debug, error, info};
 
@@ -307,11 +308,11 @@ impl McpTransport {
     pub async fn run_stdio(&self) -> A2aMcpResult<()> {
         info!("Starting MCP stdio server");
 
-        let stdin = io::stdin();
-        let stdout = io::stdout();
-        let mut stdout_lock = stdout.lock();
+        let stdin = tokio::io::stdin();
+        let stdout = tokio::io::stdout();
         let reader = BufReader::new(stdin);
         let mut lines = reader.lines();
+        let mut stdout_lock = stdout;
 
         while let Ok(Some(line)) = lines.next_line().await {
             debug!("Received request: {}", line);
@@ -326,7 +327,10 @@ impl McpTransport {
                         &e.to_string(),
                     );
                     let error_json = self.serialize_response(&error_response)?;
-                    writeln!(stdout_lock, "{}", error_json)?;
+                    use tokio::io::AsyncWriteExt;
+                    stdout_lock.write_all(error_json.as_bytes()).await?;
+                    stdout_lock.write_all(b"\n").await?;
+                    stdout_lock.flush().await?;
                     continue;
                 }
             };
@@ -344,8 +348,10 @@ impl McpTransport {
             };
 
             let response_json = self.serialize_response(&response)?;
-            writeln!(stdout_lock, "{}", response_json)?;
-            stdout_lock.flush()?;
+            use tokio::io::AsyncWriteExt;
+            stdout_lock.write_all(response_json.as_bytes()).await?;
+            stdout_lock.write_all(b"\n").await?;
+            stdout_lock.flush().await?;
         }
 
         info!("MCP stdio server shutting down");

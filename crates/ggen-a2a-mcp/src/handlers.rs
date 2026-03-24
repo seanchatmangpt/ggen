@@ -19,12 +19,20 @@ use tracing::{debug, error, info, warn};
 
 // Re-export handler traits and types
 pub use handler::{
-    MessageHandler, HandlerResult, HandlerError, HandlerPriority,
+    HandlerResult, HandlerError, HandlerPriority,
     HandlerStatus, HandlerContext,
 };
 
 pub mod handler {
-    use super::*;
+    use crate::error::{A2aMcpError, A2aMcpResult};
+    use a2a_generated::converged::message::{
+        ConvergedMessage, ConvergedMessageType, MessageState,
+    };
+    use async_trait::async_trait;
+    use chrono::Utc;
+    use serde::{Deserialize, Serialize};
+    use std::collections::HashMap;
+    use tracing::{debug, info, warn};
 
     /// Result type for message handlers
     pub type HandlerResult<T = ()> = Result<T, HandlerError>;
@@ -106,7 +114,7 @@ pub mod handler {
 
 /// Trait for handling A2A messages
 #[async_trait]
-pub trait MessageHandler: Send + Sync {
+pub trait MessageHandler: Send + Sync + std::fmt::Debug {
     /// Handle the message and return a response
     async fn handle(&self, message: ConvergedMessage) -> HandlerResult<ConvergedMessage>;
 
@@ -180,7 +188,8 @@ impl MessageHandler for TextContentHandler {
             )),
         };
 
-        let processed = self.process_text(content)?;
+        let processed = self.process_text(content)
+            .map_err(|e| HandlerError::Processing(format!("Text processing failed: {}", e)))?;
 
         // Create response message
         let response = ConvergedMessage::text(
@@ -364,10 +373,10 @@ impl DataContentHandler {
     /// Process data content
     fn process_data(
         &self,
-        data: &HashMap<String, serde_json::Value>,
+        data: &serde_json::Map<String, serde_json::Value>,
         schema: &Option<String>,
     ) -> A2aMcpResult<String> {
-        let mut result = HashMap::new();
+        let mut result = serde_json::Map::new();
         result.insert("status".to_string(), serde_json::Value::String("processed".to_string()));
         result.insert(
             "original_keys".to_string(),
@@ -667,7 +676,7 @@ impl MessageHandler for StreamHandler {
 }
 
 /// Handler factory for creating and managing handlers
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct HandlerFactory {
     handlers: HashMap<String, Arc<dyn MessageHandler>>,
 }
@@ -746,7 +755,6 @@ impl HandlerFactory {
 }
 
 /// Message router for routing messages to appropriate handlers
-#[derive(Debug)]
 pub struct MessageRouter {
     factory: HandlerFactory,
     default_handler: Option<Arc<dyn MessageHandler>>,
@@ -889,7 +897,7 @@ impl BatchProcessor {
             async move {
                 let _permit = semaphore.acquire().await.unwrap();
                 let message_id = message.message_id.clone();
-                let handler_name = message.envelope.message_type;
+                let handler_name = message.envelope.message_type.clone();
 
                 match router.route(message).await {
                     Ok(_) => IndividualResult {

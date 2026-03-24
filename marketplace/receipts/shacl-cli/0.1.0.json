@@ -1,0 +1,55 @@
+{
+  "package_id": "shacl-cli",
+  "version": "0.1.0",
+  "validated_at": "2026-03-24T06:27:54.033979+00:00",
+  "ggen_version": "3.0.0",
+  "guard_results": [
+    {
+      "guard_name": "Metadata Guard",
+      "guard_type": "metadata",
+      "passed": false,
+      "message": "Missing metadata: id=false, version=true, description=true",
+      "weight": 10,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "License Guard",
+      "guard_type": "license",
+      "passed": true,
+      "message": "License file found",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "README Guard",
+      "guard_type": "readme",
+      "passed": true,
+      "message": "README.md found (23836 chars, minimum 500 required)",
+      "weight": 7,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Tests Guard",
+      "guard_type": "tests",
+      "passed": true,
+      "message": "Test files found",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Chicago Compliance Guard",
+      "guard_type": "chicago_compliance",
+      "passed": true,
+      "message": "✅ No forbidden patterns found, test suite present",
+      "weight": 15,
+      "severity": "Critical"
+    }
+  ],
+  "overall_score": 79.16666666666666,
+  "production_ready": false,
+  "checksum": "cca7f897e3229dccf1ebfa83411925596f8f5e8482ea9cd2c615d1f8edeebbee",
+  "critical_passed": 4,
+  "critical_total": 5,
+  "bonus_passed": 0,
+  "bonus_total": 0
+}

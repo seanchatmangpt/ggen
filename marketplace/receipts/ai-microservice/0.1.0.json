@@ -1,0 +1,55 @@
+{
+  "package_id": "ai-microservice",
+  "version": "0.1.0",
+  "validated_at": "2026-03-24T06:27:54.039543+00:00",
+  "ggen_version": "3.0.0",
+  "guard_results": [
+    {
+      "guard_name": "Metadata Guard",
+      "guard_type": "metadata",
+      "passed": false,
+      "message": "Missing metadata: id=false, version=true, description=true",
+      "weight": 10,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "License Guard",
+      "guard_type": "license",
+      "passed": false,
+      "message": "No LICENSE file found (LICENSE, LICENSE-MIT, or LICENSE-APACHE required)",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "README Guard",
+      "guard_type": "readme",
+      "passed": true,
+      "message": "README.md found (4024 chars, minimum 500 required)",
+      "weight": 7,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Tests Guard",
+      "guard_type": "tests",
+      "passed": false,
+      "message": "No test directory or test files found",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Chicago Compliance Guard",
+      "guard_type": "chicago_compliance",
+      "passed": false,
+      "message": "❌ Forbidden patterns found:\n  - Unwrap without fallback: unwrap() in /Users/sac/ggen/marketplace/packages/ai-microservice/src/main.rs",
+      "weight": 15,
+      "severity": "Critical"
+    }
+  ],
+  "overall_score": 14.583333333333334,
+  "production_ready": false,
+  "checksum": "e5dfc8a0b6ee8f5392947d1ded30e56b07581a3ac5b733d10e86b6066ac1185d",
+  "critical_passed": 1,
+  "critical_total": 5,
+  "bonus_passed": 0,
+  "bonus_total": 0
+}

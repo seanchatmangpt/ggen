@@ -1,0 +1,55 @@
+{
+  "package_id": "crm-customer-management",
+  "version": "1.0.0",
+  "validated_at": "2026-03-24T06:27:54.059488+00:00",
+  "ggen_version": "3.0.0",
+  "guard_results": [
+    {
+      "guard_name": "Metadata Guard",
+      "guard_type": "metadata",
+      "passed": false,
+      "message": "Missing metadata: id=false, version=true, description=true",
+      "weight": 10,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "License Guard",
+      "guard_type": "license",
+      "passed": false,
+      "message": "No LICENSE file found (LICENSE, LICENSE-MIT, or LICENSE-APACHE required)",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "README Guard",
+      "guard_type": "readme",
+      "passed": false,
+      "message": "README.md not found",
+      "weight": 7,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Tests Guard",
+      "guard_type": "tests",
+      "passed": false,
+      "message": "No test directory or test files found",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Chicago Compliance Guard",
+      "guard_type": "chicago_compliance",
+      "passed": true,
+      "message": "No src/ directory found (not applicable to non-Rust packages)",
+      "weight": 15,
+      "severity": "Critical"
+    }
+  ],
+  "overall_score": 31.25,
+  "production_ready": false,
+  "checksum": "100b192827ec2c30fafed9f0d13ff8c17da4233e22c7f6cd3c06fad6508330d1",
+  "critical_passed": 1,
+  "critical_total": 5,
+  "bonus_passed": 0,
+  "bonus_total": 0
+}

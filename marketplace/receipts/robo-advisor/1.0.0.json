@@ -1,0 +1,55 @@
+{
+  "package_id": "robo-advisor",
+  "version": "1.0.0",
+  "validated_at": "2026-03-24T06:27:54.056907+00:00",
+  "ggen_version": "3.0.0",
+  "guard_results": [
+    {
+      "guard_name": "Metadata Guard",
+      "guard_type": "metadata",
+      "passed": false,
+      "message": "Missing metadata: id=false, version=true, description=true",
+      "weight": 10,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "License Guard",
+      "guard_type": "license",
+      "passed": false,
+      "message": "No LICENSE file found (LICENSE, LICENSE-MIT, or LICENSE-APACHE required)",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "README Guard",
+      "guard_type": "readme",
+      "passed": false,
+      "message": "README.md not found",
+      "weight": 7,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Tests Guard",
+      "guard_type": "tests",
+      "passed": false,
+      "message": "No test directory or test files found",
+      "weight": 8,
+      "severity": "Critical"
+    },
+    {
+      "guard_name": "Chicago Compliance Guard",
+      "guard_type": "chicago_compliance",
+      "passed": false,
+      "message": "⚠️ No forbidden patterns, but test suite may be minimal",
+      "weight": 15,
+      "severity": "Critical"
+    }
+  ],
+  "overall_score": 0.0,
+  "production_ready": false,
+  "checksum": "8f0a0dc47bd159a0c1dc6f64fdb6f9a606cac7ddb685e471dd8c1c355f88d01e",
+  "critical_passed": 0,
+  "critical_total": 5,
+  "bonus_passed": 0,
+  "bonus_total": 0
+}

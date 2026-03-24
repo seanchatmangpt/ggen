@@ -105,7 +105,7 @@ impl YawlEventPublisher {
             },
             payload: ConvergedPayload {
                 content: UnifiedContent::Data {
-                    data,
+                    data: data.into_iter().map(|(k, v)| (k, serde_json::Value::from(v))).collect(),
                     schema: Some("YawlTaskEvent".to_string()),
                 },
                 context: None,
@@ -123,7 +123,6 @@ impl YawlEventPublisher {
             },
             lifecycle: MessageLifecycle {
                 state: MessageState::Created,
-                status: None,
                 history: Vec::new(),
                 timeout: None,
             },
@@ -167,7 +166,7 @@ impl YawlEventPublisher {
             },
             payload: ConvergedPayload {
                 content: UnifiedContent::Data {
-                    data,
+                    data: data.into_iter().map(|(k, v)| (k, serde_json::Value::from(v))).collect(),
                     schema: Some("YawlWorkflowEvent".to_string()),
                 },
                 context: None,
@@ -185,7 +184,6 @@ impl YawlEventPublisher {
             },
             lifecycle: MessageLifecycle {
                 state: MessageState::Created,
-                status: None,
                 history: Vec::new(),
                 timeout: None,
             },
@@ -229,7 +227,7 @@ impl YawlEventPublisher {
             },
             payload: ConvergedPayload {
                 content: UnifiedContent::Data {
-                    data,
+                    data: data.into_iter().map(|(k, v)| (k, serde_json::Value::from(v))).collect(),
                     schema: Some("YawlGatewayEvent".to_string()),
                 },
                 context: None,
@@ -247,7 +245,6 @@ impl YawlEventPublisher {
             },
             lifecycle: MessageLifecycle {
                 state: MessageState::Created,
-                status: None,
                 history: Vec::new(),
                 timeout: None,
             },

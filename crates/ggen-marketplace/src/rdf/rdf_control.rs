@@ -10,7 +10,7 @@
 //!
 //! This is the single entry point for all RDF operations in the marketplace.
 
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use tracing::{info, warn};
 
@@ -38,8 +38,7 @@ pub struct RdfControlPlane {
     constraints: Vec<ValidationConstraint>,
 
     /// Query cache for performance
-    /// **FMEA Fix**: Use BTreeMap for deterministic iteration order
-    query_cache: Arc<RwLock<BTreeMap<String, Vec<PackageSearchResult>>>>,
+    query_cache: Arc<RwLock<HashMap<String, Vec<PackageSearchResult>>>>,
 }
 
 impl RdfControlPlane {
@@ -56,7 +55,7 @@ impl RdfControlPlane {
         // Initialize components
         let graph = Arc::new(RwLock::new(RdfGraph::new()));
         let fmea_manager = Arc::new(RwLock::new(FmeaMitigationManager::new()));
-        let query_cache = Arc::new(RwLock::new(BTreeMap::new()));
+        let query_cache = Arc::new(RwLock::new(HashMap::new()));
 
         // Load validation rules
         let validation_rules = config_loader
@@ -233,7 +232,7 @@ impl RdfControlPlane {
     /// Get FMEA metrics
     pub fn get_fmea_metrics(
         &self,
-    ) -> BTreeMap<&'static str, super::fmea_mitigations::FailureMetrics> {
+    ) -> HashMap<&'static str, super::fmea_mitigations::FailureMetrics> {
         self.fmea_manager
             .read()
             .unwrap()

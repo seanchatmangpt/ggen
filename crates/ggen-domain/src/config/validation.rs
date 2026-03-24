@@ -73,15 +73,11 @@ impl ConfigValidator {
         warnings: &mut Vec<ValidationWarning>,
     ) {
         if config.project.name.is_empty() {
-            errors.push(ValidationError::MissingRequiredField {
-                field: "project.name".to_string(),
-            });
+            errors.push(ValidationError::missing_required_field("project.name"));
         }
 
         if config.project.version.is_empty() {
-            errors.push(ValidationError::MissingRequiredField {
-                field: "project.version".to_string(),
-            });
+            errors.push(ValidationError::missing_required_field("project.version"));
         } else {
             // Validate semver format
             if !self.is_valid_semver(&config.project.version) {
@@ -93,9 +89,7 @@ impl ConfigValidator {
         }
 
         if config.project.license.is_empty() {
-            errors.push(ValidationError::MissingRequiredField {
-                field: "project.license".to_string(),
-            });
+            errors.push(ValidationError::missing_required_field("project.license"));
         } else if !self.allowed_licenses.contains(&config.project.license) {
             warnings.push(ValidationWarning {
                 field: Some("project.license".to_string()),
@@ -129,9 +123,7 @@ impl ConfigValidator {
         warnings: &mut Vec<ValidationWarning>,
     ) {
         if config.ai.model.is_empty() {
-            errors.push(ValidationError::MissingRequiredField {
-                field: "ai.model".to_string(),
-            });
+            errors.push(ValidationError::missing_required_field("ai.model"));
         }
 
         if !self.allowed_ai_providers.contains(&config.ai.provider) {
@@ -146,13 +138,13 @@ impl ConfigValidator {
         }
 
         if config.ai.temperature < 0.0 || config.ai.temperature > 2.0 {
-            errors.push(ValidationError::InvalidValue {
-                field: "ai.temperature".to_string(),
-                message: format!(
+            errors.push(ValidationError::invalid_value(
+                "ai.temperature",
+                format!(
                     "Temperature must be between 0.0 and 2.0, got {}",
                     config.ai.temperature
                 ),
-            });
+            ));
         }
 
         if config.ai.max_tokens == 0 {
@@ -164,10 +156,10 @@ impl ConfigValidator {
 
         if let Some(ref base_url) = config.ai.base_url {
             if !base_url.starts_with("http://") && !base_url.starts_with("https://") {
-                errors.push(ValidationError::InvalidValue {
-                    field: "ai.base_url".to_string(),
-                    message: "Must start with http:// or https://".to_string(),
-                });
+                errors.push(ValidationError::invalid_value(
+                    "ai.base_url",
+                    "Must start with http:// or https://",
+                ));
             }
         }
     }
@@ -179,20 +171,20 @@ impl ConfigValidator {
         warnings: &mut Vec<ValidationWarning>,
     ) {
         if !config.zai.base_url.starts_with("http://") && !config.zai.base_url.starts_with("https://") {
-            errors.push(ValidationError::InvalidValue {
-                field: "zai.base_url".to_string(),
-                message: "Must start with http:// or https://".to_string(),
-            });
+            errors.push(ValidationError::invalid_value(
+                "zai.base_url",
+                "Must start with http:// or https://",
+            ));
         }
 
         if config.zai.temperature < 0.0 || config.zai.temperature > 2.0 {
-            errors.push(ValidationError::InvalidValue {
-                field: "zai.temperature".to_string(),
-                message: format!(
+            errors.push(ValidationError::invalid_value(
+                "zai.temperature",
+                format!(
                     "Temperature must be between 0.0 and 2.0, got {}",
                     config.zai.temperature
                 ),
-            });
+            ));
         }
 
         if config.zai.timeout == 0 {
@@ -217,14 +209,14 @@ impl ConfigValidator {
         warnings: &mut Vec<ValidationWarning>,
     ) {
         if !self.allowed_log_levels.contains(&config.logging.level) {
-            errors.push(ValidationError::InvalidValue {
-                field: "logging.level".to_string(),
-                message: format!(
+            errors.push(ValidationError::invalid_value(
+                "logging.level",
+                format!(
                     "Invalid log level '{}'. Must be one of: {}",
                     config.logging.level,
                     self.allowed_log_levels.join(", ")
                 ),
-            });
+            ));
         }
 
         let allowed_formats = ["pretty", "json", "compact"];
@@ -259,9 +251,7 @@ impl ConfigValidator {
         warnings: &mut Vec<ValidationWarning>,
     ) {
         if config.ontology.source.is_empty() {
-            errors.push(ValidationError::MissingRequiredField {
-                field: "ontology.source".to_string(),
-            });
+            errors.push(ValidationError::missing_required_field("ontology.source"));
         }
 
         if !self.allowed_ontology_formats.contains(&config.ontology.format) {
@@ -275,7 +265,7 @@ impl ConfigValidator {
             });
         }
 
-        if !config.ontology.base_url.ends_with('/') && !config.ontology.base_url.ends_with('#') {
+        if !config.ontology.base_uri.ends_with('/') && !config.ontology.base_uri.ends_with('#') {
             warnings.push(ValidationWarning {
                 field: Some("ontology.base_uri".to_string()),
                 message: "base_uri should end with '/' or '#'".to_string(),
@@ -290,17 +280,17 @@ impl ConfigValidator {
         _warnings: &mut Vec<ValidationWarning>,
     ) {
         if config.sparql.timeout == 0 {
-            errors.push(ValidationError::InvalidValue {
-                field: "sparql.timeout".to_string(),
-                message: "SPARQL timeout must be greater than 0".to_string(),
-            });
+            errors.push(ValidationError::invalid_value(
+                "sparql.timeout",
+                "SPARQL timeout must be greater than 0",
+            ));
         }
 
         if config.sparql.max_results == 0 {
-            errors.push(ValidationError::InvalidValue {
-                field: "sparql.max_results".to_string(),
-                message: "SPARQL max_results must be greater than 0".to_string(),
-            });
+            errors.push(ValidationError::invalid_value(
+                "sparql.max_results",
+                "SPARQL max_results must be greater than 0",
+            ));
         }
     }
 
@@ -311,10 +301,10 @@ impl ConfigValidator {
         warnings: &mut Vec<ValidationWarning>,
     ) {
         if config.performance.max_workers == 0 {
-            errors.push(ValidationError::InvalidValue {
-                field: "performance.max_workers".to_string(),
-                message: "max_workers must be greater than 0".to_string(),
-            });
+            errors.push(ValidationError::invalid_value(
+                "performance.max_workers",
+                "max_workers must be greater than 0",
+            ));
         }
 
         if config.performance.max_workers > 256 {
@@ -332,13 +322,13 @@ impl ConfigValidator {
         &self,
         config: &GgenConfig,
         errors: &mut Vec<ValidationError>,
-        _warnings: &mut Vec<ValidationWarning>,
+        warnings: &mut Vec<ValidationWarning>,
     ) {
         if config.a2a.server.port == 0 {
-            errors.push(ValidationError::InvalidValue {
-                field: "a2a.server.port".to_string(),
-                message: "A2A port cannot be 0".to_string(),
-            });
+            errors.push(ValidationError::invalid_value(
+                "a2a.server.port",
+                "A2A port cannot be 0",
+            ));
         }
 
         if config.a2a.server.port < 1024 {

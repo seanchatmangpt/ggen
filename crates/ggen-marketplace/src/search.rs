@@ -42,6 +42,7 @@ pub struct SearchQuery {
 
 impl SearchQuery {
     /// Create a new search query
+    #[must_use]
     pub fn new(text: impl Into<String>) -> Self {
         Self {
             text: text.into(),
@@ -56,42 +57,49 @@ impl SearchQuery {
     }
 
     /// Add category filter
+    #[must_use]
     pub fn with_category(mut self, category: impl Into<String>) -> Self {
         self.category_filter = Some(category.into());
         self
     }
 
     /// Add quality filter
+    #[must_use]
     pub fn with_min_quality(mut self, score: QualityScore) -> Self {
         self.min_quality_score = Some(score);
         self
     }
 
     /// Add author filter
+    #[must_use]
     pub fn with_author(mut self, author: impl Into<String>) -> Self {
         self.author_filter = Some(author.into());
         self
     }
 
     /// Add license filter
+    #[must_use]
     pub fn with_license(mut self, license: impl Into<String>) -> Self {
         self.license_filter = Some(license.into());
         self
     }
 
     /// Set sort order
+    #[must_use]
     pub fn with_sort(mut self, sort: SortBy) -> Self {
         self.sort_by = sort;
         self
     }
 
     /// Set result limit
+    #[must_use]
     pub fn with_limit(mut self, limit: usize) -> Self {
         self.limit = limit;
         self
     }
 
     /// Set pagination offset
+    #[must_use]
     pub fn with_offset(mut self, offset: usize) -> Self {
         self.offset = offset;
         self
@@ -120,6 +128,7 @@ pub struct SearchEngine {
 
 impl SearchEngine {
     /// Create a new search engine
+    #[must_use]
     pub fn new() -> Self {
         Self {
             ranker: Arc::new(Box::new(DefaultRanker)),
@@ -127,11 +136,18 @@ impl SearchEngine {
     }
 
     /// Create search engine with custom ranker
+    #[must_use]
     pub fn with_ranker(ranker: Arc<Box<dyn Ranker + Send + Sync>>) -> Self {
         Self { ranker }
     }
 
     /// Execute a search on a list of packages
+    ///
+    /// # Errors
+    ///
+    /// This function currently always returns `Ok`. Future implementations may return:
+    /// * [`Error::SearchError`] - When search query parsing fails
+    #[must_use]
     pub fn search(&self, packages: Vec<Package>, query: &SearchQuery) -> Result<Vec<SearchResult>> {
         let text_lower = query.text.to_lowercase();
 
