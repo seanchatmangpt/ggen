@@ -167,6 +167,7 @@ impl IncrementalResult {
 }
 
 /// Incremental code generator with SHA256-based JIT
+#[derive(Default)]
 pub struct IncrementalGenerator {
     /// In-memory cache of file states
     cache: IncrementalCache,
@@ -300,15 +301,6 @@ impl IncrementalGenerator {
     /// Get reference to cache (read-only)
     pub fn get_cache(&self) -> &IncrementalCache {
         &self.cache
-    }
-}
-
-impl Default for IncrementalGenerator {
-    fn default() -> Self {
-        Self {
-            cache: IncrementalCache::default(),
-            config: IncrementalConfig::default(),
-        }
     }
 }
 

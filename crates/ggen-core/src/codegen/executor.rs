@@ -38,18 +38,13 @@ use std::time::Instant;
 // ============================================================================
 
 /// Output format for sync results
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Default)]
 pub enum OutputFormat {
     /// Human-readable text output
+    #[default]
     Text,
     /// JSON output
     Json,
-}
-
-impl Default for OutputFormat {
-    fn default() -> Self {
-        Self::Text
-    }
 }
 
 /// Options for sync execution
