@@ -371,6 +371,7 @@ impl RdfControlPlane {
     /// # Errors
     ///
     /// * [`Error::NotImplemented`] - This feature is not yet implemented
+    #[allow(clippy::unused_self)]
     fn get_published_package(&self, _package_id: &PackageId) -> Result<Package> {
         // This is a simplified version - in production would fully reconstruct from RDF
         Err(Error::NotImplemented {
@@ -470,11 +471,13 @@ impl RdfControlPlane {
     }
 
     /// Get the SPARQL executor (for direct queries if needed)
+    #[must_use]
     pub fn executor(&self) -> &SparqlExecutor {
         &self.executor
     }
 
     /// Get the state machine executor
+    #[must_use]
     pub fn state_machine(&self) -> &StateMachineExecutor {
         &self.state_machine
     }
