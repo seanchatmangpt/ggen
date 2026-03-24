@@ -286,9 +286,7 @@ impl FmeaMitigationManager {
         } else {
             self.record_failure(FmeaFailureModes::ORPHANED_RESOURCE.id);
             MitigationResult::ManualInterventionRequired {
-                details: format!(
-                    "Resource {resource_id} has some references but is incomplete",
-                ),
+                details: format!("Resource {resource_id} has some references but is incomplete",),
             }
         }
     }
@@ -302,12 +300,10 @@ impl FmeaMitigationManager {
 
         // Cannot auto-fix circular dependencies - requires user decision
         self.record_failure(FmeaFailureModes::CIRCULAR_DEPENDENCY.id);
-        let first = cycle_path.first().map(|s| s.as_str()).unwrap_or("unknown");
-        let last = cycle_path.last().map(|s| s.as_str()).unwrap_or("unknown");
+        let first = cycle_path.first().map_or("unknown", |s| s.as_str());
+        let last = cycle_path.last().map_or("unknown", |s| s.as_str());
         MitigationResult::ManualInterventionRequired {
-            details: format!(
-                "Circular dependency chain: {first} -> ... -> {last}",
-            ),
+            details: format!("Circular dependency chain: {first} -> ... -> {last}",),
         }
     }
 
@@ -326,9 +322,7 @@ impl FmeaMitigationManager {
         // Block the query
         self.record_success(FmeaFailureModes::SPARQL_INJECTION.id, start.elapsed());
         MitigationResult::Success {
-            action_taken: format!(
-                "Blocked query with suspicious pattern: {suspicious_pattern}",
-            ),
+            action_taken: format!("Blocked query with suspicious pattern: {suspicious_pattern}",),
         }
     }
 
