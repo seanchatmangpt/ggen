@@ -240,6 +240,12 @@ impl TripleBuilder<typestate::HasPredicate> {
 }
 
 impl TripleBuilder<typestate::Complete> {
+    /// Build the triple
+    ///
+    /// # Panics
+    ///
+    /// Panics if subject, predicate, or object are not set (should never happen due to typestate)
+    #[must_use]
     pub fn build(self) -> Triple {
         Triple {
             subject: self.subject.unwrap(),
@@ -267,7 +273,14 @@ pub struct SparqlQuery<State> {
     _state: PhantomData<State>,
 }
 
+impl Default for SparqlQuery<typestate::Building> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SparqlQuery<typestate::Building> {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             prefixes: Vec::new(),
