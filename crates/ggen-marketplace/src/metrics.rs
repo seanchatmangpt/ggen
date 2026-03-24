@@ -47,6 +47,7 @@ pub struct EventMetric {
 
 impl MetricsCollector {
     /// Create a new metrics collector
+    #[must_use]
     pub fn new() -> Self {
         Self {
             searches: Arc::new(AtomicU64::new(0)),
