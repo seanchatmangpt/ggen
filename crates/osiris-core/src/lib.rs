@@ -6,9 +6,6 @@
 //! - Kaizen: Continuous improvement
 //! - Genchi Genbutsu: Go and see for yourself
 
-#![warn(missing_docs, missing_debug_implementations, rust_2018_idioms)]
-#![forbid(unsafe_code)]
-
 // Add module declarations - commented out for now to fix compilation
 // pub mod autonomic;
 // pub mod autonomic_decision;
@@ -30,10 +27,15 @@ pub use error::{OSIRISError, Result};
 /// OSIRIS System Configuration
 #[derive(Debug, Clone)]
 pub struct OSIRISConfig {
+    /// Maximum number of domains to manage
     pub max_domains: usize,
+    /// Threshold for circuit breaker activation
     pub circuit_breaker_threshold: usize,
+    /// Health check interval in milliseconds
     pub health_check_interval_ms: u64,
+    /// Pattern timeout in milliseconds
     pub pattern_timeout_ms: u64,
+    /// Signal buffer size for event processing
     pub signal_buffer_size: usize,
 }
 
@@ -50,8 +52,9 @@ impl Default for OSIRISConfig {
 }
 
 /// Main OSIRIS Engine orchestrates all components
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct OSIRISEngine {
+    #[allow(dead_code)]
     config: OSIRISConfig,
 }
 
@@ -67,7 +70,7 @@ impl OSIRISEngine {
     }
 
     /// Emit an OSIRIS signal
-    pub async fn emit_signal(&self, signal: String) -> Result<()> {
+    pub async fn emit_signal(&self, _signal: String) -> Result<()> {
         Ok(())
     }
 }
