@@ -187,6 +187,7 @@ pub struct TripleBuilder<State> {
 }
 
 impl TripleBuilder<typestate::NoSubject> {
+    #[must_use]
     pub fn subject(self, subject: ResourceId) -> TripleBuilder<typestate::HasSubject> {
         TripleBuilder {
             subject: Some(subject),
@@ -198,6 +199,7 @@ impl TripleBuilder<typestate::NoSubject> {
 }
 
 impl TripleBuilder<typestate::HasSubject> {
+    #[must_use]
     pub fn predicate(self, predicate: ResourceId) -> TripleBuilder<typestate::HasPredicate> {
         TripleBuilder {
             subject: self.subject,
@@ -207,6 +209,7 @@ impl TripleBuilder<typestate::HasSubject> {
         }
     }
 
+    #[must_use]
     pub fn predicate_from_property(
         self, property: Property,
     ) -> TripleBuilder<typestate::HasPredicate> {
@@ -215,6 +218,7 @@ impl TripleBuilder<typestate::HasSubject> {
 }
 
 impl TripleBuilder<typestate::HasPredicate> {
+    #[must_use]
     pub fn object_resource(self, object: ResourceId) -> TripleBuilder<typestate::Complete> {
         TripleBuilder {
             subject: self.subject,
@@ -224,6 +228,7 @@ impl TripleBuilder<typestate::HasPredicate> {
         }
     }
 
+    #[must_use]
     pub fn object_literal(self, object: Literal) -> TripleBuilder<typestate::Complete> {
         TripleBuilder {
             subject: self.subject,
