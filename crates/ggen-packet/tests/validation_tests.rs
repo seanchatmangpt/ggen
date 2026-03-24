@@ -1,7 +1,7 @@
 //! Validation tests for ggen-packet crate
 
-use ggen_packet::*;
 use ggen_packet::router::RoutingStrategy;
+use ggen_packet::*;
 use std::collections::HashSet;
 
 #[test]
@@ -35,12 +35,9 @@ fn test_accept_valid_packet_at_boundary() {
 
 #[test]
 fn test_constraint_validation() {
-    let wo = WorkOrder::new(
-        String::from("Task"),
-        String::from("owner"),
-    )
-    .ok()
-    .unwrap();
+    let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+        .ok()
+        .unwrap();
 
     // Valid constraint
     let constraint = Constraint {
@@ -61,12 +58,9 @@ fn test_constraint_validation() {
 
 #[test]
 fn test_reversibility_validation() {
-    let wo = WorkOrder::new(
-        String::from("Task"),
-        String::from("owner"),
-    )
-    .ok()
-    .unwrap();
+    let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+        .ok()
+        .unwrap();
 
     // Valid reversibility policy
     let policy = ReversibilityPolicy {
@@ -101,23 +95,18 @@ fn test_acceptance_test_validation() {
     // Valid acceptance test
     let test = AcceptanceTest {
         description: String::from("Integration test suite"),
-        criteria: vec![
-            AcceptanceCriterion {
-                criterion: String::from("All tests pass"),
-                required: true,
-                measurable: true,
-            },
-        ],
+        criteria: vec![AcceptanceCriterion {
+            criterion: String::from("All tests pass"),
+            required: true,
+            measurable: true,
+        }],
         test_type: TestType::Automated,
     };
 
-    let wo = WorkOrder::new(
-        String::from("Task"),
-        String::from("owner"),
-    )
-    .ok()
-    .unwrap()
-    .with_acceptance_test(test);
+    let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+        .ok()
+        .unwrap()
+        .with_acceptance_test(test);
     assert!(wo.is_ok());
 
     // Invalid: no criteria - should fail when creating work order
@@ -127,46 +116,35 @@ fn test_acceptance_test_validation() {
         test_type: TestType::Manual,
     };
 
-    let wo = WorkOrder::new(
-        String::from("Task"),
-        String::from("owner"),
-    )
-    .ok()
-    .unwrap()
-    .with_acceptance_test(test);
+    let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+        .ok()
+        .unwrap()
+        .with_acceptance_test(test);
     assert!(wo.is_err());
 
     // Invalid: no required criteria
     let test = AcceptanceTest {
         description: String::from("Test"),
-        criteria: vec![
-            AcceptanceCriterion {
-                criterion: String::from("Optional check"),
-                required: false,
-                measurable: true,
-            },
-        ],
+        criteria: vec![AcceptanceCriterion {
+            criterion: String::from("Optional check"),
+            required: false,
+            measurable: true,
+        }],
         test_type: TestType::Manual,
     };
 
-    let wo = WorkOrder::new(
-        String::from("Task"),
-        String::from("owner"),
-    )
-    .ok()
-    .unwrap()
-    .with_acceptance_test(test);
+    let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+        .ok()
+        .unwrap()
+        .with_acceptance_test(test);
     assert!(wo.is_err());
 }
 
 #[test]
 fn test_dependency_validation() {
-    let wo = WorkOrder::new(
-        String::from("Task"),
-        String::from("owner"),
-    )
-    .ok()
-    .unwrap();
+    let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+        .ok()
+        .unwrap();
 
     // Valid dependencies
     let deps = vec![String::from("dep1"), String::from("dep2")];
@@ -220,25 +198,19 @@ fn test_priority_based_routing() {
         .with_mapping(Priority::Critical, "critical-channel".into())
         .with_mapping(Priority::High, "high-channel".into());
 
-    let wo_critical = WorkOrder::new(
-        String::from("Critical task"),
-        String::from("owner"),
-    )
-    .ok()
-    .unwrap()
-    .with_priority(Priority::Critical)
-    .ok()
-    .unwrap();
+    let wo_critical = WorkOrder::new(String::from("Critical task"), String::from("owner"))
+        .ok()
+        .unwrap()
+        .with_priority(Priority::Critical)
+        .ok()
+        .unwrap();
 
     let channel = router.route(&wo_critical).ok().unwrap();
     assert_eq!(channel.as_str(), "critical-channel");
 
-    let wo_normal = WorkOrder::new(
-        String::from("Normal task"),
-        String::from("owner"),
-    )
-    .ok()
-    .unwrap();
+    let wo_normal = WorkOrder::new(String::from("Normal task"), String::from("owner"))
+        .ok()
+        .unwrap();
 
     let channel = router.route(&wo_normal).ok().unwrap();
     assert_eq!(channel.as_str(), "default");
@@ -254,15 +226,12 @@ fn test_tag_based_routing() {
     tags.insert(String::from("backend"));
     tags.insert(String::from("api"));
 
-    let wo = WorkOrder::new(
-        String::from("Task"),
-        String::from("owner"),
-    )
-    .ok()
-    .unwrap()
-    .with_tags(tags)
-    .ok()
-    .unwrap();
+    let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+        .ok()
+        .unwrap()
+        .with_tags(tags)
+        .ok()
+        .unwrap();
 
     let channel = router.route(&wo).ok().unwrap();
     assert_eq!(channel.as_str(), "backend-channel");
@@ -270,15 +239,12 @@ fn test_tag_based_routing() {
 
 #[test]
 fn test_parser_json_roundtrip() {
-    let original = WorkOrder::new(
-        String::from("Test task"),
-        String::from("test@example.com"),
-    )
-    .ok()
-    .unwrap()
-    .with_priority(Priority::High)
-    .ok()
-    .unwrap();
+    let original = WorkOrder::new(String::from("Test task"), String::from("test@example.com"))
+        .ok()
+        .unwrap()
+        .with_priority(Priority::High)
+        .ok()
+        .unwrap();
 
     // Serialize to JSON
     let json = serde_json::to_string(&original).ok().unwrap();

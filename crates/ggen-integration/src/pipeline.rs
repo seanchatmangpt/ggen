@@ -62,14 +62,9 @@ impl Pipeline {
 
         let receipt_chain = if config.enable_receipts {
             // Create genesis receipt
-            let genesis = Receipt::new(
-                "pipeline-genesis".to_string(),
-                vec![],
-                vec![],
-                None,
-            )
-            .sign(&signing_key)
-            .map_err(|e| PipelineError::Receipt(e.to_string()))?;
+            let genesis = Receipt::new("pipeline-genesis".to_string(), vec![], vec![], None)
+                .sign(&signing_key)
+                .map_err(|e| PipelineError::Receipt(e.to_string()))?;
 
             Some(
                 ReceiptChain::from_genesis(genesis)
@@ -115,7 +110,9 @@ impl Pipeline {
 
         let request_id = match &admission {
             AdmissionResponse::Admitted { request_id, .. } => *request_id,
-            AdmissionResponse::Refused { request_id, reason, .. } => {
+            AdmissionResponse::Refused {
+                request_id, reason, ..
+            } => {
                 return Ok(PipelineResult::Refused {
                     request_id: *request_id,
                     reason: reason.clone(),
@@ -195,26 +192,19 @@ impl Pipeline {
 
     /// Generate cryptographic receipt
     fn generate_receipt(
-        &mut self,
-        work_order: &WorkOrder,
-        task: &Task,
-        _signal: AndonSignal,
+        &mut self, work_order: &WorkOrder, task: &Task, _signal: AndonSignal,
     ) -> Result<Option<Receipt>> {
         let operation = format!("process-work-order-{}", work_order.id);
 
-        let input_hashes = vec![
-            ggen_receipt::hash_data(work_order.id.to_string().as_bytes()),
-        ];
+        let input_hashes = vec![ggen_receipt::hash_data(
+            work_order.id.to_string().as_bytes(),
+        )];
 
-        let output_hashes = vec![
-            ggen_receipt::hash_data(task.id.to_string().as_bytes()),
-        ];
+        let output_hashes = vec![ggen_receipt::hash_data(task.id.to_string().as_bytes())];
 
         // Get previous receipt hash from chain
         let previous_hash = if let Some(chain) = &self.receipt_chain {
-            chain
-                .last()
-                .and_then(|r| r.hash().ok())
+            chain.last().and_then(|r| r.hash().ok())
         } else {
             None
         };
@@ -350,15 +340,13 @@ mod tests {
         let config = PipelineConfig::default();
         let mut pipeline = Pipeline::new(config).await.ok().unwrap();
 
-        let work_order = WorkOrder::new(
-            "Test objective".to_string(),
-            "test@example.com".to_string(),
-        )
-        .ok()
-        .unwrap()
-        .with_priority(Priority::Normal)
-        .ok()
-        .unwrap();
+        let work_order =
+            WorkOrder::new("Test objective".to_string(), "test@example.com".to_string())
+                .ok()
+                .unwrap()
+                .with_priority(Priority::Normal)
+                .ok()
+                .unwrap();
 
         let payload = serde_json::to_vec(&work_order).ok().unwrap();
         let request = IngressRequest::new(IngressChannel::Batch, payload);

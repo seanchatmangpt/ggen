@@ -1,7 +1,10 @@
 //! Cancellation and Force Completion Patterns (19-25)
 
+use crate::{
+    ActivityId, ActivityState, ExecutionResult, Result, WorkflowEngine, WorkflowError,
+    WorkflowPattern,
+};
 use async_trait::async_trait;
-use crate::{ActivityId, Result, WorkflowEngine, WorkflowError, WorkflowPattern, ExecutionResult, ActivityState};
 
 /// Pattern 19: Cancel Activity
 /// An enabled activity is disabled (cancelled)
@@ -32,25 +35,37 @@ impl WorkflowPattern for CancelActivityPattern {
 
     async fn execute(&self, engine: &mut WorkflowEngine) -> Result<()> {
         // Check if activity can be cancelled
-        let can_cancel = engine.activities.get(&self.target_activity)
+        let can_cancel = engine
+            .activities
+            .get(&self.target_activity)
             .map(|a| a.can_cancel())
             .unwrap_or(false);
 
         if !can_cancel {
-            return Err(WorkflowError::CancellationError("Activity cannot be cancelled".to_string()));
+            return Err(WorkflowError::CancellationError(
+                "Activity cannot be cancelled".to_string(),
+            ));
         }
 
         // Remove activity temporarily
-        let activity = engine.activities.remove(&self.target_activity)
+        let activity = engine
+            .activities
+            .remove(&self.target_activity)
             .ok_or_else(|| WorkflowError::ActivityNotFound(self.target_activity.0.clone()))?;
 
         let context = engine.get_context_mut(&self.target_activity)?;
         activity.cancel(context).await?;
 
         // Put activity back
-        engine.activities.insert(self.target_activity.clone(), activity);
+        engine
+            .activities
+            .insert(self.target_activity.clone(), activity);
 
-        engine.record_execution(self, vec![self.target_activity.clone()], ExecutionResult::Success);
+        engine.record_execution(
+            self,
+            vec![self.target_activity.clone()],
+            ExecutionResult::Success,
+        );
         Ok(())
     }
 }
@@ -149,7 +164,11 @@ impl WorkflowPattern for CancelRegionPattern {
             }
         }
 
-        engine.record_execution(self, self.region_activities.clone(), ExecutionResult::Success);
+        engine.record_execution(
+            self,
+            self.region_activities.clone(),
+            ExecutionResult::Success,
+        );
         Ok(())
     }
 }
@@ -163,7 +182,9 @@ pub struct CancelMultipleInstanceActivityPattern {
 impl CancelMultipleInstanceActivityPattern {
     /// Create a new cancel multiple instance activity pattern
     pub fn new(instance_activities: Vec<ActivityId>) -> Self {
-        Self { instance_activities }
+        Self {
+            instance_activities,
+        }
     }
 }
 
@@ -198,7 +219,11 @@ impl WorkflowPattern for CancelMultipleInstanceActivityPattern {
             }
         }
 
-        engine.record_execution(self, self.instance_activities.clone(), ExecutionResult::Success);
+        engine.record_execution(
+            self,
+            self.instance_activities.clone(),
+            ExecutionResult::Success,
+        );
         Ok(())
     }
 }
@@ -232,9 +257,12 @@ impl WorkflowPattern for CompleteMultipleInstanceActivityPattern {
 
     async fn execute(&self, engine: &mut WorkflowEngine) -> Result<()> {
         // Count completed instances
-        let completed_count = self.instance_activities.iter()
+        let completed_count = self
+            .instance_activities
+            .iter()
             .filter(|id| {
-                engine.get_context(id)
+                engine
+                    .get_context(id)
                     .map(|ctx| ctx.state == ActivityState::Completed)
                     .unwrap_or(false)
             })
@@ -243,7 +271,8 @@ impl WorkflowPattern for CompleteMultipleInstanceActivityPattern {
         if completed_count >= self.completion_threshold {
             // Cancel remaining instances
             for instance_id in &self.instance_activities {
-                let should_cancel = engine.get_context(instance_id)
+                let should_cancel = engine
+                    .get_context(instance_id)
                     .map(|ctx| ctx.state != ActivityState::Completed)
                     .unwrap_or(false);
 
@@ -263,7 +292,11 @@ impl WorkflowPattern for CompleteMultipleInstanceActivityPattern {
             }
         }
 
-        engine.record_execution(self, self.instance_activities.clone(), ExecutionResult::Success);
+        engine.record_execution(
+            self,
+            self.instance_activities.clone(),
+            ExecutionResult::Success,
+        );
         Ok(())
     }
 }

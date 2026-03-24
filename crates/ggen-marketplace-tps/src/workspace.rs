@@ -155,10 +155,7 @@ impl WorkspaceService {
     /// # Errors
     /// Returns error if request fails.
     pub async fn create_workspace(
-        &self,
-        name: String,
-        owner_id: String,
-        limits: Option<ResourceLimits>,
+        &self, name: String, owner_id: String, limits: Option<ResourceLimits>,
     ) -> Result<Workspace> {
         let token = self.auth_manager.get_valid_token().await?;
         let url = format!("{}/workspaces", self.api_base_url);
@@ -196,10 +193,7 @@ impl WorkspaceService {
     /// # Errors
     /// Returns error if request fails or addon already installed.
     pub async fn install_addon(
-        &self,
-        workspace_id: &str,
-        addon_id: &str,
-        config: serde_json::Value,
+        &self, workspace_id: &str, addon_id: &str, config: serde_json::Value,
     ) -> Result<AddonConfig> {
         let token = self.auth_manager.get_valid_token().await?;
         let url = format!("{}/workspaces/{workspace_id}/addons", self.api_base_url);
@@ -267,10 +261,7 @@ impl WorkspaceService {
     /// # Errors
     /// Returns error if request fails.
     pub async fn update_addon_config(
-        &self,
-        workspace_id: &str,
-        addon_id: &str,
-        config: serde_json::Value,
+        &self, workspace_id: &str, addon_id: &str, config: serde_json::Value,
     ) -> Result<AddonConfig> {
         let token = self.auth_manager.get_valid_token().await?;
         let url = format!(

@@ -83,9 +83,9 @@ pub mod test_helpers;
 pub use cache::{CacheConfig, CacheStats, LlmCache};
 pub use client::{GenAiClient, LlmChunk, LlmClient, LlmConfig, LlmResponse, UsageStats};
 // Re-export genai for direct access when needed
-pub use genai;
 pub use config::{get_global_config, init_global_config, AiConfig, GlobalLlmConfig, LlmProvider};
 pub use error::{GgenAiError, Result};
+pub use genai;
 pub use generators::{
     NaturalSearchGenerator, OntologyGenerator, QualityMetrics, RefactorAssistant, SparqlGenerator,
     TemplateGenerator, TemplateValidator, ValidationIssue,

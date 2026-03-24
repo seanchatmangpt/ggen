@@ -84,13 +84,8 @@ impl InteractionRequest {
     /// Create a new interaction request.
     #[must_use]
     pub fn new(
-        user_id: String,
-        account_id: String,
-        interaction_type: InteractionType,
-        priority: Priority,
-        subject: String,
-        body: String,
-        context: serde_json::Value,
+        user_id: String, account_id: String, interaction_type: InteractionType, priority: Priority,
+        subject: String, body: String, context: serde_json::Value,
     ) -> Self {
         Self {
             id: Uuid::new_v4().to_string(),
@@ -204,15 +199,12 @@ impl ClmProxy {
         }
 
         let data: serde_json::Value = response.json().await?;
-        let status_str = data["status"]
-            .as_str()
-            .ok_or_else(|| {
-                MarketplaceError::ClmProxyError("Missing status in response".to_string())
-            })?;
+        let status_str = data["status"].as_str().ok_or_else(|| {
+            MarketplaceError::ClmProxyError("Missing status in response".to_string())
+        })?;
 
-        let status: InteractionStatus = serde_json::from_value(serde_json::Value::String(
-            status_str.to_string(),
-        ))?;
+        let status: InteractionStatus =
+            serde_json::from_value(serde_json::Value::String(status_str.to_string()))?;
 
         Ok(status)
     }
@@ -221,12 +213,12 @@ impl ClmProxy {
     ///
     /// # Errors
     /// Returns error if request fails.
-    pub async fn list_responses(
-        &self,
-        interaction_id: &str,
-    ) -> Result<Vec<InteractionResponse>> {
+    pub async fn list_responses(&self, interaction_id: &str) -> Result<Vec<InteractionResponse>> {
         let token = self.auth_manager.get_valid_token().await?;
-        let url = format!("{}/interactions/{interaction_id}/responses", self.clm_base_url);
+        let url = format!(
+            "{}/interactions/{interaction_id}/responses",
+            self.clm_base_url
+        );
 
         let response = self
             .client
@@ -250,13 +242,12 @@ impl ClmProxy {
     ///
     /// # Errors
     /// Returns error if request fails.
-    pub async fn submit_response(
-        &self,
-        interaction_id: &str,
-        message: String,
-    ) -> Result<String> {
+    pub async fn submit_response(&self, interaction_id: &str, message: String) -> Result<String> {
         let token = self.auth_manager.get_valid_token().await?;
-        let url = format!("{}/interactions/{interaction_id}/responses", self.clm_base_url);
+        let url = format!(
+            "{}/interactions/{interaction_id}/responses",
+            self.clm_base_url
+        );
 
         let request_body = serde_json::json!({
             "message": message,

@@ -36,9 +36,8 @@ impl CompilerGate {
             // This should never fail with a literal regex
             panic!("Invalid regex pattern")
         });
-        let warning_pattern = Regex::new(r"warning:").unwrap_or_else(|_| {
-            panic!("Invalid regex pattern")
-        });
+        let warning_pattern =
+            Regex::new(r"warning:").unwrap_or_else(|_| panic!("Invalid regex pattern"));
 
         if error_pattern.is_match(output) {
             AndonSignal::Red
@@ -102,9 +101,8 @@ impl TestGate {
 
     /// Parse test output for failures
     fn parse_output(output: &str) -> AndonSignal {
-        let failure_pattern = Regex::new(r"test .* \.\.\. FAILED").unwrap_or_else(|_| {
-            panic!("Invalid regex pattern")
-        });
+        let failure_pattern = Regex::new(r"test .* \.\.\. FAILED")
+            .unwrap_or_else(|_| panic!("Invalid regex pattern"));
         let error_pattern =
             Regex::new(r"error:").unwrap_or_else(|_| panic!("Invalid regex pattern"));
 
@@ -171,12 +169,10 @@ impl LintGate {
 
     /// Parse clippy output
     fn parse_output(output: &str) -> AndonSignal {
-        let error_pattern = Regex::new(r"error:").unwrap_or_else(|_| {
-            panic!("Invalid regex pattern")
-        });
-        let warning_pattern = Regex::new(r"warning:").unwrap_or_else(|_| {
-            panic!("Invalid regex pattern")
-        });
+        let error_pattern =
+            Regex::new(r"error:").unwrap_or_else(|_| panic!("Invalid regex pattern"));
+        let warning_pattern =
+            Regex::new(r"warning:").unwrap_or_else(|_| panic!("Invalid regex pattern"));
 
         if error_pattern.is_match(output) {
             AndonSignal::Red

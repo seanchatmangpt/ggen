@@ -9,8 +9,8 @@
 use crate::{
     quorum::{QuorumCalculator, QuorumConfig},
     voting::{Vote, VoteCollector, VoteType},
-    ConsensusError, ConsensusMessage, ConsensusProtocol, Digest, ReplicaId, Result,
-    SequenceNumber, ViewNumber,
+    ConsensusError, ConsensusMessage, ConsensusProtocol, Digest, ReplicaId, Result, SequenceNumber,
+    ViewNumber,
 };
 use ed25519_dalek::{Signer, SigningKey, VerifyingKey};
 use serde::{Deserialize, Serialize};
@@ -47,10 +47,8 @@ pub struct PbftConfig {
 impl PbftConfig {
     /// Create a new PBFT configuration
     pub fn new(
-        replica_id: ReplicaId,
-        signing_key: SigningKey,
-        public_keys: HashMap<ReplicaId, VerifyingKey>,
-        quorum_config: QuorumConfig,
+        replica_id: ReplicaId, signing_key: SigningKey,
+        public_keys: HashMap<ReplicaId, VerifyingKey>, quorum_config: QuorumConfig,
     ) -> Self {
         Self {
             replica_id,
@@ -128,11 +126,7 @@ impl PbftConsensus {
 
     /// Process pre-prepare message
     fn process_pre_prepare(
-        &mut self,
-        view: ViewNumber,
-        sequence: SequenceNumber,
-        digest: Digest,
-        message: Vec<u8>,
+        &mut self, view: ViewNumber, sequence: SequenceNumber, digest: Digest, message: Vec<u8>,
     ) -> Result<()> {
         // Verify we're in the right view
         if view != self.current_view {
@@ -175,10 +169,7 @@ impl PbftConsensus {
 
     /// Broadcast prepare message
     fn broadcast_prepare(
-        &mut self,
-        view: ViewNumber,
-        sequence: SequenceNumber,
-        digest: Digest,
+        &mut self, view: ViewNumber, sequence: SequenceNumber, digest: Digest,
     ) -> Result<()> {
         // Create prepare vote
         let vote = self.create_vote(VoteType::Prepare, view, sequence, digest)?;
@@ -193,11 +184,7 @@ impl PbftConsensus {
 
     /// Create a vote
     fn create_vote(
-        &self,
-        vote_type: VoteType,
-        view: ViewNumber,
-        sequence: SequenceNumber,
-        digest: Digest,
+        &self, vote_type: VoteType, view: ViewNumber, sequence: SequenceNumber, digest: Digest,
     ) -> Result<Vote> {
         let mut content = Vec::new();
         content.extend_from_slice(&[vote_type as u8]);
@@ -224,11 +211,12 @@ impl PbftConsensus {
         // Check if we need to broadcast commit
         let should_broadcast = {
             // Get request state
-            let state = self.requests.get_mut(&digest).ok_or_else(|| {
-                ConsensusError::ByzantineFault {
-                    reason: "Prepare for unknown request".to_string(),
-                }
-            })?;
+            let state =
+                self.requests
+                    .get_mut(&digest)
+                    .ok_or_else(|| ConsensusError::ByzantineFault {
+                        reason: "Prepare for unknown request".to_string(),
+                    })?;
 
             // Add vote
             state.vote_collector.add_vote(vote)?;
@@ -244,8 +232,16 @@ impl PbftConsensus {
 
         // Broadcast commit message (after releasing the borrow)
         if should_broadcast {
-            let view = self.requests.get(&digest).map(|s| s.vote_collector.view()).unwrap_or(0);
-            let sequence = self.requests.get(&digest).map(|s| s.vote_collector.sequence()).unwrap_or(0);
+            let view = self
+                .requests
+                .get(&digest)
+                .map(|s| s.vote_collector.view())
+                .unwrap_or(0);
+            let sequence = self
+                .requests
+                .get(&digest)
+                .map(|s| s.vote_collector.sequence())
+                .unwrap_or(0);
             self.broadcast_commit(view, sequence, digest)?;
         }
 
@@ -254,10 +250,7 @@ impl PbftConsensus {
 
     /// Broadcast commit message
     fn broadcast_commit(
-        &mut self,
-        view: ViewNumber,
-        sequence: SequenceNumber,
-        digest: Digest,
+        &mut self, view: ViewNumber, sequence: SequenceNumber, digest: Digest,
     ) -> Result<()> {
         // Create commit vote
         let vote = self.create_vote(VoteType::Commit, view, sequence, digest)?;
@@ -277,11 +270,12 @@ impl PbftConsensus {
         // Check if we need to mark as committed
         let message_to_commit = {
             // Get request state
-            let state = self.requests.get_mut(&digest).ok_or_else(|| {
-                ConsensusError::ByzantineFault {
-                    reason: "Commit for unknown request".to_string(),
-                }
-            })?;
+            let state =
+                self.requests
+                    .get_mut(&digest)
+                    .ok_or_else(|| ConsensusError::ByzantineFault {
+                        reason: "Commit for unknown request".to_string(),
+                    })?;
 
             // Add vote
             state.vote_collector.add_vote(vote)?;
@@ -348,7 +342,14 @@ impl ConsensusProtocol for PbftConsensus {
                 replica_id,
                 signature,
             } => {
-                let vote = Vote::new(VoteType::Prepare, view, sequence, digest, replica_id, signature);
+                let vote = Vote::new(
+                    VoteType::Prepare,
+                    view,
+                    sequence,
+                    digest,
+                    replica_id,
+                    signature,
+                );
                 self.process_prepare(vote)
             }
 
@@ -359,7 +360,14 @@ impl ConsensusProtocol for PbftConsensus {
                 replica_id,
                 signature,
             } => {
-                let vote = Vote::new(VoteType::Commit, view, sequence, digest, replica_id, signature);
+                let vote = Vote::new(
+                    VoteType::Commit,
+                    view,
+                    sequence,
+                    digest,
+                    replica_id,
+                    signature,
+                );
                 self.process_commit(vote)
             }
 
@@ -394,7 +402,9 @@ mod tests {
     use super::*;
     use ed25519_dalek::Signer;
 
-    fn create_test_config(replica_id: ReplicaId, total_replicas: usize) -> (PbftConfig, Vec<SigningKey>) {
+    fn create_test_config(
+        replica_id: ReplicaId, total_replicas: usize,
+    ) -> (PbftConfig, Vec<SigningKey>) {
         let mut signing_keys = Vec::new();
         let mut public_keys = HashMap::new();
 

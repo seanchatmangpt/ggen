@@ -12,17 +12,14 @@ pub struct Origin {
 
 impl Origin {
     pub fn from_url(url: &str) -> Result<Self> {
-        let parsed = Url::parse(url).map_err(|e| {
-            TransportError::OriginValidationFailed(format!("Invalid URL: {}", e))
-        })?;
+        let parsed = Url::parse(url)
+            .map_err(|e| TransportError::OriginValidationFailed(format!("Invalid URL: {}", e)))?;
 
         Ok(Self {
             scheme: parsed.scheme().to_string(),
             host: parsed
                 .host_str()
-                .ok_or_else(|| {
-                    TransportError::OriginValidationFailed("Missing host".to_string())
-                })?
+                .ok_or_else(|| TransportError::OriginValidationFailed("Missing host".to_string()))?
                 .to_string(),
             port: parsed.port(),
         })
@@ -36,9 +33,7 @@ impl Origin {
     }
 
     pub fn matches(&self, other: &Origin) -> bool {
-        self.scheme == other.scheme
-            && self.host == other.host
-            && self.port == other.port
+        self.scheme == other.scheme && self.host == other.host && self.port == other.port
     }
 }
 

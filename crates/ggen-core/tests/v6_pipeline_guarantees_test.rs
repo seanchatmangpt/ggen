@@ -219,8 +219,7 @@ fn test_mu5_receipt_generation_creates_valid_receipt() {
     std::fs::write(output_dir.join("model.rs"), content).unwrap();
 
     let graph = Graph::new().unwrap();
-    let pass =
-        ReceiptGenerationPass::new("6.0.0").with_receipt_path(PathBuf::from("receipt.json"));
+    let pass = ReceiptGenerationPass::new("6.0.0").with_receipt_path(PathBuf::from("receipt.json"));
 
     let mut ctx = PassContext::new(&graph, temp_dir.path().to_path_buf(), output_dir.clone())
         .with_project("test".to_string(), "1.0.0".to_string());

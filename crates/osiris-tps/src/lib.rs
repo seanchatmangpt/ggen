@@ -11,12 +11,12 @@ pub mod kaizen;
 pub mod signals;
 
 // Re-export main types
-pub use andon::{TPSAndonSystem, TPSAndonConfig};
-pub use jidoka::{JidokaController, JidokaAction};
+pub use andon::{TPSAndonConfig, TPSAndonSystem};
+pub use jidoka::{JidokaAction, JidokaController};
 pub use kaizen::{KaizenCycle, KaizenImprovement};
-pub use signals::{TPSSignal, TPSLevel};
+pub use signals::{TPSLevel, TPSSignal};
 
-use osiris_core::{OSIRISEngine, OSIRISConfig};
+use osiris_core::{OSIRISConfig, OSIRISEngine};
 use serde_json::Value;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -183,14 +183,18 @@ impl OSIRISTPS {
     }
 
     /// Process a TPS signal
-    pub async fn process_tps_signal(&self, signal: TPSSignal) -> Result<Value, Box<dyn std::error::Error>> {
+    pub async fn process_tps_signal(
+        &self, signal: TPSSignal,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
         info!("Processing TPS Signal: {}", signal);
 
         // Route signal based on type
         let result = match signal.level {
             TPSLevel::Critical => {
                 // Handle critical signals
-                self.jidoka_controller.handle_critical_signal(signal).await?
+                self.jidoka_controller
+                    .handle_critical_signal(signal)
+                    .await?
             }
             TPSLevel::Warning => {
                 // Handle warning signals
@@ -219,10 +223,14 @@ impl OSIRISTPS {
     }
 
     /// Handle Kaizen information signals
-    async fn kaizen_handle_information_signal(&self, signal: TPSSignal) -> Result<Value, Box<dyn std::error::Error>> {
+    async fn kaizen_handle_information_signal(
+        &self, signal: TPSSignal,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
         match signal.signal_type.as_str() {
             "improvement_suggestion" => {
-                self.kaizen_cycle.suggest_improvement(signal.message).await?;
+                self.kaizen_cycle
+                    .suggest_improvement(signal.message)
+                    .await?;
             }
             "process_observation" => {
                 self.kaizen_cycle.record_observation(signal.message).await?;
@@ -251,25 +259,17 @@ impl OSIRISTPS {
     }
 
     /// Implement a TPS principle
-    pub async fn implement_principle(&self, principle: String, parameters: Value) -> Result<Value, Box<dyn std::error::Error>> {
+    pub async fn implement_principle(
+        &self, principle: String, parameters: Value,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
         info!("Implementing TPS principle: {}", principle);
 
         match principle.as_str() {
-            "jidoka" => {
-                self.jidoka_controller.implement_principle(parameters).await
-            }
-            "kaizen" => {
-                self.kaizen_cycle.improve_process(parameters).await
-            }
-            "just_in_time" => {
-                self.implement_jit(parameters).await
-            }
-            "andon" => {
-                self.implement_andon(parameters).await
-            }
-            _ => {
-                Err(format!("Unknown TPS principle: {}", principle).into())
-            }
+            "jidoka" => self.jidoka_controller.implement_principle(parameters).await,
+            "kaizen" => self.kaizen_cycle.improve_process(parameters).await,
+            "just_in_time" => self.implement_jit(parameters).await,
+            "andon" => self.implement_andon(parameters).await,
+            _ => Err(format!("Unknown TPS principle: {}", principle).into()),
         }
     }
 
@@ -278,15 +278,18 @@ impl OSIRISTPS {
         info!("Implementing Just-in-Time principle");
 
         // Extract JIT parameters
-        let buffer_size = parameters.get("buffer_size")
+        let buffer_size = parameters
+            .get("buffer_size")
             .and_then(|v| v.as_u64())
             .unwrap_or(1);
 
-        let pull_system = parameters.get("pull_system")
+        let pull_system = parameters
+            .get("pull_system")
             .and_then(|v| v.as_bool())
             .unwrap_or(true);
 
-        let kanban_signals = parameters.get("kanban_signals")
+        let kanban_signals = parameters
+            .get("kanban_signals")
             .and_then(|v| v.as_bool())
             .unwrap_or(true);
 
@@ -305,15 +308,19 @@ impl OSIRISTPS {
     }
 
     /// Implement Andon principle
-    async fn implement_andon(&self, parameters: Value) -> Result<Value, Box<dyn std::error::Error>> {
+    async fn implement_andon(
+        &self, parameters: Value,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
         info!("Implementing Andon principle");
 
         // Extract Andon parameters
-        let alert_threshold = parameters.get("alert_threshold")
+        let alert_threshold = parameters
+            .get("alert_threshold")
             .and_then(|v| v.as_f64())
             .unwrap_or(0.8);
 
-        let escalation_path = parameters.get("escalation_path")
+        let escalation_path = parameters
+            .get("escalation_path")
             .and_then(|v| v.as_array())
             .unwrap_or(&Vec::new());
 

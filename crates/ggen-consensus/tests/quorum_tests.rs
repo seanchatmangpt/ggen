@@ -44,9 +44,9 @@ fn test_insufficient_replicas_rejected() {
 fn test_quorum_guarantees_majority_honest() {
     // Test that quorum ensures majority of honest nodes
     let configs = vec![
-        (4, 1),   // 4 replicas, 1 fault
-        (7, 2),   // 7 replicas, 2 faults
-        (10, 3),  // 10 replicas, 3 faults
+        (4, 1),    // 4 replicas, 1 fault
+        (7, 2),    // 7 replicas, 2 faults
+        (10, 3),   // 10 replicas, 3 faults
         (100, 33), // 100 replicas, 33 faults
     ];
 
@@ -89,10 +89,10 @@ fn test_prepare_vs_commit_quorum() {
 fn test_auto_calculate_faults_from_replicas() {
     // Test automatic fault calculation from total replicas
     let test_cases = vec![
-        (4, 1),   // 4 replicas -> f=1
-        (7, 2),   // 7 replicas -> f=2
-        (10, 3),  // 10 replicas -> f=3
-        (13, 4),  // 13 replicas -> f=4
+        (4, 1),    // 4 replicas -> f=1
+        (7, 2),    // 7 replicas -> f=2
+        (10, 3),   // 10 replicas -> f=3
+        (13, 4),   // 13 replicas -> f=4
         (100, 33), // 100 replicas -> f=33
     ];
 

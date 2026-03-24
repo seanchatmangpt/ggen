@@ -143,7 +143,9 @@ impl OAuth2Manager {
                 .as_ref()
                 .and_then(|t| t.refresh_token.as_ref())
                 .cloned()
-                .ok_or_else(|| MarketplaceError::AuthError("No refresh token available".to_string()))?
+                .ok_or_else(|| {
+                    MarketplaceError::AuthError("No refresh token available".to_string())
+                })?
         };
 
         let params = [
@@ -202,7 +204,11 @@ impl OAuth2Manager {
             token_type: response.token_type,
             expires_at,
             refresh_token: response.refresh_token,
-            scopes: response.scope.split_whitespace().map(String::from).collect(),
+            scopes: response
+                .scope
+                .split_whitespace()
+                .map(String::from)
+                .collect(),
         }
     }
 }

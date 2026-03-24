@@ -424,7 +424,9 @@ mod tests {
         let mut cycle = PdcaCycle::new(improvement, 1);
 
         // Act
-        cycle.start_phase(PdcaState::Do, "Test phase".to_string()).ok();
+        cycle
+            .start_phase(PdcaState::Do, "Test phase".to_string())
+            .ok();
 
         // Assert
         let current = cycle.current_phase();

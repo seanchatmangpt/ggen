@@ -25,6 +25,76 @@ pub mod error;
 pub use error::{OSIRISError, Result};
 
 // Stub types for osiris-* crates (TODO: implement proper modules)
+
+/// Life domain representing an area of life management
+#[derive(Debug, Clone)]
+pub struct LifeDomain {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub status: DomainStatus,
+}
+
+impl LifeDomain {
+    pub fn new(id: String, name: String, description: String) -> Self {
+        Self {
+            id,
+            name,
+            description,
+            status: DomainStatus::Active,
+        }
+    }
+
+    pub fn is_active(&self) -> bool {
+        matches!(self.status, DomainStatus::Active)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum DomainStatus {
+    Active,
+    Inactive,
+    Archived,
+}
+
+/// Workflow for executing life domain processes
+#[derive(Debug, Clone)]
+pub struct Workflow {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub status: WorkflowStatus,
+}
+
+impl Workflow {
+    pub fn new(id: String, name: String, description: String) -> Self {
+        Self {
+            id,
+            name,
+            description,
+            status: WorkflowStatus::Pending,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum WorkflowStatus {
+    Pending,
+    Running,
+    Completed,
+    Failed,
+}
+
+/// Lifecycle stage for life management
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LifecycleStage {
+    Assessment,
+    Planning,
+    Execution,
+    Review,
+    Adjustment,
+}
+
 #[derive(Debug, Clone)]
 pub struct Domain {
     pub id: String,
@@ -34,7 +104,11 @@ pub struct Domain {
 
 impl Domain {
     pub fn with_description(id: String, name: String, description: String) -> Self {
-        Self { id, name, description }
+        Self {
+            id,
+            name,
+            description,
+        }
     }
 }
 
@@ -58,14 +132,16 @@ pub struct LifePattern {
 
 impl LifePattern {
     pub fn with_fields(
-        id: String,
-        name: String,
-        description: String,
-        category: PatternCategory,
-        version: String,
+        id: String, name: String, description: String, category: PatternCategory, version: String,
         _metadata: serde_json::Value,
     ) -> Self {
-        Self { id, name, description, category, version }
+        Self {
+            id,
+            name,
+            description,
+            category,
+            version,
+        }
     }
 }
 

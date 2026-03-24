@@ -89,18 +89,14 @@ async fn test_kanban_enforces_wip_limits_under_load() {
     let mut handles = vec![];
     for i in 0..10 {
         let board = Arc::clone(&board);
-        let handle = tokio::spawn(async move {
-            board.pull(&format!("item{}", i)).await
-        });
+        let handle = tokio::spawn(async move { board.pull(&format!("item{}", i)).await });
         handles.push(handle);
     }
 
     let results = futures::future::join_all(handles).await;
 
     // Only 3 should succeed (ready_limit)
-    let successes = results.iter().filter(|r| {
-        matches!(r, Ok(Ok(_)))
-    }).count();
+    let successes = results.iter().filter(|r| matches!(r, Ok(Ok(_)))).count();
 
     assert_eq!(successes, 3, "should respect WIP limit");
     assert_eq!(board.count(Stage::Ready).await, 3);
@@ -215,7 +211,8 @@ async fn test_concurrent_kanban_pulls() {
     }
 
     let results = futures::future::join_all(handles).await;
-    let successful = results.iter()
+    let successful = results
+        .iter()
         .filter(|r| r.as_ref().map(|(_, ok)| *ok).unwrap_or(false))
         .count();
 
@@ -253,19 +250,19 @@ async fn test_backpressure_with_bursty_load() {
     let mut handles = vec![];
     for _ in 0..15 {
         let limiter = Arc::clone(&limiter);
-        let handle = tokio::spawn(async move {
-            limiter.try_acquire().map(|r| r.is_some())
-        });
+        let handle = tokio::spawn(async move { limiter.try_acquire().map(|r| r.is_some()) });
         handles.push(handle);
     }
 
     let results = futures::future::join_all(handles).await;
-    let accepted = results.iter()
-        .filter(|r| matches!(r, Ok(Ok(true))))
-        .count();
+    let accepted = results.iter().filter(|r| matches!(r, Ok(Ok(true)))).count();
 
     // Should handle burst up to burst_size
-    assert!(accepted >= 5 && accepted <= 15, "burst handling failed: {}", accepted);
+    assert!(
+        accepted >= 5 && accepted <= 15,
+        "burst handling failed: {}",
+        accepted
+    );
 }
 
 #[tokio::test]

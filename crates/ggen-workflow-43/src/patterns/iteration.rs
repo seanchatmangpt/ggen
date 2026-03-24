@@ -1,7 +1,7 @@
 //! Iteration and Advanced Control Flow Patterns (21-43)
 
+use crate::{ActivityId, ExecutionResult, Result, WorkflowEngine, WorkflowError, WorkflowPattern};
 use async_trait::async_trait;
-use crate::{ActivityId, Result, WorkflowEngine, WorkflowPattern, ExecutionResult, WorkflowError};
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 
@@ -15,7 +15,9 @@ pub struct StructuredLoopPattern {
 
 impl StructuredLoopPattern {
     /// Create a new structured loop pattern
-    pub fn new(loop_body: Vec<ActivityId>, condition_activity: ActivityId, max_iterations: usize) -> Self {
+    pub fn new(
+        loop_body: Vec<ActivityId>, condition_activity: ActivityId, max_iterations: usize,
+    ) -> Self {
         Self {
             loop_body,
             condition_activity,
@@ -43,7 +45,9 @@ impl WorkflowPattern for StructuredLoopPattern {
             executed.push(self.condition_activity.clone());
 
             let context = engine.get_context(&self.condition_activity)?;
-            let should_continue = context.output_data.get("continue")
+            let should_continue = context
+                .output_data
+                .get("continue")
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
 
@@ -93,13 +97,19 @@ impl WorkflowPattern for RecursionPattern {
 
     async fn execute(&self, engine: &mut WorkflowEngine) -> Result<()> {
         self.recursive_execute(engine, 0).await?;
-        engine.record_execution(self, vec![self.recursive_activity.clone()], ExecutionResult::Success);
+        engine.record_execution(
+            self,
+            vec![self.recursive_activity.clone()],
+            ExecutionResult::Success,
+        );
         Ok(())
     }
 }
 
 impl RecursionPattern {
-    fn recursive_execute<'a>(&'a self, engine: &'a mut WorkflowEngine, depth: usize) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<()>> + Send + 'a>> {
+    fn recursive_execute<'a>(
+        &'a self, engine: &'a mut WorkflowEngine, depth: usize,
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<()>> + Send + 'a>> {
         Box::pin(async move {
             if depth >= self.max_depth {
                 return Ok(());
@@ -108,7 +118,9 @@ impl RecursionPattern {
             engine.execute_activity(&self.recursive_activity).await?;
 
             let context = engine.get_context(&self.recursive_activity)?;
-            let should_recurse = context.output_data.get("recurse")
+            let should_recurse = context
+                .output_data
+                .get("recurse")
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
 
@@ -174,7 +186,9 @@ impl WorkflowPattern for BlockingDiscriminatorPattern {
         for handle in handles {
             if let Ok(Ok(Some(_branch_id))) = handle.await {
                 if !first_executed {
-                    engine.execute_activity(&self.discriminator_activity).await?;
+                    engine
+                        .execute_activity(&self.discriminator_activity)
+                        .await?;
                     first_executed = true;
                 }
             }
@@ -246,14 +260,17 @@ impl WorkflowPattern for CancellingDiscriminatorPattern {
         // Wait for first and cancel others
         for handle in handles {
             if let Ok(Ok(Some(_branch_id))) = handle.await {
-                engine.execute_activity(&self.discriminator_activity).await?;
+                engine
+                    .execute_activity(&self.discriminator_activity)
+                    .await?;
                 break;
             }
         }
 
         // Cancel remaining branches
         for branch_id in &self.branches {
-            let should_cancel = engine.get_context(branch_id)
+            let should_cancel = engine
+                .get_context(branch_id)
                 .map(|ctx| ctx.state != crate::ActivityState::Completed)
                 .unwrap_or(false);
 
@@ -404,7 +421,8 @@ impl WorkflowPattern for BlockingPartialJoinPattern {
 
         // Wait for all to complete
         for handle in handles {
-            handle.await
+            handle
+                .await
                 .map_err(|e| WorkflowError::PatternExecutionFailed(e.to_string()))??;
         }
 
@@ -493,7 +511,8 @@ impl WorkflowPattern for CancellingPartialJoinPattern {
 
         // Cancel remaining branches
         for branch_id in &self.branches {
-            let should_cancel = engine.get_context(branch_id)
+            let should_cancel = engine
+                .get_context(branch_id)
                 .map(|ctx| ctx.state != crate::ActivityState::Completed)
                 .unwrap_or(false);
 
@@ -568,8 +587,12 @@ mod tests {
         let branch2 = ActivityId::new("branch2");
         let disc = ActivityId::new("disc");
 
-        engine.register_activity(Box::new(TestActivity { id: branch1.clone() }));
-        engine.register_activity(Box::new(TestActivity { id: branch2.clone() }));
+        engine.register_activity(Box::new(TestActivity {
+            id: branch1.clone(),
+        }));
+        engine.register_activity(Box::new(TestActivity {
+            id: branch2.clone(),
+        }));
         engine.register_activity(Box::new(TestActivity { id: disc.clone() }));
 
         let pattern = BlockingDiscriminatorPattern::new(vec![branch1, branch2], disc);
@@ -587,16 +610,18 @@ mod tests {
         let branch3 = ActivityId::new("branch3");
         let join = ActivityId::new("join");
 
-        engine.register_activity(Box::new(TestActivity { id: branch1.clone() }));
-        engine.register_activity(Box::new(TestActivity { id: branch2.clone() }));
-        engine.register_activity(Box::new(TestActivity { id: branch3.clone() }));
+        engine.register_activity(Box::new(TestActivity {
+            id: branch1.clone(),
+        }));
+        engine.register_activity(Box::new(TestActivity {
+            id: branch2.clone(),
+        }));
+        engine.register_activity(Box::new(TestActivity {
+            id: branch3.clone(),
+        }));
         engine.register_activity(Box::new(TestActivity { id: join.clone() }));
 
-        let pattern = StructuredPartialJoinPattern::new(
-            vec![branch1, branch2, branch3],
-            join,
-            2,
-        );
+        let pattern = StructuredPartialJoinPattern::new(vec![branch1, branch2, branch3], join, 2);
 
         let result = pattern.execute(&mut engine).await;
         assert!(result.is_ok());

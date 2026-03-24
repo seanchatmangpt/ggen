@@ -131,7 +131,10 @@ impl BackpressureCommands {
         let mut registry = Self::load_registry().await?;
 
         if registry.pools.iter().any(|p| p.name == name) {
-            return Err(CliError::Validation(format!("Pool {} already exists", name)));
+            return Err(CliError::Validation(format!(
+                "Pool {} already exists",
+                name
+            )));
         }
 
         let pool = TokenPool {

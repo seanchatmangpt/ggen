@@ -167,8 +167,10 @@ fn test_whitespace_normalization() {
     let mut ir2 = create_test_ir();
 
     // Add content with different whitespace
-    ir1.sections.get_mut("system").unwrap().blocks[0].content = "Content\n\n\nwith   spaces  ".to_string();
-    ir2.sections.get_mut("system").unwrap().blocks[0].content = "Content\n\nwith   spaces".to_string();
+    ir1.sections.get_mut("system").unwrap().blocks[0].content =
+        "Content\n\n\nwith   spaces  ".to_string();
+    ir2.sections.get_mut("system").unwrap().blocks[0].content =
+        "Content\n\nwith   spaces".to_string();
 
     let emitter = PromptEmitter::new().expect("Failed to create emitter");
 

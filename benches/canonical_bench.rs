@@ -75,16 +75,12 @@ fn bench_json_canonicalization_large(c: &mut Criterion) {
         let input = Value::Object(map);
 
         group.throughput(Throughput::Elements(*size));
-        group.bench_with_input(
-            BenchmarkId::from_parameter(size),
-            &input,
-            |b, input| {
-                let canonicalizer = JsonCanonicalizer::new();
-                b.iter(|| {
-                    black_box(canonicalizer.canonicalize(input.clone()).unwrap());
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::from_parameter(size), &input, |b, input| {
+            let canonicalizer = JsonCanonicalizer::new();
+            b.iter(|| {
+                black_box(canonicalizer.canonicalize(input.clone()).unwrap());
+            });
+        });
     }
 
     group.finish();
@@ -124,15 +120,11 @@ fn bench_hash_computation(c: &mut Criterion) {
         let data = vec![0u8; *size];
 
         group.throughput(Throughput::Bytes(*size as u64));
-        group.bench_with_input(
-            BenchmarkId::from_parameter(size),
-            &data,
-            |b, data| {
-                b.iter(|| {
-                    black_box(compute_hash(data).unwrap());
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::from_parameter(size), &data, |b, data| {
+            b.iter(|| {
+                black_box(compute_hash(data).unwrap());
+            });
+        });
     }
 
     group.finish();
@@ -245,18 +237,14 @@ fn bench_batch_canonicalization(c: &mut Criterion) {
             .collect();
 
         group.throughput(Throughput::Elements(*count));
-        group.bench_with_input(
-            BenchmarkId::from_parameter(count),
-            &inputs,
-            |b, inputs| {
-                let canonicalizer = JsonCanonicalizer::new();
-                b.iter(|| {
-                    for input in inputs {
-                        black_box(canonicalizer.canonicalize(input.clone()).unwrap());
-                    }
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::from_parameter(count), &inputs, |b, inputs| {
+            let canonicalizer = JsonCanonicalizer::new();
+            b.iter(|| {
+                for input in inputs {
+                    black_box(canonicalizer.canonicalize(input.clone()).unwrap());
+                }
+            });
+        });
     }
 
     group.finish();

@@ -117,13 +117,13 @@ impl SignalMonitor {
 
     /// Record a signal event
     pub fn record(&self, event: SignalEvent) {
-        debug!("Recording signal event: {} - {}", event.gate_name, event.signal);
+        debug!(
+            "Recording signal event: {} - {}",
+            event.gate_name, event.signal
+        );
 
         // Update statistics
-        let mut stats = self
-            .stats
-            .entry(event.gate_name.clone())
-            .or_default();
+        let mut stats = self.stats.entry(event.gate_name.clone()).or_default();
         stats.total_checks += 1;
         match event.signal {
             AndonSignal::Green => stats.green_count += 1,
@@ -224,8 +224,8 @@ mod tests {
     #[test]
     fn test_signal_event_with_details() {
         // Arrange & Act
-        let event = SignalEvent::new("Test Gate", AndonSignal::Yellow)
-            .with_details("Unused variable");
+        let event =
+            SignalEvent::new("Test Gate", AndonSignal::Yellow).with_details("Unused variable");
 
         // Assert
         assert_eq!(event.gate_name, "Test Gate");

@@ -83,8 +83,8 @@ async fn test_resume_cursor_with_metadata() {
 #[tokio::test]
 async fn test_resume_cursor_serialization() {
     let session_id = SessionId::new();
-    let cursor = ResumeCursor::new(session_id, 42)
-        .with_metadata("test".to_string(), "data".to_string());
+    let cursor =
+        ResumeCursor::new(session_id, 42).with_metadata("test".to_string(), "data".to_string());
 
     let serialized = cursor.to_string().unwrap();
     let deserialized = ResumeCursor::from_string(&serialized).unwrap();
@@ -99,7 +99,10 @@ async fn test_session_cursor_management() {
     let session = manager.create_session().await;
 
     let cursor = ResumeCursor::new(session.id.clone(), 100);
-    manager.set_cursor(&session.id, cursor.clone()).await.unwrap();
+    manager
+        .set_cursor(&session.id, cursor.clone())
+        .await
+        .unwrap();
 
     let retrieved_cursor = manager.get_cursor(&session.id).await.unwrap();
     assert!(retrieved_cursor.is_some());
@@ -111,8 +114,13 @@ async fn test_session_update() {
     let manager = SessionManager::new(3600);
     let mut session = manager.create_session().await;
 
-    session.metadata.insert("key".to_string(), "value".to_string());
-    manager.update_session(&session.id, session.clone()).await.unwrap();
+    session
+        .metadata
+        .insert("key".to_string(), "value".to_string());
+    manager
+        .update_session(&session.id, session.clone())
+        .await
+        .unwrap();
 
     let retrieved = manager.get_session(&session.id).await.unwrap();
     assert_eq!(retrieved.metadata.get("key").unwrap(), "value");
@@ -188,8 +196,12 @@ async fn test_session_concurrent_access() {
 #[tokio::test]
 async fn test_session_metadata() {
     let mut session = Session::new(3600);
-    session.metadata.insert("user_id".to_string(), "123".to_string());
-    session.metadata.insert("role".to_string(), "admin".to_string());
+    session
+        .metadata
+        .insert("user_id".to_string(), "123".to_string());
+    session
+        .metadata
+        .insert("role".to_string(), "admin".to_string());
 
     assert_eq!(session.metadata.get("user_id").unwrap(), "123");
     assert_eq!(session.metadata.get("role").unwrap(), "admin");

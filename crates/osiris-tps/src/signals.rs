@@ -2,8 +2,8 @@
 //!
 //! Signals specific to TPS (Toyota Production System)
 
-use serde_json::Value;
 use chrono::{DateTime, Utc};
+use serde_json::Value;
 
 /// TPS Signal levels
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -61,10 +61,7 @@ impl TPSSignal {
 
     /// Create a signal with source and target
     pub fn with_routing(
-        signal_type: String,
-        message: String,
-        level: TPSLevel,
-        source: Option<String>,
+        signal_type: String, message: String, level: TPSLevel, source: Option<String>,
         target: Option<String>,
     ) -> Self {
         Self {
@@ -297,8 +294,12 @@ mod tests {
         assert_eq!(error_signal.signal_type, signal_types::CRITICAL_ERROR);
         assert_eq!(error_signal.level, TPSLevel::Critical);
 
-        let suggestion_signal = TPSSignalBuilder::improvement_suggestion("Reduce setup time".to_string());
-        assert_eq!(suggestion_signal.signal_type, signal_types::IMPROVEMENT_SUGGESTION);
+        let suggestion_signal =
+            TPSSignalBuilder::improvement_suggestion("Reduce setup time".to_string());
+        assert_eq!(
+            suggestion_signal.signal_type,
+            signal_types::IMPROVEMENT_SUGGESTION
+        );
         assert_eq!(suggestion_signal.level, TPSLevel::Information);
     }
 

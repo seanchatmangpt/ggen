@@ -122,7 +122,10 @@ async fn test_mcp_session_management() {
     let response = transport.handle_request(request).await;
 
     assert!(response.error.is_none());
-    assert_eq!(response.session_id.as_ref().unwrap().as_str(), session_id.as_str());
+    assert_eq!(
+        response.session_id.as_ref().unwrap().as_str(),
+        session_id.as_str()
+    );
 }
 
 #[tokio::test]

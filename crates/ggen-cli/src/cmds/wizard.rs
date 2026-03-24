@@ -104,7 +104,9 @@ impl WizardProfile {
             Self::OpenAPIContracts => "OpenAPI specification generation",
             Self::InfraK8sGcp => "Kubernetes + GCP infrastructure manifests",
             Self::LnCtrlOutputContracts => "LN_CTRL output contract schemas",
-            Self::LnCtrl => "LN_CTRL full profile: λn execution traces with causal chaining receipts",
+            Self::LnCtrl => {
+                "LN_CTRL full profile: λn execution traces with causal chaining receipts"
+            }
             Self::Custom => "Custom configuration (advanced)",
         }
     }
@@ -213,10 +215,7 @@ pub struct WizardOutput {
 /// ```
 #[verb("wizard", "root")]
 pub fn wizard(
-    profile: Option<String>,
-    output_dir: Option<String>,
-    yes: Option<bool>,
-    no_sync: Option<bool>,
+    profile: Option<String>, output_dir: Option<String>, yes: Option<bool>, no_sync: Option<bool>,
 ) -> clap_noun_verb::Result<WizardOutput> {
     let output_path = output_dir.unwrap_or_else(|| ".".to_string());
     let accept_defaults = yes.unwrap_or(false);
@@ -257,11 +256,26 @@ fn select_profile_interactive() -> clap_noun_verb::Result<WizardProfile> {
     println!("\n🧙 ggen wizard - Bootstrap your project");
     println!("\nWizard creates a deterministic factory; outputs are disposable projections.\n");
     println!("Select a profile:\n");
-    println!("  1. receipts-first (default) - {}", WizardProfile::ReceiptsFirst.description());
-    println!("  2. c4-diagrams - {}", WizardProfile::C4Diagrams.description());
-    println!("  3. openapi-contracts - {}", WizardProfile::OpenAPIContracts.description());
-    println!("  4. infra-k8s-gcp - {}", WizardProfile::InfraK8sGcp.description());
-    println!("  5. lnctrl-output-contracts - {}", WizardProfile::LnCtrlOutputContracts.description());
+    println!(
+        "  1. receipts-first (default) - {}",
+        WizardProfile::ReceiptsFirst.description()
+    );
+    println!(
+        "  2. c4-diagrams - {}",
+        WizardProfile::C4Diagrams.description()
+    );
+    println!(
+        "  3. openapi-contracts - {}",
+        WizardProfile::OpenAPIContracts.description()
+    );
+    println!(
+        "  4. infra-k8s-gcp - {}",
+        WizardProfile::InfraK8sGcp.description()
+    );
+    println!(
+        "  5. lnctrl-output-contracts - {}",
+        WizardProfile::LnCtrlOutputContracts.description()
+    );
     println!("  6. ln-ctrl - {}", WizardProfile::LnCtrl.description());
     println!("  7. custom - {}", WizardProfile::Custom.description());
 
@@ -337,9 +351,7 @@ fn configure_interactive(profile: WizardProfile) -> clap_noun_verb::Result<Wizar
 // ============================================================================
 
 fn perform_wizard(
-    project_dir: &str,
-    config: WizardConfig,
-    skip_sync: bool,
+    project_dir: &str, config: WizardConfig, skip_sync: bool,
 ) -> clap_noun_verb::Result<WizardOutput> {
     let base_path = Path::new(project_dir);
 
@@ -426,9 +438,7 @@ fn perform_wizard(
 }
 
 fn generate_scaffold(
-    base_path: &Path,
-    config: &WizardConfig,
-    tx: &mut FileTransaction,
+    base_path: &Path, config: &WizardConfig, tx: &mut FileTransaction,
     files_created: &mut Vec<String>,
 ) -> clap_noun_verb::Result<()> {
     // Generate ggen.toml
@@ -531,7 +541,11 @@ mode = "Overwrite"
         config.metadata.name,
         config.metadata.version,
         config.metadata.description,
-        config.metadata.authors.first().unwrap_or(&"ggen wizard".to_string()),
+        config
+            .metadata
+            .authors
+            .first()
+            .unwrap_or(&"ggen wizard".to_string()),
         config.metadata.license,
         config.ontologies_dir,
         config.output_dir,
@@ -624,8 +638,7 @@ deterministic = {}
 line_length = 100
 indent = 2
 "#,
-        config.shacl_validation,
-        config.deterministic_output,
+        config.shacl_validation, config.deterministic_output,
     );
 
     format!("{}{}{}", base_config, ln_ctrl_rules, footer)
@@ -651,9 +664,7 @@ ggen:Project a rdfs:Class ;
 }
 
 fn generate_ontologies(
-    base_path: &Path,
-    config: &WizardConfig,
-    tx: &mut FileTransaction,
+    base_path: &Path, config: &WizardConfig, tx: &mut FileTransaction,
     files_created: &mut Vec<String>,
 ) -> clap_noun_verb::Result<()> {
     // Generate main.ttl
@@ -687,9 +698,7 @@ fn generate_ontologies(
 }
 
 fn generate_sparql_queries(
-    base_path: &Path,
-    config: &WizardConfig,
-    tx: &mut FileTransaction,
+    base_path: &Path, config: &WizardConfig, tx: &mut FileTransaction,
     files_created: &mut Vec<String>,
 ) -> clap_noun_verb::Result<()> {
     // Generate world outputs query
@@ -719,15 +728,16 @@ fn generate_sparql_queries(
             e
         ))
     })?;
-    files_created.push(format!("{}/receipts/receipt_contract.sparql", config.sparql_dir));
+    files_created.push(format!(
+        "{}/receipts/receipt_contract.sparql",
+        config.sparql_dir
+    ));
 
     Ok(())
 }
 
 fn generate_tera_templates(
-    base_path: &Path,
-    config: &WizardConfig,
-    tx: &mut FileTransaction,
+    base_path: &Path, config: &WizardConfig, tx: &mut FileTransaction,
     files_created: &mut Vec<String>,
 ) -> clap_noun_verb::Result<()> {
     // Generate world manifest template
@@ -770,7 +780,10 @@ fn generate_tera_templates(
                 e
             ))
         })?;
-    files_created.push(format!("{}/receipts/receipt.schema.tera", config.templates_dir));
+    files_created.push(format!(
+        "{}/receipts/receipt.schema.tera",
+        config.templates_dir
+    ));
 
     // Generate verdict schema template
     let verdict_schema_tera =
@@ -786,37 +799,38 @@ fn generate_tera_templates(
                 e
             ))
         })?;
-    files_created.push(format!("{}/receipts/verdict.schema.tera", config.templates_dir));
+    files_created.push(format!(
+        "{}/receipts/verdict.schema.tera",
+        config.templates_dir
+    ));
 
     Ok(())
 }
 
 fn generate_ln_ctrl_ontologies(
-    base_path: &Path,
-    config: &WizardConfig,
-    tx: &mut FileTransaction,
+    base_path: &Path, config: &WizardConfig, tx: &mut FileTransaction,
     files_created: &mut Vec<String>,
 ) -> clap_noun_verb::Result<()> {
     // Generate ln_ctrl_receipts.ttl
-    let ln_ctrl_receipts_ttl = include_str!("../../templates/wizard/ln_ctrl/ontologies/ln_ctrl_receipts.ttl");
+    let ln_ctrl_receipts_ttl =
+        include_str!("../../templates/wizard/ln_ctrl/ontologies/ln_ctrl_receipts.ttl");
     let receipts_path = base_path
         .join(&config.ontologies_dir)
         .join("ln_ctrl_receipts.ttl");
-    tx.write_file(&receipts_path, ln_ctrl_receipts_ttl).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to write ln_ctrl_receipts.ttl: {}",
-            e
-        ))
-    })?;
+    tx.write_file(&receipts_path, ln_ctrl_receipts_ttl)
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to write ln_ctrl_receipts.ttl: {}",
+                e
+            ))
+        })?;
     files_created.push(format!("{}/ln_ctrl_receipts.ttl", config.ontologies_dir));
 
     Ok(())
 }
 
 fn generate_ln_ctrl_sparql(
-    base_path: &Path,
-    config: &WizardConfig,
-    tx: &mut FileTransaction,
+    base_path: &Path, config: &WizardConfig, tx: &mut FileTransaction,
     files_created: &mut Vec<String>,
 ) -> clap_noun_verb::Result<()> {
     // Create ln_ctrl SPARQL directory
@@ -861,13 +875,17 @@ WHERE {
 ORDER BY ?workflow_id ?step_index
 "#;
     let receipt_trace_path = ln_ctrl_sparql_dir.join("receipt_trace.sparql");
-    tx.write_file(&receipt_trace_path, receipt_trace_sparql).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to write receipt_trace.sparql: {}",
-            e
-        ))
-    })?;
-    files_created.push(format!("{}/ln_ctrl/receipt_trace.sparql", config.sparql_dir));
+    tx.write_file(&receipt_trace_path, receipt_trace_sparql)
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to write receipt_trace.sparql: {}",
+                e
+            ))
+        })?;
+    files_created.push(format!(
+        "{}/ln_ctrl/receipt_trace.sparql",
+        config.sparql_dir
+    ));
 
     // Generate golden_tests.sparql
     let golden_tests_sparql = r#"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -895,12 +913,13 @@ WHERE {
 ORDER BY ?workflow_id
 "#;
     let golden_tests_path = ln_ctrl_sparql_dir.join("golden_tests.sparql");
-    tx.write_file(&golden_tests_path, golden_tests_sparql).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to write golden_tests.sparql: {}",
-            e
-        ))
-    })?;
+    tx.write_file(&golden_tests_path, golden_tests_sparql)
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to write golden_tests.sparql: {}",
+                e
+            ))
+        })?;
     files_created.push(format!("{}/ln_ctrl/golden_tests.sparql", config.sparql_dir));
 
     // Generate docs.sparql
@@ -967,21 +986,20 @@ WHERE {
 ORDER BY ?timestamp
 "#;
     let kernel_ir_path = ln_ctrl_sparql_dir.join("kernel_ir.sparql");
-    tx.write_file(&kernel_ir_path, kernel_ir_sparql).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to write kernel_ir.sparql: {}",
-            e
-        ))
-    })?;
+    tx.write_file(&kernel_ir_path, kernel_ir_sparql)
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to write kernel_ir.sparql: {}",
+                e
+            ))
+        })?;
     files_created.push(format!("{}/ln_ctrl/kernel_ir.sparql", config.sparql_dir));
 
     Ok(())
 }
 
 fn generate_ln_ctrl_templates(
-    base_path: &Path,
-    config: &WizardConfig,
-    tx: &mut FileTransaction,
+    base_path: &Path, config: &WizardConfig, tx: &mut FileTransaction,
     files_created: &mut Vec<String>,
 ) -> clap_noun_verb::Result<()> {
     // Create ln_ctrl template directories
@@ -1030,14 +1048,16 @@ fn generate_ln_ctrl_templates(
     })?;
 
     // Generate receipt schema template
-    let receipt_schema_tera = include_str!("../../templates/wizard/ln_ctrl/templates/schemas/receipt.schema.json.tera");
+    let receipt_schema_tera =
+        include_str!("../../templates/wizard/ln_ctrl/templates/schemas/receipt.schema.json.tera");
     let receipt_schema_path = ln_ctrl_schemas_dir.join("receipt.schema.json.tera");
-    tx.write_file(&receipt_schema_path, receipt_schema_tera).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to write receipt.schema.json.tera: {}",
-            e
-        ))
-    })?;
+    tx.write_file(&receipt_schema_path, receipt_schema_tera)
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to write receipt.schema.json.tera: {}",
+                e
+            ))
+        })?;
     files_created.push(format!(
         "{}/ln_ctrl/schemas/receipt.schema.json.tera",
         config.templates_dir
@@ -1054,12 +1074,13 @@ fn generate_ln_ctrl_templates(
 }
 "#;
     let golden_test_path = ln_ctrl_goldens_dir.join("test.golden.json.tera");
-    tx.write_file(&golden_test_path, golden_test_tera).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to write test.golden.json.tera: {}",
-            e
-        ))
-    })?;
+    tx.write_file(&golden_test_path, golden_test_tera)
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to write test.golden.json.tera: {}",
+                e
+            ))
+        })?;
     files_created.push(format!(
         "{}/ln_ctrl/goldens/test.golden.json.tera",
         config.templates_dir
@@ -1137,12 +1158,13 @@ Generated: {{ now() | date(format='%Y-%m-%d %H:%M:%S UTC') }}
 }
 "#;
     let kernel_ir_path = ln_ctrl_kernel_dir.join("ir.json.tera");
-    tx.write_file(&kernel_ir_path, kernel_ir_tera).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to write ir.json.tera: {}",
-            e
-        ))
-    })?;
+    tx.write_file(&kernel_ir_path, kernel_ir_tera)
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to write ir.json.tera: {}",
+                e
+            ))
+        })?;
     files_created.push(format!(
         "{}/ln_ctrl/kernel/ir.json.tera",
         config.templates_dir
@@ -1152,9 +1174,7 @@ Generated: {{ now() | date(format='%Y-%m-%d %H:%M:%S UTC') }}
 }
 
 fn generate_ln_ctrl_scripts(
-    _base_path: &Path,
-    _config: &WizardConfig,
-    _tx: &mut FileTransaction,
+    _base_path: &Path, _config: &WizardConfig, _tx: &mut FileTransaction,
     _files_created: &mut Vec<String>,
 ) -> clap_noun_verb::Result<()> {
     // Placeholder for ln_ctrl scripts generation
@@ -1366,10 +1386,7 @@ mod tests {
             WizardProfile::from_str("ln-ctrl").unwrap(),
             WizardProfile::LnCtrl
         );
-        assert_eq!(
-            WizardProfile::LnCtrl.as_str(),
-            "ln-ctrl"
-        );
+        assert_eq!(WizardProfile::LnCtrl.as_str(), "ln-ctrl");
         assert!(WizardProfile::LnCtrl.description().contains("λn execution"));
     }
 
@@ -1392,7 +1409,9 @@ mod tests {
         // Verify ln_ctrl-specific files exist
         let base = temp_dir.path();
         assert!(base.join("ggen.toml").exists());
-        assert!(base.join(".specify/ontologies/ln_ctrl_receipts.ttl").exists());
+        assert!(base
+            .join(".specify/ontologies/ln_ctrl_receipts.ttl")
+            .exists());
     }
 
     #[test]

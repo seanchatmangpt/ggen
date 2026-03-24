@@ -148,12 +148,22 @@ impl NormalizationPass {
 
     /// Parse TTL file and load into graph
     pub fn parse_ttl(&self, ttl_path: &Path) -> Result<Graph> {
-        let content = std::fs::read_to_string(ttl_path)
-            .map_err(|e| Error::new(&format!("Failed to read TTL file '{}': {}", ttl_path.display(), e)))?;
+        let content = std::fs::read_to_string(ttl_path).map_err(|e| {
+            Error::new(&format!(
+                "Failed to read TTL file '{}': {}",
+                ttl_path.display(),
+                e
+            ))
+        })?;
 
         let graph = Graph::new()?;
-        graph.insert_turtle(&content)
-            .map_err(|e| Error::new(&format!("Failed to parse TTL '{}': {}", ttl_path.display(), e)))?;
+        graph.insert_turtle(&content).map_err(|e| {
+            Error::new(&format!(
+                "Failed to parse TTL '{}': {}",
+                ttl_path.display(),
+                e
+            ))
+        })?;
 
         Ok(graph)
     }
@@ -186,7 +196,9 @@ impl NormalizationPass {
     /// Load SHACL shapes from the graph
     pub fn load_shacl_shapes(&mut self, ctx: &PassContext<'_>) -> Result<()> {
         let loader = ShapeLoader::new();
-        let shapes = loader.load(ctx.graph).map_err(|e| Error::new(&e.to_string()))?;
+        let shapes = loader
+            .load(ctx.graph)
+            .map_err(|e| Error::new(&e.to_string()))?;
         self.shacl_shapes = Some(shapes);
         Ok(())
     }
@@ -214,7 +226,8 @@ impl NormalizationPass {
             // Note: The validator signature takes (ontology, shapes), but we need to pass the graph
             // For now, create a dummy shapes graph (SHACL validation is stubbed)
             let shapes_graph = Graph::new()?;
-            let report = validator.validate(ctx.graph, &shapes_graph)
+            let report = validator
+                .validate(ctx.graph, &shapes_graph)
                 .map_err(|e| Error::new(&e.to_string()))?;
 
             // Fail-fast: Any violation stops the line
@@ -236,7 +249,9 @@ impl NormalizationPass {
                     violation_count,
                     messages.len(),
                     messages.join("\n"),
-                    report.violations.iter()
+                    report
+                        .violations
+                        .iter()
                         .map(|v| v.constraint_type)
                         .collect::<std::collections::HashSet<_>>()
                 )));
@@ -275,9 +290,14 @@ impl NormalizationPass {
                         // Parse the count from the term
                         let count_str = term.to_string();
                         // Remove quotes and datatype annotation if present
-                        let count_str = count_str.trim_start_matches('"').split('"').next().unwrap_or("0");
-                        return count_str.parse::<usize>()
-                            .map_err(|e| Error::new(&format!("Failed to parse triple count: {}", e)));
+                        let count_str = count_str
+                            .trim_start_matches('"')
+                            .split('"')
+                            .next()
+                            .unwrap_or("0");
+                        return count_str.parse::<usize>().map_err(|e| {
+                            Error::new(&format!("Failed to parse triple count: {}", e))
+                        });
                     }
                 }
                 Ok(0)

@@ -2,10 +2,7 @@
 //!
 //! Chicago TDD: AAA pattern, state-based verification, real collaborators.
 
-use ggen_marketplace_tps::{
-    auth::OAuth2Config,
-    MarketplaceClient, MarketplaceConfig,
-};
+use ggen_marketplace_tps::{auth::OAuth2Config, MarketplaceClient, MarketplaceConfig};
 use mockito::Server;
 
 #[tokio::test]
@@ -33,13 +30,15 @@ async fn test_marketplace_client_auth_flow() {
         .mock("POST", "/oauth/token")
         .with_status(200)
         .with_header("content-type", "application/json")
-        .with_body(r#"{
+        .with_body(
+            r#"{
             "access_token": "test_access_token",
             "token_type": "Bearer",
             "expires_in": 3600,
             "refresh_token": "test_refresh_token",
             "scope": "read write"
-        }"#)
+        }"#,
+        )
         .create_async()
         .await;
 

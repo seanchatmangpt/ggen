@@ -117,7 +117,10 @@ fn test_different_inputs_different_hashes() {
     let hash1 = hash::compute_hash(&data1).unwrap();
     let hash2 = hash::compute_hash(&data2).unwrap();
 
-    assert_ne!(hash1, hash2, "Different inputs should produce different hashes");
+    assert_ne!(
+        hash1, hash2,
+        "Different inputs should produce different hashes"
+    );
 }
 
 #[test]
@@ -129,12 +132,19 @@ fn test_json_order_independence() {
     let result1 = canonicalizer.canonicalize(json1).unwrap();
     let result2 = canonicalizer.canonicalize(json2).unwrap();
 
-    assert_eq!(result1, result2, "JSON key order should not affect canonical form");
+    assert_eq!(
+        result1, result2,
+        "JSON key order should not affect canonical form"
+    );
 }
 
 #[test]
 fn test_multi_hash_determinism() {
-    let parts = vec![b"part1".as_slice(), b"part2".as_slice(), b"part3".as_slice()];
+    let parts = vec![
+        b"part1".as_slice(),
+        b"part2".as_slice(),
+        b"part3".as_slice(),
+    ];
 
     let hash1 = hash::compute_hash_multi(&parts).unwrap();
     let hash2 = hash::compute_hash_multi(&parts).unwrap();
@@ -148,7 +158,10 @@ fn test_hash_verifier() {
     let hash = hash::compute_hash(&data).unwrap();
 
     let verifier = hash::HashVerifier::new(hash);
-    assert!(verifier.verify(&data).is_ok(), "Hash verification should succeed");
+    assert!(
+        verifier.verify(&data).is_ok(),
+        "Hash verification should succeed"
+    );
 
     let wrong_data = b"wrong data";
     assert!(
@@ -175,7 +188,10 @@ fn test_ttl_order_independence() {
     let result1 = canonicalizer.canonicalize(ttl1.to_string()).unwrap();
     let result2 = canonicalizer.canonicalize(ttl2.to_string()).unwrap();
 
-    assert_eq!(result1, result2, "TTL triple order should not affect canonical form");
+    assert_eq!(
+        result1, result2,
+        "TTL triple order should not affect canonical form"
+    );
 }
 
 #[test]
@@ -203,7 +219,10 @@ fn test_comprehensive_workflow() {
 
     // Verify hash matches
     let verifier = hash::HashVerifier::new(hash1);
-    assert!(verifier.verify(&canonical).is_ok(), "Hash verification should succeed");
+    assert!(
+        verifier.verify(&canonical).is_ok(),
+        "Hash verification should succeed"
+    );
 }
 
 // Property-based tests for determinism

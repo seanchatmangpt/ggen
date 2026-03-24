@@ -2,10 +2,8 @@
 //!
 //! Verifies that only 3 channels admit requests and everything else is refused.
 
-use ggen_firewall::{
-    AdmissionResponse, Firewall, IngressChannel, IngressRequest,
-};
 use chrono::{Duration, Utc};
+use ggen_firewall::{AdmissionResponse, Firewall, IngressChannel, IngressRequest};
 
 #[tokio::test]
 async fn test_only_three_channels_exist() {
@@ -117,9 +115,14 @@ async fn test_invalid_requests_refused_with_receipt() {
     let response = firewall.process(request).await;
 
     match response {
-        AdmissionResponse::Refused { receipt, reason, .. } => {
+        AdmissionResponse::Refused {
+            receipt, reason, ..
+        } => {
             assert!(receipt.verify(), "Refusal receipt should be valid");
-            assert!(reason.contains("empty"), "Reason should mention empty payload");
+            assert!(
+                reason.contains("empty"),
+                "Reason should mention empty payload"
+            );
         }
         AdmissionResponse::Admitted { .. } => {
             panic!("Invalid request should be refused");
@@ -137,7 +140,9 @@ async fn test_future_timestamp_refused() {
     let response = firewall.process(request).await;
 
     match response {
-        AdmissionResponse::Refused { receipt, reason, .. } => {
+        AdmissionResponse::Refused {
+            receipt, reason, ..
+        } => {
             assert!(receipt.verify());
             assert!(reason.contains("future"));
         }
@@ -157,7 +162,9 @@ async fn test_old_timestamp_refused() {
     let response = firewall.process(request).await;
 
     match response {
-        AdmissionResponse::Refused { receipt, reason, .. } => {
+        AdmissionResponse::Refused {
+            receipt, reason, ..
+        } => {
             assert!(receipt.verify());
             assert!(reason.contains("old"));
         }

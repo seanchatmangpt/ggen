@@ -9,13 +9,12 @@ async fn test_receipt_generate_and_verify() -> Result<(), Box<dyn std::error::Er
     let receipt_path = temp_dir.path().join("test-receipt.json");
 
     // Generate receipt
-    let generate_cmd = Commands::Receipt(
-        ggen_cli_tps::commands::receipt::ReceiptCommands::Generate {
+    let generate_cmd =
+        Commands::Receipt(ggen_cli_tps::commands::receipt::ReceiptCommands::Generate {
             operation: "test-operation".to_string(),
             metadata: Some(r#"{"test": "data"}"#.to_string()),
             output: receipt_path.clone(),
-        },
-    );
+        });
 
     let cli = Cli {
         command: generate_cmd,
@@ -26,11 +25,9 @@ async fn test_receipt_generate_and_verify() -> Result<(), Box<dyn std::error::Er
     assert!(receipt_path.exists());
 
     // Verify receipt
-    let verify_cmd = Commands::Receipt(
-        ggen_cli_tps::commands::receipt::ReceiptCommands::Verify {
-            receipt: receipt_path.clone(),
-        },
-    );
+    let verify_cmd = Commands::Receipt(ggen_cli_tps::commands::receipt::ReceiptCommands::Verify {
+        receipt: receipt_path.clone(),
+    });
 
     let cli = Cli {
         command: verify_cmd,
@@ -49,13 +46,12 @@ async fn test_receipt_chain_creation() -> Result<(), Box<dyn std::error::Error>>
 
     // Generate two receipts
     for (i, path) in [&receipt1_path, &receipt2_path].iter().enumerate() {
-        let generate_cmd = Commands::Receipt(
-            ggen_cli_tps::commands::receipt::ReceiptCommands::Generate {
+        let generate_cmd =
+            Commands::Receipt(ggen_cli_tps::commands::receipt::ReceiptCommands::Generate {
                 operation: format!("operation-{}", i),
                 metadata: None,
                 output: (*path).clone(),
-            },
-        );
+            });
 
         let cli = Cli {
             command: generate_cmd,
@@ -69,9 +65,7 @@ async fn test_receipt_chain_creation() -> Result<(), Box<dyn std::error::Error>>
         output: chain_path.clone(),
     });
 
-    let cli = Cli {
-        command: chain_cmd,
-    };
+    let cli = Cli { command: chain_cmd };
     cli.run().await?;
 
     assert!(chain_path.exists());
@@ -87,12 +81,11 @@ async fn test_jidoka_pull_and_clear() -> Result<(), Box<dyn std::error::Error>> 
     std::env::set_current_dir(&temp_dir)?;
 
     // Pull andon cord
-    let pull_cmd =
-        Commands::Jidoka(JidokaCommands::Pull {
-            level: SignalLevel::Critical,
-            message: "Test signal".to_string(),
-            context: None,
-        });
+    let pull_cmd = Commands::Jidoka(JidokaCommands::Pull {
+        level: SignalLevel::Critical,
+        message: "Test signal".to_string(),
+        context: None,
+    });
 
     let cli = Cli { command: pull_cmd };
     cli.run().await?;

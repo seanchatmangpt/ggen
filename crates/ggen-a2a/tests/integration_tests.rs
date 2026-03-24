@@ -69,10 +69,7 @@ async fn test_task_failure_with_reason() {
 
     // Assert
     assert_eq!(task.state, TaskState::Failed);
-    assert_eq!(
-        task.failure_reason,
-        Some("Connection timeout".to_string())
-    );
+    assert_eq!(task.failure_reason, Some("Connection timeout".to_string()));
     assert!(task.completed_at.is_some());
 }
 
@@ -128,10 +125,7 @@ async fn test_transport_agent_communication() {
 
     // Assert: Agent 1 receives the notification
     let envelope = rx1.recv().await.unwrap();
-    assert!(matches!(
-        envelope.message,
-        TaskMessage::StateChanged { .. }
-    ));
+    assert!(matches!(envelope.message, TaskMessage::StateChanged { .. }));
 }
 
 #[tokio::test]

@@ -123,9 +123,7 @@ impl PacketCommands {
         }
 
         if packet.priority > 10 {
-            return Err(CliError::Validation(
-                "Priority must be 1-10".to_string(),
-            ));
+            return Err(CliError::Validation("Priority must be 1-10".to_string()));
         }
 
         if strict {
@@ -151,9 +149,7 @@ impl PacketCommands {
         let mut packet: WorkPacket = serde_json::from_str(&content)?;
 
         if priority > 10 {
-            return Err(CliError::Validation(
-                "Priority must be 1-10".to_string(),
-            ));
+            return Err(CliError::Validation("Priority must be 1-10".to_string()));
         }
 
         let routing_entry = RoutingEntry {

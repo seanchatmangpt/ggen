@@ -75,8 +75,7 @@ mod tests {
     #[test]
     fn test_error_from_json() {
         // Arrange
-        let json_err = serde_json::from_str::<serde_json::Value>("{invalid json")
-            .unwrap_err();
+        let json_err = serde_json::from_str::<serde_json::Value>("{invalid json").unwrap_err();
 
         // Act
         let err = MarketplaceError::from(json_err);

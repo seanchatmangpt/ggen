@@ -7,9 +7,12 @@ use ggen_consensus::{
 use std::collections::HashMap;
 
 fn create_test_setup(
-    replica_id: ReplicaId,
-    total_replicas: usize,
-) -> (PbftConsensus, Vec<SigningKey>, HashMap<ReplicaId, VerifyingKey>) {
+    replica_id: ReplicaId, total_replicas: usize,
+) -> (
+    PbftConsensus,
+    Vec<SigningKey>,
+    HashMap<ReplicaId, VerifyingKey>,
+) {
     let mut signing_keys = Vec::new();
     let mut public_keys = HashMap::new();
 

@@ -163,9 +163,7 @@ impl ReceiptCommands {
     }
 
     async fn generate_receipt(
-        operation: String,
-        metadata: Option<String>,
-        output: PathBuf,
+        operation: String, metadata: Option<String>, output: PathBuf,
     ) -> Result<()> {
         let timestamp = chrono::Utc::now().to_rfc3339();
         let hash = Self::compute_hash(&operation, &timestamp)?;

@@ -1,7 +1,7 @@
 //! State-Based Patterns (16-22)
 
+use crate::{ActivityId, ExecutionResult, Result, WorkflowEngine, WorkflowError, WorkflowPattern};
 use async_trait::async_trait;
-use crate::{ActivityId, Result, WorkflowEngine, WorkflowError, WorkflowPattern, ExecutionResult};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -56,7 +56,9 @@ impl WorkflowPattern for DeferredChoicePattern {
         let mut selected_branch = None;
         for handle in handles {
             if let Ok(Ok(Some(trigger_id))) = handle.await {
-                selected_branch = self.branches.iter()
+                selected_branch = self
+                    .branches
+                    .iter()
                     .find(|(tid, _)| tid == &trigger_id)
                     .map(|(_, branch)| branch.clone());
                 break;
@@ -113,8 +115,10 @@ impl WorkflowPattern for InterleavedParallelRoutingPattern {
 
             let handle = tokio::spawn(async move {
                 // Acquire semaphore for atomic execution
-                let _permit = sem.acquire().await.map_err(|e|
-                    WorkflowError::PatternExecutionFailed(e.to_string()))?;
+                let _permit = sem
+                    .acquire()
+                    .await
+                    .map_err(|e| WorkflowError::PatternExecutionFailed(e.to_string()))?;
 
                 tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
 
@@ -125,7 +129,8 @@ impl WorkflowPattern for InterleavedParallelRoutingPattern {
         }
 
         for handle in handles {
-            handle.await
+            handle
+                .await
                 .map_err(|e| WorkflowError::PatternExecutionFailed(e.to_string()))??;
         }
 
@@ -167,7 +172,9 @@ impl WorkflowPattern for MilestonePattern {
 
         // Check milestone reached
         let context = engine.get_context(&self.milestone_activity)?;
-        let milestone_reached = context.output_data.get("milestone_reached")
+        let milestone_reached = context
+            .output_data
+            .get("milestone_reached")
             .and_then(|v| v.as_bool())
             .unwrap_or(false);
 
@@ -260,8 +267,10 @@ impl WorkflowPattern for InterleavedRoutingPattern {
             let activity_id = activity_id.clone();
 
             let handle = tokio::spawn(async move {
-                let _permit = sem.acquire().await.map_err(|e|
-                    WorkflowError::PatternExecutionFailed(e.to_string()))?;
+                let _permit = sem
+                    .acquire()
+                    .await
+                    .map_err(|e| WorkflowError::PatternExecutionFailed(e.to_string()))?;
 
                 tokio::time::sleep(tokio::time::Duration::from_millis(5)).await;
 
@@ -272,7 +281,8 @@ impl WorkflowPattern for InterleavedRoutingPattern {
         }
 
         for handle in handles {
-            handle.await
+            handle
+                .await
                 .map_err(|e| WorkflowError::PatternExecutionFailed(e.to_string()))??;
         }
 
@@ -311,15 +321,17 @@ mod tests {
         let act1 = ActivityId::new("act1");
         let act2 = ActivityId::new("act2");
 
-        engine.register_activity(Box::new(TestActivity { id: trigger1.clone() }));
-        engine.register_activity(Box::new(TestActivity { id: trigger2.clone() }));
+        engine.register_activity(Box::new(TestActivity {
+            id: trigger1.clone(),
+        }));
+        engine.register_activity(Box::new(TestActivity {
+            id: trigger2.clone(),
+        }));
         engine.register_activity(Box::new(TestActivity { id: act1.clone() }));
         engine.register_activity(Box::new(TestActivity { id: act2.clone() }));
 
-        let pattern = DeferredChoicePattern::new(vec![
-            (trigger1, vec![act1]),
-            (trigger2, vec![act2]),
-        ]);
+        let pattern =
+            DeferredChoicePattern::new(vec![(trigger1, vec![act1]), (trigger2, vec![act2])]);
 
         let result = pattern.execute(&mut engine).await;
         assert!(result.is_ok());
@@ -332,7 +344,9 @@ mod tests {
         let milestone = ActivityId::new("milestone");
         let act1 = ActivityId::new("act1");
 
-        engine.register_activity(Box::new(TestActivity { id: milestone.clone() }));
+        engine.register_activity(Box::new(TestActivity {
+            id: milestone.clone(),
+        }));
         engine.register_activity(Box::new(TestActivity { id: act1.clone() }));
 
         // Set milestone reached

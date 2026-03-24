@@ -139,13 +139,15 @@ impl AdmissionController for RateLimiter {
 
     fn try_acquire(&self) -> Result<Option<WIPToken>> {
         // Check rate limit without blocking
-        let mut bucket = self.bucket.try_lock()
-            .map_err(|_| BackpressureError::RateLimitExceeded("rate check in progress".to_string()))?;
+        let mut bucket = self.bucket.try_lock().map_err(|_| {
+            BackpressureError::RateLimitExceeded("rate check in progress".to_string())
+        })?;
 
         if !bucket.try_consume() {
-            return Err(BackpressureError::RateLimitExceeded(
-                format!("rate limit exceeded: {} rps", self.config.max_rps)
-            ));
+            return Err(BackpressureError::RateLimitExceeded(format!(
+                "rate limit exceeded: {} rps",
+                self.config.max_rps
+            )));
         }
 
         // Try to acquire WIP token
@@ -198,9 +200,9 @@ mod tests {
     #[tokio::test]
     async fn test_rate_limiter_enforces_rate() {
         let config = RateLimiterConfig {
-            max_rps: 10.0, // 10 per second
+            max_rps: 10.0,       // 10 per second
             max_concurrent: 100, // High WIP to focus on rate
-            burst_size: 2, // Small burst
+            burst_size: 2,       // Small burst
         };
 
         let limiter = RateLimiter::new(config);
@@ -257,7 +259,7 @@ mod tests {
     #[tokio::test]
     async fn test_strict_lambda_leq_mu_enforcement() {
         let config = RateLimiterConfig {
-            max_rps: 5.0,     // μ = 5 rps
+            max_rps: 5.0, // μ = 5 rps
             max_concurrent: 3,
             burst_size: 5,
         };
