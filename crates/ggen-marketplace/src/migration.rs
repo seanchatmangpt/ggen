@@ -1,4 +1,4 @@
-//! Data Migration: v1 PackageRegistry → v2 RDF Store
+//! Data Migration: v1 `PackageRegistry` → v2 RDF Store
 //!
 //! Provides utilities for migrating package data from the v1 in-memory
 //! registry to the v2 RDF-backed semantic store.
@@ -48,8 +48,8 @@ impl MigrationCoordinator {
                     report.migrated_packages += inserted;
                 }
                 Err(e) => {
-                    warn!("Batch insert failed: {}", e);
-                    report.errors.push(format!("Batch insert error: {}", e));
+                    warn!("Batch insert failed: {e}");
+                    report.errors.push(format!("Batch insert error: {e}"));
                 }
             }
         }
