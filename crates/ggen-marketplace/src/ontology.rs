@@ -3,6 +3,9 @@
 //! Defines the semantic model for packages, versions, dependencies, and metadata
 //! in RDF format. All marketplace data is stored as RDF triples in oxigraph.
 
+#![allow(clippy::doc_markdown)]
+#![allow(clippy::must_use_candidate)]
+
 /// Core namespaces for marketplace RDF
 pub struct Namespaces;
 
