@@ -278,15 +278,19 @@ impl PackageVersion {
 
         // Validate major, minor, patch are numbers
         let patch_numeric = parts[2]
-            .split(|c: char| c == '-' || c == '+')
+            .split(['-', '+'])
             .next()
             .unwrap_or("")
             .parse::<u32>()
             .is_ok();
 
-        if ![parts[0].parse::<u32>().is_ok(), parts[1].parse::<u32>().is_ok(), patch_numeric]
-            .into_iter()
-            .all(|b| b)
+        if ![
+            parts[0].parse::<u32>().is_ok(),
+            parts[1].parse::<u32>().is_ok(),
+            patch_numeric,
+        ]
+        .into_iter()
+        .all(|b| b)
         {
             return Err(Error::invalid_version(
                 &v,
@@ -377,11 +381,10 @@ impl QualityScore {
     /// # Errors
     ///
     /// * [`Error::ValidationFailed`] - When the score is 0 or greater than 100
-    #[must_use]
     pub fn new(score: u32) -> Result<Self> {
         if score > 100 {
             return Err(Error::ValidationFailed {
-                reason: format!("Quality score must be <= 100, got {}", score),
+                reason: format!("Quality score must be <= 100, got {score}"),
             });
         }
         NonZeroU32::new(score)
