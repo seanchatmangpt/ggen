@@ -54,11 +54,9 @@ members = [
   "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
   "crates/ggen-yawl",         # YAWL workflow generation from industry ontologies
   "crates/ggen-process-mining", # Process mining integration with rust4pm (Alpha++, XES/OCEL)
-<<<<<<< HEAD
   "crates/a2a-generated",     # A2A-RS integration code generated from RDF ontology
   "crates/ggen-execution",    # Common execution framework for semantic convergence
   "crates/ggen-a2a-mcp",      # A2A-MCP integration for ggen
-=======
   "crates/ggen-backpressure", # Backpressure and admission control (λ ≤ μ)
   "crates/ggen-heijunka",    # Heijunka load leveling and smooth workload distribution
   "crates/ggen-osiris",      # OSIRIS zero cognitive load architecture
@@ -76,9 +74,6 @@ members = [
   "crates/ggen-integration",   # Integration layer connecting all A2A/TPS systems
   "crates/ggen-transport",     # MCP/A2A transport layer with streaming support
   "crates/ggen-e2e-tps",       # End-to-end integration tests for A2A/TPS pipeline
-  # "crates/a2a-generated",  # Temporarily excluded - has compilation errors
-  # "crates/ggen-execution",   # Temporarily excluded - depends on a2a-generated
->>>>>>> 04ffd5305426e5ecd596cf9e659317ce43a0c007
   "crates/tai-testing",        # Production hardening & resilience testing framework
   "crates/tai-k8s",            # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
   "crates/tai-validation",     # SLO/SLA validation, compliance framework, security scanning
