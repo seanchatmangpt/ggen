@@ -409,8 +409,7 @@ impl QualityScore {
     /// Check if score indicates needs improvement (80-94)
     #[must_use]
     pub fn needs_improvement(self) -> bool {
-        let v = self.value();
-        v >= 80 && v < 95
+        (80..95).contains(&self.value())
     }
 
     /// Check if score indicates not ready (< 80)

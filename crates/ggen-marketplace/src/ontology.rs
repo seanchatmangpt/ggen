@@ -34,11 +34,13 @@ pub struct Classes;
 
 impl Classes {
     /// Create a class URI
+    #[must_use]
     pub fn uri(name: &str) -> String {
         format!("{}classes/{}", Namespaces::GGEN, name)
     }
 
     /// Package class
+    #[must_use]
     pub fn package() -> String {
         Self::uri("Package")
     }
