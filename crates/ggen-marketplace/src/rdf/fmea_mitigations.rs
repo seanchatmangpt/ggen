@@ -431,11 +431,13 @@ impl FmeaMitigationManager {
     }
 
     /// Get failure metrics
+    #[must_use]
     pub fn get_metrics(&self, failure_mode_id: &str) -> Option<&FailureMetrics> {
         self.metrics.get(failure_mode_id)
     }
 
     /// Get all metrics
+    #[must_use]
     pub fn get_all_metrics(&self) -> &HashMap<&'static str, FailureMetrics> {
         &self.metrics
     }
@@ -459,6 +461,7 @@ impl FmeaMitigationManager {
         metrics.failed_recoveries += 1;
     }
 
+    #[allow(clippy::unused_self)]
     fn attempt_triple_repair(&self, _triple: &str) -> Option<String> {
         // Stub: Actual implementation would parse and fix common issues
         None
