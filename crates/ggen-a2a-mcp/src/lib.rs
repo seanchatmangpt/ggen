@@ -20,33 +20,34 @@
 //! └─────────────┴─────────────┴─────────────────┘
 //! ```
 
-pub mod error;
-pub mod message;
 pub mod adapter;
 pub mod client;
+pub mod error;
+pub mod handlers;
+pub mod mcp;
+pub mod message;
+pub mod registry;
 pub mod server;
 pub mod transport;
 pub mod util;
-pub mod registry;
-pub mod handlers;
-pub mod mcp;
 pub mod yawl_bridge;
 
 // Re-export key components
-pub use error::{A2aMcpError, A2aMcpResult};
 pub use adapter::{AgentToToolAdapter, ToolToAgentAdapter};
-pub use message::{A2aMessageConverter, LlmRequest, LlmResponse};
-pub use transport::{McpTransport, McpRequest, McpResponse, McpErrorCode, McpToolDefinition};
-pub use registry::{McpTool, McpToolRegistry, McpToolBuilder, ToolExecutionResult, register_core_tools};
+pub use error::{A2aMcpError, A2aMcpResult};
 pub use handlers::{
-    MessageHandler, MessageRouter, HandlerFactory, BatchProcessor,
-    TextContentHandler, FileContentHandler, DataContentHandler,
-    MultipartHandler, StreamHandler,
     handler::{HandlerContext, HandlerError, HandlerPriority, HandlerStatus},
+    BatchProcessor, DataContentHandler, FileContentHandler, HandlerFactory, MessageHandler,
+    MessageRouter, MultipartHandler, StreamHandler, TextContentHandler,
 };
+pub use message::{A2aMessageConverter, LlmRequest, LlmResponse};
+pub use registry::{
+    register_core_tools, McpTool, McpToolBuilder, McpToolRegistry, ToolExecutionResult,
+};
+pub use transport::{McpErrorCode, McpRequest, McpResponse, McpToolDefinition, McpTransport};
 pub use yawl_bridge::{
-    YawlStateMapper, TaskMapper, YawlEventPublisher,
-    YawlTask, YawlTaskType, YawlSplitType, YawlJoinType, YawlEventType,
+    TaskMapper, YawlEventPublisher, YawlEventType, YawlJoinType, YawlSplitType, YawlStateMapper,
+    YawlTask, YawlTaskType,
 };
 
 // Version information

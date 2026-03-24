@@ -16,9 +16,7 @@ use std::path::PathBuf;
 // ============================================================================
 
 use ggen_domain::graph::{
-    LoadInput, LoadOutput, RdfFormat,
-    QueryInput, QueryResult,
-    ExportInput, ExportOutput,
+    ExportInput, ExportOutput, LoadInput, LoadOutput, QueryInput, QueryResult, RdfFormat,
     VisualizeInput, VisualizeOutput,
 };
 
@@ -89,7 +87,10 @@ mod load_tests {
     #[test]
     fn test_rdf_format_ntriples_detection() {
         assert_eq!(RdfFormat::from_extension("data.nt"), RdfFormat::NTriples);
-        assert_eq!(RdfFormat::from_extension("data.ntriples"), RdfFormat::NTriples);
+        assert_eq!(
+            RdfFormat::from_extension("data.ntriples"),
+            RdfFormat::NTriples
+        );
     }
 
     /// Test: RdfFormat from_extension detects RDF/XML files
@@ -369,7 +370,10 @@ mod visualize_tests {
         assert_eq!(input.output, Some(PathBuf::from("viz.dot")));
         assert!(input.labels);
         assert_eq!(input.max_depth, Some(5));
-        assert_eq!(input.subject, Some("http://example.org/subject".to_string()));
+        assert_eq!(
+            input.subject,
+            Some("http://example.org/subject".to_string())
+        );
     }
 }
 

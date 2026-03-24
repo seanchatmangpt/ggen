@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use osiris_sensors::{SensorManager, SensorDataType, PrivacyLevel};
+    use osiris_sensors::{PrivacyLevel, SensorDataType, SensorManager};
 
     #[tokio::test]
     async fn test_sensor_manager_creation() {
@@ -38,9 +38,16 @@ mod tests {
             privacy_level: PrivacyLevel::Low,
         };
 
-        manager.add_sensor("test-sensor".to_string(), config).await.unwrap();
+        manager
+            .add_sensor("test-sensor".to_string(), config)
+            .await
+            .unwrap();
 
-        let sensor_data = SensorDataType::Accelerometer { x: 1.0, y: 2.0, z: 3.0 };
+        let sensor_data = SensorDataType::Accelerometer {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0,
+        };
         let result = manager.add_sensor_data("test-sensor", sensor_data).await;
         assert!(result.is_ok());
 

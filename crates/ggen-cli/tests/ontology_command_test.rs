@@ -9,16 +9,16 @@
 //!
 //! NO MOCKS - Tests against REAL ggen_core::ontology implementations
 
-use std::path::PathBuf;
 use std::collections::BTreeMap;
+use std::path::PathBuf;
 
 // ============================================================================
 // Core Layer Imports (REAL types, NO mocks)
 // ============================================================================
 
 use ggen_core::ontology::{
-    OntologySchema, OntClass, OntProperty, PropertyRange, Cardinality,
-    OntRelationship, RelationshipType, OwlRestriction,
+    Cardinality, OntClass, OntProperty, OntRelationship, OntologySchema, OwlRestriction,
+    PropertyRange, RelationshipType,
 };
 
 // ============================================================================
@@ -68,7 +68,10 @@ mod ontology_schema_tests {
             metadata,
         };
 
-        assert_eq!(schema.description, Some("A complete ontology example".to_string()));
+        assert_eq!(
+            schema.description,
+            Some("A complete ontology example".to_string())
+        );
         assert_eq!(schema.metadata.len(), 2);
         assert_eq!(schema.metadata["author"], "Test Author");
     }
@@ -77,18 +80,16 @@ mod ontology_schema_tests {
     #[test]
     fn test_ontology_schema_with_classes() {
         let schema = OntologySchema {
-            classes: vec![
-                OntClass {
-                    uri: "http://example.org#Product".to_string(),
-                    name: "Product".to_string(),
-                    label: "Product".to_string(),
-                    description: Some("A product".to_string()),
-                    parent_classes: vec![],
-                    properties: vec![],
-                    is_abstract: false,
-                    restrictions: vec![],
-                },
-            ],
+            classes: vec![OntClass {
+                uri: "http://example.org#Product".to_string(),
+                name: "Product".to_string(),
+                label: "Product".to_string(),
+                description: Some("A product".to_string()),
+                parent_classes: vec![],
+                properties: vec![],
+                is_abstract: false,
+                restrictions: vec![],
+            }],
             properties: vec![],
             relationships: vec![],
             namespace: "http://example.org#".to_string(),
@@ -163,9 +164,7 @@ mod ont_class_tests {
             parent_classes: vec![],
             properties: vec![],
             is_abstract: false,
-            restrictions: vec![
-                OwlRestriction::MinCardinality(18),
-            ],
+            restrictions: vec![OwlRestriction::MinCardinality(18)],
         };
 
         assert_eq!(class.restrictions.len(), 1);
@@ -234,7 +233,14 @@ mod ont_property_tests {
             (Cardinality::ZeroOrOne, 0, Some(1)),
             (Cardinality::Many, 0, None),
             (Cardinality::OneOrMore, 1, None),
-            (Cardinality::Range { min: 2, max: Some(5) }, 2, Some(5)),
+            (
+                Cardinality::Range {
+                    min: 2,
+                    max: Some(5),
+                },
+                2,
+                Some(5),
+            ),
         ];
 
         for (cardinality, expected_min, expected_max) in cardinalities {
@@ -341,7 +347,10 @@ mod ont_relationship_tests {
 
         assert_eq!(relationship.from_class, "http://example.org#Person");
         assert_eq!(relationship.to_class, "http://example.org#Organization");
-        assert!(matches!(relationship.relationship_type, RelationshipType::ManyToOne));
+        assert!(matches!(
+            relationship.relationship_type,
+            RelationshipType::ManyToOne
+        ));
         assert!(!relationship.bidirectional);
     }
 
@@ -374,7 +383,10 @@ mod ont_relationship_tests {
         };
 
         assert!(relationship.bidirectional);
-        assert!(matches!(relationship.relationship_type, RelationshipType::ManyToMany));
+        assert!(matches!(
+            relationship.relationship_type,
+            RelationshipType::ManyToMany
+        ));
     }
 }
 
@@ -493,10 +505,7 @@ mod cli_output_tests {
             project_name: "my-ontology".to_string(),
             ontology_file: "ontologies/example.ttl".to_string(),
             config_file: "ggen.config.json".to_string(),
-            generated_files: vec![
-                "package.json".to_string(),
-                "README.md".to_string(),
-            ],
+            generated_files: vec!["package.json".to_string(), "README.md".to_string()],
         };
 
         let json = serde_json::to_string(&output).unwrap();
@@ -566,16 +575,14 @@ mod integration_tests {
                     inverse_of: None,
                 },
             ],
-            relationships: vec![
-                OntRelationship {
-                    from_class: "http://example.org#Order".to_string(),
-                    to_class: "http://example.org#Product".to_string(),
-                    property: "http://example.org#product".to_string(),
-                    relationship_type: RelationshipType::ManyToOne,
-                    bidirectional: false,
-                    label: "contains".to_string(),
-                },
-            ],
+            relationships: vec![OntRelationship {
+                from_class: "http://example.org#Order".to_string(),
+                to_class: "http://example.org#Product".to_string(),
+                property: "http://example.org#product".to_string(),
+                relationship_type: RelationshipType::ManyToOne,
+                bidirectional: false,
+                label: "contains".to_string(),
+            }],
             namespace: "http://example.org#".to_string(),
             version: "1.0".to_string(),
             label: "E-commerce Ontology".to_string(),
@@ -596,33 +603,29 @@ mod integration_tests {
     #[test]
     fn test_integration_schema_org_structure() {
         let schema = OntologySchema {
-            classes: vec![
-                OntClass {
-                    uri: "https://schema.org/Product".to_string(),
-                    name: "Product".to_string(),
-                    label: "Product".to_string(),
-                    description: Some("Any offered product or service".to_string()),
-                    parent_classes: vec![],
-                    properties: vec!["name".to_string()],
-                    is_abstract: false,
-                    restrictions: vec![],
-                },
-            ],
-            properties: vec![
-                OntProperty {
-                    uri: "https://schema.org/name".to_string(),
-                    name: "name".to_string(),
-                    label: "Name".to_string(),
-                    description: None,
-                    domain: vec!["https://schema.org/Product".to_string()],
-                    range: PropertyRange::String,
-                    cardinality: Cardinality::One,
-                    required: true,
-                    is_functional: true,
-                    is_inverse_functional: false,
-                    inverse_of: None,
-                },
-            ],
+            classes: vec![OntClass {
+                uri: "https://schema.org/Product".to_string(),
+                name: "Product".to_string(),
+                label: "Product".to_string(),
+                description: Some("Any offered product or service".to_string()),
+                parent_classes: vec![],
+                properties: vec!["name".to_string()],
+                is_abstract: false,
+                restrictions: vec![],
+            }],
+            properties: vec![OntProperty {
+                uri: "https://schema.org/name".to_string(),
+                name: "name".to_string(),
+                label: "Name".to_string(),
+                description: None,
+                domain: vec!["https://schema.org/Product".to_string()],
+                range: PropertyRange::String,
+                cardinality: Cardinality::One,
+                required: true,
+                is_functional: true,
+                is_inverse_functional: false,
+                inverse_of: None,
+            }],
             relationships: vec![],
             namespace: "https://schema.org/".to_string(),
             version: "1.0".to_string(),
@@ -640,12 +643,24 @@ mod integration_tests {
     fn test_integration_cardinality_methods() {
         // is_multi_valued returns true if max is None or max > 1
         let test_cases = vec![
-            (Cardinality::One, false),           // max = Some(1)
-            (Cardinality::ZeroOrOne, false),     // max = Some(1)
-            (Cardinality::Many, true),           // max = None
-            (Cardinality::OneOrMore, true),      // max = None
-            (Cardinality::Range { min: 2, max: Some(5) }, true),  // max = Some(5)
-            (Cardinality::Range { min: 0, max: Some(1) }, false), // max = Some(1)
+            (Cardinality::One, false),       // max = Some(1)
+            (Cardinality::ZeroOrOne, false), // max = Some(1)
+            (Cardinality::Many, true),       // max = None
+            (Cardinality::OneOrMore, true),  // max = None
+            (
+                Cardinality::Range {
+                    min: 2,
+                    max: Some(5),
+                },
+                true,
+            ), // max = Some(5)
+            (
+                Cardinality::Range {
+                    min: 0,
+                    max: Some(1),
+                },
+                false,
+            ), // max = Some(1)
         ];
 
         for (cardinality, expected) in test_cases {
@@ -673,12 +688,8 @@ mod integration_tests {
     /// Test: Template options for init (as &str options)
     #[test]
     fn test_integration_template_options() {
-        let templates: Vec<Option<&str>> = vec![
-            Some("schema.org"),
-            Some("foaf"),
-            Some("dublincore"),
-            None,
-        ];
+        let templates: Vec<Option<&str>> =
+            vec![Some("schema.org"), Some("foaf"), Some("dublincore"), None];
 
         for template in templates {
             let project_name = "test-project";

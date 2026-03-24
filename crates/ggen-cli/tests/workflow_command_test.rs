@@ -9,8 +9,8 @@
 //!
 //! NO MOCKS - Tests against REAL CLI output structures
 
-use std::path::PathBuf;
 use serde_json;
+use std::path::PathBuf;
 
 // ============================================================================
 // CLI Output Structure Tests (REAL types from workflow.rs)
@@ -407,7 +407,8 @@ mod integration_tests {
             median_duration_minutes: 80640.0,
             variant_count: 4,
             most_common_variant: Some(
-                "PaperSubmitted→CodeGenerated→TestsRun→SecurityAudit→MarketplacePublished".to_string()
+                "PaperSubmitted→CodeGenerated→TestsRun→SecurityAudit→MarketplacePublished"
+                    .to_string(),
             ),
         };
 
@@ -416,7 +417,10 @@ mod integration_tests {
         assert_eq!(output.total_events, 156);
         assert_eq!(output.unique_activities, 10);
         assert_eq!(output.variant_count, 4);
-        assert!(output.most_common_variant.unwrap().contains("PaperSubmitted"));
+        assert!(output
+            .most_common_variant
+            .unwrap()
+            .contains("PaperSubmitted"));
     }
 
     /// Test: Complete workflow discovery output
@@ -493,7 +497,11 @@ mod integration_tests {
 
         for workflow_type in types {
             let default_type = workflow_type.unwrap_or_else(|| "research".to_string());
-            assert!(default_type == "research" || default_type == "maturity" || default_type == "revops");
+            assert!(
+                default_type == "research"
+                    || default_type == "maturity"
+                    || default_type == "revops"
+            );
         }
     }
 

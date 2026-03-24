@@ -5,9 +5,9 @@
 
 use crate::error::{A2aMcpError, A2aMcpResult};
 use a2a_generated::converged::message::{
-    ConvergedMessage, ConvergedMessageType, MessageEnvelope, MessagePriority,
-    ConvergedPayload, UnifiedContent, MessageRouting, MessageLifecycle,
-    MessageState, QoSRequirements, ReliabilityLevel,
+    ConvergedMessage, ConvergedMessageType, ConvergedPayload, MessageEnvelope, MessageLifecycle,
+    MessagePriority, MessageRouting, MessageState, QoSRequirements, ReliabilityLevel,
+    UnifiedContent,
 };
 use chrono::Utc;
 use std::collections::HashMap;
@@ -108,10 +108,16 @@ impl TaskMapper {
         );
 
         if let Some(split) = yawl_task.split_type {
-            data.insert("splitType".to_string(), serde_json::json!(format!("{:?}", split)));
+            data.insert(
+                "splitType".to_string(),
+                serde_json::json!(format!("{:?}", split)),
+            );
         }
         if let Some(join) = yawl_task.join_type {
-            data.insert("joinType".to_string(), serde_json::json!(format!("{:?}", join)));
+            data.insert(
+                "joinType".to_string(),
+                serde_json::json!(format!("{:?}", join)),
+            );
         }
         if let Some(input) = &yawl_task.input_data {
             data.insert("inputData".to_string(), input.clone());
@@ -165,9 +171,7 @@ impl TaskMapper {
 
     /// Convert YAWL task with specific target agent
     pub fn yawl_to_a2a_task_for_agent(
-        &self,
-        yawl_task: &YawlTask,
-        target_agent: &str,
+        &self, yawl_task: &YawlTask, target_agent: &str,
     ) -> A2aMcpResult<ConvergedMessage> {
         let mut message = self.yawl_to_a2a_task(yawl_task)?;
         message.target = Some(target_agent.to_string());
@@ -177,9 +181,7 @@ impl TaskMapper {
 
     /// Convert YAWL task with custom priority
     pub fn yawl_to_a2a_task_with_priority(
-        &self,
-        yawl_task: &YawlTask,
-        priority: MessagePriority,
+        &self, yawl_task: &YawlTask, priority: MessagePriority,
     ) -> A2aMcpResult<ConvergedMessage> {
         let mut message = self.yawl_to_a2a_task(yawl_task)?;
         message.envelope.priority = priority;
@@ -262,8 +264,14 @@ impl TaskMapper {
             });
 
         let input_data = data.get("inputData").cloned();
-        let workflow_id = data.get("workflowId").and_then(|v| v.as_str()).map(String::from);
-        let parent_id = data.get("parentId").and_then(|v| v.as_str()).map(String::from);
+        let workflow_id = data
+            .get("workflowId")
+            .and_then(|v| v.as_str())
+            .map(String::from);
+        let parent_id = data
+            .get("parentId")
+            .and_then(|v| v.as_str())
+            .map(String::from);
 
         Ok(YawlTask {
             id,
@@ -279,10 +287,7 @@ impl TaskMapper {
 
     /// Batch convert multiple YAWL tasks to A2A messages
     pub fn yawl_to_a2a_batch(&self, tasks: &[YawlTask]) -> A2aMcpResult<Vec<ConvergedMessage>> {
-        tasks
-            .iter()
-            .map(|t| self.yawl_to_a2a_task(t))
-            .collect()
+        tasks.iter().map(|t| self.yawl_to_a2a_task(t)).collect()
     }
 }
 

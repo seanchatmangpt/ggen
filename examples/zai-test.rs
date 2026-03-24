@@ -2,17 +2,15 @@
 //!
 //! Quick test to verify ZAI integration works
 
-use genai::Client;
 use genai::chat::{ChatMessage, ChatRequest};
+use genai::Client;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::builder().build();
 
     // Test cases demonstrating automatic endpoint routing
-    let test_cases = vec![
-        ("zai-coding::glm-4.6", "Coding subscription model"),
-    ];
+    let test_cases = vec![("zai-coding::glm-4.6", "Coding subscription model")];
 
     for (model_name, description) in test_cases {
         println!("\n=== {} ===", description);
@@ -28,7 +26,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 if let Some(content) = response.first_text() {
                     println!("Response: {}", content);
                 }
-                if response.usage.prompt_tokens.is_some() || response.usage.completion_tokens.is_some() {
+                if response.usage.prompt_tokens.is_some()
+                    || response.usage.completion_tokens.is_some()
+                {
                     println!(
                         "Usage: prompt={}, output={}",
                         response.usage.prompt_tokens.unwrap_or(0),

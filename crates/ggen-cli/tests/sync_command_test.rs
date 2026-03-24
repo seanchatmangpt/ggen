@@ -16,8 +16,7 @@ use std::path::PathBuf;
 // ============================================================================
 
 use ggen_core::codegen::{
-    SyncOptions, SyncResult, SyncedFileInfo, ValidationCheck,
-    OutputFormat, SyncExecutor,
+    OutputFormat, SyncExecutor, SyncOptions, SyncResult, SyncedFileInfo, ValidationCheck,
 };
 
 // ============================================================================
@@ -136,7 +135,11 @@ mod sync_options_tests {
 
         assert_eq!(
             options.selected_rules,
-            Some(vec!["structs".to_string(), "impls".to_string(), "traits".to_string()])
+            Some(vec![
+                "structs".to_string(),
+                "impls".to_string(),
+                "traits".to_string()
+            ])
         );
     }
 
@@ -184,11 +187,15 @@ mod sync_options_tests {
     #[test]
     fn test_sync_options_ontology_path() {
         let mut options = SyncOptions::new();
-        options.ontology_path = Some(PathBuf::from(".specify/specs/014-a2a-integration/a2a-ontology.ttl"));
+        options.ontology_path = Some(PathBuf::from(
+            ".specify/specs/014-a2a-integration/a2a-ontology.ttl",
+        ));
 
         assert_eq!(
             options.ontology_path,
-            Some(PathBuf::from(".specify/specs/014-a2a-integration/a2a-ontology.ttl"))
+            Some(PathBuf::from(
+                ".specify/specs/014-a2a-integration/a2a-ontology.ttl"
+            ))
         );
     }
 
@@ -391,13 +398,11 @@ mod sync_result_tests {
             status: "success".to_string(),
             files_synced: 5,
             duration_ms: 1000,
-            files: vec![
-                SyncedFileInfo {
-                    path: "src/lib.rs".to_string(),
-                    size_bytes: 1024,
-                    action: "created".to_string(),
-                },
-            ],
+            files: vec![SyncedFileInfo {
+                path: "src/lib.rs".to_string(),
+                size_bytes: 1024,
+                action: "created".to_string(),
+            }],
             inference_rules_executed: 10,
             generation_rules_executed: 5,
             audit_trail: None,
@@ -564,7 +569,9 @@ mod sync_executor_tests {
     fn test_sync_executor_a2a_stage() {
         let mut options = SyncOptions::new();
         options.a2a_stage = Some("μ₃".to_string());
-        options.ontology_path = Some(PathBuf::from(".specify/specs/014-a2a-integration/a2a-ontology.ttl"));
+        options.ontology_path = Some(PathBuf::from(
+            ".specify/specs/014-a2a-integration/a2a-ontology.ttl",
+        ));
 
         let executor = SyncExecutor::new(options);
         let _ = executor;
@@ -596,7 +603,9 @@ mod integration_tests {
             force: false,
             audit: true,
             a2a_stage: Some("μ₅".to_string()),
-            ontology_path: Some(PathBuf::from(".specify/specs/014-a2a-integration/a2a-ontology.ttl")),
+            ontology_path: Some(PathBuf::from(
+                ".specify/specs/014-a2a-integration/a2a-ontology.ttl",
+            )),
         };
 
         assert_eq!(options.manifest_path, PathBuf::from("project/ggen.toml"));
@@ -622,11 +631,18 @@ mod integration_tests {
             force: false,
             audit: true,
             a2a_stage: None, // Run all stages
-            ontology_path: Some(PathBuf::from(".specify/specs/014-a2a-integration/a2a-ontology.ttl")),
+            ontology_path: Some(PathBuf::from(
+                ".specify/specs/014-a2a-integration/a2a-ontology.ttl",
+            )),
         };
 
         assert!(options.audit);
-        assert_eq!(options.ontology_path, Some(PathBuf::from(".specify/specs/014-a2a-integration/a2a-ontology.ttl")));
+        assert_eq!(
+            options.ontology_path,
+            Some(PathBuf::from(
+                ".specify/specs/014-a2a-integration/a2a-ontology.ttl"
+            ))
+        );
     }
 
     /// Test: Validation-only workflow
@@ -709,7 +725,7 @@ mod integration_tests {
             cache_dir: None,
             verbose: false,
             output_format: OutputFormat::Json, // Machine-readable
-            validate_only: true, // Pre-flight checks
+            validate_only: true,               // Pre-flight checks
             dry_run: false,
             watch: false,
             selected_rules: None,
@@ -742,7 +758,9 @@ mod integration_tests {
                 force: false,
                 audit: false,
                 a2a_stage: Some(stage.to_string()),
-                ontology_path: Some(PathBuf::from(".specify/specs/014-a2a-integration/a2a-ontology.ttl")),
+                ontology_path: Some(PathBuf::from(
+                    ".specify/specs/014-a2a-integration/a2a-ontology.ttl",
+                )),
             };
 
             assert_eq!(options.a2a_stage, Some(stage.to_string()));
@@ -809,7 +827,12 @@ mod integration_tests {
         let rule_sets = vec![
             vec!["structs".to_string()],
             vec!["structs".to_string(), "impls".to_string()],
-            vec!["structs".to_string(), "impls".to_string(), "traits".to_string(), "enums".to_string()],
+            vec![
+                "structs".to_string(),
+                "impls".to_string(),
+                "traits".to_string(),
+                "enums".to_string(),
+            ],
         ];
 
         for rules in rule_sets {

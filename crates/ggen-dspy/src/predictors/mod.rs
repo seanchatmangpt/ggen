@@ -31,6 +31,6 @@
 pub mod a2a_predictor;
 
 pub use a2a_predictor::{
-    A2aModule, A2aModuleTrait, A2aPredictor, A2aPredictorConfig,
-    StreamingA2aPredictor, StreamingChunk, TokenUsage, CacheStats, ModuleOutput,
+    A2aModule, A2aModuleTrait, A2aPredictor, A2aPredictorConfig, CacheStats, ModuleOutput,
+    StreamingA2aPredictor, StreamingChunk, TokenUsage,
 };

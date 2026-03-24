@@ -224,9 +224,8 @@ impl<'a> ConfigValidator<'a> {
 
             // Validate max concurrent requests
             if mcp.max_concurrent_requests == 0 {
-                self.errors.push(
-                    "MCP max_concurrent_requests must be greater than 0".to_string(),
-                );
+                self.errors
+                    .push("MCP max_concurrent_requests must be greater than 0".to_string());
             }
         }
     }
@@ -531,11 +530,14 @@ mod tests {
         // Apply ZAI environment override
         let config_with_zai = ConfigLoader::from_str(toml)
             .unwrap()
-            .load_with_env_from_map(&[("zai", serde_json::json!({
-                "ai.provider": "zai",
-                "ai.model": "zai-chat",
-                "mcp.enabled": true
-            }))])
+            .load_with_env_from_map(&[(
+                "zai",
+                serde_json::json!({
+                    "ai.provider": "zai",
+                    "ai.model": "zai-chat",
+                    "mcp.enabled": true
+                }),
+            )])
             .unwrap();
 
         assert_eq!(config_with_zai.ai.as_ref().unwrap().provider, "zai");

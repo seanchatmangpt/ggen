@@ -9,8 +9,8 @@ use alloc::collections::BTreeMap;
 use alloc::format;
 use alloc::string::String;
 use alloc::string::ToString;
-use alloc::vec::Vec;
-use alloc::vec;  // Import vec! macro
+use alloc::vec;
+use alloc::vec::Vec; // Import vec! macro
 
 #[cfg(feature = "std")]
 use std::io::BufRead;

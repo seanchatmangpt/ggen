@@ -16,8 +16,8 @@ use std::path::PathBuf;
 // ============================================================================
 
 use ggen_domain::ai::{
-    GenerateOptions, GenerateResult, GenerateMetadata, OutputFormat,
-    generate_code, format_result, analyze_code, analyze_project,
+    analyze_code, analyze_project, format_result, generate_code, GenerateMetadata, GenerateOptions,
+    GenerateResult, OutputFormat,
 };
 
 // ============================================================================
@@ -155,10 +155,7 @@ mod generate_tests {
     fn test_format_result_text() {
         let result = GenerateResult {
             analysis: "Test analysis content".to_string(),
-            suggestions: Some(vec![
-                "Suggestion 1".to_string(),
-                "Suggestion 2".to_string(),
-            ]),
+            suggestions: Some(vec!["Suggestion 1".to_string(), "Suggestion 2".to_string()]),
             metadata: GenerateMetadata {
                 model_used: "test-model".to_string(),
                 tokens_used: Some(100),
@@ -256,8 +253,7 @@ mod generate_tests {
     /// Test: generate_code with suggestions enabled
     #[tokio::test]
     async fn test_generate_code_with_suggestions() {
-        let options = GenerateOptions::new("analyze code")
-            .with_suggestions();
+        let options = GenerateOptions::new("analyze code").with_suggestions();
 
         let result = generate_code(&options).await.unwrap();
 
@@ -272,8 +268,7 @@ mod generate_tests {
     /// Test: generate_code with custom model
     #[tokio::test]
     async fn test_generate_code_custom_model() {
-        let options = GenerateOptions::new("test")
-            .with_model("gpt-4-turbo");
+        let options = GenerateOptions::new("test").with_model("gpt-4-turbo");
 
         let result = generate_code(&options).await.unwrap();
 
@@ -283,10 +278,13 @@ mod generate_tests {
     /// Test: generate_code with code context
     #[tokio::test]
     async fn test_generate_code_with_context() {
-        let options = GenerateOptions::new("optimize this")
-            .with_code("fn main() { println!(\"hello\"); }");
+        let options =
+            GenerateOptions::new("optimize this").with_code("fn main() { println!(\"hello\"); }");
 
-        assert_eq!(options.code, Some("fn main() { println!(\"hello\"); }".to_string()));
+        assert_eq!(
+            options.code,
+            Some("fn main() { println!(\"hello\"); }".to_string())
+        );
 
         let result = generate_code(&options).await.unwrap();
         assert!(!result.analysis.is_empty());
@@ -441,8 +439,7 @@ mod integration_tests {
     #[tokio::test]
     async fn test_integration_generate_then_analyze() {
         // First generate
-        let gen_options = GenerateOptions::new("create a function")
-            .with_suggestions();
+        let gen_options = GenerateOptions::new("create a function").with_suggestions();
         let gen_result = generate_code(&gen_options).await.unwrap();
 
         // Then analyze the generated analysis
@@ -476,7 +473,11 @@ mod integration_tests {
     /// Test: GenerateOptions with all OutputFormat variants
     #[test]
     fn test_integration_all_output_formats() {
-        let formats = [OutputFormat::Text, OutputFormat::Json, OutputFormat::Markdown];
+        let formats = [
+            OutputFormat::Text,
+            OutputFormat::Json,
+            OutputFormat::Markdown,
+        ];
         for format in &formats {
             let options = GenerateOptions::new("test").with_format(*format);
             match options.output_format {
@@ -490,13 +491,7 @@ mod integration_tests {
     /// Test: GenerateMetadata with various token counts
     #[test]
     fn test_integration_metadata_tokens() {
-        let cases = vec![
-            Some(0),
-            Some(100),
-            Some(1000),
-            Some(4096),
-            None,
-        ];
+        let cases = vec![Some(0), Some(100), Some(1000), Some(4096), None];
 
         for tokens in cases {
             let metadata = GenerateMetadata {
@@ -518,7 +513,7 @@ mod integration_tests {
                 fn divide(a: f64, b: f64) -> f64 {
                     a / b
                 }
-                "#
+                "#,
             )
             .with_model("gpt-4")
             .with_suggestions();

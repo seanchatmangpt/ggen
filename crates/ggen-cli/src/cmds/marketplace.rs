@@ -2,22 +2,18 @@
 //!
 //! This module implements marketplace commands using the v3.4.0 #[verb] pattern.
 
-use clap_noun_verb_macros::verb;
 use clap_noun_verb::Result;
+use clap_noun_verb_macros::verb;
 use serde::Serialize;
 use std::path::PathBuf;
 
 use crate::runtime_helper::execute_async_verb;
 use ggen_domain::marketplace::{
-    SearchInput, execute_search,
-    InstallInput, execute_install,
-    ListInput, execute_list,
-    PublishInput, execute_publish,
-    UpdateInput, execute_update,
-    validate_package, validate_all_packages,
-    emit_receipts_for_marketplace, generate_validation_report,
-    generate_packages_markdown, generate_registry_index, write_packages_markdown, write_registry_index,
-    BundleRegistry, BundleInstallManifest,
+    emit_receipts_for_marketplace, execute_install, execute_list, execute_publish, execute_search,
+    execute_update, generate_packages_markdown, generate_registry_index,
+    generate_validation_report, validate_all_packages, validate_package, write_packages_markdown,
+    write_registry_index, BundleInstallManifest, BundleRegistry, InstallInput, ListInput,
+    PublishInput, SearchInput, UpdateInput,
 };
 
 // ============================================================================
@@ -180,22 +176,41 @@ struct MaturitySearchResult {
 
 /// Count passed and failed checks for a validation
 fn count_checks(validation: &ggen_domain::marketplace::PackageValidation) -> (usize, usize) {
-    let passed = validation.required_checks.iter().filter(|(_, r)| r.is_pass()).count()
-        + validation.quality_checks.iter().filter(|(_, r)| r.is_pass()).count();
-    let failed = validation.required_checks.iter().filter(|(_, r)| r.is_fail()).count()
-        + validation.quality_checks.iter().filter(|(_, r)| r.is_fail()).count();
+    let passed = validation
+        .required_checks
+        .iter()
+        .filter(|(_, r)| r.is_pass())
+        .count()
+        + validation
+            .quality_checks
+            .iter()
+            .filter(|(_, r)| r.is_pass())
+            .count();
+    let failed = validation
+        .required_checks
+        .iter()
+        .filter(|(_, r)| r.is_fail())
+        .count()
+        + validation
+            .quality_checks
+            .iter()
+            .filter(|(_, r)| r.is_fail())
+            .count();
     (passed, failed)
 }
 
 /// Sort validations by score
 fn sort_validations_by_score(validations: &mut Vec<ggen_domain::marketplace::PackageValidation>) {
-    validations.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    validations.sort_by(|a, b| {
+        b.score
+            .partial_cmp(&a.score)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
 }
 
 /// Build recommendation from validation
 fn build_recommendation(
-    idx: usize,
-    validation: &ggen_domain::marketplace::PackageValidation,
+    idx: usize, validation: &ggen_domain::marketplace::PackageValidation,
 ) -> RecommendedPackage {
     RecommendedPackage {
         rank: idx + 1,
@@ -208,10 +223,8 @@ fn build_recommendation(
 
 /// Build comparison result from two validations
 fn build_comparison(
-    package_a: String,
-    validation_a: &ggen_domain::marketplace::PackageValidation,
-    package_b: String,
-    validation_b: &ggen_domain::marketplace::PackageValidation,
+    package_a: String, validation_a: &ggen_domain::marketplace::PackageValidation,
+    package_b: String, validation_b: &ggen_domain::marketplace::PackageValidation,
 ) -> CompareOutput {
     let (passed_a, failed_a) = count_checks(validation_a);
     let (passed_b, failed_b) = count_checks(validation_b);
@@ -242,10 +255,20 @@ fn build_comparison(
     };
 
     let recommendation = if let Some(ref winner_name) = winner {
-        let winner_score = if winner_name == &pkg_a.name { pkg_a.score } else { pkg_b.score };
-        let loser_score = if winner_name == &pkg_a.name { pkg_b.score } else { pkg_a.score };
-        format!("{} is better suited for your needs (score: {:.1}% vs {:.1}%)",
-            winner_name, winner_score, loser_score)
+        let winner_score = if winner_name == &pkg_a.name {
+            pkg_a.score
+        } else {
+            pkg_b.score
+        };
+        let loser_score = if winner_name == &pkg_a.name {
+            pkg_b.score
+        } else {
+            pkg_a.score
+        };
+        format!(
+            "{} is better suited for your needs (score: {:.1}% vs {:.1}%)",
+            winner_name, winner_score, loser_score
+        )
     } else {
         format!("Both packages have equal scores ({:.1}%)", pkg_a.score)
     };
@@ -261,8 +284,7 @@ fn build_comparison(
 
 /// Filter packages by maturity criteria
 fn filter_by_maturity(
-    validations: Vec<ggen_domain::marketplace::PackageValidation>,
-    threshold: f64,
+    validations: Vec<ggen_domain::marketplace::PackageValidation>, threshold: f64,
     production_ready_only: bool,
 ) -> Vec<MaturitySearchResult> {
     validations
@@ -276,7 +298,8 @@ fn filter_by_maturity(
             package_name: v.package_name,
             score: v.score,
             production_ready: v.production_ready,
-            matches_all_criteria: v.score >= threshold && (!production_ready_only || v.production_ready),
+            matches_all_criteria: v.score >= threshold
+                && (!production_ready_only || v.production_ready),
         })
         .collect()
 }
@@ -288,10 +311,7 @@ fn filter_by_maturity(
 /// Search for packages in the marketplace
 #[verb]
 fn search(
-    query: String,
-    limit: usize,
-    category: Option<String>,
-    marketplace_root: Option<PathBuf>,
+    query: String, limit: usize, category: Option<String>, marketplace_root: Option<PathBuf>,
 ) -> Result<SearchOutput> {
     if let Some(root) = marketplace_root {
         std::env::set_var("GGEN_MARKETPLACE_ROOT", root.to_string_lossy().as_ref());
@@ -306,17 +326,21 @@ fn search(
     };
 
     execute_async_verb(async move {
-        let results = execute_search(input).await
+        let results = execute_search(input)
+            .await
             .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
-        let packages = results.into_iter().map(|p| PackageInfo {
-            name: p.name,
-            version: p.version,
-            description: p.description,
-            author: p.author,
-            downloads: p.downloads,
-            stars: p.stars,
-        }).collect::<Vec<_>>();
+        let packages = results
+            .into_iter()
+            .map(|p| PackageInfo {
+                name: p.name,
+                version: p.version,
+                description: p.description,
+                author: p.author,
+                downloads: p.downloads,
+                stars: p.stars,
+            })
+            .collect::<Vec<_>>();
 
         let total = packages.len();
         Ok(SearchOutput { packages, total })
@@ -326,11 +350,7 @@ fn search(
 /// Install a package from the marketplace
 #[verb]
 fn install(
-    package: String,
-    target: Option<String>,
-    force: bool,
-    no_dependencies: bool,
-    dry_run: bool,
+    package: String, target: Option<String>, force: bool, no_dependencies: bool, dry_run: bool,
 ) -> Result<InstallOutput> {
     let input = InstallInput {
         package: package.clone(),
@@ -341,7 +361,8 @@ fn install(
     };
 
     execute_async_verb(async move {
-        let result = execute_install(input).await
+        let result = execute_install(input)
+            .await
             .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
         Ok(InstallOutput {
@@ -355,25 +376,24 @@ fn install(
 
 /// List installed packages
 #[verb]
-fn list(
-    detailed: bool,
-    json: bool,
-) -> Result<ListOutput> {
-    let input = ListInput {
-        detailed,
-        json,
-    };
+fn list(detailed: bool, json: bool) -> Result<ListOutput> {
+    let input = ListInput { detailed, json };
 
     execute_async_verb(async move {
-        let result = execute_list(input).await
+        let result = execute_list(input)
+            .await
             .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
-        let packages = result.packages.into_iter().map(|p| InstalledPackage {
-            name: p.name,
-            version: p.version,
-            title: p.title,
-            description: p.description,
-        }).collect::<Vec<_>>();
+        let packages = result
+            .packages
+            .into_iter()
+            .map(|p| InstalledPackage {
+                name: p.name,
+                version: p.version,
+                title: p.title,
+                description: p.description,
+            })
+            .collect::<Vec<_>>();
 
         let total = result.packages_listed;
         Ok(ListOutput { packages, total })
@@ -383,10 +403,7 @@ fn list(
 /// Publish a package to the marketplace
 #[verb]
 fn publish(
-    path: PathBuf,
-    tag: Option<String>,
-    dry_run: bool,
-    force: bool,
+    path: PathBuf, tag: Option<String>, dry_run: bool, force: bool,
 ) -> Result<PublishOutput> {
     let input = PublishInput {
         path,
@@ -396,7 +413,8 @@ fn publish(
     };
 
     execute_async_verb(async move {
-        let result = execute_publish(input).await
+        let result = execute_publish(input)
+            .await
             .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
         Ok(PublishOutput {
@@ -408,10 +426,7 @@ fn publish(
 
 /// Update installed packages
 #[verb]
-fn update(
-    update_all: bool,
-    dry_run: bool,
-) -> Result<UpdateOutput> {
+fn update(update_all: bool, dry_run: bool) -> Result<UpdateOutput> {
     let input = UpdateInput {
         package: None,
         all: update_all,
@@ -419,7 +434,8 @@ fn update(
     };
 
     execute_async_verb(async move {
-        let result = execute_update(input).await
+        let result = execute_update(input)
+            .await
             .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
         Ok(UpdateOutput {
@@ -430,8 +446,7 @@ fn update(
 
 /// Sync marketplace cache with remote registry
 #[verb]
-fn sync(
-) -> Result<SyncOutput> {
+fn sync() -> Result<SyncOutput> {
     Ok(SyncOutput {
         status: "Marketplace cache synced".to_string(),
         last_sync: "now".to_string(),
@@ -440,9 +455,7 @@ fn sync(
 
 /// Validate a package's quality and compliance
 #[verb]
-fn validate(
-    package_path: PathBuf,
-) -> Result<ValidateOutput> {
+fn validate(package_path: PathBuf) -> Result<ValidateOutput> {
     execute_async_verb(async move {
         let result = validate_package(&package_path)
             .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
@@ -450,8 +463,16 @@ fn validate(
         let package = result.package_name.clone();
         let summary = result.summary();
         let (passed, failed) = count_checks(&result);
-        let warnings = result.required_checks.iter().filter(|(_, r)| r.is_warning()).count()
-            + result.quality_checks.iter().filter(|(_, r)| r.is_warning()).count();
+        let warnings = result
+            .required_checks
+            .iter()
+            .filter(|(_, r)| r.is_warning())
+            .count()
+            + result
+                .quality_checks
+                .iter()
+                .filter(|(_, r)| r.is_warning())
+                .count();
 
         Ok(ValidateOutput {
             package,
@@ -466,27 +487,31 @@ fn validate(
 
 /// List sector bundles
 #[verb]
-fn list_bundles(
-) -> Result<ListBundlesOutput> {
+fn list_bundles() -> Result<ListBundlesOutput> {
     let bundles = BundleRegistry::list_bundles();
-    let output = bundles.into_iter().map(|b| BundleInfo {
-        id: b.id.clone(),
-        name: b.id.clone(),
-        description: b.description,
-        packages: b.packages.clone(),
-    }).collect::<Vec<_>>();
+    let output = bundles
+        .into_iter()
+        .map(|b| BundleInfo {
+            id: b.id.clone(),
+            name: b.id.clone(),
+            description: b.description,
+            packages: b.packages.clone(),
+        })
+        .collect::<Vec<_>>();
     let total = output.len();
 
-    Ok(ListBundlesOutput { bundles: output, total })
+    Ok(ListBundlesOutput {
+        bundles: output,
+        total,
+    })
 }
 
 /// Show bundle details
 #[verb]
-fn bundle_info(
-    bundle_id: String,
-) -> Result<BundleInfo> {
-    let bundle = BundleRegistry::get_bundle(&bundle_id)
-        .ok_or_else(|| clap_noun_verb::NounVerbError::execution_error(format!("Bundle '{}' not found", bundle_id)))?;
+fn bundle_info(bundle_id: String) -> Result<BundleInfo> {
+    let bundle = BundleRegistry::get_bundle(&bundle_id).ok_or_else(|| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Bundle '{}' not found", bundle_id))
+    })?;
 
     Ok(BundleInfo {
         id: bundle.id.clone(),
@@ -498,44 +523,50 @@ fn bundle_info(
 
 /// Install a bundle
 #[verb]
-fn install_bundle(
-    bundle_id: String,
-    _target_dir: Option<PathBuf>,
-) -> Result<String> {
-    let bundle = BundleRegistry::get_bundle(&bundle_id)
-        .ok_or_else(|| clap_noun_verb::NounVerbError::execution_error(format!("Bundle '{}' not found", bundle_id)))?;
+fn install_bundle(bundle_id: String, _target_dir: Option<PathBuf>) -> Result<String> {
+    let bundle = BundleRegistry::get_bundle(&bundle_id).ok_or_else(|| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Bundle '{}' not found", bundle_id))
+    })?;
 
     let _manifest = BundleInstallManifest::new(bundle_id.clone());
-    Ok(format!("Bundle '{}' with {} packages ready for installation", bundle_id, bundle.packages.len()))
+    Ok(format!(
+        "Bundle '{}' with {} packages ready for installation",
+        bundle_id,
+        bundle.packages.len()
+    ))
 }
 
 /// Generate validation receipts for all packages
 #[verb]
-fn emit_receipts(
-    marketplace_root: Option<PathBuf>,
-) -> Result<EmitReceiptsOutput> {
-    let root = marketplace_root.unwrap_or_else(|| PathBuf::from("/Users/sac/ggen/marketplace/packages"));
+fn emit_receipts(marketplace_root: Option<PathBuf>) -> Result<EmitReceiptsOutput> {
+    let root =
+        marketplace_root.unwrap_or_else(|| PathBuf::from("/Users/sac/ggen/marketplace/packages"));
 
     let results = emit_receipts_for_marketplace(&root);
 
     let succeeded = results.iter().filter(|(_, r)| r.is_ok()).count();
     let failed = results.iter().filter(|(_, r)| r.is_err()).count();
 
-    let receipts = results.into_iter()
+    let receipts = results
+        .into_iter()
         .filter_map(|(name, result)| result.ok().map(|_p| name))
         .collect::<Vec<_>>();
 
     let total = receipts.len();
 
-    Ok(EmitReceiptsOutput { receipts, total, succeeded, failed })
+    Ok(EmitReceiptsOutput {
+        receipts,
+        total,
+        succeeded,
+        failed,
+    })
 }
 
 /// Generate marketplace health report
 #[verb]
-fn report(
-    marketplace_root: Option<PathBuf>,
-) -> Result<ReportOutput> {
-    let root = marketplace_root.unwrap_or_else(|| PathBuf::from("/Users/sac/ggen/marketplace/packages"));
+fn report(marketplace_root: Option<PathBuf>) -> Result<ReportOutput> {
+    let root =
+        marketplace_root.unwrap_or_else(|| PathBuf::from("/Users/sac/ggen/marketplace/packages"));
 
     let report = generate_validation_report(&root)
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
@@ -549,9 +580,7 @@ fn report(
 
 /// Generate marketplace artifacts (JSON and Markdown)
 #[verb]
-fn generate_artifacts(
-    marketplace_root: Option<PathBuf>,
-) -> Result<GenerateArtifactsOutput> {
+fn generate_artifacts(marketplace_root: Option<PathBuf>) -> Result<GenerateArtifactsOutput> {
     let root = marketplace_root.unwrap_or_else(|| PathBuf::from("/Users/sac/ggen/marketplace"));
 
     let index_json = generate_registry_index(&root)
@@ -577,10 +606,7 @@ fn generate_artifacts(
 
 /// Recommend packages based on use case
 #[verb]
-fn recommend(
-    use_case: String,
-    min_score: Option<u32>,
-) -> Result<RecommendOutput> {
+fn recommend(use_case: String, min_score: Option<u32>) -> Result<RecommendOutput> {
     execute_async_verb(async move {
         let root = PathBuf::from("/Users/sac/ggen/marketplace/packages");
         let threshold = get_threshold_for_use_case(&use_case, min_score);
@@ -618,8 +644,7 @@ fn get_threshold_for_use_case(use_case: &str, min_score: Option<u32>) -> f64 {
 
 /// Filter validations by score threshold
 fn filter_validations_by_threshold(
-    validations: Vec<ggen_domain::marketplace::PackageValidation>,
-    threshold: f64,
+    validations: Vec<ggen_domain::marketplace::PackageValidation>, threshold: f64,
 ) -> Vec<ggen_domain::marketplace::PackageValidation> {
     validations
         .into_iter()
@@ -640,30 +665,33 @@ fn build_recommendations(
 
 /// Compare two packages side-by-side
 #[verb]
-fn compare(
-    package_a: String,
-    package_b: String,
-) -> Result<CompareOutput> {
+fn compare(package_a: String, package_b: String) -> Result<CompareOutput> {
     execute_async_verb(async move {
         let root = PathBuf::from("/Users/sac/ggen/marketplace/packages");
         let path_a = root.join(&package_a);
         let path_b = root.join(&package_b);
 
-        let validation_a = validate_package(&path_a)
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Package A error: {}", e)))?;
+        let validation_a = validate_package(&path_a).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Package A error: {}", e))
+        })?;
 
-        let validation_b = validate_package(&path_b)
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Package B error: {}", e)))?;
+        let validation_b = validate_package(&path_b).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Package B error: {}", e))
+        })?;
 
-        Ok(build_comparison(package_a, &validation_a, package_b, &validation_b))
+        Ok(build_comparison(
+            package_a,
+            &validation_a,
+            package_b,
+            &validation_b,
+        ))
     })
 }
 
 /// Search/filter packages by maturity criteria
 #[verb]
 fn search_maturity(
-    min_score: Option<f64>,
-    production_ready_only: bool,
+    min_score: Option<f64>, production_ready_only: bool,
 ) -> Result<SearchMaturityOutput> {
     execute_async_verb(async move {
         let root = PathBuf::from("/Users/sac/ggen/marketplace/packages");

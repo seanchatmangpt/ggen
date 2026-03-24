@@ -4,18 +4,13 @@
 //!
 //! Phase 1: Foundation tests for autonomic life management system
 
-use std::sync::Arc;
-use tokio_test;
 use osiris_core::{
+    AutonomicState, Domain, HealthMonitor, JidokaCircuitBreaker, LifePattern, OSIRISConfig,
     OSIRISEngine,
-    OSIRISConfig,
-    Domain,
-    LifePattern,
-    AutonomicState,
-    JidokaCircuitBreaker,
-    HealthMonitor
 };
 use serde_json::json;
+use std::sync::Arc;
+use tokio_test;
 
 #[tokio::test]
 async fn test_osiris_engine_creation_fails() {
@@ -58,9 +53,9 @@ async fn test_jidoka_circuit_breaker_fails() {
     // RED: Test circuit breaker should fail initially
 
     let breaker = JidokaCircuitBreaker::new(3, 1000);
-    let result = breaker.execute(|| async {
-        Ok(json!({"result": "success"}))
-    }).await;
+    let result = breaker
+        .execute(|| async { Ok(json!({"result": "success"})) })
+        .await;
 
     // This will fail until we implement circuit breaker
     assert!(result.is_ok(), "Circuit breaker execution should succeed");

@@ -5,9 +5,9 @@
 
 use crate::error::A2aMcpResult;
 use a2a_generated::converged::message::{
-    ConvergedMessage, ConvergedMessageType, MessageEnvelope, MessagePriority,
-    ConvergedPayload, UnifiedContent, MessageRouting, MessageLifecycle,
-    MessageState, QoSRequirements, ReliabilityLevel,
+    ConvergedMessage, ConvergedMessageType, ConvergedPayload, MessageEnvelope, MessageLifecycle,
+    MessagePriority, MessageRouting, MessageState, QoSRequirements, ReliabilityLevel,
+    UnifiedContent,
 };
 use chrono::Utc;
 use std::collections::HashMap;
@@ -76,19 +76,21 @@ impl YawlEventPublisher {
     /// Creates an Event message containing the task state transition.
     /// In production, this would be sent via the A2A client.
     pub async fn publish_task_event(
-        &self,
-        workflow_id: &str,
-        task_id: &str,
-        old_state: &str,
-        new_state: &str,
+        &self, workflow_id: &str, task_id: &str, old_state: &str, new_state: &str,
     ) -> A2aMcpResult<ConvergedMessage> {
         let mut data = HashMap::new();
-        data.insert("eventType".to_string(), serde_json::json!("TaskStatusUpdate"));
+        data.insert(
+            "eventType".to_string(),
+            serde_json::json!("TaskStatusUpdate"),
+        );
         data.insert("workflowId".to_string(), serde_json::json!(workflow_id));
         data.insert("taskId".to_string(), serde_json::json!(task_id));
         data.insert("oldState".to_string(), serde_json::json!(old_state));
         data.insert("newState".to_string(), serde_json::json!(new_state));
-        data.insert("timestamp".to_string(), serde_json::json!(Utc::now().to_rfc3339()));
+        data.insert(
+            "timestamp".to_string(),
+            serde_json::json!(Utc::now().to_rfc3339()),
+        );
 
         Ok(ConvergedMessage {
             message_id: format!("evt-{}-{}-{}", workflow_id, task_id, Utc::now().timestamp()),
@@ -105,7 +107,10 @@ impl YawlEventPublisher {
             },
             payload: ConvergedPayload {
                 content: UnifiedContent::Data {
-                    data: data.into_iter().map(|(k, v)| (k, serde_json::Value::from(v))).collect(),
+                    data: data
+                        .into_iter()
+                        .map(|(k, v)| (k, serde_json::Value::from(v)))
+                        .collect(),
                     schema: Some("YawlTaskEvent".to_string()),
                 },
                 context: None,
@@ -132,15 +137,19 @@ impl YawlEventPublisher {
 
     /// Publish a workflow lifecycle event
     pub async fn publish_workflow_event(
-        &self,
-        workflow_id: &str,
-        event_type: YawlEventType,
+        &self, workflow_id: &str, event_type: YawlEventType,
         metadata: Option<HashMap<String, serde_json::Value>>,
     ) -> A2aMcpResult<ConvergedMessage> {
         let mut data = HashMap::new();
-        data.insert("eventType".to_string(), serde_json::json!(event_type.as_str()));
+        data.insert(
+            "eventType".to_string(),
+            serde_json::json!(event_type.as_str()),
+        );
         data.insert("workflowId".to_string(), serde_json::json!(workflow_id));
-        data.insert("timestamp".to_string(), serde_json::json!(Utc::now().to_rfc3339()));
+        data.insert(
+            "timestamp".to_string(),
+            serde_json::json!(Utc::now().to_rfc3339()),
+        );
 
         if let Some(meta) = metadata {
             for (key, value) in meta {
@@ -166,7 +175,10 @@ impl YawlEventPublisher {
             },
             payload: ConvergedPayload {
                 content: UnifiedContent::Data {
-                    data: data.into_iter().map(|(k, v)| (k, serde_json::Value::from(v))).collect(),
+                    data: data
+                        .into_iter()
+                        .map(|(k, v)| (k, serde_json::Value::from(v)))
+                        .collect(),
                     schema: Some("YawlWorkflowEvent".to_string()),
                 },
                 context: None,
@@ -202,15 +214,18 @@ impl YawlEventPublisher {
         active_paths: Vec<String>,
     ) -> A2aMcpResult<ConvergedMessage> {
         let mut data = HashMap::new();
-        data.insert("eventType".to_string(), serde_json::json!("GatewayActivated"));
+        data.insert(
+            "eventType".to_string(),
+            serde_json::json!("GatewayActivated"),
+        );
         data.insert("workflowId".to_string(), serde_json::json!(workflow_id));
         data.insert("gatewayId".to_string(), serde_json::json!(gateway_id));
         data.insert("gatewayType".to_string(), serde_json::json!(gateway_type));
+        data.insert("activePaths".to_string(), serde_json::json!(active_paths));
         data.insert(
-            "activePaths".to_string(),
-            serde_json::json!(active_paths),
+            "timestamp".to_string(),
+            serde_json::json!(Utc::now().to_rfc3339()),
         );
-        data.insert("timestamp".to_string(), serde_json::json!(Utc::now().to_rfc3339()));
 
         Ok(ConvergedMessage {
             message_id: format!("evt-gw-{}-{}", gateway_id, Utc::now().timestamp()),
@@ -227,7 +242,10 @@ impl YawlEventPublisher {
             },
             payload: ConvergedPayload {
                 content: UnifiedContent::Data {
-                    data: data.into_iter().map(|(k, v)| (k, serde_json::Value::from(v))).collect(),
+                    data: data
+                        .into_iter()
+                        .map(|(k, v)| (k, serde_json::Value::from(v)))
+                        .collect(),
                     schema: Some("YawlGatewayEvent".to_string()),
                 },
                 context: None,
@@ -288,7 +306,10 @@ mod tests {
 
         assert_eq!(message.envelope.message_type, ConvergedMessageType::Event);
         assert_eq!(message.source, "yawl-engine:wf-123");
-        assert_eq!(message.envelope.correlation_id, Some("task-456".to_string()));
+        assert_eq!(
+            message.envelope.correlation_id,
+            Some("task-456".to_string())
+        );
     }
 
     #[tokio::test]
@@ -318,12 +339,20 @@ mod tests {
     async fn test_gateway_event_publish() {
         let publisher = YawlEventPublisher::new();
         let message = publisher
-            .publish_gateway_event("wf-123", "gw-split-1", "AndSplit", vec!["A".to_string(), "B".to_string()])
+            .publish_gateway_event(
+                "wf-123",
+                "gw-split-1",
+                "AndSplit",
+                vec!["A".to_string(), "B".to_string()],
+            )
             .await
             .unwrap();
 
         assert_eq!(message.envelope.message_type, ConvergedMessageType::Event);
-        assert_eq!(message.envelope.correlation_id, Some("gw-split-1".to_string()));
+        assert_eq!(
+            message.envelope.correlation_id,
+            Some("gw-split-1".to_string())
+        );
     }
 
     #[tokio::test]

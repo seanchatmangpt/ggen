@@ -93,14 +93,23 @@ mod tests {
 
     #[test]
     fn test_pattern_query_files() {
-        assert_eq!(A2aPattern::AgentDiscovery.query_file(), "01-discover-agents.rq");
-        assert_eq!(A2aPattern::CapabilityMatch.query_file(), "02-discover-capabilities.rq");
+        assert_eq!(
+            A2aPattern::AgentDiscovery.query_file(),
+            "01-discover-agents.rq"
+        );
+        assert_eq!(
+            A2aPattern::CapabilityMatch.query_file(),
+            "02-discover-capabilities.rq"
+        );
         assert_eq!(A2aPattern::SkillMatch.query_file(), "03-match-skills.rq");
         assert_eq!(
             A2aPattern::MessageConstruction.query_file(),
             "04-construct-messages.rq"
         );
-        assert_eq!(A2aPattern::ProtocolFilter.query_file(), "05-filter-protocols.rq");
+        assert_eq!(
+            A2aPattern::ProtocolFilter.query_file(),
+            "05-filter-protocols.rq"
+        );
         assert_eq!(
             A2aPattern::WorkflowConstruction.query_file(),
             "06-build-workflows.rq"
@@ -109,14 +118,23 @@ mod tests {
 
     #[test]
     fn test_pattern_query_names() {
-        assert_eq!(A2aPattern::AgentDiscovery.query_name(), "a2a_agent_discovery");
-        assert_eq!(A2aPattern::CapabilityMatch.query_name(), "a2a_capability_match");
+        assert_eq!(
+            A2aPattern::AgentDiscovery.query_name(),
+            "a2a_agent_discovery"
+        );
+        assert_eq!(
+            A2aPattern::CapabilityMatch.query_name(),
+            "a2a_capability_match"
+        );
         assert_eq!(A2aPattern::SkillMatch.query_name(), "a2a_skill_match");
         assert_eq!(
             A2aPattern::MessageConstruction.query_name(),
             "a2a_message_construction"
         );
-        assert_eq!(A2aPattern::ProtocolFilter.query_name(), "a2a_protocol_filter");
+        assert_eq!(
+            A2aPattern::ProtocolFilter.query_name(),
+            "a2a_protocol_filter"
+        );
         assert_eq!(
             A2aPattern::WorkflowConstruction.query_name(),
             "a2a_workflow_construction"
@@ -128,18 +146,27 @@ mod tests {
         // Verify all queries contain required SPARQL elements
         for pattern in all_patterns() {
             let content = pattern.query_content();
-            
+
             // Must contain CONSTRUCT keyword
-            assert!(content.contains("CONSTRUCT"), 
-                "Query for {:?} must contain CONSTRUCT keyword", pattern);
-            
+            assert!(
+                content.contains("CONSTRUCT"),
+                "Query for {:?} must contain CONSTRUCT keyword",
+                pattern
+            );
+
             // Must contain WHERE clause
-            assert!(content.contains("WHERE"), 
-                "Query for {:?} must contain WHERE clause", pattern);
-            
+            assert!(
+                content.contains("WHERE"),
+                "Query for {:?} must contain WHERE clause",
+                pattern
+            );
+
             // Must contain PREFIX declarations
-            assert!(content.contains("PREFIX"), 
-                "Query for {:?} must contain PREFIX declarations", pattern);
+            assert!(
+                content.contains("PREFIX"),
+                "Query for {:?} must contain PREFIX declarations",
+                pattern
+            );
         }
     }
 

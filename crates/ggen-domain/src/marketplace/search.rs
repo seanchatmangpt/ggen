@@ -553,7 +553,9 @@ async fn load_registry_index() -> Result<RegistryIndex> {
 
     // Check for explicit marketplace root override first
     if let Ok(marketplace_root) = std::env::var("GGEN_MARKETPLACE_ROOT") {
-        let registry_path = PathBuf::from(marketplace_root).join("registry").join("index.json");
+        let registry_path = PathBuf::from(marketplace_root)
+            .join("registry")
+            .join("index.json");
         if registry_path.exists() {
             return load_registry_from_path(&registry_path).await;
         }

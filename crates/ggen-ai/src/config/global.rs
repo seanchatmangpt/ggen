@@ -160,7 +160,7 @@ impl GlobalLlmConfig {
                 "ollama" => LlmProvider::Ollama,
                 "zai" => LlmProvider::Zai,
                 "mock" => LlmProvider::Mock,
-                _ => LlmProvider::Zai,  // Default to ZAI
+                _ => LlmProvider::Zai, // Default to ZAI
             };
         }
 

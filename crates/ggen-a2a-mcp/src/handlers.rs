@@ -5,10 +5,10 @@
 
 use crate::error::{A2aMcpError, A2aMcpResult};
 use a2a_generated::converged::message::{
-    ConvergedMessage, ConvergedMessageType, ConvergedPayload, MessageEnvelope,
-    MessageLifecycle, MessagePriority, MessageRouting, MessageState, MessageTimeout,
-    MessageStateTransition, QoSRequirements, ReliabilityLevel, UnifiedContent,
-    UnifiedFileContent, UnifiedContext, TaskContext,
+    ConvergedMessage, ConvergedMessageType, ConvergedPayload, MessageEnvelope, MessageLifecycle,
+    MessagePriority, MessageRouting, MessageState, MessageStateTransition, MessageTimeout,
+    QoSRequirements, ReliabilityLevel, TaskContext, UnifiedContent, UnifiedContext,
+    UnifiedFileContent,
 };
 use async_trait::async_trait;
 use chrono::Utc;
@@ -18,16 +18,11 @@ use std::sync::Arc;
 use tracing::{debug, error, info, warn};
 
 // Re-export handler traits and types
-pub use handler::{
-    HandlerResult, HandlerError, HandlerPriority,
-    HandlerStatus, HandlerContext,
-};
+pub use handler::{HandlerContext, HandlerError, HandlerPriority, HandlerResult, HandlerStatus};
 
 pub mod handler {
     use crate::error::{A2aMcpError, A2aMcpResult};
-    use a2a_generated::converged::message::{
-        ConvergedMessage, ConvergedMessageType, MessageState,
-    };
+    use a2a_generated::converged::message::{ConvergedMessage, ConvergedMessageType, MessageState};
     use async_trait::async_trait;
     use chrono::Utc;
     use serde::{Deserialize, Serialize};
@@ -183,12 +178,15 @@ impl MessageHandler for TextContentHandler {
     async fn handle(&self, message: ConvergedMessage) -> HandlerResult<ConvergedMessage> {
         let content = match &message.payload.content {
             UnifiedContent::Text { content, .. } => content,
-            _ => return Err(HandlerError::Validation(
-                "Expected text content".to_string(),
-            )),
+            _ => {
+                return Err(HandlerError::Validation(
+                    "Expected text content".to_string(),
+                ))
+            }
         };
 
-        let processed = self.process_text(content)
+        let processed = self
+            .process_text(content)
             .map_err(|e| HandlerError::Processing(format!("Text processing failed: {}", e)))?;
 
         // Create response message
@@ -239,10 +237,7 @@ impl FileContentHandler {
         Self {
             name: "FileContentHandler".to_string(),
             priority: HandlerPriority::High,
-            supported_types: vec![
-                ConvergedMessageType::Direct,
-                ConvergedMessageType::Task,
-            ],
+            supported_types: vec![ConvergedMessageType::Direct, ConvergedMessageType::Task],
             max_file_size: 10 * 1024 * 1024, // 10 MB default
         }
     }
@@ -306,14 +301,16 @@ impl MessageHandler for FileContentHandler {
     async fn handle(&self, message: ConvergedMessage) -> HandlerResult<ConvergedMessage> {
         let file = match &message.payload.content {
             UnifiedContent::File { file, .. } => file,
-            _ => return Err(HandlerError::Validation(
-                "Expected file content".to_string(),
-            )),
+            _ => {
+                return Err(HandlerError::Validation(
+                    "Expected file content".to_string(),
+                ))
+            }
         };
 
-        let result = self.process_file(file).map_err(|e| {
-            HandlerError::Processing(format!("Failed to process file: {}", e))
-        })?;
+        let result = self
+            .process_file(file)
+            .map_err(|e| HandlerError::Processing(format!("Failed to process file: {}", e)))?;
 
         let response = ConvergedMessage::text(
             format!("{}-response", message.message_id),
@@ -372,12 +369,13 @@ impl DataContentHandler {
 
     /// Process data content
     fn process_data(
-        &self,
-        data: &serde_json::Map<String, serde_json::Value>,
-        schema: &Option<String>,
+        &self, data: &serde_json::Map<String, serde_json::Value>, schema: &Option<String>,
     ) -> A2aMcpResult<String> {
         let mut result = serde_json::Map::new();
-        result.insert("status".to_string(), serde_json::Value::String("processed".to_string()));
+        result.insert(
+            "status".to_string(),
+            serde_json::Value::String("processed".to_string()),
+        );
         result.insert(
             "original_keys".to_string(),
             serde_json::Value::Number(data.len().into()),
@@ -405,14 +403,16 @@ impl MessageHandler for DataContentHandler {
     async fn handle(&self, message: ConvergedMessage) -> HandlerResult<ConvergedMessage> {
         let (data, schema) = match &message.payload.content {
             UnifiedContent::Data { data, schema } => (data, schema),
-            _ => return Err(HandlerError::Validation(
-                "Expected data content".to_string(),
-            )),
+            _ => {
+                return Err(HandlerError::Validation(
+                    "Expected data content".to_string(),
+                ))
+            }
         };
 
-        let result = self.process_data(data, schema).map_err(|e| {
-            HandlerError::Processing(format!("Failed to process data: {}", e))
-        })?;
+        let result = self
+            .process_data(data, schema)
+            .map_err(|e| HandlerError::Processing(format!("Failed to process data: {}", e)))?;
 
         let response = ConvergedMessage::text(
             format!("{}-response", message.message_id),
@@ -525,14 +525,16 @@ impl MessageHandler for MultipartHandler {
     async fn handle(&self, message: ConvergedMessage) -> HandlerResult<ConvergedMessage> {
         let (parts, boundary) = match &message.payload.content {
             UnifiedContent::Multipart { parts, boundary } => (parts, boundary),
-            _ => return Err(HandlerError::Validation(
-                "Expected multipart content".to_string(),
-            )),
+            _ => {
+                return Err(HandlerError::Validation(
+                    "Expected multipart content".to_string(),
+                ))
+            }
         };
 
-        let result = self.process_multipart(parts).map_err(|e| {
-            HandlerError::Processing(format!("Failed to process multipart: {}", e))
-        })?;
+        let result = self
+            .process_multipart(parts)
+            .map_err(|e| HandlerError::Processing(format!("Failed to process multipart: {}", e)))?;
 
         let response = ConvergedMessage::text(
             format!("{}-response", message.message_id),
@@ -583,10 +585,7 @@ impl StreamHandler {
         Self {
             name: "StreamHandler".to_string(),
             priority: HandlerPriority::High,
-            supported_types: vec![
-                ConvergedMessageType::Direct,
-                ConvergedMessageType::Event,
-            ],
+            supported_types: vec![ConvergedMessageType::Direct, ConvergedMessageType::Event],
             max_chunk_size: 1024 * 1024, // 1 MB default
         }
     }
@@ -598,11 +597,7 @@ impl StreamHandler {
     }
 
     /// Process stream content
-    fn process_stream(
-        &self,
-        stream_id: &str,
-        chunk_size: usize,
-    ) -> A2aMcpResult<String> {
+    fn process_stream(&self, stream_id: &str, chunk_size: usize) -> A2aMcpResult<String> {
         if chunk_size > self.max_chunk_size {
             return Err(A2aMcpError::Translation(format!(
                 "Chunk size {} exceeds maximum {}",
@@ -632,14 +627,16 @@ impl MessageHandler for StreamHandler {
                 chunk_size,
                 ..
             } => (stream_id, *chunk_size),
-            _ => return Err(HandlerError::Validation(
-                "Expected stream content".to_string(),
-            )),
+            _ => {
+                return Err(HandlerError::Validation(
+                    "Expected stream content".to_string(),
+                ))
+            }
         };
 
-        let result = self.process_stream(stream_id, chunk_size).map_err(|e| {
-            HandlerError::Processing(format!("Failed to process stream: {}", e))
-        })?;
+        let result = self
+            .process_stream(stream_id, chunk_size)
+            .map_err(|e| HandlerError::Processing(format!("Failed to process stream: {}", e)))?;
 
         let response = ConvergedMessage::text(
             format!("{}-response", message.message_id),
@@ -724,8 +721,7 @@ impl HandlerFactory {
 
     /// Find handlers that can handle a message type
     pub fn find_for_type(
-        &self,
-        message_type: &ConvergedMessageType,
+        &self, message_type: &ConvergedMessageType,
     ) -> Vec<Arc<dyn MessageHandler>> {
         self.all()
             .into_iter()
@@ -735,8 +731,7 @@ impl HandlerFactory {
 
     /// Get the highest priority handler for a message type
     pub fn best_for_type(
-        &self,
-        message_type: &ConvergedMessageType,
+        &self, message_type: &ConvergedMessageType,
     ) -> Option<Arc<dyn MessageHandler>> {
         self.find_for_type(message_type)
             .into_iter()
@@ -952,7 +947,9 @@ mod tests {
         assert_eq!(handler.priority(), HandlerPriority::Normal);
 
         let result = handler.handle(message).await.unwrap();
-        assert!(result.payload.content
+        assert!(result
+            .payload
+            .content
             .as_text()
             .map(|t| t.contains("Processed"))
             .unwrap_or(false));
@@ -963,7 +960,10 @@ mod tests {
         let handler = DataContentHandler::new();
 
         let mut data = HashMap::new();
-        data.insert("key".to_string(), serde_json::Value::String("value".to_string()));
+        data.insert(
+            "key".to_string(),
+            serde_json::Value::String("value".to_string()),
+        );
 
         let mut message = create_test_message(ConvergedMessageType::Query);
         message.payload.content = UnifiedContent::Data {
@@ -972,7 +972,9 @@ mod tests {
         };
 
         let result = handler.handle(message).await.unwrap();
-        assert!(result.payload.content
+        assert!(result
+            .payload
+            .content
             .as_text()
             .map(|t| t.contains("processed"))
             .unwrap_or(false));
@@ -1021,7 +1023,9 @@ mod tests {
         let message = create_test_message(ConvergedMessageType::Direct);
 
         let result = router.route(message).await.unwrap();
-        assert!(result.payload.content
+        assert!(result
+            .payload
+            .content
             .as_text()
             .map(|t| t.contains("Processed"))
             .unwrap_or(false));
@@ -1066,7 +1070,9 @@ mod tests {
         };
 
         let result = handler.handle(message).await.unwrap();
-        assert!(result.payload.content
+        assert!(result
+            .payload
+            .content
             .as_text()
             .map(|t| t.contains("Part 0"))
             .unwrap_or(false));
@@ -1084,7 +1090,9 @@ mod tests {
         };
 
         let result = handler.handle(message).await.unwrap();
-        assert!(result.payload.content
+        assert!(result
+            .payload
+            .content
             .as_text()
             .map(|t| t.contains("test-stream"))
             .unwrap_or(false));

@@ -149,9 +149,7 @@ impl BuildReceipt {
     /// # Returns
     /// * `Ok(BuildReceipt)` - Receipt with all file hashes
     /// * `Err(Error)` - If files cannot be read
-    pub fn generate(
-        epoch: &Epoch, output_dir: &Path, toolchain_version: &str,
-    ) -> Result<Self> {
+    pub fn generate(epoch: &Epoch, output_dir: &Path, toolchain_version: &str) -> Result<Self> {
         let outputs = Self::scan_output_files(output_dir)?;
         Ok(Self::new(epoch, Vec::new(), outputs, toolchain_version))
     }
@@ -173,9 +171,8 @@ impl BuildReceipt {
         })?;
 
         for entry in entries {
-            let entry = entry.map_err(|e| {
-                Error::new(&format!("Failed to read directory entry: {}", e))
-            })?;
+            let entry =
+                entry.map_err(|e| Error::new(&format!("Failed to read directory entry: {}", e)))?;
 
             let path = entry.path();
 
@@ -355,10 +352,7 @@ impl BuildReceipt {
 
         // Create filename from timestamp
         // Format: receipt-YYYY-MM-DD-HHMMSS.json
-        let filename = format!(
-            "receipt-{}.json",
-            self.timestamp.replace([':', '.'], "-")
-        );
+        let filename = format!("receipt-{}.json", self.timestamp.replace([':', '.'], "-"));
         let receipt_path = receipts_dir.join(&filename);
 
         // Write receipt
@@ -451,7 +445,9 @@ impl OutputFile {
 /// # Ok(())
 /// # }
 /// ```
-pub fn generate_receipt(epoch: &Epoch, output_dir: &Path, ggen_version: &str) -> Result<BuildReceipt> {
+pub fn generate_receipt(
+    epoch: &Epoch, output_dir: &Path, ggen_version: &str,
+) -> Result<BuildReceipt> {
     BuildReceipt::generate(epoch, output_dir, ggen_version)
 }
 

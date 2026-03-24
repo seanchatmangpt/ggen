@@ -316,7 +316,8 @@ impl ModelCapabilities {
         }
 
         // GLM (Zhipu AI / ZAI) models
-        if name_lower.contains("glm") || name_lower.contains("zai") || name_lower.contains("zhipu") {
+        if name_lower.contains("glm") || name_lower.contains("zai") || name_lower.contains("zhipu")
+        {
             return Self {
                 max_context_tokens: 128_000,
                 max_output_tokens: 8_192,

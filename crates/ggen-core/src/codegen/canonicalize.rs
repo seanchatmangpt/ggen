@@ -365,12 +365,11 @@ pub fn get_generated_header() -> String {
 ///
 /// # Returns
 /// Canonicalized content
-pub fn canonicalize_file(file_path: &Path, content: &str, options: &CanonicalizeOptions) -> Result<String> {
+pub fn canonicalize_file(
+    file_path: &Path, content: &str, options: &CanonicalizeOptions,
+) -> Result<String> {
     // Detect file type from extension
-    let ext = file_path
-        .extension()
-        .and_then(|e| e.to_str())
-        .unwrap_or("");
+    let ext = file_path.extension().and_then(|e| e.to_str()).unwrap_or("");
 
     match ext {
         "rs" => canonicalize_rust(content, options),
@@ -633,9 +632,7 @@ fn main() {}
             ImportGroup::Std
         );
         assert_eq!(
-            RustImport::parse("use serde::Serialize;")
-                .unwrap()
-                .group,
+            RustImport::parse("use serde::Serialize;").unwrap().group,
             ImportGroup::External
         );
         assert_eq!(
