@@ -333,6 +333,7 @@ impl XsdType {
 }
 
 /// Generate Turtle prefix declarations
+#[must_use]
 pub fn generate_prefixes() -> String {
     format!(
         r"@prefix rdf: <{}> .
@@ -363,6 +364,8 @@ pub fn generate_prefixes() -> String {
 }
 
 /// Generate complete ontology definition in Turtle
+#[must_use]
+#[allow(clippy::too_many_lines)]
 pub fn generate_ontology_definition() -> String {
     let mut ttl = generate_prefixes();
 
