@@ -281,14 +281,13 @@ impl FmeaMitigationManager {
             // Delete orphaned resource
             self.record_success(FmeaFailureModes::ORPHANED_RESOURCE.id, start.elapsed());
             MitigationResult::Success {
-                action_taken: format!("Deleted orphaned resource: {}", resource_id),
+                action_taken: format!("Deleted orphaned resource: {resource_id}"),
             }
         } else {
             self.record_failure(FmeaFailureModes::ORPHANED_RESOURCE.id);
             MitigationResult::ManualInterventionRequired {
                 details: format!(
-                    "Resource {} has some references but is incomplete",
-                    resource_id
+                    "Resource {resource_id} has some references but is incomplete",
                 ),
             }
         }
@@ -303,11 +302,11 @@ impl FmeaMitigationManager {
 
         // Cannot auto-fix circular dependencies - requires user decision
         self.record_failure(FmeaFailureModes::CIRCULAR_DEPENDENCY.id);
+        let first = cycle_path.first().map(|s| s.as_str()).unwrap_or("unknown");
+        let last = cycle_path.last().map(|s| s.as_str()).unwrap_or("unknown");
         MitigationResult::ManualInterventionRequired {
             details: format!(
-                "Circular dependency chain: {} -> ... -> {}",
-                cycle_path.first().unwrap_or(&"unknown".to_string()),
-                cycle_path.last().unwrap_or(&"unknown".to_string())
+                "Circular dependency chain: {first} -> ... -> {last}",
             ),
         }
     }
@@ -328,8 +327,7 @@ impl FmeaMitigationManager {
         self.record_success(FmeaFailureModes::SPARQL_INJECTION.id, start.elapsed());
         MitigationResult::Success {
             action_taken: format!(
-                "Blocked query with suspicious pattern: {}",
-                suspicious_pattern
+                "Blocked query with suspicious pattern: {suspicious_pattern}",
             ),
         }
     }
