@@ -94,6 +94,15 @@ pub mod models {
     /// Default ZAI model (Zhipu AI GLM-4.6 coding model)
     pub const ZAI_DEFAULT: &str = "zai-coding::glm-4.6";
 
+    /// Default Groq model (fast, high-quality — llama 3.3 70B)
+    pub const GROQ_DEFAULT: &str = "llama-3.3-70b-versatile";
+
+    /// Groq fast model — lowest latency, ideal for agent loops
+    pub const GROQ_FAST: &str = "llama-3.1-8b-instant";
+
+    /// Groq reasoning model — DeepSeek R1 distilled on Groq hardware
+    pub const GROQ_SMART: &str = "deepseek-r1-distill-llama-70b";
+
     /// Mock model for testing
     pub const MOCK_MODEL: &str = "mock-model";
 }
@@ -202,6 +211,12 @@ pub mod env_vars {
 
     /// ZAI API endpoint
     pub const ZAI_ENDPOINT: &str = "ZAI_ENDPOINT";
+
+    /// Groq API key
+    pub const GROQ_API_KEY: &str = "GROQ_API_KEY";
+
+    /// Groq model override
+    pub const GROQ_MODEL: &str = "GROQ_MODEL";
 }
 
 /// Target Languages

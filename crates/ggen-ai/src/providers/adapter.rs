@@ -118,3 +118,50 @@ pub fn ollama_qwen3_coder_config() -> LlmConfig {
         extra: HashMap::new(),
     }
 }
+
+/// Create Groq default configuration — llama-3.3-70b-versatile
+///
+/// Best general-purpose Groq model. ~800 tokens/sec.
+/// Requires `GROQ_API_KEY` environment variable.
+pub fn groq_default_config() -> LlmConfig {
+    LlmConfig {
+        model: crate::constants::models::GROQ_DEFAULT.to_string(),
+        max_tokens: Some(4096),
+        temperature: Some(0.7),
+        top_p: Some(0.9),
+        stop: None,
+        extra: HashMap::new(),
+    }
+}
+
+/// Create Groq fast configuration — llama-3.1-8b-instant
+///
+/// Lowest latency Groq model. Ideal for agent loops, classification,
+/// and tasks where speed > raw quality. ~1200 tokens/sec.
+/// Requires `GROQ_API_KEY` environment variable.
+pub fn groq_fast_config() -> LlmConfig {
+    LlmConfig {
+        model: crate::constants::models::GROQ_FAST.to_string(),
+        max_tokens: Some(4096),
+        temperature: Some(0.3),
+        top_p: Some(0.9),
+        stop: None,
+        extra: HashMap::new(),
+    }
+}
+
+/// Create Groq smart configuration — deepseek-r1-distill-llama-70b
+///
+/// DeepSeek R1 reasoning model running on Groq hardware.
+/// Best for multi-step reasoning, SPARQL generation, and ontology work.
+/// Requires `GROQ_API_KEY` environment variable.
+pub fn groq_smart_config() -> LlmConfig {
+    LlmConfig {
+        model: crate::constants::models::GROQ_SMART.to_string(),
+        max_tokens: Some(8192),
+        temperature: Some(0.6),
+        top_p: Some(0.95),
+        stop: None,
+        extra: HashMap::new(),
+    }
+}

@@ -106,7 +106,6 @@ impl Default for CanonicalizationReceipt {
     }
 }
 
->>>>>>> 04ffd5305426e5ecd596cf9e659317ce43a0c007
 /// μ₄: Canonicalization pass implementation
 #[derive(Debug, Clone)]
 pub struct CanonicalizationPass {

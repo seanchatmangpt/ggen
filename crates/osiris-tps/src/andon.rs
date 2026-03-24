@@ -221,7 +221,7 @@ impl TPSAndonSystem {
         });
 
         // Process signal
-        let result = self.signal_processor.process_signal(signal).await?;
+        let result = TPSSignalProcessor::process_signal(signal).await?;
 
         Ok(json!({
             "status": "alert_created",

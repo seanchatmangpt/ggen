@@ -156,7 +156,7 @@ pub mod signal_types {
 
     /// JIT (Just-in-Time) signals
     pub const KANBAN_SIGNAL: &str = "kanban_signal";
-    pub const STOCK depletion: &str = "stock_depletion";
+    pub const STOCK_DEPLETION: &str = "stock_depletion";
     pub const PULL_REQUEST: &str = "pull_request";
     pub const PRODUCTION_ORDER: &str = "production_order";
 
