@@ -194,6 +194,7 @@ impl FmeaFailureModes {
     );
 
     // Additional failure modes (16-47)
+    #[must_use]
     pub fn all_failure_modes() -> Vec<FailureMode> {
         vec![
             Self::MALFORMED_TRIPLE,
@@ -239,6 +240,7 @@ pub struct FailureMetrics {
 }
 
 impl FmeaMitigationManager {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             metrics: HashMap::new(),
@@ -257,7 +259,7 @@ impl FmeaMitigationManager {
         if let Some(fixed) = self.attempt_triple_repair(triple_data) {
             self.record_success(FmeaFailureModes::MALFORMED_TRIPLE.id, start.elapsed());
             MitigationResult::Success {
-                action_taken: format!("Repaired triple: {}", fixed),
+                action_taken: format!("Repaired triple: {fixed}"),
             }
         } else {
             self.record_failure(FmeaFailureModes::MALFORMED_TRIPLE.id);
