@@ -1,0 +1,18 @@
+[package]
+name = "ggen-metrics-tps"
+version = "6.0.0"
+edition = "2021"
+rust-version = "1.91.1"
+authors = ["ggen contributors"]
+description = "Metrics collection and telemetry for A2A/TPS in ggen"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/ggen"
+
+[dependencies]
+prometheus = "0.13"
+tokio = { version = "1.41", features = ["sync", "rt", "macros"] }
+thiserror = "2.0"
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+tokio = { version = "1.41", features = ["full", "test-util"] }

@@ -1,0 +1,22 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ln_ctrl: <https://ggen.io/ontology/ln_ctrl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?property ?label ?comment ?range ?domain
+WHERE {
+  # Extract all scenario and replay pack properties
+  ?property a rdf:Property ;
+            rdfs:label ?label .
+  OPTIONAL { ?property rdfs:comment ?comment . }
+  OPTIONAL { ?property rdfs:range ?range . }
+  OPTIONAL { ?property rdfs:domain ?domain . }
+
+  # Filter for scenario-related properties (ReplayPack, ChoiceLog, InitialState)
+  FILTER(
+    ?domain = ln_ctrl:ReplayPack ||
+    ?domain = ln_ctrl:ChoiceLog ||
+    ?domain = ln_ctrl:InitialState
+  )
+}
+ORDER BY ?domain ?label

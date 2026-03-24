@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Expected Verdict",
+  "description": "Expected validation verdict for ln_ctrl receipt chain",
+  "scenario_id": "{{ scenario_id | default(value="550e8400-e29b-41d4-a716-446655440000") }}",
+  "workflow_id": "{{ workflow_id | default(value="550e8400-e29b-41d4-a716-446655440000") }}",
+  "verdict": {
+    "valid": {{ valid | default(value="true") }},
+    "chain_integrity": {
+      "causal_chain_valid": {{ causal_chain_valid | default(value="true") }},
+      "hash_chain_valid": {{ hash_chain_valid | default(value="true") }},
+      "signatures_valid": {{ signatures_valid | default(value="true") }},
+      "step_sequence_valid": {{ step_sequence_valid | default(value="true") }}
+    },
+    "execution_semantics": {
+      "reductions_sound": {{ reductions_sound | default(value="true") }},
+      "frontier_consistent": {{ frontier_consistent | default(value="true") }},
+      "effects_ordered": {{ effects_ordered | default(value="true") }},
+      "budget_tracking_valid": {{ budget_tracking_valid | default(value="true") }}
+    },
+    "completeness": {
+      "all_steps_recorded": {{ all_steps_recorded | default(value="true") }},
+      "no_missing_receipts": {{ no_missing_receipts | default(value="true") }},
+      "termination_valid": {{ termination_valid | default(value="true") }}
+    }
+  },
+  "validation_results": {
+    "total_checks": {{ total_checks | default(value="11") }},
+    "passed_checks": {{ passed_checks | default(value="11") }},
+    "failed_checks": {{ failed_checks | default(value="0") }},
+    "warnings": {{ warnings | default(value="0") }}
+  },
+  "errors": [
+    {%- for error in errors | default(value=[]) %}
+    {
+      "error_code": "{{ error.error_code }}",
+      "error_message": "{{ error.error_message }}",
+      "receipt_index": {{ error.receipt_index | default(value="null") }},
+      "field_path": "{{ error.field_path | default(value="") }}",
+      "severity": "{{ error.severity | default(value="error") }}"
+    }{% if not loop.last %},{% endif %}
+    {%- endfor %}
+  ],
+  "warnings": [
+    {%- for warning in warnings | default(value=[]) %}
+    {
+      "warning_code": "{{ warning.warning_code }}",
+      "warning_message": "{{ warning.warning_message }}",
+      "receipt_index": {{ warning.receipt_index | default(value="null") }},
+      "field_path": "{{ warning.field_path | default(value="") }}"
+    }{% if not loop.last %},{% endif %}
+    {%- endfor %}
+  ],
+  "chain_metrics": {
+    "chain_length": {{ chain_length | default(value="3") }},
+    "total_reductions": {{ total_reductions | default(value="3") }},
+    "total_effects": {{ total_effects | default(value="0") }},
+    "final_budget": {
+      "budget_steps": {{ final_budget_steps | default(value="9997") }},
+      "budget_memory": {{ final_budget_memory | default(value="104857600") }},
+      "budget_time": {{ final_budget_time | default(value="29997") }},
+      "budget_exceeded": {{ final_budget_exceeded | default(value="false") }}
+    }
+  },
+  "cryptographic_verification": {
+    "all_signatures_verified": {{ all_signatures_verified | default(value="true") }},
+    "hash_chain_complete": {{ hash_chain_complete | default(value="true") }},
+    "causal_chain_complete": {{ causal_chain_complete | default(value="true") }},
+    "no_hash_collisions": {{ no_hash_collisions | default(value="true") }}
+  },
+  "normalization_rules": {
+    "timestamp_placeholder": "{{TIMESTAMP}}",
+    "hash_placeholder": "{{HASH}}",
+    "signature_placeholder": "{{SIGNATURE}}",
+    "uuid_placeholder": "{{UUID}}",
+    "normalize_line_endings": true,
+    "ignore_fields": [
+      "validation_timestamp",
+      "validator_version"
+    ]
+  },
+  "metadata": {
+    "validation_timestamp": "{{ validation_timestamp | default(value="2026-02-11T00:00:00Z") }}",
+    "validator_version": "{{ validator_version | default(value="1.0.0") }}",
+    "schema_version": "{{ schema_version | default(value="1.0.0") }}",
+    "deterministic": true
+  }
+}

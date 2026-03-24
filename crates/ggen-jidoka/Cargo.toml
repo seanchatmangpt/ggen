@@ -1,0 +1,39 @@
+[package]
+name = "ggen-jidoka"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Jidoka gates and andon signal system for quality control in ggen"
+license = "MIT"
+
+[lib]
+name = "ggen_jidoka"
+path = "src/lib.rs"
+doctest = false
+
+[dependencies]
+tokio = { workspace = true }
+tracing = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+chrono = { workspace = true }
+futures = { workspace = true }
+dashmap = { workspace = true }
+parking_lot = "0.12"
+regex = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tempfile = { workspace = true }
+chicago-tdd-tools = { workspace = true }
+
+[features]
+default = []
+
+[[example]]
+name = "jidoka_demo"
+path = "examples/jidoka_demo.rs"

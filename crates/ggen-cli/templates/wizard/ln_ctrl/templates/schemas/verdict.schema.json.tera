@@ -1,0 +1,343 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ln_ctrl Verdict",
+  "description": "Validation verdict for ln_ctrl receipts and execution traces",
+  "type": "object",
+  "properties": {
+    "valid": {
+      "type": "boolean",
+      "description": "Overall validation result (CONSTRUCT gate - true if all gates pass)"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of validation execution"
+    },
+    "errors": {
+      "type": "array",
+      "description": "List of validation errors (empty if valid)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "description": "Error code for programmatic handling",
+            "examples": ["HASH_MISMATCH", "SCHEMA_VIOLATION", "SHACL_FAILURE", "TRACE_BROKEN"]
+          },
+          "error_message": {
+            "type": "string",
+            "description": "Human-readable error message"
+          },
+          "error_location": {
+            "type": "string",
+            "description": "Path or location of error in validated structure (JSONPath or field path)",
+            "examples": ["$.causal_parent", "redex_executed.redex_type", "frontier_after.frontier_hash"]
+          },
+          "error_severity": {
+            "type": "string",
+            "description": "Severity level",
+            "enum": ["critical", "high", "medium", "low"],
+            "default": "high"
+          },
+          "error_gate": {
+            "type": "string",
+            "description": "Gate that produced this error",
+            "enum": ["shacl", "schema", "hash", "trace", "signature", "causal_chain"]
+          },
+          "error_expected": {
+            "type": "string",
+            "description": "Expected value (for comparison errors)",
+            "nullable": true
+          },
+          "error_actual": {
+            "type": "string",
+            "description": "Actual value encountered (for comparison errors)",
+            "nullable": true
+          }
+        },
+        "required": ["error_code", "error_message", "error_severity", "error_gate"],
+        "additionalProperties": false
+      },
+      "default": []
+    },
+    "warnings": {
+      "type": "array",
+      "description": "List of validation warnings (non-blocking)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "warning_code": {
+            "type": "string",
+            "description": "Warning code for programmatic handling",
+            "examples": ["PERFORMANCE_SLOW", "DEPRECATED_FIELD", "BUDGET_LOW"]
+          },
+          "warning_message": {
+            "type": "string",
+            "description": "Human-readable warning message"
+          },
+          "warning_location": {
+            "type": "string",
+            "description": "Path or location of warning in validated structure",
+            "nullable": true
+          },
+          "warning_gate": {
+            "type": "string",
+            "description": "Gate that produced this warning",
+            "enum": ["shacl", "schema", "hash", "trace", "signature", "causal_chain", "performance"]
+          }
+        },
+        "required": ["warning_code", "warning_message", "warning_gate"],
+        "additionalProperties": false
+      },
+      "default": []
+    },
+    "gate_results": {
+      "type": "array",
+      "description": "Per-gate validation results (SHACL, schema, hash, trace)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "gate_name": {
+            "type": "string",
+            "description": "Name of validation gate",
+            "enum": ["shacl", "schema", "hash", "trace", "signature", "causal_chain"]
+          },
+          "gate_passed": {
+            "type": "boolean",
+            "description": "Whether this gate passed validation"
+          },
+          "gate_duration_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Execution time for this gate in milliseconds"
+          },
+          "gate_error_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of errors found by this gate",
+            "default": 0
+          },
+          "gate_warning_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of warnings found by this gate",
+            "default": 0
+          },
+          "gate_details": {
+            "type": "string",
+            "description": "Additional gate-specific validation details (JSON string)",
+            "nullable": true
+          }
+        },
+        "required": ["gate_name", "gate_passed", "gate_duration_ms", "gate_error_count", "gate_warning_count"],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "validated_receipt_hash": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "SHA-256 hash of receipt that was validated"
+    },
+    "validator_version": {
+      "type": "string",
+      "description": "Version of validator that produced this verdict",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.]+)?$",
+      "examples": ["6.0.0", "6.0.0-alpha.1"]
+    },
+    "total_error_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of validation errors across all gates"
+    },
+    "total_warning_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of validation warnings across all gates"
+    },
+    "validation_duration_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total validation execution time in milliseconds"
+    },
+    "gates_passed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of gates that passed validation"
+    },
+    "gates_failed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of gates that failed validation"
+    }
+  },
+  "required": [
+    "valid",
+    "timestamp",
+    "errors",
+    "warnings",
+    "gate_results",
+    "validated_receipt_hash",
+    "validator_version",
+    "total_error_count",
+    "total_warning_count",
+    "validation_duration_ms",
+    "gates_passed",
+    "gates_failed"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "valid": true,
+      "timestamp": "2026-02-11T21:45:00Z",
+      "errors": [],
+      "warnings": [
+        {
+          "warning_code": "BUDGET_LOW",
+          "warning_message": "Remaining budget steps below 10% threshold",
+          "warning_location": "$.budget_remaining.budget_steps",
+          "warning_gate": "trace"
+        }
+      ],
+      "gate_results": [
+        {
+          "gate_name": "shacl",
+          "gate_passed": true,
+          "gate_duration_ms": 45,
+          "gate_error_count": 0,
+          "gate_warning_count": 0,
+          "gate_details": null
+        },
+        {
+          "gate_name": "schema",
+          "gate_passed": true,
+          "gate_duration_ms": 12,
+          "gate_error_count": 0,
+          "gate_warning_count": 0,
+          "gate_details": null
+        },
+        {
+          "gate_name": "hash",
+          "gate_passed": true,
+          "gate_duration_ms": 8,
+          "gate_error_count": 0,
+          "gate_warning_count": 0,
+          "gate_details": "{\"hash_algorithm\":\"SHA-256\",\"verified_fields\":[\"causal_parent\",\"hash_chain\",\"frontier_hash\"]}"
+        },
+        {
+          "gate_name": "trace",
+          "gate_passed": true,
+          "gate_duration_ms": 67,
+          "gate_error_count": 0,
+          "gate_warning_count": 1,
+          "gate_details": "{\"chain_length\":43,\"causal_chain_intact\":true}"
+        },
+        {
+          "gate_name": "signature",
+          "gate_passed": true,
+          "gate_duration_ms": 23,
+          "gate_error_count": 0,
+          "gate_warning_count": 0,
+          "gate_details": "{\"algorithm\":\"Ed25519\",\"signature_valid\":true}"
+        },
+        {
+          "gate_name": "causal_chain",
+          "gate_passed": true,
+          "gate_duration_ms": 34,
+          "gate_error_count": 0,
+          "gate_warning_count": 0,
+          "gate_details": "{\"chain_intact\":true,\"parent_verified\":true}"
+        }
+      ],
+      "validated_receipt_hash": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+      "validator_version": "6.0.0",
+      "total_error_count": 0,
+      "total_warning_count": 1,
+      "validation_duration_ms": 189,
+      "gates_passed": 6,
+      "gates_failed": 0
+    },
+    {
+      "valid": false,
+      "timestamp": "2026-02-11T21:46:30Z",
+      "errors": [
+        {
+          "error_code": "HASH_MISMATCH",
+          "error_message": "Hash chain does not match computed hash from causal parent",
+          "error_location": "$.hash_chain",
+          "error_severity": "critical",
+          "error_gate": "hash",
+          "error_expected": "abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
+          "error_actual": "1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd"
+        },
+        {
+          "error_code": "SCHEMA_VIOLATION",
+          "error_message": "Invalid redex_type: expected enum value",
+          "error_location": "$.redex_executed.redex_type",
+          "error_severity": "high",
+          "error_gate": "schema",
+          "error_expected": "one of [beta, eta, delta, iota, zeta, custom]",
+          "error_actual": "invalid_type"
+        }
+      ],
+      "warnings": [],
+      "gate_results": [
+        {
+          "gate_name": "shacl",
+          "gate_passed": true,
+          "gate_duration_ms": 42,
+          "gate_error_count": 0,
+          "gate_warning_count": 0,
+          "gate_details": null
+        },
+        {
+          "gate_name": "schema",
+          "gate_passed": false,
+          "gate_duration_ms": 15,
+          "gate_error_count": 1,
+          "gate_warning_count": 0,
+          "gate_details": "{\"schema_version\":\"draft-07\"}"
+        },
+        {
+          "gate_name": "hash",
+          "gate_passed": false,
+          "gate_duration_ms": 11,
+          "gate_error_count": 1,
+          "gate_warning_count": 0,
+          "gate_details": "{\"hash_algorithm\":\"SHA-256\",\"failed_field\":\"hash_chain\"}"
+        },
+        {
+          "gate_name": "trace",
+          "gate_passed": true,
+          "gate_duration_ms": 58,
+          "gate_error_count": 0,
+          "gate_warning_count": 0,
+          "gate_details": "{\"chain_length\":15,\"causal_chain_intact\":true}"
+        },
+        {
+          "gate_name": "signature",
+          "gate_passed": true,
+          "gate_duration_ms": 21,
+          "gate_error_count": 0,
+          "gate_warning_count": 0,
+          "gate_details": "{\"algorithm\":\"Ed25519\",\"signature_valid\":true}"
+        },
+        {
+          "gate_name": "causal_chain",
+          "gate_passed": true,
+          "gate_duration_ms": 29,
+          "gate_error_count": 0,
+          "gate_warning_count": 0,
+          "gate_details": "{\"chain_intact\":true,\"parent_verified\":true}"
+        }
+      ],
+      "validated_receipt_hash": "fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+      "validator_version": "6.0.0",
+      "total_error_count": 2,
+      "total_warning_count": 0,
+      "validation_duration_ms": 176,
+      "gates_passed": 4,
+      "gates_failed": 2
+    }
+  ]
+}

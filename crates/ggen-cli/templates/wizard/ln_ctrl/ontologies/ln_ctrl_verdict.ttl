@@ -1,0 +1,210 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ggen: <https://ggen.io/ontology#> .
+@prefix ln_ctrl: <https://ggen.io/ontology/ln_ctrl#> .
+
+# ln_ctrl Verdict Ontology
+# Validation results for ln_ctrl receipts and execution traces
+# Supports: CONSTRUCT gate (boolean), per-gate validation, error tracking, warnings
+
+ln_ctrl:Verdict a rdfs:Class ;
+    rdfs:label "ln_ctrl Verdict" ;
+    rdfs:comment "Validation verdict for ln_ctrl receipts and execution traces" .
+
+ln_ctrl:ValidationError a rdfs:Class ;
+    rdfs:label "Validation Error" ;
+    rdfs:comment "Individual validation error with location and details" .
+
+ln_ctrl:ValidationWarning a rdfs:Class ;
+    rdfs:label "Validation Warning" ;
+    rdfs:comment "Non-critical validation warning" .
+
+ln_ctrl:GateResult a rdfs:Class ;
+    rdfs:label "Gate Result" ;
+    rdfs:comment "Per-gate validation result (SHACL, schema, hash, trace)" .
+
+# Core Verdict Properties
+
+ln_ctrl:valid a rdf:Property ;
+    rdfs:domain ln_ctrl:Verdict ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "valid" ;
+    rdfs:comment "Overall validation result (CONSTRUCT gate - true if all gates pass)" .
+
+ln_ctrl:timestamp a rdf:Property ;
+    rdfs:domain ln_ctrl:Verdict ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" ;
+    rdfs:comment "ISO 8601 timestamp of validation execution" .
+
+ln_ctrl:verdict_errors a rdf:Property ;
+    rdfs:domain ln_ctrl:Verdict ;
+    rdfs:range ln_ctrl:ValidationError ;
+    rdfs:label "errors" ;
+    rdfs:comment "List of validation errors (empty if valid)" .
+
+ln_ctrl:verdict_warnings a rdf:Property ;
+    rdfs:domain ln_ctrl:Verdict ;
+    rdfs:range ln_ctrl:ValidationWarning ;
+    rdfs:label "warnings" ;
+    rdfs:comment "List of validation warnings (non-blocking)" .
+
+ln_ctrl:gate_results a rdf:Property ;
+    rdfs:domain ln_ctrl:Verdict ;
+    rdfs:range ln_ctrl:GateResult ;
+    rdfs:label "gate_results" ;
+    rdfs:comment "Per-gate validation results (SHACL, schema, hash, trace)" .
+
+ln_ctrl:validated_receipt_hash a rdf:Property ;
+    rdfs:domain ln_ctrl:Verdict ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "validated_receipt_hash" ;
+    rdfs:comment "SHA-256 hash of receipt that was validated" .
+
+ln_ctrl:validator_version a rdf:Property ;
+    rdfs:domain ln_ctrl:Verdict ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "validator_version" ;
+    rdfs:comment "Version of validator that produced this verdict" .
+
+# Validation Error Properties
+
+ln_ctrl:error_code a rdf:Property ;
+    rdfs:domain ln_ctrl:ValidationError ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "error_code" ;
+    rdfs:comment "Error code for programmatic handling" .
+
+ln_ctrl:error_message a rdf:Property ;
+    rdfs:domain ln_ctrl:ValidationError ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "error_message" ;
+    rdfs:comment "Human-readable error message" .
+
+ln_ctrl:error_location a rdf:Property ;
+    rdfs:domain ln_ctrl:ValidationError ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "error_location" ;
+    rdfs:comment "Path or location of error in validated structure (JSONPath or field path)" .
+
+ln_ctrl:error_severity a rdf:Property ;
+    rdfs:domain ln_ctrl:ValidationError ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "error_severity" ;
+    rdfs:comment "Severity level (critical, high, medium, low)" .
+
+ln_ctrl:error_gate a rdf:Property ;
+    rdfs:domain ln_ctrl:ValidationError ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "error_gate" ;
+    rdfs:comment "Gate that produced this error (shacl, schema, hash, trace)" .
+
+ln_ctrl:error_expected a rdf:Property ;
+    rdfs:domain ln_ctrl:ValidationError ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "error_expected" ;
+    rdfs:comment "Expected value (for comparison errors)" .
+
+ln_ctrl:error_actual a rdf:Property ;
+    rdfs:domain ln_ctrl:ValidationError ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "error_actual" ;
+    rdfs:comment "Actual value encountered (for comparison errors)" .
+
+# Validation Warning Properties
+
+ln_ctrl:warning_code a rdf:Property ;
+    rdfs:domain ln_ctrl:ValidationWarning ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "warning_code" ;
+    rdfs:comment "Warning code for programmatic handling" .
+
+ln_ctrl:warning_message a rdf:Property ;
+    rdfs:domain ln_ctrl:ValidationWarning ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "warning_message" ;
+    rdfs:comment "Human-readable warning message" .
+
+ln_ctrl:warning_location a rdf:Property ;
+    rdfs:domain ln_ctrl:ValidationWarning ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "warning_location" ;
+    rdfs:comment "Path or location of warning in validated structure" .
+
+ln_ctrl:warning_gate a rdf:Property ;
+    rdfs:domain ln_ctrl:ValidationWarning ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "warning_gate" ;
+    rdfs:comment "Gate that produced this warning" .
+
+# Gate Result Properties
+
+ln_ctrl:gate_name a rdf:Property ;
+    rdfs:domain ln_ctrl:GateResult ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "gate_name" ;
+    rdfs:comment "Name of validation gate (shacl, schema, hash, trace)" .
+
+ln_ctrl:gate_passed a rdf:Property ;
+    rdfs:domain ln_ctrl:GateResult ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "gate_passed" ;
+    rdfs:comment "Whether this gate passed validation" .
+
+ln_ctrl:gate_duration_ms a rdf:Property ;
+    rdfs:domain ln_ctrl:GateResult ;
+    rdfs:range xsd:integer ;
+    rdfs:label "gate_duration_ms" ;
+    rdfs:comment "Execution time for this gate in milliseconds" .
+
+ln_ctrl:gate_error_count a rdf:Property ;
+    rdfs:domain ln_ctrl:GateResult ;
+    rdfs:range xsd:integer ;
+    rdfs:label "gate_error_count" ;
+    rdfs:comment "Number of errors found by this gate" .
+
+ln_ctrl:gate_warning_count a rdf:Property ;
+    rdfs:domain ln_ctrl:GateResult ;
+    rdfs:range xsd:integer ;
+    rdfs:label "gate_warning_count" ;
+    rdfs:comment "Number of warnings found by this gate" .
+
+ln_ctrl:gate_details a rdf:Property ;
+    rdfs:domain ln_ctrl:GateResult ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "gate_details" ;
+    rdfs:comment "Additional gate-specific validation details (JSON string)" .
+
+# Verdict Statistics Properties
+
+ln_ctrl:total_error_count a rdf:Property ;
+    rdfs:domain ln_ctrl:Verdict ;
+    rdfs:range xsd:integer ;
+    rdfs:label "total_error_count" ;
+    rdfs:comment "Total number of validation errors across all gates" .
+
+ln_ctrl:total_warning_count a rdf:Property ;
+    rdfs:domain ln_ctrl:Verdict ;
+    rdfs:range xsd:integer ;
+    rdfs:label "total_warning_count" ;
+    rdfs:comment "Total number of validation warnings across all gates" .
+
+ln_ctrl:validation_duration_ms a rdf:Property ;
+    rdfs:domain ln_ctrl:Verdict ;
+    rdfs:range xsd:integer ;
+    rdfs:label "validation_duration_ms" ;
+    rdfs:comment "Total validation execution time in milliseconds" .
+
+ln_ctrl:gates_passed a rdf:Property ;
+    rdfs:domain ln_ctrl:Verdict ;
+    rdfs:range xsd:integer ;
+    rdfs:label "gates_passed" ;
+    rdfs:comment "Number of gates that passed validation" .
+
+ln_ctrl:gates_failed a rdf:Property ;
+    rdfs:domain ln_ctrl:Verdict ;
+    rdfs:range xsd:integer ;
+    rdfs:label "gates_failed" ;
+    rdfs:comment "Number of gates that failed validation" .

@@ -1,0 +1,517 @@
+# ln_ctrl Output Contract
+
+**Version**: 1.0.0 | **Status**: Specification | **Last Updated**: {{ timestamp | default(value="2026-02-11") }}
+
+> **CONTRACT**: This document defines the output schemas for λn execution receipts. All consumers MUST validate against these schemas.
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Receipt Schema](#receipt-schema)
+3. [Output Validation Rules](#output-validation-rules)
+4. [Schema Structure](#schema-structure)
+5. [Examples](#examples)
+6. [Validation Gates](#validation-gates)
+7. [Success Criteria](#success-criteria)
+
+---
+
+## Overview
+
+The ln_ctrl system produces cryptographically signed receipts for every λn execution step. These receipts form a causal chain that provides complete auditability and reproducibility of computation.
+
+**Core Properties**:
+- **Causal Chain**: Every receipt links to its parent via `causal_parent` hash
+- **Hash Chain**: Running cryptographic hash ensures chain integrity
+- **Budget Tracking**: Resource consumption tracked at every step
+- **Effect Recording**: All side effects explicitly captured
+- **State Transparency**: Execution frontier visible after each reduction
+
+---
+
+## Receipt Schema
+
+### Base Receipt Structure
+
+All ln_ctrl receipts follow this canonical structure:
+
+```json
+{
+  "timestamp": "ISO 8601 datetime",
+  "operation": "reduce|apply|evaluate|bind|substitute|normalize",
+  "causal_parent": "SHA-256 hash (nullable)",
+  "hash_chain": "SHA-256 hash",
+  "workflow_id": "UUID",
+  "step_index": "integer ≥ 0",
+  "redex_executed": { /* Redex object */ },
+  "frontier_after": { /* Frontier object */ },
+  "effects_performed": [ /* Effect objects */ ],
+  "budget_remaining": { /* Budget object */ },
+  "signature": "Ed25519 signature",
+  "public_key": "Ed25519 public key",
+  "chain_valid": "boolean",
+  "chain_length": "integer ≥ 1"
+}
+```
+
+### Schema Components
+
+#### 1. Temporal Properties
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `timestamp` | `string` | ✅ | ISO 8601 format with milliseconds |
+| `workflow_id` | `string` | ✅ | Valid UUID v4 |
+| `step_index` | `integer` | ✅ | Non-negative, monotonically increasing |
+
+**Validation Rule**: `step_index` MUST increase by exactly 1 for each subsequent receipt in a workflow.
+
+#### 2. Causal Chain Properties
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `causal_parent` | `string \| null` | ✅ | SHA-256 hash (64 hex chars) or null for genesis |
+| `hash_chain` | `string` | ✅ | SHA-256 hash (64 hex chars) |
+| `chain_length` | `integer` | ✅ | Positive integer, equals `step_index + 1` |
+| `chain_valid` | `boolean` | ✅ | True if chain verification passes |
+
+**Validation Rule**: First receipt (`step_index == 0`) MUST have `causal_parent == null`.
+
+```mermaid
+graph LR
+    A[Receipt 0<br/>causal_parent: null] -->|hash| B[Receipt 1<br/>causal_parent: hash_0]
+    B -->|hash| C[Receipt 2<br/>causal_parent: hash_1]
+    C -->|hash| D[Receipt 3<br/>causal_parent: hash_2]
+```
+
+#### 3. Operation Properties
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `operation` | `string` | ✅ | One of: `reduce`, `apply`, `evaluate`, `bind`, `substitute`, `normalize` |
+
+**Operation Semantics**:
+- **reduce**: β-reduction, η-reduction, or δ-reduction
+- **apply**: Function application
+- **evaluate**: Evaluate primitive operation
+- **bind**: Bind variable in context
+- **substitute**: Perform substitution
+- **normalize**: Normalize to canonical form
+
+#### 4. Redex Object
+
+```json
+{
+  "redex_type": "beta|eta|delta|iota|zeta|custom",
+  "redex_expression": "string",
+  "redex_location": "string"
+}
+```
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `redex_type` | `string` | ✅ | Enum: `beta`, `eta`, `delta`, `iota`, `zeta`, `custom` |
+| `redex_expression` | `string` | ✅ | S-expression or λ-calculus notation |
+| `redex_location` | `string` | ❌ | Path notation (e.g., `root.body.app[0]`) |
+
+**Redex Types**:
+- **beta**: `(λx.M) N → M[x := N]`
+- **eta**: `λx.M x → M` (when `x` not free in `M`)
+- **delta**: Primitive reduction (arithmetic, etc.)
+- **iota**: Destructor reduction (pattern matching)
+- **zeta**: Let-binding reduction
+- **custom**: Domain-specific reduction
+
+#### 5. Frontier Object
+
+```json
+{
+  "frontier_terms": ["term1", "term2", ...],
+  "frontier_size": "integer",
+  "frontier_hash": "SHA-256 hash"
+}
+```
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `frontier_terms` | `array[string]` | ✅ | Non-empty array of term representations |
+| `frontier_size` | `integer` | ✅ | Equals `len(frontier_terms)` |
+| `frontier_hash` | `string` | ✅ | SHA-256 hash of sorted frontier terms |
+
+**Validation Rule**: `frontier_size` MUST equal `len(frontier_terms)`.
+
+#### 6. Effects Array
+
+```json
+[
+  {
+    "effect_type": "io|state|control|logging|network|filesystem",
+    "effect_data": "string (JSON-encoded)",
+    "effect_result": "string (nullable)"
+  }
+]
+```
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `effect_type` | `string` | ✅ | Enum: `io`, `state`, `control`, `logging`, `network`, `filesystem` |
+| `effect_data` | `string` | ✅ | JSON-encoded effect payload |
+| `effect_result` | `string \| null` | ❌ | Result of effect execution |
+
+**Effect Types**:
+- **io**: Input/output operations
+- **state**: State modifications
+- **control**: Control flow effects (exceptions, continuations)
+- **logging**: Diagnostic logging
+- **network**: Network requests
+- **filesystem**: File operations
+
+#### 7. Budget Object
+
+```json
+{
+  "budget_steps": "integer ≥ 0",
+  "budget_memory": "integer ≥ 0",
+  "budget_time": "integer ≥ 0",
+  "budget_exceeded": "boolean"
+}
+```
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `budget_steps` | `integer` | ✅ | Non-negative, decreases each step |
+| `budget_memory` | `integer` | ✅ | Non-negative, bytes remaining |
+| `budget_time` | `integer` | ✅ | Non-negative, milliseconds remaining |
+| `budget_exceeded` | `boolean` | ✅ | True if any limit exceeded |
+
+**Validation Rules**:
+- `budget_steps` MUST decrease by at least 1 per receipt
+- If `budget_exceeded == true`, no more receipts should follow
+- When any budget reaches 0, `budget_exceeded` MUST be set to `true`
+
+#### 8. Cryptographic Properties
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `signature` | `string` | ✅ | Ed25519 signature (128 hex chars) |
+| `public_key` | `string` | ✅ | Ed25519 public key (64 hex chars) |
+
+**Signature Verification**:
+```python
+# Canonical serialization for signature
+def canonical_json(receipt):
+    keys = ["timestamp", "operation", "causal_parent", "hash_chain",
+            "workflow_id", "step_index", "redex_executed", "frontier_after",
+            "effects_performed", "budget_remaining"]
+    return json.dumps({k: receipt[k] for k in keys}, sort_keys=True)
+
+def verify_receipt(receipt):
+    message = canonical_json(receipt).encode('utf-8')
+    signature = bytes.fromhex(receipt['signature'])
+    public_key = bytes.fromhex(receipt['public_key'])
+    return ed25519.verify(signature, message, public_key)
+```
+
+---
+
+## Output Validation Rules
+
+### Rule 1: Temporal Consistency
+
+```python
+def validate_temporal_order(receipts):
+    for i in range(1, len(receipts)):
+        assert receipts[i].step_index == receipts[i-1].step_index + 1
+        assert receipts[i].timestamp >= receipts[i-1].timestamp
+        assert receipts[i].workflow_id == receipts[i-1].workflow_id
+```
+
+### Rule 2: Causal Chain Integrity
+
+```python
+def validate_causal_chain(receipts):
+    for i in range(len(receipts)):
+        if i == 0:
+            assert receipts[i].causal_parent is None
+        else:
+            expected_hash = sha256(canonical_json(receipts[i-1]))
+            assert receipts[i].causal_parent == expected_hash.hexdigest()
+```
+
+### Rule 3: Hash Chain Integrity
+
+```python
+def validate_hash_chain(receipts):
+    running_hash = sha256(b"genesis").digest()
+    for receipt in receipts:
+        receipt_hash = sha256(canonical_json(receipt).encode()).digest()
+        running_hash = sha256(running_hash + receipt_hash).digest()
+        assert receipt.hash_chain == running_hash.hex()
+```
+
+### Rule 4: Budget Monotonicity
+
+```python
+def validate_budget_monotonic(receipts):
+    for i in range(1, len(receipts)):
+        assert receipts[i].budget_remaining.budget_steps <= receipts[i-1].budget_remaining.budget_steps
+        # Memory and time may vary, but should generally decrease
+```
+
+### Rule 5: Cryptographic Validity
+
+```python
+def validate_all_signatures(receipts):
+    for receipt in receipts:
+        assert verify_receipt(receipt), f"Invalid signature at step {receipt.step_index}"
+```
+
+---
+
+## Schema Structure
+
+### JSON Schema Definition
+
+Complete JSON Schema available at: `ln_ctrl/templates/schemas/receipt.schema.json`
+
+**Key Constraints**:
+- All required fields MUST be present
+- No additional properties allowed (`additionalProperties: false`)
+- Enum fields strictly validated
+- Pattern matching for hashes and UUIDs
+- Range validation for integers
+
+### Validation Workflow
+
+```mermaid
+graph TD
+    A[Parse JSON] --> B{Valid JSON?}
+    B -->|No| Z[Reject]
+    B -->|Yes| C[Validate Schema]
+    C --> D{Schema Valid?}
+    D -->|No| Z
+    D -->|Yes| E[Verify Signature]
+    E --> F{Sig Valid?}
+    F -->|No| Z
+    F -->|Yes| G[Check Causal Parent]
+    G --> H{Parent Exists?}
+    H -->|No & step>0| Z
+    H -->|Yes or step==0| I[Verify Hash Chain]
+    I --> J{Chain Valid?}
+    J -->|No| Z
+    J -->|Yes| K[Accept Receipt]
+```
+
+---
+
+## Examples
+
+### Example 1: Genesis Receipt (First Step)
+
+```json
+{
+  "timestamp": "2026-02-11T21:30:00.000Z",
+  "operation": "reduce",
+  "causal_parent": null,
+  "hash_chain": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+  "workflow_id": "550e8400-e29b-41d4-a716-446655440000",
+  "step_index": 0,
+  "redex_executed": {
+    "redex_type": "beta",
+    "redex_expression": "(λx.x+1) 5",
+    "redex_location": "root"
+  },
+  "frontier_after": {
+    "frontier_terms": ["5+1"],
+    "frontier_size": 1,
+    "frontier_hash": "fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321"
+  },
+  "effects_performed": [],
+  "budget_remaining": {
+    "budget_steps": 9999,
+    "budget_memory": 104857600,
+    "budget_time": 30000,
+    "budget_exceeded": false
+  },
+  "signature": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "public_key": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+  "chain_valid": true,
+  "chain_length": 1
+}
+```
+
+### Example 2: Subsequent Receipt with Effects
+
+```json
+{
+  "timestamp": "2026-02-11T21:30:00.100Z",
+  "operation": "evaluate",
+  "causal_parent": "a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5",
+  "hash_chain": "2345678901bcdef12345678901bcdef12345678901bcdef12345678901bcdef1",
+  "workflow_id": "550e8400-e29b-41d4-a716-446655440000",
+  "step_index": 1,
+  "redex_executed": {
+    "redex_type": "delta",
+    "redex_expression": "5+1",
+    "redex_location": "root.body[0]"
+  },
+  "frontier_after": {
+    "frontier_terms": ["6"],
+    "frontier_size": 1,
+    "frontier_hash": "edcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321f"
+  },
+  "effects_performed": [
+    {
+      "effect_type": "logging",
+      "effect_data": "{\"level\":\"info\",\"message\":\"Evaluated arithmetic\"}",
+      "effect_result": "logged"
+    }
+  ],
+  "budget_remaining": {
+    "budget_steps": 9998,
+    "budget_memory": 104857600,
+    "budget_time": 29900,
+    "budget_exceeded": false
+  },
+  "signature": "1234567890bcdef01234567890bcdef01234567890bcdef01234567890bcdef01234567890bcdef01234567890bcdef01234567890bcdef01234567890bcdef0",
+  "public_key": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+  "chain_valid": true,
+  "chain_length": 2
+}
+```
+
+### Example 3: Budget Exceeded Receipt
+
+```json
+{
+  "timestamp": "2026-02-11T21:30:30.000Z",
+  "operation": "reduce",
+  "causal_parent": "b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6",
+  "hash_chain": "3456789012cdef123456789012cdef123456789012cdef123456789012cdef12",
+  "workflow_id": "550e8400-e29b-41d4-a716-446655440000",
+  "step_index": 5000,
+  "redex_executed": {
+    "redex_type": "beta",
+    "redex_expression": "(λx.x*2) 42",
+    "redex_location": "root.body.app[5]"
+  },
+  "frontier_after": {
+    "frontier_terms": ["42*2", "..."],
+    "frontier_size": 50,
+    "frontier_hash": "dcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321fe"
+  },
+  "effects_performed": [],
+  "budget_remaining": {
+    "budget_steps": 0,
+    "budget_memory": 104857600,
+    "budget_time": 100,
+    "budget_exceeded": true
+  },
+  "signature": "234567890cdef1234567890cdef1234567890cdef1234567890cdef1234567890cdef1234567890cdef1234567890cdef1234567890cdef1234567890cdef12",
+  "public_key": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+  "chain_valid": true,
+  "chain_length": 5001
+}
+```
+
+---
+
+## Validation Gates
+
+### Gate 1: Schema Validation
+
+**Requirement**: All receipts MUST pass JSON Schema validation.
+
+**Tooling**:
+```bash
+# Validate single receipt
+jsonschema -i receipt.json ln_ctrl/templates/schemas/receipt.schema.json
+
+# Validate chain of receipts
+for receipt in receipts/*.json; do
+    jsonschema -i "$receipt" ln_ctrl/templates/schemas/receipt.schema.json || exit 1
+done
+```
+
+**Exit Criteria**: Zero schema validation errors.
+
+### Gate 2: Signature Verification
+
+**Requirement**: All receipts MUST have valid Ed25519 signatures.
+
+**Verification**:
+```python
+from nacl.signing import VerifyKey
+from nacl.encoding import HexEncoder
+
+def verify_all(receipts):
+    for receipt in receipts:
+        vk = VerifyKey(receipt['public_key'], encoder=HexEncoder)
+        message = canonical_json(receipt).encode('utf-8')
+        vk.verify(message, bytes.fromhex(receipt['signature']))
+```
+
+**Exit Criteria**: All signatures verify successfully.
+
+### Gate 3: Chain Integrity
+
+**Requirement**: Causal chain and hash chain MUST be unbroken.
+
+**Verification**:
+```python
+validate_causal_chain(receipts)
+validate_hash_chain(receipts)
+```
+
+**Exit Criteria**: No broken chain links detected.
+
+### Gate 4: Budget Compliance
+
+**Requirement**: Budget must be monotonically decreasing, no steps after exceeded.
+
+**Verification**:
+```python
+def verify_budget_compliance(receipts):
+    for i in range(len(receipts)):
+        if receipts[i].budget_remaining.budget_exceeded:
+            assert i == len(receipts) - 1, f"Found receipt after budget exceeded at step {i}"
+```
+
+**Exit Criteria**: Budget limits respected throughout chain.
+
+---
+
+## Success Criteria
+
+### ✅ Output Contract Compliance
+
+- [ ] All receipts conform to JSON Schema
+- [ ] All signatures verify successfully
+- [ ] Causal chain is unbroken
+- [ ] Hash chain is cryptographically valid
+- [ ] Budget tracking is monotonic
+- [ ] Temporal ordering is maintained
+- [ ] No receipts after budget exceeded
+- [ ] All required fields present
+- [ ] No additional properties
+
+### ✅ Auditability Requirements
+
+- [ ] Complete execution trace recoverable from receipts
+- [ ] All side effects explicitly recorded
+- [ ] Reproducible from receipts + initial state
+- [ ] Chain can be verified independently
+- [ ] Receipt chain forms Merkle DAG
+
+### ✅ Performance Requirements
+
+- [ ] Receipt generation: <1ms per receipt
+- [ ] Signature verification: <5ms per receipt
+- [ ] Chain verification: <100ms per 1000 receipts
+- [ ] Receipt serialization: <500 bytes per receipt (avg)
+
+---
+
+**Generated from**: `ln_ctrl_receipts.ttl` ontology
+**Schema Version**: 1.0.0
+**Compatible Validators**: JSON Schema Draft 07, jsonschema-rs

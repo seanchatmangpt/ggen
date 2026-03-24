@@ -1,0 +1,17 @@
+[package]
+name = "ggen-osiris"
+version = "6.0.0"
+edition = "2021"
+authors = ["ggen contributors"]
+description = "OSIRIS zero cognitive load architecture for ggen"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+tokio = { workspace = true, features = ["sync", "time", "macros", "rt"] }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full", "test-util"] }
+futures = { workspace = true }

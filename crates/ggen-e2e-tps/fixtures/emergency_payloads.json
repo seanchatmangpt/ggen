@@ -1,0 +1,20 @@
+[
+  {
+    "type": "circuit_breaker_trip",
+    "service": "payment-gateway",
+    "severity": "critical",
+    "action": "immediate_failover"
+  },
+  {
+    "type": "security_incident",
+    "description": "Suspected DDoS attack",
+    "severity": "critical",
+    "action": "rate_limit_enable"
+  },
+  {
+    "type": "data_corruption_detected",
+    "database": "orders",
+    "severity": "critical",
+    "action": "stop_writes"
+  }
+]

@@ -1,0 +1,216 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ggen: <https://ggen.io/ontology#> .
+@prefix ln_ctrl: <https://ggen.io/ontology/ln_ctrl#> .
+
+# ln_ctrl Receipt Contract Ontology
+# Causal chain receipts for λn execution traces
+# Supports: causal chaining, hash chaining, execution trace, effect tracking, budget consumption
+
+ln_ctrl:Receipt a rdfs:Class ;
+    rdfs:label "ln_ctrl Receipt" ;
+    rdfs:comment "Cryptographic receipt for λn execution with causal and hash chaining" .
+
+ln_ctrl:Redex a rdfs:Class ;
+    rdfs:label "Redex" ;
+    rdfs:comment "Reducible expression executed in this step" .
+
+ln_ctrl:Frontier a rdfs:Class ;
+    rdfs:label "Frontier" ;
+    rdfs:comment "State of execution frontier after reduction" .
+
+ln_ctrl:Effect a rdfs:Class ;
+    rdfs:label "Effect" ;
+    rdfs:comment "Side effect performed during execution" .
+
+ln_ctrl:Budget a rdfs:Class ;
+    rdfs:label "Budget" ;
+    rdfs:comment "Resource budget tracking" .
+
+# Core Receipt Properties
+
+ln_ctrl:timestamp a rdf:Property ;
+    rdfs:domain ln_ctrl:Receipt ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" ;
+    rdfs:comment "ISO 8601 timestamp of execution step" .
+
+ln_ctrl:operation a rdf:Property ;
+    rdfs:domain ln_ctrl:Receipt ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "operation" ;
+    rdfs:comment "Operation type (reduce, apply, evaluate, etc.)" .
+
+# Causal Chain Properties
+
+ln_ctrl:causal_parent a rdf:Property ;
+    rdfs:domain ln_ctrl:Receipt ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "causal_parent" ;
+    rdfs:comment "SHA-256 hash of parent receipt (establishes causal chain)" .
+
+ln_ctrl:hash_chain a rdf:Property ;
+    rdfs:domain ln_ctrl:Receipt ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "hash_chain" ;
+    rdfs:comment "Running cryptographic hash (SHA-256) of entire chain" .
+
+# Workflow Context Properties
+
+ln_ctrl:workflow_id a rdf:Property ;
+    rdfs:domain ln_ctrl:Receipt ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "workflow_id" ;
+    rdfs:comment "UUID identifying the workflow execution" .
+
+ln_ctrl:step_index a rdf:Property ;
+    rdfs:domain ln_ctrl:Receipt ;
+    rdfs:range xsd:integer ;
+    rdfs:label "step_index" ;
+    rdfs:comment "Sequential step number in workflow (0-indexed)" .
+
+# Execution Trace Properties
+
+ln_ctrl:redex_executed a rdf:Property ;
+    rdfs:domain ln_ctrl:Receipt ;
+    rdfs:range ln_ctrl:Redex ;
+    rdfs:label "redex_executed" ;
+    rdfs:comment "The reducible expression that was executed" .
+
+ln_ctrl:frontier_after a rdf:Property ;
+    rdfs:domain ln_ctrl:Receipt ;
+    rdfs:range ln_ctrl:Frontier ;
+    rdfs:label "frontier_after" ;
+    rdfs:comment "Execution frontier state after this reduction" .
+
+# Effect Tracking Properties
+
+ln_ctrl:effects_performed a rdf:Property ;
+    rdfs:domain ln_ctrl:Receipt ;
+    rdfs:range ln_ctrl:Effect ;
+    rdfs:label "effects_performed" ;
+    rdfs:comment "List of side effects performed during execution" .
+
+# Budget Consumption Properties
+
+ln_ctrl:budget_remaining a rdf:Property ;
+    rdfs:domain ln_ctrl:Receipt ;
+    rdfs:range ln_ctrl:Budget ;
+    rdfs:label "budget_remaining" ;
+    rdfs:comment "Remaining resource budget after this step" .
+
+# Redex Properties
+
+ln_ctrl:redex_type a rdf:Property ;
+    rdfs:domain ln_ctrl:Redex ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "redex_type" ;
+    rdfs:comment "Type of redex (beta, eta, delta, etc.)" .
+
+ln_ctrl:redex_expression a rdf:Property ;
+    rdfs:domain ln_ctrl:Redex ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "redex_expression" ;
+    rdfs:comment "Serialized representation of the redex" .
+
+ln_ctrl:redex_location a rdf:Property ;
+    rdfs:domain ln_ctrl:Redex ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "redex_location" ;
+    rdfs:comment "Path or address of redex in term structure" .
+
+# Frontier Properties
+
+ln_ctrl:frontier_terms a rdf:Property ;
+    rdfs:domain ln_ctrl:Frontier ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "frontier_terms" ;
+    rdfs:comment "List of terms at execution frontier" .
+
+ln_ctrl:frontier_size a rdf:Property ;
+    rdfs:domain ln_ctrl:Frontier ;
+    rdfs:range xsd:integer ;
+    rdfs:label "frontier_size" ;
+    rdfs:comment "Number of terms in frontier" .
+
+ln_ctrl:frontier_hash a rdf:Property ;
+    rdfs:domain ln_ctrl:Frontier ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "frontier_hash" ;
+    rdfs:comment "Hash of frontier state for quick comparison" .
+
+# Effect Properties
+
+ln_ctrl:effect_type a rdf:Property ;
+    rdfs:domain ln_ctrl:Effect ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "effect_type" ;
+    rdfs:comment "Type of effect (io, state, control, etc.)" .
+
+ln_ctrl:effect_data a rdf:Property ;
+    rdfs:domain ln_ctrl:Effect ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "effect_data" ;
+    rdfs:comment "Serialized effect data" .
+
+ln_ctrl:effect_result a rdf:Property ;
+    rdfs:domain ln_ctrl:Effect ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "effect_result" ;
+    rdfs:comment "Result or outcome of effect execution" .
+
+# Budget Properties
+
+ln_ctrl:budget_steps a rdf:Property ;
+    rdfs:domain ln_ctrl:Budget ;
+    rdfs:range xsd:integer ;
+    rdfs:label "budget_steps" ;
+    rdfs:comment "Remaining reduction steps" .
+
+ln_ctrl:budget_memory a rdf:Property ;
+    rdfs:domain ln_ctrl:Budget ;
+    rdfs:range xsd:integer ;
+    rdfs:label "budget_memory" ;
+    rdfs:comment "Remaining memory budget in bytes" .
+
+ln_ctrl:budget_time a rdf:Property ;
+    rdfs:domain ln_ctrl:Budget ;
+    rdfs:range xsd:integer ;
+    rdfs:label "budget_time" ;
+    rdfs:comment "Remaining time budget in milliseconds" .
+
+ln_ctrl:budget_exceeded a rdf:Property ;
+    rdfs:domain ln_ctrl:Budget ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "budget_exceeded" ;
+    rdfs:comment "Whether any budget limit was exceeded" .
+
+# Signature and Verification
+
+ln_ctrl:signature a rdf:Property ;
+    rdfs:domain ln_ctrl:Receipt ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "signature" ;
+    rdfs:comment "Ed25519 signature of receipt contents" .
+
+ln_ctrl:public_key a rdf:Property ;
+    rdfs:domain ln_ctrl:Receipt ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "public_key" ;
+    rdfs:comment "Public key used for signature verification" .
+
+# Chain Validation Properties
+
+ln_ctrl:chain_valid a rdf:Property ;
+    rdfs:domain ln_ctrl:Receipt ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "chain_valid" ;
+    rdfs:comment "Whether the causal chain is valid up to this receipt" .
+
+ln_ctrl:chain_length a rdf:Property ;
+    rdfs:domain ln_ctrl:Receipt ;
+    rdfs:range xsd:integer ;
+    rdfs:label "chain_length" ;
+    rdfs:comment "Number of receipts in causal chain" .

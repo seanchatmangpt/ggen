@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Verdict",
+  "description": "Validation verdict for receipts",
+  "type": "object",
+  "properties": {
+    {%- for row in results %}
+    {%- if row.label == "valid" or row.label == "errors" %}
+    "{{ row.label }}": {
+      {%- if row.label == "valid" %}
+      "type": "boolean",
+      {%- else %}
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      {%- endif %}
+      {%- if row.comment %}
+      "description": "{{ row.comment }}"
+      {%- endif %}
+    }{% if not loop.last %},{% endif %}
+    {%- endif %}
+    {%- endfor %}
+  },
+  "required": ["valid"],
+  "additionalProperties": false
+}

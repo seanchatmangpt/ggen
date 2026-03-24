@@ -1,0 +1,21 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX receipt: <https://ggen.io/ontology/receipt#>
+
+SELECT ?property ?label ?comment ?range
+WHERE {
+  ?property a rdf:Property ;
+            rdfs:label ?label .
+  OPTIONAL { ?property rdfs:comment ?comment . }
+  OPTIONAL { ?property rdfs:range ?range . }
+  FILTER(
+    ?property = receipt:timestamp ||
+    ?property = receipt:operation ||
+    ?property = receipt:inputs ||
+    ?property = receipt:outputs ||
+    ?property = receipt:signature ||
+    ?property = receipt:valid ||
+    ?property = receipt:errors
+  )
+}
+ORDER BY ?label
