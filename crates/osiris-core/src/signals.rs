@@ -2,10 +2,10 @@
 //!
 //! Manages signals for autonomic life management
 
-use serde_json::{Value, json};
-use std::collections::HashMap;
 use chrono::{DateTime, Utc};
-use tracing::{error, warn, info, debug};
+use serde_json::{json, Value};
+use std::collections::HashMap;
+use tracing::{debug, error, info, warn};
 
 /// Signal levels in the OSIRIS system
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -63,10 +63,7 @@ impl OSIRISSignal {
 
     /// Create a signal with source and target
     pub fn with_routing(
-        signal_type: String,
-        message: String,
-        level: SignalLevel,
-        source: Option<String>,
+        signal_type: String, message: String, level: SignalLevel, source: Option<String>,
         target: Option<String>,
     ) -> Self {
         Self {

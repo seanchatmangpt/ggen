@@ -222,7 +222,10 @@ impl SHACLGenerator {
 
     /// Extract local name from URI
     fn local_name(uri: &str) -> String {
-        uri.split(&['#', '/'][..]).next_back().unwrap_or("").to_string()
+        uri.split(&['#', '/'][..])
+            .next_back()
+            .unwrap_or("")
+            .to_string()
     }
 }
 

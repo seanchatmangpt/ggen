@@ -221,9 +221,7 @@ mod mcp_error_handling {
             self.tools.read().await.clone()
         }
 
-        async fn get_tool(
-            &self, tool_name: &str,
-        ) -> Result<MockToolInfo, String> {
+        async fn get_tool(&self, tool_name: &str) -> Result<MockToolInfo, String> {
             let tools = self.list_tools().await;
             tools
                 .into_iter()
@@ -264,10 +262,7 @@ mod mcp_error_handling {
         async fn register_agent(&mut self, agent: MockAgent) -> Result<String, String> {
             let agents = self.agents.read().await;
             if agents.len() >= self.max_agents {
-                return Err(format!(
-                    "Max agents ({}) exceeded",
-                    self.max_agents
-                ));
+                return Err(format!("Max agents ({}) exceeded", self.max_agents));
             }
             drop(agents);
 
@@ -398,8 +393,8 @@ mod mcp_error_handling {
     #[tokio::test]
     async fn test_config_error_temperature_out_of_range() -> Result<(), String> {
         // Arrange
-        let mut config = TestMcpConfig::new("gpt-4".to_string())
-            .with_api_key("test-key".to_string());
+        let mut config =
+            TestMcpConfig::new("gpt-4".to_string()).with_api_key("test-key".to_string());
         config.temperature = Some(3.5); // Out of range (max 2.0)
 
         // Act
@@ -421,8 +416,8 @@ mod mcp_error_handling {
     #[tokio::test]
     async fn test_config_error_max_tokens_out_of_range() -> Result<(), String> {
         // Arrange
-        let mut config = TestMcpConfig::new("gpt-4".to_string())
-            .with_api_key("test-key".to_string());
+        let mut config =
+            TestMcpConfig::new("gpt-4".to_string()).with_api_key("test-key".to_string());
         config.max_tokens = Some(5000); // Out of range (max 4096)
 
         // Act
@@ -444,8 +439,8 @@ mod mcp_error_handling {
     #[tokio::test]
     async fn test_config_error_zero_max_tokens() -> Result<(), String> {
         // Arrange
-        let mut config = TestMcpConfig::new("gpt-4".to_string())
-            .with_api_key("test-key".to_string());
+        let mut config =
+            TestMcpConfig::new("gpt-4".to_string()).with_api_key("test-key".to_string());
         config.max_tokens = Some(0); // Zero is invalid
 
         // Act
@@ -459,8 +454,7 @@ mod mcp_error_handling {
     #[tokio::test]
     async fn test_config_valid_configuration() -> Result<(), String> {
         // Arrange
-        let config = TestMcpConfig::new("gpt-4".to_string())
-            .with_api_key("test-key".to_string());
+        let config = TestMcpConfig::new("gpt-4".to_string()).with_api_key("test-key".to_string());
 
         // Act
         let result = config.validate();
@@ -480,7 +474,10 @@ mod mcp_error_handling {
         let result = manager.configure(invalid_config).await;
 
         // Assert
-        assert!(result.is_err(), "Manager should propagate config validation error");
+        assert!(
+            result.is_err(),
+            "Manager should propagate config validation error"
+        );
         assert!(
             manager.config.is_none(),
             "Invalid config should not be stored"
@@ -515,8 +512,7 @@ mod mcp_error_handling {
     }
 
     #[tokio::test]
-    async fn test_tool_error_execution_fails_with_descriptive_message(
-    ) -> Result<(), String> {
+    async fn test_tool_error_execution_fails_with_descriptive_message() -> Result<(), String> {
         // Arrange
         let manager = MockMcpManager::new();
 
@@ -526,10 +522,7 @@ mod mcp_error_handling {
         // Assert
         assert!(result.is_err(), "Tool execution should fail");
         let error_msg = result.err().unwrap();
-        assert!(
-            !error_msg.is_empty(),
-            "Error message should be descriptive"
-        );
+        assert!(!error_msg.is_empty(), "Error message should be descriptive");
         Ok(())
     }
 
@@ -645,9 +638,7 @@ mod mcp_error_handling {
         // If first bridge succeeded, try second with same tool
         if result1.is_ok() {
             // Act: try to create second bridge with same tool name
-            let result = manager
-                .bridge_agent("agent-2", Some("shared-tool"))
-                .await;
+            let result = manager.bridge_agent("agent-2", Some("shared-tool")).await;
 
             // Assert
             assert!(
@@ -678,18 +669,12 @@ mod mcp_error_handling {
         // Assert
         assert!(result.is_ok(), "Bridge should succeed for ready agent");
         let tool_name = result?;
-        assert_eq!(
-            tool_name, "my-tool",
-            "Bridge should use provided tool name"
-        );
+        assert_eq!(tool_name, "my-tool", "Bridge should use provided tool name");
 
         // Verify mapping was created
         let mappings = manager.agent_mappings.read().await;
         let mapped_agent = mappings.get("my-tool");
-        assert!(
-            mapped_agent.is_some(),
-            "Tool should be mapped to agent"
-        );
+        assert!(mapped_agent.is_some(), "Tool should be mapped to agent");
         Ok(())
     }
 
@@ -764,10 +749,7 @@ mod mcp_error_handling {
 
         // Assert: Should error for invalid state transition
         // (Uninitialized -> Running is not allowed)
-        assert!(
-            result.is_err(),
-            "Should error for invalid state transition"
-        );
+        assert!(result.is_err(), "Should error for invalid state transition");
         let error_msg = result.err().unwrap();
         assert!(
             error_msg.contains("Invalid state transition") || error_msg.contains("not found"),
@@ -797,8 +779,7 @@ mod mcp_error_handling {
     }
 
     #[tokio::test]
-    async fn test_state_valid_transition_uninitialized_to_initializing(
-    ) -> Result<(), String> {
+    async fn test_state_valid_transition_uninitialized_to_initializing() -> Result<(), String> {
         // Arrange
         let mut manager = MockMcpManager::new();
         let agent = MockAgent::new("init-agent".to_string());
@@ -825,8 +806,7 @@ mod mcp_error_handling {
     }
 
     #[tokio::test]
-    async fn test_state_can_transition_to_error_from_any_state(
-    ) -> Result<(), String> {
+    async fn test_state_can_transition_to_error_from_any_state() -> Result<(), String> {
         // Arrange
         let mut manager = MockMcpManager::new();
         let agent = MockAgent::new("error-agent".to_string()).ready();
@@ -889,8 +869,7 @@ mod mcp_error_handling {
     }
 
     #[tokio::test]
-    async fn test_message_error_tool_execution_failure_is_descriptive(
-    ) -> Result<(), String> {
+    async fn test_message_error_tool_execution_failure_is_descriptive() -> Result<(), String> {
         // Arrange
         let manager = MockMcpManager::new();
 
@@ -966,10 +945,8 @@ mod mcp_error_handling {
     #[tokio::test]
     async fn test_tool_result_error_validation() -> Result<(), String> {
         // Arrange
-        let result = MockToolResult::error(
-            "test-tool".to_string(),
-            "Tool execution failed".to_string(),
-        );
+        let result =
+            MockToolResult::error("test-tool".to_string(), "Tool execution failed".to_string());
 
         // Act
         let validation = result.validate_error();
@@ -983,13 +960,9 @@ mod mcp_error_handling {
     }
 
     #[tokio::test]
-    async fn test_tool_result_error_validation_fails_on_success(
-    ) -> Result<(), String> {
+    async fn test_tool_result_error_validation_fails_on_success() -> Result<(), String> {
         // Arrange
-        let result = MockToolResult::success(
-            "test-tool".to_string(),
-            json!({ "status": "ok" }),
-        );
+        let result = MockToolResult::success("test-tool".to_string(), json!({ "status": "ok" }));
 
         // Act
         let validation = result.validate_error();
@@ -1003,8 +976,7 @@ mod mcp_error_handling {
     }
 
     #[tokio::test]
-    async fn test_tool_result_error_requires_descriptive_message(
-    ) -> Result<(), String> {
+    async fn test_tool_result_error_requires_descriptive_message() -> Result<(), String> {
         // Arrange: error result with empty error message
         let mut result = MockToolResult::error("tool".to_string(), String::new());
         result.error = Some(String::new()); // Force empty error message
@@ -1025,8 +997,7 @@ mod mcp_error_handling {
     // =========================================================================
 
     #[tokio::test]
-    async fn test_recovery_manager_usable_after_config_error(
-    ) -> Result<(), String> {
+    async fn test_recovery_manager_usable_after_config_error() -> Result<(), String> {
         // Arrange
         let mut manager = MockMcpManager::new();
 
@@ -1035,8 +1006,8 @@ mod mcp_error_handling {
         let _result = manager.configure(invalid_config).await;
 
         // Now configure with valid config
-        let valid_config = TestMcpConfig::new("gpt-4".to_string())
-            .with_api_key("valid-key".to_string());
+        let valid_config =
+            TestMcpConfig::new("gpt-4".to_string()).with_api_key("valid-key".to_string());
         let result = manager.configure(valid_config).await;
 
         // Assert: should recover and be able to accept valid config
@@ -1052,8 +1023,7 @@ mod mcp_error_handling {
     }
 
     #[tokio::test]
-    async fn test_recovery_tool_still_accessible_after_agent_error(
-    ) -> Result<(), String> {
+    async fn test_recovery_tool_still_accessible_after_agent_error() -> Result<(), String> {
         // Arrange
         let manager = MockMcpManager::new();
         let tools = vec![MockToolInfo {
@@ -1078,8 +1048,7 @@ mod mcp_error_handling {
     }
 
     #[tokio::test]
-    async fn test_recovery_unbridge_allows_rebridging(
-    ) -> Result<(), String> {
+    async fn test_recovery_unbridge_allows_rebridging() -> Result<(), String> {
         // Arrange
         let mut manager = MockMcpManager::new();
         let agent1 = MockAgent::new("recovery-agent-1".to_string()).ready();
@@ -1109,8 +1078,7 @@ mod mcp_error_handling {
     }
 
     #[tokio::test]
-    async fn test_recovery_manager_state_clean_after_operations(
-    ) -> Result<(), String> {
+    async fn test_recovery_manager_state_clean_after_operations() -> Result<(), String> {
         // Arrange
         let mut manager = MockMcpManager::new();
         let agent = MockAgent::new("cleanup-agent".to_string()).ready();
@@ -1145,14 +1113,12 @@ mod mcp_error_handling {
     // =========================================================================
 
     #[tokio::test]
-    async fn test_integration_full_workflow_error_chain(
-    ) -> Result<(), String> {
+    async fn test_integration_full_workflow_error_chain() -> Result<(), String> {
         // Arrange
         let mut manager = MockMcpManager::new();
 
         // Step 1: Configure manager
-        let config = TestMcpConfig::new("gpt-4".to_string())
-            .with_api_key("test-key".to_string());
+        let config = TestMcpConfig::new("gpt-4".to_string()).with_api_key("test-key".to_string());
         manager.configure(config).await?;
 
         // Step 2: Register agent
@@ -1192,8 +1158,7 @@ mod mcp_error_handling {
     }
 
     #[tokio::test]
-    async fn test_integration_error_recovery_preserves_agent_state(
-    ) -> Result<(), String> {
+    async fn test_integration_error_recovery_preserves_agent_state() -> Result<(), String> {
         // Arrange
         let mut manager = MockMcpManager::new();
         let agent = MockAgent::new("persistent-agent".to_string()).ready();
@@ -1236,8 +1201,7 @@ mod mcp_error_handling {
     #[tokio::test]
     async fn test_error_messages_include_context() -> Result<(), String> {
         // Arrange
-        let config = TestMcpConfig::new("bad-model".to_string())
-            .with_api_key("key".to_string());
+        let config = TestMcpConfig::new("bad-model".to_string()).with_api_key("key".to_string());
 
         // Act
         let result = config.validate();

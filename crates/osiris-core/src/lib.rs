@@ -23,7 +23,7 @@ pub mod signals;
 
 // Simple exports for now to avoid compilation issues
 pub use error::{OSIRISError, Result};
-pub use signals::{SignalLevel, OSIRISSignal};
+pub use signals::{OSIRISSignal, SignalLevel};
 
 // Stub types for osiris-* crates (TODO: implement proper modules)
 
@@ -145,7 +145,6 @@ impl LifePattern {
         }
     }
 }
-
 
 /// OSIRIS System Configuration
 #[derive(Debug, Clone)]

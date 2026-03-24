@@ -13,8 +13,8 @@
 
 #[cfg(test)]
 mod mcp_a2a_validation {
-    use std::collections::HashMap;
     use serde_json::json;
+    use std::collections::HashMap;
 
     // =========================================================================
     // Test Configuration Constants
@@ -40,11 +40,7 @@ mod mcp_a2a_validation {
             "workflow-start",
         ];
 
-        assert_eq!(
-            core_tools.len(),
-            4,
-            "Core tools count mismatch"
-        );
+        assert_eq!(core_tools.len(), 4, "Core tools count mismatch");
 
         for tool in core_tools {
             assert!(!tool.is_empty(), "Tool name must not be empty");
@@ -183,7 +179,10 @@ mod mcp_a2a_validation {
 
         assert_eq!(workflow_response["status"], "started");
         assert!(workflow_response["case_id"].is_string());
-        assert!(workflow_response["case_id"].as_str().unwrap().contains("case-"));
+        assert!(workflow_response["case_id"]
+            .as_str()
+            .unwrap()
+            .contains("case-"));
     }
 
     #[test]
@@ -236,18 +235,12 @@ mod mcp_a2a_validation {
         let valid_model = VALIDATION_MODEL;
 
         assert_eq!(
-            valid_model,
-            "openai/gpt-oss-20b",
+            valid_model, "openai/gpt-oss-20b",
             "Model must be openai/gpt-oss-20b"
         );
 
         for forbidden in FORBIDDEN_MODELS {
-            assert_ne!(
-                valid_model,
-                *forbidden,
-                "Model {} is FORBIDDEN",
-                forbidden
-            );
+            assert_ne!(valid_model, *forbidden, "Model {} is FORBIDDEN", forbidden);
         }
     }
 
@@ -320,7 +313,6 @@ mod mcp_a2a_validation {
     #[test]
     fn test_full_tool_execution_pipeline() {
         /// End-to-end tool execution flow
-
         // Step 1: Tool Discovery
         let tools = vec!["agent-list", "agent-start", "workflow-start"];
         assert!(!tools.is_empty());
@@ -358,7 +350,6 @@ mod mcp_a2a_validation {
     #[test]
     fn test_agent_bridging_full_flow() {
         /// Test complete agent bridging workflow
-
         // 1. Register agent
         let agent_name = "data-processor";
         let bridge_name = "processor-tool";
@@ -388,7 +379,6 @@ mod mcp_a2a_validation {
     #[test]
     fn test_workflow_instantiation_and_execution() {
         /// Test workflow creation and execution
-
         // Step 1: Define workflow spec
         let workflow_spec = json!({
             "id": "daily_routine",
@@ -492,11 +482,7 @@ mod mcp_a2a_validation {
 
         // All items must pass
         let all_passed = checklist.values().all(|v| *v);
-        assert!(
-            all_passed,
-            "MCP/A2A validation failed: {:?}",
-            checklist
-        );
+        assert!(all_passed, "MCP/A2A validation failed: {:?}", checklist);
 
         println!(
             "✅ MCP/A2A Validation Complete: {} checks passed",

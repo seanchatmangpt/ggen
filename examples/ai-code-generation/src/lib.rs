@@ -887,7 +887,7 @@ fn add(a: i32, b: i32) -> i32 {
     }
 
     #[tokio::test]
-    async fn test_mock_llm_generate() {
+    async fn test_mock_llm_generate_from_spec() {
         let llm = MockLlm::new();
         let result = llm.generate("Generate a rust function").await;
         assert!(result.is_ok());

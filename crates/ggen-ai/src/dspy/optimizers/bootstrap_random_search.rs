@@ -26,7 +26,8 @@ use std::sync::Arc;
 use tracing::{debug, info, warn};
 
 /// Type alias for metric function
-type MetricFn = Arc<dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ModuleError> + Send + Sync>;
+type MetricFn =
+    Arc<dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ModuleError> + Send + Sync>;
 
 /// BootstrapFewShotWithRandomSearch optimizer
 ///

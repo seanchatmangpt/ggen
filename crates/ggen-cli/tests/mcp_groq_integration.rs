@@ -138,7 +138,10 @@ mod mcp_groq_integration {
         assert!(config.validate().is_err(), "max_tokens=0 should be invalid");
 
         config.max_tokens = Some(4097);
-        assert!(config.validate().is_err(), "max_tokens=4097 should be invalid");
+        assert!(
+            config.validate().is_err(),
+            "max_tokens=4097 should be invalid"
+        );
     }
 
     // =========================================================================
@@ -395,7 +398,7 @@ mod mcp_groq_integration {
         /// Verify forbidden models have different feature sets
         let forbidden_features = vec![
             ("llama-3.3-70b-versatile", true), // supports parallel
-            ("deepseek-coder-67b", false),      // doesn't support parallel
+            ("deepseek-coder-67b", false),     // doesn't support parallel
         ];
 
         // Only document which features each model has

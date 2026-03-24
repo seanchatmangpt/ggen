@@ -176,14 +176,11 @@ impl DummyLM {
 
     /// Find matching demonstration for given inputs
     fn find_matching_demo(
-        &self, inputs: &HashMap<String, Value>,
-        demonstrations: &[DemoPair],
+        &self, inputs: &HashMap<String, Value>, demonstrations: &[DemoPair],
     ) -> Option<HashMap<String, Value>> {
         for (demo_inputs, demo_outputs) in demonstrations {
             // Check if any input value matches
-            let has_match = inputs
-                .iter()
-                .any(|(k, v)| demo_inputs.get(k) == Some(v));
+            let has_match = inputs.iter().any(|(k, v)| demo_inputs.get(k) == Some(v));
 
             if has_match {
                 return Some(demo_outputs.clone());

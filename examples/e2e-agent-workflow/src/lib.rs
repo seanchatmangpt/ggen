@@ -21,16 +21,16 @@ pub mod tool_integration;
 pub mod workflow;
 
 pub use coordination::{
-    ConsensusManager, ConsensusResult, AgentVote,
+    ConsensusManager, ConsensusResult, AgentVote, ByzantineFaultTolerance, VotingStrategy,
 };
 pub use domain_manager::{
     DomainManager, LifeDomain, DomainGoal, DomainStatus,
 };
 pub use lifecycle::{
-    AgentPool, AgentInstance, AgentHealth, HealthStatus,
+    AgentPool, AgentInstance, AgentHealth, HealthStatus, HealthSummary,
 };
 pub use tool_integration::{
-    ToolManager, ToolSpec, ToolCall, ToolResult,
+    ToolManager, ToolSpec, ToolCall, ToolResult, initialize_standard_tools,
 };
 pub use workflow::{
     Workflow, WorkflowStep, WorkflowStatus, WorkflowExecutor,

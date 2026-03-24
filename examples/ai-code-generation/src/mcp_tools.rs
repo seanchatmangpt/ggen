@@ -180,7 +180,7 @@ impl McpTools {
     // ========================================================================
 
     fn check_rust_syntax(&self, code: &str) -> McpResult<SyntaxCheckResult> {
-        let mut errors = Vec::new();
+        let errors = Vec::new();
         let mut warnings = Vec::new();
 
         // Check for basic Rust syntax issues
@@ -200,7 +200,7 @@ impl McpTools {
     }
 
     fn check_python_syntax(&self, code: &str) -> McpResult<SyntaxCheckResult> {
-        let mut errors = Vec::new();
+        let errors = Vec::new();
         let warnings = Vec::new();
 
         // Check for basic Python syntax issues
@@ -218,7 +218,7 @@ impl McpTools {
     }
 
     fn check_typescript_syntax(&self, code: &str) -> McpResult<SyntaxCheckResult> {
-        let mut errors = Vec::new();
+        let errors = Vec::new();
         let warnings = Vec::new();
 
         // Check for basic TypeScript syntax issues

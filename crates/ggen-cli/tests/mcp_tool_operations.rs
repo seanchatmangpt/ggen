@@ -136,9 +136,7 @@ mod mcp_tool_operations {
 
         /// Test/execute a tool with arguments
         async fn test_tool(
-            &self,
-            tool_name: &str,
-            arguments: Option<JsonValue>,
+            &self, tool_name: &str, arguments: Option<JsonValue>,
         ) -> ToolExecutionResult {
             let start = std::time::Instant::now();
 
@@ -272,8 +270,7 @@ mod mcp_tool_operations {
 
         /// Execute a core tool with arguments
         async fn execute_core_tool(
-            tool_name: &str,
-            arguments: Option<JsonValue>,
+            tool_name: &str, arguments: Option<JsonValue>,
         ) -> Option<JsonValue> {
             match tool_name {
                 "agent-list" => Some(json!({
@@ -330,11 +327,7 @@ mod mcp_tool_operations {
         let tools = manager.list_tools().await;
 
         // Assert: Verify all 4 core tools are present
-        assert_eq!(
-            tools.len(),
-            4,
-            "Should have exactly 4 core tools"
-        );
+        assert_eq!(tools.len(), 4, "Should have exactly 4 core tools");
 
         let tool_names: Vec<&str> = tools.iter().map(|t| t.name.as_str()).collect();
         assert!(
@@ -384,10 +377,7 @@ mod mcp_tool_operations {
         let status = manager.get_tool_status("nonexistent-tool").await;
 
         // Assert: Should return None
-        assert!(
-            status.is_none(),
-            "Non-existent tool should not be found"
-        );
+        assert!(status.is_none(), "Non-existent tool should not be found");
     }
 
     #[tokio::test]
@@ -492,10 +482,7 @@ mod mcp_tool_operations {
         // Assert: Verify execution succeeded
         assert!(result.success, "Tool execution should succeed");
         assert!(result.error.is_none(), "Should have no error");
-        assert!(
-            result.content.is_some(),
-            "Should have content in response"
-        );
+        assert!(result.content.is_some(), "Should have content in response");
 
         let content = result.content.unwrap();
         assert_eq!(
@@ -525,10 +512,7 @@ mod mcp_tool_operations {
             "Response should contain agents list"
         );
 
-        let agents = content
-            .get("agents")
-            .and_then(|v| v.as_array())
-            .unwrap();
+        let agents = content.get("agents").and_then(|v| v.as_array()).unwrap();
         assert!(!agents.is_empty(), "Should have at least one agent");
     }
 
@@ -551,10 +535,7 @@ mod mcp_tool_operations {
             Some("created"),
             "Should have created status"
         );
-        assert!(
-            content.get("case_id").is_some(),
-            "Should have case_id"
-        );
+        assert!(content.get("case_id").is_some(), "Should have case_id");
     }
 
     // =========================================================================
@@ -570,16 +551,16 @@ mod mcp_tool_operations {
         let result = manager.test_tool("nonexistent-tool", None).await;
 
         // Assert: Verify graceful failure
-        assert!(
-            !result.success,
-            "Non-existent tool should fail"
-        );
+        assert!(!result.success, "Non-existent tool should fail");
         assert!(result.error.is_some(), "Should have error message");
         assert!(
             result.error.unwrap().contains("not found"),
             "Error should indicate tool not found"
         );
-        assert!(result.content.is_none(), "Should have no content on failure");
+        assert!(
+            result.content.is_none(),
+            "Should have no content on failure"
+        );
     }
 
     #[tokio::test]
@@ -640,7 +621,9 @@ mod mcp_tool_operations {
     async fn test_agent_tool_names_follow_hyphen_case() {
         // Arrange: Create manager and bridge agents
         let manager = McpBackendManager::new();
-        manager.bridge_agent("test-agent", Some("my-bridged-tool")).await;
+        manager
+            .bridge_agent("test-agent", Some("my-bridged-tool"))
+            .await;
 
         // Act: List all tools
         let tools = manager.list_tools().await;
@@ -651,10 +634,7 @@ mod mcp_tool_operations {
             .find(|t| t.tool_type == "agent")
             .expect("Should have bridged tool");
         assert!(
-            bridged
-                .name
-                .chars()
-                .all(|c| c.is_lowercase() || c == '-'),
+            bridged.name.chars().all(|c| c.is_lowercase() || c == '-'),
             "Bridged tool name should be lowercase with hyphens"
         );
     }
@@ -693,16 +673,10 @@ mod mcp_tool_operations {
 
         // Act: Get core tools
         let tools = manager.list_tools().await;
-        let core_tools: Vec<_> = tools
-            .iter()
-            .filter(|t| t.tool_type == "core")
-            .collect();
+        let core_tools: Vec<_> = tools.iter().filter(|t| t.tool_type == "core").collect();
 
         // Assert: Verify descriptions match their purpose
-        let agent_list = core_tools
-            .iter()
-            .find(|t| t.name == "agent-list")
-            .unwrap();
+        let agent_list = core_tools.iter().find(|t| t.name == "agent-list").unwrap();
         assert!(
             agent_list.description.to_lowercase().contains("agent"),
             "agent-list description should mention agents"
@@ -713,7 +687,10 @@ mod mcp_tool_operations {
             .find(|t| t.name == "workflow-start")
             .unwrap();
         assert!(
-            workflow_start.description.to_lowercase().contains("workflow"),
+            workflow_start
+                .description
+                .to_lowercase()
+                .contains("workflow"),
             "workflow-start description should mention workflow"
         );
     }
@@ -780,9 +757,7 @@ mod mcp_tool_operations {
 
         for _ in 0..10 {
             let mgr = Arc::clone(&manager);
-            let handle = tokio::spawn(async move {
-                mgr.list_tools().await
-            });
+            let handle = tokio::spawn(async move { mgr.list_tools().await });
             handles.push(handle);
         }
 
@@ -825,16 +800,9 @@ mod mcp_tool_operations {
 
         // Assert: List should contain all bridged tools
         let tools = manager.list_tools().await;
-        let agent_tools: Vec<_> = tools
-            .iter()
-            .filter(|t| t.tool_type == "agent")
-            .collect();
+        let agent_tools: Vec<_> = tools.iter().filter(|t| t.tool_type == "agent").collect();
 
-        assert_eq!(
-            agent_tools.len(),
-            5,
-            "Should have 5 bridged agent tools"
-        );
+        assert_eq!(agent_tools.len(), 5, "Should have 5 bridged agent tools");
 
         // Verify all bridged agents are present
         for i in 0..5 {
@@ -937,18 +905,12 @@ mod mcp_tool_operations {
         let schema = &schemas["agent-start"];
 
         // Assert: Verify JSON Schema compliance
-        assert_eq!(
-            schema.get("type").and_then(|v| v.as_str()),
-            Some("object")
-        );
+        assert_eq!(schema.get("type").and_then(|v| v.as_str()), Some("object"));
         assert!(schema.get("properties").is_some());
         assert!(schema.get("required").is_some());
 
         let props = schema.get("properties").unwrap().as_object().unwrap();
-        assert!(
-            props.contains_key("name"),
-            "Should have name property"
-        );
+        assert!(props.contains_key("name"), "Should have name property");
 
         let name_prop = &props["name"];
         assert_eq!(
