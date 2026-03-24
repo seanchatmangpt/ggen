@@ -130,7 +130,7 @@ impl AndonSignal {
             .map(|cycle| {
                 cycle
                     .iter()
-                    .map(|f| format!("{}", f))
+                    .map(|f| f.to_string())
                     .collect::<Vec<_>>()
                     .join(" → ")
             })

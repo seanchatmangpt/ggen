@@ -152,9 +152,10 @@ pub fn info_message(message: &str) -> String {
 pub fn confirm_prompt(message: &str, default: bool) -> io::Result<bool> {
     let default_text = if default { "[Y/n]" } else { "[y/N]" };
     print!(
-        "{} {} ",
+        "{} {} {} ",
         "?".yellow().bold(),
-        format!("{} {}", message, default_text)
+        message,
+        default_text
     );
     io::stdout().flush()?;
 
