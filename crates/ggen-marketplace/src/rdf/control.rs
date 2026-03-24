@@ -186,10 +186,18 @@ impl RdfControlPlane {
     // ========== Package Operations (All via SPARQL) ==========
 
     /// Create a new draft package
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::InvalidStateTransition`] - When state transition is invalid
+    /// * [`Error::RdfStoreError`] - When SPARQL UPDATE operation fails
+    /// * [`Error::ValidationError`] - When package metadata validation fails
     pub fn create_package(
-        &self, id: PackageId, name: impl Into<String>, description: impl Into<String>,
+        &self, id: &PackageId, name: impl Into<String>, description: impl Into<String>,
         version: PackageVersion, license: String,
     ) -> Result<Package> {
+        use indexmap::IndexMap;
+
         let name = name.into();
         let description = description.into();
 
@@ -227,7 +235,6 @@ impl RdfControlPlane {
             .build()?;
 
         // Create Package with the metadata and version
-        use indexmap::IndexMap;
         let package = Package {
             metadata,
             latest_version: version.clone(),
@@ -239,6 +246,10 @@ impl RdfControlPlane {
     }
 
     /// Add metadata to a package (authors, keywords, categories)
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::RdfStoreError`] - When SPARQL UPDATE operation fails
     pub fn add_package_metadata(
         &self, package_id: &PackageId, authors: Vec<String>, keywords: Vec<String>,
         categories: Vec<String>,
@@ -277,7 +288,13 @@ impl RdfControlPlane {
     }
 
     /// Publish a draft package
-    pub fn publish_package(&self, package_id: PackageId, _checksum: String) -> Result<Package> {
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::InvalidStateTransition`] - When package is not in Draft state
+    /// * [`Error::RdfStoreError`] - When SPARQL UPDATE operation fails
+    /// * [`Error::NotImplemented`] - When getting published package is not implemented
+    pub fn publish_package(&self, package_id: &PackageId, _checksum: String) -> Result<Package> {
         // Check current state
         let current_state = self.get_package_state(&package_id)?;
         if current_state != "Draft" {
@@ -311,6 +328,11 @@ impl RdfControlPlane {
     }
 
     /// Get package state
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::PackageNotFound`] - When package does not exist
+    /// * [`Error::RdfStoreError`] - When SPARQL query fails
     pub fn get_package_state(&self, package_id: &PackageId) -> Result<String> {
         // Epoch-based cache lookup would go here
         let _epoch = self.current_epoch();
@@ -339,6 +361,10 @@ impl RdfControlPlane {
     }
 
     /// Get a published package
+    ///
+    /// # Errors
+    ///
+    /// * [`Error::NotImplemented`] - This feature is not yet implemented
     fn get_published_package(&self, _package_id: &PackageId) -> Result<Package> {
         // This is a simplified version - in production would fully reconstruct from RDF
         Err(Error::NotImplemented {
@@ -347,6 +373,10 @@ impl RdfControlPlane {
     }
 
     /// Search packages by keyword
+    ///
+    /// # Errors
+    ///
+    /// This function currently never returns an error
     pub fn search_packages(&self, _keyword: &str, _limit: usize) -> Result<Vec<SearchResult>> {
         // Use epoch for cache lookups
         let _epoch = self.current_epoch();
@@ -355,6 +385,10 @@ impl RdfControlPlane {
     }
 
     /// List all packages with filters
+    ///
+    /// # Errors
+    ///
+    /// This function currently never returns an error
     pub fn list_packages(
         &self, _category: Option<&str>, _min_quality: Option<u32>, _limit: usize, _offset: usize,
     ) -> Result<Vec<PackageListEntry>> {
@@ -365,6 +399,10 @@ impl RdfControlPlane {
     }
 
     /// Get package dependencies
+    ///
+    /// # Errors
+    ///
+    /// This function currently never returns an error
     pub fn get_dependencies(
         &self, _package_id: &PackageId, _version: &PackageVersion,
     ) -> Result<Vec<DependencyInfo>> {
@@ -375,6 +413,10 @@ impl RdfControlPlane {
     }
 
     /// Validate package integrity
+    ///
+    /// # Errors
+    ///
+    /// This function currently never returns an error
     pub fn validate_package(&self, package_id: &PackageId) -> Result<ValidationResult> {
         // Use epoch for cache lookups
         let _epoch = self.current_epoch();
@@ -387,6 +429,10 @@ impl RdfControlPlane {
     }
 
     /// Get maturity metrics for a package
+    ///
+    /// # Errors
+    ///
+    /// This function currently never returns an error
     pub fn get_maturity_metrics(&self, _package_id: &PackageId) -> Result<MaturityMetrics> {
         // Use epoch for cache lookups
         let _epoch = self.current_epoch();
@@ -402,6 +448,10 @@ impl RdfControlPlane {
     }
 
     /// Get dashboard statistics
+    ///
+    /// # Errors
+    ///
+    /// This function currently never returns an error
     pub fn get_dashboard_stats(&self) -> Result<DashboardStats> {
         // Use epoch for cache lookups
         let _epoch = self.current_epoch();
