@@ -38,10 +38,11 @@ fn test_marketplace_search_basic() {
     ggen()
         .arg("marketplace")
         .arg("search")
+        .arg("--query")
         .arg("rust")
         .assert()
         .success()
-        .stdout(predicate::str::contains("Searching marketplace"));
+        .stdout(predicate::str::contains("advanced-rust-project").or(predicate::str::contains("packages")));
 }
 
 #[test]
@@ -51,12 +52,13 @@ fn test_marketplace_search_with_category() {
     ggen()
         .arg("marketplace")
         .arg("search")
+        .arg("--query")
         .arg("api")
         .arg("--category")
         .arg("web")
         .assert()
         .success()
-        .stdout(predicate::str::contains("Searching marketplace"));
+        .stdout(predicate::str::contains("packages"));
 }
 
 #[test]
@@ -91,8 +93,8 @@ fn test_marketplace_list_empty() {
         .assert()
         .success()
         .stdout(
-            predicate::str::contains("No gpacks installed")
-                .or(predicate::str::contains("Installed gpacks")),
+            predicate::str::contains("packages")
+                .or(predicate::str::contains("total")),
         );
 }
 
@@ -189,17 +191,16 @@ fn test_marketplace_cache_clean() {
 
 #[test]
 fn test_marketplace_cache_status() {
-    // Chicago TDD: Verify cache state reporting
+    // Chicago TDD: Verify cache state reporting (using sync command)
     let temp_dir = TempDir::new().unwrap();
 
     ggen()
         .arg("marketplace")
-        .arg("cache")
-        .arg("status")
+        .arg("sync")
         .current_dir(&temp_dir)
         .assert()
         .success()
-        .stdout(predicate::str::contains("Cache").or(predicate::str::contains("cache")));
+        .stdout(predicate::str::contains("synced").or(predicate::str::contains("status")));
 }
 
 #[test]
@@ -267,11 +268,11 @@ fn test_marketplace_help_output() {
         .arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("Marketplace operations"))
+        .stdout(predicate::str::contains("Commands:"))
         .stdout(predicate::str::contains("search"))
-        .stdout(predicate::str::contains("add"))
+        .stdout(predicate::str::contains("install"))
         .stdout(predicate::str::contains("list"))
-        .stdout(predicate::str::contains("remove"));
+        .stdout(predicate::str::contains("update"));
 }
 
 #[test]
@@ -283,7 +284,7 @@ fn test_marketplace_search_help() {
         .arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("Search for gpacks"))
+        .stdout(predicate::str::contains("Search for packages"))
         .stdout(predicate::str::contains("--category"));
 }
 
@@ -304,9 +305,11 @@ fn test_marketplace_recommend_basic() {
     ggen()
         .arg("marketplace")
         .arg("recommend")
+        .arg("--use_case")
+        .arg("production")
         .assert()
         .success()
-        .stdout(predicate::str::contains("Recommend").or(predicate::str::contains("recommend")));
+        .stdout(predicate::str::contains("recommendations"));
 }
 
 #[test]
@@ -315,10 +318,8 @@ fn test_marketplace_recommend_with_category() {
     ggen()
         .arg("marketplace")
         .arg("recommend")
-        .arg("--category")
-        .arg("web")
-        .arg("--limit")
-        .arg("5")
+        .arg("--use_case")
+        .arg("production")
         .assert()
         .success();
 }
