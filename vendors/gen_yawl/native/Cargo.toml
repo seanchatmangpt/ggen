@@ -17,7 +17,6 @@ rustler = "0.34"
 
 # RDF processing
 oxigraph = "0.5"
-sparql-smith = "0.4"
 
 # Cryptographic hashing
 blake3 = "1.5"
@@ -39,7 +38,6 @@ tracing-subscriber = "0.3"
 hex = "0.4"
 
 [dev-dependencies]
-rustler_test = "0.3"
 
 [profile.release]
 opt-level = 3

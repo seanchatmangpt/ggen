@@ -57,17 +57,17 @@ impl RDFStore {
     }
 
     fn load_turtle(&mut self, content: &str, graph_name: &str) -> Result<usize, BridgeError> {
-        let graph = oxigraph::Term::NamedNode {
-            iri: oxigraph::build_named_node(graph_name).unwrap(),
-        };
-        
+        let graph = oxigraph::model::NamedNode::new(graph_name)
+            .map_err(|e| BridgeError::ParseError(format!("Invalid graph name: {}", e)))?;
+        let graph_term = oxigraph::model::GraphName::NamedNode(graph);
+
         let count = self.store.load_graph(
             oxigraph::io::read::RdfFormat::Turtle,
             content.as_bytes(),
-            Some(&graph.into()),
+            Some(&graph_term),
             None,
         )?;
-        
+
         Ok(count)
     }
 
@@ -79,10 +79,9 @@ impl RDFStore {
             let mut row = HashMap::new();
             for (var, term) in solution.iter() {
                 let value = match term {
-                    oxigraph::Term::NamedNode(n) => n.iri.to_string(),
-                    oxigraph::Term::BlankNode(b) => format!("_:{}", b.id),
-                    oxigraph::Term::Literal(l) => l.value.to_string(),
-                    oxigraph::Term::DefaultGraph(_) => String::from("default"),
+                    oxigraph::model::Term::NamedNode(n) => n.as_str().to_string(),
+                    oxigraph::model::Term::BlankNode(b) => format!("_:{}", b.as_str()),
+                    oxigraph::model::Term::Literal(l) => l.value().to_string(),
                 };
                 row.insert(var.as_str().to_string(), value);
             }
@@ -584,8 +583,8 @@ mod rdf_parser {
         pub fn parse_yawl_spec(&self, content: &str) -> Result<YawlSpec, BridgeError> {
             // Parse Turtle content
             let store = oxigraph::store::Store::new()?;
-            
-            let graph = oxigraph::Term::DefaultGraph;
+
+            let graph = oxigraph::model::GraphName::DefaultGraph;
             store.load_graph(
                 oxigraph::io::read::RdfFormat::Turtle,
                 content.as_bytes(),
@@ -677,9 +676,9 @@ mod rdf_parser {
         }
     }
 
-    fn as_literal(term: &oxigraph::Term) -> Option<String> {
+    fn as_literal(term: &oxigraph::model::Term) -> Option<String> {
         match term {
-            oxigraph::Term::Literal(l) => Some(l.value.to_string()),
+            oxigraph::model::Term::Literal(l) => Some(l.value().to_string()),
             _ => None,
         }
     }

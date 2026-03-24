@@ -96,6 +96,7 @@ exclude = [
   "crates/tai-loadbalancer",  # Temporarily excluded - missing benchmark files
   "crates/a2a-generated",  # Temporarily excluded - has compilation errors
   "crates/ggen-execution",  # Temporarily excluded - depends on a2a-generated
+  "vendors/gen_yawl/native",  # Standalone Erlang NIF - excluded from workspace
 ]
 resolver = "2" # Use new resolver for better dependency resolution
 
