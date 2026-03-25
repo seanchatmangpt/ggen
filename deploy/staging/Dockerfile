@@ -4,7 +4,6 @@ FROM rust:1.80-alpine3.19 AS builder
 
 RUN apk add --no-cache \
     musl-dev \
-    pkg-config \
     openssl-dev \
     ca-certificates \
     git \
@@ -15,7 +14,6 @@ WORKDIR /build
 # Copy workspace files
 COPY Cargo.toml Cargo.lock* ./
 COPY crates ./crates
-COPY .specify ./.specify
 
 # Build release binary with optimizations
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
