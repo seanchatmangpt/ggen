@@ -14,6 +14,7 @@ WORKDIR /build
 # Copy workspace files
 COPY Cargo.toml Cargo.lock* ./
 COPY crates ./crates
+COPY examples ./examples
 
 # Build release binary with optimizations
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
