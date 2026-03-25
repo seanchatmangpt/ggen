@@ -6,6 +6,7 @@
 
 // Use prelude::* to import all common macros and types
 use chicago_tdd_tools::prelude::*;
+use chicago_tdd_tools::{async_test, test};
 
 // Basic smoke test - verify chicago-tdd-tools macro works
 test!(test_chicago_tdd_works, {

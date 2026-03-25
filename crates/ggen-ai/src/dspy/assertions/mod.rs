@@ -151,6 +151,10 @@ mod integration_tests {
             outputs.insert("output".to_string(), Value::String(self.response.clone()));
             Ok(outputs)
         }
+
+        fn as_any(&self) -> &dyn std::any::Any {
+            self
+        }
     }
 
     #[tokio::test]

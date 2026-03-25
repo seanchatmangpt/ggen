@@ -17,13 +17,39 @@ pub mod error;
 // pub mod health;
 // pub mod persistence;
 // pub mod patterns;
+pub mod andon_system;
+pub mod byzantine;
+pub mod deadlock_detector;
+pub mod kaizen_cycle;
+pub mod recovery_orchestrator;
+pub mod sensor_manager;
 pub mod signals;
+pub mod supervisor;
+pub mod timed_lock;
 // pub mod tps;
 // pub mod workflow;
 
 // Simple exports for now to avoid compilation issues
+pub use andon_system::AndonSystem;
+pub use byzantine::{
+    ByzantineConsensus, CommittedValue, ConsensusConfig, Evidence, EvidenceLog,
+    LeaderElectionStrategy, LeaderElector, Message, MessageType, Misbehavior, NodeId,
+    ProposalValue, Round,
+};
+pub use deadlock_detector::{DeadlockAlert, DeadlockDetector};
 pub use error::{OSIRISError, Result};
+pub use kaizen_cycle::KaizenCycle;
+pub use recovery_orchestrator::{
+    EscalationLevel, OrchestratorConfig, RecoveryAction, RecoveryDecision, RecoveryOrchestrator,
+    RecoveryState,
+};
+pub use sensor_manager::SensorManager;
 pub use signals::{OSIRISSignal, SignalLevel};
+pub use supervisor::{
+    BackoffStrategy, ChildStats, RestartStrategy, Restartable, SupervisionStrategy,
+    SupervisorConfig, SupervisorHealth, SupervisorTree,
+};
+pub use timed_lock::{LockError, TimedLock, TimeoutConfig};
 
 // Stub types for osiris-* crates (TODO: implement proper modules)
 

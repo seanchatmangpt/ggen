@@ -32,6 +32,14 @@ fn test_agent_failure_recovery() {
     let agents = pool.all();
     let agent_id = agents[0].id;
 
+    // First, cause failures to trigger failed status
+    let mut health = agents[0].health.clone();
+    for _ in 0..3 {
+        health.record_failure();
+    }
+    pool.update_health(agent_id, health);
+
+    // Now recovery should work
     assert!(pool.recover_agent(agent_id));
     let recovered = pool.get(agent_id).unwrap();
     assert_eq!(recovered.health.failure_count, 0);
@@ -165,11 +173,13 @@ fn test_workflow_dependencies() {
 
 #[test]
 fn test_consensus_voting() {
-    let manager = ConsensusManager::new(VotingStrategy::Supermajority, 2);
+    let manager = ConsensusManager::new(VotingStrategy::Supermajority, 3);
     let agent1_id = Uuid::new_v4();
     let agent2_id = Uuid::new_v4();
     let agent3_id = Uuid::new_v4();
+    let agent4_id = Uuid::new_v4();
 
+    // 3 yes out of 4 = 75% > 66.67% (supermajority)
     let votes = vec![
         AgentVote {
             agent_id: agent1_id,
@@ -183,6 +193,11 @@ fn test_consensus_voting() {
         },
         AgentVote {
             agent_id: agent3_id,
+            vote: true,
+            reason: "agree".to_string(),
+        },
+        AgentVote {
+            agent_id: agent4_id,
             vote: false,
             reason: "disagree".to_string(),
         },
@@ -190,7 +205,7 @@ fn test_consensus_voting() {
 
     let result = manager.reach_consensus("proposal_1".to_string(), votes);
     assert!(result.approved);
-    assert_eq!(result.yes_votes(), 2);
+    assert_eq!(result.yes_votes(), 3);
 }
 
 #[test]

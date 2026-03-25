@@ -559,9 +559,9 @@ fn main() {}
         let internal_idx = lines.iter().position(|l| l.contains("crate::module"));
 
         // std imports should come before external
-        assert!(std_idx < external_idx.unwrap());
+        assert!(std_idx.unwrap() < external_idx.unwrap());
         // external should come before internal
-        assert!(external_idx < internal_idx);
+        assert!(external_idx.unwrap() < internal_idx.unwrap());
 
         // std imports should be sorted
         assert!(std_idx.unwrap() < vec_idx.unwrap());

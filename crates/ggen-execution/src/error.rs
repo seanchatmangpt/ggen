@@ -451,7 +451,10 @@ mod tests {
     #[test]
     fn test_basic_recovery() {
         let mut recovery = BasicRecovery;
-        let error = ExecutionError::TaskExecutionFailed("Task failed".to_string());
+        let error = ExecutionError::Coded {
+            code: ErrorCode::TaskExecutionFailed,
+            message: "Task failed".to_string(),
+        };
 
         assert!(recovery.can_recover(&error));
         let result = recovery.recover(&error);

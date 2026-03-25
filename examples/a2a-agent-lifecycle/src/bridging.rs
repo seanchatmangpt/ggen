@@ -27,8 +27,8 @@ pub struct ToolExecution {
 
 /// Bridges an agent as MCP tools
 pub struct AgentBridge {
-    agent_id: String,
-    agent_name: String,
+    pub agent_id: String,
+    pub agent_name: String,
     tools: HashMap<String, Tool>,
     executions: Vec<ToolExecution>,
 }
@@ -64,9 +64,7 @@ impl AgentBridge {
 
     /// Execute a tool
     pub fn execute_tool(
-        &mut self,
-        tool_name: &str,
-        input: serde_json::Value,
+        &mut self, tool_name: &str, input: serde_json::Value,
     ) -> Result<ToolExecution> {
         let tool = self
             .tools
@@ -96,9 +94,7 @@ impl AgentBridge {
 
     /// Execute a tool and handle errors
     pub fn execute_tool_safe(
-        &mut self,
-        tool_name: &str,
-        input: serde_json::Value,
+        &mut self, tool_name: &str, input: serde_json::Value,
     ) -> ToolExecution {
         let execution_id = Uuid::new_v4().to_string();
 
@@ -148,11 +144,7 @@ impl AgentBridge {
         successes as f64 / self.executions.len() as f64
     }
 
-    fn validate_input(
-        &self,
-        input: &serde_json::Value,
-        schema: &serde_json::Value,
-    ) -> Result<()> {
+    fn validate_input(&self, input: &serde_json::Value, schema: &serde_json::Value) -> Result<()> {
         // Simple validation: check required fields
         if let Some(required) = schema.get("required") {
             if let Some(required_fields) = required.as_array() {
@@ -170,9 +162,7 @@ impl AgentBridge {
     }
 
     fn simulate_execution(
-        &self,
-        tool_name: &str,
-        input: &serde_json::Value,
+        &self, tool_name: &str, input: &serde_json::Value,
     ) -> Result<serde_json::Value> {
         // Simulate different tool behaviors
         match tool_name {

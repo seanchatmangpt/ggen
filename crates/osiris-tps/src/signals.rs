@@ -88,6 +88,12 @@ impl TPSSignal {
         self
     }
 
+    /// Set the target of the signal
+    pub fn with_target(mut self, target: String) -> Self {
+        self.target = Some(target);
+        self
+    }
+
     /// Check if signal is critical
     pub fn is_critical(&self) -> bool {
         matches!(self.level, TPSLevel::Critical)
@@ -138,41 +144,60 @@ impl std::fmt::Display for TPSSignal {
 pub mod signal_types {
     use super::*;
 
-    /// Andon signals
+    /// Andon alert signal - indicates a problem detected on the production line
     pub const ANDON_ALERT: &str = "andon_alert";
+    /// Andon acknowledgement signal - confirms receipt of alert
     pub const ANDON_ACKNOWLEDGE: &str = "andon_acknowledge";
+    /// Andon resolution signal - indicates problem has been resolved
     pub const ANDON_RESOLVE: &str = "andon_resolve";
+    /// Line stop signal - production line must halt immediately
     pub const LINE_STOP: &str = "line_stop";
+    /// Line resume signal - production line can resume operations
     pub const LINE_RESUME: &str = "line_resume";
 
-    /// Jidoka signals
+    /// Critical error signal - system failure requiring immediate attention
     pub const CRITICAL_ERROR: &str = "critical_error";
+    /// Safety hazard signal - unsafe condition detected
     pub const SAFETY_HAZARD: &str = "safety_hazard";
+    /// Quality issue signal - product quality problem detected
     pub const QUALITY_ISSUE: &str = "quality_issue";
+    /// Process deviation signal - operation deviates from standard procedure
     pub const PROCESS_DEVIATION: &str = "process_deviation";
+    /// Minor anomaly signal - small irregularity in process
     pub const MINOR_ANOMALY: &str = "minor_anomaly";
 
-    /// Kaizen signals
+    /// Improvement suggestion signal - idea for process optimization
     pub const IMPROVEMENT_SUGGESTION: &str = "improvement_suggestion";
+    /// Process observation signal - observation during standard operations
     pub const PROCESS_OBSERVATION: &str = "process_observation";
+    /// Improvement implemented signal - confirms improvement has been applied
     pub const IMPROVEMENT_IMPLEMENTED: &str = "improvement_implemented";
+    /// Kaizen cycle complete signal - improvement cycle has finished
     pub const CYCLE_COMPLETE: &str = "cycle_complete";
 
-    /// JIT (Just-in-Time) signals
+    /// Kanban signal - JIT inventory control signal
     pub const KANBAN_SIGNAL: &str = "kanban_signal";
+    /// Stock depletion signal - inventory level critical
     pub const STOCK_DEPLETION: &str = "stock_depletion";
+    /// Pull request signal - authorization to produce next batch
     pub const PULL_REQUEST: &str = "pull_request";
+    /// Production order signal - new production authorization
     pub const PRODUCTION_ORDER: &str = "production_order";
 
-    /// General TPS signals
+    /// Daily goal reached signal - production target achieved
     pub const DAILY_GOAL_REACHED: &str = "daily_goal_reached";
+    /// Efficiency improvement signal - productivity gains detected
     pub const EFFICIENCY_IMPROVEMENT: &str = "efficiency_improvement";
+    /// Waste identified signal - non-value-added activity detected
     pub const WASTE_IDENTIFIED: &str = "waste_identified";
+    /// Safety incident signal - workplace safety event occurred
     pub const SAFETY_INCIDENT: &str = "safety_incident";
+    /// Quality deviation signal - output deviates from quality standards
     pub const QUALITY_DEVIATION: &str = "quality_deviation";
 }
 
 /// Helper functions for creating common TPS signals
+#[derive(Debug)]
 pub struct TPSSignalBuilder;
 
 impl TPSSignalBuilder {
@@ -260,7 +285,7 @@ impl TPSSignalBuilder {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{signal_types, TPSLevel, TPSSignal, TPSSignalBuilder};
 
     #[test]
     fn test_tps_signal_creation() {

@@ -126,7 +126,11 @@ fn main() {
     println!("{} Test Summary", "📋".cyan());
     println!("{}", "=".repeat(80).dimmed());
     println!("  Passed: {} {}", passed, "✓".green());
-    println!("  Failed: {} {}", failed, if failed > 0 { "✗".red() } else { "".to_string() });
+    if failed > 0 {
+        println!("  Failed: {} {}", failed, "✗".red());
+    } else {
+        println!("  Failed: {} {}", failed, "✗");
+    }
     println!("  Total:  {}", results.len());
 
     let pass_rate = (passed as f64 / results.len() as f64 * 100.0) as u32;

@@ -28,6 +28,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 uuid = { version = "1.0", features = ["serde", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 dashmap = "5.5"
+colored = "2.0"
 
 # ggen integration crates
 a2a-generated = { path = "../../crates/a2a-generated" }
@@ -71,6 +72,18 @@ harness = false
 name = "domain_balance"
 harness = false
 
+[[bench]]
+name = "osiris_benchmarks"
+harness = false
+
+[[bench]]
+name = "a2a_tool_use_benchmarks"
+harness = false
+
+[[bench]]
+name = "a2a_lifecycle_benchmarks"
+harness = false
+
 [[test]]
 name = "benchmark_validation"
 path = "tests/benchmark_validation.rs"
@@ -82,5 +95,13 @@ path = "tests/slo_validation.rs"
 [[test]]
 name = "performance_regression"
 path = "tests/performance_regression.rs"
+
+[[test]]
+name = "load_tests"
+path = "tests/load_tests.rs"
+
+[[test]]
+name = "wave4_slo_validation"
+path = "tests/wave4_slo_validation.rs"
 
 [workspace]

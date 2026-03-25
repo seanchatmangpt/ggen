@@ -398,6 +398,10 @@ mod tests {
             *attempt += 1;
             Ok(output)
         }
+
+        fn as_any(&self) -> &dyn std::any::Any {
+            self
+        }
     }
 
     fn create_test_signature() -> Signature {

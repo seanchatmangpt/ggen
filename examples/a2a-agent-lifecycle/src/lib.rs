@@ -8,14 +8,16 @@
 //! - Fault recovery mechanisms
 
 pub mod agent;
-pub mod bridging;
+// pub mod bridging;  // Temporarily disabled - depends on ggen-a2a-mcp
 pub mod messaging;
+pub mod supervisor;
 pub mod task;
 
 pub use agent::{Agent, AgentState};
+// pub use bridging::AgentBridge;  // Temporarily disabled - depends on ggen-a2a-mcp
 pub use messaging::{Message, MessageRouter, MessageType};
+pub use supervisor::{CrashReason, ManagedAgent, Supervisor, SupervisorState};
 pub use task::{Task, TaskManager, TaskPriority};
-pub use bridging::AgentBridge;
 
 pub const VERSION: &str = "0.1.0";
 

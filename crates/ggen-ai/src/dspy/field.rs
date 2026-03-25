@@ -47,7 +47,7 @@ impl FieldMetadata {
 ///
 /// These constraints are used to validate values and express domain requirements.
 /// All constraints are optional and default to None (no constraint).
-#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
 pub struct FieldConstraints {
     /// Whether the field is required (not null/empty)
     pub required: bool,
@@ -75,6 +75,12 @@ pub struct FieldConstraints {
 
     /// XSD datatype or Rust type constraint (e.g., "xsd:string", "xsd:integer")
     pub datatype: Option<String>,
+
+    /// Minimum numeric value
+    pub min: Option<f64>,
+
+    /// Maximum numeric value
+    pub max: Option<f64>,
 }
 
 impl FieldConstraints {
@@ -134,6 +140,18 @@ impl FieldConstraints {
     /// Set datatype constraint
     pub fn datatype(mut self, datatype: impl Into<String>) -> Self {
         self.datatype = Some(datatype.into());
+        self
+    }
+
+    /// Set minimum numeric value constraint
+    pub fn with_min(mut self, min: f64) -> Self {
+        self.min = Some(min);
+        self
+    }
+
+    /// Set maximum numeric value constraint
+    pub fn with_max(mut self, max: f64) -> Self {
+        self.max = Some(max);
         self
     }
 
@@ -333,6 +351,8 @@ impl SHACLConstraint {
             enum_values: self.in_values.clone(),
             semantic_type: self.target_class.clone(),
             datatype: self.datatype.clone(),
+            min: None,
+            max: None,
         }
     }
 }
@@ -395,8 +415,19 @@ impl InputField {
         &self.metadata.type_annotation
     }
 
+    /// Alias for type_annotation() - returns field type
+    pub fn field_type(&self) -> &str {
+        &self.metadata.type_annotation
+    }
+
     /// Add constraints to this field
     pub fn add_constraints(mut self, constraints: FieldConstraints) -> Self {
+        self.constraints = constraints;
+        self
+    }
+
+    /// Replace constraints on existing field (instance method builder)
+    pub fn with_constraints_builder(mut self, constraints: FieldConstraints) -> Self {
         self.constraints = constraints;
         self
     }
@@ -524,8 +555,19 @@ impl OutputField {
         &self.metadata.type_annotation
     }
 
+    /// Alias for type_annotation() - returns field type
+    pub fn field_type(&self) -> &str {
+        &self.metadata.type_annotation
+    }
+
     /// Add constraints to this field
     pub fn add_constraints(mut self, constraints: FieldConstraints) -> Self {
+        self.constraints = constraints;
+        self
+    }
+
+    /// Replace constraints on existing field (instance method builder)
+    pub fn with_constraints_builder(mut self, constraints: FieldConstraints) -> Self {
         self.constraints = constraints;
         self
     }

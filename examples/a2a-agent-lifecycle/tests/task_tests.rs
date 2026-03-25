@@ -1,6 +1,6 @@
 //! Task management tests
 
-use a2a_agent_lifecycle::{Task, TaskPriority, TaskManager};
+use a2a_agent_lifecycle::{Task, TaskManager, TaskPriority};
 use std::collections::HashSet;
 
 #[test]
@@ -88,9 +88,7 @@ fn test_task_manager_priority_ordering() {
 
     // High and Critical priority tasks should be scheduled first
     let first = manager.get_next_task().unwrap();
-    assert!(
-        first.name == "HighPriority" || first.name == "CriticalPriority"
-    );
+    assert!(first.name == "HighPriority" || first.name == "CriticalPriority");
 }
 
 #[test]
@@ -164,8 +162,7 @@ fn test_task_priority_values() {
 
 #[test]
 fn test_task_with_description() {
-    let task = Task::new("TestTask", TaskPriority::Normal)
-        .with_description("This is a test task");
+    let task = Task::new("TestTask", TaskPriority::Normal).with_description("This is a test task");
 
     assert_eq!(task.description, Some("This is a test task".to_string()));
 }
@@ -241,10 +238,7 @@ fn test_concurrent_tasks() {
     let mut manager = TaskManager::new();
 
     for i in 0..10 {
-        manager.add_task(Task::new(
-            &format!("Task{}", i),
-            TaskPriority::Normal,
-        ));
+        manager.add_task(Task::new(&format!("Task{}", i), TaskPriority::Normal));
     }
 
     assert_eq!(manager.pending_count(), 10);

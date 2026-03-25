@@ -1,0 +1,111 @@
+# Prometheus Configuration for ggen Production Monitoring
+# Specification: Multi-component scraping with 10s intervals
+
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+  external_labels:
+    monitor: 'ggen-production'
+    environment: 'production'
+    cluster: 'main'
+
+# Alert manager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - localhost:9093
+
+# Load rules once
+rule_files:
+  - '/etc/prometheus/alerts.yml'
+
+scrape_configs:
+  # Health Dashboard Endpoint (main application)
+  - job_name: 'health-dashboard'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    metrics_path: '/api/v1/metrics'
+    static_configs:
+      - targets: ['localhost:8080']
+        labels:
+          component: 'health-dashboard'
+          service: 'ggen-core'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+
+  # Supervisor Metrics (process supervisor)
+  - job_name: 'supervisor-metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['localhost:9001']
+        labels:
+          component: 'supervisor'
+          service: 'ggen-supervisor'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+
+  # Circuit Breaker Metrics (resilience layer)
+  - job_name: 'circuit-breaker-metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['localhost:9002']
+        labels:
+          component: 'circuit-breaker'
+          service: 'ggen-resilience'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+
+  # Consensus Metrics (distributed coordination)
+  - job_name: 'consensus-metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['localhost:9003']
+        labels:
+          component: 'consensus'
+          service: 'ggen-osiris'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+
+  # Event Store Metrics (persistence layer)
+  - job_name: 'event-store-metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['localhost:9004']
+        labels:
+          component: 'event-store'
+          service: 'ggen-eventstore'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          component: 'prometheus'
+          service: 'monitoring'
+
+# Remote storage (optional, uncomment for cloud deployment)
+# remote_write:
+#   - url: "http://influxdb:8086/api/v1/prom/write?db=prometheus"
+#     queue_config:
+#       capacity: 10000
+#       max_shards: 200
+#       max_samples_per_send: 100000
+#       batch_send_timeout: 5s

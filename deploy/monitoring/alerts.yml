@@ -1,0 +1,202 @@
+# Prometheus Alert Rules for ggen Production
+# Four critical alert scenarios with escalation
+
+groups:
+  - name: ggen_production_alerts
+    interval: 10s
+    rules:
+      # Alert 1: CRITICAL - Supervisor restart frequency
+      # Page on-call when restart_count exceeds 5 per minute
+      - alert: SupervisorHighRestartRate
+        expr: |
+          rate(supervisor_restart_count[1m]) > 5
+        for: 1m
+        labels:
+          severity: critical
+          component: supervisor
+          team: oncall
+        annotations:
+          summary: "Supervisor experiencing high restart rate"
+          description: |
+            Supervisor {{ $labels.instance }} has restarted
+            {{ printf "%.1f" $value }} times per minute (threshold: 5/min).
+
+            ACTION: Page on-call immediately.
+            - Check supervisor logs for crash patterns
+            - Verify system resource availability (memory, disk, CPU)
+            - Review recent deployments for regressions
+          runbook: "https://ggen-docs.internal/runbooks/supervisor-restart-spike"
+          dashboard: "https://grafana.internal/d/supervisor-health"
+
+      # Alert 2: WARNING - Circuit breaker open state
+      # Warn when any circuit breaker is open (service unavailable)
+      - alert: CircuitBreakerOpen
+        expr: |
+          circuit_breaker_state == 1
+        for: 30s
+        labels:
+          severity: warning
+          component: circuit-breaker
+          team: platform
+        annotations:
+          summary: "Circuit breaker is OPEN"
+          description: |
+            Circuit breaker {{ $labels.service }} on {{ $labels.instance }}
+            is in OPEN state. Downstream service is unavailable.
+
+            ACTION: Investigate and resolve:
+            - Check downstream service health ({{ $labels.service }})
+            - Review circuit breaker failure threshold configuration
+            - Check network connectivity to downstream service
+            - If misconfigured, adjust threshold and reset breaker
+
+            States: CLOSED=0, OPEN=1, HALF_OPEN=2, SLOW_START=3
+          runbook: "https://ggen-docs.internal/runbooks/circuit-breaker-open"
+          dashboard: "https://grafana.internal/d/resilience-layer"
+
+      # Alert 3: CRITICAL - Consensus quorum loss
+      # Critical when less than 2/3 of nodes are healthy
+      - alert: ConsensusQuorumLost
+        expr: |
+          (count by (cluster) (consensus_node_healthy == 1) /
+           count by (cluster) (consensus_node_healthy)) < 0.6666
+        for: 2m
+        labels:
+          severity: critical
+          component: consensus
+          team: oncall
+        annotations:
+          summary: "Consensus quorum below 2/3 threshold"
+          description: |
+            Consensus cluster {{ $labels.cluster }} has lost quorum.
+            Healthy nodes: {{ printf "%.0f" $value | multiply 100 }}%
+
+            ACTION: IMMEDIATE - This is a critical failure state:
+            1. Declare incident in war room
+            2. Check all node statuses (healthy/failed/unavailable)
+            3. Review network partition events
+            4. Manually resolve if infrastructure issue
+            5. Restore cluster consensus via recovery procedure
+
+            Impact: System cannot make distributed decisions.
+            Estimated downtime cost: $X per minute.
+          runbook: "https://ggen-docs.internal/runbooks/consensus-quorum-loss"
+          dashboard: "https://grafana.internal/d/consensus-health"
+          action: "declare_incident; page_oncall_team; check_network"
+
+      # Alert 4: WARNING - Event store latency degradation
+      # Warn when event store operations exceed 1 second
+      - alert: EventStoreHighLatency
+        expr: |
+          histogram_quantile(0.99, rate(event_store_operation_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: event-store
+          team: platform
+        annotations:
+          summary: "Event store p99 latency exceeds 1 second"
+          description: |
+            Event store {{ $labels.instance }} has elevated latency.
+            p99 latency: {{ printf "%.2f" $value }}s (threshold: 1.0s)
+
+            IMPACT:
+            - Slow event persistence
+            - Potential impact on event sourcing pipeline
+            - May affect user-facing latency if on critical path
+
+            ACTION: Investigate and optimize:
+            - Check database connection pool saturation
+            - Review slow query logs
+            - Verify disk I/O performance (iostat)
+            - Check for lock contention or transaction long-locks
+            - Review recent schema changes
+            - Consider indexing improvements
+
+            If spike is temporary (cache warming, etc.):
+            - Monitor and resolve naturally
+
+            If persistent:
+            - Scale database horizontally or vertically
+            - Implement event batching optimization
+            - Add read replicas for query offload
+          runbook: "https://ggen-docs.internal/runbooks/event-store-latency"
+          dashboard: "https://grafana.internal/d/event-store-performance"
+
+  - name: ggen_production_recording_rules
+    interval: 10s
+    rules:
+      # Recording rules for dashboard efficiency
+      - record: instance:supervisor_restart_rate:1m
+        expr: rate(supervisor_restart_count[1m])
+
+      - record: instance:circuit_breaker_state:current
+        expr: circuit_breaker_state
+
+      - record: cluster:consensus_quorum_ratio:current
+        expr: |
+          count by (cluster) (consensus_node_healthy == 1) /
+          count by (cluster) (consensus_node_healthy)
+
+      - record: instance:event_store_p99_latency:5m
+        expr: |
+          histogram_quantile(0.99, rate(event_store_operation_duration_seconds_bucket[5m]))
+
+      - record: instance:event_store_p95_latency:5m
+        expr: |
+          histogram_quantile(0.95, rate(event_store_operation_duration_seconds_bucket[5m]))
+
+      - record: instance:event_store_p50_latency:5m
+        expr: |
+          histogram_quantile(0.50, rate(event_store_operation_duration_seconds_bucket[5m]))
+
+  - name: ggen_slo_validation
+    interval: 1m
+    rules:
+      # SLO: Event store latency < 1s (99th percentile)
+      - alert: SLOEventStoreLatency
+        expr: |
+          instance:event_store_p99_latency:5m > 1
+        for: 5m
+        labels:
+          severity: warning
+          slo: "event_store_latency"
+        annotations:
+          summary: "SLO violation: Event store latency"
+          description: "Event store p99 latency exceeds SLO threshold"
+
+      # SLO: Supervisor restarts < 5/min (industry standard: < 0.1/min)
+      - alert: SLOSupervisorRestarts
+        expr: |
+          instance:supervisor_restart_rate:1m > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          slo: "supervisor_stability"
+        annotations:
+          summary: "SLO violation: Supervisor restart rate"
+          description: "Supervisor restart rate exceeds SLO threshold (0.1/min)"
+
+      # SLO: Circuit breaker should not stay open > 2 minutes
+      - alert: SLOCircuitBreakerRecovery
+        expr: |
+          (circuit_breaker_state == 1) and on() (time() - circuit_breaker_open_timestamp) > 120
+        for: 1m
+        labels:
+          severity: warning
+          slo: "circuit_breaker_recovery"
+        annotations:
+          summary: "SLO violation: Circuit breaker slow to recover"
+          description: "Circuit breaker open > 2 minutes"
+
+      # SLO: Consensus quorum must stay healthy
+      - alert: SLOConsensusQuorumAvailability
+        expr: |
+          cluster:consensus_quorum_ratio:current < 0.8
+        for: 30s
+        labels:
+          severity: warning
+          slo: "consensus_availability"
+        annotations:
+          summary: "SLO violation: Consensus availability"
+          description: "Consensus quorum availability below 80%"

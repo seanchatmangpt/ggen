@@ -5,23 +5,23 @@ use performance_benchmarks::BenchmarkResult;
 #[test]
 fn test_no_regression_in_agent_creation() {
     // Baseline from previous run
-    let baseline = 90;
-    let current = 85;
-    
+    let baseline: u64 = 90;
+    let current: u64 = 85;
+
     let allowed_regression = (baseline as f64 * 0.1) as u64; // 10% tolerance
     let actual_regression = baseline.saturating_sub(current);
-    
+
     assert!(actual_regression <= allowed_regression);
 }
 
 #[test]
 fn test_no_regression_in_tool_discovery() {
-    let baseline = 180;
-    let current = 170;
-    
+    let baseline: u64 = 180;
+    let current: u64 = 170;
+
     let allowed_regression = (baseline as f64 * 0.15) as u64;
     let actual_regression = baseline.saturating_sub(current);
-    
+
     assert!(actual_regression <= allowed_regression);
 }
 

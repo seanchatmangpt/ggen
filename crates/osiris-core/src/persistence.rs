@@ -69,8 +69,11 @@ impl PersistenceService {
 
         // Keep cache size limited
         if cache.len() > self.max_cache_size {
-            let oldest_key = cache.keys().next().unwrap().clone();
-            cache.remove(&oldest_key);
+            if let Some(oldest_key) = cache.keys().next().cloned() {
+                cache.remove(&oldest_key);
+            } else {
+                warn!("Persistence cache empty during cleanup attempt");
+            }
         }
 
         // Write to disk

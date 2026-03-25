@@ -316,7 +316,7 @@ impl Metric for MetricAdapter {
 mod tests {
     use super::*;
     use crate::dspy::field::{InputField, OutputField};
-    use crate::Signature;
+    use crate::dspy::Signature;
 
     fn create_test_signature() -> Signature {
         Signature::new("QA", "Question answering")
@@ -464,7 +464,7 @@ mod tests {
     #[test]
     fn test_with_max_demos_zero() {
         let metric = create_simple_metric();
-        let optimizer =
+        let _optimizer =
             BootstrapFewShotWithRandomSearch::new(metric).with_max_bootstrapped_demos(0);
         // Should handle gracefully (BootstrapFewShot should clamp)
     }
@@ -476,7 +476,7 @@ mod tests {
         // This would require full LLM integration for proper testing
         // Just verify the method exists and returns correct types
         let metric = create_simple_metric();
-        let optimizer = BootstrapFewShotWithRandomSearch::new(metric);
+        let _optimizer = BootstrapFewShotWithRandomSearch::new(metric);
         // Cannot fully test without LLM
     }
 }

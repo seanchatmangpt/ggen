@@ -18,12 +18,12 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 async-trait = "0.1"
 futures = "0.3"
-hashmap = "2.3"
 dashmap = "5.5"
 
 # A2A dependencies
 a2a-generated = { path = "../../crates/a2a-generated" }
-ggen-a2a-mcp = { path = "../../crates/ggen-a2a-mcp" }
+# ggen-a2a-mcp temporarily disabled due to async trait object compilation issues
+# ggen-a2a-mcp = { path = "../../crates/ggen-a2a-mcp" }
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["async_tokio"] }
@@ -43,5 +43,17 @@ name = "task_tests"
 path = "tests/task_tests.rs"
 
 [[test]]
-name = "bridging_tests"
-path = "tests/bridging_tests.rs"
+name = "supervisor_tests"
+path = "tests/supervisor_tests.rs"
+
+[[test]]
+name = "lifecycle_tests"
+path = "tests/lifecycle_tests.rs"
+
+[[test]]
+name = "groq_integration_tests"
+path = "tests/groq_integration_tests.rs"
+
+[[test]]
+name = "groq_schema_agent_integration"
+path = "tests/groq_schema_agent_integration.rs"

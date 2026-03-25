@@ -81,6 +81,9 @@ members = [
   "crates/osiris-domains",     # OSIRIS Domains: Life management domains
   "crates/osiris-sensors",     # OSIRIS Sensors: Apple/Android sensor integration
   "crates/osiris-autonomic",   # OSIRIS Autonomic: Self-governing life management
+  "examples/a2a-agent-lifecycle", # Wave 4: Agent lifecycle with supervisor tree & fault tolerance
+  "examples/distributed-consensus", # Byzantine fault-tolerant consensus with PBFT
+  "examples/e2e-complete-system", # E2E Complete System: Joe Armstrong Fault Tolerance
   "playground",
 ]
 exclude = [

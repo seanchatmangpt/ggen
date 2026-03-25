@@ -6,7 +6,6 @@
 use crate::error::{A2aMcpError, A2aMcpResult};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::io::{self, Write};
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::sync::RwLock;

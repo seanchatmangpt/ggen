@@ -3,6 +3,7 @@
 //! Tests the create module with real objects and state-based assertions.
 
 use chicago_tdd_tools::prelude::*;
+use chicago_tdd_tools::test;
 use ggen_domain::hook::create::*;
 use std::fs;
 use std::path::PathBuf;
