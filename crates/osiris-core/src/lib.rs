@@ -19,9 +19,11 @@ pub mod error;
 // pub mod patterns;
 pub mod andon_system;
 pub mod byzantine;
+pub mod crdt;
 pub mod deadlock_detector;
 pub mod kaizen_cycle;
 pub mod recovery_orchestrator;
+pub mod replication;
 pub mod sensor_manager;
 pub mod signals;
 pub mod supervisor;
@@ -42,6 +44,10 @@ pub use kaizen_cycle::KaizenCycle;
 pub use recovery_orchestrator::{
     EscalationLevel, OrchestratorConfig, RecoveryAction, RecoveryDecision, RecoveryOrchestrator,
     RecoveryState,
+};
+pub use replication::{
+    CausalityResult, MultiRegionConfig, MultiRegionManager, RegionHealth, RegionNode,
+    ReplicationLag, VectorClock,
 };
 pub use sensor_manager::SensorManager;
 pub use signals::{OSIRISSignal, SignalLevel};

@@ -1,6 +1,6 @@
 # Multi-stage Rust build for ggen v6.0.0 (production-grade staging)
 # Stage 1: Builder
-FROM rust:1.91.1-alpine3.19 AS builder
+FROM rust:1.80-alpine3.19 AS builder
 
 RUN apk add --no-cache \
     musl-dev \

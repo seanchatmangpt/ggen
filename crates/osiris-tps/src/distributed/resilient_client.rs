@@ -84,11 +84,15 @@ impl ResilientA2AClient {
     }
 
     /// Register a peer node in the Byzantine consensus system
-    pub async fn register_peer_for_consensus(&self, peer_id: u64) -> Result<(), ResilientClientError> {
+    pub async fn register_peer_for_consensus(
+        &self, peer_id: u64,
+    ) -> Result<(), ResilientClientError> {
         self.bft_system
             .register_node(NodeId::new(peer_id))
             .await
-            .map_err(|e| ResilientClientError::ClientError(format!("BFT registration failed: {}", e)))
+            .map_err(|e| {
+                ResilientClientError::ClientError(format!("BFT registration failed: {}", e))
+            })
     }
 
     /// Get evidence log for Byzantine misbehavior
@@ -234,7 +238,7 @@ impl ResilientA2AClient {
             operation_mode: self.partition_detector.get_mode().to_string(),
             healthy_peers: self.partition_detector.healthy_peer_count(),
             unhealthy_peers: self.partition_detector.unhealthy_peer_count(),
-            byzantine_nodes: 0, // Would require async access to BFT system
+            byzantine_nodes: 0,      // Would require async access to BFT system
             byzantine_violations: 0, // Would require async access to BFT system
         }
     }
@@ -252,7 +256,11 @@ impl ResilientA2AClient {
             operation_mode: self.partition_detector.get_mode().to_string(),
             healthy_peers: self.partition_detector.healthy_peer_count(),
             unhealthy_peers: self.partition_detector.unhealthy_peer_count(),
-            byzantine_nodes: evidence.iter().map(|e| e.accused_node).collect::<std::collections::HashSet<_>>().len(),
+            byzantine_nodes: evidence
+                .iter()
+                .map(|e| e.accused_node)
+                .collect::<std::collections::HashSet<_>>()
+                .len(),
             byzantine_violations,
         })
     }

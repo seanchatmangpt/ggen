@@ -147,7 +147,11 @@ impl SystemState {
                 },
                 byzantine: ByzantineHealth {
                     byzantine_nodes: 0,
-                    quorum_status: if self.consensus_failures > 0 { "degraded".to_string() } else { "healthy".to_string() },
+                    quorum_status: if self.consensus_failures > 0 {
+                        "degraded".to_string()
+                    } else {
+                        "healthy".to_string()
+                    },
                     violations: self.consensus_failures,
                 },
                 storage: StorageHealth {
