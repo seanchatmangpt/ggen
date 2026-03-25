@@ -31,6 +31,7 @@ pub mod ci;
 pub mod config;
 pub mod domain;
 pub mod environment;
+pub mod generation;
 pub mod graph;
 pub mod mape_k;
 pub mod marketplace;
@@ -42,6 +43,9 @@ pub mod rdf;
 pub mod shell;
 pub mod template;
 pub mod utils;
+
+// Re-export hook module from marketplace for test convenience
+pub use marketplace::hook;
 
 // AHI (Autonomic Hyper-Intelligence) subsystem
 pub mod ahi_contract;

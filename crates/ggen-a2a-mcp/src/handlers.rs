@@ -5,29 +5,24 @@
 
 use crate::error::{A2aMcpError, A2aMcpResult};
 use a2a_generated::converged::message::{
-    ConvergedMessage, ConvergedMessageType, ConvergedPayload, MessageEnvelope, MessageLifecycle,
-    MessagePriority, MessageRouting, MessageState, MessageStateTransition, MessageTimeout,
-    QoSRequirements, ReliabilityLevel, TaskContext, UnifiedContent, UnifiedContext,
-    UnifiedFileContent,
+    ConvergedMessage, ConvergedMessageType, UnifiedContent, UnifiedFileContent,
 };
 use async_trait::async_trait;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info};
 
 // Re-export handler traits and types
 pub use handler::{HandlerContext, HandlerError, HandlerPriority, HandlerResult, HandlerStatus};
 
 pub mod handler {
-    use crate::error::{A2aMcpError, A2aMcpResult};
-    use a2a_generated::converged::message::{ConvergedMessage, ConvergedMessageType, MessageState};
+    use a2a_generated::converged::message::ConvergedMessage;
     use async_trait::async_trait;
     use chrono::Utc;
     use serde::{Deserialize, Serialize};
     use std::collections::HashMap;
-    use tracing::{debug, info, warn};
 
     /// Result type for message handlers
     pub type HandlerResult<T = ()> = Result<T, HandlerError>;

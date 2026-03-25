@@ -162,16 +162,15 @@ impl McpServer {
         let discovery_result = registry.discover(&discovery_req);
 
         let templates: Vec<TemplateMetadata> = discovery_result
-            .results
+            .templates
             .iter()
             .map(|t| {
-                let metadata = registry.get_metadata(&t.name).ok();
                 TemplateMetadata {
                     name: t.name.clone(),
                     description: t.description.clone(),
-                    category: metadata.as_ref().and_then(|m| m.category.clone()),
-                    language: metadata.and_then(|m| m.language),
-                    variable_count: extract_variables(&t.content).len(),
+                    category: t.category.clone(),
+                    language: t.language.clone(),
+                    variable_count: t.variables.len(),
                 }
             })
             .collect();
@@ -190,7 +189,7 @@ impl McpServer {
 
         let template = registry
             .get(&request.template_name)
-            .ok_or_else(|| {
+            .map_err(|_| {
                 McpServerError::ExecutionFailed(format!(
                     "Template not found: {}",
                     request.template_name
@@ -283,7 +282,7 @@ mod tests {
         server.register_template(template).await;
 
         let registry = server.registry.read().await;
-        assert!(registry.get("test").is_some());
+        assert!(registry.get("test").is_ok());
     }
 
     #[tokio::test]

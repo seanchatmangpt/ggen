@@ -29,7 +29,10 @@ impl MessageType {
     }
 
     pub fn requires_ack(&self) -> bool {
-        !matches!(self, MessageType::PingResponse | MessageType::StateTransition)
+        !matches!(
+            self,
+            MessageType::PingResponse | MessageType::StateTransition
+        )
     }
 }
 
@@ -48,9 +51,7 @@ pub struct Message {
 
 impl Message {
     pub fn new(
-        message_type: MessageType,
-        source: impl Into<String>,
-        destination: Option<String>,
+        message_type: MessageType, source: impl Into<String>, destination: Option<String>,
         payload: serde_json::Value,
     ) -> Self {
         let id = Uuid::new_v4().to_string();
@@ -110,7 +111,8 @@ impl AgentQueue {
     /// Enqueue a message (FIFO order)
     pub fn enqueue(&mut self, message: Message) {
         if message.requires_ack {
-            self.pending_acks.insert(message.id.clone(), message.clone());
+            self.pending_acks
+                .insert(message.id.clone(), message.clone());
         }
         self.messages.push_back(message);
     }
@@ -131,7 +133,10 @@ impl AgentQueue {
             msg.mark_acked();
             Ok(())
         } else {
-            Err(anyhow::anyhow!("Message not found or already acked: {}", message_id))
+            Err(anyhow::anyhow!(
+                "Message not found or already acked: {}",
+                message_id
+            ))
         }
     }
 
@@ -172,7 +177,7 @@ impl MessageRouter {
         let agent_id = agent_id.into();
         if !self.agent_queues.contains_key(&agent_id) {
             self.agent_queues
-                .insert(agent_id, AgentQueue::new(agent_id));
+                .insert(agent_id.clone(), AgentQueue::new(agent_id));
         }
     }
 
@@ -186,10 +191,7 @@ impl MessageRouter {
                 if !self.agent_queues.contains_key(dest) {
                     return Err(anyhow::anyhow!("Agent not registered: {}", dest));
                 }
-                self.agent_queues
-                    .get_mut(dest)
-                    .unwrap()
-                    .enqueue(message);
+                self.agent_queues.get_mut(dest).unwrap().enqueue(message);
             }
             None => {
                 // Broadcast to all agents except sender
@@ -263,7 +265,11 @@ impl MessageRouter {
             total_messages,
             avg_latency_ms: avg_latency,
             pending_messages: self.agent_queues.values().map(|q| q.len()).sum(),
-            pending_acks: self.agent_queues.values().map(|q| q.pending_acks_count()).sum(),
+            pending_acks: self
+                .agent_queues
+                .values()
+                .map(|q| q.pending_acks_count())
+                .sum(),
         }
     }
 }

@@ -144,7 +144,7 @@ impl Optimizer for LabeledFewShot {
 mod tests {
     use super::*;
     use crate::dspy::field::{InputField, OutputField};
-    use crate::Signature;
+    use crate::dspy::Signature;
     use serde_json::Value;
     use std::collections::HashMap;
 
@@ -218,7 +218,9 @@ mod tests {
 
         let result = optimizer.compile(&predictor, &[]).await;
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("empty"));
+        if let Err(e) = result {
+            assert!(e.to_string().contains("empty"));
+        }
     }
 
     #[tokio::test]

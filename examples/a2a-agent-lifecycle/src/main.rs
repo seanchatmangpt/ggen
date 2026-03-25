@@ -1,9 +1,8 @@
 //! Agent Lifecycle Example - Demonstrates state machines, task management, and messaging
 
-use a2a_agent_lifecycle::{
-    Agent, AgentState, Message, MessageRouter, MessageType, Task, TaskPriority,
-    AgentBridge, Tool,
-};
+// AgentBridge and Tool temporarily disabled - depends on ggen-a2a-mcp
+// use a2a_agent_lifecycle::bridging::Tool;
+use a2a_agent_lifecycle::{Agent, Message, MessageRouter, MessageType, Task, TaskPriority};
 use anyhow::Result;
 
 #[tokio::main]
@@ -20,8 +19,9 @@ async fn main() -> Result<()> {
     println!("\n--- Example 3: Message Routing ---");
     example_message_routing()?;
 
-    println!("\n--- Example 4: Agent Bridging ---");
-    example_agent_bridging()?;
+    // Example 4: Agent Bridging (temporarily disabled - depends on ggen-a2a-mcp)
+    // println!("\n--- Example 4: Agent Bridging ---");
+    // example_agent_bridging()?;
 
     println!("\n=== All examples completed successfully ===");
     Ok(())
@@ -103,7 +103,10 @@ fn example_task_management() -> Result<()> {
 
     // Execute Task 1
     task1.mark_in_progress("agent-1")?;
-    println!("\nTask 1 assigned to agent-1, status: {}", task1.status_code());
+    println!(
+        "\nTask 1 assigned to agent-1, status: {}",
+        task1.status_code()
+    );
 
     // Task 2 cannot run yet (dependency not satisfied)
     let mut completed = std::collections::HashSet::new();
@@ -159,7 +162,10 @@ fn example_message_routing() -> Result<()> {
         }),
     );
     router.send(msg1.clone())?;
-    println!("\nDirect message: coordinator → worker-1 ({})", msg1.message_type.code());
+    println!(
+        "\nDirect message: coordinator → worker-1 ({})",
+        msg1.message_type.code()
+    );
 
     // Send broadcast message
     let msg2 = Message::new(
@@ -172,7 +178,10 @@ fn example_message_routing() -> Result<()> {
         }),
     );
     router.send(msg2.clone())?;
-    println!("Broadcast message: coordinator → all ({})", msg2.message_type.code());
+    println!(
+        "Broadcast message: coordinator → all ({})",
+        msg2.message_type.code()
+    );
 
     // Receive messages
     println!("\nQueue status:");
@@ -218,6 +227,8 @@ fn example_message_routing() -> Result<()> {
     Ok(())
 }
 
+// Temporarily disabled - depends on ggen-a2a-mcp
+/*
 fn example_agent_bridging() -> Result<()> {
     println!("Creating agent bridge...");
 
@@ -268,10 +279,7 @@ fn example_agent_bridging() -> Result<()> {
     // Execute tools
     println!("\nExecuting tools:");
 
-    let exec1 = bridge.execute_tool(
-        "get_state",
-        serde_json::json!({}),
-    )?;
+    let exec1 = bridge.execute_tool("get_state", serde_json::json!({}))?;
     println!("  Tool: {} → success: {}", exec1.tool_name, exec1.success);
 
     let exec2 = bridge.execute_tool_safe(
@@ -299,6 +307,7 @@ fn example_agent_bridging() -> Result<()> {
 
     Ok(())
 }
+*/
 
 // Helper trait to get priority code
 trait TaskExt {

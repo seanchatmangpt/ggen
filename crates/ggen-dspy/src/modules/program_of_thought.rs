@@ -60,7 +60,7 @@ pub enum CodeLanguage {
 
 impl CodeLanguage {
     /// Get the interpreter/compiler command
-    fn command(&self) -> &str {
+    pub fn command(&self) -> &str {
         match self {
             Self::Python => "python3",
             Self::JavaScript => "node",
@@ -70,7 +70,7 @@ impl CodeLanguage {
     }
 
     /// Get file extension
-    fn extension(&self) -> &str {
+    pub fn extension(&self) -> &str {
         match self {
             Self::Python => "py",
             Self::JavaScript => "js",

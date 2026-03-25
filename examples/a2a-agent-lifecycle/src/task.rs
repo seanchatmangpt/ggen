@@ -172,9 +172,7 @@ impl Task {
 
     /// Create and add an artifact
     pub fn create_artifact(
-        &mut self,
-        name: impl Into<String>,
-        artifact_type: impl Into<String>,
+        &mut self, name: impl Into<String>, artifact_type: impl Into<String>,
         data: serde_json::Value,
     ) -> String {
         let artifact = Artifact {
@@ -203,7 +201,11 @@ impl Task {
 
     /// Check if all dependencies are satisfied
     pub fn dependencies_satisfied(&self, completed_tasks: &HashSet<String>) -> bool {
-        self.depends_on.is_empty() || self.depends_on.iter().all(|id| completed_tasks.contains(id))
+        self.depends_on.is_empty()
+            || self
+                .depends_on
+                .iter()
+                .all(|id| completed_tasks.contains(id))
     }
 }
 
@@ -272,10 +274,7 @@ impl TaskManager {
 
     /// Get pending tasks count
     pub fn pending_count(&self) -> usize {
-        self.tasks
-            .values()
-            .filter(|t| t.is_pending())
-            .count()
+        self.tasks.values().filter(|t| t.is_pending()).count()
     }
 
     /// Sort queue by priority (highest first)
@@ -339,11 +338,8 @@ mod tests {
     #[test]
     fn test_task_artifacts() {
         let mut task = Task::new("TestTask", TaskPriority::Normal);
-        let artifact_id = task.create_artifact(
-            "output.txt",
-            "text",
-            serde_json::json!({"content": "test"}),
-        );
+        let artifact_id =
+            task.create_artifact("output.txt", "text", serde_json::json!({"content": "test"}));
 
         assert!(task.get_artifact(&artifact_id).is_some());
         assert_eq!(task.artifacts.len(), 1);

@@ -266,7 +266,13 @@ impl HealthMonitor {
             }
         }?;
 
-        Ok(metrics.as_object().unwrap().clone())
+        metrics
+            .as_object()
+            .map(|obj| obj.clone())
+            .ok_or_else(|| {
+                warn!("Expected metrics to be a JSON object");
+                "Metrics is not a valid JSON object".into()
+            })
     }
 
     /// Evaluate component status based on metrics

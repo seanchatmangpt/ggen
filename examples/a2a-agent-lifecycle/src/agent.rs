@@ -52,17 +52,20 @@ pub struct StateTransition {
     pub timestamp: DateTime<Utc>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Agent {
     pub id: String,
     pub name: String,
     state: AgentState,
     state_history: Vec<StateTransition>,
     message_queue: VecDeque<String>,
+    dead_letter_queue: VecDeque<String>, // Messages that failed to deliver
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
     error_count: u32,
     max_retries: u32,
+    last_heartbeat: DateTime<Utc>,
+    crash_detected: bool,
 }
 
 impl Agent {
@@ -77,10 +80,13 @@ impl Agent {
             state: AgentState::Initializing,
             state_history: Vec::new(),
             message_queue: VecDeque::new(),
+            dead_letter_queue: VecDeque::new(),
             created_at: now,
             updated_at: now,
             error_count: 0,
             max_retries: 3,
+            last_heartbeat: now,
+            crash_detected: false,
         }
     }
 
@@ -224,6 +230,47 @@ impl Agent {
             error_count: self.error_count,
             state_transitions: self.state_history.len(),
         }
+    }
+
+    /// Update agent heartbeat (signal agent is alive)
+    pub fn heartbeat(&mut self) {
+        self.last_heartbeat = Utc::now();
+        self.crash_detected = false;
+    }
+
+    /// Check if agent has crashed (no heartbeat)
+    pub fn is_crashed(&self) -> bool {
+        self.crash_detected || (Utc::now() - self.last_heartbeat).num_seconds() > 5
+    }
+
+    /// Mark agent as crashed
+    pub fn mark_crashed(&mut self) {
+        self.crash_detected = true;
+    }
+
+    /// Move message to dead letter queue (delivery failed)
+    pub fn queue_dead_letter(&mut self, msg: String) {
+        self.dead_letter_queue.push_back(msg);
+    }
+
+    /// Retrieve dead letter from queue
+    pub fn dequeue_dead_letter(&mut self) -> Option<String> {
+        self.dead_letter_queue.pop_front()
+    }
+
+    /// Get dead letter queue length
+    pub fn dead_letter_queue_len(&self) -> usize {
+        self.dead_letter_queue.len()
+    }
+
+    /// Graceful shutdown with timeout recovery
+    pub fn shutdown_graceful(&mut self) -> Result<()> {
+        // Move unprocessed messages to dead letter queue for recovery
+        while let Some(msg) = self.dequeue_message() {
+            self.queue_dead_letter(msg);
+        }
+
+        self.transition(AgentState::Terminated, "graceful_shutdown")
     }
 }
 

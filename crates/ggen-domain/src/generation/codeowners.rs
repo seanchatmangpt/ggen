@@ -100,7 +100,7 @@ pub fn generate_codeowners(
         let content = generator.generate();
         let entries = content
             .lines()
-            .filter(|l| !l.is_empty() && !l.starts_with('#'))
+            .filter(|l: &&str| !l.is_empty() && !l.starts_with('#'))
             .count();
 
         std::fs::write(&path, &content).map_err(|e| {

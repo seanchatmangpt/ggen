@@ -353,6 +353,8 @@ impl Evaluate {
 mod tests {
     use super::*;
     use serde_json::json;
+    use serde_json::Value;
+    use std::collections::HashMap;
 
     // Mock module for testing
     struct MockModule {
@@ -370,6 +372,10 @@ mod tests {
         ) -> Result<HashMap<String, Value>, ModuleError> {
             // Echo inputs as outputs
             Ok(inputs)
+        }
+
+        fn as_any(&self) -> &dyn std::any::Any {
+            self
         }
     }
 

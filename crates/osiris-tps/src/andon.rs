@@ -43,6 +43,7 @@ impl Default for TPSAndonConfig {
 }
 
 /// TPS Andon System
+#[derive(Clone, Debug)]
 pub struct TPSAndonSystem {
     config: TPSAndonConfig,
     active_alerts: Arc<RwLock<HashMap<String, ActiveAlert>>>,
@@ -53,28 +54,44 @@ pub struct TPSAndonSystem {
 /// Active alert information
 #[derive(Debug, Clone)]
 pub struct ActiveAlert {
+    /// Unique identifier for the alert
     pub alert_id: String,
+    /// Type/category of the alert
     pub alert_type: String,
+    /// Severity level (Information, Warning, or Critical)
     pub severity: TPSLevel,
+    /// Time when the alert was created
     pub timestamp: chrono::DateTime<chrono::Utc>,
+    /// Whether the alert has been acknowledged
     pub acknowledged: bool,
+    /// User who acknowledged the alert, if any
     pub acknowledged_by: Option<String>,
+    /// Escalation level (0-indexed)
     pub escalation_level: usize,
 }
 
 /// Alert history
 #[derive(Debug, Clone)]
 pub struct AlertHistory {
+    /// Unique identifier for the alert
     pub alert_id: String,
+    /// Type/category of the alert
     pub alert_type: String,
+    /// Severity level (Information, Warning, or Critical)
     pub severity: TPSLevel,
+    /// Time when the alert was created
     pub timestamp: chrono::DateTime<chrono::Utc>,
+    /// Whether the alert has been resolved
     pub resolved: bool,
+    /// Time when the alert was resolved, if any
     pub resolution_time: Option<chrono::DateTime<chrono::Utc>>,
+    /// Alert message describing the problem
     pub message: String,
 }
 
 /// Signal processor for TPS signals
+/// Handles routing and processing of TPS signals based on their severity level
+#[derive(Debug)]
 pub struct TPSSignalProcessor;
 
 impl TPSSignalProcessor {
@@ -163,7 +180,7 @@ impl TPSAndonSystem {
 
                 // Check for alert timeouts
                 let mut alerts = alerts.write().await;
-                let mut history = history.write().await;
+                let mut _history = history.write().await;
 
                 // Remove alerts that have timed out
                 alerts.retain(|_, alert| {

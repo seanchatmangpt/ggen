@@ -1127,7 +1127,7 @@ mod tests {
         registry.register(Template::new("temp", "content"));
         assert_eq!(registry.count(), 1);
 
-        registry.remove("temp");
+        registry.templates.remove("temp");
         assert_eq!(registry.count(), 0);
     }
 

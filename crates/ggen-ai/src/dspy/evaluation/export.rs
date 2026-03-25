@@ -145,6 +145,8 @@ mod tests {
     use tempfile::TempDir;
 
     fn create_test_result() -> EvaluationResult {
+        use super::super::types::EvaluationPoint;
+
         let example1 = Example::new(HashMap::new(), HashMap::new());
         let example2 = Example::new(HashMap::new(), HashMap::new());
 

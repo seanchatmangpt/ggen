@@ -197,7 +197,11 @@ impl AutonomicRefusalSystem {
         let mut policies = self.policies.write().await;
         policies.push(policy);
         policies.sort_by(|a, b| b.priority.cmp(&a.priority));
-        info!("Added new policy: {}", policies.last().unwrap().name);
+        if let Some(last_policy) = policies.last() {
+            info!("Added new policy: {}", last_policy.name);
+        } else {
+            warn!("Policy list empty after adding policy");
+        }
         Ok(())
     }
 

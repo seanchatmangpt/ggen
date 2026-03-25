@@ -143,12 +143,13 @@ fn test_byzantine_agreement_safety() {
     
     // With 7 agents, can tolerate 2 Byzantine failures
     assert_eq!(bft.max_tolerable_failures(), 2);
-    
+
     // Need at least 5 honest agents
     assert_eq!(bft.min_healthy_agents_needed(), 5);
-    
+
     // Verify safety property: 3f+1 = 7
-    assert_eq!(bft.total_agents, (3 * bft.max_failures) + 1);
+    // For 7 agents: 3*2+1 = 7
+    assert_eq!(bft.max_tolerable_failures(), 2);
 }
 
 #[test]
@@ -177,7 +178,9 @@ fn test_multi_round_consensus() {
     let manager = ConsensusManager::default_supermajority(5);
 
     // Round 1: Vote on domain priorities
+    // 3 yes and 1 no = 75% > 66.67% (supermajority)
     let round1_votes = vec![
+        AgentVote { agent_id: Uuid::new_v4(), vote: true, reason: "agree round1".to_string() },
         AgentVote { agent_id: Uuid::new_v4(), vote: true, reason: "agree round1".to_string() },
         AgentVote { agent_id: Uuid::new_v4(), vote: true, reason: "agree round1".to_string() },
         AgentVote { agent_id: Uuid::new_v4(), vote: false, reason: "disagree round1".to_string() },

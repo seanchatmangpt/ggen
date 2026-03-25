@@ -6,12 +6,18 @@
 #![forbid(unsafe_code)]
 
 pub mod andon;
+pub mod distributed;
 pub mod jidoka;
 pub mod kaizen;
 pub mod signals;
 
 // Re-export main types
 pub use andon::{TPSAndonConfig, TPSAndonSystem};
+pub use distributed::{
+    CircuitBreaker, CircuitBreakerConfig, CircuitBreakerState, IdempotencyKey, IdempotencyManager,
+    MessageQueue, PartitionDetector, ResilientA2AClient, ResilientClientConfig,
+    ResilientClientError,
+};
 pub use jidoka::{JidokaAction, JidokaController};
 pub use kaizen::{KaizenCycle, KaizenImprovement};
 pub use signals::{TPSLevel, TPSSignal};
@@ -19,11 +25,10 @@ pub use signals::{TPSLevel, TPSSignal};
 use osiris_core::{OSIRISConfig, OSIRISEngine};
 use serde_json::{json, Value};
 use std::sync::Arc;
-use tokio::sync::RwLock;
 use tracing::{info, warn};
 
 /// OSIRIS TPS Integration System
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct OSIRISTPS {
     core_engine: Arc<OSIRISEngine>,
     andon_system: Arc<TPSAndonSystem>,

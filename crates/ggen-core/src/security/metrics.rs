@@ -278,6 +278,7 @@ impl Default for MetricsCollector {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::security::AttackPattern;
     use std::net::{IpAddr, Ipv4Addr};
 
     #[test]

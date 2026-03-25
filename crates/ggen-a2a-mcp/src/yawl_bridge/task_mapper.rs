@@ -10,7 +10,6 @@ use a2a_generated::converged::message::{
     UnifiedContent,
 };
 use chrono::Utc;
-use std::collections::HashMap;
 
 /// YAWL task representation
 ///

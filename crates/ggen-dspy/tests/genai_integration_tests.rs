@@ -982,7 +982,8 @@ proptest! {
 
         let prompt = result.unwrap();
         for field in &output_fields {
-            prop_assert!(prompt.contains(&format!("[[ ## {} ## ]]", field)));
+            let expected = format!("[[ ## {} ## ]]", field);
+            prop_assert!(prompt.contains(&expected));
         }
     }
 

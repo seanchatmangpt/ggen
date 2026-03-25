@@ -788,7 +788,7 @@ mod tests {
     use crate::models::{PackageMetadata, PackageVersion};
 
     #[tokio::test]
-    fn test_package_to_rdf_basic() {
+    async fn test_package_to_rdf_basic() {
         let store = Arc::new(Store::new().unwrap());
         let mapper = RdfMapper::new(store);
 

@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, error, info};
 
 use crate::signals::{TPSLevel, TPSSignal};
 
@@ -28,6 +28,7 @@ pub enum JidokaAction {
 }
 
 /// Jidoka controller
+#[derive(Clone, Debug)]
 pub struct JidokaController {
     active_stops: Arc<RwLock<HashMap<String, ActiveStop>>>,
     stop_history: Arc<RwLock<Vec<StopHistory>>>,
@@ -38,26 +39,42 @@ pub struct JidokaController {
 /// Active stop information
 #[derive(Debug, Clone)]
 pub struct ActiveStop {
+    /// Unique identifier for the stop
     pub stop_id: String,
+    /// Type of stop (line_stop, line_pause, supervisor_approval, management_escalation)
     pub stop_type: String,
+    /// Reason for the stop
     pub reason: String,
+    /// Severity level (Information, Warning, or Critical)
     pub severity: TPSLevel,
+    /// Time when the stop was initiated
     pub timestamp: chrono::DateTime<chrono::Utc>,
+    /// Operator ID who initiated or resolved the stop, if any
     pub operator_id: Option<String>,
+    /// Machine ID that triggered the stop, if any
     pub machine_id: Option<String>,
+    /// Time when the stop was resolved, if any
     pub resolution_time: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 /// Stop history
 #[derive(Debug, Clone)]
 pub struct StopHistory {
+    /// Unique identifier for the stop
     pub stop_id: String,
+    /// Type of stop (line_stop, line_pause, supervisor_approval, management_escalation)
     pub stop_type: String,
+    /// Reason for the stop
     pub reason: String,
+    /// Severity level (Information, Warning, or Critical)
     pub severity: TPSLevel,
+    /// Time when the stop was initiated
     pub timestamp: chrono::DateTime<chrono::Utc>,
+    /// Duration of the stop in milliseconds, if applicable
     pub duration_ms: Option<i64>,
+    /// Whether the stop has been resolved
     pub resolved: bool,
+    /// Resolution details or notes, if any
     pub resolution: Option<String>,
 }
 
@@ -369,7 +386,7 @@ impl JidokaController {
             let total_duration: i64 = history
                 .iter()
                 .filter(|h| h.resolved && h.duration_ms.is_some())
-                .map(|h| h.duration_ms.unwrap())
+                .filter_map(|h| h.duration_ms)
                 .sum();
             Some(total_duration / resolved_stops as i64)
         } else {

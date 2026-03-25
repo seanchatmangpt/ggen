@@ -324,23 +324,27 @@ mod tests {
 
     fn create_test_file(dir: &Path, name: &str, content: &str) -> Result<PathBuf> {
         let path = dir.join(name);
-        let mut file = fs::File::create(&path)
-            .map_err(|e| Error::new(&format!("Failed to create test file: {}", e)))?;
-        file.write_all(content.as_bytes())
-            .map_err(|e| Error::new(&format!("Failed to write test file: {}", e)))?;
+        let mut file = fs::File::create(&path).map_err(|e| {
+            ggen_utils::error::GgenError::new(&format!("Failed to create test file: {}", e))
+        })?;
+        file.write_all(content.as_bytes()).map_err(|e| {
+            ggen_utils::error::GgenError::new(&format!("Failed to write test file: {}", e))
+        })?;
         Ok(path)
     }
 
     #[test]
     fn test_no_drift_when_clean() -> Result<()> {
-        let temp_dir =
-            TempDir::new().map_err(|e| Error::new(&format!("Failed to create temp dir: {}", e)))?;
+        let temp_dir = TempDir::new().map_err(|e| {
+            ggen_utils::error::GgenError::new(&format!("Failed to create temp dir: {}", e))
+        })?;
 
         let ontology_path = create_test_file(temp_dir.path(), "ontology.ttl", "content1")?;
         let manifest_path = create_test_file(temp_dir.path(), "ggen.toml", "content2")?;
         let state_dir = temp_dir.path().join(".ggen");
-        fs::create_dir(&state_dir)
-            .map_err(|e| Error::new(&format!("Failed to create state dir: {}", e)))?;
+        fs::create_dir(&state_dir).map_err(|e| {
+            ggen_utils::error::GgenError::new(&format!("Failed to create state dir: {}", e))
+        })?;
 
         let detector = DriftDetector::new(&state_dir)?;
 
@@ -356,14 +360,16 @@ mod tests {
 
     #[test]
     fn test_drift_when_ontology_changed() -> Result<()> {
-        let temp_dir =
-            TempDir::new().map_err(|e| Error::new(&format!("Failed to create temp dir: {}", e)))?;
+        let temp_dir = TempDir::new().map_err(|e| {
+            ggen_utils::error::GgenError::new(&format!("Failed to create temp dir: {}", e))
+        })?;
 
         let ontology_path = create_test_file(temp_dir.path(), "ontology.ttl", "content1")?;
         let manifest_path = create_test_file(temp_dir.path(), "ggen.toml", "content2")?;
         let state_dir = temp_dir.path().join(".ggen");
-        fs::create_dir(&state_dir)
-            .map_err(|e| Error::new(&format!("Failed to create state dir: {}", e)))?;
+        fs::create_dir(&state_dir).map_err(|e| {
+            ggen_utils::error::GgenError::new(&format!("Failed to create state dir: {}", e))
+        })?;
 
         let detector = DriftDetector::new(&state_dir)?;
 
@@ -371,8 +377,9 @@ mod tests {
         detector.save_state(&ontology_path, &manifest_path, 5, 1000)?;
 
         // Modify ontology
-        fs::write(&ontology_path, "modified content")
-            .map_err(|e| Error::new(&format!("Failed to write file: {}", e)))?;
+        fs::write(&ontology_path, "modified content").map_err(|e| {
+            ggen_utils::error::GgenError::new(&format!("Failed to write file: {}", e))
+        })?;
 
         // Check drift (should be drifted)
         let status = detector.check_drift(&ontology_path, &manifest_path)?;
@@ -388,14 +395,16 @@ mod tests {
 
     #[test]
     fn test_drift_when_no_state() -> Result<()> {
-        let temp_dir =
-            TempDir::new().map_err(|e| Error::new(&format!("Failed to create temp dir: {}", e)))?;
+        let temp_dir = TempDir::new().map_err(|e| {
+            ggen_utils::error::GgenError::new(&format!("Failed to create temp dir: {}", e))
+        })?;
 
         let ontology_path = create_test_file(temp_dir.path(), "ontology.ttl", "content1")?;
         let manifest_path = create_test_file(temp_dir.path(), "ggen.toml", "content2")?;
         let state_dir = temp_dir.path().join(".ggen");
-        fs::create_dir(&state_dir)
-            .map_err(|e| Error::new(&format!("Failed to create state dir: {}", e)))?;
+        fs::create_dir(&state_dir).map_err(|e| {
+            ggen_utils::error::GgenError::new(&format!("Failed to create state dir: {}", e))
+        })?;
 
         let detector = DriftDetector::new(&state_dir)?;
 
@@ -413,15 +422,17 @@ mod tests {
 
     #[test]
     fn test_save_state_with_details() -> Result<()> {
-        let temp_dir =
-            TempDir::new().map_err(|e| Error::new(&format!("Failed to create temp dir: {}", e)))?;
+        let temp_dir = TempDir::new().map_err(|e| {
+            ggen_utils::error::GgenError::new(&format!("Failed to create temp dir: {}", e))
+        })?;
 
         let ontology_path = create_test_file(temp_dir.path(), "ontology.ttl", "content1")?;
         let manifest_path = create_test_file(temp_dir.path(), "ggen.toml", "content2")?;
         let import_path = create_test_file(temp_dir.path(), "import.ttl", "import content")?;
         let state_dir = temp_dir.path().join(".ggen");
-        fs::create_dir(&state_dir)
-            .map_err(|e| Error::new(&format!("Failed to create state dir: {}", e)))?;
+        fs::create_dir(&state_dir).map_err(|e| {
+            ggen_utils::error::GgenError::new(&format!("Failed to create state dir: {}", e))
+        })?;
 
         let detector = DriftDetector::new(&state_dir)?;
 

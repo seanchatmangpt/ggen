@@ -5,9 +5,6 @@
 use crate::adapter::{A2aAgentCard, ToolToAgentAdapter};
 use crate::client::A2aLlmClient;
 use crate::error::A2aMcpResult;
-use crate::mcp::{
-    A2aSkillRegistry, McpToolDefinition as A2aMcpToolDefinition, McpToolRegistryTrait,
-};
 use crate::registry::McpToolRegistry;
 use crate::transport::{McpToolDefinition, McpTransport};
 use a2a_generated::converged::message::ConvergedMessage;
@@ -313,7 +310,7 @@ mod tests {
                 system_messages: true,
                 streaming: true,
                 vision: false,
-                latency_class: LatencyClass::Standard,
+                latency_class: LatencyClass::Medium,
                 reliability: ReliabilityClass::High,
                 modalities: vec![Modality::Text],
             },
@@ -323,7 +320,7 @@ mod tests {
                 default_max_tokens: Some(4096),
                 api_base: Some("http://localhost:8080".to_string()),
                 api_version: None,
-                parameters: None,
+                parameters: std::collections::HashMap::new(),
                 extra_headers: std::collections::HashMap::new(),
             },
         }

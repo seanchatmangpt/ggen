@@ -8,16 +8,10 @@
 //! - Async streaming support
 //! - Zero unwrap/expect - proper Result<T,E> handling
 
-use crate::adapter::{AgentToToolAdapter, ToolCall, ToolResponse};
+use crate::adapter::{AgentToToolAdapter, ToolCall};
 use crate::error::{A2aMcpError, A2aMcpResult};
 use crate::message::{A2aMessageConverter, LlmRequest, LlmResponse};
-use a2a_generated::converged::{
-    message::{
-        ConvergedMessage, ConvergedMessageType, MessageEnvelope, MessageLifecycle, MessagePriority,
-        MessageRouting, MessageState, QoSRequirements, ReliabilityLevel, UnifiedContent,
-    },
-    UnifiedAgent,
-};
+use a2a_generated::converged::{message::ConvergedMessage, UnifiedAgent};
 use futures::StreamExt;
 use ggen_ai::client::{GenAiClient, LlmClient as _, LlmConfig};
 use ggen_ai::dspy::model_capabilities::Model;
@@ -26,7 +20,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::{Mutex, RwLock, Semaphore};
 use tokio::time::{interval, Instant};
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info, warn};
 
 /// Connection state for the A2A client
 #[derive(Debug, Clone, PartialEq)]
@@ -488,7 +482,7 @@ impl A2aLlmClient {
             .await
             .map_err(|e| A2aMcpError::Llm(format!("Stream request failed: {}", e)))?;
 
-        let model = self.model.name.clone();
+        let _model = self.model.name.clone();
 
         Ok(stream.map(move |chunk| StreamingChunk {
             content: chunk.content,
@@ -861,6 +855,8 @@ mod tests {
                     reliability: a2a_generated::converged::ReliabilityLevel::AtLeastOnce,
                     latency: None,
                     throughput: None,
+                    ordering: None,
+                    flow_control: None,
                 },
             },
             execution: a2a_generated::converged::AgentExecution {
@@ -884,13 +880,13 @@ mod tests {
                 },
                 authorization: a2a_generated::converged::AuthorizationConfig {
                     model: a2a_generated::converged::AuthorizationModel::Rbac,
-                    roles: vec![],
+                    roles: None,
                     policies: vec![],
                     metadata: None,
                 },
                 encryption: a2a_generated::converged::EncryptionConfig {
-                    algorithm: a2a_generated::converged::EncryptionAlgorithm::Aes256,
-                    mode: a2a_generated::converged::EncryptionMode::Cbc,
+                    algorithms: vec![a2a_generated::converged::EncryptionAlgorithm::Aes],
+                    modes: vec![],
                     keys: vec![],
                     metadata: None,
                 },

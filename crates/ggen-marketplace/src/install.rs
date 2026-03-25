@@ -305,7 +305,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_installation_manifest_creation() {
-        let registry = Registry::new(100).await;
+        let registry = Registry::new(100);
         let installer = Installer::new(registry);
 
         let manifest = installer
@@ -319,7 +319,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_conflict_checking() {
-        let registry = Registry::new(100).await;
+        let registry = Registry::new(100);
         let installer = Installer::new(registry);
 
         let deps = indexmap::IndexMap::new();

@@ -191,9 +191,10 @@ fn test_self_healing_agent_pool() {
 
 #[test]
 fn test_cascading_failure_prevention() {
-    let pool = AgentPool::new(6);
-    
+    let pool = AgentPool::new(7);
+
     // Mark agents as failed one by one, but stay above BFT threshold
+    // 7 agents can tolerate 2 failures: (7-1)/3 = 2
     let agents = pool.all();
     for i in 0..2 {
         let mut health = agents[i].health.clone();
@@ -204,12 +205,12 @@ fn test_cascading_failure_prevention() {
     }
 
     let summary = pool.health_summary();
-    
-    // Still have enough healthy agents
-    assert!(summary.healthy_count >= 4);
-    
-    // BFT: 6 agents can tolerate 2 failures
-    let bft = ByzantineFaultTolerance::new(6);
+
+    // Still have enough healthy agents (7 - 2 = 5)
+    assert!(summary.healthy_count >= 5);
+
+    // BFT: 7 agents can tolerate 2 failures
+    let bft = ByzantineFaultTolerance::new(7);
     assert!(bft.can_tolerate(summary.failed_count));
 }
 

@@ -44,6 +44,10 @@ impl Module for MockPredictor {
 
         Ok(self.responses[idx].clone())
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 fn create_qa_signature() -> Signature {
@@ -177,7 +181,9 @@ async fn test_bootstrap_empty_trainset_error() {
     let result = optimizer.compile(&student, &[]).await;
 
     assert!(result.is_err());
-    assert!(result.unwrap_err().to_string().contains("empty"));
+    if let Err(e) = result {
+        assert!(e.to_string().contains("empty"));
+    }
 }
 
 #[test]
