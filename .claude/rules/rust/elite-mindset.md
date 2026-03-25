@@ -2,7 +2,12 @@
 auto_load: false
 category: rust
 priority: high
-version: 6.0.0
+version: 6.1.0
+paths:
+  - "crates/**/*.rs"
+  - "src/**/*.rs"
+  - "tests/**/*.rs"
+  - "benches/**/*.rs"
 ---
 
 # 🦀 Elite Rust Mindset

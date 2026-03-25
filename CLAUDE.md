@@ -1,11 +1,10 @@
-# ggen v6.0.0 - Rust Code Generation CLI
+# ggen v6.1.0 - Rust Code Generation CLI
 
-Specification-driven code generation from RDF ontologies. Formula: A = μ(O) - Code precipitates from RDF via five-stage pipeline (μ₁-μ₅).
+Specification-driven code generation from RDF ontologies. Formula: A = μ(O) — Code precipitates from RDF via five-stage pipeline (μ₁-μ₅).
 Stack: Rust 1.91.1 | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD | 30 crates | 87% test coverage
 
-## Rules (see .claude/rules/ for details)
-
----
+@.claude/rules/_core/absolute.md
+@.claude/rules/_core/workflow.md
 
 ## 📋 Agent Coordination Rules
 
@@ -73,11 +72,19 @@ launch 20 agents to implement all changes
 ```
 
 **Auto-Resume:** State saved to `.claude/autonomous/workflow-state.json`. On restart, continues from last incomplete phase.
-**See:** `/home/user/ggen/.claude/autonomous/workflow-pattern.md` for templates and examples.
+**See:** `.claude/autonomous/workflow-pattern.md` for templates and examples.
+**Agent Rules:** @.claude/rules/agents/coordination.md
+**Git Standards:** @.claude/rules/git/commits.md
+
+## Memory
+
+- **Auto corrections**: stored in `~/.claude/projects/ggen/memory/` (first 200 lines loaded at session start)
+- **Team memory**: `.claude/MEMORY.md` — curated lessons, patterns to avoid, compounding corrections
+- **claudeMdExcludes**: see `.claude/settings.json` for paths excluded from CLAUDE.md loading
 
 ## Support
 
 - **Repository**: https://github.com/seanchatmangpt/ggen
-- **Documentation**: /home/user/ggen/docs/
-- **Detailed Rules**: /home/user/ggen/.claude/rules/
-- **Research**: /home/user/ggen/docs/research/
+- **Documentation**: docs/
+- **Detailed Rules**: .claude/rules/
+- **Research**: docs/research/
