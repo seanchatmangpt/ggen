@@ -32,9 +32,9 @@ pub mod timed_lock;
 // Simple exports for now to avoid compilation issues
 pub use andon_system::AndonSystem;
 pub use byzantine::{
-    ByzantineConsensus, CommittedValue, ConsensusConfig, Evidence, EvidenceLog,
+    BFTSystem, ByzantineConsensus, CommittedValue, ConsensusConfig, Evidence, EvidenceLog,
     LeaderElectionStrategy, LeaderElector, Message, MessageType, Misbehavior, NodeId,
-    ProposalValue, Round,
+    PBFTLiteConsensus, ProposalValue, Round,
 };
 pub use deadlock_detector::{DeadlockAlert, DeadlockDetector};
 pub use error::{OSIRISError, Result};

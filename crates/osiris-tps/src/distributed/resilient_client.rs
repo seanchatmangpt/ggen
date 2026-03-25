@@ -1,13 +1,18 @@
 //! Resilient A2A-MCP client with integrated failure handling
 //!
-//! Combines circuit breaker, idempotency, message replay, and partition
-//! detection into a single cohesive client for distributed A2A calls.
+//! Combines circuit breaker, idempotency, message replay, partition
+//! detection, and Byzantine Fault Tolerance into a single cohesive client for distributed A2A calls.
 
 use super::circuit_breaker::{CircuitBreaker, CircuitBreakerConfig};
 use super::idempotency::{IdempotencyKey, IdempotencyManager};
 use super::message_queue::MessageQueue;
 use super::partition_detection::PartitionDetector;
+use osiris_core::{
+    BFTSystem, ByzantineConsensus, ConsensusConfig, Evidence, Misbehavior, NodeId, ProposalValue,
+};
 use serde_json::json;
+use std::sync::Arc;
+use tokio::sync::RwLock;
 use tracing::info;
 
 /// Configuration for resilient client behavior
@@ -38,7 +43,7 @@ impl Default for ResilientClientConfig {
 }
 
 /// Resilient A2A-MCP client wrapper
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct ResilientA2AClient {
     /// Circuit breaker for external calls
     circuit_breaker: CircuitBreaker,
@@ -48,6 +53,8 @@ pub struct ResilientA2AClient {
     message_queue: MessageQueue,
     /// Partition detector for split-brain prevention
     partition_detector: PartitionDetector,
+    /// Byzantine Fault Tolerance system
+    bft_system: Arc<BFTSystem>,
     /// Configuration
     config: ResilientClientConfig,
 }
@@ -55,6 +62,10 @@ pub struct ResilientA2AClient {
 impl ResilientA2AClient {
     /// Create a new resilient client
     pub fn new(config: ResilientClientConfig) -> Self {
+        // Initialize Byzantine consensus with quorum size
+        let consensus_config = ConsensusConfig::new(config.quorum_size * 3);
+        let bft_system = Arc::new(BFTSystem::new(NodeId::new(1), consensus_config));
+
         Self {
             circuit_breaker: CircuitBreaker::with_config(
                 "a2a_mcp_client",
@@ -67,8 +78,25 @@ impl ResilientA2AClient {
                 config.partition_failure_threshold,
                 config.quorum_size,
             ),
+            bft_system,
             config,
         }
+    }
+
+    /// Register a peer node in the Byzantine consensus system
+    pub async fn register_peer_for_consensus(&self, peer_id: u64) -> Result<(), ResilientClientError> {
+        self.bft_system
+            .register_node(NodeId::new(peer_id))
+            .await
+            .map_err(|e| ResilientClientError::ClientError(format!("BFT registration failed: {}", e)))
+    }
+
+    /// Get evidence log for Byzantine misbehavior
+    pub async fn get_byzantine_evidence(&self) -> Result<Vec<Evidence>, ResilientClientError> {
+        self.bft_system
+            .get_evidence_log()
+            .await
+            .map_err(|e| ResilientClientError::ClientError(format!("Evidence log error: {}", e)))
     }
 
     /// Execute a request with full resilience (returns serde_json::Value)
@@ -98,6 +126,17 @@ impl ResilientA2AClient {
             }
             Err(e) => {
                 self.circuit_breaker.record_failure();
+
+                // Track Byzantine evidence on validation failures
+                if matches!(e, ResilientClientError::IdempotencyError(_)) {
+                    let evidence = Evidence::new(
+                        NodeId::new(destination.len() as u64),
+                        Misbehavior::InvalidMessage {
+                            reason: format!("Validation failure: {}", e),
+                        },
+                    );
+                    let _ = self.bft_system.log_evidence(evidence).await;
+                }
 
                 // Queue message for later replay
                 self.message_queue.enqueue(
@@ -185,7 +224,7 @@ impl ResilientA2AClient {
         self.partition_detector.record_heartbeat(peer_id);
     }
 
-    /// Get current system status
+    /// Get current system status (blocking version)
     pub fn get_status(&self) -> SystemStatus {
         SystemStatus {
             circuit_breaker_state: self.circuit_breaker.state().to_string(),
@@ -195,7 +234,27 @@ impl ResilientA2AClient {
             operation_mode: self.partition_detector.get_mode().to_string(),
             healthy_peers: self.partition_detector.healthy_peer_count(),
             unhealthy_peers: self.partition_detector.unhealthy_peer_count(),
+            byzantine_nodes: 0, // Would require async access to BFT system
+            byzantine_violations: 0, // Would require async access to BFT system
         }
+    }
+
+    /// Get current system status with Byzantine metrics (async version)
+    pub async fn get_status_with_bft(&self) -> Result<SystemStatus, ResilientClientError> {
+        let evidence = self.get_byzantine_evidence().await?;
+        let byzantine_violations = evidence.len();
+
+        Ok(SystemStatus {
+            circuit_breaker_state: self.circuit_breaker.state().to_string(),
+            circuit_breaker_metrics: format!("{:?}", self.circuit_breaker.metrics()),
+            queued_messages: self.message_queue.size(),
+            partition_detected: self.partition_detector.is_partition_detected(),
+            operation_mode: self.partition_detector.get_mode().to_string(),
+            healthy_peers: self.partition_detector.healthy_peer_count(),
+            unhealthy_peers: self.partition_detector.unhealthy_peer_count(),
+            byzantine_nodes: evidence.iter().map(|e| e.accused_node).collect::<std::collections::HashSet<_>>().len(),
+            byzantine_violations,
+        })
     }
 }
 
@@ -216,6 +275,10 @@ pub struct SystemStatus {
     pub healthy_peers: usize,
     /// Number of unhealthy peers
     pub unhealthy_peers: usize,
+    /// Byzantine nodes detected
+    pub byzantine_nodes: usize,
+    /// Total Byzantine violations recorded
+    pub byzantine_violations: usize,
 }
 
 /// Errors that can occur in resilient client
