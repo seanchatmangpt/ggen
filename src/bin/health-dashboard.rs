@@ -47,6 +47,14 @@ struct ConsensusHealth {
     reachable: u32,
 }
 
+/// Byzantine Fault Tolerance state
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct ByzantineHealth {
+    byzantine_nodes: u32,
+    quorum_status: String,
+    violations: u32,
+}
+
 /// Storage state
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct StorageHealth {
@@ -60,6 +68,7 @@ struct Components {
     supervisor: ComponentHealth,
     circuit_breaker: CircuitBreakerHealth,
     consensus: ConsensusHealth,
+    byzantine: ByzantineHealth,
     storage: StorageHealth,
 }
 
@@ -136,6 +145,11 @@ impl SystemState {
                     quorum: 3,
                     reachable: 3,
                 },
+                byzantine: ByzantineHealth {
+                    byzantine_nodes: 0,
+                    quorum_status: if self.consensus_failures > 0 { "degraded".to_string() } else { "healthy".to_string() },
+                    violations: self.consensus_failures,
+                },
                 storage: StorageHealth {
                     events: 1523,
                     last_gc: "2m ago".to_string(),
@@ -184,6 +198,7 @@ Components:
   Supervisor........ {} {} children, {} restarts
   Circuit Breaker... {} Closed ({}/{} failures)
   Consensus......... {} {}/{} nodes reachable
+  Byzantine......... {} {} quorum, {} violations
   Storage........... {} {} events
 
 Uptime: {} | Restarts: {} | Circuit Breaks: {}
@@ -198,6 +213,9 @@ Uptime: {} | Restarts: {} | Circuit Breaks: {}
         status_indicator(status),
         dashboard.components.consensus.reachable,
         dashboard.components.consensus.nodes,
+        status_indicator(status),
+        dashboard.components.byzantine.quorum_status,
+        dashboard.components.byzantine.violations,
         status_indicator(status),
         dashboard.components.storage.events,
         uptime,
