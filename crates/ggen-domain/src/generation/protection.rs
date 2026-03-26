@@ -51,18 +51,18 @@ impl PathProtectionValidator {
     /// Validate if a write operation is allowed for the given path
     pub fn validate_write(&self, path: &str, file_exists: bool) -> GenerationWriteResult {
         // Check if path matches protected patterns
-        if let Some(pattern) = self.config.protected_pattern_for(path) {
+        if let Some(pattern_str) = self.config.protected_pattern_for(path) {
             return GenerationWriteResult::BlockedProtected {
                 path: path.to_string(),
-                pattern: pattern.to_string(),
+                pattern: pattern_str.to_string(),
             };
         }
 
         // Check if path matches regenerate patterns
-        if let Some(pattern) = self.config.regenerate_pattern_for(path) {
+        if let Some(pattern_str) = self.config.regenerate_pattern_for(path) {
             return GenerationWriteResult::AllowRegenerate {
                 path: path.to_string(),
-                pattern: pattern.to_string(),
+                pattern: pattern_str.to_string(),
             };
         }
 

@@ -1,0 +1,84 @@
+\chapter{Benchmark Data}
+
+This appendix contains complete benchmark results.
+
+\section{Wave 4 SLO Results}
+
+\subsection{Detailed Metrics}
+
+\begin{table}[h]
+\centering
+\caption{Complete SLO Results}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Metric} & \textbf{P50} & \textbf{P95} & \textbf{P99} & \textbf{Target} \\
+\midrule
+Agent Creation & 42 ms & 48 ms & 55 ms & <100 ms \\
+Agent Startup & 2 ms & 3 ms & 5 ms & <500 ms \\
+Message Throughput & 2.5B & 2.8B & 3.0B & >10K \\
+Tool Discovery & 78 ms & 92 ms & 110 ms & <200 ms \\
+Plan Generation & 165 ms & 188 ms & 210 ms & <200 ms \\
+Tool Execution & 265 ms & 295 ms & 330 ms & <300 ms \\
+Consensus (4 nodes) & 10 ms & 14 ms & 20 ms & <2000 ms \\
+Consensus (7 nodes) & 15 ms & 22 ms & 30 ms & <2000 ms \\
+Domain Balance & 1 ms & 2 ms & 3 ms & <500 ms \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Load Test Results}
+
+\begin{table}[h]
+\centering
+\caption{Load Test at 600 Concurrent Agents}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Metric} & \textbf{Value} & \textbf{Target} \\
+\midrule
+Operations/Second & 1,247 & >500 \\
+P50 Latency & 2.1 ms & <10 ms \\
+P95 Latency & 3.2 ms & <10 ms \\
+P99 Latency & 3.5 ms & <10 ms \\
+Peak Memory & 48 MB & <100 MB \\
+Error Rate & 0.01\% & <0.1\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Comparison with Alternatives}
+
+\subsection{Productivity Comparison}
+
+\begin{table}[h]
+\centering
+\caption{Development Time Comparison}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Task} & \textbf{Manual} & \textbf{ggen} & \textbf{Speedup} \\
+\midrule
+Simple API & 4 hours & 30 min & 8× \\
+Complex API & 3 days & 4 hours & 6× \\
+Microservices & 2 weeks & 3 days & 5× \\
+Enterprise BPM & 3 months & 2 weeks & 6× \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Quality Comparison}
+
+\begin{table}[h]
+\centering
+\caption{Bug Rate Comparison}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Category} & \textbf{Manual} & \textbf{ggen} \\
+\midrule
+Schema Drift & 12/quarter & 0 \\
+Type Errors & 8/quarter & 0 \\
+Validation Errors & 15/quarter & 0 \\
+Integration Issues & 20/quarter & 0 \\
+\midrule
+\textbf{Total} & \textbf{55/quarter} & \textbf{0} \\
+\bottomrule
+\end{tabular}
+\end{table}

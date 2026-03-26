@@ -553,7 +553,7 @@ mod tests {
         let license = "MIT".to_string();
 
         let package =
-            control.create_package(id, "Test Package", "A test package", version, license)?;
+            control.create_package(&id, "Test Package", "A test package", version, license)?;
 
         assert_eq!(package.metadata.name, "Test Package");
         Ok(())

@@ -1,9 +1,24 @@
+[workspace]
+
 [package]
 name = "microservices-architecture"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+tokio = { version = "1.35", features = ["full"] }
+async-trait = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 uuid = { version = "1.0", features = ["v4", "serde"] }
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+anyhow = "1.0"
+dashmap = "5.5"
+parking_lot = "0.12"
+
+[dev-dependencies]
+tokio-test = "0.4"
+proptest = "1.4"
+criterion = "0.5"

@@ -127,9 +127,7 @@ pub struct Firewall {
 impl Firewall {
     /// Create new firewall with channel implementations
     pub fn new(
-        batch: Box<dyn Channel>,
-        scheduled: Box<dyn Channel>,
-        emergency: Box<dyn Channel>,
+        batch: Box<dyn Channel>, scheduled: Box<dyn Channel>, emergency: Box<dyn Channel>,
     ) -> Self {
         Self {
             batch,

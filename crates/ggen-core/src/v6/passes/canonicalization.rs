@@ -309,7 +309,7 @@ impl CanonicalizationPass {
                     use std::io::Write;
                     if let Err(e) = stdin.write_all(content.as_bytes()) {
                         if self.debug_mode {
-                            return Ok(self.normalize_generic(content)?);
+                            return self.normalize_generic(content);
                         }
                         return Err(Error::new(&format!(
                             "Failed to write to prettier stdin: {}",
@@ -328,7 +328,7 @@ impl CanonicalizationPass {
                 } else {
                     let stderr = String::from_utf8_lossy(&output.stderr);
                     if self.debug_mode {
-                        return Ok(self.normalize_generic(content)?);
+                        self.normalize_generic(content)
                     } else if self.strict_mode {
                         Err(Error::new(&format!(
                             "🚨 Prettier Failed in μ₄:canonicalization\n\n\

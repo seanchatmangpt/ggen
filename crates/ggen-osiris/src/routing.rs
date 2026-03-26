@@ -43,8 +43,8 @@ pub struct Router<H: RequestHandler> {
 impl<H: RequestHandler> Router<H> {
     /// Create new router
     pub fn new(handler: H, policy: AdmissionPolicy) -> Result<Self, RoutingError> {
-        let admission = AdmissionController::new(policy)
-            .map_err(|e| RoutingError::Refused(e.into()))?;
+        let admission =
+            AdmissionController::new(policy).map_err(|e| RoutingError::Refused(e.into()))?;
 
         Ok(Self { handler, admission })
     }
@@ -86,9 +86,7 @@ impl<H: RequestHandler> Router<H> {
 
 /// Convenience function for routing with closure
 pub async fn route_with<F, Fut, Req, Resp>(
-    policy: AdmissionPolicy,
-    request: Req,
-    handler: F,
+    policy: AdmissionPolicy, request: Req, handler: F,
 ) -> Result<Resp, RoutingError>
 where
     F: FnOnce(Req) -> Fut,
@@ -118,8 +116,8 @@ where
         }
     }
 
-    let mut admission = AdmissionController::new(policy)
-        .map_err(|e| RoutingError::Refused(e.into()))?;
+    let mut admission =
+        AdmissionController::new(policy).map_err(|e| RoutingError::Refused(e.into()))?;
 
     // Admission control
     let ticket = admission.try_admit()?;
@@ -215,11 +213,9 @@ mod tests {
     async fn test_route_with_closure() {
         let policy = AdmissionPolicy::default();
 
-        let result = route_with(
-            policy,
-            "input",
-            |req| async move { Ok::<_, String>(format!("Processed: {}", req)) },
-        )
+        let result = route_with(policy, "input", |req| async move {
+            Ok::<_, String>(format!("Processed: {}", req))
+        })
         .await;
 
         assert!(result.is_ok());

@@ -3,6 +3,20 @@ use clap::Subcommand;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+/// Subcommands for agent-to-agent (A2A) task management.
+///
+/// Provides commands for creating, managing, and tracking tasks in a multi-agent
+/// system. Tasks represent work units that can transition through states (created,
+/// running, blocked, completed, failed) and can be assigned to specific agents.
+///
+/// # Variants
+///
+/// - `Create`: Create a new task
+/// - `Transition`: Move task between states
+/// - `Status`: Check task status
+/// - `List`: Display all tasks with optional filtering
+/// - `Validate`: Validate task state machine
+/// - `AddArtifact`: Attach output artifacts to tasks
 #[derive(Debug, Subcommand)]
 pub enum A2aCommands {
     /// Create a new task
@@ -96,51 +110,92 @@ pub enum A2aCommands {
     },
 }
 
+/// Task lifecycle states.
+///
+/// Represents the possible states a task can transition through.
 #[derive(Debug, Clone, clap::ValueEnum)]
 pub enum TaskStateArg {
+    /// Task has been created but not yet started
     Created,
+    /// Task is currently executing
     Running,
+    /// Task is waiting on external dependencies
     Blocked,
+    /// Task has finished successfully
     Completed,
+    /// Task has failed and requires intervention
     Failed,
 }
 
+/// Types of task artifacts.
+///
+/// Classifies artifacts attached to tasks by their role in processing.
 #[derive(Debug, Clone, clap::ValueEnum)]
 pub enum ArtifactTypeArg {
+    /// Input data provided to the task
     Input,
+    /// Output produced by the task
     Output,
+    /// Intermediate results generated during execution
     Intermediate,
 }
 
+/// Output format for A2A commands.
 #[derive(Debug, Clone, clap::ValueEnum)]
 pub enum OutputFormat {
+    /// JSON format output
     Json,
+    /// Human-readable text format
     Text,
 }
 
+/// Represents a task in the agent-to-agent task management system.
+///
+/// A task is a unit of work that can be assigned to agents, tracked through
+/// various states, and produce artifacts as output.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Task {
+    /// Unique task identifier (format: "task-{timestamp}")
     pub id: String,
+    /// Current state of the task (created, running, blocked, completed, failed)
     pub state: String,
+    /// Brief title describing the task
     pub title: String,
+    /// Detailed description of task purpose and requirements
     pub description: Option<String>,
+    /// Agent ID this task is assigned to
     pub assigned_to: Option<String>,
+    /// Agent ID that created this task
     pub created_by: String,
+    /// RFC 3339 timestamp when task was created
     pub created_at: String,
+    /// RFC 3339 timestamp of last status update
     pub updated_at: String,
+    /// RFC 3339 timestamp when task reached terminal state
     pub completed_at: Option<String>,
+    /// Reason for failure if task failed
     pub failure_reason: Option<String>,
+    /// Artifacts produced or used by this task
     pub artifacts: Vec<TaskArtifact>,
 }
 
+/// An artifact associated with a task.
+///
+/// Artifacts are outputs or inputs attached to tasks for tracking and audit purposes.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TaskArtifact {
+    /// Name of the artifact
     pub name: String,
+    /// Type of artifact (input, output, intermediate)
     pub artifact_type: String,
+    /// Content data of the artifact
     pub content: String,
 }
 
 impl A2aCommands {
+    /// Execute the A2A command asynchronously.
+    ///
+    /// Dispatches to the appropriate handler based on the command variant.
     pub async fn execute(self) -> Result<()> {
         match self {
             Self::Create {
@@ -171,11 +226,11 @@ impl A2aCommands {
         }
     }
 
+    /// Create a new task.
+    ///
+    /// Generates a task with initial state "created" and writes it to a JSON file.
     async fn create_task(
-        title: String,
-        description: Option<String>,
-        agent: String,
-        assign_to: Option<String>,
+        title: String, description: Option<String>, agent: String, assign_to: Option<String>,
         output: PathBuf,
     ) -> Result<()> {
         let task_id = format!("task-{}", chrono::Utc::now().timestamp());
@@ -206,10 +261,12 @@ impl A2aCommands {
         Ok(())
     }
 
+    /// Transition a task to a new state.
+    ///
+    /// Updates the task's state and validates the state machine transition.
+    /// Records completion timestamps for terminal states.
     async fn transition_state(
-        task_path: PathBuf,
-        state: TaskStateArg,
-        reason: Option<String>,
+        task_path: PathBuf, state: TaskStateArg, reason: Option<String>,
     ) -> Result<()> {
         let content = tokio::fs::read_to_string(&task_path).await?;
         let mut task: Task = serde_json::from_str(&content)?;
@@ -256,6 +313,9 @@ impl A2aCommands {
         Ok(())
     }
 
+    /// Display detailed task status.
+    ///
+    /// Shows all task metadata and artifacts in the specified format.
     async fn show_status(task_path: PathBuf, format: OutputFormat) -> Result<()> {
         let content = tokio::fs::read_to_string(&task_path).await?;
         let task: Task = serde_json::from_str(&content)?;
@@ -295,10 +355,11 @@ impl A2aCommands {
         Ok(())
     }
 
+    /// List all tasks in a directory with optional state filtering.
+    ///
+    /// Scans directory for task JSON files and displays summary information.
     async fn list_tasks(
-        directory: PathBuf,
-        state_filter: Option<TaskStateArg>,
-        format: OutputFormat,
+        directory: PathBuf, state_filter: Option<TaskStateArg>, format: OutputFormat,
     ) -> Result<()> {
         let mut tasks = Vec::new();
 
@@ -347,6 +408,9 @@ impl A2aCommands {
         Ok(())
     }
 
+    /// Validate a task against the state machine schema.
+    ///
+    /// Checks that required fields are present and state transitions are valid.
     async fn validate_task(task_path: PathBuf) -> Result<()> {
         let content = tokio::fs::read_to_string(&task_path).await?;
         let task: Task = serde_json::from_str(&content)?;
@@ -393,11 +457,11 @@ impl A2aCommands {
         Ok(())
     }
 
+    /// Add an artifact to a task.
+    ///
+    /// Attaches an artifact file to a task and updates its modification timestamp.
     async fn add_artifact(
-        task_path: PathBuf,
-        name: String,
-        content_path: PathBuf,
-        artifact_type: ArtifactTypeArg,
+        task_path: PathBuf, name: String, content_path: PathBuf, artifact_type: ArtifactTypeArg,
     ) -> Result<()> {
         let task_content = tokio::fs::read_to_string(&task_path).await?;
         let mut task: Task = serde_json::from_str(&task_content)?;
@@ -430,6 +494,9 @@ impl A2aCommands {
         Ok(())
     }
 
+    /// Validate that a task state transition is allowed.
+    ///
+    /// Checks against the valid state machine transitions.
     fn validate_transition(from: &str, to: &str) -> Result<()> {
         let valid_transitions = [
             ("created", "running"),

@@ -1,0 +1,348 @@
+# Agent Lifecycle Ontology - State Machine Design
+# Base URI: https://ggen.dev/a2a/lifecycle#
+# Version: 1.0.0
+
+@prefix lifecycle: <https://ggen.dev/a2a/lifecycle#> .
+@prefix a2a: <https://a2a.dev/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<https://ggen.dev/a2a/lifecycle> rdf:type owl:Ontology ;
+    rdfs:label "Agent Lifecycle Ontology"@en ;
+    rdfs:comment "Formal specification of agent state machines, state transitions, guards, and recovery mechanisms for fault-tolerant agent systems."@en ;
+    dcterms:created "2026-03-24"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+#################################################################
+#    Agent State Classes
+#################################################################
+
+lifecycle:AgentState rdf:type owl:Class ;
+    rdfs:label "Agent State"@en ;
+    rdfs:comment "Abstract class representing agent lifecycle states"@en .
+
+lifecycle:InitializingState rdf:type lifecycle:AgentState ;
+    rdfs:label "Initializing"@en ;
+    rdfs:comment "Agent is initializing, loading resources, establishing connections"@en ;
+    lifecycle:stateCode "INITIALIZING"^^xsd:string ;
+    lifecycle:stateOrder "1"^^xsd:int .
+
+lifecycle:ReadyState rdf:type lifecycle:AgentState ;
+    rdfs:label "Ready"@en ;
+    rdfs:comment "Agent is ready to accept and process tasks"@en ;
+    lifecycle:stateCode "READY"^^xsd:string ;
+    lifecycle:stateOrder "2"^^xsd:int .
+
+lifecycle:ProcessingState rdf:type lifecycle:AgentState ;
+    rdfs:label "Processing"@en ;
+    rdfs:comment "Agent is actively processing a task"@en ;
+    lifecycle:stateCode "PROCESSING"^^xsd:string ;
+    lifecycle:stateOrder "3"^^xsd:int .
+
+lifecycle:IdleState rdf:type lifecycle:AgentState ;
+    rdfs:label "Idle"@en ;
+    rdfs:comment "Agent has completed processing and is waiting for new tasks"@en ;
+    lifecycle:stateCode "IDLE"^^xsd:string ;
+    lifecycle:stateOrder "4"^^xsd:int .
+
+lifecycle:ErrorState rdf:type lifecycle:AgentState ;
+    rdfs:label "Error"@en ;
+    rdfs:comment "Agent encountered an error and is in recovery mode"@en ;
+    lifecycle:stateCode "ERROR"^^xsd:string ;
+    lifecycle:stateOrder "5"^^xsd:int ;
+    lifecycle:isRecoverable "true"^^xsd:boolean .
+
+lifecycle:TerminatedState rdf:type lifecycle:AgentState ;
+    rdfs:label "Terminated"@en ;
+    rdfs:comment "Agent has been shut down and is no longer operational"@en ;
+    lifecycle:stateCode "TERMINATED"^^xsd:string ;
+    lifecycle:stateOrder "6"^^xsd:int ;
+    lifecycle:isTerminal "true"^^xsd:boolean .
+
+#################################################################
+#    State Transitions
+#################################################################
+
+lifecycle:StateTransition rdf:type owl:Class ;
+    rdfs:label "State Transition"@en ;
+    rdfs:comment "Definition of a valid state transition with guards and conditions"@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty lifecycle:fromState ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty lifecycle:toState ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+# Valid transitions
+lifecycle:Initializing_to_Ready rdf:type lifecycle:StateTransition ;
+    lifecycle:fromState lifecycle:InitializingState ;
+    lifecycle:toState lifecycle:ReadyState ;
+    lifecycle:triggerEvent "initialization_complete"^^xsd:string ;
+    lifecycle:guardCondition "all_resources_loaded"^^xsd:string ;
+    lifecycle:timeout "30000"^^xsd:int .
+
+lifecycle:Ready_to_Processing rdf:type lifecycle:StateTransition ;
+    lifecycle:fromState lifecycle:ReadyState ;
+    lifecycle:toState lifecycle:ProcessingState ;
+    lifecycle:triggerEvent "task_accepted"^^xsd:string ;
+    lifecycle:guardCondition "message_queue_not_empty"^^xsd:string .
+
+lifecycle:Processing_to_Idle rdf:type lifecycle:StateTransition ;
+    lifecycle:fromState lifecycle:ProcessingState ;
+    lifecycle:toState lifecycle:IdleState ;
+    lifecycle:triggerEvent "task_completed"^^xsd:string ;
+    lifecycle:guardCondition "task_result_available"^^xsd:string .
+
+lifecycle:Processing_to_Error rdf:type lifecycle:StateTransition ;
+    lifecycle:fromState lifecycle:ProcessingState ;
+    lifecycle:toState lifecycle:ErrorState ;
+    lifecycle:triggerEvent "task_failed"^^xsd:string ;
+    lifecycle:guardCondition "error_threshold_exceeded"^^xsd:string .
+
+lifecycle:Idle_to_Processing rdf:type lifecycle:StateTransition ;
+    lifecycle:fromState lifecycle:IdleState ;
+    lifecycle:toState lifecycle:ProcessingState ;
+    lifecycle:triggerEvent "task_available"^^xsd:string ;
+    lifecycle:guardCondition "message_queue_not_empty"^^xsd:string .
+
+lifecycle:Ready_to_Error rdf:type lifecycle:StateTransition ;
+    lifecycle:fromState lifecycle:ReadyState ;
+    lifecycle:toState lifecycle:ErrorState ;
+    lifecycle:triggerEvent "critical_error"^^xsd:string ;
+    lifecycle:guardCondition "none"^^xsd:string .
+
+lifecycle:Error_to_Ready rdf:type lifecycle:StateTransition ;
+    lifecycle:fromState lifecycle:ErrorState ;
+    lifecycle:toState lifecycle:ReadyState ;
+    lifecycle:triggerEvent "recovery_successful"^^xsd:string ;
+    lifecycle:guardCondition "state_recovered AND retry_count < max_retries"^^xsd:string ;
+    lifecycle:maxRetries "3"^^xsd:int ;
+    lifecycle:backoffMs "1000"^^xsd:int .
+
+lifecycle:Any_to_Terminated rdf:type lifecycle:StateTransition ;
+    lifecycle:fromState lifecycle:AgentState ;
+    lifecycle:toState lifecycle:TerminatedState ;
+    lifecycle:triggerEvent "shutdown_requested"^^xsd:string ;
+    lifecycle:guardCondition "none"^^xsd:string ;
+    lifecycle:gracefulShutdown "true"^^xsd:boolean ;
+    lifecycle:shutdownTimeoutMs "5000"^^xsd:int .
+
+#################################################################
+#    Message Types for Agent Communication
+#################################################################
+
+lifecycle:AgentMessage rdf:type owl:Class ;
+    rdfs:label "Agent Message"@en ;
+    rdfs:comment "Messages exchanged between agents with routing and priority"@en ;
+    rdfs:subClassOf a2a:Message .
+
+lifecycle:TaskRequestMessage rdf:type lifecycle:AgentMessage ;
+    rdfs:label "Task Request"@en ;
+    rdfs:comment "Request to assign and execute a task"@en ;
+    lifecycle:messageTypeCode "TASK_REQUEST"^^xsd:string ;
+    lifecycle:requiresAck "true"^^xsd:boolean .
+
+lifecycle:TaskResultMessage rdf:type lifecycle:AgentMessage ;
+    rdfs:label "Task Result"@en ;
+    rdfs:comment "Result from completed task execution"@en ;
+    lifecycle:messageTypeCode "TASK_RESULT"^^xsd:string ;
+    lifecycle:requiresAck "true"^^xsd:boolean .
+
+lifecycle:StateTransitionMessage rdf:type lifecycle:AgentMessage ;
+    rdfs:label "State Transition"@en ;
+    rdfs:comment "Notification of agent state change"@en ;
+    lifecycle:messageTypeCode "STATE_TRANSITION"^^xsd:string ;
+    lifecycle:requiresAck "false"^^xsd:boolean .
+
+lifecycle:ErrorMessage rdf:type lifecycle:AgentMessage ;
+    rdfs:label "Error Notification"@en ;
+    rdfs:comment "Error notification for recovery coordination"@en ;
+    lifecycle:messageTypeCode "ERROR"^^xsd:string ;
+    lifecycle:requiresAck "true"^^xsd:boolean ;
+    lifecycle:priority "HIGH"^^xsd:string .
+
+lifecycle:PingMessage rdf:type lifecycle:AgentMessage ;
+    rdfs:label "Ping"@en ;
+    rdfs:comment "Health check message"@en ;
+    lifecycle:messageTypeCode "PING"^^xsd:string ;
+    lifecycle:requiresAck "true"^^xsd:boolean ;
+    lifecycle:timeoutMs "5000"^^xsd:int .
+
+#################################################################
+#    Message Routing
+#################################################################
+
+lifecycle:MessageRouter rdf:type owl:Class ;
+    rdfs:label "Message Router"@en ;
+    rdfs:comment "Manages message delivery between agents with ordering guarantees"@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty lifecycle:deliveryGuarantee ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+lifecycle:FIFOOrdering rdf:type owl:Class ;
+    rdfs:label "FIFO Ordering"@en ;
+    rdfs:comment "Messages delivered in First-In-First-Out order within agent"@en .
+
+lifecycle:PriorityOrdering rdf:type owl:Class ;
+    rdfs:label "Priority Ordering"@en ;
+    rdfs:comment "Messages delivered based on priority level"@en .
+
+#################################################################
+#    Task Management
+#################################################################
+
+lifecycle:ManagedTask rdf:type owl:Class ;
+    rdfs:label "Managed Task"@en ;
+    rdfs:comment "Task with dependencies, priority, and artifact management"@en ;
+    rdfs:subClassOf a2a:Task ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty lifecycle:hasPriority ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty lifecycle:dependsOn ;
+        owl:minCardinality "0"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty lifecycle:hasArtifact ;
+        owl:minCardinality "0"^^xsd:nonNegativeInteger
+    ] .
+
+lifecycle:TaskPriority rdf:type owl:Class ;
+    rdfs:label "Task Priority"@en ;
+    rdfs:comment "Priority levels for task execution scheduling"@en ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:oneOf (
+            lifecycle:LowPriority
+            lifecycle:NormalPriority
+            lifecycle:HighPriority
+            lifecycle:CriticalPriority
+        )
+    ] .
+
+lifecycle:LowPriority rdf:type lifecycle:TaskPriority ;
+    rdfs:label "Low"@en ;
+    lifecycle:priorityValue "1"^^xsd:int .
+
+lifecycle:NormalPriority rdf:type lifecycle:TaskPriority ;
+    rdfs:label "Normal"@en ;
+    lifecycle:priorityValue "2"^^xsd:int .
+
+lifecycle:HighPriority rdf:type lifecycle:TaskPriority ;
+    rdfs:label "High"@en ;
+    lifecycle:priorityValue "3"^^xsd:int .
+
+lifecycle:CriticalPriority rdf:type lifecycle:TaskPriority ;
+    rdfs:label "Critical"@en ;
+    lifecycle:priorityValue "4"^^xsd:int .
+
+#################################################################
+#    Properties
+#################################################################
+
+lifecycle:stateCode rdf:type owl:DatatypeProperty ;
+    rdfs:label "state code"@en ;
+    rdfs:range xsd:string .
+
+lifecycle:stateOrder rdf:type owl:DatatypeProperty ;
+    rdfs:label "state order"@en ;
+    rdfs:range xsd:int .
+
+lifecycle:isRecoverable rdf:type owl:DatatypeProperty ;
+    rdfs:label "is recoverable"@en ;
+    rdfs:range xsd:boolean .
+
+lifecycle:isTerminal rdf:type owl:DatatypeProperty ;
+    rdfs:label "is terminal"@en ;
+    rdfs:range xsd:boolean .
+
+lifecycle:fromState rdf:type owl:ObjectProperty ;
+    rdfs:label "from state"@en ;
+    rdfs:domain lifecycle:StateTransition ;
+    rdfs:range lifecycle:AgentState .
+
+lifecycle:toState rdf:type owl:ObjectProperty ;
+    rdfs:label "to state"@en ;
+    rdfs:domain lifecycle:StateTransition ;
+    rdfs:range lifecycle:AgentState .
+
+lifecycle:triggerEvent rdf:type owl:DatatypeProperty ;
+    rdfs:label "trigger event"@en ;
+    rdfs:range xsd:string .
+
+lifecycle:guardCondition rdf:type owl:DatatypeProperty ;
+    rdfs:label "guard condition"@en ;
+    rdfs:range xsd:string .
+
+lifecycle:timeout rdf:type owl:DatatypeProperty ;
+    rdfs:label "timeout"@en ;
+    rdfs:range xsd:int .
+
+lifecycle:maxRetries rdf:type owl:DatatypeProperty ;
+    rdfs:label "max retries"@en ;
+    rdfs:range xsd:int .
+
+lifecycle:backoffMs rdf:type owl:DatatypeProperty ;
+    rdfs:label "backoff milliseconds"@en ;
+    rdfs:range xsd:int .
+
+lifecycle:gracefulShutdown rdf:type owl:DatatypeProperty ;
+    rdfs:label "graceful shutdown"@en ;
+    rdfs:range xsd:boolean .
+
+lifecycle:shutdownTimeoutMs rdf:type owl:DatatypeProperty ;
+    rdfs:label "shutdown timeout milliseconds"@en ;
+    rdfs:range xsd:int .
+
+lifecycle:messageTypeCode rdf:type owl:DatatypeProperty ;
+    rdfs:label "message type code"@en ;
+    rdfs:range xsd:string .
+
+lifecycle:requiresAck rdf:type owl:DatatypeProperty ;
+    rdfs:label "requires acknowledgment"@en ;
+    rdfs:range xsd:boolean .
+
+lifecycle:priority rdf:type owl:DatatypeProperty ;
+    rdfs:label "priority"@en ;
+    rdfs:range xsd:string .
+
+lifecycle:timeoutMs rdf:type owl:DatatypeProperty ;
+    rdfs:label "timeout milliseconds"@en ;
+    rdfs:range xsd:int .
+
+lifecycle:deliveryGuarantee rdf:type owl:ObjectProperty ;
+    rdfs:label "delivery guarantee"@en ;
+    rdfs:range owl:Class .
+
+lifecycle:hasPriority rdf:type owl:ObjectProperty ;
+    rdfs:label "has priority"@en ;
+    rdfs:domain lifecycle:ManagedTask ;
+    rdfs:range lifecycle:TaskPriority .
+
+lifecycle:dependsOn rdf:type owl:ObjectProperty ;
+    rdfs:label "depends on"@en ;
+    rdfs:domain lifecycle:ManagedTask ;
+    rdfs:range lifecycle:ManagedTask ;
+    rdfs:comment "Indicates task dependencies for execution ordering" .
+
+lifecycle:hasArtifact rdf:type owl:ObjectProperty ;
+    rdfs:label "has artifact"@en ;
+    rdfs:domain lifecycle:ManagedTask ;
+    rdfs:range a2a:Artifact .
+
+lifecycle:priorityValue rdf:type owl:DatatypeProperty ;
+    rdfs:label "priority value"@en ;
+    rdfs:range xsd:int .

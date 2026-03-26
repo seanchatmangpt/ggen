@@ -6,7 +6,10 @@ fn test_cli_error_display() {
     assert_eq!(err.to_string(), "Validation error: test error");
 
     let err = CliError::ReceiptVerification("hash mismatch".to_string());
-    assert_eq!(err.to_string(), "Receipt verification failed: hash mismatch");
+    assert_eq!(
+        err.to_string(),
+        "Receipt verification failed: hash mismatch"
+    );
 
     let err = CliError::AndonSignal("critical".to_string());
     assert_eq!(err.to_string(), "Andon signal: critical");

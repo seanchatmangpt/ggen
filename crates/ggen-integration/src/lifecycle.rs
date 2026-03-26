@@ -103,9 +103,7 @@ impl LifecycleManager {
 
     /// Validate if a transition is allowed
     fn validate_transition(
-        &self,
-        from: LifecycleState,
-        to: LifecycleState,
+        &self, from: LifecycleState, to: LifecycleState,
     ) -> Result<(), LifecycleError> {
         let allowed = match (from, to) {
             // Allowed transitions

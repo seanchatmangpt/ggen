@@ -5,9 +5,6 @@
 use crate::adapter::{A2aAgentCard, ToolToAgentAdapter};
 use crate::client::A2aLlmClient;
 use crate::error::A2aMcpResult;
-use crate::mcp::{
-    A2aSkillRegistry, McpToolDefinition as A2aMcpToolDefinition, McpToolRegistryTrait,
-};
 use crate::registry::McpToolRegistry;
 use crate::transport::{McpToolDefinition, McpTransport};
 use a2a_generated::converged::message::ConvergedMessage;
@@ -301,22 +298,30 @@ mod tests {
     use ggen_ai::dspy::model_capabilities::{ModelCapabilities, ModelConfig, ModelProvider};
 
     fn create_test_model() -> Model {
+        use ggen_ai::dspy::model_capabilities::{LatencyClass, Modality, ReliabilityClass};
         Model {
             name: "test-model".to_string(),
             provider: ModelProvider::Zai,
             capabilities: ModelCapabilities {
-                max_input_tokens: 100000,
+                max_context_tokens: 100000,
                 max_output_tokens: 4096,
-                supports_function_calling: true,
-                supports_streaming: true,
-                supports_vision: false,
-                supported_languages: vec!["rust".to_string(), "python".to_string()],
+                structured_output: true,
+                function_calling: true,
+                system_messages: true,
+                streaming: true,
+                vision: false,
+                latency_class: LatencyClass::Medium,
+                reliability: ReliabilityClass::High,
+                modalities: vec![Modality::Text],
             },
+            cost: None,
             config: ModelConfig {
                 default_temperature: Some(0.7),
-                endpoint: Some("http://localhost:8080".to_string()),
-                api_key: None,
-                extra_params: None,
+                default_max_tokens: Some(4096),
+                api_base: Some("http://localhost:8080".to_string()),
+                api_version: None,
+                parameters: std::collections::HashMap::new(),
+                extra_headers: std::collections::HashMap::new(),
             },
         }
     }
@@ -347,7 +352,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_agent_card() {
-        let model = create_test_model();
+        let _model = create_test_model();
         let config = A2aServerConfig {
             agent_name: "test-agent".to_string(),
             agent_description: "Test description".to_string(),

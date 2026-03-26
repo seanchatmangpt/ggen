@@ -18,6 +18,7 @@ async-trait = { workspace = true }
 tracing = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true }
+rand = "0.8"
 a2a-generated = { path = "../a2a-generated", optional = true }
 osiris-core = { path = "../osiris-core", version = "0.1.0" }
 

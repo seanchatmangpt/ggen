@@ -2,13 +2,13 @@
 //!
 //! Implements the Andon principle - visual control system for signaling problems
 
-use serde_json::Value;
+use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, error, info, warn};
 
-use crate::signals::{TPSSignal, TPSLevel};
+use crate::signals::{TPSLevel, TPSSignal};
 
 /// TPS Andon System configuration
 #[derive(Debug, Clone)]
@@ -43,6 +43,7 @@ impl Default for TPSAndonConfig {
 }
 
 /// TPS Andon System
+#[derive(Clone, Debug)]
 pub struct TPSAndonSystem {
     config: TPSAndonConfig,
     active_alerts: Arc<RwLock<HashMap<String, ActiveAlert>>>,
@@ -53,28 +54,44 @@ pub struct TPSAndonSystem {
 /// Active alert information
 #[derive(Debug, Clone)]
 pub struct ActiveAlert {
+    /// Unique identifier for the alert
     pub alert_id: String,
+    /// Type/category of the alert
     pub alert_type: String,
+    /// Severity level (Information, Warning, or Critical)
     pub severity: TPSLevel,
+    /// Time when the alert was created
     pub timestamp: chrono::DateTime<chrono::Utc>,
+    /// Whether the alert has been acknowledged
     pub acknowledged: bool,
+    /// User who acknowledged the alert, if any
     pub acknowledged_by: Option<String>,
+    /// Escalation level (0-indexed)
     pub escalation_level: usize,
 }
 
 /// Alert history
 #[derive(Debug, Clone)]
 pub struct AlertHistory {
+    /// Unique identifier for the alert
     pub alert_id: String,
+    /// Type/category of the alert
     pub alert_type: String,
+    /// Severity level (Information, Warning, or Critical)
     pub severity: TPSLevel,
+    /// Time when the alert was created
     pub timestamp: chrono::DateTime<chrono::Utc>,
+    /// Whether the alert has been resolved
     pub resolved: bool,
+    /// Time when the alert was resolved, if any
     pub resolution_time: Option<chrono::DateTime<chrono::Utc>>,
+    /// Alert message describing the problem
     pub message: String,
 }
 
 /// Signal processor for TPS signals
+/// Handles routing and processing of TPS signals based on their severity level
+#[derive(Debug)]
 pub struct TPSSignalProcessor;
 
 impl TPSSignalProcessor {
@@ -163,23 +180,28 @@ impl TPSAndonSystem {
 
                 // Check for alert timeouts
                 let mut alerts = alerts.write().await;
-                let mut history = history.write().await;
+                let mut _history = history.write().await;
 
                 // Remove alerts that have timed out
                 alerts.retain(|_, alert| {
                     if alert.acknowledged {
                         true
                     } else {
-                        let elapsed = chrono::Utc::now().timestamp_millis() - alert.timestamp.timestamp_millis();
+                        let elapsed = chrono::Utc::now().timestamp_millis()
+                            - alert.timestamp.timestamp_millis();
                         elapsed < config.alert_timeout_ms as i64
                     }
                 });
 
                 // Check for alerts that need escalation
                 for (_, alert) in alerts.iter_mut() {
-                    if !alert.acknowledged && alert.escalation_level < config.escalation_path.len() {
+                    if !alert.acknowledged && alert.escalation_level < config.escalation_path.len()
+                    {
                         alert.escalation_level += 1;
-                        info!("Alert {} escalated to level {}", alert.alert_id, alert.escalation_level);
+                        info!(
+                            "Alert {} escalated to level {}",
+                            alert.alert_id, alert.escalation_level
+                        );
                     }
                 }
             }
@@ -189,7 +211,9 @@ impl TPSAndonSystem {
     }
 
     /// Handle a warning signal
-    pub async fn handle_warning_signal(&self, signal: TPSSignal) -> Result<Value, Box<dyn std::error::Error>> {
+    pub async fn handle_warning_signal(
+        &self, signal: TPSSignal,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
         debug!("Handling warning signal: {}", signal.message);
 
         // Create alert
@@ -212,16 +236,16 @@ impl TPSAndonSystem {
         let mut history = self.alert_history.write().await;
         history.push(AlertHistory {
             alert_id: alert_id.clone(),
-            alert_type: signal.signal_type,
-            severity: signal.level,
+            alert_type: signal.signal_type.clone(),
+            severity: signal.level.clone(),
             timestamp: chrono::Utc::now(),
             resolved: false,
             resolution_time: None,
-            message: signal.message,
+            message: signal.message.clone(),
         });
 
         // Process signal
-        let result = self.signal_processor.process_signal(signal).await?;
+        let result = TPSSignalProcessor::process_signal(signal).await?;
 
         Ok(json!({
             "status": "alert_created",
@@ -231,7 +255,9 @@ impl TPSAndonSystem {
     }
 
     /// Acknowledge an alert
-    pub async fn acknowledge_alert(&self, alert_id: &str, acknowledged_by: String) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn acknowledge_alert(
+        &self, alert_id: &str, acknowledged_by: String,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let mut alerts = self.active_alerts.write().await;
 
         if let Some(alert) = alerts.get_mut(alert_id) {
@@ -245,7 +271,9 @@ impl TPSAndonSystem {
     }
 
     /// Resolve an alert
-    pub async fn resolve_alert(&self, alert_id: &str, resolution: String) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn resolve_alert(
+        &self, alert_id: &str, resolution: String,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let mut alerts = self.active_alerts.write().await;
         let mut history = self.alert_history.write().await;
 
@@ -274,8 +302,14 @@ impl TPSAndonSystem {
 
         let active_alert_count = alerts.len();
         let unresolved_alerts = alerts.values().filter(|a| !a.acknowledged).count();
-        let critical_alerts = alerts.values().filter(|a| a.severity == TPSLevel::Critical).count();
-        let warning_alerts = alerts.values().filter(|a| a.severity == TPSLevel::Warning).count();
+        let critical_alerts = alerts
+            .values()
+            .filter(|a| a.severity == TPSLevel::Critical)
+            .count();
+        let warning_alerts = alerts
+            .values()
+            .filter(|a| a.severity == TPSLevel::Warning)
+            .count();
 
         let total_alerts = history.len();
         let resolved_alerts = history.iter().filter(|h| h.resolved).count();
@@ -314,7 +348,10 @@ impl TPSAndonSystem {
     pub async fn check_health(&self) -> Value {
         let alerts = self.active_alerts.read().await;
         let unresolved_alerts = alerts.values().filter(|a| !a.acknowledged).count();
-        let critical_alerts = alerts.values().filter(|a| a.severity == TPSLevel::Critical).count();
+        let critical_alerts = alerts
+            .values()
+            .filter(|a| a.severity == TPSLevel::Critical)
+            .count();
 
         let health_status = if critical_alerts > 0 {
             "critical"
@@ -383,7 +420,9 @@ mod tests {
         let result = andon.handle_warning_signal(signal).await.unwrap();
         let alert_id = result["alert_id"].as_str().unwrap();
 
-        let ack_result = andon.acknowledge_alert(alert_id, "test_user".to_string()).await;
+        let ack_result = andon
+            .acknowledge_alert(alert_id, "test_user".to_string())
+            .await;
         assert!(ack_result.is_ok());
     }
 
@@ -401,8 +440,10 @@ mod tests {
         let result = andon.handle_warning_signal(signal).await.unwrap();
         let alert_id = result["alert_id"].as_str().unwrap();
 
-        let resolve_result = andon.resolve_alert(alert_id, "Test resolution".to_string()).await;
-        assert!(resolve_result.is_ok);
+        let resolve_result = andon
+            .resolve_alert(alert_id, "Test resolution".to_string())
+            .await;
+        assert!(resolve_result.is_ok());
 
         let status = andon.get_status().await;
         assert_eq!(status["active_alerts"], 0);
@@ -418,6 +459,7 @@ mod tests {
 
         let result = TPSSignalProcessor::process_signal(signal).await;
         assert!(result.is_ok());
-        assert_eq!(result["status"], "critical_handled");
+        let result_value = result.ok().unwrap();
+        assert_eq!(result_value["status"], "critical_handled");
     }
 }

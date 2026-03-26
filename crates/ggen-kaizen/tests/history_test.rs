@@ -1,12 +1,9 @@
 //! Integration tests for improvement history tracking.
 
-use ggen_kaizen::{
-    history::*,
-    metrics::MetricsSnapshot,
-    pdca::PdcaCycle,
-    Category, Improvement, Priority,
-};
 use chrono::{Duration, Utc};
+use ggen_kaizen::{
+    history::*, metrics::MetricsSnapshot, pdca::PdcaCycle, Category, Improvement, Priority,
+};
 
 fn create_test_improvement(id: &str, title: &str) -> Improvement {
     Improvement::new(
@@ -146,7 +143,10 @@ fn test_improvement_history_add_and_retrieve() {
     assert!(result.is_ok());
     assert_eq!(history.total_improvements(), 1);
     assert!(history.get_record("IMP-005").is_some());
-    assert_eq!(history.get_record("IMP-005").unwrap().improvement.id, "IMP-005");
+    assert_eq!(
+        history.get_record("IMP-005").unwrap().improvement.id,
+        "IMP-005"
+    );
 }
 
 #[test]
@@ -171,9 +171,15 @@ fn test_improvement_history_list_ids() {
     let mut history = ImprovementHistory::new();
 
     // Act
-    history.add_improvement(create_test_improvement("IMP-007", "First")).ok();
-    history.add_improvement(create_test_improvement("IMP-008", "Second")).ok();
-    history.add_improvement(create_test_improvement("IMP-009", "Third")).ok();
+    history
+        .add_improvement(create_test_improvement("IMP-007", "First"))
+        .ok();
+    history
+        .add_improvement(create_test_improvement("IMP-008", "Second"))
+        .ok();
+    history
+        .add_improvement(create_test_improvement("IMP-009", "Third"))
+        .ok();
 
     let ids = history.list_ids();
 
@@ -220,11 +226,17 @@ fn test_improvement_history_records_by_date() {
     let mut history = ImprovementHistory::new();
 
     // Act - Add improvements (they'll have different timestamps)
-    history.add_improvement(create_test_improvement("IMP-012", "First")).ok();
+    history
+        .add_improvement(create_test_improvement("IMP-012", "First"))
+        .ok();
     std::thread::sleep(std::time::Duration::from_millis(10));
-    history.add_improvement(create_test_improvement("IMP-013", "Second")).ok();
+    history
+        .add_improvement(create_test_improvement("IMP-013", "Second"))
+        .ok();
     std::thread::sleep(std::time::Duration::from_millis(10));
-    history.add_improvement(create_test_improvement("IMP-014", "Third")).ok();
+    history
+        .add_improvement(create_test_improvement("IMP-014", "Third"))
+        .ok();
 
     let records = history.records_by_date();
 

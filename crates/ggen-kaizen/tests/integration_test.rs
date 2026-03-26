@@ -1,12 +1,12 @@
 //! End-to-end integration tests for kaizen tracking.
 
+use chrono::{Duration, Utc};
 use ggen_kaizen::{
     history::{ImprovementHistory, TrendDirection},
     metrics::{MetricsCalculator, MetricsSnapshot},
     pdca::PdcaCycle,
     Category, Improvement, Priority,
 };
-use chrono::{Duration, Utc};
 
 #[test]
 fn test_end_to_end_kaizen_workflow() {
@@ -30,7 +30,9 @@ fn test_end_to_end_kaizen_workflow() {
     let mut cycle = PdcaCycle::new(improvement, 1);
 
     // Plan phase
-    cycle.advance("Profiled API endpoints and identified slow queries".to_string()).unwrap();
+    cycle
+        .advance("Profiled API endpoints and identified slow queries".to_string())
+        .unwrap();
     if let Some(phase) = cycle.current_phase_mut() {
         phase.add_objective("Identify slow queries".to_string());
         phase.add_objective("Design optimization strategy".to_string());
@@ -48,7 +50,9 @@ fn test_end_to_end_kaizen_workflow() {
     metrics_calculator.add_snapshot(baseline.clone());
 
     // Do phase
-    cycle.advance("Implemented query optimizations and caching".to_string()).unwrap();
+    cycle
+        .advance("Implemented query optimizations and caching".to_string())
+        .unwrap();
     if let Some(phase) = cycle.current_phase_mut() {
         phase.add_objective("Add database indexes".to_string());
         phase.add_objective("Implement query result caching".to_string());
@@ -56,7 +60,9 @@ fn test_end_to_end_kaizen_workflow() {
     }
 
     // Check phase - Measure improvements
-    cycle.advance("Measured performance improvements".to_string()).unwrap();
+    cycle
+        .advance("Measured performance improvements".to_string())
+        .unwrap();
 
     let measurement1 = MetricsSnapshot::new()
         .with_cycle_time(0.35)
@@ -192,7 +198,9 @@ fn test_iterative_improvement_cycles() {
     cycle.advance("First Do".to_string()).unwrap();
     cycle.advance("First Check".to_string()).unwrap();
     cycle.advance("First Act".to_string()).unwrap();
-    cycle.iterate("Starting second iteration".to_string()).unwrap();
+    cycle
+        .iterate("Starting second iteration".to_string())
+        .unwrap();
 
     // Second iteration
     cycle.advance("Second Do".to_string()).unwrap();
@@ -317,18 +325,9 @@ fn test_cost_savings_tracking() {
 
     // Act - Track cost savings over time
     if let Some(record) = history.get_record_mut("KAIZEN-501") {
-        record.add_metrics_snapshot(
-            MetricsSnapshot::new()
-                .with_cost_savings(1000.0)
-        );
-        record.add_metrics_snapshot(
-            MetricsSnapshot::new()
-                .with_cost_savings(1500.0)
-        );
-        record.add_metrics_snapshot(
-            MetricsSnapshot::new()
-                .with_cost_savings(2000.0)
-        );
+        record.add_metrics_snapshot(MetricsSnapshot::new().with_cost_savings(1000.0));
+        record.add_metrics_snapshot(MetricsSnapshot::new().with_cost_savings(1500.0));
+        record.add_metrics_snapshot(MetricsSnapshot::new().with_cost_savings(2000.0));
     }
 
     // Assert - Verify cost savings
@@ -390,7 +389,9 @@ fn test_empty_history_operations() {
     assert_eq!(history.active_improvements(), 0);
     assert!(history.list_ids().is_empty());
     assert!(history.get_record("nonexistent").is_none());
-    assert!(history.analyze_improvement_trend("nonexistent", "cycle_time").is_none());
+    assert!(history
+        .analyze_improvement_trend("nonexistent", "cycle_time")
+        .is_none());
 
     let summary = history.summary();
     assert_eq!(summary.total_improvements, 0);

@@ -1,0 +1,227 @@
+% !TeX program = xelatex
+% !TeX encoding = UTF-8
+
+\documentclass[12pt,letterpaper,oneside]{report}
+
+% Packages
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+\usepackage{cleveref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{mathtools}
+\usepackage{minted}
+\usepackage{xr}
+
+% Page geometry
+\geometry{
+    letterpaper,
+    left=1.5in,
+    right=1in,
+    top=1in,
+    bottom=1in,
+    headheight=14pt
+}
+
+% Font settings (requires XeLaTeX)
+\setmainfont{TeX Gyre Termes}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{TeX Gyre Cursor}
+
+% Colors
+\definecolor{ggenblue}{RGB}{0, 102, 204}
+\definecolor{ggengreen}{RGB}{0, 153, 76}
+\definecolor{ggenred}{RGB}{204, 51, 0}
+\definecolor{codebg}{RGB}{245, 245, 245}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=ggenblue,
+    citecolor=ggengreen,
+    urlcolor=ggenblue,
+    pdftitle={Specification-Driven Code Generation for Autonomous Agent Systems},
+    pdfauthor={Sean Chat Management},
+    pdfsubject={PhD Dissertation},
+    pdfkeywords={code generation, RDF, autonomous agents, distributed consensus, type safety}
+}
+
+% Code listing settings
+\usemintedstyle{borland}
+\setminted{
+    bgcolor=codebg,
+    fontsize=\small,
+    frame=lines,
+    framesep=2mm
+}
+
+\lstset{
+    basicstyle=\small\ttfamily,
+    breaklines=true,
+    frame=tb,
+    backgroundcolor=\color{codebg},
+    keywordstyle=\color{blue},
+    commentstyle=\color{ggengreen},
+    stringstyle=\color{ggenred}
+}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{example}{Example}[chapter]
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[chapter]
+
+% Algorithm setup
+\algdef{SE}[DOWHILE]{Do}{doWhile}{\algorithmicdo}[1]{\algorithmicwhile\ #1}
+
+% Header/footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% TOC formatting
+\renewcommand{\cftchapfont}{\bfseries}
+\renewcommand{\cftchappagefont}{\bfseries}
+\setlength{\cftbeforechapskip}{10pt}
+\setlength{\cftbeforesecskip}{5pt}
+
+% Title information
+\title{\textbf{Specification-Driven Code Generation for\\Autonomous Agent Systems}}
+\author{Sean Chat Management}
+\date{March 2026}
+
+% Custom commands
+\newcommand{\ggen}{\texttt{ggen}}
+\newcommand{\kayeffourd}{\textsf{KGC-4D}}
+\newcommand{\chatmaneq}{A = \mu(O)}
+\newcommand{\semfidelity}{\Phi(O,A)}
+\newcommand{\ontoent}{H(O)}
+
+\begin{document}
+
+% Title page
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+
+    {\Huge \textbf{Specification-Driven Code Generation for\\Autonomous Agent Systems}\par}
+
+    \vspace{1.5cm}
+
+    {\Large by\par}
+
+    \vspace{0.5cm}
+
+    {\Large \textbf{Sean Chat Management}\par}
+
+    \vspace{2cm}
+
+    A Dissertation\\
+    Presented to the\\
+    Faculty of the Graduate School
+
+    \vspace{1cm}
+
+    of
+
+    \vspace{1cm}
+
+    \textbf{University Name}
+
+    \vspace{2cm}
+
+    in Partial Fulfillment\\
+    of the Requirements for the\\
+    Degree of
+
+    \vspace{0.5cm}
+
+    \textbf{Doctor of Philosophy}
+
+    \vspace*{2cm}
+
+    \textbf{March 2026}
+\end{titlepage}
+
+% Abstract (placeholder)
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+\input{chapters/abstract.tex}
+
+% Dedication (placeholder)
+\chapter*{Dedication}
+\addcontentsline{toc}{chapter}{Dedication}
+
+\input{chapters/dedication.tex}
+
+% Table of Contents
+\tableofcontents
+
+% List of Figures
+\listoffigures
+
+% List of Tables
+\listoftables
+
+% List of Algorithms
+\listofalgorithms
+
+% Preface (optional)
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{Preface}
+\markboth{Preface}{Preface}
+
+This dissertation presents a comprehensive framework for specification-driven code generation, combining formal methods with autonomous agent systems to achieve deterministic artifact generation from RDF ontologies.
+
+% Main Content
+\include{chapters/chapter01}
+\include{chapters/chapter02}
+\include{chapters/chapter03}
+\include{chapters/chapter04}
+\include{chapters/chapter05}
+\include{chapters/chapter06}
+\include{chapters/chapter07}
+\include{chapters/chapter08}
+\include{chapters/chapter09}
+\include{chapters/chapter10}
+\include{chapters/chapter11}
+
+% Appendices
+\appendix
+\include{appendices/appendixA}
+\include{appendices/appendixB}
+\include{appendices/appendixC}
+\include{appendices/appendixD}
+\include{appendices/appendixE}
+\include{appendices/appendixF}
+\include{appendices/appendixG}
+
+% Bibliography
+\bibliographystyle{plain}
+\bibliography{bib-data/references}
+
+% Index (optional)
+%\printindex
+
+\end{document}

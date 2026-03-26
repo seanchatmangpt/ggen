@@ -146,7 +146,9 @@ impl HealthCheck {
     }
 
     /// Check backpressure health
-    async fn check_backpressure(&self, pipeline: &Pipeline) -> Result<SubsystemHealth, HealthError> {
+    async fn check_backpressure(
+        &self, pipeline: &Pipeline,
+    ) -> Result<SubsystemHealth, HealthError> {
         let utilization = pipeline.wip_utilization().await;
         let wip_count = pipeline.wip_count().await;
 
@@ -163,7 +165,8 @@ impl HealthCheck {
 
     /// Check receipt chain health
     async fn check_receipts(&self, pipeline: &Pipeline) -> Result<SubsystemHealth, HealthError> {
-        let verified = pipeline.verify_receipt_chain()
+        let verified = pipeline
+            .verify_receipt_chain()
             .map_err(|e| HealthError::CheckFailed(e.to_string()))?;
 
         let status = if verified {
@@ -288,9 +291,7 @@ mod tests {
         let mut health_check = HealthCheck::new();
 
         // Act
-        let start_result = health_check
-            .start(std::time::Duration::from_secs(30))
-            .await;
+        let start_result = health_check.start(std::time::Duration::from_secs(30)).await;
         let stop_result = health_check.stop().await;
 
         // Assert

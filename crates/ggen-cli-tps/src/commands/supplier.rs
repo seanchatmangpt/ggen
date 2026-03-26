@@ -3,6 +3,21 @@ use clap::Subcommand;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+/// Subcommands for managing suppliers in the TPS (Trusted Provider System).
+///
+/// This enum defines the available operations for supplier lifecycle management,
+/// including registration, quality scoring, rate limiting, status checking, and
+/// delivery tracking. Each command is dispatched through the `execute()` method
+/// to its corresponding handler.
+///
+/// # Variants
+///
+/// - `Register`: Create a new supplier with initial quality score
+/// - `Score`: Update a supplier's quality score with audit trail
+/// - `RateLimit`: Configure token bucket rate limiting
+/// - `Status`: Retrieve detailed supplier status and metrics
+/// - `List`: View all suppliers with optional filtering
+/// - `Deliver`: Record a delivery attempt and update metrics
 #[derive(Debug, Subcommand)]
 pub enum SupplierCommands {
     /// Register a new supplier
@@ -88,52 +103,80 @@ pub enum SupplierCommands {
     },
 }
 
+/// Specifies the output format for supplier commands.
 #[derive(Debug, Clone, clap::ValueEnum)]
 pub enum OutputFormat {
+    /// JSON format output.
     Json,
+    /// Human-readable text format output.
     Text,
 }
 
+/// Represents a supplier with operational metrics and status.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Supplier {
+    /// Unique identifier for the supplier.
     pub id: String,
+    /// Display name of the supplier.
     pub name: String,
+    /// Quality score from 0-100 reflecting supplier reliability.
     pub quality_score: u8,
+    /// Rate limiting configuration for this supplier.
     pub rate_limit: RateLimit,
+    /// Aggregated delivery statistics.
     pub deliveries: DeliveryStats,
+    /// Timestamp of the last update (RFC 3339 format).
     pub last_update: String,
+    /// Current operational status.
     pub status: SupplierStatus,
 }
 
+/// Token bucket rate limiting configuration for a supplier.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RateLimit {
+    /// Sustained rate in requests per second.
     pub requests_per_second: f64,
+    /// Burst capacity in number of requests.
     pub burst: usize,
+    /// Current number of available tokens.
     pub current_tokens: f64,
+    /// Timestamp of the last token refill (RFC 3339 format).
     pub last_refill: String,
 }
 
+/// Aggregated delivery performance metrics for a supplier.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DeliveryStats {
+    /// Total number of delivery attempts.
     pub total: usize,
+    /// Number of successful deliveries.
     pub successful: usize,
+    /// Number of failed deliveries.
     pub failed: usize,
+    /// Success rate as a fraction between 0.0 and 1.0.
     pub success_rate: f64,
 }
 
+/// Operational status of a supplier.
 #[derive(Debug, Serialize, Deserialize)]
 pub enum SupplierStatus {
+    /// Supplier is operating normally.
     Active,
+    /// Supplier has degraded performance; quality score 50-79.
     Warning,
+    /// Supplier is suspended; quality score below 50.
     Suspended,
 }
 
+/// Registry that manages a collection of suppliers and their operational state.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SupplierRegistry {
+    /// Collection of suppliers tracked in the registry.
     pub suppliers: Vec<Supplier>,
 }
 
 impl SupplierCommands {
+    /// Executes the supplier command and dispatches to the appropriate handler based on the subcommand.
     pub async fn execute(self) -> Result<()> {
         match self {
             Self::Register {
@@ -148,11 +191,7 @@ impl SupplierCommands {
                 min_quality,
                 format,
             } => Self::list_suppliers(min_quality, format).await,
-            Self::Deliver {
-                id,
-                success,
-                notes,
-            } => Self::record_delivery(id, success, notes).await,
+            Self::Deliver { id, success, notes } => Self::record_delivery(id, success, notes).await,
         }
     }
 
@@ -359,8 +398,8 @@ impl SupplierCommands {
             supplier.last_update = chrono::Utc::now().to_rfc3339();
 
             let quality_adjustment = if success { 1 } else { -5 };
-            supplier.quality_score = (supplier.quality_score as i16 + quality_adjustment)
-                .clamp(0, 100) as u8;
+            supplier.quality_score =
+                (supplier.quality_score as i16 + quality_adjustment).clamp(0, 100) as u8;
 
             supplier.status = if supplier.quality_score < 50 {
                 SupplierStatus::Suspended

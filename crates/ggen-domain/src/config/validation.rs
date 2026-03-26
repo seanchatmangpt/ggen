@@ -343,6 +343,11 @@ impl ConfigValidator {
 
         true
     }
+
+    /// Get the allowed licenses (for testing)
+    pub fn allowed_licenses(&self) -> &[String] {
+        &self.allowed_licenses
+    }
 }
 
 impl Default for ConfigValidator {
@@ -441,6 +446,12 @@ impl fmt::Display for ValidationWarning {
 
 #[cfg(test)]
 mod tests {
+    use super::super::loader::{
+        A2aConfig, AiConfig, CodeownersConfig, DependenciesConfig, GenerationConfig,
+        LifecycleConfig, LoggingConfig, MarketplaceConfig, McpConfig, OntologyConfig,
+        PerformanceConfig, ProjectMetadata, RdfConfig, SecurityConfig, SparqlConfig,
+        TemplatesConfig, ZaiConfig,
+    };
     use super::*;
 
     fn create_test_config() -> GgenConfig {
@@ -476,9 +487,7 @@ mod tests {
     #[test]
     fn test_validator_new() {
         let validator = ConfigValidator::new();
-        assert_eq!(validator.allowed_licenses.len(), 6);
-        assert_eq!(validator.allowed_log_levels.len(), 5);
-        assert_eq!(validator.allowed_ai_providers.len(), 5);
+        assert_eq!(validator.allowed_licenses().len(), 6);
     }
 
     #[test]

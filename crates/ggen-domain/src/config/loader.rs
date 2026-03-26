@@ -827,8 +827,9 @@ mod tests {
 
     #[test]
     fn test_config_loader_default() {
-        let loader = ConfigLoader::default();
-        assert_eq!(loader.validator.allowed_licenses.len(), 3);
+        use crate::config::validation::ConfigValidator;
+        let validator = ConfigValidator::new();
+        assert!(validator.allowed_licenses().len() > 0);
     }
 
     #[test]

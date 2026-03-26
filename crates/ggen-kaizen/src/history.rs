@@ -92,9 +92,7 @@ impl ImprovementRecord {
 
     /// Gets metrics snapshots within a time range.
     pub fn metrics_in_range(
-        &self,
-        start: DateTime<Utc>,
-        end: DateTime<Utc>,
+        &self, start: DateTime<Utc>, end: DateTime<Utc>,
     ) -> Vec<&MetricsSnapshot> {
         self.metrics_snapshots
             .iter()
@@ -182,8 +180,7 @@ impl ImprovementHistory {
             )));
         }
 
-        self.records
-            .insert(id, ImprovementRecord::new(improvement));
+        self.records.insert(id, ImprovementRecord::new(improvement));
         Ok(())
     }
 
@@ -211,11 +208,7 @@ impl ImprovementHistory {
     pub fn active_improvements(&self) -> usize {
         self.records
             .values()
-            .filter(|r| {
-                r.latest_cycle()
-                    .map(|c| !c.is_completed())
-                    .unwrap_or(false)
-            })
+            .filter(|r| r.latest_cycle().map(|c| !c.is_completed()).unwrap_or(false))
             .count()
     }
 
@@ -277,9 +270,7 @@ impl ImprovementHistory {
 
     /// Gets aggregated metrics across all improvements for a time period.
     pub fn aggregate_all(
-        &self,
-        start: DateTime<Utc>,
-        end: DateTime<Utc>,
+        &self, start: DateTime<Utc>, end: DateTime<Utc>,
     ) -> Result<AggregatedMetrics> {
         let all_snapshots: Vec<MetricsSnapshot> = self
             .records
@@ -511,8 +502,12 @@ mod tests {
     fn test_improvement_history_list_ids() {
         // Arrange
         let mut history = ImprovementHistory::new();
-        history.add_improvement(create_test_improvement("IMP-001")).ok();
-        history.add_improvement(create_test_improvement("IMP-002")).ok();
+        history
+            .add_improvement(create_test_improvement("IMP-001"))
+            .ok();
+        history
+            .add_improvement(create_test_improvement("IMP-002"))
+            .ok();
 
         // Act
         let ids = history.list_ids();

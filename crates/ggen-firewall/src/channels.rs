@@ -231,9 +231,7 @@ impl Channel for EmergencyChannel {
 
         // Check if emergency channel is enabled
         if !self.enabled {
-            return Err(FirewallError::ChannelUnavailable(
-                IngressChannel::Emergency,
-            ));
+            return Err(FirewallError::ChannelUnavailable(IngressChannel::Emergency));
         }
 
         // Check admission rules
@@ -305,7 +303,10 @@ mod tests {
 
         let request = IngressRequest::new(IngressChannel::Emergency, vec![1, 2, 3]);
         let response = channel.admit(request).await;
-        assert!(matches!(response, Err(FirewallError::ChannelUnavailable(_))));
+        assert!(matches!(
+            response,
+            Err(FirewallError::ChannelUnavailable(_))
+        ));
     }
 
     #[tokio::test]

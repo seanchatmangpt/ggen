@@ -15,11 +15,7 @@ fn create_test_keys(count: usize) -> Vec<(ReplicaId, SigningKey, VerifyingKey)> 
 }
 
 fn create_vote(
-    vote_type: VoteType,
-    view: u64,
-    sequence: u64,
-    digest: [u8; 32],
-    replica_id: ReplicaId,
+    vote_type: VoteType, view: u64, sequence: u64, digest: [u8; 32], replica_id: ReplicaId,
     signing_key: &SigningKey,
 ) -> Vote {
     let mut content = Vec::new();
@@ -56,7 +52,14 @@ fn test_vote_collection_basic() {
 
     // Act - Add prepare votes
     for i in 0..2 {
-        let vote = create_vote(VoteType::Prepare, view, sequence, digest, i, &keys[i as usize].1);
+        let vote = create_vote(
+            VoteType::Prepare,
+            view,
+            sequence,
+            digest,
+            i,
+            &keys[i as usize].1,
+        );
         collector.add_vote(vote).unwrap();
     }
 
@@ -194,7 +197,14 @@ fn test_digest_mismatch_rejected() {
 
     // Act - Vote with different digest
     let wrong_digest = [2u8; 32];
-    let vote = create_vote(VoteType::Prepare, view, sequence, wrong_digest, 0, &keys[0].1);
+    let vote = create_vote(
+        VoteType::Prepare,
+        view,
+        sequence,
+        wrong_digest,
+        0,
+        &keys[0].1,
+    );
     let result = collector.add_vote(vote);
 
     // Assert
@@ -218,17 +228,38 @@ fn test_commit_quorum_requirement() {
     assert!(!collector.has_commit_quorum());
 
     collector
-        .add_vote(create_vote(VoteType::Commit, view, sequence, digest, 0, &keys[0].1))
+        .add_vote(create_vote(
+            VoteType::Commit,
+            view,
+            sequence,
+            digest,
+            0,
+            &keys[0].1,
+        ))
         .unwrap();
     assert!(!collector.has_commit_quorum()); // 1 vote, need 3
 
     collector
-        .add_vote(create_vote(VoteType::Commit, view, sequence, digest, 1, &keys[1].1))
+        .add_vote(create_vote(
+            VoteType::Commit,
+            view,
+            sequence,
+            digest,
+            1,
+            &keys[1].1,
+        ))
         .unwrap();
     assert!(!collector.has_commit_quorum()); // 2 votes, need 3
 
     collector
-        .add_vote(create_vote(VoteType::Commit, view, sequence, digest, 2, &keys[2].1))
+        .add_vote(create_vote(
+            VoteType::Commit,
+            view,
+            sequence,
+            digest,
+            2,
+            &keys[2].1,
+        ))
         .unwrap();
     assert!(collector.has_commit_quorum()); // 3 votes, quorum reached
 }
@@ -248,13 +279,34 @@ fn test_voter_tracking() {
 
     // Act - Add votes from different replicas
     collector
-        .add_vote(create_vote(VoteType::Prepare, view, sequence, digest, 0, &keys[0].1))
+        .add_vote(create_vote(
+            VoteType::Prepare,
+            view,
+            sequence,
+            digest,
+            0,
+            &keys[0].1,
+        ))
         .unwrap();
     collector
-        .add_vote(create_vote(VoteType::Prepare, view, sequence, digest, 2, &keys[2].1))
+        .add_vote(create_vote(
+            VoteType::Prepare,
+            view,
+            sequence,
+            digest,
+            2,
+            &keys[2].1,
+        ))
         .unwrap();
     collector
-        .add_vote(create_vote(VoteType::Commit, view, sequence, digest, 1, &keys[1].1))
+        .add_vote(create_vote(
+            VoteType::Commit,
+            view,
+            sequence,
+            digest,
+            1,
+            &keys[1].1,
+        ))
         .unwrap();
 
     // Assert
@@ -284,7 +336,14 @@ fn test_large_scale_voting() {
 
     // Act - Add 67 prepare votes (2f+1)
     for i in 0..67 {
-        let vote = create_vote(VoteType::Prepare, view, sequence, digest, i, &keys[i as usize].1);
+        let vote = create_vote(
+            VoteType::Prepare,
+            view,
+            sequence,
+            digest,
+            i,
+            &keys[i as usize].1,
+        );
         collector.add_vote(vote).unwrap();
     }
 
@@ -308,7 +367,14 @@ fn test_view_change_voting() {
 
     // Act - Add view change votes (need 2f+1 = 5)
     for i in 0..5 {
-        let vote = create_vote(VoteType::ViewChange, view, sequence, digest, i, &keys[i as usize].1);
+        let vote = create_vote(
+            VoteType::ViewChange,
+            view,
+            sequence,
+            digest,
+            i,
+            &keys[i as usize].1,
+        );
         collector.add_vote(vote).unwrap();
     }
 

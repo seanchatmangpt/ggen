@@ -80,8 +80,11 @@ impl PerformanceMetrics {
 
         // Keep only recent metrics
         if metrics.len() > self.max_history_size {
-            let oldest_key = metrics.keys().next().unwrap().clone();
-            metrics.remove(&oldest_key);
+            if let Some(oldest_key) = metrics.keys().next().cloned() {
+                metrics.remove(&oldest_key);
+            } else {
+                warn!("Metrics collection empty during cleanup attempt");
+            }
         }
 
         debug!("Recorded metric {}: {} {}", name, value, unit);

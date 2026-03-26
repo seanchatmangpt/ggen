@@ -4,7 +4,7 @@
 //! Refuses inadmissible requests at the boundary.
 
 use crate::capacity::CapacityEstimator;
-use crate::decision_wip::{DecisionWip, WipGuard, WipError};
+use crate::decision_wip::{DecisionWip, WipError, WipGuard};
 use std::time::Duration;
 use thiserror::Error;
 

@@ -59,7 +59,7 @@ impl RustCanonicalizer {
             use std::io::Write;
             stdin
                 .write_all(code.as_bytes())
-                .map_err(|e| CanonicalError::Io(e))?;
+                .map_err(CanonicalError::Io)?;
         }
 
         let output = child

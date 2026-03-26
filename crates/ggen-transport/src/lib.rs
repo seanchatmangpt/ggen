@@ -46,8 +46,12 @@ pub trait Transport: Send + Sync {
 
 #[async_trait]
 pub trait StreamingTransport: Transport {
-    async fn create_stream(&mut self, session_id: SessionId) -> Result<(StreamSender, MessageStream)>;
-    async fn resume_stream(&mut self, cursor: ResumeCursor) -> Result<(StreamSender, MessageStream)>;
+    async fn create_stream(
+        &mut self, session_id: SessionId,
+    ) -> Result<(StreamSender, MessageStream)>;
+    async fn resume_stream(
+        &mut self, cursor: ResumeCursor,
+    ) -> Result<(StreamSender, MessageStream)>;
     async fn close_stream(&mut self, session_id: &SessionId) -> Result<()>;
 }
 

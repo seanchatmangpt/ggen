@@ -1,0 +1,103 @@
+% System Architecture Overview TikZ Diagram
+\begin{tikzpicture}[
+    node distance=1.5cm,
+    auto,
+    component/.style={
+        rectangle,
+        draw,
+        fill=blue!15,
+        text width=5em,
+        text centered,
+        rounded corners,
+        minimum height=2.5em,
+        thick
+    },
+    mcp/.style={
+        rectangle,
+        draw,
+        fill=orange!15,
+        text width=5em,
+        text centered,
+        rounded corners,
+        minimum height=2.5em,
+        thick
+    },
+    storage/.style={
+        cylinder,
+        draw,
+        shape border rotate=90,
+        aspect=0.25,
+        fill=gray!20,
+        minimum height=2.5em,
+        minimum width=2em,
+        thick
+    },
+    arrow/.style={
+        ->,
+        thick,
+        >=stealth
+    },
+    label/.style={
+        font=\footnotesize\itshape
+    }
+]
+
+% Top layer: ggen CLI
+\node [component, fill=purple!20, text width=8em] (cli) at (4,6) {\textbf{ggen CLI}\\(Cargo commands)};
+
+% Middle layer: Core Pipeline
+\node [component] (spec) at (0,4) {RDF\\Specs};
+\node [component] (pipeline) at (4,4) {$\mu_1-\mu_5$\\Pipeline};
+\node [component] (templates) at (8,4) {Tera\\Templates};
+
+% Bottom layer: Runtime
+\node [component] (agent) at (0,2) {A2A\\Agent};
+\node [mcp] (mcp) at (4,2) {MCP\\Servers};
+\node [component] (tools) at (8,2) {Tool\\Registry};
+
+% Storage
+\node [storage] (rdf) at (0,0) {RDF\\Store};
+\node [storage] (code) at (4,0) {Generated\\Code};
+\node [storage] (state) at (8,0) {Agent\\State};
+
+% Arrows - CLI to pipeline
+\draw [arrow] (cli) -- node[left, label, font=\tiny] {sync} (pipeline);
+\draw [arrow] (pipeline) -- (spec);
+\draw [arrow] (pipeline) -- (templates);
+
+% Arrows - Pipeline to storage
+\draw [arrow] (spec) -- (rdf);
+\draw [arrow] (pipeline) -- (code);
+
+% Arrows - Runtime
+\draw [arrow] (agent) -- (mcp);
+\draw [arrow] (mcp) -- (tools);
+\draw [arrow] (agent) -- (state);
+
+% Arrows - Cross-layer
+\draw [arrow, dashed] (code) to[out=90,in=270] (agent);
+\draw [arrow, dashed] (mcp) to[out=90,in=270] (pipeline);
+
+% Annotations
+\node [right of=cli, node distance=3cm, text width=6em, align=left, font=\tiny] {
+    \textbf{User Interface}\\
+    - cargo-ggen\\
+    - ggen sync\\
+    - ggen validate
+};
+
+\node [right of=pipeline, node distance=3cm, text width=6em, align=left, font=\tiny] {
+    \textbf{Code Gen Engine}\\
+    - 5 stages\\
+    - Deterministic\\
+    - 100% reproducible
+};
+
+\node [right of=agent, node distance=3cm, text width=6em, align=left, font=\tiny] {
+    \textbf{Autonomic Runtime}\\
+    - Self-healing\\
+    - Consensus\\
+    - Fault tolerance
+};
+
+\end{tikzpicture}

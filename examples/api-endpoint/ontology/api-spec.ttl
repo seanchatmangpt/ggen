@@ -1,12 +1,13 @@
 # API Endpoint Example - RDF Specification
-# Purpose: Define a REST API for User management using RDF
-# Version: 1.0
-# Updated: 2026-01-07
+# Purpose: Define a REST API for User management with MCP tool registration
+# Version: 2.0 (Enhanced with MCP and Agent Control)
+# Updated: 2026-03-24
 
 @prefix ex: <http://ggen.example.org/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix mcp: <http://mcp.ai/ontology#> .
 
 # ==============================================================================
 # USER MODEL
@@ -97,4 +98,102 @@ ex:UserApiService a ex:Service ;
     ex:serviceLanguage "rust" ;
     ex:serviceFramework "axum" ;
     ex:servicePort 3000 ;
-    rdfs:comment "REST API service for user management" .
+    rdfs:comment "REST API service for user management with MCP tool registration" ;
+    ex:hasEndpoint ex:ListUsersEndpoint, ex:CreateUserEndpoint, ex:GetUserEndpoint, ex:DeleteUserEndpoint ;
+    ex:hasAgentControl ex:ToolRegistry, ex:ToolDiscovery .
+
+# ==============================================================================
+# MCP TOOL DEFINITIONS (for agent integration)
+# ==============================================================================
+
+# Tool Registry for agent discovery and registration
+ex:ToolRegistry a mcp:ToolRegistry ;
+    rdfs:label "User API Tool Registry" ;
+    rdfs:comment "Registry for exposing REST endpoints as MCP tools" ;
+    ex:endpoint "/tools" ;
+    ex:method "GET" ;
+    mcp:hasTool ex:ListUsersTool, ex:CreateUserTool, ex:GetUserTool, ex:DeleteUserTool .
+
+# Tool Discovery Endpoint
+ex:ToolDiscovery a ex:Endpoint ;
+    rdfs:label "Tool Discovery" ;
+    ex:endpointPath "/tools" ;
+    ex:endpointMethod "GET" ;
+    ex:endpointDescription "Discover available MCP tools that wrap REST endpoints" ;
+    ex:endpointResponseType "application/json" .
+
+# MCP Tool: List Users
+ex:ListUsersTool a mcp:Tool ;
+    rdfs:label "List Users" ;
+    mcp:toolName "list_users" ;
+    mcp:toolDescription "Retrieve all users from the system" ;
+    mcp:toolInputSchema [
+        a owl:Class ;
+        rdfs:comment "No parameters required"
+    ] ;
+    mcp:mappedEndpoint ex:ListUsersEndpoint .
+
+# MCP Tool: Create User
+ex:CreateUserTool a mcp:Tool ;
+    rdfs:label "Create User" ;
+    mcp:toolName "create_user" ;
+    mcp:toolDescription "Create a new user in the system" ;
+    mcp:toolInputSchema [
+        a owl:Class ;
+        rdfs:comment "Requires name and email parameters"
+    ] ;
+    mcp:mappedEndpoint ex:CreateUserEndpoint ;
+    mcp:requiredParameter "name", "email" .
+
+# MCP Tool: Get User
+ex:GetUserTool a mcp:Tool ;
+    rdfs:label "Get User" ;
+    mcp:toolName "get_user" ;
+    mcp:toolDescription "Retrieve a specific user by ID" ;
+    mcp:toolInputSchema [
+        a owl:Class ;
+        rdfs:comment "Requires user ID parameter"
+    ] ;
+    mcp:mappedEndpoint ex:GetUserEndpoint ;
+    mcp:requiredParameter "id" .
+
+# MCP Tool: Delete User
+ex:DeleteUserTool a mcp:Tool ;
+    rdfs:label "Delete User" ;
+    mcp:toolName "delete_user" ;
+    mcp:toolDescription "Delete a user from the system" ;
+    mcp:toolInputSchema [
+        a owl:Class ;
+        rdfs:comment "Requires user ID parameter"
+    ] ;
+    mcp:mappedEndpoint ex:DeleteUserEndpoint ;
+    mcp:requiredParameter "id" .
+
+# ==============================================================================
+# AGENT CONTROL ENDPOINTS
+# ==============================================================================
+
+# Agent Health Check
+ex:HealthCheckEndpoint a ex:Endpoint ;
+    rdfs:label "Health Check" ;
+    ex:endpointPath "/health" ;
+    ex:endpointMethod "GET" ;
+    ex:endpointDescription "Health check for agent orchestration" ;
+    ex:endpointResponseType "application/json" .
+
+# Agent Status
+ex:AgentStatusEndpoint a ex:Endpoint ;
+    rdfs:label "Agent Status" ;
+    ex:endpointPath "/status" ;
+    ex:endpointMethod "GET" ;
+    ex:endpointDescription "Get current system status and metrics" ;
+    ex:endpointResponseType "application/json" .
+
+# Tool Registration Request (for agents to register custom tools)
+ex:RegisterToolEndpoint a ex:Endpoint ;
+    rdfs:label "Register Tool" ;
+    ex:endpointPath "/tools/register" ;
+    ex:endpointMethod "POST" ;
+    ex:endpointDescription "Register a new MCP tool dynamically" ;
+    ex:endpointRequestType "application/json" ;
+    ex:endpointResponseType "application/json" .

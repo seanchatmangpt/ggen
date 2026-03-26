@@ -1,0 +1,115 @@
+\chapter{Implementation Artifacts}
+
+This appendix describes configuration files and schemas.
+
+\section{ggen.toml Schema}
+
+\begin{minted}[fontsize=\small]{toml}
+# ggen configuration file
+[general]
+spec_dir = ".specify/specs"
+output_dir = "generated"
+audit_log = "audit.log"
+
+[pipeline]
+stages = ["normalize", "extract", "emit", "canonicalize", "receipt"]
+
+[normalization]
+format = "turtle"
+validation = "shacl"
+entropy_threshold = 20
+
+[extraction]
+query_dir = ".specify/queries"
+patterns = ["entity", "relationship", "constraint"]
+
+[emission]
+template_dir = ".specify/templates"
+output_encoding = "utf-8"
+
+[canonicalization]
+rust_cmd = "rustfmt"
+typescript_cmd = "prettier"
+python_cmd = "black"
+
+[receipt]
+key_file = ".ggen/private-key.pem"
+hash_algorithm = "blake3"
+signature_algorithm = "ed25519"
+
+[testing]
+coverage_target = 80
+mutation_target = 60
+determinism_iterations = 10000
+\end{minted}
+
+\section{Receipt Format}
+
+\begin{minted}[fontsize=\small]{json}
+{
+  "version": "1.0",
+  "artifact_hash": "blake3:abc123...",
+  "spec_hash": "blake3:def456...",
+  "signature": "ed25519:signature_bytes...",
+  "timestamp": "2026-03-24T10:30:00Z",
+  "metadata": {
+    "generator": "ggen",
+    "version": "6.0.0",
+    "stages": [
+      {"name": "normalize", "duration_ms": 45},
+      {"name": "extract", "duration_ms": 120},
+      {"name": "emit", "duration_ms": 230},
+      {"name": "canonicalize", "duration_ms": 85},
+      {"name": "receipt", "duration_ms": 12}
+    ],
+    "artifacts": [
+      {"path": "generated/openapi.yaml", "size": 4096},
+      {"path": "generated/schemas/user.schema.ts", "size": 512}
+    ]
+  }
+}
+\end{minted}
+
+\section{Template Syntax}
+
+Tera template syntax:
+
+\begin{minted}[fontsize=\small]{jinja2}
+# Comments: {# comment #}
+
+# Variables
+{{ entity.name }}
+{{ field.type }}
+
+# Loops
+{% for field in entity.fields %}
+pub {{ field.name }}: {{ field.rust_type }},
+{% endfor %}
+
+# Conditionals
+{% if field.optional %}
+Option<{{ field.rust_type }}>,
+{% else %}
+{{ field.rust_type }},
+{% endif %}
+
+# Filters
+{{ entity.name | lower }}
+{{ field.type | snake_case }}
+
+# Macros
+{% macro rust_type(field) -%}
+  {%- match field.type -%}
+    {%- when "string" -%}
+      String
+    {%- when "integer" -%}
+      i64
+    {%- when "boolean" -%}
+      bool
+    {%- else -%}
+      String
+  {%- endmatch -%}
+{%- endmacro %}
+
+{{ self::rust_type(field) }}
+\end{minted}

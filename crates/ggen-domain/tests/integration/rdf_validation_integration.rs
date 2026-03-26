@@ -3,6 +3,7 @@
 //! Testing validation against actual RDF/Turtle content.
 
 use chicago_tdd_tools::prelude::*;
+use chicago_tdd_tools::test;
 use ggen_domain::rdf::validation::*;
 use std::fs;
 

@@ -204,7 +204,7 @@ impl ToolRegistry {
         if let Some(required_fields) = schema["required"].as_array() {
             for required_field in required_fields {
                 if let Some(field_name) = required_field.as_str() {
-                    if !input.get(field_name).is_some() {
+                    if input.get(field_name).is_none() {
                         return Err(GgenAiError::ValidationError {
                             message: format!(
                                 "Tool '{}' requires input field '{}'",
@@ -239,7 +239,7 @@ impl ToolRegistry {
 
     /// Export all tools as JSON with full metadata
     pub fn export_json(&self) -> Result<String> {
-        serde_json::to_string_pretty(&self.tools).map_err(|e| GgenAiError::Json(e))
+        serde_json::to_string_pretty(&self.tools).map_err(GgenAiError::Json)
     }
 
     /// Get count of registered tools

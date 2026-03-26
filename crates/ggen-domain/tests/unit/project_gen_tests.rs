@@ -3,6 +3,7 @@
 //! Tests the execute_gen function and utilities
 
 use chicago_tdd_tools::prelude::*;
+use chicago_tdd_tools::test;
 use ggen_domain::project::gen::{execute_gen, GenInput};
 use std::path::PathBuf;
 use tempfile::tempdir;

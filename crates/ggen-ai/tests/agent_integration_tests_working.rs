@@ -11,7 +11,7 @@ use ggen_ai::dspy::{
 };
 use ggen_ai::providers::MockClient;
 use ggen_ai::LlmClient;
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::collections::HashMap;
 
 // ========================================================================
@@ -110,7 +110,7 @@ fn test_signature_creation_and_validation() {
 #[test]
 fn test_field_constraints() {
     // Arrange: Create field with constraints
-    let field = InputField::new("age", "Person's age", "Integer").with_constraints(
+    let field = InputField::new("age", "Person's age", "Integer").with_constraints_builder(
         FieldConstraints::new()
             .with_min(0.0)
             .with_max(150.0)
@@ -118,7 +118,7 @@ fn test_field_constraints() {
     );
 
     // Act: Verify constraints
-    let constraints = &field.metadata.constraints;
+    let constraints = &field.constraints;
 
     // Assert: Constraints are set correctly
     assert!(constraints.required);
@@ -228,10 +228,10 @@ async fn test_module_trait_signature_access() {
 fn test_field_metadata() {
     // Arrange: Create field with rich metadata
     let field = InputField::new("email", "User's email address for notifications", "String")
-        .with_constraints(
+        .with_constraints_builder(
             FieldConstraints::new()
                 .required(true)
-                .with_pattern(r"^[\w\.-]+@[\w\.-]+\.\w+$".to_string()),
+                .pattern(r"^[\w\.-]+@[\w\.-]+\.\w+$"),
         );
 
     // Act: Extract metadata
@@ -239,13 +239,10 @@ fn test_field_metadata() {
 
     // Assert: Metadata is complete
     assert_eq!(metadata.name, "email");
-    assert_eq!(
-        metadata.description,
-        "User's email address for notifications"
-    );
-    assert_eq!(metadata.field_type, "String");
-    assert!(metadata.constraints.required);
-    assert!(metadata.constraints.pattern.is_some());
+    assert_eq!(metadata.desc, "User's email address for notifications");
+    assert_eq!(metadata.type_annotation, "String");
+    assert!(field.constraints.required);
+    assert!(field.constraints.pattern.is_some());
 }
 
 // ========================================================================
@@ -264,7 +261,7 @@ async fn test_module_input_validation() {
     let predictor = Predictor::with_model(signature, "test-model");
 
     // Act: Attempt forward with missing input
-    let empty_inputs = HashMap::new();
+    let _empty_inputs: HashMap<String, Value> = HashMap::new();
 
     // Note: validate_inputs is called internally by forward()
     // This would fail with proper validation enabled

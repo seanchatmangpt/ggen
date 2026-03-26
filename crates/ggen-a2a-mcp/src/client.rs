@@ -8,16 +8,10 @@
 //! - Async streaming support
 //! - Zero unwrap/expect - proper Result<T,E> handling
 
-use crate::adapter::{AgentToToolAdapter, ToolCall, ToolResponse};
+use crate::adapter::{AgentToToolAdapter, ToolCall};
 use crate::error::{A2aMcpError, A2aMcpResult};
 use crate::message::{A2aMessageConverter, LlmRequest, LlmResponse};
-use a2a_generated::converged::{
-    message::{
-        ConvergedMessage, ConvergedMessageType, MessageEnvelope, MessageLifecycle, MessagePriority,
-        MessageRouting, MessageState, QoSRequirements, ReliabilityLevel, UnifiedContent,
-    },
-    UnifiedAgent,
-};
+use a2a_generated::converged::{message::ConvergedMessage, UnifiedAgent};
 use futures::StreamExt;
 use ggen_ai::client::{GenAiClient, LlmClient as _, LlmConfig};
 use ggen_ai::dspy::model_capabilities::Model;
@@ -26,7 +20,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::{Mutex, RwLock, Semaphore};
 use tokio::time::{interval, Instant};
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info, warn};
 
 /// Connection state for the A2A client
 #[derive(Debug, Clone, PartialEq)]
@@ -488,7 +482,7 @@ impl A2aLlmClient {
             .await
             .map_err(|e| A2aMcpError::Llm(format!("Stream request failed: {}", e)))?;
 
-        let model = self.model.name.clone();
+        let _model = self.model.name.clone();
 
         Ok(stream.map(move |chunk| StreamingChunk {
             content: chunk.content,
@@ -807,8 +801,9 @@ mod tests {
         let model = Model::from_name("gpt-4");
         let client = A2aLlmClient::new(model).await.unwrap();
 
+        use a2a_generated::converged::agent::{AgentConfiguration, CommunicationQoS, StrategyType};
         use a2a_generated::converged::{
-            AgentCapabilities, AgentCommunication, AgentIdentity, AgentLifecycle,
+            AgentCapabilities, AgentCommunication, AgentIdentity, AgentLifecycle, ExecutionStrategy,
         };
 
         let agent = UnifiedAgent {
@@ -841,7 +836,7 @@ mod tests {
                     errors: None,
                 },
                 metrics: None,
-                configuration: a2a_generated::converged::AgentConfiguration {
+                configuration: AgentConfiguration {
                     parameters: std::collections::HashMap::new(),
                     version: "1.0.0".to_string(),
                     timestamp: chrono::Utc::now(),
@@ -856,23 +851,57 @@ mod tests {
                 protocols: vec![],
                 handlers: None,
                 security: None,
-                qos: a2a_generated::converged::CommunicationQoS {
-                    reliability: a2a_generated::converged::Reliability::AtLeastOnce,
+                qos: CommunicationQoS {
+                    reliability: a2a_generated::converged::ReliabilityLevel::AtLeastOnce,
                     latency: None,
                     throughput: None,
+                    ordering: None,
+                    flow_control: None,
                 },
             },
             execution: a2a_generated::converged::AgentExecution {
                 mode: a2a_generated::converged::ExecutionMode::Synchronous,
-                strategy: a2a_generated::converged::ExecutionStrategy::Direct,
-                timeout: None,
-                constraints: None,
+                parameters: std::collections::HashMap::new(),
+                context: None,
+                strategy: Some(ExecutionStrategy {
+                    strategy_type: StrategyType::Sequential,
+                    configuration: std::collections::HashMap::new(),
+                    parameters: None,
+                    metadata: None,
+                }),
+                monitoring: None,
+                policies: None,
             },
             security: a2a_generated::converged::AgentSecurity {
-                authentication: None,
-                authorization: None,
-                encryption: None,
-                audit: None,
+                authentication: a2a_generated::converged::AuthenticationConfig {
+                    methods: vec![],
+                    providers: None,
+                    metadata: None,
+                },
+                authorization: a2a_generated::converged::AuthorizationConfig {
+                    model: a2a_generated::converged::AuthorizationModel::Rbac,
+                    roles: None,
+                    policies: vec![],
+                    metadata: None,
+                },
+                encryption: a2a_generated::converged::EncryptionConfig {
+                    algorithms: vec![a2a_generated::converged::EncryptionAlgorithm::Aes],
+                    modes: vec![],
+                    keys: vec![],
+                    metadata: None,
+                },
+                compliance: None,
+                audit: a2a_generated::converged::AuditConfig {
+                    events: vec![a2a_generated::converged::AuditEvent::Authentication],
+                    destinations: Vec::new(),
+                    retention: a2a_generated::converged::agent::AuditRetention {
+                        period: std::time::Duration::from_secs(365 * 24 * 60 * 60),
+                        policy: a2a_generated::converged::RetentionPolicy::TimeBased,
+                        metadata: None,
+                    },
+                    metadata: None,
+                },
+                policies: None,
             },
             extensions: None,
         };

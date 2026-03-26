@@ -113,7 +113,7 @@ pub async fn revoke_api_key(
 pub async fn validate_token(
     State(_state): State<AppState>, Json(payload): Json<serde_json::Value>,
 ) -> ApiResult<Json<serde_json::Value>> {
-    let token = payload
+    let _token = payload
         .get("token")
         .and_then(|v| v.as_str())
         .ok_or_else(|| ApiError::BadRequest("Token required".to_string()))?;

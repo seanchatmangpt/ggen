@@ -766,7 +766,16 @@ mod tests {
         let mut context = OrchestrationContext::new("test-workflow", 5);
 
         context.mark_task_started("task-1");
-        context.mark_task_completed("task-1", TaskResult::default());
+        context.mark_task_completed(
+            "task-1",
+            TaskResult {
+                success: true,
+                output: None,
+                error: None,
+                execution_time_ms: 0,
+                resources_used: ResourceUsage::default(),
+            },
+        );
 
         assert_eq!(context.active_tasks.len(), 0);
         assert_eq!(context.completed_tasks.len(), 1);
@@ -824,8 +833,8 @@ mod tests {
         assert!(result.unwrap().success);
     }
 
-    #[test]
-    fn test_orchestration_strategies() {
+    #[tokio::test]
+    async fn test_orchestration_strategies() {
         let workflow = Workflow {
             id: "test-workflow".to_string(),
             name: "Test Workflow".to_string(),
@@ -850,28 +859,21 @@ mod tests {
             status: WorkflowStatus::Created,
         };
 
-        let framework = Arc::new(Mutex::new(ExecutionFramework::new(
-            ExecutionConfig::default(),
-        )));
+        let framework = ExecutionFramework::new(ExecutionConfig::default());
 
         // Test sequential strategy
         let sequential_executor =
             OrchestrationStrategyExecutor::new(OrchestrationStrategy::Sequential);
         assert!(sequential_executor
-            .execute_workflow(
-                &workflow,
-                &TaskOrchestrator::new((*framework).try_into().unwrap())
-            )
+            .execute_workflow(&workflow, &TaskOrchestrator::new(framework))
             .await
             .is_ok());
 
-        // Test parallel strategy
+        // Test parallel strategy (create a new framework for this test)
+        let framework2 = ExecutionFramework::new(ExecutionConfig::default());
         let parallel_executor = OrchestrationStrategyExecutor::new(OrchestrationStrategy::Parallel);
         assert!(parallel_executor
-            .execute_workflow(
-                &workflow,
-                &TaskOrchestrator::new((*framework).try_into().unwrap())
-            )
+            .execute_workflow(&workflow, &TaskOrchestrator::new(framework2))
             .await
             .is_ok());
     }

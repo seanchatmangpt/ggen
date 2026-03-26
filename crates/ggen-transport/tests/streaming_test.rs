@@ -28,10 +28,7 @@ async fn test_streaming_sequence_numbering() {
     let (mut sender, mut stream) = builder.build();
 
     for i in 0..10 {
-        sender
-            .send(Bytes::from(format!("msg{}", i)))
-            .await
-            .unwrap();
+        sender.send(Bytes::from(format!("msg{}", i))).await.unwrap();
     }
 
     for i in 0..10 {
@@ -92,10 +89,7 @@ async fn test_streaming_buffer_size() {
     let (mut sender, _stream) = builder.build();
 
     for i in 0..5 {
-        sender
-            .send(Bytes::from(format!("msg{}", i)))
-            .await
-            .unwrap();
+        sender.send(Bytes::from(format!("msg{}", i))).await.unwrap();
     }
 }
 
@@ -122,10 +116,14 @@ async fn test_streaming_control_pause_resume() {
     let session_id = SessionId::new();
 
     let pause_control = StreamControl::pause(session_id.clone());
-    assert!(matches!(pause_control.action, ggen_transport::streaming::StreamAction::Pause));
+    assert!(matches!(
+        pause_control.action,
+        ggen_transport::streaming::StreamAction::Pause
+    ));
 
     let resume_control = StreamControl::resume(session_id.clone(), Some(42));
-    if let ggen_transport::streaming::StreamAction::Resume { from_position } = resume_control.action {
+    if let ggen_transport::streaming::StreamAction::Resume { from_position } = resume_control.action
+    {
         assert_eq!(from_position, Some(42));
     } else {
         panic!("Expected Resume action");
@@ -136,7 +134,10 @@ async fn test_streaming_control_pause_resume() {
 async fn test_streaming_control_cancel() {
     let session_id = SessionId::new();
     let cancel_control = StreamControl::cancel(session_id);
-    assert!(matches!(cancel_control.action, ggen_transport::streaming::StreamAction::Cancel));
+    assert!(matches!(
+        cancel_control.action,
+        ggen_transport::streaming::StreamAction::Cancel
+    ));
 }
 
 #[tokio::test]
@@ -173,10 +174,7 @@ async fn test_streaming_multiple_messages_concurrent() {
 
     tokio::spawn(async move {
         for i in 0..100 {
-            sender
-                .send(Bytes::from(format!("msg{}", i)))
-                .await
-                .unwrap();
+            sender.send(Bytes::from(format!("msg{}", i))).await.unwrap();
         }
     });
 

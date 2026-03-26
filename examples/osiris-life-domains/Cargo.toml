@@ -1,0 +1,49 @@
+[package]
+name = "osiris-life-domains"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+tokio = { version = "1.35", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.6", features = ["v4", "serde"] }
+anyhow = "1.0"
+thiserror = "1.0"
+async-trait = "0.1"
+rand = "0.8"
+
+# OSIRIS framework
+osiris-core = { path = "../../crates/osiris-core" }
+osiris-domains = { path = "../../crates/osiris-domains" }
+
+[dev-dependencies]
+tempfile = "3.8"
+
+[[test]]
+name = "domain_tests"
+path = "tests/domain_tests.rs"
+
+[[test]]
+name = "agent_tests"
+path = "tests/agent_tests.rs"
+
+[[test]]
+name = "reasoning_tests"
+path = "tests/reasoning_tests.rs"
+
+[[test]]
+name = "consensus_tests"
+path = "tests/consensus_tests.rs"
+
+[[test]]
+name = "improvement_tests"
+path = "tests/improvement_tests.rs"
+
+[[test]]
+name = "e2e_tests"
+path = "tests/e2e_tests.rs"

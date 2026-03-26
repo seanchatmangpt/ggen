@@ -228,10 +228,12 @@ impl crate::OSIRISEngine {
 
         let circuit_breaker_stats: HashMap<String, Value> = circuit_breakers
             .iter()
-            .map(|(id, breaker)| {
+            .filter_map(|(id, breaker)| {
                 tokio::task::block_in_place(|| {
                     let stats = breaker.stats();
-                    (id.clone(), serde_json::to_value(stats).unwrap())
+                    serde_json::to_value(stats)
+                        .ok()
+                        .map(|v| (id.clone(), v))
                 })
             })
             .collect();

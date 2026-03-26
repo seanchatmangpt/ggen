@@ -1,0 +1,182 @@
+@prefix : <http://schema.example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# Schema Management Ontology
+# ============================================================================
+
+# Version Management
+:SchemaVersion a rdfs:Class ;
+    rdfs:label "Schema Version" ;
+    rdfs:comment "Represents a schema version with migration metadata" ;
+    rdfs:subClassOf schema:Thing .
+
+:version_number a rdf:Property ;
+    rdfs:label "Version Number" ;
+    rdfs:domain :SchemaVersion ;
+    rdfs:range xsd:integer .
+
+:version_created_at a rdf:Property ;
+    rdfs:label "Created At" ;
+    rdfs:domain :SchemaVersion ;
+    rdfs:range xsd:dateTime .
+
+:migration_script a rdf:Property ;
+    rdfs:label "Migration Script" ;
+    rdfs:domain :SchemaVersion ;
+    rdfs:range xsd:string .
+
+# Table Definition
+:Table a rdfs:Class ;
+    rdfs:label "Database Table" ;
+    rdfs:comment "Represents a database table with columns and constraints" ;
+    rdfs:subClassOf schema:Thing .
+
+:table_name a rdf:Property ;
+    rdfs:label "Table Name" ;
+    rdfs:domain :Table ;
+    rdfs:range xsd:string .
+
+:table_version a rdf:Property ;
+    rdfs:label "Table Version" ;
+    rdfs:domain :Table ;
+    rdfs:range xsd:integer .
+
+:has_columns a rdf:Property ;
+    rdfs:label "Has Columns" ;
+    rdfs:domain :Table ;
+    rdfs:range :Column .
+
+# Column Definition
+:Column a rdfs:Class ;
+    rdfs:label "Database Column" ;
+    rdfs:comment "Represents a column within a table" ;
+    rdfs:subClassOf schema:Thing .
+
+:column_name a rdf:Property ;
+    rdfs:label "Column Name" ;
+    rdfs:domain :Column ;
+    rdfs:range xsd:string .
+
+:column_type a rdf:Property ;
+    rdfs:label "Column Type" ;
+    rdfs:domain :Column ;
+    rdfs:range xsd:string .
+
+:is_primary_key a rdf:Property ;
+    rdfs:label "Is Primary Key" ;
+    rdfs:domain :Column ;
+    rdfs:range xsd:boolean .
+
+:is_nullable a rdf:Property ;
+    rdfs:label "Is Nullable" ;
+    rdfs:domain :Column ;
+    rdfs:range xsd:boolean .
+
+:has_default a rdf:Property ;
+    rdfs:label "Has Default" ;
+    rdfs:domain :Column ;
+    rdfs:range xsd:string .
+
+:has_index a rdf:Property ;
+    rdfs:label "Has Index" ;
+    rdfs:domain :Column ;
+    rdfs:range xsd:boolean .
+
+# Constraint Definition
+:Constraint a rdfs:Class ;
+    rdfs:label "Database Constraint" ;
+    rdfs:comment "Represents a constraint on a table or columns" ;
+    rdfs:subClassOf schema:Thing .
+
+:constraint_type a rdf:Property ;
+    rdfs:label "Constraint Type" ;
+    rdfs:domain :Constraint ;
+    rdfs:range xsd:string .
+
+:constraint_name a rdf:Property ;
+    rdfs:label "Constraint Name" ;
+    rdfs:domain :Constraint ;
+    rdfs:range xsd:string .
+
+:affected_columns a rdf:Property ;
+    rdfs:label "Affected Columns" ;
+    rdfs:domain :Constraint ;
+    rdfs:range xsd:string .
+
+# Migration Definition
+:Migration a rdfs:Class ;
+    rdfs:label "Schema Migration" ;
+    rdfs:comment "Represents a schema migration from one version to another" ;
+    rdfs:subClassOf schema:Thing .
+
+:from_version a rdf:Property ;
+    rdfs:label "From Version" ;
+    rdfs:domain :Migration ;
+    rdfs:range xsd:integer .
+
+:to_version a rdf:Property ;
+    rdfs:label "To Version" ;
+    rdfs:domain :Migration ;
+    rdfs:range xsd:integer .
+
+:migration_status a rdf:Property ;
+    rdfs:label "Migration Status" ;
+    rdfs:domain :Migration ;
+    rdfs:range xsd:string .
+
+:executed_at a rdf:Property ;
+    rdfs:label "Executed At" ;
+    rdfs:domain :Migration ;
+    rdfs:range xsd:dateTime .
+
+# Audit Trail
+:AuditEntry a rdfs:Class ;
+    rdfs:label "Audit Entry" ;
+    rdfs:comment "Audit trail for schema changes" ;
+    rdfs:subClassOf schema:Thing .
+
+:audit_action a rdf:Property ;
+    rdfs:label "Audit Action" ;
+    rdfs:domain :AuditEntry ;
+    rdfs:range xsd:string .
+
+:audit_timestamp a rdf:Property ;
+    rdfs:label "Audit Timestamp" ;
+    rdfs:domain :AuditEntry ;
+    rdfs:range xsd:dateTime .
+
+:audit_details a rdf:Property ;
+    rdfs:label "Audit Details" ;
+    rdfs:domain :AuditEntry ;
+    rdfs:range xsd:string .
+
+# Example Instances
+:UsersTable a :Table ;
+    :table_name "users" ;
+    :table_version 1 ;
+    :has_columns :UsersTable_id, :UsersTable_email, :UsersTable_created_at .
+
+:UsersTable_id a :Column ;
+    :column_name "id" ;
+    :column_type "UUID" ;
+    :is_primary_key true ;
+    :is_nullable false ;
+    :has_index true .
+
+:UsersTable_email a :Column ;
+    :column_name "email" ;
+    :column_type "VARCHAR(255)" ;
+    :is_primary_key false ;
+    :is_nullable false ;
+    :has_index true .
+
+:UsersTable_created_at a :Column ;
+    :column_name "created_at" ;
+    :column_type "TIMESTAMP" ;
+    :is_primary_key false ;
+    :is_nullable false ;
+    :has_default "CURRENT_TIMESTAMP" .

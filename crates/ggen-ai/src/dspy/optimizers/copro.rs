@@ -459,7 +459,7 @@ mod tests {
     use super::*;
     use crate::dspy::field::{InputField, OutputField};
     use crate::dspy::optimizers::ExactMatchMetric;
-    use crate::Signature;
+    use crate::dspy::Signature;
 
     fn create_test_signature() -> Signature {
         Signature::new("QA", "Answer questions accurately")
@@ -468,6 +468,7 @@ mod tests {
             .with_instructions("Answer the question concisely.")
     }
 
+    #[allow(dead_code)]
     fn create_test_examples(n: usize) -> Vec<Example> {
         (0..n)
             .map(|i| {
@@ -583,7 +584,9 @@ mod tests {
 
         let result = optimizer.compile(&predictor, &[]).await;
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("empty"));
+        if let Err(e) = result {
+            assert!(e.to_string().contains("empty"));
+        }
     }
 
     // Note: Full integration tests would require LLM mocking

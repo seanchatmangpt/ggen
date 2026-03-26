@@ -18,6 +18,9 @@ pub enum ApiError {
 
     #[error("Email already exists")]
     DuplicateEmail,
+
+    #[error("Internal server error: {0}")]
+    Internal(String),
 }
 
 impl IntoResponse for ApiError {
@@ -36,6 +39,10 @@ impl IntoResponse for ApiError {
             ApiError::DuplicateEmail => (
                 StatusCode::CONFLICT,
                 "Email already exists".to_string(),
+            ),
+            ApiError::Internal(msg) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                msg,
             ),
         };
 

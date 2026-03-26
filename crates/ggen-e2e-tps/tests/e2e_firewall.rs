@@ -66,10 +66,8 @@ async fn test_batch_channel_rate_limiting() {
     let mut refused = 0;
 
     for i in 0..10 {
-        let request = IngressRequest::new(
-            IngressChannel::Batch,
-            format!("batch-{}", i).into_bytes(),
-        );
+        let request =
+            IngressRequest::new(IngressChannel::Batch, format!("batch-{}", i).into_bytes());
         let response = firewall.process(request).await;
 
         match response {

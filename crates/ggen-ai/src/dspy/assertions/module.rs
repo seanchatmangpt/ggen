@@ -214,6 +214,10 @@ mod tests {
             outputs.insert("output".to_string(), Value::String(self.output.clone()));
             Ok(outputs)
         }
+
+        fn as_any(&self) -> &dyn std::any::Any {
+            self
+        }
     }
 
     #[tokio::test]

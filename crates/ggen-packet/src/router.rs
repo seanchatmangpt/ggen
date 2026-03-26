@@ -75,6 +75,7 @@ impl PriorityRouter {
     }
 
     /// Add a priority-to-channel mapping
+    #[must_use]
     pub fn with_mapping(mut self, priority: Priority, channel: ChannelId) -> Self {
         self.channel_map.insert(priority, channel);
         self
@@ -108,6 +109,7 @@ impl StatusRouter {
     }
 
     /// Add a status-to-channel mapping
+    #[must_use]
     pub fn with_mapping(mut self, status: WorkOrderStatus, channel: ChannelId) -> Self {
         self.channel_map.insert(status, channel);
         self
@@ -141,6 +143,7 @@ impl TagRouter {
     }
 
     /// Add a tag-to-channel mapping
+    #[must_use]
     pub fn with_mapping(mut self, tag: String, channel: ChannelId) -> Self {
         self.tag_map.insert(tag, channel);
         self
@@ -177,6 +180,7 @@ impl CompositeRouter {
     }
 
     /// Add a routing strategy to the chain
+    #[must_use]
     pub fn add_strategy(mut self, strategy: Box<dyn RoutingStrategy>) -> Self {
         self.strategies.push(strategy);
         self

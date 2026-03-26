@@ -36,18 +36,18 @@ impl PromptValidator {
     fn validate_metadata(&self, ir: &PromptIR) -> Result<()> {
         // Validate ID is non-empty
         if ir.metadata.id.is_empty() {
-            return Err(PromptError::Validation("Prompt ID cannot be empty".to_string()));
+            return Err(PromptError::Validation(
+                "Prompt ID cannot be empty".to_string(),
+            ));
         }
 
         // Validate version format
-        semver::Version::parse(&ir.metadata.version).map_err(|e| {
-            PromptError::Validation(format!("Invalid version format: {e}"))
-        })?;
+        semver::Version::parse(&ir.metadata.version)
+            .map_err(|e| PromptError::Validation(format!("Invalid version format: {e}")))?;
 
         // Validate schema version
-        let schema_version = semver::Version::parse(&ir.metadata.schema_version).map_err(|e| {
-            PromptError::Validation(format!("Invalid schema version: {e}"))
-        })?;
+        let schema_version = semver::Version::parse(&ir.metadata.schema_version)
+            .map_err(|e| PromptError::Validation(format!("Invalid schema version: {e}")))?;
 
         if schema_version < self.min_schema_version {
             return Err(PromptError::Validation(format!(
@@ -141,7 +141,9 @@ impl Default for PromptValidator {
 /// Check if string is a valid identifier
 fn is_valid_identifier(s: &str) -> bool {
     !s.is_empty()
-        && s.chars().next().is_some_and(|c| c.is_alphabetic() || c == '_')
+        && s.chars()
+            .next()
+            .is_some_and(|c| c.is_alphabetic() || c == '_')
         && s.chars().all(|c| c.is_alphanumeric() || c == '_')
 }
 

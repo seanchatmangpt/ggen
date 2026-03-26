@@ -212,7 +212,7 @@ impl AndonObserver {
 
         // Get CPU percentage (simplified - in production would track over time)
         let mut cpu_percent = 0.0;
-        if sys.cpus().len() > 0 {
+        if !sys.cpus().is_empty() {
             let cpu_usage: f32 = sys.cpus().iter().map(|cpu| cpu.cpu_usage()).sum();
             cpu_percent = cpu_usage / sys.cpus().len() as f32;
         }

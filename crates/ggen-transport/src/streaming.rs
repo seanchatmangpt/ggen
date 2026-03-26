@@ -131,9 +131,7 @@ impl StreamSender {
     }
 
     pub async fn send_with_metadata(
-        &mut self,
-        payload: Bytes,
-        metadata: serde_json::Value,
+        &mut self, payload: Bytes, metadata: serde_json::Value,
     ) -> Result<()> {
         let msg = StreamMessage::new(self.next_sequence, self.session_id.clone(), payload)
             .with_metadata(metadata);
@@ -145,8 +143,8 @@ impl StreamSender {
     }
 
     pub async fn send_final(&mut self, payload: Bytes) -> Result<()> {
-        let msg = StreamMessage::new(self.next_sequence, self.session_id.clone(), payload)
-            .mark_final();
+        let msg =
+            StreamMessage::new(self.next_sequence, self.session_id.clone(), payload).mark_final();
         self.next_sequence += 1;
         self.sender
             .send(Ok(msg))

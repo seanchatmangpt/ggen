@@ -1,7 +1,7 @@
 //! STDIO transport for MCP JSON-RPC protocol
 
 use crate::error::{A2aMcpError, A2aMcpResult};
-use crate::mcp::protocol::{McpRequest, McpResponse};
+use crate::mcp::protocol::McpResponse;
 use std::io::{BufRead, BufReader, Write};
 use std::sync::Arc;
 use tokio::sync::RwLock;
