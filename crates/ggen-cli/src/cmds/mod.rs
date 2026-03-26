@@ -27,7 +27,8 @@
 // Shared helpers for command modules
 pub mod helpers;
 
-// Core commands: ggen sync & ggen init & ggen wizard
+// Core commands: ggen sync & ggen init & ggen wizard & ggen apply
+pub mod apply;
 pub mod git_hooks;
 pub mod init;
 pub mod sync;

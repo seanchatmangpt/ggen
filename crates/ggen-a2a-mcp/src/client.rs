@@ -171,17 +171,23 @@ pub struct A2aLlmClient {
 /// Context for tracking task execution
 #[derive(Debug, Clone)]
 struct TaskContext {
+    #[allow(dead_code)]
     task_id: String,
+    #[allow(dead_code)]
     created_at: Instant,
     status: TaskStatus,
+    #[allow(dead_code)]
     retry_count: usize,
 }
 
 #[derive(Debug, Clone, PartialEq)]
-enum TaskStatus {
+pub enum TaskStatus {
     Pending,
+    #[allow(dead_code)]
     Running,
+    #[allow(dead_code)]
     Completed,
+    #[allow(dead_code)]
     Failed,
 }
 

@@ -9,7 +9,7 @@ use chrono::{Duration, Utc};
 
 use crate::{
     error::{ApiError, ApiResult},
-    models::{InvoiceItem, InvoiceResponse, UpgradeRequest, UsageRequest, UsageStatsResponse},
+    models::{InvoiceResponse, UpgradeRequest, UsageRequest, UsageStatsResponse},
     state::AppState,
 };
 

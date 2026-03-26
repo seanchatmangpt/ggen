@@ -32,6 +32,7 @@
 //! ```
 
 pub mod andon_gemba;
+pub mod ggen_config;
 pub mod hive_coordinator;
 pub mod lock_manager;
 pub mod ontology_config;
@@ -53,6 +54,10 @@ pub use andon_gemba::{
     ActionStatus, AlertStatus, Andon, AndonAlert, AndonHandler, AndonRule, AndonSeverity,
     GembaObservation, GembaWalk, GembaWalkSession, ImprovementAction, ObservationFrequency,
     ObservationImpact, ProblemArea, ProblemSeverity, ProblemStatus,
+};
+pub use ggen_config::{
+    ConfigError, ConfigResult, GenerationConfigSection, GenerationMode, GgenConfig,
+    InferenceConfigSection, OntologyConfigSection, ProjectConfig, Rule,
 };
 pub use hive_coordinator::{
     AgentRole, HiveAgent, HiveQueen, ResolutionSuggestion, ResolvedConfiguration,

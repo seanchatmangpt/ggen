@@ -285,6 +285,8 @@ pub struct RecoveryManager {
     strategies: HashMap<String, RecoveryPolicy>,
     error_history: VecDeque<ErrorRecord>,
     active_recoveries: HashMap<String, RecoveryAttempt>,
+    #[allow(dead_code)]
+    /// Reserved for graceful shutdown support in future async loop enhancements
     shutdown_signal: Arc<Mutex<bool>>,
 }
 

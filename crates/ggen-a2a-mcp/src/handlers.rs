@@ -3,11 +3,11 @@
 //! This module provides handlers for processing A2A messages with support
 //! for all ConvergedMessage content types and proper error handling.
 
+use async_trait::async_trait;
 use crate::error::{A2aMcpError, A2aMcpResult};
 use a2a_generated::converged::message::{
     ConvergedMessage, ConvergedMessageType, UnifiedContent, UnifiedFileContent,
 };
-use async_trait::async_trait;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -19,9 +19,7 @@ pub use handler::{HandlerContext, HandlerError, HandlerPriority, HandlerResult, 
 
 pub mod handler {
     use a2a_generated::converged::message::ConvergedMessage;
-    use async_trait::async_trait;
     use chrono::Utc;
-    use serde::{Deserialize, Serialize};
     use std::collections::HashMap;
 
     /// Result type for message handlers
@@ -1095,6 +1093,7 @@ mod tests {
 }
 
 // Helper extension for UnifiedContent
+#[allow(dead_code)]
 trait UnifiedContentExt {
     fn as_text(&self) -> Option<&str>;
 }
