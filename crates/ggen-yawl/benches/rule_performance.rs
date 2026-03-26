@@ -35,9 +35,8 @@ impl MemoryMetrics {
         let tasks_size = context.tasks.len() * 200; // ~200 bytes per task context
         let flows_size = context.flows.len() * 150; // ~150 bytes per flow context
         let variables_size = context.variables.len() * 100; // ~100 bytes per variable
-        let strings_size = context.workflow_name.len()
-            + context.description.len()
-            + context.version.len();
+        let strings_size =
+            context.workflow_name.len() + context.description.len() + context.version.len();
 
         tasks_size + flows_size + variables_size + strings_size
     }
@@ -75,16 +74,14 @@ fn create_rule1_config() -> TemplateContext {
 
 /// Helper to create Rule 2: Spring Boot app generation context
 fn create_rule2_spring_boot(entity_count: usize) -> TemplateContext {
-    let mut tasks = vec![
-        TaskContext {
-            id: "init_spring".to_string(),
-            name: "Initialize Spring Boot".to_string(),
-            split_type: "AND".to_string(),
-            join_type: "AND".to_string(),
-            is_auto: true,
-            decomposition_id: None,
-        },
-    ];
+    let mut tasks = vec![TaskContext {
+        id: "init_spring".to_string(),
+        name: "Initialize Spring Boot".to_string(),
+        split_type: "AND".to_string(),
+        join_type: "AND".to_string(),
+        is_auto: true,
+        decomposition_id: None,
+    }];
 
     // Add task for each entity
     for i in 0..entity_count {

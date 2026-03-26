@@ -76,7 +76,10 @@ impl Queryable for HbmMappingQueryExecutor {
         );
         workitem.insert("idProperty".to_string(), "id".to_string());
         workitem.insert("idGenerator".to_string(), "uuid".to_string());
-        workitem.insert("package".to_string(), "org.yawlfoundation.yawl.elements".to_string());
+        workitem.insert(
+            "package".to_string(),
+            "org.yawlfoundation.yawl.elements".to_string(),
+        );
         results.push(workitem);
 
         // Mock binding for YTask
@@ -94,7 +97,10 @@ impl Queryable for HbmMappingQueryExecutor {
         );
         task.insert("idProperty".to_string(), "id".to_string());
         task.insert("idGenerator".to_string(), "uuid".to_string());
-        task.insert("package".to_string(), "org.yawlfoundation.yawl.elements".to_string());
+        task.insert(
+            "package".to_string(),
+            "org.yawlfoundation.yawl.elements".to_string(),
+        );
         results.push(task);
 
         Ok(results)
@@ -207,10 +213,7 @@ impl Renderable for HbmMappingTemplateRenderer {
             .ok_or_else(|| CodegenError::template("Missing className in bindings".to_string()))?
             .clone();
 
-        let table_name = bindings
-            .get("tableName")
-            .unwrap_or(&class_name)
-            .clone();
+        let table_name = bindings.get("tableName").unwrap_or(&class_name).clone();
 
         let id_property = bindings
             .get("idProperty")
@@ -238,10 +241,7 @@ impl Renderable for HbmMappingTemplateRenderer {
         xml.push_str("    \"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd\">\n");
 
         // Mapping element with package
-        xml.push_str(&format!(
-            "<hibernate-mapping package=\"{}\">\n",
-            package
-        ));
+        xml.push_str(&format!("<hibernate-mapping package=\"{}\">\n", package));
 
         // Class element
         xml.push_str(&format!(
@@ -254,10 +254,7 @@ impl Renderable for HbmMappingTemplateRenderer {
             "    <id name=\"{}\" column=\"{}\" type=\"string\">\n",
             id_property, id_property
         ));
-        xml.push_str(&format!(
-            "      <generator class=\"{}\"/>\n",
-            id_generator
-        ));
+        xml.push_str(&format!("      <generator class=\"{}\"/>\n", id_generator));
         xml.push_str("    </id>\n");
 
         // Properties from bindings
@@ -275,7 +272,8 @@ impl Renderable for HbmMappingTemplateRenderer {
                                 let prop_name = &line[start + 16..start + 16 + end];
 
                                 // Extract column name
-                                let column = if let Some(col_start) = line.find("columnName\": \"") {
+                                let column = if let Some(col_start) = line.find("columnName\": \"")
+                                {
                                     if let Some(col_end) = line[col_start + 14..].find('"') {
                                         &line[col_start + 14..col_start + 14 + col_end]
                                     } else {
@@ -286,15 +284,16 @@ impl Renderable for HbmMappingTemplateRenderer {
                                 };
 
                                 // Extract type
-                                let hib_type = if let Some(type_start) = line.find("hibernateType\": \"") {
-                                    if let Some(type_end) = line[type_start + 16..].find('"') {
-                                        &line[type_start + 16..type_start + 16 + type_end]
+                                let hib_type =
+                                    if let Some(type_start) = line.find("hibernateType\": \"") {
+                                        if let Some(type_end) = line[type_start + 16..].find('"') {
+                                            &line[type_start + 16..type_start + 16 + type_end]
+                                        } else {
+                                            "string"
+                                        }
                                     } else {
                                         "string"
-                                    }
-                                } else {
-                                    "string"
-                                };
+                                    };
 
                                 // Extract nullable
                                 let nullable = line.contains("\"nullable\": true");
@@ -466,7 +465,8 @@ impl HbmMappingTemplate {
 ///
 /// Returns a fully configured Rule that executes the SPARQL query
 /// and renders HBM XML mapping files from YAWL entity definitions.
-pub fn create_hbm_mapping_rule() -> ggen_codegen::Result<Rule<HbmMappingQueryExecutor, HbmMappingTemplateRenderer>> {
+pub fn create_hbm_mapping_rule(
+) -> ggen_codegen::Result<Rule<HbmMappingQueryExecutor, HbmMappingTemplateRenderer>> {
     let query = HbmMappingQueryExecutor::new();
     let template = HbmMappingTemplateRenderer::new();
 
@@ -783,7 +783,10 @@ mod tests {
         bindings.insert("tableName".to_string(), "y_task".to_string());
         bindings.insert("idProperty".to_string(), "id".to_string());
         bindings.insert("idGenerator".to_string(), "uuid".to_string());
-        bindings.insert("package".to_string(), "org.yawlfoundation.yawl.elements".to_string());
+        bindings.insert(
+            "package".to_string(),
+            "org.yawlfoundation.yawl.elements".to_string(),
+        );
         bindings.insert(
             "properties".to_string(),
             r#"[{"propertyName": "name", "columnName": "name", "hibernateType": "string"}]"#

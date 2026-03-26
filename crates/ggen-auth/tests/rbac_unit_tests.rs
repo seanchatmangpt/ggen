@@ -117,7 +117,10 @@ fn test_permission_from_str_valid() {
     assert_eq!(Permission::from_string("read"), Some(Permission::Read));
     assert_eq!(Permission::from_string("WRITE"), Some(Permission::Write));
     assert_eq!(Permission::from_string("Delete"), Some(Permission::Delete));
-    assert_eq!(Permission::from_string("EXECUTE"), Some(Permission::Execute));
+    assert_eq!(
+        Permission::from_string("EXECUTE"),
+        Some(Permission::Execute)
+    );
 }
 
 #[test]
