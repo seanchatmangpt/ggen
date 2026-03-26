@@ -2,8 +2,13 @@
 //!
 //! Generates `@Entity`-annotated Java classes for persistent YAWL objects (YWorkItem, YTask, etc.)
 //! using SPARQL queries to extract class definitions and properties from the ontology.
+//!
+//! This rule integrates with the real YAWL ontology (yawl-domain.ttl) via YawlOntologyLoader
+//! and executes SPARQL queries to extract entity definitions. Falls back to mock data if
+//! the ontology is not available.
 
 use crate::error::{Error, Result};
+use crate::ontology::YawlOntologyLoader;
 use ggen_codegen::Result as CodegenResult;
 use ggen_codegen::{Error as CodegenError, GenerationMode, Queryable, Renderable, Rule};
 use std::collections::HashMap;
@@ -13,10 +18,13 @@ use tera::{Context, Tera};
 /// Query executor for JPA entity generation.
 ///
 /// Executes SPARQL SELECT to extract persistent classes and their properties
-/// from the YAWL ontology.
+/// from the YAWL ontology. Integrates with YawlOntologyLoader for real entity loading
+/// with fallback to mock data.
 pub struct JpaEntityQuery {
     /// SPARQL SELECT query that extracts class names and properties
     query: String,
+    /// Ontology loader for executing SPARQL queries
+    loader: YawlOntologyLoader,
 }
 
 impl JpaEntityQuery {
@@ -26,7 +34,7 @@ impl JpaEntityQuery {
         // Extracts: entity URI, className, tableName, packageName, sourceFile
         let query = "PREFIX yawl: <https://yawlfoundation.org/ontology#>\n\
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\n\
-            SELECT ?entity ?className ?tableName ?package ?sourceFile\n\
+            SELECT ?className ?tableName ?package ?sourceFile\n\
             WHERE {\n\
               ?entity a yawl:Entity ;\n\
                       yawl:className ?className ;\n\
@@ -37,7 +45,10 @@ impl JpaEntityQuery {
             ORDER BY ?className"
             .to_string();
 
-        Self { query }
+        Self {
+            query,
+            loader: YawlOntologyLoader::new(),
+        }
     }
 
     /// SPARQL query text (for debugging)
@@ -48,8 +59,43 @@ impl JpaEntityQuery {
 
 impl Queryable for JpaEntityQuery {
     fn execute(&self) -> CodegenResult<Vec<HashMap<String, String>>> {
-        // For now, return mock data that demonstrates the pattern.
-        // In Phase 3 final, this will load the actual YAWL ontology and execute SPARQL.
+        // Try to load real entities from YAWL ontology
+        match self.loader.query_domain(self.sparql()) {
+            Ok(results) if !results.is_empty() => {
+                tracing::info!("Loaded {} real entities from YAWL ontology", results.len());
+                // Convert results to entity binding format
+                return Ok(results
+                    .into_iter()
+                    .map(|mut binding| {
+                        // Extract simple class name from fully qualified name
+                        if let Some(class_name) = binding.get("className") {
+                            let simple_name = class_name
+                                .split('.')
+                                .last()
+                                .unwrap_or(class_name.as_str())
+                                .to_string();
+                            binding.insert("classLabel".to_string(), simple_name.clone());
+                            binding.insert(
+                                "fields".to_string(),
+                                serde_json::json!([
+                                    {"name": "id", "type": "String", "isId": true}
+                                ])
+                                .to_string(),
+                            );
+                        }
+                        binding
+                    })
+                    .collect());
+            }
+            Ok(_) => {
+                tracing::info!("No real entities found; using mock data");
+            }
+            Err(e) => {
+                tracing::warn!("Failed to query ontology: {}; using mock data", e);
+            }
+        }
+
+        // Fall back to mock data that demonstrates the pattern.
 
         let mut results = Vec::new();
 

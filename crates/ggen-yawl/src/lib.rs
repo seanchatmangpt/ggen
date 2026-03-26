@@ -50,6 +50,7 @@ pub use codegen::{
 };
 pub use error::{Error, Result};
 pub use ontology::loader::{load_ontology, OntologyFormat, OntologyLoader};
+pub use ontology::YawlOntologyLoader;
 pub use template::renderer::TemplateRenderer;
 pub use transform::executor::ConstructExecutor;
 
