@@ -8,9 +8,11 @@ pub mod canonicalize; // μ₄: Code canonicalization for A2A-RS integration
 pub mod code_graph;
 pub mod concurrent;
 pub mod dependency_validation;
+pub mod docker_kubernetes; // Docker & Kubernetes manifest generation
 pub mod execution_lifecycle;
 pub mod execution_proof;
 pub mod executor;
+pub mod go; // Go microservice code generation
 pub mod incremental; // Phase 4: Incremental generation with SHA256 JIT
 pub mod incremental_cache;
 #[allow(dead_code)]
@@ -39,11 +41,15 @@ pub use code_graph::{
 };
 pub use concurrent::ConcurrentRuleExecutor;
 pub use dependency_validation::{DependencyCheck, DependencyValidationReport, DependencyValidator};
+pub use docker_kubernetes::{
+    DockerKubernetesGenerator, Language, ServiceSpec,
+};
 pub use execution_lifecycle::{ExecutionLifecycle, PostSyncContext, PreSyncContext};
 pub use execution_proof::{ExecutionProof, ProofCarrier, RuleExecution};
 pub use executor::{
     OutputFormat, SyncExecutor, SyncOptions, SyncResult, SyncedFileInfo, ValidationCheck,
 };
+pub use go::GoCodeGenerator;
 pub use incremental_cache::{CacheInvalidation, IncrementalCache};
 pub use marketplace_integration::{MarketplaceValidator, PackageValidation, PreFlightReport};
 pub use merge::{merge_sections, parse_merge_markers, MergeMarkers, MergedSections};
