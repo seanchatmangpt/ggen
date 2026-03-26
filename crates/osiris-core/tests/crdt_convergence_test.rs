@@ -27,7 +27,10 @@ fn test_lww_register_two_regions_eventual_consistency() {
     // After merge, both should have the same value (higher timestamp wins)
     assert_eq!(reg_a.get(), "value_b");
     assert_eq!(reg_b_merged.get(), "value_b");
-    assert!(reg_a.is_identical(&reg_b_merged), "Regions should converge to identical state");
+    assert!(
+        reg_a.is_identical(&reg_b_merged),
+        "Regions should converge to identical state"
+    );
 }
 
 #[test]
@@ -105,7 +108,10 @@ fn test_orset_two_regions_eventual_consistency() {
     // After merge, both should have all 4 elements
     assert_eq!(set_a.len(), 4);
     assert_eq!(set_b_merged.len(), 4);
-    assert!(set_a.is_identical(&set_b_merged), "Sets should converge to identical state");
+    assert!(
+        set_a.is_identical(&set_b_merged),
+        "Sets should converge to identical state"
+    );
 }
 
 #[test]
@@ -124,7 +130,10 @@ fn test_orset_add_remove_commute() {
     set_a.merge(&set_b);
 
     // A should now have alice (B's concurrent add)
-    assert!(set_a.contains(&"alice".to_string()), "Concurrent add should be visible after merge");
+    assert!(
+        set_a.contains(&"alice".to_string()),
+        "Concurrent add should be visible after merge"
+    );
 }
 
 #[test]
@@ -239,8 +248,15 @@ fn test_lww_register_deterministic_merges() {
     merge_order_b.merge(&reg1_updated);
 
     // Both merge orders should produce identical results
-    assert_eq!(merge_order_a, merge_order_b, "Different merge orders should be deterministic");
-    assert_eq!(merge_order_a.get(), "update2", "Highest timestamp should always win");
+    assert_eq!(
+        merge_order_a, merge_order_b,
+        "Different merge orders should be deterministic"
+    );
+    assert_eq!(
+        merge_order_a.get(),
+        "update2",
+        "Highest timestamp should always win"
+    );
 }
 
 #[test]
@@ -268,7 +284,10 @@ fn test_orset_merge_commutativity() {
 
     // Check that they have the same elements
     for elem in result1.iter() {
-        assert!(result2.contains(elem), "result2 should contain all elements from result1");
+        assert!(
+            result2.contains(elem),
+            "result2 should contain all elements from result1"
+        );
     }
 }
 

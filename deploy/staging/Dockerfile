@@ -1,62 +1,60 @@
-# Multi-stage Rust build for ggen v6.0.0 (production-grade staging)
-# Stage 1: Builder
-FROM rust:1.80-alpine3.19 AS builder
+# Multi-stage Docker build for ggen v6.0.0 (production-grade staging)
+# Builds Linux ARM64 binary inside Docker
+# Build context: project root (run from project root: docker build -f deploy/staging/Dockerfile .)
 
-RUN apk add --no-cache \
-    musl-dev \
-    openssl-dev \
+FROM --platform=linux/arm64 rust:1.91-slim AS builder
+
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
     ca-certificates \
     git \
-    bash
+    bash \
+    perl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
 
 # Copy workspace files
 COPY Cargo.toml Cargo.lock* ./
 COPY crates ./crates
-COPY examples ./examples
+COPY benches ./benches
 
-# Build release binary with optimizations
-RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    --mount=type=cache,target=/build/target \
-    cargo build --release \
-    --package ggen-cli \
+# Build release binary (single job to reduce memory usage)
+RUN CARGO_BUILD_JOBS=1 cargo build --release \
+    --package ggen-cli-lib \
     2>&1 | tee /tmp/build.log && \
     cp /build/target/release/ggen /usr/local/bin/ggen && \
-    chmod +x /usr/local/bin/ggen
+    chmod +x /usr/local/bin/ggen && \
+    file /usr/local/bin/ggen
 
-# Stage 2: Runtime (minimal, production-ready)
-FROM alpine:3.19
+# Runtime stage
+FROM --platform=linux/arm64 debian:bookworm-slim
 
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
     jq \
     bash \
-    libc6-compat \
     libssl3 \
-    openssl
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy only the compiled binary from builder
 COPY --from=builder /usr/local/bin/ggen /usr/local/bin/ggen
 
-# Create non-root user for security
-RUN addgroup -g 1000 ggen && \
-    adduser -u 1000 -G ggen -s /sbin/nologin -h /app ggen
-
-RUN mkdir -p /app/specs /app/generated && \
+RUN groupadd -g 1000 ggen && \
+    useradd -u 1000 -g ggen -s /sbin/nologin -d /app ggen && \
+    mkdir -p /app/specs /app/generated && \
     chown -R ggen:ggen /app
 
 USER ggen
 
-# Health check endpoint (uses ggen validate command via curl)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
-# Expose port for metrics/health (ggen-api)
 EXPOSE 8080
 
-# Default command: run health dashboard
 CMD ["ggen", "health-dashboard", "--port", "8080", "--bind", "0.0.0.0"]

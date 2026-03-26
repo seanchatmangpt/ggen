@@ -7,8 +7,8 @@
 //! - Concurrent event detection
 
 use osiris_core::{
-    MultiRegionConfig, MultiRegionManager, RegionHealth, ReplicationLag, VectorClock,
-    CausalityResult,
+    CausalityResult, MultiRegionConfig, MultiRegionManager, RegionHealth, ReplicationLag,
+    VectorClock,
 };
 
 #[tokio::test]
@@ -67,17 +67,21 @@ async fn test_vector_clock_ordering_causality() {
         .expect("Failed to increment VC");
 
     // Simulate replication to US-West, then write on US-West at T1
-    manager
-        .update_vector_clock(&vc_t0)
-        .await;
+    manager.update_vector_clock(&vc_t0).await;
     let vc_t1 = manager
         .increment_vector_clock("us-west")
         .await
         .expect("Failed to increment VC");
 
     // VC ordering: vc_t0 should happen before vc_t1
-    assert!(vc_t0.happens_before(&vc_t1), "vc_t0 should happen before vc_t1");
-    assert!(!vc_t1.happens_before(&vc_t0), "vc_t1 should not happen before vc_t0");
+    assert!(
+        vc_t0.happens_before(&vc_t1),
+        "vc_t0 should happen before vc_t1"
+    );
+    assert!(
+        !vc_t1.happens_before(&vc_t0),
+        "vc_t1 should not happen before vc_t0"
+    );
 
     // Detect causality
     let result = manager.detect_causality(&vc_t0, &vc_t1).await;
@@ -111,7 +115,11 @@ async fn test_concurrent_events_detection() {
 
     // Manager should detect concurrency
     let result = manager.detect_causality(&vc_east, &vc_west).await;
-    assert_eq!(result, CausalityResult::Concurrent, "Expected concurrent relationship");
+    assert_eq!(
+        result,
+        CausalityResult::Concurrent,
+        "Expected concurrent relationship"
+    );
 }
 
 #[tokio::test]

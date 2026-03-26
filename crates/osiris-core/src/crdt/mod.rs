@@ -8,5 +8,5 @@ pub mod or_set;
 pub mod store;
 
 pub use lww_register::LWWRegister;
-pub use or_set::OrSet;
+pub use or_set::{OrSet, ElementTag};
 pub use store::CRDTStore;

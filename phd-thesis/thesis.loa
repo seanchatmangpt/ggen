@@ -1,0 +1,36 @@
+\contentsline {algorithm}{\numberline {1}{\ignorespaces Normalization Stage \(\mu _1\)}}{30}{algorithm.1}%
+\contentsline {algorithm}{\numberline {2}{\ignorespaces Closure Verification}}{30}{algorithm.2}%
+\contentsline {algorithm}{\numberline {3}{\ignorespaces Closure Verification}}{31}{algorithm.3}%
+\contentsline {algorithm}{\numberline {4}{\ignorespaces Type Inference Algorithm}}{33}{algorithm.4}%
+\contentsline {algorithm}{\numberline {5}{\ignorespaces Context Preparation}}{34}{algorithm.5}%
+\contentsline {algorithm}{\numberline {6}{\ignorespaces Hash Verification}}{36}{algorithm.6}%
+\contentsline {algorithm}{\numberline {7}{\ignorespaces Receipt Generation}}{37}{algorithm.7}%
+\contentsline {algorithm}{\numberline {8}{\ignorespaces Receipt Verification}}{38}{algorithm.8}%
+\contentsline {algorithm}{\numberline {9}{\ignorespaces Determinism Verification}}{41}{algorithm.9}%
+\contentsline {algorithm}{\numberline {10}{\ignorespaces A2A to MCP Adaptation}}{48}{algorithm.10}%
+\contentsline {algorithm}{\numberline {11}{\ignorespaces Tool Discovery}}{49}{algorithm.11}%
+\contentsline {algorithm}{\numberline {12}{\ignorespaces Groq Evaluation}}{50}{algorithm.12}%
+\contentsline {algorithm}{\numberline {13}{\ignorespaces Timeout Handling}}{51}{algorithm.13}%
+\contentsline {algorithm}{\numberline {14}{\ignorespaces Exponential Backoff Retry}}{51}{algorithm.14}%
+\contentsline {algorithm}{\numberline {15}{\ignorespaces Consensus Validation}}{54}{algorithm.15}%
+\contentsline {algorithm}{\numberline {16}{\ignorespaces Agent Decision with Consensus}}{56}{algorithm.16}%
+\contentsline {algorithm}{\numberline {17}{\ignorespaces Determinism Verification}}{58}{algorithm.17}%
+\contentsline {algorithm}{\numberline {18}{\ignorespaces Adaptive Resource Allocation}}{69}{algorithm.18}%
+\contentsline {algorithm}{\numberline {19}{\ignorespaces Heijunka Smoothing}}{69}{algorithm.19}%
+\contentsline {algorithm}{\numberline {20}{\ignorespaces Kaizen Continuous Improvement}}{71}{algorithm.20}%
+\contentsline {algorithm}{\numberline {21}{\ignorespaces Incremental Generation}}{71}{algorithm.21}%
+\contentsline {algorithm}{\numberline {22}{\ignorespaces Distributed Pipeline Execution}}{72}{algorithm.22}%
+\contentsline {algorithm}{\numberline {23}{\ignorespaces Materialized View Maintenance}}{73}{algorithm.23}%
+\contentsline {algorithm}{\numberline {24}{\ignorespaces Cryptographic Receipt Generation}}{74}{algorithm.24}%
+\contentsline {algorithm}{\numberline {25}{\ignorespaces Autonomous Specification Optimization}}{75}{algorithm.25}%
+\contentsline {algorithm}{\numberline {26}{\ignorespaces OSIRIS Performance Loop}}{76}{algorithm.26}%
+\contentsline {algorithm}{\numberline {27}{\ignorespaces Temporal Property Verification}}{77}{algorithm.27}%
+\contentsline {algorithm}{\numberline {28}{\ignorespaces Quantum Algorithm Generation}}{78}{algorithm.28}%
+\contentsline {algorithm}{\numberline {29}{\ignorespaces Model Property Verification}}{79}{algorithm.29}%
+\contentsline {algorithm}{\numberline {30}{\ignorespaces Specification Extraction from Code}}{86}{algorithm.30}%
+\contentsline {algorithm}{\numberline {31}{\ignorespaces NL-to-RDF Translation}}{86}{algorithm.31}%
+\contentsline {algorithm}{\numberline {32}{\ignorespaces DAO-Based Specification Governance}}{87}{algorithm.32}%
+\contentsline {algorithm}{\numberline {33}{\ignorespaces Specification Migration}}{88}{algorithm.33}%
+\contentsline {algorithm}{\numberline {34}{\ignorespaces Satisfiability Checking}}{90}{algorithm.34}%
+\contentsline {algorithm}{\numberline {35}{\ignorespaces Interactive Generation Loop}}{91}{algorithm.35}%
+\contentsline {algorithm}{\numberline {36}{\ignorespaces Pattern Transfer}}{92}{algorithm.36}%

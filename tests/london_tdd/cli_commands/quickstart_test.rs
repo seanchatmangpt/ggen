@@ -19,7 +19,7 @@ fn test_quickstart_complete_flow_with_all_prerequisites() {
 
     // Arrange: All prerequisites available
     let mut mock_system = MockSystemCommands::new();
-    let mock_fs = MockFilesystem::new();
+    let mut mock_fs = MockFilesystem::new();
     let mut mock_generator = MockProjectGenerator::new();
 
     setup_prerequisites_check_all_pass(&mut mock_system);
@@ -77,7 +77,7 @@ fn test_quickstart_installs_rust_if_missing() {
 fn test_quickstart_generates_demo_project() {
     // Arrange
     let mock_system = setup_prerequisites_met();
-    let mock_fs = MockFilesystem::new();
+    let mut mock_fs = MockFilesystem::new();
     let mut mock_generator = MockProjectGenerator::new();
 
     // Expect project directory creation
