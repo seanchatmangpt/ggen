@@ -3,11 +3,11 @@
 //! Generates `@Entity`-annotated Java classes for persistent YAWL objects (YWorkItem, YTask, etc.)
 //! using SPARQL queries to extract class definitions and properties from the ontology.
 
+use crate::codegen::{GenerationMode, Queryable, Renderable, Rule};
 use crate::error::{Error, Result};
-use crate::codegen::{Queryable, Renderable, Rule, GenerationMode};
 use std::collections::HashMap;
 use std::path::PathBuf;
-use tera::{Tera, Context};
+use tera::{Context, Tera};
 
 /// Query executor for JPA entity generation.
 ///
@@ -44,7 +44,8 @@ impl JpaEntityQuery {
                 }\n\n\
                 BIND(STRAFTER(STR(?class), \"#\") AS ?className)\n\
             }\n\
-            ORDER BY ?className ?fieldName".to_string();
+            ORDER BY ?className ?fieldName"
+            .to_string();
 
         Self { query }
     }
@@ -66,23 +67,31 @@ impl Queryable for JpaEntityQuery {
         let mut workitem = HashMap::new();
         workitem.insert("className".to_string(), "YWorkItem".to_string());
         workitem.insert("classLabel".to_string(), "Work Item".to_string());
-        workitem.insert("fields".to_string(), r#"[
+        workitem.insert(
+            "fields".to_string(),
+            r#"[
             {"name": "id", "type": "String", "isId": true},
             {"name": "status", "type": "WorkItemStatus", "isEnum": true},
             {"name": "taskId", "type": "String"},
             {"name": "createdAt", "type": "LocalDateTime"}
-        ]"#.to_string());
+        ]"#
+            .to_string(),
+        );
         results.push(workitem);
 
         // Mock binding for YTask
         let mut task = HashMap::new();
         task.insert("className".to_string(), "YTask".to_string());
         task.insert("classLabel".to_string(), "Task".to_string());
-        task.insert("fields".to_string(), r#"[
+        task.insert(
+            "fields".to_string(),
+            r#"[
             {"name": "id", "type": "String", "isId": true},
             {"name": "name", "type": "String"},
             {"name": "decomposition", "type": "String"}
-        ]"#.to_string());
+        ]"#
+            .to_string(),
+        );
         results.push(task);
 
         Ok(results)
@@ -199,16 +208,19 @@ impl Renderable for JpaEntityTemplate {
         let mut context = Context::new();
 
         // Extract class metadata
-        let class_name = bindings.get("className")
+        let class_name = bindings
+            .get("className")
             .ok_or_else(|| Error::template("Missing className in bindings".to_string()))?
             .clone();
 
-        let class_label = bindings.get("classLabel")
+        let class_label = bindings
+            .get("classLabel")
             .unwrap_or(&"Entity".to_string())
             .clone();
 
         // Parse fields from bindings (JSON array in mock data)
-        let _ = bindings.get("fields")
+        let _ = bindings
+            .get("fields")
             .ok_or_else(|| Error::template("Missing fields in bindings".to_string()))?;
 
         // Simple field parsing (in production, use serde_json)
@@ -275,7 +287,8 @@ impl Renderable for JpaEntityTemplate {
         context.insert("tableName", &class_name);
         context.insert("fields", &fields);
 
-        self.tera.render("jpa-entity.java.tera", &context)
+        self.tera
+            .render("jpa-entity.java.tera", &context)
             .map_err(|e| Error::template(format!("Template rendering failed: {}", e)))
     }
 
@@ -327,7 +340,8 @@ mod tests {
         assert!(results.len() >= 2);
 
         // Find YWorkItem
-        let workitem = results.iter()
+        let workitem = results
+            .iter()
             .find(|r| r.get("className") == Some(&"YWorkItem".to_string()))
             .expect("Should have YWorkItem");
 
