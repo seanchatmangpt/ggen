@@ -179,9 +179,11 @@ public class {{ className }} {
         return "{{ className }}{" +
             {% for field in fields -%}
             "{{ field.name }}=" + {{ field.name }}
-            {% if not loop.last %} + ", " +{% endif %}
-            {% endfor %}
-            "}";
+            {%- if not loop.last %} + ", " +
+            {%- else %} +
+            {%- endif %}
+            {% endfor %}"}"
+            ;
     }
 }
 "#;
