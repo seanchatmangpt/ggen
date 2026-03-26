@@ -289,8 +289,18 @@ mod tests {
 
     impl Validate for TestRequest {
         fn validate(&self) -> Result<(), InputValidationError> {
-            ApiValidationRules::username().validate(&self.username)?;
-            ApiValidationRules::email().validate(&self.email)?;
+            ApiValidationRules::username()
+                .validate(&self.username)
+                .map_err(|e| InputValidationError::FormatViolation {
+                    field: "username".to_string(),
+                    reason: e.to_string(),
+                })?;
+            ApiValidationRules::email()
+                .validate(&self.email)
+                .map_err(|e| InputValidationError::FormatViolation {
+                    field: "email".to_string(),
+                    reason: e.to_string(),
+                })?;
             Ok(())
         }
     }
@@ -428,7 +438,12 @@ mod tests {
     #[test]
     fn test_validation_middleware() {
         let middleware = ValidationMiddleware::new().add_rule("username", |value| {
-            ApiValidationRules::username().validate(value)
+            ApiValidationRules::username().validate(value).map_err(|e| {
+                InputValidationError::FormatViolation {
+                    field: "username".to_string(),
+                    reason: e.to_string(),
+                }
+            })
         });
 
         // Valid field

@@ -309,13 +309,15 @@ async fn create_test_service(server: &mut Server) -> WorkspaceService {
         .mock("POST", "/oauth/token")
         .with_status(200)
         .with_header("content-type", "application/json")
-        .with_body(r#"{
+        .with_body(
+            r#"{
             "access_token": "test_token",
             "token_type": "Bearer",
             "expires_in": 3600,
             "refresh_token": "refresh_token",
             "scope": "read"
-        }"#)
+        }"#,
+        )
         .create_async()
         .await;
 

@@ -287,7 +287,7 @@ impl Evaluate {
 
             let metric = metric.clone();
             let error_count = error_count.clone();
-            let pb = pb.map(|p| p.clone());
+            let pb = pb.cloned();
 
             // NOTE: Since we can't clone trait objects, we use program's signature
             // and would need to modify this for actual LLM calls. For now, this is a limitation.
@@ -353,6 +353,8 @@ impl Evaluate {
 mod tests {
     use super::*;
     use serde_json::json;
+    use serde_json::Value;
+    use std::collections::HashMap;
 
     // Mock module for testing
     struct MockModule {
@@ -370,6 +372,10 @@ mod tests {
         ) -> Result<HashMap<String, Value>, ModuleError> {
             // Echo inputs as outputs
             Ok(inputs)
+        }
+
+        fn as_any(&self) -> &dyn std::any::Any {
+            self
         }
     }
 

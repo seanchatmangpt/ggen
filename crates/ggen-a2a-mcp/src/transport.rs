@@ -6,7 +6,6 @@
 use crate::error::{A2aMcpError, A2aMcpResult};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::io::{self, Write};
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::sync::RwLock;
@@ -410,6 +409,6 @@ mod tests {
 
         assert_eq!(parsed["jsonrpc"], "2.0");
         assert_eq!(parsed["id"], 1);
-        assert!(parsed["error"].is_null() || parsed["error"].is_none());
+        assert!(parsed["error"].is_null());
     }
 }

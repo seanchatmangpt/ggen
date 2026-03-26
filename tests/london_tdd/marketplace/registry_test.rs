@@ -23,7 +23,11 @@ async fn test_registry_fetch_package_by_name() {
 
     // Add test package
     let package = create_test_package("rust-web-service", "1.0.0");
-    registry.publish(package.clone()).await.unwrap();
+    let pkg_ref = ggen_marketplace::models::PackageReference {
+        id: package.metadata.id.clone(),
+        version: package.latest_version.clone(),
+    };
+    registry.publish(pkg_ref).await.unwrap();
 
     // Act
     let result = registry
@@ -326,22 +330,29 @@ async fn create_test_registry(path: &std::path::Path) -> LocalRegistry {
 }
 
 fn create_test_package(name: &str, version: &str) -> ggen_marketplace::models::Package {
-    let version_parts: Vec<u32> = version.split('.').map(|s| s.parse().unwrap()).collect();
+    use ggen_marketplace::models::{PackageId, PackageMetadata, PackageVersion, QualityScore};
 
-    let unvalidated = ggen_marketplace::models::Package::builder(
-        PackageId::new("test", name),
-        Version::new(version_parts[0], version_parts[1], version_parts[2]),
-    )
-    .title(format!("{} Package", name))
-    .description(format!("Test package for {}", name))
-    .license("MIT")
-    .content_id(ContentId::new(
-        format!("hash_{}", name),
-        ggen_marketplace::models::package::HashAlgorithm::Sha256,
-    ))
-    .build()
-    .unwrap();
-    unvalidated.validate().unwrap().package().clone()
+    ggen_marketplace::models::Package {
+        metadata: PackageMetadata {
+            id: PackageId::new("test", name),
+            name: name.to_string(),
+            description: Some(format!("Test package for {}", name)),
+            license: Some(ggen_marketplace::models::LicenseId::mit()),
+            authors: vec![],
+            keywords: vec![],
+            categories: vec![],
+            readme_url: None,
+            repository_url: None,
+            homepage_url: None,
+            documentation_url: None,
+            quality_score: QualityScore::new(80),
+            downloads: 0,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+        },
+        latest_version: PackageVersion::new(version).unwrap(),
+        all_versions: vec![PackageVersion::new(version).unwrap()],
+    }
 }
 
 async fn search_with_tracing(

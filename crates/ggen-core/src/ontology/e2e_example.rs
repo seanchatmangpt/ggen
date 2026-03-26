@@ -102,7 +102,7 @@ mod e2e_tests {
         }
 
         // 7. CHECK FINAL STATE
-        let final_snapshot = control_loop.current_snapshot();
+        let final_snapshot = control_loop.current_snapshot().unwrap();
         println!("\n--- Final State ---");
         println!("Final snapshot ID: {}", final_snapshot.id);
         println!("Final version: {}", final_snapshot.version);

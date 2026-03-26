@@ -16,7 +16,7 @@ use crate::{
 
 /// Search for packages in the marketplace
 pub async fn search_packages(
-    State(state): State<AppState>, Query(req): Query<SearchRequest>,
+    State(_state): State<AppState>, Query(req): Query<SearchRequest>,
 ) -> ApiResult<Json<PaginatedResponse<PackageResult>>> {
     // Validate request
     if req.query.is_empty() {
@@ -122,7 +122,7 @@ pub async fn download_package(
 
 /// List user's purchased packages
 pub async fn list_purchases(
-    State(_state): State<AppState>, Query(pagination): Query<serde_json::Value>,
+    State(_state): State<AppState>, Query(_pagination): Query<serde_json::Value>,
 ) -> ApiResult<Json<PaginatedResponse<PackageResult>>> {
     // TODO: Get user from auth context
     // TODO: Fetch user's purchases from database

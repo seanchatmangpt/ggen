@@ -214,7 +214,7 @@ impl EntitlementService {
 
         if response.status() == reqwest::StatusCode::TOO_MANY_REQUESTS {
             return Err(MarketplaceError::RateLimitExceeded(
-                "Usage quota exceeded".to_string()
+                "Usage quota exceeded".to_string(),
             ));
         }
 

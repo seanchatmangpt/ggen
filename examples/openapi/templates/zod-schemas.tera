@@ -1,14 +1,3 @@
----
-to: lib/schemas/entities.mjs
-description: Generates Zod validation schemas for entities from RDF ontology
-vars:
-  entityName: string
-  propertyName: string
-  propertyType: string
-metadata:
-  category: schemas
-  output_type: validation
----
 {# =============================================================================
    ZOD SCHEMAS TEMPLATE - Generates Zod validation schemas
    Uses sparql_results array with ?-prefixed keys
@@ -42,7 +31,7 @@ import { z } from "zod";
  */
 
 {% endif -%}
-{%- set_global current_entity = entityName %}
+{%- set current_entity = entityName %}
 /**
  * {{ entityName }} schema{% if entityDescription != "" %} - {{ entityDescription }}{% endif %}
  */

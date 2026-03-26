@@ -3,6 +3,20 @@ use clap::Subcommand;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+/// Subcommands for managing token bucket backpressure in the TPS system.
+///
+/// Implements token bucket rate limiting with configurable policies. Commands
+/// manage multiple independent token pools that can be acquired from, released to,
+/// and configured with different admission control policies.
+///
+/// # Variants
+///
+/// - `Init`: Create a new token pool
+/// - `Acquire`: Request tokens from a pool
+/// - `Release`: Return tokens to a pool
+/// - `Status`: Check pool status and utilization
+/// - `List`: View all pools
+/// - `SetPolicy`: Configure admission control policy
 #[derive(Debug, Subcommand)]
 pub enum BackpressureCommands {
     /// Initialize token pool
@@ -76,38 +90,66 @@ pub enum BackpressureCommands {
     },
 }
 
+/// Output format for backpressure commands.
 #[derive(Debug, Clone, clap::ValueEnum)]
 pub enum OutputFormat {
+    /// JSON format output
     Json,
+    /// Human-readable text format
     Text,
 }
 
+/// Admission control policy for token pool.
+///
+/// Determines behavior when tokens are not available.
 #[derive(Debug, Clone, Serialize, Deserialize, clap::ValueEnum)]
 #[serde(rename_all = "lowercase")]
 pub enum PolicyType {
+    /// Strictly enforce token requirements, reject if insufficient
     Strict,
+    /// Allow some overflow beyond strict limits
     Relaxed,
+    /// Dynamically adjust based on demand patterns
     Adaptive,
 }
 
+/// A token bucket for rate limiting.
+///
+/// Implements the token bucket algorithm with configurable capacity and
+/// refill rate. Tracks usage statistics for monitoring.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TokenPool {
+    /// Name identifying this pool
     pub name: String,
+    /// Maximum number of tokens this pool can hold
     pub capacity: usize,
+    /// Current number of available tokens
     pub available: usize,
+    /// Refill rate in tokens per second
     pub refill_rate: f64,
+    /// RFC 3339 timestamp of last refill operation
     pub last_refill: String,
+    /// Admission control policy for this pool
     pub policy: PolicyType,
+    /// Total number of successful token acquisitions
     pub acquisitions: usize,
+    /// Total number of rejected acquisition attempts
     pub rejections: usize,
 }
 
+/// Collection of all token pools in the system.
+///
+/// Maintains and manages the set of token pools used for backpressure control.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PoolRegistry {
+    /// All registered token pools
     pub pools: Vec<TokenPool>,
 }
 
 impl BackpressureCommands {
+    /// Execute the backpressure command asynchronously.
+    ///
+    /// Dispatches to the appropriate handler based on the command variant.
     pub async fn execute(self) -> Result<()> {
         match self {
             Self::Init {
@@ -127,11 +169,18 @@ impl BackpressureCommands {
         }
     }
 
+    /// Create a new token pool with initial configuration.
+    ///
+    /// Initializes a pool with the specified capacity and refill rate,
+    /// and sets the default policy to Strict.
     async fn init_pool(name: String, capacity: usize, refill_rate: f64) -> Result<()> {
         let mut registry = Self::load_registry().await?;
 
         if registry.pools.iter().any(|p| p.name == name) {
-            return Err(CliError::Validation(format!("Pool {} already exists", name)));
+            return Err(CliError::Validation(format!(
+                "Pool {} already exists",
+                name
+            )));
         }
 
         let pool = TokenPool {
@@ -155,6 +204,11 @@ impl BackpressureCommands {
         Ok(())
     }
 
+    /// Request tokens from a pool.
+    ///
+    /// Attempts to acquire the specified number of tokens. If the pool
+    /// has sufficient tokens, they are deducted. Otherwise, behavior
+    /// depends on the blocking flag and policy.
     async fn acquire_tokens(pool_name: String, tokens: usize, blocking: bool) -> Result<()> {
         let mut registry = Self::load_registry().await?;
 
@@ -194,6 +248,9 @@ impl BackpressureCommands {
         }
     }
 
+    /// Return tokens to a pool.
+    ///
+    /// Adds tokens back to the pool, clamping to the pool's capacity.
     async fn release_tokens(pool_name: String, tokens: usize) -> Result<()> {
         let mut registry = Self::load_registry().await?;
 
@@ -214,6 +271,9 @@ impl BackpressureCommands {
         Ok(())
     }
 
+    /// Display status and metrics of a token pool.
+    ///
+    /// Shows current availability, refill rate, and usage statistics.
     async fn check_status(pool_name: String, format: OutputFormat) -> Result<()> {
         let mut registry = Self::load_registry().await?;
 
@@ -262,6 +322,9 @@ impl BackpressureCommands {
         Ok(())
     }
 
+    /// List all token pools and their current status.
+    ///
+    /// Displays summary information for each pool including utilization percentage.
     async fn list_pools(format: OutputFormat) -> Result<()> {
         let mut registry = Self::load_registry().await?;
 
@@ -291,6 +354,9 @@ impl BackpressureCommands {
         Ok(())
     }
 
+    /// Configure the admission control policy for a pool.
+    ///
+    /// Changes how the pool behaves when tokens are insufficient.
     async fn set_policy(pool_name: String, policy_type: PolicyType) -> Result<()> {
         let mut registry = Self::load_registry().await?;
 
@@ -308,6 +374,9 @@ impl BackpressureCommands {
         Ok(())
     }
 
+    /// Refill tokens in a pool based on elapsed time and refill rate.
+    ///
+    /// Updates the pool's available tokens and last_refill timestamp.
     fn refill_pool(pool: &mut TokenPool) -> Result<()> {
         let last_refill_dt = chrono::DateTime::parse_from_rfc3339(&pool.last_refill)
             .map_err(|e| CliError::Unknown(format!("Invalid timestamp: {}", e)))?;
@@ -326,6 +395,9 @@ impl BackpressureCommands {
         Ok(())
     }
 
+    /// Load the pool registry from storage.
+    ///
+    /// Returns an empty registry if no file exists yet.
     async fn load_registry() -> Result<PoolRegistry> {
         let path = Self::registry_path();
         if !path.exists() {
@@ -336,6 +408,7 @@ impl BackpressureCommands {
         Ok(serde_json::from_str(&content)?)
     }
 
+    /// Persist the pool registry to storage.
     async fn save_registry(registry: &PoolRegistry) -> Result<()> {
         let path = Self::registry_path();
         if let Some(parent) = path.parent() {
@@ -347,6 +420,7 @@ impl BackpressureCommands {
         Ok(())
     }
 
+    /// Get the path to the pool registry file.
     fn registry_path() -> PathBuf {
         PathBuf::from(".ggen/backpressure-pools.json")
     }

@@ -78,7 +78,9 @@ async fn test_complete_pipeline_success() {
 
     // Assert Stage 1 - Admitted
     match firewall_response {
-        AdmissionResponse::Admitted { request_id: rid, .. } => {
+        AdmissionResponse::Admitted {
+            request_id: rid, ..
+        } => {
             assert_eq!(rid, request_id);
 
             // Generate receipt for admission
@@ -97,13 +99,10 @@ async fn test_complete_pipeline_success() {
     }
 
     // Stage 2: Packet - Create work order
-    let work_order = WorkOrder::new(
-        "Process payment".to_string(),
-        "payment-service".to_string(),
-    )
-    .expect("Failed to create work order")
-    .with_priority(Priority::High)
-    .expect("Failed to set priority");
+    let work_order = WorkOrder::new("Process payment".to_string(), "payment-service".to_string())
+        .expect("Failed to create work order")
+        .with_priority(Priority::High)
+        .expect("Failed to set priority");
 
     context.add_work_order(work_order.clone());
 
@@ -298,7 +297,10 @@ async fn test_receipt_chain_across_stages() {
                 i
             );
         } else {
-            assert!(receipt.previous_receipt_hash.is_none(), "Stage 0 should be genesis");
+            assert!(
+                receipt.previous_receipt_hash.is_none(),
+                "Stage 0 should be genesis"
+            );
         }
     }
 }
@@ -338,10 +340,7 @@ async fn test_backpressure_firewall_integration() {
         }
 
         // Try firewall
-        let request = IngressRequest::new(
-            IngressChannel::Batch,
-            format!("req-{}", i).into_bytes(),
-        );
+        let request = IngressRequest::new(IngressChannel::Batch, format!("req-{}", i).into_bytes());
         let response = firewall.process(request).await;
 
         match response {

@@ -58,13 +58,14 @@ pub async fn record_usage(
 
 /// Get user's invoices
 pub async fn get_invoices(
-    State(_state): State<AppState>, Query(params): Query<std::collections::HashMap<String, String>>,
+    State(_state): State<AppState>,
+    Query(_params): Query<std::collections::HashMap<String, String>>,
 ) -> ApiResult<Json<Vec<InvoiceResponse>>> {
     // TODO: Get user from auth context
     // TODO: Fetch invoices from database
     // TODO: Support pagination via limit/offset
 
-    let limit = params
+    let _limit = _params
         .get("limit")
         .and_then(|s| s.parse::<u32>().ok())
         .unwrap_or(20);
@@ -117,7 +118,8 @@ pub async fn change_tier(
 
 /// Get billing history
 pub async fn get_billing_history(
-    State(_state): State<AppState>, Query(params): Query<std::collections::HashMap<String, String>>,
+    State(_state): State<AppState>,
+    Query(_params): Query<std::collections::HashMap<String, String>>,
 ) -> ApiResult<Json<serde_json::Value>> {
     // TODO: Get user from auth context
     // TODO: Fetch billing events from database
@@ -171,7 +173,7 @@ pub async fn get_payment_methods(
 
 /// Add a payment method
 pub async fn add_payment_method(
-    State(_state): State<AppState>, Json(payload): Json<serde_json::Value>,
+    State(_state): State<AppState>, Json(_payload): Json<serde_json::Value>,
 ) -> ApiResult<(StatusCode, Json<serde_json::Value>)> {
     // TODO: Get user from auth context
     // TODO: Create Stripe SetupIntent

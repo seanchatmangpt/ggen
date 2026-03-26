@@ -1,7 +1,7 @@
 //! Integration tests for metrics calculations.
 
-use ggen_kaizen::metrics::*;
 use chrono::{Duration, Utc};
+use ggen_kaizen::metrics::*;
 
 #[test]
 fn test_metrics_snapshot_builder_pattern() {
@@ -58,7 +58,10 @@ fn test_custom_metrics() {
     // Assert
     assert_eq!(snapshot.get_custom_metric("response_time_ms"), Some(125.5));
     assert_eq!(snapshot.get_custom_metric("memory_usage_mb"), Some(512.0));
-    assert_eq!(snapshot.get_custom_metric("cpu_utilization_pct"), Some(67.3));
+    assert_eq!(
+        snapshot.get_custom_metric("cpu_utilization_pct"),
+        Some(67.3)
+    );
     assert_eq!(snapshot.get_custom_metric("nonexistent"), None);
 }
 

@@ -164,7 +164,7 @@ impl SHACLGenerator {
             // Individual PropertyShape definitions
             for prop_shape in &shape.property_shapes {
                 ttl.push_str(&Self::property_shape_to_turtle(prop_shape)?);
-                ttl.push_str("\n");
+                ttl.push('\n');
             }
         } else {
             ttl.push_str(" .\n");
@@ -181,65 +181,51 @@ impl SHACLGenerator {
         ttl.push_str(&format!(":{}PropertyShape a sh:PropertyShape ;\n", name));
         ttl.push_str(&format!("    sh:path <{}> ", shape.path));
 
-        let mut has_constraints = false;
-
         if let Some(ref dt) = shape.datatype {
             ttl.push_str(&format!(";\n    sh:datatype <{}>", dt));
-            has_constraints = true;
         }
         if let Some(ref cls) = shape.class {
             ttl.push_str(&format!(";\n    sh:class <{}>", cls));
-            has_constraints = true;
         }
         if let Some(n) = shape.min_count {
             ttl.push_str(&format!(";\n    sh:minCount {}", n));
-            has_constraints = true;
         }
         if let Some(n) = shape.max_count {
             ttl.push_str(&format!(";\n    sh:maxCount {}", n));
-            has_constraints = true;
         }
         if let Some(n) = shape.min_length {
             ttl.push_str(&format!(";\n    sh:minLength {}", n));
-            has_constraints = true;
         }
         if let Some(n) = shape.max_length {
             ttl.push_str(&format!(";\n    sh:maxLength {}", n));
-            has_constraints = true;
         }
         if let Some(ref p) = shape.pattern {
             ttl.push_str(&format!(";\n    sh:pattern \"{}\"", p));
-            has_constraints = true;
         }
         if let Some(v) = shape.min_inclusive {
             ttl.push_str(&format!(";\n    sh:minInclusive {}", v));
-            has_constraints = true;
         }
         if let Some(v) = shape.max_inclusive {
             ttl.push_str(&format!(";\n    sh:maxInclusive {}", v));
-            has_constraints = true;
         }
         if let Some(v) = shape.min_exclusive {
             ttl.push_str(&format!(";\n    sh:minExclusive {}", v));
-            has_constraints = true;
         }
         if let Some(v) = shape.max_exclusive {
             ttl.push_str(&format!(";\n    sh:maxExclusive {}", v));
-            has_constraints = true;
         }
 
-        if !has_constraints {
-            ttl.push_str(" .\n");
-        } else {
-            ttl.push_str(" .\n");
-        }
+        ttl.push_str(" .\n");
 
         Ok(ttl)
     }
 
     /// Extract local name from URI
     fn local_name(uri: &str) -> String {
-        uri.split(&['#', '/'][..]).last().unwrap_or("").to_string()
+        uri.split(&['#', '/'][..])
+            .next_back()
+            .unwrap_or("")
+            .to_string()
     }
 }
 

@@ -103,9 +103,7 @@ impl Osiris {
 
     /// Process request with admission control
     pub async fn process<F, Fut, Req, Resp>(
-        &mut self,
-        request: Req,
-        handler: F,
+        &mut self, request: Req, handler: F,
     ) -> Result<Resp, OsirisError>
     where
         F: FnOnce(Req) -> Fut,
@@ -114,7 +112,9 @@ impl Osiris {
         Resp: Send,
     {
         // Admission control
-        let ticket = self.admission.try_admit()
+        let ticket = self
+            .admission
+            .try_admit()
             .map_err(|e| OsirisError::Routing(e.into()))?;
 
         // Process

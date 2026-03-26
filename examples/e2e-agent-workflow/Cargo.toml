@@ -1,0 +1,66 @@
+[package]
+name = "e2e-agent-workflow"
+version = "0.1.0"
+edition = "2021"
+authors = ["ggen team"]
+description = "Wave 5 example: End-to-end integrated workflow demonstrating A2A agents, OSIRIS domains, MCP tools, and distributed consensus"
+license = "MIT"
+
+[dependencies]
+# Async runtime
+tokio = { version = "1.40", features = ["full"] }
+async-trait = "0.1"
+futures = "0.3"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Logging and tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Utilities
+uuid = { version = "1.0", features = ["serde", "v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+regex = "1.0"
+dashmap = "5.5"
+
+# ggen integration crates
+a2a-generated = { path = "../../crates/a2a-generated" }
+ggen-a2a-mcp = { path = "../../crates/ggen-a2a-mcp" }
+
+[dev-dependencies]
+# Testing
+tokio-test = "0.4"
+proptest = "1.8"
+mockall = "0.13"
+tempfile = "3.0"
+assert_fs = "1.0"
+insta = "1.34"
+criterion = { version = "0.5", features = ["async_tokio"] }
+
+[features]
+default = []
+
+[[test]]
+name = "e2e_workflow_tests"
+path = "tests/e2e_workflow_tests.rs"
+
+[[test]]
+name = "integration_tests"
+path = "tests/integration_tests.rs"
+
+[[test]]
+name = "fault_tolerance_tests"
+path = "tests/fault_tolerance_tests.rs"
+
+[[test]]
+name = "consensus_tests"
+path = "tests/consensus_tests.rs"
+
+[workspace]

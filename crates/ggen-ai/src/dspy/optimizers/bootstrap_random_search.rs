@@ -25,6 +25,10 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::{debug, info, warn};
 
+/// Type alias for metric function
+type MetricFn =
+    Arc<dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ModuleError> + Send + Sync>;
+
 /// BootstrapFewShotWithRandomSearch optimizer
 ///
 /// Extends BootstrapFewShot with random exploration of demonstration
@@ -61,11 +65,7 @@ impl BootstrapFewShotWithRandomSearch {
     /// let metric = Arc::new(ExactMatchMetric::new("answer"));
     /// let optimizer = BootstrapFewShotWithRandomSearch::new(metric);
     /// ```
-    pub fn new(
-        metric: Arc<
-            dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ModuleError> + Send + Sync,
-        >,
-    ) -> Self {
+    pub fn new(metric: MetricFn) -> Self {
         Self {
             base: BootstrapFewShot::new(metric),
             num_candidate_programs: 16,
@@ -293,8 +293,7 @@ impl Optimizer for BootstrapFewShotWithRandomSearch {
 
 /// Adapter to convert legacy MetricFn to Metric trait
 struct MetricAdapter {
-    inner:
-        Arc<dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ModuleError> + Send + Sync>,
+    inner: MetricFn,
 }
 
 #[async_trait::async_trait]
@@ -317,7 +316,7 @@ impl Metric for MetricAdapter {
 mod tests {
     use super::*;
     use crate::dspy::field::{InputField, OutputField};
-    use crate::Signature;
+    use crate::dspy::Signature;
 
     fn create_test_signature() -> Signature {
         Signature::new("QA", "Question answering")
@@ -465,7 +464,7 @@ mod tests {
     #[test]
     fn test_with_max_demos_zero() {
         let metric = create_simple_metric();
-        let optimizer =
+        let _optimizer =
             BootstrapFewShotWithRandomSearch::new(metric).with_max_bootstrapped_demos(0);
         // Should handle gracefully (BootstrapFewShot should clamp)
     }
@@ -477,7 +476,7 @@ mod tests {
         // This would require full LLM integration for proper testing
         // Just verify the method exists and returns correct types
         let metric = create_simple_metric();
-        let optimizer = BootstrapFewShotWithRandomSearch::new(metric);
+        let _optimizer = BootstrapFewShotWithRandomSearch::new(metric);
         // Cannot fully test without LLM
     }
 }

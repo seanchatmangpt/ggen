@@ -3,7 +3,6 @@ use crate::origin::{Origin, OriginValidator};
 use crate::session::{SessionId, SessionManager};
 use crate::streaming::{MessageStream, StreamBuilder, StreamSender};
 use async_trait::async_trait;
-use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -85,8 +84,7 @@ pub enum A2aStreamType {
 pub trait A2aMessageHandler: Send + Sync {
     async fn handle_message(&self, message: A2aMessage) -> Result<A2aResponse>;
     async fn handle_stream(
-        &self,
-        message: A2aStreamMessage,
+        &self, message: A2aStreamMessage,
     ) -> Result<(StreamSender, MessageStream)>;
 }
 
@@ -100,9 +98,7 @@ pub struct A2aTransport {
 
 impl A2aTransport {
     pub fn new(
-        agent_id: String,
-        session_manager: SessionManager,
-        origin_validator: OriginValidator,
+        agent_id: String, session_manager: SessionManager, origin_validator: OriginValidator,
     ) -> Self {
         Self {
             agent_id,
@@ -114,9 +110,7 @@ impl A2aTransport {
     }
 
     pub async fn register_handler(
-        &self,
-        message_type: String,
-        handler: Arc<dyn A2aMessageHandler>,
+        &self, message_type: String, handler: Arc<dyn A2aMessageHandler>,
     ) {
         let mut handlers = self.handlers.write().await;
         handlers.insert(message_type, handler);
@@ -209,8 +203,7 @@ impl A2aTransport {
     }
 
     pub async fn handle_stream(
-        &self,
-        message: A2aStreamMessage,
+        &self, message: A2aStreamMessage,
     ) -> Result<(StreamSender, MessageStream)> {
         if message.to_agent != self.agent_id {
             return Err(TransportError::ProtocolError(format!(
@@ -278,8 +271,7 @@ impl A2aMessageHandler for EchoA2aHandler {
     }
 
     async fn handle_stream(
-        &self,
-        message: A2aStreamMessage,
+        &self, message: A2aStreamMessage,
     ) -> Result<(StreamSender, MessageStream)> {
         let builder = StreamBuilder::new(message.session_id.clone());
         Ok(builder.build())

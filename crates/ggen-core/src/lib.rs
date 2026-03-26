@@ -158,6 +158,7 @@ pub mod template;
 pub mod template_cache;
 pub mod templates;
 pub mod tera_env;
+pub mod types;
 pub mod validation;
 // v6: Fully-Rendered Libraries via Ontology-First Compilation (A = μ(O))
 pub mod v6;

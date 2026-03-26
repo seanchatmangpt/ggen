@@ -130,9 +130,7 @@ impl PromptCompiler {
     ///
     /// Returns error if query execution or compilation fails
     pub fn compile_from_store(
-        &self,
-        store: &oxigraph::store::Store,
-        construct_query: &str,
+        &self, store: &oxigraph::store::Store, construct_query: &str,
     ) -> Result<CompiledPrompt> {
         let prompt_ir = ir::PromptIR::from_store(store, construct_query)?;
         self.validator.validate(&prompt_ir)?;

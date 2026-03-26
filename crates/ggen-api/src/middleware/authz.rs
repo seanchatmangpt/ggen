@@ -53,7 +53,7 @@ pub async fn require_permission(
 )
     -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<Response, Response>> + Send>>
        + Clone {
-    move |state: State<AppState>, request: Request, next: Next| {
+    move |_state: State<AppState>, request: Request, next: Next| {
         let perm = permission;
         let res_type = resource_type.clone();
 

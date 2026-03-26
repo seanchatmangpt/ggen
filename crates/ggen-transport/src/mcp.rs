@@ -3,7 +3,6 @@ use crate::origin::{Origin, OriginValidator};
 use crate::session::{ResumeCursor, SessionId, SessionManager};
 use crate::streaming::{MessageStream, StreamBuilder, StreamSender};
 use async_trait::async_trait;
-use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -61,8 +60,7 @@ pub struct McpStreamRequest {
 pub trait McpHandler: Send + Sync {
     async fn handle_request(&self, request: McpRequest) -> Result<McpResponse>;
     async fn handle_stream_request(
-        &self,
-        request: McpStreamRequest,
+        &self, request: McpStreamRequest,
     ) -> Result<(StreamSender, MessageStream)>;
 }
 
@@ -141,8 +139,7 @@ impl McpTransport {
     }
 
     pub async fn handle_stream_request(
-        &self,
-        request: McpStreamRequest,
+        &self, request: McpStreamRequest,
     ) -> Result<(StreamSender, MessageStream)> {
         self.session_manager
             .touch_session(&request.session_id)
@@ -166,9 +163,7 @@ impl McpTransport {
     }
 
     pub async fn resume_stream(
-        &self,
-        session_id: &SessionId,
-        cursor: &ResumeCursor,
+        &self, session_id: &SessionId, cursor: &ResumeCursor,
     ) -> Result<(StreamSender, MessageStream)> {
         let session = self.session_manager.get_session(session_id).await?;
 
@@ -192,8 +187,7 @@ impl McpHandler for EchoHandler {
     }
 
     async fn handle_stream_request(
-        &self,
-        request: McpStreamRequest,
+        &self, request: McpStreamRequest,
     ) -> Result<(StreamSender, MessageStream)> {
         let builder = StreamBuilder::new(request.session_id.clone());
         Ok(builder.build())

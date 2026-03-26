@@ -340,6 +340,7 @@ impl Default for SecurityLogger {
 mod tests {
     use super::*;
     use crate::security::events::{EventCategory, SecuritySeverity};
+    use crate::security::AttackPattern;
     use std::net::{IpAddr, Ipv4Addr};
 
     #[test]

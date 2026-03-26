@@ -131,9 +131,7 @@ pub struct AggregatedMetrics {
 impl AggregatedMetrics {
     /// Creates aggregated metrics from a series of snapshots.
     pub fn from_snapshots(
-        snapshots: &[MetricsSnapshot],
-        period_start: DateTime<Utc>,
-        period_end: DateTime<Utc>,
+        snapshots: &[MetricsSnapshot], period_start: DateTime<Utc>, period_end: DateTime<Utc>,
     ) -> Result<Self> {
         if snapshots.is_empty() {
             return Err(KaizenError::MissingData(
@@ -296,9 +294,7 @@ impl MetricsCalculator {
 
     /// Gets snapshots within a time range.
     pub fn snapshots_in_range(
-        &self,
-        start: DateTime<Utc>,
-        end: DateTime<Utc>,
+        &self, start: DateTime<Utc>, end: DateTime<Utc>,
     ) -> Vec<&MetricsSnapshot> {
         self.snapshots
             .iter()
@@ -308,9 +304,7 @@ impl MetricsCalculator {
 
     /// Aggregates metrics over a time period.
     pub fn aggregate_period(
-        &self,
-        start: DateTime<Utc>,
-        end: DateTime<Utc>,
+        &self, start: DateTime<Utc>, end: DateTime<Utc>,
     ) -> Result<AggregatedMetrics> {
         let snapshots: Vec<MetricsSnapshot> = self
             .snapshots_in_range(start, end)

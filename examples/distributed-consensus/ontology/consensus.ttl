@@ -1,0 +1,566 @@
+# Distributed Consensus Ontology - Byzantine Fault Tolerance
+# Base URI: https://ggen.dev/consensus#
+# Version: 1.0.0
+
+@prefix consensus: <https://ggen.dev/consensus#> .
+@prefix a2a: <https://a2a.dev/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<https://ggen.dev/consensus> rdf:type owl:Ontology ;
+    rdfs:label "Distributed Consensus Ontology"@en ;
+    rdfs:comment "Formal specification of Byzantine fault-tolerant consensus algorithms, voting mechanisms, quorum rules, and cryptographic receipt generation for multi-agent coordination."@en ;
+    dcterms:created "2026-03-24"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+#################################################################
+#    Consensus Algorithm Definitions
+#################################################################
+
+consensus:ConsensusAlgorithm rdf:type owl:Class ;
+    rdfs:label "Consensus Algorithm"@en ;
+    rdfs:comment "Abstract specification of a distributed consensus algorithm"@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:algorithmName ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:maxByzantineNodes ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:requiredQuorum ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+consensus:PracticalByzantineFaultTolerance rdf:type consensus:ConsensusAlgorithm ;
+    rdfs:label "Practical Byzantine Fault Tolerance (PBFT)"@en ;
+    rdfs:comment "State machine replication for Byzantine fault tolerance with f < n/3"@en ;
+    consensus:algorithmName "PBFT"^^xsd:string ;
+    consensus:academicReference "Castro & Liskov, 1999"^^xsd:string ;
+    consensus:faultModelAssumption "Byzantine faults: up to f nodes can fail arbitrarily"^^xsd:string ;
+    consensus:networkAssumption "asynchronous network with eventual delivery"^^xsd:string ;
+    consensus:safetyProperty "all non-faulty nodes agree on same value"^^xsd:string ;
+    consensus:livenessProperty "consensus reaches agreement in bounded rounds"^^xsd:string .
+
+#################################################################
+#    Byzantine Fault Tolerance Parameters
+#################################################################
+
+consensus:ByzantineFaultToleranceConfig rdf:type owl:Class ;
+    rdfs:label "Byzantine Fault Tolerance Configuration"@en ;
+    rdfs:comment "Configuration parameters for BFT systems (f, n=3f+1)"@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:totalNodes ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:maxByzantineNodes ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:requiredQuorum ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+consensus:SmallCluster rdf:type consensus:ByzantineFaultToleranceConfig ;
+    rdfs:label "Small Cluster (f=1, n=4)"@en ;
+    consensus:totalNodes "4"^^xsd:int ;
+    consensus:maxByzantineNodes "1"^^xsd:int ;
+    consensus:requiredQuorum "3"^^xsd:int ;
+    consensus:description "Minimal BFT system tolerating 1 faulty node" .
+
+consensus:MediumCluster rdf:type consensus:ByzantineFaultToleranceConfig ;
+    rdfs:label "Medium Cluster (f=3, n=10)"@en ;
+    consensus:totalNodes "10"^^xsd:int ;
+    consensus:maxByzantineNodes "3"^^xsd:int ;
+    consensus:requiredQuorum "7"^^xsd:int ;
+    consensus:description "Typical production BFT system tolerating 3 faulty nodes" .
+
+consensus:LargeCluster rdf:type consensus:ByzantineFaultToleranceConfig ;
+    rdfs:label "Large Cluster (f=5, n=16)"@en ;
+    consensus:totalNodes "16"^^xsd:int ;
+    consensus:maxByzantineNodes "5"^^xsd:int ;
+    consensus:requiredQuorum "11"^^xsd:int ;
+    consensus:description "Large-scale BFT system tolerating 5 faulty nodes" .
+
+#################################################################
+#    Consensus Rounds and Phases
+#################################################################
+
+consensus:ConsensusRound rdf:type owl:Class ;
+    rdfs:label "Consensus Round"@en ;
+    rdfs:comment "Single round of the consensus algorithm"@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:roundNumber ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:hasPhase ;
+        owl:minCardinality "2"^^xsd:nonNegativeInteger
+    ] .
+
+consensus:ConsensusPhase rdf:type owl:Class ;
+    rdfs:label "Consensus Phase"@en ;
+    rdfs:comment "Phase within a consensus round"@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:phaseName ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:timeout ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+consensus:PrePreparePhase rdf:type consensus:ConsensusPhase ;
+    rdfs:label "Pre-Prepare Phase"@en ;
+    rdfs:comment "Primary proposes value and broadcasts to all nodes"@en ;
+    consensus:phaseName "PRE_PREPARE"^^xsd:string ;
+    consensus:timeout "10000"^^xsd:int ;
+    consensus:nodeRole "primary"^^xsd:string .
+
+consensus:PreparePhase rdf:type consensus:ConsensusPhase ;
+    rdfs:label "Prepare Phase"@en ;
+    rdfs:comment "Replicas prepare the value and exchange prepare messages"@en ;
+    consensus:phaseName "PREPARE"^^xsd:string ;
+    consensus:timeout "5000"^^xsd:int ;
+    consensus:requiredMessageCount "2f+1"^^xsd:string .
+
+consensus:CommitPhase rdf:type consensus:ConsensusPhase ;
+    rdfs:label "Commit Phase"@en ;
+    rdfs:comment "Replicas commit the value upon receiving 2f+1 prepares"@en ;
+    consensus:phaseName "COMMIT"^^xsd:string ;
+    consensus:timeout "5000"^^xsd:int ;
+    consensus:requiredMessageCount "2f+1"^^xsd:string .
+
+#################################################################
+#    Voting and Quorum
+#################################################################
+
+consensus:Vote rdf:type owl:Class ;
+    rdfs:label "Vote"@en ;
+    rdfs:comment "Vote from a node in consensus process"@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:voter ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:votedValue ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:roundNumber ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:timestamp ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+consensus:QuorumRequirement rdf:type owl:Class ;
+    rdfs:label "Quorum Requirement"@en ;
+    rdfs:comment "Specification of quorum size for consensus decisions"@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:minimumVotes ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+consensus:StrictQuorum rdf:type consensus:QuorumRequirement ;
+    rdfs:label "Strict Quorum"@en ;
+    rdfs:comment "Requires 2f+1 votes from n=3f+1 nodes"@en ;
+    consensus:formula "2f+1"^^xsd:string ;
+    consensus:safeByzantineThreshold "true"^^xsd:boolean .
+
+consensus:SimpleMajority rdf:type consensus:QuorumRequirement ;
+    rdfs:label "Simple Majority"@en ;
+    rdfs:comment "Requires > n/2 votes (not Byzantine-safe)"@en ;
+    consensus:formula "n/2+1"^^xsd:string ;
+    consensus:safeByzantineThreshold "false"^^xsd:boolean .
+
+#################################################################
+#    Cryptographic Receipts and Verification
+#################################################################
+
+consensus:Receipt rdf:type owl:Class ;
+    rdfs:label "Receipt"@en ;
+    rdfs:comment "Cryptographic proof of consensus decision with hash and signatures"@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:receiptId ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:contentHash ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:hasSignature ;
+        owl:minCardinality "2f+1"^^xsd:string
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:timestamp ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+consensus:ReceiptSignature rdf:type owl:Class ;
+    rdfs:label "Receipt Signature"@en ;
+    rdfs:comment "Digital signature from a node on a receipt"@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:signingNode ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:signatureValue ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:signatureAlgorithm ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+consensus:HashAlgorithm rdf:type owl:Class ;
+    rdfs:label "Hash Algorithm"@en ;
+    rdfs:comment "Cryptographic hash function specification"@en ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:oneOf (
+            consensus:SHA256Hash
+            consensus:SHA512Hash
+            consensus:Blake3Hash
+        )
+    ] .
+
+consensus:SHA256Hash rdf:type consensus:HashAlgorithm ;
+    rdfs:label "SHA-256"@en ;
+    consensus:algorithmName "SHA-256"^^xsd:string ;
+    consensus:hashSize "256"^^xsd:int ;
+    consensus:securityLevel "256-bit"^^xsd:string .
+
+consensus:SHA512Hash rdf:type consensus:HashAlgorithm ;
+    rdfs:label "SHA-512"@en ;
+    consensus:algorithmName "SHA-512"^^xsd:string ;
+    consensus:hashSize "512"^^xsd:int ;
+    consensus:securityLevel "512-bit"^^xsd:string .
+
+consensus:Blake3Hash rdf:type consensus:HashAlgorithm ;
+    rdfs:label "BLAKE3"@en ;
+    consensus:algorithmName "BLAKE3"^^xsd:string ;
+    consensus:hashSize "256"^^xsd:int ;
+    consensus:securityLevel "256-bit parallelized"^^xsd:string .
+
+consensus:SignatureAlgorithm rdf:type owl:Class ;
+    rdfs:label "Signature Algorithm"@en ;
+    rdfs:comment "Digital signature algorithm specification"@en ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:oneOf (
+            consensus:Ed25519Signature
+            consensus:EcdsaSignature
+            consensus:RsaSignature
+        )
+    ] .
+
+consensus:Ed25519Signature rdf:type consensus:SignatureAlgorithm ;
+    rdfs:label "Ed25519"@en ;
+    consensus:algorithmName "Ed25519"^^xsd:string ;
+    consensus:keySize "256"^^xsd:int ;
+    consensus:securityLevel "128-bit"^^xsd:string ;
+    consensus:performanceRating "high"^^xsd:string .
+
+consensus:EcdsaSignature rdf:type consensus:SignatureAlgorithm ;
+    rdfs:label "ECDSA"@en ;
+    consensus:algorithmName "ECDSA"^^xsd:string ;
+    consensus:keySize "256"^^xsd:int ;
+    consensus:securityLevel "128-bit"^^xsd:string ;
+    consensus:performanceRating "medium"^^xsd:string .
+
+consensus:RsaSignature rdf:type consensus:SignatureAlgorithm ;
+    rdfs:label "RSA"@en ;
+    consensus:algorithmName "RSA"^^xsd:string ;
+    consensus:keySize "2048"^^xsd:int ;
+    consensus:securityLevel "112-bit"^^xsd:string ;
+    consensus:performanceRating "low"^^xsd:string .
+
+#################################################################
+#    Fault Detection and Recovery
+#################################################################
+
+consensus:FaultDetection rdf:type owl:Class ;
+    rdfs:label "Fault Detection"@en ;
+    rdfs:comment "Detection mechanism for Byzantine and crash faults"@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:detectionMethod ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:suspicionThreshold ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+consensus:TimeoutBasedDetection rdf:type consensus:FaultDetection ;
+    rdfs:label "Timeout-Based Detection"@en ;
+    rdfs:comment "Detect faults via message timeout"@en ;
+    consensus:detectionMethod "timeout"^^xsd:string ;
+    consensus:suspicionThreshold "1"^^xsd:int ;
+    consensus:recoveryTime "5000"^^xsd:int .
+
+consensus:VotingBasedDetection rdf:type consensus:FaultDetection ;
+    rdfs:label "Voting-Based Detection"@en ;
+    rdfs:comment "Detect faults via voting inconsistency"@en ;
+    consensus:detectionMethod "voting_mismatch"^^xsd:string ;
+    consensus:suspicionThreshold "2"^^xsd:int ;
+    consensus:recoveryTime "10000"^^xsd:int .
+
+consensus:RecoveryProtocol rdf:type owl:Class ;
+    rdfs:label "Recovery Protocol"@en ;
+    rdfs:comment "Protocol for recovering from detected faults"@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:recoverySteps ;
+        owl:minCardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:maxRecoveryTime ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+consensus:StateResynchronization rdf:type consensus:RecoveryProtocol ;
+    rdfs:label "State Resynchronization"@en ;
+    rdfs:comment "Resync suspected node's state from quorum"@en ;
+    consensus:recoverySteps "fetch_state FROM quorum, validate_hash, apply_updates"^^xsd:string ;
+    consensus:maxRecoveryTime "15000"^^xsd:int ;
+    consensus:Byzantine_safe "true"^^xsd:boolean .
+
+#################################################################
+#    Audit Trail and Provenance
+#################################################################
+
+consensus:AuditTrail rdf:type owl:Class ;
+    rdfs:label "Audit Trail"@en ;
+    rdfs:comment "Complete record of consensus decisions and votes"@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:trailId ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:entries ;
+        owl:minCardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+consensus:ProvenanceRecord rdf:type owl:Class ;
+    rdfs:label "Provenance Record"@en ;
+    rdfs:comment "Immutable record of decision lineage and vote history"@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:recordId ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:decisionHash ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:voters ;
+        owl:minCardinality "2f+1"^^xsd:string
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty consensus:timestamp ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger
+    ] .
+
+#################################################################
+#    Properties
+#################################################################
+
+consensus:algorithmName rdf:type owl:DatatypeProperty ;
+    rdfs:label "algorithm name"@en ;
+    rdfs:range xsd:string .
+
+consensus:maxByzantineNodes rdf:type owl:DatatypeProperty ;
+    rdfs:label "max Byzantine nodes"@en ;
+    rdfs:range xsd:int .
+
+consensus:requiredQuorum rdf:type owl:DatatypeProperty ;
+    rdfs:label "required quorum"@en ;
+    rdfs:range xsd:int .
+
+consensus:academicReference rdf:type owl:DatatypeProperty ;
+    rdfs:label "academic reference"@en ;
+    rdfs:range xsd:string .
+
+consensus:faultModelAssumption rdf:type owl:DatatypeProperty ;
+    rdfs:label "fault model assumption"@en ;
+    rdfs:range xsd:string .
+
+consensus:networkAssumption rdf:type owl:DatatypeProperty ;
+    rdfs:label "network assumption"@en ;
+    rdfs:range xsd:string .
+
+consensus:safetyProperty rdf:type owl:DatatypeProperty ;
+    rdfs:label "safety property"@en ;
+    rdfs:range xsd:string .
+
+consensus:livenessProperty rdf:type owl:DatatypeProperty ;
+    rdfs:label "liveness property"@en ;
+    rdfs:range xsd:string .
+
+consensus:totalNodes rdf:type owl:DatatypeProperty ;
+    rdfs:label "total nodes"@en ;
+    rdfs:range xsd:int .
+
+consensus:description rdf:type owl:DatatypeProperty ;
+    rdfs:label "description"@en ;
+    rdfs:range xsd:string .
+
+consensus:roundNumber rdf:type owl:DatatypeProperty ;
+    rdfs:label "round number"@en ;
+    rdfs:range xsd:int .
+
+consensus:phaseName rdf:type owl:DatatypeProperty ;
+    rdfs:label "phase name"@en ;
+    rdfs:range xsd:string .
+
+consensus:timeout rdf:type owl:DatatypeProperty ;
+    rdfs:label "timeout"@en ;
+    rdfs:range xsd:int .
+
+consensus:nodeRole rdf:type owl:DatatypeProperty ;
+    rdfs:label "node role"@en ;
+    rdfs:range xsd:string .
+
+consensus:requiredMessageCount rdf:type owl:DatatypeProperty ;
+    rdfs:label "required message count"@en ;
+    rdfs:range xsd:string .
+
+consensus:voter rdf:type owl:ObjectProperty ;
+    rdfs:label "voter"@en ;
+    rdfs:domain consensus:Vote ;
+    rdfs:range a2a:Agent .
+
+consensus:votedValue rdf:type owl:DatatypeProperty ;
+    rdfs:label "voted value"@en ;
+    rdfs:range xsd:string .
+
+consensus:timestamp rdf:type owl:DatatypeProperty ;
+    rdfs:label "timestamp"@en ;
+    rdfs:range xsd:dateTime .
+
+consensus:minimumVotes rdf:type owl:DatatypeProperty ;
+    rdfs:label "minimum votes"@en ;
+    rdfs:range xsd:int .
+
+consensus:formula rdf:type owl:DatatypeProperty ;
+    rdfs:label "formula"@en ;
+    rdfs:range xsd:string .
+
+consensus:safeByzantineThreshold rdf:type owl:DatatypeProperty ;
+    rdfs:label "safe Byzantine threshold"@en ;
+    rdfs:range xsd:boolean .
+
+consensus:receiptId rdf:type owl:DatatypeProperty ;
+    rdfs:label "receipt ID"@en ;
+    rdfs:range xsd:string .
+
+consensus:contentHash rdf:type owl:DatatypeProperty ;
+    rdfs:label "content hash"@en ;
+    rdfs:range xsd:string .
+
+consensus:hasSignature rdf:type owl:ObjectProperty ;
+    rdfs:label "has signature"@en ;
+    rdfs:domain consensus:Receipt ;
+    rdfs:range consensus:ReceiptSignature .
+
+consensus:signingNode rdf:type owl:ObjectProperty ;
+    rdfs:label "signing node"@en ;
+    rdfs:domain consensus:ReceiptSignature ;
+    rdfs:range a2a:Agent .
+
+consensus:signatureValue rdf:type owl:DatatypeProperty ;
+    rdfs:label "signature value"@en ;
+    rdfs:range xsd:string .
+
+consensus:signatureAlgorithm rdf:type owl:ObjectProperty ;
+    rdfs:label "signature algorithm"@en ;
+    rdfs:domain consensus:ReceiptSignature ;
+    rdfs:range consensus:SignatureAlgorithm .
+
+consensus:detectionMethod rdf:type owl:DatatypeProperty ;
+    rdfs:label "detection method"@en ;
+    rdfs:range xsd:string .
+
+consensus:suspicionThreshold rdf:type owl:DatatypeProperty ;
+    rdfs:label "suspicion threshold"@en ;
+    rdfs:range xsd:int .
+
+consensus:recoveryTime rdf:type owl:DatatypeProperty ;
+    rdfs:label "recovery time"@en ;
+    rdfs:range xsd:int .
+
+consensus:recoverySteps rdf:type owl:DatatypeProperty ;
+    rdfs:label "recovery steps"@en ;
+    rdfs:range xsd:string .
+
+consensus:maxRecoveryTime rdf:type owl:DatatypeProperty ;
+    rdfs:label "max recovery time"@en ;
+    rdfs:range xsd:int .
+
+consensus:Byzantine_safe rdf:type owl:DatatypeProperty ;
+    rdfs:label "Byzantine safe"@en ;
+    rdfs:range xsd:boolean .
+
+consensus:trailId rdf:type owl:DatatypeProperty ;
+    rdfs:label "trail ID"@en ;
+    rdfs:range xsd:string .
+
+consensus:entries rdf:type owl:ObjectProperty ;
+    rdfs:label "entries"@en ;
+    rdfs:domain consensus:AuditTrail .
+
+consensus:recordId rdf:type owl:DatatypeProperty ;
+    rdfs:label "record ID"@en ;
+    rdfs:range xsd:string .
+
+consensus:decisionHash rdf:type owl:DatatypeProperty ;
+    rdfs:label "decision hash"@en ;
+    rdfs:range xsd:string .
+
+consensus:voters rdf:type owl:DatatypeProperty ;
+    rdfs:label "voters"@en ;
+    rdfs:range xsd:string .
+
+consensus:hasPhase rdf:type owl:ObjectProperty ;
+    rdfs:label "has phase"@en ;
+    rdfs:domain consensus:ConsensusRound ;
+    rdfs:range consensus:ConsensusPhase .

@@ -31,12 +31,26 @@ pub struct LlmConfig {
 
 impl Default for LlmConfig {
     fn default() -> Self {
-        use crate::constants::{env_vars, llm};
+        use crate::constants::{env_vars, llm, models};
+
+        // Provider auto-detection: explicit model > Groq (if key present) > default
+        let model = std::env::var(env_vars::DEFAULT_MODEL)
+            .or_else(|_| std::env::var("DEFAULT_MODEL"))
+            .or_else(|_| {
+                // Auto-select Groq when GROQ_API_KEY is set and GROQ_MODEL is specified
+                std::env::var(env_vars::GROQ_MODEL)
+            })
+            .unwrap_or_else(|_| {
+                // Auto-promote to Groq default when GROQ_API_KEY is present
+                if std::env::var(env_vars::GROQ_API_KEY).is_ok() {
+                    models::GROQ_DEFAULT.to_string()
+                } else {
+                    llm::DEFAULT_MODEL.to_string()
+                }
+            });
 
         Self {
-            model: std::env::var(env_vars::DEFAULT_MODEL)
-                .or_else(|_| std::env::var("DEFAULT_MODEL"))
-                .unwrap_or_else(|_| llm::DEFAULT_MODEL.to_string()),
+            model,
             max_tokens: std::env::var(env_vars::LLM_MAX_TOKENS)
                 .ok()
                 .and_then(|v| v.parse().ok())

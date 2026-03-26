@@ -14,10 +14,10 @@ async fn test_transport_creates_success_response() {
     let result = json!({"status": "success"});
 
     // Act
-    let response = transport.create_response(request_id, result);
+    let response = transport.create_response(json!(request_id), result);
 
     // Assert
-    assert_eq!(response.id, request_id);
+    assert_eq!(response.id, json!(request_id));
     assert!(response.result.is_some());
     assert!(response.error.is_none());
 }
@@ -31,10 +31,10 @@ async fn test_transport_creates_error_response() {
     let error_message = "Invalid request format";
 
     // Act
-    let response = transport.create_error(request_id, error_code, error_message);
+    let response = transport.create_error(json!(request_id), error_code, error_message);
 
     // Assert
-    assert_eq!(response.id, request_id);
+    assert_eq!(response.id, json!(request_id));
     assert!(response.result.is_none());
     assert!(response.error.is_some());
     let error = response.error.unwrap();
@@ -46,6 +46,7 @@ async fn test_transport_handles_initialize_request() {
     // Arrange
     let transport = McpTransport::new();
     let request = McpRequest {
+        jsonrpc: "2.0".to_string(),
         id: json!(1),
         method: "initialize".to_string(),
         params: json!({
@@ -70,6 +71,7 @@ async fn test_transport_handles_list_tools_request() {
     // Arrange
     let transport = McpTransport::new();
     let request = McpRequest {
+        jsonrpc: "2.0".to_string(),
         id: json!(2),
         method: "tools/list".to_string(),
         params: json!({}),
@@ -91,6 +93,7 @@ async fn test_transport_handles_tool_call() {
     // Arrange
     let transport = McpTransport::new();
     let request = McpRequest {
+        jsonrpc: "2.0".to_string(),
         id: json!(3),
         method: "tools/call".to_string(),
         params: json!({
@@ -113,6 +116,7 @@ async fn test_transport_rejects_invalid_method() {
     // Arrange
     let transport = McpTransport::new();
     let request = McpRequest {
+        jsonrpc: "2.0".to_string(),
         id: json!(4),
         method: "invalid/method".to_string(),
         params: json!({}),
@@ -133,7 +137,7 @@ async fn test_transport_rejects_invalid_method() {
 async fn test_transport_serializes_response() {
     // Arrange
     let transport = McpTransport::new();
-    let response = transport.create_response(1, json!({"result": "test"}));
+    let response = transport.create_response(json!(1), json!({"result": "test"}));
 
     // Act
     let serialized = transport.serialize_response(&response);

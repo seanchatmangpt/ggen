@@ -36,10 +36,7 @@ pub struct RefusalReceipt {
 impl RefusalReceipt {
     /// Create new refusal receipt
     pub fn new(
-        request_id: Uuid,
-        channel: IngressChannel,
-        reason: String,
-        payload: Vec<u8>,
+        request_id: Uuid, channel: IngressChannel, reason: String, payload: Vec<u8>,
     ) -> Self {
         let refused_at = Utc::now();
         let receipt_id = Uuid::new_v4();
@@ -77,12 +74,8 @@ impl RefusalReceipt {
 
     /// Generate cryptographic signature for receipt
     fn generate_signature(
-        request_id: Uuid,
-        channel: IngressChannel,
-        reason: &str,
-        refused_at: DateTime<Utc>,
-        payload_hash: &str,
-        receipt_id: Uuid,
+        request_id: Uuid, channel: IngressChannel, reason: &str, refused_at: DateTime<Utc>,
+        payload_hash: &str, receipt_id: Uuid,
     ) -> String {
         let mut hasher = Sha256::new();
 
@@ -210,14 +203,16 @@ mod tests {
             IngressChannel::Batch,
             "Test".to_string(),
             payload.clone(),
-        ).payload_hash;
+        )
+        .payload_hash;
 
         let hash2 = RefusalReceipt::new(
             Uuid::new_v4(),
             IngressChannel::Scheduled,
             "Test".to_string(),
             payload,
-        ).payload_hash;
+        )
+        .payload_hash;
 
         // Same payload should produce same hash
         assert_eq!(hash1, hash2);

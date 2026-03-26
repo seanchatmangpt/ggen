@@ -80,7 +80,8 @@ fn test_pdca_iteration_cycle() {
     cycle.advance("Act phase".to_string()).ok();
 
     // Act - Iterate instead of completing
-    let iterate_result = cycle.iterate("Starting second iteration with refined approach".to_string());
+    let iterate_result =
+        cycle.iterate("Starting second iteration with refined approach".to_string());
 
     // Assert
     assert!(iterate_result.is_ok());

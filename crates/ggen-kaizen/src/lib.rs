@@ -115,11 +115,7 @@ pub struct Improvement {
 impl Improvement {
     /// Creates a new improvement.
     pub fn new(
-        id: String,
-        title: String,
-        description: String,
-        category: Category,
-        priority: Priority,
+        id: String, title: String, description: String, category: Category, priority: Priority,
         owner: String,
     ) -> Self {
         let now = Utc::now();

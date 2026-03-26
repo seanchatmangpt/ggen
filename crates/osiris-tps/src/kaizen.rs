@@ -2,13 +2,11 @@
 //!
 //! Implements Kaizen - continuous improvement cycles
 
-use serde_json::Value;
+use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, info, warn};
-
-use crate::signals::{TPSSignal, TPSLevel};
 
 /// Kaizen improvement stages
 #[derive(Debug, Clone, PartialEq)]
@@ -26,24 +24,38 @@ pub enum KaizenStage {
 /// Kaizen improvement proposal
 #[derive(Debug, Clone)]
 pub struct KaizenImprovement {
+    /// Unique identifier for the improvement
     pub id: String,
+    /// Title of the improvement
     pub title: String,
+    /// Detailed description of the proposed improvement
     pub description: String,
+    /// Current stage of the PDCA cycle (Plan, Do, Check, Act)
     pub stage: KaizenStage,
+    /// User or system that suggested the improvement
     pub suggested_by: String,
+    /// Time when the improvement was proposed
     pub created_at: chrono::DateTime<chrono::Utc>,
+    /// Time when the improvement was implemented, if applicable
     pub implemented_at: Option<chrono::DateTime<chrono::Utc>>,
+    /// Results and metrics from the implementation, if applicable
     pub results: Option<KaizenResults>,
+    /// Current status of the improvement (Suggested, InProgress, Implemented, Rejected, OnHold)
     pub status: ImprovementStatus,
 }
 
 /// Kaizen improvement results
 #[derive(Debug, Clone)]
 pub struct KaizenResults {
+    /// Metrics captured before the improvement was implemented
     pub before_metrics: HashMap<String, f64>,
+    /// Metrics captured after the improvement was implemented
     pub after_metrics: HashMap<String, f64>,
+    /// Percentage improvement calculated from metrics
     pub improvement_percent: f64,
+    /// List of documented benefits from the improvement
     pub benefits: Vec<String>,
+    /// Lessons learned during the improvement cycle
     pub lessons_learned: Vec<String>,
 }
 
@@ -63,6 +75,7 @@ pub enum ImprovementStatus {
 }
 
 /// Kaizen cycle manager
+#[derive(Clone, Debug)]
 pub struct KaizenCycle {
     improvements: Arc<RwLock<HashMap<String, KaizenImprovement>>>,
     active_cycle: Arc<RwLock<Option<OngoingCycle>>>,
@@ -73,32 +86,49 @@ pub struct KaizenCycle {
 /// Ongoing Kaizen cycle
 #[derive(Debug, Clone)]
 pub struct OngoingCycle {
+    /// Unique identifier for the cycle
     pub cycle_id: String,
+    /// Time when the cycle was started
     pub start_time: chrono::DateTime<chrono::Utc>,
+    /// Current stage of the PDCA cycle
     pub current_stage: KaizenStage,
+    /// List of improvement IDs included in this cycle
     pub improvements: Vec<String>,
+    /// Baseline metrics captured at cycle start
     pub metrics_baseline: HashMap<String, f64>,
 }
 
 /// Cycle history
 #[derive(Debug, Clone)]
 pub struct CycleHistory {
+    /// Unique identifier for the cycle
     pub cycle_id: String,
+    /// Time when the cycle was started
     pub start_time: chrono::DateTime<chrono::Utc>,
+    /// Time when the cycle was completed
     pub end_time: chrono::DateTime<chrono::Utc>,
+    /// Total number of improvements in the cycle
     pub improvements_count: usize,
+    /// Average improvement percentage achieved in the cycle
     pub average_improvement: f64,
+    /// Number of improvements successfully implemented
     pub successful_improvements: usize,
 }
 
 /// Improvement suggestion
 #[derive(Debug, Clone)]
 pub struct ImprovementSuggestion {
+    /// Unique identifier for the suggestion
     pub id: String,
+    /// Area or process that the suggestion pertains to
     pub area: String,
+    /// Description of the suggested improvement
     pub description: String,
-    pub priority: f64, // 0.0 to 1.0
+    /// Priority level of the suggestion (0.0 to 1.0)
+    pub priority: f64,
+    /// User or system that suggested the improvement
     pub suggested_by: String,
+    /// Time when the suggestion was made
     pub timestamp: chrono::DateTime<chrono::Utc>,
 }
 
@@ -133,13 +163,15 @@ impl KaizenCycle {
     }
 
     /// Suggest an improvement
-    pub async fn suggest_improvement(&self, message: String) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn suggest_improvement(
+        &self, message: String,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         info!("Kaizen improvement suggestion: {}", message);
 
         let suggestion = ImprovementSuggestion {
             id: format!("suggestion_{}", uuid::Uuid::new_v4()),
             area: "general".to_string(), // Would be parsed from message in real implementation
-            description: message,
+            description: message.clone(),
             priority: 0.5, // Default priority
             suggested_by: "system".to_string(),
             timestamp: chrono::Utc::now(),
@@ -168,11 +200,14 @@ impl KaizenCycle {
     }
 
     /// Record an observation
-    pub async fn record_observation(&self, message: String) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn record_observation(
+        &self, message: String,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         debug!("Kaizen observation: {}", message);
 
         // Observations can be converted to suggestions
-        self.suggest_improvement(format!("Observation: {}", message)).await?;
+        self.suggest_improvement(format!("Observation: {}", message))
+            .await?;
 
         Ok(())
     }
@@ -193,7 +228,10 @@ impl KaizenCycle {
                 }
             };
 
-            info!("Moving Kaizen cycle from {:?} to {:?}", cycle.current_stage, next_stage);
+            info!(
+                "Moving Kaizen cycle from {:?} to {:?}",
+                cycle.current_stage, next_stage
+            );
             cycle.current_stage = next_stage;
         } else {
             return Err("No active Kaizen cycle".into());
@@ -203,8 +241,11 @@ impl KaizenCycle {
     }
 
     /// Implement an improvement
-    pub async fn improve_process(&self, parameters: Value) -> Result<Value, Box<dyn std::error::Error>> {
-        let improvement_id = parameters.get("improvement_id")
+    pub async fn improve_process(
+        &self, parameters: Value,
+    ) -> Result<Value, Box<dyn std::error::Error>> {
+        let improvement_id = parameters
+            .get("improvement_id")
             .and_then(|v| v.as_str())
             .ok_or_else(|| "Improvement ID not specified")?;
 
@@ -252,7 +293,9 @@ impl KaizenCycle {
     }
 
     /// Capture baseline metrics
-    async fn capture_baseline_metrics(&self) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
+    async fn capture_baseline_metrics(
+        &self,
+    ) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
         // In real implementation, this would capture actual metrics
         // For now, return mock data
         Ok(HashMap::from([
@@ -264,7 +307,9 @@ impl KaizenCycle {
     }
 
     /// Capture improved metrics
-    async fn capture_improved_metrics(&self) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
+    async fn capture_improved_metrics(
+        &self,
+    ) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
         // In real implementation, this would capture actual metrics after improvement
         // For now, return mock data with improvements
         Ok(HashMap::from([
@@ -280,8 +325,24 @@ impl KaizenCycle {
         let baseline = self.capture_baseline_metrics().await?;
         let improved = self.capture_improved_metrics().await?;
 
-        let efficiency_improvement = improved.get("efficiency").unwrap() - baseline.get("efficiency").unwrap();
-        let overall_improvement = (efficiency_improvement / baseline.get("efficiency").unwrap()) * 100.0;
+        let baseline_efficiency = baseline.get("efficiency").copied().ok_or_else(|| {
+            warn!("Missing 'efficiency' in baseline metrics");
+            Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "Baseline efficiency metric not found",
+            )) as Box<dyn std::error::Error>
+        })?;
+
+        let improved_efficiency = improved.get("efficiency").copied().ok_or_else(|| {
+            warn!("Missing 'efficiency' in improved metrics");
+            Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "Improved efficiency metric not found",
+            )) as Box<dyn std::error::Error>
+        })?;
+
+        let efficiency_improvement = improved_efficiency - baseline_efficiency;
+        let overall_improvement = (efficiency_improvement / baseline_efficiency) * 100.0;
 
         Ok(overall_improvement)
     }
@@ -330,7 +391,9 @@ impl KaizenCycle {
     }
 
     /// Get all improvements
-    pub async fn get_improvements(&self, status_filter: Option<ImprovementStatus>) -> Vec<KaizenImprovement> {
+    pub async fn get_improvements(
+        &self, status_filter: Option<ImprovementStatus>,
+    ) -> Vec<KaizenImprovement> {
         let improvements = self.improvements.read().await;
         let improvements_vec = improvements.values().cloned().collect::<Vec<_>>();
 
@@ -368,8 +431,14 @@ impl KaizenCycle {
         let active_cycle = self.get_active_cycle().await;
 
         let total_improvements = improvements.len();
-        let implemented_improvements = improvements.values().filter(|i| i.status == ImprovementStatus::Implemented).count();
-        let suggested_improvements = improvements.values().filter(|i| i.status == ImprovementStatus::Suggested).count();
+        let implemented_improvements = improvements
+            .values()
+            .filter(|i| i.status == ImprovementStatus::Implemented)
+            .count();
+        let suggested_improvements = improvements
+            .values()
+            .filter(|i| i.status == ImprovementStatus::Suggested)
+            .count();
         let total_suggestions = suggestions.len();
 
         let average_improvement = if !history.is_empty() {
@@ -425,7 +494,9 @@ mod tests {
         let kaizen = KaizenCycle::new();
         kaizen.start_cycle().await.unwrap();
 
-        let result = kaizen.suggest_improvement("Test improvement suggestion".to_string()).await;
+        let result = kaizen
+            .suggest_improvement("Test improvement suggestion".to_string())
+            .await;
         assert!(result.is_ok());
 
         let improvements = kaizen.get_improvements(None).await;
@@ -441,7 +512,9 @@ mod tests {
         let kaizen = KaizenCycle::new();
         kaizen.start_cycle().await.unwrap();
 
-        let result = kaizen.record_observation("Test observation".to_string()).await;
+        let result = kaizen
+            .record_observation("Test observation".to_string())
+            .await;
         assert!(result.is_ok());
 
         let improvements = kaizen.get_improvements(None).await;
@@ -479,7 +552,10 @@ mod tests {
         kaizen.start_cycle().await.unwrap();
 
         // First suggest an improvement
-        kaizen.suggest_improvement("Test improvement".to_string()).await.unwrap();
+        kaizen
+            .suggest_improvement("Test improvement".to_string())
+            .await
+            .unwrap();
 
         // Get the improvement ID
         let improvements = kaizen.get_improvements(None).await;

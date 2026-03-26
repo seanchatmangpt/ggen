@@ -3,7 +3,6 @@
 //! Provides standard test data, templates, and configurations used across the test suite.
 
 use ggen_core::lifecycle::{Context, Make, Phase, PhaseBuilder, Project};
-use ggen_marketplace::models::{Package, PackageId, Version};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -77,24 +76,12 @@ pub fn sample_context(temp_dir: &TempDir) -> Context {
 }
 
 /// Creates a sample Package for marketplace testing
-pub fn sample_package() -> Package {
-    use ggen_marketplace::models::{ContentId, HashAlgorithm, PackageStats};
-
-    let mut metadata = ggen_marketplace::models::PackageMetadata::default();
-    metadata.title = "Test Package".to_string();
-    metadata.description = "A test package for integration tests".to_string();
-    metadata.license = "MIT".to_string();
-
-    Package {
-        id: PackageId::new("test-namespace", "test-package"),
-        version: Version::new(1, 0, 0),
-        metadata,
-        content_id: ContentId::new("test-content-hash", HashAlgorithm::Sha256),
-        dependencies: vec![],
-        stats: PackageStats::default(),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-    }
+/// Note: This function is commented out as ggen_marketplace is not available in root workspace
+/// To use this, add ggen-marketplace to dev-dependencies
+#[allow(dead_code)]
+pub fn sample_package() -> String {
+    // TODO: Implement with proper ggen_marketplace dependency
+    "test-package".to_string()
 }
 
 /// Creates a temporary directory for test isolation

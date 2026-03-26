@@ -753,30 +753,32 @@ mod tests {
         // This may or may not converge depending on the exact metrics
     }
 
-    #[test]
-    fn test_alignment_strategy() {
+    #[tokio::test]
+    async fn test_alignment_strategy() {
         let strategy = AlignmentStrategy;
         let content = serde_json::json!({"test": "data"});
 
-        let result = strategy.apply_convergence(
-            &mut SemanticConvergenceEngine::new(ConvergenceConfig::default()),
-            &ConvergenceMessage {
-                id: "msg-1".to_string(),
-                source_agent: "agent-1".to_string(),
-                target_agents: vec!["agent-2".to_string()],
-                content: content.clone(),
-                timestamp: Utc::now(),
-                semantic_similarity: 0.0,
-                contribution_type: ContributionType::KnowledgeSharing,
-            },
-        );
+        let result = strategy
+            .apply_convergence(
+                &mut SemanticConvergenceEngine::new(ConvergenceConfig::default()),
+                &ConvergenceMessage {
+                    id: "msg-1".to_string(),
+                    source_agent: "agent-1".to_string(),
+                    target_agents: vec!["agent-2".to_string()],
+                    content: content.clone(),
+                    timestamp: Utc::now(),
+                    semantic_similarity: 0.0,
+                    contribution_type: ContributionType::KnowledgeSharing,
+                },
+            )
+            .await;
 
         assert!(result.is_ok());
         assert!(result.unwrap() > 0.0);
     }
 
-    #[test]
-    fn test_validation_strategy() {
+    #[tokio::test]
+    async fn test_validation_strategy() {
         let strategy = ValidationStrategy;
 
         let message = ConvergenceMessage {
@@ -789,12 +791,15 @@ mod tests {
             contribution_type: ContributionType::MessageValidation,
         };
 
-        let result = strategy.apply_convergence(
-            &mut SemanticConvergenceEngine::new(ConvergenceConfig::default()),
-            &message,
-        );
+        let result = strategy
+            .apply_convergence(
+                &mut SemanticConvergenceEngine::new(ConvergenceConfig::default()),
+                &message,
+            )
+            .await;
 
         assert!(result.is_ok());
-        assert!(result.unwrap() >= 0.0 && result.unwrap() <= 1.0);
+        let val = result.unwrap();
+        assert!(val >= 0.0 && val <= 1.0);
     }
 }

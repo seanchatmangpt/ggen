@@ -151,10 +151,14 @@ impl AutonomicEngine {
         debug!("Making autonomic decision for context: {:?}", context.domain);
 
         // Select appropriate decision model
-        let model = self.select_decision_model(context);
+        let model = self.select_decision_model(context)
+            .ok_or_else(|| {
+                warn!("No suitable decision model found for context");
+                "Unable to select appropriate decision model".into()
+            })?;
 
         // Analyze situation
-        let analysis = self.analyze_situation(context, &model).await?;
+        let analysis = self.analyze_situation(context, model).await?;
 
         // Generate possible actions
         let possible_actions = self.generate_possible_actions(&analysis).await?;
@@ -190,16 +194,16 @@ impl AutonomicEngine {
     }
 
     /// Select appropriate decision model
-    fn select_decision_model(&self, context: &AutonomicContext) -> &DecisionModel {
+    fn select_decision_model(&self, context: &AutonomicContext) -> Option<&DecisionModel> {
         // Prioritize based on context
         if context.quality_threshold > 0.99 {
-            self.decision_models.get("quality").unwrap()
+            self.decision_models.get("quality")
         } else if context.performance_threshold > 0.95 {
-            self.decision_models.get("performance").unwrap()
+            self.decision_models.get("performance")
         } else if context.domain == DomainType::Security {
-            self.decision_models.get("safety").unwrap()
+            self.decision_models.get("safety")
         } else {
-            self.decision_models.get("performance").unwrap()
+            self.decision_models.get("performance")
         }
     }
 

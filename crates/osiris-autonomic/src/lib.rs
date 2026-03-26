@@ -6,7 +6,6 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, info, warn};
 use uuid::Uuid;
@@ -198,7 +197,11 @@ impl AutonomicRefusalSystem {
         let mut policies = self.policies.write().await;
         policies.push(policy);
         policies.sort_by(|a, b| b.priority.cmp(&a.priority));
-        info!("Added new policy: {}", policies.last().unwrap().name);
+        if let Some(last_policy) = policies.last() {
+            info!("Added new policy: {}", last_policy.name);
+        } else {
+            warn!("Policy list empty after adding policy");
+        }
         Ok(())
     }
 
@@ -298,7 +301,7 @@ impl AutonomicRefusalSystem {
     /// Match policies against context
     async fn match_policies(
         &self, context: &RefusalContext, policies: &[RefusalPolicy],
-    ) -> Result<Vec<&RefusalPolicy>> {
+    ) -> Result<Vec<RefusalPolicy>> {
         let mut matching = Vec::new();
 
         for policy in policies {
@@ -315,7 +318,7 @@ impl AutonomicRefusalSystem {
             }
 
             if matches_all {
-                matching.push(policy);
+                matching.push(policy.clone());
             }
         }
 
@@ -373,8 +376,8 @@ impl AutonomicRefusalSystem {
     }
 
     /// Select the best matching policy
-    async fn select_best_policy(&self, policies: &[&RefusalPolicy]) -> Result<&RefusalPolicy> {
-        Ok(&policies[0]) // Policies are sorted by priority
+    async fn select_best_policy(&self, policies: &[RefusalPolicy]) -> Result<RefusalPolicy> {
+        Ok(policies[0].clone()) // Policies are sorted by priority
     }
 
     /// Execute policy actions

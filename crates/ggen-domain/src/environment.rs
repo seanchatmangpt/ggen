@@ -291,7 +291,6 @@ impl Clone for EnvironmentContext {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
 
     #[test]
     fn test_development_config() {

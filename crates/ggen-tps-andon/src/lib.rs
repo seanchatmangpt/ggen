@@ -60,7 +60,7 @@ use std::sync::Arc;
 use tracing::info;
 
 /// TPS Andon system configuration
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct AndonConfig {
     /// Logger configuration
     pub logger: LogConfig,
@@ -72,18 +72,6 @@ pub struct AndonConfig {
     pub observer: ObserverConfig,
     /// Alert configuration
     pub alert: AlertConfig,
-}
-
-impl Default for AndonConfig {
-    fn default() -> Self {
-        Self {
-            logger: LogConfig::default(),
-            metrics: MetricConfig::default(),
-            tracer: TracerConfig::default(),
-            observer: ObserverConfig::default(),
-            alert: AlertConfig::default(),
-        }
-    }
 }
 
 /// Complete TPS Andon system (gen_event pattern equivalent)

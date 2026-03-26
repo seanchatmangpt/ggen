@@ -698,7 +698,7 @@ mod tests {
 
         framework.register_agent(agent).unwrap();
 
-        let pipeline = ExecutionPipeline::new("test-pipeline", "Test Pipeline", "test");
+        let mut pipeline = ExecutionPipeline::new("test-pipeline", "Test Pipeline", "test");
         let mut stage = PipelineStage::new("Stage 1", "test");
 
         let task = Task::new(
@@ -709,6 +709,7 @@ mod tests {
             serde_json::json!({}),
         );
         stage.add_task(task);
+        pipeline.add_stage(stage);
 
         let result = pipeline.execute(&mut framework).await;
         assert!(result.is_ok());

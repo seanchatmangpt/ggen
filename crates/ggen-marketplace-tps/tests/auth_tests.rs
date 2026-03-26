@@ -35,13 +35,15 @@ async fn test_oauth2_token_exchange_success() {
         .mock("POST", "/oauth/token")
         .with_status(200)
         .with_header("content-type", "application/json")
-        .with_body(r#"{
+        .with_body(
+            r#"{
             "access_token": "new_access_token",
             "token_type": "Bearer",
             "expires_in": 7200,
             "refresh_token": "new_refresh_token",
             "scope": "read write"
-        }"#)
+        }"#,
+        )
         .create_async()
         .await;
 
@@ -89,13 +91,15 @@ async fn test_oauth2_token_refresh_success() {
         .mock("POST", "/oauth/token")
         .with_status(200)
         .with_header("content-type", "application/json")
-        .with_body(r#"{
+        .with_body(
+            r#"{
             "access_token": "initial_token",
             "token_type": "Bearer",
             "expires_in": 3600,
             "refresh_token": "refresh_token_123",
             "scope": "read write"
-        }"#)
+        }"#,
+        )
         .create_async()
         .await;
 
@@ -106,13 +110,15 @@ async fn test_oauth2_token_refresh_success() {
         .mock("POST", "/oauth/token")
         .with_status(200)
         .with_header("content-type", "application/json")
-        .with_body(r#"{
+        .with_body(
+            r#"{
             "access_token": "refreshed_token",
             "token_type": "Bearer",
             "expires_in": 3600,
             "refresh_token": "new_refresh_token",
             "scope": "read write"
-        }"#)
+        }"#,
+        )
         .create_async()
         .await;
 
@@ -163,13 +169,15 @@ async fn test_oauth2_get_valid_token_with_expired_token() {
         .mock("POST", "/oauth/token")
         .with_status(200)
         .with_header("content-type", "application/json")
-        .with_body(r#"{
+        .with_body(
+            r#"{
             "access_token": "initial_token",
             "token_type": "Bearer",
             "expires_in": -1,
             "refresh_token": "refresh_token",
             "scope": "read write"
-        }"#)
+        }"#,
+        )
         .create_async()
         .await;
 
@@ -180,13 +188,15 @@ async fn test_oauth2_get_valid_token_with_expired_token() {
         .mock("POST", "/oauth/token")
         .with_status(200)
         .with_header("content-type", "application/json")
-        .with_body(r#"{
+        .with_body(
+            r#"{
             "access_token": "refreshed_token",
             "token_type": "Bearer",
             "expires_in": 3600,
             "refresh_token": "new_refresh_token",
             "scope": "read write"
-        }"#)
+        }"#,
+        )
         .create_async()
         .await;
 

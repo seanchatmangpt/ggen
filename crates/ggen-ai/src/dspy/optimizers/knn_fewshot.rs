@@ -247,7 +247,7 @@ impl KNNPredictor {
             for (idx, demo) in demonstrations.iter().enumerate() {
                 prompt.push_str(&format!("--- Example {} ---\n", idx + 1));
                 prompt.push_str(&demo.format(&self.signature));
-                prompt.push_str("\n");
+                prompt.push('\n');
             }
             prompt.push_str("--- Your Turn ---\n\n");
         }
@@ -410,7 +410,7 @@ impl Module for KNNPredictor {
 mod tests {
     use super::*;
     use crate::dspy::field::{InputField, OutputField};
-    use crate::Signature;
+    use crate::dspy::Signature;
 
     fn create_test_signature() -> Signature {
         Signature::new("QA", "Question answering")
@@ -570,7 +570,9 @@ mod tests {
 
         let result = optimizer.compile(&predictor, &[]).await;
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("empty"));
+        if let Err(e) = result {
+            assert!(e.to_string().contains("empty"));
+        }
     }
 
     #[tokio::test]
@@ -633,7 +635,7 @@ mod tests {
             signature: sig,
             trainset: examples.clone(),
             embeddings,
-            vectorizer: Arc::clone(&vectorizer),
+            vectorizer: vectorizer as Arc<dyn Vectorizer>,
             k: 3,
         };
 

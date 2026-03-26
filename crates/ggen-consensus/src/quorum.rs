@@ -243,10 +243,10 @@ mod tests {
     fn test_byzantine_tolerance_scenarios() {
         // Test various configurations
         let scenarios = vec![
-            (4, 1, 3),   // 4 replicas, tolerate 1 fault, need 3 votes
-            (7, 2, 5),   // 7 replicas, tolerate 2 faults, need 5 votes
-            (10, 3, 7),  // 10 replicas, tolerate 3 faults, need 7 votes
-            (13, 4, 9),  // 13 replicas, tolerate 4 faults, need 9 votes
+            (4, 1, 3),     // 4 replicas, tolerate 1 fault, need 3 votes
+            (7, 2, 5),     // 7 replicas, tolerate 2 faults, need 5 votes
+            (10, 3, 7),    // 10 replicas, tolerate 3 faults, need 7 votes
+            (13, 4, 9),    // 13 replicas, tolerate 4 faults, need 9 votes
             (100, 33, 67), // 100 replicas, tolerate 33 faults, need 67 votes
         ];
 
