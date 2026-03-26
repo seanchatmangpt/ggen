@@ -20,14 +20,14 @@ pub mod jackson_serializers;
 pub mod jpa_entity;
 pub mod repositories;
 pub mod services;
-// pub mod spring_boot_app; // TODO: Fix compilation errors in spring_boot_app
+pub mod spring_boot_app;
 
 pub use controllers::create_controller_rule;
 pub use dtos::create_dto_rule;
 pub use enums::create_enum_rule;
 pub use hbm_mappings::{
-    create_hbm_mapping_rule, HbmMappingQuery, HbmMappingQueryExecutor, HbmMappingTemplate,
-    HbmMappingTemplateRenderer, HbmMappingRule, IdGeneratorStrategy, PropertyMapping,
+    create_hbm_mapping_rule, HbmMappingQuery, HbmMappingQueryExecutor, HbmMappingRule,
+    HbmMappingTemplate, HbmMappingTemplateRenderer, IdGeneratorStrategy, PropertyMapping,
 };
 pub use jackson_serializers::{
     create_jackson_serializer_rule, EnumDefinition, FieldInfo, FieldMapping,
@@ -37,9 +37,9 @@ pub use jackson_serializers::{
 pub use jpa_entity::create_jpa_entity_rule;
 pub use repositories::create_repository_rule;
 pub use services::create_service_rule;
-// pub use spring_boot_app::{
-//     create_spring_boot_app_rule, create_application_main_rule, create_application_properties_rule,
-//     create_application_test_properties_rule, create_gitignore_rule, SpringBootAppQuery,
-//     PomTemplate, ApplicationTemplate, ApplicationPropertiesTemplate, ApplicationTestPropertiesTemplate,
-//     GitignoreTemplate,
-// };
+pub use spring_boot_app::{
+    create_spring_boot_app_rule, create_application_main_rule, create_application_properties_rule,
+    create_application_test_properties_rule, create_gitignore_rule, SpringBootAppQuery,
+    PomTemplate, ApplicationTemplate, ApplicationPropertiesTemplate, ApplicationTestPropertiesTemplate,
+    GitignoreTemplate,
+};

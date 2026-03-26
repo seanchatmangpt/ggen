@@ -320,7 +320,10 @@ fn validate_java_syntax(code: &str) -> Result<(), String> {
     }
 
     // Check for valid class, interface, or enum declaration
-    if !code.contains("public class") && !code.contains("public interface") && !code.contains("public enum") {
+    if !code.contains("public class")
+        && !code.contains("public interface")
+        && !code.contains("public enum")
+    {
         return Err("Missing public class, interface, or enum declaration".to_string());
     }
 
@@ -1314,7 +1317,8 @@ fn test_rule10_jackson_file_naming() {
         is_id: true,
     }];
 
-    let serializer_code = MockJavaGenerator::generate_serializer(entity_name, "com.example", &fields);
+    let serializer_code =
+        MockJavaGenerator::generate_serializer(entity_name, "com.example", &fields);
 
     // File should be named {EntityName}Serializer.java
     let expected_filename = format!("{}Serializer.java", entity_name);
@@ -1514,7 +1518,10 @@ fn test_all_rules_1_to_10() {
 
     // Verify determinism: Re-generate and compare
     let entity_code_2 = MockJavaGenerator::generate_entity(&entity);
-    assert_eq!(entity_code, entity_code_2, "Entity generation not deterministic");
+    assert_eq!(
+        entity_code, entity_code_2,
+        "Entity generation not deterministic"
+    );
 
     let hbm_code_2 = MockJavaGenerator::generate_hbm_xml(entity_name, "orders", &fields);
     assert_eq!(hbm_code, hbm_code_2, "HBM generation not deterministic");
@@ -1575,7 +1582,8 @@ fn test_all_rules_1_to_10_file_generation_count() {
         total_files += 1;
 
         // Rule 7: Enum (single enum per entity)
-        let _enum_code = MockJavaGenerator::generate_enum("Status", package, &["ACTIVE", "INACTIVE"]);
+        let _enum_code =
+            MockJavaGenerator::generate_enum("Status", package, &["ACTIVE", "INACTIVE"]);
         total_files += 1;
 
         // Rule 8: Service
@@ -1591,7 +1599,8 @@ fn test_all_rules_1_to_10_file_generation_count() {
         total_files += 1;
 
         // Rule 10: Serializer
-        let _serializer_code = MockJavaGenerator::generate_serializer(entity_name, package, &fields);
+        let _serializer_code =
+            MockJavaGenerator::generate_serializer(entity_name, package, &fields);
         total_files += 1;
     }
 
@@ -1646,16 +1655,34 @@ fn test_all_rules_validation_chain() {
     let serializer_code = MockJavaGenerator::generate_serializer(entity_name, package, &fields);
 
     // Step 2: Validate syntax
-    assert!(validate_java_syntax(&entity_code).is_ok(), "Entity syntax invalid");
-    assert!(validate_java_syntax(&repo_code).is_ok(), "Repository syntax invalid");
-    assert!(validate_java_syntax(&dto_code).is_ok(), "DTO syntax invalid");
+    assert!(
+        validate_java_syntax(&entity_code).is_ok(),
+        "Entity syntax invalid"
+    );
+    assert!(
+        validate_java_syntax(&repo_code).is_ok(),
+        "Repository syntax invalid"
+    );
+    assert!(
+        validate_java_syntax(&dto_code).is_ok(),
+        "DTO syntax invalid"
+    );
     assert!(
         validate_java_syntax(&controller_code).is_ok(),
         "Controller syntax invalid"
     );
-    assert!(validate_java_syntax(&enum_code).is_ok(), "Enum syntax invalid");
-    assert!(validate_java_syntax(&service_code).is_ok(), "Service syntax invalid");
-    assert!(validate_xml_syntax(&hbm_code).is_ok(), "HBM XML syntax invalid");
+    assert!(
+        validate_java_syntax(&enum_code).is_ok(),
+        "Enum syntax invalid"
+    );
+    assert!(
+        validate_java_syntax(&service_code).is_ok(),
+        "Service syntax invalid"
+    );
+    assert!(
+        validate_xml_syntax(&hbm_code).is_ok(),
+        "HBM XML syntax invalid"
+    );
     assert!(
         validate_java_syntax(&serializer_code).is_ok(),
         "Serializer syntax invalid"
@@ -1673,7 +1700,9 @@ fn test_all_rules_validation_chain() {
 
     let controller_imports = extract_imports(&controller_code);
     assert!(
-        controller_imports.iter().any(|i| i.contains("TransactionService")),
+        controller_imports
+            .iter()
+            .any(|i| i.contains("TransactionService")),
         "Controller should import service"
     );
 
@@ -1686,14 +1715,29 @@ fn test_all_rules_validation_chain() {
     );
 
     // Step 4: Verify all 10 rules completed successfully
-    assert!(!entity_code.is_empty(), "Rule 3 (Entity) produced no output");
-    assert!(!repo_code.is_empty(), "Rule 4 (Repository) produced no output");
+    assert!(
+        !entity_code.is_empty(),
+        "Rule 3 (Entity) produced no output"
+    );
+    assert!(
+        !repo_code.is_empty(),
+        "Rule 4 (Repository) produced no output"
+    );
     assert!(!dto_code.is_empty(), "Rule 5 (DTO) produced no output");
-    assert!(!controller_code.is_empty(), "Rule 6 (Controller) produced no output");
+    assert!(
+        !controller_code.is_empty(),
+        "Rule 6 (Controller) produced no output"
+    );
     assert!(!enum_code.is_empty(), "Rule 7 (Enum) produced no output");
-    assert!(!service_code.is_empty(), "Rule 8 (Service) produced no output");
+    assert!(
+        !service_code.is_empty(),
+        "Rule 8 (Service) produced no output"
+    );
     assert!(!hbm_code.is_empty(), "Rule 9 (HBM XML) produced no output");
-    assert!(!serializer_code.is_empty(), "Rule 10 (Serializer) produced no output");
+    assert!(
+        !serializer_code.is_empty(),
+        "Rule 10 (Serializer) produced no output"
+    );
 }
 
 #[test]

@@ -32,7 +32,10 @@ fn test_full_pipeline_simple_ontology() {
 
     // This test verifies the pipeline infrastructure exists
     // Generator creation should succeed
-    assert!(result.is_ok(), "CodeGenerator should be created successfully");
+    assert!(
+        result.is_ok(),
+        "CodeGenerator should be created successfully"
+    );
 }
 
 #[test]
@@ -66,7 +69,10 @@ fn test_receipt_generation() {
     let generator = ReceiptGenerator::new();
 
     // Test receipt generator creation
-    assert!(std::mem::size_of_val(&generator) > 0, "ReceiptGenerator should be created successfully");
+    assert!(
+        std::mem::size_of_val(&generator) > 0,
+        "ReceiptGenerator should be created successfully"
+    );
 
     // Receipt generation requires a valid file, so we just verify the struct is constructed
     // Full testing would need actual files
@@ -80,5 +86,8 @@ fn test_canonicalization() {
 
     // Canonicalizer is designed to work on file content
     // Test that it can be instantiated properly
-    assert!(std::mem::size_of_val(&canonicalizer) > 0, "Canonicalizer should be created successfully");
+    assert!(
+        std::mem::size_of_val(&canonicalizer) > 0,
+        "Canonicalizer should be created successfully"
+    );
 }

@@ -8,8 +8,7 @@
 //! Verifies that real entity count is greater than mock data count and that
 //! SPARQL queries execute properly.
 
-use ggen_yawl::{YawlOntologyLoader, OntologyLoader, OntologyFormat};
-use std::collections::HashMap;
+use ggen_yawl::{OntologyFormat, OntologyLoader, YawlOntologyLoader};
 
 /// Test loading the real YAWL domain ontology file
 #[test]
@@ -154,7 +153,8 @@ fn test_real_entity_count_greater_than_mock() {
 
     // According to findings: the real yawl-domain.ttl has 63 entities
     let loader = OntologyLoader::new();
-    let graph = loader.load_from_file(ontology_path)
+    let _graph = loader
+        .load_from_file(ontology_path)
         .expect("Should load domain ontology");
 
     // The mock data returns exactly 2 entities (YWorkItem, YTask)
@@ -164,10 +164,12 @@ fn test_real_entity_count_greater_than_mock() {
 
     // This verifies that if we could fully execute SPARQL,
     // we would get significantly more entities than the mock
-    assert!(expected_real_count > mock_count,
+    assert!(
+        expected_real_count > mock_count,
         "Real ontology ({}) should have more entities than mock ({})",
         expected_real_count,
-        mock_count);
+        mock_count
+    );
 }
 
 /// Test ontology file format detection
@@ -191,7 +193,10 @@ fn test_ontology_format_detection() {
 fn test_ontology_content_types() {
     assert_eq!(OntologyFormat::Turtle.content_type(), "text/turtle");
     assert_eq!(OntologyFormat::RdfXml.content_type(), "application/rdf+xml");
-    assert_eq!(OntologyFormat::NTriples.content_type(), "application/n-triples");
+    assert_eq!(
+        OntologyFormat::NTriples.content_type(),
+        "application/n-triples"
+    );
     assert_eq!(OntologyFormat::NQuads.content_type(), "application/n-quads");
     assert_eq!(OntologyFormat::Trig.content_type(), "application/trig");
 }
@@ -217,9 +222,11 @@ fn test_jpa_entity_query_with_real_ontology() {
     let bindings = result.expect("Should get results");
 
     // Even with mock fallback, should have at least 2 entities (YWorkItem, YTask)
-    assert!(bindings.len() >= 2,
+    assert!(
+        bindings.len() >= 2,
         "Should have at least 2 entities, got {}",
-        bindings.len());
+        bindings.len()
+    );
 }
 
 /// Benchmark: compare mock vs real ontology loading time
@@ -241,9 +248,11 @@ fn test_ontology_loading_performance() {
     let elapsed = start.elapsed();
 
     // SLO: Loading should complete in <5 seconds
-    assert!(elapsed.as_secs() < 5,
+    assert!(
+        elapsed.as_secs() < 5,
         "Ontology loading took {:?} (SLO: <5s)",
-        elapsed);
+        elapsed
+    );
 
     println!("✓ Ontology loaded in {:?}", elapsed);
 }

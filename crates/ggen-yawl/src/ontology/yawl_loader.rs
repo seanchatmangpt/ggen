@@ -22,11 +22,11 @@ static PATTERNS_GRAPH: OnceLock<Option<Graph>> = OnceLock::new();
 #[derive(Debug, Clone)]
 pub struct YawlOntologyLoader {
     /// Path to the yawl-domain.ttl file
-    domain_path: String,
+    pub domain_path: String,
     /// Path to the yawl-workflow.ttl file
-    workflow_path: String,
+    pub workflow_path: String,
     /// Path to the yawl-patterns.ttl file
-    patterns_path: String,
+    pub patterns_path: String,
 }
 
 impl YawlOntologyLoader {
@@ -60,9 +60,7 @@ impl YawlOntologyLoader {
                 tracing::info!("Loading YAWL domain ontology from {}", self.domain_path);
                 match std::fs::read_to_string(&self.domain_path) {
                     Ok(content) => {
-                        match Graph::new()
-                            .and_then(|g| g.insert_turtle(&content).map(|_| g))
-                        {
+                        match Graph::new().and_then(|g| g.insert_turtle(&content).map(|_| g)) {
                             Ok(graph) => {
                                 tracing::info!("Domain ontology loaded successfully");
                                 Some(graph)
@@ -89,18 +87,18 @@ impl YawlOntologyLoader {
             .get_or_init(|| {
                 tracing::info!("Loading YAWL workflow ontology from {}", self.workflow_path);
                 match std::fs::read_to_string(&self.workflow_path) {
-                    Ok(content) => match Graph::new()
-                        .and_then(|g| g.insert_turtle(&content).map(|_| g))
-                    {
-                        Ok(graph) => {
-                            tracing::info!("Workflow ontology loaded successfully");
-                            Some(graph)
+                    Ok(content) => {
+                        match Graph::new().and_then(|g| g.insert_turtle(&content).map(|_| g)) {
+                            Ok(graph) => {
+                                tracing::info!("Workflow ontology loaded successfully");
+                                Some(graph)
+                            }
+                            Err(e) => {
+                                tracing::error!("Failed to parse workflow ontology: {}", e);
+                                None
+                            }
                         }
-                        Err(e) => {
-                            tracing::error!("Failed to parse workflow ontology: {}", e);
-                            None
-                        }
-                    },
+                    }
                     Err(e) => {
                         tracing::warn!("Could not load workflow ontology file: {}", e);
                         None
@@ -117,18 +115,18 @@ impl YawlOntologyLoader {
             .get_or_init(|| {
                 tracing::info!("Loading YAWL patterns ontology from {}", self.patterns_path);
                 match std::fs::read_to_string(&self.patterns_path) {
-                    Ok(content) => match Graph::new()
-                        .and_then(|g| g.insert_turtle(&content).map(|_| g))
-                    {
-                        Ok(graph) => {
-                            tracing::info!("Patterns ontology loaded successfully");
-                            Some(graph)
+                    Ok(content) => {
+                        match Graph::new().and_then(|g| g.insert_turtle(&content).map(|_| g)) {
+                            Ok(graph) => {
+                                tracing::info!("Patterns ontology loaded successfully");
+                                Some(graph)
+                            }
+                            Err(e) => {
+                                tracing::error!("Failed to parse patterns ontology: {}", e);
+                                None
+                            }
                         }
-                        Err(e) => {
-                            tracing::error!("Failed to parse patterns ontology: {}", e);
-                            None
-                        }
-                    },
+                    }
                     Err(e) => {
                         tracing::warn!("Could not load patterns ontology file: {}", e);
                         None
@@ -187,9 +185,7 @@ impl YawlOntologyLoader {
 
     /// Execute a SPARQL query and convert results to Vec<HashMap<String, String>>.
     fn execute_sparql_query(
-        &self,
-        graph: &Graph,
-        query: &str,
+        &self, graph: &Graph, query: &str,
     ) -> Result<Vec<HashMap<String, String>>> {
         // Note: This is a placeholder that attempts to parse SPARQL results
         // The actual implementation depends on ggen_core's Graph API.

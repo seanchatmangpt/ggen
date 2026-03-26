@@ -9,10 +9,10 @@
 
 #[cfg(test)]
 mod spring_boot_app_tests {
-    use std::collections::HashMap;
-    use ggen_yawl::codegen::rules::spring_boot_app::*;
     use ggen_codegen::Queryable;
     use ggen_codegen::Renderable;
+    use ggen_yawl::codegen::rules::spring_boot_app::*;
+    use std::collections::HashMap;
 
     // ============================================================================
     // Query Tests
@@ -38,11 +38,17 @@ mod spring_boot_app_tests {
         let query = SpringBootAppQuery::new();
         let results = query.execute().expect("Query execution failed");
 
-        assert!(!results.is_empty(), "Query should return at least one result");
+        assert!(
+            !results.is_empty(),
+            "Query should return at least one result"
+        );
         let app_data = &results[0];
 
         assert_eq!(app_data.get("appName").unwrap(), "YawlApplication");
-        assert_eq!(app_data.get("packageName").unwrap(), "org.yawlfoundation.yawl");
+        assert_eq!(
+            app_data.get("packageName").unwrap(),
+            "org.yawlfoundation.yawl"
+        );
         assert_eq!(app_data.get("version").unwrap(), "0.1.0");
         assert_eq!(app_data.get("springBootVersion").unwrap(), "3.3.0");
     }
@@ -75,7 +81,10 @@ mod spring_boot_app_tests {
     fn test_pom_has_spring_boot_parent_pom() {
         let template = PomTemplate::new().expect("POM template creation failed");
         let mut bindings = HashMap::new();
-        bindings.insert("packageName".to_string(), "org.yawlfoundation.yawl".to_string());
+        bindings.insert(
+            "packageName".to_string(),
+            "org.yawlfoundation.yawl".to_string(),
+        );
         bindings.insert("appName".to_string(), "YawlApplication".to_string());
         bindings.insert("version".to_string(), "0.1.0".to_string());
         bindings.insert("springBootVersion".to_string(), "3.3.0".to_string());
@@ -264,8 +273,12 @@ mod spring_boot_app_tests {
         let code = template.render(&bindings).expect("Render failed");
 
         assert!(code.contains("import org.springframework.boot.SpringApplication"));
-        assert!(code.contains("import org.springframework.boot.autoconfigure.SpringBootApplication"));
-        assert!(code.contains("import org.springframework.transaction.annotation.EnableTransactionManagement"));
+        assert!(
+            code.contains("import org.springframework.boot.autoconfigure.SpringBootApplication")
+        );
+        assert!(code.contains(
+            "import org.springframework.transaction.annotation.EnableTransactionManagement"
+        ));
     }
 
     // ============================================================================
@@ -503,7 +516,8 @@ mod spring_boot_app_tests {
         let _pom_rule = create_spring_boot_app_rule().expect("POM rule creation failed");
         let _app_rule = create_application_main_rule().expect("App rule creation failed");
         let _props_rule = create_application_properties_rule().expect("Props rule creation failed");
-        let _test_props_rule = create_application_test_properties_rule().expect("Test props rule creation failed");
+        let _test_props_rule =
+            create_application_test_properties_rule().expect("Test props rule creation failed");
         let _gitignore_rule = create_gitignore_rule().expect("Gitignore rule creation failed");
         // If we reach here, all rules created successfully
     }
@@ -512,7 +526,10 @@ mod spring_boot_app_tests {
     fn test_pom_generation_matches_spring_boot_3_3_0() {
         let template = PomTemplate::new().expect("POM template creation failed");
         let mut bindings = HashMap::new();
-        bindings.insert("packageName".to_string(), "org.yawlfoundation.yawl".to_string());
+        bindings.insert(
+            "packageName".to_string(),
+            "org.yawlfoundation.yawl".to_string(),
+        );
         bindings.insert("appName".to_string(), "YawlApplication".to_string());
         bindings.insert("version".to_string(), "0.1.0".to_string());
         bindings.insert("springBootVersion".to_string(), "3.3.0".to_string());
@@ -543,7 +560,9 @@ mod spring_boot_app_tests {
         let app = app_template.render(bindings).expect("App render failed");
 
         let props_template = ApplicationPropertiesTemplate::new().expect("Props template failed");
-        let props = props_template.render(bindings).expect("Props render failed");
+        let props = props_template
+            .render(bindings)
+            .expect("Props render failed");
 
         // All should reference the same package
         let package = bindings.get("packageName").unwrap();
