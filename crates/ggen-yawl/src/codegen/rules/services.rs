@@ -40,7 +40,7 @@ impl Queryable for ServiceQuery {
                 ?decomposition a ?decompositionType .\n\
               }\n\
             }"
-            .to_string();
+        .to_string();
 
         // For now, return mock data that demonstrates the pattern.
         // In Phase 3 final, this will load the actual YAWL ontology and execute SPARQL.
