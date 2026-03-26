@@ -3,9 +3,9 @@
 //! Generates `@Service`-annotated classes that encapsulate business logic
 //! for YAWL entities with transactional boundaries.
 
-use ggen_codegen::{GenerationMode, Queryable, Renderable, Rule, Error as CodegenError};
-use ggen_codegen::Result as CodegenResult;
 use crate::error::{Error, Result};
+use ggen_codegen::Result as CodegenResult;
+use ggen_codegen::{Error as CodegenError, GenerationMode, Queryable, Renderable, Rule};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use tera::{Context, Tera};
@@ -14,7 +14,7 @@ use tera::{Context, Tera};
 pub struct ServiceQuery;
 
 impl ServiceQuery {
-    /// Create a new service query.
+    /// Create a new service query for extracting composite tasks with decompositions.
     pub fn new() -> Self {
         Self
     }
@@ -22,6 +22,28 @@ impl ServiceQuery {
 
 impl Queryable for ServiceQuery {
     fn execute(&self) -> CodegenResult<Vec<HashMap<String, String>>> {
+        // SPARQL Query 8.1: Composite Tasks with Decompositions from yawl-workflow.ttl
+        // Extracts: composite task definitions with decomposition types and descriptions
+        // Used to generate Spring @Service layer with transactional boundaries
+        let _query = "PREFIX yawl: <https://yawlfoundation.org/ontology#>\n\
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\n\
+            SELECT ?task ?taskLabel ?decomposition ?decompositionType ?description\n\
+            WHERE {\n\
+              ?task a yawl:CompositeTask ;\n\
+                    rdfs:label ?taskLabel ;\n\
+                    rdfs:comment ?description .\n\
+              OPTIONAL {\n\
+                ?task yawl:implementedBy ?implementedClass .\n\
+              }\n\
+              OPTIONAL {\n\
+                ?task yawl:isDecomposedBy ?decomposition .\n\
+                ?decomposition a ?decompositionType .\n\
+              }\n\
+            }"
+            .to_string();
+
+        // For now, return mock data that demonstrates the pattern.
+        // In Phase 3 final, this will load the actual YAWL ontology and execute SPARQL.
         let entities = vec!["YWorkItem", "YTask", "YNet", "YEngine"];
 
         let results = entities

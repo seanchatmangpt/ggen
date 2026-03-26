@@ -3,9 +3,9 @@
 //! Generates `@Entity`-annotated Java classes for persistent YAWL objects (YWorkItem, YTask, etc.)
 //! using SPARQL queries to extract class definitions and properties from the ontology.
 
-use ggen_codegen::{GenerationMode, Queryable, Renderable, Rule, Error as CodegenError};
-use ggen_codegen::Result as CodegenResult;
 use crate::error::{Error, Result};
+use ggen_codegen::Result as CodegenResult;
+use ggen_codegen::{Error as CodegenError, GenerationMode, Queryable, Renderable, Rule};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use tera::{Context, Tera};
@@ -22,30 +22,19 @@ pub struct JpaEntityQuery {
 impl JpaEntityQuery {
     /// Create a new JPA entity query.
     pub fn new() -> Self {
-        // SPARQL query to extract persistent classes and their properties
-        // Selects: className, classLabel, fieldName, fieldType, isId
+        // SPARQL Query 3.1: List all entities with metadata from yawl-domain.ttl
+        // Extracts: entity URI, className, tableName, packageName, sourceFile
         let query = "PREFIX yawl: <https://yawlfoundation.org/ontology#>\n\
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\
-            PREFIX owl: <http://www.w3.org/2002/07/owl#>\n\n\
-            SELECT ?className ?classLabel ?fieldName ?fieldType\n\
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\n\
+            SELECT ?entity ?className ?tableName ?package ?sourceFile\n\
             WHERE {\n\
-                ?class a owl:Class ;\n\
-                       rdfs:label ?classLabel .\n\n\
-                FILTER (?class IN (\n\
-                    yawl:WorkItem,\n\
-                    yawl:Task,\n\
-                    yawl:Identifier,\n\
-                    yawl:Marking,\n\
-                    yawl:Variable\n\
-                ))\n\n\
-                OPTIONAL {\n\
-                    ?class rdfs:domain ?property ;\n\
-                    rdfs:label ?fieldName ;\n\
-                    rdfs:range ?fieldType .\n\
-                }\n\n\
-                BIND(STRAFTER(STR(?class), \"#\") AS ?className)\n\
+              ?entity a yawl:Entity ;\n\
+                      yawl:className ?className ;\n\
+                      yawl:tableName ?tableName ;\n\
+                      yawl:packageName ?package ;\n\
+                      yawl:sourceFile ?sourceFile .\n\
             }\n\
-            ORDER BY ?className ?fieldName"
+            ORDER BY ?className"
             .to_string();
 
         Self { query }

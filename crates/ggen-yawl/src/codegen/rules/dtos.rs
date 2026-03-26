@@ -3,9 +3,9 @@
 //! Generates immutable DTO classes with @Data and @Builder annotations
 //! for transferring YAWL entity data over REST APIs.
 
-use ggen_codegen::{GenerationMode, Queryable, Renderable, Rule, Error as CodegenError};
-use ggen_codegen::Result as CodegenResult;
 use crate::error::{Error, Result};
+use ggen_codegen::Result as CodegenResult;
+use ggen_codegen::{Error as CodegenError, GenerationMode, Queryable, Renderable, Rule};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use tera::{Context, Tera};
@@ -14,7 +14,7 @@ use tera::{Context, Tera};
 pub struct DtoQuery;
 
 impl DtoQuery {
-    /// Create a new DTO query.
+    /// Create a new DTO query for extracting entity cardinality metadata.
     pub fn new() -> Self {
         Self
     }
@@ -22,6 +22,32 @@ impl DtoQuery {
 
 impl Queryable for DtoQuery {
     fn execute(&self) -> CodegenResult<Vec<HashMap<String, String>>> {
+        // SPARQL Query 5.1: Entity Cardinality Summary from yawl-domain.ttl
+        // Extracts: entity name, field count, relationship counts
+        // Used to determine split/join patterns and relationship complexity in DTOs
+        let _query = "PREFIX yawl: <https://yawlfoundation.org/ontology#>\n\n\
+            SELECT ?entity ?className ?package\n\
+                   (COUNT(DISTINCT ?field) AS ?fieldCount)\n\
+                   (COUNT(DISTINCT ?m2o) AS ?manyToOneCount)\n\
+                   (COUNT(DISTINCT ?o2o) AS ?oneToOneCount)\n\
+                   (COUNT(DISTINCT ?set) AS ?setCount)\n\
+                   (COUNT(DISTINCT ?map) AS ?mapCount)\n\
+            WHERE {\n\
+              ?entity a yawl:Entity ;\n\
+                      yawl:className ?className ;\n\
+                      yawl:packageName ?package .\n\
+              OPTIONAL { ?entity yawl:hasField ?field }\n\
+              OPTIONAL { ?entity yawl:hasManyToOne ?m2o }\n\
+              OPTIONAL { ?entity yawl:hasOneToOne ?o2o }\n\
+              OPTIONAL { ?entity yawl:hasSet ?set }\n\
+              OPTIONAL { ?entity yawl:hasMap ?map }\n\
+            }\n\
+            GROUP BY ?entity ?className ?package\n\
+            ORDER BY ?className"
+            .to_string();
+
+        // For now, return mock data that demonstrates the pattern.
+        // In Phase 3 final, this will load the actual YAWL ontology and execute SPARQL.
         let entities = vec!["YWorkItem", "YTask", "YIdentifier", "YMarking", "YVariable"];
 
         let results = entities

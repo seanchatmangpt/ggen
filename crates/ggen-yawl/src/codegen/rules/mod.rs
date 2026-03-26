@@ -14,18 +14,15 @@
 pub mod controllers;
 pub mod dtos;
 pub mod enums;
+pub mod hbm_mappings;
+pub mod jackson_serializers;
 pub mod jpa_entity;
 pub mod repositories;
 pub mod services;
-pub mod hbm_mappings;
-pub mod jackson_serializers;
 
 pub use controllers::create_controller_rule;
 pub use dtos::create_dto_rule;
 pub use enums::create_enum_rule;
-pub use jpa_entity::create_jpa_entity_rule;
-pub use repositories::create_repository_rule;
-pub use services::create_service_rule;
 pub use hbm_mappings::{
     create_hbm_mapping_rule, HbmMappingQuery, HbmMappingRule, HbmMappingTemplate,
     IdGeneratorStrategy, PropertyMapping,
@@ -35,3 +32,6 @@ pub use jackson_serializers::{
     JacksonSerializerQuery, JacksonSerializerRule, JacksonSerializerTemplate, SerializationType,
     SerializerDetail, SerializerQueryResult,
 };
+pub use jpa_entity::create_jpa_entity_rule;
+pub use repositories::create_repository_rule;
+pub use services::create_service_rule;

@@ -3,9 +3,9 @@
 //! Generates `@Repository`-annotated Spring Data JPA interfaces for each persistent
 //! YAWL entity (YWorkItemRepository, YTaskRepository, etc.)
 
-use ggen_codegen::{GenerationMode, Queryable, Renderable, Rule, Error as CodegenError};
-use ggen_codegen::Result as CodegenResult;
 use crate::error::{Error, Result};
+use ggen_codegen::Result as CodegenResult;
+use ggen_codegen::{Error as CodegenError, GenerationMode, Queryable, Renderable, Rule};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use tera::{Context, Tera};
@@ -14,7 +14,7 @@ use tera::{Context, Tera};
 pub struct RepositoryQuery;
 
 impl RepositoryQuery {
-    /// Create a new repository query.
+    /// Create a new repository query for extracting entity ID field types.
     pub fn new() -> Self {
         Self
     }
@@ -22,7 +22,23 @@ impl RepositoryQuery {
 
 impl Queryable for RepositoryQuery {
     fn execute(&self) -> CodegenResult<Vec<HashMap<String, String>>> {
-        // Mock data: entity names and ID types
+        // SPARQL Query 4.1: Entity ID Field Types from yawl-domain.ttl
+        // Extracts entity name and ID field type (string, long, int, uuid, etc.)
+        // Used to generate JpaRepository<Entity, IdType> generics
+        let _query = "PREFIX yawl: <https://yawlfoundation.org/ontology#>\n\n\
+            SELECT ?entity ?simpleName ?idFieldType\n\
+            WHERE {\n\
+              ?entity a yawl:Entity ;\n\
+                      yawl:className ?entity_full_name ;\n\
+                      yawl:hasIdField ?idField .\n\
+              ?idField yawl:fieldType ?idFieldType .\n\
+              BIND(REPLACE(STR(?entity_full_name), \".*\\\\\", \"\") AS ?simpleName)\n\
+            }\n\
+            ORDER BY ?simpleName"
+            .to_string();
+
+        // For now, return mock data that demonstrates the pattern.
+        // In Phase 3 final, this will load the actual YAWL ontology and execute SPARQL.
         let entities = vec![
             ("YWorkItem", "String"),
             ("YTask", "String"),
