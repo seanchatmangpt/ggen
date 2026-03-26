@@ -22,16 +22,25 @@ impl EnumQuery {
 impl Queryable for EnumQuery {
     fn execute(&self) -> Result<Vec<HashMap<String, String>>> {
         let enums = vec![
-            ("WorkItemStatus", "ENABLED,FIRED,STARTED,SUSPENDED,COMPLETED,FAILED,INVALID_DATA,REMOVED"),
-            ("PatternCategory", "BASIC_CONTROL_FLOW,ADVANCED_BRANCHING,SYNCHRONIZATION,MULTIPLE_INSTANCES"),
+            (
+                "WorkItemStatus",
+                "ENABLED,FIRED,STARTED,SUSPENDED,COMPLETED,FAILED,INVALID_DATA,REMOVED",
+            ),
+            (
+                "PatternCategory",
+                "BASIC_CONTROL_FLOW,ADVANCED_BRANCHING,SYNCHRONIZATION,MULTIPLE_INSTANCES",
+            ),
         ];
 
-        let results = enums.into_iter().map(|(name, values)| {
-            let mut bindings = HashMap::new();
-            bindings.insert("enumName".to_string(), name.to_string());
-            bindings.insert("values".to_string(), values.to_string());
-            bindings
-        }).collect();
+        let results = enums
+            .into_iter()
+            .map(|(name, values)| {
+                let mut bindings = HashMap::new();
+                bindings.insert("enumName".to_string(), name.to_string());
+                bindings.insert("values".to_string(), values.to_string());
+                bindings
+            })
+            .collect();
 
         Ok(results)
     }
@@ -109,18 +118,21 @@ impl Renderable for EnumTemplate {
     fn render(&self, bindings: &HashMap<String, String>) -> Result<String> {
         let mut context = Context::new();
 
-        let enum_name = bindings.get("enumName")
+        let enum_name = bindings
+            .get("enumName")
             .ok_or_else(|| Error::template("Missing enumName in bindings".to_string()))?
             .clone();
 
-        let values = bindings.get("values")
+        let values = bindings
+            .get("values")
             .ok_or_else(|| Error::template("Missing values in bindings".to_string()))?
             .clone();
 
         context.insert("enumName", &enum_name);
         context.insert("values", &values);
 
-        self.tera.render("enum.java.tera", &context)
+        self.tera
+            .render("enum.java.tera", &context)
             .map_err(|e| Error::template(format!("Template rendering failed: {}", e)))
     }
 

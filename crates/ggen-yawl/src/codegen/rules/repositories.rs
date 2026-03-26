@@ -30,13 +30,19 @@ impl Queryable for RepositoryQuery {
             ("YVariable", "String"),
         ];
 
-        let results = entities.into_iter().map(|(entity, id_type)| {
-            let mut bindings = HashMap::new();
-            bindings.insert("entityName".to_string(), entity.to_string());
-            bindings.insert("repositoryName".to_string(), format!("{}Repository", entity));
-            bindings.insert("idType".to_string(), id_type.to_string());
-            bindings
-        }).collect();
+        let results = entities
+            .into_iter()
+            .map(|(entity, id_type)| {
+                let mut bindings = HashMap::new();
+                bindings.insert("entityName".to_string(), entity.to_string());
+                bindings.insert(
+                    "repositoryName".to_string(),
+                    format!("{}Repository", entity),
+                );
+                bindings.insert("idType".to_string(), id_type.to_string());
+                bindings
+            })
+            .collect();
 
         Ok(results)
     }
@@ -116,15 +122,18 @@ impl Renderable for RepositoryTemplate {
     fn render(&self, bindings: &HashMap<String, String>) -> Result<String> {
         let mut context = Context::new();
 
-        let entity_name = bindings.get("entityName")
+        let entity_name = bindings
+            .get("entityName")
             .ok_or_else(|| Error::template("Missing entityName in bindings".to_string()))?
             .clone();
 
-        let repo_name = bindings.get("repositoryName")
+        let repo_name = bindings
+            .get("repositoryName")
             .unwrap_or(&format!("{}Repository", entity_name))
             .clone();
 
-        let id_type = bindings.get("idType")
+        let id_type = bindings
+            .get("idType")
             .unwrap_or(&"String".to_string())
             .clone();
 
@@ -132,7 +141,8 @@ impl Renderable for RepositoryTemplate {
         context.insert("repositoryName", &repo_name);
         context.insert("idType", &id_type);
 
-        self.tera.render("repository.java.tera", &context)
+        self.tera
+            .render("repository.java.tera", &context)
             .map_err(|e| Error::template(format!("Template rendering failed: {}", e)))
     }
 
@@ -150,7 +160,9 @@ pub fn create_repository_rule() -> Result<Rule<RepositoryQuery, RepositoryTempla
         "repositories",
         query,
         template,
-        PathBuf::from("src/main/java/org/yawlfoundation/yawl/repositories/{{ repositoryName }}.java"),
+        PathBuf::from(
+            "src/main/java/org/yawlfoundation/yawl/repositories/{{ repositoryName }}.java",
+        ),
         GenerationMode::Overwrite,
     );
 
@@ -177,6 +189,8 @@ mod tests {
         let results = query.execute().expect("Query should execute");
 
         assert!(results.len() >= 5);
-        assert!(results.iter().any(|r| r.get("entityName") == Some(&"YWorkItem".to_string())));
+        assert!(results
+            .iter()
+            .any(|r| r.get("entityName") == Some(&"YWorkItem".to_string())));
     }
 }
