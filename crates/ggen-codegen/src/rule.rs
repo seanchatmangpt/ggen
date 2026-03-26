@@ -28,10 +28,7 @@ pub struct Rule<Q: Queryable, T: Renderable> {
 impl<Q: Queryable, T: Renderable> Rule<Q, T> {
     /// Create a new rule
     pub fn new(
-        name: impl Into<String>,
-        query: Q,
-        template: T,
-        output_file: impl Into<PathBuf>,
+        name: impl Into<String>, query: Q, template: T, output_file: impl Into<PathBuf>,
         mode: GenerationMode,
     ) -> Self {
         Self {
