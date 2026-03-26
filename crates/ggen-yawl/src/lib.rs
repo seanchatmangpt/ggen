@@ -43,7 +43,10 @@ pub mod ontology;
 pub mod template;
 pub mod transform;
 
-pub use codegen::yawl_xml::{escape_xml, YawlXmlGenerator};
+pub use codegen::{
+    create_hbm_mapping_rule, yawl_xml::{escape_xml, YawlXmlGenerator},
+    HbmMappingQuery, HbmMappingRule,
+};
 pub use error::{Error, Result};
 pub use ontology::loader::{load_ontology, OntologyFormat, OntologyLoader};
 pub use template::renderer::TemplateRenderer;

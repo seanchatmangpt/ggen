@@ -26,7 +26,12 @@ uuid = { version = "1.11", features = ["v4", "serde"] }
 proptest = "1.8"
 criterion = "0.5"
 tempfile = "3.13"
+regex = "1.10"
 
 [[bench]]
 name = "yawl_workflow_slo"
+harness = false
+
+[[bench]]
+name = "yawl_rules_bench"
 harness = false

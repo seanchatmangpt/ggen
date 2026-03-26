@@ -77,14 +77,13 @@ use ggen_yawl::{YawlGenerator, OntologyLoader};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load industry ontology
-    let ontology = OntologyLoader::new()
-        .load_from_file("fibo.ttl")?;
+    let ontology_text = std::fs::read_to_string("fibo.ttl")?;
 
     // Generate YAWL workflow
     let generator = YawlGenerator::new()
         .with_validation(true);
 
-    let yawl_xml = generator.generate_from_graph(&ontology)?;
+    let yawl_xml = generator.generate(&ontology_text)?;
 
     // Write output
     std::fs::write("output.yawl", yawl_xml)?;

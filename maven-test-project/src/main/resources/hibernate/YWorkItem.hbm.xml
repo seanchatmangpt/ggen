@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.example.entity">
+  <class name="YWorkItem" table="y_work_item" schema="yawl">
+    <id name="workItemId" column="work_item_id" type="string">
+      <generator class="uuid"/>
+    </id>
+    <version name="version" column="version" type="integer"/>
+    <property name="taskId" column="task_id" type="string" not-null="true"/>
+    <property name="caseId" column="case_id" type="string" not-null="true"/>
+    <property name="status" column="work_item_status" type="string" not-null="true"/>
+    <property name="enablementTime" column="enablement_time" type="timestamp" not-null="false"/>
+    <property name="firingTime" column="firing_time" type="timestamp" not-null="false"/>
+    <property name="startTime" column="start_time" type="timestamp" not-null="false"/>
+    <property name="completionTime" column="completion_time" type="timestamp" not-null="false"/>
+    <property name="resourceAssigned" column="resource_assigned" type="string" not-null="false"/>
+  </class>
+</hibernate-mapping>
