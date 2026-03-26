@@ -2,10 +2,15 @@
 //!
 //! Provides functionality for loading industry ontologies (FIBO, HL7, ISO standards)
 //! from various RDF formats and analyzing their structure for workflow generation.
+//!
+//! The YAWL-specific loader in `yawl_loader` provides real ontology integration
+//! with SPARQL query execution and result caching.
 
 pub mod loader;
+pub mod yawl_loader;
 
 pub use loader::{OntologyFormat, OntologyLoader};
+pub use yawl_loader::YawlOntologyLoader;
 
 /// Analyzes ontology structure to detect workflow patterns.
 #[derive(Debug, Clone)]

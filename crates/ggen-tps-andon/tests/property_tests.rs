@@ -121,9 +121,9 @@ proptest! {
         let json2 = signal.as_json();
         let json3 = signal.as_json();
 
-        // Assert - Same result each time
-        prop_assert_eq!(json1, json2);
-        prop_assert_eq!(json2, json3);
+        // Assert - Same result each time (use references to avoid moving non-Copy types)
+        prop_assert_eq!(&json1, &json2);
+        prop_assert_eq!(&json2, &json3);
     }
 }
 
@@ -132,8 +132,6 @@ proptest! {
 // ============================================================================
 
 proptest! {
-    #![proptest_config(ProptestConfig::with_cases(100))]
-
     /// Property: Critical signals always require action
     #[test]
     fn prop_critical_signals_require_action(message in signal_message_strategy()) {
@@ -169,19 +167,19 @@ proptest! {
         prop_assert!(signal.color.requires_action());
         prop_assert_eq!(signal.color, SignalColor::Yellow);
     }
+}
 
-    /// Property: Signal severity is monotonic (Red > Yellow > Green)
-    #[test]
-    fn prop_signal_severity_monotonic() {
-        // Assert - Severity ordering
-        prop_assert!(SignalColor::Red.is_critical());
-        prop_assert!(!SignalColor::Yellow.is_critical());
-        prop_assert!(!SignalColor::Green.is_critical());
+/// Property: Signal severity is monotonic (Red > Yellow > Green)
+#[test]
+fn prop_signal_severity_monotonic() {
+    // Assert - Severity ordering
+    assert!(SignalColor::Red.is_critical());
+    assert!(!SignalColor::Yellow.is_critical());
+    assert!(!SignalColor::Green.is_critical());
 
-        prop_assert!(SignalColor::Red.requires_action());
-        prop_assert!(SignalColor::Yellow.requires_action());
-        prop_assert!(!SignalColor::Green.requires_action());
-    }
+    assert!(SignalColor::Red.requires_action());
+    assert!(SignalColor::Yellow.requires_action());
+    assert!(!SignalColor::Green.requires_action());
 }
 
 // ============================================================================
@@ -203,10 +201,10 @@ proptest! {
             .with_component(component.clone())
             .with_trace_id(trace_id.clone());
 
-        // Assert - Data is owned
-        prop_assert_eq!(signal.message, message);
-        prop_assert_eq!(signal.component, component);
-        prop_assert_eq!(signal.trace_id, Some(trace_id));
+        // Assert - Data is owned (use references to avoid partial moves)
+        prop_assert_eq!(&signal.message, &message);
+        prop_assert_eq!(&signal.component, &component);
+        prop_assert_eq!(&signal.trace_id, &Some(trace_id));
 
         // Drop signal - automatic cleanup
         drop(signal);
@@ -230,8 +228,8 @@ proptest! {
         let signal = AndonSignal::yellow(message)
             .with_details(details.clone());
 
-        // Assert - Details are owned
-        prop_assert_eq!(signal.details, details);
+        // Assert - Details are owned (use references to avoid partial moves)
+        prop_assert_eq!(&signal.details, &details);
 
         // Drop signal - automatic cleanup
         drop(signal);

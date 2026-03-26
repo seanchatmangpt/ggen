@@ -36,3 +36,7 @@ harness = false
 [[bench]]
 name = "yawl_rules_bench"
 harness = false
+
+[[bench]]
+name = "rule_performance"
+harness = false

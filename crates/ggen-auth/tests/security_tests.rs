@@ -8,7 +8,7 @@ use std::time::{Duration, Instant};
 #[test]
 fn test_password_verification_constant_time() {
     // Arrange
-    let hasher = PasswordHasher::default().unwrap();
+    let hasher = PasswordHasher::with_default_requirements().unwrap();
     let password = "SecureP@ssw0rd123";
     let hash = hasher.hash_password(password).unwrap();
 
@@ -71,7 +71,7 @@ fn test_jwt_verification_timing_consistency() {
 #[test]
 fn test_hash_verification_same_timing_for_different_wrong_passwords() {
     // Arrange
-    let hasher = PasswordHasher::default().unwrap();
+    let hasher = PasswordHasher::with_default_requirements().unwrap();
     let password = "SecureP@ssw0rd123";
     let hash = hasher.hash_password(password).unwrap();
 
@@ -101,7 +101,7 @@ fn test_hash_verification_same_timing_for_different_wrong_passwords() {
 #[test]
 fn test_password_verification_no_early_termination() {
     // Arrange
-    let hasher = PasswordHasher::default().unwrap();
+    let hasher = PasswordHasher::with_default_requirements().unwrap();
     let password = "SecureP@ssw0rd123";
     let hash = hasher.hash_password(password).unwrap();
 
@@ -243,7 +243,7 @@ fn test_tokens_expire_correctly() {
 #[test]
 fn test_password_hashing_is_expensive() {
     // Arrange
-    let hasher = PasswordHasher::default().unwrap();
+    let hasher = PasswordHasher::with_default_requirements().unwrap();
     let password = "SecureP@ssw0rd123";
 
     // Act - measure time for single hash
@@ -262,7 +262,7 @@ fn test_password_hashing_is_expensive() {
 #[test]
 fn test_password_verification_is_expensive() {
     // Arrange
-    let hasher = PasswordHasher::default().unwrap();
+    let hasher = PasswordHasher::with_default_requirements().unwrap();
     let password = "SecureP@ssw0rd123";
     let hash = hasher.hash_password(password).unwrap();
 
@@ -282,7 +282,7 @@ fn test_password_verification_is_expensive() {
 #[test]
 fn test_unique_salts_prevent_rainbow_tables() {
     // Arrange
-    let hasher = PasswordHasher::default().unwrap();
+    let hasher = PasswordHasher::with_default_requirements().unwrap();
     let password = "SecureP@ssw0rd123";
 
     // Act
@@ -296,7 +296,7 @@ fn test_unique_salts_prevent_rainbow_tables() {
 #[test]
 fn test_argon2_parameters_are_secure() {
     // Arrange
-    let hasher = PasswordHasher::default().unwrap();
+    let hasher = PasswordHasher::with_default_requirements().unwrap();
     let password = "SecureP@ssw0rd123";
 
     // Act
@@ -389,7 +389,7 @@ fn test_token_tampering_detection() {
 #[test]
 fn test_password_hash_tampering_detection() {
     // Arrange
-    let hasher = PasswordHasher::default().unwrap();
+    let hasher = PasswordHasher::with_default_requirements().unwrap();
     let password = "SecureP@ssw0rd123";
     let hash = hasher.hash_password(password).unwrap();
 
@@ -426,7 +426,7 @@ fn test_rs256_uses_asymmetric_cryptography() {
 #[test]
 fn test_argon2id_provides_side_channel_resistance() {
     // Arrange
-    let hasher = PasswordHasher::default().unwrap();
+    let hasher = PasswordHasher::with_default_requirements().unwrap();
     let password = "SecureP@ssw0rd123";
 
     // Act

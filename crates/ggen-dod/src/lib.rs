@@ -50,7 +50,7 @@ pub use contract::{Contract, ContractId, ContractVersion, Ontology};
 pub use decision::{Decision, DecisionId, DecisionStore};
 pub use doctrine::DoctrineCompliance;
 pub use error::{DoDError, DoDResult};
-pub use invariant::{Invariant, InvariantChecker, InvariantId};
+pub use invariant::{Invariant, InvariantCategory, InvariantChecker, InvariantId, InvariantSeverity};
 pub use kernel::{Kernel, KernelAction, KernelDecision};
 pub use observation::{Observation, ObservationId, ObservationSchema, ObservationType};
 pub use receipt::{Receipt, ReceiptId, ReceiptStore};

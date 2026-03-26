@@ -1,5 +1,6 @@
 // Comprehensive test suite for the unified execution framework
 use ggen_execution::*;
+use chrono::Utc;
 use std::collections::HashMap;
 use std::time::Duration;
 use tokio::time::sleep;

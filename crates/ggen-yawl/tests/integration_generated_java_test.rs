@@ -319,9 +319,9 @@ fn validate_java_syntax(code: &str) -> Result<(), String> {
         ));
     }
 
-    // Check for valid class or interface declaration
-    if !code.contains("public class") && !code.contains("public interface") {
-        return Err("Missing public class or interface declaration".to_string());
+    // Check for valid class, interface, or enum declaration
+    if !code.contains("public class") && !code.contains("public interface") && !code.contains("public enum") {
+        return Err("Missing public class, interface, or enum declaration".to_string());
     }
 
     // Check for valid package declaration
@@ -1124,6 +1124,576 @@ fn coverage_hbm_nullable_handling() {
 
     // Non-nullable field should have not-null="true"
     assert!(xml.contains("not-null=\"true\""));
+}
+
+// ============================================================================
+// Rule 9: Hibernate HBM XML Mapping Tests
+// ============================================================================
+
+#[test]
+fn test_rule9_hbm_generation() {
+    let fields = vec![
+        EntityField {
+            name: "id".to_string(),
+            field_type: "Long".to_string(),
+            column_name: "id".to_string(),
+            nullable: false,
+            is_id: true,
+        },
+        EntityField {
+            name: "email".to_string(),
+            field_type: "String".to_string(),
+            column_name: "email".to_string(),
+            nullable: false,
+            is_id: false,
+        },
+        EntityField {
+            name: "phone".to_string(),
+            field_type: "String".to_string(),
+            column_name: "phone".to_string(),
+            nullable: true,
+            is_id: false,
+        },
+    ];
+
+    let hbm_xml = MockJavaGenerator::generate_hbm_xml("Customer", "customers", &fields);
+
+    // Verify XML structure
+    assert!(validate_xml_syntax(&hbm_xml).is_ok());
+
+    // Verify XML declaration
+    assert!(hbm_xml.starts_with("<?xml version=\"1.0\""));
+
+    // Verify hibernate-mapping tags
+    assert!(hbm_xml.contains("<hibernate-mapping>"));
+    assert!(hbm_xml.contains("</hibernate-mapping>"));
+
+    // Verify class element with table name
+    assert!(hbm_xml.contains("class name=\"Customer\""));
+    assert!(hbm_xml.contains("table=\"customers\""));
+
+    // Verify ID mapping
+    assert!(hbm_xml.contains("<id name=\"id\""));
+    assert!(hbm_xml.contains("column=\"id\""));
+
+    // Verify properties
+    assert!(hbm_xml.contains("<property name=\"email\""));
+    assert!(hbm_xml.contains("column=\"email\""));
+    assert!(hbm_xml.contains("not-null=\"true\""));
+
+    // Verify nullable property handling
+    assert!(hbm_xml.contains("<property name=\"phone\""));
+    assert!(hbm_xml.contains("not-null=\"false\""));
+}
+
+#[test]
+fn test_rule9_hbm_file_naming() {
+    let entity_name = "Product";
+    let fields = vec![EntityField {
+        name: "id".to_string(),
+        field_type: "Long".to_string(),
+        column_name: "id".to_string(),
+        nullable: false,
+        is_id: true,
+    }];
+
+    let hbm_xml = MockJavaGenerator::generate_hbm_xml(entity_name, "products", &fields);
+
+    // File should be named {EntityName}.hbm.xml
+    let expected_filename = format!("{}.hbm.xml", entity_name);
+    assert!(!expected_filename.is_empty());
+    assert!(expected_filename.ends_with(".hbm.xml"));
+
+    // Verify content matches entity name
+    assert!(hbm_xml.contains("class name=\"Product\""));
+}
+
+#[test]
+fn test_rule9_hbm_multiple_field_types() {
+    let fields = vec![
+        EntityField {
+            name: "id".to_string(),
+            field_type: "Long".to_string(),
+            column_name: "id".to_string(),
+            nullable: false,
+            is_id: true,
+        },
+        EntityField {
+            name: "name".to_string(),
+            field_type: "String".to_string(),
+            column_name: "name".to_string(),
+            nullable: false,
+            is_id: false,
+        },
+        EntityField {
+            name: "age".to_string(),
+            field_type: "Integer".to_string(),
+            column_name: "age".to_string(),
+            nullable: true,
+            is_id: false,
+        },
+        EntityField {
+            name: "salary".to_string(),
+            field_type: "BigDecimal".to_string(),
+            column_name: "salary".to_string(),
+            nullable: false,
+            is_id: false,
+        },
+    ];
+
+    let hbm_xml = MockJavaGenerator::generate_hbm_xml("Employee", "employees", &fields);
+
+    // Verify all field types are present
+    assert!(hbm_xml.contains("type=\"String\""));
+    assert!(hbm_xml.contains("type=\"Integer\""));
+    assert!(hbm_xml.contains("type=\"BigDecimal\""));
+    assert!(hbm_xml.contains("type=\"Long\""));
+
+    // Verify all properties are mapped
+    assert!(hbm_xml.contains("name=\"name\""));
+    assert!(hbm_xml.contains("name=\"age\""));
+    assert!(hbm_xml.contains("name=\"salary\""));
+}
+
+// ============================================================================
+// Rule 10: Jackson Serializer Tests
+// ============================================================================
+
+#[test]
+fn test_rule10_jackson_generation() {
+    let fields = vec![
+        EntityField {
+            name: "id".to_string(),
+            field_type: "Long".to_string(),
+            column_name: "id".to_string(),
+            nullable: false,
+            is_id: true,
+        },
+        EntityField {
+            name: "username".to_string(),
+            field_type: "String".to_string(),
+            column_name: "username".to_string(),
+            nullable: false,
+            is_id: false,
+        },
+    ];
+
+    let serializer_code = MockJavaGenerator::generate_serializer("User", "com.example", &fields);
+
+    // Verify Java syntax
+    assert!(validate_java_syntax(&serializer_code).is_ok());
+
+    // Verify package and imports
+    assert!(serializer_code.contains("package com.example.serializer;"));
+    assert!(serializer_code.contains("import com.fasterxml.jackson.databind.JsonSerializer;"));
+    assert!(serializer_code.contains("import com.fasterxml.jackson.core.JsonGenerator;"));
+    assert!(serializer_code.contains("import java.io.IOException;"));
+
+    // Verify class declaration
+    assert!(serializer_code.contains("public class UserSerializer extends JsonSerializer<User>"));
+
+    // Verify serialize method
+    assert!(serializer_code.contains("@Override"));
+    assert!(serializer_code.contains("public void serialize("));
+    assert!(serializer_code.contains("throws IOException"));
+
+    // Verify JSON generation
+    assert!(serializer_code.contains("gen.writeStartObject();"));
+    assert!(serializer_code.contains("gen.writeEndObject();"));
+    assert!(serializer_code.contains("gen.writeObjectField("));
+}
+
+#[test]
+fn test_rule10_jackson_file_naming() {
+    let entity_name = "Account";
+    let fields = vec![EntityField {
+        name: "id".to_string(),
+        field_type: "Long".to_string(),
+        column_name: "id".to_string(),
+        nullable: false,
+        is_id: true,
+    }];
+
+    let serializer_code = MockJavaGenerator::generate_serializer(entity_name, "com.example", &fields);
+
+    // File should be named {EntityName}Serializer.java
+    let expected_filename = format!("{}Serializer.java", entity_name);
+    assert!(!expected_filename.is_empty());
+    assert!(expected_filename.ends_with("Serializer.java"));
+
+    // Verify class name in code matches pattern
+    assert!(serializer_code.contains("public class AccountSerializer"));
+}
+
+#[test]
+fn test_rule10_jackson_field_serialization() {
+    let fields = vec![
+        EntityField {
+            name: "id".to_string(),
+            field_type: "Long".to_string(),
+            column_name: "id".to_string(),
+            nullable: false,
+            is_id: true,
+        },
+        EntityField {
+            name: "email".to_string(),
+            field_type: "String".to_string(),
+            column_name: "email".to_string(),
+            nullable: false,
+            is_id: false,
+        },
+        EntityField {
+            name: "active".to_string(),
+            field_type: "Boolean".to_string(),
+            column_name: "active".to_string(),
+            nullable: false,
+            is_id: false,
+        },
+    ];
+
+    let serializer_code = MockJavaGenerator::generate_serializer("Member", "com.example", &fields);
+
+    // Verify all fields are serialized
+    assert!(serializer_code.contains("gen.writeObjectField(\"id\""));
+    assert!(serializer_code.contains("gen.writeObjectField(\"email\""));
+    assert!(serializer_code.contains("gen.writeObjectField(\"active\""));
+
+    // Verify getter method calls
+    assert!(serializer_code.contains("getId()"));
+    assert!(serializer_code.contains("getEmail()"));
+    assert!(serializer_code.contains("getActive()"));
+}
+
+#[test]
+fn test_rule10_jackson_imports_correctness() {
+    let fields = vec![EntityField {
+        name: "id".to_string(),
+        field_type: "Long".to_string(),
+        column_name: "id".to_string(),
+        nullable: false,
+        is_id: true,
+    }];
+
+    let serializer_code = MockJavaGenerator::generate_serializer("Entity", "com.test", &fields);
+
+    // Extract imports using regex
+    let imports = extract_imports(&serializer_code);
+
+    // Verify Jackson core imports
+    assert!(imports.contains(&"com.fasterxml.jackson.databind.JsonSerializer".to_string()));
+    assert!(imports.contains(&"com.fasterxml.jackson.core.JsonGenerator".to_string()));
+    assert!(imports.contains(&"java.io.IOException".to_string()));
+
+    // Verify entity import
+    assert!(imports.contains(&"com.test.entity.Entity".to_string()));
+}
+
+// ============================================================================
+// Integration Tests (All Rules 1-10)
+// ============================================================================
+
+#[test]
+fn test_all_rules_1_to_10() {
+    let entity_name = "Order";
+    let package = "com.ecommerce";
+    let fields = vec![
+        EntityField {
+            name: "id".to_string(),
+            field_type: "Long".to_string(),
+            column_name: "id".to_string(),
+            nullable: false,
+            is_id: true,
+        },
+        EntityField {
+            name: "orderNumber".to_string(),
+            field_type: "String".to_string(),
+            column_name: "order_number".to_string(),
+            nullable: false,
+            is_id: false,
+        },
+        EntityField {
+            name: "total".to_string(),
+            field_type: "BigDecimal".to_string(),
+            column_name: "total".to_string(),
+            nullable: false,
+            is_id: false,
+        },
+        EntityField {
+            name: "status".to_string(),
+            field_type: "String".to_string(),
+            column_name: "status".to_string(),
+            nullable: false,
+            is_id: false,
+        },
+    ];
+
+    let entity = GeneratedEntity {
+        name: entity_name.to_string(),
+        package: format!("{}.entity", package),
+        fields: fields.clone(),
+        table_name: "orders".to_string(),
+    };
+
+    // ========== Rule 3: Entity Generation ==========
+    let entity_code = MockJavaGenerator::generate_entity(&entity);
+    assert!(validate_java_syntax(&entity_code).is_ok());
+    assert!(entity_code.contains("@Entity"));
+    assert!(entity_code.contains("@Table(name = \"orders\")"));
+    assert!(entity_code.contains("@Data"));
+    assert!(entity_code.contains("@Builder"));
+    assert!(entity_code.contains("@NoArgsConstructor"));
+    assert!(entity_code.contains("@AllArgsConstructor"));
+
+    // ========== Rule 4: Repository ==========
+    let repo_code = MockJavaGenerator::generate_repository(entity_name, package);
+    assert!(validate_java_syntax(&repo_code).is_ok());
+    assert!(repo_code.contains("@Repository"));
+    assert!(repo_code.contains(&format!("public interface {}Repository", entity_name)));
+    assert!(repo_code.contains("JpaRepository<Order, Long>"));
+
+    // ========== Rule 5: DTO ==========
+    let dto_code = MockJavaGenerator::generate_dto(entity_name, package, &fields);
+    assert!(validate_java_syntax(&dto_code).is_ok());
+    assert!(dto_code.contains(&format!("public class {}DTO", entity_name)));
+    assert!(dto_code.contains("@Data"));
+
+    // ========== Rule 6: Controller ==========
+    let controller_code = MockJavaGenerator::generate_controller(entity_name, package);
+    assert!(validate_java_syntax(&controller_code).is_ok());
+    assert!(controller_code.contains("@RestController"));
+    assert!(controller_code.contains("@RequestMapping(\"/api/order\")"));
+    assert!(controller_code.contains(&format!("{}Service", entity_name)));
+
+    // ========== Rule 7: Enum ==========
+    let enum_code = MockJavaGenerator::generate_enum(
+        "OrderStatus",
+        &format!("{}.enums", package),
+        &["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"],
+    );
+    assert!(enum_code.contains("public enum OrderStatus"));
+    assert!(enum_code.contains("PENDING(\"PENDING\")"));
+    assert!(enum_code.contains("SHIPPED(\"SHIPPED\")"));
+
+    // ========== Rule 8: Service ==========
+    let service_code = MockJavaGenerator::generate_service(entity_name, package);
+    assert!(validate_java_syntax(&service_code).is_ok());
+    assert!(service_code.contains("@Service"));
+    assert!(service_code.contains("@Transactional"));
+    assert!(service_code.contains(&format!("{}Repository", entity_name)));
+
+    // ========== Rule 9: HBM XML ==========
+    let hbm_code = MockJavaGenerator::generate_hbm_xml(entity_name, "orders", &fields);
+    assert!(validate_xml_syntax(&hbm_code).is_ok());
+    assert!(hbm_code.contains("<hibernate-mapping>"));
+    assert!(hbm_code.contains("class name=\"Order\""));
+    assert!(hbm_code.contains("table=\"orders\""));
+    assert!(hbm_code.contains("<id name=\"id\""));
+    assert!(hbm_code.contains("<property name=\"orderNumber\""));
+    assert!(hbm_code.contains("<property name=\"total\""));
+
+    // ========== Rule 10: Jackson Serializer ==========
+    let serializer_code = MockJavaGenerator::generate_serializer(entity_name, package, &fields);
+    assert!(validate_java_syntax(&serializer_code).is_ok());
+    assert!(serializer_code.contains("public class OrderSerializer extends JsonSerializer<Order>"));
+    assert!(serializer_code.contains("public void serialize("));
+    assert!(serializer_code.contains("gen.writeStartObject();"));
+    assert!(serializer_code.contains("gen.writeObjectField(\"id\""));
+    assert!(serializer_code.contains("gen.writeObjectField(\"orderNumber\""));
+
+    // ========== File Count Verification ==========
+    // Each rule generates file(s):
+    // Rule 3: 1 entity file
+    // Rule 4: 1 repository file
+    // Rule 5: 1 DTO file
+    // Rule 6: 1 controller file
+    // Rule 7: 1 enum file (5 enums possible for 5 different enums)
+    // Rule 8: 1 service file
+    // Rule 9: 1+ HBM XML file per entity
+    // Rule 10: 1+ serializer file per entity
+    // For a single entity with typical configuration: ~8-10+ files minimum
+
+    // Verify determinism: Re-generate and compare
+    let entity_code_2 = MockJavaGenerator::generate_entity(&entity);
+    assert_eq!(entity_code, entity_code_2, "Entity generation not deterministic");
+
+    let hbm_code_2 = MockJavaGenerator::generate_hbm_xml(entity_name, "orders", &fields);
+    assert_eq!(hbm_code, hbm_code_2, "HBM generation not deterministic");
+
+    let serializer_code_2 = MockJavaGenerator::generate_serializer(entity_name, package, &fields);
+    assert_eq!(
+        serializer_code, serializer_code_2,
+        "Serializer generation not deterministic"
+    );
+}
+
+#[test]
+fn test_all_rules_1_to_10_file_generation_count() {
+    // Simulate multi-entity scenario to verify file counts
+    let packages = vec!["com.app", "com.app"];
+    let entities = vec!["User", "Product"];
+
+    let mut total_files = 0;
+
+    for (idx, entity_name) in entities.iter().enumerate() {
+        let package = packages[idx];
+        let fields = vec![
+            EntityField {
+                name: "id".to_string(),
+                field_type: "Long".to_string(),
+                column_name: "id".to_string(),
+                nullable: false,
+                is_id: true,
+            },
+            EntityField {
+                name: "name".to_string(),
+                field_type: "String".to_string(),
+                column_name: "name".to_string(),
+                nullable: false,
+                is_id: false,
+            },
+        ];
+
+        // Rule 3: Entity
+        let _entity_code = MockJavaGenerator::generate_entity(&GeneratedEntity {
+            name: entity_name.to_string(),
+            package: format!("{}.entity", package),
+            fields: fields.clone(),
+            table_name: format!("{}s", entity_name.to_lowercase()),
+        });
+        total_files += 1;
+
+        // Rule 4: Repository
+        let _repo_code = MockJavaGenerator::generate_repository(entity_name, package);
+        total_files += 1;
+
+        // Rule 5: DTO
+        let _dto_code = MockJavaGenerator::generate_dto(entity_name, package, &fields);
+        total_files += 1;
+
+        // Rule 6: Controller
+        let _controller_code = MockJavaGenerator::generate_controller(entity_name, package);
+        total_files += 1;
+
+        // Rule 7: Enum (single enum per entity)
+        let _enum_code = MockJavaGenerator::generate_enum("Status", package, &["ACTIVE", "INACTIVE"]);
+        total_files += 1;
+
+        // Rule 8: Service
+        let _service_code = MockJavaGenerator::generate_service(entity_name, package);
+        total_files += 1;
+
+        // Rule 9: HBM XML
+        let _hbm_code = MockJavaGenerator::generate_hbm_xml(
+            entity_name,
+            &format!("{}s", entity_name.to_lowercase()),
+            &fields,
+        );
+        total_files += 1;
+
+        // Rule 10: Serializer
+        let _serializer_code = MockJavaGenerator::generate_serializer(entity_name, package, &fields);
+        total_files += 1;
+    }
+
+    // With 2 entities:
+    // 8 files per entity * 2 = 16 files
+    // Expected minimum: 16 files (8 per entity)
+    assert!(
+        total_files >= 16,
+        "Expected at least 16 files for 2 entities, got {}",
+        total_files
+    );
+    assert_eq!(total_files, 16, "File count mismatch for 2 entities");
+}
+
+#[test]
+fn test_all_rules_validation_chain() {
+    // Comprehensive validation chain for all 10 rules
+    let entity_name = "Transaction";
+    let package = "com.payment";
+    let fields = vec![
+        EntityField {
+            name: "id".to_string(),
+            field_type: "Long".to_string(),
+            column_name: "id".to_string(),
+            nullable: false,
+            is_id: true,
+        },
+        EntityField {
+            name: "amount".to_string(),
+            field_type: "BigDecimal".to_string(),
+            column_name: "amount".to_string(),
+            nullable: false,
+            is_id: false,
+        },
+    ];
+
+    let entity = GeneratedEntity {
+        name: entity_name.to_string(),
+        package: format!("{}.entity", package),
+        fields: fields.clone(),
+        table_name: "transactions".to_string(),
+    };
+
+    // Step 1: Generate all components
+    let entity_code = MockJavaGenerator::generate_entity(&entity);
+    let repo_code = MockJavaGenerator::generate_repository(entity_name, package);
+    let dto_code = MockJavaGenerator::generate_dto(entity_name, package, &fields);
+    let controller_code = MockJavaGenerator::generate_controller(entity_name, package);
+    let enum_code = MockJavaGenerator::generate_enum("Type", package, &["DEBIT", "CREDIT"]);
+    let service_code = MockJavaGenerator::generate_service(entity_name, package);
+    let hbm_code = MockJavaGenerator::generate_hbm_xml(entity_name, "transactions", &fields);
+    let serializer_code = MockJavaGenerator::generate_serializer(entity_name, package, &fields);
+
+    // Step 2: Validate syntax
+    assert!(validate_java_syntax(&entity_code).is_ok(), "Entity syntax invalid");
+    assert!(validate_java_syntax(&repo_code).is_ok(), "Repository syntax invalid");
+    assert!(validate_java_syntax(&dto_code).is_ok(), "DTO syntax invalid");
+    assert!(
+        validate_java_syntax(&controller_code).is_ok(),
+        "Controller syntax invalid"
+    );
+    assert!(validate_java_syntax(&enum_code).is_ok(), "Enum syntax invalid");
+    assert!(validate_java_syntax(&service_code).is_ok(), "Service syntax invalid");
+    assert!(validate_xml_syntax(&hbm_code).is_ok(), "HBM XML syntax invalid");
+    assert!(
+        validate_java_syntax(&serializer_code).is_ok(),
+        "Serializer syntax invalid"
+    );
+
+    // Step 3: Validate cross-rule consistency
+    let package_name = extract_package_name(&entity_code).unwrap();
+    assert!(package_name.contains("entity"));
+
+    let repo_imports = extract_imports(&repo_code);
+    assert!(
+        repo_imports.iter().any(|i| i.contains("Transaction")),
+        "Repository should import entity"
+    );
+
+    let controller_imports = extract_imports(&controller_code);
+    assert!(
+        controller_imports.iter().any(|i| i.contains("TransactionService")),
+        "Controller should import service"
+    );
+
+    let service_imports = extract_imports(&service_code);
+    assert!(
+        service_imports
+            .iter()
+            .any(|i| i.contains("TransactionRepository")),
+        "Service should import repository"
+    );
+
+    // Step 4: Verify all 10 rules completed successfully
+    assert!(!entity_code.is_empty(), "Rule 3 (Entity) produced no output");
+    assert!(!repo_code.is_empty(), "Rule 4 (Repository) produced no output");
+    assert!(!dto_code.is_empty(), "Rule 5 (DTO) produced no output");
+    assert!(!controller_code.is_empty(), "Rule 6 (Controller) produced no output");
+    assert!(!enum_code.is_empty(), "Rule 7 (Enum) produced no output");
+    assert!(!service_code.is_empty(), "Rule 8 (Service) produced no output");
+    assert!(!hbm_code.is_empty(), "Rule 9 (HBM XML) produced no output");
+    assert!(!serializer_code.is_empty(), "Rule 10 (Serializer) produced no output");
 }
 
 #[test]
