@@ -23,13 +23,22 @@ impl Queryable for ControllerQuery {
     fn execute(&self) -> Result<Vec<HashMap<String, String>>> {
         let entities = vec!["YWorkItem", "YTask", "YNet", "YEngine"];
 
-        let results = entities.into_iter().map(|entity| {
-            let mut bindings = HashMap::new();
-            bindings.insert("entityName".to_string(), entity.to_string());
-            bindings.insert("controllerName".to_string(), format!("{}Controller", entity));
-            bindings.insert("path".to_string(), format!("/api/{}", entity.to_lowercase()));
-            bindings
-        }).collect();
+        let results = entities
+            .into_iter()
+            .map(|entity| {
+                let mut bindings = HashMap::new();
+                bindings.insert("entityName".to_string(), entity.to_string());
+                bindings.insert(
+                    "controllerName".to_string(),
+                    format!("{}Controller", entity),
+                );
+                bindings.insert(
+                    "path".to_string(),
+                    format!("/api/{}", entity.to_lowercase()),
+                );
+                bindings
+            })
+            .collect();
 
         Ok(results)
     }
@@ -152,15 +161,18 @@ impl Renderable for ControllerTemplate {
     fn render(&self, bindings: &HashMap<String, String>) -> Result<String> {
         let mut context = Context::new();
 
-        let entity_name = bindings.get("entityName")
+        let entity_name = bindings
+            .get("entityName")
             .ok_or_else(|| Error::template("Missing entityName in bindings".to_string()))?
             .clone();
 
-        let controller_name = bindings.get("controllerName")
+        let controller_name = bindings
+            .get("controllerName")
             .unwrap_or(&format!("{}Controller", entity_name))
             .clone();
 
-        let path = bindings.get("path")
+        let path = bindings
+            .get("path")
             .unwrap_or(&format!("/api/{}", entity_name.to_lowercase()))
             .clone();
 
@@ -168,7 +180,8 @@ impl Renderable for ControllerTemplate {
         context.insert("controllerName", &controller_name);
         context.insert("path", &path);
 
-        self.tera.render("controller.java.tera", &context)
+        self.tera
+            .render("controller.java.tera", &context)
             .map_err(|e| Error::template(format!("Template rendering failed: {}", e)))
     }
 
@@ -186,7 +199,9 @@ pub fn create_controller_rule() -> Result<Rule<ControllerQuery, ControllerTempla
         "controllers",
         query,
         template,
-        PathBuf::from("src/main/java/org/yawlfoundation/yawl/controllers/{{ controllerName }}.java"),
+        PathBuf::from(
+            "src/main/java/org/yawlfoundation/yawl/controllers/{{ controllerName }}.java",
+        ),
         GenerationMode::Overwrite,
     );
 

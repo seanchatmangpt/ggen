@@ -23,12 +23,15 @@ impl Queryable for DtoQuery {
     fn execute(&self) -> Result<Vec<HashMap<String, String>>> {
         let entities = vec!["YWorkItem", "YTask", "YIdentifier", "YMarking", "YVariable"];
 
-        let results = entities.into_iter().map(|entity| {
-            let mut bindings = HashMap::new();
-            bindings.insert("dtoName".to_string(), format!("{}DTO", entity));
-            bindings.insert("entityName".to_string(), entity.to_string());
-            bindings
-        }).collect();
+        let results = entities
+            .into_iter()
+            .map(|entity| {
+                let mut bindings = HashMap::new();
+                bindings.insert("dtoName".to_string(), format!("{}DTO", entity));
+                bindings.insert("entityName".to_string(), entity.to_string());
+                bindings
+            })
+            .collect();
 
         Ok(results)
     }
@@ -126,18 +129,21 @@ impl Renderable for DtoTemplate {
     fn render(&self, bindings: &HashMap<String, String>) -> Result<String> {
         let mut context = Context::new();
 
-        let entity_name = bindings.get("entityName")
+        let entity_name = bindings
+            .get("entityName")
             .ok_or_else(|| Error::template("Missing entityName in bindings".to_string()))?
             .clone();
 
-        let dto_name = bindings.get("dtoName")
+        let dto_name = bindings
+            .get("dtoName")
             .unwrap_or(&format!("{}DTO", entity_name))
             .clone();
 
         context.insert("entityName", &entity_name);
         context.insert("dtoName", &dto_name);
 
-        self.tera.render("dto.java.tera", &context)
+        self.tera
+            .render("dto.java.tera", &context)
             .map_err(|e| Error::template(format!("Template rendering failed: {}", e)))
     }
 

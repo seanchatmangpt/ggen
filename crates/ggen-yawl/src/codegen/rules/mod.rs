@@ -9,16 +9,16 @@
 //! - enums.rs: Rule 7 - Java enums for enumerated values
 //! - services.rs: Rule 8 - Spring business logic services
 
+pub mod controllers;
+pub mod dtos;
+pub mod enums;
 pub mod jpa_entity;
 pub mod repositories;
-pub mod dtos;
-pub mod controllers;
-pub mod enums;
 pub mod services;
 
+pub use controllers::create_controller_rule;
+pub use dtos::create_dto_rule;
+pub use enums::create_enum_rule;
 pub use jpa_entity::create_jpa_entity_rule;
 pub use repositories::create_repository_rule;
-pub use dtos::create_dto_rule;
-pub use controllers::create_controller_rule;
-pub use enums::create_enum_rule;
 pub use services::create_service_rule;

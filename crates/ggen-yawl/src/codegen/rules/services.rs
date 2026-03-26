@@ -23,13 +23,19 @@ impl Queryable for ServiceQuery {
     fn execute(&self) -> Result<Vec<HashMap<String, String>>> {
         let entities = vec!["YWorkItem", "YTask", "YNet", "YEngine"];
 
-        let results = entities.into_iter().map(|entity| {
-            let mut bindings = HashMap::new();
-            bindings.insert("entityName".to_string(), entity.to_string());
-            bindings.insert("serviceName".to_string(), format!("{}Service", entity));
-            bindings.insert("repositoryName".to_string(), format!("{}Repository", entity));
-            bindings
-        }).collect();
+        let results = entities
+            .into_iter()
+            .map(|entity| {
+                let mut bindings = HashMap::new();
+                bindings.insert("entityName".to_string(), entity.to_string());
+                bindings.insert("serviceName".to_string(), format!("{}Service", entity));
+                bindings.insert(
+                    "repositoryName".to_string(),
+                    format!("{}Repository", entity),
+                );
+                bindings
+            })
+            .collect();
 
         Ok(results)
     }
@@ -138,15 +144,18 @@ impl Renderable for ServiceTemplate {
     fn render(&self, bindings: &HashMap<String, String>) -> Result<String> {
         let mut context = Context::new();
 
-        let entity_name = bindings.get("entityName")
+        let entity_name = bindings
+            .get("entityName")
             .ok_or_else(|| Error::template("Missing entityName in bindings".to_string()))?
             .clone();
 
-        let service_name = bindings.get("serviceName")
+        let service_name = bindings
+            .get("serviceName")
             .unwrap_or(&format!("{}Service", entity_name))
             .clone();
 
-        let repo_name = bindings.get("repositoryName")
+        let repo_name = bindings
+            .get("repositoryName")
             .unwrap_or(&format!("{}Repository", entity_name))
             .clone();
 
@@ -154,7 +163,8 @@ impl Renderable for ServiceTemplate {
         context.insert("serviceName", &service_name);
         context.insert("repositoryName", &repo_name);
 
-        self.tera.render("service.java.tera", &context)
+        self.tera
+            .render("service.java.tera", &context)
             .map_err(|e| Error::template(format!("Template rendering failed: {}", e)))
     }
 
