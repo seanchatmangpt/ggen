@@ -7,6 +7,7 @@ license = "MIT"
 description = "YAWL workflow generation from industry ontologies using SPARQL CONSTRUCT"
 
 [dependencies]
+ggen-codegen = { path = "../ggen-codegen" }
 ggen-core = { path = "../ggen-core" }
 ggen-utils = { path = "../ggen-utils" }
 a2a-generated = { path = "../a2a-generated" }

@@ -3,7 +3,8 @@
 //! Generates Java enums for work item statuses, WCP categories, and other
 //! enumerated values extracted from the YAWL ontology.
 
-use crate::codegen::{GenerationMode, Queryable, Renderable, Rule};
+use ggen_codegen::{GenerationMode, Queryable, Renderable, Rule, Error as CodegenError};
+use ggen_codegen::Result as CodegenResult;
 use crate::error::{Error, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -20,7 +21,7 @@ impl EnumQuery {
 }
 
 impl Queryable for EnumQuery {
-    fn execute(&self) -> Result<Vec<HashMap<String, String>>> {
+    fn execute(&self) -> CodegenResult<Vec<HashMap<String, String>>> {
         let enums = vec![
             (
                 "WorkItemStatus",
@@ -115,17 +116,17 @@ public enum {{ enumName }} {
 }
 
 impl Renderable for EnumTemplate {
-    fn render(&self, bindings: &HashMap<String, String>) -> Result<String> {
+    fn render(&self, bindings: &HashMap<String, String>) -> CodegenResult<String> {
         let mut context = Context::new();
 
         let enum_name = bindings
             .get("enumName")
-            .ok_or_else(|| Error::template("Missing enumName in bindings".to_string()))?
+            .ok_or_else(|| CodegenError::template("Missing enumName in bindings".to_string()))?
             .clone();
 
         let values = bindings
             .get("values")
-            .ok_or_else(|| Error::template("Missing values in bindings".to_string()))?
+            .ok_or_else(|| CodegenError::template("Missing values in bindings".to_string()))?
             .clone();
 
         context.insert("enumName", &enum_name);
@@ -133,7 +134,7 @@ impl Renderable for EnumTemplate {
 
         self.tera
             .render("enum.java.tera", &context)
-            .map_err(|e| Error::template(format!("Template rendering failed: {}", e)))
+            .map_err(|e| CodegenError::template(format!("Template rendering failed: {}", e)))
     }
 
     fn name(&self) -> &str {

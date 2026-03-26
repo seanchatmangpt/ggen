@@ -3,7 +3,8 @@
 //! Generates `@Service`-annotated classes that encapsulate business logic
 //! for YAWL entities with transactional boundaries.
 
-use crate::codegen::{GenerationMode, Queryable, Renderable, Rule};
+use ggen_codegen::{GenerationMode, Queryable, Renderable, Rule, Error as CodegenError};
+use ggen_codegen::Result as CodegenResult;
 use crate::error::{Error, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -20,7 +21,7 @@ impl ServiceQuery {
 }
 
 impl Queryable for ServiceQuery {
-    fn execute(&self) -> Result<Vec<HashMap<String, String>>> {
+    fn execute(&self) -> CodegenResult<Vec<HashMap<String, String>>> {
         let entities = vec!["YWorkItem", "YTask", "YNet", "YEngine"];
 
         let results = entities
@@ -141,12 +142,12 @@ public class {{ serviceName }} {
 }
 
 impl Renderable for ServiceTemplate {
-    fn render(&self, bindings: &HashMap<String, String>) -> Result<String> {
+    fn render(&self, bindings: &HashMap<String, String>) -> CodegenResult<String> {
         let mut context = Context::new();
 
         let entity_name = bindings
             .get("entityName")
-            .ok_or_else(|| Error::template("Missing entityName in bindings".to_string()))?
+            .ok_or_else(|| CodegenError::template("Missing entityName in bindings".to_string()))?
             .clone();
 
         let service_name = bindings
@@ -165,7 +166,7 @@ impl Renderable for ServiceTemplate {
 
         self.tera
             .render("service.java.tera", &context)
-            .map_err(|e| Error::template(format!("Template rendering failed: {}", e)))
+            .map_err(|e| CodegenError::template(format!("Template rendering failed: {}", e)))
     }
 
     fn name(&self) -> &str {

@@ -4,8 +4,8 @@
 //! and validates the complete pipeline.
 
 use ggen_yawl::codegen::{
-    create_jpa_entity_rule, create_repository_rule, create_dto_rule, create_controller_rule,
-    create_enum_rule, create_service_rule,
+    create_controller_rule, create_dto_rule, create_enum_rule, create_jpa_entity_rule,
+    create_repository_rule, create_service_rule,
 };
 
 #[test]
@@ -72,13 +72,22 @@ fn test_phase4_complete_yawl_generation() {
     );
 
     // Validation: minimum expectations
-    assert!(total_files_generated >= 10, "Should generate at least 10 files");
-    assert!(total_content_length > 10_000, "Generated code should be substantial (>10KB)");
+    assert!(
+        total_files_generated >= 10,
+        "Should generate at least 10 files"
+    );
+    assert!(
+        total_content_length > 10_000,
+        "Generated code should be substantial (>10KB)"
+    );
 
     // Summary
     println!("=== Phase 4 Success Criteria Met ===");
     println!("✅ All 6 rules execute without errors");
-    println!("✅ {} files generated across all rules", total_files_generated);
+    println!(
+        "✅ {} files generated across all rules",
+        total_files_generated
+    );
     println!("✅ All generated files have valid structure");
     println!("✅ Deterministic output (content hashing verified)");
     println!("✅ Java code annotations present and correct");
@@ -100,7 +109,10 @@ fn test_phase4_deterministic_output() {
 
         assert_eq!(files1.len(), files2.len());
         for (f1, f2) in files1.iter().zip(files2.iter()) {
-            assert_eq!(f1.content_hash, f2.content_hash, "JPA entities should be deterministic");
+            assert_eq!(
+                f1.content_hash, f2.content_hash,
+                "JPA entities should be deterministic"
+            );
         }
         println!("✅ Rule 3: JPA Entities - Deterministic");
     }
@@ -115,7 +127,10 @@ fn test_phase4_deterministic_output() {
 
         assert_eq!(files1.len(), files2.len());
         for (f1, f2) in files1.iter().zip(files2.iter()) {
-            assert_eq!(f1.content_hash, f2.content_hash, "Repositories should be deterministic");
+            assert_eq!(
+                f1.content_hash, f2.content_hash,
+                "Repositories should be deterministic"
+            );
         }
         println!("✅ Rule 4: Repositories - Deterministic");
     }
@@ -130,7 +145,10 @@ fn test_phase4_deterministic_output() {
 
         assert_eq!(files1.len(), files2.len());
         for (f1, f2) in files1.iter().zip(files2.iter()) {
-            assert_eq!(f1.content_hash, f2.content_hash, "DTOs should be deterministic");
+            assert_eq!(
+                f1.content_hash, f2.content_hash,
+                "DTOs should be deterministic"
+            );
         }
         println!("✅ Rule 5: DTOs - Deterministic");
     }
@@ -145,7 +163,10 @@ fn test_phase4_deterministic_output() {
 
         assert_eq!(files1.len(), files2.len());
         for (f1, f2) in files1.iter().zip(files2.iter()) {
-            assert_eq!(f1.content_hash, f2.content_hash, "Controllers should be deterministic");
+            assert_eq!(
+                f1.content_hash, f2.content_hash,
+                "Controllers should be deterministic"
+            );
         }
         println!("✅ Rule 6: Controllers - Deterministic");
     }
@@ -160,7 +181,10 @@ fn test_phase4_deterministic_output() {
 
         assert_eq!(files1.len(), files2.len());
         for (f1, f2) in files1.iter().zip(files2.iter()) {
-            assert_eq!(f1.content_hash, f2.content_hash, "Enums should be deterministic");
+            assert_eq!(
+                f1.content_hash, f2.content_hash,
+                "Enums should be deterministic"
+            );
         }
         println!("✅ Rule 7: Enums - Deterministic");
     }
@@ -175,7 +199,10 @@ fn test_phase4_deterministic_output() {
 
         assert_eq!(files1.len(), files2.len());
         for (f1, f2) in files1.iter().zip(files2.iter()) {
-            assert_eq!(f1.content_hash, f2.content_hash, "Services should be deterministic");
+            assert_eq!(
+                f1.content_hash, f2.content_hash,
+                "Services should be deterministic"
+            );
         }
         println!("✅ Rule 8: Services - Deterministic");
     }
