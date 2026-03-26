@@ -3,11 +3,11 @@
 //! Demonstrates 3-channel ingress control with admission rules.
 //! Everything else gets refused with cryptographic receipt.
 
+use chrono::{Duration, Utc};
 use ggen_firewall::{
     channels::{BatchChannel, EmergencyChannel, ScheduledChannel},
     AdmissionResponse, Firewall, IngressChannel, IngressRequest,
 };
-use chrono::{Duration, Utc};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -80,7 +80,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             AdmissionResponse::Admitted { request_id, .. } => {
                 println!("  ✓ Request {} admitted ({})", i, request_id);
             }
-            AdmissionResponse::Refused { reason, receipt, .. } => {
+            AdmissionResponse::Refused {
+                reason, receipt, ..
+            } => {
                 println!("  ✗ Request {} refused", i);
                 println!("    Reason: {}", reason);
                 println!("    Receipt hash: {}", receipt.hash);
@@ -91,7 +93,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Example 3: Scheduled channel (within window)
     println!("=== Example 3: Scheduled Channel ===");
-    println!("Window: {} to {}", now.format("%H:%M"), window_end.format("%H:%M"));
+    println!(
+        "Window: {} to {}",
+        now.format("%H:%M"),
+        window_end.format("%H:%M")
+    );
 
     let scheduled_request = IngressRequest::new(
         IngressChannel::Scheduled,
@@ -186,10 +192,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Future timestamp
     println!("\nFuture timestamp:");
-    let mut future_request = IngressRequest::new(
-        IngressChannel::Batch,
-        "Future payload".as_bytes().to_vec(),
-    );
+    let mut future_request =
+        IngressRequest::new(IngressChannel::Batch, "Future payload".as_bytes().to_vec());
     future_request.timestamp = Utc::now() + Duration::hours(2);
     match firewall.process(future_request).await {
         AdmissionResponse::Refused { reason, .. } => {

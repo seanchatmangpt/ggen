@@ -17,8 +17,8 @@
 #![deny(clippy::expect_used)]
 #![deny(clippy::panic)]
 
-pub mod patterns;
 pub mod executor;
+pub mod patterns;
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
@@ -228,13 +228,15 @@ impl WorkflowEngine {
 
     /// Get activity context
     pub fn get_context(&self, id: &ActivityId) -> Result<&ActivityContext> {
-        self.contexts.get(id)
+        self.contexts
+            .get(id)
             .ok_or_else(|| WorkflowError::ActivityNotFound(id.0.clone()))
     }
 
     /// Get mutable activity context
     pub fn get_context_mut(&mut self, id: &ActivityId) -> Result<&mut ActivityContext> {
-        self.contexts.get_mut(id)
+        self.contexts
+            .get_mut(id)
             .ok_or_else(|| WorkflowError::ActivityNotFound(id.0.clone()))
     }
 
@@ -251,11 +253,15 @@ impl WorkflowEngine {
         }
 
         // Remove activity temporarily to avoid borrow conflicts
-        let activity = self.activities.remove(id)
+        let activity = self
+            .activities
+            .remove(id)
             .ok_or_else(|| WorkflowError::ActivityNotFound(id.0.clone()))?;
 
         // Get mutable context
-        let context = self.contexts.get_mut(id)
+        let context = self
+            .contexts
+            .get_mut(id)
             .ok_or_else(|| WorkflowError::ActivityNotFound(id.0.clone()))?;
 
         // Execute
@@ -282,7 +288,10 @@ impl WorkflowEngine {
     }
 
     /// Record pattern execution
-    pub fn record_execution(&mut self, pattern: &dyn WorkflowPattern, activities: Vec<ActivityId>, result: ExecutionResult) {
+    pub fn record_execution(
+        &mut self, pattern: &dyn WorkflowPattern, activities: Vec<ActivityId>,
+        result: ExecutionResult,
+    ) {
         self.execution_history.push(PatternExecution {
             pattern_name: pattern.name().to_string(),
             pattern_number: pattern.pattern_number(),
@@ -323,7 +332,9 @@ mod tests {
     async fn test_workflow_engine_basic_execution() {
         let mut engine = WorkflowEngine::new();
         let activity_id = ActivityId::new("test-1");
-        let activity = Box::new(TestActivity { id: activity_id.clone() });
+        let activity = Box::new(TestActivity {
+            id: activity_id.clone(),
+        });
 
         engine.register_activity(activity);
 

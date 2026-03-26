@@ -12,6 +12,6 @@ pub use hbm_mappings::{
 };
 pub use jackson_serializers::{
     create_jackson_serializer_rule, EnumDefinition, FieldInfo, FieldMapping,
-    JacksonSerializerQuery, JacksonSerializerRule, JacksonSerializerTemplate,
-    SerializerDetail, SerializerQueryResult, SerializationType,
+    JacksonSerializerQuery, JacksonSerializerRule, JacksonSerializerTemplate, SerializationType,
+    SerializerDetail, SerializerQueryResult,
 };

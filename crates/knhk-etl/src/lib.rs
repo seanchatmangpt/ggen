@@ -330,6 +330,7 @@ pub struct TransformResult {
     pub validation_errors: Vec<String>,
 }
 
+#[derive(Clone, Copy, Debug)]
 pub struct TypedTriple {
     pub subject: u64,   // Hashed IRI
     pub predicate: u64, // Hashed IRI

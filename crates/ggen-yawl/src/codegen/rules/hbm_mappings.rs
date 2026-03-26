@@ -103,9 +103,7 @@ impl HbmMappingTemplate {
 
         // Hibernate mapping root element
         xml.push_str("<!DOCTYPE hibernate-mapping PUBLIC\n");
-        xml.push_str(
-            "    \"-//Hibernate/Hibernate Mapping DTD 3.0//EN\"\n",
-        );
+        xml.push_str("    \"-//Hibernate/Hibernate Mapping DTD 3.0//EN\"\n");
         xml.push_str("    \"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd\">\n");
 
         xml.push_str("<hibernate-mapping");
@@ -181,7 +179,9 @@ impl HbmMappingTemplate {
             if prop.property_name == self.entity.id_property {
                 continue; // Skip ID, already handled
             }
-            if self.entity.has_version && Some(&prop.property_name) == self.entity.version_property.as_ref() {
+            if self.entity.has_version
+                && Some(&prop.property_name) == self.entity.version_property.as_ref()
+            {
                 continue; // Skip version, already handled
             }
 
@@ -488,7 +488,10 @@ mod tests {
     #[test]
     fn test_create_hbm_mapping_rule_factory() {
         let rule = create_hbm_mapping_rule();
-        assert_eq!(std::any::type_name_of_val(&rule), "ggen_yawl::codegen::rules::hbm_mappings::HbmMappingRule");
+        assert_eq!(
+            std::any::type_name_of_val(&rule),
+            "ggen_yawl::codegen::rules::hbm_mappings::HbmMappingRule"
+        );
     }
 
     #[test]

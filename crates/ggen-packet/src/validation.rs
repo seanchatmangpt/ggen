@@ -1,4 +1,4 @@
-use crate::{WorkOrder, Constraint, AcceptanceTest, AcceptanceCriterion};
+use crate::{AcceptanceCriterion, AcceptanceTest, Constraint, WorkOrder};
 use thiserror::Error;
 use validator::Validate;
 
@@ -49,37 +49,37 @@ pub fn validate_work_order(work_order: &WorkOrder) -> Result<(), ValidationError
 fn validate_business_rules(work_order: &WorkOrder) -> Result<(), ValidationError> {
     // Objective must not be empty or whitespace only
     if work_order.objective.trim().is_empty() {
-        return Err(ValidationError::BusinessRuleViolation(
-            String::from("Objective cannot be empty or whitespace"),
-        ));
+        return Err(ValidationError::BusinessRuleViolation(String::from(
+            "Objective cannot be empty or whitespace",
+        )));
     }
 
     // Owner must not be empty or whitespace only
     if work_order.owner.trim().is_empty() {
-        return Err(ValidationError::BusinessRuleViolation(
-            String::from("Owner cannot be empty or whitespace"),
-        ));
+        return Err(ValidationError::BusinessRuleViolation(String::from(
+            "Owner cannot be empty or whitespace",
+        )));
     }
 
     // Reversible work orders must have rollback steps
     if work_order.reversibility.reversible && work_order.reversibility.rollback_steps.is_empty() {
-        return Err(ValidationError::BusinessRuleViolation(
-            String::from("Reversible work orders must define rollback steps"),
-        ));
+        return Err(ValidationError::BusinessRuleViolation(String::from(
+            "Reversible work orders must define rollback steps",
+        )));
     }
 
     // If backup is required, work order must be reversible
     if work_order.reversibility.backup_required && !work_order.reversibility.reversible {
-        return Err(ValidationError::BusinessRuleViolation(
-            String::from("Backup requirement implies reversibility"),
-        ));
+        return Err(ValidationError::BusinessRuleViolation(String::from(
+            "Backup requirement implies reversibility",
+        )));
     }
 
     // Tags must not exceed reasonable limit
     if work_order.tags.len() > 20 {
-        return Err(ValidationError::BusinessRuleViolation(
-            String::from("Too many tags (max 20)"),
-        ));
+        return Err(ValidationError::BusinessRuleViolation(String::from(
+            "Too many tags (max 20)",
+        )));
     }
 
     Ok(())
@@ -91,18 +91,21 @@ fn validate_constraints(constraints: &[Constraint]) -> Result<(), ValidationErro
 
         // Constraint description must not be empty or whitespace
         if constraint.description.trim().is_empty() {
-            return Err(ValidationError::ConstraintViolation(
-                String::from("Constraint description cannot be empty or whitespace"),
-            ));
+            return Err(ValidationError::ConstraintViolation(String::from(
+                "Constraint description cannot be empty or whitespace",
+            )));
         }
     }
 
     // Check for duplicate constraints
-    let unique_count = constraints.iter().collect::<std::collections::HashSet<_>>().len();
+    let unique_count = constraints
+        .iter()
+        .collect::<std::collections::HashSet<_>>()
+        .len();
     if unique_count != constraints.len() {
-        return Err(ValidationError::ConstraintViolation(
-            String::from("Duplicate constraints detected"),
-        ));
+        return Err(ValidationError::ConstraintViolation(String::from(
+            "Duplicate constraints detected",
+        )));
     }
 
     Ok(())
@@ -120,9 +123,9 @@ fn validate_acceptance_test(test: &AcceptanceTest) -> Result<(), ValidationError
 
     // Must have at least one criterion
     if test.criteria.is_empty() {
-        return Err(ValidationError::BusinessRuleViolation(
-            String::from("Acceptance test must have at least one criterion"),
-        ));
+        return Err(ValidationError::BusinessRuleViolation(String::from(
+            "Acceptance test must have at least one criterion",
+        )));
     }
 
     // Validate each criterion
@@ -132,9 +135,9 @@ fn validate_acceptance_test(test: &AcceptanceTest) -> Result<(), ValidationError
 
     // At least one required criterion must exist
     if !test.criteria.iter().any(|c| c.required) {
-        return Err(ValidationError::BusinessRuleViolation(
-            String::from("Acceptance test must have at least one required criterion"),
-        ));
+        return Err(ValidationError::BusinessRuleViolation(String::from(
+            "Acceptance test must have at least one required criterion",
+        )));
     }
 
     Ok(())
@@ -144,9 +147,9 @@ fn validate_acceptance_criterion(criterion: &AcceptanceCriterion) -> Result<(), 
     criterion.validate()?;
 
     if criterion.criterion.trim().is_empty() {
-        return Err(ValidationError::BusinessRuleViolation(
-            String::from("Acceptance criterion cannot be empty or whitespace"),
-        ));
+        return Err(ValidationError::BusinessRuleViolation(String::from(
+            "Acceptance criterion cannot be empty or whitespace",
+        )));
     }
 
     Ok(())
@@ -155,18 +158,21 @@ fn validate_acceptance_criterion(criterion: &AcceptanceCriterion) -> Result<(), 
 fn validate_dependencies(dependencies: &[String]) -> Result<(), ValidationError> {
     for dep in dependencies {
         if dep.trim().is_empty() {
-            return Err(ValidationError::BusinessRuleViolation(
-                String::from("Dependencies cannot contain empty or whitespace strings"),
-            ));
+            return Err(ValidationError::BusinessRuleViolation(String::from(
+                "Dependencies cannot contain empty or whitespace strings",
+            )));
         }
     }
 
     // Check for duplicate dependencies
-    let unique_count = dependencies.iter().collect::<std::collections::HashSet<_>>().len();
+    let unique_count = dependencies
+        .iter()
+        .collect::<std::collections::HashSet<_>>()
+        .len();
     if unique_count != dependencies.len() {
-        return Err(ValidationError::BusinessRuleViolation(
-            String::from("Duplicate dependencies detected"),
-        ));
+        return Err(ValidationError::BusinessRuleViolation(String::from(
+            "Duplicate dependencies detected",
+        )));
     }
 
     Ok(())
@@ -175,7 +181,10 @@ fn validate_dependencies(dependencies: &[String]) -> Result<(), ValidationError>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{WorkOrder, Constraint, ConstraintType, AcceptanceTest, AcceptanceCriterion, TestType, ReversibilityPolicy};
+    use crate::{
+        AcceptanceCriterion, AcceptanceTest, Constraint, ConstraintType, ReversibilityPolicy,
+        TestType, WorkOrder,
+    };
 
     #[test]
     fn test_valid_work_order() {
@@ -209,12 +218,9 @@ mod tests {
 
     #[test]
     fn test_reversible_without_rollback() {
-        let wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap();
+        let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap();
 
         let policy = ReversibilityPolicy {
             reversible: true,
@@ -229,12 +235,9 @@ mod tests {
 
     #[test]
     fn test_backup_without_reversibility() {
-        let wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap();
+        let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap();
 
         let policy = ReversibilityPolicy {
             reversible: false,
@@ -249,12 +252,9 @@ mod tests {
 
     #[test]
     fn test_duplicate_constraints() {
-        let wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap();
+        let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap();
 
         let constraint = Constraint {
             description: String::from("Same constraint"),
@@ -299,12 +299,9 @@ mod tests {
 
     #[test]
     fn test_duplicate_dependencies() {
-        let wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap();
+        let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap();
 
         let result = wo.with_dependencies(vec![
             String::from("dep1"),
@@ -317,12 +314,9 @@ mod tests {
 
     #[test]
     fn test_empty_dependency() {
-        let wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap();
+        let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap();
 
         let result = wo.with_dependencies(vec![String::from("dep1"), String::new()]);
         assert!(result.is_err());

@@ -77,10 +77,7 @@ fn bench_complex_validation(c: &mut Criterion) {
     // Add reversibility policy
     let policy = ReversibilityPolicy {
         reversible: true,
-        rollback_steps: vec![
-            "Step 1: Backup".to_string(),
-            "Step 2: Restore".to_string(),
-        ],
+        rollback_steps: vec!["Step 1: Backup".to_string(), "Step 2: Restore".to_string()],
         backup_required: true,
         verification_required: true,
     };
@@ -192,11 +189,8 @@ fn bench_terminal_state_checks(c: &mut Criterion) {
         WorkOrderStatus::Completed,
         WorkOrderStatus::Failed,
     ] {
-        let mut work_order = WorkOrder::new(
-            "Test".to_string(),
-            "owner@example.com".to_string(),
-        )
-        .unwrap();
+        let mut work_order =
+            WorkOrder::new("Test".to_string(), "owner@example.com".to_string()).unwrap();
         work_order.transition_to(status).ok();
 
         group.bench_with_input(

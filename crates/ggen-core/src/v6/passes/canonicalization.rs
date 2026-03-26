@@ -88,7 +88,10 @@ impl CanonicalizationReceipt {
 
     /// Record a formatter execution
     pub fn record_formatter(&mut self, formatter: &str) {
-        *self.formatter_executions.entry(formatter.to_string()).or_insert(0) += 1;
+        *self
+            .formatter_executions
+            .entry(formatter.to_string())
+            .or_insert(0) += 1;
     }
 
     /// Compute aggregate hash of all file hashes
@@ -142,12 +145,24 @@ impl CanonicalizationPass {
         extension_policies.insert("ttl".to_string(), CanonicalizationPolicy::Format);
 
         // Config formats
-        extension_policies.insert("toml".to_string(), CanonicalizationPolicy::NormalizeLineEndings);
-        extension_policies.insert("yaml".to_string(), CanonicalizationPolicy::NormalizeLineEndings);
-        extension_policies.insert("yml".to_string(), CanonicalizationPolicy::NormalizeLineEndings);
+        extension_policies.insert(
+            "toml".to_string(),
+            CanonicalizationPolicy::NormalizeLineEndings,
+        );
+        extension_policies.insert(
+            "yaml".to_string(),
+            CanonicalizationPolicy::NormalizeLineEndings,
+        );
+        extension_policies.insert(
+            "yml".to_string(),
+            CanonicalizationPolicy::NormalizeLineEndings,
+        );
 
         // Templates
-        extension_policies.insert("tera".to_string(), CanonicalizationPolicy::NormalizeLineEndings);
+        extension_policies.insert(
+            "tera".to_string(),
+            CanonicalizationPolicy::NormalizeLineEndings,
+        );
 
         Self {
             default_policy: CanonicalizationPolicy::NormalizeLineEndings,
@@ -212,7 +227,9 @@ impl CanonicalizationPass {
     }
 
     /// Canonicalize a file's content
-    fn canonicalize(&self, path: &Path, content: &str, receipt: &mut CanonicalizationReceipt) -> Result<String> {
+    fn canonicalize(
+        &self, path: &Path, content: &str, receipt: &mut CanonicalizationReceipt,
+    ) -> Result<String> {
         let policy = self.get_policy(path);
 
         match policy {
@@ -294,18 +311,20 @@ impl CanonicalizationPass {
                         if self.debug_mode {
                             return Ok(self.normalize_generic(content)?);
                         }
-                        return Err(Error::new(&format!("Failed to write to prettier stdin: {}", e)));
+                        return Err(Error::new(&format!(
+                            "Failed to write to prettier stdin: {}",
+                            e
+                        )));
                     }
                 }
 
-                let output = child.wait_with_output().map_err(|e| {
-                    Error::new(&format!("Failed to run prettier: {}", e))
-                })?;
+                let output = child
+                    .wait_with_output()
+                    .map_err(|e| Error::new(&format!("Failed to run prettier: {}", e)))?;
 
                 if output.status.success() {
-                    String::from_utf8(output.stdout).map_err(|e| {
-                        Error::new(&format!("Invalid UTF-8 from prettier: {}", e))
-                    })
+                    String::from_utf8(output.stdout)
+                        .map_err(|e| Error::new(&format!("Invalid UTF-8 from prettier: {}", e)))
                 } else {
                     let stderr = String::from_utf8_lossy(&output.stderr);
                     if self.debug_mode {
@@ -396,7 +415,9 @@ impl CanonicalizationPass {
     }
 
     /// Process a single file
-    fn process_file(&self, ctx: &PassContext<'_>, rel_path: &Path, receipt: &mut CanonicalizationReceipt) -> Result<bool> {
+    fn process_file(
+        &self, ctx: &PassContext<'_>, rel_path: &Path, receipt: &mut CanonicalizationReceipt,
+    ) -> Result<bool> {
         let full_path = ctx.output_dir.join(rel_path);
 
         if !full_path.exists() {
@@ -423,7 +444,11 @@ impl CanonicalizationPass {
                     e
                 ))
             } else {
-                Error::new(&format!("Failed to read file '{}': {}", full_path.display(), e))
+                Error::new(&format!(
+                    "Failed to read file '{}': {}",
+                    full_path.display(),
+                    e
+                ))
             }
         })?;
 
@@ -446,7 +471,11 @@ impl CanonicalizationPass {
                         e
                     ))
                 } else {
-                    Error::new(&format!("Failed to write file '{}': {}", full_path.display(), e))
+                    Error::new(&format!(
+                        "Failed to write file '{}': {}",
+                        full_path.display(),
+                        e
+                    ))
                 }
             })?;
             receipt.files_modified += 1;
@@ -520,7 +549,8 @@ impl Pass for CanonicalizationPass {
         // Store receipt in context for downstream passes
         let receipt_json = serde_json::to_value(&receipt)
             .map_err(|e| Error::new(&format!("Failed to serialize receipt: {}", e)))?;
-        ctx.bindings.insert("canonicalization_receipt".to_string(), receipt_json);
+        ctx.bindings
+            .insert("canonicalization_receipt".to_string(), receipt_json);
 
         Ok(PassResult::success()
             .with_duration(duration)
@@ -541,7 +571,9 @@ mod tests {
         let path = PathBuf::from("test.txt");
         let mut receipt = CanonicalizationReceipt::new();
 
-        let result = pass.canonicalize(&path, "hello\r\nworld", &mut receipt).unwrap();
+        let result = pass
+            .canonicalize(&path, "hello\r\nworld", &mut receipt)
+            .unwrap();
         assert_eq!(result, "hello\nworld\n");
     }
 
@@ -551,7 +583,9 @@ mod tests {
         let path = PathBuf::from("test.json");
         let mut receipt = CanonicalizationReceipt::new();
 
-        let result = pass.canonicalize(&path, r#"{"z":1,"a":2}"#, &mut receipt).unwrap();
+        let result = pass
+            .canonicalize(&path, r#"{"z":1,"a":2}"#, &mut receipt)
+            .unwrap();
         assert!(result.contains(r#""a""#));
         assert!(result.ends_with("\n"));
     }

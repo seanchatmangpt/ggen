@@ -67,24 +67,24 @@ fn run_world_verifier(project_dir: &Path) -> std::process::Output {
 
 /// Verify file exists
 fn assert_file_exists(path: &Path, description: &str) {
+    assert!(path.exists(), "{} should exist at {:?}", description, path);
     assert!(
-        path.exists(),
-        "{} should exist at {:?}",
+        path.is_file(),
+        "{} should be a file: {:?}",
         description,
         path
     );
-    assert!(path.is_file(), "{} should be a file: {:?}", description, path);
 }
 
 /// Verify directory exists
 fn assert_dir_exists(path: &Path, description: &str) {
+    assert!(path.exists(), "{} should exist at {:?}", description, path);
     assert!(
-        path.exists(),
-        "{} should exist at {:?}",
+        path.is_dir(),
+        "{} should be a directory: {:?}",
         description,
         path
     );
-    assert!(path.is_dir(), "{} should be a directory: {:?}", description, path);
 }
 
 /// Read file content as string
@@ -147,25 +147,31 @@ fn test_wizard_creates_all_expected_files() {
     assert_dir_exists(&sparql_dir, "sparql directory");
     assert_file_exists(
         &sparql_dir.join("world/outputs.sparql"),
-        "world outputs query"
+        "world outputs query",
     );
     assert_file_exists(
         &sparql_dir.join("receipts/receipt_contract.sparql"),
-        "receipt contract query"
+        "receipt contract query",
     );
 
     // Assert: Verify Tera template files
     let templates_dir = project_path.join("templates");
     assert_dir_exists(&templates_dir, "templates directory");
-    assert_file_exists(&templates_dir.join("world-manifest.tera"), "world manifest template");
-    assert_file_exists(&templates_dir.join("world-verify.tera"), "world verifier template");
+    assert_file_exists(
+        &templates_dir.join("world-manifest.tera"),
+        "world manifest template",
+    );
+    assert_file_exists(
+        &templates_dir.join("world-verify.tera"),
+        "world verifier template",
+    );
     assert_file_exists(
         &templates_dir.join("receipts/receipt.schema.tera"),
-        "receipt schema template"
+        "receipt schema template",
     );
     assert_file_exists(
         &templates_dir.join("receipts/verdict.schema.tera"),
-        "verdict schema template"
+        "verdict schema template",
     );
 
     // Assert: Verify project.ttl spec
@@ -176,29 +182,29 @@ fn test_wizard_creates_all_expected_files() {
     assert_file_contains(
         &project_path.join("ggen.toml"),
         "[project]",
-        "ggen.toml project section"
+        "ggen.toml project section",
     );
     assert_file_contains(
         &project_path.join("ggen.toml"),
         "world-manifest",
-        "ggen.toml world-manifest rule"
+        "ggen.toml world-manifest rule",
     );
     assert_file_contains(
         &project_path.join("ggen.toml"),
         "deterministic = true",
-        "ggen.toml deterministic output flag"
+        "ggen.toml deterministic output flag",
     );
 
     // Assert: Verify README.md content
     assert_file_contains(
         &project_path.join("README.md"),
         "ggen sync",
-        "README.md ggen sync command"
+        "README.md ggen sync command",
     );
     assert_file_contains(
         &project_path.join("README.md"),
         "world.verify.mjs",
-        "README.md verifier reference"
+        "README.md verifier reference",
     );
 }
 
@@ -218,8 +224,14 @@ fn test_wizard_ggen_toml_has_correct_generation_rules() {
     // Verify essential sections exist
     assert!(content.contains("[project]"), "Missing [project] section");
     assert!(content.contains("[ontology]"), "Missing [ontology] section");
-    assert!(content.contains("[generation]"), "Missing [generation] section");
-    assert!(content.contains("[[generation.rules]]"), "Missing generation rules");
+    assert!(
+        content.contains("[generation]"),
+        "Missing [generation] section"
+    );
+    assert!(
+        content.contains("[[generation.rules]]"),
+        "Missing generation rules"
+    );
     assert!(content.contains("[sync]"), "Missing [sync] section");
     assert!(content.contains("[rdf]"), "Missing [rdf] section");
     assert!(content.contains("[output]"), "Missing [output] section");
@@ -267,18 +279,21 @@ fn test_ggen_sync_runs_successfully() {
     // Assert: Core generated files exist
     assert_file_exists(
         &generated_dir.join("world.manifest.json"),
-        "world.manifest.json"
+        "world.manifest.json",
     );
-    assert_file_exists(
-        &generated_dir.join("world.verify.mjs"),
-        "world.verify.mjs"
-    );
+    assert_file_exists(&generated_dir.join("world.verify.mjs"), "world.verify.mjs");
 
     // Assert: Receipt schemas generated
     let receipts_dir = generated_dir.join("receipts");
     assert_dir_exists(&receipts_dir, "receipts directory");
-    assert_file_exists(&receipts_dir.join("receipt.schema.json"), "receipt.schema.json");
-    assert_file_exists(&receipts_dir.join("verdict.schema.json"), "verdict.schema.json");
+    assert_file_exists(
+        &receipts_dir.join("receipt.schema.json"),
+        "receipt.schema.json",
+    );
+    assert_file_exists(
+        &receipts_dir.join("verdict.schema.json"),
+        "verdict.schema.json",
+    );
 }
 
 #[test]
@@ -311,10 +326,7 @@ fn test_world_manifest_has_valid_structure() {
     let artifacts = manifest["artifacts"]
         .as_array()
         .expect("artifacts should be an array");
-    assert!(
-        !artifacts.is_empty(),
-        "Should have at least one artifact"
-    );
+    assert!(!artifacts.is_empty(), "Should have at least one artifact");
 
     // Assert: Each artifact has required fields
     for artifact in artifacts {
@@ -454,7 +466,10 @@ fn test_world_verifier_is_executable_nodejs() {
 
     // Assert: Contains expected imports
     assert!(content.contains("import"), "Should use ES module imports");
-    assert!(content.contains("readFileSync"), "Should import readFileSync");
+    assert!(
+        content.contains("readFileSync"),
+        "Should import readFileSync"
+    );
     assert!(content.contains("createHash"), "Should import createHash");
 
     // Assert: Contains verification logic
@@ -639,7 +654,9 @@ fn test_sync_fails_without_ggen_toml() {
         .assert();
 
     // Assert: Should fail with manifest not found
-    result.failure().stderr(predicate::str::contains("Manifest").or(predicate::str::contains("ggen.toml")));
+    result
+        .failure()
+        .stderr(predicate::str::contains("Manifest").or(predicate::str::contains("ggen.toml")));
 }
 
 // ============================================================================
@@ -668,7 +685,7 @@ fn test_complete_user_journey_wizard_to_validation() {
     assert_file_exists(&project_path.join("ggen.toml"), "ggen.toml");
     assert_file_exists(
         &project_path.join(".specify/ontologies/main.ttl"),
-        "main.ttl"
+        "main.ttl",
     );
 
     // Act: Step 2 - First sync
@@ -706,7 +723,8 @@ fn test_complete_user_journey_wizard_to_validation() {
 
     // Act: Step 5 - Validate schemas
     println!("Step 5: Validating schemas...");
-    let receipt_schema: Value = parse_json_file(&generated_dir.join("receipts/receipt.schema.json"));
+    let receipt_schema: Value =
+        parse_json_file(&generated_dir.join("receipts/receipt.schema.json"));
     assert!(
         receipt_schema.get("$schema").is_some(),
         "Schema should have $schema field"

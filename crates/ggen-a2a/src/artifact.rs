@@ -92,11 +92,7 @@ impl Artifact {
     }
 
     /// Create a JSON artifact
-    pub fn json(
-        name: String,
-        artifact_type: ArtifactType,
-        value: serde_json::Value,
-    ) -> Self {
+    pub fn json(name: String, artifact_type: ArtifactType, value: serde_json::Value) -> Self {
         Self::new(name, artifact_type, ArtifactContent::Json(value))
             .with_mime_type("application/json".to_string())
     }
@@ -237,10 +233,7 @@ mod tests {
 
         assert_eq!(artifact.artifact_type, ArtifactType::Config);
         assert!(matches!(artifact.content, ArtifactContent::Json(_)));
-        assert_eq!(
-            artifact.mime_type,
-            Some("application/json".to_string())
-        );
+        assert_eq!(artifact.mime_type, Some("application/json".to_string()));
     }
 
     #[test]

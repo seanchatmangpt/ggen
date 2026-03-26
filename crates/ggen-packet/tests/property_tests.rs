@@ -7,8 +7,8 @@
 //! - Resource safety: no leaks in work order lifecycle
 
 use ggen_packet::{
-    WorkOrder, WorkOrderStatus, Priority, Constraint, ConstraintType,
-    AcceptanceTest, AcceptanceCriterion, TestType, ReversibilityPolicy,
+    AcceptanceCriterion, AcceptanceTest, Constraint, ConstraintType, Priority, ReversibilityPolicy,
+    TestType, WorkOrder, WorkOrderStatus,
 };
 use proptest::prelude::*;
 use std::collections::HashSet;
@@ -65,7 +65,11 @@ fn constraint_type_strategy() -> impl Strategy<Value = ConstraintType> {
 
 /// Generate valid constraints
 fn constraint_strategy() -> impl Strategy<Value = Constraint> {
-    ("[a-zA-Z0-9 ]{1,50}", constraint_type_strategy(), any::<bool>())
+    (
+        "[a-zA-Z0-9 ]{1,50}",
+        constraint_type_strategy(),
+        any::<bool>(),
+    )
         .prop_map(|(desc, ctype, enforced)| Constraint {
             description: desc,
             constraint_type: ctype,

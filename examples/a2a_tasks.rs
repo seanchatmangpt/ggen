@@ -36,10 +36,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Attempt invalid transition (should fail)
     println!("Attempting invalid transition (Created → Completed):");
-    let invalid_transition = StateTransition::new(
-        TaskState::Completed,
-        "product-owner".to_string(),
-    );
+    let invalid_transition =
+        StateTransition::new(TaskState::Completed, "product-owner".to_string());
     match TaskStateMachine::transition(&mut task, invalid_transition) {
         Ok(_) => println!("  ✗ Unexpectedly succeeded"),
         Err(e) => println!("  ✓ Correctly rejected: {}", e),
@@ -48,10 +46,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Attempt transition without assignment (should fail)
     println!("Attempting transition to Running without assignment:");
-    let no_assign_transition = StateTransition::new(
-        TaskState::Running,
-        "developer-1".to_string(),
-    );
+    let no_assign_transition = StateTransition::new(TaskState::Running, "developer-1".to_string());
     match TaskStateMachine::transition(&mut task, no_assign_transition) {
         Ok(_) => println!("  ✗ Unexpectedly succeeded"),
         Err(e) => println!("  ✓ Correctly rejected: {}", e),
@@ -65,10 +60,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Valid transition: Created → Running
     println!("Transition: Created → Running");
-    let start_transition = StateTransition::new(
-        TaskState::Running,
-        "developer-1".to_string(),
-    );
+    let start_transition = StateTransition::new(TaskState::Running, "developer-1".to_string());
     TaskStateMachine::transition(&mut task, start_transition)?;
     println!("  ✓ State: {:?}", task.state);
     println!("  Updated at: {}\n", task.updated_at);
@@ -87,11 +79,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Simulate blocking
     println!("Transition: Running → Blocked (waiting for API keys)");
-    let block_transition = StateTransition::new(
-        TaskState::Blocked,
-        "developer-1".to_string(),
-    )
-    .with_reason("Waiting for production API keys from DevOps".to_string());
+    let block_transition = StateTransition::new(TaskState::Blocked, "developer-1".to_string())
+        .with_reason("Waiting for production API keys from DevOps".to_string());
 
     TaskStateMachine::transition(&mut task, block_transition)?;
     println!("  ✓ State: {:?}", task.state);
@@ -99,10 +88,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Unblock
     println!("Transition: Blocked → Running (API keys received)");
-    let unblock_transition = StateTransition::new(
-        TaskState::Running,
-        "developer-1".to_string(),
-    );
+    let unblock_transition = StateTransition::new(TaskState::Running, "developer-1".to_string());
     TaskStateMachine::transition(&mut task, unblock_transition)?;
     println!("  ✓ State: {:?}\n", task.state);
 
@@ -121,10 +107,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Complete task
     println!("Transition: Running → Completed");
-    let complete_transition = StateTransition::new(
-        TaskState::Completed,
-        "developer-1".to_string(),
-    );
+    let complete_transition = StateTransition::new(TaskState::Completed, "developer-1".to_string());
     TaskStateMachine::transition(&mut task, complete_transition)?;
     println!("  ✓ State: {:?}", task.state);
     println!("  ✓ Terminal state reached");
@@ -135,10 +118,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Attempt transition from terminal state (should fail)
     println!("Attempting transition from terminal state:");
-    let invalid_from_terminal = StateTransition::new(
-        TaskState::Running,
-        "developer-1".to_string(),
-    );
+    let invalid_from_terminal = StateTransition::new(TaskState::Running, "developer-1".to_string());
     match TaskStateMachine::transition(&mut task, invalid_from_terminal) {
         Ok(_) => println!("  ✗ Unexpectedly succeeded"),
         Err(e) => println!("  ✓ Correctly rejected: {}", e),

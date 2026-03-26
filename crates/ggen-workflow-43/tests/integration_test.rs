@@ -1,9 +1,9 @@
 //! Integration tests for workflow patterns
 
-use ggen_workflow_43::*;
-use ggen_workflow_43::patterns::*;
-use ggen_workflow_43::executor::*;
 use async_trait::async_trait;
+use ggen_workflow_43::executor::*;
+use ggen_workflow_43::patterns::*;
+use ggen_workflow_43::*;
 
 struct OrderProcessingActivity {
     id: ActivityId,
@@ -44,33 +44,40 @@ async fn test_order_processing_workflow() {
     let ship_order = ActivityId::new("ship-order");
     let send_confirmation = ActivityId::new("send-confirmation");
 
-    engine.register_activity(Box::new(OrderProcessingActivity::new("receive-order", "receive")));
-    engine.register_activity(Box::new(OrderProcessingActivity::new("validate-order", "validate")));
-    engine.register_activity(Box::new(OrderProcessingActivity::new("check-inventory", "inventory")));
-    engine.register_activity(Box::new(OrderProcessingActivity::new("charge-payment", "payment")));
+    engine.register_activity(Box::new(OrderProcessingActivity::new(
+        "receive-order",
+        "receive",
+    )));
+    engine.register_activity(Box::new(OrderProcessingActivity::new(
+        "validate-order",
+        "validate",
+    )));
+    engine.register_activity(Box::new(OrderProcessingActivity::new(
+        "check-inventory",
+        "inventory",
+    )));
+    engine.register_activity(Box::new(OrderProcessingActivity::new(
+        "charge-payment",
+        "payment",
+    )));
     engine.register_activity(Box::new(OrderProcessingActivity::new("ship-order", "ship")));
-    engine.register_activity(Box::new(OrderProcessingActivity::new("send-confirmation", "confirm")));
+    engine.register_activity(Box::new(OrderProcessingActivity::new(
+        "send-confirmation",
+        "confirm",
+    )));
 
     // Create workflow: sequence of steps with parallel inventory check and payment
-    let sequence = SequencePattern::new(vec![
-        receive_order.clone(),
-        validate_order.clone(),
-    ]);
+    let sequence = SequencePattern::new(vec![receive_order.clone(), validate_order.clone()]);
 
     let parallel = ParallelSplitPattern::new(vec![
         vec![check_inventory.clone()],
         vec![charge_payment.clone()],
     ]);
 
-    let sync = SynchronizationPattern::new(
-        vec![check_inventory, charge_payment],
-        ship_order.clone(),
-    );
+    let sync =
+        SynchronizationPattern::new(vec![check_inventory, charge_payment], ship_order.clone());
 
-    let final_sequence = SequencePattern::new(vec![
-        ship_order,
-        send_confirmation.clone(),
-    ]);
+    let final_sequence = SequencePattern::new(vec![ship_order, send_confirmation.clone()]);
 
     // Execute workflow
     let result = sequence.execute(&mut engine).await;
@@ -87,7 +94,10 @@ async fn test_order_processing_workflow() {
 
     // Verify all steps completed
     assert_eq!(
-        engine.get_context(&send_confirmation).ok().map(|c| &c.state),
+        engine
+            .get_context(&send_confirmation)
+            .ok()
+            .map(|c| &c.state),
         Some(&ActivityState::Completed)
     );
 }
@@ -105,7 +115,10 @@ async fn test_pattern_executor_with_composite() {
     engine.register_activity(Box::new(OrderProcessingActivity::new("comp-3", "step3")));
 
     let composite = CompositePattern::new("test-composite", ExecutionMode::Sequential)
-        .add_pattern(Box::new(SequencePattern::new(vec![act1.clone(), act2.clone()])))
+        .add_pattern(Box::new(SequencePattern::new(vec![
+            act1.clone(),
+            act2.clone(),
+        ])))
         .add_pattern(Box::new(SequencePattern::new(vec![act3.clone()])));
 
     let result = composite.execute(&mut engine).await;
@@ -146,9 +159,18 @@ async fn test_cancellation_workflow() {
     let act2 = ActivityId::new("cancel-wf-2");
     let act3 = ActivityId::new("cancel-wf-3");
 
-    engine.register_activity(Box::new(OrderProcessingActivity::new("cancel-wf-1", "step1")));
-    engine.register_activity(Box::new(OrderProcessingActivity::new("cancel-wf-2", "step2")));
-    engine.register_activity(Box::new(OrderProcessingActivity::new("cancel-wf-3", "step3")));
+    engine.register_activity(Box::new(OrderProcessingActivity::new(
+        "cancel-wf-1",
+        "step1",
+    )));
+    engine.register_activity(Box::new(OrderProcessingActivity::new(
+        "cancel-wf-2",
+        "step2",
+    )));
+    engine.register_activity(Box::new(OrderProcessingActivity::new(
+        "cancel-wf-3",
+        "step3",
+    )));
 
     // Start workflow
     let sequence = SequencePattern::new(vec![act1.clone()]);
@@ -176,7 +198,10 @@ async fn test_multi_instance_workflow() {
     let mut engine = WorkflowEngine::new();
 
     let template = ActivityId::new("mi-template-wf");
-    engine.register_activity(Box::new(OrderProcessingActivity::new("mi-template-wf", "process")));
+    engine.register_activity(Box::new(OrderProcessingActivity::new(
+        "mi-template-wf",
+        "process",
+    )));
 
     let pattern = MultipleInstancesDesignTimePattern::new(template, 5);
     let result = pattern.execute(&mut engine).await;
@@ -192,8 +217,14 @@ async fn test_loop_pattern_workflow() {
     let cond = ActivityId::new("loop-cond-wf");
     let body = ActivityId::new("loop-body-wf");
 
-    engine.register_activity(Box::new(OrderProcessingActivity::new("loop-cond-wf", "condition")));
-    engine.register_activity(Box::new(OrderProcessingActivity::new("loop-body-wf", "body")));
+    engine.register_activity(Box::new(OrderProcessingActivity::new(
+        "loop-cond-wf",
+        "condition",
+    )));
+    engine.register_activity(Box::new(OrderProcessingActivity::new(
+        "loop-body-wf",
+        "body",
+    )));
 
     // Set condition to stop after first iteration
     if let Ok(context) = engine.get_context_mut(&cond) {
@@ -214,9 +245,18 @@ async fn test_milestone_based_workflow() {
     let act1 = ActivityId::new("post-approval-1");
     let act2 = ActivityId::new("post-approval-2");
 
-    engine.register_activity(Box::new(OrderProcessingActivity::new("approval-milestone", "approval")));
-    engine.register_activity(Box::new(OrderProcessingActivity::new("post-approval-1", "action1")));
-    engine.register_activity(Box::new(OrderProcessingActivity::new("post-approval-2", "action2")));
+    engine.register_activity(Box::new(OrderProcessingActivity::new(
+        "approval-milestone",
+        "approval",
+    )));
+    engine.register_activity(Box::new(OrderProcessingActivity::new(
+        "post-approval-1",
+        "action1",
+    )));
+    engine.register_activity(Box::new(OrderProcessingActivity::new(
+        "post-approval-2",
+        "action2",
+    )));
 
     // Set milestone reached
     if let Ok(context) = engine.get_context_mut(&milestone) {

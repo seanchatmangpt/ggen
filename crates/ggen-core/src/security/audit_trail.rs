@@ -205,9 +205,7 @@ impl AuditTrail {
     }
 
     /// Write audit entry to disk
-    fn write_entry_to_disk(
-        &self, entry: &AuditEntry, repo_path: &Path,
-    ) -> Result<(), AuditError> {
+    fn write_entry_to_disk(&self, entry: &AuditEntry, repo_path: &Path) -> Result<(), AuditError> {
         use std::fs;
 
         // Create audit directory

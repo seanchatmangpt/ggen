@@ -66,9 +66,18 @@ fn bench_output_parsing(c: &mut Criterion) {
     let mut group = c.benchmark_group("output_parsing");
 
     let compiler_outputs = vec![
-        ("clean", "   Compiling ggen v6.0.0\n    Finished dev [unoptimized + debuginfo]"),
-        ("warning", "warning: unused variable `x`\n --> src/main.rs:5:9"),
-        ("error", "error[E0425]: cannot find value `y` in this scope\n --> src/main.rs:10:5"),
+        (
+            "clean",
+            "   Compiling ggen v6.0.0\n    Finished dev [unoptimized + debuginfo]",
+        ),
+        (
+            "warning",
+            "warning: unused variable `x`\n --> src/main.rs:5:9",
+        ),
+        (
+            "error",
+            "error[E0425]: cannot find value `y` in this scope\n --> src/main.rs:10:5",
+        ),
     ];
 
     for (name, output) in compiler_outputs {
@@ -123,11 +132,7 @@ fn bench_signal_display(c: &mut Criterion) {
 fn bench_signal_serialization(c: &mut Criterion) {
     let mut group = c.benchmark_group("signal_serialization");
 
-    let signals = vec![
-        AndonSignal::Green,
-        AndonSignal::Yellow,
-        AndonSignal::Red,
-    ];
+    let signals = vec![AndonSignal::Green, AndonSignal::Yellow, AndonSignal::Red];
 
     group.bench_function("serialize", |b| {
         b.iter(|| {
@@ -166,14 +171,18 @@ fn bench_batch_signal_checks(c: &mut Criterion) {
             .collect();
 
         group.throughput(Throughput::Elements(*count));
-        group.bench_with_input(BenchmarkId::from_parameter(count), &signals, |b, signals| {
-            b.iter(|| {
-                let red_count = signals.iter().filter(|s| s.should_stop()).count();
-                let yellow_count = signals.iter().filter(|s| s.is_warning()).count();
-                let green_count = signals.iter().filter(|s| s.is_green()).count();
-                black_box((red_count, yellow_count, green_count));
-            });
-        });
+        group.bench_with_input(
+            BenchmarkId::from_parameter(count),
+            &signals,
+            |b, signals| {
+                b.iter(|| {
+                    let red_count = signals.iter().filter(|s| s.should_stop()).count();
+                    let yellow_count = signals.iter().filter(|s| s.is_warning()).count();
+                    let green_count = signals.iter().filter(|s| s.is_green()).count();
+                    black_box((red_count, yellow_count, green_count));
+                });
+            },
+        );
     }
 
     group.finish();

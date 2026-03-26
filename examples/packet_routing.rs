@@ -139,7 +139,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-async fn parser_agent(mut rx: tokio::sync::mpsc::UnboundedReceiver<Envelope>, transport: Arc<Transport>) {
+async fn parser_agent(
+    mut rx: tokio::sync::mpsc::UnboundedReceiver<Envelope>, transport: Arc<Transport>,
+) {
     while let Some(envelope) = rx.recv().await {
         if let TaskMessage::Assign { task_id, agent_id } = envelope.message {
             println!("  [Parser] Received task {}", task_id);
@@ -157,7 +159,9 @@ async fn parser_agent(mut rx: tokio::sync::mpsc::UnboundedReceiver<Envelope>, tr
     }
 }
 
-async fn validator_agent(mut rx: tokio::sync::mpsc::UnboundedReceiver<Envelope>, transport: Arc<Transport>) {
+async fn validator_agent(
+    mut rx: tokio::sync::mpsc::UnboundedReceiver<Envelope>, transport: Arc<Transport>,
+) {
     while let Some(envelope) = rx.recv().await {
         if let TaskMessage::Assign { task_id, agent_id } = envelope.message {
             println!("  [Validator] Received task {}", task_id);
@@ -174,7 +178,9 @@ async fn validator_agent(mut rx: tokio::sync::mpsc::UnboundedReceiver<Envelope>,
     }
 }
 
-async fn generator_agent(mut rx: tokio::sync::mpsc::UnboundedReceiver<Envelope>, transport: Arc<Transport>) {
+async fn generator_agent(
+    mut rx: tokio::sync::mpsc::UnboundedReceiver<Envelope>, transport: Arc<Transport>,
+) {
     while let Some(envelope) = rx.recv().await {
         if let TaskMessage::Assign { task_id, agent_id } = envelope.message {
             println!("  [Generator] Received task {}", task_id);

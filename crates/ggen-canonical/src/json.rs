@@ -84,8 +84,8 @@ impl Canonicalizer for JsonCanonicalizer {
 ///
 /// Returns error if serialization or canonicalization fails
 pub fn canonicalize_json<T: Serialize>(value: &T) -> Result<String> {
-    let json_value = serde_json::to_value(value)
-        .map_err(|e| CanonicalError::Serialization(e.to_string()))?;
+    let json_value =
+        serde_json::to_value(value).map_err(|e| CanonicalError::Serialization(e.to_string()))?;
     let canonicalizer = JsonCanonicalizer::new();
     let canonical = canonicalizer.canonicalize(json_value)?;
     Ok(canonical.into_inner())
@@ -97,8 +97,8 @@ pub fn canonicalize_json<T: Serialize>(value: &T) -> Result<String> {
 ///
 /// Returns error if parsing or canonicalization fails
 pub fn canonicalize_json_str(json: &str) -> Result<String> {
-    let value: Value = serde_json::from_str(json)
-        .map_err(|e| CanonicalError::Serialization(e.to_string()))?;
+    let value: Value =
+        serde_json::from_str(json).map_err(|e| CanonicalError::Serialization(e.to_string()))?;
     let canonicalizer = JsonCanonicalizer::new();
     let canonical = canonicalizer.canonicalize(value)?;
     Ok(canonical.into_inner())

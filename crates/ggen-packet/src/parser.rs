@@ -1,6 +1,6 @@
 use crate::{
-    AcceptanceCriterion, AcceptanceTest, Constraint, ConstraintType, Priority,
-    ReversibilityPolicy, TestType, WorkOrder, WorkOrderId, WorkOrderStatus,
+    AcceptanceCriterion, AcceptanceTest, Constraint, ConstraintType, Priority, ReversibilityPolicy,
+    TestType, WorkOrder, WorkOrderId, WorkOrderStatus,
 };
 use serde_json::Value;
 use std::collections::HashSet;
@@ -403,13 +403,37 @@ mod tests {
 
     #[test]
     fn test_parse_statuses() {
-        assert_eq!(parse_status("pending").ok().unwrap(), WorkOrderStatus::Pending);
-        assert_eq!(parse_status("validated").ok().unwrap(), WorkOrderStatus::Validated);
-        assert_eq!(parse_status("inprogress").ok().unwrap(), WorkOrderStatus::InProgress);
-        assert_eq!(parse_status("in_progress").ok().unwrap(), WorkOrderStatus::InProgress);
-        assert_eq!(parse_status("blocked").ok().unwrap(), WorkOrderStatus::Blocked);
-        assert_eq!(parse_status("completed").ok().unwrap(), WorkOrderStatus::Completed);
-        assert_eq!(parse_status("cancelled").ok().unwrap(), WorkOrderStatus::Cancelled);
-        assert_eq!(parse_status("failed").ok().unwrap(), WorkOrderStatus::Failed);
+        assert_eq!(
+            parse_status("pending").ok().unwrap(),
+            WorkOrderStatus::Pending
+        );
+        assert_eq!(
+            parse_status("validated").ok().unwrap(),
+            WorkOrderStatus::Validated
+        );
+        assert_eq!(
+            parse_status("inprogress").ok().unwrap(),
+            WorkOrderStatus::InProgress
+        );
+        assert_eq!(
+            parse_status("in_progress").ok().unwrap(),
+            WorkOrderStatus::InProgress
+        );
+        assert_eq!(
+            parse_status("blocked").ok().unwrap(),
+            WorkOrderStatus::Blocked
+        );
+        assert_eq!(
+            parse_status("completed").ok().unwrap(),
+            WorkOrderStatus::Completed
+        );
+        assert_eq!(
+            parse_status("cancelled").ok().unwrap(),
+            WorkOrderStatus::Cancelled
+        );
+        assert_eq!(
+            parse_status("failed").ok().unwrap(),
+            WorkOrderStatus::Failed
+        );
     }
 }

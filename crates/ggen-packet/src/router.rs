@@ -199,7 +199,7 @@ impl RoutingStrategy for CompositeRouter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{WorkOrder, Priority, WorkOrderStatus};
+    use crate::{Priority, WorkOrder, WorkOrderStatus};
     use std::collections::HashSet;
 
     #[test]
@@ -208,15 +208,12 @@ mod tests {
             .with_mapping(Priority::Critical, "critical-queue".into())
             .with_mapping(Priority::High, "high-queue".into());
 
-        let mut wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap()
-        .with_priority(Priority::Critical)
-        .ok()
-        .unwrap();
+        let mut wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap()
+            .with_priority(Priority::Critical)
+            .ok()
+            .unwrap();
 
         let channel = router.route(&wo).ok().unwrap();
         assert_eq!(channel.as_str(), "critical-queue");
@@ -232,12 +229,9 @@ mod tests {
             .with_mapping(WorkOrderStatus::InProgress, "active-queue".into())
             .with_mapping(WorkOrderStatus::Blocked, "blocked-queue".into());
 
-        let mut wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap();
+        let mut wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap();
 
         let channel = router.route(&wo).ok().unwrap();
         assert_eq!(channel.as_str(), "default");
@@ -256,15 +250,12 @@ mod tests {
         let mut tags = HashSet::new();
         tags.insert(String::from("backend"));
 
-        let wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap()
-        .with_tags(tags)
-        .ok()
-        .unwrap();
+        let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap()
+            .with_tags(tags)
+            .ok()
+            .unwrap();
 
         let channel = router.route(&wo).ok().unwrap();
         assert_eq!(channel.as_str(), "backend-queue");
@@ -275,12 +266,9 @@ mod tests {
         let router = TagRouter::new("default".into())
             .with_mapping(String::from("backend"), "backend-queue".into());
 
-        let wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap();
+        let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap();
 
         let channel = router.route(&wo).ok().unwrap();
         assert_eq!(channel.as_str(), "default");
@@ -305,15 +293,12 @@ mod tests {
             .add_strategy(Box::new(priority_router))
             .add_strategy(Box::new(tag_router));
 
-        let wo = WorkOrder::new(
-            String::from("Task"),
-            String::from("owner"),
-        )
-        .ok()
-        .unwrap()
-        .with_priority(Priority::Critical)
-        .ok()
-        .unwrap();
+        let wo = WorkOrder::new(String::from("Task"), String::from("owner"))
+            .ok()
+            .unwrap()
+            .with_priority(Priority::Critical)
+            .ok()
+            .unwrap();
 
         let channel = composite.route(&wo).ok().unwrap();
         assert_eq!(channel.as_str(), "critical-queue");

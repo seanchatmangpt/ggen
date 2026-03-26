@@ -54,7 +54,8 @@ pub fn assert_contains<T: PartialEq + Debug>(collection: &[T], item: &T) {
     assert!(
         collection.contains(item),
         "Expected collection to contain {:?}, but it did not. Collection: {:?}",
-        item, collection
+        item,
+        collection
     );
 }
 
@@ -67,7 +68,8 @@ pub fn assert_not_contains<T: PartialEq + Debug>(collection: &[T], item: &T) {
     assert!(
         !collection.contains(item),
         "Expected collection to not contain {:?}, but it did. Collection: {:?}",
-        item, collection
+        item,
+        collection
     );
 }
 
@@ -120,7 +122,9 @@ pub fn assert_in_range<T: PartialOrd + Debug>(value: &T, min: &T, max: &T) {
     assert!(
         value >= min && value <= max,
         "Expected {:?} to be in range [{:?}, {:?}]",
-        value, min, max
+        value,
+        min,
+        max
     );
 }
 
@@ -133,7 +137,8 @@ pub fn assert_greater_than<T: PartialOrd + Debug>(value: &T, threshold: &T) {
     assert!(
         value > threshold,
         "Expected {:?} to be greater than {:?}",
-        value, threshold
+        value,
+        threshold
     );
 }
 
@@ -146,7 +151,8 @@ pub fn assert_less_than<T: PartialOrd + Debug>(value: &T, threshold: &T) {
     assert!(
         value < threshold,
         "Expected {:?} to be less than {:?}",
-        value, threshold
+        value,
+        threshold
     );
 }
 
@@ -183,7 +189,11 @@ pub fn assert_some<T>(option: &Option<T>) {
 ///
 /// Panics if the option is Some
 pub fn assert_none<T: Debug>(option: &Option<T>) {
-    assert!(option.is_none(), "Expected None, but got Some: {:?}", option);
+    assert!(
+        option.is_none(),
+        "Expected None, but got Some: {:?}",
+        option
+    );
 }
 
 /// Assert that two collections have the same elements (order-independent)

@@ -1,8 +1,8 @@
 //! Comprehensive tests for all 43 workflow patterns
 
-use ggen_workflow_43::*;
-use ggen_workflow_43::patterns::*;
 use async_trait::async_trait;
+use ggen_workflow_43::patterns::*;
+use ggen_workflow_43::*;
 
 struct TestActivity {
     id: ActivityId,
@@ -33,7 +33,10 @@ impl Activity for TestActivity {
             tokio::time::sleep(tokio::time::Duration::from_millis(self.sleep_ms)).await;
         }
         context.set_output("result", serde_json::json!("success"));
-        context.set_output("timestamp", serde_json::json!(chrono::Utc::now().to_rfc3339()));
+        context.set_output(
+            "timestamp",
+            serde_json::json!(chrono::Utc::now().to_rfc3339()),
+        );
         Ok(())
     }
 
@@ -111,9 +114,18 @@ async fn test_pattern_01_sequence() {
     let result = pattern.execute(&mut engine).await;
 
     assert!(result.is_ok());
-    assert_eq!(engine.get_context(&act1).ok().map(|c| &c.state), Some(&ActivityState::Completed));
-    assert_eq!(engine.get_context(&act2).ok().map(|c| &c.state), Some(&ActivityState::Completed));
-    assert_eq!(engine.get_context(&act3).ok().map(|c| &c.state), Some(&ActivityState::Completed));
+    assert_eq!(
+        engine.get_context(&act1).ok().map(|c| &c.state),
+        Some(&ActivityState::Completed)
+    );
+    assert_eq!(
+        engine.get_context(&act2).ok().map(|c| &c.state),
+        Some(&ActivityState::Completed)
+    );
+    assert_eq!(
+        engine.get_context(&act3).ok().map(|c| &c.state),
+        Some(&ActivityState::Completed)
+    );
 }
 
 // Pattern 2: Parallel Split
@@ -152,10 +164,7 @@ async fn test_pattern_03_synchronization() {
     engine.register_activity(Box::new(TestActivity::new("sync-branch-2")));
     engine.register_activity(Box::new(TestActivity::new("sync-join")));
 
-    let pattern = SynchronizationPattern::new(
-        vec![branch1.clone(), branch2.clone()],
-        join.clone(),
-    );
+    let pattern = SynchronizationPattern::new(vec![branch1.clone(), branch2.clone()], join.clone());
 
     let result = pattern.execute(&mut engine).await;
     assert!(result.is_ok());
@@ -184,7 +193,10 @@ async fn test_pattern_04_exclusive_choice() {
 
     let result = pattern.execute(&mut engine).await;
     assert!(result.is_ok());
-    assert_eq!(engine.get_context(&act1).ok().map(|c| &c.state), Some(&ActivityState::Completed));
+    assert_eq!(
+        engine.get_context(&act1).ok().map(|c| &c.state),
+        Some(&ActivityState::Completed)
+    );
 }
 
 // Pattern 5: Simple Merge
@@ -200,14 +212,14 @@ async fn test_pattern_05_simple_merge() {
     engine.register_activity(Box::new(TestActivity::new("merge-2")));
     engine.register_activity(Box::new(TestActivity::new("merge-join")));
 
-    let pattern = SimpleMergePattern::new(
-        vec![branch1, branch2],
-        merge.clone(),
-    );
+    let pattern = SimpleMergePattern::new(vec![branch1, branch2], merge.clone());
 
     let result = pattern.execute(&mut engine).await;
     assert!(result.is_ok());
-    assert_eq!(engine.get_context(&merge).ok().map(|c| &c.state), Some(&ActivityState::Completed));
+    assert_eq!(
+        engine.get_context(&merge).ok().map(|c| &c.state),
+        Some(&ActivityState::Completed)
+    );
 }
 
 // Pattern 6: Multi-Choice
@@ -251,10 +263,7 @@ async fn test_pattern_07_structured_synchronizing_merge() {
     engine.register_activity(Box::new(TestActivity::new("ssm-2")));
     engine.register_activity(Box::new(TestActivity::new("ssm-merge")));
 
-    let pattern = StructuredSynchronizingMergePattern::new(
-        vec![branch1, branch2],
-        merge.clone(),
-    );
+    let pattern = StructuredSynchronizingMergePattern::new(vec![branch1, branch2], merge.clone());
 
     let result = pattern.execute(&mut engine).await;
     assert!(result.is_ok());
@@ -273,10 +282,7 @@ async fn test_pattern_08_multi_merge() {
     engine.register_activity(Box::new(TestActivity::new("mm-2")));
     engine.register_activity(Box::new(TestActivity::new("mm-merge")));
 
-    let pattern = MultiMergePattern::new(
-        vec![branch1, branch2],
-        merge.clone(),
-    );
+    let pattern = MultiMergePattern::new(vec![branch1, branch2], merge.clone());
 
     let result = pattern.execute(&mut engine).await;
     assert!(result.is_ok());
@@ -295,14 +301,14 @@ async fn test_pattern_09_structured_discriminator() {
     engine.register_activity(Box::new(TestActivity::new("sd-2")));
     engine.register_activity(Box::new(TestActivity::new("sd-disc")));
 
-    let pattern = StructuredDiscriminatorPattern::new(
-        vec![branch1, branch2],
-        disc.clone(),
-    );
+    let pattern = StructuredDiscriminatorPattern::new(vec![branch1, branch2], disc.clone());
 
     let result = pattern.execute(&mut engine).await;
     assert!(result.is_ok());
-    assert_eq!(engine.get_context(&disc).ok().map(|c| &c.state), Some(&ActivityState::Completed));
+    assert_eq!(
+        engine.get_context(&disc).ok().map(|c| &c.state),
+        Some(&ActivityState::Completed)
+    );
 }
 
 // Pattern 10: Arbitrary Cycles
@@ -342,8 +348,14 @@ async fn test_pattern_11_implicit_termination() {
     let result = pattern.execute(&mut engine).await;
 
     assert!(result.is_ok());
-    assert_eq!(engine.get_context(&act1).ok().map(|c| &c.state), Some(&ActivityState::Completed));
-    assert_eq!(engine.get_context(&act2).ok().map(|c| &c.state), Some(&ActivityState::Completed));
+    assert_eq!(
+        engine.get_context(&act1).ok().map(|c| &c.state),
+        Some(&ActivityState::Completed)
+    );
+    assert_eq!(
+        engine.get_context(&act2).ok().map(|c| &c.state),
+        Some(&ActivityState::Completed)
+    );
 }
 
 // Pattern 12: Multiple Instances without Synchronization
@@ -428,10 +440,7 @@ async fn test_pattern_16_deferred_choice() {
     engine.register_activity(Box::new(TestActivity::new("dc-act1")));
     engine.register_activity(Box::new(TestActivity::new("dc-act2")));
 
-    let pattern = DeferredChoicePattern::new(vec![
-        (trigger1, vec![act1]),
-        (trigger2, vec![act2]),
-    ]);
+    let pattern = DeferredChoicePattern::new(vec![(trigger1, vec![act1]), (trigger2, vec![act2])]);
 
     let result = pattern.execute(&mut engine).await;
     assert!(result.is_ok());
@@ -620,11 +629,7 @@ async fn test_pattern_30_structured_partial_join() {
     engine.register_activity(Box::new(TestActivity::new("spj-3")));
     engine.register_activity(Box::new(TestActivity::new("spj-join")));
 
-    let pattern = StructuredPartialJoinPattern::new(
-        vec![branch1, branch2, branch3],
-        join,
-        2,
-    );
+    let pattern = StructuredPartialJoinPattern::new(vec![branch1, branch2, branch3], join, 2);
 
     let result = pattern.execute(&mut engine).await;
     assert!(result.is_ok());

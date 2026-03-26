@@ -183,8 +183,8 @@ mod tests {
     #[test]
     fn test_task_with_dependency() {
         let dep_id = Uuid::new_v4();
-        let task = Task::new("Test Task".to_string(), "agent-1".to_string())
-            .with_dependency(dep_id);
+        let task =
+            Task::new("Test Task".to_string(), "agent-1".to_string()).with_dependency(dep_id);
 
         assert_eq!(task.dependencies.len(), 1);
         assert_eq!(task.dependencies[0], dep_id);

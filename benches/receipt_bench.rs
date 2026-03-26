@@ -76,14 +76,9 @@ fn bench_receipt_hashing(c: &mut Criterion) {
 
 fn bench_receipt_chaining(c: &mut Criterion) {
     let (signing_key, _) = generate_keypair();
-    let genesis = Receipt::new(
-        "genesis".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .unwrap();
+    let genesis = Receipt::new("genesis".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .unwrap();
 
     c.bench_function("receipt_chaining", |b| {
         b.iter(|| {
@@ -110,29 +105,19 @@ fn bench_chain_building(c: &mut Criterion) {
         group.bench_with_input(BenchmarkId::from_parameter(size), size, |b, &size| {
             b.iter(|| {
                 let (signing_key, _) = generate_keypair();
-                let genesis = Receipt::new(
-                    "genesis".to_string(),
-                    vec![],
-                    vec![],
-                    None,
-                )
-                .sign(&signing_key)
-                .unwrap();
+                let genesis = Receipt::new("genesis".to_string(), vec![], vec![], None)
+                    .sign(&signing_key)
+                    .unwrap();
 
                 let mut chain = ReceiptChain::from_genesis(genesis.clone()).unwrap();
                 let mut prev = genesis;
 
                 for i in 1..size {
-                    let receipt = Receipt::new(
-                        format!("op-{}", i),
-                        vec![],
-                        vec![],
-                        None,
-                    )
-                    .chain(&prev)
-                    .unwrap()
-                    .sign(&signing_key)
-                    .unwrap();
+                    let receipt = Receipt::new(format!("op-{}", i), vec![], vec![], None)
+                        .chain(&prev)
+                        .unwrap()
+                        .sign(&signing_key)
+                        .unwrap();
 
                     chain.append(receipt.clone()).unwrap();
                     prev = receipt;
@@ -150,29 +135,19 @@ fn bench_chain_verification(c: &mut Criterion) {
 
     for size in [10, 50, 100].iter() {
         let (signing_key, verifying_key) = generate_keypair();
-        let genesis = Receipt::new(
-            "genesis".to_string(),
-            vec![],
-            vec![],
-            None,
-        )
-        .sign(&signing_key)
-        .unwrap();
+        let genesis = Receipt::new("genesis".to_string(), vec![], vec![], None)
+            .sign(&signing_key)
+            .unwrap();
 
         let mut chain = ReceiptChain::from_genesis(genesis.clone()).unwrap();
         let mut prev = genesis;
 
         for i in 1..*size {
-            let receipt = Receipt::new(
-                format!("op-{}", i),
-                vec![],
-                vec![],
-                None,
-            )
-            .chain(&prev)
-            .unwrap()
-            .sign(&signing_key)
-            .unwrap();
+            let receipt = Receipt::new(format!("op-{}", i), vec![], vec![], None)
+                .chain(&prev)
+                .unwrap()
+                .sign(&signing_key)
+                .unwrap();
 
             chain.append(receipt.clone()).unwrap();
             prev = receipt;

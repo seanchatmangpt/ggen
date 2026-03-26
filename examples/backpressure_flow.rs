@@ -21,7 +21,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let board = KanbanBoard::new(config);
     println!("Kanban board configured:");
     println!("  Ready: {} WIP", board.wip_limit(Stage::Ready).await);
-    println!("  In Progress: {} WIP", board.wip_limit(Stage::InProgress).await);
+    println!(
+        "  In Progress: {} WIP",
+        board.wip_limit(Stage::InProgress).await
+    );
     println!("  Review: {} WIP\n", board.wip_limit(Stage::Review).await);
 
     // Add work items to backlog

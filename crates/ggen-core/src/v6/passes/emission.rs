@@ -130,52 +130,112 @@ impl EmissionPass {
     }
 
     /// Verify template rendering is deterministic
-    fn verify_determinism(&self, _ctx: &PassContext<'_>, path: &PathBuf, content: &str) -> Result<()> {
+    fn verify_determinism(
+        &self, _ctx: &PassContext<'_>, path: &PathBuf, content: &str,
+    ) -> Result<()> {
         if !self.enable_determinism_check {
             return Ok(());
         }
 
         // Check for common non-deterministic patterns
         let non_deterministic_patterns = [
-            ("timestamp", vec![
-                "now()", "Utc::now()", "Local::now()", "SystemTime::now()",
-                "chrono::Utc::now", "std::time::SystemTime::now",
-                "Instant::now()", "OffsetDateTime::now",
-                "current_time()", "get_timestamp()",
-            ]),
-            ("random", vec![
-                "rand()", "random()", "uuid()", "Uuid::new_v4()",
-                "thread_rng()", "rand::random", "OsRng",
-                "RandomNumberGenerator", "rand::thread_rng",
-            ]),
-            ("process", vec![
-                "pid()", "getpid()", "thread_id()",
-                "std::process::id()", "ThreadId::current()",
-                "current_thread_id()",
-            ]),
-            ("network", vec![
-                "reqwest::", "hyper::", "tokio::net::",
-                "std::net::TcpStream", "UdpSocket",
-                "fetch(", "http_get(", "download(",
-            ]),
-            ("filesystem_metadata", vec![
-                ".metadata()", "fs::metadata", "DirEntry",
-                "modified()", "accessed()", "created()",
-                "file_modified_time",
-            ]),
-            ("ordering", vec![
-                "HashMap::", "std::collections::HashMap",
-                "use std::collections::HashMap",
-                "HashSet::", "use std::collections::HashSet",
-            ]),
-            ("grouping", vec![
-                ".group_by(", "GROUP BY", "groupBy",
-                "aggregate(", "AGGREGATE",
-            ]),
-            ("joins", vec![
-                ".join(", "JOIN ", "INNER JOIN", "LEFT JOIN",
-                "OUTER JOIN", "RIGHT JOIN", "CROSS JOIN",
-            ]),
+            (
+                "timestamp",
+                vec![
+                    "now()",
+                    "Utc::now()",
+                    "Local::now()",
+                    "SystemTime::now()",
+                    "chrono::Utc::now",
+                    "std::time::SystemTime::now",
+                    "Instant::now()",
+                    "OffsetDateTime::now",
+                    "current_time()",
+                    "get_timestamp()",
+                ],
+            ),
+            (
+                "random",
+                vec![
+                    "rand()",
+                    "random()",
+                    "uuid()",
+                    "Uuid::new_v4()",
+                    "thread_rng()",
+                    "rand::random",
+                    "OsRng",
+                    "RandomNumberGenerator",
+                    "rand::thread_rng",
+                ],
+            ),
+            (
+                "process",
+                vec![
+                    "pid()",
+                    "getpid()",
+                    "thread_id()",
+                    "std::process::id()",
+                    "ThreadId::current()",
+                    "current_thread_id()",
+                ],
+            ),
+            (
+                "network",
+                vec![
+                    "reqwest::",
+                    "hyper::",
+                    "tokio::net::",
+                    "std::net::TcpStream",
+                    "UdpSocket",
+                    "fetch(",
+                    "http_get(",
+                    "download(",
+                ],
+            ),
+            (
+                "filesystem_metadata",
+                vec![
+                    ".metadata()",
+                    "fs::metadata",
+                    "DirEntry",
+                    "modified()",
+                    "accessed()",
+                    "created()",
+                    "file_modified_time",
+                ],
+            ),
+            (
+                "ordering",
+                vec![
+                    "HashMap::",
+                    "std::collections::HashMap",
+                    "use std::collections::HashMap",
+                    "HashSet::",
+                    "use std::collections::HashSet",
+                ],
+            ),
+            (
+                "grouping",
+                vec![
+                    ".group_by(",
+                    "GROUP BY",
+                    "groupBy",
+                    "aggregate(",
+                    "AGGREGATE",
+                ],
+            ),
+            (
+                "joins",
+                vec![
+                    ".join(",
+                    "JOIN ",
+                    "INNER JOIN",
+                    "LEFT JOIN",
+                    "OUTER JOIN",
+                    "RIGHT JOIN",
+                    "CROSS JOIN",
+                ],
+            ),
         ];
 
         for (category, patterns) in &non_deterministic_patterns {
