@@ -58,7 +58,6 @@ members = [
   "crates/ggen-a2a-mcp",      # A2A-MCP integration for ggen
   "crates/ggen-backpressure", # Backpressure and admission control (λ ≤ μ)
   "crates/ggen-heijunka",    # Heijunka load leveling and smooth workload distribution
-  "crates/ggen-osiris",      # OSIRIS zero cognitive load architecture
   "crates/ggen-canonical",   # Deterministic canonicalization (Rust/JSON/RDF) with hash verification
   "crates/ggen-jidoka",        # Jidoka gates and andon signal system for quality control
   "crates/ggen-kaizen",        # Kaizen continuous improvement tracking with PDCA cycles
@@ -76,21 +75,14 @@ members = [
   "crates/tai-testing",        # Production hardening & resilience testing framework
   "crates/tai-k8s",            # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
   "crates/tai-validation",     # SLO/SLA validation, compliance framework, security scanning
-  "crates/osiris-core",        # OSIRIS Core: Toyota Production System Autonomic Life Management
-  "crates/osiris-tps",         # OSIRIS TPS: Toyota Production System integration
-  "crates/osiris-domains",     # OSIRIS Domains: Life management domains
-  "crates/osiris-sensors",     # OSIRIS Sensors: Apple/Android sensor integration
-  "crates/osiris-autonomic",   # OSIRIS Autonomic: Self-governing life management
-  "examples/a2a-agent-lifecycle", # Wave 4: Agent lifecycle with supervisor tree & fault tolerance
-  "examples/distributed-consensus", # Byzantine fault-tolerant consensus with PBFT
-  "examples/e2e-complete-system", # E2E Complete System: Joe Armstrong Fault Tolerance
-  "playground",
 ]
 exclude = [
   "examples/rust-cli-lifecycle",
+  "examples/a2a-agent-lifecycle", # Wave 4: Agent lifecycle - excluded for Docker builds (examples not in build context)
+  "examples/distributed-consensus", # Byzantine consensus - excluded for Docker builds
+  "examples/e2e-complete-system", # E2E Complete System - excluded for Docker builds
   "examples/marketplace-demo/generated",
   "examples/gcp-erlang-autonomics",
-  "examples/osiris-life-domains",
   "examples/api-endpoint",  # Wave 2: Standalone example with own Makefile
   "examples/advanced-lifecycle-demo",  # Wave 2: Standalone example with own Makefile
   "marketplace/packages/workflow-engine-cli",
@@ -199,13 +191,6 @@ ggen-tps-andon = { path = "crates/ggen-tps-andon", version = "0.1.0" }
 ggen-heijunka = { path = "crates/ggen-heijunka", version = "6.0.0" }
 ggen-metrics-tps = { path = "crates/ggen-metrics-tps", version = "6.0.0" }
 ggen-transport = { path = "crates/ggen-transport", version = "6.0.0" }
-
-# OSIRIS Integration (Autonomic Life Management System)
-osiris-core = { path = "crates/osiris-core", version = "0.1.0" }
-osiris-tps = { path = "crates/osiris-tps", version = "0.1.0" }
-osiris-domains = { path = "crates/osiris-domains", version = "0.1.0" }
-osiris-sensors = { path = "crates/osiris-sensors", version = "0.1.0" }
-osiris-autonomic = { path = "crates/osiris-autonomic", version = "0.1.0" }
 
 # TAI Testing: Production hardening & resilience testing framework
 tai-testing = { path = "crates/tai-testing", version = "0.1.0" }
