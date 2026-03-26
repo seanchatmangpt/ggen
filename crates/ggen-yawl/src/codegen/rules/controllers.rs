@@ -33,7 +33,7 @@ impl Queryable for ControllerQuery {
                              rdfs:label ?label .\n\
               OPTIONAL { ?conditionType rdfs:comment ?comment }\n\
             }"
-            .to_string();
+        .to_string();
 
         // For now, return mock data that demonstrates the pattern.
         // In Phase 3 final, this will load the actual YAWL ontology and execute SPARQL.

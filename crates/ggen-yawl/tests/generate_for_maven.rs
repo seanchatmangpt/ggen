@@ -136,7 +136,9 @@ fn generate_for_maven() {
     // Rule 10: Jackson Serializers (Placeholder - not fully integrated with Rule<Q,T> framework)
     {
         let _rule = create_jackson_serializer_rule();
-        println!("Rule 10: Jackson Serializers - [Placeholder implementation - not yet integrated]");
+        println!(
+            "Rule 10: Jackson Serializers - [Placeholder implementation - not yet integrated]"
+        );
     }
 
     println!("\n=== Code Generation Summary ===");
