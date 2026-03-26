@@ -67,7 +67,7 @@ pub struct GeneratedFile {
 impl GeneratedFile {
     /// Create a new generated file with content hash
     pub fn new(path: PathBuf, content: String, source_rule: String) -> Self {
-        use sha2::{Sha256, Digest};
+        use sha2::{Digest, Sha256};
 
         let mut hasher = Sha256::new();
         hasher.update(&content);
@@ -130,10 +130,7 @@ pub struct Rule<Q: Queryable, T: Renderable> {
 impl<Q: Queryable, T: Renderable> Rule<Q, T> {
     /// Create a new rule
     pub fn new(
-        name: impl Into<String>,
-        query: Q,
-        template: T,
-        output_file: impl Into<PathBuf>,
+        name: impl Into<String>, query: Q, template: T, output_file: impl Into<PathBuf>,
         mode: GenerationMode,
     ) -> Self {
         Self {

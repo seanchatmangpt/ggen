@@ -330,7 +330,7 @@ async fn create_test_registry(path: &std::path::Path) -> LocalRegistry {
 }
 
 fn create_test_package(name: &str, version: &str) -> ggen_marketplace::models::Package {
-    use ggen_marketplace::models::{PackageId, PackageVersion, PackageMetadata, QualityScore};
+    use ggen_marketplace::models::{PackageId, PackageMetadata, PackageVersion, QualityScore};
 
     ggen_marketplace::models::Package {
         metadata: PackageMetadata {
