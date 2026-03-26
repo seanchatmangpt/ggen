@@ -16,10 +16,10 @@ pub struct Emitter {
 }
 
 #[derive(Debug, Serialize)]
-struct GenerationConfig {
-    app_name: String,
-    module_prefix: String,
-    version: String,
+pub struct GenerationConfig {
+    pub app_name: String,
+    pub module_prefix: String,
+    pub version: String,
 }
 
 impl Emitter {

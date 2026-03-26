@@ -24,7 +24,9 @@ impl Default for McpServerConfig {
 
 /// MCP STDIO server
 pub struct McpServer {
+    #[allow(dead_code)]
     config: McpServerConfig,
+    #[allow(dead_code)]
     registry: InMemoryToolRegistry,
 }
 

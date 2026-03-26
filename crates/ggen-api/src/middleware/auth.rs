@@ -5,7 +5,6 @@ use axum::{
     middleware::Next,
     response::Response,
 };
-use std::sync::Arc;
 
 use crate::state::AppState;
 
@@ -19,7 +18,7 @@ pub struct User {
 
 /// Middleware to verify JWT tokens
 pub async fn verify_jwt(
-    State(_state): State<AppState>, mut request: Request, next: Next,
+    State(_state): State<AppState>, request: Request, next: Next,
 ) -> Response {
     // TODO: Extract Authorization header
     // TODO: Verify JWT signature

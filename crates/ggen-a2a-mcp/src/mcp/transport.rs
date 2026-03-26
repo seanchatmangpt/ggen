@@ -8,11 +8,13 @@ use tokio::sync::RwLock;
 
 #[derive(Debug, Clone, Default)]
 struct ServerState {
+    #[allow(dead_code)]
     initialized: bool,
 }
 
 /// STDIO transport for MCP
 pub struct StdioTransport {
+    #[allow(dead_code)]
     state: Arc<RwLock<ServerState>>,
 }
 

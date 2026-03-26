@@ -152,6 +152,7 @@ pub mod resolver;
 pub mod security; // Week 4 Security Hardening
 pub mod signals;
 pub mod snapshot;
+pub mod sparql; // SPARQL query execution
 pub mod streaming_generator;
 pub mod telemetry;
 pub mod template;
@@ -179,6 +180,7 @@ pub use lifecycle::{
 
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};
+pub use config::{ConfigError, ConfigResult, GgenConfig, GenerationMode, Rule};
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
 pub use drift::{ChangeType, DriftChange, DriftDetector, DriftStatus, FileHashState, SyncState};
 pub use generator::{GenContext, Generator};

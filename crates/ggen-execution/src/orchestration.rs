@@ -329,7 +329,11 @@ impl TaskOrchestrator {
 pub struct ExecutionGraph {
     nodes: HashMap<TaskId, ExecutionNode>,
     edges: HashMap<TaskId, Vec<TaskId>>, // task_id -> dependent_task_ids
+    #[allow(dead_code)]
+    /// Reserved for future use in advanced execution analysis and visualization
     entry_points: Vec<TaskId>,
+    #[allow(dead_code)]
+    /// Reserved for future use in advanced execution analysis and visualization
     exit_points: Vec<TaskId>,
 }
 
@@ -338,6 +342,8 @@ pub struct ExecutionGraph {
 pub struct ExecutionNode {
     pub task: Task,
     pub dependencies: Vec<TaskId>,
+    #[allow(dead_code)]
+    /// Tracked for completeness; dependency info is stored in ExecutionGraph.edges for performance
     dependents: Vec<TaskId>,
     pub state: ExecutionNodeState,
     pub retry_count: u32,

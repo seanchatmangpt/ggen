@@ -42,8 +42,9 @@ pub struct Extractor {
 }
 
 #[derive(Debug, Clone)]
-struct ExtractionContext {
-    entities: HashMap<String, Entity>,
+pub struct ExtractionContext {
+    #[allow(dead_code)]
+    pub entities: HashMap<String, Entity>,
 }
 
 impl Extractor {

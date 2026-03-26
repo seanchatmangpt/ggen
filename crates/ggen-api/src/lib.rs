@@ -19,7 +19,6 @@ pub use routes::create_router;
 pub use state::AppState;
 
 use axum::Router;
-use std::sync::Arc;
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 
