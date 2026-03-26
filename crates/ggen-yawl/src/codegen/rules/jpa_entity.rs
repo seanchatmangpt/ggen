@@ -3,7 +3,8 @@
 //! Generates `@Entity`-annotated Java classes for persistent YAWL objects (YWorkItem, YTask, etc.)
 //! using SPARQL queries to extract class definitions and properties from the ontology.
 
-use crate::codegen::{GenerationMode, Queryable, Renderable, Rule};
+use ggen_codegen::{GenerationMode, Queryable, Renderable, Rule, Error as CodegenError};
+use ggen_codegen::Result as CodegenResult;
 use crate::error::{Error, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -57,7 +58,7 @@ impl JpaEntityQuery {
 }
 
 impl Queryable for JpaEntityQuery {
-    fn execute(&self) -> Result<Vec<HashMap<String, String>>> {
+    fn execute(&self) -> CodegenResult<Vec<HashMap<String, String>>> {
         // For now, return mock data that demonstrates the pattern.
         // In Phase 3 final, this will load the actual YAWL ontology and execute SPARQL.
 
@@ -204,13 +205,13 @@ public class {{ className }} {
 }
 
 impl Renderable for JpaEntityTemplate {
-    fn render(&self, bindings: &HashMap<String, String>) -> Result<String> {
+    fn render(&self, bindings: &HashMap<String, String>) -> CodegenResult<String> {
         let mut context = Context::new();
 
         // Extract class metadata
         let class_name = bindings
             .get("className")
-            .ok_or_else(|| Error::template("Missing className in bindings".to_string()))?
+            .ok_or_else(|| CodegenError::template("Missing className in bindings".to_string()))?
             .clone();
 
         let class_label = bindings
@@ -221,7 +222,7 @@ impl Renderable for JpaEntityTemplate {
         // Parse fields from bindings (JSON array in mock data)
         let _ = bindings
             .get("fields")
-            .ok_or_else(|| Error::template("Missing fields in bindings".to_string()))?;
+            .ok_or_else(|| CodegenError::template("Missing fields in bindings".to_string()))?;
 
         // Simple field parsing (in production, use serde_json)
         let mut fields = Vec::new();
@@ -289,7 +290,7 @@ impl Renderable for JpaEntityTemplate {
 
         self.tera
             .render("jpa-entity.java.tera", &context)
-            .map_err(|e| Error::template(format!("Template rendering failed: {}", e)))
+            .map_err(|e| CodegenError::template(format!("Template rendering failed: {}", e)))
     }
 
     fn name(&self) -> &str {

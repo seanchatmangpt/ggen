@@ -3,7 +3,8 @@
 //! Generates `@Repository`-annotated Spring Data JPA interfaces for each persistent
 //! YAWL entity (YWorkItemRepository, YTaskRepository, etc.)
 
-use crate::codegen::{GenerationMode, Queryable, Renderable, Rule};
+use ggen_codegen::{GenerationMode, Queryable, Renderable, Rule, Error as CodegenError};
+use ggen_codegen::Result as CodegenResult;
 use crate::error::{Error, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -20,7 +21,7 @@ impl RepositoryQuery {
 }
 
 impl Queryable for RepositoryQuery {
-    fn execute(&self) -> Result<Vec<HashMap<String, String>>> {
+    fn execute(&self) -> CodegenResult<Vec<HashMap<String, String>>> {
         // Mock data: entity names and ID types
         let entities = vec![
             ("YWorkItem", "String"),
@@ -119,12 +120,12 @@ public interface {{ repositoryName }} extends JpaRepository<{{ entityName }}, {{
 }
 
 impl Renderable for RepositoryTemplate {
-    fn render(&self, bindings: &HashMap<String, String>) -> Result<String> {
+    fn render(&self, bindings: &HashMap<String, String>) -> CodegenResult<String> {
         let mut context = Context::new();
 
         let entity_name = bindings
             .get("entityName")
-            .ok_or_else(|| Error::template("Missing entityName in bindings".to_string()))?
+            .ok_or_else(|| CodegenError::template("Missing entityName in bindings".to_string()))?
             .clone();
 
         let repo_name = bindings
@@ -143,7 +144,7 @@ impl Renderable for RepositoryTemplate {
 
         self.tera
             .render("repository.java.tera", &context)
-            .map_err(|e| Error::template(format!("Template rendering failed: {}", e)))
+            .map_err(|e| CodegenError::template(format!("Template rendering failed: {}", e)))
     }
 
     fn name(&self) -> &str {

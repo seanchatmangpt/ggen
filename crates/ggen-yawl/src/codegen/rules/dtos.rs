@@ -3,7 +3,8 @@
 //! Generates immutable DTO classes with @Data and @Builder annotations
 //! for transferring YAWL entity data over REST APIs.
 
-use crate::codegen::{GenerationMode, Queryable, Renderable, Rule};
+use ggen_codegen::{GenerationMode, Queryable, Renderable, Rule, Error as CodegenError};
+use ggen_codegen::Result as CodegenResult;
 use crate::error::{Error, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -20,7 +21,7 @@ impl DtoQuery {
 }
 
 impl Queryable for DtoQuery {
-    fn execute(&self) -> Result<Vec<HashMap<String, String>>> {
+    fn execute(&self) -> CodegenResult<Vec<HashMap<String, String>>> {
         let entities = vec!["YWorkItem", "YTask", "YIdentifier", "YMarking", "YVariable"];
 
         let results = entities
@@ -126,12 +127,12 @@ public class {{ dtoName }} implements Serializable {
 }
 
 impl Renderable for DtoTemplate {
-    fn render(&self, bindings: &HashMap<String, String>) -> Result<String> {
+    fn render(&self, bindings: &HashMap<String, String>) -> CodegenResult<String> {
         let mut context = Context::new();
 
         let entity_name = bindings
             .get("entityName")
-            .ok_or_else(|| Error::template("Missing entityName in bindings".to_string()))?
+            .ok_or_else(|| CodegenError::template("Missing entityName in bindings".to_string()))?
             .clone();
 
         let dto_name = bindings
@@ -144,7 +145,7 @@ impl Renderable for DtoTemplate {
 
         self.tera
             .render("dto.java.tera", &context)
-            .map_err(|e| Error::template(format!("Template rendering failed: {}", e)))
+            .map_err(|e| CodegenError::template(format!("Template rendering failed: {}", e)))
     }
 
     fn name(&self) -> &str {

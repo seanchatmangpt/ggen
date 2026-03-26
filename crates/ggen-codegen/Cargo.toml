@@ -1,0 +1,15 @@
+[package]
+name = "ggen-codegen"
+version = "0.1.0"
+edition = "2021"
+description = "Generic code generation framework: trait-based, zero-cost abstractions"
+license = "MIT"
+
+[dependencies]
+sha2 = "0.10"
+thiserror = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+proptest = "1.8"
