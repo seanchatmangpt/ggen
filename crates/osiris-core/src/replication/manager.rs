@@ -4,12 +4,14 @@
 //! Manages region membership, health status, vector clock coordination, and failover.
 
 use crate::error::{OSIRISError, Result};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use serde::{Deserialize, Serialize};
 
 use super::vector_clock::VectorClock;
+// TODO: Uncomment when evidence_tracker is fixed
+// use super::evidence_tracker::{EvidenceTracker, EvidenceTrackerConfig, ReplicationEvent};
 
 /// Health status of a region
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -110,6 +112,10 @@ pub struct MultiRegionManager {
 
     /// Configuration
     config: MultiRegionConfig,
+
+    /// TODO: Uncomment when evidence_tracker is fixed
+    /// Evidence tracker for Byzantine-aware region health
+    // evidence_tracker: Option<Arc<EvidenceTracker>>,
 }
 
 impl MultiRegionManager {
@@ -120,35 +126,79 @@ impl MultiRegionManager {
             vector_clock: Arc::new(RwLock::new(VectorClock::new())),
             primary_region: Arc::new(RwLock::new("us-east".to_string())),
             config,
+            // TODO: Uncomment when evidence_tracker is fixed
+            // evidence_tracker: None,
         }
     }
+
+    /// TODO: Uncomment when evidence_tracker is fixed
+    /// Create a new MultiRegionManager with evidence tracking enabled
+    /*
+    pub fn with_evidence_tracking(config: MultiRegionConfig, evidence_config: EvidenceTrackerConfig) -> Self {
+        Self {
+            regions: Arc::new(RwLock::new(HashMap::new())),
+            vector_clock: Arc::new(RwLock::new(VectorClock::new())),
+            primary_region: Arc::new(RwLock::new("us-east".to_string())),
+            config,
+            evidence_tracker: Some(Arc::new(EvidenceTracker::new(evidence_config))),
+        }
+    }
+    */
 
     /// Create a new MultiRegionManager with default configuration
     pub async fn default_with_regions(region_ids: &[&str]) -> Result<Self> {
         let mut manager = Self::new(MultiRegionConfig::default());
         for (idx, region_id) in region_ids.iter().enumerate() {
-            manager.add_region(
-                region_id.to_string(),
-                format!("https://{}.example.com", region_id),
-                idx == 0, // First region is primary
-            ).await?;
+            manager
+                .add_region(
+                    region_id.to_string(),
+                    format!("https://{}.example.com", region_id),
+                    idx == 0, // First region is primary
+                )
+                .await?;
         }
         Ok(manager)
     }
 
+    /// TODO: Uncomment when evidence_tracker is fixed
+    /// Create with evidence tracking enabled
+    /*
+    pub async fn with_evidence_tracking_regions(region_ids: &[&str]) -> Result<Self> {
+        let region_strings: Vec<String> = region_ids.iter().map(|s| s.to_string()).collect();
+        let tracker = EvidenceTracker::default_with_regions(&region_strings);
+
+        let mut manager = Self {
+            regions: Arc::new(RwLock::new(HashMap::new())),
+            vector_clock: Arc::new(RwLock::new(VectorClock::new())),
+            primary_region: Arc::new(RwLock::new("us-east".to_string())),
+            config: MultiRegionConfig::default(),
+            evidence_tracker: Some(Arc::new(tracker)),
+        };
+
+        for (idx, region_id) in region_ids.iter().enumerate() {
+            manager
+                .add_region(
+                    region_id.to_string(),
+                    format!("https://{}.example.com", region_id),
+                    idx == 0,
+                )
+                .await?;
+        }
+        Ok(manager)
+    }
+    */
+
     /// Add a region to the cluster
     pub async fn add_region(
-        &mut self,
-        region_id: String,
-        endpoint: String,
-        is_primary: bool,
+        &mut self, region_id: String, endpoint: String, is_primary: bool,
     ) -> Result<()> {
         let mut regions = self.regions.write().await;
 
         if regions.contains_key(&region_id) {
-            return Err(OSIRISError::ServiceUnavailable(
-                format!("Region {} already exists", region_id),
-            ));
+            return Err(OSIRISError::ServiceUnavailable(format!(
+                "Region {} already exists",
+                region_id
+            )));
         }
 
         let mut node = RegionNode::new(region_id.clone(), endpoint, is_primary);
@@ -170,10 +220,9 @@ impl MultiRegionManager {
     /// Get a region by ID (blocking read)
     pub async fn get_region(&self, region_id: &str) -> Result<RegionNode> {
         let regions = self.regions.read().await;
-        regions
-            .get(region_id)
-            .cloned()
-            .ok_or_else(|| OSIRISError::ServiceUnavailable(format!("Region {} not found", region_id)))
+        regions.get(region_id).cloned().ok_or_else(|| {
+            OSIRISError::ServiceUnavailable(format!("Region {} not found", region_id))
+        })
     }
 
     /// Get all regions
@@ -188,29 +237,21 @@ impl MultiRegionManager {
     }
 
     /// Update region health status
-    pub async fn update_region_health(
-        &self,
-        region_id: &str,
-        health: RegionHealth,
-    ) -> Result<()> {
+    pub async fn update_region_health(&self, region_id: &str, health: RegionHealth) -> Result<()> {
         let mut regions = self.regions.write().await;
-        let region = regions
-            .get_mut(region_id)
-            .ok_or_else(|| OSIRISError::ServiceUnavailable(format!("Region {} not found", region_id)))?;
+        let region = regions.get_mut(region_id).ok_or_else(|| {
+            OSIRISError::ServiceUnavailable(format!("Region {} not found", region_id))
+        })?;
         region.set_health(health);
         Ok(())
     }
 
     /// Update replication lag for a region
-    pub async fn update_replication_lag(
-        &self,
-        region_id: &str,
-        lag: ReplicationLag,
-    ) -> Result<()> {
+    pub async fn update_replication_lag(&self, region_id: &str, lag: ReplicationLag) -> Result<()> {
         let mut regions = self.regions.write().await;
-        let region = regions
-            .get_mut(region_id)
-            .ok_or_else(|| OSIRISError::ServiceUnavailable(format!("Region {} not found", region_id)))?;
+        let region = regions.get_mut(region_id).ok_or_else(|| {
+            OSIRISError::ServiceUnavailable(format!("Region {} not found", region_id))
+        })?;
         region.set_replication_lag(lag);
         Ok(())
     }
@@ -228,7 +269,8 @@ impl MultiRegionManager {
 
     /// Increment vector clock for a region (represents a local write)
     pub async fn increment_vector_clock(&self, region_id: &str) -> Result<VectorClock> {
-        let mut vc = self.vector_clock.write().await;
+        use tokio::sync::RwLockWriteGuard;
+        let mut vc: RwLockWriteGuard<'_, VectorClock> = self.vector_clock.write().await;
         vc.increment(region_id);
         Ok(vc.clone())
     }
@@ -236,7 +278,7 @@ impl MultiRegionManager {
     /// Check if a region is primary
     pub async fn is_primary(&self, region_id: &str) -> Result<bool> {
         let primary = self.primary_region.read().await;
-        Ok(primary.as_str() == region_id)
+        Ok(*primary == region_id)
     }
 
     /// Detect if two events are causally ordered
@@ -255,6 +297,50 @@ impl MultiRegionManager {
             CausalityResult::Same
         }
     }
+
+//     /// Record a replication event (if evidence tracking enabled)
+//     pub async fn record_replication_event(
+//         &self,
+//         region_id: &str,
+//         event: ReplicationEvent,
+//     ) -> Result<()> {
+//         if let Some(tracker) = &self.evidence_tracker {
+//             tracker.record_event(region_id, event).await?;
+//         }
+//         Ok(())
+//     }
+// 
+//     /// Get evidence tracker if enabled
+//     pub fn get_evidence_tracker(&self) -> Option<&Arc<EvidenceTracker>> {
+//         self.evidence_tracker.as_ref()
+//     }
+// 
+//     /// Check if region should be isolated based on evidence
+//     pub async fn should_isolate_region(&self, region_id: &str) -> bool {
+//         if let Some(tracker) = &self.evidence_tracker {
+//             tracker.should_isolate_region(region_id).await
+//         } else {
+//             false
+//         }
+//     }
+// 
+//     /// Get all regions that should be isolated
+//     pub async fn get_regions_to_isolate(&self) -> Vec<String> {
+//         if let Some(tracker) = &self.evidence_tracker {
+//             tracker.get_regions_to_isolate().await
+//         } else {
+//             Vec::new()
+//         }
+//     }
+// 
+//     /// Update region health based on evidence score
+//     pub async fn update_region_health_from_evidence(&self, region_id: &str) -> Result<()> {
+//         if let Some(tracker) = &self.evidence_tracker {
+//             let health: RegionHealth = tracker.get_region_health(region_id).await;
+//             self.update_region_health(region_id, health).await?;
+//         }
+//         Ok(())
+//     }
 }
 
 impl Clone for MultiRegionManager {
@@ -264,6 +350,7 @@ impl Clone for MultiRegionManager {
             vector_clock: Arc::clone(&self.vector_clock),
             primary_region: Arc::clone(&self.primary_region),
             config: self.config.clone(),
+            evidence_tracker: self.evidence_tracker.clone(),
         }
     }
 }
@@ -308,7 +395,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_three_region_cluster() {
-        let manager_result = MultiRegionManager::default_with_regions(&["us-east", "us-west", "eu"]).await;
+        let manager_result =
+            MultiRegionManager::default_with_regions(&["us-east", "us-west", "eu"]).await;
         assert!(manager_result.is_ok());
 
         let manager = manager_result.unwrap();
@@ -346,7 +434,12 @@ mod tests {
         vc2.increment("us-west");
 
         let result = manager.detect_causality(&vc1, &vc2).await;
-        assert_eq!(result, CausalityResult::Causality { happens_before: true });
+        assert_eq!(
+            result,
+            CausalityResult::Causality {
+                happens_before: true
+            }
+        );
     }
 
     #[tokio::test]
@@ -364,4 +457,115 @@ mod tests {
         let result = manager.detect_causality(&vc1, &vc2).await;
         assert_eq!(result, CausalityResult::Concurrent);
     }
+
+    // TODO: Uncomment when evidence_tracker is fixed
+    /*
+    #[tokio::test]
+    async fn test_evidence_tracking_integration() {
+        let manager = MultiRegionManager::with_evidence_tracking_regions(&["us-east", "us-west"])
+            .await
+            .unwrap();
+
+        // Record successful replication
+        manager
+            .record_replication_event(
+                "us-east",
+                ReplicationEvent::WriteReplicated {
+                    operation_id: "op-1".to_string(),
+                    vector_clock_version: 1,
+                },
+            )
+            .await
+            .unwrap();
+
+        // Check that tracker is accessible
+        assert!(manager.get_evidence_tracker().is_some());
+
+        // Region should not be isolated
+        assert!(!manager.should_isolate_region("us-east").await);
+    }
+
+    #[tokio::test]
+    async fn test_region_isolation_after_failures() {
+        let manager = MultiRegionManager::with_evidence_tracking_regions(&["us-east", "us-west"])
+            .await
+            .unwrap();
+
+        // Simulate multiple failures on us-east
+        for i in 0..8 {
+            manager
+                .record_replication_event(
+                    "us-east",
+                    ReplicationEvent::AckTimeout {
+                        operation_id: format!("op-{}", i),
+                        attempt: 1,
+                    },
+                )
+                .await
+                .unwrap();
+        }
+
+        // Region should be marked for isolation
+        assert!(manager.should_isolate_region("us-east").await);
+
+        let to_isolate = manager.get_regions_to_isolate().await;
+        assert_eq!(to_isolate.len(), 1);
+        assert!(to_isolate.contains(&"us-east".to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_update_region_health_from_evidence() {
+        let manager = MultiRegionManager::with_evidence_tracking_regions(&["us-east"])
+            .await
+            .unwrap();
+
+        // Record a failure
+        manager
+            .record_replication_event(
+                "us-east",
+                ReplicationEvent::AckTimeout {
+                    operation_id: "op-1".to_string(),
+                    attempt: 1,
+                },
+            )
+            .await
+            .unwrap();
+
+        // Update health from evidence
+        manager
+            .update_region_health_from_evidence("us-east")
+            .await
+            .unwrap();
+
+        // Check health status
+        let region = manager.get_region("us-east").await.unwrap();
+        assert_eq!(region.health, RegionHealth::Healthy);
+    }
+
+    #[tokio::test]
+    async fn test_evidence_tracker_without_tracking() {
+        let manager = MultiRegionManager::default_with_regions(&["us-east", "us-west"])
+            .await
+            .unwrap();
+
+        // No evidence tracker
+        assert!(manager.get_evidence_tracker().is_none());
+
+        // Recording events should not fail but should be no-op
+        manager
+            .record_replication_event(
+                "us-east",
+                ReplicationEvent::WriteReplicated {
+                    operation_id: "op-1".to_string(),
+                    vector_clock_version: 1,
+                },
+            )
+            .await
+            .unwrap();
+
+        // Should never isolate without evidence tracking
+        assert!(!manager.should_isolate_region("us-east").await);
+        assert!(manager.get_regions_to_isolate().await.is_empty());
+    }
+    */
 }

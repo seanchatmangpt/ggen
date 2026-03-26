@@ -1,0 +1,192 @@
+\chapter{Generated Code Examples}
+
+This appendix shows complete generated artifacts.
+
+\section{OpenAPI Specification}
+
+\begin{minted}[fontsize=\footnotesize]{yaml}
+openapi: 3.0.0
+info:
+  title: Blog API
+  version: 1.0.0
+  description: Blog management API
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      summary: List all users
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      operationId: createUser
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/{id}:
+    get:
+      operationId: getUser
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        name:
+          type: string
+          maxLength: 100
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - email
+        - name
+    CreateUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        name:
+          type: string
+          maxLength: 100
+      required:
+        - email
+        - name
+\end{minted}
+
+\section{Zod Schemas}
+
+\begin{minted}[fontsize=\small]{typescript}
+import { z } from 'zod';
+
+export const UserSchema = z.object({
+  id: z.number().int().positive(),
+  email: z.string().max(255).email(),
+  name: z.string().max(100),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+export type User = z.infer<typeof UserSchema>;
+
+export const CreateUserRequestSchema = z.object({
+  email: z.string().max(255).email(),
+  name: z.string().max(100),
+});
+
+export type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>;
+
+export const UpdateUserRequestSchema = CreateUserRequestSchema.partial();
+
+export type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>;
+\end{minted}
+
+\section{Rust Structs}
+
+\begin{minted}[fontsize=\small]{rust}
+use chrono::{DateTime, Utc};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct User {
+    pub id: i64,
+    pub email: String,
+    pub name: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateUserRequest {
+    pub email: String,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UpdateUserRequest {
+    pub email: Option<String>,
+    pub name: Option<String>,
+}
+\end{minted}
+
+\section{JSDoc Types}
+
+\begin{minted}[fontsize=\small]{javascript}
+/**
+ * @typedef {Object} User
+ * @property {number} id - Unique identifier
+ * @property {string} email - User email address
+ * @property {string} name - User display name
+ * @property {string} createdAt - Creation timestamp
+ * @property {string} updatedAt - Last update timestamp
+ */
+
+/**
+ * @typedef {Object} CreateUserRequest
+ * @property {string} email - User email (required)
+ * @property {string} name - User name (required)
+ */
+
+/**
+ * @typedef {Object} UpdateUserRequest
+ * @property {string} [email] - User email (optional)
+ * @property {string} [name] - User name (optional)
+ */
+
+/**
+ * Type guard for User objects
+ * @param {*} obj - Object to check
+ * @returns {obj is User}
+ */
+function isUser(obj) {
+    return typeof obj === 'object'
+        && obj !== null
+        && typeof obj.id === 'number'
+        && typeof obj.email === 'string'
+        && typeof obj.name === 'string'
+        && typeof obj.createdAt === 'string'
+        && typeof obj.updatedAt === 'string';
+}
+\end{minted}

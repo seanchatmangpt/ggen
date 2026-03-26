@@ -24,9 +24,6 @@ pub struct PipelineState {
     /// Domain ontology graph
     pub ontology_graph: Graph,
 
-    /// Code graph (built by CONSTRUCT)
-    pub code_graph: Graph,
-
     /// Inference rules executed
     pub executed_rules: Vec<ExecutedRule>,
 
@@ -120,9 +117,6 @@ pub struct GenerationPipeline {
     /// Ontology graph (loaded from manifest)
     ontology_graph: Option<Graph>,
 
-    /// Code graph (built by CONSTRUCT rules)
-    code_graph: Option<Graph>,
-
     /// Executed inference rules
     executed_rules: Vec<ExecutedRule>,
 
@@ -172,7 +166,6 @@ impl GenerationPipeline {
             manifest,
             base_path,
             ontology_graph: None,
-            code_graph: None,
             executed_rules: Vec::new(),
             generated_files: Vec::new(),
             validation_results: Vec::new(),
@@ -580,10 +573,6 @@ impl GenerationPipeline {
                 .ontology_graph
                 .take()
                 .ok_or_else(|| Error::new("Ontology graph not initialized"))?,
-            code_graph: self
-                .code_graph
-                .take()
-                .ok_or_else(|| Error::new("Code graph not initialized"))?,
             executed_rules: self.executed_rules.clone(),
             generated_files: self.generated_files.clone(),
             validation_results: self.validation_results.clone(),

@@ -56,7 +56,6 @@ dotenvy = "0.15"
 glob = "0.3"
 semver = "1.0"
 dirs = "6.0"
-oxigraph = "0.5"
 walkdir = "2.5"
 colored = "3.0"
 indicatif = "0.17"
@@ -99,6 +98,7 @@ criterion = { version = "0.5", features = [
 tokio-test = "0.4" # Tokio testing utilities
 notify = "6.1" # File system watcher for watch mode tests
 chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
+oxigraph = "0.5" # RDF storage for tests (not needed for binary)
 
 [[bench]]
 name = "marketplace_benchmark"

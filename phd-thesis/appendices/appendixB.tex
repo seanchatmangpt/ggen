@@ -1,0 +1,205 @@
+\chapter{Complete \(\mu_1\)--\(\mu_5\) Pipeline Code}
+
+This appendix contains annotated core implementation code.
+
+\section{Stage 1: Normalization}
+
+\begin{minted}[fontsize=\footnotesize]{rust}
+use oxigraph::store::Store;
+use oxigraph::model::Graph;
+
+pub fn normalize(input: &str) -> Result<Graph, NormalizeError> {
+    // Parse Turtle
+    let store = Store::new();
+    let graph = parse_turtle(input, &store)?;
+
+    // Validate SHACL
+    let report = validate_shacl(&graph)?;
+    if !report.is_conformant() {
+        return Err(NormalizeError::ShaclViolation(report));
+    }
+
+    // Check entropy
+    let entropy = calculate_entropy(&graph);
+    if entropy > 20.0 {
+        warn!("High entropy: {} bits (possible incompleteness)", entropy);
+    }
+
+    // Verify closure
+    verify_closure(&graph)?;
+
+    Ok(graph)
+}
+
+fn verify_closure(graph: &Graph) -> Result<(), NormalizeError> {
+    for reference in get_references(graph) {
+        let definition = query_definition(graph, &reference)?;
+        if definition.is_none() {
+            return Err(NormalizeError::UndefinedReference(reference));
+        }
+    }
+    Ok(())
+}
+\end{minted}
+
+\section{Stage 2: Extraction}
+
+\begin{minted}[fontsize=\footnotesize]{rust}
+use oxigraph::sparql::{Query, QueryResults};
+use oxigraph::model::Graph;
+
+pub fn extract(graph: &Graph) -> Result<ExtractedData, ExtractError> {
+    let mut data = ExtractedData::new();
+
+    // Run all extraction patterns
+    for pattern in STANDARD_PATTERNS {
+        let results = execute_query(graph, &pattern.query)?;
+        data.merge(results);
+    }
+
+    Ok(data)
+}
+
+fn execute_query(graph: &Graph, query_str: &str) -> Result<QueryOutput, ExtractError> {
+    let query = Query::parse(query_str, None)?;
+    match query.evaluate(graph) {
+        Ok(QueryResults::Graph(g)) => Ok(QueryOutput::Graph(g)),
+        Ok(QueryResults::Solutions(s)) => Ok(QueryOutput::Solutions(s)),
+        Err(e) => Err(ExtractError::QueryFailed(e)),
+        _ => Err(ExtractError::UnexpectedResult),
+    }
+}
+
+const STANDARD_PATTERNS: &[Pattern] = &[
+    Pattern {
+        name: "Entity Discovery",
+        query: r#"
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            CONSTRUCT { ?entity a ?type }
+            WHERE { ?entity a ?type }
+        "#,
+    },
+    // ... more patterns
+];
+\end{minted}
+
+\section{Stage 3: Emission}
+
+\begin{minted}[fontsize=\footnotesize]{rust}
+use tera::{Tera, Context};
+
+pub fn emit(data: &ExtractedData, rules: &[Rule]) -> Result<Vec<Artifact>, EmitError> {
+    let mut artifacts = Vec::new();
+    let tera = compile_templates()?;
+
+    for rule in rules {
+        let context = prepare_context(data, rule)?;
+        let output = tera.render(&rule.template, &context)?;
+        artifacts.push(Artifact {
+            path: rule.output.clone(),
+            content: output,
+        });
+    }
+
+    Ok(artifacts)
+}
+
+fn prepare_context(data: &ExtractedData, rule: &Rule) -> Result<Context, EmitError> {
+    let mut context = Context::new();
+    context.insert("entities", &data.entities);
+    context.insert("relationships", &data.relationships);
+    context.insert("config", &rule.config);
+    Ok(context)
+}
+
+fn compile_templates() -> Result<Tera, EmitError> {
+    let mut tera = Tera::default();
+    tera.add_raw_templates(vec![
+        ("rust_struct.rs", include_str!("templates/rust_struct.rs")),
+        ("typescript_interface.ts", include_str!("templates/typescript_interface.ts")),
+    ])?;
+    Ok(tera)
+}
+\end{minted}
+
+\section{Stage 4: Canonicalization}
+
+\begin{minted}[fontsize=\footnotesize]{rust}
+use std::process::Command;
+
+pub fn canonicalize(artifact: &Artifact) -> Result<String, CanonicalizeError> {
+    let extension = artifact.extension();
+    let formatted = match extension {
+        "rs" => canonicalize_rust(artifact)?,
+        "ts" | "tsx" => canonicalize_typescript(artifact)?,
+        "py" => canonicalize_python(artifact)?,
+        "yaml" | "yml" => canonicalize_yaml(artifact)?,
+        _ => artifact.content.clone(),
+    };
+    Ok(formatted)
+}
+
+fn canonicalize_rust(artifact: &Artifact) -> Result<String, CanonicalizeError> {
+    let output = Command::new("rustfmt")
+        .arg("--emit")
+        .arg("stdout")
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .spawn()?
+        .stdin
+        .unwrap()
+        .write_all(artifact.content.as_bytes())?;
+
+    // ... read output
+    Ok(formatted)
+}
+\end{minted}
+
+\section{Stage 5: Receipt Generation}
+
+\begin{minted}[fontsize=\footnotesize]{rust}
+use ed25519_dalek::{Keypair, Signature, Signer};
+use blake3::Hash;
+
+#[derive(Debug, Clone)]
+pub struct Receipt {
+    pub artifact_hash: Hash,
+    pub spec_hash: Hash,
+    pub signature: Signature,
+    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub metadata: Metadata,
+}
+
+pub fn generate_receipt(
+    artifact: &str,
+    spec_hash: Hash,
+    keypair: &Keypair,
+) -> Receipt {
+    let artifact_hash = blake3::hash(artifact.as_bytes());
+    let combined = combine_hashes(spec_hash, artifact_hash);
+    let signature = keypair.sign(&combined);
+
+    Receipt {
+        artifact_hash,
+        spec_hash,
+        signature,
+        timestamp: chrono::Utc::now(),
+        metadata: Metadata {
+            version: env!("CARGO_PKG_VERSION").to_string(),
+            generator: "ggen".to_string(),
+        },
+    }
+}
+
+fn combine_hashes(h1: Hash, h2: Hash) -> [u8; 64] {
+    let mut combined = [0u8; 64];
+    combined[..32].copy_from_slice(&h1.as_bytes());
+    combined[32..].copy_from_slice(&h2.as_bytes());
+    combined
+}
+
+pub fn verify_receipt(receipt: &Receipt, public_key: &PublicKey) -> bool {
+    let combined = combine_hashes(receipt.spec_hash, receipt.artifact_hash);
+    public_key.verify(&combined, &receipt.signature).is_ok()
+}
+\end{minted}
