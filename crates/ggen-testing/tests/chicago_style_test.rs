@@ -8,11 +8,7 @@
 //! - Test real behavior
 
 use ggen_testing::{
-    assertions::*,
-    fixtures::*,
-    property::*,
-    snapshot::*,
-    TestHarness, TestResult, StateVerifier,
+    assertions::*, fixtures::*, property::*, snapshot::*, StateVerifier, TestHarness, TestResult,
 };
 use std::collections::BTreeMap;
 
@@ -31,7 +27,10 @@ fn test_file_creation_changes_state() -> TestResult<()> {
 
     // Assert: Verify observable state changed
     state.capture(fixture.exists("test.txt"));
-    assert!(state.changed(), "File creation should change existence state");
+    assert!(
+        state.changed(),
+        "File creation should change existence state"
+    );
     assert_eq!(fixture.read_file("test.txt")?, "content");
 
     Ok(())

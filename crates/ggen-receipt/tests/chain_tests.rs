@@ -15,14 +15,9 @@ fn test_empty_chain() {
 fn test_genesis_chain_creation() {
     let (signing_key, _) = generate_keypair();
 
-    let genesis = Receipt::new(
-        "genesis".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("Signing failed");
+    let genesis = Receipt::new("genesis".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("Signing failed");
 
     let chain = ReceiptChain::from_genesis(genesis.clone()).expect("Genesis creation failed");
 
@@ -53,27 +48,17 @@ fn test_genesis_with_previous_hash_rejected() {
 fn test_chain_append_single() {
     let (signing_key, verifying_key) = generate_keypair();
 
-    let genesis = Receipt::new(
-        "op1".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("Signing failed");
+    let genesis = Receipt::new("op1".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("Signing failed");
 
     let mut chain = ReceiptChain::from_genesis(genesis.clone()).expect("Genesis creation failed");
 
-    let receipt2 = Receipt::new(
-        "op2".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .chain(&genesis)
-    .expect("Chaining failed")
-    .sign(&signing_key)
-    .expect("Signing failed");
+    let receipt2 = Receipt::new("op2".to_string(), vec![], vec![], None)
+        .chain(&genesis)
+        .expect("Chaining failed")
+        .sign(&signing_key)
+        .expect("Signing failed");
 
     chain.append(receipt2).expect("Append failed");
 
@@ -85,29 +70,19 @@ fn test_chain_append_single() {
 fn test_chain_append_multiple() {
     let (signing_key, verifying_key) = generate_keypair();
 
-    let genesis = Receipt::new(
-        "op1".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("Signing failed");
+    let genesis = Receipt::new("op1".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("Signing failed");
 
     let mut chain = ReceiptChain::from_genesis(genesis.clone()).expect("Genesis creation failed");
 
     let mut prev = genesis;
     for i in 2..=10 {
-        let receipt = Receipt::new(
-            format!("op{}", i),
-            vec![],
-            vec![],
-            None,
-        )
-        .chain(&prev)
-        .expect("Chaining failed")
-        .sign(&signing_key)
-        .expect("Signing failed");
+        let receipt = Receipt::new(format!("op{}", i), vec![], vec![], None)
+            .chain(&prev)
+            .expect("Chaining failed")
+            .sign(&signing_key)
+            .expect("Signing failed");
 
         chain.append(receipt.clone()).expect("Append failed");
         prev = receipt;
@@ -121,14 +96,9 @@ fn test_chain_append_multiple() {
 fn test_chain_append_wrong_hash_rejected() {
     let (signing_key, _) = generate_keypair();
 
-    let genesis = Receipt::new(
-        "op1".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("Signing failed");
+    let genesis = Receipt::new("op1".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("Signing failed");
 
     let mut chain = ReceiptChain::from_genesis(genesis).expect("Genesis creation failed");
 
@@ -194,14 +164,9 @@ fn test_chain_verify_fails_wrong_key() {
     let (signing_key, _) = generate_keypair();
     let (_, wrong_key) = generate_keypair();
 
-    let genesis = Receipt::new(
-        "genesis".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("Signing failed");
+    let genesis = Receipt::new("genesis".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("Signing failed");
 
     let chain = ReceiptChain::from_genesis(genesis).expect("Genesis creation failed");
 
@@ -212,27 +177,17 @@ fn test_chain_verify_fails_wrong_key() {
 fn test_chain_receipts_accessor() {
     let (signing_key, _) = generate_keypair();
 
-    let genesis = Receipt::new(
-        "op1".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("Signing failed");
+    let genesis = Receipt::new("op1".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("Signing failed");
 
     let mut chain = ReceiptChain::from_genesis(genesis.clone()).expect("Genesis creation failed");
 
-    let receipt2 = Receipt::new(
-        "op2".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .chain(&genesis)
-    .expect("Chaining failed")
-    .sign(&signing_key)
-    .expect("Signing failed");
+    let receipt2 = Receipt::new("op2".to_string(), vec![], vec![], None)
+        .chain(&genesis)
+        .expect("Chaining failed")
+        .sign(&signing_key)
+        .expect("Signing failed");
 
     chain.append(receipt2).expect("Append failed");
 
@@ -246,14 +201,9 @@ fn test_chain_receipts_accessor() {
 fn test_chain_serialization() {
     let (signing_key, _) = generate_keypair();
 
-    let genesis = Receipt::new(
-        "genesis".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("Signing failed");
+    let genesis = Receipt::new("genesis".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("Signing failed");
 
     let chain = ReceiptChain::from_genesis(genesis).expect("Genesis creation failed");
 
@@ -300,14 +250,9 @@ fn test_chain_append_to_empty_must_be_genesis() {
 fn test_long_chain() {
     let (signing_key, verifying_key) = generate_keypair();
 
-    let genesis = Receipt::new(
-        "op0".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("Signing failed");
+    let genesis = Receipt::new("op0".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("Signing failed");
 
     let mut chain = ReceiptChain::from_genesis(genesis.clone()).expect("Genesis creation failed");
 

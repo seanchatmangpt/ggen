@@ -11,7 +11,9 @@
 //! - Rule 10: Data validation patterns (serializers)
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_yawl::template::{ConditionContext, FlowContext, TaskContext, TemplateContext, VariableContext};
+use ggen_yawl::template::{
+    ConditionContext, FlowContext, TaskContext, TemplateContext, VariableContext,
+};
 use ggen_yawl::TemplateRenderer;
 
 /// Generate synthetic template context for Rule 3 (entities/tasks)
@@ -43,16 +45,14 @@ fn generate_rule3_entities(n: usize) -> TemplateContext {
 /// Generate synthetic template context for Rule 4 (repositories/flows)
 /// N = number of flows
 fn generate_rule4_repositories(n: usize) -> TemplateContext {
-    let mut tasks = vec![
-        TaskContext {
-            id: "start".to_string(),
-            name: "Start".to_string(),
-            split_type: "AND".to_string(),
-            join_type: "AND".to_string(),
-            is_auto: true,
-            decomposition_id: None,
-        },
-    ];
+    let mut tasks = vec![TaskContext {
+        id: "start".to_string(),
+        name: "Start".to_string(),
+        split_type: "AND".to_string(),
+        join_type: "AND".to_string(),
+        is_auto: true,
+        decomposition_id: None,
+    }];
 
     // Add intermediate tasks
     for i in 0..n {
@@ -157,20 +157,30 @@ fn generate_rule6_controllers(n: usize) -> TemplateContext {
         tasks,
         flows: Vec::new(),
         input_condition: if n > 0 {
-            Some(conditions.get(0).cloned().unwrap_or_else(|| ConditionContext {
-                id: "input".to_string(),
-                expression: "true".to_string(),
-                condition_type: "system".to_string(),
-            }))
+            Some(
+                conditions
+                    .get(0)
+                    .cloned()
+                    .unwrap_or_else(|| ConditionContext {
+                        id: "input".to_string(),
+                        expression: "true".to_string(),
+                        condition_type: "system".to_string(),
+                    }),
+            )
         } else {
             None
         },
         output_condition: if n > 0 {
-            Some(conditions.get(n - 1).cloned().unwrap_or_else(|| ConditionContext {
-                id: "output".to_string(),
-                expression: "true".to_string(),
-                condition_type: "system".to_string(),
-            }))
+            Some(
+                conditions
+                    .get(n - 1)
+                    .cloned()
+                    .unwrap_or_else(|| ConditionContext {
+                        id: "output".to_string(),
+                        expression: "true".to_string(),
+                        condition_type: "system".to_string(),
+                    }),
+            )
         } else {
             None
         },
@@ -238,7 +248,11 @@ fn generate_rule9_hbm(n: usize) -> TemplateContext {
             let is_send = i % 2 == 0;
             TaskContext {
                 id: format!("msg_{}_{}", if is_send { "send" } else { "recv" }, i / 2),
-                name: format!("{} Message {}", if is_send { "Send" } else { "Receive" }, i / 2),
+                name: format!(
+                    "{} Message {}",
+                    if is_send { "Send" } else { "Receive" },
+                    i / 2
+                ),
                 split_type: if is_send { "OR" } else { "AND" }.to_string(),
                 join_type: "XOR".to_string(),
                 is_auto: false,
@@ -492,27 +506,19 @@ fn bench_context_allocation(c: &mut Criterion) {
 
     for n in [100, 500, 1000].iter() {
         group.throughput(Throughput::Elements(*n as u64));
-        group.bench_with_input(
-            BenchmarkId::new("rule3_allocation", n),
-            n,
-            |b, &n| {
-                b.iter(|| {
-                    let context = black_box(generate_rule3_entities(n));
-                    black_box(context);
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("rule3_allocation", n), n, |b, &n| {
+            b.iter(|| {
+                let context = black_box(generate_rule3_entities(n));
+                black_box(context);
+            });
+        });
 
-        group.bench_with_input(
-            BenchmarkId::new("rule4_allocation", n),
-            n,
-            |b, &n| {
-                b.iter(|| {
-                    let context = black_box(generate_rule4_repositories(n));
-                    black_box(context);
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("rule4_allocation", n), n, |b, &n| {
+            b.iter(|| {
+                let context = black_box(generate_rule4_repositories(n));
+                black_box(context);
+            });
+        });
     }
 
     group.finish();

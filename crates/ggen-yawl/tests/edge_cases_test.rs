@@ -12,7 +12,7 @@
 //! - Very long names
 //! - Error handling and validation
 
-use ggen_yawl::{YawlGenerator, Error};
+use ggen_yawl::{Error, YawlGenerator};
 
 // ===========================
 // 1. EMPTY INPUT TESTS
@@ -199,13 +199,56 @@ fn test_java_reserved_keywords_as_names() {
     let gen = YawlGenerator::new().with_validation(false);
 
     let reserved_words = vec![
-        "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
-        "class", "const", "continue", "default", "do", "double", "else", "enum",
-        "extends", "final", "finally", "float", "for", "goto", "if", "implements",
-        "import", "instanceof", "int", "interface", "long", "native", "new",
-        "package", "private", "protected", "public", "return", "short", "static",
-        "strictfp", "super", "switch", "synchronized", "this", "throw", "throws",
-        "transient", "try", "void", "volatile", "while",
+        "abstract",
+        "assert",
+        "boolean",
+        "break",
+        "byte",
+        "case",
+        "catch",
+        "char",
+        "class",
+        "const",
+        "continue",
+        "default",
+        "do",
+        "double",
+        "else",
+        "enum",
+        "extends",
+        "final",
+        "finally",
+        "float",
+        "for",
+        "goto",
+        "if",
+        "implements",
+        "import",
+        "instanceof",
+        "int",
+        "interface",
+        "long",
+        "native",
+        "new",
+        "package",
+        "private",
+        "protected",
+        "public",
+        "return",
+        "short",
+        "static",
+        "strictfp",
+        "super",
+        "switch",
+        "synchronized",
+        "this",
+        "throw",
+        "throws",
+        "transient",
+        "try",
+        "void",
+        "volatile",
+        "while",
     ];
 
     let mut tasks = String::new();
@@ -525,7 +568,7 @@ fn test_invalid_xml_generated() {
     let result = gen.generate(ontology);
     // Validation should catch or output error
     match result {
-        Ok(_) => {} // May be valid depending on implementation
+        Ok(_) => {}                     // May be valid depending on implementation
         Err(Error::Validation(_)) => {} // Expected
         Err(e) => {
             // Other errors are also acceptable

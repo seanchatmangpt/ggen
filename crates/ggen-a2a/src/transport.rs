@@ -106,8 +106,7 @@ impl Transport {
 
     /// Register an agent with the transport
     pub async fn register_agent(
-        &self,
-        agent_id: String,
+        &self, agent_id: String,
     ) -> Result<mpsc::UnboundedReceiver<Envelope>, TransportError> {
         let (tx, rx) = mpsc::unbounded_channel();
         let mut agents = self.agents.write().await;
@@ -124,10 +123,7 @@ impl Transport {
 
     /// Send a message to an agent
     pub async fn send(
-        &self,
-        from: String,
-        to: String,
-        message: TaskMessage,
+        &self, from: String, to: String, message: TaskMessage,
     ) -> Result<(), TransportError> {
         let envelope = Envelope::new(from, to.clone(), message);
 
@@ -145,9 +141,7 @@ impl Transport {
 
     /// Broadcast a message to all agents
     pub async fn broadcast(
-        &self,
-        from: String,
-        message: TaskMessage,
+        &self, from: String, message: TaskMessage,
     ) -> Result<(), TransportError> {
         let agents = self.agents.read().await;
 
@@ -194,10 +188,7 @@ impl Transport {
     }
 
     /// List tasks by state
-    pub async fn list_tasks_by_state(
-        &self,
-        state: TaskState,
-    ) -> Result<Vec<Task>, TransportError> {
+    pub async fn list_tasks_by_state(&self, state: TaskState) -> Result<Vec<Task>, TransportError> {
         let tasks = self.tasks.read().await;
         Ok(tasks
             .values()

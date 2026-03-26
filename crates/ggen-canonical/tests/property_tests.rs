@@ -6,11 +6,7 @@
 //! - Commutativity: order-independent operations produce same result
 //! - Resource safety: no leaks in canonicalization
 
-use ggen_canonical::{
-    json::JsonCanonicalizer,
-    hash::compute_hash,
-    Canonicalizer,
-};
+use ggen_canonical::{hash::compute_hash, json::JsonCanonicalizer, Canonicalizer};
 use proptest::prelude::*;
 use serde_json::Value;
 use std::collections::HashMap;

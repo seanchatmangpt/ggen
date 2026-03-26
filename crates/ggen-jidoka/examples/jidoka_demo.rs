@@ -21,7 +21,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_gate(Arc::new(TestGate::new(&working_dir)))
         .add_gate(Arc::new(LintGate::new(&working_dir)));
 
-    println!("📋 Production line configured with {} gates:", line.gate_count());
+    println!(
+        "📋 Production line configured with {} gates:",
+        line.gate_count()
+    );
     println!("   1. Compiler Gate - checks for compilation errors");
     println!("   2. Test Gate - checks for test failures");
     println!("   3. Lint Gate - checks for clippy warnings\n");
@@ -34,12 +37,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("\n✨ Production line completed successfully!");
             println!("\nGate Results:");
             for (i, result) in results.iter().enumerate() {
-                println!(
-                    "   {}. {} - {}",
-                    i + 1,
-                    result.gate_name,
-                    result.signal
-                );
+                println!("   {}. {} - {}", i + 1, result.gate_name, result.signal);
             }
         }
         Err(e) => {

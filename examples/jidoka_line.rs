@@ -45,7 +45,10 @@ async fn run_green_line() -> Result<()> {
     line.add_gate(Arc::new(MockGate::new("Syntax Check", AndonSignal::Green)))
         .add_gate(Arc::new(MockGate::new("Type Check", AndonSignal::Green)))
         .add_gate(Arc::new(MockGate::new("Unit Tests", AndonSignal::Green)))
-        .add_gate(Arc::new(MockGate::new("Integration Tests", AndonSignal::Green)));
+        .add_gate(Arc::new(MockGate::new(
+            "Integration Tests",
+            AndonSignal::Green,
+        )));
 
     let results = line.run().await?;
 
@@ -64,10 +67,7 @@ async fn run_red_line() {
 
     line.add_gate(Arc::new(MockGate::new("Syntax Check", AndonSignal::Green)))
         .add_gate(Arc::new(MockGate::new("Type Check", AndonSignal::Green)))
-        .add_gate(Arc::new(MockGate::new(
-            "Unit Tests",
-            AndonSignal::Red,
-        )))
+        .add_gate(Arc::new(MockGate::new("Unit Tests", AndonSignal::Red)))
         .add_gate(Arc::new(MockGate::new(
             "Integration Tests",
             AndonSignal::Green,
@@ -87,10 +87,7 @@ async fn run_yellow_line() -> Result<()> {
     let mut line = ProductionLine::new();
 
     line.add_gate(Arc::new(MockGate::new("Syntax Check", AndonSignal::Green)))
-        .add_gate(Arc::new(MockGate::new(
-            "Linter",
-            AndonSignal::Yellow,
-        )))
+        .add_gate(Arc::new(MockGate::new("Linter", AndonSignal::Yellow)))
         .add_gate(Arc::new(MockGate::new("Unit Tests", AndonSignal::Green)));
 
     let results = line.run().await?;

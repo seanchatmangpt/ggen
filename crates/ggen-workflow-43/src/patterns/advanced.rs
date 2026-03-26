@@ -1,7 +1,7 @@
 //! Advanced Branching and Synchronization Patterns (6-9)
 
+use crate::{ActivityId, ExecutionResult, Result, WorkflowEngine, WorkflowError, WorkflowPattern};
 use async_trait::async_trait;
-use crate::{ActivityId, Result, WorkflowEngine, WorkflowError, WorkflowPattern, ExecutionResult};
 
 /// Pattern 6: Multi-Choice (OR-split)
 /// A point where multiple branches may be chosen based on conditions
@@ -13,7 +13,10 @@ pub struct MultiChoicePattern {
 impl MultiChoicePattern {
     /// Create a new multi-choice pattern
     pub fn new(condition_activity: ActivityId, branches: Vec<(String, Vec<ActivityId>)>) -> Self {
-        Self { condition_activity, branches }
+        Self {
+            condition_activity,
+            branches,
+        }
     }
 }
 
@@ -33,9 +36,13 @@ impl WorkflowPattern for MultiChoicePattern {
         // Clone decisions to avoid borrow conflicts
         let decisions_clone = {
             let context = engine.get_context(&self.condition_activity)?;
-            context.output_data.get("decisions")
+            context
+                .output_data
+                .get("decisions")
                 .and_then(|v| v.as_array())
-                .ok_or_else(|| WorkflowError::PatternExecutionFailed("No decisions array".to_string()))?
+                .ok_or_else(|| {
+                    WorkflowError::PatternExecutionFailed("No decisions array".to_string())
+                })?
                 .clone()
         };
 
@@ -44,7 +51,9 @@ impl WorkflowPattern for MultiChoicePattern {
         // Execute all matching branches in parallel
         for decision_value in &decisions_clone {
             if let Some(decision) = decision_value.as_str() {
-                if let Some((_, activities)) = self.branches.iter().find(|(name, _)| name == decision) {
+                if let Some((_, activities)) =
+                    self.branches.iter().find(|(name, _)| name == decision)
+                {
                     for activity_id in activities {
                         engine.execute_activity(activity_id).await?;
                         executed.push(activity_id.clone());
@@ -68,7 +77,10 @@ pub struct StructuredSynchronizingMergePattern {
 impl StructuredSynchronizingMergePattern {
     /// Create a new structured synchronizing merge pattern
     pub fn new(branches: Vec<ActivityId>, merge_activity: ActivityId) -> Self {
-        Self { branches, merge_activity }
+        Self {
+            branches,
+            merge_activity,
+        }
     }
 }
 
@@ -88,8 +100,9 @@ impl WorkflowPattern for StructuredSynchronizingMergePattern {
 
         for branch_id in &self.branches {
             if let Ok(context) = engine.get_context(branch_id) {
-                if context.state == crate::ActivityState::Running ||
-                   context.state == crate::ActivityState::Completed {
+                if context.state == crate::ActivityState::Running
+                    || context.state == crate::ActivityState::Completed
+                {
                     active_count += 1;
                 }
             }
@@ -116,7 +129,10 @@ pub struct MultiMergePattern {
 impl MultiMergePattern {
     /// Create a new multi-merge pattern
     pub fn new(branches: Vec<ActivityId>, merge_activity: ActivityId) -> Self {
-        Self { branches, merge_activity }
+        Self {
+            branches,
+            merge_activity,
+        }
     }
 }
 
@@ -153,7 +169,10 @@ pub struct StructuredDiscriminatorPattern {
 impl StructuredDiscriminatorPattern {
     /// Create a new structured discriminator pattern
     pub fn new(branches: Vec<ActivityId>, discriminator_activity: ActivityId) -> Self {
-        Self { branches, discriminator_activity }
+        Self {
+            branches,
+            discriminator_activity,
+        }
     }
 }
 
@@ -168,8 +187,8 @@ impl WorkflowPattern for StructuredDiscriminatorPattern {
     }
 
     async fn execute(&self, engine: &mut WorkflowEngine) -> Result<()> {
-        use tokio::sync::Semaphore;
         use std::sync::Arc;
+        use tokio::sync::Semaphore;
 
         let semaphore = Arc::new(Semaphore::new(1));
         let mut handles: Vec<tokio::task::JoinHandle<Result<Option<ActivityId>>>> = Vec::new();
@@ -197,7 +216,9 @@ impl WorkflowPattern for StructuredDiscriminatorPattern {
         // Wait for first completion
         for handle in handles {
             if let Ok(Ok(Some(_branch_id))) = handle.await {
-                engine.execute_activity(&self.discriminator_activity).await?;
+                engine
+                    .execute_activity(&self.discriminator_activity)
+                    .await?;
                 break;
             }
         }
@@ -267,14 +288,15 @@ mod tests {
         let branch2 = ActivityId::new("branch2");
         let disc = ActivityId::new("disc");
 
-        engine.register_activity(Box::new(TestActivity { id: branch1.clone() }));
-        engine.register_activity(Box::new(TestActivity { id: branch2.clone() }));
+        engine.register_activity(Box::new(TestActivity {
+            id: branch1.clone(),
+        }));
+        engine.register_activity(Box::new(TestActivity {
+            id: branch2.clone(),
+        }));
         engine.register_activity(Box::new(TestActivity { id: disc.clone() }));
 
-        let pattern = StructuredDiscriminatorPattern::new(
-            vec![branch1, branch2],
-            disc.clone(),
-        );
+        let pattern = StructuredDiscriminatorPattern::new(vec![branch1, branch2], disc.clone());
 
         let result = pattern.execute(&mut engine).await;
         assert!(result.is_ok());

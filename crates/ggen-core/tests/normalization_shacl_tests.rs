@@ -389,7 +389,9 @@ fn test_standard_rules_with_owl_inference() {
     "#;
     let result3 = graph.query(query3).unwrap();
     match result3 {
-        oxigraph::sparql::QueryResults::Boolean(b) => assert!(b, "alice should be taught by profSmith"),
+        oxigraph::sparql::QueryResults::Boolean(b) => {
+            assert!(b, "alice should be taught by profSmith")
+        }
         _ => panic!("Expected boolean"),
     }
 }

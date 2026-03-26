@@ -92,7 +92,11 @@ fn test_rendered_enum_serializer_is_valid_java() {
     let template = JacksonSerializerTemplate::enum_serializer(
         "TaskStatus".to_string(),
         "com.yawlfoundation.yawl.serializers".to_string(),
-        vec!["READY".to_string(), "RUNNING".to_string(), "CANCELLED".to_string()],
+        vec![
+            "READY".to_string(),
+            "RUNNING".to_string(),
+            "CANCELLED".to_string(),
+        ],
     );
 
     let code = template.render().unwrap();
@@ -119,13 +123,15 @@ fn test_rendered_datetime_serializer_is_valid_java() {
     // Verify Java syntax elements
     assert!(code.contains("package com.yawlfoundation.yawl.serializers;"));
     assert!(code.contains("import java.time.LocalDateTime;"));
+    assert!(code.contains("import java.time.format.DateTimeFormatter;"));
     assert!(
-        code.contains("import java.time.format.DateTimeFormatter;")
+        code.contains("public class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime>")
     );
-    assert!(code.contains("public class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime>"));
     assert!(code.contains("DateTimeFormatter.ISO_DATE_TIME"));
     assert!(code.contains("LocalDateTime.parse"));
-    assert!(code.contains("class LocalDateTimeDeserializer extends JsonDeserializer<LocalDateTime>"));
+    assert!(
+        code.contains("class LocalDateTimeDeserializer extends JsonDeserializer<LocalDateTime>")
+    );
 }
 
 #[test]
@@ -232,11 +238,8 @@ fn test_query_result_contains_serializer_details() {
         optional: false,
     };
 
-    let query = JacksonSerializerQuery::new(
-        "com.example".to_string(),
-        "Task".to_string(),
-    )
-    .with_field(field);
+    let query = JacksonSerializerQuery::new("com.example".to_string(), "Task".to_string())
+        .with_field(field);
 
     let result = query.execute().unwrap();
     assert!(!result.serializer_details.is_empty());
@@ -256,27 +259,25 @@ fn test_imports_include_jackson_classes() {
         vec!["ACTIVE".to_string()],
     );
 
-    assert!(template.imports.contains(
-        &"import com.fasterxml.jackson.databind.JsonSerializer;".to_string()
-    ));
-    assert!(template.imports.contains(
-        &"import com.fasterxml.jackson.databind.JsonDeserializer;".to_string()
-    ));
-    assert!(template.imports.contains(
-        &"import com.fasterxml.jackson.databind.JsonGenerator;".to_string()
-    ));
+    assert!(template
+        .imports
+        .contains(&"import com.fasterxml.jackson.databind.JsonSerializer;".to_string()));
+    assert!(template
+        .imports
+        .contains(&"import com.fasterxml.jackson.databind.JsonDeserializer;".to_string()));
+    assert!(template
+        .imports
+        .contains(&"import com.fasterxml.jackson.databind.JsonGenerator;".to_string()));
 }
 
 #[test]
 fn test_serializer_template_datetime_has_proper_imports() {
-    let template = JacksonSerializerTemplate::datetime_serializer(
-        "com.yawlfoundation".to_string(),
-    );
+    let template = JacksonSerializerTemplate::datetime_serializer("com.yawlfoundation".to_string());
 
-    assert!(template.imports.contains(
-        &"import java.time.LocalDateTime;".to_string()
-    ));
-    assert!(template.imports.contains(
-        &"import java.time.format.DateTimeFormatter;".to_string()
-    ));
+    assert!(template
+        .imports
+        .contains(&"import java.time.LocalDateTime;".to_string()));
+    assert!(template
+        .imports
+        .contains(&"import java.time.format.DateTimeFormatter;".to_string()));
 }

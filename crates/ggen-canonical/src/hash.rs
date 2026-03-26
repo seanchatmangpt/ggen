@@ -82,7 +82,11 @@ mod tests {
 
     #[test]
     fn test_multi_hash_deterministic() {
-        let data = vec![b"part1".as_slice(), b"part2".as_slice(), b"part3".as_slice()];
+        let data = vec![
+            b"part1".as_slice(),
+            b"part2".as_slice(),
+            b"part3".as_slice(),
+        ];
         let hash1 = compute_hash_multi(&data).unwrap();
         let hash2 = compute_hash_multi(&data).unwrap();
         assert_eq!(hash1, hash2);

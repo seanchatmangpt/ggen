@@ -18,9 +18,11 @@ fn get_ontology_path(filename: &str) -> PathBuf {
         PathBuf::from(format!("yawlv6/.claude/ggen/{}", filename)),
     ];
 
-    paths.iter().find(|p| p.exists()).cloned().unwrap_or_else(|| {
-        PathBuf::from(format!("/Users/sac/yawlv6/.claude/ggen/{}", filename))
-    })
+    paths
+        .iter()
+        .find(|p| p.exists())
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from(format!("/Users/sac/yawlv6/.claude/ggen/{}", filename)))
 }
 
 #[test]
@@ -62,11 +64,11 @@ fn test_load_yawl_domain_ontology() {
         .expect("Failed to load yawl-domain.ttl");
 
     // Verify graph is not empty
-    let query_result = graph
+    let _query_result = graph
         .query("SELECT (COUNT(*) AS ?count) WHERE { ?s ?p ?o }")
         .expect("Failed to execute COUNT query");
 
-    println!("Loaded yawl-domain.ttl: {:?}", query_result);
+    // Graph loaded successfully
 }
 
 #[test]
@@ -98,8 +100,7 @@ fn test_query_entities_from_domain_ontology() {
         LIMIT 20
     "#;
 
-    let result = graph.query(query).expect("Failed to execute entity query");
-    println!("Entity query result: {:?}", result);
+    let _result = graph.query(query).expect("Failed to execute entity query");
 
     // Note: Would need oxigraph::sparql::QueryResults to parse actual results
 }
@@ -130,10 +131,9 @@ fn test_query_workflow_elements_from_ontology() {
         }
     "#;
 
-    let result = graph
+    let _result = graph
         .query(query)
         .expect("Failed to execute workflow query");
-    println!("Workflow element types: {:?}", result);
 }
 
 #[test]
@@ -165,10 +165,9 @@ fn test_query_wcp_patterns_from_ontology() {
         ORDER BY ?patternId
     "#;
 
-    let result = graph
+    let _result = graph
         .query(query)
         .expect("Failed to execute WCP pattern query");
-    println!("WCP patterns: {:?}", result);
 }
 
 #[test]
@@ -185,11 +184,11 @@ fn test_merged_graph_query_across_ontologies() {
     let workflow_content = fs::read_to_string(get_ontology_path("yawl-workflow.ttl"))
         .expect("Failed to read yawl-workflow.ttl");
 
-    let graph_domain = loader
+    let _graph_domain = loader
         .load_from_str(&domain_content, ggen_yawl::OntologyFormat::Turtle)
         .expect("Failed to load yawl-domain.ttl");
 
-    let graph_workflow = loader
+    let _graph_workflow = loader
         .load_from_str(&workflow_content, ggen_yawl::OntologyFormat::Turtle)
         .expect("Failed to load yawl-workflow.ttl");
 
@@ -237,8 +236,8 @@ fn test_rule3_query_entities_for_jpa_generation() {
         LIMIT 10
     "#;
 
-    let result = graph.query(query).expect("Failed to execute entity query");
-    println!("Rule 3 entities: {:?}", result);
+    let _result = graph.query(query).expect("Failed to execute entity query");
+    // Query executed successfully - ontology structure is valid
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -274,10 +273,10 @@ fn test_rule4_query_entity_relationships_for_repositories() {
         LIMIT 10
     "#;
 
-    let result = graph
+    let _result = graph
         .query(query)
         .expect("Failed to execute repository query");
-    println!("Rule 4 repositories: {:?}", result);
+    // Query executed successfully - repositories queryable from ontology
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -317,10 +316,10 @@ fn test_rule5_query_entity_cardinality_for_dtos() {
         LIMIT 10
     "#;
 
-    let result = graph
+    let _result = graph
         .query(query)
         .expect("Failed to execute DTO cardinality query");
-    println!("Rule 5 DTO cardinality: {:?}", result);
+    // Query executed successfully - cardinality queryable from ontology
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -354,10 +353,10 @@ fn test_rule6_query_conditions_from_workflow_ontology() {
         }
     "#;
 
-    let result = graph
+    let _result = graph
         .query(query)
         .expect("Failed to execute conditions query");
-    println!("Rule 6 conditions: {:?}", result);
+    // Query executed successfully - conditions queryable from workflow ontology
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -395,13 +394,12 @@ fn test_rule7_query_all_wcp_patterns_for_enums() {
         ORDER BY ?patternId
     "#;
 
-    let result = graph
+    let _result = graph
         .query(query)
         .expect("Failed to execute WCP pattern query");
 
     // Result should have 43 rows (one per WCP pattern)
-    println!("Rule 7 WCP patterns: {:?}", result);
-    println!("Expected: 43 patterns (WCP-1 to WCP-43)");
+    // Expected: 43 patterns (WCP-1 to WCP-43)
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -438,10 +436,10 @@ fn test_rule8_query_composite_tasks_for_services() {
         }
     "#;
 
-    let result = graph
+    let _result = graph
         .query(query)
         .expect("Failed to execute composite task query");
-    println!("Rule 8 composite tasks: {:?}", result);
+    // Query executed successfully - composite tasks queryable from workflow ontology
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

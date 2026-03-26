@@ -44,7 +44,8 @@ pub mod template;
 pub mod transform;
 
 pub use codegen::{
-    create_hbm_mapping_rule, yawl_xml::{escape_xml, YawlXmlGenerator},
+    create_hbm_mapping_rule,
+    yawl_xml::{escape_xml, YawlXmlGenerator},
     HbmMappingQuery, HbmMappingRule,
 };
 pub use error::{Error, Result};

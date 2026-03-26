@@ -154,7 +154,10 @@ fn test_receipt_chaining() {
     let receipt1_hash = receipt1.hash().expect("Hashing failed");
 
     assert!(receipt2.previous_receipt_hash.is_some());
-    assert_eq!(receipt2.previous_receipt_hash.as_ref().unwrap(), &receipt1_hash);
+    assert_eq!(
+        receipt2.previous_receipt_hash.as_ref().unwrap(),
+        &receipt1_hash
+    );
 }
 
 #[test]
@@ -217,14 +220,9 @@ fn test_multiple_inputs_outputs() {
 fn test_empty_inputs_outputs() {
     let (signing_key, verifying_key) = generate_keypair();
 
-    let receipt = Receipt::new(
-        "empty".to_string(),
-        vec![],
-        vec![],
-        None,
-    )
-    .sign(&signing_key)
-    .expect("Signing failed");
+    let receipt = Receipt::new("empty".to_string(), vec![], vec![], None)
+        .sign(&signing_key)
+        .expect("Signing failed");
 
     assert!(receipt.input_hashes.is_empty());
     assert!(receipt.output_hashes.is_empty());
@@ -251,12 +249,7 @@ fn test_long_operation_id() {
 
 #[test]
 fn test_receipt_timestamp_present() {
-    let receipt = Receipt::new(
-        "op1".to_string(),
-        vec![],
-        vec![],
-        None,
-    );
+    let receipt = Receipt::new("op1".to_string(), vec![], vec![], None);
 
     // Just verify that timestamp is set to something reasonable
     let now = chrono::Utc::now();

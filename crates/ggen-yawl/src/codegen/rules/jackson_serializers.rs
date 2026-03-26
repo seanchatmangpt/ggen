@@ -148,24 +148,15 @@ impl JacksonSerializerQuery {
                     is_custom_bean: false,
                     values: vec![],
                 };
-                serializer_details.insert(
-                    "LocalDateTimeSerializer".to_string(),
-                    detail,
-                );
+                serializer_details.insert("LocalDateTimeSerializer".to_string(), detail);
             }
 
             // Check for complex nested objects
-            if is_complex_type(&field.type_name)
-                && !field.type_name.contains("LocalDateTime")
-            {
+            if is_complex_type(&field.type_name) && !field.type_name.contains("LocalDateTime") {
                 let serializer_name = format!("{}Serializer", extract_type_name(&field.type_name));
-                serializers_needed.push(SerializationType::CustomBean(
-                    serializer_name.clone(),
-                ));
+                serializers_needed.push(SerializationType::CustomBean(serializer_name.clone()));
                 let detail = SerializerDetail {
-                    serialization_type: SerializationType::CustomBean(
-                        serializer_name.clone(),
-                    ),
+                    serialization_type: SerializationType::CustomBean(serializer_name.clone()),
                     class_name: serializer_name.clone(),
                     package: self.package.clone(),
                     is_custom_bean: true,
@@ -197,11 +188,7 @@ impl JacksonSerializerQuery {
 
 impl JacksonSerializerTemplate {
     /// Create a new serializer template for an enum
-    pub fn enum_serializer(
-        class_name: String,
-        package: String,
-        values: Vec<String>,
-    ) -> Self {
+    pub fn enum_serializer(class_name: String, package: String, values: Vec<String>) -> Self {
         let mut imports = vec![
             "import com.fasterxml.jackson.databind.JsonSerializer;".to_string(),
             "import com.fasterxml.jackson.databind.SerializerProvider;".to_string(),
@@ -252,9 +239,7 @@ impl JacksonSerializerTemplate {
 
     /// Create a new serializer template for custom bean
     pub fn custom_bean_serializer(
-        class_name: String,
-        package: String,
-        field_mappings: Vec<FieldMapping>,
+        class_name: String, package: String, field_mappings: Vec<FieldMapping>,
     ) -> Self {
         let mut imports = vec![
             "import com.fasterxml.jackson.databind.JsonSerializer;".to_string(),
@@ -373,7 +358,9 @@ impl JacksonSerializerTemplate {
 
         // Serializer class
         code.push_str("/**\n * Jackson serializer for LocalDateTime in ISO8601 format.\n */\n");
-        code.push_str("public class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {\n");
+        code.push_str(
+            "public class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {\n",
+        );
         code.push_str("    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_DATE_TIME;\n\n");
         code.push_str("    @Override\n");
         code.push_str("    public void serialize(\n");
@@ -390,7 +377,9 @@ impl JacksonSerializerTemplate {
 
         // Deserializer class
         code.push_str("/**\n * Jackson deserializer for LocalDateTime from ISO8601 format.\n */\n");
-        code.push_str("class LocalDateTimeDeserializer extends JsonDeserializer<LocalDateTime> {\n");
+        code.push_str(
+            "class LocalDateTimeDeserializer extends JsonDeserializer<LocalDateTime> {\n",
+        );
         code.push_str("    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_DATE_TIME;\n\n");
         code.push_str("    @Override\n");
         code.push_str("    public LocalDateTime deserialize(\n");
@@ -403,7 +392,9 @@ impl JacksonSerializerTemplate {
         code.push_str("        try {\n");
         code.push_str("            return LocalDateTime.parse(value, FORMATTER);\n");
         code.push_str("        } catch (Exception e) {\n");
-        code.push_str("            throw new IOException(\"Invalid ISO8601 date-time: \" + value, e);\n");
+        code.push_str(
+            "            throw new IOException(\"Invalid ISO8601 date-time: \" + value, e);\n",
+        );
         code.push_str("        }\n");
         code.push_str("    }\n");
         code.push_str("}\n");
@@ -491,29 +482,25 @@ impl JacksonSerializerRule {
         Self {
             metadata: RuleMetadata {
                 id: "rule-10-jackson-serializers".to_string(),
-                description: "Generate Jackson @JsonSerialize/@JsonDeserialize custom handlers".to_string(),
+                description: "Generate Jackson @JsonSerialize/@JsonDeserialize custom handlers"
+                    .to_string(),
                 version: "1.0.0".to_string(),
             },
         }
     }
 
     /// Apply the rule to a query, producing a template
-    pub fn apply(
-        &self,
-        query: &JacksonSerializerQuery,
-    ) -> Result<Vec<JacksonSerializerTemplate>> {
+    pub fn apply(&self, query: &JacksonSerializerQuery) -> Result<Vec<JacksonSerializerTemplate>> {
         let query_result = query.execute()?;
         let mut templates = Vec::new();
 
         for (_, detail) in query_result.serializer_details {
             let template = match detail.serialization_type {
-                SerializationType::Enum(ref name) => {
-                    JacksonSerializerTemplate::enum_serializer(
-                        name.clone(),
-                        detail.package,
-                        detail.values,
-                    )
-                }
+                SerializationType::Enum(ref name) => JacksonSerializerTemplate::enum_serializer(
+                    name.clone(),
+                    detail.package,
+                    detail.values,
+                ),
                 SerializationType::LocalDateTime => {
                     JacksonSerializerTemplate::datetime_serializer(detail.package)
                 }
@@ -552,17 +539,8 @@ impl Default for JacksonSerializerRule {
 /// Check if a type is complex (not a primitive or standard type)
 fn is_complex_type(type_name: &str) -> bool {
     let standard_types = [
-        "String",
-        "int",
-        "long",
-        "boolean",
-        "double",
-        "float",
-        "Integer",
-        "Long",
-        "Boolean",
-        "Double",
-        "Float",
+        "String", "int", "long", "boolean", "double", "float", "Integer", "Long", "Boolean",
+        "Double", "Float",
     ];
 
     !standard_types.contains(&type_name)
@@ -604,13 +582,12 @@ mod tests {
 
     #[test]
     fn test_datetime_serializer_template() {
-        let template = JacksonSerializerTemplate::datetime_serializer(
-            "com.example.serializers".to_string(),
-        );
+        let template =
+            JacksonSerializerTemplate::datetime_serializer("com.example.serializers".to_string());
         assert_eq!(template.class_name, "LocalDateTimeSerializer");
-        assert!(template.imports.contains(
-            &"import java.time.LocalDateTime;".to_string()
-        ));
+        assert!(template
+            .imports
+            .contains(&"import java.time.LocalDateTime;".to_string()));
     }
 
     #[test]
@@ -635,11 +612,9 @@ mod tests {
             name: "Status".to_string(),
             values: vec!["ACTIVE".to_string(), "INACTIVE".to_string()],
         };
-        let query = JacksonSerializerQuery::new(
-            "com.example".to_string(),
-            "WorkflowState".to_string(),
-        )
-        .with_enum(enum_def);
+        let query =
+            JacksonSerializerQuery::new("com.example".to_string(), "WorkflowState".to_string())
+                .with_enum(enum_def);
 
         assert_eq!(query.enums.len(), 1);
     }
@@ -651,11 +626,8 @@ mod tests {
             type_name: "LocalDateTime".to_string(),
             optional: false,
         };
-        let query = JacksonSerializerQuery::new(
-            "com.example".to_string(),
-            "Workflow".to_string(),
-        )
-        .with_field(field);
+        let query = JacksonSerializerQuery::new("com.example".to_string(), "Workflow".to_string())
+            .with_field(field);
 
         let result = query.execute().unwrap();
         assert!(result
@@ -670,11 +642,8 @@ mod tests {
             type_name: "MetadataObject".to_string(),
             optional: false,
         };
-        let query = JacksonSerializerQuery::new(
-            "com.example".to_string(),
-            "Workflow".to_string(),
-        )
-        .with_field(field);
+        let query = JacksonSerializerQuery::new("com.example".to_string(), "Workflow".to_string())
+            .with_field(field);
 
         let result = query.execute().unwrap();
         assert!(!result.serializers_needed.is_empty());
@@ -695,9 +664,8 @@ mod tests {
 
     #[test]
     fn test_render_datetime_serializer() {
-        let template = JacksonSerializerTemplate::datetime_serializer(
-            "com.example.serializers".to_string(),
-        );
+        let template =
+            JacksonSerializerTemplate::datetime_serializer("com.example.serializers".to_string());
         let code = template.render().unwrap();
         assert!(code.contains("LocalDateTimeSerializer"));
         assert!(code.contains("DateTimeFormatter.ISO_DATE_TIME"));
@@ -733,11 +701,8 @@ mod tests {
             name: "Status".to_string(),
             values: vec!["ACTIVE".to_string(), "INACTIVE".to_string()],
         };
-        let query = JacksonSerializerQuery::new(
-            "com.example".to_string(),
-            "Workflow".to_string(),
-        )
-        .with_enum(enum_def);
+        let query = JacksonSerializerQuery::new("com.example".to_string(), "Workflow".to_string())
+            .with_enum(enum_def);
 
         let templates = rule.apply(&query).unwrap();
         assert!(!templates.is_empty());

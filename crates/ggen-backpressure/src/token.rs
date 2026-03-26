@@ -68,14 +68,14 @@ impl TokenPool {
 
     /// Acquire a token, waiting if necessary
     pub async fn acquire(&self) -> crate::Result<WIPToken> {
-        let permit = self
-            .semaphore
-            .clone()
-            .acquire_owned()
-            .await
-            .map_err(|_| crate::BackpressureError::ChannelClosed("semaphore closed".to_string()))?;
+        let permit =
+            self.semaphore.clone().acquire_owned().await.map_err(|_| {
+                crate::BackpressureError::ChannelClosed("semaphore closed".to_string())
+            })?;
 
-        let id = self.next_id.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        let id = self
+            .next_id
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         Ok(WIPToken::new(permit, id))
     }
 
@@ -83,13 +83,15 @@ impl TokenPool {
     pub fn try_acquire(&self) -> crate::Result<Option<WIPToken>> {
         match self.semaphore.clone().try_acquire_owned() {
             Ok(permit) => {
-                let id = self.next_id.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                let id = self
+                    .next_id
+                    .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
                 Ok(Some(WIPToken::new(permit, id)))
             }
             Err(tokio::sync::TryAcquireError::NoPermits) => Ok(None),
-            Err(tokio::sync::TryAcquireError::Closed) => {
-                Err(crate::BackpressureError::ChannelClosed("semaphore closed".to_string()))
-            }
+            Err(tokio::sync::TryAcquireError::Closed) => Err(
+                crate::BackpressureError::ChannelClosed("semaphore closed".to_string()),
+            ),
         }
     }
 

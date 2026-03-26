@@ -1,7 +1,7 @@
 //! Structural Patterns (10-11)
 
+use crate::{ActivityId, ExecutionResult, Result, WorkflowEngine, WorkflowPattern};
 use async_trait::async_trait;
-use crate::{ActivityId, Result, WorkflowEngine, WorkflowPattern, ExecutionResult};
 
 /// Pattern 10: Arbitrary Cycles
 /// A point in a workflow where one or more activities can be repeated
@@ -13,7 +13,9 @@ pub struct ArbitraryCyclesPattern {
 
 impl ArbitraryCyclesPattern {
     /// Create a new arbitrary cycles pattern
-    pub fn new(loop_body: Vec<ActivityId>, condition_activity: ActivityId, max_iterations: usize) -> Self {
+    pub fn new(
+        loop_body: Vec<ActivityId>, condition_activity: ActivityId, max_iterations: usize,
+    ) -> Self {
         Self {
             loop_body,
             condition_activity,
@@ -47,7 +49,9 @@ impl WorkflowPattern for ArbitraryCyclesPattern {
 
             // Check condition result
             let context = engine.get_context(&self.condition_activity)?;
-            let should_continue = context.output_data.get("continue")
+            let should_continue = context
+                .output_data
+                .get("continue")
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
 
@@ -100,7 +104,8 @@ impl WorkflowPattern for ImplicitTerminationPattern {
 
         // Check if all activities are completed
         let all_completed = self.activities.iter().all(|id| {
-            engine.get_context(id)
+            engine
+                .get_context(id)
                 .map(|ctx| ctx.state == crate::ActivityState::Completed)
                 .unwrap_or(false)
         });
@@ -143,8 +148,10 @@ mod tests {
     #[async_trait]
     impl Activity for ConditionActivity {
         async fn execute(&self, context: &mut ActivityContext) -> Result<()> {
-            let mut count = self.iterations.lock().map_err(|e|
-                crate::WorkflowError::PatternExecutionFailed(e.to_string()))?;
+            let mut count = self
+                .iterations
+                .lock()
+                .map_err(|e| crate::WorkflowError::PatternExecutionFailed(e.to_string()))?;
             *count += 1;
 
             let should_continue = *count < self.max_iterations;
@@ -173,11 +180,7 @@ mod tests {
         }));
         engine.register_activity(Box::new(TestActivity { id: body1.clone() }));
 
-        let pattern = ArbitraryCyclesPattern::new(
-            vec![body1],
-            cond,
-            5,
-        );
+        let pattern = ArbitraryCyclesPattern::new(vec![body1], cond, 5);
 
         let result = pattern.execute(&mut engine).await;
         assert!(result.is_ok());

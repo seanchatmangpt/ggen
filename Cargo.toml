@@ -60,11 +60,6 @@ members = [
   "crates/tai-testing",        # Production hardening & resilience testing framework
   "crates/tai-k8s",            # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
   "crates/tai-validation",     # SLO/SLA validation, compliance framework, security scanning
-  "crates/osiris-core",        # OSIRIS Core: Toyota Production System Autonomic Life Management
-  "crates/osiris-tps",         # OSIRIS TPS: Toyota Production System integration
-  "crates/osiris-domains",     # OSIRIS Domains: Life management domains
-  "crates/osiris-sensors",     # OSIRIS Sensors: Apple/Android sensor integration
-  "crates/osiris-autonomic",   # OSIRIS Autonomic: Self-governing life management
   "playground",
 ]
 exclude = [
@@ -176,13 +171,6 @@ ggen-tps-andon = { path = "crates/ggen-tps-andon", version = "0.1.0" }
 ggen-heijunka = { path = "crates/ggen-heijunka", version = "6.0.0" }
 ggen-metrics-tps = { path = "crates/ggen-metrics-tps", version = "6.0.0" }
 ggen-transport = { path = "crates/ggen-transport", version = "6.0.0" }
-
-# OSIRIS Integration (Autonomic Life Management System)
-osiris-core = { path = "crates/osiris-core", version = "0.1.0" }
-osiris-tps = { path = "crates/osiris-tps", version = "0.1.0" }
-osiris-domains = { path = "crates/osiris-domains", version = "0.1.0" }
-osiris-sensors = { path = "crates/osiris-sensors", version = "0.1.0" }
-osiris-autonomic = { path = "crates/osiris-autonomic", version = "0.1.0" }
 
 # TAI Testing: Production hardening & resilience testing framework
 tai-testing = { path = "crates/tai-testing", version = "0.1.0" }

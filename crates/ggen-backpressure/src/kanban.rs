@@ -134,37 +134,47 @@ impl KanbanBoard {
             .values()
             .find(|s| s.items.iter().any(|i| i.id == item_id))
             .map(|s| s.items.iter().find(|i| i.id == item_id).unwrap().stage)
-            .ok_or_else(|| BackpressureError::CapacityExceeded(format!("item not found: {}", item_id)))?;
+            .ok_or_else(|| {
+                BackpressureError::CapacityExceeded(format!("item not found: {}", item_id))
+            })?;
 
-        let next_stage = current_stage
-            .next()
-            .ok_or_else(|| BackpressureError::CapacityExceeded("already at final stage".to_string()))?;
+        let next_stage = current_stage.next().ok_or_else(|| {
+            BackpressureError::CapacityExceeded("already at final stage".to_string())
+        })?;
 
         // Check downstream capacity
-        let next_info = stages.get(&next_stage)
+        let next_info = stages
+            .get(&next_stage)
             .ok_or_else(|| BackpressureError::CapacityExceeded("stage not found".to_string()))?;
 
         if !next_info.has_capacity() {
-            return Err(BackpressureError::CapacityExceeded(
-                format!("stage {:?} at capacity", next_stage)
-            ));
+            return Err(BackpressureError::CapacityExceeded(format!(
+                "stage {:?} at capacity",
+                next_stage
+            )));
         }
 
         // Acquire token for next stage
-        let token = stages.get(&next_stage)
+        let token = stages
+            .get(&next_stage)
             .ok_or_else(|| BackpressureError::CapacityExceeded("stage not found".to_string()))?
-            .pool.try_acquire()?
-            .ok_or_else(|| BackpressureError::CapacityExceeded(format!("no capacity in {:?}", next_stage)))?;
+            .pool
+            .try_acquire()?
+            .ok_or_else(|| {
+                BackpressureError::CapacityExceeded(format!("no capacity in {:?}", next_stage))
+            })?;
 
         let token_id = token.metadata().id;
 
         // Remove from current stage
-        let current_info = stages.get_mut(&current_stage)
+        let current_info = stages
+            .get_mut(&current_stage)
             .ok_or_else(|| BackpressureError::CapacityExceeded("stage not found".to_string()))?;
         current_info.items.retain(|i| i.id != item_id);
 
         // Add to next stage
-        let next_info = stages.get_mut(&next_stage)
+        let next_info = stages
+            .get_mut(&next_stage)
             .ok_or_else(|| BackpressureError::CapacityExceeded("stage not found".to_string()))?;
         next_info.items.push(WorkItem {
             id: item_id.to_string(),
@@ -179,7 +189,8 @@ impl KanbanBoard {
     pub async fn add_to_backlog(&self, item_id: String) -> Result<()> {
         let mut stages = self.stages.write().await;
 
-        let backlog = stages.get_mut(&Stage::Backlog)
+        let backlog = stages
+            .get_mut(&Stage::Backlog)
             .ok_or_else(|| BackpressureError::CapacityExceeded("backlog not found".to_string()))?;
 
         backlog.items.push(WorkItem {
@@ -206,13 +217,17 @@ impl KanbanBoard {
     /// Check if a stage has capacity
     pub async fn has_capacity(&self, stage: Stage) -> bool {
         let stages = self.stages.read().await;
-        stages.get(&stage).map(|s| s.has_capacity()).unwrap_or(false)
+        stages
+            .get(&stage)
+            .map(|s| s.has_capacity())
+            .unwrap_or(false)
     }
 
     /// Get all items in a stage
     pub async fn items_in_stage(&self, stage: Stage) -> Vec<WorkItem> {
         let stages = self.stages.read().await;
-        stages.get(&stage)
+        stages
+            .get(&stage)
             .map(|s| s.items.clone())
             .unwrap_or_default()
     }

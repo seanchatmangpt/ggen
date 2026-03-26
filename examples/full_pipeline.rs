@@ -77,13 +77,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("\nPulling through kanban stages:");
     let _ready_token = kanban.pull(&task_id).await?;
-    println!("  → Ready (WIP: {}/{})",
+    println!(
+        "  → Ready (WIP: {}/{})",
         kanban.count(Stage::Ready).await,
         kanban.wip_limit(Stage::Ready).await
     );
 
     let _progress_token = kanban.pull(&task_id).await?;
-    println!("  → In Progress (WIP: {}/{})",
+    println!(
+        "  → In Progress (WIP: {}/{})",
         kanban.count(Stage::InProgress).await,
         kanban.wip_limit(Stage::InProgress).await
     );
@@ -123,13 +125,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("╰─────────────────────────────────────────────────────────╯\n");
 
     let mut line = ProductionLine::new();
-    line.add_gate(Arc::new(MockGate::new("Spec Validation", AndonSignal::Green)))
-        .add_gate(Arc::new(MockGate::new("Code Generation", AndonSignal::Green)))
-        .add_gate(Arc::new(MockGate::new("Syntax Check", AndonSignal::Green)))
-        .add_gate(Arc::new(MockGate::new("Type Check", AndonSignal::Green)));
+    line.add_gate(Arc::new(MockGate::new(
+        "Spec Validation",
+        AndonSignal::Green,
+    )))
+    .add_gate(Arc::new(MockGate::new(
+        "Code Generation",
+        AndonSignal::Green,
+    )))
+    .add_gate(Arc::new(MockGate::new("Syntax Check", AndonSignal::Green)))
+    .add_gate(Arc::new(MockGate::new("Type Check", AndonSignal::Green)));
 
     let gate_results = line.run().await?;
-    println!("✓ All quality gates passed ({}/{})",
+    println!(
+        "✓ All quality gates passed ({}/{})",
         gate_results.len(),
         line.gate_count()
     );
@@ -244,9 +253,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Kanban Board State:");
     println!("  Backlog: {}", kanban.count(Stage::Backlog).await);
-    println!("  Ready: {}/{}", kanban.count(Stage::Ready).await, kanban.wip_limit(Stage::Ready).await);
-    println!("  In Progress: {}/{}", kanban.count(Stage::InProgress).await, kanban.wip_limit(Stage::InProgress).await);
-    println!("  Review: {}/{}", kanban.count(Stage::Review).await, kanban.wip_limit(Stage::Review).await);
+    println!(
+        "  Ready: {}/{}",
+        kanban.count(Stage::Ready).await,
+        kanban.wip_limit(Stage::Ready).await
+    );
+    println!(
+        "  In Progress: {}/{}",
+        kanban.count(Stage::InProgress).await,
+        kanban.wip_limit(Stage::InProgress).await
+    );
+    println!(
+        "  Review: {}/{}",
+        kanban.count(Stage::Review).await,
+        kanban.wip_limit(Stage::Review).await
+    );
     println!("  Done: {}", kanban.count(Stage::Done).await);
     println!();
 

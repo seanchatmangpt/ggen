@@ -2,8 +2,8 @@
 //!
 //! Fundamental patterns for sequential and parallel execution
 
+use crate::{ActivityId, ExecutionResult, Result, WorkflowEngine, WorkflowError, WorkflowPattern};
 use async_trait::async_trait;
-use crate::{ActivityId, Result, WorkflowEngine, WorkflowError, WorkflowPattern, ExecutionResult};
 
 /// Pattern 1: Sequence
 /// Activities are executed in sequential order
@@ -78,7 +78,8 @@ impl WorkflowPattern for ParallelSplitPattern {
 
         // Wait for all branches
         for handle in handles {
-            handle.await
+            handle
+                .await
                 .map_err(|e| WorkflowError::PatternExecutionFailed(e.to_string()))??;
         }
 
@@ -98,7 +99,10 @@ pub struct SynchronizationPattern {
 impl SynchronizationPattern {
     /// Create a new synchronization pattern
     pub fn new(branches: Vec<ActivityId>, join_activity: ActivityId) -> Self {
-        Self { branches, join_activity }
+        Self {
+            branches,
+            join_activity,
+        }
     }
 }
 
@@ -126,7 +130,8 @@ impl WorkflowPattern for SynchronizationPattern {
         }
 
         for handle in handles {
-            handle.await
+            handle
+                .await
                 .map_err(|e| WorkflowError::SynchronizationError(e.to_string()))??;
         }
 
@@ -150,7 +155,10 @@ pub struct ExclusiveChoicePattern {
 impl ExclusiveChoicePattern {
     /// Create a new exclusive choice pattern
     pub fn new(condition_activity: ActivityId, branches: Vec<(String, Vec<ActivityId>)>) -> Self {
-        Self { condition_activity, branches }
+        Self {
+            condition_activity,
+            branches,
+        }
     }
 }
 
@@ -170,14 +178,25 @@ impl WorkflowPattern for ExclusiveChoicePattern {
 
         // Get decision from context
         let context = engine.get_context(&self.condition_activity)?;
-        let decision = context.output_data.get("decision")
+        let decision = context
+            .output_data
+            .get("decision")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| WorkflowError::PatternExecutionFailed("No decision in output".to_string()))?;
+            .ok_or_else(|| {
+                WorkflowError::PatternExecutionFailed("No decision in output".to_string())
+            })?;
 
         // Find matching branch
-        let branch = self.branches.iter()
+        let branch = self
+            .branches
+            .iter()
             .find(|(name, _)| name == decision)
-            .ok_or_else(|| WorkflowError::PatternExecutionFailed(format!("No branch for decision: {}", decision)))?;
+            .ok_or_else(|| {
+                WorkflowError::PatternExecutionFailed(format!(
+                    "No branch for decision: {}",
+                    decision
+                ))
+            })?;
 
         // Execute selected branch
         for activity_id in &branch.1 {
@@ -201,7 +220,10 @@ pub struct SimpleMergePattern {
 impl SimpleMergePattern {
     /// Create a new simple merge pattern
     pub fn new(branches: Vec<ActivityId>, merge_activity: ActivityId) -> Self {
-        Self { branches, merge_activity }
+        Self {
+            branches,
+            merge_activity,
+        }
     }
 }
 
@@ -264,9 +286,18 @@ mod tests {
         let result = pattern.execute(&mut engine).await;
 
         assert!(result.is_ok());
-        assert_eq!(engine.get_context(&act1).ok().map(|c| &c.state), Some(&ActivityState::Completed));
-        assert_eq!(engine.get_context(&act2).ok().map(|c| &c.state), Some(&ActivityState::Completed));
-        assert_eq!(engine.get_context(&act3).ok().map(|c| &c.state), Some(&ActivityState::Completed));
+        assert_eq!(
+            engine.get_context(&act1).ok().map(|c| &c.state),
+            Some(&ActivityState::Completed)
+        );
+        assert_eq!(
+            engine.get_context(&act2).ok().map(|c| &c.state),
+            Some(&ActivityState::Completed)
+        );
+        assert_eq!(
+            engine.get_context(&act3).ok().map(|c| &c.state),
+            Some(&ActivityState::Completed)
+        );
     }
 
     #[tokio::test]
@@ -279,10 +310,7 @@ mod tests {
         engine.register_activity(Box::new(TestActivity { id: act1.clone() }));
         engine.register_activity(Box::new(TestActivity { id: act2.clone() }));
 
-        let pattern = ParallelSplitPattern::new(vec![
-            vec![act1.clone()],
-            vec![act2.clone()],
-        ]);
+        let pattern = ParallelSplitPattern::new(vec![vec![act1.clone()], vec![act2.clone()]]);
 
         let result = pattern.execute(&mut engine).await;
         assert!(result.is_ok());

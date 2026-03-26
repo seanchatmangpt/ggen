@@ -270,7 +270,10 @@ impl ExtractionPass {
         let mut sorted_groups: Vec<_> = groups.into_iter().collect();
         sorted_groups.sort_by_key(|(order, _)| *order);
 
-        sorted_groups.into_iter().map(|(_, queries)| queries).collect()
+        sorted_groups
+            .into_iter()
+            .map(|(_, queries)| queries)
+            .collect()
     }
 
     /// Check if two queries have disjoint target predicates
@@ -301,9 +304,7 @@ impl ExtractionPass {
 
     /// Execute a single tensor query and return the result
     fn execute_tensor_query(
-        &self,
-        ctx: &PassContext<'_>,
-        query: &TensorQuery,
+        &self, ctx: &PassContext<'_>, query: &TensorQuery,
     ) -> Result<(String, usize, u64, String)> {
         let start = Instant::now();
         let executor = ConstructExecutor::new(ctx.graph);
@@ -335,10 +336,7 @@ impl ExtractionPass {
 
     /// Execute a group of queries (sequentially or in parallel)
     fn execute_group(
-        &self,
-        ctx: &PassContext<'_>,
-        queries: &[&TensorQuery],
-        can_parallel: bool,
+        &self, ctx: &PassContext<'_>, queries: &[&TensorQuery], can_parallel: bool,
     ) -> Result<Vec<QueryExecution>> {
         if can_parallel && self.enable_parallel && queries.len() > 1 {
             // Parallel execution for disjoint tensor queries
@@ -362,7 +360,8 @@ impl ExtractionPass {
             // Sequential execution
             let mut result_vec = Vec::new();
             for query in queries {
-                let (name, triples, duration_ms, query_hash) = self.execute_tensor_query(ctx, query)?;
+                let (name, triples, duration_ms, query_hash) =
+                    self.execute_tensor_query(ctx, query)?;
                 result_vec.push(QueryExecution {
                     name,
                     triples_produced: triples,

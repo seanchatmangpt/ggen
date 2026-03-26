@@ -65,14 +65,19 @@ impl MockJavaGenerator {
         for field in &entity.fields {
             if field.is_id {
                 code.push_str(&format!("    @Id\n"));
-                code.push_str(&format!("    @GeneratedValue(strategy = GenerationType.IDENTITY)\n"));
+                code.push_str(&format!(
+                    "    @GeneratedValue(strategy = GenerationType.IDENTITY)\n"
+                ));
             }
             code.push_str(&format!(
                 "    @Column(name = \"{}\", nullable = {})\n",
                 field.column_name,
                 if field.nullable { "true" } else { "false" }
             ));
-            code.push_str(&format!("    private {} {};\n\n", field.field_type, field.name));
+            code.push_str(&format!(
+                "    private {} {};\n\n",
+                field.field_type, field.name
+            ));
         }
 
         code.push_str("}\n");
@@ -110,7 +115,10 @@ impl MockJavaGenerator {
 
         for field in fields {
             if !field.is_id {
-                code.push_str(&format!("    private {} {};\n", field.field_type, field.name));
+                code.push_str(&format!(
+                    "    private {} {};\n",
+                    field.field_type, field.name
+                ));
             }
         }
 
@@ -124,11 +132,17 @@ impl MockJavaGenerator {
         code.push_str(&format!("package {}.controller;\n\n", package));
         code.push_str("import org.springframework.beans.factory.annotation.Autowired;\n");
         code.push_str("import org.springframework.web.bind.annotation.*;\n");
-        code.push_str(&format!("import {}.service.{}Service;\n", package, entity_name));
+        code.push_str(&format!(
+            "import {}.service.{}Service;\n",
+            package, entity_name
+        ));
         code.push_str(&format!("import {}.dto.{}DTO;\n\n", package, entity_name));
 
         code.push_str("@RestController\n");
-        code.push_str(&format!("@RequestMapping(\"/api/{}\")\n", entity_name.to_lowercase()));
+        code.push_str(&format!(
+            "@RequestMapping(\"/api/{}\")\n",
+            entity_name.to_lowercase()
+        ));
         code.push_str(&format!("public class {}Controller {{\n\n", entity_name));
         code.push_str("    @Autowired\n");
         code.push_str(&format!("    private {}Service service;\n", entity_name));
@@ -162,10 +176,15 @@ impl MockJavaGenerator {
             code.push_str("    }\n\n");
             code.push_str("    public static ");
             code.push_str(&format!("{} fromValue(String value) {{\n", enum_name));
-            code.push_str(&format!("        for ({} e : {}.values()) {{\n", enum_name, enum_name));
+            code.push_str(&format!(
+                "        for ({} e : {}.values()) {{\n",
+                enum_name, enum_name
+            ));
             code.push_str("            if (e.value.equals(value)) return e;\n");
             code.push_str("        }\n");
-            code.push_str("        throw new IllegalArgumentException(\"Invalid value: \" + value);\n");
+            code.push_str(
+                "        throw new IllegalArgumentException(\"Invalid value: \" + value);\n",
+            );
             code.push_str("    }\n");
         }
 
@@ -180,15 +199,24 @@ impl MockJavaGenerator {
         code.push_str("import org.springframework.beans.factory.annotation.Autowired;\n");
         code.push_str("import org.springframework.stereotype.Service;\n");
         code.push_str("import org.springframework.transaction.annotation.Transactional;\n");
-        code.push_str(&format!("import {}.repository.{}Repository;\n", package, entity_name));
+        code.push_str(&format!(
+            "import {}.repository.{}Repository;\n",
+            package, entity_name
+        ));
         code.push_str(&format!("import {}.entity.{};\n\n", package, entity_name));
 
         code.push_str("@Service\n");
         code.push_str(&format!("public class {}Service {{\n\n", entity_name));
         code.push_str("    @Autowired\n");
-        code.push_str(&format!("    private {}Repository repository;\n\n", entity_name));
+        code.push_str(&format!(
+            "    private {}Repository repository;\n\n",
+            entity_name
+        ));
         code.push_str("    @Transactional\n");
-        code.push_str(&format!("    public {} create({} entity) {{\n", entity_name, entity_name));
+        code.push_str(&format!(
+            "    public {} create({} entity) {{\n",
+            entity_name, entity_name
+        ));
         code.push_str("        return repository.save(entity);\n");
         code.push_str("    }\n");
         code.push_str("}\n");
@@ -200,13 +228,14 @@ impl MockJavaGenerator {
         let mut xml = String::new();
         xml.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         xml.push_str("<!DOCTYPE hibernate-mapping PUBLIC\n");
-        xml.push_str(
-            "    \"-//Hibernate/Hibernate Mapping DTD 3.0//EN\"\n",
-        );
+        xml.push_str("    \"-//Hibernate/Hibernate Mapping DTD 3.0//EN\"\n");
         xml.push_str("    \"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd\">\n");
         xml.push_str("<hibernate-mapping>\n");
 
-        xml.push_str(&format!("  <class name=\"{}\" table=\"{}\">\n", entity_name, table_name));
+        xml.push_str(&format!(
+            "  <class name=\"{}\" table=\"{}\">\n",
+            entity_name, table_name
+        ));
 
         for field in fields {
             if field.is_id {
@@ -221,8 +250,7 @@ impl MockJavaGenerator {
             if !field.is_id {
                 xml.push_str(&format!(
                     "    <property name=\"{}\" column=\"{}\" type=\"{}\" not-null=\"{}\"/>\n",
-                    field.name, field.column_name, field.field_type,
-                    !field.nullable
+                    field.name, field.column_name, field.field_type, !field.nullable
                 ));
             }
         }
@@ -242,7 +270,10 @@ impl MockJavaGenerator {
         code.push_str(&format!("import {}.entity.{};\n\n", package, entity_name));
 
         code.push_str("public class ");
-        code.push_str(&format!("{}Serializer extends JsonSerializer<{}> {{\n\n", entity_name, entity_name));
+        code.push_str(&format!(
+            "{}Serializer extends JsonSerializer<{}> {{\n\n",
+            entity_name, entity_name
+        ));
 
         code.push_str("    @Override\n");
         code.push_str("    public void serialize(");
@@ -251,10 +282,17 @@ impl MockJavaGenerator {
         code.push_str("        gen.writeStartObject();\n");
 
         for field in fields {
-            code.push_str(&format!("        gen.writeObjectField(\"{}\", value.get{}());\n",
+            code.push_str(&format!(
+                "        gen.writeObjectField(\"{}\", value.get{}());\n",
                 field.name,
-                field.name.chars().next().unwrap_or('X').to_uppercase().collect::<String>() +
-                &field.name[1..]
+                field
+                    .name
+                    .chars()
+                    .next()
+                    .unwrap_or('X')
+                    .to_uppercase()
+                    .collect::<String>()
+                    + &field.name[1..]
             ));
         }
 
@@ -374,15 +412,13 @@ fn rule_3_entity_annotations_present() {
     let entity = GeneratedEntity {
         name: "Product".to_string(),
         package: "com.example.entity".to_string(),
-        fields: vec![
-            EntityField {
-                name: "id".to_string(),
-                field_type: "Long".to_string(),
-                column_name: "id".to_string(),
-                nullable: false,
-                is_id: true,
-            },
-        ],
+        fields: vec![EntityField {
+            name: "id".to_string(),
+            field_type: "Long".to_string(),
+            column_name: "id".to_string(),
+            nullable: false,
+            is_id: true,
+        }],
         table_name: "products".to_string(),
     };
 
@@ -400,15 +436,13 @@ fn rule_3_entity_id_field_validation() {
     let entity = GeneratedEntity {
         name: "Order".to_string(),
         package: "com.example.entity".to_string(),
-        fields: vec![
-            EntityField {
-                name: "orderId".to_string(),
-                field_type: "Long".to_string(),
-                column_name: "order_id".to_string(),
-                nullable: false,
-                is_id: true,
-            },
-        ],
+        fields: vec![EntityField {
+            name: "orderId".to_string(),
+            field_type: "Long".to_string(),
+            column_name: "order_id".to_string(),
+            nullable: false,
+            is_id: true,
+        }],
         table_name: "orders".to_string(),
     };
 
@@ -424,15 +458,13 @@ fn rule_3_entity_column_annotations() {
     let entity = GeneratedEntity {
         name: "User".to_string(),
         package: "com.example.entity".to_string(),
-        fields: vec![
-            EntityField {
-                name: "email".to_string(),
-                field_type: "String".to_string(),
-                column_name: "email".to_string(),
-                nullable: false,
-                is_id: false,
-            },
-        ],
+        fields: vec![EntityField {
+            name: "email".to_string(),
+            field_type: "String".to_string(),
+            column_name: "email".to_string(),
+            nullable: false,
+            is_id: false,
+        }],
         table_name: "users".to_string(),
     };
 
@@ -446,21 +478,22 @@ fn rule_3_entity_syntax_valid() {
     let entity = GeneratedEntity {
         name: "Customer".to_string(),
         package: "com.example.entity".to_string(),
-        fields: vec![
-            EntityField {
-                name: "id".to_string(),
-                field_type: "Long".to_string(),
-                column_name: "id".to_string(),
-                nullable: false,
-                is_id: true,
-            },
-        ],
+        fields: vec![EntityField {
+            name: "id".to_string(),
+            field_type: "Long".to_string(),
+            column_name: "id".to_string(),
+            nullable: false,
+            is_id: true,
+        }],
         table_name: "customers".to_string(),
     };
 
     let code = MockJavaGenerator::generate_entity(&entity);
 
-    assert!(validate_java_syntax(&code).is_ok(), "Entity syntax should be valid");
+    assert!(
+        validate_java_syntax(&code).is_ok(),
+        "Entity syntax should be valid"
+    );
 }
 
 // ============================================================================
@@ -506,15 +539,13 @@ fn rule_4_repository_imports() {
 
 #[test]
 fn rule_5_dto_generation() {
-    let fields = vec![
-        EntityField {
-            name: "username".to_string(),
-            field_type: "String".to_string(),
-            column_name: "username".to_string(),
-            nullable: false,
-            is_id: false,
-        },
-    ];
+    let fields = vec![EntityField {
+        name: "username".to_string(),
+        field_type: "String".to_string(),
+        column_name: "username".to_string(),
+        nullable: false,
+        is_id: false,
+    }];
 
     let code = MockJavaGenerator::generate_dto("User", "com.example", &fields);
 
@@ -602,7 +633,8 @@ fn rule_6_controller_service_injection() {
 
 #[test]
 fn rule_7_enum_creation() {
-    let code = MockJavaGenerator::generate_enum("Status", "com.example.enums", &["ACTIVE", "INACTIVE"]);
+    let code =
+        MockJavaGenerator::generate_enum("Status", "com.example.enums", &["ACTIVE", "INACTIVE"]);
 
     assert!(code.contains("public enum Status"));
     assert!(code.contains("ACTIVE(\"ACTIVE\")"));
@@ -626,7 +658,8 @@ fn rule_7_enum_from_value_method() {
 
 #[test]
 fn rule_7_enum_syntax_valid() {
-    let code = MockJavaGenerator::generate_enum("Status", "com.example.enums", &["PENDING", "COMPLETED"]);
+    let code =
+        MockJavaGenerator::generate_enum("Status", "com.example.enums", &["PENDING", "COMPLETED"]);
 
     // Verify the code contains enum declaration and proper structure
     assert!(code.contains("public enum Status"));
@@ -677,15 +710,13 @@ fn rule_8_service_repository_injection() {
 
 #[test]
 fn rule_9_hbm_xml_creation() {
-    let fields = vec![
-        EntityField {
-            name: "id".to_string(),
-            field_type: "Long".to_string(),
-            column_name: "id".to_string(),
-            nullable: false,
-            is_id: true,
-        },
-    ];
+    let fields = vec![EntityField {
+        name: "id".to_string(),
+        field_type: "Long".to_string(),
+        column_name: "id".to_string(),
+        nullable: false,
+        is_id: true,
+    }];
 
     let xml = MockJavaGenerator::generate_hbm_xml("User", "users", &fields);
 
@@ -705,15 +736,13 @@ fn rule_9_hbm_xml_class_element() {
 
 #[test]
 fn rule_9_hbm_xml_id_mapping() {
-    let fields = vec![
-        EntityField {
-            name: "id".to_string(),
-            field_type: "Long".to_string(),
-            column_name: "id".to_string(),
-            nullable: false,
-            is_id: true,
-        },
-    ];
+    let fields = vec![EntityField {
+        name: "id".to_string(),
+        field_type: "Long".to_string(),
+        column_name: "id".to_string(),
+        nullable: false,
+        is_id: true,
+    }];
 
     let xml = MockJavaGenerator::generate_hbm_xml("Order", "orders", &fields);
 
@@ -741,7 +770,9 @@ fn rule_9_hbm_xml_property_mapping() {
 
     let xml = MockJavaGenerator::generate_hbm_xml("User", "users", &fields);
 
-    assert!(xml.contains("<property name=\"username\" column=\"username\" type=\"String\" not-null=\"true\"/>"));
+    assert!(xml.contains(
+        "<property name=\"username\" column=\"username\" type=\"String\" not-null=\"true\"/>"
+    ));
 }
 
 #[test]
@@ -758,15 +789,13 @@ fn rule_9_hbm_xml_syntax_valid() {
 
 #[test]
 fn rule_10_serializer_creation() {
-    let fields = vec![
-        EntityField {
-            name: "id".to_string(),
-            field_type: "Long".to_string(),
-            column_name: "id".to_string(),
-            nullable: false,
-            is_id: true,
-        },
-    ];
+    let fields = vec![EntityField {
+        name: "id".to_string(),
+        field_type: "Long".to_string(),
+        column_name: "id".to_string(),
+        nullable: false,
+        is_id: true,
+    }];
 
     let code = MockJavaGenerator::generate_serializer("User", "com.example", &fields);
 
@@ -845,15 +874,13 @@ fn deterministic_entity_generation_hash() {
     let entity = GeneratedEntity {
         name: "User".to_string(),
         package: "com.example.entity".to_string(),
-        fields: vec![
-            EntityField {
-                name: "id".to_string(),
-                field_type: "Long".to_string(),
-                column_name: "id".to_string(),
-                nullable: false,
-                is_id: true,
-            },
-        ],
+        fields: vec![EntityField {
+            name: "id".to_string(),
+            field_type: "Long".to_string(),
+            column_name: "id".to_string(),
+            nullable: false,
+            is_id: true,
+        }],
         table_name: "users".to_string(),
     };
 
@@ -868,20 +895,21 @@ fn deterministic_repository_generation() {
     let code1 = MockJavaGenerator::generate_repository("User", "com.example");
     let code2 = MockJavaGenerator::generate_repository("User", "com.example");
 
-    assert_eq!(code1, code2, "Repository generation should be deterministic");
+    assert_eq!(
+        code1, code2,
+        "Repository generation should be deterministic"
+    );
 }
 
 #[test]
 fn deterministic_hbm_xml_generation() {
-    let fields = vec![
-        EntityField {
-            name: "id".to_string(),
-            field_type: "Long".to_string(),
-            column_name: "id".to_string(),
-            nullable: false,
-            is_id: true,
-        },
-    ];
+    let fields = vec![EntityField {
+        name: "id".to_string(),
+        field_type: "Long".to_string(),
+        column_name: "id".to_string(),
+        nullable: false,
+        is_id: true,
+    }];
 
     let xml1 = MockJavaGenerator::generate_hbm_xml("User", "users", &fields);
     let xml2 = MockJavaGenerator::generate_hbm_xml("User", "users", &fields);
@@ -913,7 +941,10 @@ fn package_structure_repository_layer() {
     let code = MockJavaGenerator::generate_repository("User", "com.example");
     let package = extract_package_name(&code);
 
-    assert!(package.as_ref().map(|p| p.contains("repository")).unwrap_or(false));
+    assert!(package
+        .as_ref()
+        .map(|p| p.contains("repository"))
+        .unwrap_or(false));
 }
 
 #[test]
@@ -921,7 +952,10 @@ fn package_structure_service_layer() {
     let code = MockJavaGenerator::generate_service("User", "com.example");
     let package = extract_package_name(&code);
 
-    assert!(package.as_ref().map(|p| p.contains("service")).unwrap_or(false));
+    assert!(package
+        .as_ref()
+        .map(|p| p.contains("service"))
+        .unwrap_or(false));
 }
 
 #[test]
@@ -929,7 +963,10 @@ fn package_structure_controller_layer() {
     let code = MockJavaGenerator::generate_controller("User", "com.example");
     let package = extract_package_name(&code);
 
-    assert!(package.as_ref().map(|p| p.contains("controller")).unwrap_or(false));
+    assert!(package
+        .as_ref()
+        .map(|p| p.contains("controller"))
+        .unwrap_or(false));
 }
 
 // ============================================================================
@@ -993,7 +1030,11 @@ fn integration_all_rules_same_entity() {
     assert!(validate_java_syntax(&controller_code).is_ok());
 
     // Rule 7: Enum
-    let enum_code = MockJavaGenerator::generate_enum("Status", &format!("{}.enums", package), &["ACTIVE", "INACTIVE"]);
+    let enum_code = MockJavaGenerator::generate_enum(
+        "Status",
+        &format!("{}.enums", package),
+        &["ACTIVE", "INACTIVE"],
+    );
     assert!(enum_code.contains("public enum Status"));
     assert!(enum_code.contains("ACTIVE(\"ACTIVE\")"));
 
@@ -1095,15 +1136,13 @@ fn rule_3_through_10_end_to_end() {
     let entity = GeneratedEntity {
         name: "TestEntity".to_string(),
         package: "com.test".to_string(),
-        fields: vec![
-            EntityField {
-                name: "id".to_string(),
-                field_type: "Long".to_string(),
-                column_name: "id".to_string(),
-                nullable: false,
-                is_id: true,
-            },
-        ],
+        fields: vec![EntityField {
+            name: "id".to_string(),
+            field_type: "Long".to_string(),
+            column_name: "id".to_string(),
+            nullable: false,
+            is_id: true,
+        }],
         table_name: "test_entities".to_string(),
     };
 
@@ -1113,8 +1152,10 @@ fn rule_3_through_10_end_to_end() {
     let dto_code = MockJavaGenerator::generate_dto(&entity.name, &entity.package, &entity.fields);
     let controller_code = MockJavaGenerator::generate_controller(&entity.name, &entity.package);
     let service_code = MockJavaGenerator::generate_service(&entity.name, &entity.package);
-    let hbm_code = MockJavaGenerator::generate_hbm_xml(&entity.name, &entity.table_name, &entity.fields);
-    let serializer_code = MockJavaGenerator::generate_serializer(&entity.name, &entity.package, &entity.fields);
+    let hbm_code =
+        MockJavaGenerator::generate_hbm_xml(&entity.name, &entity.table_name, &entity.fields);
+    let serializer_code =
+        MockJavaGenerator::generate_serializer(&entity.name, &entity.package, &entity.fields);
 
     assert!(validate_java_syntax(&entity_code).is_ok());
     assert!(validate_java_syntax(&repo_code).is_ok());
