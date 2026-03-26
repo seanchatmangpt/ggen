@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.example.entity">
+  <class name="YTask" table="y_task" schema="yawl">
+    <id name="taskId" column="task_id" type="string">
+      <generator class="assigned"/>
+    </id>
+    <version name="version" column="version" type="integer"/>
+    <property name="taskName" column="task_name" type="string" not-null="true"/>
+    <property name="netId" column="net_id" type="string" not-null="true"/>
+    <property name="taskType" column="task_type" type="string" not-null="true"/>
+    <property name="isEnabled" column="is_enabled" type="boolean" not-null="false"/>
+    <property name="configurationXml" column="configuration_xml" type="text" not-null="false"/>
+  </class>
+</hibernate-mapping>
