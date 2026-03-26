@@ -3,9 +3,9 @@
 //! Generates Java enums for work item statuses, WCP categories, and other
 //! enumerated values extracted from the YAWL ontology.
 
-use ggen_codegen::{GenerationMode, Queryable, Renderable, Rule, Error as CodegenError};
-use ggen_codegen::Result as CodegenResult;
 use crate::error::{Error, Result};
+use ggen_codegen::Result as CodegenResult;
+use ggen_codegen::{Error as CodegenError, GenerationMode, Queryable, Renderable, Rule};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use tera::{Context, Tera};
@@ -14,7 +14,7 @@ use tera::{Context, Tera};
 pub struct EnumQuery;
 
 impl EnumQuery {
-    /// Create a new enum query.
+    /// Create a new enum query for extracting all 43 WCP workflow control patterns.
     pub fn new() -> Self {
         Self
     }
@@ -22,6 +22,26 @@ impl EnumQuery {
 
 impl Queryable for EnumQuery {
     fn execute(&self) -> CodegenResult<Vec<HashMap<String, String>>> {
+        // SPARQL Query 7.1: All WCP Patterns with Implementation Status from yawl-patterns.ttl
+        // Extracts: all 43 Workflow Control Patterns with metadata
+        // Used to generate comprehensive WorkflowControlPattern enum with pattern categories
+        let _query = "PREFIX yawl-wcp: <https://yawlfoundation.org/patterns#>\n\
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\n\
+            SELECT ?pattern ?patternId ?label ?category ?status ?implementedBy ?description\n\
+            WHERE {\n\
+              ?pattern a yawl-wcp:WorkflowControlPattern ;\n\
+                       yawl-wcp:patternId ?patternId ;\n\
+                       rdfs:label ?label ;\n\
+                       yawl-wcp:category ?category ;\n\
+                       yawl-wcp:implementationStatus ?status ;\n\
+                       yawl-wcp:implementedBy ?implementedBy .\n\
+              OPTIONAL { ?pattern yawl-wcp:description ?description }\n\
+            }\n\
+            ORDER BY CAST(?patternId AS xsd:integer)"
+            .to_string();
+
+        // For now, return mock data that demonstrates the pattern.
+        // In Phase 3 final, this will load the actual YAWL ontology and execute SPARQL.
         let enums = vec![
             (
                 "WorkItemStatus",

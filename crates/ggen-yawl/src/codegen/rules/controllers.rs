@@ -3,9 +3,9 @@
 //! Generates `@RestController`-annotated classes that expose CRUD operations
 //! over HTTP REST APIs for YAWL entities.
 
-use ggen_codegen::{GenerationMode, Queryable, Renderable, Rule, Error as CodegenError};
-use ggen_codegen::Result as CodegenResult;
 use crate::error::{Error, Result};
+use ggen_codegen::Result as CodegenResult;
+use ggen_codegen::{Error as CodegenError, GenerationMode, Queryable, Renderable, Rule};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use tera::{Context, Tera};
@@ -14,7 +14,7 @@ use tera::{Context, Tera};
 pub struct ControllerQuery;
 
 impl ControllerQuery {
-    /// Create a new controller query.
+    /// Create a new controller query for extracting workflow conditions.
     pub fn new() -> Self {
         Self
     }
@@ -22,6 +22,21 @@ impl ControllerQuery {
 
 impl Queryable for ControllerQuery {
     fn execute(&self) -> CodegenResult<Vec<HashMap<String, String>>> {
+        // SPARQL Query 6.1: Workflow Condition Types from yawl-workflow.ttl
+        // Extracts: condition types (InputCondition, OutputCondition, InternalCondition)
+        // Used to generate REST controller endpoints for workflow control elements
+        let _query = "PREFIX yawl: <https://yawlfoundation.org/ontology#>\n\
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\n\
+            SELECT ?conditionType ?label ?comment\n\
+            WHERE {\n\
+              ?conditionType rdfs:subClassOf yawl:Condition ;\n\
+                             rdfs:label ?label .\n\
+              OPTIONAL { ?conditionType rdfs:comment ?comment }\n\
+            }"
+            .to_string();
+
+        // For now, return mock data that demonstrates the pattern.
+        // In Phase 3 final, this will load the actual YAWL ontology and execute SPARQL.
         let entities = vec!["YWorkItem", "YTask", "YNet", "YEngine"];
 
         let results = entities
