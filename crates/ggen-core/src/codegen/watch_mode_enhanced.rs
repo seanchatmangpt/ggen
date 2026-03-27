@@ -3,10 +3,12 @@
 //! This module provides the enhanced watch mode implementation for the executor,
 //! integrating all watch mode components for production use.
 
-use super::{
-    collect_watch_paths, install_shutdown_handler, FileWatcher, IncrementalCache, SyncExecutor,
-    SyncOptions, SyncResult, WatchCacheIntegration, WatchEventKind,
+use super::executor::{SyncExecutor, SyncOptions, SyncResult};
+use super::incremental_cache::IncrementalCache;
+use super::watch::{
+    collect_watch_paths, install_shutdown_handler, FileWatcher, WatchEvent, WatchEventKind,
 };
+use super::watch_cache_integration::WatchCacheIntegration;
 use crate::manifest::ManifestParser;
 use colored::Colorize;
 use ggen_utils::error::{Error, Result};
@@ -50,10 +52,10 @@ impl EnhancedWatchMode {
         self.print_startup_banner(&watch_paths, base_path);
 
         // Initial sync
-        let initial_result = self.run_initial_sync()?;
+        let _initial_result = self.run_initial_sync()?;
 
         // Initialize cache if enabled
-        let mut cache = if self.options.use_cache {
+        let cache = if self.options.use_cache {
             let cache_dir = self
                 .options
                 .cache_dir
@@ -184,7 +186,7 @@ impl EnhancedWatchMode {
 
     fn print_change_detected(
         &self,
-        event: &super::WatchEvent,
+        event: &WatchEvent,
         base_path: &Path,
     ) {
         let display_path = event.path.strip_prefix(base_path).unwrap_or(&event.path);

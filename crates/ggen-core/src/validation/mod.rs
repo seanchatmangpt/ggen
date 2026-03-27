@@ -54,6 +54,7 @@ pub mod input; // Week 4: Comprehensive input validation framework
 pub mod input_compiler; // Week 4: Validation rule compiler
 pub mod preflight;
 pub mod shacl;
+pub mod soundness_gates; // WvdA + Armstrong soundness verification gates
 pub mod sparql_rules;
 pub mod standard_ontologies;
 pub mod validator;

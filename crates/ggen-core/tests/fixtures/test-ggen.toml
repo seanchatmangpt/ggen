@@ -1,0 +1,38 @@
+[project]
+name = "test-codegen"
+version = "0.1.0"
+description = "Test configuration for ggen integration tests"
+
+[ontology]
+source = "tests/fixtures/mini-ontology.ttl"
+imports = []
+base_iri = "https://example.org/ontology#"
+
+[ontology.prefixes]
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+owl = "http://www.w3.org/2002/07/owl#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+ex = "https://example.org/ontology#"
+
+[inference]
+rules = []
+
+[generation]
+output_dir = "test-output"
+
+[[generation.rules]]
+name = "test-rule"
+query = { file = "tests/fixtures/test-query.rq" }
+template = { file = "tests/fixtures/test-template.tera" }
+output_file = "test-{{ className }}.txt"
+mode = "Overwrite"
+skip_empty = false
+
+[[generation.rules]]
+name = "empty-rule"
+query = { file = "tests/fixtures/test-query.rq" }
+template = { file = "tests/fixtures/test-template.tera" }
+output_file = "empty-test.txt"
+mode = "Overwrite"
+skip_empty = true

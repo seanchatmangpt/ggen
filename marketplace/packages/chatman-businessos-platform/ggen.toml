@@ -1,0 +1,93 @@
+[project]
+name = "chatman-businessos-platform"
+version = "1.0.0"
+description = "BusinessOS platform regeneration via ggen — ontology → SPARQL → code generation"
+
+[ontology]
+source = "ontology/businessos.ttl"
+base_uri = "https://chatmangpt.com/businessos/"
+imports = []
+
+[prefixes]
+bos = "https://chatmangpt.com/businessos#"
+schema = "https://schema.org/"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# V6 Passes: Extraction (SPARQL) → Emission (Tera templates)
+# ─────────────────────────────────────────────────────────────────────────────
+
+[v6.passes.extraction]
+order = 1
+type = "sparql"
+source = "queries/extract-services.rq"
+description = "Extract services, entities, endpoints from ontology"
+
+[v6.passes.emission]
+order = 2
+type = "tera"
+source = "templates/"
+description = "Emit Go, Dockerfile, K8s manifests using Tera templates"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Templates Directory
+# ─────────────────────────────────────────────────────────────────────────────
+
+[templates]
+directory = "templates"
+
+# Define output patterns for each template
+[[templates.patterns]]
+name = "go-service"
+template = "service.go.tera"
+output = "generated/services/{{service_name}}.go"
+description = "Generate Go service code"
+
+[[templates.patterns]]
+name = "dockerfile"
+template = "Dockerfile.tera"
+output = "generated/docker/{{service_name}}/Dockerfile"
+description = "Generate multi-stage Dockerfile"
+
+[[templates.patterns]]
+name = "k8s-deployment"
+template = "k8s-deployment.yaml.tera"
+output = "generated/k8s/{{service_name}}-deployment.yaml"
+description = "Generate Kubernetes Deployment manifest"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Output Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+[output]
+base_directory = "generated"
+clean_before_generation = false
+preserve_existing_files = true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Rules and Filtering
+# ─────────────────────────────────────────────────────────────────────────────
+
+[[rules]]
+name = "go-services-only"
+condition = 'language == "Go"'
+templates = ["service.go.tera", "Dockerfile.tera"]
+description = "Generate Go services with Docker support"
+
+[[rules]]
+name = "production-services"
+condition = 'service_tier == "production"'
+templates = ["k8s-deployment.yaml.tera"]
+description = "Generate K8s manifests for production services"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Metadata
+# ─────────────────────────────────────────────────────────────────────────────
+
+[metadata]
+author = "ChatmanGPT"
+license = "MIT"
+keywords = ["businessos", "code-generation", "go", "kubernetes", "docker"]
+homepage = "https://chatmangpt.com"
+repository = "https://github.com/seanchatmangpt/chatmangpt"

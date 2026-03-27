@@ -42,6 +42,7 @@
 use clap_noun_verb::{NounVerbError, Result as VerbResult};
 use clap_noun_verb_macros::verb;
 use ggen_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
+use ggen_core::sync::{sync as low_level_sync, SyncConfig, SyncLanguage};
 use serde::Serialize;
 use std::path::PathBuf;
 
@@ -302,8 +303,21 @@ pub fn sync(
     force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
     watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
     stage: Option<String>, ontology: Option<String>,
+    queries: Option<String>,   // dir of .rq files — activates ontology-first pipeline (no ggen.toml needed)
+    language: Option<String>,  // go, elixir, rust, typescript, python, auto
 ) -> VerbResult<SyncOutput> {
-    // Build options from CLI args
+    // When --queries is supplied, bypass the manifest and run the low-level pipeline directly
+    if let Some(ref queries_dir) = queries {
+        return run_low_level_pipeline(
+            ontology,
+            queries_dir.clone(),
+            output_dir,
+            language,
+            dry_run.unwrap_or(false),
+        );
+    }
+
+    // Build options from CLI args (manifest-driven pipeline)
     let options = build_sync_options(
         manifest,
         output_dir,
@@ -326,6 +340,85 @@ pub fn sync(
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
     Ok(SyncOutput::from(result))
+}
+
+/// Invoke the low-level `ggen_core::sync::sync()` pipeline directly.
+///
+/// Activated when the user supplies `--queries`.  Bypasses `ggen.toml` entirely.
+///
+/// Usage:
+/// ```bash
+/// ggen sync --ontology ./businessos.ttl --queries ./queries/businessos/ --output ./generated/ --language go
+/// ```
+fn run_low_level_pipeline(
+    ontology: Option<String>, queries_dir: String, output_dir: Option<String>,
+    language: Option<String>, dry_run: bool,
+) -> VerbResult<SyncOutput> {
+    let ontology_path = PathBuf::from(ontology.unwrap_or_else(|| "ontology.ttl".to_string()));
+    let queries_path = PathBuf::from(queries_dir);
+    let output_path = PathBuf::from(output_dir.unwrap_or_else(|| "generated".to_string()));
+
+    let lang: SyncLanguage = language
+        .as_deref()
+        .unwrap_or("auto")
+        .parse()
+        .map_err(|e: ggen_core::sync::SyncError| NounVerbError::execution_error(e.to_string()))?;
+
+    let config = SyncConfig {
+        ontology_path,
+        queries_dir: queries_path,
+        output_dir: output_path,
+        language: lang,
+        validate: true,
+        dry_run,
+    };
+
+    let result = low_level_sync(config)
+        .map_err(|e| NounVerbError::execution_error(e.to_string()))?;
+
+    let files: Vec<SyncedFile> = result
+        .files_generated
+        .iter()
+        .map(|p| SyncedFile {
+            path: p.display().to_string(),
+            size_bytes: if dry_run {
+                0
+            } else {
+                std::fs::metadata(p).map_or(0, |m| m.len() as usize)
+            },
+            action: if dry_run {
+                "would create".to_string()
+            } else {
+                "created".to_string()
+            },
+        })
+        .collect();
+
+    let violation_msg = if result.soundness_violations.is_empty() {
+        None
+    } else {
+        Some(format!(
+            "{} soundness violation(s): {}",
+            result.soundness_violations.len(),
+            result
+                .soundness_violations
+                .iter()
+                .map(|v| v.rule.as_str())
+                .collect::<Vec<_>>()
+                .join(", ")
+        ))
+    };
+
+    Ok(SyncOutput {
+        status: "success".to_string(),
+        files_synced: files.len(),
+        duration_ms: result.elapsed_ms,
+        files,
+        inference_rules_executed: 0,
+        generation_rules_executed: result.files_generated.len(),
+        audit_trail: None,
+        error: violation_msg,
+    })
 }
 
 /// Build SyncOptions from CLI arguments

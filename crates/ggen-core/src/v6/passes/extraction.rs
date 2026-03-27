@@ -326,8 +326,14 @@ impl ExtractionPass {
         };
 
         // Materialize triples into the graph
+        // Note: Quad::to_string() produces N-Quads format WITHOUT trailing dot
+        // (e.g. "<s> <p> <o>"). We must append " ." so the Turtle parser accepts them.
         if !triples.is_empty() {
-            let ntriples = triples.join("\n");
+            let ntriples: String = triples
+                .iter()
+                .map(|t| format!("{} .", t))
+                .collect::<Vec<_>>()
+                .join("\n");
             ctx.graph.insert_turtle(&ntriples)?;
         }
 
