@@ -93,9 +93,15 @@ impl<'a> ConstructExecutor<'a> {
         let count = triples.len();
 
         // Convert triples to N-Triples format and insert via Turtle
-        // Note: N-Triples is a subset of Turtle, so this works correctly
+        // Note: Quad::to_string() produces N-Quads format WITHOUT trailing dot
+        // (e.g. "<s> <p> <o>"). We must append " ." to each line so the Turtle
+        // parser (which is a superset of N-Triples) can accept them.
         if !triples.is_empty() {
-            let ntriples = triples.join("\n");
+            let ntriples: String = triples
+                .iter()
+                .map(|t| format!("{} .", t))
+                .collect::<Vec<_>>()
+                .join("\n");
             self.graph.insert_turtle(&ntriples)?;
         }
 

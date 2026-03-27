@@ -1,0 +1,64 @@
+PREFIX bos: <https://chatmangpt.com/businessos#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <https://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SPARQL Query: Extract Services from BusinessOS Ontology
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# This query extracts all services defined in the BusinessOS ontology,
+# including their metadata (port, protocol, language, framework, etc.)
+#
+# Results are passed to Tera templates for code generation:
+# - service.go.tera generates Go service structs and handlers
+# - Dockerfile.tera generates multi-stage Docker images
+# - k8s-deployment.yaml.tera generates Kubernetes manifests
+
+SELECT DISTINCT
+  ?service
+  ?label
+  ?port
+  ?language
+  ?protocol
+  ?framework
+  ?async
+  (GROUP_CONCAT(?depService; separator=",") as ?dependencies)
+  (GROUP_CONCAT(?rule; separator=",") as ?compliance_rules)
+WHERE {
+  # Match all Service definitions
+  ?service a bos:Service .
+
+  # Required: label (human-readable name)
+  ?service rdfs:label ?label .
+
+  # Required: port (for network exposure)
+  ?service bos:port ?port .
+
+  # Required: language (Go, Elixir, Rust, etc.)
+  ?service bos:language ?language .
+
+  # Required: protocol (HTTP, gRPC, WebSocket, etc.)
+  ?service bos:protocol ?protocol .
+
+  # Optional: framework (Gin, Phoenix, Actix, etc.)
+  OPTIONAL { ?service bos:framework ?framework }
+
+  # Optional: async indicator (for queue handling)
+  OPTIONAL { ?service bos:async ?async }
+
+  # Optional: dependencies (connected services/datastores)
+  OPTIONAL {
+    ?service bos:dependency ?dep .
+    ?dep bos:service ?depService .
+  }
+
+  # Optional: compliance rules (SOC2, HIPAA, GDPR, etc.)
+  OPTIONAL {
+    ?service bos:rules ?rules .
+    # Split comma-separated rules
+    BIND(STRBEFORE(CONCAT(?rules, ","), ",") as ?rule)
+  }
+}
+GROUP BY ?service ?label ?port ?language ?protocol ?framework ?async
+ORDER BY ASC(?port)

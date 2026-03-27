@@ -1,0 +1,59 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <https://example.org/ontology#> .
+
+# Minimal test ontology with classes and properties
+
+ex:Class1 a owl:Class ;
+    rdfs:label "TestClass1" ;
+    rdfs:comment "First test domain class" ;
+    rdfs:subClassOf owl:Thing .
+
+ex:Class2 a owl:Class ;
+    rdfs:label "TestClass2" ;
+    rdfs:comment "Second test domain class" ;
+    rdfs:subClassOf owl:Thing .
+
+# Properties
+ex:propertyA a rdf:Property ;
+    rdfs:label "propertyA" ;
+    rdfs:domain ex:Class1 ;
+    rdfs:range xsd:string ;
+    rdfs:comment "String property" .
+
+ex:propertyB a rdf:Property ;
+    rdfs:label "propertyB" ;
+    rdfs:domain ex:Class1 ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Integer property" .
+
+ex:propertyC a rdf:Property ;
+    rdfs:label "propertyC" ;
+    rdfs:domain ex:Class2 ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Boolean property" .
+
+# Test instances
+ex:instance1 a ex:Class1 ;
+    rdfs:label "Instance1" ;
+    ex:propertyA "value1" ;
+    ex:propertyB "42"^^xsd:integer .
+
+ex:instance2 a ex:Class2 ;
+    rdfs:label "Instance2" ;
+    ex:propertyC "true"^^xsd:boolean .
+
+# Enum-like class structure
+ex:StatusEnum a owl:Class ;
+    rdfs:label "StatusEnum" ;
+    rdfs:comment "Status enumeration" .
+
+ex:Active a ex:StatusEnum ;
+    rdfs:label "Active" ;
+    rdf:value "ACTIVE" .
+
+ex:Inactive a ex:StatusEnum ;
+    rdfs:label "Inactive" ;
+    rdf:value "INACTIVE" .
