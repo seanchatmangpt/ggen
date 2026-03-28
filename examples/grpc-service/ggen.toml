@@ -1,298 +1,68 @@
-# =============================================================================
-# ggen v5 gRPC Service Code Generation Manifest
-# Generates protobuf-aligned types and service stubs from RDF ontology
-# Single source of truth → OpenAPI + TypeScript stubs + Zod
-# =============================================================================
-
 [project]
-name = "grpc-service-example"
+name = "grpc-service"
 version = "1.0.0"
-description = "gRPC service definition generation from RDF ontology"
+description = "Protocol buffer definitions generated from RDF service ontology"
 
 [ontology]
 source = "ontology/grpc-service.ttl"
-base_iri = "https://ggen.io/examples/grpc/"
+base_iri = "https://ggen.io/examples/grpc#"
 
 [ontology.prefixes]
 grpc = "https://ggen.io/examples/grpc#"
-api = "https://ggen.io/ontology/api#"
-rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdf  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 rdfs = "http://www.w3.org/2000/01/rdf-schema#"
-xsd = "http://www.w3.org/2001/XMLSchema#"
-
-[inference]
-rules = []
+xsd  = "http://www.w3.org/2001/XMLSchema#"
 
 [generation]
-output_dir = "output"
+output_dir = "."
 
-# =============================================================================
-# RULE 1: OpenAPI/gRPC-Gateway Info
-# =============================================================================
+# ── Rule 1: Message definitions ───────────────────────────────────────────────
 [[generation.rules]]
-name = "openapi-info"
+name = "proto-messages"
 query = { inline = """
-PREFIX api: <https://ggen.io/ontology/api#>
+PREFIX grpc: <https://ggen.io/examples/grpc#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT ?title ?description ?version ?serverUrl ?serverDescription
+SELECT ?messageName ?messageComment ?fieldName ?fieldType ?fieldNumber ?package
 WHERE {
-  ?spec a api:Specification ;
-        api:title ?title ;
-        api:version ?version .
-  OPTIONAL { ?spec api:description ?description }
-  OPTIONAL {
-    ?spec api:server ?server .
-    ?server api:url ?serverUrl .
-    OPTIONAL { ?server api:description ?serverDescription }
-  }
+  ?msg a grpc:Message ;
+       grpc:messageName ?messageName .
+  OPTIONAL { ?msg rdfs:comment ?messageComment }
+  ?field a grpc:Field ;
+         grpc:messageOf ?msg ;
+         grpc:fieldName ?fieldName ;
+         grpc:fieldType ?fieldType ;
+         grpc:fieldNumber ?fieldNumber .
+  ?svc a grpc:Service ; grpc:package ?package .
 }
-LIMIT 1
+ORDER BY ?messageName ?fieldNumber
 """ }
-template = { file = "templates/openapi-info.tera" }
-output_file = "api-info.yaml"
-mode = "Overwrite"
+template    = { file = "templates/proto.tera" }
+output_file = "generated/messages.proto"
+mode        = "Overwrite"
 
-# =============================================================================
-# RULE 2: Message Schemas (proto-aligned)
-# =============================================================================
+# ── Rule 2: Service definitions ───────────────────────────────────────────────
 [[generation.rules]]
-name = "openapi-schemas"
+name = "proto-services"
 query = { inline = """
-PREFIX api: <https://ggen.io/ontology/api#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-
-SELECT ?entityName ?entityDescription ?propertyName ?propertyType
-       ?required ?format ?minLength ?maxLength ?pattern ?example ?refEntity
-WHERE {
-  ?entity a api:Entity ;
-          api:name ?entityName .
-  OPTIONAL { ?entity rdfs:comment ?entityDescription }
-
-  ?entity api:hasProperty ?property .
-  ?property api:name ?propertyName ;
-            api:type ?propertyType .
-  OPTIONAL { ?property api:required ?required }
-  OPTIONAL { ?property api:format ?format }
-  OPTIONAL { ?property api:minLength ?minLength }
-  OPTIONAL { ?property api:maxLength ?maxLength }
-  OPTIONAL { ?property api:pattern ?pattern }
-  OPTIONAL { ?property api:example ?example }
-  OPTIONAL { ?property api:refEntity ?refEntity }
-}
-ORDER BY ?entityName ?propertyName
-""" }
-template = { file = "templates/openapi-schemas.tera" }
-output_file = "schemas.yaml"
-mode = "Overwrite"
-
-# =============================================================================
-# RULE 3: Service Methods (as REST paths)
-# =============================================================================
-[[generation.rules]]
-name = "openapi-paths"
-query = { inline = """
-PREFIX api: <https://ggen.io/ontology/api#>
+PREFIX grpc: <https://ggen.io/examples/grpc#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT ?entityName ?path ?method ?operationId ?summary ?description
-       ?requestSchema ?responseSchema ?statusCode
+SELECT ?serviceName ?serviceComment ?package ?methodName ?methodComment ?requestType ?responseType
 WHERE {
-  ?entity a api:Entity ;
-          api:name ?entityName ;
-          api:hasEndpoint ?endpoint .
-  ?endpoint api:path ?path ;
-            api:method ?method ;
-            api:operationId ?operationId .
-  OPTIONAL { ?endpoint api:summary ?summary }
-  OPTIONAL { ?endpoint api:description ?description }
-  OPTIONAL { ?endpoint api:requestSchema ?requestSchema }
-  OPTIONAL { ?endpoint api:responseSchema ?responseSchema }
-  OPTIONAL { ?endpoint api:statusCode ?statusCode }
+  ?svc a grpc:Service ;
+       grpc:serviceName ?serviceName ;
+       grpc:package ?package .
+  OPTIONAL { ?svc rdfs:comment ?serviceComment }
+  ?method a grpc:Method ;
+          grpc:methodOf ?svc ;
+          grpc:methodName ?methodName ;
+          grpc:requestType ?requestType ;
+          grpc:responseType ?responseType .
+  OPTIONAL { ?method rdfs:comment ?methodComment }
 }
-ORDER BY ?entityName ?path ?method
+ORDER BY ?serviceName ?methodName
 """ }
-template = { file = "templates/openapi-paths.tera" }
-output_file = "paths.yaml"
-mode = "Overwrite"
-
-# =============================================================================
-# RULE 4: Combined OpenAPI Spec
-# =============================================================================
-[[generation.rules]]
-name = "openapi-combined"
-query = { inline = """
-PREFIX api: <https://ggen.io/ontology/api#>
-
-SELECT ?title ?version
-WHERE {
-  ?spec a api:Specification ;
-        api:title ?title ;
-        api:version ?version .
-}
-LIMIT 1
-""" }
-template = { file = "templates/openapi-combined.tera" }
-output_file = "openapi.yaml"
-mode = "Overwrite"
-
-# =============================================================================
-# RULE 5: TypeScript Interfaces
-# =============================================================================
-[[generation.rules]]
-name = "typescript-interfaces"
-query = { inline = """
-PREFIX api: <https://ggen.io/ontology/api#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-SELECT ?entityName ?entityDescription ?propertyName ?propertyType
-       ?required ?isArray ?refEntity
-WHERE {
-  ?entity a api:Entity ;
-          api:name ?entityName .
-  OPTIONAL { ?entity rdfs:comment ?entityDescription }
-
-  ?entity api:hasProperty ?property .
-  ?property api:name ?propertyName ;
-            api:type ?propertyType .
-  OPTIONAL { ?property api:required ?required }
-  OPTIONAL { ?property api:isArray ?isArray }
-  OPTIONAL { ?property api:refEntity ?refEntity }
-}
-ORDER BY ?entityName ?propertyName
-""" }
-template = { file = "templates/typescript-interfaces.tera" }
-output_file = "types.js"
-mode = "Overwrite"
-
-# =============================================================================
-# RULE 6: TypeScript Request/Response Types
-# =============================================================================
-[[generation.rules]]
-name = "typescript-api-types"
-query = { inline = """
-PREFIX api: <https://ggen.io/ontology/api#>
-
-SELECT ?entityName ?operationType ?propertyName ?propertyType ?required
-WHERE {
-  ?entity a api:Entity ;
-          api:name ?entityName ;
-          api:hasRequestType ?reqType .
-  ?reqType api:operationType ?operationType ;
-           api:hasProperty ?property .
-  ?property api:name ?propertyName ;
-            api:type ?propertyType .
-  OPTIONAL { ?property api:required ?required }
-}
-ORDER BY ?entityName ?operationType ?propertyName
-""" }
-template = { file = "templates/typescript-api-types.tera" }
-output_file = "api-types.js"
-mode = "Overwrite"
-
-# =============================================================================
-# RULE 7: Zod Validation Schemas
-# =============================================================================
-[[generation.rules]]
-name = "zod-schemas"
-query = { inline = """
-PREFIX api: <https://ggen.io/ontology/api#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-SELECT ?entityName ?entityDescription ?propertyName ?propertyType
-       ?required ?minLength ?maxLength ?pattern ?min ?max ?format ?refEntity
-WHERE {
-  ?entity a api:Entity ;
-          api:name ?entityName .
-  OPTIONAL { ?entity rdfs:comment ?entityDescription }
-
-  ?entity api:hasProperty ?property .
-  ?property api:name ?propertyName ;
-            api:type ?propertyType .
-  OPTIONAL { ?property api:required ?required }
-  OPTIONAL { ?property api:minLength ?minLength }
-  OPTIONAL { ?property api:maxLength ?maxLength }
-  OPTIONAL { ?property api:pattern ?pattern }
-  OPTIONAL { ?property api:min ?min }
-  OPTIONAL { ?property api:max ?max }
-  OPTIONAL { ?property api:format ?format }
-  OPTIONAL { ?property api:refEntity ?refEntity }
-}
-ORDER BY ?entityName ?propertyName
-""" }
-template = { file = "templates/zod-schemas.tera" }
-output_file = "schemas.js"
-mode = "Overwrite"
-
-# =============================================================================
-# RULE 8: Zod Request Schemas
-# =============================================================================
-[[generation.rules]]
-name = "zod-request-schemas"
-query = { inline = """
-PREFIX api: <https://ggen.io/ontology/api#>
-
-SELECT ?entityName ?operationType ?propertyName ?propertyType
-       ?required ?minLength ?maxLength ?pattern
-WHERE {
-  ?entity a api:Entity ;
-          api:name ?entityName ;
-          api:hasRequestType ?reqType .
-  ?reqType api:operationType ?operationType ;
-           api:hasProperty ?property .
-  ?property api:name ?propertyName ;
-            api:type ?propertyType .
-  OPTIONAL { ?property api:required ?required }
-  OPTIONAL { ?property api:minLength ?minLength }
-  OPTIONAL { ?property api:maxLength ?maxLength }
-  OPTIONAL { ?property api:pattern ?pattern }
-}
-ORDER BY ?entityName ?operationType ?propertyName
-""" }
-template = { file = "templates/zod-request-schemas.tera" }
-output_file = "request-schemas.js"
-mode = "Overwrite"
-
-# =============================================================================
-# RULE 9: Type Guards
-# =============================================================================
-[[generation.rules]]
-name = "type-guards"
-query = { inline = """
-PREFIX api: <https://ggen.io/ontology/api#>
-
-SELECT ?entityName ?propertyName ?propertyType ?required ?isArray
-WHERE {
-  ?entity a api:Entity ;
-          api:name ?entityName ;
-          api:hasProperty ?property .
-  ?property api:name ?propertyName ;
-            api:type ?propertyType .
-  OPTIONAL { ?property api:required ?required }
-  OPTIONAL { ?property api:isArray ?isArray }
-}
-ORDER BY ?entityName ?propertyName
-""" }
-template = { file = "templates/type-guards.tera" }
-output_file = "guards.js"
-mode = "Overwrite"
-
-# =============================================================================
-# RULE 10: Index file
-# =============================================================================
-[[generation.rules]]
-name = "index-file"
-query = { inline = """
-PREFIX api: <https://ggen.io/ontology/api#>
-
-SELECT ?entityName
-WHERE {
-  ?entity a api:Entity ;
-          api:name ?entityName .
-}
-ORDER BY ?entityName
-""" }
-template = { file = "templates/index.tera" }
-output_file = "index.js"
-mode = "Overwrite"
+template    = { file = "templates/services.tera" }
+output_file = "generated/services.proto"
+mode        = "Overwrite"

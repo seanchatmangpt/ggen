@@ -56,12 +56,12 @@ impl CosineVectorizer {
 
         // For each dimension, mix the full text with the dimension index so that
         // different texts produce distinct non-zero components at multiple positions.
-        for i in 0..self.dimension {
+        for (i, slot) in vec.iter_mut().enumerate().take(self.dimension) {
             let mut hasher = DefaultHasher::new();
             i.hash(&mut hasher);
             text.hash(&mut hasher);
             let hash = hasher.finish();
-            vec[i] = (hash % 1000) as f32 / 1000.0;
+            *slot = (hash % 1000) as f32 / 1000.0;
         }
 
         // Normalize to unit vector
@@ -643,10 +643,7 @@ mod tests {
         // Query with the same formatted text used for the example 0 embedding,
         // so cosine similarity should be 1.0 (identical vector).
         let query_text = KNNFewShot::format_example_text(&examples[0]);
-        let neighbors = predictor
-            .find_nearest_neighbors(&query_text)
-            .await
-            .unwrap();
+        let neighbors = predictor.find_nearest_neighbors(&query_text).await.unwrap();
 
         assert_eq!(neighbors.len(), 3);
         // First neighbor should be question 0 (most similar to itself)
