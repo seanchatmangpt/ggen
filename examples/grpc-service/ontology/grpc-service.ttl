@@ -1,0 +1,71 @@
+@prefix grpc: <https://ggen.io/examples/grpc#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Messages ──────────────────────────────────────────────────────────────────
+
+grpc:UserMessage a grpc:Message ;
+    grpc:messageName "User" ;
+    rdfs:comment "Represents a user account" .
+
+grpc:UserIdField    a grpc:Field ; grpc:messageOf grpc:UserMessage ; grpc:fieldName "user_id"    ; grpc:fieldType "string"  ; grpc:fieldNumber 1 .
+grpc:UserNameField  a grpc:Field ; grpc:messageOf grpc:UserMessage ; grpc:fieldName "name"       ; grpc:fieldType "string"  ; grpc:fieldNumber 2 .
+grpc:UserEmailField a grpc:Field ; grpc:messageOf grpc:UserMessage ; grpc:fieldName "email"      ; grpc:fieldType "string"  ; grpc:fieldNumber 3 .
+grpc:UserRoleField  a grpc:Field ; grpc:messageOf grpc:UserMessage ; grpc:fieldName "role"       ; grpc:fieldType "string"  ; grpc:fieldNumber 4 .
+
+grpc:CreateUserRequest a grpc:Message ;
+    grpc:messageName "CreateUserRequest" ;
+    rdfs:comment "Request to create a new user" .
+
+grpc:CreateUserReqNameField  a grpc:Field ; grpc:messageOf grpc:CreateUserRequest ; grpc:fieldName "name"  ; grpc:fieldType "string" ; grpc:fieldNumber 1 .
+grpc:CreateUserReqEmailField a grpc:Field ; grpc:messageOf grpc:CreateUserRequest ; grpc:fieldName "email" ; grpc:fieldType "string" ; grpc:fieldNumber 2 .
+grpc:CreateUserReqRoleField  a grpc:Field ; grpc:messageOf grpc:CreateUserRequest ; grpc:fieldName "role"  ; grpc:fieldType "string" ; grpc:fieldNumber 3 .
+
+grpc:GetUserRequest a grpc:Message ;
+    grpc:messageName "GetUserRequest" ;
+    rdfs:comment "Request to fetch a user by ID" .
+
+grpc:GetUserReqField a grpc:Field ; grpc:messageOf grpc:GetUserRequest ; grpc:fieldName "user_id" ; grpc:fieldType "string" ; grpc:fieldNumber 1 .
+
+grpc:ListUsersRequest a grpc:Message ;
+    grpc:messageName "ListUsersRequest" ;
+    rdfs:comment "Request for paginated user listing" .
+
+grpc:ListUsersReqPageSize  a grpc:Field ; grpc:messageOf grpc:ListUsersRequest ; grpc:fieldName "page_size"  ; grpc:fieldType "int32"  ; grpc:fieldNumber 1 .
+grpc:ListUsersReqPageToken a grpc:Field ; grpc:messageOf grpc:ListUsersRequest ; grpc:fieldName "page_token" ; grpc:fieldType "string" ; grpc:fieldNumber 2 .
+
+grpc:ListUsersResponse a grpc:Message ;
+    grpc:messageName "ListUsersResponse" ;
+    rdfs:comment "Paginated list of users" .
+
+grpc:ListUsersRespUsers      a grpc:Field ; grpc:messageOf grpc:ListUsersResponse ; grpc:fieldName "users"           ; grpc:fieldType "User"   ; grpc:fieldNumber 1 .
+grpc:ListUsersRespPageToken  a grpc:Field ; grpc:messageOf grpc:ListUsersResponse ; grpc:fieldName "next_page_token" ; grpc:fieldType "string" ; grpc:fieldNumber 2 .
+
+# ── Services ──────────────────────────────────────────────────────────────────
+
+grpc:UserService a grpc:Service ;
+    grpc:serviceName "UserService" ;
+    grpc:package     "api.v1" ;
+    rdfs:comment     "Manages user accounts" .
+
+grpc:CreateUserMethod a grpc:Method ;
+    grpc:methodName   "CreateUser" ;
+    grpc:requestType  "CreateUserRequest" ;
+    grpc:responseType "User" ;
+    grpc:methodOf     grpc:UserService ;
+    rdfs:comment      "Create a new user account" .
+
+grpc:GetUserMethod a grpc:Method ;
+    grpc:methodName   "GetUser" ;
+    grpc:requestType  "GetUserRequest" ;
+    grpc:responseType "User" ;
+    grpc:methodOf     grpc:UserService ;
+    rdfs:comment      "Get a user by ID" .
+
+grpc:ListUsersMethod a grpc:Method ;
+    grpc:methodName   "ListUsers" ;
+    grpc:requestType  "ListUsersRequest" ;
+    grpc:responseType "ListUsersResponse" ;
+    grpc:methodOf     grpc:UserService ;
+    rdfs:comment      "List users with pagination" .

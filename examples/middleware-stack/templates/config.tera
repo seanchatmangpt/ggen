@@ -1,0 +1,12 @@
+{
+  "stack": "{{ sparql_results | first | get(key="stackName") }}",
+  "environment": "{{ sparql_results | first | get(key="environment") }}",
+  "middleware": [
+{% for row in sparql_results %}    {
+      "name": "{{ row["name"] }}",
+      "order": {{ row["order"] }},
+      "enabled": {{ row["enabled"] }},
+      "description": "{{ row["description"] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

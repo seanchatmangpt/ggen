@@ -1,0 +1,237 @@
+@prefix cfg: <https://ggen.io/examples/config#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Config Generator Ontology
+# Defines configuration sections and their entries for config file generation
+# =============================================================================
+
+# --- Config Sections ---
+
+cfg:DatabaseSection a cfg:Section ;
+    cfg:sectionName "database" ;
+    cfg:description "Database connection and pool configuration" ;
+    cfg:comment "Configure the primary database connection" .
+
+cfg:ServerSection a cfg:Section ;
+    cfg:sectionName "server" ;
+    cfg:description "HTTP server binding and timeout settings" ;
+    cfg:comment "Configure the HTTP server behavior" .
+
+cfg:CacheSection a cfg:Section ;
+    cfg:sectionName "cache" ;
+    cfg:description "Redis cache connection and TTL settings" ;
+    cfg:comment "Configure in-memory and distributed caching" .
+
+cfg:LoggingSection a cfg:Section ;
+    cfg:sectionName "logging" ;
+    cfg:description "Structured logging output and level settings" ;
+    cfg:comment "Configure application logging behavior" .
+
+# --- Database Entries ---
+
+cfg:DbHostEntry a cfg:Entry ;
+    cfg:entryOf cfg:DatabaseSection ;
+    cfg:key "host" ;
+    cfg:value "localhost" ;
+    cfg:valueType "string" ;
+    cfg:required "true"^^xsd:boolean ;
+    cfg:entryOrder "1"^^xsd:integer ;
+    cfg:description "Database server hostname or IP address" .
+
+cfg:DbPortEntry a cfg:Entry ;
+    cfg:entryOf cfg:DatabaseSection ;
+    cfg:key "port" ;
+    cfg:value "5432" ;
+    cfg:valueType "integer" ;
+    cfg:required "true"^^xsd:boolean ;
+    cfg:entryOrder "2"^^xsd:integer ;
+    cfg:description "Database server port number" .
+
+cfg:DbNameEntry a cfg:Entry ;
+    cfg:entryOf cfg:DatabaseSection ;
+    cfg:key "name" ;
+    cfg:value "myapp_db" ;
+    cfg:valueType "string" ;
+    cfg:required "true"^^xsd:boolean ;
+    cfg:entryOrder "3"^^xsd:integer ;
+    cfg:description "Database name to connect to" .
+
+cfg:DbUserEntry a cfg:Entry ;
+    cfg:entryOf cfg:DatabaseSection ;
+    cfg:key "username" ;
+    cfg:value "app_user" ;
+    cfg:valueType "string" ;
+    cfg:required "true"^^xsd:boolean ;
+    cfg:entryOrder "4"^^xsd:integer ;
+    cfg:description "Database authentication username" .
+
+cfg:DbPasswordEntry a cfg:Entry ;
+    cfg:entryOf cfg:DatabaseSection ;
+    cfg:key "password" ;
+    cfg:value "changeme" ;
+    cfg:valueType "string" ;
+    cfg:required "true"^^xsd:boolean ;
+    cfg:entryOrder "5"^^xsd:integer ;
+    cfg:description "Database authentication password (use env var in production)" .
+
+cfg:DbPoolMaxEntry a cfg:Entry ;
+    cfg:entryOf cfg:DatabaseSection ;
+    cfg:key "pool_max" ;
+    cfg:value "10" ;
+    cfg:valueType "integer" ;
+    cfg:required "false"^^xsd:boolean ;
+    cfg:entryOrder "6"^^xsd:integer ;
+    cfg:description "Maximum number of connections in the pool" .
+
+cfg:DbPoolMinEntry a cfg:Entry ;
+    cfg:entryOf cfg:DatabaseSection ;
+    cfg:key "pool_min" ;
+    cfg:value "2" ;
+    cfg:valueType "integer" ;
+    cfg:required "false"^^xsd:boolean ;
+    cfg:entryOrder "7"^^xsd:integer ;
+    cfg:description "Minimum number of connections in the pool" .
+
+# --- Server Entries ---
+
+cfg:ServerHostEntry a cfg:Entry ;
+    cfg:entryOf cfg:ServerSection ;
+    cfg:key "host" ;
+    cfg:value "0.0.0.0" ;
+    cfg:valueType "string" ;
+    cfg:required "true"^^xsd:boolean ;
+    cfg:entryOrder "1"^^xsd:integer ;
+    cfg:description "IP address the server binds to" .
+
+cfg:ServerPortEntry a cfg:Entry ;
+    cfg:entryOf cfg:ServerSection ;
+    cfg:key "port" ;
+    cfg:value "8080" ;
+    cfg:valueType "integer" ;
+    cfg:required "true"^^xsd:boolean ;
+    cfg:entryOrder "2"^^xsd:integer ;
+    cfg:description "HTTP server port" .
+
+cfg:ServerWorkersEntry a cfg:Entry ;
+    cfg:entryOf cfg:ServerSection ;
+    cfg:key "workers" ;
+    cfg:value "4" ;
+    cfg:valueType "integer" ;
+    cfg:required "false"^^xsd:boolean ;
+    cfg:entryOrder "3"^^xsd:integer ;
+    cfg:description "Number of worker threads" .
+
+cfg:ServerTimeoutEntry a cfg:Entry ;
+    cfg:entryOf cfg:ServerSection ;
+    cfg:key "request_timeout_secs" ;
+    cfg:value "30" ;
+    cfg:valueType "integer" ;
+    cfg:required "false"^^xsd:boolean ;
+    cfg:entryOrder "4"^^xsd:integer ;
+    cfg:description "HTTP request timeout in seconds" .
+
+cfg:ServerTlsEntry a cfg:Entry ;
+    cfg:entryOf cfg:ServerSection ;
+    cfg:key "tls_enabled" ;
+    cfg:value "false" ;
+    cfg:valueType "boolean" ;
+    cfg:required "false"^^xsd:boolean ;
+    cfg:entryOrder "5"^^xsd:integer ;
+    cfg:description "Enable TLS/HTTPS for the server" .
+
+# --- Cache Entries ---
+
+cfg:CacheHostEntry a cfg:Entry ;
+    cfg:entryOf cfg:CacheSection ;
+    cfg:key "host" ;
+    cfg:value "localhost" ;
+    cfg:valueType "string" ;
+    cfg:required "true"^^xsd:boolean ;
+    cfg:entryOrder "1"^^xsd:integer ;
+    cfg:description "Redis cache server hostname" .
+
+cfg:CachePortEntry a cfg:Entry ;
+    cfg:entryOf cfg:CacheSection ;
+    cfg:key "port" ;
+    cfg:value "6379" ;
+    cfg:valueType "integer" ;
+    cfg:required "true"^^xsd:boolean ;
+    cfg:entryOrder "2"^^xsd:integer ;
+    cfg:description "Redis server port number" .
+
+cfg:CacheTtlEntry a cfg:Entry ;
+    cfg:entryOf cfg:CacheSection ;
+    cfg:key "default_ttl_secs" ;
+    cfg:value "300" ;
+    cfg:valueType "integer" ;
+    cfg:required "false"^^xsd:boolean ;
+    cfg:entryOrder "3"^^xsd:integer ;
+    cfg:description "Default cache entry TTL in seconds" .
+
+cfg:CacheMaxSizeEntry a cfg:Entry ;
+    cfg:entryOf cfg:CacheSection ;
+    cfg:key "max_size_mb" ;
+    cfg:value "256" ;
+    cfg:valueType "integer" ;
+    cfg:required "false"^^xsd:boolean ;
+    cfg:entryOrder "4"^^xsd:integer ;
+    cfg:description "Maximum cache memory usage in megabytes" .
+
+cfg:CacheEnabledEntry a cfg:Entry ;
+    cfg:entryOf cfg:CacheSection ;
+    cfg:key "enabled" ;
+    cfg:value "true" ;
+    cfg:valueType "boolean" ;
+    cfg:required "false"^^xsd:boolean ;
+    cfg:entryOrder "5"^^xsd:integer ;
+    cfg:description "Enable or disable the cache layer" .
+
+# --- Logging Entries ---
+
+cfg:LogLevelEntry a cfg:Entry ;
+    cfg:entryOf cfg:LoggingSection ;
+    cfg:key "level" ;
+    cfg:value "info" ;
+    cfg:valueType "string" ;
+    cfg:required "true"^^xsd:boolean ;
+    cfg:entryOrder "1"^^xsd:integer ;
+    cfg:description "Log level: trace, debug, info, warn, error" .
+
+cfg:LogFormatEntry a cfg:Entry ;
+    cfg:entryOf cfg:LoggingSection ;
+    cfg:key "format" ;
+    cfg:value "json" ;
+    cfg:valueType "string" ;
+    cfg:required "false"^^xsd:boolean ;
+    cfg:entryOrder "2"^^xsd:integer ;
+    cfg:description "Output format: json or text" .
+
+cfg:LogFileEntry a cfg:Entry ;
+    cfg:entryOf cfg:LoggingSection ;
+    cfg:key "file" ;
+    cfg:value "logs/app.log" ;
+    cfg:valueType "string" ;
+    cfg:required "false"^^xsd:boolean ;
+    cfg:entryOrder "3"^^xsd:integer ;
+    cfg:description "Log file path (empty for stdout only)" .
+
+cfg:LogRotateEntry a cfg:Entry ;
+    cfg:entryOf cfg:LoggingSection ;
+    cfg:key "rotate_daily" ;
+    cfg:value "true" ;
+    cfg:valueType "boolean" ;
+    cfg:required "false"^^xsd:boolean ;
+    cfg:entryOrder "4"^^xsd:integer ;
+    cfg:description "Enable daily log file rotation" .
+
+cfg:LogRetainEntry a cfg:Entry ;
+    cfg:entryOf cfg:LoggingSection ;
+    cfg:key "retain_days" ;
+    cfg:value "7" ;
+    cfg:valueType "integer" ;
+    cfg:required "false"^^xsd:boolean ;
+    cfg:entryOrder "5"^^xsd:integer ;
+    cfg:description "Number of days to retain rotated log files" .

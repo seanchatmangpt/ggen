@@ -1,0 +1,223 @@
+@prefix rs: <https://ggen.io/examples/rust-structs#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Rust Structs Ontology
+# Defines entities and their fields for Rust struct generation
+# =============================================================================
+
+# --- Entities ---
+
+rs:UserEntity a rs:Entity ;
+    rs:name "User" ;
+    rs:description "Represents an application user with authentication details" .
+
+rs:ProductEntity a rs:Entity ;
+    rs:name "Product" ;
+    rs:description "Represents a product in the catalog with pricing information" .
+
+rs:OrderEntity a rs:Entity ;
+    rs:name "Order" ;
+    rs:description "Represents a customer purchase order" .
+
+rs:CategoryEntity a rs:Entity ;
+    rs:name "Category" ;
+    rs:description "Represents a product category for classification" .
+
+rs:PaymentEntity a rs:Entity ;
+    rs:name "Payment" ;
+    rs:description "Represents a payment transaction for an order" .
+
+# --- User Fields ---
+
+rs:UserIdField a rs:Field ;
+    rs:fieldOf rs:UserEntity ;
+    rs:fieldName "id" ;
+    rs:fieldType "u64" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "1"^^xsd:integer .
+
+rs:UserEmailField a rs:Field ;
+    rs:fieldOf rs:UserEntity ;
+    rs:fieldName "email" ;
+    rs:fieldType "String" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "2"^^xsd:integer .
+
+rs:UserNameField a rs:Field ;
+    rs:fieldOf rs:UserEntity ;
+    rs:fieldName "name" ;
+    rs:fieldType "String" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "3"^^xsd:integer .
+
+rs:UserAvatarField a rs:Field ;
+    rs:fieldOf rs:UserEntity ;
+    rs:fieldName "avatar_url" ;
+    rs:fieldType "String" ;
+    rs:optional "true"^^xsd:boolean ;
+    rs:fieldOrder "4"^^xsd:integer .
+
+rs:UserCreatedAtField a rs:Field ;
+    rs:fieldOf rs:UserEntity ;
+    rs:fieldName "created_at" ;
+    rs:fieldType "String" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "5"^^xsd:integer .
+
+# --- Product Fields ---
+
+rs:ProductIdField a rs:Field ;
+    rs:fieldOf rs:ProductEntity ;
+    rs:fieldName "id" ;
+    rs:fieldType "u64" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "1"^^xsd:integer .
+
+rs:ProductNameField a rs:Field ;
+    rs:fieldOf rs:ProductEntity ;
+    rs:fieldName "name" ;
+    rs:fieldType "String" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "2"^^xsd:integer .
+
+rs:ProductPriceField a rs:Field ;
+    rs:fieldOf rs:ProductEntity ;
+    rs:fieldName "price_cents" ;
+    rs:fieldType "u64" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "3"^^xsd:integer .
+
+rs:ProductDescriptionField a rs:Field ;
+    rs:fieldOf rs:ProductEntity ;
+    rs:fieldName "description" ;
+    rs:fieldType "String" ;
+    rs:optional "true"^^xsd:boolean ;
+    rs:fieldOrder "4"^^xsd:integer .
+
+rs:ProductCategoryField a rs:Field ;
+    rs:fieldOf rs:ProductEntity ;
+    rs:fieldName "category_id" ;
+    rs:fieldType "u64" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "5"^^xsd:integer .
+
+rs:ProductStockField a rs:Field ;
+    rs:fieldOf rs:ProductEntity ;
+    rs:fieldName "stock_quantity" ;
+    rs:fieldType "u32" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "6"^^xsd:integer .
+
+# --- Order Fields ---
+
+rs:OrderIdField a rs:Field ;
+    rs:fieldOf rs:OrderEntity ;
+    rs:fieldName "id" ;
+    rs:fieldType "u64" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "1"^^xsd:integer .
+
+rs:OrderUserField a rs:Field ;
+    rs:fieldOf rs:OrderEntity ;
+    rs:fieldName "user_id" ;
+    rs:fieldType "u64" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "2"^^xsd:integer .
+
+rs:OrderStatusField a rs:Field ;
+    rs:fieldOf rs:OrderEntity ;
+    rs:fieldName "status" ;
+    rs:fieldType "String" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "3"^^xsd:integer .
+
+rs:OrderTotalField a rs:Field ;
+    rs:fieldOf rs:OrderEntity ;
+    rs:fieldName "total_cents" ;
+    rs:fieldType "u64" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "4"^^xsd:integer .
+
+rs:OrderCreatedField a rs:Field ;
+    rs:fieldOf rs:OrderEntity ;
+    rs:fieldName "created_at" ;
+    rs:fieldType "String" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "5"^^xsd:integer .
+
+# --- Category Fields ---
+
+rs:CategoryIdField a rs:Field ;
+    rs:fieldOf rs:CategoryEntity ;
+    rs:fieldName "id" ;
+    rs:fieldType "u64" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "1"^^xsd:integer .
+
+rs:CategoryNameField a rs:Field ;
+    rs:fieldOf rs:CategoryEntity ;
+    rs:fieldName "name" ;
+    rs:fieldType "String" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "2"^^xsd:integer .
+
+rs:CategorySlugField a rs:Field ;
+    rs:fieldOf rs:CategoryEntity ;
+    rs:fieldName "slug" ;
+    rs:fieldType "String" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "3"^^xsd:integer .
+
+rs:CategoryParentField a rs:Field ;
+    rs:fieldOf rs:CategoryEntity ;
+    rs:fieldName "parent_id" ;
+    rs:fieldType "u64" ;
+    rs:optional "true"^^xsd:boolean ;
+    rs:fieldOrder "4"^^xsd:integer .
+
+# --- Payment Fields ---
+
+rs:PaymentIdField a rs:Field ;
+    rs:fieldOf rs:PaymentEntity ;
+    rs:fieldName "id" ;
+    rs:fieldType "u64" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "1"^^xsd:integer .
+
+rs:PaymentOrderField a rs:Field ;
+    rs:fieldOf rs:PaymentEntity ;
+    rs:fieldName "order_id" ;
+    rs:fieldType "u64" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "2"^^xsd:integer .
+
+rs:PaymentAmountField a rs:Field ;
+    rs:fieldOf rs:PaymentEntity ;
+    rs:fieldName "amount_cents" ;
+    rs:fieldType "u64" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "3"^^xsd:integer .
+
+rs:PaymentMethodField a rs:Field ;
+    rs:fieldOf rs:PaymentEntity ;
+    rs:fieldName "method" ;
+    rs:fieldType "String" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "4"^^xsd:integer .
+
+rs:PaymentStatusField a rs:Field ;
+    rs:fieldOf rs:PaymentEntity ;
+    rs:fieldName "status" ;
+    rs:fieldType "String" ;
+    rs:optional "false"^^xsd:boolean ;
+    rs:fieldOrder "5"^^xsd:integer .
+
+rs:PaymentProcessedField a rs:Field ;
+    rs:fieldOf rs:PaymentEntity ;
+    rs:fieldName "processed_at" ;
+    rs:fieldType "String" ;
+    rs:optional "true"^^xsd:boolean ;
+    rs:fieldOrder "6"^^xsd:integer .
