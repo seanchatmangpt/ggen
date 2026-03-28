@@ -641,20 +641,45 @@ fn validate_config(
 #[verb]
 fn start_server(server_name: String, background: bool) -> VerbResult<ServerStartOutput> {
     if background {
-        Ok(ServerStartOutput {
+        // Background mode: not yet implemented
+        return Ok(ServerStartOutput {
             server_name,
             status: "started".to_string(),
             pid: None,
-            message: "Server started in background".to_string(),
-        })
-    } else {
-        Ok(ServerStartOutput {
-            server_name,
-            status: "foreground".to_string(),
-            pid: None,
-            message: "Server would run in foreground".to_string(),
-        })
+            message: "Background mode not yet implemented. Use foreground mode (--no-background)."
+                .to_string(),
+        });
     }
+
+    // Foreground mode: run the MCP stdio server.
+    // This blocks until the MCP client disconnects.
+    let serve_result = block_on(async {
+        ggen_a2a_mcp::server::serve_stdio()
+            .await
+            .map_err(|e| ggen_utils::error::Error::new(&format!("{}", e)))
+    });
+    match serve_result {
+        Ok(Ok(())) => {}
+        Ok(Err(e)) => {
+            return Err(clap_noun_verb::NounVerbError::execution_error(format!(
+                "MCP server error: {}",
+                e
+            )));
+        }
+        Err(e) => {
+            return Err(clap_noun_verb::NounVerbError::execution_error(format!(
+                "MCP runtime error: {}",
+                e
+            )));
+        }
+    }
+
+    Ok(ServerStartOutput {
+        server_name,
+        status: "stopped".to_string(),
+        pid: None,
+        message: "MCP stdio server finished".to_string(),
+    })
 }
 
 /// Stop an MCP server
