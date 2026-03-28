@@ -132,7 +132,7 @@ Every template has two parts:
 2. Template loops through results:
    ```tera
    {%- for row in sparql_results -%}
-     {{ row["?entityName"] }}
+     {{ row["entityName"] }}
    {%- endfor %}
    ```
 3. Variables are substituted → generates code
@@ -141,7 +141,7 @@ Every template has two parts:
 
 1. Open `templates/zod-schemas.tera`
 2. Find the loop: `{%- for row in sparql_results -%}`
-3. See how it uses `row["?entityName"]` and `row["?propertyName"]`
+3. See how it uses `row["entityName"]` and `row["propertyName"]`
 4. Can you trace how it generates the Zod schema?
 
 ## Step 4: The Complete Flow

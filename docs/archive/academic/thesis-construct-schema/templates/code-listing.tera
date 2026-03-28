@@ -4,10 +4,10 @@
    Uses sparql_results array with ?-prefixed keys
    ============================================================================= #}
 {% for row in sparql_results %}
-{%- set language = row["?language"] | default(value="text") -%}
-{%- set caption = row["?caption"] | default(value="") -%}
-{%- set labelId = row["?labelId"] | default(value="") -%}
-{%- set code = row["?code"] | default(value="") -%}
+{%- set language = row["language"] | default(value="text") -%}
+{%- set caption = row["caption"] | default(value="") -%}
+{%- set labelId = row["labelId"] | default(value="") -%}
+{%- set code = row["code"] | default(value="") -%}
 \begin{lstlisting}[language={{ language }}, caption={ {{- caption -}} }, label={{ labelId }}]
 {{ code | replace(from="\\n", to="
 ") }}

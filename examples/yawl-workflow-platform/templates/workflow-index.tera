@@ -21,12 +21,12 @@ export * from './flows.mjs';
 
 export const WORKFLOW_INDEX = [
 {%- for row in sparql_results %}
-{%- set specId = row["?specId"] | default(value="") %}
-{%- set specName = row["?specName"] | default(value="") %}
-{%- set specVersion = row["?specVersion"] | default(value="1.0.0") %}
-{%- set specComment = row["?specComment"] | default(value="") %}
-{%- set taskCount = row["?taskCount"] | default(value="0") %}
-{%- set flowCount = row["?flowCount"] | default(value="0") %}
+{%- set specId = row["specId"] | default(value="") %}
+{%- set specName = row["specName"] | default(value="") %}
+{%- set specVersion = row["specVersion"] | default(value="1.0.0") %}
+{%- set specComment = row["specComment"] | default(value="") %}
+{%- set taskCount = row["taskCount"] | default(value="0") %}
+{%- set flowCount = row["flowCount"] | default(value="0") %}
 {%- if specId != "" %}
   {
     specId: '{{ specId }}',

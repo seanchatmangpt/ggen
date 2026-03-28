@@ -358,8 +358,10 @@ impl GenerationPipeline {
                             .map_err(|e| Error::new(&format!("SPARQL solution error: {}", e)))?;
                         let mut row = BTreeMap::new();
                         for (var, term) in solution.iter() {
-                            // Clean the term value at collection time
-                            row.insert(var.to_string(), clean_sparql_term(&term.to_string()));
+                            // Strip leading '?' so templates use {{ var }} not {{ ?var }}
+                            let key = var.to_string();
+                            let clean_key = key.strip_prefix('?').unwrap_or(&key).to_string();
+                            row.insert(clean_key, clean_sparql_term(&term.to_string()));
                         }
                         rows.push(row);
                     }

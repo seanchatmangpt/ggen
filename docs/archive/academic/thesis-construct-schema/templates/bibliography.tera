@@ -4,20 +4,20 @@
    Uses sparql_results array with ?-prefixed keys
    ============================================================================= #}
 {% for row in sparql_results %}
-{%- set bibType = row["?bibType"] | default(value="misc") -%}
-{%- set citeKey = row["?citeKey"] | default(value="") -%}
-{%- set author = row["?author"] | default(value="") -%}
-{%- set title = row["?title"] | default(value="") -%}
-{%- set year = row["?year"] | default(value="") -%}
-{%- set journal = row["?journal"] | default(value="") -%}
-{%- set booktitle = row["?booktitle"] | default(value="") -%}
-{%- set publisher = row["?publisher"] | default(value="") -%}
-{%- set school = row["?school"] | default(value="") -%}
-{%- set volume = row["?volume"] | default(value="") -%}
-{%- set pages = row["?pages"] | default(value="") -%}
-{%- set doi = row["?doi"] | default(value="") -%}
-{%- set url = row["?url"] | default(value="") -%}
-{%- set howpublished = row["?howpublished"] | default(value="") -%}
+{%- set bibType = row["bibType"] | default(value="misc") -%}
+{%- set citeKey = row["citeKey"] | default(value="") -%}
+{%- set author = row["author"] | default(value="") -%}
+{%- set title = row["title"] | default(value="") -%}
+{%- set year = row["year"] | default(value="") -%}
+{%- set journal = row["journal"] | default(value="") -%}
+{%- set booktitle = row["booktitle"] | default(value="") -%}
+{%- set publisher = row["publisher"] | default(value="") -%}
+{%- set school = row["school"] | default(value="") -%}
+{%- set volume = row["volume"] | default(value="") -%}
+{%- set pages = row["pages"] | default(value="") -%}
+{%- set doi = row["doi"] | default(value="") -%}
+{%- set url = row["url"] | default(value="") -%}
+{%- set howpublished = row["howpublished"] | default(value="") -%}
 @{{ bibType }}{ {{- citeKey -}},
   author = { {{- author -}} },
   title = { {{- title -}} },

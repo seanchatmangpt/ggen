@@ -45,11 +45,11 @@ export const RuleSchema = z.object({
 // =============================================================================
 
 {%- for row in sparql_results %}
-{%- set workletId = row["?workletId"] | default(value="") %}
-{%- set workletName = row["?workletName"] | default(value="") %}
-{%- set exceptionType = row["?exceptionType"] | default(value="Unknown") %}
-{%- set compensationAction = row["?compensationAction"] | default(value="skip") %}
-{%- set rules = row["?rules"] | default(value="") %}
+{%- set workletId = row["workletId"] | default(value="") %}
+{%- set workletName = row["workletName"] | default(value="") %}
+{%- set exceptionType = row["exceptionType"] | default(value="Unknown") %}
+{%- set compensationAction = row["compensationAction"] | default(value="skip") %}
+{%- set rules = row["rules"] | default(value="") %}
 
 const RULES_{{ workletId | upper | replace(from="-", to="_") }} = [
 {%- if rules != "" %}
@@ -72,10 +72,10 @@ const RULES_{{ workletId | upper | replace(from="-", to="_") }} = [
 // =============================================================================
 
 {%- for row in sparql_results %}
-{%- set workletId = row["?workletId"] | default(value="") %}
-{%- set workletName = row["?workletName"] | default(value="") %}
-{%- set exceptionType = row["?exceptionType"] | default(value="Unknown") %}
-{%- set compensationAction = row["?compensationAction"] | default(value="skip") %}
+{%- set workletId = row["workletId"] | default(value="") %}
+{%- set workletName = row["workletName"] | default(value="") %}
+{%- set exceptionType = row["exceptionType"] | default(value="Unknown") %}
+{%- set compensationAction = row["compensationAction"] | default(value="skip") %}
 
 export class {{ workletName }} {
   /** @type {string} */
@@ -279,8 +279,8 @@ export class WorkletRegistry {
 
   constructor() {
 {%- for row in sparql_results %}
-{%- set workletId = row["?workletId"] | default(value="") %}
-{%- set workletName = row["?workletName"] | default(value="") %}
+{%- set workletId = row["workletId"] | default(value="") %}
+{%- set workletName = row["workletName"] | default(value="") %}
     this.#worklets.set('{{ workletId }}', new {{ workletName }}());
 {%- endfor %}
   }

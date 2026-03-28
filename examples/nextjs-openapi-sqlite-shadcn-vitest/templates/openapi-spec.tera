@@ -21,11 +21,11 @@ paths:
 {%- set current_entity = "" -%}
 {%- set current_path = "" -%}
 {%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
-{%- set path = row["?path"] | default(value="") -%}
-{%- set method = row["?method"] | default(value="GET") | lower -%}
-{%- set operationId = row["?operationId"] | default(value="") -%}
-{%- set endpointDesc = row["?endpointDesc"] | default(value="") -%}
+{%- set entityName = row["entityName"] | default(value="") -%}
+{%- set path = row["path"] | default(value="") -%}
+{%- set method = row["method"] | default(value="GET") | lower -%}
+{%- set operationId = row["operationId"] | default(value="") -%}
+{%- set endpointDesc = row["endpointDesc"] | default(value="") -%}
 
 {%- if path != current_path -%}
 {%- set_global current_path = path %}
@@ -77,11 +77,11 @@ components:
   schemas:
 {%- set current_entity = "" -%}
 {%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
-{%- set propName = row["?propName"] | default(value="") -%}
-{%- set propType = row["?propType"] | default(value="string") -%}
-{%- set required = row["?required"] | default(value="false") -%}
-{%- set format = row["?format"] | default(value="") -%}
+{%- set entityName = row["entityName"] | default(value="") -%}
+{%- set propName = row["propName"] | default(value="") -%}
+{%- set propType = row["propType"] | default(value="string") -%}
+{%- set required = row["required"] | default(value="false") -%}
+{%- set format = row["format"] | default(value="") -%}
 
 {%- if entityName != current_entity -%}
 {%- if current_entity != "" %}

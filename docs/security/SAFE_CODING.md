@@ -209,7 +209,7 @@ use ggen_core::sparql::QueryBuilder;
 // ✅ CORRECT: Use QueryBuilder
 fn find_persons(name_filter: &str) -> Result<String, Error> {
     let query = QueryBuilder::new()
-        .select(&["?person", "?name", "?age"])
+        .select(&["person", "?name", "?age"])
         .where_clause("?person rdf:type foaf:Person .")
         .where_clause("?person foaf:name ?name .")
         .where_clause("?person foaf:age ?age .")
@@ -266,7 +266,7 @@ fn find_users_with_filters(
     name_prefix: &str,
 ) -> Result<String, Error> {
     let query = QueryBuilder::new()
-        .select(&["?user", "?name", "?age", "?role"])
+        .select(&["user", "?name", "?age", "?role"])
         .where_clause("?user rdf:type ex:User .")
         .where_clause("?user ex:name ?name .")
         .where_clause("?user ex:age ?age .")
@@ -303,14 +303,14 @@ let query = user_input;  // Never execute raw user input!
 ```rust
 // ✅ QueryBuilder with escaping
 let query = QueryBuilder::new()
-    .select(&["?s", "?p", "?o"])
+    .select(&["s", "?p", "?o"])
     .where_clause("?s ?p ?o")
     .filter(&format!("?s = {}", QueryBuilder::escape_uri(&user_input)))
     .build()?;
 
 // ✅ Parameterized queries (future feature)
 let query = QueryBuilder::new()
-    .select(&["?s"])
+    .select(&["s"])
     .where_clause("?s ex:name $name")
     .param("name", user_input)
     .build()?;

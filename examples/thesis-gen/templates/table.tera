@@ -6,9 +6,9 @@
 {%- set current_table = "" -%}
 {%- set tables_seen = [] -%}
 {% for row in sparql_results %}
-{%- set tableUri = row["?tableUri"] | default(value="") -%}
-{%- set caption = row["?caption"] | default(value="") -%}
-{%- set labelId = row["?labelId"] | default(value="") -%}
+{%- set tableUri = row["tableUri"] | default(value="") -%}
+{%- set caption = row["caption"] | default(value="") -%}
+{%- set labelId = row["labelId"] | default(value="") -%}
 {# Only emit each table once #}
 {%- if tableUri != current_table -%}
 {%- set_global current_table = tableUri -%}

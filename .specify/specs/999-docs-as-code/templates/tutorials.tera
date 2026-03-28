@@ -5,18 +5,18 @@ Learn ggen through hands-on projects. Each tutorial builds on the previous one.
 ## Beginner Tutorials
 
 {% for row in results | filter(attribute="?difficulty", value="Beginner") %}
-### {{ row["?title"] }}
+### {{ row["title"] }}
 
-**Estimated Time**: {{ row["?estimatedMinutes"] }} minutes
-**Category**: {{ row["?category"] }}
+**Estimated Time**: {{ row["estimatedMinutes"] }} minutes
+**Category**: {{ row["category"] }}
 
-{{ row["?description"] }}
+{{ row["description"] }}
 
-{% if row["?prerequisite"] -%}
-**Prerequisites**: {{ row["?prerequisite"] }}
+{% if row["prerequisite"] -%}
+**Prerequisites**: {{ row["prerequisite"] }}
 {% endif -%}
 
-**Read**: `{{ row["?outputFile"] }}`
+**Read**: `{{ row["outputFile"] }}`
 
 ---
 {% endfor %}
@@ -24,18 +24,18 @@ Learn ggen through hands-on projects. Each tutorial builds on the previous one.
 ## Intermediate Tutorials
 
 {% for row in results | filter(attribute="?difficulty", value="Intermediate") %}
-### {{ row["?title"] }}
+### {{ row["title"] }}
 
-**Estimated Time**: {{ row["?estimatedMinutes"] }} minutes
-**Category**: {{ row["?category"] }}
+**Estimated Time**: {{ row["estimatedMinutes"] }} minutes
+**Category**: {{ row["category"] }}
 
-{{ row["?description"] }}
+{{ row["description"] }}
 
-{% if row["?prerequisite"] -%}
-**Prerequisites**: {{ row["?prerequisite"] }}
+{% if row["prerequisite"] -%}
+**Prerequisites**: {{ row["prerequisite"] }}
 {% endif -%}
 
-**Read**: `{{ row["?outputFile"] }}`
+**Read**: `{{ row["outputFile"] }}`
 
 ---
 {% endfor %}
@@ -43,18 +43,18 @@ Learn ggen through hands-on projects. Each tutorial builds on the previous one.
 ## Advanced Tutorials
 
 {% for row in results | filter(attribute="?difficulty", value="Advanced") %}
-### {{ row["?title"] }}
+### {{ row["title"] }}
 
-**Estimated Time**: {{ row["?estimatedMinutes"] }} minutes
-**Category**: {{ row["?category"] }}
+**Estimated Time**: {{ row["estimatedMinutes"] }} minutes
+**Category**: {{ row["category"] }}
 
-{{ row["?description"] }}
+{{ row["description"] }}
 
-{% if row["?prerequisite"] -%}
-**Prerequisites**: {{ row["?prerequisite"] }}
+{% if row["prerequisite"] -%}
+**Prerequisites**: {{ row["prerequisite"] }}
 {% endif -%}
 
-**Read**: `{{ row["?outputFile"] }}`
+**Read**: `{{ row["outputFile"] }}`
 
 ---
 {% endfor %}
@@ -64,5 +64,5 @@ Learn ggen through hands-on projects. Each tutorial builds on the previous one.
 | Title | Time | Difficulty |
 |-------|------|------------|
 {% for row in results -%}
-| {{ row["?title"] }} | {{ row["?estimatedMinutes"] }}m | {{ row["?difficulty"] }} |
+| {{ row["title"] }} | {{ row["estimatedMinutes"] }}m | {{ row["difficulty"] }} |
 {% endfor %}

@@ -8,13 +8,13 @@ Quick lookup documentation for all ggen features.
 ## {{ category_name }}
 
 {% for row in category_items | sort(attribute="?title") %}
-### {{ row["?title"] }}
+### {{ row["title"] }}
 
-{{ row["?description"] }}
+{{ row["description"] }}
 
-**Time to read**: {{ row["?estimatedMinutes"] }} minutes
+**Time to read**: {{ row["estimatedMinutes"] }} minutes
 
-**File**: `{{ row["?outputFile"] }}`
+**File**: `{{ row["outputFile"] }}`
 
 ---
 {% endfor %}
@@ -25,5 +25,5 @@ Quick lookup documentation for all ggen features.
 | Title | Category | Time | File |
 |-------|----------|------|------|
 {% for row in results | sort(attribute="?category") | sort(attribute="?title") %}
-| {{ row["?title"] }} | {{ row["?category"] }} | {{ row["?estimatedMinutes"] }}m | `{{ row["?outputFile"] }}` |
+| {{ row["title"] }} | {{ row["category"] }} | {{ row["estimatedMinutes"] }}m | `{{ row["outputFile"] }}` |
 {% endfor %}

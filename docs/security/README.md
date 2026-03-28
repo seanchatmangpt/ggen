@@ -116,7 +116,7 @@ let content = fs::read_to_string(path.as_path())?;
 ```rust
 use ggen_core::sparql::QueryBuilder;
 let query = QueryBuilder::new()
-    .select(&["?s", "?p", "?o"])
+    .select(&["s", "?p", "?o"])
     .where_clause("?s ?p ?o")
     .filter(&format!("?s = {}", QueryBuilder::escape_literal(user_input)))
     .build()?;

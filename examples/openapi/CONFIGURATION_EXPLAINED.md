@@ -485,14 +485,14 @@ ORDER BY ?entityName ?propertyName
 
 ```tera
 {%- for row in sparql_results -%}
-  {{ row["?entityName"] }}
+  {{ row["entityName"] }}
 {%- endfor %}
 ```
 
 ### Conditional Rendering
 
 ```tera
-{%- if row["?required"] == "true" -%}
+{%- if row["required"] == "true" -%}
   required
 {%- endif %}
 ```

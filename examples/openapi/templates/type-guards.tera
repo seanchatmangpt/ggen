@@ -12,7 +12,7 @@
 
 {# Generate guards for each unique entity #}
 {%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
+{%- set entityName = row["entityName"] | default(value="") -%}
 {%- if entityName != "" and entityName != current_entity -%}
 {%- if current_entity != "" %}
   );
@@ -30,8 +30,8 @@ export function is{{ entityName }}(value) {
     typeof value === 'object' &&
     value !== null
 {%- endif -%}
-{%- set propertyName = row["?propertyName"] | default(value="") -%}
-{%- set required = row["?required"] | default(value="false") -%}
+{%- set propertyName = row["propertyName"] | default(value="") -%}
+{%- set required = row["required"] | default(value="false") -%}
 {%- if required == "true" %} &&
     '{{ propertyName }}' in value
 {%- endif -%}

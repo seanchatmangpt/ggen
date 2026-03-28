@@ -24,9 +24,9 @@ pub enum HandlerError {
 }
 
 {% for row in sparql_results -%}
-{%- set command_name = row["?commandName"] -%}
-{%- set aggregate_name = row["?aggregateName"] -%}
-{%- set event_name = row["?eventName"] -%}
+{%- set command_name = row["commandName"] -%}
+{%- set aggregate_name = row["aggregateName"] -%}
+{%- set event_name = row["eventName"] -%}
 
 /// Handle {{ command_name }} command with OpenTelemetry instrumentation
 pub fn handle_{{ command_name | lower }}(

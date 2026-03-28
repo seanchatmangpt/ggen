@@ -37,8 +37,8 @@ import { verifyReceipt, ProofChain } from '@unrdf/yawl';
 const mockWorkflows = {
 {%- set seen_specs = "" %}
 {%- for row in sparql_results %}
-{%- set specId = row["?specId"] | default(value="") %}
-{%- set specName = row["?specName"] | default(value="") %}
+{%- set specId = row["specId"] | default(value="") %}
+{%- set specName = row["specName"] | default(value="") %}
 {%- if specId != "" and specId not in seen_specs %}
 {%- set_global seen_specs = seen_specs ~ "," ~ specId %}
   '{{ specId }}': {
@@ -79,9 +79,9 @@ const mockWorkItems = {
 const handlers = [
 {%- set seen_handlers = "" %}
 {%- for row in sparql_results %}
-{%- set servletId = row["?servletId"] | default(value="") %}
-{%- set urlPattern = row["?urlPattern"] | default(value="") %}
-{%- set httpMethod = row["?httpMethod"] | default(value="GET") | lower %}
+{%- set servletId = row["servletId"] | default(value="") %}
+{%- set urlPattern = row["urlPattern"] | default(value="") %}
+{%- set httpMethod = row["httpMethod"] | default(value="GET") | lower %}
 {%- set handlerKey = httpMethod ~ urlPattern %}
 {%- if handlerKey != "" and handlerKey not in seen_handlers and servletId != "" %}
 {%- set_global seen_handlers = seen_handlers ~ "," ~ handlerKey %}
@@ -397,7 +397,7 @@ describe('WorkflowEngine', () => {
 describe('REST API Integration', () => {
 {%- set tested_specs = "" %}
 {%- for row in sparql_results %}
-{%- set specId = row["?specId"] | default(value="") %}
+{%- set specId = row["specId"] | default(value="") %}
 {%- if specId != "" and specId not in tested_specs %}
 {%- set_global tested_specs = tested_specs ~ "," ~ specId %}
 

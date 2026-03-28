@@ -4,11 +4,11 @@
    Uses sparql_results array with ?-prefixed keys
    ============================================================================= #}
 {% for row in sparql_results %}
-{%- set position = row["?position"] | default(value="htbp") -%}
-{%- set width = row["?width"] | default(value="0.8\\textwidth") -%}
-{%- set imagePath = row["?imagePath"] | default(value="") -%}
-{%- set caption = row["?caption"] | default(value="") -%}
-{%- set labelId = row["?labelId"] | default(value="") -%}
+{%- set position = row["position"] | default(value="htbp") -%}
+{%- set width = row["width"] | default(value="0.8\\textwidth") -%}
+{%- set imagePath = row["imagePath"] | default(value="") -%}
+{%- set caption = row["caption"] | default(value="") -%}
+{%- set labelId = row["labelId"] | default(value="") -%}
 \begin{figure}[{{ position }}]
 \centering
 \includegraphics[width={{ width }}]{ {{- imagePath -}} }

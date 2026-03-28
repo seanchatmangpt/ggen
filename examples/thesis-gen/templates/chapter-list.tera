@@ -4,6 +4,6 @@
    Uses sparql_results array with ?-prefixed keys
    ============================================================================= #}
 {% for row in sparql_results %}
-{%- set orderIndex = row["?orderIndex"] | default(value="0") -%}
+{%- set orderIndex = row["orderIndex"] | default(value="0") -%}
 \input{chapters/chapter-{{ orderIndex }}.tex}
 {% endfor %}

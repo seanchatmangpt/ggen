@@ -11,23 +11,23 @@ graph LR
 
     subgraph "Command Flow"
 {% for row in sparql_results -%}
-{%- if row["?commandName"] %}
-        Cmd_{{ row["?commandName"] }}["{{ row["?commandName"] }}
+{%- if row["commandName"] %}
+        Cmd_{{ row["commandName"] }}["{{ row["commandName"] }}
         ---
         Command"]:::command
 
-        Handler_{{ row["?commandName"] }}["{{ row["?handlerName"] }}
+        Handler_{{ row["commandName"] }}["{{ row["handlerName"] }}
         ---
         Command Handler"]:::handler
 
-        Cmd_{{ row["?commandName"] }} -->|"Handled by"| Handler_{{ row["?commandName"] }}
+        Cmd_{{ row["commandName"] }} -->|"Handled by"| Handler_{{ row["commandName"] }}
 
-  {%- if row["?eventName"] %}
-        Event_{{ row["?eventName"] }}["{{ row["?eventName"] }}
+  {%- if row["eventName"] %}
+        Event_{{ row["eventName"] }}["{{ row["eventName"] }}
         ---
         Domain Event"]:::event
 
-        Handler_{{ row["?commandName"] }} -->|"Emits"| Event_{{ row["?eventName"] }}
+        Handler_{{ row["commandName"] }} -->|"Emits"| Event_{{ row["eventName"] }}
   {% endif -%}
 {% endif -%}
 {%- endfor %}
@@ -35,8 +35,8 @@ graph LR
 
     subgraph "Policies"
 {% for row in sparql_results -%}
-{%- if row["?policyName"] %}
-        Policy_{{ row["?policyName"] }}["{{ row["?policyName"] }}
+{%- if row["policyName"] %}
+        Policy_{{ row["policyName"] }}["{{ row["policyName"] }}
         ---
         Business Policy"]:::policy
 {% endif -%}
@@ -44,7 +44,7 @@ graph LR
     end
 
 {% for row in sparql_results -%}
-{%- if row["?policyName"] and row["?eventName"] %}
-    Event_{{ row["?eventName"] }} -.->|"Enforced by"| Policy_{{ row["?policyName"] }}
+{%- if row["policyName"] and row["eventName"] %}
+    Event_{{ row["eventName"] }} -.->|"Enforced by"| Policy_{{ row["policyName"] }}
 {% endif -%}
 {%- endfor %}

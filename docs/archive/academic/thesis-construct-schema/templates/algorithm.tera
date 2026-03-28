@@ -5,12 +5,12 @@
    ============================================================================= #}
 {%- set current_algorithm = "" -%}
 {% for row in sparql_results %}
-{%- set labelId = row["?labelId"] | default(value="") -%}
-{%- set title = row["?title"] | default(value="") -%}
-{%- set caption = row["?caption"] | default(value=title) -%}
-{%- set input = row["?input"] | default(value="") -%}
-{%- set output = row["?output"] | default(value="") -%}
-{%- set step = row["?step"] | default(value="") -%}
+{%- set labelId = row["labelId"] | default(value="") -%}
+{%- set title = row["title"] | default(value="") -%}
+{%- set caption = row["caption"] | default(value=title) -%}
+{%- set input = row["input"] | default(value="") -%}
+{%- set output = row["output"] | default(value="") -%}
+{%- set step = row["step"] | default(value="") -%}
 {%- if labelId != current_algorithm -%}
 {%- if current_algorithm != "" -%}
 \end{algorithmic}

@@ -94,7 +94,7 @@ let invalid = Triple::builder()
 ```rust
 // ✅ CORRECT: Validated query
 let query = SparqlQuery::new()
-    .select(&["?name"])
+    .select(&["name"])
     .where_pattern("?pkg a ggen:Package")
     .validate()?;  // Transitions to Validated state
 
@@ -102,7 +102,7 @@ let result = control_plane.execute_query(query)?;  // Only accepts Validated
 
 // ❌ IMPOSSIBLE: Cannot execute unvalidated query
 let unvalidated = SparqlQuery::new()
-    .select(&["?name"]);
+    .select(&["name"]);
 // No .execute_query() method available - type system prevents it
 ```
 

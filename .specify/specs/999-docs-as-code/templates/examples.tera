@@ -7,11 +7,11 @@ Working examples demonstrating ggen capabilities end-to-end.
 ### Beginner Examples
 
 {% for row in results | filter(attribute="?difficulty", value="Beginner") %}
-**{{ row["?title"] }}** ({{ row["?estimatedMinutes"] }}m)
+**{{ row["title"] }}** ({{ row["estimatedMinutes"] }}m)
 
-{{ row["?description"] }}
+{{ row["description"] }}
 
-Read: `{{ row["?outputFile"] }}`
+Read: `{{ row["outputFile"] }}`
 
 ---
 {% endfor %}
@@ -19,11 +19,11 @@ Read: `{{ row["?outputFile"] }}`
 ### Intermediate Examples
 
 {% for row in results | filter(attribute="?difficulty", value="Intermediate") %}
-**{{ row["?title"] }}** ({{ row["?estimatedMinutes"] }}m)
+**{{ row["title"] }}** ({{ row["estimatedMinutes"] }}m)
 
-{{ row["?description"] }}
+{{ row["description"] }}
 
-Read: `{{ row["?outputFile"] }}`
+Read: `{{ row["outputFile"] }}`
 
 ---
 {% endfor %}
@@ -31,11 +31,11 @@ Read: `{{ row["?outputFile"] }}`
 ### Advanced Examples
 
 {% for row in results | filter(attribute="?difficulty", value="Advanced") %}
-**{{ row["?title"] }}** ({{ row["?estimatedMinutes"] }}m)
+**{{ row["title"] }}** ({{ row["estimatedMinutes"] }}m)
 
-{{ row["?description"] }}
+{{ row["description"] }}
 
-Read: `{{ row["?outputFile"] }}`
+Read: `{{ row["outputFile"] }}`
 
 ---
 {% endfor %}
@@ -45,5 +45,5 @@ Read: `{{ row["?outputFile"] }}`
 | Project | Difficulty | Time | File |
 |---------|------------|------|------|
 {% for row in results | sort(attribute="?difficulty") | sort(attribute="?title") %}
-| {{ row["?title"] }} | {{ row["?difficulty"] }} | {{ row["?estimatedMinutes"] }}m | `{{ row["?outputFile"] }}` |
+| {{ row["title"] }} | {{ row["difficulty"] }} | {{ row["estimatedMinutes"] }}m | `{{ row["outputFile"] }}` |
 {% endfor %}

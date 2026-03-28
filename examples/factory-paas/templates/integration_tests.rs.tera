@@ -27,8 +27,8 @@ async fn test_api_health() {
 }
 
 {% for row in sparql_results -%}
-{%- set command_name = row["?commandName"] -%}
-{%- set http_path = row["?httpPath"] | default(value="/" ~ command_name | lower) -%}
+{%- set command_name = row["commandName"] -%}
+{%- set http_path = row["httpPath"] | default(value="/" ~ command_name | lower) -%}
 
 #[tokio::test]
 async fn test_{{ command_name | lower }}_endpoint() {

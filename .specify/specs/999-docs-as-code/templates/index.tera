@@ -7,7 +7,7 @@ Master index of all ggen documentation generated from RDF ontology.
 | Type | Count |
 |------|-------|
 {% for row in results | sort(attribute="?type") %}
-| {{ row["?type"] }} | {{ row["?count"] }} |
+| {{ row["type"] }} | {{ row["count"] }} |
 {% endfor %}
 
 ## Learning Path

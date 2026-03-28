@@ -19,10 +19,10 @@
 **Pattern**:
 ```tera
 {% for row in sparql_results %}
-{{ row["?envBegin"] }}[{{ row["?label"] }}]
-{{ row["?envLabel"] }}{% raw %}{{% endraw %}{{ row["?refLabel"] }}{% raw %}}{% endraw %}
-{{ row["?content"] }}
-{{ row["?envEnd"] }}
+{{ row["envBegin"] }}[{{ row["label"] }}]
+{{ row["envLabel"] }}{% raw %}{{% endraw %}{{ row["refLabel"] }}{% raw %}}{% endraw %}
+{{ row["content"] }}
+{{ row["envEnd"] }}
 {% endfor %}
 ```
 

@@ -11,7 +11,7 @@ use world::*;
 
 {% set current_entity = "" -%}
 {% for row in sparql_results -%}
-  {%- set entity_name = row["?entityName"] -%}
+  {%- set entity_name = row["entityName"] -%}
 
   {%- if entity_name != current_entity -%}
     {%- if current_entity != "" %}
@@ -25,27 +25,27 @@ prop_compose! {
     {%- set current_entity = entity_name -%}
   {%- endif -%}
 
-  {%- if row["?fieldType"] == "Uuid" %}
-        {{ row["?fieldName"] }} in prop::strategy::Just(Uuid::new_v4()),
-  {%- elif row["?fieldType"] == "String" %}
-        {{ row["?fieldName"] }} in "[a-zA-Z0-9 ]{1,100}",
-  {%- elif row["?fieldType"] == "Decimal" %}
-        {{ row["?fieldName"] }} in 0.0..1000000.0f64,
-  {%- elif row["?fieldType"] == "DateTime" %}
-        {{ row["?fieldName"] }} in prop::strategy::Just(Utc::now()),
-  {%- elif row["?fieldType"] == "i64" %}
-        {{ row["?fieldName"] }} in 0i64..1000000i64,
-  {%- elif row["?fieldType"] == "bool" %}
-        {{ row["?fieldName"] }} in prop::bool::ANY,
+  {%- if row["fieldType"] == "Uuid" %}
+        {{ row["fieldName"] }} in prop::strategy::Just(Uuid::new_v4()),
+  {%- elif row["fieldType"] == "String" %}
+        {{ row["fieldName"] }} in "[a-zA-Z0-9 ]{1,100}",
+  {%- elif row["fieldType"] == "Decimal" %}
+        {{ row["fieldName"] }} in 0.0..1000000.0f64,
+  {%- elif row["fieldType"] == "DateTime" %}
+        {{ row["fieldName"] }} in prop::strategy::Just(Utc::now()),
+  {%- elif row["fieldType"] == "i64" %}
+        {{ row["fieldName"] }} in 0i64..1000000i64,
+  {%- elif row["fieldType"] == "bool" %}
+        {{ row["fieldName"] }} in prop::bool::ANY,
   {%- else %}
-        {{ row["?fieldName"] }} in prop::strategy::Just(Default::default()),
+        {{ row["fieldName"] }} in prop::strategy::Just(Default::default()),
   {%- endif -%}
 {%- endfor %}
     ) -> {{ current_entity }} {
         {{ current_entity }} {
 {%- for row in sparql_results -%}
-  {%- if row["?entityName"] == current_entity %}
-            {{ row["?fieldName"] }},
+  {%- if row["entityName"] == current_entity %}
+            {{ row["fieldName"] }},
   {%- endif -%}
 {%- endfor %}
         }

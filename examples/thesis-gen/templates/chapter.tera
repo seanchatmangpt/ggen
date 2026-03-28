@@ -6,12 +6,12 @@
    ============================================================================= #}
 {%- set current_chapter = "" -%}
 {% for row in sparql_results %}
-{%- set chapterLabel = row["?chapterLabel"] | default(value="") -%}
-{%- set chapterTitle = row["?chapterTitle"] | default(value="") -%}
-{%- set chapterAbstract = row["?chapterAbstract"] | default(value="") -%}
-{%- set sectionTitle = row["?sectionTitle"] | default(value="") -%}
-{%- set sectionLabel = row["?sectionLabel"] | default(value="") -%}
-{%- set sectionContent = row["?sectionContent"] | default(value="") -%}
+{%- set chapterLabel = row["chapterLabel"] | default(value="") -%}
+{%- set chapterTitle = row["chapterTitle"] | default(value="") -%}
+{%- set chapterAbstract = row["chapterAbstract"] | default(value="") -%}
+{%- set sectionTitle = row["sectionTitle"] | default(value="") -%}
+{%- set sectionLabel = row["sectionLabel"] | default(value="") -%}
+{%- set sectionContent = row["sectionContent"] | default(value="") -%}
 {%- if chapterLabel != current_chapter -%}
 {%- if current_chapter != "" -%}
 

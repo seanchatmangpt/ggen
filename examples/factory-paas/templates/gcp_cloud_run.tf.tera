@@ -4,15 +4,15 @@
 # To make changes, edit the ontology and run: ggen sync
 
 {% for row in sparql_results -%}
-{%- set service_name = row["?serviceName"] -%}
-{%- set region = row["?region"] | default(value="us-central1") -%}
-{%- set container_image = row["?containerImage"] | default(value="gcr.io/PROJECT_ID/attribution-service:latest") -%}
-{%- set min_instances = row["?minInstances"] | default(value="1") -%}
-{%- set max_instances = row["?maxInstances"] | default(value="10") -%}
-{%- set cpu = row["?cpu"] | default(value="2") -%}
-{%- set memory = row["?memory"] | default(value="2Gi") -%}
-{%- set timeout = row["?timeout"] | default(value="300") -%}
-{%- set concurrency = row["?concurrency"] | default(value="80") -%}
+{%- set service_name = row["serviceName"] -%}
+{%- set region = row["region"] | default(value="us-central1") -%}
+{%- set container_image = row["containerImage"] | default(value="gcr.io/PROJECT_ID/attribution-service:latest") -%}
+{%- set min_instances = row["minInstances"] | default(value="1") -%}
+{%- set max_instances = row["maxInstances"] | default(value="10") -%}
+{%- set cpu = row["cpu"] | default(value="2") -%}
+{%- set memory = row["memory"] | default(value="2Gi") -%}
+{%- set timeout = row["timeout"] | default(value="300") -%}
+{%- set concurrency = row["concurrency"] | default(value="80") -%}
 
 resource "google_cloud_run_v2_service" "{{ service_name | replace(from="-", to="_") }}" {
   name     = "{{ service_name }}"

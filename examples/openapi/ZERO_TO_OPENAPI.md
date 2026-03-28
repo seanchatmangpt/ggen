@@ -219,10 +219,10 @@ This tells ggen:
 ```tera
 // Zod schemas for validation
 {% for row in sparql_results %}
-export const {{ row["?entityName"] | lower }}Schema = z.object({
+export const {{ row["entityName"] | lower }}Schema = z.object({
   {% for prop_row in sparql_results %}
-    {% if prop_row["?entityName"] == row["?entityName"] %}
-    {{ prop_row["?propertyName"] }}: z.string(),
+    {% if prop_row["entityName"] == row["entityName"] %}
+    {{ prop_row["propertyName"] }}: z.string(),
     {% endif %}
   {% endfor %}
 });
@@ -259,7 +259,7 @@ export const postSchema = z.object({
 
 In a template, you can access:
 - `sparql_results` - The table of results
-- `row["?variableName"]` - Access a specific variable
+- `row["variableName"]` - Access a specific variable
 - Filters: `| lower`, `| upper`, `| capitalize` - Transform values
 
 ---
@@ -316,8 +316,8 @@ User       | email        | string
 **Step 4: Template** (generates code from results)
 ```tera
 {% for row in sparql_results %}
-export const {{ row["?entityName"] | lower }}Schema = z.object({
-  {{ row["?propertyName"] }}: z.{{ row["?propertyType"] | lower }}(),
+export const {{ row["entityName"] | lower }}Schema = z.object({
+  {{ row["propertyName"] }}: z.{{ row["propertyType"] | lower }}(),
 });
 {% endfor %}
 ```
@@ -749,7 +749,7 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openapi));
 
 **Q: Template syntax errors or undefined variables**
 - A: Template variables come from SPARQL SELECT clause
-- A: Variable names must match: `?entityName` in SELECT must appear in template as `row["?entityName"]`
+- A: Variable names must match: `?entityName` in SELECT must appear in template as `row["entityName"]`
 - A: Check case sensitivity: `?propertyType` ≠ `?PropertyType`
 - A: Review Tera template docs: https://keats.github.io/tera/
 

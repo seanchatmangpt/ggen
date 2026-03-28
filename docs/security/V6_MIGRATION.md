@@ -278,7 +278,7 @@ use ggen_core::sparql::QueryBuilder;
 
 fn find_users(name: &str) -> Result<String, Error> {
     let query = QueryBuilder::new()
-        .select(&["?user"])
+        .select(&["user"])
         .where_clause("?user foaf:name ?name")
         .filter(&format!("?name = {}", QueryBuilder::escape_literal(name)))
         .build()?;
@@ -308,7 +308,7 @@ let query = format!("SELECT ?s WHERE {{ ?s ?p ?o }}");
 
 // ✅ After
 let query = QueryBuilder::new()
-    .select(&["?s"])
+    .select(&["s"])
     .where_clause("?s ?p ?o")
     .build()?;
 
@@ -318,7 +318,7 @@ let query = format!("SELECT ?s WHERE {{ ?s foaf:name '{}' }}", user_input);
 
 // ✅ After
 let query = QueryBuilder::new()
-    .select(&["?s"])
+    .select(&["s"])
     .where_clause("?s foaf:name ?name")
     .filter(&format!("?name = {}", QueryBuilder::escape_literal(user_input)))
     .build()?;
@@ -338,7 +338,7 @@ let query = format!(
 
 // ✅ After
 let query = QueryBuilder::new()
-    .select(&["?person", "?age"])
+    .select(&["person", "?age"])
     .where_clause("?person rdf:type foaf:Person .")
     .where_clause("?person foaf:age ?age .")
     .filter(&format!("?age >= {}", min_age))

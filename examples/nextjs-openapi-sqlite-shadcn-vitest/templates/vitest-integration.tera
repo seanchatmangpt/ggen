@@ -31,7 +31,7 @@ import { setupServer } from "msw/node";
 const mockData = {
 {%- set seen_entities = "" -%}
 {%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
+{%- set entityName = row["entityName"] | default(value="") -%}
 {%- if entityName != "" and entityName not in seen_entities -%}
 {%- set_global seen_entities = seen_entities ~ "," ~ entityName %}
   {{ entityName | lower }}s: [
@@ -62,9 +62,9 @@ const mockData = {
 const handlers = [
 {%- set seen_paths = "" -%}
 {%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
-{%- set path = row["?path"] | default(value="") -%}
-{%- set method = row["?method"] | default(value="GET") | lower -%}
+{%- set entityName = row["entityName"] | default(value="") -%}
+{%- set path = row["path"] | default(value="") -%}
+{%- set method = row["method"] | default(value="GET") | lower -%}
 
 {%- set pathKey = method ~ path -%}
 {%- if pathKey != "" and pathKey not in seen_paths -%}
@@ -151,10 +151,10 @@ async function apiClient<T>(
 
 {%- set current_entity = "" -%}
 {%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
-{%- set path = row["?path"] | default(value="") -%}
-{%- set method = row["?method"] | default(value="GET") -%}
-{%- set operationId = row["?operationId"] | default(value="") -%}
+{%- set entityName = row["entityName"] | default(value="") -%}
+{%- set path = row["path"] | default(value="") -%}
+{%- set method = row["method"] | default(value="GET") -%}
+{%- set operationId = row["operationId"] | default(value="") -%}
 
 {%- if entityName != current_entity and entityName != "" -%}
 {%- if current_entity != "" %}

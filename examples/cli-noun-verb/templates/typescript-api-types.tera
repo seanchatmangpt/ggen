@@ -14,11 +14,11 @@ import { z } from 'zod';
 {%- set current_type = "" -%}
 {%- set type_properties = "" -%}
 {%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
-{%- set operationType = row["?operationType"] | default(value="") -%}
-{%- set propertyName = row["?propertyName"] | default(value="") -%}
-{%- set propertyType = row["?propertyType"] | default(value="string") -%}
-{%- set required = row["?required"] | default(value="false") -%}
+{%- set entityName = row["entityName"] | default(value="") -%}
+{%- set operationType = row["operationType"] | default(value="") -%}
+{%- set propertyName = row["propertyName"] | default(value="") -%}
+{%- set propertyType = row["propertyType"] | default(value="string") -%}
+{%- set required = row["required"] | default(value="false") -%}
 
 {%- set type_name = "" -%}
 {%- if operationType == "create" -%}

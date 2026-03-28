@@ -23,14 +23,14 @@ import { z } from "zod";
 
 {%- set current_entity = "" -%}
 {%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
-{%- set propName = row["?propName"] | default(value="") -%}
-{%- set propType = row["?propType"] | default(value="string") -%}
-{%- set required = row["?required"] | default(value="false") -%}
-{%- set format = row["?format"] | default(value="") -%}
-{%- set minLength = row["?minLength"] | default(value="") -%}
-{%- set maxLength = row["?maxLength"] | default(value="") -%}
-{%- set enumValues = row["?enumValues"] | default(value="") -%}
+{%- set entityName = row["entityName"] | default(value="") -%}
+{%- set propName = row["propName"] | default(value="") -%}
+{%- set propType = row["propType"] | default(value="string") -%}
+{%- set required = row["required"] | default(value="false") -%}
+{%- set format = row["format"] | default(value="") -%}
+{%- set minLength = row["minLength"] | default(value="") -%}
+{%- set maxLength = row["maxLength"] | default(value="") -%}
+{%- set enumValues = row["enumValues"] | default(value="") -%}
 
 {%- if entityName != current_entity -%}
 {%- if current_entity != "" %}

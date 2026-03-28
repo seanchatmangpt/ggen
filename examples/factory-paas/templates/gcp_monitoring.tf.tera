@@ -4,7 +4,7 @@
 # To make changes, edit the ontology and run: ggen sync
 
 {% for row in sparql_results -%}
-{%- set service_name = row["?serviceName"] | default(value="attribution-service") -%}
+{%- set service_name = row["serviceName"] | default(value="attribution-service") -%}
 
 # Enable required APIs
 resource "google_project_service" "monitoring_api" {
