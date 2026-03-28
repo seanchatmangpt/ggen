@@ -1,14 +1,14 @@
 {
   "version": "1.0.0",
-  "created_at": "2026-03-28T19:55:15.981328+00:00",
+  "created_at": "2026-03-28T20:05:56.457423+00:00",
   "ontology": {
     "hash": "232f6f920d4d99f12636048dc64289ed43330317b58883f20918f54b9f1d9c70",
-    "timestamp": "2026-03-28T19:55:15.981322+00:00",
+    "timestamp": "2026-03-28T20:05:56.457420+00:00",
     "size_bytes": 2686
   },
   "manifest": {
     "hash": "80d52f57dcfddb0d7e592be3b7d9c89f6bdb6e8f1683cbdd68e5efb8ce4206fc",
-    "timestamp": "2026-03-28T19:55:15.981322+00:00",
+    "timestamp": "2026-03-28T20:05:56.457420+00:00",
     "size_bytes": 4483
   },
   "inference_rules": {},

@@ -1,10 +1,3 @@
----
-to: "generated/{{ module_name }}.rs"
-vars:
-  module_name: string
-  description: string
-  has_validation: boolean
----
 //! {{ description }}
 //!
 //! This module was auto-generated from template: rust-module.tera

@@ -1,15 +1,3 @@
----
-to: "lib/definitions/tasks.mjs"
-description: ESM task definitions generated from YAWL ontology
-vars:
-  specId: string
-  taskId: string
-  taskName: string
-metadata:
-  category: definitions
-  framework: esm
-  features: [zod-validation]
----
 {# =============================================================================
    TASK DEFINITIONS TEMPLATE
    Generates ESM task definitions from RDF task specifications

@@ -1,6 +1,3 @@
----
-to: "generated/ARCHITECTURE.md"
----
 # Project Architecture
 
 Multi-crate workspace with shared core library.

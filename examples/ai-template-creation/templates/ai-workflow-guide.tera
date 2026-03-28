@@ -1,6 +1,3 @@
----
-to: "generated/AI_WORKFLOW_GUIDE.md"
----
 # AI Workflow Guide
 
 This guide explains how to use ggen's AI capabilities for intelligent template generation and validation.

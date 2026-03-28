@@ -1,6 +1,3 @@
----
-to: "generated/COMMAND_REFERENCE.md"
----
 # AI Command Reference
 
 Complete reference for ggen's AI-powered code generation commands.

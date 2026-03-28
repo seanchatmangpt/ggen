@@ -1,6 +1,3 @@
----
-to: "generated/Makefile"
----
 .PHONY: build test lint clean
 
 build:

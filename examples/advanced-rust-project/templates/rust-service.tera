@@ -5,7 +5,7 @@
 //! {{ row["description"] }}
 //! Version: {{ row["version"] }} — Author: {{ row["author"] }}
 
-pub struct {{ row["name"] | upper }}Config {
+pub struct {{ row["name"] }}Config {
     pub host: String,
     pub port: u16,
     pub database_url: String,

@@ -1,6 +1,3 @@
----
-to: "generated/TEMPLATE_GUIDE.md"
----
 # Template Fundamentals Guide
 
 This guide explains the core concepts used in ggen template generation.

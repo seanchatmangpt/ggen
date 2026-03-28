@@ -1,6 +1,3 @@
----
-to: "generated/TERA_SYNTAX_GUIDE.md"
----
 # Tera Template Syntax Guide
 
 ## Variable Substitution

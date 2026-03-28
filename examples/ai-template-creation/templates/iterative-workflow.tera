@@ -1,6 +1,3 @@
----
-to: "generated/ITERATIVE_WORKFLOW.md"
----
 # Iterative Template Refinement Workflow
 
 For complex templates, use iteration to progressively improve the output.

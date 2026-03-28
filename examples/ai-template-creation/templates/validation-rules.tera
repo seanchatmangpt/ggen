@@ -1,6 +1,3 @@
----
-to: "generated/VALIDATION_RULES.md"
----
 # Template Validation Rules
 
 ggen ai validate checks AI-generated templates against these quality criteria.

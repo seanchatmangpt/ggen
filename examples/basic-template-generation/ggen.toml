@@ -11,6 +11,9 @@ source = "ontology/templates.ttl"
 imports = []
 base_iri = "https://ggen.io/ontology/templates#"
 
+[generation]
+output_dir = "."
+
 [ontology.prefixes]
 tmpl = "https://ggen.io/ontology/templates#"
 rdfs = "http://www.w3.org/2000/01/rdf-schema#"

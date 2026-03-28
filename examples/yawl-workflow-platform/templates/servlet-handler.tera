@@ -1,16 +1,3 @@
----
-to: "{{ outputPath | replace(from='.ts', to='.mjs') }}"
-description: ESM servlet handler for YAWL workflow operations
-vars:
-  servletId: string
-  servletName: string
-  urlPattern: string
-  httpMethod: string
-metadata:
-  category: servlet
-  framework: express
-  features: [yawl-integration, receipts, validation]
----
 {# =============================================================================
    SERVLET HANDLER TEMPLATE
    Generates ESM handlers from RDF servlet definitions

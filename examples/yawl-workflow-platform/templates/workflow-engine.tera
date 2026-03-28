@@ -1,14 +1,3 @@
----
-to: "lib/engine/WorkflowEngine.mjs"
-description: Main workflow engine with Van der Aalst patterns and RDF integration
-vars:
-  splitTypes: array
-  joinTypes: array
-metadata:
-  category: engine
-  framework: esm
-  features: [van-der-aalst-patterns, rdf-integration, receipts]
----
 {# =============================================================================
    WORKFLOW ENGINE TEMPLATE
    Generates the main workflow engine with Van der Aalst pattern implementations

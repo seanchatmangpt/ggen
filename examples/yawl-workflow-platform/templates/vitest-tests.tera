@@ -1,14 +1,3 @@
----
-to: "lib/tests/workflow.test.mjs"
-description: Vitest integration tests with MSW mocking for YAWL workflows
-vars:
-  specId: string
-  servletId: string
-metadata:
-  category: testing
-  framework: vitest
-  features: [msw-mocking, snapshots, receipts]
----
 {# =============================================================================
    VITEST INTEGRATION TESTS TEMPLATE
    Generates Vitest tests with MSW mocking from RDF specifications
