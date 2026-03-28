@@ -1,4 +1,4 @@
-{# pattern-map.md — ggen multi-row template; variables accessed as row["?varname"] #}
+{# pattern-map.md — ggen multi-row template; variables accessed as row["varname"] #}
 # Java 26 Pattern Map
 
 > *"Each pattern sits in a web of connections, where the whole is more than the sum of its parts."*
@@ -8,11 +8,11 @@
 ## Pattern Connections
 
 {% for row in sparql_results %}
-### {{ row["?sourceLabel"] | default(value="") }} → {{ row["?targetLabel"] | default(value="") }}
+### {{ row["sourceLabel"] | default(value="") }} → {{ row["targetLabel"] | default(value="") }}
 
-**Connection Type:** {{ row["?connectionType"] | default(value="") }}
+**Connection Type:** {{ row["connectionType"] | default(value="") }}
 
-{{ row["?connectionReason"] | default(value="") }}
+{{ row["connectionReason"] | default(value="") }}
 
 {% endfor %}
 

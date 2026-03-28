@@ -1,4 +1,4 @@
-{# glossary.md — ggen multi-row template; variables accessed as row["?varname"] #}
+{# glossary.md — ggen multi-row template; variables accessed as row["varname"] #}
 # Java 26 Pattern Language Glossary
 
 > *"To share a language is to share a world."*
@@ -7,16 +7,16 @@
 
 {% set current_category = "" %}
 {% for row in sparql_results %}
-{% set cat = row["?category"] | default(value="") %}
+{% set cat = row["category"] | default(value="") %}
 {% if cat != current_category %}
 {% set_global current_category = cat %}
 
 ## {{ cat | title }} Terms
 
 {% endif %}
-### {{ row["?label"] | default(value="") }}
+### {{ row["label"] | default(value="") }}
 
-{{ row["?definition"] | default(value="") }}
+{{ row["definition"] | default(value="") }}
 
 {% endfor %}
 

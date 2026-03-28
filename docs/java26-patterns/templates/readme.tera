@@ -12,10 +12,10 @@
 | Statistic | Count |
 |-----------|-------|
 {% for row in sparql_results %}
-| Total Patterns | {{ row["?totalPatterns"] | default(value="35") }} |
-| Pattern Categories | {{ row["?totalCategories"] | default(value="5") }} |
-| Glossary Terms | {{ row["?totalTerms"] | default(value="40") }} |
-| Pattern Connections | {{ row["?totalConnections"] | default(value="60") }} |
+| Total Patterns | {{ row["totalPatterns"] | default(value="35") }} |
+| Pattern Categories | {{ row["totalCategories"] | default(value="5") }} |
+| Glossary Terms | {{ row["totalTerms"] | default(value="40") }} |
+| Pattern Connections | {{ row["totalConnections"] | default(value="60") }} |
 {% endfor %}
 
 ---

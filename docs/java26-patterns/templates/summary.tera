@@ -1,4 +1,4 @@
-{# SUMMARY.md — ggen multi-row template; variables accessed as row["?varname"] #}
+{# SUMMARY.md — ggen multi-row template; variables accessed as row["varname"] #}
 # Summary
 
 [Introduction](README.md)
@@ -15,8 +15,8 @@
 
 These patterns establish the fundamental super-structures that span the entire Java 26 application.
 
-{% for row in sparql_results %}{% if row["?categoryLabel"] == "Super-Patterns" %}
-- [{{ row["?patternNumber"] }}. {{ row["?patternLabel"] }} {{ row["?confidenceStars"] | default(value="") }}](patterns/{{ row["?filename"] }})
+{% for row in sparql_results %}{% if row["categoryLabel"] == "Super-Patterns" %}
+- [{{ row["patternNumber"] }}. {{ row["patternLabel"] }} {{ row["confidenceStars"] | default(value="") }}](patterns/{{ row["filename"] }})
 {% endif %}{% endfor %}
 
 ---
@@ -25,8 +25,8 @@ These patterns establish the fundamental super-structures that span the entire J
 
 These patterns govern how domain knowledge is expressed as Java 26 records, sealed types, and value objects.
 
-{% for row in sparql_results %}{% if row["?categoryLabel"] == "Domain Model Patterns" %}
-- [{{ row["?patternNumber"] }}. {{ row["?patternLabel"] }} {{ row["?confidenceStars"] | default(value="") }}](patterns/{{ row["?filename"] }})
+{% for row in sparql_results %}{% if row["categoryLabel"] == "Domain Model Patterns" %}
+- [{{ row["patternNumber"] }}. {{ row["patternLabel"] }} {{ row["confidenceStars"] | default(value="") }}](patterns/{{ row["filename"] }})
 {% endif %}{% endfor %}
 
 ---
@@ -35,8 +35,8 @@ These patterns govern how domain knowledge is expressed as Java 26 records, seal
 
 These patterns manage how domain objects are persisted and retrieved using modern Java data access.
 
-{% for row in sparql_results %}{% if row["?categoryLabel"] == "Persistence Patterns" %}
-- [{{ row["?patternNumber"] }}. {{ row["?patternLabel"] }} {{ row["?confidenceStars"] | default(value="") }}](patterns/{{ row["?filename"] }})
+{% for row in sparql_results %}{% if row["categoryLabel"] == "Persistence Patterns" %}
+- [{{ row["patternNumber"] }}. {{ row["patternLabel"] }} {{ row["confidenceStars"] | default(value="") }}](patterns/{{ row["filename"] }})
 {% endif %}{% endfor %}
 
 ---
@@ -45,8 +45,8 @@ These patterns manage how domain objects are persisted and retrieved using moder
 
 These patterns orchestrate use cases, services, and controllers using Java 26 features.
 
-{% for row in sparql_results %}{% if row["?categoryLabel"] == "Application Layer Patterns" %}
-- [{{ row["?patternNumber"] }}. {{ row["?patternLabel"] }} {{ row["?confidenceStars"] | default(value="") }}](patterns/{{ row["?filename"] }})
+{% for row in sparql_results %}{% if row["categoryLabel"] == "Application Layer Patterns" %}
+- [{{ row["patternNumber"] }}. {{ row["patternLabel"] }} {{ row["confidenceStars"] | default(value="") }}](patterns/{{ row["filename"] }})
 {% endif %}{% endfor %}
 
 ---
@@ -55,8 +55,8 @@ These patterns orchestrate use cases, services, and controllers using Java 26 fe
 
 These patterns connect the application to external systems, frameworks, and runtime environments.
 
-{% for row in sparql_results %}{% if row["?categoryLabel"] == "Infrastructure Patterns" %}
-- [{{ row["?patternNumber"] }}. {{ row["?patternLabel"] }} {{ row["?confidenceStars"] | default(value="") }}](patterns/{{ row["?filename"] }})
+{% for row in sparql_results %}{% if row["categoryLabel"] == "Infrastructure Patterns" %}
+- [{{ row["patternNumber"] }}. {{ row["patternLabel"] }} {{ row["confidenceStars"] | default(value="") }}](patterns/{{ row["filename"] }})
 {% endif %}{% endfor %}
 
 ---
