@@ -341,10 +341,6 @@ termlog = ["ggen-utils/termlog"]
 journald = ["ggen-utils/journald"]
 syslog = ["ggen-utils/syslog"]
 london_tdd = []
-# A2A-MCP Integration
-use-a2a-mcp = [
-  "ggen-a2a-mcp/rmcp",
-]
 # OpenTelemetry instrumentation (optional - adds ~200 dependencies)
 # Enable with: cargo build --features otel
 # Only forward to ggen-core, which handles its own otel dependencies

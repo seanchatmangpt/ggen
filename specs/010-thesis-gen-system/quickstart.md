@@ -106,13 +106,13 @@ Templates contain ONLY LaTeX structure and Tera variables. All text comes from y
 ```tera
 {# This template has NO hardcoded strings #}
 {% for row in sparql_results %}
-{{ row["?envBegin"] }}[{{ row["?theoremName"] }}]
-{{ row["?statement"] }}
-{{ row["?envEnd"] }}
-{% if row["?proof"] %}
-{{ row["?proofEnvBegin"] }}
-{{ row["?proof"] }}
-{{ row["?proofEnvEnd"] }}
+{{ row["envBegin"] }}[{{ row["theoremName"] }}]
+{{ row["statement"] }}
+{{ row["envEnd"] }}
+{% if row["proof"] %}
+{{ row["proofEnvBegin"] }}
+{{ row["proof"] }}
+{{ row["proofEnvEnd"] }}
 {% endif %}
 {% endfor %}
 ```
