@@ -1,0 +1,38 @@
+PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX java26: <http://ggen.io/java26#>
+
+# =============================================================================
+# QUERY: Extract Sealed Records
+# =============================================================================
+# Returns one row per java26:SealedRecord with its fields encoded as a
+# pipe-delimited, comma-separated list: "fieldName|fieldType,fieldName|fieldType"
+#
+# Variables bound per row:
+#   ?recordName     — Java simple class name (e.g. "PendingOrder")
+#   ?javaPackage    — Java package (e.g. "com.example.orders")
+#   ?interfaceName  — Name of the sealed interface this record implements
+#   ?fields         — "fieldName|fieldType" pairs, comma-separated
+#
+# Template: templates/SealedRecord.java.tera
+#
+# NOTE: Records with no java26:field will have ?fields = "" (empty string).
+# The template handles the empty case by emitting a zero-component record.
+# =============================================================================
+
+SELECT ?recordName ?javaPackage ?interfaceName
+       (GROUP_CONCAT(CONCAT(?fieldName, "|", ?fieldType); separator=",") AS ?fields)
+WHERE {
+    ?record a java26:SealedRecord ;
+            java26:name ?recordName ;
+            java26:javaPackage ?javaPackage ;
+            java26:implements ?iface .
+    ?iface java26:name ?interfaceName .
+
+    OPTIONAL {
+        ?record java26:field ?f .
+        ?f java26:fieldName ?fieldName ;
+           java26:fieldType ?fieldType .
+    }
+}
+GROUP BY ?recordName ?javaPackage ?interfaceName
+ORDER BY ?recordName

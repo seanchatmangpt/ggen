@@ -1,0 +1,17 @@
+PREFIX java26: <http://ggen.io/java26#>
+
+SELECT ?className ?javaPackage
+       (GROUP_CONCAT(CONCAT(?fieldName, "|", ?fieldType, "|", STR(?isId)); separator=",") AS ?fields)
+WHERE {
+    ?root a java26:AggregateRoot ;
+          java26:name        ?className ;
+          java26:javaPackage ?javaPackage ;
+          java26:field       ?fieldNode .
+
+    ?fieldNode java26:fieldName ?fieldName ;
+               java26:fieldType ?fieldType .
+
+    OPTIONAL { ?fieldNode java26:id ?isId }
+}
+GROUP BY ?className ?javaPackage
+ORDER BY ?className

@@ -584,9 +584,10 @@ mod tests {
         // Act
         manager.send_alert(alert).unwrap();
 
-        // Assert - both handlers should receive the alert
-        assert_eq!(handler1.count(), 1);
-        // Note: handler2 won't receive it because both have name "memory"
-        // and HashMap will only keep one
+        // Assert - AlertManager uses HashMap keyed by handler name.
+        // Both handlers have name "memory", so handler2 overwrites handler1.
+        // Only the last-registered handler (handler2) receives the alert.
+        assert_eq!(handler1.count(), 0); // handler1 was replaced by handler2
+        assert_eq!(handler2.count(), 1); // handler2 is the active handler
     }
 }

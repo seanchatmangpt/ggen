@@ -70,12 +70,12 @@ impl Language {
 #[derive(Debug, Clone)]
 pub struct ServiceSpec {
     pub name: String,
-    pub service_type: String,           // "ClusterIP", "LoadBalancer", "NodePort"
+    pub service_type: String, // "ClusterIP", "LoadBalancer", "NodePort"
     pub replicas: u32,
     pub port: u32,
     pub target_port: u32,
     pub image: String,
-    pub registry: String,               // "myregistry.azurecr.io"
+    pub registry: String, // "myregistry.azurecr.io"
     pub tag: String,
     pub env_vars: Vec<(String, String)>, // key, value pairs
 }
@@ -169,12 +169,14 @@ impl DockerKubernetesGenerator {
                     .map_err(|e| e.to_string())?;
             }
             Language::TypeScript => {
-                writeln!(output, "COPY --from=builder /app/node_modules /app/node_modules")
-                    .map_err(|e| e.to_string())?;
+                writeln!(
+                    output,
+                    "COPY --from=builder /app/node_modules /app/node_modules"
+                )
+                .map_err(|e| e.to_string())?;
                 writeln!(output, "COPY --from=builder /app/dist /app/dist")
                     .map_err(|e| e.to_string())?;
-                writeln!(output, "CMD [\"node\", \"dist/index.js\"]")
-                    .map_err(|e| e.to_string())?;
+                writeln!(output, "CMD [\"node\", \"dist/index.js\"]").map_err(|e| e.to_string())?;
             }
             Language::Python => {
                 writeln!(output, "COPY --from=builder /usr/local/lib /usr/local/lib")
@@ -183,21 +185,24 @@ impl DockerKubernetesGenerator {
                 writeln!(output, "CMD [\"python\", \"app.py\"]").map_err(|e| e.to_string())?;
             }
             Language::Java => {
-                writeln!(
-                    output,
-                    "COPY --from=builder /app/target/*.jar /app/app.jar"
-                )
-                .map_err(|e| e.to_string())?;
+                writeln!(output, "COPY --from=builder /app/target/*.jar /app/app.jar")
+                    .map_err(|e| e.to_string())?;
                 writeln!(output, "ENTRYPOINT [\"java\", \"-jar\", \"/app/app.jar\"]")
                     .map_err(|e| e.to_string())?;
             }
         }
 
         // Healthcheck
-        writeln!(output, "\nHEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \\")
-            .map_err(|e| e.to_string())?;
-        writeln!(output, "    CMD curl -f http://localhost:8080/health || exit 1")
-            .map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "\nHEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \\"
+        )
+        .map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "    CMD curl -f http://localhost:8080/health || exit 1"
+        )
+        .map_err(|e| e.to_string())?;
 
         Ok(output)
     }
@@ -255,8 +260,7 @@ impl DockerKubernetesGenerator {
         writeln!(output, "        livenessProbe:").map_err(|e| e.to_string())?;
         writeln!(output, "          httpGet:").map_err(|e| e.to_string())?;
         writeln!(output, "            path: /health").map_err(|e| e.to_string())?;
-        writeln!(output, "            port: {}", spec.target_port)
-            .map_err(|e| e.to_string())?;
+        writeln!(output, "            port: {}", spec.target_port).map_err(|e| e.to_string())?;
         writeln!(output, "          initialDelaySeconds: 10").map_err(|e| e.to_string())?;
         writeln!(output, "          periodSeconds: 10").map_err(|e| e.to_string())?;
         writeln!(output, "          timeoutSeconds: 5").map_err(|e| e.to_string())?;
@@ -265,8 +269,7 @@ impl DockerKubernetesGenerator {
         writeln!(output, "        readinessProbe:").map_err(|e| e.to_string())?;
         writeln!(output, "          httpGet:").map_err(|e| e.to_string())?;
         writeln!(output, "            path: /ready").map_err(|e| e.to_string())?;
-        writeln!(output, "            port: {}", spec.target_port)
-            .map_err(|e| e.to_string())?;
+        writeln!(output, "            port: {}", spec.target_port).map_err(|e| e.to_string())?;
         writeln!(output, "          initialDelaySeconds: 5").map_err(|e| e.to_string())?;
         writeln!(output, "          periodSeconds: 5").map_err(|e| e.to_string())?;
 
@@ -301,8 +304,7 @@ impl DockerKubernetesGenerator {
         writeln!(output, "  ports:").map_err(|e| e.to_string())?;
         writeln!(output, "  - name: http").map_err(|e| e.to_string())?;
         writeln!(output, "    port: {}", spec.port).map_err(|e| e.to_string())?;
-        writeln!(output, "    targetPort: {}", spec.target_port)
-            .map_err(|e| e.to_string())?;
+        writeln!(output, "    targetPort: {}", spec.target_port).map_err(|e| e.to_string())?;
         writeln!(output, "    protocol: TCP").map_err(|e| e.to_string())?;
 
         // Load balancer specific configuration
@@ -318,8 +320,7 @@ impl DockerKubernetesGenerator {
 
     /// Generate ConfigMap template for configuration injection
     pub fn generate_configmap(
-        name: &str,
-        config_pairs: &[(String, String)],
+        name: &str, config_pairs: &[(String, String)],
     ) -> Result<String, String> {
         let mut output = String::new();
 
@@ -345,8 +346,11 @@ impl DockerKubernetesGenerator {
     pub fn generate_helm_values(services: &[ServiceSpec]) -> Result<String, String> {
         let mut output = String::new();
 
-        writeln!(output, "# Helm values template for multi-service deployment")
-            .map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "# Helm values template for multi-service deployment"
+        )
+        .map_err(|e| e.to_string())?;
         writeln!(output, "# Auto-generated from service specifications")
             .map_err(|e| e.to_string())?;
         writeln!(output).map_err(|e| e.to_string())?;
@@ -364,11 +368,14 @@ impl DockerKubernetesGenerator {
         for service in services {
             writeln!(output, "  {}:", service.name).map_err(|e| e.to_string())?;
             writeln!(output, "    enabled: true").map_err(|e| e.to_string())?;
-            writeln!(output, "    replicas: {}", service.replicas)
-                .map_err(|e| e.to_string())?;
+            writeln!(output, "    replicas: {}", service.replicas).map_err(|e| e.to_string())?;
             writeln!(output, "    image:").map_err(|e| e.to_string())?;
-            writeln!(output, "      repository: {}/{}", service.registry, service.image)
-                .map_err(|e| e.to_string())?;
+            writeln!(
+                output,
+                "      repository: {}/{}",
+                service.registry, service.image
+            )
+            .map_err(|e| e.to_string())?;
             writeln!(output, "      tag: \"{}\"", service.tag).map_err(|e| e.to_string())?;
             writeln!(output, "    service:").map_err(|e| e.to_string())?;
             writeln!(output, "      type: {}", service.service_type).map_err(|e| e.to_string())?;
@@ -386,8 +393,7 @@ impl DockerKubernetesGenerator {
             if !service.env_vars.is_empty() {
                 writeln!(output, "    env:").map_err(|e| e.to_string())?;
                 for (key, value) in &service.env_vars {
-                    writeln!(output, "      {}: \"{}\"", key, value)
-                        .map_err(|e| e.to_string())?;
+                    writeln!(output, "      {}: \"{}\"", key, value).map_err(|e| e.to_string())?;
                 }
             }
             writeln!(output).map_err(|e| e.to_string())?;
@@ -399,8 +405,7 @@ impl DockerKubernetesGenerator {
         writeln!(output, "  enabled: true").map_err(|e| e.to_string())?;
         writeln!(output, "  minReplicas: 2").map_err(|e| e.to_string())?;
         writeln!(output, "  maxReplicas: 10").map_err(|e| e.to_string())?;
-        writeln!(output, "  targetCPUUtilizationPercentage: 80")
-            .map_err(|e| e.to_string())?;
+        writeln!(output, "  targetCPUUtilizationPercentage: 80").map_err(|e| e.to_string())?;
 
         Ok(output)
     }
@@ -471,7 +476,10 @@ mod tests {
     #[test]
     fn test_configmap_generation() {
         let config = vec![
-            ("DATABASE_URL".to_string(), "postgres://localhost".to_string()),
+            (
+                "DATABASE_URL".to_string(),
+                "postgres://localhost".to_string(),
+            ),
             ("API_KEY".to_string(), "secret123".to_string()),
         ];
 

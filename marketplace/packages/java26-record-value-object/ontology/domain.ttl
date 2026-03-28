@@ -1,0 +1,38 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix java26: <http://ggen.io/java26#> .
+@prefix my:     <http://example.com/my-domain#> .
+
+# ---------------------------------------------------------------------------
+# Money — currency-aware monetary amount
+# ---------------------------------------------------------------------------
+
+my:Money a java26:ValueObject ;
+    java26:name "Money" ;
+    java26:javaPackage "com.example.domain" ;
+    java26:field my:amount, my:currency .
+
+my:amount   a java26:Field ; java26:fieldName "amount" ;   java26:fieldType "BigDecimal" ; java26:nullable false .
+my:currency a java26:Field ; java26:fieldName "currency" ; java26:fieldType "String" ;     java26:nullable false .
+
+# ---------------------------------------------------------------------------
+# EmailAddress — validated RFC-5321 e-mail address
+# ---------------------------------------------------------------------------
+
+my:EmailAddress a java26:ValueObject ;
+    java26:name "EmailAddress" ;
+    java26:javaPackage "com.example.domain" ;
+    java26:field my:emailValue .
+
+my:emailValue a java26:Field ; java26:fieldName "value" ; java26:fieldType "String" ; java26:nullable false .
+
+# ---------------------------------------------------------------------------
+# PhoneNumber — E.164-normalised telephone number
+# ---------------------------------------------------------------------------
+
+my:PhoneNumber a java26:ValueObject ;
+    java26:name "PhoneNumber" ;
+    java26:javaPackage "com.example.domain" ;
+    java26:field my:e164Number, my:countryCode .
+
+my:e164Number  a java26:Field ; java26:fieldName "e164Number" ;  java26:fieldType "String" ; java26:nullable false .
+my:countryCode a java26:Field ; java26:fieldName "countryCode" ; java26:fieldType "String" ; java26:nullable false .

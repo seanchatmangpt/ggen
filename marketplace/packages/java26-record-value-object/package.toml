@@ -1,0 +1,16 @@
+[package]
+name = "java26-record-value-object"
+version = "1.0.0"
+description = "RECORD VALUE OBJECT — Generate immutable Java records as domain value objects"
+authors = ["ggen Contributors"]
+license = "MIT"
+keywords = ["java26", "records", "value-object", "ddd", "immutable"]
+categories = ["java", "domain-driven-design", "pattern-language"]
+
+[ontology]
+file = "ontology/domain.ttl"
+namespace = "http://ggen.io/java26#"
+prefix = "java26"
+
+[dependencies]
+required = ["java26-core"]

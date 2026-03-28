@@ -23,7 +23,10 @@ fn smoke_go_generates_service_struct() {
         "Go output must contain the service name"
     );
     // Go package declaration
-    assert!(code.contains("package"), "Go output must contain a package declaration");
+    assert!(
+        code.contains("package"),
+        "Go output must contain a package declaration"
+    );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -61,7 +64,10 @@ fn smoke_rust_generates_struct_skeleton() {
         code.contains("AnalyticsEngine"),
         "Rust output must contain the service name"
     );
-    assert!(code.contains("8090"), "Rust output must embed the port number");
+    assert!(
+        code.contains("8090"),
+        "Rust output must embed the port number"
+    );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -78,9 +84,15 @@ fn smoke_typescript_generates_module_stub() {
         code.contains("FrontendBFF"),
         "TypeScript output must contain the service name"
     );
-    assert!(code.contains("3000"), "TypeScript output must embed the port number");
+    assert!(
+        code.contains("3000"),
+        "TypeScript output must embed the port number"
+    );
     // TypeScript export marker
-    assert!(code.contains("export"), "TypeScript output must contain export statement");
+    assert!(
+        code.contains("export"),
+        "TypeScript output must contain export statement"
+    );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -95,7 +107,10 @@ fn smoke_python_generates_fastapi_main() {
     assert!(!code.is_empty(), "Python output must be non-empty");
     // Python output is a main.py — may contain the service name or FastAPI boilerplate
     assert!(
-        code.contains("DataPipeline") || code.contains("fastapi") || code.contains("uvicorn") || code.contains("app"),
+        code.contains("DataPipeline")
+            || code.contains("fastapi")
+            || code.contains("uvicorn")
+            || code.contains("app"),
         "Python output must reference the service or FastAPI patterns"
     );
 }

@@ -1,0 +1,16 @@
+[package]
+name = "java26-virtual-thread-dao"
+version = "1.0.0"
+description = "VIRTUAL THREAD DAO — Generate DAO classes using Project Loom virtual threads"
+authors = ["ggen Contributors"]
+license = "MIT"
+keywords = ["java26", "virtual-threads", "dao", "loom", "jdbc"]
+categories = ["java", "persistence", "pattern-language"]
+
+[ontology]
+file = "ontology/domain.ttl"
+namespace = "http://ggen.io/java26#"
+prefix = "java26"
+
+[dependencies]
+required = ["java26-core"]

@@ -3,9 +3,9 @@
 //! Generates Java enums for work item statuses, WCP categories, and other
 //! enumerated values extracted from the YAWL ontology.
 
-use ggen_codegen::{GenerationMode, Queryable, Renderable, Rule, Error as CodegenError};
-use ggen_codegen::Result as CodegenResult;
 use crate::error::{Error, Result};
+use ggen_codegen::Result as CodegenResult;
+use ggen_codegen::{Error as CodegenError, GenerationMode, Queryable, Renderable, Rule};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use tera::{Context, Tera};

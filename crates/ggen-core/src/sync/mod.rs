@@ -327,9 +327,7 @@ pub type QueryRow = BTreeMap<String, String>;
 ///
 /// Files are executed in **lexicographic order** to ensure determinism.
 /// Each query has a wall-clock timeout of [`SPARQL_TIMEOUT_SECS`].
-fn run_sparql_queries(
-    graph: &Graph, queries_dir: &Path,
-) -> Result<Vec<QueryRow>, SyncError> {
+fn run_sparql_queries(graph: &Graph, queries_dir: &Path) -> Result<Vec<QueryRow>, SyncError> {
     if !queries_dir.exists() {
         return Err(SyncError::QueriesDir(format!(
             "directory does not exist: {}",
@@ -380,10 +378,12 @@ fn execute_with_timeout(
 ) -> Result<Vec<QueryRow>, SyncError> {
     let before = Instant::now();
 
-    let cached = graph.query_cached(sparql).map_err(|e| SyncError::SparqlExecution {
-        query: query_name.to_string(),
-        message: e.to_string(),
-    })?;
+    let cached = graph
+        .query_cached(sparql)
+        .map_err(|e| SyncError::SparqlExecution {
+            query: query_name.to_string(),
+            message: e.to_string(),
+        })?;
 
     if before.elapsed() > timeout {
         return Err(SyncError::SparqlTimeout {
@@ -475,10 +475,7 @@ fn generate_go(bindings: &[QueryRow]) -> Result<Vec<(PathBuf, String)>, SyncErro
             let source = GoCodeGenerator::generate_service_struct(service_name, &[])
                 .map_err(|e| SyncError::Codegen(e))?;
 
-            let file_name = format!(
-                "{}.go",
-                service_name.to_ascii_lowercase().replace(' ', "_")
-            );
+            let file_name = format!("{}.go", service_name.to_ascii_lowercase().replace(' ', "_"));
             outputs.push((PathBuf::from(file_name), source));
         }
     }
@@ -498,10 +495,7 @@ fn generate_elixir(bindings: &[QueryRow]) -> Result<Vec<(PathBuf, String)>, Sync
     } else {
         for (module_name, _rows) in &module_groups {
             let source = elixir_genserver_template(module_name);
-            let file_name = format!(
-                "{}.ex",
-                module_name.to_ascii_lowercase().replace(' ', "_")
-            );
+            let file_name = format!("{}.ex", module_name.to_ascii_lowercase().replace(' ', "_"));
             outputs.push((PathBuf::from(file_name), source));
         }
     }
@@ -521,10 +515,7 @@ fn generate_rust(bindings: &[QueryRow]) -> Result<Vec<(PathBuf, String)>, SyncEr
     } else {
         for (struct_name, _rows) in &struct_groups {
             let source = rust_struct_template(struct_name);
-            let file_name = format!(
-                "{}.rs",
-                struct_name.to_ascii_lowercase().replace(' ', "_")
-            );
+            let file_name = format!("{}.rs", struct_name.to_ascii_lowercase().replace(' ', "_"));
             outputs.push((PathBuf::from(file_name), source));
         }
     }
@@ -544,10 +535,7 @@ fn generate_typescript(bindings: &[QueryRow]) -> Result<Vec<(PathBuf, String)>, 
     } else {
         for (interface_name, _rows) in &interface_groups {
             let source = typescript_interface_template(interface_name);
-            let file_name = format!(
-                "{}.ts",
-                to_camel_case(interface_name)
-            );
+            let file_name = format!("{}.ts", to_camel_case(interface_name));
             outputs.push((PathBuf::from(file_name), source));
         }
     }
@@ -567,10 +555,7 @@ fn generate_python(bindings: &[QueryRow]) -> Result<Vec<(PathBuf, String)>, Sync
     } else {
         for (class_name, _rows) in &class_groups {
             let source = python_dataclass_template(class_name);
-            let file_name = format!(
-                "{}.py",
-                class_name.to_ascii_lowercase().replace(' ', "_")
-            );
+            let file_name = format!("{}.py", class_name.to_ascii_lowercase().replace(' ', "_"));
             outputs.push((PathBuf::from(file_name), source));
         }
     }

@@ -218,11 +218,23 @@ mod tests {
     use super::*;
 
     #[test]
+    #[cfg(feature = "otel")]
     fn test_telemetry_config_default() {
+        // This test requires the "otel" feature: without it, sample_ratio=0.0 and console_output=false
         let config = TelemetryConfig::default();
         assert_eq!(config.service_name, "ggen");
         assert_eq!(config.sample_ratio, 1.0);
         assert!(config.console_output);
+    }
+
+    #[test]
+    #[cfg(not(feature = "otel"))]
+    fn test_telemetry_config_default_no_otel() {
+        // Without "otel" feature, telemetry is disabled (no-op defaults)
+        let config = TelemetryConfig::default();
+        assert_eq!(config.service_name, "ggen");
+        assert_eq!(config.sample_ratio, 0.0);
+        assert!(!config.console_output);
     }
 
     #[test]

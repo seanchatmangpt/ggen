@@ -57,10 +57,10 @@ impl TerraformGenerator {
         .map_err(|e| e.to_string())?;
 
         // Security Group resource
-        writeln!(output, "resource \"aws_security_group\" \"main\" {{").map_err(|e| e.to_string())?;
-        writeln!(output, "  name = \"main-sg\"").map_err(|e| e.to_string())?;
-        writeln!(output, "  description = \"Main security group\"")
+        writeln!(output, "resource \"aws_security_group\" \"main\" {{")
             .map_err(|e| e.to_string())?;
+        writeln!(output, "  name = \"main-sg\"").map_err(|e| e.to_string())?;
+        writeln!(output, "  description = \"Main security group\"").map_err(|e| e.to_string())?;
         writeln!(output, "  vpc_id = aws_vpc.main.id\n").map_err(|e| e.to_string())?;
 
         // Generate ingress rules for each port
@@ -69,8 +69,7 @@ impl TerraformGenerator {
             writeln!(output, "    from_port   = {}", port).map_err(|e| e.to_string())?;
             writeln!(output, "    to_port     = {}", port).map_err(|e| e.to_string())?;
             writeln!(output, "    protocol    = \"tcp\"").map_err(|e| e.to_string())?;
-            writeln!(output, "    cidr_blocks = [\"0.0.0.0/0\"]")
-                .map_err(|e| e.to_string())?;
+            writeln!(output, "    cidr_blocks = [\"0.0.0.0/0\"]").map_err(|e| e.to_string())?;
             writeln!(output, "  }}\n").map_err(|e| e.to_string())?;
         }
 
@@ -79,8 +78,7 @@ impl TerraformGenerator {
         writeln!(output, "    from_port   = 0").map_err(|e| e.to_string())?;
         writeln!(output, "    to_port     = 0").map_err(|e| e.to_string())?;
         writeln!(output, "    protocol    = \"-1\"").map_err(|e| e.to_string())?;
-        writeln!(output, "    cidr_blocks = [\"0.0.0.0/0\"]")
-            .map_err(|e| e.to_string())?;
+        writeln!(output, "    cidr_blocks = [\"0.0.0.0/0\"]").map_err(|e| e.to_string())?;
         writeln!(output, "  }}\n").map_err(|e| e.to_string())?;
 
         writeln!(output, "  tags = {{\n    Name = \"main-sg\"\n  }}\n}}\n")
@@ -101,18 +99,15 @@ impl TerraformGenerator {
     pub fn generate_rds_database(db_type: &str, db_name: &str) -> Result<String, String> {
         let mut output = String::new();
 
-        writeln!(output, "resource \"aws_db_instance\" \"main\" {{")
-            .map_err(|e| e.to_string())?;
+        writeln!(output, "resource \"aws_db_instance\" \"main\" {{").map_err(|e| e.to_string())?;
         writeln!(output, "  allocated_storage = 20").map_err(|e| e.to_string())?;
         writeln!(output, "  storage_type = \"gp2\"").map_err(|e| e.to_string())?;
         writeln!(output, "  engine = \"{}\"", db_type).map_err(|e| e.to_string())?;
         writeln!(output, "  engine_version = \"14.7\"").map_err(|e| e.to_string())?;
-        writeln!(output, "  instance_class = \"db.t3.micro\"")
-            .map_err(|e| e.to_string())?;
+        writeln!(output, "  instance_class = \"db.t3.micro\"").map_err(|e| e.to_string())?;
         writeln!(output, "  db_name = \"{}\"", db_name).map_err(|e| e.to_string())?;
         writeln!(output, "  username = \"admin\"").map_err(|e| e.to_string())?;
-        writeln!(output, "  password = var.db_password")
-            .map_err(|e| e.to_string())?;
+        writeln!(output, "  password = var.db_password").map_err(|e| e.to_string())?;
         writeln!(output, "  parameter_group_name = \"default.{}14\"", db_type)
             .map_err(|e| e.to_string())?;
         writeln!(output, "  skip_final_snapshot = true").map_err(|e| e.to_string())?;

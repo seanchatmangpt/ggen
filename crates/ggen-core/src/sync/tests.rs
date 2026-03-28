@@ -43,7 +43,9 @@ SELECT ?service WHERE {
 // Helper: create a temp directory with ontology + query files
 // ---------------------------------------------------------------------------
 
-fn setup_fixture(ttl: &str, queries: &[(&str, &str)]) -> (TempDir, std::path::PathBuf, std::path::PathBuf) {
+fn setup_fixture(
+    ttl: &str, queries: &[(&str, &str)],
+) -> (TempDir, std::path::PathBuf, std::path::PathBuf) {
     let dir = TempDir::new().expect("temp dir");
     let ont_path = dir.path().join("ontology.ttl");
     let queries_dir = dir.path().join("queries");
@@ -191,7 +193,11 @@ fn test_sync_receipt_is_deterministic() {
     );
 
     // Claim: receipt is a non-empty hex string (sha256 = 64 hex chars)
-    assert_eq!(receipt1.len(), 64, "sha256 receipt must be 64 hex characters");
+    assert_eq!(
+        receipt1.len(),
+        64,
+        "sha256 receipt must be 64 hex characters"
+    );
     assert!(
         receipt1.chars().all(|c| c.is_ascii_hexdigit()),
         "receipt must be a valid hex string"

@@ -1,0 +1,11 @@
+[[rules]]
+name = "rest-controller"
+query = "queries/extract-aggregate-roots.rq"
+template = "templates/RestController.java.tera"
+output_file = "{{ javaPackage | replace(from='.', to='/') }}/{{ className }}Controller.java"
+
+[[rules]]
+name = "rest-controller-test"
+query = "queries/extract-aggregate-roots.rq"
+template = "templates/RestControllerTest.java.tera"
+output_file = "{{ javaPackage | replace(from='.', to='/') }}/{{ className }}ControllerTest.java"

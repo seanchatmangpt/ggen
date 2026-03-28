@@ -1,0 +1,17 @@
+PREFIX java26: <http://ggen.io/java26#>
+
+SELECT ?entityName ?javaPackage ?tableName
+       (GROUP_CONCAT(CONCAT(?fieldName, "|", ?fieldType, "|", STR(COALESCE(?isId, false))); separator=",") AS ?fields)
+WHERE {
+    ?root a java26:AggregateRoot ;
+          java26:name ?entityName ;
+          java26:javaPackage ?javaPackage ;
+          java26:dataAccess java26:VirtualThreadDAO ;
+          java26:field ?f .
+    ?f java26:fieldName ?fieldName ;
+       java26:fieldType ?fieldType .
+    OPTIONAL { ?f java26:id ?isId . }
+    BIND(LCASE(?entityName) AS ?tableName)
+}
+GROUP BY ?entityName ?javaPackage ?tableName
+ORDER BY ?entityName

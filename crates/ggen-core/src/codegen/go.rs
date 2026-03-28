@@ -33,8 +33,12 @@ impl GoCodeGenerator {
         writeln!(output, "\t\"database/sql\"").map_err(|e| e.to_string())?;
         writeln!(output, ")\n").map_err(|e| e.to_string())?;
 
-        writeln!(output, "// {} represents the service with all dependencies", service_name)
-            .map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "// {} represents the service with all dependencies",
+            service_name
+        )
+        .map_err(|e| e.to_string())?;
         writeln!(output, "type {} struct {{", service_name).map_err(|e| e.to_string())?;
         writeln!(output, "\tConfig *Config").map_err(|e| e.to_string())?;
         writeln!(output, "\tLogger *log.Logger").map_err(|e| e.to_string())?;
@@ -69,9 +73,7 @@ impl GoCodeGenerator {
     /// # Returns
     /// Handler function with error wrapping
     pub fn generate_handler(
-        method: &str,
-        path: &str,
-        handler_name: &str,
+        method: &str, path: &str, handler_name: &str,
     ) -> Result<String, String> {
         let mut output = String::new();
 
@@ -102,11 +104,8 @@ impl GoCodeGenerator {
         )
         .map_err(|e| e.to_string())?;
         writeln!(output, "\tw.WriteHeader(http.StatusOK)").map_err(|e| e.to_string())?;
-        writeln!(
-            output,
-            "\tw.Write([]byte(`{{\"status\":\"ok\"}}`))"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(output, "\tw.Write([]byte(`{{\"status\":\"ok\"}}`))")
+            .map_err(|e| e.to_string())?;
 
         writeln!(output, "\treturn nil").map_err(|e| e.to_string())?;
         writeln!(output, "}}\n").map_err(|e| e.to_string())?;
@@ -127,18 +126,19 @@ impl GoCodeGenerator {
         let mut output = String::new();
         let repo_name = format!("{}Repository", entity_name);
 
-        writeln!(output, "// {} defines data access operations for {}", repo_name, entity_name)
-            .map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "// {} defines data access operations for {}",
+            repo_name, entity_name
+        )
+        .map_err(|e| e.to_string())?;
         writeln!(output, "type {} interface {{", repo_name).map_err(|e| e.to_string())?;
-        writeln!(output, "\tCreate(entity *{}) error", entity_name)
-            .map_err(|e| e.to_string())?;
+        writeln!(output, "\tCreate(entity *{}) error", entity_name).map_err(|e| e.to_string())?;
         writeln!(output, "\tGetByID(id string) (*{}, error)", entity_name)
             .map_err(|e| e.to_string())?;
-        writeln!(output, "\tUpdate(entity *{}) error", entity_name)
-            .map_err(|e| e.to_string())?;
+        writeln!(output, "\tUpdate(entity *{}) error", entity_name).map_err(|e| e.to_string())?;
         writeln!(output, "\tDelete(id string) error").map_err(|e| e.to_string())?;
-        writeln!(output, "\tList() ([]*{}, error)", entity_name)
-            .map_err(|e| e.to_string())?;
+        writeln!(output, "\tList() ([]*{}, error)", entity_name).map_err(|e| e.to_string())?;
         writeln!(output, "}}\n").map_err(|e| e.to_string())?;
 
         // Implementation struct
@@ -155,8 +155,12 @@ impl GoCodeGenerator {
             entity_name
         )
         .map_err(|e| e.to_string())?;
-        writeln!(output, "func (r *{}Impl) Create(entity *{}) error {{", entity_name, entity_name)
-            .map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "func (r *{}Impl) Create(entity *{}) error {{",
+            entity_name, entity_name
+        )
+        .map_err(|e| e.to_string())?;
         writeln!(output, "\tif entity == nil {{").map_err(|e| e.to_string())?;
         writeln!(
             output,
@@ -175,8 +179,12 @@ impl GoCodeGenerator {
             entity_name
         )
         .map_err(|e| e.to_string())?;
-        writeln!(output, "func (r *{}Impl) GetByID(id string) (*{}, error) {{", entity_name, entity_name)
-            .map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "func (r *{}Impl) GetByID(id string) (*{}, error) {{",
+            entity_name, entity_name
+        )
+        .map_err(|e| e.to_string())?;
         writeln!(output, "\tif id == \"\" {{").map_err(|e| e.to_string())?;
         writeln!(
             output,
@@ -224,8 +232,11 @@ impl GoCodeGenerator {
         writeln!(output, ")\n").map_err(|e| e.to_string())?;
 
         writeln!(output, "func main() {{").map_err(|e| e.to_string())?;
-        writeln!(output, "\tlogger := log.New(os.Stdout, \"[APP] \", log.LstdFlags)")
-            .map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "\tlogger := log.New(os.Stdout, \"[APP] \", log.LstdFlags)"
+        )
+        .map_err(|e| e.to_string())?;
 
         writeln!(output, "\n\t// Load configuration").map_err(|e| e.to_string())?;
         writeln!(output, "\tcfg := &Config{{").map_err(|e| e.to_string())?;
@@ -237,8 +248,11 @@ impl GoCodeGenerator {
         writeln!(output, "\t}}").map_err(|e| e.to_string())?;
 
         writeln!(output, "\n\t// Connect to database").map_err(|e| e.to_string())?;
-        writeln!(output, "\tdb, err := sql.Open(\"postgres\", os.Getenv(\"DATABASE_URL\"))")
-            .map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "\tdb, err := sql.Open(\"postgres\", os.Getenv(\"DATABASE_URL\"))"
+        )
+        .map_err(|e| e.to_string())?;
         writeln!(output, "\tif err != nil {{").map_err(|e| e.to_string())?;
         writeln!(
             output,
@@ -271,25 +285,37 @@ impl GoCodeGenerator {
 
         writeln!(output, "\n\t// Start server in goroutine").map_err(|e| e.to_string())?;
         writeln!(output, "\tgo func() {{").map_err(|e| e.to_string())?;
-        writeln!(output, "\t\tlogger.Printf(\"server starting on %s\\n\", cfg.Port)")
-            .map_err(|e| e.to_string())?;
-        writeln!(output, "\t\tif err := server.ListenAndServe(); err != nil {{")
-            .map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "\t\tlogger.Printf(\"server starting on %s\\n\", cfg.Port)"
+        )
+        .map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "\t\tif err := server.ListenAndServe(); err != nil {{"
+        )
+        .map_err(|e| e.to_string())?;
         writeln!(output, "\t\t\tlogger.Fatalf(\"server error: %v\", err)")
             .map_err(|e| e.to_string())?;
         writeln!(output, "\t\t}}").map_err(|e| e.to_string())?;
         writeln!(output, "\t}}()").map_err(|e| e.to_string())?;
 
         writeln!(output, "\n\t// Setup graceful shutdown").map_err(|e| e.to_string())?;
-        writeln!(output, "\tsigChan := make(chan os.Signal, 1)")
-            .map_err(|e| e.to_string())?;
-        writeln!(output, "\tsignal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)")
-            .map_err(|e| e.to_string())?;
+        writeln!(output, "\tsigChan := make(chan os.Signal, 1)").map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "\tsignal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)"
+        )
+        .map_err(|e| e.to_string())?;
         writeln!(output, "\t<-sigChan").map_err(|e| e.to_string())?;
 
-        writeln!(output, "\n\tlogger.Println(\"shutdown signal received\")").map_err(|e| e.to_string())?;
-        writeln!(output, "\tctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)")
+        writeln!(output, "\n\tlogger.Println(\"shutdown signal received\")")
             .map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "\tctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)"
+        )
+        .map_err(|e| e.to_string())?;
         writeln!(output, "\tdefer cancel()").map_err(|e| e.to_string())?;
         writeln!(output, "\tif err := server.Shutdown(ctx); err != nil {{")
             .map_err(|e| e.to_string())?;
@@ -300,16 +326,19 @@ impl GoCodeGenerator {
         writeln!(output, "}}\n").map_err(|e| e.to_string())?;
 
         writeln!(output, "// HealthCheck returns 200 OK").map_err(|e| e.to_string())?;
-        writeln!(output, "func (s *Service) HealthCheck(w http.ResponseWriter, r *http.Request) {{")
-            .map_err(|e| e.to_string())?;
-        writeln!(output, "\tw.Header().Set(\"Content-Type\", \"application/json\")")
-            .map_err(|e| e.to_string())?;
-        writeln!(output, "\tw.WriteHeader(http.StatusOK)").map_err(|e| e.to_string())?;
         writeln!(
             output,
-            "\tw.Write([]byte(`{{\"status\":\"healthy\"}}`))  "
+            "func (s *Service) HealthCheck(w http.ResponseWriter, r *http.Request) {{"
         )
         .map_err(|e| e.to_string())?;
+        writeln!(
+            output,
+            "\tw.Header().Set(\"Content-Type\", \"application/json\")"
+        )
+        .map_err(|e| e.to_string())?;
+        writeln!(output, "\tw.WriteHeader(http.StatusOK)").map_err(|e| e.to_string())?;
+        writeln!(output, "\tw.Write([]byte(`{{\"status\":\"healthy\"}}`))  ")
+            .map_err(|e| e.to_string())?;
         writeln!(output, "}}").map_err(|e| e.to_string())?;
 
         Ok(output)
@@ -340,7 +369,8 @@ mod tests {
         let result = GoCodeGenerator::generate_handler("GET", "/users/{id}", "GetUser");
         assert!(result.is_ok());
         let code = result.unwrap();
-        assert!(code.contains("func (s *Service) GetUser (w http.ResponseWriter, r *http.Request) error"));
+        assert!(code
+            .contains("func (s *Service) GetUser (w http.ResponseWriter, r *http.Request) error"));
         assert!(code.contains("[GET]"));
         assert!(code.contains("http.StatusOK"));
         assert!(code.contains("application/json"));

@@ -1,0 +1,471 @@
+{
+  "generated_at": "2026-03-28T18:02:18.903293+00:00",
+  "ggen_version": "0.2.0",
+  "inputs": {
+    "manifest_hash": "",
+    "ontology_hashes": {},
+    "template_hashes": {},
+    "query_hashes": {}
+  },
+  "pipeline": [],
+  "outputs": [
+    {
+      "path": "src/patterns/01-domain-ontology-as-truth.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/01-domain-ontology-as-truth.md"
+    },
+    {
+      "path": "src/patterns/02-generation-pipeline.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/02-generation-pipeline.md"
+    },
+    {
+      "path": "src/patterns/03-layered-java-architecture.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/03-layered-java-architecture.md"
+    },
+    {
+      "path": "src/patterns/04-java-26-language-profile.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/04-java-26-language-profile.md"
+    },
+    {
+      "path": "src/patterns/05-ontology-driven-versioning.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/05-ontology-driven-versioning.md"
+    },
+    {
+      "path": "src/patterns/06-entity-type-hierarchy.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/06-entity-type-hierarchy.md"
+    },
+    {
+      "path": "src/patterns/07-value-object-record.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/07-value-object-record.md"
+    },
+    {
+      "path": "src/patterns/08-aggregate-root.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/08-aggregate-root.md"
+    },
+    {
+      "path": "src/patterns/09-sealed-domain-hierarchy.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/09-sealed-domain-hierarchy.md"
+    },
+    {
+      "path": "src/patterns/10-sealed-event-hierarchy.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/10-sealed-event-hierarchy.md"
+    },
+    {
+      "path": "src/patterns/11-pattern-matching-visitor.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/11-pattern-matching-visitor.md"
+    },
+    {
+      "path": "src/patterns/12-record-binding.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/12-record-binding.md"
+    },
+    {
+      "path": "src/patterns/13-jpa-entity-mapping.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/13-jpa-entity-mapping.md"
+    },
+    {
+      "path": "src/patterns/14-spring-data-repository.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/14-spring-data-repository.md"
+    },
+    {
+      "path": "src/patterns/15-virtual-thread-dao.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/15-virtual-thread-dao.md"
+    },
+    {
+      "path": "src/patterns/16-dto-projection.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/16-dto-projection.md"
+    },
+    {
+      "path": "src/patterns/17-flyway-schema-migration.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/17-flyway-schema-migration.md"
+    },
+    {
+      "path": "src/patterns/18-event-sourced-aggregate.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/18-event-sourced-aggregate.md"
+    },
+    {
+      "path": "src/patterns/19-service-layer.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/19-service-layer.md"
+    },
+    {
+      "path": "src/patterns/20-transactional-unit-of-work.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/20-transactional-unit-of-work.md"
+    },
+    {
+      "path": "src/patterns/21-rest-controller.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/21-rest-controller.md"
+    },
+    {
+      "path": "src/patterns/22-pattern-matched-controller.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/22-pattern-matched-controller.md"
+    },
+    {
+      "path": "src/patterns/23-virtual-thread-service-mesh.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/23-virtual-thread-service-mesh.md"
+    },
+    {
+      "path": "src/patterns/24-structured-concurrency-scope.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/24-structured-concurrency-scope.md"
+    },
+    {
+      "path": "src/patterns/25-java-enum-persistence.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/25-java-enum-persistence.md"
+    },
+    {
+      "path": "src/patterns/26-foreign-key-relationship.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/26-foreign-key-relationship.md"
+    },
+    {
+      "path": "src/patterns/27-optimistic-locking-version.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/27-optimistic-locking-version.md"
+    },
+    {
+      "path": "src/patterns/28-paginated-query.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/28-paginated-query.md"
+    },
+    {
+      "path": "src/patterns/29-opentelemetry-instrumentation.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/29-opentelemetry-instrumentation.md"
+    },
+    {
+      "path": "src/patterns/30-jakarta-validation-constraints.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/30-jakarta-validation-constraints.md"
+    },
+    {
+      "path": "src/patterns/31-spring-cache-abstraction.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/31-spring-cache-abstraction.md"
+    },
+    {
+      "path": "src/patterns/32-json-serializer.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/32-json-serializer.md"
+    },
+    {
+      "path": "src/patterns/33-scoped-value-request-context.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/33-scoped-value-request-context.md"
+    },
+    {
+      "path": "src/patterns/34-maven-module-pom.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/34-maven-module-pom.md"
+    },
+    {
+      "path": "src/patterns/35-test-scaffold.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/patterns/35-test-scaffold.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/SUMMARY.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/SUMMARY.md"
+    },
+    {
+      "path": "src/README.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/README.md"
+    },
+    {
+      "path": "src/how-to-use.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/how-to-use.md"
+    },
+    {
+      "path": "src/how-to-use.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/how-to-use.md"
+    },
+    {
+      "path": "src/how-to-use.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/how-to-use.md"
+    },
+    {
+      "path": "src/how-to-use.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/how-to-use.md"
+    },
+    {
+      "path": "src/how-to-use.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source_rule": "rule-src/how-to-use.md"
+    }
+  ],
+  "validation_passed": true,
+  "total_duration_ms": 0
+}

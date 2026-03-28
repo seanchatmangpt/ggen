@@ -3,9 +3,9 @@
 //! Generates immutable DTO classes with @Data and @Builder annotations
 //! for transferring YAWL entity data over REST APIs.
 
-use ggen_codegen::{GenerationMode, Queryable, Renderable, Rule, Error as CodegenError};
-use ggen_codegen::Result as CodegenResult;
 use crate::error::{Error, Result};
+use ggen_codegen::Result as CodegenResult;
+use ggen_codegen::{Error as CodegenError, GenerationMode, Queryable, Renderable, Rule};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use tera::{Context, Tera};

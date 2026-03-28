@@ -63,10 +63,8 @@ pub fn check_deadlock_freedom(code: &str) -> Vec<SoundnessViolation> {
 
     // Pattern 1: GenServer.call without timeout (Elixir/OTP)
     // Catches: GenServer.call(pid, msg) but NOT GenServer.call(pid, msg, 5000)
-    let genserver_no_timeout = Regex::new(
-        r#"GenServer\.call\s*\(\s*(\w+)\s*,\s*[^,)]+\s*\)\s*(?:$|[\s;,\)])"#,
-    )
-    .unwrap();
+    let genserver_no_timeout =
+        Regex::new(r#"GenServer\.call\s*\(\s*(\w+)\s*,\s*[^,)]+\s*\)\s*(?:$|[\s;,\)])"#).unwrap();
 
     for (line_num, line) in code.lines().enumerate() {
         if let Some(m) = genserver_no_timeout.find(line) {
@@ -77,8 +75,7 @@ pub fn check_deadlock_freedom(code: &str) -> Vec<SoundnessViolation> {
                     rule: "DEADLOCK_FREE_001".to_string(),
                     message: "GenServer.call() without timeout_ms can deadlock indefinitely"
                         .to_string(),
-                    fix: "Add explicit timeout: GenServer.call(pid, msg, 5000)"
-                        .to_string(),
+                    fix: "Add explicit timeout: GenServer.call(pid, msg, 5000)".to_string(),
                     snippet: line.trim().to_string(),
                 });
             }
@@ -108,15 +105,18 @@ pub fn check_deadlock_freedom(code: &str) -> Vec<SoundnessViolation> {
     for (line_num, line) in code.lines().enumerate() {
         if receive_no_timeout.is_match(line) {
             // Check if next lines have :after clause
-            let remaining: String = code.lines().skip(line_num + 1).take(10).collect::<Vec<_>>().join(" ");
+            let remaining: String = code
+                .lines()
+                .skip(line_num + 1)
+                .take(10)
+                .collect::<Vec<_>>()
+                .join(" ");
             if !remaining.contains(":after") {
                 violations.push(SoundnessViolation {
                     line: line_num + 1,
                     rule: "DEADLOCK_FREE_003".to_string(),
-                    message: "receive without :after timeout can block indefinitely"
-                        .to_string(),
-                    fix: "Add timeout: receive do ... after 5000 -> escalate() end"
-                        .to_string(),
+                    message: "receive without :after timeout can block indefinitely".to_string(),
+                    fix: "Add timeout: receive do ... after 5000 -> escalate() end".to_string(),
                     snippet: line.trim().to_string(),
                 });
             }
@@ -131,8 +131,7 @@ pub fn check_deadlock_freedom(code: &str) -> Vec<SoundnessViolation> {
             violations.push(SoundnessViolation {
                 line: line_num + 1,
                 rule: "DEADLOCK_FREE_004".to_string(),
-                message: "Channel receive without select! timeout can deadlock"
-                    .to_string(),
+                message: "Channel receive without select! timeout can deadlock".to_string(),
                 fix: "Use select!: select! { msg = receiver => ..., _ = timeout => fallback() }"
                     .to_string(),
                 snippet: line.trim().to_string(),
@@ -158,8 +157,12 @@ pub fn check_liveness(code: &str) -> Vec<SoundnessViolation> {
     for (line_num, line) in code.lines().enumerate() {
         if infinite_loop.is_match(line) {
             // Check if this loop has sleep() and break within reasonable distance
-            let remaining_code: String =
-                code.lines().skip(line_num).take(20).collect::<Vec<_>>().join(" ");
+            let remaining_code: String = code
+                .lines()
+                .skip(line_num)
+                .take(20)
+                .collect::<Vec<_>>()
+                .join(" ");
 
             let has_sleep = remaining_code.contains("sleep") || remaining_code.contains("timer");
             let has_break = remaining_code.contains("break");
@@ -195,10 +198,17 @@ pub fn check_liveness(code: &str) -> Vec<SoundnessViolation> {
         for (line_num, line) in code.lines().enumerate() {
             if func_recursion.is_match(line) && line.contains(&func_name) {
                 // Check if there's a depth limit near this line
-                let context: String =
-                    code.lines().skip(line_num.saturating_sub(5)).take(10).collect::<Vec<_>>().join(" ");
+                let context: String = code
+                    .lines()
+                    .skip(line_num.saturating_sub(5))
+                    .take(10)
+                    .collect::<Vec<_>>()
+                    .join(" ");
 
-                if !context.contains("depth") && !context.contains("max_depth") && !context.contains("limit") {
+                if !context.contains("depth")
+                    && !context.contains("max_depth")
+                    && !context.contains("limit")
+                {
                     violations.push(SoundnessViolation {
                         line: line_num + 1,
                         rule: "LIVENESS_002".to_string(),
@@ -221,7 +231,8 @@ pub fn check_liveness(code: &str) -> Vec<SoundnessViolation> {
             let func_start = code.lines().take(line_num).collect::<Vec<_>>().join("\n");
             let last_50_lines = func_start.lines().rev().take(50).collect::<String>();
 
-            if !last_50_lines.contains("Enum.count") && !last_50_lines.contains("length")
+            if !last_50_lines.contains("Enum.count")
+                && !last_50_lines.contains("length")
                 && !last_50_lines.contains("|> Enum.take(")
             {
                 violations.push(SoundnessViolation {
@@ -229,8 +240,7 @@ pub fn check_liveness(code: &str) -> Vec<SoundnessViolation> {
                     rule: "LIVENESS_003".to_string(),
                     message: "Unbounded Enum operation on potentially infinite collection"
                         .to_string(),
-                    fix: "Bound collection: |> Enum.take(1000) before map/fold"
-                        .to_string(),
+                    fix: "Bound collection: |> Enum.take(1000) before map/fold".to_string(),
                     snippet: line.trim().to_string(),
                 });
             }
@@ -266,14 +276,12 @@ pub fn check_boundedness(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 2: Cache without TTL (Elixir/Rust)
-    let cache_creation = Regex::new(
-        r#"(?:Cache|Cachex|ConCache)\.(?:start|new)\s*\("#,
-    )
-    .unwrap();
+    let cache_creation = Regex::new(r#"(?:Cache|Cachex|ConCache)\.(?:start|new)\s*\("#).unwrap();
 
     for (line_num, line) in code.lines().enumerate() {
         if cache_creation.is_match(line) {
-            let line_and_next: String = code.lines()
+            let line_and_next: String = code
+                .lines()
                 .skip(line_num)
                 .take(3)
                 .collect::<Vec<_>>()
@@ -300,8 +308,7 @@ pub fn check_boundedness(code: &str) -> Vec<SoundnessViolation> {
                 violations.push(SoundnessViolation {
                     line: line_num + 1,
                     rule: "BOUNDEDNESS_003".to_string(),
-                    message: "ETS table without memory limit or concurrency settings"
-                        .to_string(),
+                    message: "ETS table without memory limit or concurrency settings".to_string(),
                     fix: "Configure: [:set, {:write_concurrency, true}, {:max_memory, 512}]"
                         .to_string(),
                     snippet: line.trim().to_string(),
@@ -316,7 +323,8 @@ pub fn check_boundedness(code: &str) -> Vec<SoundnessViolation> {
     for (line_num, line) in code.lines().enumerate() {
         if list_prepend_loop.is_match(line) {
             // Check if this is in a loop that could grow unbounded
-            let surrounding: String = code.lines()
+            let surrounding: String = code
+                .lines()
                 .skip(line_num.saturating_sub(10))
                 .take(20)
                 .collect::<Vec<_>>()
@@ -329,10 +337,8 @@ pub fn check_boundedness(code: &str) -> Vec<SoundnessViolation> {
                 violations.push(SoundnessViolation {
                     line: line_num + 1,
                     rule: "BOUNDEDNESS_004".to_string(),
-                    message: "Unbounded list accumulation in loop can exhaust memory"
-                        .to_string(),
-                    fix: "Add size check: if length(list) >= 1000 do drop_oldest() end"
-                        .to_string(),
+                    message: "Unbounded list accumulation in loop can exhaust memory".to_string(),
+                    fix: "Add size check: if length(list) >= 1000 do drop_oldest() end".to_string(),
                     snippet: line.trim().to_string(),
                 });
             }
@@ -357,7 +363,8 @@ pub fn check_supervision(code: &str) -> Vec<SoundnessViolation> {
     for (line_num, line) in code.lines().enumerate() {
         if raw_spawn.is_match(line) {
             // Check if this is a supervised spawn (look back for supervisor context)
-            let context: String = code.lines()
+            let context: String = code
+                .lines()
                 .skip(line_num.saturating_sub(20))
                 .take(25)
                 .collect::<Vec<_>>()
@@ -386,8 +393,7 @@ pub fn check_supervision(code: &str) -> Vec<SoundnessViolation> {
                     line: line_num + 1,
                     rule: "SUPERVISION_002".to_string(),
                     message: "Child process spec without restart strategy".to_string(),
-                    fix: "Specify restart: :permanent, :transient, or :temporary"
-                        .to_string(),
+                    fix: "Specify restart: :permanent, :transient, or :temporary".to_string(),
                     snippet: line.trim().to_string(),
                 });
             }
@@ -399,7 +405,8 @@ pub fn check_supervision(code: &str) -> Vec<SoundnessViolation> {
 
     for (line_num, line) in code.lines().enumerate() {
         if go_spawn.is_match(line) {
-            let surrounding: String = code.lines()
+            let surrounding: String = code
+                .lines()
                 .skip(line_num.saturating_sub(5))
                 .take(15)
                 .collect::<Vec<_>>()
@@ -409,10 +416,8 @@ pub fn check_supervision(code: &str) -> Vec<SoundnessViolation> {
                 violations.push(SoundnessViolation {
                     line: line_num + 1,
                     rule: "SUPERVISION_003".to_string(),
-                    message: "goroutine spawned without WaitGroup or context tracking"
-                        .to_string(),
-                    fix: "Use: var wg sync.WaitGroup; defer wg.Done()"
-                        .to_string(),
+                    message: "goroutine spawned without WaitGroup or context tracking".to_string(),
+                    fix: "Use: var wg sync.WaitGroup; defer wg.Done()".to_string(),
                     snippet: line.trim().to_string(),
                 });
             }
@@ -433,9 +438,17 @@ pub fn check_let_it_crash(code: &str) -> Vec<SoundnessViolation> {
 
     // Pattern 1: try/rescue with catch-all without re-raising (Elixir)
     for (line_num, line) in code.lines().enumerate() {
-        if line.contains("rescue") && code.lines().skip(line_num).take(3).collect::<String>().contains("_") {
+        if line.contains("rescue")
+            && code
+                .lines()
+                .skip(line_num)
+                .take(3)
+                .collect::<String>()
+                .contains("_")
+        {
             // Check if the rescue block silently continues
-            let rescue_block: String = code.lines()
+            let rescue_block: String = code
+                .lines()
                 .skip(line_num)
                 .take(5)
                 .collect::<Vec<_>>()
@@ -463,10 +476,8 @@ pub fn check_let_it_crash(code: &str) -> Vec<SoundnessViolation> {
             violations.push(SoundnessViolation {
                 line: line_num + 1,
                 rule: "LET_IT_CRASH_002".to_string(),
-                message: "Error silencing with || nil creates hidden state corruption"
-                    .to_string(),
-                fix: "Remove || fallback. Let crash, let supervisor restart."
-                    .to_string(),
+                message: "Error silencing with || nil creates hidden state corruption".to_string(),
+                fix: "Remove || fallback. Let crash, let supervisor restart.".to_string(),
                 snippet: line.trim().to_string(),
             });
         }
@@ -477,7 +488,8 @@ pub fn check_let_it_crash(code: &str) -> Vec<SoundnessViolation> {
 
     for (line_num, line) in code.lines().enumerate() {
         if bare_except.is_match(line) {
-            let exception_body: String = code.lines()
+            let exception_body: String = code
+                .lines()
                 .skip(line_num + 1)
                 .take(3)
                 .collect::<Vec<_>>()
@@ -487,10 +499,8 @@ pub fn check_let_it_crash(code: &str) -> Vec<SoundnessViolation> {
                 violations.push(SoundnessViolation {
                     line: line_num + 1,
                     rule: "LET_IT_CRASH_003".to_string(),
-                    message: "Bare except clause catches and silences all exceptions"
-                        .to_string(),
-                    fix: "Specify exception type: except ValueError: or re-raise"
-                        .to_string(),
+                    message: "Bare except clause catches and silences all exceptions".to_string(),
+                    fix: "Specify exception type: except ValueError: or re-raise".to_string(),
                     snippet: line.trim().to_string(),
                 });
             }
@@ -506,8 +516,7 @@ pub fn check_let_it_crash(code: &str) -> Vec<SoundnessViolation> {
                 line: line_num + 1,
                 rule: "LET_IT_CRASH_004".to_string(),
                 message: "Empty catch block silently swallows exception".to_string(),
-                fix: "Log the error or re-throw: throw or logger.error(ex)"
-                    .to_string(),
+                fix: "Log the error or re-throw: throw or logger.error(ex)".to_string(),
                 snippet: line.trim().to_string(),
             });
         }

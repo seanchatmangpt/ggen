@@ -1,0 +1,27 @@
+[project]
+name = "java26-record-value-object"
+version = "1.0.0"
+
+[ontology]
+source = "ontology/domain.ttl"
+imports = ["../java26-core/ontology/java26.ttl"]
+
+[generation]
+output_dir = "src/main/java/"
+
+[[generation.rules]]
+name = "value-objects"
+query = { file = "queries/extract-value-objects.rq" }
+template = { file = "templates/ValueObject.java.tera" }
+output_file = "{{ javaPackage | replace(from='.', to='/') }}/{{ className }}.java"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "value-object-tests"
+query = { file = "queries/extract-value-objects.rq" }
+template = { file = "templates/ValueObjectTest.java.tera" }
+output_file = "{{ javaPackage | replace(from='.', to='/') }}/{{ className }}Test.java"
+mode = "Overwrite"
+
+[validation]
+validate_syntax = false

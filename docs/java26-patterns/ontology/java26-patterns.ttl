@@ -1,0 +1,863 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix pl:     <https://ggen.dev/pattern-language#> .
+@prefix j26:    <https://ggen.dev/java26-patterns#> .
+@prefix java26: <http://ggen.io/java26#> .
+
+# =============================================================================
+# A PATTERN LANGUAGE FOR JAVA 26 WITH ggen
+# =============================================================================
+# This ontology encodes 35 executable patterns for generating Java 26 code
+# from RDF/OWL ontologies using ggen sync.
+#
+# Formula: A = μ(O)  — Code precipitates from ontology
+# =============================================================================
+
+<https://ggen.dev/java26-patterns#> a owl:Ontology ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:label "A Pattern Language for Java 26 with ggen" ;
+    rdfs:comment "35 executable patterns — copy the TTL, run ggen sync, get Java 26" .
+
+# =============================================================================
+# PATTERN CATEGORIES
+# =============================================================================
+
+j26:SuperPatternsCategory a pl:PatternCategory ;
+    rdfs:label "Super-Patterns" ;
+    pl:categoryOrder 1 ;
+    pl:categoryDescription "These 5 fundamental patterns establish the Java 26 generation philosophy. They frame everything else." ;
+    pl:categorySlug "super-patterns" .
+
+j26:DomainModelCategory a pl:PatternCategory ;
+    rdfs:label "Domain Model Patterns" ;
+    pl:categoryOrder 2 ;
+    pl:categoryDescription "These 7 patterns express your domain model in OWL/RDF so ggen can generate correct Java 26 type systems." ;
+    pl:categorySlug "domain-model" .
+
+j26:PersistenceCategory a pl:PatternCategory ;
+    rdfs:label "Persistence Patterns" ;
+    pl:categoryOrder 3 ;
+    pl:categoryDescription "These 6 patterns cover JPA entities, Spring Data repositories, and virtual thread DAOs." ;
+    pl:categorySlug "persistence" .
+
+j26:ApplicationCategory a pl:PatternCategory ;
+    rdfs:label "Application Layer Patterns" ;
+    pl:categoryOrder 4 ;
+    pl:categoryDescription "These 6 patterns cover service classes, REST controllers, and modern Java 26 concurrency." ;
+    pl:categorySlug "application" .
+
+j26:InfrastructureCategory a pl:PatternCategory ;
+    rdfs:label "Infrastructure Patterns" ;
+    pl:categoryOrder 5 ;
+    pl:categoryDescription "These 11 leaf patterns handle the implementation details — enum persistence, validation, caching, testing." ;
+    pl:categorySlug "infrastructure" .
+
+# =============================================================================
+# TIER 1: SUPER-PATTERNS (Patterns 1-5, confidence=3 ***)
+# =============================================================================
+
+j26:DomainOntologyAsTruth a pl:Pattern ;
+    rdfs:label "DOMAIN ONTOLOGY AS TRUTH" ;
+    pl:hasNumber 1 ;
+    pl:hasConfidence 3 ;
+    pl:hasCategory j26:SuperPatternsCategory ;
+    pl:hasSlug "domain-ontology-as-truth" ;
+    pl:hasEvocativeImage "Before the first line of Java is written, the domain already exists as triples." ;
+    pl:hasContext """Large Java systems suffer from model drift — JPA classes, DTOs, OpenAPI specs, and documentation all diverge over time. Teams spend more energy on synchronization than on domain logic. The root cause is that no single representation is authoritative.
+
+Every artifact is a downstream projection of some conceptual domain model that nobody ever formally specified. The JPA entity is an interpretation. The DTO is a re-interpretation. The OpenAPI schema is a third interpretation. When requirements change, each artifact must be updated manually, and the team hopes they remembered every location.
+
+The OWL/RDF Turtle file solves this by making the ontology the single source of truth. It is not documentation — it is the domain itself, expressed in a formalism that ggen can read, validate, and project into every artifact simultaneously.""" ;
+    pl:hasProblem "When domain knowledge lives in multiple places, they inevitably diverge; when they diverge, bugs follow." ;
+    pl:hasSolution """Author the entire domain in a single OWL Turtle file (.ttl) and let ggen project every artifact — entities, records, sealed hierarchies, services, controllers — deterministically from it via A = μ(O).
+
+Every change starts in the .ttl file. Every artifact is regenerated. If the ontology is consistent, the code is consistent. The diff of the .ttl file is the diff of the entire system.
+
+Place the ontology at .specify/specs/domain/domain.ttl and run ggen sync. The pipeline validates SHACL constraints, constructs a normalized RDF graph, selects bindings via SPARQL, renders Tera templates, and writes formatted Java source files with a cryptographic receipt proving provenance.""" ;
+    pl:hasImplementation """ggen reads the ontology section of ggen.toml to locate the source TTL files. The [[generation.rules]] table maps each rule name to a SPARQL query, a Tera template, and an output path pattern.
+
+Running `ggen sync` executes all five stages (μ₁-μ₅) for every rule in parallel. The result is a complete, formatted, compilation-ready Java source tree and a .ggen/receipt.json file containing a SHA-256 hash of every input ontology file and every output source file, enabling reproducible builds and audit trails.""" ;
+    j26:hasScaleLevel "super" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule entity" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:GenerationPipeline a pl:Pattern ;
+    rdfs:label "GENERATION PIPELINE" ;
+    pl:hasNumber 2 ;
+    pl:hasConfidence 3 ;
+    pl:hasCategory j26:SuperPatternsCategory ;
+    pl:hasSlug "generation-pipeline" ;
+    pl:hasEvocativeImage "Knowledge flows through five gates and becomes code on the other side." ;
+    pl:hasContext """Code generation systems often couple extraction, transformation, and output into a single, untestable blob. A change to the SPARQL query breaks template rendering. A change to the template breaks output formatting. The coupling makes the system fragile and hard to reason about.
+
+The five-stage μ pipeline separates each concern into an independently testable stage. Each stage has a clearly defined input and output: μ₁ Construct normalizes the RDF graph, μ₂ Select extracts typed bindings via SPARQL, μ₃ Render transforms bindings into text via Tera templates, μ₄ Canonicalize formats the output, and μ₅ Receipt produces a cryptographic proof of provenance.
+
+This structure allows each stage to be tested in isolation, swapped out independently, and optimized without affecting other stages. It is the foundational architecture on which all other patterns depend.""" ;
+    pl:hasProblem "Without a clean pipeline, generation logic becomes a tangled mess of template string manipulation." ;
+    pl:hasSolution """Apply μ₁ Construct (normalize RDF) → μ₂ Select (SPARQL extraction) → μ₃ Render (Tera templates) → μ₄ Canonicalize (format) → μ₅ Receipt (cryptographic proof) to every generation task.
+
+Each stage passes a typed artifact to the next: the raw OWL graph becomes a normalized graph (μ₁), which becomes a list of SPARQL binding maps (μ₂), which becomes a rendered string per binding (μ₃), which becomes formatted source code (μ₄), which becomes a signed receipt entry (μ₅).
+
+Write one SPARQL query and one Tera template per artifact type. ggen executes the full pipeline for every [[generation.rules]] entry in ggen.toml whenever `ggen sync` is invoked.""" ;
+    pl:hasImplementation """The ggen pipeline is implemented in crates/ggen-core/src/codegen/mod.rs. Each stage is a pure function: no global state, no side effects between stages. The pipeline runner parallelizes all rules using Tokio tasks and merges outputs using three-way merge if a target file already exists.
+
+SPARQL queries live in .specify/queries/. Tera templates live in .specify/templates/. ggen validates both against the ontology at startup, failing fast if a query references an IRI not present in the ontology.""" ;
+    j26:hasScaleLevel "super" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --audit true" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:LayeredJavaArchitecture a pl:Pattern ;
+    rdfs:label "LAYERED JAVA ARCHITECTURE" ;
+    pl:hasNumber 3 ;
+    pl:hasConfidence 3 ;
+    pl:hasCategory j26:SuperPatternsCategory ;
+    pl:hasSlug "layered-java-architecture" ;
+    pl:hasEvocativeImage "Domain → Repository → Service → Controller — each layer knows only the one below." ;
+    pl:hasContext """Spring Boot applications grow chaotic when layers communicate freely. Services call controllers, controllers access repositories directly, entities contain business logic, and DTOs carry domain logic they shouldn't. This architectural erosion happens gradually, one shortcut at a time, and is very hard to reverse.
+
+The four-layer architecture — domain, persistence, application, and presentation — is a proven solution. Each layer has a single responsibility and depends only on the layer directly below it. Domain entities know nothing about persistence. Repositories know nothing about HTTP. Services orchestrate domain logic and repository calls. Controllers translate HTTP to service calls.
+
+When layers are generated from an ontology, the boundaries are enforced structurally: the templates physically cannot produce cross-layer dependencies because each template knows only its own layer's patterns.""" ;
+    pl:hasProblem "Without enforced layer boundaries, Java applications become big balls of mud." ;
+    pl:hasSolution """Enforce the four-layer architecture: @Entity (domain) → @Repository (persistence) → @Service @Transactional (application) → @RestController (presentation). Generate all four layers from a single ontology entity definition.
+
+A single java26:Entity declaration in the ontology triggers four generation rules: entity, repository, service, and controller. Each rule has its own SPARQL query, Tera template, and output path pattern. The rules are independent and run in parallel.
+
+The generated code enforces layer boundaries: the @Entity has no Spring annotations, the @Repository only sees the @Entity, the @Service only sees the @Repository, and the @RestController only sees the @Service.""" ;
+    pl:hasImplementation """Define four [[generation.rules]] in ggen.toml — entity, repository, service, controller — each targeting a different output directory: domain/, repository/, service/, controller/. The entity template has no Spring imports. The repository template imports only the entity and Spring Data. The service template imports only the repository interface and transaction annotations. The controller template imports only the service interface and Spring Web.""" ;
+    j26:hasScaleLevel "super" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule entity --rule repository --rule service --rule controller" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:Java26LanguageProfile a pl:Pattern ;
+    rdfs:label "JAVA 26 LANGUAGE PROFILE" ;
+    pl:hasNumber 4 ;
+    pl:hasConfidence 3 ;
+    pl:hasCategory j26:SuperPatternsCategory ;
+    pl:hasSlug "java-26-language-profile" ;
+    pl:hasEvocativeImage "Sealed types close hierarchies; records flatten ceremony; virtual threads dissolve thread pools." ;
+    pl:hasContext """Java 26 introduces transformative features — sealed interfaces, record classes, virtual threads, pattern matching for switch — that fundamentally change how we model domains. But teams often stick to Java 8 idioms from habit: abstract classes where sealed interfaces belong, verbose value objects where records suffice, thread pools where virtual threads are simpler.
+
+The language profile is the set of Java 26 features that ggen targets by default. It is not a menu of optional choices; it is the agreed-upon idiom of the codebase. When every entity is a record or a JPA class (not a mutable POJO), when every hierarchy is sealed, when every service uses virtual threads, the codebase becomes consistent and the templates become simple.
+
+Declaring the language profile in the ontology — using java26:SealedInterface, java26:ValueObject, java26:VirtualThreadExecutor, etc. — tells ggen precisely which Java 26 constructs to emit for each ontology type.""" ;
+    pl:hasProblem "Using Java 26 with Java 8 thinking wastes the type-safety and conciseness that sealed types and records provide." ;
+    pl:hasSolution """Establish sealed interfaces for domain hierarchies, records for value objects and DTOs, virtual threads for all I/O, and switch expressions with pattern matching for dispatch. Let ggen generate these patterns consistently.
+
+Annotate ontology classes with the appropriate Java 26 profile type: java26:Entity for JPA entities, java26:ValueObject for immutable records, java26:SealedInterface for type hierarchies, java26:SealedRecord for sealed hierarchy members. ggen selects the correct template for each type.
+
+Virtual threads are enabled globally by annotating the application class with java26:VirtualThreadExecutor in the ontology, which causes ggen to emit the Tomcat virtual thread executor bean in the generated Spring Boot configuration.""" ;
+    pl:hasImplementation """The language profile is implemented as a set of OWL classes in the java26: namespace. Each class maps to a distinct Tera template in ggen. The template selection logic in crates/ggen-core/src/codegen/go.rs and python.rs is mirrored in the Java generator: the SPARQL query binds a ?profileType variable, and the Tera template is selected by matching against the java26: namespace IRI.""" ;
+    j26:hasScaleLevel "super" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule sealed-interface --rule value-object --rule spring-boot-app" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:OntologyDrivenVersioning a pl:Pattern ;
+    rdfs:label "ONTOLOGY-DRIVEN VERSIONING" ;
+    pl:hasNumber 5 ;
+    pl:hasConfidence 3 ;
+    pl:hasCategory j26:SuperPatternsCategory ;
+    pl:hasSlug "ontology-driven-versioning" ;
+    pl:hasEvocativeImage "The diff of the .ttl file IS the changelog." ;
+    pl:hasContext """Schema migrations, API version changes, and release notes are typically written by hand, long after the actual change was made. The developer modifies the JPA entity, manually writes a Flyway migration script, updates the OpenAPI spec, writes a changelog entry, and increments the version number — four separate, error-prone steps for what is conceptually one change.
+
+This creates documentation drift: the migration doesn't match the entity, the changelog doesn't match the API spec, the version number is bumped by convention rather than by rule. Teams spend significant time in code review chasing discrepancies that a machine could detect and prevent.
+
+Ontology-driven versioning makes the TTL diff the single source of all change artifacts. The ontology has a version number (owl:versionInfo). When a field is added, removed, or renamed in the TTL, ggen detects the structural change and generates the Flyway migration SQL, the updated version bump, and a changelog entry — all from the same diff.""" ;
+    pl:hasProblem "Manually maintained changelogs, migration scripts, and API versions diverge from the actual code." ;
+    pl:hasSolution """Generate Flyway migrations, semantic version bumps, and API changelogs directly from ontology diffs. When the TTL changes, `ggen sync` produces the migration SQL, the updated version number, and the changelog entry.
+
+Run `ggen diff --from v1.0.0 --to HEAD` to compute the structural diff of the ontology between two versions. The diff output drives three generation rules: flyway-migration (SQL DDL), version-bump (semantic version increment), and changelog-entry (Markdown entry). All three are deterministic given the same diff.
+
+Store the ontology version in owl:versionInfo. ggen reads this value and uses semantic versioning rules: adding a field is a minor bump, removing a field is a major bump, adding a nullable field is a patch bump.""" ;
+    pl:hasImplementation """The ontology diff engine in crates/ggen-core/src/codegen/canonicalize.rs computes structural differences between two RDF graphs. The diff is expressed as a list of AddTriple and RemoveTriple operations. The Flyway migration template maps triple operations to SQL DDL: AddTriple on a java26:hasField with java26:fieldType xsd:string becomes ALTER TABLE ... ADD COLUMN ... VARCHAR(255).""" ;
+    j26:hasScaleLevel "super" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen diff --from v1.0.0 --to HEAD | ggen sync --rule flyway-migration --rule changelog-entry" ;.
+
+# =============================================================================
+# TIER 2: DOMAIN MODEL PATTERNS (Patterns 6-12, confidence=2 **)
+# =============================================================================
+
+j26:EntityTypeHierarchy a pl:Pattern ;
+    rdfs:label "ENTITY TYPE HIERARCHY" ;
+    pl:hasNumber 6 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:DomainModelCategory ;
+    pl:hasSlug "entity-type-hierarchy" ;
+    pl:hasEvocativeImage "A class hierarchy that the compiler can see is worth more than one that lives only in documentation." ;
+    pl:hasContext """Java domain models often use inheritance or marker interfaces for type hierarchies. Abstract classes allow unknown subclasses — a third-party module can extend them, or a developer can add a new subclass without updating the switch statements that dispatch on type. The compiler cannot enforce exhaustive handling.
+
+Before sealed types, the workaround was to add an abstract method to each new operation and implement it in all subclasses. This is the Visitor pattern expressed through inheritance, and it works, but it couples operation logic to the domain class, violating separation of concerns.
+
+Java 26 sealed interfaces close the hierarchy. When you declare `sealed interface Payment permits CreditCard, BankTransfer, Crypto`, the compiler knows those are the only permitted implementations. Every switch expression on Payment must handle all three, or it will fail to compile. This compile-time exhaustiveness checking is the key benefit of sealed hierarchies.""" ;
+    pl:hasProblem "Type hierarchies expressed via abstract classes allow unknown subclasses; the compiler cannot enforce exhaustive handling." ;
+    pl:hasSolution """Use OWL class hierarchies in the ontology to generate sealed interface hierarchies in Java 26, where each variant is a record with only the fields it actually needs.
+
+Declare the parent class as java26:SealedInterface and each variant as java26:SealedRecord with java26:implements pointing to the parent. ggen generates the sealed interface with the correct permits clause and one record per variant.
+
+Each record carries only the fields declared in the ontology for that variant. Fields common to all variants go on the sealed interface as abstract accessors. Variant-specific fields go on the individual records.""" ;
+    pl:hasImplementation """The sealed interface template iterates over all java26:SealedRecord instances that reference the current java26:SealedInterface via java26:implements. It collects all field names and emits them as record components. The permits clause lists all permitted record types in the order they appear in java26:permittedSubclasses, or alphabetically if no order is specified.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule sealed-interface" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:ValueObjectRecord a pl:Pattern ;
+    rdfs:label "VALUE OBJECT RECORD" ;
+    pl:hasNumber 7 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:DomainModelCategory ;
+    pl:hasSlug "value-object-record" ;
+    pl:hasEvocativeImage "An amount of money is not an integer; it is a concept with invariants." ;
+    pl:hasContext """Domain-Driven Design teaches that value objects are equal by value, not by identity. A Money(100, USD) is the same as any other Money(100, USD) — there is no meaningful concept of two different money objects that both hold 100 USD. In Java 8, implementing this correctly requires overriding equals(), hashCode(), and toString(), plus making all fields final, plus writing a constructor that validates invariants. This is eight to twenty lines of boilerplate for what should be a two-line concept.
+
+Mutable objects pretending to be value objects cause subtle bugs. If Money has a setAmount() method, code that receives a Money and stores it in a map can have that map invalidated when someone mutates the money object. The mutation changes the hashCode(), making the stored entry unreachable.
+
+Java 26 records solve all of this: they are final by default, their components are implicitly private and final, equals/hashCode/toString are generated structurally, and the compact canonical constructor form allows invariant validation in three lines.""" ;
+    pl:hasProblem "Mutable objects pretending to be value objects cause subtle bugs when they are shared and mutated." ;
+    pl:hasSolution """Use java26:ValueObject in the ontology to generate Java records — immutable data carriers with structural equality, compact canonical constructors that validate invariants.
+
+Annotate each value object class in the ontology with java26:ValueObject. Declare its fields with java26:hasField. Declare validation rules with java26:hasValidation to emit assertions in the compact canonical constructor.
+
+ggen generates a record with all declared fields as components, a compact canonical constructor that runs all declared validations, and factory methods if java26:hasFactoryMethod predicates are present.""" ;
+    pl:hasImplementation """The value-object Tera template emits a Java record. It iterates over java26:hasValidation triples to emit validation statements in the compact canonical constructor. Validation types include java26:NotNull (Objects.requireNonNull), java26:Positive (if value <= 0 throw), java26:Pattern (String regex match), and java26:Range (min/max check).""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule value-object" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:AggregateRoot a pl:Pattern ;
+    rdfs:label "AGGREGATE ROOT" ;
+    pl:hasNumber 8 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:DomainModelCategory ;
+    pl:hasSlug "aggregate-root" ;
+    pl:hasEvocativeImage "The root holds the boundary; nothing enters or leaves except through it." ;
+    pl:hasContext """DDD aggregates are consistency boundaries. All changes flow through the aggregate root, which enforces invariants for the entire cluster. A Customer has an Address and a list of Orders. You never modify the Address directly from outside; you call customer.updateAddress(), which validates the change and maintains consistency.
+
+In practice, Java applications often bypass aggregate boundaries because of JPA's transparent persistence. If the Customer is a JPA entity and the Address is an @Embeddable, nothing prevents code from fetching the customer, reaching into the address field, and calling setCity() directly on the embedded object. The aggregate boundary exists in documentation, not in the type system.
+
+The generate-all-three approach (entity + service + controller) enforces the boundary structurally: the @Service has only the repository as a dependency, so all access to the aggregate goes through service methods that enforce invariants. The @RestController has only the service, so no HTTP handler can bypass the service layer.""" ;
+    pl:hasProblem "Direct access to child entities bypasses aggregate invariants and causes consistency violations." ;
+    pl:hasSolution """Use java26:AggregateRoot to generate the complete trinity: @Entity (persistence), @Service @Transactional (application logic with invariant enforcement), @RestController (API surface).
+
+Declare the root entity and its child entities in the ontology using java26:AggregateRoot and java26:AggregateMember. Declare domain operations with java26:hasDomainOperation. ggen generates a service method for each declared operation that enforces the aggregate invariant before delegating to the entity.
+
+The generated @Entity uses @OneToMany(cascade = ALL, orphanRemoval = true) for child collections, ensuring that child entities are only managed through the aggregate root.""" ;
+    pl:hasImplementation """The aggregate-root SPARQL query selects all java26:AggregateRoot instances and their java26:AggregateMember children. The service template generates one method per java26:hasDomainOperation, each wrapped in @Transactional and containing a call to the entity's invariant-checking method before the repository save.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule aggregate-entity --rule aggregate-service" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:SealedDomainHierarchy a pl:Pattern ;
+    rdfs:label "SEALED DOMAIN HIERARCHY" ;
+    pl:hasNumber 9 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:DomainModelCategory ;
+    pl:hasSlug "sealed-domain-hierarchy" ;
+    pl:hasEvocativeImage "Name every state your domain can be in; then let the compiler enforce the naming." ;
+    pl:hasContext """Domains have states — an Order is Pending, Processing, Shipped, Delivered, or Cancelled. Java 8 modeled this with enums or abstract classes, both of which have significant limitations. Enums cannot carry state-specific data: a Shipped order has a tracking number, but a Pending order does not. An abstract class hierarchy doesn't enforce exhaustive handling: a switch that forgets to handle Cancelled compiles just fine.
+
+The combination of sealed interfaces and records solves both problems. Each state is a record that carries exactly the fields that state requires: Shipped has a trackingNumber and shippedAt, Delivered adds a deliveredAt, Cancelled has a reason. The sealed interface closes the hierarchy so the compiler enforces exhaustiveness.
+
+This pattern is the domain-state analog of Pattern 6 (Entity Type Hierarchy). Where Pattern 6 models type variants, this pattern models state variants. States often appear in domain-event-sourced systems where the current state is determined by replaying events.""" ;
+    pl:hasProblem "Enums cannot carry state-specific data; abstract class hierarchies don't enforce exhaustive handling." ;
+    pl:hasSolution """Use java26:SealedInterface with java26:SealedRecord variants to generate sealed domain hierarchies where each state carries its own fields and the compiler enforces exhaustive handling.
+
+Declare each state as a separate java26:SealedRecord with its own fields. Common fields (like orderId and timestamp) go on all records. State-specific fields (like trackingNumber) go only on the relevant record. The sealed interface lists all states in its permits clause.
+
+Use this pattern wherever a domain concept has distinct states with different associated data. The compiler will flag any switch expression that does not handle all declared states.""" ;
+    pl:hasImplementation """The sealed-domain-hierarchy template generates the sealed interface first, then each record in declaration order from java26:permittedSubclasses. Common fields are identified by SPARQL GROUP BY and emitted on both the interface (as abstract methods) and each record (as components). State-specific fields are emitted only on the record that declares them.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule sealed-domain-hierarchy" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:SealedEventHierarchy a pl:Pattern ;
+    rdfs:label "SEALED EVENT HIERARCHY" ;
+    pl:hasNumber 10 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:DomainModelCategory ;
+    pl:hasSlug "sealed-event-hierarchy" ;
+    pl:hasEvocativeImage "Events are immutable facts; sealing them prevents unauthorized interpretations." ;
+    pl:hasContext """Event sourcing requires a closed set of domain events. The event type determines how projections update state. If a new event type is added and a projection is not updated to handle it, the projection silently produces wrong state — it ignores the new event because the switch has a default case that does nothing.
+
+Sealed event hierarchies close the event vocabulary at compile time. Adding a new event type to the sealed interface forces every switch expression over events to be updated, or it will fail to compile. The compiler becomes the event registry enforcer.
+
+Events are facts about things that happened, so they are naturally immutable. Java 26 records are the natural representation: they carry the event data, have structural equality, and cannot be modified after construction. The combination of sealed interface + records gives you a type-safe, exhaustively-handled event hierarchy.""" ;
+    pl:hasProblem "Open event hierarchies allow unhandled event types to silently be ignored by projections." ;
+    pl:hasSolution """Use a sealed interface hierarchy for domain events. Each event type is a record carrying the relevant data. Pattern matching switch on events is exhaustive.
+
+Declare the event interface as java26:EventInterface (a subtype of java26:SealedInterface) and each event type as java26:DomainEvent (a subtype of java26:SealedRecord). ggen generates the sealed interface, all event records, and a skeleton projection class with a switch expression over all event types.
+
+Include a common eventId and occurredAt on the sealed interface as abstract record components. Projection classes receive an event stream and apply each event to the current state.""" ;
+    pl:hasImplementation """The sealed-event-hierarchy template extends the sealed-interface template with event-specific additions: an eventId() method on the interface, a Projection class with an apply(Event) method using a switch expression. The switch arms are generated from all java26:DomainEvent instances that implement the interface, giving each arm a comment to fill in.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule sealed-event-hierarchy" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:PatternMatchingVisitor a pl:Pattern ;
+    rdfs:label "PATTERN MATCHING VISITOR" ;
+    pl:hasNumber 11 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:DomainModelCategory ;
+    pl:hasSlug "pattern-matching-visitor" ;
+    pl:hasEvocativeImage "The visitor no longer needs to be invited; Java 26 pattern matching brings it home." ;
+    pl:hasContext """The Visitor pattern in Java 8 requires boilerplate: an interface with one visit() method for each type in the hierarchy, and an accept(Visitor) method in each concrete class. Adding a new operation means creating a new Visitor class. Adding a new type means updating every Visitor class. This double-dispatch ceremony obscures the actual logic in layers of indirection.
+
+Java 26 pattern matching for switch eliminates the ceremony. A switch expression on a sealed interface with type patterns is the Visitor pattern without the Visitor interface. Each case is one visit() method. The sealed hierarchy ensures all types are handled. The compiler enforces exhaustiveness.
+
+When ggen generates the sealed hierarchy, it can also generate the standard operations as switch expressions in a companion class. These generated operations serve as both documentation and a starting point for custom operations.""" ;
+    pl:hasProblem "Classical Visitor pattern requires modifications to the class hierarchy when adding new operations." ;
+    pl:hasSolution """Use Java 26 switch expressions with type patterns as a lightweight Visitor. The sealed hierarchy ensures exhaustiveness; the compiler detects missing cases.
+
+For each java26:SealedInterface in the ontology, ggen generates a companion class named ${InterfaceName}Ops containing static methods for common operations (toString, toJson, validate, serialize). Each method is a switch expression over the sealed interface.
+
+Use when clauses in switch expressions for fine-grained dispatch: when an OrderStatus is a ShippedOrder with a specific carrier, the when clause can add carrier-specific logic without requiring a new sealed type.""" ;
+    pl:hasImplementation """The pattern-matching-visitor template generates a static ops class for each sealed interface. The class contains a switch expression method for each java26:hasOperation predicate on the sealed interface. Operations declared with java26:operationType "toString" use string templates; operations with java26:operationType "validate" use validation logic.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule pattern-matching-visitor" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:RecordBinding a pl:Pattern ;
+    rdfs:label "RECORD BINDING" ;
+    pl:hasNumber 12 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:DomainModelCategory ;
+    pl:hasSlug "record-binding" ;
+    pl:hasEvocativeImage "SPARQL variables become Java record components; extraction becomes construction." ;
+    pl:hasContext """ggen extracts data from RDF via SPARQL SELECT queries. The result of a SELECT query is a list of solution bindings — each binding maps variable names to RDF values (IRIs, literals, blank nodes). These bindings are the bridge between the RDF world and the Java template world.
+
+In naive code generation systems, bindings are passed to templates as generic Map<String, String>. This works for simple cases but loses type information, requires defensive null checks in templates, and makes it impossible to verify at generation time that all required variables are populated.
+
+Java records as binding containers give type-safe access in templates and make the binding contract explicit. Each SPARQL query corresponds to a Java record that carries exactly the variables the query SELECT statement projects. The Tera template can call binding.className() instead of binding["class_name"], and ggen validates that all record components are populated before rendering.""" ;
+    pl:hasProblem "SPARQL result bindings passed as generic maps lose type safety during template rendering." ;
+    pl:hasSolution """Use Java records as the type-safe binding container between SPARQL extraction and Tera template rendering. Each query produces a list of typed binding records.
+
+Declare binding records in the ontology using java26:BindingRecord. Each field corresponds to a SPARQL variable that the associated query projects. ggen generates the binding record, validates SPARQL query projection against the record fields, and passes a list of binding records to the Tera template.
+
+The Tera template iterates over bindings and accesses each field by its record component name. Type coercion is handled in the binding record's compact canonical constructor (e.g., converting xsd:integer literals to Java int).""" ;
+    pl:hasImplementation """The record-binding template generates a simple record class with validation in the canonical constructor. The ggen SPARQL executor uses these records as the deserialization target: each result row is mapped to a new instance by matching SELECT variable names to record component names. Missing required components throw an error at generation time.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule binding-record" ;.
+
+# =============================================================================
+# TIER 3: PERSISTENCE PATTERNS (13-18)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Pattern 13: JPA ENTITY MAPPING
+# -----------------------------------------------------------------------------
+
+j26:JpaEntityMapping a pl:Pattern ;
+    rdfs:label "JPA ENTITY MAPPING" ;
+    pl:hasNumber 13 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:PersistenceCategory ;
+    pl:hasSlug "jpa-entity-mapping" ;
+    pl:hasEvocativeImage "A table in the database and a class in Java are the same fact, expressed twice." ;
+    pl:hasContext """JPA entity mapping requires @Entity, @Table, @Id, @Column, @GeneratedValue, and often @Version, @CreationTimestamp, etc. Writing these by hand is error-prone and inconsistent.
+
+Each entity must mirror the database schema, carry JPA lifecycle annotations, enforce nullability constraints, and participate in the optimistic locking protocol via @Version. Doing this by hand for 30 entities means 30 opportunities to misspell a column name, forget a constraint, or omit the protected no-arg constructor that JPA requires.""" ;
+    pl:hasProblem "Manually written JPA entities diverge from the actual database schema over time." ;
+    pl:hasSolution """Define each entity once in the ontology as java26:AggregateRoot with its fields. ggen generates the @Entity class with correct annotations, a JPA repository, and a Flyway migration in one sync.
+
+The ontology is the single source of truth: field names, types, nullability, and uniqueness constraints all live in the TTL. ggen reads them once and emits consistent annotations across every generated artifact.""" ;
+    pl:hasImplementation """The jpa-entity-mapping template reads java26:AggregateRoot instances and their java26:field links. For each field it emits a @Column annotation with the snake_case column name derived from the camelCase field name. Fields declared java26:id true receive @Id and @GeneratedValue. Fields declared java26:fieldType \"Long\" on the root class and linked via java26:version receive @Version instead of @Column.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule jpa-entity-mapping" ;.
+
+# -----------------------------------------------------------------------------
+# Pattern 14: SPRING DATA REPOSITORY
+# -----------------------------------------------------------------------------
+
+j26:SpringDataRepository a pl:Pattern ;
+    rdfs:label "SPRING DATA REPOSITORY" ;
+    pl:hasNumber 14 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:PersistenceCategory ;
+    pl:hasSlug "spring-data-repository" ;
+    pl:hasEvocativeImage "A query is a question about the domain; the repository answers it without revealing the implementation." ;
+    pl:hasContext """Data access in Spring Boot uses Spring Data JPA repositories. Writing these by hand for 20 entities means 20 nearly identical interfaces with custom query methods scattered throughout.
+
+The naming conventions for derived query methods (findBySkuAndActiveTrue, existsByEmail, countByStatus) are powerful but easy to misspell. A method named findBySkuAndActvieTrue (typo in Active) compiles but fails at startup. Generating these names from the ontology eliminates the typo class entirely.""" ;
+    pl:hasProblem "Hand-written repositories duplicate the pattern and diverge from the entity model." ;
+    pl:hasSolution """Define the entity as java26:AggregateRoot in the ontology; ggen generates a typed JpaRepository<Entity, UUID> with the entity's natural queries (findByField, existsBy, etc.).
+
+Fields declared java26:queryBy true become derived finder methods. Fields declared java26:unique true generate existsBy and findBy variants. The repository interface name follows the pattern ${ClassName}Repository.""" ;
+    pl:hasImplementation """The spring-data-repository template generates a Spring Data JPA repository interface. It extends JpaRepository<Entity, UUID> and adds derived query methods for fields marked java26:queryBy true. The interface is annotated @Repository and placed in the same package as the entity.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule spring-data-repository" ;.
+
+# -----------------------------------------------------------------------------
+# Pattern 15: VIRTUAL THREAD DAO
+# -----------------------------------------------------------------------------
+
+j26:VirtualThreadDao a pl:Pattern ;
+    rdfs:label "VIRTUAL THREAD DAO" ;
+    pl:hasNumber 15 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:PersistenceCategory ;
+    pl:hasSlug "virtual-thread-dao" ;
+    pl:hasEvocativeImage "A thread per request costs nothing when threads are virtual." ;
+    pl:hasContext """Java 21 introduced virtual threads (Project Loom), making thread-per-request viable for I/O-bound workloads. But JDBC connections and datasources need explicit virtual thread support.
+
+Traditional thread pool DAOs block platform threads while waiting for JDBC results. With virtual threads, the JVM parks the virtual thread during I/O and reuses the underlying platform thread. A system with 10,000 concurrent requests needs 10,000 virtual threads — not 10,000 platform threads — and each JDBC wait parks rather than blocks.""" ;
+    pl:hasProblem "Traditional thread pool DAOs waste resources waiting for JDBC; connection pool exhaustion causes cascading failures." ;
+    pl:hasSolution """Generate DAO classes that use Executors.newVirtualThreadPerTaskExecutor() for JDBC operations, letting the JVM park virtual threads efficiently during I/O waits.
+
+Each generated DAO wraps JDBC calls in virtual thread tasks submitted to a dedicated per-task executor. Results are collected via Future<T>.get(). The virtual thread parks during the JDBC wait and is rescheduled when data arrives.""" ;
+    pl:hasImplementation """The virtual-thread-dao template generates a DAO class per java26:AggregateRoot that has java26:dataAccess java26:VirtualThreadDAO. Each read method submits a Callable<T> to a static Executors.newVirtualThreadPerTaskExecutor() and calls Future.get(). Write methods follow the same pattern. The executor is created fresh per operation to avoid reuse-after-close bugs.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule virtual-thread-dao" ;.
+
+# -----------------------------------------------------------------------------
+# Pattern 16: DTO PROJECTION
+# -----------------------------------------------------------------------------
+
+j26:DtoProjection a pl:Pattern ;
+    rdfs:label "DTO PROJECTION" ;
+    pl:hasNumber 16 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:PersistenceCategory ;
+    pl:hasSlug "dto-projection" ;
+    pl:hasEvocativeImage "The API speaks a different language than the database; the DTO is the interpreter." ;
+    pl:hasContext """JPA entities are mutable and persistence-aware. Exposing them via REST APIs leaks persistence concerns and causes over-fetching.
+
+Returning a @Entity directly from a REST controller serializes lazy-loaded collections (causing N+1 queries), exposes internal state mutations, and couples the API version to the database schema. Every schema change breaks the API contract. DTOs decouple these two planes of evolution.""" ;
+    pl:hasProblem "Returning JPA entities from REST controllers couples the API contract to the database schema." ;
+    pl:hasSolution """Use java26:ValueObject in the ontology to generate immutable DTO records with a from(Entity) factory method and toEntity() method. Records' structural equality and immutability make them safe to serialize.
+
+The DTO record carries only the fields that the API surface needs, not every persistence field. The from() factory extracts them from the entity. The toEntity() method reconstructs a new entity for writes, enforcing the invariants at construction time.""" ;
+    pl:hasImplementation """The dto-projection template generates a Java record for each java26:ValueObject that has java26:projectsFrom pointing to a java26:AggregateRoot. The record components mirror the selected fields. A static from(Entity e) factory method is generated using field access. A toEntity() method is generated for entities that support it.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule dto-projection" ;.
+
+# -----------------------------------------------------------------------------
+# Pattern 17: FLYWAY SCHEMA MIGRATION
+# -----------------------------------------------------------------------------
+
+j26:FlywayMigration a pl:Pattern ;
+    rdfs:label "FLYWAY SCHEMA MIGRATION" ;
+    pl:hasNumber 17 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:PersistenceCategory ;
+    pl:hasSlug "flyway-schema-migration" ;
+    pl:hasEvocativeImage "The migration script is the ontology's changelog, made executable." ;
+    pl:hasContext """Every change to the JPA entity model requires a corresponding Flyway migration. Writing these by hand creates opportunities for schema drift.
+
+The typical workflow: developer adds a field to the Java entity, forgets to write the migration, pushes to CI, and the application fails at startup because Flyway detects the schema is out of sync. Or the migration is written but uses the wrong column name. The ontology knows the current state of the model; generating migrations from it closes the loop.""" ;
+    pl:hasProblem "Manually written Flyway migrations diverge from the entity model, causing runtime failures." ;
+    pl:hasSolution """Generate the Flyway migration SQL directly from the ontology. When a field is added to the ontology, ggen generates both the updated @Entity and the V{N}__add_{field}.sql migration.
+
+The migration template uses the same field metadata (name, type, nullability) as the entity template, guaranteeing consistency. The version number N is derived from the current count of migration files in db/migration/.""" ;
+    pl:hasImplementation """The flyway-migration template detects newly added java26:Field nodes (those with no prior migration file) and generates an ALTER TABLE ADD COLUMN migration. The SQL type is mapped from the java26:fieldType using a lookup table in the template: String → VARCHAR(255), BigDecimal → NUMERIC(19,4), UUID → UUID, int → INTEGER, Long → BIGINT. The file is written to src/main/resources/db/migration/.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule flyway-migration" ;.
+
+# -----------------------------------------------------------------------------
+# Pattern 18: EVENT SOURCED AGGREGATE
+# -----------------------------------------------------------------------------
+
+j26:EventSourcedAggregate a pl:Pattern ;
+    rdfs:label "EVENT SOURCED AGGREGATE" ;
+    pl:hasNumber 18 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:PersistenceCategory ;
+    pl:hasSlug "event-sourced-aggregate" ;
+    pl:hasEvocativeImage "The state of a thing is the sum of everything that has happened to it." ;
+    pl:hasContext """Event sourcing stores state as an immutable sequence of domain events. Each event is a fact. The current state is reconstructed by replaying events.
+
+Traditional mutable aggregate state is overwritten on every command. Event-sourced aggregates never overwrite: every state change appends a new event to the event log. Current state is a left-fold over the event log. This makes audit history, temporal queries, and event-driven projections natural rather than bolted on.
+
+This pattern builds on Pattern 10 (SEALED EVENT HIERARCHY). Where Pattern 10 generates the sealed event types, this pattern generates the aggregate that produces and consumes them.""" ;
+    pl:hasProblem "Mutable aggregate state makes it impossible to audit history or replay past states." ;
+    pl:hasSolution """Combine SEALED EVENT HIERARCHY with a generated aggregate that evolves state by applying events. The aggregate root stores a List<DomainEvent> and projects current state via a reduce operation.
+
+The generated aggregate has: (1) a private mutable state record, (2) a public apply(Event) method using pattern matching switch that returns a new state, (3) a handle(Command) method that validates preconditions and returns new events, (4) a history() method that returns the immutable event log.""" ;
+    pl:hasImplementation """The event-sourced-aggregate template generates an aggregate class per java26:AggregateRoot that has java26:sourcedBy pointing to a sealed event interface. The apply() switch arms are generated from the java26:DomainEvent instances that implement the sealed interface. Each arm carries a comment identifying the state mutation. The aggregate stores events in an ArrayList and exposes an unmodifiable view.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule event-sourced-aggregate" ;.
+
+# =============================================================================
+# TIER 4: APPLICATION LAYER PATTERNS (19-24)
+# =============================================================================
+
+j26:ServiceLayer a pl:Pattern ;
+    rdfs:label "SERVICE LAYER" ;
+    pl:hasNumber 19 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:ApplicationCategory ;
+    pl:hasSlug "service-layer" ;
+    pl:hasEvocativeImage "Business logic belongs in the service; the controller only routes." ;
+    pl:hasContext """Spring Boot applications often put business logic in controllers or repositories, creating tight coupling. Controllers grow to hundreds of lines that mix HTTP concerns with domain logic. Repositories become query landfills. The service layer is the logical boundary that most projects neglect until the pain becomes unbearable.
+
+When business logic lives in controllers, it cannot be tested without an HTTP server. When it lives in repositories, it cannot be reused without dragging in JPA. The service layer is the only layer that can be tested with real objects, no mocks, and no framework overhead — just plain Java.""" ;
+    pl:hasProblem "Business logic scattered across layers is untestable in isolation and unmaintainable." ;
+    pl:hasSolution """Generate @Service @Transactional classes that encapsulate all business logic. The service is the only layer that modifies aggregate state. Controllers delegate to services; services delegate to repositories. Command records (Java 26 records) live as inner types of the service they belong to — no separate command package required.
+
+In the ontology, mark java26:AggregateRoot classes as the service target. ggen generates one service class per aggregate root, with create/read/update/delete operations and the corresponding command records. The service boundary is explicit in the ontology: java26:hasServiceOperation links the aggregate to its allowed operations.""" ;
+    pl:hasImplementation """ggen reads java26:AggregateRoot classes and generates a @Service class for each. The generation template (templates/Service.java.tera) produces @Transactional(readOnly=true) on find methods and @Transactional on mutating methods. Command records are generated as inner static records of the service class, co-located with the logic that interprets them.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule service-layer" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:TransactionalUnitOfWork a pl:Pattern ;
+    rdfs:label "TRANSACTIONAL UNIT OF WORK" ;
+    pl:hasNumber 20 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:ApplicationCategory ;
+    pl:hasSlug "transactional-unit-of-work" ;
+    pl:hasEvocativeImage "Either everything changes, or nothing changes." ;
+    pl:hasContext """Operations that span multiple aggregate updates must be atomic. A transfer between accounts must debit one and credit the other in a single transaction. An order placement must create the order, decrement inventory, and emit an event — all or nothing. Partial updates that succeed only halfway leave the system in an inconsistent state that is often discovered long after the transaction has committed.
+
+Spring's @Transactional annotation provides this boundary declaratively, but misuse is common: missing annotations, wrong propagation types, or read-write transactions for read-only queries that prevent database optimization. The unit-of-work pattern makes these boundaries explicit in the ontology.""" ;
+    pl:hasProblem "Partial updates that succeed only halfway leave the system in an inconsistent state." ;
+    pl:hasSolution """Use @Transactional on service methods with explicit READ/WRITE separation. Read-only transactions enable performance optimizations in the database driver and connection pool. The unit-of-work boundary is explicit in the ontology via java26:transactionType — either READ_ONLY or READ_WRITE. ggen generates the correct @Transactional(readOnly=true/false) annotation based on the ontology declaration.
+
+For multi-aggregate operations, the ontology declares java26:transactionScope with the list of aggregate roots involved. ggen generates a single @Transactional service method that coordinates all aggregate operations within one database transaction.""" ;
+    pl:hasImplementation """The generation template inspects the java26:transactionType property on java26:ServiceOperation to set the readOnly flag. Multi-aggregate operations appear as java26:CompoundOperation in the ontology, which ggen maps to a single @Transactional method that calls the relevant repositories in sequence within one transaction boundary.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule transactional-unit-of-work" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:RestController a pl:Pattern ;
+    rdfs:label "REST CONTROLLER" ;
+    pl:hasNumber 21 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:ApplicationCategory ;
+    pl:hasSlug "rest-controller" ;
+    pl:hasEvocativeImage "The controller is a thin adapter between HTTP and the domain." ;
+    pl:hasContext """REST controllers often grow fat with business logic, validation, error handling, and transformation code. The controller becomes the dumping ground for everything that doesn't clearly belong elsewhere. Teams add direct repository calls, conditional business logic, and manual JSON transformation — all in the @RestController class.
+
+A fat controller cannot be tested without an HTTP server. It cannot be reused in a CLI context. It couples the HTTP transport to the domain logic. When the HTTP API changes shape (REST to GraphQL, REST to gRPC), the entire fat controller must be rewritten.""" ;
+    pl:hasProblem "Fat controllers that contain business logic cannot be tested without an HTTP server." ;
+    pl:hasSolution """Generate @RestController classes that only: validate input via @Valid, delegate to @Service, transform entities to DTOs via static factory methods, and map exceptions to HTTP status codes via @ExceptionHandler. The controller never touches a repository. It never contains an if-statement for business logic. It is a pure HTTP adapter.
+
+In the ontology, java26:AggregateRoot with java26:exposeAsRest true triggers REST controller generation. The endpoints are derived from java26:hasServiceOperation — each operation becomes one HTTP endpoint.""" ;
+    pl:hasImplementation """ggen generates one @RestController per java26:AggregateRoot that has java26:exposeAsRest true. The template (templates/RestController.java.tera) derives HTTP verbs from operation names: find* → GET, create* → POST, update* → PUT, delete* → DELETE. A companion @ControllerAdvice is generated for exception-to-HTTP-status mapping.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule rest-controller" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:PatternMatchedController a pl:Pattern ;
+    rdfs:label "PATTERN-MATCHED CONTROLLER" ;
+    pl:hasNumber 22 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:ApplicationCategory ;
+    pl:hasSlug "pattern-matched-controller" ;
+    pl:hasEvocativeImage "When the request type determines the handler, the switch statement is the architecture." ;
+    pl:hasContext """REST APIs often have endpoints that dispatch to different handlers based on request type or state. A payment endpoint might accept card payments, bank transfers, or voucher redemptions. A command bus pattern accepts different command types. Traditional if-else chains for dispatch are error-prone: adding a new variant requires remembering to update the dispatch logic in a separate file.
+
+Java 26 sealed interfaces and pattern matching switch eliminate this class of bug. The sealed hierarchy of request variants is defined in the ontology; the switch expression guarantees exhaustive handling at compile time. If a new variant is added to the ontology, the generated switch will fail to compile until all variants are handled.""" ;
+    pl:hasProblem "if-else chains for dispatch are error-prone and don't enforce exhaustive handling." ;
+    pl:hasSolution """Model the request variants as a sealed interface in the ontology. Generate a @RestController that uses pattern matching switch to dispatch, ensuring all variants are handled. The sealed hierarchy in the ontology maps directly to a generated sealed interface hierarchy in Java 26, and the switch expression is generated from the variants' handling rules.
+
+In the ontology, use java26:PatternMatchedAPI with java26:hasVariant to enumerate all request types. Each variant maps to a handler method in the generated service.""" ;
+    pl:hasImplementation """ggen extracts java26:PatternMatchedAPI definitions and generates a sealed interface for the request variants, a @RestController that deserializes the request body into the correct variant using Jackson polymorphism, and a switch expression that dispatches to the appropriate service method. The @JsonSubTypes annotation is generated from the ontology variants.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule pattern-matched-controller" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:VirtualThreadServiceMesh a pl:Pattern ;
+    rdfs:label "VIRTUAL THREAD SERVICE MESH" ;
+    pl:hasNumber 23 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:ApplicationCategory ;
+    pl:hasSlug "virtual-thread-service-mesh" ;
+    pl:hasEvocativeImage "A thousand calls, a thousand virtual threads, one thread pool that never fills." ;
+    pl:hasContext """Microservice architectures make frequent outbound HTTP calls. Traditional thread pools become bottlenecks: a slow downstream service holds a platform thread captive, and the pool fills up. Under load, the service stops accepting new requests while threads wait on I/O that hasn't completed yet. Thread pool exhaustion causes cascading failures throughout the service mesh.
+
+Java 26 virtual threads (JEP 444, finalized) eliminate this problem. A virtual thread blocked on I/O releases the carrier thread back to the pool. The JVM can manage millions of virtual threads with the same handful of platform threads. The application code looks like blocking code but behaves like non-blocking code.""" ;
+    pl:hasProblem "Thread pool exhaustion under load causes cascading failures in service meshes." ;
+    pl:hasSolution """Configure all HTTP clients to use virtual threads. Generate service mesh client classes that use structured concurrency (JEP 453) to make multiple parallel calls safely. In the ontology, declare java26:RemoteService dependencies with java26:callStrategy — either SEQUENTIAL, PARALLEL, or FIRST_SUCCESS. ggen generates the correct StructuredTaskScope usage for each strategy.
+
+The application server configuration is also generated: spring.threads.virtual.enabled=true in application.properties is derived from java26:useVirtualThreads true on the application's ontology root.""" ;
+    pl:hasImplementation """The service mesh template generates one client class per java26:RemoteService. For PARALLEL strategy, the client uses StructuredTaskScope.ShutdownOnFailure with multiple fork() calls. For FIRST_SUCCESS, it uses StructuredTaskScope.ShutdownOnSuccess. For SEQUENTIAL, it generates plain blocking calls (virtual threads make blocking fast enough).""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule virtual-thread-service-mesh" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:StructuredConcurrencyScope a pl:Pattern ;
+    rdfs:label "STRUCTURED CONCURRENCY SCOPE" ;
+    pl:hasNumber 24 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory j26:ApplicationCategory ;
+    pl:hasSlug "structured-concurrency-scope" ;
+    pl:hasEvocativeImage "A scope that opens, lives, and closes — no orphaned threads, no forgotten futures." ;
+    pl:hasContext """Asynchronous operations often leave threads orphaned or resources leaked when errors occur. CompletableFuture chains have no lifetime: if the thread that started them is interrupted, the downstream futures may continue running indefinitely, consuming resources and producing results nobody is waiting for. Cancellation is manual and error-prone. Exception propagation through chained futures is confusing.
+
+JEP 453 (Structured Concurrency, finalized in Java 26) solves this by giving concurrent operations a lexical lifetime. A StructuredTaskScope is opened like a try-with-resources block. All forked tasks are guaranteed to complete before the scope closes. If any task fails, the scope can cancel the rest. No threads escape the scope.""" ;
+    pl:hasProblem "Unstructured concurrency (CompletableFuture chains) makes error propagation and cancellation unpredictable." ;
+    pl:hasSolution """Use StructuredTaskScope (JEP 453) to scope concurrent operations. All forked threads complete within the scope's lifetime. Generate scope-based task implementations from java26:TaskScope in the ontology. The ontology declares the scope strategy (SHUTDOWN_ON_FAILURE or SHUTDOWN_ON_SUCCESS) and the set of concurrent tasks. ggen generates the try-with-resources scope block with all forks, the join, and the result assembly.
+
+This pattern is composable: scopes can be nested. The outer scope owns the lifetime of all inner scopes.""" ;
+    pl:hasImplementation """ggen reads java26:TaskScope definitions and generates a static method or inner class per scope. The ShutdownOnFailure strategy is used when all results are required (batch fan-out). The ShutdownOnSuccess strategy is used when the first successful result wins (redundant service calls, hedging). Both are generated from the java26:scopeStrategy property.""" ;
+    j26:hasScaleLevel "mid" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule structured-concurrency-scope" ;.
+
+# =============================================================================
+# TIER 5: INFRASTRUCTURE PATTERNS (25-35)
+# =============================================================================
+
+j26:JavaEnumPersistence a pl:Pattern ;
+    rdfs:label "JAVA ENUM PERSISTENCE" ;
+    pl:hasNumber 25 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory j26:InfrastructureCategory ;
+    pl:hasSlug "java-enum-persistence" ;
+    pl:hasEvocativeImage "The string 'PENDING' in the database is the fact; the enum in Java is the interpretation." ;
+    pl:hasContext """Domain status fields need persistence as readable strings, not ordinals. Storing enums as ordinals (0, 1, 2) is fragile: reordering enum variants in source code changes the meaning of every row in the database without changing the code. String persistence avoids this, but requires consistent naming conventions and a factory method for deserialization.
+
+The ontology is the ideal place to declare enum variants, since they are facts about the domain. The valid states of an OrderStatus are part of the domain model, not implementation details. Expressing them in OWL ensures they are available for SHACL validation, documentation generation, and Java code generation from a single source.""" ;
+    pl:hasProblem "Storing enums as ordinals breaks when variants are reordered; storing as strings requires consistent naming." ;
+    pl:hasSolution """Generate Java enums with @Enumerated(EnumType.STRING), a getValue() method returning the canonical string, and a fromValue(String) factory. Use the ontology to define valid variants via java26:Enum with java26:hasVariant. Each variant's rdfs:label becomes both the Java name and the database string value. The fromValue() factory throws an IllegalArgumentException with a descriptive message listing the valid values, making debugging easy.""" ;
+    pl:hasImplementation """ggen reads java26:Enum class definitions and generates one Java enum per class. The template includes the @Enumerated(EnumType.STRING) annotation, a private final String value field, a constructor, getValue(), and fromValue() factory. Variants are generated from java26:hasVariant in declaration order.""" ;
+    j26:hasScaleLevel "leaf" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule java-enum-persistence" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:ForeignKeyRelationship a pl:Pattern ;
+    rdfs:label "FOREIGN KEY RELATIONSHIP" ;
+    pl:hasNumber 26 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory j26:InfrastructureCategory ;
+    pl:hasSlug "foreign-key-relationship" ;
+    pl:hasEvocativeImage "The relationship is a first-class citizen of the domain model." ;
+    pl:hasContext """JPA relationships (@OneToMany, @ManyToOne) require careful mapping to avoid N+1 queries and Cartesian products. The wrong fetch type (EAGER vs LAZY), wrong cascade setting, or missing mappedBy causes silent correctness bugs that only manifest under load. These bugs are hard to detect in unit tests and expensive to diagnose in production.
+
+OWL object properties are the ideal representation for domain relationships: they have a domain, a range, and cardinality constraints. The OWL cardinality (owl:maxCardinality 1 for many-to-one, no cardinality for one-to-many) maps directly to the JPA relationship type. ggen derives the correct JPA annotations from the OWL cardinality, eliminating the entire class of mapping errors.""" ;
+    pl:hasProblem "Incorrectly mapped relationships cause performance disasters or data integrity violations." ;
+    pl:hasSolution """Express relationships in the ontology as OWL object properties. ggen generates the correct JPA relationship mapping with appropriate fetch strategies, cascade settings, and join columns. @ManyToOne relationships default to LAZY fetch. @OneToMany relationships use mappedBy pointing to the owning side. @JoinColumn names are derived from the property name. No N+1 queries by default.
+
+For bidirectional relationships, the ontology declares owl:inverseOf between the two object properties. ggen generates the mappedBy and helper methods (addItem, removeItem) that maintain both sides of the association.""" ;
+    pl:hasImplementation """ggen reads owl:ObjectProperty declarations with rdfs:domain and rdfs:range pointing to java26:Entity or java26:AggregateRoot classes. The owl:maxCardinality value determines @ManyToOne (1) vs @OneToMany (unbounded). owl:inverseOf generates the mappedBy parameter and the bidirectional helper methods.""" ;
+    j26:hasScaleLevel "leaf" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule foreign-key-relationship" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:OptimisticLockingVersion a pl:Pattern ;
+    rdfs:label "OPTIMISTIC LOCKING VERSION" ;
+    pl:hasNumber 27 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory j26:InfrastructureCategory ;
+    pl:hasSlug "optimistic-locking-version" ;
+    pl:hasEvocativeImage "The version field is the entity's fingerprint — it changes every time the entity changes." ;
+    pl:hasContext """Concurrent updates to the same entity can silently overwrite each other without locking. Two transactions read an entity at version 1. Both modify it. Both save it. The second save overwrites the first without any error — a lost update. This class of bug is invisible in unit tests and only appears in production under concurrent load.
+
+JPA's @Version annotation implements optimistic locking: on UPDATE, JPA adds WHERE version = N to the SQL. If another transaction has incremented the version since we read it, the update affects zero rows and JPA throws ObjectOptimisticLockingFailureException. The service layer can catch this and retry or surface a conflict error to the client.""" ;
+    pl:hasProblem "Lost updates occur when two transactions read and modify the same entity concurrently." ;
+    pl:hasSolution """Add a java26:Field with fieldType \"Long\" named \"version\" to any entity. ggen generates @Version annotation, enabling optimistic locking via JPA's version check on UPDATE. The version field is auto-incremented by JPA on every successful UPDATE; the application never sets it manually. Concurrent modifications result in ObjectOptimisticLockingFailureException, which the service layer should catch and handle explicitly.""" ;
+    pl:hasImplementation """ggen detects java26:Field with java26:fieldName "version" and java26:fieldType "Long" and generates the @Version annotation. If the entity doesn't have a version field, ggen can add one automatically when java26:optimisticLocking true is set on the entity class. The generated @ControllerAdvice maps ObjectOptimisticLockingFailureException to HTTP 409 Conflict.""" ;
+    j26:hasScaleLevel "leaf" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule optimistic-locking-version" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:PaginatedQuery a pl:Pattern ;
+    rdfs:label "PAGINATED QUERY" ;
+    pl:hasNumber 28 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory j26:InfrastructureCategory ;
+    pl:hasSlug "paginated-query" ;
+    pl:hasEvocativeImage "No query returns everything; every list has a page." ;
+    pl:hasContext """REST APIs that return unbounded lists exhaust memory and time out. findAll() without pagination returns entire tables as the data grows. A table with 10,000 rows today has 1,000,000 rows in three years. The service that worked fine in development fails in production under load, and the failure mode is a timeout or OutOfMemoryError rather than a clean business error.
+
+Spring Data's Pageable interface and Page<T> return type are the standard solution, but they require consistent use across repository, service, and controller. Missing pagination in any layer defeats the purpose.""" ;
+    pl:hasProblem "findAll() without pagination returns entire tables as the data grows." ;
+    pl:hasSolution """Generate paginated repository methods using Spring Data's Pageable + Page<T>. The ontology marks which entities are pageable via java26:pageable true. ggen generates: the repository interface with Page<Entity> findAll(Pageable pageable), the service method that accepts PageRequest, a PaginatedResponse record that wraps Page<T> into a serializable DTO, and the controller endpoint that accepts page, size, and sort query parameters.
+
+A sensible default page size (20) and maximum page size (100) are derived from java26:defaultPageSize and java26:maxPageSize on the entity.""" ;
+    pl:hasImplementation """ggen detects java26:pageable true on java26:AggregateRoot and injects Pageable into the generated repository, service, and controller. The PaginatedResponse record includes content, totalElements, totalPages, page, and size — a stable contract that doesn't expose Spring's Page<T> to the HTTP layer.""" ;
+    j26:hasScaleLevel "leaf" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule paginated-query" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:OpenTelemetryInstrumentation a pl:Pattern ;
+    rdfs:label "OPENTELEMETRY INSTRUMENTATION" ;
+    pl:hasNumber 29 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory j26:InfrastructureCategory ;
+    pl:hasSlug "opentelemetry-instrumentation" ;
+    pl:hasEvocativeImage "Observability is not added later; it is generated with the code." ;
+    pl:hasContext """Service-level observability requires span creation, metric recording, and log correlation. Adding these manually to every service method is tedious and inconsistent. Teams add spans to some methods and not others. Span names are inconsistent. Attributes are missing. The result is a tracing backend full of gaps and inconsistencies that make debugging harder, not easier.
+
+When observability code is generated alongside business code, it is consistent by construction. Every service method has a span. Every span has the same set of attributes. The trace is complete because the generator applied the same template to every method.""" ;
+    pl:hasProblem "Observability code added manually is inconsistent, incomplete, and often wrong." ;
+    pl:hasSolution """Generate OpenTelemetry instrumentation for every @Service method as part of the code generation. The ontology marks which operations are observable via java26:observable true. ggen generates @WithSpan annotations for simple cases and manual Span creation with error recording for complex cases. Every span records the operation name, aggregate class, and correlation ID from the ScopedValue request context (Pattern 33).
+
+Metrics are also generated: counters for operation invocations, histograms for operation duration. These are named consistently: {aggregate}.{operation}.count and {aggregate}.{operation}.duration.""" ;
+    pl:hasImplementation """ggen detects java26:observable true on java26:AggregateRoot and generates instrumented service wrapper classes. Simple methods receive @WithSpan. Methods that need custom attributes or error recording receive manual Tracer injection and Span lifecycle management in a try-finally block.""" ;
+    j26:hasScaleLevel "leaf" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule opentelemetry-instrumentation" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:JakartaValidationConstraints a pl:Pattern ;
+    rdfs:label "JAKARTA VALIDATION CONSTRAINTS" ;
+    pl:hasNumber 30 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory j26:InfrastructureCategory ;
+    pl:hasSlug "jakarta-validation-constraints" ;
+    pl:hasEvocativeImage "The constraint lives in the type, not in the if-statement." ;
+    pl:hasContext """Input validation scattered across controllers and services is inconsistent. Some fields are validated in the controller, others in the service, others not at all. The validation rules for a field (maximum length, allowed pattern) are scattered across multiple files and often duplicated with slight differences. Gaps where invalid data enters the system are common.
+
+SHACL shapes in the ontology are the natural place to declare field constraints: sh:maxLength, sh:pattern, sh:minInclusive, sh:in for enum values. These are formal assertions about the shape of valid data. ggen maps SHACL shapes to Jakarta Validation annotations, generating a single source of truth for all validation rules.""" ;
+    pl:hasProblem "Validation logic duplicated across layers creates gaps where invalid data can enter the system." ;
+    pl:hasSolution """Express validation constraints in the ontology via SHACL shapes. ggen generates @NotNull, @NotBlank, @Size, @Pattern, @Min, @Max, and custom @Constraint annotations from SHACL property shapes. The SHACL shape file (.specify/shapes/domain.shacl.ttl) is separate from the domain ontology but references the same classes. @Valid on controller parameters and service command records triggers the validation automatically.
+
+sh:maxLength → @Size(max=N), sh:minLength → @Size(min=N), sh:pattern → @Pattern(regexp="..."), sh:minInclusive → @Min(N), sh:maxInclusive → @Max(N), sh:in → custom @AllowedValues constraint.""" ;
+    pl:hasImplementation """ggen reads SHACL NodeShape files and maps each sh:PropertyShape constraint to the corresponding Jakarta Validation annotation. The annotations are generated onto the command records (co-located with the service) rather than onto the entity, keeping the validation at the input boundary rather than deep in the domain.""" ;
+    j26:hasScaleLevel "leaf" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule jakarta-validation-constraints" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:SpringCacheAbstraction a pl:Pattern ;
+    rdfs:label "SPRING CACHE ABSTRACTION" ;
+    pl:hasNumber 31 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory j26:InfrastructureCategory ;
+    pl:hasSlug "spring-cache-abstraction" ;
+    pl:hasEvocativeImage "Read many times, compute once — the cache is the memory of the service." ;
+    pl:hasContext """Read-heavy services benefit from caching but cache configuration is scattered across the codebase. @Cacheable annotations are added inconsistently. Some findById methods are cached but not findAll. Cache eviction is forgotten after save and delete, leaving stale entries. The cache key strategy is inconsistent across services, making cache warming and invalidation scripts brittle.
+
+When caching rules are derived from the ontology, they are applied consistently. The same generator that adds @Cacheable to findById also adds @CacheEvict to save and delete. The cache name is derived from the entity class name, making it predictable.""" ;
+    pl:hasProblem "Manually added @Cacheable annotations diverge from the actual access patterns." ;
+    pl:hasSolution """Mark read-heavy entities as java26:cacheable in the ontology. ggen generates @Cacheable, @CacheEvict, and @CachePut on the appropriate service methods. @Cacheable(\"products\") on findById uses the entity ID as the cache key. @CacheEvict(\"products\", allEntries=false) on save evicts the specific entry. @CacheEvict(\"products\", allEntries=true) on deleteAll evicts everything. The cache name is derived from the entity rdfs:label.""" ;
+    pl:hasImplementation """ggen detects java26:cacheable true on java26:AggregateRoot and generates the @EnableCaching configuration, the @Cacheable/@CacheEvict/@CachePut annotations on service methods, and a CacheConfig inner class that defines the cache TTL from java26:cacheTtlSeconds.""" ;
+    j26:hasScaleLevel "leaf" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule spring-cache-abstraction" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:JsonSerializer a pl:Pattern ;
+    rdfs:label "JSON SERIALIZER" ;
+    pl:hasNumber 32 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory j26:InfrastructureCategory ;
+    pl:hasSlug "json-serializer" ;
+    pl:hasEvocativeImage "The wire format is not the domain; the serializer is the translator." ;
+    pl:hasContext """Jackson JSON serialization requires @JsonProperty, @JsonIgnore, custom serializers for types like Instant, UUID, and BigDecimal. These annotations pollute domain types. An @Entity class with @JsonProperty, @JsonIgnore, and @JsonSerialize annotations is serving two masters: the ORM and the HTTP layer. When the wire format changes, the entity class changes. When the entity changes, the serialization behavior changes.
+
+Separating domain types from their wire representation using DTO records keeps both concerns clean. The DTO record is the wire format. The entity is the domain. The factory method (from) is the explicit translation between them.""" ;
+    pl:hasProblem "Serialization annotations pollute domain types and create tight coupling to the wire format." ;
+    pl:hasSolution """Generate dedicated DTO records that handle all serialization concerns, keeping the domain types clean. Each java26:ValueObject or java26:AggregateRoot with java26:exposeAsRest true gets a generated DTO record with: @JsonProperty for field name customization, @JsonIgnore for internal fields, custom serializers for Instant (ISO-8601) and BigDecimal (string for precision), and a static from(Entity) factory method.
+
+The DTO record is a snapshot of the entity at a point in time — immutable, serializable, and safe to pass across the HTTP boundary.""" ;
+    pl:hasImplementation """ggen generates a DTO record for every java26:AggregateRoot with java26:exposeAsRest true. Field type mappings: UUID → String (for JSON compatibility), Instant → String with ISO-8601 format, BigDecimal → String (to preserve precision in JSON), enums → their getValue() string. The from(Entity) factory is generated with the correct field mapping.""" ;
+    j26:hasScaleLevel "leaf" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule json-serializer" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:ScopedValueRequestContext a pl:Pattern ;
+    rdfs:label "SCOPED VALUE REQUEST CONTEXT" ;
+    pl:hasNumber 33 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory j26:InfrastructureCategory ;
+    pl:hasSlug "scoped-value-request-context" ;
+    pl:hasEvocativeImage "The request carries its context invisibly, accessible anywhere in the call stack without passing parameters." ;
+    pl:hasContext """Request context (user ID, correlation ID, tenant ID) needs to be accessible throughout the call stack without threading it through every method parameter. The traditional solution is ThreadLocal, but ThreadLocal fails with virtual threads: a virtual thread can be mounted on different platform threads during its lifetime, and ThreadLocal is scoped to the platform thread. Child threads don't inherit parent ThreadLocals.
+
+ScopedValue (JEP 446, finalized in Java 26) was designed specifically for virtual threads. A ScopedValue is bound at the entry point of a request and is accessible in the same virtual thread's call stack — including all frames called transitively. Child threads created by StructuredTaskScope inherit the parent's ScopedValues. No parameter passing required.""" ;
+    pl:hasProblem "ThreadLocal variables fail with virtual threads; passing context explicitly is verbose." ;
+    pl:hasSolution """Use ScopedValue (JEP 446) to bind request context at the boundary and access it anywhere in the virtual thread's call stack. Generate the ScopedValue declarations from the ontology. In the ontology, declare java26:RequestContext with the list of context fields (userId, correlationId, tenantId). ggen generates a RequestContext record and a ScopedValues holder class. The Spring filter binds the context via ScopedValue.where().run() at the request entry point.
+
+ScopedValues are immutable within a scope: you cannot set a ScopedValue after binding. This eliminates a class of ThreadLocal bugs where code modifies the shared thread-local state unexpectedly.""" ;
+    pl:hasImplementation """ggen reads java26:RequestContext class definitions and generates a RequestContext record with the declared fields, a ScopedValues holder with one ScopedValue<RequestContext> constant, and a Spring OncePerRequestFilter that binds the context from HTTP headers and passes control to the filter chain inside ScopedValue.where().run().""" ;
+    j26:hasScaleLevel "leaf" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule scoped-value-request-context" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:MavenModulePom a pl:Pattern ;
+    rdfs:label "MAVEN MODULE POM" ;
+    pl:hasNumber 34 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory j26:InfrastructureCategory ;
+    pl:hasSlug "maven-module-pom" ;
+    pl:hasEvocativeImage "The build file is just another projection of the domain's dependency graph." ;
+    pl:hasContext """Multi-module Maven projects require consistent pom.xml files with correct parent references, dependency management, and plugin configuration. Manually maintained pom.xml files diverge from each other: one module uses Java 21, another Java 26. One module uses Spring Boot 3.2, another 3.4. The Surefire plugin version is inconsistent. These divergences cause build failures that are hard to trace and time-consuming to fix.
+
+The dependency relationships between modules are a graph: module B depends on module A. This graph is part of the domain's information architecture and belongs in the ontology. Once the module graph is in the ontology, generating consistent pom.xml files is straightforward: ggen reads the module declarations and generates a parent pom and all module poms from the same template.""" ;
+    pl:hasProblem "Manually maintained pom.xml files diverge from each other and from the dependency graph." ;
+    pl:hasSolution """Generate pom.xml files from the ontology's module declarations. The parent pom and all module poms are consistent because they come from the same source. In the ontology, declare java26:MavenModule instances with their groupId, artifactId, Java version, and dependencies. ggen generates the parent pom with <dependencyManagement> and all module poms with the correct <parent> reference and <dependencies>. ggen sync regenerates pom.xml whenever the ontology changes.
+
+A BOM (Bill of Materials) pom is also generated from java26:BomModule — centralizing dependency version management across all modules.""" ;
+    pl:hasImplementation """ggen reads java26:MavenModule declarations and generates one pom.xml per module in the correct directory. The parent pom aggregates all modules in <modules>. Dependency versions are centralized in the parent <dependencyManagement>. Plugin versions are standardized across all modules from a shared plugin configuration in the parent.""" ;
+    j26:hasScaleLevel "leaf" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule maven-module-pom" ;.
+
+# -----------------------------------------------------------------------------
+
+j26:TestScaffold a pl:Pattern ;
+    rdfs:label "TEST SCAFFOLD" ;
+    pl:hasNumber 35 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory j26:InfrastructureCategory ;
+    pl:hasSlug "test-scaffold" ;
+    pl:hasEvocativeImage "The test is the pattern's proof; generate both together." ;
+    pl:hasContext """Generating code without generating tests leaves the generation unverified. Tests written long after the code are often superficial or wrong. They test what the code does rather than what the code should do. The test coverage reflects the code path, not the domain requirement.
+
+When tests are generated from the same ontology as the code, they verify the generated code against its specification. The test scaffold exercises every CRUD operation, validates the service layer contract, and confirms the REST controller returns the correct HTTP status codes. The test is the specification made executable.""" ;
+    pl:hasProblem "Tests written long after the code are often superficial or wrong." ;
+    pl:hasSolution """Generate JUnit 5 + AssertJ test scaffolds alongside every pattern implementation. The test scaffold validates the generated code's structure and behavior. Tests are generated from the same ontology as the code. Adding java26:testable true to any aggregate root triggers generation of: a unit test for the service layer (real dependencies, H2 in-memory DB), a MockMvc integration test for the REST controller, and a data builder class for test fixture construction.
+
+The generated tests verify: create returns a non-null entity with the correct field values; findById returns empty for unknown IDs; update modifies only the declared fields; delete removes the entity; GET /api/{entities}/{id} returns 404 for unknown IDs.""" ;
+    pl:hasImplementation """ggen detects java26:testable true on java26:AggregateRoot and generates three test files: {ClassName}ServiceTest.java (unit test with @DataJpaTest), {ClassName}ControllerTest.java (MockMvc test with @WebMvcTest), and {ClassName}TestBuilder.java (test data builder using the builder pattern). All three are generated to src/test/java/{package}/.""" ;
+    j26:hasScaleLevel "leaf" ;
+    j26:javaVersion "26" ;;;
+    j26:hasGgenSyncInvocation "ggen sync --rule test-scaffold --rule test-scaffold-controller" ;.
+

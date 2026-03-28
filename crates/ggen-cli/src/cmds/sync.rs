@@ -299,12 +299,21 @@ impl From<SyncResult> for SyncOutput {
 #[allow(clippy::unused_unit, clippy::too_many_arguments)]
 #[verb("sync", "root")]
 pub fn sync(
-    manifest: Option<String>, output_dir: Option<String>, dry_run: Option<bool>,
-    force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
-    watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
-    stage: Option<String>, ontology: Option<String>,
-    queries: Option<String>,   // dir of .rq files — activates ontology-first pipeline (no ggen.toml needed)
-    language: Option<String>,  // go, elixir, rust, typescript, python, auto
+    manifest: Option<String>,
+    output_dir: Option<String>,
+    dry_run: Option<bool>,
+    force: Option<bool>,
+    audit: Option<bool>,
+    rule: Option<String>,
+    verbose: Option<bool>,
+    watch: Option<bool>,
+    validate_only: Option<bool>,
+    format: Option<String>,
+    timeout: Option<u64>,
+    stage: Option<String>,
+    ontology: Option<String>,
+    queries: Option<String>, // dir of .rq files — activates ontology-first pipeline (no ggen.toml needed)
+    language: Option<String>, // go, elixir, rust, typescript, python, auto
 ) -> VerbResult<SyncOutput> {
     // When --queries is supplied, bypass the manifest and run the low-level pipeline directly
     if let Some(ref queries_dir) = queries {
@@ -358,11 +367,10 @@ fn run_low_level_pipeline(
     let queries_path = PathBuf::from(queries_dir);
     let output_path = PathBuf::from(output_dir.unwrap_or_else(|| "generated".to_string()));
 
-    let lang: SyncLanguage = language
-        .as_deref()
-        .unwrap_or("auto")
-        .parse()
-        .map_err(|e: ggen_core::sync::SyncError| NounVerbError::execution_error(e.to_string()))?;
+    let lang: SyncLanguage =
+        language.as_deref().unwrap_or("auto").parse().map_err(
+            |e: ggen_core::sync::SyncError| NounVerbError::execution_error(e.to_string()),
+        )?;
 
     let config = SyncConfig {
         ontology_path,
@@ -373,8 +381,8 @@ fn run_low_level_pipeline(
         dry_run,
     };
 
-    let result = low_level_sync(config)
-        .map_err(|e| NounVerbError::execution_error(e.to_string()))?;
+    let result =
+        low_level_sync(config).map_err(|e| NounVerbError::execution_error(e.to_string()))?;
 
     let files: Vec<SyncedFile> = result
         .files_generated

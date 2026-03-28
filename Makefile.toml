@@ -987,17 +987,40 @@ else
 fi
 '''
 
-[tasks.docs-build]
-description = "Build documentation with mdbook"
+[tasks.docs-build-main]
+description = "Build main documentation with mdbook"
 workspace = false
 command = "timeout"
 args = ["30s", "mdbook", "build", "docs"]
+
+[tasks.docs-build-sync-patterns]
+description = "Build A Pattern Language for ggen sync book"
+workspace = false
+command = "timeout"
+args = ["30s", "mdbook", "build", "docs/sync-patterns"]
+
+[tasks.docs-build-java26-patterns]
+description = "Build A Pattern Language for Java 26 with ggen book"
+workspace = false
+command = "timeout"
+args = ["30s", "mdbook", "build", "docs/java26-patterns"]
+
+[tasks.docs-build]
+description = "Build all three mdBooks: main, sync-patterns, java26-patterns"
+workspace = false
+dependencies = ["docs-build-main", "docs-build-sync-patterns", "docs-build-java26-patterns"]
 
 [tasks.docs-serve]
 description = "Serve documentation locally with mdbook"
 workspace = false
 command = "mdbook"
 args = ["serve", "docs", "--open"]
+
+[tasks.docs-serve-java26]
+description = "Serve Java 26 patterns book locally on port 3002"
+workspace = false
+command = "mdbook"
+args = ["serve", "docs/java26-patterns", "--open", "--port", "3002"]
 
 [tasks.docs-watch]
 description = "Watch and rebuild documentation on changes"
