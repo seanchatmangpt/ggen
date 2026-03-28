@@ -225,7 +225,7 @@ mod tests {
     #[test]
     fn test_config_builder_defaults() {
         // Arrange & Act
-        let config = TlsConfigBuilder::default().build();
+        let config = TlsConfigBuilder::new().build();
 
         // Assert
         assert!(config.is_ok(), "Default config should build successfully");

@@ -78,7 +78,7 @@ mod tests {
     #[test]
     fn test_tls_connector_creation() {
         // Arrange
-        let config = TlsConfigBuilder::default()
+        let config = TlsConfigBuilder::new()
             .build()
             .expect("Failed to build TLS config");
 
@@ -95,7 +95,7 @@ mod tests {
     #[test]
     fn test_tls_connector_config_access() {
         // Arrange
-        let config = TlsConfigBuilder::default()
+        let config = TlsConfigBuilder::new()
             .build()
             .expect("Failed to build TLS config");
         let connector = TlsConnector::new(config).expect("Failed to create connector");

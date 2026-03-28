@@ -65,6 +65,8 @@ pub struct ConnectionPool {
     config: PoolConfig,
     connections: Arc<RwLock<HashMap<String, Vec<ConnectionHandle>>>>,
     metadata: Arc<RwLock<HashMap<usize, ConnectionMetadata>>>,
+    /// Tracks active (checked-out) connection count per host
+    active_per_host: Arc<RwLock<HashMap<String, usize>>>,
     next_id: Arc<RwLock<usize>>,
 }
 
@@ -101,6 +103,7 @@ impl ConnectionPool {
             config,
             connections: Arc::new(RwLock::new(HashMap::new())),
             metadata: Arc::new(RwLock::new(HashMap::new())),
+            active_per_host: Arc::new(RwLock::new(HashMap::new())),
             next_id: Arc::new(RwLock::new(0)),
         }
     }
@@ -139,6 +142,11 @@ impl ConnectionPool {
                 if let Some(meta) = metadata.get_mut(&handle.id) {
                     meta.touch();
                 }
+                // Reusing idle connection: increment active count
+                drop(metadata);
+                drop(connections);
+                let mut active = self.active_per_host.write().await;
+                *active.entry(hostname.to_string()).or_insert(0) += 1;
                 return Ok(Some(handle));
             }
         }
@@ -159,9 +167,12 @@ impl ConnectionPool {
             )));
         }
 
-        // Check per-host limit
+        // Check per-host limit (active + idle connections)
         let connections = self.connections.read().await;
-        let host_connections = connections.get(hostname).map_or(0, |v| v.len());
+        let idle_connections = connections.get(hostname).map_or(0, |v| v.len());
+        let active = self.active_per_host.read().await;
+        let active_connections = active.get(hostname).copied().unwrap_or(0);
+        let host_connections = idle_connections + active_connections;
 
         if host_connections >= self.config.max_connections_per_host {
             return Err(TlsError::PoolError(format!(
@@ -170,6 +181,7 @@ impl ConnectionPool {
             )));
         }
 
+        drop(active);
         drop(connections);
         drop(metadata);
 
@@ -181,9 +193,13 @@ impl ConnectionPool {
 
         let handle = ConnectionHandle::new(id, hostname.to_string());
 
-        // Store metadata
+        // Store metadata and increment active per-host count
         let mut metadata = self.metadata.write().await;
         metadata.insert(id, ConnectionMetadata::new());
+        drop(metadata);
+
+        let mut active = self.active_per_host.write().await;
+        *active.entry(hostname.to_string()).or_insert(0) += 1;
 
         Ok(handle)
     }
@@ -201,19 +217,37 @@ impl ConnectionPool {
             meta.touch();
         }
 
-        // Return to pool
+        // Decrement active per-host count (connection is now idle)
+        let hostname = handle.hostname.clone();
         connections
-            .entry(handle.hostname.clone())
+            .entry(hostname.clone())
             .or_insert_with(Vec::new)
             .push(handle);
+
+        drop(metadata);
+        drop(connections);
+
+        let mut active = self.active_per_host.write().await;
+        let count = active.entry(hostname).or_insert(0);
+        if *count > 0 {
+            *count -= 1;
+        }
 
         Ok(())
     }
 
     /// Close a connection and remove it from the pool
     pub async fn close_connection(&self, handle: ConnectionHandle) {
+        let hostname = handle.hostname.clone();
         let mut metadata = self.metadata.write().await;
         metadata.remove(&handle.id);
+        drop(metadata);
+        // Decrement active per-host count
+        let mut active = self.active_per_host.write().await;
+        let count = active.entry(hostname).or_insert(0);
+        if *count > 0 {
+            *count -= 1;
+        }
         // Connection will be dropped when handle is dropped
     }
 
