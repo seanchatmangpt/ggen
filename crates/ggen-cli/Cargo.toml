@@ -47,6 +47,7 @@ ggen-utils.workspace = true
 ggen-core.workspace = true
 ggen-ai.workspace = true
 ggen-domain = { workspace = true, features = ["marketplace"] }
+ggen-a2a-mcp.workspace = true
 
 # Crate-specific dependencies
 clap_complete = "4.5.58"
