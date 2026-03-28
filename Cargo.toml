@@ -1,6 +1,6 @@
 [package]
 name = "ggen"
-version = "6.0.0"
+version = "6.0.1"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -169,8 +169,8 @@ ggen-canonical = { path = "crates/ggen-canonical", version = "0.2.0" }
 ggen-receipt = { path = "crates/ggen-receipt", version = "0.2.0" }
 ggen-jidoka = { path = "crates/ggen-jidoka", version = "0.1.0" }
 ggen-packet = { path = "crates/ggen-packet", version = "0.1.0" }
-ggen-backpressure = { path = "crates/ggen-backpressure", version = "6.0.0" }
-ggen-a2a = { path = "crates/ggen-a2a", version = "6.0.0" }
+ggen-backpressure = { path = "crates/ggen-backpressure", version = "6.0.1" }
+ggen-a2a = { path = "crates/ggen-a2a", version = "6.0.1" }
 ggen-prompt-mfg = { path = "crates/ggen-prompt-mfg", version = "0.2.0" }
 
 # KNHK Systems (ETL + KGC-4D + Workflow Engine Integration)
@@ -189,9 +189,9 @@ a2a-generated = { path = "crates/a2a-generated", version = "0.1.0" }
 ggen-a2a-mcp = { path = "crates/ggen-a2a-mcp", version = "0.1.0" }
 
 ggen-tps-andon = { path = "crates/ggen-tps-andon", version = "0.1.0" }
-ggen-heijunka = { path = "crates/ggen-heijunka", version = "6.0.0" }
-ggen-metrics-tps = { path = "crates/ggen-metrics-tps", version = "6.0.0" }
-ggen-transport = { path = "crates/ggen-transport", version = "6.0.0" }
+ggen-heijunka = { path = "crates/ggen-heijunka", version = "6.0.1" }
+ggen-metrics-tps = { path = "crates/ggen-metrics-tps", version = "6.0.1" }
+ggen-transport = { path = "crates/ggen-transport", version = "6.0.1" }
 
 # TAI Testing: Production hardening & resilience testing framework
 tai-testing = { path = "crates/tai-testing", version = "0.1.0" }
