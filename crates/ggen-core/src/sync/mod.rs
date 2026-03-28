@@ -493,7 +493,7 @@ fn generate_elixir(bindings: &[QueryRow]) -> Result<Vec<(PathBuf, String)>, Sync
         let source = elixir_genserver_template("GeneratedService");
         outputs.push((PathBuf::from("generated_service.ex"), source));
     } else {
-        for (module_name, _rows) in &module_groups {
+        for module_name in module_groups.keys() {
             let source = elixir_genserver_template(module_name);
             let file_name = format!("{}.ex", module_name.to_ascii_lowercase().replace(' ', "_"));
             outputs.push((PathBuf::from(file_name), source));
@@ -513,7 +513,7 @@ fn generate_rust(bindings: &[QueryRow]) -> Result<Vec<(PathBuf, String)>, SyncEr
         let source = rust_struct_template("GeneratedService");
         outputs.push((PathBuf::from("generated_service.rs"), source));
     } else {
-        for (struct_name, _rows) in &struct_groups {
+        for struct_name in struct_groups.keys() {
             let source = rust_struct_template(struct_name);
             let file_name = format!("{}.rs", struct_name.to_ascii_lowercase().replace(' ', "_"));
             outputs.push((PathBuf::from(file_name), source));
@@ -533,7 +533,7 @@ fn generate_typescript(bindings: &[QueryRow]) -> Result<Vec<(PathBuf, String)>, 
         let source = typescript_interface_template("GeneratedService");
         outputs.push((PathBuf::from("generatedService.ts"), source));
     } else {
-        for (interface_name, _rows) in &interface_groups {
+        for interface_name in interface_groups.keys() {
             let source = typescript_interface_template(interface_name);
             let file_name = format!("{}.ts", to_camel_case(interface_name));
             outputs.push((PathBuf::from(file_name), source));
@@ -553,7 +553,7 @@ fn generate_python(bindings: &[QueryRow]) -> Result<Vec<(PathBuf, String)>, Sync
         let source = python_dataclass_template("GeneratedService");
         outputs.push((PathBuf::from("generated_service.py"), source));
     } else {
-        for (class_name, _rows) in &class_groups {
+        for class_name in class_groups.keys() {
             let source = python_dataclass_template(class_name);
             let file_name = format!("{}.py", class_name.to_ascii_lowercase().replace(' ', "_"));
             outputs.push((PathBuf::from(file_name), source));
