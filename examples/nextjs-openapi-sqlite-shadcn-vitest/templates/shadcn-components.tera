@@ -49,7 +49,7 @@ import { Badge } from "@/components/ui/badge";
 
 /**
  * {{ componentName }} Component
- * @param {{{ componentName }}Props} props
+ * @param {% raw %}{{% endraw %}{{ componentName }}Props} props
  */
 export function {{ componentName }}({ className{% if componentType == "Card" %}, title, description, status, priority, onEdit, onDelete{% elif componentType == "List" %}, items = [], onItemClick{% elif componentType == "Form" %}, onSubmit, isLoading{% endif %} }) {
 {%- if componentType == "Card" %}

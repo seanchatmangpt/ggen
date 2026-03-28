@@ -1,0 +1,50 @@
+# =============================================================================
+# Workspace Project Ontology
+# Describes a multi-crate Rust workspace and its member crates
+# Source of truth for generating Cargo.toml and README files
+# =============================================================================
+
+@prefix ws: <https://ggen.io/examples/workspace#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Workspace
+# =============================================================================
+
+ws:WorkspaceProject a ws:Workspace ;
+    ws:name "workspace-project" ;
+    ws:version "1.0.0" ;
+    ws:description "Multi-crate Rust workspace demonstrating ggen ontology-driven generation" ;
+    ws:edition "2021" ;
+    ws:hasCrate ws:CoreCrate ;
+    ws:hasCrate ws:CliCrate ;
+    ws:hasCrate ws:UtilsCrate .
+
+# =============================================================================
+# Crates
+# =============================================================================
+
+ws:CoreCrate a ws:Crate ;
+    ws:name "workspace-core" ;
+    ws:path "crates/core" ;
+    ws:description "Core domain logic and shared types" ;
+    ws:crateType "lib" ;
+    ws:dependency "thiserror" ;
+    ws:dependency "serde" .
+
+ws:CliCrate a ws:Crate ;
+    ws:name "workspace-cli" ;
+    ws:path "crates/cli" ;
+    ws:description "Command-line interface for the workspace project" ;
+    ws:crateType "bin" ;
+    ws:dependency "clap" ;
+    ws:dependency "workspace-core" .
+
+ws:UtilsCrate a ws:Crate ;
+    ws:name "workspace-utils" ;
+    ws:path "crates/utils" ;
+    ws:description "Shared utility functions and helpers" ;
+    ws:crateType "lib" ;
+    ws:dependency "tracing" .

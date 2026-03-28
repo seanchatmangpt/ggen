@@ -1,5 +1,6 @@
 @prefix ws: <https://ggen.io/ontology/workspace#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 
@@ -45,14 +46,16 @@ ws:WorkspaceShape a sh:NodeShape ;
         sh:minCount 1 ;
     ] .
 
+@base <https://ggen.io/ontology/workspace/instances/> .
+
 # Instances
 <#myworkspace> a ws:Workspace ;
     ws:name "myworkspace" ;
     ws:version "0.1.0" ;
     ws:description "Complete project workspace" ;
-    ws:members ("core" "api" "cli") ;
-    ws:crates ("core" "api" "cli") ;
-    ws:services ("api" "cli") ;
+    ws:members "core, api, cli" ;
+    ws:crates "core api cli" ;
+    ws:services "api cli" ;
     ws:architecture "Monorepo with shared core" ;
     ws:buildProcess "Cargo workspace build" ;
     ws:deploymentStrategy "Container-based" ;

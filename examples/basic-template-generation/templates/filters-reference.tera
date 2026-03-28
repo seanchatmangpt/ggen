@@ -7,27 +7,30 @@ Tera supports many built-in filters for transforming variables.
 
 ## String Case Filters
 
-- `snake_case`: Convert to snake_case
-- `pascal_case`: Convert to PascalCase
-- `camel_case`: Convert to camelCase
-- `capitalize`: Capitalize first character
+- `snake`: Convert to snake_case
+- `pascal`: Convert to PascalCase
+- `camel`: Convert to camelCase
+- `ucfirst`: Capitalize first character
 - `upper`: Convert to UPPERCASE
 - `lower`: Convert to lowercase
-- `trim`: Remove whitespace
 
 ## Usage
 
 Apply filters with the pipe operator:
 
+{% raw %}
 ```tera
 {{ variable_name | filter_name }}
 ```
+{% endraw %}
 
 ## Examples
 
+{% raw %}
 ```tera
-{{ "UserService" | snake_case }}       // user_service
-{{ "user_service" | pascal_case }}     // UserService
-{{ "hello" | capitalize }}              // Hello
-{{ "HELLO" | lower }}                   // hello
+{{ "UserService" | snake }}       // user_service
+{{ "user_service" | pascal }}     // UserService
+{{ "hello" | ucfirst }}           // Hello
+{{ "HELLO" | lower }}             // hello
 ```
+{% endraw %}

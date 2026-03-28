@@ -13,7 +13,7 @@ xsd = "http://www.w3.org/2001/XMLSchema#"
 
 [[generation.rules]]
 name = "generate-workspace-toml"
-sparql = """
+query = { inline = """
 PREFIX ws: <https://ggen.io/ontology/workspace#>
 SELECT ?workspaceName ?members
 WHERE {
@@ -21,14 +21,14 @@ WHERE {
     ws:name ?workspaceName ;
     ws:members ?members .
 }
-"""
+""" }
 template = { file = "templates/workspace-toml.tera" }
 output_file = "generated/Cargo.toml"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-crate-toml"
-sparql = """
+query = { inline = """
 PREFIX ws: <https://ggen.io/ontology/workspace#>
 SELECT ?crateName ?version ?description
 WHERE {
@@ -37,14 +37,14 @@ WHERE {
     ws:version ?version ;
     ws:description ?description .
 }
-"""
+""" }
 template = { file = "templates/crate-toml.tera" }
-output_file = "generated/{{ crate_name | snake_case }}/Cargo.toml"
+output_file = "generated/{{ crateName }}/Cargo.toml"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-makefile"
-sparql = """
+query = { inline = """
 PREFIX ws: <https://ggen.io/ontology/workspace#>
 SELECT ?workspaceName ?crates
 WHERE {
@@ -52,28 +52,28 @@ WHERE {
     ws:name ?workspaceName ;
     ws:crates ?crates .
 }
-"""
+""" }
 template = { file = "templates/makefile.tera" }
 output_file = "generated/Makefile"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-ci-workflow"
-sparql = """
+query = { inline = """
 PREFIX ws: <https://ggen.io/ontology/workspace#>
 SELECT ?workspaceName
 WHERE {
   ?ws a ws:Workspace ;
     ws:name ?workspaceName .
 }
-"""
+""" }
 template = { file = "templates/ci-workflow.tera" }
 output_file = "generated/.github/workflows/ci.yml"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-architecture-guide"
-sparql = """
+query = { inline = """
 PREFIX ws: <https://ggen.io/ontology/workspace#>
 SELECT ?workspaceName ?description ?architecture
 WHERE {
@@ -82,14 +82,14 @@ WHERE {
     ws:description ?description ;
     ws:architecture ?architecture .
 }
-"""
+""" }
 template = { file = "templates/architecture.tera" }
 output_file = "generated/ARCHITECTURE.md"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-build-guide"
-sparql = """
+query = { inline = """
 PREFIX ws: <https://ggen.io/ontology/workspace#>
 SELECT ?workspaceName ?buildProcess
 WHERE {
@@ -97,14 +97,14 @@ WHERE {
     ws:name ?workspaceName ;
     ws:buildProcess ?buildProcess .
 }
-"""
+""" }
 template = { file = "templates/build-guide.tera" }
 output_file = "generated/BUILD.md"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-deployment-guide"
-sparql = """
+query = { inline = """
 PREFIX ws: <https://ggen.io/ontology/workspace#>
 SELECT ?workspaceName ?deploymentStrategy
 WHERE {
@@ -112,14 +112,14 @@ WHERE {
     ws:name ?workspaceName ;
     ws:deploymentStrategy ?deploymentStrategy .
 }
-"""
+""" }
 template = { file = "templates/deployment.tera" }
 output_file = "generated/DEPLOYMENT.md"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-docker-compose"
-sparql = """
+query = { inline = """
 PREFIX ws: <https://ggen.io/ontology/workspace#>
 SELECT ?workspaceName ?services
 WHERE {
@@ -127,14 +127,14 @@ WHERE {
     ws:name ?workspaceName ;
     ws:services ?services .
 }
-"""
+""" }
 template = { file = "templates/docker-compose.tera" }
 output_file = "generated/docker-compose.yml"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-documentation-site"
-sparql = """
+query = { inline = """
 PREFIX ws: <https://ggen.io/ontology/workspace#>
 SELECT ?workspaceName ?documentation
 WHERE {
@@ -142,7 +142,7 @@ WHERE {
     ws:name ?workspaceName ;
     ws:documentation ?documentation .
 }
-"""
+""" }
 template = { file = "templates/docs-index.tera" }
 output_file = "generated/docs/index.md"
 mode = "Overwrite"

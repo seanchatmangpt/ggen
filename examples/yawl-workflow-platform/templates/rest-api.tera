@@ -124,6 +124,7 @@ export function createWorkflowRoutes(engine) {
 {%- set httpMethod = row["httpMethod"] | default(value="GET") %}
 {%- set requiresAuth = row["requiresAuth"] | default(value="true") %}
 {%- set servletType = row["servletType"] | default(value="") %}
+{%- set servletTypeLower = servletType | lower %}
 
 {%- set routeKey = httpMethod ~ urlPattern %}
 {%- if routeKey != "" and routeKey not in seen_routes and servletId != "" %}
@@ -135,17 +136,17 @@ export function createWorkflowRoutes(engine) {
 {%- if requiresAuth == "true" %}
     authMiddleware,
 {%- endif %}
-    receiptMiddleware(YAWL_EVENT_TYPES.{% if "create" in servletId %}CASE_STARTED{% elif "complete" in servletId %}TASK_COMPLETED{% elif "start" in servletId %}TASK_STARTED{% elif "cancel" in servletId %}CASE_CANCELLED{% else %}TASK_ENABLED{% endif %}),
+    receiptMiddleware(YAWL_EVENT_TYPES.{% if servletId is containing("create") %}CASE_STARTED{% elif servletId is containing("complete") %}TASK_COMPLETED{% elif servletId is containing("start") %}TASK_STARTED{% elif servletId is containing("cancel") %}CASE_CANCELLED{% else %}TASK_ENABLED{% endif %}),
     async (req, res, next) => {
       try {
-{%- if "workflow" in servletType | lower %}
-{%- if "create" in servletId %}
+{%- if servletTypeLower is containing("workflow") %}
+{%- if servletId is containing("create") %}
         const workflow = await engine.createWorkflow(req.body);
         res.status(201).json(workflow);
-{%- elif "list" in servletId %}
+{%- elif servletId is containing("list") %}
         const workflows = await engine.listWorkflows();
         res.json(workflows);
-{%- elif "get" in servletId %}
+{%- elif servletId is containing("get") %}
         const workflow = await engine.getWorkflow(req.params.id);
         if (!workflow) {
           res.status(404).json({ error: 'Workflow not found' });
@@ -155,58 +156,58 @@ export function createWorkflowRoutes(engine) {
 {%- else %}
         res.json({ message: 'Operation completed' });
 {%- endif %}
-{%- elif "case" in servletType | lower %}
-{%- if "create" in servletId %}
+{%- elif servletTypeLower is containing("case") %}
+{%- if servletId is containing("create") %}
         const caseInstance = await engine.createCase(
           req.body.workflowId,
           req.body.initialData
         );
         res.status(201).json(caseInstance);
-{%- elif "list" in servletId %}
+{%- elif servletId is containing("list") %}
         const cases = await engine.listCases(req.query);
         res.json(cases);
-{%- elif "get" in servletId %}
+{%- elif servletId is containing("get") %}
         const caseInstance = await engine.getCase(req.params.id);
         if (!caseInstance) {
           res.status(404).json({ error: 'Case not found' });
           return;
         }
         res.json(caseInstance);
-{%- elif "cancel" in servletId %}
+{%- elif servletId is containing("cancel") %}
         await engine.cancelCase(req.params.id);
         res.json({ cancelled: true, caseId: req.params.id });
 {%- else %}
         res.json({ message: 'Operation completed' });
 {%- endif %}
-{%- elif "task" in servletType | lower %}
-{%- if "enable" in servletId %}
+{%- elif servletTypeLower is containing("task") %}
+{%- if servletId is containing("enable") %}
         const workItem = await engine.enableTask(req.body.caseId, req.params.taskId);
         res.json(workItem);
-{%- elif "start" in servletId %}
+{%- elif servletId is containing("start") %}
         const workItem = await engine.startTask(
           req.body.caseId,
           req.params.taskId,
           req.body.userId
         );
         res.json(workItem);
-{%- elif "complete" in servletId %}
+{%- elif servletId is containing("complete") %}
         const workItem = await engine.completeTask(
           req.body.caseId,
           req.params.taskId,
           req.body.outputData
         );
         res.json(workItem);
-{%- elif "list" in servletId or "workitem" in servletId %}
+{%- elif servletId is containing("list") or servletId is containing("workitem") %}
         const workItems = await engine.listWorkItems(req.query);
         res.json(workItems);
 {%- else %}
         res.json({ message: 'Operation completed' });
 {%- endif %}
-{%- elif "admin" in servletType | lower %}
-{%- if "metrics" in servletId %}
+{%- elif servletTypeLower is containing("admin") %}
+{%- if servletId is containing("metrics") %}
         const metrics = await engine.getMetrics();
         res.json(metrics);
-{%- elif "replay" in servletId %}
+{%- elif servletId is containing("replay") %}
         const replayedCase = await engine.replayCase(
           req.params.id,
           new Date(req.body.toTimestamp)

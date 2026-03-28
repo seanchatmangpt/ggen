@@ -1,0 +1,69 @@
+{
+  "version": "1.0.0",
+  "created_at": "2026-03-28T19:55:14.554808+00:00",
+  "ontology": {
+    "hash": "ad56466c050384d5a69b93edc7c3687184fb94f958bc5315e482c0246f59a593",
+    "timestamp": "2026-03-28T19:55:14.554802+00:00",
+    "size_bytes": 3660
+  },
+  "manifest": {
+    "hash": "24dfb160740f0059f8b3d3c00d18a1af1fa91f819ece44a05a086571d1c2ee82",
+    "timestamp": "2026-03-28T19:55:14.554802+00:00",
+    "size_bytes": 9250
+  },
+  "inference_rules": {},
+  "imports": {
+    "ontology/saas_events.ttl": {
+      "hash": "b83d66a1200dbb3726f47e2ec11b0ff630c61dd7e51ad2c368d568962a4ce5c6",
+      "timestamp": "2026-03-28T19:55:14.554802+00:00",
+      "size_bytes": 5080
+    },
+    "ontology/events.ttl": {
+      "hash": "6e0b5776671b9f98fd691e93cae213c2186c859a94facd4fa04f0b4eb17d0e51",
+      "timestamp": "2026-03-28T19:55:14.554802+00:00",
+      "size_bytes": 3306
+    },
+    "ontology/saas_commands.ttl": {
+      "hash": "1a41153ec68ed7e56ba47a3663de402903ae12347ae1f569a0ac232ba7df999a",
+      "timestamp": "2026-03-28T19:55:14.554802+00:00",
+      "size_bytes": 3982
+    },
+    "ontology/saas_aggregates.ttl": {
+      "hash": "c5ff5c704c33fcc4f45e42a1bb50b20bf1f566636e18160fcb9c0a08eeb7cca2",
+      "timestamp": "2026-03-28T19:55:14.554802+00:00",
+      "size_bytes": 4518
+    },
+    "ontology/policies.ttl": {
+      "hash": "688084f4ff8cf2008b3189f02350012582babc4dbc0dd571afef0278b2adcb9b",
+      "timestamp": "2026-03-28T19:55:14.554802+00:00",
+      "size_bytes": 2736
+    },
+    "ontology/infra.ttl": {
+      "hash": "37da74020d649e2031721b321bc403ebb7ac837b426e444560548ea2c51ea26a",
+      "timestamp": "2026-03-28T19:55:14.554802+00:00",
+      "size_bytes": 14006
+    },
+    "ontology/saas.ttl": {
+      "hash": "34d84e0b66ccad8af6330b70b66a5e1f39c0281589a908da8f5371bc3cdaaf82",
+      "timestamp": "2026-03-28T19:55:14.554802+00:00",
+      "size_bytes": 7488
+    },
+    "ontology/commands.ttl": {
+      "hash": "dc06d687d0d283760032c1beb859e3f711f9a20d05a4a9fe29bf275d09a032e9",
+      "timestamp": "2026-03-28T19:55:14.554802+00:00",
+      "size_bytes": 2679
+    },
+    "ontology/routing.ttl": {
+      "hash": "9730dee421f26e898f48d7ab82ae4986fec5d5584da061e0fd326ed81e19a7a6",
+      "timestamp": "2026-03-28T19:55:14.554802+00:00",
+      "size_bytes": 8758
+    },
+    "ontology/entities.ttl": {
+      "hash": "a890d1fbb36d26bad7d2231e7adbade9d5e48a24b3e2bee5c8f12de08a012cff",
+      "timestamp": "2026-03-28T19:55:14.554802+00:00",
+      "size_bytes": 5002
+    }
+  },
+  "files_synced": 0,
+  "sync_duration_ms": 86
+}

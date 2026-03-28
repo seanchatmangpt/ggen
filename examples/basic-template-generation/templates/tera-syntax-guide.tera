@@ -5,20 +5,25 @@ to: "generated/TERA_SYNTAX_GUIDE.md"
 
 ## Variable Substitution
 
+{% raw %}
 ```tera
 {{ variable_name }}
 ```
+{% endraw %}
 
 ## Filters
 
+{% raw %}
 ```tera
 {{ variable_name | filter_name }}
-{{ name | snake_case }}
+{{ name | snake }}
 {{ text | upper }}
 ```
+{% endraw %}
 
 ## Conditionals
 
+{% raw %}
 ```tera
 {% if condition %}
   Content if true
@@ -26,14 +31,17 @@ to: "generated/TERA_SYNTAX_GUIDE.md"
   Content if false
 {% endif %}
 ```
+{% endraw %}
 
 ## Loops
 
+{% raw %}
 ```tera
 {% for item in array %}
   {{ item }}
 {% endfor %}
 ```
+{% endraw %}
 
 ### Loop Variables
 
@@ -45,27 +53,34 @@ to: "generated/TERA_SYNTAX_GUIDE.md"
 
 ## Comments
 
+{% raw %}
 ```tera
 {# This comment won't appear in output #}
 ```
+{% endraw %}
 
 ## Advanced Features
 
 ### Set Variables
 
+{% raw %}
 ```tera
 {% set my_var = some_value %}
 {{ my_var }}
 ```
+{% endraw %}
 
 ### Include Templates
 
+{% raw %}
 ```tera
 {% include "other_template.tera" %}
 ```
+{% endraw %}
 
 ### Inheritance
 
+{% raw %}
 ```tera
 {% extends "base.tera" %}
 
@@ -73,3 +88,4 @@ to: "generated/TERA_SYNTAX_GUIDE.md"
   Custom content
 {% endblock %}
 ```
+{% endraw %}

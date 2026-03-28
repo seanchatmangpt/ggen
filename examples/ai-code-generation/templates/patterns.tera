@@ -1,0 +1,13 @@
+# Code Generation Patterns
+
+Generated from RDF ontology: `ontology/code-gen-spec.ttl`
+
+{% for row in sparql_results %}
+## {{ row["patternName"] }}
+
+{% if row["comment"] %}{{ row["comment"] }}{% endif %}
+{% if row["featureName"] %}
+- Requires: {{ row["featureName"] }}
+{% endif %}
+
+{% endfor %}

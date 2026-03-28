@@ -1,0 +1,40 @@
+{# Workspace README template - generated from RDF ontology #}
+{%- set first = sparql_results | first %}
+# {{ first["name"] | default(value="workspace-project") }}
+
+> {{ first["description"] | default(value="Multi-crate Rust workspace") }}
+
+**Version:** {{ first["version"] | default(value="1.0.0") }}
+
+## Workspace Members
+
+| Crate | Path | Type | Description |
+|-------|------|------|-------------|
+{% for row in sparql_results -%}
+| `{{ row["crateName"] }}` | `{{ row["path"] }}` | {{ row["crateType"] }} | {{ row["crateDescription"] }} |
+{% endfor %}
+
+## Getting Started
+
+```bash
+# Build all crates
+cargo build --workspace
+
+# Run tests
+cargo test --workspace
+
+# Check all
+cargo check --workspace
+```
+
+## Architecture
+
+This workspace follows a clean separation of concerns:
+
+- **core** — Domain logic, shared types, error definitions
+- **cli** — Command-line interface, user-facing commands
+- **utils** — Shared utilities, helpers, formatting
+
+## License
+
+MIT

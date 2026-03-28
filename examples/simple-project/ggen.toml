@@ -5,22 +5,179 @@
 name = "simple-project"
 version = "0.1.0"
 description = "A simple project demonstrating ggen.toml basics"
-author = "ggen-examples"
-license = "MIT"
 
-# Template configuration
-[templates]
-source_dir = "templates"
+[ontology]
+source = "ontology/projects.ttl"
+base_iri = "https://ggen.io/ontology/projects#"
+
+[ontology.prefixes]
+proj = "https://ggen.io/ontology/projects#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+[generation]
 output_dir = "generated"
-backup_enabled = true
 
-# Logging
-[logging]
-level = "info"
-format = "text"
-output = "stdout"
+[[generation.rules]]
+name = "cargo-toml"
+description = "Generate Cargo.toml manifest from project spec"
+query = { inline = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?project_name ?version ?description
+WHERE {
+  ?project a proj:RustProject ;
+           proj:name ?project_name ;
+           proj:version ?version .
+  OPTIONAL { ?project proj:description ?description }
+}
+LIMIT 1
+""" }
+template = { file = "templates/cargo-toml.tera" }
+output_file = "Cargo.toml"
+mode = "Overwrite"
 
-# Security
-[security]
-validate_paths = true
-path_traversal_protection = true
+[[generation.rules]]
+name = "main-rs"
+description = "Generate src/main.rs entry point"
+query = { inline = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?project_name
+WHERE {
+  ?project a proj:RustProject ;
+           proj:name ?project_name .
+}
+LIMIT 1
+""" }
+template = { file = "templates/main-rs.tera" }
+output_file = "src/main.rs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "lib-rs"
+description = "Generate src/lib.rs with documentation"
+query = { inline = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?project_name ?documentation
+WHERE {
+  ?project a proj:RustProject ;
+           proj:name ?project_name .
+  OPTIONAL { ?project proj:documentation ?documentation }
+}
+LIMIT 1
+""" }
+template = { file = "templates/lib-rs.tera" }
+output_file = "src/lib.rs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "project-guide"
+description = "Generate PROJECT_GUIDE.md"
+query = { inline = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?project_name ?description
+WHERE {
+  ?project a proj:RustProject ;
+           proj:name ?project_name .
+  OPTIONAL { ?project proj:description ?description }
+}
+LIMIT 1
+""" }
+template = { file = "templates/project-guide.tera" }
+output_file = "PROJECT_GUIDE.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "gitignore"
+description = "Generate .gitignore"
+query = { inline = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?project_name
+WHERE {
+  ?project a proj:RustProject ;
+           proj:name ?project_name .
+}
+LIMIT 1
+""" }
+template = { file = "templates/gitignore.tera" }
+output_file = ".gitignore"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "ci-yaml"
+description = "Generate GitHub Actions CI workflow"
+query = { inline = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?project_name
+WHERE {
+  ?project a proj:RustProject ;
+           proj:name ?project_name .
+}
+LIMIT 1
+""" }
+template = { file = "templates/ci-yaml.tera" }
+output_file = ".github/workflows/ci.yml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "dependencies"
+description = "Generate DEPENDENCIES.md"
+query = { inline = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?project_name
+WHERE {
+  ?project a proj:RustProject ;
+           proj:name ?project_name .
+}
+LIMIT 1
+""" }
+template = { file = "templates/dependencies.tera" }
+output_file = "DEPENDENCIES.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "getting-started"
+description = "Generate GETTING_STARTED.md"
+query = { inline = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?project_name
+WHERE {
+  ?project a proj:RustProject ;
+           proj:name ?project_name .
+}
+LIMIT 1
+""" }
+template = { file = "templates/getting-started.tera" }
+output_file = "GETTING_STARTED.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "structure"
+description = "Generate STRUCTURE.md"
+query = { inline = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?project_name
+WHERE {
+  ?project a proj:RustProject ;
+           proj:name ?project_name .
+}
+LIMIT 1
+""" }
+template = { file = "templates/structure.tera" }
+output_file = "STRUCTURE.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "testing"
+description = "Generate TESTING.md"
+query = { inline = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?project_name
+WHERE {
+  ?project a proj:RustProject ;
+           proj:name ?project_name .
+}
+LIMIT 1
+""" }
+template = { file = "templates/testing.tera" }
+output_file = "TESTING.md"
+mode = "Overwrite"

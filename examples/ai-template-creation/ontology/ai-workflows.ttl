@@ -134,6 +134,8 @@ ai:CommandShape a sh:NodeShape ;
         sh:minCount 1 ;
     ] .
 
+@base <https://ggen.io/ontology/ai/instances/> .
+
 # ===== Instance Data =====
 
 # Prompts
@@ -159,7 +161,7 @@ ai:CommandShape a sh:NodeShape ;
 <#mock-user-struct> a ai:MockResponse ;
     ai:name "Mock: User Struct" ;
     ai:forPrompt "Create User Struct" ;
-    ai:response "#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+    ai:response """#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct User {
     pub id: u64,
     pub username: String,
@@ -171,12 +173,12 @@ impl User {
     pub fn new(id: u64, username: String, email: String) -> Self {
         Self { id, username, email, is_active: true }
     }
-}" .
+}""" .
 
 <#mock-api-endpoint> a ai:MockResponse ;
     ai:name "Mock: API Endpoint" ;
     ai:forPrompt "Create API Endpoint" ;
-    ai:response "use axum::{extract::Query, Json};
+    ai:response """use axum::{extract::Query, Json};
 
 #[derive(serde::Deserialize)]
 pub struct Pagination {
@@ -187,7 +189,7 @@ pub struct Pagination {
 pub async fn list_users(Query(params): Query<Pagination>) -> Json<Vec<User>> {
     let users = vec![];
     Json(users)
-}" .
+}""" .
 
 # Validation Rules
 <#rule-syntax> a ai:ValidationRule ;
@@ -210,23 +212,23 @@ pub async fn list_users(Query(params): Query<Pagination>) -> Json<Vec<User>> {
     ai:name "ggen ai generate" ;
     rdfs:comment "Generate templates from natural language" ;
     ai:syntax "ggen ai generate [OPTIONS] <PROMPT>" ;
-    ai:examples "ggen ai generate 'User struct with id and email'
+    ai:examples """ggen ai generate 'User struct with id and email'
 ggen ai generate --mock 'API endpoint for posts'
-ggen ai generate --validate 'Database model'" .
+ggen ai generate --validate 'Database model'""" .
 
 <#cmd-validate> a ai:Command ;
     ai:name "ggen ai validate" ;
     rdfs:comment "Validate AI-generated templates" ;
     ai:syntax "ggen ai validate [OPTIONS] <TEMPLATE>" ;
-    ai:examples "ggen ai validate templates/user.tera
-ggen ai validate --verbose templates/*.tera" .
+    ai:examples """ggen ai validate templates/user.tera
+ggen ai validate --verbose templates/*.tera""" .
 
 <#cmd-optimize> a ai:Command ;
     ai:name "ggen ai optimize" ;
     rdfs:comment "Optimize templates for performance/readability" ;
     ai:syntax "ggen ai optimize [OPTIONS] <TEMPLATE>" ;
-    ai:examples "ggen ai optimize templates/user.tera
-ggen ai optimize --focus performance templates/api.tera" .
+    ai:examples """ggen ai optimize templates/user.tera
+ggen ai optimize --focus performance templates/api.tera""" .
 
 # Workflows
 <#workflow-basic> a ai:AIWorkflow ;

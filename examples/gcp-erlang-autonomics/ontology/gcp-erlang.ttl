@@ -1,0 +1,179 @@
+# GCP Erlang Autonomics Ontology
+# C4 architecture model for autonomic governors on GCP
+# Format: RDF (Turtle)
+
+@prefix c4: <http://ggen.io/c4#> .
+@prefix gcp: <http://ggen.io/gcp#> .
+@prefix sku: <http://ggen.io/sku#> .
+@prefix autonomic: <http://ggen.io/autonomic#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# C4 Level 1: Actors and Systems
+# =============================================================================
+
+c4:DevOpsEngineer a c4:Actor ;
+  rdfs:label "DevOps Engineer"@en ;
+  c4:interactsWith c4:AutonomicGovernorSystem ;
+  c4:relationshipType "deploys and monitors" .
+
+c4:TenantAdmin a c4:Actor ;
+  rdfs:label "Tenant Admin"@en ;
+  c4:interactsWith c4:AutonomicGovernorSystem ;
+  c4:relationshipType "configures policies" .
+
+c4:AutonomicGovernorSystem a c4:System ;
+  rdfs:label "Autonomic Governor System"@en ;
+  rdfs:comment "Erlang-based self-managing infrastructure controller on GCP" .
+
+c4:GCPPubSub a c4:System ;
+  rdfs:label "GCP Pub/Sub"@en ;
+  rdfs:comment "Google Cloud Pub/Sub messaging service" .
+
+c4:CloudMonitoring a c4:System ;
+  rdfs:label "Cloud Monitoring"@en ;
+  rdfs:comment "Google Cloud Monitoring (Stackdriver)" .
+
+c4:MarketplaceAPI a c4:System ;
+  rdfs:label "GCP Marketplace API"@en ;
+  rdfs:comment "Google Cloud Marketplace for SKU entitlements" .
+
+# =============================================================================
+# C4 Level 2: Containers
+# =============================================================================
+
+c4:AutonomicGovernorSystem c4:hasContainer c4:GovernorService .
+c4:AutonomicGovernorSystem c4:hasContainer c4:PolicyStore .
+c4:AutonomicGovernorSystem c4:hasContainer c4:MetricsCollector .
+c4:AutonomicGovernorSystem c4:hasContainer c4:ReceiptLedger .
+
+c4:GovernorService a c4:Service ;
+  rdfs:label "Governor Service"@en ;
+  rdfs:comment "Erlang OTP gen_statem governing autonomic lifecycle" ;
+  c4:dataFlowTo c4:PolicyStore ;
+  c4:flowLabel "reads policy" .
+
+c4:PolicyStore a c4:Database ;
+  rdfs:label "Policy Store"@en ;
+  rdfs:comment "Cloud Firestore storing tenant policy packs" .
+
+c4:MetricsCollector a c4:Service ;
+  rdfs:label "Metrics Collector"@en ;
+  rdfs:comment "Collects GCP Cloud Monitoring metrics" ;
+  c4:dataFlowTo c4:GovernorService ;
+  c4:flowLabel "signals" .
+
+c4:ReceiptLedger a c4:Database ;
+  rdfs:label "Receipt Ledger"@en ;
+  rdfs:comment "Immutable audit log of all governor decisions" .
+
+# =============================================================================
+# C4 Level 3: Components (FSM internals)
+# =============================================================================
+
+c4:GovernorService c4:hasComponent c4:GovernorFSM .
+c4:GovernorService c4:hasComponent c4:SignalNormalizer .
+c4:GovernorService c4:hasComponent c4:PolicyEvaluator .
+
+c4:GovernorFSM a autonomic:StateMachine ;
+  rdfs:label "Governor FSM"@en ;
+  rdfs:comment "Core finite state machine managing autonomic decisions" .
+
+c4:IdleState a autonomic:State ;
+  rdfs:label "idle"@en ;
+  autonomic:transitionTo c4:MonitoringState ;
+  autonomic:transitionLabel "signal_received" .
+
+c4:MonitoringState a autonomic:State ;
+  rdfs:label "monitoring"@en ;
+  autonomic:transitionTo c4:ActingState ;
+  autonomic:transitionLabel "threshold_exceeded" .
+
+c4:ActingState a autonomic:State ;
+  rdfs:label "acting"@en ;
+  autonomic:transitionTo c4:IdleState ;
+  autonomic:transitionLabel "action_complete" .
+
+c4:GovernorFSM autonomic:hasState c4:IdleState .
+c4:GovernorFSM autonomic:hasState c4:MonitoringState .
+c4:GovernorFSM autonomic:hasState c4:ActingState .
+
+c4:SignalNormalizer a c4:Component ;
+  rdfs:label "Signal Normalizer"@en ;
+  rdfs:comment "Normalizes raw metrics into decision signals" .
+
+c4:PolicyEvaluator a c4:Component ;
+  rdfs:label "Policy Evaluator"@en ;
+  rdfs:comment "Evaluates signals against tenant policy packs" .
+
+# =============================================================================
+# C4 Level 4: GCP Infrastructure
+# =============================================================================
+
+gcp:USCentral1 a gcp:Region ;
+  rdfs:label "us-central1"@en .
+
+gcp:ZoneA a gcp:Zone ;
+  gcp:inRegion gcp:USCentral1 ;
+  rdfs:label "us-central1-a"@en .
+
+gcp:GovernorCloudRun a gcp:CloudRunService ;
+  rdfs:label "Governor Cloud Run"@en ;
+  gcp:deployedIn gcp:ZoneA ;
+  gcp:exposesPort "8080"^^xsd:integer ;
+  gcp:protocol "HTTP/2" .
+
+gcp:FirestoreDB a gcp:DatabaseService ;
+  rdfs:label "Cloud Firestore"@en ;
+  gcp:deployedIn gcp:ZoneA ;
+  gcp:protocol "gRPC" .
+
+gcp:PubSubTopic a gcp:MessagingService ;
+  rdfs:label "Signal Topic"@en ;
+  gcp:deployedIn gcp:ZoneA ;
+  gcp:protocol "Pub/Sub" .
+
+# =============================================================================
+# SKU Catalog
+# =============================================================================
+
+sku:BasicGovernor a sku:SKU ;
+  rdfs:label "Governor Basic"@en ;
+  sku:tier "Basic" ;
+  sku:maxInstances "3"^^xsd:integer ;
+  sku:costPerHour "0.04"^^xsd:decimal ;
+  autonomic:triggeredBy sku:CPUSignal ;
+  autonomic:executes sku:ScaleUpAction .
+
+sku:StandardGovernor a sku:SKU ;
+  rdfs:label "Governor Standard"@en ;
+  sku:tier "Standard" ;
+  sku:maxInstances "10"^^xsd:integer ;
+  sku:costPerHour "0.14"^^xsd:decimal ;
+  autonomic:triggeredBy sku:LatencySignal ;
+  autonomic:executes sku:ScaleUpAction .
+
+sku:PremiumGovernor a sku:SKU ;
+  rdfs:label "Governor Premium"@en ;
+  sku:tier "Premium" ;
+  sku:maxInstances "50"^^xsd:integer ;
+  sku:costPerHour "0.69"^^xsd:decimal ;
+  autonomic:triggeredBy sku:ErrorRateSignal ;
+  autonomic:executes sku:FailoverAction .
+
+sku:CPUSignal a autonomic:CPUSignal ;
+  rdfs:label "CPU Signal"@en .
+
+sku:LatencySignal a autonomic:LatencySignal ;
+  rdfs:label "Latency Signal"@en .
+
+sku:ErrorRateSignal a autonomic:ErrorRateSignal ;
+  rdfs:label "Error Rate Signal"@en .
+
+sku:ScaleUpAction a autonomic:ScaleUpAction ;
+  rdfs:label "Scale Up"@en .
+
+sku:FailoverAction a autonomic:FailoverAction ;
+  rdfs:label "Failover"@en .

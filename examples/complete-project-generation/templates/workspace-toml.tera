@@ -1,11 +1,11 @@
 ---
 to: "generated/Cargo.toml"
 vars:
-  workspace_name: string
-  members: array
+  workspaceName: string
+  members: string
 ---
 [workspace]
-members = [{{ members | join(", ") }}]
+members = [{% set items = members | split(pat=", ") %}{% for item in items %}"{{ item }}"{% if not loop.last %}, {% endif %}{% endfor %}]
 
 [workspace.metadata]
-name = "{{ workspace_name }}"
+name = "{{ workspaceName }}"

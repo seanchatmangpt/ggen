@@ -7,27 +7,34 @@ to: "generated/tests.rs"
 mod template_tests {
     #[test]
     fn test_variable_substitution() {
-        let input = "Hello, {{ name }}";
-        let output = "Hello, World";
-        assert_eq!(input.contains("{{"), true);
+        // Template syntax: variable expressions like "Hello, name"
+        let input = "Hello, World";
+        assert!(!input.is_empty());
     }
 
     #[test]
     fn test_filter_application() {
-        let input = "{{ name | snake_case }}";
-        let output = "user_service";
-        assert!(input.contains("|"));
+        // Template syntax: variable | filter_name
+        let name = "UserService";
+        let expected = "user_service";
+        // In a real template, snake filter converts "UserService" to "user_service"
+        assert!(!name.is_empty());
+        assert!(!expected.is_empty());
     }
 
     #[test]
     fn test_conditional_rendering() {
-        let template = r#"{% if has_id %}pub id: u64,{% endif %}"#;
-        assert!(template.contains("has_id"));
+        let has_id = true;
+        // Template: if has_id then pub id: u64
+        let output = if has_id { "pub id: u64," } else { "" };
+        assert!(output.contains("id"));
     }
 
     #[test]
     fn test_loop_iteration() {
-        let template = r#"{% for field in fields %}{{ field }}{% endfor %}"#;
-        assert!(template.contains("for field"));
+        let fields = vec!["username", "email"];
+        // Template: for field in fields
+        let output: String = fields.iter().cloned().collect();
+        assert!(output.contains("username"));
     }
 }

@@ -1,0 +1,15 @@
+{# Entity Summary template - generated from RDF ontology #}
+# Domain Entity Summary
+
+Generated from `ontology/showcase.ttl`
+
+## Entities
+
+{% for row in sparql_results -%}
+### {{ row["label"] }}
+
+- **Table:** `{{ row["tableName"] }}`
+- **Primary Key:** `{{ row["primaryKey"] }}`
+- **Description:** {{ row["comment"] }}
+
+{% endfor %}

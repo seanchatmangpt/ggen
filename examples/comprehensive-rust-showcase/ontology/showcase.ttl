@@ -1,0 +1,121 @@
+# =============================================================================
+# Comprehensive Rust Showcase Ontology
+# Describes domain entities for code generation showcase
+# Source of truth for README and service documentation generation
+# =============================================================================
+
+@prefix ex: <http://example.org/comprehensive-rust-showcase/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Showcase Definition
+# =============================================================================
+
+ex:ShowcaseProject a ex:Project ;
+    ex:name "comprehensive-rust-showcase" ;
+    ex:version "1.0.0" ;
+    ex:description "Comprehensive Rust project showcasing ggen code generation features" ;
+    ex:hasEntity ex:UserEntity ;
+    ex:hasEntity ex:ProductEntity ;
+    ex:hasEntity ex:OrderEntity ;
+    ex:hasFeature ex:AsyncFeature ;
+    ex:hasFeature ex:DatabaseFeature ;
+    ex:hasFeature ex:ApiFeature .
+
+# =============================================================================
+# Domain Entities
+# =============================================================================
+
+ex:UserEntity a ex:Entity ;
+    rdfs:label "User" ;
+    rdfs:comment "A user account in the system" ;
+    ex:tableName "users" ;
+    ex:primaryKey "user_id" ;
+    ex:hasField ex:UserIdField ;
+    ex:hasField ex:UserEmailField ;
+    ex:hasField ex:UserNameField .
+
+ex:ProductEntity a ex:Entity ;
+    rdfs:label "Product" ;
+    rdfs:comment "A product in the catalog" ;
+    ex:tableName "products" ;
+    ex:primaryKey "product_id" ;
+    ex:hasField ex:ProductIdField ;
+    ex:hasField ex:ProductNameField ;
+    ex:hasField ex:ProductPriceField .
+
+ex:OrderEntity a ex:Entity ;
+    rdfs:label "Order" ;
+    rdfs:comment "A customer purchase order" ;
+    ex:tableName "orders" ;
+    ex:primaryKey "order_id" ;
+    ex:hasField ex:OrderIdField ;
+    ex:hasField ex:OrderTotalField ;
+    ex:hasField ex:OrderStatusField .
+
+# =============================================================================
+# Fields
+# =============================================================================
+
+ex:UserIdField a ex:Field ;
+    ex:fieldName "user_id" ;
+    ex:fieldType "Uuid" ;
+    ex:required "true"^^xsd:boolean .
+
+ex:UserEmailField a ex:Field ;
+    ex:fieldName "email" ;
+    ex:fieldType "String" ;
+    ex:required "true"^^xsd:boolean .
+
+ex:UserNameField a ex:Field ;
+    ex:fieldName "name" ;
+    ex:fieldType "String" ;
+    ex:required "true"^^xsd:boolean .
+
+ex:ProductIdField a ex:Field ;
+    ex:fieldName "product_id" ;
+    ex:fieldType "Uuid" ;
+    ex:required "true"^^xsd:boolean .
+
+ex:ProductNameField a ex:Field ;
+    ex:fieldName "name" ;
+    ex:fieldType "String" ;
+    ex:required "true"^^xsd:boolean .
+
+ex:ProductPriceField a ex:Field ;
+    ex:fieldName "price" ;
+    ex:fieldType "Decimal" ;
+    ex:required "true"^^xsd:boolean .
+
+ex:OrderIdField a ex:Field ;
+    ex:fieldName "order_id" ;
+    ex:fieldType "Uuid" ;
+    ex:required "true"^^xsd:boolean .
+
+ex:OrderTotalField a ex:Field ;
+    ex:fieldName "total_amount" ;
+    ex:fieldType "Decimal" ;
+    ex:required "true"^^xsd:boolean .
+
+ex:OrderStatusField a ex:Field ;
+    ex:fieldName "status" ;
+    ex:fieldType "String" ;
+    ex:required "true"^^xsd:boolean .
+
+# =============================================================================
+# Features
+# =============================================================================
+
+ex:AsyncFeature a ex:Feature ;
+    ex:featureName "async-runtime" ;
+    ex:featureDescription "Tokio async runtime for high-performance I/O" .
+
+ex:DatabaseFeature a ex:Feature ;
+    ex:featureName "database" ;
+    ex:featureDescription "PostgreSQL integration via sqlx with connection pooling" .
+
+ex:ApiFeature a ex:Feature ;
+    ex:featureName "rest-api" ;
+    ex:featureDescription "Axum-based REST API with OpenAPI documentation" .

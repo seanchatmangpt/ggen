@@ -1,6 +1,3 @@
----
-to: "generated/.gitignore"
----
 /target
 Cargo.lock
 **/*.rs.bk

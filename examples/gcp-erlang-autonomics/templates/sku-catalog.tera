@@ -1,20 +1,4 @@
-{% comment %}
-SKU Catalog Template
-Renders product catalog with signals, actions, pricing tiers, and scaling policies.
-Input: SPARQL query results from skus query
-Output: Markdown document with SKU cards and pricing table
-
-SKU Structure:
-  - Tier: Basic (development), Standard (production), Premium (high-scale)
-  - Signal Types: CPU, Memory, Latency, Error Rate, Custom
-  - Action Types: Scale Up, Scale Down, Rebalance, Restart, Failover
-  - Cost Model: Per-hour, Per-request, Per-GB-month
-
-Variables:
-  - skus: List of SKUs with tiers, signals, actions, and costs
-  - currency: Cost currency (USD, EUR, GBP)
-  - region: Primary region for costs
-{% endcomment %}
+{# SKU Catalog Template - GCP Erlang Autonomics Governor #}
 
 # Governor SKU Catalog
 
@@ -30,86 +14,19 @@ The Governor is available in three deployment tiers, each optimized for differen
 
 ## SKU Tiers
 
-{% set tier_order = ["Basic", "Standard", "Premium"] %}
+{% for row in sparql_results %}
 
-{% for tier in tier_order %}
-    {% set tier_skus = skus | filter(attribute="sku_tier", value=tier) %}
-    {% if tier_skus | length > 0 %}
-
-### {{ tier }} Tier
-
-{% set first_sku = tier_skus[0] %}
+### {{ row["sku_name"] }} ({{ row["sku_tier"] }} Tier)
 
 | Attribute | Value |
 |-----------|-------|
-| **Min Replicas** | {{ first_sku.min_instances | default(value="1") }} |
-| **Max Replicas** | {{ first_sku.max_instances }} |
-| **CPU per Replica** | {{ first_sku.cpu_request | default(value="0.25") }}-{{ first_sku.cpu_limit | default(value="1.0") }} |
-| **Memory per Replica** | {{ first_sku.memory_request | default(value="256Mi") }}-{{ first_sku.memory_limit | default(value="512Mi") }} |
-| **Monthly Cost (Base)** | ${{ first_sku.cost_per_hour | default(value=0) | round(precision=2) }} × 730 hours = **${{ (first_sku.cost_per_hour | default(value=0)) * 730 | round(precision=2) }}** |
-| **Scaling Policy** | {{ first_sku.scaling_policy | default(value="Target CPU 70%") }} |
-| **Availability SLA** | {{ tier == "Basic" ? "99.0%" : (tier == "Standard" ? "99.9%" : "99.99%") }} |
-
-#### Signals & Actions
-
-The {{ tier }} tier responds to the following signals with configured actions:
-
-{% set tier_signals = [] %}
-{% for sku in tier_skus %}
-    {% if sku.signal_type %}
-        {% set _ = tier_signals | push(value={signal: sku.signal_type, action: sku.action_type}) %}
-    {% endif %}
-{% endfor %}
-
-{% for signal_action in tier_signals %}
-| Signal | Type | Action | Threshold |
-|--------|------|--------|-----------|
-| {{ signal_action.signal | truncate(length=30) }} | Metric | {{ signal_action.action | truncate(length=20) }} | {{ tier == "Basic" ? "80%" : (tier == "Standard" ? "75%" : "70%") }} |
-{% endfor %}
-
-#### Use Cases
-
-{% if tier == "Basic" %}
-- **Development & Testing**: Non-production workloads with forgiving SLAs
-- **Staging**: Pre-production validation with limited scale
-- **Low-Traffic Services**: <1,000 requests/hour
-- **Cost-Optimized Batch Jobs**: Fault-tolerant workloads
-- **Learning & Evaluation**: Trial deployments
-{% elif tier == "Standard" %}
-- **Production Services**: Standard availability requirements (99.9% SLA)
-- **Business-Critical Apps**: Medium traffic (1,000-10,000 RPS)
-- **Regulated Workloads**: HIPAA, GDPR compliance
-- **Multi-Zone HA**: Active-active across zones
-- **Policy-Driven Auto-Scaling**: Response time ≤ 500ms P99
-{% else %}
-- **High-Scale Services**: 10,000+ RPS with ultra-low latency
-- **Financial/Trading Systems**: 99.99% SLA (4.4 nines)
-- **Real-Time Analytics**: Sub-100ms decision latency
-- **Global Distribution**: Multi-region active-active
-- **Extreme Reliability**: Auto-failover ≤ 30s
-{% endif %}
-
-#### Pricing
-
-{% set base_cost = first_sku.cost_per_hour | default(value=0) %}
-{% set request_cost = 0.0000001 %}
-
-```
-Monthly Bill = (Base Hours × ${{ base_cost | round(precision=5) }})
-             + (Requests × ${{ request_cost | round(precision=8) }})
-             + (Data Transfer × $0.12/GB)
-             + (Storage × $0.020/GB-month)
-
-Example: 730 hours, 1M requests/day, 10GB transfer, 50GB storage
-= (${{ (base_cost * 730) | round(precision=2) }})
-+ (${{ ((1000000 * 30 * request_cost) | round(precision=2)) }})
-+ (${{ (10 * 0.12) | round(precision=2) }})
-+ (${{ (50 * 0.020) | round(precision=2) }})
-= **${{ ((base_cost * 730) + (1000000 * 30 * request_cost) + (10 * 0.12) + (50 * 0.020)) | round(precision=2) }}**
-```
+| **Tier** | {{ row["sku_tier"] }} |
+| **Max Replicas** | {{ row["max_instances"] | default(value="N/A") }} |
+| **Cost/Hour** | ${{ row["cost_per_hour"] | default(value="0.00") }} |
+| **Signal Type** | {{ row["signal_type"] | default(value="N/A") }} |
+| **Action Type** | {{ row["action_type"] | default(value="N/A") }} |
 
 ---
-    {% endif %}
 {% endfor %}
 
 ## Signal Types Reference
