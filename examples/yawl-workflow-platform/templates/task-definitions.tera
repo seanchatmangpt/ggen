@@ -93,17 +93,17 @@ export const TaskDefinitionSchema = z.object({
 
 {%- set current_spec = "" %}
 {%- for row in sparql_results %}
-{%- set specId = row["?specId"] | default(value="") %}
-{%- set taskId = row["?taskId"] | default(value="") %}
-{%- set taskName = row["?taskName"] | default(value="") %}
-{%- set taskKind = row["?taskKind"] | default(value="atomic") %}
-{%- set splitBehavior = row["?splitBehavior"] | default(value="XOR") %}
-{%- set joinBehavior = row["?joinBehavior"] | default(value="XOR") %}
-{%- set taskComment = row["?taskComment"] | default(value="") %}
-{%- set miMinimum = row["?miMinimum"] | default(value="") %}
-{%- set miMaximum = row["?miMaximum"] | default(value="") %}
-{%- set miThreshold = row["?miThreshold"] | default(value="") %}
-{%- set miCreationMode = row["?miCreationMode"] | default(value="") %}
+{%- set specId = row["specId"] | default(value="") %}
+{%- set taskId = row["taskId"] | default(value="") %}
+{%- set taskName = row["taskName"] | default(value="") %}
+{%- set taskKind = row["taskKind"] | default(value="atomic") %}
+{%- set splitBehavior = row["splitBehavior"] | default(value="XOR") %}
+{%- set joinBehavior = row["joinBehavior"] | default(value="XOR") %}
+{%- set taskComment = row["taskComment"] | default(value="") %}
+{%- set miMinimum = row["miMinimum"] | default(value="") %}
+{%- set miMaximum = row["miMaximum"] | default(value="") %}
+{%- set miThreshold = row["miThreshold"] | default(value="") %}
+{%- set miCreationMode = row["miCreationMode"] | default(value="") %}
 
 {%- if specId != current_spec and specId != "" %}
 {%- if current_spec != "" %}
@@ -156,7 +156,7 @@ export class TaskRegistry {
   #registerWorkflowTasks() {
 {%- set seen_specs = "" %}
 {%- for row in sparql_results %}
-{%- set specId = row["?specId"] | default(value="") %}
+{%- set specId = row["specId"] | default(value="") %}
 {%- if specId != "" and specId not in seen_specs %}
 {%- set_global seen_specs = seen_specs ~ "," ~ specId %}
     this.#registerTasks('{{ specId }}', {{ specId | replace(from="-", to="_") | upper }}_TASKS);

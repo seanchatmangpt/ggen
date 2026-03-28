@@ -21,8 +21,8 @@ import { Badge } from "@/components/ui/badge";
 
 {%- set seen_components = "" -%}
 {%- for row in sparql_results -%}
-{%- set componentName = row["?componentName"] | default(value="") -%}
-{%- set componentType = row["?componentType"] | default(value="") -%}
+{%- set componentName = row["componentName"] | default(value="") -%}
+{%- set componentType = row["componentType"] | default(value="") -%}
 
 {%- if componentName != "" and componentName not in seen_components -%}
 {%- set_global seen_components = seen_components ~ "," ~ componentName %}

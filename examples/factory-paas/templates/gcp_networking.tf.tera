@@ -4,8 +4,8 @@
 # To make changes, edit the ontology and run: ggen sync
 
 {% for row in sparql_results -%}
-{%- set network_name = row["?networkName"] | default(value="attribution-vpc") -%}
-{%- set region = row["?region"] | default(value="us-central1") -%}
+{%- set network_name = row["networkName"] | default(value="attribution-vpc") -%}
+{%- set region = row["region"] | default(value="us-central1") -%}
 
 # VPC Network
 resource "google_compute_network" "vpc" {

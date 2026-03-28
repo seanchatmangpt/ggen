@@ -4,14 +4,14 @@
    ============================================================================= #}
 {%- set current_path = "" -%}
 {%- for row in sparql_results -%}
-{%- set path = row["?path"] | default(value="") -%}
-{%- set method = row["?method"] | default(value="GET") | lower -%}
-{%- set operationId = row["?operationId"] | default(value="") -%}
-{%- set summary = row["?summary"] | default(value="") -%}
-{%- set description = row["?description"] | default(value="") -%}
-{%- set requestSchema = row["?requestSchema"] | default(value="") -%}
-{%- set responseSchema = row["?responseSchema"] | default(value="") -%}
-{%- set statusCode = row["?statusCode"] | default(value="200") -%}
+{%- set path = row["path"] | default(value="") -%}
+{%- set method = row["method"] | default(value="GET") | lower -%}
+{%- set operationId = row["operationId"] | default(value="") -%}
+{%- set summary = row["summary"] | default(value="") -%}
+{%- set description = row["description"] | default(value="") -%}
+{%- set requestSchema = row["requestSchema"] | default(value="") -%}
+{%- set responseSchema = row["responseSchema"] | default(value="") -%}
+{%- set statusCode = row["statusCode"] | default(value="200") -%}
 
 {%- if path != current_path -%}
 {%- set current_path = path %}

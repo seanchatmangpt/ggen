@@ -250,9 +250,9 @@ metadata:
 ```tera
 {# GOOD: Safe variable access with fallbacks #}
 {%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
-{%- set required = row["?required"] | default(value="false") -%}
-{%- set minLength = row["?minLength"] | default(value="") -%}
+{%- set entityName = row["entityName"] | default(value="") -%}
+{%- set required = row["required"] | default(value="false") -%}
+{%- set minLength = row["minLength"] | default(value="") -%}
 
 {% if minLength != "" %}.min({{ minLength }}){% endif %}
 {%- endfor %}
@@ -263,7 +263,7 @@ metadata:
 ```tera
 {# BAD: Will fail on missing optional fields #}
 {%- for row in sparql_results -%}
-{%- set minLength = row["?minLength"] -%}  {# No default! #}
+{%- set minLength = row["minLength"] -%}  {# No default! #}
 .min({{ minLength }})  {# Renders as .min() when undefined #}
 {%- endfor %}
 ```
@@ -274,7 +274,7 @@ metadata:
 {# GOOD: Track entity boundaries for proper grouping #}
 {%- set current_entity = "" -%}
 {%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
+{%- set entityName = row["entityName"] | default(value="") -%}
 
 {%- if entityName != current_entity -%}
 {%- if current_entity != "" %}
@@ -517,7 +517,7 @@ Before publishing a ggen example, verify:
 |--------|-----|-------|
 | **Source of truth** | TTL ontology files | Hard-coded template data |
 | **Directory layout** | ontology/, templates/, lib/ | Flat structure |
-| **SPARQL variables** | `row["?varName"]` with `default()` | Direct access without `?` |
+| **SPARQL variables** | `row["varName"]` with `default()` | Direct access without `?` |
 | **Grouping** | ORDER BY + state variables | Nested loops in template |
 | **Optional fields** | OPTIONAL clause + default filter | Required patterns only |
 | **Generated files** | Gitignored, marked as generated | Committed to repo |

@@ -4,8 +4,8 @@
 # To make changes, edit the ontology and run: ggen sync
 
 {% for row in sparql_results -%}
-{%- set resource_name = row["?resourceName"] -%}
-{%- set provider = row["?provider"] -%}
+{%- set resource_name = row["resourceName"] -%}
+{%- set provider = row["provider"] -%}
 
 {% if provider == "oci" %}
 output "{{ resource_name | replace(from="-", to="_") }}_public_ip" {

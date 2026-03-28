@@ -7,7 +7,7 @@ graph TB
     classDef container fill:#1168bd,stroke:#0b4884,color:#ffffff
     classDef database fill:#ff6b6b,stroke:#cc5555,color:#ffffff
 
-{% set context_name = sparql_results[0]["?contextName"] | default(value="Attribution") -%}
+{% set context_name = sparql_results[0]["contextName"] | default(value="Attribution") -%}
 
     subgraph "{{ context_name }} System"
         API["API Layer
@@ -31,8 +31,8 @@ graph TB
         CQRS query side"]:::database
 
 {% for row in sparql_results -%}
-{%- if row["?aggregateName"] %}
-        Agg_{{ row["?aggregateName"] }}["{{ row["?aggregateName"] }}
+{%- if row["aggregateName"] %}
+        Agg_{{ row["aggregateName"] }}["{{ row["aggregateName"] }}
         ---
         Aggregate Root"]:::container
 {% endif -%}
@@ -45,7 +45,7 @@ graph TB
     API -->|"Queries"| ReadModel
 
 {% for row in sparql_results -%}
-{%- if row["?aggregateName"] %}
-    WriteModel -->|"Contains"| Agg_{{ row["?aggregateName"] }}
+{%- if row["aggregateName"] %}
+    WriteModel -->|"Contains"| Agg_{{ row["aggregateName"] }}
 {% endif -%}
 {%- endfor %}

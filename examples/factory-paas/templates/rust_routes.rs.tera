@@ -20,9 +20,9 @@ pub fn build_router() -> Router {
     Router::new()
         .route("/health", axum::routing::get(health_check))
 {% for row in sparql_results -%}
-{%- set command_name = row["?commandName"] -%}
-{%- set http_method = row["?httpMethod"] | default(value="POST") -%}
-{%- set http_path = row["?httpPath"] | default(value="/" ~ command_name | lower) -%}
+{%- set command_name = row["commandName"] -%}
+{%- set http_method = row["httpMethod"] | default(value="POST") -%}
+{%- set http_path = row["httpPath"] | default(value="/" ~ command_name | lower) -%}
         .route("{{ http_path }}", post(handle_{{ command_name | lower }}_route))
 {% endfor %}
 }
@@ -37,7 +37,7 @@ async fn health_check() -> impl IntoResponse {
 }
 
 {% for row in sparql_results -%}
-{%- set command_name = row["?commandName"] -%}
+{%- set command_name = row["commandName"] -%}
 
 /// Route handler for {{ command_name }}
 async fn handle_{{ command_name | lower }}_route(

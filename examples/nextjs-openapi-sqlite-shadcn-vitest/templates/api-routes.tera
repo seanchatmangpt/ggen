@@ -27,11 +27,11 @@ import * as schemas from "@/schemas";
 
 {%- set current_entity = "" -%}
 {%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
-{%- set path = row["?path"] | default(value="") -%}
-{%- set method = row["?method"] | default(value="GET") -%}
-{%- set operationId = row["?operationId"] | default(value="") -%}
-{%- set description = row["?description"] | default(value="") -%}
+{%- set entityName = row["entityName"] | default(value="") -%}
+{%- set path = row["path"] | default(value="") -%}
+{%- set method = row["method"] | default(value="GET") -%}
+{%- set operationId = row["operationId"] | default(value="") -%}
+{%- set description = row["description"] | default(value="") -%}
 
 {%- if entityName != current_entity -%}
 {%- set_global current_entity = entityName %}

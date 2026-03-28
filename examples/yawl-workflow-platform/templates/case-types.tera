@@ -18,14 +18,14 @@ import { z } from 'zod';
 
 export const CaseStatus = {
 {%- for row in sparql_results %}
-{%- set statusLabel = row["?statusLabel"] | default(value="") %}
+{%- set statusLabel = row["statusLabel"] | default(value="") %}
 {%- if statusLabel != "" %}
   {{ statusLabel | upper }}: '{{ statusLabel | lower }}',
 {%- endif %}
 {%- endfor %}
 };
 
-export const CaseStatusSchema = z.enum([{% for row in sparql_results %}{% set statusLabel = row["?statusLabel"] | default(value="") %}{% if statusLabel != "" %}'{{ statusLabel | lower }}'{% if not loop.last %}, {% endif %}{% endif %}{% endfor %}]);
+export const CaseStatusSchema = z.enum([{% for row in sparql_results %}{% set statusLabel = row["statusLabel"] | default(value="") %}{% if statusLabel != "" %}'{{ statusLabel | lower }}'{% if not loop.last %}, {% endif %}{% endif %}{% endfor %}]);
 
 export const CaseSchema = z.object({
   caseId: z.string(),
@@ -41,7 +41,7 @@ export const CaseSchema = z.object({
 
 export const VALID_CASE_TRANSITIONS = {
 {%- for row in sparql_results %}
-{%- set statusLabel = row["?statusLabel"] | default(value="") %}
+{%- set statusLabel = row["statusLabel"] | default(value="") %}
 {%- if statusLabel != "" %}
 {%- if statusLabel == "Active" %}
   '{{ statusLabel | lower }}': ['completed', 'cancelled', 'failed', 'suspended'],

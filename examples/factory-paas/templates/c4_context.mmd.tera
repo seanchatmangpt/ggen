@@ -7,11 +7,11 @@ graph TB
     classDef system fill:#1168bd,stroke:#0b4884,color:#ffffff
     classDef external fill:#999999,stroke:#6b6b6b,color:#ffffff
 
-{% set context_name = sparql_results[0]["?contextName"] | default(value="Attribution") -%}
+{% set context_name = sparql_results[0]["contextName"] | default(value="Attribution") -%}
 
     System["{{ context_name }} System
     ---
-    {{ sparql_results[0]["?contextDescription"] | default(value="Domain-Driven Design system") }}"]:::system
+    {{ sparql_results[0]["contextDescription"] | default(value="Domain-Driven Design system") }}"]:::system
 
     Publisher["Publisher
     ---
@@ -29,7 +29,7 @@ graph TB
 
     %% Aggregates
 {% for row in sparql_results -%}
-{%- if row["?aggregateName"] %}
-    System -.->|"Manages"| {{ row["?aggregateName"] }}["{{ row["?aggregateName"] }}"]
+{%- if row["aggregateName"] %}
+    System -.->|"Manages"| {{ row["aggregateName"] }}["{{ row["aggregateName"] }}"]
 {% endif -%}
 {%- endfor %}

@@ -4,9 +4,9 @@
 # To make changes, edit the ontology and run: ggen sync
 
 {% for row in sparql_results -%}
-{%- set bucket_name = row["?bucketName"] | default(value="attribution-static-content") -%}
-{%- set location = row["?location"] | default(value="US") -%}
-{%- set storage_class = row["?storageClass"] | default(value="STANDARD") -%}
+{%- set bucket_name = row["bucketName"] | default(value="attribution-static-content") -%}
+{%- set location = row["location"] | default(value="US") -%}
+{%- set storage_class = row["storageClass"] | default(value="STANDARD") -%}
 
 # Static content bucket with CDN integration
 resource "google_storage_bucket" "{{ bucket_name | replace(from="-", to="_") }}" {

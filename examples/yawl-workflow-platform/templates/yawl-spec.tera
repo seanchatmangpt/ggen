@@ -22,13 +22,13 @@ metadata:
                   xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema YAWL_Schema4.0.xsd">
 
 {%- for row in sparql_results %}
-{%- set specId = row["?specId"] | default(value="") %}
-{%- set specName = row["?specName"] | default(value="") %}
-{%- set specVersion = row["?specVersion"] | default(value="1.0.0") %}
-{%- set specComment = row["?specComment"] | default(value="") %}
-{%- set inputCondition = row["?inputCondition"] | default(value="Start") %}
-{%- set outputCondition = row["?outputCondition"] | default(value="End") %}
-{%- set taskIds = row["?taskIds"] | default(value="") | split(pat=",") %}
+{%- set specId = row["specId"] | default(value="") %}
+{%- set specName = row["specName"] | default(value="") %}
+{%- set specVersion = row["specVersion"] | default(value="1.0.0") %}
+{%- set specComment = row["specComment"] | default(value="") %}
+{%- set inputCondition = row["inputCondition"] | default(value="Start") %}
+{%- set outputCondition = row["outputCondition"] | default(value="End") %}
+{%- set taskIds = row["taskIds"] | default(value="") | split(pat=",") %}
 
   <!-- Workflow: {{ specName }} -->
   <specification uri="{{ specId }}">

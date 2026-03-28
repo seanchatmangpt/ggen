@@ -6,10 +6,10 @@
 
 set -euo pipefail
 
-PROJECT_NAME="{{ sparql_results[0]["?contextName"] | default(value="attribution") }}"
-SERVICE_PORT="{{ sparql_results[0]["?servicePort"] | default(value="8080") }}"
+PROJECT_NAME="{{ sparql_results[0]["contextName"] | default(value="attribution") }}"
+SERVICE_PORT="{{ sparql_results[0]["servicePort"] | default(value="8080") }}"
 
-echo "🧪 TCPS: Verifying {{ sparql_results[0]["?contextName"] | default(value="Attribution") }} World"
+echo "🧪 TCPS: Verifying {{ sparql_results[0]["contextName"] | default(value="Attribution") }} World"
 
 EXIT_CODE=0
 

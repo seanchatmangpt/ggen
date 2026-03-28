@@ -8,13 +8,13 @@ Solution-focused guides to solve specific problems. Choose the guide that matche
 ## {{ category_name }}
 
 {% for row in category_items | sort(attribute="?difficulty") | sort(attribute="?estimatedMinutes") %}
-### {{ row["?title"] }}
+### {{ row["title"] }}
 
-**Time**: {{ row["?estimatedMinutes"] }} minutes | **Difficulty**: {{ row["?difficulty"] }}
+**Time**: {{ row["estimatedMinutes"] }} minutes | **Difficulty**: {{ row["difficulty"] }}
 
-{{ row["?description"] }}
+{{ row["description"] }}
 
-**Read**: `{{ row["?outputFile"] }}`
+**Read**: `{{ row["outputFile"] }}`
 
 ---
 {% endfor %}
@@ -25,22 +25,22 @@ Solution-focused guides to solve specific problems. Choose the guide that matche
 | Problem | Solution | Time | Level |
 |---------|----------|------|-------|
 {% for row in results | sort(attribute="?category") %}
-| {{ row["?category"] }} | {{ row["?title"] }} | {{ row["?estimatedMinutes"] }}m | {{ row["?difficulty"] }} |
+| {{ row["category"] }} | {{ row["title"] }} | {{ row["estimatedMinutes"] }}m | {{ row["difficulty"] }} |
 {% endfor %}
 
 ## Index by Difficulty
 
 ### Beginner
 {% for row in results | filter(attribute="?difficulty", value="Beginner") %}
-- {{ row["?title"] }} ({{ row["?estimatedMinutes"] }}m) - `{{ row["?outputFile"] }}`
+- {{ row["title"] }} ({{ row["estimatedMinutes"] }}m) - `{{ row["outputFile"] }}`
 {% endfor %}
 
 ### Intermediate
 {% for row in results | filter(attribute="?difficulty", value="Intermediate") %}
-- {{ row["?title"] }} ({{ row["?estimatedMinutes"] }}m) - `{{ row["?outputFile"] }}`
+- {{ row["title"] }} ({{ row["estimatedMinutes"] }}m) - `{{ row["outputFile"] }}`
 {% endfor %}
 
 ### Advanced
 {% for row in results | filter(attribute="?difficulty", value="Advanced") %}
-- {{ row["?title"] }} ({{ row["?estimatedMinutes"] }}m) - `{{ row["?outputFile"] }}`
+- {{ row["title"] }} ({{ row["estimatedMinutes"] }}m) - `{{ row["outputFile"] }}`
 {% endfor %}

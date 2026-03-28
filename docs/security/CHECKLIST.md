@@ -261,7 +261,7 @@ let content = fs::read_to_string(path)?;
 ```rust
 // ✅ DO
 let query = QueryBuilder::new()
-    .select(&["?s"])
+    .select(&["s"])
     .filter(&format!("?s = {}", QueryBuilder::escape_literal(user_input)))
     .build()?;
 
@@ -352,7 +352,7 @@ let query = format!("SELECT * WHERE {{ ?s foaf:name '{}' }}", user_input);
 
 // ✅ GOOD
 let query = QueryBuilder::new()
-    .select(&["?s"])
+    .select(&["s"])
     .where_clause("?s foaf:name ?name")
     .filter(&format!("?name = {}", QueryBuilder::escape_literal(user_input)))
     .build()?;

@@ -4,11 +4,11 @@
 # To make changes, edit the ontology and run: ggen sync
 
 {% for row in sparql_results -%}
-{%- set instance_name = row["?instanceName"] | default(value="attribution-event-store") -%}
-{%- set region = row["?region"] | default(value="us-central1") -%}
-{%- set tier = row["?tier"] | default(value="db-custom-2-7680") -%}
-{%- set database_version = row["?databaseVersion"] | default(value="POSTGRES_15") -%}
-{%- set availability_type = row["?availabilityType"] | default(value="REGIONAL") -%}
+{%- set instance_name = row["instanceName"] | default(value="attribution-event-store") -%}
+{%- set region = row["region"] | default(value="us-central1") -%}
+{%- set tier = row["tier"] | default(value="db-custom-2-7680") -%}
+{%- set database_version = row["databaseVersion"] | default(value="POSTGRES_15") -%}
+{%- set availability_type = row["availabilityType"] | default(value="REGIONAL") -%}
 
 # Cloud SQL PostgreSQL instance for event sourcing
 resource "google_sql_database_instance" "{{ instance_name | replace(from="-", to="_") }}" {

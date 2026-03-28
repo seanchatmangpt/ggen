@@ -14,8 +14,8 @@ When ggen builds the Tera context from SPARQL query results, it preserves the `?
 **Current behavior — multi-row templates must use bracket notation:**
 ```tera
 {% for row in sparql_results %}
-{{ row["?label"] }}      {# ?-prefix required — ugly, confusing #}
-{{ row["?number"] }}
+{{ row["label"] }}      {# ?-prefix required — ugly, confusing #}
+{{ row["number"] }}
 {% endfor %}
 ```
 
@@ -175,7 +175,7 @@ fn test_tera_template_accesses_sparql_row_without_question_mark() {
 
 ## Migration Impact
 
-Any existing templates using `row["?varname"]` will break. Search scope:
+Any existing templates using `row["varname"]` will break. Search scope:
 
 ```bash
 # Find all templates using the old ?-prefix access pattern
@@ -183,10 +183,10 @@ grep -rn 'row\["\?' /Users/sac/ggen --include="*.tera"
 ```
 
 Known affected templates (to update alongside the fix):
-- `docs/archive/academic/thesis-construct-schema/templates/*.tera` — uses `row["?varname"]` throughout
+- `docs/archive/academic/thesis-construct-schema/templates/*.tera` — uses `row["varname"]` throughout
 - Any other `*.tera` files in the archive using the old pattern
 
-The java26-patterns templates have already been written with `row["?varname"]` as a workaround — they should be updated to `row.varname` after this fix ships.
+The java26-patterns templates have already been written with `row["varname"]` as a workaround — they should be updated to `row.varname` after this fix ships.
 
 ---
 
@@ -196,7 +196,7 @@ The java26-patterns templates have already been written with `row["?varname"]` a
 - [ ] `cargo test -p ggen-core` passes (no regressions)
 - [ ] `cargo clippy -p ggen-core -- -D warnings` clean
 - [ ] `ggen sync` on `docs/java26-patterns/` produces identical output with templates updated to `row.varname`
-- [ ] Archive templates updated: `row["?varname"]` → `row.varname`
+- [ ] Archive templates updated: `row["varname"]` → `row.varname`
 - [ ] CHANGELOG.md entry under next version: `fix: strip SPARQL ? prefix from Tera context variable keys`
 
 ---
@@ -209,8 +209,8 @@ The java26-patterns templates have already been written with `row["?varname"]` a
 3. [ ] Apply one-line fix in crates/ggen-core/src/graph/core.rs:194
 4. [ ] Confirm tests PASS (GREEN)
 5. [ ] Run cargo clippy — 0 warnings
-6. [ ] Update docs/java26-patterns/templates/*.tera: row["?x"] → row.x
-7. [ ] Update docs/archive templates: row["?x"] → row.x
+6. [ ] Update docs/java26-patterns/templates/*.tera: row["x"] → row.x
+7. [ ] Update docs/archive templates: row["x"] → row.x
 8. [ ] Run ggen sync on java26-patterns — verify identical output
 9. [ ] Add CHANGELOG.md entry
 ```
@@ -220,5 +220,5 @@ The java26-patterns templates have already been written with `row["?varname"]` a
 ## Notes
 
 - `trim_start_matches('?')` is safe: SPARQL variables always start with `?`; if somehow a variable had no `?` (shouldn't happen with Oxigraph), `trim_start_matches` is a no-op.
-- This is a **breaking change** for any template using `row["?varname"]`. Version bump to next minor.
+- This is a **breaking change** for any template using `row["varname"]`. Version bump to next minor.
 - The per-row template path (where variables are injected directly into the Tera context) should also be audited to confirm it already strips `?` — if it does via a separate code path, consolidating both through `materialize_results` ensures consistent behavior everywhere.

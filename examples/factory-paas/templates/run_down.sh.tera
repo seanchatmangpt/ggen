@@ -6,9 +6,9 @@
 
 set -euo pipefail
 
-PROJECT_NAME="{{ sparql_results[0]["?contextName"] | default(value="attribution") }}"
+PROJECT_NAME="{{ sparql_results[0]["contextName"] | default(value="attribution") }}"
 
-echo "🛑 TCPS: Shutting down {{ sparql_results[0]["?contextName"] | default(value="Attribution") }} World"
+echo "🛑 TCPS: Shutting down {{ sparql_results[0]["contextName"] | default(value="Attribution") }} World"
 
 PID_FILE="/tmp/${PROJECT_NAME}.pid"
 

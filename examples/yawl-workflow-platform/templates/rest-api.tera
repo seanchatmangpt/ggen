@@ -118,12 +118,12 @@ export function createWorkflowRoutes(engine) {
 
 {%- set seen_routes = "" %}
 {%- for row in sparql_results %}
-{%- set servletId = row["?servletId"] | default(value="") %}
-{%- set servletName = row["?servletName"] | default(value="") %}
-{%- set urlPattern = row["?urlPattern"] | default(value="") %}
-{%- set httpMethod = row["?httpMethod"] | default(value="GET") %}
-{%- set requiresAuth = row["?requiresAuth"] | default(value="true") %}
-{%- set servletType = row["?servletType"] | default(value="") %}
+{%- set servletId = row["servletId"] | default(value="") %}
+{%- set servletName = row["servletName"] | default(value="") %}
+{%- set urlPattern = row["urlPattern"] | default(value="") %}
+{%- set httpMethod = row["httpMethod"] | default(value="GET") %}
+{%- set requiresAuth = row["requiresAuth"] | default(value="true") %}
+{%- set servletType = row["servletType"] | default(value="") %}
 
 {%- set routeKey = httpMethod ~ urlPattern %}
 {%- if routeKey != "" and routeKey not in seen_routes and servletId != "" %}
@@ -327,8 +327,8 @@ export async function startServer(port = 3000) {
     console.log('Available endpoints:');
 {%- set logged_routes = "" %}
 {%- for row in sparql_results %}
-{%- set urlPattern = row["?urlPattern"] | default(value="") %}
-{%- set httpMethod = row["?httpMethod"] | default(value="GET") %}
+{%- set urlPattern = row["urlPattern"] | default(value="") %}
+{%- set httpMethod = row["httpMethod"] | default(value="GET") %}
 {%- set routeKey = httpMethod ~ urlPattern %}
 {%- if routeKey != "" and routeKey not in logged_routes %}
 {%- set_global logged_routes = logged_routes ~ "," ~ routeKey %}

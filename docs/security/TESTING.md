@@ -143,7 +143,7 @@ fn test_e2e_sparql_injection_prevention() {
     let malicious_input = "'; DROP GRAPH <http://example.com>; --";
 
     let query = QueryBuilder::new()
-        .select(&["?s"])
+        .select(&["s"])
         .where_clause("?s foaf:name ?name")
         .filter(&format!("?name = {}", QueryBuilder::escape_literal(malicious_input)))
         .build()
@@ -343,7 +343,7 @@ fn main() {
     fuzz!(|data: &[u8]| {
         if let Ok(s) = std::str::from_utf8(data) {
             let _ = QueryBuilder::new()
-                .select(&["?s"])
+                .select(&["s"])
                 .filter(s)
                 .build();
         }

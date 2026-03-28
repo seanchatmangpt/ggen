@@ -38,14 +38,14 @@ import {
 // =============================================================================
 
 {%- for row in sparql_results %}
-{%- set servletId = row["?servletId"] | default(value="") %}
-{%- set servletName = row["?servletName"] | default(value="") %}
-{%- set urlPattern = row["?urlPattern"] | default(value="") %}
-{%- set httpMethod = row["?httpMethod"] | default(value="GET") %}
-{%- set requiresAuth = row["?requiresAuth"] | default(value="true") %}
-{%- set requestSchema = row["?requestSchema"] | default(value="") %}
-{%- set responseSchema = row["?responseSchema"] | default(value="") %}
-{%- set servletType = row["?servletType"] | default(value="") %}
+{%- set servletId = row["servletId"] | default(value="") %}
+{%- set servletName = row["servletName"] | default(value="") %}
+{%- set urlPattern = row["urlPattern"] | default(value="") %}
+{%- set httpMethod = row["httpMethod"] | default(value="GET") %}
+{%- set requiresAuth = row["requiresAuth"] | default(value="true") %}
+{%- set requestSchema = row["requestSchema"] | default(value="") %}
+{%- set responseSchema = row["responseSchema"] | default(value="") %}
+{%- set servletType = row["servletType"] | default(value="") %}
 
 {%- if requestSchema != "" %}
 const {{ servletId | replace(from="-", to="_") }}RequestSchema = z.object({

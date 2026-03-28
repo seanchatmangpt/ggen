@@ -6,9 +6,9 @@ openapi: "3.0.0"
 info:
 {%- for row in sparql_results %}
 {%- if loop.first %}
-  title: {{ row["?title"] | default(value="API") }}
-  description: {{ row["?description"] | default(value="Generated from RDF ontology") }}
-  version: {{ row["?version"] | default(value="1.0.0") }}
+  title: {{ row["title"] | default(value="API") }}
+  description: {{ row["description"] | default(value="Generated from RDF ontology") }}
+  version: {{ row["version"] | default(value="1.0.0") }}
 {%- endif %}
 {%- endfor %}
 {%- if sparql_results | length == 0 %}
@@ -20,8 +20,8 @@ info:
 servers:
 {%- for row in sparql_results %}
 {%- if loop.first %}
-  - url: {{ row["?serverUrl"] | default(value="http://localhost:3000") }}
-    description: {{ row["?serverDescription"] | default(value="Local development server") }}
+  - url: {{ row["serverUrl"] | default(value="http://localhost:3000") }}
+    description: {{ row["serverDescription"] | default(value="Local development server") }}
 {%- endif %}
 {%- endfor %}
 {%- if sparql_results | length == 0 %}

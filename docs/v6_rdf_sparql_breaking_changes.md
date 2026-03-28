@@ -101,7 +101,7 @@ pub fn find_policies_by_jurisdiction(jurisdiction: &str) -> SparqlQuery {
         .prefix("legal", LEGAL_NAMESPACE)
         .prefix("rdf", RDF_NAMESPACE)
         .prefix("rdfs", RDFS_NAMESPACE)
-        .vars(["?policy", "?label", "?description"])
+        .vars(["policy", "?label", "?description"])
         .where_clause(|w| {
             w.triple("?policy", rdf::TYPE, legal::Policy)
                 .triple("?policy", legal::hasJurisdiction, "?jurisdiction")

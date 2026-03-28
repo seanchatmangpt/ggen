@@ -199,7 +199,7 @@ let content = load_template(&safe_path)?;
 // SPARQL query validation (NEW in v6)
 use ggen_core::sparql::QueryBuilder;
 let query = QueryBuilder::new()
-    .select(&["?subject", "?predicate", "?object"])
+    .select(&["subject", "?predicate", "?object"])
     .where_clause("?subject ?predicate ?object")
     .limit(100)
     .build()?;
@@ -259,7 +259,7 @@ let content = fs::read_to_string(path)?;
 // ✅ SAFE: Using QueryBuilder
 use ggen_core::sparql::QueryBuilder;
 let query = QueryBuilder::new()
-    .select(&["?name", "?age"])
+    .select(&["name", "?age"])
     .where_clause("?person rdf:type foaf:Person")
     .filter(&format!("?name = {}", QueryBuilder::escape_literal(user_input)))
     .build()?;

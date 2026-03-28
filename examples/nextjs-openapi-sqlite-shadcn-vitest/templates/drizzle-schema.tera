@@ -23,13 +23,13 @@ import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
 {%- set current_entity = "" -%}
 {%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
-{%- set propName = row["?propName"] | default(value="") -%}
-{%- set propType = row["?propType"] | default(value="string") -%}
-{%- set required = row["?required"] | default(value="false") -%}
-{%- set isPrimaryKey = row["?isPrimaryKey"] | default(value="false") -%}
-{%- set isUnique = row["?isUnique"] | default(value="false") -%}
-{%- set references = row["?references"] | default(value="") -%}
+{%- set entityName = row["entityName"] | default(value="") -%}
+{%- set propName = row["propName"] | default(value="") -%}
+{%- set propType = row["propType"] | default(value="string") -%}
+{%- set required = row["required"] | default(value="false") -%}
+{%- set isPrimaryKey = row["isPrimaryKey"] | default(value="false") -%}
+{%- set isUnique = row["isUnique"] | default(value="false") -%}
+{%- set references = row["references"] | default(value="") -%}
 
 {%- if entityName != current_entity -%}
 {%- if current_entity != "" %}

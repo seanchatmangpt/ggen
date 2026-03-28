@@ -29,7 +29,7 @@ export const ReceiptSchema = z.object({
 
 export const EventType = {
 {%- for row in sparql_results %}
-{%- set statusLabel = row["?statusLabel"] | default(value="") %}
+{%- set statusLabel = row["statusLabel"] | default(value="") %}
 {%- if statusLabel != "" %}
   {{ statusLabel | upper | replace(from=" ", to="_") }}: '{{ statusLabel | lower }}',
 {%- endif %}

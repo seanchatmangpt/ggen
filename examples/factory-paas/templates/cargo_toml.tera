@@ -4,10 +4,10 @@
 # To make changes, edit the ontology and run: ggen sync
 
 [package]
-name = "{{ sparql_results[0]["?contextName"] | lower }}-world"
-version = "{{ sparql_results[0]["?version"] | default(value="1.0.0") }}"
+name = "{{ sparql_results[0]["contextName"] | lower }}-world"
+version = "{{ sparql_results[0]["version"] | default(value="1.0.0") }}"
 edition = "2021"
-description = "{{ sparql_results[0]["?description"] | default(value="Generated DDD world") }}"
+description = "{{ sparql_results[0]["description"] | default(value="Generated DDD world") }}"
 
 [dependencies]
 # Core dependencies for DDD/CQRS/Event Sourcing

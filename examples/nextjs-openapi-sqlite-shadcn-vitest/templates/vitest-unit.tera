@@ -28,7 +28,7 @@ import * as schemas from "@/schemas";
 const fixtures = {
 {%- set seen_entities = "" -%}
 {%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
+{%- set entityName = row["entityName"] | default(value="") -%}
 {%- if entityName != "" and entityName not in seen_entities -%}
 {%- set_global seen_entities = seen_entities ~ "," ~ entityName %}
   {{ entityName | lower }}: {
@@ -36,9 +36,9 @@ const fixtures = {
       id: "{{ entityName | lower }}-123",
       createdAt: "2024-01-01T00:00:00.000Z",
 {%- for inner in sparql_results -%}
-{%- if inner["?entityName"] == entityName -%}
-{%- set propName = inner["?propName"] | default(value="") -%}
-{%- set propType = inner["?propType"] | default(value="string") -%}
+{%- if inner["entityName"] == entityName -%}
+{%- set propName = inner["propName"] | default(value="") -%}
+{%- set propType = inner["propType"] | default(value="string") -%}
 {%- if propName != "id" and propName != "createdAt" %}
       {{ propName }}: {% if propType == "string" %}"test-{{ propName }}"{% elif propType == "integer" %}42{% elif propType == "boolean" %}true{% elif propType == "datetime" %}"2024-01-01T00:00:00.000Z"{% elif propType == "enum" %}"todo"{% else %}"test"{% endif %},
 {%- endif -%}
@@ -60,11 +60,11 @@ const fixtures = {
 
 {%- set current_entity = "" -%}
 {%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
-{%- set propName = row["?propName"] | default(value="") -%}
-{%- set propType = row["?propType"] | default(value="string") -%}
-{%- set required = row["?required"] | default(value="false") -%}
-{%- set format = row["?format"] | default(value="") -%}
+{%- set entityName = row["entityName"] | default(value="") -%}
+{%- set propName = row["propName"] | default(value="") -%}
+{%- set propType = row["propType"] | default(value="string") -%}
+{%- set required = row["required"] | default(value="false") -%}
+{%- set format = row["format"] | default(value="") -%}
 
 {%- if entityName != current_entity and entityName != "" -%}
 {%- if current_entity != "" %}

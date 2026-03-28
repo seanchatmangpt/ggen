@@ -113,7 +113,7 @@ $ cargo run --bin ggen -- graph query --sparql_query "SELECT ?class ?label WHERE
     {"?class": "<http://example.org/electric/Shape>", "?label": "\"Shape\""}
   ],
   "result_count": 4,
-  "variables": ["?class", "?label"]
+  "variables": ["class", "?label"]
 }
 ```
 
@@ -144,7 +144,7 @@ $ cargo run --bin ggen -- graph query --sparql_query "SELECT ?s ?p ?o WHERE { ?s
     {"?s": "<http://example.org/electric/SyncEngine>", "?p": "<http://www.w3.org/2000/01/rdf-schema#comment>", "?o": "\"Real-time synchronization engine\""}
   ],
   "result_count": 10,
-  "variables": ["?s", "?p", "?o"]
+  "variables": ["s", "?p", "?o"]
 }
 ```
 

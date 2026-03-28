@@ -244,20 +244,20 @@ description: Generate Zod validation schemas for entities
 import { z } from 'zod';
 
 {%- for row in sparql_results -%}
-{%- if row["?entityName"] != prev_entity -%}
+{%- if row["entityName"] != prev_entity -%}
 
-export const {{ row["?entityName"] | lower }}Schema = z.object({
-{%- set prev_entity = row["?entityName"] -%}
+export const {{ row["entityName"] | lower }}Schema = z.object({
+{%- set prev_entity = row["entityName"] -%}
 {%- endif -%}
-  {{ row["?propertyName"] }}: z.string(){% if row["?required"] == "true" %}.min(1){% else %}.optional(){% endif %},
+  {{ row["propertyName"] }}: z.string(){% if row["required"] == "true" %}.min(1){% else %}.optional(){% endif %},
 {%- endfor -%}
 });
 ```
 
 **Breaking it down:**
 - `{%- for row in sparql_results -%}` - Loop through query results
-- `row["?propertyName"]` - Access the property name
-- `row["?required"] == "true"` - Check if required
+- `row["propertyName"]` - Access the property name
+- `row["required"] == "true"` - Check if required
 - `| lower` - Filter to convert to lowercase
 - Output a Zod schema for each entity
 
@@ -271,7 +271,7 @@ Templates have access to:
 ### Try It Yourself
 
 1. Open `examples/openapi/templates/typescript-interfaces.tera`
-2. Find where it uses `row["?propertyName"]`
+2. Find where it uses `row["propertyName"]`
 3. Does it add `.optional()` for non-required properties?
 4. What does the output look like?
 
@@ -317,8 +317,8 @@ propertyType: "string"
 
 **Step 2 - Template Rendering:**
 ```tera
-export const {{ row["?entityName"] | lower }}Schema = z.object({
-  {{ row["?propertyName"] }}: z.string(),
+export const {{ row["entityName"] | lower }}Schema = z.object({
+  {{ row["propertyName"] }}: z.string(),
 });
 ```
 
@@ -531,14 +531,14 @@ Use OPTIONAL when data might be missing for some entities.
 
 ```tera
 {%- for row in sparql_results -%}
-  {{ row["?entityName"] }}
+  {{ row["entityName"] }}
 {%- endfor %}
 ```
 
 ### Template Pattern: Conditional Output
 
 ```tera
-{%- if row["?required"] == "true" -%}
+{%- if row["required"] == "true" -%}
   required
 {%- endif %}
 ```
@@ -546,9 +546,9 @@ Use OPTIONAL when data might be missing for some entities.
 ### Template Pattern: Filters
 
 ```tera
-{{ row["?entityName"] | lower }}    {# lowercase #}
-{{ row["?entityName"] | upper }}    {# uppercase #}
-{{ row["?entityName"] | snake_case }} {# snake_case #}
+{{ row["entityName"] | lower }}    {# lowercase #}
+{{ row["entityName"] | upper }}    {# uppercase #}
+{{ row["entityName"] | snake_case }} {# snake_case #}
 ```
 
 ---

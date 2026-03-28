@@ -112,7 +112,7 @@ let path = SafePath::new(user_input)?;  // Validates before use
 // SPARQL query validation
 use ggen_core::sparql::QueryBuilder;
 let query = QueryBuilder::new()
-    .select(&["?subject"])
+    .select(&["subject"])
     .where_clause("?subject rdf:type ?type")
     .limit(100)
     .build()?;  // Type-safe, no injection
@@ -436,7 +436,7 @@ use ggen_core::sparql::QueryBuilder;
 
 // ✅ SAFE
 let query = QueryBuilder::new()
-    .select(&["?name"])
+    .select(&["name"])
     .where_clause("?person foaf:name ?name")
     .filter(&QueryBuilder::escape_literal(user_input))
     .build()?;

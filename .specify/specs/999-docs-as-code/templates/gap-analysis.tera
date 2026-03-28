@@ -9,7 +9,7 @@ These are blocking issues that need immediate attention.
 | Title | Description | Effort | Category |
 |-------|-------------|--------|----------|
 {% for row in results | filter(attribute="?priority", value="P0") %}
-| {{ row["?title"] }} | {{ row["?description"] }} | {{ row["?effort"] }} | {{ row["?category"] }} |
+| {{ row["title"] }} | {{ row["description"] }} | {{ row["effort"] }} | {{ row["category"] }} |
 {% endfor %}
 
 ## Important Gaps (P1)
@@ -19,7 +19,7 @@ These should be addressed soon to improve documentation quality.
 | Title | Description | Effort | Category |
 |-------|-------------|--------|----------|
 {% for row in results | filter(attribute="?priority", value="P1") %}
-| {{ row["?title"] }} | {{ row["?description"] }} | {{ row["?effort"] }} | {{ row["?category"] }} |
+| {{ row["title"] }} | {{ row["description"] }} | {{ row["effort"] }} | {{ row["category"] }} |
 {% endfor %}
 
 ## Nice-to-Have Gaps (P2)
@@ -29,7 +29,7 @@ These enhance documentation but are lower priority.
 | Title | Description | Effort | Category |
 |-------|-------------|--------|----------|
 {% for row in results | filter(attribute="?priority", value="P2") %}
-| {{ row["?title"] }} | {{ row["?description"] }} | {{ row["?effort"] }} | {{ row["?category"] }} |
+| {{ row["title"] }} | {{ row["description"] }} | {{ row["effort"] }} | {{ row["category"] }} |
 {% endfor %}
 
 ## Statistics
