@@ -1,0 +1,97 @@
+@prefix semconv: <https://ggen.io/examples/semconv#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Signal groups ────────────────────────────────────────────────────────────
+
+semconv:CliGroup a semconv:Group ;
+    semconv:groupId   "ggen.cli" ;
+    semconv:groupType "span" ;
+    semconv:prefix    "ggen.cli" ;
+    semconv:stability "stable" ;
+    rdfs:comment      "ggen CLI operation spans" .
+
+semconv:CodegenGroup a semconv:Group ;
+    semconv:groupId   "ggen.codegen" ;
+    semconv:groupType "span" ;
+    semconv:prefix    "ggen.codegen" ;
+    semconv:stability "stable" ;
+    rdfs:comment      "Code generation spans" .
+
+semconv:SyncGroup a semconv:Group ;
+    semconv:groupId   "ggen.sync" ;
+    semconv:groupType "span" ;
+    semconv:prefix    "ggen.sync" ;
+    semconv:stability "stable" ;
+    rdfs:comment      "ggen sync pipeline spans" .
+
+# ── CLI attributes ───────────────────────────────────────────────────────────
+
+semconv:CliCommandAttr a semconv:Attribute ;
+    semconv:groupOf          semconv:CliGroup ;
+    semconv:attrName         "command" ;
+    semconv:attrType         "string" ;
+    semconv:requirementLevel "required" ;
+    semconv:brief            "The ggen CLI command executed" ;
+    semconv:examples         "sync, validate, generate" .
+
+semconv:CliExitCodeAttr a semconv:Attribute ;
+    semconv:groupOf          semconv:CliGroup ;
+    semconv:attrName         "exit_code" ;
+    semconv:attrType         "int" ;
+    semconv:requirementLevel "required" ;
+    semconv:brief            "Exit code of the CLI command" ;
+    semconv:examples         "0, 1" .
+
+semconv:CliProjectPathAttr a semconv:Attribute ;
+    semconv:groupOf          semconv:CliGroup ;
+    semconv:attrName         "project_path" ;
+    semconv:attrType         "string" ;
+    semconv:requirementLevel "recommended" ;
+    semconv:brief            "Path to the ggen project directory" ;
+    semconv:examples         "/home/user/myproject, ." .
+
+# ── Codegen attributes ───────────────────────────────────────────────────────
+
+semconv:CodegenTargetAttr a semconv:Attribute ;
+    semconv:groupOf          semconv:CodegenGroup ;
+    semconv:attrName         "target" ;
+    semconv:attrType         "string" ;
+    semconv:requirementLevel "required" ;
+    semconv:brief            "Target language for code generation" ;
+    semconv:examples         "rust, go, python, typescript" .
+
+semconv:CodegenRuleNameAttr a semconv:Attribute ;
+    semconv:groupOf          semconv:CodegenGroup ;
+    semconv:attrName         "rule_name" ;
+    semconv:attrType         "string" ;
+    semconv:requirementLevel "required" ;
+    semconv:brief            "Name of the generation rule being applied" ;
+    semconv:examples         "grpc-messages, rest-endpoints" .
+
+semconv:CodegenOutputFileAttr a semconv:Attribute ;
+    semconv:groupOf          semconv:CodegenGroup ;
+    semconv:attrName         "output_file" ;
+    semconv:attrType         "string" ;
+    semconv:requirementLevel "recommended" ;
+    semconv:brief            "Path of the generated output file" ;
+    semconv:examples         "src/generated/server.rs, generated/schema.sql" .
+
+# ── Sync attributes ──────────────────────────────────────────────────────────
+
+semconv:SyncOntologyAttr a semconv:Attribute ;
+    semconv:groupOf          semconv:SyncGroup ;
+    semconv:attrName         "ontology_path" ;
+    semconv:attrType         "string" ;
+    semconv:requirementLevel "required" ;
+    semconv:brief            "Path to the RDF ontology source file" ;
+    semconv:examples         "ontology/domain.ttl, .specify/specs/001-api/api.ttl" .
+
+semconv:SyncRulesCountAttr a semconv:Attribute ;
+    semconv:groupOf          semconv:SyncGroup ;
+    semconv:attrName         "rules_count" ;
+    semconv:attrType         "int" ;
+    semconv:requirementLevel "recommended" ;
+    semconv:brief            "Number of generation rules executed in the sync" ;
+    semconv:examples         "3, 12" .

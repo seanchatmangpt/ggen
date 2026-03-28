@@ -1,0 +1,151 @@
+[project]
+name = "observable-agent"
+version = "1.0.0"
+description = "Single RDF ontology generating Weaver + MCP + A2A — unified observable agent"
+
+[ontology]
+source = "ontology/observable-agent.ttl"
+base_iri = "https://ggen.io/examples/observable#"
+
+[ontology.prefixes]
+obs  = "https://ggen.io/examples/observable#"
+rdf  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd  = "http://www.w3.org/2001/XMLSchema#"
+
+[generation]
+output_dir = "."
+
+# ── Rule 1: OTel Weaver semantic conventions ──────────────────────────────────
+[[generation.rules]]
+name = "semconv-yaml"
+query = { inline = """
+PREFIX obs: <https://ggen.io/examples/observable#>
+
+SELECT ?capId ?spanName ?attrName ?attrType ?attrRequired ?attrBrief ?capDesc ?capOrder
+WHERE {
+  ?cap a obs:Capability ;
+       obs:capId ?capId ;
+       obs:spanName ?spanName ;
+       obs:capDesc ?capDesc ;
+       obs:order ?capOrder .
+  ?attr a obs:Attribute ;
+        obs:capabilityOf ?cap ;
+        obs:attrName ?attrName ;
+        obs:attrType ?attrType ;
+        obs:attrRequired ?attrRequired ;
+        obs:attrBrief ?attrBrief .
+}
+ORDER BY ?capOrder ?attrName
+""" }
+template    = { file = "templates/semconv.yaml.tera" }
+output_file = "generated/semconv.yaml"
+mode        = "Overwrite"
+
+# ── Rule 2: MCP server Rust source ────────────────────────────────────────────
+[[generation.rules]]
+name = "mcp-server-rs"
+query = { inline = """
+PREFIX obs: <https://ggen.io/examples/observable#>
+
+SELECT ?mcpStruct ?mcpDesc ?agentVersion ?toolName ?structName ?capDesc ?order
+WHERE {
+  ?agent a obs:Agent ;
+         obs:mcpStruct ?mcpStruct ;
+         obs:mcpDesc ?mcpDesc ;
+         obs:agentVersion ?agentVersion .
+  ?cap a obs:Capability ;
+       obs:agentOf ?agent ;
+       obs:toolName ?toolName ;
+       obs:structName ?structName ;
+       obs:capDesc ?capDesc ;
+       obs:order ?order .
+}
+ORDER BY ?order
+""" }
+template    = { file = "templates/mcp_server.rs.tera" }
+output_file = "generated/mcp_server.rs"
+mode        = "Overwrite"
+
+# ── Rule 3: A2A agent Rust source ─────────────────────────────────────────────
+[[generation.rules]]
+name = "a2a-agent-rs"
+query = { inline = """
+PREFIX obs: <https://ggen.io/examples/observable#>
+
+SELECT ?agentName ?agentStruct ?agentDesc ?agentVersion ?bindAddr ?agentUrl ?capId ?capName ?handlerName ?methodName ?capDesc ?inputModes ?outputModes ?order
+WHERE {
+  ?agent a obs:Agent ;
+         obs:agentName ?agentName ;
+         obs:agentStruct ?agentStruct ;
+         obs:agentDesc ?agentDesc ;
+         obs:agentVersion ?agentVersion ;
+         obs:bindAddr ?bindAddr ;
+         obs:agentUrl ?agentUrl .
+  ?cap a obs:Capability ;
+       obs:agentOf ?agent ;
+       obs:capId ?capId ;
+       obs:capName ?capName ;
+       obs:handlerName ?handlerName ;
+       obs:methodName ?methodName ;
+       obs:capDesc ?capDesc ;
+       obs:inputModes ?inputModes ;
+       obs:outputModes ?outputModes ;
+       obs:order ?order .
+}
+ORDER BY ?order
+""" }
+template    = { file = "templates/a2a_agent.rs.tera" }
+output_file = "generated/a2a_agent.rs"
+mode        = "Overwrite"
+
+# ── Rule 4: Docker Compose ────────────────────────────────────────────────────
+[[generation.rules]]
+name = "docker-compose"
+query = { inline = """
+PREFIX obs: <https://ggen.io/examples/observable#>
+
+SELECT ?agentName ?agentVersion ?serviceName ?serviceImage ?servicePort ?serviceOrder
+WHERE {
+  ?agent a obs:Agent ;
+         obs:agentName ?agentName ;
+         obs:agentVersion ?agentVersion .
+  ?svc a obs:Service ;
+       obs:serviceName ?serviceName ;
+       obs:serviceImage ?serviceImage ;
+       obs:servicePort ?servicePort ;
+       obs:serviceOrder ?serviceOrder .
+}
+ORDER BY ?serviceOrder
+""" }
+template    = { file = "templates/docker-compose.yml.tera" }
+output_file = "generated/docker-compose.yml"
+mode        = "Overwrite"
+
+# ── Rule 5: Agent card JSON ───────────────────────────────────────────────────
+[[generation.rules]]
+name = "agent-card"
+query = { inline = """
+PREFIX obs: <https://ggen.io/examples/observable#>
+
+SELECT ?agentName ?agentDesc ?agentVersion ?agentUrl ?capId ?capName ?capDesc ?inputModes ?outputModes ?order
+WHERE {
+  ?agent a obs:Agent ;
+         obs:agentName ?agentName ;
+         obs:agentDesc ?agentDesc ;
+         obs:agentVersion ?agentVersion ;
+         obs:agentUrl ?agentUrl .
+  ?cap a obs:Capability ;
+       obs:agentOf ?agent ;
+       obs:capId ?capId ;
+       obs:capName ?capName ;
+       obs:capDesc ?capDesc ;
+       obs:inputModes ?inputModes ;
+       obs:outputModes ?outputModes ;
+       obs:order ?order .
+}
+ORDER BY ?order
+""" }
+template    = { file = "templates/agent_card.json.tera" }
+output_file = "generated/agent_card.json"
+mode        = "Overwrite"

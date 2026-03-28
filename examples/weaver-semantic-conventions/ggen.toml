@@ -1,0 +1,84 @@
+[project]
+name = "weaver-semantic-conventions"
+version = "1.0.0"
+description = "OTel semantic conventions for ggen observability — generated from RDF"
+
+[ontology]
+source = "ontology/ggen-semconv.ttl"
+base_iri = "https://ggen.io/examples/semconv#"
+
+[ontology.prefixes]
+semconv = "https://ggen.io/examples/semconv#"
+rdf     = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs    = "http://www.w3.org/2000/01/rdf-schema#"
+xsd     = "http://www.w3.org/2001/XMLSchema#"
+
+[generation]
+output_dir = "."
+
+# ── Rule 1: Weaver registry YAML ─────────────────────────────────────────────
+[[generation.rules]]
+name = "semconv-registry"
+query = { inline = """
+PREFIX semconv: <https://ggen.io/examples/semconv#>
+
+SELECT ?groupId ?groupType ?prefix ?stability ?attrName ?attrType ?required ?brief ?examples
+WHERE {
+  ?group a semconv:Group ;
+         semconv:groupId ?groupId ;
+         semconv:groupType ?groupType ;
+         semconv:prefix ?prefix .
+  OPTIONAL { ?group semconv:stability ?stability }
+  ?attr a semconv:Attribute ;
+        semconv:groupOf ?group ;
+        semconv:attrName ?attrName ;
+        semconv:attrType ?attrType ;
+        semconv:requirementLevel ?required ;
+        semconv:brief ?brief .
+  OPTIONAL { ?attr semconv:examples ?examples }
+}
+ORDER BY ?groupId ?attrName
+""" }
+template    = { file = "templates/semconv-registry.yaml.tera" }
+output_file = "generated/semconv-registry.yaml"
+mode        = "Overwrite"
+
+# ── Rule 2: Rust telemetry constants ─────────────────────────────────────────
+[[generation.rules]]
+name = "telemetry-constants"
+query = { inline = """
+PREFIX semconv: <https://ggen.io/examples/semconv#>
+
+SELECT ?groupId ?prefix ?attrName ?brief
+WHERE {
+  ?group a semconv:Group ;
+         semconv:groupId ?groupId ;
+         semconv:prefix ?prefix .
+  ?attr a semconv:Attribute ;
+        semconv:groupOf ?group ;
+        semconv:attrName ?attrName ;
+        semconv:brief ?brief .
+}
+ORDER BY ?groupId ?attrName
+""" }
+template    = { file = "templates/telemetry-constants.rs.tera" }
+output_file = "generated/telemetry_constants.rs"
+mode        = "Overwrite"
+
+# ── Rule 3: Live-check shell script ──────────────────────────────────────────
+[[generation.rules]]
+name = "live-check-script"
+query = { inline = """
+PREFIX semconv: <https://ggen.io/examples/semconv#>
+
+SELECT DISTINCT ?groupId ?groupType
+WHERE {
+  ?group a semconv:Group ;
+         semconv:groupId ?groupId ;
+         semconv:groupType ?groupType .
+}
+ORDER BY ?groupId
+""" }
+template    = { file = "templates/live-check.sh.tera" }
+output_file = "generated/live-check.sh"
+mode        = "Overwrite"

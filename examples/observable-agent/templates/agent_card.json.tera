@@ -1,0 +1,20 @@
+{
+  "name": "{{ sparql_results | first | get(key="agentName") }}",
+  "description": "{{ sparql_results | first | get(key="agentDesc") }}",
+  "version": "{{ sparql_results | first | get(key="agentVersion") }}",
+  "url": "{{ sparql_results | first | get(key="agentUrl") }}",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "skills": [
+{% for row in sparql_results %}    {
+      "id": "{{ row["capId"] }}",
+      "name": "{{ row["capName"] }}",
+      "description": "{{ row["capDesc"] }}",
+      "inputModes": ["{{ row["inputModes"] }}"],
+      "outputModes": ["{{ row["outputModes"] }}"]
+    }{% if not loop.last %},{% endif %}
+{% endfor %}  ]
+}

@@ -1,0 +1,102 @@
+[project]
+name = "a2a-agent-definition"
+version = "1.0.0"
+description = "A2A agent with skills defined in RDF — generates a2a-rs Rust implementation"
+
+[ontology]
+source = "ontology/a2a-agent.ttl"
+base_iri = "https://ggen.io/examples/a2a#"
+
+[ontology.prefixes]
+agent = "https://ggen.io/examples/a2a#"
+rdf   = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs  = "http://www.w3.org/2000/01/rdf-schema#"
+xsd   = "http://www.w3.org/2001/XMLSchema#"
+
+[generation]
+output_dir = "generated"
+
+# ── Rule 1: Main agent entry point ────────────────────────────────────────────
+[[generation.rules]]
+name = "agent-rs"
+query = { inline = """
+PREFIX agent: <https://ggen.io/examples/a2a#>
+
+SELECT ?agentName ?agentStruct ?description ?version ?bindAddr ?url ?skillId ?skillName ?handlerName ?methodName ?skillDesc ?inputModes ?outputModes ?order
+WHERE {
+  ?ag a agent:Agent ;
+      agent:agentName ?agentName ;
+      agent:agentStruct ?agentStruct ;
+      agent:description ?description ;
+      agent:version ?version ;
+      agent:bindAddr ?bindAddr ;
+      agent:url ?url .
+  ?skill a agent:Skill ;
+         agent:agentOf ?ag ;
+         agent:skillId ?skillId ;
+         agent:skillName ?skillName ;
+         agent:handlerName ?handlerName ;
+         agent:methodName ?methodName ;
+         agent:description ?skillDesc ;
+         agent:inputModes ?inputModes ;
+         agent:outputModes ?outputModes ;
+         agent:order ?order .
+}
+ORDER BY ?order
+""" }
+template    = { file = "templates/agent.rs.tera" }
+output_file = "agent.rs"
+mode        = "Overwrite"
+
+# ── Rule 2: Skill handlers ────────────────────────────────────────────────────
+[[generation.rules]]
+name = "handlers-rs"
+query = { inline = """
+PREFIX agent: <https://ggen.io/examples/a2a#>
+
+SELECT ?agentStruct ?skillId ?skillName ?handlerName ?methodName ?skillDesc ?order
+WHERE {
+  ?ag a agent:Agent ;
+      agent:agentStruct ?agentStruct .
+  ?skill a agent:Skill ;
+         agent:agentOf ?ag ;
+         agent:skillId ?skillId ;
+         agent:skillName ?skillName ;
+         agent:handlerName ?handlerName ;
+         agent:methodName ?methodName ;
+         agent:description ?skillDesc ;
+         agent:order ?order .
+}
+ORDER BY ?order
+""" }
+template    = { file = "templates/handlers.rs.tera" }
+output_file = "handlers.rs"
+mode        = "Overwrite"
+
+# ── Rule 3: Agent card JSON ────────────────────────────────────────────────────
+[[generation.rules]]
+name = "agent-card-json"
+query = { inline = """
+PREFIX agent: <https://ggen.io/examples/a2a#>
+
+SELECT ?agentName ?description ?version ?url ?skillId ?skillName ?skillDesc ?inputModes ?outputModes ?order
+WHERE {
+  ?ag a agent:Agent ;
+      agent:agentName ?agentName ;
+      agent:description ?description ;
+      agent:version ?version ;
+      agent:url ?url .
+  ?skill a agent:Skill ;
+         agent:agentOf ?ag ;
+         agent:skillId ?skillId ;
+         agent:skillName ?skillName ;
+         agent:description ?skillDesc ;
+         agent:inputModes ?inputModes ;
+         agent:outputModes ?outputModes ;
+         agent:order ?order .
+}
+ORDER BY ?order
+""" }
+template    = { file = "templates/agent-card.json.tera" }
+output_file = "agent_card.json"
+mode        = "Overwrite"

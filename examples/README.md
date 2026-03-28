@@ -1,6 +1,6 @@
 # ggen Examples
 
-All 26 examples run with `ggen sync` — verified 2026-03-28.
+All 30 examples run with `ggen sync` — verified 2026-03-28.
 
 ## Quick Start
 
@@ -56,6 +56,14 @@ ggen sync        # generates files into output/ or generated/
 | [factory-paas](factory-paas/) | DDD domain model (Rust entities, events, commands) | TCPS/DDD reference implementation |
 | [gcp-erlang-autonomics](gcp-erlang-autonomics/) | C4 diagrams, Kubernetes manifests | Architecture visualization |
 | [yawl-workflow-platform](yawl-workflow-platform/) | Workflow handlers, REST API, receipt types | YAWL workflow generation |
+
+### Protocol Integration (Weaver · MCP · A2A)
+| Example | What it generates | Key concept |
+|---------|------------------|-------------|
+| [weaver-semantic-conventions](weaver-semantic-conventions/) | Weaver registry YAML, Rust telemetry constants, live-check script | Define OTel semantic conventions in RDF |
+| [mcp-server-definition](mcp-server-definition/) | rmcp 1.3.0 Rust server with `#[tool]` methods, Cargo.toml fragment | MCP server tools from RDF |
+| [a2a-agent-definition](a2a-agent-definition/) | A2A agent entry point, skill handlers, agent-card.json | A2A skills from RDF |
+| [observable-agent](observable-agent/) | Weaver YAML + MCP server + A2A agent + docker-compose from one ontology | Single RDF → three protocols |
 
 ## Common Patterns
 

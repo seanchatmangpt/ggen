@@ -1,0 +1,67 @@
+[project]
+name = "mcp-server-definition"
+version = "1.0.0"
+description = "MCP server with tools defined in RDF — generates rmcp 1.3.0 Rust server"
+
+[ontology]
+source = "ontology/mcp-server.ttl"
+base_iri = "https://ggen.io/examples/mcp#"
+
+[ontology.prefixes]
+mcp  = "https://ggen.io/examples/mcp#"
+rdf  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd  = "http://www.w3.org/2001/XMLSchema#"
+
+[generation]
+output_dir = "generated"
+
+# ── Rule 1: MCP server Rust source ───────────────────────────────────────────
+[[generation.rules]]
+name = "mcp-server-rs"
+query = { inline = """
+PREFIX mcp: <https://ggen.io/examples/mcp#>
+
+SELECT ?serverStruct ?serverDesc ?serverVersion ?toolName ?structName ?description ?toolOrder ?paramName ?paramType ?required ?brief
+WHERE {
+  ?server a mcp:Server ;
+          mcp:serverStruct ?serverStruct ;
+          mcp:description ?serverDesc ;
+          mcp:version ?serverVersion .
+  ?tool a mcp:Tool ;
+        mcp:serverOf ?server ;
+        mcp:toolName ?toolName ;
+        mcp:structName ?structName ;
+        mcp:description ?description ;
+        mcp:order ?toolOrder .
+  OPTIONAL {
+    ?param a mcp:Parameter ;
+           mcp:toolOf ?tool ;
+           mcp:paramName ?paramName ;
+           mcp:paramType ?paramType ;
+           mcp:required ?required ;
+           mcp:brief ?brief .
+  }
+}
+ORDER BY ?toolOrder ?paramName
+""" }
+template    = { file = "templates/server.rs.tera" }
+output_file = "server.rs"
+mode        = "Overwrite"
+
+# ── Rule 2: Cargo.toml dependencies fragment ─────────────────────────────────
+[[generation.rules]]
+name = "cargo-fragment"
+query = { inline = """
+PREFIX mcp: <https://ggen.io/examples/mcp#>
+
+SELECT ?serverName ?serverVersion
+WHERE {
+  ?server a mcp:Server ;
+          mcp:serverName ?serverName ;
+          mcp:version ?serverVersion .
+}
+""" }
+template    = { file = "templates/cargo-fragment.toml.tera" }
+output_file = "Cargo.toml"
+mode        = "Overwrite"
