@@ -25,11 +25,8 @@ pub mod client;
 pub mod error;
 pub mod ggen_server;
 pub mod handlers;
-pub mod mcp;
 pub mod message;
-pub mod registry;
 pub mod server;
-pub mod transport;
 pub mod util;
 pub mod yawl_bridge;
 
@@ -42,10 +39,6 @@ pub use handlers::{
     MessageRouter, MultipartHandler, StreamHandler, TextContentHandler,
 };
 pub use message::{A2aMessageConverter, LlmRequest, LlmResponse};
-pub use registry::{
-    register_core_tools, McpTool, McpToolBuilder, McpToolRegistry, ToolExecutionResult,
-};
-pub use transport::{McpErrorCode, McpRequest, McpResponse, McpToolDefinition, McpTransport};
 pub use yawl_bridge::{
     TaskMapper, YawlEventPublisher, YawlEventType, YawlJoinType, YawlSplitType, YawlStateMapper,
     YawlTask, YawlTaskType,
