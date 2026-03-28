@@ -1,13 +1,3 @@
----
-to: "generated/{{ struct_name }}.rs"
-vars:
-  struct_name: string
-  type_name: string
-  struct_description: string
-  has_id: boolean
-  has_builder: boolean
-  fields: string
----
 //! {{ struct_description }}
 //!
 //! This struct was auto-generated from template: rust-struct.tera

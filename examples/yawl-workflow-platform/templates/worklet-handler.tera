@@ -1,14 +1,3 @@
----
-to: "{{ outputPath | replace(from='.ts', to='.mjs') }}"
-description: ESM worklet exception handler with RDF-based rules
-vars:
-  workletId: string
-  workletName: string
-  exceptionType: string
-metadata:
-  category: worklet
-  features: [exception-handling, sparql-rules, compensation]
----
 {# =============================================================================
    WORKLET EXCEPTION HANDLER TEMPLATE
    Generates ESM exception handlers from RDF worklet definitions

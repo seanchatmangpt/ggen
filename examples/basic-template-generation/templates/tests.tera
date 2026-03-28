@@ -1,6 +1,3 @@
----
-to: "generated/tests.rs"
----
 // Auto-generated tests for template examples
 
 #[cfg(test)]

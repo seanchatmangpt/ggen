@@ -48,8 +48,11 @@ impl A2aMessageConverter {
             response.content.clone(),
         );
 
-        // Set source as the original target
+        // Set source as the original target (i.e., who processed it)
         message.source = original_message.source.clone();
+
+        // Set target to the original message's target
+        message.target = original_message.target.clone();
 
         Ok(message)
     }

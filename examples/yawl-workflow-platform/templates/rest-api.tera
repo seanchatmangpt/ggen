@@ -1,15 +1,3 @@
----
-to: "lib/api/routes.mjs"
-description: Express-style REST API routes for YAWL workflow operations
-vars:
-  servletId: string
-  urlPattern: string
-  httpMethod: string
-metadata:
-  category: api
-  framework: express
-  features: [routing, middleware, validation]
----
 {# =============================================================================
    REST API ROUTES TEMPLATE
    Generates Express-style routes from RDF servlet definitions

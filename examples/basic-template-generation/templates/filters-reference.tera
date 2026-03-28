@@ -1,6 +1,3 @@
----
-to: "generated/FILTERS_REFERENCE.md"
----
 # Tera Filters Reference
 
 Tera supports many built-in filters for transforming variables.

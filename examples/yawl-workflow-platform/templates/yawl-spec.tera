@@ -1,15 +1,3 @@
----
-to: "generated/workflows/{{ specId }}.yawl"
-description: YAWL XML workflow specification
-vars:
-  specId: string
-  specName: string
-  specVersion: string
-metadata:
-  category: workflow
-  format: yawl-xml
-  yawl_version: "4.0"
----
 {# =============================================================================
    YAWL XML SPECIFICATION TEMPLATE
    Generates YAWL 4.0 XML from RDF workflow specifications

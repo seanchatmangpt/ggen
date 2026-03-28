@@ -1,6 +1,3 @@
----
-to: "generated/PROMPT_LIBRARY.md"
----
 # Prompt Library
 
 Reusable prompts for common template generation tasks. Each prompt demonstrates the kind of natural language descriptions that work well with ggen ai generate.

@@ -1,6 +1,3 @@
----
-to: "generated/MOCK_RESPONSES.md"
----
 # Mock Responses
 
 Mock mode provides pre-generated responses for common prompts. Use for testing and learning without API costs.

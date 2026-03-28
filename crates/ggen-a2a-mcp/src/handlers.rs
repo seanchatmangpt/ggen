@@ -231,7 +231,7 @@ impl FileContentHandler {
     pub fn new() -> Self {
         Self {
             name: "FileContentHandler".to_string(),
-            priority: HandlerPriority::High,
+            priority: HandlerPriority::Low,
             supported_types: vec![ConvergedMessageType::Direct, ConvergedMessageType::Task],
             max_file_size: 10 * 1024 * 1024, // 10 MB default
         }
@@ -456,7 +456,7 @@ impl MultipartHandler {
     pub fn new() -> Self {
         Self {
             name: "MultipartHandler".to_string(),
-            priority: HandlerPriority::Normal,
+            priority: HandlerPriority::Low,
             supported_types: vec![
                 ConvergedMessageType::Direct,
                 ConvergedMessageType::Broadcast,
@@ -579,7 +579,7 @@ impl StreamHandler {
     pub fn new() -> Self {
         Self {
             name: "StreamHandler".to_string(),
-            priority: HandlerPriority::High,
+            priority: HandlerPriority::Low,
             supported_types: vec![ConvergedMessageType::Direct, ConvergedMessageType::Event],
             max_chunk_size: 1024 * 1024, // 1 MB default
         }

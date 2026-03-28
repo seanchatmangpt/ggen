@@ -1,28 +1,28 @@
 {
   "version": "1.0.0",
-  "created_at": "2026-03-28T19:55:33.865888+00:00",
+  "created_at": "2026-03-28T20:06:16.667770+00:00",
   "ontology": {
     "hash": "1c6c09455a58bd30776be248381ae6257989712f4becf64a95be1b279971caba",
-    "timestamp": "2026-03-28T19:55:33.865886+00:00",
+    "timestamp": "2026-03-28T20:06:16.667768+00:00",
     "size_bytes": 30552
   },
   "manifest": {
     "hash": "668b38e28a58f1488f7807ae5121044e6f55c6321e18f742b7578d69dfee5d0c",
-    "timestamp": "2026-03-28T19:55:33.865886+00:00",
+    "timestamp": "2026-03-28T20:06:16.667768+00:00",
     "size_bytes": 17499
   },
   "inference_rules": {
-    "derive-task-handlers": "22a21c68965dd1f5f97f52d5c94b9330e8387e5218343f1524c51a688648e1e2",
+    "derive-flow-metadata": "b768cb9f48888c8315862f27e25fadc8e6696b388c0dea86de1405e78e9efc5b",
     "derive-servlet-routes": "9de1c3e1b9605f2ca26a98ce610553caed3e4845d1e2c644f2d26ad5e871b155",
-    "derive-flow-metadata": "b768cb9f48888c8315862f27e25fadc8e6696b388c0dea86de1405e78e9efc5b"
+    "derive-task-handlers": "22a21c68965dd1f5f97f52d5c94b9330e8387e5218343f1524c51a688648e1e2"
   },
   "imports": {
     "ontology/yawl-vocab.ttl": {
       "hash": "98b20f12a540145335579fdeb5409412ad2fe291de055bfe195006e0c20d388f",
-      "timestamp": "2026-03-28T19:55:33.865886+00:00",
+      "timestamp": "2026-03-28T20:06:16.667768+00:00",
       "size_bytes": 19226
     }
   },
   "files_synced": 148,
-  "sync_duration_ms": 162
+  "sync_duration_ms": 175
 }

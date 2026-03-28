@@ -6,19 +6,19 @@
 # ── Services ──────────────────────────────────────────────────────────────────
 
 ex:UserService a ex:Service ;
-    ex:name        "user_service" ;
+    ex:name        "UserService" ;
     ex:description "Manages user accounts and authentication" ;
     ex:version     "1.0.0" ;
     ex:author      "ggen-examples" .
 
 ex:ProductService a ex:Service ;
-    ex:name        "product_service" ;
+    ex:name        "ProductService" ;
     ex:description "Manages product catalogue and inventory" ;
     ex:version     "1.0.0" ;
     ex:author      "ggen-examples" .
 
 ex:OrderService a ex:Service ;
-    ex:name        "order_service" ;
+    ex:name        "OrderService" ;
     ex:description "Handles order lifecycle and fulfilment" ;
     ex:version     "1.0.0" ;
     ex:author      "ggen-examples" .
