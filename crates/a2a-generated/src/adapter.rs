@@ -9,6 +9,7 @@ use std::collections::HashMap;
 
 /// Adapter trait for protocol integration
 #[async_trait]
+#[allow(clippy::wrong_self_convention)]
 pub trait Adapter: Send + Sync {
     /// Adapter name
     fn name(&self) -> &str;
@@ -242,6 +243,12 @@ impl JsonAdapter {
     }
 }
 
+impl Default for JsonAdapter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[async_trait]
 impl Adapter for JsonAdapter {
     fn name(&self) -> &str {
@@ -286,6 +293,12 @@ pub struct XmlAdapter {
     base: BaseAdapter,
 }
 
+impl Default for XmlAdapter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl XmlAdapter {
     pub fn new() -> Self {
         Self {
@@ -299,10 +312,7 @@ impl XmlAdapter {
     fn xml_to_json(&self, xml: &str) -> Result<serde_json::Value, AdapterError> {
         // This is a simplified implementation
         // In a real implementation, you would use proper XML parsing
-        let content = format!(
-            "{{\"xml_content\": \"{}\"}}",
-            xml.escape_default().to_string()
-        );
+        let content = format!("{{\"xml_content\": \"{}\"}}", xml.escape_default());
         serde_json::from_str(&content).map_err(|e| {
             AdapterError::new(
                 format!("XML to JSON conversion failed: {}", e),
@@ -371,6 +381,12 @@ impl Adapter for XmlAdapter {
 /// Adapter registry for managing multiple adapters
 pub struct AdapterRegistry {
     adapters: HashMap<String, Box<dyn Adapter>>,
+}
+
+impl Default for AdapterRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl AdapterRegistry {

@@ -712,7 +712,7 @@ fn validate_yawl_content(
 
 /// Perform deployment of workflow to gen_yawl
 fn perform_deployment(
-    source_path: &PathBuf, target_dir: &PathBuf,
+    source_path: &PathBuf, target_dir: &std::path::Path,
 ) -> Result<(String, PathBuf), clap_noun_verb::NounVerbError> {
     // Extract workflow name
     let workflow_name = source_path

@@ -100,7 +100,7 @@ impl McpBackendManager {
         tools.extend(Self::core_tools());
 
         if let Some(ref config) = self.mcp_config {
-            for (server_name, _) in &config.mcp_servers {
+            for server_name in config.mcp_servers.keys() {
                 tools.push(McpToolInfo {
                     name: format!("{}:tools", server_name),
                     description: format!("Tools from {} server", server_name),
@@ -717,14 +717,12 @@ fn create_groq_config(
         .unwrap_or_else(|| models::GROQ_DEFAULT.to_string());
 
     // Create LLM config
-    let mut config = LlmConfig::default();
-    config.model = model_name;
-    if let Some(temp) = temperature {
-        config.temperature = Some(temp);
-    }
-    if let Some(tokens) = max_tokens {
-        config.max_tokens = Some(tokens);
-    }
+    let config = LlmConfig {
+        model: model_name,
+        temperature,
+        max_tokens,
+        ..Default::default()
+    };
 
     Ok(config)
 }
@@ -735,7 +733,7 @@ fn groq_generate(
     prompt: String, model: Option<String>, temperature: Option<f32>, max_tokens: Option<u32>,
 ) -> VerbResult<GroqGenerateOutput> {
     let config = create_groq_config(model, temperature, max_tokens)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+        .map_err(clap_noun_verb::NounVerbError::execution_error)?;
 
     let client = GenAiClient::new(config).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Failed to create client: {}", e))
@@ -751,7 +749,7 @@ fn groq_generate(
         })?;
     let duration = start.elapsed();
 
-    let usage = response.usage.unwrap_or_else(|| ggen_ai::UsageStats {
+    let usage = response.usage.unwrap_or(ggen_ai::UsageStats {
         prompt_tokens: 0,
         completion_tokens: 0,
         total_tokens: 0,
@@ -775,7 +773,7 @@ fn groq_chat(
     system: Option<String>,
 ) -> VerbResult<GroqChatOutput> {
     let config = create_groq_config(model, temperature, max_tokens)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+        .map_err(clap_noun_verb::NounVerbError::execution_error)?;
 
     // Build prompt with system message if provided
     let full_prompt = if let Some(ref sys_msg) = system {
@@ -813,7 +811,7 @@ fn groq_chat(
         content: response.content.clone(),
     });
 
-    let usage = response.usage.unwrap_or_else(|| ggen_ai::UsageStats {
+    let usage = response.usage.unwrap_or(ggen_ai::UsageStats {
         prompt_tokens: 0,
         completion_tokens: 0,
         total_tokens: 0,
@@ -834,7 +832,7 @@ fn groq_stream(
     prompt: String, model: Option<String>, temperature: Option<f32>, max_tokens: Option<u32>,
 ) -> VerbResult<Vec<GroqStreamChunk>> {
     let config = create_groq_config(model, temperature, max_tokens)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+        .map_err(clap_noun_verb::NounVerbError::execution_error)?;
 
     let model_name = config.model.clone();
 

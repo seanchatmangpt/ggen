@@ -88,7 +88,7 @@ fn default_mcp_version() -> String {
 }
 
 /// Metadata for MCP configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct McpMetadata {
     /// Project name
     #[serde(default)]
@@ -102,17 +102,6 @@ pub struct McpMetadata {
     /// Configuration creation/update timestamp
     #[serde(default)]
     pub updated_at: Option<String>,
-}
-
-impl Default for McpMetadata {
-    fn default() -> Self {
-        Self {
-            project: None,
-            version: None,
-            purpose: None,
-            updated_at: None,
-        }
-    }
 }
 
 /// Configuration for a single MCP server
@@ -239,7 +228,7 @@ impl McpServerConfig {
 // ============================================================================
 
 /// A2A (Agent-to-Agent) protocol configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct A2aConfig {
     /// A2A server configuration
     #[serde(default)]
@@ -253,17 +242,6 @@ pub struct A2aConfig {
     /// Configuration metadata
     #[serde(default)]
     pub metadata: A2aMetadata,
-}
-
-impl Default for A2aConfig {
-    fn default() -> Self {
-        Self {
-            server: A2aServerConfig::default(),
-            agents: HashMap::new(),
-            workflows: HashMap::new(),
-            metadata: A2aMetadata::default(),
-        }
-    }
 }
 
 /// A2A server configuration
@@ -406,12 +384,12 @@ impl A2aConfig {
         }
 
         // Validate TLS configuration consistency
-        if self.server.tls_enabled {
-            if self.server.tls_cert_path.is_none() || self.server.tls_key_path.is_none() {
-                return Err(A2aValidationError::TlsMisconfigured(
-                    "TLS is enabled but certificate or key path is missing".to_string(),
-                ));
-            }
+        if self.server.tls_enabled
+            && (self.server.tls_cert_path.is_none() || self.server.tls_key_path.is_none())
+        {
+            return Err(A2aValidationError::TlsMisconfigured(
+                "TLS is enabled but certificate or key path is missing".to_string(),
+            ));
         }
 
         Ok(())
@@ -542,7 +520,7 @@ pub fn load_config(
             let config = load_mcp_from_file(&project_mcp_path)?;
             if sources
                 .get("mcp")
-                .map_or(true, |p| *p < ConfigPriority::Project)
+                .is_none_or(|p| *p < ConfigPriority::Project)
             {
                 sources.insert("mcp".to_string(), ConfigPriority::Project);
                 mcp_config = Some(config);
@@ -554,7 +532,7 @@ pub fn load_config(
             let config = load_a2a_from_file(&project_a2a_path)?;
             if sources
                 .get("a2a")
-                .map_or(true, |p| *p < ConfigPriority::Project)
+                .is_none_or(|p| *p < ConfigPriority::Project)
             {
                 sources.insert("a2a".to_string(), ConfigPriority::Project);
                 a2a_config = Some(config);
@@ -567,10 +545,7 @@ pub fn load_config(
     if let Some(ref path) = user_mcp_path {
         if path.exists() {
             let config = load_mcp_from_file(path)?;
-            if sources
-                .get("mcp")
-                .map_or(true, |p| *p < ConfigPriority::User)
-            {
+            if sources.get("mcp").is_none_or(|p| *p < ConfigPriority::User) {
                 sources.insert("mcp".to_string(), ConfigPriority::User);
                 mcp_config = Some(config);
             }
@@ -581,10 +556,7 @@ pub fn load_config(
     if let Some(ref path) = user_a2a_path {
         if path.exists() {
             let config = load_a2a_from_file(path)?;
-            if sources
-                .get("a2a")
-                .map_or(true, |p| *p < ConfigPriority::User)
-            {
+            if sources.get("a2a").is_none_or(|p| *p < ConfigPriority::User) {
                 sources.insert("a2a".to_string(), ConfigPriority::User);
                 a2a_config = Some(config);
             }
@@ -597,7 +569,7 @@ pub fn load_config(
         let config = load_mcp_from_file(&system_mcp_path)?;
         if sources
             .get("mcp")
-            .map_or(true, |p| *p < ConfigPriority::System)
+            .is_none_or(|p| *p < ConfigPriority::System)
         {
             sources.insert("mcp".to_string(), ConfigPriority::System);
             mcp_config = Some(config);
@@ -609,7 +581,7 @@ pub fn load_config(
         let config = load_a2a_from_file(&system_a2a_path)?;
         if sources
             .get("a2a")
-            .map_or(true, |p| *p < ConfigPriority::System)
+            .is_none_or(|p| *p < ConfigPriority::System)
         {
             sources.insert("a2a".to_string(), ConfigPriority::System);
             a2a_config = Some(config);
@@ -639,11 +611,11 @@ pub fn load_config(
 /// Load MCP configuration from a file
 pub fn load_mcp_from_file(path: &Path) -> Result<McpConfigFile, GgenError> {
     let content = fs::read_to_string(path).map_err(|e| {
-        GgenError::invalid_input(&format!("Failed to read MCP config from {:?}: {}", path, e))
+        GgenError::invalid_input(format!("Failed to read MCP config from {:?}: {}", path, e))
     })?;
 
     serde_json::from_str(&content).map_err(|e| {
-        GgenError::invalid_input(&format!(
+        GgenError::invalid_input(format!(
             "Failed to parse MCP config from {:?}: {}\nSuggestion: Check JSON syntax and structure",
             path, e
         ))
@@ -653,11 +625,11 @@ pub fn load_mcp_from_file(path: &Path) -> Result<McpConfigFile, GgenError> {
 /// Load A2A configuration from a file
 pub fn load_a2a_from_file(path: &Path) -> Result<A2aConfig, GgenError> {
     let content = fs::read_to_string(path).map_err(|e| {
-        GgenError::invalid_input(&format!("Failed to read A2A config from {:?}: {}", path, e))
+        GgenError::invalid_input(format!("Failed to read A2A config from {:?}: {}", path, e))
     })?;
 
     toml::from_str(&content).map_err(|e| {
-        GgenError::invalid_input(&format!(
+        GgenError::invalid_input(format!(
             "Failed to parse A2A config from {:?}: {}\nSuggestion: Check TOML syntax",
             path, e
         ))
@@ -834,15 +806,15 @@ pub fn write_mcp_config(path: &Path, config: &McpConfigFile) -> Result<(), GgenE
     // Create parent directory if needed
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(|e| {
-            GgenError::invalid_input(&format!("Failed to create directory {:?}: {}", parent, e))
+            GgenError::invalid_input(format!("Failed to create directory {:?}: {}", parent, e))
         })?;
     }
 
     let content = serde_json::to_string_pretty(config)
-        .map_err(|e| GgenError::invalid_input(&format!("Failed to serialize MCP config: {}", e)))?;
+        .map_err(|e| GgenError::invalid_input(format!("Failed to serialize MCP config: {}", e)))?;
 
     fs::write(path, content).map_err(|e| {
-        GgenError::invalid_input(&format!("Failed to write MCP config to {:?}: {}", path, e))
+        GgenError::invalid_input(format!("Failed to write MCP config to {:?}: {}", path, e))
     })?;
 
     Ok(())
@@ -853,15 +825,15 @@ pub fn write_a2a_config(path: &Path, config: &A2aConfig) -> Result<(), GgenError
     // Create parent directory if needed
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(|e| {
-            GgenError::invalid_input(&format!("Failed to create directory {:?}: {}", parent, e))
+            GgenError::invalid_input(format!("Failed to create directory {:?}: {}", parent, e))
         })?;
     }
 
     let content = toml::to_string_pretty(config)
-        .map_err(|e| GgenError::invalid_input(&format!("Failed to serialize A2A config: {}", e)))?;
+        .map_err(|e| GgenError::invalid_input(format!("Failed to serialize A2A config: {}", e)))?;
 
     fs::write(path, content).map_err(|e| {
-        GgenError::invalid_input(&format!("Failed to write A2A config to {:?}: {}", path, e))
+        GgenError::invalid_input(format!("Failed to write A2A config to {:?}: {}", path, e))
     })?;
 
     Ok(())
@@ -958,13 +930,13 @@ pub fn get_server_status(project_dir: Option<&Path>) -> Result<ServerStatus, Gge
     }
 
     let pid_str = fs::read_to_string(&pid_file).map_err(|e| {
-        GgenError::invalid_input(&format!("Failed to read PID file {:?}: {}", pid_file, e))
+        GgenError::invalid_input(format!("Failed to read PID file {:?}: {}", pid_file, e))
     })?;
 
     let pid: u32 = pid_str
         .trim()
         .parse()
-        .map_err(|_| GgenError::invalid_input(&format!("Invalid PID in file: {}", pid_str)))?;
+        .map_err(|_| GgenError::invalid_input(format!("Invalid PID in file: {}", pid_str)))?;
 
     // Check if process is running
     let is_running = is_process_running(pid);
@@ -1033,9 +1005,9 @@ fn is_process_running(pid: u32) -> bool {
 fn get_process_uptime(pid: u32) -> Result<u64, GgenError> {
     use std::process::Command;
     let output = Command::new("ps")
-        .args(&["-o", "etime=", "-p", &pid.to_string()])
+        .args(["-o", "etime=", "-p", &pid.to_string()])
         .output()
-        .map_err(|e| GgenError::invalid_input(&format!("Failed to query process: {}", e)))?;
+        .map_err(|e| GgenError::invalid_input(format!("Failed to query process: {}", e)))?;
 
     let elapsed = String::from_utf8_lossy(&output.stdout).trim().to_string();
 
@@ -1102,13 +1074,13 @@ fn terminate_process(pid: u32, force: bool) -> Result<(), GgenError> {
     let signal = if force { "9" } else { "15" }; // SIGKILL or SIGTERM
 
     let output = Command::new("kill")
-        .arg(&format!("-{}", signal))
+        .arg(format!("-{}", signal))
         .arg(pid.to_string())
         .output()
-        .map_err(|e| GgenError::invalid_input(&format!("Failed to terminate process: {}", e)))?;
+        .map_err(|e| GgenError::invalid_input(format!("Failed to terminate process: {}", e)))?;
 
     if !output.status.success() {
-        return Err(GgenError::invalid_input(&format!(
+        return Err(GgenError::invalid_input(format!(
             "Failed to stop process {}: {}",
             pid,
             String::from_utf8_lossy(&output.stderr)
@@ -1144,12 +1116,12 @@ pub fn write_pid_file(project_dir: Option<&Path>, pid: u32) -> Result<(), GgenEr
 
     if let Some(parent) = pid_file.parent() {
         fs::create_dir_all(parent).map_err(|e| {
-            GgenError::invalid_input(&format!("Failed to create directory {:?}: {}", parent, e))
+            GgenError::invalid_input(format!("Failed to create directory {:?}: {}", parent, e))
         })?;
     }
 
     fs::write(&pid_file, pid.to_string()).map_err(|e| {
-        GgenError::invalid_input(&format!("Failed to write PID file {:?}: {}", pid_file, e))
+        GgenError::invalid_input(format!("Failed to write PID file {:?}: {}", pid_file, e))
     })?;
 
     Ok(())

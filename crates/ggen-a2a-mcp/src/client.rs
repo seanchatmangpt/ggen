@@ -169,6 +169,7 @@ pub struct A2aLlmClient {
 }
 
 /// Context for tracking task execution
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 struct TaskContext {
     task_id: String,
@@ -177,8 +178,9 @@ struct TaskContext {
     retry_count: usize,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq)]
-enum TaskStatus {
+pub enum TaskStatus {
     Pending,
     Running,
     Completed,
@@ -666,8 +668,7 @@ impl A2aLlmClient {
                     parameters: capability
                         .requirements
                         .as_ref()
-                        .map(|r| serde_json::to_value(r).ok())
-                        .flatten(),
+                        .and_then(|r| serde_json::to_value(r).ok()),
                 });
             }
         }

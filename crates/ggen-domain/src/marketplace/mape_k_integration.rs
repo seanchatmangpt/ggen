@@ -198,8 +198,6 @@ impl AutonomicMarketplace {
 
         let status = if anomaly_count > 5 {
             AutonomicStatus::Degraded
-        } else if anomaly_count > 0 {
-            AutonomicStatus::Healthy
         } else {
             AutonomicStatus::Healthy
         };

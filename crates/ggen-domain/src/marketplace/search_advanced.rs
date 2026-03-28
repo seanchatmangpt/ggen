@@ -36,7 +36,7 @@ pub struct AdvancedSearchQuery {
 }
 
 /// Sort field options for search results
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
 pub enum SortField {
     /// Sort by quality score (highest first)
     Score,
@@ -47,13 +47,8 @@ pub enum SortField {
     /// Sort by download count (most first)
     Downloads,
     /// Sort by relevance (best match first)
+    #[default]
     Relevance,
-}
-
-impl Default for SortField {
-    fn default() -> Self {
-        SortField::Relevance
-    }
 }
 
 impl Default for AdvancedSearchQuery {
@@ -241,10 +236,8 @@ impl SearchEngine {
         }
 
         // Categories filter (if specified, must match at least one)
-        if !query.categories.is_empty() {
-            if !query.categories.contains(&pkg.category) {
-                return false;
-            }
+        if !query.categories.is_empty() && !query.categories.contains(&pkg.category) {
+            return false;
         }
 
         // Tags filter (if specified, must match at least one)

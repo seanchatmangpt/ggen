@@ -895,10 +895,8 @@ pub async fn search_packages(query: &str, filters: &SearchFilters) -> Result<Vec
             }
 
             // 8020 Innovation: Filter by 8020 certification
-            if filters.only_8020 {
-                if !pkg.is_8020_certified {
-                    return None;
-                }
+            if filters.only_8020 && !pkg.is_8020_certified {
+                return None;
             }
 
             // 8020 Innovation: Filter by sector

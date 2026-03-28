@@ -111,6 +111,7 @@ pub struct ReadinessChecker;
 
 impl ReadinessChecker {
     /// Perform complete readiness assessment
+    #[allow(clippy::vec_init_then_push)]
     pub fn assess_readiness() -> ReadinessAssessment {
         let mut checks = Vec::new();
 
@@ -243,16 +244,17 @@ impl ReadinessChecker {
 
         let overall_score = (passed as f64 / total as f64) * 100.0 - (warnings as f64 * 5.0);
 
-        let mut next_steps = Vec::new();
-        next_steps.push("Enable TLS for registry endpoints".to_string());
-        next_steps.push("Implement automated backup strategy".to_string());
-        next_steps.push("Setup production monitoring dashboard".to_string());
-        next_steps.push("Define SLOs for marketplace operations".to_string());
-        next_steps.push("Conduct security audit and penetration testing".to_string());
+        let next_steps = vec![
+            "Enable TLS for registry endpoints".to_string(),
+            "Implement automated backup strategy".to_string(),
+            "Setup production monitoring dashboard".to_string(),
+            "Define SLOs for marketplace operations".to_string(),
+            "Conduct security audit and penetration testing".to_string(),
+        ];
 
         ReadinessAssessment {
             checks,
-            overall_score: overall_score.max(0.0).min(100.0),
+            overall_score: overall_score.clamp(0.0, 100.0),
             critical_count: critical,
             warning_count: warnings,
             assessed_at: chrono::Utc::now().to_rfc3339(),
@@ -261,6 +263,7 @@ impl ReadinessChecker {
     }
 
     /// Generate deployment guide for production
+    #[allow(clippy::vec_init_then_push)]
     pub fn generate_deployment_guide(environment: &str) -> DeploymentGuide {
         let mut steps = Vec::new();
 

@@ -191,6 +191,12 @@ pub struct MessageBroker {
     handlers: HashMap<String, Box<dyn MessageHandler>>,
 }
 
+impl Default for MessageBroker {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MessageBroker {
     pub fn new() -> Self {
         Self {

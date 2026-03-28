@@ -200,7 +200,7 @@ impl TaskMapper {
 
         let data = match &message.payload.content {
             UnifiedContent::Data { data, schema } => {
-                if schema.as_ref().map_or(false, |s| s != "YawlTask") {
+                if schema.as_ref().is_some_and(|s| s != "YawlTask") {
                     return Err(A2aMcpError::Translation(
                         "Message payload is not a YawlTask schema".to_string(),
                     ));

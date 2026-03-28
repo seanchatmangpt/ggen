@@ -236,7 +236,7 @@ pub async fn execute_update(input: UpdateInput) -> Result<UpdateOutput> {
 
     for pkg_name in &packages_to_update {
         // Create package ID with proper error handling
-        let _package_id = match PackageId::new(&format!("local/{}", pkg_name)) {
+        let _package_id = match PackageId::new(format!("local/{}", pkg_name)) {
             Ok(id) => id,
             Err(_) => {
                 ggen_utils::alert_warning!("Invalid package ID for: {}", pkg_name);

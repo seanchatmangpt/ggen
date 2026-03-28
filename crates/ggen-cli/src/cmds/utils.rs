@@ -59,9 +59,9 @@ fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput>
     };
 
     let result = crate::runtime::block_on(async move {
-        Ok(execute_doctor(input).await.map_err(|e| {
+        execute_doctor(input).await.map_err(|e| {
             ggen_utils::error::Error::new(&format!("System diagnostics failed: {}", e))
-        })?)
+        })
     })
     .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
     .map_err(|e: ggen_utils::Error| {

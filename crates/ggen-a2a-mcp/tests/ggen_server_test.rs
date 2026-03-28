@@ -11,7 +11,7 @@
 //! AAA: Arrange / Act / Assert
 
 use ggen_a2a_mcp::ggen_server::GgenMcpServer;
-use rmcp::{ClientHandler, RoleClient, ServiceExt, model::*, service::RunningService};
+use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
 
 // ---------------------------------------------------------------------------
 // Minimal no-op client handler required by rmcp to negotiate the connection.
@@ -39,9 +39,7 @@ async fn start_server() -> anyhow::Result<RunningService<RoleClient, TestClientH
         let _ = server.serve(server_transport).await;
     });
 
-    let client = TestClientHandler::default()
-        .serve(client_transport)
-        .await?;
+    let client = TestClientHandler::default().serve(client_transport).await?;
     Ok(client)
 }
 

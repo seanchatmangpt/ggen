@@ -451,6 +451,12 @@ pub struct PortRegistry {
     ports: HashMap<String, Box<dyn Port>>,
 }
 
+impl Default for PortRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PortRegistry {
     pub fn new() -> Self {
         Self {

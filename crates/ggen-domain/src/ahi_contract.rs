@@ -123,6 +123,7 @@ pub trait AHIDecisionCycle: Send + Sync + Debug {
     type Justification: Debug + Clone + Send + Sync;
 
     /// Execute one full MAPE-K + governance cycle
+    #[allow(clippy::type_complexity)]
     fn cycle(
         &self,
         input: AHIInput<
@@ -142,6 +143,7 @@ pub trait AHIDecisionCycle: Send + Sync + Debug {
     ) -> Result<Self::Justification, AHIError>;
 
     /// Validate that output preserves invariants
+    #[allow(clippy::type_complexity)]
     fn validate_invariants(
         &self,
         input: &AHIInput<

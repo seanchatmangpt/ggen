@@ -145,7 +145,7 @@ impl AutoPromotionPipeline {
                 self.decisions.push(decision.clone());
                 self.decision_history
                     .entry(format!("{}-{}", package_name, package_version))
-                    .or_insert_with(Vec::new)
+                    .or_default()
                     .push(decision.clone());
 
                 Ok(Some(decision))

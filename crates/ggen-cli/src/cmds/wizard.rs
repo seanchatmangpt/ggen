@@ -70,6 +70,7 @@ pub enum WizardProfile {
 
 impl WizardProfile {
     /// Parse profile from string
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str(s: &str) -> Result<Self, String> {
         match s {
             "receipts-first" => Ok(Self::ReceiptsFirst),

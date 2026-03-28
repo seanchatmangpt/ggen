@@ -19,9 +19,9 @@ pub use handler::{HandlerContext, HandlerError, HandlerPriority, HandlerResult, 
 
 pub mod handler {
     use a2a_generated::converged::message::ConvergedMessage;
-    use async_trait::async_trait;
+
     use chrono::Utc;
-    use serde::{Deserialize, Serialize};
+
     use std::collections::HashMap;
 
     /// Result type for message handlers
@@ -1095,6 +1095,7 @@ mod tests {
 }
 
 // Helper extension for UnifiedContent
+#[allow(dead_code)]
 trait UnifiedContentExt {
     fn as_text(&self) -> Option<&str>;
 }

@@ -177,8 +177,10 @@ pub fn generate_validation_report(marketplace_root: &Path) -> Result<ValidationR
         return Ok(ValidationReport::default());
     }
 
-    let mut report = ValidationReport::default();
-    report.generated_at = Utc::now().to_rfc3339();
+    let mut report = ValidationReport {
+        generated_at: Utc::now().to_rfc3339(),
+        ..Default::default()
+    };
 
     // Collect all receipts
     let mut all_scores = Vec::new();
