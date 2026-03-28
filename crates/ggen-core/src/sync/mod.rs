@@ -468,12 +468,12 @@ fn generate_go(bindings: &[QueryRow]) -> Result<Vec<(PathBuf, String)>, SyncErro
     if service_groups.is_empty() {
         // No service bindings — produce a single placeholder file
         let source = GoCodeGenerator::generate_service_struct("GeneratedService", &[])
-            .map_err(|e| SyncError::Codegen(e))?;
+            .map_err(SyncError::Codegen)?;
         outputs.push((PathBuf::from("generated_service.go"), source));
     } else {
-        for (service_name, _rows) in &service_groups {
+        for service_name in service_groups.keys() {
             let source = GoCodeGenerator::generate_service_struct(service_name, &[])
-                .map_err(|e| SyncError::Codegen(e))?;
+                .map_err(SyncError::Codegen)?;
 
             let file_name = format!("{}.go", service_name.to_ascii_lowercase().replace(' ', "_"));
             outputs.push((PathBuf::from(file_name), source));

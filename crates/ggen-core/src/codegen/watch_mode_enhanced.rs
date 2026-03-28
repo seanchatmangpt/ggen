@@ -195,11 +195,12 @@ impl EnhancedWatchMode {
             WatchEventKind::Renamed => "renamed".blue(),
         };
 
+        let msg = format!("Detected change in {}", display_path.display());
         eprintln!(
-            "{} {} {}",
+            "{} {} ({})",
             "🔄".cyan(),
-            format!("Detected change in {}", display_path.display()).bright_white(),
-            format!("({})", event_kind_str)
+            msg.bright_white(),
+            event_kind_str
         );
     }
 
