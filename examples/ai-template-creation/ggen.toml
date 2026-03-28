@@ -33,6 +33,9 @@ WHERE {
 }
 """
 
+[generation]
+output_dir = "."
+
 # Generation rules
 [[generation.rules]]
 name = "generate-ai-workflow-guide"

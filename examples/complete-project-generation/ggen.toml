@@ -11,6 +11,9 @@ ws = "https://ggen.io/ontology/workspace#"
 rdfs = "http://www.w3.org/2000/01/rdf-schema#"
 xsd = "http://www.w3.org/2001/XMLSchema#"
 
+[generation]
+output_dir = "."
+
 [[generation.rules]]
 name = "generate-workspace-toml"
 query = { inline = """

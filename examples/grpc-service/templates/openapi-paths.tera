@@ -14,7 +14,7 @@
 {%- set statusCode = row["statusCode"] | default(value="200") -%}
 
 {%- if path != current_path -%}
-{%- set_global current_path = path %}
+{%- set current_path = path %}
 
   {{ path }}:
 {%- endif %}

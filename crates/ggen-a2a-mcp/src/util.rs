@@ -27,7 +27,10 @@ pub fn extract_tool_name(method: &str) -> Option<String> {
 /// Extracts agent URL from a method string
 /// For example: "https://example.com/agent:toolName" -> "https://example.com/agent"
 pub fn extract_agent_url(method: &str) -> Option<String> {
-    method.rfind(':').map(|pos| method[..pos].to_string()).or_else(|| Some(method.to_string()))
+    method
+        .rfind(':')
+        .map(|pos| method[..pos].to_string())
+        .or_else(|| Some(method.to_string()))
 }
 
 /// Normalizes a task ID to ensure it's valid

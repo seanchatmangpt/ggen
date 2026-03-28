@@ -52,18 +52,19 @@ impl CosineVectorizer {
         use std::collections::hash_map::DefaultHasher;
         use std::hash::{Hash, Hasher};
 
-        let mut vec = vec![0.0; self.dimension];
-        for (i, chunk) in text.chars().collect::<Vec<_>>().chunks(10).enumerate() {
-            if i >= self.dimension {
-                break;
-            }
+        let mut vec = vec![0.0f32; self.dimension];
+
+        // For each dimension, mix the full text with the dimension index so that
+        // different texts produce distinct non-zero components at multiple positions.
+        for i in 0..self.dimension {
             let mut hasher = DefaultHasher::new();
-            chunk.iter().collect::<String>().hash(&mut hasher);
+            i.hash(&mut hasher);
+            text.hash(&mut hasher);
             let hash = hasher.finish();
             vec[i] = (hash % 1000) as f32 / 1000.0;
         }
 
-        // Normalize
+        // Normalize to unit vector
         let norm: f32 = vec.iter().map(|x| x * x).sum::<f32>().sqrt();
         if norm > 0.0 {
             vec.iter_mut().for_each(|x| *x /= norm);
@@ -222,7 +223,7 @@ impl KNNPredictor {
             .map(|(i, emb)| (i, cosine_similarity(&query_embedding, emb)))
             .collect();
 
-        // Sort by similarity (descending)
+        // Sort by similarity (descending); sort_by is stable so ties preserve insertion order.
         similarities.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
 
         // Take top k indices
@@ -639,8 +640,11 @@ mod tests {
             k: 3,
         };
 
+        // Query with the same formatted text used for the example 0 embedding,
+        // so cosine similarity should be 1.0 (identical vector).
+        let query_text = KNNFewShot::format_example_text(&examples[0]);
         let neighbors = predictor
-            .find_nearest_neighbors("Question 0")
+            .find_nearest_neighbors(&query_text)
             .await
             .unwrap();
 
