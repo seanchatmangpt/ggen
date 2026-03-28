@@ -1,6 +1,5 @@
 pub mod a2a;
 pub mod error;
-pub mod mcp;
 pub mod origin;
 pub mod session;
 pub mod streaming;
@@ -91,16 +90,6 @@ impl TransportBuilder {
         self
     }
 
-    pub fn build_mcp(self) -> mcp::McpTransport {
-        let session_manager = SessionManager::new(self.config.session_ttl_seconds);
-        let origin_validator = if self.config.allowed_origins.is_empty() {
-            OriginValidator::allow_all()
-        } else {
-            OriginValidator::new(self.config.allowed_origins)
-        };
-        mcp::McpTransport::new(session_manager, origin_validator)
-    }
-
     pub fn build_a2a(self, agent_id: String) -> a2a::A2aTransport {
         let session_manager = SessionManager::new(self.config.session_ttl_seconds);
         let origin_validator = if self.config.allowed_origins.is_empty() {
@@ -140,12 +129,6 @@ mod tests {
         assert_eq!(builder.config.session_ttl_seconds, 7200);
         assert_eq!(builder.config.stream_buffer_size, 200);
         assert!(builder.config.enable_compression);
-    }
-
-    #[test]
-    fn test_mcp_transport_creation() {
-        let builder = TransportBuilder::new();
-        let _transport = builder.build_mcp();
     }
 
     #[test]
