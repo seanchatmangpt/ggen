@@ -1,0 +1,151 @@
+# =============================================================================
+# Database Schema Vocabulary
+# Defines classes and properties for describing relational database schemas
+# =============================================================================
+
+@prefix schema: <https://ggen.io/ontology/db#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Core Classes
+# =============================================================================
+
+schema:Database a rdfs:Class ;
+    rdfs:label "Database" ;
+    rdfs:comment "A relational database instance" .
+
+schema:Table a rdfs:Class ;
+    rdfs:label "Table" ;
+    rdfs:comment "A database table" .
+
+schema:Column a rdfs:Class ;
+    rdfs:label "Column" ;
+    rdfs:comment "A column within a table" .
+
+schema:Index a rdfs:Class ;
+    rdfs:label "Index" ;
+    rdfs:comment "A database index on one or more columns" .
+
+# =============================================================================
+# Database Properties
+# =============================================================================
+
+schema:name a rdf:Property ;
+    rdfs:domain schema:Database ;
+    rdfs:range xsd:string ;
+    rdfs:label "name" .
+
+schema:description a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "description" .
+
+schema:version a rdf:Property ;
+    rdfs:domain schema:Database ;
+    rdfs:range xsd:string ;
+    rdfs:label "version" .
+
+schema:dialect a rdf:Property ;
+    rdfs:domain schema:Database ;
+    rdfs:range xsd:string ;
+    rdfs:label "dialect" ;
+    rdfs:comment "SQL dialect: postgresql, mysql, sqlite" .
+
+# =============================================================================
+# Table Properties
+# =============================================================================
+
+schema:tableName a rdf:Property ;
+    rdfs:domain schema:Table ;
+    rdfs:range xsd:string ;
+    rdfs:label "tableName" .
+
+schema:hasColumn a rdf:Property ;
+    rdfs:domain schema:Table ;
+    rdfs:range schema:Column ;
+    rdfs:label "hasColumn" .
+
+schema:hasIndex a rdf:Property ;
+    rdfs:domain schema:Table ;
+    rdfs:range schema:Index ;
+    rdfs:label "hasIndex" .
+
+# =============================================================================
+# Column Properties
+# =============================================================================
+
+schema:columnName a rdf:Property ;
+    rdfs:domain schema:Column ;
+    rdfs:range xsd:string ;
+    rdfs:label "columnName" .
+
+schema:dataType a rdf:Property ;
+    rdfs:domain schema:Column ;
+    rdfs:range xsd:string ;
+    rdfs:label "dataType" ;
+    rdfs:comment "SQL data type: varchar, integer, uuid, text, numeric, timestamp, boolean" .
+
+schema:length a rdf:Property ;
+    rdfs:domain schema:Column ;
+    rdfs:range xsd:integer ;
+    rdfs:label "length" .
+
+schema:precision a rdf:Property ;
+    rdfs:domain schema:Column ;
+    rdfs:range xsd:integer ;
+    rdfs:label "precision" .
+
+schema:scale a rdf:Property ;
+    rdfs:domain schema:Column ;
+    rdfs:range xsd:integer ;
+    rdfs:label "scale" .
+
+schema:nullable a rdf:Property ;
+    rdfs:domain schema:Column ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "nullable" .
+
+schema:primaryKey a rdf:Property ;
+    rdfs:domain schema:Column ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "primaryKey" .
+
+schema:unique a rdf:Property ;
+    rdfs:domain schema:Column ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "unique" .
+
+schema:foreignKey a rdf:Property ;
+    rdfs:domain schema:Column ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "foreignKey" .
+
+schema:referencesTable a rdf:Property ;
+    rdfs:domain schema:Column ;
+    rdfs:range xsd:string ;
+    rdfs:label "referencesTable" .
+
+schema:referencesColumn a rdf:Property ;
+    rdfs:domain schema:Column ;
+    rdfs:range xsd:string ;
+    rdfs:label "referencesColumn" .
+
+schema:defaultValue a rdf:Property ;
+    rdfs:domain schema:Column ;
+    rdfs:range xsd:string ;
+    rdfs:label "defaultValue" .
+
+# =============================================================================
+# Index Properties
+# =============================================================================
+
+schema:indexName a rdf:Property ;
+    rdfs:domain schema:Index ;
+    rdfs:range xsd:string ;
+    rdfs:label "indexName" .
+
+schema:indexColumn a rdf:Property ;
+    rdfs:domain schema:Index ;
+    rdfs:range xsd:string ;
+    rdfs:label "indexColumn" .

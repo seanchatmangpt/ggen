@@ -1,0 +1,19 @@
+
+"""
+Input for creating a new post
+"""
+input CreatePostInput {
+  body: String!
+  tags: [String]
+  title: String!
+}
+
+"""
+Input for creating a new user
+"""
+input CreateUserInput {
+  displayName: String
+  email: String!
+  password: String!
+  username: String!
+}

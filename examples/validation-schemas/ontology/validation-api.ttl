@@ -1,0 +1,316 @@
+# =============================================================================
+# Validation Schemas Ontology Instance
+# Defines data models with rich validation constraints
+# Source of truth for generating JSON Schema, Zod, and validation code
+# =============================================================================
+
+@prefix valid: <https://ggen.io/examples/validation#> .
+@prefix api: <https://ggen.io/ontology/api#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# API Specification
+# =============================================================================
+
+valid:ValidationAPI a api:Specification ;
+    api:title "Validation Schemas API" ;
+    api:description "API showcasing rich validation constraints: regex, min/max, format, enum" ;
+    api:version "1.0.0" ;
+    api:server valid:LocalServer .
+
+valid:LocalServer a api:Server ;
+    api:url "http://localhost:8080"^^xsd:anyURI ;
+    api:description "Local validation service" .
+
+# =============================================================================
+# UserProfile Entity - with comprehensive string validation
+# =============================================================================
+
+valid:UserProfile a api:Entity ;
+    api:name "UserProfile" ;
+    rdfs:comment "User profile with strict validation constraints" ;
+    api:hasProperty valid:UserProfile_id ;
+    api:hasProperty valid:UserProfile_username ;
+    api:hasProperty valid:UserProfile_email ;
+    api:hasProperty valid:UserProfile_phone ;
+    api:hasProperty valid:UserProfile_age ;
+    api:hasProperty valid:UserProfile_website ;
+    api:hasProperty valid:UserProfile_bio ;
+    api:hasEndpoint valid:UserProfile_list ;
+    api:hasEndpoint valid:UserProfile_create ;
+    api:hasEndpoint valid:UserProfile_get ;
+    api:hasEndpoint valid:UserProfile_update ;
+    api:hasEndpoint valid:UserProfile_delete ;
+    api:hasRequestType valid:CreateUserProfileRequest ;
+    api:hasRequestType valid:UpdateUserProfileRequest .
+
+valid:UserProfile_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required true ;
+    api:format "uuid" ;
+    rdfs:comment "UUID identifier" .
+
+valid:UserProfile_username a api:Property ;
+    api:name "username" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 3 ;
+    api:maxLength 30 ;
+    api:pattern "^[a-z0-9_-]+$" ;
+    rdfs:comment "Lowercase alphanumeric username (3-30 chars)" .
+
+valid:UserProfile_email a api:Property ;
+    api:name "email" ;
+    api:type "string" ;
+    api:required true ;
+    api:format "email" ;
+    rdfs:comment "Valid email address" ;
+    api:example "user@example.com" .
+
+valid:UserProfile_phone a api:Property ;
+    api:name "phone" ;
+    api:type "string" ;
+    api:required false ;
+    api:pattern "^\\+[1-9]\\d{1,14}$" ;
+    rdfs:comment "E.164 international phone number" .
+
+valid:UserProfile_age a api:Property ;
+    api:name "age" ;
+    api:type "integer" ;
+    api:required false ;
+    api:min 0 ;
+    api:max 150 ;
+    rdfs:comment "User age (0-150)" .
+
+valid:UserProfile_website a api:Property ;
+    api:name "website" ;
+    api:type "string" ;
+    api:required false ;
+    api:format "uri" ;
+    rdfs:comment "Personal website URL" .
+
+valid:UserProfile_bio a api:Property ;
+    api:name "bio" ;
+    api:type "string" ;
+    api:required false ;
+    api:maxLength 500 ;
+    rdfs:comment "Short biography (max 500 chars)" .
+
+# Endpoints
+valid:UserProfile_list a api:Endpoint ;
+    api:path "/profiles" ;
+    api:method "GET" ;
+    api:operationId "listProfiles" ;
+    api:summary "List all user profiles" ;
+    api:responseSchema "UserProfile[]" ;
+    api:statusCode 200 .
+
+valid:UserProfile_create a api:Endpoint ;
+    api:path "/profiles" ;
+    api:method "POST" ;
+    api:operationId "createProfile" ;
+    api:summary "Create a new profile" ;
+    api:requestSchema "CreateUserProfileRequest" ;
+    api:responseSchema "UserProfile" ;
+    api:statusCode 201 .
+
+valid:UserProfile_get a api:Endpoint ;
+    api:path "/profiles/{id}" ;
+    api:method "GET" ;
+    api:operationId "getProfile" ;
+    api:summary "Get profile by ID" ;
+    api:responseSchema "UserProfile" ;
+    api:statusCode 200 .
+
+valid:UserProfile_update a api:Endpoint ;
+    api:path "/profiles/{id}" ;
+    api:method "PUT" ;
+    api:operationId "updateProfile" ;
+    api:summary "Update a profile" ;
+    api:requestSchema "UpdateUserProfileRequest" ;
+    api:responseSchema "UserProfile" ;
+    api:statusCode 200 .
+
+valid:UserProfile_delete a api:Endpoint ;
+    api:path "/profiles/{id}" ;
+    api:method "DELETE" ;
+    api:operationId "deleteProfile" ;
+    api:summary "Delete a profile" ;
+    api:statusCode 204 .
+
+# Request types
+valid:CreateUserProfileRequest a api:RequestType ;
+    api:operationType "create" ;
+    api:hasProperty valid:CreateProfile_username ;
+    api:hasProperty valid:CreateProfile_email ;
+    api:hasProperty valid:CreateProfile_phone ;
+    api:hasProperty valid:CreateProfile_bio .
+
+valid:CreateProfile_username a api:Property ;
+    api:name "username" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 3 ;
+    api:maxLength 30 ;
+    api:pattern "^[a-z0-9_-]+$" .
+
+valid:CreateProfile_email a api:Property ;
+    api:name "email" ;
+    api:type "string" ;
+    api:required true ;
+    api:format "email" .
+
+valid:CreateProfile_phone a api:Property ;
+    api:name "phone" ;
+    api:type "string" ;
+    api:required false ;
+    api:pattern "^\\+[1-9]\\d{1,14}$" .
+
+valid:CreateProfile_bio a api:Property ;
+    api:name "bio" ;
+    api:type "string" ;
+    api:required false ;
+    api:maxLength 500 .
+
+valid:UpdateUserProfileRequest a api:RequestType ;
+    api:operationType "update" ;
+    api:hasProperty valid:UpdateProfile_username ;
+    api:hasProperty valid:UpdateProfile_email ;
+    api:hasProperty valid:UpdateProfile_bio .
+
+valid:UpdateProfile_username a api:Property ;
+    api:name "username" ;
+    api:type "string" ;
+    api:required false ;
+    api:minLength 3 ;
+    api:maxLength 30 ;
+    api:pattern "^[a-z0-9_-]+$" .
+
+valid:UpdateProfile_email a api:Property ;
+    api:name "email" ;
+    api:type "string" ;
+    api:required false ;
+    api:format "email" .
+
+valid:UpdateProfile_bio a api:Property ;
+    api:name "bio" ;
+    api:type "string" ;
+    api:required false ;
+    api:maxLength 500 .
+
+# =============================================================================
+# Product Entity - with numeric validation
+# =============================================================================
+
+valid:Product a api:Entity ;
+    api:name "Product" ;
+    rdfs:comment "Product with price, stock, and SKU validation" ;
+    api:hasProperty valid:Product_id ;
+    api:hasProperty valid:Product_sku ;
+    api:hasProperty valid:Product_name ;
+    api:hasProperty valid:Product_price ;
+    api:hasProperty valid:Product_stock ;
+    api:hasEndpoint valid:Product_list ;
+    api:hasEndpoint valid:Product_create ;
+    api:hasEndpoint valid:Product_get ;
+    api:hasRequestType valid:CreateProductRequest .
+
+valid:Product_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required true ;
+    api:format "uuid" ;
+    rdfs:comment "Unique product identifier" .
+
+valid:Product_sku a api:Property ;
+    api:name "sku" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 3 ;
+    api:maxLength 20 ;
+    api:pattern "^[A-Z0-9-]+$" ;
+    rdfs:comment "Product SKU (uppercase alphanumeric with dashes)" .
+
+valid:Product_name a api:Property ;
+    api:name "name" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    api:maxLength 200 ;
+    rdfs:comment "Product display name" .
+
+valid:Product_price a api:Property ;
+    api:name "price" ;
+    api:type "number" ;
+    api:required true ;
+    api:min 0 ;
+    rdfs:comment "Product price (non-negative)" .
+
+valid:Product_stock a api:Property ;
+    api:name "stock" ;
+    api:type "integer" ;
+    api:required true ;
+    api:min 0 ;
+    rdfs:comment "Stock quantity (non-negative integer)" .
+
+valid:Product_list a api:Endpoint ;
+    api:path "/products" ;
+    api:method "GET" ;
+    api:operationId "listProducts" ;
+    api:summary "List all products" ;
+    api:responseSchema "Product[]" ;
+    api:statusCode 200 .
+
+valid:Product_create a api:Endpoint ;
+    api:path "/products" ;
+    api:method "POST" ;
+    api:operationId "createProduct" ;
+    api:summary "Create a product" ;
+    api:requestSchema "CreateProductRequest" ;
+    api:responseSchema "Product" ;
+    api:statusCode 201 .
+
+valid:Product_get a api:Endpoint ;
+    api:path "/products/{id}" ;
+    api:method "GET" ;
+    api:operationId "getProduct" ;
+    api:summary "Get a product by ID" ;
+    api:responseSchema "Product" ;
+    api:statusCode 200 .
+
+valid:CreateProductRequest a api:RequestType ;
+    api:operationType "create" ;
+    api:hasProperty valid:CreateProduct_sku ;
+    api:hasProperty valid:CreateProduct_name ;
+    api:hasProperty valid:CreateProduct_price ;
+    api:hasProperty valid:CreateProduct_stock .
+
+valid:CreateProduct_sku a api:Property ;
+    api:name "sku" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 3 ;
+    api:maxLength 20 ;
+    api:pattern "^[A-Z0-9-]+$" .
+
+valid:CreateProduct_name a api:Property ;
+    api:name "name" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    api:maxLength 200 .
+
+valid:CreateProduct_price a api:Property ;
+    api:name "price" ;
+    api:type "number" ;
+    api:required true ;
+    api:min 0 .
+
+valid:CreateProduct_stock a api:Property ;
+    api:name "stock" ;
+    api:type "integer" ;
+    api:required true ;
+    api:min 0 .

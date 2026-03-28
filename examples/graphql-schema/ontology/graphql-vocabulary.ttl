@@ -1,0 +1,113 @@
+# =============================================================================
+# GraphQL Schema Vocabulary
+# Defines classes and properties for describing GraphQL schemas
+# =============================================================================
+
+@prefix g: <https://ggen.io/ontology/graphql#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Core Classes
+# =============================================================================
+
+g:Schema a rdfs:Class ;
+    rdfs:label "Schema" ;
+    rdfs:comment "A GraphQL schema definition" .
+
+g:ObjectType a rdfs:Class ;
+    rdfs:label "ObjectType" ;
+    rdfs:comment "A GraphQL object type (type Foo { ... })" .
+
+g:InputType a rdfs:Class ;
+    rdfs:label "InputType" ;
+    rdfs:comment "A GraphQL input type (input FooInput { ... })" .
+
+g:Field a rdfs:Class ;
+    rdfs:label "Field" ;
+    rdfs:comment "A field within an object or input type" .
+
+g:Argument a rdfs:Class ;
+    rdfs:label "Argument" ;
+    rdfs:comment "An argument on a field" .
+
+# =============================================================================
+# Schema Properties
+# =============================================================================
+
+g:name a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "name" .
+
+g:description a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "description" .
+
+g:version a rdf:Property ;
+    rdfs:domain g:Schema ;
+    rdfs:range xsd:string ;
+    rdfs:label "version" .
+
+# =============================================================================
+# Type Properties
+# =============================================================================
+
+g:typeName a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "typeName" .
+
+g:hasField a rdf:Property ;
+    rdfs:range g:Field ;
+    rdfs:label "hasField" .
+
+# =============================================================================
+# Field Properties
+# =============================================================================
+
+g:fieldName a rdf:Property ;
+    rdfs:domain g:Field ;
+    rdfs:range xsd:string ;
+    rdfs:label "fieldName" .
+
+g:fieldType a rdf:Property ;
+    rdfs:domain g:Field ;
+    rdfs:range xsd:string ;
+    rdfs:label "fieldType" ;
+    rdfs:comment "GraphQL scalar or type name: String, Int, Float, Boolean, ID, or custom type" .
+
+g:nonNull a rdf:Property ;
+    rdfs:domain g:Field ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "nonNull" ;
+    rdfs:comment "Whether the field is non-null (!)" .
+
+g:isList a rdf:Property ;
+    rdfs:domain g:Field ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isList" ;
+    rdfs:comment "Whether the field is a list type ([Type])" .
+
+g:hasArg a rdf:Property ;
+    rdfs:domain g:Field ;
+    rdfs:range g:Argument ;
+    rdfs:label "hasArg" .
+
+# =============================================================================
+# Argument Properties
+# =============================================================================
+
+g:argName a rdf:Property ;
+    rdfs:domain g:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "argName" .
+
+g:argType a rdf:Property ;
+    rdfs:domain g:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "argType" .
+
+g:argNonNull a rdf:Property ;
+    rdfs:domain g:Argument ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "argNonNull" .

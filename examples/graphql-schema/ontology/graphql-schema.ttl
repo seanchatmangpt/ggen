@@ -1,0 +1,374 @@
+# =============================================================================
+# GraphQL Schema Ontology - Social Platform Domain
+# Defines types, fields, queries, mutations, and subscriptions
+# Source of truth for generating GraphQL SDL schema files
+# =============================================================================
+
+@prefix gql: <https://ggen.io/examples/social#> .
+@prefix g: <https://ggen.io/ontology/graphql#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Schema Root
+# =============================================================================
+
+gql:SocialSchema a g:Schema ;
+    g:name "SocialPlatform" ;
+    g:description "Social media platform GraphQL API" ;
+    g:version "1.0.0" .
+
+# =============================================================================
+# User Type
+# =============================================================================
+
+gql:UserType a g:ObjectType ;
+    g:typeName "User" ;
+    rdfs:comment "A registered user of the platform" ;
+    g:hasField gql:User_id ;
+    g:hasField gql:User_username ;
+    g:hasField gql:User_email ;
+    g:hasField gql:User_displayName ;
+    g:hasField gql:User_bio ;
+    g:hasField gql:User_avatarUrl ;
+    g:hasField gql:User_posts ;
+    g:hasField gql:User_followers ;
+    g:hasField gql:User_following ;
+    g:hasField gql:User_createdAt .
+
+gql:User_id a g:Field ;
+    g:fieldName "id" ;
+    g:fieldType "ID" ;
+    g:nonNull true ;
+    rdfs:comment "Unique identifier" .
+
+gql:User_username a g:Field ;
+    g:fieldName "username" ;
+    g:fieldType "String" ;
+    g:nonNull true ;
+    rdfs:comment "Unique username" .
+
+gql:User_email a g:Field ;
+    g:fieldName "email" ;
+    g:fieldType "String" ;
+    g:nonNull true ;
+    rdfs:comment "Email address" .
+
+gql:User_displayName a g:Field ;
+    g:fieldName "displayName" ;
+    g:fieldType "String" ;
+    g:nonNull false ;
+    rdfs:comment "Optional display name" .
+
+gql:User_bio a g:Field ;
+    g:fieldName "bio" ;
+    g:fieldType "String" ;
+    g:nonNull false ;
+    rdfs:comment "Short profile bio" .
+
+gql:User_avatarUrl a g:Field ;
+    g:fieldName "avatarUrl" ;
+    g:fieldType "String" ;
+    g:nonNull false ;
+    rdfs:comment "Profile image URL" .
+
+gql:User_posts a g:Field ;
+    g:fieldName "posts" ;
+    g:fieldType "Post" ;
+    g:isList true ;
+    g:nonNull true ;
+    rdfs:comment "Posts authored by user" .
+
+gql:User_followers a g:Field ;
+    g:fieldName "followers" ;
+    g:fieldType "User" ;
+    g:isList true ;
+    g:nonNull true ;
+    rdfs:comment "Users who follow this user" .
+
+gql:User_following a g:Field ;
+    g:fieldName "following" ;
+    g:fieldType "User" ;
+    g:isList true ;
+    g:nonNull true ;
+    rdfs:comment "Users this user follows" .
+
+gql:User_createdAt a g:Field ;
+    g:fieldName "createdAt" ;
+    g:fieldType "String" ;
+    g:nonNull true ;
+    rdfs:comment "ISO 8601 account creation date" .
+
+# =============================================================================
+# Post Type
+# =============================================================================
+
+gql:PostType a g:ObjectType ;
+    g:typeName "Post" ;
+    rdfs:comment "A user-created post" ;
+    g:hasField gql:Post_id ;
+    g:hasField gql:Post_title ;
+    g:hasField gql:Post_body ;
+    g:hasField gql:Post_author ;
+    g:hasField gql:Post_tags ;
+    g:hasField gql:Post_likes ;
+    g:hasField gql:Post_comments ;
+    g:hasField gql:Post_publishedAt .
+
+gql:Post_id a g:Field ;
+    g:fieldName "id" ;
+    g:fieldType "ID" ;
+    g:nonNull true ;
+    rdfs:comment "Unique identifier" .
+
+gql:Post_title a g:Field ;
+    g:fieldName "title" ;
+    g:fieldType "String" ;
+    g:nonNull true ;
+    rdfs:comment "Post title" .
+
+gql:Post_body a g:Field ;
+    g:fieldName "body" ;
+    g:fieldType "String" ;
+    g:nonNull true ;
+    rdfs:comment "Post body text" .
+
+gql:Post_author a g:Field ;
+    g:fieldName "author" ;
+    g:fieldType "User" ;
+    g:nonNull true ;
+    rdfs:comment "Author of the post" .
+
+gql:Post_tags a g:Field ;
+    g:fieldName "tags" ;
+    g:fieldType "String" ;
+    g:isList true ;
+    g:nonNull true ;
+    rdfs:comment "Post tags" .
+
+gql:Post_likes a g:Field ;
+    g:fieldName "likes" ;
+    g:fieldType "Int" ;
+    g:nonNull true ;
+    rdfs:comment "Like count" .
+
+gql:Post_comments a g:Field ;
+    g:fieldName "comments" ;
+    g:fieldType "Comment" ;
+    g:isList true ;
+    g:nonNull true ;
+    rdfs:comment "Comments on this post" .
+
+gql:Post_publishedAt a g:Field ;
+    g:fieldName "publishedAt" ;
+    g:fieldType "String" ;
+    g:nonNull false ;
+    rdfs:comment "ISO 8601 publish date, null if draft" .
+
+# =============================================================================
+# Comment Type
+# =============================================================================
+
+gql:CommentType a g:ObjectType ;
+    g:typeName "Comment" ;
+    rdfs:comment "A comment on a post" ;
+    g:hasField gql:Comment_id ;
+    g:hasField gql:Comment_body ;
+    g:hasField gql:Comment_author ;
+    g:hasField gql:Comment_post ;
+    g:hasField gql:Comment_createdAt .
+
+gql:Comment_id a g:Field ;
+    g:fieldName "id" ;
+    g:fieldType "ID" ;
+    g:nonNull true ;
+    rdfs:comment "Unique identifier" .
+
+gql:Comment_body a g:Field ;
+    g:fieldName "body" ;
+    g:fieldType "String" ;
+    g:nonNull true ;
+    rdfs:comment "Comment text" .
+
+gql:Comment_author a g:Field ;
+    g:fieldName "author" ;
+    g:fieldType "User" ;
+    g:nonNull true ;
+    rdfs:comment "Comment author" .
+
+gql:Comment_post a g:Field ;
+    g:fieldName "post" ;
+    g:fieldType "Post" ;
+    g:nonNull true ;
+    rdfs:comment "Post this comment belongs to" .
+
+gql:Comment_createdAt a g:Field ;
+    g:fieldName "createdAt" ;
+    g:fieldType "String" ;
+    g:nonNull true ;
+    rdfs:comment "ISO 8601 creation date" .
+
+# =============================================================================
+# Query Type
+# =============================================================================
+
+gql:QueryType a g:ObjectType ;
+    g:typeName "Query" ;
+    rdfs:comment "Root query type" ;
+    g:hasField gql:Query_user ;
+    g:hasField gql:Query_users ;
+    g:hasField gql:Query_post ;
+    g:hasField gql:Query_posts ;
+    g:hasField gql:Query_feed .
+
+gql:Query_user a g:Field ;
+    g:fieldName "user" ;
+    g:fieldType "User" ;
+    g:nonNull false ;
+    g:hasArg gql:UserIdArg ;
+    rdfs:comment "Get a user by ID" .
+
+gql:Query_users a g:Field ;
+    g:fieldName "users" ;
+    g:fieldType "User" ;
+    g:isList true ;
+    g:nonNull true ;
+    rdfs:comment "List all users" .
+
+gql:Query_post a g:Field ;
+    g:fieldName "post" ;
+    g:fieldType "Post" ;
+    g:nonNull false ;
+    g:hasArg gql:PostIdArg ;
+    rdfs:comment "Get a post by ID" .
+
+gql:Query_posts a g:Field ;
+    g:fieldName "posts" ;
+    g:fieldType "Post" ;
+    g:isList true ;
+    g:nonNull true ;
+    rdfs:comment "List all posts" .
+
+gql:Query_feed a g:Field ;
+    g:fieldName "feed" ;
+    g:fieldType "Post" ;
+    g:isList true ;
+    g:nonNull true ;
+    g:hasArg gql:UserIdArg ;
+    rdfs:comment "Get personalized feed for a user" .
+
+gql:UserIdArg a g:Argument ;
+    g:argName "id" ;
+    g:argType "ID" ;
+    g:argNonNull true .
+
+gql:PostIdArg a g:Argument ;
+    g:argName "id" ;
+    g:argType "ID" ;
+    g:argNonNull true .
+
+# =============================================================================
+# Mutation Type
+# =============================================================================
+
+gql:MutationType a g:ObjectType ;
+    g:typeName "Mutation" ;
+    rdfs:comment "Root mutation type" ;
+    g:hasField gql:Mutation_createUser ;
+    g:hasField gql:Mutation_updateUser ;
+    g:hasField gql:Mutation_createPost ;
+    g:hasField gql:Mutation_deletePost ;
+    g:hasField gql:Mutation_addComment ;
+    g:hasField gql:Mutation_likePost .
+
+gql:Mutation_createUser a g:Field ;
+    g:fieldName "createUser" ;
+    g:fieldType "User" ;
+    g:nonNull true ;
+    rdfs:comment "Register a new user" .
+
+gql:Mutation_updateUser a g:Field ;
+    g:fieldName "updateUser" ;
+    g:fieldType "User" ;
+    g:nonNull true ;
+    rdfs:comment "Update user profile" .
+
+gql:Mutation_createPost a g:Field ;
+    g:fieldName "createPost" ;
+    g:fieldType "Post" ;
+    g:nonNull true ;
+    rdfs:comment "Create a new post" .
+
+gql:Mutation_deletePost a g:Field ;
+    g:fieldName "deletePost" ;
+    g:fieldType "Boolean" ;
+    g:nonNull true ;
+    rdfs:comment "Delete a post by ID" .
+
+gql:Mutation_addComment a g:Field ;
+    g:fieldName "addComment" ;
+    g:fieldType "Comment" ;
+    g:nonNull true ;
+    rdfs:comment "Add comment to a post" .
+
+gql:Mutation_likePost a g:Field ;
+    g:fieldName "likePost" ;
+    g:fieldType "Post" ;
+    g:nonNull true ;
+    rdfs:comment "Like a post" .
+
+# =============================================================================
+# Input Types
+# =============================================================================
+
+gql:CreateUserInput a g:InputType ;
+    g:typeName "CreateUserInput" ;
+    rdfs:comment "Input for creating a new user" ;
+    g:hasField gql:CreateUserInput_username ;
+    g:hasField gql:CreateUserInput_email ;
+    g:hasField gql:CreateUserInput_password ;
+    g:hasField gql:CreateUserInput_displayName .
+
+gql:CreateUserInput_username a g:Field ;
+    g:fieldName "username" ;
+    g:fieldType "String" ;
+    g:nonNull true .
+
+gql:CreateUserInput_email a g:Field ;
+    g:fieldName "email" ;
+    g:fieldType "String" ;
+    g:nonNull true .
+
+gql:CreateUserInput_password a g:Field ;
+    g:fieldName "password" ;
+    g:fieldType "String" ;
+    g:nonNull true .
+
+gql:CreateUserInput_displayName a g:Field ;
+    g:fieldName "displayName" ;
+    g:fieldType "String" ;
+    g:nonNull false .
+
+gql:CreatePostInput a g:InputType ;
+    g:typeName "CreatePostInput" ;
+    rdfs:comment "Input for creating a new post" ;
+    g:hasField gql:CreatePostInput_title ;
+    g:hasField gql:CreatePostInput_body ;
+    g:hasField gql:CreatePostInput_tags .
+
+gql:CreatePostInput_title a g:Field ;
+    g:fieldName "title" ;
+    g:fieldType "String" ;
+    g:nonNull true .
+
+gql:CreatePostInput_body a g:Field ;
+    g:fieldName "body" ;
+    g:fieldType "String" ;
+    g:nonNull true .
+
+gql:CreatePostInput_tags a g:Field ;
+    g:fieldName "tags" ;
+    g:fieldType "String" ;
+    g:isList true ;
+    g:nonNull false .

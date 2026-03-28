@@ -1,0 +1,342 @@
+# =============================================================================
+# OpenAPI Variants Ontology Instance
+# Demonstrates different OpenAPI patterns: REST, async events, webhooks
+# Source of truth for generating multiple OpenAPI specification variants
+# =============================================================================
+
+@prefix ov: <https://ggen.io/examples/openapi-variants#> .
+@prefix api: <https://ggen.io/ontology/api#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Service Specification
+# =============================================================================
+
+ov:VariantsAPI a api:Specification ;
+    api:title "OpenAPI Variants Demo" ;
+    api:description "Demonstrates REST, async, and webhook OpenAPI 3.1 patterns from RDF" ;
+    api:version "3.1.0" ;
+    api:server ov:ProdServer .
+
+ov:ProdServer a api:Server ;
+    api:url "https://api.example.com/v1"^^xsd:anyURI ;
+    api:description "Production API server" .
+
+# =============================================================================
+# Event Entity - async event streaming pattern
+# =============================================================================
+
+ov:Event a api:Entity ;
+    api:name "Event" ;
+    rdfs:comment "Domain event for async publish/subscribe pattern" ;
+    api:hasProperty ov:Event_id ;
+    api:hasProperty ov:Event_type ;
+    api:hasProperty ov:Event_payload ;
+    api:hasProperty ov:Event_source ;
+    api:hasProperty ov:Event_timestamp ;
+    api:hasEndpoint ov:Event_list ;
+    api:hasEndpoint ov:Event_publish ;
+    api:hasEndpoint ov:Event_get ;
+    api:hasRequestType ov:PublishEventRequest .
+
+ov:Event_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required true ;
+    api:format "uuid" ;
+    rdfs:comment "Unique event identifier" .
+
+ov:Event_type a api:Property ;
+    api:name "type" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    api:maxLength 100 ;
+    rdfs:comment "Event type (e.g. user.created, order.shipped)" .
+
+ov:Event_payload a api:Property ;
+    api:name "payload" ;
+    api:type "string" ;
+    api:required true ;
+    rdfs:comment "JSON-serialized event payload" .
+
+ov:Event_source a api:Property ;
+    api:name "source" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    rdfs:comment "Service that emitted the event" .
+
+ov:Event_timestamp a api:Property ;
+    api:name "timestamp" ;
+    api:type "datetime" ;
+    api:required true ;
+    rdfs:comment "When the event occurred" .
+
+ov:Event_list a api:Endpoint ;
+    api:path "/events" ;
+    api:method "GET" ;
+    api:operationId "listEvents" ;
+    api:summary "List recent events (polling variant)" ;
+    api:responseSchema "Event[]" ;
+    api:statusCode 200 .
+
+ov:Event_publish a api:Endpoint ;
+    api:path "/events" ;
+    api:method "POST" ;
+    api:operationId "publishEvent" ;
+    api:summary "Publish a new domain event" ;
+    api:requestSchema "PublishEventRequest" ;
+    api:responseSchema "Event" ;
+    api:statusCode 201 .
+
+ov:Event_get a api:Endpoint ;
+    api:path "/events/{id}" ;
+    api:method "GET" ;
+    api:operationId "getEvent" ;
+    api:summary "Get a specific event by ID" ;
+    api:responseSchema "Event" ;
+    api:statusCode 200 .
+
+ov:PublishEventRequest a api:RequestType ;
+    api:operationType "create" ;
+    api:hasProperty ov:PublishEvent_type ;
+    api:hasProperty ov:PublishEvent_payload ;
+    api:hasProperty ov:PublishEvent_source .
+
+ov:PublishEvent_type a api:Property ;
+    api:name "type" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    api:maxLength 100 .
+
+ov:PublishEvent_payload a api:Property ;
+    api:name "payload" ;
+    api:type "string" ;
+    api:required true .
+
+ov:PublishEvent_source a api:Property ;
+    api:name "source" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 .
+
+# =============================================================================
+# WebhookSubscription Entity - webhook registration pattern
+# =============================================================================
+
+ov:WebhookSubscription a api:Entity ;
+    api:name "WebhookSubscription" ;
+    rdfs:comment "Webhook endpoint subscription for receiving pushed events" ;
+    api:hasProperty ov:Webhook_id ;
+    api:hasProperty ov:Webhook_url ;
+    api:hasProperty ov:Webhook_event_types ;
+    api:hasProperty ov:Webhook_secret ;
+    api:hasProperty ov:Webhook_active ;
+    api:hasEndpoint ov:Webhook_list ;
+    api:hasEndpoint ov:Webhook_create ;
+    api:hasEndpoint ov:Webhook_get ;
+    api:hasEndpoint ov:Webhook_delete ;
+    api:hasRequestType ov:CreateWebhookSubscriptionRequest .
+
+ov:Webhook_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required true ;
+    api:format "uuid" ;
+    rdfs:comment "Unique subscription identifier" .
+
+ov:Webhook_url a api:Property ;
+    api:name "url" ;
+    api:type "string" ;
+    api:required true ;
+    api:format "uri" ;
+    rdfs:comment "HTTPS endpoint to deliver events to" ;
+    api:example "https://myapp.com/webhooks" .
+
+ov:Webhook_event_types a api:Property ;
+    api:name "event_types" ;
+    api:type "string" ;
+    api:required true ;
+    rdfs:comment "Comma-separated list of event types to subscribe to" .
+
+ov:Webhook_secret a api:Property ;
+    api:name "secret" ;
+    api:type "string" ;
+    api:required false ;
+    api:minLength 16 ;
+    api:maxLength 256 ;
+    rdfs:comment "HMAC secret for signature verification" .
+
+ov:Webhook_active a api:Property ;
+    api:name "active" ;
+    api:type "boolean" ;
+    api:required true ;
+    rdfs:comment "Whether this subscription is currently active" .
+
+ov:Webhook_list a api:Endpoint ;
+    api:path "/webhooks" ;
+    api:method "GET" ;
+    api:operationId "listWebhooks" ;
+    api:summary "List all webhook subscriptions" ;
+    api:responseSchema "WebhookSubscription[]" ;
+    api:statusCode 200 .
+
+ov:Webhook_create a api:Endpoint ;
+    api:path "/webhooks" ;
+    api:method "POST" ;
+    api:operationId "createWebhook" ;
+    api:summary "Register a new webhook endpoint" ;
+    api:requestSchema "CreateWebhookSubscriptionRequest" ;
+    api:responseSchema "WebhookSubscription" ;
+    api:statusCode 201 .
+
+ov:Webhook_get a api:Endpoint ;
+    api:path "/webhooks/{id}" ;
+    api:method "GET" ;
+    api:operationId "getWebhook" ;
+    api:summary "Get webhook subscription by ID" ;
+    api:responseSchema "WebhookSubscription" ;
+    api:statusCode 200 .
+
+ov:Webhook_delete a api:Endpoint ;
+    api:path "/webhooks/{id}" ;
+    api:method "DELETE" ;
+    api:operationId "deleteWebhook" ;
+    api:summary "Unsubscribe a webhook endpoint" ;
+    api:statusCode 204 .
+
+ov:CreateWebhookSubscriptionRequest a api:RequestType ;
+    api:operationType "create" ;
+    api:hasProperty ov:CreateWebhook_url ;
+    api:hasProperty ov:CreateWebhook_event_types ;
+    api:hasProperty ov:CreateWebhook_secret .
+
+ov:CreateWebhook_url a api:Property ;
+    api:name "url" ;
+    api:type "string" ;
+    api:required true ;
+    api:format "uri" .
+
+ov:CreateWebhook_event_types a api:Property ;
+    api:name "event_types" ;
+    api:type "string" ;
+    api:required true .
+
+ov:CreateWebhook_secret a api:Property ;
+    api:name "secret" ;
+    api:type "string" ;
+    api:required false ;
+    api:minLength 16 ;
+    api:maxLength 256 .
+
+# =============================================================================
+# ApiKey Entity - API key management pattern
+# =============================================================================
+
+ov:ApiKey a api:Entity ;
+    api:name "ApiKey" ;
+    rdfs:comment "API key for authentication (demonstrates security scheme variant)" ;
+    api:hasProperty ov:ApiKey_id ;
+    api:hasProperty ov:ApiKey_name ;
+    api:hasProperty ov:ApiKey_prefix ;
+    api:hasProperty ov:ApiKey_scopes ;
+    api:hasProperty ov:ApiKey_expires_at ;
+    api:hasEndpoint ov:ApiKey_list ;
+    api:hasEndpoint ov:ApiKey_create ;
+    api:hasEndpoint ov:ApiKey_get ;
+    api:hasEndpoint ov:ApiKey_revoke ;
+    api:hasRequestType ov:CreateApiKeyRequest .
+
+ov:ApiKey_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required true ;
+    api:format "uuid" ;
+    rdfs:comment "Unique key identifier" .
+
+ov:ApiKey_name a api:Property ;
+    api:name "name" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    api:maxLength 100 ;
+    rdfs:comment "Human-readable key name" .
+
+ov:ApiKey_prefix a api:Property ;
+    api:name "prefix" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 8 ;
+    api:maxLength 8 ;
+    rdfs:comment "First 8 chars of the key (for identification)" .
+
+ov:ApiKey_scopes a api:Property ;
+    api:name "scopes" ;
+    api:type "string" ;
+    api:required true ;
+    rdfs:comment "Space-separated OAuth-style scopes" .
+
+ov:ApiKey_expires_at a api:Property ;
+    api:name "expires_at" ;
+    api:type "datetime" ;
+    api:required false ;
+    rdfs:comment "Key expiration (null = never expires)" .
+
+ov:ApiKey_list a api:Endpoint ;
+    api:path "/api-keys" ;
+    api:method "GET" ;
+    api:operationId "listApiKeys" ;
+    api:summary "List all API keys (metadata only, not secrets)" ;
+    api:responseSchema "ApiKey[]" ;
+    api:statusCode 200 .
+
+ov:ApiKey_create a api:Endpoint ;
+    api:path "/api-keys" ;
+    api:method "POST" ;
+    api:operationId "createApiKey" ;
+    api:summary "Generate a new API key" ;
+    api:requestSchema "CreateApiKeyRequest" ;
+    api:responseSchema "ApiKey" ;
+    api:statusCode 201 .
+
+ov:ApiKey_get a api:Endpoint ;
+    api:path "/api-keys/{id}" ;
+    api:method "GET" ;
+    api:operationId "getApiKey" ;
+    api:summary "Get API key metadata" ;
+    api:responseSchema "ApiKey" ;
+    api:statusCode 200 .
+
+ov:ApiKey_revoke a api:Endpoint ;
+    api:path "/api-keys/{id}" ;
+    api:method "DELETE" ;
+    api:operationId "revokeApiKey" ;
+    api:summary "Revoke an API key" ;
+    api:statusCode 204 .
+
+ov:CreateApiKeyRequest a api:RequestType ;
+    api:operationType "create" ;
+    api:hasProperty ov:CreateApiKey_name ;
+    api:hasProperty ov:CreateApiKey_scopes ;
+    api:hasProperty ov:CreateApiKey_expires_at .
+
+ov:CreateApiKey_name a api:Property ;
+    api:name "name" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    api:maxLength 100 .
+
+ov:CreateApiKey_scopes a api:Property ;
+    api:name "scopes" ;
+    api:type "string" ;
+    api:required true .
+
+ov:CreateApiKey_expires_at a api:Property ;
+    api:name "expires_at" ;
+    api:type "datetime" ;
+    api:required false .

@@ -1,0 +1,344 @@
+# =============================================================================
+# Middleware Stack Ontology Instance
+# Defines HTTP middleware pipeline components and configuration
+# Source of truth for generating middleware registration and handler code
+# =============================================================================
+
+@prefix mw: <https://ggen.io/examples/middleware#> .
+@prefix api: <https://ggen.io/ontology/api#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Service Specification
+# =============================================================================
+
+mw:MiddlewareAPI a api:Specification ;
+    api:title "Middleware Stack API" ;
+    api:description "HTTP server with authentication, rate-limiting, logging, and CORS middleware" ;
+    api:version "1.0.0" ;
+    api:server mw:LocalServer .
+
+mw:LocalServer a api:Server ;
+    api:url "http://localhost:9000"^^xsd:anyURI ;
+    api:description "Local HTTP server with middleware pipeline" .
+
+# =============================================================================
+# MiddlewareConfig Entity - represents a configured middleware instance
+# =============================================================================
+
+mw:MiddlewareConfig a api:Entity ;
+    api:name "MiddlewareConfig" ;
+    rdfs:comment "Configuration for a middleware component in the pipeline" ;
+    api:hasProperty mw:Config_id ;
+    api:hasProperty mw:Config_name ;
+    api:hasProperty mw:Config_type ;
+    api:hasProperty mw:Config_order ;
+    api:hasProperty mw:Config_enabled ;
+    api:hasEndpoint mw:Config_list ;
+    api:hasEndpoint mw:Config_create ;
+    api:hasEndpoint mw:Config_get ;
+    api:hasEndpoint mw:Config_update ;
+    api:hasEndpoint mw:Config_delete ;
+    api:hasRequestType mw:CreateMiddlewareConfigRequest ;
+    api:hasRequestType mw:UpdateMiddlewareConfigRequest .
+
+mw:Config_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required true ;
+    api:format "uuid" ;
+    rdfs:comment "Unique middleware config identifier" .
+
+mw:Config_name a api:Property ;
+    api:name "name" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    api:maxLength 100 ;
+    rdfs:comment "Middleware instance name" .
+
+mw:Config_type a api:Property ;
+    api:name "type" ;
+    api:type "string" ;
+    api:required true ;
+    rdfs:comment "Middleware type: auth, ratelimit, logging, cors, compression" .
+
+mw:Config_order a api:Property ;
+    api:name "order" ;
+    api:type "integer" ;
+    api:required true ;
+    api:min 0 ;
+    rdfs:comment "Execution order in pipeline (0 = first)" .
+
+mw:Config_enabled a api:Property ;
+    api:name "enabled" ;
+    api:type "boolean" ;
+    api:required true ;
+    rdfs:comment "Whether this middleware is active" .
+
+mw:Config_list a api:Endpoint ;
+    api:path "/middleware" ;
+    api:method "GET" ;
+    api:operationId "listMiddleware" ;
+    api:summary "List all middleware configurations" ;
+    api:responseSchema "MiddlewareConfig[]" ;
+    api:statusCode 200 .
+
+mw:Config_create a api:Endpoint ;
+    api:path "/middleware" ;
+    api:method "POST" ;
+    api:operationId "createMiddleware" ;
+    api:summary "Register a new middleware" ;
+    api:requestSchema "CreateMiddlewareConfigRequest" ;
+    api:responseSchema "MiddlewareConfig" ;
+    api:statusCode 201 .
+
+mw:Config_get a api:Endpoint ;
+    api:path "/middleware/{id}" ;
+    api:method "GET" ;
+    api:operationId "getMiddleware" ;
+    api:summary "Get middleware by ID" ;
+    api:responseSchema "MiddlewareConfig" ;
+    api:statusCode 200 .
+
+mw:Config_update a api:Endpoint ;
+    api:path "/middleware/{id}" ;
+    api:method "PUT" ;
+    api:operationId "updateMiddleware" ;
+    api:summary "Update middleware configuration" ;
+    api:requestSchema "UpdateMiddlewareConfigRequest" ;
+    api:responseSchema "MiddlewareConfig" ;
+    api:statusCode 200 .
+
+mw:Config_delete a api:Endpoint ;
+    api:path "/middleware/{id}" ;
+    api:method "DELETE" ;
+    api:operationId "deleteMiddleware" ;
+    api:summary "Remove a middleware from the pipeline" ;
+    api:statusCode 204 .
+
+mw:CreateMiddlewareConfigRequest a api:RequestType ;
+    api:operationType "create" ;
+    api:hasProperty mw:CreateConfig_name ;
+    api:hasProperty mw:CreateConfig_type ;
+    api:hasProperty mw:CreateConfig_order ;
+    api:hasProperty mw:CreateConfig_enabled .
+
+mw:CreateConfig_name a api:Property ;
+    api:name "name" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    api:maxLength 100 .
+
+mw:CreateConfig_type a api:Property ;
+    api:name "type" ;
+    api:type "string" ;
+    api:required true .
+
+mw:CreateConfig_order a api:Property ;
+    api:name "order" ;
+    api:type "integer" ;
+    api:required true ;
+    api:min 0 .
+
+mw:CreateConfig_enabled a api:Property ;
+    api:name "enabled" ;
+    api:type "boolean" ;
+    api:required false .
+
+mw:UpdateMiddlewareConfigRequest a api:RequestType ;
+    api:operationType "update" ;
+    api:hasProperty mw:UpdateConfig_name ;
+    api:hasProperty mw:UpdateConfig_order ;
+    api:hasProperty mw:UpdateConfig_enabled .
+
+mw:UpdateConfig_name a api:Property ;
+    api:name "name" ;
+    api:type "string" ;
+    api:required false ;
+    api:minLength 1 ;
+    api:maxLength 100 .
+
+mw:UpdateConfig_order a api:Property ;
+    api:name "order" ;
+    api:type "integer" ;
+    api:required false ;
+    api:min 0 .
+
+mw:UpdateConfig_enabled a api:Property ;
+    api:name "enabled" ;
+    api:type "boolean" ;
+    api:required false .
+
+# =============================================================================
+# RequestLog Entity - audit trail of requests through middleware
+# =============================================================================
+
+mw:RequestLog a api:Entity ;
+    api:name "RequestLog" ;
+    rdfs:comment "Audit log entry for a request processed through middleware pipeline" ;
+    api:hasProperty mw:Log_id ;
+    api:hasProperty mw:Log_method ;
+    api:hasProperty mw:Log_path ;
+    api:hasProperty mw:Log_status ;
+    api:hasProperty mw:Log_duration_ms ;
+    api:hasProperty mw:Log_timestamp ;
+    api:hasEndpoint mw:Log_list ;
+    api:hasEndpoint mw:Log_get .
+
+mw:Log_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required true ;
+    api:format "uuid" ;
+    rdfs:comment "Unique log entry identifier" .
+
+mw:Log_method a api:Property ;
+    api:name "method" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 3 ;
+    api:maxLength 7 ;
+    rdfs:comment "HTTP method: GET, POST, PUT, DELETE, PATCH" .
+
+mw:Log_path a api:Property ;
+    api:name "path" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    rdfs:comment "Request path" .
+
+mw:Log_status a api:Property ;
+    api:name "status" ;
+    api:type "integer" ;
+    api:required true ;
+    api:min 100 ;
+    api:max 599 ;
+    rdfs:comment "HTTP response status code" .
+
+mw:Log_duration_ms a api:Property ;
+    api:name "duration_ms" ;
+    api:type "integer" ;
+    api:required true ;
+    api:min 0 ;
+    rdfs:comment "Request processing duration in milliseconds" .
+
+mw:Log_timestamp a api:Property ;
+    api:name "timestamp" ;
+    api:type "datetime" ;
+    api:required true ;
+    rdfs:comment "When the request was received" .
+
+mw:Log_list a api:Endpoint ;
+    api:path "/logs" ;
+    api:method "GET" ;
+    api:operationId "listLogs" ;
+    api:summary "List request audit logs" ;
+    api:responseSchema "RequestLog[]" ;
+    api:statusCode 200 .
+
+mw:Log_get a api:Endpoint ;
+    api:path "/logs/{id}" ;
+    api:method "GET" ;
+    api:operationId "getLog" ;
+    api:summary "Get a specific log entry" ;
+    api:responseSchema "RequestLog" ;
+    api:statusCode 200 .
+
+# =============================================================================
+# RateLimitRule Entity - rate limiting configuration
+# =============================================================================
+
+mw:RateLimitRule a api:Entity ;
+    api:name "RateLimitRule" ;
+    rdfs:comment "Rate limit rule applied by the rate-limiting middleware" ;
+    api:hasProperty mw:RateLimit_id ;
+    api:hasProperty mw:RateLimit_path_pattern ;
+    api:hasProperty mw:RateLimit_requests_per_minute ;
+    api:hasProperty mw:RateLimit_burst ;
+    api:hasEndpoint mw:RateLimit_list ;
+    api:hasEndpoint mw:RateLimit_create ;
+    api:hasEndpoint mw:RateLimit_get ;
+    api:hasRequestType mw:CreateRateLimitRuleRequest .
+
+mw:RateLimit_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required true ;
+    api:format "uuid" ;
+    rdfs:comment "Unique rule identifier" .
+
+mw:RateLimit_path_pattern a api:Property ;
+    api:name "path_pattern" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    rdfs:comment "URL path pattern (supports wildcards like /api/*)" .
+
+mw:RateLimit_requests_per_minute a api:Property ;
+    api:name "requests_per_minute" ;
+    api:type "integer" ;
+    api:required true ;
+    api:min 1 ;
+    api:max 10000 ;
+    rdfs:comment "Maximum requests per minute" .
+
+mw:RateLimit_burst a api:Property ;
+    api:name "burst" ;
+    api:type "integer" ;
+    api:required true ;
+    api:min 1 ;
+    rdfs:comment "Burst capacity (allows temporary spikes)" .
+
+mw:RateLimit_list a api:Endpoint ;
+    api:path "/ratelimit-rules" ;
+    api:method "GET" ;
+    api:operationId "listRateLimitRules" ;
+    api:summary "List all rate limit rules" ;
+    api:responseSchema "RateLimitRule[]" ;
+    api:statusCode 200 .
+
+mw:RateLimit_create a api:Endpoint ;
+    api:path "/ratelimit-rules" ;
+    api:method "POST" ;
+    api:operationId "createRateLimitRule" ;
+    api:summary "Create a rate limit rule" ;
+    api:requestSchema "CreateRateLimitRuleRequest" ;
+    api:responseSchema "RateLimitRule" ;
+    api:statusCode 201 .
+
+mw:RateLimit_get a api:Endpoint ;
+    api:path "/ratelimit-rules/{id}" ;
+    api:method "GET" ;
+    api:operationId "getRateLimitRule" ;
+    api:summary "Get a rate limit rule by ID" ;
+    api:responseSchema "RateLimitRule" ;
+    api:statusCode 200 .
+
+mw:CreateRateLimitRuleRequest a api:RequestType ;
+    api:operationType "create" ;
+    api:hasProperty mw:CreateRateLimit_path_pattern ;
+    api:hasProperty mw:CreateRateLimit_requests_per_minute ;
+    api:hasProperty mw:CreateRateLimit_burst .
+
+mw:CreateRateLimit_path_pattern a api:Property ;
+    api:name "path_pattern" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 .
+
+mw:CreateRateLimit_requests_per_minute a api:Property ;
+    api:name "requests_per_minute" ;
+    api:type "integer" ;
+    api:required true ;
+    api:min 1 ;
+    api:max 10000 .
+
+mw:CreateRateLimit_burst a api:Property ;
+    api:name "burst" ;
+    api:type "integer" ;
+    api:required true ;
+    api:min 1 .

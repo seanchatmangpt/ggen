@@ -1,0 +1,56 @@
+@prefix mw:  <https://ggen.io/examples/middleware#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+mw:ApiStack a mw:Stack ;
+    mw:stackName    "ApiStack" ;
+    mw:environment  "development" ;
+    rdfs:comment    "Express.js middleware pipeline for the REST API" .
+
+mw:CorsMiddleware a mw:Middleware ;
+    mw:name        "cors" ;
+    mw:description "Cross-Origin Resource Sharing handler" ;
+    mw:order       1 ;
+    mw:enabled     "true"^^xsd:boolean ;
+    mw:packageName "cors" ;
+    mw:config      "{\"origin\": \"*\", \"methods\": [\"GET\",\"POST\",\"PUT\",\"DELETE\"]}" .
+
+mw:HelmetMiddleware a mw:Middleware ;
+    mw:name        "helmet" ;
+    mw:description "HTTP security headers via helmet" ;
+    mw:order       2 ;
+    mw:enabled     "true"^^xsd:boolean ;
+    mw:packageName "helmet" ;
+    mw:config      "{\"contentSecurityPolicy\": false}" .
+
+mw:MorganMiddleware a mw:Middleware ;
+    mw:name        "morgan" ;
+    mw:description "HTTP request logger" ;
+    mw:order       3 ;
+    mw:enabled     "true"^^xsd:boolean ;
+    mw:packageName "morgan" ;
+    mw:config      "\"dev\"" .
+
+mw:RateLimitMiddleware a mw:Middleware ;
+    mw:name        "express-rate-limit" ;
+    mw:description "Rate limiting to prevent abuse" ;
+    mw:order       4 ;
+    mw:enabled     "true"^^xsd:boolean ;
+    mw:packageName "express-rate-limit" ;
+    mw:config      "{\"windowMs\": 900000, \"max\": 100}" .
+
+mw:AuthMiddleware a mw:Middleware ;
+    mw:name        "jwtAuth" ;
+    mw:description "JWT bearer token authentication" ;
+    mw:order       5 ;
+    mw:enabled     "true"^^xsd:boolean ;
+    mw:packageName "jsonwebtoken" ;
+    mw:config      "{\"secret\": \"process.env.JWT_SECRET\", \"algorithm\": \"HS256\"}" .
+
+mw:ErrorHandlerMiddleware a mw:Middleware ;
+    mw:name        "errorHandler" ;
+    mw:description "Global error handler (must be last)" ;
+    mw:order       6 ;
+    mw:enabled     "true"^^xsd:boolean ;
+    mw:config      "{\"exposeStack\": false}" .
