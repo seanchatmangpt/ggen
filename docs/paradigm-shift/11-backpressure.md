@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Backpressure and Admission Control Mechanisms](#backpressure-and-admission-control-mechanisms)
+  - [Overview](#overview)
+    - [Key Principles](#key-principles)
+  - [Queueing Theory Foundation](#queueing-theory-foundation)
+    - [Little's Law](#littles-law)
+      - [Derivation and Implications](#derivation-and-implications)
+      - [Practical Application](#practical-application)
+    - [M/M/1 Queue Model](#mm1-queue-model)
+      - [Performance Cliff](#performance-cliff)
+  - [Admission Control Algorithms](#admission-control-algorithms)
+    - [1. Token Bucket Rate Limiter](#1-token-bucket-rate-limiter)
+      - [Implementation](#implementation)
+    - [2. Leaky Bucket](#2-leaky-bucket)
+    - [3. Adaptive Admission Control](#3-adaptive-admission-control)
+  - [WIP Tokens and Pull-Only Release](#wip-tokens-and-pull-only-release)
+    - [Implementation with Semaphores](#implementation-with-semaphores)
+    - [Kanban Board Pattern](#kanban-board-pattern)
+  - [Little's Law Application to Admission Control](#littles-law-application-to-admission-control)
+    - [Implementation](#implementation-1)
+  - [Bounded Channels for Backpressure](#bounded-channels-for-backpressure)
+    - [MPSC Bounded Channel](#mpsc-bounded-channel)
+    - [Broadcast Channel Pattern](#broadcast-channel-pattern)
+  - [Metrics and Monitoring for Backpressure](#metrics-and-monitoring-for-backpressure)
+    - [Key Metrics](#key-metrics)
+    - [Monitoring Dashboard Queries](#monitoring-dashboard-queries)
+    - [Alerting Rules](#alerting-rules)
+  - [Integration Example: Complete Backpressure System](#integration-example-complete-backpressure-system)
+  - [Summary](#summary)
+    - [Core Principles](#core-principles)
+    - [Implementation Patterns](#implementation-patterns)
+    - [Key Metrics](#key-metrics-1)
+    - [Performance Targets](#performance-targets)
+  - [References](#references)
+    - [Queueing Theory](#queueing-theory)
+    - [Admission Control](#admission-control)
+    - [TPS & Kanban](#tps--kanban)
+    - [Implementation Patterns](#implementation-patterns-1)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Backpressure and Admission Control Mechanisms
 
 **Version**: 1.0.0

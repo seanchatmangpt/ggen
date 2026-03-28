@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [μ₁ Normalization Stage Implementation](#%CE%BC%E2%82%81-normalization-stage-implementation)
+  - [Overview](#overview)
+  - [Features Implemented](#features-implemented)
+    - [1. Parse TTL with Oxigraph ✅](#1-parse-ttl-with-oxigraph-)
+    - [2. SHACL Validation (Fail-Fast) ✅](#2-shacl-validation-fail-fast-)
+    - [3. OWL Inference Materialization ✅](#3-owl-inference-materialization-)
+    - [4. Normalized Graph Building ✅](#4-normalized-graph-building-)
+    - [5. Normalization Receipt Generation ✅](#5-normalization-receipt-generation-)
+    - [6. Rule Execution Tracking ✅](#6-rule-execution-tracking-)
+  - [Architecture](#architecture)
+  - [Test Coverage](#test-coverage)
+    - [Tests (13 total, 7 passing)](#tests-13-total-7-passing)
+  - [Key Methods](#key-methods)
+    - [TTL Parsing](#ttl-parsing)
+    - [SHACL Validation](#shacl-validation)
+    - [Rule Execution](#rule-execution)
+    - [Triple Counting](#triple-counting)
+    - [Hash Generation](#hash-generation)
+  - [Integration with v6 Pipeline](#integration-with-v6-pipeline)
+  - [SHACL Andon Protocol](#shacl-andon-protocol)
+  - [Files Modified](#files-modified)
+  - [Dependencies](#dependencies)
+  - [Compliance](#compliance)
+  - [Future Enhancements](#future-enhancements)
+  - [Usage Example](#usage-example)
+  - [Compilation Status](#compilation-status)
+  - [Test Results](#test-results)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # μ₁ Normalization Stage Implementation
 
 ## Overview

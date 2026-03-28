@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [The Marketplace Economy: Adoption Strategy and Business Model](#the-marketplace-economy-adoption-strategy-and-business-model)
+  - [Overview](#overview)
+  - [Procurement Boundary: GCP Marketplace Entitlements](#procurement-boundary-gcp-marketplace-entitlements)
+    - [Economic Model](#economic-model)
+    - [Procurement Flow](#procurement-flow)
+    - [Billing Integration](#billing-integration)
+  - [Workspace Add-On: CLM Pass-Off Surface](#workspace-add-on-clm-pass-off-surface)
+    - [Constitutional Installation](#constitutional-installation)
+    - [CLM Pass-Off](#clm-pass-off)
+  - [No Direct Human Interaction with Operator](#no-direct-human-interaction-with-operator)
+    - [Architectural Firewall](#architectural-firewall)
+    - [Why This Matters](#why-this-matters)
+    - [Kubernetes RBAC Enforcement](#kubernetes-rbac-enforcement)
+  - [Adoption Advantage: Constitutional Conversion](#adoption-advantage-constitutional-conversion)
+    - [The Constitutional Moment](#the-constitutional-moment)
+    - [Conway's Law Collapse](#conways-law-collapse)
+    - [Little's Law Collapse](#littles-law-collapse)
+    - [Adoption Metrics](#adoption-metrics)
+  - [Pricing Doctrine: Primitives vs Permissions vs Proofs](#pricing-doctrine-primitives-vs-permissions-vs-proofs)
+    - [The Three-Layer Model](#the-three-layer-model)
+    - [Economic Rationale](#economic-rationale)
+  - [Compliance Posture: Scope Clause and Guarantees](#compliance-posture-scope-clause-and-guarantees)
+    - [The Scope Clause](#the-scope-clause)
+    - [Compliance Guarantees](#compliance-guarantees)
+    - [Service Level Agreement (SLA)](#service-level-agreement-sla)
+  - [Business Model Diagrams](#business-model-diagrams)
+    - [Value Chain](#value-chain)
+    - [Customer Acquisition](#customer-acquisition)
+    - [Revenue Model](#revenue-model)
+  - [Adoption Case Study: Mid-Size SaaS Company](#adoption-case-study-mid-size-saas-company)
+    - [Company Profile](#company-profile)
+    - [Constitutional Installation (Week 1)](#constitutional-installation-week-1)
+    - [Metrics: Month 1 vs Month 6](#metrics-month-1-vs-month-6)
+    - [Developer Testimonial](#developer-testimonial)
+  - [Summary](#summary)
+  - [Further Reading](#further-reading)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # The Marketplace Economy: Adoption Strategy and Business Model
 
 **Version**: 1.0.0

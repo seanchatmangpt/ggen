@@ -1,5 +1,5 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doCTOC TO UPDATE -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
 - [How to Bridge A2A Agents as MCP Tools](#how-to-bridge-a2a-agents-as-mcp-tools)
@@ -21,7 +21,7 @@
     - [Permission Denied](#permission-denied)
   - [Next Steps](#next-steps)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # How to Bridge A2A Agents as MCP Tools
 

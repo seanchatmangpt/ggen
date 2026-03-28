@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-workflow Architecture Design](#ggen-workflow-architecture-design)
+  - [Overview](#overview)
+  - [Core Architecture](#core-architecture)
+    - [System Components](#system-components)
+    - [Stage Implementations](#stage-implementations)
+    - [Pattern Execution Engine](#pattern-execution-engine)
+    - [Erlang NIF Integration](#erlang-nif-integration)
+    - [Integration with Existing System](#integration-with-existing-system)
+    - [Performance Optimizations](#performance-optimizations)
+    - [Error Handling and Recovery](#error-handling-and-recovery)
+    - [Usage Examples](#usage-examples)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-workflow Architecture Design
 
 ## Overview

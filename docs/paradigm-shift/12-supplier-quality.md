@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Supplier Quality Scoring: Defect-Driven Rate Limiting](#supplier-quality-scoring-defect-driven-rate-limiting)
+  - [TL;DR](#tldr)
+  - [Table of Contents](#table-of-contents)
+  - [The Problem: Coordination Cost Externalization](#the-problem-coordination-cost-externalization)
+    - [Traditional Workflow](#traditional-workflow)
+    - [The Coordination Cost Problem](#the-coordination-cost-problem)
+  - [The Solution: Supplier Quality Scoring](#the-solution-supplier-quality-scoring)
+    - [Core Principle: Defects Have Consequences](#core-principle-defects-have-consequences)
+    - [The Feedback Loop](#the-feedback-loop)
+  - [Defect Taxonomy](#defect-taxonomy)
+    - [Type 1: Incomplete Packets](#type-1-incomplete-packets)
+    - [Type 2: Requirement Churn](#type-2-requirement-churn)
+    - [Type 3: Urgency Inflation](#type-3-urgency-inflation)
+    - [Type 4: Coordination Dumping](#type-4-coordination-dumping)
+  - [Scoring Algorithms](#scoring-algorithms)
+    - [Bayesian Score Update](#bayesian-score-update)
+    - [Score Computation with Defect Weighting](#score-computation-with-defect-weighting)
+  - [Rate Limiting Implementation](#rate-limiting-implementation)
+    - [Rate Limit Strategies](#rate-limit-strategies)
+    - [Rate Limit Enforcement](#rate-limit-enforcement)
+  - [Automated Quality Gates](#automated-quality-gates)
+    - [Quality Gate Implementation](#quality-gate-implementation)
+  - [Supplier Feedback Loops](#supplier-feedback-loops)
+    - [Feedback Report Generation](#feedback-report-generation)
+  - [Upstream Pays Principle](#upstream-pays-principle)
+    - [Cost Accounting](#cost-accounting)
+  - [Real-World Examples](#real-world-examples)
+    - [Example 1: Human Supplier (Product Manager)](#example-1-human-supplier-product-manager)
+    - [Example 2: AI Agent Supplier](#example-2-ai-agent-supplier)
+    - [Example 3: Team Supplier Comparison](#example-3-team-supplier-comparison)
+  - [Integration with ggen](#integration-with-ggen)
+    - [ggen Quality Gate CLI](#ggen-quality-gate-cli)
+    - [Usage Examples](#usage-examples)
+  - [Summary](#summary)
+    - [Key Principles](#key-principles)
+    - [Benefits](#benefits)
+    - [Integration Points](#integration-points)
+  - [Further Reading](#further-reading)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Supplier Quality Scoring: Defect-Driven Rate Limiting
 
 **Reading Time**: 35-40 minutes | **Difficulty**: Advanced | **Prerequisites**: [Packet Discipline](./10-packet-discipline.md), [Regime Split](./01-regime-split.md)

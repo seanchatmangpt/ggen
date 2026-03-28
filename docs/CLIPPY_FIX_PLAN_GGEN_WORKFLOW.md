@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Clippy Fix Plan: ggen-workflow](#clippy-fix-plan-ggen-workflow)
+  - [Executive Summary](#executive-summary)
+  - [Fix Plan by File](#fix-plan-by-file)
+    - [1. `src/parser.rs` (13 warnings)](#1-srcparserrs-13-warnings)
+      - [1.1 Derive `Default` instead of manual impl (6 instances)](#11-derive-default-instead-of-manual-impl-6-instances)
+      - [1.2 `from_str` method name conflicts (3 instances) - MANUAL REVIEW REQUIRED](#12-from_str-method-name-conflicts-3-instances---manual-review-required)
+      - [1.3 Unnecessary `if let` on `Ok` variant only](#13-unnecessary-if-let-on-ok-variant-only)
+      - [1.4 `and_then` with `Some` construction](#14-and_then-with-some-construction)
+      - [1.5 Using `map` over `inspect`](#15-using-map-over-inspect)
+      - [1.6 Single-pattern `match` should be `if let`](#16-single-pattern-match-should-be-if-let)
+      - [1.7 Iterating on map values](#17-iterating-on-map-values)
+    - [2. `src/engine.rs` (3 warnings)](#2-srcenginers-3-warnings)
+      - [2.1 Manual prefix stripping](#21-manual-prefix-stripping)
+      - [2.2 `or_insert_with` for default value](#22-or_insert_with-for-default-value)
+      - [2.3 Length comparison to one](#23-length-comparison-to-one)
+    - [3. `src/receipts.rs` (2 warnings)](#3-srcreceiptsrs-2-warnings)
+      - [3.1 Derive `Default` instead of manual impl](#31-derive-default-instead-of-manual-impl)
+      - [3.2 Add `Default` for `ReceiptGenerator` (Optional)](#32-add-default-for-receiptgenerator-optional)
+    - [4. `src/state.rs` (1 warning)](#4-srcstaters-1-warning)
+      - [4.1 Unnecessary cast to same type](#41-unnecessary-cast-to-same-type)
+  - [Fix Execution Order](#fix-execution-order)
+    - [Phase 1: Simple Mechanical Fixes (15 warnings, ~5 min)](#phase-1-simple-mechanical-fixes-15-warnings-5-min)
+    - [Phase 2: Manual Code Review (6 warnings, ~15 min)](#phase-2-manual-code-review-6-warnings-15-min)
+  - [Commands](#commands)
+    - [Apply fixes automatically (Phase 1 only):](#apply-fixes-automatically-phase-1-only)
+    - [Verify after fixes:](#verify-after-fixes)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Clippy Fix Plan: ggen-workflow
 
 **Generated**: 2026-02-08

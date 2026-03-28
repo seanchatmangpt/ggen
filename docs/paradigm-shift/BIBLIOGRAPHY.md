@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Bibliography and References](#bibliography-and-references)
+  - [Core Research Papers](#core-research-papers)
+    - [Toyota Production System & Manufacturing](#toyota-production-system--manufacturing)
+    - [Workflow Patterns](#workflow-patterns)
+    - [Organizational Structure & Conway's Law](#organizational-structure--conways-law)
+    - [Queueing Theory & Little's Law](#queueing-theory--littles-law)
+    - [Type Theory & Formal Methods](#type-theory--formal-methods)
+    - [Testing & Test-Driven Development](#testing--test-driven-development)
+    - [Distributed Systems & Consensus](#distributed-systems--consensus)
+    - [Semantic Web & RDF](#semantic-web--rdf)
+    - [Software Architecture](#software-architecture)
+    - [Performance & Optimization](#performance--optimization)
+    - [Security & Cryptography](#security--cryptography)
+  - [Industry Reports & Case Studies](#industry-reports--case-studies)
+  - [Economic Theory](#economic-theory)
+  - [Protocol Specifications](#protocol-specifications)
+  - [Software Engineering Practices](#software-engineering-practices)
+  - [Rust & Systems Programming](#rust--systems-programming)
+  - [Additional Resources](#additional-resources)
+    - [Online Resources](#online-resources)
+    - [Related ggen Documentation](#related-ggen-documentation)
+  - [Citation Format](#citation-format)
+  - [Further Reading](#further-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Bibliography and References
 
 **Version**: 1.0.0

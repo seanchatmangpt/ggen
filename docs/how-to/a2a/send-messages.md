@@ -1,24 +1,30 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doCTOC TO UPDATE -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
 - [How to Send Messages Between Agents](#how-to-send-messages-between-agents)
   - [Understanding A2A Messaging](#understanding-a2a-messaging)
   - [Basic Message Sending](#basic-message-sending)
   - [Message Formats](#message-formats)
+    - [Text Messages](#text-messages)
+    - [JSON Messages](#json-messages)
+    - [Structured Messages](#structured-messages)
   - [Direct Agent Communication](#direct-agent-communication)
   - [Broadcast Messages](#broadcast-messages)
   - [Request-Response Pattern](#request-response-pattern)
   - [Streaming Messages](#streaming-messages)
   - [Message Queues](#message-queues)
   - [Handling Errors](#handling-errors)
+    - [Retry Failed Messages](#retry-failed-messages)
+    - [Dead Letter Queue](#dead-letter-queue)
+    - [Error Handling in Code](#error-handling-in-code)
   - [Troubleshooting](#troubleshooting)
     - [Message Not Delivered](#message-not-delivered)
     - [No Response](#no-response)
     - [Serialization Errors](#serialization-errors)
   - [Next Steps](#next-steps)
 
-<!-- END doctoc generated TOC -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # How to Send Messages Between Agents
 

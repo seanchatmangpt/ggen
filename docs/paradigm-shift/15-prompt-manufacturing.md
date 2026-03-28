@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Prompt Manufacturing: Compiling Prompts from Ontology](#prompt-manufacturing-compiling-prompts-from-ontology)
+  - [TL;DR](#tldr)
+  - [Table of Contents](#table-of-contents)
+  - [The Problem: Prompt Drift](#the-problem-prompt-drift)
+    - [Traditional Prompt Engineering](#traditional-prompt-engineering)
+  - [The Solution: Prompts as Target Language](#the-solution-prompts-as-target-language)
+    - [The Paradigm Shift](#the-paradigm-shift)
+    - [Prompts as Compilation Target](#prompts-as-compilation-target)
+  - [Prompt IR is CONSTRUCT-Shaped](#prompt-ir-is-construct-shaped)
+    - [The No Moving Parts Principle](#the-no-moving-parts-principle)
+    - [Traditional Template Approach (Moving Parts)](#traditional-template-approach-moving-parts)
+    - [ggen CONSTRUCT Approach (No Moving Parts)](#ggen-construct-approach-no-moving-parts)
+  - [Deterministic Prompt Emission](#deterministic-prompt-emission)
+    - [The Determinism Guarantee](#the-determinism-guarantee)
+    - [Concrete Example: Bond Extraction Prompts](#concrete-example-bond-extraction-prompts)
+  - [LLMs as Replaceable Stations](#llms-as-replaceable-stations)
+    - [The Manufacturing Analogy](#the-manufacturing-analogy)
+    - [LLM as CPU Analogy](#llm-as-cpu-analogy)
+    - [Practical Example: LLM Swapping](#practical-example-llm-swapping)
+  - [Prompt Drift Elimination](#prompt-drift-elimination)
+    - [The Drift Problem](#the-drift-problem)
+    - [ggen Solution: Prompts are Derived, Not Written](#ggen-solution-prompts-are-derived-not-written)
+    - [Example: Preventing Drift](#example-preventing-drift)
+  - [Designing Prompt Ontologies](#designing-prompt-ontologies)
+    - [Core Principles](#core-principles)
+    - [Prompt Ontology Structure](#prompt-ontology-structure)
+    - [CONSTRUCT Rules for Prompt Generation](#construct-rules-for-prompt-generation)
+    - [Template for Prompt Emission](#template-for-prompt-emission)
+  - [Complete Example: Narrative to Compiled Prompt](#complete-example-narrative-to-compiled-prompt)
+    - [Step 1: Narrative Requirement](#step-1-narrative-requirement)
+    - [Step 2: Formalize as OWL Ontology](#step-2-formalize-as-owl-ontology)
+    - [Step 3: Generate Prompt IR (μ₁ + μ₂)](#step-3-generate-prompt-ir-%CE%BC%E2%82%81--%CE%BC%E2%82%82)
+    - [Step 4: Emit Final Prompt (μ₃)](#step-4-emit-final-prompt-%CE%BC%E2%82%83)
+    - [Step 5: Verify Determinism](#step-5-verify-determinism)
+    - [Step 6: Use in Production](#step-6-use-in-production)
+  - [Integration with ggen Pipeline](#integration-with-ggen-pipeline)
+    - [The Five-Stage Pipeline (μ₁-μ₅)](#the-five-stage-pipeline-%CE%BC%E2%82%81-%CE%BC%E2%82%85)
+    - [Example: ggen.toml Configuration](#example-ggentoml-configuration)
+    - [CLI Integration](#cli-integration)
+  - [Performance and Verification](#performance-and-verification)
+    - [Performance Metrics](#performance-metrics)
+    - [Verification Checklist](#verification-checklist)
+    - [Test Suite](#test-suite)
+  - [Summary](#summary)
+  - [Further Reading](#further-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Prompt Manufacturing: Compiling Prompts from Ontology
 
 **Version**: 1.0.0
