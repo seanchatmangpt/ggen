@@ -303,7 +303,10 @@ pub fn check_boundedness(code: &str) -> Vec<SoundnessViolation> {
     let ets_new = Regex::new(r#":ets\.new\s*\(\s*:\w+\s*,"#).unwrap();
 
     for (line_num, line) in code.lines().enumerate() {
-        if ets_new.is_match(line) && !line.contains("max_bytes") && !line.contains("write_concurrency") {
+        if ets_new.is_match(line)
+            && !line.contains("max_bytes")
+            && !line.contains("write_concurrency")
+        {
             violations.push(SoundnessViolation {
                 line: line_num + 1,
                 rule: "BOUNDEDNESS_003".to_string(),

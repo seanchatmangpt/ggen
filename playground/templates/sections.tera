@@ -3,11 +3,11 @@
 % ============================================================================
 
 {% for row in sparql_results %}
-% Chapter {{ row["?chapterNum"] }}: {{ row["?chapterTitle"] }}
-% Section: {{ row["?sectionTitle"] }}
+% Chapter {{ row["chapterNum"] }}: {{ row["chapterTitle"] }}
+% Section: {{ row["sectionTitle"] }}
 
-\section{ {{ row["?sectionTitle"] }} }
+\section{ {{ row["sectionTitle"] }} }
 
-{{ row["?content"] }}
+{{ row["content"] }}
 
 {% endfor %}

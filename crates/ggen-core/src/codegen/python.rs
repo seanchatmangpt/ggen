@@ -582,8 +582,7 @@ impl PythonGenerator {
                 .map_err(|e| e.to_string())?;
                 writeln!(
                     out,
-                    "    response = await async_client.{method_lower}(\"/api/v1/{}\")",
-                    "00000000-0000-0000-0000-000000000000"
+                    "    response = await async_client.{method_lower}(\"/api/v1/00000000-0000-0000-0000-000000000000\")"
                 )
                 .map_err(|e| e.to_string())?;
                 writeln!(out, "    assert response.status_code == 404\n")
