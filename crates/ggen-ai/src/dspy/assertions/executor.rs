@@ -222,11 +222,7 @@ impl BacktrackExecutor {
 
             match suggestion_result {
                 ValidationResult::Invalid { feedback } => {
-                    debug!(
-                        "Suggestion failed on attempt {}: {}",
-                        attempt + 1,
-                        feedback
-                    );
+                    debug!("Suggestion failed on attempt {}: {}", attempt + 1, feedback);
 
                     let output_str =
                         serde_json::to_string(&output).unwrap_or_else(|_| format!("{:?}", output));
@@ -310,7 +306,11 @@ impl BacktrackExecutor {
             let hard_result = self.validate_all(&output);
             match hard_result {
                 ValidationResult::Invalid { feedback } => {
-                    debug!("Hard assertion failed on attempt {}: {}", attempt + 1, feedback);
+                    debug!(
+                        "Hard assertion failed on attempt {}: {}",
+                        attempt + 1,
+                        feedback
+                    );
                     let output_str =
                         serde_json::to_string(&output).unwrap_or_else(|_| format!("{:?}", output));
                     context.add_failure(output_str, feedback.clone());
