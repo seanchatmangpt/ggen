@@ -11,7 +11,7 @@
 //! AAA: Arrange / Act / Assert
 
 use ggen_a2a_mcp::ggen_server::GgenMcpServer;
-use rmcp::{ClientHandler, ServiceExt, model::*};
+use rmcp::{ClientHandler, RoleClient, ServiceExt, model::*, service::RunningService};
 
 // ---------------------------------------------------------------------------
 // Minimal no-op client handler required by rmcp to negotiate the connection.
@@ -31,14 +31,12 @@ impl ClientHandler for TestClientHandler {
 // return the connected client Peer.
 // ---------------------------------------------------------------------------
 
-async fn start_server() -> anyhow::Result<rmcp::Peer<rmcp::RoleClient>> {
+async fn start_server() -> anyhow::Result<RunningService<RoleClient, TestClientHandler>> {
     let (server_transport, client_transport) = tokio::io::duplex(4096);
 
     let server = GgenMcpServer::new();
     tokio::spawn(async move {
-        if let Ok(handle) = server.serve(server_transport).await {
-            let _ = handle.waiting().await;
-        }
+        let _ = server.serve(server_transport).await;
     });
 
     let client = TestClientHandler::default()
