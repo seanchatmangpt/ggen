@@ -303,17 +303,15 @@ pub fn check_boundedness(code: &str) -> Vec<SoundnessViolation> {
     let ets_new = Regex::new(r#":ets\.new\s*\(\s*:\w+\s*,"#).unwrap();
 
     for (line_num, line) in code.lines().enumerate() {
-        if ets_new.is_match(line) {
-            if !line.contains("max_bytes") && !line.contains("write_concurrency") {
-                violations.push(SoundnessViolation {
-                    line: line_num + 1,
-                    rule: "BOUNDEDNESS_003".to_string(),
-                    message: "ETS table without memory limit or concurrency settings".to_string(),
-                    fix: "Configure: [:set, {:write_concurrency, true}, {:max_memory, 512}]"
-                        .to_string(),
-                    snippet: line.trim().to_string(),
-                });
-            }
+        if ets_new.is_match(line) && !line.contains("max_bytes") && !line.contains("write_concurrency") {
+            violations.push(SoundnessViolation {
+                line: line_num + 1,
+                rule: "BOUNDEDNESS_003".to_string(),
+                message: "ETS table without memory limit or concurrency settings".to_string(),
+                fix: "Configure: [:set, {:write_concurrency, true}, {:max_memory, 512}]"
+                    .to_string(),
+                snippet: line.trim().to_string(),
+            });
         }
     }
 
@@ -387,16 +385,14 @@ pub fn check_supervision(code: &str) -> Vec<SoundnessViolation> {
     let child_spec_no_restart = Regex::new(r#"\{(\w+),\s*\[\]"#).unwrap();
 
     for (line_num, line) in code.lines().enumerate() {
-        if child_spec_no_restart.is_match(line) {
-            if !line.contains("restart:") {
-                violations.push(SoundnessViolation {
-                    line: line_num + 1,
-                    rule: "SUPERVISION_002".to_string(),
-                    message: "Child process spec without restart strategy".to_string(),
-                    fix: "Specify restart: :permanent, :transient, or :temporary".to_string(),
-                    snippet: line.trim().to_string(),
-                });
-            }
+        if child_spec_no_restart.is_match(line) && !line.contains("restart:") {
+            violations.push(SoundnessViolation {
+                line: line_num + 1,
+                rule: "SUPERVISION_002".to_string(),
+                message: "Child process spec without restart strategy".to_string(),
+                fix: "Specify restart: :permanent, :transient, or :temporary".to_string(),
+                snippet: line.trim().to_string(),
+            });
         }
     }
 
