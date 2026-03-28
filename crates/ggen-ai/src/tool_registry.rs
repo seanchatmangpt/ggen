@@ -626,7 +626,8 @@ mod tests {
         {
             let reg = REGISTRY.read().unwrap();
             assert!(reg.contains("thread_test_tool"));
-            assert_eq!(reg.count(), 1);
+            // Don't assert exact count — parallel tests share this global registry
+            assert!(reg.count() >= 1);
         }
     }
 
@@ -649,7 +650,11 @@ mod tests {
         {
             let reg = REGISTRY.read().unwrap();
             let list = reg.list();
-            assert_eq!(list.len(), 2);
+            // At least the 2 tools we registered must be present
+            // (other parallel tests may have also added tools)
+            assert!(list.len() >= 2);
+            assert!(reg.contains("global_tool_1"));
+            assert!(reg.contains("global_tool_2"));
         }
     }
 

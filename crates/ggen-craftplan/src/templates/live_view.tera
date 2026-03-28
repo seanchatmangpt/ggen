@@ -19,15 +19,15 @@ defmodule {{ config.module_prefix }}Web.Live.{{ entity.name }}Index do
       <table>
         <thead>
           <tr>
-            {% for attr in entity.attributes | slice(end: 5) %}
-            <th>{{ attr.name | title_case }}</th>
+            {% for attr in entity.attributes | slice(end=5) %}
+            <th>{{ attr.name | title }}</th>
             {% endfor %}
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr :for={{- "{" }}{{ attr }} <- @{{ entity.name | lower }}_list}>
-            {% for attr in entity.attributes | slice(end: 5) %}
+          <tr :for={{- "{" }}{{ entity.name | lower }} <- @{{ entity.name | lower }}_list}>
+            {% for attr in entity.attributes | slice(end=5) %}
             <td>{{"{{"}} {{ attr.name }} {{"}}"}}</td>
             {% endfor %}
             <td>
