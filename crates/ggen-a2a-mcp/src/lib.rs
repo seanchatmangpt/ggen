@@ -23,6 +23,7 @@
 pub mod adapter;
 pub mod client;
 pub mod error;
+pub mod ggen_server;
 pub mod handlers;
 pub mod mcp;
 pub mod message;
