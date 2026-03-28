@@ -1,10 +1,4 @@
----
-to: "generated/src/lib.rs"
-vars:
-  project_name: string
-  documentation: string
----
-//! {{ documentation }}
+//! {{ documentation | default(value="Auto-generated library") }}
 //!
 //! This module was auto-generated from specification
 

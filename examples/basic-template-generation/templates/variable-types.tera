@@ -18,9 +18,11 @@ Tera templates support several variable types.
 
 ## Usage in Templates
 
+{% raw %}
 ```tera
 {{ string_variable }}
 {% if boolean_variable %}content{% endif %}
 {% for item in array_variable %}{{ item }}{% endfor %}
 {{ object_variable.key }}
 ```
+{% endraw %}

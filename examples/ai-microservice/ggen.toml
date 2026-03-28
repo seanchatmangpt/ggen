@@ -1,51 +1,76 @@
-# AI Microservice Configuration
-# Demonstrates all ggen-ai configuration options
+# =============================================================================
+# ggen v5 AI Microservice Manifest
+# Ontology-driven README and Dockerfile generation for an AI microservice
+# =============================================================================
 
 [project]
 name = "ai-microservice"
 version = "0.1.0"
-description = "AI-powered microservice with template generation, refactoring, and ontology support"
-author = "ggen examples"
+description = "AI-powered microservice with LLM integration and REST API"
 
-[ai]
-provider = "openai"
-model = "gpt-4"
-temperature = 0.7
-max_tokens = 2000
-timeout_seconds = 30
-retry_attempts = 3
-stream_enabled = true
+[ontology]
+source = "ontology/microservice.ttl"
+base_iri = "https://ggen.io/examples/microservice/"
 
-[ai.cache]
-enabled = true
-ttl_seconds = 3600
-max_entries = 1000
-strategy = "lru"
+[ontology.prefixes]
+svc = "https://ggen.io/examples/microservice#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
 
-[ai.providers.openai]
-api_key_env = "OPENAI_API_KEY"
-organization_env = "OPENAI_ORG_ID"
-model = "gpt-4"
+[inference]
+rules = []
 
-[ai.providers.anthropic]
-api_key_env = "ANTHROPIC_API_KEY"
-model = "claude-3-5-sonnet-20241022"
-
-[ai.providers.ollama]
-base_url = "http://localhost:11434"
-model = "qwen2.5-coder:7b"
-
-[templates]
-source_dir = "templates"
+[generation]
 output_dir = "generated"
-backup_enabled = true
-idempotent = true
 
-[logging]
-level = "debug"
-format = "json"
-output = "stdout"
+# =============================================================================
+# RULE 1: README with API Route Table
+# Generates README from service metadata and routes
+# =============================================================================
+[[generation.rules]]
+name = "readme"
+query = { inline = """
+PREFIX svc: <https://ggen.io/examples/microservice#>
 
-[performance]
-enable_profiling = true
-memory_limit_mb = 512
+SELECT ?name ?version ?description ?port ?baseImage ?path ?method ?routeDescription
+WHERE {
+  ?service a svc:Service ;
+           svc:name ?name ;
+           svc:version ?version ;
+           svc:description ?description ;
+           svc:port ?port ;
+           svc:baseImage ?baseImage ;
+           svc:hasRoute ?route .
+  ?route svc:path ?path ;
+         svc:method ?method ;
+         svc:description ?routeDescription .
+}
+ORDER BY ?path ?method
+""" }
+template = { file = "templates/readme.tera" }
+output_file = "README.md"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 2: Dockerfile
+# Generates Dockerfile from service metadata
+# =============================================================================
+[[generation.rules]]
+name = "dockerfile"
+query = { inline = """
+PREFIX svc: <https://ggen.io/examples/microservice#>
+
+SELECT ?name ?version ?port ?baseImage
+WHERE {
+  ?service a svc:Service ;
+           svc:name ?name ;
+           svc:version ?version ;
+           svc:port ?port ;
+           svc:baseImage ?baseImage .
+}
+LIMIT 1
+""" }
+template = { file = "templates/dockerfile.tera" }
+output_file = "Dockerfile"
+mode = "Overwrite"

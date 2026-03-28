@@ -79,6 +79,7 @@ description = "Generate route metadata from servlet definitions"
 construct = """
 PREFIX yawl-servlet: <http://unrdf.org/yawl/servlet#>
 PREFIX yawl-gen: <http://unrdf.org/yawl/generation#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 CONSTRUCT {
   ?servlet yawl-gen:routeHandler ?routeHandler ;
@@ -466,6 +467,7 @@ name = "worklet-index"
 description = "Generate worklet index module"
 query = { inline = """
 PREFIX yawl-worklet: <http://unrdf.org/yawl/worklet#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT ?workletId ?workletName ?exceptionType
 WHERE {

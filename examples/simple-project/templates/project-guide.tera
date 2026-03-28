@@ -1,12 +1,6 @@
----
-to: "generated/PROJECT_GUIDE.md"
-vars:
-  project_name: string
-  description: string
----
-# {{ project_name | capitalize }}
+# {{ project_name | default(value="Project") | capitalize }}
 
-{{ description }}
+{{ description | default(value="A Rust project") }}
 
 ## Project Layout
 

@@ -1,0 +1,38 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:    <https://example.com/microservices#> .
+
+# ── Microservices ─────────────────────────────────────────────────────────────
+
+ex:UserService a ex:Service ;
+    ex:serviceName  "UserService" ;
+    ex:port         "8081" ;
+    ex:framework    "actix-web" ;
+    ex:description  "User management microservice with CRUD operations" .
+
+ex:ProductService a ex:Service ;
+    ex:serviceName  "ProductService" ;
+    ex:port         "8082" ;
+    ex:framework    "axum" ;
+    ex:description  "Product catalogue and inventory microservice" .
+
+ex:OrderService a ex:Service ;
+    ex:serviceName  "OrderService" ;
+    ex:port         "8083" ;
+    ex:framework    "axum" ;
+    ex:description  "Order lifecycle and fulfilment microservice" .
+
+ex:ApiGateway a ex:Service ;
+    ex:serviceName  "ApiGateway" ;
+    ex:port         "8080" ;
+    ex:framework    "axum" ;
+    ex:description  "Main entry point for all API requests with routing and load balancing" .
+
+# ── Dependencies ─────────────────────────────────────────────────────────────
+
+ex:ApiGateway  ex:dependsOn ex:UserService .
+ex:ApiGateway  ex:dependsOn ex:ProductService .
+ex:ApiGateway  ex:dependsOn ex:OrderService .
+ex:OrderService ex:dependsOn ex:UserService .
+ex:OrderService ex:dependsOn ex:ProductService .

@@ -16,7 +16,7 @@ ggen ai validate checks AI-generated templates against these quality criteria.
 **Template Syntax**: Valid YAML frontmatter and Tera
 - [ ] Frontmatter between --- markers
 - [ ] Valid YAML in frontmatter
-- [ ] Proper Tera syntax ({{ }}, {% %})
+- [ ] Proper Tera syntax ({% raw %}{{ }}{% endraw %}, {% raw %}{%- -%}{% endraw %})
 - [ ] Filters are valid
 
 ## Safety Rules

@@ -5,20 +5,23 @@ to: "generated/FRONTMATTER_EXAMPLES.md"
 
 ## Basic Example
 
+{% raw %}
 ```yaml
 ---
-to: "generated/{{ name | snake_case }}.rs"
+to: "generated/{{ name | snake }}.rs"
 vars:
   name: string
   description: string
 ---
 ```
+{% endraw %}
 
 ## Complex Example
 
+{% raw %}
 ```yaml
 ---
-to: "generated/{{ name | snake_case }}.rs"
+to: "generated/{{ name | snake }}.rs"
 vars:
   name: string
   description: string
@@ -27,9 +30,11 @@ vars:
   validation_rules: object
 ---
 ```
+{% endraw %}
 
 ## Output Path Patterns
 
+{% raw %}
 ```yaml
 # Simple file
 to: "output.rs"
@@ -38,8 +43,9 @@ to: "output.rs"
 to: "generated/{{ name }}.rs"
 
 # With filters
-to: "src/{{ module | snake_case }}/mod.rs"
+to: "src/{{ module | snake }}/mod.rs"
 
 # With nested paths
-to: "src/generated/{{ category }}/{{ name | snake_case }}.rs"
+to: "src/generated/{{ category }}/{{ name | snake }}.rs"
 ```
+{% endraw %}

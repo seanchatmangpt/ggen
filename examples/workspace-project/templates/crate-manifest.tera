@@ -1,0 +1,13 @@
+{# Crate Cargo.toml template - generated from RDF ontology #}
+{%- set first = sparql_results | first %}
+# Generated Cargo.toml for {{ first["crateName"] | default(value="unknown") }}
+# Source of truth: ontology/workspace.ttl
+
+[package]
+name = "{{ first["crateName"] | default(value="unnamed") }}"
+version = "1.0.0"
+edition = "2021"
+description = "{{ first["crateDescription"] | default(value="") }}"
+
+[lib]
+name = "{{ first["crateName"] | default(value="lib") | replace(from="-", to="_") }}"

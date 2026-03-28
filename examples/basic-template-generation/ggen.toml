@@ -22,6 +22,7 @@ name = "enrich-templates"
 description = "Materialize template metadata"
 construct = """
 PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 CONSTRUCT {
   ?template tmpl:templateType ?type ;
     tmpl:hasVariables ?vars ;
@@ -39,47 +40,50 @@ WHERE {
 [[generation.rules]]
 name = "generate-rust-module"
 description = "Generate Rust module from template definition"
-sparql = """
+query = { inline = """
 PREFIX tmpl: <https://ggen.io/ontology/templates#>
-SELECT ?moduleName ?moduleDescription ?fields ?hasValidation
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?module_name ?description ?has_validation
 WHERE {
   ?module a tmpl:RustModule ;
-    tmpl:name ?moduleName ;
-    rdfs:comment ?moduleDescription ;
-    tmpl:fields ?fields .
-  OPTIONAL { ?module tmpl:hasValidation ?hasValidation }
+    tmpl:moduleName ?module_name ;
+    rdfs:comment ?description .
+  OPTIONAL { ?module tmpl:hasValidation ?has_validation }
 }
-ORDER BY ?moduleName
-"""
+ORDER BY ?module_name
+""" }
 template = { file = "templates/rust-module.tera" }
-output_file = "generated/{{ module_name | snake_case }}.rs"
+output_file = "generated/{{ module_name }}.rs"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-rust-struct"
 description = "Generate Rust struct with derives and implementations"
-sparql = """
+query = { inline = """
 PREFIX tmpl: <https://ggen.io/ontology/templates#>
-SELECT ?structName ?structDescription ?fields ?hasId ?hasBuilder
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?struct_name ?type_name ?struct_description ?fields ?has_id ?has_builder
 WHERE {
   ?struct a tmpl:RustStruct ;
-    tmpl:name ?structName ;
-    rdfs:comment ?structDescription .
-  ?struct tmpl:hasFields ?fields .
-  OPTIONAL { ?struct tmpl:hasId ?hasId }
-  OPTIONAL { ?struct tmpl:hasBuilder ?hasBuilder }
+    tmpl:structName ?struct_name ;
+    tmpl:typeName ?type_name ;
+    rdfs:comment ?struct_description ;
+    tmpl:hasFields ?fields .
+  OPTIONAL { ?struct tmpl:hasId ?has_id }
+  OPTIONAL { ?struct tmpl:hasBuilder ?has_builder }
 }
-ORDER BY ?structName
-"""
+ORDER BY ?struct_name
+""" }
 template = { file = "templates/rust-struct.tera" }
-output_file = "generated/{{ struct_name | snake_case }}.rs"
+output_file = "generated/{{ struct_name }}.rs"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-documentation"
 description = "Generate learning documentation"
-sparql = """
+query = { inline = """
 PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?name ?description ?examples ?filters
 WHERE {
   ?template a tmpl:Template ;
@@ -89,7 +93,7 @@ WHERE {
   OPTIONAL { ?template tmpl:filters ?filters }
 }
 ORDER BY ?name
-"""
+""" }
 template = { file = "templates/documentation.tera" }
 output_file = "generated/TEMPLATE_GUIDE.md"
 mode = "Overwrite"
@@ -97,8 +101,9 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "generate-test-module"
 description = "Generate test module for template examples"
-sparql = """
+query = { inline = """
 PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?testName ?moduleName ?testDescription
 WHERE {
   ?test a tmpl:TemplateTest ;
@@ -107,7 +112,7 @@ WHERE {
     rdfs:comment ?testDescription .
 }
 ORDER BY ?moduleName ?testName
-"""
+""" }
 template = { file = "templates/tests.tera" }
 output_file = "generated/tests.rs"
 mode = "Overwrite"
@@ -115,8 +120,9 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "generate-filters-reference"
 description = "Generate Tera filters reference documentation"
-sparql = """
+query = { inline = """
 PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?filterName ?filterDescription ?filterExample
 WHERE {
   ?filter a tmpl:TeraFilter ;
@@ -125,7 +131,7 @@ WHERE {
   OPTIONAL { ?filter tmpl:example ?filterExample }
 }
 ORDER BY ?filterName
-"""
+""" }
 template = { file = "templates/filters-reference.tera" }
 output_file = "generated/FILTERS_REFERENCE.md"
 mode = "Overwrite"
@@ -133,8 +139,9 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "generate-variable-types"
 description = "Generate variable types documentation"
-sparql = """
+query = { inline = """
 PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?typeName ?typeDescription ?typeExample
 WHERE {
   ?type a tmpl:VariableType ;
@@ -143,7 +150,7 @@ WHERE {
   OPTIONAL { ?type tmpl:example ?typeExample }
 }
 ORDER BY ?typeName
-"""
+""" }
 template = { file = "templates/variable-types.tera" }
 output_file = "generated/VARIABLE_TYPES.md"
 mode = "Overwrite"
@@ -151,8 +158,9 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "generate-frontmatter-examples"
 description = "Generate YAML frontmatter examples"
-sparql = """
+query = { inline = """
 PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?exampleName ?yamlContent ?description
 WHERE {
   ?example a tmpl:FrontmatterExample ;
@@ -161,7 +169,7 @@ WHERE {
     rdfs:comment ?description .
 }
 ORDER BY ?exampleName
-"""
+""" }
 template = { file = "templates/frontmatter-examples.tera" }
 output_file = "generated/FRONTMATTER_EXAMPLES.md"
 mode = "Overwrite"
@@ -169,8 +177,9 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "generate-tera-syntax-guide"
 description = "Generate Tera template syntax guide"
-sparql = """
+query = { inline = """
 PREFIX tmpl: <https://ggen.io/ontology/templates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?syntaxName ?syntaxDescription ?syntaxExample ?syntaxCategory
 WHERE {
   ?syntax a tmpl:TeraSyntax ;
@@ -180,7 +189,7 @@ WHERE {
     tmpl:category ?syntaxCategory .
 }
 ORDER BY ?syntaxCategory ?syntaxName
-"""
+""" }
 template = { file = "templates/tera-syntax-guide.tera" }
 output_file = "generated/TERA_SYNTAX_GUIDE.md"
 mode = "Overwrite"
@@ -188,7 +197,7 @@ mode = "Overwrite"
 [[generation.rules]]
 name = "generate-troubleshooting-guide"
 description = "Generate troubleshooting and common errors guide"
-sparql = """
+query = { inline = """
 PREFIX tmpl: <https://ggen.io/ontology/templates#>
 SELECT ?errorName ?errorCause ?errorSolution ?errorCategory
 WHERE {
@@ -199,7 +208,7 @@ WHERE {
     tmpl:category ?errorCategory .
 }
 ORDER BY ?errorCategory ?errorName
-"""
+""" }
 template = { file = "templates/troubleshooting-guide.tera" }
 output_file = "generated/TROUBLESHOOTING.md"
 mode = "Overwrite"

@@ -1,15 +1,8 @@
----
-to: "generated/Cargo.toml"
-vars:
-  project_name: string
-  version: string
-  description: string
----
 [package]
-name = "{{ project_name }}"
-version = "{{ version }}"
+name = "{{ project_name | default(value="my-project") }}"
+version = "{{ version | default(value="0.1.0") }}"
 edition = "2021"
-description = "{{ description }}"
+description = "{{ description | default(value="A Rust project") }}"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }

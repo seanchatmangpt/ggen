@@ -1,57 +1,77 @@
-# Comprehensive Rust Showcase Configuration
-# Demonstrates ALL ggen features with marketplace integration
+# =============================================================================
+# ggen v5 Comprehensive Rust Showcase Manifest
+# Ontology-driven generation of README and entity documentation
+# =============================================================================
 
 [project]
 name = "comprehensive-rust-showcase"
 version = "1.0.0"
-description = "Comprehensive Rust project showcasing all ggen marketplace features"
-author = "ggen-examples"
-license = "MIT"
-repository = "https://github.com/example/comprehensive-rust-showcase"
+description = "Comprehensive Rust project showcasing ggen code generation features"
 
-# Lifecycle configuration file
-[lifecycle]
-makefile = "make.toml"
-
-# Marketplace configuration
-[marketplace]
-registry_url = "https://registry.ggen.dev"
-cache_dir = ".ggen/marketplace"
-offline_mode = false
-
-# Template configuration
-[templates]
-source_dir = "templates"
-output_dir = "generated"
-backup_enabled = true
-
-# AI configuration
-[ai]
-provider = "openai"
-model = "gpt-4"
-temperature = 0.7
-max_tokens = 2000
-
-# Graph/SPARQL configuration
-[graph]
+[ontology]
+source = "ontology/showcase.ttl"
 base_iri = "http://example.org/comprehensive-rust-showcase/"
-cache_queries = true
-query_timeout_seconds = 30
 
-# Security configuration
-[security]
-validate_paths = true
-audit_operations = true
-require_confirmation = false
+[ontology.prefixes]
+ex = "http://example.org/comprehensive-rust-showcase/"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
 
-# Logging configuration
-[logging]
-level = "info"
-format = "json"
-output = "file"
-file_path = ".ggen/logs/ggen.log"
+[inference]
+rules = []
 
-# Performance configuration
-[performance]
-enable_profiling = true
-memory_limit_mb = 1024
+[generation]
+output_dir = "generated"
+
+# =============================================================================
+# RULE 1: Project README
+# Generates README with project overview and entity table
+# =============================================================================
+[[generation.rules]]
+name = "readme"
+query = { inline = """
+PREFIX ex: <http://example.org/comprehensive-rust-showcase/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?projectName ?projectDescription ?version ?label ?tableName ?comment
+WHERE {
+  ?project a ex:Project ;
+           ex:name ?projectName ;
+           ex:description ?projectDescription ;
+           ex:version ?version ;
+           ex:hasEntity ?entity .
+  ?entity a ex:Entity ;
+          rdfs:label ?label ;
+          ex:tableName ?tableName ;
+          rdfs:comment ?comment .
+}
+ORDER BY ?label
+""" }
+template = { file = "templates/readme.tera" }
+output_file = "README.md"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 2: Entity Summary
+# Generates a detailed entity reference document
+# =============================================================================
+[[generation.rules]]
+name = "entity-summary"
+query = { inline = """
+PREFIX ex: <http://example.org/comprehensive-rust-showcase/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?label ?tableName ?primaryKey ?comment
+WHERE {
+  ?entity a ex:Entity ;
+          rdfs:label ?label ;
+          ex:tableName ?tableName ;
+          ex:primaryKey ?primaryKey ;
+          rdfs:comment ?comment .
+}
+ORDER BY ?label
+""" }
+template = { file = "templates/entity-summary.tera" }
+output_file = "ENTITIES.md"
+mode = "Overwrite"

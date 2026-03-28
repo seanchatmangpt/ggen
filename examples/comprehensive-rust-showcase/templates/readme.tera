@@ -1,0 +1,40 @@
+{# Comprehensive Rust Showcase README - generated from RDF ontology #}
+{%- set first = sparql_results | first %}
+# {{ first["projectName"] | default(value="comprehensive-rust-showcase") }}
+
+> {{ first["projectDescription"] | default(value="Comprehensive Rust code generation showcase") }}
+
+**Version:** {{ first["version"] | default(value="1.0.0") }}
+
+## Domain Entities
+
+| Entity | Table | Description |
+|--------|-------|-------------|
+{% for row in sparql_results -%}
+| **{{ row["label"] }}** | `{{ row["tableName"] }}` | {{ row["comment"] }} |
+{% endfor %}
+
+## Features
+
+- Tokio async runtime for high-performance I/O
+- PostgreSQL integration via sqlx with connection pooling
+- Axum-based REST API with OpenAPI documentation
+- Ontology-driven code generation with ggen
+
+## Getting Started
+
+```bash
+# Generate code from ontology
+ggen sync
+
+# Build
+cargo build
+
+# Test
+cargo test
+```
+
+## Architecture
+
+This project demonstrates ggen's code generation from RDF ontologies.
+The source of truth lives in `ontology/showcase.ttl`.

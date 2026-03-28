@@ -1,86 +1,91 @@
-# ggen Configuration for Microservices Architecture
-# Demonstrates comprehensive ggen features
+# =============================================================================
+# ggen v5 Microservices Architecture Code Generation Manifest
+# Generates service scaffolds and SPARQL query files from an RDF ontology.
+# =============================================================================
 
 [project]
 name = "microservices-architecture"
 version = "1.0.0"
-description = "E-commerce microservices with Rust"
-authors = ["ggen-example"]
+description = "E-commerce microservices with Rust — generated from RDF ontology"
 
-[ai]
-provider = "ollama"
-model = "qwen2.5-coder"
-temperature = 0.7
-max_tokens = 4000
-timeout = 30
+[ontology]
+source = "ontology/microservices.ttl"
+base_iri = "https://example.com/microservices#"
 
-[ai.prompts]
-system = "You are an expert Rust developer specializing in microservices architecture. Generate production-ready code with proper error handling, testing, and documentation."
-user_prefix = "Generate a Rust microservice with the following requirements:"
+[ontology.prefixes]
+ex   = "https://example.com/microservices#"
+rdf  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd  = "http://www.w3.org/2001/XMLSchema#"
 
-[ai.validation]
-enabled = true
-quality_threshold = 0.8
-max_iterations = 3
+[inference]
+rules = []
 
-[templates]
-directory = "templates"
-backup_enabled = true
+[generation]
+output_dir = "generated"
+require_audit_trail = true
 
-[templates.rust]
-style = "core-team"
-error_handling = "thiserror"
-logging = "tracing"
-async_runtime = "tokio"
-testing = "comprehensive"
+# =============================================================================
+# RULE 1: API Gateway scaffold
+# =============================================================================
+[[generation.rules]]
+name = "api-gateway"
+query = { inline = """
+PREFIX ex: <https://example.com/microservices#>
 
-[templates.microservice]
-framework = "auto-detect"  # axum, actix-web, warp, tonic
-database = "postgresql"
-cache = "redis"
-monitoring = "prometheus"
-documentation = "openapi"
+SELECT ?serviceName ?port ?framework ?description
+WHERE {
+  ?service a ex:Service ;
+           ex:serviceName  ?serviceName ;
+           ex:port         ?port ;
+           ex:framework    ?framework ;
+           ex:description  ?description .
+}
+ORDER BY ?port
+""" }
+template    = { file = "templates/api-gateway.tera" }
+output_file = "services/api-gateway/src/main.rs"
+mode        = "Overwrite"
 
-[rdf]
-base_uri = "https://example.com/microservices/"
-prefixes = { ex = "https://example.com/microservices/", schema = "http://schema.org/", rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#" }
+# =============================================================================
+# RULE 2: User service scaffold
+# =============================================================================
+[[generation.rules]]
+name = "user-service"
+query = { inline = """
+PREFIX ex: <https://example.com/microservices#>
 
-[sparql]
-timeout = 10
-max_results = 1000
-cache_enabled = true
+SELECT ?serviceName ?port ?framework ?description
+WHERE {
+  ?service a ex:Service ;
+           ex:serviceName  ?serviceName ;
+           ex:port         ?port ;
+           ex:framework    ?framework ;
+           ex:description  ?description .
+}
+ORDER BY ?serviceName
+""" }
+template    = { file = "templates/user-service.tera" }
+output_file = "services/user-service/src/main.rs"
+mode        = "Overwrite"
 
-[lifecycle]
-enabled = true
-config_file = "make.toml"
-cache_directory = ".ggen/cache"
-state_file = ".ggen/state.json"
+# =============================================================================
+# RULE 3: SPARQL queries file
+# =============================================================================
+[[generation.rules]]
+name = "sparql-queries"
+query = { inline = """
+PREFIX ex: <https://example.com/microservices#>
 
-[lifecycle.phases]
-default = ["init", "setup", "build", "test"]
-development = ["init", "setup", "build", "test", "dev"]
-production = ["build", "test", "docker", "deploy"]
-
-[security]
-path_traversal_protection = true
-shell_injection_protection = true
-template_sandboxing = true
-
-[performance]
-parallel_execution = true
-max_workers = 16
-cache_size = "1GB"
-
-[logging]
-level = "info"
-format = "json"
-file = "logs/ggen.log"
-rotation = "daily"
-
-[features]
-ai_generation = true
-sparql_queries = true
-lifecycle_management = true
-template_validation = true
-graph_analysis = true
-documentation_generation = true
+SELECT ?serviceName ?dependsOn
+WHERE {
+  ?service a ex:Service ;
+           ex:serviceName ?serviceName ;
+           ex:dependsOn   ?dep .
+  ?dep ex:serviceName ?dependsOn .
+}
+ORDER BY ?serviceName
+""" }
+template    = { file = "templates/sparql-queries.tera" }
+output_file = "data/queries.sparql"
+mode        = "Overwrite"

@@ -62,7 +62,7 @@ export class AuditTrail {
   }
 
   /**
-   * @param {{entityId?: string, eventType?: string}} [filter]
+   * @param {% raw %}{{entityId?: string, eventType?: string}}{% endraw %} [filter]
    * @returns {Array}
    */
   getEntries(filter) {

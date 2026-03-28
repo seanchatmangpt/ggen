@@ -1,0 +1,63 @@
+# =============================================================================
+# AI Microservice Ontology
+# Describes an AI-powered microservice with routes, models, and configuration
+# Source of truth for generating README and Dockerfile
+# =============================================================================
+
+@prefix svc: <https://ggen.io/examples/microservice#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Service Definition
+# =============================================================================
+
+svc:AiMicroservice a svc:Service ;
+    svc:name "ai-microservice" ;
+    svc:version "0.1.0" ;
+    svc:description "AI-powered microservice with LLM integration and REST API" ;
+    svc:port "8080"^^xsd:integer ;
+    svc:baseImage "rust:1.82-slim" ;
+    svc:hasRoute svc:CompletionRoute ;
+    svc:hasRoute svc:HealthRoute ;
+    svc:hasRoute svc:ModelsRoute ;
+    svc:hasProvider svc:OpenAiProvider ;
+    svc:hasProvider svc:AnthropicProvider .
+
+# =============================================================================
+# Routes
+# =============================================================================
+
+svc:HealthRoute a svc:Route ;
+    svc:path "/health" ;
+    svc:method "GET" ;
+    svc:description "Health check endpoint" ;
+    svc:responseType "HealthStatus" .
+
+svc:CompletionRoute a svc:Route ;
+    svc:path "/v1/completions" ;
+    svc:method "POST" ;
+    svc:description "Generate text completions using the configured LLM provider" ;
+    svc:requestType "CompletionRequest" ;
+    svc:responseType "CompletionResponse" .
+
+svc:ModelsRoute a svc:Route ;
+    svc:path "/v1/models" ;
+    svc:method "GET" ;
+    svc:description "List available AI models" ;
+    svc:responseType "ModelList" .
+
+# =============================================================================
+# Providers
+# =============================================================================
+
+svc:OpenAiProvider a svc:LlmProvider ;
+    svc:providerName "openai" ;
+    svc:defaultModel "gpt-4" ;
+    svc:description "OpenAI GPT models via API" .
+
+svc:AnthropicProvider a svc:LlmProvider ;
+    svc:providerName "anthropic" ;
+    svc:defaultModel "claude-3-5-sonnet-20241022" ;
+    svc:description "Anthropic Claude models via API" .

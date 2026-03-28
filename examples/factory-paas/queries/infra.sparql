@@ -9,7 +9,7 @@ WHERE {
             cloud:name ?resourceName ;
             cloud:provider ?provider .
 
-  OPTIONAL { cloud:region ?region }
+  OPTIONAL { ?resource cloud:region ?region }
   OPTIONAL { ?resource cloud:shape ?shape }
   OPTIONAL { ?resource cloud:cpus ?cpus }
   OPTIONAL { ?resource cloud:memoryGB ?memoryGB }

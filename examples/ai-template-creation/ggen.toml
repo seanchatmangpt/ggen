@@ -21,6 +21,7 @@ sh = "http://www.w3.org/ns/shacl#"
 name = "enrich-prompts"
 construct = """
 PREFIX ai: <https://ggen.io/ontology/ai#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 CONSTRUCT {
   ?prompt ai:promptType ?type ;
     ai:hasValidation ?validation .
@@ -35,8 +36,9 @@ WHERE {
 # Generation rules
 [[generation.rules]]
 name = "generate-ai-workflow-guide"
-sparql = """
+query = { inline = """
 PREFIX ai: <https://ggen.io/ontology/ai#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?workflowName ?description ?steps
 WHERE {
   ?workflow a ai:AIWorkflow ;
@@ -45,14 +47,14 @@ WHERE {
     ai:steps ?steps .
 }
 ORDER BY ?workflowName
-"""
+""" }
 template = { file = "templates/ai-workflow-guide.tera" }
 output_file = "generated/AI_WORKFLOW_GUIDE.md"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-prompt-library"
-sparql = """
+query = { inline = """
 PREFIX ai: <https://ggen.io/ontology/ai#>
 SELECT ?promptName ?category ?promptText ?expectedOutput
 WHERE {
@@ -63,14 +65,14 @@ WHERE {
   OPTIONAL { ?prompt ai:expectedOutput ?expectedOutput }
 }
 ORDER BY ?category ?promptName
-"""
+""" }
 template = { file = "templates/prompt-library.tera" }
 output_file = "generated/PROMPT_LIBRARY.md"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-mock-responses"
-sparql = """
+query = { inline = """
 PREFIX ai: <https://ggen.io/ontology/ai#>
 SELECT ?responseName ?prompt ?response
 WHERE {
@@ -80,15 +82,16 @@ WHERE {
     ai:response ?response .
 }
 ORDER BY ?responseName
-"""
+""" }
 template = { file = "templates/mock-responses.tera" }
 output_file = "generated/MOCK_RESPONSES.md"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-validation-rules"
-sparql = """
+query = { inline = """
 PREFIX ai: <https://ggen.io/ontology/ai#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?ruleName ?description ?examples
 WHERE {
   ?rule a ai:ValidationRule ;
@@ -97,14 +100,14 @@ WHERE {
   OPTIONAL { ?rule ai:examples ?examples }
 }
 ORDER BY ?ruleName
-"""
+""" }
 template = { file = "templates/validation-rules.tera" }
 output_file = "generated/VALIDATION_RULES.md"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-iterative-workflow"
-sparql = """
+query = { inline = """
 PREFIX ai: <https://ggen.io/ontology/ai#>
 SELECT ?workflowName ?iteration ?prompt ?validation
 WHERE {
@@ -116,15 +119,16 @@ WHERE {
     ai:validates ?validation .
 }
 ORDER BY ?workflowName ?stepNum
-"""
+""" }
 template = { file = "templates/iterative-workflow.tera" }
 output_file = "generated/ITERATIVE_WORKFLOW.md"
 mode = "Overwrite"
 
 [[generation.rules]]
 name = "generate-command-reference"
-sparql = """
+query = { inline = """
 PREFIX ai: <https://ggen.io/ontology/ai#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?command ?description ?syntax ?examples
 WHERE {
   ?cmd a ai:Command ;
@@ -134,7 +138,7 @@ WHERE {
   OPTIONAL { ?cmd ai:examples ?examples }
 }
 ORDER BY ?command
-"""
+""" }
 template = { file = "templates/command-reference.tera" }
 output_file = "generated/COMMAND_REFERENCE.md"
 mode = "Overwrite"

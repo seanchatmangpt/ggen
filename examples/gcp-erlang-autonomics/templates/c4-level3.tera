@@ -1,30 +1,5 @@
-{% comment %}
-C4 Level 3: Component Diagram with FSM (Finite State Machine)
-Renders Governor engine internals, state transitions, and policy decision logic.
-Input: SPARQL query results from components query with state machine data
-Output: Mermaid state diagram showing autonomous controller flow
-
-Component types:
-  - Governor: Main autonomic controller
-  - Sensor: Signal collection and normalization
-  - Analyzer: Metric analysis and decision logic
-  - Executor: Action execution and state management
-  - Feedback: Closed-loop feedback mechanism
-
-State Machine:
-  - IDLE: Waiting for signals
-  - ANALYZING: Processing metrics
-  - DECIDING: Evaluating policy
-  - EXECUTING: Running corrective action
-  - OBSERVING: Monitoring outcome
-  - ERROR: Failure state with recovery
-
-Variables:
-  - components: List of components with state transitions
-  - container_label: Container name (usually "Governor Engine")
-{% endcomment %}
-
-graph {{ mermaid_direction | default(value="TB") }}
+{# C4 Level 3: Component Diagram with FSM #}
+graph TB
     classDef idle fill:#4a90e2,stroke:#2e5c8a,color:#fff,font-size:12px
     classDef analyzing fill:#ff9900,stroke:#ff6600,color:#fff,font-size:12px
     classDef deciding fill:#f5a623,stroke:#d68910,color:#fff,font-size:12px
@@ -34,18 +9,18 @@ graph {{ mermaid_direction | default(value="TB") }}
     classDef component fill:#50e3c2,stroke:#2d9a78,color:#000,font-size:11px
 
     %% Title and Container
-    TITLE["<b>Component Diagram</b><br/><i>Governor Engine FSM</i><br/>{{ container_label | default(value='Autonomic Subsystem') }}"]
+    TITLE["<b>Component Diagram</b><br/><i>Governor Engine FSM</i><br/>Autonomic Subsystem"]
     style TITLE fill:#f0f0f0,stroke:#000,stroke-width:2px,font-size:14px,color:#000
 
     %% State Machine - Governor Engine Core
     subgraph fsm["<b>State Machine: Governor Engine</b>"]
-        IDLE["<b>IDLE</b><br/>⏸️ Waiting<br/>for signals"]:::idle
-        SENSE["<b>SENSE</b><br/>📊 Collect<br/>metrics"]:::analyzing
-        ANALYZE["<b>ANALYZE</b><br/>🔍 Process<br/>data"]:::analyzing
-        DECIDE["<b>DECIDE</b><br/>⚖️ Evaluate<br/>policy"]:::deciding
-        EXECUTE["<b>EXECUTE</b><br/>⚙️ Run<br/>actions"]:::executing
-        OBSERVE["<b>OBSERVE</b><br/>👁️ Monitor<br/>outcome"]:::observing
-        ERROR_STATE["<b>ERROR</b><br/>⚠️ Handle<br/>failure"]:::error
+        IDLE["<b>IDLE</b><br/>Waiting for signals"]:::idle
+        SENSE["<b>SENSE</b><br/>Collect metrics"]:::analyzing
+        ANALYZE["<b>ANALYZE</b><br/>Process data"]:::analyzing
+        DECIDE["<b>DECIDE</b><br/>Evaluate policy"]:::deciding
+        EXECUTE["<b>EXECUTE</b><br/>Run actions"]:::executing
+        OBSERVE["<b>OBSERVE</b><br/>Monitor outcome"]:::observing
+        ERROR_STATE["<b>ERROR</b><br/>Handle failure"]:::error
 
         %% Transitions
         IDLE -->|signal_received| SENSE
@@ -57,61 +32,9 @@ graph {{ mermaid_direction | default(value="TB") }}
         OBSERVE -->|success| IDLE
         OBSERVE -->|failure| ERROR_STATE
         ERROR_STATE -->|recovery_complete| IDLE
-        ERROR_STATE -->|retry| ANALYZE
-
-        %% Error paths
-        SENSE -->|error| ERROR_STATE
-        ANALYZE -->|error| ERROR_STATE
-        DECIDE -->|error| ERROR_STATE
-        EXECUTE -->|error| ERROR_STATE
     end
 
-    %% Component breakdown
-    subgraph components["<b>Component Responsibilities</b>"]
-        SENSOR["<b>Sensor</b><br/>Signal Collection<br/>{{ components[0].component_type | default(value='') }}"]:::component
-        DETECTOR["<b>Anomaly Detector</b><br/>Pattern Recognition<br/>ML Models"]:::component
-        POLICY_ENGINE["<b>Policy Engine</b><br/>Rule Evaluation<br/>Decision Logic"]:::component
-        EXECUTOR_COMP["<b>Executor</b><br/>Action Dispatch<br/>State Management"]:::component
-        FEEDBACK_LOOP["<b>Feedback Loop</b><br/>Closed-loop Control<br/>Outcome Tracking"]:::component
-
-        SENSOR --> DETECTOR
-        DETECTOR --> POLICY_ENGINE
-        POLICY_ENGINE --> EXECUTOR_COMP
-        EXECUTOR_COMP --> FEEDBACK_LOOP
-        FEEDBACK_LOOP -.->|adjustment| POLICY_ENGINE
-    end
-
-    %% Data flows
-    subgraph dataflows["<b>Data Flows</b>"]
-        SIGNALS["📡 Signals<br/>(CPU, Memory, Latency)"]
-        METRICS["📊 Metrics<br/>(Normalized)"]
-        DECISIONS["🎯 Decisions<br/>(Action Plan)"]
-        ACTIONS["⚙️ Actions<br/>(Scale, Rebalance, Restart)"]
-        FEEDBACK["🔄 Feedback<br/>(Outcomes, Observations)"]
-
-        SIGNALS --> METRICS
-        METRICS --> DECISIONS
-        DECISIONS --> ACTIONS
-        ACTIONS --> FEEDBACK
-        FEEDBACK -.->|learning| METRICS
-    end
-
-    %% Connections
-    SIGNAL_INPUT["External Signals<br/>(GCP Metrics)"]
-    ACTION_OUTPUT["System Actions<br/>(GCP API Calls)"]
-
-    SIGNAL_INPUT --> SENSOR
-    FEEDBACK_LOOP --> ACTION_OUTPUT
-
-    %% Notes
-    NOTE["<b>Transition Conditions:</b><br/>• signal_received: Metrics available<br/>• metrics_ready: Data normalized<br/>• analysis_complete: Patterns detected<br/>• policy_match: Rule matches condition<br/>• action_done: Deployment confirmed<br/>• success: Outcome acceptable<br/>• failure: SLO not met, retry"]
-    style NOTE fill:#fff3cd,stroke:#ffc107,color:#000,font-size:10px
-
-    %% Legend
-    subgraph legend["Legend"]
-        STATE_EX["State: Active phase"]:::idle
-        TRANSITION_EX["→ Transition: State change"]
-        ERROR_EX["Error Path: Recovery handling"]:::error
-        FEEDBACK_EX["⋯→ Feedback: Closed-loop learning"]
-    end
-    style legend fill:#f9f9f9,stroke:#999,stroke-width:1px
+    %% Components from ontology
+    {% for row in sparql_results %}
+    COMP_{{ loop.index }}["<b>{{ row["component_label"] }}</b>"]:::component
+    {% endfor %}

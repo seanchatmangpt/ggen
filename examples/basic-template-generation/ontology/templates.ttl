@@ -61,9 +61,24 @@ tmpl:name a rdf:Property ;
     rdfs:comment "Name of the template or entity" .
 
 tmpl:fields a rdf:Property ;
+    rdfs:domain tmpl:RustModule ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Fields in a module (comma-separated string)" .
+
+tmpl:moduleName a rdf:Property ;
+    rdfs:domain tmpl:RustModule ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Module name in snake_case" .
+
+tmpl:structName a rdf:Property ;
     rdfs:domain tmpl:RustStruct ;
-    rdfs:range rdf:List ;
-    rdfs:comment "Fields in a struct" .
+    rdfs:range xsd:string ;
+    rdfs:comment "Struct file name in snake_case" .
+
+tmpl:typeName a rdf:Property ;
+    rdfs:domain tmpl:RustStruct ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Struct type name in PascalCase" .
 
 tmpl:hasValidation a rdf:Property ;
     rdfs:domain tmpl:RustModule ;
@@ -82,8 +97,8 @@ tmpl:hasBuilder a rdf:Property ;
 
 tmpl:hasFields a rdf:Property ;
     rdfs:domain tmpl:RustStruct ;
-    rdfs:range rdf:List ;
-    rdfs:comment "The fields of a struct" .
+    rdfs:range xsd:string ;
+    rdfs:comment "The fields of a struct (comma-separated string)" .
 
 tmpl:variables a rdf:Property ;
     rdfs:range rdf:List ;
@@ -142,6 +157,7 @@ tmpl:RustModuleShape a sh:NodeShape ;
     ] ;
     sh:property [
         sh:path tmpl:fields ;
+        sh:datatype xsd:string ;
         sh:minCount 1 ;
     ] .
 
@@ -160,34 +176,31 @@ tmpl:RustStructShape a sh:NodeShape ;
     ] ;
     sh:property [
         sh:path tmpl:hasFields ;
+        sh:datatype xsd:string ;
         sh:minCount 1 ;
     ] .
+
+@base <https://ggen.io/ontology/templates/instances/> .
 
 # ===== Instance Data =====
 
 # Module template instance
 <#user_service_module> a tmpl:RustModule ;
     tmpl:name "UserService" ;
+    tmpl:moduleName "user_service" ;
     rdfs:comment "User management service module" ;
-    tmpl:fields (
-        [ tmpl:name "id" ; rdfs:comment "User ID" ]
-        [ tmpl:name "username" ; rdfs:comment "Username" ]
-        [ tmpl:name "email" ; rdfs:comment "Email address" ]
-    ) ;
+    tmpl:fields "id, username, email" ;
     tmpl:hasValidation true .
 
 # Struct template instance
 <#user_struct> a tmpl:RustStruct ;
     tmpl:name "User" ;
+    tmpl:structName "user" ;
+    tmpl:typeName "User" ;
     rdfs:comment "User entity with common fields" ;
     tmpl:hasId true ;
     tmpl:hasBuilder true ;
-    tmpl:hasFields (
-        [ tmpl:name "id" ; rdfs:comment "Unique identifier" ]
-        [ tmpl:name "username" ; rdfs:comment "Username for login" ]
-        [ tmpl:name "email" ; rdfs:comment "Contact email" ]
-        [ tmpl:name "is_active" ; rdfs:comment "Whether user is active" ]
-    ) .
+    tmpl:hasFields "username, email, is_active" .
 
 # Filter instances
 <#filter_snake_case> a tmpl:TeraFilter ;

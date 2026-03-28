@@ -1,4 +1,5 @@
 @prefix proj: <https://ggen.io/ontology/projects#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
@@ -65,38 +66,38 @@ proj:RustProjectShape a sh:NodeShape ;
     ] .
 
 # Instances
-<#example-project> a proj:RustProject ;
+proj:example-project a proj:RustProject ;
     proj:name "example-app" ;
     proj:version "0.1.0" ;
     proj:description "An example Rust project" ;
     proj:documentation "This is a basic Rust project" .
 
-<#dep-serde> a proj:Dependency ;
+proj:dep-serde a proj:Dependency ;
     proj:name "serde" ;
     proj:version "1.0" .
 
-<#dep-tokio> a proj:Dependency ;
+proj:dep-tokio a proj:Dependency ;
     proj:name "tokio" ;
     proj:version "1.0" .
 
-<#dir-src> a proj:Directory ;
+proj:dir-src a proj:Directory ;
     proj:name "src" ;
     proj:purpose "Source code" .
 
-<#dir-tests> a proj:Directory ;
+proj:dir-tests a proj:Directory ;
     proj:name "tests" ;
     proj:purpose "Integration tests" .
 
-<#test-unit> a proj:TestPattern ;
+proj:test-unit a proj:TestPattern ;
     proj:name "unit tests" ;
     proj:description "Test individual functions" .
 
-<#test-integration> a proj:TestPattern ;
+proj:test-integration a proj:TestPattern ;
     proj:name "integration tests" ;
     proj:description "Test module interactions" .
 
-<#ignore-target> a proj:GitignoreEntry ;
+proj:ignore-target a proj:GitignoreEntry ;
     proj:pattern "/target" .
 
-<#ignore-lock> a proj:GitignoreEntry ;
+proj:ignore-lock a proj:GitignoreEntry ;
     proj:pattern "Cargo.lock" .

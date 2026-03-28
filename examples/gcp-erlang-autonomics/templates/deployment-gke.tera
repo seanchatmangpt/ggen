@@ -1,25 +1,4 @@
-{% comment %}
-Kubernetes Deployment Template
-Generates Kubernetes manifests for Governor autonomic services on GKE.
-Input: ggen.toml configuration + SPARQL infrastructure query results
-Output: YAML manifests (Deployment, Service, ConfigMap, HPA, RBAC)
-
-Manifest sections:
-  1. Namespace
-  2. ServiceAccount + RBAC (Workload Identity)
-  3. ConfigMap (Policy packs, scaling rules)
-  4. Deployment (Governor controller)
-  5. Service (Internal networking)
-  6. HorizontalPodAutoscaler (Auto-scaling policies)
-  7. NetworkPolicy (Isolation)
-  8. PodDisruptionBudget (High availability)
-
-Variables:
-  - kubernetes.namespace: Target namespace
-  - kubernetes.image_registry: Container image registry
-  - gcp.project_id: GCP project ID
-  - gcp.region: Primary region
-{% endcomment %}
+{# Kubernetes Deployment Template for Governor Autonomic Services on GKE #}
 
 ---
 # Kubernetes Manifests for Governor Autonomic Services
@@ -33,14 +12,14 @@ Variables:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ kubernetes.namespace | default(value="autonomic-system") }}
+  name: autonomic-system
   labels:
-    name: {{ kubernetes.namespace | default(value="autonomic-system") }}
+    name: autonomic-system
     managed-by: ggen
     version: "1.0.0"
   annotations:
     description: "Autonomic Governor system namespace"
-    gcp-project: "{{ gcp.project_id }}"
+    gcp-project: "ggen-autonomics"
 
 # 2. SERVICE ACCOUNT & WORKLOAD IDENTITY
 # Enable Workload Identity for secure GCP API access
@@ -49,12 +28,12 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: governor-sa
-  namespace: {{ kubernetes.namespace | default(value="autonomic-system") }}
+  namespace: autonomic-system
   labels:
     app: governor
     tier: control-plane
   annotations:
-    iam.gke.io/gcp-service-account: "governor@{{ gcp.project_id }}.iam.gserviceaccount.com"
+    iam.gke.io/gcp-service-account: "governor@ggen-autonomics.iam.gserviceaccount.com"
 
 # 3. ROLE-BASED ACCESS CONTROL (RBAC)
 # Grant Governor permissions to manage cluster resources
@@ -113,7 +92,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: governor-sa
-    namespace: {{ kubernetes.namespace | default(value="autonomic-system") }}
+    namespace: autonomic-system
 
 # 4. CONFIGMAP: POLICY PACKS
 # Define autonomic decision policies for Governor
@@ -122,7 +101,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: governor-policy
-  namespace: {{ kubernetes.namespace | default(value="autonomic-system") }}
+  namespace: autonomic-system
   labels:
     app: governor
     component: policy
@@ -208,7 +187,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: governor-scaling-rules
-  namespace: {{ kubernetes.namespace | default(value="autonomic-system") }}
+  namespace: autonomic-system
   labels:
     app: governor
     component: scaling
@@ -244,7 +223,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: governor
-  namespace: {{ kubernetes.namespace | default(value="autonomic-system") }}
+  namespace: autonomic-system
   labels:
     app: governor
     component: controller
@@ -252,7 +231,7 @@ metadata:
   annotations:
     description: "Erlang-based autonomic governor for GCP workloads"
 spec:
-  replicas: {{ kubernetes.replicas | default(value=2) }}
+  replicas: 2
 
   strategy:
     type: RollingUpdate
@@ -290,7 +269,7 @@ spec:
       # Init container: Verify Workload Identity setup
       initContainers:
         - name: workload-identity-check
-          image: "{{ kubernetes.image_registry }}/google-cloud-cli:latest"
+          image: "gcr.io/ggen-project/google-cloud-cli:latest"
           command:
             - /bin/sh
             - -c
@@ -310,8 +289,8 @@ spec:
 
       containers:
         - name: governor
-          image: "{{ kubernetes.image_registry }}/governor:1.0.0"
-          imagePullPolicy: {{ kubernetes.image_pull_policy | default(value="IfNotPresent") }}
+          image: "gcr.io/ggen-project/governor:1.0.0"
+          imagePullPolicy: IfNotPresent
 
           # Container ports
           ports:
@@ -340,19 +319,19 @@ spec:
                 fieldRef:
                   fieldPath: status.podIP
             - name: CLUSTER_NAME
-              value: "{{ gcp.cluster_name | default(value='gken-primary') }}"
+              value: "gken-primary"
             - name: GCP_PROJECT_ID
-              value: "{{ gcp.project_id }}"
+              value: "ggen-autonomics"
             - name: GCP_REGION
-              value: "{{ gcp.region }}"
+              value: "us-central1"
             - name: POLICY_CONFIG
               value: "/etc/governor/policy.yaml"
             - name: SCALING_RULES_CONFIG
               value: "/etc/governor/scaling-rules.yaml"
             - name: LOG_LEVEL
-              value: "{{ observability.log_level | default(value='info') }}"
+              value: "info"
             - name: JSON_LOGGING
-              value: "{{ observability.json_logging | default(value='true') }}"
+              value: "true"
 
           # Mount policy config
           volumeMounts:
@@ -367,11 +346,11 @@ spec:
           # Resource requests and limits
           resources:
             requests:
-              cpu: "{{ kubernetes.cpu_request | default(value='250m') }}"
-              memory: "{{ kubernetes.memory_request | default(value='256Mi') }}"
+              cpu: "250m"
+              memory: "256Mi"
             limits:
-              cpu: "{{ kubernetes.cpu_limit | default(value='500m') }}"
-              memory: "{{ kubernetes.memory_limit | default(value='512Mi') }}"
+              cpu: "500m"
+              memory: "512Mi"
 
           # Security context for container
           securityContext:
@@ -469,7 +448,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: governor
-  namespace: {{ kubernetes.namespace | default(value="autonomic-system") }}
+  namespace: autonomic-system
   labels:
     app: governor
     component: controller
@@ -505,7 +484,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: governor-hpa
-  namespace: {{ kubernetes.namespace | default(value="autonomic-system") }}
+  namespace: autonomic-system
   labels:
     app: governor
 spec:
@@ -514,8 +493,8 @@ spec:
     kind: Deployment
     name: governor
 
-  minReplicas: {{ kubernetes.min_replicas | default(value=2) }}
-  maxReplicas: {{ kubernetes.max_replicas | default(value=10) }}
+  minReplicas: 2
+  maxReplicas: 10
 
   metrics:
     # CPU-based scaling
@@ -561,7 +540,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: governor-network-policy
-  namespace: {{ kubernetes.namespace | default(value="autonomic-system") }}
+  namespace: autonomic-system
   labels:
     app: governor
 spec:
@@ -618,7 +597,7 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: governor-pdb
-  namespace: {{ kubernetes.namespace | default(value="autonomic-system") }}
+  namespace: autonomic-system
   labels:
     app: governor
 spec:
