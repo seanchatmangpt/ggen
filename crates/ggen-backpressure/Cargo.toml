@@ -1,6 +1,6 @@
 [package]
 name = "ggen-backpressure"
-version = "6.0.0"
+version = "6.0.1"
 edition = "2021"
 authors = ["ggen contributors"]
 description = "Backpressure and admission control (λ ≤ μ) for ggen"

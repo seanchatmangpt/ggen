@@ -1,6 +1,6 @@
 [package]
 name = "ggen-metrics-tps"
-version = "6.0.0"
+version = "6.0.1"
 edition = "2021"
 rust-version = "1.91.1"
 authors = ["ggen contributors"]
