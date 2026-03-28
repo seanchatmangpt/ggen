@@ -1,0 +1,105 @@
+@prefix obs:   <https://ggen.io/examples/observable#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Agent identity ───────────────────────────────────────────────────────────
+
+obs:ObservableCodeGen a obs:Agent ;
+    obs:agentName    "observable-codegen" ;
+    obs:agentStruct  "ObservableCodeGenHandler" ;
+    obs:agentDesc    "Observable code generation agent — Weaver + MCP + A2A" ;
+    obs:agentVersion "1.0.0" ;
+    obs:bindAddr     "127.0.0.1:8080" ;
+    obs:agentUrl     "http://localhost:8080" ;
+    obs:mcpStruct    "ObservableCodeGenServer" ;
+    obs:mcpDesc      "MCP server exposing code generation tools" .
+
+# ── Skills / Tools ───────────────────────────────────────────────────────────
+# Each skill is simultaneously: an A2A skill, an MCP tool, and a telemetry span.
+
+obs:SyncCapability a obs:Capability ;
+    obs:agentOf       obs:ObservableCodeGen ;
+    obs:capId         "sync-project" ;
+    obs:capName       "Sync Project" ;
+    obs:toolName      "sync_project" ;
+    obs:structName    "SyncProjectParams" ;
+    obs:handlerName   "SyncProjectHandler" ;
+    obs:methodName    "sync_project" ;
+    obs:capDesc       "Run ggen sync pipeline from RDF ontology" ;
+    obs:spanName      "ggen.sync.run" ;
+    obs:inputModes    "text" ;
+    obs:outputModes   "text" ;
+    obs:order         1 .
+
+obs:ValidateCapability a obs:Capability ;
+    obs:agentOf       obs:ObservableCodeGen ;
+    obs:capId         "validate-ontology" ;
+    obs:capName       "Validate Ontology" ;
+    obs:toolName      "validate_ontology" ;
+    obs:structName    "ValidateOntologyParams" ;
+    obs:handlerName   "ValidateOntologyHandler" ;
+    obs:methodName    "validate_ontology" ;
+    obs:capDesc       "Validate a Turtle ontology against SHACL rules" ;
+    obs:spanName      "ggen.validate.run" ;
+    obs:inputModes    "text" ;
+    obs:outputModes   "text" ;
+    obs:order         2 .
+
+obs:GenerateCapability a obs:Capability ;
+    obs:agentOf       obs:ObservableCodeGen ;
+    obs:capId         "generate-code" ;
+    obs:capName       "Generate Code" ;
+    obs:toolName      "generate_code" ;
+    obs:structName    "GenerateCodeParams" ;
+    obs:handlerName   "GenerateCodeHandler" ;
+    obs:methodName    "generate_code" ;
+    obs:capDesc       "Generate code from an RDF ontology file" ;
+    obs:spanName      "ggen.codegen.run" ;
+    obs:inputModes    "text" ;
+    obs:outputModes   "text" ;
+    obs:order         3 .
+
+# ── OTel semantic convention attributes ─────────────────────────────────────
+
+obs:ProjectPathAttr a obs:Attribute ;
+    obs:capabilityOf  obs:SyncCapability ;
+    obs:attrName      "project_path" ;
+    obs:attrType      "string" ;
+    obs:attrRequired  "required" ;
+    obs:attrBrief     "Path to the ggen project directory" .
+
+obs:DryRunAttr a obs:Attribute ;
+    obs:capabilityOf  obs:SyncCapability ;
+    obs:attrName      "dry_run" ;
+    obs:attrType      "boolean" ;
+    obs:attrRequired  "recommended" ;
+    obs:attrBrief     "Whether this is a dry-run preview" .
+
+obs:OntologyPathAttr a obs:Attribute ;
+    obs:capabilityOf  obs:ValidateCapability ;
+    obs:attrName      "ontology_path" ;
+    obs:attrType      "string" ;
+    obs:attrRequired  "required" ;
+    obs:attrBrief     "Path to the TTL ontology file" .
+
+obs:TargetLangAttr a obs:Attribute ;
+    obs:capabilityOf  obs:GenerateCapability ;
+    obs:attrName      "target_lang" ;
+    obs:attrType      "string" ;
+    obs:attrRequired  "required" ;
+    obs:attrBrief     "Target programming language for code generation" .
+
+# ── Telemetry infrastructure ─────────────────────────────────────────────────
+
+obs:OtelCollector a obs:Service ;
+    obs:serviceName   "otel-collector" ;
+    obs:serviceImage  "otel/opentelemetry-collector-contrib:latest" ;
+    obs:servicePort   "4317" ;
+    obs:serviceOrder  1 .
+
+obs:AgentService a obs:Service ;
+    obs:serviceName   "observable-agent" ;
+    obs:serviceImage  "observable-codegen:latest" ;
+    obs:servicePort   "8080" ;
+    obs:serviceOrder  2 .

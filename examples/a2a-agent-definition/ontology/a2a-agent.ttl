@@ -1,0 +1,56 @@
+@prefix agent: <https://ggen.io/examples/a2a#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+agent:CodeGenAgent a agent:Agent ;
+    agent:agentName   "ggen-agent" ;
+    agent:agentStruct "GgenAgentHandler" ;
+    agent:description "ggen code generation A2A agent" ;
+    agent:version     "1.0.0" ;
+    agent:bindAddr    "127.0.0.1:8080" ;
+    agent:url         "http://localhost:8080" .
+
+agent:SyncSkill a agent:Skill ;
+    agent:agentOf      agent:CodeGenAgent ;
+    agent:skillId      "sync-project" ;
+    agent:skillName    "Sync Project" ;
+    agent:handlerName  "SyncProjectHandler" ;
+    agent:methodName   "sync_project" ;
+    agent:description  "Run ggen sync pipeline from RDF ontology" ;
+    agent:inputModes   "text" ;
+    agent:outputModes  "text" ;
+    agent:order        1 .
+
+agent:ValidateSkill a agent:Skill ;
+    agent:agentOf      agent:CodeGenAgent ;
+    agent:skillId      "validate-ontology" ;
+    agent:skillName    "Validate Ontology" ;
+    agent:handlerName  "ValidateOntologyHandler" ;
+    agent:methodName   "validate_ontology" ;
+    agent:description  "Validate a Turtle (.ttl) ontology file against SHACL rules" ;
+    agent:inputModes   "text" ;
+    agent:outputModes  "text" ;
+    agent:order        2 .
+
+agent:GenerateSkill a agent:Skill ;
+    agent:agentOf      agent:CodeGenAgent ;
+    agent:skillId      "generate-code" ;
+    agent:skillName    "Generate Code" ;
+    agent:handlerName  "GenerateCodeHandler" ;
+    agent:methodName   "generate_code" ;
+    agent:description  "Generate code from an RDF ontology file" ;
+    agent:inputModes   "text" ;
+    agent:outputModes  "text" ;
+    agent:order        3 .
+
+agent:ExplainSkill a agent:Skill ;
+    agent:agentOf      agent:CodeGenAgent ;
+    agent:skillId      "explain-ontology" ;
+    agent:skillName    "Explain Ontology" ;
+    agent:handlerName  "ExplainOntologyHandler" ;
+    agent:methodName   "explain_ontology" ;
+    agent:description  "Explain what an RDF ontology will generate" ;
+    agent:inputModes   "text" ;
+    agent:outputModes  "text" ;
+    agent:order        4 .
