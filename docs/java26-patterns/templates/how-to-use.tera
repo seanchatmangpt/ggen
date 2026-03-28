@@ -1,4 +1,4 @@
-{# how-to-use.md — ggen multi-row template; variables accessed as row["?varname"] #}
+{# how-to-use.md — ggen multi-row template; variables accessed as row["varname"] #}
 # How to Use This Pattern Language
 
 > *"The patterns are not isolated. They form a language. And the language is generative."*
@@ -18,11 +18,11 @@ Every pattern follows the same three-step invocation:
 ## Pattern Categories
 
 {% for row in sparql_results %}
-### {{ row["?categoryLabel"] | default(value="") }}
+### {{ row["categoryLabel"] | default(value="") }}
 
-{{ row["?categoryDescription"] | default(value="") }}
+{{ row["categoryDescription"] | default(value="") }}
 
-**Patterns in this category:** {{ row["?patternCount"] | default(value="") }}
+**Patterns in this category:** {{ row["patternCount"] | default(value="") }}
 
 {% endfor %}
 
