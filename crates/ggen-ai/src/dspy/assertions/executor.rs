@@ -189,33 +189,74 @@ impl BacktrackExecutor {
             // Execute module
             let output = module.forward(inputs.clone()).await?;
 
-            // Validate against all assertions
-            let validation_result = self.validate_all(&output);
+            // Check hard assertions first
+            let hard_result = self.validate_all(&output);
 
-            match validation_result {
-                ValidationResult::Valid => {
-                    info!(
-                        "Module {} passed all assertions on attempt {}",
-                        module.name(),
-                        attempt + 1
-                    );
-                    return Ok(output);
-                }
+            match hard_result {
                 ValidationResult::Invalid { feedback } => {
-                    debug!("Validation failed on attempt {}: {}", attempt + 1, feedback);
+                    debug!(
+                        "Hard assertion failed on attempt {}: {}",
+                        attempt + 1,
+                        feedback
+                    );
 
-                    // Serialize output for context
                     let output_str =
                         serde_json::to_string(&output).unwrap_or_else(|_| format!("{:?}", output));
 
                     context.add_failure(output_str, feedback.clone());
 
-                    // Check if we should continue retrying
                     if attempt + 1 >= max_attempts {
-                        return self.handle_max_retries_reached(output, feedback, attempt + 1);
+                        return Err(AssertionError::AssertionFailed {
+                            attempts: attempt + 1,
+                            feedback,
+                        });
                     }
+                    // Retry for hard assertion failure
+                    continue;
                 }
+                ValidationResult::Valid => {}
             }
+
+            // Hard assertions passed — now check suggestions
+            let suggestion_result = self.validate_suggestions(&output);
+
+            match suggestion_result {
+                ValidationResult::Invalid { feedback } => {
+                    debug!(
+                        "Suggestion failed on attempt {}: {}",
+                        attempt + 1,
+                        feedback
+                    );
+
+                    let output_str =
+                        serde_json::to_string(&output).unwrap_or_else(|_| format!("{:?}", output));
+
+                    context.add_failure(output_str, feedback.clone());
+
+                    if attempt + 1 >= max_attempts {
+                        // Suggestions exhausted — record warning and return Ok
+                        let warning = SuggestionWarning {
+                            attempts: attempt + 1,
+                            feedback,
+                            final_output: output.clone(),
+                        };
+                        warning.log();
+                        self.warnings.push(warning);
+                        return Ok(output);
+                    }
+                    // Retry for suggestion failure
+                    continue;
+                }
+                ValidationResult::Valid => {}
+            }
+
+            // All assertions (hard + suggestions) passed
+            info!(
+                "Module {} passed all assertions on attempt {}",
+                module.name(),
+                attempt + 1
+            );
+            return Ok(output);
         }
 
         // Should not reach here, but handle gracefully
@@ -265,31 +306,54 @@ impl BacktrackExecutor {
             // Execute module
             let output = module.forward(inputs.clone()).await?;
 
-            // Validate against all assertions
-            let validation_result = self.validate_all(&output);
-
-            match validation_result {
-                ValidationResult::Valid => {
-                    info!(
-                        "Module {} passed all assertions with context on attempt {}",
-                        module.name(),
-                        attempt + 1
-                    );
-                    return Ok(output);
-                }
+            // Check hard assertions first
+            let hard_result = self.validate_all(&output);
+            match hard_result {
                 ValidationResult::Invalid { feedback } => {
-                    debug!("Validation failed on attempt {}: {}", attempt + 1, feedback);
-
+                    debug!("Hard assertion failed on attempt {}: {}", attempt + 1, feedback);
                     let output_str =
                         serde_json::to_string(&output).unwrap_or_else(|_| format!("{:?}", output));
-
                     context.add_failure(output_str, feedback.clone());
-
                     if attempt + 1 >= max_attempts {
-                        return self.handle_max_retries_reached(output, feedback, attempt + 1);
+                        return Err(AssertionError::AssertionFailed {
+                            attempts: attempt + 1,
+                            feedback,
+                        });
                     }
+                    continue;
                 }
+                ValidationResult::Valid => {}
             }
+
+            // Check suggestions
+            let suggestion_result = self.validate_suggestions(&output);
+            match suggestion_result {
+                ValidationResult::Invalid { feedback } => {
+                    debug!("Suggestion failed on attempt {}: {}", attempt + 1, feedback);
+                    let output_str =
+                        serde_json::to_string(&output).unwrap_or_else(|_| format!("{:?}", output));
+                    context.add_failure(output_str, feedback.clone());
+                    if attempt + 1 >= max_attempts {
+                        let warning = SuggestionWarning {
+                            attempts: attempt + 1,
+                            feedback,
+                            final_output: output.clone(),
+                        };
+                        warning.log();
+                        self.warnings.push(warning);
+                        return Ok(output);
+                    }
+                    continue;
+                }
+                ValidationResult::Valid => {}
+            }
+
+            info!(
+                "Module {} passed all assertions with context on attempt {}",
+                module.name(),
+                attempt + 1
+            );
+            return Ok(output);
         }
 
         Err(AssertionError::ValidationError(
@@ -297,54 +361,49 @@ impl BacktrackExecutor {
         ))
     }
 
-    /// Validate output against all assertions
+    /// Validate output against hard assertions only (Assert level).
+    /// Returns the first hard assertion failure, or Valid if all pass.
     fn validate_all(&self, output: &HashMap<String, Value>) -> ValidationResult {
         for assertion in &self.assertions {
-            // For multi-field outputs, validate each field separately
-            // Or validate the whole output as JSON
-            let output_json =
-                serde_json::to_value(output).unwrap_or(Value::Object(serde_json::Map::new()));
-
-            let result = assertion.validate(&output_json);
-
-            // If hard assertion fails, return immediately
-            if result.is_invalid() && assertion.level() == AssertionLevel::Assert {
+            if assertion.level() != AssertionLevel::Assert {
+                continue;
+            }
+            let result = self.validate_output_fields(assertion, output);
+            if result.is_invalid() {
                 return result;
             }
-
-            // If suggestion fails, continue checking other assertions
-            // We'll handle suggestion warnings separately
         }
-
         ValidationResult::valid()
     }
 
-    /// Handle max retries reached
-    fn handle_max_retries_reached(
-        &mut self, output: HashMap<String, Value>, feedback: String, attempts: usize,
-    ) -> AssertionResult<HashMap<String, Value>> {
-        // Check if any assertion is hard (Assert level)
-        let has_hard_assertion = self
-            .assertions
-            .iter()
-            .any(|a| a.level() == AssertionLevel::Assert);
-
-        if has_hard_assertion {
-            // Hard assertion failed - return error
-            Err(AssertionError::AssertionFailed { attempts, feedback })
-        } else {
-            // Only suggestions failed - log warning and return output
-            let warning = SuggestionWarning {
-                attempts,
-                feedback,
-                final_output: output.clone(),
-            };
-
-            warning.log();
-            self.warnings.push(warning);
-
-            Ok(output)
+    /// Validate output against suggestion assertions only (Suggest level).
+    /// Returns the first suggestion failure, or Valid if all pass.
+    fn validate_suggestions(&self, output: &HashMap<String, Value>) -> ValidationResult {
+        for assertion in &self.assertions {
+            if assertion.level() != AssertionLevel::Suggest {
+                continue;
+            }
+            let result = self.validate_output_fields(assertion, output);
+            if result.is_invalid() {
+                return result;
+            }
         }
+        ValidationResult::valid()
+    }
+
+    /// Validate each field value in the output map against an assertion's validator.
+    /// Validates individual field values (not the whole JSON object) so that string
+    /// validators receive actual string values.
+    fn validate_output_fields(
+        &self, assertion: &Assertion, output: &HashMap<String, Value>,
+    ) -> ValidationResult {
+        for value in output.values() {
+            let result = assertion.validate(value);
+            if result.is_invalid() {
+                return result;
+            }
+        }
+        ValidationResult::valid()
     }
 
     /// Get collected warnings

@@ -273,7 +273,7 @@ mod tests {
 
     fn create_test_tool(id: &str) -> Tool {
         let sig = crate::dspy::Signature::new("TestTool", "Test tool")
-            .with_input(InputField::new("input", "Input text", "String"))
+            .with_input(InputField::new("input", "Input text", "String").required(true))
             .with_output(OutputField::new("output", "Output text", "String"));
 
         Tool::new(id, "Test Tool", "1.0.0", "A test tool", sig)

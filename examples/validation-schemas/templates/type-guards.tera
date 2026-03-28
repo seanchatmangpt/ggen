@@ -19,11 +19,11 @@
 }
 
 {% endif -%}
-{%- set_global current_entity = entityName %}
+{%- set current_entity = entityName %}
 /**
  * Type guard for {{ entityName }}
  * @param {unknown} value - Value to check
- * @returns {value is {{ entityName }}}
+ * @returns {boolean} True if value matches {{ entityName }} structure
  */
 export function is{{ entityName }}(value) {
   return (
