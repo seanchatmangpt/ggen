@@ -3,15 +3,15 @@
 % ============================================================================
 
 {% for row in sparql_results %}
-% Theorem from section: {{ row["?sectionTitle"] }}
+% Theorem from section: {{ row["sectionTitle"] }}
 \begin{theorem}
-  {{ row["?theoremStatement"] }}
+  {{ row["theoremStatement"] }}
   \label{thm:thm{{ loop.index }}}
 \end{theorem}
 
-{% if row["?proofSteps"] %}
+{% if row["proofSteps"] %}
 \begin{proof}
-  {{ row["?proofSteps"] }}
+  {{ row["proofSteps"] }}
 \end{proof}
 {% endif %}
 
