@@ -109,14 +109,11 @@ pub fn generate_packages_markdown(marketplace_root: &Path) -> Result<String, Str
                         )
                     {
                         let category = categorize_package(pkg_id).to_string();
-                        packages_by_category
-                            .entry(category)
-                            .or_insert_with(Vec::new)
-                            .push((
-                                pkg_id.to_string(),
-                                receipt.overall_score,
-                                receipt.production_ready,
-                            ));
+                        packages_by_category.entry(category).or_default().push((
+                            pkg_id.to_string(),
+                            receipt.overall_score,
+                            receipt.production_ready,
+                        ));
                     }
                 }
             }

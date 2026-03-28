@@ -21,7 +21,7 @@ pub fn validate_url(url: &str) -> A2aMcpResult<String> {
 /// Extracts tool name from a method string
 /// For example: "https://example.com/agent:toolName" -> "toolName"
 pub fn extract_tool_name(method: &str) -> Option<String> {
-    method.split(':').last().map(|s| s.to_string())
+    method.split(':').next_back().map(|s| s.to_string())
 }
 
 /// Extracts agent URL from a method string

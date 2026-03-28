@@ -200,7 +200,7 @@ fn count_checks(validation: &ggen_domain::marketplace::PackageValidation) -> (us
 }
 
 /// Sort validations by score
-fn sort_validations_by_score(validations: &mut Vec<ggen_domain::marketplace::PackageValidation>) {
+fn sort_validations_by_score(validations: &mut [ggen_domain::marketplace::PackageValidation]) {
     validations.sort_by(|a, b| {
         b.score
             .partial_cmp(&a.score)
@@ -632,7 +632,7 @@ fn recommend(use_case: String, min_score: Option<u32>) -> Result<RecommendOutput
 
 /// Get threshold score for use case
 fn get_threshold_for_use_case(use_case: &str, min_score: Option<u32>) -> f64 {
-    min_score.unwrap_or_else(|| match use_case {
+    min_score.unwrap_or(match use_case {
         "production" => 95,
         "research" => 60,
         "enterprise" => 97,

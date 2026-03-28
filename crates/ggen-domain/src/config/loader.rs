@@ -545,7 +545,7 @@ pub struct McpServerDef {
 }
 
 /// A2A configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct A2aConfig {
     #[serde(default)]
     pub server: A2aServerDef,
@@ -584,15 +584,6 @@ pub struct A2aAgentDef {
     pub agent_type: String,
     #[serde(default)]
     pub description: Option<String>,
-}
-
-impl Default for A2aConfig {
-    fn default() -> Self {
-        Self {
-            server: Default::default(),
-            agents: Vec::new(),
-        }
-    }
 }
 
 /// Marketplace configuration

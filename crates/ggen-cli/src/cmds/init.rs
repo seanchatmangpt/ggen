@@ -464,7 +464,7 @@ fn perform_init(
     let base_path = Path::new(project_dir);
 
     // List of ggen-specific artifacts to check for
-    let ggen_artifacts = vec![
+    let ggen_artifacts = [
         "ggen.toml",
         "Makefile",
         "schema/domain.ttl",

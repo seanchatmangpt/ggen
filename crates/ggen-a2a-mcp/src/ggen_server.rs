@@ -7,12 +7,9 @@
 //!   - `list_generators` — list available code generators
 
 use rmcp::{
-    ErrorData as McpError,
-    ServerHandler,
     handler::server::{router::tool::ToolRouter, wrapper::Parameters},
     model::*,
-    schemars,
-    tool, tool_handler, tool_router,
+    schemars, tool, tool_handler, tool_router, ErrorData as McpError, ServerHandler,
 };
 use serde::Deserialize;
 
@@ -73,8 +70,7 @@ impl GgenMcpServer {
     /// Generate code from a RDF ontology file.
     #[tool(description = "Generate code from a RDF ontology file")]
     async fn generate(
-        &self,
-        Parameters(params): Parameters<GenerateParams>,
+        &self, Parameters(params): Parameters<GenerateParams>,
     ) -> Result<CallToolResult, McpError> {
         if !std::path::Path::new(&params.ontology_path).exists() {
             return Ok(CallToolResult::error(vec![Content::text(format!(
@@ -82,11 +78,7 @@ impl GgenMcpServer {
                 params.ontology_path
             ))]));
         }
-        let out = params
-            .output_dir
-            .as_deref()
-            .unwrap_or(".")
-            .to_string();
+        let out = params.output_dir.as_deref().unwrap_or(".").to_string();
         Ok(CallToolResult::success(vec![Content::text(format!(
             "Generated code from {} into {}",
             params.ontology_path, out
@@ -96,18 +88,14 @@ impl GgenMcpServer {
     /// Validate a Turtle (.ttl) ontology content string.
     #[tool(description = "Validate a Turtle (.ttl) ontology file or content string")]
     async fn validate(
-        &self,
-        Parameters(params): Parameters<ValidateParams>,
+        &self, Parameters(params): Parameters<ValidateParams>,
     ) -> Result<CallToolResult, McpError> {
         use oxigraph::io::{RdfFormat, RdfParser};
 
         let parser = RdfParser::from_format(RdfFormat::Turtle);
         let reader = params.ttl.as_bytes();
         let results: Vec<_> = parser.for_reader(reader).collect();
-        let errors: Vec<_> = results
-            .iter()
-            .filter_map(|r| r.as_ref().err())
-            .collect();
+        let errors: Vec<_> = results.iter().filter_map(|r| r.as_ref().err()).collect();
         if errors.is_empty() {
             Ok(CallToolResult::success(vec![Content::text(
                 "Valid Turtle content",
@@ -128,8 +116,7 @@ impl GgenMcpServer {
     /// Run the ggen sync pipeline (μ₁-μ₅) from an ontology.
     #[tool(description = "Run the ggen sync pipeline (μ₁-μ₅) from an ontology")]
     async fn sync(
-        &self,
-        Parameters(params): Parameters<SyncParams>,
+        &self, Parameters(params): Parameters<SyncParams>,
     ) -> Result<CallToolResult, McpError> {
         if !std::path::Path::new(&params.ontology_path).exists() {
             return Ok(CallToolResult::error(vec![Content::text(format!(
@@ -183,12 +170,9 @@ impl GgenMcpServer {
     /// Exposed as an inherent method so callers don't need `ServerHandler`
     /// in scope (the trait method delegates here).
     pub fn get_info(&self) -> InitializeResult {
-        let capabilities = ServerCapabilities::builder()
-            .enable_tools()
-            .build();
-        InitializeResult::new(capabilities).with_server_info(
-            Implementation::new("ggen", env!("CARGO_PKG_VERSION")),
-        )
+        let capabilities = ServerCapabilities::builder().enable_tools().build();
+        InitializeResult::new(capabilities)
+            .with_server_info(Implementation::new("ggen", env!("CARGO_PKG_VERSION")))
     }
 
     /// Serve the MCP protocol over `transport`, running until the transport closes.
@@ -201,18 +185,17 @@ impl GgenMcpServer {
     ///     let _ = server.serve(transport).await; // runs until client disconnects
     /// });
     /// ```
-    pub async fn serve<T, E, A>(
-        self,
-        transport: T,
-    ) -> anyhow::Result<()>
+    pub async fn serve<T, E, A>(self, transport: T) -> anyhow::Result<()>
     where
         T: rmcp::transport::IntoTransport<rmcp::RoleServer, E, A>,
         E: std::error::Error + Send + Sync + 'static,
         A: 'static,
     {
-        use rmcp::ServiceExt as _;
         let running = rmcp::ServiceExt::serve(self, transport).await?;
-        running.waiting().await.map_err(|e| anyhow::anyhow!("{e}"))?;
+        running
+            .waiting()
+            .await
+            .map_err(|e| anyhow::anyhow!("{e}"))?;
         Ok(())
     }
 }

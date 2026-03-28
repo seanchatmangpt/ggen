@@ -197,7 +197,7 @@ pub async fn execute_list(_input: ListInput) -> Result<ListOutput> {
     // Iterate through lockfile packages
     for (name, info) in &lockfile.packages {
         // Note: PackageId in v2 uses qualified format "namespace/name"
-        let package_id = match PackageId::new(&format!("local/{}", name)) {
+        let package_id = match PackageId::new(format!("local/{}", name)) {
             Ok(id) => id,
             Err(_) => continue, // Skip invalid package IDs
         };

@@ -149,14 +149,12 @@ impl EconomicMetrics {
         }
 
         // ROI component (0-50 points)
-        let roi_score = (self.roi_percent / 200.0).min(50.0).max(0.0);
+        let roi_score = (self.roi_percent / 200.0).clamp(0.0, 50.0);
 
         // Cost efficiency component (0-50 points)
         // Lower cost = higher score (logarithmic scale)
         let cost_score = if self.cost_per_op_usd > 0.0 {
-            (50.0 - (self.cost_per_op_usd.log10() + 2.0) * 10.0)
-                .min(50.0)
-                .max(0.0)
+            (50.0 - (self.cost_per_op_usd.log10() + 2.0) * 10.0).clamp(0.0, 50.0)
         } else {
             25.0
         };

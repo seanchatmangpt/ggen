@@ -59,9 +59,9 @@ fn load(file: String, format: Option<String>) -> Result<LoadOutput> {
     };
 
     let result = crate::runtime::block_on(async move {
-        Ok(execute_load(input)
+        execute_load(input)
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Load failed: {}", e)))?)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Load failed: {}", e)))
     })
     .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
     .map_err(|e: ggen_utils::Error| {
@@ -90,9 +90,9 @@ fn query(
     };
 
     let result = crate::runtime::block_on(async move {
-        Ok(execute_query(input)
+        execute_query(input)
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Query failed: {}", e)))?)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Query failed: {}", e)))
     })
     .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
     .map_err(|e: ggen_utils::Error| {
@@ -119,9 +119,9 @@ fn export(input_file: String, output: String, format: String) -> Result<ExportOu
     };
 
     let result = crate::runtime::block_on(async move {
-        Ok(execute_export(input_data)
+        execute_export(input_data)
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Export failed: {}", e)))?)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Export failed: {}", e)))
     })
     .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
     .map_err(|e: ggen_utils::Error| {
@@ -151,9 +151,9 @@ fn visualize(input_file: String, format: Option<String>) -> Result<VisualizeOutp
     };
 
     let result = crate::runtime::block_on(async move {
-        Ok(execute_visualize(input_data)
+        execute_visualize(input_data)
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Visualize failed: {}", e)))?)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Visualize failed: {}", e)))
     })
     .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
     .map_err(|e: ggen_utils::Error| {

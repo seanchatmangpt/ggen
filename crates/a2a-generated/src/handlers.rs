@@ -114,13 +114,13 @@ pub mod message_handler {
     #[derive(Debug, Clone, PartialEq)]
     pub enum HandlerAction {
         /// Send a response message
-        SendResponse(ConvergedMessage),
+        SendResponse(Box<ConvergedMessage>),
 
         /// Schedule a task
-        ScheduleTask(String, TaskConfig),
+        ScheduleTask(String, Box<TaskConfig>),
 
         /// Create an event
-        CreateEvent(String, EventConfig),
+        CreateEvent(String, Box<EventConfig>),
 
         /// Log a message
         Log(String, LogLevel),
@@ -258,6 +258,12 @@ pub mod message_handler {
         }
     }
 
+    impl Default for UnifiedMessageRouter {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     impl UnifiedMessageRouter {
         pub fn new() -> Self {
             Self {
@@ -311,8 +317,8 @@ pub mod message_handler {
             }
 
             // Update average processing time
-            let duration_ms = duration.num_milliseconds() as i64;
-            let current_avg_ms = self.metrics.avg_processing_time.num_milliseconds() as i64;
+            let duration_ms = duration.num_milliseconds();
+            let current_avg_ms = self.metrics.avg_processing_time.num_milliseconds();
             let total_msgs = self.metrics.total_messages as i64;
             let new_avg_ms = (current_avg_ms * (total_msgs - 1) + duration_ms) / total_msgs;
             self.metrics.avg_processing_time = chrono::Duration::milliseconds(new_avg_ms);
@@ -343,7 +349,9 @@ pub mod message_handler {
                 let filtered: Vec<&Box<dyn UnifiedMessageHandler>> = self
                     .handlers
                     .iter()
-                    .filter(|h| h.can_handle(message) && rule.condition.matches(message, h))
+                    .filter(|h| {
+                        h.can_handle(message) && rule.condition.matches(message, h.as_ref())
+                    })
                     .collect();
 
                 if !filtered.is_empty() {
@@ -384,10 +392,11 @@ pub mod message_handler {
         /// Apply this rule to filter handlers
         pub fn apply<'a>(
             &self, message: &ConvergedMessage, handlers: &'a [Box<dyn UnifiedMessageHandler>],
-        ) -> Option<Vec<&'a Box<dyn UnifiedMessageHandler>>> {
-            let filtered: Vec<&'a Box<dyn UnifiedMessageHandler>> = handlers
+        ) -> Option<Vec<&'a dyn UnifiedMessageHandler>> {
+            let filtered: Vec<&'a dyn UnifiedMessageHandler> = handlers
                 .iter()
-                .filter(|h| self.condition.matches(message, h))
+                .filter(|h| self.condition.matches(message, h.as_ref()))
+                .map(|h| h.as_ref())
                 .collect();
 
             if filtered.is_empty() {
@@ -448,16 +457,14 @@ pub mod message_handler {
     impl RoutingCondition {
         /// Check if condition matches
         pub fn matches(
-            &self, message: &ConvergedMessage, handler: &Box<dyn UnifiedMessageHandler>,
+            &self, message: &ConvergedMessage, handler: &dyn UnifiedMessageHandler,
         ) -> bool {
             match self {
                 RoutingCondition::MessageType(msg_type) => {
                     &message.envelope.message_type == msg_type
                 }
                 RoutingCondition::SourceAgent(source) => &message.source == source,
-                RoutingCondition::TargetAgent(target) => {
-                    message.target.as_ref().map_or(false, |t| t == target)
-                }
+                RoutingCondition::TargetAgent(target) => message.target.as_ref() == Some(target),
                 RoutingCondition::ContentCondition(condition) => condition(message),
                 RoutingCondition::MinimumPriority(priority) => handler.priority() >= *priority,
                 RoutingCondition::Custom(condition) => condition(message),
@@ -466,11 +473,16 @@ pub mod message_handler {
     }
 
     /// Built-in message handlers
-
     /// Text message handler
     pub struct TextMessageHandler {
         name: String,
         priority: HandlerPriority,
+    }
+
+    impl Default for TextMessageHandler {
+        fn default() -> Self {
+            Self::new()
+        }
     }
 
     impl TextMessageHandler {
@@ -552,6 +564,12 @@ pub mod message_handler {
         priority: HandlerPriority,
     }
 
+    impl Default for DataProcessingHandler {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     impl DataProcessingHandler {
         pub fn new() -> Self {
             Self {
@@ -593,7 +611,7 @@ pub mod message_handler {
                         },
                         actions: vec![HandlerAction::CreateEvent(
                             "data_processed".to_string(),
-                            EventConfig {
+                            Box::new(EventConfig {
                                 event_type: "data.processed".to_string(),
                                 metadata: Some(
                                     schema
@@ -608,7 +626,7 @@ pub mod message_handler {
                                         })
                                         .unwrap_or_default(),
                                 ),
-                            },
+                            }),
                         )],
                         error: None,
                         metadata: None,
@@ -667,6 +685,12 @@ pub mod message_handler {
     pub struct ErrorHandler {
         name: String,
         priority: HandlerPriority,
+    }
+
+    impl Default for ErrorHandler {
+        fn default() -> Self {
+            Self::new()
+        }
     }
 
     impl ErrorHandler {

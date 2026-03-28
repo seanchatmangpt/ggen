@@ -346,10 +346,8 @@ impl PriorityScheduler {
         }
 
         // Only low if not at risk of starvation
-        if allow_starvation || self.high_queue.is_empty() {
-            if !self.low_queue.is_empty() {
-                return Some(self.low_queue.remove(0));
-            }
+        if (allow_starvation || self.high_queue.is_empty()) && !self.low_queue.is_empty() {
+            return Some(self.low_queue.remove(0));
         }
 
         None

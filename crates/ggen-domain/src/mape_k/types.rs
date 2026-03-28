@@ -4,6 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt;
 
 /// Observation plane: telemetry, metrics, and events
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -209,13 +210,13 @@ pub enum ValidationStage {
     Security,
 }
 
-impl ToString for ValidationStage {
-    fn to_string(&self) -> String {
+impl fmt::Display for ValidationStage {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ValidationStage::SHACL => "SHACL".to_string(),
-            ValidationStage::TDD => "TDD".to_string(),
-            ValidationStage::Performance => "Performance".to_string(),
-            ValidationStage::Security => "Security".to_string(),
+            ValidationStage::SHACL => write!(f, "SHACL"),
+            ValidationStage::TDD => write!(f, "TDD"),
+            ValidationStage::Performance => write!(f, "Performance"),
+            ValidationStage::Security => write!(f, "Security"),
         }
     }
 }
@@ -385,7 +386,7 @@ pub struct SnapshotMetadata {
 }
 
 /// MAPE-K execution metrics
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MAPEMetrics {
     /// Total observations ingested
     pub observations_ingested: usize,
@@ -404,17 +405,4 @@ pub struct MAPEMetrics {
 
     /// Last execution timestamp
     pub last_execution_timestamp: u64,
-}
-
-impl Default for MAPEMetrics {
-    fn default() -> Self {
-        Self {
-            observations_ingested: 0,
-            findings_generated: 0,
-            overlays_proposed: 0,
-            overlays_promoted: 0,
-            total_execution_time_ms: 0,
-            last_execution_timestamp: 0,
-        }
-    }
 }
