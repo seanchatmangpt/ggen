@@ -96,9 +96,11 @@ impl EnhancedWatchMode {
 
                     // Analyze cache impact if enabled
                     if let Some(ref cache) = cache {
-                        if let Ok(analysis) =
-                            WatchCacheIntegration::detect_affected_rules(&manifest_data, base_path, cache)
-                        {
+                        if let Ok(analysis) = WatchCacheIntegration::detect_affected_rules(
+                            &manifest_data,
+                            base_path,
+                            cache,
+                        ) {
                             if !analysis.rerun_all {
                                 cache_hits += 1;
                                 eprintln!(
@@ -184,11 +186,7 @@ impl EnhancedWatchMode {
         }
     }
 
-    fn print_change_detected(
-        &self,
-        event: &WatchEvent,
-        base_path: &Path,
-    ) {
+    fn print_change_detected(&self, event: &WatchEvent, base_path: &Path) {
         let display_path = event.path.strip_prefix(base_path).unwrap_or(&event.path);
         let event_kind_str = match event.kind {
             WatchEventKind::Created => "created".green(),
@@ -248,10 +246,7 @@ impl EnhancedWatchMode {
     }
 
     fn shutdown_gracefully(
-        &self,
-        regeneration_count: usize,
-        total_regeneration_time: u64,
-        cache_hits: usize,
+        &self, regeneration_count: usize, total_regeneration_time: u64, cache_hits: usize,
     ) -> Result<SyncResult> {
         eprintln!("\n{}", "Shutting down gracefully...".yellow());
         eprintln!("\n{}", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━".cyan());
@@ -259,8 +254,7 @@ impl EnhancedWatchMode {
         eprintln!("  Total regenerations: {}", regeneration_count);
 
         if regeneration_count > 0 {
-            let avg_time =
-                total_regeneration_time as f64 / regeneration_count as f64 / 1000.0;
+            let avg_time = total_regeneration_time as f64 / regeneration_count as f64 / 1000.0;
             eprintln!("  Average time: {:.2}s", avg_time);
         }
 

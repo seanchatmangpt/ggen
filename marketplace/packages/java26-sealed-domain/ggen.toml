@@ -1,0 +1,43 @@
+[project]
+name = "java26-sealed-domain"
+version = "1.0.0"
+description = "SEALED DOMAIN HIERARCHY pattern — generate sealed interface + record variants"
+
+[ontology]
+source = "ontology/domain.ttl"
+imports = ["../java26-core/ontology/java26.ttl"]
+format = "turtle"
+
+[generation]
+output_dir = "src/main/java/"
+
+[[generation.rules]]
+name = "sealed-interfaces"
+query = { file = "queries/extract-sealed-interfaces.rq" }
+template = { file = "templates/SealedInterface.java.tera" }
+output_file = "{{ javaPackage | replace(from='.', to='/') }}/{{ interfaceName }}.java"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "sealed-records"
+query = { file = "queries/extract-sealed-records.rq" }
+template = { file = "templates/SealedRecord.java.tera" }
+output_file = "{{ javaPackage | replace(from='.', to='/') }}/{{ recordName }}.java"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "aggregate-roots"
+query = { file = "queries/extract-aggregate-roots.rq" }
+template = { file = "templates/AggregateRoot.java.tera" }
+output_file = "{{ javaPackage | replace(from='.', to='/') }}/{{ className }}.java"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "tests"
+query = { file = "queries/extract-sealed-interfaces.rq" }
+template = { file = "templates/SealedDomainTest.java.tera" }
+output_file = "{{ javaPackage | replace(from='.', to='/') }}/{{ interfaceName }}PatternTest.java"
+mode = "Overwrite"
+
+[validation]
+validate_syntax = false

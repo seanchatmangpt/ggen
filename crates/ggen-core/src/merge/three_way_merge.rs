@@ -169,7 +169,10 @@ pub fn parse_regions(content: &str) -> Result<Vec<MergeRegion>, MergeError> {
                     );
                     let mut buf = String::from(line);
                     buf.push('\n');
-                    state = State::InGenerated { start: line_no, buf };
+                    state = State::InGenerated {
+                        start: line_no,
+                        buf,
+                    };
                 } else if line.trim_start().starts_with(PRESERVE_START) {
                     flush_unannotated(
                         &mut unannotated_buf,
@@ -179,7 +182,10 @@ pub fn parse_regions(content: &str) -> Result<Vec<MergeRegion>, MergeError> {
                     );
                     let mut buf = String::from(line);
                     buf.push('\n');
-                    state = State::InPreserve { start: line_no, buf };
+                    state = State::InPreserve {
+                        start: line_no,
+                        buf,
+                    };
                 } else {
                     if unannotated_buf.is_empty() {
                         unannotated_start = line_no;
@@ -415,12 +421,8 @@ pub fn three_way_merge(base: &str, ours: &str, theirs: &str) -> Result<MergeResu
 
 /// Merge a single aligned triple of regions, appending to `merged`.
 fn merge_region_triple(
-    base: &MergeRegion,
-    ours: &MergeRegion,
-    theirs: &MergeRegion,
-    merged: &mut String,
-    conflicts: &mut Vec<MergeConflict>,
-    preserved_regions: &mut usize,
+    base: &MergeRegion, ours: &MergeRegion, theirs: &MergeRegion, merged: &mut String,
+    conflicts: &mut Vec<MergeConflict>, preserved_regions: &mut usize,
     regenerated_regions: &mut usize,
 ) {
     match &theirs.region_type {
@@ -529,7 +531,9 @@ fn region_label(r: &MergeRegion) -> String {
 /// This function **panics** if it detects that a `@ggen:preserve` region in
 /// `existing_file` would be lost.  Panic is intentional: prefer loud failure
 /// over silent data loss.  The supervisor must restart the process.
-pub fn apply_generated(existing_file: &str, new_generated: &str) -> Result<MergeResult, MergeError> {
+pub fn apply_generated(
+    existing_file: &str, new_generated: &str,
+) -> Result<MergeResult, MergeError> {
     // For apply_generated we use `new_generated` as the base as well — generated
     // regions are always overwritten unconditionally; only preserve regions survive.
     let ours_regions = parse_regions(existing_file)?;
@@ -653,14 +657,13 @@ pub fn format_conflicts(conflicts: &[MergeConflict]) -> String {
 
 /// Render one conflict as git-style markers.
 fn format_single_conflict(
-    line: usize,
-    region: &str,
-    base: &str,
-    ours: &str,
-    theirs: &str,
+    line: usize, region: &str, base: &str, ours: &str, theirs: &str,
 ) -> String {
     let mut out = String::new();
-    out.push_str(&format!("<<<<<<< ours (line {}, region: {})\n", line, region));
+    out.push_str(&format!(
+        "<<<<<<< ours (line {}, region: {})\n",
+        line, region
+    ));
     out.push_str(ours);
     if !ours.ends_with('\n') {
         out.push('\n');
@@ -747,7 +750,8 @@ mod tests {
     // ─────────────────────────────────────────────────────────────────────────
     #[test]
     fn test_preserve_region_survives_regeneration() {
-        let custom_body = "// CUSTOM: domain-specific validation\nfunc Validate(x int) bool { return x > 0 }\n";
+        let custom_body =
+            "// CUSTOM: domain-specific validation\nfunc Validate(x int) bool { return x > 0 }\n";
         let gen_body_old = "// generated scaffold v1\nfunc Scaffold() {}\n";
         let gen_body_new = "// generated scaffold v2\nfunc ScaffoldV2() {}\n";
 
@@ -766,7 +770,10 @@ mod tests {
             "generated region should be updated"
         );
         assert_eq!(result.preserved_regions, 1, "one preserve region tracked");
-        assert_eq!(result.regenerated_regions, 1, "one generated region tracked");
+        assert_eq!(
+            result.regenerated_regions, 1,
+            "one generated region tracked"
+        );
         assert!(result.conflicts.is_empty(), "clean merge — no conflicts");
     }
 
@@ -810,7 +817,10 @@ mod tests {
             result.merged_content.contains("line2_edited"),
             "when only ours changed, ours should win"
         );
-        assert!(result.conflicts.is_empty(), "no conflict — only one side changed");
+        assert!(
+            result.conflicts.is_empty(),
+            "no conflict — only one side changed"
+        );
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -845,11 +855,23 @@ mod tests {
         let formatted = format_conflicts(&conflicts);
 
         assert!(formatted.contains("<<<<<<<"), "should have opening marker");
-        assert!(formatted.contains("======="), "should have separator marker");
+        assert!(
+            formatted.contains("======="),
+            "should have separator marker"
+        );
         assert!(formatted.contains(">>>>>>>"), "should have closing marker");
-        assert!(formatted.contains("our content"), "ours should be in markers");
-        assert!(formatted.contains("their content"), "theirs should be in markers");
-        assert!(formatted.contains("base content"), "base should be in markers");
+        assert!(
+            formatted.contains("our content"),
+            "ours should be in markers"
+        );
+        assert!(
+            formatted.contains("their content"),
+            "theirs should be in markers"
+        );
+        assert!(
+            formatted.contains("base content"),
+            "base should be in markers"
+        );
         assert!(
             formatted.contains("line 10"),
             "line number should appear in marker header"
@@ -933,7 +955,10 @@ mod tests {
     fn test_empty_file_merge() {
         let result = three_way_merge("", "", "").expect("empty merge should succeed");
 
-        assert_eq!(result.merged_content, "", "empty inputs produce empty output");
+        assert_eq!(
+            result.merged_content, "",
+            "empty inputs produce empty output"
+        );
         assert!(result.conflicts.is_empty());
         assert_eq!(result.preserved_regions, 0);
         assert_eq!(result.regenerated_regions, 0);
@@ -984,8 +1009,7 @@ mod tests {
             preserve_block("// placeholder B\n")
         );
 
-        let result =
-            apply_generated(&existing, &new_gen).expect("apply_generated should succeed");
+        let result = apply_generated(&existing, &new_gen).expect("apply_generated should succeed");
 
         assert!(
             result.merged_content.contains("BusinessRuleA"),
@@ -999,7 +1023,10 @@ mod tests {
             result.merged_content.contains("v2 glue"),
             "updated generated content must appear"
         );
-        assert_eq!(result.preserved_regions, 2, "two preserve regions must be tracked");
+        assert_eq!(
+            result.preserved_regions, 2,
+            "two preserve regions must be tracked"
+        );
         // 1 explicit @ggen:generated block + 1 unannotated trailing newline region.
         assert!(
             result.regenerated_regions >= 1,
@@ -1022,7 +1049,10 @@ mod tests {
             result.merged_content.contains("\"2.0\""),
             "theirs version bump should be applied"
         );
-        assert!(result.conflicts.is_empty(), "no conflict — only theirs changed");
+        assert!(
+            result.conflicts.is_empty(),
+            "no conflict — only theirs changed"
+        );
     }
 
     // ─────────────────────────────────────────────────────────────────────────

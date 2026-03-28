@@ -1,0 +1,41 @@
+@prefix java26: <http://ggen.io/java26#> .
+@prefix my:     <http://example.com/my-domain#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Aggregate Root ────────────────────────────────────────────────────────────
+
+my:Product a java26:AggregateRoot ;
+    java26:name "Product" ;
+    java26:javaPackage "com.example.catalog" ;
+    java26:field my:productId,
+                 my:name,
+                 my:description,
+                 my:price,
+                 my:stock .
+
+# ── Fields ────────────────────────────────────────────────────────────────────
+
+my:productId a java26:Field ;
+    java26:fieldName "id" ;
+    java26:fieldType "UUID" ;
+    java26:id true .
+
+my:name a java26:Field ;
+    java26:fieldName "name" ;
+    java26:fieldType "String" ;
+    java26:id false .
+
+my:description a java26:Field ;
+    java26:fieldName "description" ;
+    java26:fieldType "String" ;
+    java26:id false .
+
+my:price a java26:Field ;
+    java26:fieldName "price" ;
+    java26:fieldType "BigDecimal" ;
+    java26:id false .
+
+my:stock a java26:Field ;
+    java26:fieldName "stock" ;
+    java26:fieldType "int" ;
+    java26:id false .

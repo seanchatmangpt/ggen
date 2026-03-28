@@ -191,7 +191,9 @@ impl Graph {
                         .map_err(|e| Error::new(&format!("SPARQL solution error: {}", e)))?;
                     let mut row = BTreeMap::new();
                     for (var, term) in solution.iter() {
-                        row.insert(var.as_str().to_string(), term.to_string());
+                        // Strip SPARQL `?` prefix from variable names for cleaner template context
+                        let var_name = var.as_str().trim_start_matches('?').to_string();
+                        row.insert(var_name, term.to_string());
                     }
                     rows.push(row);
                 }
@@ -814,5 +816,59 @@ mod tests {
 
         // Assert
         assert!(prolog.contains("BASE <http://example.org/>"));
+    }
+
+    #[test]
+    fn test_sparql_variables_stripped_of_question_mark() {
+        // Arrange
+        let graph = Graph::new().unwrap();
+        graph
+            .insert_turtle(
+                r#"
+            @prefix ex: <http://example.org/> .
+            ex:john ex:name "John" ;
+                    ex:age "30" .
+        "#,
+            )
+            .unwrap();
+
+        // Act
+        let query = r#"
+            PREFIX ex: <http://example.org/>
+            SELECT ?name ?age
+            WHERE {
+                ?person ex:name ?name ;
+                        ex:age ?age .
+            }
+        "#;
+        let result = graph.query_cached(query).unwrap();
+
+        // Assert: Check that variables are stored without the ? prefix
+        if let CachedResult::Solutions(rows) = result {
+            assert!(!rows.is_empty());
+            let row = &rows[0];
+
+            // Keys should be "name" and "age", NOT "?name" and "?age"
+            assert!(
+                row.contains_key("name"),
+                "Expected 'name' key without ? prefix. Got keys: {:?}",
+                row.keys().collect::<Vec<_>>()
+            );
+            assert!(
+                row.contains_key("age"),
+                "Expected 'age' key without ? prefix. Got keys: {:?}",
+                row.keys().collect::<Vec<_>>()
+            );
+            assert!(
+                !row.contains_key("?name"),
+                "Should not have '?name' key with ? prefix"
+            );
+            assert!(
+                !row.contains_key("?age"),
+                "Should not have '?age' key with ? prefix"
+            );
+        } else {
+            panic!("Expected Solutions result type");
+        }
     }
 }

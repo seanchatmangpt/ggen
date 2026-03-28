@@ -141,3 +141,10 @@ Complete reference materials.
 
 [Bibliography](bibliography.md)
 [Index](index.md)
+
+---
+
+# Related Pattern Languages
+
+- [A Pattern Language for Java 26 with ggen](../../java26-patterns/src/README.md) — 35 executable patterns for generating Java 26 from RDF ontologies
+- [ggen Technical Reference v6.0](../../../analysis/ggen-book.md) — Complete technical reference

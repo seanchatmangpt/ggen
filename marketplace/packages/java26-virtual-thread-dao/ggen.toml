@@ -1,0 +1,27 @@
+[project]
+name = "java26-virtual-thread-dao"
+version = "1.0.0"
+
+[ontology]
+source = "ontology/domain.ttl"
+imports = ["../java26-core/ontology/java26.ttl"]
+
+[generation]
+output_dir = "src/main/java/"
+
+[[generation.rules]]
+name = "virtual-thread-dao"
+query = { file = "queries/extract-daos.rq" }
+template = { file = "templates/VirtualThreadDAO.java.tera" }
+output_file = "{{ javaPackage | replace(from='.', to='/') }}/{{ entityName }}DAO.java"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "virtual-thread-dao-test"
+query = { file = "queries/extract-daos.rq" }
+template = { file = "templates/VirtualThreadDAOTest.java.tera" }
+output_file = "{{ javaPackage | replace(from='.', to='/') }}/{{ entityName }}DAOTest.java"
+mode = "Overwrite"
+
+[validation]
+validate_syntax = false

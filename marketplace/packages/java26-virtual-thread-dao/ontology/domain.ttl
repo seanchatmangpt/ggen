@@ -1,0 +1,14 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix java26: <http://ggen.io/java26#> .
+@prefix my:     <http://example.com/my-domain#> .
+
+my:Order a java26:AggregateRoot ;
+    java26:name "Order" ;
+    java26:javaPackage "com.example.orders" ;
+    java26:dataAccess java26:VirtualThreadDAO ;
+    java26:field my:orderId, my:customerId, my:totalAmount, my:createdAt .
+
+my:orderId     a java26:Field ; java26:fieldName "id" ;          java26:fieldType "UUID" ;       java26:id true .
+my:customerId  a java26:Field ; java26:fieldName "customerId" ;  java26:fieldType "UUID" ;       java26:nullable false .
+my:totalAmount a java26:Field ; java26:fieldName "totalAmount" ; java26:fieldType "BigDecimal" ; java26:nullable false .
+my:createdAt   a java26:Field ; java26:fieldName "createdAt" ;   java26:fieldType "Instant" .

@@ -1,0 +1,19 @@
+[package]
+name = "java26-sealed-domain"
+version = "1.0.0"
+description = "SEALED DOMAIN HIERARCHY — Generate sealed interface + record variants from RDF ontology"
+authors = ["ggen Contributors"]
+license = "MIT"
+keywords = ["java26", "sealed", "records", "domain-model", "pattern-language"]
+categories = ["java", "domain-model", "pattern-language"]
+
+[ontology]
+file = "ontology/domain.ttl"
+namespace = "http://ggen.io/java26#"
+prefix = "java26"
+
+[dependencies]
+required = ["java26-core"]
+
+[features]
+description = "Generates from your domain TTL: sealed interface, N record variants, JUnit 5 tests"

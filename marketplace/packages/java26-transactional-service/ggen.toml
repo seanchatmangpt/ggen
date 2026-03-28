@@ -1,0 +1,11 @@
+[[rules]]
+name = "transactional-service"
+query = "queries/extract-aggregate-roots.rq"
+template = "templates/TransactionalService.java.tera"
+output_file = "{{ javaPackage | replace(from='.', to='/') }}/{{ className }}Service.java"
+
+[[rules]]
+name = "transactional-service-test"
+query = "queries/extract-aggregate-roots.rq"
+template = "templates/TransactionalServiceTest.java.tera"
+output_file = "{{ javaPackage | replace(from='.', to='/') }}/{{ className }}ServiceTest.java"

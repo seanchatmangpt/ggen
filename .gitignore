@@ -113,6 +113,8 @@ lcov.info
 
 # mdbook generated files
 docs/book/
+docs/sync-patterns/book/
+docs/java26-patterns/book/
 docs/*.html
 docs/*.js
 docs/*.css

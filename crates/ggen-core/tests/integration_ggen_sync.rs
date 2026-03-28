@@ -52,7 +52,9 @@ fn test_businessos_ontology_loads() {
         .join("businessos.ttl");
 
     // In test environment, check if the actual source exists
-    let actual_path = PathBuf::from("/Users/sac/chatmangpt/.specify/specs/020-platform-ontologies/businessos.ttl");
+    let actual_path = PathBuf::from(
+        "/Users/sac/chatmangpt/.specify/specs/020-platform-ontologies/businessos.ttl",
+    );
 
     let exists = businessos_path.exists() || actual_path.exists();
     assert!(
@@ -102,16 +104,15 @@ fn test_full_pipeline_businessos_to_go_code() {
 
     // For test purposes, verify the structure is set up correctly
     assert!(
-        package_dir.parent().map(|p| p.exists()).unwrap_or(false)
-            || package_dir.exists(),
+        package_dir.parent().map(|p| p.exists()).unwrap_or(false) || package_dir.exists(),
         "Marketplace package directory should exist or be creatable: {}",
         package_dir.display()
     );
 
     // If ggen.toml exists, parse it
     if ggen_toml_path.exists() {
-        let manifest = ManifestParser::parse(&ggen_toml_path)
-            .expect("Should successfully parse ggen.toml");
+        let manifest =
+            ManifestParser::parse(&ggen_toml_path).expect("Should successfully parse ggen.toml");
 
         // Verify project metadata
         assert!(
@@ -123,7 +124,12 @@ fn test_full_pipeline_businessos_to_go_code() {
         // Verify ontology is configured
         let ontology_path = package_dir.join(&manifest.ontology.source);
         assert!(
-            ontology_path.exists() || manifest.ontology.source.to_string_lossy().contains("businessos"),
+            ontology_path.exists()
+                || manifest
+                    .ontology
+                    .source
+                    .to_string_lossy()
+                    .contains("businessos"),
             "Ontology should reference businessos"
         );
     }
@@ -136,7 +142,11 @@ fn test_go_template_structure() {
     let templates_dir = marketplace_path("chatman-businessos-platform").join("templates");
 
     // Expected templates for Go generation
-    let expected_templates = vec!["service.go.tera", "Dockerfile.tera", "k8s-deployment.yaml.tera"];
+    let expected_templates = vec![
+        "service.go.tera",
+        "Dockerfile.tera",
+        "k8s-deployment.yaml.tera",
+    ];
 
     // Verify templates directory can be accessed
     assert!(
@@ -373,10 +383,7 @@ CMD ["./{{service_name}}"]
         dockerfile_template.contains("COPY --from=builder"),
         "Should copy from builder stage"
     );
-    assert!(
-        dockerfile_template.contains("EXPOSE"),
-        "Should expose port"
-    );
+    assert!(dockerfile_template.contains("EXPOSE"), "Should expose port");
     assert!(
         dockerfile_template.contains("CMD"),
         "Should define startup command"
@@ -445,10 +452,7 @@ spec:
         k8s_deployment.contains("metadata:"),
         "Should have metadata section"
     );
-    assert!(
-        k8s_deployment.contains("spec:"),
-        "Should have spec section"
-    );
+    assert!(k8s_deployment.contains("spec:"), "Should have spec section");
     assert!(
         k8s_deployment.contains("containers:"),
         "Should define containers"
@@ -524,7 +528,8 @@ fn test_ggen_sync_command_structure() {
     // Expected usage:
     // ggen sync --spec ontology/businessos.ttl --output /tmp/generated-businessos/
 
-    let sync_command = "ggen sync --spec ontology/businessos.ttl --output /tmp/generated-businessos/";
+    let sync_command =
+        "ggen sync --spec ontology/businessos.ttl --output /tmp/generated-businessos/";
 
     // Verify command structure
     assert!(

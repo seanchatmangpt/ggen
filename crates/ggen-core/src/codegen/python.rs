@@ -78,23 +78,13 @@ impl PythonGenerator {
 
         writeln!(out, "from contextlib import asynccontextmanager").map_err(|e| e.to_string())?;
         writeln!(out, "import logging\n").map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "from fastapi import FastAPI, HTTPException, status"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "from fastapi import FastAPI, HTTPException, status")
+            .map_err(|e| e.to_string())?;
         writeln!(out, "from fastapi.responses import JSONResponse").map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "from {snake}_router import router as {snake}_router\n"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "from {snake}_router import router as {snake}_router\n")
+            .map_err(|e| e.to_string())?;
 
-        writeln!(
-            out,
-            "logger = logging.getLogger(__name__)\n"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "logger = logging.getLogger(__name__)\n").map_err(|e| e.to_string())?;
 
         // lifespan context manager — Armstrong: let-it-crash on startup failure
         writeln!(out, "\n@asynccontextmanager").map_err(|e| e.to_string())?;
@@ -104,11 +94,17 @@ impl PythonGenerator {
             "    logger.info(\"{service_name} starting on port {port}\")"
         )
         .map_err(|e| e.to_string())?;
-        writeln!(out, "    # TODO: initialise DB pool, cache, OTEL exporter here")
-            .map_err(|e| e.to_string())?;
+        writeln!(
+            out,
+            "    # TODO: initialise DB pool, cache, OTEL exporter here"
+        )
+        .map_err(|e| e.to_string())?;
         writeln!(out, "    yield").map_err(|e| e.to_string())?;
-        writeln!(out, "    # Armstrong: cleanup — let downstream errors propagate")
-            .map_err(|e| e.to_string())?;
+        writeln!(
+            out,
+            "    # Armstrong: cleanup — let downstream errors propagate"
+        )
+        .map_err(|e| e.to_string())?;
         writeln!(
             out,
             "    logger.info(\"{service_name} shutdown complete\")\n"
@@ -145,11 +141,7 @@ impl PythonGenerator {
         .map_err(|e| e.to_string())?;
 
         // Generic exception handler — no silent failures
-        writeln!(
-            out,
-            "\n@app.exception_handler(Exception)"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "\n@app.exception_handler(Exception)").map_err(|e| e.to_string())?;
         writeln!(
             out,
             "async def unhandled_exception_handler(request, exc: Exception):"
@@ -208,11 +200,8 @@ impl PythonGenerator {
         .map_err(|e| e.to_string())?;
 
         writeln!(out, "\nclass {model_name}(BaseModel):").map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "    model_config = {{\"from_attributes\": True}}\n"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "    model_config = {{\"from_attributes\": True}}\n")
+            .map_err(|e| e.to_string())?;
 
         // Emit fields
         for field in fields {
@@ -246,12 +235,8 @@ impl PythonGenerator {
         writeln!(out, "            \"example\": {{").map_err(|e| e.to_string())?;
         for field in fields {
             let example_val = example_value_for_type(&field.field_type, field.optional);
-            writeln!(
-                out,
-                "                \"{}\": {},",
-                field.name, example_val
-            )
-            .map_err(|e| e.to_string())?;
+            writeln!(out, "                \"{}\": {},", field.name, example_val)
+                .map_err(|e| e.to_string())?;
         }
         writeln!(out, "            }}").map_err(|e| e.to_string())?;
         writeln!(out, "        }}").map_err(|e| e.to_string())?;
@@ -259,11 +244,8 @@ impl PythonGenerator {
 
         // Cross-field validator stub
         writeln!(out, "    @model_validator(mode=\"after\")").map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "    def validate_model(self) -> \"{model_name}\":"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "    def validate_model(self) -> \"{model_name}\":")
+            .map_err(|e| e.to_string())?;
         writeln!(
             out,
             "        \"\"\"Cross-field validation hook — add domain invariants here.\"\"\""
@@ -294,14 +276,13 @@ impl PythonGenerator {
         let snake_model = to_snake(model_name);
 
         writeln!(out, "\"\"\"").map_err(|e| e.to_string())?;
+        writeln!(out, "SQLAlchemy 2.0 async repository for {}.", model_name)
+            .map_err(|e| e.to_string())?;
         writeln!(
             out,
-            "SQLAlchemy 2.0 async repository for {}.",
-            model_name
+            "\nWvdA: all queries use execution_options(timeout=30)."
         )
         .map_err(|e| e.to_string())?;
-        writeln!(out, "\nWvdA: all queries use execution_options(timeout=30).")
-            .map_err(|e| e.to_string())?;
         writeln!(out, "\nAuto-generated by ggen. Edit with care.").map_err(|e| e.to_string())?;
         writeln!(out, "\"\"\"\n").map_err(|e| e.to_string())?;
 
@@ -318,11 +299,8 @@ impl PythonGenerator {
             "from sqlalchemy.dialects.postgresql import UUID as PG_UUID"
         )
         .map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "from sqlalchemy.ext.asyncio import AsyncSession"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "from sqlalchemy.ext.asyncio import AsyncSession")
+            .map_err(|e| e.to_string())?;
         writeln!(
             out,
             "from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column\n"
@@ -344,7 +322,11 @@ impl PythonGenerator {
 
         for field in fields {
             let sa_type = sqlalchemy_type_for(&field.field_type);
-            let nullable_part = if field.optional { ", nullable=True" } else { "" };
+            let nullable_part = if field.optional {
+                ", nullable=True"
+            } else {
+                ""
+            };
             writeln!(
                 out,
                 "    {}: Mapped[{}] = mapped_column({}{nullable_part})",
@@ -380,22 +362,11 @@ impl PythonGenerator {
             "        \"\"\"Persist a new {model_name} and return the managed instance.\"\"\""
         )
         .map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "        self._session.add({snake_model})"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "        self._session.add({snake_model})").map_err(|e| e.to_string())?;
         writeln!(out, "        await self._session.flush()").map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "        await self._session.refresh({snake_model})"
-        )
-        .map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "        return {snake_model}\n"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "        await self._session.refresh({snake_model})")
+            .map_err(|e| e.to_string())?;
+        writeln!(out, "        return {snake_model}\n").map_err(|e| e.to_string())?;
 
         // get_by_id
         writeln!(
@@ -418,16 +389,9 @@ impl PythonGenerator {
             "        stmt = (\n            select({model_name}ORM)\n            .where({model_name}ORM.id == record_id)\n            .execution_options(timeout=30)\n        )"
         )
         .map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "        result = await self._session.execute(stmt)"
-        )
-        .map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "        return result.scalars().first()\n"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "        result = await self._session.execute(stmt)")
+            .map_err(|e| e.to_string())?;
+        writeln!(out, "        return result.scalars().first()\n").map_err(|e| e.to_string())?;
 
         // list_all
         writeln!(
@@ -445,16 +409,10 @@ impl PythonGenerator {
             "        stmt = (\n            select({model_name}ORM)\n            .limit(limit)\n            .execution_options(timeout=30)\n        )"
         )
         .map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "        result = await self._session.execute(stmt)"
-        )
-        .map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "        return list(result.scalars().all())\n"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "        result = await self._session.execute(stmt)")
+            .map_err(|e| e.to_string())?;
+        writeln!(out, "        return list(result.scalars().all())\n")
+            .map_err(|e| e.to_string())?;
 
         // update
         writeln!(
@@ -472,23 +430,13 @@ impl PythonGenerator {
             "        stmt = (\n            update({model_name}ORM)\n            .where({model_name}ORM.id == record_id)\n            .values(**values)\n            .execution_options(timeout=30)\n        )"
         )
         .map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "        await self._session.execute(stmt)"
-        )
-        .map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "        return await self.get_by_id(record_id)\n"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "        await self._session.execute(stmt)").map_err(|e| e.to_string())?;
+        writeln!(out, "        return await self.get_by_id(record_id)\n")
+            .map_err(|e| e.to_string())?;
 
         // delete
-        writeln!(
-            out,
-            "    async def delete(self, record_id: UUID) -> bool:"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "    async def delete(self, record_id: UUID) -> bool:")
+            .map_err(|e| e.to_string())?;
         writeln!(
             out,
             "        \"\"\"Delete a {model_name} by primary key. Returns True if a row was deleted.\"\"\""
@@ -499,16 +447,9 @@ impl PythonGenerator {
             "        stmt = (\n            delete({model_name}ORM)\n            .where({model_name}ORM.id == record_id)\n            .execution_options(timeout=30)\n        )"
         )
         .map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "        result = await self._session.execute(stmt)"
-        )
-        .map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "        return result.rowcount > 0"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "        result = await self._session.execute(stmt)")
+            .map_err(|e| e.to_string())?;
+        writeln!(out, "        return result.rowcount > 0").map_err(|e| e.to_string())?;
 
         Ok(out)
     }
@@ -533,24 +474,20 @@ impl PythonGenerator {
         let snake = to_snake(service_name);
 
         writeln!(out, "\"\"\"").map_err(|e| e.to_string())?;
+        writeln!(out, "pytest test suite for {service_name}.").map_err(|e| e.to_string())?;
         writeln!(
             out,
-            "pytest test suite for {service_name}."
+            "\nChicago TDD: behaviour verification via real FastAPI TestClient."
         )
         .map_err(|e| e.to_string())?;
-        writeln!(out, "\nChicago TDD: behaviour verification via real FastAPI TestClient.")
-            .map_err(|e| e.to_string())?;
         writeln!(out, "\nAuto-generated by ggen. Edit with care.").map_err(|e| e.to_string())?;
         writeln!(out, "\"\"\"\n").map_err(|e| e.to_string())?;
 
         writeln!(out, "from __future__ import annotations\n").map_err(|e| e.to_string())?;
         writeln!(out, "import pytest").map_err(|e| e.to_string())?;
         writeln!(out, "import pytest_asyncio").map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "from httpx import AsyncClient, ASGITransport\n"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "from httpx import AsyncClient, ASGITransport\n")
+            .map_err(|e| e.to_string())?;
         writeln!(
             out,
             "from {snake}_app import app  # FastAPI application instance\n"
@@ -577,11 +514,7 @@ impl PythonGenerator {
         writeln!(out, "        yield client\n").map_err(|e| e.to_string())?;
 
         // health check test (always present)
-        writeln!(
-            out,
-            "\n@pytest.mark.asyncio"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "\n@pytest.mark.asyncio").map_err(|e| e.to_string())?;
         writeln!(
             out,
             "async def test_health_check(async_client: AsyncClient) -> None:"
@@ -592,17 +525,11 @@ impl PythonGenerator {
             "    \"\"\"Liveness probe returns 200 with service name.\"\"\""
         )
         .map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "    response = await async_client.get(\"/health\")"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "    response = await async_client.get(\"/health\")")
+            .map_err(|e| e.to_string())?;
         writeln!(out, "    assert response.status_code == 200").map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "    assert response.json()[\"status\"] == \"ok\""
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "    assert response.json()[\"status\"] == \"ok\"")
+            .map_err(|e| e.to_string())?;
         writeln!(
             out,
             "    assert response.json()[\"service\"] == \"{service_name}\"\n"
@@ -659,11 +586,8 @@ impl PythonGenerator {
                     "00000000-0000-0000-0000-000000000000"
                 )
                 .map_err(|e| e.to_string())?;
-                writeln!(
-                    out,
-                    "    assert response.status_code == 404\n"
-                )
-                .map_err(|e| e.to_string())?;
+                writeln!(out, "    assert response.status_code == 404\n")
+                    .map_err(|e| e.to_string())?;
             }
         }
 
@@ -690,10 +614,16 @@ impl PythonGenerator {
         let mut out = String::new();
 
         writeln!(out, "# requirements.txt for {service_name}").map_err(|e| e.to_string())?;
-        writeln!(out, "# Auto-generated by ggen. Pin versions before production deploy.")
-            .map_err(|e| e.to_string())?;
-        writeln!(out, "# WvdA: explicit versions prevent unbounded dependency drift.\n")
-            .map_err(|e| e.to_string())?;
+        writeln!(
+            out,
+            "# Auto-generated by ggen. Pin versions before production deploy."
+        )
+        .map_err(|e| e.to_string())?;
+        writeln!(
+            out,
+            "# WvdA: explicit versions prevent unbounded dependency drift.\n"
+        )
+        .map_err(|e| e.to_string())?;
 
         // Core
         writeln!(out, "# Core framework").map_err(|e| e.to_string())?;
@@ -724,11 +654,8 @@ impl PythonGenerator {
             writeln!(out, "opentelemetry-api==1.27.0").map_err(|e| e.to_string())?;
             writeln!(out, "opentelemetry-sdk==1.27.0").map_err(|e| e.to_string())?;
             writeln!(out, "opentelemetry-exporter-otlp==1.27.0").map_err(|e| e.to_string())?;
-            writeln!(
-                out,
-                "opentelemetry-instrumentation-fastapi==0.48b0\n"
-            )
-            .map_err(|e| e.to_string())?;
+            writeln!(out, "opentelemetry-instrumentation-fastapi==0.48b0\n")
+                .map_err(|e| e.to_string())?;
         }
 
         // Optional: test
@@ -757,8 +684,11 @@ impl PythonGenerator {
 
         writeln!(out, "\"\"\"").map_err(|e| e.to_string())?;
         writeln!(out, "main.py — entry point for {service_name}.").map_err(|e| e.to_string())?;
-        writeln!(out, "\nArmstrong: lifespan context manager handles startup/shutdown.")
-            .map_err(|e| e.to_string())?;
+        writeln!(
+            out,
+            "\nArmstrong: lifespan context manager handles startup/shutdown."
+        )
+        .map_err(|e| e.to_string())?;
         writeln!(out, "Let-it-crash: any startup failure exits with code 1.")
             .map_err(|e| e.to_string())?;
         writeln!(out, "\nAuto-generated by ggen. Edit with care.").map_err(|e| e.to_string())?;
@@ -768,11 +698,7 @@ impl PythonGenerator {
         writeln!(out, "import signal").map_err(|e| e.to_string())?;
         writeln!(out, "import sys\n").map_err(|e| e.to_string())?;
         writeln!(out, "import uvicorn\n").map_err(|e| e.to_string())?;
-        writeln!(
-            out,
-            "from {snake}_app import app  # noqa: F401\n"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "from {snake}_app import app  # noqa: F401\n").map_err(|e| e.to_string())?;
 
         writeln!(
             out,
@@ -780,14 +706,12 @@ impl PythonGenerator {
         )
         .map_err(|e| e.to_string())?;
 
-        writeln!(
-            out,
-            "# Armstrong: graceful shutdown on SIGINT / SIGTERM"
-        )
-        .map_err(|e| e.to_string())?;
+        writeln!(out, "# Armstrong: graceful shutdown on SIGINT / SIGTERM")
+            .map_err(|e| e.to_string())?;
         writeln!(out, "_server: uvicorn.Server | None = None\n").map_err(|e| e.to_string())?;
 
-        writeln!(out, "\ndef _handle_signal(signum: int, _frame) -> None:").map_err(|e| e.to_string())?;
+        writeln!(out, "\ndef _handle_signal(signum: int, _frame) -> None:")
+            .map_err(|e| e.to_string())?;
         writeln!(
             out,
             "    logger.info(\"{service_name} received signal %d, shutting down\", signum)"
@@ -798,8 +722,10 @@ impl PythonGenerator {
 
         writeln!(out, "\ndef main() -> None:").map_err(|e| e.to_string())?;
         writeln!(out, "    global _server").map_err(|e| e.to_string())?;
-        writeln!(out, "    signal.signal(signal.SIGINT, _handle_signal)").map_err(|e| e.to_string())?;
-        writeln!(out, "    signal.signal(signal.SIGTERM, _handle_signal)\n").map_err(|e| e.to_string())?;
+        writeln!(out, "    signal.signal(signal.SIGINT, _handle_signal)")
+            .map_err(|e| e.to_string())?;
+        writeln!(out, "    signal.signal(signal.SIGTERM, _handle_signal)\n")
+            .map_err(|e| e.to_string())?;
         writeln!(
             out,
             "    config = uvicorn.Config(\n        app=\"{snake}_app:app\","
@@ -817,7 +743,8 @@ impl PythonGenerator {
         )
         .map_err(|e| e.to_string())?;
         writeln!(out, "    _server.run()").map_err(|e| e.to_string())?;
-        writeln!(out, "    logger.info(\"{service_name} stopped\")\n").map_err(|e| e.to_string())?;
+        writeln!(out, "    logger.info(\"{service_name} stopped\")\n")
+            .map_err(|e| e.to_string())?;
 
         writeln!(out, "\nif __name__ == \"__main__\":").map_err(|e| e.to_string())?;
         writeln!(out, "    main()").map_err(|e| e.to_string())?;
@@ -853,7 +780,7 @@ fn sqlalchemy_type_for(py_type: &str) -> &'static str {
         "str" => "String",
         "int" => "Integer",
         "bool" => "Boolean",
-        "float" => "Integer",  // use Numeric in real code
+        "float" => "Integer", // use Numeric in real code
         "datetime" => "DateTime",
         "UUID" => "PG_UUID(as_uuid=True)",
         _ => "String",
@@ -958,7 +885,10 @@ mod tests {
             code.contains("@app.get(\"/health\""),
             "must contain @app.get(\"/health\")"
         );
-        assert!(code.contains("\"status\": \"ok\""), "health response must include status: ok");
+        assert!(
+            code.contains("\"status\": \"ok\""),
+            "health response must include status: ok"
+        );
         assert!(
             code.contains("\"service\": \"OrderService\""),
             "health response must include service name"
@@ -1050,14 +980,32 @@ mod tests {
     fn test_sqlalchemy_repository_has_crud_methods() {
         let fields = order_fields();
         let result = PythonGenerator::generate_sqlalchemy_repository("Order", &fields);
-        assert!(result.is_ok(), "generate_sqlalchemy_repository should succeed");
+        assert!(
+            result.is_ok(),
+            "generate_sqlalchemy_repository should succeed"
+        );
         let code = result.unwrap();
 
-        assert!(code.contains("async def create("), "must have create method");
-        assert!(code.contains("async def get_by_id("), "must have get_by_id method");
-        assert!(code.contains("async def list_all("), "must have list_all method");
-        assert!(code.contains("async def update("), "must have update method");
-        assert!(code.contains("async def delete("), "must have delete method");
+        assert!(
+            code.contains("async def create("),
+            "must have create method"
+        );
+        assert!(
+            code.contains("async def get_by_id("),
+            "must have get_by_id method"
+        );
+        assert!(
+            code.contains("async def list_all("),
+            "must have list_all method"
+        );
+        assert!(
+            code.contains("async def update("),
+            "must have update method"
+        );
+        assert!(
+            code.contains("async def delete("),
+            "must have delete method"
+        );
     }
 
     // -------------------------------------------------------------------------
@@ -1122,7 +1070,10 @@ mod tests {
 
         assert!(code.contains("fastapi=="), "must pin fastapi");
         assert!(code.contains("pydantic=="), "must pin pydantic");
-        assert!(code.contains("sqlalchemy=="), "postgres feature must add sqlalchemy");
+        assert!(
+            code.contains("sqlalchemy=="),
+            "postgres feature must add sqlalchemy"
+        );
         assert!(code.contains("pytest=="), "test feature must add pytest");
     }
 
@@ -1159,18 +1110,9 @@ mod tests {
         let code = result.unwrap();
 
         assert!(code.contains("uvicorn"), "must use uvicorn");
-        assert!(
-            code.contains("signal.SIGINT"),
-            "must handle SIGINT"
-        );
-        assert!(
-            code.contains("signal.SIGTERM"),
-            "must handle SIGTERM"
-        );
-        assert!(
-            code.contains("8001"),
-            "must reference the configured port"
-        );
+        assert!(code.contains("signal.SIGINT"), "must handle SIGINT");
+        assert!(code.contains("signal.SIGTERM"), "must handle SIGTERM");
+        assert!(code.contains("8001"), "must reference the configured port");
         assert!(
             code.contains("if __name__ == \"__main__\":"),
             "must have __main__ guard"

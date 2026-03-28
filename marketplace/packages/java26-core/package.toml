@@ -1,0 +1,16 @@
+[package]
+name = "java26-core"
+version = "1.0.0"
+description = "Core OWL vocabulary for Java 26 Pattern Language with ggen"
+authors = ["ggen Contributors"]
+license = "MIT"
+keywords = ["java26", "ontology", "vocabulary", "sealed", "records", "virtual-threads"]
+categories = ["java", "pattern-language", "vocabulary"]
+
+[ontology]
+file = "ontology/java26.ttl"
+namespace = "http://ggen.io/java26#"
+prefix = "java26"
+
+[dependencies]
+required = []

@@ -32,8 +32,8 @@ pub mod lifecycle_hooks;
 pub mod marketplace_integration;
 pub mod merge;
 pub mod pipeline;
-pub mod python; // Python microservice code generation (FastAPI / Pydantic v2 / SQLAlchemy 2.0)
 pub mod proof_archive;
+pub mod python; // Python microservice code generation (FastAPI / Pydantic v2 / SQLAlchemy 2.0)
 pub mod swarm_execution;
 pub mod swarm_executor_bridge;
 pub mod terraform; // Terraform IaC generation
@@ -56,9 +56,7 @@ pub use code_graph::{
 };
 pub use concurrent::ConcurrentRuleExecutor;
 pub use dependency_validation::{DependencyCheck, DependencyValidationReport, DependencyValidator};
-pub use docker_kubernetes::{
-    DockerKubernetesGenerator, Language, ServiceSpec,
-};
+pub use docker_kubernetes::{DockerKubernetesGenerator, Language, ServiceSpec};
 pub use elixir::ElixirGenerator;
 pub use execution_lifecycle::{ExecutionLifecycle, PostSyncContext, PreSyncContext};
 pub use execution_proof::{ExecutionProof, ProofCarrier, RuleExecution};
@@ -74,9 +72,9 @@ pub use pipeline::{
     ValidationSeverity,
 };
 pub use proof_archive::{ChainVerification, ProofArchive};
+pub use python::{Endpoint as PythonEndpoint, Field as PythonField, PythonGenerator};
 pub use swarm_execution::{Agent, SwarmCoordinator, SwarmSummary};
 pub use swarm_executor_bridge::{ExecutionStrategy, SwarmExecutorBridge};
-pub use python::{Endpoint as PythonEndpoint, Field as PythonField, PythonGenerator};
 pub use terraform::TerraformGenerator;
 pub use transaction::{FileTransaction, TransactionReceipt};
 pub use typescript::TypeScriptGenerator;
@@ -135,14 +133,11 @@ impl std::error::Error for CodeGenError {}
 /// assert!(tf_code.contains("hashicorp/aws"));
 /// ```
 pub fn generate_service(
-    language: GeneratorLanguage,
-    service_name: &str,
-    port: u16,
+    language: GeneratorLanguage, service_name: &str, port: u16,
 ) -> Result<String, CodeGenError> {
     match language {
         GeneratorLanguage::Go => {
-            GoCodeGenerator::generate_service_struct(service_name, &[])
-                .map_err(CodeGenError)
+            GoCodeGenerator::generate_service_struct(service_name, &[]).map_err(CodeGenError)
         }
         GeneratorLanguage::Elixir => {
             let spec = elixir::ServiceSpec {

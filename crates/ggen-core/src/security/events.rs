@@ -12,6 +12,7 @@ use std::net::IpAddr;
 
 /// Security event severity levels
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum SecuritySeverity {
     /// Informational events (successful operations)
     Info = 0,
@@ -39,6 +40,7 @@ impl fmt::Display for SecuritySeverity {
 
 /// Security event category
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum EventCategory {
     /// Authentication-related events
     Authentication,
