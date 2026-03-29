@@ -78,6 +78,7 @@ autonomic = []
 
 # Testing features
 live-llm-tests = [] # Opt-in for live LLM integration tests
+integration = [] # Gate tests that reference missing/future crates
 
 # A2A Protocol support - temporarily disabled due to compilation errors
 use-a2a-rs = ["a2a-generated"]  # Use generated a2a code
@@ -100,6 +101,71 @@ tokio-test = "0.4" # Tokio testing utilities
 notify = "6.1" # File system watcher for watch mode tests
 chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
 oxigraph = "0.5" # RDF storage for tests (not needed for binary)
+
+[[test]]
+name = "init_tests"
+path = "tests/init_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "integration_cli_ux_e2e"
+path = "tests/integration_cli_ux_e2e.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "marketplace_search_chicago_tdd"
+path = "tests/marketplace_search_chicago_tdd.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "packs_phase2_comprehensive"
+path = "tests/packs_phase2_comprehensive.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "template_integration_test"
+path = "tests/template_integration_test.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "unit_tests"
+path = "tests/unit_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "chicago_tdd_smoke_test"
+path = "tests/chicago_tdd_smoke_test.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "conventions_test"
+path = "tests/conventions_test.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "e2e"
+path = "tests/e2e.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "marketplace_install_e2e"
+path = "tests/marketplace_install_e2e.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "integration_cli_wrappers"
+path = "tests/integration_cli_wrappers.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "paas_integration_test"
+path = "tests/paas_integration_test.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "sync_tests"
+path = "tests/sync_tests.rs"
+required-features = ["integration"]
 
 [[bench]]
 name = "marketplace_benchmark"

@@ -18,6 +18,7 @@ nightly = []
 termlog = []
 syslog = []
 journald = []
+integration = []
 
 [dependencies]
 anyhow = "1.0"
@@ -83,3 +84,18 @@ path = "src/bin/collect-metrics.rs"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 slog-journald = "2.2.0"
+
+[[test]]
+name = "safe_command_property_tests"
+path = "tests/safe_command_property_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "secrets_integration_tests"
+path = "tests/secrets_integration_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "secrets_security_tests"
+path = "tests/secrets_security_tests.rs"
+required-features = ["integration"]

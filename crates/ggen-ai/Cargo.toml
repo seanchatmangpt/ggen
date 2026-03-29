@@ -86,6 +86,7 @@ indicatif = { version = "0.17", features = ["in_memory", "rayon"] }
 default = []
 all-integrations = []
 use-a2a-rs = ["a2a-generated"]  # Use generated a2a code
+integration = []
 
 [dev-dependencies]
 tokio-test = "0.4"
@@ -102,3 +103,83 @@ harness = false
 [lib]
 name = "ggen_ai"
 path = "src/lib.rs"
+
+[[test]]
+name = "dspy_testing_integration_tests"
+path = "tests/dspy_testing_integration_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "shacl_generator_tests"
+path = "tests/shacl_generator_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "test_metrics_and_caching"
+path = "tests/test_metrics_and_caching.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "ttl_to_signature"
+path = "tests/ttl_to_signature.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "assertion_system_test"
+path = "tests/assertion_system_test.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "datetime_mapping"
+path = "tests/datetime_mapping.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "owl_extractor_tests"
+path = "tests/owl_extractor_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "rdf_list_validator"
+path = "tests/rdf_list_validator.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "sparql_injection_security"
+path = "tests/sparql_injection_security.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "sparql_injection_tests"
+path = "tests/sparql_injection_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "ttl_to_signature_integration"
+path = "tests/ttl_to_signature_integration.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "dspy_property_tests"
+path = "tests/dspy_property_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "dspy_testing_property_tests"
+path = "tests/dspy_testing_property_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "dspy_testing_unit_tests"
+path = "tests/dspy_testing_unit_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "e2e_llm_construct"
+path = "tests/e2e_llm_construct.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "test_metrics_only"
+path = "tests/test_metrics_only.rs"
+required-features = ["integration"]

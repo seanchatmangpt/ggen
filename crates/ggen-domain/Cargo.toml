@@ -56,6 +56,7 @@ async-trait = "0.1"
 # Marketplace (RDF-backed semantic marketplace) - optional feature
 marketplace = ["ggen-marketplace"]
 default = []
+integration = []
 
 [dev-dependencies]
 assert_cmd = "2"
@@ -69,3 +70,13 @@ criterion = { version = "0.7", features = ["html_reports"] }
 [[bench]]
 name = "swarm_primitives"
 harness = false
+
+[[test]]
+name = "integration_tests"
+path = "tests/integration_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "unit_tests"
+path = "tests/unit_tests.rs"
+required-features = ["integration"]

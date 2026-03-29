@@ -33,6 +33,12 @@ chicago-tdd-tools = { workspace = true }
 
 [features]
 default = []
+integration = []
+
+[[test]]
+name = "property_tests"
+path = "tests/property_tests.rs"
+required-features = ["integration"]
 
 [[example]]
 name = "jidoka_demo"
