@@ -14,6 +14,12 @@ a2a-generated = { path = "../a2a-generated" }
 # ggen-ai for LLM provider integration
 ggen-ai = { path = "../ggen-ai" }
 
+# ggen-core for code-generation pipeline
+ggen-core.workspace = true
+
+# ggen-domain for marketplace search
+ggen-domain.workspace = true
+
 # genai for LLM client integration
 genai = "0.1"
 
