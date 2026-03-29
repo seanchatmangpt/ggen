@@ -183,6 +183,84 @@ Configuration priority:
 
 ---
 
+## MCP Server (ggen as MCP provider)
+
+### `ggen mcp start-server`
+
+Run ggen itself as an MCP server, exposing code-generation tools to any MCP client (Claude Desktop, Claude Code, custom agents).
+
+**Syntax:**
+```bash
+ggen mcp start-server [OPTIONS]
+```
+
+**Options:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `--transport <t>` | string | `stdio` | Transport protocol: `stdio` or `http` |
+
+**Examples:**
+
+```bash
+# Start as stdio server (Claude Desktop)
+ggen mcp start-server --transport stdio
+
+# Start as HTTP server
+ggen mcp start-server --transport http
+```
+
+**Claude Desktop config** (`~/.claude/claude_desktop_config.json`):
+```json
+{
+  "mcpServers": {
+    "ggen": {
+      "command": "ggen",
+      "args": ["mcp", "start-server", "--transport", "stdio"]
+    }
+  }
+}
+```
+
+**Available tools once connected:**
+
+| Tool | Description |
+|------|-------------|
+| `generate` | Generate code from a .ttl ontology (μ₁-μ₅ pipeline) |
+| `sync` | Full sync pipeline with dry-run support |
+| `validate` | Validate Turtle content; reports triple count |
+| `list_generators` | List supported code generators |
+| `list_examples` | Browse bundled example projects |
+| `get_example` | Get ggen.toml + TTL + README for an example |
+| `search` | Search marketplace packages |
+| `scaffold_from_example` | Copy an example to a new directory |
+| `query_ontology` | Run SPARQL SELECT on inline TTL |
+
+**Available resources:**
+
+| URI pattern | Description |
+|-------------|-------------|
+| `ggen://example/{name}` | Example summary (name, description, config) |
+| `ggen://example/{name}/ttl` | Raw Turtle ontology |
+| `ggen://example/{name}/readme` | README content |
+| `ggen://example/{name}/config` | Raw ggen.toml |
+
+**Available prompts:**
+
+| Prompt | Description |
+|--------|-------------|
+| `explain-rdf-schema` | Explain a TTL schema in plain English |
+| `generate-from-example` | Adapt an example to a new domain |
+| `scaffold-project` | Design a new ggen project from scratch |
+
+**Environment variables:**
+
+| Variable | Description |
+|----------|-------------|
+| `GGEN_EXAMPLES_DIR` | Override path to examples directory (default: `./examples`) |
+
+---
+
 ## Server Commands
 
 ### `ggen mcp server start`
