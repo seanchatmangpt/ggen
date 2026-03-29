@@ -5,6 +5,32 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] — MCP template: rmcp 1.3.0 compatibility (2026-03-28)
+
+### Changed
+
+- `crates/ggen-core/templates/mcp-server/_head.tera` — imports switched from
+  `jsonrpc_core` to `rmcp 1.3.0` (`tool`, `tool_handler`, `tool_router`, `ServerHandler`,
+  `ToolRouter`, `Parameters`, `schemars`).
+- `crates/ggen-core/templates/mcp-server/tool_handler.rs.tera` — full rewrite:
+  generates `#[tool_router]` on the struct impl and `#[tool_handler]` on
+  `impl ServerHandler`. Both macros are required; `#[tool_handler]` is the most
+  common omission (its absence causes `list_tools()` → empty, `call_tool()` → -32601).
+- `crates/ggen-core/templates/mcp-server/stdio_server.rs.tera` — `start_async` now
+  uses the correct keep-alive idiom: `svc.waiting().await` instead of `let _ = serve(...)`.
+  The old pattern drops `RunningService` immediately, firing the `DropGuard` and
+  cancelling the connection.
+
+### Added
+
+- `docs/RMCP_NOTES.md` — canonical reference for rmcp 1.3.0 API facts:
+  `#[tool_handler]` requirement, `.waiting()` lifecycle, client API (`peer_info`,
+  `list_all_tools`, `close`, `cancel`), `CallToolRequestParams` builder,
+  content reading (`result.content[0].raw.as_text().unwrap().text`),
+  `Tool::name` as `Cow` (use `.as_ref()` not `.as_str()`), duplex test helper.
+
+---
+
 ## [ggen-ontology-core 0.2.0] - 2026-01-19
 
 **Complete Unified Ontology Layer (Phase 1)**

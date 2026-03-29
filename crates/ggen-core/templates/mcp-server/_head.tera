@@ -1,6 +1,7 @@
 {# Base header template for MCP server code generation #}
 {# Context variables: file_description, spec_uri, idempotent, now() #}
 {# Usage: {% extends "mcp-server/_head.tera" %} #}
+{# SDK target: rmcp 1.3.0 (NOT jsonrpc_core) #}
 
 {% block header -%}
 //! {{ file_description | default(value="Generated MCP server file") }}
@@ -9,9 +10,13 @@
 //! Generation timestamp: {{ generation_timestamp | default(value="TBD") }}
 //!
 //! Core axiom: A = μ(O), μ ∘ μ = μ, hash(A) = hash(μ(O)), O ⊨ Σ
+//!
+//! SDK: rmcp 1.3.0
+//! CRITICAL: #[tool_handler] MUST appear on `impl ServerHandler` — without it
+//! list_tools() returns empty and call_tool() returns -32601 (method not found).
 {%- if not idempotent %}
 //!
-//! ⚠️  WARNING: This file is NOT idempotent. Regeneration may overwrite changes.
+//! WARNING: This file is NOT idempotent. Regeneration may overwrite changes.
 {%- endif %}
 //!
 //! DO NOT EDIT MANUALLY - Edit the RDF specification instead
@@ -20,5 +25,9 @@
 
 {% block imports %}
 use serde::{Deserialize, Serialize};
-use jsonrpc_core::{IoHandler, Params, Value};
+use rmcp::{
+    handler::server::{router::tool::ToolRouter, wrapper::Parameters},
+    model::{Implementation, ServerCapabilities, ServerInfo},
+    schemars, tool, tool_handler, tool_router, ServerHandler,
+};
 {% endblock imports %}
