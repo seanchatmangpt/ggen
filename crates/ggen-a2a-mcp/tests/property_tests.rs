@@ -28,7 +28,6 @@ async fn start_server() -> anyhow::Result<RunningService<RoleClient, TestClient>
 }
 
 proptest! {
-    #[tokio::test]
     async fn prop_validate_accepts_various_ttl_formats(
         triple_count in 0..50usize,
         use_prefix in bool::arbitrary()
@@ -64,7 +63,6 @@ proptest! {
         prop_assert!(result.unwrap_or(false) || result.is_some());
     }
 
-    #[tokio::test]
     async fn prop_list_examples_handles_arbitrary_limits(
         limit in 0..1000usize
     ) {
@@ -85,7 +83,6 @@ proptest! {
         prop_assert!(result.is_some());
     }
 
-    #[tokio::test]
     async fn prop_search_handles_various_queries(
         query_len in 0..100usize,
         has_category in bool::arbitrary()
@@ -112,4 +109,19 @@ proptest! {
         // Should not crash
         prop_assert!(result.is_some());
     }
+}
+
+#[tokio::test]
+async fn prop_validate_accepts_various_ttl_formats_test() {
+    prop_validate_accepts_various_ttl_formats(0..50usize, bool::arbitrary()).await
+}
+
+#[tokio::test]
+async fn prop_list_examples_handles_arbitrary_limits_test() {
+    prop_list_examples_handles_arbitrary_limits(0..1000usize).await
+}
+
+#[tokio::test]
+async fn prop_search_handles_various_queries_test() {
+    prop_search_handles_various_queries(0..100usize, bool::arbitrary()).await
 }
