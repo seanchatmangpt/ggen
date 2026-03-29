@@ -27,8 +27,10 @@ async fn start_server() -> anyhow::Result<RunningService<RoleClient, TestClient>
     Ok(TestClient::default().serve(client_transport).await?)
 }
 
+// Property test 1: validate accepts various TTL formats
 proptest! {
-    async fn prop_validate_accepts_various_ttl_formats(
+    #[test]
+    fn prop_validate_accepts_various_ttl_formats(
         triple_count in 0..50usize,
         use_prefix in bool::arbitrary()
     ) {
@@ -62,8 +64,12 @@ proptest! {
         // Should not crash — may return error for invalid TTL, but must not panic
         prop_assert!(result.unwrap_or(false) || result.is_some());
     }
+}
 
-    async fn prop_list_examples_handles_arbitrary_limits(
+// Property test 2: list_examples handles arbitrary limits
+proptest! {
+    #[test]
+    fn prop_list_examples_handles_arbitrary_limits(
         limit in 0..1000usize
     ) {
         let rt = tokio::runtime::Runtime::new().unwrap();
@@ -82,8 +88,12 @@ proptest! {
         // Should not crash
         prop_assert!(result.is_some());
     }
+}
 
-    async fn prop_search_handles_various_queries(
+// Property test 3: search handles various queries
+proptest! {
+    #[test]
+    fn prop_search_handles_various_queries(
         query_len in 0..100usize,
         has_category in bool::arbitrary()
     ) {
@@ -109,19 +119,4 @@ proptest! {
         // Should not crash
         prop_assert!(result.is_some());
     }
-}
-
-#[tokio::test]
-async fn prop_validate_accepts_various_ttl_formats_test() {
-    prop_validate_accepts_various_ttl_formats(0..50usize, bool::arbitrary()).await
-}
-
-#[tokio::test]
-async fn prop_list_examples_handles_arbitrary_limits_test() {
-    prop_list_examples_handles_arbitrary_limits(0..1000usize).await
-}
-
-#[tokio::test]
-async fn prop_search_handles_various_queries_test() {
-    prop_search_handles_various_queries(0..100usize, bool::arbitrary()).await
 }
