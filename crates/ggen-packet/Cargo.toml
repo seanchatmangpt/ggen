@@ -14,8 +14,16 @@ chrono = { workspace = true }
 uuid = { workspace = true }
 validator = { version = "0.18", features = ["derive"] }
 
+[features]
+integration = []
+
 [dev-dependencies]
 proptest = { workspace = true }
+
+[[test]]
+name = "property_tests"
+path = "tests/property_tests.rs"
+required-features = ["integration"]
 
 [lints]
 workspace = true

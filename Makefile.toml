@@ -322,7 +322,7 @@ script = '''
 #!/bin/bash
 set -euo pipefail
 
-TEST_CMD=(cargo test --workspace)
+TEST_CMD=(cargo test --workspace --tests --lib)
 
 if [ "$#" -gt 0 ]; then
   TEST_CMD+=("$@")

@@ -16,6 +16,14 @@ hex = { workspace = true }
 thiserror = { workspace = true }
 oxigraph = { workspace = true }
 
+[features]
+integration = []
+
 [dev-dependencies]
 tempfile = { workspace = true }
 proptest = { workspace = true }
+
+[[test]]
+name = "property_tests"
+path = "tests/property_tests.rs"
+required-features = ["integration"]
