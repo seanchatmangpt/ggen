@@ -21,6 +21,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+#### 2026-03-28
+- **Elixir A2A generator**: SPARQL query `queries/elixir-a2a/extract-agents.rq`,
+  templates `agents.ex.tera` / `router.ex.tera` / `supervisor.ex.tera`, and
+  `ggen.toml` rules `elixir-a2a-agents`, `elixir-a2a-router`, `elixir-a2a-supervisor`.
+  Generates idiomatic Elixir/Phoenix A2A boilerplate from `a2a:Agent` RDF nodes
+  using the `a2a ~> 0.2` hex library. See `docs/ELIXIR_A2A_NOTES.md`.
+- **rmcp 1.3.0 template rewrite**: `mcp-server` templates now use `#[tool_router]` /
+  `#[tool_handler]` proc-macro style; `stdio_server.rs.tera` uses `svc.waiting().await`
+  (not the DropGuard-dropping `let _ =` pattern). See `docs/RMCP_NOTES.md`.
+
 - **Comprehensive Module Documentation**: Added module-level documentation (`//!`) to all undocumented source files across `ggen-core`, `ggen-cli`, `ggen-utils`, and `ggen-domain` crates, following Diataxis framework standards
 - **Chicago TDD Testing Framework**: Integrated `chicago-tdd-tools` for state-based testing with behavior verification, replacing traditional unit tests with Chicago School TDD patterns
 - **Testing Gap Prevention System**: Added comprehensive Hive Mind analysis system to identify and prevent testing gaps, closing 60% of testing gaps with 80/20 approach
