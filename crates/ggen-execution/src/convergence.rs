@@ -576,7 +576,7 @@ pub struct ConvergenceStatus {
 /// Adaptive convergence engine that adjusts strategies based on performance
 pub struct AdaptiveConvergenceEngine {
     base_engine: SemanticConvergenceEngine,
-    strategy_performance: HashMap<String, f64>,
+    pub strategy_performance: HashMap<String, f64>,
     adaptation_threshold: f64,
 }
 
@@ -587,6 +587,13 @@ impl AdaptiveConvergenceEngine {
             strategy_performance: HashMap::new(),
             adaptation_threshold: 0.7,
         }
+    }
+
+    /// Register a new agent with the adaptive convergence engine (delegates to base engine)
+    pub async fn register_agent(&mut self, agent_id: &str, capabilities: Vec<String>) {
+        self.base_engine
+            .register_agent(agent_id, capabilities)
+            .await;
     }
 
     /// Process message with adaptive strategy selection
@@ -791,12 +798,12 @@ mod tests {
             contribution_type: ContributionType::MessageValidation,
         };
 
-        let result = strategy
-            .apply_convergence(
-                &mut SemanticConvergenceEngine::new(ConvergenceConfig::default()),
-                &message,
-            )
+        let mut engine = SemanticConvergenceEngine::new(ConvergenceConfig::default());
+        engine
+            .register_agent("agent-2", vec!["generic-capability".to_string()])
             .await;
+
+        let result = strategy.apply_convergence(&mut engine, &message).await;
 
         assert!(result.is_ok());
         let val = result.unwrap();

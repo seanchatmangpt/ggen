@@ -300,6 +300,7 @@ impl ErrorRecovery for BasicRecovery {
             ExecutionError::Task(_)
                 | ExecutionError::Communication(_)
                 | ExecutionError::Resource(_)
+                | ExecutionError::Coded { .. }
         )
     }
 
@@ -318,6 +319,11 @@ impl ErrorRecovery for BasicRecovery {
             ExecutionError::Resource(_) => {
                 // Implement scaling logic
                 println!("Scaling resources...");
+                Ok(())
+            }
+            ExecutionError::Coded { .. } => {
+                // Implement coded error recovery
+                println!("Recovering from coded error...");
                 Ok(())
             }
             _ => Err(ExecutionError::Recovery(

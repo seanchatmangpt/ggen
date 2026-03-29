@@ -343,3 +343,13 @@ Visual PlantUML diagram showing:
 
 *For questions, contact the development team.*
 
+---
+
+## ChatmanGPT Sessions (2026)
+
+### Session 1 — 2026-03-28 (Weaver Automation)
+`chatmangpt_8020_pareto_2026-03-28.md` — Pre-commit hook fix, semconv sync, OSA test reduction 821→138, 31 commits.
+
+### Session 2 — 2026-03-28 (A2A Integration + Gap Closure)
+`chatmangpt_8020_pareto_2026-03-28-session2.md` — A2A protocol in pm4py-rust, weaver exit 0, OSA MonitoringScheduler, BusinessOS dashboard wiring, 90 new tests, 10 parallel agents, 40 commits. Overall readiness: **98%**.
+

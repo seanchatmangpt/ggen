@@ -633,29 +633,20 @@ mod tests {
 
     #[test]
     fn test_global_registry_list() {
-        {
-            let mut reg = REGISTRY.write().unwrap();
-            reg.clear();
-        }
+        // Hold the write lock for the entire test to prevent races with other
+        // global-registry tests that call clear() concurrently.
+        let mut reg = REGISTRY.write().unwrap();
+        reg.clear();
 
         let tool1 = create_test_tool("global_tool_1");
         let tool2 = create_test_tool("global_tool_2");
+        reg.register("global_tool_1", tool1).ok();
+        reg.register("global_tool_2", tool2).ok();
 
-        {
-            let mut reg = REGISTRY.write().unwrap();
-            reg.register("global_tool_1", tool1).ok();
-            reg.register("global_tool_2", tool2).ok();
-        }
-
-        {
-            let reg = REGISTRY.read().unwrap();
-            let list = reg.list();
-            // At least the 2 tools we registered must be present
-            // (other parallel tests may have also added tools)
-            assert!(list.len() >= 2);
-            assert!(reg.contains("global_tool_1"));
-            assert!(reg.contains("global_tool_2"));
-        }
+        let list = reg.list();
+        assert!(list.len() >= 2);
+        assert!(reg.contains("global_tool_1"));
+        assert!(reg.contains("global_tool_2"));
     }
 
     #[test]

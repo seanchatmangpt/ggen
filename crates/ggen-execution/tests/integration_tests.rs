@@ -1,6 +1,7 @@
 // Integration tests for the unified execution framework
 use chrono::{DateTime, Utc};
 use ggen_execution::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -23,7 +24,7 @@ async fn test_a2a_integration_with_framework() {
 
     // Create workflow with A2A messaging
     let workflow_id = framework.create_workflow("A2A Workflow", "a2a").unwrap();
-    let workflow = framework.workflows.get_mut(&workflow_id).unwrap();
+    let workflow = framework.get_workflow_mut(&workflow_id).unwrap();
 
     // Add tasks that use A2A messaging
     let task1 = Task::new(
@@ -61,7 +62,7 @@ async fn test_a2a_integration_with_framework() {
     assert_eq!(workflow_result.completed_tasks, 2);
 
     // Check that A2A communication occurred
-    let a2a_agent_ref = framework.agents.get("a2a-agent").unwrap();
+    let _a2a_agent_ref = framework.get_agent("a2a-agent").unwrap();
     // Verify that agent received/sent messages
 }
 
@@ -71,6 +72,8 @@ struct A2AAgent {
     capabilities: Vec<String>,
     messages_sent: u32,
     messages_received: u32,
+    health: AgentHealth,
+    metrics: AgentMetrics,
 }
 
 impl A2AAgent {
@@ -80,6 +83,8 @@ impl A2AAgent {
             capabilities,
             messages_sent: 0,
             messages_received: 0,
+            health: AgentHealth::new(),
+            metrics: AgentMetrics::new(),
         }
     }
 }
@@ -99,7 +104,7 @@ impl UnifiedAgentTrait for A2AAgent {
         true
     }
     fn get_health(&self) -> &AgentHealth {
-        &AgentHealth::new()
+        &self.health
     }
     async fn execute_task(&mut self, task: Task) -> Result<TaskResult, ExecutionError> {
         if task.task_type == "a2a" {
@@ -135,7 +140,7 @@ impl UnifiedAgentTrait for A2AAgent {
         Ok(())
     }
     fn get_metrics(&self) -> &AgentMetrics {
-        &AgentMetrics::new()
+        &self.metrics
     }
     async fn start(&mut self) -> Result<(), ExecutionError> {
         Ok(())
@@ -166,7 +171,7 @@ async fn test_workflow_state_persistence() {
     let workflow_id = framework
         .create_workflow("Persistence Test", "persistence")
         .unwrap();
-    let workflow = framework.workflows.get_mut(&workflow_id).unwrap();
+    let workflow = framework.get_workflow_mut(&workflow_id).unwrap();
 
     // Add tasks
     for i in 0..5 {
@@ -250,7 +255,7 @@ async fn test_cross_agent_coordination() {
     let workflow_id = framework
         .create_workflow("Coordination Test", "coordination")
         .unwrap();
-    let workflow = framework.workflows.get_mut(&workflow_id).unwrap();
+    let workflow = framework.get_workflow_mut(&workflow_id).unwrap();
 
     // Add coordination tasks
     let coordinator_task = Task::new(
@@ -298,6 +303,14 @@ async fn test_cross_agent_coordination() {
     assert!(result_value.coordination_metrics.messages_exchanged > 0);
 }
 
+/// Placeholder type for pending coordination requests
+#[derive(Debug, Clone)]
+pub struct CoordinationRequest;
+
+/// Placeholder type for active coordination sessions
+#[derive(Debug, Clone)]
+pub struct CoordinationSession;
+
 // Coordination manager for cross-agent coordination
 pub struct CoordinationManager {
     pending_tasks: HashMap<TaskId, CoordinationRequest>,
@@ -315,10 +328,13 @@ impl CoordinationManager {
     pub async fn orchestrate_with_coordinators(
         &mut self, framework: &mut ExecutionFramework, workflow_id: String,
     ) -> Result<CoordinationResult, ExecutionError> {
-        let workflow = framework
-            .workflows
-            .get_mut(&workflow_id)
-            .ok_or_else(|| ExecutionError::Workflow("Workflow not found".to_string()))?;
+        // Collect tasks first, releasing the mutable borrow on framework
+        let tasks: Vec<Task> = {
+            let workflow = framework
+                .get_workflow_mut(&workflow_id)
+                .ok_or_else(|| ExecutionError::Workflow("Workflow not found".to_string()))?;
+            workflow.tasks.clone()
+        };
 
         let mut coordination_result = CoordinationResult {
             workflow_id: workflow_id.clone(),
@@ -327,7 +343,7 @@ impl CoordinationManager {
         };
 
         // Process coordination tasks
-        for task in &workflow.tasks {
+        for task in &tasks {
             if task.task_type == "coordinator" {
                 let coordinator_result = self.process_coordinator_task(framework, task).await?;
                 coordination_result
@@ -337,7 +353,7 @@ impl CoordinationManager {
         }
 
         // Execute worker tasks
-        for task in &workflow.tasks {
+        for task in &tasks {
             if task.task_type == "worker" {
                 let worker_result = framework.execute_task(task.clone()).await?;
                 coordination_result
@@ -408,6 +424,9 @@ pub struct CoordinatorResult {
 struct CoordinatorAgent {
     id: String,
     tasks_coordinated: u32,
+    capabilities: Vec<String>,
+    health: AgentHealth,
+    metrics: AgentMetrics,
 }
 
 impl CoordinatorAgent {
@@ -415,6 +434,9 @@ impl CoordinatorAgent {
         Self {
             id: id.to_string(),
             tasks_coordinated: 0,
+            capabilities: vec!["coordination".to_string()],
+            health: AgentHealth::new(),
+            metrics: AgentMetrics::new(),
         }
     }
 }
@@ -428,13 +450,13 @@ impl UnifiedAgentTrait for CoordinatorAgent {
         &self.id
     }
     fn get_capabilities(&self) -> &[String] {
-        &["coordination".to_string()]
+        &self.capabilities
     }
     fn is_available(&self) -> bool {
         true
     }
     fn get_health(&self) -> &AgentHealth {
-        &AgentHealth::new()
+        &self.health
     }
     async fn execute_task(&mut self, task: Task) -> Result<TaskResult, ExecutionError> {
         self.tasks_coordinated += 1;
@@ -450,7 +472,7 @@ impl UnifiedAgentTrait for CoordinatorAgent {
         Ok(())
     }
     fn get_metrics(&self) -> &AgentMetrics {
-        &AgentMetrics::new()
+        &self.metrics
     }
     async fn start(&mut self) -> Result<(), ExecutionError> {
         Ok(())
@@ -467,6 +489,9 @@ impl UnifiedAgentTrait for CoordinatorAgent {
 struct WorkerAgent {
     id: String,
     work_completed: u32,
+    capabilities: Vec<String>,
+    health: AgentHealth,
+    metrics: AgentMetrics,
 }
 
 impl WorkerAgent {
@@ -474,6 +499,9 @@ impl WorkerAgent {
         Self {
             id: id.to_string(),
             work_completed: 0,
+            capabilities: vec!["work".to_string()],
+            health: AgentHealth::new(),
+            metrics: AgentMetrics::new(),
         }
     }
 }
@@ -487,13 +515,13 @@ impl UnifiedAgentTrait for WorkerAgent {
         &self.id
     }
     fn get_capabilities(&self) -> &[String] {
-        &["work".to_string()]
+        &self.capabilities
     }
     fn is_available(&self) -> bool {
         true
     }
     fn get_health(&self) -> &AgentHealth {
-        &AgentHealth::new()
+        &self.health
     }
     async fn execute_task(&mut self, task: Task) -> Result<TaskResult, ExecutionError> {
         self.work_completed += 1;
@@ -511,7 +539,7 @@ impl UnifiedAgentTrait for WorkerAgent {
         Ok(())
     }
     fn get_metrics(&self) -> &AgentMetrics {
-        &AgentMetrics::new()
+        &self.metrics
     }
     async fn start(&mut self) -> Result<(), ExecutionError> {
         Ok(())
@@ -540,13 +568,13 @@ async fn test_dynamic_agent_registration() {
         vec!["basic".to_string()],
     ));
     framework.register_agent(initial_agent).unwrap();
-    assert_eq!(framework.agents.len(), 1);
+    assert_eq!(framework.agent_count(), 1);
 
     // Create workflow
     let workflow_id = framework
         .create_workflow("Dynamic Registration Test", "dynamic")
         .unwrap();
-    let workflow = framework.workflows.get_mut(&workflow_id).unwrap();
+    let workflow = framework.get_workflow_mut(&workflow_id).unwrap();
 
     // Add task
     let task = Task::new(
@@ -569,7 +597,7 @@ async fn test_dynamic_agent_registration() {
         vec!["basic".to_string(), "advanced".to_string()],
     ));
     framework.register_agent(new_agent1).unwrap();
-    assert_eq!(framework.agents.len(), 2);
+    assert_eq!(framework.agent_count(), 2);
 
     let new_agent2 = Box::new(DefaultAgent::new(
         "agent-3",
@@ -577,13 +605,13 @@ async fn test_dynamic_agent_registration() {
         vec!["expert".to_string()],
     ));
     framework.register_agent(new_agent2).unwrap();
-    assert_eq!(framework.agents.len(), 3);
+    assert_eq!(framework.agent_count(), 3);
 
     // Create new workflow to use all agents
     let workflow_id2 = framework
         .create_workflow("Multi-Agent Test", "multi")
         .unwrap();
-    let workflow2 = framework.workflows.get_mut(&workflow_id2).unwrap();
+    let workflow2 = framework.get_workflow_mut(&workflow_id2).unwrap();
 
     for i in 0..3 {
         let task = Task::new(
@@ -627,7 +655,7 @@ async fn test_agent_capacity_management() {
     }
 
     // Verify only 2 agents registered
-    assert_eq!(framework.agents.len(), 2);
+    assert_eq!(framework.agent_count(), 2);
 }
 
 // ============================================================================
@@ -651,7 +679,7 @@ async fn test_agent_failover() {
     let workflow_id = framework
         .create_workflow("Failover Test", "failover")
         .unwrap();
-    let workflow = framework.workflows.get_mut(&workflow_id).unwrap();
+    let workflow = framework.get_workflow_mut(&workflow_id).unwrap();
 
     let task = Task::new(
         "task-1",
@@ -671,6 +699,9 @@ async fn test_agent_failover() {
 struct PrimaryAgent {
     id: String,
     should_fail: bool,
+    capabilities: Vec<String>,
+    health: AgentHealth,
+    metrics: AgentMetrics,
 }
 
 impl PrimaryAgent {
@@ -678,6 +709,9 @@ impl PrimaryAgent {
         Self {
             id: id.to_string(),
             should_fail: false,
+            capabilities: vec!["critical".to_string()],
+            health: AgentHealth::new(),
+            metrics: AgentMetrics::new(),
         }
     }
 }
@@ -691,13 +725,13 @@ impl UnifiedAgentTrait for PrimaryAgent {
         &self.id
     }
     fn get_capabilities(&self) -> &[String] {
-        &["critical".to_string()]
+        &self.capabilities
     }
     fn is_available(&self) -> bool {
         true
     }
     fn get_health(&self) -> &AgentHealth {
-        &AgentHealth::new()
+        &self.health
     }
     async fn execute_task(&mut self, task: Task) -> Result<TaskResult, ExecutionError> {
         if task
@@ -717,7 +751,7 @@ impl UnifiedAgentTrait for PrimaryAgent {
         Ok(())
     }
     fn get_metrics(&self) -> &AgentMetrics {
-        &AgentMetrics::new()
+        &self.metrics
     }
     async fn start(&mut self) -> Result<(), ExecutionError> {
         Ok(())
@@ -734,6 +768,9 @@ impl UnifiedAgentTrait for PrimaryAgent {
 struct BackupAgent {
     id: String,
     backup_count: u32,
+    capabilities: Vec<String>,
+    health: AgentHealth,
+    metrics: AgentMetrics,
 }
 
 impl BackupAgent {
@@ -741,6 +778,9 @@ impl BackupAgent {
         Self {
             id: id.to_string(),
             backup_count: 0,
+            capabilities: vec!["critical".to_string(), "backup".to_string()],
+            health: AgentHealth::new(),
+            metrics: AgentMetrics::new(),
         }
     }
 }
@@ -754,13 +794,13 @@ impl UnifiedAgentTrait for BackupAgent {
         &self.id
     }
     fn get_capabilities(&self) -> &[String] {
-        &["critical".to_string(), "backup".to_string()]
+        &self.capabilities
     }
     fn is_available(&self) -> bool {
         true
     }
     fn get_health(&self) -> &AgentHealth {
-        &AgentHealth::new()
+        &self.health
     }
     async fn execute_task(&mut self, _task: Task) -> Result<TaskResult, ExecutionError> {
         self.backup_count += 1;
@@ -771,7 +811,7 @@ impl UnifiedAgentTrait for BackupAgent {
         Ok(())
     }
     fn get_metrics(&self) -> &AgentMetrics {
-        &AgentMetrics::new()
+        &self.metrics
     }
     async fn start(&mut self) -> Result<(), ExecutionError> {
         Ok(())
@@ -805,7 +845,7 @@ async fn test_protocol_compliance() {
     let workflow_id = framework
         .create_workflow("Protocol Compliance Test", "protocol")
         .unwrap();
-    let workflow = framework.workflows.get_mut(&workflow_id).unwrap();
+    let workflow = framework.get_workflow_mut(&workflow_id).unwrap();
 
     // Add protocol tasks
     let http_task = Task::new(
@@ -852,6 +892,9 @@ async fn test_protocol_compliance() {
 struct HttpProtocolAgent {
     id: String,
     requests_made: u32,
+    capabilities: Vec<String>,
+    health: AgentHealth,
+    metrics: AgentMetrics,
 }
 
 impl HttpProtocolAgent {
@@ -859,6 +902,9 @@ impl HttpProtocolAgent {
         Self {
             id: id.to_string(),
             requests_made: 0,
+            capabilities: vec!["http".to_string()],
+            health: AgentHealth::new(),
+            metrics: AgentMetrics::new(),
         }
     }
 }
@@ -872,13 +918,13 @@ impl UnifiedAgentTrait for HttpProtocolAgent {
         &self.id
     }
     fn get_capabilities(&self) -> &[String] {
-        &["http".to_string()]
+        &self.capabilities
     }
     fn is_available(&self) -> bool {
         true
     }
     fn get_health(&self) -> &AgentHealth {
-        &AgentHealth::new()
+        &self.health
     }
     async fn execute_task(&mut self, task: Task) -> Result<TaskResult, ExecutionError> {
         if task.task_type == "http" {
@@ -901,7 +947,7 @@ impl UnifiedAgentTrait for HttpProtocolAgent {
         Ok(())
     }
     fn get_metrics(&self) -> &AgentMetrics {
-        &AgentMetrics::new()
+        &self.metrics
     }
     async fn start(&mut self) -> Result<(), ExecutionError> {
         Ok(())
@@ -919,6 +965,9 @@ struct WebSocketProtocolAgent {
     id: String,
     messages_sent: u32,
     messages_received: u32,
+    capabilities: Vec<String>,
+    health: AgentHealth,
+    metrics: AgentMetrics,
 }
 
 impl WebSocketProtocolAgent {
@@ -927,6 +976,9 @@ impl WebSocketProtocolAgent {
             id: id.to_string(),
             messages_sent: 0,
             messages_received: 0,
+            capabilities: vec!["websocket".to_string()],
+            health: AgentHealth::new(),
+            metrics: AgentMetrics::new(),
         }
     }
 }
@@ -940,13 +992,13 @@ impl UnifiedAgentTrait for WebSocketProtocolAgent {
         &self.id
     }
     fn get_capabilities(&self) -> &[String] {
-        &["websocket".to_string()]
+        &self.capabilities
     }
     fn is_available(&self) -> bool {
         true
     }
     fn get_health(&self) -> &AgentHealth {
-        &AgentHealth::new()
+        &self.health
     }
     async fn execute_task(&mut self, task: Task) -> Result<TaskResult, ExecutionError> {
         if task.task_type == "websocket" {
@@ -985,7 +1037,7 @@ impl UnifiedAgentTrait for WebSocketProtocolAgent {
         Ok(())
     }
     fn get_metrics(&self) -> &AgentMetrics {
-        &AgentMetrics::new()
+        &self.metrics
     }
     async fn start(&mut self) -> Result<(), ExecutionError> {
         Ok(())

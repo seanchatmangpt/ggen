@@ -92,6 +92,7 @@ impl XesParser {
         let mut current_trace: Option<Trace> = None;
         let mut current_event: Option<Event> = None;
         let mut current_attribute: Option<(String, AttributeValue)> = None;
+        let mut saw_log_element = false;
 
         let mut buf = Vec::new();
 
@@ -99,6 +100,7 @@ impl XesParser {
             match parser.read_event_into(&mut buf) {
                 Ok(XmlEvent::Start(ref e)) => match e.name().as_ref() {
                     b"log" => {
+                        saw_log_element = true;
                         if let Some(name) = get_attribute(e, b"name") {
                             log.name = name;
                         }
@@ -187,6 +189,65 @@ impl XesParser {
                     }
                     _ => {}
                 },
+                Ok(XmlEvent::Empty(ref e)) => match e.name().as_ref() {
+                    b"string" | b"int" | b"float" | b"boolean" | b"date" => {
+                        if let Some(key) = get_attribute(e, b"key") {
+                            if let Some(value) = get_attribute(e, b"value") {
+                                let attr_value = match e.name().as_ref() {
+                                    b"string" => AttributeValue::String(value),
+                                    b"int" => {
+                                        let i = value.parse().unwrap_or(0);
+                                        AttributeValue::Integer(i)
+                                    }
+                                    b"float" => {
+                                        let f = value.parse().unwrap_or(0.0);
+                                        AttributeValue::Float(f)
+                                    }
+                                    b"boolean" => {
+                                        let b = value.parse().unwrap_or(false);
+                                        AttributeValue::Boolean(b)
+                                    }
+                                    b"date" => {
+                                        if self.validate_timestamps {
+                                            let dt =
+                                                value.parse::<DateTime<Utc>>().map_err(|_| {
+                                                    Error::invalid_timestamp(value.clone())
+                                                })?;
+                                            AttributeValue::Timestamp(dt)
+                                        } else {
+                                            AttributeValue::String(value)
+                                        }
+                                    }
+                                    _ => AttributeValue::String(value),
+                                };
+                                // Apply directly to current event (no Start/End pair for empty elements)
+                                if let Some(event) = &mut current_event {
+                                    match key.as_str() {
+                                        "concept:name" => {
+                                            if let AttributeValue::String(name) = attr_value {
+                                                event.activity = name;
+                                            }
+                                        }
+                                        "time:timestamp" => {
+                                            if let AttributeValue::Timestamp(ts) = attr_value {
+                                                event.timestamp = ts;
+                                            }
+                                        }
+                                        "org:resource" => {
+                                            if let AttributeValue::String(resource) = attr_value {
+                                                event.resource = Some(resource);
+                                            }
+                                        }
+                                        _ => {
+                                            event.attributes.insert(key, attr_value);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    _ => {}
+                },
                 Ok(XmlEvent::Eof) => break,
                 Err(e) => {
                     return Err(Error::XesParse {
@@ -197,6 +258,13 @@ impl XesParser {
                 _ => {}
             }
             buf.clear();
+        }
+
+        if !saw_log_element {
+            return Err(Error::XesParse {
+                line: 0,
+                message: "no <log> element found in XES document".to_string(),
+            });
         }
 
         Ok(log)

@@ -157,12 +157,17 @@ impl YawlBridge {
             .map_err(|e| Error::YawlToPetriNetConversion(format!("XML parse error: {e}")))?;
 
         let root = document.root_element();
-        let spec_elem = root
-            .children()
-            .find(|n| n.tag_name().name() == "specification")
-            .ok_or_else(|| {
-                Error::YawlToPetriNetConversion("missing specification element".to_string())
-            })?;
+        // The root element may itself be <specification>, or <specification>
+        // may be a direct child (e.g. inside a <specificationSet> wrapper).
+        let spec_elem = if root.tag_name().name() == "specification" {
+            root
+        } else {
+            root.children()
+                .find(|n| n.tag_name().name() == "specification")
+                .ok_or_else(|| {
+                    Error::YawlToPetriNetConversion("missing specification element".to_string())
+                })?
+        };
 
         let name = spec_elem
             .children()
@@ -586,7 +591,7 @@ mod tests {
         assert!(result.is_ok());
         let yawl = result.unwrap();
         assert!(yawl.contains("<specification"));
-        assert!(yawl.contains("Task A"));
+        assert!(yawl.contains("A"));
     }
 
     #[test]

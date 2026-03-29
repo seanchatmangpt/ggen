@@ -102,7 +102,7 @@ impl OcelParser {
                 .object_refs
                 .unwrap_or_default()
                 .into_iter()
-                .filter_map(|r| r.qualifier.map(|q| (r.object_id, q)))
+                .map(|r| (r.object_id, r.qualifier.unwrap_or_default()))
                 .collect();
 
             let event = OcelEvent {
@@ -277,6 +277,7 @@ pub struct OcelAttribute {
     pub name: String,
 
     /// Attribute type.
+    #[serde(rename = "type")]
     pub type_name: String,
 }
 

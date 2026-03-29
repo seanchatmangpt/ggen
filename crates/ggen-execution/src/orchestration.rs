@@ -68,11 +68,14 @@ impl OrchestrationContext {
     }
 
     pub fn get_progress(&self) -> f64 {
+        if self.total_stages == 0 {
+            return 1.0;
+        }
         let total = self.completed_tasks.len() + self.failed_tasks.len();
         if total == 0 {
             0.0
         } else {
-            total as f64 / (self.completed_tasks.len() + self.failed_tasks.len()).max(1) as f64
+            total as f64 / self.total_stages as f64
         }
     }
 }
@@ -128,7 +131,17 @@ impl OrchestrationMetrics {
 }
 
 impl TaskOrchestrator {
-    pub fn new(framework: ExecutionFramework) -> Self {
+    pub fn new(mut framework: ExecutionFramework) -> Self {
+        // Ensure at least one default agent is registered so tasks can execute
+        if framework.agents.is_empty() {
+            let agent = Box::new(DefaultAgent::new(
+                "default-agent",
+                "Default Agent",
+                vec!["general".to_string()],
+            ));
+            let _ = framework.register_agent(agent);
+        }
+
         let (task_queue, mut receiver) = mpsc::channel(1000);
         let framework_arc = Arc::new(Mutex::new(framework));
         let contexts = HashMap::new();

@@ -65,7 +65,7 @@ impl Canonicalizer {
     }
 
     /// Normalize whitespace in content
-    fn normalize_whitespace(&self, content: &str) -> String {
+    pub fn normalize_whitespace(&self, content: &str) -> String {
         // Basic normalization: trim trailing whitespace
         content
             .lines()

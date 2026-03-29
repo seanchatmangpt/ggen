@@ -655,6 +655,78 @@ impl PipelineValidator {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use async_trait::async_trait;
+
+    /// Zero-latency agent for pipeline tests (avoids 100ms sleep in DefaultAgent)
+    struct TestAgent {
+        id: String,
+        status: AgentStatus,
+        health: AgentHealth,
+        metrics: AgentMetrics,
+    }
+
+    impl TestAgent {
+        fn new(id: &str) -> Self {
+            Self {
+                id: id.to_string(),
+                status: AgentStatus::Idle,
+                health: AgentHealth::new(),
+                metrics: AgentMetrics::new(),
+            }
+        }
+    }
+
+    #[async_trait]
+    impl UnifiedAgentTrait for TestAgent {
+        fn get_id(&self) -> &str {
+            &self.id
+        }
+        fn get_name(&self) -> &str {
+            &self.id
+        }
+        fn get_capabilities(&self) -> &[String] {
+            &[]
+        }
+        fn is_available(&self) -> bool {
+            true
+        }
+        fn get_health(&self) -> &AgentHealth {
+            &self.health
+        }
+        fn get_status(&self) -> &AgentStatus {
+            &self.status
+        }
+        fn get_metrics(&self) -> &AgentMetrics {
+            &self.metrics
+        }
+
+        async fn execute_task(&mut self, _task: Task) -> Result<TaskResult, ExecutionError> {
+            Ok(TaskResult {
+                success: true,
+                output: Some(serde_json::json!({"status": "ok"})),
+                error: None,
+                execution_time_ms: 1,
+                resources_used: ResourceUsage {
+                    cpu_percent: 0.0,
+                    memory_mb: 0,
+                    network_in_mb: 0,
+                    network_out_mb: 0,
+                },
+            })
+        }
+
+        async fn update_config(
+            &mut self, _config: AgentConfiguration,
+        ) -> Result<(), ExecutionError> {
+            Ok(())
+        }
+        async fn start(&mut self) -> Result<(), ExecutionError> {
+            Ok(())
+        }
+        async fn stop(&mut self) -> Result<(), ExecutionError> {
+            Ok(())
+        }
+    }
 
     #[test]
     fn test_enhanced_stage_builder() {
@@ -724,7 +796,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_enhanced_pipeline_executor() {
-        let framework = ExecutionFramework::new(ExecutionConfig::default());
+        let mut framework = ExecutionFramework::new(ExecutionConfig::default());
+        framework
+            .register_agent(Box::new(TestAgent::new("agent-1")))
+            .unwrap();
         let executor = EnhancedPipelineExecutor::new(framework);
 
         let mut pipeline = ExecutionPipeline::new("test-pipeline", "Test Pipeline", "test");
@@ -747,7 +822,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_parallel_pipeline_executor() {
-        let framework = ExecutionFramework::new(ExecutionConfig::default());
+        let mut framework = ExecutionFramework::new(ExecutionConfig::default());
+        framework
+            .register_agent(Box::new(TestAgent::new("agent-1")))
+            .unwrap();
         let executor = ParallelPipelineExecutor::new(framework);
 
         let mut stages = vec![
@@ -828,8 +906,9 @@ mod tests {
 
         assert!(PipelineValidator::validate_enhanced_stage(&stage).is_ok());
 
-        // Test invalid parallelism
-        let invalid_stage = EnhancedStageBuilder::new("Test", StageType::DataProcessing)
+        // Test invalid parallelism — set parallelism to 0 directly because
+        // with_parallelism() clamps its argument via .max(1).
+        let mut invalid_stage = EnhancedStageBuilder::new("Test", StageType::DataProcessing)
             .add_task(Task::new(
                 "t1",
                 "Task1",
@@ -837,8 +916,8 @@ mod tests {
                 TaskPriority::Normal,
                 serde_json::json!({}),
             ))
-            .with_parallelism(0)
             .build();
+        invalid_stage.parallelism = 0;
 
         assert!(PipelineValidator::validate_enhanced_stage(&invalid_stage).is_err());
     }

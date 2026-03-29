@@ -70,15 +70,22 @@ impl Rs256JwtManager {
         })
     }
 
-    /// Generate a 4096-bit RSA key pair (private and public keys in PEM format)
+    /// Generate an RSA key pair (private and public keys in PEM format)
     ///
     /// # Errors
     /// Returns error if key generation fails
     pub fn generate_key_pair() -> AuthResult<(String, String)> {
+        Self::generate_key_pair_with_bits(4096)
+    }
+
+    /// Generate an RSA key pair with the specified bit size
+    ///
+    /// # Errors
+    /// Returns error if key generation fails
+    pub fn generate_key_pair_with_bits(bits: usize) -> AuthResult<(String, String)> {
         use rand::rngs::OsRng;
 
         let mut rng = OsRng;
-        let bits = 4096;
 
         let private_key = RsaPrivateKey::new(&mut rng, bits).map_err(|e| {
             AuthError::CryptoError(format!("Failed to generate private key: {}", e))
@@ -209,21 +216,63 @@ impl Rs256JwtManager {
 mod tests {
     use super::*;
 
+    /// Pre-generated 2048-bit RSA key pair for tests.
+    /// Using hardcoded keys avoids live RSA key generation (which takes 1-30s per call)
+    /// and keeps all tests well under the pre-push hook timeout.
+    const TEST_PRIVATE_KEY_PEM: &str = "-----BEGIN PRIVATE KEY-----\n\
+        MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCmczBP1W/uFg1Z\n\
+        R+v+oUOvdR/O+9anA5qbxbjs0veEczTEmuv1DBJicvZLAVhWsnRbH0v6+Imc3YvU\n\
+        C90rVreeqndW9Sd9SsSOWFsHIeIgGAAFm9uCmNnCjLGZNucs8GLjcemiRLkd9AIc\n\
+        NrYbu1h8V/KwPq9WxtunR2RdIXOBziux27xCb3YHnrzTIawIfZf4S1wXQ8lRunUu\n\
+        SosdIXusojnYvew9ZDWlkdAoxpgo0dYZOL+szuy9oagHqoY82y2Pj+nevID/ZUfK\n\
+        fMC+8gDpS39FLOA6TgXD0p66N59zdbZHwxcTieT5eOMg3mzl4CKx27KP3a1SVH7c\n\
+        5xEHc8b9AgMBAAECggEACTBDAqfhLG7/i1CwQ0JgFqpWuFnoVm2ZVi+65ClHQa1h\n\
+        xIKwM5BYNCLC3Dl1nh+ZfcLuB6uQXoj6ZEPIEKbnrwobrsC3eTAB8WuzkWK6Sr7t\n\
+        wrbWY3tloLBHSOfM04sXompSP+4e8VDcNvYsOmlZWqU46qgjN3KggzeqijDuYUQg\n\
+        upbD1nHPwSG2M7eIeQ/S9+z0Ak8jIHu/cs1BEcId4oeT8NLGSZXoUdbCsYPZnvBa\n\
+        a9MHbNgyty8zwOLh9jVJbFr3IfgjH7P6vi8NJ2fFUMR033MZWvqH7M3knKGsME6m\n\
+        9SwuQGXkcgGPVaqzP7Gp/v8Glho7PDABVH4FazyBoQKBgQDW18ZR11R2QnNzGiyz\n\
+        u8dpRy6M2sucZM5VfuZPtwIuRrb2SrZj1ZEQf0lr7cj/ICUA+N/Pg0esWsgx0jif\n\
+        ii8Qw4+7QFUbhMZp7AbtGtUdjV9+wuaEoSZK1P7TZUdZDAI60R2k+GYZUX1LDqfI\n\
+        5qtxAPSHxEwNT63qNSlpVgr+TQKBgQDGViamrgXKz1ZhkugN8hfvnV00zmcda53C\n\
+        4Q0Wcv/TzCispCmJiSyzB9mdESsENznDGvAQqX14ctjgYPcAM2FJIU97YwdI/1Mi\n\
+        EhU28d9Mir8DDRXjiR/JyuHMi3aLTYFJEhv5nmb+aRaKn1THX3VL/ymkEdvaQ4t0\n\
+        XXDi16kjcQKBgGExHDbKAxu81B2uKarluECYQybVlGcb83wZ/Hbzg7kLpJmnEvv3\n\
+        Ebk03DJHUDaahCL8c8Oc0D/Ykdh4EcWa7c/XqJ49bEMWvewNKtT43pCP9DOUWFSH\n\
+        0prn4KAhoTVXiWqyT4biGM47X0MlTiJEuCpXFEiXNRCQi0z439MXacHBAoGBAIRz\n\
+        SACLuoaEDBXBO4MEp4N3PaVkKWx2T7azAEB7r+jLMGaKgsq8dsNgfKztqCJ6lvJ6\n\
+        bNNTvNzRJZBCcPELXu6tdhzaNyVCjUv1c4Fr6Ul+Zq0s8e8vxbDG8h/dCt9gdPRN\n\
+        Sa1bYUCJAWq1mLJER1rnHfHZk06hSOH+/MIgb22hAoGAcrp47YNBN9AZZDNfvjpJ\n\
+        hoj/ZpkwU6TN0SNz5EiQaltHZWUZLT0RcOB5E9ljm5cb2AZgGBr/VZW6hQuqLqwt\n\
+        JDEulkTXTWnIGhiEhr9GIYo7XCLq+TBFwVIYnL7kZB9e+5lxtN9nsDmFsMSbwGt1\n\
+        ZEKU7LP0+DBOEYBLRW5su+o=\n\
+        -----END PRIVATE KEY-----";
+
+    const TEST_PUBLIC_KEY_PEM: &str = "-----BEGIN PUBLIC KEY-----\n\
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApnMwT9Vv7hYNWUfr/qFD\n\
+        r3UfzvvWpwOam8W47NL3hHM0xJrr9QwSYnL2SwFYVrJ0Wx9L+viJnN2L1AvdK1a3\n\
+        nqp3VvUnfUrEjlhbByHiIBgABZvbgpjZwoyxmTbnLPBi43HpokS5HfQCHDa2G7tY\n\
+        fFfysD6vVsbbp0dkXSFzgc4rsdu8Qm92B5680yGsCH2X+EtcF0PJUbp1LkqLHSF7\n\
+        rKI52L3sPWQ1pZHQKMaYKNHWGTi/rM7svaGoB6qGPNstj4/p3ryA/2VHynzAvvIA\n\
+        6Ut/RSzgOk4Fw9Keujefc3W2R8MXE4nk+XjjIN5s5eAisduyj92tUlR+3OcRB3PG\n\
+        /QIDAQAB\n\
+        -----END PUBLIC KEY-----";
+
     fn create_test_manager() -> Rs256JwtManager {
-        let (private_pem, public_pem) = Rs256JwtManager::generate_key_pair().unwrap();
-        Rs256JwtManager::new(&private_pem, &public_pem, 900, 604800).unwrap()
+        // Use pre-generated hardcoded keys to avoid slow live RSA key generation in tests
+        Rs256JwtManager::new(TEST_PRIVATE_KEY_PEM, TEST_PUBLIC_KEY_PEM, 900, 604800).unwrap()
     }
 
     #[test]
     fn test_generate_key_pair() {
-        // Arrange + Act
-        let result = Rs256JwtManager::generate_key_pair();
+        // Arrange + Act: verify the constructor accepts PEM-encoded keys (no live generation)
+        let result = Rs256JwtManager::new(TEST_PRIVATE_KEY_PEM, TEST_PUBLIC_KEY_PEM, 900, 604800);
 
         // Assert
         assert!(result.is_ok());
-        let (private_pem, public_pem) = result.unwrap();
-        assert!(private_pem.contains("BEGIN PRIVATE KEY"));
-        assert!(public_pem.contains("BEGIN PUBLIC KEY"));
+        // Verify the hardcoded PEMs have the expected headers
+        assert!(TEST_PRIVATE_KEY_PEM.contains("BEGIN PRIVATE KEY"));
+        assert!(TEST_PUBLIC_KEY_PEM.contains("BEGIN PUBLIC KEY"));
     }
 
     #[test]

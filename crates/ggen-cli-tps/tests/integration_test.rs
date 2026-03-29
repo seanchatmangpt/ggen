@@ -1,5 +1,6 @@
+#![allow(missing_docs)]
+
 use ggen_cli_tps::{Cli, Commands};
-use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;
 
@@ -227,16 +228,14 @@ async fn test_firewall_rule_management() -> Result<(), Box<dyn std::error::Error
 
 #[tokio::test]
 async fn test_packet_validation() -> Result<(), Box<dyn std::error::Error>> {
-    use ggen_cli_tps::commands::packet::{PacketCommands, PacketType};
+    use ggen_cli_tps::commands::packet::PacketCommands;
 
     let temp_dir = TempDir::new()?;
     let packet_path = temp_dir.path().join("packet.json");
 
     // Create packet
     let create_cmd = Commands::Packet(PacketCommands::Create {
-        packet_type: PacketType::Standard,
-        source: "agent-1".to_string(),
-        destination: "agent-2".to_string(),
+        order_type: "standard".to_string(),
         payload: r#"{"data": "test"}"#.to_string(),
         output: packet_path.clone(),
     });
@@ -251,6 +250,7 @@ async fn test_packet_validation() -> Result<(), Box<dyn std::error::Error>> {
     // Validate packet
     let validate_cmd = Commands::Packet(PacketCommands::Validate {
         packet: packet_path.clone(),
+        strict: false,
     });
 
     let cli = Cli {
@@ -263,22 +263,23 @@ async fn test_packet_validation() -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::test]
 async fn test_backpressure_token_pool() -> Result<(), Box<dyn std::error::Error>> {
-    use ggen_cli_tps::commands::backpressure::{BackpressureCommands, StrategyType};
+    use ggen_cli_tps::commands::backpressure::BackpressureCommands;
 
     let temp_dir = TempDir::new()?;
     std::env::set_current_dir(&temp_dir)?;
 
-    // Initialize backpressure system
+    // Initialize a token pool
     let init_cmd = Commands::Backpressure(BackpressureCommands::Init {
+        name: "default".to_string(),
         capacity: 100,
-        strategy: StrategyType::TokenBucket,
+        refill_rate: 10.0,
     });
 
     let cli = Cli { command: init_cmd };
     cli.run().await?;
 
-    // Check config exists
-    let config_path = PathBuf::from(".ggen/backpressure-config.json");
+    // Check registry exists
+    let config_path = PathBuf::from(".ggen/backpressure-pools.json");
     assert!(config_path.exists());
 
     Ok(())
@@ -295,7 +296,7 @@ async fn test_supplier_quality_scoring() -> Result<(), Box<dyn std::error::Error
     let register_cmd = Commands::Supplier(SupplierCommands::Register {
         id: "supplier-1".to_string(),
         name: "Test Supplier".to_string(),
-        max_rate: 100,
+        quality_score: 100,
     });
 
     let cli = Cli {
@@ -304,7 +305,7 @@ async fn test_supplier_quality_scoring() -> Result<(), Box<dyn std::error::Error
     cli.run().await?;
 
     // Check config exists
-    let config_path = PathBuf::from(".ggen/supplier-config.json");
+    let config_path = PathBuf::from(".ggen/suppliers.json");
     assert!(config_path.exists());
 
     Ok(())

@@ -163,7 +163,7 @@ impl ReceiptGenerator {
     }
 
     /// Compute SHA-256 hash of string
-    fn compute_hash(&self, content: &str) -> String {
+    pub fn compute_hash(&self, content: &str) -> String {
         self.compute_hash_bytes(content.as_bytes())
     }
 }
