@@ -192,6 +192,8 @@ This index provides organized access to all ggen documentation, examples, and re
 - 🖥️ [`CLI_REFERENCE_V2.4.0.md`](CLI_REFERENCE_V2.4.0.md) - Detailed CLI command reference
 - 🔄 [`MIGRATION_GUIDE_V2.4.0.md`](MIGRATION_GUIDE_V2.4.0.md) - 2.3.0 → 2.4.0 migration guide
 - ⚡ [`P2P_QUICK_REFERENCE.md`](P2P_QUICK_REFERENCE.md) - Quick reference cheat sheet
+- 🔌 [`RMCP_NOTES.md`](RMCP_NOTES.md) - rmcp 1.3.0 verified reference: proc-macros, DropGuard pitfall, client API
+- 🛠️ [`how-to-build-mcp-tool-with-ggen.md`](how-to-build-mcp-tool-with-ggen.md) - Build an MCP tool server with ggen + rmcp 1.3.0
 
 ### 🏛️ **Architecture Documentation**
 
@@ -304,6 +306,8 @@ This index provides organized access to all ggen documentation, examples, and re
 | **AI-Powered Development** | [`ai-guide.md`](ai-guide.md) | [`ai-microservice/`](examples/ai-microservice/) |
 | **Production Deployment** | [`production-readiness.md`](production-readiness.md) | [`DEPLOYMENT.md`](DEPLOYMENT.md) |
 | **Team Collaboration** | [`LIFECYCLE_TEAM_WORKFLOW.md`](LIFECYCLE_TEAM_WORKFLOW.md) | [`marketplace.md`](marketplace.md) |
+| **Generate Elixir A2A agents** | [`ELIXIR_A2A_NOTES.md`](ELIXIR_A2A_NOTES.md) | Intermediate |
+| **Build an MCP tool server** | [`how-to-build-mcp-tool-with-ggen.md`](how-to-build-mcp-tool-with-ggen.md) | Intermediate |
 
 ---
 
@@ -402,4 +406,4 @@ This documentation index is designed to grow with the ggen ecosystem. Check back
 
 ---
 
-*Last Updated: December 2025 | ggen v1.2.0* 📚
+*Last Updated: March 2026 | ggen v5.0.2* 📚
