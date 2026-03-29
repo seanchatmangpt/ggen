@@ -1,0 +1,94 @@
+# SPARQL Query: Extract sprint status from ChatmanGPT ontology
+# Usage: sparql-results feed into Tera template via ggen Rule<Q, T>
+
+PREFIX cm: <http://chatmangpt.com/ontology#>
+PREFIX wvda: <http://chatmangpt.com/wvda#>
+PREFIX armstrong: <http://chatmangpt.com/armstrong#>
+PREFIX semconv: <http://chatmangpt.com/semconv#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Query 1: Project status summary
+SELECT ?name ?techStack ?port ?testCount ?testFailures ?warnings ?lastCommit
+WHERE {
+  ?project a cm:Project ;
+           rdfs:label ?name ;
+           cm:techStack ?techStack ;
+           cm:port ?port ;
+           cm:testCount ?testCount ;
+           cm:testFailures ?testFailures ;
+           cm:compileWarnings ?warnings ;
+           cm:lastCommit ?lastCommit .
+}
+ORDER BY ?name
+
+# Query 2: Sprint deliverables
+SELECT ?label ?date ?category ?status ?comment
+WHERE {
+  ?item a cm:SprintItem ;
+        rdfs:label ?label ;
+        cm:date ?date ;
+        cm:category ?category ;
+        cm:status ?status ;
+        rdfs:comment ?comment .
+}
+ORDER BY DESC(?date)
+
+# Query 3: WvdA soundness properties
+SELECT ?name ?method ?testCount ?status
+WHERE {
+  ?prop a wvda:SoundnessProperty ;
+        rdfs:label ?name ;
+        wvda:verificationMethod ?method ;
+        wvda:testCount ?testCount ;
+        wvda:status ?status .
+}
+
+# Query 4: Armstrong principles
+SELECT ?name ?verification ?status ?evidence
+WHERE {
+  ?principle a armstrong:ArmstrongPrinciple ;
+             rdfs:label ?name ;
+             armstrong:verification ?verification ;
+             armstrong:status ?status .
+  OPTIONAL { ?principle armstrong:evidence ?evidence . }
+}
+
+# Query 5: Verification proof status
+SELECT ?label ?requirement ?status ?evidence
+WHERE {
+  ?proof a cm:VerificationProof ;
+         rdfs:label ?label ;
+         cm:requirement ?requirement ;
+         cm:status ?status .
+  OPTIONAL { ?proof cm:evidence ?evidence . }
+}
+
+# Query 6: Open items ranked by priority
+SELECT ?label ?priority ?effort ?project ?comment
+WHERE {
+  ?item a cm:OpenItem ;
+        rdfs:label ?label ;
+        cm:priority ?priority ;
+        cm:effort ?effort ;
+        cm:project ?project ;
+        rdfs:comment ?comment .
+}
+ORDER BY ?priority
+
+# Query 7: Semconv domains
+SELECT ?domain
+WHERE {
+  ?d a semconv:Domain ;
+     rdfs:label ?domain .
+}
+ORDER BY ?domain
+
+# Query 8: Integration chain
+SELECT ?chainOrder ?healthEndpoint ?bootCommand ?verifyCommand
+WHERE {
+  ?chain a cm:IntegrationChain ;
+         cm:chainOrder ?chainOrder ;
+         cm:healthEndpoint ?healthEndpoint ;
+         cm:bootCommand ?bootCommand ;
+         cm:verifyCommand ?verifyCommand .
+}

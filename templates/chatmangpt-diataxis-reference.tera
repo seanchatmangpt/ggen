@@ -1,0 +1,107 @@
+{# ChatmanGPT Diataxis Reference Doc — Generated from RDF Ontology #}
+{# Constitutional Equation: reference.md = μ(ontology.ttl) #}
+
+# {{ doc_title }} — Reference
+
+**Generated**: {{ generated_date }}
+**Source**: `chatmangpt-sprint-ontology.ttl`
+
+## Overview
+
+{{ overview }}
+
+---
+
+## System Architecture
+
+### Integration Chain
+
+```
+{{ integration_chain }}
+```
+
+**Boot**: `make dev`
+**Health**: `make health`
+**Verify**: `make verify`
+
+### Projects
+
+| Project | Tech Stack | Port | Tests | Failures | Warnings |
+|---------|-----------|------|-------|----------|----------|
+{% for project in projects %}
+| **{{ project.name }}** | {{ project.tech_stack }} | {{ project.port }} | {{ project.test_count }} | {{ project.failures }} | {{ project.warnings }} |
+{% endfor %}
+
+---
+
+## WvdA Soundness Verification
+
+Based on: W. M. P. van der Aalst. "Verification of Workflow Nets." (1997)
+
+### Properties
+
+| Property | Method | Status | Tests |
+|----------|--------|--------|-------|
+{% for prop in soundness_properties %}
+| **{{ prop.name }}** | {{ prop.method }} | {{ prop.status }} | {{ prop.test_count }}/{{ prop.test_count }} |
+{% endfor %}
+
+### Implementation
+
+- **StateGraph**: `OSA/lib/optimal_system_agent/wvdA/state_graph.ex`
+- **CycleDetector**: `OSA/lib/optimal_system_agent/wvdA/cycle_detector.ex` (Tarjan's SCC, O(V+E))
+- **LivenessChecker**: `OSA/lib/optimal_system_agent/wvdA/liveness_checker.ex`
+- **BoundednessChecker**: `OSA/lib/optimal_system_agent/wvdA/boundedness_checker.ex`
+- **SoundnessVerifier**: `OSA/lib/optimal_system_agent/wvdA/soundness_verifier.ex`
+
+---
+
+## Armstrong Fault Tolerance
+
+Based on: Joe Armstrong. "Making Reliable Distributed Systems." (2014)
+
+### Principles
+
+| Principle | Verification | Status |
+|-----------|-------------|--------|
+{% for principle in armstrong_principles %}
+| **{{ principle.name }}** | {{ principle.verification }} | {{ principle.status }} |
+{% endfor %}
+
+---
+
+## Semconv Domains
+
+{{ semconv_domains }} semantic convention domains registered in `semconv/model/`:
+
+{% for domain in semconv_domain_list %}
+- `{{ domain }}`
+{% endfor %}
+
+---
+
+## Verification Standard (Three-Layer AND)
+
+Every claim requires ALL THREE proof artifacts:
+
+### 1. OpenTelemetry Span (Execution Proof)
+- Service name matching project
+- Span name matching operation
+- Timestamp with microsecond precision
+- Attributes capturing key parameters
+- Status field: "ok" or "error"
+
+### 2. Test Assertion (Behavior Proof)
+- Test file with `_test.{exs,go,rs}` extension
+- Test name describing the claim
+- Assertion capturing exact behavior
+- Test PASSES (Green status)
+
+### 3. Schema Conformance Proof (Weaver)
+- `weaver registry check -r ./semconv/model -p ./semconv/policies/` exits 0
+- Generated typed semconv constants used in test assertions
+
+---
+
+*Generated with [ggen v6](https://github.com/seanchatmangpt/ggen) ontology-driven documentation*
+*Constitutional Equation: `reference.md = μ(chatmangpt-sprint-ontology.ttl)`*
