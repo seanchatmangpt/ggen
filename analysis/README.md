@@ -353,3 +353,6 @@ Visual PlantUML diagram showing:
 ### Session 2 — 2026-03-28 (A2A Integration + Gap Closure)
 `chatmangpt_8020_pareto_2026-03-28-session2.md` — A2A protocol in pm4py-rust, weaver exit 0, OSA MonitoringScheduler, BusinessOS dashboard wiring, 90 new tests, 10 parallel agents, 40 commits. Overall readiness: **98%**.
 
+### Session 3 — 2026-03-29 (A2A Cross-Stack Work Tests)
+Plan: `docs/superpowers/plans/2026-03-29-a2a-stack-work-tests.md` — A2A tests that exercise real process mining work across the full stack. pm4py-rust: 11 `a2a_work_test.rs` tests (statistics/discovery/OCEL/chaining/agent card). OSA: `tasks_send` action in `a2a_call.ex` + 7 integration tests. BusinessOS: 4 Go mock-server tests. E2E: `scripts/a2a-stack-work-test.sh` (8 checks) + `make test-a2a-stack`. All submodules synced; ~83 commits ahead of main. Remaining: OTEL Jaeger proof → PR.
+

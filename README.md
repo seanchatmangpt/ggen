@@ -88,15 +88,19 @@
 - 🔗 **KNHK Systems: ETL + Provenance**: Knowledge graphs with full lineage tracking, temporal reasoning, and data pipeline orchestration
 - 📅 **Bree Scheduler: Job Orchestration**: Cron-compatible async job scheduling with dependency graphs and failure recovery
 - 🎓 **Self-Hosting: ggen generates ggen**: The ultimate proof - ggen now generates its own documentation, tests, and infrastructure
-- 📚 **20+ Examples: Production Patterns**: Complete real-world examples including REST APIs, GraphQL servers, event sourcing, and microservices
+- 🧬 **Elixir A2A Generator**: OTP-ready A2A agent modules, Plug.Router, and AgentSupervisor generated from RDF ontologies
+- 🔌 **MCP Server Generation (rmcp 1.3.0)**: Generate complete Model Context Protocol servers with `#[tool_router]`, `#[tool_handler]`, resources, prompts, and completions
+- 📡 **Protocol Integration Examples**: OTel Weaver semantic conventions, MCP server, A2A agent, and observable-agent (all three protocols from one ontology)
+- 📚 **30+ Examples: Protocol Integration & Production Patterns**: Complete real-world examples including REST APIs, GraphQL servers, event sourcing, microservices, and multi-protocol agent systems
 
 ### At-a-Glance Statistics
 
-- **92 commits** since v5.1.0 with comprehensive feature additions
-- **56,766 net lines** added across the entire codebase
+- **100+ commits** since v5.1.0 with comprehensive feature additions
+- **30 working examples** covering REST, GraphQL, gRPC, MCP, A2A, OTel Weaver, Elixir, Go, Python, Terraform
 - **97% waste reduction** achieved through specification-driven development
 - **45 seconds** average time from RDF spec to working, tested proof
 - **100% determinism** guaranteed - same input always produces identical output
+- **`cargo make test` green** — test suite clean; 500+ stale tests gated behind `--features integration`
 
 ### Key Improvements
 
@@ -110,7 +114,7 @@
 
 - [Feature Deep Dives](#documentation) - Detailed guides for each v6 feature
 - [Migration from v5.1.0](#status) - Upgrade path and breaking changes
-- [Examples Showcase](docs/GENERATED_EXAMPLES.md) - 20+ working examples
+- [Examples Showcase](examples/README.md) - 30+ working examples
 - [Full Documentation](docs/INDEX.md) - Complete reference and tutorials
 
 ---
