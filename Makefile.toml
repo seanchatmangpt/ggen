@@ -1658,12 +1658,6 @@ dependencies = ["timeout-check"]
 command = "bash"
 args = ["scripts/validate-docs.sh"]
 
-[tasks.validate-examples]
-description = "Validate all examples run ggen sync"
-workspace = false
-command = "bash"
-args = ["scripts/validate-examples.sh"]
-
 [tasks.validate-slos]
 description = "Validate performance SLO compliance"
 workspace = false
