@@ -211,17 +211,17 @@ fn bench_complete(c: &mut Criterion) {
     });
 }
 
-fn bench_read_resource(c: &mut Criterion) {
-    c.bench_function("read_resource", |b| {
-        b.to_async(tokio::runtime::Runtime::new().unwrap()).iter(|| async {
-            if let Ok(client) = start_bench_server().await {
-                let uri = format!("ggen://example/{}/ttl", BENCHMARK_EXAMPLE);
-                let _ = client.read_resource(&uri).await;
-                let _ = client.cancel().await;
-            }
-        })
-    });
-}
+// fn bench_read_resource(c: &mut Criterion) {
+//     c.bench_function("read_resource", |b| {
+//         b.to_async(tokio::runtime::Runtime::new().unwrap()).iter(|| async {
+//             if let Ok(client) = start_bench_server().await {
+//                 let uri = format!("ggen://example/{}/ttl", BENCHMARK_EXAMPLE);
+//                 let _ = client.read_resource(None).await;
+//                 let _ = client.cancel().await;
+//             }
+//         })
+//     });
+// }
 
 fn bench_get_prompt(c: &mut Criterion) {
     c.bench_function("get_prompt", |b| {
@@ -247,8 +247,7 @@ criterion_group!(
     bench_list_examples,
     bench_get_example,
     bench_list_resources,
-    bench_read_resource,
-    bench_list_prompts,
+        bench_list_prompts,
     bench_get_prompt,
     bench_search,
     bench_query_ontology,

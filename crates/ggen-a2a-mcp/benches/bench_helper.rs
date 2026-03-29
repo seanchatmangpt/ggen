@@ -2,9 +2,7 @@
 //!
 //! Provides common setup/teardown for Criterion benchmarks and stress tests.
 
-use ggen_a2a_mcp::ggen_server::GgenMcpServer;
-use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
-use tokio::runtime::Runtime;
+use rmcp::model::{ClientInfo, ClientHandler};
 
 /// Minimal client handler for benchmarking
 #[derive(Debug, Clone, Default)]
