@@ -567,6 +567,8 @@ ggen ai generate \
 
 # Start MCP server for AI tool integration
 ggen ai server --provider anthropic --model claude-sonnet-4-5
+
+> **MCP Server Templates**: ggen's MCP server templates use [rmcp 1.3.0](https://crates.io/crates/rmcp) proc-macro style (`#[tool_router]`, `#[tool_handler]`). See [`docs/RMCP_NOTES.md`](docs/RMCP_NOTES.md) for the verified API reference and common pitfalls.
 ```
 
 **Full Documentation**: See [`crates/ggen-ai/README.md`](crates/ggen-ai/README.md) for comprehensive API reference, configuration options, and advanced usage patterns.
@@ -772,6 +774,15 @@ ggen sync
 ```
 
 ### Multi-Language Support
+
+| Language | RDF Source | Generated Output | Reference |
+|----------|-----------|------------------|-----------|
+| **Rust** | `owl:Class` nodes | Axum/Rocket servers, SQLx types, serde models | [`examples/`](examples/) |
+| **TypeScript** | `rdfs:Class` nodes | Zod schemas, tRPC routers, Next.js APIs | [`examples/typescript/`](examples/typescript/) |
+| **Python** | `schema:Class` nodes | Pydantic models, FastAPI routes, SQLAlchemy | [`examples/python/`](examples/python/) |
+| **Go** | `sh:NodeShape` shapes | Gin handlers, GORM models, wire providers | [`examples/go/`](examples/go/) |
+| **Elixir/Phoenix** | `a2a:Agent` nodes | A2A agents, Plug.Router, OTP Supervisor | [`ELIXIR_A2A_NOTES.md`](docs/ELIXIR_A2A_NOTES.md) |
+
 ```bash
 # Same ontology, different templates
 # rust/ → Rust code
