@@ -114,16 +114,19 @@ fn test_permissions_to_vec() {
 #[test]
 fn test_permission_from_str_valid() {
     // Arrange & Act & Assert
-    assert_eq!(Permission::from_str("read"), Some(Permission::Read));
-    assert_eq!(Permission::from_str("WRITE"), Some(Permission::Write));
-    assert_eq!(Permission::from_str("Delete"), Some(Permission::Delete));
-    assert_eq!(Permission::from_str("EXECUTE"), Some(Permission::Execute));
+    assert_eq!(Permission::from_string("read"), Some(Permission::Read));
+    assert_eq!(Permission::from_string("WRITE"), Some(Permission::Write));
+    assert_eq!(Permission::from_string("Delete"), Some(Permission::Delete));
+    assert_eq!(
+        Permission::from_string("EXECUTE"),
+        Some(Permission::Execute)
+    );
 }
 
 #[test]
 fn test_permission_from_str_invalid() {
     // Arrange & Act
-    let result = Permission::from_str("invalid");
+    let result = Permission::from_string("invalid");
 
     // Assert
     assert_eq!(result, None);
@@ -331,11 +334,14 @@ fn test_resource_is_owner() {
 #[test]
 fn test_resource_type_from_str() {
     // Arrange & Act & Assert
-    assert_eq!(ResourceType::from_str("template"), ResourceType::Template);
-    assert_eq!(ResourceType::from_str("PROJECT"), ResourceType::Project);
-    assert_eq!(ResourceType::from_str("package"), ResourceType::Package);
     assert_eq!(
-        ResourceType::from_str("custom"),
+        ResourceType::from_string("template"),
+        ResourceType::Template
+    );
+    assert_eq!(ResourceType::from_string("PROJECT"), ResourceType::Project);
+    assert_eq!(ResourceType::from_string("package"), ResourceType::Package);
+    assert_eq!(
+        ResourceType::from_string("custom"),
         ResourceType::Custom("custom".to_string())
     );
 }

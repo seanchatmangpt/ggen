@@ -9,6 +9,7 @@
 //! 3. Output contains expected content
 //! 4. No unexpected errors in stderr
 
+use chicago_tdd_tools::async_test;
 use chicago_tdd_tools::prelude::*;
 use ggen_cli_lib::{run_for_node, RunResult};
 
@@ -63,7 +64,7 @@ mod version_tests {
     use super::*;
 
     /// JTBD: Verify that --version returns a valid semantic version string
-    async_test!(test_version_returns_valid_semver, async {
+    async_test!(test_version_returns_valid_semver, {
         let result = run_for_node(vec!["--version".to_string()])
             .await
             .expect("version command should not panic");
@@ -98,7 +99,7 @@ mod version_tests {
     });
 
     /// JTBD: Verify version command is fast
-    async_test!(test_version_performance, async {
+    async_test!(test_version_performance, {
         use std::time::{Duration, Instant};
 
         let start = Instant::now();
@@ -121,7 +122,7 @@ mod help_tests {
     use super::*;
 
     /// JTBD: Verify that --help returns usage information
-    async_test!(test_help_shows_usage, async {
+    async_test!(test_help_shows_usage, {
         let result = run_for_node(vec!["--help".to_string()])
             .await
             .expect("help command should not panic");
@@ -145,7 +146,7 @@ mod help_tests {
     });
 
     /// JTBD: Verify that help for specific commands works
-    async_test!(test_help_for_market_command, async {
+    async_test!(test_help_for_market_command, {
         let result = run_for_node(vec!["market".to_string(), "--help".to_string()])
             .await
             .expect("market help should not panic");
@@ -168,7 +169,7 @@ mod marketplace_tests {
     use super::*;
 
     /// JTBD: Verify that market list returns installed packages
-    async_test!(test_market_list_returns_packages, async {
+    async_test!(test_market_list_returns_packages, {
         let result = run_for_node(vec!["market".to_string(), "list".to_string()])
             .await
             .expect("market list should not panic");
@@ -184,7 +185,7 @@ mod marketplace_tests {
     });
 
     /// JTBD: Verify that market categories returns available categories
-    async_test!(test_market_categories_returns_list, async {
+    async_test!(test_market_categories_returns_list, {
         let result = run_for_node(vec!["market".to_string(), "categories".to_string()])
             .await
             .expect("market categories should not panic");
@@ -199,7 +200,7 @@ mod marketplace_tests {
     });
 
     /// JTBD: Verify that market search with valid query works
-    async_test!(test_market_search_executes, async {
+    async_test!(test_market_search_executes, {
         let result = run_for_node(vec![
             "market".to_string(),
             "search".to_string(),
@@ -224,7 +225,7 @@ mod marketplace_tests {
     });
 
     /// JTBD: Verify that market add with invalid package fails gracefully
-    async_test!(test_market_add_invalid_package_fails_gracefully, async {
+    async_test!(test_market_add_invalid_package_fails_gracefully, {
         let result = run_for_node(vec![
             "market".to_string(),
             "add".to_string(),
@@ -249,7 +250,7 @@ mod lifecycle_tests {
     use super::*;
 
     /// JTBD: Verify that lifecycle list returns available phases
-    async_test!(test_lifecycle_list_returns_phases, async {
+    async_test!(test_lifecycle_list_returns_phases, {
         let result = run_for_node(vec!["lifecycle".to_string(), "list".to_string()])
             .await
             .expect("lifecycle list should not panic");
@@ -271,7 +272,7 @@ mod lifecycle_tests {
     });
 
     /// JTBD: Verify that lifecycle readiness returns status
-    async_test!(test_lifecycle_readiness_returns_status, async {
+    async_test!(test_lifecycle_readiness_returns_status, {
         let result = run_for_node(vec!["lifecycle".to_string(), "readiness".to_string()])
             .await
             .expect("lifecycle readiness should not panic");
@@ -295,7 +296,7 @@ mod template_tests {
     use super::*;
 
     /// JTBD: Verify that template list (list command) returns templates
-    async_test!(test_template_list_returns_templates, async {
+    async_test!(test_template_list_returns_templates, {
         let result = run_for_node(vec!["list".to_string()])
             .await
             .expect("list command should not panic");
@@ -314,7 +315,7 @@ mod template_tests {
     });
 
     /// JTBD: Verify that gen with invalid template fails gracefully
-    async_test!(test_template_generate_invalid_fails_gracefully, async {
+    async_test!(test_template_generate_invalid_fails_gracefully, {
         let result = run_for_node(vec![
             "gen".to_string(),
             "definitely-not-a-template-12345.tmpl".to_string(),
@@ -341,7 +342,7 @@ mod utility_tests {
     use super::*;
 
     /// JTBD: Verify that doctor command runs diagnostics
-    async_test!(test_doctor_runs_diagnostics, async {
+    async_test!(test_doctor_runs_diagnostics, {
         let result = run_for_node(vec!["doctor".to_string()])
             .await
             .expect("doctor command should not panic");
@@ -368,7 +369,7 @@ mod error_handling_tests {
     use super::*;
 
     /// JTBD: Verify that empty args don't crash (should show help or error)
-    async_test!(test_empty_args_handled, async {
+    async_test!(test_empty_args_handled, {
         let result = run_for_node(vec![])
             .await
             .expect("empty args should not panic");
@@ -384,7 +385,7 @@ mod error_handling_tests {
     });
 
     /// JTBD: Verify that invalid command produces error
-    async_test!(test_invalid_command_produces_error, async {
+    async_test!(test_invalid_command_produces_error, {
         let result = run_for_node(vec!["definitely-not-a-valid-command-12345".to_string()])
             .await
             .expect("invalid command should not panic");
@@ -400,7 +401,7 @@ mod error_handling_tests {
     });
 
     /// JTBD: Verify that special characters don't crash
-    async_test!(test_special_characters_handled, async {
+    async_test!(test_special_characters_handled, {
         let result = run_for_node(vec![
             "market".to_string(),
             "search".to_string(),
@@ -414,7 +415,7 @@ mod error_handling_tests {
     });
 
     /// JTBD: Verify that unicode doesn't crash
-    async_test!(test_unicode_handled, async {
+    async_test!(test_unicode_handled, {
         let result = run_for_node(vec![
             "market".to_string(),
             "search".to_string(),
@@ -432,7 +433,7 @@ mod error_handling_tests {
     });
 
     /// JTBD: Verify that very long args don't crash
-    async_test!(test_very_long_args_handled, async {
+    async_test!(test_very_long_args_handled, {
         let long_arg = "a".repeat(10_000);
         let result = run_for_node(vec!["market".to_string(), "search".to_string(), long_arg])
             .await
@@ -448,7 +449,7 @@ mod ggen_broken_detection_tests {
     use super::*;
 
     /// JTBD: Detect when ggen returns 0 but stderr has unexpected errors
-    async_test!(test_detects_false_success, async {
+    async_test!(test_detects_false_success, {
         let result = run_for_node(vec!["--version".to_string()])
             .await
             .expect("version should not panic");
@@ -468,7 +469,7 @@ mod ggen_broken_detection_tests {
     });
 
     /// JTBD: Detect when ggen returns 0 but output is empty
-    async_test!(test_detects_silent_failure, async {
+    async_test!(test_detects_silent_failure, {
         let result = run_for_node(vec!["--version".to_string()])
             .await
             .expect("version should not panic");
@@ -482,7 +483,7 @@ mod ggen_broken_detection_tests {
     });
 
     /// JTBD: Detect when ggen returns 0 but output format is wrong
-    async_test!(test_validates_version_format, async {
+    async_test!(test_validates_version_format, {
         let result = run_for_node(vec!["--version".to_string()])
             .await
             .expect("version should not panic");
@@ -501,7 +502,7 @@ mod ggen_broken_detection_tests {
     });
 
     /// JTBD: Detect when ggen returns error but no error message
-    async_test!(test_detects_silent_error, async {
+    async_test!(test_detects_silent_error, {
         let result = run_for_node(vec!["definitely-invalid-command-xyz".to_string()])
             .await
             .expect("invalid command should not panic");
@@ -515,7 +516,7 @@ mod ggen_broken_detection_tests {
     });
 
     /// JTBD: Detect when ggen crashes vs returns error
-    async_test!(test_distinguishes_crash_from_error, async {
+    async_test!(test_distinguishes_crash_from_error, {
         // Invalid commands should error, not crash
         let result = run_for_node(vec!["invalid".to_string()])
             .await
@@ -535,7 +536,7 @@ mod data_structure_validation_tests {
     use super::*;
 
     /// JTBD: Verify that version output is actually semantic versioning
-    async_test!(test_version_is_semver, async {
+    async_test!(test_version_is_semver, {
         let result = run_for_node(vec!["--version".to_string()])
             .await
             .expect("version should not panic");

@@ -15,9 +15,9 @@ use uuid::Uuid;
 /// Unified execution framework that works across different agent types
 pub struct ExecutionFramework {
     config: ExecutionConfig,
-    agents: HashMap<AgentId, Box<dyn UnifiedAgentTrait>>,
-    workflows: HashMap<WorkflowId, Workflow>,
-    pipelines: HashMap<PipelineId, ExecutionPipeline>,
+    pub agents: HashMap<AgentId, Box<dyn UnifiedAgentTrait>>,
+    pub workflows: HashMap<WorkflowId, Workflow>,
+    pub pipelines: HashMap<PipelineId, ExecutionPipeline>,
     metrics: MetricsCollector,
     error_handler: ErrorHandler,
 }
@@ -219,6 +219,26 @@ impl ExecutionFramework {
         Err(ExecutionError::Agent(
             "No available agents found".to_string(),
         ))
+    }
+
+    /// Get a mutable reference to a workflow by ID
+    pub fn get_workflow_mut(&mut self, workflow_id: &str) -> Option<&mut Workflow> {
+        self.workflows.get_mut(workflow_id)
+    }
+
+    /// Get the number of registered workflows
+    pub fn workflow_count(&self) -> usize {
+        self.workflows.len()
+    }
+
+    /// Get the number of registered agents
+    pub fn agent_count(&self) -> usize {
+        self.agents.len()
+    }
+
+    /// Get a reference to an agent by ID
+    pub fn get_agent(&self, agent_id: &str) -> Option<&Box<dyn UnifiedAgentTrait>> {
+        self.agents.get(agent_id)
     }
 
     /// Get framework metrics

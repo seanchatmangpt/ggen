@@ -246,14 +246,17 @@ mod tests {
             Priority::Low,
             "owner".to_string(),
         );
-        let original_updated = improvement.updated_at;
+
+        // Capture time just before mutation to avoid same-tick false negatives
+        let before_update = Utc::now();
 
         // Act
         improvement.set_priority(Priority::Critical);
 
         // Assert
         assert_eq!(improvement.priority, Priority::Critical);
-        assert!(improvement.updated_at > original_updated);
+        // updated_at must be >= the time captured just before set_priority was called
+        assert!(improvement.updated_at >= before_update);
     }
 
     #[test]

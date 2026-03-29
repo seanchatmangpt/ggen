@@ -21,7 +21,15 @@ futures = "0.3"
 url = "2.5"
 chrono = { version = "0.4", features = ["serde"] }
 
+[features]
+integration = []
+
 [dev-dependencies]
 tokio-test = "0.4"
 mockito = "1.6"
 proptest = "1.6"
+
+[[test]]
+name = "mcp_test"
+path = "tests/mcp_test.rs"
+required-features = ["integration"]

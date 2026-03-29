@@ -14,7 +14,7 @@ use uuid::Uuid;
 // ============================================================================
 
 /// Recovery strategy for handling different types of errors
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum RecoveryStrategy {
     Retry,
     Fallback,

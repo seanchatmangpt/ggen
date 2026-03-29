@@ -200,6 +200,18 @@ pub struct TaskResult {
     pub resources_used: ResourceUsage,
 }
 
+impl Default for TaskResult {
+    fn default() -> Self {
+        Self {
+            success: true,
+            output: None,
+            error: None,
+            execution_time_ms: 0,
+            resources_used: ResourceUsage::default(),
+        }
+    }
+}
+
 // ============================================================================
 // MESSAGE TYPES
 // ============================================================================

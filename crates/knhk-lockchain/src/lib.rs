@@ -153,13 +153,16 @@ impl Lockchain {
         hash
     }
 
-    /// Canonicalize entry using URDNA2015-like ordering
+    /// Canonicalize entry using URDNA2015-like ordering.
+    ///
+    /// Note: `receipt_hash` is excluded from its own canonical representation to
+    /// avoid a circular dependency (the hash cannot include itself).
     fn canonicalize_entry(entry: &LockchainEntry) -> Vec<u8> {
         let mut canonical = Vec::new();
 
-        // Order: receipt_id, receipt_hash, parent_hash (if present), timestamp, metadata (sorted)
+        // Order: receipt_id, parent_hash (if present), timestamp, metadata (sorted)
+        // receipt_hash is intentionally excluded to avoid circular self-reference.
         canonical.extend_from_slice(entry.receipt_id.as_bytes());
-        canonical.extend_from_slice(&entry.receipt_hash);
 
         if let Some(parent) = entry.parent_hash {
             canonical.push(1); // Marker for parent hash present

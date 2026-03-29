@@ -4,7 +4,7 @@ use ggen_auth::{PasswordHasher, PasswordRequirements, SecurePassword};
 
 // Helper function to create test hasher
 fn create_test_hasher() -> PasswordHasher {
-    PasswordHasher::default().unwrap()
+    PasswordHasher::with_default_requirements().unwrap()
 }
 
 // Test Suite 1: Password Hashing (8 tests)

@@ -4,6 +4,7 @@
 //! without panicking or using production anti-patterns.
 //! Follows chicago-tdd-tools v1.3.0 pattern for comprehensive error path testing.
 
+use chicago_tdd_tools::async_test;
 use chicago_tdd_tools::prelude::*;
 use ggen_cli_lib::run_for_node;
 

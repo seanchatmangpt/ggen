@@ -122,7 +122,7 @@ proptest! {
         let json3 = signal.as_json();
 
         // Assert - Same result each time
-        prop_assert_eq!(json1, json2);
+        prop_assert_eq!(json1, json2.clone());
         prop_assert_eq!(json2, json3);
     }
 }
@@ -169,19 +169,19 @@ proptest! {
         prop_assert!(signal.color.requires_action());
         prop_assert_eq!(signal.color, SignalColor::Yellow);
     }
+}
 
-    /// Property: Signal severity is monotonic (Red > Yellow > Green)
-    #[test]
-    fn prop_signal_severity_monotonic() {
-        // Assert - Severity ordering
-        prop_assert!(SignalColor::Red.is_critical());
-        prop_assert!(!SignalColor::Yellow.is_critical());
-        prop_assert!(!SignalColor::Green.is_critical());
+/// Property: Signal severity is monotonic (Red > Yellow > Green)
+#[test]
+fn prop_signal_severity_monotonic() {
+    // Assert - Severity ordering
+    assert!(SignalColor::Red.is_critical());
+    assert!(!SignalColor::Yellow.is_critical());
+    assert!(!SignalColor::Green.is_critical());
 
-        prop_assert!(SignalColor::Red.requires_action());
-        prop_assert!(SignalColor::Yellow.requires_action());
-        prop_assert!(!SignalColor::Green.requires_action());
-    }
+    assert!(SignalColor::Red.requires_action());
+    assert!(SignalColor::Yellow.requires_action());
+    assert!(!SignalColor::Green.requires_action());
 }
 
 // ============================================================================
@@ -208,8 +208,8 @@ proptest! {
         prop_assert_eq!(signal.component, component);
         prop_assert_eq!(signal.trace_id, Some(trace_id));
 
-        // Drop signal - automatic cleanup
-        drop(signal);
+        // Drop signal - automatic cleanup (signal.trace_id already moved by prop_assert_eq, so just let it go out of scope)
+        let _ = signal.color; // access remaining non-moved fields
     }
 
     /// Property: Signal with details properly owns JSON value
@@ -233,8 +233,8 @@ proptest! {
         // Assert - Details are owned
         prop_assert_eq!(signal.details, details);
 
-        // Drop signal - automatic cleanup
-        drop(signal);
+        // signal.details was moved by prop_assert_eq, access remaining field to verify no leak
+        let _ = signal.color;
     }
 }
 

@@ -332,12 +332,18 @@ impl ConfigValidator {
 
     fn is_valid_semver(&self, version: &str) -> bool {
         let parts: Vec<&str> = version.split('.').collect();
-        if parts.len() < 2 {
+        if parts.len() < 3 {
             return false;
         }
 
         // Check major and minor are numeric
         if parts[0].parse::<u32>().is_err() || parts[1].parse::<u32>().is_err() {
+            return false;
+        }
+
+        // Check patch (strip pre-release suffix like "-alpha")
+        let patch = parts[2].split('-').next().unwrap_or("");
+        if patch.parse::<u32>().is_err() {
             return false;
         }
 

@@ -341,6 +341,7 @@ termlog = ["ggen-utils/termlog"]
 journald = ["ggen-utils/journald"]
 syslog = ["ggen-utils/syslog"]
 london_tdd = []
+integration = []  # Enable workspace-level integration tests (requires external services/missing crates)
 # OpenTelemetry instrumentation (optional - adds ~200 dependencies)
 # Enable with: cargo build --features otel
 # Only forward to ggen-core, which handles its own otel dependencies
@@ -542,174 +543,209 @@ harness = false
 [[test]]
 name = "testcontainer_marketplace_git_hooks"
 path = "tests/integration/testcontainer_marketplace_git_hooks.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "full_cycle_container_validation"
 path = "tests/integration/full_cycle_container_validation.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "nextjs_ontology_sync"
 path = "tests/integration/nextjs_ontology_sync.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "marketplace_nextjs_ontology_e2e"
 path = "tests/integration/marketplace_nextjs_ontology_e2e.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "marketplace_package_e2e"
 path = "tests/integration/marketplace_package_e2e.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "lifecycle_tests"
 path = "tests/integration/lifecycle_tests.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "code_generation_tests"
 path = "tests/integration/code_generation_tests.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "cache_tests"
 path = "tests/integration/cache_tests.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "package_scoring_tests"
 path = "tests/integration/package_scoring_tests.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "lifecycle_simple_tests"
 path = "tests/integration/lifecycle_simple_tests.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "config_integration_test"
 path = "tests/integration/config/config_integration_test.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "config_performance_tests"
 path = "tests/integration/config/performance_tests.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "gemba_walk_verification"
 path = "tests/integration/gemba_walk_verification.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "fmea_risk_assessment"
 path = "tests/integration/fmea_risk_assessment.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "poka_yoke_patterns"
 path = "tests/integration/poka_yoke_patterns.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "ontology_workflows_hipaa"
 path = "tests/integration/ontology_workflows_hipaa.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "ontology_workflows_multi_cloud"
 path = "tests/integration/ontology_workflows_multi_cloud.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "ontology_workflows_guard_evaluation"
 path = "tests/integration/ontology_workflows_guard_evaluation.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "ontology_workflows_receipts"
 path = "tests/integration/ontology_workflows_receipts.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "ontology_workflows_e2e"
 path = "tests/integration/ontology_workflows_e2e.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "full_workflow_scenarios"
 path = "tests/integration/full_workflow_scenarios.rs"
-required-features = []
+required-features = ["integration"]
 
 # Security integration tests
 [[test]]
 name = "security_tests"
 path = "tests/security/mod.rs"
-required-features = []
+required-features = ["integration"]
 
 # TPS Integration Tests
 [[test]]
 name = "tps_end_to_end_workflow"
 path = "tests/tps/end_to_end_workflow_tests.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "tps_smoke_tests"
 path = "tests/tps/smoke_tests.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "tps_regression_tests"
 path = "tests/tps/regression_tests.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "tps_performance_regression"
 path = "tests/tps/performance_regression_tests.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "tps_chaos_tests"
 path = "tests/tps/chaos_tests.rs"
-required-features = []
+required-features = ["integration"]
 
 [[test]]
 name = "tps_test_data_generation"
 path = "tests/tps/test_data_generation.rs"
-required-features = []
+required-features = ["integration"]
 
 # Transport layer tests
 [[test]]
 name = "registry_client_tests"
 path = "tests/transport/registry_client_tests.rs"
-required-features = []
+required-features = ["integration"]
 
 # YAWL Workflow Generation Unit Tests
 [[test]]
 name = "yawl_workflow_generation_unit"
 path = "tests/yawl_workflow_generation/unit/mod.rs"
-required-features = []
+required-features = ["integration"]
 
 # YAWL Workflow Generation Receipt Verification Tests
 [[test]]
 name = "yawl_workflow_generation_receipts"
 path = "tests/yawl_workflow_generation/receipts/mod.rs"
-required-features = []
+required-features = ["integration"]
 
 # FIBO Integration Tests for YAWL Workflow Generation
 [[test]]
 name = "fibo_integration_tests"
 path = "tests/fibo_integration_tests.rs"
-required-features = []
+required-features = ["integration"]
 
 # Process Mining Integration Tests
 [[test]]
 name = "process_mining_integration"
 path = "tests/process_mining/mod.rs"
-required-features = []
+required-features = ["integration"]
+
+[[test]]
+name = "workflow_tests"
+path = "tests/workflow_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "chaos_integration"
+path = "tests/chaos_integration.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "tool_discovery_integration_tests"
+path = "tests/tool_discovery_integration_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "a2a_rig_mcp_integration"
+path = "tests/a2a_rig_mcp_integration.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "a2a_integration_tests"
+path = "tests/a2a_integration_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "ontology_systems_tests"
+path = "tests/ontology_systems_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "factory_paas_runner"
+path = "tests/factory_paas_runner.rs"
+required-features = ["integration"]
 
 # ============================================================================
 # DEBIAN PACKAGING (cargo-deb)

@@ -25,7 +25,7 @@ pub struct CodeGenerator {
     output_dir: PathBuf,
 
     /// Whether to generate receipts
-    generate_receipts: bool,
+    pub generate_receipts: bool,
 }
 
 impl CodeGenerator {

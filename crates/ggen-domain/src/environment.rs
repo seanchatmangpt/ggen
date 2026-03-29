@@ -309,14 +309,15 @@ mod tests {
 
     #[test]
     fn test_secrets() {
-        // Set test environment variable
-        env::set_var("TEST_SECRET", "test_value");
+        // Set a known secret environment variable from the hardcoded lookup list
+        env::set_var("API_KEY", "test_value");
 
-        let config = EnvironmentConfig::development();
-        assert_eq!(config.get_secret("test_secret"), Some("test_value"));
+        // Use new() which loads secrets from environment variables
+        let config = EnvironmentConfig::new("development").unwrap();
+        assert_eq!(config.get_secret("api_key"), Some("test_value"));
 
         // Clean up
-        env::remove_var("TEST_SECRET");
+        env::remove_var("API_KEY");
     }
 
     #[test]

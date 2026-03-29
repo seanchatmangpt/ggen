@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 use ggen_cli_tps::error::CliError;
 
 #[test]

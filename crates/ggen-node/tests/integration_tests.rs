@@ -11,6 +11,7 @@
 //! 5. No false positives (exit 0 with errors in stderr)
 
 use chicago_tdd_tools::prelude::*;
+use chicago_tdd_tools::{assert_ok, async_test_with_timeout};
 
 #[cfg(test)]
 mod integration {
@@ -70,7 +71,7 @@ mod integration {
         }
     }
 
-    async_test_with_timeout!(test_version_command, 30, async {
+    async_test_with_timeout!(test_version_command, 30, {
         // Arrange & Act
         let result = run_and_expect_success(vec!["--version"]).await;
 
@@ -87,7 +88,7 @@ mod integration {
         }
     });
 
-    async_test_with_timeout!(test_help_command, 30, async {
+    async_test_with_timeout!(test_help_command, 30, {
         // Arrange & Act
         let result = run_and_expect_success(vec!["--help"]).await;
 
@@ -104,7 +105,7 @@ mod integration {
         }
     });
 
-    async_test_with_timeout!(test_invalid_command, 30, async {
+    async_test_with_timeout!(test_invalid_command, 30, {
         // Arrange & Act
         let result = run_and_expect_failure(vec!["invalid-command"]).await;
 
@@ -121,7 +122,7 @@ mod integration {
         }
     });
 
-    async_test_with_timeout!(test_marketplace_list, 30, async {
+    async_test_with_timeout!(test_marketplace_list, 30, {
         // Arrange & Act
         let result = run_and_expect_success(vec!["market", "list"]).await;
 
@@ -149,7 +150,7 @@ mod integration {
         }
     });
 
-    async_test_with_timeout!(test_marketplace_categories, 30, async {
+    async_test_with_timeout!(test_marketplace_categories, 30, {
         // Arrange & Act
         let result = run_and_expect_success(vec!["market", "categories"]).await;
 
@@ -173,7 +174,7 @@ mod integration {
         }
     });
 
-    async_test_with_timeout!(test_marketplace_search_empty_query, 30, async {
+    async_test_with_timeout!(test_marketplace_search_empty_query, 30, {
         // Arrange & Act
         let result = run_for_node(vec![
             "market".to_string(),
@@ -203,7 +204,7 @@ mod integration {
         }
     });
 
-    async_test_with_timeout!(test_marketplace_search_with_query, 30, async {
+    async_test_with_timeout!(test_marketplace_search_with_query, 30, {
         // Arrange & Act
         let result = run_for_node(vec![
             "market".to_string(),
@@ -245,7 +246,7 @@ mod integration {
         }
     });
 
-    async_test_with_timeout!(test_lifecycle_list, 30, async {
+    async_test_with_timeout!(test_lifecycle_list, 30, {
         // Arrange & Act
         let result = run_and_expect_success(vec!["lifecycle", "list"]).await;
 
@@ -262,7 +263,7 @@ mod integration {
         }
     });
 
-    async_test_with_timeout!(test_doctor_command, 30, async {
+    async_test_with_timeout!(test_doctor_command, 30, {
         // Arrange & Act
         let result = run_and_expect_success(vec!["doctor"]).await;
 
@@ -279,7 +280,7 @@ mod integration {
         }
     });
 
-    async_test_with_timeout!(test_command_with_special_chars, 30, async {
+    async_test_with_timeout!(test_command_with_special_chars, 30, {
         // Arrange & Act
         let result = run_for_node(vec![
             "market".to_string(),
@@ -299,7 +300,7 @@ mod integration {
         }
     });
 
-    async_test_with_timeout!(test_concurrent_commands, 30, async {
+    async_test_with_timeout!(test_concurrent_commands, 30, {
         // Arrange & Act
         let tasks = vec![
             tokio::spawn(async { run_for_node(vec!["--version".to_string()]).await }),
@@ -335,7 +336,7 @@ mod error_recovery_tests {
     use super::*;
     use ggen_cli_lib::run_for_node;
 
-    async_test_with_timeout!(test_recovers_from_invalid_utf8, 30, async {
+    async_test_with_timeout!(test_recovers_from_invalid_utf8, 30, {
         // Arrange & Act
         let result = run_for_node(vec!["--version".to_string()]).await;
 
@@ -351,7 +352,7 @@ mod error_recovery_tests {
         }
     });
 
-    async_test_with_timeout!(test_handles_missing_subcommand, 30, async {
+    async_test_with_timeout!(test_handles_missing_subcommand, 30, {
         // Arrange & Act
         let result = run_for_node(vec!["market".to_string()]).await;
 
@@ -366,7 +367,7 @@ mod error_recovery_tests {
         }
     });
 
-    async_test_with_timeout!(test_handles_too_many_args, 30, async {
+    async_test_with_timeout!(test_handles_too_many_args, 30, {
         // Arrange & Act
         let result = run_for_node(vec![
             "market".to_string(),
@@ -394,7 +395,7 @@ mod timeout_tests {
     use ggen_cli_lib::run_for_node;
     use std::time::{Duration, Instant};
 
-    async_test_with_timeout!(test_version_completes_quickly, 30, async {
+    async_test_with_timeout!(test_version_completes_quickly, 30, {
         // Arrange
         let start = Instant::now();
 
@@ -411,7 +412,7 @@ mod timeout_tests {
         );
     });
 
-    async_test_with_timeout!(test_help_completes_quickly, 30, async {
+    async_test_with_timeout!(test_help_completes_quickly, 30, {
         // Arrange
         let start = Instant::now();
 
