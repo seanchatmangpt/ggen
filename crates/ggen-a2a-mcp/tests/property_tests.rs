@@ -52,7 +52,7 @@ proptest! {
                     .join("\n")
             };
 
-            let args = serde_json::json!({"ttl": &ttl}).as_object().ok()?.clone();
+            let args = serde_json::json!({"ttl": &ttl}).as_object().map(|obj| obj.clone()).unwrap_or_default();
             let call_result = client.call_tool(
                 CallToolRequestParams::new("validate").with_arguments(args)
             ).await;
@@ -76,7 +76,7 @@ proptest! {
         let result = rt.block_on(async {
             let client = start_server().await.ok()?;
 
-            let args = serde_json::json!({"limit": limit}).as_object().ok()?.clone();
+            let args = serde_json::json!({"limit": limit}).as_object().map(|obj| obj.clone()).unwrap_or_default();
             let call_result = client.call_tool(
                 CallToolRequestParams::new("list_examples").with_arguments(args)
             ).await;
@@ -102,7 +102,7 @@ proptest! {
             let client = start_server().await.ok()?;
 
             let query = "a".repeat(query_len);
-            let mut args_obj = serde_json::json!({"query": &query}).as_object().ok()?.clone();
+            let mut args_obj = serde_json::json!({"query": &query}).as_object().map(|obj| obj.clone()).unwrap_or_default();
 
             if has_category {
                 args_obj.insert("category".to_string(), serde_json::Value::String("agent".to_string()));
