@@ -1,11 +1,22 @@
-{# STDIO transport implementation template #}
+{# STDIO transport implementation template — rmcp 1.3.0 #}
 {# Context variables: server_name, buffer_size, line_timeout_ms #}
+{#                                                                #}
+{# CRITICAL (rmcp 1.3.0 server lifecycle):                       #}
+{#   serve() returns RunningService<R, S> — has a DropGuard      #}
+{#   let _ = server.serve(transport).await;  ← WRONG: _ drops    #}
+{#     RunningService immediately, DropGuard fires, conn closed   #}
+{#   Correct:                                                     #}
+{#     if let Ok(svc) = server.serve(transport).await {           #}
+{#         let _ = svc.waiting().await;                           #}
+{#     }                                                          #}
+{#                                                                #}
+{# waiting() is consuming (takes mut self). cancel() also consuming. #}
 
 {% extends "mcp-server/_head.tera" %}
 
 {% block imports %}
 {{ super() }}
-use std::io::{self, BufRead, Write};
+use rmcp::{ServiceExt, service::RunningService};
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -117,58 +128,29 @@ impl StdioServer {
         Ok(())
     }
 
-    /// Start the STDIO server asynchronously
-    pub async fn start_async(&mut self) -> Result<(), {{ error_type | default(value="McpError") }}> {
-        self.running.store(true, Ordering::SeqCst);
-
-        let running = self.running.clone();
-        let server = self.server.clone();
-        let counter = self.request_counter.clone();
-
-        tokio::task::spawn_blocking(move || {
-            let stdin = io::stdin();
-            let stdout = Arc::new(Mutex::new(io::stdout()));
-            let reader = stdin.lock();
-
-            for line in reader.lines() {
-                if !running.load(Ordering::SeqCst) {
-                    break;
-                }
-
-                let line = match line {
-                    Ok(l) => l,
-                    Err(e) => {
-                        eprintln!("Error reading stdin: {}", e);
-                        break;
-                    }
-                };
-
-                if line.trim().is_empty() {
-                    continue;
-                }
-
-                // Increment request counter
-                let request_id = counter.fetch_add(1, Ordering::SeqCst);
-
-                // Process request (in blocking context for now)
-                match Self::process_request_static(&server, &line) {
-                    Ok(response) => {
-                        if let Err(e) = Self::write_response_static(&stdout, &response) {
-                            eprintln!("Error writing response: {}", e);
-                        }
-                    }
-                    Err(e) => {
-                        let error_response = Self::error_response(&line, &e.to_string());
-                        if let Err(write_err) = Self::write_response_static(&stdout, &error_response) {
-                            eprintln!("Error writing error response: {}", write_err);
-                        }
-                    }
-                }
-            }
-
-            Result::<(), {{ error_type | default(value="McpError") }}>::Ok(())
-        });
-
+    /// Start the STDIO server asynchronously using rmcp 1.3.0
+    ///
+    /// # CRITICAL — Keep-alive pattern
+    ///
+    /// `serve()` returns `RunningService<R, S>` which carries a `DropGuard`.
+    /// If you write `let _ = server.serve(transport).await`, the `_` binding
+    /// immediately drops `RunningService`, the `DropGuard` fires, and the
+    /// connection is cancelled before any request is processed.
+    ///
+    /// Always use `waiting()` to block until the client disconnects:
+    /// ```rust
+    /// if let Ok(svc) = MyServer::new().serve(transport).await {
+    ///     let _ = svc.waiting().await;
+    /// }
+    /// ```
+    ///
+    /// `waiting()` is *consuming* (`mut self`). `cancel()` is also consuming.
+    /// Clone any data you need from `RunningService` before calling either.
+    pub async fn start_async(server: {{ server_type | default(value="GeneratedMcpServer") }}) -> anyhow::Result<()> {
+        let transport = rmcp::transport::stdio();
+        if let Ok(svc) = server.serve(transport).await {
+            let _ = svc.waiting().await;
+        }
         Ok(())
     }
 
