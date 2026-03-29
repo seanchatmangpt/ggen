@@ -181,12 +181,122 @@ Key points:
 
 ---
 
-## 9. Cargo.toml dependency
+## 9. Resources, Prompts, and Completions
+
+Override these methods in `impl ServerHandler` (they have no-op defaults):
+
+```rust
+async fn list_resources(
+    &self,
+    request: Option<PaginatedRequestParams>,
+    _ctx: RequestContext<RoleServer>,
+) -> Result<ListResourcesResult, McpError> {
+    // Build Vec<Resource> = Vec<Annotated<RawResource>>
+    let resources = vec![
+        RawResource::new("ggen://example/foo", "foo")
+            .with_description("Example foo")
+            .no_annotation(),
+    ];
+    Ok(ListResourcesResult::with_all_items(resources))
+}
+
+async fn read_resource(
+    &self,
+    request: ReadResourceRequestParams,  // .uri: String
+    _ctx: RequestContext<RoleServer>,
+) -> Result<ReadResourceResult, McpError> {
+    let content = std::fs::read_to_string(&request.uri).unwrap_or_default();
+    Ok(ReadResourceResult::new(vec![
+        ResourceContents::text(content, &request.uri),
+    ]))
+}
+
+async fn list_prompts(
+    &self, _: Option<PaginatedRequestParams>, _: RequestContext<RoleServer>,
+) -> Result<ListPromptsResult, McpError> {
+    Ok(ListPromptsResult::with_all_items(vec![
+        Prompt::new("my-prompt", Some("Description"), Some(vec![
+            PromptArgument::new("arg1").with_required(true),
+        ])),
+    ]))
+}
+
+async fn get_prompt(
+    &self,
+    request: GetPromptRequestParams,  // .name, .arguments: Option<JsonObject>
+    _: RequestContext<RoleServer>,
+) -> Result<GetPromptResult, McpError> {
+    Ok(GetPromptResult::new(vec![
+        PromptMessage::new_text(PromptMessageRole::User, "Your prompt text here"),
+    ]))
+}
+
+async fn complete(
+    &self,
+    request: CompleteRequestParams,  // .r#ref: Reference, .argument: ArgumentInfo
+    _: RequestContext<RoleServer>,
+) -> Result<CompleteResult, McpError> {
+    let values = vec!["option-a".to_string(), "option-b".to_string()];
+    let info = CompletionInfo::with_all_values(values).unwrap_or_default();
+    Ok(CompleteResult::new(info))
+}
+```
+
+**Enable in `get_info()`:**
+```rust
+let capabilities = ServerCapabilities::builder()
+    .enable_tools()
+    .enable_resources()    // no subscriptions
+    .enable_prompts()      // no list_changed
+    .enable_completions()
+    .build();
+```
+
+**Key types:**
+- `Resource = Annotated<RawResource>` — construct via `RawResource::new(uri, name).no_annotation()`
+- `ResourceContents::text(text, uri)` — creates `TextResourceContents`
+- `ListResourcesResult::with_all_items(vec)` — no pagination cursor
+- `Prompt::new(name, description, arguments)` — all `Option`
+- `PromptArgument::new(name).with_required(true)`
+- `GetPromptResult::new(messages)` — `.with_description(...)` optional
+- `PromptMessage::new_text(role, text)` — role is `PromptMessageRole::User` or `::Assistant`
+- `CompletionInfo::with_all_values(values)` → `Result<CompletionInfo, String>`; max 100 values
+- `CompleteResult::new(completion_info)`
+- `Reference::for_prompt(name)` / `Reference::for_resource(uri)` for `CompleteRequestParams`
+- `ArgumentInfo { name: String, value: String }` — current argument being completed
+
+**Cursor-based pagination for resources:**
+```rust
+let start = request.and_then(|r| r.cursor.as_deref())
+    .and_then(|c| c.parse::<usize>().ok()).unwrap_or(0);
+let page: Vec<Resource> = all.iter().skip(start).take(PAGE_SIZE).cloned().collect();
+let next_cursor = (start + PAGE_SIZE < all.len())
+    .then(|| Cursor::from((start + PAGE_SIZE).to_string()));
+Ok(ListResourcesResult { meta: None, next_cursor, resources: page })
+```
+
+---
+
+## 10. Reading content from tool results (test side)
+
+```rust
+// RawContent::Text is a tuple variant, not struct
+if let rmcp::model::RawContent::Text(tc) = &result.content[0].raw {
+    println!("{}", tc.text);
+}
+```
+
+---
+
+## 11. Cargo.toml dependency
 
 ```toml
 [dependencies]
-rmcp = { version = "0.1", features = ["server", "client", "transport-io", "macros"] }
-# schemars is re-exported by rmcp; use rmcp::schemars, not a direct dep
+rmcp = { version = "1.3.0", features = ["server", "macros", "transport-io"] }
+schemars = "1.0"   # required for #[derive(schemars::JsonSchema)] on params
+
+[dev-dependencies]
+rmcp = { version = "1.3.0", features = ["server", "client", "macros", "transport-io"] }
 ```
 
 ---
