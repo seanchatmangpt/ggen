@@ -126,6 +126,53 @@ cargo test -p ggen-a2a-mcp
 - All 9 tools (success + error paths)
 - Resources, Prompts, Completions
 
+### Documentation Validation
+
+```bash
+cargo test -p ggen-a2a-mcp doc_validation_test
+```
+
+6 runtime tests that verify documented tools, resources, and prompts match actual server capabilities.
+
+### Property-Based Tests
+
+```bash
+cargo test -p ggen-a2a-mcp property_tests
+```
+
+3 proptest-based property tests verifying tool robustness with random inputs.
+
+---
+
+## Performance Testing
+
+### Benchmarks
+
+```bash
+# Run all Criterion benchmarks
+cargo bench -p ggen-a2a-mcp
+
+# Run only tool benchmarks
+cargo bench -p ggen-a2a-mcp --bench mcp_tool_benchmarks
+
+# Run only stress tests
+cargo bench -p ggen-a2a-mcp --bench mcp_stress_tests
+```
+
+**Tool benchmarks** (`mcp_tool_benchmarks`):
+- `validate` — TTL parsing at 10/50/100/500 triples
+- `list_generators` — static list retrieval
+- `list_examples` — filesystem scan
+- `list_resources` — resource enumeration
+- `list_prompts` — prompt enumeration
+
+**Stress tests** (`mcp_stress_tests`):
+- `concurrent_validate` — 10/50/100 parallel requests
+- `large_payload` — 10KB/100KB/1MB TTL content
+- `resource_pagination` — full cursor-based scan
+
+HTML reports generated in `target/criterion/report/`.
+
 ---
 
 ## Environment Variables

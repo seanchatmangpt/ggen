@@ -2,7 +2,7 @@
 //!
 //! Provides common setup/teardown for Criterion benchmarks and stress tests.
 
-use rmcp::model::{ClientInfo, ClientHandler};
+use rmcp::{model::ClientInfo, ClientHandler};
 
 /// Minimal client handler for benchmarking
 #[derive(Debug, Clone, Default)]
