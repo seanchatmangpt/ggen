@@ -198,6 +198,12 @@ rules = [
     { name = "a2a-transports", query = "crates/ggen-core/queries/a2a/extract-transports.rq", template = "crates/ggen-core/templates/a2a/transport.rs.tera", output_file = "crates/a2a-generated/src/transport.rs", mode = "Overwrite" },
     { name = "a2a-skills", query = "crates/ggen-core/queries/a2a/extract-skills.rq", template = "crates/ggen-core/templates/a2a/skill.rs.tera", output_file = "crates/a2a-generated/src/skill.rs", mode = "Overwrite" },
     { name = "a2a-lib", query = "", template = "crates/ggen-core/templates/a2a/lib.rs.tera", output_file = "crates/a2a-generated/src/lib.rs", mode = "Overwrite" },
+    # ── Elixir A2A ──────────────────────────────────────────────────────────────
+    # Generates idiomatic Elixir boilerplate using the a2a ~> 0.2 hex package.
+    # Define agents in RDF with a2a:Agent nodes, then run: ggen sync
+    { name = "elixir-a2a-agents",     query = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq", template = "crates/ggen-core/templates/elixir-a2a/agents.ex.tera",     output_file = "crates/elixir-a2a-generated/lib/a2a_agents.ex",     mode = "Overwrite" },
+    { name = "elixir-a2a-router",     query = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq", template = "crates/ggen-core/templates/elixir-a2a/router.ex.tera",     output_file = "crates/elixir-a2a-generated/lib/a2a_router.ex",     mode = "Overwrite" },
+    { name = "elixir-a2a-supervisor", query = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq", template = "crates/ggen-core/templates/elixir-a2a/supervisor.ex.tera", output_file = "crates/elixir-a2a-generated/lib/a2a_supervisor.ex", mode = "Overwrite" },
     # Domain config generation
     { name = "domain-config", source = ".specify/specs/014-a2a-integration/", output = "crates/ggen-domain/src/domain/", templates = "crates/ggen-core/templates/domain/" }
 ]

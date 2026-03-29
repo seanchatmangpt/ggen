@@ -5,6 +5,27 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] — Elixir A2A generator (2026-03-28)
+
+### Added
+
+- `crates/ggen-core/queries/elixir-a2a/extract-agents.rq` — SPARQL SELECT extracting
+  `a2a:Agent` nodes for Elixir code generation (one row per agent, skills as CSV).
+- `crates/ggen-core/templates/elixir-a2a/agents.ex.tera` — generates one `defmodule`
+  per agent using `use A2A.Agent` with `handle_message/2` stub and OTP-ready boilerplate.
+- `crates/ggen-core/templates/elixir-a2a/router.ex.tera` — generates a `Plug.Router`
+  module with one `forward` per agent pointing to `A2A.Plug`.
+- `crates/ggen-core/templates/elixir-a2a/supervisor.ex.tera` — generates an
+  `A2A.AgentSupervisor` wrapper module plus ExUnit test stubs for each agent.
+- `ggen.toml` — three new generation rules: `elixir-a2a-agents`, `elixir-a2a-router`,
+  `elixir-a2a-supervisor`, all driven by the same SPARQL query.
+- `docs/ELIXIR_A2A_NOTES.md` — full usage guide: RDF schema, Phoenix wiring, domain
+  logic implementation, A2A return value reference.
+- `crates/ggen-core/tests/elixir_a2a_render_test.rs` — 6 Chicago TDD tests (RED → GREEN)
+  verifying template rendering for all three templates.
+
+---
+
 ## [Unreleased] — MCP template: rmcp 1.3.0 compatibility (2026-03-28)
 
 ### Changed
