@@ -82,22 +82,20 @@ record JsonRpcResponse(
 // Skill Input / Output Records
 // ============================================================================
 
-{% for skill in skills %}
+{% for row in sparql_results %}
 /**
- * {{ skill.description }}
- * Timeout: {{ skill.timeout_ms | default(value=5000) }}ms
- * Streaming: {{ skill.streaming | default(value="false") }}
+ * {{ row.skill_description | default(value=row.skill_name) }}
+ * Timeout: {{ row.timeout_ms | default(value=5000) }}ms
+ * Streaming: {{ row.streaming | default(value="false") }}
  */
-record {{ skill.name | pascal }}Input(
-    {% for param in skill.input_params %}
-    {{ param.java_type }} {{ param.name }}{% if not loop.last %},{% endif %}
-    {% endfor %}
+// TODO: add typed fields once input_params are available in SPARQL results
+record {{ row.skill_name | pascal }}Input(
+    Map<String, Object> params
 ) {}
 
-record {{ skill.name | pascal }}Output(
-    {% for param in skill.output_params %}
-    {{ param.java_type }} {{ param.name }}{% if not loop.last %},{% endif %}
-    {% endfor %}
+// TODO: add typed fields once output_params are available in SPARQL results
+record {{ row.skill_name | pascal }}Output(
+    Object result
 ) {}
 {% endfor %}
 
@@ -124,15 +122,15 @@ public class {{ agent_name | pascal }}Agent {
             "{{ agent_version }}",
             new AgentProvider("{{ provider_name }}", "{{ provider_url }}"),
             List.of(
-                {% for skill in skills %}
+                {% for row in sparql_results %}
                 new AgentSkill(
-                    "{{ skill.id | default(value=skill.name) }}",
-                    "{{ skill.name }}",
-                    "{{ skill.description }}",
-                    {{ skill.tags | default(value="List.of()") | replace(from="[", to="List.of(") | replace(from="]", to=")") | replace(from='"', to='"') }},
-                    false,
-                    {{ skill.input_schema | default(value="Map.of()") }},
-                    {{ skill.output_schema | default(value="Map.of()") }}
+                    "{{ row.skill_name }}",
+                    "{{ row.skill_name }}",
+                    "{{ row.skill_description | default(value="") }}",
+                    {{ row.skill_tags | default(value="List.of()") | replace(from="[", to="List.of(") | replace(from="]", to=")") | replace(from='"', to='"') }},
+                    {{ row.streaming | default(value="false") }},
+                    Map.of(),
+                    Map.of()
                 ){% if not loop.last %},{% endif %}
                 {% endfor %}
             )
@@ -155,10 +153,10 @@ public class {{ agent_name | pascal }}Agent {
 
         // Dispatch to skill handler
         return switch (request.method()) {
-            {% for skill in skills %}
-            case "{{ skill.name }}" -> {
+            {% for row in sparql_results %}
+            case "{{ row.skill_name }}" -> {
                 try {
-                    Object result = handle{{ skill.name | pascal }}(request.params());
+                    Object result = handle{{ row.skill_name | pascal }}(request.params());
                     yield new JsonRpcResponse("2.0", result, null, request.id());
                 } catch (Exception e) {
                     yield new JsonRpcResponse("2.0", null,
@@ -176,19 +174,19 @@ public class {{ agent_name | pascal }}Agent {
     // Skill Handlers
     // ========================================================================
 
-    {% for skill in skills %}
+    {% for row in sparql_results %}
     /**
-     * Handle {{ skill.name }} skill invocation.
+     * Handle {{ row.skill_name }} skill invocation.
      *
-     * {{ skill.description }}
+     * {{ row.skill_description | default(value=row.skill_name) }}
      *
      * @param params raw input parameters from JSON-RPC request
      * @return skill output
      */
-    public Object handle{{ skill.name | pascal }}(Map<String, Object> params) {
-        // TODO: implement {{ skill.name }}
-        // Timeout: {{ skill.timeout_ms | default(value=5000) }}ms
-        return Map.of("skill", "{{ skill.name }}", "status", "not_implemented");
+    public Object handle{{ row.skill_name | pascal }}(Map<String, Object> params) {
+        // TODO: implement {{ row.skill_name }}
+        // Timeout: {{ row.timeout_ms | default(value=5000) }}ms
+        return Map.of("skill", "{{ row.skill_name }}", "status", "not_implemented");
     }
     {% endfor %}
 

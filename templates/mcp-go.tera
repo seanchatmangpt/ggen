@@ -9,7 +9,7 @@
 // {{ server_description }}
 //
 // Transport: {{ transport_type | default(value="stdio") }}
-// Tools: {{ tools | length }}
+// Tools: extracted from sparql_results
 // =============================================================================
 
 package main
@@ -75,13 +75,11 @@ type ToolContent struct {
 // Tool Input Structs
 // =============================================================================
 
-{% for tool in tools %}
-// {{ tool.name | pascal }}Input holds parameters for the {{ tool.name }} tool
-// {{ tool.description }}
-type {{ tool.name | pascal }}Input struct {
-	{% for param in tool.parameters %}
-	{{ param.name | pascal }} {{ param.go_type }} `json:"{{ param.name }}{% if param.is_required != "true" %},omitempty{% endif %}"` // {{ param.description }}
-	{% endfor %}
+{% for row in sparql_results %}
+// {{ row.tool_name | pascal }}Input holds parameters for the {{ row.tool_name }} tool
+// {{ row.tool_description | default(value="(no description)") }}
+type {{ row.tool_name | pascal }}Input struct {
+	// TODO: add parameters from extract-mcp-params.rq
 }
 
 {% endfor %}
@@ -90,25 +88,22 @@ type {{ tool.name | pascal }}Input struct {
 // Tool Handlers
 // =============================================================================
 
-{% for tool in tools %}
-// handle{{ tool.name | pascal }} implements the {{ tool.name }} tool
-func handle{{ tool.name | pascal }}(params json.RawMessage) (interface{}, error) {
-	var input {{ tool.name | pascal }}Input
+{% for row in sparql_results %}
+// handle{{ row.tool_name | pascal }} implements the {{ row.tool_name }} tool
+func handle{{ row.tool_name | pascal }}(params json.RawMessage) (interface{}, error) {
+	var input {{ row.tool_name | pascal }}Input
 	if err := json.Unmarshal(params, &input); err != nil {
-		return nil, fmt.Errorf("invalid params for {{ tool.name }}: %w", err)
+		return nil, fmt.Errorf("invalid params for {{ row.tool_name }}: %w", err)
 	}
 
-	// TODO: Implement {{ tool.name }} logic here
-	// Parameters available:
-	{% for param in tool.parameters %}
-	// - {{ param.name }}: {{ param.go_type }}{% if param.description %} -- {{ param.description }}{% endif %}
-	{% endfor %}
+	// TODO: Implement {{ row.tool_name }} logic here
+	// TODO: add parameters from extract-mcp-params.rq
 
 	_ = input // suppress unused warning until implemented
 
 	return map[string]interface{}{
 		"success": true,
-		"tool":    "{{ tool.name }}",
+		"tool":    "{{ row.tool_name }}",
 	}, nil
 }
 
@@ -174,11 +169,11 @@ func (s *MCPServer) handleInitialize() JsonRpcResponse {
 // handleListTools returns the list of available tools
 func (s *MCPServer) handleListTools() JsonRpcResponse {
 	tools := []ToolDefinition{
-		{% for tool in tools %}
+		{% for row in sparql_results %}
 		{
-			Name:        "{{ tool.name }}",
-			Description: "{{ tool.description }}",
-			InputSchema: s.{{ tool.name | camel }}Schema(),
+			Name:        "{{ row.tool_name }}",
+			Description: "{{ row.tool_description | default(value="(no description)") }}",
+			InputSchema: s.{{ row.tool_name | camel }}Schema(),
 		},
 		{% endfor %}
 	}
@@ -191,32 +186,14 @@ func (s *MCPServer) handleListTools() JsonRpcResponse {
 	}
 }
 
-{% for tool in tools %}
-// {{ tool.name | camel }}Schema returns the JSON Schema for {{ tool.name }} input
-func (s *MCPServer) {{ tool.name | camel }}Schema() map[string]interface{} {
-	props := map[string]interface{}{}
-	required := []string{}
-	{% for param in tool.parameters %}
-	{% if param.is_required == "true" %}
-	required = append(required, "{{ param.name }}")
-	{% endif %}
-	props["{{ param.name }}"] = map[string]interface{}{
-		"type":        "{{ param.json_schema_type | default(value=param.go_json_type) }}",
-		"description": "{{ param.description }}",
-		{% if param.enum_values %}
-		"enum": []string{ {{ param.enum_values }} },
-		{% endif %}
-	}
-	{% endfor %}
-
-	schema := map[string]interface{}{
+{% for row in sparql_results %}
+// {{ row.tool_name | camel }}Schema returns the JSON Schema for {{ row.tool_name }} input
+func (s *MCPServer) {{ row.tool_name | camel }}Schema() map[string]interface{} {
+	// TODO: add parameters from extract-mcp-params.rq
+	return map[string]interface{}{
 		"type":       "object",
-		"properties": props,
+		"properties": map[string]interface{}{},
 	}
-	if len(required) > 0 {
-		schema["required"] = required
-	}
-	return schema
 }
 
 {% endfor %}
@@ -243,9 +220,9 @@ func (s *MCPServer) handleCallTool(params json.RawMessage) JsonRpcResponse {
 	var err error
 
 	switch callParams.Name {
-	{% for tool in tools %}
-	case "{{ tool.name }}":
-		result, err = handle{{ tool.name | pascal }}(args)
+	{% for row in sparql_results %}
+	case "{{ row.tool_name }}":
+		result, err = handle{{ row.tool_name | pascal }}(args)
 	{% endfor %}
 	default:
 		return JsonRpcResponse{
