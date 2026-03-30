@@ -110,7 +110,7 @@ record ToolResult(List<ToolContent> content, Boolean isError) {
  */
 record {{ tool.name | pascal }}Input(
     {% for param in tool.parameters %}
-    {{ param.java_type }} {{ param.name }}{% if param.is_required != "true" %} // optional{% endif %},
+    {{ param.java_type }} {{ param.name }}{% if param.is_required != "true" %} // optional{% endif %}{% if not loop.last %},{% endif %}
     {% endfor %}
 ) {}
 

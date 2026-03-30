@@ -433,7 +433,7 @@ func skillNames() []string {
 }
 
 // go.mod dependencies:
-// module {{ agent_name | snake_case }}
+// module {{ agent_name | snake }}
 //
 // go 1.24
 //

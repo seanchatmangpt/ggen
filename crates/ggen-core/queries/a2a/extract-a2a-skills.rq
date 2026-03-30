@@ -12,7 +12,7 @@ WHERE {
   << ?agent a2a:hasSkill ?skill >>
     a2a:skillName ?skill_name ;
     a2a:skillDescription ?skill_desc_raw ;
-    a2a:skillTags ?tags .
+    a2a:skillTags ?skill_tags .
 
   BIND(COALESCE(?skill_desc_raw, "") AS ?skill_description)
 

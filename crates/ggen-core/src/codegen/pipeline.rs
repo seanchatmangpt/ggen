@@ -400,6 +400,7 @@ impl GenerationPipeline {
 
             // 5. For each row, render template and generate file
             let mut tera = tera::Tera::default();
+            crate::register::register_all(&mut tera);
             tera.add_raw_template("generation_rule", &template_content)
                 .map_err(|e| {
                     Error::new(&format!(
@@ -446,13 +447,21 @@ impl GenerationPipeline {
                         })
                         .collect();
 
+                    // Build error chain for debugging
+                    let mut error_chain = format!("{}", e);
+                    let mut source = std::error::Error::source(&e);
+                    while let Some(cause) = source {
+                        error_chain.push_str(&format!("\n  Caused by: {}", cause));
+                        source = std::error::Error::source(cause);
+                    }
+
                     Error::new(&format!(
                         "Failed to render template for rule '{}': {}\n\
                          Template source: {}\n\
                          Available variables: {}\n\
                          Row values:\n  {}",
                         rule.name,
-                        e,
+                        error_chain,
                         _template_source_info,
                         var_names.join(", "),
                         row_values.join("\n  ")

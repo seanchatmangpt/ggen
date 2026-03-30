@@ -251,7 +251,7 @@ func (s *MCPServer) handleCallTool(params json.RawMessage) JsonRpcResponse {
 		return JsonRpcResponse{
 			Jsonrpc: "2.0",
 			Result: ToolResult{
-				Content: []ToolContent{{Type: "text", Text: fmt.Sprintf("Unknown tool: %s", callParams.Name)}},
+				Content: []ToolContent{% raw %}{{Type: "text", Text: fmt.Sprintf("Unknown tool: %s", callParams.Name)}}{% endraw %},
 				IsError: true,
 			},
 		}
@@ -261,7 +261,7 @@ func (s *MCPServer) handleCallTool(params json.RawMessage) JsonRpcResponse {
 		return JsonRpcResponse{
 			Jsonrpc: "2.0",
 			Result: ToolResult{
-				Content: []ToolContent{{Type: "text", Text: err.Error()}},
+				Content: []ToolContent{% raw %}{{Type: "text", Text: err.Error()}}{% endraw %},
 				IsError: true,
 			},
 		}
