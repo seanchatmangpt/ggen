@@ -1,0 +1,241 @@
+{# ontology-diff-report.tera — Ontology Diff & Migration Report #}
+{# Constitutional Equation: diff-report.md = mu(ontology-diff.ttl + version annotations) #}
+{# Input: SPARQL-star CONSTRUCT results from ontology-diff-extract.rq #}
+{# Output: Markdown diff report with change summary, migration steps, verification #}
+{# #}
+{# Variables expected from CONSTRUCT output (Vec<BTreeMap<String, String>>): #}
+{#   changes: Array of ExtractedChange objects with fields: #}
+{#     entity, property, range, changeType, changeReason, removedInVersion, #}
+{#     addedInVersion, modifiedInVersion, replacement, oldRange, newRange, #}
+{#     oldCardinality, newCardinality, impactLevel, affectedTemplates, #}
+{#     affectedQueries, breakingChange, autoMigration, migrationStep, #}
+{#     migrationCode, verificationQuery #}
+{#   reports: Array of DiffReport objects with fields: #}
+{#     fromVersion, toVersion, totalChanges, breakingCount, nonBreakingCount, #}
+{#     autoMigratableCount, manualCount #}
+
+# Ontology Diff & Migration Report
+
+> **Generated**: {{ generated_date | default(value=now() | date(format="%Y-%m-%d %H:%M")) }}
+> **From**: {{ report.fromVersion | default(value="1.0.0") }}
+> **To**: {{ report.toVersion | default(value="2.0.0") }}
+> **Source**: RDF 1.2 triple-term diff annotations via SPARQL-star CONSTRUCT
+
+---
+
+## Change Summary
+
+| Metric | Value |
+|--------|-------|
+| **Total Changes** | {{ report.totalChanges | default(value=changes | length) }} |
+| **Breaking** | {{ report.breakingCount | default(value=0) }} |
+| **Non-Breaking** | {{ report.nonBreakingCount | default(value=0) }} |
+| **Auto-Migratable** | {{ report.autoMigratableCount | default(value=0) }} |
+| **Manual Required** | {{ report.manualCount | default(value=0) }} |
+
+{% set breaking_count = report.breakingCount | default(value=0) | int %}
+{% if breaking_count > 0 %}
+> **BREAKING CHANGES**: {{ breaking_count }} change(s) require manual intervention. Review the Breaking Changes section below before upgrading.
+{% else %}
+> **No breaking changes detected.** Upgrade is safe to proceed.
+{% endif %}
+
+---
+
+## Breaking Changes
+
+{% set breaking = changes | selectattr("breakingChange", "test", "==", value="true") | sort(attribute="impactLevel", reverse=true) %}
+
+{% if breaking | length > 0 %}
+
+| # | Entity | Property | Type | Impact | Reason |
+|---|--------|----------|------|--------|--------|
+{% for c in breaking %}
+| **{{ loop.index }}** | `{{ c.entity }}` | `{{ c.property }}` | {{ c.changeType | replace(from="_", to=" ") | title }} | {% if c.impactLevel == "high" %}**HIGH**{% elif c.impactLevel == "critical" %}**CRITICAL**{% else %}{{ c.impactLevel }}{% endif %} | {{ c.changeReason | default(value="-") }} |
+{% endfor %}
+
+### Migration Steps for Breaking Changes
+
+{% for c in breaking %}
+
+#### {{ loop.index }}. `{{ c.entity }}`.{{ c.property }}
+
+| Field | Value |
+|-------|-------|
+| **Change Type** | {{ c.changeType | replace(from="_", to=" ") | title }} |
+| **Impact** | {{ c.impactLevel | upper }} |
+| **Old Range** | {{ c.oldRange | default(value="n/a") }} |
+| **New Range** | {{ c.newRange | default(value="n/a") }} |
+| **Old Cardinality** | {{ c.oldCardinality | default(value="n/a") }} |
+| **New Cardinality** | {{ c.newCardinality | default(value="n/a") }} |
+| **Auto-Migrate** | {% if c.autoMigration == "true" %}Yes{% else %}**No**{% endif %} |
+
+{% if c.migrationStep | default(value="") != "" %}
+**Step**: {{ c.migrationStep }}
+{% endif %}
+
+{% if c.migrationCode | default(value="") != "" %}
+```rust
+{{ c.migrationCode }}
+```
+{% endif %}
+
+{% if c.affectedTemplates | default(value="") != "" %}
+**Affected Templates**: `{{ c.affectedTemplates }}`
+{% endif %}
+
+{% if c.affectedQueries | default(value="") != "" %}
+**Affected Queries**: `{{ c.affectedQueries }}`
+{% endif %}
+
+{% if c.replacement | default(value="") != "" %}
+**Replacement**: {{ c.replacement }}
+{% endif %}
+
+{% if c.verificationQuery | default(value="") != "" %}
+**Verification Query**:
+```sparql
+{{ c.verificationQuery }}
+```
+{% endif %}
+
+---
+
+{% endfor %}
+{% endif %}
+
+---
+
+## Non-Breaking Changes
+
+{% set non_breaking = changes | rejectattr("breakingChange", "test", "==", value="true") | sort(attribute="impactLevel", reverse=true) %}
+
+{% if non_breaking | length > 0 %}
+
+| # | Entity | Property | Type | Impact | Version | Auto? |
+|---|--------|----------|------|--------|---------|-------|
+{% for c in non_breaking %}
+| {{ loop.index }} | `{{ c.entity }}` | `{{ c.property }}` | {{ c.changeType | replace(from="_", to=" ") | title }} | {{ c.impactLevel | default(value="low") }} | {% if c.addedInVersion | default(value="") != "" %}v{{ c.addedInVersion }}{% elif c.modifiedInVersion | default(value="") != "" %}v{{ c.modifiedInVersion }}{% elif c.removedInVersion | default(value="") != "" %}v{{ c.removedInVersion }}{% else %}-{% endif %} | {% if c.autoMigration == "true" %}Yes{% else %}No{% endif %} |
+{% endfor %}
+
+{% else %}
+No non-breaking changes detected.
+{% endif %}
+
+---
+
+## Auto-Migration Plan
+
+{% set auto = changes | selectattr("autoMigration", "test", "==", value="true") %}
+
+{% if auto | length > 0 %}
+
+The following changes can be applied automatically:
+
+| # | Entity | Property | Change | Step | Code |
+|---|--------|----------|--------|------|------|
+{% for c in auto %}
+| {{ loop.index }} | `{{ c.entity }}` | `{{ c.property }}` | {{ c.changeType | replace(from="_", to=" ") | title }} | {{ c.migrationStep | default(value="see code") }} | {% if c.migrationCode | default(value="") != "" %}Yes{% else %}-{% endif %} |
+{% endfor %}
+
+Apply with: `ggen diff migrate --auto --from={{ report.fromVersion | default(value="1.0.0") }} --to={{ report.toVersion | default(value="2.0.0") }}`
+
+### Auto-Migration Code Blocks
+
+{% for c in auto %}
+{% if c.migrationCode | default(value="") != "" %}
+
+#### `{{ c.entity }}`.{{ c.property }}
+
+```rust
+{{ c.migrationCode }}
+```
+
+{% if c.verificationQuery | default(value="") != "" %}
+Verify:
+```sparql
+{{ c.verificationQuery }}
+```
+{% endif %}
+
+{% endif %}
+{% endfor %}
+
+{% else %}
+No auto-migratable changes. All changes require manual review.
+{% endif %}
+
+---
+
+## Changes by Type
+
+{% for cType in ["added", "removed", "modified", "renamed", "deprecated", "cardinality_change"] %}
+{% set typed = changes | selectattr("changeType", "test", "==", value=cType) %}
+{% if typed | length > 0 %}
+
+### {{ cType | replace(from="_", to=" ") | title }} ({{ typed | length }})
+
+| Entity | Property | Range | Impact | Breaking | Auto? |
+|--------|----------|-------|--------|----------|-------|
+{% for c in typed %}
+| `{{ c.entity }}` | `{{ c.property }}` | {{ c.range | default(value="-") }} | {{ c.impactLevel | default(value="low") }} | {% if c.breakingChange == "true" %}**Yes**{% else %}No{% endif %} | {% if c.autoMigration == "true" %}Yes{% else %}No{% endif %} |
+{% endfor %}
+
+{% endif %}
+{% endfor %}
+
+---
+
+## Impact Assessment
+
+{% set critical = changes | selectattr("impactLevel", "test", "==", value="critical") %}
+{% set high = changes | selectattr("impactLevel", "test", "==", value="high") %}
+{% set medium = changes | selectattr("impactLevel", "test", "==", value="medium") %}
+{% set low = changes | selectattr("impactLevel", "test", "==", value="low") %}
+
+| Impact | Count | Breaking | Auto |
+|--------|-------|----------|------|
+{% for level, items in [("critical", critical), ("high", high), ("medium", medium), ("low", low)] %}
+{% set brk = items | selectattr("breakingChange", "test", "==", value="true") | length %}
+{% set aut = items | selectattr("autoMigration", "test", "==", value="true") | length %}
+| **{{ level | upper }}** | {{ items | length }} | {{ brk }} | {{ aut }} |
+{% endfor %}
+
+---
+
+## Verification Checklist
+
+- [ ] Review all breaking changes listed above
+- [ ] Run auto-migration: `ggen diff migrate --auto`
+- [ ] Verify generated code compiles: `cargo build` / `go build` / `mix compile`
+- [ ] Run test suite: `cargo test` / `go test` / `mix test`
+- [ ] Verify no deprecated types remain in generated code
+- [ ] Update downstream consumers of changed types
+- [ ] Run verification SPARQL queries for each auto-migrated change
+
+---
+
+## How to Use This Report
+
+1. **Review breaking changes** — these require manual intervention before upgrade
+2. **Apply auto-migrations** — run `ggen diff migrate --auto` for safe changes
+3. **Verify compilation** — ensure generated code still compiles after migration
+4. **Run tests** — full test suite must pass after migration
+5. **Update consumers** — notify downstream projects of API changes
+
+### Change Types
+
+| Type | Description | Breaking? |
+|------|-------------|-----------|
+| **added** | New entity or property added | No |
+| **removed** | Entity or property removed | Yes |
+| **modified** | Type or range changed | Maybe |
+| **renamed** | Entity or property renamed | Yes |
+| **deprecated** | Marked for future removal | No (yet) |
+| **cardinality_change** | Min/max cardinality changed | Maybe |
+
+---
+
+*Generated by ggen Ontology Diff & Migration: A = mu(O)*
+*RDF 1.2 triple terms (<<s p o>>) enable version-aware axiom diffing*
+*SPARQL-star CONSTRUCT + Tera template projection*

@@ -334,7 +334,18 @@ impl TeraFunction for SparqlFn {
                 }
                 serde_json::Value::Array(rows)
             }
-            QueryResults::Graph(_) => serde_json::Value::Array(Vec::new()), // Graph results not supported in templates
+            QueryResults::Graph(triples) => {
+                let mut rows = Vec::new();
+                for triple_result in triples {
+                    let triple = triple_result.map_err(|e| tera::Error::msg(e.to_string()))?;
+                    let mut row = serde_json::Map::new();
+                    row.insert("subject".to_string(), serde_json::Value::String(triple.subject.to_string()));
+                    row.insert("predicate".to_string(), serde_json::Value::String(triple.predicate.to_string()));
+                    row.insert("object".to_string(), serde_json::Value::String(triple.object.to_string()));
+                    rows.push(serde_json::Value::Object(row));
+                }
+                serde_json::Value::Array(rows)
+            }
         };
 
         // Handle var extraction if requested

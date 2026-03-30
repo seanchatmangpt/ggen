@@ -1,0 +1,231 @@
+{# ontology-explorer-dashboard.tera — Ontology Explorer Dashboard #}
+{# Constitutional Equation: dashboard.md = mu(ontology.ttl + explorer annotations) #}
+{# Input: SPARQL-star CONSTRUCT results from ontology-explorer-extract.rq #}
+{# Output: Markdown dashboard with coverage bars, element tables, cross-references #}
+
+# Ontology Explorer Dashboard
+
+**Generated**: {{ generated_date | default(value=now() | date(format="%Y-%m-%d %H:%M:%S")) }}
+**Source**: ggen ontology-explorer pipeline
+
+---
+
+## 1. Coverage Overview
+
+{% set annotated = profiles | filter(attribute="status", value="complete") | length %}
+{% set partial = profiles | filter(attribute="status", value="partial") | length %}
+{% set missing = profiles | filter(attribute="status", value="missing") | length %}
+{% set total = profiles | length %}
+{% set coverage_pct = total > 0 ? (annotated + partial) * 100 / total : 0 %}
+
+| Metric | Value |
+|--------|-------|
+| **Total Elements** | {{ total }} |
+| **Fully Annotated** | {{ annotated }} |
+| **Partially Annotated** | {{ partial }} |
+| **Missing Annotations** | {{ missing }} |
+| **Coverage** | {{ "%.0f" | format(coverage_pct) }}% |
+
+### Coverage Progress Bar
+
+```
+{% set filled = (coverage_pct / 5) | round(method="floor") | int %}
+{% for i in range(end=20) %}{% if i < filled %}{% elif i == filled %}{% else %}{% endif %}{% endfor %} {{ "%.0f" | format(coverage_pct) }}%
+```
+
+Legend: `█` Annotated | `░` Missing
+
+---
+
+## 2. Ontology Summary
+
+{% for item in summary %}
+{% if item.elementIri == "https://ggen.dev/explorer/summary" %}
+| Metric | Value |
+|--------|-------|
+| **Ontology URI** | `<{{ item.ontologyUri }}>` |
+| **Label** | {{ item.ontologyLabel }} |
+| **Total Classes** | {{ item.totalClasses }} |
+| **Total Properties** | {{ item.totalProperties }} |
+| **Annotation Properties** | {{ item.totalAnnotations }} |
+| **Overall Coverage** | {{ item.overallCoverage }}% |
+{% endif %}
+{% endfor %}
+
+---
+
+## 3. Coverage by Category
+
+{% for item in summary %}
+{% if item.elementIri == "https://ggen.dev/explorer/coverage/classes"
+   or item.elementIri == "https://ggen.dev/explorer/coverage/obj-props"
+   or item.elementIri == "https://ggen.dev/explorer/coverage/dt-props" %}
+{% set cat_filled = (item.overallCoverage | int / 5) | round(method="floor") | int %}
+### {{ item.elementName }}
+
+```
+{% for i in range(end=20) %}{% if i < cat_filled %}{% elif i == cat_filled %}{% else %}{% endif %}{% endfor %} {{ item.overallCoverage }}%
+```
+{{ item.annotatedElements }} / {{ item.totalElements }} elements annotated
+
+{% endif %}
+{% endfor %}
+
+---
+
+## 4. Classes
+
+{% set class_profiles = profiles | filter(attribute="elementType", value="class") | sort(attribute="order") %}
+{% set critical_classes = class_profiles | filter(attribute="importance", value="critical") %}
+{% set high_classes = class_profiles | filter(attribute="importance", value="high") %}
+{% set medium_classes = class_profiles | filter(attribute="importance", value="medium") %}
+{% set low_classes = class_profiles | filter(attribute="importance", value="low") %}
+{% set unknown_classes = class_profiles | filter(attribute="importance", value="unknown") %}
+
+{% if critical_classes | length > 0 %}
+### Critical
+
+| Icon | Name | IRI | Widget | Status | Tooltip |
+|------|------|-----|--------|--------|---------|
+{% for p in critical_classes %}
+| {{ p.icon }} | **{{ p.elementName }}** | `<{{ p.elementIri }}>` | {{ p.widgetType }} | {% if p.status == "complete" %}{{ p.status }}{% elif p.status == "partial" %}{{ p.status }}{% elif p.status == "missing" %}{{ p.status }}{% else %}{{ p.status | default(value="-") }}{% endif %} | {{ p.tooltip }} |
+{% endfor %}
+{% endif %}
+
+{% if high_classes | length > 0 %}
+### High
+
+| Icon | Name | IRI | Widget | Status | Tooltip |
+|------|------|-----|--------|--------|---------|
+{% for p in high_classes %}
+| {{ p.icon }} | **{{ p.elementName }}** | `<{{ p.elementIri }}>` | {{ p.widgetType }} | {% if p.status == "complete" %}{{ p.status }}{% elif p.status == "partial" %}{{ p.status }}{% elif p.status == "missing" %}{{ p.status }}{% else %}{{ p.status | default(value="-") }}{% endif %} | {{ p.tooltip }} |
+{% endfor %}
+{% endif %}
+
+{% if medium_classes | length > 0 %}
+### Medium
+
+| Icon | Name | IRI | Widget | Status | Tooltip |
+|------|------|-----|--------|--------|---------|
+{% for p in medium_classes %}
+| {{ p.icon }} | **{{ p.elementName }}** | `<{{ p.elementIri }}>` | {{ p.widgetType }} | {% if p.status == "complete" %}{{ p.status }}{% elif p.status == "partial" %}{{ p.status }}{% elif p.status == "missing" %}{{ p.status }}{% else %}{{ p.status | default(value="-") }}{% endif %} | {{ p.tooltip }} |
+{% endfor %}
+{% endif %}
+
+{% if unknown_classes | length > 0 %}
+### Unknown Importance (unannotated)
+
+| Icon | Name | IRI | Status |
+|------|------|-----|--------|
+{% for p in unknown_classes %}
+| {{ p.icon }} | **{{ p.elementName }}** | `<{{ p.elementIri }}>` | {{ p.status }} |
+{% endfor %}
+{% endif %}
+
+---
+
+## 5. Properties
+
+{% set prop_profiles = profiles | filter(attribute="elementType") | reject(attribute="elementType", value="class") | sort(attribute="order") %}
+{% set obj_props = prop_profiles | filter(attribute="elementType", value="objectProperty") %}
+{% set dt_props = prop_profiles | filter(attribute="elementType", value="datatypeProperty") %}
+
+### Object Properties
+
+{% if obj_props | length > 0 %}
+| Icon | Name | IRI | Widget | Importance | Status | Tooltip |
+|------|------|-----|--------|------------|--------|---------|
+{% for p in obj_props %}
+| {{ p.icon }} | **{{ p.elementName }}** | `<{{ p.elementIri }}>` | {{ p.widgetType }} | {{ p.importance | default(value="-") }} | {% if p.status == "missing" %}{{ p.status }}{% else %}{{ p.status | default(value="-") }}{% endif %} | {{ p.tooltip }} |
+{% endfor %}
+{% else %}
+No object properties found.
+{% endif %}
+
+### Datatype Properties
+
+{% if dt_props | length > 0 %}
+| Icon | Name | IRI | Widget | Importance | Status | Tooltip |
+|------|------|-----|--------|------------|--------|---------|
+{% for p in dt_props %}
+| {{ p.icon }} | **{{ p.elementName }}** | `<{{ p.elementIri }}>` | {{ p.widgetType }} | {{ p.importance | default(value="-") }} | {% if p.status == "missing" %}{{ p.status }}{% else %}{{ p.status | default(value="-") }}{% endif %} | {{ p.tooltip }} |
+{% endfor %}
+{% else %}
+No datatype properties found.
+{% endif %}
+
+---
+
+## 6. Annotation Health
+
+> This section highlights elements that need attention. **Missing** elements have no explorer annotations. **Partial** elements have some but not all recommended annotations.
+
+### Missing Annotations
+
+{% set missing_profiles = profiles | filter(attribute="status", value="missing") | sort(attribute="elementType") %}
+{% if missing_profiles | length > 0 %}
+| Type | Name | IRI |
+|------|------|-----|
+{% for p in missing_profiles %}
+| {{ p.elementType }} | **{{ p.elementName }}** | `<{{ p.elementIri }}>` |
+{% endfor %}
+
+**{{ missing_profiles | length }} element(s)** need explorer annotations.
+{% else %}
+All elements have explorer annotations.
+{% endif %}
+
+### Partial Annotations
+
+{% set partial_profiles = profiles | filter(attribute="status", value="partial") | sort(attribute="elementType") %}
+{% if partial_profiles | length > 0 %}
+| Type | Name | IRI | Widget | Tooltip |
+|------|------|-----|--------|---------|
+{% for p in partial_profiles %}
+| {{ p.elementType }} | **{{ p.elementName }}** | `<{{ p.elementIri }}>` | {{ p.widgetType }} | {{ p.tooltip }} |
+{% endfor %}
+
+**{{ partial_profiles | length }} element(s)** have partial annotations. Consider adding `exp:tooltip`, `exp:icon`, and verifying `exp:importance`.
+{% else %}
+No partially annotated elements.
+{% endif %}
+
+---
+
+## 7. Cross-References
+
+{% set xrefs = profiles | filter(attribute="elementIri") | selectattr("elementIri", "matching", "^https://ggen\\.dev/explorer/xref/") | sort(attribute="crossRefTarget") %}
+{% if xrefs | length > 0 %}
+References to external ontologies detected:
+
+| External Ontology | References |
+|-------------------|------------|
+{% for x in xrefs %}
+| `<{{ x.crossRefTarget }}>` | {{ x.crossRefCount | default(value=1) }} |
+{% endfor %}
+{% else %}
+No cross-references to external ontologies detected.
+{% endif %}
+
+---
+
+## 8. Quick Actions
+
+{% if missing_profiles | length > 0 %}
+1. **Annotate {{ missing_profiles | length }} missing element(s)**: Add `exp:widgetType`, `exp:displaySection`, `exp:displayOrder`, `exp:tooltip`, `exp:icon`, `exp:importance`, and `exp:annotationStatus` triple-term annotations to each missing element.
+{% endif %}
+{% if partial_profiles | length > 0 %}
+2. **Complete {{ partial_profiles | length }} partial annotation(s)**: Review and fill in missing annotation properties for partially annotated elements.
+{% endif %}
+{% if xrefs | length > 0 %}
+3. **Add cross-references to schema.org**: Consider adding `rdfs:seeAlso` links to schema.org classes for improved interoperability.
+{% else %}
+3. **Add cross-references**: Annotate elements with `exp:externalOntology` and `exp:referenceCount` to track external dependencies.
+{% endif %}
+4. **Run coverage audit**: Re-generate this dashboard after adding annotations to track progress.
+5. **Set coverage target**: Define a minimum coverage percentage (recommended: 90%) as a quality gate.
+
+---
+
+*Generated by ggen Ontology Explorer: A = mu(O)*
+*Pipeline: ontology (.ttl) + explorer annotations (.ttl) -> SPARQL-star CONSTRUCT (.rq) -> Tera template (.tera) -> this dashboard*
