@@ -104,6 +104,11 @@ impl Pipeline {
         })
     }
 
+    /// Get the number of triples in the pipeline's RDF graph
+    pub fn graph_len(&self) -> usize {
+        self.graph.len()
+    }
+
     /// Get mutable reference to the Tera instance
     pub fn tera_mut(&mut self) -> &mut Tera {
         &mut self.tera
@@ -399,6 +404,26 @@ pub struct Plan {
 }
 
 impl Plan {
+    /// Get the rendered content of the plan
+    pub fn content(&self) -> &str {
+        &self.content
+    }
+
+    /// Get the output path where the plan will write
+    pub fn output_path(&self) -> &std::path::Path {
+        &self.output_path
+    }
+
+    /// Get the template path that produced this plan
+    pub fn template_path(&self) -> &std::path::Path {
+        &self.template_path
+    }
+
+    /// Whether this is a dry-run plan
+    pub fn is_dry_run(&self) -> bool {
+        self.dry_run
+    }
+
     /// Apply the plan by writing the content to the output path
     pub fn apply(&self) -> Result<()> {
         if self.dry_run {
