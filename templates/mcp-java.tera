@@ -9,7 +9,7 @@
 // {{ server_description }}
 //
 // Transport: {{ transport_type | default(value="stdio") }}
-// Tools: {{ tools | length }}
+// Tools: extracted from sparql_results
 // =============================================================================
 
 package {{ package_name | default(value="com.ggen.mcp") }};
@@ -103,15 +103,13 @@ record ToolResult(List<ToolContent> content, Boolean isError) {
 // Tool Input Records
 // =============================================================================
 
-{% for tool in tools %}
+{% for row in sparql_results %}
 /**
- * Input record for {{ tool.name }}.
- * {{ tool.description }}
+ * Input record for {{ row.tool_name }}.
+ * {{ row.tool_description | default(value="(no description)") }}
  */
-record {{ tool.name | pascal }}Input(
-    {% for param in tool.parameters %}
-    {{ param.java_type }} {{ param.name }}{% if param.is_required != "true" %} // optional{% endif %}{% if not loop.last %},{% endif %}
-    {% endfor %}
+record {{ row.tool_name | pascal }}Input(
+    // TODO: add parameters from extract-mcp-params.rq
 ) {}
 
 {% endfor %}
@@ -150,25 +148,22 @@ public class {{ server_name | pascal }}Server {
     // Tool Handlers
     // -------------------------------------------------------------------------
 
-    {% for tool in tools %}
+    {% for row in sparql_results %}
     /**
-     * Handle {{ tool.name }}: {{ tool.description }}
+     * Handle {{ row.tool_name }}: {{ row.tool_description | default(value="(no description)") }}
      */
-    public ToolResult handle{{ tool.name | pascal }}(Map<String, Object> params) {
+    public ToolResult handle{{ row.tool_name | pascal }}(Map<String, Object> params) {
         try {
-            {{ tool.name | pascal }}Input input = mapper.convertValue(params, {{ tool.name | pascal }}Input.class);
+            {{ row.tool_name | pascal }}Input input = mapper.convertValue(params, {{ row.tool_name | pascal }}Input.class);
 
-            // TODO: Implement {{ tool.name }} logic here
-            // Parameters available:
-            {% for param in tool.parameters %}
-            // - {{ param.name }}: {{ param.java_type }}{% if param.description %} -- {{ param.description }}{% endif %}
-            {% endfor %}
+            // TODO: Implement {{ row.tool_name }} logic here
+            // TODO: add parameters from extract-mcp-params.rq
 
             return ToolResult.ok(mapper.writeValueAsString(
-                Map.of("success", true, "tool", "{{ tool.name }}")
+                Map.of("success", true, "tool", "{{ row.tool_name }}")
             ));
         } catch (IllegalArgumentException e) {
-            return ToolResult.fail("Invalid arguments for {{ tool.name }}: " + e.getMessage());
+            return ToolResult.fail("Invalid arguments for {{ row.tool_name }}: " + e.getMessage());
         } catch (JsonProcessingException e) {
             return ToolResult.fail("Serialization error: " + e.getMessage());
         }
@@ -223,11 +218,11 @@ public class {{ server_name | pascal }}Server {
 
     private JsonRpcResponse handleListTools(Object id) {
         List<ToolDefinition> tools = List.of(
-            {% for tool in tools %}
+            {% for row in sparql_results %}
             new ToolDefinition(
-                "{{ tool.name }}",
-                "{{ tool.description }}",
-                {{ tool.name | camel }}Schema()
+                "{{ row.tool_name }}",
+                "{{ row.tool_description | default(value="(no description)") }}",
+                {{ row.tool_name | camel }}Schema()
             ){% if not loop.last %},{% endif %}
             {% endfor %}
         );
@@ -252,8 +247,8 @@ public class {{ server_name | pascal }}Server {
         }
 
         ToolResult result = switch (toolName) {
-            {% for tool in tools %}
-            case "{{ tool.name }}" -> handle{{ tool.name | pascal }}(arguments);
+            {% for row in sparql_results %}
+            case "{{ row.tool_name }}" -> handle{{ row.tool_name | pascal }}(arguments);
             {% endfor %}
             default -> ToolResult.fail("Unknown tool: " + toolName);
         };
@@ -265,35 +260,15 @@ public class {{ server_name | pascal }}Server {
     // Tool Schemas
     // -------------------------------------------------------------------------
 
-    {% for tool in tools %}
+    {% for row in sparql_results %}
     /**
-     * Build JSON Schema for {{ tool.name }} input.
+     * Build JSON Schema for {{ row.tool_name }} input.
      */
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> {{ tool.name | camel }}Schema() {
-        Map<String, Object> properties = new LinkedHashMap<>();
-        List<String> required = new ArrayList<>();
-
-        {% for param in tool.parameters %}
-        Map<String, Object> {{ param.name }}Schema = new LinkedHashMap<>();
-        {{ param.name }}Schema.put("type", "{{ param.json_schema_type | default(value=param.java_json_type) }}");
-        {{ param.name }}Schema.put("description", "{{ param.description }}");
-        {% if param.enum_values %}
-        {{ param.name }}Schema.put("enum", List.of({{ param.enum_values }}));
-        {% endif %}
-        properties.put("{{ param.name }}", {{ param.name }}Schema);
-        {% if param.is_required == "true" %}
-        required.add("{{ param.name }}");
-        {% endif %}
-
-        {% endfor %}
-
+    private Map<String, Object> {{ row.tool_name | camel }}Schema() {
+        // TODO: add parameters from extract-mcp-params.rq
         Map<String, Object> schema = new LinkedHashMap<>();
         schema.put("type", "object");
-        schema.put("properties", properties);
-        if (!required.isEmpty()) {
-            schema.put("required", required);
-        }
+        schema.put("properties", new LinkedHashMap<>());
         return schema;
     }
 

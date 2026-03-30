@@ -136,37 +136,22 @@ impl Task {
 // Skill Input / Output types
 // ---------------------------------------------------------------------------
 
-{% for skill in skills %}
-/// Input for the {{ skill.name }} skill
+{% for row in sparql_results %}
+/// Input for the {{ row.skill_name }} skill
+/// TODO: add typed fields once input_params are available in SPARQL results
 #[derive(Debug, Deserialize, Serialize)]
-pub struct {{ skill.name | pascal }}Input {
-    {% if skill.input_params %}
-    {% for param in skill.input_params %}
-    {% if param.is_required == "true" %}
-    pub {{ param.name | snake }}: {{ param.rust_type | default(value = "serde_json::Value") }},
-    {% else %}
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub {{ param.name | snake }}: Option<{{ param.rust_type | default(value = "serde_json::Value") }}>,
-    {% endif %}
-    {% endfor %}
-    {% else %}
-    /// No required parameters — accepts an empty JSON object
+pub struct {{ row.skill_name | pascal }}Input {
+    /// Accepts any JSON value — replace with typed fields as needed
     #[serde(default)]
     pub params: serde_json::Value,
-    {% endif %}
 }
 
-/// Output for the {{ skill.name }} skill
+/// Output for the {{ row.skill_name }} skill
+/// TODO: add typed fields once output_params are available in SPARQL results
 #[derive(Debug, Serialize)]
-pub struct {{ skill.name | pascal }}Output {
-    {% if skill.output_params %}
-    {% for param in skill.output_params %}
-    pub {{ param.name | snake }}: {{ param.rust_type | default(value = "serde_json::Value") }},
-    {% endfor %}
-    {% else %}
-    /// Wrap the result value
+pub struct {{ row.skill_name | pascal }}Output {
+    /// Wrap the result value — replace with typed fields as needed
     pub result: serde_json::Value,
-    {% endif %}
 }
 
 {% endfor %}
@@ -249,17 +234,17 @@ impl Default for AgentState {
 // ---------------------------------------------------------------------------
 // Each handler is a placeholder.  Replace the body with real logic.
 
-{% for skill in skills %}
-/// Handle the {{ skill.name }} skill.
+{% for row in sparql_results %}
+/// Handle the {{ row.skill_name }} skill.
 ///
-/// Streaming: {{ skill.streaming | default(value = "false") }}
-/// Timeout:  {{ skill.timeout_ms | default(value = "30000") }}ms
-/// Retry:    {{ skill.retry_policy | default(value = "none") }}
-pub async fn handle_{{ skill.name | snake }}(
-    input: {{ skill.name | pascal }}Input,
-) -> Result<{{ skill.name | pascal }}Output, String> {
-    // TODO: implement {{ skill.name }} — {{ skill.description }}
-    Err("Not implemented: {{ skill.name }}".to_string())
+/// Streaming: {{ row.streaming | default(value = "false") }}
+/// Timeout:  {{ row.timeout_ms | default(value = "30000") }}ms
+/// Retry:    {{ row.retry_policy | default(value = "none") }}
+pub async fn handle_{{ row.skill_name | snake }}(
+    input: {{ row.skill_name | pascal }}Input,
+) -> Result<{{ row.skill_name | pascal }}Output, String> {
+    // TODO: implement {{ row.skill_name }} — {{ row.skill_description | default(value = "") }}
+    Err("Not implemented: {{ row.skill_name }}".to_string())
 }
 
 {% endfor %}
@@ -300,12 +285,12 @@ async fn agent_card_handler(State(_state): State<Arc<AgentState>>) -> Json<Agent
             },
         },
         skills: vec![
-            {% for skill in skills %}
+            {% for row in sparql_results %}
             SkillDef {
-                name: "{{ skill.name }}".into(),
-                description: "{{ skill.description }}".into(),
-                streaming: {{ skill.streaming | default(value = "false") }},
-                timeout_ms: Some({{ skill.timeout_ms | default(value = "30000") }}),
+                name: "{{ row.skill_name }}".into(),
+                description: "{{ row.skill_description | default(value = "") }}".into(),
+                streaming: {{ row.streaming | default(value = "false") }},
+                timeout_ms: Some({{ row.timeout_ms | default(value = "30000") }}),
             },
             {% endfor %}
         ],
@@ -319,16 +304,16 @@ async fn message_handler(
     Json(msg): Json<A2AMessage>,
 ) -> (StatusCode, Json<A2AResponse>) {
     match msg.method.as_str() {
-        {% for skill in skills %}
-        "{{ skill.name }}" => {
-            let task = Task::new("{{ skill.name }}".into());
+        {% for row in sparql_results %}
+        "{{ row.skill_name }}" => {
+            let task = Task::new("{{ row.skill_name }}".into());
             let task_id = task.id.clone();
             {
                 let mut tasks = state.tasks.write().await;
                 tasks.insert(task_id.clone(), task);
             }
 
-            let input = match serde_json::from_value::<{{ skill.name | pascal }}Input>(msg.params) {
+            let input = match serde_json::from_value::<{{ row.skill_name | pascal }}Input>(msg.params) {
                 Ok(v) => v,
                 Err(e) => {
                     return (
@@ -336,7 +321,7 @@ async fn message_handler(
                         Json(A2AResponse::err(
                             msg.id,
                             -32602,
-                            format!("Invalid params for {{ skill.name }}: {}", e),
+                            format!("Invalid params for {{ row.skill_name }}: {}", e),
                         )),
                     );
                 }
@@ -354,7 +339,7 @@ async fn message_handler(
                     }
                 }
 
-                match handle_{{ skill.name | snake }}(input).await {
+                match handle_{{ row.skill_name | snake }}(input).await {
                     Ok(output) => {
                         let value = serde_json::to_value(&output).unwrap_or_default();
                         let mut tasks = state.tasks.write().await;

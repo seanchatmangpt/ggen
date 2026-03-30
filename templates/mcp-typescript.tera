@@ -9,7 +9,7 @@
 // {{ server_description }}
 //
 // Transport: {{ transport_type | default(value="stdio") }}
-// Tools: {{ tools | length }}
+// Tools: extracted from sparql_results
 // =============================================================================
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -29,20 +29,15 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 // Zod Input Schemas
 // =============================================================================
 
-{% for tool in tools %}
+{% for row in sparql_results %}
 /**
- * Input schema for {{ tool.name }}
- * {{ tool.description }}
+ * Input schema for {{ row.tool_name }}
+ * {{ row.tool_description | default(value="(no description)") }}
  */
-const {{ tool.name | snake }}InputSchema = z.object({
-{% for param in tool.parameters %}
-  {{ param.name }}: {% if param.json_schema %}z.any(){% else %}{{ param.zod_type }}(){% endif %}{% if param.is_required != "true" %}.optional(){% endif %}{% if param.description %}.describe("{{ param.description }}"){% endif %}{% if param.default_value %}.default({{ param.default_value }}){% endif %}{% if param.enum_values %},
-  // NOTE: enum constraint from ontology: {{ param.enum_values }}
-  // Apply via .pipe(z.enum([...])) if runtime validation needed{% endif %},
-{% endfor %}
-});
+// TODO: add parameters from extract-mcp-params.rq
+const {{ row.tool_name | snake }}InputSchema = z.object({});
 
-type {{ tool.name | pascal }}Input = z.infer<typeof {{ tool.name | snake }}InputSchema>;
+type {{ row.tool_name | pascal }}Input = z.infer<typeof {{ row.tool_name | snake }}InputSchema>;
 
 {% endfor %}
 
@@ -68,41 +63,38 @@ const server = new Server(
 // Tool Handlers
 // =============================================================================
 
-{% for tool in tools %}
+{% for row in sparql_results %}
 /**
- * Handle {{ tool.name }}
- * {{ tool.description }}
+ * Handle {{ row.tool_name }}
+ * {{ row.tool_description | default(value="(no description)") }}
  */
-async function handle{{ tool.name | pascal }}(
+async function handle{{ row.tool_name | pascal }}(
   args: Record<string, unknown>
 ): Promise<{ content: Array<{ type: string; text: string }>; isError?: boolean }> {
-  const parsed = {{ tool.name | snake }}InputSchema.safeParse(args);
+  const parsed = {{ row.tool_name | snake }}InputSchema.safeParse(args);
 
   if (!parsed.success) {
     return {
       content: [
         {
           type: "text",
-          text: `Invalid arguments for {{ tool.name }}: ${parsed.error.message}`,
+          text: `Invalid arguments for {{ row.tool_name }}: ${parsed.error.message}`,
         },
       ],
       isError: true,
     };
   }
 
-  const input = parsed.data as {{ tool.name | pascal }}Input;
+  const input = parsed.data as {{ row.tool_name | pascal }}Input;
 
-  // TODO: Implement {{ tool.name }} logic here
-  // Parameters available:
-  {% for param in tool.parameters %}
-  // - {{ param.name }}: {{ param.ts_type }}{% if param.description %} -- {{ param.description }}{% endif %}
-  {% endfor %}
+  // TODO: Implement {{ row.tool_name }} logic here
+  // TODO: add parameters from extract-mcp-params.rq
 
   return {
     content: [
       {
         type: "text",
-        text: JSON.stringify({ success: true, tool: "{{ tool.name }}", input }, null, 2),
+        text: JSON.stringify({ success: true, tool: "{{ row.tool_name }}", input }, null, 2),
       },
     ],
   };
@@ -117,14 +109,14 @@ async function handle{{ tool.name | pascal }}(
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
-{% for tool in tools %}
+{% for row in sparql_results %}
       {
-        name: "{{ tool.name }}",
-        description: "{{ tool.description }}",
-        inputSchema: {% if tool.parameters | length > 0 %}zodToJsonSchema({{ tool.name | snake }}InputSchema, { name: "{{ tool.name }}Input" }){% else %}{
-  type: "object",
-  properties: {},
-}{% endif %},
+        name: "{{ row.tool_name }}",
+        description: "{{ row.tool_description | default(value="(no description)") }}",
+        inputSchema: {
+          type: "object",
+          properties: {},
+        },
       },
 {% endfor %}
     ],
@@ -136,9 +128,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   try {
     switch (name) {
-{% for tool in tools %}
-      case "{{ tool.name }}":
-        return await handle{{ tool.name | pascal }}(args ?? {});
+{% for row in sparql_results %}
+      case "{{ row.tool_name }}":
+        return await handle{{ row.tool_name | pascal }}(args ?? {});
 {% endfor %}
       default:
         return {

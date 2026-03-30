@@ -38,15 +38,15 @@ const AGENT_CARD: AgentCard = {
     url: "{{ provider_url }}",
   },
   skills: [
-    {% for skill in skills %}
+    {% for row in sparql_results %}
     {
-      id: "{{ skill.id | default(value=skill.name) }}",
-      name: "{{ skill.name }}",
-      description: "{{ skill.description }}",
-      tags: {{ skill.tags | default(value="[]") }},
-      streaming: {{ skill.streaming | default(value="false") }},
-      inputSchema: {{ skill.input_schema | default(value="{}") }},
-      outputSchema: {{ skill.output_schema | default(value="{}") }},
+      id: "{{ row.skill_name }}",
+      name: "{{ row.skill_name }}",
+      description: "{{ row.skill_description | default(value="") }}",
+      tags: {{ row.skill_tags | default(value="[]") }},
+      streaming: {{ row.streaming | default(value="false") }},
+      inputSchema: {},
+      outputSchema: {},
     },
     {% endfor %}
   ],
@@ -71,22 +71,20 @@ const taskStore = new Map<string, Task>();
 // Skill Input / Output Interfaces
 // ============================================================================
 
-{% for skill in skills %}
+{% for row in sparql_results %}
 /**
- * {{ skill.description }}
- * Timeout: {{ skill.timeout_ms | default(value=5000) }}ms
- * Streaming: {{ skill.streaming | default(value="false") }}
+ * {{ row.skill_description | default(value=row.skill_name) }}
+ * Timeout: {{ row.timeout_ms | default(value=5000) }}ms
+ * Streaming: {{ row.streaming | default(value="false") }}
  */
-interface {{ skill.name | pascal }}Input {
-  {% for param in skill.input_params %}
-  {{ param.name }}: {{ param.ts_type }}{% if param.is_required != "true" %}?{% endif %};
-  {% endfor %}
+// TODO: add typed fields once input_params are available in SPARQL results
+interface {{ row.skill_name | pascal }}Input {
+  params: Record<string, unknown>;
 }
 
-interface {{ skill.name | pascal }}Output {
-  {% for param in skill.output_params %}
-  {{ param.name }}: {{ param.ts_type }};
-  {% endfor %}
+// TODO: add typed fields once output_params are available in SPARQL results
+interface {{ row.skill_name | pascal }}Output {
+  result: unknown;
 }
 {% endfor %}
 
@@ -94,21 +92,21 @@ interface {{ skill.name | pascal }}Output {
 // Skill Handlers
 // ============================================================================
 
-{% for skill in skills %}
+{% for row in sparql_results %}
 /**
- * Handle {{ skill.name }} skill invocation.
+ * Handle {{ row.skill_name }} skill invocation.
  *
- * {{ skill.description }}
+ * {{ row.skill_description | default(value=row.skill_name) }}
  *
  * @param input - Validated input parameters
- * @returns Skill output matching {{ skill.name | pascal }}Output
+ * @returns Skill output matching {{ row.skill_name | pascal }}Output
  * @throws Error if skill execution fails
  */
-async function handle{{ skill.name | pascal }}(
-  input: {{ skill.name | pascal }}Input
-): Promise<{{ skill.name | pascal }}Output> {
-  // TODO: implement {{ skill.name }}
-  throw new Error("Not implemented: {{ skill.name }}");
+async function handle{{ row.skill_name | pascal }}(
+  input: {{ row.skill_name | pascal }}Input
+): Promise<{{ row.skill_name | pascal }}Output> {
+  // TODO: implement {{ row.skill_name }}
+  throw new Error("Not implemented: {{ row.skill_name }}");
 }
 {% endfor %}
 
@@ -135,17 +133,17 @@ interface JsonRpcResponse {
 // ============================================================================
 
 const SKILL_TIMEOUT_MS: Record<string, number> = {
-  {% for skill in skills %}
-  "{{ skill.name }}": {{ skill.timeout_ms | default(value=5000) }},
+  {% for row in sparql_results %}
+  "{{ row.skill_name }}": {{ row.timeout_ms | default(value=5000) }},
   {% endfor %}
 };
 
 type SkillHandler = (input: Record<string, unknown>) => Promise<unknown>;
 
 const skillRegistry: Record<string, SkillHandler> = {
-  {% for skill in skills %}
-  "{{ skill.name }}": async (input) => {
-    return handle{{ skill.name | pascal }}(input as {{ skill.name | pascal }}Input);
+  {% for row in sparql_results %}
+  "{{ row.skill_name }}": async (input) => {
+    return handle{{ row.skill_name | pascal }}(input as {{ row.skill_name | pascal }}Input);
   },
   {% endfor %}
 };
