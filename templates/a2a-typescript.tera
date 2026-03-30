@@ -77,13 +77,13 @@ const taskStore = new Map<string, Task>();
  * Timeout: {{ skill.timeout_ms | default(value=5000) }}ms
  * Streaming: {{ skill.streaming | default(value="false") }}
  */
-interface {{ skill.name | pascal_case }}Input {
+interface {{ skill.name | pascal }}Input {
   {% for param in skill.input_params %}
-  {{ param.name }}: {{ param.ts_type }}{% if param.required != "true" %}?{% endif %};
+  {{ param.name }}: {{ param.ts_type }}{% if param.is_required != "true" %}?{% endif %};
   {% endfor %}
 }
 
-interface {{ skill.name | pascal_case }}Output {
+interface {{ skill.name | pascal }}Output {
   {% for param in skill.output_params %}
   {{ param.name }}: {{ param.ts_type }};
   {% endfor %}
@@ -101,12 +101,12 @@ interface {{ skill.name | pascal_case }}Output {
  * {{ skill.description }}
  *
  * @param input - Validated input parameters
- * @returns Skill output matching {{ skill.name | pascal_case }}Output
+ * @returns Skill output matching {{ skill.name | pascal }}Output
  * @throws Error if skill execution fails
  */
-async function handle{{ skill.name | pascal_case }}(
-  input: {{ skill.name | pascal_case }}Input
-): Promise<{{ skill.name | pascal_case }}Output> {
+async function handle{{ skill.name | pascal }}(
+  input: {{ skill.name | pascal }}Input
+): Promise<{{ skill.name | pascal }}Output> {
   // TODO: implement {{ skill.name }}
   throw new Error("Not implemented: {{ skill.name }}");
 }
@@ -145,7 +145,7 @@ type SkillHandler = (input: Record<string, unknown>) => Promise<unknown>;
 const skillRegistry: Record<string, SkillHandler> = {
   {% for skill in skills %}
   "{{ skill.name }}": async (input) => {
-    return handle{{ skill.name | pascal_case }}(input as {{ skill.name | pascal_case }}Input);
+    return handle{{ skill.name | pascal }}(input as {{ skill.name | pascal }}Input);
   },
   {% endfor %}
 };

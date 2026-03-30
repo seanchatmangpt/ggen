@@ -1,0 +1,28 @@
+# SPARQL SELECT Query: Extract A2A Skills (one row per skill)
+#
+# Returns one row per skill. The template uses sparql_results to iterate
+# all rows and build the skills array.
+#
+# Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> a2a-elixir.tera
+
+PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+
+SELECT ?skill_name ?skill_description ?skill_tags ?streaming ?timeout_ms ?retry_policy
+WHERE {
+  << ?agent a2a:hasSkill ?skill >>
+    a2a:skillName ?skill_name ;
+    a2a:skillDescription ?skill_desc_raw ;
+    a2a:skillTags ?tags .
+
+  BIND(COALESCE(?skill_desc_raw, "") AS ?skill_description)
+
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:streaming ?strm . }
+  BIND(COALESCE(?strm, "false") AS ?streaming)
+
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:timeout_ms ?tm . }
+  BIND(COALESCE(?tm, "30000") AS ?timeout_ms)
+
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:retryPolicy ?rp . }
+  BIND(COALESCE(?rp, "none") AS ?retry_policy)
+}
+ORDER BY ?skill_name

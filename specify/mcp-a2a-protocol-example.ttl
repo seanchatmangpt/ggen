@@ -381,7 +381,174 @@ ex:CodeReviewTaskHandler
 # 8. BRIDGE MAPPINGS
 # ============================================================================
 
-# --- ToolAgentBridge: MCP generate tool -> A2A review_code skill ---
+# ============================================================================
+# 7b. A2A SKILL INPUT PARAMETERS — with RDF 1.2 triple-term annotations
+# ============================================================================
+
+# --- review_code skill input parameters (3) ---
+
+ex:review_code_code a a2a:SkillInputParam ;
+  a2a:inputParamName "code" ;
+  a2a:inputParamDescription "The source code to review" ;
+  a2a:inputParamType "string" ;
+  a2a:inputParamRequired true .
+
+ex:review_code_language a a2a:SkillInputParam ;
+  a2a:inputParamName "language" ;
+  a2a:inputParamDescription "Programming language of the code" ;
+  a2a:inputParamType "string" ;
+  a2a:inputParamRequired true .
+
+ex:review_code_focus_area a a2a:SkillInputParam ;
+  a2a:inputParamName "focus_area" ;
+  a2a:inputParamDescription "Optional area to focus review on (security, performance, style, all)" ;
+  a2a:inputParamType "string" ;
+  a2a:inputParamRequired false ;
+  a2a:inputParamDefaultValue "all" .
+
+<< ex:CodeReviewAgent a2a:hasSkill ex:review_code >>
+  a2a:hasInputParam ex:review_code_code ;
+  a2a:hasInputParam ex:review_code_language ;
+  a2a:hasInputParam ex:review_code_focus_area .
+
+# Triple-term type mappings for review_code params
+<< ex:review_code_code a2a:inputParamName "code" >>
+  a2a:rustType "String" ;
+  a2a:tsType "string" ;
+  a2a:goType "string" ;
+  a2a:elixirType "String.t" ;
+  a2a:javaType "String" .
+
+<< ex:review_code_language a2a:inputParamName "language" >>
+  a2a:rustType "String" ;
+  a2a:tsType "string" ;
+  a2a:goType "string" ;
+  a2a:elixirType "String.t" ;
+  a2a:javaType "String" .
+
+<< ex:review_code_focus_area a2a:inputParamName "focus_area" >>
+  a2a:rustType "Option<String>" ;
+  a2a:tsType "string | null" ;
+  a2a:goType "string" ;
+  a2a:elixirType "String.t | nil" ;
+  a2a:javaType "String" .
+
+# --- check_style skill input parameters (2) ---
+
+ex:check_style_code a a2a:SkillInputParam ;
+  a2a:inputParamName "code" ;
+  a2a:inputParamDescription "The source code to check for style compliance" ;
+  a2a:inputParamType "string" ;
+  a2a:inputParamRequired true .
+
+ex:check_style_config a a2a:SkillInputParam ;
+  a2a:inputParamName "config" ;
+  a2a:inputParamDescription "Style configuration override (format-specific options as JSON)" ;
+  a2a:inputParamType "object" ;
+  a2a:inputParamRequired false ;
+  a2a:inputParamDefaultValue "{}" .
+
+<< ex:CodeReviewAgent a2a:hasSkill ex:check_style >>
+  a2a:hasInputParam ex:check_style_code ;
+  a2a:hasInputParam ex:check_style_config .
+
+<< ex:check_style_code a2a:inputParamName "code" >>
+  a2a:rustType "String" ;
+  a2a:tsType "string" ;
+  a2a:goType "string" ;
+  a2a:elixirType "String.t" ;
+  a2a:javaType "String" .
+
+<< ex:check_style_config a2a:inputParamName "config" >>
+  a2a:rustType "Option<serde_json::Value>" ;
+  a2a:tsType "Record<string, unknown> | null" ;
+  a2a:goType "map[string]interface{}" ;
+  a2a:elixirType "map() | nil" ;
+  a2a:javaType "Map<String, Object>" .
+
+# --- suggest_fixes skill input parameters (3) ---
+
+ex:suggest_fixes_code a a2a:SkillInputParam ;
+  a2a:inputParamName "code" ;
+  a2a:inputParamDescription "The source code containing identified issues" ;
+  a2a:inputParamType "string" ;
+  a2a:inputParamRequired true .
+
+ex:suggest_fixes_issues a a2a:SkillInputParam ;
+  a2a:inputParamName "issues" ;
+  a2a:inputParamDescription "List of identified issues to suggest fixes for (JSON array)" ;
+  a2a:inputParamType "array" ;
+  a2a:inputParamRequired true .
+
+ex:suggest_fixes_auto_apply a a2a:SkillInputParam ;
+  a2a:inputParamName "auto_apply" ;
+  a2a:inputParamDescription "Whether to automatically apply suggested fixes" ;
+  a2a:inputParamType "boolean" ;
+  a2a:inputParamRequired false ;
+  a2a:inputParamDefaultValue "false" .
+
+<< ex:CodeReviewAgent a2a:hasSkill ex:suggest_fixes >>
+  a2a:hasInputParam ex:suggest_fixes_code ;
+  a2a:hasInputParam ex:suggest_fixes_issues ;
+  a2a:hasInputParam ex:suggest_fixes_auto_apply .
+
+<< ex:suggest_fixes_code a2a:inputParamName "code" >>
+  a2a:rustType "String" ;
+  a2a:tsType "string" ;
+  a2a:goType "string" ;
+  a2a:elixirType "String.t" ;
+  a2a:javaType "String" .
+
+<< ex:suggest_fixes_issues a2a:inputParamName "issues" >>
+  a2a:rustType "Vec<serde_json::Value>" ;
+  a2a:tsType "Issue[]" ;
+  a2a:goType "[]map[string]interface{}" ;
+  a2a:elixirType "list(map())" ;
+  a2a:javaType "List<Issue>" .
+
+<< ex:suggest_fixes_auto_apply a2a:inputParamName "auto_apply" >>
+  a2a:rustType "bool" ;
+  a2a:tsType "boolean" ;
+  a2a:goType "bool" ;
+  a2a:elixirType "boolean" ;
+  a2a:javaType "boolean" .
+
+# --- generate_report skill input parameters (2) ---
+
+ex:generate_report_reviews a a2a:SkillInputParam ;
+  a2a:inputParamName "reviews" ;
+  a2a:inputParamDescription "Completed review results to include in the report (JSON)" ;
+  a2a:inputParamType "object" ;
+  a2a:inputParamRequired true .
+
+ex:generate_report_format a a2a:SkillInputParam ;
+  a2a:inputParamName "format" ;
+  a2a:inputParamDescription "Output format for the report (markdown, json, html)" ;
+  a2a:inputParamType "string" ;
+  a2a:inputParamRequired false ;
+  a2a:inputParamDefaultValue "markdown" .
+
+<< ex:CodeReviewAgent a2a:hasSkill ex:generate_report >>
+  a2a:hasInputParam ex:generate_report_reviews ;
+  a2a:hasInputParam ex:generate_report_format .
+
+<< ex:generate_report_reviews a2a:inputParamName "reviews" >>
+  a2a:rustType "serde_json::Value" ;
+  a2a:tsType "ReviewResults" ;
+  a2a:goType "map[string]interface{}" ;
+  a2a:elixirType "map()" ;
+  a2a:javaType "ReviewResults" .
+
+<< ex:generate_report_format a2a:inputParamName "format" >>
+  a2a:rustType "String" ;
+  a2a:tsType "string" ;
+  a2a:goType "string" ;
+  a2a:elixirType "String.t" ;
+  a2a:javaType "String" .
+
+# ============================================================================
+# 9. BRIDGE MAPPINGS
+# ============================================================================
 
 ex:GenerateToReviewBridge
   a bridge:ToolAgentBridge ;

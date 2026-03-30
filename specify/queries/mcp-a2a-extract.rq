@@ -173,10 +173,74 @@ WHERE {
 ORDER BY ?agentName ?skillNameResolved
 
 # ============================================================================
-# PART 3: BRIDGE EXTRACTION
+# PART 3: A2A SKILL INPUT PARAMETER EXTRACTION
 # ============================================================================
 
-# 3a. Extract ToolAgentBridge mappings
+# 3a. Extract A2A skill input parameters with triple-term annotations
+CONSTRUCT {
+  ?extractedParam a a2a:ExtractedSkillInputParam ;
+    a2a:agentName ?agentName ;
+    a2a:skillName ?skillName ;
+    a2a:inputParamName ?inputParamName ;
+    a2a:inputParamDescription ?inputParamDescription ;
+    a2a:inputParamType ?inputParamType ;
+    a2a:inputParamRequired ?inputParamRequired ;
+    a2a:inputParamDefaultValue ?inputParamDefaultValue ;
+    a2a:rustType ?rustType ;
+    a2a:tsType ?tsType ;
+    a2a:goType ?goType ;
+    a2a:elixirType ?elixirType ;
+    a2a:javaType ?javaType .
+}
+WHERE {
+  # Match RDF 1.2 triple terms: <<agent hasSkill skill>> annotated with a2a:hasInputParam
+  << ?agent a2a:hasSkill ?skill >> a2a:hasInputParam ?param .
+
+  ?agent a2a:agentName ?agentName .
+
+  # Get skill name from triple-term annotation
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:skillName ?skillName . }
+  BIND(COALESCE(?skillName, STRAFTER(STR(?skill), "#")) AS ?skillNameResolved)
+
+  # Get param properties
+  OPTIONAL { ?param a2a:inputParamName ?inputParamName . }
+  OPTIONAL { ?param a2a:inputParamDescription ?inputParamDescription . }
+  OPTIONAL { ?param a2a:inputParamType ?inputParamType . }
+  OPTIONAL { ?param a2a:inputParamRequired ?inputParamRequired . }
+  OPTIONAL { ?param a2a:inputParamDefaultValue ?inputParamDefaultValue . }
+
+  # Get triple-term type mappings for input params
+  # Match <<param inputParamName "name">> annotated with a2a:rustType etc.
+  OPTIONAL {
+    << ?param a2a:inputParamName ?anyName >> a2a:rustType ?rustType .
+  }
+  OPTIONAL {
+    << ?param a2a:inputParamName ?anyName >> a2a:tsType ?tsType .
+  }
+  OPTIONAL {
+    << ?param a2a:inputParamName ?anyName >> a2a:goType ?goType .
+  }
+  OPTIONAL {
+    << ?param a2a:inputParamName ?anyName >> a2a:elixirType ?elixirType .
+  }
+  OPTIONAL {
+    << ?param a2a:inputParamName ?anyName >> a2a:javaType ?javaType .
+  }
+
+  # Defaults
+  BIND(COALESCE(?inputParamName, STRAFTER(STR(?param), "#")) AS ?inputParamNameResolved)
+  BIND(COALESCE(?inputParamRequired, false) AS ?inputParamRequiredResolved)
+
+  # Generate stable URI for the extracted param node
+  BIND(IRI(CONCAT("https://ggen.dev/mcp-a2a/extracted/skill-param/", ENCODE_FOR_URI(?agentName), "/", ENCODE_FOR_URI(?skillNameResolved), "/", ENCODE_FOR_URI(?inputParamNameResolved))) AS ?extractedParam)
+}
+ORDER BY ?agentName ?skillNameResolved ?inputParamNameResolved
+
+# ============================================================================
+# PART 4: BRIDGE EXTRACTION
+# ============================================================================
+
+# 4a. Extract ToolAgentBridge mappings
 CONSTRUCT {
   ?extractedBridge a bridge:ExtractedBridge ;
     bridge:bridgeType ?bridgeType ;
@@ -204,7 +268,7 @@ WHERE {
 }
 ORDER BY ?toolSideResolved ?skillSideResolved
 
-# 3b. Extract SkillToolBridge mappings (reverse direction)
+# 4b. Extract SkillToolBridge mappings (reverse direction)
 CONSTRUCT {
   ?extractedReverseBridge a bridge:ExtractedBridge ;
     bridge:bridgeType ?bridgeType ;
@@ -233,10 +297,10 @@ WHERE {
 ORDER BY ?skillSideResolved ?toolSideResolved
 
 # ============================================================================
-# PART 4: SUMMARY SUBQUERIES
+# PART 5: SUMMARY SUBQUERIES
 # ============================================================================
 
-# 4a. Total MCP tools per server
+# 5a. Total MCP tools per server
 CONSTRUCT {
   ?toolCountSummary a mcp:ExtractedTool ;
     mcp:serverName ?serverName ;
@@ -259,7 +323,7 @@ WHERE {
   BIND(CONCAT("Total MCP tools for server ", ?serverName, ": ", STR(?toolCount)) AS ?toolCountDesc)
 }
 
-# 4b. Total parameters per MCP tool
+# 5b. Total parameters per MCP tool
 CONSTRUCT {
   ?paramCountSummary a mcp:ExtractedToolParameter ;
     mcp:toolName ?toolName ;
@@ -281,7 +345,7 @@ WHERE {
   BIND(CONCAT("Total parameters for tool ", ?toolName, ": ", STR(?paramCount)) AS ?paramCountDesc)
 }
 
-# 4c. Total A2A skills per agent
+# 5c. Total A2A skills per agent
 CONSTRUCT {
   ?skillCountSummary a a2a:ExtractedSkill ;
     a2a:agentName ?agentName ;
@@ -303,7 +367,7 @@ WHERE {
   BIND(CONCAT("Total skills for agent ", ?agentName, ": ", STR(?skillCount)) AS ?skillCountDesc)
 }
 
-# 4d. Grand totals
+# 5d. Grand totals
 CONSTRUCT {
   ?grandTotal a bridge:ExtractedBridge ;
     bridge:bridgeType "summary" ;

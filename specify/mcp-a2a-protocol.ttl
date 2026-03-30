@@ -117,6 +117,16 @@ a2a:ExtractedSkill
   rdfs:label "Extracted A2A Skill"@en ;
   rdfs:comment "A skill extraction result from SPARQL CONSTRUCT containing flattened annotation data."@en .
 
+a2a:SkillInputParam
+  a owl:Class ;
+  rdfs:label "A2A Skill Input Parameter"@en ;
+  rdfs:comment "A parameter accepted by an A2A skill, with multi-language type mappings for code generation."@en .
+
+a2a:ExtractedSkillInputParam
+  a owl:Class ;
+  rdfs:label "Extracted A2A Skill Input Parameter"@en ;
+  rdfs:comment "A skill input parameter extraction result from SPARQL CONSTRUCT containing flattened annotation data."@en .
+
 # ============================================================================
 # 4. BRIDGE CLASSES
 # ============================================================================
@@ -320,6 +330,12 @@ a2a:skillTags a owl:DatatypeProperty ; rdfs:range xsd:string .
 a2a:hasSkill a owl:ObjectProperty .
 a2a:hasTaskHandler a owl:ObjectProperty .
 a2a:hasAgentCard a owl:ObjectProperty .
+a2a:hasInputParam a owl:ObjectProperty .
+a2a:inputParamName a owl:DatatypeProperty ; rdfs:range xsd:string .
+a2a:inputParamDescription a owl:DatatypeProperty ; rdfs:range xsd:string .
+a2a:inputParamType a owl:DatatypeProperty ; rdfs:range xsd:string .
+a2a:inputParamRequired a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+a2a:inputParamDefaultValue a owl:DatatypeProperty ; rdfs:range xsd:string .
 a2a:messageType a owl:DatatypeProperty ; rdfs:range xsd:string .
 
 bridge:bridgeType a owl:DatatypeProperty ; rdfs:range xsd:string .
