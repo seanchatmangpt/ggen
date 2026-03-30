@@ -1,0 +1,41 @@
+# SPARQL SELECT Query: Extract A2A Agent + Skills (one row per skill)
+#
+# Returns one row per skill, with agent metadata repeated in every row.
+# The template uses:
+#   - Row variables (agent_name, agent_version, etc.) for agent-level fields
+#   - sparql_results to iterate ALL rows and build the skills array
+#
+# Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> a2a-elixir.tera
+
+PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+
+SELECT DISTINCT ?agent_name ?agent_version ?agent_description ?agent_url ?provider_name
+                ?skill_name ?skill_description ?skill_tags ?streaming ?timeout_ms ?retry_policy
+WHERE {
+  # Agent metadata (same for all rows)
+  ?agent a a2a:Agent ;
+    a2a:agentName ?agent_name ;
+    a2a:agentVersion ?agent_version ;
+    a2a:agentDescription ?agent_description ;
+    a2a:agentUrl ?agent_url .
+  OPTIONAL { ?agent a2a:agentProvider ?provider_raw . }
+  BIND(COALESCE(?provider_raw, "") AS ?provider_name)
+
+  # Skill-level data (one row per skill)
+  << ?agent a2a:hasSkill ?skill >>
+    a2a:skillName ?skill_name ;
+    a2a:skillDescription ?skill_desc_raw ;
+    a2a:skillTags ?tags .
+
+  BIND(COALESCE(?skill_desc_raw, "") AS ?skill_description)
+
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:streaming ?strm . }
+  BIND(COALESCE(?strm, "false") AS ?streaming)
+
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:timeout_ms ?tm . }
+  BIND(COALESCE(?tm, "30000") AS ?timeout_ms)
+
+  OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:retryPolicy ?rp . }
+  BIND(COALESCE(?rp, "none") AS ?retry_policy)
+}
+ORDER BY ?skill_name

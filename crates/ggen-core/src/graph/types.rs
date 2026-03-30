@@ -214,7 +214,10 @@ mod tests {
             JsonValue::Array(arr) => {
                 assert_eq!(arr.len(), 1);
                 assert!(arr[0].is_object());
-                assert_eq!(arr[0]["triple"], JsonValue::String("<s> <p> <o> .".to_string()));
+                assert_eq!(
+                    arr[0]["triple"],
+                    JsonValue::String("<s> <p> <o> .".to_string())
+                );
             }
             _ => panic!("Expected JSON array of triple objects"),
         }

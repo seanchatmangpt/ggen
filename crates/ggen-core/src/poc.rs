@@ -155,9 +155,18 @@ impl TeraFunction for SparqlFn {
                 for quad_result in quads {
                     let quad = quad_result.map_err(|e| tera::Error::msg(e.to_string()))?;
                     let mut row = serde_json::Map::new();
-                    row.insert("subject".to_string(), serde_json::Value::String(quad.subject.to_string()));
-                    row.insert("predicate".to_string(), serde_json::Value::String(quad.predicate.to_string()));
-                    row.insert("object".to_string(), serde_json::Value::String(quad.object.to_string()));
+                    row.insert(
+                        "subject".to_string(),
+                        serde_json::Value::String(quad.subject.to_string()),
+                    );
+                    row.insert(
+                        "predicate".to_string(),
+                        serde_json::Value::String(quad.predicate.to_string()),
+                    );
+                    row.insert(
+                        "object".to_string(),
+                        serde_json::Value::String(quad.object.to_string()),
+                    );
                     rows.push(serde_json::Value::Object(row));
                 }
                 Ok(serde_json::Value::Array(rows))

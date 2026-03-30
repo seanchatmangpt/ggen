@@ -1,0 +1,32 @@
+# SPARQL SELECT Query: Extract MCP-A2A Bridge Mappings (one row per bridge)
+#
+# Returns bridge mappings between MCP tools and A2A skills.
+#
+# Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> bridge template
+
+PREFIX bridge: <https://ggen.dev/ontology/bridge#>
+PREFIX mcp: <https://ggen.dev/ontology/mcp#>
+PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+
+SELECT ?bridge_type ?tool_name ?skill_name ?conversion_note
+WHERE {
+  ?bridge a ?bridge_class ;
+    bridge:bridgeType ?bridge_type .
+
+  # Extract tool side
+  OPTIONAL {
+    << ?bridge bridge:bridgesTool ?tool >> bridge:bridgesTool ?tool_name_raw .
+    << ?bridge bridge:bridgesTool ?tool >> bridge:conversionNote ?note_from_tool .
+  }
+
+  # Extract skill side
+  OPTIONAL {
+    << ?bridge bridge:bridgesSkill ?skill >> bridge:bridgesSkill ?skill_name_raw .
+    << ?bridge bridge:bridgesSkill ?skill >> bridge:conversionNote ?note_from_skill .
+  }
+
+  BIND(COALESCE(?tool_name_raw, ?tool_side) AS ?tool_name)
+  BIND(COALESCE(?skill_name_raw, ?skill_side) AS ?skill_name)
+  BIND(COALESCE(?note_from_tool, ?note_from_skill, "") AS ?conversion_note)
+}
+ORDER BY ?bridge_type ?tool_name ?skill_name

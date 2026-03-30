@@ -1,0 +1,20 @@
+# SPARQL SELECT Query: Extract A2A Agent Metadata (one row)
+#
+# Returns exactly one row with agent-level fields.
+# Template uses sparql_results for full row access.
+#
+# Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> a2a-elixir.tera
+
+PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+
+SELECT ?agent_name ?agent_version ?agent_description ?agent_url ?provider_name
+WHERE {
+  ?agent a a2a:Agent ;
+    a2a:agentName ?agent_name ;
+    a2a:agentVersion ?agent_version ;
+    a2a:agentDescription ?agent_description ;
+    a2a:agentUrl ?agent_url .
+  OPTIONAL { ?agent a2a:agentProvider ?provider_raw . }
+  BIND(COALESCE(?provider_raw, "") AS ?provider_name)
+}
+LIMIT 1

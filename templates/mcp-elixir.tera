@@ -31,7 +31,7 @@
 # Tools    : {{ tools | length | default(value=0) }}
 # ==============================================================================
 
-defmodule {{ server_name | default(value="mcp_server") | pascal_case }}.McpServer do
+defmodule {{ server_name | default(value="mcp_server") | pascal }}.McpServer do
   @moduledoc """
   MCP (Model Context Protocol) server for {{ server_name | default(value="mcp_server") }}.
 
@@ -47,9 +47,9 @@ defmodule {{ server_name | default(value="mcp_server") | pascal_case }}.McpServe
 
   ## Usage
 
-      iex> {:ok, pid} = {{ server_name | default(value="mcp_server") | pascal_case }}.McpServer.start_link()
-      iex> {{ server_name | default(value="mcp_server") | pascal_case }}.McpServer.tools()
-      iex> {{ server_name | default(value="mcp_server") | pascal_case }}.McpServer.call_tool("tool_name", %{"param" => "value"})
+      iex> {:ok, pid} = {{ server_name | default(value="mcp_server") | pascal }}.McpServer.start_link()
+      iex> {{ server_name | default(value="mcp_server") | pascal }}.McpServer.tools()
+      iex> {{ server_name | default(value="mcp_server") | pascal }}.McpServer.call_tool("tool_name", %{"param" => "value"})
   """
 
   use GenServer
@@ -393,7 +393,7 @@ end
 # Registers the MCP server under the application supervision tree.
 # Add this to your mix.exs `applications` list.
 
-defmodule {{ server_name | default(value="mcp_server") | pascal_case }}.Application do
+defmodule {{ server_name | default(value="mcp_server") | pascal }}.Application do
   @moduledoc """
   OTP Application for {{ server_name | default(value="mcp_server") }} MCP server.
 
@@ -405,10 +405,10 @@ defmodule {{ server_name | default(value="mcp_server") | pascal_case }}.Applicat
   @impl true
   def start(_type, _args) do
     children = [
-      {{ server_name | default(value="mcp_server") | pascal_case }}.McpServer
+      {{ server_name | default(value="mcp_server") | pascal }}.McpServer
     ]
 
-    opts = [strategy: :one_for_one, name: {{ server_name | default(value="mcp_server") | pascal_case }}.Supervisor]
+    opts = [strategy: :one_for_one, name: {{ server_name | default(value="mcp_server") | pascal }}.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end
@@ -416,10 +416,10 @@ end
 # ==============================================================================
 # Stdio reader — spawns a process that reads stdin and sends to the server
 # ==============================================================================
-# Call `{{ server_name | default(value="mcp_server") | pascal_case }}.StdioReader.start()` to begin
+# Call `{{ server_name | default(value="mcp_server") | pascal }}.StdioReader.start()` to begin
 # reading JSON-RPC lines from stdin.
 
-defmodule {{ server_name | default(value="mcp_server") | pascal_case }}.StdioReader do
+defmodule {{ server_name | default(value="mcp_server") | pascal }}.StdioReader do
   @moduledoc """
   Reads JSON-RPC lines from stdin and forwards them to the MCP server GenServer.
 
@@ -440,7 +440,7 @@ defmodule {{ server_name | default(value="mcp_server") | pascal_case }}.StdioRea
     case IO.gets("") do
       :eof ->
         Logger.info("StdioReader: EOF received")
-        send({{ server_name | default(value="mcp_server") | pascal_case }}.McpServer, {:stdin_eof})
+        send({{ server_name | default(value="mcp_server") | pascal }}.McpServer, {:stdin_eof})
 
       {:error, reason} ->
         Logger.error("StdioReader: read error: #{inspect(reason)}")
@@ -448,7 +448,7 @@ defmodule {{ server_name | default(value="mcp_server") | pascal_case }}.StdioRea
       line ->
         line = String.trim(line)
         if line != "" do
-          send({{ server_name | default(value="mcp_server") | pascal_case }}.McpServer, {:stdin, line})
+          send({{ server_name | default(value="mcp_server") | pascal }}.McpServer, {:stdin, line})
         end
         read_loop()
     end

@@ -364,13 +364,21 @@ impl Template {
                 oxigraph::sparql::QueryResults::Graph(triples) => {
                     let mut rows = Vec::new();
                     for triple_result in triples {
-                        let triple = triple_result.map_err(|e| {
-                            Error::with_source("SPARQL triple error", Box::new(e))
-                        })?;
+                        let triple = triple_result
+                            .map_err(|e| Error::with_source("SPARQL triple error", Box::new(e)))?;
                         let mut row = serde_json::Map::new();
-                        row.insert("subject".to_string(), serde_json::Value::String(triple.subject.to_string()));
-                        row.insert("predicate".to_string(), serde_json::Value::String(triple.predicate.to_string()));
-                        row.insert("object".to_string(), serde_json::Value::String(triple.object.to_string()));
+                        row.insert(
+                            "subject".to_string(),
+                            serde_json::Value::String(triple.subject.to_string()),
+                        );
+                        row.insert(
+                            "predicate".to_string(),
+                            serde_json::Value::String(triple.predicate.to_string()),
+                        );
+                        row.insert(
+                            "object".to_string(),
+                            serde_json::Value::String(triple.object.to_string()),
+                        );
                         rows.push(serde_json::Value::Object(row));
                     }
                     serde_json::Value::Array(rows)

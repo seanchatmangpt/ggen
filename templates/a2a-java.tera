@@ -84,13 +84,13 @@ record JsonRpcResponse(
  * Timeout: {{ skill.timeout_ms | default(value=5000) }}ms
  * Streaming: {{ skill.streaming | default(value="false") }}
  */
-record {{ skill.name | pascal_case }}Input(
+record {{ skill.name | pascal }}Input(
     {% for param in skill.input_params %}
-    {% if param.required != "true" %}@JsonInclude(JsonInclude.Include.NON_NULL) {% endif %}{{ param.java_type }} {{ param.name }}{% if param.required != "true" %}{% endif %}
+    {% if param.is_required != "true" %}@JsonInclude(JsonInclude.Include.NON_NULL) {% endif %}{{ param.java_type }} {{ param.name }}{% if param.is_required != "true" %}{% endif %}
     {% endfor %}
 ) {}
 
-record {{ skill.name | pascal_case }}Output(
+record {{ skill.name | pascal }}Output(
     {% for param in skill.output_params %}
     {{ param.java_type }} {{ param.name }}
     {% endfor %}
@@ -102,8 +102,7 @@ record {{ skill.name | pascal_case }}Output(
 // ============================================================================
 
 @RestController
-@RequestMapping("/a2a")
-public class {{ agent_name | pascal_case }}Agent {
+public class {{ agent_name | pascal }}Agent {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final ConcurrentHashMap<String, Task> tasks = new ConcurrentHashMap<>();
@@ -112,7 +111,7 @@ public class {{ agent_name | pascal_case }}Agent {
     // Agent Card
     // ========================================================================
 
-    @GetMapping(value = "/.well-known/agent.json", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/a2a/.well-known/agent.json", produces = MediaType.APPLICATION_JSON_VALUE)
     public AgentCard agentCard() {
         return new AgentCard(
             "{{ agent_name }}",
@@ -127,7 +126,7 @@ public class {{ agent_name | pascal_case }}Agent {
                     "{{ skill.name }}",
                     "{{ skill.description }}",
                     {{ skill.tags | default(value="List.of()") }},
-                    {{ skill.streaming | default(value="false") }},
+                    false,
                     {{ skill.input_schema | default(value="Map.of()") }},
                     {{ skill.output_schema | default(value="Map.of()") }}
                 ),
@@ -155,7 +154,7 @@ public class {{ agent_name | pascal_case }}Agent {
             {% for skill in skills %}
             case "{{ skill.name }}" -> {
                 try {
-                    Object result = handle{{ skill.name | pascal_case }}(request.params());
+                    Object result = handle{{ skill.name | pascal }}(request.params());
                     yield new JsonRpcResponse("2.0", result, null, request.id());
                 } catch (Exception e) {
                     yield new JsonRpcResponse("2.0", null,
@@ -182,7 +181,7 @@ public class {{ agent_name | pascal_case }}Agent {
      * @param params raw input parameters from JSON-RPC request
      * @return skill output
      */
-    public Object handle{{ skill.name | pascal_case }}(Map<String, Object> params) {
+    public Object handle{{ skill.name | pascal }}(Map<String, Object> params) {
         // TODO: implement {{ skill.name }}
         // Timeout: {{ skill.timeout_ms | default(value=5000) }}ms
         return Map.of("skill", "{{ skill.name }}", "status", "not_implemented");
@@ -242,13 +241,6 @@ public class {{ agent_name | pascal_case }}Agent {
         );
     }
 
-    // ========================================================================
-    // Main
-    // ========================================================================
-
-    public static void main(String[] args) {
-        SpringApplication.run({{ agent_name | pascal_case }}Agent.class, args);
-    }
 }
 
 // ============================================================================
@@ -256,9 +248,9 @@ public class {{ agent_name | pascal_case }}Agent {
 // ============================================================================
 
 @SpringBootApplication
-class {{ agent_name | pascal_case }}Application {
+class {{ agent_name | pascal }}Application {
     public static void main(String[] args) {
-        SpringApplication.run({{ agent_name | pascal_case }}Application.class, args);
+        SpringApplication.run({{ agent_name | pascal }}Application.class, args);
     }
 }
 
