@@ -168,12 +168,12 @@ fn a2a_context() -> Context {
             "name": "check_stock",
             "description": "Check current stock level for a product SKU",
             "id": "check_stock",
-            "tags": "[\"inventory\", \"read\"]",
+            "tags": "[]string{\"inventory\", \"read\"}",
             "streaming": "false",
             "timeout_ms": "5000",
             "retry_policy": "exponential",
-            "input_schema": "{}",
-            "output_schema": "{}",
+            "input_schema": "map[string]interface{}{}",
+            "output_schema": "map[string]interface{}{}",
             "input_params": [
                 {
                     "name": "sku",
@@ -209,12 +209,12 @@ fn a2a_context() -> Context {
             "name": "update_stock",
             "description": "Update stock level for a product SKU after shipment or receipt",
             "id": "update_stock",
-            "tags": "[\"inventory\", \"write\"]",
+            "tags": "[]string{\"inventory\", \"write\"}",
             "streaming": "false",
             "timeout_ms": "10000",
             "retry_policy": "none",
-            "input_schema": "{}",
-            "output_schema": "{}",
+            "input_schema": "map[string]interface{}{}",
+            "output_schema": "map[string]interface{}{}",
             "input_params": [
                 {
                     "name": "sku",
@@ -424,6 +424,12 @@ fn test_render_mcp_rust() {
     assert!(result
         .rendered
         .contains("impl ServerHandler for OrderProcessor"));
+    // Verify correct rmcp 1.3.0 Parameters pattern (NOT #[tool(aggr)])
+    assert!(result.rendered.contains("Parameters(params): Parameters<CreateOrderParams>"));
+    assert!(result.rendered.contains("Parameters(params): Parameters<GetOrderStatusParams>"));
+    assert!(!result.rendered.contains("#[tool(aggr)]"), "Template must use Parameters wrapper, not #[tool(aggr)]");
+    // Verify correct schemars import
+    assert!(result.rendered.contains("schemars::JsonSchema"));
 }
 
 #[test]
@@ -452,27 +458,14 @@ fn test_render_mcp_go() {
     let mut tera = create_test_tera();
     let template = load_root_template("mcp-go.tera");
     let ctx = mcp_context();
-    let result = render_template_str(&mut tera, &template, &ctx);
+    let result = render_and_save(&mut tera, "mcp-go.tera", "mcp_server.go", &template, &ctx);
 
-    // KNOWN BUG: mcp-go.tera line 254 uses ToolContent{{Type: ...}}
-    // Tera interprets {{ as template delimiters, causing parse failure.
-    // The Go template needs to escape this as {{ "{{" }}Type: ...{{ "}}" }}
-    // or restructure the Go code to avoid inline composite literals.
-    if let Err(e) = &result {
-        eprintln!("  [TEMPLATE BUG] mcp-go.tera parse failure (Go composite literal conflicts with Tera delimiters): {e}");
-        // Verify it's the expected {{ conflict
-        assert!(
-            e.contains("ToolContent") || e.contains("254"),
-            "Expected ToolContent-related parse error, got: {e}"
-        );
-        return;
-    }
-
-    let rendered = result.unwrap();
-    write_output("mcp_server.go", &rendered);
-    assert!(rendered.contains("package main"));
-    assert!(rendered.contains("type MCPServer struct"));
-    assert!(rendered.contains("func handleCreateOrder("));
+    assert!(result.rendered.contains("package main"));
+    assert!(result.rendered.contains("type MCPServer struct"));
+    assert!(result.rendered.contains("func handleCreateOrder("));
+    // Verify {% raw %} blocks preserved Go composite literals correctly
+    assert!(result.rendered.contains("[]ToolContent{"));
+    assert!(result.rendered.contains("Type: \"text\""));
 }
 
 #[test]
@@ -584,25 +577,12 @@ fn test_render_a2a_go() {
     let mut tera = create_test_tera();
     let template = load_root_template("a2a-go.tera");
     let ctx = a2a_context();
-    let result = render_template_str(&mut tera, &template, &ctx);
+    let result = render_and_save(&mut tera, "a2a-go.tera", "a2a_agent.go", &template, &ctx);
 
-    // KNOWN BUG: a2a-go.tera uses `snake_case` filter (Jinja2 convention)
-    // instead of `snake` (Tera convention). ggen's register_all() registers
-    // `snake` but not `snake_case`. The template needs to be updated.
-    if let Err(e) = &result {
-        eprintln!("  [TEMPLATE BUG] a2a-go.tera uses snake_case filter (not registered): {e}");
-        assert!(
-            e.contains("snake_case"),
-            "Expected snake_case filter error, got: {e}"
-        );
-        return;
-    }
-
-    let rendered = result.unwrap();
-    write_output("a2a_agent.go", &rendered);
-    assert!(rendered.contains("package main"));
-    assert!(rendered.contains("type AgentCard struct"));
-    assert!(rendered.contains("func handleCheckStock("));
+    assert!(result.rendered.contains("package main"));
+    assert!(result.rendered.contains("type AgentCard struct"));
+    assert!(result.rendered.contains("func handleCheckStock("));
+    assert!(result.rendered.contains("func handleUpdateStock("));
 }
 
 #[test]
@@ -627,6 +607,40 @@ fn test_render_a2a_elixir() {
     assert!(result
         .rendered
         .contains("defmodule InventoryAgent.Supervisor"));
+
+    // Bug 1 fix: AgentTask (not Task) to avoid Elixir stdlib collision
+    assert!(result.rendered.contains("defmodule AgentTask do"),
+        "Bug 1: inner module must be AgentTask, not Task (stdlib collision)");
+    assert!(!result.rendered.contains("defmodule Task do"),
+        "Bug 1: must NOT contain defmodule Task (stdlib collision)");
+    assert!(result.rendered.contains("AgentTask.new("),
+        "Bug 1: must use AgentTask.new() not Task.new()");
+
+    // Bug 2 fix: direct Task.Supervisor.start_child (no PartitionSupervisor tuple)
+    assert!(!result.rendered.contains("PartitionSupervisor"),
+        "Bug 2: must NOT use PartitionSupervisor tuple");
+    assert!(result.rendered.contains("Task.Supervisor.start_child("),
+        "Bug 2: must use direct Task.Supervisor.start_child");
+    assert!(result.rendered.contains("Process.monitor(pid)"),
+        "Bug 2: must monitor the spawned process pid");
+
+    // Bug 3 fix: handle_info DOWN uses 5-tuple with guard
+    assert!(result.rendered.contains("{:DOWN, _ref, :process, _pid, :normal}"),
+        "Bug 3: handle_info DOWN must use 5-tuple for :normal");
+    assert!(result.rendered.contains("when reason != :normal"),
+        "Bug 3: abnormal exit clause must guard against :normal to avoid overlap");
+
+    // Bug 4 fix: @default_timeout_ms is referenced in send_message
+    assert!(result.rendered.contains("@default_timeout_ms"),
+        "Bug 4: @default_timeout_ms must be declared");
+    assert!(result.rendered.contains(", @default_timeout_ms)"),
+        "Bug 4: send_message must use @default_timeout_ms for GenServer.call timeout");
+
+    // Bug 5 fix: streaming uses boolean (false/true), not string
+    assert!(!result.rendered.contains("streaming: \"false\""),
+        "Bug 5: streaming must be boolean false, not string \"false\"");
+    assert!(!result.rendered.contains("streaming: \"true\""),
+        "Bug 5: streaming must be boolean true, not string \"true\"");
 
     // Also write as .ex file for elixirc check
     write_output("a2a_agent_elixir.ex", &result.rendered);
@@ -658,40 +672,26 @@ fn test_render_a2a_java() {
 // error (missing context variables set by {% set %} blocks).
 
 #[test]
-fn test_adapter_mcp_server_rs_set_tag_limitation() {
+fn test_adapter_mcp_server_rs_render() {
     let mut tera = create_test_tera();
     let template = load_core_template("mcp/server.rs.tera");
     let ctx = adapter_mcp_sparql_context();
 
-    // This is EXPECTED to fail because:
-    // 1. Tera's render_str() doesn't support {% set %} block assignments
-    // 2. The template uses `seen_tools.append()` which is not a Tera builtin
-    let result = render_template_str(&mut tera, &template, &ctx);
-    assert!(
-        result.is_err(),
-        "Adapter templates with set blocks should fail in render_str mode"
-    );
-    let err_msg = result.unwrap_err();
-    assert!(
-        err_msg.contains("not found in context"),
-        "Error should mention missing context variable: {err_msg}"
-    );
-    eprintln!("  [KNOWN LIMITATION] Adapter mcp/server.rs.tera uses set blocks not supported by render_str: {err_msg}");
+    // Adapter templates now render successfully with SPARQL context data
+    let result = render_and_save(&mut tera, "mcp/server.rs.tera", "adapter_mcp_server.rs", &template, &ctx);
+    assert!(!result.rendered.is_empty());
+    assert!(result.rendered.contains("fn main"));
 }
 
 #[test]
-fn test_adapter_a2a_agent_ex_set_tag_limitation() {
+fn test_adapter_a2a_agent_ex_render() {
     let mut tera = create_test_tera();
     let template = load_core_template("a2a/agent.ex.tera");
     let ctx = adapter_a2a_sparql_context();
 
-    let result = render_template_str(&mut tera, &template, &ctx);
-    assert!(
-        result.is_err(),
-        "Adapter templates with set blocks should fail in render_str mode"
-    );
-    let err_msg = result.unwrap_err();
-    eprintln!("  [KNOWN LIMITATION] Adapter a2a/agent.ex.tera uses set blocks not supported by render_str: {err_msg}");
+    // Adapter templates now render successfully with SPARQL context data
+    let result = render_and_save(&mut tera, "a2a/agent.ex.tera", "adapter_a2a_agent.ex", &template, &ctx);
+    assert!(!result.rendered.is_empty());
 }
 
 // ===========================================================================

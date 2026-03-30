@@ -57,7 +57,7 @@ defmodule {{ agent_name | pascal }} do
         %{
           name: "{{ skill.name }}",
           description: "{{ skill.description }}",
-          streaming: false,
+          streaming: {{ skill.streaming | default(value = "false") }},
           timeout_ms: {{ skill.timeout_ms | default(value = "30000") }},
           retry_policy: "{{ skill.retry_policy | default(value = "none") }}"
         },
@@ -67,12 +67,13 @@ defmodule {{ agent_name | pascal }} do
   end
 
   # ---------------------------------------------------------------------------
-  # Task struct (state machine)
+  # AgentTask struct (state machine)
+  # Renamed from Task to avoid Elixir stdlib Task module collision
   # ---------------------------------------------------------------------------
   # Created -> Running -> Completed | Failed | Cancelled
   # Terminal states: :completed, :failed, :cancelled
 
-  defmodule Task do
+  defmodule AgentTask do
     @moduledoc false
     defstruct [:id, :status, :skill, :input, :result, :error, :created_at, :updated_at]
 
@@ -148,7 +149,7 @@ defmodule {{ agent_name | pascal }} do
   """
   @spec send_message(String.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def send_message(skill_name, params) when is_binary(skill_name) and is_map(params) do
-    GenServer.call(__MODULE__, {:send_message, skill_name, params}, 5_000)
+    GenServer.call(__MODULE__, {:send_message, skill_name, params}, @default_timeout_ms)
   end
 
   @doc """
@@ -192,15 +193,17 @@ defmodule {{ agent_name | pascal }} do
         {:reply, {:error, "task limit reached (#{@max_tasks})"}, state}
 
       valid_skill?(skill_name) ->
-        task = Task.new(skill_name, params)
+        task = AgentTask.new(skill_name, params)
         state = put_in(state.tasks[task.id], task)
 
         # Execute skill asynchronously (Armstrong: supervised spawn)
-        _pid =
-          Task.Supervisor.start_child({:via, PartitionSupervisor, name: {{ agent_name | pascal }}.TaskSupervisor}, fn ->
-            execute_skill(task.id, skill_name, params)
-          end)
+        {:ok, pid} =
+          Task.Supervisor.start_child(
+            {{ agent_name | pascal }}.TaskSupervisor,
+            fn -> execute_skill(task.id, skill_name, params) end
+          )
 
+        Process.monitor(pid)
         {:reply, {:ok, %{task_id: task.id, status: "created"}}, state}
 
       true ->
@@ -222,7 +225,7 @@ defmodule {{ agent_name | pascal }} do
       nil ->
         {:reply, {:error, "task not found: #{id}"}, state}
 
-      %Task{status: status} when status in [:completed, :failed, :cancelled] ->
+      %AgentTask{status: status} when status in [:completed, :failed, :cancelled] ->
         {:reply, {:error, "task #{id} is in terminal state #{status}"}, state}
 
       task ->
@@ -281,6 +284,7 @@ defmodule {{ agent_name | pascal }} do
     {:noreply, state}
   end
 
+  # OTP 28: 5-tuple DOWN message
   @impl true
   def handle_info({:DOWN, _ref, :process, _pid, :normal}, state) do
     # Task exited normally — state already updated via cast
@@ -288,7 +292,7 @@ defmodule {{ agent_name | pascal }} do
   end
 
   @impl true
-  def handle_info({:DOWN, _ref, :process, pid, reason}, state) do
+  def handle_info({:DOWN, _ref, :process, pid, reason}, state) when reason != :normal do
     # Unexpected crash — find and fail the associated task (Armstrong: let-it-crash)
     Logger.warning("[{{ agent_name }}] task process #{inspect(pid)} crashed: #{inspect(reason)}")
     {:noreply, state}
@@ -341,7 +345,7 @@ defmodule {{ agent_name | pascal }} do
     ]
   end
 
-  defp task_to_map(%Task{} = task) do
+  defp task_to_map(%AgentTask{} = task) do
     %{
       id: task.id,
       status: task.status,

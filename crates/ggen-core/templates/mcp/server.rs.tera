@@ -20,10 +20,11 @@
 // SDK: rmcp 1.3.0
 // ==============================================================================
 
-use rmcp::handler::server::router::tool::ToolRouter;
+use rmcp::handler::server::{router::tool::ToolRouter, wrapper::Parameters};
 use rmcp::model::*;
-use rmcp::schemars::JsonSchema;
-use rmcp::{tool, tool_handler, tool_router, ErrorData as McpError, ServerHandler};
+use rmcp::schemars;
+use rmcp::{ServerHandler, ServiceExt, tool, tool_handler, tool_router};
+use rmcp::model::ErrorData as McpError;
 use serde::Deserialize;
 
 // ==============================================================================
@@ -42,7 +43,7 @@ use serde::Deserialize;
 /// Parameters for `{{ row.tool_name }}`
 ///
 /// {{ row.tool_description | default(value="(no description)") }}
-#[derive(Debug, Deserialize, Serialize, JsonSchema)]
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
 pub struct {{ row.tool_name | pascal }}Params {
     // TODO: add parameters from extract-mcp-params.rq
 }
@@ -86,7 +87,7 @@ impl {{ server_name | default(value="McpServer") | pascal }} {
     #[tool(description = "{{ row.tool_description | default(value=row.tool_name) }}")]
     async fn {{ row.tool_name | snake }}(
         &self,
-        #[tool(aggr)] params: {{ row.tool_name | pascal }}Params,
+        Parameters(params): Parameters<{{ row.tool_name | pascal }}Params>,
     ) -> Result<CallToolResult, McpError> {
         // TODO: implement {{ row.tool_name }}
         Ok(CallToolResult::success(vec![Content::text(
@@ -120,7 +121,7 @@ impl ServerHandler for {{ server_name | default(value="McpServer") | pascal }} {
 // ==============================================================================
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> anyhow::Result<()> {
 {% if transport_type == "http" %}
     let transport = rmcp::transport::http().bind("0.0.0.0:3000").await?;
 {% elif transport_type == "sse" %}
@@ -131,9 +132,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let server = {{ server_name | default(value="McpServer") | pascal }}::new();
 
-    if let Ok(svc) = server.serve(transport).await {
-        svc.waiting().await?;
-    }
+    let running = server.serve(transport).await?;
+    running.waiting().await?;
 
     Ok(())
 }

@@ -92,7 +92,7 @@ var (
 // Timeout: {{ skill.timeout_ms | default(value=5000) }}ms
 type {{ skill.name | pascal }}Input struct {
 	{% for param in skill.input_params %}
-	{{ param.name | pascal }} {{ param.go_type }} `json:"{{ param.name }}"{% if param.is_required != "true" %},omitempty{% endif %}`
+	{{ param.name | pascal }} {{ param.go_type }} `json:"{{ param.name }}{% if param.is_required != "true" %},omitempty{% endif %}"`
 	{% endfor %}
 }
 

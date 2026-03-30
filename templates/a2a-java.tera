@@ -96,7 +96,7 @@ record {{ skill.name | pascal }}Input(
 
 record {{ skill.name | pascal }}Output(
     {% for param in skill.output_params %}
-    {{ param.java_type }} {{ param.name }}
+    {{ param.java_type }} {{ param.name }}{% if not loop.last %},{% endif %}
     {% endfor %}
 ) {}
 {% endfor %}
@@ -133,7 +133,7 @@ public class {{ agent_name | pascal }}Agent {
                     false,
                     {{ skill.input_schema | default(value="Map.of()") }},
                     {{ skill.output_schema | default(value="Map.of()") }}
-                ),
+                ){% if not loop.last %},{% endif %}
                 {% endfor %}
             )
         );
