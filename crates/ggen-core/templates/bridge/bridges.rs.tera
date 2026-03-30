@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 /// {{ row.tool_name | default(value="") }} <-> {{ row.skill_name | default(value="") }}
 /// {{ row.conversion_note | default(value="") }}
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct {{ row.bridge_type | default(value="bridge") | pascal_case }}Bridge {
+pub struct {{ row.bridge_type | default(value="bridge") | pascal }}Bridge {
     pub tool_name: String,
     pub skill_name: String,
     pub conversion_note: String,

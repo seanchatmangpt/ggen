@@ -2,9 +2,9 @@
 // Do not edit - regenerate with: ggen sync
 {%- import "macros" as macros %}
 
-//! A2A Agent: {{ agentName | pascal_case }}
+//! A2A Agent: {{ agentName | pascal }}
 //!
-//! This module implements the A2A (Agent-to-Agent) protocol client for {{ agentName | pascal_case }}.
+//! This module implements the A2A (Agent-to-Agent) protocol client for {{ agentName | pascal }}.
 //! Generated from RDF ontology specification.
 
 use a2a_generated::prelude::*;
@@ -18,22 +18,22 @@ use tokio::sync::RwLock;
 // AGENT CLIENT
 // ============================================================================
 
-/// A2A Agent for {{ agentName | pascal_case }}
+/// A2A Agent for {{ agentName | pascal }}
 ///
 /// This agent provides skills for interacting with {{ agentName }} services
 /// using the A2A protocol for agent-to-agent communication.
 #[derive(Debug, Clone)]
-pub struct {{ agentName | pascal_case }}Agent {
+pub struct {{ agentName | pascal }}Agent {
     /// Internal client for A2A communication
     client: Arc<AgentClient>,
 
     /// Agent configuration
-    config: Arc<RwLock<{{ agentName | pascal_case }}Config>>,
+    config: Arc<RwLock<{{ agentName | pascal }}Config>>,
 }
 
-/// Configuration for {{ agentName | pascal_case }} agent
+/// Configuration for {{ agentName | pascal }} agent
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct {{ agentName | pascal_case }}Config {
+pub struct {{ agentName | pascal }}Config {
     /// Agent endpoint URL
     pub endpoint: String,
 
@@ -57,7 +57,7 @@ pub struct {{ agentName | pascal_case }}Config {
 fn default_timeout() -> u64 { 30 }
 fn default_retries() -> usize { 3 }
 
-impl Default for {{ agentName | pascal_case }}Config {
+impl Default for {{ agentName | pascal }}Config {
     fn default() -> Self {
         Self {
             endpoint: "http://localhost:8080".to_string(),
@@ -69,8 +69,8 @@ impl Default for {{ agentName | pascal_case }}Config {
     }
 }
 
-impl {{ agentName | pascal_case }}Agent {
-    /// Create a new {{ agentName | pascal_case }} agent client
+impl {{ agentName | pascal }}Agent {
+    /// Create a new {{ agentName | pascal }} agent client
     ///
     /// # Arguments
     ///
@@ -83,21 +83,21 @@ impl {{ agentName | pascal_case }}Agent {
     /// # Example
     ///
     /// ```no_run
-    /// use {{ agentName | snake_case }}::{{ agentName | pascal_case }}Agent;
+    /// use {{ agentName | snake }}::{{ agentName | pascal }}Agent;
     ///
     /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
-    /// let agent = {{ agentName | pascal_case }}Agent::new("http://localhost:8080").await?;
+    /// let agent = {{ agentName | pascal }}Agent::new("http://localhost:8080").await?;
     /// # Ok(())
     /// # }
     /// ```
     pub async fn new(endpoint: &str) -> Result<Self, AgentError> {
-        Self::with_config({{ agentName | pascal_case }}Config {
+        Self::with_config({{ agentName | pascal }}Config {
             endpoint: endpoint.to_string(),
             ..Default::default()
         }).await
     }
 
-    /// Create a new {{ agentName | pascal_case }} agent with custom configuration
+    /// Create a new {{ agentName | pascal }} agent with custom configuration
     ///
     /// # Arguments
     ///
@@ -106,7 +106,7 @@ impl {{ agentName | pascal_case }}Agent {
     /// # Returns
     ///
     /// Returns a `Result` containing the agent client or an `AgentError`.
-    pub async fn with_config(config: {{ agentName | pascal_case }}Config) -> Result<Self, AgentError> {
+    pub async fn with_config(config: {{ agentName | pascal }}Config) -> Result<Self, AgentError> {
         // Create the underlying A2A client
         let client = AgentClient::connect(&config.endpoint, config.timeout_secs).await?;
 
@@ -117,12 +117,12 @@ impl {{ agentName | pascal_case }}Agent {
     }
 
     /// Get the current configuration
-    pub async fn config(&self) -> {{ agentName | pascal_case }}Config {
+    pub async fn config(&self) -> {{ agentName | pascal }}Config {
         self.config.read().await.clone()
     }
 
     /// Update the configuration
-    pub async fn update_config(&self, config: {{ agentName | pascal_case }}Config) -> Result<(), AgentError> {
+    pub async fn update_config(&self, config: {{ agentName | pascal }}Config) -> Result<(), AgentError> {
         *self.config.write().await = config;
         Ok(())
     }
@@ -141,7 +141,7 @@ impl {{ agentName | pascal_case }}Agent {
     {% if skill.description %}
     /// {{ skill.description }}
     {% else %}
-    /// Skill: {{ skill.name | pascal_case }}
+    /// Skill: {{ skill.name | pascal }}
     {% endif %}
     ///
     {% if skill.inputType %}
@@ -154,12 +154,12 @@ impl {{ agentName | pascal_case }}Agent {
     ///
     /// Returns a `Result` containing {{ skill.outputType }} or an `AgentError`.
     {% endif %}
-    pub async fn {{ skill.name | snake_case }}(&self, input: {{ skill.inputType | default(value="serde_json::Value") }}) -> Result<{{ skill.outputType | default(value="serde_json::Value") }}, AgentError> {
+    pub async fn {{ skill.name | snake }}(&self, input: {{ skill.inputType | default(value="serde_json::Value") }}) -> Result<{{ skill.outputType | default(value="serde_json::Value") }}, AgentError> {
         // Create message for skill invocation
         let message = ConvergedMessage::task(
             uuid::Uuid::new_v4().to_string(),
             self.client.id(),
-            "{{ skill.name | snake_case }}".to_string(),
+            "{{ skill.name | snake }}".to_string(),
             serde_json::to_value(input).map_err(|e| AgentError::Serialization(e.to_string()))?,
         );
 
@@ -183,13 +183,13 @@ impl {{ agentName | pascal_case }}Agent {
 // ============================================================================
 
 {% if supportsStreaming %}
-impl {{ agentName | pascal_case }}Agent {
+impl {{ agentName | pascal }}Agent {
     {% for skill in skills -%}
     {% if skill.supportsStreaming -%}
-    /// {{ skill.name | pascal_case }} with streaming support
+    /// {{ skill.name | pascal }} with streaming support
     ///
     /// Returns a stream of results instead of waiting for completion.
-    pub async fn {{ skill.name | snake_case }}_stream(&self, input: {{ skill.inputType | default(value="serde_json::Value") }}) -> Result<tokio::sync::mpsc::Receiver<{{ skill.outputType | default(value="serde_json::Value") }}>, AgentError> {
+    pub async fn {{ skill.name | snake }}_stream(&self, input: {{ skill.inputType | default(value="serde_json::Value") }}) -> Result<tokio::sync::mpsc::Receiver<{{ skill.outputType | default(value="serde_json::Value") }}>, AgentError> {
         let (tx, rx) = tokio::sync::mpsc::channel(100);
         let client = self.client.clone();
 
@@ -197,7 +197,7 @@ impl {{ agentName | pascal_case }}Agent {
             let message = ConvergedMessage::task(
                 uuid::Uuid::new_v4().to_string(),
                 client.id(),
-                "{{ skill.name | snake_case }}".to_string(),
+                "{{ skill.name | snake }}".to_string(),
                 serde_json::to_value(input).unwrap_or_default(),
             );
 
@@ -228,20 +228,20 @@ impl {{ agentName | pascal_case }}Agent {
 // BATCH OPERATIONS
 // ============================================================================
 
-impl {{ agentName | pascal_case }}Agent {
+impl {{ agentName | pascal }}Agent {
     {% for skill in skills -%}
     {% if skill.supportsBatch -%}
-    /// Batch {{ skill.name | pascal_case }} operation
+    /// Batch {{ skill.name | pascal }} operation
     ///
     /// Process multiple inputs in a single batch request.
-    pub async fn {{ skill.name | snake_case }}_batch(&self, inputs: Vec<{{ skill.inputType | default(value="serde_json::Value") }}>) -> Result<Vec<{{ skill.outputType | default(value="serde_json::Value") }}>, AgentError> {
+    pub async fn {{ skill.name | snake }}_batch(&self, inputs: Vec<{{ skill.inputType | default(value="serde_json::Value") }}>) -> Result<Vec<{{ skill.outputType | default(value="serde_json::Value") }}>, AgentError> {
         let batch_data = serde_json::to_value(inputs)
             .map_err(|e| AgentError::Serialization(e.to_string()))?;
 
         let message = ConvergedMessage::task(
             uuid::Uuid::new_v4().to_string(),
             self.client.id(),
-            "{{ skill.name | snake_case }}_batch".to_string(),
+            "{{ skill.name | snake }}_batch".to_string(),
             batch_data,
         );
 
@@ -260,12 +260,12 @@ impl {{ agentName | pascal_case }}Agent {
 // ============================================================================
 
 #[async_trait]
-impl SkillInvoker for {{ agentName | pascal_case }}Agent {
+impl SkillInvoker for {{ agentName | pascal }}Agent {
     async fn invoke_skill(&self, skill_name: &str, input: serde_json::Value) -> Result<serde_json::Value, AgentError> {
         match skill_name {
             {% for skill in skills -%}
-            "{{ skill.name | snake_case }}" => {
-                self.{{ skill.name | snake_case }}(input).await
+            "{{ skill.name | snake }}" => {
+                self.{{ skill.name | snake }}(input).await
             }
             {% endfor %}
             _ => Err(AgentError::Validation(format!("Unknown skill: {}", skill_name))),
@@ -275,7 +275,7 @@ impl SkillInvoker for {{ agentName | pascal_case }}Agent {
     fn list_skills(&self) -> Vec<String> {
         vec![
             {% for skill in skills -%}
-            "{{ skill.name | snake_case }}".to_string(),
+            "{{ skill.name | snake }}".to_string(),
             {% endfor %}
         ]
     }
@@ -465,23 +465,23 @@ pub trait SkillInvoker: Send + Sync {
 
 {% for skill in skills %}
 {% if skill.customInputType %}
-/// Input type for {{ skill.name | snake_case }} skill
+/// Input type for {{ skill.name | snake }} skill
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct {{ skill.name | pascal_case }}Input {
+pub struct {{ skill.name | pascal }}Input {
     {% for field in skill.inputFields %}
     /// {{ field.description | default(value=field.name) }}
-    pub {{ field.name | snake_case }}: {{ field.rustType }},
+    pub {{ field.name | snake }}: {{ field.rustType }},
     {% endfor %}
 }
 
 {% endif %}
 {% if skill.customOutputType %}
-/// Output type for {{ skill.name | snake_case }} skill
+/// Output type for {{ skill.name | snake }} skill
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct {{ skill.name | pascal_case }}Output {
+pub struct {{ skill.name | pascal }}Output {
     {% for field in skill.outputFields %}
     /// {{ field.description | default(value=field.name) }}
-    pub {{ field.name | snake_case }}: {{ field.rustType }},
+    pub {{ field.name | snake }}: {{ field.rustType }},
     {% endfor %}
 }
 
@@ -498,7 +498,7 @@ mod tests {
 
     #[test]
     fn test_config_default() {
-        let config = {{ agentName | pascal_case }}Config::default();
+        let config = {{ agentName | pascal }}Config::default();
         assert_eq!(config.endpoint, "http://localhost:8080");
         assert_eq!(config.timeout_secs, 30);
         assert_eq!(config.max_retries, 3);
@@ -507,7 +507,7 @@ mod tests {
 
     #[test]
     fn test_config_serialization() {
-        let config = {{ agentName | pascal_case }}Config {
+        let config = {{ agentName | pascal }}Config {
             endpoint: "http://example.com".to_string(),
             timeout_secs: 60,
             max_retries: 5,
@@ -516,7 +516,7 @@ mod tests {
         };
 
         let json = serde_json::to_string(&config).unwrap();
-        let parsed: {{ agentName | pascal_case }}Config = serde_json::from_str(&json).unwrap();
+        let parsed: {{ agentName | pascal }}Config = serde_json::from_str(&json).unwrap();
 
         assert_eq!(parsed.endpoint, "http://example.com");
         assert_eq!(parsed.timeout_secs, 60);
@@ -526,11 +526,11 @@ mod tests {
 
     {% for skill in skills %}
     #[test]
-    fn test_{{ skill.name | snake_case }}_input_serialization() {
+    fn test_{{ skill.name | snake }}_input_serialization() {
         {% if skill.customInputType %}
-        let input = {{ skill.name | pascal_case }}Input {
+        let input = {{ skill.name | pascal }}Input {
             {% for field in skill.inputFields %}
-            {{ field.name | snake_case }}: {{ field.exampleValue }},
+            {{ field.name | snake }}: {{ field.exampleValue }},
             {% endfor %}
         };
 
@@ -545,7 +545,7 @@ mod tests {
     async fn test_skill_invocation() {
         let skills = vec![
             {% for skill in skills %}
-            "{{ skill.name | snake_case }}",
+            "{{ skill.name | snake }}",
             {% endfor %}
         ];
 

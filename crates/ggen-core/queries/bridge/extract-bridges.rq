@@ -13,20 +13,22 @@ WHERE {
   ?bridge a ?bridge_class ;
     bridge:bridgeType ?bridge_type .
 
-  # Extract tool side
+  # Extract tool side (bridgesTool triple-term annotation)
   OPTIONAL {
-    << ?bridge bridge:bridgesTool ?tool >> bridge:bridgesTool ?tool_name_raw .
-    << ?bridge bridge:bridgesTool ?tool >> bridge:conversionNote ?note_from_tool .
+    << ?bridge bridge:bridgesTool ?tool >>
+      bridge:bridgesTool ?tool_name_raw ;
+      bridge:conversionNote ?note_from_tool .
   }
 
-  # Extract skill side
+  # Extract skill side (bridgesSkill triple-term annotation)
   OPTIONAL {
-    << ?bridge bridge:bridgesSkill ?skill >> bridge:bridgesSkill ?skill_name_raw .
-    << ?bridge bridge:bridgesSkill ?skill >> bridge:conversionNote ?note_from_skill .
+    << ?bridge bridge:bridgesSkill ?skill >>
+      bridge:bridgesSkill ?skill_name_raw ;
+      bridge:conversionNote ?note_from_skill .
   }
 
-  BIND(COALESCE(?tool_name_raw, ?tool_side) AS ?tool_name)
-  BIND(COALESCE(?skill_name_raw, ?skill_side) AS ?skill_name)
+  BIND(COALESCE(?tool_name_raw, "") AS ?tool_name)
+  BIND(COALESCE(?skill_name_raw, "") AS ?skill_name)
   BIND(COALESCE(?note_from_tool, ?note_from_skill, "") AS ?conversion_note)
 }
 ORDER BY ?bridge_type ?tool_name ?skill_name

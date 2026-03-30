@@ -45,11 +45,12 @@ record AgentCard(
 // Task Model
 // ============================================================================
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 record Task(
     String id,
     String status,
-    @JsonInclude(JsonInclude.Include.NON_NULL) Object result,
-    @JsonInclude(JsonInclude.Include.NON_NULL) String error,
+    Object result,
+    String error,
     long createdAt,
     long updatedAt
 ) {}
@@ -58,19 +59,22 @@ record Task(
 // JSON-RPC 2.0 Model
 // ============================================================================
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 record JsonRpcRequest(
     String jsonrpc,
     String method,
-    @JsonInclude(JsonInclude.Include.NON_NULL) Map<String, Object> params,
-    @JsonInclude(JsonInclude.Include.NON_NULL) Object id
+    Map<String, Object> params,
+    Object id
 ) {}
 
-record RpcError(int code, String message, @JsonInclude(JsonInclude.Include.NON_NULL) Object data) {}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+record RpcError(int code, String message, Object data) {}
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 record JsonRpcResponse(
     String jsonrpc,
-    @JsonInclude(JsonInclude.Include.NON_NULL) Object result,
-    @JsonInclude(JsonInclude.Include.NON_NULL) RpcError error,
+    Object result,
+    RpcError error,
     Object id
 ) {}
 
@@ -86,7 +90,7 @@ record JsonRpcResponse(
  */
 record {{ skill.name | pascal }}Input(
     {% for param in skill.input_params %}
-    {% if param.is_required != "true" %}@JsonInclude(JsonInclude.Include.NON_NULL) {% endif %}{{ param.java_type }} {{ param.name }}{% if param.is_required != "true" %}{% endif %}
+    {{ param.java_type }} {{ param.name }}{% if not loop.last %},{% endif %}
     {% endfor %}
 ) {}
 
@@ -125,7 +129,7 @@ public class {{ agent_name | pascal }}Agent {
                     "{{ skill.id | default(value=skill.name) }}",
                     "{{ skill.name }}",
                     "{{ skill.description }}",
-                    {{ skill.tags | default(value="List.of()") }},
+                    {{ skill.tags | default(value="List.of()") | replace(from="[", to="List.of(") | replace(from="]", to=")") | replace(from='"', to='"') }},
                     false,
                     {{ skill.input_schema | default(value="Map.of()") }},
                     {{ skill.output_schema | default(value="Map.of()") }}
