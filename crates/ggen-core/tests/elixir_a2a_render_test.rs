@@ -36,8 +36,7 @@ fn minimal_agents_ctx() -> Context {
 #[test]
 fn agents_template_renders_defmodule() {
     let ctx = minimal_agents_ctx();
-    let output = render_template("agents.ex.tera", &ctx)
-        .expect("agents.ex.tera failed to render");
+    let output = render_template("agents.ex.tera", &ctx).expect("agents.ex.tera failed to render");
 
     assert!(
         output.contains("defmodule MyApp.Agents.InvoiceAgent"),
@@ -68,8 +67,7 @@ fn agents_template_uses_default_app_module() {
         }]),
     );
 
-    let output = render_template("agents.ex.tera", &ctx)
-        .expect("agents.ex.tera failed to render");
+    let output = render_template("agents.ex.tera", &ctx).expect("agents.ex.tera failed to render");
 
     assert!(
         output.contains("defmodule MyApp.Agents.BillingAgent"),
@@ -93,8 +91,7 @@ fn router_template_renders_forward() {
         }]),
     );
 
-    let output = render_template("router.ex.tera", &ctx)
-        .expect("router.ex.tera failed to render");
+    let output = render_template("router.ex.tera", &ctx).expect("router.ex.tera failed to render");
 
     assert!(
         output.contains("defmodule MyAppWeb.A2ARouter"),
@@ -122,8 +119,7 @@ fn router_template_defaults_router_module() {
         &json!([{"agentName": "test-agent", "appModule": "MyApp"}]),
     );
 
-    let output = render_template("router.ex.tera", &ctx)
-        .expect("router.ex.tera failed to render");
+    let output = render_template("router.ex.tera", &ctx).expect("router.ex.tera failed to render");
 
     assert!(
         output.contains("defmodule MyAppWeb.A2ARouter"),
@@ -145,8 +141,8 @@ fn supervisor_template_renders_agent_supervisor() {
         }]),
     );
 
-    let output = render_template("supervisor.ex.tera", &ctx)
-        .expect("supervisor.ex.tera failed to render");
+    let output =
+        render_template("supervisor.ex.tera", &ctx).expect("supervisor.ex.tera failed to render");
 
     assert!(
         output.contains("defmodule MyApp.A2ASupervisor"),
@@ -170,8 +166,8 @@ fn supervisor_template_includes_test_stubs() {
         &json!([{"agentName": "invoice-agent", "appModule": "MyApp"}]),
     );
 
-    let output = render_template("supervisor.ex.tera", &ctx)
-        .expect("supervisor.ex.tera failed to render");
+    let output =
+        render_template("supervisor.ex.tera", &ctx).expect("supervisor.ex.tera failed to render");
 
     assert!(
         output.contains("InvoiceAgentTest"),

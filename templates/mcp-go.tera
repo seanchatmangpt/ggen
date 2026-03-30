@@ -80,7 +80,7 @@ type ToolContent struct {
 // {{ tool.description }}
 type {{ tool.name | pascal }}Input struct {
 	{% for param in tool.parameters %}
-	{{ param.name | pascal }} {{ param.go_type }} `json:"{{ param.name }}"{% if param.is_required != "true" %},omitempty{% endif %}` // {{ param.description }}
+	{{ param.name | pascal }} {{ param.go_type }} `json:"{{ param.name }}{% if param.is_required != "true" %},omitempty{% endif %}"` // {{ param.description }}
 	{% endfor %}
 }
 

@@ -9,13 +9,18 @@
 {#   1. #[tool_router] generates `tool_router()` fn only                                #}
 {#   2. #[tool_handler] wires list_tools + call_tool dispatch — REQUIRED on impl ServerHandler #}
 {#   3. Without #[tool_handler]: list_tools() → empty, call_tool() → -32601             #}
-{#   4. Keep server alive: svc.waiting().await (NOT let _ = serve(...))                 #}
+{#   4. Keep server alive: ServiceExt::serve() + waiting().await                        #}
+{#   5. Tool params use `Parameters(params): Parameters<T>` pattern                     #}
+{#   6. Implementation is #[non_exhaustive] — use Implementation::new()                 #}
+{#   7. get_info() returns InitializeResult, NOT ServerInfo                             #}
+{#   8. #[tool_handler(router = self.tool_router)] needs router param                   #}
 
 {% extends "mcp-server/_head.tera" %}
 
 {% block imports %}
 {{ super() }}
-use rmcp::model::{CallToolRequestParams, Content};
+use rmcp::model::{CallToolRequestParams, Content, CallToolResult};
+use rmcp::handler::server::wrapper::Parameters;
 use serde_json::Value;
 {% endblock imports %}
 
@@ -55,38 +60,35 @@ impl {{ server_name | default(value="GeneratedMcpServer") | pascal }} {
     #[tool(description = "{{ row.tool_description | default(value=row.tool_name) }}")]
     async fn {{ row.tool_name | snake_case }}(
         &self,
-        #[tool(aggr)] params: {{ row.tool_name | pascal_case }}Params,
-    ) -> String {
+        Parameters(params): Parameters<{{ row.tool_name | pascal_case }}Params>,
+    ) -> Result<CallToolResult, rmcp::model::ErrorData> {
         // TODO: implement {{ row.tool_name }}
-        format!("{{ row.tool_name }}: {:?}", params)
+        Ok(CallToolResult::success(vec![Content::text(
+            format!("{{ row.tool_name }} executed with params: {:?}", params)
+        )]))
     }
 
 {% endfor %}
 }
 
-/// ServerHandler implementation — MUST carry #[tool_handler]
+/// ServerHandler implementation — MUST carry #[tool_handler(router = self.tool_router)]
 ///
 /// #[tool_handler] injects:
 ///   async fn list_tools()  → delegates to self.tool_router.list_tools()
 ///   async fn call_tool()   → delegates to self.tool_router.call(name, args)
 ///
 /// Without this attribute the default trait impls return empty / -32601.
-#[tool_handler]
+#[tool_handler(router = self.tool_router)]
 impl ServerHandler for {{ server_name | default(value="GeneratedMcpServer") | pascal }} {
-    fn get_info(&self) -> ServerInfo {
-        ServerInfo {
-            instructions: Some(
-                "{{ server_description | default(value='Generated MCP server') }}".into(),
-            ),
-            capabilities: ServerCapabilities::builder()
-                .enable_tools()
-                .build(),
-            server_info: Implementation {
-                name: "{{ server_name | default(value='generated-mcp-server') }}".into(),
-                version: env!("CARGO_PKG_VERSION").into(),
-            },
-            ..Default::default()
-        }
+    fn get_info(&self) -> InitializeResult {
+        let capabilities = ServerCapabilities::builder()
+            .enable_tools()
+            .build();
+        InitializeResult::new(capabilities)
+            .with_server_info(Implementation::new(
+                "{{ server_name | default(value='generated-mcp-server') }}",
+                env!("CARGO_PKG_VERSION"),
+            ))
     }
 }
 

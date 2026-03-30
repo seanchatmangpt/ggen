@@ -72,10 +72,11 @@ defmodule {{ agent_name | pascal }} do
   end
 
   # ---------------------------------------------------------------------------
-  # Task struct (state machine)
+  # AgentTask struct (state machine)
+  # Renamed from Task to avoid Elixir stdlib Task module collision
   # ---------------------------------------------------------------------------
 
-  defmodule Task do
+  defmodule AgentTask do
     @moduledoc false
     defstruct [:id, :status, :skill, :input, :result, :error, :created_at, :updated_at]
 
@@ -143,7 +144,7 @@ defmodule {{ agent_name | pascal }} do
 
   @spec send_message(String.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def send_message(skill_name, params) when is_binary(skill_name) and is_map(params) do
-    GenServer.call(__MODULE__, {:send_message, skill_name, params}, 5_000)
+    GenServer.call(__MODULE__, {:send_message, skill_name, params}, @default_timeout_ms)
   end
 
   @spec get_task(String.t()) :: {:ok, map()} | {:error, String.t()}
@@ -178,14 +179,16 @@ defmodule {{ agent_name | pascal }} do
         {:reply, {:error, "task limit reached (#{@max_tasks})"}, state}
 
       valid_skill?(skill_name) ->
-        task = Task.new(skill_name, params)
+        task = AgentTask.new(skill_name, params)
         state = put_in(state.tasks[task.id], task)
 
-        _pid =
-          Task.Supervisor.start_child({:via, PartitionSupervisor, name: {{ agent_name | pascal }}.TaskSupervisor}, fn ->
-            execute_skill(task.id, skill_name, params)
-          end)
+        {:ok, pid} =
+          Task.Supervisor.start_child(
+            {{ agent_name | pascal }}.TaskSupervisor,
+            fn -> execute_skill(task.id, skill_name, params) end
+          )
 
+        Process.monitor(pid)
         {:reply, {:ok, %{task_id: task.id, status: "created"}}, state}
 
       true ->
@@ -207,7 +210,7 @@ defmodule {{ agent_name | pascal }} do
       nil ->
         {:reply, {:error, "task not found: #{id}"}, state}
 
-      %Task{status: status} when status in [:completed, :failed, :cancelled] ->
+      %AgentTask{status: status} when status in [:completed, :failed, :cancelled] ->
         {:reply, {:error, "task #{id} is in terminal state #{status}"}, state}
 
       task ->
@@ -266,13 +269,15 @@ defmodule {{ agent_name | pascal }} do
     {:noreply, state}
   end
 
+  # OTP 28: 5-tuple DOWN message
   @impl true
-  def handle_info({:DOWN, _ref, :process, :normal}, state) do
+  def handle_info({:DOWN, _ref, :process, _pid, :normal}, state) do
+    # Task exited normally — state already updated via cast
     {:noreply, state}
   end
 
   @impl true
-  def handle_info({:DOWN, _ref, :process, pid, reason}, state) do
+  def handle_info({:DOWN, _ref, :process, pid, reason}, state) when reason != :normal do
     Logger.warning("[{{ agent_name }}] task process #{inspect(pid)} crashed: #{inspect(reason)}")
     {:noreply, state}
   end
@@ -322,7 +327,7 @@ defmodule {{ agent_name | pascal }} do
     ]
   end
 
-  defp task_to_map(%Task{} = task) do
+  defp task_to_map(%AgentTask{} = task) do
     %{
       id: task.id,
       status: task.status,

@@ -228,7 +228,7 @@ public class {{ server_name | pascal }}Server {
                 "{{ tool.name }}",
                 "{{ tool.description }}",
                 {{ tool.name | camel }}Schema()
-            ),
+            ){% if not loop.last %},{% endif %}
             {% endfor %}
         );
 
