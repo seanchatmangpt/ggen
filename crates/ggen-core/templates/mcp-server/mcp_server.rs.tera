@@ -1,9 +1,6 @@
-{# MCP server implementation template #}
-{# Context variables (per-row): server_name, server_version, server_description, transport_type #}
-{# ggen pipeline: renders ONCE PER ROW from extract-mcp-server.rq SELECT query (LIMIT 1). #}
-{# Extends the base header template #}
-
+{# MCP server implementation template | Context: server_name, server_version, server_description, transport_type | ggen: extract-mcp-server.rq #}
 {% extends "mcp-server/_head.tera" %}
+{# Extends the base header template #}
 
 {% block imports %}
 {{ super() }}

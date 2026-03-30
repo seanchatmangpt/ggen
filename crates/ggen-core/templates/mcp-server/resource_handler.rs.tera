@@ -1,7 +1,4 @@
-{# Resource handler implementation template #}
-{# Context variables: resources (array of Resource objects), error_type #}
-{# Each resource has: name, uri_pattern, description, mime_type #}
-
+{# Resource handler implementation template | Context: resources (array), error_type | Each resource: name, uri_pattern, description, mime_type #}
 {% extends "mcp-server/_head.tera" %}
 
 {% block imports %}

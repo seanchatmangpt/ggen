@@ -31,3 +31,5 @@ use rmcp::{
     schemars, tool, tool_handler, tool_router, ServerHandler,
 };
 {% endblock imports %}
+
+{% block body %}{% endblock body %}

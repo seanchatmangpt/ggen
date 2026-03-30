@@ -1,7 +1,5 @@
-{# Tool handler implementation template — rmcp 1.3.0 #}
-{# Context variables (per-row): tool_name, tool_description, server_name #}
-{# Context variables (all rows): sparql_results (array of all tool+param rows) #}
-{#                                                                                       #}
+{# Tool handler — rmcp 1.3.0 | Context: tool_name, server_name, sparql_results #}
+{% extends "mcp-server/_head.tera" %}
 {# ggen pipeline: renders ONCE PER ROW from extract-mcp-full.rq SELECT query.     #}
 {# Each row = one tool. sparql_results = array of ALL rows for cross-tool refs.   #}
 {#                                                                                       #}
@@ -15,8 +13,6 @@
 {#   7. get_info() returns InitializeResult, NOT ServerInfo                             #}
 {#   8. #[tool_handler(router = self.tool_router)] needs router param                   #}
 
-{% extends "mcp-server/_head.tera" %}
-
 {% block imports %}
 {{ super() }}
 use rmcp::model::{CallToolRequestParams, Content, CallToolResult};
@@ -28,7 +24,7 @@ use serde_json::Value;
 {# ── Current tool's param struct ──────────────────────────────────────────── #}
 /// Input parameters for `{{ tool_name }}` tool
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
-pub struct {{ tool_name | pascal_case }}Params {
+pub struct {{ tool_name | pascal }}Params {
 {%- for row in sparql_results %}
 {%- if row.tool_name == tool_name %}
     /// {{ row.param_description | default(value=row.param_name) }}
@@ -58,9 +54,9 @@ pub struct {{ server_name | default(value="GeneratedMcpServer") | pascal }} {
 impl {{ server_name | default(value="GeneratedMcpServer") | pascal }} {
 {% for row in sparql_results %}
     #[tool(description = "{{ row.tool_description | default(value=row.tool_name) }}")]
-    async fn {{ row.tool_name | snake_case }}(
+    async fn {{ row.tool_name | snake }}(
         &self,
-        Parameters(params): Parameters<{{ row.tool_name | pascal_case }}Params>,
+        Parameters(params): Parameters<{{ row.tool_name | pascal }}Params>,
     ) -> Result<CallToolResult, rmcp::model::ErrorData> {
         // TODO: implement {{ row.tool_name }}
         Ok(CallToolResult::success(vec![Content::text(
