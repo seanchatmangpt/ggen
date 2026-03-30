@@ -87,9 +87,18 @@ impl CachedResult {
                     .collect();
                 JsonValue::Array(arr)
             }
-            // Graph variant: Serialized triples are not directly JSON-serializable
-            // Return empty string as placeholder (callers should use the Graph variant directly)
-            CachedResult::Graph(_triples) => JsonValue::String(String::new()),
+            // Graph variant: serialized triples as array of {subject, predicate, object} objects
+            CachedResult::Graph(triples) => {
+                let arr: Vec<JsonValue> = triples
+                    .iter()
+                    .map(|triple_str| {
+                        let mut obj = serde_json::Map::new();
+                        obj.insert("triple".to_string(), JsonValue::String(triple_str.clone()));
+                        JsonValue::Object(obj)
+                    })
+                    .collect();
+                JsonValue::Array(arr)
+            }
         }
     }
 }
@@ -200,10 +209,14 @@ mod tests {
         let json = result.to_json();
 
         // Assert
-        // Graph variant returns empty string as placeholder
+        // Graph variant returns array of {triple: "..."} objects
         match json {
-            JsonValue::String(s) => assert!(s.is_empty()),
-            _ => panic!("Expected JSON string"),
+            JsonValue::Array(arr) => {
+                assert_eq!(arr.len(), 1);
+                assert!(arr[0].is_object());
+                assert_eq!(arr[0]["triple"], JsonValue::String("<s> <p> <o> .".to_string()));
+            }
+            _ => panic!("Expected JSON array of triple objects"),
         }
     }
 

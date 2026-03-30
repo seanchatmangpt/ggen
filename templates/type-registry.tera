@@ -1,0 +1,150 @@
+{# type-registry.tera — Cross-Ontology Unified Type Registry #}
+{# Constitutional Equation: registry.md = mu(type-registry.ttl + all source ontologies) #}
+{# Input: SPARQL-star CONSTRUCT results from type-registry-extract.rq #}
+{# Output: Markdown type registry showing unified mappings across all ontologies #}
+{# #}
+{# Variables expected from CONSTRUCT output (Vec<BTreeMap<String, String>>): #}
+{#   mappings: Array of TypeMapping objects with fields: #}
+{#     domainEntity, domainProperty, domainRange, sourceName, rustType, goType, #}
+{#     elixirType, tsType, pythonType, confidence, isCanonical, jsonSchema, #}
+{#     validationRule, sinceVersion, conversionNote, deprecatedBy #}
+{#   registrySummary: Object with fields: totalMappings, canonicalCount, deprecatedCount #}
+{#   sourceCounts: Array of source count objects with fields: sourceName, mappingCount #}
+
+# Cross-Ontology Type Registry
+
+> **Generated**: {{ generated_date | default(value=now() | date(format="%Y-%m-%d %H:%M")) }}
+> **Sources**: All registered ontologies via RDF 1.2 triple-term annotations
+> **Pipeline**: `A = mu(O)` — Unified type registry = projection of annotated ontologies
+
+---
+
+## Summary
+
+| Metric | Value |
+|--------|-------|
+| **Total Mappings** | {{ registrySummary.totalMappings | default(value=mappings | length) }} |
+| **Canonical** | {{ registrySummary.canonicalCount | default(value=0) }} |
+| **Deprecated** | {{ registrySummary.deprecatedCount | default(value=0) }} |
+| **Source Ontologies** | {{ sourceCounts | length }} |
+
+### By Source Ontology
+
+| Ontology | Mappings | Share |
+|----------|----------|-------|
+{% for src in sourceCounts | sort(attribute="mappingCount", reverse=true) %}
+{% set total = registrySummary.totalMappings | default(value=mappings | length) | int %}
+{% set pct = total > 0 ? src.mappingCount | int * 100 / total : 0 %}
+| **{{ src.sourceName }}** | {{ src.mappingCount }} | {{ "%.1f" | format(pct) }}% |
+{% endfor %}
+
+---
+
+## All Mappings
+
+| Entity | Property | Range | Source | Rust | Go | Elixir | TS | Canonical |
+|--------|----------|-------|--------|------|----|--------|-----|-----------|
+{% for m in mappings %}
+| `{{ m.domainEntity }}` | `{{ m.domainProperty }}` | `{{ m.domainRange }}` | {{ m.sourceName }} | `{{ m.rustType }}` | `{{ m.goType | default(value="-") }}` | `{{ m.elixirType | default(value="-") }}` | `{{ m.tsType | default(value="-") }}` | {% if m.isCanonical == "true" %}Yes{% else %}-{% endif %} |
+{% endfor %}
+
+---
+
+## Multi-Source Entities
+
+{% set entity_groups = mappings | group_by(attribute="domainEntity") %}
+{% set multi = entity_groups | selectattr("value", "test", "value", test="length", op="gt", value=1) %}
+
+{% if multi | length > 0 %}
+
+The following entities have mappings from multiple source ontologies:
+
+{% for group in multi %}
+### `{{ group.key }}`
+
+| Property | Source | Rust | Go | Elixir | TS | Confidence | Since |
+|----------|--------|------|----|--------|-----|------------|-------|
+{% for m in group.value %}
+| `{{ m.domainProperty }}` | {{ m.sourceName }} | `{{ m.rustType }}` | `{{ m.goType | default(value="-") }}` | `{{ m.elixirType | default(value="-") }}` | `{{ m.tsType | default(value="-") }}` | {{ m.confidence | default(value="-") }} | {{ m.sinceVersion | default(value="-") }} |
+{% endfor %}
+
+{% endfor %}
+{% else %}
+
+No entities have multi-source mappings. All entities are defined by a single source ontology.
+
+{% endif %}
+
+---
+
+## Deprecated Mappings
+
+{% set deprecated = mappings | selectattr("deprecatedBy", "test", "!=", value="") %}
+
+{% if deprecated | length > 0 %}
+> **WARNING**: {{ deprecated | length }} deprecated mapping(s) detected. These should be migrated before code generation.
+
+| Entity | Property | Deprecated Type | Replacement |
+|--------|----------|----------------|-------------|
+{% for m in deprecated %}
+| `{{ m.domainEntity }}` | `{{ m.domainProperty }}` | `{{ m.rustType }}` | {{ m.deprecatedBy | default(value="none specified") }} |
+{% endfor %}
+
+**Action**: Remove deprecated triple-term annotations and update consumers to use canonical mappings.
+{% else %}
+No deprecated mappings. Registry is clean.
+{% endif %}
+
+---
+
+## Validation Rules
+
+{% set validated = mappings | selectattr("validationRule", "test", "!=", value="") %}
+
+{% if validated | length > 0 %}
+Mappings with custom validation rules:
+
+| Entity | Property | Type | Rule |
+|--------|----------|------|------|
+{% for m in validated %}
+| `{{ m.domainEntity }}` | `{{ m.domainProperty }}` | `{{ m.rustType }}` | `{{ m.validationRule }}` |
+{% endfor %}
+{% endif %}
+
+---
+
+## Conversion Notes
+
+{% set noted = mappings | selectattr("conversionNote", "test", "!=", value="") %}
+
+{% if noted | length > 0 %}
+
+| Entity | Property | Type | Note |
+|--------|----------|------|------|
+{% for m in noted %}
+| `{{ m.domainEntity }}` | `{{ m.domainProperty }}` | `{{ m.rustType }}` | {{ m.conversionNote }} |
+{% endfor %}
+
+{% endif %}
+
+---
+
+## JSON Schema Mappings
+
+{% set schemad = mappings | selectattr("jsonSchema", "test", "!=", value="") %}
+
+{% if schemad | length > 0 %}
+
+| Entity | Property | Rust Type | JSON Schema |
+|--------|----------|-----------|-------------|
+{% for m in schemad %}
+| `{{ m.domainEntity }}` | `{{ m.domainProperty }}` | `{{ m.rustType }}` | `{{ m.jsonSchema }}` |
+{% endfor %}
+
+{% endif %}
+
+---
+
+*Generated by ggen Cross-Ontology Type Registry: A = mu(O)*
+*RDF 1.2 triple terms (<<s p o>>) enable axiom-level type annotations across ontologies*
+*SPARQL-star CONSTRUCT + Tera template projection*
