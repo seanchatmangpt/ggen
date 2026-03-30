@@ -2,19 +2,11 @@
 ///
 /// These tests verify invariants that must hold for ALL inputs, not just
 /// specific examples. Uses proptest for automated input generation.
-
 use ggen_core::graph::{CachedResult, Graph};
 use ggen_core::register::register_all;
 use proptest::prelude::*;
 use serde_json::{Map, Value};
 use tera::{Context, Tera};
-
-fn workspace_root() -> std::path::PathBuf {
-    let mut p = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    p.pop(); // crates/ggen-core -> crates
-    p.pop(); // crates -> ggen root
-    p
-}
 
 fn to_clean_json(result: &CachedResult) -> Value {
     match result {
@@ -34,10 +26,7 @@ fn to_clean_json(result: &CachedResult) -> Value {
         }
         CachedResult::Boolean(b) => Value::Bool(*b),
         CachedResult::Graph(triples) => {
-            let arr: Vec<Value> = triples
-                .iter()
-                .map(|t| Value::String(t.clone()))
-                .collect();
+            let arr: Vec<Value> = triples.iter().map(|t| Value::String(t.clone())).collect();
             Value::Array(arr)
         }
     }
