@@ -24,7 +24,11 @@ fn test_single_node_no_edges() {
 
     let cycles = detect_cycles(&graph);
 
-    assert_eq!(cycles.len(), 0, "Single node with no edges should have no cycles");
+    assert_eq!(
+        cycles.len(),
+        0,
+        "Single node with no edges should have no cycles"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -38,7 +42,11 @@ fn test_single_node_self_loop() {
 
     let cycles = detect_cycles(&graph);
 
-    assert_eq!(cycles.len(), 1, "Single node with self-loop should have one cycle");
+    assert_eq!(
+        cycles.len(),
+        1,
+        "Single node with self-loop should have one cycle"
+    );
     assert_eq!(cycles[0].len(), 2, "Cycle should be A -> A");
     assert_eq!(cycles[0][0], "A");
     assert_eq!(cycles[0][1], "A");
@@ -123,7 +131,11 @@ fn test_graph_with_isolated_nodes() {
 
     let cycles = detect_cycles(&graph);
 
-    assert_eq!(cycles.len(), 0, "Graph with isolated nodes should be acyclic");
+    assert_eq!(
+        cycles.len(),
+        0,
+        "Graph with isolated nodes should be acyclic"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -244,7 +256,11 @@ fn test_star_graph_acyclic() {
     // Star: Center -> Leaf1, Center -> Leaf2, Center -> Leaf3
     graph.insert(
         "Center".to_string(),
-        vec!["Leaf1".to_string(), "Leaf2".to_string(), "Leaf3".to_string()],
+        vec![
+            "Leaf1".to_string(),
+            "Leaf2".to_string(),
+            "Leaf3".to_string(),
+        ],
     );
     graph.insert("Leaf1".to_string(), vec![]);
     graph.insert("Leaf2".to_string(), vec![]);
@@ -289,7 +305,11 @@ fn test_graph_with_missing_node_reference() {
     // This should not crash - missing nodes are treated as leaf nodes
     let cycles = detect_cycles(&graph);
 
-    assert_eq!(cycles.len(), 0, "Missing node reference should not create cycle");
+    assert_eq!(
+        cycles.len(),
+        0,
+        "Missing node reference should not create cycle"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -354,7 +374,11 @@ fn test_disconnected_graphs_mixed_cycles() {
 
     let cycles = detect_cycles(&graph);
 
-    assert_eq!(cycles.len(), 2, "Should detect 2 cycles (one in each cyclic component)");
+    assert_eq!(
+        cycles.len(),
+        2,
+        "Should detect 2 cycles (one in each cyclic component)"
+    );
 
     // Verify we have both cycles
     let has_abc_cycle = cycles.iter().any(|cycle| {
@@ -459,7 +483,11 @@ fn test_graph_with_multiple_paths_to_same_node() {
 
     let cycles = detect_cycles(&graph);
 
-    assert_eq!(cycles.len(), 0, "Multiple paths to same node should not create cycle");
+    assert_eq!(
+        cycles.len(),
+        0,
+        "Multiple paths to same node should not create cycle"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -498,7 +526,11 @@ fn test_cycle_detection_special_characters() {
 
     let cycles = detect_cycles(&graph);
 
-    assert_eq!(cycles.len(), 0, "Special characters should not affect cycle detection");
+    assert_eq!(
+        cycles.len(),
+        0,
+        "Special characters should not affect cycle detection"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -517,7 +549,11 @@ fn test_very_long_node_names() {
 
     let cycles = detect_cycles(&graph);
 
-    assert_eq!(cycles.len(), 1, "Should detect cycle with very long node names");
+    assert_eq!(
+        cycles.len(),
+        1,
+        "Should detect cycle with very long node names"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -540,7 +576,11 @@ fn test_node_with_many_outgoing_edges() {
 
     let cycles = detect_cycles(&graph);
 
-    assert_eq!(cycles.len(), 0, "Node with many outgoing edges should be acyclic");
+    assert_eq!(
+        cycles.len(),
+        0,
+        "Node with many outgoing edges should be acyclic"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -561,7 +601,11 @@ fn test_node_with_many_incoming_edges() {
 
     let cycles = detect_cycles(&graph);
 
-    assert_eq!(cycles.len(), 0, "Node with many incoming edges should be acyclic");
+    assert_eq!(
+        cycles.len(),
+        0,
+        "Node with many incoming edges should be acyclic"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -584,7 +628,11 @@ fn test_cycle_detection_order_independence() {
     let cycles1 = detect_cycles(&graph1);
     let cycles2 = detect_cycles(&graph2);
 
-    assert_eq!(cycles1.len(), cycles2.len(), "Should detect same cycles regardless of insertion order");
+    assert_eq!(
+        cycles1.len(),
+        cycles2.len(),
+        "Should detect same cycles regardless of insertion order"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -610,7 +658,10 @@ fn test_validate_acyclic_error_message_quality() {
     assert!(error_msg.contains("file1.ttl"), "Should mention file1");
     assert!(error_msg.contains("file2.ttl"), "Should mention file2");
     assert!(error_msg.contains("file3.ttl"), "Should mention file3");
-    assert!(error_msg.contains("→") || error_msg.contains("->"), "Should show cycle path");
+    assert!(
+        error_msg.contains("→") || error_msg.contains("->"),
+        "Should show cycle path"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -628,7 +679,11 @@ fn test_empty_dependency_list() {
 
     let cycles = detect_cycles(&graph);
 
-    assert_eq!(cycles.len(), 0, "Nodes with empty dependency lists should be acyclic");
+    assert_eq!(
+        cycles.len(),
+        0,
+        "Nodes with empty dependency lists should be acyclic"
+    );
 }
 
 // ---------------------------------------------------------------------------

@@ -87,7 +87,9 @@ fn create_iteration_dir(base_dir: &PathBuf, iteration: usize) -> Result<String> 
 
 /// Run self-play iterations
 #[verb]
-fn run(output_dir: String, ontology: String, iterations: Option<String>, _audit: bool) -> Result<RunOutput> {
+fn run(
+    output_dir: String, ontology: String, iterations: Option<String>, _audit: bool,
+) -> Result<RunOutput> {
     let iterations = iterations
         .and_then(|s| s.parse::<usize>().ok())
         .unwrap_or(3);

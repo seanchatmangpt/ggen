@@ -123,10 +123,12 @@ impl CodeGenerator {
         // Write receipt if enabled
         if self.generate_receipts {
             let receipt_path = self.output_dir.join("generation_receipt.json");
-            let receipt_path_str = receipt_path.to_str()
-                .ok_or_else(|| CraftplanError::FileNotFound {
-                    path: receipt_path.clone(),
-                })?;
+            let receipt_path_str =
+                receipt_path
+                    .to_str()
+                    .ok_or_else(|| CraftplanError::FileNotFound {
+                        path: receipt_path.clone(),
+                    })?;
             receipt_generator.write_receipt(&receipt, receipt_path_str)?;
         }
 
@@ -282,16 +284,12 @@ impl CodeGenerator {
         &self, generator: &ReceiptGenerator, input_path: &Path, output_files: &[String],
         entity_count: usize, duration_ms: u64,
     ) -> Result<GenerationReceipt> {
-        let input_path_str = input_path.to_str()
+        let input_path_str = input_path
+            .to_str()
             .ok_or_else(|| CraftplanError::FileNotFound {
                 path: input_path.to_path_buf(),
             })?;
-        generator.generate(
-            input_path_str,
-            output_files,
-            entity_count,
-            duration_ms,
-        )
+        generator.generate(input_path_str, output_files, entity_count, duration_ms)
     }
 
     /// Set whether to generate receipt files

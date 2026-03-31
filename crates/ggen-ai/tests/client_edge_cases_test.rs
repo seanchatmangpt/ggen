@@ -12,7 +12,7 @@
 //! - Concurrent requests
 //! - Configuration serialization/deserialization
 
-use ggen_ai::client::{GenAiClient, LlmClient, LlmConfig, LlmResponse, LlmChunk};
+use ggen_ai::client::{GenAiClient, LlmChunk, LlmClient, LlmConfig, LlmResponse};
 use std::time::Duration;
 use tokio::time::sleep;
 
@@ -47,7 +47,10 @@ fn test_config_validation_max_tokens_below_minimum() {
 
     let result = config.validate();
 
-    assert!(result.is_err(), "Max tokens below minimum should fail validation");
+    assert!(
+        result.is_err(),
+        "Max tokens below minimum should fail validation"
+    );
     let error_msg = result.unwrap_err().to_string();
     assert!(
         error_msg.contains("Max tokens must be between"),
@@ -67,7 +70,10 @@ fn test_config_validation_max_tokens_above_maximum() {
 
     let result = config.validate();
 
-    assert!(result.is_err(), "Max tokens above maximum should fail validation");
+    assert!(
+        result.is_err(),
+        "Max tokens above maximum should fail validation"
+    );
     let error_msg = result.unwrap_err().to_string();
     assert!(
         error_msg.contains("Max tokens must be between"),
@@ -87,7 +93,10 @@ fn test_config_validation_temperature_below_minimum() {
 
     let result = config.validate();
 
-    assert!(result.is_err(), "Temperature below minimum should fail validation");
+    assert!(
+        result.is_err(),
+        "Temperature below minimum should fail validation"
+    );
     let error_msg = result.unwrap_err().to_string();
     assert!(
         error_msg.contains("Temperature must be between"),
@@ -107,7 +116,10 @@ fn test_config_validation_temperature_above_maximum() {
 
     let result = config.validate();
 
-    assert!(result.is_err(), "Temperature above maximum should fail validation");
+    assert!(
+        result.is_err(),
+        "Temperature above maximum should fail validation"
+    );
     let error_msg = result.unwrap_err().to_string();
     assert!(
         error_msg.contains("Temperature must be between"),
@@ -127,7 +139,10 @@ fn test_config_validation_top_p_below_minimum() {
 
     let result = config.validate();
 
-    assert!(result.is_err(), "Top-p below minimum should fail validation");
+    assert!(
+        result.is_err(),
+        "Top-p below minimum should fail validation"
+    );
     let error_msg = result.unwrap_err().to_string();
     assert!(
         error_msg.contains("Top-p must be between"),
@@ -147,7 +162,10 @@ fn test_config_validation_top_p_above_maximum() {
 
     let result = config.validate();
 
-    assert!(result.is_err(), "Top-p above maximum should fail validation");
+    assert!(
+        result.is_err(),
+        "Top-p above maximum should fail validation"
+    );
     let error_msg = result.unwrap_err().to_string();
     assert!(
         error_msg.contains("Top-p must be between"),
@@ -276,7 +294,10 @@ fn test_client_creation_invalid_config() {
 
     let result = GenAiClient::new(config);
 
-    assert!(result.is_err(), "Client creation should fail with invalid config");
+    assert!(
+        result.is_err(),
+        "Client creation should fail with invalid config"
+    );
     let error_msg = result.unwrap_err().to_string();
     assert!(
         error_msg.contains("Model name cannot be empty"),
@@ -295,7 +316,10 @@ fn test_client_creation_valid_config() {
 
     let result = GenAiClient::new(config);
 
-    assert!(result.is_ok(), "Client creation should succeed with valid config");
+    assert!(
+        result.is_ok(),
+        "Client creation should succeed with valid config"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -376,7 +400,10 @@ fn test_config_deserialization() {
     assert_eq!(config.max_tokens, Some(2048));
     assert_eq!(config.temperature, Some(0.7));
     assert_eq!(config.top_p, Some(0.9));
-    assert_eq!(config.stop, Some(vec!["stop1".to_string(), "stop2".to_string()]));
+    assert_eq!(
+        config.stop,
+        Some(vec!["stop1".to_string(), "stop2".to_string()])
+    );
     assert_eq!(config.extra.len(), 1);
 }
 
@@ -488,7 +515,10 @@ fn test_config_stop_sequences() {
     let result = config.validate();
 
     assert!(result.is_ok(), "Stop sequences should be valid");
-    assert_eq!(config.stop, Some(vec!["stop1".to_string(), "stop2".to_string()]));
+    assert_eq!(
+        config.stop,
+        Some(vec!["stop1".to_string(), "stop2".to_string()])
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -635,7 +665,11 @@ fn test_config_model_name_special_characters() {
 
         let result = config.validate();
 
-        assert!(result.is_ok(), "Model '{}' with special chars should be valid", model);
+        assert!(
+            result.is_ok(),
+            "Model '{}' with special chars should be valid",
+            model
+        );
     }
 }
 
@@ -694,7 +728,10 @@ fn test_config_all_parameters_at_boundaries() {
 
     let result = config.validate();
 
-    assert!(result.is_ok(), "All parameters at max boundaries should be valid");
+    assert!(
+        result.is_ok(),
+        "All parameters at max boundaries should be valid"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -738,7 +775,10 @@ fn test_update_config_then_validate() {
 
     // But validation should fail
     let result = retrieved.validate();
-    assert!(result.is_err(), "Updated invalid config should fail validation");
+    assert!(
+        result.is_err(),
+        "Updated invalid config should fail validation"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -804,7 +844,10 @@ fn test_usage_stats_arithmetic() {
         total_tokens: 150,
     };
 
-    assert_eq!(stats.prompt_tokens + stats.completion_tokens, stats.total_tokens);
+    assert_eq!(
+        stats.prompt_tokens + stats.completion_tokens,
+        stats.total_tokens
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -841,7 +884,8 @@ fn test_usage_stats_serialization_roundtrip() {
     };
 
     let json = serde_json::to_string(&original).expect("Serialization should succeed");
-    let deserialized: UsageStats = serde_json::from_str(&json).expect("Deserialization should succeed");
+    let deserialized: UsageStats =
+        serde_json::from_str(&json).expect("Deserialization should succeed");
 
     assert_eq!(original.prompt_tokens, deserialized.prompt_tokens);
     assert_eq!(original.completion_tokens, deserialized.completion_tokens);
@@ -897,7 +941,10 @@ fn test_llm_chunk_with_usage() {
 #[test]
 fn test_llm_response_extra_field() {
     let mut extra = std::collections::HashMap::new();
-    extra.insert("custom_field".to_string(), serde_json::json!("custom_value"));
+    extra.insert(
+        "custom_field".to_string(),
+        serde_json::json!("custom_value"),
+    );
 
     let response = LlmResponse {
         content: "Test".to_string(),
@@ -924,7 +971,10 @@ fn test_config_model_from_env() {
     let config = LlmConfig::default();
 
     // Should have a valid model (either from env or fallback)
-    assert!(!config.model.is_empty(), "Default model should not be empty");
+    assert!(
+        !config.model.is_empty(),
+        "Default model should not be empty"
+    );
 
     // Should validate successfully
     let result = config.validate();
@@ -1003,7 +1053,11 @@ fn test_validation_does_not_modify_config() {
 #[test]
 fn test_config_stop_sequences_with_empty_strings() {
     let mut config = LlmConfig::default();
-    config.stop = Some(vec!["stop1".to_string(), "".to_string(), "stop2".to_string()]);
+    config.stop = Some(vec![
+        "stop1".to_string(),
+        "".to_string(),
+        "stop2".to_string(),
+    ]);
 
     let result = config.validate();
 

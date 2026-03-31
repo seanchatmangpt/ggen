@@ -2,9 +2,9 @@
 //!
 //! Tests the full five-stage μ pipeline from RDF to Elixir code.
 
-use ggen_craftplan::pipeline::CodeGenerator;
 use ggen_craftplan::extract::Extractor;
 use ggen_craftplan::normalize::Normalizer;
+use ggen_craftplan::pipeline::CodeGenerator;
 use tempfile::TempDir;
 
 #[test]
@@ -93,7 +93,9 @@ fn test_extract_stage_returns_entities() {
 
     // Load and normalize
     let mut normalizer = Normalizer::new().expect("Failed to create normalizer");
-    normalizer.load_rdf(&ontology_path).expect("Failed to load RDF");
+    normalizer
+        .load_rdf(&ontology_path)
+        .expect("Failed to load RDF");
     normalizer.validate().expect("Failed to validate RDF");
 
     // Extract entities
@@ -103,7 +105,10 @@ fn test_extract_stage_returns_entities() {
         .expect("Failed to extract entities");
 
     // Assert: Extract returns non-empty entity list
-    assert!(!entities.is_empty(), "Extract should return at least one entity");
+    assert!(
+        !entities.is_empty(),
+        "Extract should return at least one entity"
+    );
     assert_eq!(entities.len(), 1, "Should extract exactly one entity");
     assert_eq!(entities[0].name, "Product", "Entity name should be Product");
     assert_eq!(entities[0].plural, Some("Products".to_string()));
@@ -117,11 +122,17 @@ fn test_extract_stage_returns_entities() {
     assert_eq!(attributes.len(), 2, "Should extract 2 attributes");
 
     // Find specific attributes (order may vary)
-    let product_name = attributes.iter().find(|a| a.name == "productName").expect("Should find productName");
+    let product_name = attributes
+        .iter()
+        .find(|a| a.name == "productName")
+        .expect("Should find productName");
     assert_eq!(product_name.type_, "xsd:string");
     assert!(product_name.required);
 
-    let product_sku = attributes.iter().find(|a| a.name == "productSku").expect("Should find productSku");
+    let product_sku = attributes
+        .iter()
+        .find(|a| a.name == "productSku")
+        .expect("Should find productSku");
     assert_eq!(product_sku.doc, Some("Stock keeping unit".to_string()));
 }
 
@@ -165,7 +176,10 @@ fn test_emit_stage_writes_files() {
         .filter_map(|e| e.ok())
         .collect();
 
-    assert!(!output_entries.is_empty(), "Output directory should contain files");
+    assert!(
+        !output_entries.is_empty(),
+        "Output directory should contain files"
+    );
 
     // Check that generated files exist and have content
     for entry in &output_entries {
@@ -173,7 +187,10 @@ fn test_emit_stage_writes_files() {
         if path.extension().and_then(|s| s.to_str()) == Some("ex") {
             let content = std::fs::read_to_string(&path).expect("Failed to read file");
             assert!(!content.is_empty(), "Generated file should have content");
-            assert!(content.contains("defmodule"), "Should contain Elixir module definition");
+            assert!(
+                content.contains("defmodule"),
+                "Should contain Elixir module definition"
+            );
         }
     }
 }
@@ -184,10 +201,7 @@ fn test_full_pipeline_end_to_end() {
     let output_dir = TempDir::new().expect("Failed to create output dir");
 
     // Use the example product-catalog.ttl file
-    let example_ttl = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/examples/product-catalog.ttl"
-    );
+    let example_ttl = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/product-catalog.ttl");
 
     // Run the full pipeline
     let generator = CodeGenerator::new(output_dir.path()).expect("Failed to create generator");
@@ -196,9 +210,18 @@ fn test_full_pipeline_end_to_end() {
         .expect("Pipeline should succeed");
 
     // Assert: Receipt is generated with metadata
-    assert!(!receipt.input_hash.is_empty(), "Input hash should be computed");
-    assert!(receipt.metadata.entity_count > 0, "Should process at least one entity");
-    assert!(receipt.metadata.file_count > 0, "Should generate at least one file");
+    assert!(
+        !receipt.input_hash.is_empty(),
+        "Input hash should be computed"
+    );
+    assert!(
+        receipt.metadata.entity_count > 0,
+        "Should process at least one entity"
+    );
+    assert!(
+        receipt.metadata.file_count > 0,
+        "Should generate at least one file"
+    );
     assert!(receipt.metadata.duration_ms > 0, "Should record duration");
 
     // Assert: Files were written
@@ -247,4 +270,3 @@ fn test_canonicalization() {
     );
     assert!(normalized.contains("\n"), "Newlines should be preserved");
 }
-

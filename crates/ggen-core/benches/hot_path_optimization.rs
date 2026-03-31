@@ -57,21 +57,29 @@ fn bench_template_parsing_allocation_optimization(c: &mut Criterion) {
     for var_count in [10, 50, 100].iter() {
         // BEFORE: String allocations in template creation
         let template_before = create_template_string_owned(*var_count);
-        group.bench_with_input(BenchmarkId::new("before_owned", var_count), var_count, |b, _| {
-            b.iter(|| {
-                let result = Template::parse(black_box(&template_before));
-                black_box(result)
-            });
-        });
+        group.bench_with_input(
+            BenchmarkId::new("before_owned", var_count),
+            var_count,
+            |b, _| {
+                b.iter(|| {
+                    let result = Template::parse(black_box(&template_before));
+                    black_box(result)
+                });
+            },
+        );
 
         // AFTER: Pre-allocated capacity
         let template_after = create_template_string_cow(*var_count);
-        group.bench_with_input(BenchmarkId::new("after_capacity", var_count), var_count, |b, _| {
-            b.iter(|| {
-                let result = Template::parse(black_box(&template_after));
-                black_box(result)
-            });
-        });
+        group.bench_with_input(
+            BenchmarkId::new("after_capacity", var_count),
+            var_count,
+            |b, _| {
+                b.iter(|| {
+                    let result = Template::parse(black_box(&template_after));
+                    black_box(result)
+                });
+            },
+        );
     }
 
     group.finish();
@@ -88,30 +96,38 @@ fn bench_context_insertion_str_vs_string(c: &mut Criterion) {
 
     for var_count in [10, 50, 100].iter() {
         // BEFORE: Inserting &str (no allocation)
-        group.bench_with_input(BenchmarkId::new("str_refs", var_count), var_count, |b, &var_count| {
-            b.iter(|| {
-                let mut ctx = Context::new();
-                ctx.insert("name", "test_app");
-                for i in 0..var_count {
-                    ctx.insert(&format!("var{}", i), &format!("value{}", i));
-                }
-                black_box(ctx)
-            });
-        });
+        group.bench_with_input(
+            BenchmarkId::new("str_refs", var_count),
+            var_count,
+            |b, &var_count| {
+                b.iter(|| {
+                    let mut ctx = Context::new();
+                    ctx.insert("name", "test_app");
+                    for i in 0..var_count {
+                        ctx.insert(&format!("var{}", i), &format!("value{}", i));
+                    }
+                    black_box(ctx)
+                });
+            },
+        );
 
         // AFTER: Using String (with allocation - baseline)
-        group.bench_with_input(BenchmarkId::new("strings", var_count), var_count, |b, &var_count| {
-            b.iter(|| {
-                let mut ctx = Context::new();
-                ctx.insert("name", "test_app");
-                for i in 0..var_count {
-                    let key = format!("var{}", i);
-                    let value = format!("value{}", i);
-                    ctx.insert(&key, &value);
-                }
-                black_box(ctx)
-            });
-        });
+        group.bench_with_input(
+            BenchmarkId::new("strings", var_count),
+            var_count,
+            |b, &var_count| {
+                b.iter(|| {
+                    let mut ctx = Context::new();
+                    ctx.insert("name", "test_app");
+                    for i in 0..var_count {
+                        let key = format!("var{}", i);
+                        let value = format!("value{}", i);
+                        ctx.insert(&key, &value);
+                    }
+                    black_box(ctx)
+                });
+            },
+        );
     }
 
     group.finish();
@@ -342,30 +358,18 @@ criterion_group!(
     bench_template_parsing_allocation_optimization
 );
 
-criterion_group!(
-    context_benches,
-    bench_context_insertion_str_vs_string
-);
+criterion_group!(context_benches, bench_context_insertion_str_vs_string);
 
-criterion_group!(
-    caching_benches,
-    bench_template_caching
-);
+criterion_group!(caching_benches, bench_template_caching);
 
-criterion_group!(
-    rdf_benches,
-    bench_rdf_processing
-);
+criterion_group!(rdf_benches, bench_rdf_processing);
 
 criterion_group!(
     parallel_benches,
     bench_file_tree_generation_parallel_vs_sequential
 );
 
-criterion_group!(
-    e2e_benches,
-    bench_e2e_hot_path
-);
+criterion_group!(e2e_benches, bench_e2e_hot_path);
 
 criterion_main!(
     allocation_benches,

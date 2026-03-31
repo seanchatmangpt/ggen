@@ -167,9 +167,9 @@ pub mod tera_env;
 pub mod types;
 pub mod validation;
 // v6: Fully-Rendered Libraries via Ontology-First Compilation (A = μ(O))
-pub mod v6;
-pub mod tracing;
 pub mod simple_tracing;
+pub mod tracing;
+pub mod v6;
 
 // Re-export template types
 pub use template_types::{Frontmatter, Template};

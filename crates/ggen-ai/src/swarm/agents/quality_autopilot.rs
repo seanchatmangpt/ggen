@@ -731,7 +731,13 @@ impl CycleBreakerAgent {
 
         // 2. Check for clippy warnings
         let clippy_result = Command::new("cargo")
-            .args(["clippy", "--quiet", "--message-format=json", "-W", "clippy::all"])
+            .args([
+                "clippy",
+                "--quiet",
+                "--message-format=json",
+                "-W",
+                "clippy::all",
+            ])
             .current_dir(project_path)
             .output();
 
@@ -790,7 +796,9 @@ impl CycleBreakerAgent {
                         severity: QualitySeverity::Critical,
                         description: format!("Security vulnerabilities found: {}", stdout),
                         affected_area: "dependencies".to_string(),
-                        suggested_fix: Some("Update dependencies to fix vulnerabilities".to_string()),
+                        suggested_fix: Some(
+                            "Update dependencies to fix vulnerabilities".to_string(),
+                        ),
                         line_number: None,
                     });
                 }
