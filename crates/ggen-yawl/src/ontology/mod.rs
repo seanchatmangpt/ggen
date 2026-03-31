@@ -8,13 +8,11 @@ pub mod loader;
 pub use loader::{OntologyFormat, OntologyLoader};
 
 /// Analyzes ontology structure to detect workflow patterns.
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct OntologyAnalyzer {
     /// Whether to include abstract classes in analysis
     include_abstract: bool,
 }
-
 
 impl OntologyAnalyzer {
     /// Create a new analyzer with default settings.
