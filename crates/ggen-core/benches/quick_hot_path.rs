@@ -105,15 +105,19 @@ fn bench_string_formatting(c: &mut Criterion) {
 
     for count in [10, 50, 100].iter() {
         // BEFORE: format! macro (allocates new String each iteration)
-        group.bench_with_input(BenchmarkId::new("format_macro", count), count, |b, &count| {
-            b.iter(|| {
-                let mut result = String::new();
-                for i in 0..count {
-                    result.push_str(&format!("var{} = value{}\n", i, i));
-                }
-                black_box(result)
-            });
-        });
+        group.bench_with_input(
+            BenchmarkId::new("format_macro", count),
+            count,
+            |b, &count| {
+                b.iter(|| {
+                    let mut result = String::new();
+                    for i in 0..count {
+                        result.push_str(&format!("var{} = value{}\n", i, i));
+                    }
+                    black_box(result)
+                });
+            },
+        );
 
         // AFTER: Push individual string pieces (fewer allocations)
         group.bench_with_input(BenchmarkId::new("push_str", count), count, |b, &count| {
@@ -134,23 +138,10 @@ fn bench_string_formatting(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(
-    parsing_benches,
-    bench_template_parsing_with_capacity
-);
+criterion_group!(parsing_benches, bench_template_parsing_with_capacity);
 
-criterion_group!(
-    caching_benches,
-    bench_template_caching_benefit
-);
+criterion_group!(caching_benches, bench_template_caching_benefit);
 
-criterion_group!(
-    string_benches,
-    bench_string_formatting
-);
+criterion_group!(string_benches, bench_string_formatting);
 
-criterion_main!(
-    parsing_benches,
-    caching_benches,
-    string_benches
-);
+criterion_main!(parsing_benches, caching_benches, string_benches);

@@ -166,7 +166,9 @@ fn test_llm_integration_e2e_with_real_api() {
 
     // Check for model name (confirms real API call to Groq)
     assert!(
-        combined.contains("gpt-oss-20b") || combined.contains("groq") || combined.contains("llm.model="),
+        combined.contains("gpt-oss-20b")
+            || combined.contains("groq")
+            || combined.contains("llm.model="),
         "Expected to find Groq model identifier in traces.\n\
          Output:\n{}",
         combined

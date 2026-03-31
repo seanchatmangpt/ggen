@@ -24,7 +24,11 @@ pub struct GenerationConfig {
 
 impl GenerationConfig {
     pub fn new(app_name: String, module_prefix: String, version: String) -> Self {
-        Self { app_name, module_prefix, version }
+        Self {
+            app_name,
+            module_prefix,
+            version,
+        }
     }
 }
 

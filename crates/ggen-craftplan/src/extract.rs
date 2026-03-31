@@ -166,8 +166,10 @@ impl Extractor {
                     {
                         // Strip quotes from RDF literals
                         let attr_name_str = attr_name.to_string();
-                        let attr_name_str = attr_name_str.strip_prefix('"').unwrap_or(&attr_name_str);
-                        let attr_name_str = attr_name_str.strip_suffix('"').unwrap_or(attr_name_str);
+                        let attr_name_str =
+                            attr_name_str.strip_prefix('"').unwrap_or(&attr_name_str);
+                        let attr_name_str =
+                            attr_name_str.strip_suffix('"').unwrap_or(attr_name_str);
 
                         let type_str = type_.to_string();
                         let type_str = type_str.strip_prefix('"').unwrap_or(&type_str);
