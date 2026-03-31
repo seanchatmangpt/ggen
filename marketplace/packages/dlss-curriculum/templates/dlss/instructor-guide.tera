@@ -1,8 +1,6 @@
 {# instructor-guide.tera: Instructor Guide per Module #}
 {# Constitutional Equation: instructor/{{ code }}.md = mu(ontology.ttl) #}
 {# Input: SPARQL SELECT ?code ?title ?duration ?difficulty ?description #}
-{#   ?exampleTitle ?exampleContext ?exampleDescription #}
-{#   ?objText ?bloomsLevel ?exerciseTitle ?exerciseText ?estimatedMinutes #}
 
 # Instructor Guide: {{ code }} — {{ title }}
 
@@ -29,40 +27,6 @@
 | Independent Practice | 15 min | Students complete exercise independently |
 | Review and Q&A | 5 min | Debrief, address questions, preview next module |
 | **Total** | **90 min** |
-
-## Example
-
-{% for row in sparql_results %}
-{% if row.exampleTitle %}
-### {{ row.exampleTitle }}
-
-**Context**: {{ row.exampleContext | default(value="General application") }}
-
-{{ row.exampleDescription | default(value="See module content for detailed example.") }}
-
-{% endif %}
-{% endfor %}
-
-## Learning Objectives
-
-{% for row in sparql_results %}
-{% if row.objText %}
-- [{{ row.bloomsLevel | default(value="Apply") }}] {{ row.objText }}
-{% endif %}
-{% endfor %}
-
-## Exercise
-
-{% for row in sparql_results %}
-{% if row.exerciseTitle %}
-### {{ row.exerciseTitle }}
-
-**Time**: {{ row.estimatedMinutes | default(value="30") }} minutes
-
-{{ row.exerciseText | default(value="See exercise handout for detailed instructions.") }}
-
-{% endif %}
-{% endfor %}
 
 ## Facilitation Tips
 
