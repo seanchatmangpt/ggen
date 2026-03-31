@@ -88,8 +88,18 @@ impl Extractor {
                         crate::error::CraftplanError::rdf_validation("Missing 'name' binding")
                     })?;
 
+                    // Extract string value from RDF literal, stripping quotes
                     let name_str = name.to_string();
-                    let plural_str = solution.get("plural").map(|p| p.to_string());
+                    let name_str = name_str.strip_prefix('"').unwrap_or(&name_str);
+                    let name_str = name_str.strip_suffix('"').unwrap_or(name_str);
+                    let name_str = name_str.to_string();
+
+                    let plural_str = solution.get("plural").map(|p| {
+                        let p_str = p.to_string();
+                        let p_str = p_str.strip_prefix('"').unwrap_or(&p_str);
+                        let p_str = p_str.strip_suffix('"').unwrap_or(p_str);
+                        p_str.to_string()
+                    });
 
                     entities.push(Entity {
                         name: name_str,
@@ -154,16 +164,36 @@ impl Extractor {
                     if let (Some(attr_name), Some(type_)) =
                         (solution.get("attr_name"), solution.get("type"))
                     {
+                        // Strip quotes from RDF literals
+                        let attr_name_str = attr_name.to_string();
+                        let attr_name_str =
+                            attr_name_str.strip_prefix('"').unwrap_or(&attr_name_str);
+                        let attr_name_str =
+                            attr_name_str.strip_suffix('"').unwrap_or(attr_name_str);
+
+                        let type_str = type_.to_string();
+                        let type_str = type_str.strip_prefix('"').unwrap_or(&type_str);
+                        let type_str = type_str.strip_suffix('"').unwrap_or(type_str);
+
                         let required = solution
                             .get("required")
-                            .map(|r| r.to_string() == "true")
+                            .map(|r| {
+                                let r_str = r.to_string();
+                                let r_str = r_str.strip_prefix('"').unwrap_or(&r_str);
+                                r_str.strip_suffix('"').unwrap_or(r_str) == "true"
+                            })
                             .unwrap_or(false);
 
-                        let doc = solution.get("doc").map(|d| d.to_string());
+                        let doc = solution.get("doc").map(|d| {
+                            let d_str = d.to_string();
+                            let d_str = d_str.strip_prefix('"').unwrap_or(&d_str);
+                            let d_str = d_str.strip_suffix('"').unwrap_or(d_str);
+                            d_str.to_string()
+                        });
 
                         attributes.push(Attribute {
-                            name: attr_name.to_string(),
-                            type_: type_.to_string(),
+                            name: attr_name_str.to_string(),
+                            type_: type_str.to_string(),
                             required,
                             doc,
                         });

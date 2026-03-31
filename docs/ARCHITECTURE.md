@@ -3,7 +3,10 @@
 **Table of Contents**
 
 - [ggen System Architecture](#ggen-system-architecture)
-  - [System Diagram](#system-diagram)
+  - [System Overview](#system-overview)
+  - [Five-Stage μ Pipeline](#five-stage-μ-pipeline)
+  - [MCP/A2A Integration](#mcpa2a-integration)
+  - [Component Relationships](#component-relationships)
   - [Core Components](#core-components)
     - [1. RDF/SPARQL Engine (Oxigraph)](#1-rdfsparql-engine-oxigraph)
     - [2. Template System (Tera)](#2-template-system-tera)
@@ -11,6 +14,7 @@
     - [4. CLI Framework (clap-noun-verb)](#4-cli-framework-clap-noun-verb)
     - [5. Marketplace (Package Management)](#5-marketplace-package-management)
     - [6. Lifecycle Hooks](#6-lifecycle-hooks)
+    - [7. MCP Server (ggen-a2a-mcp)](#7-mcp-server-ggen-a2a-mcp)
   - [Complete Data Flow](#complete-data-flow)
   - [Key Design Decisions](#key-design-decisions)
     - [Why RDF over JSON/YAML?](#why-rdf-over-jsonyaml)
@@ -33,42 +37,170 @@
 # ggen System Architecture
 
 **Quick Reference**: 2-minute architecture overview
-**Last Updated**: 2025-12-11
+**Last Updated**: 2026-03-31
+**Version**: 6.0.1
 
 ---
 
-## System Diagram
+## System Overview
 
+```mermaid
+graph TB
+    CLI[ggen CLI<br/>clap-noun-verb] --> Core[ggen-core<br/>Pipeline Engine]
+    CLI --> AI[ggen-ai<br/>Multi-Provider LLM]
+    CLI --> MCP[ggen-a2a-mcp<br/>MCP Server]
+    CLI --> Marketplace[Marketplace<br/>Package Management]
+
+    Core --> RDF[RDF/SPARQL<br/>Oxigraph]
+    Core --> Templates[Tera<br/>Template System]
+    Core --> Lifecycle[Lifecycle Hooks]
+
+    MCP --> A2A[A2A Protocol<br/>Agent Communication]
+    MCP --> YAWL[YAWL Bridge<br/>Workflow Integration]
+
+    RDF --> Ontology[.specify/*.ttl<br/>RDF Ontologies]
+    Templates --> Code[Generated Code<br/>Rust/Python/JS]
+
+    style CLI fill:#e1f5ff
+    style Core fill:#fff4e1
+    style AI fill:#f3e5f5
+    style MCP fill:#e8f5e9
+    style RDF fill:#fce4ec
+    style Templates fill:#fff9c4
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                         ggen CLI                             │
-│  (clap-noun-verb auto-discovery framework)                  │
-└─────────────┬───────────────────────────────────────────────┘
-              │
-              ├─► RDF/SPARQL Engine (Oxigraph)
-              │   • Knowledge graph processing
-              │   • SPARQL query execution
-              │   • Ontology validation
-              │
-              ├─► Template System (Tera)
-              │   • Template rendering
-              │   • Variable substitution
-              │   • Code generation
-              │
-              ├─► AI Integration (genai)
-              │   • Multi-provider support (OpenAI, Anthropic, Ollama)
-              │   • Prompt engineering
-              │   • AI-assisted generation
-              │
-              ├─► Lifecycle Hooks
-              │   • Pre-generation validation
-              │   • Post-generation formatting
-              │   • Environment-specific behavior
-              │
-              └─► Marketplace (Package Management)
-                  • Template packages
-                  • Ontology packages
-                  • Versioning & dependencies
+
+---
+
+## Five-Stage μ Pipeline
+
+The core code generation pipeline follows a five-stage process (μ₁-μ₅):
+
+```mermaid
+graph LR
+    A[μ₁: Normalize<br/>RDF Ontology] --> B[μ₂: Extract<br/>SPARQL Queries]
+    B --> C[μ₃: Generate<br/>Tera Templates]
+    C --> D[μ₄: Validate<br/>Quality Gates]
+    D --> E[μ₅: Emit<br/>Code + Receipt]
+
+    style A fill:#e3f2fd
+    style B fill:#fff3e0
+    style C fill:#f3e5f5
+    style D fill:#ffebee
+    style E fill:#e8f5e9
+```
+
+### Pipeline Stages
+
+| Stage | Name | Purpose | Output |
+|-------|------|---------|--------|
+| **μ₁** | Normalize | Load and normalize RDF ontologies | Unified RDF graph |
+| **μ₂** | Extract | SPARQL queries extract structured data | Template variables |
+| **μ₃** | Generate | Tera renders templates with variables | Generated code |
+| **μ₄** | Validate | Quality gates (lint, test, format) | Validation results |
+| **μ₅** | Emit | Write files + cryptographic receipt | Final artifacts |
+
+---
+
+## MCP/A2A Integration
+
+The MCP (Model Context Protocol) server enables AI agent integration:
+
+```mermaid
+graph TD
+    Agent[AI Agent] -->|MCP Protocol| MCP[ggen-a2a-mcp<br/>MCP Server]
+
+    MCP --> Tools[Tool Handlers]
+    Tools --> Sync[sync<br/>Full pipeline]
+    Tools --> Validate[validate<br/>Quality gates]
+    Tools --> Query[query<br/>SPARQL search]
+    Tools --> Generate[generate<br/>Single file]
+
+    MCP --> A2A[A2A Protocol<br/>Agent Communication]
+    MCP --> YAWL[YAWL Workflow<br/>Task Orchestration]
+
+    Sync --> Pipeline[μ₁-μ₅ Pipeline]
+    Validate --> OTEL[OpenTelemetry<br/>Spans & Traces]
+
+    style Agent fill:#e1f5fe
+    style MCP fill:#c8e6c9
+    style Tools fill:#fff9c4
+    style A2A fill:#f3e5f5
+    style YAWL fill:#ffebee
+```
+
+### MCP Tools
+
+| Tool | Purpose | OTEL Spans |
+|------|---------|------------|
+| `sync` | Run full μ₁-μ₅ pipeline | `pipeline.*`, `llm.*` |
+| `validate` | Quality gate validation | `quality_gate.*` |
+| `query` | SPARQL ontology search | `mcp.tool.call` |
+| `generate` | Single-file generation | `mcp.tool.call` |
+
+---
+
+## Component Relationships
+
+```mermaid
+graph TB
+    subgraph "CLI Layer"
+        CLI[ggen-cli]
+        CLITPS[ggen-cli-tps<br/>TPS Commands]
+    end
+
+    subgraph "Core Layer"
+        Core[ggen-core<br/>Pipeline Engine]
+        Domain[ggen-domain<br/>Types & Models]
+        Config[ggen-config<br/>Configuration]
+    end
+
+    subgraph "Integration Layer"
+        AI[ggen-ai<br/>LLM Integration]
+        MCP[ggen-a2a-mcp<br/>MCP Server]
+        A2A[ggen-a2a<br/>A2A Protocol]
+        Marketplace[ggen-marketplace<br/>Package Registry]
+    end
+
+    subgraph "Quality Layer"
+        Jidoka[ggen-jidoka<br/>Quality Gates]
+        Andon[ggen-tps-andon<br/>Alerting]
+        Metrics[ggen-metrics-tps<br/>Telemetry]
+    end
+
+    subgraph "TPS Layer"
+        Heijunka[ggen-heijunka<br/>Load Leveling]
+        Backpressure[ggen-backpressure<br/>Flow Control]
+        Packet[ggen-packet<br/>Work Orders]
+    end
+
+    CLI --> Core
+    CLITPS --> A2A
+
+    Core --> Domain
+    Core --> Config
+    Core --> AI
+    Core --> MCP
+
+    MCP --> A2A
+    MCP --> YAWL[ggen-yawl<br/>Workflow Gen]
+
+    AI --> OTEL[knhk-otel<br/>Tracing]
+
+    Marketplace --> Core
+
+    Jidoka --> Core
+    Andon --> Jidoka
+    Metrics --> Andon
+
+    Heijunka --> Core
+    Backpressure --> Core
+    Packet --> Core
+
+    style CLI fill:#e1f5ff
+    style Core fill:#fff4e1
+    style AI fill:#f3e5f5
+    style MCP fill:#e8f5e9
+    style Jidoka fill:#ffebee
 ```
 
 ---
@@ -133,7 +265,7 @@ pub struct {{ class.name | pascal_case }} {
 **Purpose**: Enhance code generation with LLM intelligence
 
 **Key Features**:
-- Multi-provider abstraction (OpenAI, Anthropic, Ollama)
+- Multi-provider abstraction (OpenAI, Anthropic, Ollama, Groq)
 - Streaming responses
 - Token usage tracking
 - Graceful degradation (works without AI)
@@ -229,6 +361,40 @@ scripts = ["scripts/format-docs.sh"]
 
 ---
 
+### 7. MCP Server (ggen-a2a-mcp)
+
+**Purpose**: Enable AI agent integration via Model Context Protocol
+
+**Key Features**:
+- stdio and HTTP transport modes
+- 4 core tools (sync, validate, query, generate)
+- A2A protocol integration for multi-agent workflows
+- YAWL workflow bridge for task orchestration
+- OpenTelemetry tracing for all operations
+
+**Architecture**:
+```text
+┌─────────────────────────────────────────────┐
+│              ggen-a2a-mcp Crate             │
+├─────────────┬─────────────┬─────────────────┤
+│  LLM Client │ Translation │  A2A Protocol   │
+│  (ggen-ai)  │    Layer    │  (a2a-gen)      │
+├─────────────┼─────────────┼─────────────────┤
+│  RMCP Tool  │ Conversion  │  Agent Skills   │
+│  Interface  │    Layer    │  Interface      │
+└─────────────┴─────────────┴─────────────────┘
+```
+
+**Tools**:
+- `sync`: Run full μ₁-μ₅ pipeline with audit trail
+- `validate`: Execute quality gates (lint, test, format)
+- `query`: SPARQL search over ontologies
+- `generate`: Single-file code generation
+
+**See**: `docs/a2a-integration.md`, `crates/ggen-a2a-mcp/README.md`
+
+---
+
 ## Complete Data Flow
 
 ```
@@ -245,6 +411,8 @@ scripts = ["scripts/format-docs.sh"]
 6. Output: Generated code files (*.rs, *.py, *.js)
    ↓
 7. Post-Processing: Lifecycle hooks format/validate
+   ↓
+8. Receipt: Cryptographic hash for reproducibility
 ```
 
 **Key Principle**: Deterministic transforms at every step (reproducible outputs)
@@ -396,14 +564,20 @@ This is a **quick reference**. For detailed documentation, see:
   - Common scenarios
   - Best practices
 
+- **A2A/MCP Integration**: `docs/a2a-integration.md`
+  - MCP server setup
+  - Agent communication
+  - Workflow orchestration
+
 ---
 
 ## Version History
 
-- **v4.0.0**: Production-ready CLI with auto-discovery, lifecycle hooks, and marketplace
-- **v3.x**: Marketplace v2 migration, improved RDF engine
-- **v2.x**: AI integration, multi-provider support
-- **v1.x**: Initial release with RDF + Tera
+- **v6.0.1** (2026-03-31): MCP/A2A integration, TPS quality systems
+- **v6.0.0**: Production-ready CLI with auto-discovery, lifecycle hooks, marketplace
+- **v5.x**: Marketplace v2 migration, improved RDF engine
+- **v4.x**: AI integration, multi-provider support
+- **v3.x**: Initial release with RDF + Tera
 
 ---
 
@@ -411,3 +585,4 @@ This is a **quick reference**. For detailed documentation, see:
 - New to ggen? → `docs/tutorials/01-quick-start.md`
 - Want to generate code? → `docs/how-to/generation/`
 - Understanding design? → `docs/thesis/`
+- MCP/A2A integration? → `docs/a2a-integration.md`

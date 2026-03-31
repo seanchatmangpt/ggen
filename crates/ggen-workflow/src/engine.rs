@@ -328,9 +328,8 @@ pub struct JoinState {
 pub struct ConditionEvaluator {
     /// Context variables for evaluation
     context: HashMap<String, serde_json::Value>,
-    /// SPARQL endpoint for ontology-based conditions
-    #[allow(dead_code)]
-    sparql_endpoint: Option<String>,
+    /// RDF triple store for SPARQL query evaluation
+    triple_store: Option<ggen_ontology_core::TripleStore>,
 }
 
 impl ConditionEvaluator {
@@ -338,7 +337,18 @@ impl ConditionEvaluator {
     pub fn new(context: HashMap<String, serde_json::Value>) -> Self {
         Self {
             context,
-            sparql_endpoint: None,
+            triple_store: None,
+        }
+    }
+
+    /// Create a new condition evaluator with RDF triple store
+    pub fn with_triple_store(
+        context: HashMap<String, serde_json::Value>,
+        store: ggen_ontology_core::TripleStore,
+    ) -> Self {
+        Self {
+            context,
+            triple_store: Some(store),
         }
     }
 
@@ -459,12 +469,45 @@ impl ConditionEvaluator {
     }
 
     /// Evaluate a SPARQL-based condition
-    fn evaluate_sparql_condition(&self, _query: &str) -> WorkflowResult<bool> {
-        // In production, this would execute against a SPARQL endpoint
-        // For now, return a placeholder result
-        Err(WorkflowError::Validation(
-            "SPARQL condition evaluation not yet implemented".to_string(),
-        ))
+    fn evaluate_sparql_condition(&self, query: &str) -> WorkflowResult<bool> {
+        // Check if we have a triple store available
+        let store = self
+            .triple_store
+            .as_ref()
+            .ok_or_else(|| {
+                WorkflowError::Validation(
+                    "SPARQL evaluation requires a triple store. Use ConditionEvaluator::with_triple_store()".to_string(),
+                )
+            })?;
+
+        // Execute SPARQL query
+        let results_json = store.query_sparql(query).map_err(|e| {
+            WorkflowError::SparqlQuery {
+                error_source: e.to_string(),
+                query: query.to_string(),
+            }
+        })?;
+
+        // Parse results to determine boolean outcome
+        let results: serde_json::Value = serde_json::from_str(&results_json).map_err(|e| {
+            WorkflowError::Validation(format!("Failed to parse SPARQL results as JSON: {}", e))
+        })?;
+
+        // Check if this is an ASK query (returns boolean directly)
+        if let Some(boolean) = results.get("boolean").and_then(|v| v.as_bool()) {
+            return Ok(boolean);
+        }
+
+        // Check if this is a SELECT query with results
+        if let Some(results_obj) = results.get("results") {
+            if let Some(bindings) = results_obj.get("bindings").and_then(|v| v.as_array()) {
+                // SELECT query returns true if there are any results
+                return Ok(!bindings.is_empty());
+            }
+        }
+
+        // Default: treat unknown result formats as false
+        Ok(false)
     }
 
     /// Evaluate conditions for OR split pattern
@@ -1823,6 +1866,19 @@ mod tests {
         assert!(evaluator.evaluate("x < y && x == 10").unwrap());
         assert!(evaluator.evaluate("x > y || x == 10").unwrap());
         assert!(!evaluator.evaluate("x > 100").unwrap());
+    }
+
+    #[test]
+    fn test_sparql_condition_without_store_errors() {
+        let context = HashMap::new();
+        let evaluator = ConditionEvaluator::new(context);
+
+        // SPARQL query without triple store should error
+        let result = evaluator.evaluate("SPARQL:ASK { ?s ?p ?o }");
+        assert!(result.is_err());
+
+        let err = result.unwrap_err();
+        assert!(err.to_string().contains("triple store"));
     }
 
     #[test]

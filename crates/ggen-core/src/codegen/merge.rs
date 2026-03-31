@@ -101,14 +101,18 @@ pub fn merge_sections(generated_code: &str, existing_content: &str) -> Result<St
 
     // Validate marker positions
     if markers.manual_start <= markers.generated_start {
-        return Err(Error::new(
-            "Invalid merge markers: ======= must come after <<<<<<< GENERATED",
-        ));
+        return Err(Error::new(&format!(
+            "error[E0001]: Invalid merge marker order\n  --> GENERATED marker at line {}, ======= marker at line {}\n  |\n  = help: Merge markers must appear in this order:\n  =   1. <<<<<<< GENERATED\n  =   2. =======\n  =   3. >>>>>>> MANUAL\n  = help: The ======= separator must come AFTER the <<<<<<< GENERATED marker",
+            markers.generated_start,
+            markers.manual_start
+        )));
     }
     if markers.manual_end <= markers.manual_start {
-        return Err(Error::new(
-            "Invalid merge markers: >>>>>>> MANUAL must come after =======",
-        ));
+        return Err(Error::new(&format!(
+            "error[E0001]: Invalid merge marker order\n  --> ======= marker at line {}, >>>>>>> MANUAL marker at line {}\n  |\n  = help: Merge markers must appear in this order:\n  =   1. <<<<<<< GENERATED\n  =   2. =======\n  =   3. >>>>>>> MANUAL\n  = help: The >>>>>>> MANUAL marker must come AFTER the ======= separator",
+            markers.manual_start,
+            markers.manual_end
+        )));
     }
 
     // Extract manual section

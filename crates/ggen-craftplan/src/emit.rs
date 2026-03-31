@@ -22,6 +22,16 @@ pub struct GenerationConfig {
     version: String,
 }
 
+impl GenerationConfig {
+    pub fn new(app_name: String, module_prefix: String, version: String) -> Self {
+        Self {
+            app_name,
+            module_prefix,
+            version,
+        }
+    }
+}
+
 impl Emitter {
     /// Create a new emitter with built-in templates
     pub fn new(output_dir: &std::path::Path) -> Result<Self> {

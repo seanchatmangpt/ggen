@@ -1,0 +1,336 @@
+---
+name: CI Quality Gates (cargo-make)
+
+# Enhanced CI workflow using cargo-make with strict quality gates
+# Follows 80/20 principle: Basic quality gates (check, lint, test)
+# without excessive complexity
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  # Enable OTEL trace logging for LLM tests
+  RUST_LOG: trace,ggen_ai=trace,ggen_core=trace
+
+jobs:
+  # GATE 1: Compilation Check using cargo make check
+  compilation:
+    name: Gate 1 - Compilation Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo index
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo build
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install cargo-make
+        run: cargo install cargo-make --locked
+
+      - name: Run cargo make check
+        run: cargo make check
+
+  # GATE 2: Linting using cargo make lint
+  linting:
+    name: Gate 2 - Linting (Clippy and Rustfmt)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path:
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-lint-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install cargo-make
+        run: cargo install cargo-make --locked
+
+      - name: Run cargo make lint
+        run: cargo make lint
+
+      - name: Verify rustfmt
+        run: cargo fmt --all -- --check
+
+  # GATE 3: Unit Tests using cargo make test-unit
+  unit-tests:
+    name: Gate 3 - Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path:
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-test-unit-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install cargo-make
+        run: cargo install cargo-make --locked
+
+      - name: Run unit tests
+        run: cargo make test-unit
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path:
+            target/ctest-results/
+            target/test-results/
+
+  # GATE 4: LLM Tests with OTEL Verification
+  llm-otel-verification:
+    name: Gate 4 - LLM Tests with OTEL Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path:
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-llm-test-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install cargo-make
+        run: cargo install cargo-make --locked
+
+      - name: Run LLM tests with OTEL logging
+        run: |
+          # Run LLM integration tests with trace logging enabled
+          RUST_LOG=trace,ggen_ai=trace,ggen_core=trace \
+          cargo test -p ggen-cli-lib --test llm_e2e_test -- --nocapture 2>&1 | tee otel_output.txt
+
+      - name: Verify OTEL spans exist
+        run: |
+          set -euo pipefail
+
+          echo "Verifying OTEL spans for LLM integration..."
+
+          # Check for required OTEL spans
+          if ! grep -q "llm\.complete\|llm\.complete_stream" otel_output.txt; then
+            echo "OTEL VALIDATION FAILED: Missing llm.complete span"
+            echo ""
+            echo "Expected spans:"
+            echo "  - llm.complete (synchronous LLM completion)"
+            echo "  - llm.complete_stream (streaming LLM completion)"
+            echo ""
+            echo "This indicates the LLM integration is not properly instrumented."
+            exit 1
+          fi
+
+          # Check for required attributes
+          if ! grep -q "llm\.model=" otel_output.txt; then
+            echo "OTEL VALIDATION FAILED: Missing llm.model attribute"
+            echo ""
+            echo "Required attributes:"
+            echo "  - llm.model (model identifier)"
+            echo "  - llm.prompt_tokens (input token count)"
+            echo "  - llm.completion_tokens (output token count)"
+            echo "  - llm.total_tokens (total tokens used)"
+            exit 1
+          fi
+
+          # Check for token counts
+          if ! grep -q "llm\.total_tokens" otel_output.txt; then
+            echo "WARNING: Missing llm.total_tokens attribute"
+            echo "    Token counts should be tracked for production monitoring"
+          fi
+
+          echo "OTEL validation passed - LLM integration properly instrumented"
+          echo ""
+          echo "Found spans:"
+          grep -E "llm\.(complete|model|total_tokens)" otel_output.txt | head -5 || true
+
+      - name: Upload OTEL output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: otel-verification-output
+          path: otel_output.txt
+
+      - name: Verify LLM API was called not mocked
+        run: |
+          set -euo pipefail
+
+          echo "Verifying real LLM API calls were made..."
+
+          # Check for actual network activity (not mock responses)
+          if grep -q "mock\|fake\|test double" otel_output.txt; then
+            echo "OTEL VALIDATION FAILED: Tests appear to use mocks"
+            echo ""
+            echo "Chicago TDD requires real collaborators, not test doubles."
+            echo "LLM integration tests must make real API calls."
+            exit 1
+          fi
+
+          # Check for reasonable response times (mocks are instant)
+          if grep -q "elapsed_ms=[0-9]" otel_output.txt; then
+            ELAPSED=$(grep -oP "elapsed_ms=\K[0-9]+" otel_output.txt | head -1)
+            if [ "$ELAPSED" -lt 100 ]; then
+              echo "WARNING: Response time ${ELAPSED}ms is suspiciously fast"
+              echo "    Real LLM API calls typically take 500-3000ms"
+              echo "    This may indicate mock usage"
+            fi
+          fi
+
+          echo "LLM API verification passed - real API calls detected"
+
+  # GATE 5: Documentation Tests
+  doc-tests:
+    name: Gate 5 - Documentation Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path:
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-doc-test-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install cargo-make
+        run: cargo install cargo-make --locked
+
+      - name: Run doc tests
+        run: cargo make test-doc
+
+  # SUMMARY: All gates must pass
+  quality-gates-summary:
+    name: Quality Gates Summary
+    runs-on: ubuntu-latest
+    needs:
+      - compilation
+      - linting
+      - unit-tests
+      - llm-otel-verification
+      - doc-tests
+
+    if: always()
+
+    steps:
+      - name: Check all gates passed
+        run: |
+          echo "CI QUALITY GATES SUMMARY"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+
+          # Check each gate
+          GATES_PASSED=0
+          GATES_FAILED=0
+
+          if [ "${{ needs.compilation.result }}" = "success" ]; then
+            echo "Gate 1 - Compilation Check: PASSED"
+            GATES_PASSED=$((GATES_PASSED + 1))
+          else
+            echo "Gate 1 - Compilation Check: FAILED"
+            GATES_FAILED=$((GATES_FAILED + 1))
+          fi
+
+          if [ "${{ needs.linting.result }}" = "success" ]; then
+            echo "Gate 2 - Linting (Clippy + Rustfmt): PASSED"
+            GATES_PASSED=$((GATES_PASSED + 1))
+          else
+            echo "Gate 2 - Linting (Clippy + Rustfmt): FAILED"
+            GATES_FAILED=$((GATES_FAILED + 1))
+          fi
+
+          if [ "${{ needs.unit-tests.result }}" = "success" ]; then
+            echo "Gate 3 - Unit Tests: PASSED"
+            GATES_PASSED=$((GATES_PASSED + 1))
+          else
+            echo "Gate 3 - Unit Tests: FAILED"
+            GATES_FAILED=$((GATES_FAILED + 1))
+          fi
+
+          if [ "${{ needs.llm-otel-verification.result }}" = "success" ]; then
+            echo "Gate 4 - LLM Tests with OTEL Verification: PASSED"
+            GATES_PASSED=$((GATES_PASSED + 1))
+          else
+            echo "Gate 4 - LLM Tests with OTEL Verification: FAILED"
+            GATES_FAILED=$((GATES_FAILED + 1))
+          fi
+
+          if [ "${{ needs.doc-tests.result }}" = "success" ]; then
+            echo "Gate 5 - Documentation Tests: PASSED"
+            GATES_PASSED=$((GATES_PASSED + 1))
+          else
+            echo "Gate 5 - Documentation Tests: FAILED"
+            GATES_FAILED=$((GATES_FAILED + 1))
+          fi
+
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Results: $GATES_PASSED passed, $GATES_FAILED failed"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+
+          if [ $GATES_FAILED -gt 0 ]; then
+            echo "QUALITY GATES FAILED - Fix errors before merging"
+            exit 1
+          else
+            echo "ALL QUALITY GATES PASSED - Ready to merge"
+          fi

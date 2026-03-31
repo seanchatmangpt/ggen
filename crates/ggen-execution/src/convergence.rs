@@ -613,10 +613,12 @@ impl AdaptiveConvergenceEngine {
         };
 
         // Update strategy performance
-        let strategy_names = ["AlignmentStrategy",
+        let strategy_names = [
+            "AlignmentStrategy",
             "ValidationStrategy",
             "NormalizationStrategy",
-            "ConsensusStrategy"];
+            "ConsensusStrategy",
+        ];
         if let Some(name) = strategy_names.get(best_idx) {
             self.update_strategy_performance(name.to_string(), improvement)
                 .await;
@@ -631,10 +633,12 @@ impl AdaptiveConvergenceEngine {
     ) -> Result<usize, ExecutionError> {
         let mut best_idx = 0;
         let mut best_score = 0.0;
-        let _strategy_names = ["AlignmentStrategy",
+        let _strategy_names = [
+            "AlignmentStrategy",
             "ValidationStrategy",
             "NormalizationStrategy",
-            "ConsensusStrategy"];
+            "ConsensusStrategy",
+        ];
 
         for (idx, strategy) in self.base_engine.convergence_strategies.iter().enumerate() {
             if strategy.is_applicable(message) {

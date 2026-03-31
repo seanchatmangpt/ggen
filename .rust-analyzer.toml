@@ -1,0 +1,252 @@
+# rust-analyzer configuration for ggen v6.0.1
+# 30-crate workspace with complex features (macros, generics, async/await)
+# Optimized for performance on large workspaces
+#
+# This file configures rust-analyzer project-wide.
+# For editor-specific settings, see .vscode/settings.json
+
+# ===================================================================
+# CARGO BUILD CONFIGURATION
+# ===================================================================
+
+[cargo]
+# Use cargo check output instead of cargo build for faster analysis
+loadOutDirsFromCheck = true
+
+# Don't enable all features (reduces compilation time)
+# Specify which features to enable instead
+allFeatures = false
+
+# Specify which features to enable
+features = ["otel"]
+
+# Run build scripts to get proc-macro output
+buildScripts.enable = true
+
+# Use rustc wrapper for build scripts
+buildScripts.useRustcWrapper = true
+
+# Rebuild proc-macros when they change
+buildScripts.rebuildOnSave = true
+
+# Extra arguments for cargo commands
+# Use --locked to ensure consistent dependencies
+# Use -j 8 for parallel compilation (adjust based on CPU cores)
+extraArgs = ["--locked", "-j", "8"]
+
+# ===================================================================
+# PROC-MACRO CONFIGURATION
+# ===================================================================
+
+[procMacro]
+# Enable proc-macro expansion (critical for ggen's derive macros)
+enable = true
+
+# Enable attribute proc-macros
+attributes.enable = true
+
+# Enable derive proc-macros
+derives.enable = true
+
+# Ignore specific proc-macros if needed
+# ignored = []
+
+# ===================================================================
+# DIAGNOSTICS CONFIGURATION
+# ===================================================================
+
+[diagnostics]
+# Enable all diagnostics
+enable = true
+
+# Disable specific diagnostics that are noisy in large workspaces
+disabled = [
+  "unresolved-proc-macro",  # Temporarily disable if proc-macro server is slow
+  "inactive-code",          # Too many false positives in conditional compilation
+  "unlinked-file",          # Allow standalone Rust files outside workspace
+]
+
+# Enable experimental diagnostics
+experimental.enable = true
+
+# ===================================================================
+# COMPLETION CONFIGURATION
+# ===================================================================
+
+[completion]
+# Enable auto-import based on module analysis
+autoimport.enable = true
+
+# Add call parentheses/snippets for functions
+addCallArgumentSnippets = true
+
+# Add call parenthesis for function calls
+addCallParenthesis = true
+
+# Enable postfix completions (e.g., "foo.if", "foo.match")
+postfix.enable = true
+
+# Enable private item completion (useful in tests)
+privateEditable.enable = true
+
+# Show full function signature in completion
+fullFunctionSignatures.enable = true
+
+# ===================================================================
+# INLAY HINTS CONFIGURATION
+# ===================================================================
+
+[inlayHints]
+# Enable type hints for variable assignments
+typeHints.enable = true
+
+# Hide type hints for constructors that match their type
+typeHints.hideConstructorTypeHints = false
+
+# Hide type hints for methods with "self" parameter
+typeHints.hideNamedConstructorHints = false
+
+# Enable parameter name hints
+parameterHints.enable = true
+
+# Show hint for closure return types
+closureReturnTypeHints.enable = "always"
+
+# Show hint for closure capture types
+closureCaptureHints.enable = true
+
+# Show hint for lifetime elision
+lifetimeElisionHints.enable = "always"
+
+# Show hint for reborrow labels
+reborrowHints.enable = "always"
+
+# Show hint for generic parameter names
+genericParameterHints.enable = true
+
+# Maximum length for inlay hints
+maxLength = 25
+
+# ===================================================================
+# CODE LENS CONFIGURATION
+# ===================================================================
+
+[lens]
+# Enable references code lens (shows number of references)
+enable = true
+
+# Enable implementation code lens
+implementations.enable = true
+
+# Enable runnables code lens (for tests/main)
+run.enable = true
+
+# ===================================================================
+# HOVER ACTIONS CONFIGURATION
+# ===================================================================
+
+[hover]
+# Enable documentation in hover
+documentation.enable = true
+
+# Enable keywords in hover
+keywords.enable = true
+
+# Enable hover actions (implementations, references, etc.)
+actions.enable = true
+
+# Show implementations in hover
+actions.implementations.enable = true
+
+# Show references in hover
+actions.references.enable = true
+
+# Show run button in hover for main/tests
+actions.run.enable = true
+
+# Show debug button in hover
+actions.debug.enable = true
+
+# Show goto type button in hover
+actions.gotoTypeDef.enable = true
+
+# ===================================================================
+# ASSISTS (CODE ACTIONS) CONFIGURATION
+# ===================================================================
+
+[assist]
+# Disable specific assists that are noisy
+emitMustUse = false
+
+# Enable import merging
+importMergePrefix = "crate"
+
+# Enable prefix for import insertion
+importMergeBehaviour = "crate"
+
+# ===================================================================
+# GENERAL CONFIGURATION
+# ===================================================================
+
+[general]
+# Enable rainbow parentheses
+bracketPairColorization.independentColorPoolPerBracketType = true
+
+# Enable sticky scroll (shows context at top of editor)
+editor.stickyScroll.enabled = true
+
+# Show rust-analyzer version in status bar
+statusBar.showVersion = true
+
+# Enable test explorer
+testExplorer = true
+
+# ===================================================================
+# FILES TO WATCH/EXCLUDE
+# ===================================================================
+
+[files]
+# Exclude large directories from watching
+watcher = "client"
+
+# Exclude specific directories from analysis
+excludeDirs = [
+  "target",
+  "target-debug",
+  ".git",
+  "node_modules",
+]
+
+# ===================================================================
+# SEMANTIC HIGHLIGHTING
+# ===================================================================
+
+[semanticHighlighting]
+# Enable string highlighting
+strings.enable = true
+
+# Enable punctuation highlighting
+punctuation.enable = true
+
+# Enable special character highlighting
+specialCharacters.enable = true
+
+# ===================================================================
+# HIGHLIGHTING RELATED CODE
+# ===================================================================
+
+[highlightRelated]
+# Enable reference highlighting
+references.enable = true
+
+# Enable exit point highlighting (break, return, etc.)
+exitPoints.enable = true
+
+# Enable break point highlighting
+breakPoints.enable = true
+
+# Enable closure capture highlighting
+closureCaptures.enable = true
+
+# Enable yield point highlighting
+yieldPoints.enable = true

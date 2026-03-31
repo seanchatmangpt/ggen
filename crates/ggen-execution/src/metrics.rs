@@ -865,8 +865,8 @@ impl MetricsExporter {
             })
         };
 
-        let json_str = serde_json::to_string_pretty(&export_data)
-            .map_err(ExecutionError::Serialization)?;
+        let json_str =
+            serde_json::to_string_pretty(&export_data).map_err(ExecutionError::Serialization)?;
 
         tokio::fs::write(output_path, json_str)
             .await
@@ -913,7 +913,8 @@ impl MetricsExporter {
         let mut prometheus_content = String::new();
 
         if let Some(metrics) = metrics {
-            prometheus_content.push_str("# HELP ggen_execution_duration_ms Execution duration in milliseconds\n");
+            prometheus_content
+                .push_str("# HELP ggen_execution_duration_ms Execution duration in milliseconds\n");
             prometheus_content.push_str("# TYPE ggen_execution_duration_ms gauge\n");
             prometheus_content.push_str(&format!(
                 "ggen_execution_duration_ms {}\n",

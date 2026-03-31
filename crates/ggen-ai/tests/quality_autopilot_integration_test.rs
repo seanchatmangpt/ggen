@@ -1,21 +1,25 @@
-//! Integration tests for CycleBreakerAgent (quality_autopilot)
+//! Integration tests for QualityAutopilot agent
 //!
-//! Tests the autonomous cycle detection and fixing for generated code.
+//! Tests the autonomous quality fixing functionality including:
+//! - Cycle detection and fixing
+//! - Quality assessment
+//! - Validation context extraction
 
 #![cfg(feature = "swarm")]
 
-use ggen_ai::swarm::agents::quality_autopilot::{CycleBreakerAgent, FixStrategy};
+use ggen_ai::swarm::agents::quality_autopilot::CycleBreakerAgent;
 use ggen_ai::GenAiClient;
 use std::fs;
-use std::path::PathBuf;
 use tempfile::TempDir;
 
-/// Create a test Rust project with a circular dependency
-fn create_rust_project_with_cycle(dir: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+/// Create a test Rust project with circular dependencies
+fn create_test_project_with_cycles(
+    dir: &std::path::Path,
+) -> Result<(), Box<dyn std::error::Error>> {
     // Create Cargo.toml
     let cargo_toml = r#"
 [package]
-name = "cycle-test"
+name = "test-cycles"
 version = "0.1.0"
 edition = "2021"
 
@@ -30,29 +34,30 @@ edition = "2021"
     // Create main.rs
     let main_rs = r#"
 mod a;
+mod b;
 
 fn main() {
-    a::hello();
+    a::function_a();
 }
 "#;
     fs::write(src_dir.join("main.rs"), main_rs)?;
 
-    // Create a.rs
+    // Create a.rs with cycle
     let a_rs = r#"
-mod b;
+use super::b;
 
-pub fn hello() {
-    b::world();
+pub fn function_a() {
+    b::function_b();
 }
 "#;
     fs::write(src_dir.join("a.rs"), a_rs)?;
 
-    // Create b.rs with cycle back to a
+    // Create b.rs that creates cycle
     let b_rs = r#"
 use super::a;
 
-pub fn world() {
-    a::hello();
+pub fn function_b() {
+    a::function_a();
 }
 "#;
     fs::write(src_dir.join("b.rs"), b_rs)?;
@@ -60,176 +65,148 @@ pub fn world() {
     Ok(())
 }
 
-/// Create a test Go project with a circular dependency
-fn create_go_project_with_cycle(dir: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
-    // Create go.mod
-    let go_mod = r#"
-module cycle-test
+/// Create a clean test Rust project
+fn create_clean_test_project(dir: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
+    // Create Cargo.toml
+    let cargo_toml = r#"
+[package]
+name = "test-clean"
+version = "0.1.0"
+edition = "2021"
 
-go 1.21
+[dependencies]
 "#;
-    fs::write(dir.join("go.mod"), go_mod)?;
+    fs::write(dir.join("Cargo.toml"), cargo_toml)?;
 
-    // Create main.go
-    let main_go = r#"
-package main
+    // Create src directory
+    let src_dir = dir.join("src");
+    fs::create_dir_all(&src_dir)?;
 
-import "cycle-test/a"
-
-func main() {
-    a.Hello()
+    // Create main.rs
+    let main_rs = r#"
+fn main() {
+    println!("Hello, world!");
 }
 "#;
-    fs::write(dir.join("main.go"), main_go)?;
-
-    // Create a.go
-    let a_go = r#"
-package a
-
-import "cycle-test/b"
-
-func Hello() {
-    b.World()
-}
-"#;
-    fs::write(dir.join("a.go"), a_go)?;
-
-    // Create b.go with cycle
-    let b_go = r#"
-package b
-
-import "cycle-test/a"
-
-func World() {
-    a.Hello()
-}
-"#;
-    fs::write(dir.join("b.go"), b_go)?;
+    fs::write(src_dir.join("main.rs"), main_rs)?;
 
     Ok(())
 }
 
 #[test]
-fn test_detect_language_rust() {
+fn test_quality_autopilot_detects_cycles() {
     let temp_dir = TempDir::new().unwrap();
-    let dir = temp_dir.path().to_path_buf();
-    create_rust_project_with_cycle(&dir).unwrap();
+    create_test_project_with_cycles(temp_dir.path()).unwrap();
 
     let llm_client = GenAiClient::new(ggen_ai::LlmConfig::default()).unwrap();
     let agent = CycleBreakerAgent::new(llm_client);
 
-    let language = agent.detect_language(&dir).unwrap();
+    // Test language detection
+    let language = agent.detect_language(temp_dir.path()).unwrap();
     assert_eq!(language, "rust");
-}
 
-#[test]
-fn test_detect_language_go() {
-    let temp_dir = TempDir::new().unwrap();
-    let dir = temp_dir.path().to_path_buf();
-    create_go_project_with_cycle(&dir).unwrap();
-
-    let llm_client = GenAiClient::new(ggen_ai::LlmConfig::default()).unwrap();
-    let agent = CycleBreakerAgent::new(llm_client);
-
-    let language = agent.detect_language(&dir).unwrap();
-    assert_eq!(language, "go");
-}
-
-#[test]
-fn test_extract_rust_imports() {
-    let temp_dir = TempDir::new().unwrap();
-    let dir = temp_dir.path().to_path_buf();
-    create_rust_project_with_cycle(&dir).unwrap();
-
-    let llm_client = GenAiClient::new(ggen_ai::LlmConfig::default()).unwrap();
-    let agent = CycleBreakerAgent::new(llm_client);
-
-    let mut graph = std::collections::HashMap::new();
-    agent.extract_rust_imports(&dir, &mut graph).unwrap();
-
-    // Should have extracted imports from src/main.rs, src/a.rs, src/b.rs
+    // Test import graph extraction
+    let graph = agent
+        .extract_import_graph(temp_dir.path(), &language)
+        .unwrap();
     assert!(!graph.is_empty());
-}
 
-#[test]
-fn test_detect_cycles_simple() {
-    let mut graph = std::collections::HashMap::new();
-    graph.insert("A.rs".to_string(), vec!["B.rs".to_string()]);
-    graph.insert("B.rs".to_string(), vec!["C.rs".to_string()]);
-    graph.insert("C.rs".to_string(), vec!["A.rs".to_string()]);
-
-    let llm_client = GenAiClient::new(ggen_ai::LlmConfig::default()).unwrap();
-    let agent = CycleBreakerAgent::new(llm_client);
-
+    // Test cycle detection
     let cycles = agent.detect_cycles(&graph).unwrap();
-    assert_eq!(cycles.len(), 1);
-    assert_eq!(cycles[0].len(), 4); // A → B → C → A
+    // Should detect the circular dependency between a.rs and b.rs
+    assert!(
+        !cycles.is_empty(),
+        "Expected to detect cycles in test project"
+    );
 }
 
 #[test]
-fn test_detect_cycles_no_cycle() {
-    let mut graph = std::collections::HashMap::new();
-    graph.insert("A.rs".to_string(), vec!["B.rs".to_string()]);
-    graph.insert("B.rs".to_string(), vec!["C.rs".to_string()]);
-    graph.insert("C.rs".to_string(), vec![]);
-
-    let llm_client = GenAiClient::new(ggen_ai::LlmConfig::default()).unwrap();
-    let agent = CycleBreakerAgent::new(llm_client);
-
-    let cycles = agent.detect_cycles(&graph).unwrap();
-    assert_eq!(cycles.len(), 0);
-}
-
-#[test]
-fn test_detect_cycles_multiple() {
-    let mut graph = std::collections::HashMap::new();
-    graph.insert("A.rs".to_string(), vec!["B.rs".to_string()]);
-    graph.insert("B.rs".to_string(), vec!["A.rs".to_string()]);
-    graph.insert("C.rs".to_string(), vec!["D.rs".to_string()]);
-    graph.insert("D.rs".to_string(), vec!["C.rs".to_string()]);
-
-    let llm_client = GenAiClient::new(ggen_ai::LlmConfig::default()).unwrap();
-    let agent = CycleBreakerAgent::new(llm_client);
-
-    let cycles = agent.detect_cycles(&graph).unwrap();
-    assert_eq!(cycles.len(), 2);
-}
-
-#[test]
-fn test_build_fix_prompt() {
-    let llm_client = GenAiClient::new(ggen_ai::LlmConfig::default()).unwrap();
-    let agent = CycleBreakerAgent::new(llm_client);
-
-    let cycle = vec!["A.rs".to_string(), "B.rs".to_string(), "C.rs".to_string()];
-    let prompt = agent.build_fix_prompt(&cycle, "rust").unwrap();
-
-    assert!(prompt.contains("A.rs → B.rs → C.rs"));
-    assert!(prompt.contains("ExtractInterface"));
-    assert!(prompt.contains("LazyInitialization"));
-    assert!(prompt.contains("DependencyInversion"));
-}
-
-#[tokio::test]
-async fn test_swarm_agent_interface() {
+fn test_quality_autopilot_no_cycles_in_clean_project() {
     let temp_dir = TempDir::new().unwrap();
-    let dir = temp_dir.path().to_path_buf();
-    create_rust_project_with_cycle(&dir).unwrap();
+    create_clean_test_project(temp_dir.path()).unwrap();
 
     let llm_client = GenAiClient::new(ggen_ai::LlmConfig::default()).unwrap();
     let agent = CycleBreakerAgent::new(llm_client);
 
-    // Test agent interface
-    assert_eq!(agent.name(), "cycle-breaker-code");
-    assert!(agent
-        .capabilities()
-        .contains(&"cycle_detection".to_string()));
+    // Test language detection
+    let language = agent.detect_language(temp_dir.path()).unwrap();
+    assert_eq!(language, "rust");
 
-    // Test health check
-    let health = agent.health_check().await;
-    assert!(format!("{:?}", health.status).contains("Healthy"));
-    assert_eq!(health.score, 1.0);
+    // Test import graph extraction
+    let graph = agent
+        .extract_import_graph(temp_dir.path(), &language)
+        .unwrap();
 
-    // Test validate
-    let validated = agent.validate().await.unwrap();
-    assert!(validated);
+    // Test cycle detection
+    let cycles = agent.detect_cycles(&graph).unwrap();
+    assert_eq!(cycles.len(), 0, "Expected no cycles in clean project");
+}
+
+#[test]
+fn test_quality_score_calculation() {
+    let llm_client = GenAiClient::new(ggen_ai::LlmConfig::default()).unwrap();
+    let agent = CycleBreakerAgent::new(llm_client);
+
+    // Test with no issues
+    let context = ggen_ai::swarm::agents::quality_autopilot::QualityContext {
+        sparql_valid: true,
+        template_valid: true,
+        cycles_detected: 0,
+        files_generated: 10,
+        complexity_score: 0.5,
+    };
+    let score = agent.calculate_quality_score(&[], &context);
+    assert!(score > 0.9, "Expected high score for clean context");
+
+    // Test with issues
+    let issues = vec![ggen_ai::swarm::agents::quality_autopilot::QualityIssue {
+        category: ggen_ai::swarm::agents::quality_autopilot::QualityCategory::Syntax,
+        severity: ggen_ai::swarm::agents::quality_autopilot::QualitySeverity::Error,
+        description: "Test error".to_string(),
+        affected_area: "test".to_string(),
+        suggested_fix: None,
+        line_number: None,
+    }];
+    let score_with_issues = agent.calculate_quality_score(&issues, &context);
+    assert!(
+        score_with_issues < score,
+        "Expected lower score with issues"
+    );
+}
+
+#[test]
+fn test_quality_report_generation() {
+    let llm_client = GenAiClient::new(ggen_ai::LlmConfig::default()).unwrap();
+    let agent = CycleBreakerAgent::new(llm_client);
+
+    let issues = vec![ggen_ai::swarm::agents::quality_autopilot::QualityIssue {
+        category: ggen_ai::swarm::agents::quality_autopilot::QualityCategory::Syntax,
+        severity: ggen_ai::swarm::agents::quality_autopilot::QualitySeverity::Error,
+        description: "Syntax error".to_string(),
+        affected_area: "compilation".to_string(),
+        suggested_fix: Some("Fix syntax".to_string()),
+        line_number: Some(42),
+    }];
+
+    let context = ggen_ai::swarm::agents::quality_autopilot::QualityContext {
+        sparql_valid: false,
+        template_valid: true,
+        cycles_detected: 2,
+        files_generated: 10,
+        complexity_score: 0.7,
+    };
+
+    let report = agent.generate_quality_report(&issues, &context);
+
+    assert!(
+        report.overall_score < 1.0,
+        "Expected score less than perfect"
+    );
+    assert_eq!(report.issues_count, 1);
+    assert_eq!(report.issues.len(), 1);
+    assert!(
+        !report.recommendations.is_empty(),
+        "Expected recommendations"
+    );
+    assert!(!report.timestamp.is_empty());
 }

@@ -20,7 +20,7 @@ use predicates::prelude::*;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use tempfile::TempDir;
 
 // ============================================================================
@@ -89,12 +89,13 @@ fn assert_dir_exists(path: &Path, description: &str) {
 
 /// Read file content as string
 fn read_file(path: &Path) -> String {
-    fs::read_to_string(path).expect(&format!("Failed to read file: {:?}", path))
+    fs::read_to_string(path).unwrap_or_else(|_| panic!("Failed to read file: {:?}", path))
 }
 
 /// Compute SHA-256 hash of file content
 fn compute_file_hash(path: &Path) -> String {
-    let content = fs::read(path).expect(&format!("Failed to read file for hashing: {:?}", path));
+    let content =
+        fs::read(path).unwrap_or_else(|_| panic!("Failed to read file for hashing: {:?}", path));
     let mut hasher = Sha256::new();
     hasher.update(&content);
     format!("{:x}", hasher.finalize())
@@ -103,7 +104,8 @@ fn compute_file_hash(path: &Path) -> String {
 /// Parse JSON file
 fn parse_json_file(path: &Path) -> Value {
     let content = read_file(path);
-    serde_json::from_str(&content).expect(&format!("Failed to parse JSON from {:?}", path))
+    serde_json::from_str(&content)
+        .unwrap_or_else(|_| panic!("Failed to parse JSON from {:?}", path))
 }
 
 /// Verify file contains substring
@@ -273,7 +275,7 @@ fn test_ggen_sync_runs_successfully() {
     sync_output.success();
 
     // Assert: Output directory was created
-    assert_dir_exists(&project_path, "output directory");
+    assert_dir_exists(project_path, "output directory");
 
     // Assert: Core generated files exist
     assert_file_exists(

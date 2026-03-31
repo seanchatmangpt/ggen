@@ -35,9 +35,9 @@ else
     exit 1
 fi
 
-# Gate 2: Clippy Lint (15% of defects)
-echo -n "  [2/4] Clippy lint... "
-if timeout 60s cargo clippy --quiet -- -D warnings 2>/dev/null; then
+# Gate 2: Workspace-wide Clippy Lint (15% of defects)
+echo -n "  [2/4] Workspace-wide clippy... "
+if timeout 120s cargo clippy --workspace --quiet -- -D warnings 2>/dev/null; then
     echo -e "${GREEN}PASS${NC}"
     PASSED=$((PASSED + 1))
 else
