@@ -711,7 +711,7 @@ pub fn disruption_potential(incumbent_inertia: f64, entrant_inertia: f64) -> Res
     }
 
     let ratio = entrant_inertia / incumbent_inertia;
-    let disruption = (1.0 - ratio).max(0.0).min(1.0);
+    let disruption = (1.0 - ratio).clamp(0.0, 1.0);
 
     Ok(disruption)
 }

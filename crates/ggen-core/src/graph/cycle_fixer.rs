@@ -27,6 +27,7 @@ use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
 
 /// Strategy for fixing circular dependencies
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -41,14 +42,15 @@ pub enum FixStrategy {
     CreateInterface,
 }
 
-impl FixStrategy {
-    /// Parse strategy from string
-    pub fn from_str(s: &str) -> Option<Self> {
+impl FromStr for FixStrategy {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "remove_import" => Some(FixStrategy::RemoveImport),
-            "merge_files" => Some(FixStrategy::MergeFiles),
-            "create_interface" => Some(FixStrategy::CreateInterface),
-            _ => None,
+            "remove_import" => Ok(FixStrategy::RemoveImport),
+            "merge_files" => Ok(FixStrategy::MergeFiles),
+            "create_interface" => Ok(FixStrategy::CreateInterface),
+            _ => Err(format!("Invalid fix strategy: {}", s)),
         }
     }
 }
@@ -474,7 +476,7 @@ impl CycleFixer {
 
         // Add common definitions
         for pattern in &common_patterns {
-            interface_content.push_str(&format!("# Common definition\n"));
+            interface_content.push_str("# Common definition\n");
             // Find and copy the full definition from any file
             for file in cycle {
                 if let Some(content) = file_contents.get(file) {
@@ -695,16 +697,16 @@ mod tests {
     fn test_strategy_from_str() {
         assert_eq!(
             FixStrategy::from_str("remove_import"),
-            Some(FixStrategy::RemoveImport)
+            Ok(FixStrategy::RemoveImport)
         );
         assert_eq!(
             FixStrategy::from_str("merge_files"),
-            Some(FixStrategy::MergeFiles)
+            Ok(FixStrategy::MergeFiles)
         );
         assert_eq!(
             FixStrategy::from_str("create_interface"),
-            Some(FixStrategy::CreateInterface)
+            Ok(FixStrategy::CreateInterface)
         );
-        assert_eq!(FixStrategy::from_str("invalid"), None);
+        assert!(FixStrategy::from_str("invalid").is_err());
     }
 }

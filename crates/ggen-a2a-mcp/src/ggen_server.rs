@@ -1136,13 +1136,14 @@ impl GgenMcpServer {
         &self, Parameters(params): Parameters<FixCyclesParams>,
     ) -> Result<CallToolResult, McpError> {
         use ggen_core::graph::cycle_fixer::{CycleFixer, FixStrategy};
+        use std::str::FromStr;
         tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "fix_cycles");
         tracing::Span::current().record(otel_attrs::MCP_PROJECT_PATH, &params.project_path);
         info!(project_path = %params.project_path, strategy = %params.strategy, dry_run = params.dry_run, "fix_cycles tool called");
 
         // Parse fix strategy
         let strategy = FixStrategy::from_str(&params.strategy)
-            .ok_or_else(|| McpError::invalid_params(format!("Invalid strategy: {}. Must be: remove_import, merge_files, or create_interface", params.strategy), None))?;
+            .map_err(|_| McpError::invalid_params(format!("Invalid strategy: {}. Must be: remove_import, merge_files, or create_interface", params.strategy), None))?;
 
         // Create cycle fixer
         let fixer = CycleFixer::new(&params.project_path);
