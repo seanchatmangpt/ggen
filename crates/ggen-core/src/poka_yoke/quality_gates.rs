@@ -325,7 +325,7 @@ impl QualityGate for OntologyDependenciesGate {
         for import in &manifest.ontology.imports {
             import_graph
                 .entry(import.to_string_lossy().to_string())
-                .or_insert_with(Vec::new);
+                .or_default();
         }
 
         // Run cycle detection

@@ -1,10 +1,12 @@
 use crate::manifest::GgenManifest;
 use ggen_utils::error::Result;
+use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 
 pub struct DependencyValidator;
 
+#[derive(Serialize)]
 pub struct DependencyCheck {
     pub name: String,
     pub version: String,

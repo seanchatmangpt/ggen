@@ -334,7 +334,7 @@ impl AndonLogger {
         }
 
         let count = self.sample_counter.fetch_add(1, Ordering::Relaxed);
-        count % self.config.sample_ratio == 0
+        count.is_multiple_of(self.config.sample_ratio)
     }
 
     /// Log a message at a specific level

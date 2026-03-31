@@ -82,6 +82,12 @@ impl CodeMetrics {
     }
 }
 
+impl Default for CodeMetrics {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 ///////////////////////////////////////////////////////////////////
 //    Process Metrics
 ///////////////////////////////////////////////////////////////////
@@ -135,6 +141,12 @@ impl ProcessMetrics {
     /// Calculate process velocity (features per week)
     pub fn velocity(&self) -> f64 {
         self.throughput * 7.0 // Assume throughput is per day
+    }
+}
+
+impl Default for ProcessMetrics {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -226,6 +238,12 @@ impl DefectMetrics {
     }
 }
 
+impl Default for DefectMetrics {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 ///////////////////////////////////////////////////////////////////
 //    Waste Metrics (Toyota Production System)
 ///////////////////////////////////////////////////////////////////
@@ -310,6 +328,12 @@ impl WasteMetrics {
     }
 }
 
+impl Default for WasteMetrics {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 ///////////////////////////////////////////////////////////////////
 //    Flow Metrics
 ///////////////////////////////////////////////////////////////////
@@ -365,6 +389,12 @@ impl FlowMetrics {
     }
 }
 
+impl Default for FlowMetrics {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 ///////////////////////////////////////////////////////////////////
 //    OEE Metrics (Overall Equipment Effectiveness)
 ///////////////////////////////////////////////////////////////////
@@ -401,6 +431,12 @@ impl OEEMetrics {
     /// Check if world-class OEE (>= 85%)
     pub fn is_world_class(&self) -> bool {
         self.oee >= 85.0
+    }
+}
+
+impl Default for OEEMetrics {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -442,6 +478,12 @@ impl KaizenMetrics {
         } else {
             self.improvement_rate = (self.implemented as f64 / self.suggestions as f64) * 100.0;
         }
+    }
+}
+
+impl Default for KaizenMetrics {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

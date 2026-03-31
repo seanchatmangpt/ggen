@@ -48,7 +48,6 @@ members = [
   "crates/knhk-lockchain",     # Merkle-linked receipt storage
   "crates/knhk-otel",          # OpenTelemetry integration
   "crates/knhk-orchestrator",  # Integration bridge (ETL → KGC-4D → Workflow)
-  "test_validate_direct",      # Temporary: Direct MCP tool testing
   "crates/ggen-craftplan",     # RDF-driven Elixir code generation for Craftplan ERP
   "crates/tps-reference",      # Toyota Production System reference implementation
   "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
@@ -320,6 +319,23 @@ unimplemented = "deny"
 
 # Allow multiple crate versions due to complex dependency tree
 multiple_crate_versions = "allow"
+
+# Allow cargo metadata lints for internal workspace crates
+# Internal crates don't need full publish-ready metadata
+cargo_common_metadata = "allow"
+
+# Allow redundant feature names (e.g., "use-a2a-rs" prefix is intentional)
+redundant_feature_names = "allow"
+
+# Allow noisy pedantic lints that generate hundreds of false positives
+# These are useful ideals but impractical to enforce across 30+ crates
+must_use_candidate = "allow"
+missing_const_for_fn = "allow"
+module_name_repetitions = "allow"
+struct_field_names = "allow"
+similar_names = "allow"
+too_many_lines = "allow"
+type_repetition_in_bounds = "allow"
 
 # ===================================================================
 # PROC-MACRO DUPLICATION ANALYSIS (Updated 2026-01-24)

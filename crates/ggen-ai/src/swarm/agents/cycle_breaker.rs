@@ -486,7 +486,7 @@ impl SwarmAgent for CycleBreakerAgent {
             .get("strategy")
             .and_then(|v| v.as_str())
             .unwrap_or("remove_import");
-        let strategy = FixStrategy::from_str(strategy_str).ok_or_else(|| {
+        let strategy = FixStrategy::from_str(strategy_str).map_err(|_| {
             GgenAiError::invalid_input(&format!("Invalid strategy: {}", strategy_str))
         })?;
 
@@ -681,17 +681,17 @@ mod tests {
     fn test_fix_strategy_from_str() {
         assert_eq!(
             FixStrategy::from_str("remove_import"),
-            Some(FixStrategy::RemoveImport)
+            Ok(FixStrategy::RemoveImport)
         );
         assert_eq!(
             FixStrategy::from_str("merge_files"),
-            Some(FixStrategy::MergeFiles)
+            Ok(FixStrategy::MergeFiles)
         );
         assert_eq!(
             FixStrategy::from_str("create_interface"),
-            Some(FixStrategy::CreateInterface)
+            Ok(FixStrategy::CreateInterface)
         );
-        assert_eq!(FixStrategy::from_str("invalid"), None);
+        assert!(FixStrategy::from_str("invalid").is_err());
     }
 
     #[tokio::test]

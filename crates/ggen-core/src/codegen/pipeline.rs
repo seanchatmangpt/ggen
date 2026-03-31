@@ -53,6 +53,9 @@ pub trait LlmService: Send + Sync {
 // Global LLM Service Storage
 // ============================================================================
 
+/// Type alias for the global LLM service storage (reduces type complexity)
+type GlobalLlmService = Arc<Mutex<Option<Box<dyn LlmService>>>>;
+
 /// Global LLM service slot for dependency injection from CLI layer.
 ///
 /// This allows the CLI to set an LLM service that can be used by the codegen
@@ -72,7 +75,7 @@ pub trait LlmService: Send + Sync {
 ///     let code = service.generate_skill_impl(...)?;
 /// }
 /// ```
-static GLOBAL_LLM_SERVICE: once_cell::sync::Lazy<Arc<Mutex<Option<Box<dyn LlmService>>>>> =
+static GLOBAL_LLM_SERVICE: once_cell::sync::Lazy<GlobalLlmService> =
     once_cell::sync::Lazy::new(|| Arc::new(Mutex::new(None)));
 
 /// Set the global LLM service for code generation.

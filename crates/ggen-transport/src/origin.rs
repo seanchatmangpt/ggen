@@ -1,6 +1,7 @@
 use crate::error::{Result, TransportError};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
+use std::fmt;
 use url::Url;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -8,6 +9,15 @@ pub struct Origin {
     pub scheme: String,
     pub host: String,
     pub port: Option<u16>,
+}
+
+impl fmt::Display for Origin {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.port {
+            Some(port) => write!(f, "{}://{}:{}", self.scheme, self.host, port),
+            None => write!(f, "{}://{}", self.scheme, self.host),
+        }
+    }
 }
 
 impl Origin {
@@ -23,13 +33,6 @@ impl Origin {
                 .to_string(),
             port: parsed.port(),
         })
-    }
-
-    pub fn to_string(&self) -> String {
-        match self.port {
-            Some(port) => format!("{}://{}:{}", self.scheme, self.host, port),
-            None => format!("{}://{}", self.scheme, self.host),
-        }
     }
 
     pub fn matches(&self, other: &Origin) -> bool {

@@ -109,12 +109,11 @@ impl LeanSixSigmaGate {
                                 "Project name is empty - problem statement undefined",
                             ));
                         }
-                        if manifest.project.description.is_none()
-                            || manifest
-                                .project
-                                .description
-                                .as_ref()
-                                .map_or(true, |d| d.is_empty())
+                        if manifest
+                            .project
+                            .description
+                            .as_ref()
+                            .is_none_or(|d| d.is_empty())
                         {
                             return Err(Error::new(
                                 "Project description is missing - problem context unclear",
@@ -393,12 +392,11 @@ impl LeanSixSigmaGate {
                     description: "Procedures are documented and accessible".to_string(),
                     validator: |manifest, _base_path| {
                         // Verify project has description (documentation exists)
-                        if manifest.project.description.is_none()
-                            || manifest
-                                .project
-                                .description
-                                .as_ref()
-                                .map_or(true, |d| d.is_empty())
+                        if manifest
+                            .project
+                            .description
+                            .as_ref()
+                            .is_none_or(|d| d.is_empty())
                         {
                             return Err(Error::new(
                                 "Project description missing - documentation incomplete",
