@@ -681,7 +681,7 @@ impl TokenCounter {
         let mut usage = self.model_usage.lock().unwrap();
         usage
             .entry(model)
-            .or_insert_with(ModelUsage::default)
+            .or_default()
             .add(prompt, completion);
     }
 

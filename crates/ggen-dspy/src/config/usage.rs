@@ -205,9 +205,11 @@ mod tests {
 
     #[test]
     fn test_cache_hit_rate() {
-        let mut stats = UsageStats::default();
-        stats.requests = 10;
-        stats.cached_requests = 3;
+        let stats = UsageStats {
+            requests: 10,
+            cached_requests: 3,
+            ..Default::default()
+        };
 
         assert_eq!(stats.cache_hit_rate(), 0.3);
     }

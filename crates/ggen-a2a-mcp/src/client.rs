@@ -420,10 +420,10 @@ impl A2aLlmClient {
         let _guard = correlation_span.enter();
 
         // Convert A2A message to LLM request
-        let llm_request = self.converter.a2a_to_llm_request(message).map_err(|e| {
+        let llm_request = self.converter.a2a_to_llm_request(message).inspect_err(|e| {
             tracing::Span::current().record("error", true);
             tracing::Span::current().record("error.type", "conversion_failure");
-            e
+            let _ = e;
         })?;
 
         tracing::info!(
@@ -433,10 +433,10 @@ impl A2aLlmClient {
         );
 
         // Make LLM call with retry
-        let llm_response = self.call_llm_with_retry(&llm_request).await.map_err(|e| {
+        let llm_response = self.call_llm_with_retry(&llm_request).await.inspect_err(|e| {
             tracing::Span::current().record("error", true);
             tracing::Span::current().record("error.type", "llm_failure");
-            e
+            let _ = e;
         })?;
 
         tracing::info!(
@@ -449,10 +449,10 @@ impl A2aLlmClient {
         let response = self
             .converter
             .llm_response_to_a2a(&llm_response, message)
-            .map_err(|e| {
+            .inspect_err(|e| {
                 tracing::Span::current().record("error", true);
                 tracing::Span::current().record("error.type", "conversion_failure");
-                e
+                let _ = e;
             })?;
 
         tracing::info!(

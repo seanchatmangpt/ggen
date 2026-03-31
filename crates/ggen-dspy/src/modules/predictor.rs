@@ -202,8 +202,8 @@ impl Predictor {
         let model = self
             .model
             .as_deref()
-            .or_else(|| ggen_model.as_deref())
-            .or_else(|| default_model.as_deref())
+            .or(ggen_model.as_deref())
+            .or(default_model.as_deref())
             .unwrap_or("");
 
         if model.is_empty() {

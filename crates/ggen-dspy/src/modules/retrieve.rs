@@ -169,7 +169,7 @@ impl Module for Retrieve {
 
         // Add individual passages as JSON
         let passages_json =
-            serde_json::to_string(&passages).map_err(|e| DspyError::SerializationError(e))?;
+            serde_json::to_string(&passages).map_err(DspyError::SerializationError)?;
         output.set("passages_json", passages_json);
 
         Ok(output)

@@ -160,7 +160,7 @@ impl Module for MultiHopQA {
 
         // Add hop details as JSON
         let hops_json =
-            serde_json::to_string(&hop_states).map_err(|e| DspyError::SerializationError(e))?;
+            serde_json::to_string(&hop_states).map_err(DspyError::SerializationError)?;
         output.set("hops", hops_json);
 
         Ok(output)

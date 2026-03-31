@@ -70,7 +70,7 @@ pub fn parse_work_order_from_value(value: &Value) -> Result<WorkOrder, ParseErro
     }
 
     if let Some(reversibility) = value.get("reversibility") {
-        let policy = parse_reversibility_policy(reversibility)?;
+        let policy = parse_reversibility_policy(reversibility);
         work_order = work_order.with_reversibility(policy)?;
     }
 
@@ -216,7 +216,7 @@ fn parse_test_type(s: &str) -> Result<TestType, ParseError> {
     }
 }
 
-fn parse_reversibility_policy(value: &Value) -> Result<ReversibilityPolicy, ParseError> {
+fn parse_reversibility_policy(value: &Value) -> ReversibilityPolicy {
     let reversible = value
         .get("reversible")
         .and_then(Value::as_bool)
@@ -243,12 +243,12 @@ fn parse_reversibility_policy(value: &Value) -> Result<ReversibilityPolicy, Pars
         .and_then(Value::as_bool)
         .unwrap_or(false);
 
-    Ok(ReversibilityPolicy {
+    ReversibilityPolicy {
         reversible,
         rollback_steps,
         backup_required,
         verification_required,
-    })
+    }
 }
 
 fn parse_priority(s: &str) -> Result<Priority, ParseError> {

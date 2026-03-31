@@ -1,6 +1,6 @@
 //! Tests for Retrieve pattern
 
-use ggen_dspy::{InMemoryRetriever, Module, Passage, Retrieve, RetrieveBuilder, RetrieverBackend};
+use ggen_dspy::{InMemoryRetriever, Module, Passage, Retrieve, RetrieveBuilder};
 use std::sync::Arc;
 
 #[tokio::test]

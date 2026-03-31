@@ -692,13 +692,13 @@ async fn test_validate_large_ttl_performance() {
 // Test count summary
 // ---------------------------------------------------------------------------
 
-/// Test counts by category:
-/// - ggen.toml manifest validation: 5 tests
-/// - Turtle validation: 4 tests
-/// - SPARQL validation: 2 tests
-/// - Template validation: 2 tests
-/// - Orchestration: 1 test
-/// - Edge cases: 3 tests
-/// - Performance: 1 test
-///
-/// Total: 18 comprehensive Chicago TDD integration tests
+// Test counts by category:
+// - ggen.toml manifest validation: 5 tests
+// - Turtle validation: 4 tests
+// - SPARQL validation: 2 tests
+// - Template validation: 2 tests
+// - Orchestration: 1 test
+// - Edge cases: 3 tests
+// - Performance: 1 test
+//
+// Total: 18 comprehensive Chicago TDD integration tests
