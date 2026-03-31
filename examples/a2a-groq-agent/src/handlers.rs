@@ -115,11 +115,11 @@ impl GroqCoderHandler {
 
 #[async_trait]
 impl AsyncMessageHandler for GroqCoderHandler {
-    async fn process_message<'a>(
+    async fn process_message(
         &self,
-        task_id: &'a str,
-        message: &'a Message,
-        session_id: Option<&'a str>,
+        task_id: &str,
+        message: &Message,
+        session_id: Option<&str>,
     ) -> Result<Task, A2AError> {
         let context_id = session_id.unwrap_or("default").to_string();
         let input = Self::extract_text(message);
