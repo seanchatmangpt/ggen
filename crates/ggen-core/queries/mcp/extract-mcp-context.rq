@@ -1,0 +1,352 @@
+# ==============================================================================
+# SPARQL CONSTRUCT Query: Extract Normalized MCP Context from Ontology
+# ==============================================================================
+# Purpose: Transform raw MCP RDF definitions into a normalized context graph
+#          that can be serialized to JSON for template rendering.
+#
+# Input:  mcp.ttl ontology + mcp-server.ttl instance data
+# Output: Normalized triples under ctx: prefix with flat structure for
+#         Tera template access (server metadata, tools, resources, prompts,
+#         completions, logging, capabilities).
+#
+# Pipeline: mcp.ttl + mcp-server.ttl -> this CONSTRUCT -> JSON context -> Tera
+#
+# Normalized URI scheme:
+#   ctx:server              — Server singleton node
+#   ctx:server/capabilities — Capability set node
+#   ctx:server/transport    — Transport node
+#   ctx:server/logging      — Logging policy node
+#   ctx:tool/{name}         — One node per tool
+#   ctx:tool/{name}/arg/{param_name} — One node per tool argument
+#   ctx:resource/{uri}      — One node per resource
+#   ctx:resource-tpl/{name} — One node per resource template
+#   ctx:prompt/{name}       — One node per prompt
+#   ctx:prompt/{name}/arg/{arg_name} — One node per prompt argument
+#   ctx:completion/{ref_type}/{ref_name}/{argument} — One node per completion provider
+# ==============================================================================
+
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX mcp:  <http://ggen.dev/mcp#>
+PREFIX ctx:  <http://ggen.dev/mcp/context/>
+
+CONSTRUCT {
+
+    # ========================================================================
+    # SERVER METADATA — singleton node ctx:server
+    # ========================================================================
+    ctx:server a ctx:McpServer ;
+        ctx:serverName     ?server_name ;
+        ctx:serverVersion  ?server_version ;
+        ctx:serverDescription ?server_description ;
+        ctx:protocolVersion ?protocol_version .
+
+    # ========================================================================
+    # CAPABILITIES — ctx:server/capabilities
+    # ========================================================================
+    ctx:server/capabilities a ctx:CapabilitySet ;
+        ctx:hasTools         ?cap_tools ;
+        ctx:hasResources     ?cap_resources ;
+        ctx:hasPrompts       ?cap_prompts ;
+        ctx:hasCompletions   ?cap_completions ;
+        ctx:hasLogging       ?cap_logging ;
+        ctx:hasSubscriptions ?cap_subscriptions .
+
+    # ========================================================================
+    # TRANSPORT — ctx:server/transport
+    # ========================================================================
+    ctx:server/transport a ctx:Transport ;
+        ctx:transportName ?transport_name ;
+        ctx:transportDescription ?transport_description .
+
+    # ========================================================================
+    # TOOLS — one ctx:tool/{name} node per tool
+    # ========================================================================
+    ?normalizedTool a ctx:Tool ;
+        ctx:toolName        ?tool_name ;
+        ctx:toolDescription ?tool_desc ;
+        ctx:implementedBy   ?tool_impl .
+
+    # ========================================================================
+    # TOOL ARGUMENTS — one node per (tool, argument) pair
+    # ========================================================================
+    ?normalizedArg a ctx:ToolArgument ;
+        ctx:belongsToTool       ?tool_name ;
+        ctx:argumentName        ?arg_name ;
+        ctx:argumentType        ?arg_type ;
+        ctx:argumentDescription ?arg_desc ;
+        ctx:isRequired          ?arg_required ;
+        ctx:argumentDefault     ?arg_default .
+
+    # ========================================================================
+    # RESOURCES — one ctx:resource/{uri} node per resource
+    # ========================================================================
+    ?normalizedResource a ctx:Resource ;
+        ctx:resourceName        ?res_name ;
+        ctx:resourceUri         ?res_uri ;
+        ctx:resourceDescription ?res_desc ;
+        ctx:mimeType            ?res_mime ;
+        ctx:implementedBy       ?res_impl .
+
+    # ========================================================================
+    # RESOURCE TEMPLATES — one ctx:resource-tpl/{name} node per template
+    # ========================================================================
+    ?normalizedTemplate a ctx:ResourceTemplate ;
+        ctx:templateName        ?tpl_name ;
+        ctx:templateDescription ?tpl_desc ;
+        ctx:uriTemplate         ?tpl_uri ;
+        ctx:templateMimeType    ?tpl_mime .
+
+    # ========================================================================
+    # PROMPTS — one ctx:prompt/{name} node per prompt
+    # ========================================================================
+    ?normalizedPrompt a ctx:Prompt ;
+        ctx:promptName        ?prompt_name ;
+        ctx:promptDescription ?prompt_desc ;
+        ctx:implementedBy     ?prompt_impl .
+
+    # ========================================================================
+    # PROMPT ARGUMENTS — one node per (prompt, argument) pair
+    # ========================================================================
+    ?normalizedPromptArg a ctx:PromptArgument ;
+        ctx:belongsToPrompt     ?prompt_name ;
+        ctx:promptArgumentName  ?parg_name ;
+        ctx:promptArgumentType  ?parg_type ;
+        ctx:promptArgumentDescription ?parg_desc ;
+        ctx:promptIsRequired    ?parg_required .
+
+    # ========================================================================
+    # COMPLETION PROVIDERS — one node per provider
+    # ========================================================================
+    ?normalizedCompletion a ctx:CompletionProvider ;
+        ctx:completionRefType   ?comp_ref_type ;
+        ctx:completionRefName   ?comp_ref_name ;
+        ctx:completionArgument  ?comp_argument ;
+        ctx:completionValues    ?comp_values .
+
+    # ========================================================================
+    # LOGGING POLICY — ctx:server/logging
+    # ========================================================================
+    ctx:server/logging a ctx:LoggingPolicy ;
+        ctx:defaultLevel    ?log_default ;
+        ctx:supportedLevels ?log_levels .
+}
+WHERE {
+    # ========================================================================
+    # SERVER — match mcp:McpServer instance
+    # ========================================================================
+    ?server a mcp:McpServer .
+
+    # Server name (required)
+    ?server mcp:serverName ?server_name .
+
+    # Server version (required)
+    OPTIONAL { ?server mcp:serverVersion ?server_version . }
+    BIND(COALESCE(?server_version, "0.0.0") AS ?server_version)
+
+    # Server description (optional — use mcp:description or rdfs:comment)
+    OPTIONAL { ?server mcp:description ?server_description . }
+    BIND(COALESCE(?server_description, "") AS ?server_description)
+
+    # Protocol version (optional, default to 2025-11-25)
+    OPTIONAL { ?server mcp:hasProtocolVersion ?protocol_version . }
+    BIND(COALESCE(?protocol_version, "2025-11-25") AS ?protocol_version)
+
+    # ========================================================================
+    # CAPABILITY SET (optional)
+    # ========================================================================
+    OPTIONAL {
+        ?server mcp:hasCapabilitySet ?caps .
+
+        OPTIONAL { ?caps mcp:tools ?cap_tools_raw . }
+        BIND(COALESCE(?cap_tools_raw, "true") AS ?cap_tools)
+
+        OPTIONAL { ?caps mcp:resources ?cap_resources_raw . }
+        BIND(COALESCE(?cap_resources_raw, "false") AS ?cap_resources)
+
+        OPTIONAL { ?caps mcp:prompts ?cap_prompts_raw . }
+        BIND(COALESCE(?cap_prompts_raw, "false") AS ?cap_prompts)
+
+        OPTIONAL { ?caps mcp:completions ?cap_completions_raw . }
+        BIND(COALESCE(?cap_completions_raw, "false") AS ?cap_completions)
+
+        OPTIONAL { ?caps mcp:logging ?cap_logging_raw . }
+        BIND(COALESCE(?cap_logging_raw, "false") AS ?cap_logging)
+
+        OPTIONAL { ?caps mcp:subscriptions ?cap_subscriptions_raw . }
+        BIND(COALESCE(?cap_subscriptions_raw, "false") AS ?cap_subscriptions)
+    }
+    # Default capabilities when no capability set is declared
+    BIND(COALESCE(?cap_tools, "true") AS ?cap_tools)
+    BIND(COALESCE(?cap_resources, "false") AS ?cap_resources)
+    BIND(COALESCE(?cap_prompts, "false") AS ?cap_prompts)
+    BIND(COALESCE(?cap_completions, "false") AS ?cap_completions)
+    BIND(COALESCE(?cap_logging, "false") AS ?cap_logging)
+    BIND(COALESCE(?cap_subscriptions, "false") AS ?cap_subscriptions)
+
+    # ========================================================================
+    # TRANSPORT (optional, default stdio)
+    # ========================================================================
+    OPTIONAL {
+        ?server mcp:hasTransport ?transport .
+        ?transport mcp:transportName ?transport_name .
+        OPTIONAL { ?transport rdfs:comment ?transport_description . }
+        BIND(COALESCE(?transport_description, "") AS ?transport_description)
+    }
+    BIND(COALESCE(?transport_name, "stdio") AS ?transport_name)
+    BIND(COALESCE(?transport_description, "") AS ?transport_description)
+
+    # ========================================================================
+    # TOOLS (optional — server may have zero tools)
+    # ========================================================================
+    OPTIONAL {
+        ?server mcp:hasTool ?tool .
+
+        # Tool name (required)
+        ?tool mcp:name ?tool_name .
+        BIND(IRI(CONCAT(STR(ctx:tool/), ENCODE_FOR_URI(?tool_name))) AS ?normalizedTool)
+
+        # Tool description (optional)
+        OPTIONAL { ?tool mcp:description ?tool_desc . }
+        BIND(COALESCE(?tool_desc, "") AS ?tool_desc)
+
+        # Implementation reference (optional)
+        OPTIONAL { ?tool mcp:implementedBy ?tool_impl . }
+        BIND(COALESCE(?tool_impl, "") AS ?tool_impl)
+
+        # ====================================================================
+        # TOOL ARGUMENTS (optional per tool)
+        # ====================================================================
+        OPTIONAL {
+            ?tool mcp:hasArgument ?arg .
+
+            ?arg mcp:argumentName ?arg_name .
+            BIND(IRI(CONCAT(STR(ctx:tool/), ENCODE_FOR_URI(?tool_name), "/arg/", ENCODE_FOR_URI(?arg_name))) AS ?normalizedArg)
+
+            OPTIONAL { ?arg mcp:argumentType ?arg_type . }
+            BIND(COALESCE(?arg_type, "string") AS ?arg_type)
+
+            OPTIONAL { ?arg mcp:argumentDescription ?arg_desc . }
+            BIND(COALESCE(?arg_desc, "") AS ?arg_desc)
+
+            OPTIONAL { ?arg mcp:isRequired ?arg_req . }
+            BIND(COALESCE(?arg_req, "false") AS ?arg_required)
+
+            OPTIONAL { ?arg mcp:argumentDefault ?arg_default_raw . }
+            BIND(COALESCE(?arg_default_raw, "") AS ?arg_default)
+        }
+    }
+
+    # ========================================================================
+    # RESOURCES (optional — server may have zero resources)
+    # ========================================================================
+    OPTIONAL {
+        ?server mcp:hasResource ?resource .
+
+        # Resource URI (required)
+        ?resource mcp:uri ?res_uri .
+        BIND(IRI(CONCAT(STR(ctx:resource/), ENCODE_FOR_URI(?res_uri))) AS ?normalizedResource)
+
+        # Resource name (optional, derive from URI if absent)
+        OPTIONAL { ?resource mcp:resourceName ?res_name_raw . }
+        BIND(COALESCE(?res_name_raw, ?res_uri) AS ?res_name)
+
+        # Resource description (optional)
+        OPTIONAL { ?resource mcp:resourceDescription ?res_desc . }
+        BIND(COALESCE(?res_desc, "") AS ?res_desc)
+
+        # MIME type (optional, default text/plain)
+        OPTIONAL { ?resource mcp:mimeType ?res_mime_raw . }
+        BIND(COALESCE(?res_mime_raw, "text/plain") AS ?res_mime)
+
+        # Implementation reference (optional)
+        OPTIONAL { ?resource mcp:resourceImplementedBy ?res_impl . }
+        BIND(COALESCE(?res_impl, "") AS ?res_impl)
+    }
+
+    # ========================================================================
+    # RESOURCE TEMPLATES (optional)
+    # ========================================================================
+    OPTIONAL {
+        ?server mcp:hasResourceTemplate ?tpl .
+
+        ?tpl mcp:templateName ?tpl_name .
+        BIND(IRI(CONCAT(STR(ctx:resource-tpl/), ENCODE_FOR_URI(?tpl_name))) AS ?normalizedTemplate)
+
+        OPTIONAL { ?tpl mcp:templateDescription ?tpl_desc . }
+        BIND(COALESCE(?tpl_desc, "") AS ?tpl_desc)
+
+        OPTIONAL { ?tpl mcp:uriTemplate ?tpl_uri . }
+        BIND(COALESCE(?tpl_uri, "") AS ?tpl_uri)
+
+        OPTIONAL { ?tpl mcp:templateMimeType ?tpl_mime_raw . }
+        BIND(COALESCE(?tpl_mime_raw, "text/plain") AS ?tpl_mime)
+    }
+
+    # ========================================================================
+    # PROMPTS (optional — server may have zero prompts)
+    # ========================================================================
+    OPTIONAL {
+        ?server mcp:hasPrompt ?prompt .
+
+        ?prompt mcp:promptName ?prompt_name .
+        BIND(IRI(CONCAT(STR(ctx:prompt/), ENCODE_FOR_URI(?prompt_name))) AS ?normalizedPrompt)
+
+        OPTIONAL { ?prompt mcp:promptDescription ?prompt_desc . }
+        BIND(COALESCE(?prompt_desc, "") AS ?prompt_desc)
+
+        OPTIONAL { ?prompt mcp:promptImplementedBy ?prompt_impl . }
+        BIND(COALESCE(?prompt_impl, "") AS ?prompt_impl)
+
+        # ====================================================================
+        # PROMPT ARGUMENTS (optional per prompt)
+        # ====================================================================
+        OPTIONAL {
+            ?prompt mcp:hasPromptArgument ?parg .
+
+            ?parg mcp:promptArgumentName ?parg_name .
+            BIND(IRI(CONCAT(STR(ctx:prompt/), ENCODE_FOR_URI(?prompt_name), "/arg/", ENCODE_FOR_URI(?parg_name))) AS ?normalizedPromptArg)
+
+            OPTIONAL { ?parg mcp:promptArgumentType ?parg_type . }
+            BIND(COALESCE(?parg_type, "string") AS ?parg_type)
+
+            OPTIONAL { ?parg mcp:promptArgumentDescription ?parg_desc . }
+            BIND(COALESCE(?parg_desc, "") AS ?parg_desc)
+
+            OPTIONAL { ?parg mcp:promptIsRequired ?parg_req . }
+            BIND(COALESCE(?parg_req, "false") AS ?parg_required)
+        }
+    }
+
+    # ========================================================================
+    # COMPLETION PROVIDERS (optional)
+    # ========================================================================
+    OPTIONAL {
+        ?server mcp:hasCompletionProvider ?comp .
+
+        ?comp mcp:completionRefType ?comp_ref_type .
+        ?comp mcp:completionRefName ?comp_ref_name .
+        ?comp mcp:completionArgument ?comp_argument .
+        BIND(IRI(CONCAT(STR(ctx:completion/), ENCODE_FOR_URI(?comp_ref_type), "/", ENCODE_FOR_URI(?comp_ref_name), "/", ENCODE_FOR_URI(?comp_argument))) AS ?normalizedCompletion)
+
+        OPTIONAL { ?comp mcp:completionValues ?comp_values . }
+        BIND(COALESCE(?comp_values, "") AS ?comp_values)
+    }
+
+    # ========================================================================
+    # LOGGING POLICY (optional, default info)
+    # ========================================================================
+    OPTIONAL {
+        ?server mcp:hasLoggingPolicy ?log_policy .
+
+        OPTIONAL { ?log_policy mcp:defaultLevel ?log_default_raw . }
+        BIND(COALESCE(?log_default_raw, "info") AS ?log_default)
+
+        OPTIONAL { ?log_policy mcp:supportedLevels ?log_levels_raw . }
+        BIND(COALESCE(?log_levels_raw, "debug,info,notice,warning,error,critical,alert,emergency") AS ?log_levels)
+    }
+    # Default logging when no policy is declared
+    BIND(COALESCE(?log_default, "info") AS ?log_default)
+    BIND(COALESCE(?log_levels, "debug,info,notice,warning,error,critical,alert,emergency") AS ?log_levels)
+}
