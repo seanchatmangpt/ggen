@@ -176,9 +176,6 @@ PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
 SELECT ?code ?title ?duration ?difficulty ?description
-       ?exampleTitle ?exampleContext ?exampleDescription
-       ?objText ?bloomsLevel
-       ?exerciseTitle ?exerciseText ?estimatedMinutes
 WHERE {
   ?mod a dlss:Module ;
        dlss:code ?code ;
@@ -186,23 +183,6 @@ WHERE {
        dlss:duration ?duration ;
        dlss:difficulty ?difficulty .
   OPTIONAL { ?mod dlss:description ?description }
-  OPTIONAL {
-    ?mod dlss:hasExample ?ex .
-    ?ex dlss:title ?exampleTitle ;
-        dlss:context ?exampleContext ;
-        dlss:description ?exampleDescription .
-  }
-  OPTIONAL {
-    ?mod dlss:hasObjective ?obj .
-    ?obj dlss:text ?objText ;
-         dlss:bloomsLevel ?bloomsLevel .
-  }
-  OPTIONAL {
-    ?mod dlss:hasExercise ?exer .
-    ?exer dlss:title ?exerciseTitle ;
-          dlss:text ?exerciseText ;
-          dlss:estimatedMinutes ?estimatedMinutes .
-  }
 }
 ORDER BY ?code
 """ }
@@ -269,30 +249,15 @@ query = { inline = """
 PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT ?code ?title ?moduleOrder ?duration ?difficulty ?description
-       ?objText ?bloomsLevel
-       ?exerciseTitle ?exerciseText ?estimatedMinutes
+SELECT ?code ?title ?duration ?difficulty
 WHERE {
   ?mod a dlss:Module ;
        dlss:code ?code ;
        dlss:title ?title ;
-       dlss:moduleOrder ?moduleOrder ;
        dlss:duration ?duration ;
        dlss:difficulty ?difficulty .
-  OPTIONAL { ?mod dlss:description ?description }
-  OPTIONAL {
-    ?mod dlss:hasObjective ?obj .
-    ?obj dlss:text ?objText ;
-         dlss:bloomsLevel ?bloomsLevel .
-  }
-  OPTIONAL {
-    ?mod dlss:hasExercise ?exer .
-    ?exer dlss:title ?exerciseTitle ;
-          dlss:text ?exerciseText ;
-          dlss:estimatedMinutes ?estimatedMinutes .
-  }
 }
-ORDER BY ?moduleOrder
+ORDER BY ?code
 """ }
 template = { file = "templates/dlss/student-workbook.tera" }
 output_file = "student/workbook.md"
