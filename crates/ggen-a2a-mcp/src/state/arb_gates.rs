@@ -122,9 +122,7 @@ pub struct ApprovalResponse {
 impl ApprovalResponse {
     /// Create a new approval response.
     pub fn new(
-        reviewer: StakeholderRole,
-        decision: ApprovalDecision,
-        comments: impl Into<String>,
+        reviewer: StakeholderRole, decision: ApprovalDecision, comments: impl Into<String>,
     ) -> Self {
         Self {
             reviewer,
@@ -183,9 +181,7 @@ pub struct ArbGate {
 impl ArbGate {
     /// Create a new ARB gate.
     pub fn new(
-        turn: usize,
-        phase: TogafPhase,
-        required_reviewers: Vec<StakeholderRole>,
+        turn: usize, phase: TogafPhase, required_reviewers: Vec<StakeholderRole>,
         criteria: Vec<ApprovalCriterion>,
     ) -> Self {
         Self {
@@ -262,10 +258,7 @@ impl ArbApproval {
                     return;
                 }
                 ApprovalDecision::NeedsRevision(reason) => {
-                    self.status = ApprovalStatus::Rejected(format!(
-                        "Needs revision: {}",
-                        reason
-                    ));
+                    self.status = ApprovalStatus::Rejected(format!("Needs revision: {}", reason));
                     self.resolved_at = Some(Utc::now());
                     return;
                 }
@@ -334,7 +327,8 @@ impl ArbApprovalManager {
             vec![StakeholderRole::ChiefArchitect],
             vec![ApprovalCriterion {
                 name: "Architecture Vision Complete".to_string(),
-                description: "Architecture vision and stakeholder requirements documented".to_string(),
+                description: "Architecture vision and stakeholder requirements documented"
+                    .to_string(),
                 mandatory: true,
             }],
         ));
@@ -350,12 +344,14 @@ impl ArbApprovalManager {
             vec![
                 ApprovalCriterion {
                     name: "Business Architecture Complete".to_string(),
-                    description: "Business capability map and organization structure finalized".to_string(),
+                    description: "Business capability map and organization structure finalized"
+                        .to_string(),
                     mandatory: true,
                 },
                 ApprovalCriterion {
                     name: "FIBO Compliance".to_string(),
-                    description: "FIBO semantic consistency validated across business artifacts".to_string(),
+                    description: "FIBO semantic consistency validated across business artifacts"
+                        .to_string(),
                     mandatory: true,
                 },
             ],
@@ -517,7 +513,9 @@ impl ArbApprovalManager {
 
     /// Submit a reviewer's response for the gate at the given turn.
     #[instrument(skip(self, response), fields(turn, reviewer = %response.reviewer))]
-    pub async fn submit_response(&self, turn: usize, response: ApprovalResponse) -> StateResult<()> {
+    pub async fn submit_response(
+        &self, turn: usize, response: ApprovalResponse,
+    ) -> StateResult<()> {
         let gates_guard = self.gates.read().await;
 
         let gate = gates_guard
@@ -548,7 +546,9 @@ impl ArbApprovalManager {
             ));
         }
 
-        approval.responses.insert(response.reviewer.clone(), response);
+        approval
+            .responses
+            .insert(response.reviewer.clone(), response);
         approval.recompute_status();
 
         info!(
@@ -603,34 +603,32 @@ impl ArbApprovalManager {
         for (&turn, gate) in gates_guard.iter() {
             let approval = approvals_guard.get(&turn);
 
-                let status = approval
-                    .map(|a| a.status.clone())
-                    .unwrap_or(ApprovalStatus::Pending);
+            let status = approval
+                .map(|a| a.status.clone())
+                .unwrap_or(ApprovalStatus::Pending);
 
-                let responded_count = approval
-                    .map(|a| a.responses.len())
-                    .unwrap_or(0);
+            let responded_count = approval.map(|a| a.responses.len()).unwrap_or(0);
 
-                let missing: Vec<String> = if let Some(a) = approval {
-                    a.missing_reviewers()
-                        .iter()
-                        .map(|r| r.to_string())
-                        .collect()
-                } else {
-                    gate.required_reviewers
-                        .iter()
-                        .map(|r| r.to_string())
-                        .collect()
-                };
+            let missing: Vec<String> = if let Some(a) = approval {
+                a.missing_reviewers()
+                    .iter()
+                    .map(|r| r.to_string())
+                    .collect()
+            } else {
+                gate.required_reviewers
+                    .iter()
+                    .map(|r| r.to_string())
+                    .collect()
+            };
 
-                summaries.push(ArbGateSummary {
-                    turn,
-                    phase: gate.phase,
-                    status,
-                    required_count: gate.required_reviewers.len(),
-                    responded_count,
-                    missing_reviewers: missing,
-                });
+            summaries.push(ArbGateSummary {
+                turn,
+                phase: gate.phase,
+                status,
+                required_count: gate.required_reviewers.len(),
+                responded_count,
+                missing_reviewers: missing,
+            });
         }
 
         summaries.sort_by_key(|s| s.turn);
@@ -706,7 +704,10 @@ mod tests {
         assert!(!mgr.is_approved(8).await);
 
         let approval = mgr.get_approval(8).await.unwrap();
-        assert_eq!(approval.status, ApprovalStatus::Rejected("Missing FIBO mappings".to_string()));
+        assert_eq!(
+            approval.status,
+            ApprovalStatus::Rejected("Missing FIBO mappings".to_string())
+        );
     }
 
     #[tokio::test]

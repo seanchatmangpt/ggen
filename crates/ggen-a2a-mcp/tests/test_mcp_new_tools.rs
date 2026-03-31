@@ -51,7 +51,8 @@ async fn list_all_existing_tools() {
     println!("\n=== MCP Server Information ===");
     println!("Server: {}", info.server_info.name);
     println!("Version: {}", info.server_info.version);
-    println!("Capabilities: Tools={:?}, Resources={:?}, Prompts={:?}",
+    println!(
+        "Capabilities: Tools={:?}, Resources={:?}, Prompts={:?}",
         info.capabilities.tools.as_ref().map(|_| true),
         info.capabilities.resources.as_ref().map(|_| true),
         info.capabilities.prompts.as_ref().map(|_| true)

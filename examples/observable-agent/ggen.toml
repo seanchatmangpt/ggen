@@ -99,6 +99,30 @@ template    = { file = "templates/a2a_agent.rs.tera" }
 output_file = "generated/a2a_agent.rs"
 mode        = "Overwrite"
 
+# ── Rule 3b: Agent TOML config (AgentBuilder) ───────────────────────────────────
+[[generation.rules]]
+name = "agent-toml"
+query = { inline = """
+PREFIX obs: <https://ggen.io/examples/observable#>
+
+SELECT ?agentName ?agentDesc ?capId ?capName ?capDesc ?order
+WHERE {
+  ?agent a obs:Agent ;
+         obs:agentName ?agentName ;
+         obs:agentDesc ?agentDesc .
+  ?cap a obs:Capability ;
+       obs:agentOf ?agent ;
+       obs:capId ?capId ;
+       obs:capName ?capName ;
+       obs:capDesc ?capDesc ;
+       obs:order ?order .
+}
+ORDER BY ?order
+""" }
+template    = { file = "templates/agent.toml.tera" }
+output_file = "generated/agent.toml"
+mode        = "Overwrite"
+
 # ── Rule 4: Docker Compose ────────────────────────────────────────────────────
 [[generation.rules]]
 name = "docker-compose"

@@ -2,7 +2,9 @@
 //!
 //! Run with: cargo run -p ggen-ai --example test_learning_model --features swarm
 
-use ggen_ai::swarm::agents::{AdaptiveLearningModel, LearningData, LearningModel, PredictionInput, ModelUpdates};
+use ggen_ai::swarm::agents::{
+    AdaptiveLearningModel, LearningData, LearningModel, ModelUpdates, PredictionInput,
+};
 use std::collections::HashMap;
 
 #[tokio::main]
@@ -30,7 +32,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Train model
     let result = model.train(&learning_data).await?;
-    println!("✓ Training complete: accuracy={:.2}, loss={:.4}", result.accuracy, result.loss);
+    println!(
+        "✓ Training complete: accuracy={:.2}, loss={:.4}",
+        result.accuracy, result.loss
+    );
 
     // Make prediction
     let mut pred_features = HashMap::new();
@@ -43,8 +48,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let output = model.predict(&input).await?;
-    println!("✓ Prediction complete: confidence={:.2}, predictions={}",
-             output.confidence, output.predictions.len());
+    println!(
+        "✓ Prediction complete: confidence={:.2}, predictions={}",
+        output.confidence,
+        output.predictions.len()
+    );
 
     // Update parameters
     let mut updates = HashMap::new();

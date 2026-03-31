@@ -100,7 +100,9 @@ impl GovernanceCoordinator {
 
         // Check safety constraints first
         if let Some(violation) = self.safety_controller.check_safety(decision).await? {
-            self.audit_trail.log_safety_violation(decision, &violation).await?;
+            self.audit_trail
+                .log_safety_violation(decision, &violation)
+                .await?;
             return Ok(DecisionOutcome::Rejected {
                 reason: format!("Safety violation: {}", violation),
                 requires_review: true,
@@ -123,7 +125,9 @@ impl GovernanceCoordinator {
             }
             Ok(false) | Err(_) => {
                 let violations = self.policy_engine.get_violations(decision).await?;
-                self.audit_trail.log_policy_violations(decision, &violations).await?;
+                self.audit_trail
+                    .log_policy_violations(decision, &violations)
+                    .await?;
                 Ok(DecisionOutcome::Rejected {
                     reason: format!("Policy violations: {:?}", violations),
                     requires_review: true,
@@ -142,7 +146,9 @@ impl GovernanceCoordinator {
         let request = ApprovalRequest::from_decision(decision);
         let request_id = self.workflow.submit(request).await?;
 
-        self.audit_trail.log_approval_requested(decision, &request_id.to_string()).await?;
+        self.audit_trail
+            .log_approval_requested(decision, &request_id.to_string())
+            .await?;
 
         Ok(DecisionOutcome::PendingApproval {
             request_id,

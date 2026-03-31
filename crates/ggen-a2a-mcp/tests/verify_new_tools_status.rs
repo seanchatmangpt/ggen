@@ -35,10 +35,16 @@ fn test_new_tools_status() {
 
     println!("\n=== Missing Tools (4 tools) ===");
     let missing_tools = vec![
-        ("generate_agents", "Generate multi-agent systems from specifications"),
+        (
+            "generate_agents",
+            "Generate multi-agent systems from specifications",
+        ),
         ("generate_a2a_test", "Generate A2A integration test files"),
         ("validate_fibo", "Validate FIBO ontology coverage"),
-        ("orchestrate_conversation", "Orchestrate multi-agent conversations"),
+        (
+            "orchestrate_conversation",
+            "Orchestrate multi-agent conversations",
+        ),
     ];
 
     for (tool, description) in &missing_tools {

@@ -3,8 +3,8 @@
 
 use ggen_a2a_mcp::ggen_server::GgenMcpServer;
 use rmcp::{
-    model::{CallToolRequestParams, ClientCapabilities},
     handler::server::wrapper::Parameters,
+    model::{CallToolRequestParams, ClientCapabilities},
 };
 
 #[tokio::main]
@@ -80,9 +80,7 @@ ex:Person2 a ex:Person ;
 }
 
 async fn test_query_ontology(
-    server: &GgenMcpServer,
-    ttl: &str,
-    sparql: &str,
+    server: &GgenMcpServer, ttl: &str, sparql: &str,
 ) -> Result<String, Box<dyn std::error::Error>> {
     use ggen_a2a_mcp::ggen_server::QueryOntologyParams;
     use rmcp::handler::server::wrapper::Parameters;

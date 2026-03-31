@@ -40,7 +40,9 @@ async fn start_server() -> anyhow::Result<RunningService<RoleClient, ExampleClie
         }
     });
 
-    let client = ExampleClientHandler::default().serve(client_transport).await?;
+    let client = ExampleClientHandler::default()
+        .serve(client_transport)
+        .await?;
     Ok(client)
 }
 
@@ -108,17 +110,26 @@ ex:John ex:knows ex:Jane .
 "#;
 
     println!("📝 Turtle content to validate:");
-    println!("{}\n", turtle_content.lines().take(10).collect::<Vec<_>>().join("\n"));
+    println!(
+        "{}\n",
+        turtle_content
+            .lines()
+            .take(10)
+            .collect::<Vec<_>>()
+            .join("\n")
+    );
     println!("... ({} total characters)\n", turtle_content.len());
 
     // Step 3: Build tool call request
     println!("🔨 Building validate tool call...");
-    let validate_request = CallToolRequestParams::new("validate")
-        .with_arguments({
-            let mut map = serde_json::Map::new();
-            map.insert("ttl".to_string(), serde_json::Value::String(turtle_content.to_string()));
-            map
-        });
+    let validate_request = CallToolRequestParams::new("validate").with_arguments({
+        let mut map = serde_json::Map::new();
+        map.insert(
+            "ttl".to_string(),
+            serde_json::Value::String(turtle_content.to_string()),
+        );
+        map
+    });
 
     // Step 4: Call the validate tool
     println!("⚙️  Calling validate tool...\n");

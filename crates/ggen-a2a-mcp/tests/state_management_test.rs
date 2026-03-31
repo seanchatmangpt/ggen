@@ -4,11 +4,10 @@
 //! Tests use real collaborators (no mocks) following Chicago TDD.
 
 use ggen_a2a_mcp::state::{
-    ArbApprovalManager, ApprovalCriterion, ApprovalDecision, ApprovalResponse, ApprovalStatus,
-    ArbApprovalValidator, Artifact, ArtifactCompletenessValidator, ArtifactRegistry,
-    ArtifactType, FiboConsistencyValidator, FiboValidationResult, HandoffPackage,
-    HandoffProtocol, HandoffStatus, HandoffValidator, PhaseState, PhaseStatus, PhaseStatus::*,
-    StakeholderRole, StateError,
+    ApprovalCriterion, ApprovalDecision, ApprovalResponse, ApprovalStatus, ArbApprovalManager,
+    ArbApprovalValidator, Artifact, ArtifactCompletenessValidator, ArtifactRegistry, ArtifactType,
+    FiboConsistencyValidator, FiboValidationResult, HandoffPackage, HandoffProtocol, HandoffStatus,
+    HandoffValidator, PhaseState, PhaseStatus, PhaseStatus::*, StakeholderRole, StateError,
     StateSummary, TogafPhase, TogafStateManager,
 };
 
@@ -29,12 +28,7 @@ fn phase_state(phase: TogafPhase, status: PhaseStatus) -> PhaseState {
 }
 
 /// Build a test artifact with optional FIBO concepts.
-fn fibo_artifact(
-    turn: usize,
-    phase: TogafPhase,
-    name: &str,
-    concepts: Vec<&str>,
-) -> Artifact {
+fn fibo_artifact(turn: usize, phase: TogafPhase, name: &str, concepts: Vec<&str>) -> Artifact {
     Artifact::new(
         format!("{}-{}", turn, name.to_lowercase().replace(' ', "-")),
         turn,
@@ -48,15 +42,18 @@ fn fibo_artifact(
 
 /// Build a typed artifact.
 fn typed_artifact(
-    id: &str,
-    turn: usize,
-    phase: TogafPhase,
-    name: &str,
-    artifact_type: ArtifactType,
+    id: &str, turn: usize, phase: TogafPhase, name: &str, artifact_type: ArtifactType,
     concepts: Vec<&str>,
 ) -> Artifact {
-    Artifact::new(id, turn, phase, artifact_type, name, serde_json::json!({"name": name}))
-        .with_fibo_concepts(concepts.iter().map(|s| s.to_string()).collect())
+    Artifact::new(
+        id,
+        turn,
+        phase,
+        artifact_type,
+        name,
+        serde_json::json!({"name": name}),
+    )
+    .with_fibo_concepts(concepts.iter().map(|s| s.to_string()).collect())
 }
 
 // ===========================================================================
@@ -224,7 +221,11 @@ async fn state_manager_is_arb_gate() {
         assert!(mgr.is_arb_gate(turn).await, "Turn {} should be gate", turn);
     }
     for turn in [1, 5, 10, 30, 50, 60, 65] {
-        assert!(!mgr.is_arb_gate(turn).await, "Turn {} should not be gate", turn);
+        assert!(
+            !mgr.is_arb_gate(turn).await,
+            "Turn {} should not be gate",
+            turn
+        );
     }
 }
 
@@ -327,7 +328,14 @@ async fn state_manager_summary() {
 #[test]
 fn registry_insert_and_get() {
     let mut reg = ArtifactRegistry::new();
-    let artifact = typed_artifact("a1", 1, TogafPhase::A, "SM", ArtifactType::StakeholderMap, vec![]);
+    let artifact = typed_artifact(
+        "a1",
+        1,
+        TogafPhase::A,
+        "SM",
+        ArtifactType::StakeholderMap,
+        vec![],
+    );
     reg.insert(artifact);
     assert_eq!(reg.count(), 1);
     assert!(reg.contains("a1"));
@@ -337,9 +345,30 @@ fn registry_insert_and_get() {
 #[test]
 fn registry_index_by_turn() {
     let mut reg = ArtifactRegistry::new();
-    reg.insert(typed_artifact("a1", 1, TogafPhase::A, "A1", ArtifactType::Other("X".into()), vec![]));
-    reg.insert(typed_artifact("a2", 1, TogafPhase::A, "A2", ArtifactType::Other("Y".into()), vec![]));
-    reg.insert(typed_artifact("a3", 2, TogafPhase::A, "A3", ArtifactType::Other("Z".into()), vec![]));
+    reg.insert(typed_artifact(
+        "a1",
+        1,
+        TogafPhase::A,
+        "A1",
+        ArtifactType::Other("X".into()),
+        vec![],
+    ));
+    reg.insert(typed_artifact(
+        "a2",
+        1,
+        TogafPhase::A,
+        "A2",
+        ArtifactType::Other("Y".into()),
+        vec![],
+    ));
+    reg.insert(typed_artifact(
+        "a3",
+        2,
+        TogafPhase::A,
+        "A3",
+        ArtifactType::Other("Z".into()),
+        vec![],
+    ));
 
     assert_eq!(reg.get_for_turn(1).len(), 2);
     assert_eq!(reg.get_for_turn(2).len(), 1);
@@ -349,8 +378,22 @@ fn registry_index_by_turn() {
 #[test]
 fn registry_index_by_phase() {
     let mut reg = ArtifactRegistry::new();
-    reg.insert(typed_artifact("a1", 1, TogafPhase::A, "A1", ArtifactType::Other("X".into()), vec![]));
-    reg.insert(typed_artifact("a2", 9, TogafPhase::B, "A2", ArtifactType::Other("Y".into()), vec![]));
+    reg.insert(typed_artifact(
+        "a1",
+        1,
+        TogafPhase::A,
+        "A1",
+        ArtifactType::Other("X".into()),
+        vec![],
+    ));
+    reg.insert(typed_artifact(
+        "a2",
+        9,
+        TogafPhase::B,
+        "A2",
+        ArtifactType::Other("Y".into()),
+        vec![],
+    ));
 
     assert_eq!(reg.get_for_phase(TogafPhase::A).len(), 1);
     assert_eq!(reg.get_for_phase(TogafPhase::B).len(), 1);
@@ -360,9 +403,23 @@ fn registry_index_by_phase() {
 #[test]
 fn registry_replace() {
     let mut reg = ArtifactRegistry::new();
-    reg.insert(typed_artifact("a1", 1, TogafPhase::A, "V1", ArtifactType::Other("V1".into()), vec![]));
+    reg.insert(typed_artifact(
+        "a1",
+        1,
+        TogafPhase::A,
+        "V1",
+        ArtifactType::Other("V1".into()),
+        vec![],
+    ));
 
-    let v2 = typed_artifact("a1", 1, TogafPhase::A, "V2", ArtifactType::Other("V2".into()), vec![]);
+    let v2 = typed_artifact(
+        "a1",
+        1,
+        TogafPhase::A,
+        "V2",
+        ArtifactType::Other("V2".into()),
+        vec![],
+    );
     reg.insert(v2);
 
     assert_eq!(reg.count(), 1);
@@ -372,8 +429,22 @@ fn registry_replace() {
 #[test]
 fn registry_remove() {
     let mut reg = ArtifactRegistry::new();
-    reg.insert(typed_artifact("a1", 1, TogafPhase::A, "A1", ArtifactType::Other("X".into()), vec![]));
-    reg.insert(typed_artifact("a2", 2, TogafPhase::B, "A2", ArtifactType::Other("Y".into()), vec![]));
+    reg.insert(typed_artifact(
+        "a1",
+        1,
+        TogafPhase::A,
+        "A1",
+        ArtifactType::Other("X".into()),
+        vec![],
+    ));
+    reg.insert(typed_artifact(
+        "a2",
+        2,
+        TogafPhase::B,
+        "A2",
+        ArtifactType::Other("Y".into()),
+        vec![],
+    ));
 
     assert!(reg.remove("a1").is_some());
     assert_eq!(reg.count(), 1);
@@ -383,9 +454,30 @@ fn registry_remove() {
 #[test]
 fn registry_by_type() {
     let mut reg = ArtifactRegistry::new();
-    reg.insert(typed_artifact("a1", 1, TogafPhase::A, "SM", ArtifactType::StakeholderMap, vec![]));
-    reg.insert(typed_artifact("a2", 2, TogafPhase::A, "AV", ArtifactType::ArchitectureVision, vec![]));
-    reg.insert(typed_artifact("a3", 3, TogafPhase::A, "SM2", ArtifactType::StakeholderMap, vec![]));
+    reg.insert(typed_artifact(
+        "a1",
+        1,
+        TogafPhase::A,
+        "SM",
+        ArtifactType::StakeholderMap,
+        vec![],
+    ));
+    reg.insert(typed_artifact(
+        "a2",
+        2,
+        TogafPhase::A,
+        "AV",
+        ArtifactType::ArchitectureVision,
+        vec![],
+    ));
+    reg.insert(typed_artifact(
+        "a3",
+        3,
+        TogafPhase::A,
+        "SM2",
+        ArtifactType::StakeholderMap,
+        vec![],
+    ));
 
     assert_eq!(reg.get_by_type(&ArtifactType::StakeholderMap).len(), 2);
     assert_eq!(reg.get_by_type(&ArtifactType::ArchitectureVision).len(), 1);
@@ -395,8 +487,18 @@ fn registry_by_type() {
 #[test]
 fn registry_fibo_concepts() {
     let mut reg = ArtifactRegistry::new();
-    reg.insert(fibo_artifact(1, TogafPhase::A, "A1", vec!["fibo-fnd:LegalPerson"]));
-    reg.insert(fibo_artifact(2, TogafPhase::B, "A2", vec!["fibo-fnd:LegalPerson", "fibo-lcc:LoanContract"]));
+    reg.insert(fibo_artifact(
+        1,
+        TogafPhase::A,
+        "A1",
+        vec!["fibo-fnd:LegalPerson"],
+    ));
+    reg.insert(fibo_artifact(
+        2,
+        TogafPhase::B,
+        "A2",
+        vec!["fibo-fnd:LegalPerson", "fibo-lcc:LoanContract"],
+    ));
 
     let concepts = reg.all_fibo_concepts();
     assert_eq!(concepts.len(), 2);
@@ -436,8 +538,14 @@ async fn arb_approval_validator_fails_pending() {
 async fn artifact_completeness_passes() {
     let validator = ArtifactCompletenessValidator::new(2);
     let ps = phase_state(TogafPhase::A, PhaseStatus::ArbApproved);
-    let artifacts = vec![fibo_artifact(1, TogafPhase::A, "A1", vec![]), fibo_artifact(2, TogafPhase::A, "A2", vec![])];
-    let result = validator.validate(&ps, &artifacts, TogafPhase::B).await.unwrap();
+    let artifacts = vec![
+        fibo_artifact(1, TogafPhase::A, "A1", vec![]),
+        fibo_artifact(2, TogafPhase::A, "A2", vec![]),
+    ];
+    let result = validator
+        .validate(&ps, &artifacts, TogafPhase::B)
+        .await
+        .unwrap();
     assert!(result.passed);
 }
 
@@ -446,7 +554,10 @@ async fn artifact_completeness_fails() {
     let validator = ArtifactCompletenessValidator::new(3);
     let ps = phase_state(TogafPhase::A, PhaseStatus::ArbApproved);
     let artifacts = vec![fibo_artifact(1, TogafPhase::A, "A1", vec![])];
-    let result = validator.validate(&ps, &artifacts, TogafPhase::B).await.unwrap();
+    let result = validator
+        .validate(&ps, &artifacts, TogafPhase::B)
+        .await
+        .unwrap();
     assert!(!result.passed);
 }
 
@@ -455,7 +566,10 @@ async fn fibo_consistency_no_concepts() {
     let validator = FiboConsistencyValidator::new();
     let ps = phase_state(TogafPhase::A, PhaseStatus::ArbApproved);
     let artifacts = vec![fibo_artifact(1, TogafPhase::A, "A1", vec![])];
-    let result = validator.validate(&ps, &artifacts, TogafPhase::B).await.unwrap();
+    let result = validator
+        .validate(&ps, &artifacts, TogafPhase::B)
+        .await
+        .unwrap();
     assert!(result.passed);
 }
 
@@ -463,8 +577,16 @@ async fn fibo_consistency_no_concepts() {
 async fn fibo_consistency_with_concepts() {
     let validator = FiboConsistencyValidator::new();
     let ps = phase_state(TogafPhase::A, PhaseStatus::ArbApproved);
-    let artifact = fibo_artifact(1, TogafPhase::A, "A1", vec!["fibo-fnd:LegalPerson", "fibo-lcc:LoanContract"]);
-    let result = validator.validate(&ps, &[artifact], TogafPhase::B).await.unwrap();
+    let artifact = fibo_artifact(
+        1,
+        TogafPhase::A,
+        "A1",
+        vec!["fibo-fnd:LegalPerson", "fibo-lcc:LoanContract"],
+    );
+    let result = validator
+        .validate(&ps, &[artifact], TogafPhase::B)
+        .await
+        .unwrap();
     assert!(result.passed);
     assert!(result.message.contains("2 unique FIBO concepts"));
 }
@@ -482,7 +604,9 @@ async fn handoff_accepts_valid() {
         fibo_artifact(3, TogafPhase::A, "Vision", vec!["fibo-fnd:Organization"]),
     ];
 
-    let result = protocol.validate_handoff(&ps, &artifacts, TogafPhase::B).await;
+    let result = protocol
+        .validate_handoff(&ps, &artifacts, TogafPhase::B)
+        .await;
     assert_eq!(result.status, HandoffStatus::Accepted);
     assert!(result.validations.iter().all(|v| v.passed));
 }
@@ -493,7 +617,9 @@ async fn handoff_rejects_no_approval() {
     let ps = phase_state(TogafPhase::A, PhaseStatus::ArbPending);
     let artifacts = vec![fibo_artifact(1, TogafPhase::A, "A1", vec![])];
 
-    let result = protocol.validate_handoff(&ps, &artifacts, TogafPhase::B).await;
+    let result = protocol
+        .validate_handoff(&ps, &artifacts, TogafPhase::B)
+        .await;
     assert!(matches!(result.status, HandoffStatus::Rejected(_)));
 }
 
@@ -503,7 +629,9 @@ async fn handoff_rejects_no_artifacts() {
     let ps = phase_state(TogafPhase::A, PhaseStatus::ArbApproved);
     let artifacts: Vec<Artifact> = vec![];
 
-    let result = protocol.validate_handoff(&ps, &artifacts, TogafPhase::B).await;
+    let result = protocol
+        .validate_handoff(&ps, &artifacts, TogafPhase::B)
+        .await;
     assert!(matches!(result.status, HandoffStatus::Rejected(_)));
 }
 
@@ -519,7 +647,9 @@ async fn handoff_custom_validator_chain() {
         fibo_artifact(2, TogafPhase::A, "A2", vec![]),
     ];
 
-    let result = protocol.validate_handoff(&ps, &artifacts, TogafPhase::B).await;
+    let result = protocol
+        .validate_handoff(&ps, &artifacts, TogafPhase::B)
+        .await;
     assert!(matches!(result.status, HandoffStatus::Rejected(_)));
 }
 
@@ -533,50 +663,66 @@ async fn handoff_sequential_phases() {
         fibo_artifact(1, TogafPhase::A, "SM", vec!["fibo-fnd:LegalPerson"]),
         fibo_artifact(3, TogafPhase::A, "Vision", vec!["fibo-fnd:Organization"]),
     ];
-    let result_a = protocol.validate_handoff(&ps_a, &artifacts_a, TogafPhase::B).await;
+    let result_a = protocol
+        .validate_handoff(&ps_a, &artifacts_a, TogafPhase::B)
+        .await;
     assert_eq!(result_a.status, HandoffStatus::Accepted);
 
     // Phase B -> C
     let ps_b = phase_state(TogafPhase::B, PhaseStatus::ArbApproved);
     let artifacts_b = vec![
         fibo_artifact(9, TogafPhase::B, "CapMap", vec!["fibo-fnd:LegalPerson"]),
-        fibo_artifact(11, TogafPhase::B, "ProductMap", vec!["fibo-lcc:LoanContract"]),
+        fibo_artifact(
+            11,
+            TogafPhase::B,
+            "ProductMap",
+            vec!["fibo-lcc:LoanContract"],
+        ),
     ];
-    let result_b = protocol.validate_handoff(&ps_b, &artifacts_b, TogafPhase::C).await;
+    let result_b = protocol
+        .validate_handoff(&ps_b, &artifacts_b, TogafPhase::C)
+        .await;
     assert_eq!(result_b.status, HandoffStatus::Accepted);
 
     // Phase C -> D
     let ps_c = phase_state(TogafPhase::C, PhaseStatus::ArbApproved);
-    let artifacts_c = vec![
-        fibo_artifact(23, TogafPhase::C, "DataCatalog", vec!["fibo-fnd:LegalPerson"]),
-    ];
-    let result_c = protocol.validate_handoff(&ps_c, &artifacts_c, TogafPhase::D).await;
+    let artifacts_c = vec![fibo_artifact(
+        23,
+        TogafPhase::C,
+        "DataCatalog",
+        vec!["fibo-fnd:LegalPerson"],
+    )];
+    let result_c = protocol
+        .validate_handoff(&ps_c, &artifacts_c, TogafPhase::D)
+        .await;
     assert_eq!(result_c.status, HandoffStatus::Accepted);
 }
 
 #[tokio::test]
 async fn handoff_package_fibo_consistency() {
-    let pkg = HandoffPackage::new(TogafPhase::A, TogafPhase::B, vec![]).with_fibo_validations(vec![
-        FiboValidationResult {
-            concept: "fibo-fnd:LegalPerson".to_string(),
-            is_consistent: true,
-            details: "OK".to_string(),
-        },
-        FiboValidationResult {
-            concept: "fibo-unknown:Bad".to_string(),
-            is_consistent: false,
-            details: "Not found".to_string(),
-        },
-    ]);
+    let pkg =
+        HandoffPackage::new(TogafPhase::A, TogafPhase::B, vec![]).with_fibo_validations(vec![
+            FiboValidationResult {
+                concept: "fibo-fnd:LegalPerson".to_string(),
+                is_consistent: true,
+                details: "OK".to_string(),
+            },
+            FiboValidationResult {
+                concept: "fibo-unknown:Bad".to_string(),
+                is_consistent: false,
+                details: "Not found".to_string(),
+            },
+        ]);
     assert!(!pkg.all_fibo_consistent());
 
-    let pkg_ok = HandoffPackage::new(TogafPhase::A, TogafPhase::B, vec![]).with_fibo_validations(vec![
-        FiboValidationResult {
-            concept: "fibo-fnd:LegalPerson".to_string(),
-            is_consistent: true,
-            details: "OK".to_string(),
-        },
-    ]);
+    let pkg_ok =
+        HandoffPackage::new(TogafPhase::A, TogafPhase::B, vec![]).with_fibo_validations(vec![
+            FiboValidationResult {
+                concept: "fibo-fnd:LegalPerson".to_string(),
+                is_consistent: true,
+                details: "OK".to_string(),
+            },
+        ]);
     assert!(pkg_ok.all_fibo_consistent());
 }
 
@@ -600,14 +746,24 @@ async fn standard_gates_correct_reviewers() {
 
     let gate_a = mgr.get_gate(8).await.unwrap();
     assert_eq!(gate_a.phase, TogafPhase::A);
-    assert_eq!(gate_a.required_reviewers, vec![StakeholderRole::ChiefArchitect]);
+    assert_eq!(
+        gate_a.required_reviewers,
+        vec![StakeholderRole::ChiefArchitect]
+    );
 
     let gate_b = mgr.get_gate(22).await.unwrap();
-    assert!(gate_b.required_reviewers.contains(&StakeholderRole::ChiefArchitect));
-    assert!(gate_b.required_reviewers.contains(&StakeholderRole::ComplianceOfficer));
+    assert!(gate_b
+        .required_reviewers
+        .contains(&StakeholderRole::ChiefArchitect));
+    assert!(gate_b
+        .required_reviewers
+        .contains(&StakeholderRole::ComplianceOfficer));
 
     let gate_e = mgr.get_gate(62).await.unwrap();
-    assert_eq!(gate_e.required_reviewers, vec![StakeholderRole::ComplianceOfficer]);
+    assert_eq!(
+        gate_e.required_reviewers,
+        vec![StakeholderRole::ComplianceOfficer]
+    );
 }
 
 #[tokio::test]
@@ -666,7 +822,11 @@ async fn multi_reviewer_sequential() {
 
     mgr.submit_response(
         22,
-        ApprovalResponse::new(StakeholderRole::ChiefArchitect, ApprovalDecision::Approved, "OK"),
+        ApprovalResponse::new(
+            StakeholderRole::ChiefArchitect,
+            ApprovalDecision::Approved,
+            "OK",
+        ),
     )
     .await
     .unwrap();
@@ -674,7 +834,11 @@ async fn multi_reviewer_sequential() {
 
     mgr.submit_response(
         22,
-        ApprovalResponse::new(StakeholderRole::ComplianceOfficer, ApprovalDecision::Approved, "Compliant"),
+        ApprovalResponse::new(
+            StakeholderRole::ComplianceOfficer,
+            ApprovalDecision::Approved,
+            "Compliant",
+        ),
     )
     .await
     .unwrap();
@@ -688,7 +852,11 @@ async fn multi_reviewer_partial_rejection() {
 
     mgr.submit_response(
         22,
-        ApprovalResponse::new(StakeholderRole::ChiefArchitect, ApprovalDecision::Approved, "OK"),
+        ApprovalResponse::new(
+            StakeholderRole::ChiefArchitect,
+            ApprovalDecision::Approved,
+            "OK",
+        ),
     )
     .await
     .unwrap();
@@ -715,7 +883,11 @@ async fn unexpected_reviewer() {
     let result = mgr
         .submit_response(
             8,
-            ApprovalResponse::new(StakeholderRole::BusinessOwner, ApprovalDecision::Approved, "Not mine"),
+            ApprovalResponse::new(
+                StakeholderRole::BusinessOwner,
+                ApprovalDecision::Approved,
+                "Not mine",
+            ),
         )
         .await;
     assert!(result.is_err());
@@ -732,7 +904,11 @@ async fn duplicate_response() {
 
     mgr.submit_response(
         8,
-        ApprovalResponse::new(StakeholderRole::ChiefArchitect, ApprovalDecision::Approved, "First"),
+        ApprovalResponse::new(
+            StakeholderRole::ChiefArchitect,
+            ApprovalDecision::Approved,
+            "First",
+        ),
     )
     .await
     .unwrap();
@@ -740,7 +916,11 @@ async fn duplicate_response() {
     let result = mgr
         .submit_response(
             8,
-            ApprovalResponse::new(StakeholderRole::ChiefArchitect, ApprovalDecision::Approved, "Dup"),
+            ApprovalResponse::new(
+                StakeholderRole::ChiefArchitect,
+                ApprovalDecision::Approved,
+                "Dup",
+            ),
         )
         .await;
     assert!(result.is_err());
@@ -765,7 +945,11 @@ async fn summary_shows_progress() {
     mgr.request_approval(8).await.unwrap();
     mgr.submit_response(
         8,
-        ApprovalResponse::new(StakeholderRole::ChiefArchitect, ApprovalDecision::Approved, "OK"),
+        ApprovalResponse::new(
+            StakeholderRole::ChiefArchitect,
+            ApprovalDecision::Approved,
+            "OK",
+        ),
     )
     .await
     .unwrap();
@@ -773,7 +957,11 @@ async fn summary_shows_progress() {
     mgr.request_approval(22).await.unwrap();
     mgr.submit_response(
         22,
-        ApprovalResponse::new(StakeholderRole::ChiefArchitect, ApprovalDecision::Approved, "OK"),
+        ApprovalResponse::new(
+            StakeholderRole::ChiefArchitect,
+            ApprovalDecision::Approved,
+            "OK",
+        ),
     )
     .await
     .unwrap();
@@ -862,7 +1050,11 @@ async fn full_70_turn_arb_approval_sequence() {
             .unwrap();
         }
 
-        assert!(mgr.is_approved(*turn).await, "Gate at turn {} should be approved", turn);
+        assert!(
+            mgr.is_approved(*turn).await,
+            "Gate at turn {} should be approved",
+            turn
+        );
     }
 
     let summary = mgr.summary().await;

@@ -87,12 +87,8 @@ pub struct Artifact {
 impl Artifact {
     /// Create a new artifact with the given parameters.
     pub fn new(
-        id: impl Into<String>,
-        turn: usize,
-        phase: TogafPhase,
-        artifact_type: ArtifactType,
-        name: impl Into<String>,
-        content: serde_json::Value,
+        id: impl Into<String>, turn: usize, phase: TogafPhase, artifact_type: ArtifactType,
+        name: impl Into<String>, content: serde_json::Value,
     ) -> Self {
         Self {
             id: id.into(),
@@ -117,7 +113,11 @@ impl Artifact {
     #[cfg(test)]
     pub fn new_test(turn: usize, phase: TogafPhase, name: &str) -> Self {
         Self {
-            id: format!("artifact-{}-{}", turn, name.to_lowercase().replace(' ', "-")),
+            id: format!(
+                "artifact-{}-{}",
+                turn,
+                name.to_lowercase().replace(' ', "-")
+            ),
             turn,
             phase,
             artifact_type: ArtifactType::Other(name.to_string()),
@@ -191,11 +191,7 @@ impl ArtifactRegistry {
     pub fn get_for_turn(&self, turn: usize) -> Vec<&Artifact> {
         self.by_turn
             .get(&turn)
-            .map(|ids| {
-                ids.iter()
-                    .filter_map(|id| self.artifacts.get(id))
-                    .collect()
-            })
+            .map(|ids| ids.iter().filter_map(|id| self.artifacts.get(id)).collect())
             .unwrap_or_default()
     }
 
@@ -203,11 +199,7 @@ impl ArtifactRegistry {
     pub fn get_for_phase(&self, phase: TogafPhase) -> Vec<&Artifact> {
         self.by_phase
             .get(&phase)
-            .map(|ids| {
-                ids.iter()
-                    .filter_map(|id| self.artifacts.get(id))
-                    .collect()
-            })
+            .map(|ids| ids.iter().filter_map(|id| self.artifacts.get(id)).collect())
             .unwrap_or_default()
     }
 

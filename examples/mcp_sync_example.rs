@@ -105,11 +105,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("You can also use the ggen CLI directly:");
     println!("   cd /Users/sac/ggen");
     let dry_run_flag = if dry_run { " --dry-run" } else { "" };
-    println!("   cargo run --bin ggen -- sync --ontology {} --output {}{}", ontology_path, output_dir, dry_run_flag);
+    println!(
+        "   cargo run --bin ggen -- sync --ontology {} --output {}{}",
+        ontology_path, output_dir, dry_run_flag
+    );
 
     println!("\n=== Test Command ===");
     println!("Run this command to test the sync pipeline:");
-    println!("   cargo run --bin ggen -- sync --ontology {} --output {} --language rust", ontology_path, output_dir);
+    println!(
+        "   cargo run --bin ggen -- sync --ontology {} --output {} --language rust",
+        ontology_path, output_dir
+    );
 
     println!("\n=== Key Differences: generate vs sync ===");
     println!("📝 generate:");

@@ -85,11 +85,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n=== Alternative: Direct ggen CLI ===");
     println!("You can also use the ggen CLI directly:");
     println!("   cd /Users/sac/ggen");
-    println!("   cargo run --bin ggen -- sync --ontology {} --output {}", ontology_path, output_dir);
+    println!(
+        "   cargo run --bin ggen -- sync --ontology {} --output {}",
+        ontology_path, output_dir
+    );
 
     println!("\n=== Test Command ===");
     println!("Run this command to test the generate pipeline:");
-    println!("   cargo run --bin ggen -- sync --ontology {} --output {} --language rust", ontology_path, output_dir);
+    println!(
+        "   cargo run --bin ggen -- sync --ontology {} --output {} --language rust",
+        ontology_path, output_dir
+    );
 
     Ok(())
 }

@@ -19,14 +19,14 @@ async fn main() -> anyhow::Result<()> {
     println!("============================================\n");
 
     // Get the current directory (should be /Users/sac/ggen)
-    let current_dir = std::env::current_dir()
-        .expect("Failed to get current directory");
+    let current_dir = std::env::current_dir().expect("Failed to get current directory");
 
     println!("Current directory: {}", current_dir.display());
 
     // Navigate to ggen root if we're in the bin directory
-    let project_path = if current_dir.ends_with("crates/ggen-a2a-mcp/src/bin") ||
-                         current_dir.ends_with("crates/ggen-a2a-mcp") {
+    let project_path = if current_dir.ends_with("crates/ggen-a2a-mcp/src/bin")
+        || current_dir.ends_with("crates/ggen-a2a-mcp")
+    {
         current_dir
             .ancestors()
             .nth(2) // Go up from crates/ggen-a2a-mcp to ggen root
@@ -43,7 +43,10 @@ async fn main() -> anyhow::Result<()> {
     // Check if ggen.toml exists
     let manifest_path = project_path.join("ggen.toml");
     if !manifest_path.exists() {
-        println!("❌ ERROR: ggen.toml not found at {}", manifest_path.display());
+        println!(
+            "❌ ERROR: ggen.toml not found at {}",
+            manifest_path.display()
+        );
         println!("This test requires being run from the ggen root directory");
         anyhow::bail!("ggen.toml not found");
     }

@@ -112,9 +112,7 @@ pub struct HandoffPackage {
 impl HandoffPackage {
     /// Create a new handoff package.
     pub fn new(
-        source_phase: TogafPhase,
-        target_phase: TogafPhase,
-        artifacts: Vec<Artifact>,
+        source_phase: TogafPhase, target_phase: TogafPhase, artifacts: Vec<Artifact>,
     ) -> Self {
         Self {
             source_phase,
@@ -139,9 +137,7 @@ impl HandoffPackage {
 
     /// Check if all FIBO validations passed.
     pub fn all_fibo_consistent(&self) -> bool {
-        self.fibo_validations
-            .iter()
-            .all(|v| v.is_consistent)
+        self.fibo_validations.iter().all(|v| v.is_consistent)
     }
 }
 
@@ -189,10 +185,7 @@ impl HandoffResult {
 pub trait HandoffValidator: Send + Sync {
     /// Validate the handoff from `source` phase to `target` phase.
     async fn validate(
-        &self,
-        source: &PhaseState,
-        artifacts: &[Artifact],
-        target: TogafPhase,
+        &self, source: &PhaseState, artifacts: &[Artifact], target: TogafPhase,
     ) -> StateResult<ValidationResult>;
 }
 
@@ -213,10 +206,7 @@ impl FiboConsistencyValidator {
 impl HandoffValidator for FiboConsistencyValidator {
     #[instrument(skip(self, source, artifacts))]
     async fn validate(
-        &self,
-        source: &PhaseState,
-        artifacts: &[Artifact],
-        _target: TogafPhase,
+        &self, source: &PhaseState, artifacts: &[Artifact], _target: TogafPhase,
     ) -> StateResult<ValidationResult> {
         // Collect all FIBO concepts referenced in the artifacts.
         let all_concepts: Vec<&String> = artifacts
@@ -284,10 +274,7 @@ impl ArtifactCompletenessValidator {
 impl HandoffValidator for ArtifactCompletenessValidator {
     #[instrument(skip(self, source, artifacts))]
     async fn validate(
-        &self,
-        source: &PhaseState,
-        artifacts: &[Artifact],
-        _target: TogafPhase,
+        &self, source: &PhaseState, artifacts: &[Artifact], _target: TogafPhase,
     ) -> StateResult<ValidationResult> {
         if artifacts.len() >= self.min_artifacts {
             Ok(ValidationResult::pass(
@@ -326,10 +313,7 @@ impl ArbApprovalValidator {
 impl HandoffValidator for ArbApprovalValidator {
     #[instrument(skip(self, source, _artifacts))]
     async fn validate(
-        &self,
-        source: &PhaseState,
-        _artifacts: &[Artifact],
-        _target: TogafPhase,
+        &self, source: &PhaseState, _artifacts: &[Artifact], _target: TogafPhase,
     ) -> StateResult<ValidationResult> {
         match &source.status {
             PhaseStatus::ArbApproved => Ok(ValidationResult::pass(
@@ -395,10 +379,7 @@ impl HandoffProtocol {
     /// indicating whether the handoff is accepted or rejected.
     #[instrument(skip(self, source_state, artifacts))]
     pub async fn validate_handoff(
-        &self,
-        source_state: &PhaseState,
-        artifacts: &[Artifact],
-        target_phase: TogafPhase,
+        &self, source_state: &PhaseState, artifacts: &[Artifact], target_phase: TogafPhase,
     ) -> HandoffResult {
         let mut results = Vec::new();
 
@@ -426,10 +407,7 @@ impl HandoffProtocol {
                         "ValidatorError",
                         format!("Validator failed with error: {}", e),
                     ));
-                    return HandoffResult::rejected(
-                        format!("Validator error: {}", e),
-                        results,
-                    );
+                    return HandoffResult::rejected(format!("Validator error: {}", e), results);
                 }
             }
         }
@@ -445,14 +423,10 @@ impl HandoffProtocol {
 
     /// Build a handoff package from artifacts and state.
     pub fn build_package(
-        &self,
-        source_phase: TogafPhase,
-        target_phase: TogafPhase,
-        artifacts: Vec<Artifact>,
+        &self, source_phase: TogafPhase, target_phase: TogafPhase, artifacts: Vec<Artifact>,
         state_summary: impl Into<String>,
     ) -> HandoffPackage {
-        HandoffPackage::new(source_phase, target_phase, artifacts)
-            .with_state_summary(state_summary)
+        HandoffPackage::new(source_phase, target_phase, artifacts).with_state_summary(state_summary)
     }
 }
 
@@ -592,8 +566,8 @@ mod tests {
 
     #[tokio::test]
     async fn handoff_package_all_fibo_consistent() {
-        let pkg = HandoffPackage::new(TogafPhase::A, TogafPhase::B, vec![])
-            .with_fibo_validations(vec![
+        let pkg =
+            HandoffPackage::new(TogafPhase::A, TogafPhase::B, vec![]).with_fibo_validations(vec![
                 FiboValidationResult {
                     concept: "fibo-fnd:LegalPerson".to_string(),
                     is_consistent: true,
@@ -610,8 +584,8 @@ mod tests {
 
     #[tokio::test]
     async fn handoff_package_fibo_inconsistent() {
-        let pkg = HandoffPackage::new(TogafPhase::A, TogafPhase::B, vec![])
-            .with_fibo_validations(vec![
+        let pkg =
+            HandoffPackage::new(TogafPhase::A, TogafPhase::B, vec![]).with_fibo_validations(vec![
                 FiboValidationResult {
                     concept: "fibo-fnd:LegalPerson".to_string(),
                     is_consistent: true,
