@@ -147,7 +147,7 @@ impl GovernanceCoordinator {
         let request_id = self.workflow.submit(request).await?;
 
         self.audit_trail
-            .log_approval_requested(decision, &request_id.to_string())
+            .log_approval_requested(decision, request_id.as_ref())
             .await?;
 
         Ok(DecisionOutcome::PendingApproval {
