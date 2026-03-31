@@ -1,0 +1,111 @@
+---
+title: "DLSS Black Belt Curriculum"
+version: "1.0.0"
+methodology: "DMEDI"
+generated: "{{ now() | date(format="%Y-%m-%d") }}"
+---
+
+# Design for Lean Six Sigma Black Belt Curriculum
+
+## DMEDI Methodology
+
+The DMEDI methodology is the structured approach for Design for Lean Six Sigma. Unlike DMAIC (which improves existing processes), DMEDI designs new products and processes from the ground up.
+
+### Phase 1: Define
+
+**Goal**: Establish the project foundation and align stakeholders.
+
+Define the problem space by creating a project charter, Management and Planning Product (MGPP), risk management plan, and communication strategy. Identify Critical-to-Quality (CTQ) characteristics through stakeholder analysis and voice capture.
+
+**Key Activities**:
+- Project Charter development
+- MGPP creation
+- Risk Management Planning
+- Communication Plan design
+- CTQ Flowdown analysis
+
+### Phase 2: Measure
+
+**Goal**: Understand the voice of the customer and establish measurement systems.
+
+Capture Voice of the Customer (VoC) data, translate needs into specifications using Quality Function Deployment (QFD), and build statistical foundations. Validate measurement systems through MSA and assess process capability.
+
+**Key Activities**:
+- Voice of Customer (VoC) collection
+- Quality Function Deployment (QFD)
+- Metrics and Scorecards development
+- Statistical foundations (descriptive statistics, distributions)
+- Measurement System Analysis (MSA)
+- Process Capability analysis (Cp, Cpk, Pp, Ppk)
+
+### Phase 3: Explore
+
+**Goal**: Generate and evaluate design concepts.
+
+Generate creative solutions using TRIZ and structured brainstorming. Evaluate concepts with Pugh matrix and AHP. Apply statistical methods including hypothesis testing, regression, and multi-vari analysis. Identify risks through Design FMEA.
+
+**Key Activities**:
+- Concept Generation (brainstorming, TRIZ)
+- Concept Selection (Pugh matrix, AHP)
+- Statistical Tolerance Design
+- Monte Carlo Simulation
+- Hypothesis Testing (t-tests, chi-square, proportion tests)
+- Regression Analysis
+- Multi-Vari Analysis
+- Design FMEA
+
+### Phase 4: Develop
+
+**Goal**: Optimize the design through experimentation and robust methods.
+
+Execute Design of Experiments (DOE) to understand factor effects and interactions. Apply Response Surface Methodology (RSM) for optimization. Ensure manufacturability with DfM, reliability with Weibull analysis, and robustness with parameter design.
+
+**Key Activities**:
+- Full-Factorial DOE
+- Fractional Factorial DOE
+- Response Surface Methodology (RSM)
+- Robust Design (Parameter Design, Tolerance Design)
+- Lean Design principles
+- Design for Manufacturability (DfM)
+- Reliability Engineering
+- Conjoint Analysis
+- Mixture Designs
+
+### Phase 5: Implement
+
+**Goal**: Validate, deploy, and sustain the design.
+
+Validate through prototype and pilot testing. Establish statistical process control for ongoing monitoring. Create implementation plans including training and change management. Deliver the capstone project integrating all DMEDI phases.
+
+**Key Activities**:
+- Prototype and Pilot Testing
+- Statistical Process Control (SPC)
+- Implementation Planning
+- Organizational Change Management
+- Capstone Project delivery
+
+## Statistical Tools
+
+| Tool | Version | Primary Use |
+|------|---------|-------------|
+| Minitab | 21+ | SPC, DOE, capability analysis, hypothesis testing |
+| JMP | 18+ | Interactive DOE, regression, graphical analysis |
+| R | 4.3+ | Advanced analytics, simulation, custom analysis |
+| Excel | 365 | Basic statistics, charting, data organization |
+
+## Learning Framework
+
+This curriculum follows the **Diataxis framework**:
+
+- **Tutorials**: Step-by-step guided learning with worked examples
+- **How-to Guides**: Practical tool usage instructions for Minitab/JMP/R
+- **Explanations**: Statistical theory, formulas, and conceptual foundations
+- **Reference**: Quick-reference cards, formula sheets, decision trees
+
+## Quality Standards
+
+All modules are aligned to:
+- **Bloom's Taxonomy**: Learning objectives use observable verbs (Remember through Create)
+- **Two-Track Examples**: Every module includes Product Development and New Process Design contexts
+- **Hands-on Exercises**: Real datasets with statistical software integration
+- **Quality Checkpoints**: Assessment criteria with defined passing scores

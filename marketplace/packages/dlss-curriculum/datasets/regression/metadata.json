@@ -1,0 +1,27 @@
+{
+  "category": "regression",
+  "description": "Multiple regression and multi-vari analysis",
+  "datasets": [
+    {
+      "file": "patient_satisfaction.csv",
+      "context": "New Process Design",
+      "module": "M25",
+      "analysis_type": "Multiple Linear Regression",
+      "n": 80,
+      "n_predictors": 5,
+      "expected_adj_r_squared": 0.65,
+      "teaching_notes": "Multicollinearity between Friendliness and Communication. Good for VIF discussion."
+    },
+    {
+      "file": "loan_approval_multi_vari.csv",
+      "context": "New Process Design",
+      "module": "M26",
+      "analysis_type": "Multi-Vari Study",
+      "n": 48,
+      "factors": ["Branch", "Officer (nested in Branch)", "Day of Week"],
+      "teaching_notes": "Nested design. Exercise: which factor contributes most to variation?"
+    }
+  ],
+  "tools_required": ["R", "Minitab"],
+  "bloom_level": ["Analyze", "Evaluate"]
+}

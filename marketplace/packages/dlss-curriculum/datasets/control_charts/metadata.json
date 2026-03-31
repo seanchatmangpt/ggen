@@ -1,0 +1,43 @@
+{
+  "category": "control_charts",
+  "description": "Statistical process control with Xbar-R, I-MR, p, c, u charts",
+  "datasets": [
+    {
+      "file": "thermostat_xbar_r.csv",
+      "context": "Product Development",
+      "module": "M16",
+      "chart_type": "Xbar-R",
+      "n_subgroups": 25,
+      "subgroup_size": 5,
+      "special_causes": [
+        "Subgroup 12: single point beyond 3\u03c3",
+        "Subgroup 18+: process shift +0.5\u00b0C"
+      ],
+      "teaching_notes": "Two types of special cause: point beyond limits AND process shift. Good for Western Electric rules."
+    },
+    {
+      "file": "hospital_error_rates.csv",
+      "context": "New Process Design",
+      "module": "M16",
+      "chart_type": "I-MR",
+      "n_observations": 30,
+      "special_causes": [
+        "Day 22: spike to 8.5 errors/1000"
+      ],
+      "teaching_notes": "Attribute data from healthcare. Exercise: investigate root cause of day 22 spike."
+    },
+    {
+      "file": "defect_counts.csv",
+      "context": "Product Development",
+      "module": "M16",
+      "chart_type": "c-chart",
+      "n_observations": 25,
+      "special_causes": [
+        "Days 15-21: run of 7 above centerline"
+      ],
+      "teaching_notes": "Run rule detection. Exercise: what process change occurred around day 15?"
+    }
+  ],
+  "tools_required": ["R", "Minitab"],
+  "bloom_level": ["Apply", "Analyze", "Evaluate"]
+}

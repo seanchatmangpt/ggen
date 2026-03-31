@@ -1,0 +1,18 @@
+# Capstone Requirements Query
+# Extracts capstone project requirements by aggregating all phase-level requirements.
+# Output: capstoneTitle, phaseName, requiredModules (comma-separated list), totalEstimatedHours.
+
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?capstoneTitle ?phaseName ?requiredModules ?totalEstimatedHours
+WHERE {
+  ?capstone a dlss:CapstoneProject ;
+    dlss:title ?capstoneTitle ;
+    dlss:phaseRequirement ?phaseReq .
+  ?phaseReq dlss:phase ?phase ;
+             dlss:requiredModules ?requiredModules ;
+             dlss:totalEstimatedHours ?totalEstimatedHours .
+  ?phase dlss:title ?phaseName .
+}
+ORDER BY ?capstoneTitle ?phaseName
