@@ -27,7 +27,11 @@ async fn test_sync_tool_basic() {
         })
         .await;
 
-    assert!(result.is_success(), "Sync tool should succeed: {:?}", result);
+    assert!(
+        result.is_success(),
+        "Sync tool should succeed: {:?}",
+        result
+    );
 
     let response = result.unwrap().contents.unwrap();
     let response_text = response.iter().filter_map(|c| c.as_text()).next().unwrap();

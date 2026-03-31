@@ -179,13 +179,12 @@ impl SafetyController {
             .config
             .require_confirmation_for
             .contains(&decision.action)
+            && !self.check_validation_gate(&decision.id).await?
         {
-            if !self.check_validation_gate(&decision.id).await? {
-                return Ok(Some(format!(
-                    "Operation requires validation gate approval: {}",
-                    decision.action
-                )));
-            }
+            return Ok(Some(format!(
+                "Operation requires validation gate approval: {}",
+                decision.action
+            )));
         }
 
         // Additional safety checks can be added here

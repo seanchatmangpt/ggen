@@ -670,7 +670,7 @@ mod tests {
 
     #[tokio::test]
     async fn state_manager_turn_exhausted() {
-        let mgr = TogafStateManager::new(3);
+        let mgr = TogafStateManager::new(3).unwrap();
 
         // Turn 1
         mgr.advance_turn().await.unwrap();
@@ -680,7 +680,7 @@ mod tests {
         mgr.advance_turn().await.unwrap();
 
         // Turn 4 should fail.
-        let result = mgr.advance_turn().await;
+        let result: StateResult<TurnRecord> = mgr.advance_turn().await;
         assert!(result.is_err());
     }
 
@@ -726,7 +726,7 @@ mod tests {
     #[tokio::test]
     async fn state_manager_non_standard_turns() {
         // 12 turns, 2 per phase.
-        let mgr = TogafStateManager::new(12);
+        let mgr = TogafStateManager::new(12).unwrap();
         assert_eq!(mgr.total_turns(), 12);
 
         let phase_1 = mgr.get_phase(1).await.unwrap();

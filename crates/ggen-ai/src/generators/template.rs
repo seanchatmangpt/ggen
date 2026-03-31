@@ -269,8 +269,15 @@ impl Template {
     }
 
     /// Convert to string for use with ggen_core::Template::parse()
-    pub fn to_string(&self) -> String {
+    #[deprecated(note = "Use Display trait or content().to_string() instead")]
+    pub fn to_string_legacy(&self) -> String {
         self.content.clone()
+    }
+}
+
+impl std::fmt::Display for Template {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.content)
     }
 }
 

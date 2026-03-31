@@ -217,7 +217,7 @@ impl Dashboard {
             });
         } else {
             // Calculate overall status based on component statuses
-            let statuses = vec![
+            let statuses = [
                 &health.policy_engine_status.status,
                 &health.audit_trail_status.status,
                 &health.safety_controller_status.status,
