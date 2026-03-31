@@ -4,9 +4,19 @@ use crate::client::{LlmClient, LlmConfig};
 use crate::error::Result;
 use crate::prompts::SparqlPromptBuilder;
 use futures::StreamExt;
-use ggen_core::Graph;
+// TEMPORARY: Stub Graph to break cyclic dependency
 use serde_json::Value;
 use std::sync::Arc;
+
+// Stub type for Graph (will be replaced with proper ggen_core::Graph)
+#[derive(Debug, Clone)]
+pub struct Graph;
+
+impl Graph {
+    pub fn new() -> Result<Self> {
+        Ok(Graph)
+    }
+}
 
 /// AI-powered SPARQL query generator
 #[derive(Debug)]
@@ -46,14 +56,14 @@ impl SparqlGenerator {
 
     /// Stream SPARQL query generation from a natural language description
     pub async fn stream_sparql(
-        &self, graph: &Graph, intent: &str, prefixes: &[(&str, &str)],
+        &self, _graph: &Graph, intent: &str, prefixes: &[(&str, &str)],
     ) -> Result<futures::stream::BoxStream<'static, Result<String>>> {
         let prefix_vec: Vec<(String, String)> = prefixes
             .iter()
             .map(|(k, v)| (k.to_string(), v.to_string()))
             .collect();
         let prompt = SparqlPromptBuilder::new(intent.to_string())
-            .with_schema(format!("Graph with {} triples", graph.len()))
+            .with_schema("Graph schema".to_string()) // Graph.len() not available
             .with_prefixes(prefix_vec)
             .build()?;
 

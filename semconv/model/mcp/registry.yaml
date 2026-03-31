@@ -1,0 +1,73 @@
+groups:
+  - id: registry.ggen.mcp
+    type: attribute_group
+    stability: development
+    display_name: MCP Tool Attributes
+    brief: Attributes for MCP (Model Context Protocol) server tool operations in ggen.
+    attributes:
+      - id: mcp.tool_name
+        type: string
+        stability: development
+        brief: Name of the MCP tool being called.
+        examples: ["rmcp", "code_generate", "schema_validate"]
+        requirement_level: required
+      - id: mcp.ontology_path
+        type: string
+        stability: development
+        brief: Path to the RDF ontology file.
+        examples: ["/ontologies/ggen.ttl", "file:///data/schema.rdf"]
+        requirement_level: recommended
+      - id: mcp.sparql_query_length
+        type: int
+        stability: development
+        brief: Character length of the SPARQL query.
+        examples: [128, 4096]
+        requirement_level: recommended
+      - id: mcp.ttl_length
+        type: int
+        stability: development
+        brief: Character length of the Turtle ontology content.
+        examples: [1024, 65536]
+        requirement_level: recommended
+      - id: mcp.files_generated
+        type: int
+        stability: development
+        brief: Number of files generated.
+        examples: [1, 5, 20]
+        requirement_level: recommended
+      - id: mcp.receipt
+        type: string
+        stability: development
+        brief: SHA256 receipt of the generation operation.
+        examples: ["sha256:abc123def456"]
+        requirement_level: recommended
+      - id: mcp.triple_count
+        type: int
+        stability: development
+        brief: Number of RDF triples parsed.
+        examples: [10, 500, 10000]
+        requirement_level: recommended
+      - id: mcp.error_count
+        type: int
+        stability: development
+        brief: Number of parse errors encountered.
+        examples: [0, 1, 5]
+        requirement_level: recommended
+      - id: mcp.project_path
+        type: string
+        stability: development
+        brief: Path to the ggen project being operated on.
+        examples: ["/home/user/my-ggen-project", "/data/templates/project"]
+        requirement_level: recommended
+      - id: mcp.query_path
+        type: string
+        stability: development
+        brief: Path to a SPARQL query file.
+        examples: ["/queries/ontology.rq", "/sparql/validate.rq"]
+        requirement_level: recommended
+      - id: mcp.template_path
+        type: string
+        stability: development
+        brief: Path to a template file or directory.
+        examples: ["/templates/serde", "/templates/derive-macro"]
+        requirement_level: recommended

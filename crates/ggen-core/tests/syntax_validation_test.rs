@@ -6,7 +6,6 @@
 /// 3. All Turtle ontology files load without syntax errors (via oxigraph)
 /// 4. Files that should use RDF 1.2 triple terms actually do
 /// 5. MCP/A2A templates use consistent variable names
-
 use tera::Tera;
 use walkdir::WalkDir;
 
@@ -57,8 +56,8 @@ fn test_critical_mcp_a2a_templates_parse() {
             continue;
         }
 
-        let content =
-            std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("Cannot read {}: {}", path.display(), e));
+        let content = std::fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("Cannot read {}: {}", path.display(), e));
 
         // Use a unique name per file to avoid collisions
         let template_name = rel.replace('/', "__");
@@ -104,8 +103,8 @@ fn test_critical_sparql_queries_parse() {
         if !path.exists() {
             continue;
         }
-        let content =
-            std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("Cannot read {}: {}", path.display(), e));
+        let content = std::fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("Cannot read {}: {}", path.display(), e));
 
         let store = oxigraph::store::Store::new().unwrap();
         if let Err(e) = store.query(&content) {
@@ -140,20 +139,12 @@ fn test_all_rq_files_parse_without_error() {
         for entry in WalkDir::new(dir)
             .into_iter()
             .filter_map(|e| e.ok())
-            .filter(|e| {
-                e.path()
-                    .extension()
-                    .map_or(false, |ext| ext == "rq")
-            })
+            .filter(|e| e.path().extension().map_or(false, |ext| ext == "rq"))
         {
             let content = match std::fs::read_to_string(entry.path()) {
                 Ok(c) => c,
                 Err(e) => {
-                    errors.push(format!(
-                        "READ ERROR {}: {}",
-                        entry.path().display(),
-                        e
-                    ));
+                    errors.push(format!("READ ERROR {}: {}", entry.path().display(), e));
                     count += 1;
                     continue;
                 }
@@ -164,9 +155,7 @@ fn test_all_rq_files_parse_without_error() {
             if let Err(e) = store.query(&content) {
                 let path_str = entry.path().display().to_string();
                 // Check if this is a critical query (used in ggen.toml pipeline)
-                let is_critical = CRITICAL_RQ_FILES
-                    .iter()
-                    .any(|f| path_str.ends_with(f));
+                let is_critical = CRITICAL_RQ_FILES.iter().any(|f| path_str.ends_with(f));
 
                 if is_critical {
                     errors.push(format!(
@@ -227,8 +216,8 @@ fn test_critical_ttl_files_parse() {
         if !path.exists() {
             continue;
         }
-        let content =
-            std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("Cannot read {}: {}", path.display(), e));
+        let content = std::fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("Cannot read {}: {}", path.display(), e));
 
         let cursor = std::io::Cursor::new(content.as_bytes());
         let store = oxigraph::store::Store::new().unwrap();
@@ -262,20 +251,12 @@ fn test_all_ttl_files_parse_without_error() {
         for entry in WalkDir::new(dir)
             .into_iter()
             .filter_map(|e| e.ok())
-            .filter(|e| {
-                e.path()
-                    .extension()
-                    .map_or(false, |ext| ext == "ttl")
-            })
+            .filter(|e| e.path().extension().map_or(false, |ext| ext == "ttl"))
         {
             let content = match std::fs::read_to_string(entry.path()) {
                 Ok(c) => c,
                 Err(e) => {
-                    errors.push(format!(
-                        "READ ERROR {}: {}",
-                        entry.path().display(),
-                        e
-                    ));
+                    errors.push(format!("READ ERROR {}: {}", entry.path().display(), e));
                     count += 1;
                     continue;
                 }
@@ -284,14 +265,9 @@ fn test_all_ttl_files_parse_without_error() {
             let cursor = std::io::Cursor::new(content.as_bytes());
             let store = oxigraph::store::Store::new().unwrap();
 
-            if let Err(e) = store.load_from_reader(
-                oxigraph::io::RdfFormat::Turtle,
-                cursor,
-            ) {
+            if let Err(e) = store.load_from_reader(oxigraph::io::RdfFormat::Turtle, cursor) {
                 let path_str = entry.path().display().to_string();
-                let is_critical = CRITICAL_TTL_FILES
-                    .iter()
-                    .any(|f| path_str.ends_with(f));
+                let is_critical = CRITICAL_TTL_FILES.iter().any(|f| path_str.ends_with(f));
 
                 if is_critical {
                     errors.push(format!(
@@ -352,8 +328,8 @@ fn test_non_triple_term_files_are_clean() {
         if !path.exists() {
             continue;
         }
-        let content =
-            std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("Cannot read {}: {}", path.display(), e));
+        let content = std::fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("Cannot read {}: {}", path.display(), e));
         assert!(
             !content.contains("<<"),
             "Expected {} to NOT use triple terms (<<...>>), but it does",
@@ -373,25 +349,17 @@ fn test_triple_term_files_do_use_triple_terms() {
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| {
-            let ext = e
-                .path()
-                .extension()
-                .and_then(|s| s.to_str())
-                .unwrap_or("");
+            let ext = e.path().extension().and_then(|s| s.to_str()).unwrap_or("");
             ext == "ttl" || ext == "rq"
         })
     {
         let path_str = entry.path().to_str().unwrap_or("");
-        if NON_TRIPLE_TERM_FILES
-            .iter()
-            .any(|f| path_str.ends_with(f))
-        {
+        if NON_TRIPLE_TERM_FILES.iter().any(|f| path_str.ends_with(f)) {
             continue;
         }
 
-        let content = std::fs::read_to_string(entry.path()).unwrap_or_else(|e| {
-            panic!("Cannot read {}: {}", entry.path().display(), e)
-        });
+        let content = std::fs::read_to_string(entry.path())
+            .unwrap_or_else(|e| panic!("Cannot read {}: {}", entry.path().display(), e));
 
         if !content.contains("<<") {
             missing.push(entry.path().display().to_string());
@@ -406,7 +374,10 @@ fn test_triple_term_files_do_use_triple_terms() {
         );
     }
 
-    assert!(checked > 0, "Should check at least some files for triple terms");
+    assert!(
+        checked > 0,
+        "Should check at least some files for triple terms"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -436,8 +407,8 @@ fn test_mcp_templates_use_consistent_variable_names() {
         if !path.exists() {
             continue;
         }
-        let content =
-            std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("Cannot read {}: {}", path.display(), e));
+        let content = std::fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("Cannot read {}: {}", path.display(), e));
         for var in &required_vars {
             assert!(
                 content.contains(var),
@@ -473,8 +444,8 @@ fn test_a2a_templates_use_consistent_variable_names() {
         if !path.exists() {
             continue;
         }
-        let content =
-            std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("Cannot read {}: {}", path.display(), e));
+        let content = std::fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("Cannot read {}: {}", path.display(), e));
         for var in &required_vars {
             assert!(
                 content.contains(var),

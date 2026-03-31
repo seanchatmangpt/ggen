@@ -6,12 +6,16 @@ package {{ package_name | default(value="com.ggen.a2a") }};
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
+import org.java_websocket.*;
+import org.java_websocket.handshake.*;
+import org.java_websocket.server.*;
 import org.springframework.boot.*;
 import org.springframework.context.annotation.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.*;
 
+import java.net.*;
 import java.time.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -79,6 +83,123 @@ record JsonRpcResponse(
 ) {}
 
 // ============================================================================
+// WebSocket Transport
+// ============================================================================
+
+class WebSocketTransport {
+    private final String url;
+    private WebSocketClient client;
+    private static final int MAX_RETRIES = 3;
+    private static final int CONNECTION_TIMEOUT_MS = 5000;
+
+    public WebSocketTransport(String url) {
+        this.url = url;
+    }
+
+    public void connect() throws Exception {
+        int retryCount = 0;
+        while (retryCount < MAX_RETRIES) {
+            try {
+                client = new WebSocketClient(new URI(url)) {
+                    @Override
+                    public void onOpen(ServerHandshake handshake) {
+                        System.out.println("Connected to WebSocket: " + url);
+                    }
+
+                    @Override
+                    public void onMessage(String message) {
+                        // Handle incoming messages
+                    }
+
+                    @Override
+                    public void onClose(int code, String reason, boolean remote) {
+                        System.out.println("WebSocket connection closed: " + reason);
+                    }
+
+                    @Override
+                    public void onError(Exception ex) {
+                        System.err.println("WebSocket error: " + ex.getMessage());
+                    }
+                };
+
+                client.connect();
+                // Wait for connection with timeout
+                client.getConnection().getConnectionLatch().await(CONNECTION_TIMEOUT_MS, java.util.concurrent.TimeUnit.MILLISECONDS);
+                return;
+            } catch (Exception e) {
+                retryCount++;
+                System.err.println("WebSocket connection attempt " + retryCount + " failed: " + e.getMessage());
+                if (retryCount < MAX_RETRIES) {
+                    Thread.sleep(retryCount * 1000L);
+                } else {
+                    throw new Exception("WebSocket connection failed after " + MAX_RETRIES + " attempts", e);
+                }
+            }
+        }
+    }
+
+    public void send(byte[] data) throws Exception {
+        if (client == null || !client.isOpen()) {
+            throw new Exception("WebSocket not connected");
+        }
+        client.send(new String(data));
+    }
+
+    public void close() {
+        if (client != null) {
+            client.close();
+        }
+    }
+}
+
+// ============================================================================
+// WebSocket Server Endpoint
+// ============================================================================
+
+class AgentWebSocketServer extends WebSocketServer {
+    private final {{ agent_name | pascal }}Agent agent;
+
+    public AgentWebSocketServer(int port, {{ agent_name | pascal }}Agent agent) throws UnknownHostException {
+        super(new InetSocketAddress(port));
+        this.agent = agent;
+    }
+
+    @Override
+    public void onOpen(WebSocket conn, ClientHandshake handshake) {
+        System.out.println("[{{ agent_name }}] WebSocket connection opened: " + conn.getRemoteSocketAddress());
+    }
+
+    @Override
+    public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+        System.out.println("[{{ agent_name }}] WebSocket connection closed: " + reason);
+    }
+
+    @Override
+    public void onMessage(WebSocket conn, String message) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonRpcRequest request = mapper.readValue(message, JsonRpcRequest.class);
+
+            JsonRpcResponse response = agent.handleMessage(request);
+            String responseJson = mapper.writeValueAsString(response);
+            conn.send(responseJson);
+        } catch (Exception e) {
+            System.err.println("[{{ agent_name }}] WebSocket message error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onError(WebSocket conn, Exception ex) {
+        System.err.println("[{{ agent_name }}] WebSocket error: " + ex.getMessage());
+    }
+
+    @Override
+    public void onStart() {
+        System.out.println("[{{ agent_name }}] WebSocket server started on port " + getPort());
+    }
+}
+
+// ============================================================================
 // Skill Input / Output Records
 // ============================================================================
 
@@ -88,15 +209,21 @@ record JsonRpcResponse(
  * Timeout: {{ row.timeout_ms | default(value=5000) }}ms
  * Streaming: {{ row.streaming | default(value="false") }}
  */
-// TODO: add typed fields once input_params are available in SPARQL results
+{% if row.input_type %}
+{{ row.input_type | schema_to_java }}
+{% else %}
 record {{ row.skill_name | pascal }}Input(
     Map<String, Object> params
 ) {}
+{% endif %}
 
-// TODO: add typed fields once output_params are available in SPARQL results
+{% if row.output_type %}
+{{ row.output_type | schema_to_java }}
+{% else %}
 record {{ row.skill_name | pascal }}Output(
     Object result
 ) {}
+{% endif %}
 {% endfor %}
 
 // ============================================================================
@@ -184,9 +311,13 @@ public class {{ agent_name | pascal }}Agent {
      * @return skill output
      */
     public Object handle{{ row.skill_name | pascal }}(Map<String, Object> params) {
+        {% if row.generated_impl %}
+        {{ row.generated_impl }}
+        {% else %}
         // TODO: implement {{ row.skill_name }}
         // Timeout: {{ row.timeout_ms | default(value=5000) }}ms
-        return Map.of("skill", "{{ row.skill_name }}", "status", "not_implemented");
+        throw new UnsupportedOperationException("Not implemented: {{ row.skill_name }}");
+        {% endif %}
     }
     {% endfor %}
 
@@ -251,8 +382,15 @@ public class {{ agent_name | pascal }}Agent {
 
 @SpringBootApplication
 class {{ agent_name | pascal }}Application {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         SpringApplication.run({{ agent_name | pascal }}Application.class, args);
+
+        // Start WebSocket server
+        {{ agent_name | pascal }}Agent agent = new {{ agent_name | pascal }}Agent();
+        int wsPort = {{ agent_port | default(value=8089) }} + 1; // Separate port for WS
+        AgentWebSocketServer wsServer = new AgentWebSocketServer(wsPort, agent);
+        wsServer.start();
+        System.out.println("[{{ agent_name }}] WebSocket server started on port " + wsPort);
     }
 }
 
@@ -269,9 +407,15 @@ class {{ agent_name | pascal }}Application {
 // build.gradle dependencies:
 //   implementation("org.springframework.boot:spring-boot-starter-web")
 //   implementation("com.fasterxml.jackson.core:jackson-databind")
+//   implementation("org.java-websocket:Java-WebSocket:1.5.4")
 //
 // pom.xml dependencies:
 //   <dependency>
 //     <groupId>org.springframework.boot</groupId>
 //     <artifactId>spring-boot-starter-web</artifactId>
+//   </dependency>
+//   <dependency>
+//     <groupId>org.java-websocket</groupId>
+//     <artifactId>Java-WebSocket</artifactId>
+//     <version>1.5.4</version>
 //   </dependency>

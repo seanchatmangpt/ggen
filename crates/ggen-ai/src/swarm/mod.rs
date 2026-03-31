@@ -238,7 +238,8 @@ impl UltrathinkSwarm {
         }
 
         // Execute through coordinator
-        let result = self.coordinator
+        let result = self
+            .coordinator
             .execute_swarm(&self.agents, &self.context, input)
             .await?;
 
@@ -252,8 +253,9 @@ impl UltrathinkSwarm {
             } else {
                 context.metrics.failed_operations += 1;
             }
-            context.metrics.avg_execution_time_ms =
-                (context.metrics.avg_execution_time_ms * (context.metrics.total_operations - 1) as f64 + execution_time)
+            context.metrics.avg_execution_time_ms = (context.metrics.avg_execution_time_ms
+                * (context.metrics.total_operations - 1) as f64
+                + execution_time)
                 / context.metrics.total_operations as f64;
         }
 
@@ -267,7 +269,12 @@ impl UltrathinkSwarm {
 
         let agent_health: HashMap<String, AgentHealth> = agents
             .iter()
-            .map(|(name, agent)| (name.clone(), futures::executor::block_on(agent.health_check())))
+            .map(|(name, agent)| {
+                (
+                    name.clone(),
+                    futures::executor::block_on(agent.health_check()),
+                )
+            })
             .collect();
 
         SwarmStatus {

@@ -84,7 +84,7 @@ fn test_fresh_init_in_empty_directory() {
     }
 
     // Assert: All expected directories were created
-    let expected_dirs = vec!["schema", "templates", "src/generated", "scripts"];
+    let expected_dirs = vec!["schema", "templates", "scripts"];
     for dir in &expected_dirs {
         assert!(
             output.directories_created.contains(&dir.to_string()),
@@ -102,13 +102,12 @@ fn test_fresh_init_in_empty_directory() {
     assert_file_contains(&base.join("Makefile"), "ggen sync");
     assert_file_contains(&base.join("templates/example.txt.tera"), "Tera Template");
     assert_file_contains(&base.join("scripts/startup.sh"), "#!/bin/bash");
-    assert_file_contains(&base.join(".gitignore"), "src/generated/");
+    assert_file_contains(&base.join(".gitignore"), ".ggen/");
     assert_file_contains(&base.join("README.md"), "# My ggen Project");
 
     // Assert: Directories exist
     assert_dir_exists(&base.join("schema"));
     assert_dir_exists(&base.join("templates"));
-    assert_dir_exists(&base.join("src/generated"));
     assert_dir_exists(&base.join("scripts"));
 
     // Assert: Next steps are provided
@@ -417,9 +416,6 @@ fn test_directory_already_exists_scenario() {
 
     // Assert: Other directories that didn't exist are created
     assert!(output.directories_created.contains(&"scripts".to_string()));
-    assert!(output
-        .directories_created
-        .contains(&"src/generated".to_string()));
 }
 
 #[test]

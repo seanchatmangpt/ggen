@@ -1,0 +1,87 @@
+{#- Benchmark Metrics Component - Performance measurement and reporting -#}
+
+{#- Elixir Timing Helper -#}
+{%- macro elixir_measure_function(function_name, expression) -%}
+  defp {{ function_name }}(query) do
+    start = System.monotonic_time(:millisecond)
+    {{ expression }}
+    System.monotonic_time(:millisecond) - start
+  end
+{%- endmacro -%}
+
+{#- Go Benchmark Timing -#}
+{%- macro go_benchmark_timing() -%}
+  start := time.Now()
+  // ... benchmark operation ...
+  duration := time.Since(start)
+  b.ReportMetric(float64(duration.Nanoseconds()), "ns/op")
+{%- endmacro -%}
+
+{#- Throughput Calculation -#}
+{%- macro throughput_metric(operation_count, duration_ms) -%}
+  throughput = ({{ operation_count }} / {{ duration_ms }}) * 1000  # ops/sec
+{%- endmacro -%}
+
+{#- Memory Reporting (Elixir) -#}
+{%- macro elixir_memory_report() -%}
+  before = :erlang.memory(:total)
+  # ... operation ...
+  after = :erlang.memory(:total)
+  memory_mb = (after - before) / (1024 * 1024)
+{%- endmacro -%}
+
+{#- Memory Reporting (Go) -#}
+{%- macro go_memory_report() -%}
+  var m runtime.MemStats
+  runtime.ReadMemStats(&m)
+  b.ReportMetric(float64(m.Alloc)/1024/1024, "MB/op")
+{%- endmacro -%}
+
+{#- Percentile Calculation -#}
+{%- macro percentile_calculation(times_array, percentile) -%}
+  sorted = Enum.sort({{ times_array }})
+  index = trunc(length(sorted) * ({{ percentile }} / 100))
+  Enum.at(sorted, index)
+{%- endmacro -%}
+
+{#- SLA Validation -#}
+{%- macro sla_validation(actual_time, threshold_ms, operation_name) -%}
+  if {{ actual_time }} > {{ threshold_ms }} do
+    raise "{{ operation_name }} SLA violation: #{{{ actual_time }}}ms > #{{{ threshold_ms }}}ms"
+  end
+{%- endmacro -%}
+
+{#- Performance Summary Table -#}
+{%- macro performance_summary_table(results) -%}
+  IO.puts("\n╔═══════════════════════════════════════════════╗")
+  IO.puts("║       Benchmark Performance Summary           ║")
+  IO.puts("╠═══════════════════════════════════════════════╣")
+
+  {% for result in results %}
+  status = if {{ result.time_ms }} < {{ result.threshold }}, do: "✓", else: "✗"
+  IO.puts("║ #{status} {{ result.name }}: #{{{ result.time_ms }}}ms (SLA: #{{{ result.threshold }}}ms)  ║")
+  {% endfor %}
+
+  IO.puts("╚═══════════════════════════════════════════════╝\n")
+{%- endmacro -%}
+
+{#- Statistics Report -#}
+{%- macro statistics_report(times_array) -%}
+  sorted = Enum.sort({{ times_array }})
+  count = length(sorted)
+  total = Enum.sum(sorted)
+  avg = total / count
+  min = List.first(sorted)
+  max = List.last(sorted)
+  median = Enum.at(sorted, div(count, 2))
+  p95 = Enum.at(sorted, trunc(count * 0.95))
+  p99 = Enum.at(sorted, trunc(count * 0.99))
+
+  IO.puts("Statistics (n=#{count}):")
+  IO.puts("  Min: #{min}ms")
+  IO.puts("  Max: #{max}ms")
+  IO.puts("  Avg: #{Float.round(avg, 2)}ms")
+  IO.puts("  Median: #{median}ms")
+  IO.puts("  P95: #{p95}ms")
+  IO.puts("  P99: #{p99}ms")
+{%- endmacro -%}

@@ -23,10 +23,15 @@ fn workspace_root() -> std::path::PathBuf {
 /// Helper: run a SELECT SPARQL query and return solution rows.
 ///
 /// Panics if the query fails or does not return solutions.
-fn select_solutions(graph: &Graph, sparql: &str) -> Vec<std::collections::BTreeMap<String, String>> {
+fn select_solutions(
+    graph: &Graph, sparql: &str,
+) -> Vec<std::collections::BTreeMap<String, String>> {
     match graph.query_cached(sparql) {
         Ok(CachedResult::Solutions(rows)) => rows,
-        Ok(other) => panic!("Expected Solutions, got: {:?}", std::mem::discriminant(&other)),
+        Ok(other) => panic!(
+            "Expected Solutions, got: {:?}",
+            std::mem::discriminant(&other)
+        ),
         Err(e) => panic!("SPARQL query failed: {}", e),
     }
 }
@@ -37,8 +42,7 @@ fn select_solutions(graph: &Graph, sparql: &str) -> Vec<std::collections::BTreeM
 
 #[test]
 fn test_api_shacl_ttl_loads_as_valid_turtle() {
-    let path = workspace_root()
-        .join("templates/api/endpoint/graphs/shapes/api.shacl.ttl");
+    let path = workspace_root().join("templates/api/endpoint/graphs/shapes/api.shacl.ttl");
 
     if !path.exists() {
         return;
@@ -56,8 +60,7 @@ fn test_api_shacl_ttl_loads_as_valid_turtle() {
 
 #[test]
 fn test_cli_shacl_ttl_loads_as_valid_turtle() {
-    let path = workspace_root()
-        .join("templates/cli/subcommand/graphs/shapes/cli.shacl.ttl");
+    let path = workspace_root().join("templates/cli/subcommand/graphs/shapes/cli.shacl.ttl");
 
     if !path.exists() {
         return;
@@ -75,8 +78,7 @@ fn test_cli_shacl_ttl_loads_as_valid_turtle() {
 
 #[test]
 fn test_api_shacl_ttl_contains_nodeshape_declarations() {
-    let path = workspace_root()
-        .join("templates/api/endpoint/graphs/shapes/api.shacl.ttl");
+    let path = workspace_root().join("templates/api/endpoint/graphs/shapes/api.shacl.ttl");
 
     if !path.exists() {
         return;
@@ -105,8 +107,7 @@ fn test_api_shacl_ttl_contains_nodeshape_declarations() {
 
 #[test]
 fn test_api_shacl_ttl_has_target_class_constraints() {
-    let path = workspace_root()
-        .join("templates/api/endpoint/graphs/shapes/api.shacl.ttl");
+    let path = workspace_root().join("templates/api/endpoint/graphs/shapes/api.shacl.ttl");
 
     if !path.exists() {
         return;
@@ -135,8 +136,7 @@ fn test_api_shacl_ttl_has_target_class_constraints() {
 
 #[test]
 fn test_api_shacl_ttl_defines_property_constraints() {
-    let path = workspace_root()
-        .join("templates/api/endpoint/graphs/shapes/api.shacl.ttl");
+    let path = workspace_root().join("templates/api/endpoint/graphs/shapes/api.shacl.ttl");
 
     if !path.exists() {
         return;
@@ -165,8 +165,7 @@ fn test_api_shacl_ttl_defines_property_constraints() {
 
 #[test]
 fn test_api_shacl_ttl_has_datatype_constraints() {
-    let path = workspace_root()
-        .join("templates/api/endpoint/graphs/shapes/api.shacl.ttl");
+    let path = workspace_root().join("templates/api/endpoint/graphs/shapes/api.shacl.ttl");
 
     if !path.exists() {
         return;
@@ -195,8 +194,7 @@ fn test_api_shacl_ttl_has_datatype_constraints() {
 
 #[test]
 fn test_cli_shacl_ttl_contains_nodeshape_declarations() {
-    let path = workspace_root()
-        .join("templates/cli/subcommand/graphs/shapes/cli.shacl.ttl");
+    let path = workspace_root().join("templates/cli/subcommand/graphs/shapes/cli.shacl.ttl");
 
     if !path.exists() {
         return;
@@ -225,8 +223,7 @@ fn test_cli_shacl_ttl_contains_nodeshape_declarations() {
 
 #[test]
 fn test_cli_shacl_ttl_has_property_constraints() {
-    let path = workspace_root()
-        .join("templates/cli/subcommand/graphs/shapes/cli.shacl.ttl");
+    let path = workspace_root().join("templates/cli/subcommand/graphs/shapes/cli.shacl.ttl");
 
     if !path.exists() {
         return;
@@ -255,8 +252,7 @@ fn test_cli_shacl_ttl_has_property_constraints() {
 
 #[test]
 fn test_shacl_violation_detectable_via_sparql() {
-    let shape_path = workspace_root()
-        .join("templates/api/endpoint/graphs/shapes/api.shacl.ttl");
+    let shape_path = workspace_root().join("templates/api/endpoint/graphs/shapes/api.shacl.ttl");
 
     if !shape_path.exists() {
         return;
@@ -336,7 +332,9 @@ fn test_shape_loader_stub_returns_empty_set() {
         )
         .expect("insert test shapes");
 
-    let result = loader.load(&graph).expect("ShapeLoader::load should not error");
+    let result = loader
+        .load(&graph)
+        .expect("ShapeLoader::load should not error");
     assert!(
         result.is_empty(),
         "ShapeLoader::load is stubbed and should return empty ShaclShapeSet"

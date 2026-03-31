@@ -20,6 +20,7 @@
 //! ```
 
 use super::andon::AndonSignal;
+use crate::lean_six_sigma::{DmaicPhase, LeanSixSigmaGate};
 use crate::manifest::GgenManifest;
 use ggen_utils::error::{Error, Result};
 use std::path::Path;
@@ -65,6 +66,12 @@ impl QualityGateRunner {
                 Box::new(TemplateValidationGate),
                 Box::new(FilePermissionsGate),
                 Box::new(RuleValidationGate),
+                // Lean Six Sigma DMAIC gates
+                Box::new(LeanSixSigmaGate::new(DmaicPhase::Define)),
+                Box::new(LeanSixSigmaGate::new(DmaicPhase::Measure)),
+                Box::new(LeanSixSigmaGate::new(DmaicPhase::Analyze)),
+                Box::new(LeanSixSigmaGate::new(DmaicPhase::Improve)),
+                Box::new(LeanSixSigmaGate::new(DmaicPhase::Control)),
             ],
         }
     }
@@ -155,6 +162,57 @@ impl QualityGateRunner {
                 checks: vec![
                     "All generation rules reference existing templates".to_string(),
                     "All selected rules (--rule) exist in manifest".to_string(),
+                ],
+            },
+            // Lean Six Sigma DMAIC checkpoints
+            ValidationCheckpoint {
+                name: "DMAIC Phase 1: Define".to_string(),
+                description: "Problem definition, customer requirements, scope validation"
+                    .to_string(),
+                checks: vec![
+                    "Problem statement is well-defined".to_string(),
+                    "Customer requirements are documented".to_string(),
+                    "Scope boundaries are established".to_string(),
+                ],
+            },
+            ValidationCheckpoint {
+                name: "DMAIC Phase 2: Measure".to_string(),
+                description:
+                    "Data collection plan, measurement system capability, baseline metrics"
+                        .to_string(),
+                checks: vec![
+                    "Data collection plan exists".to_string(),
+                    "Measurement system is capable (MSA >= 1.33)".to_string(),
+                    "Baseline metrics are established".to_string(),
+                ],
+            },
+            ValidationCheckpoint {
+                name: "DMAIC Phase 3: Analyze".to_string(),
+                description: "Root cause analysis, hypothesis testing, statistical significance"
+                    .to_string(),
+                checks: vec![
+                    "Root cause analysis completed".to_string(),
+                    "Hypotheses tested with data".to_string(),
+                    "Statistical significance validated".to_string(),
+                ],
+            },
+            ValidationCheckpoint {
+                name: "DMAIC Phase 4: Improve".to_string(),
+                description: "Solution implementation, pilot results, improvement metrics"
+                    .to_string(),
+                checks: vec![
+                    "Solution is implemented".to_string(),
+                    "Pilot results documented".to_string(),
+                    "Improvement metrics met targets".to_string(),
+                ],
+            },
+            ValidationCheckpoint {
+                name: "DMAIC Phase 5: Control".to_string(),
+                description: "Control plan, monitoring procedures, documentation".to_string(),
+                checks: vec![
+                    "Control plan established".to_string(),
+                    "Monitoring procedures in place".to_string(),
+                    "Procedures documented".to_string(),
                 ],
             },
         ]
@@ -248,8 +306,31 @@ impl QualityGate for OntologyDependenciesGate {
             }
         }
 
-        // TODO: Add cycle detection in v5.3
-        // For now, just check files exist
+        // Build import graph for cycle detection
+        let mut import_graph: std::collections::HashMap<String, Vec<String>> =
+            std::collections::HashMap::new();
+
+        // Add source file as a node
+        import_graph.insert(
+            manifest.ontology.source.to_string_lossy().to_string(),
+            manifest
+                .ontology
+                .imports
+                .iter()
+                .map(|i| i.to_string_lossy().to_string())
+                .collect(),
+        );
+
+        // Add each import as a node (we don't know their imports without parsing, so assume empty)
+        for import in &manifest.ontology.imports {
+            import_graph
+                .entry(import.to_string_lossy().to_string())
+                .or_insert_with(Vec::new);
+        }
+
+        // Run cycle detection
+        crate::graph::validate_acyclic(&import_graph)
+            .map_err(|e| Error::new(&format!("Cyclic ontology dependencies detected: {}", e)))?;
 
         Ok(())
     }
@@ -281,9 +362,54 @@ impl QualityGate for SparqlValidationGate {
         "SPARQL Validation"
     }
 
-    fn check(&self, _manifest: &GgenManifest, _base_path: &Path) -> Result<()> {
-        // TODO: Implement SPARQL validation in v5.3
-        // For now, this is a placeholder that passes
+    fn check(&self, manifest: &GgenManifest, _base_path: &Path) -> Result<()> {
+        // Collect all SPARQL queries from manifest
+        let mut queries = Vec::new();
+
+        // Check queries in inference rules (CONSTRUCT queries)
+        for rule in &manifest.inference.rules {
+            queries.push((rule.name.clone(), rule.construct.clone()));
+        }
+
+        // Validate each query (basic syntax check for now)
+        // Full LLM-based validation would be async, so we do basic checks here
+        for (name, query) in &queries {
+            // Basic SPARQL syntax validation
+            let query_upper = query.to_uppercase();
+
+            // Must have SELECT, CONSTRUCT, ASK, or DESCRIBE
+            if !query_upper.contains("SELECT")
+                && !query_upper.contains("CONSTRUCT")
+                && !query_upper.contains("ASK")
+                && !query_upper.contains("DESCRIBE")
+            {
+                return Err(Error::new(&format!(
+                    "SPARQL query '{}' must start with SELECT, CONSTRUCT, ASK, or DESCRIBE",
+                    name
+                )));
+            }
+
+            // Check for balanced braces
+            let open_braces = query.matches('{').count();
+            let close_braces = query.matches('}').count();
+            if open_braces != close_braces {
+                return Err(Error::new(&format!(
+                    "SPARQL query '{}' has unbalanced braces: {} open, {} close",
+                    name, open_braces, close_braces
+                )));
+            }
+
+            // Check for balanced parentheses
+            let open_parens = query.matches('(').count();
+            let close_parens = query.matches(')').count();
+            if open_parens != close_parens {
+                return Err(Error::new(&format!(
+                    "SPARQL query '{}' has unbalanced parentheses: {} open, {} close",
+                    name, open_parens, close_parens
+                )));
+            }
+        }
+
         Ok(())
     }
 
@@ -329,7 +455,41 @@ impl QualityGate for TemplateValidationGate {
             }
         }
 
-        // TODO: Add Tera syntax validation in v5.3
+        // Validate template syntax for each rule
+        for rule in &manifest.generation.rules {
+            let template_content = match &rule.template {
+                crate::manifest::TemplateSource::File { file } => {
+                    let template_path = base_path.join(file);
+                    std::fs::read_to_string(&template_path).map_err(|e| {
+                        Error::new(&format!(
+                            "Failed to read template '{}': {}",
+                            template_path.display(),
+                            e
+                        ))
+                    })?
+                }
+                crate::manifest::TemplateSource::Inline { inline } => inline.clone(),
+            };
+
+            // Validate template syntax
+            let result = crate::template::validate_template(&template_content)
+                .map_err(|e| Error::new(&format!("Template validation failed: {}", e)))?;
+
+            if !result.is_valid {
+                let error_messages: Vec<String> = result
+                    .issues
+                    .iter()
+                    .map(|issue| format!("  - {:?}", issue))
+                    .collect();
+
+                return Err(Error::new(&format!(
+                    "Template validation failed for rule '{}':\n{}",
+                    rule.name,
+                    error_messages.join("\n")
+                )));
+            }
+        }
+
         Ok(())
     }
 
@@ -454,7 +614,7 @@ mod tests {
     fn test_quality_gate_runner_creation() {
         let runner = QualityGateRunner::new();
         let checkpoints = runner.checkpoints();
-        assert_eq!(checkpoints.len(), 6);
+        assert_eq!(checkpoints.len(), 11); // 6 original + 5 DMAIC gates
     }
 
     #[test]
@@ -464,5 +624,10 @@ mod tests {
         let names: Vec<_> = checkpoints.iter().map(|c| &c.name).collect();
         assert!(names.contains(&&"Manifest Schema".to_string()));
         assert!(names.contains(&&"Ontology Dependencies".to_string()));
+        assert!(names.contains(&&"DMAIC Phase 1: Define".to_string()));
+        assert!(names.contains(&&"DMAIC Phase 2: Measure".to_string()));
+        assert!(names.contains(&&"DMAIC Phase 3: Analyze".to_string()));
+        assert!(names.contains(&&"DMAIC Phase 4: Improve".to_string()));
+        assert!(names.contains(&&"DMAIC Phase 5: Control".to_string()));
     }
 }

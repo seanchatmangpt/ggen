@@ -8,9 +8,11 @@
 # Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> a2a-elixir.tera
 
 PREFIX a2a: <https://ggen.dev/ontology/a2a#>
+PREFIX mcp: <https://ggen.dev/ontology/mcp#>
 
 SELECT DISTINCT ?agent_name ?agent_version ?agent_description ?agent_url ?provider_name
                 ?skill_name ?skill_description ?skill_tags ?streaming ?timeout_ms ?retry_policy
+                ?input_type ?output_type
 WHERE {
   # Agent metadata (same for all rows)
   ?agent a a2a:Agent ;
@@ -37,5 +39,15 @@ WHERE {
 
   OPTIONAL { << ?agent a2a:hasSkill ?skill >> a2a:retryPolicy ?rp . }
   BIND(COALESCE(?rp, "none") AS ?retry_policy)
+
+  # Input/output type schemas
+  OPTIONAL { ?skill a2a:hasInputType ?input_type . }
+  OPTIONAL { ?skill a2a:hasOutputType ?output_type . }
+
+  # LLM Generation predicates (new for Phase 2)
+  OPTIONAL { ?skill a2a:hasSystemPrompt ?system_prompt . }
+  OPTIONAL { ?skill a2a:hasImplementationHint ?implementation_hint . }
+  OPTIONAL { ?skill a2a:hasTestExample ?test_example . }
+  OPTIONAL { ?skill mcp:hasAutoImplementation ?auto_implementation . }
 }
 ORDER BY ?skill_name

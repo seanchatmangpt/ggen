@@ -1,0 +1,27 @@
+[a2a]
+agent_name = "CodeGeneratorAgent"
+agent_version = "1.0.0"
+agent_url = "http://localhost:8080"
+
+[a2a.server]
+host = "127.0.0.1"
+port = 8080
+
+[a2a.auth]
+enabled = true
+token_env_var = "AGENT_TOKEN"
+default_token = "dev-token"
+
+[a2a.skills]
+# Skills are auto-discovered from ontology
+source = "ontology/agent.ttl"
+
+[a2a.transport]
+# Supported transports: http, websocket, stdio
+type = "http"
+
+[a2a.quality]
+# Enable quality gates
+enable_validation = true
+timeout_ms = 30000
+retry_policy = "exponential_backoff"

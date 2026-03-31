@@ -1,0 +1,16 @@
+# Extract skills for LLM generation
+PREFIX a2a: <http://example.org/a2a#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+
+SELECT ?skill_name ?skill_desc ?system_prompt ?implementation_hint ?behavior ?input_type ?output_type WHERE {
+  ?skill a a2a:Skill ;
+         a2a:hasSystemPrompt ?system_prompt ;
+         a2a:hasImplementationHint ?implementation_hint ;
+         a2a:hasBehavior ?behavior ;
+         rdfs:label ?skill_name ;
+         schema:description ?skill_desc ;
+         a2a:hasInputType ?input_type ;
+         a2a:hasOutputType ?output_type .
+}
+ORDER BY ?skill_name

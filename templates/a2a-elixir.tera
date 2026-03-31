@@ -27,6 +27,53 @@ defmodule {{ agent_name | pascal }} do
   use GenServer
   require Logger
 
+  # Phoenix Channels for WebSocket transport
+  defmodule WebsocketChannel do
+    @moduledoc """
+    Phoenix Channel for WebSocket transport of A2A messages.
+    """
+    use Phoenix.Channel
+    require Logger
+
+    @impl true
+    def join("a2a:" <> _agent_name, _payload, socket) do
+      Logger.info("[{{ agent_name }}] WebSocket client joined")
+      {:ok, socket}
+    end
+
+    @impl true
+    def handle_in("message", payload, socket) do
+      # Process JSON-RPC message
+      case payload do
+        %{"method" => method, "params" => params, "id" => id} ->
+          handle_skill_message(method, params, id, socket)
+          {:noreply, socket}
+
+        _ ->
+          {:reply, {:error, %{code: -32600, message: "Invalid Request"}}, socket}
+      end
+    end
+
+    defp handle_skill_message(skill_name, params, id, socket) do
+      handler = String.to_existing_atom("handle_" <> skill_name)
+
+      result =
+        try do
+          apply({{ agent_name | pascal }}, handler, [params])
+          {:ok, %{"jsonrpc" => "2.0", "result" => %{"status" => "created"}, "id" => id}}
+        rescue
+          e ->
+            Logger.error("[{{ agent_name }}] skill #{skill_name} failed: #{inspect(e)}")
+            {:error, %{"jsonrpc" => "2.0", "error" => %{code: -32000, message: Exception.message(e)}, "id" => id}}
+        end
+
+      case result do
+        {:ok, response} -> push(socket, "message", response)
+        {:error, error} -> push(socket, "error", error)
+      end
+    end
+  end
+
   # Maximum concurrent tasks (boundedness — WvdA)
   @max_tasks 1000
 
@@ -116,6 +163,16 @@ defmodule {{ agent_name | pascal }} do
   # Implement each skill below.  Return `{:ok, result}` or `{:error, reason}`.
 
   {% for skill in skills %}
+  {% if skill.input_type %}
+  # Input schema: {{ skill.input_type }}
+  {{ skill.input_type | schema_to_elixir }}
+
+  defp validate_{{ skill.name | snake }}_input(input) do
+    # Validate input against schema
+    :ok
+  end
+  {% endif %}
+
   @doc """
   Skill: {{ skill.description }}
 
@@ -125,8 +182,23 @@ defmodule {{ agent_name | pascal }} do
   """
   @spec handle_{{ skill.name | snake }}(map()) :: {:ok, any()} | {:error, String.t()}
   def handle_{{ skill.name | snake }}(input) when is_map(input) do
+    {% if skill.input_type %}
+    with :ok <- validate_{{ skill.name | snake }}_input(input) do
+      {% if generated_impl %}
+      {{ generated_impl }}
+      {% else %}
+      # TODO: implement {{ skill.name }} — {{ skill.description }}
+      {:error, "Not implemented: {{ skill.name }}"}
+      {% endif %}
+    end
+    {% else %}
+    {% if generated_impl %}
+    {{ generated_impl }}
+    {% else %}
     # TODO: implement {{ skill.name }} — {{ skill.description }}
     {:error, "Not implemented: {{ skill.name }}"}
+    {% endif %}
+    {% endif %}
   end
 
   {% endfor %}
@@ -386,3 +458,42 @@ defmodule {{ agent_name | pascal }}.Supervisor do
     Supervisor.init(children, strategy: :rest_for_one, max_restarts: 5, max_seconds: 60)
   end
 end
+
+# ---------------------------------------------------------------------------
+# WebSocket Endpoint Configuration (for Phoenix.Endpoint)
+# ---------------------------------------------------------------------------
+
+# To enable WebSocket support, add this to your Phoenix Endpoint configuration:
+#
+# defmodule {{ agent_name | pascal }}Endpoint do
+#   use Phoenix.Endpoint, otp_app: :{{ agent_name | snake }}
+#
+#   socket "/a2a/socket", {{ agent_name | pascal }}.WebsocketChannel,
+#     websocket: true,
+#     longpoll: false
+#
+#   # Serve at "/" the static files from "priv/static" directory.
+#   plug Plug.Static,
+#     at: "/",
+#     from: :{{ agent_name | snake }},
+#     gzip: false
+#
+#   plug Plug.Parsers,
+#     parsers: [:urlencoded, :multipart, :json],
+#     pass: ["*/*"],
+#     json_decoder: Phoenix.json_library()
+#
+#   plug Plug.MethodOverride
+#   plug Plug.Head
+#   plug Plug.Session,
+#     store: :cookie,
+#     key: "_{{ agent_name | snake }}_key",
+#     signing_salt: "{{ agent_name | snake }}"
+#
+#   plug {{ agent_name | pascal }}.Router
+# end
+#
+# mix.exs dependencies:
+#   {:phoenix, "~> 1.7"},
+#   {:phoenix_pubsub, "~> 2.1"},
+#   {:jason, "~> 1.4"}

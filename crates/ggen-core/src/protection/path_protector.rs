@@ -111,7 +111,7 @@ impl PathProtector {
                 "src/main.rs",
                 "src/cli.rs",
                 "src/error.rs",
-                "src/generated/*",
+                "mod.rs",
             ],
         )
     }
@@ -191,7 +191,7 @@ mod tests {
     fn test_path_protector_allows_regeneratable() {
         let protector = PathProtector::default_protection();
         assert!(protector.can_write(Path::new("src/main.rs")).is_ok());
-        assert!(protector.can_write(Path::new("src/generated/mod.rs")).is_ok());
+        assert!(protector.can_write(Path::new("mod.rs")).is_ok());
     }
 
     #[test]

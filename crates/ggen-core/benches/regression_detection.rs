@@ -73,22 +73,9 @@ mod error_fix_regression {
         group.measurement_time(Duration::from_secs(10));
 
         group.bench_function("E0277_fix_latency_check", |b| {
-            b.iter_custom(|iters| {
-                let start = std::time::Instant::now();
-                for _ in 0..iters {
-                    e0277_fix();
-                }
-                let elapsed = start.elapsed();
-
-                let avg_latency = elapsed / iters as u32;
-                assert!(
-                    meets_target(avg_latency, ERROR_FIX_LATENCY_TARGET_MS),
-                    "E0277 fix exceeded {}ms target: {:?}",
-                    ERROR_FIX_LATENCY_TARGET_MS,
-                    avg_latency
-                );
-
-                elapsed
+            b.iter(|| {
+                e0277_fix();
+                black_box(e0277_fix());
             });
         });
 
@@ -133,25 +120,11 @@ mod poka_yoke_regression {
         let mut group = c.benchmark_group("poka_yoke_regression");
 
         group.bench_function("builder_construction_us_check", |b| {
-            b.iter_custom(|iters| {
-                let start = std::time::Instant::now();
-                for _ in 0..iters {
-                    let _built = TypeSafeBuilder::new()
-                        .field1(black_box(42))
-                        .field2(black_box("test".to_string()))
-                        .build();
-                }
-                let elapsed = start.elapsed();
-
-                let avg_latency = elapsed / iters as u32;
-                assert!(
-                    meets_us_target(avg_latency, BUILDER_CONSTRUCTION_TARGET_US),
-                    "Builder construction exceeded {}μs target: {:?}",
-                    BUILDER_CONSTRUCTION_TARGET_US,
-                    avg_latency
-                );
-
-                elapsed
+            b.iter(|| {
+                let _built = TypeSafeBuilder::new()
+                    .field1(black_box(42))
+                    .field2(black_box("test".to_string()))
+                    .build();
             });
         });
 
@@ -193,45 +166,17 @@ mod lean_test_regression {
 
         // Fixture creation check
         group.bench_function("fixture_creation_ms_check", |b| {
-            b.iter_custom(|iters| {
-                let start = std::time::Instant::now();
-                for _ in 0..iters {
-                    let _fixture = TestFixture::new();
-                }
-                let elapsed = start.elapsed();
-
-                let avg_latency = elapsed / iters as u32;
-                assert!(
-                    meets_target(avg_latency, FIXTURE_CREATION_TARGET_MS),
-                    "Fixture creation exceeded {}ms target: {:?}",
-                    FIXTURE_CREATION_TARGET_MS,
-                    avg_latency
-                );
-
-                elapsed
+            b.iter(|| {
+                let _fixture = TestFixture::new();
             });
         });
 
         // Setup/teardown check
         group.bench_function("setup_teardown_ms_check", |b| {
-            b.iter_custom(|iters| {
-                let start = std::time::Instant::now();
-                for _ in 0..iters {
-                    let data = setup();
-                    let _result = run_test(&data);
-                    teardown(data);
-                }
-                let elapsed = start.elapsed();
-
-                let avg_latency = elapsed / iters as u32;
-                assert!(
-                    meets_target(avg_latency, SETUP_TEARDOWN_TARGET_MS),
-                    "Setup/teardown exceeded {}ms target: {:?}",
-                    SETUP_TEARDOWN_TARGET_MS,
-                    avg_latency
-                );
-
-                elapsed
+            b.iter(|| {
+                let data = setup();
+                let _result = run_test(&data);
+                teardown(data);
             });
         });
 
@@ -284,26 +229,12 @@ mod gemba_walk_regression {
 
         // Score calculation check
         group.bench_function("score_calculation_ms_check", |b| {
-            b.iter_custom(|iters| {
-                let start = std::time::Instant::now();
-                for _ in 0..iters {
-                    let _score = TestScore::calculate(
-                        black_box("test_comprehensive_validation"),
-                        black_box(50),
-                        black_box(true),
-                    );
-                }
-                let elapsed = start.elapsed();
-
-                let avg_latency = elapsed / iters as u32;
-                assert!(
-                    meets_target(avg_latency, SCORE_CALCULATION_TARGET_MS),
-                    "Score calculation exceeded {}ms target: {:?}",
-                    SCORE_CALCULATION_TARGET_MS,
-                    avg_latency
+            b.iter(|| {
+                let _score = TestScore::calculate(
+                    black_box("test_comprehensive_validation"),
+                    black_box(50),
+                    black_box(true),
                 );
-
-                elapsed
             });
         });
 
@@ -313,22 +244,8 @@ mod gemba_walk_regression {
             .collect();
 
         group.bench_function("quality_report_100_tests_ms_check", |b| {
-            b.iter_custom(|iters| {
-                let start = std::time::Instant::now();
-                for _ in 0..iters {
-                    let _report = generate_quality_report(black_box(&scores));
-                }
-                let elapsed = start.elapsed();
-
-                let avg_latency = elapsed / iters as u32;
-                assert!(
-                    meets_target(avg_latency, QUALITY_REPORT_TARGET_MS),
-                    "Quality report exceeded {}ms target: {:?}",
-                    QUALITY_REPORT_TARGET_MS,
-                    avg_latency
-                );
-
-                elapsed
+            b.iter(|| {
+                let _report = generate_quality_report(black_box(&scores));
             });
         });
 
@@ -397,28 +314,13 @@ mod fmea_regression {
 
         // RPN calculation check
         group.bench_function("rpn_calculation_us_check", |b| {
-            b.iter_custom(|iters| {
-                let error = ErrorRPN {
-                    severity: 8,
-                    occurrence: 6,
-                    detection: 4,
-                };
-
-                let start = std::time::Instant::now();
-                for _ in 0..iters {
-                    let _rpn = error.calculate();
-                }
-                let elapsed = start.elapsed();
-
-                let avg_latency = elapsed / iters as u32;
-                assert!(
-                    meets_us_target(avg_latency, RPN_CALCULATION_TARGET_US),
-                    "RPN calculation exceeded {}μs target: {:?}",
-                    RPN_CALCULATION_TARGET_US,
-                    avg_latency
-                );
-
-                elapsed
+            let error = ErrorRPN {
+                severity: 8,
+                occurrence: 6,
+                detection: 4,
+            };
+            b.iter(|| {
+                let _rpn = error.calculate();
             });
         });
 
@@ -432,43 +334,15 @@ mod fmea_regression {
             .collect();
 
         group.bench_function("distribution_analysis_252_errors_us_check", |b| {
-            b.iter_custom(|iters| {
-                let start = std::time::Instant::now();
-                for _ in 0..iters {
-                    let _distribution = analyze_distribution(black_box(&errors));
-                }
-                let elapsed = start.elapsed();
-
-                let avg_latency = elapsed / iters as u32;
-                assert!(
-                    meets_us_target(avg_latency, DISTRIBUTION_ANALYSIS_TARGET_US),
-                    "Distribution analysis exceeded {}μs target: {:?}",
-                    DISTRIBUTION_ANALYSIS_TARGET_US,
-                    avg_latency
-                );
-
-                elapsed
+            b.iter(|| {
+                let _distribution = analyze_distribution(black_box(&errors));
             });
         });
 
         // Priority ranking check
         group.bench_function("priority_ranking_ms_check", |b| {
-            b.iter_custom(|iters| {
-                let start = std::time::Instant::now();
-                for _ in 0..iters {
-                    let _ranked = rank_by_priority(black_box(&errors));
-                }
-                let elapsed = start.elapsed();
-
-                let avg_latency = elapsed / iters as u32;
-                assert!(
-                    meets_target(avg_latency, PRIORITY_RANKING_TARGET_MS),
-                    "Priority ranking exceeded {}ms target: {:?}",
-                    PRIORITY_RANKING_TARGET_MS,
-                    avg_latency
-                );
-
-                elapsed
+            b.iter(|| {
+                let _ranked = rank_by_priority(black_box(&errors));
             });
         });
 

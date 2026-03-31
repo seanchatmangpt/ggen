@@ -165,7 +165,7 @@ ex:Person a rdf:Class .
 /// #[tokio::test]
 /// async fn test_query_generation() {
 ///     let generator = create_sparql_test_generator();
-///     let graph = ggen_core::Graph::new().unwrap();
+///     let graph = crate::generators::sparql::Graph::new().unwrap();
 ///     let query = generator.generate_query(&graph, "test intent").await;
 ///     assert!(query.is_ok());
 /// }
@@ -382,7 +382,7 @@ mod tests {
     #[tokio::test]
     async fn test_sparql_generator_factory() {
         let generator = create_sparql_test_generator();
-        let graph = ggen_core::Graph::new().unwrap();
+        let graph = crate::generators::sparql::Graph::new().unwrap();
         let result = generator.generate_query(&graph, "test intent").await;
         assert!(result.is_ok(), "Factory-created generator should work");
     }

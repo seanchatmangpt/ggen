@@ -1,0 +1,25 @@
+groups:
+  - id: registry.ggen.error
+    type: attribute_group
+    stability: development
+    display_name: Error Classification Attributes
+    brief: Error classification attributes for ggen operations.
+    attributes:
+      - id: error
+        type: boolean
+        stability: development
+        brief: Whether an error occurred.
+        examples: [true, false]
+        requirement_level: recommended
+      - id: error.type
+        type: string
+        stability: development
+        brief: Classification of the error type (pipeline_failure, validation_failure, query_failure, etc.).
+        examples: ["pipeline_failure", "validation_failure", "query_failure"]
+        requirement_level: recommended
+      - id: error.message
+        type: string
+        stability: development
+        brief: Human-readable error description.
+        examples: ["Failed to compile template", "SPARQL query returned empty result"]
+        requirement_level: recommended

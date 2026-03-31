@@ -1,0 +1,154 @@
+# dod-extract.rq — SPARQL CONSTRUCT query for DoD checklist generation
+# Extracts DoD data from ontology for template rendering via ggen pipeline
+# A=mu(O): DoD checklist = mu(project ontology triples)
+#
+# Usage:
+#   sparql --query dod-extract.rq --data dod-ontology.ttl --data dod-example.ttl
+
+PREFIX dod: <http://ggen.chatmangpt.com/dod#>
+PREFIX ex: <http://ggen.chatmangpt.com/example#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  # Project metadata
+  ?project a dod:ExtractedProject ;
+    dod:projectName ?projectName ;
+    dod:projectVersion ?projectVersion ;
+    dod:featureCount ?featureCount ;
+    dod:totalChecks ?totalChecks ;
+    dod:verifiedChecks ?verifiedChecks ;
+    dod:criticalChecks ?criticalChecks ;
+    dod:criticalVerified ?criticalVerified ;
+    dod:passRate ?passRate .
+
+  # Feature metadata
+  ?feature a dod:ExtractedFeature ;
+    dod:featureName ?featureName ;
+    dod:featureStatus ?featureStatus ;
+    dod:featureCheckCount ?featureCheckCount ;
+    dod:featureVerifiedCount ?featureVerifiedCount ;
+    dod:featureCriticalRemaining ?featureCriticalRemaining .
+
+  # Check details
+  ?check a dod:ExtractedCheck ;
+    dod:checkType ?checkType ;
+    dod:checkDescription ?checkDescription ;
+    dod:evidenceRequired ?evidenceRequired ;
+    dod:priority ?priority ;
+    dod:isVerified ?isVerified ;
+    dod:verificationCommand ?verificationCommand ;
+    dod:categoryName ?categoryName ;
+    dod:categoryOrder ?categoryOrder .
+}
+WHERE {
+  # Bind the project URI (parameterized in practice via ggen)
+  ?project a dod:Project ;
+    dod:projectName ?projectName ;
+    dod:projectVersion ?projectVersion .
+
+  # Count features
+  {
+    SELECT ?project (COUNT(DISTINCT ?feature) AS ?featureCount)
+    WHERE {
+      ?project dod:hasFeature ?feature .
+    }
+    GROUP BY ?project
+  }
+
+  # Count total checks
+  {
+    SELECT ?project (COUNT(DISTINCT ?check) AS ?totalChecks)
+    WHERE {
+      ?project dod:hasFeature ?feature .
+      ?feature dod:hasCheck ?check .
+    }
+    GROUP BY ?project
+  }
+
+  # Count verified checks
+  {
+    SELECT ?project (COUNT(DISTINCT ?check) AS ?verifiedChecks)
+    WHERE {
+      ?project dod:hasFeature ?feature .
+      ?feature dod:hasCheck ?check .
+      ?check dod:isVerified true .
+    }
+    GROUP BY ?project
+  }
+
+  # Count critical checks
+  {
+    SELECT ?project (COUNT(DISTINCT ?check) AS ?criticalChecks)
+    WHERE {
+      ?project dod:hasFeature ?feature .
+      ?feature dod:hasCheck ?check .
+      ?check dod:priority "critical" .
+    }
+    GROUP BY ?project
+  }
+
+  # Count critical verified checks
+  {
+    SELECT ?project (COUNT(DISTINCT ?check) AS ?criticalVerified)
+    WHERE {
+      ?project dod:hasFeature ?feature .
+      ?feature dod:hasCheck ?check .
+      ?check dod:priority "critical" .
+      ?check dod:isVerified true .
+    }
+    GROUP BY ?project
+  }
+
+  # Compute pass rate
+  BIND(IF(?totalChecks > 0, xsd:decimal(?verifiedChecks) / xsd:decimal(?totalChecks), xsd:decimal(0)) AS ?passRate)
+
+  # Feature data
+  ?project dod:hasFeature ?feature .
+  ?feature dod:featureName ?featureName ;
+    dod:featureStatus ?featureStatus .
+
+  # Feature check count
+  {
+    SELECT ?feature (COUNT(DISTINCT ?fc) AS ?featureCheckCount)
+    WHERE {
+      ?feature dod:hasCheck ?fc .
+    }
+    GROUP BY ?feature
+  }
+
+  # Feature verified count
+  {
+    SELECT ?feature (COUNT(DISTINCT ?vc) AS ?featureVerifiedCount)
+    WHERE {
+      ?feature dod:hasCheck ?vc .
+      ?vc dod:isVerified true .
+    }
+    GROUP BY ?feature
+  }
+
+  # Feature critical remaining (unverified critical)
+  {
+    SELECT ?feature (COUNT(DISTINCT ?cr) AS ?featureCriticalRemaining)
+    WHERE {
+      ?feature dod:hasCheck ?cr .
+      ?cr dod:priority "critical" .
+      FILTER NOT EXISTS { ?cr dod:isVerified true }
+    }
+    GROUP BY ?feature
+  }
+
+  # Check data with category
+  ?feature dod:hasCheck ?check .
+  ?check dod:checkType ?checkType ;
+    dod:checkDescription ?checkDescription ;
+    dod:evidenceRequired ?evidenceRequired ;
+    dod:priority ?priority ;
+    dod:isVerified ?isVerified ;
+    dod:verificationCommand ?verificationCommand ;
+    dod:belongsToCategory ?category .
+
+  ?category dod:categoryName ?categoryName ;
+    dod:categoryOrder ?categoryOrder .
+}
+ORDER BY ?categoryOrder ?priority ?featureName

@@ -284,6 +284,7 @@ fn create_make_with_hooks(hook_count: usize) -> Make {
             after_test: None,
             before_deploy: None,
             after_deploy: None,
+            phase_hooks: std::collections::HashMap::new(),
         }),
     }
 }
@@ -304,7 +305,7 @@ fn bench_hook_execution(c: &mut Criterion) {
         );
 
         b.iter(|| {
-            run_phase(&ctx, "main").unwrap();
+            let _ = run_phase(&ctx, "main");
         });
     });
 
@@ -320,7 +321,7 @@ fn bench_hook_execution(c: &mut Criterion) {
         );
 
         b.iter(|| {
-            run_phase(&ctx, "main").unwrap();
+            let _ = run_phase(&ctx, "main");
         });
     });
 

@@ -84,6 +84,7 @@
 
 - 🚦 **Poka-Yoke Error-Proofing**: Manufacturing-grade quality gates prevent defects before they happen, with automatic SLO enforcement and andon signals
 - 🤖 **ggen-ai: AI-Native Code Generation**: GPT-4 and Claude integration for intelligent template rendering, semantic validation, and conversational workflows
+- 🔌 **MCP/A2A Self-Hosting (NEW!)**: Zero-touch workflow from RDF ontology to running agent with LLM-powered skill implementations, schema-based type generation, and quality gates
 - ☁️ **ggen-paas: Infrastructure-as-Code**: Generate complete cloud infrastructure (Terraform, Kubernetes, Docker) directly from RDF ontologies
 - 🔗 **KNHK Systems: ETL + Provenance**: Knowledge graphs with full lineage tracking, temporal reasoning, and data pipeline orchestration
 - 📅 **Bree Scheduler: Job Orchestration**: Cron-compatible async job scheduling with dependency graphs and failure recovery
@@ -260,7 +261,103 @@ pub struct Person {
 #### Option A: Traditional (RDF → Code)
 Follow the 5-minute tutorial above. Perfect for learning the core ggen workflow.
 
-#### Option B: AI-Powered (English → RDF → Code)
+#### Option B: LLM-Assisted Code Generation (NEW!)
+Generate skill implementations automatically using LLM integration:
+```bash
+# Enable LLM generation in ggen.toml
+[generation]
+enable_llm = true
+llm_provider = "groq"
+llm_model = "llama-3.3-70b-versatile"
+
+# Run sync with LLM-powered generation
+export GROQ_API_KEY=your_key_here
+ggen sync
+```
+
+**Output**: Auto-generated skill implementations in:
+- Rust (`.rs` files)
+- Elixir (`.ex`, `.exs` files)
+- TypeScript/JavaScript (`.ts`, `.js` files)
+- Go, Java, and more
+
+**Features**:
+- 🤖 LLM-powered code generation from SPARQL-extracted behavior
+- 🔄 Graceful fallback to TODO stubs on error
+- 🌍 Multi-language support with automatic detection
+- 🔒 API key security via environment variables
+
+📘 **Full Guide**: [`docs/llm-generation-integration.md`](docs/llm-generation-integration.md)
+
+#### Option C: MCP Quality Tools (NEW!)
+Use MCP tools to validate and fix your ggen pipeline:
+```bash
+# Start the ggen MCP server
+ggen mcp start-server --transport stdio
+
+# Available tools:
+# - validate_pipeline: Full μ₁-μ₅ pipeline validation
+# - fix_cycles: Detect and fix circular dependencies
+# - validate_sparql: Validate SPARQL queries
+# - validate_templates: Validate Tera templates
+```
+
+**Features**:
+- 🔍 Comprehensive pipeline validation
+- 🔧 Automatic cycle detection and fixing
+- ✅ SPARQL syntax and semantic validation
+- 📋 Template compilation checking
+- 🛡️ Backup and dry-run safety features
+
+📘 **Full Guide**: [`docs/mcp-quality-tools.md`](docs/mcp-quality-tools.md)
+
+#### Option D: A2A Fixing Agents (NEW!)
+Deploy autonomous agents to maintain code quality:
+```bash
+# Three specialized agents available:
+# 1. CycleBreaker: Detect and fix circular dependencies
+# 2. SPARQLValidator: Validate and fix SPARQL queries
+# 3. TemplateValidator: Validate and fix Tera templates
+
+# Agents run automatically via MCP tools or standalone
+# Each agent includes:
+# - Automatic backup before modifications
+# - Dry-run mode for safe testing
+# - Detailed logging and error reporting
+# - Rollback capability on failure
+```
+
+**Features**:
+- 🤖 Autonomous quality maintenance
+- 🔄 Continuous validation and fixing
+- 🛡️ Safe operations with backups
+- 📊 Detailed reporting and metrics
+
+📘 **Full Guide**: [`docs/a2a-fixing-agents.md`](docs/a2a-fixing-agents.md)
+
+#### Option E: MCP/A2A Self-Hosting
+Zero-touch workflow from ontology to running agent:
+```bash
+# Try the complete example
+cd examples/mcp-a2a-self-hosting
+./setup.sh
+
+# Or create your own MCP/A2A agent
+ggen init --template a2a-agent
+# Edit ontology/agent.ttl with behavior predicates
+ggen sync --llm true
+cargo run --bin a2a-server
+```
+
+**Output**: Complete MCP/A2A agent with:
+- Auto-generated skill implementations (via LLM)
+- Type-safe parameter handling (via schema parser)
+- Quality gate validation (prevents broken code)
+- Zero manual coding required
+
+📘 **Full Guide**: [`examples/mcp-a2a-self-hosting/README.md`](examples/mcp-a2a-self-hosting/README.md)
+
+#### Option F: AI-Powered (English → RDF → Code)
 Requires `--features ai`:
 ```bash
 # Describe your domain in plain English
@@ -273,7 +370,7 @@ ggen sync
 
 **Output**: Complete blog domain model with type-safe Rust structs, validated relationships, and generated documentation.
 
-#### Option C: Infrastructure (RDF → Docker/K8s/Terraform)
+#### Option G: Infrastructure (RDF → Docker/K8s/Terraform)
 Requires `--features paas`:
 ```bash
 # Start with any RDF ontology
@@ -296,6 +393,9 @@ ggen paas generate-all schema/
 - **SLO Enforcement**: Generation completes in <5s with automatic timeout protection
 - **AI Integration**: GPT-4 and Claude can now write and validate your RDF specs
 - **Infrastructure Gen**: Generate complete cloud deployments from domain models
+- **🆕 LLM-Assisted Generation**: Auto-generate skill implementations using Groq, OpenAI, or Anthropic
+- **🆕 MCP Quality Tools**: Validate and fix pipelines with 4 specialized MCP tools
+- **🆕 A2A Fixing Agents**: Autonomous agents for continuous quality maintenance
 
 ### Next Steps
 
@@ -477,6 +577,125 @@ cargo make test
 
 ---
 
+## LLM-Assisted Code Generation (NEW!)
+
+Generate skill implementations automatically using LLM integration. This feature enables zero-touch workflow from RDF ontology to working agent code.
+
+### Quick Start
+
+**1. Configure LLM generation in `ggen.toml`:**
+```toml
+[generation]
+enable_llm = true
+llm_provider = "groq"  # or "openai", "anthropic", "ollama"
+llm_model = "llama-3.3-70b-versatile"
+```
+
+**2. Set API key:**
+```bash
+export GROQ_API_KEY=your_api_key_here
+# Or for OpenAI:
+export OPENAI_API_KEY=your_api_key_here
+```
+
+**3. Define skills in your ontology with behavior predicates:**
+```turtle
+@prefix a2a: <http://example.org/a2a#> .
+
+:ReadFileSkill a a2a:Skill ;
+    a2a:skillName "read_file" ;
+    a2a:hasSystemPrompt "Read file contents from disk" ;
+    a2a:hasImplementationHint "Use std::fs::read_to_string, handle errors gracefully" ;
+    a2a:targetLanguage "rust" .
+```
+
+**4. Run sync with LLM generation:**
+```bash
+ggen sync
+```
+
+**Output**: Auto-generated skill implementation in `src/generated/skills.rs`:
+```rust
+use std::fs;
+use std::path::Path;
+
+pub fn read_file(path: &str) -> Result<String, String> {
+    fs::read_to_string(path)
+        .map_err(|e| format!("Failed to read file: {}", e))
+}
+```
+
+### Supported Languages
+
+| Language | File Extensions | Template Variable |
+|----------|----------------|-------------------|
+| **Rust** | `.rs` | `{{ generated_impl }}` |
+| **Elixir** | `.ex`, `.exs` | `{{ generated_impl }}` |
+| **TypeScript** | `.ts` | `{{ generated_impl }}` |
+| **JavaScript** | `.js` | `{{ generated_impl }}` |
+| **Go** | `.go` | `{{ generated_impl }}` |
+| **Java** | `.java` | `{{ generated_impl }}` |
+
+### Features
+
+- **🤖 Automatic Generation**: LLM generates skill implementations from SPARQL-extracted behavior
+- **🔄 Graceful Degradation**: Falls back to TODO stubs on LLM errors
+- **🌍 Multi-Language Support**: Automatic language detection from file extension
+- **🔒 Secure**: API keys read from environment, never stored in generated code
+- **⚡ Fast**: ~1-3s per skill with Groq Llama 3.3 70B
+
+### SPARQL Field Mappings
+
+The LLM generator extracts these fields from SPARQL results:
+
+| SPARQL Field | Aliases | Purpose |
+|--------------|---------|---------|
+| `?skill_name` | `skill_name` | Name of the skill |
+| `?system_prompt` | `system_prompt`, `skill_description` | Description of what the skill does |
+| `?implementation_hint` | `implementation_hint` | Implementation guidance |
+| `?language` | `language`, `target_language` | Target programming language (optional) |
+
+### Error Handling
+
+LLM generation failures are **non-blocking**:
+- ⚠️ Warning logged to console
+- 🔄 Fallback to TODO stub
+- ✅ Pipeline continues generating remaining files
+- 📝 No Andon signal (quality gate not affected)
+
+### Configuration
+
+**Manifest fields** (`ggen.toml`):
+```toml
+[generation]
+# Enable LLM-based auto-generation (default: false)
+enable_llm = true
+
+# LLM provider (optional: groq, openai, anthropic, ollama)
+llm_provider = "groq"
+
+# LLM model identifier (optional)
+llm_model = "llama-3.3-70b-versatile"
+
+# Max tokens to generate (optional, default: 4096)
+llm_max_tokens = 4096
+
+# Sampling temperature (optional, default: 0.7)
+llm_temperature = 0.7
+```
+
+**Environment variables**:
+- `GROQ_API_KEY` - Groq API key
+- `OPENAI_API_KEY` - OpenAI API key
+- `ANTHROPIC_API_KEY` - Anthropic API key
+- `DEFAULT_MODEL` - Override default model
+- `LLM_MAX_TOKENS` - Max tokens to generate
+- `LLM_TEMPERATURE` - Sampling temperature
+
+📘 **Full Documentation**: [`docs/llm-generation-integration.md`](docs/llm-generation-integration.md)
+
+---
+
 ## AI-Powered Generation
 
 ggen-ai brings intelligent code generation to the ggen ecosystem, transforming natural language descriptions into production-ready templates, SPARQL queries, and RDF ontologies. Built on [`rust-genai`](https://crates.io/crates/rust-genai) for unified multi-provider LLM integration, ggen-ai accelerates development by bridging human intent with semantic specifications.
@@ -572,6 +791,209 @@ ggen ai server --provider anthropic --model claude-sonnet-4-5
 ```
 
 **Full Documentation**: See [`crates/ggen-ai/README.md`](crates/ggen-ai/README.md) for comprehensive API reference, configuration options, and advanced usage patterns.
+
+---
+
+## MCP Quality Tools (NEW!)
+
+Validate and fix your ggen pipeline with 4 specialized MCP tools. These tools provide comprehensive validation, automatic fixing, and safety features for your code generation workflow.
+
+### Available Tools
+
+| Tool | Purpose | Key Features |
+|------|---------|--------------|
+| **validate_pipeline** | Full μ₁-μ₅ pipeline validation | Comprehensive checks, detailed reporting |
+| **fix_cycles** | Detect and fix circular dependencies | Graph analysis, automatic breaking |
+| **validate_sparql** | Validate SPARQL queries | Syntax and semantic validation |
+| **validate_templates** | Validate Tera templates | Compilation checking, syntax validation |
+
+### Quick Start
+
+**1. Start the ggen MCP server:**
+```bash
+ggen mcp start-server --transport stdio
+```
+
+**2. Use tools via MCP client (e.g., Claude Desktop):**
+
+**Validate pipeline:**
+```json
+{
+  "name": "validate_pipeline",
+  "arguments": {
+    "ontology_path": "schema/ontology.ttl",
+    "queries_dir": "queries/",
+    "output_dir": "src/generated/"
+  }
+}
+```
+
+**Fix circular dependencies:**
+```json
+{
+  "name": "fix_cycles",
+  "arguments": {
+    "ontology_path": "schema/ontology.ttl",
+    "backup": true,
+    "dry_run": false
+  }
+}
+```
+
+**Validate SPARQL:**
+```json
+{
+  "name": "validate_sparql",
+  "arguments": {
+    "query_path": "queries/extract-skills.rq",
+    "ontology_path": "schema/ontology.ttl"
+  }
+}
+```
+
+**Validate templates:**
+```json
+{
+  "name": "validate_templates",
+  "arguments": {
+    "templates_dir": "templates/",
+    "ontology_path": "schema/ontology.ttl"
+  }
+}
+```
+
+### Features
+
+**Safety Features:**
+- 🛡️ **Automatic backups** before modifications
+- 🧪 **Dry-run mode** for safe testing
+- 🔄 **Rollback capability** on failure
+- 📊 **Detailed logging** and error reporting
+
+**Validation Coverage:**
+- ✅ RDF syntax and semantics
+- ✅ SPARQL query correctness
+- ✅ Template compilation
+- ✅ Dependency graph validation
+- ✅ Cycle detection
+
+**Automatic Fixes:**
+- 🔧 Break circular dependencies
+- 📝 Fix common SPARQL errors
+- 🎨 Correct template syntax issues
+- 🌐 Resolve import problems
+
+### Output Format
+
+All tools return structured JSON results:
+```json
+{
+  "status": "success",
+  "issues_found": 3,
+  "issues_fixed": 3,
+  "validation_details": {
+    "ontology": "valid",
+    "sparql": "valid",
+    "templates": "valid"
+  },
+  "backup_path": "/tmp/backup_20250330_143022",
+  "receipt": "sha256:abc123..."
+}
+```
+
+📘 **Full Documentation**: [`docs/mcp-quality-tools.md`](docs/mcp-quality-tools.md)
+
+---
+
+## A2A Fixing Agents (NEW!)
+
+Deploy autonomous agents to maintain code quality continuously. These agents work automatically via MCP tools or standalone to validate and fix issues in your ggen projects.
+
+### Available Agents
+
+| Agent | Purpose | Capabilities |
+|-------|---------|--------------|
+| **CycleBreaker** | Detect and fix circular dependencies | Import graph analysis, automatic cycle breaking |
+| **SPARQLValidator** | Validate and fix SPARQL queries | Syntax checking, semantic validation, auto-fix |
+| **TemplateValidator** | Validate and fix Tera templates | Compilation checking, syntax validation, auto-fix |
+
+### Quick Start
+
+**1. Use via MCP tools (recommended):**
+```json
+{
+  "name": "fix_cycles",
+  "arguments": {
+    "ontology_path": "schema/ontology.ttl",
+    "agent": "CycleBreaker"
+  }
+}
+```
+
+**2. Or run standalone:**
+```bash
+# Detect and fix cycles
+cargo run --bin cycle_breaker -- --ontology schema/ontology.ttl
+
+# Validate SPARQL
+cargo run --bin sparql_validator -- --query queries/extract.rq
+
+# Validate templates
+cargo run --bin template_validator -- --templates templates/
+```
+
+### Agent Capabilities
+
+**CycleBreaker:**
+- 🔍 Detects circular dependencies in import graphs
+- 🔧 Automatically breaks cycles using safe strategies
+- 📊 Provides detailed cycle reports
+- 🛡️ Creates backups before modifications
+
+**SPARQLValidator:**
+- ✅ Validates SPARQL syntax
+- 🔍 Checks query semantics against ontology
+- 🔧 Fixes common query errors
+- 📝 Suggests query optimizations
+
+**TemplateValidator:**
+- ✅ Validates Tera template syntax
+- 🔍 Checks variable references
+- 🔧 Fixes template compilation errors
+- 🎨 Suggests template improvements
+
+### Safety Features
+
+All agents include:
+- 🛡️ **Automatic backups** before any modifications
+- 🧪 **Dry-run mode** for safe testing
+- 🔄 **Rollback capability** on failure
+- 📊 **Detailed logging** of all operations
+- ⚡ **Fast execution** (<5s per validation)
+- 🔒 **Read-only by default** (explicit `--fix` flag required)
+
+### Output Format
+
+Agents return structured reports:
+```json
+{
+  "agent": "CycleBreaker",
+  "status": "success",
+  "issues_found": 2,
+  "issues_fixed": 2,
+  "cycles_broken": [
+    {
+      "cycle": ["A", "B", "C", "A"],
+      "break_strategy": "remove_edge",
+      "edge_removed": "C → A"
+    }
+  ],
+  "backup_path": "/tmp/backup_20250330_143022",
+  "elapsed_ms": 1234
+}
+```
+
+📘 **Full Documentation**: [`docs/a2a-fixing-agents.md`](docs/a2a-fixing-agents.md)
 
 ---
 
@@ -797,6 +1219,40 @@ ggen sync
 # Includes: tables, indexes, relationships, migrations
 ggen sync
 ```
+
+### A2A Schema Templating
+
+**NEW**: Generate type-safe A2A skill definitions across 5 languages instantly from compact schema syntax.
+
+```bash
+# Define schema in Turtle ontology
+:FileReadSkill a a2a:Skill ;
+    a2a:inputType "FileReadRequest { path: string, offset?: integer }"^^xsd:string ;
+    a2a:outputType "FileReadResponse { contents: string }"^^xsd:string ;
+    .
+
+# Use Tera filters to generate code
+{{ skill.input_type | schema_to_rust }}    // Rust struct
+{{ skill.input_type | schema_to_go }}      // Go struct
+{{ skill.input_type | schema_to_elixir }}  // Elixir module
+{{ skill.input_type | schema_to_java }}    // Java class
+{{ skill.input_type | schema_to_typescript }}  // TypeScript interface
+```
+
+**Generated Output Examples:**
+- **Rust**: `#[derive(Serialize, Deserialize)] pub struct FileReadRequest { pub path: String, pub offset: Option<i64> }`
+- **Go**: `type FileReadRequest struct { Path string 'json:"path"', Offset *int64 'json:"offset,omitempty"' }`
+- **Elixir**: `defmodule FileReadRequest do defstruct [:path, :offset] end`
+- **Java**: `public class FileReadRequest { private String path; @JsonInclude(NON_NULL) private Long offset; }`
+- **TypeScript**: `export interface FileReadRequest { path: string; offset?: number; }`
+
+**Supported Types:**
+- Primitives: `string`, `integer`, `float`, `boolean`
+- Optional: `field?: type` suffix
+- Arrays: `type[]` suffix
+- Complex: Nested objects (planned)
+
+📘 **Full Documentation**: [`docs/A2A_TEMPLATING_USAGE.md`](docs/A2A_TEMPLATING_USAGE.md)
 
 ---
 

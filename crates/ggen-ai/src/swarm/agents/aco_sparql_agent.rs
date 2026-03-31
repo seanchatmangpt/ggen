@@ -3,11 +3,13 @@
 //! This agent uses Ant Colony Optimization to find optimal SPARQL query execution paths.
 
 use crate::error::{GgenAiError, Result};
+use crate::swarm::algorithms::aco::{
+    parse_sparql_to_nodes, AcoConfig, QueryNode, SparqlAcoOptimizer,
+};
 use crate::swarm::{
     AgentConfig, AgentHealth, AgentInput, AgentOutput, BaseAgent, HealthStatus,
     PerformanceThresholds, SwarmAgent, SwarmContext,
 };
-use crate::swarm::algorithms::aco::{AcoConfig, QueryNode, SparqlAcoOptimizer, parse_sparql_to_nodes};
 use async_trait::async_trait;
 use serde_json::json;
 use std::collections::HashMap;
@@ -83,7 +85,9 @@ impl AcoSparqlAgent {
         let optimizer = SparqlAcoOptimizer::new(self.aco_config.clone(), nodes);
 
         // Run optimization
-        let best_path = optimizer.optimize().await
+        let best_path = optimizer
+            .optimize()
+            .await
             .map_err(|e| GgenAiError::internal(&format!("ACO optimization failed: {}", e)))?;
 
         info!("ACO found optimal path with cost: {:.4}", best_path.cost);
@@ -142,10 +146,14 @@ impl AcoSparqlAgent {
     pub fn get_optimization_stats(&self) -> HashMap<String, serde_json::Value> {
         let mut stats = HashMap::new();
 
-        stats.insert("total_optimizations".to_string(), json!(self.optimization_history.len()));
+        stats.insert(
+            "total_optimizations".to_string(),
+            json!(self.optimization_history.len()),
+        );
 
         if !self.optimization_history.is_empty() {
-            let avg_quality = self.optimization_history
+            let avg_quality = self
+                .optimization_history
                 .iter()
                 .map(|r| r.quality)
                 .sum::<f64>()
@@ -169,12 +177,17 @@ impl SwarmAgent for AcoSparqlAgent {
     }
 
     async fn execute(&self, _context: &SwarmContext, input: AgentInput) -> Result<AgentOutput> {
-        debug!("AcoSparqlAgent executing with input type: {}", input.input_type);
+        debug!(
+            "AcoSparqlAgent executing with input type: {}",
+            input.input_type
+        );
 
         match input.input_type.as_str() {
             "sparql_optimization" | "optimize_query" => {
                 // Extract SPARQL query from input
-                let query = input.data.get("query")
+                let query = input
+                    .data
+                    .get("query")
                     .and_then(|v| v.as_str())
                     .ok_or_else(|| GgenAiError::internal("No query provided in input"))?;
 
@@ -184,12 +197,10 @@ impl SwarmAgent for AcoSparqlAgent {
 
                 agent_clone.optimize_sparql_query(query).await
             }
-            _ => {
-                Err(GgenAiError::internal(&format!(
-                    "Unsupported input type: {}",
-                    input.input_type
-                )))
-            }
+            _ => Err(GgenAiError::internal(&format!(
+                "Unsupported input type: {}",
+                input.input_type
+            ))),
         }
     }
 
@@ -240,7 +251,9 @@ mod tests {
         let agent = AcoSparqlAgent::new("aco-sparql-agent".to_string());
 
         assert_eq!(agent.name(), "aco-sparql-agent");
-        assert!(agent.capabilities().contains(&"sparql_optimization".to_string()));
+        assert!(agent
+            .capabilities()
+            .contains(&"sparql_optimization".to_string()));
     }
 
     #[tokio::test]

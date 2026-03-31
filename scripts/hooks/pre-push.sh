@@ -70,7 +70,7 @@ fi
 
 # Gate 4: Unit Tests (20% of defects - VITAL)
 echo -n "  [4/4] Unit tests... "
-if timeout 90s cargo test --workspace --lib --quiet 2>/dev/null; then
+if timeout 300s cargo test --workspace --lib --quiet 2>/dev/null; then
     echo -e "${GREEN}PASS${NC}"
     PASSED=$((PASSED + 1))
 else

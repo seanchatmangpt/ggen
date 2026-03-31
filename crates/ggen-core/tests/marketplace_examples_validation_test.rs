@@ -131,7 +131,10 @@ fn all_example_ggen_toml_manifests_parse() {
     let root = workspace_root();
     let examples_dir = root.join("examples");
     if !examples_dir.exists() {
-        eprintln!("SKIP: examples/ directory not found at {}", examples_dir.display());
+        eprintln!(
+            "SKIP: examples/ directory not found at {}",
+            examples_dir.display()
+        );
         return;
     }
 
@@ -213,10 +216,7 @@ fn all_marketplace_package_toml_files_parse() {
         };
 
         // Skip known-malformed packages (see SKIP_TOML_PARSE).
-        let pkg_name = dir
-            .file_name()
-            .unwrap()
-            .to_string_lossy();
+        let pkg_name = dir.file_name().unwrap().to_string_lossy();
         if SKIP_TOML_PARSE.contains(&pkg_name.as_ref()) {
             skipped += 1;
             continue;
@@ -323,11 +323,7 @@ fn all_marketplace_template_files_parse() {
             // .tera files are plain Tera templates (no frontmatter).
             // Register ggen's custom filters/functions so that references
             // to `snake`, `pascal`, etc. resolve during parse validation.
-            let name = tmpl_path
-                .file_name()
-                .unwrap()
-                .to_string_lossy()
-                .to_string();
+            let name = tmpl_path.file_name().unwrap().to_string_lossy().to_string();
             let mut tera = ggen_tera();
             match tera.add_raw_template(&name, &content) {
                 Ok(_) => parsed += 1,
@@ -410,10 +406,7 @@ fn all_marketplace_template_references_exist() {
         };
 
         // Skip packages with known-malformed TOML (can't parse to check refs).
-        let pkg_name = dir
-            .file_name()
-            .unwrap()
-            .to_string_lossy();
+        let pkg_name = dir.file_name().unwrap().to_string_lossy();
         if SKIP_TOML_PARSE.contains(&pkg_name.as_ref()) {
             skipped_pkgs += 1;
             continue;
@@ -437,11 +430,7 @@ fn all_marketplace_template_references_exist() {
                     if let Some(path_str) = path_val.as_str() {
                         let resolved = root.join(path_str);
                         if !resolved.exists() {
-                            broken.push((
-                                toml_path.clone(),
-                                field.to_string(),
-                                resolved,
-                            ));
+                            broken.push((toml_path.clone(), field.to_string(), resolved));
                         } else {
                             checked += 1;
                         }
@@ -461,11 +450,7 @@ fn all_marketplace_template_references_exist() {
                     }
                     let src_path = dir.join(src_name);
                     if !src_path.exists() {
-                        broken.push((
-                            toml_path.clone(),
-                            format!("files.{src_name}"),
-                            src_path,
-                        ));
+                        broken.push((toml_path.clone(), format!("files.{src_name}"), src_path));
                     } else {
                         checked += 1;
                     }
@@ -512,7 +497,10 @@ fn example_manifests_have_required_fields() {
     let root = workspace_root();
     let examples_dir = root.join("examples");
     if !examples_dir.exists() {
-        eprintln!("SKIP: examples/ directory not found at {}", examples_dir.display());
+        eprintln!(
+            "SKIP: examples/ directory not found at {}",
+            examples_dir.display()
+        );
         return;
     }
 
@@ -534,10 +522,7 @@ fn example_manifests_have_required_fields() {
 
         // Check [project] section has name and version
         if manifest.project.name.is_empty() {
-            missing.push((
-                manifest_path.clone(),
-                "[project] name is empty".to_string(),
-            ));
+            missing.push((manifest_path.clone(), "[project] name is empty".to_string()));
         }
         if manifest.project.version.is_empty() {
             missing.push((

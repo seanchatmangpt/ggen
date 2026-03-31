@@ -1,0 +1,36 @@
+# SPARQL Query to extract A2A skill definitions
+# Extracts skill information including input/output schemas and behavior predicates
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX a2a: <https://w3id.org/a2a/ontology#>
+PREFIX agent: <https://example.com/agent#>
+
+CONSTRUCT {
+  ?skill a a2a:Skill ;
+    a2a:skillName ?skill_name ;
+    a2a:description ?skill_description ;
+    a2a:hasInputType ?input_type ;
+    a2a:hasOutputType ?output_type ;
+    a2a:hasImplementationHint ?implementation_hint ;
+    a2a:streaming ?streaming ;
+    a2a:timeoutMs ?timeout_ms ;
+    a2a:retryPolicy ?retry_policy .
+}
+WHERE {
+  ?agent a a2a:Agent ;
+    a2a:hasSkill ?skill .
+
+  ?skill a a2a:Skill ;
+    rdfs:label ?skill_name ;
+    rdfs:comment ?skill_description .
+
+  OPTIONAL { ?skill a2a:hasInputType ?input_type . }
+  OPTIONAL { ?skill a2a:hasOutputType ?output_type . }
+  OPTIONAL { ?skill a2a:hasImplementationHint ?implementation_hint . }
+  OPTIONAL { ?skill a2a:streaming ?streaming . }
+  OPTIONAL { ?skill a2a:timeoutMs ?timeout_ms . }
+  OPTIONAL { ?skill a2a:retryPolicy ?retry_policy . }
+}
+ORDER BY ?skill_name

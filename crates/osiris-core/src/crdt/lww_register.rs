@@ -126,8 +126,8 @@ impl<T: Clone + PartialEq> LWWRegister<T> {
                         Ordering::Acquire,
                     ) {
                         Ok(_) => {
-                            // CAS succeeded, leak old_ptr for simplicity
-                            // (in production, use epoch-based reclamation)
+                            // Reclaim old state on CAS success
+                            unsafe { let _ = Box::from_raw(old_ptr); }
                             return true;
                         }
                         Err(_) => {

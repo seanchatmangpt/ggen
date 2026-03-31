@@ -111,7 +111,7 @@ mod tests {
         let guard = GeneratorPathGuard::default();
         let paths = vec![
             PathBuf::from("src/main.rs"),
-            PathBuf::from("src/generated/mod.rs"),
+            PathBuf::from("mod.rs"),
         ];
         assert!(guard.verify_output_paths(&paths).is_ok());
     }

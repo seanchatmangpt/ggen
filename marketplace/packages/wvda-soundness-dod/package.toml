@@ -1,0 +1,78 @@
+# WvdA Soundness DoD Package
+# Definition of Done focused on van der Aalst process verification
+# Deadlock freedom, liveness, boundedness for workflow and process systems
+
+[package]
+name = "wvda-soundness-dod"
+full_name = "wvda-soundness-definition-of-done"
+version = "1.0.0"
+description = "DoD focused on van der Aalst soundness: deadlock freedom, liveness guarantee, boundedness. For workflow engines, process mining, and coordination systems."
+category = "quality-gate"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/wvda-soundness-dod"
+license = "MIT"
+dependencies = []
+features = [
+    "WvdA soundness focused DoD",
+    "Deadlock freedom verification (no circular waits, all timeouts documented)",
+    "Liveness guarantee (bounded loops, terminating state machines)",
+    "Boundedness verification (queues, caches, memory limits)",
+    "Petri net soundness analysis",
+    "Formal verification workflow (static analysis, formal model, runtime, merge gate)",
+    "SPARQL CONSTRUCT query for WvdA data extraction"
+]
+tags = ["dod", "wvda", "soundness", "deadlock", "liveness", "boundedness", "petri-net", "process-mining"]
+keywords = ["definition-of-done", "van-der-aalst", "soundness", "deadlock-freedom", "liveness", "boundedness", "workflow"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/wvda-soundness-dod"
+source_path = "marketplace/packages/wvda-soundness-dod"
+
+# Template files to copy
+[files]
+"package.toml" = "package.toml"
+"ontology.ttl" = "ontology.ttl"
+"template.tera" = "template.tera"
+
+# Variables for template substitution
+[variables]
+project_name = { type = "string", required = true, description = "Project name" }
+project_uri = { type = "string", default = "http://ggen.chatmangpt.com/project#", description = "Project URI prefix" }
+project_version = { type = "string", default = "0.1.0", description = "Project version" }
+max_queue_size = { type = "integer", default = 1000, description = "Default max queue size" }
+default_timeout_ms = { type = "integer", default = 5000, description = "Default blocking operation timeout" }
+max_recursion_depth = { type = "integer", default = 100, description = "Max recursion depth for recursive operations" }
+
+# Examples
+[examples]
+basic = """
+# Install the package
+ggen market install wvda-soundness-dod
+
+# Generate WvdA DoD checklist
+ggen template generate wvda-soundness-dod/template.tera \\
+  --vars '{"project_name":"workflow-engine"}'
+
+# Load ontology and extract
+sparql --query dod-extract.rq --data ontology.ttl
+"""
+
+advanced = """
+# Generate with custom soundness parameters
+ggen template generate wvda-soundness-dod/template.tera \\
+  --vars '{
+    "project_name": "process-miner",
+    "max_queue_size": 5000,
+    "default_timeout_ms": 10000,
+    "max_recursion_depth": 200
+  }'
+"""
+
+# Documentation
+[docs]
+quick_start = "WvdA soundness DoD: deadlock freedom, liveness guarantee, boundedness"
+features = "Timeout verification, loop bound checking, queue/cache limits, formal verification workflow"
+use_cases = "Workflow engines (YAWL, BPMN), process mining systems, coordination frameworks, agent systems"

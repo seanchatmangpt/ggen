@@ -119,16 +119,16 @@ pub fn ollama_qwen3_coder_config() -> LlmConfig {
     }
 }
 
-/// Create Groq default configuration — llama-3.3-70b-versatile
+/// Create Groq default configuration — openai/gpt-oss-20b
 ///
-/// Best general-purpose Groq model. ~800 tokens/sec.
+/// Best general-purpose Groq model. GPT-OSS-20B running on Groq hardware.
 /// Requires `GROQ_API_KEY` environment variable.
 pub fn groq_default_config() -> LlmConfig {
     LlmConfig {
         model: crate::constants::models::GROQ_DEFAULT.to_string(),
-        max_tokens: Some(4096),
-        temperature: Some(0.7),
-        top_p: Some(0.9),
+        max_tokens: Some(8192),
+        temperature: Some(1.0),
+        top_p: Some(1.0),
         stop: None,
         extra: HashMap::new(),
     }

@@ -52,7 +52,7 @@ nodes:
     let args = vec![
         "ggen",
         "template",
-        "generate-tree",
+        "generate_tree",
         "--template",
         template_path.to_str().unwrap(),
         "--output",

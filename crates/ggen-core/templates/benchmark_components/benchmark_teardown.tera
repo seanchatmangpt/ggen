@@ -1,0 +1,60 @@
+{#- Benchmark Teardown Component - Cleanup and resource management -#}
+
+{#- Elixir Process Teardown -#}
+{%- macro elixir_process_teardown(process_name) -%}
+  # Process automatically terminated by ExUnit's start_supervised
+  # No manual cleanup needed
+{%- endmacro -%}
+
+{#- Go Resource Cleanup -#}
+{%- macro go_resource_cleanup() -%}
+  defer func() {
+    // Clean up resources after benchmark
+    if resp != nil && resp.Body != nil {
+      resp.Body.Close()
+    }
+  }()
+{%- endmacro -%}
+
+{#- Cache Cleanup -#}
+{%- macro cache_cleanup(cache_module) -%}
+  setup do
+    # Clear cache before each test
+    {{ cache_module }}.clear_cache()
+
+    on_exit(fn ->
+      # Clear cache after test suite
+      {{ cache_module }}.clear_cache()
+    end)
+
+    :ok
+  end
+{%- endmacro -%}
+
+{#- Database Cleanup -#}
+{%- macro database_cleanup(repo, table_name) -%}
+  setup do
+    # Clean table before benchmark
+    {{ repo }}.delete_all({{ table_name }})
+
+    on_exit(fn ->
+      # Ensure clean state after benchmark
+      {{ repo }}.delete_all({{ table_name }})
+    end)
+
+    :ok
+  end
+{%- endmacro -%}
+
+{#- Temporary File Cleanup -#}
+{%- macro temp_file_cleanup(file_pattern) -%}
+  setup do
+    temp_dir = Temp.mkdir()
+
+    on_exit(fn ->
+      File.rm_rf!(temp_dir)
+    end)
+
+    {:ok, temp_dir: temp_dir}
+  end
+{%- endmacro -%}

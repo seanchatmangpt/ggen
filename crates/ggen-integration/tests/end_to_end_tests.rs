@@ -35,7 +35,7 @@ async fn test_full_pipeline_end_to_end() {
     .expect("Failed to set priority");
 
     let payload = serde_json::to_vec(&work_order).expect("Failed to serialize");
-    let request = IngressRequest::new(IngressChannel::Batch, payload);
+    let _request = IngressRequest::new(IngressChannel::Batch, payload);
 
     // Process through pipeline (need mutable reference)
     // Note: In production, this would use interior mutability or be redesigned

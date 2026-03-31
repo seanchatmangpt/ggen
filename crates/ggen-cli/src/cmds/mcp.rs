@@ -15,7 +15,9 @@ use tokio::sync::RwLock;
 
 use ggen_ai::constants::{env_vars, models};
 use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
-use ggen_domain::mcp_config::{load_config, stop_server, A2aConfig, McpServerConfig};
+use ggen_domain::mcp_config::{
+    load_config, stop_server, A2aConfig, McpServerConfig, PROJECT_A2A_CONFIG, PROJECT_MCP_CONFIG,
+};
 use serde_json::Value as JsonValue;
 
 use crate::runtime::block_on;
@@ -422,6 +424,15 @@ struct ServerStopOutput {
     message: String,
 }
 
+#[derive(Serialize)]
+struct SetupOutput {
+    success: bool,
+    claude_desktop_config_path: String,
+    backup_path: Option<String>,
+    ggen_server_added: bool,
+    message: String,
+}
+
 // ============================================================================
 // Groq Command Output Types
 // ============================================================================
@@ -610,30 +621,196 @@ fn test(tool_name: String, arguments: Option<String>) -> VerbResult<MCPTestOutpu
 
 /// Initialize MCP configuration
 #[verb]
-fn init_config(_mcp: bool, _a2a: bool, _force: bool) -> VerbResult<ConfigInitOutput> {
-    // Simplified: delegate to domain logic
-    let results = vec![
-        "MCP config initialization: Use domain functions".to_string(),
-        "A2A config initialization: Use domain functions".to_string(),
-    ];
+fn init_config(mcp: bool, a2a: bool, force: bool) -> VerbResult<ConfigInitOutput> {
+    perform_init_config(mcp, a2a, force)
+}
+
+/// Helper function to perform config initialization (reduces complexity)
+fn perform_init_config(mcp: bool, a2a: bool, force: bool) -> VerbResult<ConfigInitOutput> {
+    use ggen_domain::mcp_config::{
+        init_a2a_config as domain_init_a2a, init_mcp_config as domain_init_mcp,
+    };
+
+    let project_dir = std::env::current_dir().map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to get current directory: {}",
+            e
+        ))
+    })?;
+
+    let mut results = vec![];
+    let mut success = true;
+
+    // Initialize MCP config if requested or if neither specified (default to both)
+    if mcp || (!mcp && !a2a) {
+        let mcp_config_path = project_dir.join(PROJECT_MCP_CONFIG);
+
+        // Check if config already exists
+        if mcp_config_path.exists() && !force {
+            results.push(format!(
+                "MCP config already exists at {}. Use --force to overwrite.",
+                mcp_config_path.display()
+            ));
+        } else {
+            match domain_init_mcp(&mcp_config_path, true) {
+                Ok(_) => {
+                    results.push(format!(
+                        "✓ MCP config initialized at {}",
+                        mcp_config_path.display()
+                    ));
+                }
+                Err(e) => {
+                    success = false;
+                    results.push(format!("✗ Failed to initialize MCP config: {}", e));
+                }
+            }
+        }
+    }
+
+    // Initialize A2A config if requested or if neither specified (default to both)
+    if a2a || (!mcp && !a2a) {
+        let a2a_config_path = project_dir.join(PROJECT_A2A_CONFIG);
+
+        // Check if config already exists
+        if a2a_config_path.exists() && !force {
+            results.push(format!(
+                "A2A config already exists at {}. Use --force to overwrite.",
+                a2a_config_path.display()
+            ));
+        } else {
+            match domain_init_a2a(&a2a_config_path) {
+                Ok(_) => {
+                    results.push(format!(
+                        "✓ A2A config initialized at {}",
+                        a2a_config_path.display()
+                    ));
+                }
+                Err(e) => {
+                    success = false;
+                    results.push(format!("✗ Failed to initialize A2A config: {}", e));
+                }
+            }
+        }
+    }
+
+    let message = if success {
+        "Configuration initialized successfully".to_string()
+    } else {
+        "Configuration initialized with errors".to_string()
+    };
 
     Ok(ConfigInitOutput {
-        success: true,
+        success,
         results,
-        message: "Configuration initialized successfully".to_string(),
+        message,
     })
 }
 
 /// Validate MCP configuration
 #[verb]
 fn validate_config(
-    _mcp_file: Option<String>, _a2a_file: Option<String>,
+    mcp_file: Option<String>, a2a_file: Option<String>,
 ) -> VerbResult<ConfigValidateOutput> {
-    // Simplified: delegate to domain logic
+    perform_validate_config(mcp_file, a2a_file)
+}
+
+/// Helper function to perform config validation (reduces complexity)
+fn perform_validate_config(
+    mcp_file: Option<String>, a2a_file: Option<String>,
+) -> VerbResult<ConfigValidateOutput> {
+    use ggen_domain::mcp_config::validate_mcp_config as domain_validate_mcp;
+    use std::path::PathBuf;
+
+    let project_dir = std::env::current_dir().map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to get current directory: {}",
+            e
+        ))
+    })?;
+
+    let mut errors = vec![];
+    let mut warnings = vec![];
+    let mut is_valid = true;
+
+    // Convert file strings to PathBuf for load_config
+    let cli_mcp_pathbuf = mcp_file.as_ref().map(|s| PathBuf::from(s.as_str()));
+    let cli_a2a_pathbuf = a2a_file.as_ref().map(|s| PathBuf::from(s.as_str()));
+
+    // Determine which config file to validate
+    let mcp_config_path = if let Some(ref pb) = cli_mcp_pathbuf {
+        pb.clone()
+    } else {
+        project_dir.join(PROJECT_MCP_CONFIG)
+    };
+
+    // Validate MCP config if it exists
+    if mcp_config_path.exists() {
+        let cli_mcp_ref = cli_mcp_pathbuf.as_deref();
+
+        match load_config(Some(&project_dir), cli_mcp_ref, None) {
+            Ok(resolved) => {
+                if let Some(mcp_config) = resolved.mcp {
+                    match domain_validate_mcp(&mcp_config) {
+                        Ok(results) => {
+                            for result in results {
+                                if !result.is_valid {
+                                    is_valid = false;
+                                    errors.extend(result.errors);
+                                }
+                                warnings.extend(result.warnings);
+                            }
+                        }
+                        Err(e) => {
+                            is_valid = false;
+                            errors.push(format!("Validation error: {}", e));
+                        }
+                    }
+                }
+            }
+            Err(e) => {
+                is_valid = false;
+                errors.push(format!("Failed to load MCP config: {}", e));
+            }
+        }
+    } else if mcp_file.is_none() {
+        warnings.push(format!(
+            "No MCP config found at {}",
+            mcp_config_path.display()
+        ));
+    }
+
+    // Note: A2A validation is simpler - just check if it loads
+    let a2a_config_path = if let Some(ref pb) = cli_a2a_pathbuf {
+        pb.clone()
+    } else {
+        project_dir.join(PROJECT_A2A_CONFIG)
+    };
+
+    if a2a_config_path.exists() {
+        let cli_a2a_ref = cli_a2a_pathbuf.as_deref();
+
+        match load_config(Some(&project_dir), None, cli_a2a_ref) {
+            Ok(resolved) => {
+                if let Some(a2a_config) = resolved.a2a {
+                    if let Err(e) = a2a_config.validate() {
+                        is_valid = false;
+                        errors.push(format!("A2A validation error: {}", e));
+                    }
+                }
+            }
+            Err(e) => {
+                is_valid = false;
+                errors.push(format!("Failed to load A2A config: {}", e));
+            }
+        }
+    } else if a2a_file.is_none() && !mcp_config_path.exists() {
+        warnings.push("No configuration files found".to_string());
+    }
+
     Ok(ConfigValidateOutput {
-        is_valid: true,
-        errors: vec![],
-        warnings: vec!["Use domain functions for validation".to_string()],
+        is_valid,
+        errors,
+        warnings,
     })
 }
 
@@ -696,6 +873,150 @@ fn stop_server_cmd(server_name: String, force: bool) -> VerbResult<ServerStopOut
             e
         ))),
     }
+}
+
+/// Setup Claude Desktop MCP configuration
+#[verb]
+fn setup(force: bool) -> VerbResult<SetupOutput> {
+    use std::fs;
+
+    // Detect Claude Desktop config location cross-platform
+    let config_dir = detect_claude_desktop_config_dir()?;
+    let config_path = config_dir.join("claude_desktop_config.json");
+
+    if !config_path.exists() {
+        return Ok(SetupOutput {
+            success: false,
+            claude_desktop_config_path: config_path.display().to_string(),
+            backup_path: None,
+            ggen_server_added: false,
+            message: format!(
+                "Claude Desktop config not found at {}. Is Claude Desktop installed?",
+                config_path.display()
+            ),
+        });
+    }
+
+    // Backup existing config
+    let backup_path = if force {
+        let backup = config_path.with_extension("json.backup");
+        fs::copy(&config_path, &backup).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to backup config: {}",
+                e
+            ))
+        })?;
+        Some(backup.display().to_string())
+    } else {
+        None
+    };
+
+    // Read existing config
+    let mut config: JsonValue = fs::read_to_string(&config_path)
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to read config: {}", e))
+        })
+        .and_then(|content| {
+            serde_json::from_str(&content).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to parse config JSON: {}",
+                    e
+                ))
+            })
+        })?;
+
+    // Get ggen binary path
+    let ggen_binary = std::env::current_exe()
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to get ggen binary path: {}",
+                e
+            ))
+        })?
+        .display()
+        .to_string();
+
+    // Add ggen server entry
+    let ggen_server = serde_json::json!({
+        "command": ggen_binary,
+        "args": ["mcp", "start-server", "--transport", "stdio"]
+    });
+
+    // Ensure mcpServers object exists
+    if !config.is_object() {
+        return Ok(SetupOutput {
+            success: false,
+            claude_desktop_config_path: config_path.display().to_string(),
+            backup_path,
+            ggen_server_added: false,
+            message: "Invalid Claude Desktop config format: expected object at root".to_string(),
+        });
+    }
+
+    let config_obj = config.as_object_mut().unwrap();
+    let mcp_servers = config_obj
+        .entry("mcpServers")
+        .or_insert_with(|| JsonValue::Object(serde_json::Map::new()))
+        .as_object_mut()
+        .unwrap();
+
+    // Add or update ggen server
+    mcp_servers.insert("ggen".to_string(), ggen_server);
+
+    // Write updated config
+    let updated_config = serde_json::to_string_pretty(&config).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to serialize config: {}", e))
+    })?;
+
+    fs::write(&config_path, updated_config).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write config: {}", e))
+    })?;
+
+    Ok(SetupOutput {
+        success: true,
+        claude_desktop_config_path: config_path.display().to_string(),
+        backup_path,
+        ggen_server_added: true,
+        message: format!(
+            "✓ ggen MCP server added to Claude Desktop config at {}",
+            config_path.display()
+        ),
+    })
+}
+
+/// Detect Claude Desktop config directory based on platform
+fn detect_claude_desktop_config_dir() -> Result<std::path::PathBuf, clap_noun_verb::NounVerbError> {
+    let base_dir = if cfg!(target_os = "macos") {
+        dirs::home_dir()
+            .map(|p| p.join("Library/Application Support/Claude"))
+            .ok_or_else(|| {
+                clap_noun_verb::NounVerbError::execution_error(
+                    "Failed to detect home directory on macOS",
+                )
+            })?
+    } else if cfg!(target_os = "windows") {
+        dirs::data_local_dir()
+            .map(|p| p.join("Claude"))
+            .ok_or_else(|| {
+                clap_noun_verb::NounVerbError::execution_error(
+                    "Failed to detect AppData directory on Windows",
+                )
+            })?
+    } else if cfg!(target_os = "linux") {
+        dirs::config_dir()
+            .map(|p| p.join("Claude"))
+            .ok_or_else(|| {
+                clap_noun_verb::NounVerbError::execution_error(
+                    "Failed to detect config directory on Linux",
+                )
+            })?
+    } else {
+        return Err(clap_noun_verb::NounVerbError::execution_error(
+            "Unsupported platform for Claude Desktop config",
+        ));
+    };
+
+    Ok(base_dir)
 }
 
 // ============================================================================

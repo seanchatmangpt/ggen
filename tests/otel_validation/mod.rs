@@ -139,7 +139,6 @@ impl ValidationContext {
             config: TelemetryConfig {
                 endpoint: "http://localhost:4318".to_string(),
                 service_name: "ggen-validation".to_string(),
-                sample_ratio: 1.0,
                 console_output: false,
             },
         }

@@ -137,7 +137,9 @@ async fn resource_list_returns_resources_successfully() -> anyhow::Result<()> {
 async fn validate_tool_accepts_ttl_parameter() -> anyhow::Result<()> {
     let client = start_server().await?;
     let tools = client.list_tools(None).await?;
-    let _validate_tool = tools.tools.iter()
+    let _validate_tool = tools
+        .tools
+        .iter()
         .find(|t| t.name.as_ref() == "validate")
         .expect("validate tool must exist");
 

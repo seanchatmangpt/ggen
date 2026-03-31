@@ -11,7 +11,6 @@
 //! - **OTLP Export**: Export traces via OTLP HTTP/gRPC
 //! - **Structured Tracing**: Rich span attributes and events
 //! - **Console Output**: Local debugging with formatted trace output
-//! - **Configurable Sampling**: Control trace sampling ratio
 //! - **Service Identification**: Tag traces with service name and version
 //!
 //! ## Configuration
@@ -30,9 +29,8 @@
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
 //! let config = TelemetryConfig {
-//!     endpoint: "http://localhost:4318".to_string(),
+//!     endpoint: "http://localhost:4317".to_string(),
 //!     service_name: "ggen".to_string(),
-//!     sample_ratio: 1.0,
 //!     console_output: true,
 //! };
 //!
@@ -50,25 +48,17 @@ use ggen_utils::error::Error;
 #[cfg(feature = "otel")]
 use opentelemetry::{global, KeyValue};
 #[cfg(feature = "otel")]
-use opentelemetry_otlp::WithExportConfig;
-#[cfg(feature = "otel")]
-use opentelemetry_sdk::{
-    runtime,
-    trace::{RandomIdGenerator, Sampler},
-    Resource,
-};
+use opentelemetry_sdk::trace::SdkTracerProvider;
 #[cfg(feature = "otel")]
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Registry};
 
 /// OpenTelemetry configuration
 #[derive(Debug, Clone)]
 pub struct TelemetryConfig {
-    /// OTLP endpoint (default: http://localhost:4318)
+    /// OTLP endpoint (default: http://localhost:4317)
     pub endpoint: String,
     /// Service name for traces
     pub service_name: String,
-    /// Sample ratio (0.0 to 1.0, default: 1.0)
-    pub sample_ratio: f64,
     /// Whether to enable console output
     pub console_output: bool,
 }
@@ -79,9 +69,8 @@ impl Default for TelemetryConfig {
         {
             Self {
                 endpoint: std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT")
-                    .unwrap_or_else(|_| "http://localhost:4318".to_string()),
+                    .unwrap_or_else(|_| "http://localhost:4317".to_string()),
                 service_name: "ggen".to_string(),
-                sample_ratio: 1.0,
                 console_output: true,
             }
         }
@@ -90,20 +79,32 @@ impl Default for TelemetryConfig {
             Self {
                 endpoint: String::new(),
                 service_name: "ggen".to_string(),
-                sample_ratio: 0.0,
                 console_output: false,
             }
         }
     }
 }
 
-/// Initialize OpenTelemetry with OTLP exporter
+/// Guard that shuts down the tracer provider on drop.
+#[cfg(feature = "otel")]
+pub struct TelemetryGuard {
+    _provider: SdkTracerProvider,
+}
+
+#[cfg(feature = "otel")]
+impl Drop for TelemetryGuard {
+    fn drop(&mut self) {
+        let _ = self._provider.shutdown();
+    }
+}
+
+/// Initialize OpenTelemetry with OTLP gRPC exporter
 ///
 /// **NOTE**: This function requires the "otel" feature to be enabled.
 /// When the "otel" feature is disabled, this function becomes a no-op.
 ///
 /// This sets up:
-/// - OTLP HTTP exporter for traces
+/// - OTLP gRPC exporter for traces
 /// - Tracing subscriber with OpenTelemetry layer
 /// - Console output for local debugging
 ///
@@ -115,45 +116,45 @@ impl Default for TelemetryConfig {
 /// #[tokio::main]
 /// async fn main() -> ggen_utils::error::Result<()> {
 ///     let config = TelemetryConfig::default();
-///     init_telemetry(config)?;
+///     let _guard = init_telemetry(config)?;
 ///
 ///     // Your application code here
 ///
-///     shutdown_telemetry();
 ///     Ok(())
 /// }
 /// ```
 #[cfg(feature = "otel")]
-pub fn init_telemetry(config: TelemetryConfig) -> Result<()> {
-    // Create OTLP tracer pipeline with HTTP exporter
-    let tracer = opentelemetry_otlp::new_pipeline()
-        .tracing()
-        .with_exporter(
-            opentelemetry_otlp::new_exporter()
-                .tonic() // Use tonic/grpc transport
-                .with_endpoint(&config.endpoint),
-        )
-        .with_trace_config(
-            opentelemetry_sdk::trace::config()
-                .with_sampler(Sampler::TraceIdRatioBased(config.sample_ratio))
-                .with_id_generator(RandomIdGenerator::default())
-                .with_resource(Resource::new(vec![
-                    KeyValue::new("service.name", config.service_name.clone()),
-                    KeyValue::new("service.version", env!("CARGO_PKG_VERSION")),
-                ])),
-        )
-        .install_batch(runtime::Tokio)
-        .map_err(|e| Error::with_context("Failed to install OTLP tracer", &e.to_string()))?;
+pub fn init_telemetry(config: TelemetryConfig) -> Result<TelemetryGuard> {
+    use opentelemetry_otlp::WithExportConfig;
+    use opentelemetry_sdk::Resource;
 
-    // Create OpenTelemetry tracing layer
+    let exporter = opentelemetry_otlp::SpanExporter::builder()
+        .with_tonic()
+        .with_endpoint(&config.endpoint)
+        .build()
+        .map_err(|e| Error::with_context("Failed to create OTLP exporter", &e.to_string()))?;
+
+    let resource = Resource::builder_empty()
+        .with_attributes([
+            KeyValue::new("service.name", config.service_name.clone()),
+            KeyValue::new("service.version", env!("CARGO_PKG_VERSION")),
+        ])
+        .build();
+
+    let provider = SdkTracerProvider::builder()
+        .with_batch_exporter(exporter)
+        .with_resource(resource)
+        .build();
+
+    global::set_tracer_provider(provider.clone());
+
+    let tracer = global::tracer("ggen");
     let telemetry_layer = tracing_opentelemetry::layer().with_tracer(tracer);
 
-    // Create subscriber with layers
     let subscriber = Registry::default()
         .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
         .with(telemetry_layer);
 
-    // Add console output if enabled
     if config.console_output {
         let fmt_layer = tracing_subscriber::fmt::layer()
             .with_target(true)
@@ -166,17 +167,17 @@ pub fn init_telemetry(config: TelemetryConfig) -> Result<()> {
     tracing::info!(
         endpoint = %config.endpoint,
         service = %config.service_name,
-        sample_ratio = config.sample_ratio,
         "OpenTelemetry initialized"
     );
 
-    Ok(())
+    Ok(TelemetryGuard {
+        _provider: provider,
+    })
 }
 
 /// No-op implementation when "otel" feature is disabled
 #[cfg(not(feature = "otel"))]
 pub fn init_telemetry(_config: TelemetryConfig) -> Result<()> {
-    // No-op: OpenTelemetry is disabled
     Ok(())
 }
 
@@ -186,10 +187,13 @@ pub fn init_telemetry(_config: TelemetryConfig) -> Result<()> {
 /// When the "otel" feature is disabled, this function becomes a no-op.
 ///
 /// Call this before application exit to ensure all traces are exported.
+/// Prefer using the `TelemetryGuard` returned by `init_telemetry()` instead,
+/// which shuts down automatically on drop.
 #[cfg(feature = "otel")]
 pub fn shutdown_telemetry() {
-    tracing::info!("Shutting down OpenTelemetry");
-    global::shutdown_tracer_provider();
+    tracing::info!("OpenTelemetry shutdown requested — use TelemetryGuard for automatic flush");
+    // In opentelemetry 0.31, shutdown is via SdkTracerProvider::shutdown().
+    // Use the TelemetryGuard returned by init_telemetry() instead.
 }
 
 /// No-op implementation when "otel" feature is disabled
@@ -220,34 +224,28 @@ mod tests {
     #[test]
     #[cfg(feature = "otel")]
     fn test_telemetry_config_default() {
-        // This test requires the "otel" feature: without it, sample_ratio=0.0 and console_output=false
         let config = TelemetryConfig::default();
         assert_eq!(config.service_name, "ggen");
-        assert_eq!(config.sample_ratio, 1.0);
         assert!(config.console_output);
     }
 
     #[test]
     #[cfg(not(feature = "otel"))]
     fn test_telemetry_config_default_no_otel() {
-        // Without "otel" feature, telemetry is disabled (no-op defaults)
         let config = TelemetryConfig::default();
         assert_eq!(config.service_name, "ggen");
-        assert_eq!(config.sample_ratio, 0.0);
         assert!(!config.console_output);
     }
 
     #[test]
     fn test_telemetry_config_custom() {
         let config = TelemetryConfig {
-            endpoint: "http://custom:4318".to_string(),
+            endpoint: "http://custom:4317".to_string(),
             service_name: "test-service".to_string(),
-            sample_ratio: 0.5,
             console_output: false,
         };
-        assert_eq!(config.endpoint, "http://custom:4318");
+        assert_eq!(config.endpoint, "http://custom:4317");
         assert_eq!(config.service_name, "test-service");
-        assert_eq!(config.sample_ratio, 0.5);
         assert!(!config.console_output);
     }
 }

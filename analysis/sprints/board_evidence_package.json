@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "kind": "ggen.weaver_live_check.board_evidence",
+  "generated_at": "2026-03-31T00:04:25.790169+00:00",
+  "results": {
+    "overall_pass": false,
+    "total_entities": 42,
+    "span_group_coverage": "2/6",
+    "missing_groups": [
+      "span.ggen.error",
+      "span.ggen.mcp.tool_call",
+      "span.ggen.pipeline.operation",
+      "span.ggen.yawl.task_execution"
+    ],
+    "blocking_violations": 0,
+    "trace_correlation": true,
+    "trace_correlation_detail": "All spans share trace_id abc123...",
+    "real_span_count": 2,
+    "synthetic_span_count": 1
+  },
+  "statistics": {
+    "total_entities": 42,
+    "registry_coverage": 1.0
+  },
+  "ci_provenance": {
+    "ci": true
+  }
+}

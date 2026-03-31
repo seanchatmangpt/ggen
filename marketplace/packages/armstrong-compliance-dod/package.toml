@@ -1,0 +1,78 @@
+# Armstrong Compliance DoD Package
+# Definition of Done focused on Joe Armstrong fault tolerance principles
+# Supervision, no-shared-state, let-it-crash, budget constraints
+
+[package]
+name = "armstrong-compliance-dod"
+full_name = "armstrong-compliance-definition-of-done"
+version = "1.0.0"
+description = "DoD focused on Armstrong fault tolerance: supervision trees, no shared state, let-it-crash, budget constraints. For Erlang/OTP, Elixir, and fault-tolerant systems."
+category = "quality-gate"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/armstrong-compliance-dod"
+license = "MIT"
+dependencies = []
+features = [
+    "Armstrong fault tolerance focused DoD",
+    "Supervision tree verification (every worker supervised)",
+    "No shared mutable state enforcement",
+    "Let-it-crash verification (no swallowed exceptions)",
+    "Budget constraints (time, memory, per-operation limits)",
+    "Hot reload capability checks",
+    "SPARQL CONSTRUCT query for Armstrong data extraction"
+]
+tags = ["dod", "armstrong", "fault-tolerance", "erlang", "elixir", "supervision", "quality-gate"]
+keywords = ["definition-of-done", "armstrong", "let-it-crash", "supervision", "no-shared-state", "budget"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/armstrong-compliance-dod"
+source_path = "marketplace/packages/armstrong-compliance-dod"
+
+# Template files to copy
+[files]
+"package.toml" = "package.toml"
+"ontology.ttl" = "ontology.ttl"
+"template.tera" = "template.tera"
+
+# Variables for template substitution
+[variables]
+project_name = { type = "string", required = true, description = "Project name" }
+project_uri = { type = "string", default = "http://ggen.chatmangpt.com/project#", description = "Project URI prefix" }
+project_version = { type = "string", default = "0.1.0", description = "Project version" }
+max_restarts = { type = "integer", default = 5, description = "Maximum supervisor restarts per 60s" }
+max_restart_seconds = { type = "integer", default = 60, description = "Restart window in seconds" }
+default_timeout_ms = { type = "integer", default = 5000, description = "Default operation timeout in ms" }
+
+# Examples
+[examples]
+basic = """
+# Install the package
+ggen market install armstrong-compliance-dod
+
+# Generate Armstrong DoD checklist
+ggen template generate armstrong-compliance-dod/template.tera \\
+  --vars '{"project_name":"otp-service"}'
+
+# Load ontology and extract
+sparql --query dod-extract.rq --data ontology.ttl
+"""
+
+advanced = """
+# Generate with custom supervisor settings
+ggen template generate armstrong-compliance-dod/template.tera \\
+  --vars '{
+    "project_name": "payment-processor",
+    "max_restarts": 10,
+    "max_restart_seconds": 120,
+    "default_timeout_ms": 3000
+  }'
+"""
+
+# Documentation
+[docs]
+quick_start = "Armstrong fault tolerance DoD: supervision, no-shared-state, let-it-crash, budget"
+features = "Supervision tree audit, shared state detection, exception handling review, budget enforcement"
+use_cases = "Erlang/OTP systems, Elixir Phoenix apps, fault-tolerant microservices, distributed systems"

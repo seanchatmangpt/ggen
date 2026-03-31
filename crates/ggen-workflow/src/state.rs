@@ -55,6 +55,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Arc;
 use uuid::Uuid;
 
 /// Counter for generating unique state transition IDs
@@ -829,7 +830,7 @@ impl StateMachine {
     /// Register an event handler for state transitions
     pub fn on_transition<F>(&mut self, handler: F)
     where
-        F: Fn(&StateTransitionEvent) + 'static,
+        F: Fn(&StateTransitionEvent) + Send + Sync + 'static,
     {
         self.event_handlers.push(EventHandler::new(handler));
     }
@@ -886,37 +887,34 @@ impl StateMachine {
 }
 
 /// Event handler for state transitions
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 struct EventHandler {
-    // Using a boxed function pointer for simplicity
-    // In production, this could use channels or async handlers
     #[allow(dead_code)]
     handler_id: String,
-    #[allow(clippy::type_complexity)]
-    #[allow(dead_code)]
-    callback: *const (),
+    callback: Arc<dyn Fn(&StateTransitionEvent) + Send + Sync>,
 }
 
-// SAFETY: EventHandler is Send because the callback is invoked synchronously
-// and we control the lifecycle
-unsafe impl Send for EventHandler {}
+impl std::fmt::Debug for EventHandler {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("EventHandler")
+            .field("handler_id", &self.handler_id)
+            .finish_non_exhaustive()
+    }
+}
 
 impl EventHandler {
     fn new<F>(f: F) -> Self
     where
-        F: Fn(&StateTransitionEvent) + 'static,
+        F: Fn(&StateTransitionEvent) + Send + Sync + 'static,
     {
-        // Note: This is a simplified implementation
-        // In production, use channels or proper function pointers
-        let _ = f; // Suppress unused warning
         EventHandler {
             handler_id: Uuid::new_v4().to_string(),
-            callback: std::ptr::null(),
+            callback: Arc::new(f),
         }
     }
 
-    fn invoke(&self, _event: &StateTransitionEvent) {
-        // Simplified - in production, actually invoke the callback
+    fn invoke(&self, event: &StateTransitionEvent) {
+        (self.callback)(event);
     }
 }
 

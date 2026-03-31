@@ -18,7 +18,8 @@ impl TemplateValidator {
     }
 
     pub async fn validate_template(
-        &self, _template: &ggen_core::Template,
+        &self,
+        _template: &str, // Changed from ggen_core::Template to &str
     ) -> crate::error::Result<ValidationResult> {
         Ok(ValidationResult {
             valid: true,

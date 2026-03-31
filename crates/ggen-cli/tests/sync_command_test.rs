@@ -73,9 +73,9 @@ mod sync_options_tests {
     #[test]
     fn test_sync_options_with_output_dir() {
         let mut options = SyncOptions::new();
-        options.output_dir = Some(PathBuf::from("generated"));
+        options.output_dir = Some(PathBuf::from("."));
 
-        assert_eq!(options.output_dir, Some(PathBuf::from("generated")));
+        assert_eq!(options.output_dir, Some(PathBuf::from(".")));
     }
 
     /// Test: SyncOptions with cache directory
@@ -591,7 +591,7 @@ mod integration_tests {
     fn test_integration_full_sync_options() {
         let options = SyncOptions {
             manifest_path: PathBuf::from("project/ggen.toml"),
-            output_dir: Some(PathBuf::from("generated")),
+            output_dir: Some(PathBuf::from(".")),
             cache_dir: Some(PathBuf::from(".ggen/cache")),
             verbose: true,
             output_format: OutputFormat::Json,
@@ -606,6 +606,7 @@ mod integration_tests {
             ontology_path: Some(PathBuf::from(
                 ".specify/specs/014-a2a-integration/a2a-ontology.ttl",
             )),
+            llm_service: None,
         };
 
         assert_eq!(options.manifest_path, PathBuf::from("project/ggen.toml"));
@@ -634,6 +635,7 @@ mod integration_tests {
             ontology_path: Some(PathBuf::from(
                 ".specify/specs/014-a2a-integration/a2a-ontology.ttl",
             )),
+            llm_service: None,
         };
 
         assert!(options.audit);
@@ -663,6 +665,7 @@ mod integration_tests {
             audit: false,
             a2a_stage: None,
             ontology_path: None,
+            llm_service: None,
         };
 
         assert!(options.validate_only);
@@ -686,6 +689,7 @@ mod integration_tests {
             audit: true,
             a2a_stage: None,
             ontology_path: None,
+            llm_service: None,
         };
 
         assert!(options.dry_run);
@@ -710,6 +714,7 @@ mod integration_tests {
             audit: false,
             a2a_stage: None,
             ontology_path: None,
+            llm_service: None,
         };
 
         assert!(options.watch);
@@ -734,6 +739,7 @@ mod integration_tests {
             audit: false,
             a2a_stage: None,
             ontology_path: None,
+            llm_service: None,
         };
 
         assert!(matches!(options.output_format, OutputFormat::Json));
@@ -761,6 +767,7 @@ mod integration_tests {
                 ontology_path: Some(PathBuf::from(
                     ".specify/specs/014-a2a-integration/a2a-ontology.ttl",
                 )),
+                llm_service: None,
             };
 
             assert_eq!(options.a2a_stage, Some(stage.to_string()));
@@ -851,6 +858,7 @@ mod integration_tests {
                 audit: false,
                 a2a_stage: None,
                 ontology_path: None,
+                llm_service: None,
             };
 
             assert_eq!(options.selected_rules, Some(rules));

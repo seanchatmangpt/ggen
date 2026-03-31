@@ -165,7 +165,10 @@ mod filter_sentence {
 
     #[test]
     fn snake_to_sentence() {
-        assert_eq!(render_filter("hello_world_example", "sentence"), "Hello world example");
+        assert_eq!(
+            render_filter("hello_world_example", "sentence"),
+            "Hello world example"
+        );
     }
 
     #[test]
@@ -421,7 +424,10 @@ mod filter_deconstantize {
 
     #[test]
     fn strips_last_segment() {
-        assert_eq!(render_filter("ActiveRecord::Base", "deconstantize"), "ActiveRecord");
+        assert_eq!(
+            render_filter("ActiveRecord::Base", "deconstantize"),
+            "ActiveRecord"
+        );
     }
 }
 
@@ -500,7 +506,10 @@ mod filter_special_characters {
     #[test]
     fn special_chars_in_kebab() {
         // inflector replaces non-alphanumeric separators
-        assert_eq!(render_filter("hello@world#test", "kebab"), "hello-world-test");
+        assert_eq!(
+            render_filter("hello@world#test", "kebab"),
+            "hello-world-test"
+        );
     }
 }
 
@@ -599,14 +608,15 @@ mod prefix_registration {
         let mut prefixes = BTreeMap::new();
         prefixes.insert("ex".to_string(), "http://example.org/".to_string());
 
-        let mut pipeline =
-            ggen_core::pipeline::PipelineBuilder::new()
-                .with_prefixes(prefixes, None)
-                .with_inline_rdf(vec![r#"@prefix ex: <http://example.org/> .
+        let mut pipeline = ggen_core::pipeline::PipelineBuilder::new()
+            .with_prefixes(prefixes, None)
+            .with_inline_rdf(vec![
+                r#"@prefix ex: <http://example.org/> .
                    ex:alice a ex:Person ;
-                            ex:name "Alice" ."#])
-                .build()
-                .expect("PipelineBuilder::build failed");
+                            ex:name "Alice" ."#,
+            ])
+            .build()
+            .expect("PipelineBuilder::build failed");
 
         let ctx = Context::new();
         // SparqlFn returns JSON array of objects; Tera renders objects as [object].
@@ -629,7 +639,10 @@ mod prefix_registration {
     fn pipeline_registers_local_function_after_prefixes() {
         let mut pipeline = Pipeline::new().expect("Pipeline::new failed");
         let mut prefixes = BTreeMap::new();
-        prefixes.insert("rdf".to_string(), "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string());
+        prefixes.insert(
+            "rdf".to_string(),
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string(),
+        );
         pipeline.register_prefixes(None, &prefixes);
 
         let mut ctx = Context::new();
@@ -643,14 +656,19 @@ mod prefix_registration {
     #[test]
     fn pipeline_builder_registers_prefixes_on_build() {
         let mut prefixes = BTreeMap::new();
-        prefixes.insert("owl".to_string(), "http://www.w3.org/2002/07/owl#".to_string());
-        prefixes.insert("xsd".to_string(), "http://www.w3.org/2001/XMLSchema#".to_string());
+        prefixes.insert(
+            "owl".to_string(),
+            "http://www.w3.org/2002/07/owl#".to_string(),
+        );
+        prefixes.insert(
+            "xsd".to_string(),
+            "http://www.w3.org/2001/XMLSchema#".to_string(),
+        );
 
-        let mut pipeline =
-            ggen_core::pipeline::PipelineBuilder::new()
-                .with_prefixes(prefixes, Some("http://example.org/base/".to_string()))
-                .build()
-                .expect("PipelineBuilder::build failed");
+        let mut pipeline = ggen_core::pipeline::PipelineBuilder::new()
+            .with_prefixes(prefixes, Some("http://example.org/base/".to_string()))
+            .build()
+            .expect("PipelineBuilder::build failed");
 
         // sparql function should be registered and usable
         let mut ctx = Context::new();
@@ -664,17 +682,24 @@ mod prefix_registration {
     #[test]
     fn standard_prefixes_allow_sparql_queries() {
         let mut prefixes = BTreeMap::new();
-        prefixes.insert("rdf".to_string(), "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string());
-        prefixes.insert("rdfs".to_string(), "http://www.w3.org/2000/01/rdf-schema#".to_string());
+        prefixes.insert(
+            "rdf".to_string(),
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string(),
+        );
+        prefixes.insert(
+            "rdfs".to_string(),
+            "http://www.w3.org/2000/01/rdf-schema#".to_string(),
+        );
 
-        let mut pipeline =
-            ggen_core::pipeline::PipelineBuilder::new()
-                .with_prefixes(prefixes, None)
-                .with_inline_rdf(vec![r#"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+        let mut pipeline = ggen_core::pipeline::PipelineBuilder::new()
+            .with_prefixes(prefixes, None)
+            .with_inline_rdf(vec![
+                r#"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
                    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-                   <http://example.org/Person> rdf:type rdfs:Class ."#])
-                .build()
-                .expect("PipelineBuilder::build failed");
+                   <http://example.org/Person> rdf:type rdfs:Class ."#,
+            ])
+            .build()
+            .expect("PipelineBuilder::build failed");
 
         let ctx = Context::new();
         let result = pipeline
@@ -724,7 +749,10 @@ mod prolog_builder {
     #[test]
     fn base_comes_before_prefix_declarations() {
         let mut prefixes = BTreeMap::new();
-        prefixes.insert("rdf".to_string(), "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string());
+        prefixes.insert(
+            "rdf".to_string(),
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string(),
+        );
         prefixes.insert("ex".to_string(), "http://example.org/".to_string());
         let prolog = build_prolog(&prefixes, Some("http://example.org/base/"));
 
@@ -739,8 +767,14 @@ mod prolog_builder {
     #[test]
     fn multiple_prefixes_sorted_by_key_btreemap() {
         let mut prefixes = BTreeMap::new();
-        prefixes.insert("owl".to_string(), "http://www.w3.org/2002/07/owl#".to_string());
-        prefixes.insert("rdf".to_string(), "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string());
+        prefixes.insert(
+            "owl".to_string(),
+            "http://www.w3.org/2002/07/owl#".to_string(),
+        );
+        prefixes.insert(
+            "rdf".to_string(),
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string(),
+        );
         prefixes.insert("ex".to_string(), "http://example.org/".to_string());
         let prolog = build_prolog(&prefixes, None);
 
@@ -749,15 +783,24 @@ mod prolog_builder {
         let owl_pos = prolog.find("PREFIX owl:").unwrap();
         let rdf_pos = prolog.find("PREFIX rdf:").unwrap();
 
-        assert!(ex_pos < owl_pos, "ex should come before owl in BTreeMap order");
-        assert!(owl_pos < rdf_pos, "owl should come before rdf in BTreeMap order");
+        assert!(
+            ex_pos < owl_pos,
+            "ex should come before owl in BTreeMap order"
+        );
+        assert!(
+            owl_pos < rdf_pos,
+            "owl should come before rdf in BTreeMap order"
+        );
     }
 
     #[test]
     fn prolog_is_deterministic() {
         let mut prefixes = BTreeMap::new();
         prefixes.insert("sh".to_string(), "http://www.w3.org/ns/shacl#".to_string());
-        prefixes.insert("xsd".to_string(), "http://www.w3.org/2001/XMLSchema#".to_string());
+        prefixes.insert(
+            "xsd".to_string(),
+            "http://www.w3.org/2001/XMLSchema#".to_string(),
+        );
 
         let prolog_a = build_prolog(&prefixes, Some("http://example.org/"));
         let prolog_b = build_prolog(&prefixes, Some("http://example.org/"));

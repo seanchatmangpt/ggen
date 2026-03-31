@@ -9,33 +9,41 @@
 
 pub mod aco_sparql_agent;
 pub mod code_generator;
+pub mod cycle_breaker;
 pub mod event_monitor;
 pub mod graph_extender;
 pub mod learning_agent;
 pub mod mock_agent;
 pub mod pso_template_agent;
 pub mod quality_assurance;
+pub mod quality_autopilot;
+pub mod sparql_validator;
 pub mod template_generator;
+pub mod template_validator;
 pub mod validator;
 
 pub use aco_sparql_agent::*;
 pub use code_generator::*;
+pub use cycle_breaker::*;
 pub use event_monitor::*;
 pub use graph_extender::*;
 pub use learning_agent::*;
 pub use mock_agent::*;
 pub use pso_template_agent::*;
 pub use quality_assurance::*;
+pub use quality_autopilot::*;
+pub use sparql_validator::*;
 pub use template_generator::*;
+pub use template_validator::*;
 pub use validator::*;
 
 use crate::error::{GgenAiError, Result};
-use crate::swarm::{AgentInput, AgentOutput, SwarmAgent, SwarmContext, AgentHealth, HealthStatus};
+use crate::swarm::{AgentHealth, AgentInput, AgentOutput, HealthStatus, SwarmAgent, SwarmContext};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use tracing::debug;
 use serde_json::Value;
 use std::collections::HashMap;
+use tracing::debug;
 
 /// Base agent implementation with common functionality
 #[derive(Debug)]
@@ -94,7 +102,9 @@ impl BaseAgent {
             match tokio::time::timeout(
                 std::time::Duration::from_secs(self.config.timeout_seconds),
                 operation(),
-            ).await {
+            )
+            .await
+            {
                 Ok(Ok(result)) => return Ok(result),
                 Ok(Err(e)) => {
                     last_error = Some(e);
@@ -103,7 +113,8 @@ impl BaseAgent {
                     }
                 }
                 Err(_) => {
-                    let error = GgenAiError::operation_timeout(&format!("Agent {} timed out", self.name));
+                    let error =
+                        GgenAiError::operation_timeout(&format!("Agent {} timed out", self.name));
                     last_error = Some(error);
                     if attempt < self.config.retry_attempts {
                         tokio::time::sleep(std::time::Duration::from_secs(1)).await;

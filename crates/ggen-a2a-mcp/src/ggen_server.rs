@@ -12,6 +12,10 @@
 //!   - `search`              — search marketplace packages by keyword/category
 //!   - `scaffold_from_example` — copy an example as a starting point
 //!   - `query_ontology`      — run a SPARQL SELECT against an inline TTL
+//!   - `validate_pipeline`   — run all 6 quality gates on a ggen project
+//!   - `validate_sparql`     — validate SPARQL query syntax
+//!   - `validate_templates`  — validate template syntax
+//!   - `fix_cycles`          — detect and fix circular dependencies
 //!
 //! **Resources** (browsable data):
 //!   - `ggen://example/{name}`        — example summary
@@ -30,12 +34,14 @@
 
 use std::path::{Path, PathBuf};
 
+use crate::otel_attrs;
 use rmcp::{
     handler::server::{router::tool::ToolRouter, wrapper::Parameters},
     model::*,
     schemars, tool, tool_handler, tool_router, ErrorData as McpError, ServerHandler,
 };
 use serde::Deserialize;
+use tracing::{info, warn};
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -148,6 +154,39 @@ pub struct QueryOntologyParams {
     pub sparql: String,
 }
 
+/// Parameters for the `validate_sparql` tool.
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
+pub struct ValidateSparqlParams {
+    /// Path to SPARQL query file (.rq)
+    pub query_path: String,
+}
+
+/// Parameters for the `validate_templates` tool.
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
+pub struct ValidateTemplatesParams {
+    /// Path to template file (.tera or .hbs)
+    pub template_path: String,
+}
+
+/// Parameters for the `fix_cycles` tool.
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
+pub struct FixCyclesParams {
+    /// Path to project directory containing ontologies
+    pub project_path: String,
+    /// Fix strategy: remove_import, merge_files, or create_interface
+    pub strategy: String,
+    /// Dry-run mode - preview only, no files modified
+    #[serde(default)]
+    pub dry_run: bool,
+}
+
+/// Parameters for the `validate_pipeline` tool.
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
+pub struct ValidatePipelineParams {
+    /// Path to the project directory containing ggen.toml
+    pub project_path: String,
+}
+
 // ---------------------------------------------------------------------------
 // Server struct
 // ---------------------------------------------------------------------------
@@ -184,7 +223,11 @@ fn scan_examples(examples_dir: &Path) -> Vec<(String, String, String)> {
         if !config_path.exists() {
             continue;
         }
-        let name = path.file_name().unwrap_or_default().to_string_lossy().to_string();
+        let name = path
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_string();
         let (description, category) = read_ggen_toml_meta(&config_path);
         results.push((name, description, category));
     }
@@ -198,10 +241,10 @@ fn read_ggen_toml_meta(config_path: &Path) -> (String, String) {
         Ok(c) => c,
         Err(_) => return ("No description".to_string(), "unknown".to_string()),
     };
-    let description = extract_toml_field(&content, "description")
-        .unwrap_or_else(|| "No description".to_string());
-    let category = extract_toml_field(&content, "category")
-        .unwrap_or_else(|| "general".to_string());
+    let description =
+        extract_toml_field(&content, "description").unwrap_or_else(|| "No description".to_string());
+    let category =
+        extract_toml_field(&content, "category").unwrap_or_else(|| "general".to_string());
     (description, category)
 }
 
@@ -242,28 +285,31 @@ fn resolve_examples_dir() -> PathBuf {
 
 /// Resolve sync pipeline paths from optional overrides.
 fn resolve_sync_paths(
-    ontology_path: &str,
-    queries_dir: Option<&str>,
-    output_dir: Option<&str>,
+    ontology_path: &str, queries_dir: Option<&str>, output_dir: Option<&str>,
 ) -> (PathBuf, PathBuf, PathBuf) {
     let ontology = PathBuf::from(ontology_path);
-    let parent = ontology.parent().unwrap_or_else(|| Path::new(".")).to_path_buf();
-    let queries = queries_dir.map(PathBuf::from).unwrap_or_else(|| parent.join("queries"));
-    let output = output_dir.map(PathBuf::from).unwrap_or_else(|| parent.join("generated"));
+    let parent = ontology
+        .parent()
+        .unwrap_or_else(|| Path::new("."))
+        .to_path_buf();
+    let queries = queries_dir
+        .map(PathBuf::from)
+        .unwrap_or_else(|| parent.join("queries"));
+    let output = output_dir
+        .map(PathBuf::from)
+        .unwrap_or_else(|| parent.join("generated"));
     (ontology, queries, output)
 }
 
 /// Run the ggen sync pipeline on a blocking thread.
 fn run_sync_blocking(
-    ontology_path: PathBuf,
-    queries_dir: PathBuf,
-    output_dir: PathBuf,
-    language: String,
-    dry_run: bool,
-    validate: bool,
+    ontology_path: PathBuf, queries_dir: PathBuf, output_dir: PathBuf, language: String,
+    dry_run: bool, validate: bool,
 ) -> Result<ggen_core::sync::SyncResult, ggen_core::sync::SyncError> {
-    use ggen_core::sync::{SyncConfig, sync};
-    let lang = language.parse().unwrap_or(ggen_core::sync::SyncLanguage::Auto);
+    use ggen_core::sync::{sync, SyncConfig};
+    let lang = language
+        .parse()
+        .unwrap_or(ggen_core::sync::SyncLanguage::Auto);
     let config = SyncConfig {
         ontology_path,
         queries_dir,
@@ -294,10 +340,21 @@ impl GgenMcpServer {
     // ------------------------------------------------------------------
 
     /// Generate code from a RDF ontology file via the μ₁-μ₅ pipeline.
-    #[tool(description = "Generate code from a RDF ontology file via the ggen μ₁-μ₅ pipeline. Requires ontology_path (.ttl) and optionally queries_dir (.rq files), output_dir, language (go/rust/python/typescript/elixir/auto).")]
+    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+        ontology = %params.ontology_path,
+        lang = ?params.language,
+        service.name = "ggen-mcp-server",
+        service.version = env!("CARGO_PKG_VERSION"),
+    ))]
+    #[tool(
+        description = "Generate code from a RDF ontology file via the ggen μ₁-μ₅ pipeline. Requires ontology_path (.ttl) and optionally queries_dir (.rq files), output_dir, language (go/rust/python/typescript/elixir/auto)."
+    )]
     async fn generate(
         &self, Parameters(params): Parameters<GenerateParams>,
     ) -> Result<CallToolResult, McpError> {
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "generate");
+        tracing::Span::current().record(otel_attrs::MCP_ONTOLOGY_PATH, &params.ontology_path);
+        info!(ontology = %params.ontology_path, lang = ?params.language, "generate tool called");
         if !std::path::Path::new(&params.ontology_path).exists() {
             return Ok(CallToolResult::error(vec![Content::text(format!(
                 "Ontology file not found: {}",
@@ -309,7 +366,10 @@ impl GgenMcpServer {
             params.queries_dir.as_deref(),
             params.output_dir.as_deref(),
         );
-        let lang = params.language.clone().unwrap_or_else(|| "auto".to_string());
+        let lang = params
+            .language
+            .clone()
+            .unwrap_or_else(|| "auto".to_string());
         let result = tokio::task::spawn_blocking(move || {
             run_sync_blocking(ontology, queries, output, lang, false, true)
         })
@@ -318,13 +378,17 @@ impl GgenMcpServer {
 
         match result {
             Ok(r) => {
-                let files: Vec<String> =
-                    r.files_generated.iter().map(|p| p.display().to_string()).collect();
+                let files: Vec<String> = r
+                    .files_generated
+                    .iter()
+                    .map(|p| p.display().to_string())
+                    .collect();
                 let violations = if r.soundness_violations.is_empty() {
                     "none".to_string()
                 } else {
                     format!("{} violations", r.soundness_violations.len())
                 };
+                info!(files = files.len(), elapsed_ms = r.elapsed_ms, receipt = %r.receipt, "generate tool complete");
                 Ok(CallToolResult::success(vec![Content::text(format!(
                     "Generated {} file(s) in {}ms\nFiles: {}\nSoundness violations: {}\nReceipt: {}",
                     files.len(),
@@ -334,19 +398,39 @@ impl GgenMcpServer {
                     r.receipt
                 ))]))
             }
-            Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
-                "Sync pipeline failed: {}",
-                e
-            ))])),
+            Err(e) => {
+                warn!(error = %e, "generate tool failed");
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "pipeline_failure",
+                    error.message = %e,
+                );
+                let _guard = error_span.enter();
+                Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Sync pipeline failed: {}",
+                    e
+                ))]))
+            }
         }
     }
 
     /// Validate a Turtle (.ttl) ontology content string using oxigraph parser.
-    #[tool(description = "Validate a Turtle (.ttl) ontology string for syntax correctness. Returns 'Valid' or a list of parse errors.")]
+    #[tool(
+        description = "Validate a Turtle (.ttl) ontology string for syntax correctness. Returns 'Valid' or a list of parse errors."
+    )]
     async fn validate(
         &self, Parameters(params): Parameters<ValidateParams>,
     ) -> Result<CallToolResult, McpError> {
         use oxigraph::io::{RdfFormat, RdfParser};
+        let span = tracing::info_span!(
+            "ggen.mcp.tool_call",
+            "operation.name" = "mcp.validate",
+            ttl_len = params.ttl.len(),
+        );
+        let _guard = span.enter();
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "validate");
+        tracing::Span::current().record(otel_attrs::MCP_TTL_LENGTH, params.ttl.len());
+        info!(ttl_len = params.ttl.len(), "validate tool called");
 
         let parser = RdfParser::from_format(RdfFormat::Turtle);
         let reader = params.ttl.as_bytes();
@@ -355,11 +439,27 @@ impl GgenMcpServer {
         let triple_count = results.iter().filter(|r| r.is_ok()).count();
 
         if errors.is_empty() {
+            info!(triple_count, "validate tool complete: valid");
             Ok(CallToolResult::success(vec![Content::text(format!(
                 "Valid Turtle content ({} triple(s) parsed)",
                 triple_count
             ))]))
         } else {
+            warn!(
+                error_count = errors.len(),
+                "validate tool complete: invalid"
+            );
+            let msg = errors
+                .iter()
+                .map(|e| e.to_string())
+                .collect::<Vec<_>>()
+                .join("; ");
+            let error_span = tracing::error_span!(
+                "ggen.error",
+                error.type = "validation_failure",
+                error.message = %msg,
+            );
+            let _guard = error_span.enter();
             let msg = errors
                 .iter()
                 .map(|e| e.to_string())
@@ -374,10 +474,21 @@ impl GgenMcpServer {
     }
 
     /// Run the full ggen μ₁-μ₅ sync pipeline from an ontology file.
-    #[tool(description = "Run the full ggen sync pipeline (μ₁-μ₅: Load→Extract→Generate→Validate→Write) from a .ttl ontology. Requires ontology_path; optionally queries_dir, output_dir, language, dry_run.")]
+    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+        ontology = %params.ontology_path,
+        dry_run = params.dry_run,
+        service.name = "ggen-mcp-server",
+        service.version = env!("CARGO_PKG_VERSION"),
+    ))]
+    #[tool(
+        description = "Run the full ggen sync pipeline (μ₁-μ₅: Load→Extract→Generate→Validate→Write) from a .ttl ontology. Requires ontology_path; optionally queries_dir, output_dir, language, dry_run."
+    )]
     async fn sync(
         &self, Parameters(params): Parameters<SyncParams>,
     ) -> Result<CallToolResult, McpError> {
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "sync");
+        tracing::Span::current().record(otel_attrs::MCP_ONTOLOGY_PATH, &params.ontology_path);
+        info!(ontology = %params.ontology_path, dry_run = params.dry_run, "sync tool called");
         if !std::path::Path::new(&params.ontology_path).exists() {
             return Ok(CallToolResult::error(vec![Content::text(format!(
                 "Ontology file not found: {}",
@@ -389,7 +500,10 @@ impl GgenMcpServer {
             params.queries_dir.as_deref(),
             params.output_dir.as_deref(),
         );
-        let lang = params.language.clone().unwrap_or_else(|| "auto".to_string());
+        let lang = params
+            .language
+            .clone()
+            .unwrap_or_else(|| "auto".to_string());
         let dry_run = params.dry_run;
         let result = tokio::task::spawn_blocking(move || {
             run_sync_blocking(ontology, queries, output, lang, dry_run, true)
@@ -400,35 +514,65 @@ impl GgenMcpServer {
         match result {
             Ok(r) => {
                 let mode = if dry_run { "dry-run" } else { "full" };
-                let files: Vec<String> =
-                    r.files_generated.iter().map(|p| p.display().to_string()).collect();
+                info!(
+                    files = r.files_generated.len(),
+                    elapsed_ms = r.elapsed_ms,
+                    mode,
+                    "sync tool complete"
+                );
+                let files: Vec<String> = r
+                    .files_generated
+                    .iter()
+                    .map(|p| p.display().to_string())
+                    .collect();
                 Ok(CallToolResult::success(vec![Content::text(format!(
                     "Sync ({}) complete: {} file(s) in {}ms\nFiles: {}\nReceipt: {}",
                     mode,
                     files.len(),
                     r.elapsed_ms,
-                    if files.is_empty() { "none".to_string() } else { files.join(", ") },
+                    if files.is_empty() {
+                        "none".to_string()
+                    } else {
+                        files.join(", ")
+                    },
                     r.receipt
                 ))]))
             }
-            Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
-                "Sync pipeline failed: {}",
-                e
-            ))])),
+            Err(e) => {
+                warn!(error = %e, "sync tool failed");
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "pipeline_failure",
+                    error.message = %e,
+                );
+                let _guard = error_span.enter();
+                Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Sync pipeline failed: {}",
+                    e
+                ))]))
+            }
         }
     }
 
     /// List available code generators.
-    #[tool(description = "List available code generators supported by ggen (go, rust, python, typescript, elixir, terraform, docker-kubernetes).")]
+    #[tool(
+        description = "List available code generators supported by ggen (go, rust, python, typescript, elixir, terraform, docker-kubernetes)."
+    )]
     async fn list_generators(&self) -> Result<CallToolResult, McpError> {
+        let span = tracing::info_span!(
+            "ggen.mcp.tool_call",
+            "operation.name" = "mcp.list_generators"
+        );
+        let _guard = span.enter();
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "list_generators");
+        info!("list_generators tool called");
         let details = serde_json::json!({
             "generators": GENERATORS,
             "count": GENERATORS.len(),
             "default": "auto"
         });
         Ok(CallToolResult::success(vec![Content::text(
-            serde_json::to_string_pretty(&details)
-                .unwrap_or_else(|_| GENERATORS.join(", ")),
+            serde_json::to_string_pretty(&details).unwrap_or_else(|_| GENERATORS.join(", ")),
         )]))
     }
 
@@ -437,10 +581,17 @@ impl GgenMcpServer {
     // ------------------------------------------------------------------
 
     /// List bundled ggen example projects with optional category filter.
-    #[tool(description = "List bundled ggen example projects. Optionally filter by category. Returns name, description, and category for each example.")]
+    #[tool(
+        description = "List bundled ggen example projects. Optionally filter by category. Returns name, description, and category for each example."
+    )]
     async fn list_examples(
         &self, Parameters(params): Parameters<ListExamplesParams>,
     ) -> Result<CallToolResult, McpError> {
+        let span =
+            tracing::info_span!("ggen.mcp.tool_call", "operation.name" = "mcp.list_examples");
+        let _guard = span.enter();
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "list_examples");
+        info!(category = ?params.category, "list_examples tool called");
         let mut examples = scan_examples(&self.examples_dir);
         if let Some(cat) = &params.category {
             let cat_lower = cat.to_lowercase();
@@ -470,10 +621,20 @@ impl GgenMcpServer {
     }
 
     /// Get details of a specific ggen example project.
-    #[tool(description = "Get details of a specific ggen example: ggen.toml config, ontology TTL content, README, and template file list.")]
+    #[tool(
+        description = "Get details of a specific ggen example: ggen.toml config, ontology TTL content, README, and template file list."
+    )]
     async fn get_example(
         &self, Parameters(params): Parameters<GetExampleParams>,
     ) -> Result<CallToolResult, McpError> {
+        let span = tracing::info_span!(
+            "ggen.mcp.tool_call",
+            "operation.name" = "mcp.get_example",
+            example_name = %params.name,
+        );
+        let _guard = span.enter();
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "get_example");
+        info!(name = %params.name, "get_example tool called");
         let example_dir = self.examples_dir.join(&params.name);
         if !example_dir.is_dir() {
             return Ok(CallToolResult::error(vec![Content::text(format!(
@@ -512,11 +673,21 @@ impl GgenMcpServer {
     }
 
     /// Search marketplace packages by keyword or category.
-    #[tool(description = "Search ggen marketplace packages by query string. Optionally filter by category. Returns matching packages with name, description, version, tags.")]
+    #[tool(
+        description = "Search ggen marketplace packages by query string. Optionally filter by category. Returns matching packages with name, description, version, tags."
+    )]
     async fn search(
         &self, Parameters(params): Parameters<SearchParams>,
     ) -> Result<CallToolResult, McpError> {
-        use ggen_domain::marketplace::search::{SearchFilters, search_packages};
+        use ggen_domain::marketplace::search::{search_packages, SearchFilters};
+        let span = tracing::info_span!(
+            "ggen.mcp.tool_call",
+            "operation.name" = "mcp.search",
+            query = %params.query,
+        );
+        let _guard = span.enter();
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "search");
+        info!(query = %params.query, "search tool called");
 
         let limit = params.limit.unwrap_or(10).min(50);
         let filters = SearchFilters::new()
@@ -541,6 +712,7 @@ impl GgenMcpServer {
                         })
                     })
                     .collect();
+                info!(result_count = items.len(), "search tool complete");
                 Ok(CallToolResult::success(vec![Content::text(
                     serde_json::to_string_pretty(&serde_json::json!({
                         "query": params.query,
@@ -550,18 +722,34 @@ impl GgenMcpServer {
                     .unwrap_or_else(|_| format!("{} results", items.len())),
                 )]))
             }
-            Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
-                "Search failed: {}",
-                e
-            ))])),
+            Err(e) => {
+                warn!(error = %e, "search tool failed");
+                tracing::Span::current().record("error", true);
+                tracing::Span::current().record("error.type", "search_failure");
+                Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Search failed: {}",
+                    e
+                ))]))
+            }
         }
     }
 
     /// Scaffold a new project by copying a bundled example to a target directory.
-    #[tool(description = "Scaffold a new ggen project from a bundled example. Copies the example directory to target_dir as a starting point.")]
+    #[tool(
+        description = "Scaffold a new ggen project from a bundled example. Copies the example directory to target_dir as a starting point."
+    )]
     async fn scaffold_from_example(
         &self, Parameters(params): Parameters<ScaffoldParams>,
     ) -> Result<CallToolResult, McpError> {
+        let span = tracing::info_span!(
+            "ggen.mcp.tool_call",
+            "operation.name" = "mcp.scaffold_from_example",
+            example_name = %params.example_name,
+            target_dir = %params.target_dir,
+        );
+        let _guard = span.enter();
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "scaffold_from_example");
+        info!(example = %params.example_name, target = %params.target_dir, "scaffold_from_example tool called");
         let src = self.examples_dir.join(&params.example_name);
         if !src.is_dir() {
             return Ok(CallToolResult::error(vec![Content::text(format!(
@@ -584,15 +772,28 @@ impl GgenMcpServer {
                 params.target_dir,
                 files.join("\n")
             ))])),
-            Err(e) => Ok(CallToolResult::error(vec![Content::text(format!(
-                "Scaffold failed: {}",
-                e
-            ))])),
+            Err(e) => {
+                warn!(error = %e, "scaffold_from_example tool failed");
+                tracing::Span::current().record("error", true);
+                tracing::Span::current().record("error.type", "pipeline_failure");
+                Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Scaffold failed: {}",
+                    e
+                ))]))
+            }
         }
     }
 
     /// Run a SPARQL SELECT query against an inline TTL string.
-    #[tool(description = "Execute a SPARQL SELECT query against a Turtle (.ttl) ontology string. Returns query results as JSON rows.")]
+    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+        sparql_len = params.sparql.len(),
+        ttl_len = params.ttl.len(),
+        service.name = "ggen-mcp-server",
+        service.version = env!("CARGO_PKG_VERSION"),
+    ))]
+    #[tool(
+        description = "Execute a SPARQL SELECT query against a Turtle (.ttl) ontology string. Returns query results as JSON rows."
+    )]
     async fn query_ontology(
         &self, Parameters(params): Parameters<QueryOntologyParams>,
     ) -> Result<CallToolResult, McpError> {
@@ -601,20 +802,59 @@ impl GgenMcpServer {
             sparql::{QueryResults, SparqlEvaluator},
             store::Store,
         };
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "query_ontology");
+        tracing::Span::current().record(otel_attrs::MCP_SPARQL_QUERY_LENGTH, params.sparql.len());
+        tracing::Span::current().record(otel_attrs::MCP_TTL_LENGTH, params.ttl.len());
+        info!(
+            sparql_len = params.sparql.len(),
+            "query_ontology tool called"
+        );
 
         // Load TTL into in-memory store
-        let store = Store::new().map_err(|e| McpError::internal_error(e.to_string(), None))?;
+        let store = Store::new().map_err(|e| {
+            let error_span = tracing::error_span!(
+                "ggen.error",
+                error.type = "internal_error",
+                error.message = format!("Store creation failed: {}", e),
+            );
+            let _guard = error_span.enter();
+            McpError::internal_error(e.to_string(), None)
+        })?;
         store
             .load_from_reader(RdfFormat::Turtle, params.ttl.as_bytes())
-            .map_err(|e| McpError::invalid_params(format!("Invalid TTL: {}", e), None))?;
+            .map_err(|e| {
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "invalid_params",
+                    error.message = format!("Invalid TTL: {}", e),
+                );
+                let _guard = error_span.enter();
+                McpError::invalid_params(format!("Invalid TTL: {}", e), None)
+            })?;
 
         // Execute SPARQL query via SparqlEvaluator (non-deprecated API)
         let results = SparqlEvaluator::new()
             .parse_query(&params.sparql)
-            .map_err(|e| McpError::invalid_params(format!("SPARQL parse error: {}", e), None))?
+            .map_err(|e| {
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "invalid_params",
+                    error.message = format!("SPARQL parse error: {}", e),
+                );
+                let _guard = error_span.enter();
+                McpError::invalid_params(format!("SPARQL parse error: {}", e), None)
+            })?
             .on_store(&store)
             .execute()
-            .map_err(|e| McpError::internal_error(format!("SPARQL execution error: {}", e), None))?;
+            .map_err(|e| {
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "internal_error",
+                    error.message = format!("SPARQL execution error: {}", e),
+                );
+                let _guard = error_span.enter();
+                McpError::internal_error(format!("SPARQL execution error: {}", e), None)
+            })?;
 
         match results {
             QueryResults::Solutions(solutions) => {
@@ -623,11 +863,15 @@ impl GgenMcpServer {
                     let row: serde_json::Map<String, serde_json::Value> = solution
                         .iter()
                         .map(|(var, term)| {
-                            (var.as_str().to_string(), serde_json::Value::String(term.to_string()))
+                            (
+                                var.as_str().to_string(),
+                                serde_json::Value::String(term.to_string()),
+                            )
                         })
                         .collect();
                     rows.push(serde_json::Value::Object(row));
                 }
+                info!(row_count = rows.len(), "query_ontology tool complete");
                 Ok(CallToolResult::success(vec![Content::text(
                     serde_json::to_string_pretty(&serde_json::json!({
                         "rows": rows,
@@ -636,9 +880,312 @@ impl GgenMcpServer {
                     .unwrap_or_else(|_| format!("{} results", rows.len())),
                 )]))
             }
-            _ => Ok(CallToolResult::error(vec![Content::text(
-                "Only SELECT queries are supported".to_string(),
-            )])),
+            _ => {
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "query_failure",
+                    error.message = "Only SELECT queries are supported",
+                );
+                let _guard = error_span.enter();
+                Ok(CallToolResult::error(vec![Content::text(
+                    "Only SELECT queries are supported".to_string(),
+                )]))
+            }
+        }
+    }
+
+    /// Run all 6 quality gates on a ggen project.
+    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+        project_path = %params.project_path,
+        service.name = "ggen-mcp-server",
+        service.version = env!("CARGO_PKG_VERSION"),
+    ))]
+    #[tool(
+        description = "Run all 6 quality gates on a ggen project. Validates manifest schema, ontology dependencies, SPARQL queries, templates, file permissions, and generation rules. Requires project_path (directory containing ggen.toml)."
+    )]
+    async fn validate_pipeline(
+        &self, Parameters(params): Parameters<ValidatePipelineParams>,
+    ) -> Result<CallToolResult, McpError> {
+        use ggen_core::manifest::ManifestParser;
+        use ggen_core::poka_yoke::quality_gates::QualityGateRunner;
+
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "validate_pipeline");
+        tracing::Span::current().record(otel_attrs::MCP_PROJECT_PATH, &params.project_path);
+        info!(project_path = %params.project_path, "validate_pipeline tool called");
+
+        let project_path = PathBuf::from(&params.project_path);
+
+        // Check if project directory exists
+        if !project_path.is_dir() {
+            return Ok(CallToolResult::error(vec![Content::text(format!(
+                "Project directory not found: {}",
+                params.project_path
+            ))]));
+        }
+
+        // Check if ggen.toml exists
+        let manifest_path = project_path.join("ggen.toml");
+        if !manifest_path.exists() {
+            return Ok(CallToolResult::error(vec![Content::text(format!(
+                "ggen.toml not found in: {}",
+                params.project_path
+            ))]));
+        }
+
+        // Parse manifest
+        let manifest =
+            match tokio::task::spawn_blocking(move || ManifestParser::parse(&manifest_path))
+                .await
+                .map_err(|e| McpError::internal_error(e.to_string(), None))?
+            {
+                Ok(m) => m,
+                Err(e) => {
+                    warn!(error = %e, "validate_pipeline: failed to parse manifest");
+                    let error_span = tracing::error_span!(
+                        "ggen.error",
+                        error.type = "manifest_parse_failure",
+                        error.message = %e,
+                    );
+                    let _guard = error_span.enter();
+                    return Ok(CallToolResult::error(vec![Content::text(format!(
+                        "Failed to parse ggen.toml: {}",
+                        e
+                    ))]));
+                }
+            };
+
+        // Run all quality gates
+        let result = tokio::task::spawn_blocking(move || {
+            let runner = QualityGateRunner::new();
+            runner.run_all(&manifest, &project_path)
+        })
+        .await
+        .map_err(|e| McpError::internal_error(e.to_string(), None))?;
+
+        match result {
+            Ok(_) => {
+                info!("validate_pipeline tool complete: all gates passed");
+                let checkpoints = QualityGateRunner::new().checkpoints();
+                let checkpoint_names: Vec<String> =
+                    checkpoints.iter().map(|c| c.name.clone()).collect();
+                Ok(CallToolResult::success(vec![Content::text(format!(
+                    "✅ All quality gates passed ({}/{} checkpoints)\n\nPassed checks:\n{}",
+                    checkpoint_names.len(),
+                    checkpoint_names.len(),
+                    checkpoint_names
+                        .iter()
+                        .map(|n| format!("  ✓ {}", n))
+                        .collect::<Vec<_>>()
+                        .join("\n")
+                ))]))
+            }
+            Err(e) => {
+                warn!(error = %e, "validate_pipeline tool failed");
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "quality_gate_failure",
+                    error.message = %e,
+                );
+                let _guard = error_span.enter();
+                Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Quality gate validation failed: {}",
+                    e
+                ))]))
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Quality gate tools
+    // ------------------------------------------------------------------
+
+    /// Validate a SPARQL query file for syntax correctness.
+    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+        query_path = %params.query_path,
+        service.name = "ggen-mcp-server",
+        service.version = env!("CARGO_PKG_VERSION"),
+    ))]
+    #[tool(
+        description = "Validate a SPARQL query file (.rq) for syntax correctness. Returns 'Valid' or parse error details."
+    )]
+    async fn validate_sparql(
+        &self, Parameters(params): Parameters<ValidateSparqlParams>,
+    ) -> Result<CallToolResult, McpError> {
+        use oxigraph::sparql::SparqlEvaluator;
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "validate_sparql");
+        tracing::Span::current().record(otel_attrs::MCP_QUERY_PATH, &params.query_path);
+        info!(query_path = %params.query_path, "validate_sparql tool called");
+
+        // Read query file
+        let query_content = std::fs::read_to_string(&params.query_path).map_err(|e| {
+            let error_span = tracing::error_span!(
+                "ggen.error",
+                error.type = "invalid_params",
+                error.message = format!("Failed to read query file: {}", e),
+            );
+            let _guard = error_span.enter();
+            McpError::invalid_params(format!("Failed to read query file: {}", e), None)
+        })?;
+
+        // Parse SPARQL query (syntax validation only)
+        match SparqlEvaluator::new().parse_query(&query_content) {
+            Ok(_) => {
+                info!(status = "valid", "validate_sparql tool complete");
+                Ok(CallToolResult::success(vec![Content::text(
+                    "SPARQL query syntax is valid".to_string(),
+                )]))
+            }
+            Err(e) => {
+                warn!(error = %e, "validate_sparql tool failed");
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "sparql_syntax_error",
+                    error.message = %e,
+                );
+                let _guard = error_span.enter();
+                Ok(CallToolResult::error(vec![Content::text(format!(
+                    "SPARQL syntax error: {}",
+                    e
+                ))]))
+            }
+        }
+    }
+
+    /// Validate a template file for syntax correctness.
+    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+        template_path = %params.template_path,
+        service.name = "ggen-mcp-server",
+        service.version = env!("CARGO_PKG_VERSION"),
+    ))]
+    #[tool(
+        description = "Validate a template file (.tera, .hbs, .j2) for syntax correctness. Returns validation result with issues list."
+    )]
+    async fn validate_templates(
+        &self, Parameters(params): Parameters<ValidateTemplatesParams>,
+    ) -> Result<CallToolResult, McpError> {
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "validate_templates");
+        tracing::Span::current().record(otel_attrs::MCP_TEMPLATE_PATH, &params.template_path);
+        info!(template_path = %params.template_path, "validate_templates tool called");
+
+        // Read template file
+        let template_content = std::fs::read_to_string(&params.template_path).map_err(|e| {
+            let error_span = tracing::error_span!(
+                "ggen.error",
+                error.type = "invalid_params",
+                error.message = format!("Failed to read template file: {}", e),
+            );
+            let _guard = error_span.enter();
+            McpError::invalid_params(format!("Failed to read template file: {}", e), None)
+        })?;
+
+        // Validate template syntax
+        match ggen_core::template::validate_template(&template_content) {
+            Ok(result) => {
+                if result.is_valid {
+                    info!(status = "valid", "validate_templates tool complete");
+                    Ok(CallToolResult::success(vec![Content::text(
+                        "Template syntax is valid".to_string(),
+                    )]))
+                } else {
+                    let issues: Vec<String> =
+                        result.issues.iter().map(|i| format!("{:?}", i)).collect();
+                    warn!(
+                        issue_count = issues.len(),
+                        "validate_templates tool found issues"
+                    );
+                    let error_span = tracing::error_span!(
+                        "ggen.error",
+                        error.type = "template_syntax_error",
+                        error.message = format!("Template validation failed: {}", issues.join(", ")),
+                    );
+                    let _guard = error_span.enter();
+                    Ok(CallToolResult::error(vec![Content::text(format!(
+                        "Template validation failed:\n{}",
+                        issues.join("\n")
+                    ))]))
+                }
+            }
+            Err(e) => {
+                warn!(error = %e, "validate_templates tool failed");
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "template_validation_error",
+                    error.message = %e,
+                );
+                let _guard = error_span.enter();
+                Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Template validation error: {}",
+                    e
+                ))]))
+            }
+        }
+    }
+
+    /// Detect and fix circular dependencies in ontology imports.
+    #[tracing::instrument(name = "ggen.mcp.tool_call", skip(self), fields(
+        project_path = %params.project_path,
+        strategy = %params.strategy,
+        dry_run = params.dry_run,
+        service.name = "ggen-mcp-server",
+        service.version = env!("CARGO_PKG_VERSION"),
+    ))]
+    #[tool(
+        description = "Detect and fix circular dependencies in ontology imports. Strategies: remove_import, merge_files, create_interface. Set dry_run=true to preview changes."
+    )]
+    async fn fix_cycles(
+        &self, Parameters(params): Parameters<FixCyclesParams>,
+    ) -> Result<CallToolResult, McpError> {
+        use ggen_core::graph::cycle_fixer::{CycleFixer, FixStrategy};
+        tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "fix_cycles");
+        tracing::Span::current().record(otel_attrs::MCP_PROJECT_PATH, &params.project_path);
+        info!(project_path = %params.project_path, strategy = %params.strategy, dry_run = params.dry_run, "fix_cycles tool called");
+
+        // Parse fix strategy
+        let strategy = FixStrategy::from_str(&params.strategy)
+            .ok_or_else(|| McpError::invalid_params(format!("Invalid strategy: {}. Must be: remove_import, merge_files, or create_interface", params.strategy), None))?;
+
+        // Create cycle fixer
+        let fixer = CycleFixer::new(&params.project_path);
+
+        // Detect and fix cycles
+        match fixer.detect_and_fix(strategy, params.dry_run) {
+            Ok(report) => {
+                let mode = if params.dry_run { "dry-run" } else { "fix" };
+                info!(
+                    cycles_found = report.cycles_found,
+                    fixes_applied = report.fixes_applied,
+                    files_modified = report.files_modified.len(),
+                    mode,
+                    "fix_cycles tool complete"
+                );
+
+                let result = serde_json::json!({
+                    "mode": mode,
+                    "cycles_found": report.cycles_found,
+                    "fixes_applied": report.fixes_applied,
+                    "files_modified": report.files_modified,
+                    "backup_path": report.backup_path,
+                    "cycles": report.cycles
+                });
+
+                Ok(CallToolResult::success(vec![Content::text(
+                    serde_json::to_string_pretty(&result).unwrap_or_else(|_| {
+                        format!(
+                            "{} cycles found, {} fixes applied",
+                            report.cycles_found, report.fixes_applied
+                        )
+                    }),
+                )]))
+            }
+            Err(e) => {
+                warn!(error = %e, "fix_cycles tool failed");
+                tracing::Span::current().record("error", true);
+                tracing::Span::current().record("error.type", "cycle_detection_error");
+                Ok(CallToolResult::error(vec![Content::text(format!(
+                    "Cycle detection/fixing failed: {}",
+                    e
+                ))]))
+            }
         }
     }
 }
@@ -700,16 +1247,36 @@ fn list_template_files(example_dir: &Path) -> Vec<String> {
         .collect()
 }
 
+/// Directories to exclude when scaffolding examples (build artifacts, caches, etc.)
+const EXCLUDED_DIRS: &[&str] = &[
+    "target",
+    "node_modules",
+    ".git",
+    "dist",
+    "build",
+    "cache",
+    ".cache",
+    ".ggen/cache", // Exclude ggen's internal cache
+];
+
 fn copy_dir_recursive(src: &Path, dst: &Path) -> std::io::Result<Vec<String>> {
     std::fs::create_dir_all(dst)?;
     let mut files = vec![];
     for entry in std::fs::read_dir(src)?.flatten() {
         let src_path = entry.path();
-        let dst_path = dst.join(entry.file_name());
+        let file_name = entry.file_name();
+
+        // Skip excluded directories
         if src_path.is_dir() {
+            let dir_name = file_name.to_string_lossy();
+            if EXCLUDED_DIRS.iter().any(|excluded| dir_name == *excluded) {
+                continue; // Skip this directory
+            }
+            let dst_path = dst.join(&file_name);
             let sub = copy_dir_recursive(&src_path, &dst_path)?;
             files.extend(sub);
         } else {
+            let dst_path = dst.join(&file_name);
             std::fs::copy(&src_path, &dst_path)?;
             files.push(dst_path.display().to_string());
         }
@@ -767,13 +1334,10 @@ impl GgenMcpServer {
         scan_examples(&self.examples_dir)
             .into_iter()
             .map(|(name, description, _category)| {
-                RawResource::new(
-                    format!("ggen://example/{}", name),
-                    name.clone(),
-                )
-                .with_description(description)
-                .with_mime_type("application/json")
-                .no_annotation()
+                RawResource::new(format!("ggen://example/{}", name), name.clone())
+                    .with_description(description)
+                    .with_mime_type("application/json")
+                    .no_annotation()
             })
             .collect()
     }
@@ -796,8 +1360,8 @@ impl GgenMcpServer {
             None => {
                 // Summary: return ggen.toml content as JSON summary
                 let (desc, cat) = read_ggen_toml_meta(&example_dir.join("ggen.toml"));
-                let config_raw = std::fs::read_to_string(example_dir.join("ggen.toml"))
-                    .unwrap_or_default();
+                let config_raw =
+                    std::fs::read_to_string(example_dir.join("ggen.toml")).unwrap_or_default();
                 serde_json::to_string_pretty(&serde_json::json!({
                     "name": name,
                     "description": desc,
@@ -816,9 +1380,9 @@ impl GgenMcpServer {
             _ => return None,
         };
 
-        Some(ReadResourceResult::new(vec![
-            ResourceContents::text(content, uri),
-        ]))
+        Some(ReadResourceResult::new(vec![ResourceContents::text(
+            content, uri,
+        )]))
     }
 
     // ------------------------------------------------------------------
@@ -864,9 +1428,7 @@ impl GgenMcpServer {
     }
 
     fn render_prompt(
-        &self,
-        name: &str,
-        args: &std::collections::HashMap<String, String>,
+        &self, name: &str, args: &std::collections::HashMap<String, String>,
     ) -> Option<GetPromptResult> {
         match name {
             "explain-rdf-schema" => {
@@ -913,7 +1475,10 @@ impl GgenMcpServer {
             }
             "scaffold-project" => {
                 let domain = args.get("domain").cloned().unwrap_or_default();
-                let language = args.get("language").cloned().unwrap_or_else(|| "auto".to_string());
+                let language = args
+                    .get("language")
+                    .cloned()
+                    .unwrap_or_else(|| "auto".to_string());
                 Some(
                     GetPromptResult::new(vec![
                         PromptMessage::new_text(
@@ -942,10 +1507,10 @@ impl ServerHandler for GgenMcpServer {
     }
 
     async fn list_resources(
-        &self,
-        request: Option<PaginatedRequestParams>,
+        &self, request: Option<PaginatedRequestParams>,
         _context: rmcp::service::RequestContext<rmcp::RoleServer>,
     ) -> Result<ListResourcesResult, McpError> {
+        info!("list_resources called");
         let all = self.build_example_resources();
         let start = request
             .as_ref()
@@ -966,67 +1531,57 @@ impl ServerHandler for GgenMcpServer {
     }
 
     async fn read_resource(
-        &self,
-        request: ReadResourceRequestParams,
+        &self, request: ReadResourceRequestParams,
         _context: rmcp::service::RequestContext<rmcp::RoleServer>,
     ) -> Result<ReadResourceResult, McpError> {
+        info!(uri = %request.uri, "read_resource called");
         self.read_example_resource(&request.uri).ok_or_else(|| {
-            McpError::invalid_params(
-                format!("Resource not found: {}", request.uri),
-                None,
-            )
+            McpError::invalid_params(format!("Resource not found: {}", request.uri), None)
         })
     }
 
     async fn list_prompts(
-        &self,
-        _request: Option<PaginatedRequestParams>,
+        &self, _request: Option<PaginatedRequestParams>,
         _context: rmcp::service::RequestContext<rmcp::RoleServer>,
     ) -> Result<ListPromptsResult, McpError> {
+        info!("list_prompts called");
         Ok(ListPromptsResult::with_all_items(Self::all_prompts()))
     }
 
     async fn get_prompt(
-        &self,
-        request: GetPromptRequestParams,
+        &self, request: GetPromptRequestParams,
         _context: rmcp::service::RequestContext<rmcp::RoleServer>,
     ) -> Result<GetPromptResult, McpError> {
+        info!(name = %request.name, "get_prompt called");
         let args: std::collections::HashMap<String, String> = request
             .arguments
             .as_ref()
             .map(|m| {
                 m.iter()
-                    .filter_map(|(k, v)| {
-                        v.as_str().map(|s| (k.clone(), s.to_string()))
-                    })
+                    .filter_map(|(k, v)| v.as_str().map(|s| (k.clone(), s.to_string())))
                     .collect()
             })
             .unwrap_or_default();
 
         self.render_prompt(&request.name, &args).ok_or_else(|| {
-            McpError::invalid_params(
-                format!("Unknown prompt: {}", request.name),
-                None,
-            )
+            McpError::invalid_params(format!("Unknown prompt: {}", request.name), None)
         })
     }
 
     async fn complete(
-        &self,
-        request: CompleteRequestParams,
+        &self, request: CompleteRequestParams,
         _context: rmcp::service::RequestContext<rmcp::RoleServer>,
     ) -> Result<CompleteResult, McpError> {
         let prefix = request.argument.value.to_lowercase();
+        info!(argument = %request.argument.name, prefix = %prefix, "complete called");
 
         let values = match &request.argument.name {
-            name if name == "example_name" => {
-                scan_examples(&self.examples_dir)
-                    .into_iter()
-                    .map(|(n, _, _)| n)
-                    .filter(|n| n.to_lowercase().starts_with(&prefix))
-                    .take(CompletionInfo::MAX_VALUES)
-                    .collect::<Vec<_>>()
-            }
+            name if name == "example_name" => scan_examples(&self.examples_dir)
+                .into_iter()
+                .map(|(n, _, _)| n)
+                .filter(|n| n.to_lowercase().starts_with(&prefix))
+                .take(CompletionInfo::MAX_VALUES)
+                .collect::<Vec<_>>(),
             name if name == "generator" || name == "language" => GENERATORS
                 .iter()
                 .filter(|g| g.starts_with(prefix.as_str()))
@@ -1035,8 +1590,7 @@ impl ServerHandler for GgenMcpServer {
             _ => vec![],
         };
 
-        let completion = CompletionInfo::with_all_values(values)
-            .unwrap_or_default();
+        let completion = CompletionInfo::with_all_values(values).unwrap_or_default();
         Ok(CompleteResult::new(completion))
     }
 }

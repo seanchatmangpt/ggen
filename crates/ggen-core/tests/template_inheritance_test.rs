@@ -30,9 +30,10 @@ fn read_template(rel: &str) -> Option<String> {
     if !path.exists() {
         return None;
     }
-    Some(std::fs::read_to_string(&path).unwrap_or_else(|e| {
-        panic!("Cannot read {}: {}", path.display(), e)
-    }))
+    Some(
+        std::fs::read_to_string(&path)
+            .unwrap_or_else(|e| panic!("Cannot read {}: {}", path.display(), e)),
+    )
 }
 
 /// Create a Tera instance with all ggen-core filters/functions registered.
@@ -62,7 +63,11 @@ fn test_base_head_template_parses_without_error() {
     let mut ctx = Context::new();
     ctx.insert("file_description", "Test base template");
     let result = tera.render("mcp-server/_head.tera", &ctx);
-    assert!(result.is_ok(), "_head.tera render failed: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "_head.tera render failed: {:?}",
+        result.err()
+    );
 
     let output = result.unwrap();
     assert!(output.contains("Test base template"));
@@ -181,7 +186,11 @@ fn test_block_overrides_produce_clean_merged_output() {
     ctx.insert("idempotent", &true);
 
     let result = tera.render("mcp-server/mcp_server.rs.tera", &ctx);
-    assert!(result.is_ok(), "mcp_server render failed: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "mcp_server render failed: {:?}",
+        result.err()
+    );
 
     let output = result.unwrap();
 
@@ -277,11 +286,7 @@ fn test_all_mcp_server_children_extend_head() {
     for entry in WalkDir::new(&mcp_dir)
         .into_iter()
         .filter_map(|e| e.ok())
-        .filter(|e| {
-            e.path()
-                .extension()
-                .map_or(false, |ext| ext == "tera")
-        })
+        .filter(|e| e.path().extension().map_or(false, |ext| ext == "tera"))
     {
         // Skip the base template itself
         if entry.file_name() == "_head.tera" {
@@ -321,11 +326,7 @@ fn test_all_mcp_server_children_extend_head() {
         );
 
         if let Err(e) = tera.add_raw_template(&template_name, &content) {
-            errors.push(format!(
-                "PARSE ERROR in {}: {}",
-                child_path.display(),
-                e
-            ));
+            errors.push(format!("PARSE ERROR in {}: {}", child_path.display(), e));
         } else {
             checked += 1;
         }
@@ -341,7 +342,8 @@ fn test_all_mcp_server_children_extend_head() {
     }
 
     assert_eq!(
-        checked, children.len(),
+        checked,
+        children.len(),
         "all {} child templates should parse successfully",
         children.len()
     );
@@ -363,11 +365,7 @@ fn test_benchmark_include_templates_resolve() {
     let tera_files: Vec<std::path::PathBuf> = WalkDir::new(&components_dir)
         .into_iter()
         .filter_map(|e| e.ok())
-        .filter(|e| {
-            e.path()
-                .extension()
-                .map_or(false, |ext| ext == "tera")
-        })
+        .filter(|e| e.path().extension().map_or(false, |ext| ext == "tera"))
         .map(|e| e.path().to_path_buf())
         .collect();
 
@@ -495,11 +493,7 @@ fn test_no_circular_extends_chains() {
     for entry in WalkDir::new(&templates_dir)
         .into_iter()
         .filter_map(|e| e.ok())
-        .filter(|e| {
-            e.path()
-                .extension()
-                .map_or(false, |ext| ext == "tera")
-        })
+        .filter(|e| e.path().extension().map_or(false, |ext| ext == "tera"))
     {
         let content = match std::fs::read_to_string(entry.path()) {
             Ok(c) => c,
@@ -551,10 +545,7 @@ fn test_no_circular_extends_chains() {
     }
 
     if !errors.is_empty() {
-        panic!(
-            "Circular extends chains detected:\n{}",
-            errors.join("\n")
-        );
+        panic!("Circular extends chains detected:\n{}", errors.join("\n"));
     }
 }
 
@@ -698,14 +689,8 @@ fn test_tool_handler_extends_head_and_renders_with_sparql_data() {
     assert!(output.contains("#[tool_handler"));
 
     // No Tera artifacts
-    assert!(
-        !output.contains("{{"),
-        "no unclosed expressions in output"
-    );
-    assert!(
-        !output.contains("{%"),
-        "no unrendered tags in output"
-    );
+    assert!(!output.contains("{{"), "no unclosed expressions in output");
+    assert!(!output.contains("{%"), "no unrendered tags in output");
 }
 
 // ---------------------------------------------------------------------------
@@ -723,11 +708,7 @@ fn test_all_children_call_super_in_imports_block() {
     for entry in WalkDir::new(&mcp_dir)
         .into_iter()
         .filter_map(|e| e.ok())
-        .filter(|e| {
-            e.path()
-                .extension()
-                .map_or(false, |ext| ext == "tera")
-        })
+        .filter(|e| e.path().extension().map_or(false, |ext| ext == "tera"))
     {
         if entry.file_name() == "_head.tera" {
             continue;

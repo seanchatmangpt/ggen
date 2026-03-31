@@ -237,7 +237,7 @@ features:
 
     ggen()
         .arg("template")
-        .arg("generate-tree")
+        .arg("generate_tree")
         .arg("tree-template")
         .arg("--data")
         .arg(temp_dir.path().join("data.yaml").to_str().unwrap())
@@ -356,7 +356,7 @@ fn test_template_generate_tree_missing_template() {
 
     ggen()
         .arg("template")
-        .arg("generate-tree")
+        .arg("generate_tree")
         .arg("nonexistent-template")
         .current_dir(&temp_dir)
         .assert()

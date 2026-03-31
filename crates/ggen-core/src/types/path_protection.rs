@@ -3,7 +3,7 @@
 //! This module provides glob-based path matching to enforce the trait boundary
 //! separation pattern where:
 //! - `protected_paths` (e.g., src/domain/**) MUST NEVER be overwritten
-//! - `regenerate_paths` (e.g., src/generated/**) CAN be freely regenerated
+//! - `regenerate_paths` (e.g., *.rs) CAN be freely regenerated
 
 use glob::Pattern;
 use std::path::Path;
@@ -89,12 +89,7 @@ impl PathProtectionConfig {
 
     /// Validate that no path can match both protected and regenerate patterns
     fn validate_no_overlaps(&self) -> Result<(), PathProtectionError> {
-        let test_paths = [
-            "src/domain/user.rs",
-            "src/generated/user.rs",
-            "src/main.rs",
-            "Cargo.toml",
-        ];
+        let test_paths = ["src/domain/user.rs", "user.rs", "src/main.rs", "Cargo.toml"];
 
         for path in test_paths {
             let protected_match = self.protected_patterns.iter().find(|p| p.matches(path));
@@ -169,7 +164,7 @@ impl Default for PathProtectionConfig {
     fn default() -> Self {
         Self::new(
             &["src/domain/**", "src/main.rs", "Cargo.toml"],
-            &["src/generated/**"],
+            &["output/**"],
         )
         .expect("Default patterns should be valid")
     }
@@ -198,9 +193,9 @@ mod tests {
 
         assert!(config.is_protected("src/domain/user.rs"));
         assert!(config.is_protected("src/main.rs"));
-        assert!(!config.is_protected("src/generated/user.rs"));
+        assert!(!config.is_protected("output/generated.rs"));
 
-        assert!(config.is_regeneratable("src/generated/user.rs"));
+        assert!(config.is_regeneratable("output/generated.rs"));
         assert!(!config.is_regeneratable("src/domain/user.rs"));
     }
 
@@ -223,7 +218,7 @@ mod tests {
     fn test_validate_write_regeneratable_passes() {
         let config = PathProtectionConfig::default();
 
-        let result = config.validate_write("src/generated/user.rs", true);
+        let result = config.validate_write("output/generated.rs", true);
         assert!(result.is_ok());
     }
 
@@ -256,7 +251,7 @@ mod tests {
     fn test_invalid_pattern() {
         let result = PathProtectionConfig::new(
             &["[invalid"], // Invalid glob pattern
-            &["src/generated/**"],
+            &["output/**"],
         );
 
         assert!(result.is_err());
@@ -278,10 +273,10 @@ mod tests {
         );
 
         assert_eq!(
-            config.regenerate_pattern_for("src/generated/user.rs"),
-            Some("src/generated/**")
+            config.regenerate_pattern_for("output/generated.rs"),
+            Some("output/**")
         );
 
-        assert_eq!(config.protected_pattern_for("src/generated/user.rs"), None);
+        assert_eq!(config.protected_pattern_for("output/generated.rs"), None);
     }
 }

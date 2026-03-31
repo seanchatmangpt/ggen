@@ -201,7 +201,7 @@ nodes:
         .unwrap()
         .args([
             "template",
-            "generate-tree",
+            "generate_tree",
             "--template",
             template_file.path().to_str().unwrap(),
             "--output",
@@ -293,7 +293,7 @@ nodes:
                     .unwrap()
                     .args([
                         "template",
-                        "generate-tree",
+                        "generate_tree",
                         "--template",
                         template_path.to_str().unwrap(),
                         "--output",
@@ -408,7 +408,7 @@ nodes:
         .unwrap()
         .args([
             "template",
-            "generate-tree",
+            "generate_tree",
             "--template",
             template_file.path().to_str().unwrap(),
             "--output",
@@ -476,7 +476,7 @@ nodes:
         .unwrap()
         .args([
             "template",
-            "generate-tree",
+            "generate_tree",
             "--template",
             template_file.path().to_str().unwrap(),
             "--output",
@@ -541,7 +541,7 @@ nodes:
         .unwrap()
         .args([
             "template",
-            "generate-tree",
+            "generate_tree",
             "--template",
             template_file.path().to_str().unwrap(),
             "--output",
@@ -578,7 +578,7 @@ fn perf_no_resource_leaks_failed_commands() {
             .unwrap()
             .args([
                 "template",
-                "generate-tree",
+                "generate_tree",
                 "--template",
                 "/nonexistent.yaml",
             ])
@@ -624,7 +624,7 @@ nodes:
             .unwrap()
             .args([
                 "template",
-                "generate-tree",
+                "generate_tree",
                 "--template",
                 template_file.path().to_str().unwrap(),
                 "--output",

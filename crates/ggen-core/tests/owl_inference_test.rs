@@ -13,7 +13,10 @@ use std::collections::BTreeMap;
 
 /// Helper: run an ASK query and return the boolean result.
 fn ask(graph: &Graph, sparql: &str) -> bool {
-    match graph.query_cached(sparql).expect("ASK query should succeed") {
+    match graph
+        .query_cached(sparql)
+        .expect("ASK query should succeed")
+    {
         CachedResult::Boolean(b) => b,
         other => panic!(
             "Expected CachedResult::Boolean from ASK, got {:?}",
@@ -24,7 +27,10 @@ fn ask(graph: &Graph, sparql: &str) -> bool {
 
 /// Helper: run a SELECT query and return the solution rows.
 fn select(graph: &Graph, sparql: &str) -> Vec<BTreeMap<String, String>> {
-    match graph.query_cached(sparql).expect("SELECT query should succeed") {
+    match graph
+        .query_cached(sparql)
+        .expect("SELECT query should succeed")
+    {
         CachedResult::Solutions(rows) => rows,
         other => panic!(
             "Expected CachedResult::Solutions from SELECT, got {:?}",
@@ -651,9 +657,11 @@ fn test_symmetric_property_idempotent() {
     // on insert). The graph should not grow on the second pass.
     let len_after_second = graph.len();
     assert_eq!(
-        len_after_second, initial_len + 1,
+        len_after_second,
+        initial_len + 1,
         "Graph should grow by exactly 1 total after idempotent rule (initial_len={}, after={})",
-        initial_len, len_after_second
+        initial_len,
+        len_after_second
     );
 }
 
@@ -759,14 +767,20 @@ fn test_equivalent_classes_bidirectional() {
     );
 
     // alice should have type Person (from pass 1)
-    assert!(ask(&graph, r#"PREFIX ex: <http://example.org/> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-           ASK { ex:alice rdf:type ex:Person }"#));
+    assert!(ask(
+        &graph,
+        r#"PREFIX ex: <http://example.org/> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+           ASK { ex:alice rdf:type ex:Person }"#
+    ));
 
     // bob should NOT have type Human (owl:equivalentClass is not symmetric in the rule)
     // The rule only matches ?class owl:equivalentClass ?equivClass (directional).
     // To propagate bob->Human, the ontology would need ex:Person owl:equivalentClass ex:Human .
-    let bob_has_human = ask(&graph, r#"PREFIX ex: <http://example.org/> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-           ASK { ex:bob rdf:type ex:Human }"#);
+    let bob_has_human = ask(
+        &graph,
+        r#"PREFIX ex: <http://example.org/> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+           ASK { ex:bob rdf:type ex:Human }"#,
+    );
     assert!(
         !bob_has_human,
         "bob should NOT be inferred as Human because owl:equivalentClass is not \
@@ -816,13 +830,19 @@ fn test_transitive_property_three_hop_chain() {
     let count2 = executor
         .execute_and_materialize(RULE_TRANSITIVE_PROPERTIES)
         .expect("transitive pass 2 should succeed");
-    assert!(count2 >= 1, "Pass 2 should produce at least a->d, got {}", count2);
+    assert!(
+        count2 >= 1,
+        "Pass 2 should produce at least a->d, got {}",
+        count2
+    );
 
     let len_after_2 = graph.len();
     assert_eq!(
-        len_after_2, len_after_1 + 1,
+        len_after_2,
+        len_after_1 + 1,
         "Graph should grow by exactly 1 (a->d). before={}, after={}",
-        len_after_1, len_after_2
+        len_after_1,
+        len_after_2
     );
 
     // Pass 3: fully idempotent -- graph should not grow

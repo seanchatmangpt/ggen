@@ -122,19 +122,27 @@ fn clean_rdf_term(raw: &str) -> String {
 
 #[test]
 fn test_string_literals_have_quotes_in_raw_results() {
-    let graph = graph_with(r#"
+    let graph = graph_with(
+        r#"
         ex:alice ex:name "Alice" .
-    "#);
+    "#,
+    );
 
-    let rows = query_rows(&graph, r#"
+    let rows = query_rows(
+        &graph,
+        r#"
         PREFIX ex: <http://example.org/>
         SELECT ?name WHERE { ex:alice ex:name ?name }
-    "#);
+    "#,
+    );
 
     assert_eq!(rows.len(), 1, "Should return exactly one row");
     let name = rows[0].get("name").expect("name binding should exist");
     // oxigraph serializes plain string literals with surrounding double quotes
-    assert_eq!(name, "\"Alice\"", "String literal should have surrounding quotes in raw output");
+    assert_eq!(
+        name, "\"Alice\"",
+        "String literal should have surrounding quotes in raw output"
+    );
 }
 
 // ===========================================================================
@@ -143,14 +151,19 @@ fn test_string_literals_have_quotes_in_raw_results() {
 
 #[test]
 fn test_typed_integer_literals_include_datatype_uri() {
-    let graph = graph_with(r#"
+    let graph = graph_with(
+        r#"
         ex:alice ex:age "42"^^xsd:integer .
-    "#);
+    "#,
+    );
 
-    let rows = query_rows(&graph, r#"
+    let rows = query_rows(
+        &graph,
+        r#"
         PREFIX ex: <http://example.org/>
         SELECT ?age WHERE { ex:alice ex:age ?age }
-    "#);
+    "#,
+    );
 
     assert_eq!(rows.len(), 1);
     let age = rows[0].get("age").expect("age binding should exist");
@@ -173,14 +186,19 @@ fn test_typed_integer_literals_include_datatype_uri() {
 
 #[test]
 fn test_typed_boolean_literals_include_datatype_uri() {
-    let graph = graph_with(r#"
+    let graph = graph_with(
+        r#"
         ex:alice ex:active "true"^^xsd:boolean .
-    "#);
+    "#,
+    );
 
-    let rows = query_rows(&graph, r#"
+    let rows = query_rows(
+        &graph,
+        r#"
         PREFIX ex: <http://example.org/>
         SELECT ?active WHERE { ex:alice ex:active ?active }
-    "#);
+    "#,
+    );
 
     assert_eq!(rows.len(), 1);
     let active = rows[0].get("active").expect("active binding should exist");
@@ -202,17 +220,24 @@ fn test_typed_boolean_literals_include_datatype_uri() {
 
 #[test]
 fn test_language_tagged_literals_include_language_tag() {
-    let graph = graph_with(r#"
+    let graph = graph_with(
+        r#"
         ex:alice ex:greeting "Hello"@en .
-    "#);
+    "#,
+    );
 
-    let rows = query_rows(&graph, r#"
+    let rows = query_rows(
+        &graph,
+        r#"
         PREFIX ex: <http://example.org/>
         SELECT ?greeting WHERE { ex:alice ex:greeting ?greeting }
-    "#);
+    "#,
+    );
 
     assert_eq!(rows.len(), 1);
-    let greeting = rows[0].get("greeting").expect("greeting binding should exist");
+    let greeting = rows[0]
+        .get("greeting")
+        .expect("greeting binding should exist");
     assert!(
         greeting.contains("Hello"),
         "Language-tagged literal should contain the value, got: {}",
@@ -231,15 +256,20 @@ fn test_language_tagged_literals_include_language_tag() {
 
 #[test]
 fn test_iri_values_include_angle_brackets() {
-    let graph = graph_with(r#"
+    let graph = graph_with(
+        r#"
         ex:alice ex:friend ex:bob .
         ex:bob a ex:Person .
-    "#);
+    "#,
+    );
 
-    let rows = query_rows(&graph, r#"
+    let rows = query_rows(
+        &graph,
+        r#"
         PREFIX ex: <http://example.org/>
         SELECT ?friend WHERE { ex:alice ex:friend ?friend }
-    "#);
+    "#,
+    );
 
     assert_eq!(rows.len(), 1);
     let friend = rows[0].get("friend").expect("friend binding should exist");
@@ -261,15 +291,19 @@ fn test_iri_values_include_angle_brackets() {
 
 #[test]
 fn test_to_clean_json_strips_quotes_from_string_literals() {
-    let graph = graph_with(r#"
+    let graph = graph_with(
+        r#"
         ex:alice ex:name "Alice" .
-    "#);
+    "#,
+    );
 
     let result = graph
-        .query_cached(r#"
+        .query_cached(
+            r#"
             PREFIX ex: <http://example.org/>
             SELECT ?name WHERE { ex:alice ex:name ?name }
-        "#)
+        "#,
+        )
         .expect("query_cached should succeed");
 
     let json = to_clean_json(&result);
@@ -293,14 +327,18 @@ fn test_to_clean_json_strips_quotes_from_string_literals() {
 
 #[test]
 fn test_mixed_literal_types_in_single_query() {
-    let graph = graph_with(r#"
+    let graph = graph_with(
+        r#"
         ex:alice ex:name "Alice" ;
                   ex:age "42"^^xsd:integer ;
                   ex:active "true"^^xsd:boolean ;
                   ex:greeting "Hello"@en .
-    "#);
+    "#,
+    );
 
-    let rows = query_rows(&graph, r#"
+    let rows = query_rows(
+        &graph,
+        r#"
         PREFIX ex: <http://example.org/>
         SELECT ?name ?age ?active ?greeting
         WHERE {
@@ -309,9 +347,14 @@ fn test_mixed_literal_types_in_single_query() {
                       ex:active ?active ;
                       ex:greeting ?greeting .
         }
-    "#);
+    "#,
+    );
 
-    assert_eq!(rows.len(), 1, "Should return one row with all four bindings");
+    assert_eq!(
+        rows.len(),
+        1,
+        "Should return one row with all four bindings"
+    );
 
     let row = &rows[0];
     let name = row.get("name").expect("name binding");
@@ -320,9 +363,17 @@ fn test_mixed_literal_types_in_single_query() {
     let greeting = row.get("greeting").expect("greeting binding");
 
     // All four raw values should be present (even with RDF artifacts)
-    assert!(name.contains("Alice"), "name should contain Alice, got: {}", name);
+    assert!(
+        name.contains("Alice"),
+        "name should contain Alice, got: {}",
+        name
+    );
     assert!(age.contains("42"), "age should contain 42, got: {}", age);
-    assert!(active.contains("true"), "active should contain true, got: {}", active);
+    assert!(
+        active.contains("true"),
+        "active should contain true, got: {}",
+        active
+    );
     assert!(
         greeting.contains("Hello"),
         "greeting should contain Hello, got: {}",
@@ -358,19 +409,28 @@ fn test_mixed_literal_types_in_single_query() {
 
 #[test]
 fn test_blank_nodes_serialize_consistently() {
-    let graph = graph_with(r#"
+    let graph = graph_with(
+        r#"
         ex:alice ex:knows [ ex:name "Bob" ] .
-    "#);
+    "#,
+    );
 
-    let rows = query_rows(&graph, r#"
+    let rows = query_rows(
+        &graph,
+        r#"
         PREFIX ex: <http://example.org/>
         SELECT ?friendName WHERE {
             ex:alice ex:knows ?_blank .
             ?_blank ex:name ?friendName .
         }
-    "#);
+    "#,
+    );
 
-    assert_eq!(rows.len(), 1, "Should resolve blank node and return one row");
+    assert_eq!(
+        rows.len(),
+        1,
+        "Should resolve blank node and return one row"
+    );
     let friend_name = rows[0]
         .get("friendName")
         .expect("friendName binding should exist");
@@ -383,13 +443,16 @@ fn test_blank_nodes_serialize_consistently() {
     );
 
     // Re-query to verify determinism
-    let rows2 = query_rows(&graph, r#"
+    let rows2 = query_rows(
+        &graph,
+        r#"
         PREFIX ex: <http://example.org/>
         SELECT ?friendName WHERE {
             ex:alice ex:knows ?_blank .
             ?_blank ex:name ?friendName .
         }
-    "#);
+    "#,
+    );
     assert_eq!(
         rows[0].get("friendName"),
         rows2[0].get("friendName"),
@@ -403,15 +466,20 @@ fn test_blank_nodes_serialize_consistently() {
 
 #[test]
 fn test_iri_object_values_are_serialized() {
-    let graph = graph_with(r#"
+    let graph = graph_with(
+        r#"
         ex:alice rdf:type ex:Person .
-    "#);
+    "#,
+    );
 
-    let rows = query_rows(&graph, r#"
+    let rows = query_rows(
+        &graph,
+        r#"
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX ex: <http://example.org/>
         SELECT ?type WHERE { ex:alice rdf:type ?type }
-    "#);
+    "#,
+    );
 
     assert_eq!(rows.len(), 1);
     let type_val = rows[0].get("type").expect("type binding should exist");
@@ -434,12 +502,16 @@ fn test_iri_object_values_are_serialized() {
 
 #[test]
 fn test_empty_string_literal_vs_missing_binding() {
-    let graph = graph_with(r#"
+    let graph = graph_with(
+        r#"
         ex:alice ex:note "" .
         ex:bob ex:label "Bob" .
-    "#);
+    "#,
+    );
 
-    let rows = query_rows(&graph, r#"
+    let rows = query_rows(
+        &graph,
+        r#"
         PREFIX ex: <http://example.org/>
         SELECT ?entity ?note ?label
         WHERE {
@@ -448,13 +520,16 @@ fn test_empty_string_literal_vs_missing_binding() {
             OPTIONAL { ?entity ex:label ?label }
         }
         ORDER BY ?entity
-    "#);
+    "#,
+    );
 
     assert_eq!(rows.len(), 2, "Should return rows for both entities");
 
     // First row: alice has empty string for note, missing for label
     let alice_row = &rows[0];
-    let alice_note = alice_row.get("note").expect("alice note binding should exist (empty string)");
+    let alice_note = alice_row
+        .get("note")
+        .expect("alice note binding should exist (empty string)");
     assert_eq!(
         alice_note, "\"\"",
         "Empty string literal should serialize as two double quotes"
@@ -471,7 +546,9 @@ fn test_empty_string_literal_vs_missing_binding() {
         bob_row.get("note").is_none(),
         "Missing OPTIONAL property should not produce a binding for bob"
     );
-    let bob_label = bob_row.get("label").expect("bob label binding should exist");
+    let bob_label = bob_row
+        .get("label")
+        .expect("bob label binding should exist");
     assert!(
         bob_label.contains("Bob"),
         "bob label should contain 'Bob', got: {}",
@@ -485,15 +562,19 @@ fn test_empty_string_literal_vs_missing_binding() {
 
 #[test]
 fn test_to_clean_json_handles_typed_literal() {
-    let graph = graph_with(r#"
+    let graph = graph_with(
+        r#"
         ex:alice ex:age "42"^^xsd:integer .
-    "#);
+    "#,
+    );
 
     let result = graph
-        .query_cached(r#"
+        .query_cached(
+            r#"
             PREFIX ex: <http://example.org/>
             SELECT ?age WHERE { ex:alice ex:age ?age }
-        "#)
+        "#,
+        )
         .expect("query_cached should succeed");
 
     let json = to_clean_json(&result);
@@ -510,15 +591,19 @@ fn test_to_clean_json_handles_typed_literal() {
 
 #[test]
 fn test_to_clean_json_handles_language_tagged_literal() {
-    let graph = graph_with(r#"
+    let graph = graph_with(
+        r#"
         ex:alice ex:greeting "Hello"@en .
-    "#);
+    "#,
+    );
 
     let result = graph
-        .query_cached(r#"
+        .query_cached(
+            r#"
             PREFIX ex: <http://example.org/>
             SELECT ?greeting WHERE { ex:alice ex:greeting ?greeting }
-        "#)
+        "#,
+        )
         .expect("query_cached should succeed");
 
     let json = to_clean_json(&result);
@@ -535,15 +620,19 @@ fn test_to_clean_json_handles_language_tagged_literal() {
 
 #[test]
 fn test_to_clean_json_handles_iri() {
-    let graph = graph_with(r#"
+    let graph = graph_with(
+        r#"
         ex:alice ex:friend ex:bob .
-    "#);
+    "#,
+    );
 
     let result = graph
-        .query_cached(r#"
+        .query_cached(
+            r#"
             PREFIX ex: <http://example.org/>
             SELECT ?friend WHERE { ex:alice ex:friend ?friend }
-        "#)
+        "#,
+        )
         .expect("query_cached should succeed");
 
     let json = to_clean_json(&result);

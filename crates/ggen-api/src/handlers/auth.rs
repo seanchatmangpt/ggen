@@ -1,3 +1,5 @@
+//! # SECURITY WARNING: This module is demo scaffolding. It performs NO real authentication or authorization. DO NOT deploy to production.
+//!
 //! Authentication handlers
 
 use axum::{extract::State, http::StatusCode, Json};

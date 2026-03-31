@@ -441,11 +441,11 @@ fn test_e2e_preset_clap_noun_verb() {
         .stdout(predicate::str::contains("Generated"));
 
     // Step 4: Verify CLI structure
-    let generated_dir = project_path.join("generated");
-    assert!(generated_dir.exists(), "generated/ should be created");
+    let output_dir = project_path;
+    assert!(output_dir.exists(), "output directory should be created");
 
     // Check for generated command files
-    let commands_dir = generated_dir.join("commands");
+    let commands_dir = output_dir.join("commands");
     assert!(commands_dir.exists(), "commands/ subdirectory should exist");
 
     // Verify at least one command file was generated

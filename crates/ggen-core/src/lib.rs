@@ -121,6 +121,7 @@ pub mod cache;
 pub mod cli_generator;
 pub mod codegen;
 pub mod config;
+// Schema parser and code generators for A2A communication
 pub mod delta;
 pub mod drift; // Drift detection for ontology changes
 #[cfg(test)]
@@ -130,11 +131,16 @@ pub mod github;
 pub mod gpack;
 pub mod graph;
 pub mod inject;
+pub mod lean_six_sigma; // DMAIC quality gates for Lean Six Sigma
 pub mod lifecycle;
 pub mod lockfile;
 pub mod manifest;
 pub mod merge;
+pub mod metrics; // Quality metrics system (Code, Process, Six Sigma, TPS, Flow, OEE, Kaizen)
 pub mod parallel_generator;
+pub mod schema;
+pub mod template;
+pub mod template_types;
 // Ontology system - re-enabled after oxigraph API compatibility fixes
 pub mod ontology;
 pub mod ontology_pack;
@@ -155,7 +161,6 @@ pub mod snapshot;
 pub mod streaming_generator;
 pub mod sync; // Sync orchestrator: load_ontology → run_sparql → generate_code → validate → write_files
 pub mod telemetry;
-pub mod template;
 pub mod template_cache;
 pub mod templates;
 pub mod tera_env;
@@ -166,10 +171,19 @@ pub mod v6;
 // pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
 pub mod simple_tracing;
 
+// Re-export template types
+pub use template_types::{Frontmatter, Template};
+
 // Re-export production readiness types from lifecycle module
 pub use lifecycle::{
     Placeholder, PlaceholderProcessor, PlaceholderRegistry, ReadinessCategory, ReadinessReport,
     ReadinessRequirement, ReadinessStatus, ReadinessTracker,
+};
+
+// Re-export quality metrics types
+pub use metrics::{
+    CodeMetrics, DefectMetrics, FlowMetrics, KaizenMetrics, MetricsCollector, MetricsReport,
+    OEEMetrics, ProcessMetrics, WasteMetrics, WasteType,
 };
 
 // Re-export poka-yoke (error prevention) types
@@ -204,8 +218,6 @@ pub use resolver::{TemplateResolver, TemplateSearchResult, TemplateSource};
 pub use snapshot::{
     FileSnapshot, GraphSnapshot, Region, RegionType, Snapshot, SnapshotManager, TemplateSnapshot,
 };
-pub use template::Template;
-
 // Re-export template-to-file-tree generation types
 pub use templates::{
     generate_file_tree, FileTreeGenerator, FileTreeNode, FileTreeTemplate, GenerationResult,

@@ -1,0 +1,194 @@
+# Runbook: {{ service_name }}
+
+> **Port**: {{ port }}
+> **Last Updated**: {{ updated_at | default(value="") }}
+> **Owner**: {{ owner | default(value="on-call") }}
+
+---
+
+## 1. Service Overview
+
+{{ service_name }} is responsible for {{ purpose | default(value="core platform functionality") }}.
+
+### Architecture
+- **Runtime**: {{ runtime | default(value="see deployment config") }}
+- **Health endpoint**: `http://localhost:{{ port }}{{ health_path | default(value="/health") }}`
+- **Data store**: {{ data_store | default(value="see config") }}
+- **Log output**: {{ log_output | default(value="stdout / structured JSON") }}
+
+### Dependencies
+{% for dep in dependencies -%}
+- **{{ dep.name }}** ({{ dep.type | default(value="internal") }}): {{ dep.description | default(value="") }}{% if dep.critical %} [CRITICAL]{% endif %}
+{% endfor %}
+
+---
+
+## 2. Health Check Commands
+
+### Quick Check
+```bash
+# HTTP health probe
+curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 --max-time 10 http://localhost:{{ port }}{{ health_path | default(value="/health") }}
+# Expected: 200
+```
+
+### Full Diagnostic
+```bash
+# Check process is running
+pgrep -f "{{ process_name | default(value=service_name) }}" && echo "RUNNING" || echo "NOT RUNNING"
+
+# Check port is listening
+lsof -i :{{ port }} | head -5
+
+# Check recent logs (last 50 lines)
+journalctl -u {{ service_name | lower | replace(from=" ", to="-") }} --no-pager -n 50 2>/dev/null || tail -50 /var/log/{{ service_name | lower | replace(from=" ", to="-") }}.log 2>/dev/null
+
+# Check resource usage
+ps aux | grep "{{ process_name | default(value=service_name) }}" | grep -v grep | awk '{print "CPU: "$3"% | MEM: "$4"% | PID: "$2}'
+```
+
+### Database Check
+```bash
+# Verify data store connectivity
+{{ db_check_command | default(value="# Add database-specific health check here") }}
+```
+
+---
+
+## 3. Common Issues + Resolution
+
+{% for issue in common_issues -%}
+### {{ loop.index }}. {{ issue.title }}
+
+**Symptoms**:
+{{ issue.symptoms | default(value="") }}
+
+**Diagnosis**:
+```bash
+{{ issue.diagnosis | default(value="# Add diagnostic commands") }}
+```
+
+**Resolution**:
+{{ issue.resolution | default(value="") }}
+
+**Escalate if**: {{ issue.escalate_if | default(value="resolution does not restore service within 15 minutes") }}
+
+{% endfor -%}
+
+---
+
+## 4. Escalation Path
+
+| Severity | Response Time | Action |
+|----------|--------------|--------|
+| **P1 - Critical** | 5 min | Page on-call immediately |
+| **P2 - High** | 15 min | Alert on-call via Slack + page |
+| **P3 - Medium** | 1 hour | Slack notification, next business day |
+| **P4 - Low** | 24 hours | Ticket created, next sprint |
+
+### Contacts
+- **On-call primary**: {{ escalation_contact | default(value="see PagerDuty schedule") }}
+- **On-call secondary**: {{ escalation_secondary | default(value="see team rotation") }}
+- **Engineering lead**: {{ engineering_lead | default(value="see org chart") }}
+- **Slack channel**: {{ slack_channel | default(value="#incidents") }}
+
+### Escalation Triggers
+- Service down > 5 minutes
+- Error rate > 5% for > 10 minutes
+- p99 latency > 3x baseline for > 5 minutes
+- Data integrity concern (any duration)
+
+---
+
+## 5. Recovery Procedures
+
+### 5.1 Graceful Restart
+```bash
+# Stop gracefully (allow in-flight requests to complete)
+{{ stop_command | default(value="systemctl stop " + service_name | lower | replace(from=" ", to="-")) }}
+
+# Verify process stopped
+sleep 3
+pgrep -f "{{ process_name | default(value=service_name) }}" && echo "STILL RUNNING" || echo "STOPPED"
+
+# Start
+{{ start_command | default(value="systemctl start " + service_name | lower | replace(from=" ", to="-")) }}
+
+# Verify health
+sleep 5
+curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 http://localhost:{{ port }}{{ health_path | default(value="/health") }}
+# Expected: 200
+```
+
+### 5.2 Force Restart (if graceful fails)
+```bash
+# Kill process
+pkill -9 -f "{{ process_name | default(value=service_name) }}"
+
+# Clean stale resources (sockets, pid files, lock files)
+{{ cleanup_command | default(value="# Add cleanup steps for stale sockets/pid files") }}
+
+# Start fresh
+{{ start_command | default(value="systemctl start " + service_name | lower | replace(from=" ", to="-")) }}
+
+# Verify
+sleep 5
+curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 http://localhost:{{ port }}{{ health_path | default(value="/health") }}
+```
+
+### 5.3 Rollback
+```bash
+# Check current version
+{{ version_check_command | default(value="# Add version check command") }}
+
+# Rollback to previous version
+{{ rollback_command | default(value="# Add rollback procedure") }}
+
+# Verify rollback
+sleep 5
+curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 http://localhost:{{ port }}{{ health_path | default(value="/health") }}
+```
+
+---
+
+## 6. Post-Incident (Blameless Postmortem)
+
+Complete within **48 hours** of incident resolution.
+
+### Template
+
+```markdown
+## Incident Report: [INC-XXXX]
+
+**Date**: YYYY-MM-DD
+**Duration**: HH:MM
+**Severity**: P1/P2/P3/P4
+**Impact**: [What broke, how many users affected]
+**Detector**: [Alert, user report, monitoring]
+
+### Timeline
+| Time (UTC) | Event |
+|-------------|-------|
+| HH:MM | Alert triggered |
+| HH:MM | On-call acknowledged |
+| HH:MM | Root cause identified |
+| HH:MM | Mitigation applied |
+| HH:MM | Service restored |
+
+### Root Cause
+[5 Whys analysis]
+
+### Action Items
+| Action | Owner | Due Date | Status |
+|--------|-------|----------|--------|
+| [Action] | [Name] | YYYY-MM-DD | Open/Done |
+```
+
+### Post-Incident Checklist
+- [ ] Incident timeline documented
+- [ ] Root cause identified (5 Whys)
+- [ ] Action items assigned with owners and due dates
+- [ ] Monitoring gaps identified and addressed
+- [ ] Runbook updated if new failure mode discovered
+- [ ] Postmortem shared with team (Slack/wiki)
+- [ ] Follow-up scheduled (1 week) to verify action items

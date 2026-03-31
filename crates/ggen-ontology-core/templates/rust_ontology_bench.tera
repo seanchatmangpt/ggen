@@ -1,0 +1,41 @@
+{#
+  Rust Criterion Benchmark Generator for Ontology Operations
+  Generates Criterion.rs benchmarks for ggen-ontology-core
+#}
+use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use ggen_ontology_core::{
+    triple_store::TripleStore,
+    sparql_generator::SparqlGenerator,
+    entity_mapper::EntityMapper,
+    validators::validate_turtle,
+};
+use std::path::PathBuf;
+
+{% for operation in operations %}
+fn {{ operation.name | snake_case }}(c: &mut Criterion) {
+    let mut group = c.benchmark_group("{{ operation.name }}");
+
+    {% for size in operation.sizes %}
+    group.bench_with_input(
+        BenchmarkId::new("{{ size.description }}", {{ size.kb }}),
+        &{{ size.kb }},
+        |b, _| {
+            b.iter(|| {
+                {{ operation.benchmark_code }}
+            })
+        },
+    );
+    {% endfor %}
+
+    group.finish();
+}
+
+{% endfor %}
+
+criterion_group!(
+    benches,
+    {% for operation in operations %}
+    {{ operation.name | snake_case }},
+    {% endfor %}
+);
+criterion_main!(benches);
