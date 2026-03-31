@@ -11,6 +11,7 @@ use async_trait::async_trait;
 ///
 /// Storage, auth, and streaming are managed by AgentBuilder's AutoStorage.
 /// Only message processing logic lives here.
+#[derive(Clone)]
 pub struct GgenAgentHandler;
 
 impl GgenAgentHandler {

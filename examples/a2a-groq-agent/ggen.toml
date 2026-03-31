@@ -94,7 +94,32 @@ template    = { file = "templates/Cargo.toml.tera" }
 output_file = "Cargo.toml"
 mode        = "Overwrite"
 
-# ── Rule 4: Agent card JSON ────────────────────────────────────────────────────
+# ── Rule 4: Agent TOML config ──────────────────────────────────────────────────
+[[generation.rules]]
+name = "groq-agent-toml"
+query = { inline = """
+PREFIX agent: <https://ggen.io/examples/a2a-groq#>
+
+SELECT ?agentName ?description ?version ?skillId ?skillName ?skillDesc ?order
+WHERE {
+  ?ag a agent:Agent ;
+      agent:agentName ?agentName ;
+      agent:description ?description ;
+      agent:version ?version .
+  ?skill a agent:Skill ;
+         agent:agentOf ?ag ;
+         agent:skillId ?skillId ;
+         agent:skillName ?skillName ;
+         agent:description ?skillDesc ;
+         agent:order ?order .
+}
+ORDER BY ?order
+""" }
+template    = { file = "templates/groq-agent.toml.tera" }
+output_file = "groq-agent.toml"
+mode        = "Overwrite"
+
+# ── Rule 5: Agent card JSON ────────────────────────────────────────────────────
 [[generation.rules]]
 name = "agent-card-json"
 query = { inline = """
