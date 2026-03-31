@@ -474,10 +474,11 @@ fn inject_llm_if_enabled(
         Ok(b) => b,
         Err(e) => {
             eprintln!(
-                "⚠ Warning: enable_llm is true but GroqLlmBridge creation failed: {}",
+                "Error: enable_llm is true but GroqLlmBridge creation failed: {}\n\
+                 Hint: Set GROQ_API_KEY environment variable\n\
+                 Continuing without LLM auto-generation.",
                 e
             );
-            eprintln!("  Falling back to TODO stubs");
             return executor;
         }
     };

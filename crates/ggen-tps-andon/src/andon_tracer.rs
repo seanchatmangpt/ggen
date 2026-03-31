@@ -412,7 +412,7 @@ mod tests {
         let ctx = SpanContext::new_root().with_baggage("user_id", "123");
 
         let headers = ctx.to_w3c_headers();
-        assert!(headers.len() >= 1);
+        assert!(!headers.is_empty());
         assert!(headers[0].0 == "traceparent");
         assert!(headers[0].1.contains("00-"));
     }
@@ -448,6 +448,6 @@ mod tests {
             .unwrap();
 
         let active = tracer.get_active_spans();
-        assert!(active.len() > 0);
+        assert!(!active.is_empty());
     }
 }

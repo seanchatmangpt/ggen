@@ -16,7 +16,9 @@ Modular, auto-loading rules for specification-driven Rust code generation.
 │   └── workflow.md  # 4-step development workflow
 ├── rust/            # Lazy-loaded
 │   ├── elite-mindset.md
+│   ├── lsp.md      # LSP-first navigation for .rs files
 │   ├── testing.md
+│   ├── testing-forbidden.md
 │   └── performance.md
 ├── andon/
 │   └── signals.md   # Stop the line protocol
@@ -33,6 +35,7 @@ Modular, auto-loading rules for specification-driven Rust code generation.
 - [Workflow](_core/workflow.md) - 4-step development cycle
 
 ### Rust Development
+- [LSP Navigation](rust/lsp.md) - ALWAYS use LSP over Grep for .rs files
 - [Elite Mindset](rust/elite-mindset.md) - Type-first, zero-cost, performance patterns
 - [Testing](rust/testing.md) - Chicago TDD, AAA pattern, 80%+ coverage
 - [Performance](rust/performance.md) - SLOs, benchmarks, optimization

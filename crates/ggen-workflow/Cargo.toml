@@ -37,6 +37,9 @@ quick-xml = { version = "0.37", features = ["serialize"] }
 # Lazy static for global state
 lazy_static = "1.5"
 
+# Internal dependencies
+ggen-ontology-core = { path = "../ggen-ontology-core" }
+
 [dev-dependencies]
 tokio-test = "0.4"
 rstest = "0.18"

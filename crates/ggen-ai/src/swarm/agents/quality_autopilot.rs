@@ -39,6 +39,7 @@ use crate::swarm::{AgentHealth, AgentInput, AgentOutput, HealthStatus, SwarmAgen
 use async_trait::async_trait;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -696,6 +697,150 @@ impl CycleBreakerAgent {
         }
 
         score.max(0.0).min(1.0)
+    }
+
+    /// Assess code quality for a project
+    async fn assess_code_quality(&self, project_path: &PathBuf) -> Result<Vec<QualityIssue>> {
+        let mut issues = Vec::new();
+
+        info!("Assessing code quality for {}", project_path.display());
+
+        // 1. Check for syntax errors using cargo check
+        let check_result = Command::new("cargo")
+            .args(["check", "--quiet", "--message-format=json"])
+            .current_dir(project_path)
+            .output();
+
+        if let Ok(output) = check_result {
+            if !output.status.success() {
+                let stderr = String::from_utf8_lossy(&output.stderr);
+                for line in stderr.lines() {
+                    if line.contains("error[E") {
+                        issues.push(QualityIssue {
+                            category: QualityCategory::Syntax,
+                            severity: QualitySeverity::Error,
+                            description: format!("Compilation error: {}", line),
+                            affected_area: "compilation".to_string(),
+                            suggested_fix: Some("Fix compilation errors".to_string()),
+                            line_number: None,
+                        });
+                    }
+                }
+            }
+        }
+
+        // 2. Check for clippy warnings
+        let clippy_result = Command::new("cargo")
+            .args(["clippy", "--quiet", "--message-format=json", "-W", "clippy::all"])
+            .current_dir(project_path)
+            .output();
+
+        if let Ok(output) = clippy_result {
+            if !output.status.success() {
+                let stderr = String::from_utf8_lossy(&output.stderr);
+                for line in stderr.lines() {
+                    if line.contains("warning:") {
+                        issues.push(QualityIssue {
+                            category: QualityCategory::BestPractice,
+                            severity: QualitySeverity::Warning,
+                            description: format!("Clippy warning: {}", line),
+                            affected_area: "code_quality".to_string(),
+                            suggested_fix: Some("Address clippy warnings".to_string()),
+                            line_number: None,
+                        });
+                    }
+                }
+            }
+        }
+
+        // 3. Check for unused dependencies
+        let unused_result = Command::new("cargo")
+            .args(["machete"])
+            .current_dir(project_path)
+            .output();
+
+        if let Ok(output) = unused_result {
+            if output.status.success() {
+                let stdout = String::from_utf8_lossy(&output.stdout);
+                if !stdout.trim().is_empty() {
+                    issues.push(QualityIssue {
+                        category: QualityCategory::BestPractice,
+                        severity: QualitySeverity::Info,
+                        description: format!("Unused dependencies detected: {}", stdout),
+                        affected_area: "dependencies".to_string(),
+                        suggested_fix: Some("Remove unused dependencies".to_string()),
+                        line_number: None,
+                    });
+                }
+            }
+        }
+
+        // 4. Check for security issues
+        let audit_result = Command::new("cargo")
+            .args(["audit"])
+            .current_dir(project_path)
+            .output();
+
+        if let Ok(output) = audit_result {
+            if !output.status.success() {
+                let stdout = String::from_utf8_lossy(&output.stdout);
+                if stdout.contains("Vulnerability") {
+                    issues.push(QualityIssue {
+                        category: QualityCategory::Security,
+                        severity: QualitySeverity::Critical,
+                        description: format!("Security vulnerabilities found: {}", stdout),
+                        affected_area: "dependencies".to_string(),
+                        suggested_fix: Some("Update dependencies to fix vulnerabilities".to_string()),
+                        line_number: None,
+                    });
+                }
+            }
+        }
+
+        info!("Found {} quality issues", issues.len());
+        Ok(issues)
+    }
+
+    /// Get validation context from swarm context
+    async fn get_validation_context(&self, context: &SwarmContext) -> QualityContext {
+        // Extract validation context from swarm metrics
+        let sparql_valid = context
+            .metrics
+            .get("sparql_validation_passed")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+
+        let template_valid = context
+            .metrics
+            .get("template_validation_passed")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+
+        let cycles_detected = context
+            .metrics
+            .get("cycles_detected")
+            .and_then(|v| v.as_u64())
+            .unwrap_or(0) as usize;
+
+        let files_generated = context
+            .metrics
+            .get("files_generated")
+            .and_then(|v| v.as_u64())
+            .unwrap_or(0) as usize;
+
+        let complexity_score = context
+            .metrics
+            .get("complexity_score")
+            .and_then(|v| v.as_f64())
+            .unwrap_or(0.5);
+
+        QualityContext {
+            sparql_valid,
+            template_valid,
+            cycles_detected,
+            files_generated,
+            complexity_score,
+        }
     }
 
     /// Generate comprehensive quality report

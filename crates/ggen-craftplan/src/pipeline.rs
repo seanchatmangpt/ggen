@@ -123,7 +123,11 @@ impl CodeGenerator {
         // Write receipt if enabled
         if self.generate_receipts {
             let receipt_path = self.output_dir.join("generation_receipt.json");
-            receipt_generator.write_receipt(&receipt, receipt_path.to_str().unwrap())?;
+            let receipt_path_str = receipt_path.to_str()
+                .ok_or_else(|| CraftplanError::FileNotFound {
+                    path: receipt_path.clone(),
+                })?;
+            receipt_generator.write_receipt(&receipt, receipt_path_str)?;
         }
 
         info!(
@@ -157,20 +161,113 @@ impl CodeGenerator {
     ) -> Result<ExtractedData> {
         let entities = extractor.extract_entities(&normalized.store)?;
 
-        // For now, just return empty ExtractedData
-        // Full implementation would build ElixirModule from entities
-        let _ = entities; // Suppress unused warning for now
+        // Build ExtractedData from extracted entities (80/20 version)
+        let mut extracted_data = ExtractedData::new();
 
-        Ok(ExtractedData::new())
+        for entity in entities {
+            // Extract attributes for this entity
+            let attributes = extractor.extract_attributes(&normalized.store, &entity.name)?;
+
+            // Convert to ElixirModule (basic 80/20 version)
+            let elixir_module = crate::models::ElixirModule {
+                name: format!("Craftplan.{}", entity.name),
+                module_type: crate::models::ModuleType::AshResource,
+                entity: crate::models::EntityMetadata {
+                    iri: format!("http://craftplan.org/ontology/{}", entity.name),
+                    local_name: entity.name.clone(),
+                    description: None,
+                    class_type: "owl:Class".to_string(),
+                    namespace: "Craftplan".to_string(),
+                },
+                fields: attributes
+                    .into_iter()
+                    .map(|attr| crate::models::Field {
+                        name: attr.name.clone(),
+                        field_type: map_rdf_type_to_elixir(&attr.type_),
+                        required: attr.required,
+                        default: None,
+                        label: None,
+                        help_text: attr.doc,
+                        primary_key: attr.name == "id",
+                        unique: false,
+                    })
+                    .collect(),
+                relationships: entity
+                    .relationships
+                    .into_iter()
+                    .map(|rel| crate::models::Relationship {
+                        name: rel.name,
+                        target_iri: format!("http://craftplan.org/ontology/{}", rel.target_entity),
+                        cardinality: map_cardinality(&rel.cardinality),
+                        foreign_key: None,
+                        join_relationship: rel.inverse_of,
+                        required: false,
+                    })
+                    .collect(),
+                actions: vec![],
+                validations: vec![],
+            };
+
+            extracted_data.add_entity(elixir_module);
+        }
+
+        Ok(extracted_data)
     }
 
     /// μ₃ stage: Emit Elixir code
     fn emit_stage(
-        &self, _emitter: &Emitter, _normalized: &NormalizedData, _extracted: &ExtractedData,
+        &self, emitter: &Emitter, _normalized: &NormalizedData, extracted: &ExtractedData,
     ) -> Result<Vec<String>> {
-        // This is a placeholder - actual implementation would use the emit module
-        // For now, just return empty vector
-        Ok(vec![])
+        let mut generated_files = Vec::new();
+
+        // Generate Ash Resource files for each entity (80/20 version)
+        for entity in &extracted.entities {
+            let config = crate::emit::GenerationConfig::new(
+                "craftplan".to_string(),
+                "Craftplan".to_string(),
+                "0.1.0".to_string(),
+            );
+
+            // Convert ElixirModule to Entity for template rendering
+            let template_entity = crate::extract::Entity {
+                name: entity.entity.local_name.clone(),
+                plural: None,
+                attributes: entity
+                    .fields
+                    .iter()
+                    .map(|f| crate::extract::Attribute {
+                        name: f.name.clone(),
+                        type_: format!("{:?}", f.field_type),
+                        required: f.required,
+                        doc: f.help_text.clone(),
+                    })
+                    .collect(),
+                relationships: entity
+                    .relationships
+                    .iter()
+                    .map(|r| crate::extract::Relationship {
+                        name: r.name.clone(),
+                        cardinality: format!("{:?}", r.cardinality),
+                        target_entity: entity.entity.local_name.clone(),
+                        inverse_of: r.join_relationship.clone(),
+                    })
+                    .collect(),
+            };
+
+            let rendered = emitter.render_ash_resource(&template_entity, &config)?;
+
+            // Write to file
+            let file_name = format!("{}.ex", entity.entity.local_name.to_lowercase());
+            let file_path = self.output_dir.join(&file_name);
+            std::fs::write(&file_path, rendered).map_err(|e| CraftplanError::Io {
+                path: file_path.clone(),
+                source: e,
+            })?;
+
+            generated_files.push(file_path.to_string_lossy().to_string());
+        }
+
+        Ok(generated_files)
     }
 
     /// μ₄ stage: Canonicalize output
@@ -185,8 +282,12 @@ impl CodeGenerator {
         &self, generator: &ReceiptGenerator, input_path: &Path, output_files: &[String],
         entity_count: usize, duration_ms: u64,
     ) -> Result<GenerationReceipt> {
+        let input_path_str = input_path.to_str()
+            .ok_or_else(|| CraftplanError::FileNotFound {
+                path: input_path.to_path_buf(),
+            })?;
         generator.generate(
-            input_path.to_str().unwrap(),
+            input_path_str,
             output_files,
             entity_count,
             duration_ms,
@@ -197,6 +298,32 @@ impl CodeGenerator {
     pub fn with_receipts(mut self, generate: bool) -> Self {
         self.generate_receipts = generate;
         self
+    }
+}
+
+/// Map RDF type to Elixir type (80/20 version)
+fn map_rdf_type_to_elixir(rdf_type: &str) -> crate::models::ElixirType {
+    match rdf_type {
+        "http://www.w3.org/2001/XMLSchema#string" => crate::models::ElixirType::String,
+        "http://www.w3.org/2001/XMLSchema#integer" => crate::models::ElixirType::Integer,
+        "http://www.w3.org/2001/XMLSchema#decimal" | "http://www.w3.org/2001/XMLSchema#float" => {
+            crate::models::ElixirType::Float
+        }
+        "http://www.w3.org/2001/XMLSchema#boolean" => crate::models::ElixirType::Boolean,
+        "http://www.w3.org/2001/XMLSchema#dateTime" => crate::models::ElixirType::DateTime,
+        "http://www.w3.org/2001/XMLSchema#date" => crate::models::ElixirType::Date,
+        _ => crate::models::ElixirType::Custom(rdf_type.to_string()),
+    }
+}
+
+/// Map cardinality string to Cardinality enum
+fn map_cardinality(cardinality: &str) -> crate::models::Cardinality {
+    match cardinality {
+        "one-to-one" => crate::models::Cardinality::OneToOne,
+        "one-to-many" => crate::models::Cardinality::OneToMany,
+        "many-to-many" => crate::models::Cardinality::ManyToMany,
+        "belongs-to" => crate::models::Cardinality::BelongsTo,
+        _ => crate::models::Cardinality::OneToMany,
     }
 }
 

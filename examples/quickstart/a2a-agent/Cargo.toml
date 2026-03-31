@@ -1,0 +1,15 @@
+[workspace]
+[package]
+name = "a2a-agent-example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+anyhow = "1.0"
+
+[[bin]]
+name = "a2a_agent_example"
+path = "src/main.rs"

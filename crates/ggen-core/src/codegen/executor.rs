@@ -347,7 +347,7 @@ impl SyncExecutor {
 
         if dep_validator.failed_checks > 0 {
             return Err(Error::new(&format!(
-                "error[E0002]: {} dependency checks failed\n  |\n  = help: Fix missing files or imports before syncing",
+                "error[E0002]: {} dependency validation checks failed\n  |\n  = help: Common issues:\n  =   1. Query file not found: Check ontology.source and ontology.imports paths\n  =   2. Template file not found: Check generation.rules[].template paths\n  =   3. Import cycle: Check if imported files reference each other\n  = help: Run 'ggen validate' for detailed dependency analysis",
                 dep_validator.failed_checks
             )));
         }

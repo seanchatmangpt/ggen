@@ -168,7 +168,7 @@ pub mod types;
 pub mod validation;
 // v6: Fully-Rendered Libraries via Ontology-First Compilation (A = μ(O))
 pub mod v6;
-// pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
+pub mod tracing;
 pub mod simple_tracing;
 
 // Re-export template types

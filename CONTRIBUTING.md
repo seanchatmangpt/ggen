@@ -1,148 +1,596 @@
 # Contributing to ggen
 
-Thank you for your interest in contributing to ggen! This guide will help you get started.
+Thank you for your interest in contributing to ggen! This guide will help you get started and ensure your contributions align with the project's standards and practices.
 
-## Quick Start for Contributors
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Development Setup](#development-setup)
+- [Development Workflow](#development-workflow)
+- [Testing Requirements](#testing-requirements)
+- [Code Style Guidelines](#code-style-guidelines)
+- [OpenTelemetry Validation](#opentelemetry-validation)
+- [Pull Request Process](#pull-request-process)
+- [Commit Conventions](#commit-conventions)
+- [Quality Gates](#quality-gates)
+- [Getting Help](#getting-help)
+
+## Quick Start
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ggen.git && cd ggen
-cargo make quick              # Format + test
-cargo make dev                # Format + lint + test
-git commit -m "Description of changes"
-git push origin your-branch-name
+# 1. Fork and clone the repository
+git clone https://github.com/YOUR_USERNAME/ggen.git
+cd ggen
+
+# 2. Install Rust toolchain (1.91.1+)
+rustup install 1.91.1
+rustup default 1.91.1
+
+# 3. Install cargo-make
+cargo install cargo-make
+
+# 4. Verify development environment
+cargo make check      # Compilation check
+cargo make test       # Run tests
+cargo make lint       # Check style
 ```
 
-## Code of Conduct
+## Development Setup
 
-Be respectful, inclusive, and considerate. We're all here to build something great together.
+### Prerequisites
 
-## Getting Started
+- **Rust**: Version 1.91.1 or later ([install](https://rustup.rs/))
+- **Cargo make**: `cargo install cargo-make`
+- **timeout command**: Required for all operations
+  - macOS: `brew install coreutils`
+  - Ubuntu/Debian: `sudo apt-get install coreutils`
 
-**Prerequisites**: Rust 1.70+ (`curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`), cargo-make (`cargo install cargo-make`), Git
+### Environment Setup
 
-**Development Setup**: Clone your fork → Add upstream remote (`git remote add upstream https://github.com/seanchatmangpt/ggen.git`) → Build (`cargo make build-release`) → Test (`cargo make test`) → Verify (`ggen doctor`)
+```bash
+# Install cargo-make if not already installed
+cargo install cargo-make
+
+# Verify installation
+cargo make --version
+
+# Clone your fork and add upstream remote
+git clone https://github.com/YOUR_USERNAME/ggen.git
+cd ggen
+git remote add upstream https://github.com/seanchatmangpt/ggen.git
+```
+
+### Project Structure
+
+```
+ggen/
+├── crates/           # 30+ workspace crates
+│   ├── ggen-cli/     # Main CLI binary
+│   ├── ggen-core/    # Core pipeline logic
+│   ├── ggen-a2a-mcp/ # MCP server integration
+│   └── ...
+├── .specify/         # RDF specifications (source of truth)
+├── docs/             # Documentation
+├── tests/            # Integration tests
+├── Makefile.toml     # Cargo-make tasks
+└── CLAUDE.md         # Project constitution
+```
 
 ## Development Workflow
 
-**Before You Start**: Check existing issues → Create an issue → Get feedback (wait for maintainer approval on larger changes)
+ggen follows a strict **4-step development workflow**:
 
-**Making Changes**: Create feature branch (`git checkout -b feature/your-feature-name`) → Make changes → Format (`cargo make fmt`) → Lint (`cargo make lint`) → Test (`cargo make test`) → Full CI (`cargo make ci`)
+### 1. Create RDF Specification (if applicable)
 
-**Commit Messages**: Follow [Conventional Commits](https://www.conventionalcommits.org/) format: `<type>(<scope>): <description>`. Types: `feat` (new feature), `fix` (bug fix), `docs` (documentation), `test` (tests), `refactor` (refactoring), `perf` (performance), `chore` (maintenance). Examples: `feat(cli): add ggen doctor command`, `fix(ai): correct SPARQL query generation`
+If your feature requires new domain concepts:
 
-## Finding Good First Issues
+```bash
+# Create specification directory
+mkdir -p .specify/specs/NNN-feature
 
-**Tags**: `good first issue` (perfect for newcomers), `help wanted` (we need help), `documentation` (documentation improvements)
+# Edit Turtle ontology (SOURCE OF TRUTH)
+vim .specify/specs/NNN-feature/feature.ttl
 
-**New to Rust?**: Start with documentation improvements, test coverage improvements, example code additions
+# Validate RDF syntax
+ggen validate .specify/specs/NNN-feature/feature.ttl
 
-**Experienced?**: Try performance optimizations, new AI providers, advanced features
+# Generate documentation (optional)
+cargo make speckit-render
+```
+
+**CRITICAL**: RDF `.ttl` files are the source of truth. Never edit generated `.md` files.
+
+### 2. Chicago TDD (Test-Driven Development)
+
+This project uses **Chicago TDD exclusively**. See [Testing Requirements](#testing-requirements) for details.
+
+```bash
+# Write failing test (RED)
+vim crates/ggen-core/tests/feature_test.rs
+
+# Verify test fails
+cargo make test-unit
+
+# Implement feature (GREEN)
+vim crates/ggen-core/src/feature.rs
+
+# Verify test passes
+cargo make test-unit
+
+# Refactor while maintaining GREEN
+cargo make pre-commit
+```
+
+### 3. Generate from Ontology (if applicable)
+
+```bash
+# Preview changes
+ggen sync --dry_run true
+
+# Full sync with cryptographic audit
+ggen sync --audit true
+```
+
+### 4. Commit with Evidence
+
+```bash
+# Run all quality gates
+cargo make pre-commit
+
+# Commit with receipts
+git commit -m "feat(NNN): Implement feature
+
+[Receipt] cargo make pre-commit: ✓ 3/3 gates
+[Receipt] cargo make test: ✓ 347/347 tests"
+```
+
+## Testing Requirements
+
+### Chicago TDD (MANDATORY)
+
+This project uses **Chicago TDD exclusively**. London TDD patterns (mocks, test doubles, behavior verification) are **FORBIDDEN**.
+
+#### What is Chicago TDD?
+
+- **State-based verification**: Assert on actual results, not mock interactions
+- **Real collaborators**: Use real databases, filesystems, HTTP clients, LLM APIs
+- **Real execution**: Tests make real API calls, real I/O, real concurrent operations
+- **Empirical observation**: Verify observable system behavior
+
+#### Forbidden Patterns
+
+**❌ DO NOT USE:**
+- `mockall` crate or any mocking framework
+- Test doubles (`InMemoryStorage`, `FakeDatabase`, etc.)
+- Behavior verification (`.expect_x().times(1)`)
+- Dependency injection for testability
+
+**✅ USE INSTEAD:**
+- Real HTTP clients (`reqwest::Client`)
+- Real databases (`SqlitePool :memory:`, PostgreSQL via testcontainers)
+- Real filesystem (`tempfile::TempDir` for real I/O)
+- Real LLM API calls (with OTEL verification)
+
+#### Example: Chicago TDD
+
+```rust
+// ACCEPTABLE: Real HTTP client
+let client = reqwest::Client::new();
+let response = client.get("https://example.com").await?;
+assert_eq!(response.status(), 200);
+
+// ACCEPTABLE: Real database
+let pool = SqlitePool::connect(":memory:").await?;
+sqlx::query("INSERT INTO users (name) VALUES (?)")
+    .bind("Alice")
+    .execute(&pool)
+    .await?;
+
+// ACCEPTABLE: Real filesystem
+let temp_dir = TempDir::new()?;
+std::fs::write(temp_dir.path().join("test.txt"), "content")?;
+assert!(temp_dir.path().join("test.txt").exists());
+```
+
+#### Test Coverage Requirements
+
+- **Minimum coverage**: 80%+
+- **Public APIs**: 100% tested
+- **Error paths**: All error cases must be tested
+- **Edge cases**: Boundary conditions, concurrency, resource cleanup
+
+#### Test Commands
+
+```bash
+cargo make test-unit     # Fast unit tests (<16s)
+cargo make test          # Full test suite (<30s)
+cargo make test-mutation # Mutation testing (≥60% score)
+```
+
+## Code Style Guidelines
+
+### Rust Best Practices
+
+Follow the **Elite Rust Mindset**:
+
+- **Type-first design**: Encode invariants in types, use compiler as design tool
+- **Zero-cost abstractions**: Prefer generics over trait objects
+- **Performance**: References > owned, stack > heap, minimize allocations
+- **Memory safety**: Ownership explicit, lifetimes prevent use-after-free
+- **API design**: Type-safe, ergonomic, `Result<T,E>` not panics
+
+### Formatting and Linting
+
+```bash
+# Format code
+cargo make fmt
+
+# Run clippy (strict settings)
+cargo make lint
+
+# Full pre-commit check
+cargo make pre-commit
+```
+
+### Code Organization Rules
+
+- **NEVER save files to root**: Use appropriate subdirectories
+- **RDF is truth**: Edit `.specify/*.ttl`, never generated `.md`
+- **No unwrap()**: Zero `unwrap()/expect()` in production code
+- **Result<T,E> required**: All fallible operations return Result
+
+### Absolute Rules
+
+| Rule | Requirement |
+|------|-------------|
+| **Concurrent Operations** | ALL operations MUST be parallel in ONE message |
+| **No Root Files** | NEVER save files to root - use subdirectories |
+| **Cargo Make Only** | ALWAYS `cargo make` - NEVER direct cargo commands |
+| **Andon Protocol** | STOP THE LINE when signals appear - fix before proceeding |
+
+### File Organization
+
+**CRITICAL** - Files must be in correct directories:
+
+**MUST be in root**: `Cargo.toml`, `Makefile.toml`, `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `LICENSE`, `SECURITY.md`, `CLAUDE.md`
+
+**MUST NOT be in root**:
+- Test files (`.rs`) → `tests/`
+- Template files (`.tera`) → `templates/`
+- Data files (`.ttl`, `.rdf`) → `.specify/` or `examples/`
+- Scripts (`.sh`) → `scripts/`
+- Temporary files → Delete immediately
+
+## OpenTelemetry Validation
+
+### When is OTEL Validation Required?
+
+**MANDATORY** for any feature involving:
+- LLM calls (Groq, OpenAI, Anthropic, etc.)
+- MCP tool execution
+- External API calls (REST, GraphQL, RPC)
+- Database operations (PostgreSQL, Redis, etc.)
+- Pipeline stages (μ₁-μ₅ code generation)
+
+### Required OTEL Spans
+
+#### LLM Integration
+
+**Required Spans:**
+- `llm.complete` - Synchronous LLM completion
+- `llm.complete_stream` - Streaming LLM completion
+
+**Required Attributes:**
+- `llm.model` - Model identifier (e.g., `groq::openai/gpt-oss-20b`)
+- `llm.prompt_tokens` - Input token count
+- `llm.completion_tokens` - Output token count
+- `llm.total_tokens` - Total tokens used
+
+#### MCP Tools
+
+**Required Spans:**
+- `mcp.tool.call` - Tool invocation
+- `mcp.tool.response` - Tool response
+
+**Required Attributes:**
+- `mcp.tool.name` - Tool name
+- `mcp.tool.duration_ms` - Execution time
+- `mcp.tool.result` - Success/failure status
+
+### How to Verify OTEL Spans
+
+```bash
+# 1. Enable trace logging
+export RUST_LOG=trace,ggen_ai=trace,ggen_core=trace
+
+# 2. Run tests with output capture
+cargo test -p ggen-cli-lib --test llm_e2e_test -- --nocapture 2>&1 | tee otel_output.txt
+
+# 3. Check for required spans
+grep -E "llm\.complete|llm\.model|llm\.total_tokens" otel_output.txt
+```
+
+### Golden Rule
+
+**Tests passing is NOT sufficient.** For LLM/external service features, you MUST verify OTEL spans/traces exist.
+
+**Without OTEL evidence, the feature is NOT complete.**
 
 ## Pull Request Process
 
-**Before Submitting**: Code formatted (`cargo make fmt`), linting passes (`cargo make lint`), all tests pass (`cargo make test`), new tests added for new features, documentation updated, CHANGELOG.md updated (if applicable), files in correct locations (no test/template/data files in root)
+### Before Creating a PR
 
-**Submitting a PR**: Push to your fork → Create Pull Request on GitHub (clear title, reference issues, describe changes, add screenshots for UI changes) → Fill PR template (description, type of change, related issues, testing, checklist)
+1. **Run all quality gates**:
+   ```bash
+   cargo make pre-commit
+   ```
 
-**Review Process**: Response time (aim for 48 hours), feedback (address all review comments), approval (requires at least 1 maintainer approval), merge (maintainers will merge once approved)
+2. **Verify OTEL spans** (if applicable):
+   ```bash
+   RUST_LOG=trace,ggen_ai=trace cargo test <test_name> 2>&1 | grep -E "llm\.|mcp\."
+   ```
 
-## Code Style
+3. **Update documentation** (if needed):
+   - Update README.md for user-facing changes
+   - Update relevant docs in `docs/`
+   - Add examples for new features
 
-**Rust Style**: Follow [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/). Use clear, descriptive names. Proper error handling (Result types, no `.expect()` or `.unwrap()` in production paths)
+### Creating a PR
 
-**File Organization**: `cli/` (CLI commands, `src/cmds/` for implementations), `ggen-core/` (core generation logic), `ggen-ai/` (AI integration), `cleanroom/` (testing framework), `utils/` (shared utilities), `tests/` (integration tests)
+1. **Branch naming**: Use `feat/*`, `fix/*`, `refactor/*` prefixes
+   ```bash
+   git checkout -b feat/your-feature-name
+   ```
 
-**Root Directory File Placement Rules**: **CRITICAL** - Files must be in correct directories. Root should only contain essential project files. **MUST be in root**: `Cargo.toml`, `Makefile.toml`, `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `LICENSE`, `SECURITY.md`, `deny.toml`, `rustfmt.toml`, `.clog.toml`, `VERSION`. **MUST NOT be in root**: Test files (`.rs`) → `tests/`, Template files (`.tmpl`) → `templates/`, Data files (`.ttl`, `.rdf`) → `tests/data/` or `examples/`, Scripts (`.sh`) → `scripts/`, Temporary files → Delete immediately, Redundant Makefiles → Use only `Makefile.toml`, Outdated completion reports → `docs/archive/`
+2. **Commit messages**: Follow [Commit Conventions](#commit-conventions)
 
-**Module Organization**: Imports (std, external, internal) → Type definitions → Public API → Private helpers → Tests
+3. **PR title**: Use conventional commit format
+   ```
+   feat: Add support for XYZ
+   fix: Resolve ABC issue
+   refactor: Improve DEF performance
+   ```
 
-## Testing
+4. **PR description template**:
+   ```markdown
+   ## Summary
+   Brief description of changes (1-2 sentences)
 
-**Running Tests**: All tests (`cargo make test`), specific test (`cargo test test_name`), with logging (`RUST_LOG=debug cargo test`), integration tests only (`cargo test --test integration_tests`), cleanroom tests (`cargo test --test cli_integration_cleanroom`)
+   ## Changes
+   - Change 1
+   - Change 2
+   - Change 3
 
-**Writing Tests**: Unit tests (colocated with code, use `#[cfg(test)] mod tests`), integration tests (in `tests/`, use `Command::new("ggen")`)
+   ## Testing
+   - [ ] Unit tests pass
+   - [ ] Integration tests pass
+   - [ ] OTEL spans verified (if applicable)
 
-**Test Coverage**: Aim for **>85% coverage** on critical paths (core generation logic, template parsing, AI integration, CLI commands)
+   ## Documentation
+   - [ ] README updated (if needed)
+   - [ ] Examples added (if needed)
 
-## Documentation
+   ## Quality Gates
+   [Receipt] cargo make pre-commit: ✓ 3/3 gates
+   [Receipt] cargo make test: ✓ 347/347 tests
+   ```
 
-**Code Documentation**: All public APIs must have doc comments. Use `///` for documentation. Include arguments, returns, errors, examples. Examples should compile and run.
+### PR Review Process
 
-**Module Documentation**: All public modules must have module-level documentation using `//!` comments at the top of the file. Top-level crates (`lib.rs`) should use `#` heading format. Module documentation should include:
-- Brief description of the module's purpose
-- Key features/capabilities (bullet list)
-- Usage examples where appropriate (using `rust,no_run` for non-executable examples)
-- Architecture notes for complex modules
+1. **Automated checks**: CI will run quality gates
+2. **Code review**: Maintainers will review your changes
+3. **OTEL validation**: For LLM/external service features, include OTEL span output
+4. **Address feedback**: Make requested changes
+5. **Approval and merge**: Once approved, PR will be merged
 
-**Module Documentation Format**:
-```rust
-//! Brief description of module purpose
-//!
-//! This module provides [key functionality]. It handles [main responsibilities]
-//! and integrates with [related systems].
-//!
-//! ## Features
-//!
-//! - **Feature 1**: Description
-//! - **Feature 2**: Description
-//!
-//! ## Examples
-//!
-//! ```rust,no_run
-//! use crate::module::Function;
-//! // Example code
-//! ```
+## Commit Conventions
+
+### Conventional Commits
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/) format:
+
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer]
 ```
 
-**Verification**: Run `cargo make docs-check` to verify documentation compiles without errors. This is automatically run in pre-commit hooks. See [Documentation Standards](docs/DOCUMENTATION_STANDARDS.md) for complete guidelines.
+### Type Values
 
-**README and Guides**: Keep README.md concise and focused on quick start. Put detailed guides in `docs/`. Include examples in `examples/`. Update CHANGELOG.md for user-facing changes.
+- `feat`: New feature
+- `fix`: Bug fix
+- `refactor`: Code refactoring (no functional change)
+- `test`: Adding or updating tests
+- `docs`: Documentation changes
+- `chore`: Maintenance tasks
+- `perf`: Performance improvements
+- `ci`: CI/CD changes
 
-**Documentation Standards**: All public APIs must have doc comments. Examples should compile and run. Update docs when changing APIs. Add inline comments for complex logic. See [Documentation Standards](docs/DOCUMENTATION_STANDARDS.md) for detailed formatting guidelines.
+### Scope Values
+
+Use crate name or feature area:
+- `cli`: CLI changes
+- `core`: Core pipeline changes
+- `a2a-mcp`: MCP server changes
+- `ai`: LLM integration changes
+- `tps`: Test and production system changes
+
+### Examples
+
+```
+feat(cli): Add wizard command for interactive project setup
+
+Implement new ggen wizard command with profile selection and
+non-interactive mode support.
+
+[Receipt] cargo make pre-commit: ✓ 3/3 gates
+[Receipt] cargo make test: ✓ 347/347 tests
+```
+
+```
+fix(core): Resolve SPARQL query parsing issue with UTF-8 characters
+
+Fix bug where SPARQL queries with non-ASCII characters would fail
+to parse correctly. Updated Oxigraph integration to handle UTF-8
+properly.
+
+Fixes #123
+```
+
+```
+refactor(a2a): Improve task state machine performance
+
+Optimize state transition validation to reduce overhead in
+high-throughput scenarios. Performance improved by ~40%.
+
+[Receipt] cargo make bench: 40% improvement
+```
+
+## Quality Gates
+
+### Pre-Commit Checklist
+
+Before committing or creating a PR, run:
+
+```bash
+cargo make pre-commit
+```
+
+This runs:
+1. **check**: Compilation check (<5s)
+2. **lint**: Clippy + rustfmt (<60s)
+3. **test-unit**: Fast unit tests (<16s)
+
+### Full Validation
+
+For complete validation:
+
+```bash
+# All tests
+cargo make test           # Full test suite (<30s)
+
+# Mutation testing
+cargo make test-mutation  # ≥60% score required
+
+# Performance SLOs
+cargo make slo-check      # Verify performance targets
+
+# Security audit
+cargo make audit          # Check for vulnerabilities
+```
+
+### Andon Signals (Stop the Line)
+
+| Level | Pattern | Action |
+|-------|---------|--------|
+| 🔴 **CRITICAL** | `error[E...]` | HALT - Compiler errors |
+| 🔴 **CRITICAL** | `test ... FAILED` | HALT - Test failures |
+| 🟡 **HIGH** | `warning:` | STOP before release |
+| 🟡 **HIGH** | Clippy errors | STOP before release |
+| 🟢 **GREEN** | All checks pass | Proceed |
+
+**When you see a signal:**
+1. STOP work immediately
+2. Investigate root cause (5 Whys)
+3. Fix root cause, not symptom
+4. Re-run checks until cleared
+
+### Definition of Done
+
+A feature is **ONLY** complete when:
+
+- ✅ All tests pass (unit + integration)
+- ✅ OTEL spans exist (for LLM/external services)
+- ✅ Code compiles without warnings
+- ✅ Clippy passes with strict settings
+- ✅ Code formatted with rustfmt
+- ✅ Coverage ≥80%
+- ✅ Performance SLOs met
+- ✅ Documentation updated
 
 ## Getting Help
 
-**Stuck?**: Check documentation ([Main README](README.md), [Full Docs](https://seanchatmangpt.github.io/ggen/), [Architecture Overview](docs/CLAUDE.md)) → Search issues ([Open Issues](https://github.com/seanchatmangpt/ggen/issues), [Closed Issues](https://github.com/seanchatmangpt/ggen/issues?q=is%3Aissue+is%3Aclosed)) → Ask questions ([Create a Discussion](https://github.com/seanchatmangpt/ggen/discussions)) → Report bugs ([Create an Issue](https://github.com/seanchatmangpt/ggen/issues/new), include: ggen version, OS, error message, steps to reproduce)
+### Resources
 
-## Project-Specific Guidelines
+- **Documentation**: [README.md](README.md) - Project overview and quick start
+- **Project Rules**: [CLAUDE.md](CLAUDE.md) - Constitutional rules and standards
+- **Architecture**: [docs/](docs/) - Detailed architecture documentation
+- **GitHub Issues**: [Report bugs or request features](https://github.com/seanchatmangpt/ggen/issues)
+- **Discussions**: [Ask questions and discuss ideas](https://github.com/seanchatmangpt/ggen/discussions)
 
-**Working with AI Integration**: Handle API failures gracefully (use `match` with error handling, retry on rate limits). Don't panic on API failures (no `.expect()` or `.unwrap()`)
+### Asking Questions
 
-**Working with Templates**: Templates use Tera syntax. Test templates with edge cases. Validate YAML frontmatter. Handle missing variables gracefully.
+1. **Search first**: Check existing issues and discussions
+2. **Be specific**: Include code examples, error messages, and context
+3. **Provide evidence**: For bugs, include OTEL spans, test output, or reproduction steps
+4. **Use discussions**: For questions, use GitHub Discussions (not issues)
 
-**Working with RDF/SPARQL**: Validate RDF graphs before processing. Cache SPARQL query results. Handle malformed SPARQL gracefully. Test with various RDF formats (Turtle, N-Triples, JSON-LD).
+### Reporting Bugs
+
+When reporting bugs, include:
+
+- **Rust version**: `rustc --version`
+- **ggen version**: `ggen --version`
+- **Reproduction steps**: Minimal example to reproduce the issue
+- **Expected behavior**: What you expected to happen
+- **Actual behavior**: What actually happened (with error messages)
+- **OTEL output**: If applicable, include OTEL span output
+
+### Feature Requests
+
+When requesting features:
+
+- **Use case**: Describe the problem you're trying to solve
+- **Proposed solution**: How you envision the feature working
+- **Alternatives**: Other approaches you've considered
+- **Context**: Why this feature is important to you
+
+### Finding Good First Issues
+
+Look for issues labeled:
+- `good first issue` - Perfect for newcomers
+- `help wanted` - We need help with these
+- `documentation` - Documentation improvements
+
+**New to Rust?** Start with:
+- Documentation improvements
+- Test coverage improvements
+- Example code additions
+
+**Experienced?** Try:
+- Performance optimizations
+- New AI providers
+- Advanced features
+
+## Code of Conduct
+
+- Be respectful and inclusive
+- Provide constructive feedback
+- Focus on what is best for the community
+- Show empathy towards other community members
+
+## License
+
+By contributing to ggen, you agree that your contributions will be licensed under the same license as the project (Apache 2.0 OR MIT).
 
 ## Recognition
 
-Contributors are automatically added to: [README Contributors Section](README.md#contributors) (via All Contributors Bot), [CONTRIBUTORS.md](CONTRIBUTORS.md) (manual updates), Git commit history.
+Contributors are automatically added to:
+- [README Contributors Section](README.md#contributors) (via All Contributors Bot)
+- [CONTRIBUTORS.md](CONTRIBUTORS.md) (manual updates)
+- Git commit history
 
-**Notable contributions** may receive: Shout-outs in release notes, special recognition in community channels, swag (coming soon!)
-
-## Release Process
-
-**For maintainers only**: 
-
-1. **FMEA-Based Validation**: Run `cargo make release-validate` to execute all automated release checks (git state, version consistency, artifacts, build, security, CHANGELOG, breaking changes, docs sync). See [FMEA Analysis](./docs/FMEA_RELEASE_V2.6.0.md) for details.
-
-2. **Release Steps**: Update version in Cargo.toml → Update CHANGELOG.md → Run `cargo make release-validate` → Create release commit (`git commit -am "chore: release v2.x.x"`) → Tag release (`git tag -a v2.x.x -m "Release v2.x.x"`) → Push (`git push origin master --tags`) → Publish to crates.io (`cargo publish`)
-
-**Quick Reference**: See `docs/releases/RELEASE_v2.6.0_CHECKLIST.md` for complete release checklist with FMEA-based validation.
-
-## Questions?
-
-**General questions**: [Start a Discussion](https://github.com/seanchatmangpt/ggen/discussions)
-
-**Bug reports**: [Create an Issue](https://github.com/seanchatmangpt/ggen/issues/new)
-
-**Security issues**: Email security@ggen.dev
-
-**Direct contact**: Open an issue or discussion first
-
-## Thank You!
-
-Every contribution helps make ggen better. Whether you're fixing a typo, adding a feature, or helping with documentation - thank you for being part of the community! 🙏
+**Notable contributions** may receive:
+- Shout-outs in release notes
+- Special recognition in community channels
 
 ---
+
+**Thank you for contributing to ggen!** 🚀
+
+For more details on project philosophy and advanced workflows, see [CLAUDE.md](CLAUDE.md).
 
 **Ready to contribute?**
 
@@ -151,4 +599,4 @@ Every contribution helps make ggen better. Whether you're fixing a typo, adding 
 3. Make your changes
 4. Submit a PR
 
-**Happy coding!** 🚀
+**Happy coding!** 🎉
