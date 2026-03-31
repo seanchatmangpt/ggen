@@ -1,6 +1,6 @@
 //! Affiliate link routing and resolution
 
-use super::{InvalidRouteSlug, RouteSlug};
+use super::RouteSlug;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;

@@ -1,8 +1,8 @@
 use ggen_transport::a2a::{
-    A2aMessage, A2aMessageHandler, A2aMessageType, A2aStreamMessage, A2aStreamType, A2aTransport,
+    A2aMessage, A2aMessageType, A2aStreamMessage, A2aStreamType, A2aTransport,
     EchoA2aHandler,
 };
-use ggen_transport::{OriginValidator, SessionId, SessionManager};
+use ggen_transport::{OriginValidator, SessionManager};
 use std::sync::Arc;
 
 #[tokio::test]

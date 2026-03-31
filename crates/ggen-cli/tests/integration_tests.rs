@@ -33,7 +33,7 @@ fn test_cli_help() {
 #[test]
 fn test_error_command() {
     let output = Command::new("cargo")
-        .args(&["run", "--", "error"])
+        .args(["run", "--", "error"])
         .current_dir("/Users/sac/ggen")
         .output()
         .expect("Failed to execute command");
@@ -46,7 +46,7 @@ fn test_error_command() {
 #[test]
 fn test_config_command() {
     let output = Command::new("cargo")
-        .args(&["run", "--", "config"])
+        .args(["run", "--", "config"])
         .current_dir("/Users/sac/ggen")
         .output()
         .expect("Failed to execute command");
@@ -101,7 +101,7 @@ fn test_config_command() {
 #[test]
 fn test_invalid_command() {
     let output = Command::new("cargo")
-        .args(&["run", "--", "invalid-command"])
+        .args(["run", "--", "invalid-command"])
         .current_dir("/Users/sac/ggen")
         .output()
         .expect("Failed to execute command");

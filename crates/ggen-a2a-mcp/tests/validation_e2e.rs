@@ -8,9 +8,9 @@
 //! - No mocks, no test doubles
 
 use ggen_a2a_mcp::ggen_server::GgenMcpServer;
-use tempfile::TempDir;
-use std::fs;
 use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
+use std::fs;
+use tempfile::TempDir;
 
 // ---------------------------------------------------------------------------
 // Test client handler
@@ -136,7 +136,7 @@ async fn test_validate_manifest_dependencies_success() {
     fs::create_dir_all(project_root.join("ontology")).unwrap();
     fs::write(
         project_root.join("ontology/templates.ttl"),
-        "@prefix ex: <http://example.org> . ex:Subject a ex:Resource ."
+        "@prefix ex: <http://example.org> . ex:Subject a ex:Resource .",
     )
     .unwrap();
 
@@ -221,7 +221,7 @@ async fn test_validate_manifest_quality_gates_success() {
     fs::create_dir_all(project_root.join("ontology")).unwrap();
     fs::write(
         project_root.join("ontology/templates.ttl"),
-        "@prefix ex: <http://example.org> . ex:Subject a ex:Resource ."
+        "@prefix ex: <http://example.org> . ex:Subject a ex:Resource .",
     )
     .unwrap();
 
@@ -425,7 +425,12 @@ async fn test_validate_sparql_syntax_valid() {
     let response = result.unwrap();
     assert!(!response.is_error);
     let content = response.content.first().unwrap();
-    assert!(content.text.as_ref().unwrap().to_lowercase().contains("valid"));
+    assert!(content
+        .text
+        .as_ref()
+        .unwrap()
+        .to_lowercase()
+        .contains("valid"));
 }
 
 #[tokio::test]
@@ -489,7 +494,12 @@ async fn test_validate_template_syntax_valid() {
     let response = result.unwrap();
     assert!(!response.is_error);
     let content = response.content.first().unwrap();
-    assert!(content.text.as_ref().unwrap().to_lowercase().contains("valid"));
+    assert!(content
+        .text
+        .as_ref()
+        .unwrap()
+        .to_lowercase()
+        .contains("valid"));
 }
 
 #[tokio::test]
@@ -551,7 +561,7 @@ async fn test_validate_pipeline_full() {
     fs::create_dir_all(project_path.join("ontology")).unwrap();
     fs::write(
         project_path.join("ontology/templates.ttl"),
-        "@prefix ex: <http://example.org> . ex:Subject a ex:Resource ."
+        "@prefix ex: <http://example.org> . ex:Subject a ex:Resource .",
     )
     .unwrap();
 
@@ -575,7 +585,11 @@ async fn test_validate_pipeline_full() {
     assert!(!response.is_error);
     let content = response.content.first().unwrap();
     let text = content.text.as_ref().unwrap();
-    assert!(text.contains("✅") || text.to_lowercase().contains("pass") || text.to_lowercase().contains("all"));
+    assert!(
+        text.contains("✅")
+            || text.to_lowercase().contains("pass")
+            || text.to_lowercase().contains("all")
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -685,7 +699,10 @@ async fn test_validate_large_ttl_performance() {
     // Assert: Should complete in reasonable time (< 5 seconds)
     let elapsed = start.elapsed();
     assert!(result.is_ok());
-    assert!(elapsed.as_secs() < 5, "Large TTL validation should complete in < 5s");
+    assert!(
+        elapsed.as_secs() < 5,
+        "Large TTL validation should complete in < 5s"
+    );
 }
 
 // ---------------------------------------------------------------------------

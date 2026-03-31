@@ -101,7 +101,7 @@ impl PinningManager {
     pub fn add_pin(&mut self, pin: CertificatePin) {
         self.pins
             .entry(pin.hostname.clone())
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(pin);
     }
 

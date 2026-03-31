@@ -2,7 +2,7 @@
 //!
 //! Chicago TDD: State-based testing with real collaborators and behavior verification
 
-use axum::{extract::State, http::StatusCode, routing::get, Router};
+use axum::{http::StatusCode, routing::get, Router};
 use ggen_api::middleware::{rate_limit_middleware, RateLimitBackend, RateLimitConfig, RateLimiter};
 use std::sync::Arc;
 use std::time::Duration;
@@ -223,7 +223,7 @@ async fn test_burst_handling_allows_rapid_requests() {
 
     // Act: Send burst of 5 requests rapidly
     let mut success_count = 0;
-    for i in 0..5 {
+    for _i in 0..5 {
         let app = create_test_app(limiter.clone());
         let request = axum::http::Request::builder()
             .uri("/api/test")

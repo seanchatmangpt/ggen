@@ -191,8 +191,7 @@ impl Module for SimplifiedBaleen {
         output.set("context", context);
 
         // Add hop details as JSON
-        let hops_json =
-            serde_json::to_string(&hops).map_err(DspyError::SerializationError)?;
+        let hops_json = serde_json::to_string(&hops).map_err(DspyError::SerializationError)?;
         output.set("hops", hops_json);
 
         Ok(output)

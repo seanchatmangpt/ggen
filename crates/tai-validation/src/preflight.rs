@@ -138,31 +138,24 @@ pub struct PreFlightChecklist;
 impl PreFlightChecklist {
     /// Run basic pre-flight checks
     pub async fn run_basic_checks() -> Result<PreFlightResult> {
-        let mut checks = Vec::new();
-
-        // Resource checks
-        checks.push(PreFlightCheck::passed(
-            "Disk Space".to_string(),
-            "Sufficient disk space available".to_string(),
-        ));
-
-        // Permission checks
-        checks.push(PreFlightCheck::passed(
-            "File Permissions".to_string(),
-            "Required file permissions".to_string(),
-        ));
-
-        // Configuration checks
-        checks.push(PreFlightCheck::passed(
-            "Configuration Files".to_string(),
-            "Required configuration files present".to_string(),
-        ));
-
-        // Dependency checks
-        checks.push(PreFlightCheck::passed(
-            "Dependencies".to_string(),
-            "All required dependencies available".to_string(),
-        ));
+        let checks = vec![
+            PreFlightCheck::passed(
+                "Disk Space".to_string(),
+                "Sufficient disk space available".to_string(),
+            ),
+            PreFlightCheck::passed(
+                "File Permissions".to_string(),
+                "Required file permissions".to_string(),
+            ),
+            PreFlightCheck::passed(
+                "Configuration Files".to_string(),
+                "Required configuration files present".to_string(),
+            ),
+            PreFlightCheck::passed(
+                "Dependencies".to_string(),
+                "All required dependencies available".to_string(),
+            ),
+        ];
 
         Ok(PreFlightResult::from_checks(checks))
     }

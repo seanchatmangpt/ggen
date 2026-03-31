@@ -176,7 +176,7 @@ impl ConfigLoader {
     ///
     /// # Arguments
     ///
-    /// * `overrides` - Slice of (environment_name, overrides) tuples
+    /// * `overrides` - Slice of (`environment_name`, overrides) tuples
     ///
     /// # Errors
     ///

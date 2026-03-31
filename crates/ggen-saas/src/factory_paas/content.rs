@@ -139,11 +139,10 @@ impl ContentPipeline {
         for item in self.content.values_mut() {
             if item.status == PublicationStatus::Scheduled {
                 if let Some(scheduled_for) = item.scheduled_for {
-                    if scheduled_for <= now {
-                        if item.publish().is_ok() {
+                    if scheduled_for <= now
+                        && item.publish().is_ok() {
                             published_ids.push(item.id);
                         }
-                    }
                 }
             }
         }

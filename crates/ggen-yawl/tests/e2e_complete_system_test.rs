@@ -373,7 +373,7 @@ fn analyze_cross_references(files: &[PackagedFile]) -> CrossReferenceAnalysis {
                         analysis
                             .controllers_by_entity
                             .entry(entity.clone())
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(file.class_name.clone());
                     }
                 }
@@ -384,7 +384,7 @@ fn analyze_cross_references(files: &[PackagedFile]) -> CrossReferenceAnalysis {
                         analysis
                             .services_by_entity
                             .entry(entity.clone())
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(file.class_name.clone());
                     }
                 }
@@ -395,7 +395,7 @@ fn analyze_cross_references(files: &[PackagedFile]) -> CrossReferenceAnalysis {
                         analysis
                             .repositories_by_entity
                             .entry(entity.clone())
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(file.class_name.clone());
                     }
                 }
@@ -406,7 +406,7 @@ fn analyze_cross_references(files: &[PackagedFile]) -> CrossReferenceAnalysis {
                         analysis
                             .dtos_by_entity
                             .entry(entity.clone())
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(file.class_name.clone());
                     }
                 }
@@ -676,7 +676,7 @@ fn extract_package(content: &str) -> &str {
     if let Some(line) = content.lines().find(|l| l.starts_with("package ")) {
         let start = line.find("package ").unwrap() + 8;
         let end = line.find(';').unwrap_or(line.len());
-        &line[start..end].trim()
+        line[start..end].trim()
     } else {
         ""
     }
@@ -700,7 +700,7 @@ fn test_e2e_complete_spring_boot_generation() {
     let raw_files = execute_all_rules();
 
     // Verify we have files from all rules
-    assert!(raw_files.len() > 0, "Should generate at least one file");
+    assert!(!raw_files.is_empty(), "Should generate at least one file");
 
     // Organize into Maven structure
     let organized_files = organize_into_maven_structure(&raw_files);

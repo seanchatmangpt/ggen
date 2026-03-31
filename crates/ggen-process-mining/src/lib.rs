@@ -73,6 +73,17 @@
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time
 #![warn(missing_docs)]
 #![warn(clippy::all, clippy::pedantic)]
+// Allow lints that are too noisy for this analysis crate
+#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::cast_precision_loss)]
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::unused_self)]
+#![allow(clippy::unnecessary_wraps)]
+#![allow(clippy::match_same_arms)]
+#![allow(clippy::too_many_lines)]
+#![allow(clippy::needless_pass_by_value)]
+#![allow(clippy::format_push_string)]
+#![allow(clippy::if_same_then_else)]
 
 pub mod conformance;
 pub mod discovery;

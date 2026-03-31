@@ -75,7 +75,7 @@ fn test_graph_load_turtle_format() {
         .success();
 
     // Verify state: Graph file created
-    let graph_path = temp_dir.path().join(".ggen/graph");
+    let _graph_path = temp_dir.path().join(".ggen/graph");
     // Note: Graph may be stored in memory or file, implementation-dependent
 }
 
@@ -173,7 +173,7 @@ fn test_graph_export_turtle() {
     // Verify state: Export contains RDF data
     let content = fs::read_to_string(&export_file).unwrap();
     assert!(
-        content.contains("@prefix") || content.len() > 0,
+        content.contains("@prefix") || !content.is_empty(),
         "Export should contain RDF data"
     );
 }

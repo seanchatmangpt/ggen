@@ -1,7 +1,6 @@
 //! Authorization middleware for RBAC enforcement
 
 use axum::{
-    body::Body,
     extract::{Request, State},
     http::StatusCode,
     middleware::Next,
@@ -9,11 +8,10 @@ use axum::{
     Json,
 };
 use ggen_auth::{
-    authorize, AuthError, AuthorizationContext, Permission, PolicyEngine, Resource, ResourceOwner,
+    authorize, Permission, PolicyEngine, Resource, ResourceOwner,
     ResourceType, Role, RoleHierarchy,
 };
 use serde::Serialize;
-use std::sync::Arc;
 
 use crate::error::ApiError;
 use crate::state::AppState;

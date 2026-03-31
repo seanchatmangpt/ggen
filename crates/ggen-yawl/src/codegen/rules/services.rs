@@ -13,6 +13,12 @@ use tera::{Context, Tera};
 /// Query executor for service generation.
 pub struct ServiceQuery;
 
+impl Default for ServiceQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ServiceQuery {
     /// Create a new service query.
     pub fn new() -> Self {

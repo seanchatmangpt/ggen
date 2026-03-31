@@ -42,15 +42,15 @@ pub struct Extractor {
 }
 
 #[derive(Debug, Clone)]
-struct ExtractionContext {
-    entities: HashMap<String, Entity>,
+pub struct ExtractionContext {
+    pub _entities: HashMap<String, Entity>,
 }
 
 impl Extractor {
     pub fn new(_normalizer: &Normalizer) -> Result<Self> {
         Ok(Self {
             context: ExtractionContext {
-                entities: HashMap::new(),
+                _entities: HashMap::new(),
             },
         })
     }
@@ -78,8 +78,8 @@ impl Extractor {
 
         // Process QueryResults based on its actual type
         match results {
-            QueryResults::Solutions(mut solutions) => {
-                while let Some(solution) = solutions.next() {
+            QueryResults::Solutions(solutions) => {
+                for solution in solutions {
                     let solution = solution.map_err(|e| {
                         crate::error::CraftplanError::sparql_query(query, e.to_string())
                     })?;
@@ -145,8 +145,8 @@ impl Extractor {
 
         // Process QueryResults based on its actual type
         match results {
-            QueryResults::Solutions(mut solutions) => {
-                while let Some(solution) = solutions.next() {
+            QueryResults::Solutions(solutions) => {
+                for solution in solutions {
                     let solution = solution.map_err(|e| {
                         crate::error::CraftplanError::sparql_query(&query, e.to_string())
                     })?;

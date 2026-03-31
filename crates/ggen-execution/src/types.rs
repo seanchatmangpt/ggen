@@ -44,7 +44,9 @@ pub struct UnifiedAgent {
 
 /// Agent status with semantic convergence support
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Default)]
 pub enum AgentStatus {
+    #[default]
     Idle,
     Busy,
     Running,
@@ -57,11 +59,6 @@ pub enum AgentStatus {
     Unknown,
 }
 
-impl Default for AgentStatus {
-    fn default() -> Self {
-        AgentStatus::Idle
-    }
-}
 
 /// Agent configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -163,18 +160,15 @@ pub struct Task {
 
 /// Task priority levels
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Default)]
 pub enum TaskPriority {
     Critical = 4,
     High = 3,
+    #[default]
     Normal = 2,
     Low = 1,
 }
 
-impl Default for TaskPriority {
-    fn default() -> Self {
-        TaskPriority::Normal
-    }
-}
 
 /// Task execution status
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -245,18 +239,15 @@ pub enum MessageType {
 
 /// Message priority levels
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
+#[derive(Default)]
 pub enum MessagePriority {
     Low = 1,
+    #[default]
     Normal = 2,
     High = 3,
     Critical = 4,
 }
 
-impl Default for MessagePriority {
-    fn default() -> Self {
-        MessagePriority::Normal
-    }
-}
 
 /// Unified payload structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -408,6 +399,12 @@ impl UnifiedAgent {
     }
 }
 
+impl Default for AgentHealth {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AgentHealth {
     pub fn new() -> Self {
         Self {
@@ -423,6 +420,12 @@ impl AgentHealth {
                 network_out_mb: 0,
             },
         }
+    }
+}
+
+impl Default for AgentMetrics {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

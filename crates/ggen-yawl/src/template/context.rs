@@ -279,10 +279,10 @@ impl<'a> ContextBuilder<'a> {
     /// This function extracts the actual value.
     fn strip_literal_quotes(s: &str) -> String {
         let s = s.trim();
-        if s.starts_with('"') {
+        if let Some(stripped) = s.strip_prefix('"') {
             // Find the closing quote
-            if let Some(end) = s[1..].find('"') {
-                return s[1..end + 1].to_string();
+            if let Some(end) = stripped.find('"') {
+                return stripped[..end].to_string();
             }
         }
         // Fallback: remove surrounding quotes if present
@@ -602,8 +602,8 @@ impl<'a> ContextBuilder<'a> {
     fn generate_task_id_from_iri(iri: &str) -> String {
         // Extract the last component of the IRI path
         iri.split('/')
-            .last()
-            .and_then(|s| s.split('#').last())
+            .next_back()
+            .and_then(|s| s.split('#').next_back())
             .unwrap_or("unknown")
             .to_string()
     }
@@ -611,8 +611,8 @@ impl<'a> ContextBuilder<'a> {
     /// Extract local name from an IRI.
     fn extract_local_name(iri: &str) -> String {
         iri.split('#')
-            .last()
-            .and_then(|s| s.split('/').last())
+            .next_back()
+            .and_then(|s| s.split('/').next_back())
             .unwrap_or("Unknown")
             .to_string()
     }

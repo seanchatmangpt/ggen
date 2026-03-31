@@ -71,7 +71,7 @@ mod mcp_error_handling {
 
             // Validate temperature range
             if let Some(temp) = self.temperature {
-                if temp < 0.0 || temp > 2.0 {
+                if !(0.0..=2.0).contains(&temp) {
                     return Err(format!("Temperature out of range: {}", temp));
                 }
             }
@@ -761,7 +761,7 @@ mod mcp_error_handling {
     #[tokio::test]
     async fn test_state_error_transition_nonexistent_agent() -> Result<(), String> {
         // Arrange
-        let mut manager = MockMcpManager::new();
+        let manager = MockMcpManager::new();
 
         // Act
         let result = manager

@@ -2,18 +2,6 @@
 //!
 //! Integrates insta for snapshot testing with Chicago TDD principles.
 //! Snapshots verify observable state at specific points in time.
-//!
-//! # Examples
-//!
-//! ```
-//! use ggen_testing::snapshot::*;
-//!
-//! #[test]
-//! fn test_output() {
-//!     let output = generate_output();
-//!     assert_snapshot!(output);
-//! }
-//! ```
 
 use anyhow::Result;
 pub use insta::{

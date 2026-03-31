@@ -2,20 +2,6 @@
 //!
 //! Integrates proptest for property-based testing with Chicago TDD principles.
 //! Focuses on verifying properties of state transformations.
-//!
-//! # Examples
-//!
-//! ```
-//! use ggen_testing::property::*;
-//! use proptest::prelude::*;
-//!
-//! proptest! {
-//!     #[test]
-//!     fn test_addition_commutative(a: i32, b: i32) {
-//!         prop_assert_eq!(a + b, b + a);
-//!     }
-//! }
-//! ```
 
 use anyhow::Result;
 pub use proptest::prelude::*;
@@ -25,43 +11,36 @@ pub struct StrategyBuilder;
 
 impl StrategyBuilder {
     /// Generate non-empty strings
-    #[must_use]
     pub fn non_empty_string() -> impl Strategy<Value = String> {
         "[a-zA-Z0-9]{1,100}".prop_map(|s| s.to_string())
     }
 
     /// Generate valid identifiers (alphanumeric with underscores)
-    #[must_use]
     pub fn identifier() -> impl Strategy<Value = String> {
         "[a-zA-Z_][a-zA-Z0-9_]{0,63}".prop_map(|s| s.to_string())
     }
 
     /// Generate valid file names
-    #[must_use]
     pub fn file_name() -> impl Strategy<Value = String> {
         "[a-zA-Z0-9_-]{1,255}\\.[a-z]{1,10}".prop_map(|s| s.to_string())
     }
 
     /// Generate positive integers
-    #[must_use]
     pub fn positive_int() -> impl Strategy<Value = i32> {
         1..=i32::MAX
     }
 
     /// Generate non-negative integers
-    #[must_use]
     pub fn non_negative_int() -> impl Strategy<Value = i32> {
         0..=i32::MAX
     }
 
     /// Generate bounded integers
-    #[must_use]
     pub fn bounded_int(min: i32, max: i32) -> impl Strategy<Value = i32> {
         min..=max
     }
 
     /// Generate non-empty vectors
-    #[must_use]
     pub fn non_empty_vec<T: std::fmt::Debug + Clone>(
         element: impl Strategy<Value = T>,
     ) -> impl Strategy<Value = Vec<T>> {
@@ -69,7 +48,6 @@ impl StrategyBuilder {
     }
 
     /// Generate unique vectors (no duplicates)
-    #[must_use]
     pub fn unique_vec<T: std::fmt::Debug + Clone + Eq + std::hash::Hash>(
         element: impl Strategy<Value = T>,
     ) -> impl Strategy<Value = Vec<T>> {

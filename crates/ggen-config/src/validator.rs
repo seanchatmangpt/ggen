@@ -209,8 +209,7 @@ impl<'a> ConfigValidator<'a> {
                 if let Some(port) = transport.port {
                     if port == 0 {
                         self.errors.push(format!(
-                            "Invalid MCP port: {}. Must be between 1 and 65535",
-                            port
+                            "Invalid MCP port: {port}. Must be between 1 and 65535"
                         ));
                     }
                 }
@@ -247,8 +246,7 @@ impl<'a> ConfigValidator<'a> {
                 if let Some(port) = transport.port {
                     if port == 0 {
                         self.errors.push(format!(
-                            "Invalid A2A port: {}. Must be between 1 and 65535",
-                            port
+                            "Invalid A2A port: {port}. Must be between 1 and 65535"
                         ));
                     }
                 }
@@ -270,8 +268,7 @@ impl<'a> ConfigValidator<'a> {
                         let valid_algorithms = ["raft", "pbft", "naive"];
                         if !valid_algorithms.contains(&algorithm.as_str()) {
                             self.errors.push(format!(
-                                "Invalid A2A consensus algorithm: '{}'. Valid: {:?}",
-                                algorithm, valid_algorithms
+                                "Invalid A2A consensus algorithm: '{algorithm}'. Valid: {valid_algorithms:?}"
                             ));
                         }
                     }

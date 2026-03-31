@@ -55,7 +55,8 @@ fn test_lifecycle() -> MessageLifecycle {
 fn make_text_message(
     id: &str, source: &str, content: &str, correlation_id: Option<&str>,
 ) -> ConvergedMessage {
-    let msg = ConvergedMessage {
+    
+    ConvergedMessage {
         message_id: id.to_string(),
         source: source.to_string(),
         target: Some("target-agent".to_string()),
@@ -80,8 +81,7 @@ fn make_text_message(
         routing: test_routing(),
         lifecycle: test_lifecycle(),
         extensions: None,
-    };
-    msg
+    }
 }
 
 /// Create a data (Command-type) ConvergedMessage.
@@ -280,9 +280,7 @@ async fn test_a2a_multi_step_workflow_lifecycle() {
         let event_msg = publisher
             .publish_task_event(workflow_id, task_id, old_state, new_state)
             .await
-            .expect(&format!(
-                "publish_task_event({old_state} -> {new_state}) should succeed"
-            ));
+            .unwrap_or_else(|_| panic!("publish_task_event({old_state} -> {new_state}) should succeed"));
 
         // Assert event type is Event
         assert_eq!(
@@ -619,16 +617,16 @@ fn test_a2a_task_mapper_bidirectional_composite() {
         parent_id: Some("composite-001".to_string()),
     };
 
-    let original_tasks = vec![atomic_task, composite_task, mi_task];
+    let original_tasks = [atomic_task, composite_task, mi_task];
 
     // YAWL -> A2A -> YAWL round-trip for each task
     for (i, original) in original_tasks.iter().enumerate() {
         let a2a_msg = mapper
             .yawl_to_a2a_task(original)
-            .expect(&format!("yawl_to_a2a_task should succeed for task {}", i));
+            .unwrap_or_else(|_| panic!("yawl_to_a2a_task should succeed for task {}", i));
 
         let roundtrip = TaskMapper::a2a_to_yawl_task(&a2a_msg)
-            .expect(&format!("a2a_to_yawl_task should succeed for task {}", i));
+            .unwrap_or_else(|_| panic!("a2a_to_yawl_task should succeed for task {}", i));
 
         // Assert all fields preserved
         assert_eq!(

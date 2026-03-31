@@ -228,8 +228,6 @@ impl RedisBackend {
     async fn execute_lua_script(
         &self, key: &str, config: &RateLimitConfig,
     ) -> Result<(i64, f64), RateLimitError> {
-        use redis::AsyncCommands;
-
         let mut conn = self.pool.get().await.map_err(|e| {
             RateLimitError::BackendError(format!("Failed to get Redis connection: {}", e))
         })?;

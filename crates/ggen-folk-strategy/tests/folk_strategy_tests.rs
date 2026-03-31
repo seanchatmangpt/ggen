@@ -958,8 +958,8 @@ fn test_realistic_startup_scenario() {
     let startup_trajectory = create_winning_trajectory().unwrap();
     let (technical_capability, market_demand) = create_aligned_vectors();
     let market_entry_position = Position::new(-4.0, -4.0);
-    let market_window = Window::new(0.0, 4.0).unwrap();
-    let entry_time = 0.5;
+    let _market_window = Window::new(0.0, 4.0).unwrap();
+    let _entry_time = 0.5;
 
     // Act
     let luck_val = luck(market_entry_position, &field).unwrap();
@@ -986,7 +986,7 @@ fn test_realistic_startup_scenario() {
 #[test]
 fn test_competitive_market_scenario() {
     // Arrange: Multiple competitors in same market
-    let field = create_valley_field().unwrap();
+    let _field = create_valley_field().unwrap();
     let competitor1 = create_winning_trajectory().unwrap();
     let competitor2 = create_wandering_trajectory().unwrap();
     let dynamics = CompetitorDynamics::new(vec![competitor1, competitor2]).unwrap();
@@ -1006,7 +1006,7 @@ fn test_competitive_market_scenario() {
 #[test]
 fn test_timing_advantage_scenario() {
     // Arrange: Early vs late entry
-    let field = create_peak_field().unwrap();
+    let _field = create_peak_field().unwrap();
     let window = Window::new(2.0, 6.0).unwrap();
 
     // Act
@@ -1028,7 +1028,7 @@ fn test_timing_advantage_scenario() {
 #[test]
 fn test_network_growth_scenario() {
     // Arrange: Network growing over time
-    let sizes = vec![1, 10, 100, 1000, 10000];
+    let sizes = [1, 10, 100, 1000, 10000];
 
     // Act
     let values: Vec<_> = sizes

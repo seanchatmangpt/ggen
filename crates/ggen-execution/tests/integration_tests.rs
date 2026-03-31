@@ -3,8 +3,6 @@ use chrono::{DateTime, Utc};
 use ggen_execution::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::Arc;
-use tokio::sync::Mutex;
 
 // ============================================================================
 // A2A INTEGRATION TESTS
@@ -98,7 +96,7 @@ impl UnifiedAgentTrait for A2AAgent {
         &self.id
     }
     fn get_capabilities(&self) -> &[String] {
-        &self.capabilities.as_slice()
+        self.capabilities.as_slice()
     }
     fn is_available(&self) -> bool {
         true
@@ -187,7 +185,7 @@ async fn test_workflow_state_persistence() {
 
     // Execute partial workflow
     let workflow_clone = workflow.clone();
-    let mut partial_workflow = Workflow {
+    let _partial_workflow = Workflow {
         id: workflow_clone.id.clone(),
         name: workflow_clone.name.clone(),
         workflow_type: workflow_clone.workflow_type.clone(),
@@ -317,6 +315,12 @@ pub struct CoordinationManager {
     active_coordinations: HashMap<String, CoordinationSession>,
 }
 
+impl Default for CoordinationManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CoordinationManager {
     pub fn new() -> Self {
         Self {
@@ -375,7 +379,7 @@ impl CoordinationManager {
     }
 
     async fn process_coordinator_task(
-        &mut self, framework: &mut ExecutionFramework, task: &Task,
+        &mut self, _framework: &mut ExecutionFramework, _task: &Task,
     ) -> Result<CoordinatorResult, ExecutionError> {
         // Simulate coordination logic
         let metrics = CoordinationMetrics {
@@ -458,7 +462,7 @@ impl UnifiedAgentTrait for CoordinatorAgent {
     fn get_health(&self) -> &AgentHealth {
         &self.health
     }
-    async fn execute_task(&mut self, task: Task) -> Result<TaskResult, ExecutionError> {
+    async fn execute_task(&mut self, _task: Task) -> Result<TaskResult, ExecutionError> {
         self.tasks_coordinated += 1;
         Ok(TaskResult {
             success: true,
@@ -523,7 +527,7 @@ impl UnifiedAgentTrait for WorkerAgent {
     fn get_health(&self) -> &AgentHealth {
         &self.health
     }
-    async fn execute_task(&mut self, task: Task) -> Result<TaskResult, ExecutionError> {
+    async fn execute_task(&mut self, _task: Task) -> Result<TaskResult, ExecutionError> {
         self.work_completed += 1;
         Ok(TaskResult {
             success: true,

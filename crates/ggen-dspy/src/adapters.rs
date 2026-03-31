@@ -679,10 +679,7 @@ impl TokenCounter {
             .fetch_add(completion, Ordering::Relaxed);
 
         let mut usage = self.model_usage.lock().unwrap();
-        usage
-            .entry(model)
-            .or_default()
-            .add(prompt, completion);
+        usage.entry(model).or_default().add(prompt, completion);
     }
 
     /// Get statistics

@@ -335,6 +335,7 @@ impl Contract {
     }
 
     /// Sign the contract (makes it immutable)
+    #[allow(clippy::expect_used)]
     pub fn sign(mut self, key: &[u8]) -> Self {
         use hmac::Mac;
         let mut mac =

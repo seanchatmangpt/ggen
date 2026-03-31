@@ -281,6 +281,7 @@ impl Default for HealthThresholds {
 // ============================================================================
 
 /// Recovery manager for handling system recovery
+#[allow(dead_code)]
 pub struct RecoveryManager {
     strategies: HashMap<String, RecoveryPolicy>,
     error_history: VecDeque<ErrorRecord>,
@@ -320,6 +321,12 @@ pub enum RecoveryStatus {
     Succeeded,
     Failed,
     Retrying,
+}
+
+impl Default for RecoveryManager {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl RecoveryManager {
@@ -391,7 +398,7 @@ impl RecoveryManager {
         };
 
         // Update error record
-        let recent_error = self.error_history.iter_mut().rev().next().unwrap();
+        let recent_error = self.error_history.iter_mut().next_back().unwrap();
         recent_error.recovery_applied = Some(strategy);
 
         Ok(result)
@@ -650,6 +657,12 @@ pub enum HealingEventType {
     RecoveryFailure,
     CircuitOpened,
     CircuitClosed,
+}
+
+impl Default for SelfHealingWorkflow {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl SelfHealingWorkflow {

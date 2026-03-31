@@ -13,6 +13,12 @@ use tera::{Context, Tera};
 /// Query executor for REST controller generation.
 pub struct ControllerQuery;
 
+impl Default for ControllerQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ControllerQuery {
     /// Create a new controller query.
     pub fn new() -> Self {

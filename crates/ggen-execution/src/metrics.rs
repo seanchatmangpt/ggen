@@ -397,6 +397,12 @@ pub struct GlobalAgentMetrics {
     pub last_updated: DateTime<Utc>,
 }
 
+impl Default for AgentMetricsCollector {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AgentMetricsCollector {
     pub fn new() -> Self {
         Self {
@@ -599,6 +605,12 @@ pub enum ExecutionRecordType {
     Pipeline,
     Task,
     Stage,
+}
+
+impl Default for ExecutionMetricsCollector {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ExecutionMetricsCollector {
@@ -854,11 +866,11 @@ impl MetricsExporter {
         };
 
         let json_str = serde_json::to_string_pretty(&export_data)
-            .map_err(|e| ExecutionError::Serialization(e))?;
+            .map_err(ExecutionError::Serialization)?;
 
         tokio::fs::write(output_path, json_str)
             .await
-            .map_err(|e| ExecutionError::Io(e))?;
+            .map_err(ExecutionError::Io)?;
 
         Ok(())
     }
@@ -887,7 +899,7 @@ impl MetricsExporter {
 
         tokio::fs::write(output_path, csv_content)
             .await
-            .map_err(|e| ExecutionError::Io(e))?;
+            .map_err(ExecutionError::Io)?;
 
         Ok(())
     }
@@ -901,32 +913,26 @@ impl MetricsExporter {
         let mut prometheus_content = String::new();
 
         if let Some(metrics) = metrics {
-            prometheus_content.push_str(&format!(
-                "# HELP ggen_execution_duration_ms Execution duration in milliseconds\n"
-            ));
-            prometheus_content.push_str(&format!("# TYPE ggen_execution_duration_ms gauge\n"));
+            prometheus_content.push_str("# HELP ggen_execution_duration_ms Execution duration in milliseconds\n");
+            prometheus_content.push_str("# TYPE ggen_execution_duration_ms gauge\n");
             prometheus_content.push_str(&format!(
                 "ggen_execution_duration_ms {}\n",
                 metrics.execution_duration_ms
             ));
 
-            prometheus_content.push_str(&format!(
-                "# HELP ggen_throughput_per_second Tasks per second\n"
-            ));
-            prometheus_content.push_str(&format!("# TYPE ggen_throughput_per_second gauge\n"));
+            prometheus_content.push_str("# HELP ggen_throughput_per_second Tasks per second\n");
+            prometheus_content.push_str("# TYPE ggen_throughput_per_second gauge\n");
             prometheus_content.push_str(&format!(
                 "ggen_throughput_per_second {}\n",
                 metrics.throughput_per_second
             ));
 
-            prometheus_content.push_str(&format!("# HELP ggen_success_rate Success rate\n"));
-            prometheus_content.push_str(&format!("# TYPE ggen_success_rate gauge\n"));
+            prometheus_content.push_str("# HELP ggen_success_rate Success rate\n");
+            prometheus_content.push_str("# TYPE ggen_success_rate gauge\n");
             prometheus_content.push_str(&format!("ggen_success_rate {}\n", metrics.success_rate));
 
-            prometheus_content.push_str(&format!(
-                "# HELP ggen_cpu_usage_percent CPU usage percentage\n"
-            ));
-            prometheus_content.push_str(&format!("# TYPE ggen_cpu_usage_percent gauge\n"));
+            prometheus_content.push_str("# HELP ggen_cpu_usage_percent CPU usage percentage\n");
+            prometheus_content.push_str("# TYPE ggen_cpu_usage_percent gauge\n");
             prometheus_content.push_str(&format!(
                 "ggen_cpu_usage_percent {}\n",
                 metrics.cpu_usage_percent
@@ -935,7 +941,7 @@ impl MetricsExporter {
 
         tokio::fs::write(output_path, prometheus_content)
             .await
-            .map_err(|e| ExecutionError::Io(e))?;
+            .map_err(ExecutionError::Io)?;
 
         Ok(())
     }
@@ -970,7 +976,7 @@ impl MetricsExporter {
 
         tokio::fs::write(output_path, influx_content)
             .await
-            .map_err(|e| ExecutionError::Io(e))?;
+            .map_err(ExecutionError::Io)?;
 
         Ok(())
     }

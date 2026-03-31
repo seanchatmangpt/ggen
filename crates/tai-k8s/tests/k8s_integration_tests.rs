@@ -76,7 +76,7 @@ fn test_keda_kafka_event_scaler() {
 
     // Act & Assert
     assert_eq!(config.name, "kafka-scaler-tai-even");
-    assert!(config.metrics.len() > 0);
+    assert!(!config.metrics.is_empty());
 }
 
 #[test]

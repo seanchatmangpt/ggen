@@ -9,7 +9,6 @@ pub use tracker::SloTracker;
 pub use validator::SloValidator;
 
 /// SLO definitions for ggen project
-
 /// First build SLO threshold in seconds
 pub const SLO_BUILD_FIRST: f64 = 15.0;
 /// Incremental build SLO threshold in seconds

@@ -324,6 +324,7 @@ impl Observation {
     }
 
     /// Sign the observation with HMAC-SHA256
+    #[allow(clippy::expect_used)]
     pub fn with_signature(mut self, key: &[u8]) -> Self {
         use hmac::Mac;
         let mut mac =
@@ -340,6 +341,7 @@ impl Observation {
     }
 
     /// Verify the observation's signature
+    #[allow(clippy::expect_used)]
     pub fn verify_signature(&self, key: &[u8]) -> DoDResult<bool> {
         let sig = self
             .signature

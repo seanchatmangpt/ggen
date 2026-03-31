@@ -115,6 +115,12 @@ pub struct OrchestrationMetrics {
     pub throughput_tasks_per_second: f64,
 }
 
+impl Default for OrchestrationMetrics {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl OrchestrationMetrics {
     pub fn new() -> Self {
         Self {
@@ -247,13 +253,13 @@ impl TaskOrchestrator {
                     .collect();
 
                 return Ok(WorkflowResult {
-                    workflow_id: workflow_id,
+                    workflow_id,
                     success: failed_tasks == 0,
                     success_rate: successful_tasks as f64
                         / (successful_tasks + failed_tasks).max(1) as f64,
                     total_tasks: successful_tasks + failed_tasks,
                     completed_tasks: successful_tasks,
-                    execution_time_ms: duration as u64,
+                    execution_time_ms: duration,
                     results,
                 });
             }
@@ -339,6 +345,7 @@ impl TaskOrchestrator {
 
 /// Execution graph for complex task dependencies
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct ExecutionGraph {
     nodes: HashMap<TaskId, ExecutionNode>,
     edges: HashMap<TaskId, Vec<TaskId>>, // task_id -> dependent_task_ids
@@ -348,6 +355,7 @@ pub struct ExecutionGraph {
 
 /// Execution node for a task
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct ExecutionNode {
     pub task: Task,
     pub dependencies: Vec<TaskId>,
@@ -366,6 +374,12 @@ pub enum ExecutionNodeState {
     Failed,
     Cancelled,
     Retrying,
+}
+
+impl Default for ExecutionGraph {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ExecutionGraph {
@@ -400,7 +414,7 @@ impl ExecutionGraph {
         for dep_id in &task.dependencies {
             self.edges
                 .entry(dep_id.clone())
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(task.id.clone());
         }
 
@@ -471,7 +485,7 @@ impl ExecutionGraph {
         let dependents_to_update: Vec<String> = self
             .edges
             .get(task_id)
-            .map(|deps| deps.iter().cloned().collect::<Vec<_>>())
+            .map(|deps| deps.to_vec())
             .unwrap_or_default();
 
         for dependent_id in dependents_to_update {
@@ -759,10 +773,10 @@ impl OrchestrationStrategyExecutor {
     ) -> Result<WorkflowResult, ExecutionError> {
         // Placeholder for custom strategy implementation
         eprintln!("Custom strategy {} not implemented", strategy_name);
-        return Err(ExecutionError::Workflow(format!(
+        Err(ExecutionError::Workflow(format!(
             "Custom strategy not implemented: {}",
             strategy_name
-        )));
+        )))
     }
 }
 

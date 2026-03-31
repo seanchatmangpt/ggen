@@ -4,7 +4,7 @@
 
 use ggen_api::network::tls::{
     CertificatePin, CipherSuite, ConnectionPool, HstsMiddleware, HstsPolicy, PinningStrategy,
-    PoolConfig, TlsConfig, TlsConfigBuilder, TlsConnector, TlsError, ValidationPolicy,
+    PoolConfig, TlsConfigBuilder, TlsConnector, ValidationPolicy,
 };
 use std::time::Duration;
 

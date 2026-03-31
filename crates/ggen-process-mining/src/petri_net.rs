@@ -355,6 +355,7 @@ impl PetriNet {
     ///
     /// let net = PetriNet::from_activities(&["A", "B", "C"]);
     /// ```
+    #[must_use] 
     pub fn from_activities(activities: &[&str]) -> Self {
         let mut builder = Self::new();
 
