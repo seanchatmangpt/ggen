@@ -19,6 +19,12 @@ pub struct JpaEntityQuery {
     query: String,
 }
 
+impl Default for JpaEntityQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl JpaEntityQuery {
     /// Create a new JPA entity query.
     pub fn new() -> Self {

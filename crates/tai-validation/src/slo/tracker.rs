@@ -34,7 +34,7 @@ impl SloTracker {
     /// Record a measurement
     pub fn record(&mut self, measurement: Measurement) {
         let key = measurement.metric_type.to_string();
-        let entry = self.measurements.entry(key).or_insert_with(Vec::new);
+        let entry = self.measurements.entry(key).or_default();
 
         entry.push(measurement);
 

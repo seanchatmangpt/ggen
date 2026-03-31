@@ -90,8 +90,8 @@ impl Normalizer {
 
         // Process QueryResults based on its actual type
         match results {
-            QueryResults::Solutions(mut solutions) => {
-                while let Some(solution) = solutions.next() {
+            QueryResults::Solutions(solutions) => {
+                for solution in solutions {
                     let solution =
                         solution.map_err(|e| CraftplanError::sparql_query(query, e.to_string()))?;
 

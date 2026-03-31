@@ -16,7 +16,7 @@ pub struct Emitter {
 }
 
 #[derive(Debug, Serialize)]
-struct GenerationConfig {
+pub struct GenerationConfig {
     app_name: String,
     module_prefix: String,
     version: String,

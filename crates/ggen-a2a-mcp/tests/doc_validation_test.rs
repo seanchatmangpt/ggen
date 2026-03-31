@@ -23,7 +23,7 @@ async fn start_server() -> anyhow::Result<RunningService<RoleClient, TestClient>
     tokio::spawn(async move {
         let _ = server.serve(server_transport).await;
     });
-    Ok(TestClient::default().serve(client_transport).await?)
+    Ok(TestClient.serve(client_transport).await?)
 }
 
 /// Documented tools in README.md
@@ -66,7 +66,7 @@ async fn documented_tools_have_descriptions() -> anyhow::Result<()> {
     for tool in &tools.tools {
         if DOCUMENTED_TOOLS.contains(&tool.name.as_ref()) {
             assert!(
-                tool.description.as_ref().map_or(false, |d| !d.is_empty()),
+                tool.description.as_ref().is_some_and(|d| !d.is_empty()),
                 "Tool '{}' must have a non-empty description",
                 tool.name
             );
@@ -110,7 +110,7 @@ async fn prompts_have_descriptions() -> anyhow::Result<()> {
 
     for prompt in &prompts.prompts {
         assert!(
-            prompt.description.as_ref().map_or(false, |d| !d.is_empty()),
+            prompt.description.as_ref().is_some_and(|d| !d.is_empty()),
             "Prompt '{}' must have a non-empty description",
             prompt.name
         );

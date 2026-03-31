@@ -237,8 +237,8 @@ impl ExecutionFramework {
     }
 
     /// Get a reference to an agent by ID
-    pub fn get_agent(&self, agent_id: &str) -> Option<&Box<dyn UnifiedAgentTrait>> {
-        self.agents.get(agent_id)
+    pub fn get_agent(&self, agent_id: &str) -> Option<&dyn UnifiedAgentTrait> {
+        self.agents.get(agent_id).map(|v| &**v)
     }
 
     /// Get framework metrics

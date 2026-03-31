@@ -32,7 +32,7 @@ async fn start_server() -> anyhow::Result<RunningService<RoleClient, TestClientH
         let _ = server.serve(server_transport).await;
     });
 
-    let client = TestClientHandler::default().serve(client_transport).await?;
+    let client = TestClientHandler.serve(client_transport).await?;
     Ok(client)
 }
 
@@ -831,7 +831,7 @@ fn walk_dir_all(root: &Path) -> Vec<PathBuf> {
 /// Find the first .ttl file content under the directory.
 fn find_any_ttl_content(dir: &Path) -> String {
     for subdir in &[dir.to_path_buf(), dir.join("ontology")] {
-        if let Ok(entries) = std::fs::read_dir(&subdir) {
+        if let Ok(entries) = std::fs::read_dir(subdir) {
             for entry in entries.flatten() {
                 let path = entry.path();
                 if path.extension().and_then(|e| e.to_str()) == Some("ttl") {

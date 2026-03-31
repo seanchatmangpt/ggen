@@ -50,15 +50,15 @@ pub enum StageType {
     Custom(String),
 }
 
-impl StageType {
-    pub fn to_string(&self) -> String {
+impl std::fmt::Display for StageType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            StageType::DataProcessing => "data_processing".to_string(),
-            StageType::Validation => "validation".to_string(),
-            StageType::Transformation => "transformation".to_string(),
-            StageType::Analysis => "analysis".to_string(),
-            StageType::Communication => "communication".to_string(),
-            StageType::Custom(s) => s.clone(),
+            StageType::DataProcessing => write!(f, "data_processing"),
+            StageType::Validation => write!(f, "validation"),
+            StageType::Transformation => write!(f, "transformation"),
+            StageType::Analysis => write!(f, "analysis"),
+            StageType::Communication => write!(f, "communication"),
+            StageType::Custom(s) => write!(f, "{s}"),
         }
     }
 }
@@ -473,6 +473,12 @@ pub struct ExecutionMetrics {
     pub current_memory_usage_mb: u64,
     pub throughput_tasks_per_second: f64,
     pub error_rate: f64,
+}
+
+impl Default for ExecutionMetrics {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ExecutionMetrics {

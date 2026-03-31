@@ -47,7 +47,7 @@ use axum::{
 use ggen_core::validation::input::{
     InputValidationError, PathValidatorRule, StringValidator, UrlValidator,
 };
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Serialize};
 use std::collections::HashMap;
 
 /// Validation error response
@@ -241,9 +241,12 @@ impl ApiValidationRules {
     }
 }
 
+/// Validation rule: a function that validates a string field value.
+type ValidationRule = Box<dyn Fn(&str) -> Result<String, InputValidationError> + Send + Sync>;
+
 /// Validation middleware builder
 pub struct ValidationMiddleware {
-    rules: HashMap<String, Box<dyn Fn(&str) -> Result<String, InputValidationError> + Send + Sync>>,
+    rules: HashMap<String, ValidationRule>,
 }
 
 impl ValidationMiddleware {

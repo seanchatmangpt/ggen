@@ -120,15 +120,13 @@ impl HealthCheck {
         let receipt_health = self.check_receipts(pipeline).await?;
 
         // Aggregate status
-        let statuses = vec![
-            firewall_health.status,
+        let statuses = [firewall_health.status,
             backpressure_health.status,
-            receipt_health.status,
-        ];
+            receipt_health.status];
 
         let overall = if statuses.iter().all(|s| *s == HealthStatus::Healthy) {
             HealthStatus::Healthy
-        } else if statuses.iter().any(|s| *s == HealthStatus::Unhealthy) {
+        } else if statuses.contains(&HealthStatus::Unhealthy) {
             HealthStatus::Unhealthy
         } else {
             HealthStatus::Degraded

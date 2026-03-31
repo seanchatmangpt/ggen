@@ -10,7 +10,6 @@
 use std::time::Duration;
 use tai_testing::{
     ChaosExperiment, ChaosExperimentType, ComplianceFramework, LoadTest, StateInvariant,
-    TestingError,
 };
 
 #[tokio::test]

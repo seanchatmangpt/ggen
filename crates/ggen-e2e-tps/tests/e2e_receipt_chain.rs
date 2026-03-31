@@ -7,6 +7,8 @@
 //! - Tamper detection in chain
 //! - Parallel chain verification
 
+#![allow(clippy::expect_used)]
+
 use ggen_receipt::{generate_keypair, hash_data, Receipt};
 
 /// Test genesis receipt creation

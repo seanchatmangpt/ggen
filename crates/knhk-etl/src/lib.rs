@@ -9,8 +9,7 @@ use alloc::collections::BTreeMap;
 use alloc::format;
 use alloc::string::String;
 use alloc::string::ToString;
-use alloc::vec;
-use alloc::vec::Vec; // Import vec! macro
+use alloc::vec::Vec;
 
 #[cfg(feature = "std")]
 use std::io::BufRead;
@@ -20,19 +19,14 @@ use rio_api::parser::TriplesParser;
 use rio_turtle::TurtleParser;
 
 /// Pipeline stage identifier
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum PipelineStage {
+    #[default]
     Ingest,
     Transform,
     Load,
     Reflex,
     Emit,
-}
-
-impl Default for PipelineStage {
-    fn default() -> Self {
-        Self::Ingest
-    }
 }
 
 /// Pipeline metrics
@@ -1358,6 +1352,7 @@ pub mod integration;
 
 #[cfg(test)]
 mod tests {
+    use alloc::vec;
     use super::*;
 
     #[test]

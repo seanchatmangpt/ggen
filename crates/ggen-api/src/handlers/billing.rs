@@ -9,7 +9,7 @@ use chrono::{Duration, Utc};
 
 use crate::{
     error::{ApiError, ApiResult},
-    models::{InvoiceItem, InvoiceResponse, UpgradeRequest, UsageRequest, UsageStatsResponse},
+    models::{InvoiceResponse, UpgradeRequest, UsageRequest, UsageStatsResponse},
     state::AppState,
 };
 
@@ -94,7 +94,7 @@ pub async fn change_tier(
     State(_state): State<AppState>, Json(req): Json<UpgradeRequest>,
 ) -> ApiResult<Json<serde_json::Value>> {
     // Validate request
-    let valid_tiers = vec!["free", "pro", "enterprise"];
+    let valid_tiers = ["free", "pro", "enterprise"];
     if !valid_tiers.contains(&req.new_tier.as_str()) {
         return Err(ApiError::BadRequest(format!(
             "Invalid tier: {}",

@@ -17,8 +17,8 @@ use std::time::Instant;
 /// Execute ggen packs command and return stdout
 fn run_packs_command(args: &[&str]) -> Result<String, String> {
     let output = Command::new("cargo")
-        .args(&["run", "--bin", "ggen", "--"])
-        .args(&["packs"])
+        .args(["run", "--bin", "ggen", "--"])
+        .args(["packs"])
         .args(args)
         .output()
         .map_err(|e| format!("Failed to execute command: {}", e))?;
@@ -100,7 +100,7 @@ fn test_packs_show_returns_pack_details() {
     let packages = json["packages"]
         .as_array()
         .expect("packages should be an array");
-    assert!(packages.len() > 0, "Should have at least one package");
+    assert!(!packages.is_empty(), "Should have at least one package");
     assert_eq!(
         json["package_count"],
         packages.len(),
@@ -274,7 +274,7 @@ fn test_packs_list_with_category_filter() {
     }
 
     // Should have at least 1 startup pack
-    assert!(packs.len() > 0, "Should have at least one startup pack");
+    assert!(!packs.is_empty(), "Should have at least one startup pack");
 }
 
 // ============================================================================
@@ -344,9 +344,9 @@ fn test_packs_all_defined_packs_are_valid() {
         let pack_id = pack["id"].as_str().expect("Pack should have ID");
 
         let validate_output = run_packs_command(&["validate", "--pack_id", pack_id])
-            .expect(&format!("validate should work for pack {}", pack_id));
+            .unwrap_or_else(|_| panic!("validate should work for pack {}", pack_id));
         let validate_json = parse_json_output(&validate_output)
-            .expect(&format!("validate should return JSON for pack {}", pack_id));
+            .unwrap_or_else(|_| panic!("validate should return JSON for pack {}", pack_id));
 
         assert_eq!(
             validate_json["valid"], true,

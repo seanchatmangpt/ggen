@@ -3,7 +3,6 @@
 //! Tests that `ggen init` automatically installs git hooks.
 
 use std::fs;
-use std::path::PathBuf;
 use tempfile::TempDir;
 
 #[test]

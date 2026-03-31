@@ -642,7 +642,7 @@ fn perform_init_config(mcp: bool, a2a: bool, force: bool) -> VerbResult<ConfigIn
     let mut success = true;
 
     // Initialize MCP config if requested or if neither specified (default to both)
-    if mcp || (!mcp && !a2a) {
+    if mcp || !a2a {
         let mcp_config_path = project_dir.join(PROJECT_MCP_CONFIG);
 
         // Check if config already exists
@@ -668,7 +668,7 @@ fn perform_init_config(mcp: bool, a2a: bool, force: bool) -> VerbResult<ConfigIn
     }
 
     // Initialize A2A config if requested or if neither specified (default to both)
-    if a2a || (!mcp && !a2a) {
+    if a2a || !mcp {
         let a2a_config_path = project_dir.join(PROJECT_A2A_CONFIG);
 
         // Check if config already exists

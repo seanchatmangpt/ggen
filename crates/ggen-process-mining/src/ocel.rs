@@ -191,6 +191,7 @@ impl OcelLog {
     /// let log = OcelLog::from_file("log.jsonocel")?;
     /// let object_events = log.events_for_object("order-123");
     /// ```
+    #[must_use] 
     pub fn events_for_object(&self, object_id: &str) -> Vec<&OcelEvent> {
         self.events
             .values()
@@ -199,6 +200,7 @@ impl OcelLog {
     }
 
     /// Get objects involved in a specific event.
+    #[must_use] 
     pub fn objects_for_event(&self, event_id: &str) -> Vec<&OcelObject> {
         self.events
             .get(event_id)
@@ -212,6 +214,7 @@ impl OcelLog {
     }
 
     /// Get all objects of a specific type.
+    #[must_use] 
     pub fn objects_by_type(&self, type_name: &str) -> Vec<&OcelObject> {
         self.objects
             .values()
@@ -220,6 +223,7 @@ impl OcelLog {
     }
 
     /// Get all unique activities in the log.
+    #[must_use] 
     pub fn unique_activities(&self) -> Vec<String> {
         let mut activities: Vec<_> = self.events.values().map(|e| e.activity.clone()).collect();
         activities.sort();
@@ -348,7 +352,7 @@ struct RawOcelObject {
     pub attributes: Option<HashMap<String, serde_json::Value>>,
 }
 
-/// Parse a timestamp string into DateTime.
+/// Parse a timestamp string into `DateTime`.
 fn parse_timestamp(s: &str) -> Result<DateTime<Utc>> {
     s.parse::<DateTime<Utc>>()
         .map_err(|_| Error::invalid_timestamp(s.to_string()))
@@ -361,11 +365,7 @@ fn json_to_attribute(value: serde_json::Value) -> Option<AttributeValue> {
         serde_json::Value::Number(n) => {
             if let Some(i) = n.as_i64() {
                 Some(AttributeValue::Integer(i))
-            } else if let Some(f) = n.as_f64() {
-                Some(AttributeValue::Float(f))
-            } else {
-                None
-            }
+            } else { n.as_f64().map(AttributeValue::Float) }
         }
         serde_json::Value::Bool(b) => Some(AttributeValue::Boolean(b)),
         serde_json::Value::Null => None,

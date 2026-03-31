@@ -408,10 +408,10 @@ async fn test_pipeline_execution() {
 #[tokio::test]
 async fn test_pipeline_validation() {
     // Arrange: Create an invalid pipeline with circular dependencies
-    let mut pipeline = ExecutionPipeline::new("test-pipeline", "Test Pipeline", "test");
+    let pipeline = ExecutionPipeline::new("test-pipeline", "Test Pipeline", "test");
 
-    let stage1 = PipelineStage::new("Stage 1", &StageType::DataProcessing.to_string());
-    let stage2 = PipelineStage::new("Stage 2", &StageType::Analysis.to_string());
+    let _stage1 = PipelineStage::new("Stage 1", &StageType::DataProcessing.to_string());
+    let _stage2 = PipelineStage::new("Stage 2", &StageType::Analysis.to_string());
 
     // This would cause circular dependency - Stage 1 depends on Stage 2, Stage 2 depends on Stage 1
     // let mut stage2_with_dep = stage2.clone();

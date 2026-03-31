@@ -4,7 +4,6 @@ use super::error::{TlsError, TlsResult};
 use super::pinning::{CertificatePin, PinningStrategy};
 use super::validator::ValidationPolicy;
 use rustls::{ClientConfig, RootCertStore, SupportedCipherSuite};
-use std::sync::Arc;
 
 /// Supported cipher suites (TLS 1.3 only)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

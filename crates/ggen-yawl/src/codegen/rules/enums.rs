@@ -13,6 +13,12 @@ use tera::{Context, Tera};
 /// Query executor for enum generation.
 pub struct EnumQuery;
 
+impl Default for EnumQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EnumQuery {
     /// Create a new enum query.
     pub fn new() -> Self {

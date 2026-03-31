@@ -273,6 +273,7 @@ impl CircuitBreaker {
         self.window_start = Instant::now();
     }
 
+    #[cfg(test)]
     fn error_rate(&self) -> f64 {
         let total = self.success_count + self.failure_count;
         if total == 0 {

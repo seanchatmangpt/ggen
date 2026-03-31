@@ -13,6 +13,12 @@ use tera::{Context, Tera};
 /// Query executor for repository generation.
 pub struct RepositoryQuery;
 
+impl Default for RepositoryQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RepositoryQuery {
     /// Create a new repository query.
     pub fn new() -> Self {

@@ -125,12 +125,11 @@ impl CertificateValidator {
         }
 
         // For leaf certificates, check additional properties
-        if is_leaf {
-            if self.policy.verify_hostname {
+        if is_leaf
+            && self.policy.verify_hostname {
                 // Hostname verification would happen during connection
                 // This is a placeholder for additional leaf certificate checks
             }
-        }
 
         Ok(())
     }

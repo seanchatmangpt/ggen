@@ -13,6 +13,12 @@ use tera::{Context, Tera};
 /// Query executor for DTO generation.
 pub struct DtoQuery;
 
+impl Default for DtoQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DtoQuery {
     /// Create a new DTO query.
     pub fn new() -> Self {

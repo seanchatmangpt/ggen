@@ -8,8 +8,8 @@
 use ggen_ai::client::{GenAiClient, LlmClient, LlmConfig};
 use ggen_ai::providers::MockClient;
 use ggen_dspy::adapters::{
-    AdapterWithFallback, ChatAdapter, CompletionRequest, Demonstration,
-    GgenAiAdapter, IntegratedAdapter, JSONAdapter, LlmAdapter, RetryConfig, TokenCounter,
+    AdapterWithFallback, ChatAdapter, CompletionRequest, Demonstration, GgenAiAdapter,
+    IntegratedAdapter, JSONAdapter, LlmAdapter, RetryConfig, TokenCounter,
 };
 use ggen_dspy::error::DspyError;
 use proptest::prelude::*;

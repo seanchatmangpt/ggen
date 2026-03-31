@@ -191,7 +191,7 @@ fn get_attr_value(attrs: &[syn::Attribute], attr_name: &str) -> Option<String> {
                         return Some(lit_str.value());
                     }
                 }
-                _ => {}
+                Meta::Path(_) => {}
             }
             // Fallback: try parse_args for #[attr("value")] syntax
             attr.parse_args::<syn::LitStr>().ok().map(|lit| lit.value())

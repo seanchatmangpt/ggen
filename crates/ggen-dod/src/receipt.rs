@@ -127,6 +127,7 @@ impl Receipt {
     }
 
     /// Sign the receipt
+    #[allow(clippy::expect_used)]
     fn sign(&mut self, key: &[u8]) {
         use hmac::Mac;
         let mut mac =
@@ -141,6 +142,7 @@ impl Receipt {
     }
 
     /// Verify the receipt's signature
+    #[allow(clippy::expect_used)]
     pub fn verify(&self, key: &[u8]) -> DoDResult<bool> {
         use hmac::Mac;
         let mut mac =

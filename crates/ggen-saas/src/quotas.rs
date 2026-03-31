@@ -1,7 +1,5 @@
 //! Quota management and enforcement
 
-use async_trait::async_trait;
-use chrono::Utc;
 use moka::future::Cache;
 use std::sync::Arc;
 use std::time::Duration;
@@ -23,7 +21,7 @@ pub struct QuotaState {
 pub struct QuotaManager {
     // Cache quotas in memory with TTL
     quota_cache: Arc<Cache<String, QuotaState>>,
-    cache_ttl: Duration,
+    _cache_ttl: Duration,
 }
 
 impl QuotaManager {
@@ -35,7 +33,7 @@ impl QuotaManager {
 
         Self {
             quota_cache: Arc::new(cache),
-            cache_ttl: Duration::from_secs(cache_ttl_secs),
+            _cache_ttl: Duration::from_secs(cache_ttl_secs),
         }
     }
 

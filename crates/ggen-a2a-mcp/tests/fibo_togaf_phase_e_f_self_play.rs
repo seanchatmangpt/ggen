@@ -17,7 +17,6 @@
 //! - Legacy system decommission planning
 
 use std::collections::HashMap;
-use std::sync::Arc;
 
 use a2a_generated::converged::message::{
     ConvergedMessage, ConvergedMessageType, ConvergedPayload, MessageEnvelope, MessageLifecycle,
@@ -25,7 +24,7 @@ use a2a_generated::converged::message::{
     UnifiedContent,
 };
 use chrono::Utc;
-use ggen_a2a_mcp::{A2aMessageConverter, BatchProcessor, LlmResponse, MessageRouter};
+use ggen_a2a_mcp::{A2aMessageConverter, MessageRouter};
 
 mod common;
 use common::init_tracing;
@@ -159,7 +158,7 @@ async fn test_phase_e_solution_alternatives() {
     init_tracing();
 
     let router = MessageRouter::with_defaults();
-    let converter = A2aMessageConverter::new();
+    let _converter = A2aMessageConverter::new();
 
     // Turns 29-35: Solution alternatives evaluation
     let solution_alternatives = vec![
@@ -538,7 +537,7 @@ async fn test_phase_f_workstream_dependencies() {
                 .workstreams
                 .iter()
                 .find(|w| &w.name == dep)
-                .expect(&format!("Dependency '{}' not found in roadmap", dep));
+                .unwrap_or_else(|| panic!("Dependency '{}' not found in roadmap", dep));
 
             assert!(
                 dep_workstream.end_year < workstream.start_year,
@@ -686,7 +685,7 @@ fn assert_workstream_sequencing(roadmap: &MigrationRoadmap, workstreams: &[Migra
                 let ws = workstreams
                     .iter()
                     .find(|w| &w.name == ws_name)
-                    .expect(&format!("Workstream '{}' not found", ws_name));
+                    .unwrap_or_else(|| panic!("Workstream '{}' not found", ws_name));
 
                 assert!(
                     ws.start_year <= year && ws.end_year >= year,
@@ -742,11 +741,10 @@ fn assert_fibo_data_migration_included(roadmap: &MigrationRoadmap) {
 async fn test_phase_e_to_f_integration() {
     init_tracing();
 
-    let router = MessageRouter::with_defaults();
+    let _router = MessageRouter::with_defaults();
 
     // Phase E: Select solution for Core Banking gap
-    let core_banking_alternatives = vec![
-        SolutionAlternative {
+    let core_banking_alternatives = [SolutionAlternative {
             name: "Package Solution".to_string(),
             approach: ApproachType::BuyPackage,
             estimated_cost: 15000,
@@ -761,8 +759,7 @@ async fn test_phase_e_to_f_integration() {
             time_to_implement: 36,
             fibo_alignment: 98,
             risk_level: RiskLevel::High,
-        },
-    ];
+        }];
 
     // Select FIBO-native solution (higher alignment)
     let selected = &core_banking_alternatives[1];

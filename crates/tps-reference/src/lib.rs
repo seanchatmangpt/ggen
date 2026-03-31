@@ -634,6 +634,12 @@ mod kaizen {
         total_duration_ms: Arc<RwLock<Vec<u128>>>,
     }
 
+    impl Default for KaizenMetrics {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     impl KaizenMetrics {
         pub fn new() -> Self {
             Self {
@@ -864,7 +870,7 @@ mod tests {
         let system = TpsSystem::new(config)
             .await
             .expect("Failed to create system");
-        assert!(system.started.load(Ordering::SeqCst) == false);
+        assert!(!system.started.load(Ordering::SeqCst));
     }
 
     #[tokio::test]

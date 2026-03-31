@@ -102,6 +102,10 @@ impl ProcessMiner {
     /// Discover a process model using the inductive miner algorithm.
     ///
     /// Inductive miner recursively splits the log to discover a process tree.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the event log has no activities.
     pub fn discover_inductive(&self, log: &EventLog) -> Result<PetriNet> {
         // Simplified inductive miner implementation
         // In production, this would use a more sophisticated algorithm
@@ -114,7 +118,7 @@ impl ProcessMiner {
         }
 
         // Create a simple sequential model
-        let activity_refs: Vec<&str> = activities.iter().map(|s| s.as_str()).collect();
+        let activity_refs: Vec<&str> = activities.iter().map(std::string::String::as_str).collect();
         let net = PetriNet::from_activities(&activity_refs);
 
         if self.config.validate_output {
@@ -190,6 +194,10 @@ impl AlphaPlusPlus {
     }
 
     /// Discover a Petri net from an event log.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if footprint extraction or model validation fails.
     pub fn discover(&self, log: &EventLog) -> Result<PetriNet> {
         // Step 1: Extract footprint relations
         let relations = self.extract_footprint(log)?;
@@ -228,6 +236,10 @@ impl AlphaPlusPlus {
     }
 
     /// Extract footprint relations from the event log.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the event log is empty.
     fn extract_footprint(&self, log: &EventLog) -> Result<FootprintRelations> {
         let mut direct_succession: HashSet<(String, String)> = HashSet::new();
         let mut causal: HashSet<(String, String)> = HashSet::new();
@@ -235,7 +247,7 @@ impl AlphaPlusPlus {
         let mut unrelated: HashSet<(String, String)> = HashSet::new();
 
         let activities = log.unique_activities();
-        let _activity_set: HashSet<&str> = activities.iter().map(|s| s.as_str()).collect();
+        let _activity_set: HashSet<&str> = activities.iter().map(std::string::String::as_str).collect();
 
         // Build direct succession matrix
         for trace in &log.traces {
@@ -283,6 +295,10 @@ impl AlphaPlusPlus {
     }
 
     /// Build places based on footprint relations.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if place construction fails.
     fn build_places(&self, relations: &FootprintRelations) -> Result<Vec<Place>> {
         let mut places = Vec::new();
 
@@ -290,7 +306,7 @@ impl AlphaPlusPlus {
         let mut place_index = 0;
         for (input, output) in &relations.causal {
             let place = Place::new(format!("p_{place_index}"))
-                .with_label(format!("{}_to_{}", input, output));
+                .with_label(format!("{input}_to_{output}"));
             places.push(place);
             place_index += 1;
         }
@@ -300,7 +316,7 @@ impl AlphaPlusPlus {
             // Only process half of the parallel pairs to avoid duplicates
             if a < b {
                 let place = Place::new(format!("p_{place_index}"))
-                    .with_label(format!("parallel_{}_{}", a, b));
+                    .with_label(format!("parallel_{a}_{b}"));
                 places.push(place);
                 place_index += 1;
             }

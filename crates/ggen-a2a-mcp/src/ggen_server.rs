@@ -1253,7 +1253,9 @@ impl GgenMcpServer {
         info!(project_root = %params.project_root, validation_level, "validate_project tool called");
 
         let project_path = PathBuf::from(&params.project_root);
-        let manifest_path = params.manifest_path.as_ref()
+        let manifest_path = params
+            .manifest_path
+            .as_ref()
             .map(PathBuf::from)
             .unwrap_or_else(|| project_path.join("ggen.toml"));
 
@@ -1264,7 +1266,10 @@ impl GgenMcpServer {
         let mut overall_status = "pass";
 
         // Layer 1-2: Manifest parsing and dependencies (critical)
-        if validation_level == "all" || validation_level == "syntax" || validation_level == "semantics" {
+        if validation_level == "all"
+            || validation_level == "syntax"
+            || validation_level == "semantics"
+        {
             // Validate manifest parse
             let parse_start = Instant::now();
             match std::fs::read_to_string(&manifest_path) {
@@ -1308,7 +1313,8 @@ impl GgenMcpServer {
                     "warnings": warnings
                 });
                 return Ok(CallToolResult::success(vec![Content::text(
-                    serde_json::to_string_pretty(&result).unwrap_or_else(|_| "Validation failed".to_string())
+                    serde_json::to_string_pretty(&result)
+                        .unwrap_or_else(|_| "Validation failed".to_string()),
                 )]));
             }
 
@@ -1357,7 +1363,9 @@ impl GgenMcpServer {
 
         // Template files
         if validation_level == "all" || validation_level == "syntax" {
-            if let Ok(template_files) = find_files_by_extensions(&project_path, &["tera", "tmpl", "hbs", "j2"]) {
+            if let Ok(template_files) =
+                find_files_by_extensions(&project_path, &["tera", "tmpl", "hbs", "j2"])
+            {
                 let tmpl_start = Instant::now();
                 validations_run.push(serde_json::json!({
                     "tool": "validate_templates",
@@ -1369,7 +1377,8 @@ impl GgenMcpServer {
         }
 
         tracing::Span::current().record("validation.tools_executed_count", validations_run.len());
-        tracing::Span::current().record("validation.total_duration_ms", start.elapsed().as_millis());
+        tracing::Span::current()
+            .record("validation.total_duration_ms", start.elapsed().as_millis());
 
         info!(
             tools_executed = validations_run.len(),
@@ -1388,7 +1397,8 @@ impl GgenMcpServer {
         });
 
         Ok(CallToolResult::success(vec![Content::text(
-            serde_json::to_string_pretty(&result).unwrap_or_else(|_| "Validation complete".to_string())
+            serde_json::to_string_pretty(&result)
+                .unwrap_or_else(|_| "Validation complete".to_string()),
         )]))
     }
 
@@ -1423,12 +1433,10 @@ impl GgenMcpServer {
                 .output();
 
             match output {
-                Ok(out) if out.status.success() => {
-                    String::from_utf8_lossy(&out.stdout)
-                        .lines()
-                        .map(|l| l.to_string())
-                        .collect()
-                }
+                Ok(out) if out.status.success() => String::from_utf8_lossy(&out.stdout)
+                    .lines()
+                    .map(|l| l.to_string())
+                    .collect(),
                 _ => vec![],
             }
         };
@@ -1466,7 +1474,10 @@ impl GgenMcpServer {
         }
 
         tracing::Span::current().record("validation.files_changed_count", files_validated.len());
-        tracing::Span::current().record("validation.dependencies_affected_count", dependencies_affected.len());
+        tracing::Span::current().record(
+            "validation.dependencies_affected_count",
+            dependencies_affected.len(),
+        );
 
         info!(
             files_validated = files_validated.len(),
@@ -1481,7 +1492,8 @@ impl GgenMcpServer {
         });
 
         Ok(CallToolResult::success(vec![Content::text(
-            serde_json::to_string_pretty(&result).unwrap_or_else(|_| "Incremental validation complete".to_string())
+            serde_json::to_string_pretty(&result)
+                .unwrap_or_else(|_| "Incremental validation complete".to_string()),
         )]))
     }
 
@@ -1497,14 +1509,16 @@ impl GgenMcpServer {
     async fn validate_dependency_graph(
         &self, Parameters(params): Parameters<ValidateDependencyGraphParams>,
     ) -> Result<CallToolResult, McpError> {
-        use std::collections::{HashMap, HashSet};
         use regex::Regex;
+        use std::collections::{HashMap, HashSet};
         tracing::Span::current().record(otel_attrs::MCP_TOOL_NAME, "validate_dependency_graph");
         tracing::Span::current().record(otel_attrs::MCP_PROJECT_PATH, &params.project_root);
         info!(project_root = %params.project_root, "validate_dependency_graph tool called");
 
         let project_path = PathBuf::from(&params.project_root);
-        let manifest_path = params.manifest_path.as_ref()
+        let manifest_path = params
+            .manifest_path
+            .as_ref()
             .map(PathBuf::from)
             .unwrap_or_else(|| project_path.join("ggen.toml"));
 
@@ -1540,7 +1554,11 @@ impl GgenMcpServer {
                             deps.push(import.as_str().to_string());
                         }
                     }
-                    let file_name = ttl_file.file_name().unwrap_or_default().to_string_lossy().to_string();
+                    let file_name = ttl_file
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .to_string();
                     all_nodes.insert(file_name.clone());
                     dependency_graph.insert(file_name, deps);
                 }
@@ -1558,7 +1576,11 @@ impl GgenMcpServer {
                             deps.push(from.as_str().to_string());
                         }
                     }
-                    let file_name = rq_file.file_name().unwrap_or_default().to_string_lossy().to_string();
+                    let file_name = rq_file
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .to_string();
                     all_nodes.insert(file_name.clone());
                     dependency_graph.insert(file_name, deps);
                 }
@@ -1582,7 +1604,11 @@ impl GgenMcpServer {
                             deps.push(inc.as_str().to_string());
                         }
                     }
-                    let file_name = tera_file.file_name().unwrap_or_default().to_string_lossy().to_string();
+                    let file_name = tera_file
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .to_string();
                     all_nodes.insert(file_name.clone());
                     dependency_graph.insert(file_name, deps);
                 }
@@ -1596,12 +1622,8 @@ impl GgenMcpServer {
         let mut path = vec![];
 
         fn dfs(
-            node: &str,
-            graph: &HashMap<String, Vec<String>>,
-            visited: &mut HashSet<String>,
-            rec_stack: &mut HashSet<String>,
-            path: &mut Vec<String>,
-            cycles: &mut Vec<Vec<String>>,
+            node: &str, graph: &HashMap<String, Vec<String>>, visited: &mut HashSet<String>,
+            rec_stack: &mut HashSet<String>, path: &mut Vec<String>, cycles: &mut Vec<Vec<String>>,
         ) {
             visited.insert(node.to_string());
             rec_stack.insert(node.to_string());
@@ -1625,7 +1647,14 @@ impl GgenMcpServer {
 
         for node in &all_nodes {
             if !visited.contains(node) {
-                dfs(node, &dependency_graph, &mut visited, &mut rec_stack, &mut path, &mut circular_dependencies);
+                dfs(
+                    node,
+                    &dependency_graph,
+                    &mut visited,
+                    &mut rec_stack,
+                    &mut path,
+                    &mut circular_dependencies,
+                );
             }
         }
 
@@ -1638,7 +1667,9 @@ impl GgenMcpServer {
             }
         }
         for node in &all_nodes {
-            if !depended_upon.contains(node) && dependency_graph.get(node).is_none_or(|d| d.is_empty()) {
+            if !depended_upon.contains(node)
+                && dependency_graph.get(node).is_none_or(|d| d.is_empty())
+            {
                 orphan_nodes.push(node.clone());
             }
         }
@@ -1652,9 +1683,7 @@ impl GgenMcpServer {
             let mut current_visited = HashSet::new();
 
             fn find_longest(
-                node: &str,
-                graph: &HashMap<String, Vec<String>>,
-                visited: &mut HashSet<String>,
+                node: &str, graph: &HashMap<String, Vec<String>>, visited: &mut HashSet<String>,
                 path: &mut Vec<String>,
             ) {
                 visited.insert(node.to_string());
@@ -1669,7 +1698,12 @@ impl GgenMcpServer {
                 }
             }
 
-            find_longest(node, &dependency_graph, &mut current_visited, &mut current_path);
+            find_longest(
+                node,
+                &dependency_graph,
+                &mut current_visited,
+                &mut current_path,
+            );
 
             if current_path.len() > max_length {
                 max_length = current_path.len();
@@ -1699,7 +1733,8 @@ impl GgenMcpServer {
         });
 
         Ok(CallToolResult::success(vec![Content::text(
-            serde_json::to_string_pretty(&result).unwrap_or_else(|_| "Dependency graph analysis complete".to_string())
+            serde_json::to_string_pretty(&result)
+                .unwrap_or_else(|_| "Dependency graph analysis complete".to_string()),
         )]))
     }
 }

@@ -11,7 +11,7 @@ use std::path::PathBuf;
 
 #[tokio::test]
 async fn test_validate_pipeline_params_with_manifest_path() {
-    let server = GgenMcpServer::new();
+    let _server = GgenMcpServer::new();
 
     // Test with manifest_path parameter
     let params = serde_json::json!({
@@ -24,7 +24,7 @@ async fn test_validate_pipeline_params_with_manifest_path() {
 
 #[tokio::test]
 async fn test_validate_pipeline_params_without_manifest_path() {
-    let server = GgenMcpServer::new();
+    let _server = GgenMcpServer::new();
 
     // Test without manifest_path (should default to ./ggen.toml)
     let params = serde_json::json!({});

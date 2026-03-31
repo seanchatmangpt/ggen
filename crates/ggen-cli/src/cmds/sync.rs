@@ -44,7 +44,7 @@ use clap_noun_verb_macros::verb;
 use ggen_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
 use ggen_core::sync::{sync as low_level_sync, SyncConfig, SyncLanguage};
 use serde::Serialize;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 // Import llm_bridge module from the same crate
 #[allow(unused_imports)]
@@ -452,7 +452,7 @@ fn run_low_level_pipeline(
 /// # Returns
 /// * The executor with LLM service injected if enabled
 fn inject_llm_if_enabled(
-    executor: SyncExecutor, manifest_path: &PathBuf, verbose: bool,
+    executor: SyncExecutor, manifest_path: &Path, verbose: bool,
 ) -> SyncExecutor {
     if !manifest_path.exists() {
         return executor;

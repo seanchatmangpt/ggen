@@ -481,7 +481,7 @@ impl SemanticConvergenceEngine {
             // We need to use a different approach - clone the strategy name and use a dispatch
             // For now, use a simple workaround
             let improvement = match idx {
-                0 if self.convergence_strategies.len() > 0 => {
+                0 if !self.convergence_strategies.is_empty() => {
                     // Apply first strategy - this is a simplification
                     // In production, you'd use a more sophisticated dispatch mechanism
                     0.9 // Placeholder improvement value
@@ -613,12 +613,10 @@ impl AdaptiveConvergenceEngine {
         };
 
         // Update strategy performance
-        let strategy_names = vec![
-            "AlignmentStrategy",
+        let strategy_names = ["AlignmentStrategy",
             "ValidationStrategy",
             "NormalizationStrategy",
-            "ConsensusStrategy",
-        ];
+            "ConsensusStrategy"];
         if let Some(name) = strategy_names.get(best_idx) {
             self.update_strategy_performance(name.to_string(), improvement)
                 .await;
@@ -633,12 +631,10 @@ impl AdaptiveConvergenceEngine {
     ) -> Result<usize, ExecutionError> {
         let mut best_idx = 0;
         let mut best_score = 0.0;
-        let _strategy_names = vec![
-            "AlignmentStrategy",
+        let _strategy_names = ["AlignmentStrategy",
             "ValidationStrategy",
             "NormalizationStrategy",
-            "ConsensusStrategy",
-        ];
+            "ConsensusStrategy"];
 
         for (idx, strategy) in self.base_engine.convergence_strategies.iter().enumerate() {
             if strategy.is_applicable(message) {

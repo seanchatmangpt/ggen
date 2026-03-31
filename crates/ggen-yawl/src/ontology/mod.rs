@@ -9,18 +9,12 @@ pub use loader::{OntologyFormat, OntologyLoader};
 
 /// Analyzes ontology structure to detect workflow patterns.
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct OntologyAnalyzer {
     /// Whether to include abstract classes in analysis
     include_abstract: bool,
 }
 
-impl Default for OntologyAnalyzer {
-    fn default() -> Self {
-        Self {
-            include_abstract: false,
-        }
-    }
-}
 
 impl OntologyAnalyzer {
     /// Create a new analyzer with default settings.

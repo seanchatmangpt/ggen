@@ -2,6 +2,7 @@
 
 use crate::limits::TierLimits;
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 /// SaaS tier types
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize, Hash)]
@@ -20,7 +21,7 @@ impl Tier {
         }
     }
 
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn from_str_opt(s: &str) -> Option<Self> {
         match s {
             "free" => Some(Tier::Free),
             "pro" => Some(Tier::Pro),
@@ -74,6 +75,19 @@ impl Tier {
             Tier::Free => Some(0.0),
             Tier::Pro => Some(29.0),
             Tier::Enterprise => None, // Custom pricing
+        }
+    }
+}
+
+impl FromStr for Tier {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "free" => Ok(Tier::Free),
+            "pro" => Ok(Tier::Pro),
+            "enterprise" => Ok(Tier::Enterprise),
+            other => Err(format!("unknown tier: {other}")),
         }
     }
 }

@@ -69,7 +69,7 @@ impl ConformanceChecker {
         }
 
         // Compute aggregate metrics
-        let fitness = self.compute_fitness(&trace_results);
+        let fitness = Self::compute_fitness(&trace_results);
         let precision = self.compute_precision(model, log)?;
         let generalization = self.compute_generalization(model, log);
 
@@ -99,7 +99,7 @@ impl ConformanceChecker {
 
         // Simulate trace execution on the Petri net
         let mut current_marking = model.initial_marking.clone();
-        let mut enabled_transitions = self.get_enabled_transitions(model, &current_marking);
+        let mut enabled_transitions = Self::get_enabled_transitions(model, &current_marking);
 
         for event in &trace.events {
             // Find matching transition
@@ -111,8 +111,8 @@ impl ConformanceChecker {
             match matching_transition {
                 Some(trans) if enabled_transitions.contains(&trans.id) => {
                     // Fire the transition
-                    current_marking = self.fire_transition(model, &current_marking, &trans.id)?;
-                    enabled_transitions = self.get_enabled_transitions(model, &current_marking);
+                    current_marking = Self::fire_transition(model, &current_marking, &trans.id);
+                    enabled_transitions = Self::get_enabled_transitions(model, &current_marking);
                 }
                 Some(_) => {
                     // Transition exists but not enabled - model move needed
@@ -152,7 +152,7 @@ impl ConformanceChecker {
 
     /// Get enabled transitions for a marking.
     fn get_enabled_transitions(
-        &self, model: &PetriNet, marking: &crate::petri_net::Marking,
+        model: &PetriNet, marking: &crate::petri_net::Marking,
     ) -> Vec<String> {
         let mut enabled = Vec::new();
 
@@ -176,8 +176,8 @@ impl ConformanceChecker {
 
     /// Fire a transition and return the new marking.
     fn fire_transition(
-        &self, model: &PetriNet, marking: &crate::petri_net::Marking, transition_id: &str,
-    ) -> Result<crate::petri_net::Marking> {
+        model: &PetriNet, marking: &crate::petri_net::Marking, transition_id: &str,
+    ) -> crate::petri_net::Marking {
         let mut new_tokens = marking.tokens.clone();
 
         // Consume tokens from input places
@@ -198,11 +198,11 @@ impl ConformanceChecker {
             }
         }
 
-        Ok(crate::petri_net::Marking { tokens: new_tokens })
+        crate::petri_net::Marking { tokens: new_tokens }
     }
 
     /// Compute overall fitness score.
-    fn compute_fitness(&self, trace_results: &[TraceConformance]) -> f64 {
+    fn compute_fitness(trace_results: &[TraceConformance]) -> f64 {
         if trace_results.is_empty() {
             return 1.0;
         }

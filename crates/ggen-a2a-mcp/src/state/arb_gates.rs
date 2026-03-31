@@ -504,7 +504,9 @@ impl ArbApprovalManager {
         let mut approvals_guard = self.approvals.write().await;
 
         if !approvals_guard.contains_key(&turn) {
-            approvals_guard.entry(turn).or_insert_with(|| ArbApproval::new(gate));
+            approvals_guard
+                .entry(turn)
+                .or_insert_with(|| ArbApproval::new(gate));
             info!(turn = turn, "ARB approval requested");
         }
 
