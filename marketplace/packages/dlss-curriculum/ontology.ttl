@@ -1,0 +1,326 @@
+# Design for Lean Six Sigma (DLSS) Black Belt Curriculum Ontology
+# 2-week intensive course: 5 DMEDI phases, 53 modules, 53 capstone project
+# Production-ready OWL/RDFS ontology for curriculum management
+
+@prefix dlss: <http://ggen.chatmangpt.com/dlss#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# ONTOLOGY HEADER
+# ============================================================================
+
+<http://ggen.chatmangpt.com/dlss>
+  a owl:Ontology ;
+  rdfs:label "DLSS Black Belt Curriculum Ontology" ;
+  rdfs:comment "Design for Lean Six Sigma Black Belt curriculum: 2-week course covering the DMEDI methodology (Define, Measure, Explore, Develop, Implement) with 53 modules, statistical tools, and capstone project integration." ;
+  owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# CLASSES (10)
+# ============================================================================
+
+dlss:BlackBeltCourse
+  a owl:Class ;
+  rdfs:label "Black Belt Course" ;
+  rdfs:comment "Top-level 2-week DLSS Black Belt certification course containing all five DMEDI phases." .
+
+dlss:DMEDIPhase
+  a owl:Class ;
+  rdfs:label "DMEDI Phase" ;
+  rdfs:comment "One of five sequential phases in the DMEDI methodology: Define, Measure, Explore, Develop, Implement." .
+
+dlss:Module
+  a owl:Class ;
+  rdfs:label "Module" ;
+  rdfs:comment "A teaching unit within a DMEDI phase, containing lessons, objectives, examples, and exercises." .
+
+dlss:Lesson
+  a owl:Class ;
+  rdfs:label "Lesson" ;
+  rdfs:comment "A single lesson or topic within a module." .
+
+dlss:LearningObjective
+  a owl:Class ;
+  rdfs:label "Learning Objective" ;
+  rdfs:comment "Observable outcome using Bloom's taxonomy verbs (Remember, Understand, Apply, Analyze, Evaluate, Create)." .
+
+dlss:Example
+  a owl:Class ;
+  rdfs:label "Example" ;
+  rdfs:comment "Real-world example applied in either a Product Development or New Process Design context." .
+
+dlss:Exercise
+  a owl:Class ;
+  rdfs:label "Exercise" ;
+  rdfs:comment "Practice exercise for individual or team work, reinforcing module concepts." .
+
+dlss:StatisticalTool
+  a owl:Class ;
+  rdfs:label "Statistical Tool" ;
+  rdfs:comment "Software tool used in the curriculum: Minitab, JMP, R, Excel, or other statistical packages." .
+
+dlss:QualityCheckpoint
+  a owl:Class ;
+  rdfs:label "Quality Checkpoint" ;
+  rdfs:comment "Assessment and verification point for measuring student progress and knowledge retention." .
+
+dlss:CapstoneProject
+  a owl:Class ;
+  rdfs:label "Capstone Project" ;
+  rdfs:comment "Final integrative project requiring application of all five DMEDI phases to a real-world problem." .
+
+# ============================================================================
+# OBJECT PROPERTIES
+# ============================================================================
+
+dlss:hasPhase
+  a owl:ObjectProperty ;
+  rdfs:label "has phase" ;
+  rdfs:comment "Links a course to one of its DMEDI phases." ;
+  rdfs:domain dlss:BlackBeltCourse ;
+  rdfs:range dlss:DMEDIPhase .
+
+dlss:hasModule
+  a owl:ObjectProperty ;
+  rdfs:label "has module" ;
+  rdfs:comment "Links a phase to one of its teaching modules." ;
+  rdfs:domain dlss:DMEDIPhase ;
+  rdfs:range dlss:Module .
+
+dlss:hasLesson
+  a owl:ObjectProperty ;
+  rdfs:label "has lesson" ;
+  rdfs:comment "Links a module to one of its lessons." ;
+  rdfs:domain dlss:Module ;
+  rdfs:range dlss:Lesson .
+
+dlss:hasPrerequisite
+  a owl:ObjectProperty ;
+  rdfs:label "has prerequisite" ;
+  rdfs:comment "Links a module to a prerequisite module that must be completed first." ;
+  rdfs:domain dlss:Module ;
+  rdfs:range dlss:Module .
+
+dlss:hasObjective
+  a owl:ObjectProperty ;
+  rdfs:label "has objective" ;
+  rdfs:comment "Links a module or lesson to a learning objective." ;
+  rdfs:domain owl:Thing ;
+  rdfs:range dlss:LearningObjective .
+
+dlss:hasExample
+  a owl:ObjectProperty ;
+  rdfs:label "has example" ;
+  rdfs:comment "Links a module to a real-world example." ;
+  rdfs:domain dlss:Module ;
+  rdfs:range dlss:Example .
+
+dlss:hasExercise
+  a owl:ObjectProperty ;
+  rdfs:label "has exercise" ;
+  rdfs:comment "Links a module to a practice exercise." ;
+  rdfs:domain dlss:Module ;
+  rdfs:range dlss:Exercise .
+
+dlss:hasTool
+  a owl:ObjectProperty ;
+  rdfs:label "has tool" ;
+  rdfs:comment "Links a module to a required or recommended statistical tool." ;
+  rdfs:domain dlss:Module ;
+  rdfs:range dlss:StatisticalTool .
+
+dlss:hasCheckpoint
+  a owl:ObjectProperty ;
+  rdfs:label "has checkpoint" ;
+  rdfs:comment "Links a phase to a quality checkpoint for assessment." ;
+  rdfs:domain dlss:DMEDIPhase ;
+  rdfs:range dlss:QualityCheckpoint .
+
+dlss:hasCapstone
+  a owl:ObjectProperty ;
+  rdfs:label "has capstone" ;
+  rdfs:comment "Links a course to its capstone project." ;
+  rdfs:domain dlss:BlackBeltCourse ;
+  rdfs:range dlss:CapstoneProject .
+
+# ============================================================================
+# DATATYPE PROPERTIES
+# ============================================================================
+
+dlss:code
+  a owl:DatatypeProperty ;
+  rdfs:label "code" ;
+  rdfs:comment "Module code identifier (e.g., M1, M3, M53)." ;
+  rdfs:domain dlss:Module ;
+  rdfs:range xsd:string .
+
+dlss:title
+  a owl:DatatypeProperty ;
+  rdfs:label "title" ;
+  rdfs:comment "Human-readable title for a course, phase, module, lesson, example, or exercise." ;
+  rdfs:range xsd:string .
+
+dlss:description
+  a owl:DatatypeProperty ;
+  rdfs:label "description" ;
+  rdfs:comment "Descriptive text explaining the purpose and scope of an entity." ;
+  rdfs:range xsd:string .
+
+dlss:duration
+  a owl:DatatypeProperty ;
+  rdfs:label "duration" ;
+  rdfs:comment "Time allocation as an XSD duration (e.g., PT2H30M for 2 hours 30 minutes)." ;
+  rdfs:range xsd:string .
+
+dlss:difficulty
+  a owl:DatatypeProperty ;
+  rdfs:label "difficulty" ;
+  rdfs:comment "Difficulty level: Introductory, Intermediate, or Advanced." ;
+  rdfs:range xsd:string .
+
+dlss:phaseOrder
+  a owl:DatatypeProperty ;
+  rdfs:label "phase order" ;
+  rdfs:comment "Sequential ordering of phases within the DMEDI methodology (1-5)." ;
+  rdfs:domain dlss:DMEDIPhase ;
+  rdfs:range xsd:integer .
+
+dlss:moduleOrder
+  a owl:DatatypeProperty ;
+  rdfs:label "module order" ;
+  rdfs:comment "Sequential ordering of modules within a phase." ;
+  rdfs:domain dlss:Module ;
+  rdfs:range xsd:integer .
+
+dlss:bloomsLevel
+  a owl:DatatypeProperty ;
+  rdfs:label "Bloom's taxonomy level" ;
+  rdfs:comment "Bloom's taxonomy level: Remember, Understand, Apply, Analyze, Evaluate, Create." ;
+  rdfs:domain dlss:LearningObjective ;
+  rdfs:range xsd:string .
+
+dlss:text
+  a owl:DatatypeProperty ;
+  rdfs:label "text" ;
+  rdfs:comment "Free-text content for objectives, exercise instructions, or lesson material." ;
+  rdfs:range xsd:string .
+
+dlss:context
+  a owl:DatatypeProperty ;
+  rdfs:label "context" ;
+  rdfs:comment "Application context: Product Development or New Process Design." ;
+  rdfs:domain dlss:Example ;
+  rdfs:range xsd:string .
+
+dlss:estimatedMinutes
+  a owl:DatatypeProperty ;
+  rdfs:label "estimated minutes" ;
+  rdfs:comment "Estimated time to complete an exercise, in minutes." ;
+  rdfs:domain dlss:Exercise ;
+  rdfs:range xsd:integer .
+
+dlss:passingScore
+  a owl:DatatypeProperty ;
+  rdfs:label "passing score" ;
+  rdfs:comment "Minimum passing score for a quality checkpoint, as a percentage." ;
+  rdfs:domain dlss:QualityCheckpoint ;
+  rdfs:range xsd:integer .
+
+dlss:instructorNotes
+  a owl:DatatypeProperty ;
+  rdfs:label "instructor notes" ;
+  rdfs:comment "Guidance notes for instructors delivering the module." ;
+  rdfs:range xsd:string .
+
+dlss:studentPrep
+  a owl:DatatypeProperty ;
+  rdfs:label "student preparation" ;
+  rdfs:comment "Pre-reading or preparation required before attending the module." ;
+  rdfs:range xsd:string .
+
+dlss:version
+  a owl:DatatypeProperty ;
+  rdfs:label "version" ;
+  rdfs:comment "Software version for a statistical tool." ;
+  rdfs:domain dlss:StatisticalTool ;
+  rdfs:range xsd:string .
+
+dlss:fileFormat
+  a owl:DatatypeProperty ;
+  rdfs:label "file format" ;
+  rdfs:comment "Expected file format for tool exercises (CSV, R, Minitab, etc.)." ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# DMEDI PHASE INSTANCES (5)
+# ============================================================================
+
+dlss:DefinePhase
+  a dlss:DMEDIPhase ;
+  dlss:title "Define" ;
+  dlss:phaseOrder 1 ;
+  dlss:description "Establish project charter, MGPP, risk management plan, communication strategy, team formation, and CTQ flowdowns. The Define phase sets the foundation for the entire DMEDI project." ;
+  dlss:duration "PT12H" .
+
+dlss:MeasurePhase
+  a dlss:DMEDIPhase ;
+  dlss:title "Measure" ;
+  dlss:phaseOrder 2 ;
+  dlss:description "Capture Voice of the Customer, perform QFD analysis, establish metrics and scorecards, build statistical foundations with Minitab, assess measurement systems, and analyze process capability." ;
+  dlss:duration "PT14H" .
+
+dlss:ExplorePhase
+  a dlss:DMEDIPhase ;
+  dlss:title "Explore" ;
+  dlss:phaseOrder 3 ;
+  dlss:description "Generate and evaluate concepts using TRIZ, Pugh, and AHP methods. Apply statistical tolerance design, Monte Carlo simulation, hypothesis testing, regression, multi-vari analysis, and Design FMEA." ;
+  dlss:duration "PT18H" .
+
+dlss:DevelopPhase
+  a dlss:DMEDIPhase ;
+  dlss:title "Develop" ;
+  dlss:phaseOrder 4 ;
+  dlss:description "Execute detailed design with ANOVA, DOE (full-factorial, fractional, RSM), Lean design, DfM, reliability engineering, conjoint analysis, mixture designs, and robust design methods." ;
+  dlss:duration "PT20H" .
+
+dlss:ImplementPhase
+  a dlss:DMEDIPhase ;
+  dlss:title "Implement" ;
+  dlss:phaseOrder 5 ;
+  dlss:description "Validate through prototype and pilot testing, establish statistical process control, create implementation plans, manage organizational change, and deliver the DMEDI capstone project." ;
+  dlss:duration "PT10H" .
+
+# ============================================================================
+# STATISTICAL TOOLS (4)
+# ============================================================================
+
+dlss:Minitab
+  a dlss:StatisticalTool ;
+  dlss:title "Minitab" ;
+  dlss:version "21.x" ;
+  dlss:fileFormat "Minitab Project (.MPJ)" ;
+  dlss:description "Primary statistical software for SPC, DOE, capability analysis, and hypothesis testing." .
+
+dlss:JMP
+  a dlss:StatisticalTool ;
+  dlss:title "JMP" ;
+  dlss:version "18.x" ;
+  dlss:fileFormat "JMP Data Table (.JMP)" ;
+  dlss:description "Interactive statistical discovery software for DOE, regression, and graphical analysis." .
+
+dlss:R
+  a dlss:StatisticalTool ;
+  dlss:title "R" ;
+  dlss:version "4.3+" ;
+  dlss:fileFormat "R Script (.R)" ;
+  dlss:description "Open-source statistical computing environment for advanced analytics and simulation." .
+
+dlss:Excel
+  a dlss:StatisticalTool ;
+  dlss:title "Microsoft Excel" ;
+  dlss:version "365" ;
+  dlss:fileFormat "Excel Workbook (.XLSX)" ;
+  dlss:description "Spreadsheet tool for basic statistics, charting, Monte Carlo simulation, and data organization." .

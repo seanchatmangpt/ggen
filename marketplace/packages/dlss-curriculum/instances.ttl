@@ -1,0 +1,2535 @@
+# DLSS Black Belt Curriculum — Module Instances
+# 53 modules across 5 DMEDI phases with learning objectives, examples, and exercises
+# All modules reference classes and properties defined in ontology.ttl
+
+@prefix dlss: <http://ggen.chatmangpt.com/dlss#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# BLACK BELT COURSE
+# ============================================================================
+
+dlss:DLSSBlackBeltCourse
+  a dlss:BlackBeltCourse ;
+  dlss:title "Design for Lean Six Sigma Black Belt Certification" ;
+  dlss:description "Intensive 2-week certification course covering the complete DMEDI methodology for product and process design. Includes statistical tools, Lean concepts, and a capstone project." ;
+  dlss:hasPhase dlss:DefinePhase, dlss:MeasurePhase, dlss:ExplorePhase, dlss:DevelopPhase, dlss:ImplementPhase ;
+  dlss:hasCapstone dlss:DMEDICapstone .
+
+# ============================================================================
+# DEFINE PHASE — 9 Modules (M1–M9)
+# ============================================================================
+
+# --- M1: Introduction to DLSS and DMEDI Overview ---
+
+dlss:M1
+  a dlss:Module ;
+  dlss:code "M1" ;
+  dlss:title "Introduction to DLSS and DMEDI Overview" ;
+  dlss:moduleOrder 1 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Introductory" ;
+  dlss:description "Overview of Design for Lean Six Sigma methodology, comparison to DMAIC, and introduction to the DMEDI framework for new product/process design." ;
+  dlss:hasObjective dlss:M1-LO1, dlss:M1-LO2, dlss:M1-LO3 ;
+  dlss:hasExample dlss:M1-EX1, dlss:M1-EX2 ;
+  dlss:hasExercise dlss:M1-EXER1 .
+
+dlss:M1-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Explain the difference between DMAIC (improvement) and DMEDI (design) methodologies and identify when to use each." ;
+  dlss:bloomsLevel "Understand" .
+
+dlss:M1-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Describe the five DMEDI phases and their objectives in the context of new product and process design." ;
+  dlss:bloomsLevel "Understand" .
+
+dlss:M1-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Identify the key roles and responsibilities in a DLSS Black Belt project team." ;
+  dlss:bloomsLevel "Remember" .
+
+dlss:M1-EX1
+  a dlss:Example ;
+  dlss:title "Consumer Electronics Product Launch" ;
+  dlss:context "Product Development" ;
+  dlss:description "A major electronics manufacturer used DMEDI to design a next-generation smartphone, reducing time-to-market by 30% compared to their previous DMAIC-based approach." .
+
+dlss:M1-EX2
+  a dlss:Example ;
+  dlss:title "Hospital Admission Process Redesign" ;
+  dlss:context "New Process Design" ;
+  dlss:description "A hospital system used DMEDI to design a new patient admission process from scratch, achieving 45% reduction in wait times." .
+
+dlss:M1-EXER1
+  a dlss:Exercise ;
+  dlss:title "DMAIC vs DMEDI Decision Matrix" ;
+  dlss:text "Given five project scenarios, determine whether DMAIC or DMEDI is the appropriate methodology. Justify each decision with at least three criteria." ;
+  dlss:estimatedMinutes 20 .
+
+# --- M2: Project Charter and MGPP ---
+
+dlss:M2
+  a dlss:Module ;
+  dlss:code "M2" ;
+  dlss:title "Project Charter and MGPP" ;
+  dlss:moduleOrder 2 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Introductory" ;
+  dlss:description "Develop a comprehensive project charter and Manage by Plan (MGPP) document that aligns the DLSS project with business strategy." ;
+  dlss:hasPrerequisite dlss:M1 ;
+  dlss:hasObjective dlss:M2-LO1, dlss:M2-LO2, dlss:M2-LO3 ;
+  dlss:hasExample dlss:M2-EX1, dlss:M2-EX2 ;
+  dlss:hasExercise dlss:M2-EXER1 .
+
+dlss:M2-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Construct a project charter with problem statement, goal statement, scope, and business case." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M2-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Develop a Manage by Plan (MGPP) document linking project milestones to organizational strategy." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M2-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Evaluate project feasibility using financial metrics (NPV, ROI, payback period)." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:M2-EX1
+  a dlss:Example ;
+  dlss:title "EV Battery Pack Charter" ;
+  dlss:context "Product Development" ;
+  dlss:description "Charter for designing a new electric vehicle battery pack with 400-mile range target, $75/kWh cost target, and 10-year warranty." .
+
+dlss:M2-EX2
+  a dlss:Example ;
+  dlss:title "Telehealth Onboarding Process Charter" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Charter for designing a new patient onboarding process for a telehealth platform targeting 95% completion rate." .
+
+dlss:M2-EXER1
+  a dlss:Exercise ;
+  dlss:title "Draft Your Project Charter" ;
+  dlss:text "Using the provided template, draft a complete project charter for your capstone project. Include problem statement, goal, scope, timeline, team roles, and financial justification." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M3: Quality Function Deployment (QFD) ---
+
+dlss:M3
+  a dlss:Module ;
+  dlss:code "M3" ;
+  dlss:title "Quality Function Deployment (QFD)" ;
+  dlss:moduleOrder 3 ;
+  dlss:duration "PT2H" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Transform Voice of the Customer into engineering specifications using the House of Quality matrix and QFD methodology." ;
+  dlss:hasPrerequisite dlss:M2 ;
+  dlss:hasObjective dlss:M3-LO1, dlss:M3-LO2, dlss:M3-LO3 ;
+  dlss:hasExample dlss:M3-EX1, dlss:M3-EX2 ;
+  dlss:hasExercise dlss:M3-EXER1 ;
+  dlss:hasTool dlss:Excel .
+
+dlss:M3-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Construct a House of Quality matrix translating customer needs into technical requirements." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M3-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Calculate priority weights for design features using customer importance ratings and competitive benchmarks." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M3-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Analyze the correlation matrix to identify conflicts and synergies between technical requirements." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M3-EX1
+  a dlss:Example ;
+  dlss:title "Automotive Seat Design QFD" ;
+  dlss:context "Product Development" ;
+  dlss:description "Using QFD to design automotive seats that meet 15 customer requirements including comfort, safety, weight, and adjustability." .
+
+dlss:M3-EX2
+  a dlss:Example ;
+  dlss:title "Loan Origination Process QFD" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Applying QFD to design a new loan origination process mapping 12 customer needs to process performance metrics." .
+
+dlss:M3-EXER1
+  a dlss:Exercise ;
+  dlss:title "Build a House of Quality" ;
+  dlss:text "Using the provided customer survey data, construct a complete House of Quality in Excel. Identify the top 5 technical priorities and present your findings." ;
+  dlss:estimatedMinutes 45 .
+
+# --- M4: Target Costing ---
+
+dlss:M4
+  a dlss:Module ;
+  dlss:code "M4" ;
+  dlss:title "Target Costing" ;
+  dlss:moduleOrder 4 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Set and achieve target costs through cross-functional collaboration, value engineering, and cost decomposition analysis." ;
+  dlss:hasPrerequisite dlss:M3 ;
+  dlss:hasObjective dlss:M4-LO1, dlss:M4-LO2 ;
+  dlss:hasExample dlss:M4-EX1, dlss:M4-EX2 ;
+  dlss:hasExercise dlss:M4-EXER1 .
+
+dlss:M4-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Calculate target cost from market price and required profit margin using cost decomposition." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M4-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Apply value engineering techniques to identify cost reduction opportunities without sacrificing quality." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M4-EX1
+  a dlss:Example ;
+  dlss:title "Medical Device Target Costing" ;
+  dlss:context "Product Development" ;
+  dlss:description "Reducing the cost of a surgical robot arm assembly from $12,000 to $8,500 while maintaining FDA compliance." .
+
+dlss:M4-EX2
+  a dlss:Example ;
+  dlss:title "Insurance Claims Process Target Costing" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Designing a new automated claims process with a target cost of $3.50 per claim vs. industry average of $7.20." .
+
+dlss:M4-EXER1
+  a dlss:Exercise ;
+  dlss:title "Target Cost Decomposition" ;
+  dlss:text "Given a product with a market price of $299 and required 35% gross margin, decompose the target cost across 6 major subsystems and identify 3 value engineering opportunities." ;
+  dlss:estimatedMinutes 25 .
+
+# --- M5: Risk Management ---
+
+dlss:M5
+  a dlss:Module ;
+  dlss:code "M5" ;
+  dlss:title "Risk Management" ;
+  dlss:moduleOrder 5 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Identify, assess, and mitigate project risks using FMEA principles, risk matrices, and contingency planning." ;
+  dlss:hasPrerequisite dlss:M2 ;
+  dlss:hasObjective dlss:M5-LO1, dlss:M5-LO2, dlss:M5-LO3 ;
+  dlss:hasExample dlss:M5-EX1, dlss:M5-EX2 ;
+  dlss:hasExercise dlss:M5-EXER1 .
+
+dlss:M5-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Develop a risk register with probability, impact, and detection ratings for project risks." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M5-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Prioritize risks using Risk Priority Numbers (RPN) and create mitigation strategies." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M5-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Design contingency plans for top-priority risks with trigger criteria and response actions." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:M5-EX1
+  a dlss:Example ;
+  dlss:title "Aerospace Component Risk Register" ;
+  dlss:context "Product Development" ;
+  dlss:description "Risk management for a new turbine blade design including supply chain, regulatory, and technical risks." .
+
+dlss:M5-EX2
+  a dlss:Example ;
+  dlss:title "Banking KYC Process Risk Assessment" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Risk assessment for designing a new Know Your Customer process addressing regulatory, data privacy, and operational risks." .
+
+dlss:M5-EXER1
+  a dlss:Exercise ;
+  dlss:title "Build a Risk Register" ;
+  dlss:text "Identify 10 risks for your capstone project, rate each on probability (1-10), impact (1-10), and detection (1-10), calculate RPNs, and develop mitigation plans for the top 3." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M6: Communication Plan ---
+
+dlss:M6
+  a dlss:Module ;
+  dlss:code "M6" ;
+  dlss:title "Communication Plan" ;
+  dlss:moduleOrder 6 ;
+  dlss:duration "PT45M" ;
+  dlss:difficulty "Introductory" ;
+  dlss:description "Create stakeholder communication plans with appropriate cadence, channels, and messaging for DLSS projects." ;
+  dlss:hasPrerequisite dlss:M2 ;
+  dlss:hasObjective dlss:M6-LO1, dlss:M6-LO2 ;
+  dlss:hasExample dlss:M6-EX1, dlss:M6-EX2 ;
+  dlss:hasExercise dlss:M6-EXER1 .
+
+dlss:M6-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Create a stakeholder communication matrix identifying audiences, messages, channels, and frequency." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M6-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Design a tollgate review presentation format for DMEDI phase transitions." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:M6-EX1
+  a dlss:Example ;
+  dlss:title "Global Product Launch Communication Plan" ;
+  dlss:context "Product Development" ;
+  dlss:description "Communication strategy for a consumer product launch across 12 countries with executive, engineering, and marketing stakeholders." .
+
+dlss:M6-EX2
+  a dlss:Example ;
+  dlss:title "Hospital System Process Rollout Communications" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Communication plan for rolling out a new patient triage process across 5 hospital departments." .
+
+dlss:M6-EXER1
+  a dlss:Exercise ;
+  dlss:title "Stakeholder Communication Matrix" ;
+  dlss:text "Create a communication matrix for your capstone project identifying at least 5 stakeholder groups, their information needs, preferred channels, and communication frequency." ;
+  dlss:estimatedMinutes 20 .
+
+# --- M7: Team Formation and Roles ---
+
+dlss:M7
+  a dlss:Module ;
+  dlss:code "M7" ;
+  dlss:title "Team Formation and Roles" ;
+  dlss:moduleOrder 7 ;
+  dlss:duration "PT45M" ;
+  dlss:difficulty "Introductory" ;
+  dlss:description "Form effective DLSS project teams with clear roles, responsibilities, and team dynamics for design projects." ;
+  dlss:hasPrerequisite dlss:M1 ;
+  dlss:hasObjective dlss:M7-LO1, dlss:M7-LO2 ;
+  dlss:hasExample dlss:M7-EX1, dlss:M7-EX2 ;
+  dlss:hasExercise dlss:M7-EXER1 .
+
+dlss:M7-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Define the roles of Black Belt, Green Belt, Champion, Sponsor, and team members in a DLSS project." ;
+  dlss:bloomsLevel "Remember" .
+
+dlss:M7-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Apply team formation best practices including skill matrix analysis and RACI charting." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M7-EX1
+  a dlss:Example ;
+  dlss:title "Cross-Functional Product Design Team" ;
+  dlss:context "Product Development" ;
+  dlss:description "Team structure for a medical device design project spanning engineering, regulatory, manufacturing, and clinical roles." .
+
+dlss:M7-EX2
+  a dlss:Example ;
+  dlss:title "Healthcare Process Improvement Team" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Team formation for designing a new emergency department workflow involving physicians, nurses, IT, and administration." .
+
+dlss:M7-EXER1
+  a dlss:Exercise ;
+  dlss:title "Create a RACI Chart" ;
+  dlss:text "Build a RACI chart for your capstone project with at least 8 key activities and 5 team roles." ;
+  dlss:estimatedMinutes 20 .
+
+# --- M8: CTQ Trees and Flowdowns ---
+
+dlss:M8
+  a dlss:Module ;
+  dlss:code "M8" ;
+  dlss:title "CTQ Trees and Flowdowns" ;
+  dlss:moduleOrder 8 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Develop Critical-to-Quality trees that cascade customer needs through system, subsystem, and component-level requirements." ;
+  dlss:hasPrerequisite dlss:M3 ;
+  dlss:hasObjective dlss:M8-LO1, dlss:M8-LO2, dlss:M8-LO3 ;
+  dlss:hasExample dlss:M8-EX1, dlss:M8-EX2 ;
+  dlss:hasExercise dlss:M8-EXER1 .
+
+dlss:M8-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Construct a CTQ flowdown tree from customer needs to measurable design specifications." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M8-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Translate qualitative customer requirements into quantitative CTQ specifications with targets and tolerances." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M8-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Validate CTQ flowdown completeness using the MECE (Mutually Exclusive, Collectively Exhaustive) principle." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:M8-EX1
+  a dlss:Example ;
+  dlss:title "Electric Motor CTQ Flowdown" ;
+  dlss:context "Product Development" ;
+  dlss:description "CTQ tree for an electric motor flowing down from 'quiet operation' to bearing specification, winding design, and housing material choices." .
+
+dlss:M8-EX2
+  a dlss:Example ;
+  dlss:title "Restaurant Ordering Process CTQ Tree" ;
+  dlss:context "New Process Design" ;
+  dlss:description "CTQ flowdown for a new table-ordering system from 'fast service' to specific cycle time targets at each process step." .
+
+dlss:M8-EXER1
+  a dlss:Exercise ;
+  dlss:title "Build a CTQ Flowdown Tree" ;
+  dlss:text "Select 3 customer needs for your capstone project and develop a complete CTQ flowdown tree to at least 3 levels with measurable specifications." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M9: Define Phase Review ---
+
+dlss:M9
+  a dlss:Module ;
+  dlss:code "M9" ;
+  dlss:title "Define Phase Review" ;
+  dlss:moduleOrder 9 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Tollgate review for the Define phase. Present project charter, QFD, CTQ flowdowns, and risk assessment for approval." ;
+  dlss:hasPrerequisite dlss:M5, dlss:M8 ;
+  dlss:hasObjective dlss:M9-LO1, dlss:M9-LO2 ;
+  dlss:hasExercise dlss:M9-EXER1 ;
+  dlss:hasCheckpoint dlss:DefineCheckpoint .
+
+dlss:M9-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Present a comprehensive Define phase tollgate review with all required deliverables." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M9-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Evaluate Define phase deliverables against quality criteria and identify gaps." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:DefineCheckpoint
+  a dlss:QualityCheckpoint ;
+  dlss:title "Define Phase Tollgate" ;
+  dlss:description "Assessment of Define phase deliverables including charter, QFD, CTQ trees, risk register, and communication plan." ;
+  dlss:passingScore 70 .
+
+dlss:M9-EXER1
+  a dlss:Exercise ;
+  dlss:title "Define Phase Tollgate Presentation" ;
+  dlss:text "Prepare and deliver a 10-minute Define phase tollgate presentation. Peer teams will evaluate using the tollgate checklist and provide feedback." ;
+  dlss:estimatedMinutes 45 .
+
+# ============================================================================
+# MEASURE PHASE — 11 Modules (M10–M20)
+# ============================================================================
+
+# --- M10: Voice of the Customer (VoC) ---
+
+dlss:M10
+  a dlss:Module ;
+  dlss:code "M10" ;
+  dlss:title "Voice of the Customer (VoC)" ;
+  dlss:moduleOrder 1 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Capture and analyze customer needs through interviews, surveys, focus groups, and ethnographic research methods." ;
+  dlss:hasPrerequisite dlss:M3 ;
+  dlss:hasObjective dlss:M10-LO1, dlss:M10-LO2, dlss:M10-LO3 ;
+  dlss:hasExample dlss:M10-EX1, dlss:M10-EX2 ;
+  dlss:hasExercise dlss:M10-EXER1 .
+
+dlss:M10-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Design a VoC research plan using multiple data collection methods appropriate to the project context." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:M10-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Apply affinity diagramming to organize raw customer feedback into thematic categories." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M10-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Translate VoC data into prioritized customer requirements using Kano analysis." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M10-EX1
+  a dlss:Example ;
+  dlss:title "Smart Home Device VoC Study" ;
+  dlss:context "Product Development" ;
+  dlss:description "VoC research for a new smart thermostat involving 200 customer interviews, conjoint survey, and in-home ethnographic observation." .
+
+dlss:M10-EX2
+  a dlss:Example ;
+  dlss:title "Banking App User Research" ;
+  dlss:context "New Process Design" ;
+  dlss:description "VoC study for a new mobile banking onboarding process using user journey mapping and A/B testing of prototype flows." .
+
+dlss:M10-EXER1
+  a dlss:Exercise ;
+  dlss:title "Affinity Diagram from Customer Interviews" ;
+  dlss:text "Using the provided raw interview transcripts (5 interviews), create an affinity diagram, identify top 5 themes, and translate into customer requirements." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M11: Kano Model and Critical-to-Quality Analysis ---
+
+dlss:M11
+  a dlss:Module ;
+  dlss:code "M11" ;
+  dlss:title "Kano Model and Critical-to-Quality Analysis" ;
+  dlss:moduleOrder 2 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Classify customer requirements into Must-Be, One-Dimensional, and Delighter categories using the Kano model questionnaire method." ;
+  dlss:hasPrerequisite dlss:M10 ;
+  dlss:hasObjective dlss:M11-LO1, dlss:M11-LO2 ;
+  dlss:hasExample dlss:M11-EX1, dlss:M11-EX2 ;
+  dlss:hasExercise dlss:M11-EXER1 .
+
+dlss:M11-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Administer and analyze a Kano questionnaire to classify features as Must-Be, One-Dimensional, or Delighters." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M11-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Prioritize design features using Kano classification combined with customer importance ratings." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M11-EX1
+  a dlss:Example ;
+  dlss:title "Automotive Infotainment Kano Analysis" ;
+  dlss:context "Product Development" ;
+  dlss:description "Kano analysis of 20 infotainment features revealing that wireless CarPlay is now a Must-Be while AR navigation is a Delighter." .
+
+dlss:M11-EX2
+  a dlss:Example ;
+  dlss:title "Hotel Check-In Process Kano Study" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Kano classification of 15 hotel check-in features showing mobile check-in moved from Delighter to Must-Be post-pandemic." .
+
+dlss:M11-EXER1
+  a dlss:Exercise ;
+  dlss:title "Kano Questionnaire Analysis" ;
+  dlss:text "Analyze the provided Kano questionnaire responses (50 respondents, 10 features). Classify each feature and create a prioritization matrix." ;
+  dlss:estimatedMinutes 25 .
+
+# --- M12: Quality Function Deployment — Measure ---
+
+dlss:M12
+  a dlss:Module ;
+  dlss:code "M12" ;
+  dlss:title "Quality Function Deployment - Measure" ;
+  dlss:moduleOrder 3 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Extend QFD into the measurement phase by developing measurable indicators for each technical requirement identified in the House of Quality." ;
+  dlss:hasPrerequisite dlss:M3 ;
+  dlss:hasObjective dlss:M12-LO1, dlss:M12-LO2 ;
+  dlss:hasExample dlss:M12-EX1, dlss:M12-EX2 ;
+  dlss:hasExercise dlss:M12-EXER1 .
+
+dlss:M12-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Define measurable indicators and data collection methods for each QFD technical requirement." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M12-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Establish baseline measurements for critical quality characteristics using appropriate sampling strategies." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M12-EX1
+  a dlss:Example ;
+  dlss:title "Packaging Design Measurement Plan" ;
+  dlss:context "Product Development" ;
+  dlss:description "Measurement plan for packaging QFD requirements including drop-test durability, seal integrity, and dimensional accuracy." .
+
+dlss:M12-EX2
+  a dlss:Example ;
+  dlss:title "Customer Service Process Metrics" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Establishing baseline metrics for a new customer service process including first-call resolution, average handle time, and CSAT scores." .
+
+dlss:M12-EXER1
+  a dlss:Exercise ;
+  dlss:title "QFD Measurement Indicator Matrix" ;
+  dlss:text "For your capstone project's top 8 technical requirements, define measurable indicators, units, data sources, and baseline measurement approaches." ;
+  dlss:estimatedMinutes 25 .
+
+# --- M13: Scorecards and Metrics ---
+
+dlss:M13
+  a dlss:Module ;
+  dlss:code "M13" ;
+  dlss:title "Scorecards and Metrics" ;
+  dlss:moduleOrder 4 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Design balanced scorecards and dashboard metrics to track DLSS project progress and design performance." ;
+  dlss:hasPrerequisite dlss:M8 ;
+  dlss:hasObjective dlss:M13-LO1, dlss:M13-LO2 ;
+  dlss:hasExample dlss:M13-EX1, dlss:M13-EX2 ;
+  dlss:hasExercise dlss:M13-EXER1 .
+
+dlss:M13-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Design a balanced scorecard with leading and lagging indicators for a DLSS design project." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:M13-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Establish operational definitions for all metrics ensuring consistent measurement across team members." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M13-EX1
+  a dlss:Example ;
+  dlss:title "Product Development Dashboard" ;
+  dlss:context "Product Development" ;
+  dlss:description "Balanced scorecard for tracking a new product design with metrics across cost, quality, schedule, and customer satisfaction perspectives." .
+
+dlss:M13-EX2
+  a dlss:Example ;
+  dlss:title "Process Design Metrics Dashboard" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Scorecard for a new claims processing system tracking cycle time, error rate, cost per transaction, and employee satisfaction." .
+
+dlss:M13-EXER1
+  a dlss:Exercise ;
+  dlss:title "Design Your Project Scorecard" ;
+  dlss:text "Create a balanced scorecard with at least 4 perspectives, 3-4 metrics each, with operational definitions, targets, and data collection plans." ;
+  dlss:estimatedMinutes 25 .
+
+# --- M14: Introduction to Minitab ---
+
+dlss:M14
+  a dlss:Module ;
+  dlss:code "M14" ;
+  dlss:title "Introduction to Minitab" ;
+  dlss:moduleOrder 5 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Introductory" ;
+  dlss:description "Hands-on introduction to Minitab statistical software for data analysis, charting, and quality tools used throughout the DLSS curriculum." ;
+  dlss:hasObjective dlss:M14-LO1, dlss:M14-LO2, dlss:M14-LO3 ;
+  dlss:hasExample dlss:M14-EX1, dlss:M14-EX2 ;
+  dlss:hasExercise dlss:M14-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M14-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Navigate the Minitab interface to import data, create worksheets, and perform basic data manipulation." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M14-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Generate descriptive statistics, histograms, boxplots, and scatter plots in Minitab." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M14-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Use Minitab's Stat and Quality Tools menus for basic capability analysis and Pareto charts." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M14-EX1
+  a dlss:Example ;
+  dlss:title "Manufacturing Data Analysis in Minitab" ;
+  dlss:context "Product Development" ;
+  dlss:description "Using Minitab to analyze piston diameter measurements from a prototype manufacturing run." .
+
+dlss:M14-EX2
+  a dlss:Example ;
+  dlss:title "Call Center Data Exploration" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Exploring call center performance data in Minitab to understand current state before designing a new routing process." .
+
+dlss:M14-EXER1
+  a dlss:Exercise ;
+  dlss:title "Minitab Data Exploration Lab" ;
+  dlss:text "Import the provided CSV dataset into Minitab, generate descriptive statistics, create 4 different chart types, and write a one-page summary of key findings." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M15: Basic Statistics and Descriptive Analytics ---
+
+dlss:M15
+  a dlss:Module ;
+  dlss:code "M15" ;
+  dlss:title "Basic Statistics and Descriptive Analytics" ;
+  dlss:moduleOrder 6 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Introductory" ;
+  dlss:description "Foundational statistics including measures of central tendency, dispersion, distribution shapes, and probability concepts essential for DLSS." ;
+  dlss:hasPrerequisite dlss:M14 ;
+  dlss:hasObjective dlss:M15-LO1, dlss:M15-LO2, dlss:M15-LO3 ;
+  dlss:hasExample dlss:M15-EX1, dlss:M15-EX2 ;
+  dlss:hasExercise dlss:M15-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M15-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Calculate and interpret measures of central tendency (mean, median, mode) and dispersion (range, variance, standard deviation)." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M15-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Assess data distributions using histograms, normal probability plots, and skewness/kurtosis statistics." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M15-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Apply the Central Limit Theorem to justify sampling strategies for design experiments." ;
+  dlss:bloomsLevel "Understand" .
+
+dlss:M15-EX1
+  a dlss:Example ;
+  dlss:title "Battery Life Distribution Analysis" ;
+  dlss:context "Product Development" ;
+  dlss:description "Statistical analysis of battery life test data from 100 prototype cells revealing a right-skewed distribution." .
+
+dlss:M15-EX2
+  a dlss:Example ;
+  dlss:title "Transaction Processing Time Analysis" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Descriptive analysis of financial transaction processing times from pilot data showing bimodal distribution." .
+
+dlss:M15-EXER1
+  a dlss:Exercise ;
+  dlss:title "Statistical Summary Report" ;
+  dlss:text "Using the provided dataset in Minitab, compute all descriptive statistics, test for normality, identify outliers, and write a statistical summary report." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M16: Understanding Variation and Control Charts ---
+
+dlss:M16
+  a dlss:Module ;
+  dlss:code "M16" ;
+  dlss:title "Understanding Variation and Control Charts" ;
+  dlss:moduleOrder 7 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Distinguish common cause from special cause variation and select appropriate control charts for monitoring design and process performance." ;
+  dlss:hasPrerequisite dlss:M15 ;
+  dlss:hasObjective dlss:M16-LO1, dlss:M16-LO2, dlss:M16-LO3 ;
+  dlss:hasExample dlss:M16-EX1, dlss:M16-EX2 ;
+  dlss:hasExercise dlss:M16-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M16-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Distinguish between common cause and special cause variation using control chart rules." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M16-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Select and construct appropriate control charts (X-bar/R, I-MR, P, NP, C, U) based on data type and subgroup size." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M16-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Interpret control chart patterns (trends, shifts, cycles, hugging) and identify potential assignable causes." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M16-EX1
+  a dlss:Example ;
+  dlss:title "Injection Molding Process Monitoring" ;
+  dlss:context "Product Development" ;
+  dlss:description "Using X-bar/R charts to monitor injection molding part dimensions during prototype development." .
+
+dlss:M16-EX2
+  a dlss:Example ;
+  dlss:title "Loan Processing Time Monitoring" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Using I-MR charts to track individual loan processing times during pilot testing of a new workflow." .
+
+dlss:M16-EXER1
+  a dlss:Exercise ;
+  dlss:title "Control Chart Selection and Creation" ;
+  dlss:text "Given three datasets (continuous subgrouped, individual continuous, attribute), select the appropriate control chart type, construct it in Minitab, and interpret the results." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M17: Measurement Systems Analysis (MSA) ---
+
+dlss:M17
+  a dlss:Module ;
+  dlss:code "M17" ;
+  dlss:title "Measurement Systems Analysis (MSA)" ;
+  dlss:moduleOrder 8 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Assess measurement system quality through Gage R&R studies, linearity, bias, and stability analysis to ensure data integrity." ;
+  dlss:hasPrerequisite dlss:M15 ;
+  dlss:hasObjective dlss:M17-LO1, dlss:M17-LO2, dlss:M17-LO3 ;
+  dlss:hasExample dlss:M17-EX1, dlss:M17-EX2 ;
+  dlss:hasExercise dlss:M17-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M17-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Plan and execute a Gage R&R study (crossed and nested) to quantify measurement system variation." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M17-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Interpret Gage R&R results using the %Study Var and %Tolerance criteria and determine measurement system adequacy." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M17-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Assess measurement system bias, linearity, and stability for continuous measurement systems." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:M17-EX1
+  a dlss:Example ;
+  dlss:title "Coordinate Measuring Machine Gage R&R" ;
+  dlss:context "Product Development" ;
+  dlss:description "Gage R&R study on a CMM measuring aerospace bracket dimensions with 3 operators, 10 parts, 2 trials." .
+
+dlss:M17-EX2
+  a dlss:Example ;
+  dlss:title "Customer Satisfaction Survey Reliability" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Attribute agreement analysis for a new customer satisfaction survey instrument with 3 raters and 50 service interactions." .
+
+dlss:M17-EXER1
+  a dlss:Exercise ;
+  dlss:title "Gage R&R Study Execution" ;
+  dlss:text "Using the provided Gage R&R dataset in Minitab, perform the analysis, interpret the results, determine if the measurement system is adequate (<30% study variation), and recommend improvements." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M18: Process Capability Analysis ---
+
+dlss:M18
+  a dlss:Module ;
+  dlss:code "M18" ;
+  dlss:title "Process Capability Analysis" ;
+  dlss:moduleOrder 9 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Calculate and interpret capability indices (Cp, Cpk, Pp, Ppk) to assess whether design specifications can be met by the process." ;
+  dlss:hasPrerequisite dlss:M16 ;
+  dlss:hasObjective dlss:M18-LO1, dlss:M18-LO2, dlss:M18-LO3 ;
+  dlss:hasExample dlss:M18-EX1, dlss:M18-EX2 ;
+  dlss:hasExercise dlss:M18-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M18-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Calculate Cp, Cpk, Pp, and Ppk indices and explain the difference between short-term and long-term capability." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M18-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Perform capability analysis for both normal and non-normal distributions using appropriate transformations." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M18-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Determine the sample size needed for a capability study with a desired confidence level." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M18-EX1
+  a dlss:Example ;
+  dlss:title "Machined Shaft Capability Study" ;
+  dlss:context "Product Development" ;
+  dlss:description "Capability analysis of a CNC-machined shaft diameter showing Cpk of 1.33 with opportunity for improvement to reach 1.67." .
+
+dlss:M18-EX2
+  a dlss:Example ;
+  dlss:title "Software Deployment Process Capability" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Capability study of a new CI/CD pipeline showing deployment time capability with non-normal distribution analysis." .
+
+dlss:M18-EXER1
+  a dlss:Exercise ;
+  dlss:title "Capability Analysis Report" ;
+  dlss:text "Using the provided dataset, perform capability analysis in Minitab for both normal and non-normal scenarios. Calculate all four indices and write recommendations." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M19: Data Collection Plans ---
+
+dlss:M19
+  a dlss:Module ;
+  dlss:code "M19" ;
+  dlss:title "Data Collection Plans" ;
+  dlss:moduleOrder 10 ;
+  dlss:duration "PT45M" ;
+  dlss:difficulty "Introductory" ;
+  dlss:description "Design rigorous data collection plans including sampling strategies, operational definitions, and data quality checks." ;
+  dlss:hasPrerequisite dlss:M15 ;
+  dlss:hasObjective dlss:M19-LO1, dlss:M19-LO2 ;
+  dlss:hasExample dlss:M19-EX1, dlss:M19-EX2 ;
+  dlss:hasExercise dlss:M19-EXER1 .
+
+dlss:M19-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Design a data collection plan with sampling strategy, operational definitions, and quality assurance procedures." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:M19-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Calculate required sample sizes for estimating means and proportions with specified confidence levels and margins of error." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M19-EX1
+  a dlss:Example ;
+  dlss:title "Product Reliability Data Collection Plan" ;
+  dlss:context "Product Development" ;
+  dlss:description "Data collection plan for product life testing with stratified sampling across operating conditions." .
+
+dlss:M19-EX2
+  a dlss:Example ;
+  dlss:title "Healthcare Process Data Collection" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Data collection plan for a new surgical scheduling process with time-stamped event logging." .
+
+dlss:M19-EXER1
+  a dlss:Exercise ;
+  dlss:title "Data Collection Plan Template" ;
+  dlss:text "Complete the data collection plan template for your capstone project including 5 metrics, sampling approach, operational definitions, and data quality checks." ;
+  dlss:estimatedMinutes 20 .
+
+# --- M20: Measure Phase Review ---
+
+dlss:M20
+  a dlss:Module ;
+  dlss:code "M20" ;
+  dlss:title "Measure Phase Review" ;
+  dlss:moduleOrder 11 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Tollgate review for the Measure phase. Present baseline data, MSA results, capability analysis, and validated measurement system." ;
+  dlss:hasPrerequisite dlss:M18, dlss:M19 ;
+  dlss:hasObjective dlss:M20-LO1, dlss:M20-LO2 ;
+  dlss:hasExercise dlss:M20-EXER1 ;
+  dlss:hasCheckpoint dlss:MeasureCheckpoint .
+
+dlss:M20-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Present Measure phase deliverables including baseline data, MSA results, and capability analysis." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M20-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Defend measurement system adequacy and data collection methodology decisions to the review board." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:MeasureCheckpoint
+  a dlss:QualityCheckpoint ;
+  dlss:title "Measure Phase Tollgate" ;
+  dlss:description "Assessment of Measure phase deliverables including VoC analysis, baseline metrics, MSA results, and capability analysis." ;
+  dlss:passingScore 70 .
+
+dlss:M20-EXER1
+  a dlss:Exercise ;
+  dlss:title "Measure Phase Tollgate Presentation" ;
+  dlss:text "Prepare and deliver a 10-minute Measure phase tollgate presentation including all statistical analyses and measurement system validation." ;
+  dlss:estimatedMinutes 45 .
+
+# ============================================================================
+# EXPLORE PHASE — 14 Modules (M21–M34)
+# ============================================================================
+
+# --- M21: Concept Generation Methods ---
+
+dlss:M21
+  a dlss:Module ;
+  dlss:code "M21" ;
+  dlss:title "Concept Generation Methods" ;
+  dlss:moduleOrder 1 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Generate creative design concepts using brainstorming, morphological analysis, biomimicry, and systematic invention methods." ;
+  dlss:hasPrerequisite dlss:M9 ;
+  dlss:hasObjective dlss:M21-LO1, dlss:M21-LO2, dlss:M21-LO3 ;
+  dlss:hasExample dlss:M21-EX1, dlss:M21-EX2 ;
+  dlss:hasExercise dlss:M21-EXER1 .
+
+dlss:M21-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Apply structured brainstorming and brainwriting techniques to generate at least 20 design concepts." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M21-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Use morphological analysis to systematically combine design alternatives across multiple parameters." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M21-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Evaluate concept generation output for novelty, feasibility, and alignment with CTQ requirements." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:M21-EX1
+  a dlss:Example ;
+  dlss:title "Wearable Health Monitor Concepts" ;
+  dlss:context "Product Development" ;
+  dlss:description "Generating 35 concepts for a wearable glucose monitor using biomimicry (how jellyfish sense glucose) and morphological charts." .
+
+dlss:M21-EX2
+  a dlss:Example ;
+  dlss:title "Retail Returns Process Concept Generation" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Brainstorming 25 concepts for a new product return process combining online, in-store, and third-party logistics options." .
+
+dlss:M21-EXER1
+  a dlss:Exercise ;
+  dlss:title "Concept Generation Workshop" ;
+  dlss:text "Using structured brainstorming and morphological analysis, generate at least 15 concepts for your capstone project. Document all concepts with brief descriptions." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M22: TRIZ for New Product Design ---
+
+dlss:M22
+  a dlss:Module ;
+  dlss:code "M22" ;
+  dlss:title "TRIZ for New Product Design" ;
+  dlss:moduleOrder 2 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Apply the Theory of Inventive Problem Solving (TRIZ) to resolve technical contradictions in product design using 40 inventive principles." ;
+  dlss:hasPrerequisite dlss:M21 ;
+  dlss:hasObjective dlss:M22-LO1, dlss:M22-LO2, dlss:M22-LO3 ;
+  dlss:hasExample dlss:M22-EX1, dlss:M22-EX2 ;
+  dlss:hasExercise dlss:M22-EXER1 .
+
+dlss:M22-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Formulate technical contradictions using the 39 TRIZ engineering parameters." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M22-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Resolve contradictions using the 40 inventive principles and contradiction matrix." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M22-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Apply the ideal final result concept to eliminate compromises in product design." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:M22-EX1
+  a dlss:Example ;
+  dlss:title "Lightweight Aircraft Seat Design" ;
+  dlss:context "Product Development" ;
+  dlss:description "Resolving the weight vs. strength contradiction in aircraft seats using TRIZ principles 1 (segmentation) and 40 (composite materials)." .
+
+dlss:M22-EX2
+  a dlss:Example ;
+  dlss:title "Warehouse Picking Process Optimization" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Resolving speed vs. accuracy contradiction in order picking using TRIZ principle 35 (parameter changes) and principle 13 (the other way around)." .
+
+dlss:M22-EXER1
+  a dlss:Exercise ;
+  dlss:title "TRIZ Contradiction Resolution" ;
+  dlss:text "Identify 3 technical contradictions in your capstone project, formulate them using TRIZ parameters, and resolve each using the contradiction matrix and inventive principles." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M23: Transactional TRIZ ---
+
+dlss:M23
+  a dlss:Module ;
+  dlss:code "M23" ;
+  dlss:title "Transactional TRIZ" ;
+  dlss:moduleOrder 3 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Adapt TRIZ principles for service and transactional process design, including administrative and knowledge work applications." ;
+  dlss:hasPrerequisite dlss:M22 ;
+  dlss:hasObjective dlss:M23-LO1, dlss:M23-LO2 ;
+  dlss:hasExample dlss:M23-EX1, dlss:M23-EX2 ;
+  dlss:hasExercise dlss:M23-EXER1 .
+
+dlss:M23-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Translate transactional process problems into TRIZ-compatible contradiction formulations." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M23-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Apply the 40 inventive principles to service and administrative process design challenges." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M23-EX1
+  a dlss:Example ;
+  dlss:title "Insurance Claims Process TRIZ" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Applying TRIZ to resolve the thoroughness vs. speed contradiction in insurance claims adjudication." .
+
+dlss:M23-EX2
+  a dlss:Example ;
+  dlss:title "Software Feature Prioritization" ;
+  dlss:context "Product Development" ;
+  dlss:description "Using TRIZ to resolve feature richness vs. simplicity contradiction in a SaaS product interface." .
+
+dlss:M23-EXER1
+  a dlss:Exercise ;
+  dlss:title "Transactional TRIZ Application" ;
+  dlss:text "Identify a service/transactional contradiction in your capstone project, apply at least 5 inventive principles, and evaluate which solution best resolves the tradeoff." ;
+  dlss:estimatedMinutes 25 .
+
+# --- M24: Concept Selection — Pugh Matrix ---
+
+dlss:M24
+  a dlss:Module ;
+  dlss:code "M24" ;
+  dlss:title "Concept Selection - Pugh Matrix" ;
+  dlss:moduleOrder 4 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Evaluate and compare design concepts using the Pugh selection matrix with weighted criteria derived from CTQ requirements." ;
+  dlss:hasPrerequisite dlss:M21 ;
+  dlss:hasObjective dlss:M24-LO1, dlss:M24-LO2 ;
+  dlss:hasExample dlss:M24-EX1, dlss:M24-EX2 ;
+  dlss:hasExercise dlss:M24-EXER1 ;
+  dlss:hasTool dlss:Excel .
+
+dlss:M24-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Construct a Pugh matrix with criteria weights derived from QFD and CTQ analysis." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M24-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Identify strong points and weaknesses across concepts and iterate toward an optimized hybrid concept." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M24-EX1
+  a dlss:Example ;
+  dlss:title "Power Tool Concept Selection" ;
+  dlss:context "Product Development" ;
+  dlss:description "Pugh matrix comparing 5 cordless drill concepts across 12 criteria including power, weight, battery life, and cost." .
+
+dlss:M24-EX2
+  a dlss:Example ;
+  dlss:title "Patient Discharge Process Selection" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Pugh matrix evaluating 4 discharge process designs across criteria including time, safety, patient satisfaction, and cost." .
+
+dlss:M24-EXER1
+  a dlss:Exercise ;
+  dlss:title "Pugh Matrix Evaluation" ;
+  dlss:text "Build a Pugh matrix in Excel comparing at least 5 of your generated concepts against 8-10 weighted criteria. Identify the top concept and document improvement opportunities." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M25: Concept Selection — Analytic Hierarchy Process (AHP) ---
+
+dlss:M25
+  a dlss:Module ;
+  dlss:code "M25" ;
+  dlss:title "Concept Selection - Analytic Hierarchy Process (AHP)" ;
+  dlss:moduleOrder 5 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Apply the Analytic Hierarchy Process for multi-criteria concept selection with pairwise comparisons and consistency checking." ;
+  dlss:hasPrerequisite dlss:M24 ;
+  dlss:hasObjective dlss:M25-LO1, dlss:M25-LO2 ;
+  dlss:hasExample dlss:M25-EX1, dlss:M25-EX2 ;
+  dlss:hasExercise dlss:M25-EXER1 ;
+  dlss:hasTool dlss:Excel .
+
+dlss:M25-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Construct pairwise comparison matrices and calculate priority weights using the eigenvalue method." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M25-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Calculate the Consistency Ratio and validate the reliability of pairwise comparisons (CR < 0.10)." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M25-EX1
+  a dlss:Example ;
+  dlss:title "Material Selection for Medical Device" ;
+  dlss:context "Product Development" ;
+  dlss:description "AHP for selecting between titanium, stainless steel, and polymer for a surgical instrument handle." .
+
+dlss:M25-EX2
+  a dlss:Example ;
+  dlss:title "Vendor Selection for IT System" ;
+  dlss:context "New Process Design" ;
+  dlss:description "AHP for evaluating 4 ERP vendors across criteria including cost, implementation time, scalability, and support." .
+
+dlss:M25-EXER1
+  a dlss:Exercise ;
+  dlss:title "AHP Concept Selection" ;
+  dlss:text "Build a complete AHP model for your top 3 concepts with 5-6 criteria. Calculate priorities, check consistency, and compare results with your Pugh matrix." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M26: Statistical Tolerance Design ---
+
+dlss:M26
+  a dlss:Module ;
+  dlss:code "M26" ;
+  dlss:title "Statistical Tolerance Design" ;
+  dlss:moduleOrder 6 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Apply statistical tolerance analysis (worst-case, RSS, and Monte Carlo) to allocate tolerances across assemblies and subsystems." ;
+  dlss:hasPrerequisite dlss:M15 ;
+  dlss:hasObjective dlss:M26-LO1, dlss:M26-LO2, dlss:M26-LO3 ;
+  dlss:hasExample dlss:M26-EX1, dlss:M26-EX2 ;
+  dlss:hasExercise dlss:M26-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M26-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Perform worst-case and root-sum-square (RSS) tolerance stack-up analysis for multi-component assemblies." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M26-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Allocate tolerances using tolerance allocation methods to minimize total cost while meeting assembly specifications." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M26-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Compare RSS and worst-case analysis results to determine appropriate tolerance strategy for different risk levels." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:M26-EX1
+  a dlss:Example ;
+  dlss:title "Optical Assembly Tolerance Stack" ;
+  dlss:context "Product Development" ;
+  dlss:description "Tolerance analysis of a 5-element lens assembly showing RSS tolerance of 0.012mm vs. specification of 0.010mm requiring redesign." .
+
+dlss:M26-EX2
+  a dlss:Example ;
+  dlss:title "Pharmaceutical Dosing Tolerance" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Statistical tolerance design for an automated liquid filling process ensuring dose accuracy within +/-2%." .
+
+dlss:M26-EXER1
+  a dlss:Exercise ;
+  dlss:title "Tolerance Stack-Up Analysis" ;
+  dlss:text "Perform both worst-case and RSS tolerance analysis on the provided 4-component assembly. Determine if the design meets spec and recommend tolerance adjustments." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M27: Monte Carlo Simulation ---
+
+dlss:M27
+  a dlss:Module ;
+  dlss:code "M27" ;
+  dlss:title "Monte Carlo Simulation" ;
+  dlss:moduleOrder 7 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Use Monte Carlo simulation to model system performance under uncertainty and predict defect rates, yields, and capability." ;
+  dlss:hasPrerequisite dlss:M26 ;
+  dlss:hasObjective dlss:M27-LO1, dlss:M27-LO2, dlss:M27-LO3 ;
+  dlss:hasExample dlss:M27-EX1, dlss:M27-EX2 ;
+  dlss:hasExercise dlss:M27-EXER1 ;
+  dlss:hasTool dlss:Minitab, dlss:Excel .
+
+dlss:M27-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Set up and run a Monte Carlo simulation with specified input distributions and transfer function." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M27-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Interpret simulation results including predicted defect rate (PPM), yield, and output distribution shape." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M27-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Perform sensitivity analysis to identify which input variables contribute most to output variation." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M27-EX1
+  a dlss:Example ;
+  dlss:title "Circuit Board Yield Simulation" ;
+  dlss:context "Product Development" ;
+  dlss:description "Monte Carlo simulation of PCB assembly showing predicted yield of 94.2% with voltage regulator tolerance as the largest contributor." .
+
+dlss:M27-EX2
+  a dlss:Example ;
+  dlss:title "Financial Process Cycle Time Simulation" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Simulating end-to-end cycle time for a new loan approval process with 7 steps, each with different processing time distributions." .
+
+dlss:M27-EXER1
+  a dlss:Exercise ;
+  dlss:title "Monte Carlo Simulation Lab" ;
+  dlss:text "Build a Monte Carlo simulation in Minitab for the provided multi-component system. Run 50,000 iterations, analyze the output distribution, and identify the top 3 sensitivity factors." ;
+  dlss:estimatedMinutes 35 .
+
+# --- M28: Hypothesis Testing Fundamentals ---
+
+dlss:M28
+  a dlss:Module ;
+  dlss:code "M28" ;
+  dlss:title "Hypothesis Testing Fundamentals" ;
+  dlss:moduleOrder 8 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Master hypothesis testing concepts including null/alternative hypotheses, Type I/II errors, p-values, power, and sample size determination." ;
+  dlss:hasPrerequisite dlss:M15 ;
+  dlss:hasObjective dlss:M28-LO1, dlss:M28-LO2, dlss:M28-LO3 ;
+  dlss:hasExample dlss:M28-EX1, dlss:M28-EX2 ;
+  dlss:hasExercise dlss:M28-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M28-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Formulate null and alternative hypotheses for design and process comparison problems." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M28-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Calculate and interpret p-values, and distinguish between statistical significance and practical significance." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M28-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Determine required sample sizes for hypothesis tests with specified power and significance levels." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M28-EX1
+  a dlss:Example ;
+  dlss:title "Material Strength Comparison" ;
+  dlss:context "Product Development" ;
+  dlss:description "Two-sample t-test comparing tensile strength of a new alloy vs. standard material (p=0.003, power=0.92)." .
+
+dlss:M28-EX2
+  a dlss:Example ;
+  dlss:title "Process Cycle Time Comparison" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Hypothesis test comparing average processing time of redesigned workflow vs. current state baseline." .
+
+dlss:M28-EXER1
+  a dlss:Exercise ;
+  dlss:title "Hypothesis Testing Workshop" ;
+  dlss:text "For the provided dataset, formulate hypotheses, select the appropriate test, execute in Minitab, interpret results, and calculate the power of the test." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M29: Confidence Intervals ---
+
+dlss:M29
+  a dlss:Module ;
+  dlss:code "M29" ;
+  dlss:title "Confidence Intervals" ;
+  dlss:moduleOrder 9 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Construct and interpret confidence intervals for means, proportions, variances, and differences to quantify estimation uncertainty." ;
+  dlss:hasPrerequisite dlss:M28 ;
+  dlss:hasObjective dlss:M29-LO1, dlss:M29-LO2 ;
+  dlss:hasExample dlss:M29-EX1, dlss:M29-EX2 ;
+  dlss:hasExercise dlss:M29-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M29-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Construct and interpret confidence intervals for population means, proportions, and standard deviations." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M29-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Use confidence intervals to make design decisions about specification targets and tolerance ranges." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:M29-EX1
+  a dlss:Example ;
+  dlss:title "Battery Capacity Confidence Interval" ;
+  dlss:context "Product Development" ;
+  dlss:description "95% CI for battery capacity from 50 samples: [48.2, 49.8] kWh, supporting the 48 kWh minimum specification." .
+
+dlss:M29-EX2
+  a dlss:Example ;
+  dlss:title "Process Error Rate Confidence Interval" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Confidence interval for error rate in a new data entry process based on 500 transactions sampled during pilot." .
+
+dlss:M29-EXER1
+  a dlss:Exercise ;
+  dlss:title "Confidence Interval Analysis" ;
+  dlss:text "Using the provided datasets, construct confidence intervals for means, proportions, and variances. Interpret each in the context of your capstone project specifications." ;
+  dlss:estimatedMinutes 25 .
+
+# --- M30: Testing Means, Medians, and Variances ---
+
+dlss:M30
+  a dlss:Module ;
+  dlss:code "M30" ;
+  dlss:title "Testing Means, Medians, and Variances" ;
+  dlss:moduleOrder 10 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Apply parametric and non-parametric tests for comparing means (t-tests, ANOVA), medians (Mann-Whitney, Kruskal-Wallis), and variances (F-test, Levene's)." ;
+  dlss:hasPrerequisite dlss:M28 ;
+  dlss:hasObjective dlss:M30-LO1, dlss:M30-LO2, dlss:M30-LO3 ;
+  dlss:hasExample dlss:M30-EX1, dlss:M30-EX2 ;
+  dlss:hasExercise dlss:M30-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M30-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Select and execute appropriate tests for comparing means (1-sample t, 2-sample t, paired t) based on data characteristics." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M30-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Apply non-parametric alternatives (Mann-Whitney, Wilcoxon, Kruskal-Wallis) when normality assumptions are violated." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M30-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Test equality of variances using F-test and Levene's test to validate ANOVA assumptions." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M30-EX1
+  a dlss:Example ;
+  dlss:title "Coating Thickness Comparison" ;
+  dlss:context "Product Development" ;
+  dlss:description "Comparing coating thickness from 3 suppliers using one-way ANOVA and Tukey's post-hoc test." .
+
+dlss:M30-EX2
+  a dlss:Example ;
+  dlss:title "Call Center Performance Comparison" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Mann-Whitney test comparing handle times between two new routing algorithms with non-normal data." .
+
+dlss:M30-EXER1
+  a dlss:Exercise ;
+  dlss:title "Statistical Comparison Lab" ;
+  dlss:text "Given three datasets, perform appropriate tests: compare means (t-test or ANOVA), medians (non-parametric), and variances. Document assumptions checks and conclusions." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M31: Proportion and Chi-Square Tests ---
+
+dlss:M31
+  a dlss:Module ;
+  dlss:code "M31" ;
+  dlss:title "Proportion and Chi-Square Tests" ;
+  dlss:moduleOrder 11 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Apply tests for proportions (1-proportion, 2-proportion) and chi-square tests (goodness-of-fit, independence) for attribute data analysis." ;
+  dlss:hasPrerequisite dlss:M28 ;
+  dlss:hasObjective dlss:M31-LO1, dlss:M31-LO2 ;
+  dlss:hasExample dlss:M31-EX1, dlss:M31-EX2 ;
+  dlss:hasExercise dlss:M31-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M31-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Perform 1-proportion and 2-proportion tests to compare defect rates, yield, and other attribute metrics." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M31-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Apply chi-square tests for goodness-of-fit and independence to analyze categorical data relationships." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M31-EX1
+  a dlss:Example ;
+  dlss:title "Defect Rate Comparison by Supplier" ;
+  dlss:context "Product Development" ;
+  dlss:description "2-proportion test comparing defect rates between two PCB suppliers (3.2% vs. 1.8%, p=0.012)." .
+
+dlss:M31-EX2
+  a dlss:Example ;
+  dlss:title "Customer Satisfaction by Channel" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Chi-square test of independence examining whether satisfaction ratings differ across service channels." .
+
+dlss:M31-EXER1
+  a dlss:Exercise ;
+  dlss:title "Proportion and Chi-Square Analysis" ;
+  dlss:text "Using the provided categorical datasets, perform proportion tests and chi-square analysis. Report findings with effect sizes and practical implications." ;
+  dlss:estimatedMinutes 25 .
+
+# --- M32: Simple and Multiple Regression ---
+
+dlss:M32
+  a dlss:Module ;
+  dlss:code "M32" ;
+  dlss:title "Simple and Multiple Regression" ;
+  dlss:moduleOrder 12 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Build and validate regression models to quantify relationships between design/process factors and performance outputs." ;
+  dlss:hasPrerequisite dlss:M28 ;
+  dlss:hasObjective dlss:M32-LO1, dlss:M32-LO2, dlss:M32-LO3 ;
+  dlss:hasExample dlss:M32-EX1, dlss:M32-EX2 ;
+  dlss:hasExercise dlss:M32-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M32-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Build and interpret simple linear regression models including R-squared, residuals analysis, and prediction intervals." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M32-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Develop multiple regression models with interaction terms and assess multicollinearity using VIF." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M32-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Validate regression models using residual plots, lack-of-fit tests, and cross-validation techniques." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:M32-EX1
+  a dlss:Example ;
+  dlss:title "Spring Force Prediction Model" ;
+  dlss:context "Product Development" ;
+  dlss:description "Multiple regression model predicting spring constant from wire diameter, coil count, and material hardness (R-sq = 94.7%)." .
+
+dlss:M32-EX2
+  a dlss:Example ;
+  dlss:title "Insurance Processing Time Model" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Regression model predicting claim processing time from claim type, claim amount, and submitter experience level." .
+
+dlss:M32-EXER1
+  a dlss:Exercise ;
+  dlss:title "Regression Modeling Lab" ;
+  dlss:text "Build both simple and multiple regression models from the provided dataset. Check assumptions, calculate prediction intervals, and identify the optimal model." ;
+  dlss:estimatedMinutes 35 .
+
+# --- M33: Multi-Vari Analysis ---
+
+dlss:M33
+  a dlss:Module ;
+  dlss:code "M33" ;
+  dlss:title "Multi-Vari Analysis" ;
+  dlss:moduleOrder 13 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Use multi-vari charts and analysis to identify the largest sources of variation (positional, cyclical, temporal) in designs and processes." ;
+  dlss:hasPrerequisite dlss:M32 ;
+  dlss:hasObjective dlss:M33-LO1, dlss:M33-LO2 ;
+  dlss:hasExample dlss:M33-EX1, dlss:M33-EX2 ;
+  dlss:hasExercise dlss:M33-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M33-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Design a multi-vari study to isolate positional, cyclical, and temporal variation components." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M33-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Interpret multi-vari charts to prioritize which variation source to address first in the design." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M33-EX1
+  a dlss:Example ;
+  dlss:title "Weld Strength Variation Study" ;
+  dlss:context "Product Development" ;
+  dlss:description "Multi-vari study revealing that within-piece variation (positional) accounts for 62% of total weld strength variation." .
+
+dlss:M33-EX2
+  a dlss:Example ;
+  dlss:title "Loan Approval Time Variation" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Multi-vari analysis of loan processing showing time-of-day (temporal) variation as the dominant source." .
+
+dlss:M33-EXER1
+  a dlss:Exercise ;
+  dlss:title "Multi-Vari Study Design" ;
+  dlss:text "Design and analyze a multi-vari study using the provided dataset. Create multi-vari charts and quantify the percentage contribution of each variation source." ;
+  dlss:estimatedMinutes 25 .
+
+# --- M34: Design FMEA ---
+
+dlss:M34
+  a dlss:Module ;
+  dlss:code "M34" ;
+  dlss:title "Design FMEA" ;
+  dlss:moduleOrder 14 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Perform Design Failure Mode and Effects Analysis to identify, prioritize, and mitigate potential design failures before prototyping." ;
+  dlss:hasPrerequisite dlss:M5 ;
+  dlss:hasObjective dlss:M34-LO1, dlss:M34-LO2, dlss:M34-LO3 ;
+  dlss:hasExample dlss:M34-EX1, dlss:M34-EX2 ;
+  dlss:hasExercise dlss:M34-EXER1 .
+
+dlss:M34-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Construct a complete Design FMEA with failure modes, effects, causes, severity, occurrence, and detection ratings." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M34-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Calculate Risk Priority Numbers (RPN) and develop targeted mitigation strategies for high-risk items." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M34-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Validate FMEA effectiveness by verifying that mitigations reduce RPN below the acceptable threshold." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:M34-EX1
+  a dlss:Example ;
+  dlss:title "Automotive Brake System DFMEA" ;
+  dlss:context "Product Development" ;
+  dlss:description "DFMEA for an electric vehicle regenerative braking system identifying 23 potential failure modes with 5 high-RPN items mitigated through design changes." .
+
+dlss:M34-EX2
+  a dlss:Example ;
+  dlss:title "Patient Handoff Process FMEA" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Process FMEA for a new surgical patient handoff procedure identifying communication failures as the highest risk category." .
+
+dlss:M34-EXER1
+  a dlss:Exercise ;
+  dlss:title "Design FMEA Construction" ;
+  dlss:text "Build a complete DFMEA for your capstone project with at least 10 failure modes. Calculate RPNs and develop mitigation plans for all items with RPN > 100." ;
+  dlss:estimatedMinutes 40 .
+
+# ============================================================================
+# DEVELOP PHASE — 15 Modules (M35–M49)
+# ============================================================================
+
+# --- M35: Detailed Design Principles ---
+
+dlss:M35
+  a dlss:Module ;
+  dlss:code "M35" ;
+  dlss:title "Detailed Design Principles" ;
+  dlss:moduleOrder 1 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Apply detailed design principles including Design for X (DfX), axiomatic design, and tolerance allocation for robust product and process design." ;
+  dlss:hasPrerequisite dlss:M24 ;
+  dlss:hasObjective dlss:M35-LO1, dlss:M35-LO2, dlss:M35-LO3 ;
+  dlss:hasExample dlss:M35-EX1, dlss:M35-EX2 ;
+  dlss:hasExercise dlss:M35-EXER1 .
+
+dlss:M35-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Apply Design for X principles (DfM, DfA, DfR, DfC) to optimize the selected concept for production constraints." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M35-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Use axiomatic design principles (independence, information) to evaluate and improve design coupling." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M35-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Develop a detailed design specification document with critical parameters, tolerances, and material selections." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:M35-EX1
+  a dlss:Example ;
+  dlss:title "Consumer Appliance Detailed Design" ;
+  dlss:context "Product Development" ;
+  dlss:description "Applying DfM and DfA to reduce a blender assembly from 23 parts to 14 parts while improving reliability." .
+
+dlss:M35-EX2
+  a dlss:Example ;
+  dlss:title "E-Commerce Fulfillment Process Design" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Detailed design of a new warehouse fulfillment process applying error-proofing and standard work principles." .
+
+dlss:M35-EXER1
+  a dlss:Exercise ;
+  dlss:title "Detailed Design Specification" ;
+  dlss:text "Create a detailed design specification for your capstone concept including critical parameters, tolerances, materials/processes, and DfX considerations." ;
+  dlss:estimatedMinutes 35 .
+
+# --- M36: 2-Way ANOVA ---
+
+dlss:M36
+  a dlss:Module ;
+  dlss:code "M36" ;
+  dlss:title "2-Way ANOVA" ;
+  dlss:moduleOrder 2 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Analyze the effects of two factors and their interaction on a response variable using two-way analysis of variance." ;
+  dlss:hasPrerequisite dlss:M30 ;
+  dlss:hasObjective dlss:M36-LO1, dlss:M36-LO2, dlss:M36-LO3 ;
+  dlss:hasExample dlss:M36-EX1, dlss:M36-EX2 ;
+  dlss:hasExercise dlss:M36-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M36-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Execute and interpret a two-way ANOVA including main effects, interaction effects, and residual analysis." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M36-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Diagnose significant interaction effects and create interaction plots to communicate findings." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M36-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Perform post-hoc analysis using Tukey's method to identify which factor level combinations differ significantly." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M36-EX1
+  a dlss:Example ;
+  dlss:title "Paint Adhesion ANOVA" ;
+  dlss:context "Product Development" ;
+  dlss:description "Two-way ANOVA examining the effects of paint type (3 levels) and curing temperature (3 levels) on adhesion strength, with significant interaction." .
+
+dlss:M36-EX2
+  a dlss:Example ;
+  dlss:title "Call Center Efficiency Study" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Two-way ANOVA analyzing the impact of training method and software interface on average handle time." .
+
+dlss:M36-EXER1
+  a dlss:Exercise ;
+  dlss:title "Two-Way ANOVA Lab" ;
+  dlss:text "Using the provided dataset with two factors, perform two-way ANOVA in Minitab. Interpret main effects, interactions, and create appropriate plots." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M37: Introduction to Design of Experiments ---
+
+dlss:M37
+  a dlss:Module ;
+  dlss:code "M37" ;
+  dlss:title "Introduction to Design of Experiments" ;
+  dlss:moduleOrder 3 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Master the fundamentals of DOE including factor selection, level setting, randomization, replication, and basic experimental designs." ;
+  dlss:hasPrerequisite dlss:M36 ;
+  dlss:hasObjective dlss:M37-LO1, dlss:M37-LO2, dlss:M37-LO3 ;
+  dlss:hasExample dlss:M37-EX1, dlss:M37-EX2 ;
+  dlss:hasExercise dlss:M37-EXER1 .
+
+dlss:M37-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Distinguish between full-factorial, fractional factorial, and response surface experimental designs and select the appropriate approach." ;
+  dlss:bloomsLevel "Understand" .
+
+dlss:M37-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Design a screening experiment to identify the vital few factors from many potential factors." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M37-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Apply principles of randomization, replication, and blocking to minimize confounding in experiments." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M37-EX1
+  a dlss:Example ;
+  dlss:title "Injection Molding DOE Setup" ;
+  dlss:context "Product Development" ;
+  dlss:description "Planning a screening DOE for injection molding with 7 factors: temperature, pressure, cooling time, material, gate size, injection speed, and hold time." .
+
+dlss:M37-EX2
+  a dlss:Example ;
+  dlss:title "Healthcare Scheduling DOE" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Designing an experiment to optimize appointment scheduling parameters including slot duration, buffer time, and provider mix." .
+
+dlss:M37-EXER1
+  a dlss:Exercise ;
+  dlss:title "DOE Planning Worksheet" ;
+  dlss:text "Complete a DOE planning worksheet for your capstone project including factors, levels, response variables, design selection, and sample size justification." ;
+  dlss:estimatedMinutes 25 .
+
+# --- M38: Full-Factorial DOE ---
+
+dlss:M38
+  a dlss:Module ;
+  dlss:code "M38" ;
+  dlss:title "Full-Factorial DOE" ;
+  dlss:moduleOrder 4 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Design, execute, and analyze full-factorial experiments to understand main effects and all interactions between factors." ;
+  dlss:hasPrerequisite dlss:M37 ;
+  dlss:hasObjective dlss:M38-LO1, dlss:M38-LO2, dlss:M38-LO3 ;
+  dlss:hasExample dlss:M38-EX1, dlss:M38-EX2 ;
+  dlss:hasExercise dlss:M38-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M38-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Design and analyze a 2^k full-factorial experiment with proper randomization and replication." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M38-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Interpret main effects plots, interaction plots, and cube plots to identify optimal factor settings." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M38-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Use half-normal probability plots and Pareto charts of effects to distinguish significant from insignificant effects." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M38-EX1
+  a dlss:Example ;
+  dlss:title "Battery Life Optimization DOE" ;
+  dlss:context "Product Development" ;
+  dlss:description "2^4 full-factorial DOE optimizing battery life with factors: anode material, electrolyte concentration, charge rate, and operating temperature." .
+
+dlss:M38-EX2
+  a dlss:Example ;
+  dlss:title "Restaurant Service Time DOE" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Full-factorial experiment to optimize table service time across kitchen layout, staff ratio, and order system factors." .
+
+dlss:M38-EXER1
+  a dlss:Exercise ;
+  dlss:title "Full-Factorial DOE Analysis" ;
+  dlss:text "Using the provided 2^3 full-factorial dataset in Minitab, analyze main effects and interactions, create effect plots, and determine optimal settings." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M39: Fractional Factorial DOE ---
+
+dlss:M39
+  a dlss:Module ;
+  dlss:code "M39" ;
+  dlss:title "Fractional Factorial DOE" ;
+  dlss:moduleOrder 5 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Design and analyze fractional factorial experiments (Resolution III, IV, V) to efficiently screen many factors with limited experimental runs." ;
+  dlss:hasPrerequisite dlss:M38 ;
+  dlss:hasObjective dlss:M39-LO1, dlss:M39-LO2, dlss:M39-LO3 ;
+  dlss:hasExample dlss:M39-EX1, dlss:M39-EX2 ;
+  dlss:hasExercise dlss:M39-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M39-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Design fractional factorial experiments with appropriate resolution to balance cost and confounding risk." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M39-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Interpret alias structures and determine which effects are confounded in a fractional design." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M39-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Apply foldover techniques to de-alias confounded effects when initial screening reveals promising factors." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M39-EX1
+  a dlss:Example ;
+  dlss:title "Semiconductor Etch Process Screening" ;
+  dlss:context "Product Development" ;
+  dlss:description "Resolution IV fractional factorial screening 7 factors in 16 runs for a plasma etch process, identifying 3 significant factors." .
+
+dlss:M39-EX2
+  a dlss:Example ;
+  dlss:title "Claims Processing Optimization" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Fractional factorial DOE screening 6 process factors in 8 runs to optimize automated claims processing accuracy." .
+
+dlss:M39-EXER1
+  a dlss:Exercise ;
+  dlss:title "Fractional Factorial Design Lab" ;
+  dlss:text "Design a resolution IV fractional factorial for the provided scenario (6 factors, 16 runs). Analyze results, interpret the alias structure, and plan a follow-up experiment." ;
+  dlss:estimatedMinutes 35 .
+
+# --- M40: DOE Catapult Simulation ---
+
+dlss:M40
+  a dlss:Module ;
+  dlss:code "M40" ;
+  dlss:title "DOE Catapult Simulation" ;
+  dlss:moduleOrder 6 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Hands-on DOE exercise using a catapult (physical or virtual) to optimize launch distance through systematic experimentation." ;
+  dlss:hasPrerequisite dlss:M38 ;
+  dlss:hasObjective dlss:M40-LO1, dlss:M40-LO2 ;
+  dlss:hasExample dlss:M40-EX1, dlss:M40-EX2 ;
+  dlss:hasExercise dlss:M40-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M40-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Execute a complete DOE cycle from planning through analysis on a physical or simulated system." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M40-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Validate DOE predictions with confirmation runs and quantify prediction error." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:M40-EX1
+  a dlss:Example ;
+  dlss:title "Classroom Catapult Competition" ;
+  dlss:context "Product Development" ;
+  dlss:description "Teams use DOE to optimize catapult settings for maximum distance, then compete with confirmation runs." .
+
+dlss:M40-EX2
+  a dlss:Example ;
+  dlss:title "Virtual Process Simulation DOE" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Using a process simulation tool to optimize a virtual call center through fractional factorial DOE." .
+
+dlss:M40-EXER1
+  a dlss:Exercise ;
+  dlss:title "Catapult DOE Team Challenge" ;
+  dlss:text "Plan and execute a 2^3 or 2^4 factorial DOE using the catapult. Analyze results, predict optimal settings, and validate with 5 confirmation runs." ;
+  dlss:estimatedMinutes 45 .
+
+# --- M41: Key Lean Concepts (Value Stream, 5S, Kaizen) ---
+
+dlss:M41
+  a dlss:Module ;
+  dlss:code "M41" ;
+  dlss:title "Key Lean Concepts (Value Stream, 5S, Kaizen)" ;
+  dlss:moduleOrder 7 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Introductory" ;
+  dlss:description "Foundational Lean concepts including value stream mapping, 5S workplace organization, and continuous improvement (Kaizen) philosophy." ;
+  dlss:hasObjective dlss:M41-LO1, dlss:M41-LO2, dlss:M41-LO3 ;
+  dlss:hasExample dlss:M41-EX1, dlss:M41-EX2 ;
+  dlss:hasExercise dlss:M41-EXER1 .
+
+dlss:M41-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Construct a current-state and future-state value stream map identifying waste and improvement opportunities." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M41-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Apply 5S methodology (Sort, Set in Order, Shine, Standardize, Sustain) to design organized workspaces." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M41-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Design a Kaizen event plan with objectives, team, scope, and expected outcomes for a targeted improvement." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:M41-EX1
+  a dlss:Example ;
+  dlss:title "Electronics Assembly Value Stream Map" ;
+  dlss:context "Product Development" ;
+  dlss:description "VSM of a printed circuit board assembly line revealing 78% non-value-added time, leading to cell redesign." .
+
+dlss:M41-EX2
+  a dlss:Example ;
+  dlss:title "Hospital Lab Process VSM" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Value stream map of a new hospital lab workflow reducing sample turnaround time from 4 hours to 90 minutes." .
+
+dlss:M41-EXER1
+  a dlss:Exercise ;
+  dlss:title "Value Stream Mapping Workshop" ;
+  dlss:text "Create current-state and future-state value stream maps for your capstone process. Calculate lead time, cycle time, and %VA for both states." ;
+  dlss:estimatedMinutes 35 .
+
+# --- M42: Lean Design ---
+
+dlss:M42
+  a dlss:Module ;
+  dlss:code "M42" ;
+  dlss:title "Lean Design" ;
+  dlss:moduleOrder 8 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Apply Lean principles to product and process design to minimize waste, reduce complexity, and optimize flow from the start." ;
+  dlss:hasPrerequisite dlss:M41 ;
+  dlss:hasObjective dlss:M42-LO1, dlss:M42-LO2 ;
+  dlss:hasExample dlss:M42-EX1, dlss:M42-EX2 ;
+  dlss:hasExercise dlss:M42-EXER1 .
+
+dlss:M42-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Apply the 8 wastes (DOWNTIME) framework to identify and eliminate waste in new designs." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M42-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Design products and processes for minimal complexity using modularity, standardization, and parts reduction." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:M42-EX1
+  a dlss:Example ;
+  dlss:title "Lean Automotive Interior Design" ;
+  dlss:context "Product Development" ;
+  dlss:description "Lean design of a car door panel reducing part count from 37 to 18 and eliminating 6 assembly steps." .
+
+dlss:M42-EX2
+  a dlss:Example ;
+  dlss:title "Lean Patient Intake Process" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Designing a lean patient intake process eliminating redundant data entry, reducing forms from 8 to 3, and cutting wait time by 60%." .
+
+dlss:M42-EXER1
+  a dlss:Exercise ;
+  dlss:title "Waste Walk and Lean Design" ;
+  dlss:text "Perform a waste analysis on your capstone design. Identify all 8 wastes and propose at least 5 design changes to eliminate them." ;
+  dlss:estimatedMinutes 25 .
+
+# --- M43: Design for Manufacture and Assembly (DfM) ---
+
+dlss:M43
+  a dlss:Module ;
+  dlss:code "M43" ;
+  dlss:title "Design for Manufacture and Assembly (DfM)" ;
+  dlss:moduleOrder 9 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Apply DfMA principles to minimize manufacturing and assembly costs while maintaining quality through part count reduction and process compatibility." ;
+  dlss:hasPrerequisite dlss:M35 ;
+  dlss:hasObjective dlss:M43-LO1, dlss:M43-LO2, dlss:M43-LO3 ;
+  dlss:hasExample dlss:M43-EX1, dlss:M43-EX2 ;
+  dlss:hasExercise dlss:M43-EXER1 .
+
+dlss:M43-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Apply Boothroyd-Dewhurst DfMA methodology to estimate assembly time and identify part reduction opportunities." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M43-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Evaluate design alternatives using DfMA efficiency metrics including theoretical minimum part count." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M43-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Select manufacturing processes based on design requirements using process-material compatibility matrices." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:M43-EX1
+  a dlss:Example ;
+  dlss:title "Power Tool Housing DfMA" ;
+  dlss:context "Product Development" ;
+  dlss:description "DfMA analysis of a drill housing reducing assembly from 12 parts to 4 parts, saving $2.30 per unit." .
+
+dlss:M43-EX2
+  a dlss:Example ;
+  dlss:title "Food Packaging Line DfA" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Design for Assembly applied to a new packaging line reducing changeover time from 45 minutes to 8 minutes." .
+
+dlss:M43-EXER1
+  a dlss:Exercise ;
+  dlss:title "DfMA Analysis" ;
+  dlss:text "Perform a DfMA analysis on the provided product assembly. Calculate the theoretical minimum part count, DfMA efficiency, and propose 3 part reduction opportunities." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M44: Introduction to Reliability ---
+
+dlss:M44
+  a dlss:Module ;
+  dlss:code "M44" ;
+  dlss:title "Introduction to Reliability" ;
+  dlss:moduleOrder 10 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Master reliability engineering fundamentals including failure rate modeling, MTBF, Weibull analysis, and reliability prediction for new designs." ;
+  dlss:hasPrerequisite dlss:M34 ;
+  dlss:hasObjective dlss:M44-LO1, dlss:M44-LO2, dlss:M44-LO3 ;
+  dlss:hasExample dlss:M44-EX1, dlss:M44-EX2 ;
+  dlss:hasExercise dlss:M44-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M44-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Calculate and interpret MTBF, MTTF, and failure rate for series and parallel systems." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M44-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Fit Weibull distributions to life data and interpret shape (beta) and scale (eta) parameters." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M44-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Perform reliability prediction and allocate reliability targets across subsystems to meet system-level requirements." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M44-EX1
+  a dlss:Example ;
+  dlss:title "LED Lighting System Reliability" ;
+  dlss:context "Product Development" ;
+  dlss:description "Weibull analysis of LED failure data (beta=2.1, eta=45,000 hours) with reliability allocation across driver, heatsink, and LED array." .
+
+dlss:M44-EX2
+  a dlss:Example ;
+  dlss:title "Cloud Service Reliability Targeting" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Reliability allocation for a new cloud service targeting 99.95% uptime across compute, storage, and network components." .
+
+dlss:M44-EXER1
+  a dlss:Exercise ;
+  dlss:title "Weibull Analysis Lab" ;
+  dlss:text "Using the provided failure time data, fit a Weibull distribution in Minitab, estimate B10 life, and perform reliability allocation for a 3-component series system." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M45: DOE with Curvature and Center Points ---
+
+dlss:M45
+  a dlss:Module ;
+  dlss:code "M45" ;
+  dlss:title "DOE with Curvature and Center Points" ;
+  dlss:moduleOrder 11 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Add center points to factorial designs to detect curvature and assess the need for response surface methodology." ;
+  dlss:hasPrerequisite dlss:M38 ;
+  dlss:hasObjective dlss:M45-LO1, dlss:M45-LO2 ;
+  dlss:hasExample dlss:M45-EX1, dlss:M45-EX2 ;
+  dlss:hasExercise dlss:M45-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M45-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Add center points to a factorial design and test for curvature using the lack-of-fit test." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M45-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Determine when to transition from factorial to response surface designs based on curvature evidence." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:M45-EX1
+  a dlss:Example ;
+  dlss:title "Chemical Process Curvature Detection" ;
+  dlss:context "Product Development" ;
+  dlss:description "Adding 6 center points to a 2^3 DOE revealing significant curvature in yield response, prompting RSM follow-up." .
+
+dlss:M45-EX2
+  a dlss:Example ;
+  dlss:title "Service Quality Curvature Analysis" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Center point analysis in a customer satisfaction DOE showing non-linear relationship between wait time and satisfaction." .
+
+dlss:M45-EXER1
+  a dlss:Exercise ;
+  dlss:title "Center Point Analysis" ;
+  dlss:text "Analyze the provided factorial dataset with center points. Test for curvature, interpret the pure error vs. lack-of-fit, and recommend next experimental steps." ;
+  dlss:estimatedMinutes 25 .
+
+# --- M46: Conjoint Analysis ---
+
+dlss:M46
+  a dlss:Module ;
+  dlss:code "M46" ;
+  dlss:title "Conjoint Analysis" ;
+  dlss:moduleOrder 12 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Apply conjoint analysis to quantify customer preferences for product features and determine optimal feature combinations." ;
+  dlss:hasPrerequisite dlss:M11 ;
+  dlss:hasObjective dlss:M46-LO1, dlss:M46-LO2 ;
+  dlss:hasExample dlss:M46-EX1, dlss:M46-EX2 ;
+  dlss:hasExercise dlss:M46-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M46-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Design a conjoint study with appropriate attribute levels and profile generation." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:M46-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Interpret part-worth utilities and importance scores to prioritize feature investments." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M46-EX1
+  a dlss:Example ;
+  dlss:title "Smartphone Feature Conjoint Study" ;
+  dlss:context "Product Development" ;
+  dlss:description "Conjoint analysis of 5 smartphone attributes revealing battery life as the highest-importance feature at 28%." .
+
+dlss:M46-EX2
+  a dlss:Example ;
+  dlss:title "Banking Service Conjoint" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Conjoint study of 4 banking service attributes guiding the design of a new premium checking account." .
+
+dlss:M46-EXER1
+  a dlss:Exercise ;
+  dlss:title "Conjoint Analysis Workshop" ;
+  dlss:text "Using the provided conjoint survey data, compute part-worth utilities, importance scores, and determine the optimal feature profile for maximum customer preference." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M47: Mixture Designs ---
+
+dlss:M47
+  a dlss:Module ;
+  dlss:code "M47" ;
+  dlss:title "Mixture Designs" ;
+  dlss:moduleOrder 13 ;
+  dlss:duration "PT1H" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Design and analyze mixture experiments where the response depends on the proportions of components rather than their absolute amounts." ;
+  dlss:hasPrerequisite dlss:M38 ;
+  dlss:hasObjective dlss:M47-LO1, dlss:M47-LO2 ;
+  dlss:hasExample dlss:M47-EX1, dlss:M47-EX2 ;
+  dlss:hasExercise dlss:M47-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M47-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Design simplex-lattice and simplex-centroid mixture experiments for formulation optimization." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M47-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Interpret mixture contour plots and trace plots to identify optimal component proportions." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M47-EX1
+  a dlss:Example ;
+  dlss:title "Blended Fuel Optimization" ;
+  dlss:context "Product Development" ;
+  dlss:description "Simplex-centroid mixture design optimizing a 3-component fuel blend for maximum octane rating and minimum emissions." .
+
+dlss:M47-EX2
+  a dlss:Example ;
+  dlss:title "Workforce Scheduling Mix" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Mixture design optimizing the ratio of full-time, part-time, and contract workers to minimize cost while meeting service levels." .
+
+dlss:M47-EXER1
+  a dlss:Exercise ;
+  dlss:title "Mixture Design Lab" ;
+  dlss:text "Design and analyze a 3-component mixture experiment using the provided formulation data. Create contour plots and identify the optimal blend." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M48: Robust Design (Taguchi Methods) ---
+
+dlss:M48
+  a dlss:Module ;
+  dlss:code "M48" ;
+  dlss:title "Robust Design (Taguchi Methods)" ;
+  dlss:moduleOrder 14 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Apply Taguchi methods including signal-to-noise ratio optimization, inner/outer array designs, and parameter design for robust products and processes." ;
+  dlss:hasPrerequisite dlss:M39 ;
+  dlss:hasObjective dlss:M48-LO1, dlss:M48-LO2, dlss:M48-LO3 ;
+  dlss:hasExample dlss:M48-EX1, dlss:M48-EX2 ;
+  dlss:hasExercise dlss:M48-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M48-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Select and calculate appropriate signal-to-noise ratios (smaller-is-better, larger-is-better, nominal-is-best) for robustness optimization." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M48-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Design inner and outer array experiments to separate control factors from noise factors." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M48-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Perform two-step optimization: first minimize variability (S/N), then adjust mean to target." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M48-EX1
+  a dlss:Example ;
+  dlss:title "Injection Molding Robustness" ;
+  dlss:context "Product Development" ;
+  dlss:description "Taguchi parameter design for injection molding making part dimensions robust to ambient temperature and material batch variation." .
+
+dlss:M48-EX2
+  a dlss:Example ;
+  dlss:title "Call Center Robust Scheduling" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Robust design of call center staffing making service levels insensitive to call volume variability and agent absenteeism." .
+
+dlss:M48-EXER1
+  a dlss:Exercise ;
+  dlss:title "Taguchi Optimization Lab" ;
+  dlss:text "Using the provided inner/outer array dataset, calculate S/N ratios, identify optimal control factor settings, and verify with confirmation runs." ;
+  dlss:estimatedMinutes 35 .
+
+# --- M49: Response Surface Methodology (RSM) — Helicopter Simulation ---
+
+dlss:M49
+  a dlss:Module ;
+  dlss:code "M49" ;
+  dlss:title "Response Surface Methodology (RSM) - Helicopter Simulation" ;
+  dlss:moduleOrder 15 ;
+  dlss:duration "PT2H" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Apply central composite and Box-Behnken designs for response surface optimization, using a paper helicopter simulation for hands-on learning." ;
+  dlss:hasPrerequisite dlss:M45 ;
+  dlss:hasObjective dlss:M49-LO1, dlss:M49-LO2, dlss:M49-LO3 ;
+  dlss:hasExample dlss:M49-EX1, dlss:M49-EX2 ;
+  dlss:hasExercise dlss:M49-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M49-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Design a central composite design (CCD) with appropriate axial distance and center point replication." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M49-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Fit a second-order response surface model and identify the stationary point (maximum, minimum, or saddle)." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M49-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Use contour plots and optimization desirability functions to find factor settings that simultaneously optimize multiple responses." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M49-EX1
+  a dlss:Example ;
+  dlss:title "Chemical Process RSM Optimization" ;
+  dlss:context "Product Development" ;
+  dlss:description "CCD optimizing a chemical reaction with temperature and catalyst concentration, achieving 96.3% yield at the predicted optimum." .
+
+dlss:M49-EX2
+  a dlss:Example ;
+  dlss:title "Multi-Response Process Optimization" ;
+  dlss:context "New Process Design" ;
+  dlss:description "RSM optimizing a fulfillment process simultaneously for speed (minimize) and accuracy (maximize) using desirability functions." .
+
+dlss:M49-EXER1
+  a dlss:Exercise ;
+  dlss:title "Helicopter RSM Challenge" ;
+  dlss:text "Design and execute a CCD using paper helicopters with 3 factors (wing length, body width, paper clips). Fit a quadratic model, find the optimal design, and validate with 5 confirmation runs." ;
+  dlss:estimatedMinutes 50 .
+
+# ============================================================================
+# IMPLEMENT PHASE — 4 Modules (M50–M53)
+# ============================================================================
+
+# --- M50: Prototype and Pilot Testing ---
+
+dlss:M50
+  a dlss:Module ;
+  dlss:code "M50" ;
+  dlss:title "Prototype and Pilot Testing" ;
+  dlss:moduleOrder 1 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Plan and execute prototype and pilot testing programs to validate design performance under real-world conditions." ;
+  dlss:hasPrerequisite dlss:M35 ;
+  dlss:hasObjective dlss:M50-LO1, dlss:M50-LO2, dlss:M50-LO3 ;
+  dlss:hasExample dlss:M50-EX1, dlss:M50-EX2 ;
+  dlss:hasExercise dlss:M50-EXER1 .
+
+dlss:M50-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Design a prototype testing plan with success criteria, test conditions, sample sizes, and data collection protocols." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:M50-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Execute a pilot study and analyze results against design specifications using appropriate statistical methods." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M50-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Document lessons learned and design changes from prototype/pilot testing for final design iteration." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:M50-EX1
+  a dlss:Example ;
+  dlss:title "Medical Device Prototype Testing" ;
+  dlss:context "Product Development" ;
+  dlss:description "Prototype testing program for an insulin pump with 50 units tested across temperature, humidity, and usage conditions." .
+
+dlss:M50-EX2
+  a dlss:Example ;
+  dlss:title "Bank Branch Pilot Program" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Pilot of a new account opening process at 3 branches over 4 weeks, achieving 92% target compliance." .
+
+dlss:M50-EXER1
+  a dlss:Exercise ;
+  dlss:title "Prototype Test Plan" ;
+  dlss:text "Create a complete prototype/pilot test plan for your capstone design including test matrix, success criteria, sample size justification, and data analysis approach." ;
+  dlss:estimatedMinutes 30 .
+
+# --- M51: Statistical Process Control ---
+
+dlss:M51
+  a dlss:Module ;
+  dlss:code "M51" ;
+  dlss:title "Statistical Process Control" ;
+  dlss:moduleOrder 2 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Implement SPC systems for monitoring and controlling the new design/process during production and ongoing operation." ;
+  dlss:hasPrerequisite dlss:M16 ;
+  dlss:hasObjective dlss:M51-LO1, dlss:M51-LO2, dlss:M51-LO3 ;
+  dlss:hasExample dlss:M51-EX1, dlss:M51-EX2 ;
+  dlss:hasExercise dlss:M51-EXER1 ;
+  dlss:hasTool dlss:Minitab .
+
+dlss:M51-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Select and implement appropriate control charts for monitoring critical quality characteristics of the new design." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M51-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Calculate control limits using Phase I data and establish out-of-control action plans (OCAPs)." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M51-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Design a measurement frequency and sampling plan that balances detection speed with measurement cost." ;
+  dlss:bloomsLevel "Analyze" .
+
+dlss:M51-EX1
+  a dlss:Example ;
+  dlss:title "Automotive Parts SPC Implementation" ;
+  dlss:context "Product Development" ;
+  dlss:description "SPC system for critical brake rotor dimensions using X-bar/S charts with automated data collection and OCAPs." .
+
+dlss:M51-EX2
+  a dlss:Example ;
+  dlss:title "Insurance Claims SPC" ;
+  dlss:context "New Process Design" ;
+  dlss:description "SPC monitoring of claims processing with p-charts for error rate and I-MR charts for processing time." .
+
+dlss:M51-EXER1
+  a dlss:Exercise ;
+  dlss:title "SPC Implementation Plan" ;
+  dlss:text "Design a complete SPC implementation plan for your capstone project including chart selection, sampling plan, control limit calculations, and OCAPs for top 3 quality characteristics." ;
+  dlss:estimatedMinutes 35 .
+
+# --- M52: Implementation Planning and Change Management ---
+
+dlss:M52
+  a dlss:Module ;
+  dlss:code "M52" ;
+  dlss:title "Implementation Planning and Change Management" ;
+  dlss:moduleOrder 3 ;
+  dlss:duration "PT1H30M" ;
+  dlss:difficulty "Intermediate" ;
+  dlss:description "Develop comprehensive implementation plans and change management strategies to ensure successful deployment of the new design or process." ;
+  dlss:hasPrerequisite dlss:M50 ;
+  dlss:hasObjective dlss:M52-LO1, dlss:M52-LO2, dlss:M52-LO3 ;
+  dlss:hasExample dlss:M52-EX1, dlss:M52-EX2 ;
+  dlss:hasExercise dlss:M52-EXER1 .
+
+dlss:M52-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Create a detailed implementation plan with timeline, resource requirements, risk mitigation, and success metrics." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:M52-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Apply change management frameworks (ADKAR, Kotter's 8-Step) to drive organizational adoption of the new design." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:M52-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Design training programs and documentation to ensure sustainable knowledge transfer and process ownership." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:M52-EX1
+  a dlss:Example ;
+  dlss:title "New Product Launch Implementation" ;
+  dlss:context "Product Development" ;
+  dlss:description "Implementation plan for launching a new consumer product across 5 manufacturing sites with change management for 500+ operators." .
+
+dlss:M52-EX2
+  a dlss:Example ;
+  dlss:title "Hospital Process Change Management" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Change management plan for a new surgical workflow using Kotter's 8-Step model across 3 hospital departments." .
+
+dlss:M52-EXER1
+  a dlss:Exercise ;
+  dlss:title "Implementation Plan Development" ;
+  dlss:text "Develop a complete implementation plan for your capstone project including Gantt chart, resource plan, change management strategy, training plan, and risk mitigation." ;
+  dlss:estimatedMinutes 35 .
+
+# --- M53: DMEDI Capstone Project ---
+
+dlss:M53
+  a dlss:Module ;
+  dlss:code "M53" ;
+  dlss:title "DMEDI Capstone Project" ;
+  dlss:moduleOrder 4 ;
+  dlss:duration "PT4H" ;
+  dlss:difficulty "Advanced" ;
+  dlss:description "Integrative capstone project requiring application of all five DMEDI phases to a comprehensive design challenge." ;
+  dlss:hasPrerequisite dlss:M34, dlss:M49, dlss:M51 ;
+  dlss:hasObjective dlss:M53-LO1, dlss:M53-LO2, dlss:M53-LO3 ;
+  dlss:hasExercise dlss:M53-EXER1 ;
+  dlss:hasCheckpoint dlss:ImplementCheckpoint .
+
+dlss:M53-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Integrate all DMEDI phase deliverables into a comprehensive project portfolio demonstrating end-to-end design methodology application." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:M53-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Defend design decisions and statistical analyses to a review board using evidence-based reasoning." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:M53-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Quantify the business impact of the DLSS project including cost savings, quality improvement, and cycle time reduction." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:ImplementCheckpoint
+  a dlss:QualityCheckpoint ;
+  dlss:title "Implement Phase Tollgate" ;
+  dlss:description "Final assessment of all DMEDI deliverables including prototype validation, SPC plans, implementation roadmap, and business impact quantification." ;
+  dlss:passingScore 80 .
+
+dlss:M53-EXER1
+  a dlss:Exercise ;
+  dlss:title "DMEDI Capstone Presentation" ;
+  dlss:text "Present a 30-minute comprehensive DMEDI project review covering all 5 phases. Include statistical analyses, design decisions, validation results, and quantified business impact." ;
+  dlss:estimatedMinutes 240 .
+
+# ============================================================================
+# CAPSTONE PROJECT
+# ============================================================================
+
+dlss:DMEDICapstone
+  a dlss:CapstoneProject ;
+  dlss:title "DMEDI Capstone Project" ;
+  dlss:description "Integrative capstone requiring full DMEDI application. Students choose from three scenarios or propose their own project." ;
+  dlss:hasObjective dlss:Capstone-LO1, dlss:Capstone-LO2, dlss:Capstone-LO3 ;
+  dlss:hasExample dlss:Capstone-EX1, dlss:Capstone-EX2, dlss:Capstone-EX3 ;
+  dlss:estimatedMinutes 2400 ;
+  dlss:passingScore 80 .
+
+dlss:Capstone-LO1
+  a dlss:LearningObjective ;
+  dlss:text "Execute a complete DMEDI project from problem definition through implementation planning for a real-world design challenge." ;
+  dlss:bloomsLevel "Create" .
+
+dlss:Capstone-LO2
+  a dlss:LearningObjective ;
+  dlss:text "Apply statistical tools (DOE, regression, SPC, capability analysis) at appropriate DMEDI phases with correct interpretation." ;
+  dlss:bloomsLevel "Apply" .
+
+dlss:Capstone-LO3
+  a dlss:LearningObjective ;
+  dlss:text "Quantify and defend the projected business impact of the design using financial and operational metrics." ;
+  dlss:bloomsLevel "Evaluate" .
+
+dlss:Capstone-EX1
+  a dlss:Example ;
+  dlss:title "EV Battery Pack Design" ;
+  dlss:context "Product Development" ;
+  dlss:description "Design a next-generation electric vehicle battery pack achieving 400-mile range at $75/kWh target cost with 10-year warranty. Apply QFD, DOE for cell optimization, tolerance analysis, and reliability prediction." .
+
+dlss:Capstone-EX2
+  a dlss:Example ;
+  dlss:title "Hospital Patient Flow Optimization" ;
+  dlss:context "New Process Design" ;
+  dlss:description "Design a new emergency department patient flow process reducing average length-of-stay by 40% and door-to-provider time by 50%. Apply VoC, simulation, process DOE, and SPC." .
+
+dlss:Capstone-EX3
+  a dlss:Example ;
+  dlss:title "Software Feature Design" ;
+  dlss:context "Product Development" ;
+  dlss:description "Design a new AI-powered code review feature for a developer platform. Apply Kano analysis, conjoint analysis, A/B testing DOE, and reliability engineering for the ML model." .
