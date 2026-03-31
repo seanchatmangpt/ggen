@@ -1,9 +1,45 @@
-# ggen v6.0.0 - Rust Code Generation CLI
+# ggen v6.0.1 - Rust Code Generation CLI
 
 Specification-driven code generation from RDF ontologies. Formula: A = μ(O) - Code precipitates from RDF via five-stage pipeline (μ₁-μ₅).
 Stack: Rust 1.91.1 | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY | 30 crates | 87% test coverage
 
 ## Rules (see .claude/rules/ for details)
+
+---
+
+## Evidence-First Principle
+
+**ABSOLUTE RULE:** Never fabricate examples, OTEL traces, MCP schemas, or documentation.
+
+### Forbidden
+- Fabricating JSON schemas (read actual code first)
+- Making up OTEL traces (run with `RUST_LOG=trace`, capture real output)
+- Generic 5 Whys without real failure data (analyze actual logs/errors)
+- Template-filled documentation (do real investigation first)
+- Claiming features work without OTEL evidence
+
+### Required Workflow
+1. **Gather Evidence** — Read code, run tests, capture real OTEL output
+2. **Analyze** — 5 Whys on ACTUAL failures with real data
+3. **Document** — Write with real examples, actual file paths, real traces
+4. **Verify** — Prove claims with captured output/logs
+
+**Rule:** If you didn't read it from the codebase or capture it from execution, don't write it.
+
+---
+
+## Tool Restrictions
+
+### Forbidden Tools
+| Tool | Use Instead | Reason |
+|------|-------------|--------|
+| `mcp__desktop-commander__*` | `Read`, `Write`, `Edit`, `Glob`, `Grep`, `Bash` | Explicitly forbidden by user |
+
+### Approved Tools
+- File ops: `Read`, `Write`, `Edit`, `Glob`, `Grep`
+- Terminal: `Bash`
+- Rust navigation: `LSP` (rust-analyzer-lsp)
+- Agents: `Agent` tool (with output verification)
 
 ---
 
@@ -22,6 +58,9 @@ Stack: Rust 1.91.1 | Tokio | Oxigraph | Tera | Serde | Clap | Chicago TDD ONLY |
 | **Type-First** | Encode invariants in types. Compiler as design tool. |
 | **Definition of Done** | check + lint + test + slo-check + OTEL traces all pass. No signals. |
 | **OTEL Validation** | Verify spans/traces for LLM calls, external services, pipeline stages. |
+| **Correctness > Speed** | NEVER sacrifice accuracy for speed. Real evidence > fast output. |
+| **Evidence-First** | ALL docs/examples MUST reference actual code, real OTEL output, actual errors. No fabrication. |
+| **Agent Verification** | ALWAYS verify agent output before accepting. Read files, check for fabrication. |
 
 ## Commands
 
@@ -179,11 +218,24 @@ launch 20 agents to implement all changes
 ```
 
 **Auto-Resume:** State saved to `.claude/autonomous/workflow-state.json`. On restart, continues from last incomplete phase.
-**See:** `/home/user/ggen/.claude/autonomous/workflow-pattern.md` for templates and examples.
+**See:** `/Users/sac/ggen/.claude/autonomous/workflow-pattern.md` for templates and examples.
+
+### Agent Verification Protocol
+
+After agents complete, ALWAYS:
+1. **Read** each output file
+2. **Check** — Does it reference real code/files? Or is it generic/template?
+3. **Validate** — Are OTEL traces plausible? Cross-reference with actual code
+4. **Reject** — If fabricated, delete and redo with grounded prompts
+
+Before launching agents:
+- Provide actual context (file paths, real errors, actual OTEL output)
+- Include "read code first, use real examples only" in every agent prompt
+- Never ask agents to document features without pointing to real implementation
 
 ## Support
 
 - **Repository**: https://github.com/seanchatmangpt/ggen
-- **Documentation**: /home/user/ggen/docs/
-- **Detailed Rules**: /home/user/ggen/.claude/rules/
-- **Research**: /home/user/ggen/docs/research/
+- **Documentation**: /Users/sac/ggen/docs/
+- **Detailed Rules**: /Users/sac/ggen/.claude/rules/
+- **Research**: /Users/sac/ggen/docs/research/

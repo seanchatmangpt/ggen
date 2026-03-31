@@ -99,10 +99,7 @@ impl PinningManager {
 
     /// Add a certificate pin
     pub fn add_pin(&mut self, pin: CertificatePin) {
-        self.pins
-            .entry(pin.hostname.clone())
-            .or_default()
-            .push(pin);
+        self.pins.entry(pin.hostname.clone()).or_default().push(pin);
     }
 
     /// Add multiple pins

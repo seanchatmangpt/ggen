@@ -744,7 +744,8 @@ async fn test_phase_e_to_f_integration() {
     let _router = MessageRouter::with_defaults();
 
     // Phase E: Select solution for Core Banking gap
-    let core_banking_alternatives = [SolutionAlternative {
+    let core_banking_alternatives = [
+        SolutionAlternative {
             name: "Package Solution".to_string(),
             approach: ApproachType::BuyPackage,
             estimated_cost: 15000,
@@ -759,7 +760,8 @@ async fn test_phase_e_to_f_integration() {
             time_to_implement: 36,
             fibo_alignment: 98,
             risk_level: RiskLevel::High,
-        }];
+        },
+    ];
 
     // Select FIBO-native solution (higher alignment)
     let selected = &core_banking_alternatives[1];

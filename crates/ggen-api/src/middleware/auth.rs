@@ -19,9 +19,7 @@ pub struct User {
 }
 
 /// Middleware to verify JWT tokens
-pub async fn verify_jwt(
-    State(_state): State<AppState>, request: Request, next: Next,
-) -> Response {
+pub async fn verify_jwt(State(_state): State<AppState>, request: Request, next: Next) -> Response {
     // TODO: Extract Authorization header
     // TODO: Verify JWT signature
     // TODO: Check expiration

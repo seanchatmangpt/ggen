@@ -55,7 +55,6 @@ fn test_lifecycle() -> MessageLifecycle {
 fn make_text_message(
     id: &str, source: &str, content: &str, correlation_id: Option<&str>,
 ) -> ConvergedMessage {
-    
     ConvergedMessage {
         message_id: id.to_string(),
         source: source.to_string(),
@@ -280,7 +279,9 @@ async fn test_a2a_multi_step_workflow_lifecycle() {
         let event_msg = publisher
             .publish_task_event(workflow_id, task_id, old_state, new_state)
             .await
-            .unwrap_or_else(|_| panic!("publish_task_event({old_state} -> {new_state}) should succeed"));
+            .unwrap_or_else(|_| {
+                panic!("publish_task_event({old_state} -> {new_state}) should succeed")
+            });
 
         // Assert event type is Event
         assert_eq!(

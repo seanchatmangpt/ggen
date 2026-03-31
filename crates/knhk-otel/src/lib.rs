@@ -668,31 +668,6 @@ impl MetricsHelper {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_tracer_span() {
-        let mut tracer = Tracer::new();
-        let context = tracer.start_span("test_span".to_string(), None);
-
-        tracer.add_attribute(&context, "key".to_string(), "value".to_string());
-        tracer.end_span(&context, SpanStatus::Ok);
-
-        assert_eq!(tracer.spans().len(), 1);
-    }
-
-    #[test]
-    fn test_metrics_recording() {
-        let mut tracer = Tracer::new();
-        MetricsHelper::record_hook_latency(&mut tracer, 5, "ASK_SP");
-        MetricsHelper::record_receipt(&mut tracer, "receipt1");
-
-        assert_eq!(tracer.metrics().len(), 2);
-    }
-}
-
 // Helper functions for generating IDs and timestamps
 
 /// Simple hasher for no_std environments
@@ -807,6 +782,31 @@ fn get_timestamp_ms() -> u64 {
         // For no_std, return 0 as placeholder
         // In production, use a no_std-compatible time source
         0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_tracer_span() {
+        let mut tracer = Tracer::new();
+        let context = tracer.start_span("test_span".to_string(), None);
+
+        tracer.add_attribute(&context, "key".to_string(), "value".to_string());
+        tracer.end_span(&context, SpanStatus::Ok);
+
+        assert_eq!(tracer.spans().len(), 1);
+    }
+
+    #[test]
+    fn test_metrics_recording() {
+        let mut tracer = Tracer::new();
+        MetricsHelper::record_hook_latency(&mut tracer, 5, "ASK_SP");
+        MetricsHelper::record_receipt(&mut tracer, "receipt1");
+
+        assert_eq!(tracer.metrics().len(), 2);
     }
 }
 

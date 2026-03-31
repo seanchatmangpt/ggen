@@ -52,7 +52,7 @@ impl SelfPlayBridge {
             let _ = server.serve(server_transport).await;
         });
 
-        let mcp_client = TestClientHandler::default().serve(client_transport).await?;
+        let mcp_client = TestClientHandler.serve(client_transport).await?;
 
         let mut router = MessageRouter::with_defaults();
         // Register a text handler so Direct/Task/Query messages can be routed
@@ -131,7 +131,7 @@ async fn test_full_pipeline_scaffold_and_generate() -> anyhow::Result<()> {
     let examples_dir = "/Users/sac/ggen/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
-    let result = (|| async {
+    let result = async {
         let tempdir = tempfile::tempdir()?;
 
         // 1. list_examples and find a2a-groq-agent
@@ -224,7 +224,7 @@ async fn test_full_pipeline_scaffold_and_generate() -> anyhow::Result<()> {
         );
 
         Ok::<(), anyhow::Error>(())
-    })()
+    }
     .await;
 
     bridge.shutdown().await?;
@@ -240,7 +240,7 @@ async fn test_full_pipeline_custom_ontology() -> anyhow::Result<()> {
     let examples_dir = "/Users/sac/ggen/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
-    let result = (|| async {
+    let result = async {
         let custom_ttl = r#"@prefix ex: <http://example.org/> .
 ex:Book a ex:Work ;
     ex:title "The Chatman Equation" ;
@@ -308,7 +308,7 @@ ex:Course a ex:Work ;
         );
 
         Ok::<(), anyhow::Error>(())
-    })()
+    }
     .await;
 
     bridge.shutdown().await?;
@@ -324,7 +324,7 @@ async fn test_full_pipeline_multi_agent() -> anyhow::Result<()> {
     let examples_dir = "/Users/sac/ggen/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
-    let result = (|| async {
+    let result = async {
         let tempdir = tempfile::tempdir()?;
         let target_dir = tempdir.path().to_string_lossy().to_string();
 
@@ -401,7 +401,7 @@ async fn test_full_pipeline_multi_agent() -> anyhow::Result<()> {
         );
 
         Ok::<(), anyhow::Error>(())
-    })()
+    }
     .await;
 
     bridge.shutdown().await?;
@@ -417,7 +417,7 @@ async fn test_full_pipeline_error_recovery() -> anyhow::Result<()> {
     let examples_dir = "/Users/sac/ggen/examples";
     let bridge = SelfPlayBridge::new(examples_dir).await?;
 
-    let result = (|| async {
+    let result = async {
         // Step 1: Validate broken TTL -- should produce an error
         let broken_ttl = "@prefix ex: <http://example.org/> . ex:Broken .";
         let validate_args = serde_json::json!({ "ttl": broken_ttl })
@@ -484,7 +484,7 @@ async fn test_full_pipeline_error_recovery() -> anyhow::Result<()> {
         );
 
         Ok::<(), anyhow::Error>(())
-    })()
+    }
     .await;
 
     bridge.shutdown().await?;
@@ -500,7 +500,7 @@ async fn test_full_pipeline_concurrent_generation() -> anyhow::Result<()> {
     let examples_dir = "/Users/sac/ggen/examples";
     let bridge = Arc::new(SelfPlayBridge::new(examples_dir).await?);
 
-    let result = (|| async {
+    let result = async {
         // Step 1: list_examples to discover example names
         let list_json = bridge
             .call_mcp_tool("list_examples", serde_json::Map::new())
@@ -576,7 +576,7 @@ async fn test_full_pipeline_concurrent_generation() -> anyhow::Result<()> {
         );
 
         Ok::<(), anyhow::Error>(())
-    })()
+    }
     .await;
 
     // Destructure Arc to get the bridge back for shutdown

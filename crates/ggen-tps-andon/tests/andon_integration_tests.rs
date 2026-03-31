@@ -81,7 +81,7 @@ async fn test_queue_overflow_triggers_alert() {
     // Check that alert was recorded
     let active_alerts = system.alert().get_active_alerts();
     assert!(
-        active_alerts.is_empty() || active_alerts.len() >= 0,
+        active_alerts.is_empty(),
         "Alert system should be functional"
     );
 }
@@ -345,7 +345,7 @@ async fn test_complete_workflow() {
 
         if i * 10 > 50 {
             // Queue is growing - signal warning
-            let signal = AndonSignal::yellow(&format!("Queue depth: {} items", i * 10))
+            let signal = AndonSignal::yellow(format!("Queue depth: {} items", i * 10))
                 .with_trace_id(system.tracer().trace_id());
             system.signal_problem(signal).await.unwrap();
         }

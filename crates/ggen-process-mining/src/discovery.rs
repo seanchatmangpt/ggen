@@ -247,7 +247,8 @@ impl AlphaPlusPlus {
         let mut unrelated: HashSet<(String, String)> = HashSet::new();
 
         let activities = log.unique_activities();
-        let _activity_set: HashSet<&str> = activities.iter().map(std::string::String::as_str).collect();
+        let _activity_set: HashSet<&str> =
+            activities.iter().map(std::string::String::as_str).collect();
 
         // Build direct succession matrix
         for trace in &log.traces {
@@ -305,8 +306,8 @@ impl AlphaPlusPlus {
         // For each causal relation, create a place
         let mut place_index = 0;
         for (input, output) in &relations.causal {
-            let place = Place::new(format!("p_{place_index}"))
-                .with_label(format!("{input}_to_{output}"));
+            let place =
+                Place::new(format!("p_{place_index}")).with_label(format!("{input}_to_{output}"));
             places.push(place);
             place_index += 1;
         }
@@ -315,8 +316,8 @@ impl AlphaPlusPlus {
         for (a, b) in &relations.parallel {
             // Only process half of the parallel pairs to avoid duplicates
             if a < b {
-                let place = Place::new(format!("p_{place_index}"))
-                    .with_label(format!("parallel_{a}_{b}"));
+                let place =
+                    Place::new(format!("p_{place_index}")).with_label(format!("parallel_{a}_{b}"));
                 places.push(place);
                 place_index += 1;
             }
