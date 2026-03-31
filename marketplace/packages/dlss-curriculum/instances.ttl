@@ -26,7 +26,7 @@ dlss:DLSSBlackBeltCourse
 
 dlss:M1
   a dlss:Module ;
-  dlss:code "M1" ;
+  dlss:code "M01" ;
   dlss:title "Introduction to DLSS and DMEDI Overview" ;
   dlss:moduleOrder 1 ;
   dlss:duration "PT1H30M" ;
@@ -73,7 +73,7 @@ dlss:M1-EXER1
 
 dlss:M2
   a dlss:Module ;
-  dlss:code "M2" ;
+  dlss:code "M02" ;
   dlss:title "Project Charter and MGPP" ;
   dlss:moduleOrder 2 ;
   dlss:duration "PT1H30M" ;
@@ -121,7 +121,7 @@ dlss:M2-EXER1
 
 dlss:M3
   a dlss:Module ;
-  dlss:code "M3" ;
+  dlss:code "M03" ;
   dlss:title "Quality Function Deployment (QFD)" ;
   dlss:moduleOrder 3 ;
   dlss:duration "PT2H" ;
@@ -170,7 +170,7 @@ dlss:M3-EXER1
 
 dlss:M4
   a dlss:Module ;
-  dlss:code "M4" ;
+  dlss:code "M04" ;
   dlss:title "Target Costing" ;
   dlss:moduleOrder 4 ;
   dlss:duration "PT1H" ;
@@ -213,7 +213,7 @@ dlss:M4-EXER1
 
 dlss:M5
   a dlss:Module ;
-  dlss:code "M5" ;
+  dlss:code "M05" ;
   dlss:title "Risk Management" ;
   dlss:moduleOrder 5 ;
   dlss:duration "PT1H" ;
@@ -261,7 +261,7 @@ dlss:M5-EXER1
 
 dlss:M6
   a dlss:Module ;
-  dlss:code "M6" ;
+  dlss:code "M06" ;
   dlss:title "Communication Plan" ;
   dlss:moduleOrder 6 ;
   dlss:duration "PT45M" ;
@@ -304,7 +304,7 @@ dlss:M6-EXER1
 
 dlss:M7
   a dlss:Module ;
-  dlss:code "M7" ;
+  dlss:code "M07" ;
   dlss:title "Team Formation and Roles" ;
   dlss:moduleOrder 7 ;
   dlss:duration "PT45M" ;
@@ -347,7 +347,7 @@ dlss:M7-EXER1
 
 dlss:M8
   a dlss:Module ;
-  dlss:code "M8" ;
+  dlss:code "M08" ;
   dlss:title "CTQ Trees and Flowdowns" ;
   dlss:moduleOrder 8 ;
   dlss:duration "PT1H30M" ;
@@ -395,7 +395,7 @@ dlss:M8-EXER1
 
 dlss:M9
   a dlss:Module ;
-  dlss:code "M9" ;
+  dlss:code "M09" ;
   dlss:title "Define Phase Review" ;
   dlss:moduleOrder 9 ;
   dlss:duration "PT1H" ;

@@ -16,34 +16,46 @@
 
 {{ description }}
 
-## Timing Guide
+## Facilitation Notes
 
-| Segment | Duration | Activity |
-|---------|----------|----------|
-| Opening | 5 min | Welcome, agenda review, connect to prior learning |
-| Theory Presentation | 30 min | Key concepts and statistical foundations |
-| Software Demonstration | 15 min | Live walkthrough in Minitab/JMP/R |
-| Guided Exercise | 20 min | Students work through exercise with instructor support |
-| Independent Practice | 15 min | Students complete exercise independently |
-| Review and Q&A | 5 min | Debrief, address questions, preview next module |
-| **Total** | **90 min** |
-
-## Facilitation Tips
-
-1. **Start with the "why"** — connect each concept to a real problem
-2. **Alternate between tracks** — Product Development and New Process Design examples
-3. **Use software live** — demonstrate statistical tools in real-time
-4. **Check for understanding** — quick polls after each major concept
-5. **Pace for exercises** — circulate and identify struggling students early
+{% if difficulty == "Introductory" %}
+- **Start with intuition** — use a real-world analogy before introducing formal methods
+- **Pace for questions** — introductory audiences need more processing time
+- **Pair activity** — have students discuss concepts in pairs before group share
+{% elif difficulty == "Intermediate" %}
+- **Build on prior modules** — reference tools and concepts from earlier phases
+- **Use software live** — demonstrate in Minitab/JMP, then have students replicate
+- **Check for understanding** — quick polls or show-of-hands after each major concept
+{% else %}
+- **Focus on decision-making** — emphasize when and why to use each tool, not just how
+- **Challenge assumptions** — present edge cases and ask students to identify the approach
+- **Connect to capstone** — have students map techniques directly to their capstone project
+{% endif %}
 
 ## Common Issues and Resolutions
 
+{% if difficulty == "Introductory" %}
 | Issue | Resolution |
 |-------|------------|
-| Software not installed | Use cloud-based Minitab Express or RStudio Cloud |
-| Students falling behind | Pair struggling students with advanced peers |
-| Exercise data errors | Provide pre-loaded datasets and verify checksums |
-| Time running short | Prioritize guided exercise over independent practice |
+| Students overwhelmed by terminology | Provide a glossary handout; pause for questions after each new term |
+| Software not installed | Use cloud-based Minitab Express or pre-configured RStudio Cloud |
+| Exercises too slow | Provide partially completed templates for students to finish |
+
+{% elif difficulty == "Intermediate" %}
+| Issue | Resolution |
+|-------|------------|
+| Incorrect tool selection | Review the decision flowchart; use a "which tool when" reference card |
+| Statistical assumptions violated | Teach assumption-checking procedures before each analysis |
+| Results don't match expected | Have students verify data entry and check for outliers first |
+
+{% else %}
+| Issue | Resolution |
+|-------|------------|
+| Over-reliance on p-values | Emphasize practical significance and effect sizes alongside statistical tests |
+| DOE designs too complex | Start with 2-factor full factorial, then build up to fractional designs |
+| Capstone integration unclear | Provide a DMEDI deliverables checklist mapped to specific modules |
+
+{% endif %}
 
 ---
 

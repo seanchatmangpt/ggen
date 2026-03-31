@@ -19,19 +19,34 @@
 | **Title** | {{ title }} |
 | **Duration** | {{ duration }} |
 
-## Phase Details
-
-The {{ title }} phase focuses on:
-
-{{ description }}
-
 ## Transition Criteria
 
-Before proceeding to the next phase, participants should demonstrate:
-
-- Completion of all module exercises
-- Understanding of key concepts through checkpoint assessments
-- Ability to apply tools and methods to their capstone project
+{% if phaseOrder == "1" %}
+Before proceeding to Measure, participants should demonstrate:
+- Approved project charter with clearly defined problem and scope
+- Documented MGPP with measurable goals and timeline
+- Completed stakeholder analysis and communication plan
+{% elif phaseOrder == "2" %}
+Before proceeding to Explore, participants should demonstrate:
+- Validated measurement system (MSA Gage R&R < 30%)
+- Baseline process capability (Cpk documented)
+- Completed QFD with customer requirements mapped to technical specs
+{% elif phaseOrder == "3" %}
+Before proceeding to Develop, participants should demonstrate:
+- Completed concept selection (Pugh matrix or AHP) with rationale
+- Statistical analysis supporting design decisions
+- Design FMEA with RPN prioritization of failure modes
+{% elif phaseOrder == "4" %}
+Before proceeding to Implement, participants should demonstrate:
+- Validated DOE results with confirmation runs
+- Optimized design parameters from RSM
+- Reliability prediction meeting targets
+{% elif phaseOrder == "5" %}
+Before final certification, participants should demonstrate:
+- Successful prototype/pilot with measured improvements
+- Statistical process control charts established
+- Comprehensive capstone report with business impact quantified
+{% endif %}
 
 ## Quality Checkpoints
 
