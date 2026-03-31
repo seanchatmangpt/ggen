@@ -48,6 +48,7 @@
 //! ```
 
 pub mod checks;
+pub mod compile_gate;
 pub mod error;
 pub mod gate;
 pub mod input; // Week 4: Comprehensive input validation framework
@@ -65,6 +66,7 @@ mod tests;
 
 // Re-export public API
 pub use checks::{Check, CheckError, CompilationCheck, LintCheck, SecurityCheck, TestCheck};
+pub use compile_gate::{CompileGate, CompileResult};
 pub use error::{Result, ValidationError};
 pub use gate::{CheckResult, QualityGate, QualityGateResult};
 pub use preflight::{PreFlightResult, PreFlightValidator};
