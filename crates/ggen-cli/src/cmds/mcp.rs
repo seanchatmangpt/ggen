@@ -1207,3 +1207,77 @@ fn groq_stream(
 
     Ok(chunks)
 }
+
+// ============================================================================
+// MCP Generate Verb
+// ============================================================================
+
+/// Output for the `ggen mcp generate` command
+#[derive(Serialize)]
+struct McpGenerateOutput {
+    ontology_path: String,
+    output_dir: String,
+    skip_compile_gate: bool,
+    status: String,
+    message: String,
+}
+
+/// Generate an MCP server from an ontology TTL file
+///
+/// This command runs the MCP generation pipeline, producing tool definitions
+/// and server scaffolding from RDF ontology specifications.
+///
+/// # Pipeline Stages (planned)
+///
+/// 1. Load ontology from TTL file
+/// 2. Extract MCP tool definitions from ontology classes/properties
+/// 3. Generate Rust source code for MCP tools
+/// 4. Optionally run compile gate
+/// 5. Emit generated files to output directory
+///
+/// Currently prints the planned pipeline stages; actual generation
+/// is wired in a separate task.
+#[verb]
+fn generate(
+    ontology: String, output: Option<String>, skip_compile_gate: bool,
+) -> VerbResult<McpGenerateOutput> {
+    let ontology_path = std::path::PathBuf::from(&ontology);
+
+    // Validate ontology file exists (Chicago TDD: real filesystem check)
+    if !ontology_path.exists() {
+        return Err(clap_noun_verb::NounVerbError::argument_error(format!(
+            "Ontology file not found: {}",
+            ontology_path.display()
+        )));
+    }
+
+    let output_dir = output.map(std::path::PathBuf::from).unwrap_or_else(|| {
+        std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."))
+    });
+
+    // Pipeline stages (planned — actual integration is a separate task)
+    let stages = vec![
+        "1. Load ontology from TTL file",
+        "2. Extract MCP tool definitions from ontology classes/properties",
+        "3. Generate Rust source code for MCP tools",
+        if skip_compile_gate {
+            "4. Compile gate: SKIPPED (--skip-compile-gate)"
+        } else {
+            "4. Run compile gate validation"
+        },
+        "5. Emit generated files to output directory",
+    ];
+
+    for stage in &stages {
+        println!("  {}", stage);
+    }
+
+    Ok(McpGenerateOutput {
+        ontology_path: ontology_path.display().to_string(),
+        output_dir: output_dir.display().to_string(),
+        skip_compile_gate,
+        status: "planned".to_string(),
+        message: "MCP generation pipeline staged. Actual generation is wired in a separate task."
+            .to_string(),
+    })
+}
