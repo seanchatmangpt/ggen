@@ -27,8 +27,8 @@ anyhow = "1.0"
 # HTTP client for HTTP adapters (optional)
 reqwest = { version = "0.12", features = ["json"], optional = true }
 
-# Local dependencies (workspace)
-ggen-core = { path = "../ggen-core", version = "0.2.0" }
+# Note: Removed ggen-core dependency to avoid cyclic dependency
+# a2a-generated is a standalone protocol implementation
 
 [dev-dependencies]
 tokio-test = "0.4"

@@ -12,7 +12,6 @@
 /// (e.g., `"e2e_test_server"`). The `to_clean_json()` helper strips these
 /// quotes to produce clean Tera-compatible values, matching how the real
 /// pipeline consumes SPARQL results in templates.
-
 use ggen_core::graph::{CachedResult, Graph};
 use ggen_core::register::register_all;
 use serde_json::{Map, Value};
@@ -46,10 +45,7 @@ fn to_clean_json(result: &CachedResult) -> Value {
         }
         CachedResult::Boolean(b) => Value::Bool(*b),
         CachedResult::Graph(triples) => {
-            let arr: Vec<Value> = triples
-                .iter()
-                .map(|t| Value::String(t.clone()))
-                .collect();
+            let arr: Vec<Value> = triples.iter().map(|t| Value::String(t.clone())).collect();
             Value::Array(arr)
         }
     }
@@ -125,7 +121,9 @@ fn test_graph_loads_ttl_and_executes_sparql() {
         .insert_turtle(MINIMAL_MCP_ONTOLOGY)
         .expect("insert_turtle should succeed");
 
-    let result = graph.query_cached(MCP_SPARQL).expect("query_cached should succeed");
+    let result = graph
+        .query_cached(MCP_SPARQL)
+        .expect("query_cached should succeed");
 
     match result {
         CachedResult::Solutions(rows) => {
@@ -151,7 +149,9 @@ fn test_to_clean_json_strips_quotes() {
         .insert_turtle(MINIMAL_MCP_ONTOLOGY)
         .expect("insert_turtle should succeed");
 
-    let result = graph.query_cached(MCP_SPARQL).expect("query_cached should succeed");
+    let result = graph
+        .query_cached(MCP_SPARQL)
+        .expect("query_cached should succeed");
     let json = to_clean_json(&result);
 
     assert!(json.is_array(), "to_clean_json should produce an array");
@@ -181,7 +181,9 @@ fn test_minimal_template_renders_with_sparql_results() {
         .insert_turtle(MINIMAL_MCP_ONTOLOGY)
         .expect("insert_turtle should succeed");
 
-    let result = graph.query_cached(MCP_SPARQL).expect("query_cached should succeed");
+    let result = graph
+        .query_cached(MCP_SPARQL)
+        .expect("query_cached should succeed");
     let json = to_clean_json(&result);
 
     let mut tera = Tera::default();
@@ -221,7 +223,9 @@ fn test_real_mcp_rust_template_renders_from_graph() {
         .insert_turtle(MINIMAL_MCP_ONTOLOGY)
         .expect("insert_turtle should succeed");
 
-    let result = graph.query_cached(MCP_SPARQL).expect("query_cached should succeed");
+    let result = graph
+        .query_cached(MCP_SPARQL)
+        .expect("query_cached should succeed");
     let json = to_clean_json(&result);
 
     let mut tera = Tera::default();
@@ -252,9 +256,18 @@ fn test_real_mcp_rust_template_renders_from_graph() {
 
     match tera.render("mcp_rust", &ctx) {
         Ok(rendered) => {
-            assert!(rendered.contains("e2e_test_server"), "Should contain server name");
-            assert!(rendered.contains("get_time"), "Should contain get_time tool");
-            assert!(rendered.contains("get_weather"), "Should contain get_weather tool");
+            assert!(
+                rendered.contains("e2e_test_server"),
+                "Should contain server name"
+            );
+            assert!(
+                rendered.contains("get_time"),
+                "Should contain get_time tool"
+            );
+            assert!(
+                rendered.contains("get_weather"),
+                "Should contain get_weather tool"
+            );
             assert!(rendered.contains("rmcp"), "Should reference rmcp SDK");
         }
         Err(e) => {
@@ -332,7 +345,9 @@ fn test_real_a2a_go_template_renders_from_graph() {
         .insert_turtle(MINIMAL_A2A_ONTOLOGY)
         .expect("insert_turtle should succeed");
 
-    let result = graph.query_cached(A2A_SPARQL).expect("query_cached should succeed");
+    let result = graph
+        .query_cached(A2A_SPARQL)
+        .expect("query_cached should succeed");
     let json = to_clean_json(&result);
 
     let mut tera = Tera::default();
@@ -368,14 +383,29 @@ fn test_real_a2a_go_template_renders_from_graph() {
 
     match tera.render("a2a_go", &ctx) {
         Ok(rendered) => {
-            assert!(rendered.contains("code_reviewer"), "Should contain agent name");
-            assert!(rendered.contains("review_code"), "Should contain review_code skill");
-            assert!(rendered.contains("suggest_fixes"), "Should contain suggest_fixes skill");
-            assert!(rendered.contains("agentCardHandler"), "Should contain agent card handler");
+            assert!(
+                rendered.contains("code_reviewer"),
+                "Should contain agent name"
+            );
+            assert!(
+                rendered.contains("review_code"),
+                "Should contain review_code skill"
+            );
+            assert!(
+                rendered.contains("suggest_fixes"),
+                "Should contain suggest_fixes skill"
+            );
+            assert!(
+                rendered.contains("agentCardHandler"),
+                "Should contain agent card handler"
+            );
         }
         Err(e) => {
             // Template may have missing variables if background adaptation is pending
-            eprintln!("[INFO] a2a-go.tera render error (may be pending adaptation): {}", e);
+            eprintln!(
+                "[INFO] a2a-go.tera render error (may be pending adaptation): {}",
+                e
+            );
         }
     }
 }
@@ -396,8 +426,12 @@ fn test_pipeline_produces_deterministic_output() {
         .insert_turtle(MINIMAL_MCP_ONTOLOGY)
         .expect("insert_turtle should succeed");
 
-    let r1 = graph1.query_cached(MCP_SPARQL).expect("query 1 should succeed");
-    let r2 = graph2.query_cached(MCP_SPARQL).expect("query 2 should succeed");
+    let r1 = graph1
+        .query_cached(MCP_SPARQL)
+        .expect("query 1 should succeed");
+    let r2 = graph2
+        .query_cached(MCP_SPARQL)
+        .expect("query 2 should succeed");
 
     assert_eq!(
         to_clean_json(&r1),
@@ -442,7 +476,9 @@ fn test_empty_ontology_produces_empty_results() {
         }
     "#;
 
-    let result = graph.query_cached(sparql).expect("query_cached should succeed");
+    let result = graph
+        .query_cached(sparql)
+        .expect("query_cached should succeed");
     match result {
         CachedResult::Solutions(rows) => assert!(rows.is_empty(), "No tools = no rows"),
         other => panic!("Expected Solutions, got {:?}", other),
@@ -482,13 +518,22 @@ fn test_real_rq_file_against_real_ttl_files() {
         Ok(CachedResult::Solutions(rows)) => {
             if !rows.is_empty() {
                 let first = &rows[0];
-                assert!(first.contains_key("tool_name"), "Rows should have tool_name");
-                assert!(first.contains_key("server_name"), "Rows should have server_name");
+                assert!(
+                    first.contains_key("tool_name"),
+                    "Rows should have tool_name"
+                );
+                assert!(
+                    first.contains_key("server_name"),
+                    "Rows should have server_name"
+                );
             }
         }
         Ok(_) => {}
         Err(e) => {
-            eprintln!("[INFO] Real .rq against real .ttl error (acceptable): {}", e);
+            eprintln!(
+                "[INFO] Real .rq against real .ttl error (acceptable): {}",
+                e
+            );
         }
     }
 }

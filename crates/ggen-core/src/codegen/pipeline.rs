@@ -14,7 +14,149 @@ use ggen_utils::error::{Error, Result};
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex};
 use std::time::Instant;
+
+// ============================================================================
+// LLM Service Trait (Dependency Injection)
+// ============================================================================
+
+/// Trait for LLM-based code generation services.
+///
+/// This trait allows injecting LLM functionality from the CLI layer
+/// (ggen-cli depends on ggen-ai, avoiding cyclic dependency with ggen-core).
+///
+/// # Architecture Note
+/// ggen-core cannot depend on ggen-ai (would create cyclic dependency).
+/// Implementations of this trait should be provided by ggen-cli or ggen-ai.
+pub trait LlmService: Send + Sync {
+    /// Generate skill implementation code using LLM.
+    ///
+    /// # Arguments
+    /// * `skill_name` - Name of the skill to implement
+    /// * `system_prompt` - Description of what the skill does
+    /// * `implementation_hint` - Hint about how to implement it
+    /// * `language` - Target programming language (rust, elixir, typescript, etc.)
+    ///
+    /// # Returns
+    /// * `Ok(String)` - Generated implementation code
+    /// * `Err(Box<dyn Error>)` - Generation failed
+    fn generate_skill_impl(
+        &self, skill_name: &str, system_prompt: &str, implementation_hint: &str, language: &str,
+    ) -> std::result::Result<String, Box<dyn std::error::Error + Send + Sync>>;
+
+    /// Clone the service for use in async contexts
+    fn clone_box(&self) -> Box<dyn LlmService>;
+}
+
+// ============================================================================
+// Global LLM Service Storage
+// ============================================================================
+
+/// Global LLM service slot for dependency injection from CLI layer.
+///
+/// This allows the CLI to set an LLM service that can be used by the codegen
+/// pipeline without creating a cyclic dependency (ggen-core → ggen-ai).
+///
+/// # Thread Safety
+/// Uses Arc<Mutex<>> for safe concurrent access from multiple threads.
+///
+/// # Example
+/// ```rust
+/// // In CLI layer (ggen-cli):
+/// let service = Box::new(GroqLlmService::new(api_key));
+/// set_llm_service(service);
+///
+/// // In codegen pipeline:
+/// if let Some(service) = get_llm_service() {
+///     let code = service.generate_skill_impl(...)?;
+/// }
+/// ```
+static GLOBAL_LLM_SERVICE: once_cell::sync::Lazy<Arc<Mutex<Option<Box<dyn LlmService>>>>> =
+    once_cell::sync::Lazy::new(|| Arc::new(Mutex::new(None)));
+
+/// Set the global LLM service for code generation.
+///
+/// This function should be called from the CLI layer to inject an LLM service
+/// implementation (e.g., from ggen-ai) into the codegen pipeline.
+///
+/// # Arguments
+/// * `service` - Boxed LLM service implementation
+///
+/// # Example
+/// ```rust
+/// use ggen_core::codegen::pipeline::set_llm_service;
+/// use ggen_ai::GroqLlmService;
+///
+/// let service = Box::new(GroqLlmService::new("api_key"));
+/// set_llm_service(service);
+/// ```
+pub fn set_llm_service(service: Box<dyn LlmService>) {
+    let mut svc = GLOBAL_LLM_SERVICE.lock().unwrap();
+    *svc = Some(service);
+}
+
+/// Get the global LLM service for code generation.
+///
+/// Returns None if no service has been set via `set_llm_service()`.
+///
+/// # Returns
+/// * `Some(Box<dyn LlmService>)` - Cloned LLM service if available
+/// * `None` - No LLM service configured
+///
+/// # Example
+/// ```rust
+/// use ggen_core::codegen::pipeline::get_llm_service;
+///
+/// if let Some(service) = get_llm_service() {
+///     let code = service.generate_skill_impl("my_skill", "desc", "hint", "rust")?;
+/// } else {
+///     // Fallback to TODO stubs
+/// }
+/// ```
+pub fn get_llm_service() -> Option<Box<dyn LlmService>> {
+    let svc = GLOBAL_LLM_SERVICE.lock().unwrap();
+    svc.as_ref().map(|s| s.clone_box())
+}
+
+/// Default LLM service that returns TODO stubs (used when no LLM is configured).
+#[derive(Debug, Clone)]
+struct DefaultLlmService;
+
+impl LlmService for DefaultLlmService {
+    fn generate_skill_impl(
+        &self, skill_name: &str, system_prompt: &str, implementation_hint: &str, language: &str,
+    ) -> std::result::Result<String, Box<dyn std::error::Error + Send + Sync>> {
+        let stub = match language {
+            "rust" => format!(
+                "// TODO: Implement {} skill (Rust)\n// Description: {}\n// Hint: {}\n\
+                 // Note: LLM auto-generation is not configured",
+                skill_name, system_prompt, implementation_hint
+            ),
+            "elixir" => format!(
+                "# TODO: Implement {} skill (Elixir)\n# Description: {}\n# Hint: {}\n\
+                 # Note: LLM auto-generation is not configured",
+                skill_name, system_prompt, implementation_hint
+            ),
+            "typescript" | "javascript" => format!(
+                "// TODO: Implement {} skill (TypeScript/JavaScript)\n\
+                 // Description: {}\n// Hint: {}\n\
+                 // Note: LLM auto-generation is not configured",
+                skill_name, system_prompt, implementation_hint
+            ),
+            _ => format!(
+                "// TODO: Implement {} skill ({})\n// Description: {}\n// Hint: {}",
+                skill_name, language, system_prompt, implementation_hint
+            ),
+        };
+
+        Ok(stub)
+    }
+
+    fn clone_box(&self) -> Box<dyn LlmService> {
+        Box::new(self.clone())
+    }
+}
 
 /// Tracks execution state through the generation pipeline
 pub struct PipelineState {
@@ -131,6 +273,12 @@ pub struct GenerationPipeline {
 
     /// Force overwrite of protected files (bypasses poka-yoke protection)
     force_overwrite: bool,
+
+    /// Optional CLI --output-dir override
+    output_dir_override: Option<PathBuf>,
+
+    /// Optional LLM service for auto-generating skill implementations
+    llm_service: Option<Box<dyn LlmService>>,
 }
 
 /// Clean a SPARQL term string representation.
@@ -171,12 +319,27 @@ impl GenerationPipeline {
             validation_results: Vec::new(),
             started_at: Instant::now(),
             force_overwrite: false,
+            output_dir_override: None,
+            llm_service: None,
         }
+    }
+
+    /// Set LLM service for auto-generating skill implementations
+    ///
+    /// # Arguments
+    /// * `service` - Optional boxed LLM service (None = use default TODO stubs)
+    pub fn set_llm_service(&mut self, service: Option<Box<dyn LlmService>>) {
+        self.llm_service = service;
     }
 
     /// Set force overwrite flag (bypasses protected_paths check)
     pub fn set_force_overwrite(&mut self, force: bool) {
         self.force_overwrite = force;
+    }
+
+    /// Set output directory override (from CLI --output-dir)
+    pub fn set_output_dir(&mut self, output_dir: PathBuf) {
+        self.output_dir_override = Some(output_dir);
     }
 
     /// Load ontology from manifest configuration
@@ -309,7 +472,11 @@ impl GenerationPipeline {
         // Clone rules to avoid borrow conflict
         let rules = self.manifest.generation.rules.clone();
         // Join output_dir with base_path to make it relative to manifest location
-        let output_dir = self.base_path.join(&self.manifest.generation.output_dir);
+        let output_dir = if let Some(ref override_dir) = self.output_dir_override {
+            self.base_path.join(override_dir)
+        } else {
+            self.base_path.join(&self.manifest.generation.output_dir)
+        };
 
         // Create transaction for atomic file operations
         let mut transaction = FileTransaction::new()?;
@@ -424,6 +591,77 @@ impl GenerationPipeline {
                 // Also insert sparql_results for advanced templates
                 let results_json = serde_json::json!(rows);
                 context.insert("sparql_results", &results_json);
+
+                // LLM Generation: Auto-generate skill implementations if enabled
+                if self.manifest.generation.enable_llm {
+                    // Look for skill-specific fields in SPARQL results
+                    let skill_name = row
+                        .get("?skill_name")
+                        .or_else(|| row.get("skill_name"))
+                        .map(|s| s.as_str())
+                        .unwrap_or("");
+
+                    let system_prompt = row
+                        .get("?system_prompt")
+                        .or_else(|| row.get("system_prompt"))
+                        .or_else(|| row.get("?skill_description"))
+                        .map(|s| s.as_str())
+                        .unwrap_or("");
+
+                    let implementation_hint = row
+                        .get("?implementation_hint")
+                        .or_else(|| row.get("implementation_hint"))
+                        .map(|s| s.as_str())
+                        .unwrap_or("Implement this skill");
+
+                    // Detect language from output file extension or SPARQL results
+                    let language = row
+                        .get("?language")
+                        .or_else(|| row.get("language"))
+                        .or_else(|| row.get("?target_language"))
+                        .map(|s| s.as_str())
+                        .unwrap_or_else(|| {
+                            // Fallback: detect from output file extension
+                            let output_ext = rule.output_file.rsplit('.').next().unwrap_or("");
+                            match output_ext {
+                                "rs" => "rust",
+                                "ex" | "exs" => "elixir",
+                                "ts" => "typescript",
+                                "js" => "javascript",
+                                "go" => "go",
+                                "java" => "java",
+                                _ => "rust", // Default to Rust
+                            }
+                        });
+
+                    // Generate skill implementation using injected LLM service
+                    if !skill_name.is_empty() && !system_prompt.is_empty() {
+                        match self.generate_skill_impl(
+                            skill_name,
+                            system_prompt,
+                            implementation_hint,
+                            language,
+                        ) {
+                            Ok(generated_code) => {
+                                context.insert("generated_impl", &generated_code);
+                            }
+                            Err(e) => {
+                                // LLM generation failed - log warning but don't block generation
+                                eprintln!(
+                                    "Warning: LLM generation failed for skill '{}': {}. Using TODO stub.",
+                                    skill_name, e
+                                );
+                                context.insert(
+                                    "generated_impl",
+                                    &format!(
+                                        "// TODO: Implement {} skill: {}\n// Hint: {}\n// Note: LLM generation failed",
+                                        skill_name, system_prompt, implementation_hint
+                                    ),
+                                );
+                            }
+                        }
+                    }
+                }
 
                 // Render template
                 let rendered = tera.render("generation_rule", &context).map_err(|e| {
@@ -593,14 +831,6 @@ impl GenerationPipeline {
         Ok(state)
     }
 
-    /// Render a template with the given context
-    pub fn render_template(
-        _template: &crate::manifest::TemplateSource, _context: &tera::Context,
-    ) -> Result<String> {
-        // TODO: Implement template rendering using existing template.rs infrastructure
-        Ok(String::new())
-    }
-
     /// Expand output path pattern with variables
     ///
     /// SPARQL variable names may have a `?` prefix which is stripped for template matching.
@@ -677,6 +907,49 @@ impl GenerationPipeline {
         }
 
         Ok(())
+    }
+
+    /// Generate skill implementation using LLM
+    ///
+    /// This function uses an injected LLM service to generate skill implementations.
+    /// If no service is injected or LLM is disabled in manifest, returns a TODO stub.
+    ///
+    /// # Arguments
+    /// * `skill_name` - Name of the skill to implement
+    /// * `system_prompt` - Description of what the skill does
+    /// * `implementation_hint` - Hint about how to implement it
+    /// * `language` - Target programming language
+    ///
+    /// # Returns
+    /// * `Ok(String)` - Generated implementation code (or TODO stub if LLM unavailable)
+    /// * `Err(Error)` - Generation failed critically
+    ///
+    /// # Architecture Note
+    /// ggen-core cannot depend on ggen-ai (would create cyclic dependency).
+    /// LLM service should be injected from CLI layer via set_llm_service().
+    pub fn generate_skill_impl(
+        &self, skill_name: &str, system_prompt: &str, implementation_hint: &str, language: &str,
+    ) -> Result<String> {
+        // Check if LLM is enabled in manifest
+        if !self.manifest.generation.enable_llm {
+            // Return simple TODO stub if LLM is disabled
+            return Ok(format!(
+                "// TODO: Implement {} skill: {}\n// Hint: {}",
+                skill_name, system_prompt, implementation_hint
+            ));
+        }
+
+        // Use injected LLM service if available, otherwise use default (TODO stubs)
+        let service = self
+            .llm_service
+            .as_ref()
+            .map(|s| s.as_ref())
+            .unwrap_or(&DefaultLlmService);
+
+        // Call LLM service (may be real LLM or default TODO stub generator)
+        service
+            .generate_skill_impl(skill_name, system_prompt, implementation_hint, language)
+            .map_err(|e| Error::new(&format!("LLM generation failed: {}", e)))
     }
 }
 
@@ -908,5 +1181,147 @@ mod tests {
             "Error should include rule name, got: {}",
             err_msg
         );
+    }
+
+    // ========================================================================
+    // Global LLM Service Tests
+    // ========================================================================
+
+    #[test]
+    fn test_set_and_get_llm_service() {
+        // Arrange: Create a mock LLM service
+        struct MockLlmService {
+            skill_name: String,
+        }
+
+        impl LlmService for MockLlmService {
+            fn generate_skill_impl(
+                &self, skill_name: &str, _system_prompt: &str, _implementation_hint: &str,
+                _language: &str,
+            ) -> std::result::Result<String, Box<dyn std::error::Error + Send + Sync>> {
+                Ok(format!("// Mock implementation for {}", skill_name))
+            }
+
+            fn clone_box(&self) -> Box<dyn LlmService> {
+                Box::new(MockLlmService {
+                    skill_name: self.skill_name.clone(),
+                })
+            }
+        }
+
+        // Act: Set the global service
+        let service = Box::new(MockLlmService {
+            skill_name: "test_skill".to_string(),
+        });
+        set_llm_service(service);
+
+        // Assert: Retrieve and verify
+        let retrieved = get_llm_service();
+        assert!(retrieved.is_some(), "LLM service should be set");
+
+        let result = retrieved
+            .unwrap()
+            .generate_skill_impl("test_skill", "desc", "hint", "rust")
+            .unwrap();
+        assert!(
+            result.contains("test_skill"),
+            "Generated code should contain skill name"
+        );
+    }
+
+    #[test]
+    fn test_get_llm_service_returns_none_when_not_set() {
+        // Arrange: Clear any existing service (by setting a new empty one)
+        let mut svc = GLOBAL_LLM_SERVICE.lock().unwrap();
+        *svc = None;
+        drop(svc);
+
+        // Act: Try to get service
+        let retrieved = get_llm_service();
+
+        // Assert: Should return None
+        assert!(
+            retrieved.is_none(),
+            "LLM service should be None when not set"
+        );
+    }
+
+    #[test]
+    fn test_llm_service_clone_box() {
+        // Arrange: Create a mock service with state
+        struct CloneableLlmService {
+            counter: std::sync::Arc<std::sync::atomic::AtomicU32>,
+        }
+
+        impl LlmService for CloneableLlmService {
+            fn generate_skill_impl(
+                &self, skill_name: &str, _system_prompt: &str, _implementation_hint: &str,
+                _language: &str,
+            ) -> std::result::Result<String, Box<dyn std::error::Error + Send + Sync>> {
+                Ok(format!("// Implementation {}", skill_name))
+            }
+
+            fn clone_box(&self) -> Box<dyn LlmService> {
+                // Increment counter to verify clone was called
+                self.counter
+                    .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                Box::new(CloneableLlmService {
+                    counter: std::sync::Arc::clone(&self.counter),
+                })
+            }
+        }
+
+        // Act: Clone the service
+        let counter = std::sync::Arc::new(std::sync::atomic::AtomicU32::new(0));
+        let service1: Box<dyn LlmService> = Box::new(CloneableLlmService {
+            counter: std::sync::Arc::clone(&counter),
+        });
+        let service2 = service1.clone_box();
+
+        // Assert: Both services should work
+        let result1 = service1
+            .generate_skill_impl("skill1", "desc", "hint", "rust")
+            .unwrap();
+        let result2 = service2
+            .generate_skill_impl("skill2", "desc", "hint", "rust")
+            .unwrap();
+
+        assert!(result1.contains("skill1"));
+        assert!(result2.contains("skill2"));
+        assert_eq!(
+            counter.load(std::sync::atomic::Ordering::SeqCst),
+            1,
+            "clone_box should have been called once"
+        );
+    }
+
+    #[test]
+    fn test_default_llm_service_generates_todos() {
+        // Arrange: Use DefaultLlmService
+        let service = DefaultLlmService;
+
+        // Act: Generate implementations for different languages
+        let rust_impl = service
+            .generate_skill_impl("my_skill", "Do something", "Use async", "rust")
+            .unwrap();
+        let elixir_impl = service
+            .generate_skill_impl("my_skill", "Do something", "Use GenServer", "elixir")
+            .unwrap();
+        let ts_impl = service
+            .generate_skill_impl("my_skill", "Do something", "Use async/await", "typescript")
+            .unwrap();
+
+        // Assert: Should all contain TODO markers (case-insensitive check)
+        assert!(rust_impl.to_uppercase().contains("TODO"));
+        assert!(rust_impl.to_uppercase().contains("RUST"));
+        assert!(rust_impl.contains("my_skill"));
+
+        assert!(elixir_impl.to_uppercase().contains("TODO"));
+        assert!(elixir_impl.to_uppercase().contains("ELIXIR"));
+        assert!(elixir_impl.contains("my_skill"));
+
+        assert!(ts_impl.to_uppercase().contains("TODO"));
+        assert!(ts_impl.to_uppercase().contains("TYPESCRIPT"));
+        assert!(ts_impl.contains("my_skill"));
     }
 }

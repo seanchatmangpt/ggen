@@ -1,0 +1,22 @@
+groups:
+  - id: span.ggen.pipeline.operation
+    type: span
+    stability: development
+    brief: ggen code generation pipeline operation.
+    span_kind: internal
+    attributes:
+      - ref: pipeline.operation
+        requirement_level: required
+      - ref: pipeline.batch_size
+        requirement_level: recommended
+      - ref: pipeline.total
+        requirement_level: recommended
+      - ref: pipeline.successful
+        requirement_level: recommended
+      - ref: pipeline.failed
+        requirement_level: recommended
+      - ref: pipeline.duration_ms
+        requirement_level: recommended
+      - ref: error.type
+        requirement_level:
+          conditionally_required: "when the pipeline operation failed"

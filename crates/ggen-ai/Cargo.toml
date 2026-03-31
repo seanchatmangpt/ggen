@@ -12,7 +12,8 @@ categories = ["development-tools", "command-line-utilities"]
 
 [dependencies]
 # Core ggen dependencies (use workspace = true pattern)
-ggen-core.workspace = true
+# NOTE: ggen-core removed to break circular dependency
+# ggen-ai is now a pure LLM integration layer without code-generation dependencies
 ggen-utils.workspace = true
 
 # HTTP client and async runtime
@@ -65,7 +66,7 @@ a2a-generated = { path = "../a2a-generated", optional = true, default-features =
 moka = { version = "0.12", features = ["future"] }
 
 # SPARQL support
-oxigraph = "0.5"
+oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 
 # Crypto for caching
 sha2 = "0.10"
@@ -85,6 +86,7 @@ indicatif = { version = "0.17", features = ["in_memory", "rayon"] }
 [features]
 default = []
 all-integrations = []
+swarm = []  # Experimental DSPy agent swarm (broken — requires fixes)
 use-a2a-rs = ["a2a-generated"]  # Use generated a2a code
 integration = []
 

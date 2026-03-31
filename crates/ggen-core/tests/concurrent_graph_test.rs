@@ -29,12 +29,10 @@ fn make_graph_with_triples(count: usize) -> Graph {
 const COUNT_QUERY: &str = "SELECT (COUNT(*) AS ?n) WHERE { ?s ?p ?o }";
 
 /// SPARQL that selects all items that have an `ex:value` predicate.
-const ALL_ITEMS_QUERY: &str =
-    "SELECT ?item WHERE { ?item <http://example.org/value> ?v }";
+const ALL_ITEMS_QUERY: &str = "SELECT ?item WHERE { ?item <http://example.org/value> ?v }";
 
 /// SPARQL that selects all items that have an `ex:name` predicate.
-const ALL_NAMED_QUERY: &str =
-    "SELECT ?item WHERE { ?item <http://example.org/name> ?v }";
+const ALL_NAMED_QUERY: &str = "SELECT ?item WHERE { ?item <http://example.org/name> ?v }";
 
 /// Extract the number of solution rows.
 fn row_count(result: &CachedResult) -> usize {
@@ -205,12 +203,8 @@ fn test_concurrent_read_write_does_not_deadlock() {
         })
     };
 
-    writer
-        .join()
-        .expect("writer thread panicked or deadlocked");
-    reader
-        .join()
-        .expect("reader thread panicked or deadlocked");
+    writer.join().expect("writer thread panicked or deadlocked");
+    reader.join().expect("reader thread panicked or deadlocked");
 }
 
 // ---------------------------------------------------------------------------
@@ -267,14 +261,8 @@ fn test_cache_invalidation_after_concurrent_insert() {
         .expect("initial insert");
 
     // Query (populates cache).
-    let r1 = graph
-        .query_cached(ALL_ITEMS_QUERY)
-        .expect("first query");
-    assert_eq!(
-        row_count(&r1),
-        1,
-        "initial query should return 1 row"
-    );
+    let r1 = graph.query_cached(ALL_ITEMS_QUERY).expect("first query");
+    assert_eq!(row_count(&r1), 1, "initial query should return 1 row");
 
     // Insert more data (bumps epoch, invalidating cache).
     graph
@@ -285,9 +273,7 @@ fn test_cache_invalidation_after_concurrent_insert() {
         .expect("second insert");
 
     // Query again -- should see both triples.
-    let r2 = graph
-        .query_cached(ALL_ITEMS_QUERY)
-        .expect("second query");
+    let r2 = graph.query_cached(ALL_ITEMS_QUERY).expect("second query");
     assert_eq!(
         row_count(&r2),
         2,
@@ -318,16 +304,8 @@ fn test_independent_graphs_do_not_interfere() {
         )
         .expect("insert into B");
 
-    assert_eq!(
-        graph_a.len(),
-        1,
-        "graph_a should have exactly 1 triple"
-    );
-    assert_eq!(
-        graph_b.len(),
-        1,
-        "graph_b should have exactly 1 triple"
-    );
+    assert_eq!(graph_a.len(), 1, "graph_a should have exactly 1 triple");
+    assert_eq!(graph_b.len(), 1, "graph_b should have exactly 1 triple");
 
     let result_a = graph_a
         .query_cached("SELECT ?item WHERE { ?item <http://example.org/value> \"1\" }")

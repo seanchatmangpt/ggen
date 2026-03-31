@@ -3,7 +3,6 @@
 /// These tests verify that Tera templates only reference variables that are
 /// either provided by SPARQL queries or have default values. This catches
 /// template/query mismatches before runtime rendering failures.
-
 use regex::Regex;
 use std::collections::HashSet;
 use walkdir::WalkDir;
@@ -147,11 +146,13 @@ fn test_templates_reference_valid_variables() {
 
             // Skip loop variables (defined by {% for %})
             let for_re = Regex::new(r"\{%\s*for\s+(\w+)").unwrap();
-            if for_re.is_match(&content) && for_re.captures(&content).map_or(false, |caps| {
-                caps.iter()
-                    .skip(1)
-                    .any(|c| c.map_or(false, |m| m.as_str() == var))
-            }) {
+            if for_re.is_match(&content)
+                && for_re.captures(&content).map_or(false, |caps| {
+                    caps.iter()
+                        .skip(1)
+                        .any(|c| c.map_or(false, |m| m.as_str() == var))
+                })
+            {
                 continue;
             }
 
@@ -162,8 +163,7 @@ fn test_templates_reference_valid_variables() {
 
             // Skip Tera built-in functions/filters
             let tera_builtins = [
-                "range", "loop", "now", "self", "super", "true", "false",
-                "null", "none",
+                "range", "loop", "now", "self", "super", "true", "false", "null", "none",
             ];
             if tera_builtins.contains(&var.as_str()) {
                 continue;
@@ -249,10 +249,7 @@ fn test_sparql_queries_return_expected_columns() {
 
         for col in &expected_set {
             if !actual_cols.contains(*col) {
-                errors.push(format!(
-                    "Query {} missing expected column: {}",
-                    rq_rel, col
-                ));
+                errors.push(format!("Query {} missing expected column: {}", rq_rel, col));
             }
         }
     }
@@ -300,27 +297,57 @@ const TEMPLATE_QUERY_PAIRS: &[(&str, &str, &[&str])] = &[
     (
         "templates/a2a-rust.tera",
         "crates/ggen-core/queries/a2a/extract-a2a-full.rq",
-        &["skill_name", "skill_description", "skill_tags", "streaming", "timeout_ms"],
+        &[
+            "skill_name",
+            "skill_description",
+            "skill_tags",
+            "streaming",
+            "timeout_ms",
+        ],
     ),
     (
         "templates/a2a-go.tera",
         "crates/ggen-core/queries/a2a/extract-a2a-full.rq",
-        &["skill_name", "skill_description", "skill_tags", "streaming", "timeout_ms"],
+        &[
+            "skill_name",
+            "skill_description",
+            "skill_tags",
+            "streaming",
+            "timeout_ms",
+        ],
     ),
     (
         "templates/a2a-typescript.tera",
         "crates/ggen-core/queries/a2a/extract-a2a-full.rq",
-        &["skill_name", "skill_description", "skill_tags", "streaming", "timeout_ms"],
+        &[
+            "skill_name",
+            "skill_description",
+            "skill_tags",
+            "streaming",
+            "timeout_ms",
+        ],
     ),
     (
         "templates/a2a-java.tera",
         "crates/ggen-core/queries/a2a/extract-a2a-full.rq",
-        &["skill_name", "skill_description", "skill_tags", "streaming", "timeout_ms"],
+        &[
+            "skill_name",
+            "skill_description",
+            "skill_tags",
+            "streaming",
+            "timeout_ms",
+        ],
     ),
     (
         "templates/a2a-elixir.tera",
         "crates/ggen-core/queries/a2a/extract-a2a-full.rq",
-        &["skill_name", "skill_description", "skill_tags", "streaming", "timeout_ms"],
+        &[
+            "skill_name",
+            "skill_description",
+            "skill_tags",
+            "streaming",
+            "timeout_ms",
+        ],
     ),
 ];
 
@@ -469,7 +496,10 @@ fn test_all_original_templates_use_sparql_results() {
 
     // Report but don't fail — templates are being migrated by background agents
     for tmpl in &not_migrated {
-        eprintln!("[WARN] Template not yet migrated to sparql_results: {}", tmpl);
+        eprintln!(
+            "[WARN] Template not yet migrated to sparql_results: {}",
+            tmpl
+        );
     }
 
     // This assertion will flip to panic once all templates are migrated

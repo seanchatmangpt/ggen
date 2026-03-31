@@ -338,6 +338,7 @@ impl SparqlExecutor {
                     Value::String(value.to_string())
                 }
             }
+            Term::Triple(t) => Value::String(format!("{}", t)),
         }
     }
 

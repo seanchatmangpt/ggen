@@ -46,6 +46,10 @@ use ggen_core::sync::{sync as low_level_sync, SyncConfig, SyncLanguage};
 use serde::Serialize;
 use std::path::PathBuf;
 
+// Import llm_bridge module from the same crate
+#[allow(unused_imports)]
+use crate::llm_bridge::GroqLlmBridge;
+
 // ============================================================================
 // Output Types (re-exported for CLI compatibility)
 // ============================================================================
@@ -326,6 +330,9 @@ pub fn sync(
         );
     }
 
+    // Build executor and inject LLM service if enabled
+    let manifest_path = PathBuf::from(manifest.clone().unwrap_or_else(|| "ggen.toml".to_string()));
+
     // Build options from CLI args (manifest-driven pipeline)
     let options = build_sync_options(
         manifest,
@@ -343,8 +350,11 @@ pub fn sync(
         ontology,
     )?;
 
-    // Execute via domain executor
-    let result = SyncExecutor::new(options)
+    let executor = SyncExecutor::new(options);
+    let executor = inject_llm_if_enabled(executor, &manifest_path, verbose.unwrap_or(false));
+
+    // Execute pipeline
+    let result = executor
         .execute()
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
@@ -365,7 +375,7 @@ fn run_low_level_pipeline(
 ) -> VerbResult<SyncOutput> {
     let ontology_path = PathBuf::from(ontology.unwrap_or_else(|| "ontology.ttl".to_string()));
     let queries_path = PathBuf::from(queries_dir);
-    let output_path = PathBuf::from(output_dir.unwrap_or_else(|| "generated".to_string()));
+    let output_path = PathBuf::from(output_dir.unwrap_or_else(|| ".".to_string()));
 
     let lang: SyncLanguage =
         language.as_deref().unwrap_or("auto").parse().map_err(
@@ -427,6 +437,56 @@ fn run_low_level_pipeline(
         audit_trail: None,
         error: violation_msg,
     })
+}
+
+/// Inject LLM service into executor if enable_llm is set in manifest
+///
+/// This helper function checks if the manifest has enable_llm set to true,
+/// and if so, creates a GroqLlmBridge and injects it into the executor.
+///
+/// # Arguments
+/// * `executor` - The SyncExecutor to inject the service into
+/// * `manifest_path` - Path to the ggen.toml manifest file
+/// * `verbose` - Whether to print verbose output
+///
+/// # Returns
+/// * The executor with LLM service injected if enabled
+fn inject_llm_if_enabled(
+    executor: SyncExecutor, manifest_path: &PathBuf, verbose: bool,
+) -> SyncExecutor {
+    if !manifest_path.exists() {
+        return executor;
+    }
+
+    // Parse manifest to check enable_llm flag
+    let manifest_data = match ggen_core::manifest::ManifestParser::parse(manifest_path) {
+        Ok(data) => data,
+        Err(_) => return executor, // If parsing fails, return executor as-is
+    };
+
+    // Only inject if enable_llm is true
+    if !manifest_data.generation.enable_llm {
+        return executor;
+    }
+
+    // Create Groq LLM bridge
+    let bridge = match GroqLlmBridge::new() {
+        Ok(b) => b,
+        Err(e) => {
+            eprintln!(
+                "⚠ Warning: enable_llm is true but GroqLlmBridge creation failed: {}",
+                e
+            );
+            eprintln!("  Falling back to TODO stubs");
+            return executor;
+        }
+    };
+
+    if verbose {
+        eprintln!("✓ LLM auto-generation enabled (Groq)");
+    }
+
+    executor.with_llm_service(Some(Box::new(bridge)))
 }
 
 /// Build SyncOptions from CLI arguments

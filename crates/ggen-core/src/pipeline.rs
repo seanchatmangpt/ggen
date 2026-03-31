@@ -69,7 +69,7 @@
 use crate::graph::{build_prolog, Graph};
 use crate::register;
 use crate::simple_tracing::SimpleTracer;
-use crate::template::Frontmatter;
+use crate::template_types::Frontmatter;
 use ggen_utils::error::{Error, Result};
 use oxigraph::sparql::QueryResults;
 use serde_json::Value;
@@ -153,7 +153,7 @@ impl Pipeline {
         // } // Temporarily disabled
 
         // Parse template to get frontmatter
-        let mut template = crate::template::Template::parse(&input)?;
+        let mut template = crate::template_types::Template::parse(&input)?;
         // if SimpleTracer::is_enabled() {
         //     SimpleTracer::trace(crate::simple_tracing::TraceLevel::Debug,
         //         &format!("Template parsed: {} lines", body_lines), Some("parsing"));
@@ -858,7 +858,7 @@ Hello {{ name }}"#;
             template_path: temp_dir.path().join("test.tmpl"),
             output_path: output_path.clone(),
             content: "Test content".to_string(),
-            frontmatter: crate::template::Frontmatter::default(),
+            frontmatter: crate::template_types::Frontmatter::default(),
             dry_run: true,
         };
 
@@ -879,7 +879,7 @@ Hello {{ name }}"#;
             template_path: temp_dir.path().join("test.tmpl"),
             output_path: output_path.clone(),
             content: "Test content".to_string(),
-            frontmatter: crate::template::Frontmatter::default(),
+            frontmatter: crate::template_types::Frontmatter::default(),
             dry_run: false,
         };
 
@@ -901,7 +901,7 @@ Hello {{ name }}"#;
         // Create existing file
         std::fs::write(&output_path, "Original content")?;
 
-        let mut frontmatter = crate::template::Frontmatter::default();
+        let mut frontmatter = crate::template_types::Frontmatter::default();
         frontmatter.unless_exists = true;
 
         let plan = Plan {

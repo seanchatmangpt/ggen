@@ -44,6 +44,7 @@ pub mod ontology;
 pub mod packs;
 pub mod paper;
 pub mod project;
+// pub mod self_play; // TODO: Implement self_play module
 pub mod template;
 pub mod utils;
 pub mod workflow;

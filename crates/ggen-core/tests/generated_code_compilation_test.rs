@@ -42,10 +42,7 @@ fn to_clean_json(result: &CachedResult) -> Value {
         }
         CachedResult::Boolean(b) => Value::Bool(*b),
         CachedResult::Graph(triples) => {
-            let arr: Vec<Value> = triples
-                .iter()
-                .map(|t| Value::String(t.clone()))
-                .collect();
+            let arr: Vec<Value> = triples.iter().map(|t| Value::String(t.clone())).collect();
             Value::Array(arr)
         }
     }
@@ -154,10 +151,7 @@ fn no_tera_artifacts(rendered: &str) -> bool {
 /// a SPARQL query, and additional context key-value pairs (inserted into the Tera context).
 /// Returns the rendered string on success, or panics on failure.
 fn render_template_with_graph(
-    template_filename: &str,
-    ontology: &str,
-    sparql: &str,
-    extra_ctx: Vec<(&str, &str)>,
+    template_filename: &str, ontology: &str, sparql: &str, extra_ctx: Vec<(&str, &str)>,
 ) -> String {
     let root = workspace_root();
 
@@ -193,12 +187,7 @@ fn render_template_with_graph(
 
     // 4. Render
     tera.render(&template_name, &ctx)
-        .unwrap_or_else(|e| {
-            panic!(
-                "Render failed for {}: {}",
-                template_filename, e
-            )
-        })
+        .unwrap_or_else(|e| panic!("Render failed for {}: {}", template_filename, e))
 }
 
 // ---------------------------------------------------------------------------
@@ -298,26 +287,59 @@ fn test_rendered_rust_code_is_valid_syntax() {
     );
 
     // No Tera artifacts
-    assert!(no_tera_artifacts(&rendered), "Rendered Rust code contains Tera delimiters");
+    assert!(
+        no_tera_artifacts(&rendered),
+        "Rendered Rust code contains Tera delimiters"
+    );
 
     // Balanced delimiters
-    assert!(braces_balanced(&rendered), "Rendered Rust code has unbalanced braces");
-    assert!(parens_balanced(&rendered), "Rendered Rust code has unbalanced parentheses");
-    assert!(brackets_balanced(&rendered), "Rendered Rust code has unbalanced brackets");
+    assert!(
+        braces_balanced(&rendered),
+        "Rendered Rust code has unbalanced braces"
+    );
+    assert!(
+        parens_balanced(&rendered),
+        "Rendered Rust code has unbalanced parentheses"
+    );
+    assert!(
+        brackets_balanced(&rendered),
+        "Rendered Rust code has unbalanced brackets"
+    );
 
     // Contains Rust-specific constructs
-    assert!(rendered.contains("pub struct"), "Should contain pub struct declarations");
+    assert!(
+        rendered.contains("pub struct"),
+        "Should contain pub struct declarations"
+    );
     assert!(rendered.contains("fn "), "Should contain fn declarations");
     assert!(rendered.contains("impl "), "Should contain impl blocks");
-    assert!(rendered.contains("#[derive"), "Should contain derive attributes");
-    assert!(rendered.contains("async fn main"), "Should contain async fn main");
+    assert!(
+        rendered.contains("#[derive"),
+        "Should contain derive attributes"
+    );
+    assert!(
+        rendered.contains("async fn main"),
+        "Should contain async fn main"
+    );
     assert!(rendered.contains("use rmcp"), "Should import rmcp SDK");
 
     // Contains rendered tool names
-    assert!(rendered.contains("get_time"), "Should contain get_time tool");
-    assert!(rendered.contains("get_weather"), "Should contain get_weather tool");
-    assert!(rendered.contains("GetTimeParams"), "Should contain GetTimeParams struct");
-    assert!(rendered.contains("GetWeatherParams"), "Should contain GetWeatherParams struct");
+    assert!(
+        rendered.contains("get_time"),
+        "Should contain get_time tool"
+    );
+    assert!(
+        rendered.contains("get_weather"),
+        "Should contain get_weather tool"
+    );
+    assert!(
+        rendered.contains("GetTimeParams"),
+        "Should contain GetTimeParams struct"
+    );
+    assert!(
+        rendered.contains("GetWeatherParams"),
+        "Should contain GetWeatherParams struct"
+    );
 }
 
 // ===========================================================================
@@ -339,24 +361,51 @@ fn test_rendered_go_code_is_valid_syntax() {
     );
 
     // No Tera artifacts
-    assert!(no_tera_artifacts(&rendered), "Rendered Go code contains Tera delimiters");
+    assert!(
+        no_tera_artifacts(&rendered),
+        "Rendered Go code contains Tera delimiters"
+    );
 
     // Balanced delimiters
-    assert!(braces_balanced(&rendered), "Rendered Go code has unbalanced braces");
-    assert!(parens_balanced(&rendered), "Rendered Go code has unbalanced parentheses");
+    assert!(
+        braces_balanced(&rendered),
+        "Rendered Go code has unbalanced braces"
+    );
+    assert!(
+        parens_balanced(&rendered),
+        "Rendered Go code has unbalanced parentheses"
+    );
 
     // Contains Go-specific constructs
-    assert!(rendered.contains("package main"), "Should have package main");
+    assert!(
+        rendered.contains("package main"),
+        "Should have package main"
+    );
     assert!(rendered.contains("func main()"), "Should have func main()");
-    assert!(rendered.contains("func (s *MCPServer)"), "Should have method declarations");
+    assert!(
+        rendered.contains("func (s *MCPServer)"),
+        "Should have method declarations"
+    );
     assert!(rendered.contains("type "), "Should have type definitions");
     assert!(rendered.contains("import ("), "Should have import block");
 
     // Contains rendered tool names
-    assert!(rendered.contains("get_time"), "Should contain get_time tool");
-    assert!(rendered.contains("get_weather"), "Should contain get_weather tool");
-    assert!(rendered.contains("GetTimeInput"), "Should contain GetTimeInput struct");
-    assert!(rendered.contains("GetWeatherInput"), "Should contain GetWeatherInput struct");
+    assert!(
+        rendered.contains("get_time"),
+        "Should contain get_time tool"
+    );
+    assert!(
+        rendered.contains("get_weather"),
+        "Should contain get_weather tool"
+    );
+    assert!(
+        rendered.contains("GetTimeInput"),
+        "Should contain GetTimeInput struct"
+    );
+    assert!(
+        rendered.contains("GetWeatherInput"),
+        "Should contain GetWeatherInput struct"
+    );
 }
 
 // ===========================================================================
@@ -378,23 +427,56 @@ fn test_rendered_typescript_code_is_valid_syntax() {
     );
 
     // No Tera artifacts
-    assert!(no_tera_artifacts(&rendered), "Rendered TypeScript code contains Tera delimiters");
+    assert!(
+        no_tera_artifacts(&rendered),
+        "Rendered TypeScript code contains Tera delimiters"
+    );
 
     // Balanced delimiters
-    assert!(braces_balanced(&rendered), "Rendered TypeScript code has unbalanced braces");
-    assert!(parens_balanced(&rendered), "Rendered TypeScript code has unbalanced parentheses");
-    assert!(brackets_balanced(&rendered), "Rendered TypeScript code has unbalanced brackets");
+    assert!(
+        braces_balanced(&rendered),
+        "Rendered TypeScript code has unbalanced braces"
+    );
+    assert!(
+        parens_balanced(&rendered),
+        "Rendered TypeScript code has unbalanced parentheses"
+    );
+    assert!(
+        brackets_balanced(&rendered),
+        "Rendered TypeScript code has unbalanced brackets"
+    );
 
     // Contains TypeScript-specific constructs
-    assert!(rendered.contains("import "), "Should have import statements");
-    assert!(rendered.contains("async function handle"), "Should have async function declarations");
-    assert!(rendered.contains("const "), "Should have const declarations");
-    assert!(rendered.contains(": Record<"), "Should have TypeScript type annotations");
-    assert!(rendered.contains("type "), "Should contain type alias declarations");
+    assert!(
+        rendered.contains("import "),
+        "Should have import statements"
+    );
+    assert!(
+        rendered.contains("async function handle"),
+        "Should have async function declarations"
+    );
+    assert!(
+        rendered.contains("const "),
+        "Should have const declarations"
+    );
+    assert!(
+        rendered.contains(": Record<"),
+        "Should have TypeScript type annotations"
+    );
+    assert!(
+        rendered.contains("type "),
+        "Should contain type alias declarations"
+    );
 
     // Contains rendered tool names
-    assert!(rendered.contains("get_time"), "Should contain get_time tool");
-    assert!(rendered.contains("get_weather"), "Should contain get_weather tool");
+    assert!(
+        rendered.contains("get_time"),
+        "Should contain get_time tool"
+    );
+    assert!(
+        rendered.contains("get_weather"),
+        "Should contain get_weather tool"
+    );
 }
 
 // ===========================================================================
@@ -416,24 +498,60 @@ fn test_rendered_java_code_is_valid_syntax() {
     );
 
     // No Tera artifacts
-    assert!(no_tera_artifacts(&rendered), "Rendered Java code contains Tera delimiters");
+    assert!(
+        no_tera_artifacts(&rendered),
+        "Rendered Java code contains Tera delimiters"
+    );
 
     // Balanced delimiters
-    assert!(braces_balanced(&rendered), "Rendered Java code has unbalanced braces");
-    assert!(parens_balanced(&rendered), "Rendered Java code has unbalanced parentheses");
+    assert!(
+        braces_balanced(&rendered),
+        "Rendered Java code has unbalanced braces"
+    );
+    assert!(
+        parens_balanced(&rendered),
+        "Rendered Java code has unbalanced parentheses"
+    );
 
     // Contains Java-specific constructs
-    assert!(rendered.contains("public class"), "Should contain public class declaration");
-    assert!(rendered.contains("public static void main"), "Should have main method");
-    assert!(rendered.contains("record "), "Should contain record declarations");
-    assert!(rendered.contains("package "), "Should have package declaration");
-    assert!(rendered.contains("import "), "Should have import statements");
+    assert!(
+        rendered.contains("public class"),
+        "Should contain public class declaration"
+    );
+    assert!(
+        rendered.contains("public static void main"),
+        "Should have main method"
+    );
+    assert!(
+        rendered.contains("record "),
+        "Should contain record declarations"
+    );
+    assert!(
+        rendered.contains("package "),
+        "Should have package declaration"
+    );
+    assert!(
+        rendered.contains("import "),
+        "Should have import statements"
+    );
 
     // Contains rendered tool names
-    assert!(rendered.contains("get_time"), "Should contain get_time tool");
-    assert!(rendered.contains("get_weather"), "Should contain get_weather tool");
-    assert!(rendered.contains("GetTimeInput"), "Should contain GetTimeInput record");
-    assert!(rendered.contains("GetWeatherInput"), "Should contain GetWeatherInput record");
+    assert!(
+        rendered.contains("get_time"),
+        "Should contain get_time tool"
+    );
+    assert!(
+        rendered.contains("get_weather"),
+        "Should contain get_weather tool"
+    );
+    assert!(
+        rendered.contains("GetTimeInput"),
+        "Should contain GetTimeInput record"
+    );
+    assert!(
+        rendered.contains("GetWeatherInput"),
+        "Should contain GetWeatherInput record"
+    );
 }
 
 // ===========================================================================
@@ -532,7 +650,10 @@ fn test_rendered_code_contains_expected_language_constructs() {
     );
     assert!(rust.contains("fn main"), "mcp-rust should contain fn main");
     assert!(rust.contains("use rmcp"), "mcp-rust should import rmcp");
-    assert!(rust.contains("pub struct"), "mcp-rust should contain pub struct");
+    assert!(
+        rust.contains("pub struct"),
+        "mcp-rust should contain pub struct"
+    );
 
     // --- MCP Go ---
     let go = render_template_with_graph(
@@ -546,9 +667,18 @@ fn test_rendered_code_contains_expected_language_constructs() {
             ("transport_type", "stdio"),
         ],
     );
-    assert!(go.contains("func main()"), "mcp-go should contain func main()");
-    assert!(go.contains("package main"), "mcp-go should contain package main");
-    assert!(go.contains("type "), "mcp-go should contain type definitions");
+    assert!(
+        go.contains("func main()"),
+        "mcp-go should contain func main()"
+    );
+    assert!(
+        go.contains("package main"),
+        "mcp-go should contain package main"
+    );
+    assert!(
+        go.contains("type "),
+        "mcp-go should contain type definitions"
+    );
 
     // --- MCP TypeScript ---
     let ts = render_template_with_graph(
@@ -562,9 +692,18 @@ fn test_rendered_code_contains_expected_language_constructs() {
             ("transport_type", "stdio"),
         ],
     );
-    assert!(ts.contains("type "), "mcp-typescript should contain type alias declarations");
-    assert!(ts.contains("async function"), "mcp-typescript should contain async function");
-    assert!(ts.contains("const "), "mcp-typescript should contain const declarations");
+    assert!(
+        ts.contains("type "),
+        "mcp-typescript should contain type alias declarations"
+    );
+    assert!(
+        ts.contains("async function"),
+        "mcp-typescript should contain async function"
+    );
+    assert!(
+        ts.contains("const "),
+        "mcp-typescript should contain const declarations"
+    );
 
     // --- MCP Java ---
     let java = render_template_with_graph(
@@ -578,9 +717,15 @@ fn test_rendered_code_contains_expected_language_constructs() {
             ("transport_type", "stdio"),
         ],
     );
-    assert!(java.contains("public class"), "mcp-java should contain public class");
+    assert!(
+        java.contains("public class"),
+        "mcp-java should contain public class"
+    );
     assert!(java.contains("record "), "mcp-java should contain record");
-    assert!(java.contains("public static void main"), "mcp-java should contain main method");
+    assert!(
+        java.contains("public static void main"),
+        "mcp-java should contain main method"
+    );
 
     // --- MCP Elixir ---
     let ex = render_template_with_graph(
@@ -594,9 +739,18 @@ fn test_rendered_code_contains_expected_language_constructs() {
             ("transport_type", "stdio"),
         ],
     );
-    assert!(ex.contains("defmodule"), "mcp-elixir should contain defmodule");
-    assert!(ex.contains("use GenServer"), "mcp-elixir should use GenServer");
-    assert!(ex.contains("def start_link"), "mcp-elixir should contain start_link");
+    assert!(
+        ex.contains("defmodule"),
+        "mcp-elixir should contain defmodule"
+    );
+    assert!(
+        ex.contains("use GenServer"),
+        "mcp-elixir should use GenServer"
+    );
+    assert!(
+        ex.contains("def start_link"),
+        "mcp-elixir should contain start_link"
+    );
 
     // --- A2A Rust ---
     let a2a_rust = render_template_with_graph(
@@ -612,9 +766,18 @@ fn test_rendered_code_contains_expected_language_constructs() {
             ("provider_url", "https://ggen.dev"),
         ],
     );
-    assert!(a2a_rust.contains("fn main"), "a2a-rust should contain fn main");
-    assert!(a2a_rust.contains("pub struct"), "a2a-rust should contain pub struct");
-    assert!(a2a_rust.contains("Router::new"), "a2a-rust should use axum Router");
+    assert!(
+        a2a_rust.contains("fn main"),
+        "a2a-rust should contain fn main"
+    );
+    assert!(
+        a2a_rust.contains("pub struct"),
+        "a2a-rust should contain pub struct"
+    );
+    assert!(
+        a2a_rust.contains("Router::new"),
+        "a2a-rust should use axum Router"
+    );
 
     // --- A2A Go ---
     let a2a_go = render_template_with_graph(
@@ -630,9 +793,18 @@ fn test_rendered_code_contains_expected_language_constructs() {
             ("provider_url", "https://ggen.dev"),
         ],
     );
-    assert!(a2a_go.contains("func main()"), "a2a-go should contain func main()");
-    assert!(a2a_go.contains("package main"), "a2a-go should contain package main");
-    assert!(a2a_go.contains("agentCardHandler"), "a2a-go should contain agentCardHandler");
+    assert!(
+        a2a_go.contains("func main()"),
+        "a2a-go should contain func main()"
+    );
+    assert!(
+        a2a_go.contains("package main"),
+        "a2a-go should contain package main"
+    );
+    assert!(
+        a2a_go.contains("agentCardHandler"),
+        "a2a-go should contain agentCardHandler"
+    );
 
     // --- A2A TypeScript ---
     let a2a_ts = render_template_with_graph(
@@ -648,9 +820,18 @@ fn test_rendered_code_contains_expected_language_constructs() {
             ("provider_url", "https://ggen.dev"),
         ],
     );
-    assert!(a2a_ts.contains("interface "), "a2a-typescript should contain interface");
-    assert!(a2a_ts.contains("async function"), "a2a-typescript should contain async function");
-    assert!(a2a_ts.contains("express()"), "a2a-typescript should use express");
+    assert!(
+        a2a_ts.contains("interface "),
+        "a2a-typescript should contain interface"
+    );
+    assert!(
+        a2a_ts.contains("async function"),
+        "a2a-typescript should contain async function"
+    );
+    assert!(
+        a2a_ts.contains("express()"),
+        "a2a-typescript should use express"
+    );
 
     // --- A2A Java ---
     let a2a_java = render_template_with_graph(
@@ -666,15 +847,33 @@ fn test_rendered_code_contains_expected_language_constructs() {
             ("provider_url", "https://ggen.dev"),
         ],
     );
-    assert!(a2a_java.contains("public class"), "a2a-java should contain public class");
-    assert!(a2a_java.contains("@RestController"), "a2a-java should contain @RestController");
-    assert!(a2a_java.contains("record "), "a2a-java should contain record");
+    assert!(
+        a2a_java.contains("public class"),
+        "a2a-java should contain public class"
+    );
+    assert!(
+        a2a_java.contains("@RestController"),
+        "a2a-java should contain @RestController"
+    );
+    assert!(
+        a2a_java.contains("record "),
+        "a2a-java should contain record"
+    );
 
     // --- A2A Elixir (uses `skills` variable) ---
     let a2a_ex = render_a2a_elixir_with_skills();
-    assert!(a2a_ex.contains("defmodule"), "a2a-elixir should contain defmodule");
-    assert!(a2a_ex.contains("use GenServer"), "a2a-elixir should use GenServer");
-    assert!(a2a_ex.contains("review_code"), "a2a-elixir should contain review_code skill");
+    assert!(
+        a2a_ex.contains("defmodule"),
+        "a2a-elixir should contain defmodule"
+    );
+    assert!(
+        a2a_ex.contains("use GenServer"),
+        "a2a-elixir should use GenServer"
+    );
+    assert!(
+        a2a_ex.contains("review_code"),
+        "a2a-elixir should contain review_code skill"
+    );
 }
 
 // ===========================================================================

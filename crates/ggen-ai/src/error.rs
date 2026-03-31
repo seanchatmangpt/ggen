@@ -255,6 +255,13 @@ impl GgenAiError {
         }
     }
 
+    /// Create a validation error for validation failures
+    pub fn validation_error(message: impl Into<String>) -> Self {
+        Self::ValidationError {
+            message: message.into(),
+        }
+    }
+
     /// Create a parse error
     pub fn parse_error(provider: impl Into<String>, message: impl Into<String>) -> Self {
         Self::ParseError {

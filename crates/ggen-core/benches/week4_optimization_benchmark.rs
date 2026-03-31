@@ -102,7 +102,7 @@ fn bench_lockfile_refinement(c: &mut Criterion) {
         );
 
         // Measure cache effectiveness
-        let stats = manager.cache_stats();
+        let stats = manager.cache_stats().unwrap_or((0, 0));
         let hit_rate = if stats.1 > 0 {
             (stats.0 as f64 / stats.1 as f64) * 100.0
         } else {
@@ -250,7 +250,7 @@ fn main_{}() {{
     println!("Template {}: var = {{}}, count = {{}}", var, count);
 }}
 "#,
-                    i, i, i, i, i, i, i, i
+                    i, i, i, i, i, i, i, i, i
                 ),
             )
             .unwrap();
@@ -323,10 +323,10 @@ fn main_{}() {{
 
         // Test 4: Memory usage optimization
         let stats = cache.stats().unwrap();
-        let memory_mb = (stats.total_entries * 1024) as f64 / (1024.0 * 1024.0); // rough estimate
+        let memory_mb = (stats.size * 1024) as f64 / (1024.0 * 1024.0); // rough estimate
         println!(
             "Template cache (capacity {}): {} entries, ~{:.2}MB estimated memory",
-            capacity, stats.total_entries, memory_mb
+            capacity, stats.size, memory_mb
         );
     }
 

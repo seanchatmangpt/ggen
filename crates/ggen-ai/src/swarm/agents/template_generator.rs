@@ -3,17 +3,17 @@
 //! Monitors RDF graph changes and regenerates affected ggen templates
 //! to reflect new facts, relationships, and domain knowledge.
 
-use crate::error::{GgenAiError, Result};
-use crate::swarm::{
-    AgentHealth, HealthStatus, SwarmAgent, SwarmContext, AgentInput, AgentOutput,
-    BaseAgent, AgentConfig, PerformanceThresholds
-};
-use crate::generators::TemplateGenerator;
 use crate::client::{LlmClient, LlmConfig};
+use crate::error::{GgenAiError, Result};
+use crate::generators::TemplateGenerator;
 use crate::providers::adapter::OllamaClient;
+use crate::swarm::{
+    AgentConfig, AgentHealth, AgentInput, AgentOutput, BaseAgent, HealthStatus,
+    PerformanceThresholds, SwarmAgent, SwarmContext,
+};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 use std::collections::HashMap;
 use tracing::debug;
 
@@ -124,7 +124,6 @@ impl TemplateGeneratorAgent {
         }
     }
 
-
     /// Find templates affected by graph changes
     async fn find_affected_templates(&self, graph_delta: &Value) -> Result<Vec<String>> {
         // Analyze graph delta to determine which templates are affected
@@ -139,11 +138,19 @@ impl TemplateGeneratorAgent {
                     if let (Some(subject), Some(predicate), Some(object)) = (
                         triple.get("subject").and_then(|v| v.as_str()),
                         triple.get("predicate").and_then(|v| v.as_str()),
-                        triple.get("object").and_then(|v| v.as_str())
+                        triple.get("object").and_then(|v| v.as_str()),
                     ) {
                         // Find templates that reference these entities
                         for template_path in &self.template_context.template_paths {
-                            if self.template_references_entity(template_path, subject, predicate, object).await? {
+                            if self
+                                .template_references_entity(
+                                    template_path,
+                                    subject,
+                                    predicate,
+                                    object,
+                                )
+                                .await?
+                            {
                                 affected_templates.push(template_path.clone());
                             }
                         }
@@ -157,11 +164,7 @@ impl TemplateGeneratorAgent {
 
     /// Check if a template references specific entities
     async fn template_references_entity(
-        &self,
-        _template_path: &str,
-        _subject: &str,
-        _predicate: &str,
-        _object: &str
+        &self, _template_path: &str, _subject: &str, _predicate: &str, _object: &str,
     ) -> Result<bool> {
         // This would analyze template content to see if it references
         // the given subject, predicate, or object
@@ -170,16 +173,27 @@ impl TemplateGeneratorAgent {
     }
 
     /// Regenerate templates based on graph changes
-    async fn regenerate_templates(&self, affected_templates: Vec<String>, graph_context: &str) -> Result<Vec<RegeneratedTemplate>> {
+    async fn regenerate_templates(
+        &self, affected_templates: Vec<String>, graph_context: &str,
+    ) -> Result<Vec<RegeneratedTemplate>> {
         let mut regenerated = Vec::new();
 
         for template_path in affected_templates {
             // Read current template
-            let original_content = tokio::fs::read_to_string(&template_path).await
-                .map_err(|e| GgenAiError::io_error(&format!("Failed to read template {}: {}", template_path, e)))?;
+            let original_content =
+                tokio::fs::read_to_string(&template_path)
+                    .await
+                    .map_err(|e| {
+                        GgenAiError::io_error(&format!(
+                            "Failed to read template {}: {}",
+                            template_path, e
+                        ))
+                    })?;
 
             // Generate new template based on updated graph context
-            let new_content = self.generate_updated_template(&original_content, graph_context).await?;
+            let new_content = self
+                .generate_updated_template(&original_content, graph_context)
+                .await?;
 
             // Analyze changes between original and new
             let changes = self.analyze_template_changes(&original_content, &new_content)?;
@@ -188,7 +202,11 @@ impl TemplateGeneratorAgent {
             let quality_score = self.calculate_template_quality(&new_content)?;
 
             regenerated.push(RegeneratedTemplate {
-                name: template_path.split('/').last().unwrap_or("unknown").to_string(),
+                name: template_path
+                    .split('/')
+                    .last()
+                    .unwrap_or("unknown")
+                    .to_string(),
                 path: template_path,
                 original_content,
                 regenerated_content: new_content,
@@ -201,7 +219,9 @@ impl TemplateGeneratorAgent {
     }
 
     /// Generate updated template content
-    async fn generate_updated_template(&self, original: &str, graph_context: &str) -> Result<String> {
+    async fn generate_updated_template(
+        &self, original: &str, graph_context: &str,
+    ) -> Result<String> {
         // Use AI to regenerate template based on updated graph context
         let prompt = format!(
             r#"You are an expert template engineer. Given an existing ggen template and updated graph context,
@@ -237,12 +257,16 @@ Updated Template:"#,
         let description = "Regenerate template based on updated graph context";
         let examples = vec!["Maintain structure", "Update variables", "Preserve style"];
 
-        self.template_generator.generate_template(description, examples).await
+        self.template_generator
+            .generate_template(description, examples)
+            .await
             .map(|template| template.body)
     }
 
     /// Analyze changes between original and regenerated templates
-    fn analyze_template_changes(&self, original: &str, regenerated: &str) -> Result<Vec<TemplateChange>> {
+    fn analyze_template_changes(
+        &self, original: &str, regenerated: &str,
+    ) -> Result<Vec<TemplateChange>> {
         let mut changes = Vec::new();
 
         // Simple change detection - would implement more sophisticated diffing
@@ -292,7 +316,9 @@ impl SwarmAgent for TemplateGeneratorAgent {
         let start_time = std::time::Instant::now();
 
         // Extract graph delta from input
-        let graph_delta = input.data.get("graph_delta")
+        let graph_delta = input
+            .data
+            .get("graph_delta")
             .ok_or_else(|| GgenAiError::parsing_error("No graph_delta in input"))?;
 
         // Find affected templates
@@ -302,7 +328,9 @@ impl SwarmAgent for TemplateGeneratorAgent {
         let graph_context = self.template_context.graph_schema.clone();
 
         // Regenerate templates
-        let regenerated_templates = self.regenerate_templates(affected_templates, &graph_context).await?;
+        let regenerated_templates = self
+            .regenerate_templates(affected_templates, &graph_context)
+            .await?;
 
         // Convert to output format
         let output_data = json!({
@@ -320,7 +348,10 @@ impl SwarmAgent for TemplateGeneratorAgent {
             metadata: {
                 let mut metadata = HashMap::new();
                 metadata.insert("execution_time_ms".to_string(), execution_time.to_string());
-                metadata.insert("templates_regenerated".to_string(), regenerated_templates.len().to_string());
+                metadata.insert(
+                    "templates_regenerated".to_string(),
+                    regenerated_templates.len().to_string(),
+                );
                 metadata
             },
         })
@@ -391,7 +422,9 @@ mod tests {
         let agent = TemplateGeneratorAgent::new(template_gen, template_context);
 
         assert_eq!(agent.name(), "template_generator");
-        assert!(agent.capabilities().contains(&"template_regeneration".to_string()));
+        assert!(agent
+            .capabilities()
+            .contains(&"template_regeneration".to_string()));
     }
 
     #[tokio::test]

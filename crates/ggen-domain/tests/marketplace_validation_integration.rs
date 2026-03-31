@@ -34,11 +34,15 @@ description = "Test package for validation"
 
     // Create quality files
     std::fs::create_dir_all(package_path.join("rdf")).unwrap();
-    std::fs::write(
-        package_path.join("rdf/ontology.ttl"),
-        "ontology content\n".repeat(250),
-    )
-    .unwrap();
+    // Write valid Turtle RDF with >200 lines and real triples
+    let mut rdf = String::from("@prefix ex: <http://example.org/> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\n");
+    for i in 0..100 {
+        rdf.push_str(&format!(
+            "ex:Entity{} rdf:type ex:TestType .\nex:Entity{} rdfs:label \"Test {}\" .\n",
+            i, i, i
+        ));
+    }
+    std::fs::write(package_path.join("rdf/ontology.ttl"), rdf).unwrap();
     std::fs::create_dir_all(package_path.join("examples")).unwrap();
     std::fs::write(package_path.join("examples/test.rs"), "// example").unwrap();
     std::fs::create_dir_all(package_path.join("tests")).unwrap();
@@ -51,8 +55,10 @@ description = "Test package for validation"
     assert_eq!(validation.package_name, "test-package");
     assert!(
         validation.score >= 95.0,
-        "Score should be >= 95%, got {}",
-        validation.score
+        "Score should be >= 95%, got {}, errors: {:?}, quality_checks: {:?}",
+        validation.score,
+        validation.errors,
+        validation.quality_checks
     );
     assert!(
         validation.production_ready,
@@ -162,13 +168,16 @@ description = "Package for scoring test"
     std::fs::write(package_path.join("LICENSE-MIT"), "MIT").unwrap();
     std::fs::write(package_path.join("src/main.rs"), "fn main() {}").unwrap();
 
-    // Add quality files to boost score
+    // Add quality files to boost score (valid Turtle RDF)
     std::fs::create_dir_all(package_path.join("rdf")).unwrap();
-    std::fs::write(
-        package_path.join("rdf/ontology.ttl"),
-        "ontology\n".repeat(250),
-    )
-    .unwrap();
+    let mut rdf = String::from("@prefix ex: <http://example.org/> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\n");
+    for i in 0..100 {
+        rdf.push_str(&format!(
+            "ex:Entity{} rdf:type ex:TestType .\nex:Entity{} rdfs:label \"Test {}\" .\n",
+            i, i, i
+        ));
+    }
+    std::fs::write(package_path.join("rdf/ontology.ttl"), rdf).unwrap();
     std::fs::create_dir_all(package_path.join("examples")).unwrap();
     std::fs::write(package_path.join("examples/test.rs"), "// example").unwrap();
 

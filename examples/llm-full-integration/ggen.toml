@@ -1,0 +1,49 @@
+# LLM Full Integration Test - End-to-End Code Generation
+# This test validates the complete pipeline: ontology → SPARQL → LLM → generated code
+
+[project]
+name = "llm-integration-test"
+version = "0.1.0"
+description = "End-to-end integration test for LLM-assisted code generation"
+
+[ontology]
+source = "ontology.ttl"
+imports = []
+base_iri = "http://example.org/a2a#"
+
+[generation]
+output_dir = "generated"
+# Enable LLM-assisted code generation
+enable_llm = true
+llm_provider = "groq"
+llm_model = "llama-3.3-70b-versatile"
+llm_temperature = 0.7
+llm_max_tokens = 2048
+
+# ── Rule 1: Generate Rust agent with LLM-implemented skills ─────────────────────
+[[generation.rules]]
+name = "generate-rust-agent"
+query = { file = "extract-agent-skills.rq" }
+template = { file = "agent-rs.tera" }
+output_file = "agent.rs"
+mode = "Overwrite"
+
+# ── Rule 2: Generate individual skill implementations ─────────────────────────
+[[generation.rules]]
+name = "generate-rust-skills"
+query = { file = "extract-skills.rq" }
+template = { file = "skill-rs.tera" }
+output_file = "skills/data_analysis.rs"
+mode = "Overwrite"
+
+# ── Rule 3: Generate schema types ───────────────────────────────────────────────
+[[generation.rules]]
+name = "generate-types"
+query = { file = "extract-types.rq" }
+template = { file = "types-rs.tera" }
+output_file = "types.rs"
+mode = "Overwrite"
+
+[validation]
+require_shacl = false
+require_inference = false

@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 // ============================================================================
@@ -84,23 +86,25 @@ var (
 )
 
 // ============================================================================
-// Skill Input Structs
+// Skill Input/Output Structs
 // ============================================================================
 
 {% for row in sparql_results %}
-// {{ row.skill_description | default(value=row.skill_name) }}
-// Timeout: {{ row.timeout_ms | default(value=5000) }}ms
-// TODO: add typed fields once input_params are available in SPARQL results
+{% if row.input_type %}
+{{ row.input_type | schema_to_go }}
+{% else %}
 type {{ row.skill_name | pascal }}Input struct {
-	// Accepts any JSON value — replace with typed fields as needed
 	Params map[string]interface{} `json:"params"`
 }
+{% endif %}
 
-// TODO: add typed fields once output_params are available in SPARQL results
+{% if row.output_type %}
+{{ row.output_type | schema_to_go }}
+{% else %}
 type {{ row.skill_name | pascal }}Output struct {
-	// Wrap the result value — replace with typed fields as needed
 	Result interface{} `json:"result"`
 }
+{% endif %}
 {% endfor %}
 
 // ============================================================================
@@ -111,21 +115,117 @@ type {{ row.skill_name | pascal }}Output struct {
 // handle{{ row.skill_name | pascal }} processes {{ row.skill_name }} skill invocations.
 //
 // {{ row.skill_description | default(value=row.skill_name) }}
-func handle{{ row.skill_name | pascal }}(params map[string]interface{}) (interface{}, error) {
-	// TODO: implement {{ row.skill_name }}
-	return map[string]interface{}{
-		"skill":  "{{ row.skill_name }}",
-		"status": "not_implemented",
-	}, nil
+func handle{{ row.skill_name | pascal }}(input {{ row.skill_name | pascal }}Input) ({{ row.skill_name | pascal }}Output, error) {
+	{% if row.generated_impl %}
+	{{ row.generated_impl }}
+	{% else %}
+	// TODO: implement {{ row.skill_name }} — {{ row.skill_description | default(value=row.skill_name) }}
+	return {{ row.skill_name | pascal }}Output{}, fmt.Errorf("not implemented: {{ row.skill_name }}")
+	{% endif %}
 }
 {% endfor %}
+
+// ============================================================================
+// WebSocket Transport
+// ============================================================================
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true // Allow all origins in development
+	},
+}
+
+type WebSocketTransport struct {
+	url      string
+	conn     *websocket.Conn
+	mu       sync.Mutex
+	retryMax int
+}
+
+func NewWebSocketTransport(url string) *WebSocketTransport {
+	return &WebSocketTransport{
+		url:      url,
+		retryMax: 3,
+	}
+}
+
+// Connect establishes WebSocket connection with retry logic
+func (ws *WebSocketTransport) Connect() error {
+	var err error
+	retryCount := 0
+
+	for retryCount < ws.retryMax {
+		ws.conn, _, err = websocket.DefaultDialer.Dial(ws.url, nil)
+		if err == nil {
+			log.Printf("Connected to WebSocket: %s", ws.url)
+			return nil
+		}
+
+		retryCount++
+		log.Printf("WebSocket connection attempt %d failed: %v, retrying...", retryCount, err)
+		time.Sleep(time.Duration(retryCount) * time.Second)
+	}
+
+	return fmt.Errorf("WebSocket connection failed after %d attempts: %v", ws.retryMax, err)
+}
+
+// Send sends a message through WebSocket
+func (ws *WebSocketTransport) Send(data []byte) error {
+	ws.mu.Lock()
+	defer ws.mu.Unlock()
+
+	if ws.conn == nil {
+		return fmt.Errorf("WebSocket not connected")
+	}
+
+	err := ws.conn.WriteMessage(websocket.TextMessage, data)
+	if err != nil {
+		return fmt.Errorf("failed to send WebSocket message: %v", err)
+	}
+
+	return nil
+}
+
+// Receive receives a message from WebSocket with timeout
+func (ws *WebSocketTransport) Receive() ([]byte, error) {
+	if ws.conn == nil {
+		return nil, fmt.Errorf("WebSocket not connected")
+	}
+
+	// Set read deadline for timeout
+	ws.conn.SetReadDeadline(time.Now().Add(30 * time.Second))
+
+	messageType, data, err := ws.conn.ReadMessage()
+	if err != nil {
+		return nil, fmt.Errorf("failed to receive WebSocket message: %v", err)
+	}
+
+	if messageType != websocket.TextMessage && messageType != websocket.BinaryMessage {
+		return nil, fmt.Errorf("unexpected WebSocket message type: %d", messageType)
+	}
+
+	return data, nil
+}
+
+// Close closes the WebSocket connection
+func (ws *WebSocketTransport) Close() error {
+	ws.mu.Lock()
+	defer ws.mu.Unlock()
+
+	if ws.conn != nil {
+		return ws.conn.Close()
+	}
+	return nil
+}
 
 // ============================================================================
 // Skill Registry
 // ============================================================================
 
 type SkillEntry struct {
-	Handler   func(map[string]interface{}) (interface{}, error)
+	Handler   func(interface{}) (interface{}, error)
 	TimeoutMs int
 	Streaming bool
 }
@@ -178,6 +278,80 @@ func agentCardHandler(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(agentCard); err != nil {
 		http.Error(w, "Failed to encode agent card", http.StatusInternalServerError)
 	}
+}
+
+// websocketHandler handles WebSocket connections on /a2a/ws
+func websocketHandler(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Printf("WebSocket upgrade failed: %v", err)
+		return
+	}
+	defer conn.Close()
+
+	log.Printf("WebSocket connection established from %s", r.RemoteAddr)
+
+	for {
+		messageType, data, err := conn.ReadMessage()
+		if err != nil {
+			log.Printf("WebSocket read error: %v", err)
+			break
+		}
+
+		if messageType == websocket.TextMessage {
+			var req JsonRpcRequest
+			if err := json.Unmarshal(data, &req); err != nil {
+				writeRpcErrorWs(conn, nil, -32700, "Parse error: "+err.Error())
+				continue
+			}
+
+			if req.Jsonrpc != "2.0" {
+				writeRpcErrorWs(conn, req.ID, -32600, "Invalid Request: jsonrpc must be '2.0'")
+				continue
+			}
+
+			// Process message
+			entry, ok := skillRegistry[req.Method]
+			if !ok {
+				writeRpcErrorWs(conn, req.ID, -32601, fmt.Sprintf("Method not found: %s", req.Method))
+				continue
+			}
+
+			params := req.Params
+			if params == nil {
+				params = make(map[string]interface{})
+			}
+
+			// Execute skill
+			result, err := entry.Handler(params)
+			if err != nil {
+				writeRpcErrorWs(conn, req.ID, -32000, err.Error())
+				continue
+			}
+
+			writeRpcResultWs(conn, req.ID, result)
+		}
+	}
+}
+
+func writeRpcResultWs(conn *websocket.Conn, id interface{}, result interface{}) {
+	response := JsonRpcResponse{
+		Jsonrpc: "2.0",
+		Result:  result,
+		ID:      id,
+	}
+	data, _ := json.Marshal(response)
+	conn.WriteMessage(websocket.TextMessage, data)
+}
+
+func writeRpcErrorWs(conn *websocket.Conn, id interface{}, code int, message string) {
+	response := JsonRpcResponse{
+		Jsonrpc: "2.0",
+		Error:   &RpcError{Code: code, Message: message},
+		ID:      id,
+	}
+	data, _ := json.Marshal(response)
+	conn.WriteMessage(websocket.TextMessage, data)
 }
 
 // messageHandler processes JSON-RPC 2.0 requests on /a2a/message
@@ -408,6 +582,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/.well-known/agent.json", agentCardHandler)
 	mux.HandleFunc("/a2a/message", messageHandler)
+	mux.HandleFunc("/a2a/ws", websocketHandler)
 	mux.HandleFunc("/a2a/stream", streamHandler)
 	mux.HandleFunc("/a2a/tasks/{id}", taskGetHandler)
 	mux.HandleFunc("/a2a/tasks/{id}/cancel", taskCancelHandler)
@@ -437,4 +612,6 @@ func skillNames() []string {
 //
 // go 1.24
 //
-// require nothing beyond stdlib — pure net/http implementation
+// require (
+//     github.com/gorilla/websocket v1.5.1
+// )

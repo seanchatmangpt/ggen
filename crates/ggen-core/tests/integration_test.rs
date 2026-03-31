@@ -186,7 +186,7 @@ fn test_template_fixture_exists() {
         "Template should loop over sparql_results"
     );
     assert!(
-        content.contains("{{ row[\"?className\"] }}"),
+        content.contains("{{ row[\"className\"] }}"),
         "Template should access className from results"
     );
     assert!(

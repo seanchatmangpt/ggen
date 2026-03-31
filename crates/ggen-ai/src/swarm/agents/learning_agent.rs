@@ -1,7 +1,10 @@
 //! Learning Agent - Improves generation based on feedback and runtime data
 
+use super::{
+    BaseAgent, LearningData, LearningModel, ModelUpdates, PredictionInput, PredictionOutput,
+    TrainingResult,
+};
 use crate::error::Result;
-use super::{BaseAgent, LearningModel, LearningData, PredictionInput, PredictionOutput, ModelUpdates, TrainingResult};
 use async_trait::async_trait;
 
 /// Learning Agent implementation

@@ -1,0 +1,22 @@
+{
+  "name": "{{ sparql_results | first | get(key="agentName") }}",
+  "description": "{{ sparql_results | first | get(key="description") }}",
+  "version": "{{ sparql_results | first | get(key="version") }}",
+  "url": "{{ sparql_results | first | get(key="url") }}",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "skills": [
+{%- for row in sparql_results %}
+    {
+      "id": "{{ row["skillId"] }}",
+      "name": "{{ row["skillName"] }}",
+      "description": "{{ row["skillDesc"] }}",
+      "inputModes": ["{{ row["inputModes"] }}"],
+      "outputModes": ["{{ row["outputModes"] }}"]
+    }{% if not loop.last %},{% endif %}
+{%- endfor %}
+  ]
+}

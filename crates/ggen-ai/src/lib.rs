@@ -66,7 +66,16 @@ pub mod prompts;
 pub mod providers;
 pub mod rdf;
 pub mod security;
+pub mod sparql_validator;
 pub mod streaming;
+#[cfg(feature = "swarm")]
+pub mod swarm;
+
+// Re-export quality autopilot agents when swarm feature is enabled
+#[cfg(feature = "swarm")]
+pub use swarm::agents::quality_autopilot::{
+    CodeCycle, CycleBreakerAgent, CycleFixReport, FixStrategy,
+};
 pub mod tool;
 pub mod tool_registry;
 pub mod types;
@@ -78,6 +87,18 @@ pub mod owl;
 // Test helpers for mock clients
 #[cfg(test)]
 pub mod test_helpers;
+
+/// OTEL semantic convention attribute names used across ggen-ai.
+pub mod otel_attrs {
+    pub const SERVICE_NAME: &str = "service.name";
+    pub const SERVICE_VERSION: &str = "service.version";
+    pub const OPERATION_NAME: &str = "operation.name";
+    pub const OPERATION_TYPE: &str = "operation.type";
+    pub const LLM_MODEL: &str = "llm.model";
+    pub const LLM_PROMPT_TOKENS: &str = "llm.prompt_tokens";
+    pub const LLM_COMPLETION_TOKENS: &str = "llm.completion_tokens";
+    pub const LLM_TOTAL_TOKENS: &str = "llm.total_tokens";
+}
 
 // Re-export main types for convenience
 pub use cache::{CacheConfig, CacheStats, LlmCache};
@@ -92,10 +113,11 @@ pub use generators::{
 };
 pub use providers::adapter::{ollama_default_config, ollama_qwen3_coder_config, MockClient};
 pub use rdf::{
-    Argument, ArgumentType, CliGenerator, CliProject, Dependency, Noun, QueryExecutor, RdfParser,
+    Argument, ArgumentType, CliProject, Dependency, Noun, QueryExecutor, RdfParser,
     TemplateRenderer, Validation, Verb,
 };
 pub use security::{MaskApiKey, SecretString};
+pub use sparql_validator::{validate_sparql, SparqlIssue, SparqlIssueType, SparqlValidationResult};
 pub use streaming::StreamConfig;
 pub use tool::{AuthScope, Tool, ToolExample, ToolSlo, ToolTag};
 pub use tool_registry::{ToolRegistry, REGISTRY};

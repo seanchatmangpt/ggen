@@ -1,0 +1,25 @@
+{% for agent in agents -%}
+defmodule {{agent.appModule}}.Agents.{{agent.agentName | title | replace: "-", ""}} do
+  @moduledoc """
+  {{agent.description}}
+  """
+
+  use A2A.Agent
+
+  def init(opts) do
+    {:ok, %{
+      name: "{{agent.agentName}}",
+      description: "{{agent.description}}",
+      version: "{{agent.version}}",
+      config: opts
+    }}
+  end
+
+  def handle_message(_message, state) do
+    # TODO: Implement message handling for {{agent.agentName}}
+    {:reply, :not_implemented, state}
+  end
+
+  # Skills: {{agent.skills}}
+end
+{% endfor %}

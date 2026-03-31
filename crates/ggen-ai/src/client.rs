@@ -9,8 +9,11 @@ use genai::{
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::time::Instant;
+use tracing::{info, warn, Span};
 
 use crate::error::{GgenAiError, Result};
+use crate::otel_attrs;
 
 /// Configuration for LLM requests
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -198,30 +201,105 @@ impl GenAiClient {
 #[async_trait]
 impl LlmClient for GenAiClient {
     async fn complete(&self, prompt: &str) -> Result<LlmResponse> {
+        // Manual span — #[tracing::instrument] cannot be used on async_trait impl methods
+        let span = tracing::info_span!(
+            "llm.complete",
+            "operation.name" = "llm.complete",
+            "operation.type" = "llm",
+            "llm.model" = %self.config.model,
+            prompt_len = prompt.len(),
+        );
+        let _guard = span.enter();
+
+        let start = Instant::now();
+        let model = &self.config.model;
+        let prompt_len = prompt.len();
+
+        info!(
+            model = %model,
+            prompt_len,
+            "LLM complete request"
+        );
+
         let chat_req = ChatRequest::new(vec![ChatMessage::user(prompt)]);
 
         let chat_options = self.create_chat_options();
 
         let response = self
             .client
-            .exec_chat(&self.config.model, chat_req, Some(&chat_options))
+            .exec_chat(model, chat_req, Some(&chat_options))
             .await
-            .map_err(|e| GgenAiError::llm_provider("GenAI", format!("Request failed: {}", e)))?;
+            .map_err(|e| {
+                let elapsed = start.elapsed();
+                warn!(
+                    model = %model,
+                    elapsed_ms = elapsed.as_millis() as u64,
+                    error = %e,
+                    "LLM complete request FAILED"
+                );
+                Span::current().record("error", true);
+                Span::current().record("error.type", "llm_failure");
+                Span::current().record("error.message", e.to_string());
+                GgenAiError::llm_provider("GenAI", format!("Request failed: {}", e))
+            })?;
+
+        let content = response.first_text().unwrap_or_default().to_string();
+        let output_len = content.len();
+        let elapsed = start.elapsed();
+
+        let prompt_tokens = response.usage.prompt_tokens.unwrap_or(0) as u32;
+        let completion_tokens = response.usage.completion_tokens.unwrap_or(0) as u32;
+        let total_tokens = response.usage.total_tokens.unwrap_or(0) as u32;
+
+        // Record usage via Span::current().record() — safe with otel_attrs constants
+        Span::current().record(otel_attrs::LLM_PROMPT_TOKENS, prompt_tokens);
+        Span::current().record(otel_attrs::LLM_COMPLETION_TOKENS, completion_tokens);
+        Span::current().record(otel_attrs::LLM_TOTAL_TOKENS, total_tokens);
+
+        info!(
+            model = %model,
+            elapsed_ms = elapsed.as_millis() as u64,
+            prompt_len,
+            output_len,
+            prompt_tokens,
+            completion_tokens,
+            total_tokens,
+            "LLM complete response"
+        );
 
         Ok(LlmResponse {
-            content: response.first_text().unwrap_or_default().to_string(),
+            content,
             usage: Some(UsageStats {
-                prompt_tokens: response.usage.prompt_tokens.unwrap_or(0) as u32,
-                completion_tokens: response.usage.completion_tokens.unwrap_or(0) as u32,
-                total_tokens: response.usage.total_tokens.unwrap_or(0) as u32,
+                prompt_tokens,
+                completion_tokens,
+                total_tokens,
             }),
-            model: self.config.model.clone(),
+            model: model.clone(),
             finish_reason: Some("stop".to_string()),
             extra: HashMap::new(),
         })
     }
 
     async fn complete_stream(&self, prompt: &str) -> Result<BoxStream<'static, LlmChunk>> {
+        // Manual span — #[tracing::instrument] cannot be used on async_trait impl methods
+        let span = tracing::info_span!(
+            "llm.complete_stream",
+            "operation.name" = "llm.complete_stream",
+            "operation.type" = "llm",
+            "llm.model" = %self.config.model,
+            prompt_len = prompt.len(),
+        );
+        let _guard = span.enter();
+
+        let model = self.config.model.clone();
+        let prompt_len = prompt.len();
+
+        info!(
+            model = %model,
+            prompt_len,
+            "LLM stream request"
+        );
+
         let chat_req = ChatRequest::new(vec![ChatMessage::user(prompt)]);
 
         let chat_options = self.create_chat_options();
@@ -231,6 +309,14 @@ impl LlmClient for GenAiClient {
             .exec_chat_stream(&self.config.model, chat_req, Some(&chat_options))
             .await
             .map_err(|e| {
+                warn!(
+                    model = %model,
+                    error = %e,
+                    "LLM stream request FAILED"
+                );
+                Span::current().record("error", true);
+                Span::current().record("error.type", "llm_failure");
+                Span::current().record("error.message", e.to_string());
                 GgenAiError::llm_provider("GenAI", format!("Stream request failed: {}", e))
             })?;
 

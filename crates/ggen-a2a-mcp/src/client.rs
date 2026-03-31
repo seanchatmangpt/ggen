@@ -11,6 +11,7 @@
 use crate::adapter::{AgentToToolAdapter, ToolCall};
 use crate::error::{A2aMcpError, A2aMcpResult};
 use crate::message::{A2aMessageConverter, LlmRequest, LlmResponse};
+use crate::otel_attrs;
 use a2a_generated::converged::{message::ConvergedMessage, UnifiedAgent};
 use futures::StreamExt;
 use ggen_ai::client::{GenAiClient, LlmClient as _, LlmConfig};
@@ -18,7 +19,8 @@ use ggen_ai::dspy::model_capabilities::Model;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::{Mutex, RwLock, Semaphore};
+use tokio::sync::{Mutex, Notify, RwLock, Semaphore};
+use tokio::task::JoinHandle;
 use tokio::time::{interval, Instant};
 use tracing::{debug, info, warn};
 
@@ -60,12 +62,6 @@ pub struct A2aClientConfig {
     /// Maximum concurrent requests
     pub max_concurrent_requests: usize,
 
-    /// Connection timeout
-    pub connection_timeout: Duration,
-
-    /// Request timeout
-    pub request_timeout: Duration,
-
     /// Health check interval
     pub health_check_interval: Duration,
 
@@ -86,8 +82,6 @@ impl Default for A2aClientConfig {
     fn default() -> Self {
         Self {
             max_concurrent_requests: 10,
-            connection_timeout: Duration::from_secs(30),
-            request_timeout: Duration::from_secs(120),
             health_check_interval: Duration::from_secs(60),
             max_retries: 3,
             retry_backoff_multiplier: 2.0,
@@ -137,8 +131,8 @@ pub struct StreamingChunk {
 
 /// Client that bridges A2A messages with ggen-ai LLM providers
 pub struct A2aLlmClient {
-    /// LLM client for direct API calls
-    llm_client: Arc<Mutex<GenAiClient>>,
+    /// LLM client for direct API calls (Clone + Send + Sync, no Mutex needed)
+    llm_client: GenAiClient,
 
     /// Adapter for A2A to tool conversions
     adapter: Arc<Mutex<AgentToToolAdapter>>,
@@ -166,6 +160,12 @@ pub struct A2aLlmClient {
 
     /// Whether the client is running
     running: Arc<RwLock<bool>>,
+
+    /// Cancellation signal for the health check task
+    cancel: Arc<Notify>,
+
+    /// JoinHandle for the health check task (to abort on drop)
+    health_handle: Mutex<Option<JoinHandle<()>>>,
 }
 
 /// Context for tracking task execution
@@ -209,8 +209,10 @@ impl A2aLlmClient {
 
         let semaphore = Arc::new(Semaphore::new(config.max_concurrent_requests));
 
+        let cancel = Arc::new(Notify::new());
+
         let client = Self {
-            llm_client: Arc::new(Mutex::new(llm_client)),
+            llm_client,
             adapter: Arc::new(Mutex::new(AgentToToolAdapter::new())),
             converter: Arc::new(A2aMessageConverter::new()),
             model,
@@ -220,6 +222,8 @@ impl A2aLlmClient {
             agents: Arc::new(RwLock::new(HashMap::new())),
             active_tasks: Arc::new(RwLock::new(HashMap::new())),
             running: Arc::new(RwLock::new(false)),
+            cancel,
+            health_handle: Mutex::new(None),
         };
 
         // Start health check task
@@ -248,9 +252,10 @@ impl A2aLlmClient {
             .map_err(|e| A2aMcpError::Llm(format!("Failed to create LLM client: {}", e)))?;
 
         let semaphore = Arc::new(Semaphore::new(config.max_concurrent_requests));
+        let cancel = Arc::new(Notify::new());
 
         let client = Self {
-            llm_client: Arc::new(Mutex::new(llm_client)),
+            llm_client,
             adapter: Arc::new(Mutex::new(AgentToToolAdapter::new())),
             converter: Arc::new(converter),
             model,
@@ -260,6 +265,8 @@ impl A2aLlmClient {
             agents: Arc::new(RwLock::new(HashMap::new())),
             active_tasks: Arc::new(RwLock::new(HashMap::new())),
             running: Arc::new(RwLock::new(false)),
+            cancel,
+            health_handle: Mutex::new(None),
         };
 
         client.start_health_check().await;
@@ -271,27 +278,49 @@ impl A2aLlmClient {
         let health = Arc::clone(&self.health);
         let check_interval = self.config.health_check_interval;
         let running = Arc::clone(&self.running);
+        let cancel = Arc::clone(&self.cancel);
 
         // Mark as running
         *running.write().await = true;
 
-        tokio::spawn(async move {
+        // Set initial state to Connected
+        {
+            let mut h = health.write().await;
+            h.state = ConnectionState::Connected;
+            h.last_heartbeat = Instant::now();
+        }
+
+        let handle = tokio::spawn(async move {
             let mut timer = interval(check_interval);
 
-            while *running.read().await {
-                timer.tick().await;
+            loop {
+                tokio::select! {
+                    _ = timer.tick() => {
+                        if !*running.read().await {
+                            break;
+                        }
 
-                let mut h = health.write().await;
-                h.last_heartbeat = Instant::now();
+                        let mut h = health.write().await;
+                        h.last_heartbeat = Instant::now();
 
-                // Update state based on recent activity
-                if h.failed_requests > 10 && h.successful_requests == 0 {
-                    h.state = ConnectionState::Disconnected;
-                } else if h.state == ConnectionState::Connecting {
-                    h.state = ConnectionState::Connected;
+                        // Update state based on recent activity
+                        if h.failed_requests > 10 && h.successful_requests == 0 {
+                            h.state = ConnectionState::Disconnected;
+                        } else if h.state == ConnectionState::Connecting {
+                            h.state = ConnectionState::Connected;
+                        } else if h.state == ConnectionState::Disconnected {
+                            // Auto-reconnect if we were disconnected
+                            h.state = ConnectionState::Connected;
+                        }
+                    }
+                    _ = cancel.notified() => {
+                        break;
+                    }
                 }
             }
         });
+
+        *self.health_handle.lock().await = Some(handle);
     }
 
     /// Connect to an A2A agent
@@ -353,42 +382,105 @@ impl A2aLlmClient {
     }
 
     /// Process an A2A message through the LLM
+    #[tracing::instrument(skip(self), fields(
+        message_id = %message.message_id,
+        source = %message.source,
+        target = ?message.target,
+        correlation_id = ?message.envelope.correlation_id,
+        causation_chain = ?message.envelope.causation_chain,
+        service.name = "ggen-a2a-mcp",
+        service.version = env!("CARGO_PKG_VERSION"),
+    ))]
     pub async fn process_message(
         &self, message: &ConvergedMessage,
     ) -> A2aMcpResult<ConvergedMessage> {
-        info!("Processing A2A message: {}", message.message_id);
+        let source = &message.source;
+        let target = message.target.as_deref().unwrap_or("none");
+        info!(
+            message_id = %message.message_id,
+            source = %source,
+            target,
+            "A2A process_message"
+        );
+        tracing::Span::current().record(otel_attrs::SOURCE_AGENT, source.as_str());
+        tracing::Span::current().record(otel_attrs::TARGET_AGENT, target);
 
         // Acquire semaphore permit
-        let _permit = self
-            .request_semaphore
-            .acquire()
-            .await
-            .map_err(|e| A2aMcpError::TaskProcessing(format!("Semaphore error: {}", e)))?;
+        let _permit = self.request_semaphore.acquire().await.map_err(|e| {
+            tracing::Span::current().record("error", true);
+            tracing::Span::current().record("error.type", "semaphore_failure");
+            A2aMcpError::TaskProcessing(format!("Semaphore error: {}", e))
+        })?;
 
         let start = Instant::now();
 
+        // Create a correlation-linked child span so the receive -> convert ->
+        // LLM call -> respond pipeline is traceable across agent boundaries.
+        let correlation_span = crate::correlation::span_from_a2a_context(message);
+        let _guard = correlation_span.enter();
+
         // Convert A2A message to LLM request
-        let llm_request = self.converter.a2a_to_llm_request(message)?;
+        let llm_request = self.converter.a2a_to_llm_request(message).map_err(|e| {
+            tracing::Span::current().record("error", true);
+            tracing::Span::current().record("error.type", "conversion_failure");
+            e
+        })?;
+
+        tracing::info!(
+            message_id = %message.message_id,
+            event = "a2a.message.converted",
+            "Message converted to LLM request"
+        );
 
         // Make LLM call with retry
-        let llm_response = self.call_llm_with_retry(&llm_request).await?;
+        let llm_response = self.call_llm_with_retry(&llm_request).await.map_err(|e| {
+            tracing::Span::current().record("error", true);
+            tracing::Span::current().record("error.type", "llm_failure");
+            e
+        })?;
+
+        tracing::info!(
+            message_id = %message.message_id,
+            event = "a2a.llm.response_received",
+            "LLM response received"
+        );
 
         // Convert back to A2A format
-        let response = self.converter.llm_response_to_a2a(&llm_response, message)?;
+        let response = self
+            .converter
+            .llm_response_to_a2a(&llm_response, message)
+            .map_err(|e| {
+                tracing::Span::current().record("error", true);
+                tracing::Span::current().record("error.type", "conversion_failure");
+                e
+            })?;
+
+        tracing::info!(
+            message_id = %message.message_id,
+            event = "a2a.response.converted",
+            "Response converted to A2A format"
+        );
 
         // Update health metrics
         let duration = start.elapsed();
         self.update_health_metrics(true, duration).await;
 
         info!(
-            "Successfully processed message: {} (took {:?})",
-            message.message_id, duration
+            message_id = %message.message_id,
+            elapsed_ms = duration.as_millis() as u64,
+            "A2A process_message response"
         );
         Ok(response)
     }
 
     /// Call an LLM tool with A2A agent integration
     pub async fn call_tool(&self, call: ToolCall) -> A2aMcpResult<ToolExecutionResult> {
+        let span = tracing::info_span!(
+            "ggen.a2a.message",
+            "operation.name" = "a2a.call_tool",
+            tool_method = %call.method,
+        );
+        let _guard = span.enter();
         debug!("Calling tool: {}", call.method);
 
         let start = Instant::now();
@@ -401,6 +493,12 @@ impl A2aLlmClient {
 
         // Verify the agent has the requested capability
         if !self.agent_has_capability(&agent, &tool_name).await {
+            let error_span = tracing::error_span!(
+                "ggen.error",
+                error.type = "invalid_tool_method",
+                error.message = format!("Agent {} does not have capability {}", agent_id, tool_name),
+            );
+            let _guard = error_span.enter();
             return Err(A2aMcpError::InvalidToolMethod(format!(
                 "Agent {} does not have capability {}",
                 agent_id, tool_name
@@ -472,17 +570,35 @@ impl A2aLlmClient {
     pub async fn stream_response(
         &self, prompt: &str,
     ) -> A2aMcpResult<impl futures::Stream<Item = StreamingChunk>> {
+        let span =
+            tracing::info_span!("ggen.a2a.message", "operation.name" = "a2a.stream_response");
+        let _guard = span.enter();
         if !self.config.enable_streaming {
+            let error_span = tracing::error_span!(
+                "ggen.error",
+                error.type = "translation",
+                error.message = "Streaming is not enabled",
+            );
+            let _guard = error_span.enter();
             return Err(A2aMcpError::Translation(
                 "Streaming is not enabled".to_string(),
             ));
         }
 
-        let client = self.llm_client.lock().await;
-        let stream = client
+        let stream = self
+            .llm_client
+            .clone()
             .complete_stream(prompt)
             .await
-            .map_err(|e| A2aMcpError::Llm(format!("Stream request failed: {}", e)))?;
+            .map_err(|e| {
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "llm",
+                    error.message = format!("Stream request failed: {}", e),
+                );
+                let _guard = error_span.enter();
+                A2aMcpError::Llm(format!("Stream request failed: {}", e))
+            })?;
 
         let _model = self.model.name.clone();
 
@@ -555,7 +671,12 @@ impl A2aLlmClient {
 
     /// Make the actual LLM call
     async fn call_llm(&self, request: &LlmRequest) -> A2aMcpResult<LlmResponse> {
-        let client = self.llm_client.lock().await;
+        let span = tracing::info_span!(
+            "ggen.llm.generation",
+            "operation.name" = "a2a.call_llm",
+            message_id = %request.message_id,
+        );
+        let _guard = span.enter();
 
         // Build the prompt with system context
         let full_prompt = format!(
@@ -563,11 +684,45 @@ impl A2aLlmClient {
             request.system_prompt, request.user_content
         );
 
+        let model = self.llm_client.get_config().model.clone();
+        let prompt_len = full_prompt.len();
+
+        info!(
+            message_id = %request.message_id,
+            model = %model,
+            prompt_len,
+            "A2A call_llm"
+        );
+        tracing::Span::current().record(otel_attrs::LLM_MODEL, model.as_str());
+
         // Make the API call using the GenAiClient
-        let ggen_response = client
-            .complete(&full_prompt)
-            .await
-            .map_err(|e| A2aMcpError::Llm(format!("LLM request failed: {}", e)))?;
+        let ggen_response = self.llm_client.complete(&full_prompt).await.map_err(|e| {
+            let error_span = tracing::error_span!(
+                "ggen.error",
+                error.type = "llm",
+                error.message = format!("LLM request failed: {}", e),
+            );
+            let _guard = error_span.enter();
+            A2aMcpError::Llm(format!("LLM request failed: {}", e))
+        })?;
+
+        let output_len = ggen_response.content.len();
+        let usage = &ggen_response.usage;
+
+        info!(
+            model = %ggen_response.model,
+            prompt_len,
+            output_len,
+            prompt_tokens = usage.as_ref().map(|u| u.prompt_tokens).unwrap_or(0),
+            completion_tokens = usage.as_ref().map(|u| u.completion_tokens).unwrap_or(0),
+            "A2A call_llm response"
+        );
+        tracing::Span::current().record(otel_attrs::LLM_MODEL, ggen_response.model.as_str());
+        if let Some(usage) = &ggen_response.usage {
+            tracing::Span::current().record(otel_attrs::LLM_PROMPT_TOKENS, usage.prompt_tokens);
+            tracing::Span::current()
+                .record(otel_attrs::LLM_COMPLETION_TOKENS, usage.completion_tokens);
+        }
 
         Ok(LlmResponse {
             content: ggen_response.content,
@@ -585,17 +740,33 @@ impl A2aLlmClient {
         let mut last_error = None;
         let mut delay = Duration::from_millis(100);
 
-        for attempt in 0..=self.config.max_retries {
+        // 1 initial attempt + max_retries retry attempts
+        let total_attempts = self.config.max_retries + 1;
+
+        for attempt in 0..total_attempts {
             match self.call_llm(request).await {
                 Ok(response) => return Ok(response),
                 Err(e) => {
-                    warn!(
-                        "LLM call attempt {} failed: {}, retrying in {:?}",
-                        attempt, e, delay
-                    );
+                    let is_last = attempt + 1 >= total_attempts;
+                    if is_last {
+                        warn!(
+                            "LLM call attempt {}/{} failed: {}, all attempts exhausted",
+                            attempt + 1,
+                            total_attempts,
+                            e
+                        );
+                    } else {
+                        warn!(
+                            "LLM call attempt {}/{} failed: {}, retrying in {:?}",
+                            attempt + 1,
+                            total_attempts,
+                            e,
+                            delay
+                        );
+                    }
                     last_error = Some(e);
 
-                    if attempt < self.config.max_retries {
+                    if !is_last {
                         tokio::time::sleep(delay).await;
                         delay = Duration::from_millis(
                             (delay.as_millis() as f64 * self.config.retry_backoff_multiplier)
@@ -607,7 +778,16 @@ impl A2aLlmClient {
         }
 
         Err(last_error.unwrap_or_else(|| {
-            A2aMcpError::Llm("Max retries exceeded with unknown error".to_string())
+            let _err_span = tracing::error_span!(
+                "ggen.error",
+                "error.type" = "llm_retry_exhausted",
+                total_attempts = total_attempts,
+            )
+            .entered();
+            A2aMcpError::Llm(format!(
+                "All {} attempts exhausted with unknown error",
+                total_attempts
+            ))
         }))
     }
 
@@ -680,6 +860,9 @@ impl A2aLlmClient {
     pub async fn shutdown(&self) -> A2aMcpResult<()> {
         info!("Shutting down A2A MCP client");
 
+        // Signal the health check loop to wake up and exit
+        self.cancel.notify_one();
+
         // Update running state
         {
             let mut running = self.running.write().await;
@@ -704,6 +887,11 @@ impl A2aLlmClient {
             tasks.clear();
         }
 
+        // Abort the health check task if still running
+        if let Some(handle) = self.health_handle.lock().await.take() {
+            handle.abort();
+        }
+
         info!("A2A MCP client shutdown complete");
         Ok(())
     }
@@ -711,12 +899,21 @@ impl A2aLlmClient {
 
 impl Drop for A2aLlmClient {
     fn drop(&mut self) {
-        // The Drop trait is synchronous, so we can't directly await async calls here.
-        // In production code, you'd want to use a different approach like:
-        // 1. Having a dedicated shutdown method that must be called explicitly
-        // 2. Using a sync primitive like a channel to signal a background task
-        // For now, this is a placeholder that logs the drop.
-        debug!("A2aLlmClient dropped");
+        // Signal the health check task to stop
+        self.cancel.notify_one();
+
+        // Try to abort the health check task immediately
+        // We use try_lock() because we can't await in Drop
+        if let Ok(mut guard) = self.health_handle.try_lock() {
+            if let Some(handle) = guard.take() {
+                handle.abort();
+                debug!("A2aLlmClient dropped (health check task aborted)");
+            } else {
+                debug!("A2aLlmClient dropped (no health check task to abort)");
+            }
+        } else {
+            debug!("A2aLlmClient dropped (cancellation signalled, couldn't lock handle)");
+        }
     }
 }
 

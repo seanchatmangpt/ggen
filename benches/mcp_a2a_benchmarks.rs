@@ -223,9 +223,9 @@ fn bench_tool_discovery(c: &mut Criterion) {
         let test_input = serde_json::json!({"param1": "test", "param2": 42});
 
         b.iter(|| {
-            tools
-                .iter()
-                .for_each(|tool| black_box(validate_input_schema(&tool.input_schema, &test_input)))
+            tools.iter().for_each(|tool| {
+                black_box(validate_input_schema(&tool.input_schema, &test_input));
+            })
         });
     });
 
@@ -552,7 +552,7 @@ fn bench_memory_usage(c: &mut Criterion) {
         b.iter_batched(
             || MockConnectionState::new(),
             |state| black_box(state.size_bytes()),
-            BatchSize::Small,
+            BatchSize::SmallInput,
         );
     });
 
@@ -565,7 +565,7 @@ fn bench_memory_usage(c: &mut Criterion) {
                 b.iter_batched(
                     || generate_mock_tools(count),
                     |tools| black_box(estimate_tool_memory(&tools)),
-                    BatchSize::Small,
+                    BatchSize::SmallInput,
                 );
             },
         );
@@ -580,7 +580,7 @@ fn bench_memory_usage(c: &mut Criterion) {
                 b.iter_batched(
                     || MockMessageBuffer::new(size),
                     |buffer| black_box(buffer.capacity_bytes()),
-                    BatchSize::Small,
+                    BatchSize::SmallInput,
                 );
             },
         );
@@ -591,7 +591,7 @@ fn bench_memory_usage(c: &mut Criterion) {
         b.iter_batched(
             || MockCacheEntry::new("key_123", &small_payload()),
             |entry| black_box(entry.size_bytes()),
-            BatchSize::Small,
+            BatchSize::SmallInput,
         );
     });
 

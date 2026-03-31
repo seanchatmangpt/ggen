@@ -1,7 +1,7 @@
 //! Event Monitor Agent - Monitors for events and triggers swarm execution
 
-use crate::error::Result;
 use super::{BaseAgent, EventSource, EventStream, SystemEvent};
+use crate::error::Result;
 use async_trait::async_trait;
 
 /// Event Monitor Agent implementation

@@ -1,0 +1,169 @@
+# SPARQL Query: Extract TPS Quality Metrics
+# Purpose: Extract all TPS predicates (muda, kaizen, mura, muri, JIT) from RDF graph
+# Usage: ggen query extract-tps-full.rq --format json
+
+PREFIX tps: <https://ggen.dev/ontology/tps#>
+PREFIX a2a: <https://a2a.dev/ontology#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Main query: Extract all TPS-related data with waste metrics
+CONSTRUCT {
+  ?task a tps:AnalyzedTask ;
+    tps:taskId ?taskId ;
+    tps:taskName ?taskName ;
+    tps:hasMuda ?muda ;
+    tps:hasKaizen ?kaizen ;
+    tps:hasMura ?mura ;
+    tps:hasMuri ?muri ;
+    tps:hasJitRequirement ?jitReq ;
+    tps:mudaCount ?mudaCount ;
+    tps:kaizenCount ?kaizenCount ;
+    tps:muraCount ?muraCount ;
+    tps:muriCount ?muriCount ;
+    tps:totalWasteScore ?totalWasteScore .
+
+  ?muda a tps:Muda ;
+    tps:wasteType ?wasteTypeLabel ;
+    tps:wasteCategory ?wasteCategory ;
+    tps:severity ?mudaSeverity ;
+    tps:impact ?mudaImpact ;
+    tps:detectionMethod ?mudaDetection ;
+    tps:remediationStatus ?mudaStatus .
+
+  ?kaizen a tps:Kaizen ;
+    tps:improvementAction ?actionText ;
+    tps:targetCondition ?targetText ;
+    tps:priority ?kaizenPriority ;
+    tps:effort ?effortEstimate ;
+    tps:expectedBenefit ?benefitText ;
+    tps:addressesWasteType ?addressedWasteType .
+
+  ?mura a tps:Mura ;
+    tps:unevennessType ?unevennessTypeLabel ;
+    tps:unevennessCategory ?unevennessCategory ;
+    tps:variability ?variabilityValue .
+
+  ?muri a tps:Muri ;
+    tps:overburdenType ?overburdenTypeLabel ;
+    tps:overburdenCategory ?overburdenCategory ;
+    tps:loadFactor ?loadFactorValue .
+
+  ?jitReq a tps:JitRequirement ;
+    tps:leadTime ?leadTimeValue ;
+    tps:batchSize ?batchSizeValue ;
+    tps:pullTrigger ?pullTriggerValue .
+}
+WHERE {
+  {
+    # Find tasks with TPS predicates
+    SELECT DISTINCT
+      ?task
+      (SAMPLE(?taskId) AS ?taskId)
+      (SAMPLE(?taskName) AS ?taskName)
+      (COUNT(DISTINCT ?m) AS ?mudaCount)
+      (COUNT(DISTINCT ?k) AS ?kaizenCount)
+      (COUNT(DISTINCT ?mu) AS ?muraCount)
+      (COUNT(DISTINCT ?mr) AS ?muriCount)
+      (SUM(COALESCE(?severityScore, 0)) AS ?totalWasteScore)
+    WHERE {
+      ?task a a2a:Task ;
+        rdfs:label ?taskName .
+
+      OPTIONAL { ?task tps:hasMuda ?m }
+      OPTIONAL { ?task tps:hasKaizen ?k }
+      OPTIONAL { ?task tps:hasMura ?mu }
+      OPTIONAL { ?task tps:hasMuri ?mr }
+
+      # Calculate waste severity score
+      OPTIONAL {
+        ?task tps:hasMuda ?m .
+        ?m tps:hasSeverity ?severity .
+        BIND(
+          IF(?severity = "critical", 100,
+          IF(?severity = "high", 50,
+          IF(?severity = "medium", 20,
+          IF(?severity = "low", 5, 0))))
+          AS ?severityScore
+        )
+      }
+
+      # Generate task ID
+      BIND(REPLACE(STR(?task), "^.*#", "") AS ?taskId)
+    }
+    GROUP BY ?task
+  }
+
+  # Extract Muda instances
+  OPTIONAL {
+    ?task tps:hasMuda ?muda .
+    ?muda a tps:Muda ;
+      tps:hasWasteType ?wasteType ;
+      tps:hasSeverity ?mudaSeverity ;
+      tps:hasImpact ?mudaImpact .
+
+    ?wasteType rdfs:label ?wasteTypeLabel ;
+      tps:hasWasteCategory ?wasteCategory .
+
+    OPTIONAL { ?muda tps:hasDetectionMethod ?mudaDetection }
+    OPTIONAL { ?muda tps:hasRemediationStatus ?mudaStatus }
+  }
+
+  # Extract Kaizen instances
+  OPTIONAL {
+    ?task tps:hasKaizen ?kaizen .
+    ?kaizen a tps:Kaizen ;
+      tps:hasTargetCondition ?targetText ;
+      tps:hasPriority ?kaizenPriority .
+
+    ?kaizen tps:hasImprovementAction ?action .
+    ?action tps:hasEffort ?effortEstimate ;
+      tps:hasExpectedBenefit ?benefitText .
+
+    # Get action text
+    BIND(
+      IF(CONTAINS(STR(?action), "#"), REPLACE(STR(?action), "^.*#", ""),
+         STR(?action))
+      AS ?actionText
+    )
+
+    # Find addressed waste types
+    OPTIONAL {
+      ?kaizen tps:addressesMuda ?addrMuda .
+      ?addrMuda tps:hasWasteType ?addrWasteType .
+      ?addrWasteType rdfs:label ?addressedWasteType .
+    }
+  }
+
+  # Extract Mura instances
+  OPTIONAL {
+    ?task tps:hasMura ?mura .
+    ?mura a tps:Mura ;
+      tps:hasUnevennessType ?unevennessType ;
+      tps:hasVariability ?variabilityValue .
+
+    ?unevennessType rdfs:label ?unevennessTypeLabel ;
+      tps:hasUnevennessCategory ?unevennessCategory .
+  }
+
+  # Extract Muri instances
+  OPTIONAL {
+    ?task tps:hasMuri ?muri .
+    ?muri a tps:Muri ;
+      tps:hasOverburdenType ?overburdenType ;
+      tps:hasLoadFactor ?loadFactorValue .
+
+    ?overburdenType rdfs:label ?overburdenTypeLabel ;
+      tps:hasOverburdenCategory ?overburdenCategory .
+  }
+
+  # Extract JIT requirements
+  OPTIONAL {
+    ?task tps:hasJitRequirement ?jitReq .
+    ?jitReq a tps:JitRequirement ;
+      tps:hasLeadTime ?leadTimeValue ;
+      tps:hasBatchSize ?batchSizeValue ;
+      tps:hasPullTrigger ?pullTriggerValue .
+  }
+}

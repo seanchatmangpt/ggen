@@ -370,9 +370,10 @@ impl FrozenMerger {
         let mut result = new_content.to_string();
 
         // Regex to match frozen tags in new content
-        let frozen_regex =
-            Regex::new(r#"\{%\s*frozen(?:\s+id\s*=\s*"([^"]+)")?\s*%\}.*?\{%\s*endfrozen\s*%\}"#)
-                .map_err(|e| Error::new(&format!("Invalid frozen merge regex: {}", e)))?;
+        let frozen_regex = Regex::new(
+            r#"(?s)\{%\s*frozen(?:\s+id\s*=\s*"([^"]+)")?\s*%\}.*?\{%\s*endfrozen\s*%\}"#,
+        )
+        .map_err(|e| Error::new(&format!("Invalid frozen merge regex: {}", e)))?;
 
         let mut section_index = 0;
         result = frozen_regex
@@ -564,7 +565,6 @@ preserved code
     }
 
     #[test]
-    #[ignore = "Frozen section merging needs implementation review - v2.0.1"]
     fn test_merge_with_frozen() {
         let old_content = r#"
 {% frozen id="custom" %}
@@ -617,7 +617,6 @@ After
     }
 
     #[test]
-    #[ignore = "Frozen section merging needs implementation review - v2.0.1"]
     fn test_merge_numbered_sections() {
         let old_content = r#"
 {% frozen %}

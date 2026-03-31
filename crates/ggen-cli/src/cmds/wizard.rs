@@ -63,6 +63,9 @@ pub enum WizardProfile {
     /// LN_CTRL full profile: λn execution traces with causal chaining receipts
     #[serde(rename = "ln-ctrl")]
     LnCtrl,
+    /// MCP/A2A: Model Context Protocol and Agent-to-Agent configuration
+    #[serde(rename = "mcp-a2a")]
+    McpA2a,
     /// Custom (advanced)
     #[serde(rename = "custom")]
     Custom,
@@ -79,6 +82,7 @@ impl WizardProfile {
             "infra-k8s-gcp" => Ok(Self::InfraK8sGcp),
             "lnctrl-output-contracts" => Ok(Self::LnCtrlOutputContracts),
             "ln-ctrl" => Ok(Self::LnCtrl),
+            "mcp-a2a" => Ok(Self::McpA2a),
             "custom" => Ok(Self::Custom),
             _ => Err(format!("Unknown profile: {}", s)),
         }
@@ -93,6 +97,7 @@ impl WizardProfile {
             Self::InfraK8sGcp => "infra-k8s-gcp",
             Self::LnCtrlOutputContracts => "lnctrl-output-contracts",
             Self::LnCtrl => "ln-ctrl",
+            Self::McpA2a => "mcp-a2a",
             Self::Custom => "custom",
         }
     }
@@ -108,6 +113,7 @@ impl WizardProfile {
             Self::LnCtrl => {
                 "LN_CTRL full profile: λn execution traces with causal chaining receipts"
             }
+            Self::McpA2a => "MCP (Model Context Protocol) + A2A (Agent-to-Agent) configuration",
             Self::Custom => "Custom configuration (advanced)",
         }
     }
@@ -169,7 +175,7 @@ impl Default for WizardConfig {
             specs_dir: ".specify/specs".to_string(),
             ontologies_dir: ".specify/ontologies".to_string(),
             templates_dir: "templates".to_string(),
-            output_dir: "generated".to_string(),
+            output_dir: ".".to_string(),
             sparql_dir: "sparql".to_string(),
         }
     }
@@ -278,9 +284,10 @@ fn select_profile_interactive() -> clap_noun_verb::Result<WizardProfile> {
         WizardProfile::LnCtrlOutputContracts.description()
     );
     println!("  6. ln-ctrl - {}", WizardProfile::LnCtrl.description());
-    println!("  7. custom - {}", WizardProfile::Custom.description());
+    println!("  7. mcp-a2a - {}", WizardProfile::McpA2a.description());
+    println!("  8. custom - {}", WizardProfile::Custom.description());
 
-    print!("\nEnter choice (1-7) [1]: ");
+    print!("\nEnter choice (1-8) [1]: ");
     io::stdout().flush().map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Failed to flush stdout: {}", e))
     })?;
@@ -298,7 +305,8 @@ fn select_profile_interactive() -> clap_noun_verb::Result<WizardProfile> {
         "4" => WizardProfile::InfraK8sGcp,
         "5" => WizardProfile::LnCtrlOutputContracts,
         "6" => WizardProfile::LnCtrl,
-        "7" => WizardProfile::Custom,
+        "7" => WizardProfile::McpA2a,
+        "8" => WizardProfile::Custom,
         _ => {
             return Err(clap_noun_verb::NounVerbError::execution_error(
                 "Invalid choice".to_string(),
@@ -424,8 +432,8 @@ fn perform_wizard(
     }
 
     next_steps.push("Edit .specify/specs/project.ttl to customize your project".to_string());
-    next_steps.push("Review generated/world.manifest.json to see all outputs".to_string());
-    next_steps.push("Run generated/world.verify.mjs to validate outputs".to_string());
+    next_steps.push("Review world.manifest.json to see all outputs".to_string());
+    next_steps.push("Run world.verify.mjs to validate outputs".to_string());
 
     Ok(WizardOutput {
         status: "success".to_string(),
@@ -468,6 +476,13 @@ fn generate_scaffold(
             generate_ln_ctrl_sparql(base_path, config, tx, files_created)?;
             generate_ln_ctrl_templates(base_path, config, tx, files_created)?;
             generate_ln_ctrl_scripts(base_path, config, tx, files_created)?;
+        }
+        WizardProfile::McpA2a => {
+            generate_mcp_a2a_configs(base_path, config, tx, files_created)?;
+            // Also generate standard files for MCP/A2A projects
+            generate_ontologies(base_path, config, tx, files_created)?;
+            generate_sparql_queries(base_path, config, tx, files_created)?;
+            generate_tera_templates(base_path, config, tx, files_created)?;
         }
         _ => {
             // Generate standard ontologies, queries, and templates
@@ -1183,6 +1198,76 @@ fn generate_ln_ctrl_scripts(
     Ok(())
 }
 
+fn generate_mcp_a2a_configs(
+    base_path: &Path, config: &WizardConfig, tx: &mut FileTransaction,
+    files_created: &mut Vec<String>,
+) -> clap_noun_verb::Result<()> {
+    // Constants for config file names
+    const PROJECT_MCP_CONFIG: &str = ".mcp.json";
+    const PROJECT_A2A_CONFIG: &str = "a2a.toml";
+
+    // Generate .mcp.json configuration
+    let mcp_json = format!(
+        r#"{{
+  "mcpServers": {{
+    "ggen": {{
+      "command": "ggen",
+      "args": ["mcp", "start-server", "--transport", "stdio"],
+      "env": {{
+        "GGEN_LOG_LEVEL": "info"
+      }}
+    }}
+  }},
+  "description": "MCP servers for ggen project",
+  "version": "1.0.0",
+  "metadata": {{
+    "project": "{}",
+    "profile": "mcp-a2a"
+  }}
+}}
+"#,
+        config.metadata.name
+    );
+
+    let mcp_path = base_path.join(PROJECT_MCP_CONFIG);
+    tx.write_file(&mcp_path, &mcp_json).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write .mcp.json: {}", e))
+    })?;
+    files_created.push(PROJECT_MCP_CONFIG.to_string());
+
+    // Generate a2a.toml configuration
+    let a2a_toml = format!(
+        r#"[server]
+host = "127.0.0.1"
+port = 8080
+timeout = 30
+max_connections = 100
+
+[metadata]
+version = "{}"
+environment = "development"
+
+[[agents]]
+name = "{}"
+agent_type = "mcp-bridge"
+enabled = true
+description = "{}"
+
+[workflows]
+# Define your A2A workflows here
+"#,
+        config.metadata.version, config.metadata.name, config.metadata.description
+    );
+
+    let a2a_path = base_path.join(PROJECT_A2A_CONFIG);
+    tx.write_file(&a2a_path, &a2a_toml).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write a2a.toml: {}", e))
+    })?;
+    files_created.push(PROJECT_A2A_CONFIG.to_string());
+
+    Ok(())
+}
+
 fn generate_readme(config: &WizardConfig) -> String {
     format!(
         r#"# {}
@@ -1198,10 +1283,10 @@ Generated by `ggen wizard` with profile: **{}**
 ggen sync
 
 # Validate outputs
-node generated/world.verify.mjs
+node world.verify.mjs
 
 # View world manifest
-cat generated/world.manifest.json
+cat world.manifest.json
 ```
 
 ## Project Structure
@@ -1428,5 +1513,38 @@ mod tests {
         assert!(toml.contains("ln-ctrl-golden-tests"));
         assert!(toml.contains("ln-ctrl-docs"));
         assert!(toml.contains("ln-ctrl-kernel-ir"));
+    }
+
+    #[test]
+    fn test_mcp_a2a_profile_parsing() {
+        assert_eq!(
+            WizardProfile::from_str("mcp-a2a").unwrap(),
+            WizardProfile::McpA2a
+        );
+        assert_eq!(WizardProfile::McpA2a.as_str(), "mcp-a2a");
+        assert!(WizardProfile::McpA2a.description().contains("MCP"));
+        assert!(WizardProfile::McpA2a.description().contains("A2A"));
+    }
+
+    #[test]
+    fn test_mcp_a2a_scaffold_creation() {
+        let temp_dir = tempdir().expect("Failed to create temp dir");
+        let project_path = temp_dir.path().to_str().expect("Invalid path");
+
+        let config = WizardConfig {
+            profile: WizardProfile::McpA2a,
+            ..Default::default()
+        };
+        let result = perform_wizard(project_path, config, true).expect("Wizard should succeed");
+
+        assert_eq!(result.status, "success");
+        assert_eq!(result.profile, "mcp-a2a");
+        assert!(!result.files_created.is_empty());
+        assert!(result.error.is_none());
+
+        // Verify MCP/A2A files exist
+        let base = temp_dir.path();
+        assert!(base.join(".mcp.json").exists(), ".mcp.json should exist");
+        assert!(base.join("a2a.toml").exists(), "a2a.toml should exist");
     }
 }

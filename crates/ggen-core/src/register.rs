@@ -146,6 +146,9 @@ pub fn register_all(tera: &mut Tera) {
 
     // ---------- SPARQL projection helpers ----------
     register_sparql_helpers(tera);
+
+    // ---------- Schema code generation filters ----------
+    register_schema_filters(tera);
 }
 
 /// Auto-bless context variables for Hygen compatibility.
@@ -187,6 +190,93 @@ fn register_sparql_helpers(tera: &mut Tera) {
 
     // Helper to get the count of SPARQL results
     tera.register_function("sparql_count", SparqlCountFn);
+}
+
+// ---------- Schema code generation filters ----------
+fn register_schema_filters(tera: &mut Tera) {
+    // Register schema-to-code filters for all target languages
+    tera.register_filter("schema_to_rust", schema_to_rust_filter);
+    tera.register_filter("schema_to_go", schema_to_go_filter);
+    tera.register_filter("schema_to_elixir", schema_to_elixir_filter);
+    tera.register_filter("schema_to_java", schema_to_java_filter);
+    tera.register_filter("schema_to_typescript", schema_to_typescript_filter);
+}
+
+/// Tera filter: convert schema string to Rust struct
+/// Usage: {{ skill.input_type | schema_to_rust }}
+fn schema_to_rust_filter(value: &Value, _args: &HashMap<String, Value>) -> TeraResult<Value> {
+    let schema_str = value
+        .as_str()
+        .ok_or_else(|| tera::Error::msg("schema_to_rust filter requires a string value"))?;
+
+    // Parse the schema using the parser
+    let result = crate::schema::SchemaParser::parse(schema_str)
+        .map_err(|e| tera::Error::msg(format!("Failed to parse schema: {}", e)))?;
+
+    // Generate Rust code
+    let rust_code = crate::schema::generators::RustGenerator::generate(&result);
+
+    Ok(Value::String(rust_code))
+}
+
+/// Tera filter: convert schema string to Go struct
+/// Usage: {{ skill.input_type | schema_to_go }}
+fn schema_to_go_filter(value: &Value, _args: &HashMap<String, Value>) -> TeraResult<Value> {
+    let schema_str = value
+        .as_str()
+        .ok_or_else(|| tera::Error::msg("schema_to_go filter requires a string value"))?;
+
+    let result = crate::schema::SchemaParser::parse(schema_str)
+        .map_err(|e| tera::Error::msg(format!("Failed to parse schema: {}", e)))?;
+
+    let go_code = crate::schema::generators::GoGenerator::generate(&result);
+
+    Ok(Value::String(go_code))
+}
+
+/// Tera filter: convert schema string to Elixir struct
+/// Usage: {{ skill.input_type | schema_to_elixir }}
+fn schema_to_elixir_filter(value: &Value, _args: &HashMap<String, Value>) -> TeraResult<Value> {
+    let schema_str = value
+        .as_str()
+        .ok_or_else(|| tera::Error::msg("schema_to_elixir filter requires a string value"))?;
+
+    let result = crate::schema::SchemaParser::parse(schema_str)
+        .map_err(|e| tera::Error::msg(format!("Failed to parse schema: {}", e)))?;
+
+    let elixir_code = crate::schema::generators::ElixirGenerator::generate_struct(&result);
+
+    Ok(Value::String(elixir_code))
+}
+
+/// Tera filter: convert schema string to Java class
+/// Usage: {{ skill.input_type | schema_to_java }}
+fn schema_to_java_filter(value: &Value, _args: &HashMap<String, Value>) -> TeraResult<Value> {
+    let schema_str = value
+        .as_str()
+        .ok_or_else(|| tera::Error::msg("schema_to_java filter requires a string value"))?;
+
+    let result = crate::schema::SchemaParser::parse(schema_str)
+        .map_err(|e| tera::Error::msg(format!("Failed to parse schema: {}", e)))?;
+
+    let java_code = crate::schema::generators::JavaGenerator::generate_class(&result);
+
+    Ok(Value::String(java_code))
+}
+
+/// Tera filter: convert schema string to TypeScript interface
+/// Usage: {{ skill.input_type | schema_to_typescript }}
+fn schema_to_typescript_filter(value: &Value, _args: &HashMap<String, Value>) -> TeraResult<Value> {
+    let schema_str = value
+        .as_str()
+        .ok_or_else(|| tera::Error::msg("schema_to_typescript filter requires a string value"))?;
+
+    let result = crate::schema::SchemaParser::parse(schema_str)
+        .map_err(|e| tera::Error::msg(format!("Failed to parse schema: {}", e)))?;
+
+    let ts_code = crate::schema::generators::TypeScriptGenerator::generate_interface(&result);
+
+    Ok(Value::String(ts_code))
 }
 
 #[derive(Clone)]
@@ -902,5 +992,126 @@ mod tests {
             .render_str("{{ sparql_count(results=bool_results) }}", &ctx)
             .unwrap();
         assert_eq!(result, "1");
+    }
+
+    #[test]
+    fn test_schema_to_rust_filter() {
+        let mut tera = create_test_tera();
+        let mut ctx = Context::new();
+
+        ctx.insert(
+            "schema",
+            "FileReadRequest { path: string, offset?: integer }",
+        );
+
+        let result = tera
+            .render_str("{{ schema | schema_to_rust }}", &ctx)
+            .expect("schema_to_rust filter failed");
+
+        assert!(result.contains("pub struct FileReadRequest"));
+        assert!(result.contains("pub path: String"));
+        assert!(result.contains("pub offset: Option<i64>"));
+    }
+
+    #[test]
+    fn test_schema_to_go_filter() {
+        let mut tera = create_test_tera();
+        let mut ctx = Context::new();
+
+        ctx.insert(
+            "schema",
+            "FileReadRequest { path: string, offset?: integer }",
+        );
+
+        let result = tera
+            .render_str("{{ schema | schema_to_go }}", &ctx)
+            .expect("schema_to_go filter failed");
+
+        assert!(result.contains("type FileReadRequest struct"));
+        assert!(result.contains("Path string"));
+        assert!(result.contains("Offset int64"));
+        assert!(result.contains("omitempty"));
+    }
+
+    #[test]
+    fn test_schema_to_elixir_filter() {
+        let mut tera = create_test_tera();
+        let mut ctx = Context::new();
+
+        ctx.insert(
+            "schema",
+            "FileReadRequest { path: string, offset?: integer }",
+        );
+
+        let result = tera
+            .render_str("{{ schema | schema_to_elixir }}", &ctx)
+            .expect("schema_to_elixir filter failed");
+
+        assert!(result.contains("defmodule FileReadRequest"));
+        assert!(result.contains("defstruct"));
+    }
+
+    #[test]
+    fn test_schema_to_typescript_filter() {
+        let mut tera = create_test_tera();
+        let mut ctx = Context::new();
+
+        ctx.insert(
+            "schema",
+            "FileReadRequest { path: string, offset?: integer }",
+        );
+
+        let result = tera
+            .render_str("{{ schema | schema_to_typescript }}", &ctx)
+            .expect("schema_to_typescript filter failed");
+
+        assert!(result.contains("export interface FileReadRequest"));
+        assert!(result.contains("path: string"));
+        assert!(result.contains("offset?: number"));
+    }
+
+    #[test]
+    fn test_schema_to_java_filter() {
+        let mut tera = create_test_tera();
+        let mut ctx = Context::new();
+
+        ctx.insert(
+            "schema",
+            "FileReadRequest { path: string, offset?: integer }",
+        );
+
+        let result = tera
+            .render_str("{{ schema | schema_to_java }}", &ctx)
+            .expect("schema_to_java filter failed");
+
+        assert!(result.contains("public class FileReadRequest"));
+        assert!(result.contains("private String path"));
+        assert!(result.contains("private Long offset"));
+    }
+
+    #[test]
+    fn test_schema_filters_all_registered() {
+        let mut tera = create_test_tera();
+        let mut ctx = Context::new();
+
+        ctx.insert("schema", "Test { field: string }");
+
+        // Test that all schema filters are registered and work
+        let filters = vec![
+            "schema_to_rust",
+            "schema_to_go",
+            "schema_to_elixir",
+            "schema_to_java",
+            "schema_to_typescript",
+        ];
+
+        for filter in filters {
+            let result = tera.render_str(&format!("{{{{ schema | {} }}}}", filter), &ctx);
+            assert!(
+                result.is_ok(),
+                "Filter '{}' should be registered and working",
+                filter
+            );
+        }
     }
 }

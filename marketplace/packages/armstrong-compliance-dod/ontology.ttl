@@ -1,0 +1,193 @@
+# Armstrong Compliance DoD Ontology
+# Joe Armstrong fault tolerance principles as verifiable DoD checks
+# Four pillars: Supervision, No Shared State, Let-It-Crash, Budget Constraints
+
+@prefix dod: <http://ggen.chatmangpt.com/dod#> .
+@prefix arm: <http://ggen.chatmangpt.com/armstrong#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# CATEGORIES
+# ============================================================================
+
+arm:Supervision
+  a dod:CheckCategory ;
+  dod:categoryName "Supervision Tree" ;
+  dod:categoryOrder 1 .
+
+arm:NoSharedState
+  a dod:CheckCategory ;
+  dod:categoryName "No Shared State" ;
+  dod:categoryOrder 2 .
+
+arm:LetItCrash
+  a dod:CheckCategory ;
+  dod:categoryName "Let-It-Crash" ;
+  dod:categoryOrder 3 .
+
+arm:BudgetConstraints
+  a dod:CheckCategory ;
+  dod:categoryName "Budget Constraints" ;
+  dod:categoryOrder 4 .
+
+arm:HotReload
+  a dod:CheckCategory ;
+  dod:categoryName "Hot Reload" ;
+  dod:categoryOrder 5 .
+
+# ============================================================================
+# DEFAULT ARMSTRONG CHECKS
+# ============================================================================
+
+# --- Supervision Tree ---
+
+arm:check-supervisor-exists
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-supervision" ;
+  dod:checkDescription "Every worker process has an explicit supervisor; no orphan processes" ;
+  dod:evidenceRequired "Supervisor tree diagram showing all children supervised; supervisor:init defines restart strategy per child" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'Supervisor|supervisor|DynamicSupervisor|start_link' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/" ;
+  dod:belongsToCategory arm:Supervision .
+
+arm:check-restart-strategy
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-supervision" ;
+  dod:checkDescription "Every child has documented restart strategy: permanent, transient, or temporary" ;
+  dod:evidenceRequired "supervisor:init children list with restart: :permanent/:transient/:temporary per child; strategy documented in PR" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'restart:|:permanent|:transient|:temporary|restart_strategy' --type elixir src/" ;
+  dod:belongsToCategory arm:Supervision .
+
+arm:check-max-restarts
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-supervision" ;
+  dod:checkDescription "Supervisor configured with max_restarts and max_seconds to detect permanent failures" ;
+  dod:evidenceRequired "supervisor:init with max_restarts: N, max_seconds: M; rapid restart > N in M seconds triggers supervisor shutdown" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'max_restarts|max_seconds|max_restarts:' --type elixir src/" ;
+  dod:belongsToCategory arm:Supervision .
+
+arm:check-crash-propagation
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-supervision" ;
+  dod:checkDescription "Child crash does NOT propagate to parent; supervisor handles restart transparently" ;
+  dod:evidenceRequired "Integration test: kill child process, verify supervisor restarts it, verify parent unaware of crash" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "cargo test test_crash_restart 2>&1" ;
+  dod:belongsToCategory arm:Supervision .
+
+# --- No Shared State ---
+
+arm:check-no-global-mutex
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-no-shared-state" ;
+  dod:checkDescription "No global mutable state; no static mut, no global Mutex, no shared memory between processes" ;
+  dod:evidenceRequired "Code review: no static mut, no Arc<Mutex<T>> as global, no cross-process shared memory" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'static mut|lazy_static|once_cell::sync::Lazy<Mutex|GlobalMutex' --type rust src/" ;
+  dod:belongsToCategory arm:NoSharedState .
+
+arm:check-message-passing
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-no-shared-state" ;
+  dod:checkDescription "All inter-process communication via message passing (channels, GenServer calls, actor messages)" ;
+  dod:evidenceRequired "Code review: all cross-boundary communication uses channels/send/GenServer.call; no direct memory access between processes" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'send\\(|channel|GenServer\\.call|GenServer\\.cast|handle_call|handle_cast' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/" ;
+  dod:belongsToCategory arm:NoSharedState .
+
+arm:check-atomic-mutations
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-no-shared-state" ;
+  dod:checkDescription "State mutations are atomic: single operation per message; no partial updates visible to other processes" ;
+  dod:evidenceRequired "Code review: GenServer handle_call returns new state atomically; no intermediate state observable; database ops use transactions" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'handle_call|handle_cast|handle_info' --type elixir src/" ;
+  dod:belongsToCategory arm:NoSharedState .
+
+# --- Let-It-Crash ---
+
+arm:check-no-swallowed-errors
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-let-it-crash" ;
+  dod:checkDescription "No bare try/catch/unwrap_or_default swallowing errors; failures propagate to supervisor" ;
+  dod:evidenceRequired "Code review: no catch-all that returns ok/error tuple silently; no unwrap_or_default hiding panics; supervisor logs show crash + stack trace" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'unwrap_or_default|catch_all|rescue\s' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/ | grep -v 'TODO\\|FIXME\\|#'" ;
+  dod:belongsToCategory arm:LetItCrash .
+
+arm:check-crash-visible
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-let-it-crash" ;
+  dod:checkDescription "Crashes are visible in supervisor logs with stack trace, failed process, and restart action" ;
+  dod:evidenceRequired "Supervisor log showing: failed process PID, crash reason (exception + stack trace), restart action taken" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "grep -r 'CRASH\\|EXIT\\|restart' logs/ 2>/dev/null | tail -20" ;
+  dod:belongsToCategory arm:LetItCrash .
+
+arm:check-no-silent-continue
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-let-it-crash" ;
+  dod:checkDescription "No code path that logs error and continues with corrupt/null state" ;
+  dod:evidenceRequired "Code review: every error log is followed by either crash (let supervisor handle) or explicit fallback with clean state" ;
+  dod:priority "high" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'Logger\\.error|log::error|println!.*error' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/ -A 3 | grep -v 'raise\\|throw\\|panic\\|exit\\|return Err'" ;
+  dod:belongsToCategory arm:LetItCrash .
+
+# --- Budget Constraints ---
+
+arm:check-time-budget
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-budget" ;
+  dod:checkDescription "Every operation has max_time_ms budget; timeout triggers graceful degradation or escalation" ;
+  dod:evidenceRequired "Every GenServer.call has timeout_ms parameter; every HTTP request has socket+read timeout; every DB query has query timeout" ;
+  dod:priority "critical" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'GenServer\\.call\\(.*\\)' --type elixir src/ | grep -v 'timeout\\|[0-9][0-9][0-9][0-9]'" ;
+  dod:belongsToCategory arm:BudgetConstraints .
+
+arm:check-memory-budget
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-budget" ;
+  dod:checkDescription "Memory usage monitored; allocator limits set; RSS tracked per process" ;
+  dod:evidenceRequired "Memory limiter configured; prometheus memory metrics exposed; RSS threshold triggers alert" ;
+  dod:priority "medium" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'memory_limit|rss|allocator|max_memory|MemoryLimiter' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/" ;
+  dod:belongsToCategory arm:BudgetConstraints .
+
+arm:check-tier-budgets
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-budget" ;
+  dod:checkDescription "Per-tier resource budgets defined: critical, high, normal, low" ;
+  dod:evidenceRequired "Budget config showing time_ms, calls_per_min, memory_mb per tier; enforcement code checks budget before operation" ;
+  dod:priority "medium" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'tier|budget|critical|normal|low' --type-add 'lang:*.rs:*.ex:*.go:*.yaml:*.toml' -t lang config/ src/" ;
+  dod:belongsToCategory arm:BudgetConstraints .
+
+# --- Hot Reload ---
+
+arm:check-config-reload
+  a dod:DoDCheck ;
+  dod:checkType "armstrong-supervision" ;
+  dod:checkDescription "Configuration reloadable without process restart; handle_call(:reload_config) supported" ;
+  dod:evidenceRequired "GenServer handle_call or equivalent handles config reload; config stored externally (DB/Redis), not hardcoded" ;
+  dod:priority "medium" ;
+  dod:isVerified false ;
+  dod:verificationCommand "rg 'reload_config|hot_reload|handle_call.*:reload' --type-add 'lang:*.rs:*.ex:*.go' -t lang src/" ;
+  dod:belongsToCategory arm:HotReload .

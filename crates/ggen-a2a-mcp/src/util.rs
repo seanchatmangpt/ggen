@@ -5,16 +5,9 @@ use url::Url;
 
 /// Ensures that a URL is properly formatted
 pub fn validate_url(url: &str) -> A2aMcpResult<String> {
-    let parsed = Url::parse(url)?;
+    let parsed = Url::parse(url)
+        .map_err(|e| A2aMcpError::Translation(format!("Invalid URL '{}': {}", url, e)))?;
 
-    // Ensure URL has a scheme and host
-    if parsed.scheme().is_empty() || parsed.host_str().is_none() {
-        return Err(A2aMcpError::Translation(
-            "URL must have a scheme and host".to_string(),
-        ));
-    }
-
-    // Normalize URL
     Ok(parsed.to_string())
 }
 
@@ -26,17 +19,26 @@ pub fn extract_tool_name(method: &str) -> Option<String> {
 
 /// Extracts agent URL from a method string
 /// For example: "https://example.com/agent:toolName" -> "https://example.com/agent"
+/// Returns `None` if the input doesn't look like a URL (must start with http:// or https://)
 pub fn extract_agent_url(method: &str) -> Option<String> {
-    method
-        .rfind(':')
-        .map(|pos| method[..pos].to_string())
-        .or_else(|| Some(method.to_string()))
+    let colon_pos = method.rfind(':')?;
+
+    let url_part = &method[..colon_pos];
+    if url_part.starts_with("http://") || url_part.starts_with("https://") {
+        Some(url_part.to_string())
+    } else {
+        None
+    }
 }
 
 /// Normalizes a task ID to ensure it's valid
 pub fn normalize_task_id(task_id: &str) -> String {
     // If task_id is not a valid UUID, generate a new one
     if uuid::Uuid::parse_str(task_id).is_err() {
+        tracing::warn!(
+            original = task_id,
+            "Task ID is not a valid UUID; replacing with a new random UUID"
+        );
         return uuid::Uuid::new_v4().to_string();
     }
     task_id.to_string()
@@ -68,7 +70,12 @@ mod tests {
             extract_agent_url("https://example.com/agent:toolName"),
             Some("https://example.com/agent".to_string())
         );
-        assert_eq!(extract_agent_url("simple"), Some("simple".to_string()));
+        assert_eq!(extract_agent_url("simple"), None);
+        assert_eq!(extract_agent_url("my-tool"), None);
+        assert_eq!(
+            extract_agent_url("http://host:8080/agent:tool"),
+            Some("http://host:8080/agent".to_string())
+        );
     }
 
     #[test]

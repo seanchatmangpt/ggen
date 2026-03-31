@@ -425,9 +425,16 @@ fn test_render_mcp_rust() {
         .rendered
         .contains("impl ServerHandler for OrderProcessor"));
     // Verify correct rmcp 1.3.0 Parameters pattern (NOT #[tool(aggr)])
-    assert!(result.rendered.contains("Parameters(params): Parameters<CreateOrderParams>"));
-    assert!(result.rendered.contains("Parameters(params): Parameters<GetOrderStatusParams>"));
-    assert!(!result.rendered.contains("#[tool(aggr)]"), "Template must use Parameters wrapper, not #[tool(aggr)]");
+    assert!(result
+        .rendered
+        .contains("Parameters(params): Parameters<CreateOrderParams>"));
+    assert!(result
+        .rendered
+        .contains("Parameters(params): Parameters<GetOrderStatusParams>"));
+    assert!(
+        !result.rendered.contains("#[tool(aggr)]"),
+        "Template must use Parameters wrapper, not #[tool(aggr)]"
+    );
     // Verify correct schemars import
     assert!(result.rendered.contains("schemars::JsonSchema"));
 }
@@ -609,38 +616,64 @@ fn test_render_a2a_elixir() {
         .contains("defmodule InventoryAgent.Supervisor"));
 
     // Bug 1 fix: AgentTask (not Task) to avoid Elixir stdlib collision
-    assert!(result.rendered.contains("defmodule AgentTask do"),
-        "Bug 1: inner module must be AgentTask, not Task (stdlib collision)");
-    assert!(!result.rendered.contains("defmodule Task do"),
-        "Bug 1: must NOT contain defmodule Task (stdlib collision)");
-    assert!(result.rendered.contains("AgentTask.new("),
-        "Bug 1: must use AgentTask.new() not Task.new()");
+    assert!(
+        result.rendered.contains("defmodule AgentTask do"),
+        "Bug 1: inner module must be AgentTask, not Task (stdlib collision)"
+    );
+    assert!(
+        !result.rendered.contains("defmodule Task do"),
+        "Bug 1: must NOT contain defmodule Task (stdlib collision)"
+    );
+    assert!(
+        result.rendered.contains("AgentTask.new("),
+        "Bug 1: must use AgentTask.new() not Task.new()"
+    );
 
     // Bug 2 fix: direct Task.Supervisor.start_child (no PartitionSupervisor tuple)
-    assert!(!result.rendered.contains("PartitionSupervisor"),
-        "Bug 2: must NOT use PartitionSupervisor tuple");
-    assert!(result.rendered.contains("Task.Supervisor.start_child("),
-        "Bug 2: must use direct Task.Supervisor.start_child");
-    assert!(result.rendered.contains("Process.monitor(pid)"),
-        "Bug 2: must monitor the spawned process pid");
+    assert!(
+        !result.rendered.contains("PartitionSupervisor"),
+        "Bug 2: must NOT use PartitionSupervisor tuple"
+    );
+    assert!(
+        result.rendered.contains("Task.Supervisor.start_child("),
+        "Bug 2: must use direct Task.Supervisor.start_child"
+    );
+    assert!(
+        result.rendered.contains("Process.monitor(pid)"),
+        "Bug 2: must monitor the spawned process pid"
+    );
 
     // Bug 3 fix: handle_info DOWN uses 5-tuple with guard
-    assert!(result.rendered.contains("{:DOWN, _ref, :process, _pid, :normal}"),
-        "Bug 3: handle_info DOWN must use 5-tuple for :normal");
-    assert!(result.rendered.contains("when reason != :normal"),
-        "Bug 3: abnormal exit clause must guard against :normal to avoid overlap");
+    assert!(
+        result
+            .rendered
+            .contains("{:DOWN, _ref, :process, _pid, :normal}"),
+        "Bug 3: handle_info DOWN must use 5-tuple for :normal"
+    );
+    assert!(
+        result.rendered.contains("when reason != :normal"),
+        "Bug 3: abnormal exit clause must guard against :normal to avoid overlap"
+    );
 
     // Bug 4 fix: @default_timeout_ms is referenced in send_message
-    assert!(result.rendered.contains("@default_timeout_ms"),
-        "Bug 4: @default_timeout_ms must be declared");
-    assert!(result.rendered.contains(", @default_timeout_ms)"),
-        "Bug 4: send_message must use @default_timeout_ms for GenServer.call timeout");
+    assert!(
+        result.rendered.contains("@default_timeout_ms"),
+        "Bug 4: @default_timeout_ms must be declared"
+    );
+    assert!(
+        result.rendered.contains(", @default_timeout_ms)"),
+        "Bug 4: send_message must use @default_timeout_ms for GenServer.call timeout"
+    );
 
     // Bug 5 fix: streaming uses boolean (false/true), not string
-    assert!(!result.rendered.contains("streaming: \"false\""),
-        "Bug 5: streaming must be boolean false, not string \"false\"");
-    assert!(!result.rendered.contains("streaming: \"true\""),
-        "Bug 5: streaming must be boolean true, not string \"true\"");
+    assert!(
+        !result.rendered.contains("streaming: \"false\""),
+        "Bug 5: streaming must be boolean false, not string \"false\""
+    );
+    assert!(
+        !result.rendered.contains("streaming: \"true\""),
+        "Bug 5: streaming must be boolean true, not string \"true\""
+    );
 
     // Also write as .ex file for elixirc check
     write_output("a2a_agent_elixir.ex", &result.rendered);
@@ -678,7 +711,13 @@ fn test_adapter_mcp_server_rs_render() {
     let ctx = adapter_mcp_sparql_context();
 
     // Adapter templates now render successfully with SPARQL context data
-    let result = render_and_save(&mut tera, "mcp/server.rs.tera", "adapter_mcp_server.rs", &template, &ctx);
+    let result = render_and_save(
+        &mut tera,
+        "mcp/server.rs.tera",
+        "adapter_mcp_server.rs",
+        &template,
+        &ctx,
+    );
     assert!(!result.rendered.is_empty());
     assert!(result.rendered.contains("fn main"));
 }
@@ -690,7 +729,13 @@ fn test_adapter_a2a_agent_ex_render() {
     let ctx = adapter_a2a_sparql_context();
 
     // Adapter templates now render successfully with SPARQL context data
-    let result = render_and_save(&mut tera, "a2a/agent.ex.tera", "adapter_a2a_agent.ex", &template, &ctx);
+    let result = render_and_save(
+        &mut tera,
+        "a2a/agent.ex.tera",
+        "adapter_a2a_agent.ex",
+        &template,
+        &ctx,
+    );
     assert!(!result.rendered.is_empty());
 }
 

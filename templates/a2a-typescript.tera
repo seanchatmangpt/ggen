@@ -4,6 +4,7 @@
 
 import express, { Request, Response } from "express";
 import { randomUUID } from "crypto";
+import { WebSocketServer, WebSocket } from "ws";
 
 // ============================================================================
 // Agent Card
@@ -77,15 +78,21 @@ const taskStore = new Map<string, Task>();
  * Timeout: {{ row.timeout_ms | default(value=5000) }}ms
  * Streaming: {{ row.streaming | default(value="false") }}
  */
-// TODO: add typed fields once input_params are available in SPARQL results
+{% if row.input_type %}
+export interface {{ row.skill_name | pascal }}Input {{ row.input_type | schema_to_typescript }}
+{% else %}
 interface {{ row.skill_name | pascal }}Input {
   params: Record<string, unknown>;
 }
+{% endif %}
 
-// TODO: add typed fields once output_params are available in SPARQL results
+{% if row.output_type %}
+export interface {{ row.skill_name | pascal }}Output {{ row.output_type | schema_to_typescript }}
+{% else %}
 interface {{ row.skill_name | pascal }}Output {
   result: unknown;
 }
+{% endif %}
 {% endfor %}
 
 // ============================================================================
@@ -105,8 +112,12 @@ interface {{ row.skill_name | pascal }}Output {
 async function handle{{ row.skill_name | pascal }}(
   input: {{ row.skill_name | pascal }}Input
 ): Promise<{{ row.skill_name | pascal }}Output> {
+{% if row.generated_impl %}
+{{ row.generated_impl }}
+{% else %}
   // TODO: implement {{ row.skill_name }}
   throw new Error("Not implemented: {{ row.skill_name }}");
+{% endif %}
 }
 {% endfor %}
 
@@ -170,11 +181,106 @@ async function withTimeout<T>(
 }
 
 // ============================================================================
+// WebSocket Transport
+// ============================================================================
+
+class WebSocketTransport {
+  private url: string;
+  private ws: WebSocket | null = null;
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 3;
+  private reconnectDelay = 1000;
+
+  constructor(url: string) {
+    this.url = url;
+  }
+
+  async connect(): Promise<void> {
+    while (this.reconnectAttempts < this.maxReconnectAttempts) {
+      try {
+        this.ws = new WebSocket(this.url);
+
+        await new Promise<void>((resolve, reject) => {
+          if (!this.ws) return reject(new Error("WebSocket not initialized"));
+
+          this.ws.on("open", () => {
+            console.log(`Connected to WebSocket: ${this.url}`);
+            resolve();
+          });
+
+          this.ws.on("error", (err) => {
+            reject(err);
+          });
+        });
+
+        return;
+      } catch (error) {
+        this.reconnectAttempts++;
+        console.error(`WebSocket connection attempt ${this.reconnectAttempts} failed:`, error);
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+          await new Promise((resolve) => setTimeout(resolve, this.reconnectDelay * this.reconnectAttempts));
+        }
+      }
+    }
+
+    throw new Error(`WebSocket connection failed after ${this.maxReconnectAttempts} attempts`);
+  }
+
+  async send(data: Buffer): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+        return reject(new Error("WebSocket not connected"));
+      }
+
+      this.ws.send(data, (err) => {
+        if (err) {
+          reject(new Error(`Failed to send WebSocket message: ${err.message}`));
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+
+  async receive(): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+        return reject(new Error("WebSocket not connected"));
+      }
+
+      const timeout = setTimeout(() => {
+        reject(new Error("WebSocket receive timeout"));
+      }, 30000);
+
+      this.ws.once("message", (data: Buffer) => {
+        clearTimeout(timeout);
+        resolve(data);
+      });
+
+      this.ws.once("error", (err) => {
+        clearTimeout(timeout);
+        reject(err);
+      });
+    });
+  }
+
+  close(): void {
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
+    }
+  }
+}
+
+// ============================================================================
 // Express Server
 // ============================================================================
 
 const app = express();
 app.use(express.json());
+
+// WebSocket server
+const wss = new WebSocketServer({ noServer: true });
 
 // --- Agent Card Endpoint ---
 
@@ -309,8 +415,87 @@ app.get("/health", (_req: Request, res: Response) => {
 
 const PORT = {{ agent_port | default(value=8089) }};
 
-app.listen(PORT, () => {
+// Create HTTP server with WebSocket upgrade support
+const server = app.listen(PORT, () => {
   console.log(`[${AGENT_CARD.name}] A2A agent listening on port ${PORT}`);
   console.log(`[${AGENT_CARD.name}] Agent card: http://localhost:${PORT}/.well-known/agent.json`);
   console.log(`[${AGENT_CARD.name}] Skills: ${AGENT_CARD.skills.map((s) => s.name).join(", ")}`);
+});
+
+// Handle WebSocket upgrade
+server.on("upgrade", (request, socket, head) => {
+  if (request.url === "/a2a/ws") {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit("connection", ws, request);
+    });
+  } else {
+    socket.destroy();
+  }
+});
+
+// WebSocket connection handler
+wss.on("connection", (ws: WebSocket) => {
+  console.log(`[${AGENT_CARD.name}] WebSocket connection established`);
+
+  ws.on("message", async (data: Buffer) => {
+    try {
+      const body = JSON.parse(data.toString()) as JsonRpcRequest;
+
+      if (body.jsonrpc !== "2.0") {
+        const errorResp: JsonRpcResponse = {
+          jsonrpc: "2.0",
+          error: { code: -32600, message: "Invalid Request: jsonrpc must be '2.0'" },
+          id: body?.id ?? null,
+        };
+        ws.send(JSON.stringify(errorResp));
+        return;
+      }
+
+      const handler = skillRegistry[body.method];
+      if (!handler) {
+        const errorResp: JsonRpcResponse = {
+          jsonrpc: "2.0",
+          error: { code: -32601, message: `Method not found: ${body.method}` },
+          id: body.id ?? null,
+        };
+        ws.send(JSON.stringify(errorResp));
+        return;
+      }
+
+      const timeoutMs = SKILL_TIMEOUT_MS[body.method] ?? 5000;
+
+      try {
+        const result = await withTimeout(
+          handler(body.params ?? {}),
+          timeoutMs,
+          body.method
+        );
+        const successResp: JsonRpcResponse = {
+          jsonrpc: "2.0",
+          result,
+          id: body.id ?? null,
+        };
+        ws.send(JSON.stringify(successResp));
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        const errorResp: JsonRpcResponse = {
+          jsonrpc: "2.0",
+          error: { code: -32000, message: errorMsg },
+          id: body.id ?? null,
+        };
+        ws.send(JSON.stringify(errorResp));
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      ws.send(JSON.stringify({ error: errorMsg }));
+    }
+  });
+
+  ws.on("close", () => {
+    console.log(`[${AGENT_CARD.name}] WebSocket connection closed`);
+  });
+
+  ws.on("error", (err) => {
+    console.error(`[${AGENT_CARD.name}] WebSocket error:`, err);
+  });
 });

@@ -111,7 +111,7 @@ skip_empty = true
 [generation]
 max_sparql_timeout_ms = 10000
 require_audit_trail = true
-output_dir = "src/generated"
+output_dir = "."
 
 [validation]
 shacl = ["shapes/domain.ttl"]

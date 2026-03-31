@@ -1,0 +1,49 @@
+groups:
+  - id: registry.ggen.a2a
+    type: attribute_group
+    stability: development
+    display_name: A2A Protocol Attributes
+    brief: Attributes for A2A agent-to-agent protocol operations in ggen.
+    attributes:
+      - id: a2a.message_id
+        type: string
+        stability: development
+        brief: Unique message identifier.
+        examples: ["msg-001", "a2a-abc123"]
+        requirement_level: required
+      - id: a2a.correlation_id
+        type: string
+        stability: development
+        brief: Correlation ID linking related messages.
+        examples: ["corr-001", "trace-abc123"]
+        requirement_level: recommended
+      - id: a2a.source
+        type: string
+        stability: development
+        brief: Source agent identifier.
+        examples: ["agent-alpha", "ggen-compiler"]
+        requirement_level: recommended
+      - id: a2a.target
+        type: string
+        stability: development
+        brief: Target agent identifier.
+        examples: ["agent-beta", "ggen-validator"]
+        requirement_level: recommended
+      - id: a2a.causation_chain
+        type: string[]
+        stability: development
+        brief: Chain of parent message IDs for causal tracing.
+        examples: [["msg-001", "msg-002", "msg-003"]]
+        requirement_level: recommended
+      - id: a2a.message_type
+        type: string
+        stability: development
+        brief: A2A message type (Direct, Query, Task, Event, Command).
+        examples: ["Direct", "Query", "Task", "Event", "Command"]
+        requirement_level: recommended
+      - id: a2a.operation_name
+        type: string
+        stability: development
+        brief: Name of the A2A operation being performed.
+        examples: ["generate_code", "validate_schema", "compile_template"]
+        requirement_level: required

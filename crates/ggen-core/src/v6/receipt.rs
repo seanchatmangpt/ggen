@@ -440,7 +440,7 @@ impl OutputFile {
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
 /// let epoch = Epoch::create(&std::path::Path::new("."), &vec![])?;
-/// let receipt = generate_receipt(&epoch, std::path::Path::new("src/generated"), "6.0.0")?;
+/// let receipt = generate_receipt(&epoch, std::path::Path::new("."), "6.0.0")?;
 /// println!("Generated receipt: {}", receipt.id);
 /// # Ok(())
 /// # }
@@ -470,7 +470,7 @@ pub fn generate_receipt(
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
 /// # let epoch = unimplemented!();
-/// let receipt = generate_receipt(&epoch, std::path::Path::new("src/generated"), "6.0.0")?;
+/// let receipt = generate_receipt(&epoch, std::path::Path::new("."), "6.0.0")?;
 /// let path = save_receipt(&receipt, std::path::Path::new("."))?;
 /// println!("Saved receipt to: {:?}", path);
 /// # Ok(())
@@ -502,7 +502,7 @@ pub fn save_receipt(receipt: &BuildReceipt, project_root: &Path) -> Result<PathB
 /// # fn main() -> ggen_utils::error::Result<()> {
 /// # let receipt = unimplemented!();
 /// # let epoch = unimplemented!();
-/// let is_valid = verify_receipt(&receipt, std::path::Path::new("src/generated"), &epoch)?;
+/// let is_valid = verify_receipt(&receipt, std::path::Path::new("."), &epoch)?;
 /// assert!(is_valid, "Generated files have been modified!");
 /// # Ok(())
 /// # }
@@ -529,7 +529,7 @@ mod tests {
     fn test_receipt_creation() {
         let epoch = create_test_epoch();
         let outputs = vec![OutputFile {
-            path: PathBuf::from("ontology/generated/domain.ttl"),
+            path: PathBuf::from("domain.ttl"),
             hash: "fedcba9876543210".repeat(4), // 64 chars
             size_bytes: 1024,
             produced_by: "μ₃:emission".to_string(),
@@ -591,7 +591,7 @@ mod tests {
     #[test]
     fn test_generate_receipt() {
         let temp_dir = TempDir::new().unwrap();
-        let output_dir = temp_dir.path().join("generated");
+        let output_dir = temp_dir.path().join("output");
         fs::create_dir_all(&output_dir).unwrap();
 
         // Create test files
@@ -611,7 +611,7 @@ mod tests {
     #[test]
     fn test_save_receipt() {
         let temp_dir = TempDir::new().unwrap();
-        let output_dir = temp_dir.path().join("generated");
+        let output_dir = temp_dir.path().join("output");
         fs::create_dir_all(&output_dir).unwrap();
 
         fs::write(output_dir.join("agent.rs"), "pub struct Agent {}").unwrap();
@@ -633,7 +633,7 @@ mod tests {
     #[test]
     fn test_verify_receipt_valid() {
         let temp_dir = TempDir::new().unwrap();
-        let output_dir = temp_dir.path().join("generated");
+        let output_dir = temp_dir.path().join("output");
         fs::create_dir_all(&output_dir).unwrap();
 
         let content = b"pub struct Agent {}";
@@ -650,7 +650,7 @@ mod tests {
     #[test]
     fn test_verify_receipt_invalid_file() {
         let temp_dir = TempDir::new().unwrap();
-        let output_dir = temp_dir.path().join("generated");
+        let output_dir = temp_dir.path().join("output");
         fs::create_dir_all(&output_dir).unwrap();
 
         let content = b"pub struct Agent {}";
@@ -670,7 +670,7 @@ mod tests {
     #[test]
     fn test_verify_receipt_invalid_epoch() {
         let temp_dir = TempDir::new().unwrap();
-        let output_dir = temp_dir.path().join("generated");
+        let output_dir = temp_dir.path().join("output");
         fs::create_dir_all(&output_dir).unwrap();
 
         fs::write(output_dir.join("agent.rs"), b"pub struct Agent {}").unwrap();
@@ -703,7 +703,7 @@ mod tests {
     #[test]
     fn test_scan_output_files_empty() {
         let temp_dir = TempDir::new().unwrap();
-        let output_dir = temp_dir.path().join("generated");
+        let output_dir = temp_dir.path().join("output");
         fs::create_dir_all(&output_dir).unwrap();
 
         let outputs = BuildReceipt::scan_output_files(&output_dir).unwrap();
@@ -713,7 +713,7 @@ mod tests {
     #[test]
     fn test_scan_output_files_with_subdirectories() {
         let temp_dir = TempDir::new().unwrap();
-        let output_dir = temp_dir.path().join("generated");
+        let output_dir = temp_dir.path().join("output");
         let subdir = output_dir.join("subdir");
         fs::create_dir_all(&subdir).unwrap();
 

@@ -247,7 +247,7 @@ paas:Environment a rdfs:Class ;
         // ARRANGE: Create source spec directory and target output directory
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let source_path = temp_dir.path().join(".specify");
-        let target_path = temp_dir.path().join("generated");
+        let target_path = temp_dir.path().join("output");
 
         create_test_rdf_spec(&source_path).expect("Failed to create test RDF specs");
 
@@ -300,7 +300,7 @@ paas:Environment a rdfs:Class ;
         // ARRANGE: Use nonexistent source path
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let nonexistent_source = temp_dir.path().join("nonexistent_source");
-        let target_path = temp_dir.path().join("generated");
+        let target_path = temp_dir.path().join("output");
 
         let source_str = nonexistent_source.to_str().expect("Invalid path");
         let target_str = target_path.to_str().expect("Invalid path");
@@ -326,7 +326,7 @@ paas:Environment a rdfs:Class ;
         // ARRANGE: Create source and target
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let source_path = temp_dir.path().join(".specify");
-        let target_path = temp_dir.path().join("generated");
+        let target_path = temp_dir.path().join("output");
 
         create_test_rdf_spec(&source_path).expect("Failed to create test RDF specs");
 

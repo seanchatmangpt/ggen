@@ -163,7 +163,7 @@ impl SimpleTracer {
     }
 
     /// Log frontmatter processing
-    pub fn frontmatter_processed(frontmatter: &crate::template::Frontmatter) {
+    pub fn frontmatter_processed(frontmatter: &crate::template_types::Frontmatter) {
         Self::trace(
             TraceLevel::Debug,
             &format!(
@@ -373,7 +373,7 @@ mod tests {
         SimpleTracer::template_start(&test_path);
         SimpleTracer::template_complete(&test_path, &test_path, 100);
 
-        let frontmatter = crate::template::Frontmatter::default();
+        let frontmatter = crate::template_types::Frontmatter::default();
         SimpleTracer::frontmatter_processed(&frontmatter);
 
         SimpleTracer::context_blessed(5);

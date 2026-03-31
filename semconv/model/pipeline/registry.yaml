@@ -1,0 +1,43 @@
+groups:
+  - id: registry.ggen.pipeline
+    type: attribute_group
+    stability: development
+    display_name: Pipeline Attributes
+    brief: Attributes for ggen code generation pipeline operations.
+    attributes:
+      - id: pipeline.operation
+        type: string
+        stability: development
+        brief: Pipeline operation name.
+        examples: ["generate", "compile", "validate", "format"]
+        requirement_level: required
+      - id: pipeline.batch_size
+        type: int
+        stability: development
+        brief: Number of items in a batch operation.
+        examples: [1, 10, 50]
+        requirement_level: recommended
+      - id: pipeline.total
+        type: int
+        stability: development
+        brief: Total items processed.
+        examples: [100, 1000]
+        requirement_level: recommended
+      - id: pipeline.successful
+        type: int
+        stability: development
+        brief: Successfully processed items.
+        examples: [95, 980]
+        requirement_level: recommended
+      - id: pipeline.failed
+        type: int
+        stability: development
+        brief: Failed items.
+        examples: [5, 20]
+        requirement_level: recommended
+      - id: pipeline.duration_ms
+        type: int
+        stability: development
+        brief: Processing duration in milliseconds.
+        examples: [120, 5000, 30000]
+        requirement_level: recommended

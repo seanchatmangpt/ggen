@@ -8,7 +8,7 @@
 //! Test Coverage:
 //! 1. `ggen wizard --profile ln_ctrl` creates all expected files
 //! 2. `ggen sync` runs successfully and generates outputs
-//! 3. `node generated/world.verify.mjs` validates all artifacts
+//! 3. `node world.verify.mjs` validates all artifacts
 //! 4. Second `ggen sync` produces byte-identical world.manifest.json (determinism)
 //! 5. All schemas validate their respective golden examples
 //! 6. SHACL validation passes (if implemented)
@@ -60,7 +60,7 @@ fn run_sync(project_dir: &Path) -> assert_cmd::assert::Assert {
 fn run_world_verifier(project_dir: &Path) -> std::process::Output {
     std::process::Command::new("node")
         .current_dir(project_dir)
-        .arg("generated/world.verify.mjs")
+        .arg("world.verify.mjs")
         .output()
         .expect("Failed to execute world verifier")
 }
@@ -255,8 +255,8 @@ fn test_wizard_ggen_toml_has_correct_generation_rules() {
     );
 
     // Verify output paths
-    assert!(content.contains("output_file = \"generated/world.manifest.json\""));
-    assert!(content.contains("output_file = \"generated/world.verify.mjs\""));
+    assert!(content.contains("output_file = \"./world.manifest.json\""));
+    assert!(content.contains("output_file = \"./world.verify.mjs\""));
 }
 
 #[test]
@@ -272,19 +272,18 @@ fn test_ggen_sync_runs_successfully() {
     // Assert: Sync succeeded
     sync_output.success();
 
-    // Assert: Generated directory was created
-    let generated_dir = project_path.join("generated");
-    assert_dir_exists(&generated_dir, "generated directory");
+    // Assert: Output directory was created
+    assert_dir_exists(&project_path, "output directory");
 
     // Assert: Core generated files exist
     assert_file_exists(
-        &generated_dir.join("world.manifest.json"),
+        &project_path.join("world.manifest.json"),
         "world.manifest.json",
     );
-    assert_file_exists(&generated_dir.join("world.verify.mjs"), "world.verify.mjs");
+    assert_file_exists(&project_path.join("world.verify.mjs"), "world.verify.mjs");
 
     // Assert: Receipt schemas generated
-    let receipts_dir = generated_dir.join("receipts");
+    let receipts_dir = project_path.join("receipts");
     assert_dir_exists(&receipts_dir, "receipts directory");
     assert_file_exists(
         &receipts_dir.join("receipt.schema.json"),
@@ -305,7 +304,7 @@ fn test_world_manifest_has_valid_structure() {
     run_sync(project_path).success();
 
     // Act: Parse world.manifest.json
-    let manifest_path = project_path.join("generated/world.manifest.json");
+    let manifest_path = project_path.join("world.manifest.json");
     let manifest: Value = parse_json_file(&manifest_path);
 
     // Assert: Manifest has required top-level fields
@@ -382,7 +381,7 @@ fn test_second_sync_produces_identical_manifest() {
     run_wizard(project_path).success();
     run_sync(project_path).success();
 
-    let manifest_path = project_path.join("generated/world.manifest.json");
+    let manifest_path = project_path.join("world.manifest.json");
 
     // Act: Compute hash of first manifest
     let first_hash = compute_file_hash(&manifest_path);
@@ -421,7 +420,7 @@ fn test_generated_schemas_are_valid_json() {
     run_sync(project_path).success();
 
     // Act & Assert: Parse each schema file as valid JSON
-    let receipts_dir = project_path.join("generated/receipts");
+    let receipts_dir = project_path.join("receipts");
 
     let receipt_schema_path = receipts_dir.join("receipt.schema.json");
     let receipt_schema: Value = parse_json_file(&receipt_schema_path);
@@ -455,7 +454,7 @@ fn test_world_verifier_is_executable_nodejs() {
     run_sync(project_path).success();
 
     // Act: Read verifier script
-    let verifier_path = project_path.join("generated/world.verify.mjs");
+    let verifier_path = project_path.join("world.verify.mjs");
     let content = read_file(&verifier_path);
 
     // Assert: Contains Node.js shebang
@@ -552,7 +551,7 @@ fn test_multiple_syncs_all_produce_identical_outputs() {
 
     // Act: Run sync 3 times and collect hashes
     let mut hashes = Vec::new();
-    let manifest_path = project_path.join("generated/world.manifest.json");
+    let manifest_path = project_path.join("world.manifest.json");
 
     for iteration in 0..3 {
         run_sync(project_path).success();
@@ -590,8 +589,8 @@ fn test_schema_files_are_deterministic() {
     // Act: Run sync twice and compare schema file hashes
     run_sync(project_path).success();
 
-    let receipt_schema_path = project_path.join("generated/receipts/receipt.schema.json");
-    let verdict_schema_path = project_path.join("generated/receipts/verdict.schema.json");
+    let receipt_schema_path = project_path.join("receipts/receipt.schema.json");
+    let verdict_schema_path = project_path.join("receipts/verdict.schema.json");
 
     let receipt_hash_1 = compute_file_hash(&receipt_schema_path);
     let verdict_hash_1 = compute_file_hash(&verdict_schema_path);
@@ -693,13 +692,12 @@ fn test_complete_user_journey_wizard_to_validation() {
     run_sync(project_path).success();
 
     // Assert: Generated files exist
-    let generated_dir = project_path.join("generated");
-    assert_file_exists(&generated_dir.join("world.manifest.json"), "manifest");
-    assert_file_exists(&generated_dir.join("world.verify.mjs"), "verifier");
+    assert_file_exists(&project_path.join("world.manifest.json"), "manifest");
+    assert_file_exists(&project_path.join("world.verify.mjs"), "verifier");
 
     // Act: Step 3 - Parse and validate manifest
     println!("Step 3: Validating manifest structure...");
-    let manifest_path = generated_dir.join("world.manifest.json");
+    let manifest_path = project_path.join("world.manifest.json");
     let manifest: Value = parse_json_file(&manifest_path);
 
     assert!(
@@ -723,8 +721,7 @@ fn test_complete_user_journey_wizard_to_validation() {
 
     // Act: Step 5 - Validate schemas
     println!("Step 5: Validating schemas...");
-    let receipt_schema: Value =
-        parse_json_file(&generated_dir.join("receipts/receipt.schema.json"));
+    let receipt_schema: Value = parse_json_file(&project_path.join("receipts/receipt.schema.json"));
     assert!(
         receipt_schema.get("$schema").is_some(),
         "Schema should have $schema field"

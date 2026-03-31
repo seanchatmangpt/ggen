@@ -7,6 +7,9 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
 
+#[allow(unused_imports)]
+use toml;
+
 use ggen_core::graph::Graph;
 use ggen_utils::error::{Error, Result};
 
@@ -339,11 +342,53 @@ pub fn validate_package(package_path: &Path) -> Result<PackageValidation> {
         )));
     }
 
-    let package_name = package_path
-        .file_name()
-        .and_then(|n| n.to_str())
-        .ok_or_else(|| Error::new("Invalid package path"))?
-        .to_string();
+    // Read package name from package.toml [package].name, falling back to directory name
+    let package_name = {
+        let package_toml = package_path.join("package.toml");
+        if package_toml.exists() {
+            match fs::read_to_string(&package_toml) {
+                Ok(content) => {
+                    // Parse [package].name from TOML
+                    match content.parse::<toml::Table>() {
+                        Ok(table) => {
+                            if let Some(name) = table
+                                .get("package")
+                                .and_then(|p| p.get("name"))
+                                .and_then(|n| n.as_str())
+                            {
+                                name.to_string()
+                            } else {
+                                package_path
+                                    .file_name()
+                                    .and_then(|n| n.to_str())
+                                    .ok_or_else(|| Error::new("Invalid package path"))?
+                                    .to_string()
+                            }
+                        }
+                        Err(_) => {
+                            // TOML parse failed, fall back to directory name
+                            package_path
+                                .file_name()
+                                .and_then(|n| n.to_str())
+                                .ok_or_else(|| Error::new("Invalid package path"))?
+                                .to_string()
+                        }
+                    }
+                }
+                Err(_) => package_path
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .ok_or_else(|| Error::new("Invalid package path"))?
+                    .to_string(),
+            }
+        } else {
+            package_path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .ok_or_else(|| Error::new("Invalid package path"))?
+                .to_string()
+        }
+    };
 
     let mut validation = PackageValidation::new(package_name.clone(), package_path.to_path_buf());
 

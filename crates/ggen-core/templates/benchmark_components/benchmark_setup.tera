@@ -1,0 +1,61 @@
+{#- Benchmark Setup Component - Common initialization patterns -#}
+
+{#- Elixir/OTP Setup -#}
+{%- macro elixir_application_setup(module_prefix) -%}
+  setup do
+    # Ensure {{ module_prefix }} application is started for benchmarks
+    Application.ensure_all_started(:{{ module_prefix | lower }})
+
+    # Start ToolRegistry if not already started
+    case Process.whereis({{ module_prefix }}.Ontology.ToolRegistry) do
+      nil ->
+        {:ok, _pid} = start_supervised({{ module_prefix }}.Ontology.ToolRegistry, [])
+
+      _pid ->
+        :ok
+    end
+
+    :ok
+  end
+{%- endmacro -%}
+
+{#- Go Benchmark Setup -#}
+{%- macro go_benchmark_setup() -%}
+  ctx := context.Background()
+  {% if setup_required %}
+  // Setup: Load test data if not already present
+  {% if setup_data %}
+  setupTestData(b, "{{ setup_data }}")
+  {% endif %}
+  {% endif %}
+
+  b.ResetTimer()
+  b.ReportAllocs()
+{%- endmacro -%}
+
+{#- Common Constants -#}
+{%- macro benchmark_constants() -%}
+const (
+  sparqlEndpoint = "http://localhost:6379/sparql"
+  businessOSAPI  = "http://localhost:8001"
+  defaultTimeout = 10 * time.Second
+  slaThreshold   = 100 * time.Millisecond
+)
+{%- endmacro -%}
+
+{#- Process Setup for Elixir -#}
+{%- macro elixir_process_setup(process_name, start_args) -%}
+  setup do
+    {:ok, _pid} = {{ process_name }}.start_link({{ start_args }})
+    :ok
+  end
+{%- endmacro -%}
+
+{#- Database Setup -#}
+{%- macro database_setup(repo) -%}
+  setup do
+    # Start repository for benchmark duration
+    {:ok, _pid} = start_supervised({{ repo }}, [])
+    {:ok, repo: {{ repo }}}
+  end
+{%- endmacro -%}

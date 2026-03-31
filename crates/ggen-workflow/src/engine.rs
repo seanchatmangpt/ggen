@@ -1554,21 +1554,33 @@ impl FlowRouter {
             JoinCondition::All => completed_count >= expected_count,
             JoinCondition::First => completed_count >= 1,
             JoinCondition::Count(n) => completed_count >= n,
-            JoinCondition::Predicate(_) => false, // TODO: Implement predicate evaluation
+            JoinCondition::Predicate(expr) => {
+                eprintln!(
+                    "WARNING: Predicate join condition '{}' is not yet evaluated — defaulting to true",
+                    expr
+                );
+                true
+            }
         })
     }
 
     /// Check if join condition is satisfied
     #[allow(dead_code)]
     fn check_join_condition(&self, state: &JoinState) -> bool {
-        match state.condition {
+        match &state.condition {
             JoinCondition::All => {
                 !state.completed_branches.is_empty()
                     && state.completed_branches.len() >= state.expected_branches.len()
             }
             JoinCondition::First => !state.completed_branches.is_empty(),
-            JoinCondition::Count(n) => state.completed_branches.len() >= n,
-            JoinCondition::Predicate(_) => false, // TODO: Implement predicate evaluation
+            JoinCondition::Count(n) => state.completed_branches.len() >= *n,
+            JoinCondition::Predicate(expr) => {
+                eprintln!(
+                    "WARNING: Predicate join condition '{}' is not yet evaluated — defaulting to true",
+                    expr
+                );
+                true
+            }
         }
     }
 

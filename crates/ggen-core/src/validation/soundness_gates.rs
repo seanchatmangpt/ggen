@@ -64,7 +64,8 @@ pub fn check_deadlock_freedom(code: &str) -> Vec<SoundnessViolation> {
     // Pattern 1: GenServer.call without timeout (Elixir/OTP)
     // Catches: GenServer.call(pid, msg) but NOT GenServer.call(pid, msg, 5000)
     let genserver_no_timeout =
-        Regex::new(r#"GenServer\.call\s*\(\s*(\w+)\s*,\s*[^,)]+\s*\)\s*(?:$|[\s;,\)])"#).unwrap();
+        Regex::new(r#"GenServer\.call\s*\(\s*(\w+)\s*,\s*[^,)]+\s*\)\s*(?:$|[\s;,\)])"#)
+            .expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if let Some(m) = genserver_no_timeout.find(line) {
@@ -83,8 +84,8 @@ pub fn check_deadlock_freedom(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 2: task.await without timeout (Rust async)
-    let task_await_no_timeout =
-        Regex::new(r#"(?:task|handle)\s*\.\s*await\s*(?:\?|\s|;|,|$)"#).unwrap();
+    let task_await_no_timeout = Regex::new(r#"(?:task|handle)\s*\.\s*await\s*(?:\?|\s|;|,|$)"#)
+        .expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if task_await_no_timeout.is_match(line) && !line.contains("timeout") {
@@ -100,7 +101,7 @@ pub fn check_deadlock_freedom(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 3: Elixir receive without timeout
-    let receive_no_timeout = Regex::new(r#"receive\s+do\s*$"#).unwrap();
+    let receive_no_timeout = Regex::new(r#"receive\s+do\s*$"#).expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if receive_no_timeout.is_match(line) {
@@ -124,7 +125,8 @@ pub fn check_deadlock_freedom(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 4: Channel receive without select! timeout (Rust)
-    let channel_recv_no_select = Regex::new(r#"<-\s*(\w+)\s*(?:\?|$|;|,)"#).unwrap();
+    let channel_recv_no_select =
+        Regex::new(r#"<-\s*(\w+)\s*(?:\?|$|;|,)"#).expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if channel_recv_no_select.is_match(line) && !line.contains("select!") {
@@ -152,7 +154,8 @@ pub fn check_liveness(code: &str) -> Vec<SoundnessViolation> {
     let mut violations = Vec::new();
 
     // Pattern 1: while true or loop without clear escape (Rust)
-    let infinite_loop = Regex::new(r#"(?:while\s+true|loop\s*\{)"#).unwrap();
+    let infinite_loop =
+        Regex::new(r#"(?:while\s+true|loop\s*\{)"#).expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if infinite_loop.is_match(line) {
@@ -182,7 +185,8 @@ pub fn check_liveness(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 2: Recursive function without max depth limit (Rust/Elixir)
-    let recursive_call = Regex::new(r#"fn\s+(\w+)\s*\([^)]*\)\s*(?:->|\{)"#).unwrap();
+    let recursive_call =
+        Regex::new(r#"fn\s+(\w+)\s*\([^)]*\)\s*(?:->|\{)"#).expect("valid static regex pattern");
 
     let mut function_names = Vec::new();
     for cap in recursive_call.captures_iter(code) {
@@ -193,7 +197,7 @@ pub fn check_liveness(code: &str) -> Vec<SoundnessViolation> {
 
     for func_name in function_names {
         let pattern = format!(r#"{}(?:\s*\(|\.)"#, regex::escape(&func_name));
-        let func_recursion = Regex::new(&pattern).unwrap();
+        let func_recursion = Regex::new(&pattern).expect("valid static regex pattern");
 
         for (line_num, line) in code.lines().enumerate() {
             if func_recursion.is_match(line) && line.contains(&func_name) {
@@ -223,7 +227,8 @@ pub fn check_liveness(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 3: Unbounded Enum operations (Elixir)
-    let unbounded_enum = Regex::new(r#"Enum\.(map|fold|reduce|each)\s*\("#).unwrap();
+    let unbounded_enum =
+        Regex::new(r#"Enum\.(map|fold|reduce|each)\s*\("#).expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if unbounded_enum.is_match(line) {
@@ -261,7 +266,8 @@ pub fn check_boundedness(code: &str) -> Vec<SoundnessViolation> {
     let mut violations = Vec::new();
 
     // Pattern 1: Queue creation without max_size (Elixir/OTP)
-    let queue_new_no_limit = Regex::new(r#"Queue\.new\s*\(\s*\)\s*(?:$|[\s;,])"#).unwrap();
+    let queue_new_no_limit =
+        Regex::new(r#"Queue\.new\s*\(\s*\)\s*(?:$|[\s;,])"#).expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if queue_new_no_limit.is_match(line) {
@@ -276,7 +282,8 @@ pub fn check_boundedness(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 2: Cache without TTL (Elixir/Rust)
-    let cache_creation = Regex::new(r#"(?:Cache|Cachex|ConCache)\.(?:start|new)\s*\("#).unwrap();
+    let cache_creation = Regex::new(r#"(?:Cache|Cachex|ConCache)\.(?:start|new)\s*\("#)
+        .expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if cache_creation.is_match(line) {
@@ -300,7 +307,7 @@ pub fn check_boundedness(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 3: ETS table without size limits (Elixir)
-    let ets_new = Regex::new(r#":ets\.new\s*\(\s*:\w+\s*,"#).unwrap();
+    let ets_new = Regex::new(r#":ets\.new\s*\(\s*:\w+\s*,"#).expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if ets_new.is_match(line)
@@ -319,7 +326,8 @@ pub fn check_boundedness(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 4: Unbounded list accumulation in loop (Elixir)
-    let list_prepend_loop = Regex::new(r#"\[\s*\w+\s*\|\s*(\w+)\s*\]"#).unwrap();
+    let list_prepend_loop =
+        Regex::new(r#"\[\s*\w+\s*\|\s*(\w+)\s*\]"#).expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if list_prepend_loop.is_match(line) {
@@ -359,7 +367,7 @@ pub fn check_supervision(code: &str) -> Vec<SoundnessViolation> {
     let mut violations = Vec::new();
 
     // Pattern 1: spawn without supervisor (Erlang)
-    let raw_spawn = Regex::new(r#"spawn\s*\("#).unwrap();
+    let raw_spawn = Regex::new(r#"spawn\s*\("#).expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if raw_spawn.is_match(line) {
@@ -385,7 +393,8 @@ pub fn check_supervision(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 2: No restart strategy (Elixir supervisor children)
-    let child_spec_no_restart = Regex::new(r#"\{(\w+),\s*\[\]"#).unwrap();
+    let child_spec_no_restart =
+        Regex::new(r#"\{(\w+),\s*\[\]"#).expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if child_spec_no_restart.is_match(line) && !line.contains("restart:") {
@@ -400,7 +409,7 @@ pub fn check_supervision(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 3: goroutine spawning without WaitGroup (Go)
-    let go_spawn = Regex::new(r#"go\s+\w+\s*\("#).unwrap();
+    let go_spawn = Regex::new(r#"go\s+\w+\s*\("#).expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if go_spawn.is_match(line) {
@@ -468,7 +477,8 @@ pub fn check_let_it_crash(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 2: || nil or || {} error silencing (Ruby/JavaScript)
-    let silence_with_or = Regex::new(r#"\|\|\s*(?:nil|true|false|undefined|\{\})\s*$"#).unwrap();
+    let silence_with_or = Regex::new(r#"\|\|\s*(?:nil|true|false|undefined|\{\})\s*$"#)
+        .expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if silence_with_or.is_match(line) {
@@ -483,7 +493,7 @@ pub fn check_let_it_crash(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 3: Bare except clause (Python)
-    let bare_except = Regex::new(r#"except\s*:\s*$"#).unwrap();
+    let bare_except = Regex::new(r#"except\s*:\s*$"#).expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if bare_except.is_match(line) {
@@ -507,7 +517,8 @@ pub fn check_let_it_crash(code: &str) -> Vec<SoundnessViolation> {
     }
 
     // Pattern 4: try/catch with no action (Java/C#)
-    let empty_catch = Regex::new(r#"catch\s*\([^)]+\)\s*\{[^}]*\}"#).unwrap();
+    let empty_catch =
+        Regex::new(r#"catch\s*\([^)]+\)\s*\{[^}]*\}"#).expect("valid static regex pattern");
 
     for (line_num, line) in code.lines().enumerate() {
         if empty_catch.is_match(line) {

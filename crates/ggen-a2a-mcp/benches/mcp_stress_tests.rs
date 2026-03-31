@@ -7,8 +7,7 @@
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use ggen_a2a_mcp::ggen_server::GgenMcpServer;
-use rmcp::{model::*, service::RunningService, ClientHandler, RoleClient, ServiceExt};
-use tokio::task::JoinSet;
+use rmcp::{model::*, service::RunningService, RoleClient, ServiceExt};
 
 mod bench_helper;
 use bench_helper::*;
@@ -22,7 +21,9 @@ async fn start_bench_server() -> anyhow::Result<RunningService<RoleClient, Bench
         let _ = server.serve(server_transport).await;
     });
 
-    let client = BenchClientHandler::default().serve(client_transport).await?;
+    let client = BenchClientHandler::default()
+        .serve(client_transport)
+        .await?;
     Ok(client)
 }
 
@@ -93,32 +94,34 @@ fn bench_large_ttl_payload(c: &mut Criterion) {
 
         group.throughput(Throughput::Bytes(ttl.len() as u64));
         group.bench_with_input(BenchmarkId::new("kb", size_kb), size_kb, |b, _| {
-            b.to_async(tokio::runtime::Runtime::new().unwrap()).iter(|| {
-                let ttl_copy = ttl.clone();
-                async move {
-                    // Start server
-                    let (server_transport, client_transport) = tokio::io::duplex(65_536);
-                    let server = GgenMcpServer::new();
-                    tokio::spawn(async move {
-                        let _ = server.serve(server_transport).await;
-                    });
+            b.to_async(tokio::runtime::Runtime::new().unwrap())
+                .iter(|| {
+                    let ttl_copy = ttl.clone();
+                    async move {
+                        // Start server
+                        let (server_transport, client_transport) = tokio::io::duplex(65_536);
+                        let server = GgenMcpServer::new();
+                        tokio::spawn(async move {
+                            let _ = server.serve(server_transport).await;
+                        });
 
-                    // Connect client
-                    if let Ok(client) = BenchClientHandler::default()
-                        .serve(client_transport)
-                        .await
-                    {
-                        let args = serde_json::json!({"ttl": &ttl_copy})
-                            .as_object()
-                            .unwrap()
-                            .clone();
-                        let _ = client
-                            .call_tool(CallToolRequestParams::new("validate").with_arguments(args))
-                            .await;
-                        let _ = client.cancel().await;
+                        // Connect client
+                        if let Ok(client) =
+                            BenchClientHandler::default().serve(client_transport).await
+                        {
+                            let args = serde_json::json!({"ttl": &ttl_copy})
+                                .as_object()
+                                .unwrap()
+                                .clone();
+                            let _ = client
+                                .call_tool(
+                                    CallToolRequestParams::new("validate").with_arguments(args),
+                                )
+                                .await;
+                            let _ = client.cancel().await;
+                        }
                     }
-                }
-            });
+                });
         });
     }
     group.finish();
@@ -126,12 +129,13 @@ fn bench_large_ttl_payload(c: &mut Criterion) {
 
 fn bench_resource_pagination_full_scan(c: &mut Criterion) {
     c.bench_function("resource_pagination_full_scan", |b| {
-        b.to_async(tokio::runtime::Runtime::new().unwrap()).iter(|| async move {
-            if let Ok(client) = start_bench_server().await {
-                let _ = client.list_resources(None).await;
-                let _ = client.cancel().await;
-            }
-        })
+        b.to_async(tokio::runtime::Runtime::new().unwrap())
+            .iter(|| async move {
+                if let Ok(client) = start_bench_server().await {
+                    let _ = client.list_resources(None).await;
+                    let _ = client.cancel().await;
+                }
+            })
     });
 }
 
@@ -143,25 +147,23 @@ fn bench_prompt_rendering_stress(c: &mut Criterion) {
             BenchmarkId::new("prompts", prompt_count),
             prompt_count,
             |b, &prompt_count| {
-                b.to_async(tokio::runtime::Runtime::new().unwrap()).iter(|| async move {
-                    if let Ok(client) = start_bench_server().await {
-                        for i in 0..prompt_count {
-                            let args = serde_json::json!({
-                                "name": format!("test_prompt_{}", i)
-                            })
-                            .as_object()
-                            .unwrap()
-                            .clone();
-
-                            let _ = client
-                                .call_tool(
-                                    CallToolRequestParams::new("complete").with_arguments(args)
-                                )
-                                .await;
+                b.to_async(tokio::runtime::Runtime::new().unwrap())
+                    .iter(|| async move {
+                        if let Ok(client) = start_bench_server().await {
+                            use rmcp::model::{ArgumentInfo, Reference};
+                            for i in 0..prompt_count {
+                                let params = CompleteRequestParams::new(
+                                    Reference::for_prompt("explain-rdf-schema"),
+                                    ArgumentInfo {
+                                        name: format!("example_name_{}", i),
+                                        value: "a2a".into(),
+                                    },
+                                );
+                                let _ = client.complete(params).await;
+                            }
+                            let _ = client.cancel().await;
                         }
-                        let _ = client.cancel().await;
-                    }
-                })
+                    })
             },
         );
     }

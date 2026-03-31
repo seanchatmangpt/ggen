@@ -1,0 +1,89 @@
+# SPARQL Query: Extract TPS Improvement Skills for A2A Agents
+# Purpose: Identify kaizen opportunities that can be implemented as agent skills
+# Usage: ggen query extract-tps-skills.rq --format json
+
+PREFIX tps: <https://ggen.dev/ontology/tps#>
+PREFIX a2a: <https://a2a.dev/ontology#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Extract kaizen improvements as agent skill definitions
+CONSTRUCT {
+  ?skill a a2a:Skill ;
+    a2a:hasName ?skillName ;
+    a2a:hasDescription ?skillDescription ;
+    a2a:hasInputType ?inputType ;
+    a2a:hasOutputType ?outputType ;
+    tps:addressesWasteType ?wasteTypeLabel ;
+    tps:priority ?priority ;
+    tps:effort ?effort ;
+    tps:expectedBenefit ?benefit .
+
+  ?originalKaizen a tps:Kaizen ;
+    tps:targetCondition ?targetCondition ;
+    tps:implementedBy ?skill .
+}
+WHERE {
+  # Find kaizen opportunities
+  ?kaizen a tps:Kaizen ;
+    tps:hasTargetCondition ?targetCondition ;
+    tps:hasPriority ?priority ;
+    tps:hasImprovementAction ?action .
+
+  ?action tps:hasEffort ?effort ;
+    tps:hasExpectedBenefit ?benefit .
+
+  # Get addressed waste type
+  OPTIONAL {
+    ?kaizen tps:addressesMuda ?muda .
+    ?muda tps:hasWasteType ?wasteType .
+    ?wasteType rdfs:label ?wasteTypeLabel .
+  }
+
+  # Generate skill name from kaizen
+  BIND(
+    REPLACE(
+      LCASE(REPLACE(?targetCondition, " ", "-")),
+      "^.*?(improve|reduce|eliminate|add|fix)\\s+",
+      ""
+    )
+    AS ?skillBase
+  )
+
+  BIND(CONCAT("tps-", ?skillBase, "-skill") AS ?skillName)
+
+  # Generate skill description
+  BIND(CONCAT(
+    "Automated improvement: ",
+    ?targetCondition,
+    ". Expected benefit: ",
+    ?benefit
+  ) AS ?skillDescription)
+
+  # Define input/output types based on waste type
+  BIND(
+    IF(BOUND(?wasteTypeLabel),
+       CONCAT("tps:", REPLACE(?wasteTypeLabel, " ", ""), "Input"),
+       "tps:GenericImprovementInput")
+    AS ?inputType
+  )
+
+  BIND(
+    IF(BOUND(?wasteTypeLabel),
+       CONCAT("tps:", REPLACE(?wasteTypeLabel, " ", ""), "Output"),
+       "tps:GenericImprovementOutput")
+    AS ?outputType
+  )
+
+  # Create skill URI
+  BIND(IRI(CONCAT(STR(?kaizen), "-skill")) AS ?skill)
+
+  # Filter: only high-priority or high-benefit improvements
+  FILTER(
+    ?priority IN ("critical", "high") ||
+    CONTAINS(LCASE(?benefit), "50%") ||
+    CONTAINS(LCASE(?benefit), "2x") ||
+    CONTAINS(LCASE(?benefit), "100%")
+  )
+}
+ORDER BY DESC(?priority)

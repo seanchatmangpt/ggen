@@ -1,7 +1,7 @@
 //! Quality Assurance Agent - Validates and scores generated outputs
 
-use crate::error::Result;
 use super::BaseAgent;
+use crate::error::Result;
 
 /// Quality Assurance Agent implementation
 pub struct QualityAssuranceAgentImpl {

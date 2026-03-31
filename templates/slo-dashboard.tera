@@ -1,0 +1,67 @@
+# SLO/SLA Dashboard
+
+> Generated: {{ generated_at }}
+> Window: {{ window }} days
+
+## Service Health
+
+| Service | Target SLO | Current SLO | Status | Uptime |
+|---------|-----------|-------------|--------|--------|
+{% for service in services -%}
+| {{ service.name }} | {{ service.target_slo }}% | {{ service.current_slo }}% | {% if service.current_slo >= service.target_slo %}{{ green_indicator }}{% elif service.current_slo >= (service.target_slo * 0.9) | round(1) %}{{ yellow_indicator }}{% else %}{{ red_indicator }}{% endif %} | {{ service.uptime }}% |
+{% endfor %}
+
+## Error Budget
+
+{% for service in services -%}
+### {{ service.name }}
+- **Budget window**: {{ window }} days
+- **Target**: {{ service.target_slo }}% availability
+- **Allowed downtime**: {{ service.error_budget_hours }}h
+- **Consumed**: {{ service.error_budget_consumed }}h
+- **Remaining**: {{ service.error_budget_remaining }}h
+- **Status**: {% if service.error_budget_consumed < (service.error_budget_hours * 0.5) | round(2) %}{{ green_indicator }} Healthy{% elif service.error_budget_consumed < service.error_budget_hours %}{{ yellow_indicator }} Warning{% else %}{{ red_indicator }} Exhausted{% endif %}
+
+{% endfor -%}
+
+## Latency SLOs (p99)
+
+| Service | Target (p99) | Current (p99) | Target (p50) | Current (p50) | Status |
+|---------|-------------|--------------|-------------|--------------|--------|
+{% for service in services -%}
+| {{ service.name }} | {{ service.latency_target_p99 }}ms | {{ service.latency_current_p99 }}ms | {{ service.latency_target_p50 }}ms | {{ service.latency_current_p50 }}ms | {% if service.latency_current_p99 <= service.latency_target_p99 %}{{ green_indicator }}{% elif service.latency_current_p99 <= (service.latency_target_p99 * 1.5) | round(0) %}{{ yellow_indicator }}{% else %}{{ red_indicator }}{% endif %} |
+{% endfor %}
+
+## Dependency Health
+
+| Dependency | Type | Status | Notes |
+|-----------|------|--------|-------|
+{% for dep in dependencies -%}
+| {{ dep.name }} | {{ dep.type }} | {% if dep.status == "healthy" %}{{ green_indicator }} Healthy{% elif dep.status == "degraded" %}{{ yellow_indicator }} Degraded{% else %}{{ red_indicator }} Down{% endif %} | {{ dep.notes }} |
+{% endfor %}
+
+## Recent Incidents (Last {{ window }} Days)
+
+{% if incidents.len() > 0 -%}
+| Date | Service | Severity | Summary | Duration | Status |
+|------|---------|----------|---------|----------|--------|
+{% for incident in incidents -%}
+| {{ incident.date }} | {{ incident.service }} | {% if incident.severity == "critical" %}{{ red_indicator }} Critical{% elif incident.severity == "high" %}{{ yellow_indicator }} High{% else %}{{ green_indicator }} Low{% endif %} | {{ incident.summary }} | {{ incident.duration }} | {{ incident.status }} |
+{% endfor -%}
+{% else -%}
+{{ green_indicator }} No incidents in the last {{ window }} days.
+{% endif -%}
+
+## SLO Summary
+
+| Metric | Value |
+|--------|-------|
+| **Total services tracked** | {{ services.len() }} |
+| **Services meeting SLO** | {{ services | filter(attribute="current_slo", op=">=", value=services[0].target_slo) | length }} |
+| **Services breaching SLO** | {{ services | filter(attribute="current_slo", op="<", value=services[0].target_slo) | length }} |
+| **Active incidents** | {{ incidents | filter(attribute="status", value="active") | length }} |
+| **Error budget remaining (aggregate)** | {{ aggregate_error_budget_remaining }}h |
+
+---
+
+**Legend**: {{ green_indicator }} = Healthy | {{ yellow_indicator }} = Warning | {{ red_indicator }} = Critical

@@ -70,7 +70,11 @@ fn test_pipeline_builder_creates_pipeline_from_ttl() {
         .with_inline_rdf(vec![minimal_ttl()])
         .build();
 
-    assert!(pipeline.is_ok(), "PipelineBuilder::build() failed: {:?}", pipeline.err());
+    assert!(
+        pipeline.is_ok(),
+        "PipelineBuilder::build() failed: {:?}",
+        pipeline.err()
+    );
 
     let pipeline = pipeline.unwrap();
     // Graph should have loaded triples from the TTL
@@ -92,19 +96,30 @@ fn test_pipeline_builder_accepts_multiple_inline_rdf_blocks() {
     assert!(pipeline.is_ok());
     let pipeline = pipeline.unwrap();
     // Two blocks, each adds at least one triple
-    assert!(pipeline.graph_len() >= 2, "Expected at least 2 triples from 2 blocks, got {}", pipeline.graph_len());
+    assert!(
+        pipeline.graph_len() >= 2,
+        "Expected at least 2 triples from 2 blocks, got {}",
+        pipeline.graph_len()
+    );
 }
 
 #[test]
 fn test_pipeline_builder_empty_build_succeeds() {
     let pipeline = PipelineBuilder::new().build();
-    assert!(pipeline.is_ok(), "Empty PipelineBuilder should succeed: {:?}", pipeline.err());
+    assert!(
+        pipeline.is_ok(),
+        "Empty PipelineBuilder should succeed: {:?}",
+        pipeline.err()
+    );
 }
 
 #[test]
 fn test_pipeline_builder_with_prefixes_only() {
     let pipeline = builder_with_prefixes().build();
-    assert!(pipeline.is_ok(), "Builder with prefixes only should succeed");
+    assert!(
+        pipeline.is_ok(),
+        "Builder with prefixes only should succeed"
+    );
 }
 
 // ===========================================================================
@@ -220,7 +235,9 @@ Count: {{ sparql_results.things | length }}"#,
 
 /// Helper: build a template that triggers a shell hook on apply.
 /// Returns (template_path, output_path).
-fn hook_template(temp_dir: &TempDir, hook_field: &str, _hook_value: &str) -> (std::path::PathBuf, std::path::PathBuf) {
+fn hook_template(
+    temp_dir: &TempDir, hook_field: &str, _hook_value: &str,
+) -> (std::path::PathBuf, std::path::PathBuf) {
     let output_path = temp_dir.path().join("hook_output.txt");
     let template_content = format!(
         r#"---
@@ -238,8 +255,7 @@ generated content"#,
 #[test]
 fn test_dangerous_command_rm_rf_blocked() {
     let temp_dir = TempDir::new().unwrap();
-    let (template_path, _output_path) =
-        hook_template(&temp_dir, "sh_before: \"rm -rf /\"", "");
+    let (template_path, _output_path) = hook_template(&temp_dir, "sh_before: \"rm -rf /\"", "");
 
     let mut pipeline = Pipeline::new().unwrap();
     let plan = pipeline
@@ -250,7 +266,9 @@ fn test_dangerous_command_rm_rf_blocked() {
     assert!(result.is_err(), "rm -rf / should be blocked");
     let err_msg = result.unwrap_err().to_string();
     assert!(
-        err_msg.contains("SECURITY") || err_msg.contains("dangerous") || err_msg.contains("Blocked"),
+        err_msg.contains("SECURITY")
+            || err_msg.contains("dangerous")
+            || err_msg.contains("Blocked"),
         "Error should mention security block, got: {}",
         err_msg
     );
@@ -304,8 +322,7 @@ fn test_dangerous_command_dd_blocked() {
 #[test]
 fn test_dangerous_command_chmod_root_blocked() {
     let temp_dir = TempDir::new().unwrap();
-    let (template_path, _output_path) =
-        hook_template(&temp_dir, "sh_before: \"chmod 777 /\"", "");
+    let (template_path, _output_path) = hook_template(&temp_dir, "sh_before: \"chmod 777 /\"", "");
 
     let mut pipeline = Pipeline::new().unwrap();
     let plan = pipeline
@@ -345,7 +362,9 @@ hello"#,
     if let Err(e) = &result {
         let err_msg = e.to_string();
         assert!(
-            !err_msg.contains("SECURITY") && !err_msg.contains("dangerous") && !err_msg.contains("Blocked"),
+            !err_msg.contains("SECURITY")
+                && !err_msg.contains("dangerous")
+                && !err_msg.contains("Blocked"),
             "echo should not be blocked as dangerous, got: {}",
             err_msg
         );
@@ -376,7 +395,10 @@ hello"#,
     let result = plan.apply();
     // "cat" contains "at " substring, so it IS blocked (false positive in the
     // dangerous command checker's substring matching approach)
-    assert!(result.is_err(), "cat should be blocked due to 'at ' substring match");
+    assert!(
+        result.is_err(),
+        "cat should be blocked due to 'at ' substring match"
+    );
 }
 
 #[test]
@@ -508,13 +530,14 @@ injected_before_marker"#,
 
     let result = std::fs::read_to_string(&target_path).unwrap();
     let lines: Vec<&str> = result.lines().collect();
-    let marker_idx = lines.iter().position(|l| *l == "// MARKER").expect("MARKER should exist");
-    assert!(
-        marker_idx > 0,
-        "Injected content should come before MARKER"
-    );
+    let marker_idx = lines
+        .iter()
+        .position(|l| *l == "// MARKER")
+        .expect("MARKER should exist");
+    assert!(marker_idx > 0, "Injected content should come before MARKER");
     assert_eq!(
-        lines[marker_idx - 1], "injected_before_marker",
+        lines[marker_idx - 1],
+        "injected_before_marker",
         "Line before MARKER should be the injected content"
     );
 }
@@ -544,13 +567,17 @@ injected_after_marker"#,
 
     let result = std::fs::read_to_string(&target_path).unwrap();
     let lines: Vec<&str> = result.lines().collect();
-    let marker_idx = lines.iter().position(|l| *l == "// MARKER").expect("MARKER should exist");
+    let marker_idx = lines
+        .iter()
+        .position(|l| *l == "// MARKER")
+        .expect("MARKER should exist");
     assert!(
         marker_idx + 1 < lines.len(),
         "There should be content after MARKER"
     );
     assert_eq!(
-        lines[marker_idx + 1], "injected_after_marker",
+        lines[marker_idx + 1],
+        "injected_after_marker",
         "Line after MARKER should be the injected content"
     );
 }
@@ -581,7 +608,10 @@ inserted_at_line_3"#,
     let result = std::fs::read_to_string(&target_path).unwrap();
     let lines: Vec<&str> = result.lines().collect();
     // at_line is 1-based, so line 3 means index 2
-    assert_eq!(lines[2], "inserted_at_line_3", "Content should be at line 3 (index 2)");
+    assert_eq!(
+        lines[2], "inserted_at_line_3",
+        "Content should be at line 3 (index 2)"
+    );
     assert_eq!(lines[0], "line1", "line1 should be at index 0");
     assert_eq!(lines[1], "line2", "line2 should be at index 1");
 }
@@ -606,7 +636,8 @@ brand new file content"#,
         .render_file(&template_path, &BTreeMap::new(), false)
         .expect("render_file should succeed");
 
-    plan.apply().expect("apply should create new file via injection");
+    plan.apply()
+        .expect("apply should create new file via injection");
 
     assert!(target_path.exists(), "New file should be created");
     let result = std::fs::read_to_string(&target_path).unwrap();
@@ -709,7 +740,8 @@ EXACT_CONTENT"#,
         .render_file(&template_path, &BTreeMap::new(), false)
         .expect("render_file should succeed");
 
-    plan.apply().expect("apply should succeed (idempotent skip)");
+    plan.apply()
+        .expect("apply should succeed (idempotent skip)");
 
     let result = std::fs::read_to_string(&target_path).unwrap();
     // Count occurrences of EXACT_CONTENT -- should still be 1, not duplicated
@@ -811,7 +843,10 @@ should not be written"#,
     plan.apply().expect("unless_exists should succeed silently");
 
     let content = std::fs::read_to_string(&output_path).unwrap();
-    assert_eq!(content, "original content", "unless_exists should preserve original file");
+    assert_eq!(
+        content, "original content",
+        "unless_exists should preserve original file"
+    );
 }
 
 // ===========================================================================
@@ -841,8 +876,15 @@ hook_test_content"#,
         .expect("render_file should succeed");
 
     let result = plan.apply();
-    assert!(result.is_ok(), "Benign sh_before hook should succeed, got error: {:?}", result.err());
-    assert!(output_path.exists(), "Output file should exist after successful apply");
+    assert!(
+        result.is_ok(),
+        "Benign sh_before hook should succeed, got error: {:?}",
+        result.err()
+    );
+    assert!(
+        output_path.exists(),
+        "Output file should exist after successful apply"
+    );
 }
 
 #[test]
@@ -866,7 +908,11 @@ hook_after_content"#,
         .expect("render_file should succeed");
 
     let result = plan.apply();
-    assert!(result.is_ok(), "Benign sh_after hook should succeed, got error: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Benign sh_after hook should succeed, got error: {:?}",
+        result.err()
+    );
 }
 
 #[test]
@@ -892,7 +938,10 @@ content"#,
     let result = plan.apply();
     // The file may be written before sh_after runs, so the error comes from the hook.
     // The important thing is that the dangerous command is detected.
-    assert!(result.is_err(), "Dangerous sh_after (curl) should be blocked");
+    assert!(
+        result.is_err(),
+        "Dangerous sh_after (curl) should be blocked"
+    );
 }
 
 // ===========================================================================
@@ -928,7 +977,8 @@ Hello {{ name }}, result is {{ value }}."#,
         .expect("Second render should succeed");
 
     assert_eq!(
-        plan1.content(), plan2.content(),
+        plan1.content(),
+        plan2.content(),
         "Same pipeline + same data should produce identical output"
     );
 }
@@ -989,7 +1039,11 @@ Count: {{ sparql_results.people | length }}"#,
         .render_file(&template_path, &BTreeMap::new(), false)
         .unwrap();
 
-    assert_eq!(plan1.content(), plan2.content(), "RDF-rendered output should be deterministic");
+    assert_eq!(
+        plan1.content(),
+        plan2.content(),
+        "RDF-rendered output should be deterministic"
+    );
 }
 
 // ===========================================================================
@@ -1069,11 +1123,17 @@ fn test_skip_if_generator_exact_match() {
 
     // Should be a valid regex
     let regex = regex::Regex::new(&pattern).expect("pattern should be valid regex");
-    assert!(regex.is_match(content), "Pattern should match the original content");
+    assert!(
+        regex.is_match(content),
+        "Pattern should match the original content"
+    );
 
     // Should NOT match different content
     let different = "fn main() { println!(\"goodbye\"); }";
-    assert!(!regex.is_match(different), "Pattern should not match different content");
+    assert!(
+        !regex.is_match(different),
+        "Pattern should not match different content"
+    );
 }
 
 #[test]
@@ -1109,8 +1169,11 @@ fn test_content_exists_in_file_false() {
 #[test]
 fn test_content_exists_in_nonexistent_file() {
     assert!(
-        !SkipIfGenerator::content_exists_in_file("anything", std::path::Path::new("/nonexistent/file"))
-            .unwrap(),
+        !SkipIfGenerator::content_exists_in_file(
+            "anything",
+            std::path::Path::new("/nonexistent/file")
+        )
+        .unwrap(),
         "Nonexistent file should return false"
     );
 }
@@ -1128,7 +1191,11 @@ fn test_pipeline_builder_with_rdf_file() {
         .with_rdf_file(rdf_path.to_str().unwrap())
         .build();
 
-    assert!(pipeline.is_ok(), "Builder with RDF file should succeed: {:?}", pipeline.err());
+    assert!(
+        pipeline.is_ok(),
+        "Builder with RDF file should succeed: {:?}",
+        pipeline.err()
+    );
     let pipeline = pipeline.unwrap();
     assert!(
         pipeline.graph_len() >= 3,
@@ -1338,7 +1405,10 @@ fn test_template_no_frontmatter_renders_body() {
     ctx.insert("variable", "rendered");
 
     let result = pipeline
-        .render_body("No frontmatter here. Just plain {{ variable }} content.", &ctx)
+        .render_body(
+            "No frontmatter here. Just plain {{ variable }} content.",
+            &ctx,
+        )
         .expect("render_body should succeed with no frontmatter");
 
     assert_eq!(result, "No frontmatter here. Just plain rendered content.");

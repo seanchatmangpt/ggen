@@ -139,7 +139,10 @@ fn test_dod_extract_returns_project_and_check_data() {
                 "DoD extract should contain at least one check type"
             );
         }
-        other => panic!("Expected CachedResult::Graph from CONSTRUCT query, got {:?}", other),
+        other => panic!(
+            "Expected CachedResult::Graph from CONSTRUCT query, got {:?}",
+            other
+        ),
     }
 }
 
@@ -216,7 +219,10 @@ fn test_codegen_annotations_extract_with_triple_terms() {
                 "Codegen extract should contain field names"
             );
         }
-        other => panic!("Expected CachedResult::Graph from CONSTRUCT query, got {:?}", other),
+        other => panic!(
+            "Expected CachedResult::Graph from CONSTRUCT query, got {:?}",
+            other
+        ),
     }
 }
 
@@ -269,9 +275,7 @@ fn test_conflict_detect_extract_with_triple_terms() {
 
     // Skip if ontology files have parse errors (known issue: owl:imports line)
     if !loaded_vocab && !loaded_example {
-        eprintln!(
-            "[SKIP] conflict-detection .ttl files failed to load (known syntax issue)"
-        );
+        eprintln!("[SKIP] conflict-detection .ttl files failed to load (known syntax issue)");
         return;
     }
 
@@ -336,10 +340,7 @@ const QUERY_DATA_PAIRS: &[(&str, &[&str])] = &[
     ),
     (
         "ontology-explorer-extract.rq",
-        &[
-            "ontology-explorer.ttl",
-            "ontology-explorer-example.ttl",
-        ],
+        &["ontology-explorer.ttl", "ontology-explorer-example.ttl"],
     ),
     (
         "ontology-diff-extract.rq",
@@ -361,11 +362,11 @@ const QUERY_DATA_PAIRS: &[(&str, &[&str])] = &[
 /// oxigraph versions, or queries where the corresponding .ttl data has syntax issues.
 /// These are tested for parse success but empty results are acceptable.
 const LENIENT_QUERIES: &[&str] = &[
-    "conflict-detect-extract.rq",   // SPARQL-star UNION patterns may not parse
-    "axiom-linked-tdd-extract.rq",  // May return empty with minimal data
-    "openapi-typegen-extract.rq",   // No example data files
-    "ontology-diff-extract.rq",     // SPARQL-star UNION patterns may not parse
-    "mcp-a2a-extract.rq",           // Uses ENCODE_FOR_URI not supported by oxigraph
+    "conflict-detect-extract.rq", // SPARQL-star UNION patterns may not parse
+    "axiom-linked-tdd-extract.rq", // May return empty with minimal data
+    "openapi-typegen-extract.rq", // No example data files
+    "ontology-diff-extract.rq",   // SPARQL-star UNION patterns may not parse
+    "mcp-a2a-extract.rq",         // Uses ENCODE_FOR_URI not supported by oxigraph
 ];
 
 #[test]
@@ -414,12 +415,7 @@ fn test_all_specify_queries_execute_without_error() {
                             let ttl_stem = ttl_path.file_stem().unwrap().to_str().unwrap();
                             if ttl_stem.contains(&stem) || stem.contains(ttl_stem) {
                                 found.push(
-                                    ttl_path
-                                        .file_name()
-                                        .unwrap()
-                                        .to_str()
-                                        .unwrap()
-                                        .to_string(),
+                                    ttl_path.file_name().unwrap().to_str().unwrap().to_string(),
                                 );
                             }
                         }

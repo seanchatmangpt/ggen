@@ -1,0 +1,70 @@
+# Extract benchmark suite data from RDF ontology
+# Returns: suite metadata, benchmarks, scenarios, and configuration
+
+PREFIX bench: <http://chatmangpt.com/canopy/benchmark#>
+PREFIX canopy: <http://chatmangpt.com/canopy/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT {
+  ?suite a bench:BenchmarkSuite ;
+    bench:name ?suiteName ;
+    bench:description ?suiteDesc ;
+    bench:module ?suiteModule ;
+    bench:timeout ?suiteTimeout ;
+    bench:hasBenchmark ?benchmark .
+
+  ?benchmark a bench:Benchmark ;
+    bench:name ?benchName ;
+    bench:description ?benchDesc ;
+    bench:setup ?benchSetup ;
+    bench:hasScenario ?scenario .
+
+  ?scenario a bench:Scenario ;
+    bench:name ?scenarioName ;
+    bench:description ?scenarioDesc ;
+    bench:code ?scenarioCode ;
+    bench:expectedLatency ?scenarioLatency ;
+    bench:memoryProfile ?scenarioMemory .
+
+  ?config a bench:Configuration ;
+    bench:warmup ?warmup ;
+    bench:time ?time ;
+    bench:memory_time ?memoryTime .
+}
+WHERE {
+  # Get the benchmark suite
+  ?suite a bench:BenchmarkSuite ;
+    bench:name ?suiteName ;
+    bench:description ?suiteDesc .
+
+  OPTIONAL { ?suite bench:module ?suiteModule }
+  OPTIONAL { ?suite bench:timeout ?suiteTimeout }
+
+  # Get all benchmarks in this suite
+  ?suite bench:hasBenchmark ?benchmark .
+
+  ?benchmark a bench:Benchmark ;
+    bench:name ?benchName ;
+    bench:description ?benchDesc .
+
+  OPTIONAL { ?benchmark bench:setup ?benchSetup }
+
+  # Get all scenarios for each benchmark
+  ?benchmark bench:hasScenario ?scenario .
+
+  ?scenario a bench:Scenario ;
+    bench:name ?scenarioName ;
+    bench:description ?scenarioDesc ;
+    bench:code ?scenarioCode .
+
+  OPTIONAL { ?scenario bench:expectedLatency ?scenarioLatency }
+  OPTIONAL { ?scenario bench:memoryProfile ?scenarioMemory }
+
+  # Get configuration
+  OPTIONAL {
+    ?config a bench:Configuration .
+    OPTIONAL { ?config bench:warmup ?warmup }
+    OPTIONAL { ?config bench:time ?time }
+    OPTIONAL { ?config bench:memory_time ?memoryTime }
+  }
+}

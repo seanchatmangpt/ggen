@@ -1,0 +1,67 @@
+groups:
+  - id: registry.ggen.yawl
+    type: attribute_group
+    stability: development
+    display_name: YAWL Workflow Attributes
+    brief: Attributes for YAWL workflow engine operations in ggen.
+    attributes:
+      - id: yawl.workflow_id
+        type: string
+        stability: development
+        brief: YAWL workflow identifier.
+        examples: ["wf-001", "code-gen-pipeline"]
+        requirement_level: required
+      - id: yawl.task_id
+        type: string
+        stability: development
+        brief: YAWL task identifier.
+        examples: ["task-001", "compile-step"]
+        requirement_level: recommended
+      - id: yawl.task_name
+        type: string
+        stability: development
+        brief: Human-readable YAWL task name.
+        examples: ["Compile Templates", "Generate Code"]
+        requirement_level: recommended
+      - id: yawl.task_type
+        type: string
+        stability: development
+        brief: YAWL task type (Atomic, Composite, MultipleInstance).
+        examples: ["Atomic", "Composite", "MultipleInstance"]
+        requirement_level: recommended
+      - id: yawl.state.from
+        type: string
+        stability: development
+        brief: Source state in a YAWL state transition.
+        examples: ["pending", "running"]
+        requirement_level: recommended
+      - id: yawl.state.to
+        type: string
+        stability: development
+        brief: Target state in a YAWL state transition.
+        examples: ["running", "completed"]
+        requirement_level: recommended
+      - id: yawl.old_state
+        type: string
+        stability: development
+        brief: Previous state in a task event.
+        examples: ["enabled", "started"]
+        requirement_level: recommended
+      - id: yawl.new_state
+        type: string
+        stability: development
+        brief: New state in a task event.
+        examples: ["started", "completed"]
+        requirement_level: recommended
+      - id: yawl.gateway_id
+        type: string
+        stability: development
+        brief: Gateway identifier.
+        examples: ["gw-001", "xor-split-1"]
+        requirement_level: recommended
+      - id: yawl.gateway_type
+        type: string
+        stability: development
+        brief: Gateway type (XorSplit, AndJoin, etc.).
+        examples: ["XorSplit", "AndJoin", "OrSplit", "AndSplit"]
+        requirement_level: recommended

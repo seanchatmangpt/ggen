@@ -50,7 +50,7 @@ serde_yaml = "0.9"
 serde_json = "1.0"
 toml = "0.9"
 tera = "1.20"
-oxigraph = "0.5"
+oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 colored = "3.0"
 dirs = "6.0"
 regex = "1.10"

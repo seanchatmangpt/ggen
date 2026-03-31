@@ -6,16 +6,18 @@
 // {{ agent_description }}
 
 use axum::{
-    extract::{Path, State},
+    extract::{Path, State, ws::{WebSocket, WebSocketUpgrade, Message}},
     http::StatusCode,
-    response::Json,
+    response::{Json, Response},
     routing::{get, post},
     Router,
 };
+use futures::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use tokio_tungstenite::{tungstenite::protocol::Message as TungsteniteMessage};
 use uuid::Uuid;
 
 // ---------------------------------------------------------------------------
@@ -138,21 +140,28 @@ impl Task {
 
 {% for row in sparql_results %}
 /// Input for the {{ row.skill_name }} skill
-/// TODO: add typed fields once input_params are available in SPARQL results
+/// {{ row.skill_description | default(value = "") }}
+{% if row.input_type %}
+{{ row.input_type | schema_to_rust }}
+{% else %}
 #[derive(Debug, Deserialize, Serialize)]
 pub struct {{ row.skill_name | pascal }}Input {
     /// Accepts any JSON value — replace with typed fields as needed
     #[serde(default)]
     pub params: serde_json::Value,
 }
+{% endif %}
 
 /// Output for the {{ row.skill_name }} skill
-/// TODO: add typed fields once output_params are available in SPARQL results
+{% if row.output_type %}
+{{ row.output_type | schema_to_rust }}
+{% else %}
 #[derive(Debug, Serialize)]
 pub struct {{ row.skill_name | pascal }}Output {
     /// Wrap the result value — replace with typed fields as needed
     pub result: serde_json::Value,
 }
+{% endif %}
 
 {% endfor %}
 
@@ -208,6 +217,70 @@ impl A2AResponse {
 }
 
 // ---------------------------------------------------------------------------
+// WebSocket Transport
+// ---------------------------------------------------------------------------
+
+pub struct WebSocketTransport {
+    url: String,
+}
+
+impl WebSocketTransport {
+    pub fn new(url: String) -> Self {
+        Self { url }
+    }
+
+    /// Connect to WebSocket server with retry logic
+    pub async fn connect(&self) -> Result<tokio_tungstenite::WebSocketStream<tokio::net::TcpStream>, String> {
+        let mut retry_count = 0;
+        let max_retries = 3;
+
+        loop {
+            match tokio_tungstenite::connect_async(&self.url).await {
+                Ok((ws_stream, _)) => {
+                    tracing::info!("Connected to WebSocket: {}", self.url);
+                    return Ok(ws_stream);
+                }
+                Err(e) => {
+                    retry_count += 1;
+                    if retry_count >= max_retries {
+                        return Err(format!("WebSocket connection failed after {} attempts: {}", max_retries, e));
+                    }
+                    tracing::warning!("WebSocket connection attempt {} failed: {}, retrying...", retry_count, e);
+                    tokio::time::sleep(tokio::time::Duration::from_millis(1000 * retry_count as u64)).await;
+                }
+            }
+        }
+    }
+
+    /// Send message through WebSocket with error handling
+    pub async fn send(&mut self, ws_stream: &mut tokio_tungstenite::WebSocketStream<tokio::net::TcpStream>, data: &[u8]) -> Result<(), String> {
+        let message = TungsteniteMessage::Binary(data.to_vec());
+        ws_stream.send(message).await
+            .map_err(|e| format!("Failed to send WebSocket message: {}", e))
+    }
+
+    /// Receive message from WebSocket with timeout
+    pub async fn recv(&mut self, ws_stream: &mut tokio_tungstenite::WebSocketStream<tokio::net::TcpStream>) -> Result<Vec<u8>, String> {
+        match tokio::time::timeout(
+            tokio::time::Duration::from_secs(30),
+            ws_stream.next()
+        ).await {
+            Ok(Some(Ok(msg))) => {
+                match msg {
+                    TungsteniteMessage::Binary(data) => Ok(data),
+                    TungsteniteMessage::Text(text) => Ok(text.into_bytes()),
+                    TungsteniteMessage::Close(_) => Err("WebSocket connection closed".to_string()),
+                    _ => Err("Unexpected WebSocket message type".to_string()),
+                }
+            }
+            Ok(Some(Err(e))) => Err(format!("WebSocket error: {}", e)),
+            Ok(None) => Err("WebSocket connection closed unexpectedly".to_string()),
+            Err(_) => Err("WebSocket receive timeout".to_string()),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Agent state (shared across handlers)
 // ---------------------------------------------------------------------------
 
@@ -243,8 +316,12 @@ impl Default for AgentState {
 pub async fn handle_{{ row.skill_name | snake }}(
     input: {{ row.skill_name | pascal }}Input,
 ) -> Result<{{ row.skill_name | pascal }}Output, String> {
+    {% if row.generated_impl %}
+    {{ row.generated_impl }}
+    {% else %}
     // TODO: implement {{ row.skill_name }} — {{ row.skill_description | default(value = "") }}
     Err("Not implemented: {{ row.skill_name }}".to_string())
+    {% endif %}
 }
 
 {% endfor %}
@@ -261,11 +338,75 @@ pub fn router() -> Router {
         .route("/.well-known/agent.json", get(agent_card_handler))
         // A2A message dispatch
         .route("/a2a/message", post(message_handler))
+        // WebSocket endpoint
+        .route("/a2a/ws", get(websocket_handler))
         // Task lifecycle
         .route("/a2a/tasks", get(list_tasks_handler))
         .route("/a2a/tasks/{task_id}", get(get_task_handler))
         .route("/a2a/tasks/{task_id}/cancel", post(cancel_task_handler))
         .with_state(state)
+}
+
+// -- WebSocket handler --------------------------------------------------------
+
+async fn websocket_handler(
+    State(state): State<Arc<AgentState>>,
+    ws: WebSocketUpgrade,
+) -> Response {
+    ws.on_upgrade(|socket| handle_socket(socket, state))
+}
+
+async fn handle_socket(mut socket: WebSocket, state: Arc<AgentState>) {
+    tracing::info!("WebSocket connection established");
+
+    while let Some(result) = socket.recv().await {
+        match result {
+            Ok(Message::Text(text)) => {
+                // Parse JSON-RPC message from WebSocket
+                if let Ok(msg) = serde_json::from_str::<A2AMessage>(&text) {
+                    let response = match msg.method.as_str() {
+                        {% for row in sparql_results %}
+                        "{{ row.skill_name }}" => {
+                            let task = Task::new("{{ row.skill_name }}".into());
+                            let task_id = task.id.clone();
+                            {
+                                let mut tasks = state.tasks.write().await;
+                                tasks.insert(task_id.clone(), task);
+                            }
+
+                            let input = match serde_json::from_value::<{{ row.skill_name | pascal }}Input>(msg.params) {
+                                Ok(v) => v,
+                                Err(e) => {
+                                    A2AResponse::err(msg.id, -32602, format!("Invalid params: {}", e))
+                                }
+                            };
+
+                            if input.params.as_object().is_some() {
+                                A2AResponse::ok(msg.id, serde_json::json!({"taskId": task_id, "status": "created"}))
+                            } else {
+                                A2AResponse::err(msg.id, -32602, "Invalid params".to_string())
+                            }
+                        }
+                        {% endfor %}
+                        _ => A2AResponse::err(msg.id, -32601, format!("Unknown method: {}", msg.method)),
+                    };
+
+                    if let Ok(resp_text) = serde_json::to_string(&response) {
+                        let _ = socket.send(Message::Text(resp_text)).await;
+                    }
+                }
+            }
+            Ok(Message::Close(_)) => {
+                tracing::info!("WebSocket connection closed by client");
+                break;
+            }
+            Err(e) => {
+                tracing::error!("WebSocket error: {}", e);
+                break;
+            }
+            _ => {}
+        }
+    }
 }
 
 // -- Agent card ---------------------------------------------------------------

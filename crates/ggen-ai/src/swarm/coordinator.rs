@@ -5,9 +5,8 @@
 
 use crate::error::{GgenAiError, Result};
 use crate::swarm::{
-    SwarmAgent, SwarmContext, SwarmInput, SwarmResult, GeneratedArtifact,
-    ExecutionMetrics, AgentInput, AgentOutput, SwarmStatus, UltrathinkSwarm,
-    SwarmConfig, PerformanceThresholds
+    AgentInput, AgentOutput, ExecutionMetrics, GeneratedArtifact, PerformanceThresholds,
+    SwarmAgent, SwarmConfig, SwarmContext, SwarmInput, SwarmResult, SwarmStatus, UltrathinkSwarm,
 };
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
@@ -183,10 +182,8 @@ impl SwarmCoordinator {
 
     /// Execute swarm with given input
     pub async fn execute_swarm(
-        &self,
-        agents: &Arc<RwLock<HashMap<String, Box<dyn SwarmAgent>>>>,
-        context: &Arc<RwLock<SwarmContext>>,
-        input: SwarmInput,
+        &self, agents: &Arc<RwLock<HashMap<String, Box<dyn SwarmAgent>>>>,
+        context: &Arc<RwLock<SwarmContext>>, input: SwarmInput,
     ) -> Result<SwarmResult> {
         let start_time = std::time::Instant::now();
 
@@ -203,24 +200,33 @@ impl SwarmCoordinator {
         };
 
         // Execute pipeline
-        let result = self.execute_pipeline(agents, context, &mut exec_context, &input).await?;
+        let result = self
+            .execute_pipeline(agents, context, &mut exec_context, &input)
+            .await?;
 
         // Calculate final metrics
         let execution_time = start_time.elapsed().as_millis() as u64;
         let metrics = ExecutionMetrics {
             total_operations: exec_context.stage_results.len() as u64,
-            successful_operations: exec_context.stage_results.values()
+            successful_operations: exec_context
+                .stage_results
+                .values()
                 .filter(|r| matches!(r.status, StageStatus::Completed))
                 .count() as u64,
-            failed_operations: exec_context.stage_results.values()
+            failed_operations: exec_context
+                .stage_results
+                .values()
                 .filter(|r| matches!(r.status, StageStatus::Failed))
                 .count() as u64,
             avg_execution_time_ms: if exec_context.stage_results.is_empty() {
                 0.0
             } else {
-                exec_context.stage_results.values()
+                exec_context
+                    .stage_results
+                    .values()
                     .map(|r| r.duration_ms as f64)
-                    .sum::<f64>() / exec_context.stage_results.len() as f64
+                    .sum::<f64>()
+                    / exec_context.stage_results.len() as f64
             },
             memory_usage_mb: 0.0, // Would need actual memory tracking
         };
@@ -332,10 +338,8 @@ impl SwarmCoordinator {
 
     /// Execute the pipeline
     async fn execute_pipeline(
-        &self,
-        agents: &Arc<RwLock<HashMap<String, Box<dyn SwarmAgent>>>>,
-        context: &Arc<RwLock<SwarmContext>>,
-        exec_context: &mut ExecutionContext,
+        &self, agents: &Arc<RwLock<HashMap<String, Box<dyn SwarmAgent>>>>,
+        context: &Arc<RwLock<SwarmContext>>, exec_context: &mut ExecutionContext,
         input: &SwarmInput,
     ) -> Result<Vec<GeneratedArtifact>> {
         let mut artifacts = Vec::new();
@@ -348,21 +352,26 @@ impl SwarmCoordinator {
 
             // Check if dependencies are satisfied
             if !self.are_dependencies_satisfied(stage, exec_context)? {
-                exec_context.stage_results.insert(stage.name.clone(), StageResult {
-                    stage_name: stage.name.clone(),
-                    status: StageStatus::Skipped,
-                    duration_ms: 0,
-                    artifacts: vec![],
-                    error: Some("Dependencies not satisfied".to_string()),
-                    metadata: HashMap::new(),
-                });
+                exec_context.stage_results.insert(
+                    stage.name.clone(),
+                    StageResult {
+                        stage_name: stage.name.clone(),
+                        status: StageStatus::Skipped,
+                        duration_ms: 0,
+                        artifacts: vec![],
+                        error: Some("Dependencies not satisfied".to_string()),
+                        metadata: HashMap::new(),
+                    },
+                );
                 continue;
             }
 
             // Execute stage
             let stage_result = self.execute_stage(agents, context, stage, input).await?;
 
-            exec_context.stage_results.insert(stage.name.clone(), stage_result.clone());
+            exec_context
+                .stage_results
+                .insert(stage.name.clone(), stage_result.clone());
 
             match stage_result.status {
                 StageStatus::Completed => {
@@ -371,7 +380,9 @@ impl SwarmCoordinator {
                 StageStatus::Failed => {
                     if self.pipeline_config.enable_failure_recovery {
                         // Try to recover from failure
-                        if let Some(recovered) = self.attempt_recovery(agents, context, stage, input).await? {
+                        if let Some(recovered) =
+                            self.attempt_recovery(agents, context, stage, input).await?
+                        {
                             artifacts.extend(recovered);
                         } else {
                             exec_context.status = ExecutionStatus::Failed;
@@ -392,17 +403,15 @@ impl SwarmCoordinator {
 
     /// Execute a single stage
     async fn execute_stage(
-        &self,
-        agents: &Arc<RwLock<HashMap<String, Box<dyn SwarmAgent>>>>,
-        context: &Arc<RwLock<SwarmContext>>,
-        stage: &PipelineStage,
-        input: &SwarmInput,
+        &self, agents: &Arc<RwLock<HashMap<String, Box<dyn SwarmAgent>>>>,
+        context: &Arc<RwLock<SwarmContext>>, stage: &PipelineStage, input: &SwarmInput,
     ) -> Result<StageResult> {
         let start_time = std::time::Instant::now();
 
         // Get the agent for this stage
         let agents_read = agents.read().await;
-        let agent = agents_read.get(&stage.agent)
+        let agent = agents_read
+            .get(&stage.agent)
             .ok_or_else(|| GgenAiError::internal(&format!("Agent {} not found", stage.agent)))?;
 
         // Prepare agent input
@@ -417,14 +426,16 @@ impl SwarmCoordinator {
         let execution_result = timeout(
             Duration::from_secs(stage.config.timeout_seconds),
             agent.execute(&context.read().await, agent_input),
-        ).await;
+        )
+        .await;
 
         let duration_ms = start_time.elapsed().as_millis() as u64;
 
         match execution_result {
             Ok(Ok(agent_output)) => {
                 // Convert agent output to artifacts
-                let artifacts = self.convert_agent_output_to_artifacts(&agent_output, &stage.agent)?;
+                let artifacts =
+                    self.convert_agent_output_to_artifacts(&agent_output, &stage.agent)?;
 
                 Ok(StageResult {
                     stage_name: stage.name.clone(),
@@ -435,31 +446,29 @@ impl SwarmCoordinator {
                     metadata: agent_output.metadata,
                 })
             }
-            Ok(Err(e)) => {
-                Ok(StageResult {
-                    stage_name: stage.name.clone(),
-                    status: StageStatus::Failed,
-                    duration_ms,
-                    artifacts: vec![],
-                    error: Some(e.to_string()),
-                    metadata: HashMap::new(),
-                })
-            }
-            Err(_) => {
-                Ok(StageResult {
-                    stage_name: stage.name.clone(),
-                    status: StageStatus::Failed,
-                    duration_ms,
-                    artifacts: vec![],
-                    error: Some("Stage execution timed out".to_string()),
-                    metadata: HashMap::new(),
-                })
-            }
+            Ok(Err(e)) => Ok(StageResult {
+                stage_name: stage.name.clone(),
+                status: StageStatus::Failed,
+                duration_ms,
+                artifacts: vec![],
+                error: Some(e.to_string()),
+                metadata: HashMap::new(),
+            }),
+            Err(_) => Ok(StageResult {
+                stage_name: stage.name.clone(),
+                status: StageStatus::Failed,
+                duration_ms,
+                artifacts: vec![],
+                error: Some("Stage execution timed out".to_string()),
+                metadata: HashMap::new(),
+            }),
         }
     }
 
     /// Check if stage dependencies are satisfied
-    fn are_dependencies_satisfied(&self, stage: &PipelineStage, exec_context: &ExecutionContext) -> Result<bool> {
+    fn are_dependencies_satisfied(
+        &self, stage: &PipelineStage, exec_context: &ExecutionContext,
+    ) -> Result<bool> {
         for dep in &stage.dependencies {
             if let Some(dep_result) = exec_context.stage_results.get(dep) {
                 if !matches!(dep_result.status, StageStatus::Completed) {
@@ -474,11 +483,8 @@ impl SwarmCoordinator {
 
     /// Attempt to recover from stage failure
     async fn attempt_recovery(
-        &self,
-        agents: &Arc<RwLock<HashMap<String, Box<dyn SwarmAgent>>>>,
-        context: &Arc<RwLock<SwarmContext>>,
-        stage: &PipelineStage,
-        input: &SwarmInput,
+        &self, agents: &Arc<RwLock<HashMap<String, Box<dyn SwarmAgent>>>>,
+        context: &Arc<RwLock<SwarmContext>>, stage: &PipelineStage, input: &SwarmInput,
     ) -> Result<Option<Vec<GeneratedArtifact>>> {
         // Simple recovery: retry once with modified parameters
         let retry_stage = PipelineStage {
@@ -489,7 +495,9 @@ impl SwarmCoordinator {
             ..stage.clone()
         };
 
-        let retry_result = self.execute_stage(agents, context, &retry_stage, input).await?;
+        let retry_result = self
+            .execute_stage(agents, context, &retry_stage, input)
+            .await?;
 
         if matches!(retry_result.status, StageStatus::Completed) {
             Ok(Some(retry_result.artifacts))
@@ -499,7 +507,9 @@ impl SwarmCoordinator {
     }
 
     /// Convert agent output to generated artifacts
-    fn convert_agent_output_to_artifacts(&self, output: &AgentOutput, agent_name: &str) -> Result<Vec<GeneratedArtifact>> {
+    fn convert_agent_output_to_artifacts(
+        &self, output: &AgentOutput, agent_name: &str,
+    ) -> Result<Vec<GeneratedArtifact>> {
         let mut artifacts = Vec::new();
 
         // Try to extract artifacts from output data
@@ -509,7 +519,9 @@ impl SwarmCoordinator {
                     artifacts.push(artifact);
                 }
             }
-        } else if let Ok(artifact) = serde_json::from_value::<GeneratedArtifact>(output.data.clone()) {
+        } else if let Ok(artifact) =
+            serde_json::from_value::<GeneratedArtifact>(output.data.clone())
+        {
             artifacts.push(artifact);
         }
 

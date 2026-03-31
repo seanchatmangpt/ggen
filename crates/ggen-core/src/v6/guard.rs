@@ -353,7 +353,7 @@ impl GuardSet {
     /// Create a default guard set with standard v6 guards
     pub fn default_v6() -> Self {
         let mut set = Self::new();
-        set.add_guard(PathGuard::new("path-guard", "ontology/generated/**"));
+        set.add_guard(PathGuard::new("path-guard", "ontology/**"));
         set.add_guard(SecretGuard::new("secret-guard"));
         set
     }
@@ -365,16 +365,14 @@ mod tests {
 
     #[test]
     fn test_path_guard_allowed() {
-        let guard = PathGuard::new("test", "ontology/generated/**");
-        assert!(guard
-            .check_path(Path::new("ontology/generated/domain.ttl"))
-            .is_none());
+        let guard = PathGuard::new("test", "ontology/**");
+        assert!(guard.check_path(Path::new("ontology/domain.ttl")).is_none());
     }
 
     #[test]
     fn test_path_guard_rejected() {
-        let guard = PathGuard::new("test", "ontology/generated/**");
-        let violation = guard.check_path(Path::new("ontology/core.ttl"));
+        let guard = PathGuard::new("test", "ontology/**");
+        let violation = guard.check_path(Path::new("src/core.ttl"));
         assert!(violation.is_some());
         assert_eq!(violation.unwrap().guard_name, "test");
     }
@@ -404,19 +402,19 @@ mod tests {
     #[test]
     fn test_guard_set() {
         let mut set = GuardSet::new();
-        set.add_guard(PathGuard::new("path", "ontology/generated/**"));
+        set.add_guard(PathGuard::new("path", "ontology/**"));
         set.add_guard(SecretGuard::new("secret"));
 
         // Should pass both guards
         let violations = set.check(
-            Path::new("ontology/generated/domain.ttl"),
+            Path::new("ontology/domain.ttl"),
             "@prefix ex: <http://example.org/> .",
         );
         assert!(violations.is_empty());
 
         // Should fail path guard
         let violations = set.check(
-            Path::new("ontology/core.ttl"),
+            Path::new("src/core.ttl"),
             "@prefix ex: <http://example.org/> .",
         );
         assert_eq!(violations.len(), 1);

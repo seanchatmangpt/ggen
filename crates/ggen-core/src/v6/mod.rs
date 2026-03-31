@@ -37,7 +37,7 @@
 //! // Create pipeline configuration
 //! let config = PipelineConfig::new("project", "1.0.0")
 //!     .with_ontology("ontology/domain.ttl")
-//!     .with_output_dir("src/generated");
+//!     .with_output_dir(".");
 //!
 //! // Build and run pipeline
 //! let mut pipeline = StagedPipeline::new(config)?;

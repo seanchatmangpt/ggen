@@ -27,7 +27,7 @@
 //! let config = SyncConfig {
 //!     ontology_path: PathBuf::from("businessos.ttl"),
 //!     queries_dir:   PathBuf::from("queries/businessos"),
-//!     output_dir:    PathBuf::from("generated"),
+//!     output_dir:    PathBuf::from("."),
 //!     language:      SyncLanguage::Go,
 //!     validate:      true,
 //!     dry_run:       false,

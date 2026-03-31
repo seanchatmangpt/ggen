@@ -1,0 +1,37 @@
+WHITESPACE = _{ " " | "\t" | "\n" | "\r" }
+
+// Schema definition
+schema = { SOI ~ identifier ~ fields ~ EOI }
+
+// Fields block
+fields = { "{" ~ field_list? ~ "}" }
+
+field_list = { field ~ ("," ~ field)* ~ ","? }
+
+// Single field definition (supports both field?: type and field: type? syntaxes)
+field = {
+    identifier ~ optional_marker ~ ":" ~ type_ |  // TypeScript-style: field?: type
+    identifier ~ ":" ~ type_ ~ optional_marker?    // Rust-style: field: Type?
+}
+
+optional_marker = { "?" }
+
+// Type definitions - fixed to avoid left recursion
+type_ = {
+    array_type |
+    primitive_type |
+    named_type
+}
+
+array_type = {
+    (primitive_type | named_type) ~ "[]"
+}
+
+primitive_type = {
+    "string" | "integer" | "boolean" | "float" | "any"
+}
+
+named_type = @{ identifier }
+
+// Identifiers
+identifier = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_" )* }

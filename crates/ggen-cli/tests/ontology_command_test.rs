@@ -456,7 +456,7 @@ mod cli_output_tests {
         let output = GenerateOutput {
             language: "typescript".to_string(),
             files_generated: 3,
-            output_directory: "generated".to_string(),
+            output_directory: ".".to_string(),
             primary_file: "types.ts".to_string(),
         };
 
@@ -674,7 +674,7 @@ mod integration_tests {
         let languages = vec!["typescript", "graphql", "sql"];
 
         for language in languages {
-            let output_dir = PathBuf::from("generated");
+            let output_dir = PathBuf::from(".");
             let zod = true;
             let utilities = true;
 

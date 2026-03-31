@@ -1,0 +1,3 @@
+name: ggen
+description: ggen semantic conventions — code generation pipeline, A2A protocol, LLM, MCP, YAWL workflow
+schema_url: "https://ggen.dev/schemas/0.1.0"
