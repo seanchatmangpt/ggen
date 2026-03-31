@@ -74,10 +74,25 @@ impl {{ type_name }} {
         &self,
         Parameters(params): Parameters<{{ tool.name | pascal }}Params>,
     ) -> Result<CallToolResult, McpError> {
+        // OTEL span for tool invocation
+        let span = tracing::info_span!(
+            "mcp.tool.call",
+            mcp.tool.name = %{{ tool.name | default(value="unknown") }},
+        );
+        let _guard = span.enter();
+
         // TODO: implement {{ tool.name }}
-        Ok(CallToolResult::success(vec![Content::text(
+        let result = CallToolResult::success(vec![Content::text(
             format!("{{ tool.name }} executed with params: {:?}", params)
-        )]))
+        )]);
+
+        // Receipt emission
+        tracing::info!(
+            mcp.tool.name = %{{ tool.name | default(value="unknown") }},
+            "Tool invocation completed"
+        );
+
+        Ok(result)
     }
 
 {% endfor %}
