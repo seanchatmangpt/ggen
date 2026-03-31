@@ -1,0 +1,14 @@
+run,battery_weight_kg,motor_efficiency_pct,range_km,run_type
+1,300,85,285,Factorial
+2,500,85,340,Factorial
+3,300,95,380,Factorial
+4,500,95,415,Factorial
+5,250,90,310,Axial
+6,550,90,360,Axial
+7,400,80,295,Axial
+8,400,100,395,Axial
+9,400,90,385,Center
+10,400,90,390,Center
+11,400,90,382,Center
+12,400,90,388,Center
+13,400,90,392,Center

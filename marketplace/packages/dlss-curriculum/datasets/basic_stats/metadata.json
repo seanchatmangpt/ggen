@@ -1,0 +1,28 @@
+{
+  "category": "basic_statistics",
+  "description": "Descriptive statistics and normality testing exercises",
+  "datasets": [
+    {
+      "file": "thermostat_dimensions.csv",
+      "context": "Product Development",
+      "module": "M10",
+      "variables": ["measurement_mm"],
+      "n": 50,
+      "expected_mean": 50.0,
+      "expected_sd": 0.5,
+      "teaching_notes": "Include outlier detection exercise (48.1, 52.3 are outliers beyond 3σ)"
+    },
+    {
+      "file": "hospital_wait_times.csv",
+      "context": "New Process Design",
+      "module": "M10",
+      "variables": ["wait_min"],
+      "n": 60,
+      "expected_mean": 45,
+      "expected_sd": 12,
+      "teaching_notes": "Non-normal distribution expected; good for normality testing discussion"
+    }
+  ],
+  "tools_required": ["R", "Minitab"],
+  "bloom_level": ["Apply", "Analyze"]
+}

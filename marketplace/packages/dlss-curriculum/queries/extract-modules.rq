@@ -1,0 +1,18 @@
+# Extract Modules Query
+# Query to extract all modules with their phase context.
+# Output: moduleCode, moduleTitle, phaseName, duration, difficulty.
+
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?moduleCode ?moduleTitle ?phaseName ?duration ?difficulty
+WHERE {
+  ?module a dlss:Module ;
+    dlss:code ?moduleCode ;
+    dlss:title ?moduleTitle ;
+    dlss:phase ?phase ;
+    dlss:duration ?duration ;
+    dlss:difficulty ?difficulty .
+  ?phase dlss:title ?phaseName .
+}
+ORDER BY ?moduleCode

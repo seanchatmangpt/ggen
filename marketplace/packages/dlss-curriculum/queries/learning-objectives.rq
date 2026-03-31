@@ -1,0 +1,18 @@
+# Learning Objectives Query
+# Extracts all learning objectives with their Bloom's taxonomy level.
+# Output: moduleCode, moduleTitle, objectiveText, bloomsLevel, difficulty.
+
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?moduleCode ?moduleTitle ?objectiveText ?bloomsLevel ?difficulty
+WHERE {
+  ?module a dlss:Module ;
+    dlss:code ?moduleCode ;
+    dlss:title ?moduleTitle ;
+    dlss:difficulty ?difficulty ;
+    dlss:learningObjective ?objective .
+  ?objective dlss:text ?objectiveText ;
+             dlss:bloomsLevel ?bloomsLevel .
+}
+ORDER BY ?moduleCode ?bloomsLevel
