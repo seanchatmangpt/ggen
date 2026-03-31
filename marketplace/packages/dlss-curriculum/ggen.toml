@@ -62,7 +62,7 @@ WHERE {
        dlss:difficulty ?difficulty .
   OPTIONAL { ?mod dlss:description ?description }
 }
-ORDER BY ?moduleOrder
+ORDER BY ?code
 """ }
 template = { file = "templates/dlss/syllabus.tera" }
 output_file = "syllabus.md"
@@ -110,7 +110,7 @@ WHERE {
        dlss:difficulty ?difficulty .
   OPTIONAL { ?mod dlss:description ?description }
 }
-ORDER BY ?moduleOrder
+ORDER BY ?code
 """ }
 template = { file = "templates/dlss/module.tera" }
 output_file = "modules/{{ code }}.md"

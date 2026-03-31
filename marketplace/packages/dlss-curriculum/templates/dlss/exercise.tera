@@ -15,9 +15,18 @@
 
 ## Deliverables
 
-- Completed analysis with supporting data
-- Interpretation of results
+{% if difficulty == "Introductory" %}
+- Completed worksheet with labeled answers
+- Brief reflection on key concepts (1-2 paragraphs)
+{% elif difficulty == "Intermediate" %}
+- Completed analysis with supporting data and calculations
+- Interpretation of results with statistical justification
 - Recommendations based on findings
+{% else %}
+- Comprehensive analysis report with statistical validation
+- Sensitivity analysis and assumptions documentation
+- Actionable recommendations with implementation plan
+{% endif %}
 
 ---
 

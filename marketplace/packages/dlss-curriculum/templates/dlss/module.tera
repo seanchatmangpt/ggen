@@ -7,7 +7,6 @@
 
 **Duration**: {{ duration }}
 **Difficulty**: {{ difficulty }}
-**Module Order**: {{ moduleOrder }}
 
 ## Overview
 
@@ -15,10 +14,19 @@
 
 ## Key Topics
 
-- {{ title }} fundamentals
-- Practical application of {{ title }} techniques
-- Integration with DMEDI methodology
-- Hands-on exercises with statistical tools
+{% if difficulty == "Introductory" %}
+- Core concepts and terminology of {{ title }}
+- Foundational techniques with worked examples
+- Connection to the broader DMEDI methodology
+{% elif difficulty == "Intermediate" %}
+- Advanced application of {{ title }} techniques
+- Integration with other DMEDI phase tools
+- Hands-on practice with real-world data sets
+{% else %}
+- Strategic application and optimization of {{ title }}
+- Leading cross-functional teams through {{ title }}
+- Advanced troubleshooting and edge cases
+{% endif %}
 
 ## Tools Required
 
@@ -34,9 +42,16 @@
 
 ## Assessment Criteria
 
-- Knowledge check: understanding of core concepts
-- Practical exercise: application of tools and methods
-- Integration: connection to DMEDI project objectives
+{% if difficulty == "Introductory" %}
+- Knowledge check: understanding of core concepts and terminology
+- Guided exercise: follow step-by-step procedure with correct output
+{% elif difficulty == "Intermediate" %}
+- Practical exercise: independent application with correct interpretation
+- Case study: apply methods to new scenario with minimal guidance
+{% else %}
+- Comprehensive analysis: end-to-end application with statistical validation
+- Integration: connect methods to capstone project and justify design decisions
+{% endif %}
 
 ---
 
