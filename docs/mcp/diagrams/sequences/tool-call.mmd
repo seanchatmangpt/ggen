@@ -1,0 +1,43 @@
+```mermaid
+sequenceDiagram
+    participant Client as LLM Client
+    participant MCP as MCP Server
+    participant Router as ToolRouter
+    participant Tool as generate Tool
+    participant Core as ggen Core
+    participant OTEL as OpenTelemetry
+
+    Client->>MCP: JSON-RPC: tools/call (generate)
+    activate MCP
+
+    MCP->>OTEL: span.enter("mcp.tool.call")
+    MCP->>Router: route("generate")
+    Router->>Tool: invoke(GenerateParams)
+
+    Tool->>OTEL: span.enter("ggen.generate")
+    Tool->>Core: load_ontology(ontology_path)
+
+    Core-->>Tool: Triples
+    Tool->>Core: extract_skill_definitions()
+    Tool->>Core: generate_code()
+    Tool->>Core: validate_output()
+    Tool->>Core: emit_files()
+
+    Core-->>Tool: Generated Files
+    Tool-->>Router: GenerateResult
+    Router-->>MCP: ToolResponse
+
+    MCP->>OTEL: span.exit()
+    MCP-->>Client: JSON-RPC Response
+    deactivate MCP
+```
+
+## Description
+Complete MCP tool invocation flow from client request to response, including OpenTelemetry tracing.
+
+## Key Steps
+- **Step 1**: Client sends JSON-RPC request with tool name and parameters
+- **Step 2**: MCP server routes to appropriate tool handler
+- **Step 3**: Tool executes core pipeline (load → extract → generate → validate → emit)
+- **Step 4**: OpenTelemetry spans record timing and metadata
+- **Step 5**: Response returns with generated files or error

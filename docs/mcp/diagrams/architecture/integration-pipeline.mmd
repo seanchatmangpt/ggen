@@ -1,0 +1,74 @@
+```mermaid
+graph LR
+    subgraph "Stage 1: Firewall"
+        FW1[Rate Limiting]
+        FW2[Size Validation]
+        FW3[Schema Validation]
+    end
+
+    subgraph "Stage 2: Packet Processing"
+        PKT1[Parse JSON-RPC]
+        PKT2[Extract Parameters]
+        PKT3[Validate Types]
+    end
+
+    subgraph "Stage 3: Backpressure"
+        BP1[Semaphore Throttle]
+        BP2[Queue Management]
+        BP3[Priority Scheduling]
+    end
+
+    subgraph "Stage 4: A2A Translation"
+        A2A1[AgentToToolAdapter]
+        A2A2[MessageRouter]
+        A2A3[ToolToAgentAdapter]
+    end
+
+    subgraph "Stage 5: Jidoka (Automation)"
+        JD1[Task Mapping]
+        JD2[State Sync]
+        JD3[Event Publishing]
+    end
+
+    subgraph "Stage 6: Receipt & Telemetry"
+        RC1[Build Receipt]
+        RC2[OTel Spans]
+        RC3[Metrics Emission]
+    end
+
+    FW1 & FW2 & FW3 --> PKT1 & PKT2 & PKT3
+    PKT1 & PKT2 & PKT3 --> BP1 & BP2 & BP3
+    BP1 & BP2 & BP3 --> A2A1 & A2A2 & A2A3
+    A2A1 & A2A2 & A2A3 --> JD1 & JD2 & JD3
+    JD1 & JD2 & JD3 --> RC1 & RC2 & RC3
+
+    style FW1 fill:#ffcdd2
+    style FW2 fill:#ffcdd2
+    style FW3 fill:#ffcdd2
+    style PKT1 fill:#c5cae9
+    style PKT2 fill:#c5cae9
+    style PKT3 fill:#c5cae9
+    style BP1 fill:#fff9c4
+    style BP2 fill:#fff9c4
+    style BP3 fill:#fff9c4
+    style A2A1 fill:#b2dfdb
+    style A2A2 fill:#b2dfdb
+    style A2A3 fill:#b2dfdb
+    style JD1 fill:#d1c4e9
+    style JD2 fill:#d1c4e9
+    style JD3 fill:#d1c4e9
+    style RC1 fill:#c8e6c9
+    style RC2 fill:#c8e6c9
+    style RC3 fill:#c8e6c9
+```
+
+## Purpose
+Illustrates the 6-stage integration pipeline showing message flow from ingress through processing to observability.
+
+## Key Components
+- **Stage 1 - Firewall**: Rate limiting, size validation, schema validation (security)
+- **Stage 2 - Packet Processing**: JSON-RPC parsing, parameter extraction, type validation
+- **Stage 3 - Backpressure**: Semaphore-based throttling, queue management, priority scheduling
+- **Stage 4 - A2A Translation**: Bidirectional adaptation between A2A and LLM formats via router
+- **Stage 5 - Jidoka**: Task mapping, state synchronization, event publishing (automation)
+- **Stage 6 - Receipt & Telemetry**: Build receipts, OpenTelemetry spans, metrics emission

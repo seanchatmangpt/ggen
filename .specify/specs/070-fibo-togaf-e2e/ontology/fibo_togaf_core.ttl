@@ -1,0 +1,95 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix a2a: <http://ggen.ai/a2a#> .
+@prefix fibo: <http://www.omg.org/spec/FIBO/2023-01-ontology/> .
+@prefix togaf: <http://ggen.ai/togaf#> .
+
+# Ontology Metadata
+<http://ggen.ai/ontologies/fibo-togaf-core> a owl:Ontology ;
+    rdfs:label "FIBO-TOGAF Integration Core Ontology" ;
+    rdfs:comment "Integrates FIBO financial ontology with TOGAF ADM phases for A2A agent generation" ;
+    owl:versionInfo "1.0.0" .
+
+# TOGAF Phase Skills as A2A Skills
+togaf:PhaseA_Skill a a2a:Skill ;
+    rdfs:label "Architecture Vision Agent" ;
+    rdfs:comment "Handles TOGAF Phase A: Architecture Vision" ;
+    a2a:hasSystemPrompt "You are the Architecture Vision Agent. Gather stakeholder requirements, define vision, establish scope for Fortune 500 bank transformation. Use FIBO concepts to map regulatory requirements and business entities." ;
+    a2a:hasInputType "TogafPhaseA_Input" ;
+    a2a:hasOutputType "TogafPhaseA_Output" ;
+    togaf:phaseNumber 1 ;
+    togaf:turnsRequired "3-5" ;
+    togaf:producesArtifact "Statement of Architecture Work" ;
+    togaf:usesFiboConcept "fibo-fnd:LegalPerson", "fibo-fnd:Organization" .
+
+togaf:PhaseB_Skill a a2a:Skill ;
+    rdfs:label "Business Architecture Agent" ;
+    rdfs:comment "Handles TOGAF Phase B: Business Architecture" ;
+    a2a:hasSystemPrompt "You are the Business Architecture Agent. Define capabilities, organization structure, business services using FIBO-derived concepts. Map banking products to FIBO financial instruments." ;
+    a2a:hasInputType "TogafPhaseB_Input" ;
+    a2a:hasOutputType "TogafPhaseB_Output" ;
+    togaf:phaseNumber 2 ;
+    togaf:turnsRequired "5-8" ;
+    togaf:producesArtifact "Business Architecture Catalog" ;
+    togaf:usesFiboConcept "fibo-fnd:Capability", "fibo-sec:Loan", "fibo-sec:Deposit" .
+
+togaf:PhaseC_Skill a a2a:Skill ;
+    rdfs:label "Information Systems Architectures Agent" ;
+    rdfs:comment "Handles TOGAF Phase C: Information Systems Architectures (Data & Application)" ;
+    a2a:hasSystemPrompt "You are the Data Architecture Agent. Define data entities, services, and contracts using FIBO semantic structures. Map banking data to FIBO legal entities and financial instruments." ;
+    a2a:hasInputType "TogafPhaseC_Input" ;
+    a2a:hasOutputType "TogafPhaseC_Output" ;
+    togaf:phaseNumber 3 ;
+    togaf:turnsRequired "8-12" ;
+    togaf:producesArtifact "Data Entity Catalog" ;
+    togaf:usesFiboConcept "fibo-fnd:LegalPerson", "fibo-fnd:Contract", "fibo-sec:Security" .
+
+togaf:PhaseD_Skill a a2a:Skill ;
+    rdfs:label "Technology Architecture Agent" ;
+    rdfs:comment "Handles TOGAF Phase D: Technology Architecture" ;
+    a2a:hasSystemPrompt "You are the Technology Architecture Agent. Define platform services, infrastructure, and deployment models. Ensure FIBO semantic interoperability across technology stack." ;
+    a2a:hasInputType "TogafPhaseD_Input" ;
+    a2a:hasOutputType "TogafPhaseD_Output" ;
+    togaf:phaseNumber 4 ;
+    togaf:turnsRequired "8-12" ;
+    togaf:producesArtifact "Technology Architecture Catalog" ;
+    togaf:usesFiboConcept "fibo-fnd:PlatformService", "fibo-fnd:TechnologyInterface" .
+
+togaf:PhaseE_Skill a a2a:Skill ;
+    rdfs:label "Opportunities and Solutions Agent" ;
+    rdfs:comment "Handles TOGAF Phase E: Opportunities and Solutions" ;
+    a2a:hasSystemPrompt "You are the Opportunities and Solutions Agent. Identify implementation projects, migration planning. Align solutions with FIBO regulatory requirements and banking standards." ;
+    a2a:hasInputType "TogafPhaseE_Input" ;
+    a2a:hasOutputType "TogafPhaseE_Output" ;
+    togaf:phaseNumber 5 ;
+    togaf:turnsRequired "5-8" ;
+    togaf:producesArtifact "Implementation and Migration Strategy" ;
+    togaf:usesFiboConcept "fibo-fnd:ComplianceRequirement", "fibo-sec:RegulatoryFramework" .
+
+togaf:PhaseF_Skill a a2a:Skill ;
+    rdfs:label "Migration Planning Agent" ;
+    rdfs:comment "Handles TOGAF Phase F: Migration Planning" ;
+    a2a:hasSystemPrompt "You are the Migration Planning Agent. Create detailed migration plans, transition architectures. Ensure FIBO semantic continuity during migration phases." ;
+    a2a:hasInputType "TogafPhaseF_Input" ;
+    a2a:hasOutputType "TogafPhaseF_Output" ;
+    togaf:phaseNumber 6 ;
+    togaf:turnsRequired "5-8" ;
+    togaf:producesArtifact "Migration Plan" ;
+    togaf:usesFiboConcept "fibo-fnd:TransitionState", "fibo-fnd:GovernanceProcess" .
+
+# A2A Collaboration Protocol
+togaf:CollaborationProtocol a rdf:Class ;
+    rdfs:label "TOGAF A2A Collaboration Protocol" ;
+    rdfs:comment "Defines how TOGAF phase agents collaborate across 70 turns" ;
+    togaf:totalTurns 70 ;
+    togaf:phases 6 ;
+    togaf:approach "Iterative Refinement with FIBO Semantic Validation" .
+
+togaf:Handoff a rdf:Class ;
+    rdfs:label "Phase Handoff" ;
+    rdfs:comment "Formal handoff between TOGAF phases with FIBO validation" ;
+    togaf:fromPhase togaf:PhaseSkill ;
+    togaf:toPhase togaf:PhaseSkill ;
+    togaf:validationCriteria "FIBO semantic consistency maintained" .

@@ -1,0 +1,44 @@
+```mermaid
+sequenceDiagram
+    participant Agent as Sending Agent
+    participant Transport as A2aTransport
+    participant Router as MessageRouter
+    participant Handler as MessageHandler
+    participant Registry as AgentRegistry
+
+    Agent->>Transport: send_message(A2aMessage)
+    activate Transport
+
+    Transport->>Transport: validate_origin()
+    Transport->>Transport: validate_routing()
+
+    Transport->>Router: route(message)
+    activate Router
+
+    Router->>Router: find_handler(message_type)
+    Router->>Handler: handle_message(message)
+    activate Handler
+
+    Handler->>Handler: validate_payload()
+    Handler->>Registry: query_capabilities(target_agent)
+
+    Registry-->>Handler: Capabilities
+    Handler-->>Router: HandlerResult
+
+    Router-->>Transport: A2aResponse
+    deactivate Router
+
+    Transport->>Transport: update_session(session_id)
+    Transport-->>Agent: Response
+    deactivate Transport
+```
+
+## Description
+A2A message processing flow from receipt through routing to handler execution and response.
+
+## Key Steps
+- **Step 1**: Agent sends message via A2aTransport
+- **Step 2**: Transport validates origin and routing metadata
+- **Step 3**: MessageRouter selects appropriate handler by message type
+- **Step 4**: Handler validates payload and queries agent capabilities
+- **Step 5**: Response propagates back through router with session update

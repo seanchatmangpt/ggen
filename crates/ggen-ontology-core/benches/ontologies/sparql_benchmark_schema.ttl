@@ -1,0 +1,186 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bench: <http://example.com/ontology/benchmark/> .
+@prefix : <http://example.com/ontology/benchmark/> .
+
+# Benchmark Ontology for SPARQL Query Execution
+:BenchmarkSuite rdf:type owl:Class ;
+  rdfs:label "Benchmark Suite" ;
+  rdfs:comment "A collection of SPARQL query benchmarks" .
+
+:SPARQLQuery rdf:type owl:Class ;
+  rdfs:label "SPARQL Query" ;
+  rdfs:comment "A SPARQL query to benchmark" .
+
+:SelectQuery rdf:type owl:Class ;
+  rdfs:label "SELECT Query" ;
+  rdfs:subClassOf :SPARQLQuery ;
+  rdfs:comment "SPARQL SELECT query for data extraction" .
+
+:AskQuery rdf:type owl:Class ;
+  rdfs:label "ASK Query" ;
+  rdfs:subClassOf :SPARQLQuery ;
+  rdfs:comment "SPARQL ASK query for boolean checks" .
+
+:ConstructQuery rdf:type owl:Class ;
+  rdfs:label "CONSTRUCT Query" ;
+  rdfs:subClassOf :SPARQLQuery ;
+  rdfs:comment "SPARQL CONSTRUCT query for graph transformation" .
+
+:DescribeQuery rdf:type owl:Class ;
+  rdfs:label "DESCRIBE Query" ;
+  rdfs:subClassOf :SPARQLQuery ;
+  rdfs:comment "SPARQL DESCRIBE query for resource description" .
+
+# Query complexity levels
+:QueryComplexity rdf:type owl:Class ;
+  rdfs:label "Query Complexity" ;
+  rdfs:comment "Complexity classification for SPARQL queries" .
+
+:Simple rdf:type owl:Class ;
+  rdfs:label "Simple Query" ;
+  rdfs:subClassOf :QueryComplexity ;
+  rdfs:comment "Single triple pattern, no filters" .
+
+:Medium rdf:type owl:Class ;
+  rdfs:label "Medium Query" ;
+  rdfs:subClassOf :QueryComplexity ;
+  rdfs:comment "Multiple triple patterns, optional clauses" .
+
+:Complex rdf:type owl:Class ;
+  rdfs:label "Complex Query" ;
+  rdfs:subClassOf :QueryComplexity ;
+  rdfs:comment "UNION, FILTER, subqueries, aggregation" .
+
+# Performance metrics
+:PerformanceTarget rdf:type owl:Class ;
+  rdfs:label "Performance Target" ;
+  rdfs:comment "Target performance metrics for benchmarks" .
+
+:hasTarget rdf:type owl:DatatypeProperty ;
+  rdfs:label "has target" ;
+  rdfs:domain :PerformanceTarget ;
+  rdfs:range xsd:decimal .
+
+:hasUnit rdf:type owl:DatatypeProperty ;
+  rdfs:label "has unit" ;
+  rdfs:domain :PerformanceTarget ;
+  rdfs:range xsd:string .
+
+# Query properties
+:hasQueryText rdf:type owl:DatatypeProperty ;
+  rdfs:label "has query text" ;
+  rdfs:domain :SPARQLQuery ;
+  rdfs:range xsd:string .
+
+:hasComplexity rdf:type owl:ObjectProperty ;
+  rdfs:label "has complexity" ;
+  rdfs:domain :SPARQLQuery ;
+  rdfs:range :QueryComplexity .
+
+:hasExpectedTriples rdf:type owl:DatatypeProperty ;
+  rdfs:label "has expected triples" ;
+  rdfs:domain :SPARQLQuery ;
+  rdfs:range xsd:integer .
+
+:usesVariable rdf:type owl:DatatypeProperty ;
+  rdfs:label "uses variable" ;
+  rdfs:domain :SPARQLQuery ;
+  rdfs:range xsd:string .
+
+:hasFilter rdf:type owl:DatatypeProperty ;
+  rdfs:label "has filter" ;
+  rdfs:domain :SPARQLQuery ;
+  rdfs:range xsd:string .
+
+# Benchmark suite properties
+:hasBenchmark rdf:type owl:ObjectProperty ;
+  rdfs:label "has benchmark" ;
+  rdfs:domain :BenchmarkSuite ;
+  rdfs:range :SPARQLQuery .
+
+:hasTargetPerformance rdf:type owl:ObjectProperty ;
+  rdfs:label "has target performance" ;
+  rdfs:domain :BenchmarkSuite ;
+  rdfs:range :PerformanceTarget .
+
+:warmupIterations rdf:type owl:DatatypeProperty ;
+  rdfs:label "warmup iterations" ;
+  rdfs:domain :BenchmarkSuite ;
+  rdfs:range xsd:integer .
+
+:measurementIterations rdf:type owl:DatatypeProperty ;
+  rdfs:label "measurement iterations" ;
+  rdfs:domain :BenchmarkSuite ;
+  rdfs:range xsd:integer .
+
+# Sample benchmark instances
+:SPARQLBenchmarkSuite rdf:type :BenchmarkSuite ;
+  rdfs:label "SPARQL Query Benchmark Suite" ;
+  :hasBenchmark :SimpleSelect ;
+  :hasBenchmark :ComplexSelect ;
+  :hasBenchmark :SimpleAsk ;
+  :hasBenchmark :ConstructQuery ;
+  :warmupIterations 2 ;
+  :measurementIterations 100 .
+
+:SimpleSelect rdf:type :SelectQuery ;
+  rdfs:label "Simple SELECT Query" ;
+  :hasQueryText "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10" ;
+  :hasComplexity :Simple ;
+  :hasExpectedTriples 10 ;
+  :usesVariable "s" ;
+  :usesVariable "p" ;
+  :usesVariable "o" .
+
+:ComplexSelect rdf:type :SelectQuery ;
+  rdfs:label "Complex SELECT Query" ;
+  :hasQueryText """
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?subject ?label ?type
+    WHERE {
+      ?subject a ?type .
+      ?subject rdfs:label ?label .
+      FILTER (?type != rdf:Property)
+      OPTIONAL {
+        ?subject rdfs:comment ?comment
+      }
+    }
+    ORDER BY ?label
+    LIMIT 50
+  """ ;
+  :hasComplexity :Complex ;
+  :hasExpectedTriples 50 ;
+  :usesVariable "subject" ;
+  :usesVariable "label" ;
+  :usesVariable "type" ;
+  :hasFilter "?type != rdf:Property" .
+
+:SimpleAsk rdf:type :AskQuery ;
+  rdfs:label "Simple ASK Query" ;
+  :hasQueryText "ASK { ?s a ?type }" ;
+  :hasComplexity :Simple ;
+  :hasExpectedTriples 0 .
+
+:ConstructQuery rdf:type :ConstructQuery ;
+  rdfs:label "CONSTRUCT Query" ;
+  :hasQueryText """
+    PREFIX ex: <http://example.org/>
+    CONSTRUCT {
+      ?subject ex:inferredType ex:InferredEntity
+    }
+    WHERE {
+      ?subject a ?type .
+      ?type rdfs:subClassOf ex:BaseEntity
+    }
+  """ ;
+  :hasComplexity :Medium ;
+  :hasExpectedTriples 100 .
+
+:PerformanceTarget100ms rdf:type :PerformanceTarget ;
+  rdfs:label "100ms Target" ;
+  :hasTarget "100.0"^^xsd:decimal ;
+  :hasUnit "ms" .

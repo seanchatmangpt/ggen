@@ -1,0 +1,548 @@
+# ggen Self-Play Ontology
+# Defines ggen as both A2A Agent and MCP Server for recursive generation
+
+@prefix a2a: <https://a2a.dev/ontology#> .
+@prefix mcp: <https://ggen.io/ontology/mcp#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ggen: <https://ggen.io/ontology/ggen#> .
+@prefix ex: <https://example.com/ggen#> .
+
+#################################################################
+#    ggen as A2A Agent
+#################################################################
+
+ex:GgenAgent a a2a:Agent ;
+    rdfs:label "ggen Code Generation Agent" ;
+    rdfs:comment "Autonomous code generation agent that uses RDF ontologies to generate working code" ;
+    a2a:hasName "ggen" ;
+    a2a:hasVersion "6.0.0" ;
+
+    # Core Skills
+    a2a:hasSkill ex:OntologyValidationSkill ;
+    a2a:hasSkill ex:CodeGenerationSkill ;
+    a2a:hasSkill ex:TemplateRenderingSkill ;
+    a2a:hasSkill ex:QualityValidationSkill ;
+
+    # Behavior
+    a2a:hasSystemPrompt """
+You are ggen, an autonomous code generation agent. Your purpose is to transform RDF ontologies into working code through a five-stage pipeline:
+
+1. Load: Parse RDF/Turtle ontology files into an Oxigraph store
+2. Extract: Use SPARQL queries to extract schema definitions, skill definitions, and tool definitions
+3. Generate: Apply Tera templates with LLM-assisted implementation bodies
+4. Validate: Run quality gates to verify generated code
+5. Emit: Write files with SHA256 receipt for reproducibility
+
+Core Principles:
+- RDF is truth: The ontology is the single source of truth
+- Type-first: Encode invariants in types, use compiler as design tool
+- Chicago TDD: Write tests first, verify failures, implement to pass
+- Zero-cost abstractions: Prefer generics/stack allocation over trait objects/heap
+- Quality gates: All code must pass 11 validation gates before emission
+
+When generating code:
+1. Extract all schema types from ontology using SPARQL
+2. Generate type-safe Rust structs with proper derives
+3. Implement skill handlers with full error handling (Result<T,E>)
+4. Add comprehensive tests (unit, integration, property-based)
+5. Apply Tera templates with conditional LLM-generated implementations
+6. Run quality gates: manifest validation, dependency checks, SPARQL validation, template validation, permission verification, business rule validation, DMAIC gates
+
+Quality Standards:
+- 80%+ test coverage required
+- Zero unwrap()/expect() in production code
+- All public APIs tested
+- Error paths covered
+- Performance SLOs met (<15s first build, <2s incremental)
+
+Failure Handling:
+If any quality gate fails, stop and report the specific issue. Do not emit partial code.
+""" ;
+
+    a2a:hasImplementationHint """
+Use ggen_core::v6::pipeline::CodeGenerationPipeline for orchestration.
+Implement skill handlers using the Skill trait from ggen_core::schema.
+Apply templates using Tera engine with ggen_core::templates::TemplateEngine.
+Run quality gates using ggen_core::poka_yoke::QualityGateRunner.
+""" ;
+
+    a2a:hasBestPractice """
+- Always validate ontology syntax before generation
+- Use SPARQL OPTIONAL clauses for optional predicates
+- Generate type-safe code with proper derives (Debug, Clone, Serialize, Deserialize)
+- Implement comprehensive error handling with custom error types
+- Add docstrings to all public APIs
+- Write tests before implementation (Chicago TDD)
+- Use cargo make for all build commands
+- Never use unwrap()/expect() in production
+- Follow naming conventions: snake_case for functions, PascalCase for types
+""" .
+
+#################################################################
+#    Skill 1: Ontology Validation
+#################################################################
+
+ex:OntologyValidationSkill a a2a:Skill ;
+    rdfs:label "Ontology Validation Skill" ;
+    a2a:hasName "ontology_validation" ;
+    a2a:hasDescription "Validate RDF/Turtle ontology files for syntax and semantic correctness" ;
+
+    a2a:hasInputType "OntologyValidationRequest { file_path: String, check_shacl: Boolean }"^^xsd:string ;
+    a2a:hasOutputType "OntologyValidationResponse { valid: Boolean, errors: Vec<ValidationError>, warnings: Vec<ValidationWarning> }"^^xsd:string ;
+
+    a2a:hasSystemPrompt """
+Validate RDF/Turtle ontology files for syntax correctness and semantic validity.
+Parse the file using Oxigraph parser and check for:
+- Well-formed Turtle syntax
+- Valid RDF triples
+- Proper prefix declarations
+- No undefined prefixes in use
+- Optional SHACL validation against schema shapes
+Return detailed error messages with line numbers for any issues found.
+""" ;
+
+    a2a:hasImplementationHint """
+Use oxigraph::io::read_ttl for parsing.
+Use oxigraph::store::Store for in-memory validation.
+Use oxigraph::sparql::SPARQL query for SHACL validation.
+Return ValidationError struct with { line, column, message, severity }.
+""" ;
+
+    a2a:hasTestExample """
+Input: { file_path: "test.ttl", check_shacl: true }
+Output: { valid: true, errors: [], warnings: [] }
+
+Input: { file_path: "invalid.ttl", check_shacl: false }
+Output: { valid: false, errors: [{ line: 15, column: 3, message: "Unexpected token", severity: "error" }], warnings: [] }
+""" .
+
+#################################################################
+#    Skill 2: Code Generation
+#################################################################
+
+ex:CodeGenerationSkill a a2a:Skill ;
+    rdfs:label "Code Generation Skill" ;
+    a2a:hasName "code_generation" ;
+    a2a:hasDescription "Generate working code from RDF ontology using five-stage pipeline" ;
+
+    a2a:hasInputType "CodeGenerationRequest { ontology_path: String, output_dir: String, language: String, enable_llm: Boolean }"^^xsd:string ;
+    a2a:hasOutputType "CodeGenerationResponse { files_written: Vec<String>, receipt: Receipt, quality_report: QualityReport }"^^xsd:string ;
+
+    a2a:hasSystemPrompt """
+Execute the five-stage code generation pipeline:
+μ₁ Load: Parse ontology into Oxigraph store
+μ₂ Extract: Run SPARQL queries to extract schemas, skills, tools
+μ₃ Generate: Apply Tera templates with LLM-assisted implementations
+μ₄ Validate: Run 11 quality gates
+μ₅ Emit: Write files with SHA256 receipt
+
+Each stage must complete successfully before proceeding to the next.
+If any quality gate fails, stop and report specific issues.
+""" ;
+
+    a2a:hasImplementationHint """
+Use ggen_core::v6::pipeline::CodeGenerationPipeline for orchestration.
+Use ggen_core::schema::SchemaParser for PEST-based schema parsing.
+Use ggen_core::codegen::executor::CodeExecutor for template rendering.
+Use ggen_core::poka_yoke::quality_gates::QualityGateRunner for validation.
+Use sha2::Sha256 for receipt generation.
+""" ;
+
+    a2a:hasTestExample """
+Input: { ontology_path: "ontology.ttl", output_dir: "./generated", language: "rust", enable_llm: true }
+Output: { files_written: ["src/lib.rs", "src/main.rs", "Cargo.toml"], receipt: { hash: "abc123...", timestamp: "2026-03-30T12:00:00Z" }, quality_report: { gates_passed: 11, gates_total: 11, score: 100 } }
+""" .
+
+#################################################################
+#    Skill 3: Template Rendering
+#################################################################
+
+ex:TemplateRenderingSkill a a2a:Skill ;
+    rdfs:label "Template Rendering Skill" ;
+    a2a:hasName "template_rendering" ;
+    a2a:hasDescription "Render Tera templates with extracted ontology data" ;
+
+    a2a:hasInputType "TemplateRenderingRequest { template_name: String, context: Value, enable_llm: Boolean }"^^xsd:string ;
+    a2a:hasOutputType "TemplateRenderingResponse { rendered: String, llm_generated: Option<String> }"^^xsd:string ;
+
+    a2a:hasSystemPrompt """
+Render Tera templates with provided context.
+If enable_llm is true and template contains {{ generated_impl }} placeholder:
+- Extract behavior predicates (hasSystemPrompt, hasImplementationHint)
+- Call LLM with system prompt + implementation hint
+- Insert generated code into template
+- Return both rendered template and LLM-generated implementation
+""" ;
+
+    a2a:hasImplementationHint """
+Use tera::Tera for template engine.
+Use tera::Context for variable injection.
+Use ggen_core::codegen::pipeline::LlmService for LLM integration.
+Handle template errors gracefully with specific error messages.
+""" ;
+
+    a2a:hasTestExample """
+Input: { template_name: "a2a-rust", context: { skill_name: "file_read", input_type: "FileReadRequest" }, enable_llm: true }
+Output: { rendered: "pub struct FileReadRequest { path: String } ...", llm_generated: "pub fn execute(req: FileReadRequest) -> Result<FileReadResponse> { ... }" }
+""" .
+
+#################################################################
+#    Skill 4: Quality Validation
+#################################################################
+
+ex:QualityValidationSkill a a2a:Skill ;
+    rdfs:label "Quality Validation Skill" ;
+    a2a:hasName "quality_validation" ;
+    a2a:hasDescription "Run 11 quality gates on generated code" ;
+
+    a2a:hasInputType "QualityValidationRequest { generated_files: Vec<String>, manifest: Manifest }"^^xsd:string ;
+    a2a:hasOutputType "QualityValidationResponse { passed: Boolean, gate_results: Vec<GateResult>, score: Integer }"^^xsd:string ;
+
+    a2a:hasSystemPrompt """
+Run all 11 quality gates on generated code:
+1. Manifest validation: Check manifest syntax and completeness
+2. Dependency validation: Verify all dependencies are available
+3. SPARQL validation: Validate SPARQL query syntax
+4. Template validation: Validate Tera template syntax
+5. Permission validation: Check file operation permissions
+6. Business rule validation: Verify business rule compliance
+7. Define gate (DMAIC): Verify problem statement and goals
+8. Measure gate (DMAIC): Verify metrics and baselines
+9. Analyze gate (DMAIC): Verify root cause analysis
+10. Improve gate (DMAIC): Verify solution effectiveness
+11. Control gate (DMAIC): Verify monitoring and sustainment
+
+Return detailed results for each gate with specific failure reasons.
+""" ;
+
+    a2a:hasImplementationHint """
+Use ggen_core::poka_yoke::quality_gates::QualityGateRunner.
+Implement each gate as separate trait object.
+Return GateResult struct with { gate_name, passed, message, details }.
+Calculate overall score as (passed / total) * 100.
+""" ;
+
+    a2a:hasTestExample """
+Input: { generated_files: ["src/lib.rs"], manifest: { name: "test", version: "1.0.0" } }
+Output: { passed: true, gate_results: [{ gate_name: "manifest_validation", passed: true, message: "OK" }, ...], score: 100 }
+""" .
+
+#################################################################
+#    ggen as MCP Server
+#################################################################
+
+ex:GgenMcpServer a mcp:Server ;
+    rdfs:label "ggen MCP Server" ;
+    rdfs:comment "MCP server exposing ggen capabilities as tools for Claude Desktop" ;
+    mcp:hasName "ggen-mcp" ;
+    mcp:hasVersion "1.0.0" ;
+
+    # Core Tools
+    mcp:hasTool ex:GenerateTool ;
+    mcp:hasTool ex:SyncTool ;
+    mcp:hasTool ex:ValidateTool ;
+    mcp:hasTool ex:FixCyclesTool ;
+
+    # Server Configuration
+    mcp:hasTransport "stdio" ;
+    mcp:hasTransport "http" .
+
+#################################################################
+#    Tool 1: generate
+#################################################################
+
+ex:GenerateTool a mcp:Tool ;
+    rdfs:label "generate tool" ;
+    mcp:hasName "generate" ;
+    mcp:hasDescription "Generate code from RDF ontology" ;
+    mcp:hasAutoImplementation true ;
+    mcp:hasToolCategory "code_generation" ;
+
+    mcp:hasInputSchema """
+{
+    "type": "object",
+    "properties": {
+        "ontology": {
+            "type": "string",
+            "description": "Path to RDF/Turtle ontology file"
+        },
+        "output": {
+            "type": "string",
+            "description": "Output directory for generated code"
+        },
+        "language": {
+            "type": "string",
+            "enum": ["rust", "go", "typescript", "java", "elixir"],
+            "description": "Target programming language"
+        },
+        "enable_llm": {
+            "type": "boolean",
+            "description": "Enable LLM-assisted implementation generation"
+        }
+    },
+    "required": ["ontology"]
+}
+""" ;
+
+    a2a:hasSystemPrompt """
+Generate code from RDF ontology using the five-stage pipeline.
+Parse ontology, extract schemas and skills, apply templates with LLM assistance, run quality gates, emit files.
+Return the list of generated files and quality report.
+""" .
+
+#################################################################
+#    Tool 2: sync
+#################################################################
+
+ex:SyncTool a mcp:Tool ;
+    rdfs:label "sync tool" ;
+    mcp:hasName "sync" ;
+    mcp:hasDescription "Synchronize ontology changes to generated code" ;
+    mcp:hasAutoImplementation true ;
+    mcp:hasToolCategory "synchronization" ;
+
+    mcp:hasInputSchema """
+{
+    "type": "object",
+    "properties": {
+        "ontology": {
+            "type": "string",
+            "description": "Path to RDF/Turtle ontology file"
+        },
+        "audit": {
+            "type": "boolean",
+            "description": "Enable cryptographic audit trail"
+        }
+    },
+    "required": ["ontology"]
+}
+""" ;
+
+    a2a:hasSystemPrompt """
+Synchronize ontology changes by detecting differences and regenerating affected code.
+Maintain existing code where ontology hasn't changed.
+Generate SHA256 receipt for reproducibility.
+""" .
+
+#################################################################
+#    Tool 3: validate
+#################################################################
+
+ex:ValidateTool a mcp:Tool ;
+    rdfs:label "validate tool" ;
+    mcp:hasName "validate" ;
+    mcp:hasDescription "Validate ontology or generated code" ;
+    mcp:hasAutoImplementation true ;
+    mcp:hasToolCategory "validation" ;
+
+    mcp:hasInputSchema """
+{
+    "type": "object",
+    "properties": {
+        "target": {
+            "type": "string",
+            "description": "Path to ontology or generated code"
+        },
+        "validation_type": {
+            "type": "string",
+            "enum": ["ontology", "sparql", "templates", "pipeline"],
+            "description": "Type of validation to perform"
+        }
+    },
+    "required": ["target"]
+}
+""" ;
+
+    a2a:hasSystemPrompt """
+Run validation checks on ontology or generated code.
+For ontology: Check Turtle syntax and SHACL shapes
+For SPARQL: Validate query syntax and test queries
+For templates: Validate Tera syntax and variable references
+For pipeline: Run all 11 quality gates
+Return validation report with specific issues found.
+""" .
+
+#################################################################
+#    Tool 4: fix_cycles
+#################################################################
+
+ex:FixCyclesTool a mcp:Tool ;
+    rdfs:label "fix_cycles tool" ;
+    mcp:hasName "fix_cycles" ;
+    mcp:hasDescription "Detect and fix circular dependency cycles" ;
+    mcp:hasAutoImplementation true ;
+    mcp:hasToolCategory "quality_fixing" ;
+
+    mcp:hasInputSchema """
+{
+    "type": "object",
+    "properties": {
+        "target": {
+            "type": "string",
+            "description": "Path to generated code directory"
+        },
+        "strategy": {
+            "type": "string",
+            "enum": ["remove_import", "merge_files", "create_interface"],
+            "description": "Cycle breaking strategy"
+        }
+    },
+    "required": ["target"]
+}
+""" ;
+
+    a2a:hasSystemPrompt """
+Detect circular dependency cycles in generated code using graph analysis.
+Apply specified strategy to break cycles:
+- remove_import: Remove problematic import
+- merge_files: Merge cyclic files into single module
+- create_interface: Extract interface to break cycle
+Return report of cycles detected and fixes applied.
+""" .
+
+#################################################################
+#    Schema Types for Self-Play
+#################################################################
+
+ex:GenerationRequest a rdfs:Class ;
+    rdfs:label "Generation Request" ;
+    rdfs:comment "Request for code generation from ontology" .
+
+ex:GenerationRequest hasProperty:
+    ex:ontologyPath ;
+    ex:outputDirectory ;
+    ex:targetLanguage ;
+    ex:enableLlm ;
+    ex:qualityLevel .
+
+ex:ontologyPath a rdf:Property ;
+    rdfs:label "ontology path" ;
+    rdfs:domain ex:GenerationRequest ;
+    rdfs:range xsd:string .
+
+ex:outputDirectory a rdf:Property ;
+    rdfs:label "output directory" ;
+    rdfs:domain ex:GenerationRequest ;
+    rdfs:range xsd:string .
+
+ex:targetLanguage a rdf:Property ;
+    rdfs:label "target language" ;
+    rdfs:domain ex:GenerationRequest ;
+    rdfs:range xsd:string .
+
+ex:enableLlm a rdf:Property ;
+    rdfs:label "enable llm" ;
+    rdfs:domain ex:GenerationRequest ;
+    rdfs:range xsd:boolean .
+
+ex:qualityLevel a rdf:Property ;
+    rdfs:label "quality level" ;
+    rdfs:domain ex:GenerationRequest ;
+    rdfs:range xsd:string .
+
+ex:GenerationResult a rdfs:Class ;
+    rdfs:label "Generation Result" ;
+    rdfs:comment "Result of code generation" .
+
+ex:GenerationResult hasProperty:
+    ex:filesWritten ;
+    ex:receipt ;
+    ex:qualityScore ;
+    ex:gatesPassed ;
+    ex:gatesTotal .
+
+ex:filesWritten a rdf:Property ;
+    rdfs:label "files written" ;
+    rdfs:domain ex:GenerationResult ;
+    rdfs:range xsd:string .
+
+ex:receipt a rdf:Property ;
+    rdfs:label "receipt" ;
+    rdfs:domain ex:GenerationResult ;
+    rdfs:range xsd:string .
+
+ex:qualityScore a rdf:Property ;
+    rdfs:label "quality score" ;
+    rdfs:domain ex:GenerationResult ;
+    rdfs:range xsd:integer .
+
+ex:gatesPassed a rdf:Property ;
+    rdfs:label "gates passed" ;
+    rdfs:domain ex:GenerationResult ;
+    rdfs:range xsd:integer .
+
+ex:gatesTotal a rdf:Property ;
+    rdfs:label "gates total" ;
+    rdfs:domain ex:GenerationResult ;
+    rdfs:range xsd:integer .
+
+#################################################################
+#    Bridge Mappings: A2A ↔ MCP
+#################################################################
+
+ex:SkillToToolBridge a rdf:Property ;
+    rdfs:label "skill to tool bridge" ;
+    rdfs:comment "Maps A2A skills to MCP tools" ;
+    rdfs:domain ex:GgenAgent ;
+    rdfs:range ex:GgenMcpServer .
+
+ex:GgenAgent ex:SkillToToolBridge ex:GgenMcpServer .
+
+ex:OntologyValidationSkill ex:mapsToTool ex:ValidateTool .
+ex:CodeGenerationSkill ex:mapsToTool ex:GenerateTool .
+ex:TemplateRenderingSkill ex:mapsToTool ex:GenerateTool .
+ex:QualityValidationSkill ex:mapsToTool ex:ValidateTool .
+
+ex:mapsToTool a rdf:Property ;
+    rdfs:label "maps to tool" ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range mcp:Tool .
+
+#################################################################
+#    Self-Play Configuration
+#################################################################
+
+ex:SelfPlayConfig a rdfs:Class ;
+    rdfs:label "Self-Play Configuration" ;
+    rdfs:comment "Configuration for ggen self-play (recursive generation)" .
+
+ex:SelfPlayConfig hasProperty:
+    ex:iterations ;
+    ex:convergenceThreshold ;
+    ex:qualityTarget ;
+    ex:mutationRate ;
+    ex:selectionPressure .
+
+ex:iterations a rdf:Property ;
+    rdfs:label "iterations" ;
+    rdfs:domain ex:SelfPlayConfig ;
+    rdfs:range xsd:integer .
+
+ex:convergenceThreshold a rdf:Property ;
+    rdfs:label "convergence threshold" ;
+    rdfs:domain ex:SelfPlayConfig ;
+    rdfs:range xsd:float .
+
+ex:qualityTarget a rdf:Property ;
+    rdfs:label "quality target" ;
+    rdfs:domain ex:SelfPlayConfig ;
+    rdfs:range xsd:integer .
+
+ex:mutationRate a rdf:Property ;
+    rdfs:label "mutation rate" ;
+    rdfs:domain ex:SelfPlayConfig ;
+    rdfs:range xsd:float .
+
+ex:selectionPressure a rdf:Property ;
+    rdfs:label "selection pressure" ;
+    rdfs:domain ex:SelfPlayConfig ;
+    rdfs:range xsd:float .
+
+ex:DefaultSelfPlayConfig a ex:SelfPlayConfig ;
+    ex:iterations 10 ;
+    ex:convergenceThreshold 0.95 ;
+    ex:qualityTarget 100 ;
+    ex:mutationRate 0.1 ;
+    ex:selectionPressure 0.8 .

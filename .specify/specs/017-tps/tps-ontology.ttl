@@ -1,0 +1,457 @@
+# Toyota Production System (TPS) Ontology for Autonomous Code Generation
+# Specification: 017-TPS
+# Version: 1.0.0
+# Date: 2026-03-30
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix tps: <http://purl.org/ggen/tps#> .
+@prefix ggen: <http://purl.org/ggen/core#> .
+
+<http://purl.org/ggen/tps> a owl:Ontology ;
+    rdfs:label "Toyota Production System Ontology" ;
+    rdfs:comment "TPS quality predicates for autonomous code generation with continuous improvement" ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# CLASSES
+# ============================================================================
+
+tps:Muda a owl:Class ;
+    rdfs:label "Muda (Waste)" ;
+    rdfs:comment "The 7 wastes identified in Toyota Production System" ;
+    rdfs:subClassOf ggen:QualityConcept .
+
+tps:Kaizen a owl:Class ;
+    rdfs:label "Kaizen (Continuous Improvement)" ;
+    rdfs:comment "Continuous improvement events and actions" ;
+    rdfs:subClassOf ggen:QualityConcept .
+
+tps:Mura a owl:Class ;
+    rdfs:label "Mura (Unevenness)" ;
+    rdfs:comment "Workload unevenness and flow irregularities" ;
+    rdfs:subClassOf ggen:QualityConcept .
+
+tps:Muri a owl:Class ;
+    rdfs:label "Muri (Overburden)" ;
+    rdfs:comment "System or person overloading" ;
+    rdfs:subClassOf ggen:QualityConcept .
+
+tps:Jit a owl:Class ;
+    rdfs:label "Just-In-Time (JIT)" ;
+    rdfs:comment "Just-in-time delivery and flow efficiency" ;
+    rdfs:subClassOf ggen:QualityConcept .
+
+tps:GenerationEvent a owl:Class ;
+    rdfs:label "Generation Event" ;
+    rdfs:comment "A code generation event subject to TPS validation" .
+
+tps:TpsReport a owl:Class ;
+    rdfs:label "TPS Validation Report" ;
+    rdfs:comment "Report from TPS validation of a generation event" .
+
+tps:ImprovementMetric a owl:Class ;
+    rdfs:label "Improvement Metric" ;
+    rdfs:comment "Measurable improvement from Kaizen actions" .
+
+# ============================================================================
+# MUDA (7 WASTES) - Individual Waste Classes
+# ============================================================================
+
+tps:Defect a owl:Class ;
+    rdfs:label "Defect" ;
+    rdfs:comment "Code errors, bugs, or quality issues" ;
+    rdfs:subClassOf tps:Muda .
+
+tps:Overproduction a owl:Class ;
+    rdfs:label "Overproduction" ;
+    rdfs:comment "Generating more code than needed" ;
+    rdfs:subClassOf tps:Muda .
+
+tps:Waiting a owl:Class ;
+    rdfs:label "Waiting" ;
+    rdfs:comment "Build delays, dependency waits" ;
+    rdfs:subClassOf tps:Muda .
+
+tps:NonUtilizedTalent a owl:Class ;
+    rdfs:label "Non-Utilized Talent" ;
+    rdfs:comment "Wrong skill assignments or underutilization" ;
+    rdfs:subClassOf tps:Muda .
+
+tps:Transportation a owl:Class ;
+    rdfs:label "Transportation" ;
+    rdfs:comment "Context switching delays and handoffs" ;
+    rdfs:subClassOf tps:Muda .
+
+tps:Inventory a owl:Class ;
+    rdfs:label "Inventory" ;
+    rdfs:comment "Unused dependencies or cached artifacts" ;
+    rdfs:subClassOf tps:Muda .
+
+tps:Motion a owl:Class ;
+    rdfs:label "Motion" ;
+    rdfs:comment "Unnecessary file operations or movements" ;
+    rdfs:subClassOf tps:Muda .
+
+# ============================================================================
+# KAIZEN (Continuous Improvement)
+# ============================================================================
+
+tps:KaizenEvent a owl:Class ;
+    rdfs:label "Kaizen Event" ;
+    rdfs:comment "An improvement opportunity identified" ;
+    rdfs:subClassOf tps:Kaizen .
+
+tps:KaizenAction a owl:Class ;
+    rdfs:label "Kaizen Action" ;
+    rdfs:comment "Action taken to address improvement opportunity" ;
+    rdfs:subClassOf tps:Kaizen .
+
+# ============================================================================
+# PROPERTIES - Muda Detection
+# ============================================================================
+
+tps:hasMuda a rdf:Property ;
+    rdfs:label "has muda" ;
+    rdfs:comment "Links a generation event to detected waste" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range tps:Muda .
+
+tps:hasDefect a rdf:Property ;
+    rdfs:label "has defect" ;
+    rdfs:comment "Code errors or bugs detected" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range tps:Defect .
+
+tps:hasOverproduction a rdf:Property ;
+    rdfs:label "has overproduction" ;
+    rdfs:comment "Unused code generated" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range tps:Overproduction .
+
+tps:hasWaiting a rdf:Property ;
+    rdfs:label "has waiting" ;
+    rdfs:comment "Build delays detected" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range tps:Waiting .
+
+tps:hasNonUtilizedTalent a rdf:Property ;
+    rdfs:label "has non-utilized talent" ;
+    rdfs:comment "Skill misassignment detected" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range tps:NonUtilizedTalent .
+
+tps:hasTransportation a rdf:Property ;
+    rdfs:label "has transportation" ;
+    rdfs:comment "Context switching overhead" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range tps:Transportation .
+
+tps:hasInventory a rdf:Property ;
+    rdfs:label "has inventory" ;
+    rdfs:comment "Unused dependencies found" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range tps:Inventory .
+
+tps:hasMotion a rdf:Property ;
+    rdfs:label "has motion" ;
+    rdfs:comment "Unnecessary file operations" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range tps:Motion .
+
+tps:defectCount a rdf:Property ;
+    rdfs:label "defect count" ;
+    rdfs:comment "Number of defects detected" ;
+    rdfs:domain tps:Defect ;
+    rdfs:range xsd:integer .
+
+tps:unusedCodeLines a rdf:Property ;
+    rdfs:label "unused code lines" ;
+    rdfs:comment "Lines of unused code generated" ;
+    rdfs:domain tps:Overproduction ;
+    rdfs:range xsd:integer .
+
+tps:waitTimeMs a rdf:Property ;
+    rdfs:label "wait time milliseconds" ;
+    rdfs:comment "Time spent waiting" ;
+    rdfs:domain tps:Waiting ;
+    rdfs:range xsd:integer .
+
+tps:contextSwitchCount a rdf:Property ;
+    rdfs:label "context switch count" ;
+    rdfs:comment "Number of context switches" ;
+    rdfs:domain tps:Transportation ;
+    rdfs:range xsd:integer .
+
+tps:unusedDependencyCount a rdf:Property ;
+    rdfs:label "unused dependency count" ;
+    rdfs:comment "Number of unused dependencies" ;
+    rdfs:domain tps:Inventory ;
+    rdfs:range xsd:integer .
+
+tps:fileOperationCount a rdf:Property ;
+    rdfs:label "file operation count" ;
+    rdfs:comment "Number of file operations" ;
+    rdfs:domain tps:Motion ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# PROPERTIES - Kaizen Tracking
+# ============================================================================
+
+tps:hasKaizenEvent a rdf:Property ;
+    rdfs:label "has kaizen event" ;
+    rdfs:comment "Improvement opportunity identified" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range tps:KaizenEvent .
+
+tps:hasKaizenAction a rdf:Property ;
+    rdfs:label "has kaizen action" ;
+    rdfs:comment "Action taken for improvement" ;
+    rdfs:domain tps:KaizenEvent ;
+    rdfs:range tps:KaizenAction .
+
+tps:hasBeforeState a rdf:Property ;
+    rdfs:label "has before state" ;
+    rdfs:comment "State before improvement" ;
+    rdfs:domain tps:KaizenEvent ;
+    rdfs:range xsd:string .
+
+tps:hasAfterState a rdf:Property ;
+    rdfs:label "has after state" ;
+    rdfs:comment "State after improvement" ;
+    rdfs:domain tps:KaizenAction ;
+    rdfs:range xsd:string .
+
+tps:hasImprovement a rdf:Property ;
+    rdfs:label "has improvement" ;
+    rdfs:comment "Measurable improvement achieved" ;
+    rdfs:domain tps:KaizenAction ;
+    rdfs:range tps:ImprovementMetric .
+
+tps:improvementType a rdf:Property ;
+    rdfs:label "improvement type" ;
+    rdfs:comment "Type of improvement (time, quality, cost)" ;
+    rdfs:domain tps:ImprovementMetric ;
+    rdfs:range xsd:string .
+
+tps:improvementValue a rdf:Property ;
+    rdfs:label "improvement value" ;
+    rdfs:comment "Numeric value of improvement" ;
+    rdfs:domain tps:ImprovementMetric ;
+    rdfs:range xsd:decimal .
+
+tps:improvementUnit a rdf:Property ;
+    rdfs:label "improvement unit" ;
+    rdfs:comment "Unit of measurement" ;
+    rdfs:domain tps:ImprovementMetric ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# PROPERTIES - Mura (Unevenness)
+# ============================================================================
+
+tps:hasUnevenness a rdf:Property ;
+    rdfs:label "has unevenness" ;
+    rdfs:comment "Workload imbalance detected" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range tps:Mura .
+
+tps:hasBottleneck a rdf:Property ;
+    rdfs:label "has bottleneck" ;
+    rdfs:comment "Bottleneck identified in flow" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range tps:Mura .
+
+tps:hasSmoothingAction a rdf:Property ;
+    rdfs:label "has smoothing action" ;
+    rdfs:comment "Action taken to smooth flow" ;
+    rdfs:domain tps:Mura ;
+    rdfs:range xsd:string .
+
+tps:workloadVariance a rdf:Property ;
+    rdfs:label "workload variance" ;
+    rdfs:comment "Measure of workload unevenness" ;
+    rdfs:domain tps:Mura ;
+    rdfs:range xsd:decimal .
+
+tps:bottleneckStage a rdf:Property ;
+    rdfs:label "bottleneck stage" ;
+    rdfs:comment "Pipeline stage causing bottleneck" ;
+    rdfs:domain tps:Mura ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# PROPERTIES - Muri (Overburden)
+# ============================================================================
+
+tps:hasOverburden a rdf:Property ;
+    rdfs:label "has overburden" ;
+    rdfs:comment "System or person overloaded" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range tps:Muri .
+
+tps:hasReliefAction a rdf:Property ;
+    rdfs:label "has relief action" ;
+    rdfs:comment "Action taken to relieve overburden" ;
+    rdfs:domain tps:Muri ;
+    rdfs:range xsd:string .
+
+tps:hasPreventiveAction a rdf:Property ;
+    rdfs:label "has preventive action" ;
+    rdfs:comment "Preventive measure implemented" ;
+    rdfs:domain tps:Muri ;
+    rdfs:range xsd:string .
+
+tps:overburdenType a rdf:Property ;
+    rdfs:label "overburden type" ;
+    rdfs:comment "Type of overburden (cpu, memory, network)" ;
+    rdfs:domain tps:Muri ;
+    rdfs:range xsd:string .
+
+tps:loadPercentage a rdf:Property ;
+    rdfs:label "load percentage" ;
+    rdfs:comment "System load percentage" ;
+    rdfs:domain tps:Muri ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# PROPERTIES - JIT (Just-In-Time)
+# ============================================================================
+
+tps:hasJitTarget a rdf:Property ;
+    rdfs:label "has JIT target" ;
+    rdfs:comment "Target delivery time" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range tps:Jit .
+
+tps:hasActualLeadTime a rdf:Property ;
+    rdfs:label "has actual lead time" ;
+    rdfs:comment "Actual time taken" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range xsd:integer .
+
+tps:hasBatchSize a rdf:Property ;
+    rdfs:label "has batch size" ;
+    rdfs:comment "Current batch size" ;
+    rdfs:domain tps:Jit ;
+    rdfs:range xsd:integer .
+
+tps:hasOptimalBatch a rdf:Property ;
+    rdfs:label "has optimal batch" ;
+    rdfs:comment "Optimal batch size for flow" ;
+    rdfs:domain tps:Jit ;
+    rdfs:range xsd:integer .
+
+tps:targetTimeMs a rdf:Property ;
+    rdfs:label "target time milliseconds" ;
+    rdfs:comment "Target time in milliseconds" ;
+    rdfs:domain tps:Jit ;
+    rdfs:range xsd:integer .
+
+tps:actualTimeMs a rdf:Property ;
+    rdfs:label "actual time milliseconds" ;
+    rdfs:comment "Actual time taken in milliseconds" ;
+    rdfs:domain tps:Jit ;
+    rdfs:range xsd:integer .
+
+tps:jitEfficiency a rdf:Property ;
+    rdfs:label "JIT efficiency" ;
+    rdfs:comment "Efficiency ratio (target/actual)" ;
+    rdfs:domain tps:Jit ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# REPORTING
+# ============================================================================
+
+tps:hasReport a rdf:Property ;
+    rdfs:label "has report" ;
+    rdfs:comment "TPS validation report for generation" ;
+    rdfs:domain tps:GenerationEvent ;
+    rdfs:range tps:TpsReport .
+
+tps:mudaScore a rdf:Property ;
+    rdfs:label "muda score" ;
+    rdfs:comment "Aggregate waste score (0-100, lower is better)" ;
+    rdfs:domain tps:TpsReport ;
+    rdfs:range xsd:integer .
+
+tps:kaizenCount a rdf:Property ;
+    rdfs:label "kaizen count" ;
+    rdfs:comment "Number of kaizen events identified" ;
+    rdfs:domain tps:TpsReport ;
+    rdfs:range xsd:integer .
+
+tps:muraScore a rdf:Property ;
+    rdfs:label "mura score" ;
+    rdfs:comment "Unevenness score (0-100, lower is better)" ;
+    rdfs:domain tps:TpsReport ;
+    rdfs:range xsd:integer .
+
+tps:muriScore a rdf:Property ;
+    rdfs:label "muri score" ;
+    rdfs:comment "Overburden score (0-100, lower is better)" ;
+    rdfs:domain tps:TpsReport ;
+    rdfs:range xsd:integer .
+
+tps:jitScore a rdf:Property ;
+    rdfs:label "JIT score" ;
+    rdfs:comment "Just-in-time efficiency score (0-100, higher is better)" ;
+    rdfs:domain tps:TpsReport ;
+    rdfs:range xsd:integer .
+
+tps:overallTpsScore a rdf:Property ;
+    rdfs:label "overall TPS score" ;
+    rdfs:comment "Aggregate TPS health score (0-100, higher is better)" ;
+    rdfs:domain tps:TpsReport ;
+    rdfs:range xsd:integer .
+
+tps:validationTimestamp a rdf:Property ;
+    rdfs:label "validation timestamp" ;
+    rdfs:comment "When validation was performed" ;
+    rdfs:domain tps:TpsReport ;
+    rdfs:range xsd:dateTime .
+
+tps:passedGate a rdf:Property ;
+    rdfs:label "passed gate" ;
+    rdfs:comment "Whether TPS validation passed quality gate" ;
+    rdfs:domain tps:TpsReport ;
+    rdfs:range xsd:boolean .
+
+# ============================================================================
+# EXAMPLES
+# ============================================================================
+
+tps:ExampleGeneration a tps:GenerationEvent ;
+    tps:hasDefect [
+        a tps:Defect ;
+        tps:defectCount 3
+    ] ;
+    tps:hasOverproduction [
+        a tps:Overproduction ;
+        tps:unusedCodeLines 150
+    ] ;
+    tps:hasWaiting [
+        a tps:Waiting ;
+        tps:waitTimeMs 2500
+    ] ;
+    tps:hasJitTarget [
+        a tps:Jit ;
+        tps:targetTimeMs 5000 ;
+        tps:actualTimeMs 4200 ;
+        tps:jitEfficiency 0.84
+    ] ;
+    tps:hasReport [
+        a tps:TpsReport ;
+        tps:mudaScore 65 ;
+        tps:kaizenCount 2 ;
+        tps:muraScore 30 ;
+        tps:muriScore 45 ;
+        tps:jitScore 84 ;
+        tps:overallTpsScore 72 ;
+        tps:passedGate true ;
+        tps:validationTimestamp "2026-03-30T10:00:00Z"^^xsd:dateTime
+    ] .

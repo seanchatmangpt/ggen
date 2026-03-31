@@ -1,0 +1,239 @@
+# DoD Ontology: Definition of Done from Ontology
+# A=mu(O) — DoD checklists are projections of ontology triples through SPARQL CONSTRUCT + Tera
+#
+# Classes: Project, Feature, VerificationArtifact, DoDCheck
+# Check types span: WvdA Soundness, Armstrong Fault Tolerance, Chicago TDD, Verification, Code Quality
+
+@prefix dod: <http://ggen.chatmangpt.com/dod#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# 1. CORE CLASSES
+# ============================================================================
+
+dod:Project
+  a owl:Class ;
+  rdfs:label "Project"@en ;
+  rdfs:comment "A software project with features that require Definition of Done verification"@en .
+
+dod:Feature
+  a owl:Class ;
+  rdfs:label "Feature"@en ;
+  rdfs:comment "A feature or work item within a project that must pass DoD checks before merge"@en .
+
+dod:VerificationArtifact
+  a owl:Class ;
+  rdfs:label "Verification Artifact"@en ;
+  rdfs:comment "An artifact that provides evidence for a DoD check (OTEL span, test assertion, schema conformance)"@en .
+
+dod:DoDCheck
+  a owl:Class ;
+  rdfs:label "DoD Check"@en ;
+  rdfs:comment "A single verification check that must pass for a feature to be considered done"@en .
+
+dod:CheckCategory
+  a owl:Class ;
+  rdfs:label "Check Category"@en ;
+  rdfs:comment "A grouping category for related DoD checks"@en .
+
+# ============================================================================
+# 2. OBJECT PROPERTIES
+# ============================================================================
+
+dod:hasFeature
+  a owl:ObjectProperty ;
+  rdfs:label "has feature"@en ;
+  rdfs:comment "Relates a project to its features"@en ;
+  rdfs:domain dod:Project ;
+  rdfs:range dod:Feature .
+
+dod:hasCheck
+  a owl:ObjectProperty ;
+  rdfs:label "has check"@en ;
+  rdfs:comment "Relates a feature to its DoD checks"@en ;
+  rdfs:domain dod:Feature ;
+  rdfs:range dod:DoDCheck .
+
+dod:requiresArtifact
+  a owl:ObjectProperty ;
+  rdfs:label "requires artifact"@en ;
+  rdfs:comment "Relates a DoD check to the verification artifact it requires"@en ;
+  rdfs:domain dod:DoDCheck ;
+  rdfs:range dod:VerificationArtifact .
+
+dod:belongsToCategory
+  a owl:ObjectProperty ;
+  rdfs:label "belongs to category"@en ;
+  rdfs:comment "Relates a DoD check to its grouping category"@en ;
+  rdfs:domain dod:DoDCheck ;
+  rdfs:range dod:CheckCategory .
+
+dod:dependsOn
+  a owl:ObjectProperty ;
+  rdfs:label "depends on"@en ;
+  rdfs:comment "Relates a DoD check to another check that must pass first"@en ;
+  rdfs:domain dod:DoDCheck ;
+  rdfs:range dod:DoDCheck .
+
+# ============================================================================
+# 3. DATATYPE PROPERTIES
+# ============================================================================
+
+dod:checkType
+  a owl:DatatypeProperty ;
+  rdfs:label "check type"@en ;
+  rdfs:comment "The type of verification check"@en ;
+  rdfs:domain dod:DoDCheck ;
+  rdfs:range xsd:string .
+
+dod:checkDescription
+  a owl:DatatypeProperty ;
+  rdfs:label "check description"@en ;
+  rdfs:comment "Human-readable description of what this check verifies"@en ;
+  rdfs:domain dod:DoDCheck ;
+  rdfs:range xsd:string .
+
+dod:evidenceRequired
+  a owl:DatatypeProperty ;
+  rdfs:label "evidence required"@en ;
+  rdfs:comment "Description of the evidence needed to pass this check"@en ;
+  rdfs:domain dod:DoDCheck ;
+  rdfs:range xsd:string .
+
+dod:priority
+  a owl:DatatypeProperty ;
+  rdfs:label "priority"@en ;
+  rdfs:comment "Priority level: critical, high, medium, low"@en ;
+  rdfs:domain dod:DoDCheck ;
+  rdfs:range xsd:string .
+
+dod:isVerified
+  a owl:DatatypeProperty ;
+  rdfs:label "is verified"@en ;
+  rdfs:comment "Whether this check has been verified (true/false)"@en ;
+  rdfs:domain dod:DoDCheck ;
+  rdfs:range xsd:boolean .
+
+dod:verificationCommand
+  a owl:DatatypeProperty ;
+  rdfs:label "verification command"@en ;
+  rdfs:comment "The shell command to run for automated verification"@en ;
+  rdfs:domain dod:DoDCheck ;
+  rdfs:range xsd:string .
+
+dod:projectName
+  a owl:DatatypeProperty ;
+  rdfs:label "project name"@en ;
+  rdfs:comment "Human-readable name of the project"@en ;
+  rdfs:domain dod:Project ;
+  rdfs:range xsd:string .
+
+dod:projectVersion
+  a owl:DatatypeProperty ;
+  rdfs:label "project version"@en ;
+  rdfs:comment "Version of the project"@en ;
+  rdfs:domain dod:Project ;
+  rdfs:range xsd:string .
+
+dod:featureName
+  a owl:DatatypeProperty ;
+  rdfs:label "feature name"@en ;
+  rdfs:comment "Human-readable name of the feature"@en ;
+  rdfs:domain dod:Feature ;
+  rdfs:range xsd:string .
+
+dod:featureStatus
+  a owl:DatatypeProperty ;
+  rdfs:label "feature status"@en ;
+  rdfs:comment "Current status of the feature: in-progress, review, blocked, done"@en ;
+  rdfs:domain dod:Feature ;
+  rdfs:range xsd:string .
+
+dod:categoryName
+  a owl:DatatypeProperty ;
+  rdfs:label "category name"@en ;
+  rdfs:comment "Human-readable name of the check category"@en ;
+  rdfs:domain dod:CheckCategory ;
+  rdfs:range xsd:string .
+
+dod:categoryOrder
+  a owl:DatatypeProperty ;
+  rdfs:label "category order"@en ;
+  rdfs:comment "Display order for the category (lower = first)"@en ;
+  rdfs:domain dod:CheckCategory ;
+  rdfs:range xsd:integer .
+
+dod:artifactType
+  a owl:DatatypeProperty ;
+  rdfs:label "artifact type"@en ;
+  rdfs:comment "Type of verification artifact: otel-span, test-assertion, weaver-schema"@en ;
+  rdfs:domain dod:VerificationArtifact ;
+  rdfs:range xsd:string .
+
+dod:artifactLocation
+  a owl:DatatypeProperty ;
+  rdfs:label "artifact location"@en ;
+  rdfs:comment "Where to find the artifact (file path, URL, command)"@en ;
+  rdfs:domain dod:VerificationArtifact ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# 4. CHECK TYPE INDIVIDUALS (Predefined vocabulary)
+# ============================================================================
+
+# WvdA Soundness checks
+dod:WvdaDeadlock dod:checkType "wvda-deadlock" .
+dod:WvdaLiveness dod:checkType "wvda-liveness" .
+dod:WvdaBoundedness dod:checkType "wvda-boundedness" .
+
+# Armstrong Fault Tolerance checks
+dod:ArmstrongSupervision dod:checkType "armstrong-supervision" .
+dod:ArmstrongNoSharedState dod:checkType "armstrong-no-shared-state" .
+dod:ArmstrongLetItCrash dod:checkType "armstrong-let-it-crash" .
+dod:ArmstrongBudget dod:checkType "armstrong-budget" .
+
+# Chicago TDD checks
+dod:ChicagoTddRed dod:checkType "chicago-tdd-red" .
+dod:ChicagoTddGreen dod:checkType "chicago-tdd-green" .
+dod:ChicagoTddRefactor dod:checkType "chicago-tdd-refactor" .
+
+# Verification checks
+dod:OtelSpanExists dod:checkType "otel-span-exists" .
+dod:WeaverRegistryCheck dod:checkType "weaver-registry-check" .
+
+# Code Quality checks
+dod:TestPassing dod:checkType "test-passing" .
+dod:ZeroWarnings dod:checkType "zero-warnings" .
+dod:CommitMessageConvention dod:checkType "commit-message-convention" .
+
+# ============================================================================
+# 5. CHECK CATEGORY INDIVIDUALS
+# ============================================================================
+
+dod:WvdASoundness
+  a dod:CheckCategory ;
+  dod:categoryName "WvdA Soundness" ;
+  dod:categoryOrder 1 .
+
+dod:ArmstrongFaultTolerance
+  a dod:CheckCategory ;
+  dod:categoryName "Armstrong Fault Tolerance" ;
+  dod:categoryOrder 2 .
+
+dod:ChicagoTDD
+  a dod:CheckCategory ;
+  dod:categoryName "Chicago TDD" ;
+  dod:categoryOrder 3 .
+
+dod:Verification
+  a dod:CheckCategory ;
+  dod:categoryName "Verification" ;
+  dod:categoryOrder 4 .
+
+dod:CodeQuality
+  a dod:CheckCategory ;
+  dod:categoryName "Code Quality" ;
+  dod:categoryOrder 5 .

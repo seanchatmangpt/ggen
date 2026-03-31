@@ -1,0 +1,317 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix turn: <http://ggen.ai/turn#> .
+@prefix togaf: <http://ggen.ai/togaf#> .
+@prefix fibo: <http://www.omg.org/spec/FIBO/2023-01-ontology/> .
+
+# Ontology Metadata
+<http://ggen.ai/ontologies/turn-protocol> a owl:Ontology ;
+    rdfs:label "A2A Turn Protocol for FIBO-TOGAF" ;
+    rdfs:comment "Defines 70-turn collaboration protocol for TOGAF phase agents with FIBO semantic validation" ;
+    owl:versionInfo "1.0.0" .
+
+# Turn Protocol Definition
+turn:TurnProtocol a rdf:Class ;
+    rdfs:label "TOGAF A2A Turn Protocol" ;
+    rdfs:comment "Defines 70-turn collaboration protocol for Fortune 500 bank architecture transformation" ;
+    turn:totalTurns 70 ;
+    turn:phases 6 ;
+    turn:approach "Iterative Refinement with FIBO Semantic Validation" ;
+    turn:validationFrequency "Every 5 turns" ;
+    turn:stakeholderReview "Turns 10, 25, 45, 65" .
+
+# Turn Definition
+turn:Turn a rdf:Class ;
+    rdfs:label "Agent Turn" ;
+    rdfs:comment "Single turn in A2A collaboration sequence" ;
+    turn:hasSequenceNumber xsd:integer ;
+    turn:executedBy togaf:PhaseSkill ;
+    turn:producesArtifact togaf:ArchitectureArtifact ;
+    turn:requiresApprovalFrom turn:Stakeholder ;
+    turn:validatesAgainst fibo:Concept ;
+    turn:inputs turn:TurnInput ;
+    turn:outputs turn:TurnOutput .
+
+# Turn Sequence by Phase
+turn:PhaseA_Turns a rdf:Class ;
+    rdfs:label "Phase A Turns (1-8)" ;
+    turn:turnRange "1-8" ;
+    turn:phase togaf:PhaseA_Skill ;
+    turn:focus "Architecture Vision, Stakeholder Requirements, Scope Definition" ;
+    turn:fiboValidation "Legal person definitions, organizational structure" .
+
+turn:PhaseB_Turns a rdf:Class ;
+    rdfs:label "Phase B Turns (9-22)" ;
+    turn:turnRange "9-22" ;
+    turn:phase togaf:PhaseB_Skill ;
+    turn:focus "Business Architecture, Capabilities, Organization, Services" ;
+    turn:fiboValidation "Business capability mapping, regulatory requirements" .
+
+turn:PhaseC_Turns a rdf:Class ;
+    rdfs:label "Phase C Turns (23-40)" ;
+    turn:turnRange "23-40" ;
+    turn:phase togaf:PhaseC_Skill ;
+    turn:focus "Data Architecture, Application Architecture, FIBO Semantic Mapping" ;
+    turn:fiboValidation "Data entity definitions, FIBO concept alignment" .
+
+turn:PhaseD_Turns a rdf:Class ;
+    rdfs:label "Phase D Turns (41-54)" ;
+    turn:turnRange "41-54" ;
+    turn:phase togaf:PhaseD_Skill ;
+    turn:focus "Technology Architecture, Platforms, Infrastructure" ;
+    turn:fiboValidation "Technology service definitions, platform capabilities" .
+
+turn:PhaseE_Turns a rdf:Class ;
+    rdfs:label "Phase E Turns (55-62)" ;
+    turn:turnRange "55-62" ;
+    turn:phase togaf:PhaseE_Skill ;
+    turn:focus "Opportunities, Solutions, Implementation Strategy" ;
+    turn:fiboValidation "Solution compliance with FIBO regulatory requirements" .
+
+turn:PhaseF_Turns a rdf:Class ;
+    rdfs:label "Phase F Turns (63-70)" ;
+    turn:turnRange "63-70" ;
+    turn:phase togaf:PhaseF_Skill ;
+    turn:focus "Migration Planning, Transition Architectures" ;
+    turn:fiboValidation "FIBO semantic continuity during migration" .
+
+# Stakeholder Approval Checkpoints
+turn:Stakeholder a rdf:Class ;
+    rdfs:label "Stakeholder" ;
+    rdfs:comment "Stakeholder role that reviews and approves artifacts" .
+
+turn:ExecutiveSponsor a turn:Stakeholder ;
+    rdfs:label "Executive Sponsor" ;
+    turn:approvesAtTurns 10, 25, 45, 65 ;
+    turn:focus "Business value alignment, strategic fit" .
+
+turn:ChiefArchitect a turn:Stakeholder ;
+    rdfs:label "Chief Architect" ;
+    turn:approvesAtTurns 8, 22, 40, 54, 70 ;
+    turn:focus "Technical coherence, architectural integrity" .
+
+turn:ComplianceOfficer a turn:Stakeholder ;
+    rdfs:label "Compliance Officer" ;
+    turn:approvesAtTurns 22, 40, 62 ;
+    turn:focus "FIBO regulatory compliance, risk management" .
+
+turn:BusinessOwner a turn:Stakeholder ;
+    rdfs:label "Business Owner" ;
+    turn:approvesAtTurns 10, 25, 45 ;
+    turn:focus "Business capability alignment, operational feasibility" .
+
+# Turn Validation Rules
+turn:ValidationRule a rdf:Class ;
+    rdfs:label "Turn Validation Rule" ;
+    rdfs:comment "Rules for validating turn outputs" .
+
+turn:FiboConsistencyRule a turn:ValidationRule ;
+    rdfs:label "FIBO Consistency Rule" ;
+    rdfs:comment "Validate that turn outputs maintain FIBO semantic consistency" ;
+    turn:checkFrequency "Every turn" ;
+    turn:validationTool "SHACL Validator" ;
+    turn:failureAction "Request revision from current agent" .
+
+turn:ArtifactCompletenessRule a turn:ValidationRule ;
+    rdfs:label "Artifact Completeness Rule" ;
+    rdfs:comment "Validate that required TOGAF artifacts are produced" ;
+    turn:checkFrequency "Every turn" ;
+    turn:validationTool "Artifact Checklist" ;
+    turn:failureAction "Flag missing artifacts, request completion" .
+
+turn:PhaseTransitionRule a turn:ValidationRule ;
+    rdfs:label "Phase Transition Rule" ;
+    rdfs:comment "Validate that phase handoffs meet quality criteria" ;
+    turn:checkFrequency "At phase transitions (turns 8, 22, 40, 54, 62)" ;
+    turn:validationTool "Phase Handoff Validator" ;
+    turn:failureAction "Hold handoff until criteria met" .
+
+# Turn Input/Output Schema
+turn:TurnInput a rdf:Class ;
+    rdfs:label "Turn Input" ;
+    rdfs:comment "Input data for agent turn" ;
+    turn:containsArtifact togaf:ArchitectureArtifact ;
+    turn:containsFiboConcept fibo:Concept ;
+    turn:containsContext turn:TurnContext .
+
+turn:TurnOutput a rdf:Class ;
+    rdfs:label "Turn Output" ;
+    rdfs:comment "Output data from agent turn" ;
+    turn:producesArtifact togaf:ArchitectureArtifact ;
+    turn:mapsToFiboConcept fibo:Concept ;
+    turn:includesMetadata turn:TurnMetadata .
+
+turn:TurnMetadata a rdf:Class ;
+    rdfs:label "Turn Metadata" ;
+    rdfs:comment "Metadata about turn execution" ;
+    turn:agentName xsd:string ;
+    turn:phaseNumber xsd:integer ;
+    turn:timestamp xsd:dateTime ;
+    turn:fiboConceptsUsed xsd:string ;
+    turn:artifactsProduced xsd:string .
+
+# Collaboration Patterns
+turn:SequentialPattern a rdf:Class ;
+    rdfs:label "Sequential Collaboration Pattern" ;
+    rdfs:comment "Agents execute turns in sequence (standard TOGAF ADM)" ;
+    turn:applicability "Standard waterfall-style architecture development" .
+
+turn:IterativePattern a rdf:Class ;
+    rdfs:label "Iterative Collaboration Pattern" ;
+    rdfs:comment "Agents revisit earlier phases based on new insights" ;
+    turn:applicability "Complex transformations requiring refinement" ;
+    turn:iterationTriggers "FIBO validation failures", "Stakeholder feedback", "New regulatory requirements" .
+
+turn:ParallelPattern a rdf:Class ;
+    rdfs:label "Parallel Collaboration Pattern" ;
+    rdfs:comment "Multiple agents work on different aspects simultaneously" ;
+    turn:applicability "Phases C and D (Data and Technology Architecture)" ;
+    turn:synchronizationPoints "Turn 40 (end of Phase C)" .
+
+# 70-Turn Execution Plan
+turn:ExecutionPlan a rdf:Class ;
+    rdfs:label "70-Turn Execution Plan" ;
+    rdfs:comment "Detailed plan for 70-turn A2A collaboration" ;
+    turn:totalDuration "Estimated 3-4 hours of agent execution" ;
+    turn:validationCheckpoints 14 ;
+    turn:stakeholderReviews 4 ;
+    turn:phaseTransitions 5 .
+
+# Detailed Turn Breakdown
+turn:Turn1 a turn:Turn ;
+    turn:sequenceNumber 1 ;
+    turn:executedBy togaf:PhaseA_Skill ;
+    turn:focus "Initialize Architecture Vision, identify stakeholders" ;
+    turn:producesArtifact "Stakeholder Map" .
+
+turn:Turn2 a turn:Turn ;
+    turn:sequenceNumber 2 ;
+    turn:executedBy togaf:PhaseA_Skill ;
+    turn:focus "Gather high-level business requirements" ;
+    turn:producesArtifact "Requirements Statement" .
+
+turn:Turn3 a turn:Turn ;
+    turn:sequenceNumber 3 ;
+    turn:executedBy togaf:PhaseA_Skill ;
+    turn:focus "Define architecture vision and scope" ;
+    turn:producesArtifact "Architecture Vision" .
+
+turn:Turn4 a turn:Turn ;
+    turn:sequenceNumber 4 ;
+    turn:executedBy togaf:PhaseA_Skill ;
+    turn:focus "Map business drivers to FIBO concepts" ;
+    turn:producesArtifact "FIBO Concept Map" .
+
+turn:Turn5 a turn:Turn ;
+    turn:sequenceNumber 5 ;
+    turn:executedBy togaf:PhaseA_Skill ;
+    turn:focus "Identify regulatory constraints (FIBO-based)" ;
+    turn:producesArtifact "Regulatory Constraints Catalog" .
+
+turn:Turn6 a turn:Turn ;
+    turn:sequenceNumber 6 ;
+    turn:executedBy togaf:PhaseA_Skill ;
+    turn:focus "Draft Statement of Architecture Work" ;
+    turn:producesArtifact "Statement of Architecture Work (Draft)" .
+
+turn:Turn7 a turn:Turn ;
+    turn:sequenceNumber 7 ;
+    turn:executedBy togaf:PhaseA_Skill ;
+    turn:focus "Validate FIBO concept usage in vision" ;
+    turn:producesArtifact "FIBO Validation Report" .
+
+turn:Turn8 a turn:Turn ;
+    turn:sequenceNumber 8 ;
+    turn:executedBy togaf:PhaseA_Skill ;
+    turn:focus "Finalize Phase A artifacts, handoff preparation" ;
+    turn:producesArtifact "Statement of Architecture Work (Final)" ;
+    turn:requiresApprovalFrom turn:ChiefArchitect .
+
+# Phase B Turns (9-22) - Business Architecture
+turn:Turn9 a turn:Turn ;
+    turn:sequenceNumber 9 ;
+    turn:executedBy togaf:PhaseB_Skill ;
+    turn:focus "Analyze current business capabilities" ;
+    turn:producesArtifact "Current Capability Map" .
+
+turn:Turn10 a turn:Turn ;
+    turn:sequenceNumber 10 ;
+    turn:executedBy togaf:PhaseB_Skill ;
+    turn:focus "Define target business capabilities (FIBO-based)" ;
+    turn:producesArtifact "Target Capability Map" ;
+    turn:requiresApprovalFrom turn:ExecutiveSponsor .
+
+turn:Turn11 a turn:Turn ;
+    turn:sequenceNumber 11 ;
+    turn:executedBy togaf:PhaseB_Skill ;
+    turn:focus "Map banking products to FIBO financial instruments" ;
+    turn:producesArtifact "FIBO Product Mapping" .
+
+turn:Turn12 a turn:Turn ;
+    turn:sequenceNumber 12 ;
+    turn:executedBy togaf:PhaseB_Skill ;
+    turn:focus "Define organizational structure" ;
+    turn:producesArtifact "Organization Structure" .
+
+turn:Turn13 a turn:Turn ;
+    turn:sequenceNumber 13 ;
+    turn:executedBy togaf:PhaseB_Skill ;
+    turn:focus "Map business processes to FIBO concepts" ;
+    turn:producesArtifact "FIBO Process Mapping" .
+
+turn:Turn14 a turn:Turn ;
+    turn:sequenceNumber 14 ;
+    turn:executedBy togaf:PhaseB_Skill ;
+    turn:focus "Define value streams" ;
+    turn:producesArtifact "Value Stream Map" .
+
+turn:Turn15 a turn:Turn ;
+    turn:sequenceNumber 15 ;
+    turn:executedBy togaf:PhaseB_Skill ;
+    turn:focus "Identify capability gaps" ;
+    turn:producesArtifact "Gap Analysis Report" .
+
+turn:Turn16 a turn:Turn ;
+    turn:sequenceNumber 16 ;
+    turn:executedBy togaf:PhaseB_Skill ;
+    turn:focus "Map regulatory requirements to capabilities" ;
+    turn:producesArtifact "Regulatory-Capability Matrix" .
+
+turn:Turn17 a turn:Turn ;
+    turn:sequenceNumber 17 ;
+    turn:executedBy togaf:PhaseB_Skill ;
+    turn:focus "Define business services" ;
+    turn:producesArtifact "Business Service Catalog" .
+
+turn:Turn18 a turn:Turn ;
+    turn:sequenceNumber 18 ;
+    turn:executedBy togaf:PhaseB_Skill ;
+    turn:focus "Validate FIBO semantic consistency" ;
+    turn:producesArtifact "FIBO Validation Report" .
+
+turn:Turn19 a turn:Turn ;
+    turn:sequenceNumber 19 ;
+    turn:executedBy togaf:PhaseB_Skill ;
+    turn:focus "Refine capability definitions" ;
+    turn:producesArtifact "Refined Capability Map" .
+
+turn:Turn20 a turn:Turn ;
+    turn:sequenceNumber 20 ;
+    turn:executedBy togaf:PhaseB_Skill ;
+    turn:focus "Map business capabilities to applications" ;
+    turn:producesArtifact "Capability-Application Matrix" .
+
+turn:Turn21 a turn:Turn ;
+    turn:sequenceNumber 21 ;
+    turn:executedBy togaf:PhaseB_Skill ;
+    turn:focus "Finalize Business Architecture artifacts" ;
+    turn:producesArtifact "Business Architecture Document (Draft)" .
+
+turn:Turn22 a turn:Turn ;
+    turn:sequenceNumber 22 ;
+    turn:executedBy togaf:PhaseB_Skill ;
+    turn:focus "Phase B completion and handoff" ;
+    turn:producesArtifact "Business Architecture Document (Final)" ;
+    turn:requiresApprovalFrom turn:ChiefArchitect, turn:ComplianceOfficer .

@@ -1,0 +1,56 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix a2a: <https://w3id.org/a2a/ontology#> .
+@prefix agent: <https://example.com/agent#> .
+
+# Agent Definition
+agent:CodeGeneratorAgent a a2a:Agent ;
+    rdfs:label "Code Generator Agent" ;
+    rdfs:comment "An AI-powered agent that generates code from RDF ontologies" ;
+    a2a:version "1.0.0" ;
+    a2a:provider "ggen" ;
+    a2a:url "https://github.com/seanchatmangpt/ggen" ;
+    a2a:hasSystemPrompt """You are an expert code generation agent specializing in RDF ontologies and the ggen framework.
+Your role is to help developers transform semantic specifications into production-ready code.
+You understand SPARQL, Tera templating, and multiple programming languages."""^^xsd:string ;
+    a2a:hasSkill agent:GenerateCodeSkill, agent:ValidateOntologySkill, agent:ExplainSchemaSkill .
+
+# Skill 1: Generate Code from Ontology
+agent:GenerateCodeSkill a a2a:Skill ;
+    rdfs:label "generate_code" ;
+    rdfs:comment "Generate code from an RDF ontology file" ;
+    a2a:hasInputType "GenerateCodeRequest { ontology_path: string, target_language: string, output_dir?: string }"^^xsd:string ;
+    a2a:hasOutputType "GenerateCodeResponse { generated_files: string[], status: string, message: string }"^^xsd:string ;
+    a2a:hasImplementationHint """Use ggen sync command with the provided ontology path.
+Support target_language: rust, go, elixir, java, typescript.
+Default output_dir to 'generated/' if not provided."""^^xsd:string ;
+    a2a:streaming false ;
+    a2a:timeoutMs 30000 ;
+    a2a:retryPolicy "exponential_backoff" .
+
+# Skill 2: Validate Ontology
+agent:ValidateOntologySkill a a2a:Skill ;
+    rdfs:label "validate_ontology" ;
+    rdfs:comment "Validate an RDF ontology against SHACL rules" ;
+    a2a:hasInputType "ValidateOntologyRequest { ontology_path: string, strict?: boolean }"^^xsd:string ;
+    a2a:hasOutputType "ValidateOntologyResponse { valid: boolean, violations: string[], warnings: string[] }"^^xsd:string ;
+    a2a:hasImplementationHint """Use ggen validate command with SHACL shapes.
+Set strict=true to fail on warnings, not just violations.
+Return detailed violation messages with line numbers."""^^xsd:string ;
+    a2a:streaming false ;
+    a2a:timeoutMs 10000 ;
+    a2a:retryPolicy "none" .
+
+# Skill 3: Explain Schema
+agent:ExplainSchemaSkill a a2a:Skill ;
+    rdfs:label "explain_schema" ;
+    rdfs:comment "Explain what an RDF ontology will generate" ;
+    a2a:hasInputType "ExplainSchemaRequest { ontology_path: string, detail_level?: string }"^^xsd:string ;
+    a2a:hasOutputType "ExplainSchemaResponse { classes: string[], properties: string[], templates: string[], explanation: string }"^^xsd:string ;
+    a2a:hasImplementationHint """Parse the ontology and extract classes, properties, and relationships.
+detail_level can be 'brief', 'normal', or 'detailed'.
+Provide human-readable explanation of what code will be generated."""^^xsd:string ;
+    a2a:streaming false ;
+    a2a:timeoutMs 15000 ;
+    a2a:retryPolicy "none" .

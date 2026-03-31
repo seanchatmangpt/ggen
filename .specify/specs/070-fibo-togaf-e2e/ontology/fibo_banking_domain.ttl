@@ -1,0 +1,150 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/> .
+@prefix fibo-lcc: <https://spec.edmcouncil.org/fibo/ontology/LCC/> .
+@prefix fibo-sec: <https://spec.edmcouncil.org/fibo/ontology/SEC/> .
+@prefix fibo-ind: <https://spec.edmcouncil.org/fibo/ontology/IND/> .
+@prefix togaf: <http://ggen.ai/togaf#> .
+
+# Ontology Metadata
+<http://ggen.ai/ontologies/fibo-banking-domain> a owl:Ontology ;
+    rdfs:label "FIBO Banking Domain for TOGAF" ;
+    rdfs:comment "Maps FIBO financial ontology concepts to TOGAF architecture artifacts for Fortune 500 banking transformation" ;
+    owl:versionInfo "1.0.0" .
+
+# FIBO Foundation Concepts
+fibo-fnd:LegalPerson a togaf:DataEntity ;
+    rdfs:label "Legal Person" ;
+    rdfs:comment "Legal entity recognized by law (e.g., corporation, partnership)" ;
+    togaf:usedInPhase "PhaseC" ;
+    togaf:mapsToArtifact "Data Entity Catalog" ;
+    togaf:businessCapability "Customer Onboarding", "Counterparty Management" ;
+    togaf:attributes "legalName", "registrationId", "jurisdiction", "taxId" .
+
+fibo-fnd:Organization a togaf:DataEntity ;
+    rdfs:label "Organization" ;
+    rdfs:comment "Structured entity with roles, responsibilities, and governance" ;
+    togaf:usedInPhase "PhaseB" ;
+    togaf:mapsToArtifact "Business Architecture Catalog" ;
+    togaf:businessCapability "Organization Design", "Governance Structure" ;
+    togaf:attributes "orgStructure", "reportingLines", "governancePolicies" .
+
+fibo-fnd:Contract a togaf:DataEntity ;
+    rdfs:label "Contract" ;
+    rdfs:comment "Legally binding agreement between parties" ;
+    togaf:usedInPhase "PhaseC" ;
+    togaf:mapsToArtifact "Data Entity Catalog" ;
+    togaf:businessCapability "Contract Management", "Legal Documentation" ;
+    togaf:attributes "contractId", "parties", "terms", "effectiveDate", "expiryDate" .
+
+# FIBO Securities and Loans
+fibo-sec:Loan a togaf:DataEntity ;
+    rdfs:label "Loan" ;
+    rdfs:comment "Credit arrangement where lender provides funds to borrower" ;
+    togaf:usedInPhase "PhaseC" ;
+    togaf:mapsToArtifact "Data Entity Catalog" ;
+    togaf:businessCapability "Loan Origination", "Loan Servicing", "Credit Risk Management" ;
+    togaf:attributes "loanId", "principalAmount", "interestRate", "term", "collateral" .
+
+fibo-sec:LoanContract a togaf:DataEntity ;
+    rdfs:label "Loan Contract" ;
+    rdfs:comment "Legal contract governing loan terms and conditions" ;
+    togaf:usedInPhase "PhaseC" ;
+    togaf:mapsToArtifact "Data Entity Catalog" ;
+    togaf:businessCapability "Loan Origination" ;
+    togaf:attributes "contractTerms", "covenants", "defaultConditions" .
+
+fibo-sec:Security a togaf:DataEntity ;
+    rdfs:label "Security" ;
+    rdfs:comment "Fungible or non-fungible financial instrument" ;
+    togaf:usedInPhase "PhaseC" ;
+    togaf:mapsToArtifact "Data Entity Catalog" ;
+    togaf:businessCapability "Securities Trading", "Portfolio Management" ;
+    togaf:attributes "instrumentId", "issuer", "type", "price", "quantity" .
+
+fibo-sec:Deposit a togaf:DataEntity ;
+    rdfs:label "Deposit" ;
+    rdfs:comment "Funds placed with financial institution for safekeeping or investment" ;
+    togaf:usedInPhase "PhaseC" ;
+    togaf:mapsToArtifact "Data Entity Catalog" ;
+    togaf:businessCapability "Deposit Taking", "Account Management" ;
+    togaf:attributes "accountId", "balance", "interestRate", "maturityDate" .
+
+# FIBO Regulatory and Compliance
+fibo-sec:RegulatoryFramework a togaf:BusinessCapability ;
+    rdfs:label "Regulatory Framework" ;
+    rdfs:comment "Compliance with banking regulations (Basel III, Dodd-Frank, etc.)" ;
+    togaf:usedInPhase "PhaseB" ;
+    togaf:mapsToArtifact "Business Architecture Catalog" ;
+    togaf:regulations "Basel III", "Dodd-Frank Act", "GDPR", "CCAR", "FRTB" .
+
+fibo-fnd:ComplianceRequirement a togaf:DataEntity ;
+    rdfs:label "Compliance Requirement" ;
+    rdfs:comment "Specific regulatory or compliance obligation" ;
+    togaf:usedInPhase "PhaseB" ;
+    togaf:mapsToArtifact "Business Architecture Catalog" ;
+    togaf:businessCapability "Regulatory Compliance", "Risk Management" ;
+    togaf:attributes "requirementId", "regulation", "description", "enforcementDate" .
+
+# FIBO Business Capabilities for Banking
+fibo-ind:CreditRiskManagement a togaf:BusinessCapability ;
+    rdfs:label "Credit Risk Management" ;
+    rdfs:comment "Assess and mitigate credit risk across lending portfolio" ;
+    togaf:usedInPhase "PhaseB" ;
+    togaf:mapsToArtifact "Business Architecture Catalog" ;
+    togaf:subCapabilities "Credit Scoring", "Loan Underwriting", "Portfolio Monitoring" .
+
+fibo-ind:MarketRiskManagement a togaf:BusinessCapability ;
+    rdfs:label "Market Risk Management" ;
+    rdfs:comment "Assess and mitigate market risk in trading activities" ;
+    togaf:usedInPhase "PhaseB" ;
+    togaf:mapsToArtifact "Business Architecture Catalog" ;
+    togaf:subCapabilities "VaR Calculation", "Stress Testing", "Limits Management" .
+
+fibo-ind:LiquidityRiskManagement a togaf:BusinessCapability ;
+    rdfs:label "Liquidity Risk Management" ;
+    rdfs:comment "Ensure sufficient liquidity for obligations" ;
+    togaf:usedInPhase "PhaseB" ;
+    togaf:mapsToArtifact "Business Architecture Catalog" ;
+    togaf:subCapabilities "Liquidity Forecasting", "Funding Management", "Contingency Planning" .
+
+fibo-ind:PaymentProcessing a togaf:BusinessCapability ;
+    rdfs:label "Payment Processing" ;
+    rdfs:comment "Process domestic and cross-border payments" ;
+    togaf:usedInPhase "PhaseB" ;
+    togaf:mapsToArtifact "Business Architecture Catalog" ;
+    togaf:subCapabilities "Wire Transfers", "ACH Processing", "SWIFT Messaging", "Real-Time Payments" .
+
+fibo-ind:TradeFinance a togaf:BusinessCapability ;
+    rdfs:label "Trade Finance" ;
+    rdfs:comment "Facilitate international trade through letters of credit and guarantees" ;
+    togaf:usedInPhase "PhaseB" ;
+    togaf:mapsToArtifact "Business Architecture Catalog" ;
+    togaf:subCapabilities "Letter of Credit", "Bank Guarantee", "Documentary Collection" .
+
+# FIBO Technology Mappings
+fibo-fnd:PlatformService a togaf:TechnologyService ;
+    rdfs:label "Platform Service" ;
+    rdfs:comment "Reusable technology capability supporting business functions" ;
+    togaf:usedInPhase "PhaseD" ;
+    togaf:mapsToArtifact "Technology Architecture Catalog" ;
+    togaf:examples "Customer Data API", "Account Aggregation Service", "Risk Calculation Engine" .
+
+fibo-fnd:TechnologyInterface a togaf:TechnologyService ;
+    rdfs:label "Technology Interface" ;
+    rdfs:comment "Standardized interface for system integration" ;
+    togaf:usedInPhase "PhaseD" ;
+    togaf:mapsToArtifact "Technology Architecture Catalog" ;
+    togaf:examples "REST API", "GraphQL", "gRPC", "Message Queue" .
+
+# Fortune 500 Banking Context
+togaf:Fortune500BankContext a rdf:Class ;
+    rdfs:label "Fortune 500 Banking Context" ;
+    rdfs:comment "Specific context for large-scale bank transformation" ;
+    togaf:scale "Enterprise-wide" ;
+    togaf:complexity "High" ;
+    togaf:regulatoryScope "Global (US, EU, APAC)" ;
+    togaf:businessLines "Retail Banking", "Commercial Banking", "Investment Banking", "Asset Management" ;
+    togaf:criticalCapabilities "Core Banking", "Risk Management", "Compliance", "Digital Channels" .
