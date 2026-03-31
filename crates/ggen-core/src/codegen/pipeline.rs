@@ -454,7 +454,7 @@ impl GenerationPipeline {
         match results {
             QueryResults::Boolean(result) => Ok(result),
             _ => Err(Error::new(
-                "Condition query must be ASK query (got SELECT/CONSTRUCT)",
+                "error[E0002]: Condition query must return boolean (ASK), not results\n  --> query used in WHEN condition\n  |\n  = help: Change SPARQL query from SELECT/CONSTRUCT to ASK:\n  =   ASK { ... }\n  = help: Conditions must return true/false, not result rows\n  = help: Example: ASK { ?x a :Type }",
             )),
         }
     }
@@ -539,7 +539,7 @@ impl GenerationPipeline {
                 }
                 _ => {
                     return Err(Error::new(&format!(
-                        "Generation rule '{}' query must be SELECT (got CONSTRUCT/ASK)",
+                        "error[E0003]: Generation rules require SELECT queries (not CONSTRUCT/ASK)\n  --> rule: '{}'\n  |\n  = help: Change SPARQL query to SELECT to return result rows for template rendering\n  = help: Example: SELECT ?var WHERE {{ ... }}",
                         rule.name
                     )));
                 }
@@ -556,7 +556,7 @@ impl GenerationPipeline {
                     let template_path = self.base_path.join(file);
                     let content = std::fs::read_to_string(&template_path).map_err(|e| {
                         Error::new(&format!(
-                            "Failed to read template file '{}': {}",
+                            "error[E0008]: Failed to read template file\n  --> path: '{}'\n  |\n  = error: {}\n  = help: Check if file exists and is readable\n  = help: Verify template path in ggen.toml is relative to project root",
                             template_path.display(),
                             e
                         ))
@@ -881,7 +881,7 @@ impl GenerationPipeline {
         // Check 1: Content must not be empty
         if content.is_empty() {
             return Err(Error::new(&format!(
-                "Validation failed for rule '{}': Generated content is empty for path '{}'",
+                "error[E0004]: Generated content is empty\n  --> rule: '{}', output: '{}'\n  |\n  = help: Check if:\n  =   1. SPARQL query returned results (test in separate SPARQL tool)\n  =   2. Template has content (not empty file)\n  =   3. Template variables match query result columns\n  = help: Use 'ggen validate --dry-run' to see query results",
                 rule_id,
                 path.display()
             )));
@@ -892,9 +892,9 @@ impl GenerationPipeline {
         let size_bytes = content.len();
         if size_bytes > MAX_SIZE_BYTES {
             return Err(Error::new(&format!(
-                "Validation failed for rule '{}': Generated file size ({} bytes) exceeds 10MB limit for path '{}'",
-                rule_id,
+                "error[E0005]: Generated file too large ({} bytes, limit: 10MB)\n  --> rule: '{}', output: '{}'\n  |\n  = help: Consider splitting into multiple smaller files\n  = help: Or adjust template to reduce output size\n  = help: Check for unexpected data duplication in SPARQL results",
                 size_bytes,
+                rule_id,
                 path.display()
             )));
         }
@@ -903,7 +903,7 @@ impl GenerationPipeline {
         let path_str = path.to_string_lossy();
         if path_str.contains("../") || path_str.contains("..\\") {
             return Err(Error::new(&format!(
-                "Validation failed for rule '{}': Path contains directory traversal pattern (..) in '{}'",
+                "error[E0006]: Directory traversal pattern detected in output path\n  --> rule: '{}', path: '{}'\n  |\n  = help: Remove '../' or '..\\' from template output path\n  = help: Use relative paths from base directory without '..'\n  = security: Directory traversal is blocked for security reasons",
                 rule_id,
                 path.display()
             )));

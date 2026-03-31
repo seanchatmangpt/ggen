@@ -94,7 +94,8 @@ fn read_file(path: &Path) -> String {
 
 /// Compute SHA-256 hash of file content
 fn compute_file_hash(path: &Path) -> String {
-    let content = fs::read(path).unwrap_or_else(|_| panic!("Failed to read file for hashing: {:?}", path));
+    let content =
+        fs::read(path).unwrap_or_else(|_| panic!("Failed to read file for hashing: {:?}", path));
     let mut hasher = Sha256::new();
     hasher.update(&content);
     format!("{:x}", hasher.finalize())
@@ -103,7 +104,8 @@ fn compute_file_hash(path: &Path) -> String {
 /// Parse JSON file
 fn parse_json_file(path: &Path) -> Value {
     let content = read_file(path);
-    serde_json::from_str(&content).unwrap_or_else(|_| panic!("Failed to parse JSON from {:?}", path))
+    serde_json::from_str(&content)
+        .unwrap_or_else(|_| panic!("Failed to parse JSON from {:?}", path))
 }
 
 /// Verify file contains substring

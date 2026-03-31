@@ -138,19 +138,36 @@ fn test_llm_integration_e2e_with_real_api() {
     let stderr = String::from_utf8_lossy(&output.stderr);
     let combined = format!("{}{}", stdout, stderr);
 
-    // Check for OpenTelemetry span markers that indicate real LLM calls
+    // Verify OpenTelemetry span markers for real LLM calls
+    // Check for llm.complete span (the main span name)
     assert!(
-        combined.contains("llm.complete") || combined.contains("llm_request"),
-        "Expected to find OpenTelemetry LLM traces in output.\n\
+        combined.contains("llm.complete"),
+        "Expected to find 'llm.complete' span in OTEL traces.\n\
          This indicates the LLM API was not called.\n\
          Output:\n{}",
         combined
     );
 
-    // Check for model name in traces (confirms real API call)
+    // Check for required OTEL attributes: llm.model
     assert!(
-        combined.contains("gpt-oss-20b") || combined.contains("groq"),
-        "Expected to find Groq model name in traces.\n\
+        combined.contains("llm.model"),
+        "Expected to find 'llm.model' attribute in OTEL traces.\n\
+         Output:\n{}",
+        combined
+    );
+
+    // Check for required OTEL attributes: token counts
+    assert!(
+        combined.contains("llm.total_tokens") || combined.contains("total_tokens"),
+        "Expected to find token counts in OTEL traces.\n\
+         Output:\n{}",
+        combined
+    );
+
+    // Check for model name (confirms real API call to Groq)
+    assert!(
+        combined.contains("gpt-oss-20b") || combined.contains("groq") || combined.contains("llm.model="),
+        "Expected to find Groq model identifier in traces.\n\
          Output:\n{}",
         combined
     );
@@ -182,9 +199,10 @@ fn test_llm_integration_e2e_with_real_api() {
     );
 
     println!("✅ E2E LLM integration test PASSED");
-    println!("   - Real Groq API calls were made (verified via OTEL traces)");
-    println!("   - Generated code has actual implementation (not TODO stubs)");
-    println!("   - Code length: {} bytes", generated_code.len());
+    println!("   ✓ Real Groq API calls were made (verified via OTEL traces)");
+    println!("   ✓ OTEL spans: llm.complete, llm.model, llm.total_tokens");
+    println!("   ✓ Generated code has actual implementation (not TODO stubs)");
+    println!("   ✓ Code length: {} bytes", generated_code.len());
 }
 
 #[test]

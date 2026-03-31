@@ -68,7 +68,7 @@
 
 use crate::graph::{build_prolog, Graph};
 use crate::register;
-use crate::simple_tracing::SimpleTracer;
+use crate::tracing::PipelineTracer;
 use crate::template_types::Frontmatter;
 use ggen_utils::error::{Error, Result};
 use oxigraph::sparql::QueryResults;
@@ -139,7 +139,7 @@ impl Pipeline {
         // Start performance timing
         // let _timer = SimpleTimer::start("template_processing"); // Temporarily disabled
 
-        // SimpleTracer::template_start(template_path); // Temporarily disabled
+        PipelineTracer::template_start(template_path);
 
         // Read template file
         let input = std::fs::read_to_string(template_path)?;
@@ -147,25 +147,17 @@ impl Pipeline {
 
         // Create Tera context from vars
         let mut ctx = Context::from_serialize(vars)?;
-        // if SimpleTracer::is_enabled() {
-        //     SimpleTracer::trace(crate::simple_tracing::TraceLevel::Debug,
-        //         &format!("Created Tera context from {} CLI variables", vars.len()), Some("context"));
-        // } // Temporarily disabled
 
         // Parse template to get frontmatter
         let mut template = crate::template_types::Template::parse(&input)?;
-        // if SimpleTracer::is_enabled() {
-        //     SimpleTracer::trace(crate::simple_tracing::TraceLevel::Debug,
-        //         &format!("Template parsed: {} lines", body_lines), Some("parsing"));
-        // } // Temporarily disabled
 
         // Render frontmatter first to get the final 'to' field
         template.render_frontmatter(&mut self.tera, &ctx)?;
-        // SimpleTracer::frontmatter_processed(&template.front); // Temporarily disabled
+        PipelineTracer::frontmatter_processed(&template.front);
 
         // Auto-bless context variables (Name, locals)
         crate::register::bless_context(&mut ctx);
-        // SimpleTracer::context_blessed(ctx.len()); // Temporarily disabled
+        PipelineTracer::context_blessed(vars.len());
 
         // ❌ REMOVED: template.front.vars - Variables now come from CLI/API only
 
@@ -180,21 +172,16 @@ impl Pipeline {
 
         // ❌ REMOVED: template.front.rdf - RDF files now loaded via CLI/API
         // Load RDF and execute SPARQL declared in frontmatter
-        SimpleTracer::rdf_loading(
+        PipelineTracer::rdf_loading_start(
             &Vec::new(), // No RDF files in frontmatter
             template.front.rdf_inline.len(),
-            self.graph.len(),
         );
         template.process_graph(&mut self.graph, &mut self.tera, &ctx, template_path)?;
-        SimpleTracer::rdf_loading(
-            &Vec::new(), // No RDF files in frontmatter
-            template.front.rdf_inline.len(),
-            self.graph.len(),
-        );
+        PipelineTracer::rdf_loading_complete(self.graph.len());
 
         // Render body
         let rendered = template.render(&mut self.tera, &ctx)?;
-        SimpleTracer::template_complete(template_path, &out_path, rendered.len());
+        PipelineTracer::template_rendering_complete(&out_path, rendered.len());
 
         // Create plan
         let plan = Plan {
@@ -318,7 +305,7 @@ impl TeraFunction for SparqlFn {
         };
 
         // Trace SPARQL query execution
-        SimpleTracer::sparql_query(&final_q, None);
+        PipelineTracer::sparql_query(&final_q, None);
 
         let results = self
             .graph
@@ -427,16 +414,14 @@ impl Plan {
     /// Apply the plan by writing the content to the output path
     pub fn apply(&self) -> Result<()> {
         if self.dry_run {
-            SimpleTracer::dry_run(&self.output_path, self.content.len());
+            PipelineTracer::dry_run(&self.output_path, self.content.len());
             return Ok(());
         }
 
         // Handle injection templates
         if self.frontmatter.inject {
             let _mode = "injection"; // Simplified for now
-            let result = self.apply_injection();
-            // SimpleTracer::file_injection(&self.output_path, &mode, result.is_ok()); // Temporarily disabled
-            return result;
+            return self.apply_injection();
         }
 
         // Handle regular file generation

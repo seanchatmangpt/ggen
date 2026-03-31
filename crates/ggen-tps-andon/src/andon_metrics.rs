@@ -417,7 +417,7 @@ mod tests {
     #[test]
     fn test_buckets_default() {
         let buckets = default_buckets();
-        assert!(buckets.len() > 0);
+        assert!(!buckets.is_empty());
         assert!(buckets[0] < buckets[buckets.len() - 1]); // sorted
     }
 
