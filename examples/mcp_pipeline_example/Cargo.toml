@@ -1,0 +1,17 @@
+[package]
+name = "mcp_pipeline_example"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+# RMCP client for calling MCP tools
+rmcp = { version = "1.3.0", features = ["client", "transport-io"] }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+# ggen-a2a-mcp server (for GgenMcpServer)
+ggen-a2a-mcp = { path = "../../crates/ggen-a2a-mcp" }

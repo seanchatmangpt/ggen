@@ -1,6 +1,7 @@
 //! Audit Trail for Governance
 //!
 //! Comprehensive logging and querying of all governance decisions and events.
+//! Migrated from rusqlite to sqlx for async database operations.
 
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
@@ -8,7 +9,6 @@ use std::path::Path;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-use rusqlite::{Connection, params, Result as SqliteResult};
 
 use super::error::{GovernanceError, Result};
 use super::policy::PolicyViolation;
@@ -78,34 +78,53 @@ pub struct AuditQuery {
     pub offset: Option<usize>,
 }
 
-/// Audit trail storage and query interface
+/// Audit trail storage and query interface using sqlx
 pub struct AuditTrail {
     db_path: String,
     events: Arc<RwLock<Vec<AuditEvent>>>,
     retention_days: i64,
-    db_connection: Arc<RwLock<Option<Connection>>>,
+    pool: Arc<sqlx::SqlitePool>,
 }
 
 impl AuditTrail {
     /// Create a new audit trail
     pub async fn new(db_path: impl AsRef<Path>) -> Result<Self> {
-        let db_path = db_path.as_ref().to_string_lossy().to_string();
+        let db_path_ref = db_path.as_ref();
 
         // Ensure parent directory exists
-        if let Some(parent) = Path::new(&db_path).parent() {
+        if let Some(parent) = db_path_ref.parent() {
             tokio::fs::create_dir_all(parent).await.map_err(|e| {
                 GovernanceError::AuditError(format!("Failed to create audit directory: {}", e))
             })?;
         }
 
+        // Create the database file if it doesn't exist (SQLite needs this)
+        if !db_path_ref.exists() {
+            tokio::fs::File::create(db_path_ref).await.map_err(|e| {
+                GovernanceError::AuditError(format!("Failed to create database file: {}", e))
+            })?;
+        }
+
+        // Create SQLite connection pool using the path directly
+        let pool = sqlx::SqlitePool::connect(
+            db_path_ref.to_str().ok_or_else(|| {
+                GovernanceError::AuditError("Invalid database path".to_string())
+            })?
+        )
+        .await
+        .map_err(|e| GovernanceError::AuditError(format!("Failed to connect to database: {}", e)))?;
+
+        let pool = Arc::new(pool);
+
+        let db_path_str = db_path_ref.to_string_lossy().to_string();
         let trail = Self {
-            db_path: db_path.clone(),
+            db_path: db_path_str,
             events: Arc::new(RwLock::new(Vec::new())),
             retention_days: 365, // Default 1 year retention
-            db_connection: Arc::new(RwLock::new(None)),
+            pool,
         };
-        
-        // Initialize database
+
+        // Initialize database schema
         trail.initialize_database().await?;
 
         // Log startup
@@ -126,15 +145,13 @@ impl AuditTrail {
 
         Ok(trail)
     }
-    
-    /// Initialize SQLite database
+
+    /// Initialize SQLite database schema
     async fn initialize_database(&self) -> Result<()> {
-        let conn = Connection::open(&self.db_path)
-            .map_err(|e| GovernanceError::AuditError(format!("Failed to open database: {}", e)))?;
-        
         // Create audit_events table
-        conn.execute(
-            "CREATE TABLE IF NOT EXISTS audit_events (
+        sqlx::query(
+            r#"
+            CREATE TABLE IF NOT EXISTS audit_events (
                 id TEXT PRIMARY KEY,
                 event_type TEXT NOT NULL,
                 timestamp TEXT NOT NULL,
@@ -145,60 +162,64 @@ impl AuditTrail {
                 message TEXT NOT NULL,
                 details TEXT NOT NULL,
                 metadata TEXT NOT NULL
-            )",
-            [],
-        ).map_err(|e| GovernanceError::AuditError(format!("Failed to create table: {}", e)))?;
-        
+            )
+            "#,
+        )
+        .execute(&*self.pool)
+        .await
+        .map_err(|e| GovernanceError::AuditError(format!("Failed to create table: {}", e)))?;
+
         // Create index on timestamp for efficient querying
-        conn.execute(
+        sqlx::query(
             "CREATE INDEX IF NOT EXISTS idx_audit_events_timestamp ON audit_events(timestamp)",
-            [],
-        ).map_err(|e| GovernanceError::AuditError(format!("Failed to create index: {}", e)))?;
-        
+        )
+        .execute(&*self.pool)
+        .await
+        .map_err(|e| GovernanceError::AuditError(format!("Failed to create timestamp index: {}", e)))?;
+
         // Create index on event_type for filtering
-        conn.execute(
+        sqlx::query(
             "CREATE INDEX IF NOT EXISTS idx_audit_events_type ON audit_events(event_type)",
-            [],
-        ).map_err(|e| GovernanceError::AuditError(format!("Failed to create index: {}", e)))?;
-        
-        // Store connection
-        let mut db_conn = self.db_connection.write().await;
-        *db_conn = Some(conn);
-        
+        )
+        .execute(&*self.pool)
+        .await
+        .map_err(|e| GovernanceError::AuditError(format!("Failed to create event_type index: {}", e)))?;
+
         Ok(())
     }
-    
+
     /// Persist event to SQLite database
     async fn persist_event(&self, event: &AuditEvent) -> Result<()> {
-        let db_conn = self.db_connection.read().await;
-        if let Some(ref conn) = *db_conn {
-            let event_type_str = serde_json::to_string(&event.event_type)
-                .map_err(|e| GovernanceError::SerializationError(e.to_string()))?;
-            let severity_str = serde_json::to_string(&event.severity)
-                .map_err(|e| GovernanceError::SerializationError(e.to_string()))?;
-            let details_str = serde_json::to_string(&event.details)
-                .map_err(|e| GovernanceError::SerializationError(e.to_string()))?;
-            let metadata_str = serde_json::to_string(&event.metadata)
-                .map_err(|e| GovernanceError::SerializationError(e.to_string()))?;
-            
-            conn.execute(
-                "INSERT INTO audit_events (id, event_type, timestamp, actor, decision_id, policy_id, severity, message, details, metadata)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
-                params![
-                    event.id,
-                    event_type_str,
-                    event.timestamp.to_rfc3339(),
-                    event.actor,
-                    event.decision_id,
-                    event.policy_id,
-                    severity_str,
-                    event.message,
-                    details_str,
-                    metadata_str
-                ],
-            ).map_err(|e| GovernanceError::AuditError(format!("Failed to insert event: {}", e)))?;
-        }
-        
+        let event_type_str = serde_json::to_string(&event.event_type)
+            .map_err(|e| GovernanceError::SerializationError(e.to_string()))?;
+        let severity_str = serde_json::to_string(&event.severity)
+            .map_err(|e| GovernanceError::SerializationError(e.to_string()))?;
+        let details_str = serde_json::to_string(&event.details)
+            .map_err(|e| GovernanceError::SerializationError(e.to_string()))?;
+        let metadata_str = serde_json::to_string(&event.metadata)
+            .map_err(|e| GovernanceError::SerializationError(e.to_string()))?;
+
+        sqlx::query(
+            r#"
+            INSERT INTO audit_events
+            (id, event_type, timestamp, actor, decision_id, policy_id, severity, message, details, metadata)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)
+            "#,
+        )
+        .bind(&event.id)
+        .bind(&event_type_str)
+        .bind(event.timestamp.to_rfc3339())
+        .bind(&event.actor)
+        .bind(&event.decision_id)
+        .bind(&event.policy_id)
+        .bind(&severity_str)
+        .bind(&event.message)
+        .bind(&details_str)
+        .bind(&metadata_str)
+        .execute(&*self.pool)
+        .await
+        .map_err(|e| GovernanceError::AuditError(format!("Failed to insert event: {}", e)))?;
+
         Ok(())
     }
 
@@ -252,7 +273,9 @@ impl AuditTrail {
 
     /// Log policy violations
     pub async fn log_policy_violations(
-        &self, decision: &Decision, violations: &[PolicyViolation],
+        &self,
+        decision: &Decision,
+        violations: &[PolicyViolation],
     ) -> Result<()> {
         for violation in violations {
             self.log_event(AuditEvent {
@@ -298,7 +321,9 @@ impl AuditTrail {
 
     /// Log approval requested
     pub async fn log_approval_requested(
-        &self, decision: &Decision, request_id: &crate::types::RequestId,
+        &self,
+        decision: &Decision,
+        request_id: &str,
     ) -> Result<()> {
         self.log_event(AuditEvent {
             id: Uuid::new_v4().to_string(),
@@ -309,7 +334,7 @@ impl AuditTrail {
             policy_id: None,
             severity: AuditSeverity::Info,
             message: format!("Approval requested for decision: {}", decision.action),
-            details: serde_json::json!({"request_id": request_id.to_string()}),
+            details: serde_json::json!({"request_id": request_id}),
             metadata: serde_json::json!({}),
         })
         .await
@@ -366,7 +391,7 @@ impl AuditTrail {
         .await
     }
 
-    /// Query audit trail
+    /// Query audit trail (in-memory filtering for simplicity)
     pub async fn query(&self, query: AuditQuery) -> Result<Vec<AuditEvent>> {
         let events = self.events.read().await;
 

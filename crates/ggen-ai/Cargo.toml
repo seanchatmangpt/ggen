@@ -74,6 +74,9 @@ sha2 = "0.10"
 # Random number generation for dspy optimizers
 rand = "0.9"
 
+# Async SQLite database (sqlx v0.8 for governance audit trail)
+sqlx = { workspace = true }
+
 # CSV export for evaluation results
 csv = "1.4"
 

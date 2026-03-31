@@ -28,6 +28,7 @@ pub mod ggen_server;
 pub mod handlers;
 pub mod message;
 pub mod server;
+pub mod state;
 pub mod util;
 pub mod yawl_bridge;
 
@@ -116,4 +117,21 @@ pub mod otel_attrs {
     pub const ERROR: &str = "error";
     pub const ERROR_TYPE: &str = "error.type";
     pub const ERROR_MESSAGE: &str = "error.message";
+
+    // --- Agent Lifecycle (new for multi-agent orchestration) ---
+    pub const AGENT_ID: &str = "agent.id";
+    pub const AGENT_NAME: &str = "agent.name";
+    pub const AGENT_TYPE: &str = "agent.agent_type";
+    pub const AGENT_COUNT: &str = "agent.count";
+    pub const AGENT_OPERATION: &str = "agent.operation";
+    pub const AGENT_INSTANCE_ID: &str = "agent.instance_id";
+    pub const AGENT_CREATED: &str = "agent.created";
+    pub const AGENT_REGISTERED: &str = "agent.registered";
+    pub const AGENT_MESSAGE_SENT: &str = "agent.message_sent";
+    pub const AGENT_MESSAGE_RECEIVED: &str = "agent.message_received";
+    pub const AGENT_ORCHESTRATED: &str = "agent.orchestrated";
+    pub const CONVERSATION_TURNS: &str = "conversation.turns";
+    pub const CONVERSATION_PATTERN: &str = "conversation.pattern";
+    pub const FIBO_CONCEPTS_FOUND: &str = "fibo.concepts_found";
+    pub const FIBO_COVERAGE_PERCENT: &str = "fibo.coverage_percent";
 }

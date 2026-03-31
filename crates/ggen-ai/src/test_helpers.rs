@@ -170,6 +170,12 @@ ex:Person a rdf:Class .
 ///     assert!(query.is_ok());
 /// }
 /// ```
+///
+/// # Note on Graph Usage
+///
+/// The `Graph` type in this example is the **test stub** from `ggen_ai::generators::sparql`,
+/// which implements the `GraphSchema` trait. Real applications should use `ggen_core::Graph`
+/// which also implements `GraphSchema` and provides full RDF store functionality.
 pub fn create_sparql_test_generator() -> SparqlGenerator {
     let response = "```sparql\nSELECT ?name WHERE {\n  ?person foaf:name ?name .\n}\n```";
     let client = MockClient::with_response(response);

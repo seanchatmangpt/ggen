@@ -1,0 +1,37 @@
+[agent]
+name = "groq-coder"
+description = "A2A agent powered by Groq LLM — generates, explains, reviews, and refactors code"
+
+[server]
+http_port = 3000
+
+[server.storage]
+type = "inmemory"
+
+[server.auth]
+type = "bearer"
+tokens = ["${AGENT_TOKEN}"]
+
+[[skills]]
+id = "generate-code"
+name = "Generate Code"
+description = "Generate code from a natural language description"
+
+[[skills]]
+id = "explain-code"
+name = "Explain Code"
+description = "Explain what a given piece of code does"
+
+[[skills]]
+id = "review-code"
+name = "Review Code"
+description = "Review code for bugs, style issues, and performance problems"
+
+[[skills]]
+id = "refactor-code"
+name = "Refactor Code"
+description = "Suggest refactored/improved version of given code"
+
+[features]
+streaming = true
+push_notifications = false

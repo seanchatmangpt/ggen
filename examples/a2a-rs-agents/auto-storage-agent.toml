@@ -1,0 +1,20 @@
+# Auto Storage Agent — demonstrates automatic storage creation from config
+
+[agent]
+name = "Auto Storage Echo Agent"
+description = "Demonstrates automatic storage creation from config"
+
+[server]
+http_port = 3031
+
+[server.storage]
+type = "inmemory"
+
+[[skills]]
+id = "echo"
+name = "Echo"
+description = "Echoes back messages with auto-created storage"
+
+[features]
+streaming = true
+push_notifications = false
