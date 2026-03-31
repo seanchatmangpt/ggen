@@ -1,50 +1,49 @@
-{# lesson.tera: Learning Objectives #}
-{# Constitutional Equation: modules/{{ code }}-objectives.md = mu(ontology.ttl) #}
-{# Input: SPARQL SELECT ?code ?objectiveText ?bloomsLevel #}
-{# Output: Markdown learning objectives (rendered once per objective row) #}
-
 # {{ code }} — Learning Objectives
 
-## Objective
+{% set obj_list = objectives | split(pat="||") %}
+{% set level_list = bloomsLevels | split(pat="||") %}
+{% for obj in obj_list %}
+---
 
-> {{ objectiveText }}
+## Objective {{ loop.index }}
 
-**Bloom's Taxonomy Level**: {{ bloomsLevel }}
+> {{ obj }}
 
-## Bloom's Taxonomy Context
+**Bloom's Taxonomy Level**: {{ level_list[loop.index0] }}
 
-{% if bloomsLevel == "Remember" %}
-**Level 1 - Remember**: Recall facts and basic concepts. Focuses on knowledge retention and identification of key terms and definitions.
-{% elif bloomsLevel == "Understand" %}
+{% set lvl = level_list[loop.index0] %}
+{% if lvl == "Remember" %}
+**Level 1 - Remember**: Recall facts and basic concepts. Focuses on knowledge retention and identification of key terms.
+{% elif lvl == "Understand" %}
 **Level 2 - Understand**: Explain ideas or concepts. Focuses on comprehension, interpretation, and discussion.
-{% elif bloomsLevel == "Apply" %}
+{% elif lvl == "Apply" %}
 **Level 3 - Apply**: Use information in new situations. Focuses on practical application to real-world problems.
-{% elif bloomsLevel == "Analyze" %}
+{% elif lvl == "Analyze" %}
 **Level 4 - Analyze**: Draw connections among ideas. Focuses on breaking down complex problems and identifying relationships.
-{% elif bloomsLevel == "Evaluate" %}
+{% elif lvl == "Evaluate" %}
 **Level 5 - Evaluate**: Justify a stand or decision. Focuses on critical assessment, judgment, and validation.
-{% elif bloomsLevel == "Create" %}
+{% elif lvl == "Create" %}
 **Level 6 - Create**: Produce new or original work. Focuses on synthesis, design, and novel solution development.
 {% endif %}
 
-## Assessment Method
-
-{% if bloomsLevel == "Remember" or bloomsLevel == "Understand" %}
+**Assessment Method**:
+{% if lvl == "Remember" or lvl == "Understand" %}
 - Knowledge check quiz
 - Written explanation of concepts
-{% elif bloomsLevel == "Apply" %}
+{% elif lvl == "Apply" %}
 - Hands-on exercise with tools
 - Case study application
-{% elif bloomsLevel == "Analyze" %}
+{% elif lvl == "Analyze" %}
 - Data analysis exercise
 - Root cause analysis
-{% elif bloomsLevel == "Evaluate" %}
+{% elif lvl == "Evaluate" %}
 - Critical review of results
 - Peer evaluation exercise
 {% else %}
 - Design project deliverable
 - Capstone project component
 {% endif %}
+{% endfor %}
 
 ---
 
