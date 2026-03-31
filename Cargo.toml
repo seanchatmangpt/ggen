@@ -48,6 +48,7 @@ members = [
   "crates/knhk-lockchain",     # Merkle-linked receipt storage
   "crates/knhk-otel",          # OpenTelemetry integration
   "crates/knhk-orchestrator",  # Integration bridge (ETL → KGC-4D → Workflow)
+  "test_validate_direct",      # Temporary: Direct MCP tool testing
   "crates/ggen-craftplan",     # RDF-driven Elixir code generation for Craftplan ERP
   "crates/tps-reference",      # Toyota Production System reference implementation
   "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
@@ -56,6 +57,7 @@ members = [
   "crates/ggen-process-mining", # Process mining integration with rust4pm (Alpha++, XES/OCEL)
   "crates/a2a-generated",     # A2A-RS integration code generated from RDF ontology
   "crates/ggen-a2a-mcp",      # A2A-MCP integration for ggen
+  "crates/ggen-a2a-registry",  # Multi-agent A2A orchestration registry
   "crates/ggen-backpressure", # Backpressure and admission control (λ ≤ μ)
   "crates/ggen-heijunka",    # Heijunka load leveling and smooth workload distribution
   "crates/ggen-canonical",   # Deterministic canonicalization (Rust/JSON/RDF) with hash verification
@@ -97,6 +99,7 @@ exclude = [
   "crates/tai-grpc",  # Temporarily excluded - has dependency issues
   "crates/tai-loadbalancer",  # Temporarily excluded - missing benchmark files
   "examples/a2a-groq-agent",
+  "examples/a2a-rs-agents",
   ]
 resolver = "2" # Use new resolver for better dependency resolution
 
@@ -187,6 +190,9 @@ a2a-generated = { path = "crates/a2a-generated", version = "0.1.0" }
 
 # A2A-MCP Integration for ggen
 ggen-a2a-mcp = { path = "crates/ggen-a2a-mcp", version = "0.1.0" }
+
+# A2A Registry: Multi-agent orchestration registry
+ggen-a2a-registry = { path = "crates/ggen-a2a-registry", version = "0.1.0" }
 
 ggen-tps-andon = { path = "crates/ggen-tps-andon", version = "0.1.0" }
 ggen-heijunka = { path = "crates/ggen-heijunka", version = "6.0.1" }

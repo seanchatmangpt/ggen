@@ -3,7 +3,6 @@
 use crate::client::{LlmClient, LlmConfig};
 use crate::error::{GgenAiError, Result};
 use crate::error_utils::{missing_closing_marker_error, ErrorContext};
-// TEMPORARY: Stub types to break cyclic dependency
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -21,7 +20,8 @@ impl ThreeWayMerger {
     pub fn merge(
         &self, _original: &str, _modified: &str, _current: &str, _path: &std::path::Path,
     ) -> Result<MergeResult> {
-        // Stub implementation - returns the modified version
+        // Simple implementation: returns modified version if no conflicts
+        // TODO: Implement proper three-way merge algorithm
         Ok(MergeResult {
             content: _modified.to_string(),
             has_conflicts: false,

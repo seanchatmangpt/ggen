@@ -61,6 +61,7 @@ pub mod dspy;
 pub mod error;
 pub mod error_utils;
 pub mod generators;
+pub mod governance;
 pub mod parsing_utils;
 pub mod prompts;
 pub mod providers;

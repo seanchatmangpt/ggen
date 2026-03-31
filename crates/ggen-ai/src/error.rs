@@ -312,6 +312,20 @@ impl GgenAiError {
             message: message.into(),
         }
     }
+
+    /// Create a new internal error
+    pub fn internal(message: impl Into<String>) -> Self {
+        Self::Other {
+            message: message.into(),
+        }
+    }
+
+    /// Create a new operation timeout error
+    pub fn operation_timeout(message: impl Into<String>) -> Self {
+        Self::Other {
+            message: format!("Operation timeout: {}", message.into()),
+        }
+    }
 }
 
 /// Validation helpers

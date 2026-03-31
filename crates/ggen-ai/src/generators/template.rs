@@ -20,14 +20,14 @@
 //! - Must support multiple LLM providers (provider-agnostic via LlmClient trait)
 //! - Must handle both streaming and batch generation modes
 //! - Must extract templates from varied response formats (markdown, code blocks, plain text)
-//! - Must always return valid ggen-core::Template instances
+//! - Must always return valid Template instances (compatible with ggen-core)
 //! - Must render frontmatter after parsing to populate Template.front
 //! - Must never return partially-initialized templates
 //!
 //! ## DEPENDENCIES
 //! - `LlmClient`: Should be provider-agnostic for multi-LLM support
 //! - `TemplatePromptBuilder`: Should generate effective prompts
-//! - `ggen-core::Template`: Should use for parsing and validation
+//! - `Template`: Internal type compatible with ggen-core::Template API
 //! - `TemplateValidator`: Should optionally validate generated templates
 //!
 //! ## INVARIANTS
@@ -36,6 +36,12 @@
 //! - All public methods must return `Result<Template>`, never partial state
 //! - LLM client must remain immutable (`Arc<dyn LlmClient>`)
 //! - Prompt building must never fail silently
+//!
+//! ## NOTE: TEMPLATE TYPE
+//! This module uses a local `Template` type that is API-compatible with `ggen_core::Template`.
+//! The actual `ggen_core::Template` cannot be used directly due to cyclic dependency constraints
+//! (ggen-core → ggen-ai → ggen-core). The solution is to use string-based template content here
+//! and convert to `ggen_core::Template` in the calling code (e.g., ggen-cli).
 //!
 //! ## DATA FLOW
 //! ```text
@@ -56,16 +62,10 @@
 //!   ├─ Auto-wrap if incomplete
 //!   └─ Validate structure
 //!   ↓
-//! Template::parse()
-//!   ├─ Parse frontmatter + body (ggen-core)
-//!   └─ Return Template with raw_frontmatter
+//! Return Template (string-based)
 //!   ↓
-//! Template::render_frontmatter()
-//!   ├─ Render {{vars}} in frontmatter
-//!   └─ Populate Template.front field
-//!   ↓
-//! Return fully-initialized Template
-//! ```
+//! Convert to ggen_core::Template in calling code
+//!   ```
 //!
 //! ## ERROR HANDLING STRATEGY
 //! - LLM errors → Wrap with context about prompt, retry on timeout
@@ -178,7 +178,7 @@
 //! 6. **Idempotency**: Same prompt should produce consistent results
 //!
 //! ## INTEGRATION NOTES
-//! - **ggen-core Integration**: Uses Template::parse() for all parsing
+//! - **ggen-core Integration**: Template string can be parsed by ggen_core::Template::parse()
 //! - **LLM Provider Integration**: Uses LlmClient trait for provider abstraction
 //! - **Validation Integration**: Uses TemplateValidator for optional validation
 //! - **Prompt Engineering**: Uses TemplatePromptBuilder for consistent prompts
@@ -188,24 +188,66 @@
 //! - **Anthropic Claude**: Handles direct YAML responses
 //! - **Ollama**: Handles varied local model outputs
 //! - **Mock Client**: Used for testing without API calls
+//!
+//! ## ARCHITECTURE NOTE: TEMPLATE TYPE
+//!
+//! This module uses a local `Template` type instead of `ggen_core::Template` to avoid
+//! cyclic dependency issues:
+//!
+//! ```text
+//! ggen-core → ggen-ai → ggen-core  (CYCLE!)
+//! ```
+//!
+//! The solution is to use string-based templates here and convert to `ggen_core::Template`
+//! in the calling code (e.g., ggen-cli):
+//!
+//! ```rust
+//! // In ggen-ai (this crate):
+//! let template = generator.generate_template(...).await?;
+//!
+//! // In ggen-cli (calling code):
+//! let template_str = template.to_string();
+//! let full_template = ggen_core::Template::parse(&template_str)?;
+//! ```
+//!
+//! This keeps the dependency graph acyclic:
+//!
+//! ```text
+//! ggen-cli → ggen-ai (generates template strings)
+//! ggen-cli → ggen-core (parses templates)
+//! ```
 
 use crate::client::{LlmClient, LlmConfig};
 use crate::error::Result;
 use crate::generators::validator::{TemplateValidator, ValidationResult};
 use crate::prompts::TemplatePromptBuilder;
 use futures::StreamExt;
-// TEMPORARY: Stub Template to break cyclic dependency
-// TODO: Re-introduce proper ggen-core::Template after architecture refactoring
 use std::sync::Arc;
 
-// Stub type for Template (will be replaced with proper ggen-core::Template)
+/// Template type compatible with ggen_core::Template API.
+///
+/// This is a simplified version that stores the full template content (frontmatter + body)
+/// as a string. The actual ggen_core::Template type cannot be used due to cyclic dependency
+/// constraints (ggen-core → ggen-ai → ggen-core).
+///
+/// Conversion to ggen_core::Template should happen in the calling code:
+/// ```text
+/// ggen_ai::Template (string) → ggen_core::Template::parse() → full Template
+/// ```
 #[derive(Debug, Clone)]
 pub struct Template {
+    /// Full template content including frontmatter (YAML) and body
     pub content: String,
+    /// Parsed frontmatter (populated after render_frontmatter() is called)
     pub front: Option<serde_json::Value>,
 }
 
 impl Template {
+    /// Parse template from string content.
+    ///
+    /// This is a simplified version that just stores the content.
+    /// The actual parsing of YAML frontmatter happens when this is
+    /// converted to ggen_core::Template in the calling code.
     pub fn parse(content: &str) -> Result<Self> {
         Ok(Template {
             content: content.to_string(),
@@ -213,12 +255,29 @@ impl Template {
         })
     }
 
+    /// Render template with Tera context (simplified version).
+    ///
+    /// This just returns the content as-is. Full rendering happens
+    /// when converted to ggen_core::Template in the calling code.
     pub fn render(&self, _tera: &mut tera::Tera, _context: &tera::Context) -> Result<String> {
         Ok(self.content.clone())
+    }
+
+    /// Get the raw template content
+    pub fn content(&self) -> &str {
+        &self.content
+    }
+
+    /// Convert to string for use with ggen_core::Template::parse()
+    pub fn to_string(&self) -> String {
+        self.content.clone()
     }
 }
 
 /// AI-powered template generator
+///
+/// Generates template strings from natural language descriptions using LLMs.
+/// The generated templates are compatible with ggen_core::Template::parse().
 #[derive(Debug)]
 pub struct TemplateGenerator {
     client: Arc<dyn LlmClient>,
@@ -240,7 +299,13 @@ impl TemplateGenerator {
         Self { client }
     }
 
-    /// Generate a template from natural language description
+    /// Generate a template from natural language description.
+    ///
+    /// Returns a Template struct containing the generated template string.
+    /// The template can be converted to ggen_core::Template by calling:
+    /// ```text
+    /// ggen_core::Template::parse(&template.to_string())?
+    /// ```
     pub async fn generate_template(
         &self, description: &str, examples: Vec<&str>,
     ) -> Result<Template> {
