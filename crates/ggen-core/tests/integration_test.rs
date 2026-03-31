@@ -182,11 +182,7 @@ fn test_template_fixture_exists() {
 
     // Verify template syntax
     assert!(
-        content.contains("{% for row in sparql_results %}"),
-        "Template should loop over sparql_results"
-    );
-    assert!(
-        content.contains("{{ row[\"?className\"] }}"),
+        content.contains("{{ className }}"),
         "Template should access className from results"
     );
     assert!(

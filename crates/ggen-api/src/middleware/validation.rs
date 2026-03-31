@@ -47,7 +47,9 @@ use axum::{
 use ggen_core::validation::input::{
     InputValidationError, PathValidatorRule, StringValidator, UrlValidator,
 };
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Serialize};
+#[cfg(test)]
+use serde::Deserialize;
 use std::collections::HashMap;
 
 /// Validation error response

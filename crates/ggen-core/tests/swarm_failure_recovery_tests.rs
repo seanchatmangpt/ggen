@@ -252,7 +252,7 @@ async fn test_error_propagation() {
         source: None,
     });
 
-    let error = HiveQueen::new(invalid_config).await.unwrap_err();
+    let error = HiveQueen::new(invalid_config).await.err().expect("Should fail with invalid config");
     let error_msg = error.to_string();
 
     // Error should be descriptive

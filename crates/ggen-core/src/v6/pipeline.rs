@@ -246,7 +246,10 @@ impl StagedPipeline {
             self.graph.insert_turtle(&content)?;
         }
 
-        Ok(self.epoch.as_ref().unwrap())
+        Ok(self
+            .epoch
+            .as_ref()
+            .ok_or_else(|| Error::new("Epoch was not set after Epoch::create succeeded — internal invariant violated"))?)
     }
 
     /// Verify inputs match a previous epoch
@@ -384,7 +387,11 @@ impl StagedPipeline {
         let output_records = self.create_output_records(&ctx)?;
 
         // μ₅: Receipt generation
-        let epoch = self.epoch.as_ref().unwrap();
+        // SAFETY: load_ontologies() was called (or called above via self.epoch.is_none() check),
+        // so epoch is guaranteed to be Some at this point.
+        let epoch = self.epoch.as_ref().ok_or_else(|| {
+            Error::new("Epoch missing at receipt generation stage — load_ontologies() must be called before run()")
+        })?;
         let receipt = BuildReceipt::new(
             epoch,
             self.executed_passes.clone(),

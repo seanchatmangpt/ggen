@@ -224,11 +224,11 @@ fn test_real_world_attack_patterns() {
 #[test]
 fn test_error_messages() {
     // Test that errors contain helpful information
-    let err1 = SafeCommand::new("rm").unwrap_err();
+    let err1 = SafeCommand::new("rm").err().expect("Should fail");
     assert!(err1.to_string().contains("not in allowed list"));
 
     let cmd = SafeCommand::new("git").unwrap();
-    let err2 = cmd.arg("; rm -rf /").unwrap_err();
+    let err2 = cmd.arg("; rm -rf /").err().expect("Should fail with injection");
     assert!(err2.to_string().contains("dangerous characters"));
 }
 

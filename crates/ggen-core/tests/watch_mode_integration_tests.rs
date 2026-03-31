@@ -99,10 +99,9 @@ mode = "Overwrite"
         watch: false, // Important: disable watch for executor loop
         validate_only: false,
         output_format: OutputFormat::Text,
-        timeout_ms: 30000,
         use_cache: true,
         cache_dir: None,
-        max_parallelism: None,
+        ..SyncOptions::default()
     });
 
     let result = executor.execute().expect("Initial sync should succeed");
@@ -147,10 +146,9 @@ ex:TestEntity a ex:Entity ;
         watch: false,
         validate_only: false,
         output_format: OutputFormat::Text,
-        timeout_ms: 30000,
         use_cache: true,
         cache_dir: None,
-        max_parallelism: None,
+        ..SyncOptions::default()
     });
 
     let result2 = executor2.execute().expect("Regeneration should succeed");
@@ -277,10 +275,9 @@ fn test_watch_mode_error_handling() {
         watch: true, // Enable watch mode
         validate_only: false,
         output_format: OutputFormat::Text,
-        timeout_ms: 30000,
         use_cache: true,
         cache_dir: None,
-        max_parallelism: None,
+        ..SyncOptions::default()
     });
 
     // Act: Execute should fail gracefully with parse error
@@ -396,10 +393,9 @@ mode = "Overwrite"
         watch: false,
         validate_only: false,
         output_format: OutputFormat::Text,
-        timeout_ms: 30000,
         use_cache: true,
         cache_dir: None,
-        max_parallelism: None,
+        ..SyncOptions::default()
     });
 
     let result = executor.execute();
@@ -420,10 +416,9 @@ mode = "Overwrite"
         watch: false,
         validate_only: false,
         output_format: OutputFormat::Text,
-        timeout_ms: 30000,
         use_cache: true,
         cache_dir: None,
-        max_parallelism: None,
+        ..SyncOptions::default()
     });
 
     let result2 = executor2.execute();
@@ -454,10 +449,9 @@ ex:TestFixed a ex:Entity .
         watch: false,
         validate_only: false,
         output_format: OutputFormat::Text,
-        timeout_ms: 30000,
         use_cache: true,
         cache_dir: None,
-        max_parallelism: None,
+        ..SyncOptions::default()
     });
 
     let result3 = executor3.execute();

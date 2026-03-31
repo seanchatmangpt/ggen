@@ -77,10 +77,9 @@ inline = "Name: {{{{ name }}}}"
         audit: true, // Enable audit trail
         output_format: OutputFormat::Text,
         watch: false,
-        timeout_ms: 30000,
         use_cache: true,
         cache_dir: None,
-        max_parallelism: None,
+        ..SyncOptions::default()
     };
 
     let executor = SyncExecutor::new(options);
@@ -201,10 +200,9 @@ inline = "Entity {}: {{{{ name }}}}"
         audit: true,
         output_format: OutputFormat::Text,
         watch: false,
-        timeout_ms: 30000,
         use_cache: true,
         cache_dir: None,
-        max_parallelism: None,
+        ..SyncOptions::default()
     };
 
     let executor = SyncExecutor::new(options);
@@ -290,10 +288,9 @@ rules = []
         audit: true,
         output_format: OutputFormat::Text,
         watch: false,
-        timeout_ms: 30000,
         use_cache: true,
         cache_dir: None,
-        max_parallelism: None,
+        ..SyncOptions::default()
     };
 
     let executor = SyncExecutor::new(options);

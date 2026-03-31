@@ -186,9 +186,7 @@ pub struct InferenceConfigSection {
 
 impl Default for InferenceConfigSection {
     fn default() -> Self {
-        InferenceConfigSection {
-            rules: Vec::new(),
-        }
+        InferenceConfigSection { rules: Vec::new() }
     }
 }
 
@@ -234,16 +232,12 @@ impl GgenConfig {
 
         // Validate project has a name
         if config.project.name.is_empty() {
-            return Err(ConfigError::MissingField(
-                "project.name".to_string(),
-            ));
+            return Err(ConfigError::MissingField("project.name".to_string()));
         }
 
         // Validate ontology source is specified
         if config.ontology.source.is_empty() {
-            return Err(ConfigError::MissingField(
-                "ontology.source".to_string(),
-            ));
+            return Err(ConfigError::MissingField("ontology.source".to_string()));
         }
 
         // Validate that all rules have required fields
@@ -254,19 +248,22 @@ impl GgenConfig {
                 ));
             }
             if rule.query_file.as_os_str().is_empty() {
-                return Err(ConfigError::MissingField(
-                    format!("generation.rules[{}].query_file", rule.name),
-                ));
+                return Err(ConfigError::MissingField(format!(
+                    "generation.rules[{}].query_file",
+                    rule.name
+                )));
             }
             if rule.template_file.as_os_str().is_empty() {
-                return Err(ConfigError::MissingField(
-                    format!("generation.rules[{}].template_file", rule.name),
-                ));
+                return Err(ConfigError::MissingField(format!(
+                    "generation.rules[{}].template_file",
+                    rule.name
+                )));
             }
             if rule.output_file.is_empty() {
-                return Err(ConfigError::MissingField(
-                    format!("generation.rules[{}].output_file", rule.name),
-                ));
+                return Err(ConfigError::MissingField(format!(
+                    "generation.rules[{}].output_file",
+                    rule.name
+                )));
             }
         }
 
@@ -280,7 +277,11 @@ impl GgenConfig {
 
     /// Get all rule names in order
     pub fn rule_names(&self) -> Vec<&str> {
-        self.generation.rules.iter().map(|r| r.name.as_str()).collect()
+        self.generation
+            .rules
+            .iter()
+            .map(|r| r.name.as_str())
+            .collect()
     }
 
     /// Get rules that match a filter predicate
@@ -317,8 +318,8 @@ impl GgenConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::NamedTempFile;
     use std::io::Write;
+    use tempfile::NamedTempFile;
 
     fn create_test_config() -> (NamedTempFile, PathBuf) {
         let config_content = r#"
@@ -451,8 +452,7 @@ skip_empty = false
             return;
         }
 
-        let config = GgenConfig::load_and_validate(&path)
-            .expect("Failed to load real ggen.toml");
+        let config = GgenConfig::load_and_validate(&path).expect("Failed to load real ggen.toml");
 
         // Verify project metadata
         assert_eq!(config.project.name, "yawl-codegen");
@@ -485,21 +485,28 @@ skip_empty = false
         assert!(rule_names.contains(&"supporting-enums"));
 
         // Verify jpa-entities rule specifically
-        let jpa_rule = config.get_rule("jpa-entities")
+        let jpa_rule = config
+            .get_rule("jpa-entities")
             .expect("jpa-entities rule not found");
-        assert_eq!(jpa_rule.query_file, PathBuf::from("queries/jpa-entities.rq"));
-        assert_eq!(jpa_rule.template_file, PathBuf::from("templates/jpa-entity.java.tera"));
+        assert_eq!(
+            jpa_rule.query_file,
+            PathBuf::from("queries/jpa-entities.rq")
+        );
+        assert_eq!(
+            jpa_rule.template_file,
+            PathBuf::from("templates/jpa-entity.java.tera")
+        );
         assert!(jpa_rule.output_file.contains("{{ packagePath }}"));
         assert_eq!(jpa_rule.mode, GenerationMode::Overwrite);
         assert!(jpa_rule.skip_empty);
 
         // Verify dto-records rule uses Create mode
-        let dto_rule = config.get_rule("dto-records")
+        let dto_rule = config
+            .get_rule("dto-records")
             .expect("dto-records rule not found");
         assert_eq!(dto_rule.mode, GenerationMode::Create);
 
         // Verify output_dir
         assert_eq!(config.generation.output_dir, "generated");
     }
-
 }

@@ -336,9 +336,11 @@ fn test_watch_event_structure() {
     let path = PathBuf::from("/tmp/test.txt");
     let timestamp = std::time::Instant::now();
 
+    use ggen_core::codegen::watch::WatchEventKind;
     let event = WatchEvent {
         path: path.clone(),
         timestamp,
+        kind: WatchEventKind::Modified,
     };
 
     // Assert: Event fields are accessible

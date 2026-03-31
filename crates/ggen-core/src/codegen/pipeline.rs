@@ -418,9 +418,18 @@ impl GenerationPipeline {
                     context.insert(clean_key, value.as_str());
                 }
 
-                // Also insert sparql_results for advanced templates
+                // Also insert sparql_results for advanced templates (single-row aggregated queries)
                 let results_json = serde_json::json!(rows);
                 context.insert("sparql_results", &results_json);
+
+                // CONFORMANCE FIX: Insert current_row as the per-iteration row (with '?' keys).
+                // Templates that use `{% set row = sparql_results[0] %}` get the FIRST row's
+                // data for every generated file — a silent conformance failure when the query
+                // returns N rows (one per entity). Templates should instead use
+                // `{% set row = current_row %}` to bind to the row that corresponds to the
+                // file currently being rendered.
+                let current_row_json = serde_json::json!(row);
+                context.insert("current_row", &current_row_json);
 
                 // Render template
                 let rendered = tera.render("generation_rule", &context).map_err(|e| {

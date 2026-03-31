@@ -720,3 +720,124 @@ fn test_integration_multiple_conditions() {
     let rule3_path = temp_dir.path().join("rule3.txt");
     assert!(rule3_path.exists(), "Rule 3 output should exist");
 }
+
+// ============================================================================
+// CONFORMANCE GAP: current_row per-iteration correctness (Wil-1)
+// ============================================================================
+//
+// Background: Templates using `{% set row = sparql_results[0] %}` read the FIRST
+// row for every generated file. When a query returns N rows (one per entity),
+// all N files get the SAME first-row data despite having correct file names.
+//
+// The fix: pipeline.rs inserts `current_row` into the Tera context, pointing to
+// the row being rendered in the current loop iteration. Templates should use
+// `{% set row = current_row %}` for per-entity generation rules.
+//
+// This test is the specification-conformance proof: it fails without the fix
+// and passes after it.
+
+/// Wil-1 conformance test: each generated file receives its OWN row's data.
+///
+/// Two entities (Alpha, Beta) should generate Alpha.txt containing "Alpha"
+/// and Beta.txt containing "Beta". Without `current_row` the bug causes both
+/// files to contain "Alpha" (first row).
+#[test]
+fn test_current_row_per_iteration_conformance() {
+    // Arrange: ontology with two distinct entities
+    let temp_dir = TempDir::new().expect("Failed to create temp dir");
+    let ontology_path = temp_dir.path().join("ontology.ttl");
+    std::fs::write(
+        &ontology_path,
+        r#"
+@prefix ex: <http://example.org/> .
+ex:Alpha a ex:Entity ; ex:label "Alpha" .
+ex:Beta  a ex:Entity ; ex:label "Beta" .
+"#,
+    )
+    .expect("Failed to write ontology");
+
+    // Template uses current_row (the correct per-entity pattern)
+    let manifest = GgenManifest {
+        project: ProjectConfig {
+            name: "conformance_test".to_string(),
+            version: "1.0.0".to_string(),
+            description: None,
+        },
+        ontology: OntologyConfig {
+            source: ontology_path.clone(),
+            imports: vec![],
+            base_iri: None,
+            prefixes: BTreeMap::new(),
+        },
+        inference: InferenceConfig {
+            rules: vec![],
+            max_reasoning_timeout_ms: 5000,
+        },
+        generation: GenerationConfig {
+            rules: vec![GenerationRule {
+                name: "per_entity_rule".to_string(),
+                query: QuerySource::Inline {
+                    inline: "PREFIX ex: <http://example.org/>\n\
+                             SELECT ?label WHERE { ?e a ex:Entity ; ex:label ?label } \
+                             ORDER BY ?label"
+                        .to_string(),
+                },
+                // Template uses current_row (the fix). A template using
+                // sparql_results[0] would emit "Alpha" for every file.
+                template: TemplateSource::Inline {
+                    inline: "{% set row = current_row %}entity={{ row[\"?label\"] }}"
+                        .to_string(),
+                },
+                output_file: "{{ label }}.txt".to_string(),
+                mode: GenerationMode::Overwrite,
+                skip_empty: false,
+                when: None,
+            }],
+            max_sparql_timeout_ms: 5000,
+            require_audit_trail: false,
+            determinism_salt: None,
+            output_dir: temp_dir.path().to_path_buf(),
+        },
+        validation: ValidationConfig::default(),
+    };
+
+    // Act
+    let mut pipeline = GenerationPipeline::new(manifest, temp_dir.path().to_path_buf());
+    pipeline.load_ontology().expect("ontology load failed");
+    let files = pipeline
+        .execute_generation_rules()
+        .expect("generation failed");
+
+    // Assert: two distinct files generated
+    assert_eq!(files.len(), 2, "Expected one file per entity");
+
+    let alpha_path = temp_dir.path().join("Alpha.txt");
+    let beta_path = temp_dir.path().join("Beta.txt");
+
+    assert!(alpha_path.exists(), "Alpha.txt should be generated");
+    assert!(beta_path.exists(), "Beta.txt should be generated");
+
+    let alpha_content = std::fs::read_to_string(&alpha_path).expect("read Alpha.txt");
+    let beta_content = std::fs::read_to_string(&beta_path).expect("read Beta.txt");
+
+    // Conformance assertion: each file must contain its OWN entity label, not the first row's
+    assert!(
+        alpha_content.contains("entity=Alpha"),
+        "Alpha.txt must contain 'entity=Alpha', got: {:?}",
+        alpha_content
+    );
+    assert!(
+        beta_content.contains("entity=Beta"),
+        "Beta.txt must contain 'entity=Beta', got: {:?}",
+        beta_content
+    );
+
+    // Regression guard: if the old sparql_results[0] bug were present, Beta.txt would
+    // contain "entity=Alpha" (first row). Explicitly forbid that.
+    assert!(
+        !beta_content.contains("entity=Alpha"),
+        "Beta.txt must NOT contain first-row data (sparql_results[0] stale-row bug). \
+         Got: {:?}",
+        beta_content
+    );
+}

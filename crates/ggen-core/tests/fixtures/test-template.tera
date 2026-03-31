@@ -1,9 +1,7 @@
 // Generated file from test template
 // Template rendering test for ggen integration
 
-{% for row in sparql_results %}
-// Result: {{ row["?className"] }}
-// Label: {{ row["?classLabel"] }}
-{% endfor %}
+// Result: {{ className }}
+// Label: {{ classLabel }}
 
 // Total results: {{ sparql_results | length }}

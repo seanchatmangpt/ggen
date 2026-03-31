@@ -33,12 +33,16 @@ fn test_sparql_executor_simple_select() {
     assert_eq!(results.len(), 2);
 
     // Check first result
-    let alice = results.iter().find(|r| r.get("name") == Some(&"Alice".to_string()));
+    let alice = results
+        .iter()
+        .find(|r| r.get("name") == Some(&"Alice".to_string()));
     assert!(alice.is_some());
     assert_eq!(alice.unwrap().get("role"), Some(&"Engineer".to_string()));
 
     // Check second result
-    let bob = results.iter().find(|r| r.get("name") == Some(&"Bob".to_string()));
+    let bob = results
+        .iter()
+        .find(|r| r.get("name") == Some(&"Bob".to_string()));
     assert!(bob.is_some());
     assert_eq!(bob.unwrap().get("role"), Some(&"Manager".to_string()));
 }
@@ -73,8 +77,12 @@ fn test_sparql_executor_complex_pattern() {
 
     // Assert
     assert_eq!(results.len(), 2);
-    assert!(results.iter().any(|r| r.get("age") == Some(&"30".to_string())));
-    assert!(results.iter().any(|r| r.get("age") == Some(&"25".to_string())));
+    assert!(results
+        .iter()
+        .any(|r| r.get("age") == Some(&"30".to_string())));
+    assert!(results
+        .iter()
+        .any(|r| r.get("age") == Some(&"25".to_string())));
 }
 
 #[test]
@@ -176,18 +184,19 @@ fn test_sparql_executor_variable_naming() {
         .unwrap();
 
     // Act
-    let results = execute_query_inline(
-        &graph,
-        "SELECT ?subj ?prop ?obj WHERE { ?subj ?prop ?obj }",
-    )
-    .unwrap();
+    let results =
+        execute_query_inline(&graph, "SELECT ?subj ?prop ?obj WHERE { ?subj ?prop ?obj }").unwrap();
 
     // Assert
     assert!(!results.is_empty());
     for row in results {
         // Variable names should NOT have '?' prefix
         for key in row.keys() {
-            assert!(!key.starts_with('?'), "Variable name has '?' prefix: {}", key);
+            assert!(
+                !key.starts_with('?'),
+                "Variable name has '?' prefix: {}",
+                key
+            );
         }
     }
 }
