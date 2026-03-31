@@ -1,0 +1,269 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix selfplay: <http://ggen.dev/self-play#> .
+
+# =================================================================
+# ggen Self-Play Ontology
+# =================================================================
+# This ontology describes ggen's capabilities for generating itself,
+# enabling recursive self-improvement through the μ₁-μ₅ pipeline.
+# =================================================================
+
+# -----------------------------------------------------------------
+# Class Definitions
+# -----------------------------------------------------------------
+
+ggen:CodeGenerator a owl:Class ;
+    rdfs:label "Code Generator" ;
+    rdfs:comment "A system that generates code from specifications" .
+
+ggen:Skill a owl:Class ;
+    rdfs:label "Skill" ;
+    rdfs:comment "A capability or tool that the code generator possesses" .
+
+ggen:GenerationTarget a owl:Class ;
+    rdfs:label "Generation Target" ;
+    rdfs:comment "A target for code generation" .
+
+ggen:QualityMetric a owl:Class ;
+    rdfs:label "Quality Metric" ;
+    rdfs:comment "A measurable aspect of generated code quality" .
+
+ggen:BehaviorPredicate a owl:Class ;
+    rdfs:label "Behavior Predicate" ;
+    rdfs:comment "Predicates describing LLM behavior during generation" .
+
+# -----------------------------------------------------------------
+# ggen v6.0.0 Skills and Tools
+# -----------------------------------------------------------------
+
+selfplay:RustCodeGeneration a ggen:Skill ;
+    rdfs:label "Rust Code Generation" ;
+    ggen:toolName "cargo" ;
+    ggen:capability "Generate idiomatic Rust code with proper error handling" ;
+    ggen:inputFormat "RDF ontology" ;
+    ggen:outputFormat "Rust source code" .
+
+selfplay:OntologyProcessing a ggen:Skill ;
+    rdfs:label "Ontology Processing" ;
+    ggen:toolName "oxigraph" ;
+    ggen:capability "Parse and process RDF/OWL ontologies" ;
+    ggen:inputFormat "Turtle RDF" ;
+    ggen:outputFormat "In-memory graph" .
+
+selfplay:TemplateRendering a ggen:Skill ;
+    rdfs:label "Template Rendering" ;
+    ggen:toolName "tera" ;
+    ggen:capability "Render Tera templates with variable substitution" ;
+    ggen:inputFormat "Tera template + context" ;
+    ggen:outputFormat "Rendered text/code" .
+
+selfplay:CLIParsing a ggen:Skill ;
+    rdfs:label "CLI Parsing" ;
+    ggen:toolName "clap" ;
+    ggen:capability "Parse command-line arguments with rich validation" ;
+    ggen:inputFormat "Command-line arguments" ;
+    ggen:outputFormat "Parsed configuration" .
+
+selfplay:AsyncRuntime a ggen:Skill ;
+    rdfs:label "Async Runtime" ;
+    ggen:toolName "tokio" ;
+    ggen:capability "Execute asynchronous operations efficiently" ;
+    ggen:inputFormat "Async tasks" ;
+    ggen:outputFormat "Concurrent execution" .
+
+selfplay:Serialization a ggen:Skill ;
+    rdfs:label "Serialization" ;
+    ggen:toolName "serde" ;
+    ggen:capability "Serialize/deserialize data structures" ;
+    ggen:inputFormat "Rust structs" ;
+    ggen:outputFormat "JSON/other formats" .
+
+selfplay:CodeGenerationPipeline a ggen:Skill ;
+    rdfs:label "Code Generation Pipeline" ;
+    ggen:toolName "μ₁-μ₅" ;
+    ggen:capability "Five-stage pipeline: spec → generate → merge → validate → emit" ;
+    ggen:stages (
+        "μ₁: Specification extraction"
+        "μ₂: Code generation"
+        "μ₃: Merge with existing"
+        "μ₄: Validation"
+        "μ₅: Emission"
+    ) .
+
+selfplay:ValidationEngine a ggen:Skill ;
+    rdfs:label "Validation Engine" ;
+    ggen:toolName "SHACL" ;
+    ggen:capability "Validate RDF graphs against SHACL shapes" ;
+    ggen:inputFormat "RDF graph + SHACL shapes" ;
+    ggen:outputFormat "Validation report" .
+
+# -----------------------------------------------------------------
+# Generation Targets (Self-Play)
+# -----------------------------------------------------------------
+
+selfplay:GgenSelfGeneration a ggen:GenerationTarget ;
+    rdfs:label "ggen Self-Generation" ;
+    ggen:targetSystem "ggen v6.x" ;
+    ggen:targetLanguage "Rust" ;
+    ggen:targetArchitecture "30-crate workspace" ;
+    ggen:description "Generate a new version of ggen from an ontology specification" ;
+    ggen:inputSpecification "self-play/ontology.ttl" ;
+    ggen:outputDirectory "target/self-play/" ;
+    ggen:dependencies [
+        "rustc 1.91.1",
+        "cargo",
+        "tokio",
+        "oxigraph",
+        "tera",
+        "clap",
+        "serde"
+    ] .
+
+# -----------------------------------------------------------------
+# Quality Metrics (TPS - Tests, Performance, Safety)
+# -----------------------------------------------------------------
+
+selfplay:TestCoverage a ggen:QualityMetric ;
+    rdfs:label "Test Coverage" ;
+    ggen:metricType "percentage" ;
+    ggen:targetValue "87" ;
+    ggen:measurementTool "tarpaulin" ;
+    ggen:description "Percentage of code covered by tests" .
+
+selfplay:CompilationSuccess a ggen:QualityMetric ;
+    rdfs:label "Compilation Success" ;
+    ggen:metricType "boolean" ;
+    ggen:targetValue "true" ;
+    ggen:measurementTool "cargo check" ;
+    ggen:description "Whether generated code compiles without errors" .
+
+selfplay:PerformanceSLO a ggen:QualityMetric ;
+    rdfs:label "Performance SLO Compliance" ;
+    ggen:metricType "duration" ;
+    ggen:targetValue "15s" ;
+    ggen:measurementTool "cargo make slo-check" ;
+    ggen:description "First build time must be ≤15 seconds" .
+
+selfplay:CodeQuality a ggen:QualityMetric ;
+    rdfs:label "Code Quality" ;
+    ggen:metricType "boolean" ;
+    ggen:targetValue "true" ;
+    ggen:measurementTool "cargo clippy" ;
+    ggen:description "No clippy warnings in generated code" .
+
+selfplay:MutationScore a ggen:QualityMetric ;
+    rdfs:label "Mutation Testing Score" ;
+    ggen:metricType "percentage" ;
+    ggen:targetValue "60" ;
+    ggen:measurementTool "cargo mutants" ;
+    ggen:description "Percentage of mutants killed by tests" .
+
+selfplay:MemoryEfficiency a ggen:QualityMetric ;
+    rdfs:label "Memory Efficiency" ;
+    ggen:metricType "bytes" ;
+    ggen:targetValue "104857600" ;  # 100MB
+    ggen:measurementTool "heap profiling" ;
+    ggen:description "Generation memory usage must be ≤100MB" .
+
+# -----------------------------------------------------------------
+# Behavior Predicates for LLM Generation
+# -----------------------------------------------------------------
+
+selfplay:UsesResultType a ggen:BehaviorPredicate ;
+    rdfs:label "Uses Result Type" ;
+    ggen:behaviorDescription "All fallible operations return Result<T, E>" ;
+    ggen:antiPattern "unwrap() or expect() in production code" ;
+    ggen:verificationPattern "fn.*->\\s*Result<.*>" .
+
+selfplay:FollowsOwnershipRules a ggen:BehaviorPredicate ;
+    rdfs:label "Follows Ownership Rules" ;
+    ggen:behaviorDescription "Proper use of borrowing, lifetimes, and ownership" ;
+    ggen:antiPattern "Unnecessary cloning or reference cycles" ;
+    ggen:verificationPattern "&\\w+\\s*,\\s*Mut" .
+
+selfplay:ErrorHandling a ggen:BehaviorPredicate ;
+    rdfs:label "Proper Error Handling" ;
+    ggen:behaviorDescription "All error paths are explicitly handled" ;
+    ggen:antiPattern "Silent error swallowing" ;
+    ggen:verificationPattern "\\?\\s*;" .
+
+selfplay:AsyncConsistency a ggen:BehaviorPredicate ;
+    rdfs:label "Async Consistency" ;
+    ggen:behaviorDescription "Proper use of async/await with Tokio runtime" ;
+    ggen:antiPattern "Blocking operations in async context" ;
+    ggen:verificationPattern "async\\s+fn" .
+
+selfplay:TypeSafety a ggen:BehaviorPredicate ;
+    rdfs:label "Type Safety" ;
+    ggen:behaviorDescription "Leverages type system for compile-time guarantees" ;
+    ggen:antiPattern "Raw strings or untyped data" ;
+    ggen:verificationPattern "struct\\s+\\w+\\s*\\{" .
+
+selfplay:ZeroCostAbstractions a ggen:BehaviorPredicate ;
+    rdfs:label "Zero-Cost Abstractions" ;
+    ggen:behaviorDescription "Uses generics and const generics instead of dynamic dispatch" ;
+    ggen:antiPattern "Box<dyn Trait> when concrete type known" ;
+    ggen:verificationPattern "<.*>" .
+
+selfplay:Documentation a ggen:BehaviorPredicate ;
+    rdfs:label "Documentation" ;
+    ggen:behaviorDescription "All public APIs have rustdoc comments" ;
+    ggen:antiPattern "Undocumented public functions" ;
+    ggen:verificationPattern "///" .
+
+selfplay:TestingCoverage a ggen:BehaviorPredicate ;
+    rdfs:label "Testing Coverage" ;
+    ggen:behaviorDescription "All public APIs have corresponding tests" ;
+    ggen:antiPattern "Untested critical paths" ;
+    ggen:verificationPattern "#\\[test\\]" .
+
+# -----------------------------------------------------------------
+# Self-Play Iteration Tracking
+# -----------------------------------------------------------------
+
+selfplay:Iteration a owl:Class ;
+    rdfs:label "Self-Play Iteration" ;
+    rdfs:comment "A single iteration of self-play" .
+
+selfplay:iteration0 a selfplay:Iteration ;
+    rdfs:label "Iteration 0" ;
+    selfplay:version "6.0.0" ;
+    selfplay:timestamp "2026-03-30T00:00:00Z"^^xsd:dateTime ;
+    selfplay:generator "ggen v6.0.0" ;
+    selfplay:target "ggen v6.0.1" ;
+    selfplay:status "pending" .
+
+# -----------------------------------------------------------------
+# Convergence Criteria
+# -----------------------------------------------------------------
+
+selfplay:ConvergenceCriterion a owl:Class ;
+    rdfs:label "Convergence Criterion" ;
+    rdfs:comment "Criteria for determining self-play convergence" .
+
+selfplay:QualityStability a selfplay:ConvergenceCriterion ;
+    rdfs:label "Quality Stability" ;
+    ggen:description "Quality metrics stabilize within ±5% over 3 iterations" ;
+    ggen:threshold "5.0" ;
+    ggen:window "3" .
+
+selfplay:FeatureCompleteness a selfplay:ConvergenceCriterion ;
+    rdfs:label "Feature Completeness" ;
+    ggen:description "All required features are present in generated code" ;
+    ggen:requiredFeatures [
+        "Rust code generation",
+        "Ontology processing",
+        "Template rendering",
+        "CLI parsing",
+        "Async runtime",
+        "Serialization"
+    ] .
+
+selfplay:NoRegression a selfplay:ConvergenceCriterion ;
+    rdfs:label "No Regression" ;
+    ggen:description "No quality metric decreases between iterations" ;
+    ggen:allowance "0" .

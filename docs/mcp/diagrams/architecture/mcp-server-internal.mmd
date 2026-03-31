@@ -1,0 +1,84 @@
+```mermaid
+graph TB
+    subgraph "GgenMcpServer"
+        SERVER[GgenMcpServer]
+        ROUTER[ToolRouter]
+    end
+
+    subgraph "Tools (16)"
+        T1[generate]
+        T2[validate]
+        T3[sync]
+        T4[list_generators]
+        T5[list_examples]
+        T6[get_example]
+        T7[search]
+        T8[scaffold_from_example]
+        T9[query_ontology]
+        T10[validate_pipeline]
+        T11[validate_sparql]
+        T12[validate_templates]
+        T13[fix_cycles]
+        T14[validate_project]
+        T15[validate_incremental]
+        T16[validate_dependency_graph]
+    end
+
+    subgraph "Resources"
+        R1[ggen://example/{name}]
+        R2[ggen://example/{name}/ttl]
+        R3[ggen://example/{name}/readme]
+        R4[ggen://example/{name}/config]
+    end
+
+    subgraph "Prompts"
+        P1[explain-rdf-schema]
+        P2[generate-from-example]
+        P3[scaffold-project]
+    end
+
+    subgraph "Completions"
+        C1[example_name]
+        C2[generator]
+    end
+
+    subgraph "Backend Services"
+        SYNC[ggen_core::sync]
+        OXIGRAPH[oxigraph store]
+        QGATES[QualityGateRunner]
+        CYCLEFIX[CycleFixer]
+    end
+
+    SERVER --> ROUTER
+    ROUTER --> T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8 & T9 & T10 & T11 & T12 & T13 & T14 & T15 & T16
+
+    T1 --> SYNC
+    T2 --> OXIGRAPH
+    T3 --> SYNC
+    T9 --> OXIGRAPH
+    T10 --> QGATES
+    T11 --> OXIGRAPH
+    T13 --> CYCLEFIX
+
+    R1 & R2 & R3 & R4 --> SERVER
+    P1 & P2 & P3 --> SERVER
+    C1 & C2 --> SERVER
+
+    style SERVER fill:#fff4e6
+    style T1 fill:#e3f2fd
+    style T2 fill:#e3f2fd
+    style T3 fill:#e3f2fd
+    style SYNC fill:#e8f5e9
+    style OXIGRAPH fill:#fff3e0
+```
+
+## Purpose
+Details the internal structure of GgenMcpServer showing all 16 tools, resources, prompts, completions, and their connections to backend services.
+
+## Key Components
+- **ToolRouter**: Routes tool calls to appropriate handlers
+- **16 Tools**: Core functionality organized by category (pipeline, examples, validation, orchestration)
+- **Resources**: Browseable data about examples (ttl, readme, config)
+- **Prompts**: Reusable LLM templates for common workflows
+- **Completions**: Argument autocomplete for example names and generators
+- **Backend Services**: Core ggen functionality (sync, oxigraph, quality gates, cycle fixer)

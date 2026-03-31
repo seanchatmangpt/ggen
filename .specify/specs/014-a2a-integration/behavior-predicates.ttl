@@ -1,0 +1,158 @@
+# A2A Behavior Predicates - LLM-Generated Skill Implementation
+# Base URI: https://ggen.io/ontology/a2a#
+# Version: 1.0.0
+
+@prefix a2a: <https://a2a.dev/ontology#> .
+@prefix mcp: <https://ggen.io/ontology/mcp#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<https://ggen.io/ontology/a2a/behavior> rdf:type owl:Ontology ;
+    rdfs:label "A2A Behavior Predicates"@en ;
+    rdfs:comment "Extended predicates for LLM-driven skill implementation and automatic code generation"@en ;
+    dcterms:title "Behavior Predicates for Self-Hosting Architecture"@en ;
+    dcterms:description "Predicates enabling LLMs to generate skill implementations automatically from RDF ontologies"@en ;
+    dcterms:created "2026-03-30"^^xsd:date ;
+    dcterms:modified "2026-03-30"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+#################################################################
+#    Behavior Description Predicates (A2A Skills)
+#################################################################
+
+a2a:hasInputType a rdf:Property ;
+    rdfs:label "has input type"@en ;
+    rdfs:comment "JSON schema or type reference for skill input parameters. Defines the expected structure and validation rules for input data."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+a2a:hasOutputType a rdf:Property ;
+    rdfs:label "has output type"@en ;
+    rdfs:comment "JSON schema or type reference for skill output/return value. Defines the structure of data returned by the skill."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+a2a:hasSystemPrompt a rdf:Property ;
+    rdfs:label "has system prompt"@en ;
+    rdfs:comment "Natural language description of skill behavior for LLM generation. Provides context for understanding the skill's purpose, inputs, outputs, and behavior patterns."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf a2a:hasDescription ;
+    owl:propertyDisjointWith a2a:hasImplementationHint .
+
+a2a:hasImplementationHint a rdf:Property ;
+    rdfs:label "has implementation hint"@en ;
+    rdfs:comment "Code snippets, algorithm descriptions, or technical guidance for implementation. Provides concrete examples and patterns to guide code generation."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string ;
+    dcterms:source "Implementation guidance for code generation" .
+
+a2a:hasTestExample a rdf:Property ;
+    rdfs:label "has test example"@en ;
+    rdfs:comment "Example input/output pairs for validation testing. Provides test cases to verify generated implementations behave correctly."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string ;
+    dcterms:source "Validation examples for testing" .
+
+a2a:hasErrorHandling a rdf:Property ;
+    rdfs:label "has error handling"@en ;
+    rdfs:comment "Error scenarios and recovery strategies for the skill. Describes how to handle failures, timeouts, and edge cases."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+a2a:hasPerformanceHint a rdf:Property ;
+    rdfs:label "has performance hint"@en ;
+    rdfs:comment "Performance optimization hints and expected resource constraints. Guides implementation toward efficient code."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+a2a:hasDependency a rdf:Property ;
+    rdfs:label "has dependency"@en ;
+    rdfs:comment "External dependencies or libraries required for skill implementation. Lists crates, packages, or modules needed."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+#################################################################
+#    MCP Tool Predicates
+#################################################################
+
+mcp:hasAutoImplementation a rdf:Property ;
+    rdfs:label "has auto implementation"@en ;
+    rdfs:comment "Flag indicating LLM should generate implementation automatically. When true, the tool implementation will be synthesized from behavior predicates."@en ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range xsd:boolean .
+
+mcp:hasImplementationLanguage a rdf:Property ;
+    rdfs:label "has implementation language"@en ;
+    rdfs:comment "Target programming language for auto-generated implementation (e.g., rust, typescript, python)."@en ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range xsd:string .
+
+mcp:hasToolCategory a rdf:Property ;
+    rdfs:label "has tool category"@en ;
+    rdfs:comment "Category classification for the tool (e.g., filesystem, database, network, ai). Helps organize and discover tools."@en ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range xsd:string .
+
+mcp:requiresAuthentication a rdf:Property ;
+    rdfs:label "requires authentication"@en ;
+    rdfs:comment "Indicates whether the tool requires authentication or authorization to function."@en ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range xsd:boolean .
+
+#################################################################
+#    Code Generation Hints
+#################################################################
+
+a2a:hasCodeTemplate a rdf:Property ;
+    rdfs:label "has code template"@en ;
+    rdfs:comment "Template code structure for implementation. Provides a starting point for code generation with placeholders for dynamic content."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+a2a:hasValidationRule a rdf:Property ;
+    rdfs:label "has validation rule"@en ;
+    rdfs:comment "Validation rules for input parameters and output results. Ensures generated implementations include proper validation."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+a2a:hasLoggingHint a rdf:Property ;
+    rdfs:label "has logging hint"@en ;
+    rdfs:comment "Logging recommendations and debug information requirements. Guides observability in generated code."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+#################################################################
+#    Integration & Composition
+#################################################################
+
+a2a:composedOf a rdf:Property ;
+    rdfs:label "composed of"@en ;
+    rdfs:comment "Indicates that a skill is composed of multiple sub-skills or capabilities. Enables modular generation."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range a2a:Skill .
+
+a2a:requiresSkill a rdf:Property ;
+    rdfs:label "requires skill"@en ;
+    rdfs:comment "Dependency relationship indicating that a skill requires another skill to function. Establishes composition order."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range a2a:Skill .
+
+#################################################################
+#    Examples & Documentation
+#################################################################
+
+a2a:hasUsageExample a rdf:Property ;
+    rdfs:label "has usage example"@en ;
+    rdfs:comment "Real-world usage examples demonstrating how to invoke the skill and what to expect from it."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .
+
+a2a:hasBestPractice a rdf:Property ;
+    rdfs:label "has best practice"@en ;
+    rdfs:comment "Best practices and recommendations for implementing and using the skill effectively."@en ;
+    rdfs:domain a2a:Skill ;
+    rdfs:range xsd:string .

@@ -1,0 +1,60 @@
+@prefix agent: <https://ggen.io/examples/a2a-groq#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+agent:GroqAgent a agent:Agent ;
+    agent:agentName   "groq-coder" ;
+    agent:agentStruct "GroqCoderHandler" ;
+    agent:description "A2A agent powered by Groq LLM — generates, explains, reviews, and refactors code" ;
+    agent:version     "1.0.0" ;
+    agent:bindAddr    "127.0.0.1:3000" ;
+    agent:url         "http://localhost:3000" .
+
+agent:GenerateCodeSkill a agent:Skill ;
+    agent:agentOf      agent:GroqAgent ;
+    agent:skillId      "generate-code" ;
+    agent:skillName    "Generate Code" ;
+    agent:handlerName  "GenerateCodeHandler" ;
+    agent:methodName   "generate_code" ;
+    agent:description  "Generate code from a natural language description" ;
+    agent:systemPrompt "You are a code generator. Given a description, output ONLY the code without explanations. Use best practices and include necessary imports." ;
+    agent:inputModes   "text" ;
+    agent:outputModes  "text" ;
+    agent:order        1 .
+
+agent:ExplainCodeSkill a agent:Skill ;
+    agent:agentOf      agent:GroqAgent ;
+    agent:skillId      "explain-code" ;
+    agent:skillName    "Explain Code" ;
+    agent:handlerName  "ExplainCodeHandler" ;
+    agent:methodName   "explain_code" ;
+    agent:description  "Explain what a given piece of code does" ;
+    agent:systemPrompt "You are a code explainer. Explain the given code clearly and concisely. Cover what it does, how it works, and any notable patterns." ;
+    agent:inputModes   "text" ;
+    agent:outputModes  "text" ;
+    agent:order        2 .
+
+agent:ReviewCodeSkill a agent:Skill ;
+    agent:agentOf      agent:GroqAgent ;
+    agent:skillId      "review-code" ;
+    agent:skillName    "Review Code" ;
+    agent:handlerName  "ReviewCodeHandler" ;
+    agent:methodName   "review_code" ;
+    agent:description  "Review code for bugs, style issues, and performance problems" ;
+    agent:systemPrompt "You are a code reviewer. Review the given code for bugs, security issues, style violations, and performance problems. Provide specific line references and suggested fixes." ;
+    agent:inputModes   "text" ;
+    agent:outputModes  "text" ;
+    agent:order        3 .
+
+agent:RefactorCodeSkill a agent:Skill ;
+    agent:agentOf      agent:GroqAgent ;
+    agent:skillId      "refactor-code" ;
+    agent:skillName    "Refactor Code" ;
+    agent:handlerName  "RefactorCodeHandler" ;
+    agent:methodName   "refactor_code" ;
+    agent:description  "Suggest refactored/improved version of given code" ;
+    agent:systemPrompt "You are a refactoring expert. Given code, suggest an improved version that is cleaner, more maintainable, and follows best practices. Output ONLY the refactored code." ;
+    agent:inputModes   "text" ;
+    agent:outputModes  "text" ;
+    agent:order        4 .

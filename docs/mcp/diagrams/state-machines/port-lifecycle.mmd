@@ -1,0 +1,51 @@
+```mermaid
+stateDiagram-v2
+    [*] --> Uninitialized: Port Created
+
+    Uninitialized --> Ready: initialize(config)
+    Ready --> Connected: connect(target_port_id)
+    Connected --> Busy: send/receive(message)
+    Busy --> Connected: Operation Complete
+    Connected --> Disconnected: disconnect()
+    Disconnected --> Ready: cleanup() + reconnect
+
+    Ready --> Error: Initialization Failed
+    Connected --> Error: Socket Error
+    Busy --> Error: Unrecoverable Error
+    Error --> [*]: shutdown()
+
+    note right of Uninitialized
+        Port created but not initialized
+        No resources allocated
+    end note
+
+    note right of Busy
+        Processing messages
+        Stats tracked
+    end note
+
+    note right of Error
+        Unrecoverable socket errors
+        Requires shutdown
+    end note
+```
+
+## States
+- **Uninitialized**: Port created, no resources allocated
+- **Ready**: Initialized and waiting for connection
+- **Connected**: Active connection to target port
+- **Busy**: Processing messages (send/receive)
+- **Disconnected**: Connection closed, can reconnect
+- **Error**: Unrecoverable error, requires shutdown
+
+## Transitions
+- **initialize()**: Allocates resources, enters Ready state
+- **connect()**: Establishes connection to target port
+- **send/receive()**: Transitions to Busy, updates stats
+- **disconnect()**: Closes connection, returns to Ready after cleanup
+- **unrecoverable error**: Direct to Error state
+
+## Guards
+- **State validation**: Operations only valid in specific states
+- **Connection limits**: Max concurrent connections enforced
+- **Error recovery**: Only reconnection from Disconnected, not from Error

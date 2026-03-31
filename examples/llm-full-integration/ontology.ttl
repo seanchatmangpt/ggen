@@ -1,0 +1,60 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix a2a: <http://example.org/a2a#>.
+@prefix schema: <http://schema.org/>.
+@prefix ex: <http://example.org/a2a#>.
+
+# Agent Definition
+ex:LLMAgent a a2a:Agent ;
+    rdfs:label "LLM Integration Test Agent" ;
+    a2a:hasCapability ex:DataAnalysisSkill, ex:TextProcessingSkill, ex:DecisionMakingSkill ;
+    a2a:hasInputFormat "application/json" ;
+    a2a:hasOutputFormat "application/json" ;
+    schema:description "Test agent for LLM-assisted code generation" .
+
+# Skill 1: Data Analysis with System Prompt
+ex:DataAnalysisSkill a a2a:Skill ;
+    rdfs:label "Data Analysis" ;
+    a2a:hasSystemPrompt "You are a data analysis expert. Analyze structured data and provide insights using statistical methods." ;
+    a2a:hasImplementationHint "Use pandas for data manipulation and implement statistical analysis functions" ;
+    a2a:hasInputType schema:StructuredValue ;
+    a2a:hasOutputType schema:PropertyValue ;
+    a2a:hasBehavior "analytical" ;
+    schema:description "Analyzes structured data and provides statistical insights" .
+
+# Skill 2: Text Processing with System Prompt
+ex:TextProcessingSkill a a2a:Skill ;
+    rdfs:label "Text Processing" ;
+    a2a:hasSystemPrompt "You are a natural language processing expert. Process text data, extract entities, and perform sentiment analysis." ;
+    a2a:hasImplementationHint "Implement tokenization, entity extraction, and sentiment scoring using regex and pattern matching" ;
+    a2a:hasInputType schema:Text ;
+    a2a:hasOutputType schema:DefinedTerm ;
+    a2a:hasBehavior "transformational" ;
+    schema:description "Processes natural language text and extracts structured information" .
+
+# Skill 3: Decision Making with System Prompt
+ex:DecisionMakingSkill a a2a:Skill ;
+    rdfs:label "Decision Making" ;
+    a2a:hasSystemPrompt "You are a decision support system. Evaluate options based on weighted criteria and provide recommendations with confidence scores." ;
+    a2a:hasImplementationHint "Implement weighted decision matrix with confidence scoring and explanation generation" ;
+    a2a:hasInputType schema:PropertyValue ;
+    a2a:hasOutputType schema:Recommendation ;
+    a2a:hasBehavior "evaluative" ;
+    schema:description "Evaluates options and provides data-driven recommendations" .
+
+# Schema Types for Integration
+ex:AnalysisResult a rdfs:Class ;
+    rdfs:label "Analysis Result" ;
+    rdfs:subClassOf schema:PropertyValue ;
+    a2a:hasProperty "statistics", "insights", "recommendations" .
+
+ex:TextEntity a rdfs:Class ;
+    rdfs:label "Text Entity" ;
+    rdfs:subClassOf schema:DefinedTerm ;
+    a2a:hasProperty "text", "entities", "sentiment", "confidence" .
+
+ex:DecisionCriteria a rdfs:Class ;
+    rdfs:label "Decision Criteria" ;
+    rdfs:subClassOf schema:PropertyValue ;
+    a2a:hasProperty "options", "criteria", "weights", "scores" .

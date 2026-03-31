@@ -1,0 +1,484 @@
+# TPS Predicates - Toyota Production System Quality Ontology
+# Base URI: https://ggen.dev/ontology/tps#
+# Version: 1.0.0
+# Integrates with: A2A Ontology (https://a2a.dev/ontology#)
+
+@prefix tps: <https://ggen.dev/ontology/tps#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix a2a: <https://a2a.dev/ontology#> .
+
+<https://ggen.dev/ontology/tps> rdf:type owl:Ontology ;
+    rdfs:label "TPS Quality Ontology"@en ;
+    rdfs:comment "Toyota Production System predicates for continuous improvement in autonomous code generation. Defines concepts for waste detection (muda), continuous improvement (kaizen), unevenness detection (mura), and overburden detection (muri)."@en ;
+    dcterms:title "Toyota Production System Quality Ontology"@en ;
+    dcterms:description "Formal specification of TPS quality predicates for detecting waste, planning improvements, and measuring flow in autonomous code generation systems."@en ;
+    dcterms:created "2026-03-30"^^xsd:date ;
+    dcterms:modified "2026-03-30"^^xsd:date ;
+    vann:preferredNamespacePrefix "tps" ;
+    vann:preferredNamespaceUri "https://ggen.dev/ontology/tps#" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <https://a2a.dev/ontology> .
+
+#################################################################
+#    Classes
+#################################################################
+
+# Muda (Waste) Types
+tps:Muda rdf:type owl:Class ;
+    rdfs:label "Muda (Waste)"@en ;
+    rdfs:comment "Represents waste in the code generation process. Muda identifies non-value-adding activities that consume resources without delivering customer value. The seven original wastes plus the eighth waste (unused human potential)."@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasWasteType ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every muda instance must have exactly one waste type"
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasSeverity ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every muda must have a severity level"
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasImpact ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every muda must have an impact assessment"
+    ] .
+
+tps:WasteType rdf:type owl:Class ;
+    rdfs:label "Waste Type"@en ;
+    rdfs:comment "Enumeration of the 8 wastes in software development (adapted from manufacturing)."@en ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:oneOf (
+            tps:DefectWaste
+            tps:OverproductionWaste
+            tps:WaitingWaste
+            tps:NonUtilizedTalentWaste
+            tps:TransportWaste
+            tps:InventoryWaste
+            tps:MotionWaste
+            tps:ExtraProcessingWaste
+        )
+    ] .
+
+# Kaizen (Continuous Improvement)
+tps:Kaizen rdf:type owl:Class ;
+    rdfs:label "Kaizen (Continuous Improvement)"@en ;
+    rdfs:comment "Represents a continuous improvement opportunity. Kaizen identifies small, incremental changes that can be applied to improve the code generation process. Focuses on eliminating waste and improving flow."@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasImprovementAction ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every kaizen must have exactly one improvement action"
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasTargetCondition ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every kaizen must have exactly one target condition"
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasPriority ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every kaizen must have a priority level"
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:addressesMuda ;
+        owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+        rdfs:comment "A kaizen may address zero or more muda instances"
+    ] .
+
+tps:ImprovementAction rdf:type owl:Class ;
+    rdfs:label "Improvement Action"@en ;
+    rdfs:comment "A specific, actionable step to implement a kaizen improvement. Actions should be small, measurable, and implementable within a short iteration."@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasEffort ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every improvement action must have an effort estimate"
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasExpectedBenefit ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every improvement action must have an expected benefit"
+    ] .
+
+# Mura (Unevenness)
+tps:Mura rdf:type owl:Class ;
+    rdfs:label "Mura (Unevenness)"@en ;
+    rdfs:comment "Represents unevenness in the code generation workflow. Mura identifies irregularities, fluctuations, and inconsistencies that disrupt smooth flow and create waste."@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasUnevennessType ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every mura must have exactly one unevenness type"
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasVariability ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every mura must have a variability measure"
+    ] .
+
+tps:UnevennessType rdf:type owl:Class ;
+    rdfs:label "Unevenness Type"@en ;
+    rdfs:comment "Types of unevenness in software development workflows."@en ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:oneOf (
+            tps:WorkloadUnevenness
+            tps:ComplexityUnevenness
+            tps:DependencyUnevenness
+            tps:ResourceUnevenness
+        )
+    ] .
+
+# Muri (Overburden)
+tps:Muri rdf:type owl:Class ;
+    rdfs:label "Muri (Overburden)"@en ;
+    rdfs:comment "Represents overburden of people or systems. Muri identifies excessive load, stress, or complexity that leads to errors, burnout, or system failures."@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasOverburdenType ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every muri must have exactly one overburden type"
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasLoadFactor ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every muri must have a load factor measurement"
+    ] .
+
+tps:OverburdenType rdf:type owl:Class ;
+    rdfs:label "Overburden Type"@en ;
+    rdfs:comment "Types of overburden in autonomous systems."@en ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:oneOf (
+            tps:ExcessiveComplexity
+            tps:TightDeadlines
+            tps:ResourceExhaustion
+            tps:CognitiveOverload
+        )
+    ] .
+
+# Just-In-Time (JIT)
+tps:JitRequirement rdf:type owl:Class ;
+    rdfs:label "Just-In-Time Requirement"@en ;
+    rdfs:comment "Specifies Just-In-Time delivery targets for code generation artifacts. JIT ensures components are generated exactly when needed, not before."@en ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasLeadTime ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every JIT requirement must have a lead time"
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasBatchSize ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every JIT requirement must specify a batch size"
+    ] ;
+    rdfs:subClassOf [
+        rdf:type owl:Restriction ;
+        owl:onProperty tps:hasPullTrigger ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ;
+        rdfs:comment "Every JIT requirement must have a pull trigger"
+    ] .
+
+#################################################################
+#    Waste Type Individuals (Muda)
+#################################################################
+
+tps:DefectWaste rdf:type tps:WasteType ;
+    rdfs:label "Defect Waste"@en ;
+    rdfs:comment "Bugs, errors, or defects in generated code that require rework. This includes compilation errors, test failures, and runtime errors."@en ;
+    tps:hasWasteCategory "quality" .
+
+tps:OverproductionWaste rdf:type tps:WasteType ;
+    rdfs:label "Overproduction Waste"@en ;
+    rdfs:comment "Generating more code than needed or generating features before they are required. Includes premature abstraction and gold-plating."@en ;
+    tps:hasWasteCategory "flow" .
+
+tps:WaitingWaste rdf:type tps:WasteType ;
+    rdfs:label "Waiting Waste"@en ;
+    rdfs:comment "Delays and idle time in the generation process. Includes waiting for dependencies, approvals, or resource availability."@en ;
+    tps:hasWasteCategory "time" .
+
+tps:NonUtilizedTalentWaste rdf:type tps:WasteType ;
+    rdfs:label "Non-Utilized Talent Waste"@en ;
+    rdfs:comment "Underutilization of agent capabilities or human expertise. Includes not using available skills, knowledge, or automation opportunities."@en ;
+    tps:hasWasteCategory "resource" .
+
+tps:TransportWaste rdf:type tps:WasteType ;
+    rdfs:label "Transport Waste"@en ;
+    rdfs:comment "Unnecessary movement of data, artifacts, or context between systems or agents. Includes excessive API calls, data transfers, or handoffs."@en ;
+    tps:hasWasteCategory "movement" .
+
+tps:InventoryWaste rdf:type tps:WasteType ;
+    rdfs:label "Inventory Waste"@en ;
+    rdfs:comment "Accumulation of work-in-progress, unfinished code, or intermediate artifacts. Includes partially generated components or speculative features."@en ;
+    tps:hasWasteCategory "storage" .
+
+tps:MotionWaste rdf:type tps:WasteType ;
+    rdfs:label "Motion Waste"@en ;
+    rdfs:comment "Unnecessary movement of people or agents between tasks or contexts. Includes context switching, task switching, or excessive navigation."@en ;
+    tps:hasWasteCategory "movement" .
+
+tps:ExtraProcessingWaste rdf:type tps:WasteType ;
+    rdfs:label "Extra-Processing Waste"@en ;
+    rdfs:comment "Doing more work than necessary or using more complex processes than needed. Includes over-engineering, redundant validation, or excessive documentation."@en ;
+    tps:hasWasteCategory "complexity" .
+
+#################################################################
+#    Unevenness Type Individuals (Mura)
+#################################################################
+
+tps:WorkloadUnevenness rdf:type tps:UnevennessType ;
+    rdfs:label "Workload Unevenness"@en ;
+    rdfs:comment "Irregular distribution of work across time or agents. Some periods are overloaded while others are idle."@en ;
+    tps:hasUnevennessCategory "temporal" .
+
+tps:ComplexityUnevenness rdf:type tps:UnevennessType ;
+    rdfs:label "Complexity Unevenness"@en ;
+    rdfs:comment "Inconsistent complexity levels across similar tasks or components. Some tasks are disproportionately complex."@en ;
+    tps:hasUnevennessCategory "structural" .
+
+tps:DependencyUnevenness rdf:type tps:UnevennessType ;
+    rdfs:label "Dependency Unevenness"@en ;
+    rdfs:comment "Irregular dependency chains causing some tasks to be blocked while others flow freely."@en ;
+    tps:hasUnevennessCategory "relational" .
+
+tps:ResourceUnevenness rdf:type tps:UnevennessType ;
+    rdfs:label "Resource Unevenness"@en ;
+    rdfs:comment "Inconsistent availability or utilization of resources (compute, memory, agents)."@en ;
+    tps:hasUnevennessCategory "operational" .
+
+#################################################################
+#    Overburden Type Individuals (Muri)
+#################################################################
+
+tps:ExcessiveComplexity rdf:type tps:OverburdenType ;
+    rdfs:label "Excessive Complexity"@en ;
+    rdfs:comment "Complexity beyond what agents or systems can handle reliably. Leads to errors and comprehension failures."@en ;
+    tps:hasOverburdenCategory "cognitive" .
+
+tps:TightDeadlines rdf:type tps:OverburdenType ;
+    rdfs:label "Tight Deadlines"@en ;
+    rdfs:comment "Unrealistic time constraints that force rushed work and increase error rates."@en ;
+    tps:hasOverburdenCategory "temporal" .
+
+tps:ResourceExhaustion rdf:type tps:OverburdenType ;
+    rdfs:label "Resource Exhaustion"@en ;
+    rdfs:comment "System resources (CPU, memory, disk) pushed beyond capacity, causing failures or degradation."@en ;
+    tps:hasOverburdenCategory "operational" .
+
+tps:CognitiveOverload rdf:type tps:OverburdenType ;
+    rdfs:label "Cognitive Overload"@en ;
+    rdfs:comment "Too much information, context, or concurrent tasks for agents or humans to process effectively."@en ;
+    tps:hasOverburdenCategory "cognitive" .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+# Muda properties
+tps:hasMuda rdf:type owl:ObjectProperty ;
+    rdfs:label "has muda"@en ;
+    rdfs:comment "Relates a task, artifact, or process to a waste (muda) instance."@en ;
+    rdfs:range tps:Muda .
+
+tps:hasWasteType rdf:type owl:ObjectProperty ;
+    rdfs:label "has waste type"@en ;
+    rdfs:comment "Classifies the type of waste (defect, overproduction, waiting, etc.)."@en ;
+    rdfs:domain tps:Muda ;
+    rdfs:range tps:WasteType .
+
+tps:hasWasteCategory rdf:type owl:DatatypeProperty ;
+    rdfs:label "has waste category"@en ;
+    rdfs:comment "Categorizes waste into quality, flow, time, resource, movement, storage, or complexity."@en ;
+    rdfs:domain tps:WasteType ;
+    rdfs:range xsd:string .
+
+# Kaizen properties
+tps:hasKaizen rdf:type owl:ObjectProperty ;
+    rdfs:label "has kaizen"@en ;
+    rdfs:comment "Relates a task, artifact, or process to a continuous improvement opportunity."@en ;
+    rdfs:range tps:Kaizen .
+
+tps:hasImprovementAction rdf:type owl:ObjectProperty ;
+    rdfs:label "has improvement action"@en ;
+    rdfs:comment "Specifies the action to take for a kaizen improvement."@en ;
+    rdfs:domain tps:Kaizen ;
+    rdfs:range tps:ImprovementAction .
+
+tps:hasTargetCondition rdf:type owl:DatatypeProperty ;
+    rdfs:label "has target condition"@en ;
+    rdfs:comment "Describes the desired state after implementing the kaizen improvement."@en ;
+    rdfs:domain tps:Kaizen ;
+    rdfs:range xsd:string .
+
+tps:addressesMuda rdf:type owl:ObjectProperty ;
+    rdfs:label "addresses muda"@en ;
+    rdfs:comment "Links a kaizen improvement to the waste (muda) it addresses."@en ;
+    rdfs:domain tps:Kaizen ;
+    rdfs:range tps:Muda .
+
+tps:hasPriority rdf:type owl:DatatypeProperty ;
+    rdfs:label "has priority"@en ;
+    rdfs:comment "Priority level for the kaizen improvement (critical, high, medium, low)."@en ;
+    rdfs:domain tps:Kaizen ;
+    rdfs:range xsd:string .
+
+tps:hasEffort rdf:type owl:DatatypeProperty ;
+    rdfs:label "has effort"@en ;
+    rdfs:comment "Estimated effort to implement the improvement action (e.g., '2 hours', '1 day')."@en ;
+    rdfs:domain tps:ImprovementAction ;
+    rdfs:range xsd:string .
+
+tps:hasExpectedBenefit rdf:type owl:DatatypeProperty ;
+    rdfs:label "has expected benefit"@en ;
+    rdfs:comment "Expected benefit from implementing the improvement action (e.g., '50% reduction in defects', '2x faster generation')."@en ;
+    rdfs:domain tps:ImprovementAction ;
+    rdfs:range xsd:string .
+
+# Mura properties
+tps:hasMura rdf:type owl:ObjectProperty ;
+    rdfs:label "has mura"@en ;
+    rdfs:comment "Relates a task, artifact, or process to an unevenness (mura) instance."@en ;
+    rdfs:range tps:Mura .
+
+tps:hasUnevennessType rdf:type owl:ObjectProperty ;
+    rdfs:label "has unevenness type"@en ;
+    rdfs:comment "Classifies the type of unevenness (workload, complexity, dependencies, resources)."@en ;
+    rdfs:domain tps:Mura ;
+    rdfs:range tps:UnevennessType .
+
+tps:hasUnevennessCategory rdf:type owl:DatatypeProperty ;
+    rdfs:label "has unevenness category"@en ;
+    rdfs:comment "Categorizes unevenness into temporal, structural, relational, or operational."@en ;
+    rdfs:domain tps:UnevennessType ;
+    rdfs:range xsd:string .
+
+tps:hasVariability rdf:type owl:DatatypeProperty ;
+    rdfs:label "has variability"@en ;
+    rdfs:comment "Measures the degree of variability (e.g., standard deviation, coefficient of variation)."@en ;
+    rdfs:domain tps:Mura ;
+    rdfs:range xsd:float .
+
+# Muri properties
+tps:hasMuri rdf:type owl:ObjectProperty ;
+    rdfs:label "has muri"@en ;
+    rdfs:comment "Relates a task, artifact, or process to an overburden (muri) instance."@en ;
+    rdfs:range tps:Muri .
+
+tps:hasOverburdenType rdf:type owl:ObjectProperty ;
+    rdfs:label "has overburden type"@en ;
+    rdfs:comment "Classifies the type of overburden (excessive complexity, tight deadlines, resource exhaustion, cognitive overload)."@en ;
+    rdfs:domain tps:Muri ;
+    rdfs:range tps:OverburdenType .
+
+tps:hasOverburdenCategory rdf:type owl:DatatypeProperty ;
+    rdfs:label "has overburden category"@en ;
+    rdfs:comment "Categorizes overburden into cognitive, temporal, or operational."@en ;
+    rdfs:domain tps:OverburdenType ;
+    rdfs:range xsd:string .
+
+tps:hasLoadFactor rdf:type owl:DatatypeProperty ;
+    rdfs:label "has load factor"@en ;
+    rdfs:comment "Measures the load relative to capacity (e.g., 1.5 = 50% over capacity)."@en ;
+    rdfs:domain tps:Muri ;
+    rdfs:range xsd:float .
+
+# JIT properties
+tps:hasJitRequirement rdf:type owl:ObjectProperty ;
+    rdfs:label "has JIT requirement"@en ;
+    rdfs:comment "Relates a task or artifact to its Just-In-Time delivery requirements."@en ;
+    rdfs:range tps:JitRequirement .
+
+tps:hasLeadTime rdf:type owl:DatatypeProperty ;
+    rdfs:label "has lead time"@en ;
+    rdfs:comment "Acceptable lead time for delivery (e.g., '5 seconds', '2 minutes')."@en ;
+    rdfs:domain tps:JitRequirement ;
+    rdfs:range xsd:string .
+
+tps:hasBatchSize rdf:type owl:DatatypeProperty ;
+    rdfs:label "has batch size"@en ;
+    rdfs:comment "Optimal batch size for generation (e.g., '1' = single-piece flow, '10' = small batch)."@en ;
+    rdfs:domain tps:JitRequirement ;
+    rdfs:range xsd:integer .
+
+tps:hasPullTrigger rdf:type owl:DatatypeProperty ;
+    rdfs:label "has pull trigger"@en ;
+    rdfs:comment "Event or condition that triggers generation (e.g., 'on-demand', 'when-depends-available')."@en ;
+    rdfs:domain tps:JitRequirement ;
+    rdfs:range xsd:string .
+
+# Common measurement properties
+tps:hasSeverity rdf:type owl:DatatypeProperty ;
+    rdfs:label "has severity"@en ;
+    rdfs:comment "Severity level (critical, high, medium, low)."@en ;
+    rdfs:range xsd:string .
+
+tps:hasImpact rdf:type owl:DatatypeProperty ;
+    rdfs:label "has impact"@en ;
+    rdfs:comment "Impact description (e.g., 'Causes 50% increase in generation time')."@en ;
+    rdfs:range xsd:string .
+
+tps:hasDetectionMethod rdf:type owl:DatatypeProperty ;
+    rdfs:label "has detection method"@en ;
+    rdfs:comment "How the issue is detected (automated-test, manual-review, metrics, profiling)."@en ;
+    rdfs:range xsd:string .
+
+tps:hasDetectionTimestamp rdf:type owl:DatatypeProperty ;
+    rdfs:label "has detection timestamp"@en ;
+    rdfs:comment "When the issue was detected."@en ;
+    rdfs:range xsd:dateTime .
+
+tps:hasRemediationStatus rdf:type owl:DatatypeProperty ;
+    rdfs:label "has remediation status"@en ;
+    rdfs:comment "Status of remediation (identified, planned, in-progress, resolved, ignored)."@en ;
+    rdfs:range xsd:string .
+
+#################################################################
+#    Example Usage
+#################################################################
+
+# Example: Code generation with detected waste
+ex:CodeGenerationTask rdf:type a2a:Task ;
+    tps:hasMuda ex:DefectMuda1 ;
+    tps:hasKaizen ex:Kaizen1 ;
+    tps:hasJitRequirement ex:JitReq1 .
+
+ex:DefectMuda1 rdf:type tps:Muda ;
+    tps:hasWasteType tps:DefectWaste ;
+    tps:hasSeverity "high" ;
+    tps:hasImpact "Compilation errors in 30% of generated code" ;
+    tps:hasDetectionMethod "automated-test" ;
+    tps:hasDetectionTimestamp "2026-03-30T10:00:00Z"^^xsd:dateTime ;
+    tps:hasRemediationStatus "in-progress" .
+
+ex:Kaizen1 rdf:type tps:Kaizen ;
+    tps:hasImprovementAction ex:Action1 ;
+    tps:hasTargetCondition "Zero compilation errors in generated code" ;
+    tps:hasPriority "critical" ;
+    tps:addressesMuda ex:DefectMuda1 .
+
+ex:Action1 rdf:type tps:ImprovementAction ;
+    tps:hasEffort "4 hours" ;
+    tps:hasExpectedBenefit "95% reduction in compilation errors" .
+
+ex:JitReq1 rdf:type tps:JitRequirement ;
+    tps:hasLeadTime "5 seconds" ;
+    tps:hasBatchSize "1" ;
+    tps:hasPullTrigger "on-demand" .

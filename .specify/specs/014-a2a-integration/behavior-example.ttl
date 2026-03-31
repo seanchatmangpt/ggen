@@ -1,0 +1,349 @@
+# Example Usage of Behavior Predicates
+# Demonstrates LLM-driven skill implementation
+
+@prefix a2a: <https://a2a.dev/ontology#> .
+@prefix mcp: <https://ggen.io/ontology/mcp#> .
+@prefix ex: <https://example.com/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+#    Example 1: File Read Skill (Rust)
+#################################################################
+
+ex:FileReadSkill a a2a:Skill ;
+    a2a:hasName "file_read" ;
+    a2a:hasDescription "Read file contents at given path with optional offset and limit" ;
+    a2a:hasInputType "FileReadRequest { path: string, offset?: integer, limit?: integer }"^^xsd:string ;
+    a2a:hasOutputType "FileReadResponse { contents: string, size: integer, path: string }"^^xsd:string ;
+
+    # Behavior Predicates
+    a2a:hasSystemPrompt """
+Read file contents from the filesystem at the specified path.
+Supports optional offset (start position) and limit (max bytes) for partial reads.
+Returns file contents as string along with file size and original path.
+Handle errors for missing files, permission denied, and invalid paths.
+""" ;
+
+    a2a:hasImplementationHint """
+Use std::fs::read_to_string for full file reads.
+For offset/limit reading, use std::fs::File with std::io::Seek and std::io::Read.
+Return proper error types for filesystem errors.
+""" ;
+
+    a2a:hasTestExample """
+Input: { path: "/tmp/test.txt", offset: 0, limit: 100 }
+Output: { contents: "Hello World", size: 11, path: "/tmp/test.txt" }
+
+Input: { path: "/nonexistent.txt" }
+Output: Error: File not found
+""" ;
+
+    a2a:hasErrorHandling """
+- FileNotFoundError: Path does not exist
+- PermissionError: Insufficient permissions
+- InvalidPathError: Path contains invalid characters
+""" ;
+
+    a2a:hasPerformanceHint """
+For large files (>1MB), use buffered reading with BufReader.
+Consider memory constraints when limit is not specified.
+""" ;
+
+    a2a:hasDependency """
+std >= 1.0.0
+""" ;
+
+    a2a:hasValidationRule """
+- Path must be non-empty string
+- Offset must be >= 0 if specified
+- Limit must be > 0 if specified
+""" .
+
+#################################################################
+#    Example 2: MCP Database Query Tool
+#################################################################
+
+ex:DatabaseQueryTool a mcp:Tool ;
+    mcp:hasName "database_query" ;
+    mcp:hasDescription "Execute SQL queries on PostgreSQL database" ;
+    mcp:hasAutoImplementation true ;
+    mcp:hasImplementationLanguage "rust" ;
+    mcp:hasToolCategory "database" ;
+    mcp:requiresAuthentication true ;
+
+    # Behavior
+    a2a:hasSystemPrompt """
+Execute SQL SELECT queries on PostgreSQL database.
+Supports parameterized queries to prevent SQL injection.
+Returns results as JSON array of row objects.
+Limit results to prevent memory issues.
+""" ;
+
+    a2a:hasImplementationHint """
+Use sqlx crate with Postgres driver.
+Implement query result row iteration.
+Convert rows to JSON using serde_json.
+Use connection pooling for performance.
+""" ;
+
+    a2a:hasTestExample """
+Input: { query: "SELECT * FROM users WHERE id = $1", params: [1] }
+Output: { rows: [{ id: 1, name: "Alice", email: "alice@example.com" }], count: 1 }
+
+Input: { query: "SELECT * FROM users LIMIT 10" }
+Output: { rows: [...], count: 10 }
+""" ;
+
+    a2a:hasDependency """
+sqlx = { version = "0.7", features = ["postgres", "json"] }
+tokio = { version = "1", features = ["full"] }
+serde_json = "1.0"
+""" ;
+
+    a2a:hasPerformanceHint """
+Use prepared statements for repeated queries.
+Set query timeout to prevent long-running queries.
+Limit result set size with LIMIT clause.
+""" ;
+
+    a2a:hasErrorHandling """
+- SQLError: Invalid SQL syntax
+- ConnectionError: Database unavailable
+- TimeoutError: Query exceeded timeout
+""" .
+
+#################################################################
+#    Example 3: HTTP Request Skill (TypeScript)
+#################################################################
+
+ex:HttpRequestSkill a a2a:Skill ;
+    a2a:hasName "http_request" ;
+    a2a:hasDescription "Make HTTP requests with configurable options" ;
+    a2a:hasInputType "HttpRequest { url: string, method?: string, headers?: object, body?: string }"^^xsd:string ;
+    a2a:hasOutputType "HttpResponse { status: integer, headers: object, body: string }"^^xsd:string ;
+
+    a2a:hasSystemPrompt """
+Execute HTTP requests to external services.
+Support GET, POST, PUT, DELETE, PATCH methods.
+Custom headers and request body support.
+Return status code, response headers, and response body.
+Handle redirects and timeouts appropriately.
+""" ;
+
+    a2a:hasImplementationHint """
+Use fetch API or axios library.
+Support both browser and Node.js environments.
+Implement timeout handling.
+Parse JSON responses automatically.
+""" ;
+
+    a2a:hasTestExample """
+Input: { url: "https://api.example.com/users", method: "GET" }
+Output: { status: 200, headers: {...}, body: "[{ id: 1, name: 'Alice' }]" }
+
+Input: { url: "https://api.example.com/users", method: "POST", body: '{"name":"Bob"}' }
+Output: { status: 201, headers: {...}, body: '{"id":2,"name":"Bob"}' }
+""" ;
+
+    a2a:hasDependency """
+axios >= 1.0.0
+or
+node-fetch >= 3.0.0
+""" ;
+
+    a2a:hasPerformanceHint """
+Use connection pooling for multiple requests.
+Implement request caching for GET requests when appropriate.
+Set reasonable timeouts (default 30s).
+""" ;
+
+    a2a:hasValidationRule """
+- URL must be valid HTTP/HTTPS URL
+- Method must be one of: GET, POST, PUT, DELETE, PATCH
+- Headers must be object if provided
+""" .
+
+#################################################################
+#    Example 4: Composite Skill (Multiple Sub-skills)
+#################################################################
+
+ex:FileProcessingSkill a a2a:Skill ;
+    a2a:hasName "file_processing" ;
+    a2a:hasDescription "Read, transform, and write files" ;
+    a2a:composedOf ex:FileReadSkill, ex:FileWriteSkill, ex:DataTransformSkill ;
+
+    a2a:hasSystemPrompt """
+Process files by reading, transforming, and writing.
+Compose file reading, data transformation, and file writing.
+Support various transformation types (JSON, CSV, custom).
+Maintain file metadata through the pipeline.
+""" ;
+
+    a2a:hasImplementationHint """
+Chain sub-skills in order: read → transform → write.
+Pass data between skills using in-memory buffers.
+Handle errors at each stage with rollback.
+""" ;
+
+    a2a:hasTestExample """
+Input: { input_path: "/data/input.json", transform: "uppercase", output_path: "/data/output.json" }
+Output: { processed: true, bytes_read: 1024, bytes_written: 1024, records: 10 }
+""" .
+
+#################################################################
+#    Example 5: AI Text Generation Tool
+#################################################################
+
+ex:TextGenerationTool a mcp:Tool ;
+    mcp:hasName "text_generation" ;
+    mcp:hasDescription "Generate text using AI language models" ;
+    mcp:hasAutoImplementation true ;
+    mcp:hasToolCategory "ai" ;
+    mcp:requiresAuthentication true ;
+
+    a2a:hasSystemPrompt """
+Generate text using Claude or GPT language models.
+Support various generation modes: completion, chat, summarization.
+Handle rate limiting and token counting.
+Return generated text with metadata (tokens used, model, timing).
+""" ;
+
+    a2a:hasImplementationHint """
+Use Anthropic SDK for Claude or OpenAI SDK for GPT.
+Implement streaming support for long generations.
+Handle API errors gracefully (rate limits, timeouts).
+Cache responses when appropriate.
+""" ;
+
+    a2a:hasTestExample """
+Input: { prompt: "Write a haiku about coding", model: "claude-3-haiku", max_tokens: 50 }
+Output: { text: "Code flows like water\\nBugs emerge in the light\\nTests make them retreat", tokens: 42, model: "claude-3-haiku" }
+""" ;
+
+    a2a:hasDependency """
+anthropic = { version = "0.1", optional = true }
+openai = { version = "1.0", optional = true }
+""" ;
+
+    a2a:hasPerformanceHint """
+Use streaming for responses > 100 tokens.
+Implement request queuing for rate limit handling.
+Cache prompt templates.
+""" ;
+
+    a2a:hasLoggingHint """
+Log prompt length, response length, and token counts.
+Track API latency and errors.
+Mask sensitive data in prompts.
+""" .
+
+#################################################################
+#    Example 6: Skill with Best Practices
+#################################################################
+
+ex:SecureStorageSkill a a2a:Skill ;
+    a2a:hasName "secure_storage" ;
+    a2a:hasDescription "Securely store and retrieve sensitive data" ;
+
+    a2a:hasSystemPrompt """
+Encrypt sensitive data before storage.
+Use AES-256-GCM encryption with key derivation.
+Support storage of credentials, tokens, secrets.
+Implement secure key management.
+""" ;
+
+    a2a:hasImplementationHint """
+Use rustls or sodiumoxide for cryptography.
+Implement key derivation using Argon2.
+Store encrypted data with integrity checks.
+Never log plaintext sensitive data.
+""" ;
+
+    a2a:hasBestPractice """
+- Always encrypt sensitive data at rest
+- Use secure random number generation for keys
+- Implement secure key rotation
+- Never hardcode encryption keys
+- Use constant-time comparisons for secret data
+- Validate all inputs before processing
+- Implement secure error handling (no data leakage)
+""" ;
+
+    a2a:hasUsageExample """
+# Store a credential
+secure_storage.store("api_key", "sk-1234567890")
+
+# Retrieve a credential
+api_key = secure_storage.retrieve("api_key")
+# Returns: "sk-1234567890"
+
+# Delete a credential
+secure_storage.delete("api_key")
+""" .
+
+#################################################################
+#    Example 7: Tool with Code Template
+#################################################################
+
+ex:TemplateRenderTool a mcp:Tool ;
+    mcp:hasName "template_render" ;
+    mcp:hasDescription "Render templates with variable substitution" ;
+
+    a2a:hasSystemPrompt """
+Render templates using Tera or Handlebars syntax.
+Support variable substitution and conditionals.
+Safe template rendering (no code execution).
+""" ;
+
+    a2a:hasCodeTemplate """
+pub struct TemplateRenderer {
+    tera: Tera,
+}
+
+impl TemplateRenderer {
+    pub fn render(&self, template: &str, context: &Value) -> Result<String> {
+        let result = self.tera.render(template, context)?;
+        Ok(result)
+    }
+}
+""" ;
+
+    a2a:hasTestExample """
+Input: { template: "Hello {{ name }}!", context: { name: "Alice" } }
+Output: { rendered: "Hello Alice!" }
+
+Input: { template: "{% if admin %}Admin{% else %}User{% endif %}", context: { admin: true } }
+Output: { rendered: "Admin" }
+""" .
+
+#################################################################
+#    Example 8: Skill with Validation Rules
+#################################################################
+
+ex:EmailValidationSkill a a2a:Skill ;
+    a2a:hasName "email_validation" ;
+    a2a:hasDescription "Validate email addresses" ;
+
+    a2a:hasSystemPrompt """
+Validate email addresses against RFC 5322 standard.
+Check syntax, domain, and MX records.
+Support bulk validation.
+""" ;
+
+    a2a:hasValidationRule """
+- Email must match regex: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$
+- Domain must have valid MX records
+- Email length must be <= 254 characters
+- Local part must be <= 64 characters
+""" ;
+
+    a2a:hasTestExample """
+Input: { email: "user@example.com" }
+Output: { valid: true, domain: "example.com", mx_records: true }
+
+Input: { email: "invalid-email" }
+Output: { valid: false, error: "Invalid email format" }
+
+Input: { email: "user@nonexistent-domain.xyz" }
+Output: { valid: false, error: "No MX records found" }
+""" .
