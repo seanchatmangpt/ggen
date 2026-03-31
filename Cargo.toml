@@ -15,6 +15,7 @@ ggen is a deterministic, language-agnostic code generation framework that treats
 
 [workspace]
 members = [
+  # Core Pipeline (mu1-mu5)
   "crates/ggen-utils",
   "crates/ggen-cli",
   "crates/ggen-domain",
@@ -24,82 +25,44 @@ members = [
   "crates/ggen-config",
   "crates/ggen-cli-validation",
   "crates/ggen-config-clap",
-  "crates/ggen-test-audit",    # Feature 004: Test quality audit tooling
-  "crates/ggen-test-opt",      # Feature 004: Test optimization tooling
-  "crates/ggen-testing",       # Chicago TDD test infrastructure
-  "crates/ggen-e2e",           # Feature 011: End-to-end testing with testcontainers
-  "crates/ggen-poka-yoke",     # Poka-yoke error proofing mechanisms
-  "crates/ggen-node", "crates/ggen-macros",
-  "crates/ggen-workflow-43",   # van der Aalst's 43 workflow patterns implementation
-  "crates/ggen-execution",      # Common execution framework for semantic convergence
-  "crates/ggen-marketplace",   # Feature 013: Marketplace and integrations
-  "crates/ggen-api",           # RevOps: REST API layer for monetization
-  "crates/ggen-auth",          # RevOps: Authentication (OAuth2, JWT, API keys)
-  "crates/ggen-payments",      # RevOps: Payment processing (Stripe integration)
-  "crates/ggen-saas",          # RevOps: SaaS tier management and quota enforcement
-  "crates/ggen-ai",            # AI orchestration and multi-provider LLM integration (v5.1.0)
-  "crates/ggen-folk-strategy", # Folk strategy quantification from opportunity field dynamics
-  "crates/ggen-dod",           # Domain-driven design patterns (from origin/main)
-  "crates/ggen-ontology-core", # Ontology handling layer: RDF/TTL, SPARQL, entity mapping
-  # KNHK Systems Integration: ETL + KGC-4D + Workflow Engine
-  "crates/knhk-etl",           # Extract-Transform-Load pipeline
-  "crates/knhk-hot",           # C FFI hot-path optimization
-  "crates/knhk-connectors",    # Connector registry (Kafka, HTTP, etc.)
-  "crates/knhk-lockchain",     # Merkle-linked receipt storage
-  "crates/knhk-otel",          # OpenTelemetry integration
-  "crates/knhk-orchestrator",  # Integration bridge (ETL → KGC-4D → Workflow)
-  "crates/ggen-craftplan",     # RDF-driven Elixir code generation for Craftplan ERP
-  "crates/tps-reference",      # Toyota Production System reference implementation
-  "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
-  "crates/ggen-codegen",       # Generic code generation framework (extracted from ggen-yawl)
-  "crates/ggen-yawl",         # YAWL workflow generation from industry ontologies
-  "crates/ggen-process-mining", # Process mining integration with rust4pm (Alpha++, XES/OCEL)
-  "crates/a2a-generated",     # A2A-RS integration code generated from RDF ontology
-  "crates/ggen-a2a-mcp",      # A2A-MCP integration for ggen
-  "crates/ggen-a2a-registry",  # Multi-agent A2A orchestration registry
-  "crates/ggen-backpressure", # Backpressure and admission control (λ ≤ μ)
-  "crates/ggen-heijunka",    # Heijunka load leveling and smooth workload distribution
-  "crates/ggen-canonical",   # Deterministic canonicalization (Rust/JSON/RDF) with hash verification
-  "crates/ggen-jidoka",        # Jidoka gates and andon signal system for quality control
-  "crates/ggen-kaizen",        # Kaizen continuous improvement tracking with PDCA cycles
-  "crates/ggen-prompt-mfg",    # Prompt manufacturing via CONSTRUCT - deterministic compilation from RDF
-  "crates/ggen-packet",        # Packet discipline and work order types
-  "crates/ggen-receipt",       # Cryptographic receipt system with Ed25519 signatures
-  "crates/ggen-consensus",     # Byzantine consensus for receipt verification
-  "crates/ggen-a2a",           # A2A task state machine protocol
-  "crates/ggen-cli-tps",       # CLI commands for A2A/TPS operations
-  "crates/ggen-metrics-tps",   # A2A/TPS metrics collection and telemetry
-  "crates/ggen-marketplace-tps", # TPS: Marketplace/workspace economy integration with GCP and CLM
-  "crates/ggen-integration",   # Integration layer connecting all A2A/TPS systems
-  "crates/ggen-transport",     # MCP/A2A transport layer with streaming support
-  "crates/ggen-e2e-tps",       # End-to-end integration tests for A2A/TPS pipeline
-  "crates/tai-testing",        # Production hardening & resilience testing framework
-  "crates/tai-k8s",            # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
-  "crates/tai-validation",     # SLO/SLA validation, compliance framework, security scanning
+  "crates/ggen-test-audit",
+  "crates/ggen-test-opt",
+  "crates/ggen-testing",
+  "crates/ggen-e2e",
+  "crates/ggen-node",
+  "crates/ggen-macros",
+  # Ontology / RDF
+  "crates/ggen-ontology-core",
+  "crates/ggen-canonical",
+  "crates/ggen-receipt",
+  "crates/ggen-prompt-mfg",
+  "crates/ggen-codegen",
+  "crates/ggen-yawl",
+  "crates/ggen-craftplan",
+  "crates/ggen-process-mining",
+  # A2A / MCP Protocol
+  "crates/a2a-generated",
+  "crates/ggen-a2a",
+  "crates/ggen-a2a-mcp",
+  "crates/ggen-a2a-registry",
+  "crates/ggen-transport",
 ]
 exclude = [
   "examples/rust-cli-lifecycle",
-  "examples/a2a-agent-lifecycle", # Wave 4: Agent lifecycle - excluded for Docker builds (examples not in build context)
-  "examples/distributed-consensus", # Byzantine consensus - excluded for Docker builds
-  "examples/e2e-complete-system", # E2E Complete System - excluded for Docker builds
+  "examples/a2a-agent-lifecycle",
+  "examples/distributed-consensus",
+  "examples/e2e-complete-system",
   "examples/marketplace-demo/generated",
   "examples/gcp-erlang-autonomics",
-  "examples/api-endpoint",  # Wave 2: Standalone example with own Makefile
-  "examples/advanced-lifecycle-demo",  # Wave 2: Standalone example with own Makefile
+  "examples/api-endpoint",
+  "examples/advanced-lifecycle-demo",
   "marketplace/packages/workflow-engine-cli",
-  "crates/ggen-workflow",     # Requires Erlang NIF runtime - standalone build only
-  "crates/ggen-workflow/native",  # Native NIF crate - standalone build only
-  "crates/tps-kaizen",  # Temporarily excluded - has Cargo.toml syntax error
-  "crates/ggen-process-mining", # Temporarily excluded - has missing benchmark files
-  "crates/tai-gcp",  # Temporarily excluded - missing google-authz dependency
-  "crates/tai-security",  # Temporarily excluded - has dependency issues
-  "crates/tai-resilience",  # Temporarily excluded - has dependency issues
-  "crates/tai-cache",  # Temporarily excluded - has dependency issues
-  "crates/tai-grpc",  # Temporarily excluded - has dependency issues
-  "crates/tai-loadbalancer",  # Temporarily excluded - missing benchmark files
   "examples/a2a-groq-agent",
   "examples/a2a-rs-agents",
-  ]
+  # Migrated crates (now separate projects)
+  "crates/ggen-workflow",
+  "crates/ggen-workflow/native",
+]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
@@ -159,30 +122,14 @@ ggen-test-audit = { path = "crates/ggen-test-audit", version = "0.2.0" }
 ggen-test-opt = { path = "crates/ggen-test-opt", version = "0.2.0" }
 ggen-testing = { path = "crates/ggen-testing", version = "0.2.0" }
 ggen-e2e = { path = "crates/ggen-e2e", version = "0.2.0" }
-ggen-api = { path = "crates/ggen-api", version = "0.2.0" }
-ggen-auth = { path = "crates/ggen-auth", version = "0.2.0" }
-ggen-payments = { path = "crates/ggen-payments", version = "0.2.0" }
-ggen-saas = { path = "crates/ggen-saas", version = "0.2.0" }
 ggen-ai = { path = "crates/ggen-ai", version = "0.2.0" }
-ggen-folk-strategy = { path = "crates/ggen-folk-strategy", version = "0.2.0" }
-ggen-dod = { path = "crates/ggen-dod", version = "0.2.0" }
 ggen-ontology-core = { path = "crates/ggen-ontology-core", version = "0.2.0" }
 ggen-canonical = { path = "crates/ggen-canonical", version = "0.2.0" }
 ggen-receipt = { path = "crates/ggen-receipt", version = "0.2.0" }
-ggen-jidoka = { path = "crates/ggen-jidoka", version = "0.1.0" }
-ggen-packet = { path = "crates/ggen-packet", version = "0.1.0" }
-ggen-backpressure = { path = "crates/ggen-backpressure", version = "6.0.1" }
 ggen-a2a = { path = "crates/ggen-a2a", version = "6.0.1" }
 ggen-prompt-mfg = { path = "crates/ggen-prompt-mfg", version = "0.2.0" }
 
 # KNHK Systems (ETL + KGC-4D + Workflow Engine Integration)
-knhk-etl = { path = "crates/knhk-etl", version = "0.1.0" }
-knhk-hot = { path = "crates/knhk-hot", version = "1.0.0" }
-knhk-connectors = { path = "crates/knhk-connectors", version = "0.1.0" }
-knhk-lockchain = { path = "crates/knhk-lockchain", version = "0.1.0" }
-knhk-otel = { path = "crates/knhk-otel", version = "0.1.0" }
-knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "0.1.0" }
-
 # A2A Protocol Integration (Agent-to-Agent protocol) - using local a2a-generated
 # The vendor a2a-rs is for reference only - we use our generated types
 a2a-generated = { path = "crates/a2a-generated", version = "0.1.0" }
@@ -193,17 +140,10 @@ ggen-a2a-mcp = { path = "crates/ggen-a2a-mcp", version = "0.1.0" }
 # A2A Registry: Multi-agent orchestration registry
 ggen-a2a-registry = { path = "crates/ggen-a2a-registry", version = "0.1.0" }
 
-ggen-tps-andon = { path = "crates/ggen-tps-andon", version = "0.1.0" }
-ggen-heijunka = { path = "crates/ggen-heijunka", version = "6.0.1" }
-ggen-metrics-tps = { path = "crates/ggen-metrics-tps", version = "6.0.1" }
 ggen-transport = { path = "crates/ggen-transport", version = "6.0.1" }
 
 # TAI Testing: Production hardening & resilience testing framework
-tai-testing = { path = "crates/tai-testing", version = "0.1.0" }
-
 # TPS (Toyota Production System) Kaizen implementation (continuous improvement)
-tps-kaizen = { path = "crates/tps-kaizen", version = "0.1.0" }
-
 # ggen-craftplan: RDF-driven Elixir code generation
 ggen-craftplan = { path = "crates/ggen-craftplan", version = "0.1.0" }
 
@@ -217,20 +157,10 @@ ggen-yawl = { path = "crates/ggen-yawl", version = "0.1.0" }
 ggen-process-mining = { path = "crates/ggen-process-mining", version = "0.1.0" }
 
 # TAI Cache: Advanced caching with multi-tier strategies
-tai-cache = { path = "crates/tai-cache", version = "0.1.0" }
-
 # TAI gRPC: Service-to-service communication with advanced resilience patterns
-tai-grpc = { path = "crates/tai-grpc", version = "0.1.0" }
-
 # TAI Security: Vault, KMS, mTLS, secret rotation, encryption
-tai-security = { path = "crates/tai-security", version = "0.1.0" }
-
 # TAI Observability: Cloud Profiler, Trace, Monitoring
-tai-observability = { path = "crates/tai-observability", version = "0.1.0" }
-
 # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
-tai-k8s = { path = "crates/tai-k8s", version = "0.1.0" }
-
 # OpenTelemetry dependencies (make optional at crate level, not workspace level)
 opentelemetry = { version = "0.31" }
 opentelemetry-otlp = { version = "0.31", features = ["grpc-tonic"] }
@@ -631,7 +561,6 @@ serde_json = "1.0"
 tempfile = "3.23"
 anyhow = "1.0"
 ggen-domain = { path = "crates/ggen-domain" }
-knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "0.1.0" }
 ggen-yawl = { path = "crates/ggen-yawl", version = "0.1.0" }
 oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 # BDD testing framework
@@ -671,12 +600,7 @@ ggen-process-mining = { path = "crates/ggen-process-mining", version = "0.1.0" }
 # Cryptographic hashing for receipt tests
 sha2 = "0.10"
 # A2A/TPS System Benchmarks
-ggen-receipt.workspace = true
-ggen-jidoka.workspace = true
-ggen-packet.workspace = true
-ggen-backpressure.workspace = true
 ggen-a2a.workspace = true
-ggen-canonical.workspace = true
 regex = "1.12"
 validator = "0.19"
 ed25519-dalek = "2.1"
@@ -728,9 +652,6 @@ harness = false
 name = "conventions_performance"
 harness = false
 [[bench]]
-name = "marketplace_performance"
-harness = false
-[[bench]]
 name = "pipeline_performance"
 harness = false
 [[bench]]
@@ -749,24 +670,11 @@ harness = false
 name = "receipt_bench"
 harness = false
 [[bench]]
-name = "jidoka_bench"
-harness = false
-[[bench]]
-name = "packet_bench"
-harness = false
-[[bench]]
-name = "backpressure_bench"
-harness = false
-[[bench]]
 name = "a2a_bench"
 harness = false
 [[bench]]
 name = "canonical_bench"
 harness = false
-[[test]]
-name = "testcontainer_marketplace_git_hooks"
-path = "tests/integration/testcontainer_marketplace_git_hooks.rs"
-required-features = ["integration"]
 [[test]]
 name = "full_cycle_container_validation"
 path = "tests/integration/full_cycle_container_validation.rs"
@@ -774,14 +682,6 @@ required-features = ["integration"]
 [[test]]
 name = "nextjs_ontology_sync"
 path = "tests/integration/nextjs_ontology_sync.rs"
-required-features = ["integration"]
-[[test]]
-name = "marketplace_nextjs_ontology_e2e"
-path = "tests/integration/marketplace_nextjs_ontology_e2e.rs"
-required-features = ["integration"]
-[[test]]
-name = "marketplace_package_e2e"
-path = "tests/integration/marketplace_package_e2e.rs"
 required-features = ["integration"]
 [[test]]
 name = "lifecycle_tests"
@@ -853,31 +753,6 @@ name = "security_tests"
 path = "tests/security/mod.rs"
 required-features = ["integration"]
 # TPS Integration Tests
-[[test]]
-name = "tps_end_to_end_workflow"
-path = "tests/tps/end_to_end_workflow_tests.rs"
-required-features = ["integration"]
-[[test]]
-name = "tps_smoke_tests"
-path = "tests/tps/smoke_tests.rs"
-required-features = ["integration"]
-[[test]]
-name = "tps_regression_tests"
-path = "tests/tps/regression_tests.rs"
-required-features = ["integration"]
-[[test]]
-name = "tps_performance_regression"
-path = "tests/tps/performance_regression_tests.rs"
-required-features = ["integration"]
-[[test]]
-name = "tps_chaos_tests"
-path = "tests/tps/chaos_tests.rs"
-required-features = ["integration"]
-[[test]]
-name = "tps_test_data_generation"
-path = "tests/tps/test_data_generation.rs"
-required-features = ["integration"]
-# Transport layer tests
 [[test]]
 name = "registry_client_tests"
 path = "tests/transport/registry_client_tests.rs"

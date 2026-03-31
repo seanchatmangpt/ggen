@@ -46,7 +46,7 @@ futures.workspace = true
 ggen-utils.workspace = true
 ggen-core.workspace = true
 ggen-ai.workspace = true
-ggen-domain = { workspace = true, features = ["marketplace"] }
+ggen-domain = { workspace = true }
 ggen-a2a-mcp.workspace = true
 
 # Crate-specific dependencies

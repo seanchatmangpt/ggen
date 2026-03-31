@@ -15,7 +15,6 @@
 //! Domain logic is organized by functional area:
 //! - `ai` - AI operations (code analysis, generation)
 //! - `graph` - Graph operations (RDF loading, SPARQL queries)
-//! - `marketplace` - Marketplace operations (search, install, publish)
 //! - `template` - Template operations (generate, lint, render)
 //! - `project` - Project operations (create, generate, plan)
 //! - `rdf` - RDF metadata operations
@@ -34,7 +33,6 @@ pub mod environment;
 pub mod generation;
 pub mod graph;
 pub mod mape_k;
-pub mod marketplace;
 pub mod mcp_config;
 pub mod ontology;
 pub mod packs;
@@ -50,9 +48,6 @@ pub use audit::security::{
     SecurityScanResult, SecurityScanner, Severity, SeveritySummary, Vulnerability,
     VulnerableDependency,
 };
-
-// Re-export hook module from marketplace for test convenience
-pub use marketplace::hook;
 
 // AHI (Autonomic Hyper-Intelligence) subsystem
 pub mod ahi_contract;
