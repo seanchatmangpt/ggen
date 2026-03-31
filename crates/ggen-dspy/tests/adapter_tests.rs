@@ -2,7 +2,6 @@
 //!
 //! Tests organized by adapter type and functionality
 
-use ggen_ai::client::{GenAiClient, LlmConfig};
 use ggen_dspy::adapters::{
     AdapterWithFallback, ChatAdapter, Demonstration, JSONAdapter, LlmAdapter,
 };

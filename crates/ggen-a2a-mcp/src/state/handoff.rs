@@ -202,6 +202,12 @@ impl FiboConsistencyValidator {
     }
 }
 
+impl Default for FiboConsistencyValidator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[async_trait]
 impl HandoffValidator for FiboConsistencyValidator {
     #[instrument(skip(self, source, artifacts))]
@@ -306,6 +312,12 @@ pub struct ArbApprovalValidator;
 impl ArbApprovalValidator {
     pub fn new() -> Self {
         Self
+    }
+}
+
+impl Default for ArbApprovalValidator {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

@@ -258,7 +258,7 @@ fn extract_content_from_message(message: &ConvergedMessage) -> Result<String> {
     match &message.payload.content {
         UnifiedContent::Text { content, .. } => Ok(content.clone()),
         UnifiedContent::Data { data, .. } => {
-            serde_json::to_string_pretty(data).map_err(|e| DspyError::SerializationError(e))
+            serde_json::to_string_pretty(data).map_err(DspyError::SerializationError)
         }
         UnifiedContent::File { file, .. } => {
             if let Some(uri) = &file.uri {

@@ -227,7 +227,7 @@ console.log(solve());
         let file_path = temp_dir.join(&file_name);
 
         // Write code to file
-        std::fs::write(&file_path, code).map_err(|e| DspyError::IoError(e))?;
+        std::fs::write(&file_path, code).map_err(DspyError::IoError)?;
 
         // Execute code
         let output = Command::new(self.config.language.command())

@@ -8,13 +8,12 @@
 use ggen_ai::client::{GenAiClient, LlmClient, LlmConfig};
 use ggen_ai::providers::MockClient;
 use ggen_dspy::adapters::{
-    AdapterWithFallback, ChatAdapter, CompletionAdapter, CompletionRequest, Demonstration,
+    AdapterWithFallback, ChatAdapter, CompletionRequest, Demonstration,
     GgenAiAdapter, IntegratedAdapter, JSONAdapter, LlmAdapter, RetryConfig, TokenCounter,
-    TokenStats,
 };
 use ggen_dspy::error::DspyError;
 use proptest::prelude::*;
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
@@ -38,8 +37,10 @@ fn test_genai_client_initialization_default() {
 #[test]
 fn test_genai_client_initialization_custom_model() {
     // Arrange
-    let mut config = LlmConfig::default();
-    config.model = "gpt-4-turbo".to_string();
+    let config = LlmConfig {
+        model: "gpt-4-turbo".to_string(),
+        ..Default::default()
+    };
 
     // Act
     let client = GenAiClient::new(config.clone());
@@ -53,9 +54,11 @@ fn test_genai_client_initialization_custom_model() {
 #[test]
 fn test_genai_client_initialization_with_temperature() {
     // Arrange
-    let mut config = LlmConfig::default();
-    config.temperature = Some(0.9);
-    config.max_tokens = Some(2048);
+    let config = LlmConfig {
+        temperature: Some(0.9),
+        max_tokens: Some(2048),
+        ..Default::default()
+    };
 
     // Act
     let client = GenAiClient::new(config);
@@ -233,7 +236,7 @@ async fn test_integrated_adapter_with_json() {
         outputs.get("result").unwrap(),
         &Value::String("success".to_string())
     );
-    assert!(outputs.get("score").is_some());
+    assert!(outputs.contains_key("score"));
 }
 
 #[tokio::test]
@@ -1107,9 +1110,9 @@ proptest! {
         counter.add_usage(p2, c2, "model2".to_string());
 
         let stats = counter.get_stats();
-        prop_assert!(stats.prompt_tokens >= 0);
-        prop_assert!(stats.completion_tokens >= 0);
-        prop_assert!(stats.total_tokens >= 0);
+        prop_assert!(stats.prompt_tokens == p1 + p2);
+        prop_assert!(stats.completion_tokens == c1 + c2);
+        prop_assert!(stats.total_tokens == p1 + p2 + c1 + c2);
     }
 
     /// Property: ChatAdapter parse handles various whitespace
@@ -1143,7 +1146,7 @@ proptest! {
         }
         json_str.push_str("\"value\"");
         for _ in 0..depth {
-            json_str.push_str("}");
+            json_str.push('}');
         }
         json_str.push('}');
 
@@ -1359,5 +1362,5 @@ fn test_count_verification() {
     // Property tests: 10 (each runs 100+ cases)
     // Total effective coverage: 1000+ test scenarios
 
-    assert!(true, "Test suite contains 65+ comprehensive tests");
+    // Test suite contains 65+ comprehensive tests (verified by count above)
 }
