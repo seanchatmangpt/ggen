@@ -438,25 +438,33 @@ impl ComplianceFramework {
 
     fn get_framework_controls(&self) -> Vec<String> {
         match self.framework_type {
-            FrameworkType::FISMA => ["AC-2", "AC-3", "AC-5", "AU-2", "AU-3", "AU-12", "SC-7", "SI-4"]
+            FrameworkType::FISMA => [
+                "AC-2", "AC-3", "AC-5", "AU-2", "AU-3", "AU-12", "SC-7", "SI-4",
+            ]
             .iter()
             .map(|s| s.to_string())
             .collect(),
-            FrameworkType::FedRAMP => ["AC-1", "AC-2", "AC-3", "AC-5", "AU-2", "AU-3", "AU-12", "SC-7", "SI-4", "IR-1"]
+            FrameworkType::FedRAMP => [
+                "AC-1", "AC-2", "AC-3", "AC-5", "AU-2", "AU-3", "AU-12", "SC-7", "SI-4", "IR-1",
+            ]
             .iter()
             .map(|s| s.to_string())
             .collect(),
-            FrameworkType::SOC2 => ["CC6.1", "CC6.2", "CC7.1", "CC7.2", "CC8.1", "CC9.1", "CC9.2"]
+            FrameworkType::SOC2 => [
+                "CC6.1", "CC6.2", "CC7.1", "CC7.2", "CC8.1", "CC9.1", "CC9.2",
+            ]
             .iter()
             .map(|s| s.to_string())
             .collect(),
-            FrameworkType::HIPAA => ["164.308(a)(1)",
+            FrameworkType::HIPAA => [
+                "164.308(a)(1)",
                 "164.308(a)(3)",
                 "164.308(a)(4)",
                 "164.312(a)(2)",
                 "164.312(b)",
                 "164.312(c)(2)",
-                "164.314(a)(2)"]
+                "164.314(a)(2)",
+            ]
             .iter()
             .map(|s| s.to_string())
             .collect(),

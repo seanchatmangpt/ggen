@@ -43,8 +43,7 @@ pub struct UnifiedAgent {
 }
 
 /// Agent status with semantic convergence support
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub enum AgentStatus {
     #[default]
     Idle,
@@ -58,7 +57,6 @@ pub enum AgentStatus {
     Resuming,
     Unknown,
 }
-
 
 /// Agent configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -159,8 +157,7 @@ pub struct Task {
 }
 
 /// Task priority levels
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
-#[derive(Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub enum TaskPriority {
     Critical = 4,
     High = 3,
@@ -168,7 +165,6 @@ pub enum TaskPriority {
     Normal = 2,
     Low = 1,
 }
-
 
 /// Task execution status
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -238,8 +234,7 @@ pub enum MessageType {
 }
 
 /// Message priority levels
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
-#[derive(Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd, Default)]
 pub enum MessagePriority {
     Low = 1,
     #[default]
@@ -247,7 +242,6 @@ pub enum MessagePriority {
     High = 3,
     Critical = 4,
 }
-
 
 /// Unified payload structure
 #[derive(Debug, Clone, Serialize, Deserialize)]

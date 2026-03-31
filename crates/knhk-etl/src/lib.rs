@@ -1352,8 +1352,8 @@ pub mod integration;
 
 #[cfg(test)]
 mod tests {
-    use alloc::vec;
     use super::*;
+    use alloc::vec;
 
     #[test]
     fn test_pipeline_creation() {

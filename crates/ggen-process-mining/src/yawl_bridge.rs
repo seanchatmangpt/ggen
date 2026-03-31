@@ -591,7 +591,7 @@ mod tests {
         assert!(result.is_ok());
         let yawl = result.unwrap();
         assert!(yawl.contains("<specification"));
-        assert!(yawl.contains("A"));
+        assert!(yawl.contains('A'));
     }
 
     #[test]

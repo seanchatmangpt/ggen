@@ -9,7 +9,7 @@ use assert_cmd::Command;
 fn test_template_list() {
     Command::cargo_bin("ggen-cli-lib")
         .unwrap()
-        .args(&["template", "list"])
+        .args(["template", "list"])
         .assert()
         .success();
 }
