@@ -46,6 +46,8 @@ members = [
   "crates/ggen-a2a-mcp",
   "crates/ggen-a2a-registry",
   "crates/ggen-transport",
+  # Marketplace (kept in project)
+  "crates/ggen-marketplace",
 ]
 exclude = [
   "examples/rust-cli-lifecycle",
@@ -141,6 +143,8 @@ ggen-a2a-mcp = { path = "crates/ggen-a2a-mcp", version = "0.1.0" }
 ggen-a2a-registry = { path = "crates/ggen-a2a-registry", version = "0.1.0" }
 
 ggen-transport = { path = "crates/ggen-transport", version = "6.0.1" }
+
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "3.0.0" }
 
 # TAI Testing: Production hardening & resilience testing framework
 # TPS (Toyota Production System) Kaizen implementation (continuous improvement)
