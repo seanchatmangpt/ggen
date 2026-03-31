@@ -94,6 +94,14 @@ path = "src/bin/test_mcp_generate_sync.rs"
 name = "test_query_ontology"
 path = "src/bin/test_query_ontology.rs"
 
+[[example]]
+name = "mcp_validate_pipeline_client"
+path = "examples/mcp_validate_pipeline_client.rs"
+
+[[example]]
+name = "mcp_validate_pipeline_bin"
+path = "examples/mcp_validate_pipeline_bin.rs"
+
 [features]
 default = []
 live-groq = []

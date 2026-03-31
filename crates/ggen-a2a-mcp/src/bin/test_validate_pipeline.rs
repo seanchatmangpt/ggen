@@ -60,14 +60,14 @@ async fn main() -> anyhow::Result<()> {
 }
 
 async fn test_validate_pipeline(project_path: &PathBuf) -> anyhow::Result<String> {
-    use ggen_a2a_mcp::ggen_server::GgenMcpServer;
+    use ggen_a2a_mcp::ggen_server::{GgenMcpServer, ValidatePipelineParams};
     use rmcp::handler::server::wrapper::Parameters;
 
     // Create the MCP server instance
     let server = GgenMcpServer::new();
 
     // Create parameters for validate_pipeline
-    let params = ggen_a2a_mcp::ggen_server::ValidatePipelineParams {
+    let params = ValidatePipelineParams {
         project_path: project_path.to_string_lossy().to_string(),
     };
 
