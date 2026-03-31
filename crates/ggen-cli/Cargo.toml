@@ -119,16 +119,6 @@ path = "tests/integration_cli_ux_e2e.rs"
 required-features = ["integration"]
 
 [[test]]
-name = "marketplace_search_chicago_tdd"
-path = "tests/marketplace_search_chicago_tdd.rs"
-required-features = ["integration"]
-
-[[test]]
-name = "packs_phase2_comprehensive"
-path = "tests/packs_phase2_comprehensive.rs"
-required-features = ["integration"]
-
-[[test]]
 name = "template_integration_test"
 path = "tests/template_integration_test.rs"
 required-features = ["integration"]
@@ -153,12 +143,6 @@ name = "e2e"
 path = "tests/e2e.rs"
 required-features = ["integration"]
 
-# [[test]]
-# name = "marketplace_install_e2e"
-# path = "tests/marketplace_install_e2e.rs"
-# required-features = ["integration"]
-# DISABLED: Tests internal types not exported from ggen-cli-lib
-
 [[test]]
 name = "integration_cli_wrappers"
 path = "tests/integration_cli_wrappers.rs"
@@ -174,10 +158,3 @@ name = "sync_tests"
 path = "tests/sync_tests.rs"
 required-features = ["integration"]
 
-[[bench]]
-name = "marketplace_benchmark"
-harness = false
-
-[[bench]]
-name = "packs_phase2_3_benchmarks"
-harness = false
