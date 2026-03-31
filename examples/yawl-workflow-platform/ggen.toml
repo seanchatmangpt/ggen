@@ -130,7 +130,7 @@ GROUP BY ?specId ?specName ?specVersion ?specComment ?inputCondition ?outputCond
 ORDER BY ?specId
 """ }
 template = { file = "templates/yawl-spec.tera" }
-output_file = "generated/workflows/{{ specId }}.yawl"
+output_file = "workflows/{{ specId }}.yawl"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------

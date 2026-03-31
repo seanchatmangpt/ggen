@@ -22,7 +22,7 @@ xsd = "http://www.w3.org/2001/XMLSchema#"
 rules = []
 
 [generation]
-output_dir = "generated"
+output_dir = "."
 
 # =============================================================================
 # RULE 1: Project README

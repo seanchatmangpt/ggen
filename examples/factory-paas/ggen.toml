@@ -24,7 +24,7 @@ imports = [
 ]
 
 [generation]
-output_dir = "world"
+output_dir = "."
 
 # ============================================================================
 # RUST DOMAIN MODEL GENERATION
@@ -35,63 +35,63 @@ name = "rust_entities"
 description = "Generate Rust entity structs"
 query = { file = "queries/entities.sparql" }
 template = { file = "templates/rust_entities.rs.tera" }
-output_file = "world/src/entities.rs"
+output_file = "src/entities.rs"
 
 [[generation.rules]]
 name = "rust_commands"
 description = "Generate Rust command enums"
 query = { file = "queries/commands.sparql" }
 template = { file = "templates/rust_commands.rs.tera" }
-output_file = "world/src/commands.rs"
+output_file = "src/commands.rs"
 
 [[generation.rules]]
 name = "rust_events"
 description = "Generate Rust event enums"
 query = { file = "queries/events.sparql" }
 template = { file = "templates/rust_events.rs.tera" }
-output_file = "world/src/events.rs"
+output_file = "src/events.rs"
 
 [[generation.rules]]
 name = "rust_aggregates"
 description = "Generate Rust aggregate logic"
 query = { file = "queries/aggregates.sparql" }
 template = { file = "templates/rust_aggregates.rs.tera" }
-output_file = "world/src/aggregates.rs"
+output_file = "src/aggregates.rs"
 
 [[generation.rules]]
 name = "rust_handlers"
 description = "Generate command handlers"
 query = { file = "queries/handlers.sparql" }
 template = { file = "templates/rust_handlers.rs.tera" }
-output_file = "world/src/handlers.rs"
+output_file = "src/handlers.rs"
 
 [[generation.rules]]
 name = "rust_routes"
 description = "Generate HTTP routes (Axum)"
 query = { file = "queries/routes.sparql" }
 template = { file = "templates/rust_routes.rs.tera" }
-output_file = "world/src/routes.rs"
+output_file = "src/routes.rs"
 
 [[generation.rules]]
 name = "rust_lib"
 description = "Generate lib.rs module exports"
 query = { file = "queries/modules.sparql" }
 template = { file = "templates/rust_lib.rs.tera" }
-output_file = "world/src/lib.rs"
+output_file = "src/lib.rs"
 
 [[generation.rules]]
 name = "saas_handlers"
 description = "Generate SaaS revenue handlers"
 query = { file = "queries/saas_commands.sparql" }
 template = { file = "templates/saas_handlers.rs.tera" }
-output_file = "world/src/saas_handlers.rs"
+output_file = "src/saas_handlers.rs"
 
 [[generation.rules]]
 name = "saas_webhook_routes"
 description = "Generate SaaS webhook routes"
 query = { file = "queries/saas_commands.sparql" }
 template = { file = "templates/saas_webhook_routes.rs.tera" }
-output_file = "world/src/saas_webhook_routes.rs"
+output_file = "src/saas_webhook_routes.rs"
 
 # ============================================================================
 # AFFILIATE ROUTING SYSTEM
@@ -102,28 +102,28 @@ name = "rust_routing_resolver"
 description = "Generate route resolver with zero-alloc cache"
 query = { file = "queries/routing_entities.sparql" }
 template = { file = "templates/rust_routing_resolver.rs.tera" }
-output_file = "world/src/routing.rs"
+output_file = "src/routing.rs"
 
 [[generation.rules]]
 name = "rust_click_tracker"
 description = "Generate click tracker with cryptographic receipts"
 query = { file = "queries/routing_entities.sparql" }
 template = { file = "templates/rust_click_tracker.rs.tera" }
-output_file = "world/src/click_tracker.rs"
+output_file = "src/click_tracker.rs"
 
 [[generation.rules]]
 name = "rust_routing_handlers"
 description = "Generate HTTP handlers for routing endpoints"
 query = { file = "queries/routing.sparql" }
 template = { file = "templates/rust_routing_handlers.rs.tera" }
-output_file = "world/src/routing_handlers.rs"
+output_file = "src/routing_handlers.rs"
 
 [[generation.rules]]
 name = "routing_property_tests"
 description = "Generate property tests for routing invariants"
 query = { file = "queries/routing_entities.sparql" }
 template = { file = "templates/routing_property_tests.rs.tera" }
-output_file = "world/tests/routing_property_tests.rs"
+output_file = "tests/routing_property_tests.rs"
 
 # ============================================================================
 # RUST BUILD CONFIGURATION
@@ -134,7 +134,7 @@ name = "cargo_toml"
 description = "Generate Cargo.toml manifest"
 query = { file = "queries/cargo.sparql" }
 template = { file = "templates/cargo_toml.tera" }
-output_file = "world/Cargo.toml"
+output_file = "Cargo.toml"
 
 # ============================================================================
 # INFRASTRUCTURE (TERRAFORM)
@@ -145,21 +145,21 @@ name = "terraform_main"
 description = "Generate main Terraform configuration"
 query = { file = "queries/infra.sparql" }
 template = { file = "templates/terraform_main.tf.tera" }
-output_file = "world/infra/main.tf"
+output_file = "infra/main.tf"
 
 [[generation.rules]]
 name = "terraform_variables"
 description = "Generate Terraform variables"
 query = { file = "queries/infra.sparql" }
 template = { file = "templates/terraform_variables.tf.tera" }
-output_file = "world/infra/variables.tf"
+output_file = "infra/variables.tf"
 
 [[generation.rules]]
 name = "terraform_outputs"
 description = "Generate Terraform outputs"
 query = { file = "queries/infra.sparql" }
 template = { file = "templates/terraform_outputs.tf.tera" }
-output_file = "world/infra/outputs.tf"
+output_file = "infra/outputs.tf"
 
 # ============================================================================
 # WORLD CLOSURE (RUN SCRIPTS)
@@ -170,28 +170,28 @@ name = "run_up"
 description = "Generate world/run/up script"
 query = { file = "queries/closure.sparql" }
 template = { file = "templates/run_up.sh.tera" }
-output_file = "world/run/up"
+output_file = "run/up"
 
 [[generation.rules]]
 name = "run_down"
 description = "Generate world/run/down script"
 query = { file = "queries/closure.sparql" }
 template = { file = "templates/run_down.sh.tera" }
-output_file = "world/run/down"
+output_file = "run/down"
 
 [[generation.rules]]
 name = "run_status"
 description = "Generate world/run/status script"
 query = { file = "queries/closure.sparql" }
 template = { file = "templates/run_status.sh.tera" }
-output_file = "world/run/status"
+output_file = "run/status"
 
 [[generation.rules]]
 name = "run_verify"
 description = "Generate world/run/verify script"
 query = { file = "queries/closure.sparql" }
 template = { file = "templates/run_verify.sh.tera" }
-output_file = "world/run/verify"
+output_file = "run/verify"
 
 # ============================================================================
 # C4 DIAGRAMS
@@ -202,21 +202,21 @@ name = "c4_context"
 description = "Generate C4 Context diagram"
 query = { file = "queries/c4_context.sparql" }
 template = { file = "templates/c4_context.mmd.tera" }
-output_file = "world/docs/c4/c1-context.mmd"
+output_file = "docs/c4/c1-context.mmd"
 
 [[generation.rules]]
 name = "c4_containers"
 description = "Generate C4 Container diagram"
 query = { file = "queries/c4_containers.sparql" }
 template = { file = "templates/c4_containers.mmd.tera" }
-output_file = "world/docs/c4/c2-containers.mmd"
+output_file = "docs/c4/c2-containers.mmd"
 
 [[generation.rules]]
 name = "c4_components"
 description = "Generate C4 Component diagram"
 query = { file = "queries/c4_components.sparql" }
 template = { file = "templates/c4_components.mmd.tera" }
-output_file = "world/docs/c4/c3-components.mmd"
+output_file = "docs/c4/c3-components.mmd"
 
 # ============================================================================
 # TOGAF OUTPUTS
@@ -227,14 +227,14 @@ name = "togaf_building_blocks"
 description = "Generate TOGAF Building Blocks catalog"
 query = { file = "queries/togaf_building_blocks.sparql" }
 template = { file = "templates/togaf_building_blocks.md.tera" }
-output_file = "world/docs/togaf/building-blocks.md"
+output_file = "docs/togaf/building-blocks.md"
 
 [[generation.rules]]
 name = "togaf_realization_matrix"
 description = "Generate ABB->SBB realization matrix"
 query = { file = "queries/togaf_realization.sparql" }
 template = { file = "templates/togaf_realization.md.tera" }
-output_file = "world/docs/togaf/realization-matrix.md"
+output_file = "docs/togaf/realization-matrix.md"
 
 # ============================================================================
 # RECEIPTS SCHEMA
@@ -245,7 +245,7 @@ name = "receipts_schema"
 description = "Generate receipts schema"
 query = { file = "queries/receipts.sparql" }
 template = { file = "templates/receipts_schema.rs.tera" }
-output_file = "world/src/receipts.rs"
+output_file = "src/receipts.rs"
 
 # ============================================================================
 # TESTS
@@ -256,11 +256,11 @@ name = "property_tests"
 description = "Generate property-based tests"
 query = { file = "queries/properties.sparql" }
 template = { file = "templates/property_tests.rs.tera" }
-output_file = "world/tests/property_tests.rs"
+output_file = "tests/property_tests.rs"
 
 [[generation.rules]]
 name = "integration_tests"
 description = "Generate integration tests"
 query = { file = "queries/integration.sparql" }
 template = { file = "templates/integration_tests.rs.tera" }
-output_file = "world/tests/integration_tests.rs"
+output_file = "tests/integration_tests.rs"

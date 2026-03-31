@@ -11,7 +11,7 @@ license = "MIT"
 # Templates for CLI code generation
 [templates]
 source_dir = "../../templates/cli"
-output_dir = "src/generated"
+output_dir = "src"
 
 [templates.rust]
 style = "core-team"

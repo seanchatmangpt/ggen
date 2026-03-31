@@ -21,7 +21,7 @@ owl = "http://www.w3.org/2002/07/owl#"
 rules = []
 
 [generation]
-output_dir = "generated"
+output_dir = "."
 require_audit_trail = true
 
 # =============================================================================

@@ -26,7 +26,7 @@ WHERE {
 }
 """ }
 template = { file = "templates/workspace-toml.tera" }
-output_file = "generated/Cargo.toml"
+output_file = "Cargo.toml"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -42,7 +42,7 @@ WHERE {
 }
 """ }
 template = { file = "templates/crate-toml.tera" }
-output_file = "generated/{{ crateName }}/Cargo.toml"
+output_file = "{{ crateName }}/Cargo.toml"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -57,7 +57,7 @@ WHERE {
 }
 """ }
 template = { file = "templates/makefile.tera" }
-output_file = "generated/Makefile"
+output_file = "Makefile"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -71,7 +71,7 @@ WHERE {
 }
 """ }
 template = { file = "templates/ci-workflow.tera" }
-output_file = "generated/.github/workflows/ci.yml"
+output_file = ".github/workflows/ci.yml"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -87,7 +87,7 @@ WHERE {
 }
 """ }
 template = { file = "templates/architecture.tera" }
-output_file = "generated/ARCHITECTURE.md"
+output_file = "ARCHITECTURE.md"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -102,7 +102,7 @@ WHERE {
 }
 """ }
 template = { file = "templates/build-guide.tera" }
-output_file = "generated/BUILD.md"
+output_file = "BUILD.md"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -117,7 +117,7 @@ WHERE {
 }
 """ }
 template = { file = "templates/deployment.tera" }
-output_file = "generated/DEPLOYMENT.md"
+output_file = "DEPLOYMENT.md"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -132,7 +132,7 @@ WHERE {
 }
 """ }
 template = { file = "templates/docker-compose.tera" }
-output_file = "generated/docker-compose.yml"
+output_file = "docker-compose.yml"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -147,7 +147,7 @@ WHERE {
 }
 """ }
 template = { file = "templates/docs-index.tera" }
-output_file = "generated/docs/index.md"
+output_file = "docs/index.md"
 mode = "Overwrite"
 
 [validation]

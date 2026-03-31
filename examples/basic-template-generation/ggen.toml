@@ -56,7 +56,7 @@ WHERE {
 ORDER BY ?module_name
 """ }
 template = { file = "templates/rust-module.tera" }
-output_file = "generated/{{ module_name }}.rs"
+output_file = "{{ module_name }}.rs"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -78,7 +78,7 @@ WHERE {
 ORDER BY ?struct_name
 """ }
 template = { file = "templates/rust-struct.tera" }
-output_file = "generated/{{ struct_name }}.rs"
+output_file = "{{ struct_name }}.rs"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -98,7 +98,7 @@ WHERE {
 ORDER BY ?name
 """ }
 template = { file = "templates/documentation.tera" }
-output_file = "generated/TEMPLATE_GUIDE.md"
+output_file = "TEMPLATE_GUIDE.md"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -117,7 +117,7 @@ WHERE {
 ORDER BY ?moduleName ?testName
 """ }
 template = { file = "templates/tests.tera" }
-output_file = "generated/tests.rs"
+output_file = "tests.rs"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -136,7 +136,7 @@ WHERE {
 ORDER BY ?filterName
 """ }
 template = { file = "templates/filters-reference.tera" }
-output_file = "generated/FILTERS_REFERENCE.md"
+output_file = "FILTERS_REFERENCE.md"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -155,7 +155,7 @@ WHERE {
 ORDER BY ?typeName
 """ }
 template = { file = "templates/variable-types.tera" }
-output_file = "generated/VARIABLE_TYPES.md"
+output_file = "VARIABLE_TYPES.md"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -174,7 +174,7 @@ WHERE {
 ORDER BY ?exampleName
 """ }
 template = { file = "templates/frontmatter-examples.tera" }
-output_file = "generated/FRONTMATTER_EXAMPLES.md"
+output_file = "FRONTMATTER_EXAMPLES.md"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -194,7 +194,7 @@ WHERE {
 ORDER BY ?syntaxCategory ?syntaxName
 """ }
 template = { file = "templates/tera-syntax-guide.tera" }
-output_file = "generated/TERA_SYNTAX_GUIDE.md"
+output_file = "TERA_SYNTAX_GUIDE.md"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -213,7 +213,7 @@ WHERE {
 ORDER BY ?errorCategory ?errorName
 """ }
 template = { file = "templates/troubleshooting-guide.tera" }
-output_file = "generated/TROUBLESHOOTING.md"
+output_file = "TROUBLESHOOTING.md"
 mode = "Overwrite"
 
 # Validation configuration
