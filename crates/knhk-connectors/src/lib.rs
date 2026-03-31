@@ -488,7 +488,7 @@ mod tests {
 
     #[test]
     fn test_connector_registry() {
-        let mut registry = ConnectorRegistry::new();
+        let registry = ConnectorRegistry::new();
         assert_eq!(registry.list().len(), 0);
     }
 

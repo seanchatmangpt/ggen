@@ -8,8 +8,7 @@ use axum::{
     Json,
 };
 use ggen_auth::{
-    authorize, Permission, PolicyEngine, Resource, ResourceOwner,
-    ResourceType, Role, RoleHierarchy,
+    authorize, Permission, PolicyEngine, Resource, ResourceOwner, ResourceType, Role, RoleHierarchy,
 };
 use serde::Serialize;
 

@@ -331,17 +331,6 @@ impl SimpleTimer {
     }
 }
 
-/// Macro for easy performance timing
-#[macro_export]
-macro_rules! time_operation {
-    ($name:expr, $block:block) => {{
-        let _timer = $crate::simple_tracing::SimpleTimer::start($name);
-        let result = $block;
-        _timer.finish();
-        result
-    }};
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

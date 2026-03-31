@@ -1,4 +1,5 @@
 #![allow(missing_docs)]
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use ggen_cli_tps::error::CliError;
 
@@ -26,6 +27,7 @@ fn test_cli_error_display() {
 #[test]
 fn test_result_type_alias() {
     let success: ggen_cli_tps::Result<i32> = Ok(42);
+    assert!(success.is_ok());
     assert_eq!(success.unwrap(), 42);
 
     let failure: ggen_cli_tps::Result<i32> = Err(CliError::Unknown("test".to_string()));

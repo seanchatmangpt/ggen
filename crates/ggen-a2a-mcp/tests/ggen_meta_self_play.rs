@@ -41,7 +41,7 @@ async fn start_server() -> anyhow::Result<RunningService<RoleClient, TestClientH
         let _ = server.serve(server_transport).await;
     });
 
-    let client = TestClientHandler::default().serve(client_transport).await?;
+    let client = TestClientHandler.serve(client_transport).await?;
     Ok(client)
 }
 

@@ -104,7 +104,7 @@ impl FileWatcher {
         for path in &self.watch_paths {
             if !path.exists() {
                 return Err(Error::new(&format!(
-                    "Watch path does not exist: {}",
+                    "error[E0009]: Watch path does not exist\n  --> path: '{}'\n  |\n  = help: Create the directory or update ggen.toml to remove from watch list\n  = help: Watch paths are collected from: ontology.source, ontology.imports, and generation.rules[].query",
                     path.display()
                 )));
             }
@@ -211,7 +211,9 @@ impl FileWatcher {
             Ok(event) => Ok(Some(event)),
             Err(std::sync::mpsc::RecvTimeoutError::Timeout) => Ok(None),
             Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
-                Err(Error::new("Watch channel disconnected"))
+                Err(Error::new(
+                    "error[E0007]: Watch system stopped unexpectedly\n  |\n  = help: This usually indicates a crash in the watch thread\n  = help: Check logs above for panic or error messages\n  = help: Try restarting: ggen sync --watch\n  = help: If issue persists, run without --watch to debug",
+                ))
             }
         }
     }
