@@ -1,0 +1,81 @@
+# DLSS Black Belt Curriculum Package
+# Design for Lean Six Sigma (DLSS) Black Belt certification curriculum following DMEDI methodology
+# 53 modules across 5 phases with real-world examples, statistical datasets, exercises, and capstone project
+
+[package]
+name = "dlss-curriculum"
+full_name = "design-for-lean-six-sigma-black-belt-curriculum"
+version = "1.0.0"
+description = "Design for Lean Six Sigma (DLSS) Black Belt certification curriculum following DMEDI methodology. 53 modules across 5 phases with real-world examples, statistical datasets, exercises, and capstone project."
+category = "education"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/dlss-curriculum"
+license = "MIT"
+dependencies = []
+features = [
+    "Complete DMEDI methodology (Define, Measure, Explore, Develop, Implement)",
+    "53 modules with learning objectives and Bloom's taxonomy alignment",
+    "Two-track examples (Product Development + New Process Design)",
+    "Statistical datasets with Minitab/JMP/R integration",
+    "Quality checkpoints and assessment criteria",
+    "DMEDI Capstone project with three scenario options",
+    "SHACL validation for curriculum consistency",
+    "Multi-format output (Markdown, HTML, PDF)",
+    "Diataxis framework for learning-oriented content",
+    "Instructor guides with timing and resource allocation",
+    "Student workbooks with readings and exercises"
+]
+tags = ["dlss", "six-sigma", "black-belt", "dmadi", "curriculum", "education", "quality", "lean"]
+keywords = ["design-for-lean-six-sigma", "black-belt", "dmadi", "qfd", "doe", "anova", "triz", "robust-design", "rsm"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/dlss-curriculum"
+source_path = "marketplace/packages/dlss-curriculum"
+
+# Template files to copy
+[files]
+"package.toml" = "package.toml"
+"ontology.ttl" = "ontology.ttl"
+"instances.ttl" = "instances.ttl"
+"shapes.ttl" = "shapes.ttl"
+
+# Variables for template substitution
+[variables]
+course_title = { type = "string", required = true, description = "Course title" }
+course_duration = { type = "string", default = "2 weeks", description = "Course duration" }
+target_audience = { type = "string", default = "Engineering professionals", description = "Target audience" }
+output_format = { type = "string", default = "markdown", description = "Output format (markdown, html, pdf)" }
+include_datasets = { type = "boolean", default = true, description = "Include statistical datasets" }
+include_exercises = { type = "boolean", default = true, description = "Include exercises with solutions" }
+
+# Examples
+[examples]
+basic = """
+# Install the DLSS curriculum package
+ggen market install dlss-curriculum
+
+# Generate course syllabus
+ggen template generate dlss-curriculum/templates/dlss/syllabus.tera
+
+# View module index
+ggen template generate dlss-curriculum/templates/dlss/module-index.tera
+"""
+
+advanced = """
+# Generate full curriculum with all modules
+ggen sync --ontology marketplace/packages/dlss-curriculum/ontology.ttl \
+  --queries marketplace/packages/dlss-curriculum/queries/ \
+  --output marketplace/packages/dlss-curriculum/output/
+
+# Validate curriculum with SHACL
+ggen validate marketplace/packages/dlss-curriculum/shapes.ttl
+"""
+
+# Documentation
+[docs]
+quick_start = "DLSS Black Belt curriculum: 53 modules across 5 DMEDI phases with two-track examples, statistical datasets, and capstone project"
+features = "DMEDI methodology, QFD, DOE, ANOVA, TRIZ, Robust Design, RSM, Lean Design, DfM, Reliability, Process Capability"
+use_cases = "Black Belt certification training, engineering team skill development, quality improvement programs, process optimization"

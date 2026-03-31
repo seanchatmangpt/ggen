@@ -1,3 +1,5 @@
+//! # SECURITY WARNING: This module is demo scaffolding. It performs NO real authentication or authorization. DO NOT deploy to production.
+//!
 //! OAuth2 provider integration
 
 use crate::AuthResult;

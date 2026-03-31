@@ -14,8 +14,11 @@ a2a-generated = { path = "../a2a-generated" }
 # ggen-ai for LLM provider integration
 ggen-ai = { path = "../ggen-ai" }
 
-# genai for LLM client integration
-genai = "0.1"
+# ggen-core for code-generation pipeline
+ggen-core.workspace = true
+
+# ggen-domain for marketplace search
+ggen-domain.workspace = true
 
 # Core dependencies
 tokio = { workspace = true }
@@ -30,15 +33,82 @@ tracing = { workspace = true }
 url = "2.4"
 futures = "0.3"
 
+# HTTP server dependencies
+axum = "0.7"
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+
 # RMCP - Official Model Context Protocol Rust SDK
 rmcp = { version = "1.3.0", features = ["server", "macros", "transport-io"] }
 schemars = "1.0"
 oxigraph = { workspace = true }
+regex = "1.10"
+
+# OpenTelemetry (optional - only for OTLP export in tests)
+opentelemetry = { workspace = true, optional = true }
+opentelemetry-otlp = { workspace = true, optional = true }
+opentelemetry_sdk = { workspace = true, optional = true }
+tracing-opentelemetry = { workspace = true, optional = true }
 
 [dev-dependencies]
 rmcp = { version = "1.3.0", features = ["server", "client", "macros", "transport-io"] }
+a2a-generated = { path = "../a2a-generated" }
 anyhow = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
+criterion = { version = "0.7", features = ["html_reports", "async_tokio"] }
+proptest = { workspace = true }
+tempfile = "3"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+rand = "0.8"
+tonic = { workspace = true }
+reqwest = { version = "0.12", features = ["json"] }
+
+[[bench]]
+name = "mcp_tool_benchmarks"
+harness = false
+
+[[bench]]
+name = "mcp_stress_tests"
+harness = false
+
+[[bench]]
+name = "mcp_a2a_stress_benchmarks"
+harness = false
+
+[[bench]]
+name = "a2a_lifecycle_benchmarks"
+harness = false
+
+[[bench]]
+name = "groq_integration_benchmarks"
+harness = false
+
+[[bin]]
+name = "test_validate_pipeline"
+path = "src/bin/test_validate_pipeline.rs"
+
+[[bin]]
+name = "test_mcp_generate_sync"
+path = "src/bin/test_mcp_generate_sync.rs"
+
+[[bin]]
+name = "test_query_ontology"
+path = "src/bin/test_query_ontology.rs"
+
+[[example]]
+name = "mcp_validate_pipeline_client"
+path = "examples/mcp_validate_pipeline_client.rs"
+
+[[example]]
+name = "mcp_validate_pipeline_bin"
+path = "examples/mcp_validate_pipeline_bin.rs"
 
 [features]
 default = []
+live-groq = []
+# OpenTelemetry OTLP export for live-check validation
+otel = [
+  "dep:opentelemetry",
+  "dep:opentelemetry-otlp",
+  "dep:opentelemetry_sdk",
+  "dep:tracing-opentelemetry",
+]

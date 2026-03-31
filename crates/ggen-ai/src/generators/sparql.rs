@@ -4,9 +4,57 @@ use crate::client::{LlmClient, LlmConfig};
 use crate::error::Result;
 use crate::prompts::SparqlPromptBuilder;
 use futures::StreamExt;
-use ggen_core::Graph;
 use serde_json::Value;
 use std::sync::Arc;
+
+/// Trait for types that can provide schema information for SPARQL generation
+///
+/// This trait allows `SparqlGenerator` to work with different graph implementations
+/// without creating a cyclic dependency on `ggen_core::Graph`.
+pub trait GraphSchema {
+    /// Get the size of the graph (for context in prompt generation)
+    fn len(&self) -> usize;
+
+    /// Check if the graph is empty
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    /// Get schema description (for LLM prompts)
+    fn schema_description(&self) -> String {
+        if self.is_empty() {
+            "Empty graph".to_string()
+        } else {
+            format!("Graph with {} triples", self.len())
+        }
+    }
+}
+
+/// Test-only stub Graph implementation for SPARQL generator tests
+///
+/// **NOTE**: This is a minimal stub for testing purposes only. Real applications
+/// should use `ggen_core::Graph` which implements the `GraphSchema` trait.
+///
+/// The stub exists to avoid cyclic dependency: ggen-ai → ggen-core → ggen-ai.
+#[derive(Debug, Clone)]
+pub struct Graph;
+
+impl Graph {
+    /// Create a new test-only stub graph
+    pub fn new() -> Result<Self> {
+        Ok(Graph)
+    }
+}
+
+impl GraphSchema for Graph {
+    fn len(&self) -> usize {
+        0 // Stub always returns empty
+    }
+
+    fn schema_description(&self) -> String {
+        "Test stub graph (empty)".to_string()
+    }
+}
 
 /// AI-powered SPARQL query generator
 #[derive(Debug)]
@@ -31,10 +79,13 @@ impl SparqlGenerator {
     }
 
     /// Generate a SPARQL query from a natural language description
-    pub async fn generate_query(&self, _graph: &Graph, intent: &str) -> Result<String> {
+    ///
+    /// The `graph` parameter provides schema context for query generation.
+    /// It can be any type implementing `GraphSchema`, including `ggen_core::Graph`.
+    pub async fn generate_query<G: GraphSchema>(&self, graph: &G, intent: &str) -> Result<String> {
         // Build prompt with graph schema and intent
         let prompt = SparqlPromptBuilder::new(intent.to_string())
-            .with_schema("Graph schema not available".to_string())
+            .with_schema(graph.schema_description())
             .with_prefixes(vec![])
             .build()?;
 
@@ -45,15 +96,18 @@ impl SparqlGenerator {
     }
 
     /// Stream SPARQL query generation from a natural language description
-    pub async fn stream_sparql(
-        &self, graph: &Graph, intent: &str, prefixes: &[(&str, &str)],
+    ///
+    /// The `graph` parameter provides schema context for query generation.
+    /// It can be any type implementing `GraphSchema`, including `ggen_core::Graph`.
+    pub async fn stream_sparql<G: GraphSchema>(
+        &self, graph: &G, intent: &str, prefixes: &[(&str, &str)],
     ) -> Result<futures::stream::BoxStream<'static, Result<String>>> {
         let prefix_vec: Vec<(String, String)> = prefixes
             .iter()
             .map(|(k, v)| (k.to_string(), v.to_string()))
             .collect();
         let prompt = SparqlPromptBuilder::new(intent.to_string())
-            .with_schema(format!("Graph with {} triples", graph.len()))
+            .with_schema(graph.schema_description())
             .with_prefixes(prefix_vec)
             .build()?;
 

@@ -25,6 +25,18 @@
       "env": {
         "OXIGRAPH_PORT": "7878"
       }
+    },
+    "weaver-registry": {
+      "command": "weaver",
+      "args": ["registry", "mcp", "--registry", "semconv/model"],
+      "env": {}
+    },
+    "ggen": {
+      "command": "cargo",
+      "args": ["run", "-p", "ggen-cli", "--", "mcp", "start-server", "--transport", "stdio"],
+      "env": {
+        "RUST_LOG": "info"
+      }
     }
   },
   "description": "MCP (Model Context Protocol) servers for enhanced Claude Code capabilities",

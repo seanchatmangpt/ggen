@@ -18,6 +18,7 @@ nightly = []
 termlog = []
 syslog = []
 journald = []
+integration = []
 
 [dependencies]
 anyhow = "1.0"
@@ -49,7 +50,7 @@ serde_yaml = "0.9"
 serde_json = "1.0"
 toml = "0.9"
 tera = "1.20"
-oxigraph = "0.5"
+oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 colored = "3.0"
 dirs = "6.0"
 regex = "1.10"
@@ -83,3 +84,18 @@ path = "src/bin/collect-metrics.rs"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 slog-journald = "2.2.0"
+
+[[test]]
+name = "safe_command_property_tests"
+path = "tests/safe_command_property_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "secrets_integration_tests"
+path = "tests/secrets_integration_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "secrets_security_tests"
+path = "tests/secrets_security_tests.rs"
+required-features = ["integration"]

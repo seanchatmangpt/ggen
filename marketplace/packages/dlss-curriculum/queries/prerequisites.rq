@@ -1,0 +1,17 @@
+# Prerequisites Query
+# Extracts prerequisite chains — for each module, lists what modules must be completed first.
+# Output: moduleCode, moduleTitle, prerequisiteCode, prerequisiteTitle.
+
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?moduleCode ?moduleTitle ?prerequisiteCode ?prerequisiteTitle
+WHERE {
+  ?module a dlss:Module ;
+    dlss:code ?moduleCode ;
+    dlss:title ?moduleTitle ;
+    dlss:prerequisite ?prereq .
+  ?prereq dlss:code ?prerequisiteCode ;
+          dlss:title ?prerequisiteTitle .
+}
+ORDER BY ?moduleCode ?prerequisiteCode

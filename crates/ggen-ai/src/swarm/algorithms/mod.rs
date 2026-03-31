@@ -7,9 +7,9 @@
 //! - Collaborative evolution for template optimization
 
 pub mod aco;
-pub mod pso;
 pub mod evolution;
+pub mod pso;
 
 pub use aco::*;
-pub use pso::*;
 pub use evolution::*;
+pub use pso::*;

@@ -3,13 +3,13 @@
 //! This agent uses Particle Swarm Optimization to tune template parameters for optimal code generation.
 
 use crate::error::{GgenAiError, Result};
+use crate::swarm::algorithms::pso::{
+    DefaultTemplateFitness, FitnessFunction, ParameterType, PsoConfig, TemplateParameter,
+    TemplateParameterOptimizer, TemplateQuality,
+};
 use crate::swarm::{
     AgentConfig, AgentHealth, AgentInput, AgentOutput, BaseAgent, HealthStatus,
     PerformanceThresholds, SwarmAgent, SwarmContext,
-};
-use crate::swarm::algorithms::pso::{
-    DefaultTemplateFitness, FitnessFunction, ParameterType, PsoConfig,
-    TemplateParameter, TemplateParameterOptimizer, TemplateQuality,
 };
 use async_trait::async_trait;
 use serde_json::json;
@@ -105,11 +105,12 @@ impl PsoTemplateAgent {
 
     /// Optimize template parameters using PSO
     async fn optimize_template_parameters(
-        &mut self,
-        template_name: &str,
-        requirements: &TemplateRequirements,
+        &mut self, template_name: &str, requirements: &TemplateRequirements,
     ) -> Result<AgentOutput> {
-        info!("Optimizing template parameters using PSO for: {}", template_name);
+        info!(
+            "Optimizing template parameters using PSO for: {}",
+            template_name
+        );
 
         // Create fitness function based on requirements
         let fitness_fn = self.create_fitness_function(requirements);
@@ -121,7 +122,9 @@ impl PsoTemplateAgent {
         );
 
         // Run optimization
-        let solution = optimizer.optimize(&fitness_fn).await
+        let solution = optimizer
+            .optimize(&fitness_fn)
+            .await
             .map_err(|e| GgenAiError::internal(&format!("PSO optimization failed: {}", e)))?;
 
         info!(
@@ -157,7 +160,9 @@ impl PsoTemplateAgent {
     }
 
     /// Create fitness function from requirements
-    fn create_fitness_function(&self, requirements: &TemplateRequirements) -> DefaultTemplateFitness {
+    fn create_fitness_function(
+        &self, requirements: &TemplateRequirements,
+    ) -> DefaultTemplateFitness {
         let target_complexity = requirements.target_complexity;
         let target_readability = requirements.target_readability;
         let target_performance = requirements.target_performance;
@@ -171,8 +176,8 @@ impl PsoTemplateAgent {
             // Calculate quality metrics
             let correctness = 0.95; // Would be calculated from actual validation
 
-            let readability = (1.0 - (verbosity - target_readability).abs()) * 0.5
-                + (documentation * 0.5);
+            let readability =
+                (1.0 - (verbosity - target_readability).abs()) * 0.5 + (documentation * 0.5);
 
             let performance = (1.0 - (optimization_level / 3.0 - target_performance).abs());
 
@@ -196,16 +201,21 @@ impl PsoTemplateAgent {
     pub fn get_optimization_stats(&self) -> HashMap<String, serde_json::Value> {
         let mut stats = HashMap::new();
 
-        stats.insert("total_optimizations".to_string(), json!(self.optimization_history.len()));
+        stats.insert(
+            "total_optimizations".to_string(),
+            json!(self.optimization_history.len()),
+        );
 
         if !self.optimization_history.is_empty() {
-            let avg_quality = self.optimization_history
+            let avg_quality = self
+                .optimization_history
                 .iter()
                 .map(|r| r.quality)
                 .sum::<f64>()
                 / self.optimization_history.len() as f64;
 
-            let avg_iterations = self.optimization_history
+            let avg_iterations = self
+                .optimization_history
                 .iter()
                 .map(|r| r.iterations)
                 .sum::<usize>()
@@ -254,19 +264,23 @@ impl SwarmAgent for PsoTemplateAgent {
     }
 
     async fn execute(&self, _context: &SwarmContext, input: AgentInput) -> Result<AgentOutput> {
-        debug!("PsoTemplateAgent executing with input type: {}", input.input_type);
+        debug!(
+            "PsoTemplateAgent executing with input type: {}",
+            input.input_type
+        );
 
         match input.input_type.as_str() {
             "template_optimization" | "optimize_template" => {
                 // Extract template name from input
-                let template_name = input.data.get("template_name")
+                let template_name = input
+                    .data
+                    .get("template_name")
                     .and_then(|v| v.as_str())
                     .ok_or_else(|| GgenAiError::internal("No template name provided in input"))?;
 
                 // Extract requirements (use defaults if not provided)
                 let requirements = if let Some(req_data) = input.data.get("requirements") {
-                    serde_json::from_value(req_data.clone())
-                        .unwrap_or_default()
+                    serde_json::from_value(req_data.clone()).unwrap_or_default()
                 } else {
                     TemplateRequirements::default()
                 };
@@ -276,14 +290,14 @@ impl SwarmAgent for PsoTemplateAgent {
                 agent_clone.pso_config = self.pso_config.clone();
                 agent_clone.template_parameters = self.template_parameters.clone();
 
-                agent_clone.optimize_template_parameters(template_name, &requirements).await
+                agent_clone
+                    .optimize_template_parameters(template_name, &requirements)
+                    .await
             }
-            _ => {
-                Err(GgenAiError::internal(&format!(
-                    "Unsupported input type: {}",
-                    input.input_type
-                )))
-            }
+            _ => Err(GgenAiError::internal(&format!(
+                "Unsupported input type: {}",
+                input.input_type
+            ))),
         }
     }
 
@@ -342,7 +356,9 @@ mod tests {
         let agent = PsoTemplateAgent::new("pso-template-agent".to_string());
 
         assert_eq!(agent.name(), "pso-template-agent");
-        assert!(agent.capabilities().contains(&"template_optimization".to_string()));
+        assert!(agent
+            .capabilities()
+            .contains(&"template_optimization".to_string()));
     }
 
     #[tokio::test]

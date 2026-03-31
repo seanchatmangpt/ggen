@@ -82,8 +82,9 @@ tracing-subscriber = "0.3"
 # If using ggen as library (optional - can use CLI too)
 ggen = { path = "../ggen", features = ["cli"] }
 
-# MCP SDK (when ready to deploy)
-# mcp = "0.1"
+# MCP SDK (rmcp 1.3.0)
+rmcp = { version = "0.1", features = ["server", "client", "transport-io", "macros"] }
+schemars = "0.8"
 ```
 
 ### Create the Tool Structure
@@ -685,54 +686,69 @@ async fn generate_openapi(ontology: &str, spec: &DomainSpec) -> Result<String> {
 
 ### Create `src/mcp_server.rs` for MCP Integration
 
-```rust
-#[cfg(feature = "mcp")]
-pub mod mcp {
-    use crate::tools;
-    use mcp::Tool;
+> **Two silent killers:**
+> - Omitting `#[tool_handler]` → `list_tools()` returns empty; all tool calls get -32601
+> - `let _ = serve().await` → DropGuard fires; connection dropped immediately
+> See `docs/RMCP_NOTES.md` for the full compile-verified API reference.
 
-    pub fn register_tools() -> Vec<Tool> {
-        vec![
-            Tool {
-                name: "generate_api".to_string(),
-                description: "Generate a complete API from a domain specification".to_string(),
-                input_schema: serde_json::json!({
-                    "type": "object",
-                    "properties": {
-                        "spec": {
-                            "type": "string",
-                            "description": "Domain specification (JSON or simple format)"
-                        }
-                    },
-                    "required": ["spec"]
-                }),
-            },
-        ]
+```rust
+use rmcp::{tool, tool_handler, tool_router, ServerHandler, ToolRouter};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
+use crate::tools::api_generator_tool;
+
+#[derive(Clone)]
+pub struct GgenMcpServer {
+    router: ToolRouter<GgenMcpServer>,
+}
+
+#[tool_router]  // ← generates self.router; REQUIRED
+impl GgenMcpServer {
+    pub fn new() -> Self {
+        Self { router: Self::tool_router() }
     }
 
-    pub async fn handle_tool_call(
-        name: &str,
-        arguments: serde_json::Value,
-    ) -> Result<String, String> {
-        match name {
-            "generate_api" => {
-                let spec = arguments
-                    .get("spec")
-                    .and_then(|v| v.as_str())
-                    .ok_or("Missing spec argument")?;
-
-                let request = tools::api_generator_tool::GenerateApiRequest {
-                    spec: spec.to_string(),
-                };
-
-                match tools::api_generator_tool::handle_generate_api(request) {
-                    Ok(response) => Ok(serde_json::to_string(&response).unwrap()),
-                    Err(e) => Err(e.to_string()),
-                }
+    #[tool(description = "Generate a complete API from a domain specification")]
+    async fn generate_api(
+        &self,
+        #[tool(param)] spec: String,
+    ) -> Result<rmcp::types::CallToolResult, rmcp::Error> {
+        let request = api_generator_tool::GenerateApiRequest { spec };
+        match api_generator_tool::handle_generate_api(request) {
+            Ok(response) => {
+                Ok(rmcp::types::CallToolResult::success(vec![
+                    rmcp::types::Content::text(serde_json::to_string(&response).unwrap())
+                ]))
             }
-            _ => Err(format!("Unknown tool: {}", name)),
+            Err(e) => Ok(rmcp::types::CallToolResult::error(
+                rmcp::types::ErrorCode::InternalError,
+                    e.to_string()
+            ))
         }
     }
+}
+
+#[tool_handler]  // ← wires list_tools + call_tool; REQUIRED; no body needed
+impl ServerHandler for GgenMcpServer {}
+
+// Server startup (in main.rs or bin/ggen-mcp.rs):
+#[cfg(feature = "mcp")]
+pub async fn run_server() -> anyhow::Result<()> {
+    use rmcp::Server;
+    use rmcp::transport::stdio::StdioServerHandler;
+
+    let server = Server::new();
+    let handler = GgenMcpServer::new();
+
+    // WRONG: DropGuard fires immediately → server disconnects
+    // let _ = server.serve(transport).await;
+
+    // RIGHT: keep alive until client closes
+    let (transport, _join_handle) = StdioServerHandler::new().serve();
+    let svc = server.serve(transport, handler).await?;
+    svc.waiting().await?;
+
+    Ok(())
 }
 ```
 

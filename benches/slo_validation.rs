@@ -380,7 +380,7 @@ struct ProcessedRdf {
     rendered_output: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct QueryResult {
     row_count: usize,
     execution_time_ms: u64,
@@ -680,7 +680,7 @@ fn bench_cached_query_slo(c: &mut Criterion) {
         b.iter(|| {
             let query = format!(
                 "SELECT * WHERE {{ ?s ?p ?o }} LIMIT {}",
-                fastrand::usize(100)
+                fastrand::usize(..100)
             );
             let start = Instant::now();
 

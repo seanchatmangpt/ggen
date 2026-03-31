@@ -1,0 +1,10 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 19751ad49f4eba35489f95efdab05cb0e9e92ad44c486db621a365f2d96aa5c2 # shrinks to name = "a"
+cc 2a4a61eb01523dc89b61d71dec3af093a3c3dcc73b4637a24e8d5e6f3ca029cd # shrinks to fields = ["a: string"]
+cc 6e639125851d24c425f985a781e69aab7f577d95c2ca823bf6475b24a8b719ac # shrinks to schema_str = "A { a: string }"
+cc abb3b49aeb41581ee84cd29c3ea4ad4e17da64322a6e70a841f368b15e6f5e6c # shrinks to name = "A"

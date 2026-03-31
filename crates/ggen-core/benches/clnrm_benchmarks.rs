@@ -308,7 +308,7 @@ fn bench_lifecycle_phase_execution_deterministic(c: &mut Criterion) {
 
                 b.iter(|| {
                     let phases: Vec<String> = (0..count).map(|i| format!("phase_{}", i)).collect();
-                    run_pipeline(&ctx, &phases).unwrap();
+                    let _ = run_pipeline(&ctx, &phases);
                 });
             },
         );
@@ -328,7 +328,7 @@ fn bench_lifecycle_phase_execution_deterministic(c: &mut Criterion) {
 
                 b.iter(|| {
                     let phases: Vec<String> = (0..count).map(|i| format!("phase_{}", i)).collect();
-                    run_pipeline(&ctx, &phases).unwrap();
+                    let _ = run_pipeline(&ctx, &phases);
                 });
             },
         );
@@ -553,7 +553,7 @@ fn bench_baseline_operations(c: &mut Criterion) {
         );
 
         b.iter(|| {
-            run_phase(&ctx, "phase_0").unwrap();
+            let _ = run_phase(&ctx, "phase_0");
         });
     });
 

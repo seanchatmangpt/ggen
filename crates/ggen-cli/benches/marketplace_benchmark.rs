@@ -259,7 +259,7 @@ fn bench_sort_filter(c: &mut Criterion) {
     let mut group = c.benchmark_group("marketplace_sort_filter");
 
     for package_count in [100, 1000, 5000] {
-        let mut packages = generate_package_names(package_count);
+        let packages = generate_package_names(package_count);
 
         group.throughput(Throughput::Elements(package_count as u64));
         group.bench_with_input(
@@ -267,13 +267,17 @@ fn bench_sort_filter(c: &mut Criterion) {
             &packages,
             |b, packages| {
                 b.iter(|| {
-                    let mut sorted = packages.clone();
-                    sorted.sort();
+                    let sorted: Vec<_> = {
+                        let mut sorted = packages.clone();
+                        sorted.sort();
+                        sorted
+                            .iter()
+                            .filter(|p| p.contains("package"))
+                            .cloned()
+                            .collect()
+                    };
 
-                    let filtered: Vec<_> =
-                        sorted.iter().filter(|p| p.contains("package")).collect();
-
-                    black_box(filtered)
+                    black_box(sorted)
                 });
             },
         );

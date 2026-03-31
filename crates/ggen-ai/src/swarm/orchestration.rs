@@ -5,9 +5,8 @@
 
 use crate::error::{GgenAiError, Result};
 use crate::swarm::{
-    UltrathinkSwarm, SwarmInput, SwarmResult, SwarmStatus,
-    EventRouter, FileSystemEventSource, GitEventSource, GitEventType,
-    EventFilter, SwarmConfig, PerformanceThresholds
+    EventFilter, EventRouter, FileSystemEventSource, GitEventSource, GitEventType,
+    PerformanceThresholds, SwarmConfig, SwarmInput, SwarmResult, SwarmStatus, UltrathinkSwarm,
 };
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
@@ -173,20 +172,26 @@ impl SwarmOrchestrator {
     /// Setup event filters for routing events to appropriate agents
     async fn setup_event_filters(&self, router: &mut EventRouter) -> Result<()> {
         // File system events -> graph extender
-        router.add_event_filter("graph_extender".to_string(), EventFilter {
-            name: "fs_to_graph".to_string(),
-            event_types: vec!["filesystem".to_string()],
-            path_patterns: vec!["src/".to_string(), "templates/".to_string()],
-            target_agent: "graph_extender".to_string(),
-        });
+        router.add_event_filter(
+            "graph_extender".to_string(),
+            EventFilter {
+                name: "fs_to_graph".to_string(),
+                event_types: vec!["filesystem".to_string()],
+                path_patterns: vec!["src/".to_string(), "templates/".to_string()],
+                target_agent: "graph_extender".to_string(),
+            },
+        );
 
         // Git events -> graph extender
-        router.add_event_filter("graph_extender".to_string(), EventFilter {
-            name: "git_to_graph".to_string(),
-            event_types: vec!["git".to_string()],
-            path_patterns: vec![].clone(),
-            target_agent: "graph_extender".to_string(),
-        });
+        router.add_event_filter(
+            "graph_extender".to_string(),
+            EventFilter {
+                name: "git_to_graph".to_string(),
+                event_types: vec!["git".to_string()],
+                path_patterns: vec![].clone(),
+                target_agent: "graph_extender".to_string(),
+            },
+        );
 
         Ok(())
     }
@@ -205,7 +210,9 @@ impl SwarmOrchestrator {
             namespaces: HashMap::new(),
             domain_knowledge: HashMap::new(),
         };
-        let graph_extender_agent = Box::new(crate::swarm::agents::GraphExtenderAgent::default_config(graph_context));
+        let graph_extender_agent = Box::new(
+            crate::swarm::agents::GraphExtenderAgent::default_config(graph_context),
+        );
         self.swarm.add_agent(graph_extender_agent).await?;
 
         // 3. Validator Agent
@@ -219,9 +226,14 @@ impl SwarmOrchestrator {
             template_patterns: HashMap::new(),
             language_configs: HashMap::new(),
         };
-        let client = Box::new(crate::providers::adapter::MockClient::with_response("template"));
+        let client = Box::new(crate::providers::adapter::MockClient::with_response(
+            "template",
+        ));
         let template_gen = crate::generators::TemplateGenerator::new(client);
-        let template_generator_agent = Box::new(crate::swarm::agents::TemplateGeneratorAgent::new(template_gen, template_context));
+        let template_generator_agent = Box::new(crate::swarm::agents::TemplateGeneratorAgent::new(
+            template_gen,
+            template_context,
+        ));
         self.swarm.add_agent(template_generator_agent).await?;
 
         // 5. Code Generator Agent - Real code generation
@@ -233,7 +245,10 @@ impl SwarmOrchestrator {
         };
         let client = Box::new(crate::providers::adapter::MockClient::with_response("code"));
         let template_gen = crate::generators::TemplateGenerator::new(client);
-        let code_generator_agent = Box::new(crate::swarm::agents::CodeGeneratorAgent::new(template_gen, code_context));
+        let code_generator_agent = Box::new(crate::swarm::agents::CodeGeneratorAgent::new(
+            template_gen,
+            code_context,
+        ));
         self.swarm.add_agent(code_generator_agent).await?;
 
         // 6. Quality Assurance Agent
@@ -263,8 +278,7 @@ impl SwarmOrchestrator {
 
     /// Main autonomous operation loop
     async fn run_autonomous_loop(
-        swarm: Arc<UltrathinkSwarm>,
-        event_router: Arc<RwLock<EventRouter>>,
+        swarm: Arc<UltrathinkSwarm>, event_router: Arc<RwLock<EventRouter>>,
     ) -> Result<()> {
         loop {
             // Check for new events
@@ -283,8 +297,11 @@ impl SwarmOrchestrator {
                     };
 
                     if let Ok(result) = swarm.execute(swarm_input).await {
-                        log::info!("Swarm execution completed: success={}, artifacts={}",
-                            result.success, result.artifacts.len());
+                        log::info!(
+                            "Swarm execution completed: success={}, artifacts={}",
+                            result.success,
+                            result.artifacts.len()
+                        );
                     }
                 }
                 Ok(Err(_)) => {
@@ -302,7 +319,9 @@ impl SwarmOrchestrator {
     }
 
     /// Execute a single autonomous operation
-    pub async fn execute_autonomous_operation(&self, trigger_event: Option<String>) -> Result<OrchestrationResult> {
+    pub async fn execute_autonomous_operation(
+        &self, trigger_event: Option<String>,
+    ) -> Result<OrchestrationResult> {
         let event = trigger_event.unwrap_or_else(|| "manual_trigger".to_string());
 
         let swarm_input = SwarmInput {
@@ -315,7 +334,9 @@ impl SwarmOrchestrator {
         let swarm_result = self.swarm.execute(swarm_input).await?;
 
         // Convert swarm result to orchestration result
-        let artifacts_with_context = swarm_result.artifacts.iter()
+        let artifacts_with_context = swarm_result
+            .artifacts
+            .iter()
             .map(|artifact| ArtifactWithContext {
                 artifact: artifact.clone(),
                 source_event: Some("manual_trigger".to_string()),
@@ -430,9 +451,15 @@ mod tests {
         orchestrator.initialize().await.unwrap();
 
         // Execute autonomous operation
-        let result = orchestrator.execute_autonomous_operation(Some("test_event".to_string())).await.unwrap();
+        let result = orchestrator
+            .execute_autonomous_operation(Some("test_event".to_string()))
+            .await
+            .unwrap();
 
-        assert_eq!(result.operation_summary.operation_type, "autonomous_generation");
+        assert_eq!(
+            result.operation_summary.operation_type,
+            "autonomous_generation"
+        );
         assert_eq!(result.next_actions.len(), 3);
     }
 }

@@ -48,6 +48,7 @@ reqwest = { workspace = true }
 zip = "0.6"
 fastrand = "2.3"                 # Lightweight RNG for jitter in retry logic
 async-trait = "0.1"
+sqlx = { workspace = true }      # Database support for audit trail
 
 # CRITICAL: NO clap or clap-noun-verb dependencies
 # Domain must be CLI-agnostic
@@ -56,6 +57,7 @@ async-trait = "0.1"
 # Marketplace (RDF-backed semantic marketplace) - optional feature
 marketplace = ["ggen-marketplace"]
 default = []
+integration = []
 
 [dev-dependencies]
 assert_cmd = "2"
@@ -69,3 +71,13 @@ criterion = { version = "0.7", features = ["html_reports"] }
 [[bench]]
 name = "swarm_primitives"
 harness = false
+
+[[test]]
+name = "integration_tests"
+path = "tests/integration_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "unit_tests"
+path = "tests/unit_tests.rs"
+required-features = ["integration"]

@@ -282,7 +282,7 @@ mod tests {
             templates: template_map,
             templates_dir: template_dir,
             queries: HashMap::new(),
-            output_dir: temp_dir.join("generated"),
+            output_dir: temp_dir.to_path_buf(),
             preset: "test".to_string(),
         }
     }

@@ -322,7 +322,7 @@ script = '''
 #!/bin/bash
 set -euo pipefail
 
-TEST_CMD=(cargo test --workspace)
+TEST_CMD=(cargo test --workspace --tests --lib)
 
 if [ "$#" -gt 0 ]; then
   TEST_CMD+=("$@")
@@ -1646,3 +1646,32 @@ description = "Compare benchmarks against baseline"
 workspace = false
 command = "cargo"
 args = ["bench", "--", "--baseline", "main"]
+
+# ============================================================================
+# Documentation Validation Tasks
+# ============================================================================
+
+[tasks.validate]
+description = "Validate documentation against runtime results"
+workspace = false
+dependencies = ["timeout-check"]
+command = "bash"
+args = ["scripts/validate-docs.sh"]
+
+[tasks.validate-slos]
+description = "Validate performance SLO compliance"
+workspace = false
+command = "bash"
+args = ["scripts/validate-slos.sh"]
+
+[tasks.validate-benchmarks]
+description = "Validate benchmark infrastructure"
+workspace = false
+command = "bash"
+args = ["scripts/validate-benchmarks.sh"]
+
+[tasks.stress-test]
+description = "Run stress tests"
+workspace = false
+command = "bash"
+args = ["scripts/stress-test.sh"]

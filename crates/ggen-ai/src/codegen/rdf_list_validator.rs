@@ -294,6 +294,7 @@ impl RdfListValidator {
             Term::NamedNode(node) => node.as_str().to_string(),
             Term::Literal(literal) => literal.value().to_string(),
             Term::BlankNode(bn) => format!("_:{}", bn.as_str()),
+            Term::Triple(t) => format!("{}", t),
         }
     }
 }

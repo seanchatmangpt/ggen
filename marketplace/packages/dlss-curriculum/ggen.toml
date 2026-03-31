@@ -1,0 +1,270 @@
+# =============================================================================
+# ggen v6 DLSS Curriculum Generation Manifest
+# Generates 9 document types from RDF ontology via ggen sync (mu1-mu5)
+# ZERO hardcoded strings - ALL content from SPARQL queries
+# =============================================================================
+
+[project]
+name = "dlss-curriculum"
+version = "1.0.0"
+description = "Design for Lean Six Sigma Black Belt certification curriculum"
+
+[ontology]
+source = "ontology.ttl"
+imports = ["instances.ttl"]
+base_iri = "http://ggen.chatmangpt.com/dlss#"
+
+[ontology.prefixes]
+dlss = "http://ggen.chatmangpt.com/dlss#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+owl = "http://www.w3.org/2002/07/owl#"
+
+[inference]
+[[inference.rules]]
+name = "infer-module-phase-label"
+description = "Enrich modules with computed difficulty level"
+order = 1
+construct = """
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?mod dlss:difficultyLevel ?diffLevel .
+}
+WHERE {
+  ?mod a dlss:Module ;
+       dlss:difficulty ?diff .
+  BIND(IF(?diff = "Introductory", "foundation", IF(?diff = "Intermediate", "core", "advanced")) AS ?diffLevel)
+}
+"""
+
+
+[generation]
+output_dir = "output"
+
+# =============================================================================
+# RULE 1: Syllabus — Complete module listing with phase, duration, difficulty
+# =============================================================================
+[[generation.rules]]
+name = "syllabus"
+query = { inline = """
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?code ?title ?moduleOrder ?duration ?durationLabel ?difficulty ?description
+WHERE {
+  ?mod a dlss:Module ;
+       dlss:code ?code ;
+       dlss:title ?title ;
+       dlss:moduleOrder ?moduleOrder ;
+       dlss:duration ?duration ;
+       dlss:difficulty ?difficulty .
+  OPTIONAL { ?mod dlss:description ?description }
+    BIND(REPLACE(REPLACE(REPLACE(REPLACE(STR(?duration), "^PT", ""), "H", " hr "), "M$", " min"), " +$", "") AS ?durationLabel)
+}
+ORDER BY ?code
+""" }
+template = { file = "templates/dlss/syllabus.tera" }
+output_file = "syllabus.md"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 2: Phase Overviews — 5 DMEDI phase descriptions with module counts
+# =============================================================================
+[[generation.rules]]
+name = "phase-overviews"
+query = { inline = """
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?phaseOrder ?title ?description ?duration
+WHERE {
+  ?phase a dlss:DMEDIPhase ;
+         dlss:title ?title ;
+         dlss:phaseOrder ?phaseOrder ;
+         dlss:description ?description ;
+         dlss:duration ?duration .
+}
+ORDER BY ?phaseOrder
+""" }
+template = { file = "templates/dlss/phase.tera" }
+output_file = "phases/{{ title }}/index.md"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 3: Module Guides — Individual module pages (53 modules)
+# =============================================================================
+[[generation.rules]]
+name = "module-guides"
+query = { inline = """
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?code ?title ?moduleOrder ?duration ?durationLabel ?difficulty ?description
+WHERE {
+  ?mod a dlss:Module ;
+       dlss:code ?code ;
+       dlss:title ?title ;
+       dlss:moduleOrder ?moduleOrder ;
+       dlss:duration ?duration ;
+       dlss:difficulty ?difficulty .
+  OPTIONAL { ?mod dlss:description ?description }
+    BIND(REPLACE(REPLACE(REPLACE(REPLACE(STR(?duration), "^PT", ""), "H", " hr "), "M$", " min"), " +$", "") AS ?durationLabel)
+}
+ORDER BY ?code
+""" }
+template = { file = "templates/dlss/module.tera" }
+output_file = "modules/{{ code }}.md"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 4: Learning Objectives — Module objectives with Bloom's taxonomy levels
+# =============================================================================
+[[generation.rules]]
+name = "learning-objectives"
+query = { inline = """
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?code (GROUP_CONCAT(?objectiveText; SEPARATOR="||") AS ?objectives) (GROUP_CONCAT(?bloomsLevel; SEPARATOR="||") AS ?bloomsLevels) (COUNT(?obj) AS ?objectiveCount)
+WHERE {
+  ?mod a dlss:Module ;
+       dlss:code ?code ;
+       dlss:hasObjective ?obj .
+  ?obj a dlss:LearningObjective ;
+       dlss:text ?objectiveText ;
+       dlss:bloomsLevel ?bloomsLevel .
+}
+GROUP BY ?code
+ORDER BY ?code
+""" }
+template = { file = "templates/dlss/lesson.tera" }
+output_file = "modules/{{ code }}-objectives.md"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 5: Exercises — Practice exercises per module with timing
+# =============================================================================
+[[generation.rules]]
+name = "exercises"
+query = { inline = """
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?code ?exerciseTitle ?exerciseText ?estimatedMinutes ?difficulty
+WHERE {
+  ?mod a dlss:Module ;
+       dlss:code ?code ;
+       dlss:difficulty ?difficulty ;
+       dlss:hasExercise ?ex .
+  ?ex a dlss:Exercise ;
+      dlss:title ?exerciseTitle ;
+      dlss:text ?exerciseText ;
+      dlss:estimatedMinutes ?estimatedMinutes .
+}
+ORDER BY ?code
+""" }
+template = { file = "templates/dlss/exercise.tera" }
+output_file = "exercises/{{ code }}.md"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 6: Instructor Guides — Key concepts and timing per module
+# =============================================================================
+[[generation.rules]]
+name = "instructor-guides"
+query = { inline = """
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?code ?title ?duration ?durationLabel ?difficulty ?description
+WHERE {
+  ?mod a dlss:Module ;
+       dlss:code ?code ;
+       dlss:title ?title ;
+       dlss:duration ?duration ;
+       dlss:difficulty ?difficulty .
+  OPTIONAL { ?mod dlss:description ?description }
+    BIND(REPLACE(REPLACE(REPLACE(REPLACE(STR(?duration), "^PT", ""), "H", " hr "), "M$", " min"), " +$", "") AS ?durationLabel)
+}
+ORDER BY ?code
+""" }
+template = { file = "templates/dlss/instructor-guide.tera" }
+output_file = "instructor/{{ code }}.md"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 7: Capstone Specification — Capstone project with scenario options
+# =============================================================================
+[[generation.rules]]
+name = "capstone"
+query = { inline = """
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?title ?description ?estimatedMinutes ?passingScore
+       ?scenarioTitle ?scenarioContext ?scenarioDescription
+WHERE {
+  ?cap a dlss:CapstoneProject ;
+       dlss:title ?title ;
+       dlss:description ?description ;
+       dlss:estimatedMinutes ?estimatedMinutes ;
+       dlss:passingScore ?passingScore .
+  OPTIONAL {
+    ?cap dlss:hasExample ?sc .
+    ?sc dlss:title ?scenarioTitle ;
+        dlss:context ?scenarioContext ;
+        dlss:description ?scenarioDescription .
+  }
+}
+""" }
+template = { file = "templates/dlss/capstone-template.tera" }
+output_file = "capstone/specification.md"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 8: Assessment Checklist — Quality checkpoint criteria and passing scores
+# =============================================================================
+[[generation.rules]]
+name = "assessment"
+query = { inline = """
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?title ?description ?passingScore
+WHERE {
+  ?cp a dlss:QualityCheckpoint ;
+      dlss:title ?title ;
+      dlss:description ?description ;
+      dlss:passingScore ?passingScore .
+}
+""" }
+template = { file = "templates/dlss/assessment-checklist.tera" }
+output_file = "assessment/checklist.md"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 9: Student Workbook — All modules checklist for student tracking
+# =============================================================================
+[[generation.rules]]
+name = "student-workbook"
+query = { inline = """
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?code ?title ?duration ?durationLabel ?difficulty
+WHERE {
+  ?mod a dlss:Module ;
+       dlss:code ?code ;
+       dlss:title ?title ;
+       dlss:duration ?duration ;
+       dlss:difficulty ?difficulty .
+    BIND(REPLACE(REPLACE(REPLACE(REPLACE(STR(?duration), "^PT", ""), "H", " hr "), "M$", " min"), " +$", "") AS ?durationLabel)
+}
+ORDER BY ?code
+""" }
+template = { file = "templates/dlss/student-workbook.tera" }
+output_file = "student/workbook.md"
+mode = "Overwrite"

@@ -1,0 +1,36 @@
+{
+  "category": "hypothesis_tests",
+  "description": "Parametric and non-parametric hypothesis testing",
+  "datasets": [
+    {
+      "file": "battery_before_after.csv",
+      "context": "Product Development",
+      "module": "M24",
+      "test_type": "Paired t-test",
+      "n": 30,
+      "expected_p_value": "<0.001",
+      "expected_effect_size_d": 2.0,
+      "teaching_notes": "Clear improvement. Exercise: what if n=10? Power analysis discussion."
+    },
+    {
+      "file": "supplier_comparison.csv",
+      "context": "Product Development",
+      "module": "M24",
+      "test_type": "One-way ANOVA with Tukey HSD",
+      "n": 60,
+      "expected_p_value": "<0.001",
+      "teaching_notes": "Supplier B significantly different. Exercise: which supplier to select and why?"
+    },
+    {
+      "file": "discharge_time_vs_temperature.csv",
+      "context": "Product Development",
+      "module": "M25",
+      "test_type": "Simple Linear Regression",
+      "n": 40,
+      "expected_r_squared": 0.72,
+      "teaching_notes": "Strong negative relationship. Exercise: predict discharge time at 45°C."
+    }
+  ],
+  "tools_required": ["R", "Minitab", "JMP"],
+  "bloom_level": ["Apply", "Analyze", "Evaluate"]
+}

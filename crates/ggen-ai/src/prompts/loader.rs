@@ -4,7 +4,6 @@
 //! Instead of hardcoded strings, we use `.tmpl` files with YAML frontmatter.
 
 use crate::error::{GgenAiError, Result};
-use ggen_core::Template;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -55,7 +54,7 @@ impl PromptTemplateLoader {
     }
 
     /// Load a prompt template by category and name
-    pub fn load_template(&self, category: &str, name: &str) -> Result<Template> {
+    pub fn load_template(&self, category: &str, name: &str) -> Result<String> {
         let template_path = self
             .templates_dir
             .join(category)
@@ -68,16 +67,9 @@ impl PromptTemplateLoader {
             )));
         }
 
-        let content = std::fs::read_to_string(&template_path).map_err(|e| {
+        std::fs::read_to_string(&template_path).map_err(|e| {
             GgenAiError::configuration(format!(
                 "Failed to read prompt template {}/{}: {}",
-                category, name, e
-            ))
-        })?;
-
-        Template::parse(&content).map_err(|e| {
-            GgenAiError::configuration(format!(
-                "Failed to parse prompt template {}/{}: {}",
                 category, name, e
             ))
         })
@@ -87,7 +79,7 @@ impl PromptTemplateLoader {
     pub fn render_prompt(
         &mut self, category: &str, name: &str, vars: HashMap<String, Value>,
     ) -> Result<String> {
-        let template = self.load_template(category, name)?;
+        let template_str = self.load_template(category, name)?;
 
         // Create Tera context from vars
         let mut context = tera::Context::new();
@@ -119,9 +111,15 @@ impl PromptTemplateLoader {
             }
         }
 
+        // Add template to Tera engine
+        let template_name = format!("{}_{}", category, name);
+        self.tera
+            .add_raw_template(&template_name, &template_str)
+            .map_err(|e| GgenAiError::configuration(format!("Failed to add template: {}", e)))?;
+
         // Render template
-        template
-            .render(&mut self.tera, &context)
+        self.tera
+            .render(&template_name, &context)
             .map_err(|e| GgenAiError::configuration(format!("Failed to render prompt: {}", e)))
     }
 

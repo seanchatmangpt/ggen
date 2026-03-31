@@ -18,7 +18,7 @@
 //!
 //! All business logic lives here in the executor.
 
-use crate::codegen::pipeline::{GenerationPipeline, RuleType};
+use crate::codegen::pipeline::{GenerationPipeline, LlmService, RuleType};
 use crate::codegen::ux::{
     format_duration, info_message, print_section, success_message, warning_message,
     ProgressIndicator,
@@ -48,7 +48,6 @@ pub enum OutputFormat {
 }
 
 /// Options for sync execution
-#[derive(Debug, Clone)]
 pub struct SyncOptions {
     /// Path to manifest file
     pub manifest_path: PathBuf,
@@ -92,6 +91,11 @@ pub struct SyncOptions {
 
     /// Override ontology path for A2A generation
     pub ontology_path: Option<PathBuf>,
+
+    /// Optional LLM service for auto-generating skill implementations
+    /// If None, uses default TODO stub generator
+    /// Note: Box<dyn LlmService> avoids cyclic dependency with ggen-ai
+    pub llm_service: Option<Box<dyn LlmService>>,
 }
 
 impl Default for SyncOptions {
@@ -111,6 +115,51 @@ impl Default for SyncOptions {
             audit: false,
             a2a_stage: None,
             ontology_path: None,
+            llm_service: None,
+        }
+    }
+}
+
+impl std::fmt::Debug for SyncOptions {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SyncOptions")
+            .field("manifest_path", &self.manifest_path)
+            .field("output_dir", &self.output_dir)
+            .field("cache_dir", &self.cache_dir)
+            .field("verbose", &self.verbose)
+            .field("output_format", &self.output_format)
+            .field("validate_only", &self.validate_only)
+            .field("dry_run", &self.dry_run)
+            .field("watch", &self.watch)
+            .field("selected_rules", &self.selected_rules)
+            .field("use_cache", &self.use_cache)
+            .field("force", &self.force)
+            .field("audit", &self.audit)
+            .field("a2a_stage", &self.a2a_stage)
+            .field("ontology_path", &self.ontology_path)
+            .field("llm_service", &"<dyn LlmService>")
+            .finish()
+    }
+}
+
+impl Clone for SyncOptions {
+    fn clone(&self) -> Self {
+        Self {
+            manifest_path: self.manifest_path.clone(),
+            output_dir: self.output_dir.clone(),
+            cache_dir: self.cache_dir.clone(),
+            verbose: self.verbose,
+            output_format: self.output_format,
+            validate_only: self.validate_only,
+            dry_run: self.dry_run,
+            watch: self.watch,
+            selected_rules: self.selected_rules.clone(),
+            use_cache: self.use_cache,
+            force: self.force,
+            audit: self.audit,
+            a2a_stage: self.a2a_stage.clone(),
+            ontology_path: self.ontology_path.clone(),
+            llm_service: None, // trait objects cannot be cloned
         }
     }
 }
@@ -205,10 +254,19 @@ impl SyncExecutor {
         }
     }
 
+    /// Set LLM service for auto-generating skill implementations
+    ///
+    /// # Arguments
+    /// * `service` - Optional boxed LLM service (None = use default TODO stubs)
+    pub fn with_llm_service(mut self, service: Option<Box<dyn LlmService>>) -> Self {
+        self.options.llm_service = service;
+        self
+    }
+
     /// Execute the sync pipeline based on options
     ///
     /// Returns `SyncResult` that can be serialized to JSON or formatted as text.
-    pub fn execute(self) -> Result<SyncResult> {
+    pub fn execute(mut self) -> Result<SyncResult> {
         // Pre-flight validation: Check environment before proceeding
         let base_path = self
             .options
@@ -256,12 +314,13 @@ impl SyncExecutor {
         })?;
 
         // Validate manifest
-        let base_path = self
+        let base_path: PathBuf = self
             .options
             .manifest_path
             .parent()
-            .unwrap_or(Path::new("."));
-        let validator = ManifestValidator::new(&manifest_data, base_path);
+            .unwrap_or(Path::new("."))
+            .to_path_buf();
+        let validator = ManifestValidator::new(&manifest_data, &base_path);
         validator.validate().map_err(|e| {
             Error::new(&format!(
                 "error[E0001]: Manifest validation failed\n  --> {}\n  |\n  = error: {}\n  = help: Fix validation errors before syncing",
@@ -271,7 +330,7 @@ impl SyncExecutor {
         })?;
 
         // Validate dependencies (ontology imports, circular references, file existence)
-        let dep_validator = DependencyValidator::validate_manifest(&manifest_data, base_path)
+        let dep_validator = DependencyValidator::validate_manifest(&manifest_data, &base_path)
             .map_err(|e| {
                 Error::new(&format!(
                     "error[E0002]: Dependency validation failed\n  |\n  = error: {}\n  = help: Fix missing ontology imports or circular dependencies",
@@ -295,7 +354,7 @@ impl SyncExecutor {
 
         // Run quality gates - mandatory checkpoints before generation
         let gate_runner = QualityGateRunner::new();
-        gate_runner.run_all(&manifest_data, base_path).map_err(|e| {
+        gate_runner.run_all(&manifest_data, &base_path).map_err(|e| {
             Error::new(&format!(
                 "error[E0004]: Quality gate validation failed\n  |\n  = error: {}\n  = help: Fix validation errors before syncing",
                 e
@@ -350,11 +409,11 @@ impl SyncExecutor {
 
         // Dispatch to appropriate mode
         if self.options.validate_only {
-            self.execute_validate_only(&manifest_data, base_path)
+            self.execute_validate_only(&manifest_data, &base_path)
         } else if self.options.dry_run {
             self.execute_dry_run(&manifest_data)
         } else {
-            self.execute_full_sync(&manifest_data, base_path)
+            self.execute_full_sync(&manifest_data, &base_path)
         }
     }
 
@@ -522,7 +581,7 @@ impl SyncExecutor {
 
     /// Execute full sync pipeline
     fn execute_full_sync(
-        &self, manifest_data: &crate::manifest::GgenManifest, base_path: &Path,
+        &mut self, manifest_data: &crate::manifest::GgenManifest, base_path: &Path,
     ) -> Result<SyncResult> {
         // Determine if progress indicators should be shown
         // Show by default unless output_format is Json
@@ -575,6 +634,11 @@ impl SyncExecutor {
         // Apply force flag to pipeline if set
         if self.options.force {
             pipeline.set_force_overwrite(true);
+        }
+
+        // Inject LLM service if provided in options
+        if let Some(llm_service) = self.options.llm_service.take() {
+            pipeline.set_llm_service(Some(llm_service));
         }
 
         // Run pipeline with progress

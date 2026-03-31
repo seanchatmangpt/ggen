@@ -1,8 +1,6 @@
-{# MCP server implementation template #}
-{# Context variables: server_name, registry_type, io_handler_type #}
-{# Extends the base header template #}
-
+{# MCP server implementation template | Context: server_name, server_version, server_description, transport_type | ggen: extract-mcp-server.rq #}
 {% extends "mcp-server/_head.tera" %}
+{# Extends the base header template #}
 
 {% block imports %}
 {{ super() }}
@@ -16,16 +14,13 @@ use tokio::sync::RwLock;
 ///
 /// This server implements the Model Context Protocol (MCP) for
 /// tool invocation, resource access, and prompt management.
-{% if server_docstring %}
-///
-/// {{ server_docstring }}
-{% endif %}
+/// Transport: {{ transport_type | default(value="stdio") }}
 #[derive(Debug, Clone)]
 pub struct {{ server_name | default(value="GgenMcpServer") | pascal }} {
     /// Tool registry for managing available tools
-    registry: Arc<RwLock<{{ registry_type | default(value="McpToolRegistry") }>>>,
+    registry: Arc<RwLock<McpToolRegistry>>,
     /// JSON-RPC I/O handler
-    io_handler: Arc<{{ io_handler_type | default(value="IoHandler") }}>,
+    io_handler: Arc<IoHandler>,
     /// Server configuration
     config: ServerConfig,
 }
@@ -46,8 +41,8 @@ pub struct ServerConfig {
 impl Default for ServerConfig {
     fn default() -> Self {
         Self {
-            name: "ggen-mcp-server".to_string(),
-            version: env!("CARGO_PKG_VERSION").to_string(),
+            name: "{{ server_name | default(value="ggen-mcp-server") }}".to_string(),
+            version: "{{ server_version | default(value="0.0.0") }}".to_string(),
             max_concurrent_requests: 100,
             request_timeout_seconds: 30,
         }
@@ -56,28 +51,28 @@ impl Default for ServerConfig {
 
 impl {{ server_name | default(value="GgenMcpServer") | pascal }} {
     /// Create a new MCP server instance
-    pub fn new() -> Result<Self, {{ error_type | default(value="McpError") }}> {
+    pub fn new() -> Result<Self, McpError> {
         Self::with_config(ServerConfig::default())
     }
 
     /// Create a new MCP server with custom configuration
-    pub fn with_config(config: ServerConfig) -> Result<Self, {{ error_type | default(value="McpError") }}> {
+    pub fn with_config(config: ServerConfig) -> Result<Self, McpError> {
         Ok(Self {
-            registry: Arc::new(RwLock::new({{ registry_type | default(value="McpToolRegistry") }}::new()?)),
-            io_handler: Arc::new({{ io_handler_type | default(value="IoHandler") }}::new()),
+            registry: Arc::new(RwLock::new(McpToolRegistry::new()?)),
+            io_handler: Arc::new(IoHandler::new()),
             config,
         })
     }
 
     /// Register a tool with the server
-    pub async fn register_tool(&self, tool: {{ tool_type | default(value="Tool") }}) -> Result<(), {{ error_type | default(value="McpError") }}> {
+    pub async fn register_tool(&self, tool: Tool) -> Result<(), McpError> {
         let mut registry = self.registry.write().await;
         registry.register(tool)?;
         Ok(())
     }
 
     /// Register a resource with the server
-    pub async fn register_resource(&self, resource: {{ resource_type | default(value="Resource") }}) -> Result<(), {{ error_type | default(value="McpError") }}> {
+    pub async fn register_resource(&self, resource: Resource) -> Result<(), McpError> {
         let mut registry = self.registry.write().await;
         registry.register_resource(resource)?;
         Ok(())
@@ -89,17 +84,15 @@ impl {{ server_name | default(value="GgenMcpServer") | pascal }} {
     }
 
     /// Get the tool registry
-    pub async fn registry(&self) -> {{ registry_type | default(value="McpToolRegistry") }} {
+    pub async fn registry(&self) -> McpToolRegistry {
         self.registry.read().await.clone()
     }
 }
 
-{% if enable_default_impl %}
 /// Default implementation for convenience
 impl Default for {{ server_name | default(value="GgenMcpServer") | pascal }} {
     fn default() -> Self {
         Self::new().expect("Failed to create MCP server")
     }
 }
-{% endif %}
 {% endblock body %}

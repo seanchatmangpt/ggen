@@ -581,7 +581,7 @@ mod tests {
         .unwrap();
 
         // Create output dir (use generated subdirectory to pass guards)
-        let output_dir = temp_dir.path().join("ontology").join("generated");
+        let output_dir = temp_dir.path().join("ontology").join("output");
         std::fs::create_dir_all(&output_dir).unwrap();
 
         let mut pass = EmissionPass::new();

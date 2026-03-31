@@ -15,7 +15,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 tera = "1.20"
-oxigraph = { version = "0.5.1", default-features = false }
+oxigraph = { version = "0.5.6", default-features = false, features = ["rdf-12"] }
 sha2 = "0.10"
 chrono = { workspace = true }
 tracing = { workspace = true }

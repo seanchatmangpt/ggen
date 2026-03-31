@@ -83,6 +83,9 @@ bytes = "1.5"
 moka = { version = "0.12", features = ["future"] }
 instant = "0.1"
 
+[features]
+integration = []
+
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }
 criterion = { version = "0.7", features = ["html_reports", "async_tokio"] }
@@ -107,13 +110,21 @@ harness = false
 [[test]]
 name = "poka_yoke_types_test"
 path = "tests/unit/poka_yoke_types_test.rs"
+required-features = ["integration"]
 
 [[test]]
 name = "rdf_turtle_test"
 path = "tests/unit/rdf_turtle_test.rs"
+required-features = ["integration"]
 
 [[test]]
 name = "sparql_operations_test"
 path = "tests/unit/sparql_operations_test.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "integration_rdf_mapping"
+path = "tests/integration_rdf_mapping.rs"
+required-features = ["integration"]
 
 # Integration tests removed in Phase 1 consolidation

@@ -1,0 +1,35 @@
+defmodule {{agent.0.appModule}}.Agents.Supervisor do
+  @moduledoc """
+  Supervisor for A2A agents.
+  """
+
+  use Supervisor
+
+  def start_link(init_arg) do
+    Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
+  end
+
+  @impl true
+  def init(_init_arg) do
+    children = [
+{% for agent in agents %}
+      {{agent.appModule}}.Agents.{{agent.agentName | title | replace: "-", ""}},
+{% endfor %}
+    ]
+
+    opts = [strategy: :one_for_one, name: {{agent.0.appModule}}.Agents.AgentSupervisor]
+    Supervisor.init(children, opts)
+  end
+end
+
+# Test stubs for ExUnit
+{% for agent in agents %}
+defmodule {{agent.appModule}}.Agents.{{agent.agentName | title | replace: "-", ""}}Test do
+  use ExUnit.Case
+
+  test "{{agent.agentName}} handles messages" do
+    # TODO: Add tests for {{agent.agentName}}
+    assert true
+  end
+end
+{% endfor %}

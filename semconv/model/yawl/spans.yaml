@@ -1,0 +1,30 @@
+groups:
+  - id: span.ggen.yawl.task_execution
+    type: span
+    stability: development
+    brief: YAWL workflow task execution in ggen.
+    span_kind: internal
+    attributes:
+      - ref: yawl.workflow_id
+        requirement_level: required
+      - ref: yawl.task_id
+        requirement_level: recommended
+      - ref: yawl.task_name
+        requirement_level: recommended
+      - ref: yawl.task_type
+        requirement_level: recommended
+      - ref: yawl.state.from
+        requirement_level: recommended
+      - ref: yawl.state.to
+        requirement_level: recommended
+      - ref: yawl.old_state
+        requirement_level: recommended
+      - ref: yawl.new_state
+        requirement_level: recommended
+      - ref: yawl.gateway_id
+        requirement_level: recommended
+      - ref: yawl.gateway_type
+        requirement_level: recommended
+      - ref: error.type
+        requirement_level:
+          conditionally_required: "when the YAWL task execution failed"

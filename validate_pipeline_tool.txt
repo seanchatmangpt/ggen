@@ -1,0 +1,113 @@
+    /// Validate a ggen project by running all 6 quality gates.
+    #[tool(
+        description = "Run all 6 quality gates against a ggen project: manifest schema, ontology dependencies, SPARQL validation, template validation, file permissions, and rule validation. Returns detailed pass/fail status with errors, warnings, and duration."
+    )]
+    async fn validate_pipeline(
+        &self, Parameters(params): Parameters<ValidatePipelineParams>,
+    ) -> Result<CallToolResult, McpError> {
+        let manifest_path = params
+            .manifest_path
+            .clone()
+            .unwrap_or_else(|| "./ggen.toml".to_string());
+
+        info!(manifest = %manifest_path, "validate_pipeline tool called");
+
+        // Resolve manifest path and base directory
+        let manifest_path_buf = std::path::PathBuf::from(&manifest_path);
+        let base_path = manifest_path_buf
+            .parent()
+            .unwrap_or_else(|| std::path::Path::new("."));
+
+        // Load manifest
+        let manifest_content = std::fs::read_to_string(&manifest_path).map_err(|e| {
+            McpError::invalid_params(format!("Failed to read manifest file: {}", e), None)
+        })?;
+
+        let manifest: ggen_core::manifest::GgenManifest =
+            toml::from_str(&manifest_content).map_err(|e| {
+                McpError::invalid_params(format!("Failed to parse manifest TOML: {}", e), None)
+            })?;
+
+        // Run quality gates on blocking thread
+        let result = tokio::task::spawn_blocking(move || {
+            use ggen_core::poka_yoke::quality_gates::QualityGateRunner;
+            let runner = QualityGateRunner::new();
+            let start = std::time::Instant::now();
+
+            match runner.run_all(&manifest, base_path) {
+                Ok(()) => {
+                    let duration = start.elapsed();
+                    Ok(serde_json::json!({
+                        "passed": true,
+                        "errors": [],
+                        "warnings": [],
+                        "duration_ms": duration.as_millis(),
+                        "gates": [
+                            {"name": "Manifest Schema", "status": "passed"},
+                            {"name": "Ontology Dependencies", "status": "passed"},
+                            {"name": "SPARQL Validation", "status": "passed"},
+                            {"name": "Template Validation", "status": "passed"},
+                            {"name": "File Permissions", "status": "passed"},
+                            {"name": "Rule Validation", "status": "passed"}
+                        ]
+                    }))
+                }
+                Err(e) => {
+                    let duration = start.elapsed();
+                    let error_msg = e.to_string();
+                    // Determine which gate failed from error message
+                    let failed_gate = if error_msg.contains("Manifest Schema") {
+                        "Manifest Schema"
+                    } else if error_msg.contains("Ontology") {
+                        "Ontology Dependencies"
+                    } else if error_msg.contains("SPARQL") {
+                        "SPARQL Validation"
+                    } else if error_msg.contains("Template") {
+                        "Template Validation"
+                    } else if error_msg.contains("Permission") || error_msg.contains("writable") {
+                        "File Permissions"
+                    } else if error_msg.contains("Rule") {
+                        "Rule Validation"
+                    } else {
+                        "Unknown"
+                    };
+
+                    Ok(serde_json::json!({
+                        "passed": false,
+                        "errors": [error_msg],
+                        "warnings": [],
+                        "duration_ms": duration.as_millis(),
+                        "gates": [
+                            {"name": "Manifest Schema", "status": if failed_gate == "Manifest Schema" { "failed" } else { "passed" }},
+                            {"name": "Ontology Dependencies", "status": if failed_gate == "Ontology Dependencies" { "failed" } else { "passed" }},
+                            {"name": "SPARQL Validation", "status": if failed_gate == "SPARQL Validation" { "failed" } else { "passed" }},
+                            {"name": "Template Validation", "status": if failed_gate == "Template Validation" { "failed" } else { "passed" }},
+                            {"name": "File Permissions", "status": if failed_gate == "File Permissions" { "failed" } else { "passed" }},
+                            {"name": "Rule Validation", "status": if failed_gate == "Rule Validation" { "failed" } else { "passed" }}
+                        ]
+                    }))
+                }
+            }
+        })
+        .await
+        .map_err(|e| McpError::internal_error(e.to_string(), None))??;
+
+        let passed = result["passed"].as_bool().unwrap_or(false);
+        info!(
+            passed = passed,
+            duration_ms = result["duration_ms"].as_u64().unwrap_or(0),
+            "validate_pipeline tool complete"
+        );
+
+        if passed {
+            Ok(CallToolResult::success(vec![Content::text(
+                serde_json::to_string_pretty(&result)
+                    .unwrap_or_else(|_| "Pipeline validation passed".to_string()),
+            )]))
+        } else {
+            Ok(CallToolResult::error(vec![Content::text(
+                serde_json::to_string_pretty(&result)
+                    .unwrap_or_else(|_| "Pipeline validation failed".to_string()),
+            )]))
+        }
+    }

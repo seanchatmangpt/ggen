@@ -1,3 +1,5 @@
+//! # SECURITY WARNING: This module is demo scaffolding. It performs NO real payment processing or credential management. DO NOT deploy to production.
+//!
 //! Stripe API client wrapper
 
 use crate::{errors::PaymentError, Invoice, Payment, PaymentResult, Subscription};

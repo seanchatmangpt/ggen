@@ -1,0 +1,227 @@
+# conflict-detect-extract.rq — SPARQL-star CONSTRUCT query for multi-ontology conflict detection
+# A=mu(O): Conflict report = mu(conflict-detection.ttl + conflict-detection-example.ttl)
+#
+# Uses RDF 1.2 triple terms (<<s p o>>) in WHERE patterns to find axioms annotated
+# by multiple sources with conflicting values. Outputs flat triples in CONSTRUCT
+# for consumption by Tera templates (Vec<BTreeMap<String, String>>).
+#
+# Detects 5 conflict types:
+#   1. type_mismatch    — Different rustType values for the same entity+property
+#   2. deprecated_conflict — One source deprecated, another active
+#   3. missing_mapping  — Entity has annotations from some sources but not all
+#   4. naming_conflict  — Same entity, different property names, same type
+#   5. cardinality      — Same entity+property, different Rust types implying different cardinality
+#
+# Usage:
+#   sparql --query conflict-detect-extract.rq \
+#          --data conflict-detection.ttl \
+#          --data conflict-detection-example.ttl
+
+PREFIX cfl: <https://ggen.dev/ontology/conflict#>
+PREFIX ex: <https://ggen.dev/examples/conflict#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  # Each detected conflict becomes a flat TypeConflict instance
+  ?conflict a cfl:TypeConflict ;
+    cfl:conflictType ?conflictType ;
+    cfl:entity ?entity ;
+    cfl:property ?prop ;
+    cfl:source1 ?source1 ;
+    cfl:source2 ?source2 ;
+    cfl:source1Type ?type1 ;
+    cfl:source2Type ?type2 ;
+    cfl:severity ?severity ;
+    cfl:autoResolvable ?autoResolvable .
+
+  # Summary statistics for the report header
+  ?report a cfl:ConflictReport ;
+    cfl:hasConflict ?conflict .
+}
+WHERE {
+
+  # ========================================================================
+  # CONFLICT TYPE 1: TYPE MISMATCH
+  # Same entity+property has different rustType values from different sources
+  # ========================================================================
+  {
+    SELECT ?conflict ?entity ?prop ?source1 ?source2 ?type1 ?type2 ?conflictType ?severity ?autoResolvable
+    WHERE {
+      # Find two triple terms with the same subject+predicate but different sources
+      << ?entity ?prop ?range1 >> cfl:source ?src1 ; cfl:rustType ?type1 ; cfl:deprecated ?dep1 .
+      << ?entity ?prop ?range2 >> cfl:source ?src2 ; cfl:rustType ?type2 ; cfl:deprecated ?dep2 .
+
+      # Must be from different sources with different types
+      FILTER(?src1 != ?src2)
+      FILTER(?type1 != ?type2)
+      FILTER(?dep1 = false)
+      FILTER(?dep2 = false)
+
+      # Order sources alphabetically for deterministic output
+      BIND(IF(STR(?src1) < STR(?src2), ?src1, ?src2) AS ?source1)
+      BIND(IF(STR(?src1) < STR(?src2), ?src2, ?src1) AS ?source2)
+      BIND(IF(STR(?src1) < STR(?src2), ?type1, ?type2) AS ?source1Type)
+      BIND(IF(STR(?src1) < STR(?src2), ?type2, ?type1) AS ?source2Type)
+
+      # Classify: cardinality if types suggest different optionality, otherwise type_mismatch
+      BIND(
+        IF(
+          (REGEX(?source1Type, "Option|Vec|\\[\\]") || REGEX(?source2Type, "Option|Vec|\\[\\]"))
+          && !REGEX(?source1Type, "Option|Vec|\\[\\]") || !REGEX(?source2Type, "Option|Vec|\\[\\]"),
+          "cardinality",
+          "type_mismatch"
+        )
+        AS ?conflictType
+      )
+
+      # Severity: cardinality is medium, type_mismatch with f32 vs BigDecimal is critical
+      BIND(
+        IF(?conflictType = "cardinality", "medium",
+          IF(
+            (REGEX(?source1Type, "f32") && REGEX(?source2Type, "BigDecimal"))
+            || (REGEX(?source2Type, "f32") && REGEX(?source1Type, "BigDecimal")),
+            "critical",
+            "high"
+          )
+        )
+        AS ?severity
+      )
+
+      # Auto-resolvable: most_specific for type_mismatch, manual for cardinality
+      BIND(
+        IF(?conflictType = "cardinality", false,
+          IF(?severity = "critical", true, true)
+        )
+        AS ?autoResolvable
+      )
+
+      # Generate stable conflict IRI
+      BIND(IRI(CONCAT("https://ggen.dev/examples/conflict#Conflict-", STRAFTER(STR(?entity), "#"), "-", STRAFTER(STR(?prop), "#"), "-type")) AS ?conflict)
+    }
+  }
+
+  UNION
+
+  # ========================================================================
+  # CONFLICT TYPE 2: DEPRECATED CONFLICT
+  # One source says active, another says deprecated for the same entity+property
+  # ========================================================================
+  {
+    SELECT ?conflict ?entity ?prop ?source1 ?source2 ?type1 ?type2 ?conflictType ?severity ?autoResolvable
+    WHERE {
+      << ?entity ?prop ?range1 >> cfl:source ?src1 ; cfl:rustType ?type1 ; cfl:deprecated false .
+      << ?entity ?prop ?range2 >> cfl:source ?src2 ; cfl:rustType ?type2 ; cfl:deprecated true .
+
+      FILTER(?src1 != ?src2)
+
+      # Active source first
+      BIND(IF(STR(?src1) < STR(?src2), ?src1, ?src2) AS ?source1)
+      BIND(IF(STR(?src1) < STR(?src2), ?src2, ?src1) AS ?source2)
+      BIND(IF(STR(?src1) < STR(?src2), ?type1, ?type2) AS ?source1Type)
+      BIND(IF(STR(?src1) < STR(?src2), ?type2, ?type1) AS ?source2Type)
+
+      # Tag with deprecation status
+      BIND(CONCAT(?source1Type, " (active)") AS ?type1)
+      BIND(CONCAT(?source2Type, " (deprecated)") AS ?type2)
+
+      BIND("deprecated_conflict" AS ?conflictType)
+      BIND("high" AS ?severity)
+      BIND(false AS ?autoResolvable)
+
+      BIND(IRI(CONCAT("https://ggen.dev/examples/conflict#Conflict-", STRAFTER(STR(?entity), "#"), "-", STRAFTER(STR(?prop), "#"), "-deprecated")) AS ?conflict)
+    }
+  }
+
+  UNION
+
+  # ========================================================================
+  # CONFLICT TYPE 3: MISSING MAPPING
+  # Entity has annotations from some sources but not all known sources.
+  # We detect this by finding entities that have annotations from at least
+  # one source but where another known source has NO annotation for that entity.
+  # ========================================================================
+  {
+    SELECT ?conflict ?entity ?prop ?source1 ?source2 ?type1 ?type2 ?conflictType ?severity ?autoResolvable
+    WHERE {
+      # Entity has annotation from source1
+      << ?entity ?prop ?range >> cfl:source ?src1 ; cfl:rustType ?type1 ; cfl:deprecated false .
+
+      # Known sources
+      VALUES ?knownSource { ex:FIBO ex:SchemaOrg ex:ChatmanGPT }
+
+      # A known source that is NOT src1
+      ?knownSource a owl:NamedIndividual .
+      FILTER(?knownSource != ?src1)
+
+      # That known source has NO annotation for this entity+property
+      FILTER NOT EXISTS {
+        << ?entity ?prop ?anyRange >> cfl:source ?knownSource .
+      }
+
+      # Use the source that HAS the mapping as source1
+      BIND(STR(?src1) AS ?source1)
+      BIND(CONCAT(STR(?knownSource)) AS ?source2)
+      BIND(?type1 AS ?source1Type)
+      BIND("(missing)" AS ?type2)
+
+      BIND("missing_mapping" AS ?conflictType)
+      BIND("medium" AS ?severity)
+      BIND(true AS ?autoResolvable)
+
+      BIND(IRI(CONCAT("https://ggen.dev/examples/conflict#Conflict-", STRAFTER(STR(?entity), "#"), "-", STRAFTER(STR(?prop), "#"), "-missing")) AS ?conflict)
+
+      # Avoid duplicates: only one missing per entity+property pair
+      # Pick the alphabetically first missing source
+      FILTER NOT EXISTS {
+        << ?entity ?prop ?range >> cfl:source ?otherSrc .
+        ?otherKnown a owl:NamedIndividual .
+        FILTER(?otherKnown != ?src1)
+        FILTER(?otherKnown != ?knownSource)
+        FILTER NOT EXISTS { << ?entity ?prop ?anyRange2 >> cfl:source ?otherKnown . }
+        FILTER(STR(?otherKnown) < STR(?knownSource))
+      }
+    }
+  }
+
+  UNION
+
+  # ========================================================================
+  # CONFLICT TYPE 4: NAMING CONFLICT
+  # Same entity, different property names, but same type mapping
+  # Indicates two ontologies use different property names for the same concept
+  # ========================================================================
+  {
+    SELECT ?conflict ?entity ?prop ?source1 ?source2 ?type1 ?type2 ?conflictType ?severity ?autoResolvable
+    WHERE {
+      << ?entity ?prop1 ?range1 >> cfl:source ?src1 ; cfl:rustType ?type1 ; cfl:deprecated false .
+      << ?entity ?prop2 ?range2 >> cfl:source ?src2 ; cfl:rustType ?type2 ; cfl:deprecated false .
+
+      # Different properties, same entity, different sources, same type
+      FILTER(?src1 != ?src2)
+      FILTER(?prop1 != ?prop2)
+      FILTER(?type1 = ?type2)
+
+      # Use the alphabetically first property as the representative
+      BIND(IF(STR(?prop1) < STR(?prop2), ?prop1, ?prop2) AS ?prop)
+      BIND(IF(STR(?prop1) < STR(?prop2), ?src1, ?src2) AS ?source1)
+      BIND(IF(STR(?prop1) < STR(?prop2), ?src2, ?src1) AS ?source2)
+
+      # Annotate types with their property names
+      BIND(CONCAT(?source1Type, " (", STRAFTER(STR(?prop1), "#"), ")") AS ?type1)
+      BIND(CONCAT(?source2Type, " (", STRAFTER(STR(?prop2), "#"), ")") AS ?type2)
+
+      BIND("naming_conflict" AS ?conflictType)
+      BIND("low" AS ?severity)
+      BIND(true AS ?autoResolvable)
+
+      BIND(IRI(CONCAT("https://ggen.dev/examples/conflict#Conflict-", STRAFTER(STR(?entity), "#"), "-naming")) AS ?conflict)
+    }
+  }
+
+  # ========================================================================
+  # CONFLICT REPORT — Root node for the generated report
+  # ========================================================================
+  BIND(IRI("https://ggen.dev/examples/conflict#ConflictReport-generated") AS ?report)
+}
+ORDER BY DESC(?severity) ?entity ?prop

@@ -74,6 +74,8 @@
 
 pub mod construct;
 pub mod core;
+pub mod cycle_detection;
+pub mod cycle_fixer;
 // #[cfg(test)]
 // mod core_fs_tests;  // Requires chicago_tdd_tools::testcontainers
 pub mod export;
@@ -89,6 +91,8 @@ pub mod update;
 // Re-export main types
 pub use construct::ConstructExecutor;
 pub use core::{build_prolog, Graph};
+pub use cycle_detection::{detect_cycles, validate_acyclic};
+pub use cycle_fixer::{CycleFixer, FixReport, FixStrategy};
 pub use export::GraphExport;
 pub use query::GraphQuery;
 pub use store::GraphStore;

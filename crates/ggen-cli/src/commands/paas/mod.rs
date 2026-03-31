@@ -29,7 +29,7 @@ pub struct PaasCommand {
     #[arg(long, global = true, env = "GGEN_SPEC_DIR")]
     pub spec_dir: Option<PathBuf>,
 
-    /// Output directory (default: ./generated)
+    /// Output directory (default: .)
     #[arg(long, global = true, env = "GGEN_OUTPUT_DIR")]
     pub output_dir: Option<PathBuf>,
 
@@ -230,7 +230,7 @@ impl PaasCommand {
                 let tgt = target
                     .as_ref()
                     .and_then(|p| p.to_str())
-                    .unwrap_or("./generated");
+                    .unwrap_or(".");
                 handlers::sync::sync_specs(src, tgt, dry_run).await?;
             }
             PaasAction::Deploy {

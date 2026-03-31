@@ -16,7 +16,7 @@ ggen-core = { path = "../../ggen-core" }
 ggen-ai = { path = "../../ggen-ai" }
 
 # RDF/SPARQL
-oxigraph = "0.5"
+oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 
 # Async runtime
 tokio = { version = "1.0", features = ["full"] }

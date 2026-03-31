@@ -1,0 +1,38 @@
+{
+  "category": "doe",
+  "description": "Design of Experiments: full factorial, fractional factorial, response surface",
+  "datasets": [
+    {
+      "file": "catapult_full_factorial.csv",
+      "context": "Product Development",
+      "module": "M34",
+      "design_type": "2^3 Full Factorial",
+      "n_runs": 24,
+      "n_factors": 3,
+      "replicates": 3,
+      "significant_effects": ["A (Angle)", "B (Pull Back)", "C (Pin Height)", "AB Interaction"],
+      "teaching_notes": "Classic catapult exercise. Hands-on if physical catapult available."
+    },
+    {
+      "file": "software_deployment_fractional.csv",
+      "context": "New Process Design",
+      "module": "M35",
+      "design_type": "2^(5-1) Fractional Factorial (Resolution V)",
+      "n_runs": 32,
+      "n_factors": 5,
+      "significant_effects": ["CI/CD Pipeline", "Automated Tests", "CI/CD x Auto Tests"],
+      "teaching_notes": "Process DOE for software. Exercise: which factors minimize deployment time?"
+    },
+    {
+      "file": "response_surface.csv",
+      "context": "Product Development",
+      "module": "M41",
+      "design_type": "Central Composite Design (CCD)",
+      "n_runs": 13,
+      "n_factors": 2,
+      "teaching_notes": "RSM optimization. Find the sweet spot between battery weight and efficiency."
+    }
+  ],
+  "tools_required": ["R", "Minitab", "JMP"],
+  "bloom_level": ["Analyze", "Evaluate", "Create"]
+}

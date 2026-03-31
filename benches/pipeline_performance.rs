@@ -1,6 +1,6 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use ggen_core::graph::Graph;
-use ggen_core::pipeline::Pipeline;
+use ggen_core::register::register_all;
 use ggen_core::template::Template;
 use std::fs;
 use std::io::Write;
@@ -53,9 +53,9 @@ fn bench_ontology_parsing(c: &mut Criterion) {
             &ontology_path,
             |b, path| {
                 b.iter(|| {
-                    let mut graph = Graph::new().unwrap();
+                    let graph = Graph::new().unwrap();
                     let ontology_content = fs::read_to_string(path).unwrap();
-                    let result = graph.load_turtle(black_box(&ontology_content));
+                    let result = graph.insert_turtle(black_box(&ontology_content));
                     black_box(result)
                 });
             },
@@ -70,7 +70,7 @@ fn bench_ontology_parsing(c: &mut Criterion) {
 // ============================================================================
 
 fn create_sparql_test_data(
-    graph: &mut Graph, entity_count: usize,
+    graph: &Graph, entity_count: usize,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut rdf_data = String::from(
         "@prefix ex: <http://example.org/> .\n\
@@ -84,7 +84,9 @@ fn create_sparql_test_data(
         ));
     }
 
-    graph.load_turtle(&rdf_data)?;
+    graph
+        .insert_turtle(&rdf_data)
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
     Ok(())
 }
 
@@ -99,12 +101,12 @@ fn bench_sparql_query_execution(c: &mut Criterion) {
         // Simple SELECT query
         group.bench_with_input(BenchmarkId::new("select_all", count), &count, |b, &cnt| {
             b.iter(|| {
-                let mut graph = Graph::new().unwrap();
-                create_sparql_test_data(&mut graph, cnt).unwrap();
+                let graph = Graph::new().unwrap();
+                create_sparql_test_data(&graph, cnt as usize).unwrap();
 
                 let query = "PREFIX ex: <http://example.org/>\n\
                                 SELECT ?s ?name WHERE { ?s ex:hasName ?name }";
-                let result = graph.query(black_box(query));
+                let result = graph.query_cached(black_box(query)).ok();
                 black_box(result)
             });
         });
@@ -115,12 +117,12 @@ fn bench_sparql_query_execution(c: &mut Criterion) {
             &count,
             |b, &cnt| {
                 b.iter(|| {
-                    let mut graph = Graph::new().unwrap();
-                    create_sparql_test_data(&mut graph, cnt).unwrap();
+                    let graph = Graph::new().unwrap();
+                    create_sparql_test_data(&graph, cnt as usize).unwrap();
 
                     let query = "PREFIX ex: <http://example.org/>\n\
                                 SELECT ?s ?id WHERE { ?s ex:hasId ?id . FILTER(?id < 50) }";
-                    let result = graph.query(black_box(query));
+                    let result = graph.query_cached(black_box(query)).ok();
                     black_box(result)
                 });
             },
@@ -132,8 +134,8 @@ fn bench_sparql_query_execution(c: &mut Criterion) {
             &count,
             |b, &cnt| {
                 b.iter(|| {
-                    let mut graph = Graph::new().unwrap();
-                    create_sparql_test_data(&mut graph, cnt).unwrap();
+                    let graph = Graph::new().unwrap();
+                    create_sparql_test_data(&graph, cnt as usize).unwrap();
 
                     let query = "PREFIX ex: <http://example.org/>\n\
                                 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n\
@@ -142,7 +144,7 @@ fn bench_sparql_query_execution(c: &mut Criterion) {
                                   ?s ex:hasName ?name .\n\
                                   ?s ex:hasId ?id .\n\
                                 }";
-                    let result = graph.query(black_box(query));
+                    let result = graph.query_cached(black_box(query)).ok();
                     black_box(result)
                 });
             },
@@ -198,8 +200,6 @@ fn main() {{
 fn bench_template_rendering(c: &mut Criterion) {
     let mut group = c.benchmark_group("template_rendering");
 
-    let pipeline = Pipeline::new().unwrap();
-
     let configs = vec![(10, 10), (50, 50), (100, 100), (200, 200), (500, 100)];
 
     for (var_count, loop_count) in configs {
@@ -217,7 +217,8 @@ fn bench_template_rendering(c: &mut Criterion) {
                     ctx.insert("name", "test_app");
                     ctx.insert("var_count", &var_count);
 
-                    let mut tera = pipeline.tera.clone();
+                    let mut tera = tera::Tera::default();
+                    register_all(&mut tera);
                     template.render_frontmatter(&mut tera, &ctx).unwrap();
                     let result = template.render(&mut tera, &ctx);
                     black_box(result)
@@ -307,7 +308,6 @@ fn bench_memory_large_generations(c: &mut Criterion) {
         // Sequential generation (memory-efficient)
         group.bench_with_input(BenchmarkId::new("sequential", count), &count, |b, &cnt| {
             let template_str = create_rendering_template(10, 10);
-            let pipeline = Pipeline::new().unwrap();
 
             b.iter(|| {
                 for i in 0..cnt {
@@ -315,7 +315,8 @@ fn bench_memory_large_generations(c: &mut Criterion) {
                     let mut ctx = Context::new();
                     ctx.insert("name", &format!("app_{}", i));
 
-                    let mut tera = pipeline.tera.clone();
+                    let mut tera = tera::Tera::default();
+                    register_all(&mut tera);
                     template.render_frontmatter(&mut tera, &ctx).unwrap();
                     let rendered = template.render(&mut tera, &ctx).unwrap();
                     black_box(rendered);
@@ -327,7 +328,6 @@ fn bench_memory_large_generations(c: &mut Criterion) {
         // Batch generation (holds all in memory)
         group.bench_with_input(BenchmarkId::new("batch", count), &count, |b, &cnt| {
             let template_str = create_rendering_template(10, 10);
-            let pipeline = Pipeline::new().unwrap();
 
             b.iter(|| {
                 let mut results = Vec::new();
@@ -336,7 +336,8 @@ fn bench_memory_large_generations(c: &mut Criterion) {
                     let mut ctx = Context::new();
                     ctx.insert("name", &format!("app_{}", i));
 
-                    let mut tera = pipeline.tera.clone();
+                    let mut tera = tera::Tera::default();
+                    register_all(&mut tera);
                     template.render_frontmatter(&mut tera, &ctx).unwrap();
                     let rendered = template.render(&mut tera, &ctx).unwrap();
                     results.push(rendered);
@@ -448,7 +449,6 @@ fn main() {
 fn bench_e2e_generation(c: &mut Criterion) {
     let mut group = c.benchmark_group("e2e_generation");
 
-    let pipeline = Pipeline::new().unwrap();
     let temp_dir = TempDir::new().unwrap();
 
     for complexity in &["simple", "medium", "complex"] {
@@ -465,7 +465,8 @@ fn bench_e2e_generation(c: &mut Criterion) {
                     ctx.insert("name", "test_app");
 
                     let mut graph = Graph::new().unwrap();
-                    let mut tera = pipeline.tera.clone();
+                    let mut tera = tera::Tera::default();
+                    register_all(&mut tera);
 
                     // Full pipeline: parse -> render frontmatter -> process graph -> render
                     template.render_frontmatter(&mut tera, &ctx).unwrap();
@@ -491,7 +492,6 @@ fn bench_multi_file_generation(c: &mut Criterion) {
     let mut group = c.benchmark_group("multi_file_generation");
     group.sample_size(10);
 
-    let pipeline = Pipeline::new().unwrap();
     let file_counts = vec![10, 50, 100];
 
     for count in file_counts {
@@ -508,7 +508,8 @@ fn bench_multi_file_generation(c: &mut Criterion) {
                     let mut ctx = Context::new();
                     ctx.insert("name", &format!("file_{}", i));
 
-                    let mut tera = pipeline.tera.clone();
+                    let mut tera = tera::Tera::default();
+                    register_all(&mut tera);
                     template.render_frontmatter(&mut tera, &ctx).unwrap();
                     let rendered = template.render(&mut tera, &ctx).unwrap();
 

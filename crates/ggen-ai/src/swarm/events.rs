@@ -3,7 +3,7 @@
 //! Handles event detection, routing, and processing for autonomous operations.
 
 use crate::error::{GgenAiError, Result};
-use crate::swarm::{SystemEvent, EventSource, EventStream};
+use crate::swarm::{EventSource, EventStream, SystemEvent};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -121,7 +121,10 @@ impl EventRouter {
 
     /// Add an event filter
     pub fn add_event_filter(&mut self, agent_name: String, filter: EventFilter) {
-        self.event_filters.entry(agent_name).or_insert_with(Vec::new).push(filter);
+        self.event_filters
+            .entry(agent_name)
+            .or_insert_with(Vec::new)
+            .push(filter);
     }
 
     /// Start event monitoring
@@ -146,8 +149,7 @@ impl EventRouter {
 
     /// Monitor a single event source
     async fn monitor_event_source(
-        source: &dyn EventSource,
-        event_tx: broadcast::Sender<SystemEvent>,
+        source: &dyn EventSource, event_tx: broadcast::Sender<SystemEvent>,
     ) -> Result<()> {
         loop {
             match source.poll_events().await {
@@ -174,9 +176,15 @@ impl EventRouter {
     }
 
     /// Filter events for a specific agent
-    pub fn filter_events_for_agent(&self, agent_name: &str, events: &[SystemEvent]) -> Vec<SystemEvent> {
+    pub fn filter_events_for_agent(
+        &self, agent_name: &str, events: &[SystemEvent],
+    ) -> Vec<SystemEvent> {
         if let Some(filters) = self.event_filters.get(agent_name) {
-            events.iter().filter(|event| self.event_matches_filters(event, filters)).cloned().collect()
+            events
+                .iter()
+                .filter(|event| self.event_matches_filters(event, filters))
+                .cloned()
+                .collect()
         } else {
             events.to_vec()
         }
@@ -184,15 +192,19 @@ impl EventRouter {
 
     /// Check if an event matches any of the given filters
     fn event_matches_filters(&self, event: &SystemEvent, filters: &[EventFilter]) -> bool {
-        filters.iter().any(|filter| self.event_matches_filter(event, filter))
+        filters
+            .iter()
+            .any(|filter| self.event_matches_filter(event, filter))
     }
 
     /// Check if an event matches a specific filter
     fn event_matches_filter(&self, event: &SystemEvent, filter: &EventFilter) -> bool {
         // Check event type match
-        let event_type_match = filter.event_types.is_empty() ||
-            filter.event_types.iter().any(|event_type| {
-                match (event_type.as_str(), event) {
+        let event_type_match = filter.event_types.is_empty()
+            || filter
+                .event_types
+                .iter()
+                .any(|event_type| match (event_type.as_str(), event) {
                     ("filesystem", SystemEvent::FileSystem { .. }) => true,
                     ("git", SystemEvent::Git { .. }) => true,
                     ("api", SystemEvent::ApiWebhook { .. }) => true,
@@ -200,8 +212,7 @@ impl EventRouter {
                     ("telemetry", SystemEvent::RuntimeTelemetry { .. }) => true,
                     ("requirement", SystemEvent::BusinessRequirement { .. }) => true,
                     _ => false,
-                }
-            });
+                });
 
         if !event_type_match {
             return false;
@@ -210,9 +221,10 @@ impl EventRouter {
         // Check path pattern match for file events
         if let SystemEvent::FileSystem { path, .. } = event {
             if !filter.path_patterns.is_empty() {
-                return filter.path_patterns.iter().any(|pattern| {
-                    path.to_string_lossy().contains(pattern)
-                });
+                return filter
+                    .path_patterns
+                    .iter()
+                    .any(|pattern| path.to_string_lossy().contains(pattern));
             }
         }
 
@@ -481,10 +493,7 @@ impl EventStream for ApiWebhookEventStream {
 impl RuntimeTelemetryEventSource {
     /// Create a new runtime telemetry event source
     pub fn new(services: Vec<String>, metrics: Vec<String>) -> Self {
-        Self {
-            services,
-            metrics,
-        }
+        Self { services, metrics }
     }
 }
 

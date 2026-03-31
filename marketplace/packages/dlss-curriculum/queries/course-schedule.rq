@@ -1,0 +1,20 @@
+# Course Schedule Query
+# Extracts all phases ordered by phaseOrder, then modules ordered by moduleOrder within each phase.
+# Output columns: phaseOrder, phaseName, moduleOrder, moduleCode, moduleTitle, duration.
+
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?phaseOrder ?phaseName ?moduleOrder ?moduleCode ?moduleTitle ?duration
+WHERE {
+  ?phase a dlss:DMEDIPhase ;
+    dlss:phaseOrder ?phaseOrder ;
+    dlss:title ?phaseName .
+  ?module a dlss:Module ;
+    dlss:phase ?phase ;
+    dlss:moduleOrder ?moduleOrder ;
+    dlss:code ?moduleCode ;
+    dlss:title ?moduleTitle ;
+    dlss:duration ?duration .
+}
+ORDER BY ?phaseOrder ?moduleOrder

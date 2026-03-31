@@ -2,6 +2,7 @@
 
 use crate::error::{A2aMcpError, A2aMcpResult};
 use a2a_generated::converged::message::{ConvergedMessage, UnifiedContent};
+use tracing::warn;
 
 /// Converts between A2A ConvergedMessage and LLM prompt/response formats
 #[derive(Debug, Default)]
@@ -57,6 +58,64 @@ impl A2aMessageConverter {
         Ok(message)
     }
 
+    /// Extract nested multipart content recursively
+    fn extract_nested_multipart(
+        &self, parts: &[UnifiedContent], depth: usize,
+    ) -> A2aMcpResult<String> {
+        let indent = "  ".repeat(depth);
+        let mut content_parts = Vec::new();
+
+        for part in parts {
+            match part {
+                UnifiedContent::Text { content, .. } => {
+                    content_parts.push(format!("{}{}", indent, content));
+                }
+                UnifiedContent::Data { data, .. } => {
+                    let json = serde_json::to_string_pretty(data)?;
+                    for line in json.lines() {
+                        content_parts.push(format!("{}{}", indent, line));
+                    }
+                }
+                UnifiedContent::File { file, .. } => {
+                    if let Some(name) = &file.name {
+                        warn!(
+                            "{}Nested file at depth {}: {} (size: {:?})",
+                            indent, depth, name, file.size
+                        );
+                        content_parts.push(format!(
+                            "{}[File: {} ({} bytes)]",
+                            indent,
+                            name,
+                            file.size.unwrap_or(0)
+                        ));
+                    } else if let Some(uri) = &file.uri {
+                        warn!("{}Nested file at depth {}: {}", indent, depth, uri);
+                        content_parts.push(format!("{}[File at: {}]", indent, uri));
+                    }
+                }
+                UnifiedContent::Stream { stream_id, .. } => {
+                    warn!("{}Nested stream at depth {}: {}", indent, depth, stream_id);
+                    content_parts.push(format!("{}[Stream ID: {}]", indent, stream_id));
+                }
+                UnifiedContent::Multipart {
+                    parts: nested_parts,
+                    ..
+                } => {
+                    warn!(
+                        "{}Deeply nested multipart at depth {} with {} parts",
+                        indent,
+                        depth,
+                        nested_parts.len()
+                    );
+                    let nested_content = self.extract_nested_multipart(nested_parts, depth + 1)?;
+                    content_parts.push(nested_content);
+                }
+            }
+        }
+
+        Ok(content_parts.join("\n\n"))
+    }
+
     /// Extract text content from a ConvergedMessage
     fn extract_content(&self, message: &ConvergedMessage) -> A2aMcpResult<String> {
         match &message.payload.content {
@@ -85,7 +144,43 @@ impl A2aMessageConverter {
                         UnifiedContent::Data { data, .. } => {
                             content_parts.push(serde_json::to_string_pretty(data)?);
                         }
-                        _ => content_parts.push("[Unsupported content type]".to_string()),
+                        UnifiedContent::File { file, .. } => {
+                            // Preserve file metadata with warning
+                            if let Some(name) = &file.name {
+                                warn!(
+                                    "File content in multipart: {} (size: {:?})",
+                                    name, file.size
+                                );
+                                content_parts.push(format!(
+                                    "[File: {} ({} bytes)]",
+                                    name,
+                                    file.size.unwrap_or(0)
+                                ));
+                            } else if let Some(uri) = &file.uri {
+                                warn!("File content in multipart: {}", uri);
+                                content_parts.push(format!("[File at: {}]", uri));
+                            } else {
+                                warn!("File content in multipart: no name or URI");
+                                content_parts.push("[File content without identifier]".to_string());
+                            }
+                        }
+                        UnifiedContent::Stream { stream_id, .. } => {
+                            // Preserve stream ID with warning
+                            warn!("Stream content in multipart: {}", stream_id);
+                            content_parts.push(format!("[Stream ID: {}]", stream_id));
+                        }
+                        UnifiedContent::Multipart {
+                            parts: nested_parts,
+                            ..
+                        } => {
+                            // RECURSIVE: Extract nested multipart content
+                            warn!(
+                                "Nested multipart detected with {} parts - extracting recursively",
+                                nested_parts.len()
+                            );
+                            let nested_content = self.extract_nested_multipart(nested_parts, 1)?;
+                            content_parts.push(nested_content);
+                        }
                     }
                 }
                 Ok(content_parts.join("\n\n---\n\n"))
@@ -129,7 +224,6 @@ mod tests {
         MessageRouting, MessageState, QoSRequirements, ReliabilityLevel,
     };
     use chrono::Utc;
-    use std::collections::HashMap;
 
     /// Helper to create a default message routing
     fn default_routing() -> MessageRouting {
@@ -355,5 +449,331 @@ mod tests {
         assert!(request.user_content.contains("Part 1"));
         assert!(request.user_content.contains("Part 2"));
         assert!(request.user_content.contains("---"));
+    }
+
+    #[test]
+    fn test_multipart_with_file_and_stream() {
+        let converter = A2aMessageConverter::new();
+        use a2a_generated::converged::message::UnifiedFileContent;
+
+        let message = ConvergedMessage {
+            message_id: "multipart-mixed-msg".to_string(),
+            source: "test-agent".to_string(),
+            target: Some("test-target".to_string()),
+            envelope: MessageEnvelope {
+                message_type: ConvergedMessageType::Direct,
+                priority: MessagePriority::Normal,
+                timestamp: Utc::now(),
+                schema_version: "1.0".to_string(),
+                content_type: "multipart/mixed".to_string(),
+                correlation_id: None,
+                causation_chain: None,
+            },
+            payload: ConvergedPayload {
+                content: UnifiedContent::Multipart {
+                    parts: vec![
+                        UnifiedContent::Text {
+                            content: "Text part".to_string(),
+                            metadata: None,
+                        },
+                        UnifiedContent::File {
+                            file: UnifiedFileContent {
+                                name: Some("document.pdf".to_string()),
+                                mime_type: Some("application/pdf".to_string()),
+                                bytes: None,
+                                uri: Some("file:///path/to/document.pdf".to_string()),
+                                size: Some(1024),
+                                hash: None,
+                            },
+                            metadata: None,
+                        },
+                        UnifiedContent::Stream {
+                            stream_id: "stream-abc123".to_string(),
+                            chunk_size: 1024,
+                            metadata: None,
+                        },
+                    ],
+                    boundary: Some("boundary".to_string()),
+                },
+                context: None,
+                hints: None,
+                integrity: None,
+            },
+            routing: default_routing(),
+            lifecycle: default_lifecycle(),
+            extensions: None,
+        };
+
+        let request = converter.a2a_to_llm_request(&message).unwrap();
+        assert!(request.user_content.contains("Text part"));
+        assert!(request.user_content.contains("[File: document.pdf"));
+        assert!(request.user_content.contains("1024 bytes"));
+        assert!(request.user_content.contains("[Stream ID: stream-abc123]"));
+    }
+
+    #[test]
+    fn test_nested_multipart_recursive_extraction() {
+        let converter = A2aMessageConverter::new();
+
+        // Create nested multipart structure
+        let inner_multipart = UnifiedContent::Multipart {
+            parts: vec![
+                UnifiedContent::Text {
+                    content: "Inner text 1".to_string(),
+                    metadata: None,
+                },
+                UnifiedContent::Text {
+                    content: "Inner text 2".to_string(),
+                    metadata: None,
+                },
+            ],
+            boundary: Some("inner-boundary".to_string()),
+        };
+
+        let message = ConvergedMessage {
+            message_id: "nested-multipart-msg".to_string(),
+            source: "test-agent".to_string(),
+            target: Some("test-target".to_string()),
+            envelope: MessageEnvelope {
+                message_type: ConvergedMessageType::Direct,
+                priority: MessagePriority::Normal,
+                timestamp: Utc::now(),
+                schema_version: "1.0".to_string(),
+                content_type: "multipart/mixed".to_string(),
+                correlation_id: None,
+                causation_chain: None,
+            },
+            payload: ConvergedPayload {
+                content: UnifiedContent::Multipart {
+                    parts: vec![
+                        UnifiedContent::Text {
+                            content: "Outer text".to_string(),
+                            metadata: None,
+                        },
+                        inner_multipart,
+                    ],
+                    boundary: Some("outer-boundary".to_string()),
+                },
+                context: None,
+                hints: None,
+                integrity: None,
+            },
+            routing: default_routing(),
+            lifecycle: default_lifecycle(),
+            extensions: None,
+        };
+
+        let request = converter.a2a_to_llm_request(&message).unwrap();
+        // Verify all content is extracted
+        assert!(request.user_content.contains("Outer text"));
+        assert!(request.user_content.contains("Inner text 1"));
+        assert!(request.user_content.contains("Inner text 2"));
+        // Verify no data loss occurred
+        assert!(!request.user_content.contains("[Unsupported content type"));
+    }
+
+    #[test]
+    fn test_deeply_nested_multipart_with_mixed_content() {
+        let converter = A2aMessageConverter::new();
+        use a2a_generated::converged::message::UnifiedFileContent;
+
+        // Create deeply nested structure: Multipart -> Multipart -> Text/File/Stream
+        let level_2_multipart = UnifiedContent::Multipart {
+            parts: vec![
+                UnifiedContent::Text {
+                    content: "Level 2 text".to_string(),
+                    metadata: None,
+                },
+                UnifiedContent::File {
+                    file: UnifiedFileContent {
+                        name: Some("deep-file.txt".to_string()),
+                        mime_type: Some("text/plain".to_string()),
+                        bytes: None,
+                        uri: None,
+                        size: Some(512),
+                        hash: None,
+                    },
+                    metadata: None,
+                },
+            ],
+            boundary: Some("level-2-boundary".to_string()),
+        };
+
+        let level_1_multipart = UnifiedContent::Multipart {
+            parts: vec![
+                UnifiedContent::Text {
+                    content: "Level 1 text".to_string(),
+                    metadata: None,
+                },
+                level_2_multipart,
+                UnifiedContent::Stream {
+                    stream_id: "level-1-stream".to_string(),
+                    chunk_size: 2048,
+                    metadata: None,
+                },
+            ],
+            boundary: Some("level-1-boundary".to_string()),
+        };
+
+        let message = ConvergedMessage {
+            message_id: "deep-nested-msg".to_string(),
+            source: "test-agent".to_string(),
+            target: Some("test-target".to_string()),
+            envelope: MessageEnvelope {
+                message_type: ConvergedMessageType::Direct,
+                priority: MessagePriority::Normal,
+                timestamp: Utc::now(),
+                schema_version: "1.0".to_string(),
+                content_type: "multipart/mixed".to_string(),
+                correlation_id: None,
+                causation_chain: None,
+            },
+            payload: ConvergedPayload {
+                content: level_1_multipart,
+                context: None,
+                hints: None,
+                integrity: None,
+            },
+            routing: default_routing(),
+            lifecycle: default_lifecycle(),
+            extensions: None,
+        };
+
+        let request = converter.a2a_to_llm_request(&message).unwrap();
+        // Verify all nested content is extracted
+        assert!(request.user_content.contains("Level 1 text"));
+        assert!(request.user_content.contains("Level 2 text"));
+        assert!(request.user_content.contains("[File: deep-file.txt"));
+        assert!(request.user_content.contains("512 bytes"));
+        assert!(request.user_content.contains("[Stream ID: level-1-stream]"));
+        // Verify no data loss
+        assert!(!request.user_content.contains("[Unsupported content type"));
+    }
+
+    #[test]
+    fn test_multipart_with_data_serialization() {
+        let converter = A2aMessageConverter::new();
+
+        let mut data = serde_json::Map::new();
+        data.insert(
+            "username".to_string(),
+            serde_json::Value::String("alice".to_string()),
+        );
+        data.insert(
+            "role".to_string(),
+            serde_json::Value::String("admin".to_string()),
+        );
+
+        let message = ConvergedMessage {
+            message_id: "multipart-data-msg".to_string(),
+            source: "test-agent".to_string(),
+            target: Some("test-target".to_string()),
+            envelope: MessageEnvelope {
+                message_type: ConvergedMessageType::Query,
+                priority: MessagePriority::Normal,
+                timestamp: Utc::now(),
+                schema_version: "1.0".to_string(),
+                content_type: "multipart/mixed".to_string(),
+                correlation_id: None,
+                causation_chain: None,
+            },
+            payload: ConvergedPayload {
+                content: UnifiedContent::Multipart {
+                    parts: vec![
+                        UnifiedContent::Text {
+                            content: "User data:".to_string(),
+                            metadata: None,
+                        },
+                        UnifiedContent::Data { data, schema: None },
+                    ],
+                    boundary: Some("data-boundary".to_string()),
+                },
+                context: None,
+                hints: None,
+                integrity: None,
+            },
+            routing: default_routing(),
+            lifecycle: default_lifecycle(),
+            extensions: None,
+        };
+
+        let request = converter.a2a_to_llm_request(&message).unwrap();
+        assert!(request.user_content.contains("User data:"));
+        assert!(request.user_content.contains("alice"));
+        assert!(request.user_content.contains("admin"));
+    }
+
+    #[test]
+    fn test_no_wildcard_data_loss() {
+        let converter = A2aMessageConverter::new();
+        use a2a_generated::converged::message::UnifiedFileContent;
+
+        // Test that all content types are handled, nothing falls through to wildcard
+        let message = ConvergedMessage {
+            message_id: "no-data-loss-msg".to_string(),
+            source: "test-agent".to_string(),
+            target: Some("test-target".to_string()),
+            envelope: MessageEnvelope {
+                message_type: ConvergedMessageType::Direct,
+                priority: MessagePriority::Normal,
+                timestamp: Utc::now(),
+                schema_version: "1.0".to_string(),
+                content_type: "multipart/mixed".to_string(),
+                correlation_id: None,
+                causation_chain: None,
+            },
+            payload: ConvergedPayload {
+                content: UnifiedContent::Multipart {
+                    parts: vec![
+                        UnifiedContent::Text {
+                            content: "Text".to_string(),
+                            metadata: None,
+                        },
+                        UnifiedContent::Data {
+                            data: serde_json::Map::from_iter(
+                                vec![(
+                                    "key".to_string(),
+                                    serde_json::Value::String("value".to_string()),
+                                )]
+                                .into_iter(),
+                            ),
+                            schema: None,
+                        },
+                        UnifiedContent::File {
+                            file: UnifiedFileContent {
+                                name: Some("test.txt".to_string()),
+                                mime_type: None,
+                                bytes: None,
+                                uri: None,
+                                size: Some(100),
+                                hash: None,
+                            },
+                            metadata: None,
+                        },
+                        UnifiedContent::Stream {
+                            stream_id: "stream-123".to_string(),
+                            chunk_size: 4096,
+                            metadata: None,
+                        },
+                    ],
+                    boundary: Some("test-boundary".to_string()),
+                },
+                context: None,
+                hints: None,
+                integrity: None,
+            },
+            routing: default_routing(),
+            lifecycle: default_lifecycle(),
+            extensions: None,
+        };
+
+        let request = converter.a2a_to_llm_request(&message).unwrap();
+        // Verify none of the content was discarded
+        assert!(!request.user_content.contains("[Unsupported content type]"));
+        assert!(request.user_content.contains("Text"));
+        assert!(request.user_content.contains("key"));
+        assert!(request.user_content.contains("value"));
+        assert!(request.user_content.contains("[File: test.txt"));
+        assert!(request.user_content.contains("[Stream ID: stream-123]"));
     }
 }

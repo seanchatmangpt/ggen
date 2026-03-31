@@ -54,6 +54,7 @@ clap_complete = "4.5.58"
 clap-noun-verb-macros.workspace = true
 sha2 = "0.10"
 dotenvy = "0.15"
+reqwest = { version = "0.12", features = ["json"] }
 glob = "0.3"
 semver = "1.0"
 dirs = "6.0"
@@ -76,8 +77,12 @@ md5 = "0.8"
 # Autonomic CLI features (used by clap-noun-verb macros)
 autonomic = []
 
+# PaaS feature gate for #[cfg(feature = "paas")] modules
+paas = []
+
 # Testing features
 live-llm-tests = [] # Opt-in for live LLM integration tests
+integration = [] # Gate tests that reference missing/future crates
 
 # A2A Protocol support - temporarily disabled due to compilation errors
 use-a2a-rs = ["a2a-generated"]  # Use generated a2a code
@@ -87,7 +92,7 @@ use-a2a-rs = ["a2a-generated"]  # Use generated a2a code
 assert_cmd = "2"
 assert_fs = "1"
 predicates = "3" # Assertions for CLI testing
-mockall = "0.13" # London TDD mocking framework
+mockall = "0.13" # London TDD mocking framework (DEPRECATED - use real collaborators)
 fake = { version = "4.4", features = ["derive"] } # Fake data generation
 tempfile = "3.23" # Temporary files/directories for testing
 serde_yaml = "0.9" # YAML parsing for frontmatter tests
@@ -99,7 +104,74 @@ criterion = { version = "0.5", features = [
 tokio-test = "0.4" # Tokio testing utilities
 notify = "6.1" # File system watcher for watch mode tests
 chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
-oxigraph = "0.5" # RDF storage for tests (not needed for binary)
+oxigraph = { version = "0.5.6", features = ["rdf-12"] } # RDF storage for tests (not needed for binary)
+httpmock = "0.7" # Chicago TDD: Real HTTP test server for download tests
+
+[[test]]
+name = "init_tests"
+path = "tests/init_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "integration_cli_ux_e2e"
+path = "tests/integration_cli_ux_e2e.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "marketplace_search_chicago_tdd"
+path = "tests/marketplace_search_chicago_tdd.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "packs_phase2_comprehensive"
+path = "tests/packs_phase2_comprehensive.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "template_integration_test"
+path = "tests/template_integration_test.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "unit_tests"
+path = "tests/unit_tests.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "chicago_tdd_smoke_test"
+path = "tests/chicago_tdd_smoke_test.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "conventions_test"
+path = "tests/conventions_test.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "e2e"
+path = "tests/e2e.rs"
+required-features = ["integration"]
+
+# [[test]]
+# name = "marketplace_install_e2e"
+# path = "tests/marketplace_install_e2e.rs"
+# required-features = ["integration"]
+# DISABLED: Tests internal types not exported from ggen-cli-lib
+
+[[test]]
+name = "integration_cli_wrappers"
+path = "tests/integration_cli_wrappers.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "paas_integration_test"
+path = "tests/paas_integration_test.rs"
+required-features = ["integration"]
+
+[[test]]
+name = "sync_tests"
+path = "tests/sync_tests.rs"
+required-features = ["integration"]
 
 [[bench]]
 name = "marketplace_benchmark"

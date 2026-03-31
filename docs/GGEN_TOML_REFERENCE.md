@@ -312,6 +312,39 @@ rpn = 12  # 3*2*2
 mitigations = ["Unit tests for auth logic", "Integration tests with mock JWT"]
 ```
 
+### Elixir A2A Agent Project
+
+Define agents in `ontology.ttl`, then `ggen sync` to generate Phoenix-ready boilerplate
+using the [`a2a ~> 0.2`](https://hex.pm/packages/a2a) hex library:
+
+```toml
+[project]
+name = "my-phoenix-app"
+version = "1.0.0"
+
+[generation]
+rules = [
+    { name = "elixir-a2a-agents",
+      query       = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq",
+      template    = "crates/ggen-core/templates/elixir-a2a/agents.ex.tera",
+      output_file = "lib/a2a_agents.ex",
+      mode        = "Overwrite" },
+    { name = "elixir-a2a-router",
+      query       = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq",
+      template    = "crates/ggen-core/templates/elixir-a2a/router.ex.tera",
+      output_file = "lib/a2a_router.ex",
+      mode        = "Overwrite" },
+    { name = "elixir-a2a-supervisor",
+      query       = "crates/ggen-core/queries/elixir-a2a/extract-agents.rq",
+      template    = "crates/ggen-core/templates/elixir-a2a/supervisor.ex.tera",
+      output_file = "lib/a2a_supervisor.ex",
+      mode        = "Overwrite" },
+]
+```
+
+All three rules share `extract-agents.rq`. See `docs/ELIXIR_A2A_NOTES.md`
+for the full RDF schema (`a2a:Agent`, `a2a:elixirApp`, `a2a:urlPath`, `a2a:hasSkill`).
+
 ---
 
 ## Decision Matrix: When to Use What

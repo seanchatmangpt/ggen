@@ -1,0 +1,32 @@
+# Module Index Query
+# Extracts all modules with their learning objectives, examples, and prerequisites.
+# Output: moduleCode, moduleTitle, phaseName, difficulty, objectiveText, exampleContext, exampleTitle, prerequisiteCode, prerequisiteTitle.
+
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?moduleCode ?moduleTitle ?phaseName ?difficulty ?objectiveText ?exampleContext ?exampleTitle ?prerequisiteCode ?prerequisiteTitle
+WHERE {
+  ?module a dlss:Module ;
+    dlss:code ?moduleCode ;
+    dlss:title ?moduleTitle ;
+    dlss:phase ?phase ;
+    dlss:difficulty ?difficulty .
+  ?phase dlss:title ?phaseName .
+
+  OPTIONAL {
+    ?module dlss:learningObjective ?objective .
+    ?objective dlss:text ?objectiveText .
+  }
+  OPTIONAL {
+    ?module dlss:example ?example .
+    ?example dlss:context ?exampleContext ;
+             dlss:title ?exampleTitle .
+  }
+  OPTIONAL {
+    ?module dlss:prerequisite ?prereq .
+    ?prereq dlss:code ?prerequisiteCode ;
+            dlss:title ?prerequisiteTitle .
+  }
+}
+ORDER BY ?moduleCode

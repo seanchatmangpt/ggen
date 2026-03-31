@@ -1,0 +1,143 @@
+# ggen Self-Play Demo Configuration
+# This manifest configures ggen to generate itself
+
+[project]
+name = "ggen-self-play"
+version = "6.0.1"
+edition = "2021"
+authors = ["ggen <self-play@ggen.dev>"]
+description = "ggen generating itself - recursive self-improvement demo"
+
+[manifest]
+# Path to the self-play ontology
+ontology = "ontology.ttl"
+
+# Output configuration
+output_dir = "target/self-play"
+target_name = "ggen-next"
+
+# Pipeline configuration
+[manifest.pipeline]
+# Five-stage pipeline: μ₁-μ₅
+stages = ["spec", "generate", "merge", "validate", "emit"]
+
+# Stage-specific settings
+[manifest.pipeline.spec]
+extract = "full"
+include_imports = true
+
+[manifest.pipeline.generate]
+template_engine = "tera"
+template_dir = "../../../templates"
+language = "rust"
+
+[manifest.pipeline.merge]
+strategy = "preserve_existing"
+conflict_resolution = "manual"
+
+[manifest.pipeline.validate]
+enable_shacl = true
+enable_tests = true
+enable_clippy = true
+
+[manifest.pipeline.emit]
+format = true
+check = true
+
+# Quality gates
+[quality]
+# Test coverage threshold (percentage)
+test_coverage_threshold = 87
+
+# Performance SLOs (seconds)
+first_build_threshold = 15
+incremental_build_threshold = 2
+
+# Memory limit (bytes)
+memory_limit = 104857600  # 100MB
+
+# Mutation testing threshold (percentage)
+mutation_score_threshold = 60
+
+# Code quality
+require_clippy_pass = true
+require_fmt_check = true
+
+# Self-play specific settings
+[self_play]
+# Number of iterations to run
+iterations = 3
+
+# Convergence criteria
+[self_play.convergence]
+# Quality stability window (iterations)
+stability_window = 3
+
+# Quality stability threshold (percentage)
+stability_threshold = 5.0
+
+# Allow regression (boolean)
+allow_regression = false
+
+# Reporting
+[self_play.reporting]
+# Output directory for reports
+report_dir = "/tmp/self-play-reports"
+
+# Generate visualizations
+generate_mermaid = true
+
+# Track metrics per iteration
+track_metrics = true
+
+# Metrics to track
+[[self_play.reporting.metrics]]
+name = "test_coverage"
+type = "percentage"
+target = 87
+
+[[self_play.reporting.metrics]]
+name = "compilation_success"
+type = "boolean"
+target = true
+
+[[self_play.reporting.metrics]]
+name = "first_build_time"
+type = "duration"
+target = "15s"
+
+[[self_play.reporting.metrics]]
+name = "mutation_score"
+type = "percentage"
+target = 60
+
+[[self_play.reporting.metrics]]
+name = "memory_usage"
+type = "bytes"
+target = "104857600"
+
+# Behavior predicates to verify
+[[self_play.behavior_predicates]]
+name = "uses_result_type"
+pattern = "fn.*->\\s*Result<.*>"
+required = true
+
+[[self_play.behavior_predicates]]
+name = "follows_ownership_rules"
+pattern = "&\\w+\\s*,\\s*Mut"
+required = true
+
+[[self_play.behavior_predicates]]
+name = "async_consistency"
+pattern = "async\\s+fn"
+required = true
+
+[[self_play.behavior_predicates]]
+name = "has_documentation"
+pattern = "///"
+required = true
+
+[[self_play.behavior_predicates]]
+name = "has_tests"
+pattern = "#\\[test\\]"
+required = true

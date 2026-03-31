@@ -59,6 +59,7 @@
 pub mod cmds; // clap-noun-verb v4 entry points with #[verb] functions
 pub mod conventions; // File-based routing conventions
                      // pub mod domain;          // Business logic layer - MOVED TO ggen-domain crate
+pub mod llm_bridge; // Groq LLM bridge (async GenAiClient → sync LlmService)
 pub mod prelude;
 pub mod runtime; // Async/sync bridge utilities
 pub mod runtime_helper; // Sync CLI wrapper utilities for async operations // Common imports for commands

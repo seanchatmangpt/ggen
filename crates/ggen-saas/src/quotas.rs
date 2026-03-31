@@ -94,7 +94,7 @@ impl QuotaManager {
         // Update cache
         self.quota_cache.insert(user_id.to_string(), quota).await;
 
-        // TODO: Persist to database
+        // MVP_LIMITATION: Quota state is not persisted across restarts. All users default to Free tier after restart.
 
         Ok(())
     }
@@ -106,7 +106,7 @@ impl QuotaManager {
             return Ok(quota);
         }
 
-        // TODO: Load from database if not in cache
+        // MVP_LIMITATION: Quota state is in-memory only. State is lost on restart.
         // For now, return default free tier
         let quota = QuotaState {
             user_id: user_id.to_string(),
@@ -139,7 +139,7 @@ impl QuotaManager {
 
         self.quota_cache.insert(user_id.to_string(), quota).await;
 
-        // TODO: Persist to database
+        // MVP_LIMITATION: Tier updates are ephemeral. They reset to Free on restart.
 
         Ok(())
     }

@@ -353,3 +353,18 @@ Visual PlantUML diagram showing:
 ### Session 2 — 2026-03-28 (A2A Integration + Gap Closure)
 `chatmangpt_8020_pareto_2026-03-28-session2.md` — A2A protocol in pm4py-rust, weaver exit 0, OSA MonitoringScheduler, BusinessOS dashboard wiring, 90 new tests, 10 parallel agents, 40 commits. Overall readiness: **98%**.
 
+### Session 3 — 2026-03-29 (A2A Cross-Stack Work Tests + RDF Pipeline TDD)
+**A2A Work Tests:** Plan: `docs/superpowers/plans/2026-03-29-a2a-stack-work-tests.md`. pm4py-rust: 11 `a2a_work_test.rs` tests (statistics/discovery/OCEL/chaining/agent card). OSA: `tasks_send` action in `a2a_call.ex` + 7 integration tests + cross-stack coordination. BusinessOS: 4 Go mock-server tests. E2E: `scripts/a2a-stack-work-test.sh` (8 checks) + `make test-a2a-stack`. All submodules synced; ~65 commits ahead of main.
+
+**RDF Pipeline TDD (Phases 2-8 Complete):** BusinessOS Go: 56/56 tests pass. Phase 3: SPARQL query route (`POST /api/v1/ontology/query`). Phases 4-5: Canopy bridge (`POST/GET /api/v1/bos/intelligence`, 14 TDD tests). Phase 6: OSA board ingest (`POST /board/intelligence`, `POST /board/decision`, `GET /briefing`, 22 TDD tests). Phases 7-8: Weaver TDD (3 integration tests probing `:4320`) + correlation span tests (3 tests verifying `X-Correlation-ID` → `chatmangpt.run.correlation_id`).
+
+**Infrastructure:** OSA Docker healthcheck fixed (`wget -q -O /dev/null` instead of `--spider`). Chaos test `TestMain` gated on `docker compose ps --filter status=running -q backend`.
+
+**Celonis Parity Sprint (23/23 Complete):** BPMN conversion, POWL model, decision mining, remaining time MCP, enterprise connectors (SAP OData v2/v4, Salesforce OAuth2+SOQL, ServiceNow), BusinessOS Vite proxy, ProcessMapViewer empty-state, OSA ProcessMonitoringScheduler, OSA proactive mode + session replay (501 stubs replaced), OSA Wave12 live metrics.
+
+**OCPM "No AI Without PI":** All 5 van der Aalst paper connections wired in `ocpm/` module; 5 unit tests proving paper connections.
+
+**yawlv6 Hibernate 7 Hardening:** Stale session guard, fatal vs transient error distinction, operator recovery without restart, WCP-29 StructuredLoop XML fix, back-off sleep in `lib.sh`.
+
+**Remaining:** OTEL Jaeger proof → PR.
+

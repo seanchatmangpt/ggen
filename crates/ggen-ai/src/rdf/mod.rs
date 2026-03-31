@@ -30,7 +30,8 @@
 //! # }
 //! ```
 
-pub mod generator;
+// TEMPORARY: Disabled due to cyclic dependency with ggen-core
+// pub mod generator;
 pub mod parser;
 pub mod query;
 pub mod renderer;
@@ -38,7 +39,7 @@ pub mod template;
 pub mod types;
 
 // Re-export main types for convenience
-pub use generator::CliGenerator;
+// pub use generator::CliGenerator;  // Disabled - depends on ggen-core
 pub use parser::RdfParser;
 pub use query::QueryExecutor;
 pub use renderer::TemplateRenderer;

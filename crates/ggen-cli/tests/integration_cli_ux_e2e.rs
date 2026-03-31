@@ -260,12 +260,10 @@ fn test_cli_consistent_error_format() {
 fn test_cli_exit_codes_correct() {
     // Chicago TDD: Verify exit codes are meaningful
     // Success case
-    let success = ggen().arg("--help").status().unwrap();
-    assert!(success.success(), "Help should exit with code 0");
+    ggen().arg("--help").assert().success();
 
     // Failure case
-    let failure = ggen().arg("invalid-command").status().unwrap();
-    assert!(!failure.success(), "Invalid command should exit non-zero");
+    ggen().arg("invalid-command").assert().failure();
 }
 
 #[test]

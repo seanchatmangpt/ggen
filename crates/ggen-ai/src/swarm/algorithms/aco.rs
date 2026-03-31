@@ -162,7 +162,8 @@ impl SparqlAcoOptimizer {
             }
 
             // Find best path in this iteration
-            if let Some(best) = iteration_paths.iter()
+            if let Some(best) = iteration_paths
+                .iter()
                 .min_by(|a, b| a.cost.partial_cmp(&b.cost).unwrap())
             {
                 if iteration_best.is_none() || best.cost < iteration_best.as_ref().unwrap().cost {
@@ -178,13 +179,17 @@ impl SparqlAcoOptimizer {
                 let mut best_path = self.best_path.write().await;
                 if best_path.is_none() || iter_best.cost < best_path.as_ref().unwrap().cost {
                     *best_path = Some(iter_best.clone());
-                    info!("ACO iteration {}: new best path with cost {}", iteration, iter_best.cost);
+                    info!(
+                        "ACO iteration {}: new best path with cost {}",
+                        iteration, iter_best.cost
+                    );
                 }
             }
         }
 
         let best = self.best_path.read().await;
-        best.clone().ok_or_else(|| GgenAiError::internal("No valid path found"))
+        best.clone()
+            .ok_or_else(|| GgenAiError::internal("No valid path found"))
     }
 
     /// Construct a path for a single ant
@@ -225,9 +230,7 @@ impl SparqlAcoOptimizer {
 
     /// Select next node based on pheromone and heuristic
     async fn select_next_node(
-        &self,
-        current: &QueryNode,
-        available: &[QueryNode],
+        &self, current: &QueryNode, available: &[QueryNode],
     ) -> Result<QueryNode> {
         let pheromones = self.pheromones.read().await;
         let mut probabilities: Vec<(QueryNode, f64)> = Vec::new();
@@ -308,7 +311,9 @@ impl SparqlAcoOptimizer {
     }
 
     /// Record actual performance for adaptive learning
-    pub async fn record_performance(&self, path: AntPath, execution_time_ms: u64, result_count: usize) -> Result<()> {
+    pub async fn record_performance(
+        &self, path: AntPath, execution_time_ms: u64, result_count: usize,
+    ) -> Result<()> {
         let mut history = self.performance_history.write().await;
 
         history.push(PathPerformance {
@@ -347,7 +352,10 @@ impl SparqlAcoOptimizer {
             }
         }
 
-        debug!("Adapted pheromones based on {} performance records", history.len());
+        debug!(
+            "Adapted pheromones based on {} performance records",
+            history.len()
+        );
 
         Ok(())
     }
@@ -364,7 +372,8 @@ pub fn parse_sparql_to_nodes(sparql: &str) -> Result<Vec<QueryNode>> {
 
     // Simple pattern extraction (in practice, would use proper SPARQL parser)
     // This is a placeholder implementation
-    let lines: Vec<&str> = sparql.lines()
+    let lines: Vec<&str> = sparql
+        .lines()
         .map(|l| l.trim())
         .filter(|l| !l.is_empty() && !l.starts_with('#'))
         .collect();

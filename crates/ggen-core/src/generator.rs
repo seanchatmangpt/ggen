@@ -72,7 +72,7 @@ use std::path::PathBuf;
 use tera::Context;
 
 use crate::pipeline::Pipeline;
-use crate::template::Template;
+use crate::template_types::Template;
 use crate::templates::frozen::FrozenMerger;
 
 /// Context for template generation with paths, variables, and configuration

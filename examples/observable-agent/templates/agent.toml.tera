@@ -1,0 +1,24 @@
+[agent]
+name = "{{ sparql_results | first | get(key="agentName") }}"
+description = "{{ sparql_results | first | get(key="agentDesc") }}"
+
+[server]
+http_port = 3000
+
+[server.storage]
+type = "inmemory"
+
+[server.auth]
+type = "bearer"
+tokens = ["${AGENT_TOKEN}"]
+{%- for row in sparql_results %}
+
+[[skills]]
+id = "{{ row["capId"] }}"
+name = "{{ row["capName"] }}"
+description = "{{ row["capDesc"] }}"
+{%- endfor %}
+
+[features]
+streaming = true
+push_notifications = false

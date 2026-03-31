@@ -1,0 +1,32 @@
+# SPARQL SELECT Query: Extract MCP Server + Tools + Parameters (one row per tool)
+#
+# Returns one row per tool, with server metadata repeated in every row.
+# The template uses:
+#   - Row variables (server_name, server_version, etc.) for server-level fields
+#   - sparql_results to iterate ALL rows and build the tools array
+#
+# Parameters are grouped by tool_name using a sub-query approach:
+# the template reads sparql_results and groups params by matching tool_name.
+#
+# Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> mcp-rust.tera
+
+PREFIX mcp: <https://ggen.dev/ontology/mcp#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?server_name ?server_version ?server_description ?transport_type
+                ?tool_name ?tool_description
+WHERE {
+  # Server metadata (same for all rows)
+  ?server a mcp:McpsServer ;
+    mcp:serverName ?server_name ;
+    mcp:serverVersion ?server_version ;
+    mcp:serverDescription ?server_description ;
+    mcp:hasTransport ?transport .
+  ?transport rdfs:label ?transport_type .
+
+  # Tool-level data (one row per tool)
+  ?tool a mcp:Tool ;
+    mcp:toolName ?tool_name ;
+    mcp:toolDescription ?tool_description .
+}
+ORDER BY ?tool_name

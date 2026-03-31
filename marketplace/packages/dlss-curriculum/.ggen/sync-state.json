@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "created_at": "2026-03-31T16:37:29.486823+00:00",
+  "ontology": {
+    "hash": "40fd434aca16c14c2da5f0127f9c086f34c871dbdb5effd7aa086f910d856a46",
+    "timestamp": "2026-03-31T16:37:29.486821+00:00",
+    "size_bytes": 11379
+  },
+  "manifest": {
+    "hash": "cb19e10803af2b4bb06f4ba3105d9a11584af608f1b2e9fcc93b0179c0dc4278",
+    "timestamp": "2026-03-31T16:37:29.486821+00:00",
+    "size_bytes": 9509
+  },
+  "inference_rules": {
+    "infer-module-phase-label": "07b5e60ac223267aaf355b857a01843c391d92d75d411fcb0b3b0a8cab7963ae"
+  },
+  "imports": {
+    "instances.ttl": {
+      "hash": "fd2726072f7c7b28f065f139e78bfbb9d0f3354e5e8bcc3c5600651efd8ab3d3",
+      "timestamp": "2026-03-31T16:37:29.486821+00:00",
+      "size_bytes": 102377
+    }
+  },
+  "files_synced": 329,
+  "sync_duration_ms": 233
+}

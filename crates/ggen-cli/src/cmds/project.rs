@@ -557,7 +557,7 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
             files_created.push(".ggen/conventions.toml".to_string());
         } else {
             // Create basic structure without preset
-            let dirs = ["domain", "templates", "queries", "generated"];
+            let dirs = ["domain", "templates", "queries"];
             for dir in &dirs {
                 let dir_path = canonical_path.join(dir);
                 fs::create_dir_all(&dir_path).map_err(|e| {
@@ -686,7 +686,7 @@ fn generate(
                 if config_path.exists() {
                     path.join("crates/clnrm-v2-generated")
                 } else {
-                    path.join("generated")
+                    path.clone()
                 }
             };
 

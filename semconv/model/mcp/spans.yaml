@@ -1,0 +1,32 @@
+groups:
+  - id: span.ggen.mcp.tool_call
+    type: span
+    stability: development
+    brief: MCP tool invocation in ggen code generation pipeline.
+    span_kind: internal
+    attributes:
+      - ref: mcp.tool_name
+        requirement_level: required
+      - ref: mcp.ontology_path
+        requirement_level: recommended
+      - ref: mcp.sparql_query_length
+        requirement_level: recommended
+      - ref: mcp.ttl_length
+        requirement_level: recommended
+      - ref: mcp.files_generated
+        requirement_level: recommended
+      - ref: mcp.receipt
+        requirement_level: recommended
+      - ref: mcp.triple_count
+        requirement_level: recommended
+      - ref: mcp.error_count
+        requirement_level: recommended
+      - ref: mcp.project_path
+        requirement_level: recommended
+      - ref: mcp.query_path
+        requirement_level: recommended
+      - ref: mcp.template_path
+        requirement_level: recommended
+      - ref: error.type
+        requirement_level:
+          conditionally_required: "when the MCP tool call failed"

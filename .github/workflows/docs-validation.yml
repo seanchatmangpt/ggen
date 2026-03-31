@@ -1,0 +1,51 @@
+# .github/workflows/docs-validation.yml
+name: Documentation Validation
+
+on:
+  push:
+    paths:
+      - 'docs/ELIXIR_A2A_NOTES.md'
+      - 'docs/RMCP_NOTES.md'
+      - 'docs/how-to-build-mcp-tool-with-ggen.md'
+      - 'crates/ggen-core/templates/elixir-a2a/**'
+      - 'crates/ggen-core/templates/mcp-server/**'
+  pull_request:
+
+jobs:
+  validate-docs:
+    name: Validate Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Run validation suite
+        run: ./scripts/validate-all-docs.sh
+
+  benchmarks:
+    name: Run Benchmarks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Run benchmarks
+        run: ./scripts/validate-all-docs.sh --bench
+
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'cargo'
+          output-file-path: target/criterion/report/index.html

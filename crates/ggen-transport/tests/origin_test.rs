@@ -179,5 +179,6 @@ fn test_origin_case_sensitivity() {
     let origin1 = Origin::from_url("https://Example.com").unwrap();
     let origin2 = Origin::from_url("https://example.com").unwrap();
 
-    assert_ne!(origin1.host, origin2.host);
+    // RFC 3986: hostnames are case-insensitive — origin should normalize to lowercase
+    assert_eq!(origin1.host, origin2.host);
 }

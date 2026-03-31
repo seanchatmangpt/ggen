@@ -151,16 +151,18 @@ impl LanguageAgent {
 
     /// Adapt pattern to target language
     pub async fn adapt_pattern(
-        &self,
-        pattern: &CodePattern,
-        target_language: &Language,
+        &self, pattern: &CodePattern, target_language: &Language,
     ) -> Result<CodePattern> {
         // Simple adaptation logic - in practice would use LLM
         let adapted_template = self.translate_pattern_template(&pattern.template, target_language);
 
         Ok(CodePattern {
             name: format!("{}_{}", pattern.name, target_language.as_str()),
-            description: format!("{} (adapted for {})", pattern.description, target_language.as_str()),
+            description: format!(
+                "{} (adapted for {})",
+                pattern.description,
+                target_language.as_str()
+            ),
             source_language: pattern.source_language.clone(),
             target_languages: vec![target_language.clone()],
             template: adapted_template,
@@ -222,8 +224,12 @@ impl PolyglotSynthesisCoordinator {
                 if i != j {
                     // Check if patterns are relevant to target agent
                     for pattern in &patterns {
-                        if agent_list[j].secondary_languages.contains(&pattern.source_language)
-                            || pattern.target_languages.contains(&agent_list[j].primary_language)
+                        if agent_list[j]
+                            .secondary_languages
+                            .contains(&pattern.source_language)
+                            || pattern
+                                .target_languages
+                                .contains(&agent_list[j].primary_language)
                         {
                             agent_list[j].learn_pattern(pattern.clone()).await?;
                         }
@@ -232,7 +238,10 @@ impl PolyglotSynthesisCoordinator {
             }
         }
 
-        debug!("Pattern exchange completed among {} agents", agent_list.len());
+        debug!(
+            "Pattern exchange completed among {} agents",
+            agent_list.len()
+        );
         Ok(())
     }
 
@@ -259,8 +268,14 @@ impl PolyglotSynthesisCoordinator {
         for (languages, participating_agents) in language_clusters {
             if participating_agents.len() >= 2 {
                 let behavior = EmergentBehavior {
-                    name: format!("Polyglot collaboration: {}",
-                        languages.iter().map(|l| l.as_str()).collect::<Vec<_>>().join("-")),
+                    name: format!(
+                        "Polyglot collaboration: {}",
+                        languages
+                            .iter()
+                            .map(|l| l.as_str())
+                            .collect::<Vec<_>>()
+                            .join("-")
+                    ),
                     description: format!(
                         "Emergent collaboration pattern among {} agents working with {:?}",
                         participating_agents.len(),
@@ -282,8 +297,7 @@ impl PolyglotSynthesisCoordinator {
 
     /// Synthesize polyglot code using emergent patterns
     pub async fn synthesize_polyglot_code(
-        &self,
-        requirements: &PolyglotRequirements,
+        &self, requirements: &PolyglotRequirements,
     ) -> Result<PolyglotSolution> {
         let agents = self.agents.read().await;
         let mut language_outputs = HashMap::new();
@@ -310,7 +324,8 @@ impl PolyglotSynthesisCoordinator {
                 .collect();
 
             // Generate code (simplified - would use actual code generation)
-            let code = self.generate_code_from_patterns(&selected_patterns, &requirements.description);
+            let code =
+                self.generate_code_from_patterns(&selected_patterns, &requirements.description);
 
             language_outputs.insert(language.clone(), code);
         }
@@ -406,11 +421,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_pattern_learning() {
-        let agent = LanguageAgent::new(
-            "rust-agent".to_string(),
-            Language::Rust,
-            vec![],
-        );
+        let agent = LanguageAgent::new("rust-agent".to_string(), Language::Rust, vec![]);
 
         let pattern = CodePattern {
             name: "builder".to_string(),
@@ -458,11 +469,7 @@ mod tests {
     async fn test_polyglot_synthesis() {
         let coordinator = PolyglotSynthesisCoordinator::new();
 
-        let agent = LanguageAgent::new(
-            "rust-agent".to_string(),
-            Language::Rust,
-            vec![],
-        );
+        let agent = LanguageAgent::new("rust-agent".to_string(), Language::Rust, vec![]);
 
         coordinator.register_agent(agent).await.unwrap();
 
@@ -477,7 +484,10 @@ mod tests {
             cross_language_constraints: vec![],
         };
 
-        let solution = coordinator.synthesize_polyglot_code(&requirements).await.unwrap();
+        let solution = coordinator
+            .synthesize_polyglot_code(&requirements)
+            .await
+            .unwrap();
         assert!(!solution.outputs.is_empty());
     }
 }

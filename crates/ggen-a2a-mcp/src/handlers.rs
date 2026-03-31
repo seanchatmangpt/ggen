@@ -4,6 +4,7 @@
 //! for all ConvergedMessage content types and proper error handling.
 
 use crate::error::{A2aMcpError, A2aMcpResult};
+use crate::otel_attrs;
 use a2a_generated::converged::message::{
     ConvergedMessage, ConvergedMessageType, UnifiedContent, UnifiedFileContent,
 };
@@ -12,7 +13,7 @@ use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
-use tracing::{debug, info};
+use tracing::info;
 
 // Re-export handler traits and types
 pub use handler::{HandlerContext, HandlerError, HandlerPriority, HandlerResult, HandlerStatus};
@@ -174,9 +175,15 @@ impl MessageHandler for TextContentHandler {
         let content = match &message.payload.content {
             UnifiedContent::Text { content, .. } => content,
             _ => {
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "validation",
+                    error.message = "Expected text content",
+                );
+                let _guard = error_span.enter();
                 return Err(HandlerError::Validation(
                     "Expected text content".to_string(),
-                ))
+                ));
             }
         };
 
@@ -248,6 +255,12 @@ impl FileContentHandler {
         // Check file size
         if let Some(size) = file.size {
             if size > self.max_file_size as u64 {
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "translation",
+                    error.message = format!("File size {} exceeds maximum {}", size, self.max_file_size),
+                );
+                let _guard = error_span.enter();
                 return Err(A2aMcpError::Translation(format!(
                     "File size {} exceeds maximum {}",
                     size, self.max_file_size
@@ -258,9 +271,17 @@ impl FileContentHandler {
         // Validate that either bytes or URI is present
         match (&file.bytes, &file.uri) {
             (Some(_), None) | (None, Some(_)) => Ok(()),
-            (Some(_), Some(_)) => Err(A2aMcpError::Translation(
-                "File cannot have both bytes and URI".to_string(),
-            )),
+            (Some(_), Some(_)) => {
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "translation",
+                    error.message = "File cannot have both bytes and URI",
+                );
+                let _guard = error_span.enter();
+                Err(A2aMcpError::Translation(
+                    "File cannot have both bytes and URI".to_string(),
+                ))
+            }
             (None, None) => Err(A2aMcpError::Translation(
                 "File must have either bytes or URI".to_string(),
             )),
@@ -297,9 +318,15 @@ impl MessageHandler for FileContentHandler {
         let file = match &message.payload.content {
             UnifiedContent::File { file, .. } => file,
             _ => {
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "validation",
+                    error.message = "Expected file content",
+                );
+                let _guard = error_span.enter();
                 return Err(HandlerError::Validation(
                     "Expected file content".to_string(),
-                ))
+                ));
             }
         };
 
@@ -399,9 +426,15 @@ impl MessageHandler for DataContentHandler {
         let (data, schema) = match &message.payload.content {
             UnifiedContent::Data { data, schema } => (data, schema),
             _ => {
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "validation",
+                    error.message = "Expected data content",
+                );
+                let _guard = error_span.enter();
                 return Err(HandlerError::Validation(
                     "Expected data content".to_string(),
-                ))
+                ));
             }
         };
 
@@ -471,9 +504,16 @@ impl MultipartHandler {
         self
     }
 
-    /// Process multipart content
-    fn process_multipart(&self, parts: &[UnifiedContent]) -> A2aMcpResult<String> {
+    /// Process multipart content, preserving actual data instead of summaries
+    pub fn process_multipart(&self, parts: &[UnifiedContent]) -> A2aMcpResult<String> {
+        // Validate max parts limit
         if parts.len() > self.max_parts {
+            let error_span = tracing::error_span!(
+                "ggen.error",
+                error.type = "translation",
+                error.message = format!("Multipart content has {} parts, exceeds maximum {}", parts.len(), self.max_parts),
+            );
+            let _guard = error_span.enter();
             return Err(A2aMcpError::Translation(format!(
                 "Multipart content has {} parts, exceeds maximum {}",
                 parts.len(),
@@ -482,30 +522,107 @@ impl MultipartHandler {
         }
 
         let mut results = Vec::new();
+        let mut warnings = Vec::new();
 
         for (idx, part) in parts.iter().enumerate() {
-            let summary = match part {
+            let formatted = match part {
                 UnifiedContent::Text { content, .. } => {
-                    format!("Part {}: Text ({} chars)", idx, content.len())
+                    // Preserve actual text content
+                    format!("=== Part {}: Text ===\n{}", idx + 1, content)
                 }
                 UnifiedContent::File { file, .. } => {
+                    // Preserve file metadata with clear messaging
                     let name = file.name.as_deref().unwrap_or("unnamed");
-                    format!("Part {}: File ({})", idx, name)
+                    let size = file.bytes.as_ref().map(|b| b.len()).unwrap_or(0);
+                    let mime = file
+                        .mime_type
+                        .as_deref()
+                        .unwrap_or("application/octet-stream");
+
+                    if file.bytes.is_some() {
+                        format!(
+                            "=== Part {}: File ===\nName: {}\nSize: {} bytes\nMIME: {}\n[Embedded content available - use file:// URI to access]",
+                            idx + 1, name, size, mime
+                        )
+                    } else if let Some(uri) = &file.uri {
+                        format!(
+                            "=== Part {}: File ===\nName: {}\nURI: {}\nMIME: {}\n[Use file:// URI to access content]",
+                            idx + 1, name, uri, mime
+                        )
+                    } else {
+                        format!(
+                            "=== Part {}: File ===\nName: {}\nMIME: {}\n[No content available - missing bytes and URI]",
+                            idx + 1, name, mime
+                        )
+                    }
                 }
                 UnifiedContent::Data { data, .. } => {
-                    format!("Part {}: Data ({} keys)", idx, data.len())
+                    // Preserve actual structured data as formatted JSON
+                    match serde_json::to_string_pretty(&data) {
+                        Ok(json) => format!("=== Part {}: Data ===\n{}", idx + 1, json),
+                        Err(e) => {
+                            warnings.push(format!(
+                                "Part {}: Failed to serialize data: {}",
+                                idx + 1,
+                                e
+                            ));
+                            format!(
+                                "=== Part {}: Data ===\n[Serialization error: {}]",
+                                idx + 1,
+                                e
+                            )
+                        }
+                    }
                 }
-                UnifiedContent::Multipart { .. } => {
-                    format!("Part {}: Nested multipart", idx)
+                UnifiedContent::Multipart {
+                    parts: nested_parts,
+                    ..
+                } => {
+                    // RECURSIVE: Process nested multipart
+                    match self.process_multipart(nested_parts) {
+                        Ok(nested_content) => {
+                            format!(
+                                "=== Part {}: Nested Multipart ===\n{}",
+                                idx + 1,
+                                nested_content
+                            )
+                        }
+                        Err(e) => {
+                            warnings.push(format!(
+                                "Part {}: Failed to process nested multipart: {}",
+                                idx + 1,
+                                e
+                            ));
+                            format!(
+                                "=== Part {}: Nested Multipart ===\n[Error processing nested parts: {}]",
+                                idx + 1, e
+                            )
+                        }
+                    }
                 }
-                UnifiedContent::Stream { stream_id, .. } => {
-                    format!("Part {}: Stream ({})", idx, stream_id)
+                UnifiedContent::Stream {
+                    stream_id,
+                    chunk_size,
+                    ..
+                } => {
+                    // Preserve stream metadata with usage guidance
+                    format!(
+                        "=== Part {}: Stream ===\nStream ID: {}\nChunk Size: {} bytes\n[Use streaming API to consume this stream]",
+                        idx + 1, stream_id, chunk_size
+                    )
                 }
             };
-            results.push(summary);
+            results.push(formatted);
         }
 
-        Ok(results.join("\n"))
+        // Log warnings if any
+        if !warnings.is_empty() {
+            for warning in &warnings {
+                info!("Multipart processing warning: {}", warning);
+            }
+        }
+
+        Ok(results.join("\n\n"))
     }
 }
 
@@ -521,9 +638,15 @@ impl MessageHandler for MultipartHandler {
         let (parts, boundary) = match &message.payload.content {
             UnifiedContent::Multipart { parts, boundary } => (parts, boundary),
             _ => {
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "validation",
+                    error.message = "Expected multipart content",
+                );
+                let _guard = error_span.enter();
                 return Err(HandlerError::Validation(
                     "Expected multipart content".to_string(),
-                ))
+                ));
             }
         };
 
@@ -594,6 +717,12 @@ impl StreamHandler {
     /// Process stream content
     fn process_stream(&self, stream_id: &str, chunk_size: usize) -> A2aMcpResult<String> {
         if chunk_size > self.max_chunk_size {
+            let error_span = tracing::error_span!(
+                "ggen.error",
+                error.type = "translation",
+                error.message = format!("Chunk size {} exceeds maximum {}", chunk_size, self.max_chunk_size),
+            );
+            let _guard = error_span.enter();
             return Err(A2aMcpError::Translation(format!(
                 "Chunk size {} exceeds maximum {}",
                 chunk_size, self.max_chunk_size
@@ -623,9 +752,15 @@ impl MessageHandler for StreamHandler {
                 ..
             } => (stream_id, *chunk_size),
             _ => {
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "validation",
+                    error.message = "Expected stream content",
+                );
+                let _guard = error_span.enter();
                 return Err(HandlerError::Validation(
                     "Expected stream content".to_string(),
-                ))
+                ));
             }
         };
 
@@ -788,7 +923,17 @@ impl MessageRouter {
     }
 
     /// Route a message to the appropriate handler
+    #[tracing::instrument(skip(self), fields(
+        message_id = %message.message_id,
+        message_type = ?message.envelope.message_type,
+        source = %message.source,
+        target = ?message.target,
+        correlation_id = ?message.envelope.correlation_id,
+        service.name = "ggen-a2a-mcp",
+        service.version = env!("CARGO_PKG_VERSION"),
+    ))]
     pub async fn route(&self, message: ConvergedMessage) -> HandlerResult<ConvergedMessage> {
+        let start = std::time::Instant::now();
         let message_type = &message.envelope.message_type;
 
         // Find the best handler for this message type
@@ -797,20 +942,39 @@ impl MessageRouter {
             .best_for_type(message_type)
             .or_else(|| self.default_handler.clone())
             .ok_or_else(|| {
+                let _err_span = tracing::error_span!(
+                    "ggen.error",
+                    "error.type" = "no_handler_found",
+                    message_type = ?message_type,
+                )
+                .entered();
                 HandlerError::Processing(format!(
                     "No handler found for message type: {:?}",
                     message_type
                 ))
             })?;
 
-        debug!(
+        info!(
             handler = %handler.name(),
             message_id = %message.message_id,
             message_type = ?message_type,
             "Routing message to handler"
         );
+        tracing::Span::current().record(otel_attrs::OPERATION_NAME, "route");
 
-        handler.handle(message).await
+        let result = handler.handle(message.clone()).await;
+        if let Err(ref e) = result {
+            tracing::Span::current().record("error", true);
+            tracing::Span::current().record("error.message", e.to_string());
+        }
+        info!(
+            handler = %handler.name(),
+            message_id = %message.message_id,
+            elapsed_ms = start.elapsed().as_millis() as u64,
+            success = result.is_ok(),
+            "Message routed"
+        );
+        result
     }
 
     /// Get the handler factory
@@ -876,18 +1040,57 @@ impl BatchProcessor {
     }
 
     /// Process a batch of messages
+    ///
+    /// Creates a batch-level tracing span (with `batch.id` and `batch.size`)
+    /// and per-message child spans that preserve each message's `correlation_id`,
+    /// so distributed traces remain correlated across the batch boundary.
     pub async fn process_batch(&self, messages: Vec<ConvergedMessage>) -> BatchResult {
         let start_time = Utc::now();
+        let batch_id = uuid::Uuid::new_v4().to_string();
+        let batch_size = messages.len();
+
+        // Batch-level span groups all per-message child spans.
+        let batch_span = tracing::info_span!(
+            "ggen.pipeline.operation",
+            batch.id = %batch_id,
+            batch.size = batch_size,
+        );
+        let _batch_guard = batch_span.enter();
+
+        tracing::Span::current().record(otel_attrs::OPERATION_NAME, "process_batch");
+        info!(batch_size, "Batch processing started");
         let semaphore = Arc::new(tokio::sync::Semaphore::new(self.max_concurrent));
 
         let results = futures::future::join_all(messages.into_iter().map(|message| {
             let semaphore = semaphore.clone();
             let router = self.router.clone();
+            let correlation_id = message.envelope.correlation_id.clone();
+            let batch_id = batch_id.clone();
 
             async move {
-                let _permit = semaphore.acquire().await.unwrap();
                 let message_id = message.message_id.clone();
                 let handler_name = message.envelope.message_type.clone();
+
+                // Per-message child span preserves correlation context.
+                let msg_span = tracing::info_span!(
+                    "ggen.pipeline.operation",
+                    a2a.message_id = %message_id,
+                    a2a.correlation_id = ?correlation_id,
+                    batch.id = %batch_id,
+                );
+                let _msg_guard = msg_span.enter();
+
+                let _permit = match semaphore.acquire().await {
+                    Ok(permit) => permit,
+                    Err(_) => {
+                        return IndividualResult {
+                            message_id,
+                            handler: format!("{:?}", handler_name),
+                            success: false,
+                            error: Some("Semaphore closed".to_string()),
+                        };
+                    }
+                };
 
                 match router.route(message).await {
                     Ok(_) => IndividualResult {
@@ -910,6 +1113,26 @@ impl BatchProcessor {
         let successful = results.iter().filter(|r| r.success).count();
         let failed = results.len() - successful;
         let duration = Utc::now() - start_time;
+
+        for individual in &results {
+            if !individual.success {
+                tracing::warn!(
+                    message_id = %individual.message_id,
+                    handler = %individual.handler,
+                    error = ?individual.error,
+                    "Batch item failed"
+                );
+            }
+        }
+
+        info!(
+            total = results.len(),
+            successful,
+            failed,
+            duration_ms = duration.num_milliseconds(),
+            batch.id = %batch_id,
+            "Batch processing complete"
+        );
 
         BatchResult {
             total: results.len(),
@@ -1069,7 +1292,7 @@ mod tests {
             .payload
             .content
             .as_text()
-            .map(|t| t.contains("Part 0"))
+            .map(|t| t.contains("Part 1"))
             .unwrap_or(false));
     }
 

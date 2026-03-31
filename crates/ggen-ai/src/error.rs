@@ -255,6 +255,13 @@ impl GgenAiError {
         }
     }
 
+    /// Create a validation error for validation failures
+    pub fn validation_error(message: impl Into<String>) -> Self {
+        Self::ValidationError {
+            message: message.into(),
+        }
+    }
+
     /// Create a parse error
     pub fn parse_error(provider: impl Into<String>, message: impl Into<String>) -> Self {
         Self::ParseError {
@@ -303,6 +310,20 @@ impl GgenAiError {
     pub fn ontology_error(message: impl Into<String>) -> Self {
         Self::OntologyError {
             message: message.into(),
+        }
+    }
+
+    /// Create a new internal error
+    pub fn internal(message: impl Into<String>) -> Self {
+        Self::Other {
+            message: message.into(),
+        }
+    }
+
+    /// Create a new operation timeout error
+    pub fn operation_timeout(message: impl Into<String>) -> Self {
+        Self::Other {
+            message: format!("Operation timeout: {}", message.into()),
         }
     }
 }

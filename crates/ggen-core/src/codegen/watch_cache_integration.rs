@@ -159,6 +159,9 @@ mod tests {
                 require_audit_trail: false,
                 determinism_salt: None,
                 max_sparql_timeout_ms: 5000,
+                enable_llm: false,
+                llm_model: None,
+                llm_provider: None,
             },
             validation: crate::manifest::ValidationConfig::default(),
         };

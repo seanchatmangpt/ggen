@@ -1,0 +1,148 @@
+[project]
+name = "a2a-groq-agent"
+version = "1.0.0"
+description = "A2A agent powered by Groq LLM — generates code via ontology-driven templates"
+
+[ontology]
+source = "ontology/a2a-groq-agent.ttl"
+base_iri = "https://ggen.io/examples/a2a-groq#"
+
+[ontology.prefixes]
+agent = "https://ggen.io/examples/a2a-groq#"
+rdf   = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs  = "http://www.w3.org/2000/01/rdf-schema#"
+xsd   = "http://www.w3.org/2001/XMLSchema#"
+
+[generation]
+output_dir = "."
+
+# ── Rule 1: Main agent entry point ────────────────────────────────────────────
+[[generation.rules]]
+name = "agent-rs"
+query = { inline = """
+PREFIX agent: <https://ggen.io/examples/a2a-groq#>
+
+SELECT ?agentName ?agentStruct ?description ?version ?bindAddr ?url ?skillId ?skillName ?handlerName ?methodName ?skillDesc ?inputModes ?outputModes ?order
+WHERE {
+  ?ag a agent:Agent ;
+      agent:agentName ?agentName ;
+      agent:agentStruct ?agentStruct ;
+      agent:description ?description ;
+      agent:version ?version ;
+      agent:bindAddr ?bindAddr ;
+      agent:url ?url .
+  ?skill a agent:Skill ;
+         agent:agentOf ?ag ;
+         agent:skillId ?skillId ;
+         agent:skillName ?skillName ;
+         agent:handlerName ?handlerName ;
+         agent:methodName ?methodName ;
+         agent:description ?skillDesc ;
+         agent:inputModes ?inputModes ;
+         agent:outputModes ?outputModes ;
+         agent:order ?order .
+}
+ORDER BY ?order
+""" }
+template    = { file = "templates/agent.rs.tera" }
+output_file = "src/main.rs"
+mode        = "Overwrite"
+
+# ── Rule 2: Skill handlers ────────────────────────────────────────────────────
+[[generation.rules]]
+name = "handlers-rs"
+query = { inline = """
+PREFIX agent: <https://ggen.io/examples/a2a-groq#>
+
+SELECT ?agentStruct ?skillId ?skillName ?handlerName ?methodName ?skillDesc ?systemPrompt ?order
+WHERE {
+  ?ag a agent:Agent ;
+      agent:agentStruct ?agentStruct .
+  ?skill a agent:Skill ;
+         agent:agentOf ?ag ;
+         agent:skillId ?skillId ;
+         agent:skillName ?skillName ;
+         agent:handlerName ?handlerName ;
+         agent:methodName ?methodName ;
+         agent:description ?skillDesc ;
+         agent:systemPrompt ?systemPrompt ;
+         agent:order ?order .
+}
+ORDER BY ?order
+""" }
+template    = { file = "templates/handlers.rs.tera" }
+output_file = "src/handlers.rs"
+mode        = "Overwrite"
+
+# ── Rule 3: Cargo.toml ────────────────────────────────────────────────────────
+[[generation.rules]]
+name = "cargo-toml"
+query = { inline = """
+PREFIX agent: <https://ggen.io/examples/a2a-groq#>
+
+SELECT ?agentName ?version ?bindAddr ?url
+WHERE {
+  ?ag a agent:Agent ;
+      agent:agentName ?agentName ;
+      agent:version ?version ;
+      agent:bindAddr ?bindAddr ;
+      agent:url ?url .
+}
+LIMIT 1
+""" }
+template    = { file = "templates/Cargo.toml.tera" }
+output_file = "Cargo.toml"
+mode        = "Overwrite"
+
+# ── Rule 4: Agent TOML config ──────────────────────────────────────────────────
+[[generation.rules]]
+name = "groq-agent-toml"
+query = { inline = """
+PREFIX agent: <https://ggen.io/examples/a2a-groq#>
+
+SELECT ?agentName ?description ?version ?skillId ?skillName ?skillDesc ?order
+WHERE {
+  ?ag a agent:Agent ;
+      agent:agentName ?agentName ;
+      agent:description ?description ;
+      agent:version ?version .
+  ?skill a agent:Skill ;
+         agent:agentOf ?ag ;
+         agent:skillId ?skillId ;
+         agent:skillName ?skillName ;
+         agent:description ?skillDesc ;
+         agent:order ?order .
+}
+ORDER BY ?order
+""" }
+template    = { file = "templates/groq-agent.toml.tera" }
+output_file = "groq-agent.toml"
+mode        = "Overwrite"
+
+# ── Rule 5: Agent card JSON ────────────────────────────────────────────────────
+[[generation.rules]]
+name = "agent-card-json"
+query = { inline = """
+PREFIX agent: <https://ggen.io/examples/a2a-groq#>
+
+SELECT ?agentName ?description ?version ?url ?skillId ?skillName ?skillDesc ?inputModes ?outputModes ?order
+WHERE {
+  ?ag a agent:Agent ;
+      agent:agentName ?agentName ;
+      agent:description ?description ;
+      agent:version ?version ;
+      agent:url ?url .
+  ?skill a agent:Skill ;
+         agent:agentOf ?ag ;
+         agent:skillId ?skillId ;
+         agent:skillName ?skillName ;
+         agent:description ?skillDesc ;
+         agent:inputModes ?inputModes ;
+         agent:outputModes ?outputModes ;
+         agent:order ?order .
+}
+ORDER BY ?order
+""" }
+template    = { file = "templates/agent-card.json.tera" }
+output_file = "agent_card.json"
+mode        = "Overwrite"

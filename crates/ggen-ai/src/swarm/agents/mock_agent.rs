@@ -2,8 +2,8 @@
 
 use crate::error::Result;
 use crate::swarm::{
-    AgentHealth, HealthStatus, SwarmAgent, SwarmContext, AgentInput, AgentOutput,
-    AgentConfig, PerformanceThresholds
+    AgentConfig, AgentHealth, AgentInput, AgentOutput, HealthStatus, PerformanceThresholds,
+    SwarmAgent, SwarmContext,
 };
 use async_trait::async_trait;
 use serde_json::Value;
@@ -23,10 +23,7 @@ impl MockAgent {
     pub fn new(name: &str) -> Self {
         Self {
             name: name.to_string(),
-            capabilities: vec![
-                "mock_execution".to_string(),
-                "test_validation".to_string(),
-            ],
+            capabilities: vec!["mock_execution".to_string(), "test_validation".to_string()],
             config: AgentConfig {
                 timeout_seconds: 30,
                 retry_attempts: 3,
@@ -43,7 +40,8 @@ impl MockAgent {
 
     /// Get execution count
     pub fn execution_count(&self) -> u64 {
-        self.execution_count.load(std::sync::atomic::Ordering::Relaxed)
+        self.execution_count
+            .load(std::sync::atomic::Ordering::Relaxed)
     }
 }
 
@@ -60,7 +58,8 @@ impl SwarmAgent for MockAgent {
         // Simulate some processing time
         tokio::time::sleep(std::time::Duration::from_millis(10)).await;
 
-        self.execution_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        self.execution_count
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
         // Echo back the input data
         Ok(AgentOutput {
@@ -69,7 +68,10 @@ impl SwarmAgent for MockAgent {
             target_agents: vec!["validator".to_string(), "quality_assurance".to_string()],
             metadata: {
                 let mut metadata = HashMap::new();
-                metadata.insert("execution_count".to_string(), self.execution_count().to_string());
+                metadata.insert(
+                    "execution_count".to_string(),
+                    self.execution_count().to_string(),
+                );
                 metadata.insert("processing_time_ms".to_string(), "10".to_string());
                 metadata
             },
@@ -94,7 +96,7 @@ impl SwarmAgent for MockAgent {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::swarm::{SwarmConfig, SwarmContext, PerformanceThresholds};
+    use crate::swarm::{PerformanceThresholds, SwarmConfig, SwarmContext};
 
     #[tokio::test]
     async fn test_mock_agent_creation() {

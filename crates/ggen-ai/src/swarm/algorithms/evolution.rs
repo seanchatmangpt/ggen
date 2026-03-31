@@ -152,7 +152,9 @@ impl TemplateEvolutionEngine {
     }
 
     /// Initialize population with random genomes
-    pub async fn initialize_population(&self, seed_genomes: Option<Vec<TemplateGenome>>) -> Result<()> {
+    pub async fn initialize_population(
+        &self, seed_genomes: Option<Vec<TemplateGenome>>,
+    ) -> Result<()> {
         let mut population = self.population.write().await;
         population.clear();
 
@@ -200,13 +202,17 @@ impl TemplateEvolutionEngine {
             if generation % 10 == 0 {
                 let best = self.best_genome.read().await;
                 if let Some(genome) = best.as_ref() {
-                    info!("Generation {}: best fitness = {:.4}", generation, genome.fitness);
+                    info!(
+                        "Generation {}: best fitness = {:.4}",
+                        generation, genome.fitness
+                    );
                 }
             }
         }
 
         let best = self.best_genome.read().await;
-        best.clone().ok_or_else(|| GgenAiError::internal("No best genome found"))
+        best.clone()
+            .ok_or_else(|| GgenAiError::internal("No best genome found"))
     }
 
     /// Create a random genome
@@ -350,12 +356,15 @@ impl TemplateEvolutionEngine {
     }
 
     /// Perform crossover between two genomes
-    fn crossover(&self, parent1: &TemplateGenome, parent2: &TemplateGenome) -> (TemplateGenome, TemplateGenome) {
+    fn crossover(
+        &self, parent1: &TemplateGenome, parent2: &TemplateGenome,
+    ) -> (TemplateGenome, TemplateGenome) {
         let mut child1 = parent1.clone();
         let mut child2 = parent2.clone();
 
         // Structure crossover (swap some structure genes)
-        let crossover_point = fastrand::usize(0..parent1.structure.len().min(parent2.structure.len()));
+        let crossover_point =
+            fastrand::usize(0..parent1.structure.len().min(parent2.structure.len()));
         if crossover_point < child1.structure.len() && crossover_point < child2.structure.len() {
             let temp = child1.structure[crossover_point].clone();
             child1.structure[crossover_point] = child2.structure[crossover_point].clone();
@@ -363,7 +372,8 @@ impl TemplateEvolutionEngine {
         }
 
         // Pattern crossover (blend patterns)
-        let pattern_crossover = fastrand::usize(0..parent1.patterns.len().min(parent2.patterns.len()));
+        let pattern_crossover =
+            fastrand::usize(0..parent1.patterns.len().min(parent2.patterns.len()));
         if pattern_crossover < child1.patterns.len() && pattern_crossover < child2.patterns.len() {
             let temp = child1.patterns[pattern_crossover].clone();
             child1.patterns[pattern_crossover] = child2.patterns[pattern_crossover].clone();
@@ -374,8 +384,14 @@ impl TemplateEvolutionEngine {
         for (key, value1) in &parent1.attributes {
             if let Some(value2) = parent2.attributes.get(key) {
                 let blend_factor = fastrand::f64();
-                child1.attributes.insert(key.clone(), value1 * blend_factor + value2 * (1.0 - blend_factor));
-                child2.attributes.insert(key.clone(), value2 * blend_factor + value1 * (1.0 - blend_factor));
+                child1.attributes.insert(
+                    key.clone(),
+                    value1 * blend_factor + value2 * (1.0 - blend_factor),
+                );
+                child2.attributes.insert(
+                    key.clone(),
+                    value2 * blend_factor + value1 * (1.0 - blend_factor),
+                );
             }
         }
 
@@ -387,13 +403,17 @@ impl TemplateEvolutionEngine {
         // Mutate structure genes
         if !genome.structure.is_empty() {
             let idx = fastrand::usize(0..genome.structure.len());
-            genome.structure[idx].count = genome.structure[idx].count.saturating_add(fastrand::usize(0..3)).saturating_sub(1);
+            genome.structure[idx].count = genome.structure[idx]
+                .count
+                .saturating_add(fastrand::usize(0..3))
+                .saturating_sub(1);
         }
 
         // Mutate pattern genes
         if !genome.patterns.is_empty() {
             let idx = fastrand::usize(0..genome.patterns.len());
-            genome.patterns[idx].strength = (genome.patterns[idx].strength + (fastrand::f64() * 0.2 - 0.1)).clamp(0.0, 1.0);
+            genome.patterns[idx].strength =
+                (genome.patterns[idx].strength + (fastrand::f64() * 0.2 - 0.1)).clamp(0.0, 1.0);
         }
 
         // Mutate attributes
@@ -410,7 +430,11 @@ impl TemplateEvolutionEngine {
         population.sort_by(|a, b| b.fitness.partial_cmp(&a.fitness).unwrap());
 
         // Preserve elite genomes
-        let elites: Vec<TemplateGenome> = population.iter().take(self.config.elite_count).cloned().collect();
+        let elites: Vec<TemplateGenome> = population
+            .iter()
+            .take(self.config.elite_count)
+            .cloned()
+            .collect();
 
         // Replace population
         *population = elites;
@@ -429,7 +453,8 @@ impl TemplateEvolutionEngine {
             .map(|g| g.fitness)
             .fold(f64::NEG_INFINITY, f64::max);
 
-        let average_fitness = population.iter().map(|g| g.fitness).sum::<f64>() / population.len() as f64;
+        let average_fitness =
+            population.iter().map(|g| g.fitness).sum::<f64>() / population.len() as f64;
 
         let diversity = self.calculate_diversity(&population);
 
@@ -556,7 +581,9 @@ mod tests {
             Ok(genome.attributes.values().sum::<f64>() / genome.attributes.len() as f64)
         }
 
-        async fn evaluate_objectives(&self, genome: &TemplateGenome) -> Result<HashMap<String, f64>> {
+        async fn evaluate_objectives(
+            &self, genome: &TemplateGenome,
+        ) -> Result<HashMap<String, f64>> {
             Ok(genome.attributes.clone())
         }
     }

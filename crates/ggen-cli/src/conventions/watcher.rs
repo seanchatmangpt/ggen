@@ -136,11 +136,6 @@ impl ProjectWatcher {
 
     /// Check if a file should be processed
     fn should_process_file(&self, path: &Path) -> bool {
-        // Ignore generated files
-        if path.to_string_lossy().contains("generated/") {
-            return false;
-        }
-
         // Ignore hidden files and directories
         if path
             .file_name()
@@ -224,8 +219,7 @@ mod tests {
         assert!(watcher.should_process_file(&PathBuf::from("domain/test.yaml")));
         assert!(watcher.should_process_file(&PathBuf::from("templates/test.tera")));
 
-        // Should not process
-        assert!(!watcher.should_process_file(&PathBuf::from("generated/test.rs")));
+        // Should not process hidden and temp files
         assert!(!watcher.should_process_file(&PathBuf::from(".hidden")));
         assert!(!watcher.should_process_file(&PathBuf::from("test.tmp")));
     }

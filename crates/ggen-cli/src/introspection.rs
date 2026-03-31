@@ -265,8 +265,8 @@ pub fn get_verb_registry() -> HashMap<String, VerbMetadata> {
                     name: "output".to_string(),
                     argument_type: "Option<String>".to_string(),
                     optional: true,
-                    description: "Output file path (default: generated.rs)".to_string(),
-                    default_value: Some("generated.rs".to_string()),
+                    description: "Output file path (default: output.rs)".to_string(),
+                    default_value: Some("output.rs".to_string()),
                 },
                 ArgumentMetadata {
                     name: "force".to_string(),

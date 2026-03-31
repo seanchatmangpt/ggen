@@ -11,7 +11,6 @@ async fn test_telemetry_initialization() {
     let config = TelemetryConfig {
         endpoint: "http://localhost:4318".to_string(),
         service_name: "ggen-test".to_string(),
-        sample_ratio: 1.0,
         console_output: false,
     };
 
@@ -29,7 +28,6 @@ async fn test_registry_search_generates_spans() {
     let config = TelemetryConfig {
         endpoint: "http://localhost:4318".to_string(),
         service_name: "ggen-test".to_string(),
-        sample_ratio: 1.0,
         console_output: false,
     };
     init_telemetry(config).expect("Failed to init telemetry");
@@ -52,7 +50,6 @@ async fn test_registry_resolve_generates_spans() {
     let config = TelemetryConfig {
         endpoint: "http://localhost:4318".to_string(),
         service_name: "ggen-test".to_string(),
-        sample_ratio: 1.0,
         console_output: false,
     };
     init_telemetry(config).expect("Failed to init telemetry");
@@ -71,7 +68,6 @@ async fn test_advanced_search_generates_spans() {
     let config = TelemetryConfig {
         endpoint: "http://localhost:4318".to_string(),
         service_name: "ggen-test".to_string(),
-        sample_ratio: 1.0,
         console_output: false,
     };
     init_telemetry(config).expect("Failed to init telemetry");
@@ -105,15 +101,15 @@ fn test_telemetry_config_from_env() {
 }
 
 #[test]
-fn test_telemetry_config_custom_sample_ratio() {
+fn test_telemetry_config_custom_service_name() {
     let config = TelemetryConfig {
         endpoint: "http://localhost:4318".to_string(),
-        service_name: "test".to_string(),
-        sample_ratio: 0.1,
-        console_output: false,
+        service_name: "custom-service".to_string(),
+        console_output: true,
     };
 
-    assert_eq!(config.sample_ratio, 0.1);
+    assert_eq!(config.service_name, "custom-service");
+    assert_eq!(config.console_output, true);
 }
 
 /// Integration test: Verify span attributes
@@ -123,7 +119,6 @@ async fn test_span_attributes_correctness() {
     let config = TelemetryConfig {
         endpoint: "http://localhost:4318".to_string(),
         service_name: "ggen-test".to_string(),
-        sample_ratio: 1.0,
         console_output: true, // Enable console for debugging
     };
     init_telemetry(config).expect("Failed to init telemetry");

@@ -1,0 +1,14 @@
+[agent]
+name = "CodeGeneratorAgent"
+description = "AI-powered code generation agent for RDF ontologies"
+
+[server]
+host = "127.0.0.1"
+http_port = 8080
+
+[server.storage]
+type = "inmemory"
+
+[server.auth]
+type = "bearer"
+tokens = ["${AGENT_TOKEN}"]
