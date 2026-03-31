@@ -971,3 +971,15 @@ goodbye.tmpl
 e2e_output.txt
 direct_test_output.txt
 *_output.txt
+
+# Project state that should not be tracked
+.archive/
+.cursor/
+.docs/
+.ggen/
+.ggen-receipts/
+.metrics/
+.refactor/
+.removed-code-backup/
+.wiplocks/
+.wreckit/

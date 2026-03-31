@@ -1,5 +1,0 @@
----
-to: output.rs
----
-// Missing vars field
-pub struct {{ name }} {}
