@@ -492,11 +492,7 @@ fn write_attribute<W: Write>(
 fn get_attribute(event: &BytesStart<'_>, name: &[u8]) -> Option<String> {
     event
         .attributes()
-        .find(|a| {
-            a.as_ref()
-                .ok()
-                .is_some_and(|a| a.key.as_ref() == name)
-        })
+        .find(|a| a.as_ref().ok().is_some_and(|a| a.key.as_ref() == name))
         .and_then(std::result::Result::ok)
         .and_then(|a| std::str::from_utf8(a.value.as_ref()).ok().map(String::from))
 }
