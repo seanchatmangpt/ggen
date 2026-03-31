@@ -40,6 +40,7 @@ WHERE {
 }
 """
 
+
 [generation]
 output_dir = "output"
 
@@ -52,7 +53,7 @@ query = { inline = """
 PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT ?code ?title ?moduleOrder ?duration ?difficulty ?description
+SELECT ?code ?title ?moduleOrder ?duration ?durationLabel ?difficulty ?description
 WHERE {
   ?mod a dlss:Module ;
        dlss:code ?code ;
@@ -61,6 +62,7 @@ WHERE {
        dlss:duration ?duration ;
        dlss:difficulty ?difficulty .
   OPTIONAL { ?mod dlss:description ?description }
+    BIND(REPLACE(REPLACE(REPLACE(REPLACE(STR(?duration), "^PT", ""), "H", " hr "), "M$", " min"), " +$", "") AS ?durationLabel)
 }
 ORDER BY ?code
 """ }
@@ -100,7 +102,7 @@ query = { inline = """
 PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT ?code ?title ?moduleOrder ?duration ?difficulty ?description
+SELECT ?code ?title ?moduleOrder ?duration ?durationLabel ?difficulty ?description
 WHERE {
   ?mod a dlss:Module ;
        dlss:code ?code ;
@@ -109,6 +111,7 @@ WHERE {
        dlss:duration ?duration ;
        dlss:difficulty ?difficulty .
   OPTIONAL { ?mod dlss:description ?description }
+    BIND(REPLACE(REPLACE(REPLACE(REPLACE(STR(?duration), "^PT", ""), "H", " hr "), "M$", " min"), " +$", "") AS ?durationLabel)
 }
 ORDER BY ?code
 """ }
@@ -125,7 +128,7 @@ query = { inline = """
 PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT ?code ?objectiveText ?bloomsLevel
+SELECT ?code (GROUP_CONCAT(?objectiveText; SEPARATOR="||") AS ?objectives) (GROUP_CONCAT(?bloomsLevel; SEPARATOR="||") AS ?bloomsLevels) (COUNT(?obj) AS ?objectiveCount)
 WHERE {
   ?mod a dlss:Module ;
        dlss:code ?code ;
@@ -134,7 +137,8 @@ WHERE {
        dlss:text ?objectiveText ;
        dlss:bloomsLevel ?bloomsLevel .
 }
-ORDER BY ?code ?bloomsLevel
+GROUP BY ?code
+ORDER BY ?code
 """ }
 template = { file = "templates/dlss/lesson.tera" }
 output_file = "modules/{{ code }}-objectives.md"
@@ -175,7 +179,7 @@ query = { inline = """
 PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT ?code ?title ?duration ?difficulty ?description
+SELECT ?code ?title ?duration ?durationLabel ?difficulty ?description
 WHERE {
   ?mod a dlss:Module ;
        dlss:code ?code ;
@@ -183,6 +187,7 @@ WHERE {
        dlss:duration ?duration ;
        dlss:difficulty ?difficulty .
   OPTIONAL { ?mod dlss:description ?description }
+    BIND(REPLACE(REPLACE(REPLACE(REPLACE(STR(?duration), "^PT", ""), "H", " hr "), "M$", " min"), " +$", "") AS ?durationLabel)
 }
 ORDER BY ?code
 """ }
@@ -249,13 +254,14 @@ query = { inline = """
 PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT ?code ?title ?duration ?difficulty
+SELECT ?code ?title ?duration ?durationLabel ?difficulty
 WHERE {
   ?mod a dlss:Module ;
        dlss:code ?code ;
        dlss:title ?title ;
        dlss:duration ?duration ;
        dlss:difficulty ?difficulty .
+    BIND(REPLACE(REPLACE(REPLACE(REPLACE(STR(?duration), "^PT", ""), "H", " hr "), "M$", " min"), " +$", "") AS ?durationLabel)
 }
 ORDER BY ?code
 """ }

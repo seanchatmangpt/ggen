@@ -1,11 +1,6 @@
-{# module.tera: Module Guide #}
-{# Constitutional Equation: modules/{{ code }}.md = mu(ontology.ttl) #}
-{# Input: SPARQL SELECT ?code ?title ?moduleOrder ?duration ?difficulty ?description #}
-{# Output: Markdown module guide (rendered once per module) #}
-
 # {{ code }}: {{ title }}
 
-**Duration**: {{ duration }}
+**Duration**: {{ durationLabel | default(value=duration) }}
 **Difficulty**: {{ difficulty }}
 
 ## Overview

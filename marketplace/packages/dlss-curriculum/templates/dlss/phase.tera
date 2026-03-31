@@ -1,11 +1,6 @@
-{# phase.tera: DMEDI Phase Overview #}
-{# Constitutional Equation: phases/index.md = mu(ontology.ttl) #}
-{# Input: SPARQL SELECT ?phaseOrder ?title ?description ?duration #}
-{# Output: Markdown phase overview page (rendered once per phase) #}
-
 # Phase {{ phaseOrder }}: {{ title }}
 
-**Duration**: {{ duration }}
+**Duration**: {{ durationLabel | default(value=duration) }}
 
 ## Phase Objectives
 
@@ -17,7 +12,7 @@
 |-----------|-------|
 | **Phase** | {{ phaseOrder }} of 5 |
 | **Title** | {{ title }} |
-| **Duration** | {{ duration }} |
+| **Duration** | {{ durationLabel | default(value=duration) }} |
 
 ## Transition Criteria
 
