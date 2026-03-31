@@ -785,8 +785,7 @@ ex:Beta  a ex:Entity ; ex:label "Beta" .
                 // Template uses current_row (the fix). A template using
                 // sparql_results[0] would emit "Alpha" for every file.
                 template: TemplateSource::Inline {
-                    inline: "{% set row = current_row %}entity={{ row[\"?label\"] }}"
-                        .to_string(),
+                    inline: "{% set row = current_row %}entity={{ row[\"?label\"] }}".to_string(),
                 },
                 output_file: "{{ label }}.txt".to_string(),
                 mode: GenerationMode::Overwrite,

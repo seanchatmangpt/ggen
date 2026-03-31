@@ -246,10 +246,11 @@ impl StagedPipeline {
             self.graph.insert_turtle(&content)?;
         }
 
-        Ok(self
-            .epoch
-            .as_ref()
-            .ok_or_else(|| Error::new("Epoch was not set after Epoch::create succeeded — internal invariant violated"))?)
+        Ok(self.epoch.as_ref().ok_or_else(|| {
+            Error::new(
+                "Epoch was not set after Epoch::create succeeded — internal invariant violated",
+            )
+        })?)
     }
 
     /// Verify inputs match a previous epoch

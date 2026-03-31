@@ -228,7 +228,10 @@ fn test_error_messages() {
     assert!(err1.to_string().contains("not in allowed list"));
 
     let cmd = SafeCommand::new("git").unwrap();
-    let err2 = cmd.arg("; rm -rf /").err().expect("Should fail with injection");
+    let err2 = cmd
+        .arg("; rm -rf /")
+        .err()
+        .expect("Should fail with injection");
     assert!(err2.to_string().contains("dangerous characters"));
 }
 
