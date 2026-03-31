@@ -1,0 +1,31 @@
+# SPARQL SELECT Query: Extract MCP Tool Parameters (one row per parameter)
+#
+# Returns one row per (tool, parameter) pair. The template groups parameters
+# by tool_name using sparql_results to build nested parameter arrays.
+#
+# Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> mcp-rust.tera
+
+PREFIX mcp: <https://ggen.dev/ontology/mcp#>
+
+SELECT ?tool_name ?param_name ?param_description ?rust_type ?json_schema ?is_required ?default_value ?enum_values
+WHERE {
+  << ?tool mcp:hasParameter ?param >>
+    mcp:paramName ?param_name ;
+    mcp:paramDescription ?param_desc_raw ;
+    mcp:rustType ?rust_type ;
+    mcp:jsonSchema ?json_schema .
+  ?tool mcp:toolName ?tool_name .
+
+  # Use BIND for optional fields with COALESCE defaults
+  BIND(COALESCE(?param_desc_raw, "") AS ?param_description)
+
+  OPTIONAL { << ?tool mcp:hasParameter ?param >> mcp:required ?req . }
+  BIND(COALESCE(?req, "false") AS ?is_required)
+
+  OPTIONAL { << ?tool mcp:hasParameter ?param >> mcp:defaultValue ?dv . }
+  BIND(COALESCE(?dv, "") AS ?default_value)
+
+  OPTIONAL { << ?tool mcp:hasParameter ?param >> mcp:enumValues ?ev . }
+  BIND(COALESCE(?ev, "") AS ?enum_values)
+}
+ORDER BY ?tool_name ?param_name

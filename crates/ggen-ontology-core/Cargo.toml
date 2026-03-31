@@ -36,6 +36,7 @@ tempfile = "3"
 proptest.workspace = true
 chicago-tdd-tools.workspace = true
 insta = "1.43"
+criterion = "0.5"
 
 [features]
 default = ["oxigraph", "sparql"]
@@ -49,4 +50,9 @@ path = "tests/ontology_integration.rs"
 [[bench]]
 name = "ontology_benchmarks"
 path = "benches/ontology_benchmarks.rs"
+harness = false
+
+[[bench]]
+name = "sparql_query_benchmarks"
+path = "benches/sparql_query_benchmarks.rs"
 harness = false

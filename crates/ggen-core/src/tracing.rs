@@ -83,7 +83,7 @@
     }
     
     /// Log frontmatter processing
-    pub fn frontmatter_processed(frontmatter: &crate::template::Frontmatter) {
+    pub fn frontmatter_processed(frontmatter: &crate::template_types::Frontmatter) {
         debug!(
             to = ?frontmatter.to,
             inject = frontmatter.inject,

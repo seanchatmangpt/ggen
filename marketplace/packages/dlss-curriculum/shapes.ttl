@@ -1,0 +1,309 @@
+# SHACL Validation Shapes — DLSS Black Belt Curriculum
+# Validates ontology.ttl and instances.ttl conformance
+# Run: ggen validate marketplace/packages/dlss-curriculum/instances.ttl
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dlss: <http://ggen.chatmangpt.com/dlss#> .
+@prefix shapes: <http://ggen.chatmangpt.com/dlss/shapes#> .
+
+# =============================================================================
+# SHAPE 1: CourseShape
+# =============================================================================
+# Every BlackBeltCourse MUST have all 5 DMEDI phases and a capstone project.
+# =============================================================================
+
+shapes:CourseShape a sh:NodeShape ;
+    sh:targetClass dlss:BlackBeltCourse ;
+    rdfs:label "Course Shape" ;
+    rdfs:comment "Validates that a DLSS BlackBeltCourse has all five DMEDI phases and a capstone project." ;
+
+    # At least 5 phases (Define, Measure, Explore, Develop, Implement)
+    sh:property [
+        sh:path dlss:hasPhase ;
+        sh:minCount 5 ;
+        sh:maxCount 5 ;
+        sh:class dlss:DMEDIPhase ;
+        sh:message "Every BlackBeltCourse must have exactly 5 DMEDI phases." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one capstone project
+    sh:property [
+        sh:path dlss:hasCapstone ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class dlss:CapstoneProject ;
+        sh:message "Every BlackBeltCourse must have exactly one capstone project." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Must have a title
+    sh:property [
+        sh:path dlss:title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "BlackBeltCourse must have a non-empty title." ;
+        sh:severity sh:Violation ;
+    ] .
+
+
+# =============================================================================
+# SHAPE 2: PhaseShape
+# =============================================================================
+# Every DMEDI phase MUST have at least 2 modules, a phaseOrder, a title,
+# and a duration.
+# =============================================================================
+
+shapes:PhaseShape a sh:NodeShape ;
+    sh:targetClass dlss:DMEDIPhase ;
+    rdfs:label "Phase Shape" ;
+    rdfs:comment "Validates that every DMEDI phase has required modules, ordering, and metadata." ;
+
+    # At least 2 modules per phase
+    sh:property [
+        sh:path dlss:hasModule ;
+        sh:minCount 2 ;
+        sh:class dlss:Module ;
+        sh:message "Every DMEDI phase must have at least 2 modules." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one phaseOrder (integer 1-5)
+    sh:property [
+        sh:path dlss:phaseOrder ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:message "DMEDI phase must have a phaseOrder between 1 and 5." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one title
+    sh:property [
+        sh:path dlss:title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "DMEDI phase must have a non-empty title." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one duration
+    sh:property [
+        sh:path dlss:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "DMEDI phase must have a duration." ;
+        sh:severity sh:Violation ;
+    ] .
+
+
+# =============================================================================
+# SHAPE 3: ModuleShape
+# =============================================================================
+# Every module MUST have a title, code, duration, difficulty, moduleOrder,
+# and at least 1 learning objective.
+# =============================================================================
+
+shapes:ModuleShape a sh:NodeShape ;
+    sh:targetClass dlss:Module ;
+    rdfs:label "Module Shape" ;
+    rdfs:comment "Validates that every module has required identity properties and at least one learning objective." ;
+
+    # Exactly one title
+    sh:property [
+        sh:path dlss:title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Module must have a non-empty title." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one code (e.g., M1, M53)
+    sh:property [
+        sh:path dlss:code ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^M[0-9]+$" ;
+        sh:message "Module code must match pattern M followed by digits (e.g., M1, M53)." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one duration
+    sh:property [
+        sh:path dlss:duration ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Module must have a duration." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one difficulty
+    sh:property [
+        sh:path dlss:difficulty ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("Introductory" "Intermediate" "Advanced") ;
+        sh:message "Module difficulty must be one of: Introductory, Intermediate, Advanced." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one moduleOrder
+    sh:property [
+        sh:path dlss:moduleOrder ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Module must have a moduleOrder >= 1." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # At least 1 learning objective
+    sh:property [
+        sh:path dlss:hasObjective ;
+        sh:minCount 1 ;
+        sh:class dlss:LearningObjective ;
+        sh:message "Module must have at least 1 learning objective." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+
+# =============================================================================
+# SHAPE 4: LearningObjectiveShape
+# =============================================================================
+# Every learning objective MUST have text and a valid Bloom's taxonomy level.
+# =============================================================================
+
+shapes:LearningObjectiveShape a sh:NodeShape ;
+    sh:targetClass dlss:LearningObjective ;
+    rdfs:label "Learning Objective Shape" ;
+    rdfs:comment "Validates that every learning objective has text and a valid Bloom's taxonomy level." ;
+
+    # Exactly one text
+    sh:property [
+        sh:path dlss:text ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Learning objective must have non-empty text." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one Bloom's level
+    sh:property [
+        sh:path dlss:bloomsLevel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("Remember" "Understand" "Apply" "Analyze" "Evaluate" "Create") ;
+        sh:message "Bloom's taxonomy level must be one of: Remember, Understand, Apply, Analyze, Evaluate, Create." ;
+        sh:severity sh:Violation ;
+    ] .
+
+
+# =============================================================================
+# SHAPE 5: ExampleShape
+# =============================================================================
+# Every example MUST have a context (Product Development or New Process Design)
+# and a title.
+# =============================================================================
+
+shapes:ExampleShape a sh:NodeShape ;
+    sh:targetClass dlss:Example ;
+    rdfs:label "Example Shape" ;
+    rdfs:comment "Validates that every example has a context and a title." ;
+
+    # Exactly one context
+    sh:property [
+        sh:path dlss:context ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ("Product Development" "New Process Design") ;
+        sh:message "Example context must be 'Product Development' or 'New Process Design'." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one title
+    sh:property [
+        sh:path dlss:title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Example must have a non-empty title." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+
+# =============================================================================
+# SHAPE 6: ExerciseShape
+# =============================================================================
+# Every exercise MUST have text instructions and an estimated time in minutes.
+# =============================================================================
+
+shapes:ExerciseShape a sh:NodeShape ;
+    sh:targetClass dlss:Exercise ;
+    rdfs:label "Exercise Shape" ;
+    rdfs:comment "Validates that every exercise has instructions and a time estimate." ;
+
+    # Exactly one text (instructions)
+    sh:property [
+        sh:path dlss:text ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Exercise must have non-empty instructions (text)." ;
+        sh:severity sh:Violation ;
+    ] ;
+
+    # Exactly one estimatedMinutes
+    sh:property [
+        sh:path dlss:estimatedMinutes ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Exercise must have estimatedMinutes >= 1." ;
+        sh:severity sh:Violation ;
+    ] .
+
+
+# =============================================================================
+# SHAPE 7: PrerequisiteShape
+# =============================================================================
+# Validates that prerequisite relationships do not create circular dependencies.
+# Uses SHACL property shape to enforce that a module's prerequisite has a
+# lower moduleOrder than itself (preventing cycles within a phase).
+# =============================================================================
+
+shapes:PrerequisiteShape a sh:NodeShape ;
+    sh:targetClass dlss:Module ;
+    rdfs:label "Prerequisite Shape" ;
+    rdfs:comment "Validates that prerequisite modules exist and do not create obvious circular dependencies." ;
+
+    # When prerequisites exist, they must point to Module instances
+    sh:property [
+        sh:path dlss:hasPrerequisite ;
+        sh:class dlss:Module ;
+        sh:message "Prerequisite must reference a dlss:Module instance." ;
+        sh:severity sh:Violation ;
+    ] .

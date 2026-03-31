@@ -73,7 +73,34 @@ template    = { file = "templates/handlers.rs.tera" }
 output_file = "handlers.rs"
 mode        = "Overwrite"
 
-# ── Rule 3: Agent card JSON ────────────────────────────────────────────────────
+# ── Rule 3: Agent TOML config ──────────────────────────────────────────────────
+[[generation.rules]]
+name = "agent-toml"
+query = { inline = """
+PREFIX agent: <https://ggen.io/examples/a2a#>
+
+SELECT ?agentName ?description ?version ?skillId ?skillName ?skillDesc ?inputModes ?outputModes ?order
+WHERE {
+  ?ag a agent:Agent ;
+      agent:agentName ?agentName ;
+      agent:description ?description ;
+      agent:version ?version .
+  ?skill a agent:Skill ;
+         agent:agentOf ?ag ;
+         agent:skillId ?skillId ;
+         agent:skillName ?skillName ;
+         agent:description ?skillDesc ;
+         agent:inputModes ?inputModes ;
+         agent:outputModes ?outputModes ;
+         agent:order ?order .
+}
+ORDER BY ?order
+""" }
+template    = { file = "templates/agent.toml.tera" }
+output_file = "agent.toml"
+mode        = "Overwrite"
+
+# ── Rule 4: Agent card JSON ────────────────────────────────────────────────────
 [[generation.rules]]
 name = "agent-card-json"
 query = { inline = """

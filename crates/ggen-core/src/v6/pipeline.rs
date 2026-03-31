@@ -76,7 +76,7 @@ impl PipelineConfig {
             project_version: project_version.into(),
             base_path: PathBuf::from("."),
             ontology_sources: Vec::new(),
-            output_dir: PathBuf::from("src/generated"),
+            output_dir: PathBuf::from("."),
             receipt_path: Some(PathBuf::from(".ggen/receipt.json")),
             verify_mode: VerifyMode::None,
             previous_receipt: None,
@@ -470,7 +470,7 @@ mod tests {
     fn test_pipeline_config_builder() {
         let config = PipelineConfig::new("test", "1.0.0")
             .with_ontology("ontology/domain.ttl")
-            .with_output_dir("src/generated")
+            .with_output_dir(".")
             .with_verify_mode(VerifyMode::Full);
 
         assert_eq!(config.project_name, "test");

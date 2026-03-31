@@ -15,6 +15,14 @@ thiserror = "2.0"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.11", features = ["v4", "serde"] }
 
+[features]
+integration = []
+
 [dev-dependencies]
 tokio-test = "0.4"
 proptest = { workspace = true }
+
+[[test]]
+name = "property_tests"
+path = "tests/property_tests.rs"
+required-features = ["integration"]

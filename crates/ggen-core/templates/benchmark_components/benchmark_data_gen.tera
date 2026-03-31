@@ -1,0 +1,104 @@
+{#- Benchmark Data Generation Component - Test data and fixtures -#}
+
+{#- SPARQL Query Constants -#}
+{%- macro sparql_query_constants(operations) -%}
+  {%- for op in operations %}
+  @query_{{ op.snake_name }} """{{ op.query_text }}"""
+  {%- endfor %}
+{%- endmacro -%}
+
+{#- Random Query Generation -#}
+{%- macro random_query_generation(query_patterns) -%}
+  defp random_query() do
+    patterns = [
+      {%- for pattern in query_patterns %}
+      {{ pattern }},
+      {%- endfor %}
+    ]
+    Enum.random(patterns)
+  end
+{%- endmacro -%}
+
+{#- Batch Data Generation -#}
+{%- macro batch_data_generator(count, generator_function) -%}
+  defp generate_test_data(count \\ {{ count }}) do
+    Enum.map(1..count, fn _ ->
+      {{ generator_function }}()
+    end)
+  end
+{%- endmacro -%}
+
+{#- RDF Triple Generation -#}
+{%- macro rdf_triple_generator(subject_prefix, predicate, object_count) -%}
+  defp generate_triples(count \\ {{ object_count }}) do
+    Enum.map(1..count, fn i ->
+      %{
+        subject: "{{ subject_prefix }}_#{i}",
+        predicate: "{{ predicate }}",
+        object: "object_#{i}"
+      }
+    end)
+  end
+{%- endmacro -%}
+
+{#- Sequential ID Generation -#}
+{%- macro sequential_ids(prefix, count) -%}
+  defp generate_ids(count \\ {{ count }}) do
+    Enum.map(1..count, fn i ->
+      "{{ prefix }}_#{i}"
+    end)
+  end
+{%- endmacro -%}
+
+{#- Concurrent Workload Generation -#}
+{%- macro concurrent_workload_generator(query_list, concurrency) -%}
+  defp concurrent_workload(queries, concurrency \\ {{ concurrency }}) do
+    queries
+    |> Enum.chunk_every(concurrency)
+    |> Enum.map(fn chunk ->
+      Task.async_stream(chunk, fn query ->
+        execute_query(query)
+      end, max_concurrency: concurrency)
+    end)
+    |> Enum.flat_map(& &1)
+    |> Enum.map(fn {:ok, result} -> result end)
+  end
+{%- endmacro -%}
+
+{#- Time-based Data Generation -#}
+{%- macro time_series_data_generator(start_date, days) -%}
+  defp generate_time_series_data(days \\ {{ days }}) do
+    Enum.map(0..(days - 1), fn i ->
+      date = Date.add({{ start_date }}, i)
+      %{
+        date: date,
+        value = :rand.uniform() * 100
+      }
+    end)
+  end
+{%- endmacro -%}
+
+{#- Large Dataset Generator -#}
+{%- macro large_dataset_generator(record_count, field_count) -%}
+  defp generate_large_dataset(count \\ {{ record_count }}, fields \\ {{ field_count }}) do
+    Enum.map(1..count, fn _ ->
+      Enum.into(1..fields, %{}, fn i ->
+        {"field_#{i}", "value_#{:rand.uniform(1000)}"}
+      end)
+    end)
+  end
+{%- endmacro -%}
+
+{#- Nested Structure Generator -#}
+{%- macro nested_structure_generator(depth, branching_factor) -%}
+  defp generate_nested_structure(current_depth \\ 0, max_depth \\ {{ depth }}) do
+    if current_depth >= max_depth do
+      %{"value" => "leaf_#{:rand.uniform(1000)}"}
+    else
+      children = Enum.map(1..{{ branching_factor }}, fn i ->
+        {"child_#{i}", generate_nested_structure(current_depth + 1, max_depth)}
+      end)
+      Enum.into(children, %{"depth" => current_depth})
+    end
+  end
+{%- endmacro -%}

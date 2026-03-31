@@ -110,12 +110,8 @@ fn test_ontology_generate_creates_code() {
         .assert()
         .success();
 
-    // Verify state: Generated files created
-    let generated_dir = temp_dir.path().join("generated");
-    assert!(
-        generated_dir.exists(),
-        "Generated directory should be created"
-    );
+    // Verify state: Output files created in current directory
+    assert!(temp_dir.path().exists(), "Output directory should exist");
 }
 
 #[test]

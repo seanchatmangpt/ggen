@@ -272,11 +272,52 @@ fn extract_content_from_message(message: &ConvergedMessage) -> Result<String> {
         UnifiedContent::Multipart { parts, .. } => {
             let mut contents = Vec::new();
             for part in parts {
-                // For multipart, we extract the content directly from the part
-                if let UnifiedContent::Text { content, .. } = part {
-                    contents.push(content.clone());
-                } else {
-                    contents.push("[Non-text part in multipart]".to_string());
+                match part {
+                    UnifiedContent::Text { content, .. } => {
+                        contents.push(content.clone());
+                    }
+                    UnifiedContent::Data { data, .. } => {
+                        warn!("Data content in multipart - serializing to JSON");
+                        match serde_json::to_string_pretty(data) {
+                            Ok(json) => contents.push(json),
+                            Err(e) => {
+                                warn!("Failed to serialize Data content: {}", e);
+                                contents.push("[Failed to serialize Data content]".to_string());
+                            }
+                        }
+                    }
+                    UnifiedContent::File { file, .. } => {
+                        warn!("File content in multipart - extracting metadata");
+                        if let Some(uri) = &file.uri {
+                            contents.push(format!("[File: {}]", uri));
+                        } else if let Some(bytes) = &file.bytes {
+                            contents.push(format!("[Base64 file content: {} bytes]", bytes.len()));
+                        } else {
+                            contents.push("[File content unavailable]".to_string());
+                        }
+                    }
+                    UnifiedContent::Stream { stream_id, .. } => {
+                        warn!("Stream content in multipart - extracting stream ID");
+                        contents.push(format!("[Stream: {}]", stream_id));
+                    }
+                    UnifiedContent::Multipart {
+                        parts: nested_parts,
+                        ..
+                    } => {
+                        warn!("Nested multipart detected - recursive extraction");
+                        // Recursively extract nested multipart content
+                        for nested_part in nested_parts {
+                            match nested_part {
+                                UnifiedContent::Text { content, .. } => {
+                                    contents.push(content.clone());
+                                }
+                                _ => {
+                                    contents
+                                        .push("[Non-text part in nested multipart]".to_string());
+                                }
+                            }
+                        }
+                    }
                 }
             }
             Ok(contents.join("\n\n---\n\n"))
@@ -1081,5 +1122,434 @@ mod tests {
         let content = extract_content_from_message(&message).unwrap();
         assert!(content.contains("Part 1"));
         assert!(content.contains("Part 2"));
+    }
+
+    // Test Data content extraction (Bug #1 fix - Data was previously discarded)
+    #[test]
+    fn test_extract_data_content() {
+        use a2a_generated::converged::message::UnifiedContent;
+        use serde_json::json;
+
+        let mut data_map = serde_json::Map::new();
+        data_map.insert("key".to_string(), json!("value"));
+        data_map.insert("number".to_string(), json!(42));
+        data_map.insert("nested".to_string(), json!({"field": "test"}));
+
+        let message = ConvergedMessage {
+            message_id: "test-data".to_string(),
+            source: "user".to_string(),
+            target: Some("agent".to_string()),
+            envelope: MessageEnvelope {
+                message_type: ConvergedMessageType::Direct,
+                priority: MessagePriority::Normal,
+                timestamp: chrono::Utc::now(),
+                schema_version: "1.0".to_string(),
+                content_type: "application/json".to_string(),
+                correlation_id: None,
+                causation_chain: None,
+            },
+            payload: a2a_generated::converged::message::ConvergedPayload {
+                content: UnifiedContent::Data {
+                    data: data_map.clone(),
+                    schema: None,
+                },
+                context: None,
+                hints: None,
+                integrity: None,
+            },
+            routing: MessageRouting {
+                path: vec![],
+                metadata: None,
+                qos: QoSRequirements {
+                    reliability: ReliabilityLevel::BestEffort,
+                    latency: None,
+                    throughput: None,
+                },
+            },
+            lifecycle: MessageLifecycle {
+                state: MessageState::Created,
+                history: vec![],
+                timeout: None,
+            },
+            extensions: Default::default(),
+        };
+
+        let content = extract_content_from_message(&message).unwrap();
+        assert!(content.contains("key"));
+        assert!(content.contains("value"));
+        assert!(content.contains("42"));
+    }
+
+    // Test File content extraction
+    #[test]
+    fn test_extract_file_content() {
+        use a2a_generated::converged::message::{UnifiedContent, UnifiedFileContent};
+
+        let message = ConvergedMessage {
+            message_id: "test-file".to_string(),
+            source: "user".to_string(),
+            target: Some("agent".to_string()),
+            envelope: MessageEnvelope {
+                message_type: ConvergedMessageType::Direct,
+                priority: MessagePriority::Normal,
+                timestamp: chrono::Utc::now(),
+                schema_version: "1.0".to_string(),
+                content_type: "file".to_string(),
+                correlation_id: None,
+                causation_chain: None,
+            },
+            payload: a2a_generated::converged::message::ConvergedPayload {
+                content: UnifiedContent::File {
+                    file: UnifiedFileContent {
+                        uri: Some("file:///path/to/file.txt".to_string()),
+                        bytes: None,
+                        name: None,
+                        mime_type: None,
+                        size: None,
+                        hash: None,
+                    },
+                    metadata: None,
+                },
+                context: None,
+                hints: None,
+                integrity: None,
+            },
+            routing: MessageRouting {
+                path: vec![],
+                metadata: None,
+                qos: QoSRequirements {
+                    reliability: ReliabilityLevel::BestEffort,
+                    latency: None,
+                    throughput: None,
+                },
+            },
+            lifecycle: MessageLifecycle {
+                state: MessageState::Created,
+                history: vec![],
+                timeout: None,
+            },
+            extensions: Default::default(),
+        };
+
+        let content = extract_content_from_message(&message).unwrap();
+        assert!(content.contains("[File:"));
+        assert!(content.contains("file:///path/to/file.txt"));
+    }
+
+    // Test Stream content extraction
+    #[test]
+    fn test_extract_stream_content() {
+        use a2a_generated::converged::message::UnifiedContent;
+
+        let message = ConvergedMessage {
+            message_id: "test-stream".to_string(),
+            source: "user".to_string(),
+            target: Some("agent".to_string()),
+            envelope: MessageEnvelope {
+                message_type: ConvergedMessageType::Direct,
+                priority: MessagePriority::Normal,
+                timestamp: chrono::Utc::now(),
+                schema_version: "1.0".to_string(),
+                content_type: "stream".to_string(),
+                correlation_id: None,
+                causation_chain: None,
+            },
+            payload: a2a_generated::converged::message::ConvergedPayload {
+                content: UnifiedContent::Stream {
+                    stream_id: "stream-123".to_string(),
+                    chunk_size: 1024,
+                    metadata: None,
+                },
+                context: None,
+                hints: None,
+                integrity: None,
+            },
+            routing: MessageRouting {
+                path: vec![],
+                metadata: None,
+                qos: QoSRequirements {
+                    reliability: ReliabilityLevel::BestEffort,
+                    latency: None,
+                    throughput: None,
+                },
+            },
+            lifecycle: MessageLifecycle {
+                state: MessageState::Created,
+                history: vec![],
+                timeout: None,
+            },
+            extensions: Default::default(),
+        };
+
+        let content = extract_content_from_message(&message).unwrap();
+        assert!(content.contains("[Stream:"));
+        assert!(content.contains("stream-123"));
+    }
+
+    // Test multipart with Data parts (critical - Data was discarded before)
+    #[test]
+    fn test_extract_multipart_with_data() {
+        use a2a_generated::converged::message::UnifiedContent;
+        use serde_json::json;
+
+        let mut data_map = serde_json::Map::new();
+        data_map.insert("data".to_string(), json!("value"));
+
+        let parts = vec![
+            UnifiedContent::Text {
+                content: "Text part".to_string(),
+                metadata: None,
+            },
+            UnifiedContent::Data {
+                data: data_map,
+                schema: None,
+            },
+        ];
+
+        let message = ConvergedMessage {
+            message_id: "test-multi-data".to_string(),
+            source: "user".to_string(),
+            target: Some("agent".to_string()),
+            envelope: MessageEnvelope {
+                message_type: ConvergedMessageType::Direct,
+                priority: MessagePriority::Normal,
+                timestamp: chrono::Utc::now(),
+                schema_version: "1.0".to_string(),
+                content_type: "multipart".to_string(),
+                correlation_id: None,
+                causation_chain: None,
+            },
+            payload: a2a_generated::converged::message::ConvergedPayload {
+                content: UnifiedContent::Multipart {
+                    parts,
+                    boundary: None,
+                },
+                context: None,
+                hints: None,
+                integrity: None,
+            },
+            routing: MessageRouting {
+                path: vec![],
+                metadata: None,
+                qos: QoSRequirements {
+                    reliability: ReliabilityLevel::BestEffort,
+                    latency: None,
+                    throughput: None,
+                },
+            },
+            lifecycle: MessageLifecycle {
+                state: MessageState::Created,
+                history: vec![],
+                timeout: None,
+            },
+            extensions: Default::default(),
+        };
+
+        let content = extract_content_from_message(&message).unwrap();
+        assert!(content.contains("Text part"));
+        assert!(content.contains("data")); // Key from JSON data
+        assert!(content.contains("value")); // Value from JSON data
+    }
+
+    // Test multipart with File parts
+    #[test]
+    fn test_extract_multipart_with_file() {
+        use a2a_generated::converged::message::{UnifiedContent, UnifiedFileContent};
+
+        let parts = vec![
+            UnifiedContent::Text {
+                content: "Text part".to_string(),
+                metadata: None,
+            },
+            UnifiedContent::File {
+                file: UnifiedFileContent {
+                    uri: Some("file:///test.txt".to_string()),
+                    bytes: None,
+                    name: None,
+                    mime_type: None,
+                    size: None,
+                    hash: None,
+                },
+                metadata: None,
+            },
+        ];
+
+        let message = ConvergedMessage {
+            message_id: "test-multi-file".to_string(),
+            source: "user".to_string(),
+            target: Some("agent".to_string()),
+            envelope: MessageEnvelope {
+                message_type: ConvergedMessageType::Direct,
+                priority: MessagePriority::Normal,
+                timestamp: chrono::Utc::now(),
+                schema_version: "1.0".to_string(),
+                content_type: "multipart".to_string(),
+                correlation_id: None,
+                causation_chain: None,
+            },
+            payload: a2a_generated::converged::message::ConvergedPayload {
+                content: UnifiedContent::Multipart {
+                    parts,
+                    boundary: None,
+                },
+                context: None,
+                hints: None,
+                integrity: None,
+            },
+            routing: MessageRouting {
+                path: vec![],
+                metadata: None,
+                qos: QoSRequirements {
+                    reliability: ReliabilityLevel::BestEffort,
+                    latency: None,
+                    throughput: None,
+                },
+            },
+            lifecycle: MessageLifecycle {
+                state: MessageState::Created,
+                history: vec![],
+                timeout: None,
+            },
+            extensions: Default::default(),
+        };
+
+        let content = extract_content_from_message(&message).unwrap();
+        assert!(content.contains("Text part"));
+        assert!(content.contains("[File:"));
+        assert!(content.contains("file:///test.txt"));
+    }
+
+    // Test nested multipart handling
+    #[test]
+    fn test_extract_nested_multipart() {
+        use a2a_generated::converged::message::UnifiedContent;
+
+        let nested_parts = vec![
+            UnifiedContent::Text {
+                content: "Nested text".to_string(),
+                metadata: None,
+            },
+            UnifiedContent::Text {
+                content: "Another nested".to_string(),
+                metadata: None,
+            },
+        ];
+
+        let parts = vec![
+            UnifiedContent::Text {
+                content: "Outer text".to_string(),
+                metadata: None,
+            },
+            UnifiedContent::Multipart {
+                parts: nested_parts,
+                boundary: None,
+            },
+        ];
+
+        let message = ConvergedMessage {
+            message_id: "test-nested".to_string(),
+            source: "user".to_string(),
+            target: Some("agent".to_string()),
+            envelope: MessageEnvelope {
+                message_type: ConvergedMessageType::Direct,
+                priority: MessagePriority::Normal,
+                timestamp: chrono::Utc::now(),
+                schema_version: "1.0".to_string(),
+                content_type: "multipart".to_string(),
+                correlation_id: None,
+                causation_chain: None,
+            },
+            payload: a2a_generated::converged::message::ConvergedPayload {
+                content: UnifiedContent::Multipart {
+                    parts,
+                    boundary: None,
+                },
+                context: None,
+                hints: None,
+                integrity: None,
+            },
+            routing: MessageRouting {
+                path: vec![],
+                metadata: None,
+                qos: QoSRequirements {
+                    reliability: ReliabilityLevel::BestEffort,
+                    latency: None,
+                    throughput: None,
+                },
+            },
+            lifecycle: MessageLifecycle {
+                state: MessageState::Created,
+                history: vec![],
+                timeout: None,
+            },
+            extensions: Default::default(),
+        };
+
+        let content = extract_content_from_message(&message).unwrap();
+        assert!(content.contains("Outer text"));
+        assert!(content.contains("Nested text"));
+        assert!(content.contains("Another nested"));
+    }
+
+    // Test multipart with Stream parts
+    #[test]
+    fn test_extract_multipart_with_stream() {
+        use a2a_generated::converged::message::UnifiedContent;
+
+        let parts = vec![
+            UnifiedContent::Text {
+                content: "Text part".to_string(),
+                metadata: None,
+            },
+            UnifiedContent::Stream {
+                stream_id: "stream-abc".to_string(),
+                chunk_size: 512,
+                metadata: None,
+            },
+        ];
+
+        let message = ConvergedMessage {
+            message_id: "test-multi-stream".to_string(),
+            source: "user".to_string(),
+            target: Some("agent".to_string()),
+            envelope: MessageEnvelope {
+                message_type: ConvergedMessageType::Direct,
+                priority: MessagePriority::Normal,
+                timestamp: chrono::Utc::now(),
+                schema_version: "1.0".to_string(),
+                content_type: "multipart".to_string(),
+                correlation_id: None,
+                causation_chain: None,
+            },
+            payload: a2a_generated::converged::message::ConvergedPayload {
+                content: UnifiedContent::Multipart {
+                    parts,
+                    boundary: None,
+                },
+                context: None,
+                hints: None,
+                integrity: None,
+            },
+            routing: MessageRouting {
+                path: vec![],
+                metadata: None,
+                qos: QoSRequirements {
+                    reliability: ReliabilityLevel::BestEffort,
+                    latency: None,
+                    throughput: None,
+                },
+            },
+            lifecycle: MessageLifecycle {
+                state: MessageState::Created,
+                history: vec![],
+                timeout: None,
+            },
+            extensions: Default::default(),
+        };
+
+        let content = extract_content_from_message(&message).unwrap();
+        assert!(content.contains("Text part"));
+        assert!(content.contains("[Stream:"));
+        assert!(content.contains("stream-abc"));
     }
 }

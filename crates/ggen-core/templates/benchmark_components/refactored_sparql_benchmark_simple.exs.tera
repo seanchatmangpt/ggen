@@ -1,0 +1,250 @@
+{# SPARQL Optimization Benchmark Test Template - Generated via ggen from RDF ontology -#}
+{# Do not edit manually - Regenerate with: ggen sync -#}
+
+{% include "benchmark_components/benchmark_setup.tera" %}
+{% include "benchmark_components/benchmark_metrics.tera" %}
+{% include "benchmark_components/benchmark_data_gen.tera" %}
+{% include "benchmark_components/benchmark_assertions.tera" %}
+
+defmodule OptimalSystemAgent.Ontology.SPARQLOptimizationBenchmarkTest do
+  use ExUnit.Case, async: true
+
+  alias OptimalSystemAgent.Ontology.SPARQLOptimizer
+  alias OptimalSystemAgent.Ontology.SPARQLExecutorCached
+
+  @moduletag :sparql_benchmark
+  @moduletag :generated
+
+  {%- for category in categories %}
+  {%- if category.description %}
+  @moduledoc """
+  {{ category.description }}
+
+  Generated from RDF ontology specification.
+  Benchmark operations:
+  {%- for op in category.operations %}
+    - {{ op.name }} ({{ op.complexity }})
+  {%- endfor %}
+  """
+  {%- endif %}
+  {%- endfor %}
+
+  # Test Data: Generated from RDF ontology
+  # ========================================
+
+  {{ self::sparql_query_constants(operations=operations) }}
+
+  # ── Benchmark: Query Analysis ────────────────────────────────────────
+
+  describe "Query Analysis Performance" do
+    {%- for op in operations %}
+    {%- if op.complexity == "simple" %}
+    test "analyze_simple_query_{{ op.snake_name }}: <5ms" do
+      time_ms = measure_analysis(@query_{{ op.snake_name }})
+      {{ self::elixir_timeout_assertion(actual_time="time_ms", threshold_ms=5, operation_name="analyze_simple_query_" ~ op.snake_name) }}
+    end
+
+    {%- elsif op.complexity == "complex" %}
+    test "analyze_complex_query_{{ op.snake_name }}: <10ms" do
+      time_ms = measure_analysis(@query_{{ op.snake_name }})
+      {{ self::elixir_timeout_assertion(actual_time="time_ms", threshold_ms=10, operation_name="analyze_complex_query_" ~ op.snake_name) }}
+    end
+
+    {%- endif %}
+    {%- endfor %}
+
+    test "analyze_identifies_union_blocks" do
+      {:ok, analysis} = SPARQLOptimizer.analyze(@query_deadlock_detection_complex)
+      {{ self::non_empty_result_check(result_list="analysis.opportunities", operation_name="analyze_identifies_union_blocks") }}
+      assert analysis.union_count > 0
+      assert Enum.any?(analysis.opportunities, &(&1.code == "union_all"))
+    end
+
+    test "analyze_identifies_optional_blocks" do
+      {:ok, analysis} = SPARQLOptimizer.analyze(@query_with_optional)
+      assert analysis.optional_count >= 3
+      assert Enum.any?(analysis.opportunities, &(&1.code == "optional_elimination"))
+    end
+  end
+
+  # ── Benchmark: Query Rewriting ────────────────────────────────────────
+
+  describe "Query Rewriting Performance" do
+    {%- for op in operations %}
+    {%- if op.complexity == "simple" %}
+    test "rewrite_simple_query_{{ op.snake_name }}: <2ms" do
+      time_ms = measure_rewrite(@query_{{ op.snake_name }})
+      {{ self::elixir_timeout_assertion(actual_time="time_ms", threshold_ms=2, operation_name="rewrite_simple_query_" ~ op.snake_name) }}
+    end
+
+    {%- elsif op.complexity == "complex" %}
+    test "rewrite_complex_query_{{ op.snake_name }}: <5ms" do
+      time_ms = measure_rewrite(@query_{{ op.snake_name }})
+      {{ self::elixir_timeout_assertion(actual_time="time_ms", threshold_ms=5, operation_name="rewrite_complex_query_" ~ op.snake_name) }}
+    end
+
+    {%- endif %}
+    {%- endfor %}
+
+    test "rewrite_union_to_union_all_optimization" do
+      {:ok, rewritten} = SPARQLOptimizer.rewrite(@query_deadlock_detection_complex)
+      assert String.contains?(rewritten, "UNION ALL") or not String.contains?(rewritten, "UNION")
+    end
+
+    test "rewrite_preserves_query_semantics" do
+      {:ok, rewritten} = SPARQLOptimizer.rewrite(@query_find_agents)
+      assert String.contains?(@query_find_agents, "SELECT")
+      assert String.contains?(rewritten, "SELECT")
+      assert String.contains?(@query_find_agents, "LIMIT")
+      assert String.contains?(rewritten, "LIMIT")
+    end
+  end
+
+  # ── Benchmark: Cache Key Generation ────────────────────────────────────
+
+  describe "Cache Key Generation" do
+    test "cache_key_deterministic: same query produces same key" do
+      key1 = SPARQLOptimizer.cache_key(@query_find_agents)
+      key2 = SPARQLOptimizer.cache_key(@query_find_agents)
+      {{ self::determinism_check(value1="key1", value2="key2", operation_name="cache_key_deterministic") }}
+    end
+
+    test "cache_key_unique: different queries produce different keys" do
+      key1 = SPARQLOptimizer.cache_key(@query_find_agents)
+      key2 = SPARQLOptimizer.cache_key(@query_agent_tools)
+      {{ self::uniqueness_check(value1="key1", value2="key2", operation_name="cache_key_unique") }}
+    end
+
+    test "cache_key_collision_resistant: whitespace handled" do
+      query1 = "SELECT ?x WHERE { ?x a osa:Agent . }"
+      query2 = "SELECT ?x WHERE {   ?x   a   osa:Agent   .   }"
+      key1 = SPARQLOptimizer.cache_key(query1)
+      key2 = SPARQLOptimizer.cache_key(query2)
+      {{ self::determinism_check(value1="key1", value2="key2", operation_name="cache_key_collision_resistant") }}
+    end
+
+    {%- for op in operations %}
+    {%- if op.complexity == "complex" %}
+    test "cache_key_generation_{{ op.snake_name }}: <1ms" do
+      time_ms = measure_cache_key_generation(@query_{{ op.snake_name }})
+      {{ self::elixir_timeout_assertion(actual_time="time_ms", threshold_ms=1, operation_name="cache_key_generation_" ~ op.snake_name) }}
+    end
+
+    {%- endif %}
+    {%- endfor %}
+  end
+
+  # ── Benchmark: Determinism Detection ────────────────────────────────────
+
+  describe "Determinism Detection" do
+    test "is_deterministic: true without NOW/RAND" do
+      {:ok, det} = SPARQLOptimizer.is_deterministic?(@query_find_agents)
+      assert det == true
+    end
+
+    test "is_deterministic: false with NOW()" do
+      non_det = @query_find_agents <> " FILTER (?timestamp > NOW()) "
+      {:ok, det} = SPARQLOptimizer.is_deterministic?(non_det)
+      assert det == false
+    end
+
+    test "is_deterministic: false with RAND()" do
+      non_det = @query_find_agents <> " FILTER (RAND() > 0.5) "
+      {:ok, det} = SPARQLOptimizer.is_deterministic?(non_det)
+      assert det == false
+    end
+
+    test "is_deterministic: check is fast (<1ms)" do
+      time_ms = measure_determinism_check(@query_deadlock_detection_complex)
+      {{ self::elixir_timeout_assertion(actual_time="time_ms", threshold_ms=1, operation_name="is_deterministic_check") }}
+    end
+  end
+
+  # ── Benchmark: Executor with Caching ────────────────────────────────────
+
+  describe "SPARQLExecutorCached" do
+    {{ self::elixir_process_setup(process_name="SPARQLExecutorCached", start_args="cache_enabled: true") }}
+
+    test "executor_stats: initial state is zero" do
+      stats = SPARQLExecutorCached.stats()
+      assert stats.hits == 0
+      assert stats.misses == 0
+      assert stats.query_count >= 0
+    end
+
+    test "executor_clear_cache: resets statistics" do
+      SPARQLExecutorCached.clear_cache()
+      stats = SPARQLExecutorCached.stats()
+      assert stats.hits == 0
+      assert stats.misses == 0
+    end
+  end
+
+  # ── Integration Benchmark: Full Pipeline ────────────────────────────────
+
+  describe "Full Optimization Pipeline" do
+    {%- for op in operations %}
+    test "pipeline_query_{{ op.snake_name }}: <{{ op.slo_threshold }}ms" do
+      time_ms = measure_pipeline(@query_{{ op.snake_name }})
+      {{ self::elixir_timeout_assertion(actual_time="time_ms", threshold_ms=op.slo_threshold, operation_name="pipeline_query_" ~ op.snake_name) }}
+    end
+
+    {%- endfor %}
+
+    test "pipeline_concurrent_queries: 10 queries in <50ms" do
+      queries = [
+        {%- for op in operations %}
+        @query_{{ op.snake_name }}{{ "," if not loop.last }}
+        {%- endfor %}
+      ]
+
+      start_time = System.monotonic_time(:millisecond)
+
+      tasks = Enum.flat_map(1..2, fn _ ->
+        Enum.map(queries, fn query ->
+          Task.async(fn ->
+            measure_pipeline(query)
+          end)
+        end)
+      end)
+
+      _times = Task.await_many(tasks)
+      elapsed_ms = System.monotonic_time(:millisecond) - start_time
+
+      {{ self::elixir_timeout_assertion(actual_time="elapsed_ms", threshold_ms=50, operation_name="pipeline_concurrent_queries") }}
+    end
+  end
+
+  # ── Performance Summary Report ────────────────────────────────────────
+
+  describe "Performance Summary" do
+    test "summary_all_queries_meet_sla" do
+      queries = [
+        {%- for op in operations %}
+        {"{{ op.name }}", @query_{{ op.snake_name }}}{{ "," if not loop.last }}
+        {%- endfor %}
+      ]
+
+      results = Enum.map(queries, fn {name, query} ->
+        time_ms = measure_pipeline(query)
+        {name, time_ms}
+      end)
+
+      # Verify all meet <100ms SLA
+      Enum.each(results, fn {name, time_ms} ->
+        {{ self::elixir_timeout_assertion(actual_time="time_ms", threshold_ms=100, operation_name=name) }}
+      end)
+
+      # Print summary
+      {{ self::performance_summary_table(results=results) }}
+    end
+  end
+
+  # ── Measurement Helpers ────────────────────────────────────────────────
+
+  {{ self::elixir_measure_function(function_name="measure_analysis", expression="{:ok, _analysis} = SPARQLOptimizer.analyze(query)") }}
+  {{ self::elixir_measure_function(function_name="measure_rewrite", expression="{:ok, _rewritten} = SPARQLOptimizer.rewrite(query)") }}
+  {{ self::elixir_measure_function(function_name="measure_cache_key_generation", expression="_key = SPARQLOptimizer.cache_key(query)") }}
+  {{ self::elixir_measure_function(function_name="measure_determinism_check", expression="{:ok, _det} = SPARQLOptimizer.is_deterministic?(query)") }}
+  {{ self::elixir_measure_function(function_name="measure_pipeline", expression="{:ok, _analysis} = SPARQLOptimizer.analyze(query)\n{:ok, _rewritten} = SPARQLOptimizer.rewrite(query)\n_key = SPARQLOptimizer.cache_key(query)\n{:ok, _det} = SPARQLOptimizer.is_deterministic?(query)") }}
+end

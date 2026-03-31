@@ -303,12 +303,12 @@ impl ConventionResolver {
         Ok(queries)
     }
 
-    /// Resolve output directory (default: generated/)
+    /// Resolve output directory (default: project root)
     fn resolve_output_dir(&self, overrides: &ConventionOverrides) -> PathBuf {
         if let Some(ref dir) = overrides.output.dir {
             self.project_root.join(dir)
         } else {
-            self.project_root.join("generated")
+            self.project_root.clone()
         }
     }
 }
@@ -420,7 +420,7 @@ mod tests {
 
         let conventions = resolver.discover().unwrap();
 
-        assert_eq!(conventions.output_dir, temp_dir.path().join("generated"));
+        assert_eq!(conventions.output_dir, temp_dir.path());
     }
 
     #[test]
@@ -551,7 +551,7 @@ patterns = ["sparql/**/*.sparql"]
         assert!(conventions.rdf_files.is_empty());
         assert!(conventions.templates.is_empty());
         assert!(conventions.queries.is_empty());
-        assert_eq!(conventions.output_dir, temp_dir.path().join("generated"));
+        assert_eq!(conventions.output_dir, temp_dir.path());
     }
 
     #[test]

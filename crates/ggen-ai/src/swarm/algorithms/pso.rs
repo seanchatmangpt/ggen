@@ -196,7 +196,10 @@ impl TemplateParameterOptimizer {
             });
         }
 
-        debug!("Initialized PSO swarm with {} particles", self.config.num_particles);
+        debug!(
+            "Initialized PSO swarm with {} particles",
+            self.config.num_particles
+        );
         Ok(())
     }
 
@@ -222,7 +225,10 @@ impl TemplateParameterOptimizer {
 
             if iteration % 10 == 0 {
                 let best_fitness = *self.global_best_fitness.read().await;
-                info!("PSO iteration {}: best fitness = {:.4}", iteration, best_fitness);
+                info!(
+                    "PSO iteration {}: best fitness = {:.4}",
+                    iteration, best_fitness
+                );
             }
         }
 
@@ -266,7 +272,10 @@ impl TemplateParameterOptimizer {
         }
 
         // Record global best for convergence detection
-        self.fitness_history.write().await.push(*global_best_fitness);
+        self.fitness_history
+            .write()
+            .await
+            .push(*global_best_fitness);
 
         Ok(())
     }
@@ -283,22 +292,27 @@ impl TemplateParameterOptimizer {
                 // Get current values
                 let position = *particle.position.get(param_name).unwrap_or(&0.0);
                 let velocity = *particle.velocity.get(param_name).unwrap_or(&0.0);
-                let personal_best = *particle.personal_best_position.get(param_name).unwrap_or(&0.0);
+                let personal_best = *particle
+                    .personal_best_position
+                    .get(param_name)
+                    .unwrap_or(&0.0);
                 let global_best_val = *global_best.get(param_name).unwrap_or(&0.0);
 
                 // Update velocity: v = w*v + c1*r1*(pbest - x) + c2*r2*(gbest - x)
                 let r1 = fastrand::f64();
                 let r2 = fastrand::f64();
 
-                let cognitive_component = self.config.cognitive_weight * r1 * (personal_best - position);
-                let social_component = self.config.social_weight * r2 * (global_best_val - position);
+                let cognitive_component =
+                    self.config.cognitive_weight * r1 * (personal_best - position);
+                let social_component =
+                    self.config.social_weight * r2 * (global_best_val - position);
 
-                let mut new_velocity = self.config.inertia_weight * velocity
-                    + cognitive_component
-                    + social_component;
+                let mut new_velocity =
+                    self.config.inertia_weight * velocity + cognitive_component + social_component;
 
                 // Clamp velocity
-                new_velocity = new_velocity.clamp(-self.config.max_velocity, self.config.max_velocity);
+                new_velocity =
+                    new_velocity.clamp(-self.config.max_velocity, self.config.max_velocity);
 
                 // Update position
                 let mut new_position = position + new_velocity;
@@ -387,7 +401,8 @@ mod tests {
     impl FitnessFunction for MockFitness {
         async fn evaluate(&self, parameters: &HashMap<String, f64>) -> Result<f64> {
             // Simple fitness: prefer parameters close to 0.5
-            let fitness = parameters.values()
+            let fitness = parameters
+                .values()
                 .map(|v| 1.0 - (v - 0.5).abs())
                 .sum::<f64>()
                 / parameters.len() as f64;
@@ -458,7 +473,10 @@ mod tests {
 
         // Check that parameters are close to optimal (0.5)
         for (_name, value) in solution.parameters {
-            assert!((value - 0.5).abs() < 0.2, "Parameter should be close to 0.5");
+            assert!(
+                (value - 0.5).abs() < 0.2,
+                "Parameter should be close to 0.5"
+            );
         }
     }
 

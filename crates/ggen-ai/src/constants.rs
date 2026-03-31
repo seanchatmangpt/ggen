@@ -94,8 +94,10 @@ pub mod models {
     /// Default ZAI model (Zhipu AI GLM-4.6 coding model)
     pub const ZAI_DEFAULT: &str = "zai-coding::glm-4.6";
 
-    /// Default Groq model (fast, high-quality — llama 3.3 70B)
-    pub const GROQ_DEFAULT: &str = "llama-3.3-70b-versatile";
+    /// Default Groq model (OpenAI GPT-OSS-20B on Groq — fast, high-quality)
+    /// Uses `groq::` namespace prefix so the genai crate routes to Groq adapter.
+    /// Groq API receives `openai/gpt-oss-20b` (namespace stripped by genai).
+    pub const GROQ_DEFAULT: &str = "groq::openai/gpt-oss-20b";
 
     /// Groq fast model — lowest latency, ideal for agent loops
     pub const GROQ_FAST: &str = "llama-3.1-8b-instant";

@@ -48,6 +48,7 @@ members = [
   "crates/knhk-lockchain",     # Merkle-linked receipt storage
   "crates/knhk-otel",          # OpenTelemetry integration
   "crates/knhk-orchestrator",  # Integration bridge (ETL → KGC-4D → Workflow)
+  "test_validate_direct",      # Temporary: Direct MCP tool testing
   "crates/ggen-craftplan",     # RDF-driven Elixir code generation for Craftplan ERP
   "crates/tps-reference",      # Toyota Production System reference implementation
   "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
@@ -55,8 +56,8 @@ members = [
   "crates/ggen-yawl",         # YAWL workflow generation from industry ontologies
   "crates/ggen-process-mining", # Process mining integration with rust4pm (Alpha++, XES/OCEL)
   "crates/a2a-generated",     # A2A-RS integration code generated from RDF ontology
-  "crates/ggen-execution",    # Common execution framework for semantic convergence
   "crates/ggen-a2a-mcp",      # A2A-MCP integration for ggen
+  "crates/ggen-a2a-registry",  # Multi-agent A2A orchestration registry
   "crates/ggen-backpressure", # Backpressure and admission control (λ ≤ μ)
   "crates/ggen-heijunka",    # Heijunka load leveling and smooth workload distribution
   "crates/ggen-canonical",   # Deterministic canonicalization (Rust/JSON/RDF) with hash verification
@@ -97,6 +98,8 @@ exclude = [
   "crates/tai-cache",  # Temporarily excluded - has dependency issues
   "crates/tai-grpc",  # Temporarily excluded - has dependency issues
   "crates/tai-loadbalancer",  # Temporarily excluded - missing benchmark files
+  "examples/a2a-groq-agent",
+  "examples/a2a-rs-agents",
   ]
 resolver = "2" # Use new resolver for better dependency resolution
 
@@ -125,7 +128,7 @@ futures = "0.3"
 futures-util = "0.3"
 uuid = { version = "1.18", features = ["v4", "serde"] }
 tera = "1.20"
-oxigraph = "0.5.1"
+oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 toml = "0.9"
 serde_yaml = "0.9"
 hex = "0.4"
@@ -188,6 +191,9 @@ a2a-generated = { path = "crates/a2a-generated", version = "0.1.0" }
 # A2A-MCP Integration for ggen
 ggen-a2a-mcp = { path = "crates/ggen-a2a-mcp", version = "0.1.0" }
 
+# A2A Registry: Multi-agent orchestration registry
+ggen-a2a-registry = { path = "crates/ggen-a2a-registry", version = "0.1.0" }
+
 ggen-tps-andon = { path = "crates/ggen-tps-andon", version = "0.1.0" }
 ggen-heijunka = { path = "crates/ggen-heijunka", version = "6.0.1" }
 ggen-metrics-tps = { path = "crates/ggen-metrics-tps", version = "6.0.1" }
@@ -227,10 +233,10 @@ tai-observability = { path = "crates/tai-observability", version = "0.1.0" }
 tai-k8s = { path = "crates/tai-k8s", version = "0.1.0" }
 
 # OpenTelemetry dependencies (make optional at crate level, not workspace level)
-opentelemetry = { version = "0.21" }
-opentelemetry-otlp = { version = "0.14" }
-opentelemetry_sdk = { version = "0.21", features = ["rt-tokio"] }
-tracing-opentelemetry = { version = "0.22" }
+opentelemetry = { version = "0.31" }
+opentelemetry-otlp = { version = "0.31", features = ["grpc-tonic"] }
+opentelemetry_sdk = { version = "0.31", features = ["rt-tokio"] }
+tracing-opentelemetry = { version = "0.32" }
 
 # CLI Enhancement libraries
 indicatif = "0.18"
@@ -387,7 +393,7 @@ anyhow = "1.0"
 ggen-domain = { path = "crates/ggen-domain" }
 knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "0.1.0" }
 ggen-yawl = { path = "crates/ggen-yawl", version = "0.1.0" }
-oxigraph = "0.5.1"
+oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 # BDD testing framework
 cucumber = "0.20"
 assert_fs = "1.1"

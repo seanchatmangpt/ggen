@@ -1,0 +1,43 @@
+groups:
+  - id: registry.ggen.llm
+    type: attribute_group
+    stability: development
+    display_name: LLM Provider Attributes
+    brief: Attributes for LLM provider operations in ggen.
+    attributes:
+      - id: llm.model
+        type: string
+        stability: development
+        brief: LLM model identifier.
+        examples: ["claude-3-5-sonnet", "gpt-4o", "llama-3-70b"]
+        requirement_level: recommended
+      - id: llm.prompt_tokens
+        type: int
+        stability: development
+        brief: Number of tokens in the prompt.
+        examples: [1024, 4096]
+        requirement_level: recommended
+      - id: llm.completion_tokens
+        type: int
+        stability: development
+        brief: Number of tokens in the completion.
+        examples: [512, 2048]
+        requirement_level: recommended
+      - id: llm.total_tokens
+        type: int
+        stability: development
+        brief: Total tokens (prompt + completion).
+        examples: [1536, 6144]
+        requirement_level: recommended
+      - id: llm.prompt_length
+        type: int
+        stability: development
+        brief: Character length of the prompt.
+        examples: [4096, 16384]
+        requirement_level: recommended
+      - id: llm.output_length
+        type: int
+        stability: development
+        brief: Character length of the output.
+        examples: [2048, 8192]
+        requirement_level: recommended

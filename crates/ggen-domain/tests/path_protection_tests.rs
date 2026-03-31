@@ -28,8 +28,8 @@ fn test_protected_path_blocks_write() {
 fn test_regenerate_path_allows_write() {
     let validator = PathProtectionValidator::default_protection();
 
-    // Typical regenerate path: src/generated/**/*
-    let result = validator.validate_write("src/generated/user/mod.rs", true);
+    // Typical regenerate path: output/**/*
+    let result = validator.validate_write("output/generated/user/mod.rs", true);
 
     match result {
         GenerationWriteResult::AllowRegenerate { .. } => {
@@ -77,7 +77,7 @@ fn test_is_protected_method() {
     let validator = PathProtectionValidator::default_protection();
 
     assert!(validator.is_protected("src/domain/user.rs"));
-    assert!(!validator.is_protected("src/generated/user.rs"));
+    assert!(!validator.is_protected("output/generated/user.rs"));
 }
 
 /// Test: is_regeneratable() convenience method
@@ -85,7 +85,7 @@ fn test_is_protected_method() {
 fn test_is_regeneratable_method() {
     let validator = PathProtectionValidator::default_protection();
 
-    assert!(validator.is_regeneratable("src/generated/user.rs"));
+    assert!(validator.is_regeneratable("output/generated/user.rs"));
     assert!(!validator.is_regeneratable("src/domain/user.rs"));
 }
 
@@ -97,14 +97,14 @@ fn test_protection_with_real_filesystem() -> std::io::Result<()> {
 
     // Create protected and regenerate directories
     fs::create_dir_all(base_path.join("src/domain"))?;
-    fs::create_dir_all(base_path.join("src/generated/user"))?;
+    fs::create_dir_all(base_path.join("output/generated/user"))?;
 
     // Create a protected file
     let protected_file = base_path.join("src/domain/user.rs");
     fs::write(&protected_file, "// Domain implementation")?;
 
     // Create a regenerate file
-    let regen_file = base_path.join("src/generated/user/mod.rs");
+    let regen_file = base_path.join("output/generated/user/mod.rs");
     fs::write(&regen_file, "// Generated trait")?;
 
     let validator = PathProtectionValidator::default_protection();
@@ -117,7 +117,7 @@ fn test_protection_with_real_filesystem() -> std::io::Result<()> {
 
     // Regenerate file should be allowed
     assert!(matches!(
-        validator.validate_write("src/generated/user/mod.rs", true),
+        validator.validate_write("output/generated/user/mod.rs", true),
         GenerationWriteResult::AllowRegenerate { .. }
     ));
 
@@ -132,8 +132,8 @@ fn test_protection_with_glob_patterns() {
     // Test various paths
     assert!(validator.is_protected("src/domain/users/mod.rs"));
     assert!(validator.is_protected("src/domain/products/impl.rs"));
-    assert!(validator.is_regeneratable("src/generated/users/traits.rs"));
-    assert!(validator.is_regeneratable("src/generated/products/interfaces.rs"));
+    assert!(validator.is_regeneratable("output/generated/users/traits.rs"));
+    assert!(validator.is_regeneratable("output/generated/products/interfaces.rs"));
 }
 
 /// Test: Pattern matching for nested paths
@@ -143,7 +143,7 @@ fn test_pattern_matching_nested_paths() {
 
     // Test deeply nested paths
     assert!(validator.is_protected("src/domain/products/store/impl.rs"));
-    assert!(validator.is_regeneratable("src/generated/products/store/traits.rs"));
+    assert!(validator.is_regeneratable("output/generated/products/store/traits.rs"));
 }
 
 /// Test: Protection error messages are informative

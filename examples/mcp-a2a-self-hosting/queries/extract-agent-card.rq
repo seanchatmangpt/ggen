@@ -1,0 +1,30 @@
+# SPARQL Query to extract A2A agent card for /.well-known/agent.json
+# Generates standards-compliant A2A Agent Card
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX a2a: <https://w3id.org/a2a/ontology#>
+PREFIX agent: <https://example.com/agent#>
+
+CONSTRUCT {
+  ?agent a a2a:Agent ;
+    a2a:agentName ?agent_name ;
+    a2a:version ?agent_version ;
+    a2a:description ?agent_description ;
+    a2a:url ?agent_url ;
+    a2a:provider ?provider_name ;
+    a2a:hasSkill ?skill .
+}
+WHERE {
+  ?agent a a2a:Agent ;
+    rdfs:label ?agent_name ;
+    a2a:version ?agent_version ;
+    rdfs:comment ?agent_description ;
+    a2a:url ?agent_url ;
+    a2a:provider ?provider_name ;
+    a2a:hasSkill ?skill .
+
+  ?skill a a2a:Skill ;
+    rdfs:label ?skill_name .
+}

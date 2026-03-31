@@ -485,7 +485,7 @@ fn create_progress_bar(verbose: bool) -> Option<ProgressBar> {
     pb.set_style(
         ProgressStyle::default_bar()
             .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {msg}")
-            .unwrap()
+            .expect("valid progress bar template")
             .progress_chars("=>-"),
     );
     pb.set_message("Initializing...");

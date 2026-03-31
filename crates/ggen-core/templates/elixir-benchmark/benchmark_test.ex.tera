@@ -1,0 +1,63 @@
+{#- Benchmark Test Template - Generate Benchee benchmarks from RDF ontology -#}
+defmodule {{ module_prefix }}.{{ suite.name | replace(from=" ", to="") | camel_case }}Test do
+  use ExUnit.Case
+  import Benchee
+
+  @moduletag :benchmark
+
+  @moduledoc """
+  {{ suite.description }}
+
+  Generated from RDF specification by ggen.
+  Source ontology: {{ ontology_uri | default(value="ontology.ttl") }}
+  """
+
+  setup do
+    # Ensure Canopy application is started for benchmarks
+    Application.ensure_all_started(:canopy)
+
+    # Start ToolRegistry if not already started
+    case Process.whereis(Canopy.Ontology.ToolRegistry) do
+      nil ->
+        {:ok, _pid} = start_supervised({Canopy.Ontology.ToolRegistry, []})
+
+      _pid ->
+        :ok
+    end
+
+    :ok
+  end
+
+  {% for benchmark in suite.benchmarks -%}
+  describe "{{ benchmark.name }}" do
+    @tag timeout: {{ suite.timeout | default(value=300000) }}
+
+    {% if benchmark.setup -%}
+    setup do
+      {{ benchmark.setup | trim }}
+      :ok
+    end
+
+    {% endif -%}
+    test "{{ benchmark.name }}" do
+      Benchee.run(%{
+        {% for scenario in benchmark.scenarios -%}
+        "{{ scenario.name }}" => fn _input ->
+          {{ scenario.code | trim }}
+        end{% if not loop.last %},{% endif %}
+
+        {% endfor -%}
+      },
+      warmup: {{ config.warmup | default(value=2) }},
+      time: {{ config.time | default(value=5) }},
+      memory_time: {{ config.memory_time | default(value=2) }},
+      print: [fast_warning: false],
+      formatters: [
+        {Benchee.Formatters.Console, extended_statistics: true},
+        Benchee.Formatters.HTML
+      ])
+    end
+  end
+
+  {% endfor -%}
+end

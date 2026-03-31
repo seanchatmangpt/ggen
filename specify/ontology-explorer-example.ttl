@@ -1,0 +1,208 @@
+# ontology-explorer-example.ttl — Ontology Explorer annotations for the DoD Ontology
+# A=mu(O) — Dashboard = mu(DoD ontology triples annotated with explorer metadata)
+#
+# This file annotates elements from the DoD ontology (dod-ontology.ttl) with
+# Ontology Explorer dashboard metadata using RDF 1.2 triple terms.
+#
+# Pipeline: dod-ontology.ttl + ontology-explorer-example.ttl
+#        → ontology-explorer-extract.rq
+#        → ontology-explorer-dashboard.tera
+#        → markdown dashboard
+
+@prefix dod: <http://ggen.chatmangpt.com/dod#> .
+@prefix exp: <https://ggen.dev/ontology/explorer#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# 1. CLASS ANNOTATIONS — Core domain classes
+# ============================================================================
+
+# Project — root entity, critical
+<<dod:Project rdf:type owl:Class>>
+  exp:widgetType "card" ;
+  exp:displaySection "classes" ;
+  exp:displayOrder 1 ;
+  exp:tooltip "Root entity: a software project requiring DoD verification" ;
+  exp:icon "folder" ;
+  exp:importance "critical" ;
+  exp:annotationStatus "complete" .
+
+# Feature — primary work item
+<<dod:Feature rdf:type owl:Class>>
+  exp:widgetType "tree" ;
+  exp:displaySection "classes" ;
+  exp:displayOrder 2 ;
+  exp:tooltip "A feature or work item within a project" ;
+  exp:icon "checklist" ;
+  exp:importance "critical" ;
+  exp:annotationStatus "complete" .
+
+# VerificationArtifact — evidence container
+<<dod:VerificationArtifact rdf:type owl:Class>>
+  exp:widgetType "badge" ;
+  exp:displaySection "classes" ;
+  exp:displayOrder 3 ;
+  exp:tooltip "Evidence artifact: OTEL span, test assertion, or schema conformance" ;
+  exp:icon "certificate" ;
+  exp:importance "critical" ;
+  exp:annotationStatus "complete" .
+
+# DoDCheck — single verification check
+<<dod:DoDCheck rdf:type owl:Class>>
+  exp:widgetType "table" ;
+  exp:displaySection "classes" ;
+  exp:displayOrder 4 ;
+  exp:tooltip "Individual verification check that must pass before merge" ;
+  exp:icon "shield" ;
+  exp:importance "critical" ;
+  exp:annotationStatus "complete" .
+
+# CheckCategory — grouping mechanism
+<<dod:CheckCategory rdf:type owl:Class>>
+  exp:widgetType "chip" ;
+  exp:displaySection "classes" ;
+  exp:displayOrder 5 ;
+  exp:tooltip "Groups related DoD checks (e.g., WvdA, Armstrong, TDD)" ;
+  exp:icon "tag" ;
+  exp:importance "high" ;
+  exp:annotationStatus "complete" .
+
+# ============================================================================
+# 2. OBJECT PROPERTY ANNOTATIONS
+# ============================================================================
+
+# hasFeature — project→feature link
+<<dod:hasFeature rdf:type owl:ObjectProperty>>
+  exp:widgetType "tree" ;
+  exp:displaySection "properties" ;
+  exp:displayOrder 1 ;
+  exp:tooltip "Links a project to its features" ;
+  exp:icon "link" ;
+  exp:importance "critical" ;
+  exp:annotationStatus "complete" .
+
+# hasCheck — feature→check link
+<<dod:hasCheck rdf:type owl:ObjectProperty>>
+  exp:widgetType "tree" ;
+  exp:displaySection "properties" ;
+  exp:displayOrder 2 ;
+  exp:tooltip "Links a feature to its DoD checks" ;
+  exp:icon "link" ;
+  exp:importance "critical" ;
+  exp:annotationStatus "complete" .
+
+# requiresArtifact — check→artifact link
+<<dod:requiresArtifact rdf:type owl:ObjectProperty>>
+  exp:widgetType "tree" ;
+  exp:displaySection "properties" ;
+  exp:displayOrder 3 ;
+  exp:tooltip "Links a check to the evidence artifact it requires" ;
+  exp:icon "link" ;
+  exp:importance "high" ;
+  exp:annotationStatus "partial" .
+
+# belongsToCategory — check→category link
+<<dod:belongsToCategory rdf:type owl:ObjectProperty>>
+  exp:widgetType "chip" ;
+  exp:displaySection "properties" ;
+  exp:displayOrder 4 ;
+  exp:tooltip "Groups checks into categories for organized display" ;
+  exp:icon "tag" ;
+  exp:importance "medium" ;
+  exp:annotationStatus "partial" .
+
+# dependsOn — check dependency
+<<dod:dependsOn rdf:type owl:ObjectProperty>>
+  exp:widgetType "tree" ;
+  exp:displaySection "properties" ;
+  exp:displayOrder 5 ;
+  exp:tooltip "Expresses ordering dependency between checks" ;
+  exp:icon "arrow_right" ;
+  exp:importance "high" ;
+  exp:annotationStatus "complete" .
+
+# ============================================================================
+# 3. DATATYPE PROPERTY ANNOTATIONS (sample — not all properties annotated)
+# ============================================================================
+
+# checkType — verification check type
+<<dod:checkType rdf:type owl:DatatypeProperty>>
+  exp:widgetType "badge" ;
+  exp:displaySection "properties" ;
+  exp:displayOrder 10 ;
+  exp:tooltip "Type identifier for the verification check" ;
+  exp:icon "hash" ;
+  exp:importance "critical" ;
+  exp:annotationStatus "complete" .
+
+# isVerified — pass/fail status
+<<dod:isVerified rdf:type owl:DatatypeProperty>>
+  exp:widgetType "badge" ;
+  exp:displaySection "properties" ;
+  exp:displayOrder 11 ;
+  exp:tooltip "Whether the check has been verified" ;
+  exp:icon "check_circle" ;
+  exp:importance "critical" ;
+  exp:annotationStatus "complete" .
+
+# priority — critical/high/medium/low
+<<dod:priority rdf:type owl:DatatypeProperty>>
+  exp:widgetType "progress" ;
+  exp:displaySection "properties" ;
+  exp:displayOrder 12 ;
+  exp:tooltip "Priority level controlling merge gate behavior" ;
+  exp:icon "priority" ;
+  exp:importance "high" ;
+  exp:annotationStatus "partial" .
+
+# ============================================================================
+# 4. DATATYPE PROPERTIES WITHOUT ANNOTATIONS (intentionally missing)
+# ============================================================================
+# These properties exist in the DoD ontology but are NOT annotated with explorer
+# metadata. The dashboard will show them as "missing" in the coverage report.
+#
+# Missing annotations for:
+#   - dod:checkDescription
+#   - dod:evidenceRequired
+#   - dod:verificationCommand
+#   - dod:projectName
+#   - dod:projectVersion
+#   - dod:featureName
+#   - dod:featureStatus
+#   - dod:categoryName
+#   - dod:categoryOrder
+#   - dod:artifactType
+#   - dod:artifactLocation
+# (Total: 11 properties without explorer annotations)
+
+# ============================================================================
+# 5. CROSS-REFERENCE ANNOTATIONS
+# ============================================================================
+
+# DoD ontology references W3C OWL/RDF/RDFS/XSD
+<<dod:Project rdf:type owl:Class>>
+  exp:externalOntology "http://www.w3.org/2002/07/owl#" ;
+  exp:referenceCount 5 .
+
+<<dod:Feature rdf:type owl:Class>>
+  exp:externalOntology "http://www.w3.org/2002/07/owl#" ;
+  exp:referenceCount 5 .
+
+# ============================================================================
+# 6. COVERAGE REPORT INSTANCE
+# ============================================================================
+
+exp:DoDCoverageReport
+  a exp:CoverageReport ;
+  exp:widgetType "progress" ;
+  exp:displaySection "coverage" ;
+  exp:displayOrder 1 ;
+  exp:tooltip "Aggregated annotation coverage for the DoD ontology" ;
+  exp:icon "bar_chart" ;
+  exp:importance "critical" ;
+  exp:annotationStatus "complete" ;
+  exp:coveragePercent 69 .
+  # 11 of 16 elements annotated = ~69% coverage

@@ -16,7 +16,7 @@ thiserror = "2.0"
 tracing = "0.1"
 uuid = { version = "1.11", features = ["v4", "serde"] }
 async-trait = "0.1"
-bytes = "1.9"
+bytes = { version = "1.9", features = ["serde"] }
 futures = "0.3"
 url = "2.5"
 chrono = { version = "0.4", features = ["serde"] }

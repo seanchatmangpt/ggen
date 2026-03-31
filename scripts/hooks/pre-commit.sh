@@ -19,7 +19,7 @@ echo ""
 
 # Gate 1: Cargo Check (60% of defects - VITAL)
 echo -n "  Cargo check... "
-if timeout 10s cargo check --quiet 2>/dev/null; then
+if timeout 300s cargo check --quiet 2>/dev/null; then
     echo -e "${GREEN}PASS${NC}"
 else
     echo -e "${RED}FAIL${NC}"

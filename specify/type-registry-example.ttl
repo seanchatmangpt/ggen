@@ -1,0 +1,423 @@
+# type-registry-example.ttl -- Instance data for Cross-Ontology Unified Type Registry
+# A=mu(O) -- 22 type mappings across 5 ontologies, 3 multi-source concepts,
+#            1 canonical-vs-deprecated example
+#
+# Pipeline: type-registry.ttl + this file
+#        -> type-registry-extract.rq (SPARQL-star CONSTRUCT)
+#        -> type-registry.tera (Tera template)
+#        -> type-registry.md (generated artifact)
+
+@prefix tr: <https://ggen.dev/ontology/typeregistry#> .
+@prefix ex: <https://ggen.dev/examples/typeregistry#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# ============================================================================
+# 1. REGISTERED ONTOLOGY SOURCES
+# ============================================================================
+
+tr:src-schema-org
+  a tr:OntologySource ;
+  rdfs:label "schema.org"@en ;
+  rdfs:comment "General-purpose structured data vocabulary by Google, Microsoft, Yahoo, and Yandex."@en ;
+  tr:sourceOntologyName "schema.org" ;
+  tr:sinceVersion "15.0" .
+
+tr:src-fibo
+  a tr:OntologySource ;
+  rdfs:label "FIBO"@en ;
+  rdfs:comment "Financial Industry Business Ontology by EDM Council. Authoritative source for financial domain types."@en ;
+  tr:sourceOntologyName "FIBO" ;
+  tr:sinceVersion "4.0" .
+
+tr:src-prov-o
+  a tr:OntologySource ;
+  rdfs:label "PROV-O"@en ;
+  rdfs:comment "W3C Provenance Ontology. Standard for describing entities, activities, and agents involved in producing data."@en ;
+  tr:sourceOntologyName "PROV-O" ;
+  tr:sinceVersion "2.0" .
+
+tr:src-foaf
+  a tr:OntologySource ;
+  rdfs:label "FOAF"@en ;
+  rdfs:comment "Friend of a Friend vocabulary. Lightweight ontology for describing people and their relationships."@en ;
+  tr:sourceOntologyName "FOAF" ;
+  tr:sinceVersion "1.1" .
+
+tr:src-skos
+  a tr:OntologySource ;
+  rdfs:label "SKOS"@en ;
+  rdfs:comment "Simple Knowledge Organization System. W3C standard for knowledge organization (taxonomies, thesauri)."@en ;
+  tr:sourceOntologyName "SKOS" ;
+  tr:sinceVersion "1.4" .
+
+# ============================================================================
+# 2. TYPE REGISTRY INSTANCE (summary stats)
+# ============================================================================
+
+ex:CrossOntologyRegistry
+  a tr:TypeRegistry ;
+  rdfs:label "ChatmanGPT Cross-Ontology Type Registry"@en ;
+  tr:hasSource tr:src-schema-org ;
+  tr:hasSource tr:src-fibo ;
+  tr:hasSource tr:src-prov-o ;
+  tr:hasSource tr:src-foaf ;
+  tr:hasSource tr:src-skos ;
+  tr:totalMappings 22 ;
+  tr:canonicalCount 17 ;
+  tr:deprecatedCount 1 .
+
+# ============================================================================
+# 3. PERSON -- hasName (MULTI-SOURCE: Schema.org + FOAF)
+# ============================================================================
+
+<< ex:Person ex:hasName xsd:string >> tr:sourceOntology <https://schema.org> ;
+                                       tr:sourceOntologyName "schema.org" ;
+                                       tr:rustType "String" ;
+                                       tr:goType "string" ;
+                                       tr:elixirType "String.t" ;
+                                       tr:tsType "string" ;
+                                       tr:pythonType "str" ;
+                                       tr:confidence "0.95"^^xsd:decimal ;
+                                       tr:isCanonical true ;
+                                       tr:jsonSchema "string" ;
+                                       tr:validationRule "non_empty" ;
+                                       tr:sinceVersion "15.0" .
+
+<< ex:Person ex:hasName xsd:string >> tr:sourceOntology <http://xmlns.com/foaf/0.1/> ;
+                                       tr:sourceOntologyName "FOAF" ;
+                                       tr:rustType "String" ;
+                                       tr:goType "string" ;
+                                       tr:elixirType "String.t" ;
+                                       tr:tsType "string" ;
+                                       tr:pythonType "str" ;
+                                       tr:confidence "0.90"^^xsd:decimal ;
+                                       tr:isCanonical false ;
+                                       tr:jsonSchema "string" ;
+                                       tr:validationRule "non_empty" ;
+                                       tr:sinceVersion "1.1" .
+
+# ============================================================================
+# 4. PERSON -- hasEmail (MULTI-SOURCE: Schema.org + FOAF)
+# ============================================================================
+
+<< ex:Person ex:hasEmail xsd:string >> tr:sourceOntology <https://schema.org> ;
+                                        tr:sourceOntologyName "schema.org" ;
+                                        tr:rustType "String" ;
+                                        tr:goType "string" ;
+                                        tr:elixirType "String.t" ;
+                                        tr:tsType "string" ;
+                                        tr:pythonType "str" ;
+                                        tr:confidence "0.95"^^xsd:decimal ;
+                                        tr:isCanonical true ;
+                                        tr:jsonSchema "string" ;
+                                        tr:validationRule "regex(^[^@]+@[^@]+$)" ;
+                                        tr:sinceVersion "15.0" .
+
+<< ex:Person ex:hasEmail xsd:string >> tr:sourceOntology <http://xmlns.com/foaf/0.1/> ;
+                                        tr:sourceOntologyName "FOAF" ;
+                                        tr:rustType "String" ;
+                                        tr:goType "string" ;
+                                        tr:elixirType "String.t" ;
+                                        tr:tsType "string" ;
+                                        tr:pythonType "str" ;
+                                        tr:confidence "0.88"^^xsd:decimal ;
+                                        tr:isCanonical false ;
+                                        tr:jsonSchema "string" ;
+                                        tr:validationRule "regex(^[^@]+@[^@]+$)" ;
+                                        tr:sinceVersion "1.1" .
+
+# ============================================================================
+# 5. PERSON -- hasAge (Schema.org)
+# ============================================================================
+
+<< ex:Person ex:hasAge xsd:integer >> tr:sourceOntology <https://schema.org> ;
+                                       tr:sourceOntologyName "schema.org" ;
+                                       tr:rustType "u8" ;
+                                       tr:goType "uint8" ;
+                                       tr:elixirType "non_neg_integer" ;
+                                       tr:tsType "number" ;
+                                       tr:pythonType "int" ;
+                                       tr:confidence "0.95"^^xsd:decimal ;
+                                       tr:isCanonical true ;
+                                       tr:jsonSchema "number" ;
+                                       tr:validationRule "0..=150" ;
+                                       tr:sinceVersion "15.0" .
+
+# ============================================================================
+# 6. PERSON -- hasPhone (Schema.org -- DEPRECATED)
+# ============================================================================
+
+<< ex:Person ex:hasPhone xsd:string >> tr:sourceOntology <https://schema.org> ;
+                                        tr:sourceOntologyName "schema.org" ;
+                                        tr:rustType "String" ;
+                                        tr:goType "string" ;
+                                        tr:elixirType "String.t" ;
+                                        tr:tsType "string" ;
+                                        tr:pythonType "str" ;
+                                        tr:confidence "0.50"^^xsd:decimal ;
+                                        tr:isCanonical false ;
+                                        tr:jsonSchema "string" ;
+                                        tr:validationRule "regex(^\\+?[0-9()-]+$)" ;
+                                        tr:sinceVersion "1.0" ;
+                                        tr:conversionNote "Deprecated: use hasTelephone with full E.164 format" ;
+                                        tr:deprecatedBy << ex:Person ex:hasTelephone xsd:string >> .
+
+<< ex:Person ex:hasTelephone xsd:string >> tr:sourceOntology <https://schema.org> ;
+                                           tr:sourceOntologyName "schema.org" ;
+                                           tr:rustType "String" ;
+                                           tr:goType "string" ;
+                                           tr:elixirType "String.t" ;
+                                           tr:tsType "string" ;
+                                           tr:pythonType "str" ;
+                                           tr:confidence "0.95"^^xsd:decimal ;
+                                           tr:isCanonical true ;
+                                           tr:jsonSchema "string" ;
+                                           tr:validationRule "regex(^\\+[1-9][0-9]{6,14}$)" ;
+                                           tr:sinceVersion "3.0" ;
+                                           tr:conversionNote "E.164 format required: +CC NDC Subscriber" .
+
+# ============================================================================
+# 7. MONETARY AMOUNT -- hasValue (MULTI-SOURCE: FIBO + Schema.org -- TYPE CONFLICT)
+# ============================================================================
+
+<< ex:MonetaryAmount ex:hasValue xsd:decimal >> tr:sourceOntology <https://spec.edmcouncil.org/fibo/> ;
+                                             tr:sourceOntologyName "FIBO" ;
+                                             tr:rustType "rust_decimal::Decimal" ;
+                                             tr:goType "decimal.Decimal" ;
+                                             tr:elixirType "Decimal.t" ;
+                                             tr:tsType "string" ;
+                                             tr:pythonType "Decimal" ;
+                                             tr:confidence "0.99"^^xsd:decimal ;
+                                             tr:isCanonical true ;
+                                             tr:jsonSchema "string" ;
+                                             tr:validationRule "non_negative" ;
+                                             tr:sinceVersion "4.0" ;
+                                             tr:conversionNote "FIBO requires exact decimal for monetary amounts. No floating-point." .
+
+<< ex:MonetaryAmount ex:hasValue xsd:decimal >> tr:sourceOntology <https://schema.org> ;
+                                             tr:sourceOntologyName "schema.org" ;
+                                             tr:rustType "f64" ;
+                                             tr:goType "float64" ;
+                                             tr:elixirType "float" ;
+                                             tr:tsType "number" ;
+                                             tr:pythonType "float" ;
+                                             tr:confidence "0.80"^^xsd:decimal ;
+                                             tr:isCanonical false ;
+                                             tr:jsonSchema "number" ;
+                                             tr:validationRule "non_negative" ;
+                                             tr:sinceVersion "15.0" ;
+                                             tr:conversionNote "schema.org uses float64. Precision loss for large monetary values." .
+
+# ============================================================================
+# 8. MONETARY AMOUNT -- hasCurrency (MULTI-SOURCE: FIBO + Schema.org)
+# ============================================================================
+
+<< ex:MonetaryAmount ex:hasCurrency xsd:string >> tr:sourceOntology <https://spec.edmcouncil.org/fibo/> ;
+                                                tr:sourceOntologyName "FIBO" ;
+                                                tr:rustType "String" ;
+                                                tr:goType "string" ;
+                                                tr:elixirType "String.t" ;
+                                                tr:tsType "string" ;
+                                                tr:pythonType "str" ;
+                                                tr:confidence "0.99"^^xsd:decimal ;
+                                                tr:isCanonical true ;
+                                                tr:jsonSchema "string" ;
+                                                tr:validationRule "regex(^[A-Z]{3}$)" ;
+                                                tr:sinceVersion "4.0" ;
+                                                tr:conversionNote "ISO 4217 3-letter currency code (USD, EUR, GBP, JPY)." .
+
+<< ex:MonetaryAmount ex:hasCurrency xsd:string >> tr:sourceOntology <https://schema.org> ;
+                                                tr:sourceOntologyName "schema.org" ;
+                                                tr:rustType "String" ;
+                                                tr:goType "string" ;
+                                                tr:elixirType "String.t" ;
+                                                tr:tsType "string" ;
+                                                tr:pythonType "str" ;
+                                                tr:confidence "0.90"^^xsd:decimal ;
+                                                tr:isCanonical false ;
+                                                tr:jsonSchema "string" ;
+                                                tr:validationRule "regex(^[A-Z]{3}$)" ;
+                                                tr:sinceVersion "15.0" .
+
+# ============================================================================
+# 9. ORGANIZATION -- hasName (MULTI-SOURCE: FOAF + Schema.org)
+# ============================================================================
+
+<< ex:Organization ex:hasName xsd:string >> tr:sourceOntology <http://xmlns.com/foaf/0.1/> ;
+                                             tr:sourceOntologyName "FOAF" ;
+                                             tr:rustType "String" ;
+                                             tr:goType "string" ;
+                                             tr:elixirType "String.t" ;
+                                             tr:tsType "string" ;
+                                             tr:pythonType "str" ;
+                                             tr:confidence "0.90"^^xsd:decimal ;
+                                             tr:isCanonical false ;
+                                             tr:jsonSchema "string" ;
+                                             tr:validationRule "non_empty" ;
+                                             tr:sinceVersion "1.1" .
+
+<< ex:Organization ex:hasName xsd:string >> tr:sourceOntology <https://schema.org> ;
+                                             tr:sourceOntologyName "schema.org" ;
+                                             tr:rustType "String" ;
+                                             tr:goType "string" ;
+                                             tr:elixirType "String.t" ;
+                                             tr:tsType "string" ;
+                                             tr:pythonType "str" ;
+                                             tr:confidence "0.95"^^xsd:decimal ;
+                                             tr:isCanonical true ;
+                                             tr:jsonSchema "string" ;
+                                             tr:validationRule "non_empty" ;
+                                             tr:sinceVersion "15.0" .
+
+# ============================================================================
+# 10. ORGANIZATION -- hasMember (FOAF)
+# ============================================================================
+
+<< ex:Organization ex:hasMember ex:Person >> tr:sourceOntology <http://xmlns.com/foaf/0.1/> ;
+                                              tr:sourceOntologyName "FOAF" ;
+                                              tr:rustType "Vec<Person>" ;
+                                              tr:goType "[]Person" ;
+                                              tr:elixirType "[Person.t]" ;
+                                              tr:tsType "Person[]" ;
+                                              tr:pythonType "List[Person]" ;
+                                              tr:confidence "0.90"^^xsd:decimal ;
+                                              tr:isCanonical true ;
+                                              tr:jsonSchema "array" ;
+                                              tr:sinceVersion "1.1" .
+
+# ============================================================================
+# 11. ACTIVITY -- wasGeneratedBy (PROV-O)
+# ============================================================================
+
+<< ex:Activity ex:wasGeneratedBy ex:Entity >> tr:sourceOntology <https://www.w3.org/ns/prov#> ;
+                                                tr:sourceOntologyName "PROV-O" ;
+                                                tr:rustType "Entity" ;
+                                                tr:goType "Entity" ;
+                                                tr:elixirType "Entity.t" ;
+                                                tr:tsType "Entity" ;
+                                                tr:pythonType "Entity" ;
+                                                tr:confidence "0.95"^^xsd:decimal ;
+                                                tr:isCanonical true ;
+                                                tr:jsonSchema "object" ;
+                                                tr:sinceVersion "2.0" .
+
+# ============================================================================
+# 12. ACTIVITY -- startedAtTime (PROV-O)
+# ============================================================================
+
+<< ex:Activity ex:startedAtTime xsd:dateTime >> tr:sourceOntology <https://www.w3.org/ns/prov#> ;
+                                                tr:sourceOntologyName "PROV-O" ;
+                                                tr:rustType "DateTime<Utc>" ;
+                                                tr:goType "time.Time" ;
+                                                tr:elixirType "DateTime.t" ;
+                                                tr:tsType "string" ;
+                                                tr:pythonType "datetime" ;
+                                                tr:confidence "0.95"^^xsd:decimal ;
+                                                tr:isCanonical true ;
+                                                tr:jsonSchema "string" ;
+                                                tr:validationRule "ISO 8601" ;
+                                                tr:sinceVersion "2.0" .
+
+# ============================================================================
+# 13. ACTIVITY -- endedAtTime (PROV-O)
+# ============================================================================
+
+<< ex:Activity ex:endedAtTime xsd:dateTime >> tr:sourceOntology <https://www.w3.org/ns/prov#> ;
+                                              tr:sourceOntologyName "PROV-O" ;
+                                              tr:rustType "DateTime<Utc>" ;
+                                              tr:goType "time.Time" ;
+                                              tr:elixirType "DateTime.t" ;
+                                              tr:tsType "string" ;
+                                              tr:pythonType "datetime" ;
+                                              tr:confidence "0.95"^^xsd:decimal ;
+                                              tr:isCanonical true ;
+                                              tr:jsonSchema "string" ;
+                                              tr:validationRule "ISO 8601" ;
+                                              tr:sinceVersion "2.0" .
+
+# ============================================================================
+# 14. CONCEPT -- prefLabel (SKOS)
+# ============================================================================
+
+<< ex:Concept ex:prefLabel xsd:string >> tr:sourceOntology <https://www.w3.org/2004/02/skos/core#> ;
+                                         tr:sourceOntologyName "SKOS" ;
+                                         tr:rustType "String" ;
+                                         tr:goType "string" ;
+                                         tr:elixirType "String.t" ;
+                                         tr:tsType "string" ;
+                                         tr:pythonType "str" ;
+                                         tr:confidence "0.95"^^xsd:decimal ;
+                                         tr:isCanonical true ;
+                                         tr:jsonSchema "string" ;
+                                         tr:validationRule "non_empty" ;
+                                         tr:sinceVersion "1.4" .
+
+# ============================================================================
+# 15. CONCEPT -- broader (SKOS)
+# ============================================================================
+
+<< ex:Concept ex:broader ex:Concept >> tr:sourceOntology <https://www.w3.org/2004/02/skos/core#> ;
+                                        tr:sourceOntologyName "SKOS" ;
+                                        tr:rustType "Option<Box<Concept>>" ;
+                                        tr:goType "*Concept" ;
+                                        tr:elixirType "Concept.t | nil" ;
+                                        tr:tsType "Concept | null" ;
+                                        tr:pythonType "Concept | None" ;
+                                        tr:confidence "0.95"^^xsd:decimal ;
+                                        tr:isCanonical true ;
+                                        tr:jsonSchema "object" ;
+                                        tr:sinceVersion "1.4" .
+
+# ============================================================================
+# 16. CONCEPT -- related (SKOS)
+# ============================================================================
+
+<< ex:Concept ex:related ex:Concept >> tr:sourceOntology <https://www.w3.org/2004/02/skos/core#> ;
+                                        tr:sourceOntologyName "SKOS" ;
+                                        tr:rustType "Vec<Concept>" ;
+                                        tr:goType "[]Concept" ;
+                                        tr:elixirType "[Concept.t]" ;
+                                        tr:tsType "Concept[]" ;
+                                        tr:pythonType "List[Concept]" ;
+                                        tr:confidence "0.95"^^xsd:decimal ;
+                                        tr:isCanonical true ;
+                                        tr:jsonSchema "array" ;
+                                        tr:sinceVersion "1.4" .
+
+# ============================================================================
+# 17. FINANCIAL INSTRUMENT -- hasNotionalAmount (FIBO)
+# ============================================================================
+
+<< ex:FinancialInstrument ex:hasNotionalAmount xsd:decimal >> tr:sourceOntology <https://spec.edmcouncil.org/fibo/> ;
+                                                              tr:sourceOntologyName "FIBO" ;
+                                                              tr:rustType "rust_decimal::Decimal" ;
+                                                              tr:goType "decimal.Decimal" ;
+                                                              tr:elixirType "Decimal.t" ;
+                                                              tr:tsType "string" ;
+                                                              tr:pythonType "Decimal" ;
+                                                              tr:confidence "0.99"^^xsd:decimal ;
+                                                              tr:isCanonical true ;
+                                                              tr:jsonSchema "string" ;
+                                                              tr:validationRule "non_negative" ;
+                                                              tr:sinceVersion "4.0" ;
+                                                              tr:conversionNote "Notional amount for derivatives. Must use exact decimal." .
+
+# ============================================================================
+# 18. FINANCIAL INSTRUMENT -- hasCurrency (FIBO)
+# ============================================================================
+
+<< ex:FinancialInstrument ex:hasCurrency xsd:string >> tr:sourceOntology <https://spec.edmcouncil.org/fibo/> ;
+                                                         tr:sourceOntologyName "FIBO" ;
+                                                         tr:rustType "String" ;
+                                                         tr:goType "string" ;
+                                                         tr:elixirType "String.t" ;
+                                                         tr:tsType "string" ;
+                                                         tr:pythonType "str" ;
+                                                         tr:confidence "0.99"^^xsd:decimal ;
+                                                         tr:isCanonical true ;
+                                                         tr:jsonSchema "string" ;
+                                                         tr:validationRule "regex(^[A-Z]{3}$)" ;
+                                                         tr:sinceVersion "4.0" .

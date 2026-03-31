@@ -1,0 +1,91 @@
+{#- Benchmark Assertions Component - Validation helpers and error checking -#}
+
+{#- Timeout Assertion (Elixir) -#}
+{%- macro elixir_timeout_assertion(actual_time, threshold_ms, operation_name) -%}
+  assert {{ actual_time }} < {{ threshold_ms }},
+    "{{ operation_name }} took #{{{ actual_time }}}ms, expected <#{{{ threshold_ms }}}ms"
+{%- endmacro -%}
+
+{#- Timeout Assertion (Go) -#}
+{%- macro go_timeout_assertion(actual_duration, threshold) -%}
+  if {{ actual_duration }} > {{ threshold }} {
+    b.Fatalf("Operation exceeded threshold: %v > %v", {{ actual_duration }}, {{ threshold }})
+  }
+{%- endmacro -%}
+
+{#- Result Validation -#}
+{%- macro result_validation(result, expected_type) -%}
+  case {{ result }} do
+    {:ok, %{{ expected_type }}{}} = result ->
+      result  # Valid result
+
+    {:error, reason} ->
+      flunk("Expected success, got error: #{inspect(reason)}")
+
+    other ->
+      flunk("Expected {{ expected_type }}, got: #{inspect(other)}")
+  end
+{%- endmacro -%}
+
+{#- Non-empty Result Check -#}
+{%- macro non_empty_result_check(result_list, operation_name) -%}
+  assert length({{ result_list }}) > 0,
+    "{{ operation_name }} returned empty results"
+{%- endmacro -%}
+
+{#- Range Assertion -#}
+{%- macro range_assertion(actual_value, min_value, max_value, metric_name) -%}
+  assert {{ actual_value }} >= {{ min_value }} and {{ actual_value }} <= {{ max_value }},
+    "{{ metric_name }}=#{{{ actual_value }}} outside range [{{ min_value }}, {{ max_value }}]"
+{%- endmacro -%}
+
+{#- Determinism Check -#}
+{%- macro determinism_check(value1, value2, operation_name) -%}
+  assert {{ value1 }} == {{ value2 }},
+    "{{ operation_name }} is not deterministic: #{{{ value1 }}} != #{{{ value2 }}}"
+{%- endmacro -%}
+
+{#- Uniqueness Check -#}
+{%- macro uniqueness_check(value1, value2, operation_name) -%}
+  assert {{ value1 }} != {{ value2 }},
+    "{{ operation_name }} produced duplicate values: #{{{ value1 }}}"
+{%- endmacro -%}
+
+{#- Performance Regression Check -#}
+{%- macro regression_check(current_time, baseline_time, tolerance_percent, operation_name) -%}
+  regression_threshold = {{ baseline_time }} * (1 + {{ tolerance_percent }} / 100)
+  assert {{ current_time }} <= regression_threshold,
+    "{{ operation_name }} regression: #{{{ current_time }}}ms > baseline #{{{ baseline_time }}}ms + #{{{ tolerance_percent }}}%"
+{%- endmacro -%}
+
+{#- Memory Limit Check -#}
+{%- macro memory_limit_check(actual_mb, limit_mb, operation_name) -%}
+  assert {{ actual_mb }} <= {{ limit_mb }},
+    "{{ operation_name }} exceeded memory limit: #{{{ actual_mb }}}MB > #{{{ limit_mb }}}MB"
+{%- endmacro -%}
+
+{#- Concurrent Safety Check -#}
+{%- macro concurrent_safety_check(results, expected_count) -%}
+  assert length({{ results }}) == {{ expected_count }},
+    "Concurrent execution lost results: got #{length({{ results }})}, expected #{{{ expected_count }}}"
+{%- endmacro -%}
+
+{#- Idempotency Check -#}
+{%- macro idempotency_check(result1, result2, operation_name) -%}
+  assert {{ result1 }} == {{ result2 }},
+    "{{ operation_name }} is not idempotent: first=#{{{ result1 }}}, second=#{{{ result2 }}}"
+{%- endmacro -%}
+
+{#- Error Rate Check -#}
+{%- macro error_rate_check(success_count, total_count, max_error_rate, operation_name) -%}
+  error_rate = ({{ total_count }} - {{ success_count }}) / {{ total_count }} * 100
+  assert error_rate <= {{ max_error_rate }},
+    "{{ operation_name }} error rate #{Float.round(error_rate, 2)}% exceeded #{{{ max_error_rate }}}%"
+{%- endmacro -%}
+
+{#- Throughput Check -#}
+{%- macro throughput_check(operation_count, duration_ms, min_throughput, operation_name) -%}
+  throughput = ({{ operation_count }} / {{ duration_ms }}) * 1000  # ops/sec
+  assert throughput >= {{ min_throughput }},
+    "{{ operation_name }} throughput #{Float.round(throughput, 2)} ops/sec below #{{{ min_throughput }}} ops/sec"
+{%- endmacro -%}

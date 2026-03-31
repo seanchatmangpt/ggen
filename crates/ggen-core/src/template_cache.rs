@@ -11,7 +11,7 @@ use std::num::NonZeroUsize;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 
-use crate::template::Template;
+use crate::template_types::Template;
 
 /// Template cache with LRU eviction policy
 ///

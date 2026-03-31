@@ -1,0 +1,82 @@
+# Three-Layer Verification DoD Package
+# Full Definition of Done with OTEL span + test assertion + weaver schema conformance
+# Implements the evidence-based verification standard from ChatmanGPT
+
+[package]
+name = "three-layer-verification-dod"
+full_name = "three-layer-verification-definition-of-done"
+version = "1.0.0"
+description = "Full three-layer DoD: OTEL span proof + test assertion + weaver schema conformance. For production projects requiring complete evidence-based verification."
+category = "quality-gate"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/three-layer-verification-dod"
+license = "MIT"
+dependencies = []
+features = [
+    "Three-layer verification standard (OTEL + Test + Weaver)",
+    "Per-feature DoD checklist generation from ontology",
+    "SPARQL CONSTRUCT query for DoD data extraction",
+    "Category-grouped checks (WvdA, Armstrong, TDD, Verification, Code Quality)",
+    "Evidence tracking with artifact locations",
+    "Summary with pass/fail counts and critical blockers",
+    "Merge gate enforcement: critical checks must pass"
+]
+tags = ["dod", "verification", "otel", "weaver", "tdd", "quality-gate", "production"]
+keywords = ["definition-of-done", "evidence-based", "otel", "weaver", "chicago-tdd", "wvda", "armstrong"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/three-layer-verification-dod"
+source_path = "marketplace/packages/three-layer-verification-dod"
+
+# Template files to copy
+[files]
+"package.toml" = "package.toml"
+"ontology.ttl" = "ontology.ttl"
+"template.tera" = "template.tera"
+
+# Variables for template substitution
+[variables]
+project_name = { type = "string", required = true, description = "Project name" }
+project_uri = { type = "string", default = "http://ggen.chatmangpt.com/project#", description = "Project URI prefix" }
+project_version = { type = "string", default = "0.1.0", description = "Project version" }
+jaeger_url = { type = "string", default = "http://localhost:16686", description = "Jaeger UI URL" }
+
+# Examples
+[examples]
+basic = """
+# Install the package
+ggen market install three-layer-verification-dod
+
+# Generate DoD checklist for your project
+ggen template generate three-layer-verification-dod/template.tera \\
+  --vars '{"project_name":"my-service","project_uri":"http://example.com/my-service#"}'
+
+# Load ontology into Oxigraph and extract DoD data
+sparql --query dod-extract.rq --data ontology.ttl
+"""
+
+advanced = """
+# Install and generate with custom verification commands
+ggen market install three-layer-verification-dod
+
+# Generate with all variables
+ggen template generate three-layer-verification-dod/template.tera \\
+  --vars '{
+    "project_name": "payment-processor",
+    "project_uri": "http://finance.example.com/payment-processor#",
+    "project_version": "2.0.0",
+    "jaeger_url": "http://jaeger.production.example.com"
+  }'
+
+# Verify weaver schema conformance
+weaver registry check -r ./semconv/model -p ./semconv/policies/ --quiet
+"""
+
+# Documentation
+[docs]
+quick_start = "Three-layer verification DoD: OTEL span + test assertion + weaver schema conformance"
+features = "Evidence-based verification, category grouping, merge gate enforcement, critical blocker detection"
+use_cases = "Production projects, compliance requirements, enterprise verification standards"

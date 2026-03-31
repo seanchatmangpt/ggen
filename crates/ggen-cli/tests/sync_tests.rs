@@ -1081,7 +1081,7 @@ fn test_sync_e2e_complete_workflow() {
     create_complex_ontology(temp_path, "ontology.ttl");
     let manifest_path = create_manifest_with_multiple_rules(temp_path, "ontology.ttl");
 
-    let output_dir = temp_path.join("generated");
+    let output_dir = temp_path.join("output");
 
     // Act: Execute complete workflow (dry-run → validate → sync)
 

@@ -1,0 +1,11 @@
+[package]
+name = "test_validate_direct"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ggen-a2a-mcp = { path = "../crates/ggen-a2a-mcp" }
+rmcp = "0.1"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"

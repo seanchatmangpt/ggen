@@ -22,6 +22,7 @@ Modular, auto-loading rules for specification-driven Rust code generation.
 │   └── signals.md   # Stop the line protocol
 ├── build/
 │   └── cargo-make.md
+├── otel-validation.md  # OpenTelemetry span/trace verification
 └── README.md        # This file
 ```
 
@@ -39,6 +40,7 @@ Modular, auto-loading rules for specification-driven Rust code generation.
 ### Quality Control
 - [Andon Signals](andon/signals.md) - Stop the line protocol, validation checklist
 - [Cargo Make](build/cargo-make.md) - Build commands, quality gates
+- [OTEL Validation](otel-validation.md) - OpenTelemetry span/trace verification for LLM/external services
 
 ## 🎯 The Golden Rule
 
@@ -58,6 +60,8 @@ Batch everything:
 3. **TodoWrite always 10+ todos** in ONE batch
 4. **RDF is source of truth** - Edit `.ttl`, not generated `.md`
 5. **Test results are truth** - Code doesn't work if tests don't pass
+6. **OTEL spans are proof** - LLM/external services require OTEL trace verification
+7. **Chicago TDD ONLY** - No mocks, no test doubles, no behavior verification
 
 ## 📋 Definition of Done
 
@@ -67,13 +71,18 @@ cargo make check          # ✅ No compiler errors
 cargo make test           # ✅ All tests pass
 cargo make lint           # ✅ No warnings
 cargo make slo-check      # ✅ SLOs met
+
+# For LLM/external service features, ALSO verify:
+RUST_LOG=trace,ggen_ai=trace cargo test <test_name> 2>&1 | grep -E "llm\.|mcp\."
+# ✅ Required OTEL spans exist
+# ✅ Required attributes populated
 ```
 
 ## 🏗️ Project Context
 
 - **Stack**: Rust 1.91.1 | Tokio | Oxigraph | Tera | Clap
 - **Architecture**: 30 crates | Workspace layout
-- **Testing**: Chicago TDD | 87% coverage
+- **Testing**: Chicago TDD ONLY (no mocks, no test doubles) | 87% coverage
 - **Performance**: <15s first build | <2s incremental
 - **Paradigm**: Specification-driven | RDF ontologies → Code
 

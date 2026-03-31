@@ -13,7 +13,7 @@
 //!    - Lazy Tera compilation
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_core::lockfile::{LockEntry, LockfileManager};
+use ggen_core::lockfile::LockfileManager;
 use ggen_core::rdf::query::QueryCache;
 use ggen_core::template_cache::TemplateCache;
 use oxigraph::store::Store;
@@ -82,7 +82,7 @@ fn bench_lockfile_optimization(c: &mut Criterion) {
         );
 
         // Test cache effectiveness
-        let stats = manager.cache_stats();
+        let stats = manager.cache_stats().unwrap_or((0, 0));
         println!("Lockfile cache: {}/{} entries", stats.0, stats.1);
     }
 
@@ -215,14 +215,14 @@ fn main() {{
             },
         );
 
-        // Baseline: Parse frontmatter without cache
+        // Baseline: Parse frontmatter without cache (raw string split)
         group.bench_function(BenchmarkId::new("frontmatter_uncached", capacity), |b| {
             b.iter(|| {
                 for path in &template_paths {
                     let content = fs::read_to_string(path).unwrap();
-                    let matter = gray_matter::Matter::<gray_matter::engine::YAML>::new();
-                    let parsed = matter.parse(&content);
-                    black_box(parsed);
+                    // Simulate frontmatter extraction by splitting on "---"
+                    let parts: Vec<&str> = content.split("---").collect();
+                    black_box(parts.len());
                 }
             });
         });

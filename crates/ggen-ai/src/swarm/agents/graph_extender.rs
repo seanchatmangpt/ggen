@@ -3,16 +3,16 @@
 //! Uses LLM inference to extract structured facts from natural language events,
 //! business requirements, and runtime data, then extends the RDF graph accordingly.
 
-use crate::error::{GgenAiError, Result};
-use crate::swarm::{
-    AgentHealth, HealthStatus, SwarmAgent, SwarmContext, AgentInput, AgentOutput,
-    BaseAgent, AgentConfig, PerformanceThresholds, SystemEvent
-};
 use crate::client::{LlmClient, LlmConfig};
+use crate::error::{GgenAiError, Result};
 use crate::providers::adapter::OllamaClient;
+use crate::swarm::{
+    AgentConfig, AgentHealth, AgentInput, AgentOutput, BaseAgent, HealthStatus,
+    PerformanceThresholds, SwarmAgent, SwarmContext, SystemEvent,
+};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 use std::collections::HashMap;
 use tracing::debug;
 
@@ -102,7 +102,6 @@ impl GraphExtenderAgent {
         }
     }
 
-
     /// Infer facts from system events
     async fn infer_facts_from_events(&self, events: &[SystemEvent]) -> Result<InferredFacts> {
         let prompt = self.build_inference_prompt(events)?;
@@ -114,11 +113,13 @@ impl GraphExtenderAgent {
 
     /// Build inference prompt for AI
     fn build_inference_prompt(&self, events: &[SystemEvent]) -> Result<String> {
-        let events_json = serde_json::to_string_pretty(events)
-            .map_err(|e| GgenAiError::serialization_error(&format!("Failed to serialize events: {}", e)))?;
+        let events_json = serde_json::to_string_pretty(events).map_err(|e| {
+            GgenAiError::serialization_error(&format!("Failed to serialize events: {}", e))
+        })?;
 
-        let context_json = serde_json::to_string_pretty(&self.graph_context)
-            .map_err(|e| GgenAiError::serialization_error(&format!("Failed to serialize context: {}", e)))?;
+        let context_json = serde_json::to_string_pretty(&self.graph_context).map_err(|e| {
+            GgenAiError::serialization_error(&format!("Failed to serialize context: {}", e))
+        })?;
 
         Ok(format!(
             r#"You are an expert RDF graph engineer tasked with inferring new facts from system events.
@@ -174,10 +175,12 @@ Return only valid JSON."#,
         let json_end = response.rfind('}').map(|i| i + 1).unwrap_or(response.len());
         let json_content = &response[json_start..json_end];
 
-        let parsed: Value = serde_json::from_str(json_content)
-            .map_err(|e| GgenAiError::parsing_error(&format!("Failed to parse AI response: {}", e)))?;
+        let parsed: Value = serde_json::from_str(json_content).map_err(|e| {
+            GgenAiError::parsing_error(&format!("Failed to parse AI response: {}", e))
+        })?;
 
-        let triples_value = parsed.get("triples")
+        let triples_value = parsed
+            .get("triples")
             .ok_or_else(|| GgenAiError::parsing_error("No 'triples' field in AI response"))?;
 
         let mut triples = Vec::new();
@@ -189,11 +192,13 @@ Return only valid JSON."#,
             }
         }
 
-        let confidence = parsed.get("overall_confidence")
+        let confidence = parsed
+            .get("overall_confidence")
             .and_then(|v| v.as_f64())
             .unwrap_or(0.5);
 
-        let reasoning = parsed.get("analysis_summary")
+        let reasoning = parsed
+            .get("analysis_summary")
             .and_then(|v| v.as_str())
             .unwrap_or("AI-generated inference")
             .to_string();
@@ -227,9 +232,9 @@ impl SwarmAgent for GraphExtenderAgent {
         };
 
         // Infer facts from events
-        let inferred_facts = self.execute_with_retry(|| async {
-            self.infer_facts_from_events(&events).await
-        }).await?;
+        let inferred_facts = self
+            .execute_with_retry(|| async { self.infer_facts_from_events(&events).await })
+            .await?;
 
         // Convert to output format
         let output_data = json!({
@@ -254,8 +259,14 @@ impl SwarmAgent for GraphExtenderAgent {
             metadata: {
                 let mut metadata = HashMap::new();
                 metadata.insert("execution_time_ms".to_string(), execution_time.to_string());
-                metadata.insert("confidence".to_string(), inferred_facts.confidence.to_string());
-                metadata.insert("triples_inferred".to_string(), inferred_facts.triples.len().to_string());
+                metadata.insert(
+                    "confidence".to_string(),
+                    inferred_facts.confidence.to_string(),
+                );
+                metadata.insert(
+                    "triples_inferred".to_string(),
+                    inferred_facts.triples.len().to_string(),
+                );
                 metadata
             },
         })

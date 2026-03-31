@@ -47,7 +47,7 @@ fn generate(
     Ok(GenerateOutput {
         language,
         files_generated: 0,
-        output_directory: output.unwrap_or_else(|| "generated".to_string()),
+        output_directory: output.unwrap_or_else(|| ".".to_string()),
         primary_file: "types.ts".to_string(),
     })
 }

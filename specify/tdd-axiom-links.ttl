@@ -1,0 +1,421 @@
+# tdd-axiom-links.ttl — RDF 1.2 Ontology for Axiom-Linked Test-Driven Development
+# A=mu(O) — Test artifacts are projections of ontology axioms; AxiomTestLink closes the evidence loop
+#
+# This vocabulary uses RDF 1.2 triple terms (<<s p o>>) to annotate ontology axioms
+# with test metadata, linking test cases to the axioms they verify. This closes the
+# evidence loop: tests prove ontology correctness, and ontology completeness drives
+# test coverage.
+#
+# Pipeline: ontology (.ttl) + tdd-axiom-links.ttl → axiom-linked-tdd-extract.rq → Tera template → coverage report
+#
+# Assertion types follow Chicago School TDD:
+#   positive    — happy path verification
+#   negative    — error/rejection case verification
+#   boundary    — edge case / limit verification
+#   behavior    — state transition / side-effect verification
+#   integration — cross-entity / cross-system verification
+
+@prefix tdd: <https://ggen.dev/ontology/tdd#> .
+@prefix ex: <https://ggen.dev/examples/codegen#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# 1. ONTOLOGY METADATA
+# ============================================================================
+
+<https://ggen.dev/ontology/tdd>
+  a owl:Ontology ;
+  owl:imports
+    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>,
+    <http://www.w3.org/2000/01/rdf-schema#>,
+    <http://www.w3.org/2002/07/owl#>,
+    <http://www.w3.org/2001/XMLSchema#> ;
+  rdfs:label "Axiom-Linked TDD Ontology"@en ;
+  rdfs:comment "RDF 1.2 vocabulary for linking test cases to ontology axioms they verify, enabling evidence-based coverage analysis."@en .
+
+# ============================================================================
+# 2. CLASSES
+# ============================================================================
+
+tdd:AxiomTestLink
+  a owl:Class ;
+  rdfs:label "Axiom Test Link"@en ;
+  rdfs:comment "A test case linked to an ontology axiom, documenting what the test verifies and how strongly."@en .
+
+tdd:TestSuite
+  a owl:Class ;
+  rdfs:label "Test Suite"@en ;
+  rdfs:comment "A named collection of axiom-linked tests forming a coherent test suite."@en .
+
+tdd:AssertionType
+  a owl:Class ;
+  rdfs:label "Assertion Type"@en ;
+  rdfs:comment "Classification of test assertion following Chicago School TDD: positive, negative, boundary, behavior, integration."@en .
+
+tdd:AxiomCoverage
+  a owl:Class ;
+  rdfs:label "Axiom Coverage"@en ;
+  rdfs:comment "Coverage report for axiom-test linkage, including summary statistics per entity and assertion type."@en .
+
+# ============================================================================
+# 3. ANNOTATION PROPERTIES — Test-Axiom Linkage (used ON triple terms)
+# ============================================================================
+
+tdd:testedBy
+  a owl:AnnotationProperty ;
+  rdfs:label "tested by"@en ;
+  rdfs:comment "Test case ID that verifies this ontology axiom (e.g., test_person_name_required)."@en ;
+  rdfs:range xsd:string .
+
+tdd:assertionType
+  a owl:AnnotationProperty ;
+  rdfs:label "assertion type"@en ;
+  rdfs:comment "Type of test assertion: positive, negative, boundary, behavior, or integration."@en ;
+  rdfs:range xsd:string .
+
+tdd:arrangePrecondition
+  a owl:AnnotationProperty ;
+  rdfs:label "arrange precondition"@en ;
+  rdfs:comment "Description of the Arrange step: what state/fixture is set up before the test."@en ;
+  rdfs:range xsd:string .
+
+tdd:actBehavior
+  a owl:AnnotationProperty ;
+  rdfs:label "act behavior"@en ;
+  rdfs:comment "Description of the Act step: what action the test performs."@en ;
+  rdfs:range xsd:string .
+
+tdd:assertExpected
+  a owl:AnnotationProperty ;
+  rdfs:label "assert expected"@en ;
+  rdfs:comment "Description of the Assert step: what outcome the test verifies."@en ;
+  rdfs:range xsd:string .
+
+tdd:coversAxiom
+  a owl:AnnotationProperty ;
+  rdfs:label "covers axiom"@en ;
+  rdfs:comment "Human-readable description of the ontology axiom this test verifies."@en ;
+  rdfs:range xsd:string .
+
+tdd:confidence
+  a owl:AnnotationProperty ;
+  rdfs:label "confidence"@en ;
+  rdfs:comment "How strongly this test proves the axiom (0.0-1.0). Higher means the test more directly verifies the axiom."@en ;
+  rdfs:range xsd:decimal .
+
+tdd:isRegression
+  a owl:AnnotationProperty ;
+  rdfs:label "is regression"@en ;
+  rdfs:comment "Whether this test prevents a known regression (true) or is a new test (false)."@en ;
+  rdfs:range xsd:boolean .
+
+tdd:executionTime_ms
+  a owl:AnnotationProperty ;
+  rdfs:label "execution time budget (ms)"@en ;
+  rdfs:comment "Expected maximum test execution time in milliseconds. Tests exceeding this budget should be investigated."@en ;
+  rdfs:range xsd:integer .
+
+tdd:dependsOnTest
+  a owl:AnnotationProperty ;
+  rdfs:label "depends on test"@en ;
+  rdfs:comment "Another test case ID that must run before this test (test ordering dependency)."@en ;
+  rdfs:range xsd:string .
+
+tdd:flakyRisk
+  a owl:AnnotationProperty ;
+  rdfs:label "flaky risk"@en ;
+  rdfs:comment "Risk of test flakiness: none, low, medium, or high. Tests marked medium/high should be investigated."@en ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# 4. DATATYPE PROPERTIES — CONSTRUCT output fields
+# ============================================================================
+
+tdd:testCaseId
+  a owl:DatatypeProperty ;
+  rdfs:label "test case ID"@en ;
+  rdfs:comment "Unique identifier for the test case."@en ;
+  rdfs:range xsd:string .
+
+tdd:testName
+  a owl:DatatypeProperty ;
+  rdfs:label "test name"@en ;
+  rdfs:comment "Human-readable test name (derived from testCaseId)."@en ;
+  rdfs:range xsd:string .
+
+tdd:entityName
+  a owl:DatatypeProperty ;
+  rdfs:label "entity name"@en ;
+  rdfs:comment "Name of the ontology class/entity being tested."@en ;
+  rdfs:range xsd:string .
+
+tdd:propertyName
+  a owl:DatatypeProperty ;
+  rdfs:label "property name"@en ;
+  rdfs:comment "Name of the ontology property/field being tested."@en ;
+  rdfs:range xsd:string .
+
+tdd:rangeName
+  a owl:DatatypeProperty ;
+  rdfs:label "range name"@en ;
+  rdfs:comment "Name of the property range (datatype or class)."@en ;
+  rdfs:range xsd:string .
+
+tdd:assertionTypeName
+  a owl:DatatypeProperty ;
+  rdfs:label "assertion type name"@en ;
+  rdfs:comment "Name of the assertion type classification."@en ;
+  rdfs:range xsd:string .
+
+tdd:coversAxiomDesc
+  a owl:DatatypeProperty ;
+  rdfs:label "covers axiom description"@en ;
+  rdfs:comment "Human-readable description of the covered axiom."@en ;
+  rdfs:range xsd:string .
+
+tdd:confidenceScore
+  a owl:DatatypeProperty ;
+  rdfs:label "confidence score"@en ;
+  rdfs:comment "Numeric confidence score (0.0-1.0)."@en ;
+  rdfs:range xsd:decimal .
+
+tdd:isRegressionFlag
+  a owl:DatatypeProperty ;
+  rdfs:label "is regression flag"@en ;
+  rdfs:comment "Whether this is a regression prevention test."@en ;
+  rdfs:range xsd:boolean .
+
+tdd:executionBudget
+  a owl:DatatypeProperty ;
+  rdfs:label "execution budget"@en ;
+  rdfs:comment "Maximum expected execution time in milliseconds."@en ;
+  rdfs:range xsd:integer .
+
+tdd:totalTests
+  a owl:DatatypeProperty ;
+  rdfs:label "total tests"@en ;
+  rdfs:comment "Total number of tests in a coverage group."@en ;
+  rdfs:range xsd:integer .
+
+tdd:coveredAxioms
+  a owl:DatatypeProperty ;
+  rdfs:label "covered axioms"@en ;
+  rdfs:comment "Number of ontology axioms with at least one test."@en ;
+  rdfs:range xsd:integer .
+
+tdd:uncoveredAxioms
+  a owl:DatatypeProperty ;
+  rdfs:label "uncovered axioms"@en ;
+  rdfs:comment "Number of ontology axioms with no test coverage."@en ;
+  rdfs:range xsd:integer .
+
+tdd:regressionTests
+  a owl:DatatypeProperty ;
+  rdfs:label "regression tests"@en ;
+  rdfs:comment "Number of regression prevention tests."@en ;
+  rdfs:range xsd:integer .
+
+tdd:flakyTests
+  a owl:DatatypeProperty ;
+  rdfs:label "flaky tests"@en ;
+  rdfs:comment "Number of tests with non-none flaky risk."@en ;
+  rdfs:range xsd:integer .
+
+# ============================================================================
+# 5. ASSERTION TYPE INSTANCES
+# ============================================================================
+
+tdd:Positive
+  a tdd:AssertionType ;
+  rdfs:label "Positive Assertion"@en ;
+  rdfs:comment "Happy path test: verifies that a valid input produces the expected output."@en .
+
+tdd:Negative
+  a tdd:AssertionType ;
+  rdfs:label "Negative Assertion"@en ;
+  rdfs:comment "Error case test: verifies that invalid input is properly rejected."@en .
+
+tdd:Boundary
+  a tdd:AssertionType ;
+  rdfs:label "Boundary Assertion"@en ;
+  rdfs:comment "Edge case test: verifies behavior at limits, minimums, maximums, and empty inputs."@en .
+
+tdd:Behavior
+  a tdd:AssertionType ;
+  rdfs:label "Behavior Assertion"@en ;
+  rdfs:comment "State transition test: verifies side effects, state changes, and observable behavior."@en .
+
+tdd:Integration
+  a tdd:AssertionType ;
+  rdfs:label "Integration Assertion"@en ;
+  rdfs:comment "Cross-entity test: verifies interactions between multiple entities or systems."@en .
+
+# ============================================================================
+# 6. EXAMPLE TEST SUITE
+# ============================================================================
+
+tdd:example-test-suite
+  a tdd:TestSuite ;
+  rdfs:label "Example Axiom-Linked Test Suite"@en ;
+  rdfs:comment "11 tests covering Person, Invoice, and PaymentMethod entities from codegen-annotations-example.ttl."@en .
+
+# --- POSITIVE TESTS (happy path) ---
+
+# P1: Person.hasName required — valid name creates Person
+<< ex:Person ex:hasName xsd:string >>
+  tdd:testedBy "test_person_name_required" ;
+  tdd:assertionType "positive" ;
+  tdd:arrangePrecondition "Person struct with valid name string" ;
+  tdd:actBehavior "create Person with name='Alice Johnson'" ;
+  tdd:assertExpected "Person struct created successfully with name field populated" ;
+  tdd:coversAxiom "Person.hasName is required and accepts non-empty strings" ;
+  tdd:confidence 0.99 ;
+  tdd:isRegression false ;
+  tdd:executionTime_ms 5 ;
+  tdd:flakyRisk "none" .
+
+# P2: Invoice.hasTotal non-negative — valid total creates Invoice
+<< ex:Invoice ex:hasTotal xsd:decimal >>
+  tdd:testedBy "test_invoice_total_non_negative" ;
+  tdd:assertionType "positive" ;
+  tdd:arrangePrecondition "Invoice struct with total=99.99" ;
+  tdd:actBehavior "create Invoice with valid non-negative total" ;
+  tdd:assertExpected "Invoice struct created with total field = 99.99" ;
+  tdd:coversAxiom "Invoice.hasTotal is required, non-negative, precision 2" ;
+  tdd:confidence 0.95 ;
+  tdd:isRegression false ;
+  tdd:executionTime_ms 5 ;
+  tdd:flakyRisk "none" .
+
+# P3: PaymentMethod.hasType valid — credit_card creates PaymentMethod
+<< ex:PaymentMethod ex:hasType xsd:string >>
+  tdd:testedBy "test_payment_method_type_valid" ;
+  tdd:assertionType "positive" ;
+  tdd:arrangePrecondition "PaymentMethod struct with type='credit_card'" ;
+  tdd:actBehavior "create PaymentMethod with valid payment type" ;
+  tdd:assertExpected "PaymentMethod created with type='credit_card'" ;
+  tdd:coversAxiom "PaymentMethod.hasType is required and validated against allowed types" ;
+  tdd:confidence 0.90 ;
+  tdd:isRegression false ;
+  tdd:executionTime_ms 5 ;
+  tdd:dependsOnTest "test_person_name_required" ;
+  tdd:flakyRisk "none" .
+
+# --- NEGATIVE TESTS (error cases) ---
+
+# N1: Person.hasName empty string — should fail validation
+<< ex:Person ex:hasName xsd:string >>
+  tdd:testedBy "test_person_name_empty_rejected" ;
+  tdd:assertionType "negative" ;
+  tdd:arrangePrecondition "Person struct with name=''" ;
+  tdd:actBehavior "attempt to create Person with empty name string" ;
+  tdd:assertExpected "ValidationError: name is required" ;
+  tdd:coversAxiom "Person.hasName rejects empty strings via validate_non_empty" ;
+  tdd:confidence 0.98 ;
+  tdd:isRegression true ;
+  tdd:executionTime_ms 5 ;
+  tdd:flakyRisk "none" .
+
+# N2: Invoice.hasTotal negative — should fail validation
+<< ex:Invoice ex:hasTotal xsd:decimal >>
+  tdd:testedBy "test_invoice_total_negative_rejected" ;
+  tdd:assertionType "negative" ;
+  tdd:arrangePrecondition "Invoice struct with total=-1.00" ;
+  tdd:actBehavior "attempt to create Invoice with negative total" ;
+  tdd:assertExpected "ValidationError: total must be non-negative" ;
+  tdd:coversAxiom "Invoice.hasTotal rejects negative values via validate_non_negative" ;
+  tdd:confidence 0.98 ;
+  tdd:isRegression false ;
+  tdd:executionTime_ms 5 ;
+  tdd:flakyRisk "none" .
+
+# --- BOUNDARY TESTS (edge cases) ---
+
+# B1: Person.hasAge at maximum (150) — should accept
+<< ex:Person ex:hasAge xsd:integer >>
+  tdd:testedBy "test_person_age_at_maximum" ;
+  tdd:assertionType "boundary" ;
+  tdd:arrangePrecondition "Person struct with age=150" ;
+  tdd:actBehavior "create Person with age at maximum bound" ;
+  tdd:assertExpected "Person created with age=150" ;
+  tdd:coversAxiom "Person.hasAge accepts values at maximum bound (150)" ;
+  tdd:confidence 0.92 ;
+  tdd:isRegression false ;
+  tdd:executionTime_ms 5 ;
+  tdd:flakyRisk "none" .
+
+# B2: Person.hasAge at minimum (0) — should accept
+<< ex:Person ex:hasAge xsd:integer >>
+  tdd:testedBy "test_person_age_at_minimum" ;
+  tdd:assertionType "boundary" ;
+  tdd:arrangePrecondition "Person struct with age=0" ;
+  tdd:actBehavior "create Person with age at minimum bound" ;
+  tdd:assertExpected "Person created with age=0" ;
+  tdd:coversAxiom "Person.hasAge accepts values at minimum bound (0)" ;
+  tdd:confidence 0.92 ;
+  tdd:isRegression false ;
+  tdd:executionTime_ms 5 ;
+  tdd:flakyRisk "low" .
+
+# --- BEHAVIOR TESTS (state transitions) ---
+
+# BE1: Invoice.hasStatus state transition — Draft to Sent
+<< ex:Invoice ex:hasStatus xsd:string >>
+  tdd:testedBy "test_invoice_status_draft_to_sent" ;
+  tdd:assertionType "behavior" ;
+  tdd:arrangePrecondition "Invoice with status=InvoiceStatus::Draft" ;
+  tdd:actBehavior "transition Invoice status from Draft to Sent" ;
+  tdd:assertExpected "Invoice.status == InvoiceStatus::Sent" ;
+  tdd:coversAxiom "Invoice.hasStatus supports Draft -> Sent state transition" ;
+  tdd:confidence 0.88 ;
+  tdd:isRegression true ;
+  tdd:executionTime_ms 10 ;
+  tdd:dependsOnTest "test_invoice_total_non_negative" ;
+  tdd:flakyRisk "none" .
+
+# BE2: PaymentMethod.hasIsDefault — setting default changes existing default
+<< ex:PaymentMethod ex:hasIsDefault xsd:boolean >>
+  tdd:testedBy "test_payment_method_default_swap" ;
+  tdd:assertionType "behavior" ;
+  tdd:arrangePrecondition "Person with 2 PaymentMethods, first is default" ;
+  tdd:actBehavior "set second PaymentMethod as default" ;
+  tdd:assertExpected "First PaymentMethod.isDefault == false, second == true" ;
+  tdd:coversAxiom "PaymentMethod.hasIsDefault ensures only one default per Person" ;
+  tdd:confidence 0.85 ;
+  tdd:isRegression false ;
+  tdd:executionTime_ms 15 ;
+  tdd:flakyRisk "medium" .
+
+# --- INTEGRATION TEST ---
+
+# I1: Person -> Invoice -> PaymentMethod cross-entity flow
+<< ex:Person ex:hasName xsd:string >>
+  tdd:testedBy "test_person_invoice_payment_flow" ;
+  tdd:assertionType "integration" ;
+  tdd:arrangePrecondition "Person with valid name + PaymentMethod on file" ;
+  tdd:actBehavior "create Invoice for Person and pay via PaymentMethod" ;
+  tdd:assertExpected "Invoice status transitions to Paid, PaymentMethod records transaction" ;
+  tdd:coversAxiom "Person -> Invoice -> PaymentMethod end-to-end payment flow" ;
+  tdd:confidence 0.80 ;
+  tdd:isRegression false ;
+  tdd:executionTime_ms 50 ;
+  tdd:dependsOnTest "test_invoice_status_draft_to_sent" ;
+  tdd:flakyRisk "high" .
+
+# --- REGRESSION TEST (explicit) ---
+
+# R1: Person.hasPhone deprecated — still accepts but warns
+<< ex:Person ex:hasPhone xsd:string >>
+  tdd:testedBy "test_person_phone_deprecated_accepts" ;
+  tdd:assertionType "positive" ;
+  tdd:arrangePrecondition "Person struct with hasPhone='555-0100'" ;
+  tdd:actBehavior "create Person with deprecated phone field" ;
+  tdd:assertExpected "Person created, compiler emits #[deprecated] warning" ;
+  tdd:coversAxiom "Person.hasPhone is deprecated since v1.0 but still accepts values" ;
+  tdd:confidence 0.75 ;
+  tdd:isRegression true ;
+  tdd:executionTime_ms 5 ;
+  tdd:flakyRisk "none" .

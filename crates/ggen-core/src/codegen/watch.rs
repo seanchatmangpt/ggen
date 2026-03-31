@@ -339,7 +339,10 @@ mod tests {
                 max_sparql_timeout_ms: 5000,
                 require_audit_trail: false,
                 determinism_salt: None,
-                output_dir: PathBuf::from("generated"),
+                output_dir: PathBuf::from("."),
+                enable_llm: false,
+                llm_model: None,
+                llm_provider: None,
             },
             validation: ValidationConfig::default(),
         };

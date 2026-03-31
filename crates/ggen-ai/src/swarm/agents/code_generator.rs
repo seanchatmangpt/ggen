@@ -3,17 +3,17 @@
 //! Takes regenerated templates and generates actual code files in multiple
 //! programming languages, ensuring consistency and quality.
 
-use crate::error::{GgenAiError, Result};
-use crate::swarm::{
-    AgentHealth, HealthStatus, SwarmAgent, SwarmContext, AgentInput, AgentOutput,
-    BaseAgent, AgentConfig, PerformanceThresholds
-};
-use crate::generators::TemplateGenerator;
 use crate::client::{LlmClient, LlmConfig};
+use crate::error::{GgenAiError, Result};
+use crate::generators::TemplateGenerator;
 use crate::providers::adapter::OllamaClient;
+use crate::swarm::{
+    AgentConfig, AgentHealth, AgentInput, AgentOutput, BaseAgent, HealthStatus,
+    PerformanceThresholds, SwarmAgent, SwarmContext,
+};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 use std::collections::HashMap;
 use tracing::debug;
 
@@ -128,12 +128,10 @@ impl CodeGeneratorAgent {
         }
     }
 
-
     /// Generate code from templates and context
     async fn generate_code_from_templates(
-        &self,
-        templates: &[crate::swarm::agents::template_generator::RegeneratedTemplate],
-        generation_context: &HashMap<String, String>
+        &self, templates: &[crate::swarm::agents::template_generator::RegeneratedTemplate],
+        generation_context: &HashMap<String, String>,
     ) -> Result<Vec<GeneratedCode>> {
         let mut generated_code = Vec::new();
 
@@ -141,12 +139,14 @@ impl CodeGeneratorAgent {
             // Generate code for each language in the template
             for (language, lang_config) in &self.code_context.language_configs {
                 if self.template_supports_language(&template.regenerated_content, language)? {
-                    let code = self.generate_code_for_language(
-                        &template.regenerated_content,
-                        language,
-                        lang_config,
-                        generation_context
-                    ).await?;
+                    let code = self
+                        .generate_code_for_language(
+                            &template.regenerated_content,
+                            language,
+                            lang_config,
+                            generation_context,
+                        )
+                        .await?;
 
                     // Validate generated code
                     let validation_results = self.validate_generated_code(&code, language).await?;
@@ -184,16 +184,15 @@ impl CodeGeneratorAgent {
             _ => vec![],
         };
 
-        Ok(language_markers.iter().any(|marker| template_content.contains(marker)))
+        Ok(language_markers
+            .iter()
+            .any(|marker| template_content.contains(marker)))
     }
 
     /// Generate code for a specific language
     async fn generate_code_for_language(
-        &self,
-        template_content: &str,
-        language: &str,
-        lang_config: &LanguageConfig,
-        context: &HashMap<String, String>
+        &self, template_content: &str, language: &str, lang_config: &LanguageConfig,
+        context: &HashMap<String, String>,
     ) -> Result<String> {
         // Apply language-specific transformations
         let mut code = template_content.to_string();
@@ -216,7 +215,10 @@ impl CodeGeneratorAgent {
         for (template_type, template) in &lang_config.structure_templates {
             if template_type == "class" && code.contains("class") {
                 // Apply class structure template
-                code = template.replace("{{class_name}}", &context.get("class_name").unwrap_or(&"Unknown".to_string()));
+                code = template.replace(
+                    "{{class_name}}",
+                    &context.get("class_name").unwrap_or(&"Unknown".to_string()),
+                );
             }
         }
 
@@ -224,15 +226,23 @@ impl CodeGeneratorAgent {
     }
 
     /// Generate appropriate file path for generated code
-    fn generate_file_path(&self, template_name: &str, language: &str, lang_config: &LanguageConfig) -> String {
+    fn generate_file_path(
+        &self, template_name: &str, language: &str, lang_config: &LanguageConfig,
+    ) -> String {
         let extension = lang_config.extensions.first().unwrap_or(&"txt".to_string());
-        let output_dir = self.code_context.output_paths.first().unwrap_or(&"generated".to_string());
+        let output_dir = self
+            .code_context
+            .output_paths
+            .first()
+            .unwrap_or(&"generated".to_string());
 
         format!("{}/{}.{}", output_dir, template_name, extension)
     }
 
     /// Validate generated code
-    async fn validate_generated_code(&self, code: &str, language: &str) -> Result<Vec<CodeValidation>> {
+    async fn validate_generated_code(
+        &self, code: &str, language: &str,
+    ) -> Result<Vec<CodeValidation>> {
         let mut validations = Vec::new();
 
         // Basic syntax validation
@@ -240,7 +250,11 @@ impl CodeGeneratorAgent {
         validations.push(CodeValidation {
             validation_type: "syntax".to_string(),
             passed: syntax_valid,
-            errors: if !syntax_valid { vec!["Syntax errors detected".to_string()] } else { vec![] },
+            errors: if !syntax_valid {
+                vec!["Syntax errors detected".to_string()]
+            } else {
+                vec![]
+            },
             warnings: vec![],
         });
 
@@ -249,7 +263,11 @@ impl CodeGeneratorAgent {
         validations.push(CodeValidation {
             validation_type: "style".to_string(),
             passed: style_valid,
-            errors: if !style_valid { vec!["Style violations detected".to_string()] } else { vec![] },
+            errors: if !style_valid {
+                vec!["Style violations detected".to_string()]
+            } else {
+                vec![]
+            },
             warnings: vec!["Consider adding documentation".to_string()],
         });
 
@@ -258,7 +276,11 @@ impl CodeGeneratorAgent {
         validations.push(CodeValidation {
             validation_type: "security".to_string(),
             passed: security_valid,
-            errors: if !security_valid { vec!["Security issues detected".to_string()] } else { vec![] },
+            errors: if !security_valid {
+                vec!["Security issues detected".to_string()]
+            } else {
+                vec![]
+            },
             warnings: vec![],
         });
 
@@ -276,7 +298,9 @@ impl CodeGeneratorAgent {
     fn validate_style(&self, code: &str, _language: &str) -> Result<bool> {
         // Check for basic style requirements
         let has_comments = code.contains("//") || code.contains("/*") || code.contains("#");
-        let has_proper_indentation = code.lines().any(|line| line.starts_with("    ") || line.starts_with("\t"));
+        let has_proper_indentation = code
+            .lines()
+            .any(|line| line.starts_with("    ") || line.starts_with("\t"));
 
         Ok(has_comments && has_proper_indentation)
     }
@@ -314,7 +338,11 @@ impl CodeGeneratorAgent {
             score -= 0.1; // Too short
         }
 
-        if !code.contains("function") && !code.contains("fn ") && !code.contains("def ") && !code.contains("class") {
+        if !code.contains("function")
+            && !code.contains("fn ")
+            && !code.contains("def ")
+            && !code.contains("class")
+        {
             score -= 0.1; // No clear structure
         }
 
@@ -329,11 +357,13 @@ impl CodeGeneratorAgent {
 
     /// Generate code generation statistics
     fn generate_stats(&self, generated_code: &[GeneratedCode]) -> CodeGenerationStats {
-        let total_lines = generated_code.iter()
+        let total_lines = generated_code
+            .iter()
             .map(|code| code.content.lines().count() as u32)
             .sum();
 
-        let languages_used: Vec<String> = generated_code.iter()
+        let languages_used: Vec<String> = generated_code
+            .iter()
             .map(|code| code.language.clone())
             .collect::<std::collections::HashSet<_>>()
             .into_iter()
@@ -342,9 +372,11 @@ impl CodeGeneratorAgent {
         let avg_quality = if generated_code.is_empty() {
             0.0
         } else {
-            generated_code.iter()
+            generated_code
+                .iter()
                 .map(|code| code.quality_score)
-                .sum::<f64>() / generated_code.len() as f64
+                .sum::<f64>()
+                / generated_code.len() as f64
         };
 
         CodeGenerationStats {
@@ -381,7 +413,9 @@ impl SwarmAgent for CodeGeneratorAgent {
         let generation_context = input.context.clone();
 
         // Generate code from templates
-        let generated_code = self.generate_code_from_templates(&templates, &generation_context).await?;
+        let generated_code = self
+            .generate_code_from_templates(&templates, &generation_context)
+            .await?;
 
         // Generate statistics
         let stats = self.generate_stats(&generated_code);
@@ -403,9 +437,18 @@ impl SwarmAgent for CodeGeneratorAgent {
             metadata: {
                 let mut metadata = HashMap::new();
                 metadata.insert("execution_time_ms".to_string(), execution_time.to_string());
-                metadata.insert("files_generated".to_string(), generated_code.len().to_string());
-                metadata.insert("lines_generated".to_string(), stats.lines_of_code.to_string());
-                metadata.insert("avg_quality".to_string(), stats.avg_quality_score.to_string());
+                metadata.insert(
+                    "files_generated".to_string(),
+                    generated_code.len().to_string(),
+                );
+                metadata.insert(
+                    "lines_generated".to_string(),
+                    stats.lines_of_code.to_string(),
+                );
+                metadata.insert(
+                    "avg_quality".to_string(),
+                    stats.avg_quality_score.to_string(),
+                );
                 metadata
             },
         })
@@ -486,7 +529,9 @@ mod tests {
         let agent = CodeGeneratorAgent::new(template_gen, code_context);
 
         assert_eq!(agent.name(), "code_generator");
-        assert!(agent.capabilities().contains(&"code_generation".to_string()));
+        assert!(agent
+            .capabilities()
+            .contains(&"code_generation".to_string()));
     }
 
     #[test]
@@ -503,13 +548,19 @@ mod tests {
         let agent = CodeGeneratorAgent::new(template_gen, code_context);
 
         // Test Rust detection
-        assert!(agent.template_supports_language("fn main() {}", "rust").unwrap());
+        assert!(agent
+            .template_supports_language("fn main() {}", "rust")
+            .unwrap());
 
         // Test TypeScript detection
-        assert!(agent.template_supports_language("interface User {}", "typescript").unwrap());
+        assert!(agent
+            .template_supports_language("interface User {}", "typescript")
+            .unwrap());
 
         // Test unknown language
-        assert!(!agent.template_supports_language("random content", "unknown").unwrap());
+        assert!(!agent
+            .template_supports_language("random content", "unknown")
+            .unwrap());
     }
 
     #[tokio::test]

@@ -15,7 +15,7 @@ categories = ["command-line-utilities", "development-tools"]
 
 [dependencies]
 clap = { version = "4.4", features = ["derive", "cargo", "env"] }
-oxigraph = { version = "0.3", features = ["http-client"] }
+oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 rio_api = "0.8"
 rio_turtle = "0.8"
 rio_xml = "0.8"

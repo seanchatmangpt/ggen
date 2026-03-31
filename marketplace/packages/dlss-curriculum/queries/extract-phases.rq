@@ -1,0 +1,15 @@
+# Extract Phases Query
+# Simple query to extract all phase metadata.
+# Output: phaseOrder, phaseTitle, phaseDescription.
+
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?phaseOrder ?phaseTitle ?phaseDescription
+WHERE {
+  ?phase a dlss:DMEDIPhase ;
+    dlss:phaseOrder ?phaseOrder ;
+    dlss:title ?phaseTitle ;
+    dlss:description ?phaseDescription .
+}
+ORDER BY ?phaseOrder

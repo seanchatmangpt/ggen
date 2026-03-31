@@ -1,0 +1,18 @@
+# Assessment Criteria Query
+# Extracts all quality checkpoints and assessment criteria.
+# Output: checkpointTitle, moduleCode, checkpointType, passingScore, assessmentDescription.
+
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?checkpointTitle ?moduleCode ?checkpointType ?passingScore ?assessmentDescription
+WHERE {
+  ?module a dlss:Module ;
+    dlss:code ?moduleCode ;
+    dlss:qualityCheckpoint ?checkpoint .
+  ?checkpoint dlss:title ?checkpointTitle ;
+               dlss:checkpointType ?checkpointType ;
+               dlss:passingScore ?passingScore ;
+               dlss:description ?assessmentDescription .
+}
+ORDER BY ?moduleCode ?checkpointTitle

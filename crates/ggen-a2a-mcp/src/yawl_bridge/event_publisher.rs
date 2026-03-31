@@ -4,6 +4,7 @@
 //! enabling event-driven communication between YAWL and A2A systems.
 
 use crate::error::A2aMcpResult;
+use crate::otel_attrs;
 use a2a_generated::converged::message::{
     ConvergedMessage, ConvergedMessageType, ConvergedPayload, MessageEnvelope, MessageLifecycle,
     MessagePriority, MessageRouting, MessageState, QoSRequirements, ReliabilityLevel,
@@ -11,9 +12,10 @@ use a2a_generated::converged::message::{
 };
 use chrono::Utc;
 use std::collections::HashMap;
+use tracing::info;
 
 /// Event types for YAWL workflow events
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum YawlEventType {
     /// Task state has changed
     TaskStatusUpdate,
@@ -31,7 +33,7 @@ pub enum YawlEventType {
     GatewayActivated,
 
     /// Custom event type
-    Custom(&'static str),
+    Custom(String),
 }
 
 impl YawlEventType {
@@ -43,7 +45,7 @@ impl YawlEventType {
             YawlEventType::WorkflowCompleted => "WorkflowCompleted",
             YawlEventType::WorkflowFailed => "WorkflowFailed",
             YawlEventType::GatewayActivated => "GatewayActivated",
-            YawlEventType::Custom(s) => s,
+            YawlEventType::Custom(ref s) => s,
         }
     }
 }
@@ -74,10 +76,27 @@ impl YawlEventPublisher {
     /// Publish a YAWL task state change as an A2A event
     ///
     /// Creates an Event message containing the task state transition.
-    /// In production, this would be sent via the A2A client.
+    /// The `correlation_id` is set to `task_id` so task lifecycle events
+    /// are traceable across the YAWL-A2A boundary.
+    #[tracing::instrument(name = "ggen.yawl.task_execution", skip(self), fields(
+        workflow_id = %workflow_id,
+        task_id = %task_id,
+        yawl.state.from = %old_state,
+        yawl.state.to = %new_state,
+        service.name = "ggen-a2a-mcp",
+        service.version = env!("CARGO_PKG_VERSION"),
+    ))]
     pub async fn publish_task_event(
         &self, workflow_id: &str, task_id: &str, old_state: &str, new_state: &str,
     ) -> A2aMcpResult<ConvergedMessage> {
+        tracing::Span::current().record(otel_attrs::WORKFLOW_ID, workflow_id);
+        tracing::Span::current().record(otel_attrs::TASK_ID, task_id);
+        tracing::Span::current().record(otel_attrs::YAWL_STATE_FROM, old_state);
+        tracing::Span::current().record(otel_attrs::YAWL_STATE_TO, new_state);
+        info!(
+            workflow_id,
+            task_id, old_state, new_state, "publishing task event"
+        );
         let mut data = HashMap::new();
         data.insert(
             "eventType".to_string(),
@@ -133,10 +152,18 @@ impl YawlEventPublisher {
     }
 
     /// Publish a workflow lifecycle event
+    #[tracing::instrument(name = "ggen.yawl.task_execution", skip(self), fields(
+        otel_operation_name = "publish_workflow_event",
+        workflow_id = %workflow_id,
+        event_type = ?event_type,
+    ))]
     pub async fn publish_workflow_event(
         &self, workflow_id: &str, event_type: YawlEventType,
         metadata: Option<HashMap<String, serde_json::Value>>,
     ) -> A2aMcpResult<ConvergedMessage> {
+        tracing::Span::current().record(otel_attrs::WORKFLOW_ID, workflow_id);
+        tracing::Span::current().record(otel_attrs::OPERATION_NAME, "publish_workflow_event");
+        info!(workflow_id, event_type = ?event_type, "publishing workflow event");
         let mut data = HashMap::new();
         data.insert(
             "eventType".to_string(),
@@ -200,6 +227,12 @@ impl YawlEventPublisher {
     /// Publish a gateway activation event
     ///
     /// Notifies when a YAWL gateway (split/join) is activated during workflow execution.
+    #[tracing::instrument(name = "ggen.yawl.task_execution", skip(self), fields(
+        otel_operation_name = "publish_gateway_event",
+        workflow_id = %workflow_id,
+        gateway_id = %gateway_id,
+        gateway_type = %gateway_type,
+    ))]
     pub async fn publish_gateway_event(
         &self,
         workflow_id: &str,
@@ -207,6 +240,16 @@ impl YawlEventPublisher {
         gateway_type: &str, // "XorSplit", "AndJoin", etc.
         active_paths: Vec<String>,
     ) -> A2aMcpResult<ConvergedMessage> {
+        tracing::Span::current().record(otel_attrs::WORKFLOW_ID, workflow_id);
+        tracing::Span::current().record(otel_attrs::TASK_ID, gateway_id);
+        tracing::Span::current().record(otel_attrs::TASK_TYPE, gateway_type);
+        info!(
+            workflow_id,
+            gateway_id,
+            gateway_type,
+            paths = active_paths.len(),
+            "publishing gateway event"
+        );
         let mut data = HashMap::new();
         data.insert(
             "eventType".to_string(),
@@ -262,6 +305,10 @@ impl YawlEventPublisher {
     }
 
     /// Create a batch of events for multiple task state changes
+    #[tracing::instrument(name = "ggen.yawl.task_execution", skip(self), fields(
+        otel_operation_name = "publish_task_events_batch",
+        event_count = events.len(),
+    ))]
     pub async fn publish_task_events_batch(
         &self,
         events: Vec<(String, String, String, String)>, // (workflow_id, task_id, old_state, new_state)

@@ -1,0 +1,17 @@
+# Examples by Track Query
+# Extracts all examples grouped by context (Product Development vs New Process Design).
+# Output: exampleTitle, context, moduleTitle, moduleCode.
+
+PREFIX dlss: <http://ggen.chatmangpt.com/dlss#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?exampleTitle ?context ?moduleTitle ?moduleCode
+WHERE {
+  ?module a dlss:Module ;
+    dlss:code ?moduleCode ;
+    dlss:title ?moduleTitle ;
+    dlss:example ?example .
+  ?example dlss:title ?exampleTitle ;
+            dlss:context ?context .
+}
+ORDER BY ?context ?moduleCode ?exampleTitle

@@ -44,6 +44,13 @@ pub mod shell;
 pub mod template;
 pub mod utils;
 
+// Re-export audit types for convenience
+pub use audit::security::{
+    ConfigAuditor, ConfigIssue, ConfigIssueType, DependencyCheckResult, DependencyChecker,
+    SecurityScanResult, SecurityScanner, Severity, SeveritySummary, Vulnerability,
+    VulnerableDependency,
+};
+
 // Re-export hook module from marketplace for test convenience
 pub use marketplace::hook;
 

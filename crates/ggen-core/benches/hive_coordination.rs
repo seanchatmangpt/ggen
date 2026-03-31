@@ -28,13 +28,15 @@ fn bench_consensus_latency(c: &mut Criterion) {
             BenchmarkId::from_parameter(num_packs),
             num_packs,
             |b, &num_packs| {
-                b.to_async(&rt).iter(|| async {
-                    let config = create_test_config(num_packs);
-                    let mut hive = HiveQueen::new(config).await.unwrap();
+                b.iter(|| {
+                    rt.block_on(async {
+                        let config = create_test_config(num_packs);
+                        let mut hive = HiveQueen::new(config).await.unwrap();
 
-                    let start = std::time::Instant::now();
-                    let _result = hive.orchestrate().await.unwrap();
-                    black_box(start.elapsed())
+                        let start = std::time::Instant::now();
+                        let _result = hive.orchestrate().await.unwrap();
+                        black_box(start.elapsed())
+                    })
                 });
             },
         );
@@ -57,11 +59,13 @@ fn bench_agent_spawning(c: &mut Criterion) {
             BenchmarkId::from_parameter(num_agents),
             num_agents,
             |b, &num_agents| {
-                b.to_async(&rt).iter(|| async {
-                    let config = create_test_config(*num_agents);
-                    let start = std::time::Instant::now();
-                    let _hive = HiveQueen::new(config).await.unwrap();
-                    black_box(start.elapsed())
+                b.iter(|| {
+                    rt.block_on(async {
+                        let config = create_test_config(num_agents);
+                        let start = std::time::Instant::now();
+                        let _hive = HiveQueen::new(config).await.unwrap();
+                        black_box(start.elapsed())
+                    })
                 });
             },
         );
@@ -84,14 +88,16 @@ fn bench_conflict_detection(c: &mut Criterion) {
             BenchmarkId::from_parameter(num_packs),
             num_packs,
             |b, &num_packs| {
-                b.to_async(&rt).iter(|| async {
-                    // Create config with potential conflicts
-                    let config = create_conflicting_config(num_packs);
-                    let mut hive = HiveQueen::new(config).await.unwrap();
+                b.iter(|| {
+                    rt.block_on(async {
+                        // Create config with potential conflicts
+                        let config = create_conflicting_config(num_packs);
+                        let mut hive = HiveQueen::new(config).await.unwrap();
 
-                    let start = std::time::Instant::now();
-                    let _result = hive.orchestrate().await.unwrap();
-                    black_box(start.elapsed())
+                        let start = std::time::Instant::now();
+                        let _result = hive.orchestrate().await.unwrap();
+                        black_box(start.elapsed())
+                    })
                 });
             },
         );
@@ -114,17 +120,19 @@ fn bench_configuration_analysis(c: &mut Criterion) {
             BenchmarkId::from_parameter(complexity),
             complexity,
             |b, &complexity| {
-                b.to_async(&rt).iter(|| async {
-                    let agent = HiveAgent::new(
-                        "analyzer-bench",
-                        AgentRole::Analyzer,
-                        vec!["versioning".to_string()],
-                    );
-                    let config = create_test_config(complexity);
+                b.iter(|| {
+                    rt.block_on(async {
+                        let agent = HiveAgent::new(
+                            "analyzer-bench",
+                            AgentRole::Analyzer,
+                            vec!["versioning".to_string()],
+                        );
+                        let config = create_test_config(complexity);
 
-                    let start = std::time::Instant::now();
-                    let _analysis = agent.analyze_config(&config).await.unwrap();
-                    black_box(start.elapsed())
+                        let start = std::time::Instant::now();
+                        let _analysis = agent.analyze_config(&config).await.unwrap();
+                        black_box(start.elapsed())
+                    })
                 });
             },
         );
@@ -147,29 +155,31 @@ fn bench_parallel_agents(c: &mut Criterion) {
             BenchmarkId::from_parameter(num_concurrent),
             num_concurrent,
             |b, &num_concurrent| {
-                b.to_async(&rt).iter(|| async {
-                    let config = create_test_config(10);
+                b.iter(|| {
+                    rt.block_on(async {
+                        let config = create_test_config(10);
 
-                    let start = std::time::Instant::now();
-                    let tasks: Vec<_> = (0..num_concurrent)
-                        .map(|i| {
-                            let cfg = config.clone();
-                            tokio::spawn(async move {
-                                let agent = HiveAgent::new(
-                                    &format!("agent-{}", i),
-                                    AgentRole::Analyzer,
-                                    vec!["test".to_string()],
-                                );
-                                agent.analyze_config(&cfg).await
+                        let start = std::time::Instant::now();
+                        let tasks: Vec<_> = (0..num_concurrent)
+                            .map(|i| {
+                                let cfg = config.clone();
+                                tokio::spawn(async move {
+                                    let agent = HiveAgent::new(
+                                        &format!("agent-{}", i),
+                                        AgentRole::Analyzer,
+                                        vec!["test".to_string()],
+                                    );
+                                    agent.analyze_config(&cfg).await
+                                })
                             })
-                        })
-                        .collect();
+                            .collect();
 
-                    for task in tasks {
-                        let _result = task.await;
-                    }
+                        for task in tasks {
+                            let _result = task.await;
+                        }
 
-                    black_box(start.elapsed())
+                        black_box(start.elapsed())
+                    })
                 });
             },
         );
@@ -189,17 +199,19 @@ fn bench_memory_overhead(c: &mut Criterion) {
         group.throughput(Throughput::Bytes(*size * 1024));
 
         group.bench_with_input(BenchmarkId::from_parameter(size), size, |b, &size| {
-            b.to_async(&rt).iter(|| async {
-                let start = std::time::Instant::now();
+            b.iter(|| {
+                rt.block_on(async {
+                    let start = std::time::Instant::now();
 
-                // Simulate memory allocation for large swarm
-                let mut configs = Vec::with_capacity(size);
-                for i in 0..size {
-                    configs.push(create_test_config(i % 20 + 1));
-                }
+                    // Simulate memory allocation for large swarm
+                    let mut configs = Vec::with_capacity(size as usize);
+                    for i in 0..size {
+                        configs.push(create_test_config((i % 20 + 1) as usize));
+                    }
 
-                black_box(configs);
-                black_box(start.elapsed())
+                    black_box(configs);
+                    black_box(start.elapsed())
+                })
             });
         });
     }
@@ -221,16 +233,18 @@ fn bench_orchestration_throughput(c: &mut Criterion) {
             BenchmarkId::from_parameter(iterations),
             iterations,
             |b, &iterations| {
-                b.to_async(&rt).iter(|| async {
-                    let start = std::time::Instant::now();
+                b.iter(|| {
+                    rt.block_on(async {
+                        let start = std::time::Instant::now();
 
-                    for i in 0..iterations {
-                        let config = create_test_config((i % 10) + 1);
-                        let mut hive = HiveQueen::new(config).await.unwrap();
-                        let _result = hive.orchestrate().await.unwrap();
-                    }
+                        for i in 0..iterations {
+                            let config = create_test_config((i % 10) + 1);
+                            let mut hive = HiveQueen::new(config).await.unwrap();
+                            let _result = hive.orchestrate().await.unwrap();
+                        }
 
-                    black_box(start.elapsed())
+                        black_box(start.elapsed())
+                    })
                 });
             },
         );

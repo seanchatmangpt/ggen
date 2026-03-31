@@ -1,0 +1,22 @@
+groups:
+  - id: span.ggen.llm.generation
+    type: span
+    stability: development
+    brief: LLM generation operation in ggen code generation pipeline.
+    span_kind: client
+    attributes:
+      - ref: llm.model
+        requirement_level: recommended
+      - ref: llm.prompt_tokens
+        requirement_level: recommended
+      - ref: llm.completion_tokens
+        requirement_level: recommended
+      - ref: llm.total_tokens
+        requirement_level: recommended
+      - ref: llm.prompt_length
+        requirement_level: recommended
+      - ref: llm.output_length
+        requirement_level: recommended
+      - ref: error.type
+        requirement_level:
+          conditionally_required: "when the LLM generation failed"

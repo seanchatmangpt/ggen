@@ -1,0 +1,35 @@
+[package]
+name = "ggen-a2a-registry"
+version = "0.1.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+edition = "2021"
+description = "Multi-agent A2A orchestration registry for agent discovery, health monitoring, and lifecycle management"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+homepage = "https://github.com/seanchatmangpt/ggen"
+keywords = ["a2a", "agent", "registry", "discovery", "health"]
+categories = ["development-tools", "network-programming"]
+readme = "README.md"
+
+[lib]
+name = "ggen_a2a_registry"
+path = "src/lib.rs"
+
+[dependencies]
+a2a-generated = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+reqwest = { workspace = true, features = ["json", "rustls-tls"] }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["full", "test-util"] }
+
+[lints]
+workspace = true

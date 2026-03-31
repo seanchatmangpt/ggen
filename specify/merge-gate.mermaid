@@ -1,0 +1,55 @@
+flowchart TD
+    %% ─── Entry Point ────────────────────────────────────────────
+    START([Merge Gate Triggered]) --> T1
+
+    %% ─── Gate 1: Tests ──────────────────────────────────────────
+    T1["T1: Run Tests\nTimeout: 10 min"]
+    T1 -->|PASS: zero failures| T2
+    T1 -->|FAIL: any test failed| BLOCK
+    T1 -->|TIMEOUT: exceeded 10 min| EH1
+
+    %% ─── Gate 2: OTEL Spans ────────────────────────────────────
+    T2["T2: Check OTEL Spans\nTimeout: 2 min"]
+    T2 -->|PASS: spans found in Jaeger| T3
+    T2 -->|FAIL: spans missing| BLOCK
+    T2 -->|TIMEOUT: exceeded 2 min| EH2
+
+    %% ─── Gate 3: Weaver Registry ───────────────────────────────
+    T3["T3: Weaver Registry Check\nTimeout: 2 min"]
+    T3 -->|PASS: exit 0, zero violations| T4
+    T3 -->|FAIL: violations found| BLOCK
+    T3 -->|TIMEOUT: exceeded 2 min| EH3
+
+    %% ─── Gate 4: Receipt Signing ───────────────────────────────
+    T4["T4: Sign Cryptographic Receipt\nTimeout: 30 sec"]
+    T4 -->|PASS: Ed25519 signed| ALLOW
+    T4 -->|FAIL: signing error| ALLOW
+    T4 -->|TIMEOUT: non-blocking| EH4
+
+    %% ─── Terminal States ───────────────────────────────────────
+    ALLOW(["T5: ALLOW MERGE\nAll gates passed\nReceipt chain updated"])
+    BLOCK(["T5b: BLOCK MERGE\nDiagnostic report generated\nGitHub status: failure"])
+
+    %% ─── Exception Handlers ────────────────────────────────────
+    EH1["EH: Test Timeout\n-> Block + Notify"]
+    EH2["EH: OTEL Timeout\n-> Block + Notify"]
+    EH3["EH: Weaver Timeout\n-> Block + Notify"]
+    EH4["EH: Receipt Timeout\n-> Allow (non-blocking)"]
+
+    EH1 --> BLOCK
+    EH2 --> BLOCK
+    EH3 --> BLOCK
+    EH4 --> ALLOW
+
+    %% ─── Styling ───────────────────────────────────────────────
+    style T1 fill:#4a9eff,stroke:#2d6ecf,color:#fff
+    style T2 fill:#4a9eff,stroke:#2d6ecf,color:#fff
+    style T3 fill:#4a9eff,stroke:#2d6ecf,color:#fff
+    style T4 fill:#e6a817,stroke:#c48f0f,color:#fff
+    style ALLOW fill:#2ecc71,stroke:#1a9c54,color:#fff
+    style BLOCK fill:#e74c3c,stroke:#c0392b,color:#fff
+    style EH1 fill:#e74c3c,stroke:#c0392b,color:#fff
+    style EH2 fill:#e74c3c,stroke:#c0392b,color:#fff
+    style EH3 fill:#e74c3c,stroke:#c0392b,color:#fff
+    style EH4 fill:#f39c12,stroke:#d4860e,color:#fff
+    style START fill:#95a5a6,stroke:#7f8c8d,color:#fff

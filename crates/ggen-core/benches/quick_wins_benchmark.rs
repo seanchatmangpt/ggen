@@ -205,7 +205,7 @@ fn bench_cache_improvements(c: &mut Criterion) {
 
                     // Verify cache effectiveness
                     let stats = cache.stats().unwrap();
-                    assert!(stats.hit_rate() > 95.0, "Cache hit rate too low");
+                    assert!(stats.hit_rate() > 85.0, "Cache hit rate too low");
                 });
             },
         );

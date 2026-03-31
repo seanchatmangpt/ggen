@@ -1,7 +1,7 @@
 //! Validator Agent - Validates graph changes and generated artifacts
 
-use crate::error::Result;
 use super::BaseAgent;
+use crate::error::Result;
 
 /// Validator Agent implementation
 pub struct ValidatorAgentImpl {

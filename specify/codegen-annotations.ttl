@@ -1,0 +1,196 @@
+# codegen-annotations.ttl — RDF 1.2 Annotated Axiom Vocabulary for Code Generation
+# A=mu(O) — Code artifacts are projections of annotated ontology axioms through SPARQL CONSTRUCT + Tera
+#
+# This vocabulary uses RDF 1.2 triple terms (<<s p o>>) to annotate ontology axioms
+# (class-property-range triples) with code-generation directives. The annotations live
+# INSIDE the ontology, keeping code-gen metadata co-located with domain semantics.
+#
+# Pipeline: ontology (.ttl) → SPARQL CONSTRUCT (.rq) → Tera template (.tera) → code artifact
+
+@prefix cg: <https://ggen.dev/ontology/codegen#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# 1. ONTOLOGY METADATA
+# ============================================================================
+
+<https://ggen.dev/ontology/codegen>
+  a owl:Ontology ;
+  owl:imports
+    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>,
+    <http://www.w3.org/2000/01/rdf-schema#>,
+    <http://www.w3.org/2002/07/owl#>,
+    <http://www.w3.org/2001/XMLSchema#> ;
+  rdfs:label "Codegen Annotations Ontology"@en ;
+  rdfs:comment "RDF 1.2 vocabulary for annotating ontology axioms with code-generation directives using triple terms."@en .
+
+# ============================================================================
+# 2. ANNOTATION PROPERTIES — Language-Specific Type Mappings
+# ============================================================================
+
+cg:rustType
+  a owl:AnnotationProperty ;
+  rdfs:label "Rust type"@en ;
+  rdfs:comment "Rust type mapping for a property range (e.g., String, f64, Vec<u8>, uuid::Uuid)."@en ;
+  rdfs:range xsd:string .
+
+cg:goType
+  a owl:AnnotationProperty ;
+  rdfs:label "Go type"@en ;
+  rdfs:comment "Go type mapping for a property range (e.g., string, float64, []byte, time.Time)."@en ;
+  rdfs:range xsd:string .
+
+cg:elixirType
+  a owl:AnnotationProperty ;
+  rdfs:label "Elixir type"@en ;
+  rdfs:comment "Elixir type mapping for a property range (e.g., String.t, float, [byte], DateTime.t)."@en ;
+  rdfs:range xsd:string .
+
+cg:tsType
+  a owl:AnnotationProperty ;
+  rdfs:label "TypeScript type"@en ;
+  rdfs:comment "TypeScript type mapping for a property range (e.g., string, number, number[], Date)."@en ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# 3. ANNOTATION PROPERTIES — Serialization & Validation
+# ============================================================================
+
+cg:jsonKey
+  a owl:AnnotationProperty ;
+  rdfs:label "JSON key"@en ;
+  rdfs:comment "JSON serialization key for serde rename (e.g., full_name instead of hasName)."@en ;
+  rdfs:range xsd:string .
+
+cg:required
+  a owl:AnnotationProperty ;
+  rdfs:label "required"@en ;
+  rdfs:comment "Whether the field is required (true) or optional (false). Required fields use bare types; optional use Option<T>."@en ;
+  rdfs:range xsd:boolean .
+
+cg:validator
+  a owl:AnnotationProperty ;
+  rdfs:label "validator"@en ;
+  rdfs:comment "Name of a validation function to apply to this field (e.g., validate_email, validate_phone)."@en ;
+  rdfs:range xsd:string .
+
+cg:serdeAttr
+  a owl:AnnotationProperty ;
+  rdfs:label "serde attribute"@en ;
+  rdfs:comment "Additional serde derive attributes for the field (e.g., #[serde(rename = \"id\")])."@en ;
+  rdfs:range xsd:string .
+
+cg:defaultValue
+  a owl:AnnotationProperty ;
+  rdfs:label "default value"@en ;
+  rdfs:comment "Default value expression for the field (e.g., 0, String::new(), false)."@en ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# 4. ANNOTATION PROPERTIES — Metadata & Lifecycle
+# ============================================================================
+
+cg:deprecated
+  a owl:AnnotationProperty ;
+  rdfs:label "deprecated"@en ;
+  rdfs:comment "Whether this type mapping is deprecated (true) or current (false)."@en ;
+  rdfs:range xsd:boolean .
+
+cg:sinceVersion
+  a owl:AnnotationProperty ;
+  rdfs:label "since version"@en ;
+  rdfs:comment "Version when this mapping was introduced (e.g., \"1.0\", \"2.3\")."@en ;
+  rdfs:range xsd:string .
+
+cg:docComment
+  a owl:AnnotationProperty ;
+  rdfs:label "doc comment"@en ;
+  rdfs:comment "Documentation comment for the generated field in the target language."@en ;
+  rdfs:range xsd:string .
+
+# ============================================================================
+# 5. ANNOTATION PROPERTIES — Numeric Constraints
+# ============================================================================
+
+cg:precision
+  a owl:AnnotationProperty ;
+  rdfs:label "precision"@en ;
+  rdfs:comment "Decimal precision for numeric types (number of decimal places, e.g., 2 for currency)."@en ;
+  rdfs:range xsd:integer .
+
+cg:minimum
+  a owl:AnnotationProperty ;
+  rdfs:label "minimum"@en ;
+  rdfs:comment "Minimum allowed value for numeric types."@en ;
+  rdfs:range xsd:decimal .
+
+cg:maximum
+  a owl:AnnotationProperty ;
+  rdfs:label "maximum"@en ;
+  rdfs:comment "Maximum allowed value for numeric types."@en ;
+  rdfs:range xsd:decimal .
+
+# ============================================================================
+# 6. CLASSES
+# ============================================================================
+
+cg:FieldMapping
+  a owl:Class ;
+  rdfs:label "Field Mapping"@en ;
+  rdfs:comment "A single annotated field mapping extracted from an ontology axiom (class-property-range triple)."@en .
+
+cg:StructMapping
+  a owl:Class ;
+  rdfs:label "Struct Mapping"@en ;
+  rdfs:comment "A collection of field mappings for one class, representing a generated struct."@en .
+
+cg:CodegenConfig
+  a owl:Class ;
+  rdfs:label "Codegen Config"@en ;
+  rdfs:comment "Overall configuration for a code-generation run (target language, derive attributes, etc.)."@en .
+
+# ============================================================================
+# 7. EXAMPLE ANNOTATED TRIPLE TERMS (Pattern Demonstration)
+# ============================================================================
+# These examples show how RDF 1.2 triple terms annotate ontology axioms.
+# The triple term <<ex:Person ex:hasName xsd:string>> is the axiom being annotated.
+# Annotations (cg:rustType, cg:goType, etc.) provide code-gen directives.
+
+@prefix ex: <https://ggen.dev/examples/codegen#> .
+
+# Example 1: A required String field with multi-language type mappings
+<<ex:Person ex:hasName xsd:string>>
+  cg:rustType "String" ;
+  cg:goType "string" ;
+  cg:elixirType "String.t" ;
+  cg:tsType "string" ;
+  cg:jsonKey "full_name" ;
+  cg:required true ;
+  cg:docComment "The person's full name" .
+
+# Example 2: A numeric field with precision and bounds
+<<ex:Invoice ex:hasTotal xsd:decimal>>
+  cg:rustType "f64" ;
+  cg:goType "float64" ;
+  cg:elixirType "float" ;
+  cg:tsType "number" ;
+  cg:jsonKey "total" ;
+  cg:required true ;
+  cg:precision 2 ;
+  cg:minimum 0.0 ;
+  cg:docComment "Invoice total amount in USD" .
+
+# Example 3: A deprecated field with version tracking
+<<ex:Person ex:hasPhone xsd:string>>
+  cg:rustType "String" ;
+  cg:goType "string" ;
+  cg:elixirType "String.t" ;
+  cg:tsType "string" ;
+  cg:jsonKey "phone" ;
+  cg:required false ;
+  cg:deprecated true ;
+  cg:sinceVersion "1.0" ;
+  cg:docComment "Phone number (deprecated: use hasContact instead)" .

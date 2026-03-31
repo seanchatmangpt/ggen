@@ -1,0 +1,147 @@
+# type-registry-extract.rq -- SPARQL-star CONSTRUCT query for cross-ontology unified type registry
+# A=mu(O): TypeMapping projections = mu(all ontology triple-term annotations)
+#
+# Extracts type mappings from RDF 1.2 triple terms annotated across multiple
+# ontologies and projects them as flat triples for Tera template consumption.
+#
+# The WHERE clause matches triple terms <<?entity ?prop ?range>> annotated with
+# tr:rustType and related provenance/language-binding properties. The CONSTRUCT
+# output is flat (no triple terms) because oxigraph materializes triple terms
+# as strings like "<<s p o>>" which cannot be destructured by Tera templates
+# consuming Vec<BTreeMap<String, String>>.
+#
+# Includes subqueries for:
+#   - Registry summary: count by source ontology, canonical count, deprecated count
+#   - Source counts: per-ontology mapping count
+#
+# Usage:
+#   sparql --query type-registry-extract.rq \
+#          --data type-registry.ttl \
+#          --data type-registry-example.ttl
+
+PREFIX tr: <https://ggen.dev/ontology/typeregistry#>
+PREFIX ex: <https://ggen.dev/examples/typeregistry#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  # ========================================================================
+  # 1. TYPE MAPPINGS -- Flat triples from triple-term annotations
+  # ========================================================================
+  ?mapping a tr:TypeMapping ;
+    tr:domainEntity ?entityName ;
+    tr:domainProperty ?propName ;
+    tr:domainRange ?rangeName ;
+    tr:sourceName ?srcName ;
+    tr:rustType ?rustType ;
+    tr:goType ?goType ;
+    tr:elixirType ?elixirType ;
+    tr:tsType ?tsType ;
+    tr:pythonType ?pythonType ;
+    tr:confidence ?confidence ;
+    tr:isCanonical ?canonical ;
+    tr:jsonSchema ?jsonSchema ;
+    tr:validationRule ?validation ;
+    tr:sinceVersion ?sinceVersion ;
+    tr:conversionNote ?conversionNote ;
+    tr:deprecatedBy ?deprecatedBy .
+
+  # ========================================================================
+  # 2. REGISTRY SUMMARY -- Aggregated statistics
+  # ========================================================================
+  ?registrySummary a tr:TypeRegistry ;
+    tr:totalMappings ?totalCount ;
+    tr:canonicalCount ?canonicalTotal ;
+    tr:deprecatedCount ?deprecatedTotal .
+
+  # ========================================================================
+  # 3. SOURCE COUNTS -- Per-ontology mapping counts
+  # ========================================================================
+  ?sourceCountNode tr:sourceName ?srcCountName ;
+    tr:mappingCount ?srcCount .
+}
+WHERE {
+  # ========================================================================
+  # TYPE MAPPING EXTRACTION
+  # ========================================================================
+  # Match RDF 1.2 triple terms annotated with tr:rustType (required anchor)
+  << ?entity ?prop ?range >> tr:rustType ?rustType ;
+                                tr:sourceOntologyName ?srcName .
+
+  # Optional language bindings
+  OPTIONAL { << ?entity ?prop ?range >> tr:goType ?goType . }
+  OPTIONAL { << ?entity ?prop ?range >> tr:elixirType ?elixirType . }
+  OPTIONAL { << ?entity ?prop ?range >> tr:tsType ?tsType . }
+  OPTIONAL { << ?entity ?prop ?range >> tr:pythonType ?pythonType . }
+
+  # Optional metadata
+  OPTIONAL { << ?entity ?prop ?range >> tr:confidence ?confidence . }
+  OPTIONAL { << ?entity ?prop ?range >> tr:isCanonical ?canonical . }
+  OPTIONAL { << ?entity ?prop ?range >> tr:jsonSchema ?jsonSchema . }
+  OPTIONAL { << ?entity ?prop ?range >> tr:validationRule ?validation . }
+  OPTIONAL { << ?entity ?prop ?range >> tr:sinceVersion ?sinceVersion . }
+  OPTIONAL { << ?entity ?prop ?range >> tr:conversionNote ?conversionNote . }
+  OPTIONAL { << ?entity ?prop ?range >> tr:deprecatedBy ?depTriple . }
+
+  # Extract local names from IRIs for template-friendly variable names
+  BIND(STRAFTER(STR(?entity), "#") AS ?entityName)
+  BIND(STRAFTER(STR(?prop), "#") AS ?propName)
+  BIND(STRAFTER(STR(?range), "#") AS ?rangeName)
+
+  # Serialize deprecatedBy triple term as a string for Tera consumption
+  BIND(IF(BOUND(?depTriple), STR(?depTriple), "") AS ?deprecatedBy)
+
+  # Generate stable URI for the mapping node
+  BIND(IRI(CONCAT(
+    "https://ggen.dev/typeregistry/mapping/",
+    ?entityName, "/", ?propName, "/", ?srcName
+  )) AS ?mapping)
+
+  # ========================================================================
+  # REGISTRY SUMMARY -- Subquery for aggregate stats
+  # ========================================================================
+  {
+    SELECT ?registrySummary ?totalCount ?canonicalTotal ?deprecatedTotal
+    WHERE {
+      # Count total mappings
+      {
+        SELECT (COUNT(DISTINCT ?m1) AS ?totalCount) WHERE {
+          << ?e1 ?p1 ?r1 >> tr:rustType ?rt1 .
+          BIND(IRI(CONCAT("https://ggen.dev/typeregistry/mapping/dummy")) AS ?m1)
+        }
+      }
+
+      # Count canonical mappings
+      {
+        SELECT (COUNT(DISTINCT ?m2) AS ?canonicalTotal) WHERE {
+          << ?e2 ?p2 ?r2 >> tr:rustType ?rt2 ; tr:isCanonical true .
+          BIND(IRI(CONCAT("https://ggen.dev/typeregistry/mapping/dummy")) AS ?m2)
+        }
+      }
+
+      # Count deprecated mappings (those with tr:deprecatedBy)
+      {
+        SELECT (COUNT(DISTINCT ?m3) AS ?deprecatedTotal) WHERE {
+          << ?e3 ?p3 ?r3 >> tr:rustType ?rt3 ; tr:deprecatedBy ?db3 .
+          BIND(IRI(CONCAT("https://ggen.dev/typeregistry/mapping/dummy")) AS ?m3)
+        }
+      }
+
+      BIND(IRI("https://ggen.dev/typeregistry/summary") AS ?registrySummary)
+    }
+  }
+
+  # ========================================================================
+  # SOURCE COUNTS -- Per-ontology mapping count subquery
+  # ========================================================================
+  {
+    SELECT ?srcCountName (COUNT(DISTINCT ?sc) AS ?srcCount) ?sourceCountNode
+    WHERE {
+      << ?sce ?scp ?scr >> tr:rustType ?scrt ; tr:sourceOntologyName ?srcCountName .
+      BIND(IRI(CONCAT("https://ggen.dev/typeregistry/source-count/", ?srcCountName)) AS ?sc)
+      BIND(IRI(CONCAT("https://ggen.dev/typeregistry/source-count/", ?srcCountName)) AS ?sourceCountNode)
+    }
+    GROUP BY ?srcCountName ?sourceCountNode
+  }
+}
+ORDER BY ?entityName ?propName ?srcName

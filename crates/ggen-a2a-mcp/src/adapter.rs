@@ -88,9 +88,15 @@ impl AgentToToolAdapter {
                 json!({ "result": data })
             }
             _ => {
+                let error_span = tracing::error_span!(
+                    "ggen.error",
+                    error.type = "translation",
+                    error.message = "Unsupported content type for tool response",
+                );
+                let _guard = error_span.enter();
                 return Err(A2aMcpError::Translation(
                     "Unsupported content type for tool response".to_string(),
-                ))
+                ));
             }
         };
 

@@ -1,0 +1,42 @@
+# elixir-a2a/extract-agents.rq
+# Phase μ₂: Extract Elixir A2A agent definitions for template rendering.
+# Returns one row per agent; skills are comma-separated in a single binding.
+# Run after construct-agents.rq normalizes the graph.
+#
+# Required RDF on a2a:Agent nodes:
+#   a2a:name            (string, required)
+#   a2a:description     (string, optional)
+#   a2a:version         (string, optional — default "1.0" applied in template)
+#   a2a:elixirApp       (string, optional — Elixir app module prefix, default "MyApp")
+#   a2a:urlPath         (string, optional — URL path segment, defaults to agentName)
+#   a2a:hasSkill/a2a:name  (per skill, optional)
+
+PREFIX a2a:  <https://ggen.dev/a2a#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT
+  ?agentName
+  ?description
+  ?version
+  ?appModule
+  ?path
+  (GROUP_CONCAT(DISTINCT ?skillName;        SEPARATOR=",")   AS ?skills)
+  (GROUP_CONCAT(DISTINCT ?skillDescription; SEPARATOR="|||") AS ?skillDescriptions)
+WHERE {
+  ?agent a a2a:Agent ;
+         a2a:name ?agentName .
+
+  OPTIONAL { ?agent a2a:description ?description }
+  OPTIONAL { ?agent a2a:version     ?version }
+  OPTIONAL { ?agent a2a:elixirApp   ?appModule }
+  OPTIONAL { ?agent a2a:urlPath     ?path }
+
+  OPTIONAL {
+    ?agent a2a:hasSkill ?skill .
+    ?skill a2a:name     ?skillName .
+    OPTIONAL { ?skill a2a:description ?skillDescription }
+  }
+}
+GROUP BY  ?agentName ?description ?version ?appModule ?path
+ORDER BY  ?agentName

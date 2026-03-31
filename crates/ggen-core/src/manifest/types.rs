@@ -17,9 +17,9 @@ fn default_reasoning_timeout() -> u64 {
     5000
 }
 
-/// Default output directory
+/// Default output directory (project root, relative to ggen.toml)
 fn default_output_dir() -> PathBuf {
-    PathBuf::from("src/generated")
+    PathBuf::from(".")
 }
 
 /// Root manifest structure from ggen.toml
@@ -131,6 +131,18 @@ pub struct GenerationConfig {
     /// Output directory (relative to ggen.toml)
     #[serde(default = "default_output_dir")]
     pub output_dir: PathBuf,
+
+    /// Enable LLM-based auto-generation for skills (default: false)
+    #[serde(default)]
+    pub enable_llm: bool,
+
+    /// LLM provider (groq, openai, anthropic, etc.)
+    #[serde(default)]
+    pub llm_provider: Option<String>,
+
+    /// LLM model identifier
+    #[serde(default)]
+    pub llm_model: Option<String>,
 }
 
 /// A single generation rule
@@ -260,7 +272,7 @@ mod tests {
     fn test_default_values() {
         assert_eq!(default_sparql_timeout(), 5000);
         assert_eq!(default_reasoning_timeout(), 5000);
-        assert_eq!(default_output_dir(), PathBuf::from("src/generated"));
+        assert_eq!(default_output_dir(), PathBuf::from("."));
     }
 
     #[test]

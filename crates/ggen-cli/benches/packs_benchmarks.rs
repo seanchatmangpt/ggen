@@ -613,7 +613,7 @@ fn bench_cache_performance(c: &mut Criterion) {
                         // Simulate cache miss + download
                         let download_time = simulate_download(&pack.packages);
                         let cache_time = simulate_cache_population(&pack.id);
-                        download_time + cache_time.as_nanos()
+                        download_time.saturating_add(cache_time.as_nanos() as u64)
                     }
                 });
             },

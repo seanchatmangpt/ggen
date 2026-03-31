@@ -1,0 +1,34 @@
+{
+  "category": "process_capability",
+  "description": "Process capability analysis with Cp, Cpk, Pp, Ppk indices",
+  "datasets": [
+    {
+      "file": "battery_capacity.csv",
+      "context": "Product Development",
+      "module": "M17",
+      "variables": ["capacity_mah"],
+      "n": 100,
+      "USL": 3600,
+      "LSL": 3400,
+      "target": 3500,
+      "expected_Cp": 0.67,
+      "expected_Cpk": 0.65,
+      "teaching_notes": "Process NOT capable (Cpk < 1.0). Exercise: what changes would improve Cpk to 1.33?"
+    },
+    {
+      "file": "loan_processing_time.csv",
+      "context": "New Process Design",
+      "module": "M17",
+      "variables": ["processing_hours"],
+      "n": 80,
+      "USL": 72,
+      "LSL": 0,
+      "target": 24,
+      "expected_Cp": 1.5,
+      "expected_Cpk": 1.0,
+      "teaching_notes": "One-sided spec. Process barely capable. Exercise: shift mean toward target."
+    }
+  ],
+  "tools_required": ["R", "Minitab", "JMP"],
+  "bloom_level": ["Apply", "Analyze", "Evaluate"]
+}

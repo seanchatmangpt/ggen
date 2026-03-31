@@ -1,0 +1,134 @@
+# SPARQL SELECT Query: Extract TOGAF Phase Agents from FIBO-TOGAF Ontology
+#
+# Returns one row per phase skill with full metadata:
+#   - Agent identity (name, description, system prompt)
+#   - Phase metadata (number, turn range, artifacts)
+#   - FIBO concept mappings (concept URIs and their semantic purpose)
+#   - ARB (Architecture Review Board) gate and reviewer
+#
+# Pipeline: fibo_togaf_core.ttl + fibo_banking_domain.ttl + turn_protocol.ttl
+#           -> this query -> phase-{a-f}.toml.tera + handler.rs.tera + bootstrap.rs.tera
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX a2a: <http://ggen.ai/a2a#>
+PREFIX togaf: <http://ggen.ai/togaf#>
+PREFIX turn: <http://ggen.ai/turn#>
+
+SELECT DISTINCT ?phase_id ?phase_name ?phase_description ?system_prompt
+                ?phase_number ?turn_start ?turn_end ?turns_required
+                ?input_type ?output_type
+                ?artifact ?fibo_concept ?fibo_mapping ?arb_gate ?arb_reviewer
+                ?handoff_to ?approver
+WHERE {
+  # Phase skill definition from core ontology
+  ?skill a a2a:Skill ;
+         rdfs:label ?phase_name ;
+         rdfs:comment ?phase_description .
+
+  # System prompt for LLM integration
+  OPTIONAL { ?skill a2a:hasSystemPrompt ?system_prompt . }
+
+  # Phase metadata
+  ?skill togaf:phaseNumber ?phase_number ;
+         togaf:turnsRequired ?turns_required .
+
+  # Input/output type schemas
+  OPTIONAL { ?skill a2a:hasInputType ?input_type . }
+  OPTIONAL { ?skill a2a:hasOutputType ?output_type . }
+
+  # Artifacts produced by this phase
+  OPTIONAL { ?skill togaf:producesArtifact ?artifact . }
+
+  # FIBO concepts used by this phase
+  OPTIONAL { ?skill togaf:usesFiboConcept ?fibo_concept_raw . }
+
+  # Phase letter identifier (A, B, C, D, E, F)
+  BIND(
+    IF(?phase_number = 1, "A",
+    IF(?phase_number = 2, "B",
+    IF(?phase_number = 3, "C",
+    IF(?phase_number = 4, "D",
+    IF(?phase_number = 5, "E",
+    IF(?phase_number = 6, "F",
+    STR(?phase_number)))))))
+    AS ?phase_id
+  )
+
+  # FIBO concept mapping (strip prefix to get local name for mapping description)
+  BIND(COALESCE(?fibo_concept_raw, "") AS ?fibo_concept)
+  BIND(
+    IF(STRSTARTS(?fibo_concept, "fibo-fnd:"), "Foundation concept: maps to core FIBO financial domain entity",
+    IF(STRSTARTS(?fibo_concept, "fibo-sec:"), "Securities concept: maps to FIBO securities and derivatives",
+    IF(STRSTARTS(?fibo_concept, "fibo-ind:"), "Industry concept: maps to FIBO industry-specific banking entity",
+    IF(STRSTARTS(?fibo_concept, "fibo-lcc:"), "Legal entity concept: maps to FIBO legal entity identifiers",
+    "FIBO concept mapping")))))
+    AS ?fibo_mapping
+  )
+
+  # Turn range from turn protocol
+  OPTIONAL {
+    ?turn_class a turn:Turn ;
+               turn:executedBy ?skill .
+    # We'll use MIN/MAX aggregation in the application layer
+  }
+
+  # Default turn ranges based on turn protocol ontology
+  BIND(
+    IF(?phase_number = 1, 1,
+    IF(?phase_number = 2, 9,
+    IF(?phase_number = 3, 23,
+    IF(?phase_number = 4, 41,
+    IF(?phase_number = 5, 55,
+    IF(?phase_number = 6, 63, 0)))))))
+    AS ?turn_start
+  )
+
+  BIND(
+    IF(?phase_number = 1, 8,
+    IF(?phase_number = 2, 22,
+    IF(?phase_number = 3, 40,
+    IF(?phase_number = 4, 54,
+    IF(?phase_number = 5, 62,
+    IF(?phase_number = 6, 70, 0)))))))
+    AS ?turn_end
+  )
+
+  # ARB gate at midpoint of phase turn range
+  BIND(
+    IF(?phase_number = 1, 5,
+    IF(?phase_number = 2, 15,
+    IF(?phase_number = 3, 30,
+    IF(?phase_number = 4, 48,
+    IF(?phase_number = 5, 58,
+    IF(?phase_number = 6, 66, 0)))))))
+    AS ?arb_gate
+  )
+
+  # ARB reviewer based on phase
+  BIND("Chief Architect" AS ?arb_reviewer)
+
+  # Handoff: next phase
+  BIND(
+    IF(?phase_number = 1, "B",
+    IF(?phase_number = 2, "C",
+    IF(?phase_number = 3, "D",
+    IF(?phase_number = 4, "E",
+    IF(?phase_number = 5, "F",
+    "complete")))))
+    AS ?handoff_to
+  )
+
+  # Approvers at phase end
+  BIND(
+    IF(?phase_number = 1, "Chief Architect",
+    IF(?phase_number = 2, "Chief Architect, Compliance Officer",
+    IF(?phase_number = 3, "Chief Architect, Compliance Officer",
+    IF(?phase_number = 4, "Chief Architect",
+    IF(?phase_number = 5, "Chief Architect, Compliance Officer",
+    "Chief Architect, Executive Sponsor"))))))
+    AS ?approver
+  )
+}
+ORDER BY ?phase_number ?fibo_concept

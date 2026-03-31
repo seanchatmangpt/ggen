@@ -1,0 +1,24 @@
+groups:
+  - id: span.ggen.a2a.message
+    type: span
+    stability: development
+    brief: A2A agent-to-agent message exchange in ggen.
+    span_kind: internal
+    attributes:
+      - ref: a2a.message_id
+        requirement_level: required
+      - ref: a2a.operation_name
+        requirement_level: required
+      - ref: a2a.correlation_id
+        requirement_level: recommended
+      - ref: a2a.source
+        requirement_level: recommended
+      - ref: a2a.target
+        requirement_level: recommended
+      - ref: a2a.causation_chain
+        requirement_level: recommended
+      - ref: a2a.message_type
+        requirement_level: recommended
+      - ref: error.type
+        requirement_level:
+          conditionally_required: "when the A2A message exchange failed"

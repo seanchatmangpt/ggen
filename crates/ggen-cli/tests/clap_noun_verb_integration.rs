@@ -542,7 +542,7 @@ files:
 
     ggen()
         .arg("template")
-        .arg("generate-tree")
+        .arg("generate_tree")
         .arg("--template")
         .arg(tree_file.to_str().unwrap())
         .arg("--output")
@@ -586,12 +586,12 @@ files:
     let tree_file = temp_dir.path().join("tree.yaml");
     fs::write(&tree_file, tree_spec).unwrap();
 
-    let output_dir = temp_dir.path().join("generated");
+    let output_dir = temp_dir.path().join("output");
     fs::create_dir_all(&output_dir).unwrap();
 
     ggen()
         .arg("template")
-        .arg("generate-tree")
+        .arg("generate_tree")
         .arg("--template")
         .arg(tree_file.to_str().unwrap())
         .arg("--output")
@@ -617,7 +617,7 @@ fn test_generated_cargo_toml_has_clap_dependency() {
 
     ggen()
         .arg("template")
-        .arg("generate-tree")
+        .arg("generate_tree")
         .arg("--template")
         .arg(tree_file.to_str().unwrap())
         .arg("--output")
@@ -651,7 +651,7 @@ fn test_generated_cli_code_matches_rdf_spec() {
 
     ggen()
         .arg("template")
-        .arg("generate-tree")
+        .arg("generate_tree")
         .arg("--template")
         .arg(tree_file.to_str().unwrap())
         .arg("--output")
@@ -695,7 +695,7 @@ fn test_e2e_ttl_to_working_cli_project() {
 
     ggen()
         .arg("template")
-        .arg("generate-tree")
+        .arg("generate_tree")
         .arg("--template")
         .arg(tree_file.to_str().unwrap())
         .arg("--output")
@@ -732,7 +732,7 @@ fn test_e2e_generated_project_compiles() {
 
     ggen()
         .arg("template")
-        .arg("generate-tree")
+        .arg("generate_tree")
         .arg("--template")
         .arg(tree_file.to_str().unwrap())
         .arg("--output")
@@ -762,7 +762,7 @@ fn test_e2e_generated_cli_help_works() {
 
     ggen()
         .arg("template")
-        .arg("generate-tree")
+        .arg("generate_tree")
         .arg("--template")
         .arg(tree_file.to_str().unwrap())
         .arg("--output")
@@ -794,7 +794,7 @@ fn test_e2e_generated_commands_execute() {
 
     ggen()
         .arg("template")
-        .arg("generate-tree")
+        .arg("generate_tree")
         .arg("--template")
         .arg(tree_file.to_str().unwrap())
         .arg("--output")
@@ -836,7 +836,7 @@ fn test_performance_generation_under_one_second() {
 
     ggen()
         .arg("template")
-        .arg("generate-tree")
+        .arg("generate_tree")
         .arg("--template")
         .arg(tree_file.to_str().unwrap())
         .arg("--output")

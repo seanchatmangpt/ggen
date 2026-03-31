@@ -139,11 +139,7 @@ impl CodeownersGenerator {
     pub fn new() -> Self {
         Self {
             owners_files: Vec::new(),
-            base_dirs: vec![
-                "ontology".into(),
-                "src/generated".into(),
-                "src/domain".into(),
-            ],
+            base_dirs: vec!["ontology".into(), ".".into(), "src/domain".into()],
         }
     }
 

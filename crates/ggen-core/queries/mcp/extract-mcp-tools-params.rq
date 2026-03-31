@@ -1,0 +1,63 @@
+# SPARQL SELECT Query: Extract MCP Tools with Parameters (one row per tool, params aggregated)
+#
+# Returns one row per tool with all parameters aggregated as pipe-delimited strings.
+# Template parses the aggregated strings to reconstruct param arrays.
+#
+# ggen pipeline: renders template ONCE PER ROW. Each row = one tool with all its params.
+# sparql_results contains ALL rows (all tools) for the server struct generation.
+#
+# Pipeline: mcp-a2a-protocol.ttl + mcp-a2a-protocol-example.ttl -> this query -> tool_handler.rs.tera
+
+PREFIX mcp: <https://ggen.dev/ontology/mcp#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT
+  ?server_name
+  ?server_version
+  ?server_description
+  ?transport_type
+  ?tool_name
+  ?tool_description
+  (GROUP_CONCAT(DISTINCT ?param_name;        SEPARATOR="||") AS ?param_names)
+  (GROUP_CONCAT(DISTINCT ?param_description; SEPARATOR="||") AS ?param_descriptions)
+  (GROUP_CONCAT(DISTINCT ?rust_type;         SEPARATOR="||") AS ?rust_types)
+  (GROUP_CONCAT(DISTINCT ?json_schema;       SEPARATOR="||") AS ?json_schemas)
+  (GROUP_CONCAT(DISTINCT ?is_required;       SEPARATOR="||") AS ?is_requireds)
+  (GROUP_CONCAT(DISTINCT ?default_value;     SEPARATOR="||") AS ?default_values)
+  (GROUP_CONCAT(DISTINCT ?enum_values;       SEPARATOR="||") AS ?enum_values_list)
+WHERE {
+  # Server metadata (same for all rows)
+  ?server a mcp:McpsServer ;
+    mcp:serverName ?server_name ;
+    mcp:serverVersion ?server_version ;
+    mcp:serverDescription ?server_description ;
+    mcp:hasTransport ?transport .
+  ?transport rdfs:label ?transport_type .
+
+  # Tool-level data
+  ?tool a mcp:Tool ;
+    mcp:toolName ?tool_name ;
+    mcp:toolDescription ?tool_description .
+
+  # Parameters (optional — tool may have zero params)
+  OPTIONAL {
+    << ?tool mcp:hasParameter ?param >>
+      mcp:paramName ?param_name ;
+      mcp:rustType ?rust_type ;
+      mcp:jsonSchema ?json_schema .
+
+    OPTIONAL { << ?tool mcp:hasParameter ?param >> mcp:paramDescription ?param_desc_raw . }
+    BIND(COALESCE(?param_desc_raw, "") AS ?param_description)
+
+    OPTIONAL { << ?tool mcp:hasParameter ?param >> mcp:required ?req . }
+    BIND(COALESCE(?req, "false") AS ?is_required)
+
+    OPTIONAL { << ?tool mcp:hasParameter ?param >> mcp:defaultValue ?dv . }
+    BIND(COALESCE(?dv, "") AS ?default_value)
+
+    OPTIONAL { << ?tool mcp:hasParameter ?param >> mcp:enumValues ?ev . }
+    BIND(COALESCE(?ev, "") AS ?enum_values)
+  }
+}
+GROUP BY ?server_name ?server_version ?server_description ?transport_type ?tool_name ?tool_description
+ORDER BY ?tool_name

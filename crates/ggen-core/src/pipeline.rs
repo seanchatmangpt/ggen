@@ -69,7 +69,7 @@
 use crate::graph::{build_prolog, Graph};
 use crate::register;
 use crate::simple_tracing::SimpleTracer;
-use crate::template::Frontmatter;
+use crate::template_types::Frontmatter;
 use ggen_utils::error::{Error, Result};
 use oxigraph::sparql::QueryResults;
 use serde_json::Value;
@@ -102,6 +102,11 @@ impl Pipeline {
             tera,
             graph: Graph::new()?,
         })
+    }
+
+    /// Get the number of triples in the pipeline's RDF graph
+    pub fn graph_len(&self) -> usize {
+        self.graph.len()
     }
 
     /// Get mutable reference to the Tera instance
@@ -148,7 +153,7 @@ impl Pipeline {
         // } // Temporarily disabled
 
         // Parse template to get frontmatter
-        let mut template = crate::template::Template::parse(&input)?;
+        let mut template = crate::template_types::Template::parse(&input)?;
         // if SimpleTracer::is_enabled() {
         //     SimpleTracer::trace(crate::simple_tracing::TraceLevel::Debug,
         //         &format!("Template parsed: {} lines", body_lines), Some("parsing"));
@@ -334,7 +339,27 @@ impl TeraFunction for SparqlFn {
                 }
                 serde_json::Value::Array(rows)
             }
-            QueryResults::Graph(_) => serde_json::Value::Array(Vec::new()), // Graph results not supported in templates
+            QueryResults::Graph(triples) => {
+                let mut rows = Vec::new();
+                for triple_result in triples {
+                    let triple = triple_result.map_err(|e| tera::Error::msg(e.to_string()))?;
+                    let mut row = serde_json::Map::new();
+                    row.insert(
+                        "subject".to_string(),
+                        serde_json::Value::String(triple.subject.to_string()),
+                    );
+                    row.insert(
+                        "predicate".to_string(),
+                        serde_json::Value::String(triple.predicate.to_string()),
+                    );
+                    row.insert(
+                        "object".to_string(),
+                        serde_json::Value::String(triple.object.to_string()),
+                    );
+                    rows.push(serde_json::Value::Object(row));
+                }
+                serde_json::Value::Array(rows)
+            }
         };
 
         // Handle var extraction if requested
@@ -379,6 +404,26 @@ pub struct Plan {
 }
 
 impl Plan {
+    /// Get the rendered content of the plan
+    pub fn content(&self) -> &str {
+        &self.content
+    }
+
+    /// Get the output path where the plan will write
+    pub fn output_path(&self) -> &std::path::Path {
+        &self.output_path
+    }
+
+    /// Get the template path that produced this plan
+    pub fn template_path(&self) -> &std::path::Path {
+        &self.template_path
+    }
+
+    /// Whether this is a dry-run plan
+    pub fn is_dry_run(&self) -> bool {
+        self.dry_run
+    }
+
     /// Apply the plan by writing the content to the output path
     pub fn apply(&self) -> Result<()> {
         if self.dry_run {
@@ -813,7 +858,7 @@ Hello {{ name }}"#;
             template_path: temp_dir.path().join("test.tmpl"),
             output_path: output_path.clone(),
             content: "Test content".to_string(),
-            frontmatter: crate::template::Frontmatter::default(),
+            frontmatter: crate::template_types::Frontmatter::default(),
             dry_run: true,
         };
 
@@ -834,7 +879,7 @@ Hello {{ name }}"#;
             template_path: temp_dir.path().join("test.tmpl"),
             output_path: output_path.clone(),
             content: "Test content".to_string(),
-            frontmatter: crate::template::Frontmatter::default(),
+            frontmatter: crate::template_types::Frontmatter::default(),
             dry_run: false,
         };
 
@@ -856,7 +901,7 @@ Hello {{ name }}"#;
         // Create existing file
         std::fs::write(&output_path, "Original content")?;
 
-        let mut frontmatter = crate::template::Frontmatter::default();
+        let mut frontmatter = crate::template_types::Frontmatter::default();
         frontmatter.unless_exists = true;
 
         let plan = Plan {

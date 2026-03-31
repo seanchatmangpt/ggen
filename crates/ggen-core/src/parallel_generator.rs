@@ -11,7 +11,7 @@ use walkdir::WalkDir;
 
 use crate::pipeline::Pipeline;
 use crate::streaming_generator::GenerationResult;
-use crate::template::Template;
+use crate::template_types::Template;
 
 /// Parallel template generator using Rayon for bulk operations
 ///

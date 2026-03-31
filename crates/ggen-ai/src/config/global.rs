@@ -316,8 +316,13 @@ impl GlobalLlmConfig {
     }
 
     /// Check if we're in test mode
+    ///
+    /// Note: This only checks GGEN_TEST_MODE env var at runtime.
+    /// Tests can use real API clients when GROQ_API_KEY is present.
+    /// Tests that want mocks should either call create_mock_client() explicitly
+    /// or set GGEN_TEST_MODE=1.
     pub fn is_test_mode(&self) -> bool {
-        std::env::var("GGEN_TEST_MODE").is_ok() || cfg!(test)
+        std::env::var("GGEN_TEST_MODE").is_ok()
     }
 
     /// Create a client appropriate for the current context (test vs production)

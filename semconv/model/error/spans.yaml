@@ -1,0 +1,13 @@
+groups:
+  - id: span.ggen.error
+    type: span
+    stability: development
+    brief: Error span for ggen operation failures.
+    span_kind: internal
+    attributes:
+      - ref: error
+        requirement_level: recommended
+      - ref: error.type
+        requirement_level: recommended
+      - ref: error.message
+        requirement_level: recommended
