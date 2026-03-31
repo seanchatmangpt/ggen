@@ -11,7 +11,7 @@ license = "MIT"
 # Templates specific to core crate
 [templates]
 source_dir = "../../templates/core"
-output_dir = "src/generated"
+output_dir = "src"
 backup_enabled = true
 
 [templates.rust]

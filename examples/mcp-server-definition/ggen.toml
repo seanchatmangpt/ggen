@@ -14,7 +14,7 @@ rdfs = "http://www.w3.org/2000/01/rdf-schema#"
 xsd  = "http://www.w3.org/2001/XMLSchema#"
 
 [generation]
-output_dir = "generated"
+output_dir = "."
 
 # ── Rule 1: MCP server Rust source ───────────────────────────────────────────
 [[generation.rules]]

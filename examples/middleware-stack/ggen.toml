@@ -39,7 +39,7 @@ WHERE {
 ORDER BY ?order
 """ }
 template    = { file = "templates/middleware.tera" }
-output_file = "generated/middleware.js"
+output_file = "middleware.js"
 mode        = "Overwrite"
 
 # ── Rule 2: middleware.config.json ────────────────────────────────────────────
@@ -63,5 +63,5 @@ WHERE {
 ORDER BY ?order
 """ }
 template    = { file = "templates/config.tera" }
-output_file = "generated/middleware.config.json"
+output_file = "middleware.config.json"
 mode        = "Overwrite"

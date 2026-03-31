@@ -39,7 +39,7 @@ WHERE {
 ORDER BY ?capOrder ?attrName
 """ }
 template    = { file = "templates/semconv.yaml.tera" }
-output_file = "generated/semconv.yaml"
+output_file = "semconv.yaml"
 mode        = "Overwrite"
 
 # ── Rule 2: MCP server Rust source ────────────────────────────────────────────
@@ -64,7 +64,7 @@ WHERE {
 ORDER BY ?order
 """ }
 template    = { file = "templates/mcp_server.rs.tera" }
-output_file = "generated/mcp_server.rs"
+output_file = "mcp_server.rs"
 mode        = "Overwrite"
 
 # ── Rule 3: A2A agent Rust source ─────────────────────────────────────────────
@@ -96,7 +96,7 @@ WHERE {
 ORDER BY ?order
 """ }
 template    = { file = "templates/a2a_agent.rs.tera" }
-output_file = "generated/a2a_agent.rs"
+output_file = "a2a_agent.rs"
 mode        = "Overwrite"
 
 # ── Rule 3b: Agent TOML config (AgentBuilder) ───────────────────────────────────
@@ -120,7 +120,7 @@ WHERE {
 ORDER BY ?order
 """ }
 template    = { file = "templates/agent.toml.tera" }
-output_file = "generated/agent.toml"
+output_file = "agent.toml"
 mode        = "Overwrite"
 
 # ── Rule 4: Docker Compose ────────────────────────────────────────────────────
@@ -143,7 +143,7 @@ WHERE {
 ORDER BY ?serviceOrder
 """ }
 template    = { file = "templates/docker-compose.yml.tera" }
-output_file = "generated/docker-compose.yml"
+output_file = "docker-compose.yml"
 mode        = "Overwrite"
 
 # ── Rule 5: Agent card JSON ───────────────────────────────────────────────────
@@ -171,5 +171,5 @@ WHERE {
 ORDER BY ?order
 """ }
 template    = { file = "templates/agent_card.json.tera" }
-output_file = "generated/agent_card.json"
+output_file = "agent_card.json"
 mode        = "Overwrite"

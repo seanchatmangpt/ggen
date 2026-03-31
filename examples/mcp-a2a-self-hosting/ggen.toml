@@ -8,7 +8,7 @@ source = "ontology/"
 format = "turtle"
 
 [generation]
-output_dir = "src/generated"
+output_dir = "src"
 templates_dir = "templates/"
 
 [generation.rules]

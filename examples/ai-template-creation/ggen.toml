@@ -52,7 +52,7 @@ WHERE {
 ORDER BY ?workflowName
 """ }
 template = { file = "templates/ai-workflow-guide.tera" }
-output_file = "generated/AI_WORKFLOW_GUIDE.md"
+output_file = "AI_WORKFLOW_GUIDE.md"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -70,7 +70,7 @@ WHERE {
 ORDER BY ?category ?promptName
 """ }
 template = { file = "templates/prompt-library.tera" }
-output_file = "generated/PROMPT_LIBRARY.md"
+output_file = "PROMPT_LIBRARY.md"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -87,7 +87,7 @@ WHERE {
 ORDER BY ?responseName
 """ }
 template = { file = "templates/mock-responses.tera" }
-output_file = "generated/MOCK_RESPONSES.md"
+output_file = "MOCK_RESPONSES.md"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -105,7 +105,7 @@ WHERE {
 ORDER BY ?ruleName
 """ }
 template = { file = "templates/validation-rules.tera" }
-output_file = "generated/VALIDATION_RULES.md"
+output_file = "VALIDATION_RULES.md"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -124,7 +124,7 @@ WHERE {
 ORDER BY ?workflowName ?stepNum
 """ }
 template = { file = "templates/iterative-workflow.tera" }
-output_file = "generated/ITERATIVE_WORKFLOW.md"
+output_file = "ITERATIVE_WORKFLOW.md"
 mode = "Overwrite"
 
 [[generation.rules]]
@@ -143,7 +143,7 @@ WHERE {
 ORDER BY ?command
 """ }
 template = { file = "templates/command-reference.tera" }
-output_file = "generated/COMMAND_REFERENCE.md"
+output_file = "COMMAND_REFERENCE.md"
 mode = "Overwrite"
 
 [validation]

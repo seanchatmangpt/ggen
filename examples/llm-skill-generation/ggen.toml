@@ -12,7 +12,7 @@ imports = []
 base_iri = "http://example.org/skills#"
 
 [generation]
-output_dir = "generated"
+output_dir = "."
 enable_llm = true
 llm_provider = "groq"
 llm_model = "llama-3.3-70b-versatile"

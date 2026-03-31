@@ -40,7 +40,7 @@ WHERE {
 ORDER BY ?groupId ?attrName
 """ }
 template    = { file = "templates/semconv-registry.yaml.tera" }
-output_file = "generated/semconv-registry.yaml"
+output_file = "semconv-registry.yaml"
 mode        = "Overwrite"
 
 # ── Rule 2: Rust telemetry constants ─────────────────────────────────────────
@@ -62,7 +62,7 @@ WHERE {
 ORDER BY ?groupId ?attrName
 """ }
 template    = { file = "templates/telemetry-constants.rs.tera" }
-output_file = "generated/telemetry_constants.rs"
+output_file = "telemetry_constants.rs"
 mode        = "Overwrite"
 
 # ── Rule 3: Live-check shell script ──────────────────────────────────────────
@@ -80,5 +80,5 @@ WHERE {
 ORDER BY ?groupId
 """ }
 template    = { file = "templates/live-check.sh.tera" }
-output_file = "generated/live-check.sh"
+output_file = "live-check.sh"
 mode        = "Overwrite"

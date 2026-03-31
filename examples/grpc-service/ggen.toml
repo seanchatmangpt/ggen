@@ -38,7 +38,7 @@ WHERE {
 ORDER BY ?messageName ?fieldNumber
 """ }
 template    = { file = "templates/proto.tera" }
-output_file = "generated/messages.proto"
+output_file = "messages.proto"
 mode        = "Overwrite"
 
 # ── Rule 2: Service definitions ───────────────────────────────────────────────
@@ -64,5 +64,5 @@ WHERE {
 ORDER BY ?serviceName ?methodName
 """ }
 template    = { file = "templates/services.tera" }
-output_file = "generated/services.proto"
+output_file = "services.proto"
 mode        = "Overwrite"
