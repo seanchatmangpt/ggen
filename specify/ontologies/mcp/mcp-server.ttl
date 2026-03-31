@@ -1,0 +1,205 @@
+# ============================================================================
+# ggen MCP Server Definition
+# ============================================================================
+#
+# Example MCP server demonstrating all ontology classes and properties from
+# specify/ontologies/mcp/mcp.ttl. This server definition is used as the
+# primary input for MCP server scaffolding code generation.
+#
+# Base URI: http://ggen.dev/mcp/server/ggen#
+# ============================================================================
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix mcp: <http://ggen.dev/mcp#> .
+@prefix rust: <http://ggen.dev/rust#> .
+@prefix ex: <http://ggen.dev/mcp/server/ggen#> .
+
+# ============================================================================
+# SERVER
+# ============================================================================
+
+ex:GgenMcpServer a mcp:McpServer ;
+    mcp:serverName "ggen-mcp" ;
+    mcp:serverVersion "6.0.1" ;
+    mcp:hasProtocolVersion "2025-11-25" ;
+    mcp:hasCapabilitySet ex:GgenCapabilitySet ;
+    mcp:hasTransport mcp:StdioTransport ;
+    mcp:hasTool ex:ValidatePipelineTool ;
+    mcp:hasTool ex:SyncTool ;
+    mcp:hasTool ex:QueryOntologyTool ;
+    mcp:hasResource ex:ConfigResource ;
+    mcp:hasResource ex:OntologyResource ;
+    mcp:hasPrompt ex:ExplainRdfSchemaPrompt ;
+    mcp:hasPrompt ex:GenerateFromExamplePrompt ;
+    mcp:hasCompletionProvider ex:SyncTargetCompletion ;
+    mcp:hasLoggingPolicy ex:GgenLoggingPolicy ;
+    rust:implements "ggen_a2a_mcp::GgenServer" .
+
+# ============================================================================
+# CAPABILITY SET
+# ============================================================================
+
+ex:GgenCapabilitySet a mcp:CapabilitySet ;
+    mcp:tools "true"^^xsd:boolean ;
+    mcp:resources "true"^^xsd:boolean ;
+    mcp:prompts "true"^^xsd:boolean ;
+    mcp:completions "true"^^xsd:boolean ;
+    mcp:logging "true"^^xsd:boolean ;
+    mcp:subscriptions "false"^^xsd:boolean ;
+    rdfs:comment "Full MCP capabilities enabled except resource change subscriptions" .
+
+# ============================================================================
+# TOOLS
+# ============================================================================
+
+ex:ValidatePipelineTool a mcp:Tool ;
+    mcp:name "validate_pipeline" ;
+    mcp:description "Runs the full quality gate pipeline (compiler, test, lint, SHACL) against the current project and returns a structured report with pass/fail status per gate." ;
+    mcp:hasArgument ex:ValidatePipelinePathArg ;
+    mcp:hasArgument ex:ValidatePipelineStrictArg ;
+    mcp:implementedBy "ggen_a2a_mcp::tools::validate_pipeline" .
+
+ex:ValidatePipelinePathArg a mcp:ToolArgument ;
+    mcp:argumentName "project_path" ;
+    mcp:argumentType "string" ;
+    mcp:argumentDescription "Absolute path to the project directory to validate" ;
+    mcp:isRequired "true"^^xsd:boolean ;
+    mcp:argumentDefault "." .
+
+ex:ValidatePipelineStrictArg a mcp:ToolArgument ;
+    mcp:argumentName "strict" ;
+    mcp:argumentType "boolean" ;
+    mcp:argumentDescription "Fail immediately on first gate failure instead of collecting all results" ;
+    mcp:isRequired "false"^^xsd:boolean ;
+    mcp:argumentDefault "false" .
+
+ex:SyncTool a mcp:Tool ;
+    mcp:name "sync" ;
+    mcp:description "Executes the full five-stage code generation pipeline (load, extract, generate, validate, emit) from RDF ontology specifications. Returns generated file paths and cryptographic receipts." ;
+    mcp:hasArgument ex:SyncOntologyArg ;
+    mcp:hasArgument ex:SyncTargetArg ;
+    mcp:hasArgument ex:SyncAuditArg ;
+    mcp:implementedBy "ggen_a2a_mcp::tools::sync" .
+
+ex:SyncOntologyArg a mcp:ToolArgument ;
+    mcp:argumentName "ontology_path" ;
+    mcp:argumentType "string" ;
+    mcp:argumentDescription "Path to the RDF ontology file (.ttl) to process" ;
+    mcp:isRequired "true"^^xsd:boolean .
+
+ex:SyncTargetArg a mcp:ToolArgument ;
+    mcp:argumentName "target" ;
+    mcp:argumentType "string" ;
+    mcp:argumentDescription "Generation target: 'rust', 'elixir', or 'full'" ;
+    mcp:isRequired "false"^^xsd:boolean ;
+    mcp:argumentDefault "rust" .
+
+ex:SyncAuditArg a mcp:ToolArgument ;
+    mcp:argumentName "audit" ;
+    mcp:argumentType "boolean" ;
+    mcp:argumentDescription "Enable cryptographic receipt generation for traceability" ;
+    mcp:isRequired "false"^^xsd:boolean ;
+    mcp:argumentDefault "true" .
+
+ex:QueryOntologyTool a mcp:Tool ;
+    mcp:name "query_ontology" ;
+    mcp:description "Executes a SPARQL query against the loaded ontology triplestore and returns matching triples as structured results." ;
+    mcp:hasArgument ex:QueryOntologySparqlArg ;
+    mcp:implementedBy "ggen_a2a_mcp::tools::query_ontology" .
+
+ex:QueryOntologySparqlArg a mcp:ToolArgument ;
+    mcp:argumentName "sparql" ;
+    mcp:argumentType "string" ;
+    mcp:argumentDescription "SPARQL SELECT or CONSTRUCT query to execute against the triplestore" ;
+    mcp:isRequired "true"^^xsd:boolean .
+
+# ============================================================================
+# RESOURCES
+# ============================================================================
+
+ex:ConfigResource a mcp:Resource ;
+    mcp:uri "ggen://config" ;
+    mcp:resourceName "Project Configuration" ;
+    mcp:resourceDescription "The current ggen.toml project configuration including AI provider settings, MCP endpoints, template paths, and A2A agent definitions" ;
+    mcp:mimeType "application/json" ;
+    mcp:resourceImplementedBy "ggen_a2a_mcp::resources::config" .
+
+ex:OntologyResource a mcp:Resource ;
+    mcp:uri "ggen://ontology" ;
+    mcp:resourceName "Loaded Ontology" ;
+    mcp:resourceDescription "The currently loaded RDF ontology as Turtle serialization, including all classes, properties, and individuals in the triplestore" ;
+    mcp:mimeType "text/turtle" ;
+    mcp:resourceImplementedBy "ggen_a2a_mcp::resources::ontology" .
+
+# ============================================================================
+# RESOURCE TEMPLATES
+# ============================================================================
+
+ex:ExampleResourceTemplate a mcp:ResourceTemplate ;
+    mcp:templateName "Example Files" ;
+    mcp:templateDescription "Accesses example specification files from the .specify/ directory by name. Returns the Turtle content of the matching file." ;
+    mcp:uriTemplate "ggen://examples/{name}" ;
+    mcp:templateMimeType "text/turtle" .
+
+# ============================================================================
+# PROMPTS
+# ============================================================================
+
+ex:ExplainRdfSchemaPrompt a mcp:Prompt ;
+    mcp:promptName "explain_rdf_schema" ;
+    mcp:promptDescription "Generates a human-readable explanation of an RDF schema, including class hierarchies, property domains and ranges, and cardinality constraints" ;
+    mcp:hasPromptArgument ex:ExplainRdfSchemaFileArg ;
+    mcp:hasPromptArgument ex:ExplainRdfSchemaDepthArg ;
+    mcp:promptImplementedBy "ggen_a2a_mcp::prompts::explain_rdf_schema" .
+
+ex:ExplainRdfSchemaFileArg a mcp:PromptArgument ;
+    mcp:promptArgumentName "file_path" ;
+    mcp:promptArgumentType "string" ;
+    mcp:promptArgumentDescription "Path to the .ttl file containing the RDF schema to explain" ;
+    mcp:promptIsRequired "true"^^xsd:boolean .
+
+ex:ExplainRdfSchemaDepthArg a mcp:PromptArgument ;
+    mcp:promptArgumentName "depth" ;
+    mcp:promptArgumentType "string" ;
+    mcp:promptArgumentDescription "Level of detail: 'summary', 'full', or 'detailed'" ;
+    mcp:promptIsRequired "false"^^xsd:boolean .
+
+ex:GenerateFromExamplePrompt a mcp:Prompt ;
+    mcp:promptName "generate_from_example" ;
+    mcp:promptDescription "Produces a new RDF ontology definition based on an existing example, adapting the structure and patterns to a new domain specified by the user" ;
+    mcp:hasPromptArgument ex:GenerateFromExampleSourceArg ;
+    mcp:hasPromptArgument ex:GenerateFromExampleDomainArg ;
+    mcp:promptImplementedBy "ggen_a2a_mcp::prompts::generate_from_example" .
+
+ex:GenerateFromExampleSourceArg a mcp:PromptArgument ;
+    mcp:promptArgumentName "source_example" ;
+    mcp:promptArgumentType "string" ;
+    mcp:promptArgumentDescription "URI of the example ontology to use as a structural template" ;
+    mcp:promptIsRequired "true"^^xsd:boolean .
+
+ex:GenerateFromExampleDomainArg a mcp:PromptArgument ;
+    mcp:promptArgumentName "target_domain" ;
+    mcp:promptArgumentType "string" ;
+    mcp:promptArgumentDescription "Description of the target domain for the generated ontology" ;
+    mcp:promptIsRequired "true"^^xsd:boolean .
+
+# ============================================================================
+# COMPLETION PROVIDER
+# ============================================================================
+
+ex:SyncTargetCompletion a mcp:CompletionProvider ;
+    mcp:completionRefType "tool" ;
+    mcp:completionRefName "sync" ;
+    mcp:completionArgument "target" ;
+    mcp:completionValues "rust,elixir,full" ;
+    rdfs:comment "Provides autocompletion for the 'target' argument of the 'sync' tool" .
+
+# ============================================================================
+# LOGGING POLICY
+# ============================================================================
+
+ex:GgenLoggingPolicy a mcp:LoggingPolicy ;
+    mcp:defaultLevel "info" ;
+    mcp:supportedLevels "debug,info,notice,warning,error,critical,alert,emergency" .
