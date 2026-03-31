@@ -37,8 +37,7 @@ pub mod wizard;
 pub mod ai;
 pub mod construct;
 pub mod graph;
-pub mod hook;
-pub mod marketplace; // Re-enabled with slim version (4 core verbs: search, install, list, publish)
+// marketplace and hook modules removed — migrated to separate project
 pub mod mcp;
 pub mod ontology;
 pub mod packs;
