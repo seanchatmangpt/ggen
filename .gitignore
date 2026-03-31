@@ -955,10 +955,7 @@ hive-mind-prompt-*.txt
 # Wreckit local config (may contain secrets)
 .wreckit/config.local.json
 
-# Temporary test data files (RDF Turtle, templates)
-*.ttl
-# But allow marketplace package ontologies
-!marketplace/packages/**/*.ttl
+# Temporary test data files (templates)
 test-*.tmpl
 hello.tmpl
 bash.tmpl

@@ -1,0 +1,456 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix mcp: <http://ggen.dev/mcp#> .
+@prefix rust: <http://ggen.dev/rust#> .
+
+# ============================================================================
+# MCP 2025-11-25 ONTOLOGY
+# ============================================================================
+#
+# Pure Model Context Protocol ontology based on the MCP 2025-11-25 spec.
+# Covers servers, tools, resources, prompts, completions, logging, and
+# transport mechanisms. Used to generate Rust MCP server scaffolding.
+#
+# Prefix conventions:
+#   mcp:  <http://ggen.dev/mcp#>   — MCP domain concepts
+#   rust: <http://ggen.dev/rust#>  — Rust implementation references
+# ============================================================================
+
+# Ontology Definition
+mcp:McpOntology a owl:Ontology ;
+    rdfs:label "MCP 2025-11-25 Ontology" ;
+    rdfs:comment "Pure Model Context Protocol ontology for MCP server generation" ;
+    dcterms:created "2026-03-31"^^xsd:date ;
+    owl:versionInfo "2025-11-25" .
+
+# ============================================================================
+# CORE CLASSES
+# ============================================================================
+
+mcp:McpServer a owl:Class ;
+    rdfs:label "MCP Server" ;
+    rdfs:comment "A Model Context Protocol server exposing tools, resources, prompts, and other capabilities" ;
+    rust:implements "rmcp::ServerHandler" .
+
+mcp:CapabilitySet a owl:Class ;
+    rdfs:label "Capability Set" ;
+    rdfs:comment "Declaration of which protocol capabilities a server supports (tools, resources, prompts, completions, logging)" ;
+    rust:implements "rmcp::model::ServerCapabilities" .
+
+mcp:Transport a owl:Class ;
+    rdfs:label "Transport" ;
+    rdfs:comment "Communication transport mechanism for MCP message passing (stdio, HTTP, SSE, WebSocket)" ;
+    rust:implements "rmcp::transport::Transport" .
+
+mcp:Tool a owl:Class ;
+    rdfs:label "Tool" ;
+    rdfs:comment "An invokable function exposed by the MCP server for client use" ;
+    rust:implements "rmcp::model::Tool" .
+
+mcp:ToolArgument a owl:Class ;
+    rdfs:label "Tool Argument" ;
+    rdfs:comment "A named, typed argument accepted by a tool" ;
+    rust:implements "schemars::JsonSchema" .
+
+mcp:Resource a owl:Class ;
+    rdfs:label "Resource" ;
+    rdfs:comment "A named, addressable piece of data exposed by the MCP server" ;
+    rust:implements "rmcp::model::Resource" .
+
+mcp:ResourceTemplate a owl:Class ;
+    rdfs:label "Resource Template" ;
+    rdfs:comment "A URI-template pattern for parameterized resource addresses" ;
+    rust:implements "rmcp::model::ResourceTemplate" .
+
+mcp:Prompt a owl:Class ;
+    rdfs:label "Prompt" ;
+    rdfs:comment "A reusable prompt template that clients can use to request LLM interactions" ;
+    rust:implements "rmcp::model::Prompt" .
+
+mcp:PromptArgument a owl:Class ;
+    rdfs:label "Prompt Argument" ;
+    rdfs:comment "A named, typed argument accepted by a prompt template" ;
+    rust:implements "schemars::JsonSchema" .
+
+mcp:CompletionProvider a owl:Class ;
+    rdfs:label "Completion Provider" ;
+    rdfs:comment "Provider for argument autocompletion suggestions" ;
+    rust:implements "rmcp::model::Completion" .
+
+mcp:LoggingPolicy a owl:Class ;
+    rdfs:label "Logging Policy" ;
+    rdfs:comment "Server logging configuration defining default level and supported levels" ;
+    rust:implements "rmcp::model::LoggingLevel" .
+
+# ============================================================================
+# MCP SERVER PROPERTIES
+# ============================================================================
+
+mcp:hasCapabilitySet a owl:ObjectProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range mcp:CapabilitySet ;
+    rdfs:label "has capability set" ;
+    rdfs:comment "The capability set declaring what this server supports" .
+
+mcp:hasTransport a owl:ObjectProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range mcp:Transport ;
+    rdfs:label "has transport" ;
+    rdfs:comment "The communication transport used by this server" .
+
+mcp:hasProtocolVersion a owl:DatatypeProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range xsd:string ;
+    rdfs:label "has protocol version" ;
+    rdfs:comment "The MCP protocol version implemented (e.g., '2025-11-25')" .
+
+mcp:hasTool a owl:ObjectProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range mcp:Tool ;
+    rdfs:label "has tool" ;
+    rdfs:comment "A tool exposed by this server" .
+
+mcp:hasResource a owl:ObjectProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range mcp:Resource ;
+    rdfs:label "has resource" ;
+    rdfs:comment "A static resource exposed by this server" .
+
+mcp:hasPrompt a owl:ObjectProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range mcp:Prompt ;
+    rdfs:label "has prompt" ;
+    rdfs:comment "A prompt template exposed by this server" .
+
+mcp:hasCompletionProvider a owl:ObjectProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range mcp:CompletionProvider ;
+    rdfs:label "has completion provider" ;
+    rdfs:comment "A completion provider for argument autocompletion" .
+
+mcp:hasLoggingPolicy a owl:ObjectProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range mcp:LoggingPolicy ;
+    rdfs:label "has logging policy" ;
+    rdfs:comment "The logging policy for this server" .
+
+mcp:serverName a owl:DatatypeProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range xsd:string ;
+    rdfs:label "server name" ;
+    rdfs:comment "Human-readable name of the MCP server" .
+
+mcp:serverVersion a owl:DatatypeProperty ;
+    rdfs:domain mcp:McpServer ;
+    rdfs:range xsd:string ;
+    rdfs:label "server version" ;
+    rdfs:comment "Semantic version of the server implementation" .
+
+# ============================================================================
+# CAPABILITY SET PROPERTIES
+# ============================================================================
+
+mcp:tools a owl:DatatypeProperty ;
+    rdfs:domain mcp:CapabilitySet ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "tools capability" ;
+    rdfs:comment "Whether the server supports tool invocation" .
+
+mcp:resources a owl:DatatypeProperty ;
+    rdfs:domain mcp:CapabilitySet ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "resources capability" ;
+    rdfs:comment "Whether the server supports resource subscription and reading" .
+
+mcp:prompts a owl:DatatypeProperty ;
+    rdfs:domain mcp:CapabilitySet ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "prompts capability" ;
+    rdfs:comment "Whether the server supports prompt templates" .
+
+mcp:completions a owl:DatatypeProperty ;
+    rdfs:domain mcp:CapabilitySet ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "completions capability" ;
+    rdfs:comment "Whether the server supports argument autocompletion" .
+
+mcp:logging a owl:DatatypeProperty ;
+    rdfs:domain mcp:CapabilitySet ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "logging capability" ;
+    rdfs:comment "Whether the server supports logging level configuration" .
+
+mcp:subscriptions a owl:DatatypeProperty ;
+    rdfs:domain mcp:CapabilitySet ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "subscriptions capability" ;
+    rdfs:comment "Whether the server supports resource change subscriptions" .
+
+# ============================================================================
+# TRANSPORT PROPERTIES AND INSTANCES
+# ============================================================================
+
+mcp:transportName a owl:DatatypeProperty ;
+    rdfs:domain mcp:Transport ;
+    rdfs:range xsd:string ;
+    rdfs:label "transport name" ;
+    rdfs:comment "Name of the transport mechanism" .
+
+mcp:transportDescription a owl:DatatypeProperty ;
+    rdfs:domain mcp:Transport ;
+    rdfs:range xsd:string ;
+    rdfs:label "transport description" ;
+    rdfs:comment "Description of the transport mechanism and its use cases" .
+
+# Transport instances
+mcp:StdioTransport a mcp:Transport ;
+    rdfs:label "Stdio Transport" ;
+    rdfs:comment "Standard input/output transport for local process communication (parent-child process)" ;
+    mcp:transportName "stdio" ;
+    rust:module "rmcp::transport::io" .
+
+mcp:HttpTransport a mcp:Transport ;
+    rdfs:label "HTTP Transport" ;
+    rdfs:comment "HTTP-based transport for remote server access via HTTP POST" ;
+    mcp:transportName "http" ;
+    rust:module "rmcp::transport::http" .
+
+mcp:SseTransport a mcp:Transport ;
+    rdfs:label "SSE Transport" ;
+    rdfs:comment "Server-Sent Events transport for streaming responses from server to client" ;
+    mcp:transportName "sse" ;
+    rust:module "rmcp::transport::sse" .
+
+mcp:WebSocketTransport a mcp:Transport ;
+    rdfs:label "WebSocket Transport" ;
+    rdfs:comment "WebSocket transport for bidirectional real-time communication" ;
+    mcp:transportName "websocket" ;
+    rust:module "rmcp::transport::websocket" .
+
+# ============================================================================
+# TOOL PROPERTIES
+# ============================================================================
+
+mcp:name a owl:DatatypeProperty ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range xsd:string ;
+    rdfs:label "tool name" ;
+    rdfs:comment "Unique name identifying the tool (e.g., 'generate', 'validate')" .
+
+mcp:description a owl:DatatypeProperty ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range xsd:string ;
+    rdfs:label "tool description" ;
+    rdfs:comment "Human-readable description of what the tool does" .
+
+mcp:hasArgument a owl:ObjectProperty ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range mcp:ToolArgument ;
+    rdfs:label "has argument" ;
+    rdfs:comment "An argument accepted by this tool" .
+
+mcp:implementedBy a owl:DatatypeProperty ;
+    rdfs:domain mcp:Tool ;
+    rdfs:range xsd:string ;
+    rdfs:label "implemented by" ;
+    rdfs:comment "Rust function or module path that implements this tool" ;
+    rust:attribute "tool_handler" .
+
+# ============================================================================
+# TOOL ARGUMENT PROPERTIES
+# ============================================================================
+
+mcp:argumentName a owl:DatatypeProperty ;
+    rdfs:domain mcp:ToolArgument ;
+    rdfs:range xsd:string ;
+    rdfs:label "argument name" ;
+    rdfs:comment "Name of the tool argument (used as the JSON key in the request)" .
+
+mcp:argumentType a owl:DatatypeProperty ;
+    rdfs:domain mcp:ToolArgument ;
+    rdfs:range xsd:string ;
+    rdfs:label "argument type" ;
+    rdfs:comment "JSON Schema type of the argument (e.g., 'string', 'integer', 'boolean', 'array', 'object')" .
+
+mcp:argumentDescription a owl:DatatypeProperty ;
+    rdfs:domain mcp:ToolArgument ;
+    rdfs:range xsd:string ;
+    rdfs:label "argument description" ;
+    rdfs:comment "Human-readable description of the argument" .
+
+mcp:isRequired a owl:DatatypeProperty ;
+    rdfs:domain mcp:ToolArgument ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is required" ;
+    rdfs:comment "Whether this argument must be provided in the tool invocation" .
+
+mcp:argumentDefault a owl:DatatypeProperty ;
+    rdfs:domain mcp:ToolArgument ;
+    rdfs:range xsd:string ;
+    rdfs:label "argument default" ;
+    rdfs:comment "Default value for the argument if not provided" .
+
+# ============================================================================
+# RESOURCE PROPERTIES
+# ============================================================================
+
+mcp:uri a owl:DatatypeProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range xsd:string ;
+    rdfs:label "resource URI" ;
+    rdfs:comment "Unique URI identifying the resource (e.g., 'ggen://example/my-project')" .
+
+mcp:resourceName a owl:DatatypeProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range xsd:string ;
+    rdfs:label "resource name" ;
+    rdfs:comment "Short human-readable name for the resource" .
+
+mcp:resourceDescription a owl:DatatypeProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range xsd:string ;
+    rdfs:label "resource description" ;
+    rdfs:comment "Description of the resource content" .
+
+mcp:mimeType a owl:DatatypeProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range xsd:string ;
+    rdfs:label "MIME type" ;
+    rdfs:comment "MIME type of the resource content (e.g., 'text/plain', 'application/json', 'text/turtle')" .
+
+mcp:resourceImplementedBy a owl:DatatypeProperty ;
+    rdfs:domain mcp:Resource ;
+    rdfs:range xsd:string ;
+    rdfs:label "resource implemented by" ;
+    rdfs:comment "Rust function or module path that serves this resource" .
+
+# ============================================================================
+# RESOURCE TEMPLATE PROPERTIES
+# ============================================================================
+
+mcp:templateName a owl:DatatypeProperty ;
+    rdfs:domain mcp:ResourceTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:label "template name" ;
+    rdfs:comment "Short human-readable name for the resource template" .
+
+mcp:templateDescription a owl:DatatypeProperty ;
+    rdfs:domain mcp:ResourceTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:label "template description" ;
+    rdfs:comment "Description of what parameterized resources this template produces" .
+
+mcp:uriTemplate a owl:DatatypeProperty ;
+    rdfs:domain mcp:ResourceTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:label "URI template" ;
+    rdfs:comment "RFC 6570 URI template with parameter placeholders (e.g., 'ggen://example/{name}/ttl')" .
+
+mcp:templateMimeType a owl:DatatypeProperty ;
+    rdfs:domain mcp:ResourceTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:label "template MIME type" ;
+    rdfs:comment "MIME type of content produced by this template" .
+
+# ============================================================================
+# PROMPT PROPERTIES
+# ============================================================================
+
+mcp:promptName a owl:DatatypeProperty ;
+    rdfs:domain mcp:Prompt ;
+    rdfs:range xsd:string ;
+    rdfs:label "prompt name" ;
+    rdfs:comment "Unique name identifying the prompt template" .
+
+mcp:promptDescription a owl:DatatypeProperty ;
+    rdfs:domain mcp:Prompt ;
+    rdfs:range xsd:string ;
+    rdfs:label "prompt description" ;
+    rdfs:comment "Human-readable description of the prompt purpose" .
+
+mcp:hasPromptArgument a owl:ObjectProperty ;
+    rdfs:domain mcp:Prompt ;
+    rdfs:range mcp:PromptArgument ;
+    rdfs:label "has prompt argument" ;
+    rdfs:comment "An argument accepted by this prompt template" .
+
+mcp:promptImplementedBy a owl:DatatypeProperty ;
+    rdfs:domain mcp:Prompt ;
+    rdfs:range xsd:string ;
+    rdfs:label "prompt implemented by" ;
+    rdfs:comment "Rust function or module path that generates this prompt" .
+
+# ============================================================================
+# PROMPT ARGUMENT PROPERTIES
+# ============================================================================
+
+mcp:promptArgumentName a owl:DatatypeProperty ;
+    rdfs:domain mcp:PromptArgument ;
+    rdfs:range xsd:string ;
+    rdfs:label "prompt argument name" ;
+    rdfs:comment "Name of the prompt argument" .
+
+mcp:promptArgumentType a owl:DatatypeProperty ;
+    rdfs:domain mcp:PromptArgument ;
+    rdfs:range xsd:string ;
+    rdfs:label "prompt argument type" ;
+    rdfs:comment "JSON Schema type of the prompt argument" .
+
+mcp:promptArgumentDescription a owl:DatatypeProperty ;
+    rdfs:domain mcp:PromptArgument ;
+    rdfs:range xsd:string ;
+    rdfs:label "prompt argument description" ;
+    rdfs:comment "Human-readable description of the prompt argument" .
+
+mcp:promptIsRequired a owl:DatatypeProperty ;
+    rdfs:domain mcp:PromptArgument ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "prompt is required" ;
+    rdfs:comment "Whether this prompt argument must be provided" .
+
+# ============================================================================
+# COMPLETION PROVIDER PROPERTIES
+# ============================================================================
+
+mcp:completionRefType a owl:DatatypeProperty ;
+    rdfs:domain mcp:CompletionProvider ;
+    rdfs:range xsd:string ;
+    rdfs:label "completion ref type" ;
+    rdfs:comment "Type of entity being completed: 'tool' for tool arguments, 'resource' for resource URIs" .
+
+mcp:completionRefName a owl:DatatypeProperty ;
+    rdfs:domain mcp:CompletionProvider ;
+    rdfs:range xsd:string ;
+    rdfs:label "completion ref name" ;
+    rdfs:comment "Name of the tool or resource template the completion applies to" .
+
+mcp:completionArgument a owl:DatatypeProperty ;
+    rdfs:domain mcp:CompletionProvider ;
+    rdfs:range xsd:string ;
+    rdfs:label "completion argument" ;
+    rdfs:comment "Name of the argument within the tool or resource that completions are provided for" .
+
+mcp:completionValues a owl:DatatypeProperty ;
+    rdfs:domain mcp:CompletionProvider ;
+    rdfs:range xsd:string ;
+    rdfs:label "completion values" ;
+    rdfs:comment "Comma-separated list of suggested completion values" .
+
+# ============================================================================
+# LOGGING POLICY PROPERTIES
+# ============================================================================
+
+mcp:defaultLevel a owl:DatatypeProperty ;
+    rdfs:domain mcp:LoggingPolicy ;
+    rdfs:range xsd:string ;
+    rdfs:label "default level" ;
+    rdfs:comment "Default logging level: 'debug', 'info', 'notice', 'warning', 'error', 'critical', 'alert', 'emergency'" .
+
+mcp:supportedLevels a owl:DatatypeProperty ;
+    rdfs:domain mcp:LoggingPolicy ;
+    rdfs:range xsd:string ;
+    rdfs:label "supported levels" ;
+    rdfs:comment "Comma-separated list of all logging levels the server supports" .
