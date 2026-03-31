@@ -22,7 +22,10 @@ impl AgentRegistry {
     /// Create a registry with the given store and default health-monitor config.
     #[must_use]
     pub fn new(store: Arc<dyn AgentStore>) -> Self {
-        let monitor = Arc::new(HealthMonitor::new(Arc::clone(&store), HealthConfig::default()));
+        let monitor = Arc::new(HealthMonitor::new(
+            Arc::clone(&store),
+            HealthConfig::default(),
+        ));
         Self {
             store,
             health_monitor: monitor,
@@ -74,9 +77,11 @@ impl AgentRegistry {
     /// Returns `RegistryError::StoreError` if the underlying store operation fails.
     /// Returns `RegistryError::NoMatch` if no agents match the query.
     pub async fn discover(&self, query: AgentQuery) -> RegistryResult<Vec<AgentEntry>> {
-        let all = self.store.list().await.map_err(|e| {
-            RegistryError::StoreError(e.to_string())
-        })?;
+        let all = self
+            .store
+            .list()
+            .await
+            .map_err(|e| RegistryError::StoreError(e.to_string()))?;
 
         let mut matched: Vec<AgentEntry> = all
             .into_iter()
@@ -128,9 +133,10 @@ impl AgentRegistry {
     ///
     /// Returns `RegistryError::StoreError` if the underlying store operation fails.
     pub async fn list(&self) -> RegistryResult<Vec<AgentEntry>> {
-        self.store.list().await.map_err(|e| {
-            RegistryError::StoreError(e.to_string())
-        })
+        self.store
+            .list()
+            .await
+            .map_err(|e| RegistryError::StoreError(e.to_string()))
     }
 
     /// Remove an agent from the registry.
@@ -140,9 +146,10 @@ impl AgentRegistry {
     /// Returns `RegistryError::AgentNotFound` if the agent ID does not exist.
     /// Returns `RegistryError::StoreError` if the underlying store operation fails.
     pub async fn deregister(&self, agent_id: &str) -> RegistryResult<()> {
-        self.store.remove(agent_id).await.map_err(|e| {
-            RegistryError::StoreError(e.to_string())
-        })?;
+        self.store
+            .remove(agent_id)
+            .await
+            .map_err(|e| RegistryError::StoreError(e.to_string()))?;
         info!(agent_id = %agent_id, "agent deregistered");
         Ok(())
     }

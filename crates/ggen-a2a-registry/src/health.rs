@@ -57,8 +57,8 @@ impl HealthMonitor {
 
         let store = Arc::clone(&self.store);
         let config = self.config.clone();
-        let check_interval_ms = u64::try_from(self.config.check_interval.as_millis())
-            .unwrap_or(u64::MAX);
+        let check_interval_ms =
+            u64::try_from(self.config.check_interval.as_millis()).unwrap_or(u64::MAX);
         let running = Arc::clone(&self.running);
         let cancel = Arc::clone(&self.cancel);
         let failure_counts = Arc::clone(&self.failure_counts);
@@ -88,10 +88,7 @@ impl HealthMonitor {
             let mut guard = self.handle.lock().await;
             *guard = Some(handle);
         }
-        info!(
-            interval_ms = check_interval_ms,
-            "health monitor started"
-        );
+        info!(interval_ms = check_interval_ms, "health monitor started");
     }
 
     /// Signal the background task to stop and await its completion.
@@ -123,8 +120,7 @@ impl Drop for HealthMonitor {
 
 /// Run one pass of health checks over all registered agents.
 async fn perform_health_checks(
-    store: &Arc<dyn AgentStore>,
-    config: &HealthConfig,
+    store: &Arc<dyn AgentStore>, config: &HealthConfig,
     failure_counts: &Arc<tokio::sync::RwLock<HashMap<String, u32>>>,
 ) {
     let agents = match store.list().await {
@@ -172,7 +168,9 @@ async fn perform_health_checks(
 }
 
 /// Ping a single agent endpoint and return its derived health status.
-async fn check_single_agent(agent: &crate::types::AgentEntry, config: &HealthConfig) -> HealthStatus {
+async fn check_single_agent(
+    agent: &crate::types::AgentEntry, config: &HealthConfig,
+) -> HealthStatus {
     let url = &agent.endpoint_url;
 
     let result = timeout(config.ping_timeout, reqwest::Client::new().get(url).send()).await;
@@ -207,8 +205,7 @@ async fn check_single_agent(agent: &crate::types::AgentEntry, config: &HealthCon
 /// Returns `RegistryError::HttpError` if the HTTP request fails.
 /// Returns `RegistryError::Timeout` if the request exceeds `ping_timeout`.
 pub async fn ping_agent(
-    agent: &crate::types::AgentEntry,
-    ping_timeout: Duration,
+    agent: &crate::types::AgentEntry, ping_timeout: Duration,
 ) -> Result<HealthStatus, RegistryError> {
     let url = &agent.endpoint_url;
 

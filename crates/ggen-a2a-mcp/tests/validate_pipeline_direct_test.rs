@@ -10,24 +10,32 @@ async fn test_validate_pipeline_on_current_project() {
         .with_test_writer()
         .with_max_level(tracing::Level::INFO)
         .try_init();
-    
+
     // Create server instance
     let server = GgenMcpServer::new();
-    
+
     // Test on current ggen project
     let project_path = std::env::var("CARGO_MANIFEST_DIR")
-        .map(|p| std::path::PathBuf::from(p).parent().unwrap().parent().unwrap().display().to_string())
+        .map(|p| {
+            std::path::PathBuf::from(p)
+                .parent()
+                .unwrap()
+                .parent()
+                .unwrap()
+                .display()
+                .to_string()
+        })
         .unwrap_or_else(|_| ".".to_string());
-    
+
     println!("\n=== Testing validate_pipeline on: {} ===\n", project_path);
-    
+
     // Call the tool
     let params = ValidatePipelineParams {
         project_path: project_path.clone(),
     };
-    
+
     let result = server.validate_pipeline(params).await;
-    
+
     // Print detailed results
     match result {
         Ok(response) => {

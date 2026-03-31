@@ -21,7 +21,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
 
     let generate_params = ggen_a2a_mcp::ggen_server::GenerateParams {
-        ontology_path: "/Users/sac/ggen/examples/basic-template-generation/ontology/templates.ttl".to_string(),
+        ontology_path: "/Users/sac/ggen/examples/basic-template-generation/ontology/templates.ttl"
+            .to_string(),
         queries_dir: None,
         output_dir: Some("/tmp/mcp_test_generate".to_string()),
         language: Some("rust".to_string()),
@@ -52,7 +53,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
 
     let sync_params = ggen_a2a_mcp::ggen_server::SyncParams {
-        ontology_path: "/Users/sac/ggen/examples/basic-template-generation/ontology/templates.ttl".to_string(),
+        ontology_path: "/Users/sac/ggen/examples/basic-template-generation/ontology/templates.ttl"
+            .to_string(),
         queries_dir: None,
         output_dir: Some("/tmp/mcp_test_sync".to_string()),
         language: Some("rust".to_string()),
@@ -84,7 +86,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
 
     let sync_params_full = ggen_a2a_mcp::ggen_server::SyncParams {
-        ontology_path: "/Users/sac/ggen/examples/basic-template-generation/ontology/templates.ttl".to_string(),
+        ontology_path: "/Users/sac/ggen/examples/basic-template-generation/ontology/templates.ttl"
+            .to_string(),
         queries_dir: None,
         output_dir: Some("/tmp/mcp_test_sync_full".to_string()),
         language: Some("rust".to_string()),

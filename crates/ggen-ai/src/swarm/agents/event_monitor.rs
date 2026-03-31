@@ -8,7 +8,7 @@
 //! - Event buffering for batch processing
 //! - Async event delivery via channels
 
-use super::{BaseAgent, EventSource, EventStream, SystemEvent, FileChangeType};
+use super::{BaseAgent, EventSource, EventStream, FileChangeType, SystemEvent};
 use crate::error::{GgenAiError, Result};
 use async_trait::async_trait;
 use serde_json::Value;
@@ -47,13 +47,19 @@ impl EventMonitorAgentImpl {
 
     /// Add an event filter
     pub fn add_event_filter(&mut self, filter: EventFilter) {
-        info!("Adding event filter: {} for agent: {}", filter.name, filter.target_agent);
+        info!(
+            "Adding event filter: {} for agent: {}",
+            filter.name, filter.target_agent
+        );
         self.event_filters.push(filter);
     }
 
     /// Start monitoring events
     pub async fn start_monitoring(&self) -> Result<()> {
-        info!("Starting event monitoring with {} sources", self.event_sources.len());
+        info!(
+            "Starting event monitoring with {} sources",
+            self.event_sources.len()
+        );
 
         for source in &self.event_sources {
             let source_name = source.name().to_string();
@@ -199,7 +205,10 @@ impl EventBuffer {
 
         // Auto-flush if buffer is full
         if self.events.len() >= self.max_size {
-            info!("Event buffer full, auto-flushing {} events", self.events.len());
+            info!(
+                "Event buffer full, auto-flushing {} events",
+                self.events.len()
+            );
             self.clear().await;
         }
     }
@@ -219,12 +228,24 @@ impl EventBuffer {
     fn events_equal(&self, a: &SystemEvent, b: &SystemEvent) -> bool {
         match (a, b) {
             (
-                SystemEvent::FileSystem { path: path1, change_type: ct1, .. },
-                SystemEvent::FileSystem { path: path2, change_type: ct2, .. },
+                SystemEvent::FileSystem {
+                    path: path1,
+                    change_type: ct1,
+                    ..
+                },
+                SystemEvent::FileSystem {
+                    path: path2,
+                    change_type: ct2,
+                    ..
+                },
             ) => path1 == path2 && ct1 == ct2,
             (
-                SystemEvent::Git { commit_hash: hash1, .. },
-                SystemEvent::Git { commit_hash: hash2, .. },
+                SystemEvent::Git {
+                    commit_hash: hash1, ..
+                },
+                SystemEvent::Git {
+                    commit_hash: hash2, ..
+                },
             ) => hash1 == hash2,
             _ => false,
         }

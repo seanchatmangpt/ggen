@@ -158,9 +158,7 @@ impl AdaptiveLearningModel {
 
     /// Calculate similarity between two feature sets
     fn calculate_similarity(
-        &self,
-        features1: &HashMap<String, f64>,
-        features2: &HashMap<String, f64>,
+        &self, features1: &HashMap<String, f64>, features2: &HashMap<String, f64>,
     ) -> f64 {
         if features1.is_empty() || features2.is_empty() {
             return 0.0;
@@ -286,7 +284,10 @@ impl AdaptiveLearningModel {
         }
 
         let min = predictions.values().copied().fold(f64::INFINITY, f64::min);
-        let max = predictions.values().copied().fold(f64::NEG_INFINITY, f64::max);
+        let max = predictions
+            .values()
+            .copied()
+            .fold(f64::NEG_INFINITY, f64::max);
         let range = max - min;
 
         if range > 0.0 {
@@ -297,7 +298,9 @@ impl AdaptiveLearningModel {
     }
 
     /// Calculate prediction confidence
-    fn calculate_confidence(&self, input: &PredictionInput, predictions: &HashMap<String, f64>) -> f64 {
+    fn calculate_confidence(
+        &self, input: &PredictionInput, predictions: &HashMap<String, f64>,
+    ) -> f64 {
         // Base confidence on pattern match
         let signature = self.create_pattern_signature(&input.features);
         let pattern_confidence = self
@@ -407,7 +410,10 @@ impl Default for AdaptiveLearningModel {
 #[async_trait]
 impl LearningModel for AdaptiveLearningModel {
     async fn train(&mut self, feedback_data: &LearningData) -> Result<TrainingResult> {
-        info!("Starting model training with {} features", feedback_data.features.len());
+        info!(
+            "Starting model training with {} features",
+            feedback_data.features.len()
+        );
 
         let start = std::time::Instant::now();
 
@@ -521,7 +527,10 @@ impl LearningModel for AdaptiveLearningModel {
             self.parameters.insert(key.clone(), updated);
         }
 
-        debug!("Parameters updated: {} total parameters", self.parameters.len());
+        debug!(
+            "Parameters updated: {} total parameters",
+            self.parameters.len()
+        );
 
         Ok(())
     }
@@ -640,9 +649,7 @@ mod tests {
             metadata: HashMap::new(),
         };
 
-        updates
-            .parameter_updates
-            .insert("param1".to_string(), 0.1);
+        updates.parameter_updates.insert("param1".to_string(), 0.1);
         updates
             .parameter_updates
             .insert("param2".to_string(), -0.05);

@@ -64,7 +64,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             tracing_subscriber::EnvFilter::from_default_env()
                 .add_directive(tracing::Level::INFO.into())
                 .add_directive("ggen_a2a_mcp=trace".parse()?)
-                .add_directive("rmcp=info".parse()?)
+                .add_directive("rmcp=info".parse()?),
         )
         .init();
 
@@ -91,7 +91,7 @@ ex:Subject ex:name "Test Subject" ."#;
         .call_tool(
             CallToolRequestParams::new("validate").with_arguments(args(serde_json::json!({
                 "ttl": ttl_content
-            })))
+            }))),
         )
         .await?;
 

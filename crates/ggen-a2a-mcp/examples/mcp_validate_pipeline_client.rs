@@ -34,7 +34,10 @@ async fn main() -> anyhow::Result<()> {
 
     // Step 2: Get server info (initialization)
     let server_info = server.get_info();
-    println!("✅ Server info: {} v{}\n", server_info.server_info.name, server_info.server_info.version);
+    println!(
+        "✅ Server info: {} v{}\n",
+        server_info.server_info.name, server_info.server_info.version
+    );
 
     // Step 3: Create CallToolRequest for validate_pipeline
     let project_path = std::env::current_dir()
@@ -65,8 +68,7 @@ async fn main() -> anyhow::Result<()> {
 
 /// Call a tool directly on GgenMcpServer (bypassing transport layer)
 async fn call_tool_directly(
-    server: Arc<GgenMcpServer>,
-    request: CallToolRequest,
+    server: Arc<GgenMcpServer>, request: CallToolRequest,
 ) -> anyhow::Result<CallToolResult> {
     use rmcp::handler::server::wrapper::Parameters;
 

@@ -20,8 +20,8 @@ pub mod togaf_state;
 
 // Re-export primary types
 pub use arb_gates::{
-    ArbApproval, ArbApprovalManager, ArbGate, ArbGateSummary, ApprovalCriterion,
-    ApprovalDecision, ApprovalResponse, ApprovalStatus, StakeholderRole,
+    ApprovalCriterion, ApprovalDecision, ApprovalResponse, ApprovalStatus, ArbApproval,
+    ArbApprovalManager, ArbGate, ArbGateSummary, StakeholderRole,
 };
 pub use artifacts::{Artifact, ArtifactRegistry, ArtifactType};
 pub use error::StateError;
@@ -30,4 +30,6 @@ pub use handoff::{
     FiboValidationResult, HandoffPackage, HandoffProtocol, HandoffResult, HandoffStatus,
     HandoffValidator, ValidationResult,
 };
-pub use togaf_state::{PhaseState, PhaseStatus, StateSummary, TogafPhase, TogafStateManager, TurnRecord};
+pub use togaf_state::{
+    PhaseState, PhaseStatus, StateSummary, TogafPhase, TogafStateManager, TurnRecord,
+};

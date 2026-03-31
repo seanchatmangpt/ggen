@@ -20,11 +20,23 @@ fn main() -> anyhow::Result<()> {
 
     // Step 2: Get server info (initialization)
     let server_info = server.get_info();
-    println!("✅ Server info: {} v{}\n", server_info.server_info.name, server_info.server_info.version);
+    println!(
+        "✅ Server info: {} v{}\n",
+        server_info.server_info.name, server_info.server_info.version
+    );
 
     // Step 3: Get project path (current ggen project)
     let project_path = std::env::current_dir()
-        .map(|p| p.parent().unwrap().parent().unwrap().parent().unwrap().display().to_string())
+        .map(|p| {
+            p.parent()
+                .unwrap()
+                .parent()
+                .unwrap()
+                .parent()
+                .unwrap()
+                .display()
+                .to_string()
+        })
         .unwrap_or_else(|_| ".".to_string());
 
     println!("📂 Project path: {}\n", project_path);
@@ -37,9 +49,7 @@ fn main() -> anyhow::Result<()> {
             project_path: project_path.clone(),
         };
 
-        server
-            .validate_pipeline(Parameters(params))
-            .await
+        server.validate_pipeline(Parameters(params)).await
     })?;
 
     // Step 5: Print results

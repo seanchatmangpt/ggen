@@ -50,7 +50,10 @@ async fn duplicate_registration_fails() {
     store.register(entry.clone()).await.unwrap();
     let err = store.register(entry).await.unwrap_err();
     let msg = format!("{err}");
-    assert!(msg.contains("already registered"), "unexpected error: {msg}");
+    assert!(
+        msg.contains("already registered"),
+        "unexpected error: {msg}"
+    );
 }
 
 #[tokio::test]
@@ -89,7 +92,10 @@ async fn update_health_changes_status() {
     let store = MemoryStore::new();
     store.register(test_entry("h1")).await.unwrap();
 
-    store.update_health("h1", HealthStatus::Healthy).await.unwrap();
+    store
+        .update_health("h1", HealthStatus::Healthy)
+        .await
+        .unwrap();
 
     let entry = store.get("h1").await.unwrap().unwrap();
     assert_eq!(entry.health, HealthStatus::Healthy);
@@ -98,7 +104,10 @@ async fn update_health_changes_status() {
 #[tokio::test]
 async fn update_health_nonexistent_fails() {
     let store = MemoryStore::new();
-    let err = store.update_health("ghost", HealthStatus::Healthy).await.unwrap_err();
+    let err = store
+        .update_health("ghost", HealthStatus::Healthy)
+        .await
+        .unwrap_err();
     let msg = format!("{err}");
     assert!(msg.contains("not found"), "unexpected error: {msg}");
 }
@@ -110,7 +119,10 @@ async fn update_health_updates_last_heartbeat() {
 
     // Capture the initial timestamp.
     let before = chrono::Utc::now();
-    store.update_health("hb", HealthStatus::Degraded).await.unwrap();
+    store
+        .update_health("hb", HealthStatus::Degraded)
+        .await
+        .unwrap();
 
     let entry = store.get("hb").await.unwrap().unwrap();
     assert!(entry.last_heartbeat >= before);

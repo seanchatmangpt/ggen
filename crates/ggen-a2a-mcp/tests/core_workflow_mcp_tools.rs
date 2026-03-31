@@ -21,16 +21,20 @@ ex:Subject a ex:Resource .
     rdf:type ex:Class .
 "#;
 
-    let result = server.validate(ggen_a2a_mcp::ggen_server::ValidateParams {
-        ttl: valid_ttl.to_string(),
-    }).await;
+    let result = server
+        .validate(ggen_a2a_mcp::ggen_server::ValidateParams {
+            ttl: valid_ttl.to_string(),
+        })
+        .await;
 
     assert!(result.is_success(), "Valid TTL should pass validation");
 
     let response = result.unwrap().contents.unwrap();
     let text = response.iter().filter_map(|c| c.as_text()).next().unwrap();
-    assert!(text.contains("triple") || text.contains("Valid"),
-        "Should report validation result");
+    assert!(
+        text.contains("triple") || text.contains("Valid"),
+        "Should report validation result"
+    );
 }
 
 #[tokio::test]
@@ -42,15 +46,23 @@ async fn test_validate_tool_rejects_invalid_ttl() {
 INVALID TURTLE SYNTAX!!!
 "#;
 
-    let result = server.validate(ggen_a2a_mcp::ggen_server::ValidateParams {
-        ttl: invalid_ttl.to_string(),
-    }).await;
+    let result = server
+        .validate(ggen_a2a_mcp::ggen_server::ValidateParams {
+            ttl: invalid_ttl.to_string(),
+        })
+        .await;
 
     // Should return error result for invalid TTL
-    assert!(!result.is_success() || result.unwrap().contents.unwrap().iter().any(|c| {
-        c.as_text().unwrap_or("").contains("error") ||
-        c.is_error()
-    }), "Invalid TTL should be rejected");
+    assert!(
+        !result.is_success()
+            || result
+                .unwrap()
+                .contents
+                .unwrap()
+                .iter()
+                .any(|c| { c.as_text().unwrap_or("").contains("error") || c.is_error() }),
+        "Invalid TTL should be rejected"
+    );
 }
 
 #[tokio::test]
@@ -67,17 +79,21 @@ ex:Subject a ex:Resource .
 
     let sparql = "SELECT ?s WHERE { ?s a ex:name ?name }";
 
-    let result = server.query_ontology(ggen_a2a_mcp::ggen_server::QueryOntologyParams {
-        ttl: ttl.to_string(),
-        sparql: sparql.to_string(),
-    }).await;
+    let result = server
+        .query_ontology(ggen_a2a_mcp::ggen_server::QueryOntologyParams {
+            ttl: ttl.to_string(),
+            sparql: sparql.to_string(),
+        })
+        .await;
 
     assert!(result.is_success(), "SPARQL query should execute");
 
     let response = result.unwrap().contents.unwrap();
     let text = response.iter().filter_map(|c| c.as_text()).next().unwrap();
-    assert!(text.contains("Test Subject") || text.contains("results"),
-        "Should return query results");
+    assert!(
+        text.contains("Test Subject") || text.contains("results"),
+        "Should return query results"
+    );
 }
 
 #[tokio::test]
@@ -85,9 +101,11 @@ async fn test_validate_pipeline_tool_checks_gates() {
     let server = ggen_a2a_mcp::ggen_server::GgenMcpServer::new();
 
     // Use an actual ggen project with ggen.toml
-    let result = server.validate_pipeline(ggen_a2a_mcp::ggen_server::ValidatePipelineParams {
-        project_path: ".".to_string(), // Current project is a valid ggen project
-    }).await;
+    let result = server
+        .validate_pipeline(ggen_a2a_mcp::ggen_server::ValidatePipelineParams {
+            project_path: ".".to_string(), // Current project is a valid ggen project
+        })
+        .await;
 
     // This might pass or fail depending on project state, but should not crash
     // Just verify the tool can be called

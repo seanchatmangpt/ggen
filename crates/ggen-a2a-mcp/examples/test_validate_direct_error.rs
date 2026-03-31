@@ -63,7 +63,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             tracing_subscriber::EnvFilter::from_default_env()
                 .add_directive(tracing::Level::INFO.into())
                 .add_directive("ggen_a2a_mcp=trace".parse()?)
-                .add_directive("rmcp=info".parse()?)
+                .add_directive("rmcp=info".parse()?),
         )
         .init();
 
@@ -85,7 +85,7 @@ ex:Subject a ex:Resource .
         .call_tool(
             CallToolRequestParams::new("validate").with_arguments(args(serde_json::json!({
                 "ttl": invalid_ttl_1
-            })))
+            }))),
         )
         .await?;
 
@@ -105,7 +105,7 @@ ex:Subject INVALID TRIPLE HERE
         .call_tool(
             CallToolRequestParams::new("validate").with_arguments(args(serde_json::json!({
                 "ttl": invalid_ttl_2
-            })))
+            }))),
         )
         .await?;
 
@@ -125,7 +125,7 @@ ex:Subject a ex:Resource .
         .call_tool(
             CallToolRequestParams::new("validate").with_arguments(args(serde_json::json!({
                 "ttl": valid_ttl
-            })))
+            }))),
         )
         .await?;
 

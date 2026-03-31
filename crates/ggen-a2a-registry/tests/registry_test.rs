@@ -2,7 +2,9 @@
 //!
 //! Uses real `MemoryStore` -- no mocks.
 
-use ggen_a2a_registry::{AgentEntry, AgentQuery, AgentRegistry, HealthConfig, HealthStatus, MemoryStore};
+use ggen_a2a_registry::{
+    AgentEntry, AgentQuery, AgentRegistry, HealthConfig, HealthStatus, MemoryStore,
+};
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -40,7 +42,10 @@ async fn duplicate_register_fails() {
     registry.register(entry.clone()).await.unwrap();
     let err = registry.register(entry).await.unwrap_err();
     let msg = format!("{err}");
-    assert!(msg.contains("already registered"), "unexpected error: {msg}");
+    assert!(
+        msg.contains("already registered"),
+        "unexpected error: {msg}"
+    );
 }
 
 #[tokio::test]
@@ -48,8 +53,14 @@ async fn list_returns_registered_agents() {
     let store = Arc::new(MemoryStore::new());
     let registry = AgentRegistry::new(store);
 
-    registry.register(test_entry("l1", "a", vec!["x"])).await.unwrap();
-    registry.register(test_entry("l2", "b", vec!["y"])).await.unwrap();
+    registry
+        .register(test_entry("l1", "a", vec!["x"]))
+        .await
+        .unwrap();
+    registry
+        .register(test_entry("l2", "b", vec!["y"]))
+        .await
+        .unwrap();
 
     let agents = registry.list().await.unwrap();
     assert_eq!(agents.len(), 2);
@@ -60,8 +71,14 @@ async fn discover_by_agent_type() {
     let store = Arc::new(MemoryStore::new());
     let registry = AgentRegistry::new(store);
 
-    registry.register(test_entry("gen-1", "code-gen", vec!["sparql"])).await.unwrap();
-    registry.register(test_entry("val-1", "validator", vec!["validate"])).await.unwrap();
+    registry
+        .register(test_entry("gen-1", "code-gen", vec!["sparql"]))
+        .await
+        .unwrap();
+    registry
+        .register(test_entry("val-1", "validator", vec!["validate"]))
+        .await
+        .unwrap();
 
     let results = registry
         .discover(AgentQuery::new().with_agent_type("code-gen"))
@@ -122,7 +139,10 @@ async fn discover_no_match_returns_error() {
     let store = Arc::new(MemoryStore::new());
     let registry = AgentRegistry::new(store);
 
-    registry.register(test_entry("x", "gen", vec!["sparql"])).await.unwrap();
+    registry
+        .register(test_entry("x", "gen", vec!["sparql"]))
+        .await
+        .unwrap();
 
     let err = registry
         .discover(AgentQuery::new().with_agent_type("nonexistent"))
@@ -157,7 +177,10 @@ async fn deregister_removes_agent() {
     let store = Arc::new(MemoryStore::new());
     let registry = AgentRegistry::new(store);
 
-    registry.register(test_entry("del-1", "gen", vec!["x"])).await.unwrap();
+    registry
+        .register(test_entry("del-1", "gen", vec!["x"]))
+        .await
+        .unwrap();
     assert_eq!(registry.list().await.unwrap().len(), 1);
 
     registry.deregister("del-1").await.unwrap();
@@ -179,7 +202,10 @@ async fn shutdown_succeeds() {
     let store = Arc::new(MemoryStore::new());
     let registry = AgentRegistry::new(store);
 
-    registry.register(test_entry("shut-1", "gen", vec!["x"])).await.unwrap();
+    registry
+        .register(test_entry("shut-1", "gen", vec!["x"]))
+        .await
+        .unwrap();
     registry.shutdown().await.unwrap();
 }
 
@@ -220,7 +246,10 @@ async fn registry_with_custom_health_config() {
     };
     let registry = AgentRegistry::with_health_config(store, config);
 
-    registry.register(test_entry("cfg-1", "gen", vec!["x"])).await.unwrap();
+    registry
+        .register(test_entry("cfg-1", "gen", vec!["x"]))
+        .await
+        .unwrap();
     let agents = registry.list().await.unwrap();
     assert_eq!(agents.len(), 1);
 }

@@ -29,9 +29,11 @@ ex:Subject a ex:Resource ;
     // - mcp.tool_name = "validate"
     // - mcp.ttl_length = <length>
     // - mcp.triple_count = 3
-    let result = server.validate(ggen_a2a_mcp::ggen_server::ValidateParams {
-        ttl: valid_ttl.to_string(),
-    }).await;
+    let result = server
+        .validate(ggen_a2a_mcp::ggen_server::ValidateParams {
+            ttl: valid_ttl.to_string(),
+        })
+        .await;
 
     assert!(result.is_success(), "Valid TTL should pass validation");
 
@@ -39,8 +41,10 @@ ex:Subject a ex:Resource ;
     let text = response.iter().filter_map(|c| c.as_text()).next().unwrap();
 
     // Verify the tool reported validation results
-    assert!(text.contains("triple") || text.contains("Valid"),
-        "Should report validation result with triple count");
+    assert!(
+        text.contains("triple") || text.contains("Valid"),
+        "Should report validation result with triple count"
+    );
 
     // OTEL spans are emitted to the tracing subscriber
     // In a real scenario, these would be captured by an OTEL exporter
@@ -72,10 +76,12 @@ ex:Subject a ex:Resource ;
     // - mcp.sparql_query_length = <length>
     // - mcp.ttl_length = <length>
     // - Row count logged on success
-    let result = server.query_ontology(ggen_a2a_mcp::ggen_server::QueryOntologyParams {
-        ttl: ttl.to_string(),
-        sparql: sparql.to_string(),
-    }).await;
+    let result = server
+        .query_ontology(ggen_a2a_mcp::ggen_server::QueryOntologyParams {
+            ttl: ttl.to_string(),
+            sparql: sparql.to_string(),
+        })
+        .await;
 
     assert!(result.is_success(), "SPARQL query should execute");
 
@@ -83,8 +89,10 @@ ex:Subject a ex:Resource ;
     let text = response.iter().filter_map(|c| c.as_text()).next().unwrap();
 
     // Verify query returned results
-    assert!(text.contains("Test Subject") || text.contains("results") || text.contains("Subject"),
-        "Should return query results");
+    assert!(
+        text.contains("Test Subject") || text.contains("results") || text.contains("Subject"),
+        "Should return query results"
+    );
 }
 
 #[tokio::test]
@@ -104,13 +112,21 @@ INVALID TURTLE SYNTAX!!!
     // This should emit:
     // - ggen.mcp.tool_call span
     // - ggen.error span with error.type="parse_error"
-    let result = server.validate(ggen_a2a_mcp::ggen_server::ValidateParams {
-        ttl: invalid_ttl.to_string(),
-    }).await;
+    let result = server
+        .validate(ggen_a2a_mcp::ggen_server::ValidateParams {
+            ttl: invalid_ttl.to_string(),
+        })
+        .await;
 
     // Should return error result for invalid TTL
-    assert!(!result.is_success() || result.unwrap().contents.unwrap().iter().any(|c| {
-        c.as_text().unwrap_or("").contains("error") ||
-        c.is_error()
-    }), "Invalid TTL should be rejected with error span");
+    assert!(
+        !result.is_success()
+            || result
+                .unwrap()
+                .contents
+                .unwrap()
+                .iter()
+                .any(|c| { c.as_text().unwrap_or("").contains("error") || c.is_error() }),
+        "Invalid TTL should be rejected with error span"
+    );
 }

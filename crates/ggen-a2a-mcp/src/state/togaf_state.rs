@@ -85,7 +85,14 @@ impl TogafPhase {
 
     /// Ordered list of all phases.
     pub fn all() -> &'static [TogafPhase] {
-        &[TogafPhase::A, TogafPhase::B, TogafPhase::C, TogafPhase::D, TogafPhase::E, TogafPhase::F]
+        &[
+            TogafPhase::A,
+            TogafPhase::B,
+            TogafPhase::C,
+            TogafPhase::D,
+            TogafPhase::E,
+            TogafPhase::F,
+        ]
     }
 
     /// Returns the next phase, if one exists.
@@ -190,7 +197,9 @@ impl PhaseState {
 
     /// Returns true if all turns in this phase are completed.
     pub fn is_all_turns_done(&self) -> bool {
-        self.phase.turn_range().all(|t| self.completed_turns.contains(&t))
+        self.phase
+            .turn_range()
+            .all(|t| self.completed_turns.contains(&t))
     }
 }
 
@@ -478,7 +487,11 @@ impl TogafStateManager {
     /// Retrieve all artifacts produced during a given phase.
     pub async fn get_artifacts_for_phase(&self, phase: TogafPhase) -> StateResult<Vec<Artifact>> {
         let artifacts_guard = self.artifacts.read().await;
-        Ok(artifacts_guard.get_for_phase(phase).into_iter().cloned().collect())
+        Ok(artifacts_guard
+            .get_for_phase(phase)
+            .into_iter()
+            .cloned()
+            .collect())
     }
 
     /// Check whether a phase has been completed.
@@ -493,10 +506,9 @@ impl TogafStateManager {
     /// Get a snapshot of the current phase state.
     pub async fn get_phase_state(&self, phase: TogafPhase) -> StateResult<PhaseState> {
         let phases_guard = self.phases.read().await;
-        phases_guard
-            .get(&phase)
-            .cloned()
-            .ok_or_else(|| StateError::PhaseNotInProgress(phase.to_string(), "NotStarted".to_string()))
+        phases_guard.get(&phase).cloned().ok_or_else(|| {
+            StateError::PhaseNotInProgress(phase.to_string(), "NotStarted".to_string())
+        })
     }
 
     /// Produce a summary of the entire protocol state.

@@ -42,7 +42,10 @@ ex:Subject ex:count 42 ."#;
         Ok(result) => {
             println!("\nResult: {:?}", result);
             if let Some(content) = result.content.first() {
-                println!("Output text: {}", content.text.as_ref().unwrap_or(&"<no text>".to_string()));
+                println!(
+                    "Output text: {}",
+                    content.text.as_ref().unwrap_or(&"<no text>".to_string())
+                );
             }
         }
         Err(e) => {
@@ -66,7 +69,10 @@ ex:Subject a ex:Resource INVALID SYNTAX HERE ."#;
         Ok(result) => {
             println!("\nResult: {:?}", result);
             if let Some(content) = result.content.first() {
-                println!("Output text: {}", content.text.as_ref().unwrap_or(&"<no text>".to_string()));
+                println!(
+                    "Output text: {}",
+                    content.text.as_ref().unwrap_or(&"<no text>".to_string())
+                );
             }
         }
         Err(e) => {
@@ -89,7 +95,10 @@ ex:Subject a ex:Resource INVALID SYNTAX HERE ."#;
         Ok(result) => {
             println!("\nResult: {:?}", result);
             if let Some(content) = result.content.first() {
-                println!("Output text: {}", content.text.as_ref().unwrap_or(&"<no text>".to_string()));
+                println!(
+                    "Output text: {}",
+                    content.text.as_ref().unwrap_or(&"<no text>".to_string())
+                );
             }
         }
         Err(e) => {

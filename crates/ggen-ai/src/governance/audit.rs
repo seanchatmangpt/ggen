@@ -107,12 +107,14 @@ impl AuditTrail {
 
         // Create SQLite connection pool using the path directly
         let pool = sqlx::SqlitePool::connect(
-            db_path_ref.to_str().ok_or_else(|| {
-                GovernanceError::AuditError("Invalid database path".to_string())
-            })?
+            db_path_ref
+                .to_str()
+                .ok_or_else(|| GovernanceError::AuditError("Invalid database path".to_string()))?,
         )
         .await
-        .map_err(|e| GovernanceError::AuditError(format!("Failed to connect to database: {}", e)))?;
+        .map_err(|e| {
+            GovernanceError::AuditError(format!("Failed to connect to database: {}", e))
+        })?;
 
         let pool = Arc::new(pool);
 
@@ -175,15 +177,17 @@ impl AuditTrail {
         )
         .execute(&*self.pool)
         .await
-        .map_err(|e| GovernanceError::AuditError(format!("Failed to create timestamp index: {}", e)))?;
+        .map_err(|e| {
+            GovernanceError::AuditError(format!("Failed to create timestamp index: {}", e))
+        })?;
 
         // Create index on event_type for filtering
-        sqlx::query(
-            "CREATE INDEX IF NOT EXISTS idx_audit_events_type ON audit_events(event_type)",
-        )
-        .execute(&*self.pool)
-        .await
-        .map_err(|e| GovernanceError::AuditError(format!("Failed to create event_type index: {}", e)))?;
+        sqlx::query("CREATE INDEX IF NOT EXISTS idx_audit_events_type ON audit_events(event_type)")
+            .execute(&*self.pool)
+            .await
+            .map_err(|e| {
+                GovernanceError::AuditError(format!("Failed to create event_type index: {}", e))
+            })?;
 
         Ok(())
     }
@@ -273,9 +277,7 @@ impl AuditTrail {
 
     /// Log policy violations
     pub async fn log_policy_violations(
-        &self,
-        decision: &Decision,
-        violations: &[PolicyViolation],
+        &self, decision: &Decision, violations: &[PolicyViolation],
     ) -> Result<()> {
         for violation in violations {
             self.log_event(AuditEvent {
@@ -321,9 +323,7 @@ impl AuditTrail {
 
     /// Log approval requested
     pub async fn log_approval_requested(
-        &self,
-        decision: &Decision,
-        request_id: &str,
+        &self, decision: &Decision, request_id: &str,
     ) -> Result<()> {
         self.log_event(AuditEvent {
             id: Uuid::new_v4().to_string(),

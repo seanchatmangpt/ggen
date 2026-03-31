@@ -2,7 +2,9 @@
 //!
 //! Uses real stores and real HTTP endpoints (via `tokio::net::TcpListener`).
 
-use ggen_a2a_registry::{AgentEntry, AgentStore, HealthConfig, HealthMonitor, HealthStatus, MemoryStore};
+use ggen_a2a_registry::{
+    AgentEntry, AgentStore, HealthConfig, HealthMonitor, HealthStatus, MemoryStore,
+};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::net::TcpListener;
