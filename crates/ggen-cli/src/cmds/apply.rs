@@ -89,12 +89,8 @@ impl From<SyncResult> for ApplyOutput {
 #[allow(clippy::unused_unit)]
 #[verb("apply", "root")]
 pub fn apply(
-    rule: Option<String>,
-    filter: Option<String>,
-    config: Option<String>,
-    dry_run: Option<bool>,
-    verbose: Option<bool>,
-    force: Option<bool>,
+    rule: Option<String>, filter: Option<String>, config: Option<String>, dry_run: Option<bool>,
+    verbose: Option<bool>, force: Option<bool>,
 ) -> VerbResult<ApplyOutput> {
     // Build apply options from CLI args
     let opts = build_apply_options(rule, filter, config, dry_run, verbose, force)?;
@@ -141,12 +137,8 @@ struct ApplyOptions {
 
 /// Build ApplyOptions from CLI arguments
 fn build_apply_options(
-    rule: Option<String>,
-    filter: Option<String>,
-    config: Option<String>,
-    dry_run: Option<bool>,
-    verbose: Option<bool>,
-    force: Option<bool>,
+    rule: Option<String>, filter: Option<String>, config: Option<String>, dry_run: Option<bool>,
+    verbose: Option<bool>, force: Option<bool>,
 ) -> VerbResult<ApplyOptions> {
     let config_path = PathBuf::from(config.unwrap_or_else(|| "ggen.toml".to_string()));
 
@@ -173,7 +165,7 @@ fn build_apply_options(
     Ok(ApplyOptions {
         config_path,
         selected_rule,
-        dry_run: dry_run.unwrap_or(true),
+        dry_run: dry_run.unwrap_or(false),
         verbose: verbose.unwrap_or(false),
         force: force.unwrap_or(false),
     })

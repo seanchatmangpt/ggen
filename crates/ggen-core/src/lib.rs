@@ -180,7 +180,7 @@ pub use lifecycle::{
 
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};
-pub use config::{ConfigError, ConfigResult, GgenConfig, GenerationMode, Rule};
+pub use config::{ConfigError, ConfigResult, GenerationMode, GgenConfig, Rule};
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
 pub use drift::{ChangeType, DriftChange, DriftDetector, DriftStatus, FileHashState, SyncState};
 pub use generator::{GenContext, Generator};

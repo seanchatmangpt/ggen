@@ -192,12 +192,12 @@ enabled = true
 rules = [
     # A2A-RS Pipeline (μ₁-μ₅): Agent-to-Agent code generation from RDF ontology
     # Each rule follows the pattern: query → template → output_file
-    { name = "a2a-agents", query = "crates/ggen-core/queries/a2a/construct-agents.rq", template = "crates/ggen-core/templates/a2a/agent.rs.tera", output_file = "crates/a2a-generated/src/agent.rs", mode = "Overwrite" },
-    { name = "a2a-messages", query = "crates/ggen-core/queries/a2a/extract-messages.rq", template = "crates/ggen-core/templates/a2a/message.rs.tera", output_file = "crates/a2a-generated/src/message.rs", mode = "Overwrite" },
-    { name = "a2a-tasks", query = "crates/ggen-core/queries/a2a/extract-tasks.rq", template = "crates/ggen-core/templates/a2a/task.rs.tera", output_file = "crates/a2a-generated/src/task.rs", mode = "Overwrite" },
-    { name = "a2a-transports", query = "crates/ggen-core/queries/a2a/extract-transports.rq", template = "crates/ggen-core/templates/a2a/transport.rs.tera", output_file = "crates/a2a-generated/src/transport.rs", mode = "Overwrite" },
-    { name = "a2a-skills", query = "crates/ggen-core/queries/a2a/extract-skills.rq", template = "crates/ggen-core/templates/a2a/skill.rs.tera", output_file = "crates/a2a-generated/src/skill.rs", mode = "Overwrite" },
-    { name = "a2a-lib", query = "", template = "crates/ggen-core/templates/a2a/lib.rs.tera", output_file = "crates/a2a-generated/src/lib.rs", mode = "Overwrite" },
+    { name = "a2a-agents", query = { file = "crates/ggen-core/queries/a2a/construct-agents.rq" }, template = { file = "crates/ggen-core/templates/a2a/agent.rs.tera" }, output_file = "crates/a2a-generated/src/agent.rs", mode = "Overwrite" },
+    { name = "a2a-messages", query = { file = "crates/ggen-core/queries/a2a/extract-messages.rq" }, template = { file = "crates/ggen-core/templates/a2a/message.rs.tera" }, output_file = "crates/a2a-generated/src/message.rs", mode = "Overwrite" },
+    { name = "a2a-tasks", query = { file = "crates/ggen-core/queries/a2a/extract-tasks.rq" }, template = { file = "crates/ggen-core/templates/a2a/task.rs.tera" }, output_file = "crates/a2a-generated/src/task.rs", mode = "Overwrite" },
+    { name = "a2a-transports", query = { file = "crates/ggen-core/queries/a2a/extract-transports.rq" }, template = { file = "crates/ggen-core/templates/a2a/transport.rs.tera" }, output_file = "crates/a2a-generated/src/transport.rs", mode = "Overwrite" },
+    { name = "a2a-skills", query = { file = "crates/ggen-core/queries/a2a/extract-skills.rq" }, template = { file = "crates/ggen-core/templates/a2a/skill.rs.tera" }, output_file = "crates/a2a-generated/src/skill.rs", mode = "Overwrite" },
+    { name = "a2a-lib", query = { inline = "" }, template = { file = "crates/ggen-core/templates/a2a/lib.rs.tera" }, output_file = "crates/a2a-generated/src/lib.rs", mode = "Overwrite" },
     # Domain config generation
     { name = "domain-config", source = ".specify/specs/014-a2a-integration/", output = "crates/ggen-domain/src/domain/", templates = "crates/ggen-core/templates/domain/" }
 ]

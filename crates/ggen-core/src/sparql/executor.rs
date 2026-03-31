@@ -35,9 +35,7 @@ use std::path::Path;
 /// let results = execute_query(&graph, Path::new("query.sparql"))?;
 /// assert_eq!(results[0].get("name"), Some(&"Alice".to_string()));
 /// ```
-pub fn execute_query(
-    graph: &Graph, query_file: &Path,
-) -> Result<Vec<HashMap<String, String>>> {
+pub fn execute_query(graph: &Graph, query_file: &Path) -> Result<Vec<HashMap<String, String>>> {
     // 1. Read query from file
     let query_content = std::fs::read_to_string(query_file).map_err(|e| {
         Error::new(&format!(
@@ -82,18 +80,14 @@ pub fn execute_query(
             }
             Ok(rows)
         }
-        QueryResults::Boolean(_) => {
-            Err(Error::new(&format!(
-                "Query in '{}' is an ASK query (returned boolean). Expected SELECT query.",
-                query_file.display()
-            )))
-        }
-        QueryResults::Graph(_) => {
-            Err(Error::new(&format!(
-                "Query in '{}' is a CONSTRUCT query (returned graph). Expected SELECT query.",
-                query_file.display()
-            )))
-        }
+        QueryResults::Boolean(_) => Err(Error::new(&format!(
+            "Query in '{}' is an ASK query (returned boolean). Expected SELECT query.",
+            query_file.display()
+        ))),
+        QueryResults::Graph(_) => Err(Error::new(&format!(
+            "Query in '{}' is a CONSTRUCT query (returned graph). Expected SELECT query.",
+            query_file.display()
+        ))),
     }
 }
 
@@ -109,20 +103,17 @@ pub fn execute_query(
 ///
 /// # Errors
 /// Returns an error if the query execution fails or the query is not a SELECT query.
-pub fn execute_query_inline(
-    graph: &Graph, query: &str,
-) -> Result<Vec<HashMap<String, String>>> {
-    let results = graph.query(query).map_err(|e| {
-        Error::new(&format!("Failed to execute SPARQL query: {}", e))
-    })?;
+pub fn execute_query_inline(graph: &Graph, query: &str) -> Result<Vec<HashMap<String, String>>> {
+    let results = graph
+        .query(query)
+        .map_err(|e| Error::new(&format!("Failed to execute SPARQL query: {}", e)))?;
 
     match results {
         QueryResults::Solutions(solutions) => {
             let mut rows = Vec::new();
             for solution in solutions {
-                let solution = solution.map_err(|e| {
-                    Error::new(&format!("Error reading SPARQL solution: {}", e))
-                })?;
+                let solution = solution
+                    .map_err(|e| Error::new(&format!("Error reading SPARQL solution: {}", e)))?;
 
                 let mut row = HashMap::new();
                 for (var, term) in solution.iter() {
@@ -134,16 +125,12 @@ pub fn execute_query_inline(
             }
             Ok(rows)
         }
-        QueryResults::Boolean(_) => {
-            Err(Error::new(
-                "Query is an ASK query (returned boolean). Expected SELECT query.",
-            ))
-        }
-        QueryResults::Graph(_) => {
-            Err(Error::new(
-                "Query is a CONSTRUCT query (returned graph). Expected SELECT query.",
-            ))
-        }
+        QueryResults::Boolean(_) => Err(Error::new(
+            "Query is an ASK query (returned boolean). Expected SELECT query.",
+        )),
+        QueryResults::Graph(_) => Err(Error::new(
+            "Query is a CONSTRUCT query (returned graph). Expected SELECT query.",
+        )),
     }
 }
 
@@ -268,10 +255,7 @@ mod tests {
             .unwrap();
 
         // Act & Assert
-        let result = execute_query_inline(
-            &graph,
-            "ASK { ?s a <http://example.org/Person> }",
-        );
+        let result = execute_query_inline(&graph, "ASK { ?s a <http://example.org/Person> }");
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("ASK query"));
     }

@@ -287,7 +287,7 @@ async fn test_concurrent_agent_operations() {
 
 /// Test resolution suggestion structure
 #[tokio::test]
-fn test_resolution_suggestion_structure() {
+async fn test_resolution_suggestion_structure() {
     use std::collections::BTreeMap;
 
     let suggestion = ResolutionSuggestion {

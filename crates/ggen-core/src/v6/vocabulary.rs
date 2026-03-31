@@ -277,7 +277,8 @@ impl VocabularyRegistry {
         }
 
         // Extract from IRI references (simple heuristic)
-        let iri_pattern = regex::Regex::new(r"<([^>]+)>").unwrap();
+        let iri_pattern = regex::Regex::new(r"<([^>]+)>")
+            .expect("IRI extraction regex is a hardcoded literal and must always compile");
         for cap in iri_pattern.captures_iter(content) {
             if let Some(iri) = cap.get(1) {
                 let iri_str = iri.as_str();
