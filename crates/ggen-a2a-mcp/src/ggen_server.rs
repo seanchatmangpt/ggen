@@ -1722,21 +1722,6 @@ fn find_files_by_extensions(dir: &Path, extensions: &[&str]) -> std::io::Result<
 }
 
 // ---------------------------------------------------------------------------
-// Helper trait for builder chaining with optional values
-// ---------------------------------------------------------------------------
-
-trait PipeIfSome: Sized {
-    fn pipe_if_some<T, F: FnOnce(Self, T) -> Self>(self, opt: Option<T>, f: F) -> Self {
-        match opt {
-            Some(v) => f(self, v),
-            None => self,
-        }
-    }
-}
-
-impl<T> PipeIfSome for T {}
-
-// ---------------------------------------------------------------------------
 // File system helpers
 // ---------------------------------------------------------------------------
 
