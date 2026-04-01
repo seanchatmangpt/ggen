@@ -36,7 +36,7 @@ fn test_template_show_help_shows_usage() {
 #[test]
 fn test_template_new_creates_template() {
     let workspace = create_temp_workspace().unwrap();
-    let (output, code) = run_ggen(&["template", "new", "--name", "e2e-test-template", "--template-type", "generic"], workspace.path()).unwrap();
+    let (output, code) = run_ggen(&["template", "new", "--name", "e2e-test-template", "--template_type", "generic"], workspace.path()).unwrap();
     println!("template new exit code: {}", code);
     println!("template new output: {}", output.trim());
     assert_eq!(code, 0, "template new should succeed");
@@ -80,7 +80,7 @@ fn test_sync_help_shows_usage() {
 #[test]
 fn test_init_creates_valid_project_structure() {
     let workspace = create_temp_workspace().unwrap();
-    let (output, code) = run_ggen(&["init", "--path", workspace.path().to_str().unwrap(), "--skip_hooks"], workspace.path()).unwrap();
+    let (output, code) = run_ggen(&["init", "--path", workspace.path().to_str().unwrap(), "--skip_hooks", "true"], workspace.path()).unwrap();
     println!("init exit code: {}", code);
     println!("init output: {}", output.trim());
     assert_eq!(code, 0, "ggen init should succeed");
@@ -100,9 +100,9 @@ fn test_init_creates_valid_project_structure() {
 fn test_init_twice_without_force_fails() {
     let workspace = create_temp_workspace().unwrap();
     let project_dir = workspace.path().to_str().unwrap();
-    let (_output1, code1) = run_ggen(&["init", "--path", project_dir, "--skip_hooks"], workspace.path()).unwrap();
+    let (_output1, code1) = run_ggen(&["init", "--path", project_dir, "--skip_hooks", "true"], workspace.path()).unwrap();
     assert_eq!(code1, 0, "First init should succeed");
-    let (output2, code2) = run_ggen(&["init", "--path", project_dir, "--skip_hooks"], workspace.path()).unwrap();
+    let (output2, code2) = run_ggen(&["init", "--path", project_dir, "--skip_hooks", "true"], workspace.path()).unwrap();
     assert_ne!(code2, 0, "Second init without --force should fail");
     let json = parse_json_output(&output2);
     assert_eq!(json["status"].as_str().unwrap_or(""), "error", "Second init should report error status");
@@ -113,11 +113,11 @@ fn test_init_twice_without_force_fails() {
 fn test_init_force_reinitializes() {
     let workspace = create_temp_workspace().unwrap();
     let project_dir = workspace.path().to_str().unwrap();
-    let (_output1, code1) = run_ggen(&["init", "--path", project_dir, "--skip_hooks"], workspace.path()).unwrap();
+    let (_output1, code1) = run_ggen(&["init", "--path", project_dir, "--skip_hooks", "true"], workspace.path()).unwrap();
     assert_eq!(code1, 0, "First init should succeed");
     let toml_path = workspace.path().join("ggen.toml");
     std::fs::write(&toml_path, "# modified\n").unwrap();
-    let (output2, code2) = run_ggen(&["init", "--path", project_dir, "--force", "--skip_hooks"], workspace.path()).unwrap();
+    let (output2, code2) = run_ggen(&["init", "--path", project_dir, "--force", "--skip_hooks", "true"], workspace.path()).unwrap();
     assert_eq!(code2, 0, "Force re-init should succeed");
     let json = parse_json_output(&output2);
     assert_eq!(json["status"].as_str().unwrap_or(""), "success", "Force re-init should report success");
@@ -128,7 +128,7 @@ fn test_init_force_reinitializes() {
 #[test]
 fn test_init_creates_transaction_receipt() {
     let workspace = create_temp_workspace().unwrap();
-    let (output, code) = run_ggen(&["init", "--path", workspace.path().to_str().unwrap(), "--skip_hooks"], workspace.path()).unwrap();
+    let (output, code) = run_ggen(&["init", "--path", workspace.path().to_str().unwrap(), "--skip_hooks", "true"], workspace.path()).unwrap();
     assert_eq!(code, 0, "Init should succeed");
     let json = parse_json_output(&output);
     assert!(json.get("transaction").is_some(), "Output should contain transaction info");
@@ -141,7 +141,7 @@ fn test_init_creates_transaction_receipt() {
 fn test_sync_dry_run_with_init_project() {
     let workspace = create_temp_workspace().unwrap();
     let project_dir = workspace.path().to_str().unwrap();
-    let (init_output, init_code) = run_ggen(&["init", "--path", project_dir, "--skip_hooks"], workspace.path()).unwrap();
+    let (init_output, init_code) = run_ggen(&["init", "--path", project_dir, "--skip_hooks", "true"], workspace.path()).unwrap();
     assert_eq!(init_code, 0, "Init should succeed");
     println!("Init output: {}", init_output.trim());
     let (sync_output, sync_code) = run_ggen(&["sync", "--dry-run"], workspace.path()).unwrap();
@@ -201,5 +201,5 @@ fn test_version_returns_consistent_version() {
     let out1 = String::from_utf8_lossy(&v1.stdout).to_string();
     let out2 = String::from_utf8_lossy(&v2.stdout).to_string();
     assert_eq!(out1, out2, "Version output should be consistent across calls");
-    assert!(out1.contains("ggen"), "Version output should contain 'ggen'");
+    assert!(out1.contains("cli"), "Version output should contain 'cli'");
 }

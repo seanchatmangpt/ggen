@@ -748,6 +748,12 @@ required-features = ["integration"]
 name = "full_workflow_scenarios"
 path = "tests/integration/full_workflow_scenarios.rs"
 required-features = ["integration"]
+# CISO E2E governance tests
+[[test]]
+name = "ciso_e2e"
+path = "tests/ciso_e2e.rs"
+required-features = ["integration"]
+
 # Security integration tests
 [[test]]
 name = "security_tests"

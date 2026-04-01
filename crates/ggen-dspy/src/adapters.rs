@@ -161,8 +161,9 @@ impl LlmAdapter for ChatAdapter {
         let mut results = HashMap::new();
 
         for field in output_fields {
-            // Find field marker
-            let pattern = format!(r"\[\[\s*##\s*{}\s*##\s*\]\]\s*\n(.*?)(?:\n\[\[|$)", field);
+            // Find field marker — use [ \t]* instead of \s* before \n to avoid
+            // consuming content-separating newlines (\s includes \n which breaks parsing)
+            let pattern = format!(r"\[\[\s*##\s*{}\s*##\s*\]\][ \t]*\n(.*?)(?:\n\[\[|$)", field);
             let field_regex = Regex::new(&pattern)
                 .map_err(|e| DspyError::ParsingError(format!("Invalid regex pattern: {}", e)))?;
 
@@ -247,8 +248,8 @@ impl JSONAdapter {
 
     /// Extract JSON from response (handles markdown code blocks)
     fn extract_json(&self, response: &str) -> Result<String> {
-        // Try to extract from ```json``` blocks
-        let json_block_regex = Regex::new(r"```json\s*\n(.*?)\n```")
+        // Try to extract from ```json``` blocks — (?s) allows . to match newlines for multi-line JSON
+        let json_block_regex = Regex::new(r"(?s)```json\s*\n(.*?)\n```")
             .map_err(|e| DspyError::ParsingError(format!("Regex error: {}", e)))?;
 
         if let Some(captures) = json_block_regex.captures(response) {
@@ -265,7 +266,7 @@ impl JSONAdapter {
         }
 
         // Try to extract from ``` blocks without json marker
-        let code_block_regex = Regex::new(r"```\s*\n(.*?)\n```")
+        let code_block_regex = Regex::new(r"(?s)```\s*\n(.*?)\n```")
             .map_err(|e| DspyError::ParsingError(format!("Regex error: {}", e)))?;
 
         if let Some(captures) = code_block_regex.captures(response) {
