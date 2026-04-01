@@ -976,6 +976,7 @@ direct_test_output.txt
 .archive/
 .cursor/
 .docs/
+.claude/worktrees/
 .ggen/
 .ggen-receipts/
 .metrics/
