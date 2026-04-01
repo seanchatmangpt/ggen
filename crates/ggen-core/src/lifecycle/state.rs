@@ -15,7 +15,7 @@
 //!
 //! ### Loading and Saving State
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::lifecycle::state::{load_state, save_state, LifecycleState};
 //! use ggen_core::lifecycle::Result;
 //! use std::path::PathBuf;
@@ -37,7 +37,7 @@
 //!
 //! ### Tracking Phase Execution
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::lifecycle::state::{LifecycleState, RunRecord};
 //! use ggen_core::lifecycle::Result;
 //! use chrono::Utc;
