@@ -1205,12 +1205,13 @@ fn generate_ln_ctrl_scripts(
         echo \"All gates passed\"\n",
         config.metadata.name, config.metadata.name
     );
-    tx.write_file(scripts_dir.join("validate.sh"), &validate_sh).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to write validate.sh: {}",
-            e
-        ))
-    })?;
+    tx.write_file(scripts_dir.join("validate.sh"), &validate_sh)
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to write validate.sh: {}",
+                e
+            ))
+        })?;
     files_created.push("scripts/validate.sh".to_string());
 
     // Generate ci.sh — CI pipeline stub
@@ -1222,12 +1223,10 @@ fn generate_ln_ctrl_scripts(
         cargo make audit\n",
         config.metadata.name
     );
-    tx.write_file(scripts_dir.join("ci.sh"), &ci_sh).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to write ci.sh: {}",
-            e
-        ))
-    })?;
+    tx.write_file(scripts_dir.join("ci.sh"), &ci_sh)
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to write ci.sh: {}", e))
+        })?;
     files_created.push("scripts/ci.sh".to_string());
 
     Ok(())

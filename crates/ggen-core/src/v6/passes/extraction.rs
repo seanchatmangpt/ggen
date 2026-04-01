@@ -216,9 +216,8 @@ impl ExtractionPass {
                 "http://ggen.dev/v6/pack-query#{}",
                 sq.name.replace(['/', '\\', ' '], "_")
             );
-            let order_offset = i32::try_from(i).map_err(|_| {
-                Error::new("Too many pack queries for i32 order index")
-            })?;
+            let order_offset = i32::try_from(i)
+                .map_err(|_| Error::new("Too many pack queries for i32 order index"))?;
             self.tensor_queries.push(TensorQuery {
                 name: format!("pack::{}", sq.name),
                 construct: sq.sparql.clone(),

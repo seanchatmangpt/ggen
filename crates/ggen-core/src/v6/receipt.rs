@@ -65,7 +65,6 @@ pub struct BuildReceipt {
     pub policies: ReceiptPolicies,
 
     // ===== PACK PROVENANCE (NEW) =====
-
     /// Atomic packs that contributed to this build
     #[serde(default)]
     pub packs: Vec<PackProvenance>,
@@ -899,7 +898,10 @@ mod tests {
         receipt.set_profile(profile);
 
         assert!(receipt.profile.is_some());
-        assert_eq!(receipt.profile.as_ref().unwrap().profile_id, "enterprise-strict");
+        assert_eq!(
+            receipt.profile.as_ref().unwrap().profile_id,
+            "enterprise-strict"
+        );
         assert_eq!(
             receipt.profile.as_ref().unwrap().trust_requirement,
             TrustTier::EnterpriseCertified

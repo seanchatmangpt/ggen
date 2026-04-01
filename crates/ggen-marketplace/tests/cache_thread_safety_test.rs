@@ -8,11 +8,11 @@
 //! - Cache operations under load
 //! - Thread-safe statistics
 
-use ggen_marketplace::cache::{PackCache, CacheConfig, CachedPack};
+use ggen_marketplace::cache::{CacheConfig, CachedPack, PackCache};
 use ggen_marketplace::models::{PackageId, PackageVersion};
-use tempfile::TempDir;
 use std::sync::{Arc, Barrier};
 use std::time::Duration;
+use tempfile::TempDir;
 
 #[test]
 fn test_cache_concurrent_inserts() {
@@ -71,9 +71,15 @@ fn test_cache_concurrent_inserts() {
     // Verify cache state
     let stats = cache_arc.stats();
     assert!(stats.total_packs > 0, "Cache should have entries");
-    assert!(stats.total_packs <= 1000, "Cache should not exceed max packs");
+    assert!(
+        stats.total_packs <= 1000,
+        "Cache should not exceed max packs"
+    );
 
-    println!("Concurrent inserts test: {} packs in cache", stats.total_packs);
+    println!(
+        "Concurrent inserts test: {} packs in cache",
+        stats.total_packs
+    );
 }
 
 #[test]
@@ -118,8 +124,8 @@ fn test_cache_concurrent_gets() {
 
             for _ in 0..gets_per_thread {
                 let pack_num = (rand::random::<usize>() % 10) as u32;
-                let package_id = PackageId::new(&format!("pack-{}", pack_num))
-                    .expect("Invalid package ID");
+                let package_id =
+                    PackageId::new(&format!("pack-{}", pack_num)).expect("Invalid package ID");
                 let version = PackageVersion::new("1.0.0").expect("Invalid version");
 
                 // Get should not panic
@@ -191,8 +197,9 @@ fn test_cache_concurrent_mixed_operations() {
                     // Get (30% chance)
                     2 => {
                         let pack_num = (rand::random::<usize>() % 50) as u32;
-                        let package_id = PackageId::new(&format!("pack-{}-{}", thread_id, pack_num))
-                            .expect("Invalid package ID");
+                        let package_id =
+                            PackageId::new(&format!("pack-{}-{}", thread_id, pack_num))
+                                .expect("Invalid package ID");
                         let version = PackageVersion::new("1.0.0").expect("Invalid version");
 
                         let _ = cache_clone.get(&package_id, &version);
@@ -215,11 +222,19 @@ fn test_cache_concurrent_mixed_operations() {
 
     // Verify cache is still consistent
     let stats = cache_arc.stats();
-    assert!(stats.total_packs <= 100, "Cache should not exceed max packs");
-    assert!(stats.total_size_bytes <= 5_000_000, "Cache should not exceed max size");
+    assert!(
+        stats.total_packs <= 100,
+        "Cache should not exceed max packs"
+    );
+    assert!(
+        stats.total_size_bytes <= 5_000_000,
+        "Cache should not exceed max size"
+    );
 
-    println!("Mixed operations test: {} packs, {} bytes",
-             stats.total_packs, stats.total_size_bytes);
+    println!(
+        "Mixed operations test: {} packs, {} bytes",
+        stats.total_packs, stats.total_size_bytes
+    );
 }
 
 #[test]
@@ -435,7 +450,8 @@ fn test_cache_remove_under_load() {
             barrier_clone.wait();
 
             for i in 0..10 {
-                let package_id = PackageId::new(&format!("pack-{}", i)).expect("Invalid package ID");
+                let package_id =
+                    PackageId::new(&format!("pack-{}", i)).expect("Invalid package ID");
                 let version = PackageVersion::new("1.0.0").expect("Invalid version");
 
                 // Some threads remove, some get
@@ -457,7 +473,10 @@ fn test_cache_remove_under_load() {
 
     // Cache should be in valid state
     let stats = cache_arc.stats();
-    assert!(stats.total_packs >= 0 && stats.total_packs <= 10, "Cache should be consistent");
+    assert!(
+        stats.total_packs >= 0 && stats.total_packs <= 10,
+        "Cache should be consistent"
+    );
 }
 
 #[test]
@@ -520,10 +539,15 @@ fn test_cache_lru_eviction_under_concurrent_load() {
     // Cache should respect limits
     let stats = cache_arc.stats();
     assert!(stats.total_packs <= 5, "Cache should not exceed max packs");
-    assert!(stats.total_size_bytes <= 5000, "Cache should not exceed max size");
+    assert!(
+        stats.total_size_bytes <= 5000,
+        "Cache should not exceed max size"
+    );
 
-    println!("LRU eviction under load: {} packs, {} bytes",
-             stats.total_packs, stats.total_size_bytes);
+    println!(
+        "LRU eviction under load: {} packs, {} bytes",
+        stats.total_packs, stats.total_size_bytes
+    );
 }
 
 #[test]

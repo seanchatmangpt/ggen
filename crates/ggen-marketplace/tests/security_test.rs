@@ -10,32 +10,45 @@
 //! - Checksum calculation and verification
 
 use ggen_marketplace::security::{
-    MarketplaceSignature, MarketplaceVerifier, ChecksumCalculator,
-    generate_marketplace_keypair,
+    generate_marketplace_keypair, ChecksumCalculator, MarketplaceSignature, MarketplaceVerifier,
 };
 use ggen_marketplace::traits::Signable;
-use tempfile::TempDir;
 use std::fs;
+use tempfile::TempDir;
 
 #[test]
 fn test_marketplace_signature_creation() {
     let (signing_key, _) = generate_marketplace_keypair();
 
     let data = b"test pack data for signing";
-    let signature = MarketplaceSignature::sign(&signing_key, data)
-        .expect("signing failed");
+    let signature = MarketplaceSignature::sign(&signing_key, data).expect("signing failed");
 
     // Signature should be non-empty
-    assert!(!signature.signature.is_empty(), "Signature must not be empty");
+    assert!(
+        !signature.signature.is_empty(),
+        "Signature must not be empty"
+    );
 
     // Ed25519 signature is 64 bytes = 128 hex chars
-    assert_eq!(signature.signature.len(), 128, "Ed25519 signature must be 128 hex chars");
+    assert_eq!(
+        signature.signature.len(),
+        128,
+        "Ed25519 signature must be 128 hex chars"
+    );
 
     // Checksum should be SHA-256 (64 hex chars)
-    assert_eq!(signature.checksum.len(), 64, "SHA-256 checksum must be 64 hex chars");
+    assert_eq!(
+        signature.checksum.len(),
+        64,
+        "SHA-256 checksum must be 64 hex chars"
+    );
 
     // Public key should be 32 bytes = 64 hex chars
-    assert_eq!(signature.public_key.len(), 64, "Ed25519 public key must be 64 hex chars");
+    assert_eq!(
+        signature.public_key.len(),
+        64,
+        "Ed25519 public key must be 64 hex chars"
+    );
 }
 
 #[test]
@@ -43,12 +56,15 @@ fn test_marketplace_signature_checksum_matches_ggen_receipt() {
     let (signing_key, _) = generate_marketplace_keypair();
 
     let data = b"test pack data";
-    let signature = MarketplaceSignature::sign(&signing_key, data)
-        .expect("signing failed");
+    let signature = MarketplaceSignature::sign(&signing_key, data).expect("signing failed");
 
     // Checksum should match ggen_receipt::hash_data
     let expected_checksum = ggen_receipt::hash_data(data);
-    assert_eq!(signature.checksum(), expected_checksum, "Checksum must match ggen_receipt");
+    assert_eq!(
+        signature.checksum(),
+        expected_checksum,
+        "Checksum must match ggen_receipt"
+    );
 }
 
 #[test]
@@ -56,11 +72,11 @@ fn test_marketplace_verifier_validates_correct_signature() {
     let (signing_key, verifying_key) = generate_marketplace_keypair();
 
     let data = b"test pack data";
-    let signature = MarketplaceSignature::sign(&signing_key, data)
-        .expect("signing failed");
+    let signature = MarketplaceSignature::sign(&signing_key, data).expect("signing failed");
 
     let verifier = MarketplaceVerifier::new(verifying_key);
-    let verified = verifier.verify(data, &signature)
+    let verified = verifier
+        .verify(data, &signature)
         .expect("verification failed");
 
     assert!(verified, "Valid signature must verify");
@@ -71,14 +87,14 @@ fn test_marketplace_verifier_rejects_wrong_signature() {
     let (signing_key, verifying_key) = generate_marketplace_keypair();
 
     let data = b"test pack data";
-    let signature = MarketplaceSignature::sign(&signing_key, data)
-        .expect("signing failed");
+    let signature = MarketplaceSignature::sign(&signing_key, data).expect("signing failed");
 
     // Tamper with the data
     let wrong_data = b"wrong pack data";
 
     let verifier = MarketplaceVerifier::new(verifying_key);
-    let verified = verifier.verify(wrong_data, &signature)
+    let verified = verifier
+        .verify(wrong_data, &signature)
         .expect("verification failed");
 
     assert!(!verified, "Wrong data must not verify");
@@ -89,8 +105,7 @@ fn test_marketplace_verifier_rejects_tampered_signature() {
     let (signing_key, verifying_key) = generate_marketplace_keypair();
 
     let data = b"test pack data";
-    let mut signature = MarketplaceSignature::sign(&signing_key, data)
-        .expect("signing failed");
+    let mut signature = MarketplaceSignature::sign(&signing_key, data).expect("signing failed");
 
     // Tamper with signature (flip one character)
     let mut sig_bytes = signature.signature.clone();
@@ -101,7 +116,8 @@ fn test_marketplace_verifier_rejects_tampered_signature() {
     signature.signature = sig_bytes;
 
     let verifier = MarketplaceVerifier::new(verifying_key);
-    let verified = verifier.verify(data, &signature)
+    let verified = verifier
+        .verify(data, &signature)
         .expect("verification failed");
 
     assert!(!verified, "Tampered signature must not verify");
@@ -120,10 +136,10 @@ fn test_marketplace_verifier_from_public_key_hex() {
 
     // Verifier should work correctly
     let data = b"test data";
-    let signature = MarketplaceSignature::sign(&signing_key, data)
-        .expect("signing failed");
+    let signature = MarketplaceSignature::sign(&signing_key, data).expect("signing failed");
 
-    let verified = verifier.verify(data, &signature)
+    let verified = verifier
+        .verify(data, &signature)
         .expect("verification failed");
     assert!(verified);
 }
@@ -137,7 +153,10 @@ fn test_marketplace_verifier_rejects_invalid_public_key_hex() {
     // Wrong length (not 32 bytes)
     let short_hex = "abcd1234";
     let result = MarketplaceVerifier::from_public_key_hex(short_hex);
-    assert!(result.is_err(), "Wrong length public key should be rejected");
+    assert!(
+        result.is_err(),
+        "Wrong length public key should be rejected"
+    );
 }
 
 #[test]
@@ -172,7 +191,10 @@ fn test_checksum_calculator_avalanche_effect() {
     let checksum2 = ChecksumCalculator::calculate(data2);
 
     // Checksums should be completely different
-    assert_ne!(checksum1, checksum2, "Different data must produce different checksums");
+    assert_ne!(
+        checksum1, checksum2,
+        "Different data must produce different checksums"
+    );
 
     // Check avalanche effect (at least 100 bits different out of 256)
     let bytes1 = hex::decode(&checksum1).expect("Invalid hex");
@@ -183,7 +205,10 @@ fn test_checksum_calculator_avalanche_effect() {
         differing_bits += (b1 ^ b2).count_ones();
     }
 
-    assert!(differing_bits >= 100, "SHA-256 must have good avalanche effect");
+    assert!(
+        differing_bits >= 100,
+        "SHA-256 must have good avalanche effect"
+    );
 }
 
 #[test]
@@ -191,8 +216,7 @@ fn test_checksum_verification_valid() {
     let data = b"test pack data";
     let checksum = ChecksumCalculator::calculate(data);
 
-    let verified = ChecksumCalculator::verify(data, &checksum)
-        .expect("verification failed");
+    let verified = ChecksumCalculator::verify(data, &checksum).expect("verification failed");
 
     assert!(verified, "Valid checksum must verify");
 }
@@ -202,8 +226,7 @@ fn test_checksum_verification_invalid() {
     let data = b"test pack data";
     let wrong_checksum = "0".repeat(64);
 
-    let verified = ChecksumCalculator::verify(data, &wrong_checksum)
-        .expect("verification failed");
+    let verified = ChecksumCalculator::verify(data, &wrong_checksum).expect("verification failed");
 
     assert!(!verified, "Wrong checksum must not verify");
 }
@@ -213,8 +236,7 @@ fn test_checksum_verification_empty_input() {
     let data = b"";
     let checksum = ChecksumCalculator::calculate(data);
 
-    let verified = ChecksumCalculator::verify(data, &checksum)
-        .expect("verification failed");
+    let verified = ChecksumCalculator::verify(data, &checksum).expect("verification failed");
 
     assert!(verified, "Empty input checksum must verify");
 
@@ -233,20 +255,16 @@ fn test_signature_persistence_to_file() {
     let (signing_key, _) = generate_marketplace_keypair();
     let data = b"test data";
 
-    let signature = MarketplaceSignature::sign(&signing_key, data)
-        .expect("signing failed");
+    let signature = MarketplaceSignature::sign(&signing_key, data).expect("signing failed");
 
     // Serialize and write to file
-    let json = serde_json::to_string_pretty(&signature)
-        .expect("serialization failed");
-    fs::write(&sig_path, json)
-        .expect("write failed");
+    let json = serde_json::to_string_pretty(&signature).expect("serialization failed");
+    fs::write(&sig_path, json).expect("write failed");
 
     // Read from file
-    let read_json = fs::read_to_string(&sig_path)
-        .expect("read failed");
-    let loaded: MarketplaceSignature = serde_json::from_str(&read_json)
-        .expect("deserialization failed");
+    let read_json = fs::read_to_string(&sig_path).expect("read failed");
+    let loaded: MarketplaceSignature =
+        serde_json::from_str(&read_json).expect("deserialization failed");
 
     // Signature should be preserved
     assert_eq!(signature.signature, loaded.signature);
@@ -262,8 +280,8 @@ fn test_verifier_public_key_hex_roundtrip() {
     let pub_key_hex = verifier.public_key_hex();
 
     // Create new verifier from hex
-    let verifier2 = MarketplaceVerifier::from_public_key_hex(&pub_key_hex)
-        .expect("failed to create verifier");
+    let verifier2 =
+        MarketplaceVerifier::from_public_key_hex(&pub_key_hex).expect("failed to create verifier");
 
     // Public keys should match
     assert_eq!(verifier.public_key_hex(), verifier2.public_key_hex());
@@ -276,16 +294,20 @@ fn test_multiple_signatures_different_data() {
     let data1 = b"first pack data";
     let data2 = b"second pack data";
 
-    let sig1 = MarketplaceSignature::sign(&signing_key, data1)
-        .expect("signing failed");
-    let sig2 = MarketplaceSignature::sign(&signing_key, data2)
-        .expect("signing failed");
+    let sig1 = MarketplaceSignature::sign(&signing_key, data1).expect("signing failed");
+    let sig2 = MarketplaceSignature::sign(&signing_key, data2).expect("signing failed");
 
     // Signatures must be different
-    assert_ne!(sig1.signature, sig2.signature, "Different data must produce different signatures");
+    assert_ne!(
+        sig1.signature, sig2.signature,
+        "Different data must produce different signatures"
+    );
 
     // Checksums must be different
-    assert_ne!(sig1.checksum, sig2.checksum, "Different data must produce different checksums");
+    assert_ne!(
+        sig1.checksum, sig2.checksum,
+        "Different data must produce different checksums"
+    );
 
     // Both should verify
     let verifier = MarketplaceVerifier::new(verifying_key);
@@ -298,8 +320,7 @@ fn test_signature_includes_checksum() {
     let (signing_key, _) = generate_marketplace_keypair();
 
     let data = b"test pack data";
-    let signature = MarketplaceSignature::sign(&signing_key, data)
-        .expect("signing failed");
+    let signature = MarketplaceSignature::sign(&signing_key, data).expect("signing failed");
 
     // Checksum should match direct calculation
     let expected_checksum = ggen_receipt::hash_data(data);
@@ -318,12 +339,12 @@ fn test_large_data_signature() {
     // Create large data (1 MB)
     let large_data = vec![0u8; 1024 * 1024];
 
-    let signature = MarketplaceSignature::sign(&signing_key, &large_data)
-        .expect("signing failed");
+    let signature = MarketplaceSignature::sign(&signing_key, &large_data).expect("signing failed");
 
     // Should verify correctly
     let verifier = MarketplaceVerifier::new(verifying_key);
-    let verified = verifier.verify(&large_data, &signature)
+    let verified = verifier
+        .verify(&large_data, &signature)
         .expect("verification failed");
 
     assert!(verified, "Large data signature must verify");
@@ -335,12 +356,12 @@ fn test_empty_data_signature() {
 
     let empty_data = b"";
 
-    let signature = MarketplaceSignature::sign(&signing_key, empty_data)
-        .expect("signing failed");
+    let signature = MarketplaceSignature::sign(&signing_key, empty_data).expect("signing failed");
 
     // Should verify correctly
     let verifier = MarketplaceVerifier::new(verifying_key);
-    let verified = verifier.verify(empty_data, &signature)
+    let verified = verifier
+        .verify(empty_data, &signature)
         .expect("verification failed");
 
     assert!(verified, "Empty data signature must verify");
@@ -357,7 +378,10 @@ fn test_verifier_signable_trait_cannot_sign() {
     assert!(result.is_err(), "Verifier should not be able to sign");
 
     let err = result.unwrap_err();
-    assert!(err.to_string().contains("cannot sign"), "Error should indicate cannot sign");
+    assert!(
+        err.to_string().contains("cannot sign"),
+        "Error should indicate cannot sign"
+    );
 }
 
 #[test]
@@ -365,13 +389,12 @@ fn test_verifier_signable_trait_verify() {
     let (signing_key, verifying_key) = generate_marketplace_keypair();
 
     let data = b"test data";
-    let signature = MarketplaceSignature::sign(&signing_key, data)
-        .expect("signing failed");
+    let signature = MarketplaceSignature::sign(&signing_key, data).expect("signing failed");
 
     // Verify using Signable trait (different signature than inherent verify)
     let verifier = MarketplaceVerifier::new(verifying_key);
-    let verified = Signable::verify(&verifier, data, signature.as_hex())
-        .expect("verification failed");
+    let verified =
+        Signable::verify(&verifier, data, signature.as_hex()).expect("verification failed");
 
     assert!(verified, "Signable trait verify should work");
 }

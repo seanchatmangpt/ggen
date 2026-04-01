@@ -92,7 +92,7 @@ pub struct InstallResult {
 pub fn list_all() -> Result<Vec<PackageSummary>> {
     Err(ggen_utils::Error::new(
         "Marketplace integration moved to ggen-cli. \
-         Please use ggen-cli's marketplace commands instead."
+         Please use ggen-cli's marketplace commands instead.",
     ))
 }
 
@@ -103,7 +103,7 @@ pub fn list_all() -> Result<Vec<PackageSummary>> {
 pub fn get_package(_pack_id: &str) -> Result<PackageDetail> {
     Err(ggen_utils::Error::new(
         "Marketplace integration moved to ggen-cli. \
-         Please use ggen-cli's marketplace commands instead."
+         Please use ggen-cli's marketplace commands instead.",
     ))
 }
 
@@ -114,7 +114,7 @@ pub fn get_package(_pack_id: &str) -> Result<PackageDetail> {
 pub fn resolve_dependencies(_pack_id: &str, _version: Option<&str>) -> Result<DependencyGraph> {
     Err(ggen_utils::Error::new(
         "Marketplace integration moved to ggen-cli. \
-         Please use ggen-cli's marketplace commands instead."
+         Please use ggen-cli's marketplace commands instead.",
     ))
 }
 
@@ -125,7 +125,7 @@ pub fn resolve_dependencies(_pack_id: &str, _version: Option<&str>) -> Result<De
 pub async fn execute_install(_input: InstallInput) -> Result<InstallResult> {
     Err(ggen_utils::Error::new(
         "Marketplace integration moved to ggen-cli. \
-         Please use 'ggen packs install' instead."
+         Please use 'ggen packs install' instead.",
     ))
 }
 

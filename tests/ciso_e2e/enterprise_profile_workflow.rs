@@ -70,7 +70,9 @@ fn test_regulated_finance_has_strictest_requirements() {
     let (json, _, success) = run_ggen_json(&["policy", "list"]).unwrap();
     assert!(success, "policy list should succeed");
 
-    let profiles = json["profiles"].as_array().expect("profiles should be an array");
+    let profiles = json["profiles"]
+        .as_array()
+        .expect("profiles should be an array");
 
     // Find regulated-finance profile
     let regulated = profiles
@@ -97,9 +99,7 @@ fn test_regulated_finance_has_strictest_requirements() {
     }
 
     // regulated-finance should require SignedAndChained receipts
-    let receipt_req = regulated["receipt_requirement"]
-        .as_str()
-        .unwrap_or("");
+    let receipt_req = regulated["receipt_requirement"].as_str().unwrap_or("");
     assert_eq!(
         receipt_req, "SignedAndChained",
         "regulated-finance should require SignedAndChained receipts, got: '{}'",
@@ -113,7 +113,6 @@ fn test_regulated_finance_has_strictest_requirements() {
         "regulated-finance should have EnterpriseCertified trust, got: '{}'",
         trust
     );
-
 }
 
 // ==============================================================================
@@ -125,7 +124,9 @@ fn test_all_profiles_have_required_fields() {
     let (json, _, success) = run_ggen_json(&["policy", "list"]).unwrap();
     assert!(success, "policy list should succeed");
 
-    let profiles = json["profiles"].as_array().expect("profiles should be an array");
+    let profiles = json["profiles"]
+        .as_array()
+        .expect("profiles should be an array");
 
     assert!(
         !profiles.is_empty(),
@@ -156,12 +157,8 @@ fn test_all_profiles_have_required_fields() {
             );
         }
 
-        println!(
-            "Profile '{}' passes all required field checks",
-            profile_id
-        );
+        println!("Profile '{}' passes all required field checks", profile_id);
     }
-
 }
 
 // ==============================================================================
@@ -177,13 +174,18 @@ fn test_capability_categories_match_packs() {
     let capabilities = caps_json["capabilities"]
         .as_array()
         .expect("capabilities should be an array");
-    assert!(!capabilities.is_empty(), "Should have at least one capability");
+    assert!(
+        !capabilities.is_empty(),
+        "Should have at least one capability"
+    );
 
     // Step 2: Get packs list
     let (packs_json, _, packs_ok) = run_ggen_json(&["packs", "list"]).unwrap();
     assert!(packs_ok, "packs list should succeed");
 
-    let packs = packs_json["packs"].as_array().expect("packs should be an array");
+    let packs = packs_json["packs"]
+        .as_array()
+        .expect("packs should be an array");
 
     // Step 3: Each capability must have a category
     let valid_categories = ["surface", "contract"];

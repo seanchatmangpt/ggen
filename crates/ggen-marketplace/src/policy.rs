@@ -131,24 +131,16 @@ impl PolicyRule {
             Self::RequireExplicitRuntime => {
                 "Runtime must be explicitly declared; no defaults allowed".to_string()
             }
-            Self::ForbidUnlistedPackages => {
-                "Only allowlisted packages are permitted".to_string()
-            }
+            Self::ForbidUnlistedPackages => "Only allowlisted packages are permitted".to_string(),
             Self::RequireSignatureVerification => {
                 "All packs must have verified signatures".to_string()
             }
-            Self::RequireSemanticVersioning => {
-                "All packs must use semantic versioning".to_string()
-            }
-            Self::ForbidVersionDowngrade => {
-                "Version downgrade attacks are forbidden".to_string()
-            }
+            Self::RequireSemanticVersioning => "All packs must use semantic versioning".to_string(),
+            Self::ForbidVersionDowngrade => "Version downgrade attacks are forbidden".to_string(),
             Self::RequireCompositionReceipts => {
                 "All builds must generate composition receipts".to_string()
             }
-            Self::RequireProvenanceTracking => {
-                "All artifacts must track provenance".to_string()
-            }
+            Self::RequireProvenanceTracking => "All artifacts must track provenance".to_string(),
             Self::CustomSparql { rule_name, .. } => {
                 format!("Custom SPARQL policy: {rule_name}")
             }
@@ -316,7 +308,9 @@ impl Policy {
     /// Check if this policy contains a specific rule type.
     #[must_use]
     pub fn contains_rule(&self, rule: &PolicyRule) -> bool {
-        self.rules.iter().any(|r| std::mem::discriminant(r) == std::mem::discriminant(rule))
+        self.rules
+            .iter()
+            .any(|r| std::mem::discriminant(r) == std::mem::discriminant(rule))
     }
 }
 
@@ -344,10 +338,7 @@ impl PolicyViolation {
     /// Create a new policy violation.
     #[must_use]
     pub fn new(
-        policy_id: PolicyId,
-        rule: PolicyRule,
-        pack_id: String,
-        description: String,
+        policy_id: PolicyId, rule: PolicyRule, pack_id: String, description: String,
     ) -> Self {
         Self {
             policy_id,
@@ -382,7 +373,9 @@ pub struct PolicyReport {
 impl PolicyReport {
     /// Create a new policy report.
     #[must_use]
-    pub fn new(passed: bool, violations: Vec<PolicyViolation>, policies_checked: Vec<PolicyId>) -> Self {
+    pub fn new(
+        passed: bool, violations: Vec<PolicyViolation>, policies_checked: Vec<PolicyId>,
+    ) -> Self {
         Self {
             passed,
             violations,
@@ -402,10 +395,7 @@ impl PolicyReport {
 
     /// Create a failure report with violations.
     #[must_use]
-    pub fn failure(
-        violations: Vec<PolicyViolation>,
-        policies_checked: Vec<PolicyId>,
-    ) -> Self {
+    pub fn failure(violations: Vec<PolicyViolation>, policies_checked: Vec<PolicyId>) -> Self {
         Self {
             passed: false,
             violations,
@@ -444,10 +434,7 @@ impl PolicyEnforcer {
     /// # Errors
     ///
     /// Returns error if policy checking fails (not if violations are found).
-    pub fn enforce(
-        policies: &[Policy],
-        packs: &[PackContext],
-    ) -> Result<PolicyReport> {
+    pub fn enforce(policies: &[Policy], packs: &[PackContext]) -> Result<PolicyReport> {
         let mut violations = Vec::new();
         let policies_checked: Vec<PolicyId> = policies.iter().map(|p| p.id.clone()).collect();
 
@@ -472,10 +459,7 @@ impl PolicyEnforcer {
     /// # Returns
     ///
     /// Returns Some(violations) if violations found, None if pack passes.
-    fn check_policy(
-        policy: &Policy,
-        pack: &PackContext,
-    ) -> Result<Option<Vec<PolicyViolation>>> {
+    fn check_policy(policy: &Policy, pack: &PackContext) -> Result<Option<Vec<PolicyViolation>>> {
         let mut violations = Vec::new();
 
         for rule in &policy.rules {
@@ -501,20 +485,12 @@ impl PolicyEnforcer {
     ///
     /// Returns Some(violation) if rule violated, None if rule passes.
     fn check_rule(
-        rule: &PolicyRule,
-        pack: &PackContext,
-        policy: &Policy,
+        rule: &PolicyRule, pack: &PackContext, policy: &Policy,
     ) -> Result<Option<PolicyViolation>> {
         let violated = match rule {
-            PolicyRule::ForbidTemplateDefaults => {
-                pack.has_template_defaults
-            }
-            PolicyRule::ForbidInferredCapabilities => {
-                pack.has_inferred_capabilities
-            }
-            PolicyRule::RequireSignedReceipts => {
-                !pack.has_signed_receipts
-            }
+            PolicyRule::ForbidTemplateDefaults => pack.has_template_defaults,
+            PolicyRule::ForbidInferredCapabilities => pack.has_inferred_capabilities,
+            PolicyRule::RequireSignedReceipts => !pack.has_signed_receipts,
             PolicyRule::RequireApprovedRuntime(runtimes) => {
                 !pack.runtime.as_ref().is_some_and(|r| runtimes.contains(r))
             }
@@ -527,27 +503,13 @@ impl PolicyEnforcer {
             PolicyRule::RequireOwnershipClass(required_class) => {
                 pack.ownership_classes.iter().all(|c| c != required_class)
             }
-            PolicyRule::RequireExplicitRuntime => {
-                pack.runtime.is_none()
-            }
-            PolicyRule::ForbidUnlistedPackages => {
-                !pack.is_allowlisted
-            }
-            PolicyRule::RequireSignatureVerification => {
-                !pack.has_signature_verification
-            }
-            PolicyRule::RequireSemanticVersioning => {
-                !pack.uses_semver
-            }
-            PolicyRule::ForbidVersionDowngrade => {
-                pack.is_version_downgrade
-            }
-            PolicyRule::RequireCompositionReceipts => {
-                !pack.has_composition_receipt
-            }
-            PolicyRule::RequireProvenanceTracking => {
-                !pack.has_provenance_tracking
-            }
+            PolicyRule::RequireExplicitRuntime => pack.runtime.is_none(),
+            PolicyRule::ForbidUnlistedPackages => !pack.is_allowlisted,
+            PolicyRule::RequireSignatureVerification => !pack.has_signature_verification,
+            PolicyRule::RequireSemanticVersioning => !pack.uses_semver,
+            PolicyRule::ForbidVersionDowngrade => pack.is_version_downgrade,
+            PolicyRule::RequireCompositionReceipts => !pack.has_composition_receipt,
+            PolicyRule::RequireProvenanceTracking => !pack.has_provenance_tracking,
             PolicyRule::CustomSparql { .. } | PolicyRule::CustomShell { .. } => {
                 // Custom rules require execution context
                 return Err(Error::ValidationFailed {
@@ -781,8 +743,7 @@ mod tests {
     #[test]
     fn test_policy_enforcer_no_violations() {
         let policy = Policy::require_signed_receipts();
-        let pack = PackContext::new("test-pack".to_string())
-            .with_signed_receipts(true);
+        let pack = PackContext::new("test-pack".to_string()).with_signed_receipts(true);
 
         let report = PolicyEnforcer::enforce(&[policy], &[pack]).unwrap();
         assert!(report.passed);
@@ -792,8 +753,7 @@ mod tests {
     #[test]
     fn test_policy_enforcer_with_violations() {
         let policy = Policy::require_signed_receipts();
-        let pack = PackContext::new("test-pack".to_string())
-            .with_signed_receipts(false);
+        let pack = PackContext::new("test-pack".to_string()).with_signed_receipts(false);
 
         let report = PolicyEnforcer::enforce(&[policy], &[pack]).unwrap();
         assert!(!report.passed);
@@ -835,7 +795,10 @@ mod tests {
         .with_context("line".to_string(), "42".to_string());
 
         assert_eq!(violation.context.len(), 2);
-        assert_eq!(violation.context.get("file"), Some(&"template.rs".to_string()));
+        assert_eq!(
+            violation.context.get("file"),
+            Some(&"template.rs".to_string())
+        );
         assert_eq!(violation.context.get("line"), Some(&"42".to_string()));
     }
 

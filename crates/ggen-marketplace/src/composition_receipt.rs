@@ -3,8 +3,8 @@
 //! Extends ggen-receipt with pack-specific provenance tracking.
 //! Implements CISO requirement for full chain of evidence.
 
-use crate::trust::TrustTier;
 use crate::error::Result;
+use crate::trust::TrustTier;
 use ggen_receipt::{Receipt, ReceiptChain};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -253,7 +253,8 @@ impl CompositionReceipt {
 
     /// Add an atomic pack to the receipt.
     pub fn add_atomic_pack(&mut self, pack: AtomicPackRef) {
-        self.versions.insert(pack.pack_id.clone(), pack.version.clone());
+        self.versions
+            .insert(pack.pack_id.clone(), pack.version.clone());
         self.atomic_packs.push(pack);
     }
 
@@ -355,11 +356,10 @@ impl CompositionReceipt {
         use crate::trust::TrustTier;
 
         // 1. Cryptographic chain verification via ggen-receipt
-        let key_bytes = hex::decode(public_key).map_err(|e| {
-            Error::SignatureVerificationFailed {
+        let key_bytes =
+            hex::decode(public_key).map_err(|e| Error::SignatureVerificationFailed {
                 reason: format!("Invalid public key hex: {}", e),
-            }
-        })?;
+            })?;
 
         if key_bytes.len() != 32 {
             return Err(Error::SignatureVerificationFailed {
@@ -387,8 +387,10 @@ impl CompositionReceipt {
                 return Err(Error::TrustTierCheckFailed {
                     reason: format!(
                         "Pack '{}' has trust tier {:?} but profile '{}' requires {:?}",
-                        pack.pack_id, pack.trust_tier,
-                        self.runtime_context.profile_id, required_tier
+                        pack.pack_id,
+                        pack.trust_tier,
+                        self.runtime_context.profile_id,
+                        required_tier
                     ),
                 });
             }
@@ -476,7 +478,10 @@ mod tests {
 
         receipt.add_atomic_pack(pack);
         assert_eq!(receipt.pack_count(), 1);
-        assert_eq!(receipt.versions.get("surface-mcp"), Some(&"1.0.0".to_string()));
+        assert_eq!(
+            receipt.versions.get("surface-mcp"),
+            Some(&"1.0.0".to_string())
+        );
     }
 
     #[test]

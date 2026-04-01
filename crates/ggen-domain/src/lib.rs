@@ -43,6 +43,10 @@ pub mod shell;
 pub mod template;
 pub mod utils;
 
+// CISO governance scanners
+pub mod capability_scanner;
+pub mod template_scanner;
+
 // Re-export audit types for convenience
 pub use audit::security::{
     ConfigAuditor, ConfigIssue, ConfigIssueType, DependencyCheckResult, DependencyChecker,

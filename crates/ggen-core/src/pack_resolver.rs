@@ -39,7 +39,10 @@ use ggen_marketplace::ownership::{
 };
 use ggen_marketplace::policy::{PackContext, PolicyEnforcer};
 use ggen_marketplace::profile::get_profile;
-use ggen_utils::{bail, error::{Error, Result}};
+use ggen_utils::{
+    bail,
+    error::{Error, Result},
+};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
@@ -176,20 +179,16 @@ impl PackResolver {
     ///
     /// Returns error if project directory doesn't exist.
     pub fn new(project_dir: &Path) -> Result<Self> {
-        let project_dir = project_dir.canonicalize().map_err(|e| {
-            Error::new(&format!("Invalid project directory: {}", e))
-        })?;
+        let project_dir = project_dir
+            .canonicalize()
+            .map_err(|e| Error::new(&format!("Invalid project directory: {}", e)))?;
 
         let lockfile_path = project_dir.join(".ggen").join("packs.lock");
         let cache_dir = std::env::var_os("GGEN_PACK_CACHE_DIR")
             .map(PathBuf::from)
-            .or_else(|| {
-                dirs::home_dir().map(|h| h.join(".ggen").join("packs"))
-            })
+            .or_else(|| dirs::home_dir().map(|h| h.join(".ggen").join("packs")))
             .ok_or_else(|| {
-                Error::new(
-                    "Cannot resolve pack cache directory: set HOME or GGEN_PACK_CACHE_DIR",
-                )
+                Error::new("Cannot resolve pack cache directory: set HOME or GGEN_PACK_CACHE_DIR")
             })?;
 
         Ok(Self {
@@ -288,14 +287,13 @@ impl PackResolver {
     ///
     /// Returns the expanded atomic pack IDs and bundle expansion records.
     fn expand_bundles(
-        &self,
-        lockfile: &PackLockfile,
+        &self, lockfile: &PackLockfile,
     ) -> Result<(Vec<AtomicPackId>, Vec<BundleExpansion>)> {
         let mut atomic_packs = Vec::new();
         let mut bundle_expansions = Vec::new();
         let mut seen = HashSet::new();
 
-        for (pack_id, _locked_pack) in &lockfile.packs {
+        for pack_id in lockfile.packs.keys() {
             // Check if this is a bundle or atomic pack
             if let Some(bundle) = self.registry.get_bundle(pack_id)? {
                 // Expand bundle to atomic packs
@@ -423,9 +421,8 @@ impl PackResolver {
         });
 
         // Load profile
-        let profile = get_profile(&profile_id).map_err(|e| {
-            Error::new(&format!("Failed to load profile '{}': {}", profile_id, e))
-        })?;
+        let profile = get_profile(&profile_id)
+            .map_err(|e| Error::new(&format!("Failed to load profile '{}': {}", profile_id, e)))?;
 
         // Convert atomic packs to policy context, loading real metadata from cache
         let pack_contexts: Vec<PackContext> = packs
@@ -446,18 +443,14 @@ impl PackResolver {
 
         // Enforce policies
         let report = PolicyEnforcer::enforce(&profile.policy_overlays, &pack_contexts)
-            .map_err(|e| {
-                Error::new(&format!("Policy enforcement failed: {}", e))
-            })?;
+            .map_err(|e| Error::new(&format!("Policy enforcement failed: {}", e)))?;
 
         // Handle violations
         if !report.passed {
             // Check for error-level violations
             // For now, all violations are treated as errors
-            let mut error_msg = format!(
-                "Policy enforcement failed for profile '{}':\n",
-                profile_id
-            );
+            let mut error_msg =
+                format!("Policy enforcement failed for profile '{}':\n", profile_id);
             for violation in &report.violations {
                 error_msg.push_str(&format!("  - {}\n", violation.description));
             }
@@ -511,10 +504,7 @@ impl PackResolver {
             let ontology_path = self.registry.get_pack_ontology_path(pack)?;
             if ontology_path.exists() {
                 let content = std::fs::read_to_string(&ontology_path).map_err(|e| {
-                    Error::new(&format!(
-                        "Failed to read ontology for {}: {}",
-                        pack, e
-                    ))
+                    Error::new(&format!("Failed to read ontology for {}: {}", pack, e))
                 })?;
                 merged.insert_turtle(&content)?;
             }
@@ -601,8 +591,10 @@ impl PackRegistry {
             .insert("a2a-rust".to_string(), Bundles::a2a_rust());
         self.bundles
             .insert("openapi-rust".to_string(), Bundles::openapi_rust());
-        self.bundles
-            .insert("graphql-typescript".to_string(), Bundles::graphql_typescript());
+        self.bundles.insert(
+            "graphql-typescript".to_string(),
+            Bundles::graphql_typescript(),
+        );
     }
 
     /// Get a bundle by ID.
@@ -667,16 +659,12 @@ impl PackRegistry {
 
     /// Load dependency pack IDs from package.toml [dependencies] section.
     fn load_deps_from_toml(toml_path: &Path) -> Result<Vec<AtomicPackId>> {
-        let content = std::fs::read_to_string(toml_path).map_err(|e| {
-            Error::new(&format!("Failed to read {}: {}", toml_path.display(), e))
-        })?;
-        let value: toml::Value = toml::from_str(&content).map_err(|e| {
-            Error::new(&format!("Failed to parse {}: {}", toml_path.display(), e))
-        })?;
+        let content = std::fs::read_to_string(toml_path)
+            .map_err(|e| Error::new(&format!("Failed to read {}: {}", toml_path.display(), e)))?;
+        let value: toml::Value = toml::from_str(&content)
+            .map_err(|e| Error::new(&format!("Failed to parse {}: {}", toml_path.display(), e)))?;
 
-        let deps_array = value
-            .get("dependencies")
-            .and_then(|v| v.as_array());
+        let deps_array = value.get("dependencies").and_then(|v| v.as_array());
 
         let mut result = Vec::new();
         if let Some(array) = deps_array {
@@ -694,16 +682,10 @@ impl PackRegistry {
 
     /// Load dependency pack IDs from dependencies.json file.
     fn load_deps_from_json(json_path: &Path) -> Result<Vec<AtomicPackId>> {
-        let content = std::fs::read_to_string(json_path).map_err(|e| {
-            Error::new(&format!("Failed to read {}: {}", json_path.display(), e))
-        })?;
-        let deps: Vec<String> = serde_json::from_str(&content).map_err(|e| {
-            Error::new(&format!(
-                "Failed to parse {}: {}",
-                json_path.display(),
-                e
-            ))
-        })?;
+        let content = std::fs::read_to_string(json_path)
+            .map_err(|e| Error::new(&format!("Failed to read {}: {}", json_path.display(), e)))?;
+        let deps: Vec<String> = serde_json::from_str(&content)
+            .map_err(|e| Error::new(&format!("Failed to parse {}: {}", json_path.display(), e)))?;
 
         let mut result = Vec::new();
         for dep_str in deps {
@@ -759,27 +741,21 @@ impl PackRegistry {
 
     /// Load ownership declarations from ownership.json file.
     fn load_ownership_json(path: &Path) -> Result<Vec<OwnershipDeclaration>> {
-        let content = std::fs::read_to_string(path).map_err(|e| {
-            Error::new(&format!("Failed to read {}: {}", path.display(), e))
-        })?;
+        let content = std::fs::read_to_string(path)
+            .map_err(|e| Error::new(&format!("Failed to read {}: {}", path.display(), e)))?;
         let declarations: Vec<OwnershipDeclaration> = serde_json::from_str(&content)
-            .map_err(|e| {
-                Error::new(&format!("Failed to parse {}: {}", path.display(), e))
-            })?;
+            .map_err(|e| Error::new(&format!("Failed to parse {}: {}", path.display(), e)))?;
         Ok(declarations)
     }
 
     /// Load ownership declarations from package.toml [ownership.declarations] section.
     fn load_ownership_from_toml(
-        path: &Path,
-        pack_id_str: &str,
+        path: &Path, pack_id_str: &str,
     ) -> Result<Vec<OwnershipDeclaration>> {
-        let content = std::fs::read_to_string(path).map_err(|e| {
-            Error::new(&format!("Failed to read {}: {}", path.display(), e))
-        })?;
-        let value: toml::Value = toml::from_str(&content).map_err(|e| {
-            Error::new(&format!("Failed to parse {}: {}", path.display(), e))
-        })?;
+        let content = std::fs::read_to_string(path)
+            .map_err(|e| Error::new(&format!("Failed to read {}: {}", path.display(), e)))?;
+        let value: toml::Value = toml::from_str(&content)
+            .map_err(|e| Error::new(&format!("Failed to parse {}: {}", path.display(), e)))?;
 
         let ownership_section = value.get("ownership").and_then(|v| v.as_table());
         let declarations_array = ownership_section
@@ -792,8 +768,7 @@ impl PackRegistry {
                 let table = decl_value.as_table().ok_or_else(|| {
                     Error::new(&format!(
                         "ownership.declarations[{}] is not a table in {:?}",
-                        idx,
-                        path
+                        idx, path
                     ))
                 })?;
 
@@ -816,9 +791,7 @@ impl PackRegistry {
 
     /// Parse an ownership target from a TOML table.
     fn parse_ownership_target(
-        table: &toml::Table,
-        path: &Path,
-        idx: usize,
+        table: &toml::Table, path: &Path, idx: usize,
     ) -> Result<OwnershipTarget> {
         let kind = table.get("kind").and_then(|v| v.as_str()).ok_or_else(|| {
             Error::new(&format!(
@@ -856,9 +829,7 @@ impl PackRegistry {
 
     /// Parse an ownership class from a TOML table.
     fn parse_ownership_class(
-        table: &toml::Table,
-        path: &Path,
-        idx: usize,
+        table: &toml::Table, path: &Path, idx: usize,
     ) -> Result<OwnershipClass> {
         let class_str = table.get("class").and_then(|v| v.as_str()).ok_or_else(|| {
             Error::new(&format!(
@@ -911,7 +882,11 @@ impl PackRegistry {
         let mut queries = Vec::new();
 
         let entries = std::fs::read_dir(&queries_dir).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to read queries directory {}: {}", queries_dir.display(), e))
+            ggen_utils::error::Error::new(&format!(
+                "Failed to read queries directory {}: {}",
+                queries_dir.display(),
+                e
+            ))
         })?;
 
         for entry in entries {
@@ -926,17 +901,24 @@ impl PackRegistry {
             }
 
             let content = std::fs::read_to_string(&path).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to read query file {}: {}", path.display(), e))
+                ggen_utils::error::Error::new(&format!(
+                    "Failed to read query file {}: {}",
+                    path.display(),
+                    e
+                ))
             })?;
 
             let stem = path
                 .file_stem()
                 .and_then(|s| s.to_str())
-                .unwrap_or_else(|| "unknown")
+                .unwrap_or("unknown")
                 .to_string();
             let name = format!("{}::{}", pack, stem);
 
-            queries.push(SparqlQuery { name, sparql: content });
+            queries.push(SparqlQuery {
+                name,
+                sparql: content,
+            });
         }
 
         Ok(queries)
@@ -957,7 +939,11 @@ impl PackRegistry {
         let mut templates = Vec::new();
 
         let entries = std::fs::read_dir(&templates_dir).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to read templates directory {}: {}", templates_dir.display(), e))
+            ggen_utils::error::Error::new(&format!(
+                "Failed to read templates directory {}: {}",
+                templates_dir.display(),
+                e
+            ))
         })?;
 
         for entry in entries {
@@ -972,7 +958,11 @@ impl PackRegistry {
             }
 
             let content = std::fs::read_to_string(&path).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to read template file {}: {}", path.display(), e))
+                ggen_utils::error::Error::new(&format!(
+                    "Failed to read template file {}: {}",
+                    path.display(),
+                    e
+                ))
             })?;
 
             // Get relative path from templates_dir
@@ -1032,10 +1022,7 @@ mod tests {
             .is_some());
 
         // Bundle IDs should return None (they're expanded separately)
-        assert!(resolver
-            .parse_atomic_pack_id("mcp-rust")
-            .unwrap()
-            .is_none());
+        assert!(resolver.parse_atomic_pack_id("mcp-rust").unwrap().is_none());
 
         // Invalid pack ID
         assert!(resolver

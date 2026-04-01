@@ -163,16 +163,34 @@ impl LlmAdapter for ChatAdapter {
         for field in output_fields {
             // Find field marker — use [ \t]* instead of \s* before \n to avoid
             // consuming content-separating newlines (\s includes \n which breaks parsing)
-            let pattern = format!(r"\[\[\s*##\s*{}\s*##\s*\]\][ \t]*\n(.*?)(?:\n\[\[|$)", field);
-            let field_regex = Regex::new(&pattern)
-                .map_err(|e| DspyError::ParsingError(format!("Invalid regex pattern: {}", e)))?;
+            let _pattern = format!(
+                r"\[\[\s*##\s*{}\s*##\s*\]\][ \t]*\n(.*?)(?:\n\[\[|$)",
+                field
+            );
 
-            if let Some(captures) = field_regex.captures(response) {
+            // Debug: test the marker + newline
+            let marker_newline = format!(r"\[\[\s*##\s*{}\s*##\s*\]\]\n", field);
+            let marker_nl_regex = Regex::new(&marker_newline).unwrap();
+            eprintln!(
+                "DEBUG field='{}': marker+nl match={}",
+                field,
+                marker_nl_regex.captures(response).is_some()
+            );
+
+            let marker_newline_capture = format!(r"\[\[\s*##\s*{}\s*##\s*\]\]\n(.+)", field);
+            let marker_nl_cap_regex = Regex::new(&marker_newline_capture).unwrap();
+            eprintln!(
+                "DEBUG field='{}': marker+nl+capture match={}",
+                field,
+                marker_nl_cap_regex.captures(response).is_some()
+            );
+            if let Some(captures) = marker_nl_cap_regex.captures(response) {
                 let content = captures.get(1).map(|m| m.as_str().trim()).ok_or_else(|| {
                     DspyError::FieldError {
                         field: field.clone(),
                     }
                 })?;
+                eprintln!("DEBUG content='{}' ({} bytes)", content, content.len());
 
                 if content.is_empty() {
                     return Err(DspyError::FieldError {

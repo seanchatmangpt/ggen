@@ -31,14 +31,9 @@ pub struct PackInstallResult {
 /// This is a compatibility stub. The real implementation is in
 /// `ggen-marketplace::install::Installer` with full cryptographic verification.
 pub async fn install_pack(
-    _pack_id: &str,
-    _version: Option<&str>,
-    _project_dir: &std::path::Path,
-    _force: bool,
+    _pack_id: &str, _version: Option<&str>, _project_dir: &std::path::Path, _force: bool,
 ) -> Result<PackInstallResult> {
     // This is a stub. The real installer is in ggen-marketplace.
     // Use `ggen_marketplace::install::Installer` instead.
-    ggen_utils::bail!(
-        "install_pack is a stub. Use ggen_marketplace::install::Installer instead."
-    )
+    ggen_utils::bail!("install_pack is a stub. Use ggen_marketplace::install::Installer instead.")
 }

@@ -167,22 +167,16 @@ pub enum Error {
 impl From<ggen_receipt::ReceiptError> for Error {
     fn from(err: ggen_receipt::ReceiptError) -> Self {
         match err {
-            ggen_receipt::ReceiptError::InvalidSignature => {
-                Error::SignatureVerificationFailed {
-                    reason: "Invalid signature".to_string(),
-                }
-            }
+            ggen_receipt::ReceiptError::InvalidSignature => Error::SignatureVerificationFailed {
+                reason: "Invalid signature".to_string(),
+            },
             ggen_receipt::ReceiptError::InvalidChain(msg) => {
                 Error::CryptoError(format!("Invalid receipt chain: {}", msg))
             }
-            ggen_receipt::ReceiptError::Serialization(err) => {
-                Error::SerializationError(err)
-            }
-            ggen_receipt::ReceiptError::InvalidReceipt(msg) => {
-                Error::ValidationFailed {
-                    reason: format!("Invalid receipt: {}", msg),
-                }
-            }
+            ggen_receipt::ReceiptError::Serialization(err) => Error::SerializationError(err),
+            ggen_receipt::ReceiptError::InvalidReceipt(msg) => Error::ValidationFailed {
+                reason: format!("Invalid receipt: {}", msg),
+            },
             ggen_receipt::ReceiptError::Crypto(msg) => {
                 Error::CryptoError(format!("Receipt crypto error: {}", msg))
             }

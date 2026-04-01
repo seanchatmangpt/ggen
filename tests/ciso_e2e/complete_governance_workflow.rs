@@ -20,7 +20,10 @@ fn test_complete_governance_discovery_workflow() {
         let packs_total = packs_json["total"].as_u64().unwrap_or(0);
         println!("  Found {} packs", packs_total);
     } else {
-        println!("  packs list returned non-zero (CLI may need fixing): {}", packs_code);
+        println!(
+            "  packs list returned non-zero (CLI may need fixing): {}",
+            packs_code
+        );
     }
 
     println!("Step 2: Discovering policy profiles...");
@@ -46,16 +49,23 @@ fn test_complete_governance_discovery_workflow() {
     println!("  {} packs with trust info", trust_total);
 
     println!("Step 5: Checking conflicts...");
-    let conflicts_output = run_ggen_success(&["capability", "conflicts"], workspace.path()).unwrap();
+    let conflicts_output =
+        run_ggen_success(&["capability", "conflicts"], workspace.path()).unwrap();
     let conflicts_json = extract_json_from_output(&conflicts_output).unwrap();
-    assert!(conflicts_json.get("compatible").is_some(), "Conflicts should report compatibility status");
+    assert!(
+        conflicts_json.get("compatible").is_some(),
+        "Conflicts should report compatibility status"
+    );
     let is_compatible = conflicts_json["compatible"].as_bool().unwrap_or(false);
     println!("  Compatible: {}", is_compatible);
 
     println!("Step 6: Listing capabilities...");
     let caps_output = run_ggen_success(&["capability", "list"], workspace.path()).unwrap();
     let caps_json = parse_json_output(&caps_output);
-    assert!(caps_json.get("capabilities").is_some(), "Should have capabilities list");
+    assert!(
+        caps_json.get("capabilities").is_some(),
+        "Should have capabilities list"
+    );
     let caps_total = caps_json["total"].as_u64().unwrap_or(0);
     assert!(caps_total > 0, "Should have at least one capability");
     println!("  Found {} capabilities", caps_total);
@@ -71,38 +81,70 @@ fn test_complete_init_receipt_workflow() {
 
     println!("Step 1: Initializing project...");
     let init_output = run_ggen_success(
-        &["init", "--path", workspace.path().to_str().unwrap(), "--skip_hooks", "true"],
+        &[
+            "init",
+            "--path",
+            workspace.path().to_str().unwrap(),
+            "--skip_hooks",
+            "true",
+        ],
         workspace.path(),
-    ).unwrap();
+    )
+    .unwrap();
     let init_json = parse_json_output(&init_output);
-    assert_eq!(init_json["status"].as_str().unwrap_or(""), "success", "Init should succeed");
-    let files_created = init_json["files_created"].as_array().unwrap_or(&vec![]).len();
+    assert_eq!(
+        init_json["status"].as_str().unwrap_or(""),
+        "success",
+        "Init should succeed"
+    );
+    let files_created = init_json["files_created"]
+        .as_array()
+        .unwrap_or(&vec![])
+        .len();
     println!("  Created {} files", files_created);
 
     println!("Step 2: Verifying receipt commands...");
     let (verify_help, code) = run_ggen(&["receipt", "verify", "--help"], workspace.path()).unwrap();
     assert_eq!(code, 0, "receipt verify --help should succeed");
-    assert!(verify_help.contains("receipt"), "Help should mention receipt");
+    assert!(
+        verify_help.contains("receipt"),
+        "Help should mention receipt"
+    );
 
     let (info_help, code) = run_ggen(&["receipt", "info", "--help"], workspace.path()).unwrap();
     assert_eq!(code, 0, "receipt info --help should succeed");
     assert!(info_help.contains("info"), "Help should mention info");
 
-    let (chain_help, code) = run_ggen(&["receipt", "chain_verify", "--help"], workspace.path()).unwrap();
+    let (chain_help, code) =
+        run_ggen(&["receipt", "chain_verify", "--help"], workspace.path()).unwrap();
     assert_eq!(code, 0, "receipt chain_verify --help should succeed");
     assert!(chain_help.contains("chain"), "Help should mention chain");
 
     println!("Step 3: Verifying project structure...");
-    assert!(workspace.path().join("ggen.toml").exists(), "ggen.toml must exist");
-    assert!(workspace.path().join("schema/domain.ttl").exists(), "domain.ttl must exist");
-    assert!(workspace.path().join("templates/example.txt.tera").exists(), "Template must exist");
+    assert!(
+        workspace.path().join("ggen.toml").exists(),
+        "ggen.toml must exist"
+    );
+    assert!(
+        workspace.path().join("schema/domain.ttl").exists(),
+        "domain.ttl must exist"
+    );
+    assert!(
+        workspace.path().join("templates/example.txt.tera").exists(),
+        "Template must exist"
+    );
     println!("  All project files verified");
 
     println!("Step 4: Verifying template commands...");
-    let (tmpl_output, tmpl_code) = run_ggen(&["template", "new", "workflow-test"], workspace.path()).unwrap();
+    let (tmpl_output, tmpl_code) =
+        run_ggen(&["template", "new", "workflow-test"], workspace.path()).unwrap();
     assert_eq!(tmpl_code, 0, "template new should succeed");
     let tmpl_json = parse_json_output(&tmpl_output);
-    assert_eq!(tmpl_json["template_name"].as_str().unwrap_or(""), "workflow-test", "Template name should match");
+    assert_eq!(
+        tmpl_json["template_name"].as_str().unwrap_or(""),
+        "workflow-test",
+        "Template name should match"
+    );
     println!("  Template commands working");
 
     println!("=== ALL 4 STEPS PASSED ===");
@@ -123,36 +165,51 @@ fn test_complete_pack_governance_workflow() {
         let total_packs = list_json["total"].as_u64().unwrap_or(0);
         println!("  {} packs available", total_packs);
     } else {
-        println!("  packs list returned non-zero (CLI may need fixing): {}", list_code);
+        println!(
+            "  packs list returned non-zero (CLI may need fixing): {}",
+            list_code
+        );
     }
 
     println!("Step 2: Searching for packs...");
-    let (search_output, search_code) = run_ggen(&["packs", "search", "--query", "core"], workspace.path()).unwrap();
+    let (search_output, search_code) =
+        run_ggen(&["packs", "search", "--query", "core"], workspace.path()).unwrap();
     if search_code == 0 {
         let search_json = parse_json_output(&search_output);
         let search_total = search_json["total"].as_u64().unwrap_or(0);
         println!("  {} search results", search_total);
     } else {
-        println!("  packs search returned non-zero (CLI may need fixing): {}", search_code);
+        println!(
+            "  packs search returned non-zero (CLI may need fixing): {}",
+            search_code
+        );
     }
 
     println!("Step 3: Installing pack...");
     let (install_output, install_code) = run_ggen(
         &["packs", "install", "governance-e2e-test", "--force"],
         workspace.path(),
-    ).unwrap();
+    )
+    .unwrap();
     println!("  Install exit code: {}", install_code);
 
     if install_code == 0 {
         let install_json = parse_json_output(&install_output);
-        assert_eq!(install_json["status"].as_str().unwrap_or(""), "installed", "Pack should be installed");
+        assert_eq!(
+            install_json["status"].as_str().unwrap_or(""),
+            "installed",
+            "Pack should be installed"
+        );
         println!("  Pack installed successfully");
 
         println!("Step 4: Verifying lockfile...");
         let lockfile_path = workspace.path().join(".ggen").join("packs.lock");
         if lockfile_path.exists() {
             let lockfile_content = std::fs::read_to_string(&lockfile_path).unwrap();
-            assert!(lockfile_content.contains("governance-e2e-test"), "Lockfile should reference installed pack");
+            assert!(
+                lockfile_content.contains("governance-e2e-test"),
+                "Lockfile should reference installed pack"
+            );
             println!("  Lockfile verified");
         }
 
@@ -160,7 +217,8 @@ fn test_complete_pack_governance_workflow() {
         let (_validate_output, validate_code) = run_ggen(
             &["packs", "validate", "governance-e2e-test"],
             workspace.path(),
-        ).unwrap();
+        )
+        .unwrap();
         println!("  Validate exit code: {}", validate_code);
         if validate_code == 0 {
             println!("  Pack validation completed");
@@ -188,37 +246,53 @@ fn test_complete_capability_governance_workflow() {
     println!("Step 2: Inspecting capability graph...");
     let graph_output = run_ggen_success(&["capability", "graph"], workspace.path()).unwrap();
     let graph_json = parse_json_output(&graph_output);
-    assert!(graph_json["nodes"].as_array().unwrap_or(&vec![]).len() > 0, "Graph should have nodes");
+    assert!(
+        graph_json["nodes"].as_array().unwrap_or(&vec![]).len() > 0,
+        "Graph should have nodes"
+    );
     println!("  Graph inspected");
 
     println!("Step 3: Checking trust status...");
     let trust_output = run_ggen_success(&["capability", "trust"], workspace.path()).unwrap();
     let trust_json = parse_json_output(&trust_output);
-    assert!(trust_json["packs"].as_array().unwrap_or(&vec![]).len() > 0, "Should have trust info");
+    assert!(
+        trust_json["packs"].as_array().unwrap_or(&vec![]).len() > 0,
+        "Should have trust info"
+    );
     println!("  Trust status checked");
 
     println!("Step 4: Checking conflicts...");
-    let conflicts_output = run_ggen_success(&["capability", "conflicts"], workspace.path()).unwrap();
+    let conflicts_output =
+        run_ggen_success(&["capability", "conflicts"], workspace.path()).unwrap();
     let conflicts_json = extract_json_from_output(&conflicts_output).unwrap();
-    assert_eq!(conflicts_json["compatible"].as_bool().unwrap_or(false), true, "No packs = compatible");
+    assert_eq!(
+        conflicts_json["compatible"].as_bool().unwrap_or(false),
+        true,
+        "No packs = compatible"
+    );
     println!("  Conflicts checked (compatible: true)");
 
     println!("Step 5: Inspecting 'mcp' capability...");
-    let (inspect_output, inspect_code) = run_ggen(
-        &["capability", "inspect", "mcp"],
-        workspace.path(),
-    ).unwrap();
+    let (inspect_output, inspect_code) =
+        run_ggen(&["capability", "inspect", "mcp"], workspace.path()).unwrap();
     println!("  Inspect exit code: {}", inspect_code);
     if inspect_code == 0 {
         let inspect_json = parse_json_output(&inspect_output);
-        assert_eq!(inspect_json["capability"].as_str().unwrap_or(""), "mcp", "Should inspect MCP capability");
+        assert_eq!(
+            inspect_json["capability"].as_str().unwrap_or(""),
+            "mcp",
+            "Should inspect MCP capability"
+        );
         println!("  MCP capability inspected");
     }
 
     println!("Step 6: Checking policy profiles...");
     let policy_output = run_ggen_success(&["policy", "list"], workspace.path()).unwrap();
     let policy_json = parse_json_output(&policy_output);
-    assert!(policy_json["total"].as_u64().unwrap_or(0) > 0, "Should have policy profiles");
+    assert!(
+        policy_json["total"].as_u64().unwrap_or(0) > 0,
+        "Should have policy profiles"
+    );
     println!("  Policy profiles available");
 
     println!("=== ALL 6 STEPS PASSED ===");

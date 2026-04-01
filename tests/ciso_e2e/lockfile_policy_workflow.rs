@@ -16,14 +16,13 @@ const PACK_DATA_SCIENCE: &str = "data-science-toolkit";
 
 #[test]
 fn test_packs_install_populates_state() {
-    let (json, _output, success) = run_ggen_json(&[
-        "packs",
-        "install",
-        "--pack_id",
-        PACK_DEVOPS,
-    ]).unwrap();
+    let (json, _output, success) =
+        run_ggen_json(&["packs", "install", "--pack_id", PACK_DEVOPS]).unwrap();
 
-    println!("packs install output JSON: {}", serde_json::to_string_pretty(&json).unwrap());
+    println!(
+        "packs install output JSON: {}",
+        serde_json::to_string_pretty(&json).unwrap()
+    );
 
     // Command should succeed
     assert!(success, "packs install should succeed");
@@ -43,18 +42,13 @@ fn test_packs_install_populates_state() {
         "Install message should reference lockfile or digest, got: {}",
         message
     );
-
 }
 
 #[test]
 fn test_packs_install_then_list_workflow() {
     // Step 1: Install a pack
-    let (install_json, _, install_ok) = run_ggen_json(&[
-        "packs",
-        "install",
-        "--pack_id",
-        PACK_WEB_FULLSTACK,
-    ]).unwrap();
+    let (install_json, _, install_ok) =
+        run_ggen_json(&["packs", "install", "--pack_id", PACK_WEB_FULLSTACK]).unwrap();
     assert!(install_ok, "packs install should succeed");
     println!("Installed pack: {}", install_json["pack_id"]);
 
@@ -63,11 +57,17 @@ fn test_packs_install_then_list_workflow() {
     assert!(list_ok, "packs list should succeed");
 
     // Step 3: Verify the installed pack appears in the list
-    let packs = list_json["packs"].as_array().expect("packs should be an array");
-    let found = packs.iter().any(|p| {
-        p["id"].as_str() == Some(PACK_WEB_FULLSTACK)
-    });
-    assert!(found, "Installed pack '{}' should appear in packs list", PACK_WEB_FULLSTACK);
+    let packs = list_json["packs"]
+        .as_array()
+        .expect("packs should be an array");
+    let found = packs
+        .iter()
+        .any(|p| p["id"].as_str() == Some(PACK_WEB_FULLSTACK));
+    assert!(
+        found,
+        "Installed pack '{}' should appear in packs list",
+        PACK_WEB_FULLSTACK
+    );
 
     // Step 4: Verify total count is positive
     assert_positive_number(&list_json, "total");
@@ -109,7 +109,9 @@ fn test_policy_enterprise_strict_stricter_than_development() {
     let (json, _, success) = run_ggen_json(&["policy", "list"]).unwrap();
     assert!(success, "policy list should succeed");
 
-    let profiles = json["profiles"].as_array().expect("profiles should be an array");
+    let profiles = json["profiles"]
+        .as_array()
+        .expect("profiles should be an array");
 
     // Find enterprise-strict and development profiles
     let enterprise = profiles
@@ -163,7 +165,8 @@ fn test_capability_enable_with_enterprise_profile() {
         "rust",
         "--profile",
         "enterprise-strict",
-    ]).unwrap();
+    ])
+    .unwrap();
 
     println!("capability enable output:\n{}", output);
 
@@ -180,7 +183,11 @@ fn test_capability_enable_with_enterprise_profile() {
 
     // Response should indicate enabled status
     let status = json["status"].as_str().unwrap_or("");
-    assert_eq!(status, "enabled", "Status should be 'enabled', got: '{}'", status);
+    assert_eq!(
+        status, "enabled",
+        "Status should be 'enabled', got: '{}'",
+        status
+    );
 
     // Response should list atomic packs
     let atomic_packs = json["atomic_packs"]
@@ -191,7 +198,10 @@ fn test_capability_enable_with_enterprise_profile() {
         "Should resolve at least one atomic pack"
     );
 
-    println!("Resolved {} atomic packs for enterprise-strict MCP", atomic_packs.len());
+    println!(
+        "Resolved {} atomic packs for enterprise-strict MCP",
+        atomic_packs.len()
+    );
 }
 
 // ==============================================================================
@@ -205,7 +215,8 @@ fn test_packs_compose_shows_compatibility() {
         "compose",
         "--pack_ids",
         &format!("{},{}", PACK_DEVOPS, PACK_DATA_SCIENCE),
-    ]).unwrap();
+    ])
+    .unwrap();
 
     println!("packs compose output:\n{}", output);
 
@@ -235,12 +246,8 @@ fn test_packs_compose_shows_compatibility() {
 
 #[test]
 fn test_packs_validate_checks_pack_structure() {
-    let (json, output, success) = run_ggen_json(&[
-        "packs",
-        "validate",
-        "--pack_id",
-        PACK_DEVOPS,
-    ]).unwrap();
+    let (json, output, success) =
+        run_ggen_json(&["packs", "validate", "--pack_id", PACK_DEVOPS]).unwrap();
 
     println!("packs validate output:\n{}", output);
 
@@ -256,7 +263,9 @@ fn test_packs_validate_checks_pack_structure() {
     assert_eq!(json["pack_id"].as_str().unwrap(), PACK_DEVOPS);
 
     // Errors should be empty for a valid pack
-    let errors = json["errors"].as_array().expect("errors should be an array");
+    let errors = json["errors"]
+        .as_array()
+        .expect("errors should be an array");
     assert!(
         errors.is_empty(),
         "Valid pack should have no errors, got: {:?}",

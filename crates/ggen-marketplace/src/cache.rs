@@ -211,9 +211,7 @@ impl PackCache {
 
         info!(
             "Cached pack: {} (size: {} bytes, total: {} bytes)",
-            cache_key_clone,
-            size_bytes,
-            *current_size
+            cache_key_clone, size_bytes, *current_size
         );
 
         // Persist metadata if enabled
@@ -244,7 +242,8 @@ impl PackCache {
         }
 
         // Sort packs by last accessed time (LRU)
-        let mut packs_vec: Vec<(String, CachedPack)> = packs.iter().map(|(k, v)| (k.clone(), v.clone())).collect();
+        let mut packs_vec: Vec<(String, CachedPack)> =
+            packs.iter().map(|(k, v)| (k.clone(), v.clone())).collect();
         packs_vec.sort_by(|a, b| a.1.last_accessed.cmp(&b.1.last_accessed));
 
         let mut evicted = 0;
@@ -267,10 +266,8 @@ impl PackCache {
 
             // Delete cached files
             if pack.cache_path.exists() {
-                fs::remove_dir_all(&pack.cache_path).map_err(|e| {
-                    Error::InstallationFailed {
-                        reason: format!("Failed to remove cached pack directory: {}", e),
-                    }
+                fs::remove_dir_all(&pack.cache_path).map_err(|e| Error::InstallationFailed {
+                    reason: format!("Failed to remove cached pack directory: {}", e),
                 })?;
             }
 
@@ -280,10 +277,7 @@ impl PackCache {
             );
         }
 
-        debug!(
-            "Evicted {} packs, freed {} bytes",
-            evicted, freed_bytes
-        );
+        debug!("Evicted {} packs, freed {} bytes", evicted, freed_bytes);
 
         Ok(())
     }
@@ -304,10 +298,8 @@ impl PackCache {
 
             // Delete cached files
             if pack.cache_path.exists() {
-                fs::remove_dir_all(&pack.cache_path).map_err(|e| {
-                    Error::InstallationFailed {
-                        reason: format!("Failed to remove cached pack directory: {}", e),
-                    }
+                fs::remove_dir_all(&pack.cache_path).map_err(|e| Error::InstallationFailed {
+                    reason: format!("Failed to remove cached pack directory: {}", e),
                 })?;
             }
 
@@ -338,10 +330,8 @@ impl PackCache {
         // Delete all cached pack directories
         for pack in packs.values() {
             if pack.cache_path.exists() {
-                fs::remove_dir_all(&pack.cache_path).map_err(|e| {
-                    Error::InstallationFailed {
-                        reason: format!("Failed to remove cached pack directory: {}", e),
-                    }
+                fs::remove_dir_all(&pack.cache_path).map_err(|e| Error::InstallationFailed {
+                    reason: format!("Failed to remove cached pack directory: {}", e),
                 })?;
             }
         }
@@ -579,13 +569,7 @@ mod tests {
         let package_id = PackageId::new("test-pkg").unwrap();
         let version = PackageVersion::new("1.0.0").unwrap();
 
-        let mut pack = CachedPack::new(
-            package_id,
-            version,
-            "abc123".to_string(),
-            1024,
-            cache_path,
-        );
+        let mut pack = CachedPack::new(package_id, version, "abc123".to_string(), 1024, cache_path);
 
         assert_eq!(pack.access_count, 0);
         pack.record_access();

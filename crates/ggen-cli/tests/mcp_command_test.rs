@@ -37,7 +37,9 @@ fn setup_temp_dir() -> Result<TempDir, Box<dyn std::error::Error>> {
 }
 
 /// Write content to a file in temp directory
-fn write_file(temp_dir: &TempDir, path: &str, content: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
+fn write_file(
+    temp_dir: &TempDir, path: &str, content: &str,
+) -> Result<PathBuf, Box<dyn std::error::Error>> {
     let file_path = temp_dir.path().join(path);
     if let Some(parent) = file_path.parent() {
         fs::create_dir_all(parent)?;
@@ -141,7 +143,8 @@ fn test_mcp_generate_output_structure() {
     let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
         .expect("Failed to read template");
 
-    let rendered = tera.render_str(&template_content, &ctx)
+    let rendered = tera
+        .render_str(&template_content, &ctx)
         .expect("Failed to render template");
 
     // Act: Write files to output directory
@@ -178,8 +181,7 @@ fn test_mcp_generate_minimal_ontology() {
     create_minimal_ontology(&ontology_path).expect("Failed to create minimal ontology");
 
     // Act: Load ontology
-    let ontology_content = fs::read_to_string(&ontology_path)
-        .expect("Failed to read ontology");
+    let ontology_content = fs::read_to_string(&ontology_path).expect("Failed to read ontology");
 
     // Assert: Ontology contains expected data
     assert!(ontology_content.contains("mcp:TestServer"));
@@ -231,15 +233,13 @@ fn test_mcp_tool_handler_template_is_valid() {
     ctx.insert("stream_result_type", "Receiver<String>");
     ctx.insert("server_impl_type", "TestMcpServer");
 
-    let tools = vec![
-        serde_json::json!({
-            "name": "echo",
-            "description": "Echo back input",
-            "input_schema": "{}",
-            "input_type": "EchoParams",
-            "enable_streaming": false,
-        }),
-    ];
+    let tools = vec![serde_json::json!({
+        "name": "echo",
+        "description": "Echo back input",
+        "input_schema": "{}",
+        "input_type": "EchoParams",
+        "enable_streaming": false,
+    })];
     ctx.insert("tools", &tools);
 
     // Act: Render template
@@ -305,18 +305,13 @@ fn test_mcp_server_name_validation() {
     println!("🔍 CLI Test: Server name validation");
 
     // Arrange: Valid and invalid server names
-    let valid_names = vec![
-        "GgenMcpServer",
-        "TestServer",
-        "MyServer123",
-        "server_v1",
-    ];
+    let valid_names = vec!["GgenMcpServer", "TestServer", "MyServer123", "server_v1"];
 
     let invalid_names = vec![
-        "test-server",  // Contains hyphen
-        "test server",  // Contains space
-        "test@server",  // Contains special char
-        "123server",    // Starts with number
+        "test-server", // Contains hyphen
+        "test server", // Contains space
+        "test@server", // Contains special char
+        "123server",   // Starts with number
     ];
 
     // Assert: Valid names match Rust identifier pattern
@@ -340,15 +335,17 @@ fn test_mcp_tool_order_validation() {
     println!("🔍 CLI Test: Tool order validation");
 
     // Arrange: Create tools with specific order
-    let tools = vec![
-        ("tool1", 1),
-        ("tool2", 2),
-        ("tool3", 3),
-    ];
+    let tools = vec![("tool1", 1), ("tool2", 2), ("tool3", 3)];
 
     // Assert: Tools are in correct order
     for (idx, (name, order)) in tools.iter().enumerate() {
-        assert_eq!(idx + 1, *order as usize, "{} should be at order {}", name, order);
+        assert_eq!(
+            idx + 1,
+            *order as usize,
+            "{} should be at order {}",
+            name,
+            order
+        );
     }
 
     println!("✅ CLI Test PASSED: Tool order validation works");
@@ -385,7 +382,10 @@ fn test_mcp_template_context_completeness() {
     let result = tera.render_str(&template_content, &ctx);
 
     // Assert: Template renders successfully with all required fields
-    assert!(result.is_ok(), "Complete context should render successfully");
+    assert!(
+        result.is_ok(),
+        "Complete context should render successfully"
+    );
 
     println!("✅ CLI Test PASSED: Template context is complete");
 }
@@ -409,7 +409,8 @@ fn test_mcp_generated_file_permissions() {
     let template_content = fs::read_to_string("templates/mcp-server/stdio_server.rs.tera")
         .expect("Failed to read template");
 
-    let rendered = tera.render_str(&template_content, &ctx)
+    let rendered = tera
+        .render_str(&template_content, &ctx)
         .expect("Failed to render template");
 
     let output_file = temp_dir.path().join("main.rs");

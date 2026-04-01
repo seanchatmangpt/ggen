@@ -571,7 +571,14 @@ impl RdfMapper {
                             .unwrap_or(crate::trust::TrustTier::Experimental);
 
                         // Iterator and results are dropped here when block exits
-                        Ok((released_at, changelog, checksum, download_url, signature, trust_tier))
+                        Ok((
+                            released_at,
+                            changelog,
+                            checksum,
+                            download_url,
+                            signature,
+                            trust_tier,
+                        ))
                     } else {
                         Err(Error::RegistryError(format!(
                             "Release info not found for version {}",

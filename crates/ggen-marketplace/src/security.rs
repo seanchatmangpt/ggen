@@ -6,7 +6,7 @@
 use crate::error::Result;
 use crate::traits::Signable;
 use chrono::{DateTime, Utc};
-use ed25519_dalek::{Signer, Verifier, SigningKey, VerifyingKey};
+use ed25519_dalek::{Signer, SigningKey, Verifier, VerifyingKey};
 use ggen_receipt::hash_data;
 use tracing::{debug, instrument};
 
@@ -50,7 +50,10 @@ impl MarketplaceSignature {
         let checksum = hash_data(data);
         let public_key = hex::encode(signing_key.verifying_key().to_bytes());
 
-        debug!("Created marketplace signature for {} bytes of data", data.len());
+        debug!(
+            "Created marketplace signature for {} bytes of data",
+            data.len()
+        );
 
         let duration = start.elapsed();
         tracing::Span::current().record("checksum", &checksum.as_str());
@@ -104,8 +107,9 @@ impl MarketplaceVerifier {
     ///
     /// Returns error if the public key hex is invalid.
     pub fn from_public_key_hex(public_key_hex: &str) -> Result<Self> {
-        let key_bytes = hex::decode(public_key_hex)
-            .map_err(|e| crate::error::Error::CryptoError(format!("Invalid public key hex: {}", e)))?;
+        let key_bytes = hex::decode(public_key_hex).map_err(|e| {
+            crate::error::Error::CryptoError(format!("Invalid public key hex: {}", e))
+        })?;
 
         if key_bytes.len() != 32 {
             return Err(crate::error::Error::CryptoError(
@@ -116,8 +120,9 @@ impl MarketplaceVerifier {
         let mut key_array = [0u8; 32];
         key_array.copy_from_slice(&key_bytes);
 
-        let verifying_key = VerifyingKey::from_bytes(&key_array)
-            .map_err(|e| crate::error::Error::CryptoError(format!("Invalid verifying key: {}", e)))?;
+        let verifying_key = VerifyingKey::from_bytes(&key_array).map_err(|e| {
+            crate::error::Error::CryptoError(format!("Invalid verifying key: {}", e))
+        })?;
 
         Ok(Self { verifying_key })
     }
@@ -143,23 +148,28 @@ impl MarketplaceVerifier {
         let start = std::time::Instant::now();
 
         // First verify the signature
-        let sig_bytes = hex::decode(&signature.signature)
-            .map_err(|e| crate::error::Error::SignatureVerificationFailed {
+        let sig_bytes = hex::decode(&signature.signature).map_err(|e| {
+            crate::error::Error::SignatureVerificationFailed {
                 reason: format!("Invalid signature hex: {}", e),
-            })?;
+            }
+        })?;
 
         use ed25519_dalek::Signature;
-        let ed_sig = Signature::from_slice(&sig_bytes)
-            .map_err(|_| crate::error::Error::SignatureVerificationFailed {
+        let ed_sig = Signature::from_slice(&sig_bytes).map_err(|_| {
+            crate::error::Error::SignatureVerificationFailed {
                 reason: "Invalid signature format".to_string(),
-            })?;
+            }
+        })?;
 
         let verified = self.verifying_key.verify(data, &ed_sig).is_ok();
 
         let duration = start.elapsed();
 
         // Record OTEL span attributes
-        tracing::Span::current().record("key_id", &self.public_key_hex()[..8.min(self.public_key_hex().len())]);
+        tracing::Span::current().record(
+            "key_id",
+            &self.public_key_hex()[..8.min(self.public_key_hex().len())],
+        );
         tracing::Span::current().record("signature_valid", verified);
         tracing::Span::current().record("duration_ms", duration.as_millis());
 
@@ -184,21 +194,24 @@ impl Signable for MarketplaceVerifier {
         // Note: This verifier cannot sign (only has verifying key)
         // For signing, use MarketplaceSignature::sign() with a SigningKey
         Err(crate::error::Error::CryptoError(
-            "MarketplaceVerifier cannot sign - use MarketplaceSignature with SigningKey".to_string(),
+            "MarketplaceVerifier cannot sign - use MarketplaceSignature with SigningKey"
+                .to_string(),
         ))
     }
 
     fn verify(&self, data: &[u8], signature: &str) -> Result<bool> {
-        let sig_bytes = hex::decode(signature)
-            .map_err(|e| crate::error::Error::SignatureVerificationFailed {
+        let sig_bytes = hex::decode(signature).map_err(|e| {
+            crate::error::Error::SignatureVerificationFailed {
                 reason: format!("Invalid signature hex: {}", e),
-            })?;
+            }
+        })?;
 
         use ed25519_dalek::Signature;
-        let ed_sig = Signature::from_slice(&sig_bytes)
-            .map_err(|_| crate::error::Error::SignatureVerificationFailed {
+        let ed_sig = Signature::from_slice(&sig_bytes).map_err(|_| {
+            crate::error::Error::SignatureVerificationFailed {
                 reason: "Invalid signature format".to_string(),
-            })?;
+            }
+        })?;
 
         Ok(self.verifying_key.verify(data, &ed_sig).is_ok())
     }
@@ -273,8 +286,16 @@ impl std::fmt::Display for SignatureReceipt {
         writeln!(f, "Signature Receipt")?;
         writeln!(f, "Package: {}", self.package_identifier)?;
         writeln!(f, "Signed at: {}", self.signed_at)?;
-        writeln!(f, "Public key: {}...", &self.public_key[..16.min(self.public_key.len())])?;
-        writeln!(f, "Data checksum: {}...", &self.data_checksum[..16.min(self.data_checksum.len())])?;
+        writeln!(
+            f,
+            "Public key: {}...",
+            &self.public_key[..16.min(self.public_key.len())]
+        )?;
+        writeln!(
+            f,
+            "Data checksum: {}...",
+            &self.data_checksum[..16.min(self.data_checksum.len())]
+        )?;
         Ok(())
     }
 }

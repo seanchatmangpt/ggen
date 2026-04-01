@@ -24,7 +24,6 @@ pub struct VerifyOutput {
     pub chain_position: Option<String>,
 }
 
-
 /// Receipt manager for generating and storing receipts
 pub struct ReceiptManager {
     /// Path to receipts directory
@@ -86,15 +85,13 @@ impl ReceiptManager {
             })?;
 
             // Decode hex keys
-            let signing_key_bytes =
-                hex::decode(private_key_hex.trim()).map_err(|e| {
-                    ggen_utils::Error::new(&format!("Failed to decode private key: {}", e))
-                })?;
+            let signing_key_bytes = hex::decode(private_key_hex.trim()).map_err(|e| {
+                ggen_utils::Error::new(&format!("Failed to decode private key: {}", e))
+            })?;
 
-            let verifying_key_bytes =
-                hex::decode(public_key_hex.trim()).map_err(|e| {
-                    ggen_utils::Error::new(&format!("Failed to decode public key: {}", e))
-                })?;
+            let verifying_key_bytes = hex::decode(public_key_hex.trim()).map_err(|e| {
+                ggen_utils::Error::new(&format!("Failed to decode public key: {}", e))
+            })?;
 
             // Parse keys - convert slices to fixed arrays for ed25519-dalek 2.x
             let signing_key_array: [u8; 32] = signing_key_bytes[..32]
@@ -122,13 +119,11 @@ impl ReceiptManager {
         let private_key_hex = hex::encode(signing_key.to_bytes());
         let public_key_hex = hex::encode(verifying_key.to_bytes());
 
-        fs::write(&private_key_path, private_key_hex).map_err(|e| {
-            ggen_utils::Error::new(&format!("Failed to write private key: {}", e))
-        })?;
+        fs::write(&private_key_path, private_key_hex)
+            .map_err(|e| ggen_utils::Error::new(&format!("Failed to write private key: {}", e)))?;
 
-        fs::write(&public_key_path, public_key_hex).map_err(|e| {
-            ggen_utils::Error::new(&format!("Failed to write public key: {}", e))
-        })?;
+        fs::write(&public_key_path, public_key_hex)
+            .map_err(|e| ggen_utils::Error::new(&format!("Failed to write public key: {}", e)))?;
 
         info!(
             "Generated new keypair: private={:?}, public={:?}",
@@ -154,10 +149,7 @@ impl ReceiptManager {
     ///
     /// Path to the generated receipt file
     pub fn generate_pack_install_receipt(
-        &mut self,
-        pack_id: &str,
-        pack_version: &str,
-        packages_installed: &[String],
+        &mut self, pack_id: &str, pack_version: &str, packages_installed: &[String],
         _install_path: &PathBuf,
     ) -> Result<PathBuf> {
         // Ensure keys are loaded
@@ -185,21 +177,17 @@ impl ReceiptManager {
             None, // Genesis receipt (no previous)
         )
         .sign(self.signing_key.as_ref().unwrap())
-        .map_err(|e| {
-            ggen_utils::Error::new(&format!("Failed to sign receipt: {}", e))
-        })?;
+        .map_err(|e| ggen_utils::Error::new(&format!("Failed to sign receipt: {}", e)))?;
 
         // Write receipt to file
         let receipt_filename = format!("{}.json", operation_id);
         let receipt_path = self.receipts_dir.join(receipt_filename);
 
-        let receipt_json = serde_json::to_string_pretty(&receipt).map_err(|e| {
-            ggen_utils::Error::new(&format!("Failed to serialize receipt: {}", e))
-        })?;
+        let receipt_json = serde_json::to_string_pretty(&receipt)
+            .map_err(|e| ggen_utils::Error::new(&format!("Failed to serialize receipt: {}", e)))?;
 
-        fs::write(&receipt_path, receipt_json).map_err(|e| {
-            ggen_utils::Error::new(&format!("Failed to write receipt: {}", e))
-        })?;
+        fs::write(&receipt_path, receipt_json)
+            .map_err(|e| ggen_utils::Error::new(&format!("Failed to write receipt: {}", e)))?;
 
         info!(
             "Generated receipt: {} ({} packages installed)",
@@ -225,14 +213,12 @@ impl ReceiptManager {
         let verifying_key = self.read_verifying_key(&public_key_path)?;
 
         // Read receipt file
-        let receipt_content = fs::read_to_string(receipt_path).map_err(|e| {
-            ggen_utils::Error::new(&format!("Failed to read receipt: {}", e))
-        })?;
+        let receipt_content = fs::read_to_string(receipt_path)
+            .map_err(|e| ggen_utils::Error::new(&format!("Failed to read receipt: {}", e)))?;
 
         // Parse receipt
-        let receipt: Receipt = serde_json::from_str(&receipt_content).map_err(|e| {
-            ggen_utils::Error::new(&format!("Failed to parse receipt: {}", e))
-        })?;
+        let receipt: Receipt = serde_json::from_str(&receipt_content)
+            .map_err(|e| ggen_utils::Error::new(&format!("Failed to parse receipt: {}", e)))?;
 
         // Verify signature
         let is_valid = receipt.verify(&verifying_key).is_ok();
@@ -246,22 +232,28 @@ impl ReceiptManager {
                 "Signature verification failed".to_string()
             },
             operation_id: Some(receipt.operation_id.clone()),
-            timestamp: Some(receipt.timestamp.format("%Y-%m-%d %H:%M:%S UTC").to_string()),
+            timestamp: Some(
+                receipt
+                    .timestamp
+                    .format("%Y-%m-%d %H:%M:%S UTC")
+                    .to_string(),
+            ),
             input_hashes: Some(receipt.input_hashes.len()),
             output_hashes: Some(receipt.output_hashes.len()),
-            chain_position: receipt.previous_receipt_hash.as_ref().map(|_| "chained".to_string()),
+            chain_position: receipt
+                .previous_receipt_hash
+                .as_ref()
+                .map(|_| "chained".to_string()),
         })
     }
 
     /// Read verifying key from file
     fn read_verifying_key(&self, key_path: &PathBuf) -> Result<VerifyingKey> {
-        let content = fs::read_to_string(key_path).map_err(|e| {
-            ggen_utils::Error::new(&format!("Failed to read public key: {}", e))
-        })?;
+        let content = fs::read_to_string(key_path)
+            .map_err(|e| ggen_utils::Error::new(&format!("Failed to read public key: {}", e)))?;
 
-        let key_bytes = hex::decode(content.trim()).map_err(|e| {
-            ggen_utils::Error::new(&format!("Failed to decode public key: {}", e))
-        })?;
+        let key_bytes = hex::decode(content.trim())
+            .map_err(|e| ggen_utils::Error::new(&format!("Failed to decode public key: {}", e)))?;
 
         let key_array: [u8; 32] = key_bytes[..32]
             .try_into()
@@ -292,10 +284,7 @@ impl ReceiptManager {
     ///
     /// Path to the generated receipt file
     pub fn generate_composition_receipt(
-        &mut self,
-        capability_id: &str,
-        atomic_packs: &[String],
-        _project_root: &PathBuf,
+        &mut self, capability_id: &str, atomic_packs: &[String], _project_root: &PathBuf,
     ) -> Result<PathBuf> {
         // Ensure keys are loaded
         self.load_or_generate_keys()?;
@@ -322,21 +311,17 @@ impl ReceiptManager {
             None, // Genesis receipt (no previous)
         )
         .sign(self.signing_key.as_ref().unwrap())
-        .map_err(|e| {
-            ggen_utils::Error::new(&format!("Failed to sign receipt: {}", e))
-        })?;
+        .map_err(|e| ggen_utils::Error::new(&format!("Failed to sign receipt: {}", e)))?;
 
         // Write receipt to file
         let receipt_filename = format!("{}.json", operation_id);
         let receipt_path = self.receipts_dir.join(receipt_filename);
 
-        let receipt_json = serde_json::to_string_pretty(&receipt).map_err(|e| {
-            ggen_utils::Error::new(&format!("Failed to serialize receipt: {}", e))
-        })?;
+        let receipt_json = serde_json::to_string_pretty(&receipt)
+            .map_err(|e| ggen_utils::Error::new(&format!("Failed to serialize receipt: {}", e)))?;
 
-        fs::write(&receipt_path, receipt_json).map_err(|e| {
-            ggen_utils::Error::new(&format!("Failed to write receipt: {}", e))
-        })?;
+        fs::write(&receipt_path, receipt_json)
+            .map_err(|e| ggen_utils::Error::new(&format!("Failed to write receipt: {}", e)))?;
 
         info!(
             "Generated composition receipt: {} ({} packs composed)",
@@ -393,7 +378,9 @@ mod tests {
             .unwrap();
 
         assert!(receipt_path.exists());
-        assert!(receipt_path.to_string_lossy().contains("pack-install-test-pack"));
+        assert!(receipt_path
+            .to_string_lossy()
+            .contains("pack-install-test-pack"));
     }
 
     #[test]

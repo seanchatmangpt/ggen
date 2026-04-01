@@ -41,10 +41,7 @@ impl Bundle {
     /// Create a new bundle.
     #[must_use]
     pub fn new(
-        id: BundleId,
-        name: String,
-        atomic_packs: Vec<AtomicPackId>,
-        description: String,
+        id: BundleId, name: String, atomic_packs: Vec<AtomicPackId>, description: String,
     ) -> Self {
         Self {
             id,
@@ -59,10 +56,7 @@ impl Bundle {
     /// Create a bundle with explicit runtime.
     #[must_use]
     pub fn with_runtime(
-        id: BundleId,
-        name: String,
-        atomic_packs: Vec<AtomicPackId>,
-        description: String,
+        id: BundleId, name: String, atomic_packs: Vec<AtomicPackId>, description: String,
         runtime: String,
     ) -> Self {
         Self {
@@ -301,8 +295,14 @@ mod tests {
         let expanded = bundle.expand();
 
         assert_eq!(expanded.len(), 2);
-        assert_eq!(expanded[0].class, crate::atomic::AtomicPackClass::SurfaceMcp);
-        assert_eq!(expanded[1].class, crate::atomic::AtomicPackClass::ProjectionRust);
+        assert_eq!(
+            expanded[0].class,
+            crate::atomic::AtomicPackClass::SurfaceMcp
+        );
+        assert_eq!(
+            expanded[1].class,
+            crate::atomic::AtomicPackClass::ProjectionRust
+        );
     }
 
     #[test]

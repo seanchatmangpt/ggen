@@ -20,8 +20,8 @@ use crate::error::{Error, Result};
 use crate::models::{InstallationManifest, PackageId, PackageVersion};
 use crate::profile::Profile;
 use crate::security::ChecksumCalculator;
-use crate::trust::TrustTier;
 use crate::traits::{AsyncRepository, Installable};
+use crate::trust::TrustTier;
 
 /// Package installer with caching and signature verification
 pub struct Installer<R: AsyncRepository> {
@@ -67,6 +67,21 @@ impl<R: AsyncRepository> Installer<R> {
     pub fn with_security_profile(mut self, profile: Profile) -> Self {
         self.profile = Some(profile);
         self
+    }
+
+    /// Get persistent cache path for a pack
+    fn persistent_cache_path(&self, package_id: &PackageId, version: &PackageVersion) -> PathBuf {
+        std::env::var("GGEN_PACK_CACHE_DIR")
+            .map(PathBuf::from)
+            .unwrap_or_else(|_| {
+                dirs::home_dir()
+                    .unwrap_or_else(|| std::env::temp_dir())
+                    .join(".cache")
+                    .join("ggen")
+                    .join("packs")
+            })
+            .join(package_id.as_str())
+            .join(version.as_str())
     }
 
     /// Get a reference to the cache
@@ -313,7 +328,10 @@ impl<R: AsyncRepository> Installer<R> {
 
         // Check cache first
         if let Some(cached) = self.cache.get(package_id, version) {
-            info!("Cache hit for {}@{}, using cached version", package_id, version);
+            info!(
+                "Cache hit for {}@{}, using cached version",
+                package_id, version
+            );
             span::Span::current().record("cached", true);
 
             // Verify digest
@@ -330,7 +348,10 @@ impl<R: AsyncRepository> Installer<R> {
 
         // Download pack from registry
         info!("Downloading pack {}@{} from registry", package_id, version);
-        let package = self.repository.get_package_version(package_id, version).await?;
+        let package = self
+            .repository
+            .get_package_version(package_id, version)
+            .await?;
 
         // Get release info
         let release = package
@@ -341,21 +362,26 @@ impl<R: AsyncRepository> Installer<R> {
         // Download pack data
         let pack_data = self.download_pack(&release.download_url).await?;
 
-        // Verify signature (Fortune 5 CISO requirement)
-        // Signature verification is mandatory for enterprise packs
-        if let Some(signature_hex) = &release.signature {
-            self.verify_pack_signature(&pack_data, signature_hex).await?;
-        } else {
-            // SECURITY: Warn if unsigned pack - not suitable for Fortune 5 production
-            warn!("Pack {}@{} has no signature - unsigned packs are not suitable for enterprise production use",
-                  package_id, version);
-            // For development: allow unsigned packs with warning
-            // For production: this should return an error
+        // Verify signature (Fortune 5 CISO requirement) — MANDATORY
+        match &release.signature {
+            Some(signature_hex) => {
+                self.verify_pack_signature(&pack_data, signature_hex)
+                    .await?;
+            }
+            None => {
+                return Err(Error::SignatureVerificationFailed {
+                    reason: format!(
+                        "Pack {}@{} has no signature. Signature verification is mandatory for all pack installations.",
+                        package_id, version
+                    ),
+                });
+            }
         }
 
         // Verify trust tier (Fortune 5 CISO requirement)
         // Trust tier enforcement is mandatory for enterprise profiles
-        self.verify_trust_tier(package_id, version, &release.trust_tier).await?;
+        self.verify_trust_tier(package_id, version, &release.trust_tier)
+            .await?;
 
         // Verify SHA-256 digest
         self.verify_pack_digest(&pack_data, &release.checksum)?;
@@ -381,7 +407,10 @@ impl<R: AsyncRepository> Installer<R> {
         let duration = start.elapsed();
         span::Span::current().record("duration_ms", duration.as_millis());
 
-        info!("Successfully installed and cached pack {}@{}", package_id, version);
+        info!(
+            "Successfully installed and cached pack {}@{}",
+            package_id, version
+        );
 
         Ok(cached_pack)
     }
@@ -664,11 +693,7 @@ impl<R: AsyncRepository> Installer<R> {
         debug!("Extracting pack {}@{}", package_id, version);
 
         // Create cache directory for this pack
-        let cache_path = std::env::temp_dir()
-            .join("ggen")
-            .join("packs")
-            .join(package_id.as_str())
-            .join(version.as_str());
+        let cache_path = self.persistent_cache_path(package_id, version);
 
         fs::create_dir_all(&cache_path).map_err(|e| Error::InstallationFailed {
             reason: format!("Failed to create cache directory: {}", e),

@@ -45,16 +45,16 @@ struct AnalyzeOutput {
 #[allow(clippy::too_many_arguments)]
 #[verb]
 fn generate(
-    prompt: String, code: Option<String>, model: Option<String>,
-    max_tokens: Option<i64>, temperature: Option<f64>,
-    _suggestions: bool, _language: Option<String>, _api_key: Option<String>,
+    prompt: String, code: Option<String>, model: Option<String>, max_tokens: Option<i64>,
+    temperature: Option<f64>, _suggestions: bool, _language: Option<String>,
+    _api_key: Option<String>,
 ) -> Result<GenerateOutput> {
     run_generate(prompt, code, model, max_tokens, temperature)
 }
 
 fn run_generate(
-    prompt: String, code: Option<String>, model: Option<String>,
-    max_tokens: Option<i64>, temperature: Option<f64>,
+    prompt: String, code: Option<String>, model: Option<String>, max_tokens: Option<i64>,
+    temperature: Option<f64>,
 ) -> Result<GenerateOutput> {
     let span = tracing::info_span!(
         "cli.ai.generate",
@@ -80,16 +80,15 @@ fn run_generate(
 /// Interactive AI chat session
 #[verb]
 fn chat(
-    message: Option<String>, model: Option<String>,
-    _interactive: bool, _stream: bool,
+    message: Option<String>, model: Option<String>, _interactive: bool, _stream: bool,
     max_tokens: Option<i64>, temperature: Option<f64>,
 ) -> Result<ChatOutput> {
     run_chat(message, model, max_tokens, temperature)
 }
 
 fn run_chat(
-    message: Option<String>, model: Option<String>,
-    max_tokens: Option<i64>, temperature: Option<f64>,
+    message: Option<String>, model: Option<String>, max_tokens: Option<i64>,
+    temperature: Option<f64>,
 ) -> Result<ChatOutput> {
     let span = tracing::info_span!(
         "cli.ai.chat",
@@ -168,10 +167,7 @@ struct LlmResult {
 }
 
 fn call_llm(
-    prompt: &str,
-    model: Option<String>,
-    max_tokens: Option<i64>,
-    temperature: Option<f64>,
+    prompt: &str, model: Option<String>, max_tokens: Option<i64>, temperature: Option<f64>,
 ) -> Result<LlmResult> {
     use ggen_ai::LlmClient;
 
@@ -187,21 +183,18 @@ fn call_llm(
     }
 
     let client = ggen_ai::GenAiClient::new(config).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to create LLM client: {}", e))
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to create LLM client: {}",
+            e
+        ))
     })?;
 
     let response = block_on(client.complete(prompt))
         .map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!(
-                "Runtime error: {}",
-                e
-            ))
+            clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
         })?
         .map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!(
-                "LLM request failed: {}",
-                e
-            ))
+            clap_noun_verb::NounVerbError::execution_error(format!("LLM request failed: {}", e))
         })?;
 
     let model_used = response.model.clone();

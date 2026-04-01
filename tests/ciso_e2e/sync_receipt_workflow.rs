@@ -11,7 +11,8 @@ fn test_init_then_sync_workflow() {
 
     // Step 1: Run `ggen init test-project` in temp dir
     println!("[CISO] Step 1: ggen init test-project");
-    let (init_output, init_exit) = run_ggen(&["init", "test-project"], workspace_path(&temp)).unwrap();
+    let (init_output, init_exit) =
+        run_ggen(&["init", "test-project"], workspace_path(&temp)).unwrap();
     println!(
         "[CISO] init exit code: {}, output:\n{}",
         init_exit,
@@ -21,10 +22,7 @@ fn test_init_then_sync_workflow() {
     // Step 2: Assert ggen.toml created
     let project_dir = workspace_path(&temp).join("test-project");
     let ggen_toml = project_dir.join("ggen.toml");
-    assert!(
-        ggen_toml.exists(),
-        "ggen.toml should exist after init"
-    );
+    assert!(ggen_toml.exists(), "ggen.toml should exist after init");
 
     // Step 3: Run `ggen sync` in project dir (may fail due to missing ontology,
     // which is expected - we just verify the command is reachable)
@@ -79,8 +77,11 @@ fn test_receipt_chain_verify_command_exists() {
 
     // Step 1: Run `ggen receipt chain_verify --help`
     println!("[CISO] Running: ggen receipt chain_verify --help");
-    let (stdout, _exit_code) =
-        run_ggen(&["receipt", "chain_verify", "--help"], workspace_path(&temp)).unwrap();
+    let (stdout, _exit_code) = run_ggen(
+        &["receipt", "chain_verify", "--help"],
+        workspace_path(&temp),
+    )
+    .unwrap();
 
     // Step 2: Assert help output shows required args
     let output = stdout;
@@ -93,9 +94,7 @@ fn test_receipt_chain_verify_command_exists() {
         "receipt chain_verify help should show --public_key argument"
     );
 
-    println!(
-        "[CISO] PASS: receipt chain_verify command exists with expected arguments"
-    );
+    println!("[CISO] PASS: receipt chain_verify command exists with expected arguments");
 }
 
 #[test]
@@ -115,30 +114,27 @@ fn test_full_pack_discovery_to_sync_workflow() {
     let (cap_output, cap_exit) = run_ggen(&["capability", "list"], workspace_path(&temp)).unwrap();
     let cap_json = extract_json_from_output(&cap_output).unwrap();
     let cap_total = cap_json["total"].as_u64().expect("capability total");
-    let capabilities = cap_json["capabilities"].as_array().expect("capabilities array");
+    let capabilities = cap_json["capabilities"]
+        .as_array()
+        .expect("capabilities array");
     assert!(cap_total > 0, "capability list should return capabilities");
 
     // Step 3: Run `ggen policy list` to get profiles
     println!("[CISO] Step 3: ggen policy list");
-    let (policy_output, policy_exit) = run_ggen(&["policy", "list"], workspace_path(&temp)).unwrap();
+    let (policy_output, policy_exit) =
+        run_ggen(&["policy", "list"], workspace_path(&temp)).unwrap();
     let policy_json = extract_json_from_output(&policy_output).unwrap();
     let policy_total = policy_json["total"].as_u64().expect("policy total");
     let _profiles = policy_json["profiles"].as_array().expect("profiles array");
-    assert!(policy_total >= 3, "policy list should return at least 3 profiles");
+    assert!(
+        policy_total >= 3,
+        "policy list should return at least 3 profiles"
+    );
 
     // Step 4: Verify all commands returned valid JSON
-    assert!(
-        packs_exit == 0,
-        "packs list should succeed"
-    );
-    assert!(
-        cap_exit == 0,
-        "capability list should succeed"
-    );
-    assert!(
-        policy_exit == 0,
-        "policy list should succeed"
-    );
+    assert!(packs_exit == 0, "packs list should succeed");
+    assert!(cap_exit == 0, "capability list should succeed");
+    assert!(policy_exit == 0, "policy list should succeed");
 
     // Step 5: Cross-reference: verify all capability atomic_packs reference valid pack structures
     let mut atomic_pack_ids_seen = std::collections::HashSet::new();

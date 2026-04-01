@@ -99,9 +99,7 @@ fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput>
 
 /// Manage environment variables
 #[verb]
-fn env(
-    list: bool, get: Option<String>, set: Option<String>, _system: bool,
-) -> Result<EnvOutput> {
+fn env(list: bool, get: Option<String>, set: Option<String>, _system: bool) -> Result<EnvOutput> {
     let variables = run_env(list, &get, &set);
     let total = variables.len();
     Ok(EnvOutput { variables, total })

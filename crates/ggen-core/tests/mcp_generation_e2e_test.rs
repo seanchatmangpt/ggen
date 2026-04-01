@@ -45,7 +45,9 @@ fn setup_temp_dir() -> Result<TempDir, Box<dyn std::error::Error>> {
 }
 
 /// Write content to a file in temp directory
-fn write_file(temp_dir: &TempDir, path: &str, content: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
+fn write_file(
+    temp_dir: &TempDir, path: &str, content: &str,
+) -> Result<PathBuf, Box<dyn std::error::Error>> {
     let file_path = temp_dir.path().join(path);
     if let Some(parent) = file_path.parent() {
         fs::create_dir_all(parent)?;
@@ -103,7 +105,11 @@ fn e2e_mcp_server_template_renders_successfully() {
     let result = tera.render_str(&template_content, &ctx);
 
     // Assert: Template renders successfully
-    assert!(result.is_ok(), "Template should render successfully: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Template should render successfully: {:?}",
+        result.err()
+    );
 
     let rendered = result.unwrap();
 
@@ -162,7 +168,11 @@ fn e2e_mcp_tool_handler_template_renders_successfully() {
     let result = tera.render_str(&template_content, &ctx);
 
     // Assert: Template renders successfully
-    assert!(result.is_ok(), "Template should render successfully: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Template should render successfully: {:?}",
+        result.err()
+    );
 
     let rendered = result.unwrap();
 
@@ -195,7 +205,8 @@ fn e2e_mcp_server_generated_files_written_to_disk() {
         .expect("Failed to read template");
 
     // Act: Render template
-    let rendered = tera.render_str(&template_content, &ctx)
+    let rendered = tera
+        .render_str(&template_content, &ctx)
         .expect("Failed to render template");
 
     // Act: Write to file
@@ -294,13 +305,18 @@ fn e2e_mcp_server_deterministic_generation() {
         .expect("Failed to read template");
 
     // Act: Render twice with same context
-    let rendered1 = tera1.render_str(&template_content, &ctx1)
+    let rendered1 = tera1
+        .render_str(&template_content, &ctx1)
         .expect("Failed to render first time");
-    let rendered2 = tera2.render_str(&template_content, &ctx2)
+    let rendered2 = tera2
+        .render_str(&template_content, &ctx2)
         .expect("Failed to render second time");
 
     // Assert: Output is identical
-    assert_eq!(rendered1, rendered2, "Same input should produce identical output");
+    assert_eq!(
+        rendered1, rendered2,
+        "Same input should produce identical output"
+    );
 
     println!("✅ E2E Test PASSED: Deterministic generation verified");
 }
@@ -359,7 +375,8 @@ fn e2e_mcp_server_multiple_tools_generated() {
         .expect("Failed to read template");
 
     // Act: Render template
-    let rendered = tera.render_str(&template_content, &ctx)
+    let rendered = tera
+        .render_str(&template_content, &ctx)
         .expect("Failed to render template");
 
     // Assert: All tools are present
@@ -391,7 +408,10 @@ fn e2e_mcp_server_template_error_handling() {
     let result = tera.render_str(&template_content, &ctx);
 
     // Assert: Rendering fails gracefully
-    assert!(result.is_err(), "Template should fail with missing context variable");
+    assert!(
+        result.is_err(),
+        "Template should fail with missing context variable"
+    );
 
     println!("✅ E2E Test PASSED: Template error handling works");
 }
@@ -413,7 +433,8 @@ fn e2e_mcp_server_generated_code_syntax() {
         .expect("Failed to read template");
 
     // Act: Render template
-    let rendered = tera.render_str(&template_content, &ctx)
+    let rendered = tera
+        .render_str(&template_content, &ctx)
         .expect("Failed to render template");
 
     // Assert: Contains basic Rust syntax elements

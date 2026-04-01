@@ -23,11 +23,11 @@
 
 use assert_cmd::Command;
 use predicates::prelude::*;
+use serde_json::Value;
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
-use serde_json::Value;
 
 // ============================================================================
 // Test Utilities
@@ -240,7 +240,10 @@ fn test_pack_install_returns_valid_json() {
     // Assert: Contains expected fields
     assert!(json.get("pack_id").is_some(), "Should have pack_id field");
     assert!(json.get("status").is_some(), "Should have status field");
-    assert_eq!(json["pack_id"], "surface-mcp", "Should report correct pack_id");
+    assert_eq!(
+        json["pack_id"], "surface-mcp",
+        "Should report correct pack_id"
+    );
 
     println!("✅ Test PASSED: Valid JSON output");
 }
@@ -317,8 +320,14 @@ fn test_pack_validate_checks_pack() {
     let json = parse_json(&output).expect("Output should be valid JSON");
 
     // Assert: Contains validation result
-    assert_eq!(json["pack_id"], "surface-mcp", "Should validate correct pack");
-    assert!(json.get("is_valid").is_some(), "Should have validation status");
+    assert_eq!(
+        json["pack_id"], "surface-mcp",
+        "Should validate correct pack"
+    );
+    assert!(
+        json.get("is_valid").is_some(),
+        "Should have validation status"
+    );
 
     println!("✅ Test PASSED: Pack validation works");
 }
@@ -349,8 +358,14 @@ fn test_capability_enable_expands_to_atomic_packs() {
 
     // Assert: Contains atomic_packs list
     assert_eq!(json["capability"], "mcp", "Should enable mcp capability");
-    assert!(json.get("atomic_packs").is_some(), "Should list atomic packs");
-    assert!(json["atomic_packs"].is_array(), "atomic_packs should be array");
+    assert!(
+        json.get("atomic_packs").is_some(),
+        "Should list atomic packs"
+    );
+    assert!(
+        json["atomic_packs"].is_array(),
+        "atomic_packs should be array"
+    );
 
     // Assert: Atomic packs are not empty
     let atomic_packs = json["atomic_packs"].as_array().unwrap();
@@ -456,9 +471,15 @@ fn test_capability_list_shows_capabilities() {
     let json = parse_json(&output).expect("Output should be valid JSON");
 
     // Assert: Contains capabilities
-    assert!(json.get("capabilities").is_some(), "Should have capabilities");
+    assert!(
+        json.get("capabilities").is_some(),
+        "Should have capabilities"
+    );
     assert!(json.get("total").is_some(), "Should have total");
-    assert!(json["capabilities"].is_array(), "capabilities should be array");
+    assert!(
+        json["capabilities"].is_array(),
+        "capabilities should be array"
+    );
 
     println!("✅ Test PASSED: Capability list works");
 }
@@ -484,8 +505,14 @@ fn test_capability_inspect_shows_details() {
     let json = parse_json(&output).expect("Output should be valid JSON");
 
     // Assert: Contains capability details
-    assert_eq!(json["capability"], "mcp", "Should inspect correct capability");
-    assert!(json.get("atomic_packs").is_some(), "Should list atomic packs");
+    assert_eq!(
+        json["capability"], "mcp",
+        "Should inspect correct capability"
+    );
+    assert!(
+        json.get("atomic_packs").is_some(),
+        "Should list atomic packs"
+    );
 
     println!("✅ Test PASSED: Capability inspect works");
 }
@@ -580,8 +607,7 @@ fn test_lockfile_format_is_valid() {
         .success();
 
     // Assert: Lockfile is valid JSON
-    let content = fs::read_to_string(&lockfile_path)
-        .expect("Failed to read lockfile");
+    let content = fs::read_to_string(&lockfile_path).expect("Failed to read lockfile");
     let json: Value = parse_json(&content).expect("Lockfile should be valid JSON");
 
     // Assert: Contains required fields
@@ -589,7 +615,10 @@ fn test_lockfile_format_is_valid() {
     assert!(json.get("packs").is_some(), "Should have packs");
     assert!(json["packs"].is_object(), "packs should be object");
     assert!(json.get("updated_at").is_some(), "Should have updated_at");
-    assert!(json.get("ggen_version").is_some(), "Should have ggen_version");
+    assert!(
+        json.get("ggen_version").is_some(),
+        "Should have ggen_version"
+    );
 
     println!("✅ Test PASSED: Lockfile format valid");
 }
@@ -715,7 +744,13 @@ fn test_receipt_generated_after_pack_install() {
     let receipt_files: Vec<_> = fs::read_dir(&receipt_dir)
         .unwrap()
         .filter_map(|entry| entry.ok())
-        .filter(|entry| entry.path().extension().map(|ext| ext == "json").unwrap_or(false))
+        .filter(|entry| {
+            entry
+                .path()
+                .extension()
+                .map(|ext| ext == "json")
+                .unwrap_or(false)
+        })
         .collect();
 
     assert!(
@@ -776,7 +811,10 @@ fn test_receipt_info_shows_details() {
     let json = parse_json(&output).expect("Output should be valid JSON");
 
     // Assert: Contains receipt details
-    assert!(json.get("operation_id").is_some(), "Should have operation_id");
+    assert!(
+        json.get("operation_id").is_some(),
+        "Should have operation_id"
+    );
     assert!(json.get("timestamp").is_some(), "Should have timestamp");
 
     println!("✅ Test PASSED: Receipt info works");
@@ -804,7 +842,13 @@ fn test_receipt_format_is_valid() {
     let receipt_files: Vec<_> = fs::read_dir(&receipt_dir)
         .unwrap()
         .filter_map(|entry| entry.ok())
-        .filter(|entry| entry.path().extension().map(|ext| ext == "json").unwrap_or(false))
+        .filter(|entry| {
+            entry
+                .path()
+                .extension()
+                .map(|ext| ext == "json")
+                .unwrap_or(false)
+        })
         .collect();
 
     assert!(!receipt_files.is_empty(), "Should have receipt files");
@@ -815,10 +859,19 @@ fn test_receipt_format_is_valid() {
     let json: Value = parse_json(&content).expect("Receipt should be valid JSON");
 
     // Assert: Contains required fields
-    assert!(json.get("operation_id").is_some(), "Should have operation_id");
+    assert!(
+        json.get("operation_id").is_some(),
+        "Should have operation_id"
+    );
     assert!(json.get("timestamp").is_some(), "Should have timestamp");
-    assert!(json.get("input_hashes").is_some(), "Should have input_hashes");
-    assert!(json.get("output_hashes").is_some(), "Should have output_hashes");
+    assert!(
+        json.get("input_hashes").is_some(),
+        "Should have input_hashes"
+    );
+    assert!(
+        json.get("output_hashes").is_some(),
+        "Should have output_hashes"
+    );
 
     println!("✅ Test PASSED: Receipt format valid");
 }
@@ -854,7 +907,13 @@ fn test_receipt_chain_verification() {
     let receipt_count = fs::read_dir(&receipt_dir)
         .unwrap()
         .filter_map(|entry| entry.ok())
-        .filter(|entry| entry.path().extension().map(|ext| ext == "json").unwrap_or(false))
+        .filter(|entry| {
+            entry
+                .path()
+                .extension()
+                .map(|ext| ext == "json")
+                .unwrap_or(false)
+        })
         .count();
 
     assert!(
@@ -950,8 +1009,7 @@ fn test_policy_show_displays_profile_details() {
 
     // Assert: Contains profile details
     assert_eq!(
-        json["profile_id"],
-        "enterprise-strict",
+        json["profile_id"], "enterprise-strict",
         "Should show correct profile"
     );
     assert!(json.get("policies").is_some(), "Should have policies");
@@ -1042,17 +1100,11 @@ fn test_full_workflow_install_to_receipt() {
 
     // Step 3: Verify lockfile exists
     let lockfile_path = temp_dir.path().join(".ggen/packs.lock");
-    assert!(
-        lockfile_path.exists(),
-        "Lockfile should exist"
-    );
+    assert!(lockfile_path.exists(), "Lockfile should exist");
 
     // Step 4: Verify receipt exists
     let receipts_dir = temp_dir.path().join(".ggen/receipts");
-    assert!(
-        receipts_dir.exists(),
-        "Receipts directory should exist"
-    );
+    assert!(receipts_dir.exists(), "Receipts directory should exist");
 
     // Step 5: List packs (verifies installation)
     ggen()
@@ -1136,7 +1188,13 @@ fn test_full_workflow_with_receipt_verification() {
     let receipt_files: Vec<_> = fs::read_dir(&receipt_dir)
         .unwrap()
         .filter_map(|entry| entry.ok())
-        .filter(|entry| entry.path().extension().map(|ext| ext == "json").unwrap_or(false))
+        .filter(|entry| {
+            entry
+                .path()
+                .extension()
+                .map(|ext| ext == "json")
+                .unwrap_or(false)
+        })
         .collect();
 
     assert!(!receipt_files.is_empty(), "Should have receipt files");
@@ -1268,7 +1326,13 @@ fn test_full_workflow_multiple_packs() {
     let receipt_count = fs::read_dir(&receipt_dir)
         .unwrap()
         .filter_map(|entry| entry.ok())
-        .filter(|entry| entry.path().extension().map(|ext| ext == "json").unwrap_or(false))
+        .filter(|entry| {
+            entry
+                .path()
+                .extension()
+                .map(|ext| ext == "json")
+                .unwrap_or(false)
+        })
         .count();
 
     assert!(
@@ -1331,10 +1395,7 @@ fn test_workflow_state_consistency() {
 
     // Assert: Lockfile was updated (pack count should change or stay same)
     // The exact behavior depends on implementation
-    assert!(
-        pack_count2 >= pack_count1,
-        "Lockfile should be updated"
-    );
+    assert!(pack_count2 >= pack_count1, "Lockfile should be updated");
 
     println!("✅ Test PASSED: State consistency maintained");
 }
