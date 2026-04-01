@@ -1,0 +1,176 @@
+# =============================================================================
+# Weaver Live-Check CI Workflow
+#
+# Validates OTEL semantic conventions on every pull request.
+# Spans up the weaver stack, runs ggen AI commands, and checks for violations.
+#
+# Triggers: pull_request to master
+# =============================================================================
+
+name: Weaver Validation
+
+on:
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:  # Allow manual trigger from Actions tab
+
+jobs:
+  weaver-validation:
+    name: Weaver Semconv Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # -------------------------------------------------------------------------
+      # Checkout repository
+      # -------------------------------------------------------------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # -------------------------------------------------------------------------
+      # Install Rust toolchain
+      # -------------------------------------------------------------------------
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      # -------------------------------------------------------------------------
+      # Cache cargo registry and build artifacts
+      # -------------------------------------------------------------------------
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      # -------------------------------------------------------------------------
+      # Build ggen CLI
+      # -------------------------------------------------------------------------
+      - name: Build ggen
+        run: |
+          cargo build --release --bin ggen
+
+      # -------------------------------------------------------------------------
+      # Start weaver stack (OTEL collector + Jaeger + Weaver)
+      # -------------------------------------------------------------------------
+      - name: Start weaver stack
+        run: |
+          cd tests/integration
+          docker compose -f docker-compose.otel-test.yml -f docker-compose.weaver.yml up -d
+
+      # -------------------------------------------------------------------------
+      # Wait for weaver stack to be healthy
+      # -------------------------------------------------------------------------
+      - name: Wait for weaver stack
+        run: |
+          echo "Waiting for weaver live-check to be healthy..."
+          timeout 60 bash -c 'until docker ps | grep -q "ggen-weaver-live-check.*healthy"; do sleep 2; done'
+          echo "Weaver live-check is healthy ✓"
+
+          echo "Waiting for OTEL collector..."
+          timeout 60 bash -c 'until curl -sf http://localhost:13133 > /dev/null; do sleep 2; done'
+          echo "OTEL collector is ready ✓"
+
+      # -------------------------------------------------------------------------
+      # Run ggen AI command with Groq (generates OTEL spans)
+      # -------------------------------------------------------------------------
+      - name: Generate LLM spans
+        env:
+          RUST_LOG: trace,ggen_ai=trace
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          # Run ggen AI command to generate llm.complete spans
+          ./target/release/ggen ai generate --prompt "What is 2+2?" > /dev/null 2>&1 || true
+
+          # Wait for spans to be processed
+          sleep 5
+
+      # -------------------------------------------------------------------------
+      # Run weaver verification script
+      # -------------------------------------------------------------------------
+      - name: Verify weaver integration
+        run: |
+          cd tests/integration
+          bash weaver-verification.sh
+
+      # -------------------------------------------------------------------------
+      # Check weaver reports for semconv violations
+      # -------------------------------------------------------------------------
+      - name: Check for semconv violations
+        run: |
+          # Copy weaver reports from container
+          docker cp ggen-weaver-live-check:/reports /tmp/weaver-reports || true
+
+          # Check for violations (exit 1 if found)
+          if grep -r "level.*violation" /tmp/weaver-reports/*.json 2>/dev/null | grep -q .; then
+            echo "❌ Semconv violations detected:"
+            grep -r "level.*violation" /tmp/weaver-reports/*.json 2>/dev/null || true
+            exit 1
+          else
+            echo "✅ No semconv violations found"
+          fi
+
+      # -------------------------------------------------------------------------
+      # Upload weaver reports as artifacts
+      # -------------------------------------------------------------------------
+      - name: Upload weaver reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weaver-reports
+          path: /tmp/weaver-reports/
+          retention-days: 7
+
+      # -------------------------------------------------------------------------
+      # Show OTEL collector logs (for debugging)
+      # -------------------------------------------------------------------------
+      - name: OTEL collector logs
+        if: always()
+        run: |
+          echo "=== OTEL Collector Logs ==="
+          docker logs ggen-otel-collector --tail 50 || true
+
+      # -------------------------------------------------------------------------
+      # Show weaver logs (for debugging)
+      # -------------------------------------------------------------------------
+      - name: Weaver logs
+        if: always()
+        run: |
+          echo "=== Weaver Live-Check Logs ==="
+          docker logs ggen-weaver-live-check --tail 50 || true
+
+      # -------------------------------------------------------------------------
+      # Shutdown weaver stack
+      # -------------------------------------------------------------------------
+      - name: Shutdown weaver stack
+        if: always()
+        run: |
+          cd tests/integration
+          docker compose -f docker-compose.otel-test.yml -f docker-compose.weaver.yml down -v
+
+  # -------------------------------------------------------------------------
+  # Summary job (reports overall status)
+  # -------------------------------------------------------------------------
+  summary:
+    name: Weaver Validation Summary
+    runs-on: ubuntu-latest
+    needs: weaver-validation
+    if: always()
+
+    steps:
+      - name: Summary
+        run: |
+          if [ "${{ needs.weaver-validation.result }}" = "success" ]; then
+            echo "✅ Weaver validation PASSED"
+            echo "All OTEL spans conform to semantic conventions"
+          else
+            echo "❌ Weaver validation FAILED"
+            echo "Check the job logs for semconv violations"
+            exit 1
+          fi

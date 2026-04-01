@@ -1,0 +1,104 @@
+# OpenTelemetry Collector Configuration with Weaver Fan-Out
+#
+# Receives OTEL traces from ggen components, fans out to:
+#   1. Jaeger (trace visualization)
+#   2. Weaver Live-Check (semconv validation)
+#
+# Usage:
+#   docker compose -f docker-compose.otel-test.yml -f docker-compose.weaver.yml up
+#
+# See: tests/integration/docker-compose.weaver.yml
+
+receivers:
+  # OTLP receiver (ggen components send traces here)
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  # Batch traces before export (reduces network overhead)
+  batch:
+    timeout: 5s
+    send_batch_size: 1000
+    send_batch_max_size: 2000
+
+  # Memory limiter (prevents OOM)
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+
+  # Resource detection (adds host.name, os.type, etc.)
+  resourcedetection:
+    detectors: [env, system]
+
+  # Span attributes processing (remove sensitive data)
+  attributes:
+    actions:
+        key: groq.api_key
+        action: delete
+        key: openai.api_key
+        action: delete
+        key: llm.api_key
+        action: delete
+        key: anthropic.api_key
+        action: delete
+
+extensions:
+  # Health check extension
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+  # PProf extension (performance profiling)
+  pprof:
+    endpoint: 0.0.0.0:1777
+
+  # ZPages extension (runtime diagnostics)
+  zpages:
+    endpoint: 0.0.0.0:55679
+
+exporters:
+  # Console exporter (development/debugging)
+  logging:
+    loglevel: info
+
+  # Jaeger exporter (production tracing backend)
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+    sending_queue:
+      enabled: true
+      num_consumers: 4
+      queue_size: 10000
+
+  # Weaver Live-Check exporter (semconv validation, read-only)
+  # This is a fan-out exporter: spans go to BOTH Jaeger AND Weaver
+  otlp/weaver:
+    endpoint: weaver-live-check:4316
+    tls:
+      insecure: true
+
+service:
+  extensions: [health_check, pprof, zpages]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, resourcedetection, attributes, batch]
+      # Fan-out to Jaeger (traces) + Weaver (validation)
+      exporters: [logging, otlp/jaeger, otlp/weaver]
+
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, resourcedetection, batch]
+      exporters: [logging]
+
+  # Telemetry for the collector itself
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      address: 0.0.0.0:8888

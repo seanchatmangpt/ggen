@@ -1,0 +1,101 @@
+# =============================================================================
+# ggen Weaver Live-Check Integration Test Environment
+# Extends base OTEL test stack with weaver-live-check container.
+#
+# Usage:
+#   docker compose -f docker-compose.otel-test.yml -f docker-compose.weaver.yml up -d
+#   bash weaver-verification.sh
+#
+# Architecture:
+#   ggen services → OTEL Collector (4317/4318)
+#                 → Jaeger (traces, 16686)
+#                 → Weaver Live-Check (validation, 4316/4320)
+#
+# Based on ~/chatmangpt/BusinessOS/docker-compose.yml
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Weaver Live-Check — Semantic Convention Validator (sidecar)
+  # Receives a copy of ALL OTLP spans from the collector, validates each span
+  # against semconv/model/ registry, and reports violations in real-time.
+  #
+  # Span flow:
+  #   Services → Collector (4317) → Jaeger (traces)
+  #                              → Weaver (4316, validation only)
+  # ---------------------------------------------------------------------------
+  weaver-live-check:
+    build:
+      context: ../../docker/weaver
+      dockerfile: Dockerfile
+    image: ggen-weaver-live-check:local
+    container_name: ggen-weaver-live-check
+    restart: unless-stopped
+    ports:
+      - "4320:4320"   # Weaver admin (/stop endpoint)
+    environment:
+      # RUST_LOG controls weaver verbosity: info, debug, trace
+      RUST_LOG: "${WEAVER_LOG_LEVEL:-info}"
+    volumes:
+      # Mount semconv registry read-only (schema definitions)
+      - ../../semconv/model:/semconv/model:ro
+      # Mount policies read-only (validation rules)
+      - ../../semconv/policies:/semconv/policies:ro
+      # Reports volume for validation output (JSON files)
+      - weaver_reports:/reports
+    command:
+      - registry
+      - live-check
+      - -r
+      - /semconv/model
+      # Skip policy enforcement for now (use check mode only)
+      - --skip-policies
+      - --input-source
+      - otlp
+      - --otlp-grpc-port
+      - "4316"
+      - --admin-port
+      - "4320"
+      - --report-path
+      - /reports
+      # Long timeout to keep container running for testing
+      - --inactivity-timeout
+      - "86400"
+    healthcheck:
+      # Admin port liveness check (GET / returns 200 when listener is active)
+      test: ["CMD", "curl", "-sf", "http://localhost:4320/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - otel-test
+
+  # ---------------------------------------------------------------------------
+  # Override OTEL Collector to add weaver exporter
+  # ---------------------------------------------------------------------------
+  otel-collector:
+    # Use weaver-enabled config (fan-out to Jaeger + Weaver)
+    volumes:
+      - ./otel-collector-with-weaver.yaml:/etc/otel-collector-config.yaml:ro
+    # Wait for both Jaeger and Weaver to be healthy before starting collector
+    depends_on:
+      jaeger:
+        condition: service_started
+      weaver-live-check:
+        condition: service_healthy
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  # Weaver reports volume (persisted validation output)
+  weaver_reports:
+    driver: local
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  otel-test:
+    driver: bridge

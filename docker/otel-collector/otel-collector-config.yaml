@@ -1,0 +1,125 @@
+# OpenTelemetry Collector Configuration for ggen
+#
+# Receives OTEL traces from ggen components, validates against weaver semconv,
+# and exports to console (development) or Jaeger/Tempo (production).
+#
+# Usage:
+#   docker run -v $(pwd)/docker/otel-collector/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml \
+#     otel/opentelemetry-collector-contrib:latest
+#
+# See: docs/weaver-registry-integration-plan.md
+
+receivers:
+  # OTLP receiver (ggen components send traces here)
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # Prometheus receiver for metrics (optional)
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'otel-collector'
+          scrape_interval: 15s
+          static_configs:
+            - targets: ['localhost:8888']
+
+processors:
+  # Batch traces before export (reduces network overhead)
+  batch:
+    timeout: 5s
+    send_batch_size: 1000
+    send_batch_max_size: 2000
+
+  # Memory limiter (prevents OOM)
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+
+  # Resource detection (adds host.name, os.type, etc.)
+  resourcedetection:
+    detectors: [env, system]
+
+  # Span attributes processing
+  attributes:
+    actions:
+      # Remove sensitive attributes (API keys, tokens)
+        key: groq.api_key
+        action: delete
+        key: openai.api_key
+        action: delete
+        key: llm.api_key
+        action: delete
+
+  # Weaver validation processor (validates spans against semconv)
+  # Note: Requires weaver SDK integration (future enhancement)
+  # weaver:
+  #   semconv_path: /etc/weaver/semconv
+  #   strict_mode: false  # Log violations, don't reject spans
+
+extensions:
+  # Health check extension
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+  # PProf extension (performance profiling)
+  pprof:
+    endpoint: 0.0.0.0:1777
+
+  # ZPages extension (runtime diagnostics)
+  zpages:
+    endpoint: 0.0.0.0:55679
+
+exporters:
+  # Console exporter (development/debugging)
+  logging:
+    loglevel: debug
+    sampling_initial: 10
+    sampling_thereafter: 100
+
+  # Jaeger exporter (production tracing backend)
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+    sending_queue:
+      enabled: true
+      num_consumers: 4
+      queue_size: 10000
+
+  # Prometheus exporter for metrics
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+    tls:
+      insecure: true
+
+  # File exporter (backup/spill-over)
+  file:
+    path: /var/lib/otel-collector/spans.jsonl
+    rotation:
+      max_megabytes: 100
+      max_days: 7
+
+service:
+  extensions: [health_check, pprof, zpages]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, resourcedetection, attributes, batch]
+      exporters: [logging, otlp/jaeger, file]
+
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [memory_limiter, resourcedetection, batch]
+      exporters: [logging, prometheusremotewrite]
+
+  # Telemetry for the collector itself
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      address: 0.0.0.0:8888

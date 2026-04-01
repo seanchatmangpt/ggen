@@ -106,18 +106,6 @@ rand = "0.8"
 tempfile = "3.23"
 semver = "1.0"
 
-[[bench]]
-name = "comprehensive_performance"
-harness = false
-
-[[bench]]
-name = "v1_vs_v2_comparison"
-harness = false
-
-[[bench]]
-name = "slo_validation"
-harness = false
-
 # Unit tests
 [[test]]
 name = "poka_yoke_types_test"
