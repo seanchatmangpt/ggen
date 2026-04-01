@@ -261,6 +261,24 @@ impl PackResolver {
         // Extract pack versions for lockfile updates
         let pack_versions = self.extract_pack_versions(&lockfile);
 
+        // Load pack signatures and checksums from metadata for receipt provenance
+        let mut pack_signatures = HashMap::new();
+        let mut pack_checksums = HashMap::new();
+        for pack in &resolved_packs {
+            let pack_dir = self.registry.pack_dir(pack);
+            let metadata = load_pack_metadata(&pack_dir).unwrap_or_default();
+            let pid = pack.to_string();
+            pack_signatures.insert(
+                pid.clone(),
+                metadata
+                    .signature
+                    .unwrap_or_else(|| "local:unsigned".to_string()),
+            );
+            if let Some(checksum) = metadata.checksum {
+                pack_checksums.insert(pid, checksum);
+            }
+        }
+
         Ok(ResolvedPacks {
             atomic_packs: resolved_packs,
             merged_ontology,
@@ -270,6 +288,8 @@ impl PackResolver {
             profile,
             queries: all_queries,
             templates: all_templates,
+            pack_signatures,
+            pack_checksums,
         })
     }
 

@@ -11,7 +11,7 @@ use std::str::FromStr;
 use uuid::Uuid;
 
 use crate::error::{Error, Result};
-use crate::trust::TrustTier;
+use crate::trust::{RegistryClass, TrustTier};
 
 /// Typestate marker for draft packages
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -543,11 +543,21 @@ pub struct ReleaseInfo {
     /// Trust tier classification (Fortune 5 CISO requirement)
     #[serde(default = "default_trust_tier")]
     pub trust_tier: TrustTier,
+    /// Registry class for pack distribution (Fortune 5 CISO requirement)
+    #[serde(default = "default_registry_class")]
+    pub registry_class: RegistryClass,
 }
 
 /// Default trust tier for releases (backward compatibility)
 fn default_trust_tier() -> TrustTier {
     TrustTier::Experimental
+}
+
+/// Default registry class for releases (backward compatibility)
+pub(crate) fn default_registry_class() -> RegistryClass {
+    RegistryClass::Public {
+        url: String::new(),
+    }
 }
 
 /// Search query result
