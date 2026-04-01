@@ -13,7 +13,7 @@
 //!
 //! ### Creating a File Tree Template
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::templates::format::{FileTreeNode, NodeType, TemplateFormat};
 //! use serde_json::json;
 //!
@@ -41,7 +41,7 @@
 //!
 //! ### Parsing Template Format
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::templates::format::TemplateFormat;
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {

@@ -34,7 +34,7 @@
 //!
 //! ### Generating Separated Files
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::templates::business_logic::BusinessLogicSeparator;
 //! use std::path::Path;
 //!
@@ -107,7 +107,7 @@ use std::path::Path;
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text,no_run
 /// use ggen_core::templates::business_logic::BusinessLogicSeparator;
 /// use std::path::Path;
 ///
