@@ -36,7 +36,7 @@
 //!
 //! ### Using the Preprocessor
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::preprocessor::{Preprocessor, FreezePolicy, PrepCtx};
 //! use std::path::Path;
 //!

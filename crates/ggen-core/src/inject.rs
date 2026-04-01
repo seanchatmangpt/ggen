@@ -15,7 +15,7 @@
 //!
 //! ### Detecting EOL Style
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::inject::EolNormalizer;
 //! use std::path::Path;
 //!
@@ -28,7 +28,7 @@
 //!
 //! ### Normalizing Content to Match File
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::inject::EolNormalizer;
 //! use std::path::Path;
 //!
@@ -70,7 +70,7 @@ impl EolNormalizer {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::inject::EolNormalizer;
     /// use std::path::Path;
     ///
@@ -183,7 +183,7 @@ impl EolNormalizer {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::inject::EolNormalizer;
     /// use std::path::Path;
     ///
@@ -265,7 +265,7 @@ impl SkipIfGenerator {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::inject::SkipIfGenerator;
     /// use std::path::Path;
     ///

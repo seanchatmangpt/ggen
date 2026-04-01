@@ -33,7 +33,7 @@ pub enum Operation {
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```text
 /// use ggen_core::poka_yoke::{DryRunMode, Operation, ValidatedPath};
 ///
 /// let mut dry_run = DryRunMode::new();

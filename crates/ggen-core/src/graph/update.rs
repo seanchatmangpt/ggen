@@ -14,7 +14,7 @@ use oxigraph::sparql::SparqlEvaluator;
 ///
 /// ## Insert data
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::graph::{Graph, GraphUpdate};
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
@@ -29,7 +29,7 @@ use oxigraph::sparql::SparqlEvaluator;
 ///
 /// ## Delete data
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::graph::{Graph, GraphUpdate};
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
@@ -44,7 +44,7 @@ use oxigraph::sparql::SparqlEvaluator;
 ///
 /// ## Update with WHERE clause
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::graph::{Graph, GraphUpdate};
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {

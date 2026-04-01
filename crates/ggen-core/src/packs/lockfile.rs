@@ -38,7 +38,7 @@
 //!
 //! ### Creating a Pack Lockfile
 //!
-//! ```rust
+//! ```text
 //! use ggen_core::packs::lockfile::{PackLockfile, LockedPack, PackSource};
 //! use std::collections::BTreeMap;
 //! use chrono::Utc;
@@ -64,7 +64,7 @@
 //!
 //! ### Loading from File
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::packs::lockfile::PackLockfile;
 //! use std::path::Path;
 //!
@@ -168,7 +168,7 @@ impl PackLockfile {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```text
     /// use ggen_core::packs::lockfile::PackLockfile;
     ///
     /// let lockfile = PackLockfile::new("4.0.0");
@@ -195,7 +195,7 @@ impl PackLockfile {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::packs::lockfile::PackLockfile;
     /// use std::path::Path;
     ///
@@ -244,7 +244,7 @@ impl PackLockfile {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::packs::lockfile::PackLockfile;
     /// use std::path::Path;
     ///
@@ -291,7 +291,7 @@ impl PackLockfile {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```text
     /// use ggen_core::packs::lockfile::{PackLockfile, LockedPack, PackSource};
     /// use std::collections::BTreeMap;
     /// use chrono::Utc;

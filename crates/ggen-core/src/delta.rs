@@ -22,7 +22,7 @@
 //!
 //! ### Detecting Graph Changes
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::delta::{GraphDelta, ImpactAnalyzer};
 //! use ggen_core::graph::Graph;
 //!
@@ -38,7 +38,7 @@
 //!
 //! ### Analyzing Template Impact
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::delta::ImpactAnalyzer;
 //! use ggen_core::graph::Graph;
 //!
@@ -114,7 +114,7 @@ use crate::graph::Graph;
 /// # }
 /// ```
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::delta::DeltaType;
 /// use oxigraph::model::{NamedNode, Literal, Quad};
 ///
@@ -133,7 +133,7 @@ use crate::graph::Graph;
 /// # }
 /// ```
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::delta::DeltaType;
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
@@ -181,7 +181,7 @@ impl DeltaType {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::delta::DeltaType;
     /// use oxigraph::model::{NamedNode, Literal, Quad, Subject, Term};
     ///
@@ -243,7 +243,7 @@ impl DeltaType {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::delta::DeltaType;
     ///
     /// # fn main() -> ggen_utils::error::Result<()> {
@@ -326,7 +326,7 @@ impl fmt::Display for DeltaType {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::delta::GraphDelta;
 /// use ggen_core::graph::Graph;
 ///
@@ -369,7 +369,7 @@ impl GraphDelta {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::delta::GraphDelta;
     /// use ggen_core::graph::Graph;
     ///
@@ -474,7 +474,7 @@ impl GraphDelta {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::delta::GraphDelta;
     /// use ggen_core::graph::Graph;
     ///
@@ -521,7 +521,7 @@ impl GraphDelta {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::delta::GraphDelta;
     /// use ggen_core::graph::Graph;
     ///

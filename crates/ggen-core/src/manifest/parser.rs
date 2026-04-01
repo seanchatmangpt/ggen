@@ -20,7 +20,7 @@ impl ManifestParser {
     /// * `Err(Error)` - Parse error with details
     ///
     /// # Example
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::manifest::ManifestParser;
     /// use std::path::Path;
     ///

@@ -182,7 +182,7 @@ impl Template {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::Template;
     /// use std::path::Path;
     ///

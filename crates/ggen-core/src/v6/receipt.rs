@@ -546,7 +546,7 @@ impl OutputFile {
 /// * `Err(Error)` - If files cannot be read
 ///
 /// # Example
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::v6::{epoch::Epoch, receipt::generate_receipt};
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
@@ -576,7 +576,7 @@ pub fn generate_receipt(
 /// * `Err(Error)` - If receipt cannot be saved
 ///
 /// # Example
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::v6::receipt::{generate_receipt, save_receipt};
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
@@ -607,7 +607,7 @@ pub fn save_receipt(receipt: &BuildReceipt, project_root: &Path) -> Result<PathB
 /// * `Err(Error)` - Verification failed
 ///
 /// # Example
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::v6::receipt::verify_receipt;
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {

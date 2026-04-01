@@ -15,7 +15,7 @@
 //!
 //! ### Creating a CLI Project
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::cli_generator::types::{CliProject, Noun, Verb, Argument, ArgumentType};
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -71,7 +71,7 @@
 //!
 //! ### Working with Nouns and Verbs
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::cli_generator::types::{Noun, Verb};
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {

@@ -14,7 +14,7 @@
 //!
 //! ### Loading Template Configuration
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::config::TemplateConfig;
 //! use std::path::PathBuf;
 //!

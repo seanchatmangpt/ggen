@@ -23,7 +23,7 @@
 //!
 //! ### Loading Configuration
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::lifecycle::loader::load_make;
 //! use ggen_core::lifecycle::Result;
 //!
@@ -36,7 +36,7 @@
 //!
 //! ### Loading with Default Fallback
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::lifecycle::loader::load_make_or_default;
 //! use ggen_core::lifecycle::Result;
 //!

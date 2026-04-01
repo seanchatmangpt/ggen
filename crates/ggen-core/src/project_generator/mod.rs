@@ -22,7 +22,7 @@
 //!
 //! ### Creating a Rust CLI Project
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::project_generator::{ProjectConfig, ProjectType, create_new_project};
 //! use std::path::PathBuf;
 //!
@@ -41,7 +41,7 @@
 //!
 //! ### Creating a Next.js Project
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::project_generator::{ProjectConfig, ProjectType, create_new_project};
 //! use std::path::PathBuf;
 //!

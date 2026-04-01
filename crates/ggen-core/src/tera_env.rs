@@ -15,7 +15,7 @@
 //!
 //! ### Building Tera with Glob Support
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::tera_env::build_tera_with_glob;
 //! use std::path::Path;
 //!

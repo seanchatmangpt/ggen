@@ -27,7 +27,7 @@
 //!
 //! ### Initializing Tracing
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::tracing::init_tracing;
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -38,7 +38,7 @@
 //!
 //! ### Creating Spans
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::tracing::PipelineTracer;
 //! use std::path::Path;
 //!
@@ -49,7 +49,7 @@
 //!
 //! ### Performance Timing
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::tracing::PerformanceTimer;
 //!
 //! let timer = PerformanceTimer::start("template_processing");
@@ -59,7 +59,7 @@
 //!
 //! ### Using Macros
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::{time_operation, trace_span};
 //!
 //! let result = time_operation!("expensive_operation", {

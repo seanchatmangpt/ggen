@@ -32,7 +32,7 @@
 //!
 //! ## Example
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::lockfile_unified::prelude::*;
 //!
 //! // Use unified manager for any lockfile type

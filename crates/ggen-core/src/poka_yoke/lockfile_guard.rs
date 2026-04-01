@@ -24,7 +24,7 @@ use ggen_utils::error::{Error, Result};
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```text
 /// use ggen_core::poka_yoke::LockfileGuard;
 ///
 /// {

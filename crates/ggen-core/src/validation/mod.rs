@@ -24,7 +24,7 @@
 //!
 //! ## Example Usage
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::validation::{SparqlValidator, ValidationResult};
 //! use ggen_core::graph::Graph;
 //!

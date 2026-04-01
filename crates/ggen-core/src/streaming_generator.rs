@@ -26,7 +26,7 @@ use crate::template_cache::TemplateCache;
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::streaming_generator::StreamingGenerator;
 /// use tera::Context;
 /// use std::path::PathBuf;
@@ -64,7 +64,7 @@ impl StreamingGenerator {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
@@ -97,7 +97,7 @@ impl StreamingGenerator {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
@@ -139,7 +139,7 @@ impl StreamingGenerator {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::streaming_generator::StreamingGenerator;
     /// use tera::Context;
     /// use std::path::PathBuf;
@@ -275,7 +275,7 @@ impl StreamingGenerator {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
@@ -302,7 +302,7 @@ impl StreamingGenerator {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::streaming_generator::{StreamingGenerator, GenerationResult};
 /// use tera::Context;
 /// use std::path::PathBuf;

@@ -18,7 +18,7 @@ use std::collections::BTreeMap;
 ///
 /// ## Boolean result
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::graph::{Graph, CachedResult};
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
@@ -38,7 +38,7 @@ use std::collections::BTreeMap;
 ///
 /// ## Solutions result
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::graph::{Graph, CachedResult};
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {

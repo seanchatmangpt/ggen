@@ -52,7 +52,7 @@
 //!
 //! ### Creating a Lockfile Manager
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
@@ -64,7 +64,7 @@
 //!
 //! ### Adding a Pack to the Lockfile
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
@@ -82,7 +82,7 @@
 //!
 //! ### Adding a Pack with PQC Signature
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!

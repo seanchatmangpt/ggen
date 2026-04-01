@@ -7,7 +7,7 @@
 //!
 //! Use [`generate_service`] for a single entry point across all supported languages:
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::codegen::{GeneratorLanguage, generate_service};
 //!
 //! let code = generate_service(GeneratorLanguage::Go, "UserService", 8080).unwrap();

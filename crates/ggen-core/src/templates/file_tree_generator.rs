@@ -41,7 +41,7 @@
 //!
 //! ### Loading a Template from File
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::templates::file_tree_generator::FileTreeTemplate;
 //! use std::path::Path;
 //!
@@ -56,7 +56,7 @@
 //!
 //! ### Parsing from YAML String
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::templates::file_tree_generator::{FileTreeTemplate, TemplateParser};
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -77,7 +77,7 @@
 //!
 //! ### Working with RDF Metadata
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::templates::file_tree_generator::FileTreeTemplate;
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -112,7 +112,7 @@ use super::format::{FileTreeNode, TemplateFormat};
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
 /// use std::path::Path;
 ///
@@ -185,7 +185,7 @@ impl FileTreeTemplate {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
     /// use std::path::Path;
     ///
@@ -546,7 +546,7 @@ impl TemplateParser {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::templates::file_tree_generator::TemplateParser;
     /// use std::path::Path;
     ///

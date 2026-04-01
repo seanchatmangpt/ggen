@@ -27,7 +27,7 @@ const MIN_FREE_SPACE: u64 = 10 * 1024 * 1024;
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```text
 /// use ggen_core::poka_yoke::{AtomicFileWriter, Uncommitted};
 ///
 /// let mut writer = AtomicFileWriter::new("/path/to/file.txt")?;

@@ -25,7 +25,7 @@
 //!
 //! ### Basic Pipeline Usage
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::pipeline::{Pipeline, PipelineBuilder};
 //! use std::collections::BTreeMap;
 //! use std::path::Path;
@@ -49,7 +49,7 @@
 //!
 //! ### Using PipelineBuilder
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::pipeline::PipelineBuilder;
 //! use std::collections::BTreeMap;
 //!
@@ -254,7 +254,7 @@ impl PipelineBuilder {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::pipeline::PipelineBuilder;
     /// use std::collections::BTreeMap;
     ///

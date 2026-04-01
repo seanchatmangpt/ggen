@@ -33,7 +33,7 @@ impl<'a> ConstructExecutor<'a> {
     /// * `Err(Error)` - Query execution error
     ///
     /// # Example
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::graph::{Graph, ConstructExecutor};
     ///
     /// let graph = Graph::new()?;

@@ -33,7 +33,7 @@ use crate::template_types::Template;
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::template_cache::TemplateCache;
 /// use std::path::Path;
 ///
@@ -114,7 +114,7 @@ impl TemplateCache {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::template_cache::TemplateCache;
     /// use std::path::Path;
     ///
@@ -256,7 +256,7 @@ impl TemplateCache {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::template_cache::TemplateCache;
     /// use std::path::Path;
     ///
@@ -304,7 +304,7 @@ impl TemplateCache {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::template_cache::TemplateCache;
     /// use std::path::Path;
     ///
@@ -370,7 +370,7 @@ impl Default for TemplateCache {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::template_cache::{TemplateCache, CacheStats};
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {

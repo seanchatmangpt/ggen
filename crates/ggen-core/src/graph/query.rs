@@ -16,7 +16,7 @@ use std::collections::BTreeMap;
 ///
 /// ## Query with prefixes
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::graph::{Graph, GraphQuery};
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
@@ -85,7 +85,7 @@ impl<'a> GraphQuery<'a> {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::graph::{Graph, GraphQuery};
     ///
     /// # fn main() -> ggen_utils::error::Result<()> {

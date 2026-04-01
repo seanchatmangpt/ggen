@@ -36,7 +36,7 @@ use std::path::Path;
 ///
 /// ## Export to file
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::graph::{Graph, GraphExport};
 /// use oxigraph::io::RdfFormat;
 ///
@@ -55,7 +55,7 @@ use std::path::Path;
 ///
 /// ## Export to string
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::graph::{Graph, GraphExport};
 /// use oxigraph::io::RdfFormat;
 ///

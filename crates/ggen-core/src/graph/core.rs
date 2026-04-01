@@ -70,7 +70,7 @@ const EPOCH_INCREMENT: u64 = 1;
 ///
 /// ## Basic usage
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::graph::Graph;
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {

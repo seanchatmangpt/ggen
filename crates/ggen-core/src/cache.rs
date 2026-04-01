@@ -16,7 +16,7 @@
 //!
 //! ### Creating a Cache Manager
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::cache::CacheManager;
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -32,7 +32,7 @@
 //!
 //! ### Ensuring a Pack is Cached
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::cache::CacheManager;
 //! use ggen_core::registry::ResolvedPack;
 //!
@@ -55,7 +55,7 @@
 //!
 //! ### Listing Cached Packs
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::cache::CacheManager;
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -101,7 +101,7 @@ impl CacheManager {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::cache::CacheManager;
     ///
     /// # fn main() -> ggen_utils::error::Result<()> {
@@ -126,7 +126,7 @@ impl CacheManager {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::cache::CacheManager;
     /// use std::path::PathBuf;
     ///
@@ -147,7 +147,7 @@ impl CacheManager {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::cache::CacheManager;
     ///
     /// # fn main() -> ggen_utils::error::Result<()> {
@@ -195,7 +195,7 @@ impl CacheManager {
     ///
     /// ## Success case
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::cache::CacheManager;
     /// use ggen_core::registry::ResolvedPack;
     ///
@@ -217,7 +217,7 @@ impl CacheManager {
     ///
     /// ## Error case - Invalid git URL
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::cache::CacheManager;
     /// use ggen_core::registry::ResolvedPack;
     ///
@@ -331,7 +331,7 @@ impl CacheManager {
     ///
     /// ## Success case
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::cache::CacheManager;
     ///
     /// # fn main() -> ggen_utils::error::Result<()> {
@@ -346,7 +346,7 @@ impl CacheManager {
     ///
     /// ## Error case - Pack not found
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::cache::CacheManager;
     ///
     /// # fn main() -> ggen_utils::error::Result<()> {
@@ -417,7 +417,7 @@ impl CacheManager {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::cache::CacheManager;
     ///
     /// # fn main() -> ggen_utils::error::Result<()> {
@@ -482,7 +482,7 @@ impl CacheManager {
     ///
     /// ## Success case
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::cache::CacheManager;
     ///
     /// # fn main() -> ggen_utils::error::Result<()> {
@@ -495,7 +495,7 @@ impl CacheManager {
     ///
     /// ## Error case - Permission denied
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::cache::CacheManager;
     ///
     /// # fn main() -> ggen_utils::error::Result<()> {

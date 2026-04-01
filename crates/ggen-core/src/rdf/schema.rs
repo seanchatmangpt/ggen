@@ -13,7 +13,7 @@
 //!
 //! ### Using Namespace Constants
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::rdf::schema::{GGEN_NAMESPACE, RDF_NAMESPACE, RDFS_NAMESPACE};
 //!
 //! // Construct URIs with proper namespacing

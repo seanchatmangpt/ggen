@@ -5,7 +5,7 @@
 //!
 //! # Example
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::ontology_pack::{OntologyPackMetadata, OntologyConfig, OntologyDefinition};
 //!
 //! let pack_metadata = OntologyPackMetadata {

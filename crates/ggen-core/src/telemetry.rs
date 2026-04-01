@@ -24,7 +24,7 @@
 //!
 //! ### Initializing Telemetry (with "otel" feature enabled)
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::telemetry::{init_telemetry, TelemetryConfig};
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -110,7 +110,7 @@ impl Drop for TelemetryGuard {
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```text
 /// use ggen_core::telemetry::{init_telemetry, TelemetryConfig};
 ///
 /// #[tokio::main]

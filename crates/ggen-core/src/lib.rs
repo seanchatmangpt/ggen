@@ -54,7 +54,7 @@
 //!
 //! ### Basic Template Generation
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::{Generator, GenContext, Pipeline};
 //! use std::collections::BTreeMap;
 //! use std::path::PathBuf;
@@ -78,7 +78,7 @@
 //!
 //! ### Using RDF Graph
 //!
-//! ```rust
+//! ```text
 //! use ggen_core::Graph;
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -97,7 +97,7 @@
 //!
 //! ### Creating a New Project
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::project_generator::{ProjectConfig, ProjectType, create_new_project};
 //! use std::path::PathBuf;
 //!

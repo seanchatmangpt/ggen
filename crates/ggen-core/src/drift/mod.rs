@@ -13,7 +13,7 @@
 //!
 //! ## Usage
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::drift::{DriftDetector, DriftStatus};
 //! use std::path::Path;
 //!

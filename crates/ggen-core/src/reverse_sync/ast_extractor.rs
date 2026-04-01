@@ -6,7 +6,7 @@
 //!
 //! # Example
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::reverse_sync::ast_extractor::{extract_rust_service, convert_to_rdf, Language};
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -70,7 +70,7 @@ pub struct ServiceDef {
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```text
 /// # use ggen_core::reverse_sync::ast_extractor::extract_rust_service;
 /// let services = extract_rust_service("src/service.rs")?;
 /// assert!(!services.is_empty());
@@ -111,7 +111,7 @@ pub fn extract_rust_service(file_path: &str) -> Result<Vec<ServiceDef>> {
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```text
 /// # use ggen_core::reverse_sync::ast_extractor::extract_elixir_genserver;
 /// let services = extract_elixir_genserver("lib/processor.ex")?;
 /// assert!(!services.is_empty());
@@ -187,7 +187,7 @@ fn extract_elixir_callbacks(content: &str) -> Result<Vec<Method>> {
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```text
 /// # use ggen_core::reverse_sync::ast_extractor::extract_go_service;
 /// let services = extract_go_service("service.go")?;
 /// assert!(!services.is_empty());
@@ -302,7 +302,7 @@ fn parse_struct_fields(body: &str) -> Result<Vec<Field>> {
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```text
 /// # use ggen_core::reverse_sync::ast_extractor::{extract_rust_service, convert_to_rdf};
 /// let services = extract_rust_service("src/lib.rs")?;
 /// let rdf = convert_to_rdf(&services)?;

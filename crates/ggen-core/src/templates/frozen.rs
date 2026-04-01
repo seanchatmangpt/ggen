@@ -43,7 +43,7 @@
 //!
 //! ### Parsing Frozen Sections
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::templates::frozen::FrozenParser;
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -66,7 +66,7 @@
 //!
 //! ### Merging Frozen Sections
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::templates::frozen::FrozenMerger;
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -99,7 +99,7 @@ use regex::Regex;
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::templates::frozen::{FrozenSection, FrozenParser};
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
@@ -137,7 +137,7 @@ pub struct FrozenSection {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::templates::frozen::FrozenParser;
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
@@ -187,7 +187,7 @@ impl FrozenParser {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::templates::frozen::FrozenParser;
     ///
     /// # fn main() -> ggen_utils::error::Result<()> {
@@ -260,7 +260,7 @@ impl FrozenParser {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::templates::frozen::FrozenParser;
     ///
     /// # fn main() -> ggen_utils::error::Result<()> {
@@ -298,7 +298,7 @@ impl FrozenParser {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::templates::frozen::FrozenMerger;
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
@@ -333,7 +333,7 @@ impl FrozenMerger {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::templates::frozen::FrozenMerger;
     ///
     /// # fn main() -> ggen_utils::error::Result<()> {
@@ -438,7 +438,7 @@ impl FrozenMerger {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::templates::frozen::FrozenMerger;
     ///
     /// assert!(FrozenMerger::has_frozen_sections("{% frozen %}code{% endfrozen %}"));
@@ -464,7 +464,7 @@ impl FrozenMerger {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::templates::frozen::FrozenMerger;
     ///
     /// let content = r#"

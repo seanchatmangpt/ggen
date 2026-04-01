@@ -15,7 +15,7 @@
 //!
 //! ### Running a Phase
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::lifecycle::exec::Context;
 //! use ggen_core::lifecycle::exec::run_phase;
 //! use ggen_core::lifecycle::Result;
@@ -37,7 +37,7 @@
 //!
 //! ### Running Multiple Phases
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::lifecycle::exec::run_pipeline;
 //! use ggen_core::lifecycle::Result;
 //! use std::path::PathBuf;

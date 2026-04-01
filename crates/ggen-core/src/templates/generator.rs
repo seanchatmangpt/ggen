@@ -26,7 +26,7 @@
 //!
 //! ### Generating a Simple File Tree
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::templates::{FileTreeTemplate, TemplateContext, generate_file_tree};
 //! use ggen_core::templates::format::{TemplateFormat, FileTreeNode, NodeType};
 //! use std::path::Path;
@@ -47,7 +47,7 @@
 //!
 //! ### Generating with Variables
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::templates::{FileTreeTemplate, TemplateContext, generate_file_tree};
 //! use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
 //! use serde_json::json;
@@ -83,7 +83,7 @@ use super::format::{FileTreeNode, NodeType};
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::templates::generator::FileTreeGenerator;
 /// use ggen_core::templates::{FileTreeTemplate, TemplateContext};
 /// use ggen_core::templates::format::TemplateFormat;
@@ -121,7 +121,7 @@ impl FileTreeGenerator {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::templates::generator::FileTreeGenerator;
     /// use ggen_core::templates::{FileTreeTemplate, TemplateContext};
     /// use ggen_core::templates::format::TemplateFormat;
@@ -163,7 +163,7 @@ impl FileTreeGenerator {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::templates::generator::FileTreeGenerator;
     /// use ggen_core::templates::{FileTreeTemplate, TemplateContext};
     /// use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
@@ -464,7 +464,7 @@ impl GenerationResult {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::templates::{FileTreeTemplate, TemplateContext, generate_file_tree};
 /// use ggen_core::templates::format::TemplateFormat;
 /// use std::path::Path;

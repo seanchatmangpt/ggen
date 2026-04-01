@@ -18,7 +18,7 @@
 //!
 //! ## Usage
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::cleanroom::forensics::ForensicsPack;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {

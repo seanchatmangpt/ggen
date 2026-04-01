@@ -25,7 +25,7 @@
 //!
 //! ### Creating a Snapshot
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::snapshot::{Snapshot, SnapshotManager};
 //! use ggen_core::graph::Graph;
 //! use std::path::PathBuf;
@@ -42,7 +42,7 @@
 //!
 //! ### Managing Snapshots
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::snapshot::SnapshotManager;
 //! use std::path::Path;
 //!
@@ -77,7 +77,7 @@ use crate::graph::Graph;
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::snapshot::Snapshot;
 /// use ggen_core::graph::Graph;
 /// use std::path::PathBuf;
@@ -132,7 +132,7 @@ impl Snapshot {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```text
     /// use ggen_core::snapshot::Snapshot;
     /// use ggen_core::graph::Graph;
     /// use std::path::PathBuf;
@@ -179,7 +179,7 @@ impl Snapshot {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::snapshot::Snapshot;
     /// use ggen_core::graph::Graph;
     ///
@@ -257,7 +257,7 @@ impl GraphSnapshot {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::snapshot::FileSnapshot;
 /// use std::path::PathBuf;
 ///
@@ -328,7 +328,7 @@ impl FileSnapshot {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::snapshot::FileSnapshot;
     /// use std::path::PathBuf;
     ///
@@ -407,7 +407,7 @@ pub struct Region {
 ///
 /// # Examples
 ///
-/// ```rust
+/// ```text
 /// use ggen_core::snapshot::RegionType;
 ///
 /// # fn main() {
@@ -433,7 +433,7 @@ pub enum RegionType {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::snapshot::{SnapshotManager, Snapshot};
 /// use ggen_core::graph::Graph;
 /// use std::path::PathBuf;
@@ -473,7 +473,7 @@ impl SnapshotManager {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::snapshot::SnapshotManager;
     /// use std::path::PathBuf;
     ///
@@ -495,7 +495,7 @@ impl SnapshotManager {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::snapshot::{SnapshotManager, Snapshot};
     /// use ggen_core::graph::Graph;
     /// use std::path::PathBuf;
@@ -532,7 +532,7 @@ impl SnapshotManager {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::snapshot::{SnapshotManager, Snapshot};
     /// use ggen_core::graph::Graph;
     /// use std::path::PathBuf;

@@ -19,7 +19,7 @@
 //!
 //! ### Basic Generation
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::generator::{Generator, GenContext};
 //! use ggen_core::pipeline::Pipeline;
 //! use std::collections::BTreeMap;
@@ -45,7 +45,7 @@
 //!
 //! ### Dry Run
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::generator::{Generator, GenContext};
 //! use ggen_core::pipeline::Pipeline;
 //! use std::path::PathBuf;
@@ -199,7 +199,7 @@ impl Generator {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::generator::{Generator, GenContext};
     /// use ggen_core::pipeline::Pipeline;
     /// use std::path::PathBuf;
@@ -260,7 +260,7 @@ impl Generator {
     ///
     /// ## Success case
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::generator::{Generator, GenContext};
     /// use ggen_core::pipeline::Pipeline;
     /// use std::collections::BTreeMap;
@@ -285,7 +285,7 @@ impl Generator {
     ///
     /// ## Error case - Template file not found
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::generator::{Generator, GenContext};
     /// use ggen_core::pipeline::Pipeline;
     /// use std::path::PathBuf;

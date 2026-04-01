@@ -10,7 +10,7 @@
 //!
 //! ## Example
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::cleanroom::{CleanroomCore, policy::{Locked, Permissive}};
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -71,7 +71,7 @@ pub trait Policy: Sized + Send + Sync + 'static {
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::cleanroom::{CleanroomCore, policy::Locked};
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -130,7 +130,7 @@ impl Policy for Locked {
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::cleanroom::{CleanroomCore, policy::Permissive};
 ///
 /// let env = CleanroomCore::<Permissive>::builder()

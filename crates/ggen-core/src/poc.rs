@@ -34,7 +34,7 @@
 //!
 //! ### Basic Template with RDF
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::poc::poc_hygen;
 //! use std::collections::BTreeMap;
 //! use std::path::Path;

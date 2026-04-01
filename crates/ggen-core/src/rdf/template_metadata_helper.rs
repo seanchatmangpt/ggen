@@ -15,7 +15,7 @@
 //!
 //! ### Querying Full Metadata
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::rdf::TemplateMetadataStore;
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {

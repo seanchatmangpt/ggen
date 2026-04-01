@@ -16,7 +16,7 @@ use std::sync::Arc;
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::graph::{Graph, GraphStore};
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {

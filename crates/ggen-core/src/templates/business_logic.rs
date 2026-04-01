@@ -34,7 +34,7 @@
 //!
 //! ### Generating Separated Files
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::templates::business_logic::BusinessLogicSeparator;
 //! use std::path::Path;
 //!
@@ -57,7 +57,7 @@
 //!
 //! The CLI wrapper will look like:
 //!
-//! ```rust,no_run
+//! ```text
 //! //! CLI wrapper for create project
 //! use ggen_utils::error::Result;
 //! use clap::Args;
@@ -80,7 +80,7 @@
 //!
 //! The domain logic will look like:
 //!
-//! ```rust,no_run
+//! ```text
 //! //! Business logic for create project
 //! use ggen_utils::error::Result;
 //!
@@ -107,7 +107,7 @@ use std::path::Path;
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::templates::business_logic::BusinessLogicSeparator;
 /// use std::path::Path;
 ///
@@ -200,7 +200,7 @@ pub fn {}(args: {}Args) -> Result<()> {{
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::templates::business_logic::BusinessLogicSeparator;
     ///
     /// let code = BusinessLogicSeparator::generate_domain_skeleton("delete", "user");
@@ -290,7 +290,7 @@ mod tests {{
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::templates::business_logic::BusinessLogicSeparator;
     /// use std::path::Path;
     ///
@@ -324,7 +324,7 @@ mod tests {{
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::templates::business_logic::BusinessLogicSeparator;
     /// use std::path::Path;
     ///

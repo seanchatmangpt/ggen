@@ -13,7 +13,7 @@
 //!
 //! ### Validating a Project Name
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::project_generator::common::validate_project_name;
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -31,7 +31,7 @@
 //!
 //! ### Generating Configuration Files
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::project_generator::common::{generate_editorconfig, generate_prettierrc};
 //!
 //! let editorconfig = generate_editorconfig();

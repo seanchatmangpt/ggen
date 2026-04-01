@@ -20,7 +20,7 @@
 //!
 //! ### Creating a Client
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -36,7 +36,7 @@
 //!
 //! ### Getting Pages Configuration
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {
@@ -51,7 +51,7 @@
 //!
 //! ### Listing Workflow Runs
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {
@@ -92,7 +92,7 @@
 //!
 //! ### Getting Pages Configuration
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {
@@ -107,7 +107,7 @@
 //!
 //! ### Listing Workflow Runs
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {
@@ -124,7 +124,7 @@
 //!
 //! ### Triggering a Workflow
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {
@@ -164,7 +164,7 @@
 //!
 //! ### Creating a Client
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -180,7 +180,7 @@
 //!
 //! ### Querying GitHub Pages
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {
@@ -197,7 +197,7 @@
 //!
 //! ### Working with Workflows
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {

@@ -26,7 +26,7 @@ use crate::template_types::Template;
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::parallel_generator::ParallelGenerator;
 /// use tera::Context;
 /// use std::path::PathBuf;

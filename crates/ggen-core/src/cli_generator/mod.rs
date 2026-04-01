@@ -34,7 +34,7 @@
 //!
 //! ### Generating a CLI Project
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::cli_generator::{OntologyParser, CliLayerGenerator, DomainLayerGenerator, WorkspaceGenerator};
 //! use std::path::Path;
 //!

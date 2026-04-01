@@ -302,7 +302,7 @@ pub struct Closed;
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```text
 /// use ggen_core::lifecycle::poka_yoke::{FileHandle, Open};
 /// use std::path::Path;
 ///

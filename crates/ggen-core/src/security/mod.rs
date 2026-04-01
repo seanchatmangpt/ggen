@@ -37,7 +37,7 @@
 //!
 //! ### Usage Example
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::security::logging::SecurityLogger;
 //! use ggen_core::security::events::{SecurityEvent, SecuritySeverity, EventCategory};
 //!

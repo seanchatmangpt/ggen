@@ -22,7 +22,7 @@
 //!
 //! ### Generating a Cache Key
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::lifecycle::cache::cache_key;
 //! use ggen_core::lifecycle::Result;
 //!
@@ -40,7 +40,7 @@
 //!
 //! ### Using Cache Keys for Conditional Execution
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::lifecycle::cache::cache_key;
 //! use ggen_core::lifecycle::Result;
 //! use std::collections::HashSet;

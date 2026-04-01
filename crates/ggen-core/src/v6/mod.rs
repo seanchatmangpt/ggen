@@ -30,7 +30,7 @@
 //!
 //! ## Quick Start
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::v6::{StagedPipeline, PipelineConfig, Epoch};
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {

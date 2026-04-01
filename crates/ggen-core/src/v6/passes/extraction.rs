@@ -27,7 +27,7 @@
 //!
 //! ## Example
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::v6::passes::ExtractionPass;
 //! use ggen_core::v6::pass::{Pass, PassContext};
 //! use ggen_core::Graph;

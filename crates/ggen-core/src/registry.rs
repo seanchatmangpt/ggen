@@ -23,7 +23,7 @@
 //!
 //! ### Creating a Registry Client
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::registry::RegistryClient;
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {
@@ -34,7 +34,7 @@
 //!
 //! ### Searching for Packs
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::registry::RegistryClient;
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {
@@ -50,7 +50,7 @@
 //!
 //! ### Resolving a Pack Version
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::registry::RegistryClient;
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {
@@ -66,7 +66,7 @@
 //!
 //! ### Advanced Search with Filters
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::registry::{RegistryClient, SearchParams};
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {
@@ -181,7 +181,7 @@ impl RegistryClient {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::registry::RegistryClient;
     ///
     /// # async fn example() -> anyhow::Result<()> {

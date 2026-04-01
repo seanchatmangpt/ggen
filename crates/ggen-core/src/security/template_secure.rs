@@ -281,7 +281,7 @@ impl TemplateValidator {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```text
     /// use ggen_core::security::template_secure::TemplateValidator;
     ///
     /// # fn example() -> Result<(), Box<dyn std::error::Error>> {
@@ -366,7 +366,7 @@ impl ContextEscaper {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```text
     /// use ggen_core::security::template_secure::ContextEscaper;
     ///
     /// let escaped = ContextEscaper::escape_html("<script>alert('xss')</script>");
@@ -390,7 +390,7 @@ impl ContextEscaper {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```text
     /// use ggen_core::security::template_secure::ContextEscaper;
     ///
     /// let escaped = ContextEscaper::escape_sql("'; DROP TABLE users; --");
@@ -409,7 +409,7 @@ impl ContextEscaper {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```text
     /// use ggen_core::security::template_secure::ContextEscaper;
     ///
     /// let escaped = ContextEscaper::escape_shell("file.txt; rm -rf /");

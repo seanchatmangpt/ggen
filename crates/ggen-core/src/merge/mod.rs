@@ -39,7 +39,7 @@ use crate::snapshot::{FileSnapshot, Region, RegionType};
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::merge::{MergeConflict, ConflictType};
 /// use std::path::PathBuf;
 ///
@@ -96,7 +96,7 @@ impl MergeConflict {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::merge::ConflictType;
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
@@ -151,7 +151,7 @@ impl fmt::Display for ConflictType {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::merge::{MergeResult, MergeStrategy};
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
@@ -198,7 +198,7 @@ impl MergeResult {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::merge::{MergeResult, MergeStrategy};
     ///
     /// # fn main() -> ggen_utils::error::Result<()> {
@@ -241,7 +241,7 @@ impl MergeResult {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::merge::{ThreeWayMerger, MergeStrategy};
 ///
 /// # fn main() -> ggen_utils::error::Result<()> {
@@ -305,7 +305,7 @@ impl fmt::Display for MergeStrategy {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::merge::{ThreeWayMerger, MergeStrategy};
 /// use std::path::Path;
 ///
@@ -343,7 +343,7 @@ impl ThreeWayMerger {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::merge::{ThreeWayMerger, MergeStrategy};
     ///
     /// # fn main() -> ggen_utils::error::Result<()> {
@@ -375,7 +375,7 @@ impl ThreeWayMerger {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::merge::{ThreeWayMerger, MergeStrategy};
     /// use std::path::Path;
     ///
@@ -454,7 +454,7 @@ impl ThreeWayMerger {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::merge::{RegionAwareMerger, MergeStrategy};
 /// use ggen_core::snapshot::FileSnapshot;
 /// use std::path::PathBuf;

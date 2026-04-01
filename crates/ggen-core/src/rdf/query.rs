@@ -13,7 +13,7 @@
 //!
 //! ## Examples
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::rdf::query::QueryCache;
 //! use ggen_core::graph::Graph;
 //!

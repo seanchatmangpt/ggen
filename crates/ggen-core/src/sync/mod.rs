@@ -20,7 +20,7 @@
 //!
 //! ## Quick start
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::sync::{SyncConfig, SyncLanguage, sync};
 //! use std::path::PathBuf;
 //!

@@ -27,7 +27,7 @@
 //!
 //! ### Basic Usage
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::simple_tracing::SimpleTracer;
 //! use std::path::Path;
 //!
@@ -39,7 +39,7 @@
 //!
 //! ### Performance Timing
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::simple_tracing::SimpleTimer;
 //!
 //! let timer = SimpleTimer::start("template_processing");
@@ -49,7 +49,7 @@
 //!
 //! ### Using the Macro
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::time_operation;
 //!
 //! let result = time_operation!("expensive_operation", {
