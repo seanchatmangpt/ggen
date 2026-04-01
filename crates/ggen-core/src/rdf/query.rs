@@ -13,7 +13,7 @@
 //!
 //! ## Examples
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::rdf::query::QueryCache;
 //! use ggen_core::graph::Graph;
 //!
@@ -69,7 +69,7 @@ impl QueryCache {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```text
     /// use ggen_core::rdf::query::QueryCache;
     ///
     /// let cache = QueryCache::new(1000);

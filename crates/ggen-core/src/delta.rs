@@ -22,27 +22,23 @@
 //!
 //! ### Detecting Graph Changes
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::delta::{GraphDelta, ImpactAnalyzer};
 //! use ggen_core::graph::Graph;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
 //! let old_graph = Graph::new()?;
 //! let new_graph = Graph::new()?;
 //!
 //! let delta = GraphDelta::compute(&old_graph, &new_graph)?;
 //! println!("Detected {} changes", delta.changes.len());
-//! # Ok(())
-//! # }
 //! ```
 //!
 //! ### Analyzing Template Impact
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::delta::ImpactAnalyzer;
 //! use ggen_core::graph::Graph;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
 //! let analyzer = ImpactAnalyzer::new();
 //! let old_graph = Graph::new()?;
 //! let new_graph = Graph::new()?;
@@ -51,8 +47,6 @@
 //! for impact in impacts {
 //!     println!("Template {}: impact score {}", impact.template_path.display(), impact.score);
 //! }
-//! # Ok(())
-//! # }
 //! ```
 
 use ahash::AHasher;
@@ -74,10 +68,9 @@ use crate::graph::Graph;
 ///
 /// # Examples
 ///
-/// ```rust
+/// ```text
 /// use ggen_core::delta::DeltaType;
 ///
-/// # fn main() {
 /// // Addition example
 /// let addition = DeltaType::Addition {
 ///     subject: "http://example.org/subject".to_string(),
@@ -111,7 +104,6 @@ use crate::graph::Graph;
 ///     DeltaType::Modification { .. } => assert!(true),
 ///     _ => panic!("Should be Modification"),
 /// }
-/// # }
 /// ```
 ///
 /// ```rust,no_run

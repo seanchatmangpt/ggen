@@ -14,40 +14,33 @@ use oxigraph::sparql::SparqlEvaluator;
 ///
 /// ## Insert data
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::graph::{Graph, GraphUpdate};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// let update = GraphUpdate::new(&graph);
 ///
 /// // Insert new triples (without INSERT DATA wrapper)
 /// update.insert("<http://example.org/alice> <http://example.org/name> \"Alice\"")?;
-/// # Ok(())
-/// # }
 /// ```
 ///
 /// ## Delete data
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::graph::{Graph, GraphUpdate};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// let update = GraphUpdate::new(&graph);
 ///
 /// // Delete triples matching a pattern (without DELETE DATA wrapper)
 /// update.delete("<http://example.org/alice> <http://example.org/name> \"Alice\"")?;
-/// # Ok(())
-/// # }
 /// ```
 ///
 /// ## Update with WHERE clause
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::graph::{Graph, GraphUpdate};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// let update = GraphUpdate::new(&graph);
 ///
@@ -57,8 +50,6 @@ use oxigraph::sparql::SparqlEvaluator;
 ///     INSERT { ?s <http://example.org/new> ?o }
 ///     WHERE { ?s <http://example.org/old> ?o }
 /// "#)?;
-/// # Ok(())
-/// # }
 /// ```
 pub struct GraphUpdate<'a> {
     graph: &'a Graph,

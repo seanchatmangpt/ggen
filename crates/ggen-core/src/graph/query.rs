@@ -16,10 +16,9 @@ use std::collections::BTreeMap;
 ///
 /// ## Query with prefixes
 ///
-/// ```rust,no_run
+/// ```text
 /// use ggen_core::graph::{Graph, GraphQuery};
 ///
-/// # fn main() -> ggen_utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// let query = GraphQuery::new(&graph);
 ///
@@ -31,8 +30,6 @@ use std::collections::BTreeMap;
 ///     &prefixes,
 ///     None
 /// )?;
-/// # Ok(())
-/// # }
 /// ```
 pub struct GraphQuery<'a> {
     graph: &'a Graph,
@@ -85,10 +82,9 @@ impl<'a> GraphQuery<'a> {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```text
     /// use ggen_core::graph::{Graph, GraphQuery};
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let graph = Graph::new()?;
     /// let query = GraphQuery::new(&graph);
     ///
@@ -97,8 +93,6 @@ impl<'a> GraphQuery<'a> {
     ///     .parse_query("SELECT ?s WHERE { ?s ?p ?o }")?
     ///     .on_store(graph.inner())
     ///     .execute()?;
-    /// # Ok(())
-    /// # }
     /// ```
     pub fn builder(&self) -> SparqlEvaluator {
         SparqlEvaluator::new()

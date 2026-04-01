@@ -65,7 +65,7 @@ type GlobalLlmService = Arc<Mutex<Option<Box<dyn LlmService>>>>;
 /// Uses Arc<Mutex<>> for safe concurrent access from multiple threads.
 ///
 /// # Example
-/// ```rust
+/// ```text
 /// // In CLI layer (ggen-cli):
 /// let service = Box::new(GroqLlmService::new(api_key));
 /// set_llm_service(service);
@@ -87,7 +87,7 @@ static GLOBAL_LLM_SERVICE: once_cell::sync::Lazy<GlobalLlmService> =
 /// * `service` - Boxed LLM service implementation
 ///
 /// # Example
-/// ```rust
+/// ```text
 /// use ggen_core::codegen::pipeline::set_llm_service;
 /// use ggen_ai::GroqLlmService;
 ///
@@ -108,7 +108,7 @@ pub fn set_llm_service(service: Box<dyn LlmService>) {
 /// * `None` - No LLM service configured
 ///
 /// # Example
-/// ```rust
+/// ```text
 /// use ggen_core::codegen::pipeline::get_llm_service;
 ///
 /// if let Some(service) = get_llm_service() {

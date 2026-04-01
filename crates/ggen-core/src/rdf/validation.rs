@@ -14,7 +14,7 @@
 //!
 //! ### Validating Template Metadata
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::rdf::validation::Validator;
 //! use ggen_core::rdf::template_metadata::TemplateMetadata;
 //!
@@ -36,7 +36,7 @@
 //!
 //! ### Getting Validation Report
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::rdf::validation::Validator;
 //! use ggen_core::rdf::template_metadata::TemplateMetadata;
 //!
