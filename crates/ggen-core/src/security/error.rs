@@ -68,7 +68,7 @@ impl ErrorSanitizer {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```text
     /// use ggen_core::security::error::ErrorSanitizer;
     /// use std::path::Path;
     ///
@@ -97,7 +97,7 @@ impl ErrorSanitizer {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```text
     /// use ggen_core::security::error::ErrorSanitizer;
     ///
     /// let internal_error = "Failed to read /home/user/.config/ggen/secret.key: Permission denied";
