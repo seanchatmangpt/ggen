@@ -1,0 +1,178 @@
+{#- PostgreSQL Database Schema Generator -#}
+{#- Generated from RDF ontology via SPARQL transformation -#}
+-- ============================================================================
+-- PostgreSQL Database Schema Generator
+-- Generated from RDF ontology via SPARQL transformation
+-- ============================================================================
+
+-- Database configuration
+CREATE DATABASE IF NOT EXISTS {{ database_name }}
+  WITH ENCODING '{{ character_set }}'
+  LC_COLLATE = '{{ collation }}'
+  LC_CTYPE = '{{ collation }}';
+
+\c {{ database_name }}
+
+-- Enable extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm";  -- Trigram matching for text search
+CREATE EXTENSION IF NOT EXISTS "btree_gin"; -- GIN indexes on B-tree types
+
+-- Schema creation
+{%- for schema in schemas %}
+CREATE SCHEMA IF NOT EXISTS {{ schema.name }};
+{%- endfor %}
+
+-- ============================================================================
+-- Table Definitions
+-- ============================================================================
+
+{%- for table in tables %}
+-- {{ table.comment }}
+CREATE TABLE {{ table.name }} (
+  {%- for column in table.columns %}
+  {{ column.name }} {{ column.type }}{%- if column.max_length %}({{ column.max_length }}){%- endif -%}{%- if column.precision %}({{ column.precision }},{{ column.scale }}){%- endif -%}{%- if not column.nullable %} NOT NULL{%- endif -%}{%- if column.default %} DEFAULT {{ column.default }}{%- endif -%}{%- if column.auto_increment %} GENERATED ALWAYS AS IDENTITY{%- endif -%}{%- if not loop.last %}, {%- endif %}
+  {%- if column.comment %}  -- {{ column.comment }}{%- endif %}
+  {%- endfor %}
+
+  {%- if table.constraints %}
+  -- Constraints
+  {%- for constraint in table.constraints %}
+  {%- if constraint.is_primary_key %}
+  CONSTRAINT {{ constraint.name }} PRIMARY KEY ({{ constraint.columns }})
+  {%- endif -%}
+  {%- if constraint.is_foreign_key %}
+  CONSTRAINT {{ constraint.name }} FOREIGN KEY ({{ constraint.columns }})
+    REFERENCES {{ constraint.references_table }}({{ constraint.references_columns }})
+    {%- if constraint.on_delete %} ON DELETE {{ constraint.on_delete }}{%- endif -%}
+    {%- if constraint.on_update %} ON UPDATE {{ constraint.on_update }}{%- endif %}
+  {%- endif -%}
+  {%- if constraint.is_unique %}
+  CONSTRAINT {{ constraint.name }} UNIQUE ({{ constraint.columns }})
+  {%- endif -%}
+  {%- if constraint.is_check %}
+  CONSTRAINT {{ constraint.name }} CHECK ({{ constraint.expression }})
+  {%- endif -%}
+  {%- if not loop.last %}, {%- endif %}
+  {%- endfor %}
+  {%- endif %}
+);
+
+{%- if table.table_comment %}
+COMMENT ON TABLE {{ table.name }} IS '{{ table.table_comment }}';
+{%- endif %}
+
+{%- for column in table.columns %}
+{%- if column.comment %}
+COMMENT ON COLUMN {{ table.name }}.{{ column.name }} IS '{{ column.comment }}';
+{%- endif %}
+{%- endfor %}
+
+{%- endfor %}
+
+-- ============================================================================
+-- Indexes
+-- ============================================================================
+
+{%- for index in indexes %}
+CREATE {%- if index.is_unique %} UNIQUE {%- endif %} INDEX {%- if index.is_concurrent %} CONCURRENTLY {%- endif %} {{ index.name }}
+  ON {{ index.table_name }} USING {{ index.method }} ({{ index.columns }})
+  {%- if index.where_clause %} WHERE {{ index.where_clause }}{%- endif %};
+{%- endfor %}
+
+-- Full-text search indexes (PostgreSQL GIN)
+{%- for ft_index in fulltext_indexes %}
+CREATE INDEX {{ ft_index.name }} ON {{ ft_index.table_name }} USING GIN (to_tsvector('{{ ft_index.config }}', {{ ft_index.columns }}));
+{%- endfor %}
+
+-- JSONB indexes (PostgreSQL GIN)
+{%- for jsonb_column in jsonb_columns %}
+CREATE INDEX idx_{{ jsonb_column.table_name }}_{{ jsonb_column.column_name }}_gin ON {{ jsonb_column.table_name }} USING GIN ({{ jsonb_column.column_name }});
+{%- endfor %}
+
+-- ============================================================================
+-- Triggers
+-- ============================================================================
+
+{%- for trigger in triggers %}
+-- {{ trigger.comment }}
+CREATE OR REPLACE FUNCTION {{ trigger.function_name }}()
+RETURNS TRIGGER AS $$
+BEGIN
+  {{ trigger.function_body }}
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER {{ trigger.name }}
+  {{ trigger.timing }} {{ trigger.event }} ON {{ trigger.table_name }}
+  FOR EACH {{ trigger.level }}
+  {%- if trigger.condition %} WHEN ({{ trigger.condition }}){%- endif %}
+  EXECUTE FUNCTION {{ trigger.function_name }}();
+{%- endfor %}
+
+-- Updated_at trigger (common pattern)
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = CURRENT_TIMESTAMP;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+{%- for table in tables_with_updated_at %}
+CREATE TRIGGER trigger_{{ table.name }}_updated_at
+  BEFORE UPDATE ON {{ table.name }}
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+{%- endfor %}
+
+-- ============================================================================
+-- Views (Common queries)
+-- ============================================================================
+
+{%- for view in views %}
+CREATE OR REPLACE VIEW {{ view.name }} AS
+{{ view.query }};
+{%- endfor %}
+
+-- ============================================================================
+-- Migration Version Tracking
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS schema_migrations (
+  version VARCHAR(255) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  execution_time_ms INTEGER,
+  checksum VARCHAR(64)
+);
+
+CREATE INDEX idx_schema_migrations_applied_at ON schema_migrations(applied_at);
+
+-- Insert initial migration record
+INSERT INTO schema_migrations (version, name, checksum)
+VALUES ('0001', 'initial_schema', '{{ checksum_value }}')
+ON CONFLICT (version) DO NOTHING;
+
+-- ============================================================================
+-- Security & Permissions
+-- ============================================================================
+
+-- Create application user
+CREATE USER {{ app_user }} WITH PASSWORD '{{ app_password }}';
+
+-- Grant permissions
+{%- for table in tables %}
+GRANT SELECT, INSERT, UPDATE, DELETE ON {{ table.name }} TO {{ app_user }};
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO {{ app_user }};
+{%- endfor %}
+
+-- Row-level security (RLS) example
+{%- for table in tables_with_rls %}
+ALTER TABLE {{ table.name }} ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY {{ table.policy_name }} ON {{ table.name }}
+  FOR {{ table.policy_operation }}
+  USING ({{ table.policy_condition }});
+{%- endfor %}

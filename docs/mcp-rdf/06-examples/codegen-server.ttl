@@ -1,0 +1,196 @@
+# Code Generation MCP Server Definition
+#
+# A realistic server for code generation tools (sync, validate, query).
+# This is similar to what ggen itself uses.
+#
+# Generate with:
+#   ggen mcp generate --ontology codegen-server.ttl --output ./src
+
+@prefix mcp: <http://ggen.dev/mcp#> .
+@prefix ex:  <http://ggen.dev/mcp/server/ggen#> .
+
+# Server definition
+ex:GgenServer a mcp:McpServer ;
+    mcp:serverName "ggen-mcp" ;
+    mcp:serverVersion "6.0.1" ;
+    mcp:serverDescription "ggen code generation MCP server" ;
+    mcp:hasProtocolVersion "2025-11-25" ;
+    mcp:hasTransport mcp:StdioTransport ;
+    mcp:hasCapabilitySet ex:GgenCapabilities ;
+    mcp:hasTool ex:SyncTool, ex:ValidateTool, ex:QueryTool, ex:GenerateTool ;
+    mcp:hasResource ex:ConfigResource, ex:OntologyResource ;
+    mcp:hasPrompt ex:ExplainRdfPrompt, ex:GenerateFromExamplePrompt ;
+    mcp:hasCompletionProvider ex:TargetCompletion, ex:LanguageCompletion ;
+    mcp:hasLoggingPolicy ex:GgenLogging .
+
+# Capabilities
+ex:GgenCapabilities a mcp:CapabilitySet ;
+    mcp:tools true ;
+    mcp:resources true ;
+    mcp:prompts true ;
+    mcp:completions true ;
+    mcp:logging true .
+
+# Tool: sync - Execute full pipeline
+ex:SyncTool a mcp:Tool ;
+    mcp:name "sync" ;
+    mcp:description "Execute the full five-stage code generation pipeline (μ₁-μ₅)" ;
+    mcp:hasArgument ex:SyncOntology, ex:SyncTarget, ex:SyncAudit .
+
+ex:SyncOntology a mcp:ToolArgument ;
+    mcp:argumentName "ontology_path" ;
+    mcp:argumentDescription "Path to the RDF ontology file (.ttl) to process" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired true .
+
+ex:SyncTarget a mcp:ToolArgument ;
+    mcp:argumentName "target" ;
+    mcp:argumentDescription "Generation target (rust, elixir, full)" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired false ;
+    mcp:defaultValue "full" .
+
+ex:SyncAudit a mcp:ToolArgument ;
+    mcp:argumentName "audit" ;
+    mcp:argumentDescription "Enable cryptographic receipt generation" ;
+    mcp:argumentType "boolean" ;
+    mcp:isRequired false ;
+    mcp:defaultValue "true" .
+
+# Tool: validate - Validate ontology
+ex:ValidateTool a mcp:Tool ;
+    mcp:name "validate" ;
+    mcp:description "Validate RDF ontology against SHACL shapes" ;
+    mcp:hasArgument ex:ValidateOntology, ex:ValidateShapes .
+
+ex:ValidateOntology a mcp:ToolArgument ;
+    mcp:argumentName "ontology_path" ;
+    mcp:argumentDescription "Path to the RDF ontology file to validate" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired true .
+
+ex:ValidateShapes a mcp:ToolArgument ;
+    mcp:argumentName "shapes_path" ;
+    mcp:argumentDescription "Path to SHACL shapes file (optional, uses default if not provided)" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired false .
+
+# Tool: query - SPARQL query
+ex:QueryTool a mcp:Tool ;
+    mcp:name "query_ontology" ;
+    mcp:description "Execute SPARQL query on RDF ontology" ;
+    mcp:hasArgument ex:QueryOntology, ex:QuerySparql, ex:QueryFormat .
+
+ex:QueryOntology a mcp:ToolArgument ;
+    mcp:argumentName "ontology_path" ;
+    mcp:argumentDescription "Path to the RDF ontology file" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired true .
+
+ex:QuerySparql a mcp:ToolArgument ;
+    mcp:argumentName "query" ;
+    mcp:argumentDescription "SPARQL query to execute" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired true .
+
+ex:QueryFormat a mcp:ToolArgument ;
+    mcp:argumentName "format" ;
+    mcp:argumentDescription "Output format (json, xml, csv, tsv)" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired false ;
+    mcp:defaultValue "json" .
+
+# Tool: generate - Code generation
+ex:GenerateTool a mcp:Tool ;
+    mcp:name "generate" ;
+    mcp:description "Generate code from ontology using specified template" ;
+    mcp:hasArgument ex:GenerateOntology, ex:GenerateTemplate, ex:GenerateOutput .
+
+ex:GenerateOntology a mcp:ToolArgument ;
+    mcp:argumentName "ontology_path" ;
+    mcp:argumentDescription "Path to the RDF ontology file" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired true .
+
+ex:GenerateTemplate a mcp:ToolArgument ;
+    mcp:argumentName "template" ;
+    mcp:argumentDescription "Template name to use for generation" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired true .
+
+ex:GenerateOutput a mcp:ToolArgument ;
+    mcp:argumentName "output_path" ;
+    mcp:argumentDescription "Output path for generated file" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired true .
+
+# Resource: ggen.toml config
+ex:ConfigResource a mcp:Resource ;
+    mcp:uri "ggen://config" ;
+    mcp:resourceName "Project Configuration" ;
+    mcp:description "Current ggen.toml configuration" ;
+    mcp:mimeType "application/json" .
+
+# Resource: Ontology triples
+ex:OntologyResource a mcp:Resource ;
+    mcp:uri "ggen://ontology" ;
+    mcp:resourceName "Ontology Triples" ;
+    mcp:description "All triples in the ontology" ;
+    mcp:mimeType "application/n-triples" .
+
+# Prompt: Explain RDF schema
+ex:ExplainRdfPrompt a mcp:Prompt ;
+    mcp:promptName "explain_rdf_schema" ;
+    mcp:description "Explain an RDF schema in natural language" ;
+    mcp:hasPromptArgument ex:ExplainRdfFile, ex:ExplainRdfDepth .
+
+ex:ExplainRdfFile a mcp:PromptArgument ;
+    mcp:argumentName "file_path" ;
+    mcp:argumentDescription "Path to RDF schema file" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired true .
+
+ex:ExplainRdfDepth a mcp:PromptArgument ;
+    mcp:argumentName "depth" ;
+    mcp:argumentDescription "Explanation depth (overview, detailed, expert)" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired false ;
+    mcp:defaultValue "overview" .
+
+# Prompt: Generate from example
+ex:GenerateFromExamplePrompt a mcp:Prompt ;
+    mcp:promptName "generate_from_example" ;
+    mcp:description "Generate code similar to the provided example" ;
+    mcp:hasPromptArgument ex:GenExampleName, ex:GenTargetLanguage .
+
+ex:GenExampleName a mcp:PromptArgument ;
+    mcp:argumentName "example_name" ;
+    mcp:argumentDescription "Name of the example to use as template" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired true .
+
+ex:GenTargetLanguage a mcp:PromptArgument ;
+    mcp:argumentName "target_language" ;
+    mcp:argumentDescription "Target language for generation" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired false ;
+    mcp:defaultValue "rust" .
+
+# Completion: sync target
+ex:TargetCompletion a mcp:CompletionProvider ;
+    mcp:completionRefType "tool" ;
+    mcp:completionRefName "sync" ;
+    mcp:completionArgument "target" ;
+    mcp:completionValues "rust,elixir,full,typescript,python" .
+
+# Completion: query format
+ex:LanguageCompletion a mcp:CompletionProvider ;
+    mcp:completionRefType "tool" ;
+    mcp:completionRefName "query_ontology" ;
+    mcp:completionArgument "format" ;
+    mcp:completionValues "json,xml,csv,tsv,n-triples,turtle" .
+
+# Logging
+ex:GgenLogging a mcp:LoggingPolicy ;
+    mcp:defaultLevel "info" ;
+    mcp:supportedLevels "trace,debug,info,notice,warning,error,critical,alert,emergency" .

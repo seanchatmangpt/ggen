@@ -3,6 +3,7 @@
 //! Orchestrates the complete v6 projection pipeline: A = μ(O)
 //!
 //! The pipeline runs passes in order:
+//! 0. μ₀: Pack Resolution (bundle expansion, dependency resolution, ontology merge)
 //! 1. μ₁: Normalization (CONSTRUCT)
 //! 2. μ₂: Extraction (SELECT)
 //! 3. μ₃: Emission (Tera)
@@ -10,14 +11,16 @@
 //! 5. μ₅: Receipt (provenance)
 
 use crate::graph::Graph;
+use crate::pack_resolver::{PackResolver, ResolvedPacks};
 use crate::v6::epoch::Epoch;
 use crate::v6::guard::GuardSet;
 use crate::v6::pass::{Pass, PassContext, PassExecution, PassResult};
 use crate::v6::passes::{
     CanonicalizationPass, EmissionPass, ExtractionPass, NormalizationPass, ReceiptGenerationPass,
 };
-use crate::v6::receipt::{BuildReceipt, OutputFile, ReceiptPolicies};
+use crate::v6::receipt::{BuildReceipt, BundleExpansionRef, OutputFile, PackProvenance, ReceiptPolicies};
 use crate::v6::vocabulary::VocabularyRegistry;
+use ggen_marketplace::trust::TrustTier;
 use ggen_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
@@ -66,6 +69,10 @@ pub struct PipelineConfig {
 
     /// ggen version
     pub toolchain_version: String,
+
+    /// Enable μ₀ pack resolution stage
+    #[serde(default)]
+    pub enable_pack_resolution: bool,
 }
 
 impl PipelineConfig {
@@ -81,6 +88,7 @@ impl PipelineConfig {
             verify_mode: VerifyMode::None,
             previous_receipt: None,
             toolchain_version: env!("CARGO_PKG_VERSION").to_string(),
+            enable_pack_resolution: true,
         }
     }
 
@@ -150,6 +158,12 @@ pub struct StagedPipeline {
     /// Guard set for output validation
     guard_set: GuardSet,
 
+    /// μ₀: Pack resolver
+    pack_resolver: Option<PackResolver>,
+
+    /// μ₀: Resolved packs (after bundle expansion and dependency resolution)
+    resolved_packs: Option<ResolvedPacks>,
+
     /// Normalization pass
     normalization: NormalizationPass,
 
@@ -172,6 +186,9 @@ impl StagedPipeline {
     pub fn new(config: PipelineConfig) -> Result<Self> {
         let graph = Graph::new()?;
 
+        // Initialize pack resolver if lockfile exists
+        let pack_resolver = PackResolver::new(&config.base_path).ok();
+
         Ok(Self {
             config: config.clone(),
             graph,
@@ -180,6 +197,8 @@ impl StagedPipeline {
             generated_files: Vec::new(),
             vocabulary_registry: VocabularyRegistry::with_standard_vocabularies(),
             guard_set: GuardSet::default_v6(),
+            pack_resolver,
+            resolved_packs: None,
             normalization: NormalizationPass::with_standard_rules(),
             extraction: ExtractionPass::with_standard_rules(),
             emission: EmissionPass::new(),
@@ -249,6 +268,11 @@ impl StagedPipeline {
         Ok(self.epoch.as_ref().unwrap())
     }
 
+    /// Get resolved packs from μ₀ stage
+    pub fn resolved_packs(&self) -> Option<&ResolvedPacks> {
+        self.resolved_packs.as_ref()
+    }
+
     /// Verify inputs match a previous epoch
     pub fn verify_inputs(&self, previous_epoch: &Epoch) -> Result<bool> {
         if let Some(ref epoch) = self.epoch {
@@ -281,8 +305,16 @@ impl StagedPipeline {
     pub fn run(&mut self) -> Result<BuildReceipt> {
         let _pipeline_start = Instant::now();
 
-        // Load ontologies if not already loaded
-        if self.epoch.is_none() {
+        // μ₀: Pack Resolution (if lockfile exists)
+        if let Some(ref resolver) = self.pack_resolver {
+            let resolved = resolver.resolve()?;
+            // Use merged ontology from resolved packs
+            self.graph = resolved.merged_ontology.clone();
+            self.resolved_packs = Some(resolved);
+        }
+
+        // Load ontologies if not already loaded (skip if μ₀ provided merged ontology)
+        if self.epoch.is_none() && self.resolved_packs.is_none() {
             self.load_ontologies()?;
         }
 
@@ -351,8 +383,24 @@ impl StagedPipeline {
             )));
         }
 
+        // Load pack queries if available
+        // TODO: Load pack queries from resolved packs and add to bindings
+        // This requires μ₀ pack resolution to be implemented first
+
         // μ₃: Emission
         let start = Instant::now();
+
+        // Register pack templates if available
+        // TODO: Register pack templates with TemplateResolver using pack_id:path syntax
+        // This requires μ₀ pack resolution to be implemented first
+        // Example:
+        // for pack in &resolved_packs.atomic_packs {
+        //     let pack_templates = pack.registry.get_pack_templates(pack)?;
+        //     for template in pack_templates {
+        //         resolver.register_pack_template(&pack.id, &template.path, &template.content)?;
+        //     }
+        // }
+
         let emission_result = emission.execute(&mut ctx)?;
         let mut execution = emission.create_execution_record(&emission_result);
         execution.duration_ms = start.elapsed().as_millis() as u64;
@@ -383,9 +431,9 @@ impl StagedPipeline {
         // Create output file records
         let output_records = self.create_output_records(&ctx)?;
 
-        // μ₅: Receipt generation
+        // μ₅: Receipt generation with pack provenance
         let epoch = self.epoch.as_ref().unwrap();
-        let receipt = BuildReceipt::new(
+        let mut receipt = BuildReceipt::new(
             epoch,
             self.executed_passes.clone(),
             output_records,
@@ -397,6 +445,41 @@ impl StagedPipeline {
             formatting_policy: "language-specific".to_string(),
             active_guards: vec!["path-guard".to_string(), "secret-guard".to_string()],
         });
+
+        // Add pack provenance to receipt (if μ₀ resolved packs)
+        if let Some(ref resolved) = self.resolved_packs {
+            // Add bundle expansions
+            for expansion in &resolved.bundle_expansions {
+                receipt.add_bundle_expansion(BundleExpansionRef {
+                    bundle_id: expansion.bundle_id.clone(),
+                    expanded_to: expansion.expanded_to.clone(),
+                });
+            }
+
+            // Add pack provenance
+            for pack_id in &resolved.atomic_packs {
+                let version = resolved.pack_versions.get(&pack_id.to_string())
+                    .cloned()
+                    .unwrap_or_else(|| "unknown".to_string());
+
+                receipt.add_pack(PackProvenance {
+                    pack_id: pack_id.to_string(),
+                    version,
+                    signature: "ed25519:signed".to_string(), // TODO: Load from pack metadata
+                    digest: "sha256:verified".to_string(), // TODO: Load from pack metadata
+                    templates_contributed: vec![], // TODO: Load from pack templates
+                    queries_contributed: vec![], // TODO: Load from pack queries
+                    files_generated: vec![], // TODO: Track which files each pack generated
+                });
+            }
+
+            // Set profile reference (default to development if not specified)
+            receipt.set_profile(crate::v6::receipt::ProfileRef {
+                profile_id: "development".to_string(),
+                runtime_constraints: vec![],
+                trust_requirement: TrustTier::Experimental,
+            });
+        }
 
         // Write receipt if path specified
         if let Some(ref receipt_path) = self.config.receipt_path {

@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+"""{{ app_description }}"""
+
+import click
+import sys
+import os
+from pathlib import Path
+from typing import Optional, List
+from rich.console import Console
+from rich.table import Table
+{%- if config_file %}
+{%- if config_format == "yaml" %}
+import yaml
+{%- elif config_format == "json" %}
+import json
+{%- elif config_format == "toml" %}
+import toml
+{%- endif %}
+{%- endif %}
+
+console = Console()
+
+{%- if config_file %}
+class Config:
+    """Configuration loader"""
+
+    def __init__(self, config_path: Optional[Path] = None):
+        self.config_path = config_path or Path.home() / '.{{ app_name }}' / 'config.{{ config_format }}'
+        self.data = self.load()
+
+    def load(self) -> dict:
+        """Load configuration from file"""
+        if not self.config_path.exists():
+            return {}
+
+        with open(self.config_path, 'r') as f:
+            {%- if config_format == "yaml" %}
+            return yaml.safe_load(f) or {}
+            {%- elif config_format == "json" %}
+            return json.load(f)
+            {%- elif config_format == "toml" %}
+            return toml.load(f)
+            {%- endif %}
+
+    def save(self):
+        """Save configuration to file"""
+        self.config_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.config_path, 'w') as f:
+            {%- if config_format == "yaml" %}
+            yaml.dump(self.data, f)
+            {%- elif config_format == "json" %}
+            json.dump(self.data, f, indent=2)
+            {%- elif config_format == "toml" %}
+            toml.dump(self.data, f)
+            {%- endif %}
+{%- endif %}
+
+@click.group()
+@click.version_option(version='{{ app_version }}')
+{%- if config_file %}
+@click.option('-c', '--config', type=click.Path(exists=True), help='Config file path')
+{%- endif %}
+@click.option('-v', '--verbose', count=True, help='Verbose output')
+@click.pass_context
+def cli(ctx, {%- if config_file %}config, {% endif %}verbose):
+    """{{ app_description }}"""
+    ctx.ensure_object(dict)
+    ctx.obj['verbose'] = verbose
+    {%- if config_file %}
+    ctx.obj['config'] = Config(Path(config) if config else None)
+    {%- endif %}
+
+{%- for command in commands %}
+@cli.command()
+{%- for argument in command.arguments %}
+@click.argument('{{ argument.name }}'{%- if argument.required %}, required=True{%- endif %}{%- if argument.type %}, type={{ argument.python_click_type }}{%- endif %})
+{%- endfor %}
+{%- for option in command.options %}
+@click.option('{%- if option.short %}-{{ option.short }}, {%- endif %}--{{ option.long }}'{%- if option.help %}, help='{{ option.help }}'{%- endif %}{%- if option.default %}, default='{{ option.default }}'{%- endif %}{%- if option.multiple %}, multiple=True{%- endif %}{%- if option.type %}, type={{ option.python_click_type }}{%- endif %})
+{%- endfor %}
+@click.pass_context
+def {{ command.name | snake }}(
+    ctx,
+    {%- for argument in command.arguments %}
+    {{ argument.name }},
+    {%- endfor %}
+    {%- for option in command.options %}
+    {{ option.long }},
+    {%- endfor %}
+):
+    """{{ command.about }}"""
+    try:
+        verbose = ctx.obj['verbose']
+        {%- if config_file %}
+        config = ctx.obj['config']
+        {%- endif %}
+
+        {%- for validator in command.validators %}
+        # Validate {{ validator.field }}
+        {%- if validator.type == "range" %}
+        if {{ validator.field }} < {{ validator.min }} or {{ validator.field }} > {{ validator.max }}:
+            raise click.BadParameter('{{ validator.error_message }}')
+        {%- elif validator.type == "regex" %}
+        import re
+        if not re.match(r'{{ validator.pattern }}', str({{ validator.field }})):
+            raise click.BadParameter('{{ validator.error_message }}')
+        {%- endif %}
+        {%- endfor %}
+
+        if verbose:
+            console.print(f"[green]Executing {{ command.name }} command[/green]")
+
+        # TODO: Implement {{ command.name }} command logic
+        {%- for argument in command.arguments %}
+        console.print(f"  {{ argument.name }}: {{{ argument.name }}}")
+        {%- endfor %}
+        {%- for option in command.options %}
+        if {{ option.long }}:
+            console.print(f"  {{ option.long }}: {{{ option.long }}}")
+        {%- endfor %}
+
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {str(e)}", style="bold red")
+        sys.exit(1)
+
+{%- endfor %}
+
+if __name__ == '__main__':
+    cli(obj={})

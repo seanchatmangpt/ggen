@@ -1,0 +1,30 @@
+//! Domain logic for {{ module_name }}
+
+use anyhow::Result;
+
+/// Execute {{ module_name }} business logic
+pub async fn execute(args: crate::cmds::{{ module_name | snake }}::{{ module_name | pascal }}Args) -> Result<()> {
+    println!("Executing {{ module_name }}");
+
+    {%- for argument in arguments %}
+    println!("  {{ argument.name }}: {:?}", args.{{ argument.name }});
+    {%- endfor %}
+
+    {%- for flag in flags %}
+    if args.{{ flag.name }} {
+        println!("  Flag {{ flag.name }} is enabled");
+    }
+    {%- endfor %}
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_{{ module_name | snake }}_execute() {
+        // TODO: Add tests
+    }
+}

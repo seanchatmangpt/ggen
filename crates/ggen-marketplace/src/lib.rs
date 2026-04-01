@@ -31,13 +31,21 @@
 //! - SPARQL-based queries
 //! - Version history as RDF facts
 
+pub mod atomic;
+pub mod bundle;
 pub mod builders;
+pub mod cache;
+pub mod compatibility;
+pub mod composition_receipt;
 pub mod error;
 pub mod install;
 pub mod metrics;
 pub mod migration;
 pub mod models;
 pub mod ontology;
+pub mod ownership;
+pub mod policy;
+pub mod profile;
 pub mod rdf;
 pub mod rdf_mapper;
 pub mod registry;
@@ -46,25 +54,43 @@ pub mod search;
 pub mod search_sparql;
 pub mod security;
 pub mod traits;
+pub mod trust;
 pub mod v3;
 pub mod validation;
 
+pub use atomic::{AtomicPackClass, AtomicPackCategory, AtomicPackId, foundation_packs};
+pub use bundle::{Bundle, Bundles};
+pub use cache::{CacheConfig, CacheStats, CachedPack, PackCache};
+pub use compatibility::{
+    CompatibilityChecker, CompatibilityDimension, CompatibilityReport, Conflict, ConflictResolution, ConflictSeverity,
+};
+pub use composition_receipt::{CompositionReceipt, SignatureRecord};
 pub use error::{Error, Result};
 pub use install::Installer;
 pub use metrics::MetricsCollector;
 pub use models::*;
+pub use ownership::{MergeStrategy, OwnershipClass, OwnershipDeclaration, OwnershipMap, OwnershipTarget};
+pub use policy::{
+    PackContext, Policy, PolicyEnforcer, PolicyId, PolicyReport, PolicyRule, PolicyViolation,
+};
+pub use profile::{
+    development_profile, enterprise_strict_profile, get_profile, predefined_profiles, Profile, ProfileId, ReceiptSpec, RuntimeConstraint,
+};
 pub use registry::Registry;
 pub use registry_rdf::RdfRegistry;
 pub use search::SearchEngine;
 pub use search_sparql::SparqlSearchEngine;
-pub use security::SignatureVerifier;
+pub use security::{MarketplaceSignature, MarketplaceVerifier, SignatureReceipt};
 pub use traits::*;
+pub use trust::{RegistryClass, TrustTier};
 pub use v3::V3OptimizedRegistry;
 pub use validation::Validator;
 
 /// Prelude for convenient imports
 pub mod prelude {
     pub use crate::{
+        cache::{CacheConfig, CacheStats, CachedPack, PackCache},
+        composition_receipt::CompositionReceipt,
         error::{Error, Result},
         install::Installer,
         metrics::MetricsCollector,
@@ -73,8 +99,9 @@ pub mod prelude {
         registry_rdf::RdfRegistry,
         search::SearchEngine,
         search_sparql::SparqlSearchEngine,
-        security::SignatureVerifier,
+        security::{MarketplaceSignature, MarketplaceVerifier, SignatureReceipt},
         traits::{AsyncRepository, Installable, Observable, Queryable, Signable, Validatable},
+        trust::{RegistryClass, TrustTier},
         v3::V3OptimizedRegistry,
         validation::Validator,
     };

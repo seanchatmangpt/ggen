@@ -1,0 +1,122 @@
+{#- SQLite Database Schema Generator -#}
+{#- Generated from RDF ontology via SPARQL transformation -#}
+-- ============================================================================
+-- SQLite Database Schema Generator
+-- Generated from RDF ontology via SPARQL transformation
+-- ============================================================================
+
+-- SQLite configuration
+PRAGMA foreign_keys = ON;
+PRAGMA journal_mode = WAL;
+PRAGMA synchronous = NORMAL;
+PRAGMA temp_store = MEMORY;
+PRAGMA mmap_size = 30000000000;
+
+-- ============================================================================
+-- Table Definitions
+-- ============================================================================
+
+{%- for table in tables %}
+-- {{ table.comment }}
+CREATE TABLE IF NOT EXISTS {{ table.name }} (
+  {%- for column in table.columns %}
+  {{ column.name }} {{ column.type }}{%- if not column.nullable %} NOT NULL{%- endif -%}{%- if column.default %} DEFAULT {{ column.default }}{%- endif -%}{%- if column.auto_increment %} PRIMARY KEY AUTOINCREMENT{%- endif -%}{%- if not loop.last %}, {%- endif %}
+  {%- endfor %}
+
+  {%- if table.constraints %}
+  -- Constraints
+  {%- for constraint in table.constraints %}
+  {%- if constraint.is_primary_key %}
+  {%- if not column.auto_increment %}
+  CONSTRAINT {{ constraint.name }} PRIMARY KEY ({{ constraint.columns }})
+  {%- endif %}
+  {%- endif -%}
+  {%- if constraint.is_foreign_key %}
+  CONSTRAINT {{ constraint.name }} FOREIGN KEY ({{ constraint.columns }})
+    REFERENCES {{ constraint.references_table }}({{ constraint.references_columns }})
+    {%- if constraint.on_delete %} ON DELETE {{ constraint.on_delete }}{%- endif -%}
+    {%- if constraint.on_update %} ON UPDATE {{ constraint.on_update }}{%- endif %}
+  {%- endif -%}
+  {%- if constraint.is_unique %}
+  CONSTRAINT {{ constraint.name }} UNIQUE ({{ constraint.columns }})
+  {%- endif -%}
+  {%- if constraint.is_check %}
+  CONSTRAINT {{ constraint.name }} CHECK ({{ constraint.expression }})
+  {%- endif -%}
+  {%- if not loop.last %}, {%- endif %}
+  {%- endfor %}
+  {%- endif %}
+);
+
+{%- endfor %}
+
+-- ============================================================================
+-- Indexes
+-- ============================================================================
+
+{%- for index in indexes %}
+CREATE {%- if index.is_unique %} UNIQUE {%- endif %} INDEX IF NOT EXISTS {{ index.name }}
+  ON {{ index.table_name }} ({{ index.columns }})
+  {%- if index.where_clause %} WHERE {{ index.where_clause }}{%- endif %};
+{%- endfor %}
+
+-- ============================================================================
+-- Triggers
+-- ============================================================================
+
+{%- for trigger in triggers %}
+-- {{ trigger.comment }}
+CREATE TRIGGER IF NOT EXISTS {{ trigger.name }}
+  {{ trigger.timing }} {{ trigger.event }} ON {{ trigger.table_name }}
+  {%- if trigger.condition %} WHEN {{ trigger.condition }}{%- endif %}
+BEGIN
+  {{ trigger.function_body }}
+END;
+{%- endfor %}
+
+-- Updated_at trigger (common pattern)
+{%- for table in tables_with_updated_at %}
+CREATE TRIGGER IF NOT EXISTS trigger_{{ table.name }}_updated_at
+  AFTER UPDATE ON {{ table.name }}
+BEGIN
+  UPDATE {{ table.name }} SET updated_at = CURRENT_TIMESTAMP
+  WHERE rowid = NEW.rowid;
+END;
+{%- endfor %}
+
+-- ============================================================================
+-- Views
+-- ============================================================================
+
+{%- for view in views %}
+CREATE VIEW IF NOT EXISTS {{ view.name }} AS
+{{ view.query }};
+{%- endfor %}
+
+-- ============================================================================
+-- Migration Version Tracking
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS schema_migrations (
+  version TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  applied_at TEXT DEFAULT (datetime('now')),
+  execution_time_ms INTEGER,
+  checksum TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_schema_migrations_applied_at ON schema_migrations(applied_at);
+
+-- Insert initial migration record
+INSERT OR IGNORE INTO schema_migrations (version, name, checksum)
+VALUES ('0001', 'initial_schema', '{{ checksum_value }}');
+
+-- ============================================================================
+-- Performance Optimizations
+-- ============================================================================
+
+-- Analyze tables for query optimization
+ANALYZE;
+
+-- Vacuum to reclaim space
+VACUUM;

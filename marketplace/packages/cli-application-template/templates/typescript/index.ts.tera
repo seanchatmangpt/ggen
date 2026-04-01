@@ -1,0 +1,128 @@
+#!/usr/bin/env node
+import { Command } from 'commander';
+import inquirer from 'inquirer';
+import chalk from 'chalk';
+import fs from 'fs/promises';
+import path from 'path';
+{%- if config_file %}
+{%- if config_format == "yaml" %}
+import yaml from 'js-yaml';
+{%- endif %}
+{%- endif %}
+
+const program = new Command();
+
+{%- if config_file %}
+interface Config {
+  {%- for field in config_fields %}
+  {{ field.name }}: {{ field.ts_type }};
+  {%- endfor %}
+}
+
+async function loadConfig(configPath: string): Promise<Config> {
+  const content = await fs.readFile(configPath, 'utf-8');
+  {%- if config_format == "json" %}
+  return JSON.parse(content);
+  {%- elif config_format == "yaml" %}
+  return yaml.load(content) as Config;
+  {%- elif config_format == "toml" %}
+  // Note: Add toml parser dependency
+  return {} as Config; // TODO: Parse TOML
+  {%- endif %}
+}
+{%- endif %}
+
+program
+  .name('{{ app_name }}')
+  .description('{{ app_description }}')
+  .version('{{ app_version }}');
+
+{%- if config_file %}
+program
+  .option('-c, --config <path>', 'config file path')
+  .option('-v, --verbose', 'verbose output', false);
+{%- endif %}
+
+{%- for command in commands %}
+program
+  .command('{{ command.name }}')
+  .description('{{ command.about }}')
+  {%- for argument in command.arguments %}
+  .argument('{%- if argument.required %}<{{ argument.name }}>{%- else %}[{{ argument.name }}]{%- endif %}', '{{ argument.help }}'{%- if argument.default %}, '{{ argument.default }}'{%- endif %})
+  {%- endfor %}
+  {%- for option in command.options %}
+  .option('{%- if option.short %}-{{ option.short }}, {%- endif %}--{{ option.long }} <{{ option.name }}>', '{{ option.help }}'{%- if option.default %}, '{{ option.default }}'{%- endif %})
+  {%- endfor %}
+  .action(async ({%- for argument in command.arguments %}{{ argument.name }}, {% endfor %}options) => {
+    try {
+      {%- if config_file %}
+      const config = options.config ? await loadConfig(options.config) : null;
+      {%- endif %}
+
+      {%- if command.prompts %}
+      // Interactive prompts
+      const answers = await inquirer.prompt([
+        {%- for prompt in command.prompts %}
+        {
+          type: '{{ prompt.type }}',
+          name: '{{ prompt.name }}',
+          message: '{{ prompt.message }}',
+          {%- if prompt.choices %}
+          choices: [{{ prompt.choices }}],
+          {%- endif %}
+        },
+        {%- endfor %}
+      ]);
+      {%- endif %}
+
+      {%- for validator in command.validators %}
+      // Validate {{ validator.field }}
+      {%- if validator.type == "regex" %}
+      if (!{{ validator.pattern }}.test({{ validator.field }})) {
+        throw new Error('{{ validator.error_message }}');
+      }
+      {%- elif validator.type == "range" %}
+      if ({{ validator.field }} < {{ validator.min }} || {{ validator.field }} > {{ validator.max }}) {
+        throw new Error('{{ validator.error_message }}');
+      }
+      {%- endif %}
+      {%- endfor %}
+
+      await execute{{ command.name | pascal }}(
+        {%- for argument in command.arguments %}{{ argument.name }}, {% endfor %}
+        options
+      );
+    } catch (error) {
+      console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+{%- endfor %}
+
+{%- for command in commands %}
+async function execute{{ command.name | pascal }}(
+  {%- for argument in command.arguments %}
+  {{ argument.name }}: {{ argument.ts_type }},
+  {%- endfor %}
+  options: {
+    {%- for option in command.options %}
+    {{ option.name }}?: {%- if option.multiple %}{{ option.ts_type }}[]{%- else %}{{ option.ts_type }}{%- endif %};
+    {%- endfor %}
+  }
+): Promise<void> {
+  // TODO: Implement {{ command.name }} command logic
+  console.log(chalk.green('Executing {{ command.name }} command'));
+  {%- for argument in command.arguments %}
+  console.log('  {{ argument.name }}:', {{ argument.name }});
+  {%- endfor %}
+  {%- for option in command.options %}
+  if (options.{{ option.name }}) {
+    console.log('  {{ option.name }}:', options.{{ option.name }});
+  }
+  {%- endfor %}
+}
+
+{%- endfor %}
+
+program.parse();

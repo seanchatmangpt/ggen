@@ -1,0 +1,11 @@
+{application,covertool,
+             [{description,"Build tool & plugin for generating Cobertura XML reports"},
+              {vsn,"2.0.7"},
+              {registered,[]},
+              {applications,[kernel,stdlib,xmerl,tools]},
+              {env,[]},
+              {pkg_name,covertool},
+              {licenses,["2-Clause BSD"]},
+              {links,[{"Github","https://github.com/covertool/covertool"}]},
+              {modules,[covertool,mix_covertool,rebar3_covertool_gen,
+                        rebar_covertool]}]}.

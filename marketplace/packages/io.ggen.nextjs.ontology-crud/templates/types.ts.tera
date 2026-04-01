@@ -1,0 +1,140 @@
+{#- TypeScript Types Generator from RDF Ontology -#}
+{#- Generates TypeScript interfaces, Zod schemas, and type guards from rdfs:Class definitions -#}
+/**
+ * Auto-generated TypeScript types from RDF ontology
+ * Generated: {{ generated_date }}
+ * Ontology: {{ ontology_uri }}
+ */
+
+import { z } from 'zod';
+
+{%- for class in classes %}
+/**
+ * {{ class.comment }}
+ * @class {{ class.name }}
+ * @extends {{ class.super_class | default(value="Object") }}
+ */
+export interface {{ class.name }} {
+  {%- for property in class.properties %}
+  /**
+   * {{ property.comment }}
+   * @type {{ property.ts_type }}{% if not property.is_required %} | undefined{% endif %}{% if property.min_value %} * @minimum {{ property.min_value }}{% endif %}{% if property.max_value %} * @maximum {{ property.max_value }}{% endif %}{% if property.pattern %} * @pattern {{ property.pattern }}{% endif %}
+   */
+  {{ property.property_name }}{% if not property.is_required %}?{% endif %}: {{ property.ts_type }}{% if property.is_array %}[]{% endif %};
+  {%- endfor %}
+}
+
+/**
+ * Zod validation schema for {{ class.name }}
+ */
+export const {{ class.name }}Schema = z.object({
+  {%- for property in class.properties %}
+  {{ property.property_name }}: {{ property.zod_type }}{% if not property.is_required %}.optional(){% endif %}{% if property.description %}.describe('{{ property.description }}'){% endif %},
+  {%- endfor %}
+}){% if class.is_strict %}.strict(){% endif %};
+
+/**
+ * Type guard for {{ class.name }}
+ */
+export function is{{ class.name }}(value: unknown): value is {{ class.name }} {
+  return {{ class.name }}Schema.safeParse(value).success;
+}
+
+{%- if class.has_enumerations %}
+/**
+ * Enumeration types for {{ class.name }}
+ */
+{%- for enumeration in class.enumerations %}
+export const {{ enumeration.enum_name }}Values = [
+  {%- for value in enumeration.values %}
+  '{{ value }}',
+  {%- endfor %}
+] as const;
+
+export type {{ enumeration.enum_name }} = typeof {{ enumeration.enum_name }}Values[number];
+
+export const {{ enumeration.enum_name }}Schema = z.enum({{ enumeration.enum_name }}Values);
+{%- endfor %}
+{%- endif %}
+
+{%- endfor %}
+
+{#- Generate utility types -#}
+/**
+ * Utility Types
+ */
+export type DeepPartial<T> = T extends object ? {
+  [P in keyof T]?: DeepPartial<T[P]>;
+} : T;
+
+export type Nullable<T> = T | null;
+
+export type WithTimestamps<T> = T & {
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+{#- Generate type mappings for CRUD operations -#}
+{%- for class in classes %}
+export type Create{{ class.name }}Input = Omit<{{ class.name }}, 'id' | 'createdAt' | 'updatedAt'>;
+export type Update{{ class.name }}Input = Partial<Create{{ class.name }}Input>;
+export type {{ class.name }}Response = WithTimestamps<{{ class.name }}>;
+{%- endfor %}
+
+{#- Generate API response types -#}
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface ApiError {
+  error: string;
+  message: string;
+  details?: Record<string, unknown>;
+  statusCode: number;
+}
+
+export interface ApiSuccess<T = unknown> {
+  success: true;
+  data: T;
+  message?: string;
+}
+
+export type ApiResponse<T> = ApiSuccess<T> | ApiError;
+
+{#- Helper functions for type conversion -#}
+/**
+ * Type conversion utilities
+ */
+export const TypeConverters = {
+  toDate: (value: string | Date): Date =>
+    value instanceof Date ? value : new Date(value),
+
+  toString: (value: unknown): string =>
+    String(value),
+
+  toNumber: (value: unknown): number => {
+    const num = Number(value);
+    if (isNaN(num)) throw new Error(`Cannot convert ${value} to number`);
+    return num;
+  },
+
+  toBoolean: (value: unknown): boolean =>
+    Boolean(value),
+};
+
+/**
+ * Validation error formatting
+ */
+export function formatZodError(error: z.ZodError): Record<string, string> {
+  return error.errors.reduce((acc, err) => {
+    const path = err.path.join('.');
+    acc[path] = err.message;
+    return acc;
+  }, {} as Record<string, string>);
+}
