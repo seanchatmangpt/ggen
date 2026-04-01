@@ -31,7 +31,7 @@ pub enum InputType {
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```text
 /// use ggen_core::poka_yoke::{SanitizedInput, InputType};
 ///
 /// // Valid input

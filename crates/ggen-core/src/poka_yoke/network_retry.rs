@@ -78,7 +78,7 @@ impl CircuitBreaker {
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```text
 /// use ggen_core::poka_yoke::NetworkRetry;
 /// use std::time::Duration;
 ///

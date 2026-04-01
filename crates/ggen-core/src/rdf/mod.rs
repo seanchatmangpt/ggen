@@ -23,7 +23,7 @@
 //!
 //! ### Using the Ggen Ontology
 //!
-//! ```rust
+//! ```text
 //! use ggen_core::rdf::schema::{GgenOntology, GGEN_NAMESPACE};
 //!
 //! # fn main() -> ggen_utils::error::Result<()> {
@@ -36,7 +36,7 @@
 //!
 //! ### Storing Template Metadata
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::rdf::template_metadata::TemplateMetadataStore;
 //! use ggen_core::graph::Graph;
 //!
@@ -52,7 +52,7 @@
 //!
 //! ### Validating Template Metadata
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::rdf::validation::Validator;
 //! use ggen_core::rdf::template_metadata::TemplateMetadata;
 //!

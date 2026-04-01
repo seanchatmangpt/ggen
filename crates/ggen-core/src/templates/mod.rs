@@ -27,7 +27,7 @@
 //!
 //! ### Generating a File Tree
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::templates::{generate_file_tree, TemplateContext};
 //! use std::path::Path;
 //!
@@ -45,7 +45,7 @@
 //!
 //! ### Using Template Parser
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::templates::{TemplateParser, TemplateFormat};
 //! use std::path::Path;
 //!

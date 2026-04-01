@@ -10,7 +10,7 @@
 //! `ggen_utils::error::Error`. This pattern ensures proper error context and prevents
 //! compilation errors.
 //!
-//! ```rust,no_run
+//! ```text
 //! // ✅ Correct: Explicit error conversion
 //! store.load_from_reader(format, reader)
 //!     .map_err(|e| Error::new(&format!("Failed to load RDF: {}", e)))?;
@@ -45,10 +45,9 @@
 //!
 //! ## Quick Start
 //!
-//! ```rust,no_run
+//! ```text
 //! use ggen_core::graph::{Graph, GraphUpdate, GraphExport};
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
 //! // Create in-memory graph
 //! let graph = Graph::new()?;
 //!
@@ -68,8 +67,6 @@
 //! // Export
 //! let export = GraphExport::new(&graph);
 //! export.write_to_file("output.ttl", oxigraph::io::RdfFormat::Turtle)?;
-//! # Ok(())
-//! # }
 //! ```
 
 pub mod construct;

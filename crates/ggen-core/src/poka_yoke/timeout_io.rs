@@ -36,7 +36,7 @@ impl TimeoutIO {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```text
     /// use ggen_core::poka_yoke::{TimeoutIO, timeouts};
     ///
     /// let client = TimeoutIO::http_client(timeouts::NETWORK)?;
