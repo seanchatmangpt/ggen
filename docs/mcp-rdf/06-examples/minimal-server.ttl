@@ -1,0 +1,39 @@
+# Minimal MCP Server Definition
+#
+# A simple server with one tool, using stdio transport.
+#
+# Generate with:
+#   ggen mcp generate --ontology minimal-server.ttl --output ./src
+
+@prefix mcp: <http://ggen.dev/mcp#> .
+@prefix ex:  <http://example.com/minimal#> .
+
+# Server definition
+ex:MinimalServer a mcp:McpServer ;
+    mcp:serverName "minimal-mcp-server" ;
+    mcp:serverVersion "1.0.0" ;
+    mcp:serverDescription "A minimal MCP server with one tool" ;
+    mcp:hasProtocolVersion "2025-11-25" ;
+    mcp:hasTransport mcp:StdioTransport ;
+    mcp:hasCapabilitySet ex:MinimalCapabilities ;
+    mcp:hasTool ex:HelloTool .
+
+# Capabilities (only tools enabled)
+ex:MinimalCapabilities a mcp:CapabilitySet ;
+    mcp:tools true ;
+    mcp:resources false ;
+    mcp:prompts false ;
+    mcp:completions false ;
+    mcp:logging false .
+
+# Tool: Say hello
+ex:HelloTool a mcp:Tool ;
+    mcp:name "hello" ;
+    mcp:description "Say hello to someone" ;
+    mcp:hasArgument ex:NameArgument .
+
+ex:NameArgument a mcp:ToolArgument ;
+    mcp:argumentName "name" ;
+    mcp:argumentDescription "The name to say hello to" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired true .

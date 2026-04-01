@@ -1,0 +1,339 @@
+{#- Next.js App Router API Routes Generator -#}
+{#- Generates RESTful API routes from RDF ontology classes -#}
+/**
+ * Auto-generated API routes for {{ class_name }}
+ * Generated: {{ generated_date }}
+ * Route: /api/{{ route_path }}
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import {
+  {{ class_name }},
+  {{ class_name }}Schema,
+  Create{{ class_name }}Input,
+  Update{{ class_name }}Input,
+  {{ class_name }}Response,
+  PaginatedResponse,
+  formatZodError,
+} from '@/types/generated';
+{%- if has_database %}
+import { prisma } from '@/lib/prisma';
+{%- endif %}
+{%- if has_auth %}
+import { auth } from '@/lib/auth';
+{%- endif %}
+
+/**
+ * Query parameters schema for list endpoint
+ */
+const ListQuerySchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  pageSize: z.coerce.number().min(1).max(100).default(10),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(['asc', 'desc']).default('asc'),
+  {%- for property in filterable_properties %}
+  {{ property.property_name }}: z.{{ property.zod_type }}.optional(),
+  {%- endfor %}
+  search: z.string().optional(),
+});
+
+/**
+ * GET /api/{{ route_path }}
+ * List all {{ plural_name }} with pagination and filtering
+ */
+export async function GET(request: NextRequest) {
+  try {
+    {%- if has_auth %}
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Authentication required', statusCode: 401 },
+        { status: 401 }
+      );
+    }
+    {%- endif %}
+
+    const { searchParams } = new URL(request.url);
+    const queryParams = Object.fromEntries(searchParams);
+
+    const validationResult = ListQuerySchema.safeParse(queryParams);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Validation Error',
+          message: 'Invalid query parameters',
+          details: formatZodError(validationResult.error),
+          statusCode: 400,
+        },
+        { status: 400 }
+      );
+    }
+
+    const { page, pageSize, sortBy, sortOrder, search, ...filters } = validationResult.data;
+
+    {%- if has_database %}
+    // Build where clause
+    const where: any = {};
+
+    {%- for property in filterable_properties %}
+    if (filters.{{ property.property_name }}) {
+      where.{{ property.property_name }} = {%- if property.is_string_type %} { contains: filters.{{ property.property_name }}, mode: 'insensitive' }{%- else %} filters.{{ property.property_name }}{%- endif %};
+    }
+    {%- endfor %}
+
+    if (search) {
+      where.OR = [
+        {%- for property in searchable_properties %}
+        { {{ property.property_name }}: { contains: search, mode: 'insensitive' } },
+        {%- endfor %}
+      ];
+    }
+
+    // Execute query
+    const [data, total] = await Promise.all([
+      prisma.{{ lower_case_name }}.findMany({
+        where,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        orderBy: sortBy ? { [sortBy]: sortOrder } : { createdAt: 'desc' },
+      }),
+      prisma.{{ lower_case_name }}.count({ where }),
+    ]);
+
+    const response: PaginatedResponse<{{ class_name }}Response> = {
+      data,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize),
+      },
+    };
+
+    return NextResponse.json({ success: true, data: response });
+    {%- else %}
+    // Mock implementation - replace with actual data source
+    const mockData: {{ class_name }}Response[] = [];
+    const response: PaginatedResponse<{{ class_name }}Response> = {
+      data: mockData,
+      pagination: { page, pageSize, total: 0, totalPages: 0 },
+    };
+    return NextResponse.json({ success: true, data: response });
+    {%- endif %}
+  } catch (error) {
+    console.error('Error fetching {{ plural_name }}:', error);
+    return NextResponse.json(
+      {
+        error: 'Internal Server Error',
+        message: 'Failed to fetch {{ plural_name }}',
+        statusCode: 500,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * POST /api/{{ route_path }}
+ * Create a new {{ class_name }}
+ */
+export async function POST(request: NextRequest) {
+  try {
+    {%- if has_auth %}
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Authentication required', statusCode: 401 },
+        { status: 401 }
+      );
+    }
+    {%- endif %}
+
+    const body = await request.json();
+
+    const validationResult = {{ class_name }}Schema.safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Validation Error',
+          message: 'Invalid request body',
+          details: formatZodError(validationResult.error),
+          statusCode: 400,
+        },
+        { status: 400 }
+      );
+    }
+
+    const input = validationResult.data as Create{{ class_name }}Input;
+
+    {%- if has_database %}
+    const created = await prisma.{{ lower_case_name }}.create({
+      data: input,
+    });
+
+    return NextResponse.json(
+      { success: true, data: created, message: '{{ class_name }} created successfully' },
+      { status: 201 }
+    );
+    {%- else %}
+    // Mock implementation
+    const created: {{ class_name }}Response = {
+      ...input,
+      id: crypto.randomUUID(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as {{ class_name }}Response;
+
+    return NextResponse.json(
+      { success: true, data: created, message: '{{ class_name }} created successfully' },
+      { status: 201 }
+    );
+    {%- endif %}
+  } catch (error) {
+    console.error('Error creating {{ class_name }}:', error);
+    return NextResponse.json(
+      {
+        error: 'Internal Server Error',
+        message: 'Failed to create {{ class_name }}',
+        statusCode: 500,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PUT /api/{{ route_path }}/[id]
+ * Update an existing {{ class_name }}
+ */
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    {%- if has_auth %}
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Authentication required', statusCode: 401 },
+        { status: 401 }
+      );
+    }
+    {%- endif %}
+
+    const { id } = params;
+    const body = await request.json();
+
+    const validationResult = {{ class_name }}Schema.partial().safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Validation Error',
+          message: 'Invalid request body',
+          details: formatZodError(validationResult.error),
+          statusCode: 400,
+        },
+        { status: 400 }
+      );
+    }
+
+    const input = validationResult.data as Update{{ class_name }}Input;
+
+    {%- if has_database %}
+    const updated = await prisma.{{ lower_case_name }}.update({
+      where: { id },
+      data: { ...input, updatedAt: new Date() },
+    });
+
+    return NextResponse.json({ success: true, data: updated, message: '{{ class_name }} updated successfully' });
+    {%- else %}
+    // Mock implementation
+    const updated: {{ class_name }}Response = {
+      ...input,
+      id,
+      updatedAt: new Date(),
+    } as {{ class_name }}Response;
+
+    return NextResponse.json({ success: true, data: updated, message: '{{ class_name }} updated successfully' });
+    {%- endif %}
+  } catch (error: any) {
+    console.error('Error updating {{ class_name }}:', error);
+
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        {
+          error: 'Not Found',
+          message: '{{ class_name }} not found',
+          statusCode: 404,
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        error: 'Internal Server Error',
+        message: 'Failed to update {{ class_name }}',
+        statusCode: 500,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * DELETE /api/{{ route_path }}/[id]
+ * Delete a {{ class_name }}
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    {%- if has_auth %}
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Authentication required', statusCode: 401 },
+        { status: 401 }
+      );
+    }
+    {%- endif %}
+
+    const { id } = params;
+
+    {%- if has_database %}
+    await prisma.{{ lower_case_name }}.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true, message: '{{ class_name }} deleted successfully' });
+    {%- else %}
+    // Mock implementation
+    return NextResponse.json({ success: true, message: '{{ class_name }} deleted successfully' });
+    {%- endif %}
+  } catch (error: any) {
+    console.error('Error deleting {{ class_name }}:', error);
+
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        {
+          error: 'Not Found',
+          message: '{{ class_name }} not found',
+          statusCode: 404,
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        error: 'Internal Server Error',
+        message: 'Failed to delete {{ class_name }}',
+        statusCode: 500,
+      },
+      { status: 500 }
+    );
+  }
+}

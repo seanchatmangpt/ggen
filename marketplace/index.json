@@ -1,0 +1,753 @@
+[
+  {
+    "id": "Next.js Ontology-Driven CRUD",
+    "name": "Next.js Ontology-Driven CRUD",
+    "version": "1.0.0",
+    "path": "packages/io.ggen.nextjs.ontology-crud",
+    "description": "Full-stack Next.js application with shadcn/ui where CRUD tables auto-sync with RDF ontology via git hooks",
+    "author": "ggen",
+    "license": "MIT",
+    "category": "web"
+  },
+  {
+    "id": "academic-bibliography-manager",
+    "name": "academic-bibliography-manager",
+    "version": "1.0.0",
+    "path": "packages/academic-bibliography-manager",
+    "description": "Bibliography management system with BibTeX support, citation validation, duplicate detection, and multi-format export",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "academic-tools"
+  },
+  {
+    "id": "academic-peer-review-workflow",
+    "name": "academic-peer-review-workflow",
+    "version": "1.0.0",
+    "path": "packages/academic-peer-review-workflow",
+    "description": "Integrated peer review workflow with reviewer comments, author responses, revision tracking, and decision management",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "academic-workflow"
+  },
+  {
+    "id": "advanced-rust-project",
+    "name": "advanced-rust-project",
+    "version": "1.0.0",
+    "path": "packages/advanced-rust-project",
+    "description": "Advanced Rust project demonstrating all ggen features: lifecycle, AI, SPARQL, templates, and security",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "showcase"
+  },
+  {
+    "id": "agent-cli-copilot",
+    "name": "agent-cli-copilot",
+    "version": "1.0.0",
+    "path": "packages/agent-cli-copilot",
+    "description": "Intelligent CLI command assistant with natural language understanding, command suggestion, and execution validation",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "ai-agents"
+  },
+  {
+    "id": "agent-context-crafter",
+    "name": "agent-context-crafter",
+    "version": "1.0.0",
+    "path": "packages/agent-context-crafter",
+    "description": "Advanced context and state management for AI agents with semantic understanding, persistence, and cross-session continuity",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "ai-agents"
+  },
+  {
+    "id": "agent-editor",
+    "name": "agent-editor",
+    "version": "1.0.0",
+    "path": "packages/agent-editor",
+    "description": "AI-powered code editor automation with multi-language support, semantic understanding, and production-grade refactoring",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "ai-agents"
+  },
+  {
+    "id": "agent-memory-forge",
+    "name": "agent-memory-forge",
+    "version": "1.0.0",
+    "path": "packages/agent-memory-forge",
+    "description": "Comprehensive memory system for AI agents with episodic, semantic, and procedural memory using RDF ontologies",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "ai-agents"
+  },
+  {
+    "id": "agent-reasoning-mcp",
+    "name": "agent-reasoning-mcp",
+    "version": "1.0.0",
+    "path": "packages/agent-reasoning-mcp",
+    "description": "Advanced reasoning engine with MCP integration, semantic inference, and multi-hop logical reasoning using RDF/SPARQL",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "ai-agents"
+  },
+  {
+    "id": "ai-code-generation",
+    "name": "ai-code-generation",
+    "version": "1.0.0",
+    "path": "packages/ai-code-generation",
+    "description": "AI-powered code generation with multi-provider support and comprehensive validation",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "ai"
+  },
+  {
+    "id": "ai-microservice",
+    "name": "ai-microservice",
+    "version": "0.1.0",
+    "path": "packages/ai-microservice",
+    "description": "AI-powered microservice with template generation, refactoring, and ontology support",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "microservices"
+  },
+  {
+    "id": "api-endpoint",
+    "name": "api-endpoint",
+    "version": "1.0.0",
+    "path": "packages/api-endpoint",
+    "description": "Complete REST API endpoint templates with OpenAPI documentation, validation, and security",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "templates"
+  },
+  {
+    "id": "armstrong-compliance-dod",
+    "name": "armstrong-compliance-dod",
+    "version": "1.0.0",
+    "path": "packages/armstrong-compliance-dod",
+    "description": "DoD focused on Armstrong fault tolerance: supervision trees, no shared state, let-it-crash, budget constraints. For Erlang/OTP, Elixir, and fault-tolerant systems.",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "quality-gate"
+  },
+  {
+    "id": "arxiv-paper-template",
+    "name": "arxiv-paper-template",
+    "version": "1.0.0",
+    "path": "packages/arxiv-paper-template",
+    "description": "arXiv-compatible preprint format with automatic metadata extraction and submission support",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "academic-paper"
+  },
+  {
+    "id": "asset-management",
+    "name": "asset-management",
+    "version": "1.0.0",
+    "path": "packages/asset-management",
+    "description": "Enterprise Asset Management with tracking, depreciation, maintenance, and lifecycle management",
+    "license": "MIT",
+    "category": "Enterprise"
+  },
+  {
+    "id": "banking-core",
+    "name": "banking-core",
+    "version": "1.0.0",
+    "path": "packages/banking-core",
+    "description": "Core banking system with account management, transactions, interest calculation, and regulatory reporting",
+    "author": "ggen Marketplace",
+    "license": "MIT",
+    "category": "finance"
+  },
+  {
+    "id": "business-intelligence-reporting",
+    "name": "business-intelligence-reporting",
+    "version": "1.0.0",
+    "path": "packages/business-intelligence-reporting",
+    "description": "Business Intelligence and Reporting with OLAP, dashboards, KPIs, and dimensional modeling",
+    "license": "MIT",
+    "category": "Enterprise"
+  },
+  {
+    "id": "chatman-cli",
+    "name": "chatman-cli",
+    "version": "0.1.0",
+    "path": "packages/chatman-cli",
+    "description": "Knowledge Hook-powered chat automation framework with semantic understanding, AI integration, and production-grade conversation management",
+    "author": "Sean Chatman <sean@chatmangpt.com>",
+    "license": "MIT OR Apache-2.0",
+    "category": "ai-tools"
+  },
+  {
+    "id": "chatman-cli",
+    "name": "chatman-cli",
+    "version": "0.1.0",
+    "path": "packages/chatman-cli-0.1.0",
+    "description": "Knowledge Hook-powered chat automation framework with semantic understanding, AI integration, and production-grade conversation management",
+    "author": "Sean Chatman <sean@chatmangpt.com>",
+    "license": "MIT OR Apache-2.0",
+    "category": "ai-tools"
+  },
+  {
+    "id": "clap-noun-verb",
+    "name": "clap-noun-verb",
+    "version": "5.3.2",
+    "path": "packages/clap-noun-verb",
+    "description": "Generate production-grade Rust CLIs from RDF with domain logic protection",
+    "author": "seanchatmangpt",
+    "license": "MIT OR Apache-2.0",
+    "category": "framework"
+  },
+  {
+    "id": "cli-application-template",
+    "name": "cli-application-template",
+    "version": "1.0.0",
+    "path": "packages/cli-application-template",
+    "description": "Generate production-ready CLI applications with commands, args, config, and help",
+    "author": "ggen-marketplace",
+    "license": "MIT",
+    "category": "application"
+  },
+  {
+    "id": "clinical-trials-management",
+    "name": "clinical-trials-management",
+    "version": "1.0.0",
+    "path": "packages/clinical-trials-management",
+    "description": "Clinical trials management with protocol management, patient recruitment, and data collection",
+    "author": "ggen Healthcare Team",
+    "license": "MIT",
+    "category": "healthcare"
+  },
+  {
+    "id": "comprehensive-rust-showcase",
+    "name": "comprehensive-rust-showcase",
+    "version": "1.0.0",
+    "path": "packages/comprehensive-rust-showcase",
+    "description": "Comprehensive showcase of ALL ggen features: lifecycle, AI, SPARQL, templates, security, performance, monitoring",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "showcase"
+  },
+  {
+    "id": "crm-customer-management",
+    "name": "crm-customer-management",
+    "version": "1.0.0",
+    "path": "packages/crm-customer-management",
+    "description": "CRM system for sales pipeline, customer relationships, and opportunity tracking",
+    "author": "GGEN Marketplace",
+    "license": "MIT",
+    "category": "enterprise"
+  },
+  {
+    "id": "cryptocurrency-exchange",
+    "name": "cryptocurrency-exchange",
+    "version": "1.0.0",
+    "path": "packages/cryptocurrency-exchange",
+    "description": "Cryptocurrency exchange platform with wallet management, order matching, blockchain integration, and DeFi protocols",
+    "author": "ggen Marketplace",
+    "license": "MIT",
+    "category": "finance"
+  },
+  {
+    "id": "customer-loyalty-rewards",
+    "name": "customer-loyalty-rewards",
+    "version": "1.0.0",
+    "path": "packages/customer-loyalty-rewards",
+    "description": "Comprehensive loyalty program with points, tiers, and gamification",
+    "license": "MIT"
+  },
+  {
+    "id": "data-pipeline-cli",
+    "name": "data-pipeline-cli",
+    "version": "1.0.0",
+    "path": "packages/data-pipeline-cli",
+    "description": "ETL data pipelines, transformation, and integration using clap-noun-verb",
+    "license": "MIT OR Apache-2.0"
+  },
+  {
+    "id": "database-schema-generator",
+    "name": "database-schema-generator",
+    "version": "1.0.0",
+    "path": "packages/database-schema-generator",
+    "description": "Multi-database schema generator from RDF ontology using SPARQL",
+    "author": "ggen.io",
+    "license": "MIT",
+    "category": "database"
+  },
+  {
+    "id": "dicom-medical-imaging",
+    "name": "dicom-medical-imaging",
+    "version": "1.0.0",
+    "path": "packages/dicom-medical-imaging",
+    "description": "DICOM medical imaging with PACS integration and DICOMweb support",
+    "license": "MIT",
+    "category": "healthcare"
+  },
+  {
+    "id": "dlss-curriculum",
+    "name": "dlss-curriculum",
+    "version": "1.0.0",
+    "path": "packages/dlss-curriculum",
+    "description": "Design for Lean Six Sigma (DLSS) Black Belt certification curriculum following DMEDI methodology. 53 modules across 5 phases with real-world examples, statistical datasets, exercises, and capstone project.",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "education"
+  },
+  {
+    "id": "document-management-system",
+    "name": "document-management-system",
+    "version": "1.0.0",
+    "path": "packages/document-management-system",
+    "description": "Enterprise Document Management System with versioning, workflow, OCR, and compliance tracking",
+    "license": "MIT",
+    "category": "Enterprise"
+  },
+  {
+    "id": "ehr-integration",
+    "name": "ehr-integration",
+    "version": "1.0.0",
+    "path": "packages/ehr-integration",
+    "description": "EHR integration with Epic/Cerner connectors and SMART on FHIR support",
+    "author": "ggen Healthcare Team",
+    "license": "MIT",
+    "category": "healthcare"
+  },
+  {
+    "id": "enterprise-erp-core",
+    "name": "enterprise-erp-core",
+    "version": "1.0.0",
+    "path": "packages/enterprise-erp-core",
+    "description": "Comprehensive ERP and accounting system with double-entry bookkeeping",
+    "author": "GGEN Marketplace",
+    "license": "MIT",
+    "category": "enterprise"
+  },
+  {
+    "id": "fhir-patient-management",
+    "name": "fhir-patient-management",
+    "version": "1.0.0",
+    "path": "packages/fhir-patient-management",
+    "description": "FHIR R4 Patient Management with comprehensive healthcare interoperability",
+    "license": "MIT",
+    "category": "healthcare"
+  },
+  {
+    "id": "graphql-api-template",
+    "name": "graphql-api-template",
+    "version": "1.0.0",
+    "path": "packages/graphql-api-template",
+    "description": "Production-ready GraphQL API template with DataLoaders, subscriptions, and multi-language support",
+    "author": "ggen-marketplace",
+    "license": "MIT",
+    "category": "api"
+  },
+  {
+    "id": "healthcare-analytics",
+    "name": "healthcare-analytics",
+    "version": "1.0.0",
+    "path": "packages/healthcare-analytics",
+    "description": "Healthcare analytics with population health, quality measures, and predictive analytics",
+    "author": "ggen Healthcare Team",
+    "license": "MIT",
+    "category": "healthcare"
+  },
+  {
+    "id": "hello-world",
+    "name": "hello-world",
+    "version": "1.0.0",
+    "path": "packages/hello-world",
+    "description": "Simple Hello World starter template for learning ggen basics",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "starter"
+  },
+  {
+    "id": "hl7-v2-integration",
+    "name": "hl7-v2-integration",
+    "version": "1.0.0",
+    "path": "packages/hl7-v2-integration",
+    "description": "HL7 v2.x message integration with parsing, routing, and FHIR transformation",
+    "license": "MIT",
+    "category": "healthcare"
+  },
+  {
+    "id": "human-resources-management",
+    "name": "human-resources-management",
+    "version": "1.0.0",
+    "path": "packages/human-resources-management",
+    "description": "Complete HR Management with recruitment, performance reviews, payroll, and benefits administration",
+    "license": "MIT",
+    "category": "Enterprise"
+  },
+  {
+    "id": "ieee-paper-template",
+    "name": "ieee-paper-template",
+    "version": "1.0.0",
+    "path": "packages/ieee-paper-template",
+    "description": "IEEE conference paper generation with two-column layout, automatic bibliography, and figure/table support",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "academic-paper"
+  },
+  {
+    "id": "inventory-management",
+    "name": "inventory-management",
+    "version": "1.0.0",
+    "path": "packages/inventory-management",
+    "description": "Comprehensive inventory and warehouse management with stock tracking, FIFO/LIFO valuation, lot tracing, reorder automation, and multi-channel allocation",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "ecommerce"
+  },
+  {
+    "id": "iso-20022-payments",
+    "name": "iso-20022-payments",
+    "version": "1.0.0",
+    "path": "packages/iso-20022-payments",
+    "description": "ISO 20022 Payment Messages - RDF ontology, SPARQL templates, and multi-language implementation",
+    "author": "ggen Marketplace",
+    "license": "MIT",
+    "category": "finance"
+  },
+  {
+    "id": "java26-core",
+    "name": "java26-core",
+    "version": "1.0.0",
+    "path": "packages/java26-core",
+    "description": "Core OWL vocabulary for Java 26 Pattern Language with ggen",
+    "license": "MIT"
+  },
+  {
+    "id": "java26-pattern-matched-controller",
+    "name": "java26-pattern-matched-controller",
+    "version": "1.0.0",
+    "path": "packages/java26-pattern-matched-controller",
+    "description": "PATTERN-MATCHED CONTROLLER \u2014 Generate @RestController using Java 26 switch expressions with type patterns for exhaustive dispatch",
+    "license": "MIT"
+  },
+  {
+    "id": "java26-record-value-object",
+    "name": "java26-record-value-object",
+    "version": "1.0.0",
+    "path": "packages/java26-record-value-object",
+    "description": "RECORD VALUE OBJECT \u2014 Generate immutable Java records as domain value objects",
+    "license": "MIT"
+  },
+  {
+    "id": "java26-sealed-domain",
+    "name": "java26-sealed-domain",
+    "version": "1.0.0",
+    "path": "packages/java26-sealed-domain",
+    "description": "SEALED DOMAIN HIERARCHY \u2014 Generate sealed interface + record variants from RDF ontology",
+    "license": "MIT"
+  },
+  {
+    "id": "java26-transactional-service",
+    "name": "java26-transactional-service",
+    "version": "1.0.0",
+    "path": "packages/java26-transactional-service",
+    "description": "TRANSACTIONAL SERVICE \u2014 Generate @Service classes with @Transactional, command records, and read/write separation",
+    "license": "MIT"
+  },
+  {
+    "id": "java26-virtual-thread-dao",
+    "name": "java26-virtual-thread-dao",
+    "version": "1.0.0",
+    "path": "packages/java26-virtual-thread-dao",
+    "description": "VIRTUAL THREAD DAO \u2014 Generate DAO classes using Project Loom virtual threads",
+    "license": "MIT"
+  },
+  {
+    "id": "knowledge-graph-cli",
+    "name": "knowledge-graph-cli",
+    "version": "1.0.0",
+    "path": "packages/knowledge-graph-cli",
+    "description": "Knowledge graph operations CLI using clap-noun-verb pattern",
+    "license": "MIT OR Apache-2.0",
+    "category": "cli-tools"
+  },
+  {
+    "id": "kyc-aml-compliance",
+    "name": "kyc-aml-compliance",
+    "version": "1.0.0",
+    "path": "packages/kyc-aml-compliance",
+    "description": "KYC/AML Compliance - Identity verification, risk scoring, sanctions screening, and transaction monitoring",
+    "author": "ggen Marketplace",
+    "license": "MIT",
+    "category": "finance"
+  },
+  {
+    "id": "laboratory-information-system",
+    "name": "laboratory-information-system",
+    "version": "1.0.0",
+    "path": "packages/laboratory-information-system",
+    "description": "Laboratory information system with test ordering, specimen tracking, and results reporting",
+    "author": "ggen Healthcare Team",
+    "license": "MIT",
+    "category": "healthcare"
+  },
+  {
+    "id": "medical-billing",
+    "name": "medical-billing",
+    "version": "1.0.0",
+    "path": "packages/medical-billing",
+    "description": "Medical billing with CPT/ICD-10 codes, insurance claims, and revenue cycle management",
+    "author": "ggen Healthcare Team",
+    "license": "MIT",
+    "category": "healthcare"
+  },
+  {
+    "id": "microservices-architecture",
+    "name": "microservices-architecture",
+    "version": "1.0.0",
+    "path": "packages/microservices-architecture",
+    "description": "Complete e-commerce microservices architecture with Rust, Docker, PostgreSQL, and Redis",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "architecture"
+  },
+  {
+    "id": "microservices-architecture-template",
+    "name": "microservices-architecture-template",
+    "version": "1.0.0",
+    "path": "packages/microservices-architecture-template",
+    "description": "Production-grade microservices architecture with distributed tracing, circuit breakers, and comprehensive observability",
+    "license": "MIT"
+  },
+  {
+    "id": "multi-tenant-saas",
+    "name": "multi-tenant-saas",
+    "version": "1.0.0",
+    "path": "packages/multi-tenant-saas",
+    "description": "Multi-tenant SaaS architecture with tenant isolation, provisioning, subscription tiers, usage metering, and billing engine",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "ecommerce"
+  },
+  {
+    "id": "neurips-paper-template",
+    "name": "neurips-paper-template",
+    "version": "1.0.0",
+    "path": "packages/neurips-paper-template",
+    "description": "NeurIPS conference paper generation with double-blind review, appendices, and neural networks focus",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "academic-paper"
+  },
+  {
+    "id": "order-management-system",
+    "name": "order-management-system",
+    "version": "1.0.0",
+    "path": "packages/order-management-system",
+    "description": "Production-ready order processing and fulfillment system with comprehensive RDF ontology",
+    "license": "MIT"
+  },
+  {
+    "id": "pharmacy-management",
+    "name": "pharmacy-management",
+    "version": "1.0.0",
+    "path": "packages/pharmacy-management",
+    "description": "Pharmacy management with medication dispensing, drug interactions, and insurance claims",
+    "author": "ggen Healthcare Team",
+    "license": "MIT",
+    "category": "healthcare"
+  },
+  {
+    "id": "phd-thesis-template",
+    "name": "phd-thesis-template",
+    "version": "1.0.0",
+    "path": "packages/phd-thesis-template",
+    "description": "PhD thesis template with chapters, appendices, TOC/LOF/LOT, and customizable university requirements",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "academic-paper"
+  },
+  {
+    "id": "product-recommendations",
+    "name": "product-recommendations",
+    "version": "1.0.0",
+    "path": "packages/product-recommendations",
+    "description": "AI-powered product recommendation engine with collaborative filtering, content-based filtering, A/B testing, real-time personalization, and ML model training",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "ecommerce"
+  },
+  {
+    "id": "project-management",
+    "name": "project-management",
+    "version": "1.0.0",
+    "path": "packages/project-management",
+    "description": "Comprehensive Project Management with Gantt charts, sprints, resource allocation, and budget tracking",
+    "license": "MIT",
+    "category": "Enterprise"
+  },
+  {
+    "id": "reasoner-cli",
+    "name": "reasoner-cli",
+    "version": "1.0.0",
+    "path": "packages/reasoner-cli",
+    "description": "OWL inference engine and ontology classification using clap-noun-verb",
+    "license": "MIT OR Apache-2.0"
+  },
+  {
+    "id": "rest-api-template",
+    "name": "rest-api-template",
+    "version": "1.0.0",
+    "path": "packages/rest-api-template",
+    "description": "Production-ready REST API template with multi-language support (Rust/TypeScript/Python)",
+    "author": "GGEN Marketplace",
+    "license": "MIT",
+    "category": "core-power-packages"
+  },
+  {
+    "id": "risk-management",
+    "name": "risk-management",
+    "version": "1.0.0",
+    "path": "packages/risk-management",
+    "description": "Comprehensive risk management system with VaR calculation, stress testing, credit risk, and market risk analysis",
+    "author": "ggen Marketplace",
+    "license": "MIT",
+    "category": "finance"
+  },
+  {
+    "id": "robo-advisor",
+    "name": "robo-advisor",
+    "version": "1.0.0",
+    "path": "packages/robo-advisor",
+    "description": "Automated investment advisor with portfolio allocation, rebalancing, tax-loss harvesting, and risk tolerance assessment",
+    "author": "ggen Marketplace",
+    "license": "MIT",
+    "category": "finance"
+  },
+  {
+    "id": "schema-forge-cli",
+    "name": "schema-forge-cli",
+    "version": "1.0.0",
+    "path": "packages/schema-forge-cli",
+    "description": "Data modeling and schema generation CLI using clap-noun-verb pattern",
+    "license": "MIT OR Apache-2.0",
+    "category": "cli-tools"
+  },
+  {
+    "id": "sector-api-gateway-8020",
+    "name": "sector-api-gateway-8020",
+    "version": "1.0.0",
+    "path": "packages/sector-api-gateway-8020",
+    "description": "8020 Bundle: Production-ready API gateway configuration covering 80% of gateway infrastructure needs",
+    "license": "MIT OR Apache-2.0"
+  },
+  {
+    "id": "sector-observability-8020",
+    "name": "sector-observability-8020",
+    "version": "1.0.0",
+    "path": "packages/sector-observability-8020",
+    "description": "8020 Bundle: Complete observability stack covering 80% of real-world telemetry needs",
+    "license": "MIT OR Apache-2.0"
+  },
+  {
+    "id": "sector-paper-lifecycle-8020",
+    "name": "sector-paper-lifecycle-8020",
+    "version": "1.0.0",
+    "path": "packages/sector-paper-lifecycle-8020",
+    "description": "8020 Bundle: Academic paper lifecycle management covering 80% of submission and formatting needs",
+    "license": "MIT OR Apache-2.0"
+  },
+  {
+    "id": "sector-rust-microservice-8020",
+    "name": "sector-rust-microservice-8020",
+    "version": "1.0.0",
+    "path": "packages/sector-rust-microservice-8020",
+    "description": "8020 Bundle: Production-ready Rust microservice scaffolding covering 80% of service architecture needs",
+    "license": "MIT OR Apache-2.0"
+  },
+  {
+    "id": "sector-support-hooks-8020",
+    "name": "sector-support-hooks-8020",
+    "version": "1.0.0",
+    "path": "packages/sector-support-hooks-8020",
+    "description": "8020 Bundle: Intelligent support case routing and hook patterns covering 80% of customer support workflows",
+    "license": "MIT OR Apache-2.0"
+  },
+  {
+    "id": "semantic-cli",
+    "name": "semantic-cli",
+    "version": "1.0.0",
+    "path": "packages/semantic-cli",
+    "description": "RDF/OWL ontology management CLI using clap-noun-verb pattern",
+    "license": "MIT OR Apache-2.0",
+    "category": "cli-tools"
+  },
+  {
+    "id": "shacl-cli",
+    "name": "shacl-cli",
+    "version": "0.1.0",
+    "path": "packages/shacl-cli",
+    "description": "SHACL validation, constraint enforcement, and reporting using clap-noun-verb",
+    "license": "MIT OR Apache-2.0"
+  },
+  {
+    "id": "sparql-cli",
+    "name": "sparql-cli",
+    "version": "1.0.0",
+    "path": "packages/sparql-cli",
+    "description": "SPARQL query execution, optimization, and federation using clap-noun-verb",
+    "license": "MIT OR Apache-2.0"
+  },
+  {
+    "id": "supply-chain-management",
+    "name": "supply-chain-management",
+    "version": "1.0.0",
+    "path": "packages/supply-chain-management",
+    "description": "Supply chain optimization with procurement, logistics, and warehouse management",
+    "author": "GGEN Marketplace",
+    "license": "MIT",
+    "category": "enterprise"
+  },
+  {
+    "id": "telemedicine-platform",
+    "name": "telemedicine-platform",
+    "version": "1.0.0",
+    "path": "packages/telemedicine-platform",
+    "description": "Comprehensive telemedicine platform with video conferencing, appointments, and prescriptions",
+    "author": "ggen Healthcare Team",
+    "license": "MIT",
+    "category": "healthcare"
+  },
+  {
+    "id": "three-layer-verification-dod",
+    "name": "three-layer-verification-dod",
+    "version": "1.0.0",
+    "path": "packages/three-layer-verification-dod",
+    "description": "Full three-layer DoD: OTEL span proof + test assertion + weaver schema conformance. For production projects requiring complete evidence-based verification.",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "quality-gate"
+  },
+  {
+    "id": "trading-platform",
+    "name": "trading-platform",
+    "version": "1.0.0",
+    "path": "packages/trading-platform",
+    "description": "Trading Platform - RDF ontology for order books, matching engine, and market data",
+    "author": "ggen Marketplace",
+    "license": "MIT",
+    "category": "finance"
+  },
+  {
+    "id": "workflow-engine-cli",
+    "name": "workflow-engine-cli",
+    "version": "1.0.0",
+    "path": "packages/workflow-engine-cli",
+    "description": "BPMN workflow execution and orchestration using clap-noun-verb",
+    "license": "MIT OR Apache-2.0"
+  },
+  {
+    "id": "wvda-soundness-dod",
+    "name": "wvda-soundness-dod",
+    "version": "1.0.0",
+    "path": "packages/wvda-soundness-dod",
+    "description": "DoD focused on van der Aalst soundness: deadlock freedom, liveness guarantee, boundedness. For workflow engines, process mining, and coordination systems.",
+    "author": "ggen-team",
+    "license": "MIT",
+    "category": "quality-gate"
+  }
+]

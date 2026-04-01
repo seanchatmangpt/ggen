@@ -144,6 +144,7 @@ pub mod template_types;
 // Ontology system - re-enabled after oxigraph API compatibility fixes
 pub mod ontology;
 pub mod ontology_pack;
+pub mod pack_resolver; // μ₀: Pack resolution stage
 pub mod packs; // Pack installation system - Phase 1
 pub mod pipeline;
 pub mod poc;
@@ -194,13 +195,14 @@ pub use lifecycle::{
 
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};
+pub use config::LockfileManager;
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
 pub use drift::{ChangeType, DriftChange, DriftDetector, DriftStatus, FileHashState, SyncState};
 pub use generator::{GenContext, Generator};
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
 pub use gpack::GpackManifest;
 pub use graph::Graph;
-pub use lockfile::{LockEntry, Lockfile, LockfileManager};
+pub use lockfile::Lockfile;
 pub use merge::{
     ConflictType, MergeConflict, MergeResult, MergeStrategy, RegionAwareMerger, RegionUtils,
     ThreeWayMerger,

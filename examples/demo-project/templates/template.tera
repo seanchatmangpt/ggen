@@ -1,0 +1,236 @@
+{#- Main Template: Generates complete Rust project structure -#}
+
+{#- This template uses SPARQL queries to extract project metadata from RDF/TTL -#}
+{#- and generates a working Rust library with: -#}
+{#- - Cargo.toml with dependencies -#}
+{#- - src/lib.rs with modules -#}
+{#- - README.md with documentation -#}
+
+---
+to: "generated.rs"
+---
+
+{%- set project_info = sparql_query("
+PREFIX doap: <http://usefulinc.com/ns/doap#>
+PREFIX ggen: <http://ggen.dev/ns#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?name ?version ?description ?edition ?license
+WHERE {
+  ?project a ggen:RustProject ;
+           doap:name ?name ;
+           doap:version ?version ;
+           doap:description ?description ;
+           ggen:edition ?edition ;
+           doap:license ?license .
+}
+") -%}
+
+{#- Generate Cargo.toml -#}
+{%- set file = write_file("Cargo.toml") -%}
+[package]
+name = "{{ project_info[0].name }}"
+version = "{{ project_info[0].version }}"
+edition = "{{ project_info[0].edition }}"
+license = "{{ project_info[0].license }}"
+description = "{{ project_info[0].description }}"
+
+[dependencies]
+{%- set deps = sparql_query("
+PREFIX ggen: <http://ggen.dev/ns#>
+
+SELECT ?depName ?depVersion ?features
+WHERE {
+  ?project ggen:dependency ?dep .
+  ?dep ggen:name ?depName ;
+       ggen:version ?depVersion .
+  OPTIONAL { ?dep ggen:features ?features }
+}
+") -%}
+{%- for dep in deps %}
+{{ dep.dep_name }} = { version = "{{ dep.dep_version }}"{%- if dep.features %}, features = ["{{ dep.features }}"]{%- endif %} }
+{%- endfor %}
+
+[dev-dependencies]
+{%- endset -%}
+
+{#- Generate src/lib.rs -#}
+{%- set lib_file = write_file("src/lib.rs") -%}
+//! {{ project_info[0].description }}
+//!
+//! This library was generated using ggen from RDF/TTL definitions.
+
+{%- set error_module = sparql_query("
+PREFIX ggen: <http://ggen.dev/ns#>
+
+SELECT ?moduleName ?moduleDesc
+WHERE {
+  ?project ggen:module ?module .
+  ?module ggen:name ?moduleName ;
+          ggen:description ?moduleDesc .
+  FILTER(?moduleName = 'error')
+}
+") -%}
+/// {{ error_module[0].module_desc }}
+pub mod {{ error_module[0].module_name }} {
+    use thiserror::Error;
+
+    #[derive(Error, Debug)]
+    pub enum CalcError {
+{%- set errors = sparql_query("
+PREFIX ggen: <http://ggen.dev/ns#>
+
+SELECT ?errorName ?errorMsg
+WHERE {
+  ?project ggen:module ?module .
+  ?module ggen:name 'error' ;
+          ggen:hasError ?error .
+  ?error ggen:name ?errorName ;
+         ggen:message ?errorMsg .
+}
+") -%}
+{%- for error in errors %}
+        #[error("{{ error.error_msg }}")]
+        {{ error.error_name }},
+{%- endfor %}
+    }
+}
+
+{%- set ops_module = sparql_query("
+PREFIX ggen: <http://ggen.dev/ns#>
+
+SELECT ?moduleName ?moduleDesc
+WHERE {
+  ?project ggen:module ?module .
+  ?module ggen:name ?moduleName ;
+          ggen:description ?moduleDesc .
+  FILTER(?moduleName = 'operations')
+}
+") -%}
+/// {{ ops_module[0].module_desc }}
+pub mod {{ ops_module[0].module_name }} {
+    use crate::error::CalcError;
+
+{%- set functions = sparql_query("
+PREFIX ggen: <http://ggen.dev/ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?funcName ?funcSig
+WHERE {
+  ?project ggen:module ?module .
+  ?module ggen:name 'operations' ;
+          ggen:functions ?funcList .
+  ?funcList rdf:rest*/rdf:first ?func .
+  ?func ggen:name ?funcName ;
+        ggen:signature ?funcSig .
+}
+") -%}
+{%- for func in functions %}
+    /// {{ func.func_name }} operation
+    pub {{ func.func_sig }} {
+{%- if func.func_name == "add" %}
+        a + b
+{%- elif func.func_name == "subtract" %}
+        a - b
+{%- elif func.func_name == "multiply" %}
+        a * b
+{%- elif func.func_name == "divide" %}
+        if b == 0.0 {
+            Err(CalcError::DivideByZero)
+        } else {
+            Ok(a / b)
+        }
+{%- endif %}
+    }
+
+{%- endfor %}
+}
+
+{%- endset -%}
+
+#[cfg(test)]
+mod tests {
+    use super::operations::*;
+
+{%- set tests = sparql_query("
+PREFIX ggen: <http://ggen.dev/ns#>
+
+SELECT ?testName ?assertion
+WHERE {
+  ?project ggen:testModule ?testMod .
+  ?testMod ggen:testCase ?test .
+  ?test ggen:name ?testName ;
+        ggen:assertion ?assertion .
+}
+") -%}
+{%- for test in tests %}
+    #[test]
+    fn {{ test.test_name }}() {
+        assert!({{ test.assertion }});
+    }
+
+{%- endfor %}
+}
+{%- endset -%}
+
+{#- Generate README.md -#}
+{%- set readme_file = write_file("README.md") -%}
+# {{ project_info[0].name }}
+
+{{ project_info[0].description }}
+
+## Version
+
+{{ project_info[0].version }}
+
+## Features
+
+This library provides:
+
+{%- set modules = sparql_query("
+PREFIX ggen: <http://ggen.dev/ns#>
+
+SELECT ?moduleName ?moduleDesc
+WHERE {
+  ?project ggen:module ?module .
+  ?module ggen:name ?moduleName ;
+          ggen:description ?moduleDesc .
+}
+") -%}
+{%- for module in modules %}
+- **{{ module.module_name }}**: {{ module.module_desc }}
+{%- endfor %}
+
+## Usage
+
+```rust
+use {{ project_info[0].name }}::operations::*;
+use {{ project_info[0].name }}::error::CalcError;
+
+fn main() -> Result<(), CalcError> {
+    let sum = add(10.0, 20.0);
+    println!("Sum: {}", sum);
+
+    let result = divide(10.0, 2.0)?;
+    println!("Division: {}", result);
+
+    Ok(())
+}
+```
+
+## Dependencies
+
+{%- for dep in deps %}
+- `{{ dep.dep_name }}` {{ dep.dep_version }}
+{%- endfor %}
+
+## License
+
+{{ project_info[0].license }}
+
+---
+
+*Generated by [ggen](https://github.com/ggen) from RDF/TTL definitions*
+{%- endset -%}
+
+{%- endset -%}

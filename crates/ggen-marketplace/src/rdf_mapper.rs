@@ -580,8 +580,10 @@ impl RdfMapper {
             released_at,
             changelog,
             checksum,
+            signature: None,  // TODO: Load from pack metadata
             download_url,
             dependencies,
+            trust_tier: crate::trust::TrustTier::Experimental, // TODO: Load from pack metadata
         })
     }
 

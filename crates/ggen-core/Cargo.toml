@@ -18,6 +18,7 @@ multiple_crate_versions = "allow"
 ggen-utils.workspace = true
 ggen-canonical.workspace = true
 ggen-receipt.workspace = true
+ggen-marketplace.workspace = true
 tera = "1.20"
 oxigraph = { version = "0.5.6", features = ["rdf-12"] }
 serde = { version = "1.0", features = ["derive"] }

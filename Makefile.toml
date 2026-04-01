@@ -1104,6 +1104,12 @@ description = "Validate all marketplace packages for production readiness"
 workspace = false
 command = "./marketplace/scripts/validate_all_packages.sh"
 
+[tasks.rebuild-marketplace-index]
+description = "Rebuild marketplace registry index from package metadata (scans all package.toml files)"
+workspace = false
+command = "bash"
+args = ["scripts/marketplace/rebuild-index.sh"]
+
 [tasks.marketplace-validate-update]
 description = "Validate all packages and update production_ready flags"
 workspace = false

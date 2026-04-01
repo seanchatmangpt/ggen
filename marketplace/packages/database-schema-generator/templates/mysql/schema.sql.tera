@@ -1,0 +1,139 @@
+{#- MySQL Database Schema Generator -#}
+{#- Generated from RDF ontology via SPARQL transformation -#}
+-- ============================================================================
+-- MySQL Database Schema Generator
+-- Generated from RDF ontology via SPARQL transformation
+-- ============================================================================
+
+-- Database configuration
+CREATE DATABASE IF NOT EXISTS {{ database_name }}
+  CHARACTER SET {{ character_set }}
+  COLLATE {{ collation }};
+
+USE {{ database_name }};
+
+-- ============================================================================
+-- Table Definitions
+-- ============================================================================
+
+{%- for table in tables %}
+-- {{ table.comment }}
+CREATE TABLE {{ table.name }} (
+  {%- for column in table.columns %}
+  {{ column.name }} {{ column.type }}{%- if column.max_length %}({{ column.max_length }}){%- endif -%}{%- if column.precision %}({{ column.precision }},{{ column.scale }}){%- endif -%}{%- if not column.nullable %} NOT NULL{%- endif -%}{%- if column.default %} DEFAULT {{ column.default }}{%- endif -%}{%- if column.auto_increment %} AUTO_INCREMENT{%- endif -%}{%- if not loop.last %}, {%- endif %}
+  {%- if column.comment %} COMMENT '{{ column.comment }}'{%- endif %}
+  {%- endfor %}
+
+  {%- if table.constraints %}
+  -- Constraints
+  {%- for constraint in table.constraints %}
+  {%- if constraint.is_primary_key %}
+  CONSTRAINT {{ constraint.name }} PRIMARY KEY ({{ constraint.columns }})
+  {%- endif -%}
+  {%- if constraint.is_foreign_key %}
+  CONSTRAINT {{ constraint.name }} FOREIGN KEY ({{ constraint.columns }})
+    REFERENCES {{ constraint.references_table }}({{ constraint.references_columns }})
+    {%- if constraint.on_delete %} ON DELETE {{ constraint.on_delete }}{%- endif -%}
+    {%- if constraint.on_update %} ON UPDATE {{ constraint.on_update }}{%- endif %}
+  {%- endif -%}
+  {%- if constraint.is_unique %}
+  CONSTRAINT {{ constraint.name }} UNIQUE KEY ({{ constraint.columns }})
+  {%- endif -%}
+  {%- if constraint.is_check %}
+  CONSTRAINT {{ constraint.name }} CHECK ({{ constraint.expression }})
+  {%- endif -%}
+  {%- if not loop.last %}, {%- endif %}
+  {%- endfor %}
+  {%- endif %}
+) ENGINE={{ table.engine }} DEFAULT CHARSET={{ character_set }} COLLATE={{ collation }}{%- if table.table_comment %} COMMENT='{{ table.table_comment }}'{%- endif %};
+
+{%- endfor %}
+
+-- ============================================================================
+-- Indexes
+-- ============================================================================
+
+{%- for index in indexes %}
+CREATE {%- if index.is_unique %} UNIQUE {%- endif %} INDEX {{ index.name }}
+  ON {{ index.table_name }} ({{ index.columns }})
+  USING {{ index.method }};
+{%- endfor %}
+
+-- Full-text search indexes (MySQL FULLTEXT)
+{%- for ft_index in fulltext_indexes %}
+CREATE FULLTEXT INDEX {{ ft_index.name }} ON {{ ft_index.table_name }} ({{ ft_index.columns }});
+{%- endfor %}
+
+-- ============================================================================
+-- Triggers
+-- ============================================================================
+
+{%- for trigger in triggers %}
+-- {{ trigger.comment }}
+DELIMITER $$
+
+CREATE TRIGGER {{ trigger.name }}
+  {{ trigger.timing }} {{ trigger.event }} ON {{ trigger.table_name }}
+  FOR EACH ROW
+BEGIN
+  {{ trigger.function_body }}
+END$$
+
+DELIMITER ;
+{%- endfor %}
+
+-- Updated_at trigger (common pattern)
+{%- for table in tables_with_updated_at %}
+DELIMITER $$
+
+CREATE TRIGGER trigger_{{ table.name }}_updated_at
+  BEFORE UPDATE ON {{ table.name }}
+  FOR EACH ROW
+BEGIN
+  SET NEW.updated_at = CURRENT_TIMESTAMP;
+END$$
+
+DELIMITER ;
+{%- endfor %}
+
+-- ============================================================================
+-- Views
+-- ============================================================================
+
+{%- for view in views %}
+CREATE OR REPLACE VIEW {{ view.name }} AS
+{{ view.query }};
+{%- endfor %}
+
+-- ============================================================================
+-- Migration Version Tracking
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS schema_migrations (
+  version VARCHAR(255) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  execution_time_ms INTEGER,
+  checksum VARCHAR(64)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_schema_migrations_applied_at ON schema_migrations(applied_at);
+
+-- Insert initial migration record
+INSERT INTO schema_migrations (version, name, checksum)
+VALUES ('0001', 'initial_schema', '{{ checksum_value }}')
+ON DUPLICATE KEY UPDATE version = version;
+
+-- ============================================================================
+-- Security & Permissions
+-- ============================================================================
+
+-- Create application user
+CREATE USER IF NOT EXISTS '{{ app_user }}'@'%' IDENTIFIED BY '{{ app_password }}';
+
+-- Grant permissions
+{%- for table in tables %}
+GRANT SELECT, INSERT, UPDATE, DELETE ON {{ database_name }}.{{ table.name }} TO '{{ app_user }}'@'%';
+{%- endfor %}
+
+FLUSH PRIVILEGES;

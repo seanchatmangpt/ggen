@@ -1,0 +1,158 @@
+# Full-Featured MCP Server Definition
+#
+# Demonstrates all MCP capabilities: tools, resources, prompts, completions, logging.
+#
+# Generate with:
+#   ggen mcp generate --ontology full-server.ttl --output ./src
+
+@prefix mcp: <http://ggen.dev/mcp#> .
+@prefix ex:  <http://example.com/full#> .
+
+# Server definition
+ex:FullServer a mcp:McpServer ;
+    mcp:serverName "full-mcp-server" ;
+    mcp:serverVersion "1.0.0" ;
+    mcp:serverDescription "A full-featured MCP server demonstrating all capabilities" ;
+    mcp:hasProtocolVersion "2025-11-25" ;
+    mcp:hasTransport mcp:HttpTransport ;
+    mcp:hasCapabilitySet ex:FullCapabilities ;
+    mcp:hasTool ex:AddTool, ex:MultiplyTool, ex:DivideTool ;
+    mcp:hasResource ex:ConfigResource, ex:StatusResource ;
+    mcp:hasResourceTemplate ex:ItemTemplate ;
+    mcp:hasPrompt ex:ExplainPrompt, ex:SummarizePrompt ;
+    mcp:hasCompletionProvider ex:OperationCompletion ;
+    mcp:hasLoggingPolicy ex:DefaultLogging .
+
+# All capabilities enabled
+ex:FullCapabilities a mcp:CapabilitySet ;
+    mcp:tools true ;
+    mcp:resources true ;
+    mcp:prompts true ;
+    mcp:completions true ;
+    mcp:logging true ;
+    mcp:subscriptions false .
+
+# Tool: Add two numbers
+ex:AddTool a mcp:Tool ;
+    mcp:name "add" ;
+    mcp:description "Add two numbers together" ;
+    mcp:hasArgument ex:AddA, ex:AddB .
+
+ex:AddA a mcp:ToolArgument ;
+    mcp:argumentName "a" ;
+    mcp:argumentDescription "First number" ;
+    mcp:argumentType "number" ;
+    mcp:isRequired true .
+
+ex:AddB a mcp:ToolArgument ;
+    mcp:argumentName "b" ;
+    mcp:argumentDescription "Second number" ;
+    mcp:argumentType "number" ;
+    mcp:isRequired true .
+
+# Tool: Multiply two numbers
+ex:MultiplyTool a mcp:Tool ;
+    mcp:name "multiply" ;
+    mcp:description "Multiply two numbers" ;
+    mcp:hasArgument ex:MultiplyA, ex:MultiplyB .
+
+ex:MultiplyA a mcp:ToolArgument ;
+    mcp:argumentName "a" ;
+    mcp:argumentDescription "First number" ;
+    mcp:argumentType "number" ;
+    mcp:isRequired true .
+
+ex:MultiplyB a mcp:ToolArgument ;
+    mcp:argumentName "b" ;
+    mcp:argumentDescription "Second number" ;
+    mcp:argumentType "number" ;
+    mcp:isRequired true .
+
+# Tool: Divide two numbers
+ex:DivideTool a mcp:Tool ;
+    mcp:name "divide" ;
+    mcp:description "Divide two numbers" ;
+    mcp:hasArgument ex:DivideA, ex:DivideB .
+
+ex:DivideA a mcp:ToolArgument ;
+    mcp:argumentName "a" ;
+    mcp:argumentDescription "Numerator" ;
+    mcp:argumentType "number" ;
+    mcp:isRequired true .
+
+ex:DivideB a mcp:ToolArgument ;
+    mcp:argumentName "b" ;
+    mcp:argumentDescription "Denominator" ;
+    mcp:argumentType "number" ;
+    mcp:isRequired true .
+
+# Resource: Server configuration
+ex:ConfigResource a mcp:Resource ;
+    mcp:uri "config://server" ;
+    mcp:resourceName "Server Configuration" ;
+    mcp:description "Current server configuration" ;
+    mcp:mimeType "application/json" .
+
+# Resource: Server status
+ex:StatusResource a mcp:Resource ;
+    mcp:uri "status://server" ;
+    mcp:resourceName "Server Status" ;
+    mcp:description "Current server status and metrics" ;
+    mcp:mimeType "application/json" .
+
+# Resource Template: Items by ID
+ex:ItemTemplate a mcp:ResourceTemplate ;
+    mcp:uriPattern "items://{id}" ;
+    mcp:name "item_by_id" ;
+    mcp:description "Get an item by its ID" ;
+    mcp:mimeType "application/json" .
+
+# Prompt: Explain a concept
+ex:ExplainPrompt a mcp:Prompt ;
+    mcp:promptName "explain" ;
+    mcp:description "Explain a concept in simple terms" ;
+    mcp:hasPromptArgument ex:ExplainConcept, ex:ExplainLevel .
+
+ex:ExplainConcept a mcp:PromptArgument ;
+    mcp:argumentName "concept" ;
+    mcp:argumentDescription "The concept to explain" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired true .
+
+ex:ExplainLevel a mcp:PromptArgument ;
+    mcp:argumentName "level" ;
+    mcp:argumentDescription "Explanation level (simple, detailed, expert)" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired false ;
+    mcp:defaultValue "simple" .
+
+# Prompt: Summarize text
+ex:SummarizePrompt a mcp:Prompt ;
+    mcp:promptName "summarize" ;
+    mcp:description "Summarize a piece of text" ;
+    mcp:hasPromptArgument ex:SummarizeText, ex:SummarizeMaxLength .
+
+ex:SummarizeText a mcp:PromptArgument ;
+    mcp:argumentName "text" ;
+    mcp:argumentDescription "The text to summarize" ;
+    mcp:argumentType "string" ;
+    mcp:isRequired true .
+
+ex:SummarizeMaxLength a mcp:PromptArgument ;
+    mcp:argumentName "max_length" ;
+    mcp:argumentDescription "Maximum summary length in words" ;
+    mcp:argumentType "integer" ;
+    mcp:isRequired false ;
+    mcp:defaultValue "100" .
+
+# Completion: Operation suggestions
+ex:OperationCompletion a mcp:CompletionProvider ;
+    mcp:completionRefType "tool" ;
+    mcp:completionRefName "divide" ;
+    mcp:completionArgument "operation" ;
+    mcp:completionValues "add,subtract,multiply,divide" .
+
+# Logging policy
+ex:DefaultLogging a mcp:LoggingPolicy ;
+    mcp:defaultLevel "info" ;
+    mcp:supportedLevels "debug,info,notice,warning,error,critical,alert,emergency" .

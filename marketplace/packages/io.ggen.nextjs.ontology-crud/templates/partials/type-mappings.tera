@@ -1,0 +1,70 @@
+{#- Type Mapping Helpers -#}
+{#- Maps XSD types to TypeScript and Zod types -#}
+
+{#- XSD to TypeScript type mapping -#}
+{%- macro xsd_to_ts(xsd_type, min_length, max_length, pattern) -%}
+{%- if xsd_type == "xsd:string" -%}string
+{%- elif xsd_type == "xsd:integer" -%}number
+{%- elif xsd_type == "xsd:int" -%}number
+{%- elif xsd_type == "xsd:decimal" -%}number
+{%- elif xsd_type == "xsd:float" -%}number
+{%- elif xsd_type == "xsd:double" -%}number
+{%- elif xsd_type == "xsd:boolean" -%}boolean
+{%- elif xsd_type == "xsd:dateTime" -%}Date
+{%- elif xsd_type == "xsd:date" -%}Date
+{%- elif xsd_type == "xsd:time" -%}string
+{%- elif xsd_type == "xsd:anyURI" -%}string
+{%- elif xsd_type == none -%}unknown
+{%- endif -%}
+{%- endmacro -%}
+
+{#- XSD to Zod schema mapping -#}
+{%- macro xsd_to_zod(xsd_type, min_length, max_length, min_value, max_value, pattern) -%}
+{%- if xsd_type == "xsd:string" -%}z.string(){%- if min_length %}.min({{ min_length }}){%- endif -%}{%- if max_length %}.max({{ max_length }}){%- endif -%}{%- if pattern %}.regex(/{{ pattern }}/){%- endif -%}
+{%- elif xsd_type == "xsd:integer" -%}z.number().int(){%- if min_value %}.min({{ min_value }}){%- endif -%}{%- if max_value %}.max({{ max_value }}){%- endif -%}
+{%- elif xsd_type == "xsd:int" -%}z.number().int(){%- if min_value %}.min({{ min_value }}){%- endif -%}{%- if max_value %}.max({{ max_value }}){%- endif -%}
+{%- elif xsd_type == "xsd:decimal" -%}z.number(){%- if min_value %}.min({{ min_value }}){%- endif -%}{%- if max_value %}.max({{ max_value }}){%- endif -%}
+{%- elif xsd_type == "xsd:float" -%}z.number(){%- if min_value %}.min({{ min_value }}){%- endif -%}{%- if max_value %}.max({{ max_value }}){%- endif -%}
+{%- elif xsd_type == "xsd:double" -%}z.number(){%- if min_value %}.min({{ min_value }}){%- endif -%}{%- if max_value %}.max({{ max_value }}){%- endif -%}
+{%- elif xsd_type == "xsd:boolean" -%}z.boolean()
+{%- elif xsd_type == "xsd:dateTime" -%}z.date()
+{%- elif xsd_type == "xsd:date" -%}z.date()
+{%- elif xsd_type == "xsd:time" -%}z.string()
+{%- elif xsd_type == "xsd:anyURI" -%}z.string().url()
+{%- elif xsd_type == none -%}z.unknown()
+{%- endif -%}
+{%- endmacro -%}
+
+{#- Check if type is a date type -#}
+{%- macro is_date_type(xsd_type) -%}
+{%- if xsd_type == "xsd:dateTime" or xsd_type == "xsd:date" -%}true
+{%- endif -%}
+{%- endmacro -%}
+
+{#- Check if type is a number type -#}
+{%- macro is_number_type(xsd_type) -%}
+{%- if xsd_type == "xsd:integer" or xsd_type == "xsd:int" or xsd_type == "xsd:decimal" or xsd_type == "xsd:float" or xsd_type == "xsd:double" -%}true
+{%- endif -%}
+{%- endmacro -%}
+
+{#- Check if type is a boolean type -#}
+{%- macro is_boolean_type(xsd_type) -%}
+{%- if xsd_type == "xsd:boolean" -%}true
+{%- endif -%}
+{%- endmacro -%}
+
+{#- Check if type is a string type -#}
+{%- macro is_string_type(xsd_type) -%}
+{%- if xsd_type == "xsd:string" -%}true
+{%- endif -%}
+{%- endmacro -%}
+
+{#- Format property name (camelCase) -#}
+{%- macro format_property_name(property_name) -%}
+{{ property_name | camel }}
+{%- endmacro -%}
+
+{#- Format class name (PascalCase) -#}
+{%- macro format_class_name(class_name) -%}
+{{ class_name | pascal }}
+{%- endmacro -%}

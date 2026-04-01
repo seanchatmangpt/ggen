@@ -28,6 +28,7 @@
 pub mod helpers;
 
 // Core commands: ggen sync & ggen init & ggen wizard
+pub mod capability;
 pub mod git_hooks;
 pub mod init;
 pub mod sync;

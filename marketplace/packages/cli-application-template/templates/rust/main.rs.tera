@@ -1,0 +1,155 @@
+use clap::{Parser, Subcommand, ValueEnum};
+use std::path::PathBuf;
+use serde::{Deserialize, Serialize};
+use anyhow::{Result, Context};
+
+/// {{ app_description }}
+#[derive(Parser, Debug)]
+#[command(name = "{{ app_name }}")]
+#[command(author, version, about, long_about = None)]
+struct Cli {
+    /// Config file path
+    #[arg(short, long, value_name = "FILE")]
+    config: Option<PathBuf>,
+
+    /// Verbose mode
+    #[arg(short, long, action = clap::ArgAction::Count)]
+    verbose: u8,
+
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand, Debug)]
+enum Commands {
+    {%- for command in commands %}
+    /// {{ command.about }}
+    {{ command.name | pascal }} {
+        {%- for argument in command.arguments %}
+        /// {{ argument.help }}
+        {%- if argument.required %}
+        #[arg(value_name = "{{ argument.name | upper }}")]
+        {%- else %}
+        #[arg(value_name = "{{ argument.name | upper }}", default_value = "{{ argument.default }}")]
+        {%- endif %}
+        {{ argument.name }}: {{ argument.rust_type }},
+        {%- endfor %}
+
+        {%- for option in command.options %}
+        /// {{ option.help }}
+        #[arg({%- if option.short %} short = '{{ option.short }}', {%- endif %} long = "{{ option.long }}"{% if option.default %}, default_value = "{{ option.default }}"{% endif %})]
+        {{ option.name }}: {%- if option.multiple %}Vec<{{ option.rust_type }}>{%- else %}{{ option.rust_type }}{%- endif %},
+        {%- endfor %}
+    },
+    {%- endfor %}
+}
+
+{%- if config_file %}
+#[derive(Debug, Deserialize, Serialize)]
+struct Config {
+    {%- for field in config_fields %}
+    pub {{ field.name }}: {{ field.rust_type }},
+    {%- endfor %}
+}
+
+impl Config {
+    fn load(path: &PathBuf) -> Result<Self> {
+        let content = std::fs::read_to_string(path)
+            .context("Failed to read config file")?;
+
+        {%- if config_format == "toml" %}
+        toml::from_str(&content).context("Failed to parse TOML config")
+        {%- elif config_format == "yaml" %}
+        serde_yaml::from_str(&content).context("Failed to parse YAML config")
+        {%- elif config_format == "json" %}
+        serde_json::from_str(&content).context("Failed to parse JSON config")
+        {%- endif %}
+    }
+}
+{%- endif %}
+
+fn main() -> Result<()> {
+    let cli = Cli::parse();
+
+    // Setup logging
+    env_logger::Builder::new()
+        .filter_level(match cli.verbose {
+            0 => log::LevelFilter::Warn,
+            1 => log::LevelFilter::Info,
+            2 => log::LevelFilter::Debug,
+            _ => log::LevelFilter::Trace,
+        })
+        .init();
+
+    {%- if config_file %}
+    // Load config if provided
+    let config = if let Some(config_path) = &cli.config {
+        Some(Config::load(config_path)?)
+    } else {
+        None
+    };
+    {%- endif %}
+
+    // Execute command
+    match &cli.command {
+        {%- for command in commands %}
+        Commands::{{ command.name | pascal }} { {%- for argument in command.arguments %}{{ argument.name }}, {% endfor -%} {%- for option in command.options %}{{ option.name }}, {% endfor -%} } => {
+            log::info!("Executing {{ command.name }} command");
+            {%- for validator in command.validators %}
+            validate_{{ command.name }}_{{ validator.field }}({{ validator.field }})?;
+            {%- endfor %}
+            execute_{{ command.name }}({%- for argument in command.arguments %}{{ argument.name }}, {% endfor -%} {%- for option in command.options %}{{ option.name }}, {% endfor -%})?;
+        }
+        {%- endfor %}
+    }
+
+    Ok(())
+}
+
+{%- for command in commands %}
+fn execute_{{ command.name }}(
+    {%- for argument in command.arguments %}
+    {{ argument.name }}: {{ argument.rust_type }},
+    {%- endfor %}
+    {%- for option in command.options %}
+    {{ option.name }}: {%- if option.multiple %}Vec<{{ option.rust_type }}>{%- else %}{{ option.rust_type }}{%- endif %},
+    {%- endfor %}
+) -> Result<()> {
+    // TODO: Implement {{ command.name }} command logic
+    println!("{{ command.about }}");
+    {%- for argument in command.arguments %}
+    println!("  {{ argument.name }}: {:?}", {{ argument.name }});
+    {%- endfor %}
+    {%- for option in command.options %}
+    println!("  {{ option.name }}: {:?}", {{ option.name }});
+    {%- endfor %}
+    Ok(())
+}
+
+{%- for validator in command.validators %}
+fn validate_{{ command.name }}_{{ validator.field }}(value: &{{ validator.rust_type }}) -> Result<()> {
+    {%- if validator.type == "range" %}
+    if *value < {{ validator.min }} || *value > {{ validator.max }} {
+        anyhow::bail!("{{ validator.error_message }}");
+    }
+    {%- elif validator.type == "regex" %}
+    let re = regex::Regex::new(r"{{ validator.pattern }}")?;
+    if !re.is_match(&value.to_string()) {
+        anyhow::bail!("{{ validator.error_message }}");
+    }
+    {%- endif %}
+    Ok(())
+}
+{%- endfor %}
+{%- endfor %}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn verify_cli() {
+        use clap::CommandFactory;
+        Cli::command().debug_assert()
+    }
+}
