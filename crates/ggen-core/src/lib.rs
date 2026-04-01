@@ -146,6 +146,7 @@ pub mod ontology;
 pub mod ontology_pack;
 pub mod pack_resolver; // μ₀: Pack resolution stage
 pub mod packs; // Pack installation system - Phase 1
+pub mod pki;
 pub mod pipeline;
 pub mod poc;
 pub mod poka_yoke;
@@ -209,6 +210,7 @@ pub use merge::{
 };
 pub use packs::{LockedPack, PackLockfile, PackSource};
 pub use pipeline::{Pipeline, PipelineBuilder};
+pub use pki::{verify_ed25519, KeyPurpose, PkiManager, TrustedKeyEntry, TrustedKeysConfig};
 pub use pqc::{calculate_sha256, calculate_sha256_file, PqcSigner, PqcVerifier};
 pub use rdf::{
     GgenOntology, Iri, Literal, SparqlQueryBuilder, TemplateMetadata, TemplateMetadataStore,

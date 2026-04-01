@@ -28,6 +28,7 @@ futures = { workspace = true }
 futures-util = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true }
+semver = "1.0"
 
 # RDF & Semantic Data (Primary Data Store)
 oxigraph = { workspace = true }      # RDF triplestore (knowledge graph backend)

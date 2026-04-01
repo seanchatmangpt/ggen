@@ -1,112 +1,90 @@
-# 🔍 OpenTelemetry (OTEL) Validation Rules
+# OpenTelemetry (OTEL) Validation
 
-## The Golden Rule
+Tests passing is not sufficient. For any feature involving LLM calls, external services, or pipeline stages, you must verify OTEL spans exist at runtime.
 
-**Tests passing is NOT sufficient. For LLM/external service features, you MUST verify OTEL spans/traces exist.**
+You will be tempted to skip this step because tests pass. That is the NARRATION failure mode: asserting completion without producing proof. A passing test proves the test harness works. It does not prove the external service was called, the right model was selected, or tokens were consumed. Only OTEL spans prove that. You verify spans, or you do not claim the feature works.
 
-If you claim an LLM integration is working, you must show the OTEL spans that prove the API was actually called.
+## The Rule
 
-## When OTEL Validation is Required
+For every feature that touches an external service, you capture OTEL output at runtime and you present the spans and attributes in your completion message. No spans, no claim. No exceptions.
 
-OTEL validation is MANDATORY for any feature involving:
+## When This Applies
 
-- **LLM calls** (Groq, OpenAI, Anthropic, etc.)
-- **MCP tool execution**
-- **External API calls** (REST, GraphQL, RPC)
-- **Database operations** (PostgreSQL, Redis, etc.)
-- **Pipeline stages** (μ₁-μ₅ code generation)
-- **Quality gate validation**
+OTEL validation is mandatory for any feature involving:
 
-## Required OTEL Spans by Feature
+- LLM calls (Groq, OpenAI, Anthropic, or any provider)
+- MCP tool execution
+- External API calls (REST, GraphQL, RPC)
+- Database operations (PostgreSQL, Redis, SQLite)
+- Pipeline stages (the five-stage code generation pipeline)
+- Quality gate validation
+
+## Required Spans by Feature
 
 ### LLM Integration
 
-**Required Spans:**
-- `llm.complete` - Synchronous LLM completion
-- `llm.complete_stream` - Streaming LLM completion
+| Span | Purpose |
+|------|---------|
+| `llm.complete` | Synchronous LLM completion |
+| `llm.complete_stream` | Streaming LLM completion |
 
-**Required Attributes:**
-- `llm.model` - Model identifier (e.g., `groq::openai/gpt-oss-20b`)
-- `llm.prompt_tokens` - Input token count
-- `llm.completion_tokens` - Output token count
-- `llm.total_tokens` - Total tokens used
-- `operation.name` - Operation name (e.g., `llm.complete`)
-- `operation.type` - Operation type (e.g., `llm`)
-
-**Verification:**
-```bash
-RUST_LOG=trace,ggen_ai=trace cargo test -p ggen-cli-lib --test llm_e2e_test -- --nocapture 2>&1 | grep -E "(llm\.complete|llm\.model|llm\.total_tokens)"
-```
+Required attributes: `llm.model`, `llm.prompt_tokens`, `llm.completion_tokens`, `llm.total_tokens`, `operation.name`, `operation.type`
 
 ### MCP Tools
 
-**Required Spans:**
-- `mcp.tool.call` - Tool invocation
-- `mcp.tool.response` - Tool response
+| Span | Purpose |
+|------|---------|
+| `mcp.tool.call` | Tool invocation |
+| `mcp.tool.response` | Tool response |
 
-**Required Attributes:**
-- `mcp.tool.name` - Tool name (e.g., `validate_pipeline`)
-- `mcp.tool.duration_ms` - Tool execution time
-- `mcp.tool.result` - Success/failure status
+Required attributes: `mcp.tool.name`, `mcp.tool.duration_ms`, `mcp.tool.result`
 
 ### Pipeline Stages
 
-**Required Spans:**
-- `pipeline.load` - μ₁: Load RDF ontology
-- `pipeline.extract` - μ₂: Extract skill definitions
-- `pipeline.generate` - μ₃: Generate code (LLM-assisted)
-- `pipeline.validate` - μ₄: Quality gate validation
-- `pipeline.emit` - μ₅: Write generated files
+| Span | Purpose |
+|------|---------|
+| `pipeline.load` | Load RDF ontology |
+| `pipeline.extract` | Extract skill definitions |
+| `pipeline.generate` | Generate code |
+| `pipeline.validate` | Quality gate validation |
+| `pipeline.emit` | Write generated files |
 
-**Required Attributes:**
-- `pipeline.stage` - Stage identifier
-- `pipeline.duration_ms` - Stage execution time
-- `pipeline.files_generated` - Number of files (μ₅)
+Required attributes: `pipeline.stage`, `pipeline.duration_ms`, `pipeline.files_generated`
 
-## How to Verify OTEL Spans
+### Quality Gates
 
-### Step 1: Enable Trace Logging
+| Span | Purpose |
+|------|---------|
+| `quality_gate.validate` | Gate check execution |
+| `quality_gate.pass_fail` | Gate result |
+
+Required attributes: `gate.name`, `gate.result`
+
+## Verification Procedure
 
 ```bash
+# Enable trace logging
 export RUST_LOG=trace,ggen_ai=trace,ggen_core=trace,genai=trace
-```
 
-### Step 2: Run Tests with Output Capture
-
-```bash
+# Run the relevant test and capture output
 cargo test -p ggen-cli-lib --test llm_e2e_test -- --nocapture 2>&1 | tee otel_output.txt
-```
 
-### Step 3: Check for Required Spans
-
-```bash
-# Check for LLM completion spans
+# Verify required spans exist
 grep -E "llm\.complete" otel_output.txt
-
-# Check for model name
-grep -E "llm\.model.*groq" otel_output.txt
-
-# Check for token counts
+grep -E "llm\.model" otel_output.txt
 grep -E "llm\.(prompt_tokens|completion_tokens|total_tokens)" otel_output.txt
+
+# Confirm attributes are populated with real values, not zeros or placeholders
+grep -E "llm\.total_tokens=[1-9]" otel_output.txt
 ```
 
-### Step 4: Validate Attributes
+## Interpreting Results
 
-```bash
-# Verify all required attributes are present
-grep -E "llm\.model=.*groq" otel_output.txt && \
-grep -E "llm\.total_tokens=[1-9]" otel_output.txt && \
-echo "✅ OTEL validation passed" || echo "❌ OTEL validation failed"
-```
-
-## Interpretation of Results
-
-### ✅ Valid OTEL Output
+### Real -- PROVEN
 
 ```
 INFO ggen_ai::client: llm.complete request
   llm.model=groq::openai/gpt-oss-20b
-  prompt_len=1234
   llm.complete response
   prompt_tokens=450
   completion_tokens=320
@@ -114,101 +92,39 @@ INFO ggen_ai::client: llm.complete request
   elapsed_ms=2341
 ```
 
-**Conclusion:** Real LLM API call was made. Feature is working.
+All required spans present. All required attributes populated. Token counts are non-zero and sum correctly. Latency is consistent with a real network call. This is proven. You can claim the feature works.
 
-### ❌ Missing OTEL Output
+### Missing -- UNVERIFIED
 
 ```
 Test passed.
 No OTEL spans found in logs.
 ```
 
-**Conclusion:** Tests are mocked or not actually calling the external service. Feature is **NOT** complete.
+No spans at all. The test passed but you have no evidence the external service was called. The test may be mocked, stubbed, or hitting a cached path. This is unverified. You cannot claim the feature works.
 
-### ⚠️ Incomplete OTEL Output
+### Partial -- OBSERVED
 
 ```
 INFO llm.complete request
   llm.model=groq::openai/gpt-oss-20b
 ```
 
-**Conclusion:** Call initiated but no response/attributes logged. Investigation needed.
+A span exists but attributes are incomplete. The call was initiated but you have no response data, no token counts, no timing. This is observed but not proven. You investigate further before making any claim.
 
-## Common Mistakes
+## Your Failure Modes for OTEL
 
-### Mistake 1: "Tests pass, so it's working"
+| Failure Mode | What It Looks Like | Why It Is Wrong |
+|-------------|-------------------|-----------------|
+| NARRATION | "The LLM integration is working" with no span output | You asserted completion without producing proof. Claims without evidence are noise. |
+| SELF-CERT | You ran the test, it passed, you decided that was enough | Tests prove the test harness works. OTEL spans prove the external service was called. You conflated the two. |
 
-**Wrong:** Tests may use mocks or synthetic data.
-**Right:** Verify OTEL spans show real API calls.
+## Checklist Before Claiming Completion
 
-### Mistake 2: "I saw a log message, so OTEL is working"
+1. All tests pass
+2. OTEL spans exist for the operation you are claiming works
+3. All required attributes are populated with real values (non-zero tokens, real latency)
+4. Token counts and timing are consistent with a real external call, not synthetic values
+5. Error spans appear if the operation failed, with `error=true` and a meaningful message
 
-**Wrong:** Log messages ≠ OTEL spans. Spans have structured attributes.
-**Right:** Look for `span.enter()` / `span.exit()` with attributes.
-
-### Mistake 3: "The code compiles, so the integration is complete"
-
-**Wrong:** Compilation ≠ runtime behavior.
-**Right:** Verify OTEL spans at runtime.
-
-## Definition of Done with OTEL
-
-A feature involving external services is **ONLY** complete when:
-
-1. ✅ All tests pass
-2. ✅ OTEL spans exist for the operation
-3. ✅ Required attributes are populated
-4. ✅ Token counts/timing are reasonable (not mock values)
-5. ✅ Error spans appear if operation fails
-
-**If any of these are missing, the feature is NOT done.**
-
-## Examples
-
-### Example 1: LLM Integration
-
-**Claim:** "LLM integration is working"
-
-**Evidence Required:**
-```bash
-$ RUST_LOG=trace,ggen_ai=trace cargo test -p ggen-cli-lib --test llm_e2e_test 2>&1 | grep llm
-INFO llm.complete request
-  llm.model=groq::openai/gpt-oss-20b
-INFO llm.complete response
-  prompt_tokens=450
-  completion_tokens=320
-  total_tokens=770
-  elapsed_ms=2341
-```
-
-**Without this evidence, the claim is rejected.**
-
-### Example 2: MCP Tool
-
-**Claim:** "validate_pipeline MCP tool works"
-
-**Evidence Required:**
-```bash
-$ ggen mcp call validate_pipeline 2>&1 | grep mcp.tool
-INFO mcp.tool.call
-  mcp.tool.name=validate_pipeline
-INFO mcp.tool.response
-  mcp.tool.duration_ms=123
-  mcp.tool.result=pass
-```
-
-**Without this evidence, the tool is NOT working.**
-
-## Enforcement
-
-If you implement an LLM/external service feature:
-
-1. **Before** claiming it works, run OTEL validation
-2. **Include** the OTEL span output in your completion message
-3. **Explain** what each span/attribute proves
-
-**Claims without OTEL evidence will be rejected.**
-
----
-
-**Remember:** Tests can lie. Mocks can deceive. OTEL spans don't lie. Verify everything.
+If any of these are missing, the feature is not done. Non-negotiable.
