@@ -340,10 +340,9 @@ impl<R: AsyncRepository> Installer<R> {
                 let duration = start.elapsed();
                 span::Span::current().record("duration_ms", duration.as_millis());
                 return Ok(cached);
-            } else {
-                warn!("Cached pack digest verification failed, re-downloading");
-                self.cache.remove(package_id, version)?;
             }
+            warn!("Cached pack digest verification failed, re-downloading");
+            self.cache.remove(package_id, version)?;
         }
 
         // Download pack from registry
@@ -513,13 +512,13 @@ impl<R: AsyncRepository> Installer<R> {
         };
 
         // Verify signature
-        let verified = verifier.verify(data, &signature)?;
+        let is_valid = verifier.verify(data, &signature)?;
 
         let duration = start.elapsed();
         span::Span::current().record("duration_ms", duration.as_millis());
-        span::Span::current().record("signature_valid", verified);
+        span::Span::current().record("signature_valid", is_valid);
 
-        if !verified {
+        if !is_valid {
             return Err(Error::SignatureVerificationFailed {
                 reason: "Ed25519 signature verification failed - pack may be tampered".to_string(),
             });
