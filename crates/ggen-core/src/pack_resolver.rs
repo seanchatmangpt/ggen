@@ -96,6 +96,12 @@ pub struct ResolvedPacks {
 
     /// Tera templates loaded from packs (staged under `.ggen/pack-stage/` during sync)
     pub templates: Vec<TemplateDef>,
+
+    /// Ed25519 signatures per pack (hex strings), loaded from pack metadata.
+    pub pack_signatures: HashMap<String, String>,
+
+    /// SHA-256 checksums per pack, loaded from pack metadata.
+    pub pack_checksums: HashMap<String, String>,
 }
 
 /// Record of a bundle expansion (for provenance in receipts).
