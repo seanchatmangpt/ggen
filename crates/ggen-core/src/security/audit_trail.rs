@@ -1,7 +1,7 @@
 //! Immutable audit trail with Merkle tree tamper-proofing
 //!
 //! This module provides cryptographic proof of security event integrity using
-//! the knhk-lockchain Merkle tree implementation.
+//! a local Merkle tree implementation.
 
 use super::events::SecurityEvent;
 use chrono::Utc;
