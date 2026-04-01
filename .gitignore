@@ -983,3 +983,13 @@ direct_test_output.txt
 .removed-code-backup/
 .wiplocks/
 .wreckit/
+
+# Build artifacts that should not be tracked
+ggen-binary
+standalone_cycle_test
+evidence_demo
+show_quality_gates
+test_error_migration
+*.rlib
+named_ttl
+relationships_turtle
